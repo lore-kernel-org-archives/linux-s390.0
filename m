@@ -2,40 +2,40 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 171EEC433FE
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F886C4332F
 	for <linux-s390@archiver.kernel.org>; Tue, 26 Oct 2021 17:57:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0359560295
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Oct 2021 17:57:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3F44B6109D
+	for <linux-s390@archiver.kernel.org>; Tue, 26 Oct 2021 17:57:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236745AbhJZSAG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 26 Oct 2021 14:00:06 -0400
-Received: from mail-co1nam11on2068.outbound.protection.outlook.com ([40.107.220.68]:12137
-        "EHLO NAM11-CO1-obe.outbound.protection.outlook.com"
+        id S238000AbhJZSAH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 26 Oct 2021 14:00:07 -0400
+Received: from mail-bn8nam11on2062.outbound.protection.outlook.com ([40.107.236.62]:57056
+        "EHLO NAM11-BN8-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S237991AbhJZSAD (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        id S236589AbhJZSAD (ORCPT <rfc822;linux-s390@vger.kernel.org>);
         Tue, 26 Oct 2021 14:00:03 -0400
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=EO32wazu2L5kzq/ovdKh0AlFlAgBdu5RmkKDmXuBNCHRpvMQ6KO0nnMRz77wy6AQZ9QnmhWVJZqQ0ERX2JLo79sp4lh2ov2M8P9CshsWKmtop9ZTeIhrHafGaAdn82HnGLvncu9zC27GPzcDn9M+TU/UNeZlurIC7WBrbUmC2IGryD1X2tKSQRMz2CL3NvvprDpsNGYBJ1Q7a6qnVRsVHAo2l/8vbhvPIKFvdLhDZ17YfjLxjQl3Nr2+wa5cQHnpWWrSSMIcl6auFbpSiScLxXXjm7hGBrV8Yt4MBH/7xjL4SJRXWEFx/j9KB6L9XiwWiV2g38CbTr7zbYn4PSd2uA==
+ b=Ybdd2Ak23I8iczv1BWDPMIs/bBysL4Fsutn0O1XLp2RwlFe7mPQZE2Rk0Qo+AtPIDOh4yQcSNKNT10uKaDwMDsDgwypR6iEKB7TOj+4jnZj1hEv5c3MlFThftDsgi1IyClO+EGlAxDZgrzjOuNmRV4uiplDVwDtk18A3Ffaopg0tCHihFl0tvViuH7rpOryCxkC42ILuX0vb1Xh5EEk82Z1wP2bvvnGaOr76i+wxvotoyP+2Fsz4cJs9k2gYCcDBtA9IQHV4VvsYD94gDuWCY3cAgGXpmhRQuXNYNDMkc06cbKr/Kso4vEf2RVGlwSGBRzBUO755Haa3msFfwDTYNQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=YTh6ZUm2PrgORCNyCbn+2r3MpGIT/x7JNE9sdNM2aA8=;
- b=X+U+beuG7/+4eS9vI6khWLZ0qgIWT5TjbG4oDsTl5U4qztyg7T4GIFATHUzig+PHRmMnVl3Z+fJLDsyEVcq+61xqp1hjy60kiGyXaNfnJyY5YQ6OoCBU7b3iOqkTHfohgwNjQp/1btotxWgbsVsEFL0GPgivDceNm51TDKaSKYN3NnSa6WWTv1odzmqRto7AnKcXFL3UUaCe61hSGkvFW4WoMs1ergrcpZJho2WKavxvFpRFf1TUEYyteBDrXktJpPREqBmoBrQDwbDeJipywgKmWu0tBH5G4tR95TiXtRa2ztt3QIOQcSYDdNRlFjB5YG6eBYQ7zFSS+NtdHFmtUg==
+ bh=W4VL6PuHi5a5+MX1ro02IDczVKwAYeaIkjY305cS1kI=;
+ b=LeN8zvN5qAt7K/0LOz4fXhTqssx5jqgtvMQ0uGMxcOIh6PpCKrC7GsXoOp4cb0GpEVwvIEYDpCQl2jQTxW8B9z0d2b8KkHABJ+upMXcEFzYRggpX75pfnF5kXGYtSZKvKzPVn9y6aNPFPz1u4qH3y0Xh7Xikd8mLHTigGaod5Sh7Q2z5F7aORRjhYfjWdIgBQGkjI3A4oLAqMWFNPEagUaGSHfXYgsKeYJ1lq9Q2Hzqq+DdwZgdsIc2iSrw1Q6rhflGuYxyrA8CSwAtfqw4sFrnfKFN6ln1J2Y4gOmB5RsaAltrHWRvtN9WssHv+Qw2fJtpUpCFG3uXt/nh7X1Spsw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
  dkim=pass header.d=nvidia.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=YTh6ZUm2PrgORCNyCbn+2r3MpGIT/x7JNE9sdNM2aA8=;
- b=J/N1VGsg9n9dzgH7ma1MmoCxJrYYVpYpDGyGB36rg/wiwxoBH/J/BEq5wHKhNLbbgn8MMZUmrWcDFYip3z4niPDTTJ8L2nIvGQtQacIR6Py4jVny7OEMD/IzvGEM+1T8nxpZa+sdPVwyV2x9DmBlcUXk01VAecDHC4c9j1hFfvBR1MTDbVZuLkmaT+oujzrTx2EjrLCzLS0PLR2hXQd2AMRLF3gVCF3wrnd8DAWI4C0MhHylyxjnpTBIdDx4S5PdLdVLaqezQxhPIt6Dm2uj4hIqo2c7oW0Isvh5w8IqXaHjtRKEbTsSpSyCYJGP1M13mdTWW1p8CgKdtzbDhWTzaQ==
+ bh=W4VL6PuHi5a5+MX1ro02IDczVKwAYeaIkjY305cS1kI=;
+ b=CYerfw/I7UzFkWwvrg38DtvqJpzaIrBPzdVsEhVwCxSrkiJkvagHjdayIadNjPE2dMJ09jfXQsG5vx3uzl9fkDl4pdx45MGI2xLC/OCBl4hd/wR0X0Cbs7zva1caB0XeY9YhfyRw2ESs6XafmXB3nSdODmJMOX69hnnzlhJLoYoWRuhQF0OGgyg7iud7VPHdlx8mk+MBMQtwmkDp9RpaWgz0VxjL9OsvTcPT7sDV9Hh2Aq34SqPmEnjENKUijiZUnHsPVXDqD8WOHeTbhwWtIVMCe5o1wjyfDAtW7EBkZWIJa9rzEz2ZJH+cht9vBtWf827M6SVs6WT2yiUen4A9Ww==
 Authentication-Results: redhat.com; dkim=none (message not signed)
  header.d=none;redhat.com; dmarc=none action=none header.from=nvidia.com;
 Received: from BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
- by BL1PR12MB5077.namprd12.prod.outlook.com (2603:10b6:208:310::17) with
+ by BL1PR12MB5048.namprd12.prod.outlook.com (2603:10b6:208:30a::17) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4628.16; Tue, 26 Oct
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4649.13; Tue, 26 Oct
  2021 17:57:37 +0000
 Received: from BL0PR12MB5506.namprd12.prod.outlook.com
  ([fe80::e8af:232:915e:2f95]) by BL0PR12MB5506.namprd12.prod.outlook.com
@@ -53,266 +53,457 @@ To:     Alex Williamson <alex.williamson@redhat.com>,
         Halil Pasic <pasic@linux.ibm.com>,
         Vineeth Vijayan <vneethv@linux.ibm.com>
 Cc:     Eric Farman <farman@linux.ibm.com>, Christoph Hellwig <hch@lst.de>
-Subject: [PATCH v4 2/4] vfio/ccw: Use functions for alloc/free of the vfio_ccw_private
-Date:   Tue, 26 Oct 2021 14:57:31 -0300
-Message-Id: <2-v4-cea4f5bd2c00+b52-ccw_mdev_jgg@nvidia.com>
+Subject: [PATCH v4 4/4] vfio/ccw: Convert to use vfio_register_emulated_iommu_dev()
+Date:   Tue, 26 Oct 2021 14:57:33 -0300
+Message-Id: <4-v4-cea4f5bd2c00+b52-ccw_mdev_jgg@nvidia.com>
 In-Reply-To: <0-v4-cea4f5bd2c00+b52-ccw_mdev_jgg@nvidia.com>
 References: 
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: YT1PR01CA0122.CANPRD01.PROD.OUTLOOK.COM
- (2603:10b6:b01:2c::31) To BL0PR12MB5506.namprd12.prod.outlook.com
+X-ClientProxiedBy: YT3PR01CA0114.CANPRD01.PROD.OUTLOOK.COM
+ (2603:10b6:b01:85::31) To BL0PR12MB5506.namprd12.prod.outlook.com
  (2603:10b6:208:1cb::22)
 MIME-Version: 1.0
-Received: from mlx.ziepe.ca (206.223.160.26) by YT1PR01CA0122.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:b01:2c::31) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4649.13 via Frontend Transport; Tue, 26 Oct 2021 17:57:36 +0000
-Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1mfQhZ-002BJv-GS; Tue, 26 Oct 2021 14:57:33 -0300
+Received: from mlx.ziepe.ca (206.223.160.26) by YT3PR01CA0114.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:b01:85::31) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4628.22 via Frontend Transport; Tue, 26 Oct 2021 17:57:36 +0000
+Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1mfQhZ-002BK5-IV; Tue, 26 Oct 2021 14:57:33 -0300
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 14f1b6a6-0f25-4caf-7bb5-08d998aa1857
-X-MS-TrafficTypeDiagnostic: BL1PR12MB5077:
-X-Microsoft-Antispam-PRVS: <BL1PR12MB5077852329F5FA56F7895A8DC2849@BL1PR12MB5077.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:785;
+X-MS-Office365-Filtering-Correlation-Id: b6262367-d3ac-42a0-6cda-08d998aa182b
+X-MS-TrafficTypeDiagnostic: BL1PR12MB5048:
+X-Microsoft-Antispam-PRVS: <BL1PR12MB50485881A60DAD8E53C98814C2849@BL1PR12MB5048.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:3044;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: dAZt9mqavBvszAKsQ4SXYWaj/KPwfYvh0Y5ua1+psRwdxOJ2YNhZQN08t7nPwHhn0odqKgkR/D8xLGHAdL8MGTJrZtAfthOMI4W7PqAQnASfe5q5vSk8OJsZXXEJAI3slLg4IET7JBwqYsUDyZ7sKdt2fk9nnaTLsJTXaZZ3l5pcrpqUBdTgewlK6TZXANJ8QVv9Qwu25rdnukS+/iY4X6v/4tvCr+ixUyO5sB8fJRhpWL2QmzLbCAamp2snUrNY398Sf3pUQFnluRqco4Gy1W0wbW/AtYgDI61o/kHkDxTpJWQdrAFVnQI8ji8JbFsWRD3w/fDfa2KO0N0O7jOCkedYsYRojvq8a42/ks82ovlWngXYQSIosCKH6D2ECk4bz24WIb2OjDwzarVEb9gJp82vfb/CcnDS+yrsFvT8yhlMzRpf6b/D3SVwERdmafiT7fVDlr7vtaMJUjCmVQgWIr73iHmiFUfWUIg0wyFOQ0/5BfFoeCwey+Y35tMT9MHf2wmFCKkg/8gxeKwklvmCiPM2+AiEQ/X4Lfuen+Xrx6xR18jH8dldZyJYF9Bx9qg7tN36e40IKAYIbDDXFiuufu6wn9e44UsHS9+tFEQDIO8LaZtcJQHfDre92+AQTwlfYTkf5yPd7v0rnb9ZkxIaqmUCYk/ZBFEKVXytYHtc8sdtLky4fkQ413z3yUlu+dZCbBqafimhfwpO5bC5Og57Cw==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(66946007)(5660300002)(66476007)(66556008)(7416002)(186003)(83380400001)(26005)(508600001)(4326008)(36756003)(9746002)(38100700002)(9786002)(426003)(54906003)(110136005)(2906002)(8676002)(2616005)(316002)(86362001)(8936002)(921005)(4216001);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: EzgobSZ43RsI9TVwi8wrqynHAiiLeZaNmk5CvJ/AGw6iiz0JysyZaWW3a92F9cdINSHC/FvYFr0y/5by1W1/vhY5JJlLsXf2Jvc4EHuD9fjY8QcBBFwVSsj8WObi4HCIlkpBksJoG1GJkOEieVIUJYa81fSL7+AE/OYxXB3j1lEt9N1ZNO0sRfDaBJnYvzMerg/TAk97JyBNuZvzuw0Fivm9pD39l5MlHE/yXeixb97geGuhDA8khVQEekYc4gK2LKNbNvn+HVa4AnPtTc9vV3O7VEq5PCOZUO3GkSGeomw0YSoe0/8Ufe487ufJPtKcIxp7d6Qn31wNAXhHZhfJs041jnEAkPgAYCh7b16cuDULe9Il0GO9XJf0DEnulHm5qyVujkdjqZzebgSIYKy6m9jU5VQcwZRNKylpTVixz8TsZG93Cv32sSMGEZfdy/jH3i4kybBNL1WTpCXBXCdoJKzc+uVPFMn3vrxCkfGGFccZm7/aRuVkvjp16Pagcys9RWvAQKrPAOnU5LCOvjhAwHuO5YPfsej37fvIDjRv0SdG4fXDpkR3emKholPL11+Y6PlUF654rBKRmRZ0uLGekQriBCj7NBnLl5VVF8pqieGfve5BEAfTxYDUvaDoBOoZTjFBxES552q9pMMJpLVkLbozH3G6cFOZJ1o8UhFmpEoEkcELNc7Y4ZfMEjM55unXR6xLGrltxh6aHdf1gFS0sVDEfziQyjxMpbMLvUlx1ws=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(110136005)(54906003)(2906002)(36756003)(508600001)(2616005)(9746002)(316002)(921005)(426003)(30864003)(8676002)(66556008)(83380400001)(8936002)(86362001)(26005)(5660300002)(186003)(38100700002)(66946007)(4326008)(66476007)(9786002)(7416002)(4216001);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?SiF9IDGbCT4fm4GcG5OVOH99W4zj9iLneonGuQdGPRnf8aF92r1dqQ5sD33H?=
- =?us-ascii?Q?qtOmDo8oy/GYaraUmBWmQEMvSTcWnIipoPa2Zg/xA593NgtoUuPyQX7wHyK7?=
- =?us-ascii?Q?rNA7y/mwDTVfsb/LgiNb5I0DNExFxHLSG4AHRz7ZY7hRmKwBRPm4RqWgaRrz?=
- =?us-ascii?Q?3SHt2w0DFGhzIfdG+P8DpQo9J1iv/Lmc0OZuG8xGrN9CFQYzCGYhWMhfcVoL?=
- =?us-ascii?Q?A0GQnUGgioYUoOfhi0pzuC9gOJtyWXLHyEjZKx0YqAmp0YvVhzr0V4HmB29h?=
- =?us-ascii?Q?Fo/2GeBEk1QvOT6c2T9JlQJe3l/ud8o6wES9nRQ4qBj42I8CpZc4XLgR21Tq?=
- =?us-ascii?Q?CFqvAi33T+++TE3XMFRDFwzvY83PGpFNskLeiifz7TZobR9/g5p8rUcDc0gc?=
- =?us-ascii?Q?pd/c8db19HKL+rqlIxwA7wK+R3xGPziiqVfja4aCbMdkSG2J6qVqHK+Ctasf?=
- =?us-ascii?Q?3OUo+6sROjBIZSkMyYSUgwKHytN6QnfGaL/vj3uHvPFgiMpMyYf3P99O2Xb8?=
- =?us-ascii?Q?uCBqT2BcUOlxnoH+jxLLusq5JW2vCRk74iiWO7JMUAQTyRKxHBgiWRezwpLk?=
- =?us-ascii?Q?4JcjVBk6EDS5q2kGxvMfsAUxhC5mqG5PDZjHtp1m+1nAu09YNY8R9ItqdFKh?=
- =?us-ascii?Q?Zh25AiGJeQf+5lYWtaU3mDevA1XQZ9bT8cosEzwESee6OhSG2E1W10s3rzOz?=
- =?us-ascii?Q?ygjc3Ip9X8FRrqU3z8R88xL+JiMufZQ+Rp2QFqhADGMIMKi0uwwCYnXZOok7?=
- =?us-ascii?Q?99Z1uMtGO6/nA3OVpLb24oD5Gq5qahI8u0kxyzFkfUQXvIRERNTDUrNK5g8M?=
- =?us-ascii?Q?5pziunJ5p24U02LmMhAlH0BOdj1AyflTWAcONobJ9sGTPRPntw4Hso+gQzhy?=
- =?us-ascii?Q?mUqMToZb5YLoRIaKxq8GLuVjWCv42XO/KhII77Htp9nz42wC6z16Kw+P8ZPw?=
- =?us-ascii?Q?2So3qTBown22QLsegKeTS6MA7an+MNw+Ju+l1UeNhxMEM9afI6oTjOCzbE80?=
- =?us-ascii?Q?d+jAxLqtTvzxaWQUM40eUJEPKId0dEBUC1jaR3j2duge+Wq2d6MfNfY/YnOc?=
- =?us-ascii?Q?N4iD35A5tMqVflzOzP7aYwqUfBFwc4xEN19KnWea46wy2ArDPfTVKUnhztiy?=
- =?us-ascii?Q?NtImBM5vjip7H0eUt0qvHGrTn1BGPKjFmfYXtVPclVP8EPex4O6wHU3OR4qX?=
- =?us-ascii?Q?lDN2jlLRHpvsd0AhXag3G8v+M7BR/gQusnyWf7NDvR/q/JT16U3VdvGIkRib?=
- =?us-ascii?Q?f9RX9N18rYB1s+1lK5XbwyuLxjleVFl7+nDGGGsMrjWm8G7GlS2ofSgR1V0L?=
- =?us-ascii?Q?BsTnNfJPLrYGA8rS3zgLzhfOmr6zyy86fCbE7KFjXF/MyPgjz8IxrdTt5Enp?=
- =?us-ascii?Q?nku9w2Cly+Zi9F2/UQrKinrDEwhEudbPDbnliFEjmwDw9XUegrNGLOMK0oRN?=
- =?us-ascii?Q?YpHpl2//5iOBgU4nAVr2IIjqiXdoXWWj2WRGDwYrwYDfXBkabR790GL8zpdc?=
- =?us-ascii?Q?MRZ15nutANHXnPQDHajYdowyLmBO8ukh31Qy7w/oMFD2ZaBbAnl9uEvH+yfP?=
- =?us-ascii?Q?x1027ipq3lYW9sjJYLE=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?xhiO+cPM5SpBiA+ZHmxqVq1mV90PMaGltqqU3ELs5FFgV8TlfTU++zYeH31t?=
+ =?us-ascii?Q?RLE+x1cTOvLq/KELqGMTGOVACcnLLFNRyTgmhl4OTBfTPJNLFqpcXqWSsLia?=
+ =?us-ascii?Q?elZlwFW/KawtZusr4T2pkqE0/14XSuqToj49d4syLepqWSTbh9PSXbZqkX/P?=
+ =?us-ascii?Q?mm4aO7O7tMA0JVFnilc64LCNbC8je4AQogWFnheYpoIQUVetG5lvbR8GgPS3?=
+ =?us-ascii?Q?SGSFbxvvT6ZMMx81sbri+nzIhp75Zkblkju5vOJAWnTx/qI0drr8uGZfZdSk?=
+ =?us-ascii?Q?G0c9d/AYlR8j5SZkFNslfvNPVtwC1cnVfVBkWxKbf24WSDVaf3g6Pfc8BDnn?=
+ =?us-ascii?Q?w9dP0+TukWvGhbxn62sP9BljtYCF4x2uzzX7NZtK4DOqeIXPMfQZfXLrThVL?=
+ =?us-ascii?Q?cJEmerrQCpOIWNHexYLlkv6BXm2VQHNw6iNmMZIPZ8Fx58G4H071488eEmgI?=
+ =?us-ascii?Q?+OiysQJ7qso+17PEP4Y2kWLyBuckwyrmna+cKJ0ZjatOKenE9MVJ3RaH0WQU?=
+ =?us-ascii?Q?pYjsT6E/969iMJYB65vQDt5w6hAFhHylvNU6C7eCk8O5v06yiAdEVabdaJq5?=
+ =?us-ascii?Q?1hJBkM50wtqxhV5WFgwnfp8ncz6PXhD+/8BeIfYpvbyCLy2SIqeF6807sWs6?=
+ =?us-ascii?Q?9yrg2bcSNpLCXlaUJoMgcgteEGBEATRLGdKbEc1umTCbL9vDNAVmGzgZNcWM?=
+ =?us-ascii?Q?phOVW32xNWfzYKXBjr1GVPnCDAUuO1s8Abv1xNpHPW/NfGo1+uVMZ9flQVFf?=
+ =?us-ascii?Q?AYiaR+xmA2cD17dwRlkH7fuop/stbaR2BJc+/6VA06fRflQGDya9ZbpR1kCF?=
+ =?us-ascii?Q?8LAyGA1DqV8XUenF/upY7jOtwNshRMy38ippQmFl9fTN8zUZ50cvCo3s0RD+?=
+ =?us-ascii?Q?t8Z9fGFOtq5cy90qICDkT5w0UYCVjVQJu5PLd/UJAFcYW+F9UUTJ+L8JDEoH?=
+ =?us-ascii?Q?eEFa1hlmHaWWl9KyqiuJjuTZ1K/Xwn7n0bCZj+cRIkfKSOEuwmItuwN/dDGt?=
+ =?us-ascii?Q?NrJJcF9mOaAllSMM/fidnZZtxg0ovZbEXNsq5KnmjxCpTwSsQpigUye9F5e1?=
+ =?us-ascii?Q?JasfFqFLM3VXWsi7EC9Wg2gFUczbaM/shXhIH32X2bJ29dyuMUp82FVL45/Z?=
+ =?us-ascii?Q?SNwz20q07T+C8Y5zIIBJ8lgrFCWskh0sUclK3XOghMNNW+Acyz707RlETvPf?=
+ =?us-ascii?Q?WucpE8U2gjeVUCeMCw6RymbPXICKmZ6p3eTvlPiqgzPHy9GAZ8udadPbvazN?=
+ =?us-ascii?Q?AuFio6b61Ad8oVoXqRQq0WciFi/hZW0RS5DMpV+twwddsCxfNc8y4dABZdJG?=
+ =?us-ascii?Q?+rT09/Te1Vor5eRzFi8SGoOi/+ZvOyjdChJBl6nEtlyCa5Ks3ZnXWjF/ti/Q?=
+ =?us-ascii?Q?jPxMMFr3SZ7FUSTP4tXcqNzAYrf/1u2WDHXPkUqNY+fGLznCKJW93pwx9p/A?=
+ =?us-ascii?Q?v3nc6l/K2f/Q1mt1D53DFtAw6iXUoVn55RbVXs6MGG9QRASUURmwh3iXu1Ky?=
+ =?us-ascii?Q?UliZ6VEYMSjBtEJ+8QtGHo8kJQq01Nb9CmzKKvK+rgWN9lGqpc0cKq7bpdTt?=
+ =?us-ascii?Q?+eXdqYYVQDETcZCVj2I=3D?=
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 14f1b6a6-0f25-4caf-7bb5-08d998aa1857
+X-MS-Exchange-CrossTenant-Network-Message-Id: b6262367-d3ac-42a0-6cda-08d998aa182b
 X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5506.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Oct 2021 17:57:37.2005
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Oct 2021 17:57:36.9804
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 8f/MAHlQe1FZTaxFWSeMH3AHkb7XS/c1aLgliFv+rRsjuTtVLAmz+EOwA17x/L2y
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5077
+X-MS-Exchange-CrossTenant-UserPrincipalName: CEyFQX/tpsc5Z1/1Q8gC3zOM5vv8OEY1wjtJe0BiaXn8WYczy6gyNdNRomcTw4/h
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5048
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Makes the code easier to understand what is memory lifecycle and what is
-other stuff.
+This is a more complicated conversion because vfio_ccw is sharing the
+vfio_device between both the mdev_device, its vfio_device and the
+css_driver.
+
+The mdev is a singleton, and the reason for this sharing is so the extra
+css_driver function callbacks to be delivered to the vfio_device
+implementation.
+
+This keeps things as they are, with the css_driver allocating the
+singleton, not the mdev_driver.
+
+Embed the vfio_device in the vfio_ccw_private and instantiate it as a
+vfio_device when the mdev probes. The drvdata of both the css_device and
+the mdev_device point at the private, and container_of is used to get it
+back from the vfio_device.
 
 Reviewed-by: Eric Farman <farman@linux.ibm.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 ---
- drivers/s390/cio/vfio_ccw_drv.c | 137 ++++++++++++++++++--------------
- 1 file changed, 78 insertions(+), 59 deletions(-)
+ drivers/s390/cio/vfio_ccw_drv.c     |  21 ++++--
+ drivers/s390/cio/vfio_ccw_ops.c     | 107 +++++++++++++++++-----------
+ drivers/s390/cio/vfio_ccw_private.h |   5 ++
+ 3 files changed, 85 insertions(+), 48 deletions(-)
 
 diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 371558ec92045d..e32678a71644fb 100644
+index e32678a71644fb..0407427770955d 100644
 --- a/drivers/s390/cio/vfio_ccw_drv.c
 +++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -137,16 +137,80 @@ static void vfio_ccw_sch_irq(struct subchannel *sch)
- 	vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_INTERRUPT);
- }
- 
--static void vfio_ccw_free_regions(struct vfio_ccw_private *private)
-+static struct vfio_ccw_private *vfio_ccw_alloc_private(struct subchannel *sch)
- {
--	if (private->crw_region)
--		kmem_cache_free(vfio_ccw_crw_region, private->crw_region);
--	if (private->schib_region)
--		kmem_cache_free(vfio_ccw_schib_region, private->schib_region);
--	if (private->cmd_region)
--		kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
--	if (private->io_region)
--		kmem_cache_free(vfio_ccw_io_region, private->io_region);
-+	struct vfio_ccw_private *private;
-+
-+	private = kzalloc(sizeof(*private), GFP_KERNEL);
-+	if (!private)
-+		return ERR_PTR(-ENOMEM);
-+
-+	private->sch = sch;
-+	mutex_init(&private->io_mutex);
-+	private->state = VFIO_CCW_STATE_NOT_OPER;
-+	INIT_LIST_HEAD(&private->crw);
-+	INIT_WORK(&private->io_work, vfio_ccw_sch_io_todo);
-+	INIT_WORK(&private->crw_work, vfio_ccw_crw_todo);
-+	atomic_set(&private->avail, 1);
-+
-+	private->cp.guest_cp = kcalloc(CCWCHAIN_LEN_MAX, sizeof(struct ccw1),
-+				       GFP_KERNEL);
-+	if (!private->cp.guest_cp)
-+		goto out_free_private;
-+
-+	private->io_region = kmem_cache_zalloc(vfio_ccw_io_region,
-+					       GFP_KERNEL | GFP_DMA);
-+	if (!private->io_region)
-+		goto out_free_cp;
-+
-+	private->cmd_region = kmem_cache_zalloc(vfio_ccw_cmd_region,
-+						GFP_KERNEL | GFP_DMA);
-+	if (!private->cmd_region)
-+		goto out_free_io;
-+
-+	private->schib_region = kmem_cache_zalloc(vfio_ccw_schib_region,
-+						  GFP_KERNEL | GFP_DMA);
-+
-+	if (!private->schib_region)
-+		goto out_free_cmd;
-+
-+	private->crw_region = kmem_cache_zalloc(vfio_ccw_crw_region,
-+						GFP_KERNEL | GFP_DMA);
-+
-+	if (!private->crw_region)
-+		goto out_free_schib;
-+	return private;
-+
-+out_free_schib:
-+	kmem_cache_free(vfio_ccw_schib_region, private->schib_region);
-+out_free_cmd:
-+	kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
-+out_free_io:
-+	kmem_cache_free(vfio_ccw_io_region, private->io_region);
-+out_free_cp:
-+	kfree(private->cp.guest_cp);
-+out_free_private:
-+	mutex_destroy(&private->io_mutex);
-+	kfree(private);
-+	return ERR_PTR(-ENOMEM);
-+}
-+
-+static void vfio_ccw_free_private(struct vfio_ccw_private *private)
-+{
-+	struct vfio_ccw_crw *crw, *temp;
-+
-+	list_for_each_entry_safe(crw, temp, &private->crw, next) {
-+		list_del(&crw->next);
-+		kfree(crw);
-+	}
-+
-+	kmem_cache_free(vfio_ccw_crw_region, private->crw_region);
-+	kmem_cache_free(vfio_ccw_schib_region, private->schib_region);
-+	kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
-+	kmem_cache_free(vfio_ccw_io_region, private->io_region);
-+	kfree(private->cp.guest_cp);
-+	mutex_destroy(&private->io_mutex);
-+	kfree(private);
- }
- 
- static int vfio_ccw_sch_probe(struct subchannel *sch)
-@@ -161,53 +225,19 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
- 		return -ENODEV;
+@@ -468,7 +468,7 @@ static int __init vfio_ccw_sch_init(void)
+ 	vfio_ccw_work_q = create_singlethread_workqueue("vfio-ccw");
+ 	if (!vfio_ccw_work_q) {
+ 		ret = -ENOMEM;
+-		goto out_err;
++		goto out_regions;
  	}
  
--	private = kzalloc(sizeof(*private), GFP_KERNEL);
--	if (!private)
--		return -ENOMEM;
-+	private = vfio_ccw_alloc_private(sch);
-+	if (IS_ERR(private))
-+		return PTR_ERR(private);
+ 	vfio_ccw_io_region = kmem_cache_create_usercopy("vfio_ccw_io_region",
+@@ -477,7 +477,7 @@ static int __init vfio_ccw_sch_init(void)
+ 					sizeof(struct ccw_io_region), NULL);
+ 	if (!vfio_ccw_io_region) {
+ 		ret = -ENOMEM;
+-		goto out_err;
++		goto out_regions;
+ 	}
  
--	private->cp.guest_cp = kcalloc(CCWCHAIN_LEN_MAX, sizeof(struct ccw1),
--				       GFP_KERNEL);
--	if (!private->cp.guest_cp)
--		goto out_free;
--
--	private->io_region = kmem_cache_zalloc(vfio_ccw_io_region,
--					       GFP_KERNEL | GFP_DMA);
--	if (!private->io_region)
--		goto out_free;
--
--	private->cmd_region = kmem_cache_zalloc(vfio_ccw_cmd_region,
--						GFP_KERNEL | GFP_DMA);
--	if (!private->cmd_region)
--		goto out_free;
--
--	private->schib_region = kmem_cache_zalloc(vfio_ccw_schib_region,
--						  GFP_KERNEL | GFP_DMA);
--
--	if (!private->schib_region)
--		goto out_free;
--
--	private->crw_region = kmem_cache_zalloc(vfio_ccw_crw_region,
--						GFP_KERNEL | GFP_DMA);
--
--	if (!private->crw_region)
--		goto out_free;
--
--	private->sch = sch;
- 	dev_set_drvdata(&sch->dev, private);
--	mutex_init(&private->io_mutex);
+ 	vfio_ccw_cmd_region = kmem_cache_create_usercopy("vfio_ccw_cmd_region",
+@@ -486,7 +486,7 @@ static int __init vfio_ccw_sch_init(void)
+ 					sizeof(struct ccw_cmd_region), NULL);
+ 	if (!vfio_ccw_cmd_region) {
+ 		ret = -ENOMEM;
+-		goto out_err;
++		goto out_regions;
+ 	}
  
- 	spin_lock_irq(sch->lock);
--	private->state = VFIO_CCW_STATE_NOT_OPER;
- 	sch->isc = VFIO_CCW_ISC;
- 	ret = cio_enable_subchannel(sch, (u32)(unsigned long)sch);
- 	spin_unlock_irq(sch->lock);
+ 	vfio_ccw_schib_region = kmem_cache_create_usercopy("vfio_ccw_schib_region",
+@@ -496,7 +496,7 @@ static int __init vfio_ccw_sch_init(void)
+ 
+ 	if (!vfio_ccw_schib_region) {
+ 		ret = -ENOMEM;
+-		goto out_err;
++		goto out_regions;
+ 	}
+ 
+ 	vfio_ccw_crw_region = kmem_cache_create_usercopy("vfio_ccw_crw_region",
+@@ -506,19 +506,25 @@ static int __init vfio_ccw_sch_init(void)
+ 
+ 	if (!vfio_ccw_crw_region) {
+ 		ret = -ENOMEM;
+-		goto out_err;
++		goto out_regions;
+ 	}
+ 
++	ret = mdev_register_driver(&vfio_ccw_mdev_driver);
++	if (ret)
++		goto out_regions;
++
+ 	isc_register(VFIO_CCW_ISC);
+ 	ret = css_driver_register(&vfio_ccw_sch_driver);
+ 	if (ret) {
+ 		isc_unregister(VFIO_CCW_ISC);
+-		goto out_err;
++		goto out_driver;
+ 	}
+ 
+ 	return ret;
+ 
+-out_err:
++out_driver:
++	mdev_unregister_driver(&vfio_ccw_mdev_driver);
++out_regions:
+ 	vfio_ccw_destroy_regions();
+ 	destroy_workqueue(vfio_ccw_work_q);
+ 	vfio_ccw_debug_exit();
+@@ -528,6 +534,7 @@ static int __init vfio_ccw_sch_init(void)
+ static void __exit vfio_ccw_sch_exit(void)
+ {
+ 	css_driver_unregister(&vfio_ccw_sch_driver);
++	mdev_unregister_driver(&vfio_ccw_mdev_driver);
+ 	isc_unregister(VFIO_CCW_ISC);
+ 	vfio_ccw_destroy_regions();
+ 	destroy_workqueue(vfio_ccw_work_q);
+diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+index 1edbea9de0ec42..d8589afac272f1 100644
+--- a/drivers/s390/cio/vfio_ccw_ops.c
++++ b/drivers/s390/cio/vfio_ccw_ops.c
+@@ -17,6 +17,8 @@
+ 
+ #include "vfio_ccw_private.h"
+ 
++static const struct vfio_device_ops vfio_ccw_dev_ops;
++
+ static int vfio_ccw_mdev_reset(struct vfio_ccw_private *private)
+ {
+ 	struct subchannel *sch;
+@@ -111,10 +113,10 @@ static struct attribute_group *mdev_type_groups[] = {
+ 	NULL,
+ };
+ 
+-static int vfio_ccw_mdev_create(struct mdev_device *mdev)
++static int vfio_ccw_mdev_probe(struct mdev_device *mdev)
+ {
+-	struct vfio_ccw_private *private =
+-		dev_get_drvdata(mdev_parent_dev(mdev));
++	struct vfio_ccw_private *private = dev_get_drvdata(mdev->dev.parent);
++	int ret;
+ 
+ 	if (private->state == VFIO_CCW_STATE_NOT_OPER)
+ 		return -ENODEV;
+@@ -122,6 +124,10 @@ static int vfio_ccw_mdev_create(struct mdev_device *mdev)
+ 	if (atomic_dec_if_positive(&private->avail) < 0)
+ 		return -EPERM;
+ 
++	memset(&private->vdev, 0, sizeof(private->vdev));
++	vfio_init_group_dev(&private->vdev, &mdev->dev,
++			    &vfio_ccw_dev_ops);
++
+ 	private->mdev = mdev;
+ 	private->state = VFIO_CCW_STATE_IDLE;
+ 
+@@ -130,19 +136,31 @@ static int vfio_ccw_mdev_create(struct mdev_device *mdev)
+ 			   private->sch->schid.ssid,
+ 			   private->sch->schid.sch_no);
+ 
++	ret = vfio_register_emulated_iommu_dev(&private->vdev);
++	if (ret)
++		goto err_atomic;
++	dev_set_drvdata(&mdev->dev, private);
+ 	return 0;
++
++err_atomic:
++	vfio_uninit_group_dev(&private->vdev);
++	atomic_inc(&private->avail);
++	private->mdev = NULL;
++	private->state = VFIO_CCW_STATE_IDLE;
++	return ret;
+ }
+ 
+-static int vfio_ccw_mdev_remove(struct mdev_device *mdev)
++static void vfio_ccw_mdev_remove(struct mdev_device *mdev)
+ {
+-	struct vfio_ccw_private *private =
+-		dev_get_drvdata(mdev_parent_dev(mdev));
++	struct vfio_ccw_private *private = dev_get_drvdata(mdev->dev.parent);
+ 
+ 	VFIO_CCW_MSG_EVENT(2, "mdev %pUl, sch %x.%x.%04x: remove\n",
+ 			   mdev_uuid(mdev), private->sch->schid.cssid,
+ 			   private->sch->schid.ssid,
+ 			   private->sch->schid.sch_no);
+ 
++	vfio_unregister_group_dev(&private->vdev);
++
+ 	if ((private->state != VFIO_CCW_STATE_NOT_OPER) &&
+ 	    (private->state != VFIO_CCW_STATE_STANDBY)) {
+ 		if (!vfio_ccw_sch_quiesce(private->sch))
+@@ -150,23 +168,22 @@ static int vfio_ccw_mdev_remove(struct mdev_device *mdev)
+ 		/* The state will be NOT_OPER on error. */
+ 	}
+ 
++	vfio_uninit_group_dev(&private->vdev);
+ 	cp_free(&private->cp);
+ 	private->mdev = NULL;
+ 	atomic_inc(&private->avail);
+-
+-	return 0;
+ }
+ 
+-static int vfio_ccw_mdev_open_device(struct mdev_device *mdev)
++static int vfio_ccw_mdev_open_device(struct vfio_device *vdev)
+ {
+ 	struct vfio_ccw_private *private =
+-		dev_get_drvdata(mdev_parent_dev(mdev));
++		container_of(vdev, struct vfio_ccw_private, vdev);
+ 	unsigned long events = VFIO_IOMMU_NOTIFY_DMA_UNMAP;
+ 	int ret;
+ 
+ 	private->nb.notifier_call = vfio_ccw_mdev_notifier;
+ 
+-	ret = vfio_register_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
++	ret = vfio_register_notifier(vdev->dev, VFIO_IOMMU_NOTIFY,
+ 				     &events, &private->nb);
  	if (ret)
- 		goto out_free;
+ 		return ret;
+@@ -187,15 +204,15 @@ static int vfio_ccw_mdev_open_device(struct mdev_device *mdev)
  
--	INIT_LIST_HEAD(&private->crw);
--	INIT_WORK(&private->io_work, vfio_ccw_sch_io_todo);
--	INIT_WORK(&private->crw_work, vfio_ccw_crw_todo);
--	atomic_set(&private->avail, 1);
- 	private->state = VFIO_CCW_STATE_STANDBY;
- 
- 	ret = vfio_ccw_mdev_reg(sch);
-@@ -228,31 +258,20 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
- 	cio_disable_subchannel(sch);
- out_free:
- 	dev_set_drvdata(&sch->dev, NULL);
--	vfio_ccw_free_regions(private);
--	kfree(private->cp.guest_cp);
--	kfree(private);
-+	vfio_ccw_free_private(private);
+ out_unregister:
+ 	vfio_ccw_unregister_dev_regions(private);
+-	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
++	vfio_unregister_notifier(vdev->dev, VFIO_IOMMU_NOTIFY,
+ 				 &private->nb);
  	return ret;
  }
  
- static void vfio_ccw_sch_remove(struct subchannel *sch)
+-static void vfio_ccw_mdev_close_device(struct mdev_device *mdev)
++static void vfio_ccw_mdev_close_device(struct vfio_device *vdev)
  {
- 	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
--	struct vfio_ccw_crw *crw, *temp;
+ 	struct vfio_ccw_private *private =
+-		dev_get_drvdata(mdev_parent_dev(mdev));
++		container_of(vdev, struct vfio_ccw_private, vdev);
  
- 	vfio_ccw_sch_quiesce(sch);
+ 	if ((private->state != VFIO_CCW_STATE_NOT_OPER) &&
+ 	    (private->state != VFIO_CCW_STATE_STANDBY)) {
+@@ -206,8 +223,7 @@ static void vfio_ccw_mdev_close_device(struct mdev_device *mdev)
+ 
+ 	cp_free(&private->cp);
+ 	vfio_ccw_unregister_dev_regions(private);
+-	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
+-				 &private->nb);
++	vfio_unregister_notifier(vdev->dev, VFIO_IOMMU_NOTIFY, &private->nb);
+ }
+ 
+ static ssize_t vfio_ccw_mdev_read_io_region(struct vfio_ccw_private *private,
+@@ -231,15 +247,14 @@ static ssize_t vfio_ccw_mdev_read_io_region(struct vfio_ccw_private *private,
+ 	return ret;
+ }
+ 
+-static ssize_t vfio_ccw_mdev_read(struct mdev_device *mdev,
++static ssize_t vfio_ccw_mdev_read(struct vfio_device *vdev,
+ 				  char __user *buf,
+ 				  size_t count,
+ 				  loff_t *ppos)
+ {
++	struct vfio_ccw_private *private =
++		container_of(vdev, struct vfio_ccw_private, vdev);
+ 	unsigned int index = VFIO_CCW_OFFSET_TO_INDEX(*ppos);
+-	struct vfio_ccw_private *private;
 -
--	list_for_each_entry_safe(crw, temp, &private->crw, next) {
--		list_del(&crw->next);
--		kfree(crw);
--	}
+-	private = dev_get_drvdata(mdev_parent_dev(mdev));
+ 
+ 	if (index >= VFIO_CCW_NUM_REGIONS + private->num_regions)
+ 		return -EINVAL;
+@@ -284,15 +299,14 @@ static ssize_t vfio_ccw_mdev_write_io_region(struct vfio_ccw_private *private,
+ 	return ret;
+ }
+ 
+-static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
++static ssize_t vfio_ccw_mdev_write(struct vfio_device *vdev,
+ 				   const char __user *buf,
+ 				   size_t count,
+ 				   loff_t *ppos)
+ {
++	struct vfio_ccw_private *private =
++		container_of(vdev, struct vfio_ccw_private, vdev);
+ 	unsigned int index = VFIO_CCW_OFFSET_TO_INDEX(*ppos);
+-	struct vfio_ccw_private *private;
 -
- 	vfio_ccw_mdev_unreg(sch);
+-	private = dev_get_drvdata(mdev_parent_dev(mdev));
  
- 	dev_set_drvdata(&sch->dev, NULL);
+ 	if (index >= VFIO_CCW_NUM_REGIONS + private->num_regions)
+ 		return -EINVAL;
+@@ -510,12 +524,12 @@ void vfio_ccw_unregister_dev_regions(struct vfio_ccw_private *private)
+ 	private->region = NULL;
+ }
  
--	vfio_ccw_free_regions(private);
--	kfree(private->cp.guest_cp);
--	kfree(private);
-+	vfio_ccw_free_private(private);
+-static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
++static ssize_t vfio_ccw_mdev_ioctl(struct vfio_device *vdev,
+ 				   unsigned int cmd,
+ 				   unsigned long arg)
+ {
+ 	struct vfio_ccw_private *private =
+-		dev_get_drvdata(mdev_parent_dev(mdev));
++		container_of(vdev, struct vfio_ccw_private, vdev);
+ 	int ret = 0;
+ 	unsigned long minsz;
  
- 	VFIO_CCW_MSG_EVENT(4, "unbound from subchannel %x.%x.%04x\n",
- 			   sch->schid.cssid, sch->schid.ssid,
+@@ -606,37 +620,48 @@ static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
+ }
+ 
+ /* Request removal of the device*/
+-static void vfio_ccw_mdev_request(struct mdev_device *mdev, unsigned int count)
++static void vfio_ccw_mdev_request(struct vfio_device *vdev, unsigned int count)
+ {
+-	struct vfio_ccw_private *private = dev_get_drvdata(mdev_parent_dev(mdev));
+-
+-	if (!private)
+-		return;
++	struct vfio_ccw_private *private =
++		container_of(vdev, struct vfio_ccw_private, vdev);
++	struct device *dev = vdev->dev;
+ 
+ 	if (private->req_trigger) {
+ 		if (!(count % 10))
+-			dev_notice_ratelimited(mdev_dev(private->mdev),
++			dev_notice_ratelimited(dev,
+ 					       "Relaying device request to user (#%u)\n",
+ 					       count);
+ 
+ 		eventfd_signal(private->req_trigger, 1);
+ 	} else if (count == 0) {
+-		dev_notice(mdev_dev(private->mdev),
++		dev_notice(dev,
+ 			   "No device request channel registered, blocked until released by user\n");
+ 	}
+ }
+ 
++static const struct vfio_device_ops vfio_ccw_dev_ops = {
++	.open_device = vfio_ccw_mdev_open_device,
++	.close_device = vfio_ccw_mdev_close_device,
++	.read = vfio_ccw_mdev_read,
++	.write = vfio_ccw_mdev_write,
++	.ioctl = vfio_ccw_mdev_ioctl,
++	.request = vfio_ccw_mdev_request,
++};
++
++struct mdev_driver vfio_ccw_mdev_driver = {
++	.driver = {
++		.name = "vfio_ccw_mdev",
++		.owner = THIS_MODULE,
++		.mod_name = KBUILD_MODNAME,
++	},
++	.probe = vfio_ccw_mdev_probe,
++	.remove = vfio_ccw_mdev_remove,
++};
++
+ static const struct mdev_parent_ops vfio_ccw_mdev_ops = {
+ 	.owner			= THIS_MODULE,
++	.device_driver		= &vfio_ccw_mdev_driver,
+ 	.supported_type_groups  = mdev_type_groups,
+-	.create			= vfio_ccw_mdev_create,
+-	.remove			= vfio_ccw_mdev_remove,
+-	.open_device		= vfio_ccw_mdev_open_device,
+-	.close_device		= vfio_ccw_mdev_close_device,
+-	.read			= vfio_ccw_mdev_read,
+-	.write			= vfio_ccw_mdev_write,
+-	.ioctl			= vfio_ccw_mdev_ioctl,
+-	.request		= vfio_ccw_mdev_request,
+ };
+ 
+ int vfio_ccw_mdev_reg(struct subchannel *sch)
+diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
+index b2c762eb42b9bb..7272eb78861244 100644
+--- a/drivers/s390/cio/vfio_ccw_private.h
++++ b/drivers/s390/cio/vfio_ccw_private.h
+@@ -17,6 +17,7 @@
+ #include <linux/eventfd.h>
+ #include <linux/workqueue.h>
+ #include <linux/vfio_ccw.h>
++#include <linux/vfio.h>
+ #include <asm/crw.h>
+ #include <asm/debug.h>
+ 
+@@ -67,6 +68,7 @@ struct vfio_ccw_crw {
+ 
+ /**
+  * struct vfio_ccw_private
++ * @vdev: Embedded VFIO device
+  * @sch: pointer to the subchannel
+  * @state: internal state of the device
+  * @completion: synchronization helper of the I/O completion
+@@ -90,6 +92,7 @@ struct vfio_ccw_crw {
+  * @crw_work: work for deferral process of CRW handling
+  */
+ struct vfio_ccw_private {
++	struct vfio_device vdev;
+ 	struct subchannel	*sch;
+ 	int			state;
+ 	struct completion	*completion;
+@@ -121,6 +124,8 @@ extern void vfio_ccw_mdev_unreg(struct subchannel *sch);
+ 
+ extern int vfio_ccw_sch_quiesce(struct subchannel *sch);
+ 
++extern struct mdev_driver vfio_ccw_mdev_driver;
++
+ /*
+  * States of the device statemachine.
+  */
 -- 
 2.33.0
 
