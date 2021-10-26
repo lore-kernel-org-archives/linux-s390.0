@@ -2,60 +2,51 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 881A9C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Oct 2021 10:17:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0437BC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 26 Oct 2021 10:39:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6C64B61074
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Oct 2021 10:17:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E13A860EFE
+	for <linux-s390@archiver.kernel.org>; Tue, 26 Oct 2021 10:39:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235412AbhJZKTZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 26 Oct 2021 06:19:25 -0400
-Received: from mail-vk1-f172.google.com ([209.85.221.172]:34616 "EHLO
-        mail-vk1-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235460AbhJZKTB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Oct 2021 06:19:01 -0400
-Received: by mail-vk1-f172.google.com with SMTP id bc10so6656551vkb.1;
-        Tue, 26 Oct 2021 03:16:38 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=eNj0r0yYtbYaRBmFTkNSJ9P/S2xKrXUmhGE0uyRbugk=;
-        b=imJrk+1ZCy6BXqVTeLRpcHUIKCLRlJsoaoMNzDSD5H9SJehOHDRsuC7zObwp3IFUub
-         NGuavHlPcosgZ8jFbWM55pBYhAUv7hNNc0nVOqHmULc5MbwFIr2XgkWbfZRXV3iTIg6b
-         WyT9PvexJgz81kINyY0X1/3nreN/4B6JpzbIJy6oIqqnqZtapGGg0vo8T5Eb9LQYOF9U
-         CkjyIh2GsaS3zjJXKm3Kf5K7TnLmheZw9BN50DxpttkmmP2EIY5rXCVrHjNCFkTigwMa
-         fT6Bl+2yTpN2DjmBuvONdfLTcrWNscYR+o7U+/WLog6G54Xf6bIcPsUqEhASIeiSebCe
-         UjFw==
-X-Gm-Message-State: AOAM530cQi/smSZjaUQjaT9whLT3x/NjzMurBKayBoqb4zai0wCsX8Nl
-        iGYqZhuq6LQ+0gwQUGa4g0vZi42whDljtg==
-X-Google-Smtp-Source: ABdhPJwQjNbyYx4m6uemnVJtmtXf/d7QJbc9zYK0r+B9IRvjV3enQH6lif+oPcfTpJZoy8TXvmG9GA==
-X-Received: by 2002:a1f:7c4b:: with SMTP id x72mr9630682vkc.3.1635243397577;
-        Tue, 26 Oct 2021 03:16:37 -0700 (PDT)
-Received: from mail-ua1-f47.google.com (mail-ua1-f47.google.com. [209.85.222.47])
-        by smtp.gmail.com with ESMTPSA id v13sm5733817vsi.0.2021.10.26.03.16.37
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 26 Oct 2021 03:16:37 -0700 (PDT)
-Received: by mail-ua1-f47.google.com with SMTP id e10so28127658uab.3;
-        Tue, 26 Oct 2021 03:16:37 -0700 (PDT)
-X-Received: by 2002:a67:f84d:: with SMTP id b13mr18437374vsp.41.1635243386319;
- Tue, 26 Oct 2021 03:16:26 -0700 (PDT)
-MIME-Version: 1.0
-References: <20211026100432.1730393-1-arnd@kernel.org> <20211026100432.1730393-2-arnd@kernel.org>
-In-Reply-To: <20211026100432.1730393-2-arnd@kernel.org>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Tue, 26 Oct 2021 12:16:15 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdW0RPpbmCaixYTdKFLPTZGp=3WycHK1xiyryKku45f6_A@mail.gmail.com>
-Message-ID: <CAMuHMdW0RPpbmCaixYTdKFLPTZGp=3WycHK1xiyryKku45f6_A@mail.gmail.com>
-Subject: Re: [PATCH 2/2] futex: remove futex_cmpxchg detection
+        id S234186AbhJZKmD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 26 Oct 2021 06:42:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59446 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230213AbhJZKlz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Oct 2021 06:41:55 -0400
+Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C770DC061745;
+        Tue, 26 Oct 2021 03:39:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=CSROAHvhw5w04DYX+jlRPl3qIkI/9yJmK4yaYJQrjBU=; b=FPY2/dixnDqvt2sK6+2M3o8iGQ
+        9gxAZbT6DWQrPJ9RJ/skGOpjEkhfpnXfsJmJVO6hsaPEUTn+nFv9dDVKcr0lLmK9nriSIBSZFT8UQ
+        pXkrJyUHMtlbTnfSAG3duKw9GUQGCHbjnOv7tOKJpvQgCx+ceKL6fYz+FrIMrk6tLHUEP/voOfsxt
+        H5J6FxlGJIPsCTJYQ0wYWFnE82sMZ3SxTMI6NdZbtuDkU8Ouw59Ho6jmtj8kLAEX4dTT/Glwv8tSU
+        /5Vs5jSVWvG6E8otJ1Tov4KHHC7SohxaRaLCkW4S4nRekHnz/sM3NoyVtwJUlLu1zPcxwO2moq9Pv
+        1feBKTrQ==;
+Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:55308)
+        by pandora.armlinux.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <linux@armlinux.org.uk>)
+        id 1mfJrB-0005Fq-F7; Tue, 26 Oct 2021 11:39:01 +0100
+Received: from linux by shell.armlinux.org.uk with local (Exim 4.94.2)
+        (envelope-from <linux@shell.armlinux.org.uk>)
+        id 1mfJr4-0006g0-Bh; Tue, 26 Oct 2021 11:38:54 +0100
+Date:   Tue, 26 Oct 2021 11:38:54 +0100
+From:   "Russell King (Oracle)" <linux@armlinux.org.uk>
 To:     Arnd Bergmann <arnd@kernel.org>
 Cc:     Peter Zijlstra <peterz@infradead.org>,
         Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
         Vineet Gupta <vgupta@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
         Catalin Marinas <catalin.marinas@arm.com>,
         Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         Paul Walmsley <paul.walmsley@sifive.com>,
         Palmer Dabbelt <palmer@dabbelt.com>,
         Albert Ou <aou@eecs.berkeley.edu>,
@@ -71,46 +62,49 @@ Cc:     Peter Zijlstra <peterz@infradead.org>,
         Max Filippov <jcmvbkbc@gmail.com>,
         Darren Hart <dvhart@infradead.org>,
         Davidlohr Bueso <dave@stgolabs.net>,
-        =?UTF-8?Q?Andr=C3=A9_Almeida?= <andrealmeid@collabora.com>,
+        =?iso-8859-1?Q?Andr=E9?= Almeida <andrealmeid@collabora.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Mike Rapoport <rppt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
         Anshuman Khandual <anshuman.khandual@arm.com>,
-        arcml <linux-snps-arc@lists.infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        linux-csky@vger.kernel.org,
-        linux-m68k <linux-m68k@lists.linux-m68k.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Linux-sh list <linux-sh@vger.kernel.org>,
-        linux-um <linux-um@lists.infradead.org>,
-        "open list:TENSILICA XTENSA PORT (xtensa)" 
-        <linux-xtensa@linux-xtensa.org>
-Content-Type: text/plain; charset="UTF-8"
+        linux-snps-arc@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org
+Subject: Re: [PATCH 2/2] futex: remove futex_cmpxchg detection
+Message-ID: <YXfavr6LY1xGPGCA@shell.armlinux.org.uk>
+References: <20211026100432.1730393-1-arnd@kernel.org>
+ <20211026100432.1730393-2-arnd@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211026100432.1730393-2-arnd@kernel.org>
+Sender: Russell King (Oracle) <linux@armlinux.org.uk>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Oct 26, 2021 at 12:06 PM Arnd Bergmann <arnd@kernel.org> wrote:
+On Tue, Oct 26, 2021 at 12:03:48PM +0200, Arnd Bergmann wrote:
 > From: Arnd Bergmann <arnd@arndb.de>
->
+> 
 > Now that all architectures have a working futex implementation
 > in any configuration, remove the runtime detection code.
->
+> 
 > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
 
->  arch/m68k/Kconfig             |  1 -
+For ARM:
 
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-Gr{oetje,eeting}s,
+As Arnd explained to me what was going on, I'll include it here...
+This patch requires patch 1 which touches other architectures, so
+it is not an independent patch.
 
-                        Geert
+Patch 1 can be found at:
+ https://lore.kernel.org/lkml/20211026100432.1730393-1-arnd@kernel.org/T/#t
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+-- 
+RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
