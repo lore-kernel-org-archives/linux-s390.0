@@ -2,200 +2,106 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B324C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Oct 2021 14:23:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F448C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 26 Oct 2021 14:41:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4A0CF60FD7
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Oct 2021 14:23:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3D82C60FC2
+	for <linux-s390@archiver.kernel.org>; Tue, 26 Oct 2021 14:41:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234910AbhJZOZW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 26 Oct 2021 10:25:22 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:20728 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234276AbhJZOZS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 26 Oct 2021 10:25:18 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19QDk88T023788;
-        Tue, 26 Oct 2021 14:22:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=rc2hYgUAmIqVmD1vKk02kSKzJHU5JUNEOVYRHwobACE=;
- b=jmitWKnfGcML08eeKGjUX1Uq9hpZBVRCJsCjp3lIekfInkOHlM80+jbB0B2RXM2zub1q
- gtyRept+BYN+LIwlNqCBKWYP1vDC9itBkemKyd9G25N3zD2zziXcb34QdN7atoVfwFaX
- adQKQvf4qTAsz1XQkhaTNIBcbjvPor0y+4df7JkcelLZQcQ+aUgco8A/iEIFd+iwYHaX
- AZwXfkU7eWFkfJO9B8kKXPdkxHI6ak/LiRa9ogaHJR991VWx0Gy20gnVdZ2DdrTIWMDL
- x+OgMH3jwpjbAYHS49nEQ7fIOxvuebRPfU7zpc7MLz/BaZGtsEWQxzWj6oCt85ZHX6mc Rg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bx4ygrg8f-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Oct 2021 14:22:50 +0000
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19QDvdkR007947;
-        Tue, 26 Oct 2021 14:22:50 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3bx4ygrg76-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Oct 2021 14:22:50 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19QEEJm6011363;
-        Tue, 26 Oct 2021 14:22:47 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma03fra.de.ibm.com with ESMTP id 3bx4epp0c4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Oct 2021 14:22:47 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19QEMiVi58917248
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 26 Oct 2021 14:22:44 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 24133AE057;
-        Tue, 26 Oct 2021 14:22:44 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id ED06CAE05A;
-        Tue, 26 Oct 2021 14:22:40 +0000 (GMT)
-Received: from [9.171.95.189] (unknown [9.171.95.189])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 26 Oct 2021 14:22:40 +0000 (GMT)
-Message-ID: <32dfb400-4191-44f8-354e-809fac890b63@linux.vnet.ibm.com>
-Date:   Tue, 26 Oct 2021 16:22:40 +0200
+        id S236001AbhJZOny (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 26 Oct 2021 10:43:54 -0400
+Received: from szxga01-in.huawei.com ([45.249.212.187]:29941 "EHLO
+        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235433AbhJZOnv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Oct 2021 10:43:51 -0400
+Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.55])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4HdvXW63DbzbnPZ;
+        Tue, 26 Oct 2021 22:36:43 +0800 (CST)
+Received: from kwepemm600016.china.huawei.com (7.193.23.20) by
+ dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.15; Tue, 26 Oct 2021 22:41:22 +0800
+Received: from [10.67.102.67] (10.67.102.67) by kwepemm600016.china.huawei.com
+ (7.193.23.20) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.15; Tue, 26 Oct
+ 2021 22:41:20 +0800
+Subject: Re: [PATCH V4 net-next 4/6] ethtool: extend ringparam setting uAPI
+ with rx_buf_len
+To:     Marc Kleine-Budde <mkl@pengutronix.de>,
+        Jakub Kicinski <kuba@kernel.org>
+CC:     <davem@davemloft.net>, <mkubecek@suse.cz>, <andrew@lunn.ch>,
+        <amitc@mellanox.com>, <idosch@idosch.org>, <danieller@nvidia.com>,
+        <jesse.brandeburg@intel.com>, <anthony.l.nguyen@intel.com>,
+        <jdike@addtoit.com>, <richard@nod.at>,
+        <anton.ivanov@cambridgegreys.com>, <netanel@amazon.com>,
+        <akiyano@amazon.com>, <saeedb@amazon.com>, <chris.snook@gmail.com>,
+        <ulli.kroll@googlemail.com>, <linus.walleij@linaro.org>,
+        <jeroendb@google.com>, <csully@google.com>,
+        <awogbemila@google.com>, <jdmason@kudzu.us>,
+        <rain.1986.08.12@gmail.com>, <zyjzyj2000@gmail.com>,
+        <kys@microsoft.com>, <haiyangz@microsoft.com>, <mst@redhat.com>,
+        <jasowang@redhat.com>, <doshir@vmware.com>,
+        <pv-drivers@vmware.com>, <jwi@linux.ibm.com>,
+        <kgraul@linux.ibm.com>, <hca@linux.ibm.com>, <gor@linux.ibm.com>,
+        <johannes@sipsolutions.net>, <netdev@vger.kernel.org>,
+        <lipeng321@huawei.com>, <chenhao288@hisilicon.com>,
+        <linux-s390@vger.kernel.org>
+References: <20211014113943.16231-1-huangguangbin2@huawei.com>
+ <20211014113943.16231-5-huangguangbin2@huawei.com>
+ <20211025131149.ya42sw64vkh7zrcr@pengutronix.de>
+ <20211025132718.5wtos3oxjhzjhymr@pengutronix.de>
+ <20211025104505.43461b53@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <20211025190114.zbqgzsfiv7zav7aq@pengutronix.de>
+From:   "huangguangbin (A)" <huangguangbin2@huawei.com>
+Message-ID: <8ce654b8-4a31-2d43-df7e-607528ba44d5@huawei.com>
+Date:   Tue, 26 Oct 2021 22:41:19 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.0
-Subject: Re: [kvm-unit-tests PATCH v3 2/2] s390x: Test specification
- exceptions during transaction
-Content-Language: en-US
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-Cc:     Thomas Huth <thuth@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20211022120156.281567-1-scgl@linux.ibm.com>
- <20211022120156.281567-3-scgl@linux.ibm.com>
- <20211025193012.3be31938@p-imbrenda>
-From:   Janis Schoetterl-Glausch <scgl@linux.vnet.ibm.com>
-In-Reply-To: <20211025193012.3be31938@p-imbrenda>
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20211025190114.zbqgzsfiv7zav7aq@pengutronix.de>
+Content-Type: text/plain; charset="utf-8"; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: hO3vkHqn-aemhirmVlVrStQaZFCrk_lA
-X-Proofpoint-GUID: QFxwi-bn2gTrZVPsi6MFeOqa_393gP3S
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-10-26_04,2021-10-26_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 impostorscore=0
- clxscore=1015 suspectscore=0 adultscore=0 priorityscore=1501 bulkscore=0
- mlxlogscore=999 lowpriorityscore=0 malwarescore=0 phishscore=0 spamscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
- definitions=main-2110260081
+X-Originating-IP: [10.67.102.67]
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ kwepemm600016.china.huawei.com (7.193.23.20)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 10/25/21 19:30, Claudio Imbrenda wrote:
-> On Fri, 22 Oct 2021 14:01:56 +0200
-> Janis Schoetterl-Glausch <scgl@linux.ibm.com> wrote:
-> 
->> Program interruptions during transactional execution cause other
->> interruption codes.
->> Check that we see the expected code for (some) specification exceptions.
+
+
+On 2021/10/26 3:01, Marc Kleine-Budde wrote:
+> On 25.10.2021 10:45:05, Jakub Kicinski wrote:
+>>> The approach Andrew suggested is two-fold. First introduce a "struct
+>>> ethtool_kringparam" that's only used inside the kernel, as "struct
+>>> ethtool_ringparam" is ABI. Then extend "struct ethtool_kringparam" as
+>>> needed.
 >>
->> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
->> ---
+>> Indeed, there are different ways to extend the API for drivers,
+>> I think it comes down to personal taste. I find the "inheritance"
+>> models in C (kstruct usually contains the old struct as some "base")
+>> awkward.
+>>
+>> I don't think we have agreed-on best practice in the area.
+> 
+>  From my point of view, if there already is an extension mainline:
+> 
+> | https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net.git/commit/?id=f3ccfda19319
+> 
+> I'm more in the flavor for modeling other extensions the same way. Would
+> be more consistent to name the new struct "kernel_"ethtool_ringparam,
+> following the coalescing example:
+> 
+> | struct kernel_ethtool_ringparam {
+> |        __u32   rx_buf_len;
+> | };
+> 
+> regards,
+> Marc
+> 
+We think ethtool_ringparam_ext is more easy to understand it is extension of
+struct ethtool_ringparam. However, we don't mind to keep the same way and modify
+to the name kernel_ethtool_ringparam if everyone agrees.
 
-[...]
-
->> +#define TRANSACTION_MAX_RETRIES 5
->> +
->> +/* NULL must be passed to __builtin_tbegin via constant, forbid diagnose from
->> + * being NULL to keep things simple
->> + */
->> +static int __attribute__((nonnull))
->> +with_transaction(void (*trigger)(void), struct __htm_tdb *diagnose)
->> +{
->> +	int cc;
->> +
-> 
-> if you want to be extra sure, put an assert here (although I'm not sure
-> how nonnull works, I have never seen it before)
-
-Ok, with nonnull, the compiler might warn you if you pass NULL.
-> 
->> +	cc = __builtin_tbegin(diagnose);
->> +	if (cc == _HTM_TBEGIN_STARTED) {
->> +		trigger();
->> +		__builtin_tend();
->> +		return -TRANSACTION_COMPLETED;
->> +	} else {
->> +		return -cc;
->> +	}
->> +}
->> +
->> +static int retry_transaction(const struct spec_ex_trigger *trigger, unsigned int max_retries,
->> +			     struct __htm_tdb *tdb, uint16_t expected_pgm)
->> +{
->> +	int trans_result, i;
->> +	uint16_t pgm;
->> +
->> +	for (i = 0; i < max_retries; i++) {
->> +		expect_pgm_int();
->> +		trans_result = with_transaction(trigger->func, tdb);
->> +		if (trans_result == -_HTM_TBEGIN_TRANSIENT) {
->> +			mb();
->> +			pgm = lc->pgm_int_code;
->> +			if (pgm == 0)
->> +				continue;
->> +			else if (pgm == expected_pgm)
->> +				return 0;
->> +		}
->> +		return trans_result;
->> +	}
->> +	return -TRANSACTION_MAX_RETRIES;
-> 
-> so this means that a test will be considered failed if the transaction
-> failed too many times?
-
-Yes.
-> 
-> this means that could fail if the test is run on busy system, even if
-> the host running the unit test is correct
-
-I suppose so, don't know how likely that is.
-> 
-> also, do you really need to use negative values? it's probably easier
-> to read if you stick to positive values, and less prone to mistakes if
-> you accidentally forget a - somewhere.
-
-Ok.
-> 
->> +}
->> +
->> +static void test_spec_ex_trans(struct args *args, const struct spec_ex_trigger *trigger)
->> +{
->> +	const uint16_t expected_pgm = PGM_INT_CODE_SPECIFICATION
->> +			      | PGM_INT_CODE_TX_ABORTED_EVENT;
->> +	union {
->> +		struct __htm_tdb tdb;
->> +		uint64_t dwords[sizeof(struct __htm_tdb) / sizeof(uint64_t)];
->> +	} diag;
->> +	unsigned int i, failures = 0;
->> +	int trans_result;
->> +
->> +	if (!test_facility(73)) {
->> +		report_skip("transactional-execution facility not installed");
->> +		return;
->> +	}
->> +	ctl_set_bit(0, CTL0_TRANSACT_EX_CTL); /* enable transactional-exec */
->> +
->> +	for (i = 0; i < args->iterations && failures <= args->max_failures; i++) {
->> +		register_pgm_cleanup_func(trigger->fixup);
->> +		trans_result = retry_transaction(trigger, args->max_retries, &diag.tdb, expected_pgm);
-> 
-> so you retry each iteration up to args->max_retries times, and if a
-> transaction aborts too many times (maybe because the host system is
-> very busy), then you consider it a fail
-> 
-
-[...]
+Does anyone have other opinions?
