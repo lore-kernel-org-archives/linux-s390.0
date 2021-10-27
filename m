@@ -2,102 +2,138 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C002C433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 27 Oct 2021 10:24:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D2EAC433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 27 Oct 2021 12:01:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 65A8060200
-	for <linux-s390@archiver.kernel.org>; Wed, 27 Oct 2021 10:24:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 359E260E8B
+	for <linux-s390@archiver.kernel.org>; Wed, 27 Oct 2021 12:01:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241424AbhJ0K0m (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 27 Oct 2021 06:26:42 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:11284 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S239361AbhJ0K0j (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 27 Oct 2021 06:26:39 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19RALg5j020914;
-        Wed, 27 Oct 2021 10:24:13 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=TFwPPLUITtY8fa2kbtoi1NI6hKGKe/D/krYKWxZzwbw=;
- b=iLfYTU5tDQEEyZh4TkHobZgeOJX/dyZWPJAzY73Kkspv+kuQwk+ZJ3s90z5J8jVi1Yx1
- jFn0KvW+RpHJaKzyYvLobStWqE34lKsNadXk/p9R6y5SlU2OsI506MXhBO5UCRRAc+fp
- oKLq8c7lVFX3pW463UptHzSmIRt3rRkQcZZZL+yhbKhSa0nEY7tdp9MOEsBU8Nrird6A
- 8olXy8KpdhuGRkLZhOSg93K4B0xUMut9tyMxCbDNMG+01OLniHnMDy2ByVdYq9s2oc48
- whEZQ1uB33VGAw5PV+PauqHZ73vdklauacBUjtLnW2t77asJo3o7qsJJ14eASBenpNpY yg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3by4xsr1rx-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 27 Oct 2021 10:24:13 +0000
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19RALear020812;
-        Wed, 27 Oct 2021 10:24:12 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3by4xsr1rb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 27 Oct 2021 10:24:12 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19RACw7Z013485;
-        Wed, 27 Oct 2021 10:24:10 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma06ams.nl.ibm.com with ESMTP id 3bx4f1dxv4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 27 Oct 2021 10:24:09 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19RAO7cm3932922
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 27 Oct 2021 10:24:07 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4BFAE5204F;
-        Wed, 27 Oct 2021 10:24:07 +0000 (GMT)
-Received: from [9.145.41.29] (unknown [9.145.41.29])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id BE4E852050;
-        Wed, 27 Oct 2021 10:24:06 +0000 (GMT)
-Message-ID: <c1d3d584-4a96-a34b-ed25-a376b17b36c7@linux.ibm.com>
-Date:   Wed, 27 Oct 2021 12:24:18 +0200
+        id S240288AbhJ0MEQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 27 Oct 2021 08:04:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37934 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240286AbhJ0MEQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Oct 2021 08:04:16 -0400
+Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [IPv6:2404:9400:2:0:216:3eff:fee2:21ea])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1B49C061570;
+        Wed, 27 Oct 2021 05:01:50 -0700 (PDT)
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4HfS3D6fVvz4xbG;
+        Wed, 27 Oct 2021 23:01:44 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
+        s=201909; t=1635336108;
+        bh=eZo4L/VYResFxnSjYMuAe6p73rb/55QbmAx/d4+9tG4=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=JQ5dRRYao96n2QjnD9F5FAugsZopemn7Y8YqAmL2meL1PnI4mYsKSjfuExzvZpuA5
+         fo98C/+hhHVxXiymFsgVUaNNU2OXZOe+c6bLZFJtrn3hoVRsK8UVbP9gK878GEbfPD
+         VDvIrUapL3PKDDjCdUgv6N8Ux67vWT8CizDcTwrTHynUtV9jf15u69Gl+rLY036ixg
+         zeY96EVJi9rErgfmwBI6fcGPd1tomYN/VkCpDGNVYTfs0wOrl9IkcGEvhuiGpQKYnb
+         nfU4vnXu2gWqpvtG5V7u9/EXKXYSjwtZbh/n8+Hk2z9uQ9E8oJ+OXVuNanRAXRdn+r
+         +hzmwqKHzlS9Q==
+From:   Michael Ellerman <mpe@ellerman.id.au>
+To:     Peter Zijlstra <peterz@infradead.org>,
+        Arnd Bergmann <arnd@kernel.org>
+Cc:     Waiman Long <longman@redhat.com>, Ingo Molnar <mingo@redhat.com>,
+        Will Deacon <will@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Jonas Bonn <jonas@southpole.se>,
+        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+        Stafford Horne <shorne@gmail.com>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-ia64@vger.kernel.org,
+        Openrisc <openrisc@lists.librecores.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-s390 <linux-s390@vger.kernel.org>
+Subject: Re: [PATCH] locking: remove spin_lock_flags() etc
+In-Reply-To: <YXbAPIm47WwpYYup@hirez.programming.kicks-ass.net>
+References: <20211022120058.1031690-1-arnd@kernel.org>
+ <cc8e3c58-457d-fdf3-6a62-98bde0cefdea@redhat.com>
+ <CAK8P3a0YjaRS+aUCOKGjsfkR3TM49PrG6U4ftG_Fz+OFuyCb0w@mail.gmail.com>
+ <YXZ/iLB7BvZtzDMp@hirez.programming.kicks-ass.net>
+ <CAK8P3a2Luz7sd5cM1OdZhYCs_UPzo+2qVQYSZPfR2QN+0DkyRg@mail.gmail.com>
+ <YXbAPIm47WwpYYup@hirez.programming.kicks-ass.net>
+Date:   Wed, 27 Oct 2021 23:01:41 +1100
+Message-ID: <87r1c6ad7e.fsf@mpe.ellerman.id.au>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.0
-Subject: Re: [PATCH net 2/4] net/smc: Fix smc_link->llc_testlink_time overflow
-Content-Language: en-US
-To:     Tony Lu <tonylu@linux.alibaba.com>, davem@davemloft.net,
-        kuba@kernel.org, ubraun@linux.ibm.com
-Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-rdma@vger.kernel.org, jacob.qi@linux.alibaba.com,
-        xuanzhuo@linux.alibaba.com, guwen@linux.alibaba.com,
-        dust.li@linux.alibaba.com
-References: <20211027085208.16048-1-tonylu@linux.alibaba.com>
- <20211027085208.16048-3-tonylu@linux.alibaba.com>
-From:   Karsten Graul <kgraul@linux.ibm.com>
-Organization: IBM Deutschland Research & Development GmbH
-In-Reply-To: <20211027085208.16048-3-tonylu@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: KleOzwbSit34Wr11CIof2m3lA3XnGZsw
-X-Proofpoint-ORIG-GUID: hTqYOENxP2bIjyNRmsInwzbi96PB7cwY
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-10-27_03,2021-10-26_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
- priorityscore=1501 suspectscore=0 malwarescore=0 bulkscore=0 phishscore=0
- clxscore=1015 impostorscore=0 mlxscore=0 spamscore=0 lowpriorityscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2110270062
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 27/10/2021 10:52, Tony Lu wrote:
-> From: Tony Lu <tony.ly@linux.alibaba.com>
-> 
-> The value of llc_testlink_time is set to the value stored in
-> net->ipv4.sysctl_tcp_keepalive_time when linkgroup init. The value of
-> sysctl_tcp_keepalive_time is already jiffies, so we don't need to
-> multiply by HZ, which would cause smc_link->llc_testlink_time overflow,
-> and test_link send flood.
+Peter Zijlstra <peterz@infradead.org> writes:
+> On Mon, Oct 25, 2021 at 03:06:24PM +0200, Arnd Bergmann wrote:
+>> On Mon, Oct 25, 2021 at 11:57 AM Peter Zijlstra <peterz@infradead.org> wrote:
+>> > On Sat, Oct 23, 2021 at 06:04:57PM +0200, Arnd Bergmann wrote:
+>> > > On Sat, Oct 23, 2021 at 3:37 AM Waiman Long <longman@redhat.com> wrote:
+>> > > >> On 10/22/21 7:59 AM, Arnd Bergmann wrote:
+>> > > > > From: Arnd Bergmann <arnd@arndb.de>
+>> > > > >
+>> > > > > As this is all dead code, just remove it and the helper functions built
+>> > > > > around it. For arch/ia64, the inline asm could be cleaned up, but
+>> > > > > it seems safer to leave it untouched.
+>> > > > >
+>> > > > > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+>> > > >
+>> > > > Does that mean we can also remove the GENERIC_LOCKBREAK config option
+>> > > > from the Kconfig files as well?
+>> > >
+>> > >  I couldn't figure this out.
+>> > >
+>> > > What I see is that the only architectures setting GENERIC_LOCKBREAK are
+>> > > nds32, parisc, powerpc, s390, sh and sparc64, while the only architectures
+>> > > implementing arch_spin_is_contended() are arm32, csky and ia64.
+>> > >
+>> > > The part I don't understand is whether the option actually does anything
+>> > > useful any more after commit d89c70356acf ("locking/core: Remove break_lock
+>> > > field when CONFIG_GENERIC_LOCKBREAK=y").
+>> >
+>> > Urgh, what a mess.. AFAICT there's still code in
+>> > kernel/locking/spinlock.c that relies on it. Specifically when
+>> > GENERIC_LOCKBREAK=y we seem to create _lock*() variants that are
+>> > basically TaS locks which drop preempt/irq disable while spinning.
+>> >
+>> > Anybody having this on and not having native TaS locks is in for a rude
+>> > surprise I suppose... sparc64 being the obvious candidate there :/
+>> 
+>> Is this a problem on s390 and powerpc, those two being the ones
+>> that matter in practice?
+>> 
+>> On s390, we pick between the cmpxchg() based directed-yield when
+>> running on virtualized CPUs, and a normal qspinlock when running on a
+>> dedicated CPU.
+>> 
+>> On PowerPC, we pick at compile-time between either the qspinlock
+>> (default-enabled on Book3S-64, i.e. all server chips) or a ll/sc based
+>> spinlock plus vm_yield() (default on embedded and 32-bit mac).
+>
+> Urgh, yeah, so this crud undermines the whole point of having a fair
+> lock. I'm thinking s390 and Power want to have this fixed.
 
-Thanks for fixing this, we will include your patch in our next submission
-to the netdev tree.
+Our Kconfig has:
+
+  config GENERIC_LOCKBREAK
+  	bool
+  	default y
+  	depends on SMP && PREEMPTION
+
+And we have exactly one defconfig that enables both SMP and PREEMPT,
+arch/powerpc/configs/85xx/ge_imp3a_defconfig, which is some ~10 year old
+PCI card embedded thing I've never heard of. High chance anyone who has
+those is not running upstream kernels on them.
+
+So I think we'd be happy for you rip GENERIC_LOCKBREAK out, it's almost
+entirely unused on powerpc anyway.
+
+cheers
