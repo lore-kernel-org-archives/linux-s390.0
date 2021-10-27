@@ -2,57 +2,57 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EC70C433FE
-	for <linux-s390@archiver.kernel.org>; Wed, 27 Oct 2021 20:54:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 50697C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 27 Oct 2021 22:03:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 87F2A610C8
-	for <linux-s390@archiver.kernel.org>; Wed, 27 Oct 2021 20:54:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 360F960551
+	for <linux-s390@archiver.kernel.org>; Wed, 27 Oct 2021 22:03:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244133AbhJ0U5F (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 27 Oct 2021 16:57:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48256 "EHLO
+        id S229924AbhJ0WGB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 27 Oct 2021 18:06:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244120AbhJ0U5C (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Oct 2021 16:57:02 -0400
-Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0533C0613B9
-        for <linux-s390@vger.kernel.org>; Wed, 27 Oct 2021 13:54:36 -0700 (PDT)
-Received: by mail-pf1-x42d.google.com with SMTP id l203so3899250pfd.2
-        for <linux-s390@vger.kernel.org>; Wed, 27 Oct 2021 13:54:36 -0700 (PDT)
+        with ESMTP id S229928AbhJ0WF4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Oct 2021 18:05:56 -0400
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C5A6C0613B9
+        for <linux-s390@vger.kernel.org>; Wed, 27 Oct 2021 15:03:29 -0700 (PDT)
+Received: by mail-pl1-x634.google.com with SMTP id v20so2981807plo.7
+        for <linux-s390@vger.kernel.org>; Wed, 27 Oct 2021 15:03:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=intel-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=MW2+yuOLdVC2FiYNaHWFO+PStoIyhupC83aZvNmdg00=;
-        b=xAWE2Gs6elQhyFnpgWWwNUZcIIN+S0dTB23e1v1SGSkr3xAYgCO6FZbQyPbRQqQf23
-         9I8Y78UczhWRyEynzMK/aUvy5wOw4Vy6/4LxJus/eHVGZMzDNjEAK+zx722FS9qK0he2
-         1U1cd8YzY36X3CDASwjtuR6iKB/eUu6jn2zPH05rfMggNUg3QvABlXcipTgHgz3k7BuS
-         H+rhb1Vq1z7S7EkZGdXP0ONpo163cZlk5BsINHv2ASIpi7dd31Nuhi/Qnq9EJvDvkYxw
-         Pntfc80cc9CfDzJp6vju7flE64Efz7hVPlBsr/GGmt1WhUviknbfEb0n+v3Q2OiU1RqV
-         8kaA==
+        bh=t4Hx7HuIToogFrpWvEndnhmu5FP0FfguH4MlN11vPPE=;
+        b=r4O7O+D6bqWhbnfNK8GAK+O+V51sL8gQ71rKDmnAA3fZ320ss8g64pT5I4bw0Ty2W9
+         TGiVpZlytWCPvqsnO2KP5mgjcvtWG32bPlTJSiDywz2eUzvbv14zKkXGrmqra8bYuVcX
+         6eTzntuayCoe6FMfUlwppg7wtXGYJnRCccwyOD6BMW/cCSj5855vgtn7jPyqngLiNh96
+         igHjZ8TKVN2e2xQDd7pHeELmJKOPqBo/gYXXJPRXVsdlZBFwujavWR+bA+YkVqvY/M8E
+         xiafLQkvUuEAFIkRuAHaQc3YSU7PAJiw0NjeujUUWeonnrpA4patIFL2eOziiAOc+jWH
+         kG3g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=MW2+yuOLdVC2FiYNaHWFO+PStoIyhupC83aZvNmdg00=;
-        b=GnT0o92L9E+uX9KuLXx1j5GFAHrB5R2ZgAQLTQ9+jY9TK7c+mo5dRPurC9ThkQx6mO
-         ErMDOWA6KgciZtgz1pCOzIokEyNgcNSx15BAbuP6s+OoSnmTzdfCDiV8rRqHCOt+/zar
-         3Gp3J6wnyIBBqAdiydoI+XiM3/oQWtY1uRIjtY9tHLPa2CleckO2F0btxtZpX4ALJkbJ
-         T/1+TZSj9xgiZf3s439CCUag138aTncXh1QegnqwYDVkqviWZC4KVOjSK6rZCDcfMXnD
-         LUSYg8MjEZiyZM/X4xqY0WRqnhXEqUM6EF1h0D8ESliGKvhU2TWl9wNFO2aJQdH8DrnO
-         OArA==
-X-Gm-Message-State: AOAM532lADVChWfBp5tIdhk0R6HyBRRuOImAbFhsiDLf9UEZk58kcGBr
-        rl9MQplSZxadNKpnt2Xj4RIL46sr7pbHEM8/FWOGuA==
-X-Google-Smtp-Source: ABdhPJxqYRzrssHaaThSAQ3S9v6yHWHIiMadGqtNgSbRxpNG6jDSA2a4I6mJJqbjxV8Pnl8ItfliO9eaeQbTvv574gs=
-X-Received: by 2002:a63:770e:: with SMTP id s14mr43824pgc.377.1635368076533;
- Wed, 27 Oct 2021 13:54:36 -0700 (PDT)
+        bh=t4Hx7HuIToogFrpWvEndnhmu5FP0FfguH4MlN11vPPE=;
+        b=wpaW1qob0uBVmsHmfbLhtp10JBjJwHogXR/X2phadhb6YvGqQj2iBZ5FTRBRxP4TCO
+         cIm6r7kpl8ERK+yC8fRCw3KjMbLOpJhCOMk3J+9D3ckBodJXfXFQEIuojVfEmk45r2bf
+         omZ0a0Atk82c5jCYS3AD3I/oYzhCE8PWh/BvBZJJrK9enWSb0vVL3B97oYv+o4XOkUFQ
+         1K5xRg6uT+2gAMuO0J2PRstQHyhUL/CPQPxHaIjy8In3KtBASesJT/cOlkJ/ob2Y9Ynz
+         s93IvLifMuvNo1wDtW2mEeyv25Q5uRVHd1vRdVOK3D5dcPAw6jjfNwYC9TLiROkb0o5J
+         fsNg==
+X-Gm-Message-State: AOAM532itZEDc+yMTTx85rDtru9amjwhYEcdFbjov5mutOJ0vy62VIKs
+        aYN84oRAaumP8O4m+H3G8Jtqy6vkLoHdDl7wT0jVuTOu0NOsqg==
+X-Google-Smtp-Source: ABdhPJxS3XiFOqFhrRKU/byzauaRUixVOrqI145+D91dRw4A1+NV2JaZOBZF6ul8S7Q+44ceN6tvuQAEuN2PR4AM+3Q=
+X-Received: by 2002:a17:90b:3b88:: with SMTP id pc8mr317033pjb.93.1635372208848;
+ Wed, 27 Oct 2021 15:03:28 -0700 (PDT)
 MIME-Version: 1.0
-References: <20211018044054.1779424-1-hch@lst.de> <20211018044054.1779424-3-hch@lst.de>
-In-Reply-To: <20211018044054.1779424-3-hch@lst.de>
+References: <20211018044054.1779424-1-hch@lst.de> <20211018044054.1779424-4-hch@lst.de>
+In-Reply-To: <20211018044054.1779424-4-hch@lst.de>
 From:   Dan Williams <dan.j.williams@intel.com>
-Date:   Wed, 27 Oct 2021 13:54:25 -0700
-Message-ID: <CAPcyv4jAd5O=keOkvtKzrnqpy21dfH0sJSk7Oo16wYrFfPnk=Q@mail.gmail.com>
-Subject: Re: [PATCH 02/11] dax: remove CONFIG_DAX_DRIVER
+Date:   Wed, 27 Oct 2021 15:03:17 -0700
+Message-ID: <CAPcyv4iM4RjrQj4Q4i+tXmq1QMC=_dy0TTCzvxqRc_miv40NGg@mail.gmail.com>
+Subject: Re: [PATCH 03/11] dax: simplify the dax_device <-> gendisk association
 To:     Christoph Hellwig <hch@lst.de>
 Cc:     Mike Snitzer <snitzer@redhat.com>, Ira Weiny <ira.weiny@intel.com>,
         device-mapper development <dm-devel@redhat.com>,
@@ -70,70 +70,14 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 On Sun, Oct 17, 2021 at 9:41 PM Christoph Hellwig <hch@lst.de> wrote:
 >
-> CONFIG_DAX_DRIVER only selects CONFIG_DAX now, so remove it.
+> Replace the dax_host_hash with an xarray indexed by the pointer value
+> of the gendisk, and require explicitl calls from the block drivers that
 
-Looks good, I don't think an s390 ack is needed for this one.
+s/explicitl/explicitl/
 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  drivers/dax/Kconfig        | 4 ----
->  drivers/nvdimm/Kconfig     | 2 +-
->  drivers/s390/block/Kconfig | 2 +-
->  fs/fuse/Kconfig            | 2 +-
->  4 files changed, 3 insertions(+), 7 deletions(-)
->
-> diff --git a/drivers/dax/Kconfig b/drivers/dax/Kconfig
-> index d2834c2cfa10d..954ab14ba7778 100644
-> --- a/drivers/dax/Kconfig
-> +++ b/drivers/dax/Kconfig
-> @@ -1,8 +1,4 @@
->  # SPDX-License-Identifier: GPL-2.0-only
-> -config DAX_DRIVER
-> -       select DAX
-> -       bool
-> -
->  menuconfig DAX
->         tristate "DAX: direct access to differentiated memory"
->         select SRCU
-> diff --git a/drivers/nvdimm/Kconfig b/drivers/nvdimm/Kconfig
-> index b7d1eb38b27d4..347fe7afa5830 100644
-> --- a/drivers/nvdimm/Kconfig
-> +++ b/drivers/nvdimm/Kconfig
-> @@ -22,7 +22,7 @@ if LIBNVDIMM
->  config BLK_DEV_PMEM
->         tristate "PMEM: Persistent memory block device support"
->         default LIBNVDIMM
-> -       select DAX_DRIVER
-> +       select DAX
->         select ND_BTT if BTT
->         select ND_PFN if NVDIMM_PFN
->         help
-> diff --git a/drivers/s390/block/Kconfig b/drivers/s390/block/Kconfig
-> index d0416dbd0cd81..e3710a762abae 100644
-> --- a/drivers/s390/block/Kconfig
-> +++ b/drivers/s390/block/Kconfig
-> @@ -5,7 +5,7 @@ comment "S/390 block device drivers"
->  config DCSSBLK
->         def_tristate m
->         select FS_DAX_LIMITED
-> -       select DAX_DRIVER
-> +       select DAX
->         prompt "DCSSBLK support"
->         depends on S390 && BLOCK
->         help
-> diff --git a/fs/fuse/Kconfig b/fs/fuse/Kconfig
-> index 40ce9a1c12e5d..038ed0b9aaa5d 100644
-> --- a/fs/fuse/Kconfig
-> +++ b/fs/fuse/Kconfig
-> @@ -45,7 +45,7 @@ config FUSE_DAX
->         select INTERVAL_TREE
->         depends on VIRTIO_FS
->         depends on FS_DAX
-> -       depends on DAX_DRIVER
-> +       depends on DAX
->         help
->           This allows bypassing guest page cache and allows mapping host page
->           cache directly in guest address space.
-> --
-> 2.30.2
->
+I've fixed that up locally.
+
+> want to associate their gendisk with a dax_device.
+
+This looks good. 0day-robot is now chewing on it via the test merge
+with linux-next (libnvdimm-pending).
