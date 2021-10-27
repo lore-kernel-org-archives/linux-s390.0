@@ -2,73 +2,122 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4856DC433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 27 Oct 2021 19:01:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 14E17C433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 27 Oct 2021 20:46:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2D2D260F22
-	for <linux-s390@archiver.kernel.org>; Wed, 27 Oct 2021 19:01:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E7A6960C4A
+	for <linux-s390@archiver.kernel.org>; Wed, 27 Oct 2021 20:46:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240506AbhJ0TD1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 27 Oct 2021 15:03:27 -0400
-Received: from vps0.lunn.ch ([185.16.172.187]:34298 "EHLO vps0.lunn.ch"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239031AbhJ0TD0 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 27 Oct 2021 15:03:26 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
-        s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
-        Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
-        Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
-        bh=Fs1k6uaHALUBcA3UWZ75VTAG9AmCGB/k7DReufrKhdM=; b=Z75BKusw94S0W/KDlUzZ6d4IyF
-        +s5okMGih0a/qYBDRq/lDoRzfucGkrt+QgA0rrX+tTG/zGcdaYB32V9cOu4I7JtpqlOlwDiVdsQ2/
-        4UWIYaam3T/wYIBve95hNhLoRzXpOyg/WXN80a8TNUEiwkACMQqKEX1tjjm04No70nDg=;
-Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
-        (envelope-from <andrew@lunn.ch>)
-        id 1mfo9U-00Bvs4-7J; Wed, 27 Oct 2021 20:59:56 +0200
-Date:   Wed, 27 Oct 2021 20:59:56 +0200
-From:   Andrew Lunn <andrew@lunn.ch>
-To:     "huangguangbin (A)" <huangguangbin2@huawei.com>
-Cc:     Marc Kleine-Budde <mkl@pengutronix.de>,
-        Jakub Kicinski <kuba@kernel.org>, davem@davemloft.net,
-        mkubecek@suse.cz, amitc@mellanox.com, idosch@idosch.org,
-        danieller@nvidia.com, jesse.brandeburg@intel.com,
-        anthony.l.nguyen@intel.com, jdike@addtoit.com, richard@nod.at,
-        anton.ivanov@cambridgegreys.com, netanel@amazon.com,
-        akiyano@amazon.com, saeedb@amazon.com, chris.snook@gmail.com,
-        ulli.kroll@googlemail.com, linus.walleij@linaro.org,
-        jeroendb@google.com, csully@google.com, awogbemila@google.com,
-        jdmason@kudzu.us, rain.1986.08.12@gmail.com, zyjzyj2000@gmail.com,
-        kys@microsoft.com, haiyangz@microsoft.com, mst@redhat.com,
-        jasowang@redhat.com, doshir@vmware.com, pv-drivers@vmware.com,
-        jwi@linux.ibm.com, kgraul@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, johannes@sipsolutions.net,
-        netdev@vger.kernel.org, lipeng321@huawei.com,
-        chenhao288@hisilicon.com, linux-s390@vger.kernel.org
-Subject: Re: [PATCH V4 net-next 4/6] ethtool: extend ringparam setting uAPI
- with rx_buf_len
-Message-ID: <YXmhrOS7Zo8AIorz@lunn.ch>
-References: <20211014113943.16231-1-huangguangbin2@huawei.com>
- <20211014113943.16231-5-huangguangbin2@huawei.com>
- <20211025131149.ya42sw64vkh7zrcr@pengutronix.de>
- <20211025132718.5wtos3oxjhzjhymr@pengutronix.de>
- <20211025104505.43461b53@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <20211025190114.zbqgzsfiv7zav7aq@pengutronix.de>
- <8ce654b8-4a31-2d43-df7e-607528ba44d5@huawei.com>
+        id S240517AbhJ0UtJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 27 Oct 2021 16:49:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46428 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237022AbhJ0UtJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Oct 2021 16:49:09 -0400
+Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97C88C061745
+        for <linux-s390@vger.kernel.org>; Wed, 27 Oct 2021 13:46:43 -0700 (PDT)
+Received: by mail-pg1-x536.google.com with SMTP id r28so4221441pga.0
+        for <linux-s390@vger.kernel.org>; Wed, 27 Oct 2021 13:46:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=intel-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=sJa1X8Nq9O3Y4Jpn6QiA74FKvcIV+C24z8IRQUjGGE0=;
+        b=TxZcat++g2F8swI/guncdG9/17Z/6RCDj0O4DaP3V2lEJrBjGy6sZkL1oaiVAPUX7i
+         ibRs8fV27ZpLTrAbifA8zRst6y+Kk83j+VEjhNI+Vbneg5PK76uFu3Pt51HYTeEaMMd/
+         OOX5Fw0eevNVN84NzUSIfUo21BQoeHWua4n8iiMA5hViXFqIkNINp7tTwt6Va0lJxObQ
+         XbAdy+YG2LtzHKedjvpvUxc4S7WGprooI9+nPgi9DghDQrCCLYP8qAZgeT7medHBfAJw
+         WFVgaDdPI0CXvVHu3YcuEB3ai43LJghhdT9dLcGlj4W6soszGfdT20P58PyL1vt7VaVP
+         hqmw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=sJa1X8Nq9O3Y4Jpn6QiA74FKvcIV+C24z8IRQUjGGE0=;
+        b=RAUHeyxEg3ehYJsWVGNns49Zgb8Zck/fXrnnuKeGt1AOBF3isS8L6rlG34jCrCnZXc
+         H3yJ6X5Z579o0ll/0Xcyve/nIUvfjF2cUOmI9zW7+MYq7LUiyLxTg/2XwPIuksFhS7OS
+         CUO5kSL+740nz5IqYHOOLbWP24jqbflNyaaFQ3mxBOr3q3YNOywKxggjY8q/ftj0u0Av
+         Kds7P9LpJ+7j6dWUdyhpdbFO+dV3/Exd5EfnlUQRR1MNFDL+Dxd0dG0CFR4CrDK3e/Sq
+         Kh9RJplchqiq2xidfBsz8bVFZY1a3M/8TTGXLs5/mLlwAoNBU9jf37Gng9cKYpTzA8gn
+         YpGA==
+X-Gm-Message-State: AOAM533bCPSmXcv1AiueycLC/TcqZP7CSCJAxieGcfUktjAZn5oiBciO
+        4FVvARFAhlGPnJt4hHe5y9s+3/LNrEi7jn1os94N+Q==
+X-Google-Smtp-Source: ABdhPJzuYcyzIFqC2QDapdBCh3wTfdWUrlublr2aq9P2i1Emub6ylFDIqTcshjHDL5pSUpWP0gXhlJZ+k6Puz+OdoJE=
+X-Received: by 2002:a05:6a00:1348:b0:47c:e8f1:69a3 with SMTP id
+ k8-20020a056a00134800b0047ce8f169a3mr433025pfu.86.1635367603066; Wed, 27 Oct
+ 2021 13:46:43 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <8ce654b8-4a31-2d43-df7e-607528ba44d5@huawei.com>
+References: <20211018044054.1779424-1-hch@lst.de>
+In-Reply-To: <20211018044054.1779424-1-hch@lst.de>
+From:   Dan Williams <dan.j.williams@intel.com>
+Date:   Wed, 27 Oct 2021 13:46:31 -0700
+Message-ID: <CAPcyv4iEt78-XSsKjTWcpy71zaduXyyigTro6f3fmRqqFOG98Q@mail.gmail.com>
+Subject: Re: futher decouple DAX from block devices
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Mike Snitzer <snitzer@redhat.com>, Ira Weiny <ira.weiny@intel.com>,
+        device-mapper development <dm-devel@redhat.com>,
+        linux-xfs <linux-xfs@vger.kernel.org>,
+        Linux NVDIMM <nvdimm@lists.linux.dev>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        linux-erofs@lists.ozlabs.org,
+        linux-ext4 <linux-ext4@vger.kernel.org>,
+        virtualization@lists.linux-foundation.org,
+        Stephen Rothwell <sfr@canb.auug.org.au>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-> We think ethtool_ringparam_ext is more easy to understand it is extension of
-> struct ethtool_ringparam. However, we don't mind to keep the same way and modify
-> to the name kernel_ethtool_ringparam if everyone agrees.
-> 
-> Does anyone have other opinions?
+[ add sfr ]
 
-What has been done most in the past? We should one way to do this, and
-consistently use it everywhere in the network stack.
+On Sun, Oct 17, 2021 at 9:41 PM Christoph Hellwig <hch@lst.de> wrote:
+>
+> Hi Dan,
+>
+> this series cleans up and simplifies the association between DAX and block
+> devices in preparation of allowing to mount file systems directly on DAX
+> devices without a detour through block devices.
 
-     Andrew
+So I notice that this is based on linux-next while libnvdimm-for-next
+is based on v5.15-rc4. Since I'm not Andrew I went ahead and rebased
+these onto v5.15-rc4, tested that, and then merged with linux-next to
+resolve the conflicts and tested again.
+
+My merge resolution is here [1]. Christoph, please have a look. The
+rebase and the merge result are both passing my test and I'm now going
+to review the individual patches. However, while I do that and collect
+acks from DM and EROFS folks, I want to give Stephen a heads up that
+this is coming. Primarily I want to see if someone sees a better
+strategy to merge this, please let me know, but if not I plan to walk
+Stephen and Linus through the resolution.
+
+[1]: https://git.kernel.org/pub/scm/linux/kernel/git/djbw/nvdimm.git/commit/?id=c3894cf6eb8f
+
+
+>
+> Diffstat:
+>  drivers/dax/Kconfig          |    4
+>  drivers/dax/bus.c            |    2
+>  drivers/dax/super.c          |  220 +++++--------------------------------------
+>  drivers/md/dm-linear.c       |   51 +++------
+>  drivers/md/dm-log-writes.c   |   44 +++-----
+>  drivers/md/dm-stripe.c       |   65 +++---------
+>  drivers/md/dm-table.c        |   22 ++--
+>  drivers/md/dm-writecache.c   |    2
+>  drivers/md/dm.c              |   29 -----
+>  drivers/md/dm.h              |    4
+>  drivers/nvdimm/Kconfig       |    2
+>  drivers/nvdimm/pmem.c        |    9 -
+>  drivers/s390/block/Kconfig   |    2
+>  drivers/s390/block/dcssblk.c |   12 +-
+>  fs/dax.c                     |   13 ++
+>  fs/erofs/super.c             |   11 +-
+>  fs/ext2/super.c              |    6 -
+>  fs/ext4/super.c              |    9 +
+>  fs/fuse/Kconfig              |    2
+>  fs/fuse/virtio_fs.c          |    2
+>  fs/xfs/xfs_super.c           |   54 +++++-----
+>  include/linux/dax.h          |   30 ++---
+>  22 files changed, 185 insertions(+), 410 deletions(-)
