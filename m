@@ -2,88 +2,136 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 27546C433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 27 Oct 2021 12:08:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C68EDC433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 27 Oct 2021 14:06:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E1EBF6103B
-	for <linux-s390@archiver.kernel.org>; Wed, 27 Oct 2021 12:08:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9EB6460F38
+	for <linux-s390@archiver.kernel.org>; Wed, 27 Oct 2021 14:06:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240309AbhJ0MKy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 27 Oct 2021 08:10:54 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:20375 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231441AbhJ0MKx (ORCPT
+        id S236482AbhJ0OJM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 27 Oct 2021 10:09:12 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:8380 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S233046AbhJ0OJL (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 27 Oct 2021 08:10:53 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1635336508;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=XBL3Wt9IebM3ldnKa6PwYfPT8mt15aCFJBjCOuaXlGY=;
-        b=id9nHdo86kJkOFgxj0C9n2XjKO/q6plBLozgu4nHfxLIl3CJrJL95ZRlJy9tLzrPHJXAGt
-        lTOX//ZlnjtnpOORWeFChxGEkbPiIG+7NbLZrtqBsDSZva3PS1y4vo7Ob2+osdAN9zme6y
-        0UlG88AbTdpKqfDROk59pWfXNxKFprM=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-234-DBpqN599PbyWGsheFxb0Jw-1; Wed, 27 Oct 2021 08:08:26 -0400
-X-MC-Unique: DBpqN599PbyWGsheFxb0Jw-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 8CBAE10A8E15;
-        Wed, 27 Oct 2021 12:08:25 +0000 (UTC)
-Received: from thuth.remote.csb (unknown [10.39.195.128])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 9125019D9D;
-        Wed, 27 Oct 2021 12:08:11 +0000 (UTC)
-Subject: Re: [kvm-unit-tests PATCH v3 1/2] s390x: Add specification exception
- test
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Janis Schoetterl-Glausch <scgl@linux.vnet.ibm.com>
-Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20211022120156.281567-1-scgl@linux.ibm.com>
- <20211022120156.281567-2-scgl@linux.ibm.com>
- <20211025191722.31cf7215@p-imbrenda>
- <d7b701ba-785f-5019-d2e4-a7eb30598c8f@linux.vnet.ibm.com>
- <20211026154113.1a9ab666@p-imbrenda>
-From:   Thomas Huth <thuth@redhat.com>
-Message-ID: <34a47a4e-0176-902e-c458-9e532cdb9fcb@redhat.com>
-Date:   Wed, 27 Oct 2021 14:08:10 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        Wed, 27 Oct 2021 10:09:11 -0400
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19RDHnDr027637;
+        Wed, 27 Oct 2021 14:06:45 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=vqAejZvKe9AeVf7S/8IHMdKVXn9Kn+hdYqiAWpzm8wg=;
+ b=XWSZnsWDykFn+YxPctjSWx7yQPozOUaq9XcmfzexVh40BZZEB433uGxw5GXdFbd/TsLE
+ Lh307cTeYfa4jQ6IE5Lftlp6pRFZ2myKLj/ahQZErM3mPxR2HjQE4g1QOFI0cL0uiY3M
+ q7Z4EXwQV8ssINMbFx+8gUm6+HhrfoPn405vpdkGhGzUT24Abvvnl4G8ViIlRs0T0mQC
+ lWYgkU8Q2FtmYh2Th1Z+nAy8PpKcSrNdtp+69UHmeFWTiW5lofOIaVxkgZ5+UIJ7EvJX
+ zPX00qOC3P98yXa6cevkXNmyi2rE3GrplXyRAkNHqUxH84rMOguuPL5ultnxXL+eKddk mQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3by7he965s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 27 Oct 2021 14:06:45 +0000
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19RDJJgE032176;
+        Wed, 27 Oct 2021 14:06:45 GMT
+Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3by7he965f-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 27 Oct 2021 14:06:45 +0000
+Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
+        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19RE3Tvc021183;
+        Wed, 27 Oct 2021 14:06:44 GMT
+Received: from b01cxnp23033.gho.pok.ibm.com (b01cxnp23033.gho.pok.ibm.com [9.57.198.28])
+        by ppma04dal.us.ibm.com with ESMTP id 3bx4f83w5b-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 27 Oct 2021 14:06:44 +0000
+Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
+        by b01cxnp23033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19RE6gOU42402196
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 27 Oct 2021 14:06:42 GMT
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4B0AB2805E;
+        Wed, 27 Oct 2021 14:06:42 +0000 (GMT)
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7E21028067;
+        Wed, 27 Oct 2021 14:06:41 +0000 (GMT)
+Received: from [9.160.124.65] (unknown [9.160.124.65])
+        by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTP;
+        Wed, 27 Oct 2021 14:06:41 +0000 (GMT)
+Message-ID: <b0d3a026-68ab-4783-d0dd-af50fd709260@linux.ibm.com>
+Date:   Wed, 27 Oct 2021 10:06:40 -0400
 MIME-Version: 1.0
-In-Reply-To: <20211026154113.1a9ab666@p-imbrenda>
-Content-Type: text/plain; charset=utf-8; format=flowed
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.1.0
+Subject: Re: [PATCH] KVM: s390x: add debug statement for diag 318 CPNC data
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+To:     Christian Borntraeger <borntraeger@de.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc:     frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com
+References: <20211027025451.290124-1-walling@linux.ibm.com>
+ <ab36ddd3-1a05-ec6a-3c6e-a8881956d0e2@de.ibm.com>
+From:   Collin Walling <walling@linux.ibm.com>
+In-Reply-To: <ab36ddd3-1a05-ec6a-3c6e-a8881956d0e2@de.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: J0b1rhH_UwOyjMKT_yqwkhsdk5xDAPlR
+X-Proofpoint-ORIG-GUID: _SQF5PrXJDlzcvsCtia8qmLJF8jwISPE
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-10-27_04,2021-10-26_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=999
+ malwarescore=0 lowpriorityscore=0 mlxscore=0 suspectscore=0 clxscore=1015
+ impostorscore=0 spamscore=0 phishscore=0 priorityscore=1501 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
+ definitions=main-2110270086
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 26/10/2021 15.41, Claudio Imbrenda wrote:
-> On Tue, 26 Oct 2021 14:00:31 +0200
-> Janis Schoetterl-Glausch <scgl@linux.vnet.ibm.com> wrote:
-[...]
->>> since you're ignoring the return value, can't you hardcode r6, and mark
->>> it (and r7) as clobbered? like:
->>> 		"lpq 6, %[bad]"
->>> 		: : [bad] "T"(words[1])
->>> 		: "%r6", "%r7"
->>>    
->> Ok, btw. is there a reason bare register numbers seem to be more common
->> compared to %%rN ?
+On 10/27/21 01:37, Christian Borntraeger wrote:
+> Am 27.10.21 um 04:54 schrieb Collin Walling:
+>> The diag 318 data contains values that denote information regarding the
+>> guest's environment. Currently, it is unecessarily difficult to observe
+>> this value (either manually-inserted debug statements, gdb stepping, mem
+>> dumping etc). It's useful to observe this information to obtain an
+>> at-a-glance view of the guest's environment, so lets add a simple VCPU
+>> event that prints the CPNC to the s390dbf logs.
+>>
+>> Signed-off-by: Collin Walling <walling@linux.ibm.com>
 > 
-> I don't know, I guess laziness?
+> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> 
+> And it even finds a bug in QEMU. We clear the CPNC on local CPU resets.
+> Can you have a look? I think we just have to move the cpnc in the env
+> field from the normal/initial reset range to the full reset range.
 
-FWIW, older versions of Clang do not support bare register numbers on s390x, 
-so it's better to use %%rN, AFAIK...
-OTOH, we cannot compile the kvm-unit-tests with older versions of Clang 
-anyway, so it likely doesn't matter here.
+I'll take a look at this right away.
 
-  Thomas
+>> ---
+>>   arch/s390/kvm/kvm-s390.c | 1 +
+>>   1 file changed, 1 insertion(+)
+>>
+>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>> index 6a6dd5e1daf6..da3ff24eabd0 100644
+>> --- a/arch/s390/kvm/kvm-s390.c
+>> +++ b/arch/s390/kvm/kvm-s390.c
+>> @@ -4254,6 +4254,7 @@ static void sync_regs_fmt2(struct kvm_vcpu *vcpu)
+>>       if (kvm_run->kvm_dirty_regs & KVM_SYNC_DIAG318) {
+>>           vcpu->arch.diag318_info.val = kvm_run->s.regs.diag318;
+>>           vcpu->arch.sie_block->cpnc = vcpu->arch.diag318_info.cpnc;
+>> +        VCPU_EVENT(vcpu, 2, "setting cpnc to %d",
+>> vcpu->arch.diag318_info.cpnc);
+>>       }
+>>       /*
+>>        * If userspace sets the riccb (e.g. after migration) to a valid
+>> state,
+>>
 
+
+-- 
+Regards,
+Collin
+
+Stay safe and stay healthy
