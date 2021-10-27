@@ -2,184 +2,111 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22CCFC433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Oct 2021 21:49:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1065C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 27 Oct 2021 02:55:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 049C6610C8
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Oct 2021 21:49:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B63BC6103B
+	for <linux-s390@archiver.kernel.org>; Wed, 27 Oct 2021 02:55:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235831AbhJZVvi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 26 Oct 2021 17:51:38 -0400
-Received: from mail-pl1-f173.google.com ([209.85.214.173]:37547 "EHLO
-        mail-pl1-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237419AbhJZVvW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Oct 2021 17:51:22 -0400
-Received: by mail-pl1-f173.google.com with SMTP id n11so527643plf.4;
-        Tue, 26 Oct 2021 14:48:58 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=PTfDtU9ITgZgQpCYO9Pe8JKDuiPUT22FD3M2pisYMu4=;
-        b=AChTEHmBek/hSb6aXZvPNVQ+r6H8QErwP4hTF+ZIvCcc9CRFxiMPZpGYl0PfSNU0D9
-         Ed5amRDpFtX6NuTT02AWGRoNODLwURl2wHgfCIj/sXaroi+ezzjJq4eqB0XbKlOFxzZP
-         EyOGJa7ftNKRkUNxbaUTONBF+KeXj3eAxFJHpDIoyky/n+h5/Qi28ke/cnHXc+rx0fen
-         3TWEC22vfPFdMi7yU7oquXaB/vc0kGXT4R/AI5q92xmF1e5yTOsq63MSxwqo/Th6iRwk
-         9PIJUmsqu14r+91KH6LswzdvCYMFLicUA5oGUSuvVJLAAlX5OH13JtAYVz7CtEiYmY5a
-         Y3ig==
-X-Gm-Message-State: AOAM531A0wKSnCZNuDZwQyuD7JEAhq2bTIY5Sw0gwIsED+3DTNc58KRp
-        rGVpTguV7WjXOtUxXK4dRKkkbRgJfoMNmQ==
-X-Google-Smtp-Source: ABdhPJzlF/fGJS5G4v9d3WlqG0vlxAB2D6rFvKigGkGrF+U3YfMmwWlFd3DkaUSRjD+23M0+ozwxyw==
-X-Received: by 2002:a17:90a:784a:: with SMTP id y10mr1476356pjl.211.1635284937199;
-        Tue, 26 Oct 2021 14:48:57 -0700 (PDT)
-Received: from bvanassche-linux.mtv.corp.google.com ([2620:15c:211:201:d40:ea48:4805:9a5e])
-        by smtp.gmail.com with ESMTPSA id p3sm23113031pfb.205.2021.10.26.14.48.55
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 26 Oct 2021 14:48:56 -0700 (PDT)
-Subject: Re: [PATCH v3] scsi: core: Fix early registration of sysfs attributes
- for scsi_device
-To:     Benjamin Block <bblock@linux.ibm.com>,
-        Steffen Maier <maier@linux.ibm.com>
-Cc:     jwi@linux.ibm.com, martin.petersen@oracle.com, jejb@linux.ibm.com,
-        linux-scsi@vger.kernel.org, gregkh@linuxfoundation.org,
-        linux-next@vger.kernel.org, linux-s390@vger.kernel.org
-References: <2f5e5d18-7ba9-10f6-1855-84546172b473@linux.ibm.com>
- <20211026014240.4098365-1-maier@linux.ibm.com>
- <YXfRvxKu/xXVubF8@t480-pf1aa2c2.linux.ibm.com>
-From:   Bart Van Assche <bvanassche@acm.org>
-Message-ID: <ab1a9bfd-c1d2-e101-a9f3-f969ed3d1cad@acm.org>
-Date:   Tue, 26 Oct 2021 14:48:55 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        id S238650AbhJ0C53 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 26 Oct 2021 22:57:29 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:41616 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S237738AbhJ0C53 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 26 Oct 2021 22:57:29 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19R1NSaT026003;
+        Wed, 27 Oct 2021 02:55:04 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=mquzcs8+Xk9icp/L2UVb3BYTbG1C4KfeNB7ZvqspWe8=;
+ b=FkXO612HeSQWIQGNBlvI2fhHjwDvcsBmN49QKiolj49+A1rKRcrFIG272a8iHiGiLiIF
+ zvo4IlJb3pF4H9Ci1tZ40aP8enklvD+eAUIYrDssFLiJStCxb5dQKgQqPtE7KNmdYDZk
+ FwpFPbsRLAVd7TXyXhTje2y89KsyEXHk5nQEPonz5cqN2OSK9Ek0d+r+teuS0oRIuoKL
+ PeLxhbUZ0Gj7K7a+jPa10qvz67nIfY6u61rAz/DELOd2yfvKDbc7MAle464HDMsuDb5Z
+ G3FhgtYJfb3AmDpSXlfvY/P2jLjuEJGG8b3mUptIP+nHPjfgJ/xQO6YYwKjI1tHk3oVd pg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bxw2ja7p2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 27 Oct 2021 02:55:04 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19R2nMqL012631;
+        Wed, 27 Oct 2021 02:55:03 GMT
+Received: from ppma01wdc.us.ibm.com (fd.55.37a9.ip4.static.sl-reverse.com [169.55.85.253])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3bxw2ja7ng-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 27 Oct 2021 02:55:03 +0000
+Received: from pps.filterd (ppma01wdc.us.ibm.com [127.0.0.1])
+        by ppma01wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19R2ruOT027360;
+        Wed, 27 Oct 2021 02:55:02 GMT
+Received: from b01cxnp23032.gho.pok.ibm.com (b01cxnp23032.gho.pok.ibm.com [9.57.198.27])
+        by ppma01wdc.us.ibm.com with ESMTP id 3bx4efruxs-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 27 Oct 2021 02:55:02 +0000
+Received: from b01ledav003.gho.pok.ibm.com (b01ledav003.gho.pok.ibm.com [9.57.199.108])
+        by b01cxnp23032.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19R2t1Ek44499444
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 27 Oct 2021 02:55:01 GMT
+Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6A3BAB2075;
+        Wed, 27 Oct 2021 02:55:01 +0000 (GMT)
+Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1B5D3B2064;
+        Wed, 27 Oct 2021 02:55:01 +0000 (GMT)
+Received: from localhost.localdomain.com (unknown [9.160.124.65])
+        by b01ledav003.gho.pok.ibm.com (Postfix) with ESMTP;
+        Wed, 27 Oct 2021 02:55:01 +0000 (GMT)
+From:   Collin Walling <walling@linux.ibm.com>
+To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com,
+        imbrenda@linux.ibm.com
+Subject: [PATCH] KVM: s390x: add debug statement for diag 318 CPNC data
+Date:   Tue, 26 Oct 2021 22:54:51 -0400
+Message-Id: <20211027025451.290124-1-walling@linux.ibm.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-In-Reply-To: <YXfRvxKu/xXVubF8@t480-pf1aa2c2.linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: VXJ7JbOy3r7Ju-4MDoNkm44dMX5bneY7
+X-Proofpoint-GUID: 6KXx7qR0PtCcGlQ6QCtBaRQdeA3IWHnp
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-10-26_07,2021-10-26_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 bulkscore=0
+ malwarescore=0 spamscore=0 mlxlogscore=999 suspectscore=0
+ lowpriorityscore=0 clxscore=1011 priorityscore=1501 mlxscore=0
+ adultscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2110270012
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 10/26/21 3:00 AM, Benjamin Block wrote:
-> Hmm, maybe this is out of scope for this fix, but couldn't we
-> essentially do the same thing for the host attributes. Have the
-> `shost_class` take the `scsi_shost_attr_group` as default attributes for
-> the shost class, and then assign the `shost_groups` from the LLDD
-> template to `shost_dev.groups` as optional attributes?
-> 
-> Then we get rid of the indirection loop in `hosts.c` as well, that was
-> introduce with he original patch by Bart.
-> 
-> Just a shot in the dark, I don't know whether the `struct class` behaves
-> the same in this case as `struct device_type`.
+The diag 318 data contains values that denote information regarding the
+guest's environment. Currently, it is unecessarily difficult to observe
+this value (either manually-inserted debug statements, gdb stepping, mem
+dumping etc). It's useful to observe this information to obtain an
+at-a-glance view of the guest's environment, so lets add a simple VCPU
+event that prints the CPNC to the s390dbf logs.
 
-Is something like this what you have in mind?
-
-Thanks,
-
-Bart.
-
-
-Subject: [PATCH] scsi: core: Remove Scsi_Host.shost_dev_attr_groups
-
-Suggested-by: Benjamin Block <bblock@linux.ibm.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Collin Walling <walling@linux.ibm.com>
 ---
-  drivers/scsi/hosts.c      | 15 +++------------
-  drivers/scsi/scsi_priv.h  |  2 +-
-  drivers/scsi/scsi_sysfs.c |  7 ++++++-
-  include/scsi/scsi_host.h  |  6 ------
-  4 files changed, 10 insertions(+), 20 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
-index 17aef936bc90..f88e7ed77dbb 100644
---- a/drivers/scsi/hosts.c
-+++ b/drivers/scsi/hosts.c
-@@ -61,6 +61,7 @@ static void scsi_host_cls_release(struct device *dev)
-  static struct class shost_class = {
-  	.name		= "scsi_host",
-  	.dev_release	= scsi_host_cls_release,
-+	.dev_groups	= scsi_shost_groups,
-  };
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 6a6dd5e1daf6..da3ff24eabd0 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -4254,6 +4254,7 @@ static void sync_regs_fmt2(struct kvm_vcpu *vcpu)
+ 	if (kvm_run->kvm_dirty_regs & KVM_SYNC_DIAG318) {
+ 		vcpu->arch.diag318_info.val = kvm_run->s.regs.diag318;
+ 		vcpu->arch.sie_block->cpnc = vcpu->arch.diag318_info.cpnc;
++		VCPU_EVENT(vcpu, 2, "setting cpnc to %d", vcpu->arch.diag318_info.cpnc);
+ 	}
+ 	/*
+ 	 * If userspace sets the riccb (e.g. after migration) to a valid state,
+-- 
+2.31.1
 
-  /**
-@@ -376,7 +377,7 @@ static struct device_type scsi_host_type = {
-  struct Scsi_Host *scsi_host_alloc(struct scsi_host_template *sht, int privsize)
-  {
-  	struct Scsi_Host *shost;
--	int index, i, j = 0;
-+	int index;
-
-  	shost = kzalloc(sizeof(struct Scsi_Host) + privsize, GFP_KERNEL);
-  	if (!shost)
-@@ -481,17 +482,7 @@ struct Scsi_Host *scsi_host_alloc(struct scsi_host_template *sht, int privsize)
-  	shost->shost_dev.parent = &shost->shost_gendev;
-  	shost->shost_dev.class = &shost_class;
-  	dev_set_name(&shost->shost_dev, "host%d", shost->host_no);
--	shost->shost_dev.groups = shost->shost_dev_attr_groups;
--	shost->shost_dev_attr_groups[j++] = &scsi_shost_attr_group;
--	if (sht->shost_groups) {
--		for (i = 0; sht->shost_groups[i] &&
--			     j < ARRAY_SIZE(shost->shost_dev_attr_groups);
--		     i++, j++) {
--			shost->shost_dev_attr_groups[j] =
--				sht->shost_groups[i];
--		}
--	}
--	WARN_ON_ONCE(j >= ARRAY_SIZE(shost->shost_dev_attr_groups));
-+	shost->shost_dev.groups = sht->shost_groups;
-
-  	shost->ehandler = kthread_run(scsi_error_handler, shost,
-  			"scsi_eh_%d", shost->host_no);
-diff --git a/drivers/scsi/scsi_priv.h b/drivers/scsi/scsi_priv.h
-index a278fc8948f4..0f5743f4769b 100644
---- a/drivers/scsi/scsi_priv.h
-+++ b/drivers/scsi/scsi_priv.h
-@@ -144,7 +144,7 @@ extern struct scsi_transport_template blank_transport_template;
-  extern void __scsi_remove_device(struct scsi_device *);
-
-  extern struct bus_type scsi_bus_type;
--extern const struct attribute_group scsi_shost_attr_group;
-+extern const struct attribute_group *scsi_shost_groups[];
-
-  /* scsi_netlink.c */
-  #ifdef CONFIG_SCSI_NETLINK
-diff --git a/drivers/scsi/scsi_sysfs.c b/drivers/scsi/scsi_sysfs.c
-index c26f0e29e8cd..f360154b5241 100644
---- a/drivers/scsi/scsi_sysfs.c
-+++ b/drivers/scsi/scsi_sysfs.c
-@@ -424,10 +424,15 @@ static struct attribute *scsi_sysfs_shost_attrs[] = {
-  	NULL
-  };
-
--const struct attribute_group scsi_shost_attr_group = {
-+static const struct attribute_group scsi_shost_attr_group = {
-  	.attrs =	scsi_sysfs_shost_attrs,
-  };
-
-+const struct attribute_group *scsi_shost_groups[] = {
-+	&scsi_shost_attr_group,
-+	NULL
-+};
-+
-  static void scsi_device_cls_release(struct device *class_dev)
-  {
-  	struct scsi_device *sdev;
-diff --git a/include/scsi/scsi_host.h b/include/scsi/scsi_host.h
-index ae715959f886..97cdad14de56 100644
---- a/include/scsi/scsi_host.h
-+++ b/include/scsi/scsi_host.h
-@@ -690,12 +690,6 @@ struct Scsi_Host {
-
-  	/* ldm bits */
-  	struct device		shost_gendev, shost_dev;
--	/*
--	 * The array size 3 provides space for one attribute group defined by
--	 * the SCSI core, one attribute group defined by the SCSI LLD and one
--	 * terminating NULL pointer.
--	 */
--	const struct attribute_group *shost_dev_attr_groups[3];
-
-  	/*
-  	 * Points to the transport data (if any) which is allocated
