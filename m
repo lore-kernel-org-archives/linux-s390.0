@@ -2,161 +2,85 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74A49C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 28 Oct 2021 01:44:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 89E8DC433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 28 Oct 2021 06:48:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 59E4061107
-	for <linux-s390@archiver.kernel.org>; Thu, 28 Oct 2021 01:44:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 69383610CA
+	for <linux-s390@archiver.kernel.org>; Thu, 28 Oct 2021 06:48:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229769AbhJ1Bqn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 27 Oct 2021 21:46:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56816 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229638AbhJ1Bqn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Oct 2021 21:46:43 -0400
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 182F9C061745
-        for <linux-s390@vger.kernel.org>; Wed, 27 Oct 2021 18:44:17 -0700 (PDT)
-Received: by mail-pj1-x102a.google.com with SMTP id u6-20020a17090a3fc600b001a00250584aso6643821pjm.4
-        for <linux-s390@vger.kernel.org>; Wed, 27 Oct 2021 18:44:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=intel-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=X1wiwLbjvMr0fUU/Ik7bpLL2xq562nKRBks78M/tbQ0=;
-        b=NwrWjK1zEgkC/h0OltkWmV8v6U9kycWNkAzFyZ2UqlXn15yubZLd83LVcZWNlLL1f0
-         Fv5BW1FJAtxuVzU9kXByXaxfMtmiH5UDaukXhF9R+cJyfOGMfQT6zf04USpHM9TDLMLF
-         8zm7+00diA9rU2lDu/DTfvUOEu2zCMioGVYImhjXSkJTydRCIKV9cRbUQapJjcrGiqMK
-         QnZf8nIfPhTNHOoqGDCmmZuYu6PaW3nbxj784zhi1I6uIMMPp2z6oTqTZJk+LfG12Qzb
-         jA/Y5wJffgH2J2qLufj0bLW03BgfGI/buoZEjp4mtmSwLrMRhWqThDSfNCSg+TsSc0DH
-         V6Cg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=X1wiwLbjvMr0fUU/Ik7bpLL2xq562nKRBks78M/tbQ0=;
-        b=5vr7Mx5ux7D5fldGxqtl6Ru5djHeVuFvCudAdSNNUI3uk4gmAvkOle3Rxlobj+6Rev
-         PDNs97dz06m41vbwNtJJIyfR22bhI/qJmb0VvarJq1gO16Yzcy6BkmXXGvGd+ehc86wU
-         dNCc3e2GWuCM5BC8j3p0iP/LN38MlI2WnZOKE/b3BsteIfe5DXYC/Q80uZl1zYt2VMPN
-         PC3jV4IxvLKRm7gt/G54KqCiI5e4cxP4uxwtxy9zNi+a11+HYti2OjQA/wBrfSwx8Ogf
-         h69bRgATvnPpwDBMTRhbXI3A4glVQU8/AHJz9eCFSGIe8GpOuIdLiewg3OE7PJpYNufU
-         ngNA==
-X-Gm-Message-State: AOAM533PVwmbMEo02GP3vCM0VkpNl5EekB6L53vP4I6S8nd7+rehcXu7
-        +5v6m/EptL36b6YRSAAWTcV/wHcU+ULbyKdsX+Iplw==
-X-Google-Smtp-Source: ABdhPJyk8c8xZHfkX0RONmluScnz61A4HGhWerdM4JYgASaD4FzedQ2nCFUwr5W/5xCzT57VlrSOf0tWDKABqHHbWT8=
-X-Received: by 2002:a17:902:8a97:b0:13e:6e77:af59 with SMTP id
- p23-20020a1709028a9700b0013e6e77af59mr1240292plo.4.1635385456643; Wed, 27 Oct
- 2021 18:44:16 -0700 (PDT)
+        id S229778AbhJ1Gu6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 28 Oct 2021 02:50:58 -0400
+Received: from out30-44.freemail.mail.aliyun.com ([115.124.30.44]:47315 "EHLO
+        out30-44.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229586AbhJ1Gu5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 28 Oct 2021 02:50:57 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04407;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0Utyxk-0_1635403708;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0Utyxk-0_1635403708)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Thu, 28 Oct 2021 14:48:29 +0800
+Date:   Thu, 28 Oct 2021 14:48:28 +0800
+From:   Tony Lu <tonylu@linux.alibaba.com>
+To:     Jakub Kicinski <kuba@kernel.org>
+Cc:     Karsten Graul <kgraul@linux.ibm.com>, davem@davemloft.net,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-rdma@vger.kernel.org, jacob.qi@linux.alibaba.com,
+        xuanzhuo@linux.alibaba.com, guwen@linux.alibaba.com,
+        dust.li@linux.alibaba.com
+Subject: Re: [PATCH net 1/4] Revert "net/smc: don't wait for send buffer
+ space when data was already sent"
+Message-ID: <YXpHvKGhPzcNoEtD@TonyMac-Alibaba>
+Reply-To: Tony Lu <tonylu@linux.alibaba.com>
+References: <20211027085208.16048-1-tonylu@linux.alibaba.com>
+ <20211027085208.16048-2-tonylu@linux.alibaba.com>
+ <9bbd05ac-5fa5-7d7a-fe69-e7e072ccd1ab@linux.ibm.com>
+ <20211027080813.238b82ce@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <06ae0731-0b9b-a70d-6479-de6fe691e25d@linux.ibm.com>
+ <20211027084710.1f4a4ff1@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
 MIME-Version: 1.0
-References: <20211018044054.1779424-1-hch@lst.de> <20211018044054.1779424-12-hch@lst.de>
-In-Reply-To: <20211018044054.1779424-12-hch@lst.de>
-From:   Dan Williams <dan.j.williams@intel.com>
-Date:   Wed, 27 Oct 2021 18:44:04 -0700
-Message-ID: <CAPcyv4ht6fZOdx4YN9FRCnmD2Wy4zzG7nJPQSdSPAgvZNHxoFw@mail.gmail.com>
-Subject: Re: [PATCH 11/11] dax: move bdev_dax_pgoff to fs/dax.c
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Mike Snitzer <snitzer@redhat.com>, Ira Weiny <ira.weiny@intel.com>,
-        device-mapper development <dm-devel@redhat.com>,
-        linux-xfs <linux-xfs@vger.kernel.org>,
-        Linux NVDIMM <nvdimm@lists.linux.dev>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        linux-erofs@lists.ozlabs.org,
-        linux-ext4 <linux-ext4@vger.kernel.org>,
-        virtualization@lists.linux-foundation.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20211027084710.1f4a4ff1@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sun, Oct 17, 2021 at 9:41 PM Christoph Hellwig <hch@lst.de> wrote:
->
-> No functional changet, but this will allow for a tighter integration
+On Wed, Oct 27, 2021 at 08:47:10AM -0700, Jakub Kicinski wrote:
+> On Wed, 27 Oct 2021 17:38:27 +0200 Karsten Graul wrote:
+> > What we found out was that applications called sendmsg() with large data
+> > buffers using blocking sockets. This led to the described situation, were the
+> > solution was to early return to user space even if not all data were sent yet.
+> > Userspace applications should not have a problem with the fact that sendmsg()
+> > returns a smaller byte count than requested.
+> > 
+> > Reverting this patch would bring back the stalled connection problem.
+> 
+> I'm not sure. The man page for send says:
+> 
+>        When the message does not fit into  the  send  buffer  of  the  socket,
+>        send()  normally blocks, unless the socket has been placed in nonblock‐
+>        ing I/O mode.  In nonblocking mode it would fail with the error  EAGAIN
+>        or  EWOULDBLOCK in this case.
+> 
+> dunno if that's required by POSIX or just a best practice.
 
-s/changet/changes/
+The man page describes the common cases about the socket API behavior,
+but depends on the implement.
 
-> with the iomap code, including possible passing the partition offset
+For example, the connect(2) implement of TCP, it would never block, but
+also provides EAGAIN errors for UNIX domain sockets.
 
-s/possible/possibly/
+       EAGAIN For nonblocking UNIX domain sockets, the socket is
+              nonblocking, and the connection cannot be completed
+              immediately.  For other socket families, there are
+              insufficient entries in the routing cache.
 
-> in the iomap in the future.  For now it mostly avoids growing more
+In my opinion, if we are going to replace TCP with SMC, these userspace
+socket API should behavior as same, and don't break the userspace
+applications like netperf. It could be better to block here when sending
+message without enough buffer.
 
-s/now/now,/
-
-...all of the above fixed up locally.
-
-Other than that, it looks good to me.
-
-> callers outside of fs/dax.c.
->
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  drivers/dax/super.c | 14 --------------
->  fs/dax.c            | 13 +++++++++++++
->  include/linux/dax.h |  1 -
->  3 files changed, 13 insertions(+), 15 deletions(-)
->
-> diff --git a/drivers/dax/super.c b/drivers/dax/super.c
-> index 803942586d1b6..c0910687fbcb2 100644
-> --- a/drivers/dax/super.c
-> +++ b/drivers/dax/super.c
-> @@ -67,20 +67,6 @@ void dax_remove_host(struct gendisk *disk)
->  }
->  EXPORT_SYMBOL_GPL(dax_remove_host);
->
-> -int bdev_dax_pgoff(struct block_device *bdev, sector_t sector, size_t size,
-> -               pgoff_t *pgoff)
-> -{
-> -       sector_t start_sect = bdev ? get_start_sect(bdev) : 0;
-> -       phys_addr_t phys_off = (start_sect + sector) * 512;
-> -
-> -       if (pgoff)
-> -               *pgoff = PHYS_PFN(phys_off);
-> -       if (phys_off % PAGE_SIZE || size % PAGE_SIZE)
-> -               return -EINVAL;
-> -       return 0;
-> -}
-> -EXPORT_SYMBOL(bdev_dax_pgoff);
-> -
->  /**
->   * dax_get_by_host() - temporary lookup mechanism for filesystem-dax
->   * @bdev: block device to find a dax_device for
-> diff --git a/fs/dax.c b/fs/dax.c
-> index 4e3e5a283a916..eb715363fd667 100644
-> --- a/fs/dax.c
-> +++ b/fs/dax.c
-> @@ -709,6 +709,19 @@ int dax_invalidate_mapping_entry_sync(struct address_space *mapping,
->         return __dax_invalidate_entry(mapping, index, false);
->  }
->
-> +static int bdev_dax_pgoff(struct block_device *bdev, sector_t sector, size_t size,
-> +               pgoff_t *pgoff)
-> +{
-> +       sector_t start_sect = bdev ? get_start_sect(bdev) : 0;
-> +       phys_addr_t phys_off = (start_sect + sector) * 512;
-> +
-> +       if (pgoff)
-> +               *pgoff = PHYS_PFN(phys_off);
-> +       if (phys_off % PAGE_SIZE || size % PAGE_SIZE)
-> +               return -EINVAL;
-> +       return 0;
-> +}
-> +
->  static int copy_cow_page_dax(struct block_device *bdev, struct dax_device *dax_dev,
->                              sector_t sector, struct page *to, unsigned long vaddr)
->  {
-> diff --git a/include/linux/dax.h b/include/linux/dax.h
-> index 439c3c70e347b..324363b798ecd 100644
-> --- a/include/linux/dax.h
-> +++ b/include/linux/dax.h
-> @@ -107,7 +107,6 @@ static inline bool daxdev_mapping_supported(struct vm_area_struct *vma,
->  #endif
->
->  struct writeback_control;
-> -int bdev_dax_pgoff(struct block_device *, sector_t, size_t, pgoff_t *pgoff);
->  #if IS_ENABLED(CONFIG_FS_DAX)
->  int dax_add_host(struct dax_device *dax_dev, struct gendisk *disk);
->  void dax_remove_host(struct gendisk *disk);
-> --
-> 2.30.2
->
+In our benchmarks and E2E tests (Redis, MySQL, etc.), it is acceptable to
+block here. Because the userspace applications usually block in the loop
+until the data send out. If it blocks, the scheduler can handle it.
