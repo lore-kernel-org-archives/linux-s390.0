@@ -2,105 +2,172 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A4D3DC433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 28 Oct 2021 00:20:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BC7FC4332F
+	for <linux-s390@archiver.kernel.org>; Thu, 28 Oct 2021 01:33:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 81BA3610C7
-	for <linux-s390@archiver.kernel.org>; Thu, 28 Oct 2021 00:20:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 09D92611C3
+	for <linux-s390@archiver.kernel.org>; Thu, 28 Oct 2021 01:33:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229611AbhJ1AXS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 27 Oct 2021 20:23:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38334 "EHLO
+        id S229801AbhJ1Bfk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 27 Oct 2021 21:35:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229518AbhJ1AXS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Oct 2021 20:23:18 -0400
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14A95C061767
-        for <linux-s390@vger.kernel.org>; Wed, 27 Oct 2021 17:20:52 -0700 (PDT)
-Received: by mail-pj1-x1032.google.com with SMTP id oa12-20020a17090b1bcc00b0019f715462a8so3321664pjb.3
-        for <linux-s390@vger.kernel.org>; Wed, 27 Oct 2021 17:20:52 -0700 (PDT)
+        with ESMTP id S229829AbhJ1Bfg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Oct 2021 21:35:36 -0400
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6F8EC061745
+        for <linux-s390@vger.kernel.org>; Wed, 27 Oct 2021 18:33:10 -0700 (PDT)
+Received: by mail-pj1-x1035.google.com with SMTP id k2-20020a17090ac50200b001a218b956aaso3440493pjt.2
+        for <linux-s390@vger.kernel.org>; Wed, 27 Oct 2021 18:33:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=intel-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=thFpqdlxLVjcGfDZPprDTzPo9iTzt5bk9dqhDCzY+u0=;
-        b=Bp5byUxxNEOGWx1LiYKcSiES+UNWDp5D/cMWZdjtl33fGWM9mdrZIzgn/KeGW66w48
-         HLlosh7rVoB0KWLzJNIesUqmq7HyWnrZDWPZXtEInbmdYlimOId2CvHzX4NDal8E2jsZ
-         NIOS1NWX2Og4zHktLs8Z73ffbx1VrB4tMgXBr+cAXsS3m4YEPwio+BMFFkGVGFDC70ho
-         bg5uNNY9RzCmq9k8vu68K0vdjkKG8QMiqL+5O7IERSfZ90owTTf78IF/SLmMshLsv0gn
-         algtrVwvBQo2E9HZ/GOG94ZMah+I89z5KkLKLbHkHit8m9WqG6x8NqMi8PHespkOBUpP
-         20MA==
+        bh=pAiaBNCk1xnEBH3C9EMpKzrgqAPJnlmXDrtIiJ0dt1I=;
+        b=pAV9PI3uqSjbwl4ehA+e1fD0AmJsR9RObZKjbvBijn3hthsC3BOWhi8AwEhKayTbAn
+         +kULxKOjbDPkdJvduTRaYnTinwRQ3sTGC3RmXxOu+ZBFQAZP2dCfU0u+xx+MyQD5sCXu
+         juQ8/OlFDYxVdxNYORCgy1YjcIYTJ/VbxjTb7UxVpCGr1z8kM8Yws8W6G4x0NWwc6hyB
+         NrmNiLX5o2T12KN42PUJoRgcExOicwbK7jy2OCO7u+1RAggFonc1ris6SaZqTakBedPe
+         +KiIfancYaA+JSRyfWPQcobeLcn00lylDFmKvFb7FlRzM0bgeIYcMRtTDSe9GGiatzrv
+         LAlg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=thFpqdlxLVjcGfDZPprDTzPo9iTzt5bk9dqhDCzY+u0=;
-        b=WNugdelU1KWYn121hf0a0NehwlHew0cn+TME6/+Q4EHG3Xe/IDIDM6smVVDpVoSuYm
-         J/r7z/vE3QJCYe6dxtnh6zCZTeX6EiZvNp769Iu7ws4J1qy4WKhKZfbqTSgCoMtc391y
-         c/RLKtIeFLdoMAoyWbKHynwdQzZU4s1//sKFK/fzfip/TZXFnsdHNEcgJGlHU/iIk1Rz
-         fQO9mdRgaG3Yi94HZWpmZNrk6gy+9gkuTYr6q907ruAoCoDPg8DwV6N0Up41cnwPsGLc
-         RcCJfvVhNVp/csq5O5dDyueaKfQZPDnpnTr/yHK/M441M6d3H5ktVjWkRHF24aulvkQt
-         ToQQ==
-X-Gm-Message-State: AOAM531dfq01tHsLPpGGTS95hR/2jnVQJf9DdPy/sWU9sf5kPTHd8ovg
-        1uJn8Wn7j0Bv5qoyFXUAggmOqGCpEaTasLtaRnGJ/w==
-X-Google-Smtp-Source: ABdhPJzDJ7G0OO0ihyu2DGXMx9nVI+vhdbJMigLbokXMw0jK9Xiqd7lMu/pWH/LSzIK1m8uglUBBOlGG+XCxTCXb4vQ=
-X-Received: by 2002:a17:90b:350f:: with SMTP id ls15mr942901pjb.220.1635380451659;
- Wed, 27 Oct 2021 17:20:51 -0700 (PDT)
+        bh=pAiaBNCk1xnEBH3C9EMpKzrgqAPJnlmXDrtIiJ0dt1I=;
+        b=2NkO9nTdF6MvVcyGIRNVv7vqds2GuPG2YpZmNNvnXTQaNv0MuB8JDSfVOux/X4wJPX
+         3Y0D6qYM+97WeIPaRscksajI+HMpxD8AAhZV74kjVKCbDijiHVuEs9pJyg/ckjMLrCAY
+         IEDNOlV6wTkKqndFtEvEwE9GgUIZHL3QXAOkd/xHuEKvLhdh3qaAIb27bzL/aLcocCEB
+         N3m4NKow8YnLd3XL/s/q4sWkKKSZgWNTdSJuAJdoBzLtV0aZyTLXmJEmtOq8Wcg2psey
+         rCOeJkFTUpXYWjj8vQ7kdizoZeX7Tx1m6OwOXjG9Muaj2BrUAdbIcEUAb1btMA59l9zN
+         a36g==
+X-Gm-Message-State: AOAM53379fUB2ws3IjTdHrCo4n8YyrTtfzPwhh22HBhS8cJIA9m0sKnf
+        b681HoTZeNDc3mnH8G1/mOCgJ9bv97Lm/nFYp7x3Rg==
+X-Google-Smtp-Source: ABdhPJxm6eCpHzum4moJkAnlQxDuj0JlmT3Vix8IBxxMECN3GUzGEt1VHXlaU6FsHMYZFBw/KnWLJLzVXyU36Brr9pk=
+X-Received: by 2002:a17:90b:3b88:: with SMTP id pc8mr1221700pjb.93.1635384790364;
+ Wed, 27 Oct 2021 18:33:10 -0700 (PDT)
 MIME-Version: 1.0
-References: <20211018044054.1779424-1-hch@lst.de> <20211018044054.1779424-8-hch@lst.de>
- <20211019154447.GL24282@magnolia>
-In-Reply-To: <20211019154447.GL24282@magnolia>
+References: <20211018044054.1779424-1-hch@lst.de> <20211018044054.1779424-9-hch@lst.de>
+In-Reply-To: <20211018044054.1779424-9-hch@lst.de>
 From:   Dan Williams <dan.j.williams@intel.com>
-Date:   Wed, 27 Oct 2021 17:20:40 -0700
-Message-ID: <CAPcyv4g0yC3S8X6_DPtSjgFu3XFOHwu1KDy1HQP9eWk-EnDaxA@mail.gmail.com>
-Subject: Re: [dm-devel] [PATCH 07/11] dax: remove dax_capable
-To:     "Darrick J. Wong" <djwong@kernel.org>
-Cc:     Christoph Hellwig <hch@lst.de>,
-        Linux NVDIMM <nvdimm@lists.linux.dev>,
-        Mike Snitzer <snitzer@redhat.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        linux-erofs@lists.ozlabs.org,
-        virtualization@lists.linux-foundation.org,
-        linux-xfs <linux-xfs@vger.kernel.org>,
+Date:   Wed, 27 Oct 2021 18:32:58 -0700
+Message-ID: <CAPcyv4iK-Op9Nxoq91YLv0aRj6PkGF64UY0Z_kfovF0cpuJ_JQ@mail.gmail.com>
+Subject: Re: [PATCH 08/11] dm-linear: add a linear_dax_pgoff helper
+To:     Christoph Hellwig <hch@lst.de>, Mike Snitzer <snitzer@redhat.com>
+Cc:     Ira Weiny <ira.weiny@intel.com>,
         device-mapper development <dm-devel@redhat.com>,
+        linux-xfs <linux-xfs@vger.kernel.org>,
+        Linux NVDIMM <nvdimm@lists.linux.dev>,
+        linux-s390 <linux-s390@vger.kernel.org>,
         linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        linux-erofs@lists.ozlabs.org,
         linux-ext4 <linux-ext4@vger.kernel.org>,
-        Ira Weiny <ira.weiny@intel.com>
+        virtualization@lists.linux-foundation.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Oct 19, 2021 at 8:45 AM Darrick J. Wong <djwong@kernel.org> wrote:
+On Sun, Oct 17, 2021 at 9:41 PM Christoph Hellwig <hch@lst.de> wrote:
 >
-> On Mon, Oct 18, 2021 at 06:40:50AM +0200, Christoph Hellwig wrote:
-> > Just open code the block size and dax_dev == NULL checks in the callers.
-> >
-> > Signed-off-by: Christoph Hellwig <hch@lst.de>
-> > ---
-> >  drivers/dax/super.c          | 36 ------------------------------------
-> >  drivers/md/dm-table.c        | 22 +++++++++++-----------
-> >  drivers/md/dm.c              | 21 ---------------------
-> >  drivers/md/dm.h              |  4 ----
-> >  drivers/nvdimm/pmem.c        |  1 -
-> >  drivers/s390/block/dcssblk.c |  1 -
-> >  fs/erofs/super.c             | 11 +++++++----
-> >  fs/ext2/super.c              |  6 ++++--
-> >  fs/ext4/super.c              |  9 ++++++---
-> >  fs/xfs/xfs_super.c           | 21 ++++++++-------------
-> >  include/linux/dax.h          | 14 --------------
-> >  11 files changed, 36 insertions(+), 110 deletions(-)
-> >
-[..]               if (ext4_has_feature_inline_data(sb)) {
-> > diff --git a/fs/xfs/xfs_super.c b/fs/xfs/xfs_super.c
-> > index d07020a8eb9e3..163ceafbd8fd2 100644
-> > --- a/fs/xfs/xfs_super.c
-> > +++ b/fs/xfs/xfs_super.c
-[..]
-> > +     if (mp->m_super->s_blocksize != PAGE_SIZE) {
-> > +             xfs_alert(mp,
-> > +                     "DAX not supported for blocksize. Turning off DAX.\n");
->
-> Newlines aren't needed at the end of extX_msg/xfs_alert format strings.
+> Add a helper to perform the entire remapping for DAX accesses.  This
+> helper open codes bdev_dax_pgoff given that the alignment checks have
+> already been done by the submitting file system and don't need to be
+> repeated.
 
-Thanks Darrick, I fixed those up.
+Looks good.
+
+Mike, ack?
+
+>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  drivers/md/dm-linear.c | 49 +++++++++++++-----------------------------
+>  1 file changed, 15 insertions(+), 34 deletions(-)
+>
+> diff --git a/drivers/md/dm-linear.c b/drivers/md/dm-linear.c
+> index 32fbab11bf90c..bf03f73fd0f36 100644
+> --- a/drivers/md/dm-linear.c
+> +++ b/drivers/md/dm-linear.c
+> @@ -164,63 +164,44 @@ static int linear_iterate_devices(struct dm_target *ti,
+>  }
+>
+>  #if IS_ENABLED(CONFIG_FS_DAX)
+> +static struct dax_device *linear_dax_pgoff(struct dm_target *ti, pgoff_t *pgoff)
+> +{
+> +       struct linear_c *lc = ti->private;
+> +       sector_t sector = linear_map_sector(ti, *pgoff << PAGE_SECTORS_SHIFT);
+> +
+> +       *pgoff = (get_start_sect(lc->dev->bdev) + sector) >> PAGE_SECTORS_SHIFT;
+> +       return lc->dev->dax_dev;
+> +}
+> +
+>  static long linear_dax_direct_access(struct dm_target *ti, pgoff_t pgoff,
+>                 long nr_pages, void **kaddr, pfn_t *pfn)
+>  {
+> -       long ret;
+> -       struct linear_c *lc = ti->private;
+> -       struct block_device *bdev = lc->dev->bdev;
+> -       struct dax_device *dax_dev = lc->dev->dax_dev;
+> -       sector_t dev_sector, sector = pgoff * PAGE_SECTORS;
+> -
+> -       dev_sector = linear_map_sector(ti, sector);
+> -       ret = bdev_dax_pgoff(bdev, dev_sector, nr_pages * PAGE_SIZE, &pgoff);
+> -       if (ret)
+> -               return ret;
+> +       struct dax_device *dax_dev = linear_dax_pgoff(ti, &pgoff);
+> +
+>         return dax_direct_access(dax_dev, pgoff, nr_pages, kaddr, pfn);
+>  }
+>
+>  static size_t linear_dax_copy_from_iter(struct dm_target *ti, pgoff_t pgoff,
+>                 void *addr, size_t bytes, struct iov_iter *i)
+>  {
+> -       struct linear_c *lc = ti->private;
+> -       struct block_device *bdev = lc->dev->bdev;
+> -       struct dax_device *dax_dev = lc->dev->dax_dev;
+> -       sector_t dev_sector, sector = pgoff * PAGE_SECTORS;
+> +       struct dax_device *dax_dev = linear_dax_pgoff(ti, &pgoff);
+>
+> -       dev_sector = linear_map_sector(ti, sector);
+> -       if (bdev_dax_pgoff(bdev, dev_sector, ALIGN(bytes, PAGE_SIZE), &pgoff))
+> -               return 0;
+>         return dax_copy_from_iter(dax_dev, pgoff, addr, bytes, i);
+>  }
+>
+>  static size_t linear_dax_copy_to_iter(struct dm_target *ti, pgoff_t pgoff,
+>                 void *addr, size_t bytes, struct iov_iter *i)
+>  {
+> -       struct linear_c *lc = ti->private;
+> -       struct block_device *bdev = lc->dev->bdev;
+> -       struct dax_device *dax_dev = lc->dev->dax_dev;
+> -       sector_t dev_sector, sector = pgoff * PAGE_SECTORS;
+> +       struct dax_device *dax_dev = linear_dax_pgoff(ti, &pgoff);
+>
+> -       dev_sector = linear_map_sector(ti, sector);
+> -       if (bdev_dax_pgoff(bdev, dev_sector, ALIGN(bytes, PAGE_SIZE), &pgoff))
+> -               return 0;
+>         return dax_copy_to_iter(dax_dev, pgoff, addr, bytes, i);
+>  }
+>
+>  static int linear_dax_zero_page_range(struct dm_target *ti, pgoff_t pgoff,
+>                                       size_t nr_pages)
+>  {
+> -       int ret;
+> -       struct linear_c *lc = ti->private;
+> -       struct block_device *bdev = lc->dev->bdev;
+> -       struct dax_device *dax_dev = lc->dev->dax_dev;
+> -       sector_t dev_sector, sector = pgoff * PAGE_SECTORS;
+> -
+> -       dev_sector = linear_map_sector(ti, sector);
+> -       ret = bdev_dax_pgoff(bdev, dev_sector, nr_pages << PAGE_SHIFT, &pgoff);
+> -       if (ret)
+> -               return ret;
+> +       struct dax_device *dax_dev = linear_dax_pgoff(ti, &pgoff);
+> +
+>         return dax_zero_page_range(dax_dev, pgoff, nr_pages);
+>  }
+>
+> --
+> 2.30.2
+>
