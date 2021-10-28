@@ -2,183 +2,118 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B76C6C433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 28 Oct 2021 14:48:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D045C433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 28 Oct 2021 15:56:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9429F60C40
-	for <linux-s390@archiver.kernel.org>; Thu, 28 Oct 2021 14:48:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 21348610CA
+	for <linux-s390@archiver.kernel.org>; Thu, 28 Oct 2021 15:56:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231397AbhJ1OvD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 28 Oct 2021 10:51:03 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:57076 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231235AbhJ1OvC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 28 Oct 2021 10:51:02 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19SDmh6a030596;
-        Thu, 28 Oct 2021 14:48:35 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=AkOfNJYInjF/oBHpisU8Hp0IrDgq53HnCVySzYnXpnk=;
- b=a6j3jvcUMwCj+8UPYFaO16PQBYwujIS/cuMVmT30qhQrEhebPhN6SQVYgV8rTmqHetTI
- uVDps4mdttjHN1UxHZDPwDXuJa44sK6YpAuwU71CcBH1aEZQKC9FbyW4rE+ATDONA9j0
- LOBdJLPN9fem0Nb49WrWxh6uz4c1lTG6lBMj3MQZ2B7JZhY3zYj+NIut9GcuyJJMvWWW
- DXSmfrqi5+aqJtOGZUEd/F0EXVMaNYUlxvKL1zhXPz/wfAyuj2lxcIiR3zi8I/6dQ3Nh
- emxN4QOV/mkqE78blI+RLHVR7l2s9KH+Zpa7jv/GWVgE6yA77GD3FS2fQvvpW2NFBLNn hA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3byw2n9dg0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 28 Oct 2021 14:48:35 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19SEOmdF008877;
-        Thu, 28 Oct 2021 14:48:35 GMT
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3byw2n9df6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 28 Oct 2021 14:48:35 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19SEmNTT025217;
-        Thu, 28 Oct 2021 14:48:32 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma05fra.de.ibm.com with ESMTP id 3bx4es0snn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 28 Oct 2021 14:48:32 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19SEmTxB524856
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 28 Oct 2021 14:48:29 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 17B9B4C059;
-        Thu, 28 Oct 2021 14:48:29 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 952F34C04A;
-        Thu, 28 Oct 2021 14:48:28 +0000 (GMT)
-Received: from [9.171.30.68] (unknown [9.171.30.68])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 28 Oct 2021 14:48:28 +0000 (GMT)
-Message-ID: <457896b2-b462-639e-bb40-dee3716fcb9a@linux.vnet.ibm.com>
-Date:   Thu, 28 Oct 2021 16:48:28 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.0
-Subject: Re: [PATCH v2 3/3] KVM: s390: gaccess: Cleanup access to guest frames
-Content-Language: en-US
-To:     David Hildenbrand <david@redhat.com>,
-        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
+        id S229846AbhJ1P7E (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 28 Oct 2021 11:59:04 -0400
+Received: from out01.mta.xmission.com ([166.70.13.231]:60400 "EHLO
+        out01.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229752AbhJ1P7D (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 28 Oct 2021 11:59:03 -0400
+Received: from in01.mta.xmission.com ([166.70.13.51]:54984)
+        by out01.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1mg7lb-00HVH7-MW; Thu, 28 Oct 2021 09:56:35 -0600
+Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95]:42000 helo=email.xmission.com)
+        by in01.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1mg7la-00BNln-Mc; Thu, 28 Oct 2021 09:56:35 -0600
+From:   ebiederm@xmission.com (Eric W. Biederman)
+To:     Christian Borntraeger <borntraeger@de.ibm.com>
+Cc:     linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Al Viro <viro@ZenIV.linux.org.uk>,
+        Kees Cook <keescook@chromium.org>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Cc:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20211028135556.1793063-1-scgl@linux.ibm.com>
- <20211028135556.1793063-4-scgl@linux.ibm.com>
- <4ac7c459-8e13-087a-f98d-9f3e0e6d8ee6@redhat.com>
-From:   Janis Schoetterl-Glausch <scgl@linux.vnet.ibm.com>
-In-Reply-To: <4ac7c459-8e13-087a-f98d-9f3e0e6d8ee6@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: k53KMm4IAAkzNdsYvhd724PKKsITVDp-
-X-Proofpoint-ORIG-GUID: pm5fHHQCBtMRbV_KgNakyK2z3EijAQtP
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-10-28_01,2021-10-26_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
- mlxscore=0 spamscore=0 bulkscore=0 adultscore=0 clxscore=1011
- mlxlogscore=999 lowpriorityscore=0 impostorscore=0 priorityscore=1501
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2110280081
+        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org
+In-Reply-To: <7c99f791-4a87-ae52-bee7-cb794b0741d2@de.ibm.com> (Christian
+        Borntraeger's message of "Tue, 26 Oct 2021 11:38:44 +0200")
+References: <87y26nmwkb.fsf@disp2133>
+        <20211020174406.17889-11-ebiederm@xmission.com>
+        <7c99f791-4a87-ae52-bee7-cb794b0741d2@de.ibm.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+Date:   Thu, 28 Oct 2021 10:56:24 -0500
+Message-ID: <87y26dp2hj.fsf@disp2133>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-XM-SPF: eid=1mg7la-00BNln-Mc;;;mid=<87y26dp2hj.fsf@disp2133>;;;hst=in01.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
+X-XM-AID: U2FsdGVkX18rKKOlSmtxyq2C51ggZJ/yg2hgTayDimU=
+X-SA-Exim-Connect-IP: 68.227.160.95
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+Subject: Re: [PATCH 11/20] signal/s390: Use force_sigsegv in default_trap_handler
+X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
+X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 10/28/21 16:25, David Hildenbrand wrote:
-> On 28.10.21 15:55, Janis Schoetterl-Glausch wrote:
->> Introduce a helper function for guest frame access.
-> 
-> "guest page access"
+Christian Borntraeger <borntraeger@de.ibm.com> writes:
 
-Ok.
-> 
-> But I do wonder if you actually want to call it
-> 
-> "access_guest_abs"
-> 
-> and say "guest absolute access" instead here.
-> 
-> Because we're dealing with absolute addresses and the fact that we are
-> accessing it page-wise is just because we have to perform a page-wise
-> translation in the callers (either virtual->absolute or real->absolute).
-> 
-> Theoretically, if you know you're across X pages but they are contiguous
-> in absolute address space, nothing speaks against using that function
-> directly across X pages with a single call.
-
-There currently is no point to this, is there?
-kvm_read/write_guest break the region up into pages anyway,
-so no reason to try to identify larger continuous chunks.
-> 
+> Am 20.10.21 um 19:43 schrieb Eric W. Biederman:
+>> Reading the history it is unclear why default_trap_handler calls
+>> do_exit.  It is not even menthioned in the commit where the change
+>> happened.  My best guess is that because it is unknown why the
+>> exception happened it was desired to guarantee the process never
+>> returned to userspace.
 >>
->> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+>> Using do_exit(SIGSEGV) has the problem that it will only terminate one
+>> thread of a process, leaving the process in an undefined state.
+>>
+>> Use force_sigsegv(SIGSEGV) instead which effectively has the same
+>> behavior except that is uses the ordinary signal mechanism and
+>> terminates all threads of a process and is generally well defined.
+>
+> Do I get that right, that programs can not block SIGSEGV from force_sigsegv
+> with a signal handler? Thats how I read the code. If this is true
+> then
+>
+> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+
+99% true, and it is what force_sigsegv(SIGSEGV) intends to do.
+
+Andy Lutormorski pointed at a race where a thread can call sigaction
+and change the signal handler after force_sigsegv has run but before
+the process dequeues the SIGSEGV.
+
+In principle it isn't too hard to close that race, and I was hoping to
+be able to tell you that I had sorted by the time I replied.
+Unfortunately it looks like it will take another week or two so will
+probably not be ready by the merge window.
+
+I am definitely going to close that race.
+
+Eric
+
+
+>> Cc: Heiko Carstens <hca@linux.ibm.com>
+>> Cc: Vasily Gorbik <gor@linux.ibm.com>
+>> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+>> Cc: linux-s390@vger.kernel.org
+>> Fixes: ca2ab03237ec ("[PATCH] s390: core changes")
+>> History Tree: https://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git
+>> Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 >> ---
->>  arch/s390/kvm/gaccess.c | 24 ++++++++++++++++--------
->>  1 file changed, 16 insertions(+), 8 deletions(-)
+>>   arch/s390/kernel/traps.c | 2 +-
+>>   1 file changed, 1 insertion(+), 1 deletion(-)
 >>
->> diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
->> index f0848c37b003..9a633310b6fe 100644
->> --- a/arch/s390/kvm/gaccess.c
->> +++ b/arch/s390/kvm/gaccess.c
->> @@ -866,6 +866,20 @@ static int guest_range_to_gpas(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
->>  	return 0;
->>  }
->>  
->> +static int access_guest_page(struct kvm *kvm, enum gacc_mode mode, gpa_t gpa,
->> +			      void *data, unsigned int len)
->> +{
->> +	const unsigned int offset = offset_in_page(gpa);
->> +	const gfn_t gfn = gpa_to_gfn(gpa);
->> +	int rc;
->> +
->> +	if (mode == GACC_STORE)
->> +		rc = kvm_write_guest_page(kvm, gfn, data, offset, len);
->> +	else
->> +		rc = kvm_read_guest_page(kvm, gfn, data, offset, len);
->> +	return rc;
->> +}
->> +
->>  int access_guest(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar, void *data,
->>  		 unsigned long len, enum gacc_mode mode)
->>  {
->> @@ -896,10 +910,7 @@ int access_guest(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar, void *data,
->>  	rc = guest_range_to_gpas(vcpu, ga, ar, gpas, len, asce, mode);
->>  	for (idx = 0; idx < nr_pages && !rc; idx++) {
->>  		fragment_len = min(PAGE_SIZE - offset_in_page(gpas[idx]), len);
->> -		if (mode == GACC_STORE)
->> -			rc = kvm_write_guest(vcpu->kvm, gpas[idx], data, fragment_len);
->> -		else
->> -			rc = kvm_read_guest(vcpu->kvm, gpas[idx], data, fragment_len);
->> +		rc = access_guest_page(vcpu->kvm, mode, gpas[idx], data, fragment_len);
->>  		len -= fragment_len;
->>  		data += fragment_len;
->>  	}
->> @@ -920,10 +931,7 @@ int access_guest_real(struct kvm_vcpu *vcpu, unsigned long gra,
->>  	while (len && !rc) {
->>  		gpa = kvm_s390_real_to_abs(vcpu, gra);
->>  		fragment_len = min(PAGE_SIZE - offset_in_page(gpa), len);
->> -		if (mode)
->> -			rc = write_guest_abs(vcpu, gpa, data, fragment_len);
->> -		else
->> -			rc = read_guest_abs(vcpu, gpa, data, fragment_len);
->> +		rc = access_guest_page(vcpu->kvm, mode, gpa, data, fragment_len);
->>  		len -= fragment_len;
->>  		gra += fragment_len;
->>  		data += fragment_len;
+>> diff --git a/arch/s390/kernel/traps.c b/arch/s390/kernel/traps.c
+>> index bcefc2173de4..51729ea2cf8e 100644
+>> --- a/arch/s390/kernel/traps.c
+>> +++ b/arch/s390/kernel/traps.c
+>> @@ -84,7 +84,7 @@ static void default_trap_handler(struct pt_regs *regs)
+>>   {
+>>   	if (user_mode(regs)) {
+>>   		report_user_fault(regs, SIGSEGV, 0);
+>> -		do_exit(SIGSEGV);
+>> +		force_sigsegv(SIGSEGV);
+>>   	} else
+>>   		die(regs, "Unknown program exception");
+>>   }
 >>
-> 
-> 
-
