@@ -2,108 +2,85 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C1FEC433FE
-	for <linux-s390@archiver.kernel.org>; Thu, 28 Oct 2021 23:51:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D6EA0C433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 29 Oct 2021 00:26:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3EC9B610A4
-	for <linux-s390@archiver.kernel.org>; Thu, 28 Oct 2021 23:51:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A3CD96103B
+	for <linux-s390@archiver.kernel.org>; Fri, 29 Oct 2021 00:26:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231640AbhJ1Xy0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 28 Oct 2021 19:54:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47058 "EHLO
+        id S230463AbhJ2A3D (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 28 Oct 2021 20:29:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231772AbhJ1XyQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 28 Oct 2021 19:54:16 -0400
-Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [IPv6:2404:9400:2:0:216:3eff:fee2:21ea])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E752C061570;
-        Thu, 28 Oct 2021 16:51:44 -0700 (PDT)
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4HgMlw4DB8z4xYy;
-        Fri, 29 Oct 2021 10:51:40 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canb.auug.org.au;
-        s=201702; t=1635465102;
-        bh=BBq1Yspji0vJm9R7zIGdVaVx2DU7+FD6B6UrqSLpbPg=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=YD23+cizlmSgewjdmhU7noKEZETmDps4i3fEy4IW/h0x6VStpgpxY1SvfXRmhLtgC
-         R73C2AZR/Zrym+A1IeFvOgQbitR7EGkFxQf2ORBS1apsKDtBt+EQj4fHovArvkT+kf
-         nxR1Bm0IAGIfvB3B4H1UIssoHggQZvP8YWpJU7ptHk1b99ZDJ8zxYcQOkZ6KEP84P1
-         vmYaqwCIDQ6FGWqA0g1ZhEHfTSfvaWL9UZW2oNOXFweire0ERYucF3+NhB82qjA5Id
-         NJ/2F+0+PVhmuDV3uC5qLEVXNIGPdBL1KvnMm3S66zK15p/TeHFQGImQ+t3EncV3RW
-         XO4GmcNhtz05g==
-Date:   Fri, 29 Oct 2021 10:51:39 +1100
-From:   Stephen Rothwell <sfr@canb.auug.org.au>
-To:     Dan Williams <dan.j.williams@intel.com>
-Cc:     Christoph Hellwig <hch@lst.de>, Mike Snitzer <snitzer@redhat.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        device-mapper development <dm-devel@redhat.com>,
-        linux-xfs <linux-xfs@vger.kernel.org>,
-        Linux NVDIMM <nvdimm@lists.linux.dev>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        linux-erofs@lists.ozlabs.org,
-        linux-ext4 <linux-ext4@vger.kernel.org>,
-        virtualization@lists.linux-foundation.org
-Subject: Re: futher decouple DAX from block devices
-Message-ID: <20211029105139.1194bb7f@canb.auug.org.au>
-In-Reply-To: <CAPcyv4iEt78-XSsKjTWcpy71zaduXyyigTro6f3fmRqqFOG98Q@mail.gmail.com>
-References: <20211018044054.1779424-1-hch@lst.de>
-        <CAPcyv4iEt78-XSsKjTWcpy71zaduXyyigTro6f3fmRqqFOG98Q@mail.gmail.com>
+        with ESMTP id S230211AbhJ2A3D (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 28 Oct 2021 20:29:03 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E40CBC061570;
+        Thu, 28 Oct 2021 17:26:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        MIME-Version:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
+        Content-ID:Content-Description:In-Reply-To:References;
+        bh=UveeGpRLd5fGY8r9sRKn/+epHdsqzILjhPdQR1yYPFs=; b=4pfK0r5VWKZeMqkQzaVcqy5dnJ
+        EsS6+yw1M0W7eITgqAH9AYTp09xC2WfgGpqPv8ARBih1apWjCPQIzELJKD/EfcyQ0k1Q99LhNT8xm
+        tT5P8+9F1dQ/0GrDF6Mtp8BvBDS4xFyBW8Fvw4omuipqkIC5+mf3grfIJdlUpRqf/oeJMusALXF3L
+        DjPSDcBeOK3R1WuFxVO2fQEoYUZDcprICblegZyGunyWmX8f702Pmmuy9OmHNSAKgVtWwpeIGsEeF
+        EzaOu5I1zhp5/1ij3VqWYD6Xa7hD0+hhqPWKTFV4nHN0xFcRiobS37gs1On5i88Pc0Ou8dPVdTr+Z
+        KQufX/oQ==;
+Received: from [2601:1c0:6280:3f0::aa0b] (helo=bombadil.infradead.org)
+        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1mgFj8-009NDe-26; Fri, 29 Oct 2021 00:26:34 +0000
+From:   Randy Dunlap <rdunlap@infradead.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Randy Dunlap <rdunlap@infradead.org>,
+        Linux Kernel Functional Testing <lkft@linaro.org>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        linux-s390@vger.kernel.org
+Subject: [PATCH] s390: add <linux/minmax.h> to <asm/facility.h>
+Date:   Thu, 28 Oct 2021 17:26:33 -0700
+Message-Id: <20211029002633.31323-1-rdunlap@infradead.org>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="Sig_/SsoWmhnAUHONY.PedkLs.lt";
- protocol="application/pgp-signature"; micalg=pgp-sha256
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
---Sig_/SsoWmhnAUHONY.PedkLs.lt
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+S390's <asm/facility.h> uses the min_t() macro, so it should
+include <linux/minmax.h> to avoid build errors.
 
-Hi Dan,
+In file included from arch/s390/pci/pci_insn.c:12:
+arch/s390/include/asm/facility.h: In function '__stfle':
+arch/s390/include/asm/facility.h:98:22: error: implicit declaration of
+function 'min_t' [-Werror=implicit-function-declaration]
+   98 |                 nr = min_t(unsigned long, (nr + 1) * 8, size * 8);
+arch/s390/include/asm/facility.h:98:28: error: expected expression
+before 'unsigned'
+   98 |                 nr = min_t(unsigned long, (nr + 1) * 8, size * 8);
 
-On Wed, 27 Oct 2021 13:46:31 -0700 Dan Williams <dan.j.williams@intel.com> =
-wrote:
->
-> My merge resolution is here [1]. Christoph, please have a look. The
-> rebase and the merge result are both passing my test and I'm now going
-> to review the individual patches. However, while I do that and collect
-> acks from DM and EROFS folks, I want to give Stephen a heads up that
-> this is coming. Primarily I want to see if someone sees a better
-> strategy to merge this, please let me know, but if not I plan to walk
-> Stephen and Linus through the resolution.
 
-It doesn't look to bad to me (however it is a bit late in the cycle :-(
-).  Once you are happy, just put it in your tree (some of the conflicts
-are against the current -rc3 based version of your tree anyway) and I
-will cope with it on Monday.
+Fixes: 4f18d869ffd0 ("s390: fix stfle zero padding")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Cc: Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: linux-s390@vger.kernel.org
+---
+ arch/s390/include/asm/facility.h |    1 +
+ 1 file changed, 1 insertion(+)
 
-You could do a test merge against next-<date>^^ (that leaves out
-Andrew's patch series) and if you think there is anything tricky please
-send me a "git diff-tree --cc HEAD" after you have resolved the
-conflicts to your satisfaction and committed the test merge or just
-point me at the test merge in a tree somewhere (like this one).
-
---=20
-Cheers,
-Stephen Rothwell
-
---Sig_/SsoWmhnAUHONY.PedkLs.lt
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEENIC96giZ81tWdLgKAVBC80lX0GwFAmF7N4sACgkQAVBC80lX
-0Gxw2gf/TsRhRytrNIQkXZwCrlHR+hjJ895jJhg4Hp+ig2QzzYRjM/GrSPzXAXF3
-s5SscPXv7egnMo+fHKY9d/CscYD6kDg4FtBuvoJqx/ApGN4PQLme5S3KbxrNRgd2
-2vpBRjXN+26toUw0W2PK1gzHRJXaB6waOFbA6crbuWU1BDzVZoeRHfjKtlBMax7Q
-g6pzcvDzs7ia50KBJvi6hNkxCy7xuNAsLlm96930v/bLvnUYo6dOGrzZ6/Kjzjcw
-LpWIuVQGxkzBiILaGSiHuNfzZEbSvoSXMfMRJ5KBpAhB8M1dhuyqP4QBWMwe7+Tn
-Oo6WLOwKx89LL+uStt4yje6yx9483w==
-=+eTD
------END PGP SIGNATURE-----
-
---Sig_/SsoWmhnAUHONY.PedkLs.lt--
+--- linux-next-20211028.orig/arch/s390/include/asm/facility.h
++++ linux-next-20211028/arch/s390/include/asm/facility.h
+@@ -9,6 +9,7 @@
+ #define __ASM_FACILITY_H
+ 
+ #include <asm/facility-defs.h>
++#include <linux/minmax.h>
+ #include <linux/string.h>
+ #include <linux/preempt.h>
+ #include <asm/lowcore.h>
