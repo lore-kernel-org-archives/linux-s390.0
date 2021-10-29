@@ -2,118 +2,150 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FC72C433FE
-	for <linux-s390@archiver.kernel.org>; Fri, 29 Oct 2021 16:16:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D6BA3C433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 29 Oct 2021 16:31:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 394A26044F
-	for <linux-s390@archiver.kernel.org>; Fri, 29 Oct 2021 16:16:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BF93761177
+	for <linux-s390@archiver.kernel.org>; Fri, 29 Oct 2021 16:31:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229607AbhJ2QTR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 29 Oct 2021 12:19:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41938 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229712AbhJ2QTQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Oct 2021 12:19:16 -0400
-Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FB9BC061570
-        for <linux-s390@vger.kernel.org>; Fri, 29 Oct 2021 09:16:48 -0700 (PDT)
-Received: by mail-pj1-x1030.google.com with SMTP id v1-20020a17090a088100b001a21156830bso10986582pjc.1
-        for <linux-s390@vger.kernel.org>; Fri, 29 Oct 2021 09:16:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=intel-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=UuiRv/Aqc9KWf66Wmwy2yVHjihLskj+s11srG8q1vD8=;
-        b=DDH8LvTf1NbwlDisv+efQao95HUsWm01LKrhjJ2uX5etHAjxnlYc1fVorsh9C2tZeZ
-         IZjJyefUE9sV7SNEI3aifqWin72xUpU2BtMndIJi3ywQQBX2XMdIqeYY8510szP8t2sH
-         kdBhiAG5maV3WHr8hudaPmgocYD17sC0B0D26/b8Pbwzr3F117FlSlFBx3SQdqHiOhCS
-         AzK0mVaRm+n9lGW4xPZYMjIFamXjTmcm5QI7QOVxfQm9omv4teemj/fppXRavbXh1qYb
-         2mUwDH8Lkp2dgVW/pz350uqfUJeZ+MOAK0wy10AUYRh1hsJJ2oVH6yHtRzop5uS3RMQt
-         86wA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=UuiRv/Aqc9KWf66Wmwy2yVHjihLskj+s11srG8q1vD8=;
-        b=SPJvylDBrOkEQ0C1ea8x/8AIckwnJNfiP5u4ByLe8ZCZfBsvBRer4BUiFUXA8uJ82F
-         +v4gA34JzzsWr/v2Ej/fGJSd0MTX2wMiS9R2YApVCc0uGOf3uTSwpXMiTzUBc8ZeRdUA
-         DBJUHPHkuvYtB4CZ5nuLlcZllNQ6tH6pNbtvCCELber+EaSeLbEcp8wRzniEjeaBRJke
-         eGfkeGHvaM4Z9iwQSnvmmDPUHIM3DXxH3FNionpXz2bnCy7J3Y7NkfljMHkXrZ1RPToI
-         m1iWk+VyxMfD2FTNH7Eq2NP6yGLmQkkxbEHrBN+8tUObp6dlnwix+ISr9SSF8JR5EBm4
-         dDDA==
-X-Gm-Message-State: AOAM532DZZIjDy1gpuNJo4woOjy/RiYgM3O7oniyiEumrAyV7aq8hy15
-        5c3/2086rwHFAnuQmLTsEr56WD5N0wMOdEqR1gZSUw==
-X-Google-Smtp-Source: ABdhPJy6oDDE8Tua+O/7LJsaoOuN022Twl1T27YRaF2rK5Jgwv2I/UmljReJn3ItDXvNR8dsDNU53ltbLhzG+bw6RwY=
-X-Received: by 2002:a17:90b:350f:: with SMTP id ls15mr12425415pjb.220.1635524207375;
- Fri, 29 Oct 2021 09:16:47 -0700 (PDT)
+        id S229940AbhJ2QeO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 29 Oct 2021 12:34:14 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:24635 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229868AbhJ2QeO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 29 Oct 2021 12:34:14 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1635525105;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=dbWwVV+hbGE8rMi2XL6X6jxBbZPWjHobzY3RTESINF4=;
+        b=F1zfIjYRuiv6nLNRS/QwcSfLXTco5ttmp8tWfb3na5gbslovdhI/jE79c7Rd6evCw1KIde
+        xjkIiq2DPSZ9wd28gUVsqhmeFDYbE2nte2gZ4H7JmUKXxky+W5LyYsOhAUkFPnowAoqTL4
+        zdaa+v3FkjB32UGjkNYBqu7q2jRipo0=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-529-i6DUpVqoMI-6IH-xfuwpdA-1; Fri, 29 Oct 2021 12:31:40 -0400
+X-MC-Unique: i6DUpVqoMI-6IH-xfuwpdA-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B7C3618D6A25;
+        Fri, 29 Oct 2021 16:31:39 +0000 (UTC)
+Received: from rhtmp (unknown [10.39.192.188])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 43DC860936;
+        Fri, 29 Oct 2021 16:31:35 +0000 (UTC)
+Date:   Fri, 29 Oct 2021 18:31:32 +0200
+From:   Philipp Rudo <prudo@redhat.com>
+To:     Baoquan He <bhe@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        kexec@lists.infradead.org, dyoung@redhat.com,
+        akpm@linux-foundation.org
+Subject: Re: [PATCH] s390/kexec: fix memory leak of ipl report buffer
+Message-ID: <20211029183132.20839ad0@rhtmp>
+In-Reply-To: <20211029092635.14804-1-bhe@redhat.com>
+References: <20211029092635.14804-1-bhe@redhat.com>
+Organization: Red Hat inc.
 MIME-Version: 1.0
-References: <20211018044054.1779424-1-hch@lst.de> <CAPcyv4iEt78-XSsKjTWcpy71zaduXyyigTro6f3fmRqqFOG98Q@mail.gmail.com>
- <20211029105139.1194bb7f@canb.auug.org.au> <CAPcyv4g8iEyN5UN1w1xBqQDYSb3HCh7_smsmjt-PiHORRK+X9Q@mail.gmail.com>
- <20211029155524.GE24307@magnolia>
-In-Reply-To: <20211029155524.GE24307@magnolia>
-From:   Dan Williams <dan.j.williams@intel.com>
-Date:   Fri, 29 Oct 2021 09:16:35 -0700
-Message-ID: <CAPcyv4hL7ox5a7L7pBs-uoj_h+9F7E_nBs-qnJKBbJ7PHpWAjw@mail.gmail.com>
-Subject: Re: futher decouple DAX from block devices
-To:     "Darrick J. Wong" <djwong@kernel.org>
-Cc:     Stephen Rothwell <sfr@canb.auug.org.au>,
-        Christoph Hellwig <hch@lst.de>,
-        Shiyang Ruan <ruansy.fnst@fujitsu.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        device-mapper development <dm-devel@redhat.com>,
-        linux-xfs <linux-xfs@vger.kernel.org>,
-        Linux NVDIMM <nvdimm@lists.linux.dev>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        linux-erofs@lists.ozlabs.org,
-        linux-ext4 <linux-ext4@vger.kernel.org>,
-        virtualization@lists.linux-foundation.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Oct 29, 2021 at 8:55 AM Darrick J. Wong <djwong@kernel.org> wrote:
->
-> On Fri, Oct 29, 2021 at 08:42:29AM -0700, Dan Williams wrote:
-> > On Thu, Oct 28, 2021 at 4:52 PM Stephen Rothwell <sfr@canb.auug.org.au> wrote:
-> > >
-> > > Hi Dan,
-> > >
-> > > On Wed, 27 Oct 2021 13:46:31 -0700 Dan Williams <dan.j.williams@intel.com> wrote:
-> > > >
-> > > > My merge resolution is here [1]. Christoph, please have a look. The
-> > > > rebase and the merge result are both passing my test and I'm now going
-> > > > to review the individual patches. However, while I do that and collect
-> > > > acks from DM and EROFS folks, I want to give Stephen a heads up that
-> > > > this is coming. Primarily I want to see if someone sees a better
-> > > > strategy to merge this, please let me know, but if not I plan to walk
-> > > > Stephen and Linus through the resolution.
-> > >
-> > > It doesn't look to bad to me (however it is a bit late in the cycle :-(
-> > > ).  Once you are happy, just put it in your tree (some of the conflicts
-> > > are against the current -rc3 based version of your tree anyway) and I
-> > > will cope with it on Monday.
-> >
-> > Christoph, Darrick, Shiyang,
-> >
-> > I'm losing my nerve to try to jam this into v5.16 this late in the
-> > cycle.
->
-> Always a solid choice to hold off for a little more testing and a little
-> less anxiety. :)
->
-> I don't usually accept new code patches for iomap after rc4 anyway.
->
-> > I do want to get dax+reflink squared away as soon as possible,
-> > but that looks like something that needs to build on top of a
-> > v5.16-rc1 at this point. If Linus does a -rc8 then maybe it would have
-> > enough soak time, but otherwise I want to take the time to collect the
-> > acks and queue up some more follow-on cleanups to prepare for
-> > block-less-dax.
->
-> I think that hwpoison-calls-xfs-rmap patchset is a prerequisite for
-> dax+reflink anyway, right?  /me had concluded both were 5.17 things.
+Hi Baoquan,
 
-Ok, cool, sounds like a plan.
+On Fri, 29 Oct 2021 17:26:35 +0800
+Baoquan He <bhe@redhat.com> wrote:
+
+> A memory leak is reported by kmemleak scanning:
+> 
+> unreferenced object 0x38000195000 (size 4096):
+>   comm "kexec", pid 8548, jiffies 4294953647 (age 32443.270s)
+>   hex dump (first 32 bytes):
+>     00 00 00 c8 20 00 00 00 00 00 00 c0 02 80 00 00  .... ...........
+>     40 40 40 40 40 40 40 40 00 00 00 00 00 00 00 00  @@@@@@@@........
+>   backtrace:
+>     [<0000000011a2f199>] __vmalloc_node_range+0xc0/0x140
+>     [<0000000081fa2752>] vzalloc+0x5a/0x70
+>     [<0000000063a4c92d>] ipl_report_finish+0x2c/0x180
+>     [<00000000553304da>] kexec_file_add_ipl_report+0xf4/0x150
+>     [<00000000862d033f>] kexec_file_add_components+0x124/0x160
+>     [<000000000d2717bb>] arch_kexec_kernel_image_load+0x62/0x90
+>     [<000000002e0373b6>] kimage_file_alloc_init+0x1aa/0x2e0
+>     [<0000000060f2d14f>] __do_sys_kexec_file_load+0x17c/0x2c0
+>     [<000000008c86fe5a>] __s390x_sys_kexec_file_load+0x40/0x50
+>     [<000000001fdb9dac>] __do_syscall+0x1bc/0x1f0
+>     [<000000003ee4258d>] system_call+0x78/0xa0
+> 
+> The ipl report buffer is allocated via vmalloc, while has no chance to free
+> if the kexe loading is unloaded. This will cause obvious memory leak
+> when kexec/kdump kernel is reloaded, manually, or triggered, e.g by
+> memory hotplug.
+> 
+> Here, add struct kimage_arch to s390 to pass out the ipl report buffer
+> address, and introduce arch dependent function
+> arch_kimage_file_post_load_cleanup() to free it when unloaded.
+> 
+> Signed-off-by: Baoquan He <bhe@redhat.com>
+
+other than a missing
+
+Fixes: 99feaa717e55 ("s390/kexec_file: Create ipl report and pass to
+next kernel")
+
+the patch looks good to me.
+
+Reviewed-by: Philipp Rudo <prudo@redhat.com>
+
+> ---
+>  arch/s390/include/asm/kexec.h         | 7 +++++++
+>  arch/s390/kernel/machine_kexec_file.c | 9 +++++++++
+>  2 files changed, 16 insertions(+)
+> 
+> diff --git a/arch/s390/include/asm/kexec.h b/arch/s390/include/asm/kexec.h
+> index ea398a05f643..9f16e99fb882 100644
+> --- a/arch/s390/include/asm/kexec.h
+> +++ b/arch/s390/include/asm/kexec.h
+> @@ -74,6 +74,13 @@ void *kexec_file_add_components(struct kimage *image,
+>  int arch_kexec_do_relocs(int r_type, void *loc, unsigned long val,
+>  			 unsigned long addr);
+>  
+> +#define ARCH_HAS_KIMAGE_ARCH
+> +
+> +struct kimage_arch {
+> +	void *ipl_buf;
+> +};
+> +
+> +
+>  extern const struct kexec_file_ops s390_kexec_image_ops;
+>  extern const struct kexec_file_ops s390_kexec_elf_ops;
+>  
+> diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
+> index f9e4baa64b67..584c48b631b2 100644
+> --- a/arch/s390/kernel/machine_kexec_file.c
+> +++ b/arch/s390/kernel/machine_kexec_file.c
+> @@ -202,6 +202,7 @@ static int kexec_file_add_ipl_report(struct kimage *image,
+>  	buf.buffer = ipl_report_finish(data->report);
+>  	buf.bufsz = data->report->size;
+>  	buf.memsz = buf.bufsz;
+> +	image->arch.ipl_buf = buf.buffer;
+>  
+>  	data->memsz += buf.memsz;
+>  
+> @@ -321,3 +322,11 @@ int arch_kexec_kernel_image_probe(struct kimage *image, void *buf,
+>  
+>  	return kexec_image_probe_default(image, buf, buf_len);
+>  }
+> +
+> +int arch_kimage_file_post_load_cleanup(struct kimage *image)
+> +{
+> +	kvfree(image->arch.ipl_buf);
+> +	image->arch.ipl_buf = NULL;
+> +
+> +	return kexec_image_post_load_cleanup_default(image);
+> +}
+
