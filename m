@@ -2,118 +2,114 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DEAA2C433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 29 Oct 2021 19:34:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EC04C433F5
+	for <linux-s390@archiver.kernel.org>; Sat, 30 Oct 2021 13:14:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C4DB560F93
-	for <linux-s390@archiver.kernel.org>; Fri, 29 Oct 2021 19:34:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4BA38610A0
+	for <linux-s390@archiver.kernel.org>; Sat, 30 Oct 2021 13:14:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230271AbhJ2Tg4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 29 Oct 2021 15:36:56 -0400
-Received: from out03.mta.xmission.com ([166.70.13.233]:37482 "EHLO
-        out03.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229474AbhJ2Tg4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Oct 2021 15:36:56 -0400
-Received: from in01.mta.xmission.com ([166.70.13.51]:57118)
-        by out03.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1mgXdx-007QLV-Jn; Fri, 29 Oct 2021 13:34:25 -0600
-Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95]:32942 helo=email.xmission.com)
-        by in01.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1mgXdw-00EJtM-9Y; Fri, 29 Oct 2021 13:34:24 -0600
-From:   ebiederm@xmission.com (Eric W. Biederman)
-To:     Christian Borntraeger <borntraeger@de.ibm.com>
-Cc:     linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Al Viro <viro@ZenIV.linux.org.uk>,
-        Kees Cook <keescook@chromium.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org
-References: <87y26nmwkb.fsf@disp2133>
-        <20211020174406.17889-11-ebiederm@xmission.com>
-        <7c99f791-4a87-ae52-bee7-cb794b0741d2@de.ibm.com>
-        <87y26dp2hj.fsf@disp2133>
-Date:   Fri, 29 Oct 2021 14:32:36 -0500
-In-Reply-To: <87y26dp2hj.fsf@disp2133> (Eric W. Biederman's message of "Thu,
-        28 Oct 2021 10:56:24 -0500")
-Message-ID: <87v91fhbjf.fsf@disp2133>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+        id S230178AbhJ3NQ7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 30 Oct 2021 09:16:59 -0400
+Received: from szxga01-in.huawei.com ([45.249.212.187]:30883 "EHLO
+        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230004AbhJ3NQ7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 30 Oct 2021 09:16:59 -0400
+Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.55])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4HhKQJ1pfZzbnL8;
+        Sat, 30 Oct 2021 21:09:44 +0800 (CST)
+Received: from kwepemm600016.china.huawei.com (7.193.23.20) by
+ dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.15; Sat, 30 Oct 2021 21:14:25 +0800
+Received: from localhost.localdomain (10.67.165.24) by
+ kwepemm600016.china.huawei.com (7.193.23.20) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.15; Sat, 30 Oct 2021 21:14:24 +0800
+From:   Guangbin Huang <huangguangbin2@huawei.com>
+To:     <davem@davemloft.net>, <kuba@kernel.org>, <mkubecek@suse.cz>,
+        <andrew@lunn.ch>, <amitc@mellanox.com>, <idosch@idosch.org>,
+        <danieller@nvidia.com>, <jesse.brandeburg@intel.com>,
+        <anthony.l.nguyen@intel.com>, <jdike@addtoit.com>,
+        <richard@nod.at>, <anton.ivanov@cambridgegreys.com>,
+        <netanel@amazon.com>, <akiyano@amazon.com>, <gtzalik@amazon.com>,
+        <saeedb@amazon.com>, <chris.snook@gmail.com>,
+        <ulli.kroll@googlemail.com>, <linus.walleij@linaro.org>,
+        <jeroendb@google.com>, <csully@google.com>,
+        <awogbemila@google.com>, <jdmason@kudzu.us>,
+        <rain.1986.08.12@gmail.com>, <zyjzyj2000@gmail.com>,
+        <kys@microsoft.com>, <haiyangz@microsoft.com>, <mst@redhat.com>,
+        <jasowang@redhat.com>, <doshir@vmware.com>,
+        <pv-drivers@vmware.com>, <jwi@linux.ibm.com>,
+        <kgraul@linux.ibm.com>, <hca@linux.ibm.com>, <gor@linux.ibm.com>,
+        <johannes@sipsolutions.net>
+CC:     <netdev@vger.kernel.org>, <lipeng321@huawei.com>,
+        <chenhao288@hisilicon.com>, <huangguangbin2@huawei.com>,
+        <linux-s390@vger.kernel.org>
+Subject: [PATCH V5 net-next 1/6] ethtool: add support to set/get tx copybreak buf size via ethtool
+Date:   Sat, 30 Oct 2021 21:09:56 +0800
+Message-ID: <20211030131001.38739-2-huangguangbin2@huawei.com>
+X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20211030131001.38739-1-huangguangbin2@huawei.com>
+References: <20211030131001.38739-1-huangguangbin2@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-XM-SPF: eid=1mgXdw-00EJtM-9Y;;;mid=<87v91fhbjf.fsf@disp2133>;;;hst=in01.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
-X-XM-AID: U2FsdGVkX1+IQGABJNds1K89FHzqTI6D9ZKRfirmdT4=
-X-SA-Exim-Connect-IP: 68.227.160.95
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-Subject: Re: [PATCH 11/20] signal/s390: Use force_sigsegv in default_trap_handler
-X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
-X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.67.165.24]
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ kwepemm600016.china.huawei.com (7.193.23.20)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-ebiederm@xmission.com (Eric W. Biederman) writes:
+From: Hao Chen <chenhao288@hisilicon.com>
 
-> Christian Borntraeger <borntraeger@de.ibm.com> writes:
->
->> Am 20.10.21 um 19:43 schrieb Eric W. Biederman:
->>> Reading the history it is unclear why default_trap_handler calls
->>> do_exit.  It is not even menthioned in the commit where the change
->>> happened.  My best guess is that because it is unknown why the
->>> exception happened it was desired to guarantee the process never
->>> returned to userspace.
->>>
->>> Using do_exit(SIGSEGV) has the problem that it will only terminate one
->>> thread of a process, leaving the process in an undefined state.
->>>
->>> Use force_sigsegv(SIGSEGV) instead which effectively has the same
->>> behavior except that is uses the ordinary signal mechanism and
->>> terminates all threads of a process and is generally well defined.
->>
->> Do I get that right, that programs can not block SIGSEGV from force_sigsegv
->> with a signal handler? Thats how I read the code. If this is true
->> then
->>
->> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
->
-> 99% true, and it is what force_sigsegv(SIGSEGV) intends to do.
->
-> Andy Lutormorski pointed at a race where a thread can call sigaction
-> and change the signal handler after force_sigsegv has run but before
-> the process dequeues the SIGSEGV.
+Add support for ethtool to set/get tx copybreak buf size.
 
-I now have a simple patch that closes the sigaction vs force_sig race,
-that I am adding to this set of changes.  So now I can say programs can
-not block force_sigsegv(SIGSEGV) with a signal handler or any other
-method.
+Signed-off-by: Hao Chen <chenhao288@hisilicon.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+---
+ include/uapi/linux/ethtool.h | 1 +
+ net/ethtool/common.c         | 1 +
+ net/ethtool/ioctl.c          | 1 +
+ 3 files changed, 3 insertions(+)
 
-Eric
+diff --git a/include/uapi/linux/ethtool.h b/include/uapi/linux/ethtool.h
+index a2223b685451..7bc4b8def12c 100644
+--- a/include/uapi/linux/ethtool.h
++++ b/include/uapi/linux/ethtool.h
+@@ -231,6 +231,7 @@ enum tunable_id {
+ 	ETHTOOL_RX_COPYBREAK,
+ 	ETHTOOL_TX_COPYBREAK,
+ 	ETHTOOL_PFC_PREVENTION_TOUT, /* timeout in msecs */
++	ETHTOOL_TX_COPYBREAK_BUF_SIZE,
+ 	/*
+ 	 * Add your fresh new tunable attribute above and remember to update
+ 	 * tunable_strings[] in net/ethtool/common.c
+diff --git a/net/ethtool/common.c b/net/ethtool/common.c
+index c63e0739dc6a..0c5210015911 100644
+--- a/net/ethtool/common.c
++++ b/net/ethtool/common.c
+@@ -89,6 +89,7 @@ tunable_strings[__ETHTOOL_TUNABLE_COUNT][ETH_GSTRING_LEN] = {
+ 	[ETHTOOL_RX_COPYBREAK]	= "rx-copybreak",
+ 	[ETHTOOL_TX_COPYBREAK]	= "tx-copybreak",
+ 	[ETHTOOL_PFC_PREVENTION_TOUT] = "pfc-prevention-tout",
++	[ETHTOOL_TX_COPYBREAK_BUF_SIZE] = "tx-copybreak-buf-size",
+ };
+ 
+ const char
+diff --git a/net/ethtool/ioctl.c b/net/ethtool/ioctl.c
+index 44430b6ab843..3dc81edf5ca5 100644
+--- a/net/ethtool/ioctl.c
++++ b/net/ethtool/ioctl.c
+@@ -2382,6 +2382,7 @@ static int ethtool_tunable_valid(const struct ethtool_tunable *tuna)
+ 	switch (tuna->id) {
+ 	case ETHTOOL_RX_COPYBREAK:
+ 	case ETHTOOL_TX_COPYBREAK:
++	case ETHTOOL_TX_COPYBREAK_BUF_SIZE:
+ 		if (tuna->len != sizeof(u32) ||
+ 		    tuna->type_id != ETHTOOL_TUNABLE_U32)
+ 			return -EINVAL;
+-- 
+2.33.0
 
->>> Cc: Heiko Carstens <hca@linux.ibm.com>
->>> Cc: Vasily Gorbik <gor@linux.ibm.com>
->>> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
->>> Cc: linux-s390@vger.kernel.org
->>> Fixes: ca2ab03237ec ("[PATCH] s390: core changes")
->>> History Tree: https://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git
->>> Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
->>> ---
->>>   arch/s390/kernel/traps.c | 2 +-
->>>   1 file changed, 1 insertion(+), 1 deletion(-)
->>>
->>> diff --git a/arch/s390/kernel/traps.c b/arch/s390/kernel/traps.c
->>> index bcefc2173de4..51729ea2cf8e 100644
->>> --- a/arch/s390/kernel/traps.c
->>> +++ b/arch/s390/kernel/traps.c
->>> @@ -84,7 +84,7 @@ static void default_trap_handler(struct pt_regs *regs)
->>>   {
->>>   	if (user_mode(regs)) {
->>>   		report_user_fault(regs, SIGSEGV, 0);
->>> -		do_exit(SIGSEGV);
->>> +		force_sigsegv(SIGSEGV);
->>>   	} else
->>>   		die(regs, "Unknown program exception");
->>>   }
->>>
