@@ -2,223 +2,75 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 563FCC433FE
-	for <linux-s390@archiver.kernel.org>; Sat, 30 Oct 2021 13:14:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E9E8DC433EF
+	for <linux-s390@archiver.kernel.org>; Sat, 30 Oct 2021 17:59:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3ED5960E9C
-	for <linux-s390@archiver.kernel.org>; Sat, 30 Oct 2021 13:14:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C69E160F55
+	for <linux-s390@archiver.kernel.org>; Sat, 30 Oct 2021 17:59:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229758AbhJ3NRH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 30 Oct 2021 09:17:07 -0400
-Received: from szxga08-in.huawei.com ([45.249.212.255]:26138 "EHLO
-        szxga08-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231895AbhJ3NRF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 30 Oct 2021 09:17:05 -0400
-Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.56])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4HhKTV74NQz1DHlB;
-        Sat, 30 Oct 2021 21:12:30 +0800 (CST)
-Received: from kwepemm600016.china.huawei.com (7.193.23.20) by
- dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.15; Sat, 30 Oct 2021 21:14:30 +0800
-Received: from localhost.localdomain (10.67.165.24) by
- kwepemm600016.china.huawei.com (7.193.23.20) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.15; Sat, 30 Oct 2021 21:14:29 +0800
-From:   Guangbin Huang <huangguangbin2@huawei.com>
-To:     <davem@davemloft.net>, <kuba@kernel.org>, <mkubecek@suse.cz>,
-        <andrew@lunn.ch>, <amitc@mellanox.com>, <idosch@idosch.org>,
-        <danieller@nvidia.com>, <jesse.brandeburg@intel.com>,
-        <anthony.l.nguyen@intel.com>, <jdike@addtoit.com>,
-        <richard@nod.at>, <anton.ivanov@cambridgegreys.com>,
-        <netanel@amazon.com>, <akiyano@amazon.com>, <gtzalik@amazon.com>,
-        <saeedb@amazon.com>, <chris.snook@gmail.com>,
-        <ulli.kroll@googlemail.com>, <linus.walleij@linaro.org>,
-        <jeroendb@google.com>, <csully@google.com>,
-        <awogbemila@google.com>, <jdmason@kudzu.us>,
-        <rain.1986.08.12@gmail.com>, <zyjzyj2000@gmail.com>,
-        <kys@microsoft.com>, <haiyangz@microsoft.com>, <mst@redhat.com>,
-        <jasowang@redhat.com>, <doshir@vmware.com>,
-        <pv-drivers@vmware.com>, <jwi@linux.ibm.com>,
-        <kgraul@linux.ibm.com>, <hca@linux.ibm.com>, <gor@linux.ibm.com>,
-        <johannes@sipsolutions.net>
-CC:     <netdev@vger.kernel.org>, <lipeng321@huawei.com>,
-        <chenhao288@hisilicon.com>, <huangguangbin2@huawei.com>,
-        <linux-s390@vger.kernel.org>
-Subject: [PATCH V5 net-next 5/6] net: hns3: add support to set/get rx buf len via ethtool for hns3 driver
-Date:   Sat, 30 Oct 2021 21:10:00 +0800
-Message-ID: <20211030131001.38739-6-huangguangbin2@huawei.com>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211030131001.38739-1-huangguangbin2@huawei.com>
+        id S229863AbhJ3SCZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 30 Oct 2021 14:02:25 -0400
+Received: from vps0.lunn.ch ([185.16.172.187]:39544 "EHLO vps0.lunn.ch"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229474AbhJ3SCZ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 30 Oct 2021 14:02:25 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+        s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
+        Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+        Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
+        bh=gB+wpIJ8U1ArrgXfdajBIfT47rGQFWUIErmrElea+Qw=; b=KL/hEVst2i4Ix1e7CMe5k/UN/v
+        uIPBIXPwWfccsHWdUAIAMDxaDbc8X73PI40+Y5EK1w+8rs5C47LZJZ0h9U4Q2weAobmoLlOh+fObl
+        N51YmHkzeDOa9+IY08D6LY2SDVwGzvMJYaIOYgbbOGkMxC2js7JrmkmJkVkPPPR0AE4Y=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
+        (envelope-from <andrew@lunn.ch>)
+        id 1mgsd5-00CBqy-JK; Sat, 30 Oct 2021 19:58:55 +0200
+Date:   Sat, 30 Oct 2021 19:58:55 +0200
+From:   Andrew Lunn <andrew@lunn.ch>
+To:     Guangbin Huang <huangguangbin2@huawei.com>
+Cc:     davem@davemloft.net, kuba@kernel.org, mkubecek@suse.cz,
+        amitc@mellanox.com, idosch@idosch.org, danieller@nvidia.com,
+        jesse.brandeburg@intel.com, anthony.l.nguyen@intel.com,
+        jdike@addtoit.com, richard@nod.at, anton.ivanov@cambridgegreys.com,
+        netanel@amazon.com, akiyano@amazon.com, gtzalik@amazon.com,
+        saeedb@amazon.com, chris.snook@gmail.com,
+        ulli.kroll@googlemail.com, linus.walleij@linaro.org,
+        jeroendb@google.com, csully@google.com, awogbemila@google.com,
+        jdmason@kudzu.us, rain.1986.08.12@gmail.com, zyjzyj2000@gmail.com,
+        kys@microsoft.com, haiyangz@microsoft.com, mst@redhat.com,
+        jasowang@redhat.com, doshir@vmware.com, pv-drivers@vmware.com,
+        jwi@linux.ibm.com, kgraul@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, johannes@sipsolutions.net,
+        netdev@vger.kernel.org, lipeng321@huawei.com,
+        chenhao288@hisilicon.com, linux-s390@vger.kernel.org
+Subject: Re: [PATCH V5 net-next 0/6] ethtool: add support to set/get tx
+ copybreak buf size and rx buf len
+Message-ID: <YX2H3yN2tJXKt+ai@lunn.ch>
 References: <20211030131001.38739-1-huangguangbin2@huawei.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.67.165.24]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- kwepemm600016.china.huawei.com (7.193.23.20)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211030131001.38739-1-huangguangbin2@huawei.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Hao Chen <chenhao288@hisilicon.com>
+> Rx buf len is buffer length of each rx BD. Use ethtool -g command to get
+> it, and ethtool -G command to set it, examples are as follow:
+> 
+> 1. set rx buf len to 4096
+> $ ethtool -G eth1 rx-buf-len 4096
+> 
+> 2. get rx buf len
+> $ ethtool -g eth1
+> ...
+> RX Buf Len:     4096
 
-Rx buf len is for rx BD buffer size, support setting it via ethtool -G
-parameter and getting it via ethtool -g parameter.
+How does this interact with MTU? If i have an MTU of 1500, and i set
+the rx-buf-len to 1000, can i expect all frames to the discarded?
+Should the core return -EINVAL? Or do you think some hardware will
+simply allocate two buffers and scatter/gather over them? Which
+implies that drivers which cannot SG must check if the rx-buf-len is
+less than the MTU and return -EINVAL?
 
-Signed-off-by: Hao Chen <chenhao288@hisilicon.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
----
- .../ethernet/hisilicon/hns3/hns3_ethtool.c    | 52 ++++++++++++++++---
- 1 file changed, 44 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
-index dcbab2cb6ae2..219c27a3750b 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
-@@ -647,7 +647,7 @@ static void hns3_get_ringparam(struct net_device *netdev,
- {
- 	struct hns3_nic_priv *priv = netdev_priv(netdev);
- 	struct hnae3_handle *h = priv->ae_handle;
--	int queue_num = h->kinfo.num_tqps;
-+	int rx_queue_index = h->kinfo.num_tqps;
- 
- 	if (hns3_nic_resetting(netdev)) {
- 		netdev_err(netdev, "dev resetting!");
-@@ -658,7 +658,8 @@ static void hns3_get_ringparam(struct net_device *netdev,
- 	param->rx_max_pending = HNS3_RING_MAX_PENDING;
- 
- 	param->tx_pending = priv->ring[0].desc_num;
--	param->rx_pending = priv->ring[queue_num].desc_num;
-+	param->rx_pending = priv->ring[rx_queue_index].desc_num;
-+	kernel_param->rx_buf_len = priv->ring[rx_queue_index].buf_size;
- }
- 
- static void hns3_get_pauseparam(struct net_device *netdev,
-@@ -1060,14 +1061,23 @@ static struct hns3_enet_ring *hns3_backup_ringparam(struct hns3_nic_priv *priv)
- }
- 
- static int hns3_check_ringparam(struct net_device *ndev,
--				struct ethtool_ringparam *param)
-+				struct ethtool_ringparam *param,
-+				struct kernel_ethtool_ringparam *kernel_param)
- {
-+#define RX_BUF_LEN_2K 2048
-+#define RX_BUF_LEN_4K 4096
- 	if (hns3_nic_resetting(ndev))
- 		return -EBUSY;
- 
- 	if (param->rx_mini_pending || param->rx_jumbo_pending)
- 		return -EINVAL;
- 
-+	if (kernel_param->rx_buf_len != RX_BUF_LEN_2K &&
-+	    kernel_param->rx_buf_len != RX_BUF_LEN_4K) {
-+		netdev_err(ndev, "Rx buf len only support 2048 and 4096\n");
-+		return -EINVAL;
-+	}
-+
- 	if (param->tx_pending > HNS3_RING_MAX_PENDING ||
- 	    param->tx_pending < HNS3_RING_MIN_PENDING ||
- 	    param->rx_pending > HNS3_RING_MAX_PENDING ||
-@@ -1080,6 +1090,22 @@ static int hns3_check_ringparam(struct net_device *ndev,
- 	return 0;
- }
- 
-+static int hns3_change_rx_buf_len(struct net_device *ndev, u32 rx_buf_len)
-+{
-+	struct hns3_nic_priv *priv = netdev_priv(ndev);
-+	struct hnae3_handle *h = priv->ae_handle;
-+	int i;
-+
-+	h->kinfo.rx_buf_len = rx_buf_len;
-+
-+	for (i = 0; i < h->kinfo.num_tqps; i++) {
-+		h->kinfo.tqp[i]->buf_size = rx_buf_len;
-+		priv->ring[i + h->kinfo.num_tqps].buf_size = rx_buf_len;
-+	}
-+
-+	return 0;
-+}
-+
- static int hns3_set_ringparam(struct net_device *ndev,
- 			      struct ethtool_ringparam *param,
- 			      struct kernel_ethtool_ringparam *kernel_param,
-@@ -1092,9 +1118,10 @@ static int hns3_set_ringparam(struct net_device *ndev,
- 	u32 old_tx_desc_num, new_tx_desc_num;
- 	u32 old_rx_desc_num, new_rx_desc_num;
- 	u16 queue_num = h->kinfo.num_tqps;
-+	u32 old_rx_buf_len;
- 	int ret, i;
- 
--	ret = hns3_check_ringparam(ndev, param);
-+	ret = hns3_check_ringparam(ndev, param, kernel_param);
- 	if (ret)
- 		return ret;
- 
-@@ -1103,8 +1130,10 @@ static int hns3_set_ringparam(struct net_device *ndev,
- 	new_rx_desc_num = ALIGN(param->rx_pending, HNS3_RING_BD_MULTIPLE);
- 	old_tx_desc_num = priv->ring[0].desc_num;
- 	old_rx_desc_num = priv->ring[queue_num].desc_num;
-+	old_rx_buf_len = priv->ring[queue_num].buf_size;
- 	if (old_tx_desc_num == new_tx_desc_num &&
--	    old_rx_desc_num == new_rx_desc_num)
-+	    old_rx_desc_num == new_rx_desc_num &&
-+	    kernel_param->rx_buf_len == old_rx_buf_len)
- 		return 0;
- 
- 	tmp_rings = hns3_backup_ringparam(priv);
-@@ -1115,19 +1144,22 @@ static int hns3_set_ringparam(struct net_device *ndev,
- 	}
- 
- 	netdev_info(ndev,
--		    "Changing Tx/Rx ring depth from %u/%u to %u/%u\n",
-+		    "Changing Tx/Rx ring depth from %u/%u to %u/%u, Changing rx buffer len from %d to %d\n",
- 		    old_tx_desc_num, old_rx_desc_num,
--		    new_tx_desc_num, new_rx_desc_num);
-+		    new_tx_desc_num, new_rx_desc_num,
-+		    old_rx_buf_len, kernel_param->rx_buf_len);
- 
- 	if (if_running)
- 		ndev->netdev_ops->ndo_stop(ndev);
- 
- 	hns3_change_all_ring_bd_num(priv, new_tx_desc_num, new_rx_desc_num);
-+	hns3_change_rx_buf_len(ndev, kernel_param->rx_buf_len);
- 	ret = hns3_init_all_ring(priv);
- 	if (ret) {
--		netdev_err(ndev, "Change bd num fail, revert to old value(%d)\n",
-+		netdev_err(ndev, "set ringparam fail, revert to old value(%d)\n",
- 			   ret);
- 
-+		hns3_change_rx_buf_len(ndev, old_rx_buf_len);
- 		hns3_change_all_ring_bd_num(priv, old_tx_desc_num,
- 					    old_rx_desc_num);
- 		for (i = 0; i < h->kinfo.num_tqps * 2; i++)
-@@ -1809,6 +1841,8 @@ static int hns3_set_tunable(struct net_device *netdev,
- 				 ETHTOOL_COALESCE_MAX_FRAMES |		\
- 				 ETHTOOL_COALESCE_USE_CQE)
- 
-+#define HNS3_ETHTOOL_RING	ETHTOOL_RING_USE_RX_BUF_LEN
-+
- static int hns3_get_ts_info(struct net_device *netdev,
- 			    struct ethtool_ts_info *info)
- {
-@@ -1887,6 +1921,7 @@ static int hns3_get_link_ext_state(struct net_device *netdev,
- 
- static const struct ethtool_ops hns3vf_ethtool_ops = {
- 	.supported_coalesce_params = HNS3_ETHTOOL_COALESCE,
-+	.supported_ring_params = HNS3_ETHTOOL_RING,
- 	.get_drvinfo = hns3_get_drvinfo,
- 	.get_ringparam = hns3_get_ringparam,
- 	.set_ringparam = hns3_set_ringparam,
-@@ -1918,6 +1953,7 @@ static const struct ethtool_ops hns3vf_ethtool_ops = {
- 
- static const struct ethtool_ops hns3_ethtool_ops = {
- 	.supported_coalesce_params = HNS3_ETHTOOL_COALESCE,
-+	.supported_ring_params = HNS3_ETHTOOL_RING,
- 	.self_test = hns3_self_test,
- 	.get_drvinfo = hns3_get_drvinfo,
- 	.get_link = hns3_get_link,
--- 
-2.33.0
-
+     Andrew
