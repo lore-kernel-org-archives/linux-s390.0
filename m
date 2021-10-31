@@ -2,63 +2,63 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4690AC4167D
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C62C2C433EF
 	for <linux-s390@archiver.kernel.org>; Sun, 31 Oct 2021 12:11:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 321AE60F4A
+	by mail.kernel.org (Postfix) with ESMTP id AB90160EB8
 	for <linux-s390@archiver.kernel.org>; Sun, 31 Oct 2021 12:11:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232081AbhJaMNx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        id S232110AbhJaMNx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
         Sun, 31 Oct 2021 08:13:53 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55042 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:45824 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231857AbhJaMNr (ORCPT
+        by vger.kernel.org with ESMTP id S231931AbhJaMNr (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
         Sun, 31 Oct 2021 08:13:47 -0400
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19V9pHt8014541;
-        Sun, 31 Oct 2021 12:11:15 GMT
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19VC7lW0030963;
+        Sun, 31 Oct 2021 12:11:16 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=26FfT+sNuGCGYu19Xfvu/4WlE0+/uy/G/aws0DaWHec=;
- b=U3jqhdv8zTzMV7WYkHUx5aePjTIWeNmM404IxkQ1zG1UCfOPlGmPJHy8i2gqpEpkgSG/
- V+uaqb2+l5y3iIJTaN7ThojaC55EFx+AG1dVfExTGWFY/cP++zooQQS213cOhZUwGOzS
- +iwekvC7IknlgRt+W5qlvPTE9O4HslaUQf2V/OP3sqFz546nyl0pk8ZZvwZlWFOszM97
- t+TQDfJtf7LaztfAFflACBztFcp2X+40lckRZoExSzLhqoNOw0NuIlMCbiwiMK+9s9Z1
- TXmmh4s8jShQ4X345Q0BIZSnSvFCX/ugK9unYiJ3DL09WV6utRw5BPlzBXrMDj++SQid tg== 
+ : mime-version; s=pp1; bh=hvMyYgSWH95gJtWWAAXwKbaVE9ClUbW8L+NxnBAJQnc=;
+ b=i+eHRVoy/q9oYtNb5nd8CE17gsHs0MCmPoPeEwPq1RiRXj/pSGAwQFceJ73R+gWmTKqU
+ 85VxIeHAUGSCRH6gQ6vOP31RDMcCf43VDoqzVg25VxKM/oBZgsyM2LzmAQX78AHhbOS3
+ sfhYp/gpgvZ0U92UT8etXs2UOJaI/YQtYf6oJ8BSFJ/we3tvd+3wCZMXzkgXy8C1RoaR
+ APRXx0r0QnhJb9cN9xTrtOrZmB3bZTtd35SsrnCLZ+27PDyAjeJZBvOeKnZ5ywfl8qWx
+ nPZDKwkXO+6JOtqpH44KFOCHHAhVh7qZVHmLeJeJMuN8xdWhIcKVCA8o8fZYqVZUwTtQ AA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3c1rvm1ktg-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3c1tk2g5us-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Sun, 31 Oct 2021 12:11:15 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19VC5KoY022206;
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19VCBFtB014416;
         Sun, 31 Oct 2021 12:11:15 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3c1rvm1ksu-1
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3c1tk2g5ua-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 31 Oct 2021 12:11:14 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19VC9O4T006454;
-        Sun, 31 Oct 2021 12:11:12 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma03ams.nl.ibm.com with ESMTP id 3c0wp957uk-1
+        Sun, 31 Oct 2021 12:11:15 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19VC8udD023607;
+        Sun, 31 Oct 2021 12:11:13 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 3c0wahw9hg-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Sun, 31 Oct 2021 12:11:12 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19VCB99Q3932922
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19VC4oHV64225730
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sun, 31 Oct 2021 12:11:09 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3A69DA404D;
+        Sun, 31 Oct 2021 12:04:50 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C6ABF4C04E;
         Sun, 31 Oct 2021 12:11:09 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 27551A4040;
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B3D284C04A;
         Sun, 31 Oct 2021 12:11:09 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
         Sun, 31 Oct 2021 12:11:09 +0000 (GMT)
 Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 25651)
-        id C2951E056B; Sun, 31 Oct 2021 13:11:08 +0100 (CET)
+        id 6840BE056B; Sun, 31 Oct 2021 13:11:09 +0100 (CET)
 From:   Christian Borntraeger <borntraeger@de.ibm.com>
 To:     Paolo Bonzini <pbonzini@redhat.com>
 Cc:     KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
@@ -68,128 +68,91 @@ Cc:     KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>
-Subject: [GIT PULL 12/17] KVM: s390: pv: avoid stalls when making pages secure
-Date:   Sun, 31 Oct 2021 13:10:59 +0100
-Message-Id: <20211031121104.14764-13-borntraeger@de.ibm.com>
+Subject: [GIT PULL 14/17] KVM: s390: Add a routine for setting userspace CPU state
+Date:   Sun, 31 Oct 2021 13:11:01 +0100
+Message-Id: <20211031121104.14764-15-borntraeger@de.ibm.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20211031121104.14764-1-borntraeger@de.ibm.com>
 References: <20211031121104.14764-1-borntraeger@de.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: iWIr8v_YjLiM5Pt4QOKC7XG5Dcrb6qiA
-X-Proofpoint-ORIG-GUID: BiNZaf4V0EwRv0chQAxeu1eWCnNkSRU7
+X-Proofpoint-GUID: 0HTbQKD3vk09LqMbU7h79ZzWTO68PIdH
+X-Proofpoint-ORIG-GUID: yQzjwgvJi0c_s2u4OxKmoCISSHDoRfnK
 Content-Transfer-Encoding: 8bit
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
  definitions=2021-10-31_03,2021-10-29_03,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 suspectscore=0
- adultscore=0 mlxscore=0 phishscore=0 mlxlogscore=999 clxscore=1015
- spamscore=0 priorityscore=1501 malwarescore=0 impostorscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=982
+ priorityscore=1501 spamscore=0 lowpriorityscore=0 malwarescore=0
+ impostorscore=0 phishscore=0 adultscore=0 suspectscore=0 bulkscore=0
+ clxscore=1015 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2110150000 definitions=main-2110310076
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+From: Eric Farman <farman@linux.ibm.com>
 
-Improve make_secure_pte to avoid stalls when the system is heavily
-overcommitted. This was especially problematic in kvm_s390_pv_unpack,
-because of the loop over all pages that needed unpacking.
+This capability exists, but we don't record anything when userspace
+enables it. Let's refactor that code so that a note can be made in
+the debug logs that it was enabled.
 
-Due to the locks being held, it was not possible to simply replace
-uv_call with uv_call_sched. A more complex approach was
-needed, in which uv_call is replaced with __uv_call, which does not
-loop. When the UVC needs to be executed again, -EAGAIN is returned, and
-the caller (or its caller) will try again.
-
-When -EAGAIN is returned, the path is the same as when the page is in
-writeback (and the writeback check is also performed, which is
-harmless).
-
-Fixes: 214d9bbcd3a672 ("s390/mm: provide memory management functions for protected KVM guests")
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Link: https://lore.kernel.org/r/20210920132502.36111-5-imbrenda@linux.ibm.com
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Link: https://lore.kernel.org/r/20211008203112.1979843-7-farman@linux.ibm.com
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kernel/uv.c     | 29 +++++++++++++++++++++++------
- arch/s390/kvm/intercept.c |  5 +++++
- 2 files changed, 28 insertions(+), 6 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 6 +++---
+ arch/s390/kvm/kvm-s390.h | 9 +++++++++
+ 2 files changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-index f95ccbd39692..09b80d371409 100644
---- a/arch/s390/kernel/uv.c
-+++ b/arch/s390/kernel/uv.c
-@@ -165,7 +165,7 @@ static int make_secure_pte(pte_t *ptep, unsigned long addr,
- {
- 	pte_t entry = READ_ONCE(*ptep);
- 	struct page *page;
--	int expected, rc = 0;
-+	int expected, cc = 0;
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 1c97493d21e1..6482ea9139bb 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -2487,8 +2487,8 @@ long kvm_arch_vm_ioctl(struct file *filp,
+ 	case KVM_S390_PV_COMMAND: {
+ 		struct kvm_pv_cmd args;
  
- 	if (!pte_present(entry))
- 		return -ENXIO;
-@@ -181,12 +181,25 @@ static int make_secure_pte(pte_t *ptep, unsigned long addr,
- 	if (!page_ref_freeze(page, expected))
- 		return -EBUSY;
- 	set_bit(PG_arch_1, &page->flags);
--	rc = uv_call(0, (u64)uvcb);
-+	/*
-+	 * If the UVC does not succeed or fail immediately, we don't want to
-+	 * loop for long, or we might get stall notifications.
-+	 * On the other hand, this is a complex scenario and we are holding a lot of
-+	 * locks, so we can't easily sleep and reschedule. We try only once,
-+	 * and if the UVC returned busy or partial completion, we return
-+	 * -EAGAIN and we let the callers deal with it.
-+	 */
-+	cc = __uv_call(0, (u64)uvcb);
- 	page_ref_unfreeze(page, expected);
--	/* Return -ENXIO if the page was not mapped, -EINVAL otherwise */
--	if (rc)
--		rc = uvcb->rc == 0x10a ? -ENXIO : -EINVAL;
--	return rc;
-+	/*
-+	 * Return -ENXIO if the page was not mapped, -EINVAL for other errors.
-+	 * If busy or partially completed, return -EAGAIN.
-+	 */
-+	if (cc == UVC_CC_OK)
-+		return 0;
-+	else if (cc == UVC_CC_BUSY || cc == UVC_CC_PARTIAL)
-+		return -EAGAIN;
-+	return uvcb->rc == 0x10a ? -ENXIO : -EINVAL;
+-		/* protvirt means user sigp */
+-		kvm->arch.user_cpu_state_ctrl = 1;
++		/* protvirt means user cpu state */
++		kvm_s390_set_user_cpu_state_ctrl(kvm);
+ 		r = 0;
+ 		if (!is_prot_virt_host()) {
+ 			r = -EINVAL;
+@@ -3802,7 +3802,7 @@ int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
+ 	vcpu_load(vcpu);
+ 
+ 	/* user space knows about this interface - let it control the state */
+-	vcpu->kvm->arch.user_cpu_state_ctrl = 1;
++	kvm_s390_set_user_cpu_state_ctrl(vcpu->kvm);
+ 
+ 	switch (mp_state->mp_state) {
+ 	case KVM_MP_STATE_STOPPED:
+diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+index 52bc8fbaa60a..c07a050d757d 100644
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -208,6 +208,15 @@ static inline int kvm_s390_user_cpu_state_ctrl(struct kvm *kvm)
+ 	return kvm->arch.user_cpu_state_ctrl != 0;
  }
  
- /*
-@@ -239,6 +252,10 @@ int gmap_make_secure(struct gmap *gmap, unsigned long gaddr, void *uvcb)
- 	mmap_read_unlock(gmap->mm);
- 
- 	if (rc == -EAGAIN) {
-+		/*
-+		 * If we are here because the UVC returned busy or partial
-+		 * completion, this is just a useless check, but it is safe.
-+		 */
- 		wait_on_page_writeback(page);
- 	} else if (rc == -EBUSY) {
- 		/*
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index 2bd8f854f1b4..d07ff646d844 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -518,6 +518,11 @@ static int handle_pv_uvc(struct kvm_vcpu *vcpu)
- 	 */
- 	if (rc == -EINVAL)
- 		return 0;
-+	/*
-+	 * If we got -EAGAIN here, we simply return it. It will eventually
-+	 * get propagated all the way to userspace, which should then try
-+	 * again.
-+	 */
- 	return rc;
- }
- 
++static inline void kvm_s390_set_user_cpu_state_ctrl(struct kvm *kvm)
++{
++	if (kvm->arch.user_cpu_state_ctrl)
++		return;
++
++	VM_EVENT(kvm, 3, "%s", "ENABLE: Userspace CPU state control");
++	kvm->arch.user_cpu_state_ctrl = 1;
++}
++
+ /* implemented in pv.c */
+ int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc);
+ int kvm_s390_pv_create_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc);
 -- 
 2.31.1
 
