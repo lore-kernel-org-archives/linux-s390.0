@@ -2,60 +2,63 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 228D8C4167E
-	for <linux-s390@archiver.kernel.org>; Sun, 31 Oct 2021 12:11:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0440EC4332F
+	for <linux-s390@archiver.kernel.org>; Sun, 31 Oct 2021 12:11:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0D02560EB8
+	by mail.kernel.org (Postfix) with ESMTP id E227E60EB8
 	for <linux-s390@archiver.kernel.org>; Sun, 31 Oct 2021 12:11:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231720AbhJaMNx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 31 Oct 2021 08:13:53 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:45288 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231907AbhJaMNr (ORCPT
+        id S232145AbhJaMNy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 31 Oct 2021 08:13:54 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:47452 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S231949AbhJaMNs (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 31 Oct 2021 08:13:47 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19VBGYKs024050;
+        Sun, 31 Oct 2021 08:13:48 -0400
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19VBmUjA011703;
         Sun, 31 Oct 2021 12:11:16 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=vADK3IR8Do69WgnSFcZHsSy0UXX1koSImY3K85294n0=;
- b=ad/NQuhfsYDLUpaDSoMyCVCynclEZf8BvqxR7IJrRgRNW5CceP+cgqo2MRgXn76SuzE0
- g0tbEXhHlF7HW9moYyoNGQMOkICass25UfrNEbWdyppwsulCRjNkBTQXCS2o9t/ZG9VL
- qKZdQ3j5b+cl8lV2xWVlVYxKUUnCzhwxGR9wkbbjgZIEmanBcBiRwkJpw12BSxCwkyzF
- T1FZsXaUnHsn8d3Zrs6ggcH6r/Xq39qe4Xzd+0GK5phwL8YWVAEjIc2kQw2d/w8swQEa
- p9rrDwPLhrfdeWujxNoD3FODA01vu2IfPgwsVnsX3mTTr+Qi+jFg6CPHCBSd65zSIXyM xA== 
+ : mime-version; s=pp1; bh=mAdAzVDdoeyKjsXPshIIyj++5/1qb6MzjxdWbk5sqVA=;
+ b=FPo+POVYlAP2qC0/p1UNs/eENBkSKqgdXq02s5VNALSOdV1whYTpEmqV9Y8yfRsl90g4
+ CHrMgWVb/DkNZ+XL901FiMIn0qfccr+W60L4UblBji2f0Zgza7DQJ8zpfqZDS7HFaAf8
+ vFrodR3D1y3Qs0mSK1fgQJYk3PU+BC33/O5cOVSHFFpjvROUJKPCES1jOusSr9tmBlFp
+ FaMLbdnx9eKHD0IqzzptxhSobFgzy4rgwvOMF0PALUGA5KmtcvQJZMkzYXVfv3gstQKA
+ pL1F0Pq5QyVlzkmv8DeERhzBDTGmoVg4iKxHKqibpZG+a5QYdxUTr2knRyyH6Uz/ANKC tQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3c1t4k8m8u-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3c1tkj8922-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Sun, 31 Oct 2021 12:11:15 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19VC2Mip012457;
+Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19VCBF53010313;
         Sun, 31 Oct 2021 12:11:15 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3c1t4k8m8j-1
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3c1tkj891e-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Sun, 31 Oct 2021 12:11:15 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19VC8sFH008835;
-        Sun, 31 Oct 2021 12:11:12 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma04ams.nl.ibm.com with ESMTP id 3c0wpa57qt-1
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19VC8toq030645;
+        Sun, 31 Oct 2021 12:11:13 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma05fra.de.ibm.com with ESMTP id 3c0wp94pd9-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 31 Oct 2021 12:11:12 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19VCB9fj39846318
+        Sun, 31 Oct 2021 12:11:13 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 19VCBAD338666524
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sun, 31 Oct 2021 12:11:09 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6D7CE5204E;
-        Sun, 31 Oct 2021 12:11:09 +0000 (GMT)
+        Sun, 31 Oct 2021 12:11:10 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6292042047;
+        Sun, 31 Oct 2021 12:11:10 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4ADF542045;
+        Sun, 31 Oct 2021 12:11:10 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id 5C3EC52051;
-        Sun, 31 Oct 2021 12:11:09 +0000 (GMT)
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Sun, 31 Oct 2021 12:11:10 +0000 (GMT)
 Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 25651)
-        id 196E7E06C2; Sun, 31 Oct 2021 13:11:09 +0100 (CET)
+        id F1620E056B; Sun, 31 Oct 2021 13:11:09 +0100 (CET)
 From:   Christian Borntraeger <borntraeger@de.ibm.com>
 To:     Paolo Bonzini <pbonzini@redhat.com>
 Cc:     KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
@@ -65,90 +68,200 @@ Cc:     KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>
-Subject: [GIT PULL 13/17] KVM: s390: Simplify SIGP Set Arch handling
-Date:   Sun, 31 Oct 2021 13:11:00 +0100
-Message-Id: <20211031121104.14764-14-borntraeger@de.ibm.com>
+Subject: [GIT PULL 16/17] KVM: s390: pv: properly handle page flags for protected guests
+Date:   Sun, 31 Oct 2021 13:11:03 +0100
+Message-Id: <20211031121104.14764-17-borntraeger@de.ibm.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20211031121104.14764-1-borntraeger@de.ibm.com>
 References: <20211031121104.14764-1-borntraeger@de.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: LIkTLyXCI6YKLBBhVA4xZiP2PKAYe49N
-X-Proofpoint-ORIG-GUID: yGhxcLK1HUnN8w5FW_frEIjZT3hSPjLl
+X-Proofpoint-ORIG-GUID: W9UWgJN48E7LF5jbxuKlrKdYDIp-K99l
+X-Proofpoint-GUID: 3h0CJgX_PWx7d2-Jz84YwB1BHco3yAeC
 Content-Transfer-Encoding: 8bit
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
  definitions=2021-10-31_03,2021-10-29_03,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
- mlxlogscore=999 malwarescore=0 adultscore=0 clxscore=1015
- lowpriorityscore=0 bulkscore=0 priorityscore=1501 spamscore=0
- suspectscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ impostorscore=0 suspectscore=0 lowpriorityscore=0 spamscore=0 mlxscore=0
+ adultscore=0 priorityscore=1501 phishscore=0 clxscore=1015 bulkscore=0
+ mlxlogscore=949 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2110150000 definitions=main-2110310076
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Eric Farman <farman@linux.ibm.com>
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-The Principles of Operations describe the various reasons that
-each individual SIGP orders might be rejected, and the status
-bit that are set for each condition.
+Introduce variants of the convert and destroy page functions that also
+clear the PG_arch_1 bit used to mark them as secure pages.
 
-For example, for the Set Architecture order, it states:
+The PG_arch_1 flag is always allowed to overindicate; using the new
+functions introduced here allows to reduce the extent of overindication
+and thus improve performance.
 
-  "If it is not true that all other CPUs in the configu-
-   ration are in the stopped or check-stop state, ...
-   bit 54 (incorrect state) ... is set to one."
+These new functions can only be called on pages for which a reference
+is already being held.
 
-However, it also states:
-
-  "... if the CZAM facility is installed, ...
-   bit 55 (invalid parameter) ... is set to one."
-
-Since the Configuration-z/Architecture-Architectural Mode (CZAM)
-facility is unconditionally presented, there is no need to examine
-each VCPU to determine if it is started/stopped. It can simply be
-rejected outright with the Invalid Parameter bit.
-
-Fixes: b697e435aeee ("KVM: s390: Support Configuration z/Architecture Mode")
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Link: https://lore.kernel.org/r/20211008203112.1979843-2-farman@linux.ibm.com
+Link: https://lore.kernel.org/r/20210920132502.36111-7-imbrenda@linux.ibm.com
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kvm/sigp.c | 14 +-------------
- 1 file changed, 1 insertion(+), 13 deletions(-)
+ arch/s390/include/asm/pgtable.h |  9 ++++++---
+ arch/s390/include/asm/uv.h      | 10 ++++++++--
+ arch/s390/kernel/uv.c           | 34 ++++++++++++++++++++++++++++++++-
+ arch/s390/mm/gmap.c             |  4 +++-
+ 4 files changed, 50 insertions(+), 7 deletions(-)
 
-diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
-index 683036c1c92a..cf4de80bd541 100644
---- a/arch/s390/kvm/sigp.c
-+++ b/arch/s390/kvm/sigp.c
-@@ -151,22 +151,10 @@ static int __sigp_stop_and_store_status(struct kvm_vcpu *vcpu,
- static int __sigp_set_arch(struct kvm_vcpu *vcpu, u32 parameter,
- 			   u64 *status_reg)
- {
--	unsigned int i;
--	struct kvm_vcpu *v;
--	bool all_stopped = true;
--
--	kvm_for_each_vcpu(i, v, vcpu->kvm) {
--		if (v == vcpu)
--			continue;
--		if (!is_vcpu_stopped(v))
--			all_stopped = false;
--	}
--
- 	*status_reg &= 0xffffffff00000000UL;
+diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+index b61426c9ef17..e43416950245 100644
+--- a/arch/s390/include/asm/pgtable.h
++++ b/arch/s390/include/asm/pgtable.h
+@@ -1074,8 +1074,9 @@ static inline pte_t ptep_get_and_clear(struct mm_struct *mm,
+ 	pte_t res;
  
- 	/* Reject set arch order, with czam we're always in z/Arch mode. */
--	*status_reg |= (all_stopped ? SIGP_STATUS_INVALID_PARAMETER :
--					SIGP_STATUS_INCORRECT_STATE);
-+	*status_reg |= SIGP_STATUS_INVALID_PARAMETER;
- 	return SIGP_CC_STATUS_STORED;
+ 	res = ptep_xchg_lazy(mm, addr, ptep, __pte(_PAGE_INVALID));
++	/* At this point the reference through the mapping is still present */
+ 	if (mm_is_protected(mm) && pte_present(res))
+-		uv_convert_from_secure(pte_val(res) & PAGE_MASK);
++		uv_convert_owned_from_secure(pte_val(res) & PAGE_MASK);
+ 	return res;
+ }
+ 
+@@ -1091,8 +1092,9 @@ static inline pte_t ptep_clear_flush(struct vm_area_struct *vma,
+ 	pte_t res;
+ 
+ 	res = ptep_xchg_direct(vma->vm_mm, addr, ptep, __pte(_PAGE_INVALID));
++	/* At this point the reference through the mapping is still present */
+ 	if (mm_is_protected(vma->vm_mm) && pte_present(res))
+-		uv_convert_from_secure(pte_val(res) & PAGE_MASK);
++		uv_convert_owned_from_secure(pte_val(res) & PAGE_MASK);
+ 	return res;
+ }
+ 
+@@ -1116,8 +1118,9 @@ static inline pte_t ptep_get_and_clear_full(struct mm_struct *mm,
+ 	} else {
+ 		res = ptep_xchg_lazy(mm, addr, ptep, __pte(_PAGE_INVALID));
+ 	}
++	/* At this point the reference through the mapping is still present */
+ 	if (mm_is_protected(mm) && pte_present(res))
+-		uv_convert_from_secure(pte_val(res) & PAGE_MASK);
++		uv_convert_owned_from_secure(pte_val(res) & PAGE_MASK);
+ 	return res;
+ }
+ 
+diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
+index 9ab1914c5b95..72d3e49c2860 100644
+--- a/arch/s390/include/asm/uv.h
++++ b/arch/s390/include/asm/uv.h
+@@ -356,8 +356,9 @@ static inline int is_prot_virt_host(void)
+ }
+ 
+ int gmap_make_secure(struct gmap *gmap, unsigned long gaddr, void *uvcb);
+-int uv_destroy_page(unsigned long paddr);
++int uv_destroy_owned_page(unsigned long paddr);
+ int uv_convert_from_secure(unsigned long paddr);
++int uv_convert_owned_from_secure(unsigned long paddr);
+ int gmap_convert_to_secure(struct gmap *gmap, unsigned long gaddr);
+ 
+ void setup_uv(void);
+@@ -365,7 +366,7 @@ void setup_uv(void);
+ #define is_prot_virt_host() 0
+ static inline void setup_uv(void) {}
+ 
+-static inline int uv_destroy_page(unsigned long paddr)
++static inline int uv_destroy_owned_page(unsigned long paddr)
+ {
+ 	return 0;
+ }
+@@ -374,6 +375,11 @@ static inline int uv_convert_from_secure(unsigned long paddr)
+ {
+ 	return 0;
+ }
++
++static inline int uv_convert_owned_from_secure(unsigned long paddr)
++{
++	return 0;
++}
+ #endif
+ 
+ #endif /* _ASM_S390_UV_H */
+diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+index 09b80d371409..8b0e62507d62 100644
+--- a/arch/s390/kernel/uv.c
++++ b/arch/s390/kernel/uv.c
+@@ -100,7 +100,7 @@ static int uv_pin_shared(unsigned long paddr)
+  *
+  * @paddr: Absolute host address of page to be destroyed
+  */
+-int uv_destroy_page(unsigned long paddr)
++static int uv_destroy_page(unsigned long paddr)
+ {
+ 	struct uv_cb_cfs uvcb = {
+ 		.header.cmd = UVC_CMD_DESTR_SEC_STOR,
+@@ -120,6 +120,22 @@ int uv_destroy_page(unsigned long paddr)
+ 	return 0;
+ }
+ 
++/*
++ * The caller must already hold a reference to the page
++ */
++int uv_destroy_owned_page(unsigned long paddr)
++{
++	struct page *page = phys_to_page(paddr);
++	int rc;
++
++	get_page(page);
++	rc = uv_destroy_page(paddr);
++	if (!rc)
++		clear_bit(PG_arch_1, &page->flags);
++	put_page(page);
++	return rc;
++}
++
+ /*
+  * Requests the Ultravisor to encrypt a guest page and make it
+  * accessible to the host for paging (export).
+@@ -139,6 +155,22 @@ int uv_convert_from_secure(unsigned long paddr)
+ 	return 0;
+ }
+ 
++/*
++ * The caller must already hold a reference to the page
++ */
++int uv_convert_owned_from_secure(unsigned long paddr)
++{
++	struct page *page = phys_to_page(paddr);
++	int rc;
++
++	get_page(page);
++	rc = uv_convert_from_secure(paddr);
++	if (!rc)
++		clear_bit(PG_arch_1, &page->flags);
++	put_page(page);
++	return rc;
++}
++
+ /*
+  * Calculate the expected ref_count for a page that would otherwise have no
+  * further pins. This was cribbed from similar functions in other places in
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index d63c0ccc5ccd..dfee0ebb2fac 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -2684,8 +2684,10 @@ static int __s390_reset_acc(pte_t *ptep, unsigned long addr,
+ {
+ 	pte_t pte = READ_ONCE(*ptep);
+ 
++	/* There is a reference through the mapping */
+ 	if (pte_present(pte))
+-		WARN_ON_ONCE(uv_destroy_page(pte_val(pte) & PAGE_MASK));
++		WARN_ON_ONCE(uv_destroy_owned_page(pte_val(pte) & PAGE_MASK));
++
+ 	return 0;
  }
  
 -- 
