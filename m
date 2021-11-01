@@ -2,57 +2,57 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B9807C433EF
-	for <linux-s390@archiver.kernel.org>; Mon,  1 Nov 2021 16:17:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A733FC433FE
+	for <linux-s390@archiver.kernel.org>; Mon,  1 Nov 2021 16:18:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9D6236108F
-	for <linux-s390@archiver.kernel.org>; Mon,  1 Nov 2021 16:17:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 82EDD61101
+	for <linux-s390@archiver.kernel.org>; Mon,  1 Nov 2021 16:18:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232555AbhKAQUV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 1 Nov 2021 12:20:21 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:44332 "EHLO
+        id S232654AbhKAQV2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 1 Nov 2021 12:21:28 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:54557 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231919AbhKAQUV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 1 Nov 2021 12:20:21 -0400
+        by vger.kernel.org with ESMTP id S232630AbhKAQV1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 1 Nov 2021 12:21:27 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1635783467;
+        s=mimecast20190719; t=1635783533;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=F2vxwqlB6wFzeCRM5lLa77O94J13VaOz9ZvoVd+rZG8=;
-        b=B7k9y58G4JcIJeeiOMtSuF/pN9PKfe884hWhZsMpBKVicHOLGOaAhA3bkvQohmEfRR30U6
-        ZdVJcyY/DGGosjEivx/lAq1oA8SbdNvebn4BSrV8ZNz5rn9Tc0zupJl4VmczztD5x2R0JF
-        Ak+B7EQ3PIAaXpM6rGqwJSPquMZgtiQ=
-Received: from mail-qt1-f199.google.com (mail-qt1-f199.google.com
- [209.85.160.199]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-561-6I6L2yHKMIKCUs5uMmTTvQ-1; Mon, 01 Nov 2021 12:17:46 -0400
-X-MC-Unique: 6I6L2yHKMIKCUs5uMmTTvQ-1
-Received: by mail-qt1-f199.google.com with SMTP id 100-20020aed30ed000000b002a6b3dc6465so12392348qtf.13
-        for <linux-s390@vger.kernel.org>; Mon, 01 Nov 2021 09:17:46 -0700 (PDT)
+        bh=+PlMFyDlSdyotYZmkf9Kx/3zxEQEZ+hPS+mrYwQmhsg=;
+        b=EW0fz8Qe+ut9KmyCoRnOsO+APBwR60Zxa92KxIOw0e3QnKU/DslfH1ELoHiVCkefhnbYEu
+        QOheCjtisgQ1WDDVDdsZ6TkXRMXrhS8S5d86zD8pYK3L36Z6H1AbIQBLv7Ig/obIp6gM7b
+        CYbnS/lTZusUX2RMuk9U17L7r0fDKrA=
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
+ [209.85.160.197]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-38-zITu0mzINp6tyDbj05HKtQ-1; Mon, 01 Nov 2021 12:18:52 -0400
+X-MC-Unique: zITu0mzINp6tyDbj05HKtQ-1
+Received: by mail-qt1-f197.google.com with SMTP id h4-20020ac85844000000b002a9f083974bso12365470qth.22
+        for <linux-s390@vger.kernel.org>; Mon, 01 Nov 2021 09:18:52 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=F2vxwqlB6wFzeCRM5lLa77O94J13VaOz9ZvoVd+rZG8=;
-        b=RxT3aJeB1Ojn/wvni7ZENEZ3PYWvuSXoV3oBataKHsYdnnyywMlT7lDwvVepMFksl6
-         KFzPxVN9YZn36RPu5JbqxJPvPrEQ3pL9KLoGzMW34xpONX1p9KLSknXSlC5dzrpM+El0
-         z1FW8y8y4fqwHURLSjpGdTT6rff4ycTukmEvnluWteRlWLTuL7F/IrUuUXJLeHJnfCia
-         GZTjxj+Nx6xcTsmS8KV4Cg6+GMRRYDvZO/XgGWjUs0kZ1YPhbgXo6ODnUiOTfuLFVw3x
-         yJZbJVKa+OVmcy8SANYCwPMEkEHkIKfmKihHyHmZ9DI9mkWODyDxorM3P39qvIFSsXyQ
-         Gw6A==
-X-Gm-Message-State: AOAM530NBRa2sj99PJU0o3I/D8AjDYONWCpGlrVV5Bd4TvPxITY1MsVR
-        LldxEmhC+DMnt1q3krLEBxFt/8AbHqFqnMj4/3LfMuRhK7Efp30Tz1/Vc96kxKsdfIwuD0FuemI
-        rtZQKcTQPAdU9zR9LMWPK
-X-Received: by 2002:a05:622a:1006:: with SMTP id d6mr31006245qte.259.1635783465570;
-        Mon, 01 Nov 2021 09:17:45 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwsvnNj6Smb4Ra96XKXfYd15LiYJibYUWXpiZB6UR51qpyc+daCyIZfeeXzYlbHsOmSJkMTRA==
-X-Received: by 2002:a05:622a:1006:: with SMTP id d6mr31006216qte.259.1635783465346;
-        Mon, 01 Nov 2021 09:17:45 -0700 (PDT)
+        bh=+PlMFyDlSdyotYZmkf9Kx/3zxEQEZ+hPS+mrYwQmhsg=;
+        b=z9J6mdn7gPUAxFKdCMxLHaSTRn906+DeFatHEzkyP8K56Ndh3QvdqRy9hrh0og2oEn
+         KXdIloeZqsUphq1xD6NQxdHnmBJu5Rww45bvd+37PyzOOryZAB0FFPSomQlS2VEsWMOE
+         OEQ++yy+qzLBED4lGemf7JTgHi9ZOHpQBTK5jJmUhqvwB67D0oR12P2s2qRmwnMF0x7k
+         EBSAebkyRk0ov6kLLL3pXT+SMEx6V0gxHDxHrcLvXSy8NoVY04cojnV/wqF6eQs3Oeei
+         U1sHPC0kLj5K/1lB8EPFqifaIe4pHTweKP0uLeflAG+yCz+XyYywur36tDbCYeIiH+EY
+         Z6ow==
+X-Gm-Message-State: AOAM532+FZg6toqx7d9rmIZTznObd4MImrRg8Ql+pI8RNJhH+eLG5PRV
+        qTZLsykDKLi5sF2MpnKRTuCN+T4DRHKtguVbfTJGSucG/PLcT1XSpSyA1SiBm7Yf9ivS56xF9kD
+        5p7SNtpQweFY+dPTFlhN1
+X-Received: by 2002:ac8:183:: with SMTP id x3mr31456936qtf.270.1635783531653;
+        Mon, 01 Nov 2021 09:18:51 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJx06c4hivJwjfQA8DeAKPNXipJ/hNPI/8Dli7abowyJqKsKBWURc5Mk5ISYlLWlJ3N1kL0ucw==
+X-Received: by 2002:ac8:183:: with SMTP id x3mr31456902qtf.270.1635783531462;
+        Mon, 01 Nov 2021 09:18:51 -0700 (PDT)
 Received: from localhost (pool-68-160-176-52.bstnma.fios.verizon.net. [68.160.176.52])
-        by smtp.gmail.com with ESMTPSA id f66sm5772868qkj.76.2021.11.01.09.17.44
+        by smtp.gmail.com with ESMTPSA id q20sm10701041qkl.53.2021.11.01.09.18.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 01 Nov 2021 09:17:44 -0700 (PDT)
-Date:   Mon, 1 Nov 2021 12:17:43 -0400
+        Mon, 01 Nov 2021 09:18:51 -0700 (PDT)
+Date:   Mon, 1 Nov 2021 12:18:50 -0400
 From:   Mike Snitzer <snitzer@redhat.com>
 To:     Dan Williams <dan.j.williams@intel.com>
 Cc:     Christoph Hellwig <hch@lst.de>, Ira Weiny <ira.weiny@intel.com>,
@@ -64,132 +64,32 @@ Cc:     Christoph Hellwig <hch@lst.de>, Ira Weiny <ira.weiny@intel.com>,
         linux-erofs@lists.ozlabs.org,
         linux-ext4 <linux-ext4@vger.kernel.org>,
         virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH 07/11] dax: remove dax_capable
-Message-ID: <YYATJ+oDT15TD9Np@redhat.com>
+Subject: Re: [PATCH 08/11] dm-linear: add a linear_dax_pgoff helper
+Message-ID: <YYATamEnd6imRSxt@redhat.com>
 References: <20211018044054.1779424-1-hch@lst.de>
- <20211018044054.1779424-8-hch@lst.de>
- <CAPcyv4gE8UXjQAe_6=BKFRCyLWNP_9CNxKFH---RpPnYfmBQLg@mail.gmail.com>
+ <20211018044054.1779424-9-hch@lst.de>
+ <CAPcyv4iK-Op9Nxoq91YLv0aRj6PkGF64UY0Z_kfovF0cpuJ_JQ@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAPcyv4gE8UXjQAe_6=BKFRCyLWNP_9CNxKFH---RpPnYfmBQLg@mail.gmail.com>
+In-Reply-To: <CAPcyv4iK-Op9Nxoq91YLv0aRj6PkGF64UY0Z_kfovF0cpuJ_JQ@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Oct 27 2021 at  8:16P -0400,
+On Wed, Oct 27 2021 at  9:32P -0400,
 Dan Williams <dan.j.williams@intel.com> wrote:
 
-> I am going to change the subject of this patch to:
-> 
-> dax: remove ->dax_supported()
-> 
 > On Sun, Oct 17, 2021 at 9:41 PM Christoph Hellwig <hch@lst.de> wrote:
 > >
+> > Add a helper to perform the entire remapping for DAX accesses.  This
+> > helper open codes bdev_dax_pgoff given that the alignment checks have
+> > already been done by the submitting file system and don't need to be
+> > repeated.
 > 
-> I'll add a bit more background to help others review this.
+> Looks good.
 > 
-> The ->dax_supported() operation arranges for a stack of devices to
-> each answer the question "is dax operational". That request routes to
-> generic_fsdax_supported() at last level device and that attempted an
-> actual dax_direct_access() call and did some sanity checks. However,
-> those sanity checks can be validated in other ways and with those
-> removed the only question to answer is "has each block device driver
-> in the stack performed dax_add_host()". That can be validated without
-> a dax_operation. So, just open code the block size and dax_dev == NULL
-> checks in the callers, and delete ->dax_supported().
-> 
-> Mike, let me know if you have any concerns.
+> Mike, ack?
 
-Thanks for your additional background, it helped.
-
-
-> 
-> > Just open code the block size and dax_dev == NULL checks in the callers.
-> >
-> > Signed-off-by: Christoph Hellwig <hch@lst.de>
-> > ---
-> >  drivers/dax/super.c          | 36 ------------------------------------
-> >  drivers/md/dm-table.c        | 22 +++++++++++-----------
-> >  drivers/md/dm.c              | 21 ---------------------
-> >  drivers/md/dm.h              |  4 ----
-> >  drivers/nvdimm/pmem.c        |  1 -
-> >  drivers/s390/block/dcssblk.c |  1 -
-> >  fs/erofs/super.c             | 11 +++++++----
-> >  fs/ext2/super.c              |  6 ++++--
-> >  fs/ext4/super.c              |  9 ++++++---
-> >  fs/xfs/xfs_super.c           | 21 ++++++++-------------
-> >  include/linux/dax.h          | 14 --------------
-> >  11 files changed, 36 insertions(+), 110 deletions(-)
-> >
-> > diff --git a/drivers/dax/super.c b/drivers/dax/super.c
-> > index 482fe775324a4..803942586d1b6 100644
-> > --- a/drivers/dax/super.c
-> > +++ b/drivers/dax/super.c
-> > @@ -108,42 +108,6 @@ struct dax_device *fs_dax_get_by_bdev(struct block_device *bdev)
-> >         return dax_dev;
-> >  }
-> >  EXPORT_SYMBOL_GPL(fs_dax_get_by_bdev);
-> > -
-> > -bool generic_fsdax_supported(struct dax_device *dax_dev,
-> > -               struct block_device *bdev, int blocksize, sector_t start,
-> > -               sector_t sectors)
-> > -{
-> > -       if (blocksize != PAGE_SIZE) {
-> > -               pr_info("%pg: error: unsupported blocksize for dax\n", bdev);
-> > -               return false;
-> > -       }
-> > -
-> > -       if (!dax_dev) {
-> > -               pr_debug("%pg: error: dax unsupported by block device\n", bdev);
-> > -               return false;
-> > -       }
-> > -
-> > -       return true;
-> > -}
-> > -EXPORT_SYMBOL_GPL(generic_fsdax_supported);
-> > -
-> > -bool dax_supported(struct dax_device *dax_dev, struct block_device *bdev,
-> > -               int blocksize, sector_t start, sector_t len)
-> > -{
-> > -       bool ret = false;
-> > -       int id;
-> > -
-> > -       if (!dax_dev)
-> > -               return false;
-> > -
-> > -       id = dax_read_lock();
-> > -       if (dax_alive(dax_dev) && dax_dev->ops->dax_supported)
-> > -               ret = dax_dev->ops->dax_supported(dax_dev, bdev, blocksize,
-> > -                                                 start, len);
-> > -       dax_read_unlock(id);
-> > -       return ret;
-> > -}
-> > -EXPORT_SYMBOL_GPL(dax_supported);
-> >  #endif /* CONFIG_BLOCK && CONFIG_FS_DAX */
-> >
-> >  enum dax_device_flags {
-> > diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
-> > index 1fa4d5582dca5..4ae671c2168ea 100644
-> > --- a/drivers/md/dm-table.c
-> > +++ b/drivers/md/dm-table.c
-> > @@ -807,12 +807,14 @@ void dm_table_set_type(struct dm_table *t, enum dm_queue_mode type)
-> >  EXPORT_SYMBOL_GPL(dm_table_set_type);
-> >
-> >  /* validate the dax capability of the target device span */
-> > -int device_not_dax_capable(struct dm_target *ti, struct dm_dev *dev,
-> > +static int device_not_dax_capable(struct dm_target *ti, struct dm_dev *dev,
-> >                         sector_t start, sector_t len, void *data)
-> >  {
-> > -       int blocksize = *(int *) data;
-> > +       if (dev->dax_dev)
-> > +               return false;
-> >
-> > -       return !dax_supported(dev->dax_dev, dev->bdev, blocksize, start, len);
-> > +       pr_debug("%pg: error: dax unsupported by block device\n", dev->bdev);
-
-Would prefer the use of DMDEBUG() here (which doesn't need trailing \n)
-
-But otherwise:
 Acked-by: Mike Snitzer <snitzer@redhat.com>
 
