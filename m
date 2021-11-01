@@ -2,86 +2,103 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 75A65C433F5
-	for <linux-s390@archiver.kernel.org>; Mon,  1 Nov 2021 07:04:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BDA81C433EF
+	for <linux-s390@archiver.kernel.org>; Mon,  1 Nov 2021 07:35:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4F7A061077
-	for <linux-s390@archiver.kernel.org>; Mon,  1 Nov 2021 07:04:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 91BDE60E90
+	for <linux-s390@archiver.kernel.org>; Mon,  1 Nov 2021 07:35:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231133AbhKAHG4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 1 Nov 2021 03:06:56 -0400
-Received: from out30-44.freemail.mail.aliyun.com ([115.124.30.44]:58386 "EHLO
-        out30-44.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231176AbhKAHGu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 1 Nov 2021 03:06:50 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04407;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0UuTvRIP_1635750248;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0UuTvRIP_1635750248)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Mon, 01 Nov 2021 15:04:08 +0800
-Date:   Mon, 1 Nov 2021 15:04:08 +0800
-From:   Tony Lu <tonylu@linux.alibaba.com>
-To:     Jakub Kicinski <kuba@kernel.org>
-Cc:     Karsten Graul <kgraul@linux.ibm.com>, davem@davemloft.net,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-rdma@vger.kernel.org, jacob.qi@linux.alibaba.com,
-        xuanzhuo@linux.alibaba.com, guwen@linux.alibaba.com,
-        dust.li@linux.alibaba.com
-Subject: Re: [PATCH net 1/4] Revert "net/smc: don't wait for send buffer
- space when data was already sent"
-Message-ID: <YX+RaKfBVzFokQON@TonyMac-Alibaba>
-Reply-To: Tony Lu <tonylu@linux.alibaba.com>
-References: <20211027085208.16048-1-tonylu@linux.alibaba.com>
- <20211027085208.16048-2-tonylu@linux.alibaba.com>
- <9bbd05ac-5fa5-7d7a-fe69-e7e072ccd1ab@linux.ibm.com>
- <20211027080813.238b82ce@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <06ae0731-0b9b-a70d-6479-de6fe691e25d@linux.ibm.com>
- <20211027084710.1f4a4ff1@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <c6396899-cf99-e695-fc90-3e21e95245ed@linux.ibm.com>
- <20211028073827.421a68d7@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+        id S230289AbhKAHhn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 1 Nov 2021 03:37:43 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:38726 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229882AbhKAHhm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 1 Nov 2021 03:37:42 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1635752107;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=MNOma4vvxOloGXSLAi/odyhSzFceBTNSQSy0m1G0aB4=;
+        b=Pt7BFcARxhNj2lnwcQrKflgIJQb4RY9uDRl2kRD+Oh5NvRarz0hUaUIJrXZgCmlnuIv9yY
+        PqwBWy8NGHPFE1YorZJRicfR/JW0B1LQWYPwr+O0/DEchtWcrTLrP9Kja9MMznswXM7uWo
+        tIAiBbLLEkl0/nzcX30ZRWon0IW0Bms=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-361-6dT3swPLM_ajjKEyZj5-8w-1; Mon, 01 Nov 2021 03:35:06 -0400
+X-MC-Unique: 6dT3swPLM_ajjKEyZj5-8w-1
+Received: by mail-ed1-f70.google.com with SMTP id g3-20020a056402424300b003e2981e1edbso239471edb.3
+        for <linux-s390@vger.kernel.org>; Mon, 01 Nov 2021 00:35:06 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=MNOma4vvxOloGXSLAi/odyhSzFceBTNSQSy0m1G0aB4=;
+        b=g9urja269IHVchBA1L5uZqEoyonOIfQepdPG+VuRvINxPWcOaqQ+BlAwQSOSD/VDwv
+         nj42Sinc/qeHmdgo6R8R+hJglrLoCbU63LDyePWmIwqQmY8tMPI462IAw2JRWw2IMTjx
+         of+bZ/6frqfB0RMzmGqE8b798b50wHg+J5VFjxLoWa35Nn3eJ+i8iL4b1mw5Qj5RfNRI
+         UsJFOAe96o5jwwZoj1VOzM4SWAw8FhIKMrVfTfcFomvp9EP1H4W6NS6tuAsWY/94hMwr
+         AC1k2s4gX0X9NxTlr1UeeCZUqAj0hkN9oUfPY66+FRBUZVCTTHIgv4QSrqahCuTByHNW
+         HAGg==
+X-Gm-Message-State: AOAM533RNqVg8ZMCI0xbyMzWlIphKRkI+u7fSincBFSXcrV4iGZ6vIXB
+        P6mt6IVcW99TbKOhgcSlKwikFeu5ACuoOv5G/IYIf/Z+vm8lCftAd8AIyPRTYxPBRQuK9iTpwBw
+        Lmu9k5bieoHRKq2U/hRPAjA==
+X-Received: by 2002:a05:6402:2552:: with SMTP id l18mr10233040edb.90.1635752105316;
+        Mon, 01 Nov 2021 00:35:05 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzIfdjCEKMp5soaUmg+1D8Y4IDiZmwS57fopx7EfX9mPmKtdHfySPC2hyvBM6GSLEzwsT841Q==
+X-Received: by 2002:a05:6402:2552:: with SMTP id l18mr10233020edb.90.1635752105153;
+        Mon, 01 Nov 2021 00:35:05 -0700 (PDT)
+Received: from ?IPV6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
+        by smtp.gmail.com with ESMTPSA id u9sm8776403edf.47.2021.11.01.00.35.02
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 01 Nov 2021 00:35:04 -0700 (PDT)
+Message-ID: <25f5228e-3ea1-1695-9615-899b24f46962@redhat.com>
+Date:   Mon, 1 Nov 2021 08:35:01 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211028073827.421a68d7@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.1.0
+Subject: Re: [GIT PULL 00/17] KVM: s390: Fixes and Features for 5.16
+Content-Language: en-US
+To:     Christian Borntraeger <borntraeger@de.ibm.com>
+Cc:     KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+References: <20211031121104.14764-1-borntraeger@de.ibm.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+In-Reply-To: <20211031121104.14764-1-borntraeger@de.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Oct 28, 2021 at 07:38:27AM -0700, Jakub Kicinski wrote:
-> On Thu, 28 Oct 2021 13:57:55 +0200 Karsten Graul wrote:
-> > So how to deal with all of this? Is it an accepted programming error
-> > when a user space program gets itself into this kind of situation?
-> > Since this problem depends on internal send/recv buffer sizes such a
-> > program might work on one system but not on other systems.
+On 31/10/21 13:10, Christian Borntraeger wrote:
+> Paolo,
 > 
-> It's a gray area so unless someone else has a strong opinion we can
-> leave it as is.
-
-Things might be different. IMHO, the key point of this problem is to
-implement the "standard" POSIX socket API, or TCP-socket compatible API.
-
-> > At the end the question might be if either such kind of a 'deadlock'
-> > is acceptable, or if it is okay to have send() return lesser bytes
-> > than requested.
+> sorry for late pull request, I was moving...
+> This is on top of kvm-s390-master-5.15-2 but for next.
+> FWIW, it seems that you have not pulled kvm-s390-master-5.15-2 yet, so
+> depending on 5.15-rc8 or not the fixes can also go via this pull
+> request.
 > 
-> Yeah.. the thing is we have better APIs for applications to ask not to
-> block than we do for applications to block. If someone really wants to
-> wait for all data to come out for performance reasons they will
-> struggle to get that behavior. 
+> The following changes since commit 0e9ff65f455dfd0a8aea5e7843678ab6fe097e21:
+> 
+>    KVM: s390: preserve deliverable_mask in __airqs_kick_single_vcpu (2021-10-20 13:03:04 +0200)
+> 
+> are available in the Git repository at:
+> 
+>    git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-5.16-1
+> 
+> for you to fetch changes up to 3fd8417f2c728d810a3b26d7e2008012ffb7fd01:
+> 
+>    KVM: s390: add debug statement for diag 318 CPNC data (2021-10-27 07:55:53 +0200)
 
-IMO, it is better to do something to unify this behavior. Some
-applications like netperf would be broken, and the people who want to use
-SMC to run basic benchmark, would be confused about this, and its
-compatibility with TCP. Maybe we could:
-1) correct the behavior of netperf to check the rc as we discussed.
-2) "copy" the behavior of TCP, and try to compatiable with TCP, though
-it is a gray area.
+Pulled both, thanks!
 
+Paolo
 
-Cheers,
-Tony Lu
-
-> We also have the small yet pernicious case where the buffer is
-> completely full at sendmsg() time, IOW we didn't send a single byte.
-> We won't be able to return "partial" results and deadlock. IDK if your
-> application can hit this, but it should really use non-blocking send if
-> it doesn't want blocking behavior..
