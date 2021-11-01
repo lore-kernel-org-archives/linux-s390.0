@@ -2,122 +2,100 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38DDBC433F5
-	for <linux-s390@archiver.kernel.org>; Mon,  1 Nov 2021 15:49:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 54263C433FE
+	for <linux-s390@archiver.kernel.org>; Mon,  1 Nov 2021 16:12:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1652660FC4
-	for <linux-s390@archiver.kernel.org>; Mon,  1 Nov 2021 15:49:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3D441610D2
+	for <linux-s390@archiver.kernel.org>; Mon,  1 Nov 2021 16:12:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231362AbhKAPvj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 1 Nov 2021 11:51:39 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:42874 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S230517AbhKAPvi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 1 Nov 2021 11:51:38 -0400
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1A1F30L7031608
-        for <linux-s390@vger.kernel.org>; Mon, 1 Nov 2021 15:49:05 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=qmb99sHtDFqIsxehquBoOdCMPljXKhOa0bMCyZWYYFI=;
- b=FcWK6M9T4U75dLGqMA0Yn4STK13VtzUq26Zbm76a5DWN/FajFVD1uc2F125HA5RaoS6x
- UkKsNvevZZ7/vAXPQ091UDZ6NUfDG9InnHdeWHZUVGos4eLVTz+P4a9ZZVTdvvu4950E
- Q2VdwF1SzCf9ozZQz3zycw0M1qY90aO10B+pifqJTqi4bdp2HopK03pXV7zCJaHX0LOP
- Mid61RD9PuSOoVPP2/xBDJvl7p2j031a4OJbUMVgEnTCN0ZPJ3tIssKlNqUSb8baQOJk
- rm6ShjXsyuApjOjVrXwpyiod8m/GjR31fsiGRqHxWt7hOpXltfWlrSOWWsMnLFo+aNiF hw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3c2ggaus7n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 01 Nov 2021 15:49:04 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1A1F13R2018490
-        for <linux-s390@vger.kernel.org>; Mon, 1 Nov 2021 15:49:04 GMT
-Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3c2ggaus7g-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 01 Nov 2021 15:49:04 +0000
-Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
-        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1A1FZ5Sn011413;
-        Mon, 1 Nov 2021 15:49:03 GMT
-Received: from b01cxnp23032.gho.pok.ibm.com (b01cxnp23032.gho.pok.ibm.com [9.57.198.27])
-        by ppma04dal.us.ibm.com with ESMTP id 3c0wpafm0c-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 01 Nov 2021 15:49:03 +0000
-Received: from b01ledav004.gho.pok.ibm.com (b01ledav004.gho.pok.ibm.com [9.57.199.109])
-        by b01cxnp23032.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1A1Fn21R51970322
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 1 Nov 2021 15:49:02 GMT
-Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 64E5A11206E;
-        Mon,  1 Nov 2021 15:49:02 +0000 (GMT)
-Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 27FD2112062;
-        Mon,  1 Nov 2021 15:49:01 +0000 (GMT)
-Received: from cpe-172-100-181-211.stny.res.rr.com (unknown [9.160.119.222])
-        by b01ledav004.gho.pok.ibm.com (Postfix) with ESMTP;
-        Mon,  1 Nov 2021 15:48:58 +0000 (GMT)
-Subject: Re: [PATCH 2/2] s390/vfio-ap: add status attribute to AP queue
- device's sysfs dir
-To:     Harald Freudenberger <freude@linux.ibm.com>,
-        linux-s390@vger.kernel.org
-Cc:     borntraeger@linux.ibm.com, cohuck@redhat.com,
-        mjrosato@linux.ibm.com, jjherne@linux.ibm.com, pasic@linux.ibm.com
-References: <20211027164810.19678-1-akrowiak@linux.ibm.com>
- <20211027164810.19678-3-akrowiak@linux.ibm.com>
- <5ce1ab5f-da7b-451d-ebfe-08919a56f5d8@linux.ibm.com>
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <b8e60398-baad-ced1-7687-e5bf90ab52c5@linux.ibm.com>
-Date:   Mon, 1 Nov 2021 11:48:58 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S232658AbhKAQPb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 1 Nov 2021 12:15:31 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:31596 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232627AbhKAQPa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 1 Nov 2021 12:15:30 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1635783177;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=+G6SzjVTR+LCyYNlG0zbcp2+gduPxDNU+2Zc+nwBRpo=;
+        b=DqejiyoA2UBzwKKsBehIcWvsvwkmIuprNxgqZPFTzFoRgfPlh3ep3QfRWgAfMBfU26Ooqg
+        mOSxk9Je/pFA+hqSrmIL5eScCfJApuqJE0nsqq7uTg5V1Vy1ppuXsbGJUxqAaR5sbBOySy
+        dr+5qC+XScd5mFfxeCwtea1fPMidRkE=
+Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com
+ [209.85.219.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-1-Pw6mtmFwPGehWjexjpdPEA-1; Mon, 01 Nov 2021 12:12:56 -0400
+X-MC-Unique: Pw6mtmFwPGehWjexjpdPEA-1
+Received: by mail-qv1-f69.google.com with SMTP id gw8-20020a0562140f0800b0038366347de1so16700247qvb.16
+        for <linux-s390@vger.kernel.org>; Mon, 01 Nov 2021 09:12:56 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=+G6SzjVTR+LCyYNlG0zbcp2+gduPxDNU+2Zc+nwBRpo=;
+        b=TMEhod/aX3zCMnaOMyecNAH/TRWtK0h0+PvuJC5Yk7ril38vOVc0gwRG+N3woInCCv
+         9F9kCQB6MNzvUQi5123AMiOkOzZjjl68GXRxKj7Lze66AjJp3Hqfs8rOwOUcRkXApaJy
+         yiP9CEzzTvELFJmGYqEDIssFpZRdCgPGaOajhlGfk+9q/F7wrt6SjbAVfMApC+cVsBS0
+         ZfT43zdU6COadvNxYcAfpfeyBmMBHHiFhJG/OxwLPWuCvEh30MQ2nIs/CMQsn93RGuXr
+         VTvugnxX6g4nNVOMifderGX38UBonejERHYKZoNbAy7jaCc93j/qNhqN1C0gvVI4G0wF
+         XH+g==
+X-Gm-Message-State: AOAM531WPLF4b2vzfTMA4kHwQXg1S80hB4oyDm2ObAM6NsyKW4vm3JX8
+        KadAQIbT/6v6mTh1kiKzI74vEYHQzCzioPHSCAEJ4SR1ncLJQDEnduEkx/gIBmh+3zSnQKqejEI
+        pfNC0EFa8Jnu/ilLlyXfE
+X-Received: by 2002:a0c:e708:: with SMTP id d8mr23264794qvn.62.1635783175419;
+        Mon, 01 Nov 2021 09:12:55 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJx/H7B1fdn7PP13//AwKmpta1av9FRTtOajPRoBskVHgoJcCnXd+0D44u/s4udzcALoTqA+Rw==
+X-Received: by 2002:a0c:e708:: with SMTP id d8mr23264758qvn.62.1635783175189;
+        Mon, 01 Nov 2021 09:12:55 -0700 (PDT)
+Received: from localhost (pool-68-160-176-52.bstnma.fios.verizon.net. [68.160.176.52])
+        by smtp.gmail.com with ESMTPSA id v16sm167031qtw.90.2021.11.01.09.12.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 01 Nov 2021 09:12:54 -0700 (PDT)
+Date:   Mon, 1 Nov 2021 12:12:53 -0400
+From:   Mike Snitzer <snitzer@redhat.com>
+To:     Dan Williams <dan.j.williams@intel.com>
+Cc:     Christoph Hellwig <hch@lst.de>, Ira Weiny <ira.weiny@intel.com>,
+        device-mapper development <dm-devel@redhat.com>,
+        linux-xfs <linux-xfs@vger.kernel.org>,
+        Linux NVDIMM <nvdimm@lists.linux.dev>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        linux-erofs@lists.ozlabs.org,
+        linux-ext4 <linux-ext4@vger.kernel.org>,
+        virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH 01/11] dm: make the DAX support dependend on CONFIG_FS_DAX
+Message-ID: <YYASBVuorCedsnRL@redhat.com>
+References: <20211018044054.1779424-1-hch@lst.de>
+ <20211018044054.1779424-2-hch@lst.de>
+ <CAPcyv4hrEPizMOH-XhCqh=23EJDG=W6VwvQ1pVstfe-Jm-AsiQ@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <5ce1ab5f-da7b-451d-ebfe-08919a56f5d8@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 0nXFAA17OGwFed1t2zgW02I7XnLWw46i
-X-Proofpoint-GUID: -xKjLkqP_kcAR4KZalVM0aUKW8ZZ8UrE
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-11-01_06,2021-11-01_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 impostorscore=0
- malwarescore=0 phishscore=0 spamscore=0 mlxlogscore=999 mlxscore=0
- suspectscore=0 clxscore=1015 adultscore=0 lowpriorityscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2111010089
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAPcyv4hrEPizMOH-XhCqh=23EJDG=W6VwvQ1pVstfe-Jm-AsiQ@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Wed, Oct 27 2021 at  4:53P -0400,
+Dan Williams <dan.j.williams@intel.com> wrote:
 
+> On Sun, Oct 17, 2021 at 9:41 PM Christoph Hellwig <hch@lst.de> wrote:
+> >
+> > The device mapper DAX support is all hanging off a block device and thus
+> > can't be used with device dax.  Make it depend on CONFIG_FS_DAX instead
+> > of CONFIG_DAX_DRIVER.  This also means that bdev_dax_pgoff only needs to
+> > be built under CONFIG_FS_DAX now.
+> 
+> Looks good.
+> 
+> Mike, can I get an ack to take this through nvdimm.git? (you'll likely
+> see me repeat this question on subsequent patches in this series).
 
-On 10/28/21 3:40 AM, Harald Freudenberger wrote:
-> On 27.10.21 18:48, Tony Krowiak wrote:
->> This patch adds a sysfs 'status' attribute to a queue device when it is
->> bound to the vfio_ap device driver. The field displays a string indicating
->> the status of the queue device:
->>
->> Status String:  Indicates:
->> -------------   ---------
->> "assigned"      the queue is assigned to an mdev, but is not in use by a
->>                  KVM guest.
->> "in use"        the queue is assigned to an mdev and is in use by a KVM
->>                  guest.
->> "unassigned"    the queue is not assigned to an mdev.
->>
->> The status string will be displayed by the 'lszcrypt' command if the queue
->> device is bound to the vfio_ap device driver.
->>
->> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
->> [akrowiak@linux.ibm.com: added check for queue in use by guest]
->> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>Looks good to me, add my "Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>"
+Sorry for late reply, but I see you punted on pushing for 5.16 merge
+anyway (I'm sure my lack of response didn't help, sorry about that).
 
-You already have a Signed-off-by since you created the original version 
-of this
-patch. I added my Signed-off-by for adding the "in use" status value. 
-Should I still
-add a Reviewed-by for you?
+Acked-by: Mike Snitzer <snitzer@redhat.com>
 
+Thanks!
 
