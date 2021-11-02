@@ -2,112 +2,108 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 302C3C433F5
-	for <linux-s390@archiver.kernel.org>; Tue,  2 Nov 2021 09:25:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8490C433F5
+	for <linux-s390@archiver.kernel.org>; Tue,  2 Nov 2021 09:30:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1222460F4B
-	for <linux-s390@archiver.kernel.org>; Tue,  2 Nov 2021 09:25:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0F36760F24
+	for <linux-s390@archiver.kernel.org>; Tue,  2 Nov 2021 09:30:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229869AbhKBJ2U (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 2 Nov 2021 05:28:20 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:33188 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S229778AbhKBJ2U (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 2 Nov 2021 05:28:20 -0400
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1A27Gb0J007823;
-        Tue, 2 Nov 2021 09:25:42 GMT
+        id S229800AbhKBJcy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 2 Nov 2021 05:32:54 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:1964 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229770AbhKBJcx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 2 Nov 2021 05:32:53 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1A28F9Nv005079;
+        Tue, 2 Nov 2021 09:30:17 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=4xV4QIiIniU5urU7NwQLAtW/WromjLhZE7bAgUKyKV8=;
- b=ectcXy+1L6nIaSbX+4s6HjVT81uGGpp7EqzwyPxs9cLXWyxwRMyze0N7+FDrktvvfnbA
- bhN+jQgJT8EYB/OKuZ6mi1m/I+97+T1/dpXUoXuZSk4iGB5vnsU+cWf594YeHS/LDMCv
- cR4MST+osur7nE7kUozaq0rbXThnZ2AFm8KGu5x//lx1WnxGTz2FJwaH3aKfY3pMLKq4
- d9mzVTmgdHerqPPFV3f7ydoXpJZGJSQ/vi3Nl/rmpD7MfbWDhtsq7lRtgjjseKq8FV1H
- QsMLKu7ssuwJnUwwaR/Pt4Y3oc1GBRAxSSdX3iGNhyDp4xB2ip3ePz7UlQ/StX29lPBz HA== 
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=IOQijjjE+9e7i9Ca6RdvxAoupGYFL+SD2p4SUDIWewo=;
+ b=Qk3GKGdVZUon2AufuruH1ybXU57tlMUbbei/6Gci5Vw5K1YiHNBfgpJ/DH5OhiqAYGfa
+ JCoIEDaOzQydMiKdFZCYYT70N+W0dSSZQiJB4T+XduSIn3eVN+ECArT/q6qOyzP1xSod
+ vaFTxSwTwTCcULqMx+8SrzaE/wLReGU7tlWtGIwK0f/lBLrKlCX5NTZMz1pXpFZ8mLtP
+ I3DtiQPguOzjuNaTUHmo9mlfWl/3peatqcCt2eGjqEosYeywPa4MPfMRpl+0XwIMB+yY
+ KVYBWSnDfGcxgUxMI9+v96VX6sYb3MHEu5E2puiNmVgRjxxklWdFSvOGSPhJHtrKLPAe tQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3c30t4jnjm-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3c2p6sxdhy-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 02 Nov 2021 09:25:42 +0000
-Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1A28daxl008264;
-        Tue, 2 Nov 2021 09:25:42 GMT
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3c30t4jnj4-1
+        Tue, 02 Nov 2021 09:30:17 +0000
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1A28udKX021804;
+        Tue, 2 Nov 2021 09:30:16 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3c2p6sxdgs-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 02 Nov 2021 09:25:42 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1A29D1FQ001395;
-        Tue, 2 Nov 2021 09:25:40 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma05fra.de.ibm.com with ESMTP id 3c0wp9gatr-1
+        Tue, 02 Nov 2021 09:30:16 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1A29DnJ6016565;
+        Tue, 2 Nov 2021 09:30:14 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma02fra.de.ibm.com with ESMTP id 3c0wp9rc3u-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 02 Nov 2021 09:25:40 +0000
+        Tue, 02 Nov 2021 09:30:14 +0000
 Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1A29PbL962390696
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1A29UBik46924190
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 2 Nov 2021 09:25:37 GMT
+        Tue, 2 Nov 2021 09:30:12 GMT
 Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B0EF94C05A;
-        Tue,  2 Nov 2021 09:25:37 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id D47D04C052;
+        Tue,  2 Nov 2021 09:30:11 +0000 (GMT)
 Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2CD784C04E;
-        Tue,  2 Nov 2021 09:25:37 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 4AED94C059;
+        Tue,  2 Nov 2021 09:30:11 +0000 (GMT)
 Received: from [9.145.173.195] (unknown [9.145.173.195])
         by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue,  2 Nov 2021 09:25:37 +0000 (GMT)
-Message-ID: <f51d3e86-0044-bc92-cdac-52bd978b056b@linux.ibm.com>
-Date:   Tue, 2 Nov 2021 10:25:48 +0100
-MIME-Version: 1.0
+        Tue,  2 Nov 2021 09:30:11 +0000 (GMT)
+Message-ID: <11f17a34-fd35-f2ec-3f20-dd0c34e55fde@linux.ibm.com>
+Date:   Tue, 2 Nov 2021 10:30:22 +0100
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
  Thunderbird/91.2.1
-Subject: Re: [PATCH net 4/4] net/smc: Fix wq mismatch issue caused by smc
- fallback
+Subject: Re: [PATCH net-next 3/3] net/smc: Introduce tracepoint for smcr link
+ down
 Content-Language: en-US
-To:     Wen Gu <guwen@linux.alibaba.com>,
-        Tony Lu <tonylu@linux.alibaba.com>, davem@davemloft.net,
-        kuba@kernel.org
-Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-rdma@vger.kernel.org, jacob.qi@linux.alibaba.com,
-        xuanzhuo@linux.alibaba.com, dust.li@linux.alibaba.com
-References: <20211027085208.16048-1-tonylu@linux.alibaba.com>
- <20211027085208.16048-5-tonylu@linux.alibaba.com>
- <acaf3d5a-219b-3eec-3a65-91d3fdfb21e9@linux.ibm.com>
- <d4e23c6c-38a1-b38d-e394-aa32ebfc80b5@linux.alibaba.com>
+To:     Tony Lu <tonylu@linux.alibaba.com>
+Cc:     kuba@kernel.org, davem@davemloft.net, guwen@linux.alibaba.com,
+        dust.li@linux.alibaba.com, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <20211101073912.60410-1-tonylu@linux.alibaba.com>
+ <20211101073912.60410-4-tonylu@linux.alibaba.com>
 From:   Karsten Graul <kgraul@linux.ibm.com>
 Organization: IBM Deutschland Research & Development GmbH
-In-Reply-To: <d4e23c6c-38a1-b38d-e394-aa32ebfc80b5@linux.alibaba.com>
+In-Reply-To: <20211101073912.60410-4-tonylu@linux.alibaba.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: hew-xnOh2km4bCwxYyMt94OrgEKDrqwG
-X-Proofpoint-GUID: dntNlaN0hxOPG-cssBvSM-X9KyuuM6AN
+X-Proofpoint-GUID: O3mwP6vKG-gy8aVKpZa6lAjS58OpBU13
+X-Proofpoint-ORIG-GUID: Pijjz2RppCs8q1UHk5mK7z3ujNeulg16
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
  definitions=2021-11-02_06,2021-11-01_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 bulkscore=0
- adultscore=0 priorityscore=1501 impostorscore=0 lowpriorityscore=0
- suspectscore=0 mlxlogscore=999 spamscore=0 mlxscore=0 malwarescore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1015
+ malwarescore=0 priorityscore=1501 lowpriorityscore=0 mlxlogscore=999
+ suspectscore=0 bulkscore=0 impostorscore=0 phishscore=0 mlxscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2110150000 definitions=main-2111020054
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 01/11/2021 07:15, Wen Gu wrote:
-> Before explaining my intentions, I thought it would be better to describe the issue I encountered first：
-> 
-> In nginx/wrk tests, when nginx uses TCP and wrk uses SMC to replace TCP, wrk should fall back to TCP and get correct results theoretically, But in fact it only got all zeros.
+On 01/11/2021 08:39, Tony Lu wrote:
+> +
+> +	    TP_printk("lnk=%p lgr=%p state=%d dev=%s location=%p",
+> +		      __entry->lnk, __entry->lgr,
+> +		      __entry->state, __get_str(name),
+> +		      __entry->location)
 
-Thank you for the very detailed description, I now understand the situation.
+The location is printed as pointer (which might even be randomized?),
+is it possible to print the function name of the caller, as described
+here: https://stackoverflow.com/questions/4141324/function-caller-in-linux-kernel
 
-The fix is not obvious and not easy to understand for the reader of the code,
-did you think about a fix that uses own sk_data_ready / sk_write_space
-implementations on the SMC socket to forward the call to the clcsock in the 
-fallback situation?
+  printk("Caller is %pS\n", __builtin_return_address(0));
 
-I.e. we already have smc_tx_write_space(), and there is smc_clcsock_data_ready()
-which is right now only used for the listening socket case.
-
-If this works this would be a much cleaner and more understandable way to fix this issue.
+Not sure if this is possible with the trace points, but it would be
+easier to use. You plan to use a dump to find out about the function caller?
