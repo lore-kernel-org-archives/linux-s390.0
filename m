@@ -2,168 +2,99 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01095C4167D
-	for <linux-s390@archiver.kernel.org>; Wed,  3 Nov 2021 14:27:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB2FCC43217
+	for <linux-s390@archiver.kernel.org>; Wed,  3 Nov 2021 15:41:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D0BC56103C
-	for <linux-s390@archiver.kernel.org>; Wed,  3 Nov 2021 14:27:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9654961076
+	for <linux-s390@archiver.kernel.org>; Wed,  3 Nov 2021 15:41:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232071AbhKCO3w (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 3 Nov 2021 10:29:52 -0400
-Received: from smtp-out2.suse.de ([195.135.220.29]:52440 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231464AbhKCO3u (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 3 Nov 2021 10:29:50 -0400
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id BF1031FD38;
-        Wed,  3 Nov 2021 14:27:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1635949632; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
+        id S231694AbhKCPno (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 3 Nov 2021 11:43:44 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:45527 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229587AbhKCPno (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 3 Nov 2021 11:43:44 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1635954067;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=cjYVBDGU+kLhHmA2i7EyQbKMCoFpK8UUMfIbBTUvwnw=;
-        b=fg7QS3/P0iYQD5eZtJ6p72R1eRHWQs33XDRwDHVV1iQVoe04MGYyIqRc3GS3+hWIjv0bqe
-        YFR/5KEfO9mUTJ+VifQ6fDbP7bBGWQ71TH8FbypXCe6jjumceoc9iMFwFsOzRKetLUzdY7
-        ck3s3k1WMZJf24oUgPdhFg9L7A8OcKo=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1635949632;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=cjYVBDGU+kLhHmA2i7EyQbKMCoFpK8UUMfIbBTUvwnw=;
-        b=4JuoZKxBijz2nevAtUXxKYeO3paBrlviav5cVnCMPszSH1LAe4oqJZC/yhxqrXxnkCgydH
-        D2VqztyQYY3RFICg==
-Received: from kitsune.suse.cz (kitsune.suse.cz [10.100.12.127])
-        by relay2.suse.de (Postfix) with ESMTP id A54D1A3BAE;
-        Wed,  3 Nov 2021 14:27:12 +0000 (UTC)
-From:   Michal Suchanek <msuchanek@suse.de>
-To:     keyrings@vger.kernel.org
-Cc:     Michal Suchanek <msuchanek@suse.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        David Howells <dhowells@redhat.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Jessica Yu <jeyu@kernel.org>, Rob Herring <robh@kernel.org>,
-        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Hari Bathini <hbathini@linux.ibm.com>,
-        Frank van der Linden <fllinden@amazon.com>,
-        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [PATCH 2/3] module: strip the signature marker in the verification function.
-Date:   Wed,  3 Nov 2021 15:27:07 +0100
-Message-Id: <8c183211d3980554b046a1cc215f3b0f1ca17072.1635948742.git.msuchanek@suse.de>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <cover.1635948742.git.msuchanek@suse.de>
-References: <cover.1635948742.git.msuchanek@suse.de>
+        bh=Tdy1X7nuoKpQSSmekhiR/fE1Lp4ym5mIRts+r6TWKnQ=;
+        b=dVuYZtA327fWuPw4g33jD+cCW43LIZJV72WIygVYYyWqYo3aseetWn9FqT8fb2dowmm+HH
+        kxOvhIW/4CExVSOf93xyH02+ANfdsGq7JCltlFVRe0jyXqiWzlw86ALVKlWGL/F7uuVkh0
+        jNw3v8Y+4a3JLVA+j+36j31o6/BLLrE=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-295-E3ibxboeNC61erK14SPP_A-1; Wed, 03 Nov 2021 11:41:04 -0400
+X-MC-Unique: E3ibxboeNC61erK14SPP_A-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CA27C1235A83;
+        Wed,  3 Nov 2021 15:41:02 +0000 (UTC)
+Received: from localhost (unknown [10.39.192.240])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 6FCD15F4F7;
+        Wed,  3 Nov 2021 15:41:02 +0000 (UTC)
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Vineeth Vijayan <vneethv@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     oberpar@linux.ibm.com, Eric Farman <farman@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>
+Subject: Re: [RFC v2 0/1]s390/cio: remove uevent suppress from cio driver
+In-Reply-To: <3ab690456a523951ad59c17ac71e6b294ff12d98.camel@linux.ibm.com>
+Organization: Red Hat GmbH
+References: <20211027085059.544736-1-vneethv@linux.ibm.com>
+ <87lf26bmlq.fsf@redhat.com>
+ <3ab690456a523951ad59c17ac71e6b294ff12d98.camel@linux.ibm.com>
+User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
+Date:   Wed, 03 Nov 2021 16:41:00 +0100
+Message-ID: <87a6ilb62b.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-It is stripped by each caller separately.
+On Wed, Nov 03 2021, Vineeth Vijayan <vneethv@linux.ibm.com> wrote:
 
-Signed-off-by: Michal Suchanek <msuchanek@suse.de>
----
- arch/s390/kernel/machine_kexec_file.c |  9 ---------
- kernel/module.c                       |  7 +------
- kernel/module_signing.c               | 12 ++++++++++--
- 3 files changed, 11 insertions(+), 17 deletions(-)
+>> > I think the potentially problematic case is "lots of I/O subchannels
+>> with no valid device", and I think you can't get that under z/VM (which
+>> will not give you those subchannels in the first place), but only on LPAR.
+> Yes. But, this is in case of actual device. I just defined around 5k virtual
+> dasd devices on zVM and did not enable them. i.e those subchannels are not
+> blacklisted anymore, but they does not have an operational device. 
+>
+> other than zVM, other than testing this patch on different available LPARs,
+> we tried to mimic the device availability with a custom test-kernel.
+> Basically, modified the subchannel initialization code and inform the subchannel
+> about the presence of a device, which then later fails during SNSID.
+> It is a horrid way to test it, but i think it could simulate some LPARs with
+> more than 1000 non-operational devices connected on it.
 
-diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
-index 634e641cd8aa..82260bb61060 100644
---- a/arch/s390/kernel/machine_kexec_file.c
-+++ b/arch/s390/kernel/machine_kexec_file.c
-@@ -26,20 +26,11 @@ const struct kexec_file_ops * const kexec_file_loaders[] = {
- int s390_verify_sig(const char *kernel, unsigned long length)
- {
- 	size_t kernel_len = length;
--	const unsigned long marker_len = sizeof(MODULE_SIG_STRING) - 1;
- 
- 	/* Skip signature verification when not secure IPLed. */
- 	if (!ipl_secure_flag)
- 		return 0;
- 
--	if (marker_len > kernel_len)
--		return -EKEYREJECTED;
--
--	if (memcmp(kernel + kernel_len - marker_len, MODULE_SIG_STRING,
--		   marker_len))
--		return -EKEYREJECTED;
--	kernel_len -= marker_len;
--
- 	return verify_appended_signature(kernel, &kernel_len, VERIFY_USE_PLATFORM_KEYRING,
- 					"kexec_file");
- }
-diff --git a/kernel/module.c b/kernel/module.c
-index 137b3661be75..1c421b0442e3 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -2882,7 +2882,6 @@ static inline void kmemleak_load_module(const struct module *mod,
- static int module_sig_check(struct load_info *info, int flags)
- {
- 	int err = -ENODATA;
--	const unsigned long markerlen = sizeof(MODULE_SIG_STRING) - 1;
- 	const char *reason;
- 	const void *mod = info->hdr;
- 
-@@ -2890,11 +2889,7 @@ static int module_sig_check(struct load_info *info, int flags)
- 	 * Require flags == 0, as a module with version information
- 	 * removed is no longer the module that was signed
- 	 */
--	if (flags == 0 &&
--	    info->len > markerlen &&
--	    memcmp(mod + info->len - markerlen, MODULE_SIG_STRING, markerlen) == 0) {
--		/* We truncate the module to discard the signature */
--		info->len -= markerlen;
-+	if (flags == 0) {
- 		err = verify_appended_signature(mod, &info->len,
- 						VERIFY_USE_SECONDARY_KEYRING, "module");
- 		if (!err) {
-diff --git a/kernel/module_signing.c b/kernel/module_signing.c
-index f492e410564d..4c28cb55275f 100644
---- a/kernel/module_signing.c
-+++ b/kernel/module_signing.c
-@@ -15,8 +15,7 @@
- #include "module-internal.h"
- 
- /**
-- * verify_appended_signature - Verify the signature on a module with the
-- * signature marker stripped.
-+ * verify_appended_signature - Verify the signature on a module
-  * @data: The data to be verified
-  * @len: Size of @data.
-  * @trusted_keys: Keyring to use for verification
-@@ -25,12 +24,21 @@
- int verify_appended_signature(const void *data, size_t *len,
- 			      struct key *trusted_keys, const char *what)
- {
-+	const unsigned long markerlen = sizeof(MODULE_SIG_STRING) - 1;
- 	struct module_signature ms;
- 	size_t sig_len, modlen = *len;
- 	int ret;
- 
- 	pr_devel("==>%s(,%zu)\n", __func__, modlen);
- 
-+	if (markerlen > modlen)
-+		return -ENODATA;
-+
-+	if (memcmp(data + modlen - markerlen, MODULE_SIG_STRING,
-+		   markerlen))
-+		return -ENODATA;
-+	modlen -= markerlen;
-+
- 	if (modlen <= sizeof(ms))
- 		return -EBADMSG;
- 
--- 
-2.31.1
+OK, that should be a way to figure out how userspace deals with the
+extra uevents.
+
+>
+> ...snip...
+>
+>> - non-I/O subchannels (IIRC you can't have CHSC subchannels under z/VM,
+>>   don't know about EADM, so that would need to be done on an LPAR as
+>>   well)
+> Thanks. Most of my tests were on IO-subchannel. I shall try few tests on CHSC
+> and EADM.
+>
+>> - interaction with driverctl (and maybe mdevctl) for vfio-ccw
+> I have done couple of tests with driverctl. Also, i was wondering if vfio-ccw
+> can make use of 'dev_busid' sysfs-interface under each subchannels while writing
+> the rules. This is totally different topic, which i do not want to mix up in
+> this thread.
+
+Oh, did not know about that interface.
+
+<looks>
+Doesn't the code need to check for 'w' for message subchannels, though?
+
+'dev_busid' looks like a good fit for udev rules; maybe driverctl needs
+special-casing? Or does it belong into mdevctl? cc:ing vfio-ccw
+maintainers for awareness :)
 
