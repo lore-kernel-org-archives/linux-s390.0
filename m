@@ -2,187 +2,114 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8AB8C433FE
-	for <linux-s390@archiver.kernel.org>; Thu,  4 Nov 2021 14:59:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 150EEC433EF
+	for <linux-s390@archiver.kernel.org>; Thu,  4 Nov 2021 15:48:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8F6C9611C4
-	for <linux-s390@archiver.kernel.org>; Thu,  4 Nov 2021 14:59:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D9FD7611C0
+	for <linux-s390@archiver.kernel.org>; Thu,  4 Nov 2021 15:48:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231314AbhKDPCa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 4 Nov 2021 11:02:30 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:25527 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231303AbhKDPC2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 4 Nov 2021 11:02:28 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1636037989;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=OywEmERAjqnp3xpD/xphVv+JsaHYOpWwlE+ARSZcRms=;
-        b=Kg0LnSrrmk8Sc8Dit+39rjPpTjkCwKgZn/U633klJb9AHr/L4ZoryiqX2/UDHIkdzssKEk
-        D3foMJN0AdVCQxoOTRlyCbqnMfuzPCyx5JS6MJGju9NIjvnQgZA/54aIokh69A8P3w9sM8
-        vKrjn2bBNQHeNAQbyo2eirpUDDs9q9I=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-433-RXtB3NBRM3WdFuBPeSZTGw-1; Thu, 04 Nov 2021 10:59:48 -0400
-X-MC-Unique: RXtB3NBRM3WdFuBPeSZTGw-1
-Received: by mail-wm1-f70.google.com with SMTP id g11-20020a1c200b000000b003320d092d08so2564200wmg.9
-        for <linux-s390@vger.kernel.org>; Thu, 04 Nov 2021 07:59:48 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent
-         :content-language:to:cc:references:from:organization:subject
-         :in-reply-to:content-transfer-encoding;
-        bh=OywEmERAjqnp3xpD/xphVv+JsaHYOpWwlE+ARSZcRms=;
-        b=Bk34Py/xjA+v/yo3+jotQEHCLdlvZGlh0bfBiLWRl0Sbb4eC/KtK3dUmQURPTlL9c3
-         qxIiQYelDCGjQvdTuDehbANvMYtQbiyZNudun1PPx96L+RKgLpIbYDVd29c5tz3zr7Pd
-         Igjkzw62Slg06lzn7tFNh5it4hWJNaQT5ICXi40hUYd+aRNzQ5sqngxdqMJLGJCi/3PA
-         2rExMBV8mnJ1v4gNc0m6bkbpbBDZFdi36YY3pnRBprDAVvjZR+eWgjjl5lctxe0rWc30
-         bzrct2bRqtbDyFlsQ2TdLEUSLpU7dqFYwbKjHJEcCzz9h4ye5moV4eHtG4OJwgliM3y6
-         dESw==
-X-Gm-Message-State: AOAM532V4+Hd9lsg/sFZliusXH5SLo1YZ5SKulZ21ss4PNcRtKEiSC7P
-        jYCSf8/KZQZgZZY6JIBKg9D48nJ9MzMly5py2Z3BVAc/Xvapf7k2r+0iv6WnJ0QD0vn7WQi/Ep+
-        67ANuhXqxFDf1Uks3Txe9/Q==
-X-Received: by 2002:adf:e9c5:: with SMTP id l5mr47132647wrn.218.1636037987505;
-        Thu, 04 Nov 2021 07:59:47 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyZnsIUY59kEITzrweyjZxsCu4IT4tZhpy5RuLH2jpOCXwxIFNchYDAG95YngTbQOPWFa1y1Q==
-X-Received: by 2002:adf:e9c5:: with SMTP id l5mr47132543wrn.218.1636037987209;
-        Thu, 04 Nov 2021 07:59:47 -0700 (PDT)
-Received: from [192.168.3.132] (p4ff23c9c.dip0.t-ipconnect.de. [79.242.60.156])
-        by smtp.gmail.com with ESMTPSA id u2sm5033198wrr.35.2021.11.04.07.59.46
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 04 Nov 2021 07:59:46 -0700 (PDT)
-Message-ID: <655b3473-ccbd-f198-6566-c23a0ec20940@redhat.com>
-Date:   Thu, 4 Nov 2021 15:59:45 +0100
+        id S231458AbhKDPvB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 4 Nov 2021 11:51:01 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:55726 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229770AbhKDPvA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 4 Nov 2021 11:51:00 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1A4FH8DJ035307;
+        Thu, 4 Nov 2021 15:48:21 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=A/iC53wbbe3Xozy8wTJCE0T9o5VFjoBjc5tEMny9rR4=;
+ b=kKAUmZ60jZMNpZgwNPOSkMBlqYNqUGDkS6vmJ/tZ5B8UyawmemWg0g3COv7T0xlfYL5Z
+ aX1Vqmkmug66XR2k4Yp5BW40QKiXIqTISbp7j0vOtNAeGh5iEjXpHTkxx46Jqy2zm382
+ sjnlEo5lPCfKt+i7NZVyQMACHaVONQQRc1ZjIQeWny2aLCoXWUnVn9wPj3etZSVXvM5r
+ LrQE25FVEg9wivFoHv3fCqmtfM6LObPMmgYuzu6VC4R9KbxBqaaZUE3ZgyC0F9oCV2rt
+ lwzxHSj1pbw5XChrMaNqqTal5wmX03Et40UDMqviuXgEHr1yFQ9BmPLX/KQPiL8hkt2d Tg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3c4j1c0myy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 04 Nov 2021 15:48:20 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1A4FTH3J040705;
+        Thu, 4 Nov 2021 15:48:20 GMT
+Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3c4j1c0mye-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 04 Nov 2021 15:48:20 +0000
+Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
+        by ppma05wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1A4FXQkP003730;
+        Thu, 4 Nov 2021 15:48:19 GMT
+Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
+        by ppma05wdc.us.ibm.com with ESMTP id 3c0wpcky5b-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 04 Nov 2021 15:48:19 +0000
+Received: from b03ledav001.gho.boulder.ibm.com (b03ledav001.gho.boulder.ibm.com [9.17.130.232])
+        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1A4FmIJF24969518
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 4 Nov 2021 15:48:18 GMT
+Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4DEEC6E056;
+        Thu,  4 Nov 2021 15:48:18 +0000 (GMT)
+Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 018036E05E;
+        Thu,  4 Nov 2021 15:48:15 +0000 (GMT)
+Received: from cpe-172-100-181-211.stny.res.rr.com (unknown [9.160.110.109])
+        by b03ledav001.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Thu,  4 Nov 2021 15:48:15 +0000 (GMT)
+Subject: Re: [PATCH v17 11/15] s390/ap: driver callback to indicate resource
+ in use
+To:     Harald Freudenberger <freude@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc:     jjherne@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
+        mjrosato@linux.ibm.com, pasic@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        fiuczy@linux.ibm.com
+References: <20211021152332.70455-1-akrowiak@linux.ibm.com>
+ <20211021152332.70455-12-akrowiak@linux.ibm.com>
+ <15a87038-a88c-b29e-f7d7-760ca27c87cf@linux.ibm.com>
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <8b7ed27f-b87f-d42f-5993-8e2f4fc7250f@linux.ibm.com>
+Date:   Thu, 4 Nov 2021 11:48:15 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.0
+In-Reply-To: <15a87038-a88c-b29e-f7d7-760ca27c87cf@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Language: en-US
-To:     Eric Farman <farman@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20211102194652.2685098-1-farman@linux.ibm.com>
- <20211102194652.2685098-3-farman@linux.ibm.com>
- <7e98f659-32ac-9b4e-0ddd-958086732c8d@redhat.com>
- <2ad9bef6b39a5a6c9b634cab7d70d110064d8f04.camel@linux.ibm.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-Subject: Re: [RFC PATCH v2 2/2] KVM: s390: Extend the USER_SIGP capability
-In-Reply-To: <2ad9bef6b39a5a6c9b634cab7d70d110064d8f04.camel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: GYGo9Jm7UqCg8vYcOVy8N0g7JNcLLCAc
+X-Proofpoint-GUID: tLiD4Oa7aZoVkEM5BXqu1rzwXtMzY1mo
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-11-04_04,2021-11-03_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 malwarescore=0
+ priorityscore=1501 clxscore=1015 suspectscore=0 impostorscore=0 mlxscore=0
+ mlxlogscore=999 adultscore=0 lowpriorityscore=0 phishscore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
+ definitions=main-2111040058
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
->> For example, we don't care about concurrent SIGP SENSE. We only care
->> about "lightweight" SIGP orders with concurrent "heavy weight" SIGP
->> orders.
-> 
-> I very much care about concurrent SIGP SENSE (a "lightweight" order
-> handled in-kernel) and how that interacts with the "heavy weight" SIGP
-> orders (handled in userspace). SIGP SENSE might return CC0 (accepted)
-> if a vcpu is operating normally, or CC1 (status stored) with status
-> bits indicating an external call is pending and/or the vcpu is stopped.
-> This means that the actual response will depend on whether userspace
-> has picked up the sigp order and processed it or not. Giving CC0 when
-> userspace is actively processing a SIGP STOP/STOP AND STORE STATUS
-> would be misleading for the SIGP SENSE. (Did the STOP order get lost?
-> Failed? Not yet dispatched? Blocked?)
-
-But that would only visible when concurrently SIGP STOP'ing from one
-VCPU and SIGP SENSE'ing from another VCPU. But in that case, there are
-already no guarantees, because it's inherently racy:
-
-VCPU #2: SIGP STOP #3
-VCPU #1: SIGP SENSE #3
-
-There is no guarantee who ends up first
-a) In the kernel
-b) On the final destination (SENSE -> kernel; STOP -> QEMU)
-
-They could be rescheduled/delayed in various ways.
 
 
-The important part is that orders from the *same* CPU are properly
-handled, right?
+On 11/4/21 7:27 AM, Harald Freudenberger wrote:
 
-VCPU #1: SIGP STOP #3
-VCPU #1: SIGP SENSE #3
+> reviewed again. I still don't like this as it introduces an unbalanced weighting for the
+> vfio dd but ... We could consider removing the
+>
+> if (ap_drv->flags & AP_DRIVER_FLAG_DEFAULT)
+> 		return 0;
+>
+> in function __verify_queue_reservations. It would still work as the 'default device
+> drivers' do not implement the in_use() callback and thus do not disagree about
+> the upcoming change.
 
-SENSE must return BUSY in case the STOP was not successful yet, correct?
+I don't have a problem with that given the default drivers may one day
+have use for implementing the callback.
 
-And that can be achieved by setting the VCPU #3 busy when landing in
-user space to trigger the SIGP STOP, before returning to the kernel and
-processing the SIGP SENSE.
-
-
-Or am I missing something important?
-
-> 
-> Meanwhile, the Principles of Operation (SA22-7832-12) page 4-95
-> describes a list of orders that would generate a CC2 (busy) when the
-> order is still "active" in userspace:
-> 
-> """
-> A previously issued start, stop, restart, stop-
-> and-store-status, set-prefix, store-status-at-
-> address order, or store-additional-status-at-
-> address has been accepted by the
-> addressed CPU, and execution of the func-
-> tion requested by the order has not yet been
-> completed.
-
-Right, but my take is that the order has not been accepted by the target
-CPU before we're actually in user space to e.g., trigger SIGP STOP.
-
-> ...
-> If the currently specified order is sense, external
-> call, emergency signal, start, stop, restart, stop
-> and store status, set prefix, store status at
-> address, set architecture, set multithreading, or
-> store additional status at address, then the order
-> is rejected, and condition code 2 is set. If the cur-
-> rently specified order is one of the reset orders,
-> or an unassigned or not-implemented order, the
-> order code is interpreted as described in “Status
-> Bits” on page 4-96.
-> """
-> 
-> (There is another entry for the reset orders; not copied here for sake
-> of keeping my novella manageable.)
-
-Yes, these have to be special because we can have CPUs that never stop
-(endless program interruption stream).
-
-> 
-> So, you're right that I could be more precise in terms how QEMU handles
-> a SIGP order while it's already busy handling one, and only limit the
-> CC2 from the kernel to those in-kernel orders. But I did say I took
-> this simplified approach in the cover letter. :)
-> 
-> Regardless, because of the above I really do want/need a way to give
-> the kernel a clue that userspace is doing something, without waiting
-> for userspace to say "hey, that order you kicked back to me? I'm
-> working on it now, I'll let you know when it's done!" Otherwise, SIGP
-> SENSE (and other lightweight friends) is still racing with the receipt
-> of a "start the sigp" ioctl.
-
-And my point is that it's only visible when two VCPUs are involved and
-there are absolutely no guarantees regarding that. (see my first reply)
-
-
--- 
-Thanks,
-
-David / dhildenb
+>
 
