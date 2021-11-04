@@ -2,96 +2,51 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 540CBC433EF
-	for <linux-s390@archiver.kernel.org>; Thu,  4 Nov 2021 04:39:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E553AC433EF
+	for <linux-s390@archiver.kernel.org>; Thu,  4 Nov 2021 08:17:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 201C060ED7
-	for <linux-s390@archiver.kernel.org>; Thu,  4 Nov 2021 04:39:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C101F60F9D
+	for <linux-s390@archiver.kernel.org>; Thu,  4 Nov 2021 08:17:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229994AbhKDEm1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 4 Nov 2021 00:42:27 -0400
-Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:37077 "EHLO
-        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229866AbhKDEm1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 4 Nov 2021 00:42:27 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04407;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0Uv-SO4G_1636000786;
-Received: from guwendeMacBook-Pro.local(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0Uv-SO4G_1636000786)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 04 Nov 2021 12:39:47 +0800
-Subject: Re: [PATCH net 4/4] net/smc: Fix wq mismatch issue caused by smc
- fallback
-To:     Karsten Graul <kgraul@linux.ibm.com>,
-        Tony Lu <tonylu@linux.alibaba.com>
-Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-rdma@vger.kernel.org, jacob.qi@linux.alibaba.com,
-        xuanzhuo@linux.alibaba.com, dust.li@linux.alibaba.com,
-        davem@davemloft.net, kuba@kernel.org, guwen@linux.alibaba.com
-References: <20211027085208.16048-1-tonylu@linux.alibaba.com>
- <20211027085208.16048-5-tonylu@linux.alibaba.com>
- <acaf3d5a-219b-3eec-3a65-91d3fdfb21e9@linux.ibm.com>
- <d4e23c6c-38a1-b38d-e394-aa32ebfc80b5@linux.alibaba.com>
- <f51d3e86-0044-bc92-cdac-52bd978b056b@linux.ibm.com>
-From:   Wen Gu <guwen@linux.alibaba.com>
-Message-ID: <c26da743-36fb-e1c3-c13f-460b3d2dbb4c@linux.alibaba.com>
-Date:   Thu, 4 Nov 2021 12:39:46 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.14.0
+        id S230229AbhKDIUV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 4 Nov 2021 04:20:21 -0400
+Received: from verein.lst.de ([213.95.11.211]:34262 "EHLO verein.lst.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230152AbhKDIUV (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 4 Nov 2021 04:20:21 -0400
+Received: by verein.lst.de (Postfix, from userid 2407)
+        id 9396E68AA6; Thu,  4 Nov 2021 09:17:40 +0100 (CET)
+Date:   Thu, 4 Nov 2021 09:17:40 +0100
+From:   Christoph Hellwig <hch@lst.de>
+To:     Eric Sandeen <sandeen@sandeen.net>
+Cc:     Christoph Hellwig <hch@lst.de>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Mike Snitzer <snitzer@redhat.com>,
+        Ira Weiny <ira.weiny@intel.com>, dm-devel@redhat.com,
+        linux-xfs@vger.kernel.org, nvdimm@lists.linux.dev,
+        linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
+        virtualization@lists.linux-foundation.org
+Subject: Re: futher decouple DAX from block devices
+Message-ID: <20211104081740.GA23111@lst.de>
+References: <20211018044054.1779424-1-hch@lst.de> <21ff4333-e567-2819-3ae0-6a2e83ec7ce6@sandeen.net>
 MIME-Version: 1.0
-In-Reply-To: <f51d3e86-0044-bc92-cdac-52bd978b056b@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <21ff4333-e567-2819-3ae0-6a2e83ec7ce6@sandeen.net>
+User-Agent: Mutt/1.5.17 (2007-11-01)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Wed, Nov 03, 2021 at 12:59:31PM -0500, Eric Sandeen wrote:
+> Christoph, can I ask what the end game looks like, here? If dax is completely
+> decoupled from block devices, are there user-visible changes?
 
+Yes.
 
-On 2021/11/2 5:25 pm, Karsten Graul wrote:
-> On 01/11/2021 07:15, Wen Gu wrote:
->> Before explaining my intentions, I thought it would be better to describe the issue I encountered first：
->>
->> In nginx/wrk tests, when nginx uses TCP and wrk uses SMC to replace TCP, wrk should fall back to TCP and get correct results theoretically, But in fact it only got all zeros.
-> 
-> Thank you for the very detailed description, I now understand the situation.
-> 
-> The fix is not obvious and not easy to understand for the reader of the code,
-> did you think about a fix that uses own sk_data_ready / sk_write_space
-> implementations on the SMC socket to forward the call to the clcsock in the
-> fallback situation?
-> 
-> I.e. we already have smc_tx_write_space(), and there is smc_clcsock_data_ready()
-> which is right now only used for the listening socket case.
-> 
-> If this works this would be a much cleaner and more understandable way to fix this issue.
-> 
+> If I want to
+> run fs-dax on a pmem device - what do I point mkfs at, if not a block device?
 
-Thanks for your suggestions about implementing SMC own sk_data_ready / 
-sk_write_space and forwarding call to clcsock. It's a great idea. But I 
-found some difficulties here in implementation process:
-
-In my humble opinion, SMC own sk_write_space implementation should be 
-called by clcsk->sk_write_space and complete the following steps:
-
-1) Get smc_sock through clcsk->sk_user_data, like what did in 
-smc_clcsock_data_ready().
-
-2) Forward call to original clcsk->sk_write_space, it MIGHT wake up 
-clcsk->sk_wq, depending on whether certain conditions are met.
-
-3) Wake up smc sk->sk_wq to nodify application if clcsk->sk_write_space 
-acctually wakes up clcsk->sk_wq.
-
-In step 3), it seems a bit troublesome for SMC to know whether 
-clcsk->sk_write_space acctually wake up clcsk->sk_wq, which is a black 
-box to SMC.
-
-There might be a feasible way that add a wait_queue_head_t to 
-clcsk->sk_wq and report to SMC when clcsk->sk_wq is waked up. Then SMC 
-can report to application by waking up smc sk->sk_wq. But that seems to 
-be complex and redundancy.
-
-I'm looking forward to hear your opinion about it. Thank you!
-
-
-cheers,
-Wen Gu
+The rough plan is to use the device dax character devices.  I'll hopefully
+have a draft version in the next days.
