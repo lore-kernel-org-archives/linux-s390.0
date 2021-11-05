@@ -2,211 +2,196 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 67866C433EF
-	for <linux-s390@archiver.kernel.org>; Fri,  5 Nov 2021 09:55:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F11EC433F5
+	for <linux-s390@archiver.kernel.org>; Fri,  5 Nov 2021 10:48:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5179661252
-	for <linux-s390@archiver.kernel.org>; Fri,  5 Nov 2021 09:55:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 718F9610A8
+	for <linux-s390@archiver.kernel.org>; Fri,  5 Nov 2021 10:48:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232991AbhKEJ6A (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 5 Nov 2021 05:58:00 -0400
-Received: from smtp-out1.suse.de ([195.135.220.28]:51872 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232951AbhKEJ5y (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 Nov 2021 05:57:54 -0400
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id E6596212BD;
-        Fri,  5 Nov 2021 09:55:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1636106111; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=N2IrrNGggoBJszqOFq3EqLZ/1vvIbTQ/MEl4PSiVjrk=;
-        b=O5S1I1vN2m29YuV+QfXPUec/wJqGbomni09qZHmaaYkHY02ezB84cpfAuwoWOd6pHkcy5C
-        PZtiD4IVM1vbRD2b31RkrQ7/C8Id9S9yVJdAjp6L6eQrTUpY0vEqUT0vtdWo52U7U0QfQs
-        cKQ9YljFxtnH1SkwBeeQlOylD5/PQ2c=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1636106111;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=N2IrrNGggoBJszqOFq3EqLZ/1vvIbTQ/MEl4PSiVjrk=;
-        b=PVdlto+ESoz/1dIczDDDBZU8SXphcj7LOSqZucxrH/9eB171xbwhOC3Er3e3QQ7uikKEPd
-        401tswzyswImc2CA==
-Received: from kitsune.suse.cz (kitsune.suse.cz [10.100.12.127])
-        by relay2.suse.de (Postfix) with ESMTP id A60D72C157;
-        Fri,  5 Nov 2021 09:55:11 +0000 (UTC)
-From:   Michal Suchanek <msuchanek@suse.de>
-To:     keyrings@vger.kernel.org
-Cc:     Michal Suchanek <msuchanek@suse.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        David Howells <dhowells@redhat.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Jessica Yu <jeyu@kernel.org>, Mimi Zohar <zohar@linux.ibm.com>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Rob Herring <robh@kernel.org>,
-        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
-        Hari Bathini <hbathini@linux.ibm.com>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Frank van der Linden <fllinden@amazon.com>,
-        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org
-Subject: [PATCH 1/2] module: Use key_being_used_for for log messages in verify_appended_signature
-Date:   Fri,  5 Nov 2021 10:55:04 +0100
-Message-Id: <3e5ad3138ea72468027768bbd69f04a1dae44af8.1636105912.git.msuchanek@suse.de>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <cover.1636105912.git.msuchanek@suse.de>
-References: <cover.1635948742.git.msuchanek@suse.de> <cover.1636105912.git.msuchanek@suse.de>
+        id S231386AbhKEKvO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 5 Nov 2021 06:51:14 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55538 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231341AbhKEKvN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 Nov 2021 06:51:13 -0400
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1A58Ci13017548;
+        Fri, 5 Nov 2021 10:48:29 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=YswT44oYLJ1/YWPku653gcH5Xu3poC4JGNqXkOaeKlQ=;
+ b=n8jauLuUDiVdlUeGN1zQ7G15jLnarnMU4JP5sKRsSIccm5XojEpSvQgtyidXv6Z7kAN8
+ dCOTA2KBVrVVjyvYObHtBZwWlOxq9NhZsdeMEIPlRFPmrwRTCkFxVp1XFUhYVN+nSm57
+ 1l/pLFCWiorQe74SlRv0pDwXz3AWV3m//HULOY8yfG8tyaWZ8GuqhDShNmTtrsYpLfPK
+ r1djwo9ol/OKOYjUFP2gtDtd5fAVHUMeN7xCngO3pznRDAm9iiwFd15h+NpiFK1xceul
+ pr7o3sEPlq0jRDnGoP54/yQCUHb2O2DOttAf08DePV8VMadKmxL9283p0cQzOtqLTcID 8g== 
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3c4xuhw0pg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 05 Nov 2021 10:48:29 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1A5AmE9j012139;
+        Fri, 5 Nov 2021 10:48:27 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma02fra.de.ibm.com with ESMTP id 3c4t4tba6g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 05 Nov 2021 10:48:26 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1A5AmOw259506958
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 5 Nov 2021 10:48:24 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4925E4C05C;
+        Fri,  5 Nov 2021 10:48:24 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D26E24C04E;
+        Fri,  5 Nov 2021 10:48:23 +0000 (GMT)
+Received: from [9.171.36.217] (unknown [9.171.36.217])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri,  5 Nov 2021 10:48:23 +0000 (GMT)
+Message-ID: <9784062e-df82-c6f0-28a2-6bdb2ea9d874@linux.ibm.com>
+Date:   Fri, 5 Nov 2021 11:48:23 +0100
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.0
+Subject: Re: REGRESSION: relocating a Debian/bullseye guest is losing network
+ connection
+Content-Language: en-US
+To:     Martin Grimm <extern.martin.grimm@itzbund.de>,
+        Waldemar Brodkorb <mail@waldemar-brodkorb.de>,
+        linux-s390@vger.kernel.org
+Cc:     Karsten Graul <kgraul@linux.ibm.com>
+References: <YXrdxGTkjLhj/2KA@waldemar-brodkorb.de>
+ <933ba5bc-a3eb-a67b-26a0-ab19a0ec787c@linux.ibm.com>
+ <0869a8d7-3b15-bad0-f42e-915b28730c7b@itzbund.de>
+ <e39c57e1-2a2e-5ab3-c967-c5881558e04c@linux.ibm.com>
+ <d53cc12a-a824-d2e7-2b41-5787c0600013@itzbund.de>
+From:   Julian Wiedmann <jwi@linux.ibm.com>
+In-Reply-To: <d53cc12a-a824-d2e7-2b41-5787c0600013@itzbund.de>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 5E5n2Ypt_lFNOt3Mp5wWRMS7NevvE3fy
+X-Proofpoint-ORIG-GUID: 5E5n2Ypt_lFNOt3Mp5wWRMS7NevvE3fy
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-11-05_01,2021-11-03_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
+ bulkscore=0 clxscore=1015 malwarescore=0 spamscore=0 lowpriorityscore=0
+ phishscore=0 adultscore=0 impostorscore=0 mlxlogscore=999
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2111050062
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Add value for kexec appended signature and pass in key_being_used_for
-enum rather than a string to verify_appended_signature to produce log
-messages about the signature.
+On 04.11.21 12:53, Martin Grimm wrote:
+> Am 02.11.21 um 10:03 schrieb Julian Wiedmann:
+>> On 29.10.21 15:52, Martin Grimm wrote:
+>>> Hi,
+>>>
+>>> I'm a collegue of Waldemar and I'd like to respond on his behalf.
+>>>
 
-Signed-off-by: Michal Suchanek <msuchanek@suse.de>
----
- arch/powerpc/kexec/elf_64.c              |  2 +-
- arch/s390/kernel/machine_kexec_file.c    |  2 +-
- crypto/asymmetric_keys/asymmetric_type.c |  1 +
- include/linux/verification.h             |  3 ++-
- kernel/module.c                          |  3 ++-
- kernel/module_signing.c                  | 11 ++++++-----
- 6 files changed, 13 insertions(+), 9 deletions(-)
+[...]
 
-diff --git a/arch/powerpc/kexec/elf_64.c b/arch/powerpc/kexec/elf_64.c
-index e8dff6b23ac5..3aa5269f6e0f 100644
---- a/arch/powerpc/kexec/elf_64.c
-+++ b/arch/powerpc/kexec/elf_64.c
-@@ -158,7 +158,7 @@ int elf64_verify_sig(const char *kernel, unsigned long length)
- 	size_t kernel_len = length;
- 
- 	return verify_appended_signature(kernel, &kernel_len, VERIFY_USE_PLATFORM_KEYRING,
--					 "kexec_file");
-+					 VERIFYING_KEXEC_APPENDED_SIGNATURE);
- }
- #endif /* CONFIG_KEXEC_SIG */
- 
-diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
-index 82260bb61060..37fcbb149368 100644
---- a/arch/s390/kernel/machine_kexec_file.c
-+++ b/arch/s390/kernel/machine_kexec_file.c
-@@ -32,7 +32,7 @@ int s390_verify_sig(const char *kernel, unsigned long length)
- 		return 0;
- 
- 	return verify_appended_signature(kernel, &kernel_len, VERIFY_USE_PLATFORM_KEYRING,
--					"kexec_file");
-+					VERIFYING_KEXEC_APPENDED_SIGNATURE);
- }
- #endif /* CONFIG_KEXEC_SIG */
- 
-diff --git a/crypto/asymmetric_keys/asymmetric_type.c b/crypto/asymmetric_keys/asymmetric_type.c
-index ad8af3d70ac0..6fd20eec3882 100644
---- a/crypto/asymmetric_keys/asymmetric_type.c
-+++ b/crypto/asymmetric_keys/asymmetric_type.c
-@@ -25,6 +25,7 @@ const char *const key_being_used_for[NR__KEY_BEING_USED_FOR] = {
- 	[VERIFYING_KEXEC_PE_SIGNATURE]		= "kexec PE sig",
- 	[VERIFYING_KEY_SIGNATURE]		= "key sig",
- 	[VERIFYING_KEY_SELF_SIGNATURE]		= "key self sig",
-+	[VERIFYING_KEXEC_APPENDED_SIGNATURE]	= "kexec appended sig",
- 	[VERIFYING_UNSPECIFIED_SIGNATURE]	= "unspec sig",
- };
- EXPORT_SYMBOL_GPL(key_being_used_for);
-diff --git a/include/linux/verification.h b/include/linux/verification.h
-index c1cf0582012a..23748feb9e03 100644
---- a/include/linux/verification.h
-+++ b/include/linux/verification.h
-@@ -26,6 +26,7 @@ enum key_being_used_for {
- 	VERIFYING_KEXEC_PE_SIGNATURE,
- 	VERIFYING_KEY_SIGNATURE,
- 	VERIFYING_KEY_SELF_SIGNATURE,
-+	VERIFYING_KEXEC_APPENDED_SIGNATURE,
- 	VERIFYING_UNSPECIFIED_SIGNATURE,
- 	NR__KEY_BEING_USED_FOR
- };
-@@ -61,7 +62,7 @@ extern int verify_pefile_signature(const void *pebuf, unsigned pelen,
- #endif
- 
- int verify_appended_signature(const void *data, size_t *len, struct key *trusted_keys,
--			      const char *what);
-+			      enum key_being_used_for purpose);
- 
- #endif /* CONFIG_SYSTEM_DATA_VERIFICATION */
- #endif /* _LINUX_VERIFY_PEFILE_H */
-diff --git a/kernel/module.c b/kernel/module.c
-index 1c421b0442e3..5f1cf989e1cf 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -2891,7 +2891,8 @@ static int module_sig_check(struct load_info *info, int flags)
- 	 */
- 	if (flags == 0) {
- 		err = verify_appended_signature(mod, &info->len,
--						VERIFY_USE_SECONDARY_KEYRING, "module");
-+						VERIFY_USE_SECONDARY_KEYRING,
-+						VERIFYING_MODULE_SIGNATURE);
- 		if (!err) {
- 			info->sig_ok = true;
- 			return 0;
-diff --git a/kernel/module_signing.c b/kernel/module_signing.c
-index 4c28cb55275f..cef72a6f6b5d 100644
---- a/kernel/module_signing.c
-+++ b/kernel/module_signing.c
-@@ -19,17 +19,18 @@
-  * @data: The data to be verified
-  * @len: Size of @data.
-  * @trusted_keys: Keyring to use for verification
-- * @what: Informational string for log messages
-+ * @purpose: The use to which the key is being put
-  */
- int verify_appended_signature(const void *data, size_t *len,
--			      struct key *trusted_keys, const char *what)
-+			      struct key *trusted_keys,
-+			      enum key_being_used_for purpose)
- {
- 	const unsigned long markerlen = sizeof(MODULE_SIG_STRING) - 1;
- 	struct module_signature ms;
- 	size_t sig_len, modlen = *len;
- 	int ret;
- 
--	pr_devel("==>%s(,%zu)\n", __func__, modlen);
-+	pr_devel("==>%s %s(,%zu)\n", __func__, key_being_used_for[purpose], modlen);
- 
- 	if (markerlen > modlen)
- 		return -ENODATA;
-@@ -44,7 +45,7 @@ int verify_appended_signature(const void *data, size_t *len,
- 
- 	memcpy(&ms, data + (modlen - sizeof(ms)), sizeof(ms));
- 
--	ret = mod_check_sig(&ms, modlen, what);
-+	ret = mod_check_sig(&ms, modlen, key_being_used_for[purpose]);
- 	if (ret)
- 		return ret;
- 
-@@ -54,6 +55,6 @@ int verify_appended_signature(const void *data, size_t *len,
- 
- 	return verify_pkcs7_signature(data, modlen, data + modlen, sig_len,
- 				      trusted_keys,
--				      VERIFYING_MODULE_SIGNATURE,
-+				      purpose,
- 				      NULL, NULL);
- }
--- 
-2.31.1
+>>>>> All manually added routing information will be lost anyway.
+>>>>>
+>>>>> And I might not imagine what happens to any firewall connection
+>>>>> tables or ipvs connection tracking information in case of a Live
+>>>>> Guest Relocation.
+>>>>>
+>>>>> So is there any kernel level solution for this you can think of?
+>>>>>
+>>>>
+>>>> As discussed off-list, a plain "ip link set dev eth0 down" gives you
+>>>> the same result. Hence I would recommend to improve your configuration,
+>>>> so that the needed routes are restored when the interface comes up
+>>>> again.
+>>>>
+> Your proposed test with "ip link set dev eth0 down && ip link set dev eth0 up"
+> also kills all static routing information on a regular setup RHEL 7.9 system.
+> So maybe it shouldn't be taken for granted that server systems with static
+> network configuration recover from such outages automatically.
+> 
+
+It's taken for granted in a sense that even old code was calling dev_close()
+when setting the device offline (ie. 0 > /sys/devices/qeth/x.x.xxxx/offline)
+for certain config changes.
+
+So the implicit need to preserve such user-side config was there, even when
+you didn't encounter it previously.
+
+>>>
+>>> I'd like to disagree. From my point of view the state after a "real"
+>>> device outage is irrelevant regarding "Live Guest Relocation".
+>>>
+>>> LGR is meant to provide seamless migration of zLinux guests from
+>>> one z/VM to the other during production workloads.
+>>> So the linux guest has to be in exactly the same state after migration
+>>> to the new z/VM as it was before. That also includes IMHO dynamic
+>>> routes added e.g. by a service like keepalived or even by hand.
+>>>
+>>
+>> Sorry, unfortunately that doesn't match up with reality. LGR still requires
+>> a full re-establish of the HW context (ie. you're losing whatever packets
+>> are in the RX and TX queues at that moment), and then needs activity by the
+>> Linux network core to establish itself in the new network environment.
+>>
+>> Bypassing the corresponding NETDEV_UP event etc (as the old code did) means
+>> that we eg. don't get fresh GARPs, and traffic is then forwarded to stale
+>> switch ports.
+>>
+>> So no, we can't go back to the mode of doing things behind the network
+>> stack's back. It sort-of worked for a while, but we reached its limits.
+>>
+> 
+> Sorry to hear that :-(
+> For us as customers (our POV) that means LGR that worked for years without
+> any noticable problem for hundreds of linux guests with thousands of successful
+> relocations isn't usable anymore or only with great care.
+
+I wouldn't want to fully demotivate you. If there are ways to bypass such a "fake"
+admin-down via dev_close() but still
+1. close & open the device in a sane manner so that all the relevant driver-level
+   callbacks are fenced off, and
+2. have the network code do all the necessary work on stop & open to harmonize us
+   with a potentially new network environment, stacked devices etc
+   (based on eg. linkwatch's NETDEV_CHANGE, netdev_state_change(),
+   netdev_notify_peers(), ...)
+
+then I'd consider that a very viable solution. What we _can't_ do is re-implement
+that logic in the driver itself, and then just pray that we stay current with all
+subsequent changes in the stack's behaviour.
+
+> But perhaps this mailing list is not the right audience for customer problems
+> and we should address this via a PMR to focus on the interaction between z/VM
+> and Linux.
+> 
+>>> Before Kernel v5 this was the observed behavior.
+>>>
+>>> Starting with Kernel v5 LGR now triggers a network outage that makes
+>>> it unusable for many kinds of production systems.
+>>> Before version 5 there where device failure and recovery messages
+>>> in the kernel log but the network configuration stayed intact.
+>>>
+>>> Just to be sure I compared this with the behavior of VMWare Live Migration
+>>> and there all dynamic routes stay in place as it was with LGR
+>>> before Kernel v5. Not a single error message in kernel log there.
+>>>
+>>> So if the new behavior is correct for a real device outage, maybe LGR
+>>> should be handled differently?
+>>>
+>>>>> Thanks for any advice and comments,
+>>>>>
+>>>>> best regards
+>>>>>    Waldemar
+>>>>>
+>>>>
+>>>
+>>> Greetings
+>>> Martin
+>>
+> 
 
