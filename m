@@ -2,109 +2,67 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 76F2DC433F5
-	for <linux-s390@archiver.kernel.org>; Fri,  5 Nov 2021 15:45:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F59DC433EF
+	for <linux-s390@archiver.kernel.org>; Fri,  5 Nov 2021 15:56:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5E87D61183
-	for <linux-s390@archiver.kernel.org>; Fri,  5 Nov 2021 15:45:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 33F4960720
+	for <linux-s390@archiver.kernel.org>; Fri,  5 Nov 2021 15:56:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232554AbhKEPrj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 5 Nov 2021 11:47:39 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:5694 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S229759AbhKEPri (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 Nov 2021 11:47:38 -0400
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1A5DMAeB029270
-        for <linux-s390@vger.kernel.org>; Fri, 5 Nov 2021 15:44:57 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=ViM07y2xrq/l+2vNHdEIPtzXWx5QnArPD3EUWYJXyoc=;
- b=oUr4qTCsJeXBrqqvOrVpOAG+yu8baeT5lcyApa9OL37yxY59auEvTRAnITCVu5sP/HKe
- nlyizGmzKLH61Z4mb3vdyms5AwErW/y3RYvuH7Ygm7KLd5+ZRRhouPabr25nVxc17Jyc
- YccrzTiaJ6+MO8cm2l61vfBzBwihH4bnS4akXlb1MqG0x7qjE2ndfvBp6xfcoyvBG44m
- IIKfdY5QzXjZDAZSu4er3DH4ipiv0KOWe7e4AqqUU4xVydytJCzoUmDeZYPMeOyjXJMB
- 73v38a0G1+vZn8+AOfTkKYocqOQdcYzS6S6VxUHu9ow0NSprHb2FApUeY6EXdKjLkor8 Gw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3c50y2rjmv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 05 Nov 2021 15:44:56 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1A5FRLKd018758
-        for <linux-s390@vger.kernel.org>; Fri, 5 Nov 2021 15:44:56 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3c50y2rjmf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 05 Nov 2021 15:44:56 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1A5FXBN3008466;
-        Fri, 5 Nov 2021 15:44:54 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma04fra.de.ibm.com with ESMTP id 3c4t4bwn2w-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 05 Nov 2021 15:44:54 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1A5FcNDN62128508
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 5 Nov 2021 15:38:23 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6992611C050;
-        Fri,  5 Nov 2021 15:44:51 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 349E111C04C;
-        Fri,  5 Nov 2021 15:44:51 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri,  5 Nov 2021 15:44:51 +0000 (GMT)
-From:   Vineeth Vijayan <vneethv@linux.ibm.com>
-To:     cohuck@redhat.com, linux-s390@vger.kernel.org
+        id S233691AbhKEP7A (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 5 Nov 2021 11:59:00 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:29626 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232537AbhKEP7A (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 Nov 2021 11:59:00 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1636127780;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=OF5GtL3ADF57dbTh917K/zUSNmWiN4qCeq1RBYbSkyI=;
+        b=C6Z78T8PGl/WmSEpHhrpzm3UDBkGPhtWl9jvG/AEzqumVclVBdFzBm7mtwYKwYo+P7hK9N
+        JdlyxvCfVw912HVhUedTrU/FuMDVWCvENA2O4mj56Y1BvKfs2zI6tuH4A+TYsiCrrezF+1
+        2hVmAX34V6RnSbb4+/ouxcuOF63xed8=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-139-VNIL8gUFNbWwzwvfkVC2eA-1; Fri, 05 Nov 2021 11:56:18 -0400
+X-MC-Unique: VNIL8gUFNbWwzwvfkVC2eA-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CEEFA80668A;
+        Fri,  5 Nov 2021 15:56:17 +0000 (UTC)
+Received: from localhost (unknown [10.39.193.41])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 587A0104A9FF;
+        Fri,  5 Nov 2021 15:56:15 +0000 (UTC)
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Vineeth Vijayan <vneethv@linux.ibm.com>, linux-s390@vger.kernel.org
 Cc:     oberpar@linux.ibm.com, vneethv@linux.ibm.com
-Subject: [PATCH] s390/cio: check the subchannel validity for dev_busid
-Date:   Fri,  5 Nov 2021 16:44:51 +0100
-Message-Id: <20211105154451.847288-1-vneethv@linux.ibm.com>
-X-Mailer: git-send-email 2.25.1
+Subject: Re: [PATCH] s390/cio: check the subchannel validity for dev_busid
+In-Reply-To: <20211105154451.847288-1-vneethv@linux.ibm.com>
+Organization: Red Hat GmbH
+References: <20211105154451.847288-1-vneethv@linux.ibm.com>
+User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
+Date:   Fri, 05 Nov 2021 16:56:14 +0100
+Message-ID: <87ee7ua95t.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: kinCDgGzm_r8dNW5oLzks4I5NZYLUBYC
-X-Proofpoint-ORIG-GUID: OoexPKbVBC5sGMa7Ja7ChQIqrK1ojg3j
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-11-05_02,2021-11-03_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- mlxlogscore=893 impostorscore=0 phishscore=0 lowpriorityscore=0
- clxscore=1015 spamscore=0 malwarescore=0 suspectscore=0 adultscore=0
- mlxscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2111050089
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Check the validity of subchanel before reading other fields in
-the schib.
+On Fri, Nov 05 2021, Vineeth Vijayan <vneethv@linux.ibm.com> wrote:
 
-Fixes: d3683c055212 ("s390/cio: add dev_busid sysfs entry for each subchannel")
-Reported-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
----
- drivers/s390/cio/css.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+> Check the validity of subchanel before reading other fields in
+> the schib.
+>
+> Fixes: d3683c055212 ("s390/cio: add dev_busid sysfs entry for each subchannel")
+> Reported-by: Cornelia Huck <cohuck@redhat.com>
+> Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+> ---
+>  drivers/s390/cio/css.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
-index 2bc55ccf3f23..ce9e7517430f 100644
---- a/drivers/s390/cio/css.c
-+++ b/drivers/s390/cio/css.c
-@@ -437,8 +437,8 @@ static ssize_t dev_busid_show(struct device *dev,
- 	struct subchannel *sch = to_subchannel(dev);
- 	struct pmcw *pmcw = &sch->schib.pmcw;
- 
--	if ((pmcw->st == SUBCHANNEL_TYPE_IO ||
--	     pmcw->st == SUBCHANNEL_TYPE_MSG) && pmcw->dnv)
-+	if ((pmcw->st == SUBCHANNEL_TYPE_IO && pmcw->dnv) ||
-+	    (pmcw->st == SUBCHANNEL_TYPE_MSG && pmcw->w))
- 		return sysfs_emit(buf, "0.%x.%04x\n", sch->schid.ssid,
- 				  pmcw->dev);
- 	else
--- 
-2.25.1
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 
