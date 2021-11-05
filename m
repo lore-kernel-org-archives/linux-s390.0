@@ -2,91 +2,108 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C91CEC433FE
-	for <linux-s390@archiver.kernel.org>; Fri,  5 Nov 2021 13:14:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A420C433F5
+	for <linux-s390@archiver.kernel.org>; Fri,  5 Nov 2021 13:15:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AFD8E61108
-	for <linux-s390@archiver.kernel.org>; Fri,  5 Nov 2021 13:14:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6B211610FD
+	for <linux-s390@archiver.kernel.org>; Fri,  5 Nov 2021 13:15:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232705AbhKENQq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 5 Nov 2021 09:16:46 -0400
-Received: from smtp-out2.suse.de ([195.135.220.29]:33204 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232637AbhKENQo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 Nov 2021 09:16:44 -0400
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id 6DE281FD37;
-        Fri,  5 Nov 2021 13:14:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1636118043; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=GJZ3yTXhrzi4whvrAIl3BNUnX0rED/L5GxqfhBDh6mo=;
-        b=gZlL3n9dgK20NLv/q4Tjf8za+Zyb+vEPJJUCccpbyATFt+Y7qamzrZHILKT9OUJ1BDOpPE
-        6AUtJ39tV5G5CkBXkovM3M0AimFa/4v0orHsoAiPnLPL+Vrp3xHSbaFeI/V2Mvx06BDd4U
-        xagoOQY0ft2lt1LbyFCz+E2f+cfSCJs=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1636118043;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=GJZ3yTXhrzi4whvrAIl3BNUnX0rED/L5GxqfhBDh6mo=;
-        b=rpqjS5Jwt1qeWSytrXnsbDBHXb+K6Ov6jka10AwhMpvrngwpe4rn1SqFeZHtW9mE0QF0xO
-        5yTO9V5A3dK305DQ==
-Received: from kunlun.suse.cz (unknown [10.100.128.76])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id DA9E12C144;
-        Fri,  5 Nov 2021 13:14:02 +0000 (UTC)
-Date:   Fri, 5 Nov 2021 14:14:01 +0100
-From:   Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
-To:     Daniel Axtens <dja@axtens.net>
-Cc:     keyrings@vger.kernel.org, Rob Herring <robh@kernel.org>,
-        linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Jessica Yu <jeyu@kernel.org>, linux-kernel@vger.kernel.org,
-        David Howells <dhowells@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Hari Bathini <hbathini@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linuxppc-dev@lists.ozlabs.org,
-        Frank van der Linden <fllinden@amazon.com>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Subject: Re: [PATCH 0/3] KEXEC_SIG with appended signature
-Message-ID: <20211105131401.GL11195@kunlun.suse.cz>
-References: <cover.1635948742.git.msuchanek@suse.de>
- <87czneeurr.fsf@dja-thinkpad.axtens.net>
+        id S232756AbhKENSB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 5 Nov 2021 09:18:01 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:7516 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231149AbhKENR4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 Nov 2021 09:17:56 -0400
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1A5CW7a0027897;
+        Fri, 5 Nov 2021 13:15:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : from : to : cc
+ : references : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=P40BYvr21zMMRQqDpp9OB7z7Xr5NMjDkrx+CF3Uv6gc=;
+ b=gp3sStFTpo9yzE0lR9BHoAiFSI04GNPgt32OpP2gjzI2oBSHvpyCurVGf1326KLLzXSp
+ 5WsfqmjhcWgrcaIpU4Mbk7r/GqOwLOXy2uMT3KioLq6iMfTHjnmXqk3vT3qBwspKka33
+ Zdn3RhJ1DbowIVqC5XC+WKh+apAlSRnLHASJc644AcSG+qhwT3716ee2fPe1X5ZpyNba
+ 6EbGPk5Z8GxEcNHa8d/XDmu+QIm7cgLN/4kyxIIRLVDjEvhydFbyp2gx7Xz77lbn6n23
+ d9SkSZk+wgJd7Uetzn6Ct/EWAXIRru2Kk55WDGMVglUO35dh4YMv9ilca73fLZFPKuK3 qA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3c4xuhyv34-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 05 Nov 2021 13:15:15 +0000
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1A5CZSoY015709;
+        Fri, 5 Nov 2021 13:15:14 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3c4xuhyv1y-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 05 Nov 2021 13:15:14 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1A5D7V8N013147;
+        Fri, 5 Nov 2021 13:15:11 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma03fra.de.ibm.com with ESMTP id 3c4t4fmg4g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 05 Nov 2021 13:15:11 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1A5DF8fF9896262
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 5 Nov 2021 13:15:08 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 86C6B4C059;
+        Fri,  5 Nov 2021 13:15:08 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2CB334C05E;
+        Fri,  5 Nov 2021 13:15:08 +0000 (GMT)
+Received: from funtu.home (unknown [9.145.42.227])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri,  5 Nov 2021 13:15:08 +0000 (GMT)
+Subject: Re: [PATCH v17 14/15] s390/ap: notify drivers on config changed and
+ scan complete callbacks
+From:   Harald Freudenberger <freude@linux.ibm.com>
+To:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc:     jjherne@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
+        mjrosato@linux.ibm.com, pasic@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        fiuczy@linux.ibm.com
+References: <20211021152332.70455-1-akrowiak@linux.ibm.com>
+ <20211021152332.70455-15-akrowiak@linux.ibm.com>
+ <11b72236-34fe-4d65-0da1-033050c75a87@linux.ibm.com>
+ <77a4b43b-940e-0321-9ebf-3249a8d8513a@linux.ibm.com>
+ <bb676730-a1b1-3bbe-116e-7d20ab6e8a58@linux.ibm.com>
+Message-ID: <559ed7e4-d36a-4145-7fe4-eefba3484901@linux.ibm.com>
+Date:   Fri, 5 Nov 2021 14:15:08 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87czneeurr.fsf@dja-thinkpad.axtens.net>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <bb676730-a1b1-3bbe-116e-7d20ab6e8a58@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: IKXFbpc20EQOI-4hNWJEHM-AgUX_1ywM
+X-Proofpoint-ORIG-GUID: 2yR4bwplzqZ9x2P7bWo0BWk3GUk7j2er
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-11-05_02,2021-11-03_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
+ bulkscore=0 clxscore=1015 malwarescore=0 spamscore=0 lowpriorityscore=0
+ phishscore=0 adultscore=0 impostorscore=0 mlxlogscore=999
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2111050076
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Nov 05, 2021 at 09:55:52PM +1100, Daniel Axtens wrote:
-> Michal Suchanek <msuchanek@suse.de> writes:
-> 
-> > S390 uses appended signature for kernel but implements the check
-> > separately from module loader.
-> >
-> > Support for secure boot on powerpc with appended signature is planned -
-> > grub patches submitted upstream but not yet merged.
-> 
-> Power Non-Virtualised / OpenPower already supports secure boot via kexec
-> with signature verification via IMA. I think you have now sent a
-> follow-up series that merges some of the IMA implementation, I just
-> wanted to make sure it was clear that we actually already have support
-
-So is IMA_KEXEC and KEXEC_SIG redundant?
-
-I see some architectures have both. I also see there is a lot of overlap
-between the IMA framework and the KEXEC_SIG and MODULE_SIg.
-
-Thanks
-
-Michal
+On 05.11.21 09:23, Harald Freudenberger wrote:
+> On 04.11.21 16:50, Tony Krowiak wrote:
+>>
+>> On 11/4/21 8:06 AM, Harald Freudenberger wrote:
+>>> Tony as this is v17, if you may do jet another loop, I would pick the ap parts of your patch series and
+>>> apply them to the devel branch as separate patches.
+>> Are you suggesting I do this now, or when this is finally ready to go upstream?
+>>
+>>
+> I am suggesting picking all the ap related stuff into one patch and commit it to the devel branch now (well in the next days).
+> So the ap stuff is then prepared for your patches and it gives your patch series some relief.
+Of course I would do this if you agree to this procedure.
