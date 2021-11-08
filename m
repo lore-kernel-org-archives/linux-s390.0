@@ -2,69 +2,66 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8629EC433EF
-	for <linux-s390@archiver.kernel.org>; Mon,  8 Nov 2021 12:50:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F89CC433EF
+	for <linux-s390@archiver.kernel.org>; Mon,  8 Nov 2021 13:04:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 66EAC61056
-	for <linux-s390@archiver.kernel.org>; Mon,  8 Nov 2021 12:50:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 159A1610F7
+	for <linux-s390@archiver.kernel.org>; Mon,  8 Nov 2021 13:04:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238547AbhKHMxc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 8 Nov 2021 07:53:32 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:31040 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S236140AbhKHMxb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 Nov 2021 07:53:31 -0500
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1A8CkXHC017292;
-        Mon, 8 Nov 2021 12:50:47 GMT
+        id S238948AbhKHNHF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 8 Nov 2021 08:07:05 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:22906 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230303AbhKHNHF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 Nov 2021 08:07:05 -0500
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1A8CPN9N030905;
+        Mon, 8 Nov 2021 13:04:21 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=bPPwWaWUC3fXnJE8xGARcCvn+a3fG4q0VXUzbt0ww5o=;
- b=ZJ1eD4kH2Cg7Z0+an3X18Dq6KE0GFKL68VO075/udf+rBelHqBNan2sPlW00mEziId0S
- xBTzxHUZ1fi0zwiQM/ggndCRgvjvxECtHoUmS9zYmyjKjFEfsW2v0Eo+mR0tnJWyQrIJ
- BKSl/3NsY3eZ3LpOTQf+xYumVQIh0fkE/tTT3CAWR+JbBo5HusGXYRL+Xpy+wzPSkuiI
- n+KrkdNusD2FvcPHehh6SE8RaZXRN6yaaFR13xH/DwrouFiLKAza4X3ZoyWBouL5AF1Q
- yDHC/Sw4cmmFVehhl3i4GHQwx0ZAMC/gKNYQOkFXMOaUH4rmgE+YgbyhVRP0I6kObn12 uQ== 
+ bh=Hu+ICPyBLxkbxk8Tolcb6Qhnpy/0ub7sUQIUYdELyrU=;
+ b=BH9b11y6rApvTPpfEMWhXzesYGqRkkiYcXnoBvFL8dKtOyMMcABt/Fxt1dkTpuI/8D6N
+ dse/ErypIqDxj39DXvk/SHqegBh8aJm2b8EKNL3CrIlqmFMNRL36RAkF+Hm3jBFACzRQ
+ TaiWk7vdzbwXB3o9szvVElwsHAmpU3HqHa901B7+fQvuCG34m14BDxDr/MFT+UogOP8M
+ ce6r83LYs2vvGAn0r9K1ROVogJFgdwLO4yDO4dyopBHRfMOb3mvGdtXMPS/WioLADc3w
+ Z1WExo5RTvpzT1+GuaGV59uz0v53yFeJY4Y2kQL9xH0wdprt1lBPoaD/Cgtn/Y6FSuw8 mQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3c6b7jsn69-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3c6a94cnyh-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 08 Nov 2021 12:50:46 +0000
-Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1A8CkNxw012993;
-        Mon, 8 Nov 2021 12:50:46 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3c6b7jsn5e-1
+        Mon, 08 Nov 2021 13:04:20 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1A8Ag0hU004710;
+        Mon, 8 Nov 2021 13:04:19 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3c6a94cnxe-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 08 Nov 2021 12:50:46 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1A8Co7Fc024431;
-        Mon, 8 Nov 2021 12:50:44 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03ams.nl.ibm.com with ESMTP id 3c5hb9x268-1
+        Mon, 08 Nov 2021 13:04:19 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1A8D3j8F011939;
+        Mon, 8 Nov 2021 13:04:17 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma04ams.nl.ibm.com with ESMTP id 3c5hb9x81g-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 08 Nov 2021 12:50:44 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1A8CofdM6488746
+        Mon, 08 Nov 2021 13:04:17 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1A8CvahE56361292
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 8 Nov 2021 12:50:41 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4903311C07F;
-        Mon,  8 Nov 2021 12:50:41 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EDC1611C075;
-        Mon,  8 Nov 2021 12:50:40 +0000 (GMT)
-Received: from [9.171.16.13] (unknown [9.171.16.13])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon,  8 Nov 2021 12:50:40 +0000 (GMT)
-Message-ID: <6c88b81b-85d5-b997-9b69-02f7d05a54c3@de.ibm.com>
-Date:   Mon, 8 Nov 2021 13:50:40 +0100
+        Mon, 8 Nov 2021 12:57:36 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AE94752063;
+        Mon,  8 Nov 2021 13:04:13 +0000 (GMT)
+Received: from [9.145.83.128] (unknown [9.145.83.128])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 16DF45205F;
+        Mon,  8 Nov 2021 13:04:13 +0000 (GMT)
+Message-ID: <446e3ace-16e6-0cc4-874f-7a5caa46d3c1@linux.ibm.com>
+Date:   Mon, 8 Nov 2021 14:04:12 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.0
+ Thunderbird/91.1.0
 Subject: Re: [PATCH] KVM: s390x: add debug statement for diag 318 CPNC data
 Content-Language: en-US
-To:     Janosch Frank <frankja@linux.ibm.com>,
+To:     Christian Borntraeger <borntraeger@de.ibm.com>,
         Collin Walling <walling@linux.ibm.com>,
         linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         kvm@vger.kernel.org
@@ -73,68 +70,67 @@ References: <20211027025451.290124-1-walling@linux.ibm.com>
  <4488b572-11bf-72ff-86c0-395dfc7b3f71@linux.ibm.com>
  <28d90d6f-b481-3588-cd33-39624710b7bd@de.ibm.com>
  <7e785ecc-1ddb-9357-e961-4498d1bf59fd@linux.ibm.com>
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-In-Reply-To: <7e785ecc-1ddb-9357-e961-4498d1bf59fd@linux.ibm.com>
+ <6c88b81b-85d5-b997-9b69-02f7d05a54c3@de.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <6c88b81b-85d5-b997-9b69-02f7d05a54c3@de.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: base64
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: -bn8K5R3opCSW2yOV-Dh0NQDmXnq19fw
-X-Proofpoint-ORIG-GUID: iY5mu6gQX-TDT2-4Z0IZAv3-y7TrVkmA
+X-Proofpoint-ORIG-GUID: l2oVTfnGHMtXom1PFrAZho_7SSYv0Esm
+X-Proofpoint-GUID: pps4uNWiL80d0zkj7A10jEmjF1jq6KYb
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
  definitions=2021-11-08_04,2021-11-08_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 clxscore=1015
- suspectscore=0 lowpriorityscore=0 malwarescore=0 bulkscore=0 spamscore=0
- priorityscore=1501 mlxlogscore=999 adultscore=0 mlxscore=0 impostorscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
- definitions=main-2111080079
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ suspectscore=0 adultscore=0 clxscore=1015 mlxscore=0 lowpriorityscore=0
+ bulkscore=0 priorityscore=1501 spamscore=0 mlxlogscore=999 malwarescore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2111080079
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-Am 08.11.21 um 13:48 schrieb Janosch Frank:
-> On 11/8/21 13:04, Christian Borntraeger wrote:
->>
->>
->> Am 08.11.21 um 12:12 schrieb Janosch Frank:
->>> On 10/27/21 04:54, Collin Walling wrote:
->>>> The diag 318 data contains values that denote information regarding the
->>>> guest's environment. Currently, it is unecessarily difficult to observe
->>>> this value (either manually-inserted debug statements, gdb stepping, mem
->>>> dumping etc). It's useful to observe this information to obtain an
->>>> at-a-glance view of the guest's environment, so lets add a simple VCPU
->>>> event that prints the CPNC to the s390dbf logs.
->>>>
->>>> Signed-off-by: Collin Walling <walling@linux.ibm.com>
->>>> ---
->>>>    arch/s390/kvm/kvm-s390.c | 1 +
->>>>    1 file changed, 1 insertion(+)
->>>>
->>>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->>>> index 6a6dd5e1daf6..da3ff24eabd0 100644
->>>> --- a/arch/s390/kvm/kvm-s390.c
->>>> +++ b/arch/s390/kvm/kvm-s390.c
->>>> @@ -4254,6 +4254,7 @@ static void sync_regs_fmt2(struct kvm_vcpu *vcpu)
->>>>        if (kvm_run->kvm_dirty_regs & KVM_SYNC_DIAG318) {
->>>>            vcpu->arch.diag318_info.val = kvm_run->s.regs.diag318;
->>>>            vcpu->arch.sie_block->cpnc = vcpu->arch.diag318_info.cpnc;
->>>> +        VCPU_EVENT(vcpu, 2, "setting cpnc to %d", vcpu->arch.diag318_info.cpnc);
->>>>        }
->>>>        /*
->>>>         * If userspace sets the riccb (e.g. after migration) to a valid state,
->>>>
->>>
->>> Won't that turn up for every vcpu and spam the log?
->>
->> only if the userspace always sets the dirty bit (which it should not).
->>
-> 
-> But that's exactly what it does, no?
-> We do a loop over all vcpus and call kvm_s390_set_diag318() which sets the info in kvm_run and sets the diag318 bit in the kvm_dirty_regs.
-
-Yes, ONCE per CPU. And this is exactly what I want to see. (and it did show a bug in qemu that we only set it for one cpu to the correct value).
-
-> 
-> @Collin: Could you check that please?
+T24gMTEvOC8yMSAxMzo1MCwgQ2hyaXN0aWFuIEJvcm50cmFlZ2VyIHdyb3RlOg0KPiANCj4g
+DQo+IEFtIDA4LjExLjIxIHVtIDEzOjQ4IHNjaHJpZWIgSmFub3NjaCBGcmFuazoNCj4+IE9u
+IDExLzgvMjEgMTM6MDQsIENocmlzdGlhbiBCb3JudHJhZWdlciB3cm90ZToNCj4+Pg0KPj4+
+DQo+Pj4gQW0gMDguMTEuMjEgdW0gMTI6MTIgc2NocmllYiBKYW5vc2NoIEZyYW5rOg0KPj4+
+PiBPbiAxMC8yNy8yMSAwNDo1NCwgQ29sbGluIFdhbGxpbmcgd3JvdGU6DQo+Pj4+PiBUaGUg
+ZGlhZyAzMTggZGF0YSBjb250YWlucyB2YWx1ZXMgdGhhdCBkZW5vdGUgaW5mb3JtYXRpb24g
+cmVnYXJkaW5nIHRoZQ0KPj4+Pj4gZ3Vlc3QncyBlbnZpcm9ubWVudC4gQ3VycmVudGx5LCBp
+dCBpcyB1bmVjZXNzYXJpbHkgZGlmZmljdWx0IHRvIG9ic2VydmUNCj4+Pj4+IHRoaXMgdmFs
+dWUgKGVpdGhlciBtYW51YWxseS1pbnNlcnRlZCBkZWJ1ZyBzdGF0ZW1lbnRzLCBnZGIgc3Rl
+cHBpbmcsIG1lbQ0KPj4+Pj4gZHVtcGluZyBldGMpLiBJdCdzIHVzZWZ1bCB0byBvYnNlcnZl
+IHRoaXMgaW5mb3JtYXRpb24gdG8gb2J0YWluIGFuDQo+Pj4+PiBhdC1hLWdsYW5jZSB2aWV3
+IG9mIHRoZSBndWVzdCdzIGVudmlyb25tZW50LCBzbyBsZXRzIGFkZCBhIHNpbXBsZSBWQ1BV
+DQo+Pj4+PiBldmVudCB0aGF0IHByaW50cyB0aGUgQ1BOQyB0byB0aGUgczM5MGRiZiBsb2dz
+Lg0KPj4+Pj4NCj4+Pj4+IFNpZ25lZC1vZmYtYnk6IENvbGxpbiBXYWxsaW5nIDx3YWxsaW5n
+QGxpbnV4LmlibS5jb20+DQo+Pj4+PiAtLS0NCj4+Pj4+ICDCoMKgIGFyY2gvczM5MC9rdm0v
+a3ZtLXMzOTAuYyB8IDEgKw0KPj4+Pj4gIMKgwqAgMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0
+aW9uKCspDQo+Pj4+Pg0KPj4+Pj4gZGlmZiAtLWdpdCBhL2FyY2gvczM5MC9rdm0va3ZtLXMz
+OTAuYyBiL2FyY2gvczM5MC9rdm0va3ZtLXMzOTAuYw0KPj4+Pj4gaW5kZXggNmE2ZGQ1ZTFk
+YWY2Li5kYTNmZjI0ZWFiZDAgMTAwNjQ0DQo+Pj4+PiAtLS0gYS9hcmNoL3MzOTAva3ZtL2t2
+bS1zMzkwLmMNCj4+Pj4+ICsrKyBiL2FyY2gvczM5MC9rdm0va3ZtLXMzOTAuYw0KPj4+Pj4g
+QEAgLTQyNTQsNiArNDI1NCw3IEBAIHN0YXRpYyB2b2lkIHN5bmNfcmVnc19mbXQyKHN0cnVj
+dCBrdm1fdmNwdSAqdmNwdSkNCj4+Pj4+ICDCoMKgwqDCoMKgwqAgaWYgKGt2bV9ydW4tPmt2
+bV9kaXJ0eV9yZWdzICYgS1ZNX1NZTkNfRElBRzMxOCkgew0KPj4+Pj4gIMKgwqDCoMKgwqDC
+oMKgwqDCoMKgIHZjcHUtPmFyY2guZGlhZzMxOF9pbmZvLnZhbCA9IGt2bV9ydW4tPnMucmVn
+cy5kaWFnMzE4Ow0KPj4+Pj4gIMKgwqDCoMKgwqDCoMKgwqDCoMKgIHZjcHUtPmFyY2guc2ll
+X2Jsb2NrLT5jcG5jID0gdmNwdS0+YXJjaC5kaWFnMzE4X2luZm8uY3BuYzsNCj4+Pj4+ICvC
+oMKgwqDCoMKgwqDCoCBWQ1BVX0VWRU5UKHZjcHUsIDIsICJzZXR0aW5nIGNwbmMgdG8gJWQi
+LCB2Y3B1LT5hcmNoLmRpYWczMThfaW5mby5jcG5jKTsNCj4+Pj4+ICDCoMKgwqDCoMKgwqAg
+fQ0KPj4+Pj4gIMKgwqDCoMKgwqDCoCAvKg0KPj4+Pj4gIMKgwqDCoMKgwqDCoMKgICogSWYg
+dXNlcnNwYWNlIHNldHMgdGhlIHJpY2NiIChlLmcuIGFmdGVyIG1pZ3JhdGlvbikgdG8gYSB2
+YWxpZCBzdGF0ZSwNCj4+Pj4+DQo+Pj4+DQo+Pj4+IFdvbid0IHRoYXQgdHVybiB1cCBmb3Ig
+ZXZlcnkgdmNwdSBhbmQgc3BhbSB0aGUgbG9nPw0KPj4+DQo+Pj4gb25seSBpZiB0aGUgdXNl
+cnNwYWNlIGFsd2F5cyBzZXRzIHRoZSBkaXJ0eSBiaXQgKHdoaWNoIGl0IHNob3VsZCBub3Qp
+Lg0KPj4+DQo+Pg0KPj4gQnV0IHRoYXQncyBleGFjdGx5IHdoYXQgaXQgZG9lcywgbm8/DQo+
+PiBXZSBkbyBhIGxvb3Agb3ZlciBhbGwgdmNwdXMgYW5kIGNhbGwga3ZtX3MzOTBfc2V0X2Rp
+YWczMTgoKSB3aGljaCBzZXRzIHRoZSBpbmZvIGluIGt2bV9ydW4gYW5kIHNldHMgdGhlIGRp
+YWczMTggYml0IGluIHRoZSBrdm1fZGlydHlfcmVncy4NCj4gDQo+IFllcywgT05DRSBwZXIg
+Q1BVLiBBbmQgdGhpcyBpcyBleGFjdGx5IHdoYXQgSSB3YW50IHRvIHNlZS4gKGFuZCBpdCBk
+aWQgc2hvdyBhIGJ1ZyBpbiBxZW11IHRoYXQgd2Ugb25seSBzZXQgaXQgZm9yIG9uZSBjcHUg
+dG8gdGhlIGNvcnJlY3QgdmFsdWUpLg0KDQpPay4NCkkgZGlkbid0IHJlYWxseSB3YW50IHRv
+IGhhdmUgbiBlbnRyaWVzIGluIHRoZSBsb2cgaGVuY2UgSSBhc2tlZC4NCg0KMzE4IGlzIGEg
+Yml0IHdlaXJkIGFzIGl0J3MgYSBwZXIgVk0gdmFsdWUgd2UgbmVlZCB0byBwdXQgaW50byBh
+bGwgc2llIA0KYmxvY2tzLg0KDQo+IA0KPj4NCj4+IEBDb2xsaW46IENvdWxkIHlvdSBjaGVj
+ayB0aGF0IHBsZWFzZT8NCg0K
