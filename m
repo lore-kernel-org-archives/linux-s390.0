@@ -2,199 +2,176 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 65BC3C433EF
-	for <linux-s390@archiver.kernel.org>; Mon,  8 Nov 2021 08:57:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 630DAC433FE
+	for <linux-s390@archiver.kernel.org>; Mon,  8 Nov 2021 10:13:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4C4A861029
-	for <linux-s390@archiver.kernel.org>; Mon,  8 Nov 2021 08:57:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4F34C61207
+	for <linux-s390@archiver.kernel.org>; Mon,  8 Nov 2021 10:13:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238239AbhKHJAX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 8 Nov 2021 04:00:23 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:42422 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S238226AbhKHJAT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 Nov 2021 04:00:19 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1636361853;
+        id S238604AbhKHKP7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 8 Nov 2021 05:15:59 -0500
+Received: from mail.skyhub.de ([5.9.137.197]:38526 "EHLO mail.skyhub.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S238549AbhKHKPX (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 8 Nov 2021 05:15:23 -0500
+Received: from zn.tnic (p200300ec2f33110088892b77bd117736.dip0.t-ipconnect.de [IPv6:2003:ec:2f33:1100:8889:2b77:bd11:7736])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id B3A2A1EC0528;
+        Mon,  8 Nov 2021 11:12:36 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1636366356;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         to:to:cc:cc:mime-version:mime-version:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=g1QVy2jF6V4BA7K1wLjdWcKPNmRSWOeaRFj3XjWQfgo=;
-        b=EoJfXuPshYt6QaiEgXyaCoLmo5ltKl5yNmeK9YyY7XeC8LJoX6wGMsc6X40WltgnezCJxY
-        D+i3RwU4KqqXWlGnSpFvki6g875V4x3UXCu0gWsMnuNjoJTj7L1ni7W3XI2beldU+P6FX7
-        6O7xn+mJ22wWwMnnIVM3q/qcLqnVpBY=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-170-zSoSz-ODOROnbZ9oeSBKwg-1; Mon, 08 Nov 2021 03:57:32 -0500
-X-MC-Unique: zSoSz-ODOROnbZ9oeSBKwg-1
-Received: by mail-wr1-f71.google.com with SMTP id d7-20020a5d6447000000b00186a113463dso3817582wrw.10
-        for <linux-s390@vger.kernel.org>; Mon, 08 Nov 2021 00:57:32 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent
-         :content-language:to:cc:references:from:organization:subject
-         :in-reply-to:content-transfer-encoding;
-        bh=g1QVy2jF6V4BA7K1wLjdWcKPNmRSWOeaRFj3XjWQfgo=;
-        b=SbiIsT6oVulpp/mO/bXao8FN6wjrYjbcnPKYXys2hiiisDx3ICZx+Gt+5LlbLLo4if
-         1thcLxVGy6UfBkrpKsnQa8Ey08UMVnFKE+ZvHPi/EtTNcGspAeLTBjiQc0E/oM5IYWQf
-         27PZQ7xlji7oJVghusdlKfrxCSPkfBj7eWEXPn9CJ8d5D1FlkARmp9FHVdlz2lkpKhas
-         BG+dIY+Ef3bWKoOyr5zBKuKkPyLP1rVcLwQJSh9gck9SFqjrejjooJ63pNlFUWR8AC7v
-         tB2OQaSz0m1dan+kUROLO4n8Il5hrJzw9dkvtFXXJ4E59v5FK3Fy052MDo42iPsGw2kF
-         Ta7g==
-X-Gm-Message-State: AOAM531P4qs6G1Df/En9pHJouxOQz1aypFyXm/wy0QW1RO2yCJ6MubNc
-        FUtlMGAFSY146TiUOaieIdV6FboRC9Thc6jIbi6zJkH1YEWMheyeTQwQ+2DfiYXFQ2LORphZcng
-        Y3ykAYece3/8xJrCE4w4RuA==
-X-Received: by 2002:a7b:c097:: with SMTP id r23mr49698082wmh.193.1636361851479;
-        Mon, 08 Nov 2021 00:57:31 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJye+8D16l/504GIRn0ryj2rM/g2LAWDU8pggMBrRVe+L2Ngt3A/rSkPXhqOCx2C3Pr1d5AuJQ==
-X-Received: by 2002:a7b:c097:: with SMTP id r23mr49698067wmh.193.1636361851289;
-        Mon, 08 Nov 2021 00:57:31 -0800 (PST)
-Received: from [192.168.3.132] (p5b0c6108.dip0.t-ipconnect.de. [91.12.97.8])
-        by smtp.gmail.com with ESMTPSA id n15sm20024708wmq.38.2021.11.08.00.57.30
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 08 Nov 2021 00:57:30 -0800 (PST)
-Message-ID: <fb4e14c2-aa95-fc8c-5252-5a3a43381d95@redhat.com>
-Date:   Mon, 8 Nov 2021 09:57:30 +0100
+        bh=iTGviVrkJtoUIT++uIt9iUfOplAtk1ARh06fr945E7Y=;
+        b=LWt1g1khm25IgKX8cUlUchkMDKG4PJwa6C1IxobL/UkA4uO/j6kbewklULBwA4tY7lDTrn
+        V2kTWsYLhmNNiYUTBJ1wwX5gbhV9hZk2GT2q8qxLO3D9J7oxX77GxzmYEBeI0JQ7LczmaH
+        Vehoko2zyVP3iuyk0s0MSgrh9DYjmLI=
+From:   Borislav Petkov <bp@alien8.de>
+To:     LKML <linux-kernel@vger.kernel.org>
+Cc:     linux-s390@vger.kernel.org
+Subject: [PATCH v0 36/42] s390: Check notifier registration return value
+Date:   Mon,  8 Nov 2021 11:11:51 +0100
+Message-Id: <20211108101157.15189-37-bp@alien8.de>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20211108101157.15189-1-bp@alien8.de>
+References: <20211108101157.15189-1-bp@alien8.de>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.0
-Content-Language: en-US
-To:     Eric Farman <farman@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20211102194652.2685098-1-farman@linux.ibm.com>
- <20211102194652.2685098-3-farman@linux.ibm.com>
- <7e98f659-32ac-9b4e-0ddd-958086732c8d@redhat.com>
- <2ad9bef6b39a5a6c9b634cab7d70d110064d8f04.camel@linux.ibm.com>
- <655b3473-ccbd-f198-6566-c23a0ec20940@redhat.com>
- <1365cae27512d38a4b405d72b4d0ae2d502ec5d1.camel@linux.ibm.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-Subject: Re: [RFC PATCH v2 2/2] KVM: s390: Extend the USER_SIGP capability
-In-Reply-To: <1365cae27512d38a4b405d72b4d0ae2d502ec5d1.camel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 04.11.21 16:54, Eric Farman wrote:
-> On Thu, 2021-11-04 at 15:59 +0100, David Hildenbrand wrote:
->>>> For example, we don't care about concurrent SIGP SENSE. We only
->>>> care
->>>> about "lightweight" SIGP orders with concurrent "heavy weight"
->>>> SIGP
->>>> orders.
->>>
->>> I very much care about concurrent SIGP SENSE (a "lightweight" order
->>> handled in-kernel) and how that interacts with the "heavy weight"
->>> SIGP
->>> orders (handled in userspace). SIGP SENSE might return CC0
->>> (accepted)
->>> if a vcpu is operating normally, or CC1 (status stored) with status
->>> bits indicating an external call is pending and/or the vcpu is
->>> stopped.
->>> This means that the actual response will depend on whether
->>> userspace
->>> has picked up the sigp order and processed it or not. Giving CC0
->>> when
->>> userspace is actively processing a SIGP STOP/STOP AND STORE STATUS
->>> would be misleading for the SIGP SENSE. (Did the STOP order get
->>> lost?
->>> Failed? Not yet dispatched? Blocked?)
->>
->> But that would only visible when concurrently SIGP STOP'ing from one
->> VCPU and SIGP SENSE'ing from another VCPU. But in that case, there
->> are
->> already no guarantees, because it's inherently racy:
->>
->> VCPU #2: SIGP STOP #3
->> VCPU #1: SIGP SENSE #3
->>
-> 
-> Is it inherently racy? QEMU has a global "one SIGP at a time,
-> regardless of vcpu count" mechanism, so that it gets serialized at that
-> level. POPS says an order is rejected (BUSY) if the "access path to a
-> cpu is processing another order", and I would imagine that KVM is
-> acting as that access path to the vcpu. The deliniation between
-> kernelspace and userspace should be uninteresting on whether parallel
-> orders are serialized (in QEMU via USER_SIGP) or not (!USER_SIGP or
-> "lightweight" orders).
+From: Borislav Petkov <bp@suse.de>
 
-There is no real way for a guest to enforce the execution order of
+Avoid homegrown notifier registration checks.
 
-VCPU #2: SIGP STOP #3
-VCPU #1: SIGP SENSE #3
+No functional changes.
 
-or
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: linux-s390@vger.kernel.org
+---
+ arch/s390/kernel/ipl.c         | 4 +++-
+ arch/s390/kvm/kvm-s390.c       | 7 +++++--
+ drivers/s390/char/con3215.c    | 5 ++++-
+ drivers/s390/char/con3270.c    | 5 ++++-
+ drivers/s390/char/sclp_con.c   | 4 +++-
+ drivers/s390/char/sclp_vt220.c | 4 +++-
+ drivers/s390/char/zcore.c      | 4 +++-
+ 7 files changed, 25 insertions(+), 8 deletions(-)
 
-VCPU #1: SIGP SENSE #3
-VCPU #2: SIGP STOP #3
-
-without additional synchronization.
-
-There could be random delays in the instruction execution at any point
-in time. So the SENSE on #2 might observe "stopped" "not stopped" or
-"busy" randomly, because it's inherently racy.
-
-
-Of course, one could implement some synchronization on top:
-
-VCPU #2: SIGP STOP #3
-# VCPU #2 instructs #1 to SIGP SENSE #2
-VCPU #1: SIGP SENSE #3
-# VCPU #2 waits for SIGP SENSE #2 result from #1
-VCPU #2: SIGP SENSE #3
-
-Then, we have to make sure that it cannot happen that #1 observes "not
-busy" and #2 observes "busy". But, to implement something like that, #2
-has to execute additional instructions to perform the synchronization.
-
-So after SIGP STOP returns on #2 and #2 was able to execute new
-instructions, we have to make sure that SIGP SENSE of #3 returns "busy"
-on all VCPUs until #3 finished the SIGP STOP.
-
-> 
->> There is no guarantee who ends up first
->> a) In the kernel
->> b) On the final destination (SENSE -> kernel; STOP -> QEMU)
->>
->> They could be rescheduled/delayed in various ways.
->>
->>
->> The important part is that orders from the *same* CPU are properly
->> handled, right?
->>
->> VCPU #1: SIGP STOP #3
->> VCPU #1: SIGP SENSE #3
->>
->> SENSE must return BUSY in case the STOP was not successful yet,
->> correct?
-> 
-> It's not a matter of whether STOP is/not successful. If the vcpu is
-
-Right, I meant "accepted but not fully processed yet".
-
-> actively processing a STOP, then the SENSE gets a BUSY. But there's no
-> code today to do that for the SENSE, which is of course why I'm here.
-> :)
-
-Right, and the only problematic SIGP orders are really SIGP STOP*,
-because these are the only ones that will get processed asynchronously
--- the sending VCPU can return and execute new instructions without the
-SIGP STOP order being fully processed.
-
-
+diff --git a/arch/s390/kernel/ipl.c b/arch/s390/kernel/ipl.c
+index e2cc35775b99..3b1dceede55c 100644
+--- a/arch/s390/kernel/ipl.c
++++ b/arch/s390/kernel/ipl.c
+@@ -2069,7 +2069,9 @@ void __init setup_ipl(void)
+ 		/* We have no info to copy */
+ 		break;
+ 	}
+-	atomic_notifier_chain_register(&panic_notifier_list, &on_panic_nb);
++
++	if (atomic_notifier_chain_register(&panic_notifier_list, &on_panic_nb))
++		pr_warn("Panic notifier already registered\n");
+ }
+ 
+ void s390_reset_system(void)
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index c6257f625929..11b325724272 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -325,8 +325,11 @@ int kvm_arch_hardware_setup(void *opaque)
+ 	gmap_register_pte_notifier(&gmap_notifier);
+ 	vsie_gmap_notifier.notifier_call = kvm_s390_vsie_gmap_notifier;
+ 	gmap_register_pte_notifier(&vsie_gmap_notifier);
+-	atomic_notifier_chain_register(&s390_epoch_delta_notifier,
+-				       &kvm_clock_notifier);
++
++	if (atomic_notifier_chain_register(&s390_epoch_delta_notifier,
++					   &kvm_clock_notifier))
++		pr_warn("KVM clock notifier already registered\n");
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/s390/char/con3215.c b/drivers/s390/char/con3215.c
+index f356607835d8..52b441b29fbc 100644
+--- a/drivers/s390/char/con3215.c
++++ b/drivers/s390/char/con3215.c
+@@ -865,7 +865,10 @@ static int __init con3215_init(void)
+ 		raw3215[0] = NULL;
+ 		return -ENODEV;
+ 	}
+-	atomic_notifier_chain_register(&panic_notifier_list, &on_panic_nb);
++
++	if (atomic_notifier_chain_register(&panic_notifier_list, &on_panic_nb))
++		pr_warn("Panic notifier already registered\n");
++
+ 	register_reboot_notifier(&on_reboot_nb);
+ 	register_console(&con3215);
+ 	return 0;
+diff --git a/drivers/s390/char/con3270.c b/drivers/s390/char/con3270.c
+index e4592890f20a..0ce25924fb18 100644
+--- a/drivers/s390/char/con3270.c
++++ b/drivers/s390/char/con3270.c
+@@ -641,7 +641,10 @@ con3270_init(void)
+ 	condev->cline->len = 0;
+ 	con3270_create_status(condev);
+ 	condev->input = alloc_string(&condev->freemem, 80);
+-	atomic_notifier_chain_register(&panic_notifier_list, &on_panic_nb);
++
++	if (atomic_notifier_chain_register(&panic_notifier_list, &on_panic_nb))
++		pr_warn("Panic notifier already registered\n");
++
+ 	register_reboot_notifier(&on_reboot_nb);
+ 	register_console(&con3270);
+ 	return 0;
+diff --git a/drivers/s390/char/sclp_con.c b/drivers/s390/char/sclp_con.c
+index de028868c6f4..42bb2ddaf791 100644
+--- a/drivers/s390/char/sclp_con.c
++++ b/drivers/s390/char/sclp_con.c
+@@ -285,7 +285,9 @@ sclp_console_init(void)
+ 	timer_setup(&sclp_con_timer, sclp_console_timeout, 0);
+ 
+ 	/* enable printk-access to this driver */
+-	atomic_notifier_chain_register(&panic_notifier_list, &on_panic_nb);
++	if (atomic_notifier_chain_register(&panic_notifier_list, &on_panic_nb))
++		pr_warn("Panic notifier already registered\n");
++
+ 	register_reboot_notifier(&on_reboot_nb);
+ 	register_console(&sclp_console);
+ 	return 0;
+diff --git a/drivers/s390/char/sclp_vt220.c b/drivers/s390/char/sclp_vt220.c
+index 29a6a0099f83..89cf7a7b0194 100644
+--- a/drivers/s390/char/sclp_vt220.c
++++ b/drivers/s390/char/sclp_vt220.c
+@@ -836,7 +836,9 @@ sclp_vt220_con_init(void)
+ 	if (rc)
+ 		return rc;
+ 	/* Attach linux console */
+-	atomic_notifier_chain_register(&panic_notifier_list, &on_panic_nb);
++	if (atomic_notifier_chain_register(&panic_notifier_list, &on_panic_nb))
++		pr_warn("Panic notifier already registered\n");
++
+ 	register_reboot_notifier(&on_reboot_nb);
+ 	register_console(&sclp_vt220_console);
+ 	return 0;
+diff --git a/drivers/s390/char/zcore.c b/drivers/s390/char/zcore.c
+index 3ba2d934a3e8..0bf28583a3b9 100644
+--- a/drivers/s390/char/zcore.c
++++ b/drivers/s390/char/zcore.c
+@@ -323,7 +323,9 @@ static int __init zcore_init(void)
+ 					     NULL, &zcore_hsa_fops);
+ 
+ 	register_reboot_notifier(&zcore_reboot_notifier);
+-	atomic_notifier_chain_register(&panic_notifier_list, &zcore_on_panic_notifier);
++
++	if (atomic_notifier_chain_register(&panic_notifier_list, &zcore_on_panic_notifier))
++		pr_warn("Panic notifier already registered\n");
+ 
+ 	return 0;
+ fail:
 -- 
-Thanks,
-
-David / dhildenb
+2.29.2
 
