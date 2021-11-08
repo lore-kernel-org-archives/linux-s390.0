@@ -2,148 +2,123 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B86EC433EF
-	for <linux-s390@archiver.kernel.org>; Mon,  8 Nov 2021 12:05:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 53E18C433F5
+	for <linux-s390@archiver.kernel.org>; Mon,  8 Nov 2021 12:48:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F2E606120D
-	for <linux-s390@archiver.kernel.org>; Mon,  8 Nov 2021 12:05:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 37B0961288
+	for <linux-s390@archiver.kernel.org>; Mon,  8 Nov 2021 12:48:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236622AbhKHMHr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 8 Nov 2021 07:07:47 -0500
-Received: from smtp-out2.suse.de ([195.135.220.29]:43850 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238161AbhKHMHq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 Nov 2021 07:07:46 -0500
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id 837AE1FDB8;
-        Mon,  8 Nov 2021 12:05:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1636373101; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=cmeZsq/SJ5yGsF0N57gsSWLarC8qyb6PAjYqlIQ0w/c=;
-        b=a8Nvyh7rPt8bvhLJtBc5yyuCb2zbJtrrQe8IsOB8xwbTq3CrRE+kOfmn7xnwXHJ6RurrPr
-        tpdovJObV8sJdmZlzW1pDdkRz2ddq/PSpkbzeG2VWxPSYGQapjmak43sJwWCiQaO1bMQSk
-        GxVxcCqkqqckWMuwNADLcG3VwLD1xe4=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1636373101;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=cmeZsq/SJ5yGsF0N57gsSWLarC8qyb6PAjYqlIQ0w/c=;
-        b=jz9EhfEebyc2kc97iQIfOFQEttdfYqQbKq2cbiWqt6zaSv6HvoGuVdRFIBhwl1I//8cm+b
-        1A/M8gmRX9VTFUAA==
-Received: from kunlun.suse.cz (unknown [10.100.128.76])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 39B6EA3B83;
-        Mon,  8 Nov 2021 12:05:01 +0000 (UTC)
-Date:   Mon, 8 Nov 2021 13:05:00 +0100
-From:   Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
-To:     Daniel Axtens <dja@axtens.net>
-Cc:     Mimi Zohar <zohar@linux.ibm.com>, keyrings@vger.kernel.org,
-        Rob Herring <robh@kernel.org>, linux-s390@vger.kernel.org,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Jessica Yu <jeyu@kernel.org>, linux-kernel@vger.kernel.org,
-        David Howells <dhowells@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Hari Bathini <hbathini@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linuxppc-dev@lists.ozlabs.org,
-        Frank van der Linden <fllinden@amazon.com>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Subject: Re: [PATCH 0/3] KEXEC_SIG with appended signature
-Message-ID: <20211108120500.GO11195@kunlun.suse.cz>
-References: <cover.1635948742.git.msuchanek@suse.de>
- <87czneeurr.fsf@dja-thinkpad.axtens.net>
- <20211105131401.GL11195@kunlun.suse.cz>
- <87a6ifehin.fsf@dja-thinkpad.axtens.net>
+        id S236102AbhKHMvT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 8 Nov 2021 07:51:19 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:46706 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S236033AbhKHMvT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 Nov 2021 07:51:19 -0500
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1A8BCeqB023167;
+        Mon, 8 Nov 2021 12:48:35 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : to : cc : references : from : subject : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=BvQHyQ+4NxbwuzlVf/NGd2GAOHhAWAXolb/HFm1xssI=;
+ b=CoGdrv3pVle/ALRPAOvV9DHyviCrGyjm+JEJvCvDHgLe48vj+bGCAcaJfuoXpDO/nwI0
+ 26Dvaf4LUHGHC3wWIBTDWcQUwQ0nZBOQ9YjTBNd0q8/nDHos3n8VHERp+M60j4iB5m7E
+ sdU6uXFy36S+s3IsWHW5V4In0Tp+1FftWLBMA/euVr4ciHZZYZ9aPjNY89FA5Q3qFJE+
+ kxcBHrdMm7FVi/D0VNbgpRwpMefzq2kAkZZmz2mkbYMep5e67q7K4CiachF0JcvqTuj4
+ BtZLztEjzliMwAfhSnyVxP2FDgZKJiN3Dkg0uQ+WifRWAcCxTqB1DO6V4ktmvhNIHd9l 8g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3c6qeygrma-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 08 Nov 2021 12:48:34 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1A8CU6UD025572;
+        Mon, 8 Nov 2021 12:48:34 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3c6qeygrkk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 08 Nov 2021 12:48:34 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1A8CbnTn023609;
+        Mon, 8 Nov 2021 12:48:31 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma04ams.nl.ibm.com with ESMTP id 3c5hb9x21x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 08 Nov 2021 12:48:31 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1A8CfpIp65077608
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 8 Nov 2021 12:41:51 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6C30852059;
+        Mon,  8 Nov 2021 12:48:28 +0000 (GMT)
+Received: from [9.145.83.128] (unknown [9.145.83.128])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id E9CFA5205A;
+        Mon,  8 Nov 2021 12:48:27 +0000 (GMT)
+Message-ID: <7e785ecc-1ddb-9357-e961-4498d1bf59fd@linux.ibm.com>
+Date:   Mon, 8 Nov 2021 13:48:27 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <87a6ifehin.fsf@dja-thinkpad.axtens.net>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.1.0
+Content-Language: en-US
+To:     Christian Borntraeger <borntraeger@de.ibm.com>,
+        Collin Walling <walling@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc:     david@redhat.com, imbrenda@linux.ibm.com
+References: <20211027025451.290124-1-walling@linux.ibm.com>
+ <4488b572-11bf-72ff-86c0-395dfc7b3f71@linux.ibm.com>
+ <28d90d6f-b481-3588-cd33-39624710b7bd@de.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Subject: Re: [PATCH] KVM: s390x: add debug statement for diag 318 CPNC data
+In-Reply-To: <28d90d6f-b481-3588-cd33-39624710b7bd@de.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 6aoC9tvGgBVpHIecjwrkEaJ64bW29rv2
+X-Proofpoint-ORIG-GUID: lSPzCiz1L1Esf9Tc_-ntxDgrVIG9cXLL
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-11-08_04,2021-11-08_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
+ priorityscore=1501 mlxscore=0 clxscore=1015 mlxlogscore=999 suspectscore=0
+ lowpriorityscore=0 malwarescore=0 impostorscore=0 bulkscore=0 spamscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2111080079
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello,
-
-On Mon, Nov 08, 2021 at 09:18:56AM +1100, Daniel Axtens wrote:
-> Michal Suchánek <msuchanek@suse.de> writes:
-> 
-> > On Fri, Nov 05, 2021 at 09:55:52PM +1100, Daniel Axtens wrote:
-> >> Michal Suchanek <msuchanek@suse.de> writes:
-> >> 
-> >> > S390 uses appended signature for kernel but implements the check
-> >> > separately from module loader.
-> >> >
-> >> > Support for secure boot on powerpc with appended signature is planned -
-> >> > grub patches submitted upstream but not yet merged.
-> >> 
-> >> Power Non-Virtualised / OpenPower already supports secure boot via kexec
-> >> with signature verification via IMA. I think you have now sent a
-> >> follow-up series that merges some of the IMA implementation, I just
-> >> wanted to make sure it was clear that we actually already have support
-> >
-> > So is IMA_KEXEC and KEXEC_SIG redundant?
-> >
-> > I see some architectures have both. I also see there is a lot of overlap
-> > between the IMA framework and the KEXEC_SIG and MODULE_SIg.
-> 
-> 
-> Mimi would be much better placed than me to answer this.
-> 
-> The limits of my knowledge are basically that signature verification for
-> modules and kexec kernels can be enforced by IMA policies.
-> 
-> For example a secure booted powerpc kernel with module support will have
-> the following IMA policy set at the arch level:
-> 
-> "appraise func=KEXEC_KERNEL_CHECK appraise_flag=check_blacklist appraise_type=imasig|modsig",
-> (in arch/powerpc/kernel/ima_arch.c)
-> 
-> Module signature enforcement can be set with either IMA (policy like
-> "appraise func=MODULE_CHECK appraise_flag=check_blacklist appraise_type=imasig|modsig" )
-> or with CONFIG_MODULE_SIG_FORCE/module.sig_enforce=1.
-> 
-> Sometimes this leads to arguably unexpected interactions - for example
-> commit fa4f3f56ccd2 ("powerpc/ima: Fix secure boot rules in ima arch
-> policy"), so it might be interesting to see if we can make things easier
-> to understand.
-
-I suspect that is the root of the problem here. Until distributions pick
-up IMA and properly document step by step in detail how to implement,
-enable, and debug it the _SIG options are required for users to be able
-to make use of signatures.
-
-The other part is that distributions apply 'lockdown' patches that change
-the security policy depending on secure boot status which were rejected
-by upstream which only hook into the _SIG options, and not into the IMA_
-options. Of course, I expect this to change when the IMA options are
-universally available across architectures and the support picked up by
-distributions.
-
-Which brings the third point: IMA features vary across architectures,
-and KEXEC_SIG is more common than IMA_KEXEC.
-
-config/arm64/default:CONFIG_HAVE_IMA_KEXEC=y
-config/ppc64le/default:CONFIG_HAVE_IMA_KEXEC=y
-
-config/arm64/default:CONFIG_KEXEC_SIG=y
-config/s390x/default:CONFIG_KEXEC_SIG=y
-config/x86_64/default:CONFIG_KEXEC_SIG=y
-
-KEXEC_SIG makes it much easier to get uniform features across
-architectures.
-
-Thanks
-
-Michal
+T24gMTEvOC8yMSAxMzowNCwgQ2hyaXN0aWFuIEJvcm50cmFlZ2VyIHdyb3RlOg0KPiANCj4g
+DQo+IEFtIDA4LjExLjIxIHVtIDEyOjEyIHNjaHJpZWIgSmFub3NjaCBGcmFuazoNCj4+IE9u
+IDEwLzI3LzIxIDA0OjU0LCBDb2xsaW4gV2FsbGluZyB3cm90ZToNCj4+PiBUaGUgZGlhZyAz
+MTggZGF0YSBjb250YWlucyB2YWx1ZXMgdGhhdCBkZW5vdGUgaW5mb3JtYXRpb24gcmVnYXJk
+aW5nIHRoZQ0KPj4+IGd1ZXN0J3MgZW52aXJvbm1lbnQuIEN1cnJlbnRseSwgaXQgaXMgdW5l
+Y2Vzc2FyaWx5IGRpZmZpY3VsdCB0byBvYnNlcnZlDQo+Pj4gdGhpcyB2YWx1ZSAoZWl0aGVy
+IG1hbnVhbGx5LWluc2VydGVkIGRlYnVnIHN0YXRlbWVudHMsIGdkYiBzdGVwcGluZywgbWVt
+DQo+Pj4gZHVtcGluZyBldGMpLiBJdCdzIHVzZWZ1bCB0byBvYnNlcnZlIHRoaXMgaW5mb3Jt
+YXRpb24gdG8gb2J0YWluIGFuDQo+Pj4gYXQtYS1nbGFuY2UgdmlldyBvZiB0aGUgZ3Vlc3Qn
+cyBlbnZpcm9ubWVudCwgc28gbGV0cyBhZGQgYSBzaW1wbGUgVkNQVQ0KPj4+IGV2ZW50IHRo
+YXQgcHJpbnRzIHRoZSBDUE5DIHRvIHRoZSBzMzkwZGJmIGxvZ3MuDQo+Pj4NCj4+PiBTaWdu
+ZWQtb2ZmLWJ5OiBDb2xsaW4gV2FsbGluZyA8d2FsbGluZ0BsaW51eC5pYm0uY29tPg0KPj4+
+IC0tLQ0KPj4+ICDCoCBhcmNoL3MzOTAva3ZtL2t2bS1zMzkwLmMgfCAxICsNCj4+PiAgwqAg
+MSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCspDQo+Pj4NCj4+PiBkaWZmIC0tZ2l0IGEv
+YXJjaC9zMzkwL2t2bS9rdm0tczM5MC5jIGIvYXJjaC9zMzkwL2t2bS9rdm0tczM5MC5jDQo+
+Pj4gaW5kZXggNmE2ZGQ1ZTFkYWY2Li5kYTNmZjI0ZWFiZDAgMTAwNjQ0DQo+Pj4gLS0tIGEv
+YXJjaC9zMzkwL2t2bS9rdm0tczM5MC5jDQo+Pj4gKysrIGIvYXJjaC9zMzkwL2t2bS9rdm0t
+czM5MC5jDQo+Pj4gQEAgLTQyNTQsNiArNDI1NCw3IEBAIHN0YXRpYyB2b2lkIHN5bmNfcmVn
+c19mbXQyKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSkNCj4+PiAgwqDCoMKgwqDCoCBpZiAoa3Zt
+X3J1bi0+a3ZtX2RpcnR5X3JlZ3MgJiBLVk1fU1lOQ19ESUFHMzE4KSB7DQo+Pj4gIMKgwqDC
+oMKgwqDCoMKgwqDCoCB2Y3B1LT5hcmNoLmRpYWczMThfaW5mby52YWwgPSBrdm1fcnVuLT5z
+LnJlZ3MuZGlhZzMxODsNCj4+PiAgwqDCoMKgwqDCoMKgwqDCoMKgIHZjcHUtPmFyY2guc2ll
+X2Jsb2NrLT5jcG5jID0gdmNwdS0+YXJjaC5kaWFnMzE4X2luZm8uY3BuYzsNCj4+PiArwqDC
+oMKgwqDCoMKgwqAgVkNQVV9FVkVOVCh2Y3B1LCAyLCAic2V0dGluZyBjcG5jIHRvICVkIiwg
+dmNwdS0+YXJjaC5kaWFnMzE4X2luZm8uY3BuYyk7DQo+Pj4gIMKgwqDCoMKgwqAgfQ0KPj4+
+ICDCoMKgwqDCoMKgIC8qDQo+Pj4gIMKgwqDCoMKgwqDCoCAqIElmIHVzZXJzcGFjZSBzZXRz
+IHRoZSByaWNjYiAoZS5nLiBhZnRlciBtaWdyYXRpb24pIHRvIGEgdmFsaWQgc3RhdGUsDQo+
+Pj4NCj4+DQo+PiBXb24ndCB0aGF0IHR1cm4gdXAgZm9yIGV2ZXJ5IHZjcHUgYW5kIHNwYW0g
+dGhlIGxvZz8NCj4gDQo+IG9ubHkgaWYgdGhlIHVzZXJzcGFjZSBhbHdheXMgc2V0cyB0aGUg
+ZGlydHkgYml0ICh3aGljaCBpdCBzaG91bGQgbm90KS4NCj4gDQoNCkJ1dCB0aGF0J3MgZXhh
+Y3RseSB3aGF0IGl0IGRvZXMsIG5vPw0KV2UgZG8gYSBsb29wIG92ZXIgYWxsIHZjcHVzIGFu
+ZCBjYWxsIGt2bV9zMzkwX3NldF9kaWFnMzE4KCkgd2hpY2ggc2V0cyANCnRoZSBpbmZvIGlu
+IGt2bV9ydW4gYW5kIHNldHMgdGhlIGRpYWczMTggYml0IGluIHRoZSBrdm1fZGlydHlfcmVn
+cy4NCg0KQENvbGxpbjogQ291bGQgeW91IGNoZWNrIHRoYXQgcGxlYXNlPw0K
