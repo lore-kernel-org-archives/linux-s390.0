@@ -2,125 +2,262 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9872BC4321E
-	for <linux-s390@archiver.kernel.org>; Mon,  8 Nov 2021 21:19:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BCAF2C433EF
+	for <linux-s390@archiver.kernel.org>; Tue,  9 Nov 2021 08:33:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 725D5611C0
-	for <linux-s390@archiver.kernel.org>; Mon,  8 Nov 2021 21:19:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9D6F8610E9
+	for <linux-s390@archiver.kernel.org>; Tue,  9 Nov 2021 08:33:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239999AbhKHVW0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 8 Nov 2021 16:22:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49682 "EHLO
+        id S244095AbhKIIgI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 9 Nov 2021 03:36:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239990AbhKHVVk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 Nov 2021 16:21:40 -0500
-Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24F44C061570;
-        Mon,  8 Nov 2021 13:18:55 -0800 (PST)
-Received: from zn.tnic (p200300ec2f3311007827e440708b1099.dip0.t-ipconnect.de [IPv6:2003:ec:2f33:1100:7827:e440:708b:1099])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id E3BE71EC051F;
-        Mon,  8 Nov 2021 22:18:52 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1636406333;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=AU7V4fSHGUK4yNvIX3QFWGgL2mpvsQwlJrzk1EYTZE4=;
-        b=HI4wHVqdPFUaTmLfTawRP0YuILjCSvy0XvR7UY6GhjpkLZ7Jcpensq3GPz/wKuSVQPh/ah
-        JjfisFcmsOLL77YybjTfUcF4SOtfsMptjoCY2iNpL/QAVX8IlmhT4tll2zqUciAF4fFC2q
-        GhOxoJIWWV9UKbtfg9ziQ2wDV7UERPU=
-Date:   Mon, 8 Nov 2021 22:18:47 +0100
-From:   Borislav Petkov <bp@alien8.de>
-To:     Alan Stern <stern@rowland.harvard.edu>
-Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Ayush Sawal <ayush.sawal@chelsio.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Rohit Maheshwari <rohitm@chelsio.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Vinay Kumar Yadav <vinay.yadav@chelsio.com>,
-        ALSA Development Mailing List <alsa-devel@alsa-project.org>,
-        bcm-kernel-feedback-list <bcm-kernel-feedback-list@broadcom.com>,
-        Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
-        intel-gvt-dev@lists.freedesktop.org,
-        alpha <linux-alpha@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        linux-clk <linux-clk@vger.kernel.org>,
-        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
-        linux-edac@vger.kernel.org,
-        Linux Fbdev development list <linux-fbdev@vger.kernel.org>,
-        linux-hyperv@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-leds <linux-leds@vger.kernel.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        Linux PM list <linux-pm@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        "open list:REMOTE PROCESSOR (REMOTEPROC) SUBSYSTEM" 
-        <linux-remoteproc@vger.kernel.org>,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        scsi <linux-scsi@vger.kernel.org>,
-        Linux-sh list <linux-sh@vger.kernel.org>,
-        linux-staging@lists.linux.dev,
-        linux-tegra <linux-tegra@vger.kernel.org>,
-        linux-um <linux-um@lists.infradead.org>,
-        USB list <linux-usb@vger.kernel.org>,
-        "open list:TENSILICA XTENSA PORT (xtensa)" 
-        <linux-xtensa@linux-xtensa.org>, netdev <netdev@vger.kernel.org>,
-        openipmi-developer@lists.sourceforge.net, rcu@vger.kernel.org,
-        sparclinux <sparclinux@vger.kernel.org>,
-        the arch/x86 maintainers <x86@kernel.org>,
-        xen-devel@lists.xenproject.org
-Subject: Re: [PATCH v0 42/42] notifier: Return an error when callback is
- already registered
-Message-ID: <YYmUN69Y7z9xITas@zn.tnic>
-References: <20211108101157.15189-1-bp@alien8.de>
- <20211108101157.15189-43-bp@alien8.de>
- <CAMuHMdWH+txiSP_d7Jc4f_bU8Lf9iWpT4E3o5o7BJr-YdA6-VA@mail.gmail.com>
- <YYkyUEqcsOwQMb1S@zn.tnic>
- <CAMuHMdXiBEQyEXJagSfpH44hxVA2t0sDH7B7YubLGHrb2MJLLA@mail.gmail.com>
- <YYlJQYLiIrhjwOmT@zn.tnic>
- <CAMuHMdXHikGrmUzuq0WG5JRHUUE=5zsaVCTF+e4TiHpM5tc5kA@mail.gmail.com>
- <YYlOmd0AeA8DSluD@zn.tnic>
- <20211108205926.GA1678880@rowland.harvard.edu>
+        with ESMTP id S237239AbhKIIgH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Nov 2021 03:36:07 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 606F9C061764;
+        Tue,  9 Nov 2021 00:33:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
+        References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
+        Content-Type:Content-ID:Content-Description;
+        bh=Jvpll4CUM8325AAF1SMXHTCZMQ9k8eTKnfeXNAO1IIY=; b=fEKs2O3qr1oWpwShLpnke0tnoT
+        LXzsgmfi4uGIVxVTr99js7ppf76/NoInucNWUxb+l/GV6A3bhc5ZlJ604W4mGb8q7Rfc37MCD+E6u
+        E4jX7kjxliK6KNjRVfQEjsyhFvJsO3yqTbJXsLm+nXx6caAgPht4qXPuj3iU35dqOMprZR7I/21f1
+        2p2WMGfaOeggGXvpF03VeNb9cFR9cOSLOo/iae6jJRSAc5XtXb1GMdqUJfkVBWvYsU5os9KMZYby6
+        +YkrcOxU7/LTq7CtfUxoT30My4LkP6wROJ9v9lNxmtOgRlHmkWjuP22/0KAQYUf1TD5Oxmbd0XgIU
+        Bc36aLDQ==;
+Received: from [2001:4bb8:19a:7ee7:fb46:2fe1:8652:d9d4] (helo=localhost)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1mkMZ5-000ry5-Fk; Tue, 09 Nov 2021 08:33:12 +0000
+From:   Christoph Hellwig <hch@lst.de>
+To:     Dan Williams <dan.j.williams@intel.com>
+Cc:     Mike Snitzer <snitzer@redhat.com>, Ira Weiny <ira.weiny@intel.com>,
+        dm-devel@redhat.com, linux-xfs@vger.kernel.org,
+        nvdimm@lists.linux.dev, linux-s390@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+        linux-ext4@vger.kernel.org,
+        virtualization@lists.linux-foundation.org
+Subject: [PATCH 01/29] nvdimm/pmem: move dax_attribute_group from dax to pmem
+Date:   Tue,  9 Nov 2021 09:32:41 +0100
+Message-Id: <20211109083309.584081-2-hch@lst.de>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20211109083309.584081-1-hch@lst.de>
+References: <20211109083309.584081-1-hch@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20211108205926.GA1678880@rowland.harvard.edu>
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Nov 08, 2021 at 03:59:26PM -0500, Alan Stern wrote:
-> Is there really any reason for returning an error code?  For example, is 
-> it anticipated that at some point in the future these registration calls 
-> might fail?
-> 
-> Currently, the only reason for failing...
+dax_attribute_group is only used by the pmem driver, and can avoid the
+completely pointless lookup by the disk name if moved there.  This
+leaves just a single caller of dax_get_by_host, so move dax_get_by_host
+into the same ifdef block as that caller.
 
-Right, I believe with not making it return void we're leaving the door
-open for some, *hypothetical* future return values if we decide we need
-to return them too, at some point.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Link: https://lore.kernel.org/r/20210922173431.2454024-3-hch@lst.de
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+---
+ drivers/dax/super.c   | 100 ++++++++----------------------------------
+ drivers/nvdimm/pmem.c |  43 ++++++++++++++++++
+ include/linux/dax.h   |   2 -
+ 3 files changed, 61 insertions(+), 84 deletions(-)
 
-Yes, I can't think of another fact to state besides that the callback
-was already registered or return success but who knows what we wanna do
-in the future...
-
-And so if we change them all to void now, I think it'll be a lot more
-churn to switch back to returning a non-void value and having the
-callers who choose to handle that value, do so again.
-
-So, long story short, keeping the retval - albeit not very useful right
-now - is probably easier.
-
-I hope I'm making some sense here.
-
+diff --git a/drivers/dax/super.c b/drivers/dax/super.c
+index fc89e91beea7c..b882cf8106ea3 100644
+--- a/drivers/dax/super.c
++++ b/drivers/dax/super.c
+@@ -63,6 +63,24 @@ static int dax_host_hash(const char *host)
+ 	return hashlen_hash(hashlen_string("DAX", host)) % DAX_HASH_SIZE;
+ }
+ 
++#ifdef CONFIG_BLOCK
++#include <linux/blkdev.h>
++
++int bdev_dax_pgoff(struct block_device *bdev, sector_t sector, size_t size,
++		pgoff_t *pgoff)
++{
++	sector_t start_sect = bdev ? get_start_sect(bdev) : 0;
++	phys_addr_t phys_off = (start_sect + sector) * 512;
++
++	if (pgoff)
++		*pgoff = PHYS_PFN(phys_off);
++	if (phys_off % PAGE_SIZE || size % PAGE_SIZE)
++		return -EINVAL;
++	return 0;
++}
++EXPORT_SYMBOL(bdev_dax_pgoff);
++
++#if IS_ENABLED(CONFIG_FS_DAX)
+ /**
+  * dax_get_by_host() - temporary lookup mechanism for filesystem-dax
+  * @host: alternate name for the device registered by a dax driver
+@@ -94,24 +112,6 @@ static struct dax_device *dax_get_by_host(const char *host)
+ 	return found;
+ }
+ 
+-#ifdef CONFIG_BLOCK
+-#include <linux/blkdev.h>
+-
+-int bdev_dax_pgoff(struct block_device *bdev, sector_t sector, size_t size,
+-		pgoff_t *pgoff)
+-{
+-	sector_t start_sect = bdev ? get_start_sect(bdev) : 0;
+-	phys_addr_t phys_off = (start_sect + sector) * 512;
+-
+-	if (pgoff)
+-		*pgoff = PHYS_PFN(phys_off);
+-	if (phys_off % PAGE_SIZE || size % PAGE_SIZE)
+-		return -EINVAL;
+-	return 0;
+-}
+-EXPORT_SYMBOL(bdev_dax_pgoff);
+-
+-#if IS_ENABLED(CONFIG_FS_DAX)
+ struct dax_device *fs_dax_get_by_bdev(struct block_device *bdev)
+ {
+ 	if (!blk_queue_dax(bdev->bd_disk->queue))
+@@ -231,70 +231,6 @@ enum dax_device_flags {
+ 	DAXDEV_SYNC,
+ };
+ 
+-static ssize_t write_cache_show(struct device *dev,
+-		struct device_attribute *attr, char *buf)
+-{
+-	struct dax_device *dax_dev = dax_get_by_host(dev_name(dev));
+-	ssize_t rc;
+-
+-	WARN_ON_ONCE(!dax_dev);
+-	if (!dax_dev)
+-		return -ENXIO;
+-
+-	rc = sprintf(buf, "%d\n", !!dax_write_cache_enabled(dax_dev));
+-	put_dax(dax_dev);
+-	return rc;
+-}
+-
+-static ssize_t write_cache_store(struct device *dev,
+-		struct device_attribute *attr, const char *buf, size_t len)
+-{
+-	bool write_cache;
+-	int rc = strtobool(buf, &write_cache);
+-	struct dax_device *dax_dev = dax_get_by_host(dev_name(dev));
+-
+-	WARN_ON_ONCE(!dax_dev);
+-	if (!dax_dev)
+-		return -ENXIO;
+-
+-	if (rc)
+-		len = rc;
+-	else
+-		dax_write_cache(dax_dev, write_cache);
+-
+-	put_dax(dax_dev);
+-	return len;
+-}
+-static DEVICE_ATTR_RW(write_cache);
+-
+-static umode_t dax_visible(struct kobject *kobj, struct attribute *a, int n)
+-{
+-	struct device *dev = container_of(kobj, typeof(*dev), kobj);
+-	struct dax_device *dax_dev = dax_get_by_host(dev_name(dev));
+-
+-	WARN_ON_ONCE(!dax_dev);
+-	if (!dax_dev)
+-		return 0;
+-
+-#ifndef CONFIG_ARCH_HAS_PMEM_API
+-	if (a == &dev_attr_write_cache.attr)
+-		return 0;
+-#endif
+-	return a->mode;
+-}
+-
+-static struct attribute *dax_attributes[] = {
+-	&dev_attr_write_cache.attr,
+-	NULL,
+-};
+-
+-struct attribute_group dax_attribute_group = {
+-	.name = "dax",
+-	.attrs = dax_attributes,
+-	.is_visible = dax_visible,
+-};
+-EXPORT_SYMBOL_GPL(dax_attribute_group);
+-
+ /**
+  * dax_direct_access() - translate a device pgoff to an absolute pfn
+  * @dax_dev: a dax_device instance representing the logical memory range
+diff --git a/drivers/nvdimm/pmem.c b/drivers/nvdimm/pmem.c
+index c74d7bceb2224..9cc0d0ebfad16 100644
+--- a/drivers/nvdimm/pmem.c
++++ b/drivers/nvdimm/pmem.c
+@@ -327,6 +327,49 @@ static const struct dax_operations pmem_dax_ops = {
+ 	.zero_page_range = pmem_dax_zero_page_range,
+ };
+ 
++static ssize_t write_cache_show(struct device *dev,
++		struct device_attribute *attr, char *buf)
++{
++	struct pmem_device *pmem = dev_to_disk(dev)->private_data;
++
++	return sprintf(buf, "%d\n", !!dax_write_cache_enabled(pmem->dax_dev));
++}
++
++static ssize_t write_cache_store(struct device *dev,
++		struct device_attribute *attr, const char *buf, size_t len)
++{
++	struct pmem_device *pmem = dev_to_disk(dev)->private_data;
++	bool write_cache;
++	int rc;
++
++	rc = strtobool(buf, &write_cache);
++	if (rc)
++		return rc;
++	dax_write_cache(pmem->dax_dev, write_cache);
++	return len;
++}
++static DEVICE_ATTR_RW(write_cache);
++
++static umode_t dax_visible(struct kobject *kobj, struct attribute *a, int n)
++{
++#ifndef CONFIG_ARCH_HAS_PMEM_API
++	if (a == &dev_attr_write_cache.attr)
++		return 0;
++#endif
++	return a->mode;
++}
++
++static struct attribute *dax_attributes[] = {
++	&dev_attr_write_cache.attr,
++	NULL,
++};
++
++static const struct attribute_group dax_attribute_group = {
++	.name		= "dax",
++	.attrs		= dax_attributes,
++	.is_visible	= dax_visible,
++};
++
+ static const struct attribute_group *pmem_attribute_groups[] = {
+ 	&dax_attribute_group,
+ 	NULL,
+diff --git a/include/linux/dax.h b/include/linux/dax.h
+index 2619d94c308d4..8623caa673889 100644
+--- a/include/linux/dax.h
++++ b/include/linux/dax.h
+@@ -38,8 +38,6 @@ struct dax_operations {
+ 	int (*zero_page_range)(struct dax_device *, pgoff_t, size_t);
+ };
+ 
+-extern struct attribute_group dax_attribute_group;
+-
+ #if IS_ENABLED(CONFIG_DAX)
+ struct dax_device *alloc_dax(void *private, const char *host,
+ 		const struct dax_operations *ops, unsigned long flags);
 -- 
-Regards/Gruss,
-    Boris.
+2.30.2
 
-https://people.kernel.org/tglx/notes-about-netiquette
