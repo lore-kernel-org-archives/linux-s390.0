@@ -2,113 +2,103 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E8C88C433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 10 Nov 2021 12:51:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DC362C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 10 Nov 2021 13:15:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D542161152
-	for <linux-s390@archiver.kernel.org>; Wed, 10 Nov 2021 12:51:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B585261077
+	for <linux-s390@archiver.kernel.org>; Wed, 10 Nov 2021 13:15:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231833AbhKJMx7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 10 Nov 2021 07:53:59 -0500
-Received: from out4436.biz.mail.alibaba.com ([47.88.44.36]:63052 "EHLO
-        out4436.biz.mail.alibaba.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231842AbhKJMx6 (ORCPT
+        id S231460AbhKJNRu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 10 Nov 2021 08:17:50 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:35864 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231641AbhKJNRt (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 10 Nov 2021 07:53:58 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R801e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04357;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0UvuzFxJ_1636548651;
-Received: from e02h04404.eu6sqa(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0UvuzFxJ_1636548651)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 10 Nov 2021 20:50:59 +0800
-From:   Wen Gu <guwen@linux.alibaba.com>
-To:     kgraul@linux.ibm.com, tonylu@linux.alibaba.com
-Cc:     davem@davemloft.net, kuba@kernel.org, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        dust.li@linux.alibaba.com, xuanzhuo@linux.alibaba.com,
-        guwen@linux.alibaba.com
-Subject: [RFC PATCH net 2/2] net/smc: Transfer remaining wait queue entries during fallback
-Date:   Wed, 10 Nov 2021 20:50:51 +0800
-Message-Id: <1636548651-44649-3-git-send-email-guwen@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1636548651-44649-1-git-send-email-guwen@linux.alibaba.com>
-References: <1636548651-44649-1-git-send-email-guwen@linux.alibaba.com>
+        Wed, 10 Nov 2021 08:17:49 -0500
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1AABgZZp030024;
+        Wed, 10 Nov 2021 13:15:02 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=COOlmpUd/EPF0l1orxpaEzcUREam8OWI2PtRBKIZVkg=;
+ b=ULLiL4AzlegoqrCQAa+IlN0p5hDwoXKaWX3rRjvaHQQCoqAU4jzWER0ppwdzHqw3/ghL
+ 9G8D/fxmJSV7Ij6BRd+YVbolwUwbNHhjRWmvdVpJzx2nyndNOSqPctNdRbedfrXNzLcp
+ d70MoUfD+kJuXLK6IXm0c855adhlUUxcWDMSJUE9ZHT2x1Xk4yVEZ3LaK5K1WnzAeh6W
+ 08qEEJYw/FZ88DTOJPiUEisDykBi6C8J7U/YJdZ99tfV+R//roFQAJfWlMmIuCWhNjz3
+ A73k5RVLaxWzuADmFl+ZycQR2E1MSo3EG+UlEqx7X73EDge+qUxlhPHCyBfIYhHN+lm8 vg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3c8derhxkd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 10 Nov 2021 13:15:01 +0000
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1AACoGW8000855;
+        Wed, 10 Nov 2021 13:15:01 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3c8derhxjq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 10 Nov 2021 13:15:01 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1AADC03M009676;
+        Wed, 10 Nov 2021 13:14:59 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma02fra.de.ibm.com with ESMTP id 3c5hb9r9te-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 10 Nov 2021 13:14:58 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1AADEuGZ65798610
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 10 Nov 2021 13:14:56 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3B08211C04C;
+        Wed, 10 Nov 2021 13:14:56 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DF07611C05B;
+        Wed, 10 Nov 2021 13:14:55 +0000 (GMT)
+Received: from [9.145.47.152] (unknown [9.145.47.152])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 10 Nov 2021 13:14:55 +0000 (GMT)
+Message-ID: <0b6d5916-fad0-ccc1-9c37-21a92ffa8293@linux.ibm.com>
+Date:   Wed, 10 Nov 2021 14:14:56 +0100
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [PATCH net] net/smc: fix sk_refcnt underflow on linkdown and
+ fallback
+Content-Language: en-US
+To:     Dust Li <dust.li@linux.alibaba.com>,
+        Ursula Braun <ubraun@linux.vnet.ibm.com>
+Cc:     Tony Lu <tonylu@linux.alibaba.com>, guwen@linux.alibaba.com,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org
+References: <20211110070234.60527-1-dust.li@linux.alibaba.com>
+From:   Karsten Graul <kgraul@linux.ibm.com>
+Organization: IBM Deutschland Research & Development GmbH
+In-Reply-To: <20211110070234.60527-1-dust.li@linux.alibaba.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: t7GsbITeQp8xcTQNJjbBSoSp35HwC8nE
+X-Proofpoint-ORIG-GUID: 5o9qha51cN0eOuR3Kdt5FDTDo7My730a
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-11-10_04,2021-11-08_02,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 adultscore=0
+ priorityscore=1501 impostorscore=0 suspectscore=0 mlxscore=0
+ mlxlogscore=978 phishscore=0 bulkscore=0 lowpriorityscore=0 spamscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2111100069
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The SMC fallback is incomplete currently. There may be some
-wait queue entries remaining in smc socket->wq, which should
-be removed to clcsocket->wq during the fallback.
+On 10/11/2021 08:02, Dust Li wrote:
+> We got the following WARNING when running ab/nginx
+> test with RDMA link flapping (up-down-up).
+> The reason is when smc_sock fallback and at linkdown
+> happens simultaneously, we may got the following situation:
+> 
+<snip>
 
-For example, in nginx/wrk benchmark, this issue causes an
-all-zeros test result:
 
-server: nginx -g 'daemon off;'
-client: smc_run wrk -c 1 -t 1 -d 5 http://11.200.15.93/index.html
-
-  Running 5s test @ http://11.200.15.93/index.html
-     1 threads and 1 connections
-     Thread Stats   Avg      Stdev     Max   ± Stdev
-     	Latency     0.00us    0.00us   0.00us    -nan%
-	Req/Sec     0.00      0.00     0.00      -nan%
-	0 requests in 5.00s, 0.00B read
-     Requests/sec:      0.00
-     Transfer/sec:       0.00B
-
-The reason for this all-zeros result is that when wrk used SMC
-to replace TCP, it added an eppoll_entry into smc socket->wq
-and expected to be notified if epoll events like EPOLL_IN/
-EPOLL_OUT occurred on the smc socket.
-
-However, once a fallback occurred, wrk switches to use clcsocket.
-Now it is clcsocket->wq instead of smc socket->wq which will
-be woken up. The eppoll_entry remaining in smc socket->wq does
-not work anymore and wrk stops the test.
-
-This patch fixes this issue by removing remaining wait queue
-entries from smc socket->wq to clcsocket->wq during the fallback.
-
-Link: https://lore.kernel.org/all/db9acf73-abef-209e-6ec2-8ada92e2cfbc@linux.ibm.com/
-Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
-Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
----
- net/smc/af_smc.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
-
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 0cf7ed2..11a966a 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -562,6 +562,10 @@ static void smc_stat_fallback(struct smc_sock *smc)
- 
- static void smc_switch_to_fallback(struct smc_sock *smc, int reason_code)
- {
-+	wait_queue_head_t *smc_wait = sk_sleep(&smc->sk);
-+	wait_queue_head_t *clc_wait = sk_sleep(smc->clcsock->sk);
-+	unsigned long flags;
-+
- 	smc->use_fallback = true;
- 	smc->fallback_rsn = reason_code;
- 	smc_stat_fallback(smc);
-@@ -571,6 +575,16 @@ static void smc_switch_to_fallback(struct smc_sock *smc, int reason_code)
- 		smc->clcsock->file->private_data = smc->clcsock;
- 		smc->clcsock->wq.fasync_list =
- 			smc->sk.sk_socket->wq.fasync_list;
-+
-+		/* There might be some wait queue entries remaining
-+		 * in smc socket->wq, which should be removed to
-+		 * clcsocket->wq during the fallback.
-+		 */
-+		spin_lock_irqsave(&smc_wait->lock, flags);
-+		spin_lock_irqsave(&clc_wait->lock, flags);
-+		list_splice_init(&smc_wait->head, &clc_wait->head);
-+		spin_unlock_irqrestore(&clc_wait->lock, flags);
-+		spin_unlock_irqrestore(&smc_wait->lock, flags);
- 	}
- }
- 
--- 
-1.8.3.1
-
+Acked-by: Karsten Graul <kgraul@linux.ibm.com>
