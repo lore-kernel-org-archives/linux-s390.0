@@ -2,106 +2,134 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 93B86C433F5
-	for <linux-s390@archiver.kernel.org>; Tue,  9 Nov 2021 16:17:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 90819C433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 10 Nov 2021 07:02:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 76924611CA
-	for <linux-s390@archiver.kernel.org>; Tue,  9 Nov 2021 16:17:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6FAEF6117A
+	for <linux-s390@archiver.kernel.org>; Wed, 10 Nov 2021 07:02:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239499AbhKIQUi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 9 Nov 2021 11:20:38 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:24826 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S238397AbhKIQUi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Nov 2021 11:20:38 -0500
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1A9EhfFo017617;
-        Tue, 9 Nov 2021 16:17:49 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=3BhKIdkkjzzQwMO5VpHYb6yx8DHSvDdQyMMyui674o4=;
- b=lMbNibKu/3IxC14QWmorNhUf+XXW9mfYQwc1iDlfuDYKz/cKv+n2gnrxRq0x/JDG6p7R
- WsIn925RtIVtdRU1fkfuK7Q05LTxBBcNuUiWygjFBI8qk15f1D5loKaAuXzSP7G2f5K9
- RWo1QPxvgGsinETvFb3t61+vTiJCDZ9Hg1xxcgIhCfvflNSP/xIO819dlEsPl5aCdAIG
- EdvWuqH1QrPj2vemtqdKecGfjsszZz4MCW4PZOJiSJa0LJcsdtGHknCAv3y4JfpKDU+Q
- VuPBq9EC+0t3V61DVPXqJi+x5SRAAqdD7AtOQsQvGtDlh/A7RsV29rIoLGlzymyHTcnD sg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3c7u0j2q5s-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 09 Nov 2021 16:17:48 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1A9EhmKp017727;
-        Tue, 9 Nov 2021 16:17:48 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3c7u0j2q5c-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 09 Nov 2021 16:17:48 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1A9G1sDa029826;
-        Tue, 9 Nov 2021 16:17:46 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma03ams.nl.ibm.com with ESMTP id 3c5hbaa2xm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 09 Nov 2021 16:17:46 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1A9GHiqZ63635928
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 9 Nov 2021 16:17:44 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1D1DE11C050;
-        Tue,  9 Nov 2021 16:17:44 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id ACB5B11C04C;
-        Tue,  9 Nov 2021 16:17:43 +0000 (GMT)
-Received: from [9.145.144.3] (unknown [9.145.144.3])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue,  9 Nov 2021 16:17:43 +0000 (GMT)
-Message-ID: <ed52790a-3e39-6e2e-8cfc-4a4ca1970f99@linux.ibm.com>
-Date:   Tue, 9 Nov 2021 17:17:43 +0100
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH net-next] net/smc: Print function name in smcr_link_down
- tracepoint
-Content-Language: en-US
-To:     Tony Lu <tonylu@linux.alibaba.com>
-Cc:     kuba@kernel.org, davem@davemloft.net, guwen@linux.alibaba.com,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-rdma@vger.kernel.org
-References: <20211103124836.63180-1-tonylu@linux.alibaba.com>
-From:   Karsten Graul <kgraul@linux.ibm.com>
-Organization: IBM Deutschland Research & Development GmbH
-In-Reply-To: <20211103124836.63180-1-tonylu@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 4mdB0oDZjM2ekn-MChV7NfzTkTlwfoqP
-X-Proofpoint-ORIG-GUID: mF2N1x_tQ3ZvMwqojgBy1QavotxG_9id
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        id S229595AbhKJHFZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 10 Nov 2021 02:05:25 -0500
+Received: from out30-54.freemail.mail.aliyun.com ([115.124.30.54]:41864 "EHLO
+        out30-54.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229545AbhKJHFZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 10 Nov 2021 02:05:25 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0UvtXNbN_1636527754;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0UvtXNbN_1636527754)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Wed, 10 Nov 2021 15:02:35 +0800
+From:   Dust Li <dust.li@linux.alibaba.com>
+To:     Karsten Graul <kgraul@linux.ibm.com>,
+        Ursula Braun <ubraun@linux.vnet.ibm.com>
+Cc:     Tony Lu <tonylu@linux.alibaba.com>, guwen@linux.alibaba.com,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH net] net/smc: fix sk_refcnt underflow on linkdown and fallback
+Date:   Wed, 10 Nov 2021 15:02:34 +0800
+Message-Id: <20211110070234.60527-1-dust.li@linux.alibaba.com>
+X-Mailer: git-send-email 2.19.1.3.ge56e4f7
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-11-09_03,2021-11-08_02,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
- spamscore=0 bulkscore=0 impostorscore=0 malwarescore=0 mlxlogscore=928
- clxscore=1015 adultscore=0 priorityscore=1501 phishscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2111090093
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 03/11/2021 13:48, Tony Lu wrote:
-> This makes the output of smcr_link_down tracepoint easier to use and
-> understand without additional translating function's pointer address.
-> 
-> It prints the function name with offset:
-> 
->   <idle>-0       [000] ..s.    69.087164: smcr_link_down: lnk=00000000dab41cdc lgr=000000007d5d8e24 state=0 rc=1 dev=mlx5_0 location=smc_wr_tx_tasklet_fn+0x5ef/0x6f0 [smc]
-> 
-> Link: https://lore.kernel.org/netdev/11f17a34-fd35-f2ec-3f20-dd0c34e55fde@linux.ibm.com/
-> Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
-> Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
+We got the following WARNING when running ab/nginx
+test with RDMA link flapping (up-down-up).
+The reason is when smc_sock fallback and at linkdown
+happens simultaneously, we may got the following situation:
 
-Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+__smc_lgr_terminate()
+ --> smc_conn_kill()
+    --> smc_close_active_abort()
+           smc_sock->sk_state = SMC_CLOSED
+           sock_put(smc_sock)
+
+smc_sock was set to SMC_CLOSED and sock_put() been called
+when terminate the link group. But later application call
+close() on the socket, then we got:
+
+__smc_release():
+    if (smc_sock->fallback)
+        smc_sock->sk_state = SMC_CLOSED
+        sock_put(smc_sock)
+
+Again we set the smc_sock to CLOSED through it's already
+in CLOSED state, and double put the refcnt, so the following
+warning happens:
+
+refcount_t: underflow; use-after-free.
+WARNING: CPU: 5 PID: 860 at lib/refcount.c:28 refcount_warn_saturate+0x8d/0xf0
+Modules linked in:
+CPU: 5 PID: 860 Comm: nginx Not tainted 5.10.46+ #403
+Hardware name: Alibaba Cloud Alibaba Cloud ECS, BIOS 8c24b4c 04/01/2014
+RIP: 0010:refcount_warn_saturate+0x8d/0xf0
+Code: 05 5c 1e b5 01 01 e8 52 25 bc ff 0f 0b c3 80 3d 4f 1e b5 01 00 75 ad 48
+
+RSP: 0018:ffffc90000527e50 EFLAGS: 00010286
+RAX: 0000000000000026 RBX: ffff8881300df2c0 RCX: 0000000000000027
+RDX: 0000000000000000 RSI: ffff88813bd58040 RDI: ffff88813bd58048
+RBP: 0000000000000000 R08: 0000000000000003 R09: 0000000000000001
+R10: ffff8881300df2c0 R11: ffffc90000527c78 R12: ffff8881300df340
+R13: ffff8881300df930 R14: ffff88810b3dad80 R15: ffff8881300df4f8
+FS:  00007f739de8fb80(0000) GS:ffff88813bd40000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000000000a01b008 CR3: 0000000111b64003 CR4: 00000000003706e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ smc_release+0x353/0x3f0
+ __sock_release+0x3d/0xb0
+ sock_close+0x11/0x20
+ __fput+0x93/0x230
+ task_work_run+0x65/0xa0
+ exit_to_user_mode_prepare+0xf9/0x100
+ syscall_exit_to_user_mode+0x27/0x190
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+This patch adds check in __smc_release() to make
+sure we won't do an extra sock_put() and set the
+socket to CLOSED when its already in CLOSED state.
+
+Fixes: 51f1de79ad8e (net/smc: replace sock_put worker by socket refcounting)
+Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
+Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
+---
+ net/smc/af_smc.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
+
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 0cf7ed2f5d41..59284da9116d 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -149,14 +149,18 @@ static int __smc_release(struct smc_sock *smc)
+ 		sock_set_flag(sk, SOCK_DEAD);
+ 		sk->sk_shutdown |= SHUTDOWN_MASK;
+ 	} else {
+-		if (sk->sk_state != SMC_LISTEN && sk->sk_state != SMC_INIT)
+-			sock_put(sk); /* passive closing */
+-		if (sk->sk_state == SMC_LISTEN) {
+-			/* wake up clcsock accept */
+-			rc = kernel_sock_shutdown(smc->clcsock, SHUT_RDWR);
++		if (sk->sk_state != SMC_CLOSED) {
++			if (sk->sk_state != SMC_LISTEN &&
++			    sk->sk_state != SMC_INIT)
++				sock_put(sk); /* passive closing */
++			if (sk->sk_state == SMC_LISTEN) {
++				/* wake up clcsock accept */
++				rc = kernel_sock_shutdown(smc->clcsock,
++							  SHUT_RDWR);
++			}
++			sk->sk_state = SMC_CLOSED;
++			sk->sk_state_change(sk);
+ 		}
+-		sk->sk_state = SMC_CLOSED;
+-		sk->sk_state_change(sk);
+ 		smc_restore_fallback_changes(smc);
+ 	}
+ 
+-- 
+2.19.1.3.ge56e4f7
 
