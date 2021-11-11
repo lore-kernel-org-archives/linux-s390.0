@@ -2,112 +2,108 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A825C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 11 Nov 2021 00:22:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CB25C433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 11 Nov 2021 07:47:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1982861247
-	for <linux-s390@archiver.kernel.org>; Thu, 11 Nov 2021 00:22:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 44941610A2
+	for <linux-s390@archiver.kernel.org>; Thu, 11 Nov 2021 07:47:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231472AbhKKAZk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 10 Nov 2021 19:25:40 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:52822 "EHLO
+        id S231723AbhKKHuX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 11 Nov 2021 02:50:23 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:58015 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229781AbhKKAZj (ORCPT
+        by vger.kernel.org with ESMTP id S229564AbhKKHuV (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 10 Nov 2021 19:25:39 -0500
+        Thu, 11 Nov 2021 02:50:21 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1636590171;
+        s=mimecast20190719; t=1636616853;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=3TDJg+pdCtnM6lS7EJ41XYk+4Tr9XchJbfkF9Ihtrc4=;
-        b=JESbBynMGS/wrOv2VzTg8izLXn8arp4Tj9NxKuorbi/CMjltu02l3l2EtYxNRrZ5JvyGTH
-        BcS6Q9t6VdLo4no7HwyZkwFs42fwHWUJdZaFiGr0+Db2Ln+jSZJsQ3V7JtXY18nnmEHu05
-        eGs3N0FMu6XOZmtZAVw4h2vu5uJIr2E=
+        bh=cwcb2T7fSKiv5IrFFXaKqs6OBH5tXgIxxOZUu3zr0og=;
+        b=i8BcjbKJ+nS6MGfJUNH6zw85taaOwSm20t6/HiaX6VkyfNKPxKDx0dAQa6VfBaQYYZyvpt
+        t5Bq91Q5MyZi/2B9vYqKq8adVgK8/Lgay6u7uPCV0Iq8P8cuEX27MTu6/fcfZSYoaDw6rp
+        CtaMGnyNHJlvl/yphr+xt8gFYtl+Su0=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-72-vE1OVwnqOBuMu1idqC9_lw-1; Wed, 10 Nov 2021 19:22:48 -0500
-X-MC-Unique: vE1OVwnqOBuMu1idqC9_lw-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+ us-mta-464-8O7IuMrPP8K38DloTkev8w-1; Thu, 11 Nov 2021 02:47:29 -0500
+X-MC-Unique: 8O7IuMrPP8K38DloTkev8w-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 381901006AA0;
-        Thu, 11 Nov 2021 00:22:47 +0000 (UTC)
-Received: from localhost (ovpn-12-86.pek2.redhat.com [10.72.12.86])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id BF0AB608BA;
-        Thu, 11 Nov 2021 00:22:36 +0000 (UTC)
-Date:   Thu, 11 Nov 2021 08:22:33 +0800
-From:   Baoquan He <bhe@redhat.com>
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Philipp Rudo <prudo@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, kexec@lists.infradead.org,
-        dyoung@redhat.com, akpm@linux-foundation.org
-Subject: Re: [PATCH] s390/kexec: fix memory leak of ipl report buffer
-Message-ID: <20211111002233.GA10944@MiWiFi-R3L-srv>
-References: <20211029092635.14804-1-bhe@redhat.com>
- <20211029183132.20839ad0@rhtmp>
- <YYviwi3PVD11xcCs@osiris>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 928CC80B724;
+        Thu, 11 Nov 2021 07:47:28 +0000 (UTC)
+Received: from [10.33.192.183] (dhcp-192-183.str.redhat.com [10.33.192.183])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id D4E5C69214;
+        Thu, 11 Nov 2021 07:47:24 +0000 (UTC)
+Message-ID: <82750b44-6246-3f3c-4562-3d64d7378448@redhat.com>
+Date:   Thu, 11 Nov 2021 08:47:24 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YYviwi3PVD11xcCs@osiris>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Content-Language: en-US
+To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     Janosch Frank <frankja@de.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+References: <20211022131057.1308851-1-scgl@linux.ibm.com>
+ <20211022131057.1308851-2-scgl@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+Subject: Re: [kvm-unit-tests PATCH v3 1/1] s390x: Add specification exception
+ interception test
+In-Reply-To: <20211022131057.1308851-2-scgl@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 11/10/21 at 04:18pm, Heiko Carstens wrote:
-> On Fri, Oct 29, 2021 at 06:31:32PM +0200, Philipp Rudo wrote:
-> > Hi Baoquan,
-> > 
-> > On Fri, 29 Oct 2021 17:26:35 +0800
-> > Baoquan He <bhe@redhat.com> wrote:
-> > 
-> > > A memory leak is reported by kmemleak scanning:
-> ...
-> > > The ipl report buffer is allocated via vmalloc, while has no chance to free
-> > > if the kexe loading is unloaded. This will cause obvious memory leak
-> > > when kexec/kdump kernel is reloaded, manually, or triggered, e.g by
-> > > memory hotplug.
-> > > 
-> > > Here, add struct kimage_arch to s390 to pass out the ipl report buffer
-> > > address, and introduce arch dependent function
-> > > arch_kimage_file_post_load_cleanup() to free it when unloaded.
-> > > 
-> > > Signed-off-by: Baoquan He <bhe@redhat.com>
-> > 
-> > other than a missing
-> > 
-> > Fixes: 99feaa717e55 ("s390/kexec_file: Create ipl report and pass to
-> > next kernel")
-> > 
-> > the patch looks good to me.
-> > 
-> > Reviewed-by: Philipp Rudo <prudo@redhat.com>
-> ...
-> > >  	buf.buffer = ipl_report_finish(data->report);
-> > >  	buf.bufsz = data->report->size;
-> > >  	buf.memsz = buf.bufsz;
-> > > +	image->arch.ipl_buf = buf.buffer;
+On 22/10/2021 15.10, Janis Schoetterl-Glausch wrote:
+> Check that specification exceptions cause intercepts when
+> specification exception interpretation is off.
+> Check that specification exceptions caused by program new PSWs
+> cause interceptions.
+> We cannot assert that non program new PSW specification exceptions
+> are interpreted because whether interpretation occurs or not is
+> configuration dependent.
 > 
-> This seems (still) to be incorrect: ipl_report_finish() may return
-> -ENOMEN, but there is no error checking anywhere, as far as I can
-> tell, which would make this:
-> 
-> > > +int arch_kimage_file_post_load_cleanup(struct kimage *image)
-> > > +{
-> > > +	kvfree(image->arch.ipl_buf);
-> > > +	image->arch.ipl_buf = NULL;
-> > > +
-> > > +	return kexec_image_post_load_cleanup_default(image);
-> > > +}
-> 
-> most likely not do what we want. That is: if this code is reached at
-> all in such a case. I'll check and might add a patch before this to
-> fix this also.
+> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+> Reviewed-by: Janosch Frank <frankja@de.ibm.com>
+> Reviewed-by: Thomas Huth <thuth@redhat.com>
+> ---
+...
+> +	report_prefix_push("on");
+> +	vm.sblk->ecb |= ECB_SPECI;
+> +	reset_guest();
+> +	sie(&vm);
+> +	/* interpretation on -> configuration dependent if initial exception causes
+> +	 * interception, but invalid new program PSW must
+> +	 */
+> +	report(vm.sblk->icptcode == ICPT_PROGI
+> +	       && vm.sblk->iprcc == PGM_INT_CODE_SPECIFICATION,
+> +	       "Received specification exception intercept");
+> +	if (vm.sblk->gpsw.addr == 0xdeadbeee)
+> +		report_info("Interpreted initial exception, intercepted invalid program new PSW exception");
+> +	else
+> +		report_info("Did not interpret initial exception");
 
-Right, we should check the returned value firstly. Thanks a lot for
-reivewing, Heiko. I will post v2 to add a patch to check the returned
-value as you suggested, and also update this patch to add missing Fixes tag. 
+  Hi Janis!
+
+While using this test in our downstream verification of the backport of the 
+related kernel patch, it occurred that the way of only reporting the 
+interpreted exception via report_info() is rather unfortunate for using this 
+test in automatic regression runs. For such regression runs, it would be 
+good if the test would be marked with FAIL if the exception was not 
+interpreted. I know, the interpretation facility is not always there, but 
+still would it be somehow possible to add such a mode? E.g. by checking the 
+machine generation (is this always available with z15 and newer?) and maybe 
+adding a CLI option to force the hard check (so that e.g. "-f" triggers the 
+failure if the exception has not been interpreted, while running the test 
+without "-f" would still do the old behavior instead)?
+
+  Thomas
 
