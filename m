@@ -2,138 +2,112 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 515CFC4332F
-	for <linux-s390@archiver.kernel.org>; Wed, 10 Nov 2021 20:33:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A825C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 11 Nov 2021 00:22:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3094E61213
-	for <linux-s390@archiver.kernel.org>; Wed, 10 Nov 2021 20:33:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1982861247
+	for <linux-s390@archiver.kernel.org>; Thu, 11 Nov 2021 00:22:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232785AbhKJUgV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 10 Nov 2021 15:36:21 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:63614 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S232558AbhKJUgT (ORCPT
+        id S231472AbhKKAZk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 10 Nov 2021 19:25:40 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:52822 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229781AbhKKAZj (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 10 Nov 2021 15:36:19 -0500
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1AAIlMwU010423;
-        Wed, 10 Nov 2021 20:33:30 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : content-transfer-encoding : mime-version; s=pp1;
- bh=8xpW20Ka9IHDoHVZ093lB2bUsXlWv3s4cHNXxIacuNI=;
- b=ndvk/OgSKsf68d8xB9TdIgdUQvVu/0J03nrZ3enVLGI+d1mo6buJwJPYTfH4JfqrLoll
- 6Cg4k4d1wNErgHWeE12e3zCauCHp2iTbfWbbnAId1a2vr+9KuM1MuvO5q1z5XxhYwyAf
- 3J1tiVq/lMjh+VsveCXhlG7HFkPF++YZU2YOaDRKPPWd+46g7noHVIetO1AyyX7sOBFl
- 65byLk2BaHpYPt0D23mQQiOisI6dSh6SkvC1/q50u58veuzPcdLSbwjTktsSUsRFNDJb
- KhMJLFK6EhUxEVElA//wc/Jyyhd7N9GXPZ5tODI6C+fejwquxoeVCqxGlKezKrfcmbzY hg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3c8knua7ak-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 10 Nov 2021 20:33:30 +0000
-Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1AAJY2lY003634;
-        Wed, 10 Nov 2021 20:33:30 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3c8knua79x-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 10 Nov 2021 20:33:30 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1AAKVMYN004148;
-        Wed, 10 Nov 2021 20:33:28 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma01fra.de.ibm.com with ESMTP id 3c5hba4aqy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 10 Nov 2021 20:33:28 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1AAKQjHA47644972
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 10 Nov 2021 20:26:45 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 258C1AE057;
-        Wed, 10 Nov 2021 20:33:25 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 13897AE055;
-        Wed, 10 Nov 2021 20:33:25 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Wed, 10 Nov 2021 20:33:25 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
-        id AC0D1E02A5; Wed, 10 Nov 2021 21:33:24 +0100 (CET)
-From:   Eric Farman <farman@linux.ibm.com>
-To:     Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
-Subject: [RFC PATCH v3 0/2] s390x: Improvements to SIGP handling [KVM]
-Date:   Wed, 10 Nov 2021 21:33:20 +0100
-Message-Id: <20211110203322.1374925-1-farman@linux.ibm.com>
-X-Mailer: git-send-email 2.25.1
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: eHhRxwc9cIVeHSgr7IDf59P5LiTG1IIQ
-X-Proofpoint-ORIG-GUID: w6vWBhYyDoeRb3yaLsHuphrZzO6TjN4o
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Wed, 10 Nov 2021 19:25:39 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1636590171;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=3TDJg+pdCtnM6lS7EJ41XYk+4Tr9XchJbfkF9Ihtrc4=;
+        b=JESbBynMGS/wrOv2VzTg8izLXn8arp4Tj9NxKuorbi/CMjltu02l3l2EtYxNRrZ5JvyGTH
+        BcS6Q9t6VdLo4no7HwyZkwFs42fwHWUJdZaFiGr0+Db2Ln+jSZJsQ3V7JtXY18nnmEHu05
+        eGs3N0FMu6XOZmtZAVw4h2vu5uJIr2E=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-72-vE1OVwnqOBuMu1idqC9_lw-1; Wed, 10 Nov 2021 19:22:48 -0500
+X-MC-Unique: vE1OVwnqOBuMu1idqC9_lw-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 381901006AA0;
+        Thu, 11 Nov 2021 00:22:47 +0000 (UTC)
+Received: from localhost (ovpn-12-86.pek2.redhat.com [10.72.12.86])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id BF0AB608BA;
+        Thu, 11 Nov 2021 00:22:36 +0000 (UTC)
+Date:   Thu, 11 Nov 2021 08:22:33 +0800
+From:   Baoquan He <bhe@redhat.com>
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Philipp Rudo <prudo@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, kexec@lists.infradead.org,
+        dyoung@redhat.com, akpm@linux-foundation.org
+Subject: Re: [PATCH] s390/kexec: fix memory leak of ipl report buffer
+Message-ID: <20211111002233.GA10944@MiWiFi-R3L-srv>
+References: <20211029092635.14804-1-bhe@redhat.com>
+ <20211029183132.20839ad0@rhtmp>
+ <YYviwi3PVD11xcCs@osiris>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-11-10_12,2021-11-08_02,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 priorityscore=1501
- malwarescore=0 bulkscore=0 clxscore=1015 lowpriorityscore=0
- mlxlogscore=999 adultscore=0 phishscore=0 impostorscore=0 spamscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2111100098
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YYviwi3PVD11xcCs@osiris>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Here is an update to the handling of SIGP between kernel and userspace.
+On 11/10/21 at 04:18pm, Heiko Carstens wrote:
+> On Fri, Oct 29, 2021 at 06:31:32PM +0200, Philipp Rudo wrote:
+> > Hi Baoquan,
+> > 
+> > On Fri, 29 Oct 2021 17:26:35 +0800
+> > Baoquan He <bhe@redhat.com> wrote:
+> > 
+> > > A memory leak is reported by kmemleak scanning:
+> ...
+> > > The ipl report buffer is allocated via vmalloc, while has no chance to free
+> > > if the kexe loading is unloaded. This will cause obvious memory leak
+> > > when kexec/kdump kernel is reloaded, manually, or triggered, e.g by
+> > > memory hotplug.
+> > > 
+> > > Here, add struct kimage_arch to s390 to pass out the ipl report buffer
+> > > address, and introduce arch dependent function
+> > > arch_kimage_file_post_load_cleanup() to free it when unloaded.
+> > > 
+> > > Signed-off-by: Baoquan He <bhe@redhat.com>
+> > 
+> > other than a missing
+> > 
+> > Fixes: 99feaa717e55 ("s390/kexec_file: Create ipl report and pass to
+> > next kernel")
+> > 
+> > the patch looks good to me.
+> > 
+> > Reviewed-by: Philipp Rudo <prudo@redhat.com>
+> ...
+> > >  	buf.buffer = ipl_report_finish(data->report);
+> > >  	buf.bufsz = data->report->size;
+> > >  	buf.memsz = buf.bufsz;
+> > > +	image->arch.ipl_buf = buf.buffer;
+> 
+> This seems (still) to be incorrect: ipl_report_finish() may return
+> -ENOMEN, but there is no error checking anywhere, as far as I can
+> tell, which would make this:
+> 
+> > > +int arch_kimage_file_post_load_cleanup(struct kimage *image)
+> > > +{
+> > > +	kvfree(image->arch.ipl_buf);
+> > > +	image->arch.ipl_buf = NULL;
+> > > +
+> > > +	return kexec_image_post_load_cleanup_default(image);
+> > > +}
+> 
+> most likely not do what we want. That is: if this code is reached at
+> all in such a case. I'll check and might add a patch before this to
+> fix this also.
 
-As before, I'm looking at problems encountered when a SIGP order that is
-processed in the kernel (for example, SIGP SENSE) is run concurrently
-with another one is processed in userspace (for example, SIGP STOP).
-Being able to provide an honest answer in the SIGP SENSE as to whether
-the targeted VCPU is/not stopped is important to provide a consistent
-answer while a guest OS is bringing its configuration online.
-
-Version 2 of this series instructed the kernel to automatically flag
-a vcpu busy for a SIGP order, and provided an IOCTL for userspace to
-mark the order as completed (suggested here [1]). But now, the
-suggestion is that the kernel shouldn't be marking the vcpu busy,
-and userspace should be doing both sides of the operation [2].
-So this version has two IOCTLs, tied to one capability.
-
-As with v2, I've left the CAP/IOCTL definitions as a standalone
-patch, so I see it easier when working with the QEMU code.
-Ultimately this would be squashed together, and might have some
-refit after the merge window anyway. 
-
-I'll send the QEMU series shortly, which takes advantage of this.
-
-Thoughts?
-
-[1] https://lore.kernel.org/r/3e3b38d1-b338-0211-04ab-91f913c1f557@redhat.com/
-[2] https://lore.kernel.org/r/7e98f659-32ac-9b4e-0ddd-958086732c8d@redhat.com/
-
-Previous RFCs:
-v1: https://lore.kernel.org/r/20211008203112.1979843-1-farman@linux.ibm.com/
-v2: https://lore.kernel.org/r/20211102194652.2685098-1-farman@linux.ibm.com/
-
-Eric Farman (2):
-  Capability/IOCTL/Documentation
-  KVM: s390: Extend the USER_SIGP capability
-
- Documentation/virt/kvm/api.rst   | 39 ++++++++++++++++++++++++++++++++
- arch/s390/include/asm/kvm_host.h |  2 ++
- arch/s390/kvm/kvm-s390.c         | 29 ++++++++++++++++++++++++
- arch/s390/kvm/kvm-s390.h         | 16 +++++++++++++
- arch/s390/kvm/sigp.c             | 10 ++++++++
- include/uapi/linux/kvm.h         |  5 ++++
- 6 files changed, 101 insertions(+)
-
--- 
-2.25.1
+Right, we should check the returned value firstly. Thanks a lot for
+reivewing, Heiko. I will post v2 to add a patch to check the returned
+value as you suggested, and also update this patch to add missing Fixes tag. 
 
