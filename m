@@ -2,136 +2,261 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C3E71C433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 11 Nov 2021 14:21:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C4EBAC433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 11 Nov 2021 15:03:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id ABF3661107
-	for <linux-s390@archiver.kernel.org>; Thu, 11 Nov 2021 14:21:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AD1F461284
+	for <linux-s390@archiver.kernel.org>; Thu, 11 Nov 2021 15:03:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231739AbhKKOYL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 11 Nov 2021 09:24:11 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:20430 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S230177AbhKKOYL (ORCPT
+        id S233823AbhKKPGI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 11 Nov 2021 10:06:08 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:30756 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232126AbhKKPGI (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 11 Nov 2021 09:24:11 -0500
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1ABEHcJR013204;
-        Thu, 11 Nov 2021 14:21:19 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=kCNY6In7nKAfQCB81jpWLqY0ap/JG26S1wytdEjZaUc=;
- b=bjcXzBZvDEOUbfrxbKLvxWvxZqzy2HOnqemFD+8pxKoreKyhLAobdrll2HBIZ/QGbysb
- GPJtXRELSdgf/MavhreuKwkt7IPGrlyHwrVvmHDi/6Z/shbfh47rNLkFctUP0TsNlY79
- 4wuccemV5Bx1wRwJmT2C+Y8XfU1wgDEFKve3or+ak6a2BkJ3vtid6DHwVjrzm0rOiOdS
- t19Mi8FuZsN50Wa9e9y0ATuxgZyJCEAjA8XMg+vnvmr79/fCVYHFhdwc6TAD4xVk0Zii
- pnHsGM9ixgTYcyKABfxBBz0sUmnPmgBR3GB5K9eor80W51UJ1KfKqoXxnEZ7Ycw7PsGR 9Q== 
+        Thu, 11 Nov 2021 10:06:08 -0500
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1ABEwv42004662;
+        Thu, 11 Nov 2021 15:03:19 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=pJt7JxxwoIxkvnySVaWlHe9mBmlkZtl3vD835yG7Ik8=;
+ b=OIDMyCq72GzCoFHLGC3hr8s5DHqac9zLF8XidQIdp+x6kKP+cPPjIzNA+86FN2ngaRIO
+ HxhML08LfjpG/tTtVwHPUNNH9wWiskr8bokouNVRJWW9PR115S10kXxmCyG3BMA7u99K
+ RVN3i5Nt18KNsbmrZ78uJxDF3dG1aobKpiUtEK8BrQVkyYu+aZau+lnT2ZvMyiZLFcO7
+ ecXPo/kM3jf3Bc6Dxt/V33iGScAiQ0yvVVDfUz9ycsOBvsos7SXlL74CHgyE3+UHP8v8
+ cb+67q2eSa4uNApCKuMXqlMeJzMF2lvj6XBQS3Umj9UhCvTm77TuZuJ2l1E1vTR+XldZ VQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3c94tfg3ku-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3c94w5s57x-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 11 Nov 2021 14:21:18 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1ABEKNeb026530;
-        Thu, 11 Nov 2021 14:21:18 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3c94tfg3k9-1
+        Thu, 11 Nov 2021 15:03:18 +0000
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1ABEwwK8004782;
+        Thu, 11 Nov 2021 15:03:18 GMT
+Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3c94w5s57g-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 11 Nov 2021 14:21:18 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1ABEIqEn020901;
-        Thu, 11 Nov 2021 14:21:16 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 3c5gyk6xtm-1
+        Thu, 11 Nov 2021 15:03:18 +0000
+Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
+        by ppma02wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1ABF2vwL030386;
+        Thu, 11 Nov 2021 15:03:17 GMT
+Received: from b01cxnp22036.gho.pok.ibm.com (b01cxnp22036.gho.pok.ibm.com [9.57.198.26])
+        by ppma02wdc.us.ibm.com with ESMTP id 3c5hbd5gr1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 11 Nov 2021 14:21:16 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1ABEETKT61014400
+        Thu, 11 Nov 2021 15:03:17 +0000
+Received: from b01ledav005.gho.pok.ibm.com (b01ledav005.gho.pok.ibm.com [9.57.199.110])
+        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1ABF3F7e15532666
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 11 Nov 2021 14:14:29 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 10BE94204B;
-        Thu, 11 Nov 2021 14:21:14 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8977A4203F;
-        Thu, 11 Nov 2021 14:21:13 +0000 (GMT)
-Received: from [9.145.188.132] (unknown [9.145.188.132])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 11 Nov 2021 14:21:13 +0000 (GMT)
-Message-ID: <369755c0-8b3e-cf69-d7f2-8993700efc4a@linux.ibm.com>
-Date:   Thu, 11 Nov 2021 15:21:15 +0100
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [RFC PATCH 0/2] Two RFC patches for the same SMC socket wait
- queue mismatch issue
-Content-Language: en-US
-To:     Wen Gu <guwen@linux.alibaba.com>, tonylu@linux.alibaba.com
-Cc:     davem@davemloft.net, kuba@kernel.org, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        dust.li@linux.alibaba.com, xuanzhuo@linux.alibaba.com
-References: <1636548651-44649-1-git-send-email-guwen@linux.alibaba.com>
-From:   Karsten Graul <kgraul@linux.ibm.com>
-Organization: IBM Deutschland Research & Development GmbH
-In-Reply-To: <1636548651-44649-1-git-send-email-guwen@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 2JprdlmGAjfrsH1K4fUU7TkY0ipdRGBo
-X-Proofpoint-GUID: iqSEhHc6cDV4AYy1gc5HrDPU4G0LKcwb
+        Thu, 11 Nov 2021 15:03:15 GMT
+Received: from b01ledav005.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A593BAE064;
+        Thu, 11 Nov 2021 15:03:15 +0000 (GMT)
+Received: from b01ledav005.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9FA50AE067;
+        Thu, 11 Nov 2021 15:03:13 +0000 (GMT)
+Received: from farman-thinkpad-t470p (unknown [9.211.106.148])
+        by b01ledav005.gho.pok.ibm.com (Postfix) with ESMTP;
+        Thu, 11 Nov 2021 15:03:13 +0000 (GMT)
+Message-ID: <ab82e68051674ea771e2cb5371ca2a204effab40.camel@linux.ibm.com>
+Subject: Re: [RFC PATCH v3 2/2] KVM: s390: Extend the USER_SIGP capability
+From:   Eric Farman <farman@linux.ibm.com>
+To:     David Hildenbrand <david@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Date:   Thu, 11 Nov 2021 10:03:12 -0500
+In-Reply-To: <dd8a8b49-da6d-0ab8-dc47-b24f5604767f@redhat.com>
+References: <20211110203322.1374925-1-farman@linux.ibm.com>
+         <20211110203322.1374925-3-farman@linux.ibm.com>
+         <dd8a8b49-da6d-0ab8-dc47-b24f5604767f@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-16.el8) 
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
-MIME-Version: 1.0
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 4INnjYFx4JwrkGXBzSCK_OPMpkQx4mQo
+X-Proofpoint-ORIG-GUID: 4QZCR_cBqu4o_3KKnkkz_KNXRa7iH5Rz
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
  definitions=2021-11-11_04,2021-11-11_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
- lowpriorityscore=0 spamscore=0 priorityscore=1501 adultscore=0
- mlxlogscore=999 bulkscore=0 clxscore=1015 malwarescore=0 phishscore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
+ spamscore=0 adultscore=0 clxscore=1011 lowpriorityscore=0 mlxlogscore=999
+ priorityscore=1501 mlxscore=0 malwarescore=0 impostorscore=0
  suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2111110081
+ engine=8.12.0-2110150000 definitions=main-2111110084
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 10/11/2021 13:50, Wen Gu wrote:
-> Hi, Karsten
+On Thu, 2021-11-11 at 10:15 +0100, David Hildenbrand wrote:
+> On 10.11.21 21:33, Eric Farman wrote:
+> > With commit 2444b352c3ac ("KVM: s390: forward most SIGP orders to
+> > user
+> > space") we have a capability that allows the "fast" SIGP orders (as
+> > defined by the Programming Notes for the SIGNAL PROCESSOR
+> > instruction in
+> > the Principles of Operation) to be handled in-kernel, while all
+> > others are
+> > sent to userspace for processing.
+> > 
+> > This works fine but it creates a situation when, for example, a
+> > SIGP SENSE
+> > might return CC1 (STATUS STORED, and status bits indicating the
+> > vcpu is
+> > stopped), when in actuality userspace is still processing a SIGP
+> > STOP AND
+> > STORE STATUS order, and the vcpu is not yet actually stopped. Thus,
+> > the
+> > SIGP SENSE should actually be returning CC2 (busy) instead of CC1.
+> > 
+> > To fix this, add another CPU capability, dependent on the USER_SIGP
+> > one,
+> > and two associated IOCTLs. One IOCTL will be used by userspace to
+> > mark a
+> > vcpu "busy" processing a SIGP order, and cause concurrent orders
+> > handled
+> > in-kernel to be returned with CC2 (busy). Another IOCTL will be
+> > used by
+> > userspace to mark the SIGP "finished", and the vcpu free to process
+> > additional orders.
+> > 
 > 
-> Thanks for your reply. The previous discussion about the issue of socket
-> wait queue mismatch in SMC fallback can be referred from:
-> https://lore.kernel.org/all/db9acf73-abef-209e-6ec2-8ada92e2cfbc@linux.ibm.com/
+> This looks much cleaner to me, thanks!
 > 
-> This set of patches includes two RFC patches, they are both aimed to fix
-> the same issue, the mismatch of socket wait queue in SMC fallback.
+> [...]
 > 
-> In your last reply, I am suggested to add the complete description about
-> the intention of initial patch in order that readers can understand the
-> idea behind it. This has been done in "[RFC PATCH net v2 0/2] net/smc: Fix
-> socket wait queue mismatch issue caused by fallback" of this mail.
+> > diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+> > index c07a050d757d..54371cede485 100644
+> > --- a/arch/s390/kvm/kvm-s390.h
+> > +++ b/arch/s390/kvm/kvm-s390.h
+> > @@ -82,6 +82,22 @@ static inline int is_vcpu_idle(struct kvm_vcpu
+> > *vcpu)
+> >  	return test_bit(vcpu->vcpu_idx, vcpu->kvm->arch.idle_mask);
+> >  }
+> >  
+> > +static inline bool kvm_s390_vcpu_is_sigp_busy(struct kvm_vcpu
+> > *vcpu)
+> > +{
+> > +	return (atomic_read(&vcpu->arch.sigp_busy) == 1);
 > 
-> Unfortunately, I found a defect later in the solution of the initial patch
-> or the v2 patch mentioned above. The defect is about fasync_list and related
-> to 67f562e3e14 ("net/smc: transfer fasync_list in case of fallback").
+> You can drop ()
 > 
-> When user applications use sock_fasync() to insert entries into fasync_list,
-> the wait queue they operate is smc socket->wq. But in initial patch or
-> the v2 patch, I swapped sk->sk_wq of smc socket and clcsocket in smc_create(),
-> thus the sk_data_ready / sk_write_space.. of smc will wake up clcsocket->wq
-> finally. So the entries added into smc socket->wq.fasync_list won't be woken
-> up at all before fallback.
+> > +}
+> > +
+> > +static inline bool kvm_s390_vcpu_set_sigp_busy(struct kvm_vcpu
+> > *vcpu)
+> > +{
+> > +	/* Return zero for success, or -EBUSY if another vcpu won */
+> > +	return (atomic_cmpxchg(&vcpu->arch.sigp_busy, 0, 1) == 0) ? 0 :
+> > -EBUSY;
 > 
-> So the solution in initial patch or the v2 patch of this mail by swapping
-> sk->sk_wq of smc socket and clcsocket seems a bad way to fix this issue.
+> You can drop () as well.
 > 
-> Therefore, I tried another solution by removing the wait queue entries from
-> smc socket->wq to clcsocket->wq during the fallback, which is described in the
-> "[RFC PATCH net 2/2] net/smc: Transfer remaining wait queue entries" of this
-> mail. In our test environment, this patch can fix the fallback issue well.
+> We might not need the -EBUSY semantics after all. User space can just
+> track if it was set, because it's in charge of setting it.
 
-Still running final tests but overall its working well here, too.
-Until we maybe find a 'cleaner' solution if this I would like to go with your
-current fixes. But I would like to improve the wording of the commit message and
-the comments a little bit if you are okay with that.
+Hrm, I added this to distinguish a newer kernel with an older QEMU, but
+of course an older QEMU won't know the difference either. I'll
+doublecheck that this is works fine in the different permutations.
 
-If you send a new series with the 2 patches then I would take them and post them
-to the list again with my changes.
+> 
+> > +}
+> > +
+> > +static inline void kvm_s390_vcpu_clear_sigp_busy(struct kvm_vcpu
+> > *vcpu)
+> > +{
+> > +	atomic_set(&vcpu->arch.sigp_busy, 0);
+> > +}
+> > +
+> >  static inline int kvm_is_ucontrol(struct kvm *kvm)
+> >  {
+> >  #ifdef CONFIG_KVM_S390_UCONTROL
+> > diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
+> > index 5ad3fb4619f1..a37496ea6dfa 100644
+> > --- a/arch/s390/kvm/sigp.c
+> > +++ b/arch/s390/kvm/sigp.c
+> > @@ -276,6 +276,10 @@ static int handle_sigp_dst(struct kvm_vcpu
+> > *vcpu, u8 order_code,
+> >  	if (!dst_vcpu)
+> >  		return SIGP_CC_NOT_OPERATIONAL;
+> >  
+> > +	if (kvm_s390_vcpu_is_sigp_busy(dst_vcpu)) {
+> > +		return SIGP_CC_BUSY;
+> > +	}
+> 
+> You can drop {}
 
-What do you think?
+Arg, I had some debug in there which needed the braces, and of course
+it's unnecessary now. Thanks.
+
+> 
+> > +
+> >  	switch (order_code) {
+> >  	case SIGP_SENSE:
+> >  		vcpu->stat.instruction_sigp_sense++;
+> > @@ -411,6 +415,12 @@ int kvm_s390_handle_sigp(struct kvm_vcpu
+> > *vcpu)
+> >  	if (handle_sigp_order_in_user_space(vcpu, order_code,
+> > cpu_addr))
+> >  		return -EOPNOTSUPP;
+> >  
+> > +	/* Check the current vcpu, if it was a target from another vcpu
+> > */
+> > +	if (kvm_s390_vcpu_is_sigp_busy(vcpu)) {
+> > +		kvm_s390_set_psw_cc(vcpu, SIGP_CC_BUSY);
+> > +		return 0;
+> > +	}
+> 
+> I don't think we need this. I think the above (checking the target of
+> a
+> SIGP order) is sufficient. Or which situation do you have in mind?
+> 
+
+Hrm... I think you're right. I was thinking of this:
+
+VCPU 1 - SIGP STOP CPU 2
+VCPU 2 - SIGP SENSE CPU 1
+
+But of course either CPU2 is going to be marked "busy" first, and the
+sense doesn't get processed until it's reset, or the sense arrives
+first, and the busy/notbusy doesn't matter. Let me doublecheck my tests
+for the non-RFC version.
+
+> 
+> 
+> I do wonder if we want to make this a kvm_arch_vcpu_ioctl() instead,
+
+In one of my original attempts between v1 and v2, I had put this there.
+This reliably deadlocks my guest, because the caller (kvm_vcpu_ioctl())
+tries to acquire vcpu->mutex, and racing SIGPs (via KVM_RUN) might
+already be holding it. Thus, it's an async ioctl. I could fold it into
+the existing interrupt ioctl, but as those are architected structs it
+seems more natural do it this way. Or I have mis-understood something
+along the way?
+
+> essentially just providing a KVM_S390_SET_SIGP_BUSY *and* providing
+> the
+> order. "order == 0" sets it to !busy. 
+
+I'd tried this too, since it provided some nice debug-ability.
+Unfortunately, I have a testcase (which I'll eventually get folded into
+kvm-unit-tests :)) that picks a random order between 0-255, knowing
+that there's only a couple handfuls of valid orders, to check the
+response. Zero is valid architecturally (POPS figure 4-29), even if
+it's unassigned. The likelihood of it becoming assigned is probably
+quite low, but I'm not sure that I like special-casing an order of zero
+in this way.
+
+> Not that we would need the value
+> right now, but who knows for what we might reuse that interface in
+> the
+> future.
+> 
+> Thanks!
+> 
+
