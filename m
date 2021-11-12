@@ -2,192 +2,124 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B772DC433FE
-	for <linux-s390@archiver.kernel.org>; Thu, 11 Nov 2021 22:27:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DBC90C433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 12 Nov 2021 03:10:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 954E6610A8
-	for <linux-s390@archiver.kernel.org>; Thu, 11 Nov 2021 22:27:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BD13660F59
+	for <linux-s390@archiver.kernel.org>; Fri, 12 Nov 2021 03:10:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231407AbhKKWaB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 11 Nov 2021 17:30:01 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:29906 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S229652AbhKKWaA (ORCPT
+        id S234519AbhKLDMw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 11 Nov 2021 22:12:52 -0500
+Received: from out30-45.freemail.mail.aliyun.com ([115.124.30.45]:56568 "EHLO
+        out30-45.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234543AbhKLDMw (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 11 Nov 2021 17:30:00 -0500
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1ABMCX0q009177;
-        Thu, 11 Nov 2021 22:26:47 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=QRK/rTjbhY0vQdZUiBg6R0OyspuOMP4XylACDp8XdSg=;
- b=GKWFGhvTTY2Wd7k6tNPC+ceTyT8fXL9MKH8fRB/Vhy0HX6yiBKzCL2siiyPqo4Gdfd4B
- 1E6c7kgirNgRQoWYGnt7SIYL7h/Thn4QP2wT2rDGTtiVeWfdTxpryrSfNzA2j7auNmWF
- f1j+c795AxkWdyPUt+MedPqAbD51ItPmxatw7I50Sz+/nBp6lScUrU6Rphr48/MdlMCe
- A6sQfXGuycIXZAF26JU7WcnOWEu/4/pnYa1Z95nkdo33TOuXzYNjA4JMaGZIV7hs4rpC
- 1xfNzpIISu6cUbtOLh/jK98nHSPUMhr2LC5BIAlDYduFrpUf0GiEzHKyPIY3SC/FSQEe Eg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3c9bs1r72w-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 11 Nov 2021 22:26:47 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1ABMJjAg029423;
-        Thu, 11 Nov 2021 22:26:46 GMT
-Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3c9bs1r72h-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 11 Nov 2021 22:26:46 +0000
-Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
-        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1ABMCABD003558;
-        Thu, 11 Nov 2021 22:26:44 GMT
-Received: from b03cxnp07029.gho.boulder.ibm.com (b03cxnp07029.gho.boulder.ibm.com [9.17.130.16])
-        by ppma04dal.us.ibm.com with ESMTP id 3c5hbdjyy1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 11 Nov 2021 22:26:44 +0000
-Received: from b03ledav003.gho.boulder.ibm.com (b03ledav003.gho.boulder.ibm.com [9.17.130.234])
-        by b03cxnp07029.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1ABMQhFm60948956
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 11 Nov 2021 22:26:43 GMT
-Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2C2766A063;
-        Thu, 11 Nov 2021 22:26:43 +0000 (GMT)
-Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 21A1F6A04D;
-        Thu, 11 Nov 2021 22:26:42 +0000 (GMT)
-Received: from [9.211.98.91] (unknown [9.211.98.91])
-        by b03ledav003.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Thu, 11 Nov 2021 22:26:42 +0000 (GMT)
-Message-ID: <56d2ae87-b9bf-c9fc-1395-db4769a424ea@linux.vnet.ibm.com>
-Date:   Thu, 11 Nov 2021 17:26:41 -0500
+        Thu, 11 Nov 2021 22:12:52 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R251e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04407;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0Uw7Lai4_1636686599;
+Received: from guwendeMacBook-Pro.local(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0Uw7Lai4_1636686599)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Fri, 12 Nov 2021 11:10:00 +0800
+Subject: Re: [RFC PATCH 0/2] Two RFC patches for the same SMC socket wait
+ queue mismatch issue
+To:     Karsten Graul <kgraul@linux.ibm.com>, tonylu@linux.alibaba.com
+Cc:     davem@davemloft.net, kuba@kernel.org, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        dust.li@linux.alibaba.com, xuanzhuo@linux.alibaba.com
+References: <1636548651-44649-1-git-send-email-guwen@linux.alibaba.com>
+ <369755c0-8b3e-cf69-d7f2-8993700efc4a@linux.ibm.com>
+From:   Wen Gu <guwen@linux.alibaba.com>
+Message-ID: <d3b7969f-4bc5-5834-0a03-d361854d909e@linux.alibaba.com>
+Date:   Fri, 12 Nov 2021 11:09:59 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.14.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.0
-Subject: Re: [PATCH 0/3] KEXEC_SIG with appended signature
-Content-Language: en-US
-To:     =?UTF-8?Q?Michal_Such=c3=a1nek?= <msuchanek@suse.de>
-Cc:     Mimi Zohar <zohar@linux.ibm.com>, keyrings@vger.kernel.org,
-        Rob Herring <robh@kernel.org>, linux-s390@vger.kernel.org,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Jessica Yu <jeyu@kernel.org>, linux-kernel@vger.kernel.org,
-        David Howells <dhowells@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Hari Bathini <hbathini@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linuxppc-dev@lists.ozlabs.org,
-        Frank van der Linden <fllinden@amazon.com>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Daniel Axtens <dja@axtens.net>
-References: <cover.1635948742.git.msuchanek@suse.de>
- <87czneeurr.fsf@dja-thinkpad.axtens.net>
- <20211105131401.GL11195@kunlun.suse.cz>
- <87a6ifehin.fsf@dja-thinkpad.axtens.net>
- <20211108120500.GO11195@kunlun.suse.cz>
-From:   Nayna <nayna@linux.vnet.ibm.com>
-In-Reply-To: <20211108120500.GO11195@kunlun.suse.cz>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: JAzXdG16z-AHxLx4O3sfM63yJ2lHyuyW
-X-Proofpoint-ORIG-GUID: oXUeZR3KTNF8EGyTdINRJMmNxAGMsc_P
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-11-11_07,2021-11-11_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
- lowpriorityscore=0 adultscore=0 malwarescore=0 phishscore=0 clxscore=1015
- suspectscore=0 spamscore=0 impostorscore=0 mlxscore=0 priorityscore=1501
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2111110113
+In-Reply-To: <369755c0-8b3e-cf69-d7f2-8993700efc4a@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
-On 11/8/21 07:05, Michal Suchánek wrote:
-> Hello,
->
-> On Mon, Nov 08, 2021 at 09:18:56AM +1100, Daniel Axtens wrote:
->> Michal Suchánek <msuchanek@suse.de> writes:
->>
->>> On Fri, Nov 05, 2021 at 09:55:52PM +1100, Daniel Axtens wrote:
->>>> Michal Suchanek <msuchanek@suse.de> writes:
->>>>
->>>>> S390 uses appended signature for kernel but implements the check
->>>>> separately from module loader.
->>>>>
->>>>> Support for secure boot on powerpc with appended signature is planned -
->>>>> grub patches submitted upstream but not yet merged.
->>>> Power Non-Virtualised / OpenPower already supports secure boot via kexec
->>>> with signature verification via IMA. I think you have now sent a
->>>> follow-up series that merges some of the IMA implementation, I just
->>>> wanted to make sure it was clear that we actually already have support
->>> So is IMA_KEXEC and KEXEC_SIG redundant?
->>>
->>> I see some architectures have both. I also see there is a lot of overlap
->>> between the IMA framework and the KEXEC_SIG and MODULE_SIg.
->>
->> Mimi would be much better placed than me to answer this.
->>
->> The limits of my knowledge are basically that signature verification for
->> modules and kexec kernels can be enforced by IMA policies.
->>
->> For example a secure booted powerpc kernel with module support will have
->> the following IMA policy set at the arch level:
->>
->> "appraise func=KEXEC_KERNEL_CHECK appraise_flag=check_blacklist appraise_type=imasig|modsig",
->> (in arch/powerpc/kernel/ima_arch.c)
->>
->> Module signature enforcement can be set with either IMA (policy like
->> "appraise func=MODULE_CHECK appraise_flag=check_blacklist appraise_type=imasig|modsig" )
->> or with CONFIG_MODULE_SIG_FORCE/module.sig_enforce=1.
->>
->> Sometimes this leads to arguably unexpected interactions - for example
->> commit fa4f3f56ccd2 ("powerpc/ima: Fix secure boot rules in ima arch
->> policy"), so it might be interesting to see if we can make things easier
->> to understand.
-> I suspect that is the root of the problem here. Until distributions pick
-> up IMA and properly document step by step in detail how to implement,
-> enable, and debug it the _SIG options are required for users to be able
-> to make use of signatures.
 
-For secureboot, IMA appraisal policies are configured in kernel at boot 
-time based on secureboot state of the system, refer 
-arch/powerpc/kernel/ima_arch.c and security/integrity/ima/ima_efi.c. 
-This doesn't require any user configuration. Yes, I agree it would be 
-helpful to update kernel documentation specifying steps to sign the 
-kernel image using sign-file.
+On 2021/11/11 10:21 pm, Karsten Graul wrote:
+> On 10/11/2021 13:50, Wen Gu wrote:
+>> Hi, Karsten
+>>
+>> Thanks for your reply. The previous discussion about the issue of socket
+>> wait queue mismatch in SMC fallback can be referred from:
+>> https://lore.kernel.org/all/db9acf73-abef-209e-6ec2-8ada92e2cfbc@linux.ibm.com/
+>>
+>> This set of patches includes two RFC patches, they are both aimed to fix
+>> the same issue, the mismatch of socket wait queue in SMC fallback.
+>>
+>> In your last reply, I am suggested to add the complete description about
+>> the intention of initial patch in order that readers can understand the
+>> idea behind it. This has been done in "[RFC PATCH net v2 0/2] net/smc: Fix
+>> socket wait queue mismatch issue caused by fallback" of this mail.
+>>
+>> Unfortunately, I found a defect later in the solution of the initial patch
+>> or the v2 patch mentioned above. The defect is about fasync_list and related
+>> to 67f562e3e14 ("net/smc: transfer fasync_list in case of fallback").
+>>
+>> When user applications use sock_fasync() to insert entries into fasync_list,
+>> the wait queue they operate is smc socket->wq. But in initial patch or
+>> the v2 patch, I swapped sk->sk_wq of smc socket and clcsocket in smc_create(),
+>> thus the sk_data_ready / sk_write_space.. of smc will wake up clcsocket->wq
+>> finally. So the entries added into smc socket->wq.fasync_list won't be woken
+>> up at all before fallback.
+>>
+>> So the solution in initial patch or the v2 patch of this mail by swapping
+>> sk->sk_wq of smc socket and clcsocket seems a bad way to fix this issue.
+>>
+>> Therefore, I tried another solution by removing the wait queue entries from
+>> smc socket->wq to clcsocket->wq during the fallback, which is described in the
+>> "[RFC PATCH net 2/2] net/smc: Transfer remaining wait queue entries" of this
+>> mail. In our test environment, this patch can fix the fallback issue well.
+> 
+> Still running final tests but overall its working well here, too.
+> Until we maybe find a 'cleaner' solution if this I would like to go with your
+> current fixes. But I would like to improve the wording of the commit message and
+> the comments a little bit if you are okay with that.
+> 
+> If you send a new series with the 2 patches then I would take them and post them
+> to the list again with my changes.
 
->
-> The other part is that distributions apply 'lockdown' patches that change
-> the security policy depending on secure boot status which were rejected
-> by upstream which only hook into the _SIG options, and not into the IMA_
-> options. Of course, I expect this to change when the IMA options are
-> universally available across architectures and the support picked up by
-> distributions.
->
-> Which brings the third point: IMA features vary across architectures,
-> and KEXEC_SIG is more common than IMA_KEXEC.
->
-> config/arm64/default:CONFIG_HAVE_IMA_KEXEC=y
-> config/ppc64le/default:CONFIG_HAVE_IMA_KEXEC=y
->
-> config/arm64/default:CONFIG_KEXEC_SIG=y
-> config/s390x/default:CONFIG_KEXEC_SIG=y
-> config/x86_64/default:CONFIG_KEXEC_SIG=y
->
-> KEXEC_SIG makes it much easier to get uniform features across
-> architectures.
+Seems just the second patch alone will fix the issue.
 
-Architectures use KEXEC_SIG vs IMA_KEXEC based on their requirement. 
-IMA_KEXEC is for the kernel images signed using sign-file (appended 
-signatures, not PECOFF), provides measurement along with verification, 
-and is tied to secureboot state of the system at boot time.
+> 
+> What do you think?
+> 
 
-Thanks & Regards,
+Thanks for your reply. I am glad that the second patch works well.
 
-       - Nayna
+To avoid there being any misunderstanding between us, I want to explain 
+that just the second patch "[RFC PATCH net 2/2] net/smc: Transfer 
+remaining wait queue entries" alone will fix the issue well.
 
+Because it transfers the remaining entries in smc socket->wq to 
+clcsocket->wq during the fallback, so that the entries added into smc 
+socket->wq before fallback will still works after fallback, even though 
+user applications start to use clcsocket.
+
+
+The first patch "[RFC PATCH net v2 0/2] net/smc: Fix socket wait queue 
+mismatch issue caused by fallback" should be abandoned.
+
+I sent it only to better explain the defect I found in my initial patch 
+or this v2 patch. Hope it didn't bother you. Swapping the sk->sk_wq 
+seems a bad way to fix the issue because it can not handle the 
+fasync_list well. Unfortunately I found this defect until I almost 
+finished it :(
+
+So, I think maybe it is fine that just send the second patch "[RFC PATCH 
+net 2/2] net/smc: Transfer remaining wait queue entries" again. I will 
+send it later.
+
+And, it is okay for me if you want to improve the commit messages or 
+comments.
+
+Thank you.
+
+Cheers,
+Wen Gu
