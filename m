@@ -2,84 +2,125 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EA8AFC433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 12 Nov 2021 09:36:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5C9AC433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 12 Nov 2021 14:02:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CA21160EE2
-	for <linux-s390@archiver.kernel.org>; Fri, 12 Nov 2021 09:36:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8D7C8608FB
+	for <linux-s390@archiver.kernel.org>; Fri, 12 Nov 2021 14:02:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234756AbhKLJjD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 12 Nov 2021 04:39:03 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:29007 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234730AbhKLJjD (ORCPT
+        id S235086AbhKLOFI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 12 Nov 2021 09:05:08 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:51418 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235071AbhKLOFH (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 12 Nov 2021 04:39:03 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1636709772;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=3RS0GDdXEcb4iOfoVt7xdPZJYdb+hs05OLDjMHPHMII=;
-        b=OECnLG35jp8c1qnIdCtAfTzgDpH5IrCAgrFlz78twauPnt6LmdN7/0oAbqUScBhctMAW2h
-        3kdWn36i6d7S0BI55Po/H3oWRMESShzi5/OQWtfXCwxbAIxW2m6o/OsJSditjkLhnIAwGW
-        RGpl0fo7eOA5jffSxx1Pq4O+s1URGCk=
-Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
- [209.85.208.199]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-270-47Ca0C1XO6uaRTkVpH1Ing-1; Fri, 12 Nov 2021 04:36:08 -0500
-X-MC-Unique: 47Ca0C1XO6uaRTkVpH1Ing-1
-Received: by mail-lj1-f199.google.com with SMTP id q64-20020a2e2a43000000b00218c94eab9bso2902055ljq.18
-        for <linux-s390@vger.kernel.org>; Fri, 12 Nov 2021 01:36:07 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=3RS0GDdXEcb4iOfoVt7xdPZJYdb+hs05OLDjMHPHMII=;
-        b=30wBylO+fa3SDDSH8+iHLSNaWB7Di1G2Ip1VltW7tup887IKzUoBcXPRfCGpxf6rZm
-         YxCS309o/3uZcni+ASp2Sh/KaTJ5XTzTtE3xHCzr5B0EwNl37rJv4gC3f9VD264n+NNN
-         wKQuu+pMF64LpnSrmxJA/AarOB73znyUNkSM6Mf5GEcBN8ZaJESYF+43dbrjQ6LMzFCn
-         WqzpffYc2DeB4hyXRIZVNVLHiFDXU0XwJd9rPWqrRe7803J95J0bbTWxxnQNVKQMU8mk
-         vUqA28FLXUzLzvc2W0FBN+s+PVV4S+Yk9pTQMf6P33jXZNA31B7XGs8hpZqZSTVDN6HT
-         GHAg==
-X-Gm-Message-State: AOAM53330YN5satX3O8yGOSFR2izyyXjEhzzxnoCQXmXq/JmJChPCWx2
-        jdeOlSQ//8GSLoQbZ+CHTcxye9oyfXAsOhUQ/9GNIxD0W0XxJDSuGcFJTcbXPnPiSudQRkyQPDC
-        ItvbfHlz46echBDEccLYLDpQoml70jWV2f9xlEg==
-X-Received: by 2002:a2e:b88c:: with SMTP id r12mr10592840ljp.294.1636709766791;
-        Fri, 12 Nov 2021 01:36:06 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJywvQLolUByNPBH2qOskivToNkP9OLC11Nnm+CW99rjkulOvlghOU/pbqG3fNXJml7WfM1mC6TAPlLWpCU4myk=
-X-Received: by 2002:a2e:b88c:: with SMTP id r12mr10592820ljp.294.1636709766635;
- Fri, 12 Nov 2021 01:36:06 -0800 (PST)
+        Fri, 12 Nov 2021 09:05:07 -0500
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1ACDfZAZ015490;
+        Fri, 12 Nov 2021 14:02:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=nDodJj57nnM0nM3L9GHbulclSK9+sUTDdF2zO6gw5wc=;
+ b=CuEAwSEKWhv60po84XaJQ3FktK1FTgtULtrjIDNX4lUz8YbzSqeJvdBu0iFY/iR19tno
+ GkVqSEL3at9wf1rARF+YyAX//xMjkHvO+MuZPh8D1fA1k/HQtMQ7OgkbN/sKGYzB8a1T
+ CIivSXoiFwhzT14/HAv1XmejQTNJSgV0C6IQ8xKtl7nXmdJ7F2qnD677NFM2moHyvtd1
+ K9uPnndLrcPwPGCt26HFZk58o3diQ0YGsWvYr3ywwX2/xvML89f2cF0bDO1gE/cYgM5C
+ qBja93XlDds+nQx+qysFOzARZkD7Bma4UbvL/A1x5LiFlBQKhuHffBQAJRV2TPfw8Nrb eg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3c9rhbhfqk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 12 Nov 2021 14:02:15 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1ACE1LH5020171;
+        Fri, 12 Nov 2021 14:02:15 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3c9rhbhfpk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 12 Nov 2021 14:02:15 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1ACDcrjP011123;
+        Fri, 12 Nov 2021 14:02:13 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 3c5gykh11x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 12 Nov 2021 14:02:12 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1ACDtOEt61145432
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 12 Nov 2021 13:55:24 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6FE3511C04C;
+        Fri, 12 Nov 2021 14:02:10 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 06CF811C052;
+        Fri, 12 Nov 2021 14:02:10 +0000 (GMT)
+Received: from osiris (unknown [9.145.153.146])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Fri, 12 Nov 2021 14:02:09 +0000 (GMT)
+Date:   Fri, 12 Nov 2021 15:02:08 +0100
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Wen Gu <guwen@linux.alibaba.com>
+Cc:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, tonylu@linux.alibaba.com,
+        dust.li@linux.alibaba.com, xuanzhuo@linux.alibaba.com
+Subject: Re: [PATCH net] net/smc: Transfer remaining wait queue entries
+ during fallback
+Message-ID: <YY5z4H5/CVpRtrwh@osiris>
+References: <1636687839-38962-1-git-send-email-guwen@linux.alibaba.com>
 MIME-Version: 1.0
-References: <20211110203322.1374925-1-farman@linux.ibm.com>
- <20211110203322.1374925-3-farman@linux.ibm.com> <dd8a8b49-da6d-0ab8-dc47-b24f5604767f@redhat.com>
- <ab82e68051674ea771e2cb5371ca2a204effab40.camel@linux.ibm.com>
- <32836eb5-532f-962d-161a-faa2213a0691@linux.ibm.com> <b116e738d8f9b185867ab28395012aaddd58af31.camel@linux.ibm.com>
- <85ba9fa3-ca25-b598-aecd-5e0c6a0308f2@redhat.com> <19a2543b24015873db736bddb14d0e4d97712086.camel@linux.ibm.com>
- <ff344676-0c37-610b-eafb-b1477db0f6a1@redhat.com> <006980fd7d0344b0258aa87128891fcd81c005b7.camel@linux.ibm.com>
- <CADFyXm7XM96yUEU_5Xf-nT8D5E0+sji2AwfKCvr_yvx6fZrf2g@mail.gmail.com>
-In-Reply-To: <CADFyXm7XM96yUEU_5Xf-nT8D5E0+sji2AwfKCvr_yvx6fZrf2g@mail.gmail.com>
-From:   David Hildenbrand <david@redhat.com>
-Date:   Fri, 12 Nov 2021 10:35:55 +0100
-Message-ID: <CADFyXm5erJL4XBPDy2Xv94JNH1z88_etEer-UtJC_TTD1T-yEA@mail.gmail.com>
-Subject: Re: [RFC PATCH v3 2/2] KVM: s390: Extend the USER_SIGP capability
-To:     Eric Farman <farman@linux.ibm.com>
-Cc:     Janosch Frank <frankja@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, KVM <kvm@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1636687839-38962-1-git-send-email-guwen@linux.alibaba.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: hLZJsSYm8M3wCHpbbHJMnvZbmjW-nvnr
+X-Proofpoint-GUID: aBw7o5ShLNFfLg7BX22CABdROqgtpRtZ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-11-12_05,2021-11-12_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 mlxscore=0
+ phishscore=0 priorityscore=1501 malwarescore=0 lowpriorityscore=0
+ suspectscore=0 spamscore=0 bulkscore=0 clxscore=1011 impostorscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2111120080
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
->
-> #1: SIGP INITIAL CPU RESET #2
-> #1: SIGP SENSE #2
->
-> As the SIGP INITIAL CPU RESET is processed fully asynchronous.
+On Fri, Nov 12, 2021 at 11:30:39AM +0800, Wen Gu wrote:
+...
+> +	wait_queue_head_t *smc_wait = sk_sleep(&smc->sk);
+> +	wait_queue_head_t *clc_wait = sk_sleep(smc->clcsock->sk);
+> +	unsigned long flags;
+> +
+>  	smc->use_fallback = true;
+>  	smc->fallback_rsn = reason_code;
+>  	smc_stat_fallback(smc);
+> @@ -571,6 +575,16 @@ static void smc_switch_to_fallback(struct smc_sock *smc, int reason_code)
+>  		smc->clcsock->file->private_data = smc->clcsock;
+>  		smc->clcsock->wq.fasync_list =
+>  			smc->sk.sk_socket->wq.fasync_list;
+> +
+> +		/* There might be some wait queue entries remaining
+> +		 * in smc socket->wq, which should be removed to
+> +		 * clcsocket->wq during the fallback.
+> +		 */
+> +		spin_lock_irqsave(&smc_wait->lock, flags);
+> +		spin_lock_irqsave(&clc_wait->lock, flags);
+> +		list_splice_init(&smc_wait->head, &clc_wait->head);
+> +		spin_unlock_irqrestore(&clc_wait->lock, flags);
+> +		spin_unlock_irqrestore(&smc_wait->lock, flags);
 
-I meant to say "fully synchronous".
+No idea if the rest of the patch makes sense, however this usage of
+spin_lock_irqsave() is not correct. The second spin_lock_irqsave()
+would always save a state with irqs disabled into "flags", and
+therefore this path would always be left with irqs disabled,
+regardless if irqs were enabled or disabled when entering.
 
+You need to change it to something like
+
+> +		spin_lock_irqsave(&smc_wait->lock, flags);
+> +		spin_lock(&clc_wait->lock);
+> +		list_splice_init(&smc_wait->head, &clc_wait->head);
+> +		spin_unlock(&clc_wait->lock);
+> +		spin_unlock_irqrestore(&smc_wait->lock, flags);
