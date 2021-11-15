@@ -2,67 +2,70 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 29DEEC433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 15 Nov 2021 09:46:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0239CC433FE
+	for <linux-s390@archiver.kernel.org>; Mon, 15 Nov 2021 13:30:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 01A4361BA9
-	for <linux-s390@archiver.kernel.org>; Mon, 15 Nov 2021 09:46:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E1EDC61C4F
+	for <linux-s390@archiver.kernel.org>; Mon, 15 Nov 2021 13:30:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236975AbhKOJsp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 15 Nov 2021 04:48:45 -0500
-Received: from out30-43.freemail.mail.aliyun.com ([115.124.30.43]:46457 "EHLO
-        out30-43.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230405AbhKOJsK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 15 Nov 2021 04:48:10 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R831e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0UwcO2ZL_1636969507;
-Received: from e02h04404.eu6sqa(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0UwcO2ZL_1636969507)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Mon, 15 Nov 2021 17:45:13 +0800
-From:   Wen Gu <guwen@linux.alibaba.com>
-To:     kgraul@linux.ibm.com
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, xuanzhuo@linux.alibaba.com,
-        tonylu@linux.alibaba.com, dust.li@linux.alibaba.com,
-        guwen@linux.alibaba.com
-Subject: [PATCH net] net/smc: Make sure the link_id is unique
-Date:   Mon, 15 Nov 2021 17:45:07 +0800
-Message-Id: <1636969507-39355-1-git-send-email-guwen@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
+        id S230170AbhKONd0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 15 Nov 2021 08:33:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49168 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231761AbhKONdE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 15 Nov 2021 08:33:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPS id 0FEEC63214;
+        Mon, 15 Nov 2021 13:30:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1636983009;
+        bh=ujuXnMtMxUPFacK0XZ0Aet8M3mGZj0ppLwS46KXNsz4=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=nc7n1vVnqo/9tjYyVqzeEQrBWptCkBmTeSCLfUeDuxGFBinZPO9rdemgDppeoOQA4
+         4XBDtTeKurNJk4lNQ1uVRUxpr6DDIDJn/4snxSGFD+qiGXX+bNYYB59CJS1RZDtpcG
+         ckwbXAiCcugXWu/UIlI8UDUnNu3LOlVVtFa2h2i1m1cN8u2c8VQExLSaE7RRNzK/rH
+         WfsOgMcrk0BKO3CdTTddQVdm2xsQyWf+1eEO5xI0SgrPnlxvXCZjky7FxLmXvkHfY2
+         Bi023tzxQa0hLNk8uGOja4sgayop66lLeJCRfWPBPm/w24WXNgp+6yv/BuQC7dSS/y
+         FOl8jFe97IQbQ==
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net v2] net/smc: Transfer remaining wait queue entries during
+ fallback
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <163698300899.26335.13329669260343577654.git-patchwork-notify@kernel.org>
+Date:   Mon, 15 Nov 2021 13:30:08 +0000
+References: <1636788815-29902-1-git-send-email-guwen@linux.alibaba.com>
+In-Reply-To: <1636788815-29902-1-git-send-email-guwen@linux.alibaba.com>
+To:     Wen Gu <guwen@linux.alibaba.com>
+Cc:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, tonylu@linux.alibaba.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The link_id is supposed to be unique, but smcr_next_link_id() doesn't
-skip the used link_id as expected. So the patch fixes this.
+Hello:
 
-Fixes: 026c381fb477 ("net/smc: introduce link_idx for link group array")
-Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
-Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
----
- net/smc/smc_core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+This patch was applied to netdev/net.git (master)
+by David S. Miller <davem@davemloft.net>:
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 49b8ba3..25ebd30 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -708,13 +708,14 @@ static u8 smcr_next_link_id(struct smc_link_group *lgr)
- 	int i;
- 
- 	while (1) {
-+again:
- 		link_id = ++lgr->next_link_id;
- 		if (!link_id)	/* skip zero as link_id */
- 			link_id = ++lgr->next_link_id;
- 		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
- 			if (smc_link_usable(&lgr->lnk[i]) &&
- 			    lgr->lnk[i].link_id == link_id)
--				continue;
-+				goto again;
- 		}
- 		break;
- 	}
+On Sat, 13 Nov 2021 15:33:35 +0800 you wrote:
+> The SMC fallback is incomplete currently. There may be some
+> wait queue entries remaining in smc socket->wq, which should
+> be removed to clcsocket->wq during the fallback.
+> 
+> For example, in nginx/wrk benchmark, this issue causes an
+> all-zeros test result:
+> 
+> [...]
+
+Here is the summary with links:
+  - [net,v2] net/smc: Transfer remaining wait queue entries during fallback
+    https://git.kernel.org/netdev/net/c/2153bd1e3d3d
+
+You are awesome, thank you!
 -- 
-1.8.3.1
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
