@@ -2,133 +2,196 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86688C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 16 Nov 2021 11:57:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 45716C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 16 Nov 2021 13:40:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 61365611C3
-	for <linux-s390@archiver.kernel.org>; Tue, 16 Nov 2021 11:57:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2C80461BFE
+	for <linux-s390@archiver.kernel.org>; Tue, 16 Nov 2021 13:40:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235696AbhKPMAi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 16 Nov 2021 07:00:38 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:16072 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235706AbhKPMA1 (ORCPT
+        id S236801AbhKPNnI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 16 Nov 2021 08:43:08 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:26795 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S236795AbhKPNnI (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 16 Nov 2021 07:00:27 -0500
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1AGAtM3Q000623;
-        Tue, 16 Nov 2021 11:57:30 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=kgenKM1z3Re+ayfQBXdGzVLkvYkWFHY1JFSryHJKH3I=;
- b=hbCUOs4+g0Li8mzIYs6qwNNxL73xpRicdVZQf1pIX0Mb2F+EDH0BmNa2ldjYYe5CMaZu
- 6SbEt16PJsv+I5s438VvoSmpBoGJ+35FhGJgjI5O7NWHOzRDTlnqjgBl9uP1OQHEQcTc
- bTlwk7gMtHlld1OaKF8MlE9rsm3+EHxPK0ix8YpV9a0L6Pz849CaLnNiozNd/hGfVyzb
- 3DhXKOOEa6OKnh/+kPRjLnS8IzMen4/QUaY+ZnqCOwsEG0j/O5nnE8rz9DZSc9Q6q5gQ
- 39OPJ+Xgc/O8xoZa5SXzPzWacVr223iwvLaN/gEPrdFBc67rDbok0WS2YA78f2qiwpUJ 5A== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ccbanhcc1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 16 Nov 2021 11:57:30 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1AGBRZh9014829;
-        Tue, 16 Nov 2021 11:57:29 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ccbanhcbk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 16 Nov 2021 11:57:29 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1AGBmtFS017486;
-        Tue, 16 Nov 2021 11:57:27 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 3ca50axx96-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 16 Nov 2021 11:57:27 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1AGBoR0V57016694
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 16 Nov 2021 11:50:27 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5F13C11C04A;
-        Tue, 16 Nov 2021 11:57:22 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 10EE611C05E;
-        Tue, 16 Nov 2021 11:57:22 +0000 (GMT)
-Received: from [9.171.66.108] (unknown [9.171.66.108])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 16 Nov 2021 11:57:21 +0000 (GMT)
-Message-ID: <ce3407fd-3745-c569-6ba8-d599e0d7c905@linux.vnet.ibm.com>
-Date:   Tue, 16 Nov 2021 12:57:21 +0100
+        Tue, 16 Nov 2021 08:43:08 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1637070011;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=lVUfInF5ff7DFbS9kneFAxd/0FXJHhTH3/aRVwgi3TY=;
+        b=KZ1PolRULsFqT7r67gir2CSkUeESp+k3xkOY1FhvLBTxpNpYYzepLAo56tTw9nwsfr0i2K
+        ztqomsCoclybMJAcQqYUnLxkTymgrJuCwORTmwNRMKiqAqG6dD3L4z2Qcjh40LLIjxMNyB
+        GJ6V9T1A7OcFhFQciWu68fxSI9U6+3o=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-598-gsLn0IaVP6SvJJsupkk3Kw-1; Tue, 16 Nov 2021 08:40:04 -0500
+X-MC-Unique: gsLn0IaVP6SvJJsupkk3Kw-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 83811804148;
+        Tue, 16 Nov 2021 13:40:03 +0000 (UTC)
+Received: from localhost (ovpn-12-162.pek2.redhat.com [10.72.12.162])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id D82AA101E692;
+        Tue, 16 Nov 2021 13:39:49 +0000 (UTC)
+Date:   Tue, 16 Nov 2021 21:39:47 +0800
+From:   Baoquan He <bhe@redhat.com>
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        kexec@lists.infradead.org, prudo@redhat.com
+Subject: Re: [PATCH v2 1/2] s390/kexec: check the return value of
+ ipl_report_finish
+Message-ID: <20211116133947.GE21646@MiWiFi-R3L-srv>
+References: <20211116032557.14075-1-bhe@redhat.com>
+ <YZOTO+37BbIwOpUK@osiris>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.0
-Subject: Re: [kvm-unit-tests PATCH v3 1/1] s390x: Add specification exception
- interception test
-Content-Language: en-US
-To:     Thomas Huth <thuth@redhat.com>,
-        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     Janosch Frank <frankja@de.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20211022131057.1308851-1-scgl@linux.ibm.com>
- <20211022131057.1308851-2-scgl@linux.ibm.com>
- <82750b44-6246-3f3c-4562-3d64d7378448@redhat.com>
-From:   Janis Schoetterl-Glausch <scgl@linux.vnet.ibm.com>
-In-Reply-To: <82750b44-6246-3f3c-4562-3d64d7378448@redhat.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: AY9QDdTSyg-RMKTBeBF6oHWSNP2yPyR2
-X-Proofpoint-GUID: 89Qt1hCWWYmGeDbaMLGb1yp5EbyrXlw1
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-11-16_01,2021-11-16_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
- mlxlogscore=999 bulkscore=0 phishscore=0 adultscore=0 priorityscore=1501
- suspectscore=0 impostorscore=0 malwarescore=0 lowpriorityscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2111160059
+In-Reply-To: <YZOTO+37BbIwOpUK@osiris>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 11/11/21 08:47, Thomas Huth wrote:
-> On 22/10/2021 15.10, Janis Schoetterl-Glausch wrote:
->> Check that specification exceptions cause intercepts when
->> specification exception interpretation is off.
->> Check that specification exceptions caused by program new PSWs
->> cause interceptions.
->> We cannot assert that non program new PSW specification exceptions
->> are interpreted because whether interpretation occurs or not is
->> configuration dependent.
->>
->> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
->> Reviewed-by: Janosch Frank <frankja@de.ibm.com>
->> Reviewed-by: Thomas Huth <thuth@redhat.com>
->> ---
-> ...
->> +    report_prefix_push("on");
->> +    vm.sblk->ecb |= ECB_SPECI;
->> +    reset_guest();
->> +    sie(&vm);
->> +    /* interpretation on -> configuration dependent if initial exception causes
->> +     * interception, but invalid new program PSW must
->> +     */
->> +    report(vm.sblk->icptcode == ICPT_PROGI
->> +           && vm.sblk->iprcc == PGM_INT_CODE_SPECIFICATION,
->> +           "Received specification exception intercept");
->> +    if (vm.sblk->gpsw.addr == 0xdeadbeee)
->> +        report_info("Interpreted initial exception, intercepted invalid program new PSW exception");
->> +    else
->> +        report_info("Did not interpret initial exception");
+On 11/16/21 at 12:17pm, Heiko Carstens wrote:
+> On Tue, Nov 16, 2021 at 11:25:56AM +0800, Baoquan He wrote:
+> > In function ipl_report_finish(), it could fail by memory allocation
+> > failure, so check the return value to handle the case.
+> > 
+> > Signed-off-by: Baoquan He <bhe@redhat.com>
+> > ---
+> >  arch/s390/include/asm/ipl.h           | 2 +-
+> >  arch/s390/kernel/ipl.c                | 6 ++++--
+> >  arch/s390/kernel/machine_kexec_file.c | 5 ++++-
+> >  3 files changed, 9 insertions(+), 4 deletions(-)
+> > 
+> > diff --git a/arch/s390/include/asm/ipl.h b/arch/s390/include/asm/ipl.h
+> > index 3f8ee257f9aa..864ab5d2890c 100644
+> > --- a/arch/s390/include/asm/ipl.h
+> > +++ b/arch/s390/include/asm/ipl.h
+> > @@ -122,7 +122,7 @@ struct ipl_report_certificate {
+> >  
+> >  struct kexec_buf;
+> >  struct ipl_report *ipl_report_init(struct ipl_parameter_block *ipib);
+> > -void *ipl_report_finish(struct ipl_report *report);
+> > +int ipl_report_finish(struct ipl_report *report, void **ipl_buf);
+> >  int ipl_report_free(struct ipl_report *report);
+> >  int ipl_report_add_component(struct ipl_report *report, struct kexec_buf *kbuf,
+> >  			     unsigned char flags, unsigned short cert);
+> > diff --git a/arch/s390/kernel/ipl.c b/arch/s390/kernel/ipl.c
+> > index e2cc35775b99..a0af0b23148d 100644
+> > --- a/arch/s390/kernel/ipl.c
+> > +++ b/arch/s390/kernel/ipl.c
+> > @@ -2144,7 +2144,7 @@ struct ipl_report *ipl_report_init(struct ipl_parameter_block *ipib)
+> >  	return report;
+> >  }
+> >  
+> > -void *ipl_report_finish(struct ipl_report *report)
+> > +int ipl_report_finish(struct ipl_report *report, void **ipl_buf)
+> >  {
+> >  	struct ipl_report_certificate *cert;
+> >  	struct ipl_report_component *comp;
+> > @@ -2195,7 +2195,9 @@ void *ipl_report_finish(struct ipl_report *report)
+> >  	}
+> >  
+> >  	BUG_ON(ptr > buf + report->size);
+> > -	return buf;
+> > +	*ipl_buf = buf;
+> > +
+> > +	return 0;
 > 
->  Hi Janis!
+> This does not compile:
 > 
-> While using this test in our downstream verification of the backport of the related kernel patch, it occurred that the way of only reporting the interpreted exception via report_info() is rather unfortunate for using this test in automatic regression runs. For such regression runs, it would be good if the test would be marked with FAIL if the exception was not interpreted. I know, the interpretation facility is not always there, but still would it be somehow possible to add such a mode? E.g. by checking the machine generation (is this always available with z15 and newer?) and maybe adding a CLI option to force the hard check (so that e.g. "-f" triggers the failure if the exception has not been interpreted, while running the test without "-f" would still do the old behavior instead)?
+>   CC      arch/s390/kernel/ipl.o
+> arch/s390/kernel/ipl.c: In function ‘ipl_report_finish’:
+> arch/s390/kernel/ipl.c:2159:24: warning: returning ‘void *’ from a function with return type ‘int’ makes integer from pointer without a cast [-Wint-conversion]
+>  2159 |                 return ERR_PTR(-ENOMEM);
+>       |                        ^~~~~~~~~~~~~~~~
+
+Oops, I forgot changing this place to "return -ENOMEM;". Thanks for
+taking care of it with below patch.
 > 
->  Thomas
+> Anyway, before we are going to have more iterations I just applied the
+> patch below instead before applying your memory leak fix.
 > 
-Sounds good, I'll look into it.
+> From 78e5f268d1be775354ab83c1e039dcfacaa5e258 Mon Sep 17 00:00:00 2001
+> From: Heiko Carstens <hca@linux.ibm.com>
+> Date: Tue, 16 Nov 2021 11:06:38 +0100
+> Subject: s390/kexec: fix return code handling
+> 
+> kexec_file_add_ipl_report ignores that ipl_report_finish may fail and
+> can return an error pointer instead of a valid pointer.
+> Fix this and simplify by returning NULL in case of an error and let
+> the only caller handle this case.
+> 
+> Fixes: 99feaa717e55 ("s390/kexec_file: Create ipl report and pass to next kernel")
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> ---
+>  arch/s390/kernel/ipl.c                | 3 ++-
+>  arch/s390/kernel/machine_kexec_file.c | 8 +++++++-
+>  2 files changed, 9 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/s390/kernel/ipl.c b/arch/s390/kernel/ipl.c
+> index e2cc35775b99..5ad1dde23dc5 100644
+> --- a/arch/s390/kernel/ipl.c
+> +++ b/arch/s390/kernel/ipl.c
+> @@ -2156,7 +2156,7 @@ void *ipl_report_finish(struct ipl_report *report)
+>  
+>  	buf = vzalloc(report->size);
+>  	if (!buf)
+> -		return ERR_PTR(-ENOMEM);
+> +		goto out;
+>  	ptr = buf;
+>  
+>  	memcpy(ptr, report->ipib, report->ipib->hdr.len);
+> @@ -2195,6 +2195,7 @@ void *ipl_report_finish(struct ipl_report *report)
+>  	}
+>  
+>  	BUG_ON(ptr > buf + report->size);
+> +out:
+>  	return buf;
+>  }
+>  
+> diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
+> index 528edff085d9..f0200b503f94 100644
+> --- a/arch/s390/kernel/machine_kexec_file.c
+> +++ b/arch/s390/kernel/machine_kexec_file.c
+> @@ -170,6 +170,7 @@ static int kexec_file_add_ipl_report(struct kimage *image,
+>  	struct kexec_buf buf;
+>  	unsigned long addr;
+>  	void *ptr, *end;
+> +	int ret;
+>  
+>  	buf.image = image;
+>  
+> @@ -199,7 +200,10 @@ static int kexec_file_add_ipl_report(struct kimage *image,
+>  		ptr += len;
+>  	}
+>  
+> +	ret = -ENOMEM;
+>  	buf.buffer = ipl_report_finish(data->report);
+> +	if (!buf.buffer)
+> +		goto out;
+>  	buf.bufsz = data->report->size;
+>  	buf.memsz = buf.bufsz;
+>  
+> @@ -209,7 +213,9 @@ static int kexec_file_add_ipl_report(struct kimage *image,
+>  		data->kernel_buf + offsetof(struct lowcore, ipl_parmblock_ptr);
+>  	*lc_ipl_parmblock_ptr = (__u32)buf.mem;
+>  
+> -	return kexec_add_buffer(&buf);
+> +	ret = kexec_add_buffer(&buf);
+> +out:
+> +	return ret;
+>  }
+>  
+>  void *kexec_file_add_components(struct kimage *image,
+> -- 
+> 2.31.1
+> 
+
