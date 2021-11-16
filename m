@@ -2,69 +2,105 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A2749C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 16 Nov 2021 13:46:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1364DC433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 16 Nov 2021 13:58:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8042161B4D
-	for <linux-s390@archiver.kernel.org>; Tue, 16 Nov 2021 13:46:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E96ED61B98
+	for <linux-s390@archiver.kernel.org>; Tue, 16 Nov 2021 13:58:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236830AbhKPNtj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 16 Nov 2021 08:49:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59420 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232201AbhKPNtg (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 16 Nov 2021 08:49:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C11BB61B48;
-        Tue, 16 Nov 2021 13:46:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637070399;
-        bh=EgQplENZaeOvhDzRFGaIFPHsohxrN9W/R5malDha0bI=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=EpAedvKvM/MRQIel4JHZjIXYJ19mx55lI4myurnteF9NPrinVp/h9kIs4QhWz7lIC
-         IwvYpirxBdMyFDArF7z2nTNSzUPgk43cD/4csTqaUdQiCxIH0Tk+oojhrsNGRn6t/w
-         gs1EvOaGWzR/0vilSOe5oI7iI5l0P34+Cfb8znUsSgOplFWy5wR5UgkiVeop27nSDQ
-         Ch/g4ilNXlXaOScKOiG4QH7VTUFpsToCMCES5vKgT3K2FK8Pae4EbZh++2VGY6L5nz
-         WBfnsRjALMTmV4xZd8miftocnXQB72ikAKlvbG8vR1HzNBcAX8SLspFkVwnAO4+8kL
-         mY7VRWqujmkDw==
-Date:   Tue, 16 Nov 2021 05:46:37 -0800
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     "huangguangbin (A)" <huangguangbin2@huawei.com>
-Cc:     <davem@davemloft.net>, <mkubecek@suse.cz>, <andrew@lunn.ch>,
-        <amitc@mellanox.com>, <idosch@idosch.org>, <danieller@nvidia.com>,
-        <jesse.brandeburg@intel.com>, <anthony.l.nguyen@intel.com>,
-        <jdike@addtoit.com>, <richard@nod.at>,
-        <anton.ivanov@cambridgegreys.com>, <netanel@amazon.com>,
-        <akiyano@amazon.com>, <gtzalik@amazon.com>, <saeedb@amazon.com>,
-        <chris.snook@gmail.com>, <ulli.kroll@googlemail.com>,
-        <linus.walleij@linaro.org>, <jeroendb@google.com>,
-        <csully@google.com>, <awogbemila@google.com>, <jdmason@kudzu.us>,
-        <rain.1986.08.12@gmail.com>, <zyjzyj2000@gmail.com>,
-        <kys@microsoft.com>, <haiyangz@microsoft.com>, <mst@redhat.com>,
-        <jasowang@redhat.com>, <doshir@vmware.com>,
-        <pv-drivers@vmware.com>, <jwi@linux.ibm.com>,
-        <kgraul@linux.ibm.com>, <hca@linux.ibm.com>, <gor@linux.ibm.com>,
-        <johannes@sipsolutions.net>, <netdev@vger.kernel.org>,
-        <lipeng321@huawei.com>, <chenhao288@hisilicon.com>,
-        <linux-s390@vger.kernel.org>
-Subject: Re: [PATCH V6 net-next 0/6] ethtool: add support to set/get tx
- copybreak buf size and rx buf len
-Message-ID: <20211116054637.22ba87c7@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-In-Reply-To: <2fdf21c4-57f9-0a51-a598-c5494aeae6a6@huawei.com>
-References: <20211102134613.30367-1-huangguangbin2@huawei.com>
-        <2fdf21c4-57f9-0a51-a598-c5494aeae6a6@huawei.com>
+        id S236964AbhKPOBH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 16 Nov 2021 09:01:07 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:13154 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S236907AbhKPOBH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 16 Nov 2021 09:01:07 -0500
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1AGDhMxa018605;
+        Tue, 16 Nov 2021 13:58:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=je6nlO/FiWqgF1uX3TbKw+7WkwKiUtY9YIYwUGXNpsg=;
+ b=fZ1Ntb1y+gA5yRMrDddFeMsuROefc1tUsfKMCsad5S5WV1sue/uj/gQ+2bdUCWaCGXoy
+ macmaG8nllZQWmLchww3UdA8VFJ4gHAOYpOzDbvDxDEw8M4efUdI6dRmMUjNS88CALoH
+ 4ZwLa5Gop8CyRAmRZsMaFUFGT6twgmXVNHXmT7ZiXB0Be3uJnladSWCjHRDdAk3GSAu6
+ Wt+Ikx+FRHhshKIUbSQLIpuf80dLESJz9UobZEx6QlV2qOtj5oH8kb7TYW6ZGnEeDJLP
+ +68Kp2YXCnjXp6Nz+hRzGeelhiJZffddHrO5Kc6ThVejOPkenjYlDXFBfMGiH4LrIJij SA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ccdscr9sn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 16 Nov 2021 13:58:09 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1AGDiQhx023923;
+        Tue, 16 Nov 2021 13:58:09 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ccdscr9s0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 16 Nov 2021 13:58:08 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1AGDT8tT032011;
+        Tue, 16 Nov 2021 13:58:07 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma03ams.nl.ibm.com with ESMTP id 3ca50a02v4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 16 Nov 2021 13:58:07 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1AGDw4dY59769236
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 16 Nov 2021 13:58:04 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0A000A40A1;
+        Tue, 16 Nov 2021 13:58:04 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E9C4EA40AC;
+        Tue, 16 Nov 2021 13:58:03 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Tue, 16 Nov 2021 13:58:03 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 25651)
+        id 9943DE041C; Tue, 16 Nov 2021 14:58:03 +0100 (CET)
+From:   Christian Borntraeger <borntraeger@linux.ibm.com>
+To:     Paolo Bonzini <pbonzini@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Cc:     KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 0/1] Update my mail address
+Date:   Tue, 16 Nov 2021 14:58:02 +0100
+Message-Id: <20211116135803.119489-1-borntraeger@linux.ibm.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: R_3Fr02eNFuYsdsiamnG5kVjfXMDY6wh
+X-Proofpoint-ORIG-GUID: q5gACT3Hn9ggH0ng3nTT3A1bbYfR4s7M
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-11-16_02,2021-11-16_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ mlxlogscore=856 spamscore=0 adultscore=0 malwarescore=0 mlxscore=0
+ lowpriorityscore=0 bulkscore=0 impostorscore=0 clxscore=1011 phishscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2111160069
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 16 Nov 2021 10:29:05 +0800 huangguangbin (A) wrote:
-> Gentle ping.
-> Are there any suggestions for this series?
+Paolo, Heiko, Vasily,
 
-You posted it during the merge window when net-next was closed:
+I plan to submit this via the s390/fixes tree.
 
-https://www.kernel.org/doc/html/v5.12/networking/netdev-FAQ.html#how-often-do-changes-from-these-trees-make-it-to-the-mainline-linus-tree
+Christian Borntraeger (1):
+  MAINTAINERS: update email address of borntraeger
 
-Please repost.
+ .mailmap    | 3 +++
+ MAINTAINERS | 4 ++--
+ 2 files changed, 5 insertions(+), 2 deletions(-)
+
+-- 
+2.31.1
+
