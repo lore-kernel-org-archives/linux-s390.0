@@ -2,153 +2,75 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24D53C4707F
-	for <linux-s390@archiver.kernel.org>; Wed, 17 Nov 2021 17:40:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C11CCC433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 17 Nov 2021 17:44:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0344661B93
-	for <linux-s390@archiver.kernel.org>; Wed, 17 Nov 2021 17:40:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9554F61549
+	for <linux-s390@archiver.kernel.org>; Wed, 17 Nov 2021 17:44:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239499AbhKQRnl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 17 Nov 2021 12:43:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44686 "EHLO
+        id S233973AbhKQRq7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 17 Nov 2021 12:46:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239506AbhKQRn2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 Nov 2021 12:43:28 -0500
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A77CC061208;
-        Wed, 17 Nov 2021 09:40:26 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=Sender:Content-Transfer-Encoding:
-        Content-Type:MIME-Version:Message-Id:Date:Subject:Cc:To:From:Reply-To:
-        Content-ID:Content-Description:In-Reply-To:References;
-        bh=1uTmVWceFyeFzFF12Kb1AEwgWDvyhf/Bhrlut32WigU=; b=FA7jlDlOgsISqwIPXDH2Ot6bQj
-        wU8RQi496K1TElvPccyBBkKObng9I/ztfWUm9if2d0ZlgxdzXERI2F2w16p/G1N+LGJK5gQ55Imt3
-        2LYwOYo2ej6ez/YUwJUICBTPIlDyM00AjzcfyJECnVvr8A3VHa5mfauKjfLPgQ8XmaOqXVST4VkC9
-        r7vEjmROPKF5D0aOb28MqmMJbqbNCReEZmjntJIXE3Y/yclHKPpzWp0maRBd4xwuDjPqeRN3G0j8j
-        ua317PE4jft5Ek/d1EkWWz/6UQpufMevbcHTjYgB9ErEGup9Yv1zpvhbF1t4S1ODBCKh/vuqTwoAr
-        Apx47PCA==;
-Received: from i7.infradead.org ([2001:8b0:10b:1:21e:67ff:fecb:7a92])
-        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1mnOum-00GXWZ-Cq; Wed, 17 Nov 2021 17:40:08 +0000
-Received: from dwoodhou by i7.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1mnOum-001GxB-2V; Wed, 17 Nov 2021 17:40:08 +0000
-From:   David Woodhouse <dwmw2@infradead.org>
-To:     Paolo Bonzini <pbonzini@redhat.com>, kvm <kvm@vger.kernel.org>
-Cc:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Joao Martins <joao.m.martins@oracle.com>,
-        "jmattson @ google . com" <jmattson@google.com>,
-        "wanpengli @ tencent . com" <wanpengli@tencent.com>,
-        "seanjc @ google . com" <seanjc@google.com>,
-        "vkuznets @ redhat . com" <vkuznets@redhat.com>,
-        "mtosatti @ redhat . com" <mtosatti@redhat.com>,
-        "joro @ 8bytes . org" <joro@8bytes.org>, karahmed@amazon.com,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Anup Patel <anup.patel@wdc.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        kvmarm@lists.cs.columbia.edu,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org
-Subject: [PATCH v3 00/12] KVM: x86/xen: Add in-kernel Xen event channel delivery
-Date:   Wed, 17 Nov 2021 17:39:51 +0000
-Message-Id: <20211117174003.297096-1-dwmw2@infradead.org>
-X-Mailer: git-send-email 2.31.1
+        with ESMTP id S239571AbhKQRq7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 Nov 2021 12:46:59 -0500
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88B3AC061766
+        for <linux-s390@vger.kernel.org>; Wed, 17 Nov 2021 09:44:00 -0800 (PST)
+Received: by mail-pj1-x1032.google.com with SMTP id j6-20020a17090a588600b001a78a5ce46aso5891521pji.0
+        for <linux-s390@vger.kernel.org>; Wed, 17 Nov 2021 09:44:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=intel-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=qvHf9aM+bFVV8YG4MJi5X6jszYRFNPnvYw8P8XxAMSs=;
+        b=Pv9ANnOgMM3OWe87npnRfFAHy06jY7erPMdRcRc3VaKoizlrQvir6ceQnBEYeLyHYq
+         r090jiPNw0sW2/Hep475ohjoYTOQRdpvhHcth1Xy44B2FrZqXQwnGcHV2wnXbXiiNy2O
+         MDFnhNTzB1g4/CDk+YjqQXYVRalwhzm8GBHuQpfxBToXDBsfgLgdgSQoTQw5N7NkHGFW
+         TO5GeE55hpjrU15s7LrDdGRZzL745vjZFcejg91qo0BT5VlwUF4cAT1X4T2RsJHhvJDD
+         yt9A6syUQNrss5NuJD0lDiesCY4CCjNhydNUyUTp9hI7U9JLuZ9oCU9X4sETOzbxu27f
+         +aeg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=qvHf9aM+bFVV8YG4MJi5X6jszYRFNPnvYw8P8XxAMSs=;
+        b=lVwbVG9aldDjTyZw3qvk17X0rF+GZXUh4ZTEs0xWrNKlPIS0HxzM1B8tx7rONMo+Tp
+         8TvEvxGcxUDsYtV9hEhkxbKDD1J8XHb21oEFcDPeZciA0bhhGGy0efIYW9vGtjssLRsa
+         s0i014WUQtdUOclJnlMwIe/MWS6ZBmVMnUfByYRMmaFMEQCdLMrAHNcziED99BpOvqkf
+         zheOhcIK4QO83+56//LW7AwIl4pXsWEhwIKhFBiqdnj/xng+VLV/nAyvPP01Lr8yleRg
+         fcv/iME15h2BDU6JXz8jb/FFlN9CWj6gFnbqULBIcKcRHYgOQUWHU3wRMQudVhnaSHhe
+         hrog==
+X-Gm-Message-State: AOAM533SD5eHn0INROq7dm97C5dHuITSZVXrealSY946lsMiHmdl7XK3
+        tG5noF8SW53LoKvcAJ480feWRGPTdgEQR7A0Byn2ow==
+X-Google-Smtp-Source: ABdhPJzkkUh8z9sNK4035DW8QI/H+P4iSKXjlSdI0PBBNtw2VKYOtUcKXKOrARUi3RsvsZHwUrgnG1t18LSvWsJCfmc=
+X-Received: by 2002:a17:902:6acb:b0:142:76c3:d35f with SMTP id
+ i11-20020a1709026acb00b0014276c3d35fmr57313687plt.89.1637171039968; Wed, 17
+ Nov 2021 09:43:59 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Sender: David Woodhouse <dwmw2@infradead.org>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by desiato.infradead.org. See http://www.infradead.org/rpr.html
+References: <20211109083309.584081-1-hch@lst.de> <20211109083309.584081-4-hch@lst.de>
+In-Reply-To: <20211109083309.584081-4-hch@lst.de>
+From:   Dan Williams <dan.j.williams@intel.com>
+Date:   Wed, 17 Nov 2021 09:43:46 -0800
+Message-ID: <CAPcyv4hzWBZfex=C2_+nNLFKODw8+E9NSgK50COqE748cfEKTg@mail.gmail.com>
+Subject: Re: [PATCH 03/29] dax: remove CONFIG_DAX_DRIVER
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Mike Snitzer <snitzer@redhat.com>, Ira Weiny <ira.weiny@intel.com>,
+        device-mapper development <dm-devel@redhat.com>,
+        linux-xfs <linux-xfs@vger.kernel.org>,
+        Linux NVDIMM <nvdimm@lists.linux.dev>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        linux-erofs@lists.ozlabs.org,
+        linux-ext4 <linux-ext4@vger.kernel.org>,
+        virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Event channels, yeah. That really is where I started.
+On Tue, Nov 9, 2021 at 12:33 AM Christoph Hellwig <hch@lst.de> wrote:
+>
+> CONFIG_DAX_DRIVER only selects CONFIG_DAX now, so remove it.
 
-It was all so simple in Joao and Ankur's original version at 
-https://www.spinics.net/lists/kvm/msg182556.html — just a handful
-of simple test_and_set_bit() calls on the mapped page.
-
-When I posted v1 I didn't quite understand how steal time and nesting
-were safely using the kvm_map_gfn() function, and I posted the Xen
-part declaring that I had "reduced it to a previously solved problem".
-
-Then I frowned at kvm_map_gfn() for a bit longer, concluded it was
-basically impossible to use it safely on its own because the page it
-maps might belong to another guest by the time it even returns to its
-caller, and posted a v2 in which I did something safer for myself by
-hooking into the MMU notifiers.
-
-I then fixed the steal time reporting, and killed gfn_to_pfn_cache,
-under separate cover.
-
-In v3 of this series I re-introduce a saner gfn_to_pfn_cache with MMU 
-notifier support to give it proper invalidation semantics. This can now 
-be used for the Xen event channel support and should also be usable for 
-fixing the various use-after-free races in the nesting code too — the 
-last patch in this series being an untested proof of concept attempt at 
-fixing one such.
-
-Since adding a C file in virt/kvm/ was somewhat more painful than it
-really should have been, there is a small detour into all the arch
-specific Makefiles to make them include a common one.
-
-Intended for merging up to patch 11. Patch 12 is for illustration.
-
-David Woodhouse (12):
-      KVM: Introduce CONFIG_HAVE_KVM_DIRTY_RING
-      KVM: Add Makefile.kvm for common files, use it for x86
-      KVM: s390: Use Makefile.kvm for common files
-      KVM: mips: Use Makefile.kvm for common files
-      KVM: RISC-V: Use Makefile.kvm for common files
-      KVM: powerpc: Use Makefile.kvm for common files
-      KVM: arm64: Use Makefile.kvm for common files
-      KVM: Propagate vcpu explicitly to mark_page_dirty_in_slot()
-      KVM: Reinstate gfn_to_pfn_cache with invalidation support
-      KVM: x86/xen: Maintain valid mapping of Xen shared_info page
-      KVM: x86/xen: Add KVM_IRQ_ROUTING_XEN_EVTCHN and event channel delivery
-      KVM: x86: First attempt at converting nested virtual APIC page to gpc
-
- Documentation/virt/kvm/api.rst                     |  21 ++
- arch/arm64/kvm/Makefile                            |   6 +-
- arch/arm64/kvm/mmu.c                               |   2 +-
- arch/mips/kvm/Makefile                             |   3 +-
- arch/powerpc/kvm/Makefile                          |   6 +-
- arch/riscv/kvm/Makefile                            |   6 +-
- arch/s390/kvm/Makefile                             |   6 +-
- arch/x86/include/asm/kvm_host.h                    |   4 +-
- arch/x86/kvm/Kconfig                               |   2 +
- arch/x86/kvm/Makefile                              |   7 +-
- arch/x86/kvm/irq_comm.c                            |  12 +
- arch/x86/kvm/mmu/mmu.c                             |   2 +-
- arch/x86/kvm/mmu/spte.c                            |   2 +-
- arch/x86/kvm/mmu/tdp_mmu.c                         |   2 +-
- arch/x86/kvm/vmx/nested.c                          |  50 +++-
- arch/x86/kvm/vmx/vmx.c                             |  12 +-
- arch/x86/kvm/vmx/vmx.h                             |   2 +-
- arch/x86/kvm/x86.c                                 |  17 +-
- arch/x86/kvm/xen.c                                 | 287 +++++++++++++++++++--
- arch/x86/kvm/xen.h                                 |   9 +
- include/linux/kvm_dirty_ring.h                     |  14 +-
- include/linux/kvm_host.h                           | 100 ++++++-
- include/linux/kvm_types.h                          |  18 ++
- include/uapi/linux/kvm.h                           |  11 +
- .../testing/selftests/kvm/x86_64/xen_shinfo_test.c | 112 +++++++-
- virt/kvm/Kconfig                                   |   6 +
- virt/kvm/Makefile.kvm                              |  14 +
- virt/kvm/dirty_ring.c                              |  10 +-
- virt/kvm/kvm_main.c                                |  34 ++-
- virt/kvm/{mmu_lock.h => kvm_mm.h}                  |  23 +-
- virt/kvm/pfncache.c                                | 281 ++++++++++++++++++++
- 31 files changed, 992 insertions(+), 89 deletions(-)
-
-
-
+Applied.
