@@ -2,37 +2,55 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D4F97C4332F
-	for <linux-s390@archiver.kernel.org>; Wed, 17 Nov 2021 09:14:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BACB3C433FE
+	for <linux-s390@archiver.kernel.org>; Wed, 17 Nov 2021 12:08:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B4AA761423
-	for <linux-s390@archiver.kernel.org>; Wed, 17 Nov 2021 09:14:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A268461BD4
+	for <linux-s390@archiver.kernel.org>; Wed, 17 Nov 2021 12:08:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232975AbhKQJRD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 17 Nov 2021 04:17:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53924 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234868AbhKQJQ4 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 17 Nov 2021 04:16:56 -0500
-Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S235644AbhKQMLD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 17 Nov 2021 07:11:03 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:31984 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235835AbhKQMLC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 17 Nov 2021 07:11:02 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1637150884;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=EUAsRQ1K2L2naUKa9LkNaNxpsS38eJg7MFYq/EUQFt4=;
+        b=B4lpRbHKwNDFWsxij+p+8wfSVFRy5VAFWwxGlxpNtDJkpg41Eyp3KkfgSd7WvED9r/qWaU
+        6hDr0C3cvnTqim6aNpmHA0w0eX6PHVNPgrytzyfUYjwi6SYFdTACepb3FAF99Gh09j45PX
+        oi6b/LHMVU2k3WQuSTVkUeHaovnkAPg=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-450-FvmuAdXlOey1skiIYuat1g-1; Wed, 17 Nov 2021 07:07:58 -0500
+X-MC-Unique: FvmuAdXlOey1skiIYuat1g-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 338D761875;
-        Wed, 17 Nov 2021 09:13:58 +0000 (UTC)
-Received: from sofa.misterjones.org ([185.219.108.64] helo=why.misterjones.org)
-        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <maz@kernel.org>)
-        id 1mnH0t-00625B-S9; Wed, 17 Nov 2021 09:13:56 +0000
-Date:   Wed, 17 Nov 2021 09:13:55 +0000
-Message-ID: <87zgq36t64.wl-maz@kernel.org>
-From:   Marc Zyngier <maz@kernel.org>
-To:     Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc:     kvm@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 439731023F4E;
+        Wed, 17 Nov 2021 12:07:56 +0000 (UTC)
+Received: from [10.39.192.245] (unknown [10.39.192.245])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 2F8315DF56;
+        Wed, 17 Nov 2021 12:07:43 +0000 (UTC)
+Message-ID: <539f71a6-f62a-c7d2-51a8-bd062a639e87@redhat.com>
+Date:   Wed, 17 Nov 2021 13:07:41 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.0
+Subject: Re: [PATCH v2 1/6] KVM: arm64: Cap KVM_CAP_NR_VCPUS by
+ kvm_arm_default_max_vcpus()
+Content-Language: en-US
+To:     Vitaly Kuznetsov <vkuznets@redhat.com>, kvm@vger.kernel.org
+Cc:     Sean Christopherson <seanjc@google.com>,
         Wanpeng Li <wanpengli@tencent.com>,
         Jim Mattson <jmattson@google.com>,
         Eduardo Habkost <ehabkost@redhat.com>,
+        Marc Zyngier <maz@kernel.org>,
         Andrew Jones <drjones@redhat.com>,
         Huacai Chen <chenhuacai@kernel.org>,
         Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
@@ -44,40 +62,32 @@ Cc:     kvm@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
         linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
         kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 1/6] KVM: arm64: Cap KVM_CAP_NR_VCPUS by kvm_arm_default_max_vcpus()
-In-Reply-To: <20211116163443.88707-2-vkuznets@redhat.com>
 References: <20211116163443.88707-1-vkuznets@redhat.com>
-        <20211116163443.88707-2-vkuznets@redhat.com>
-User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
- FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
- (x86_64-pc-linux-gnu) MULE/6.0 (HANACHIRUSATO)
-MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
-Content-Type: text/plain; charset=US-ASCII
-X-SA-Exim-Connect-IP: 185.219.108.64
-X-SA-Exim-Rcpt-To: vkuznets@redhat.com, kvm@vger.kernel.org, pbonzini@redhat.com, seanjc@google.com, wanpengli@tencent.com, jmattson@google.com, ehabkost@redhat.com, drjones@redhat.com, chenhuacai@kernel.org, aleksandar.qemu.devel@gmail.com, anup.patel@wdc.com, paulus@ozlabs.org, mpe@ellerman.id.au, borntraeger@de.ibm.com, frankja@linux.ibm.com, kvm-ppc@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org, kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+ <20211116163443.88707-2-vkuznets@redhat.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+In-Reply-To: <20211116163443.88707-2-vkuznets@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 16 Nov 2021 16:34:38 +0000,
-Vitaly Kuznetsov <vkuznets@redhat.com> wrote:
-> 
-> Generally, it doesn't make sense to return the recommended maximum number
-> of vCPUs which exceeds the maximum possible number of vCPUs.
-> 
-> Note: ARM64 is special as the value returned by KVM_CAP_MAX_VCPUS differs
-> depending on whether it is a system-wide ioctl or a per-VM one. Previously,
-> KVM_CAP_NR_VCPUS didn't have this difference and it seems preferable to
-> keep the status quo. Cap KVM_CAP_NR_VCPUS by kvm_arm_default_max_vcpus()
-> which is what gets returned by system-wide KVM_CAP_MAX_VCPUS.
-> 
-> Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+On 11/16/21 17:34, Vitaly Kuznetsov wrote:
+> -		r = num_online_cpus();
+> +		/*
+> +		 * ARM64 treats KVM_CAP_NR_CPUS differently from all other
+> +		 * architectures, as it does not always bound it to
+> +		 * num_online_cpus(). It should not matter much because this
+                   ^^^^^^^^^^^^^^^^^^
 
-Acked-by: Marc Zyngier <maz@kernel.org>
+KVM_CAP_MAX_VCPUS (sorry for the typo in my suggestion).  I'll fix it 
+when applying.
 
-	M.
+Paolo
 
--- 
-Without deviation from the norm, progress is not possible.
+> +		 * is just an advisory value.
+> +		 */
+> +		r = min_t(unsigned int, num_online_cpus(),
+> +			  kvm_arm_default_max_vcpus());
+
