@@ -2,133 +2,103 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 18FB9C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 17 Nov 2021 17:31:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 47C85C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 17 Nov 2021 17:40:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E67096138B
-	for <linux-s390@archiver.kernel.org>; Wed, 17 Nov 2021 17:31:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1A80761B93
+	for <linux-s390@archiver.kernel.org>; Wed, 17 Nov 2021 17:40:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237709AbhKQReK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 17 Nov 2021 12:34:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41404 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237646AbhKQReK (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 17 Nov 2021 12:34:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A92261B9F;
-        Wed, 17 Nov 2021 17:31:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637170271;
-        bh=BiRKQ/d3nVUFjcnKBhqKmlNar5IqbY6hjBQWP//4lO0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=REgDCmlv/GsdUGBCUzpgY0SLzbRa7hiC9XAkokcnw8ztdTAZXw6loYohaUrV7/92E
-         P4bRiUjDuNTcTzI0vzrQ96agKc9CmHmCrcXaCZROvQtNhvQwR3t0TBYcHApAjclXSM
-         RwG3+khdqhamkmbTKDMPmHpQzbrMwArDRtSrCF9cFjT4inXLa8SkeN78UiQ5CxL+yo
-         NbLu0pV80tIJ7V1OH4OqygjECgeNMnPLK3PGbMD+HBNd52+pNQAUAMoBe5BtrmSENT
-         wX6MAEmgIfeFftiBn3U9SsdpvtrK2RpoPT6ry6Uad/3tdXf4Om38cNgzsujDy0Bu6U
-         p63F7wtEJbVHw==
-Date:   Wed, 17 Nov 2021 09:31:11 -0800
-From:   "Darrick J. Wong" <djwong@kernel.org>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Dan Williams <dan.j.williams@intel.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Ira Weiny <ira.weiny@intel.com>, dm-devel@redhat.com,
-        linux-xfs@vger.kernel.org, nvdimm@lists.linux.dev,
-        linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
-        virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH 07/29] xfs: factor out a xfs_setup_dax_always helper
-Message-ID: <20211117173111.GZ24307@magnolia>
-References: <20211109083309.584081-1-hch@lst.de>
- <20211109083309.584081-8-hch@lst.de>
+        id S229554AbhKQRne (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 17 Nov 2021 12:43:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44656 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239479AbhKQRnY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 Nov 2021 12:43:24 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ACE7C061767;
+        Wed, 17 Nov 2021 09:40:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Sender:Content-Transfer-Encoding:
+        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:
+        Reply-To:Content-Type:Content-ID:Content-Description;
+        bh=yWZTSFEcMQzXm3g2QNc13LIwZBP4vIj1OJKIB2I3CoQ=; b=eOij4v056sLg+TmrJtK+H1QnIP
+        o0IluJd3M54tHFxO10D0Lx+J4TJ8JBUS6B6QxHreFUaViqlARS8nklZoawYNiMfq7WjPM+tGCAqpT
+        QvA+F+g8KE9qRSEZrEfWrfOjU8AMHk3MBPRk8sef0YZYhD+ybhGEpojKNj2NojmoPKTW6/i2xt0U9
+        KgK5plSQ4wjQmab0F+OlZQgaovGqhzz994yMtbEgf52QbLSbOSU1YuTooV9cQcTDzHpID5dENEhSg
+        /cSWBqRZCj3UWmmghvssNFdqlXZt+Y4gLCrK19W6BSRvm93FE8tl/ZzrpgBD0TT1GMuIFUbwVusBk
+        PceTL/SA==;
+Received: from i7.infradead.org ([2001:8b0:10b:1:21e:67ff:fecb:7a92])
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1mnOum-007nmv-1J; Wed, 17 Nov 2021 17:40:08 +0000
+Received: from dwoodhou by i7.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1mnOum-001GxU-8q; Wed, 17 Nov 2021 17:40:08 +0000
+From:   David Woodhouse <dwmw2@infradead.org>
+To:     Paolo Bonzini <pbonzini@redhat.com>, kvm <kvm@vger.kernel.org>
+Cc:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Joao Martins <joao.m.martins@oracle.com>,
+        "jmattson @ google . com" <jmattson@google.com>,
+        "wanpengli @ tencent . com" <wanpengli@tencent.com>,
+        "seanjc @ google . com" <seanjc@google.com>,
+        "vkuznets @ redhat . com" <vkuznets@redhat.com>,
+        "mtosatti @ redhat . com" <mtosatti@redhat.com>,
+        "joro @ 8bytes . org" <joro@8bytes.org>, karahmed@amazon.com,
+        Marc Zyngier <maz@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Anup Patel <anup.patel@wdc.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        kvmarm@lists.cs.columbia.edu,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org
+Subject: [PATCH v3 05/12] KVM: RISC-V: Use Makefile.kvm for common files
+Date:   Wed, 17 Nov 2021 17:39:56 +0000
+Message-Id: <20211117174003.297096-6-dwmw2@infradead.org>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20211117174003.297096-1-dwmw2@infradead.org>
+References: <20211117174003.297096-1-dwmw2@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211109083309.584081-8-hch@lst.de>
+Content-Transfer-Encoding: 8bit
+Sender: David Woodhouse <dwmw2@infradead.org>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Nov 09, 2021 at 09:32:47AM +0100, Christoph Hellwig wrote:
-> Factor out another DAX setup helper to simplify future changes.  Also
-> move the experimental warning after the checks to not clutter the log
-> too much if the setup failed.
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
+From: David Woodhouse <dwmw@amazon.co.uk>
 
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
+---
+ arch/riscv/kvm/Makefile | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
---D
+diff --git a/arch/riscv/kvm/Makefile b/arch/riscv/kvm/Makefile
+index 30cdd1df0098..300590225348 100644
+--- a/arch/riscv/kvm/Makefile
++++ b/arch/riscv/kvm/Makefile
+@@ -5,14 +5,10 @@
+ 
+ ccflags-y += -I $(srctree)/$(src)
+ 
+-KVM := ../../../virt/kvm
++include $(srctree)/virt/kvm/Makefile.kvm
+ 
+ obj-$(CONFIG_KVM) += kvm.o
+ 
+-kvm-y += $(KVM)/kvm_main.o
+-kvm-y += $(KVM)/coalesced_mmio.o
+-kvm-y += $(KVM)/binary_stats.o
+-kvm-y += $(KVM)/eventfd.o
+ kvm-y += main.o
+ kvm-y += vm.o
+ kvm-y += vmid.o
+-- 
+2.31.1
 
-> ---
->  fs/xfs/xfs_super.c | 47 +++++++++++++++++++++++++++-------------------
->  1 file changed, 28 insertions(+), 19 deletions(-)
-> 
-> diff --git a/fs/xfs/xfs_super.c b/fs/xfs/xfs_super.c
-> index e21459f9923a8..875fd3151d6c9 100644
-> --- a/fs/xfs/xfs_super.c
-> +++ b/fs/xfs/xfs_super.c
-> @@ -340,6 +340,32 @@ xfs_buftarg_is_dax(
->  			bdev_nr_sectors(bt->bt_bdev));
->  }
->  
-> +static int
-> +xfs_setup_dax_always(
-> +	struct xfs_mount	*mp)
-> +{
-> +	struct super_block	*sb = mp->m_super;
-> +
-> +	if (!xfs_buftarg_is_dax(sb, mp->m_ddev_targp) &&
-> +	   (!mp->m_rtdev_targp || !xfs_buftarg_is_dax(sb, mp->m_rtdev_targp))) {
-> +		xfs_alert(mp,
-> +			"DAX unsupported by block device. Turning off DAX.");
-> +		goto disable_dax;
-> +	}
-> +
-> +	if (xfs_has_reflink(mp)) {
-> +		xfs_alert(mp, "DAX and reflink cannot be used together!");
-> +		return -EINVAL;
-> +	}
-> +
-> +	xfs_warn(mp, "DAX enabled. Warning: EXPERIMENTAL, use at your own risk");
-> +	return 0;
-> +
-> +disable_dax:
-> +	xfs_mount_set_dax_mode(mp, XFS_DAX_NEVER);
-> +	return 0;
-> +}
-> +
->  STATIC int
->  xfs_blkdev_get(
->  	xfs_mount_t		*mp,
-> @@ -1593,26 +1619,9 @@ xfs_fs_fill_super(
->  		sb->s_flags |= SB_I_VERSION;
->  
->  	if (xfs_has_dax_always(mp)) {
-> -		bool rtdev_is_dax = false, datadev_is_dax;
-> -
-> -		xfs_warn(mp,
-> -		"DAX enabled. Warning: EXPERIMENTAL, use at your own risk");
-> -
-> -		datadev_is_dax = xfs_buftarg_is_dax(sb, mp->m_ddev_targp);
-> -		if (mp->m_rtdev_targp)
-> -			rtdev_is_dax = xfs_buftarg_is_dax(sb,
-> -						mp->m_rtdev_targp);
-> -		if (!rtdev_is_dax && !datadev_is_dax) {
-> -			xfs_alert(mp,
-> -			"DAX unsupported by block device. Turning off DAX.");
-> -			xfs_mount_set_dax_mode(mp, XFS_DAX_NEVER);
-> -		}
-> -		if (xfs_has_reflink(mp)) {
-> -			xfs_alert(mp,
-> -		"DAX and reflink cannot be used together!");
-> -			error = -EINVAL;
-> +		error = xfs_setup_dax_always(mp);
-> +		if (error)
->  			goto out_filestream_unmount;
-> -		}
->  	}
->  
->  	if (xfs_has_discard(mp)) {
-> -- 
-> 2.30.2
-> 
