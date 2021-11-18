@@ -2,394 +2,118 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26D26C43219
-	for <linux-s390@archiver.kernel.org>; Thu, 18 Nov 2021 16:06:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2414BC433FE
+	for <linux-s390@archiver.kernel.org>; Thu, 18 Nov 2021 18:40:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0C83561220
-	for <linux-s390@archiver.kernel.org>; Thu, 18 Nov 2021 16:06:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0B3FA61A3D
+	for <linux-s390@archiver.kernel.org>; Thu, 18 Nov 2021 18:40:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232972AbhKRQJh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 18 Nov 2021 11:09:37 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:50028 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232944AbhKRQJg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 18 Nov 2021 11:09:36 -0500
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1AIFIV2R005279;
-        Thu, 18 Nov 2021 16:06:35 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=rLo4Ltix64CtLgrw5QeXdiiKZ6IBVW6Hc4yNNKq6s1w=;
- b=h4bU0LGmE/y02M5T5pY94Aon9mLvcf09hy09l/LoET9byBQLCoKvo/xyz65JvglQMuwh
- wBMjzeT0T5bedeA+G0y4q9JpX86qx9K5slhu8eN0512Xvi4oaNy2IEA1DxzGnhShA9ei
- 9V/WcJaZXyliiaUD8EOc+Ej9xe8z9ycxWhqoL8GRtATHkBszr9LCamgfhKC8LSja9M7T
- tN2bPpdFM2aPv0PAaRbOqy5r2ReuZjY4OsdPttv+dvrM8NcaSorymGakEn36GZ0I7USt
- 9XP83TQ3FJ3zUxvsXgvtH7IxCGPedRuXTTbll7Koy3kjJSTSszLiO42v59phi5CuIcF2 5w== 
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cds8n9gg8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 18 Nov 2021 16:06:34 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1AIG3wtq028423;
-        Thu, 18 Nov 2021 16:06:31 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma04ams.nl.ibm.com with ESMTP id 3ca50bqsdj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 18 Nov 2021 16:06:30 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1AIG6O7941091462
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 18 Nov 2021 16:06:24 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A8381AE05A;
-        Thu, 18 Nov 2021 16:06:24 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6D152AE051;
-        Thu, 18 Nov 2021 16:06:24 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 18 Nov 2021 16:06:24 +0000 (GMT)
-From:   Karsten Graul <kgraul@linux.ibm.com>
-To:     David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 2/6] net/iucv: fix kernel doc comments
-Date:   Thu, 18 Nov 2021 17:06:03 +0100
-Message-Id: <20211118160607.2245947-3-kgraul@linux.ibm.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20211118160607.2245947-1-kgraul@linux.ibm.com>
-References: <20211118160607.2245947-1-kgraul@linux.ibm.com>
+        id S231504AbhKRSnw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 18 Nov 2021 13:43:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46082 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229846AbhKRSnw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 18 Nov 2021 13:43:52 -0500
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22359C061574
+        for <linux-s390@vger.kernel.org>; Thu, 18 Nov 2021 10:40:52 -0800 (PST)
+Received: by mail-pl1-x635.google.com with SMTP id m24so6009196pls.10
+        for <linux-s390@vger.kernel.org>; Thu, 18 Nov 2021 10:40:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=grrMnij3a2kLK2nD9/+zi8H0lxQV5j7EQVRD7AIwS2E=;
+        b=DnjI9osT+moWRQdwwunhhgYe2YGuzWKrQy5JwjvEJNUqQcpvnb0WoX5Pei6uXI5OdC
+         7eGLhv3YIzk62P6sC5D7JBPnUohj6O7s664U/+jqNIv857J2ijyYc9lxkutY0si+1Jso
+         ztfH/9rMsVdRRal+62dCEzvALKr3rtl5XahGBeHA8m4ynGczBHkUGlN7RYWuUfQGcFke
+         WSfMnan0Kg6M9yWEVCFKWFu1Oy/he0ioyfZD1myK/YDRWIUpBN/5hc73yoNPRxPOyT9C
+         VLzYMyPNfdN9orn15Wn6MlOWGc4Qs8aD/O0pRMiPP4mF4KE17PRSHz5sCFRZguQ3AWZA
+         KcTA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=grrMnij3a2kLK2nD9/+zi8H0lxQV5j7EQVRD7AIwS2E=;
+        b=dnEAus4WlV4A2lmC9BpTitDbxCkEVcXTT9D5VUrefis88TvjeTgcmmhv6SLMn93Wki
+         ginqRMaIgqJzb2Fv54wrGxVj9ZDELxGs3gYGbk21CsWpC1kpoR2a9u0XUp3HDWkcqZl2
+         7gmXeGRTLL0WDo+NpGsC6uiURmQcw2vox7fOnHXG93uqraHTKMiOaRa1didcJTvgr8RT
+         Hog6ge4WUogwob7miLdGq00FPR5+qseFpc+AaRvqjmyqWHKhOUogTD+xvsW1ncbPIpj5
+         0zdJ+kjvdkc41HFl29SUH+tOxZtUzC9C8LXfnxjg0dfCYS4IonOXQklT612/iCJ8Emr3
+         RdKg==
+X-Gm-Message-State: AOAM530Pw51fk3pwoCB4h6t8gobg9XNgh0N3OmIBvEkoMpd/B0+PBWx9
+        bFsmKSPEC+mfupp2HQzB/m+oGw==
+X-Google-Smtp-Source: ABdhPJxTT+sS2hBA2CisuiyQO1bWgOM4L3odX2TF09Y4yJcQHjhUg5+FNsR41T/1dQnqfraxxzIiPQ==
+X-Received: by 2002:a17:90a:af94:: with SMTP id w20mr12506911pjq.223.1637260851435;
+        Thu, 18 Nov 2021 10:40:51 -0800 (PST)
+Received: from google.com (157.214.185.35.bc.googleusercontent.com. [35.185.214.157])
+        by smtp.gmail.com with ESMTPSA id a12sm8600266pjq.16.2021.11.18.10.40.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 18 Nov 2021 10:40:50 -0800 (PST)
+Date:   Thu, 18 Nov 2021 18:40:47 +0000
+From:   Sean Christopherson <seanjc@google.com>
+To:     David Woodhouse <dwmw2@infradead.org>
+Cc:     Paolo Bonzini <pbonzini@redhat.com>, kvm <kvm@vger.kernel.org>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Joao Martins <joao.m.martins@oracle.com>,
+        "jmattson @ google . com" <jmattson@google.com>,
+        "wanpengli @ tencent . com" <wanpengli@tencent.com>,
+        "vkuznets @ redhat . com" <vkuznets@redhat.com>,
+        "mtosatti @ redhat . com" <mtosatti@redhat.com>,
+        "joro @ 8bytes . org" <joro@8bytes.org>, karahmed@amazon.com,
+        Marc Zyngier <maz@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Anup Patel <anup.patel@wdc.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        kvmarm@lists.cs.columbia.edu,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v3 08/12] KVM: Propagate vcpu explicitly to
+ mark_page_dirty_in_slot()
+Message-ID: <YZaeL5YztL3p1nLM@google.com>
+References: <20211117174003.297096-1-dwmw2@infradead.org>
+ <20211117174003.297096-9-dwmw2@infradead.org>
+ <85d9fec17f32c3eb9e100e56b91af050.squirrel@twosheds.infradead.org>
+ <4c48546b-eb4a-dff7-cc38-5df54f73f5d4@redhat.com>
+ <20b5952e76c54a3a5dfe5a898e3b835404ac6fb1.camel@infradead.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: hdD-kb7Fmw4UEDsAj9M8YgUlA6XLjUtF
-X-Proofpoint-ORIG-GUID: hdD-kb7Fmw4UEDsAj9M8YgUlA6XLjUtF
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-11-18_12,2021-11-17_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
- lowpriorityscore=0 mlxlogscore=479 clxscore=1015 priorityscore=1501
- spamscore=0 suspectscore=0 mlxscore=0 adultscore=0 impostorscore=0
- phishscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2110150000 definitions=main-2111180089
+In-Reply-To: <20b5952e76c54a3a5dfe5a898e3b835404ac6fb1.camel@infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+On Thu, Nov 18, 2021, David Woodhouse wrote:
+> That leaves the one in TDP MMU handle_changed_spte_dirty_log() which
+> AFAICT can trigger the same crash seen by butt3rflyh4ck — can't that
+> happen from a thread where kvm_get_running_vcpu() is NULL too? For that
+> one I'm not sure.
 
-Fix kernel doc comments where appropriate or remove incorrect kernel
-doc indicators.
-Also move kernel doc comments directly before functions.
+I think could be trigger in the TDP MMU via kvm_mmu_notifier_release()
+-> kvm_mmu_zap_all(), e.g. if the userspace VMM exits while dirty logging is
+enabled.  That should be easy to (dis)prove via a selftest.
 
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/iucv/iucv.c | 124 ++++++++++++++++++++++++------------------------
- 1 file changed, 62 insertions(+), 62 deletions(-)
+And for the record :-)
 
-diff --git a/net/iucv/iucv.c b/net/iucv/iucv.c
-index f3343a8541a5..8f4d49a7d3e8 100644
---- a/net/iucv/iucv.c
-+++ b/net/iucv/iucv.c
-@@ -276,8 +276,8 @@ static union iucv_param *iucv_param[NR_CPUS];
- static union iucv_param *iucv_param_irq[NR_CPUS];
- 
- /**
-- * iucv_call_b2f0
-- * @code: identifier of IUCV call to CP.
-+ * __iucv_call_b2f0
-+ * @command: identifier of IUCV call to CP.
-  * @parm: pointer to a struct iucv_parm block
-  *
-  * Calls CP to execute IUCV commands.
-@@ -309,7 +309,7 @@ static inline int iucv_call_b2f0(int command, union iucv_param *parm)
- 	return ccode == 1 ? parm->ctrl.iprcode : ccode;
- }
- 
--/**
-+/*
-  * iucv_query_maxconn
-  *
-  * Determines the maximum number of connections that may be established.
-@@ -493,8 +493,8 @@ static void iucv_retrieve_cpu(void *data)
- 	cpumask_clear_cpu(cpu, &iucv_buffer_cpumask);
- }
- 
--/**
-- * iucv_setmask_smp
-+/*
-+ * iucv_setmask_mp
-  *
-  * Allow iucv interrupts on all cpus.
-  */
-@@ -512,7 +512,7 @@ static void iucv_setmask_mp(void)
- 	cpus_read_unlock();
- }
- 
--/**
-+/*
-  * iucv_setmask_up
-  *
-  * Allow iucv interrupts on a single cpu.
-@@ -529,7 +529,7 @@ static void iucv_setmask_up(void)
- 		smp_call_function_single(cpu, iucv_block_cpu, NULL, 1);
- }
- 
--/**
-+/*
-  * iucv_enable
-  *
-  * This function makes iucv ready for use. It allocates the pathid
-@@ -564,7 +564,7 @@ static int iucv_enable(void)
- 	return rc;
- }
- 
--/**
-+/*
-  * iucv_disable
-  *
-  * This function shuts down iucv. It disables iucv interrupts, retrieves
-@@ -1347,8 +1347,9 @@ EXPORT_SYMBOL(iucv_message_send);
-  * @srccls: source class of message
-  * @buffer: address of send buffer or address of struct iucv_array
-  * @size: length of send buffer
-- * @ansbuf: address of answer buffer or address of struct iucv_array
-+ * @answer: address of answer buffer or address of struct iucv_array
-  * @asize: size of reply buffer
-+ * @residual: ignored
-  *
-  * This function transmits data to another application. Data to be
-  * transmitted is in a buffer. The receiver of the send is expected to
-@@ -1400,13 +1401,6 @@ int iucv_message_send2way(struct iucv_path *path, struct iucv_message *msg,
- }
- EXPORT_SYMBOL(iucv_message_send2way);
- 
--/**
-- * iucv_path_pending
-- * @data: Pointer to external interrupt buffer
-- *
-- * Process connection pending work item. Called from tasklet while holding
-- * iucv_table_lock.
-- */
- struct iucv_path_pending {
- 	u16 ippathid;
- 	u8  ipflags1;
-@@ -1420,6 +1414,13 @@ struct iucv_path_pending {
- 	u8  res4[3];
- } __packed;
- 
-+/**
-+ * iucv_path_pending
-+ * @data: Pointer to external interrupt buffer
-+ *
-+ * Process connection pending work item. Called from tasklet while holding
-+ * iucv_table_lock.
-+ */
- static void iucv_path_pending(struct iucv_irq_data *data)
- {
- 	struct iucv_path_pending *ipp = (void *) data;
-@@ -1461,13 +1462,6 @@ static void iucv_path_pending(struct iucv_irq_data *data)
- 	iucv_sever_pathid(ipp->ippathid, error);
- }
- 
--/**
-- * iucv_path_complete
-- * @data: Pointer to external interrupt buffer
-- *
-- * Process connection complete work item. Called from tasklet while holding
-- * iucv_table_lock.
-- */
- struct iucv_path_complete {
- 	u16 ippathid;
- 	u8  ipflags1;
-@@ -1481,6 +1475,13 @@ struct iucv_path_complete {
- 	u8  res4[3];
- } __packed;
- 
-+/**
-+ * iucv_path_complete
-+ * @data: Pointer to external interrupt buffer
-+ *
-+ * Process connection complete work item. Called from tasklet while holding
-+ * iucv_table_lock.
-+ */
- static void iucv_path_complete(struct iucv_irq_data *data)
- {
- 	struct iucv_path_complete *ipc = (void *) data;
-@@ -1492,13 +1493,6 @@ static void iucv_path_complete(struct iucv_irq_data *data)
- 		path->handler->path_complete(path, ipc->ipuser);
- }
- 
--/**
-- * iucv_path_severed
-- * @data: Pointer to external interrupt buffer
-- *
-- * Process connection severed work item. Called from tasklet while holding
-- * iucv_table_lock.
-- */
- struct iucv_path_severed {
- 	u16 ippathid;
- 	u8  res1;
-@@ -1511,6 +1505,13 @@ struct iucv_path_severed {
- 	u8  res5[3];
- } __packed;
- 
-+/**
-+ * iucv_path_severed
-+ * @data: Pointer to external interrupt buffer
-+ *
-+ * Process connection severed work item. Called from tasklet while holding
-+ * iucv_table_lock.
-+ */
- static void iucv_path_severed(struct iucv_irq_data *data)
- {
- 	struct iucv_path_severed *ips = (void *) data;
-@@ -1528,13 +1529,6 @@ static void iucv_path_severed(struct iucv_irq_data *data)
- 	}
- }
- 
--/**
-- * iucv_path_quiesced
-- * @data: Pointer to external interrupt buffer
-- *
-- * Process connection quiesced work item. Called from tasklet while holding
-- * iucv_table_lock.
-- */
- struct iucv_path_quiesced {
- 	u16 ippathid;
- 	u8  res1;
-@@ -1547,6 +1541,13 @@ struct iucv_path_quiesced {
- 	u8  res5[3];
- } __packed;
- 
-+/**
-+ * iucv_path_quiesced
-+ * @data: Pointer to external interrupt buffer
-+ *
-+ * Process connection quiesced work item. Called from tasklet while holding
-+ * iucv_table_lock.
-+ */
- static void iucv_path_quiesced(struct iucv_irq_data *data)
- {
- 	struct iucv_path_quiesced *ipq = (void *) data;
-@@ -1556,13 +1557,6 @@ static void iucv_path_quiesced(struct iucv_irq_data *data)
- 		path->handler->path_quiesced(path, ipq->ipuser);
- }
- 
--/**
-- * iucv_path_resumed
-- * @data: Pointer to external interrupt buffer
-- *
-- * Process connection resumed work item. Called from tasklet while holding
-- * iucv_table_lock.
-- */
- struct iucv_path_resumed {
- 	u16 ippathid;
- 	u8  res1;
-@@ -1575,6 +1569,13 @@ struct iucv_path_resumed {
- 	u8  res5[3];
- } __packed;
- 
-+/**
-+ * iucv_path_resumed
-+ * @data: Pointer to external interrupt buffer
-+ *
-+ * Process connection resumed work item. Called from tasklet while holding
-+ * iucv_table_lock.
-+ */
- static void iucv_path_resumed(struct iucv_irq_data *data)
- {
- 	struct iucv_path_resumed *ipr = (void *) data;
-@@ -1584,13 +1585,6 @@ static void iucv_path_resumed(struct iucv_irq_data *data)
- 		path->handler->path_resumed(path, ipr->ipuser);
- }
- 
--/**
-- * iucv_message_complete
-- * @data: Pointer to external interrupt buffer
-- *
-- * Process message complete work item. Called from tasklet while holding
-- * iucv_table_lock.
-- */
- struct iucv_message_complete {
- 	u16 ippathid;
- 	u8  ipflags1;
-@@ -1606,6 +1600,13 @@ struct iucv_message_complete {
- 	u8  res2[3];
- } __packed;
- 
-+/**
-+ * iucv_message_complete
-+ * @data: Pointer to external interrupt buffer
-+ *
-+ * Process message complete work item. Called from tasklet while holding
-+ * iucv_table_lock.
-+ */
- static void iucv_message_complete(struct iucv_irq_data *data)
- {
- 	struct iucv_message_complete *imc = (void *) data;
-@@ -1624,13 +1625,6 @@ static void iucv_message_complete(struct iucv_irq_data *data)
- 	}
- }
- 
--/**
-- * iucv_message_pending
-- * @data: Pointer to external interrupt buffer
-- *
-- * Process message pending work item. Called from tasklet while holding
-- * iucv_table_lock.
-- */
- struct iucv_message_pending {
- 	u16 ippathid;
- 	u8  ipflags1;
-@@ -1653,6 +1647,13 @@ struct iucv_message_pending {
- 	u8  res2[3];
- } __packed;
- 
-+/**
-+ * iucv_message_pending
-+ * @data: Pointer to external interrupt buffer
-+ *
-+ * Process message pending work item. Called from tasklet while holding
-+ * iucv_table_lock.
-+ */
- static void iucv_message_pending(struct iucv_irq_data *data)
- {
- 	struct iucv_message_pending *imp = (void *) data;
-@@ -1673,7 +1674,7 @@ static void iucv_message_pending(struct iucv_irq_data *data)
- 	}
- }
- 
--/**
-+/*
-  * iucv_tasklet_fn:
-  *
-  * This tasklet loops over the queue of irq buffers created by
-@@ -1717,7 +1718,7 @@ static void iucv_tasklet_fn(unsigned long ignored)
- 	spin_unlock(&iucv_table_lock);
- }
- 
--/**
-+/*
-  * iucv_work_fn:
-  *
-  * This work function loops over the queue of path pending irq blocks
-@@ -1748,9 +1749,8 @@ static void iucv_work_fn(struct work_struct *work)
- 	spin_unlock_bh(&iucv_table_lock);
- }
- 
--/**
-+/*
-  * iucv_external_interrupt
-- * @code: irq code
-  *
-  * Handles external interrupts coming in from CP.
-  * Places the interrupt buffer on a queue and schedules iucv_tasklet_fn().
--- 
-2.25.1
+On Mon, Dec 02, 2019 at 12:10:36PM -0800, Sean Christopherson wrote:
+> IMO, adding kvm_get_running_vcpu() is a hack that is just asking for future
+> abuse and the vcpu/vm/as_id interactions in mark_page_dirty_in_ring()
+> look extremely fragile.
 
+On 03/12/19 20:01, Sean Christopherson wrote:
+> In case it was clear, I strongly dislike adding kvm_get_running_vcpu().
+> IMO, it's a unnecessary hack.  The proper change to ensure a valid vCPU is
+> seen by mark_page_dirty_in_ring() when there is a current vCPU is to
+> plumb the vCPU down through the various call stacks.
