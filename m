@@ -2,137 +2,126 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 536DDC433FE
-	for <linux-s390@archiver.kernel.org>; Thu, 18 Nov 2021 19:47:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D30C4C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 18 Nov 2021 20:34:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 38899619BB
-	for <linux-s390@archiver.kernel.org>; Thu, 18 Nov 2021 19:47:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B593961288
+	for <linux-s390@archiver.kernel.org>; Thu, 18 Nov 2021 20:34:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229843AbhKRTuC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 18 Nov 2021 14:50:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33052 "EHLO
+        id S232999AbhKRUhK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 18 Nov 2021 15:37:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230415AbhKRTuC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 18 Nov 2021 14:50:02 -0500
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC5ABC061748
-        for <linux-s390@vger.kernel.org>; Thu, 18 Nov 2021 11:47:01 -0800 (PST)
-Received: by mail-pl1-x62c.google.com with SMTP id y8so6197472plg.1
-        for <linux-s390@vger.kernel.org>; Thu, 18 Nov 2021 11:47:01 -0800 (PST)
+        with ESMTP id S231466AbhKRUhK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 18 Nov 2021 15:37:10 -0500
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7D47C06173E
+        for <linux-s390@vger.kernel.org>; Thu, 18 Nov 2021 12:34:09 -0800 (PST)
+Received: by mail-pj1-x1035.google.com with SMTP id x7so6146284pjn.0
+        for <linux-s390@vger.kernel.org>; Thu, 18 Nov 2021 12:34:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=etzXRtUGTr8lCEC3N+zBz9sC9KLaK/1vTaoNub+XSrA=;
-        b=TJltHTqmUDTIgL1P24a20gD79MoRsYyT+oWNI7Zk1KCB0kxMW9nay123E+ZoFctpYI
-         aiNnMLJVER0OaOWjGQFAAodEb7XssAPkbTv3HZ/7Xvc56U/KwoqRQGvrj5PKP0bcKR4k
-         2vvhP28esD9If7TAFeNjBviDlcYadmbYqHQK4EKbmvqKoyyDe2mAxq3N83OoFp8cHZvs
-         tW/44+HbAaU7BnQeov5HYKclsNsjLoArhh5d8PMaS08emGsC4hW0iBqIihQVo007XCgE
-         f+/05PLBrEHbV7h1EwSp8E42irdKiOdyzv/mpEc9ne+Zn3+nJLJHbZQwUjsMNM99uGwK
-         D+nQ==
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Rr6pVb1kreHii7h3owvqhylogoz7efHCoA5piVhQdcM=;
+        b=HrsvfUCXT0gBKwJkPUg1l03es9F4vmWH0F+oP580ZvRXFAV+QGSgA7gQ/ZYmGl0tY3
+         1MPcWdu49JSDL87rftHbpJ+2ivLnmNOW0WalVevz64uUyLr8bKO3sKaGwsoRLrfXC5MP
+         zWk3muyC/y7MkqtZFsjDuf0BeVWxedFrwBkw4=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=etzXRtUGTr8lCEC3N+zBz9sC9KLaK/1vTaoNub+XSrA=;
-        b=u0uORVp62xqq+NaeTtG0LpBK7TdGLHyvVHp7C6qQeson1KiUlxei/uKoVfF6JVaB3y
-         DqC/HXrlrMCAvmW1rOIyc3dl6u5j4QzjZMjBWDReZb531g7xmGin9vSuDI3ynyO1DaEv
-         w/1dT+GsXrvXu0vWskJsIeHn43agx1lfpz/Bu8DJzTdcXF8XSzbet+kMvEtfXn/W776U
-         2b/ehdWTuY41OkT0NSbFJSZvzAI/FGcEyKLEZ6EoRAT36YEoacRH8v2/HHaQcWHBwcJJ
-         9Bv9OkrhuIUhxz3dG9iWDflbZO22B/AeLOaR7Yep0U6GgCmYTHdgkmnXkmup8I4OqhGZ
-         vFOg==
-X-Gm-Message-State: AOAM533O+32v7lxrzMbPLuQVB9RhWZ6xNVFPVKxZTBkaaSiY63omyJU3
-        EYW4LUPDgbOQgZufwiuHFcCKAQ==
-X-Google-Smtp-Source: ABdhPJw2jmwgTmZEgqtXJQ8BT+0frIfcOwv6QQsFYGUkgZtQBdhdiIC61pVtTpnGW9Ux3cY+6emP4Q==
-X-Received: by 2002:a17:90b:4d09:: with SMTP id mw9mr13604040pjb.238.1637264821320;
-        Thu, 18 Nov 2021 11:47:01 -0800 (PST)
-Received: from google.com (157.214.185.35.bc.googleusercontent.com. [35.185.214.157])
-        by smtp.gmail.com with ESMTPSA id t40sm435895pfg.107.2021.11.18.11.46.59
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Rr6pVb1kreHii7h3owvqhylogoz7efHCoA5piVhQdcM=;
+        b=uMn8C4hHg83XFOP+z2NW+mFJWi0xuOqZLQ8EGdK/Rti11cdhDqijwfZBig8LEpTqpl
+         e2RKVQZr8F7n9/TVeH8RZ9soT5eK5hJUQ0PgF1YQSReMLGSgpsSktZ+ToSIkfTJ1IgQy
+         mJRyyt5vYUrTS9iVNNsEdQgj41kM+4yuRLhd/IvZ4M5QkuoVFd1P/kci0hk5bBzkrtXc
+         tjFNrvvLmr/JehjuGWwfeJaKb/n9ZBrGhQ8DOM+8G0+B58Vc9Wy6vV3xue4eZNjYsufw
+         YPQQAfdOctSn4fADqX6AKK2gYYrO/PfMwWe0ezuH3yf0ZAbLWEDG/OO2zoL/7BWwcOMc
+         rCBQ==
+X-Gm-Message-State: AOAM532jAuS/ofB4FtZUZfATtnRgL02hdTFLw4Y9VvGu/XzacYaWeMDf
+        AIHrF5bCKPruHljMAldBTq5sKw==
+X-Google-Smtp-Source: ABdhPJzi9Z8Wro0uG9DSk6dqAdfOvApTISmjQgGDVRnaiJ1C0pp5+zl2nN2g/iIJMJLetNb9Q3ENYA==
+X-Received: by 2002:a17:903:2004:b0:142:6344:2c08 with SMTP id s4-20020a170903200400b0014263442c08mr69671413pla.51.1637267649182;
+        Thu, 18 Nov 2021 12:34:09 -0800 (PST)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id c1sm526468pfv.54.2021.11.18.12.34.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Nov 2021 11:46:59 -0800 (PST)
-Date:   Thu, 18 Nov 2021 19:46:56 +0000
-From:   Sean Christopherson <seanjc@google.com>
-To:     David Woodhouse <dwmw2@infradead.org>
-Cc:     Paolo Bonzini <pbonzini@redhat.com>, kvm <kvm@vger.kernel.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Joao Martins <joao.m.martins@oracle.com>,
-        "jmattson @ google . com" <jmattson@google.com>,
-        "wanpengli @ tencent . com" <wanpengli@tencent.com>,
-        "vkuznets @ redhat . com" <vkuznets@redhat.com>,
-        "mtosatti @ redhat . com" <mtosatti@redhat.com>,
-        "joro @ 8bytes . org" <joro@8bytes.org>, karahmed@amazon.com,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Anup Patel <anup.patel@wdc.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        kvmarm@lists.cs.columbia.edu,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v3 08/12] KVM: Propagate vcpu explicitly to
- mark_page_dirty_in_slot()
-Message-ID: <YZatsB3oadj6dgb8@google.com>
-References: <20211117174003.297096-1-dwmw2@infradead.org>
- <20211117174003.297096-9-dwmw2@infradead.org>
- <85d9fec17f32c3eb9e100e56b91af050.squirrel@twosheds.infradead.org>
- <4c48546b-eb4a-dff7-cc38-5df54f73f5d4@redhat.com>
- <20b5952e76c54a3a5dfe5a898e3b835404ac6fb1.camel@infradead.org>
- <YZaeL5YztL3p1nLM@google.com>
- <YZagjzYUsixbFre9@google.com>
- <35AEC3FD-B46A-451D-B7D5-4B1BDD5407BD@infradead.org>
+        Thu, 18 Nov 2021 12:34:08 -0800 (PST)
+From:   Kees Cook <keescook@chromium.org>
+To:     Julian Wiedmann <jwi@linux.ibm.com>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-hardening@vger.kernel.org
+Subject: [PATCH] net/af_iucv: Use struct_group() to zero struct iucv_sock region
+Date:   Thu, 18 Nov 2021 12:34:07 -0800
+Message-Id: <20211118203407.1287756-1-keescook@chromium.org>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2141; h=from:subject; bh=VmpjIxRv8nvqUNUz90kONYh3X1XPNBqPtO7KlwDBGYg=; b=owEBbQKS/ZANAwAKAYly9N/cbcAmAcsmYgBhlri+9C59IrgIZordTCohSomw5OzihK4DRxTC1FsR SEo58EeJAjMEAAEKAB0WIQSlw/aPIp3WD3I+bhOJcvTf3G3AJgUCYZa4vgAKCRCJcvTf3G3AJnRKD/ 92nDQMb68IMNKv8eGnelNS0HG0pPS+ROK4Yq0KZVVW9WCoirh/ef6Z5ZvfNz99jfcduDPDfdeirKlq j6rgokttc3qliSt4wBGROehNHaTC9x3j2aVuqN9l+Ys5C4mBdrr9MrgZ8hyW532l6bP6II8s1v4S4U w3+1KVOSQNs5y+x53gNpkS1BupPwj+kefq121UR+Ve6LOgU340uFCsWWzNXg65q6elV64otBDLSv2o ZhZLZbNiNQxD3s7ChpwtSzugWdQgFLx/Ba/a8vTU4RLtggIqBTvqh4Eeqz+lgAlkp1JBRMUsBVW1Ha kplo7xablxQHAFohYlA//or4tU92bQ97BizASRzyYWp0m0oPWC5PdC8EzuK1q5sNtAxPbowayDhXGG ncYShLB0Kz4W66ACA5ZEkOik1zdMmYIdGroKUX92RQClWZWsjuzCTtpV6pJBEllI+r5q8tSPgsp4aR PhxwL/be8b+0zWywXHEYRvlaz+1Dhylb3nvv8C8C+UJ83xDiksdovLacG7ML5cKMCGRAk+ubaux41Y 2/1sR3SatiHEPnqtgEjS84UOPTTPgIZQSXfLwtj0HJyE2q7k+SNJgTA4RfFXTUATPYYblQXxpPPzQs ps9qxyVstw220it3ImpG1NzYuI3CjsUxKXDyKwD357shHTcU0SEM2toz/4JQ==
+X-Developer-Key: i=keescook@chromium.org; a=openpgp; fpr=A5C3F68F229DD60F723E6E138972F4DFDC6DC026
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <35AEC3FD-B46A-451D-B7D5-4B1BDD5407BD@infradead.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Nov 18, 2021, David Woodhouse wrote:
-> 
-> 
-> On 18 November 2021 18:50:55 GMT, Sean Christopherson <seanjc@google.com> wrote:
-> >On Thu, Nov 18, 2021, Sean Christopherson wrote:
-> >> On Thu, Nov 18, 2021, David Woodhouse wrote:
-> >> > That leaves the one in TDP MMU handle_changed_spte_dirty_log() which
-> >> > AFAICT can trigger the same crash seen by butt3rflyh4ck — can't that
-> >> > happen from a thread where kvm_get_running_vcpu() is NULL too? For that
-> >> > one I'm not sure.
-> >> 
-> >> I think could be trigger in the TDP MMU via kvm_mmu_notifier_release()
-> >> -> kvm_mmu_zap_all(), e.g. if the userspace VMM exits while dirty logging is
-> >> enabled.  That should be easy to (dis)prove via a selftest.
-> >
-> >Scratch that, the dirty log update is guarded by the new_spte being present, so
-> >zapping of any kind won't trigger it.
-> >
-> >Currently, I believe the only path that would create a present SPTE without an
-> >active vCPU is mmu_notifer.change_pte, but that squeaks by because its required
-> >to be wrapped with invalidate_range_{start,end}(MMU_NOTIFY_CLEAR), and KVM zaps
-> >in that situation.
-> 
-> Is it sufficient to have *an* active vCPU?  What if a VMM has threads for
-> active vCPUs but is doing mmap/munmap on a *different* thread? Does that not
-> suffer the same crash?
+In preparation for FORTIFY_SOURCE performing compile-time and run-time
+field bounds checking for memset(), avoid intentionally writing across
+neighboring fields.
 
-It is sufficient for the current physical CPU to have an active vCPU, which is
-generally guaranteed in the MMU code because, with a few exceptions, populating
-SPTEs is done in vCPU context.
+Add struct_group() to mark the region of struct iucv_sock that gets
+initialized to zero. Avoid the future warning:
 
-mmap() will never directly trigger SPTE creation, KVM first requires a vCPU to
-fault on the new address.  munmap() is a pure zap flow, i.e. won't create a
-present SPTE and trigger the writeback of the dirty bit.
+In function 'fortify_memset_chk',
+    inlined from 'iucv_sock_alloc' at net/iucv/af_iucv.c:476:2:
+./include/linux/fortify-string.h:199:4: warning: call to '__write_overflow_field' declared with attribute warning: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Wattribute-warning]
+  199 |    __write_overflow_field(p_size_field, size);
+      |    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-That's also why I dislike using kvm_get_running_vcpu(); when it's needed, there's
-a valid vCPU from the caller, but it deliberately gets dropped and indirectly
-picked back up.
+Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+Link: https://lore.kernel.org/lkml/19ff61a0-0cda-6000-ce56-dc6b367c00d6@linux.ibm.com/
+Signed-off-by: Kees Cook <keescook@chromium.org>
+---
+ include/net/iucv/af_iucv.h | 10 ++++++----
+ net/iucv/af_iucv.c         |  2 +-
+ 2 files changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/include/net/iucv/af_iucv.h b/include/net/iucv/af_iucv.h
+index ff06246dbbb9..df85d19fbf84 100644
+--- a/include/net/iucv/af_iucv.h
++++ b/include/net/iucv/af_iucv.h
+@@ -112,10 +112,12 @@ enum iucv_tx_notify {
+ 
+ struct iucv_sock {
+ 	struct sock		sk;
+-	char			src_user_id[8];
+-	char			src_name[8];
+-	char			dst_user_id[8];
+-	char			dst_name[8];
++	struct_group(init,
++		char		src_user_id[8];
++		char		src_name[8];
++		char		dst_user_id[8];
++		char		dst_name[8];
++	);
+ 	struct list_head	accept_q;
+ 	spinlock_t		accept_q_lock;
+ 	struct sock		*parent;
+diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
+index 18316ee3c692..9446e2771d31 100644
+--- a/net/iucv/af_iucv.c
++++ b/net/iucv/af_iucv.c
+@@ -473,7 +473,7 @@ static struct sock *iucv_sock_alloc(struct socket *sock, int proto, gfp_t prio,
+ 	atomic_set(&iucv->msg_recv, 0);
+ 	iucv->path = NULL;
+ 	iucv->sk_txnotify = afiucv_hs_callback_txnotify;
+-	memset(&iucv->src_user_id , 0, 32);
++	memset(&iucv->init, 0, sizeof(iucv->init));
+ 	if (pr_iucv)
+ 		iucv->transport = AF_IUCV_TRANS_IUCV;
+ 	else
+-- 
+2.30.2
+
