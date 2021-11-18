@@ -2,116 +2,136 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 78616C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 17 Nov 2021 23:51:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 947C6C433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 18 Nov 2021 07:14:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5C41D61BC1
-	for <linux-s390@archiver.kernel.org>; Wed, 17 Nov 2021 23:51:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 79898611CC
+	for <linux-s390@archiver.kernel.org>; Thu, 18 Nov 2021 07:14:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241709AbhKQXyI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 17 Nov 2021 18:54:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44048 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233682AbhKQXxz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 Nov 2021 18:53:55 -0500
-Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [IPv6:2404:9400:2:0:216:3eff:fee2:21ea])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C040C0613B9;
-        Wed, 17 Nov 2021 15:50:56 -0800 (PST)
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        id S242699AbhKRHRT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 18 Nov 2021 02:17:19 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:56540 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S243719AbhKRHQf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 18 Nov 2021 02:16:35 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1637219616;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=SF4NLtdhTHJmZ2DCt6uZicYUmuLShwIcU3ZjdEhWqWs=;
+        b=XX27tziUHfbJj3WnAuwn3UOf7zc3tsSB0kS5ymT7a1Cp891k7rRdDgKk7oIiCtAL2WFlX/
+        vT8sn/XEazin3pgnYmbvZxFq2HfBCiIheXn75UjD52sypGoFbYvprz3NKIQiJGQApypOYR
+        BNWnqW1a9J84MOgWarfwX1vfcC6KrdA=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-404-2tH_2BRxMSKP-fDcaQ7Xsg-1; Thu, 18 Nov 2021 02:13:32 -0500
+X-MC-Unique: 2tH_2BRxMSKP-fDcaQ7Xsg-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4Hvfnf5QFsz4xdN;
-        Thu, 18 Nov 2021 10:50:46 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
-        s=201909; t=1637193050;
-        bh=Y6qLtvD8c83vsgFlioCTxBI91MBKkMrwNyHMmx3iNJk=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=Jv/ugO0GdH1f2QhPzft9Sxm/ntmhVoKfvBJTCvlmQ6WmIVLJ2Ps9uD42n8dNSGkkg
-         wfYndhQTxnNrANlIOxL6l6FdkPbh71djkG3LkipwOlTpsCGCbCaOcYQGn2Fy/ejEeW
-         6kpY8zvN0vfn1DhWVYqTQ5DveIe5yaDoKLSrEg0QCzmfKLpl94IdHDQDBLvD9L4j3v
-         KRtHU+3QH9SXZqUmFBx38dz1SrkWHBs5XGhAkKOmtAXIL5Wbj2db2XwIZWrAlZEIOH
-         05iVEr2HKDWNdtuOaS94KFmS0qEHie53/jVZ5Zr8m5snbbknqPu11gE31EKwHUouyn
-         P9oDRQBt23RFQ==
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     David Woodhouse <dwmw2@infradead.org>,
-        Paolo Bonzini <pbonzini@redhat.com>, kvm <kvm@vger.kernel.org>
-Cc:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Joao Martins <joao.m.martins@oracle.com>,
-        "jmattson @ google . com" <jmattson@google.com>,
-        "wanpengli @ tencent . com" <wanpengli@tencent.com>,
-        "seanjc @ google . com" <seanjc@google.com>,
-        "vkuznets @ redhat . com" <vkuznets@redhat.com>,
-        "mtosatti @ redhat . com" <mtosatti@redhat.com>,
-        "joro @ 8bytes . org" <joro@8bytes.org>, karahmed@amazon.com,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Anup Patel <anup.patel@wdc.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        kvmarm@lists.cs.columbia.edu,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v3 06/12] KVM: powerpc: Use Makefile.kvm for common files
-In-Reply-To: <20211117174003.297096-7-dwmw2@infradead.org>
-References: <20211117174003.297096-1-dwmw2@infradead.org>
- <20211117174003.297096-7-dwmw2@infradead.org>
-Date:   Thu, 18 Nov 2021 10:50:44 +1100
-Message-ID: <871r3emje3.fsf@mpe.ellerman.id.au>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7BC3E1006AA0;
+        Thu, 18 Nov 2021 07:13:31 +0000 (UTC)
+Received: from localhost (ovpn-13-105.pek2.redhat.com [10.72.13.105])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id D3E64509FF;
+        Thu, 18 Nov 2021 07:13:29 +0000 (UTC)
+Date:   Thu, 18 Nov 2021 15:13:27 +0800
+From:   Baoquan He <bhe@redhat.com>
+To:     hca@linux.ibm.com, kernel test robot <lkp@intel.com>
+Cc:     linux-kernel@vger.kernel.org, kbuild-all@lists.01.org,
+        linux-s390@vger.kernel.org, kexec@lists.infradead.org,
+        prudo@redhat.com
+Subject: Re: [PATCH v2 2/2] s390/kexec: fix kmemleak
+Message-ID: <20211118071327.GF21646@MiWiFi-R3L-srv>
+References: <20211116032557.14075-2-bhe@redhat.com>
+ <202111180539.e7kmpOSP-lkp@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <202111180539.e7kmpOSP-lkp@intel.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-David Woodhouse <dwmw2@infradead.org> writes:
-> From: David Woodhouse <dwmw@amazon.co.uk>
->
-> It's all fairly baroque but in the end, I don't think there's any reason
-> for $(KVM)/irqchip.o to have been handled differently, as they all end
-> up in $(kvm-y) in the end anyway, regardless of whether they get there
-> via $(common-objs-y) and the CPU-specific object lists.
->
-> Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
-> ---
->  arch/powerpc/kvm/Makefile | 6 +-----
->  1 file changed, 1 insertion(+), 5 deletions(-)
->
-> diff --git a/arch/powerpc/kvm/Makefile b/arch/powerpc/kvm/Makefile
-> index 583c14ef596e..245f59118413 100644
-> --- a/arch/powerpc/kvm/Makefile
-> +++ b/arch/powerpc/kvm/Makefile
-> @@ -4,11 +4,8 @@
->  #
->  
->  ccflags-y := -Ivirt/kvm -Iarch/powerpc/kvm
-> -KVM := ../../../virt/kvm
->  
-> -common-objs-y = $(KVM)/kvm_main.o $(KVM)/eventfd.o $(KVM)/binary_stats.o
-> -common-objs-$(CONFIG_KVM_VFIO) += $(KVM)/vfio.o
-> -common-objs-$(CONFIG_KVM_MMIO) += $(KVM)/coalesced_mmio.o
-> +include $(srctree)/virt/kvm/Makefile.kvm
->  
->  common-objs-y += powerpc.o emulate_loadstore.o
->  obj-$(CONFIG_KVM_EXIT_TIMING) += timing.o
-> @@ -125,7 +122,6 @@ kvm-book3s_32-objs := \
->  kvm-objs-$(CONFIG_KVM_BOOK3S_32) := $(kvm-book3s_32-objs)
->  
->  kvm-objs-$(CONFIG_KVM_MPIC) += mpic.o
-> -kvm-objs-$(CONFIG_HAVE_KVM_IRQ_ROUTING) += $(KVM)/irqchip.o
->  
->  kvm-objs := $(kvm-objs-m) $(kvm-objs-y)
+On 11/18/21 at 05:46am, kernel test robot wrote:
+> Hi Baoquan,
+> 
+> I love your patch! Yet something to improve:
+> 
+> [auto build test ERROR on s390/features]
+> [also build test ERROR on linux/master linus/master v5.16-rc1 next-20211117]
+> [cannot apply to kvms390/next]
+> [If your patch is applied to the wrong git tree, kindly drop us a note.
+> And when submitting patch, we suggest to use '--base' as documented in
+> https://git-scm.com/docs/git-format-patch]
+> 
+> url:    https://github.com/0day-ci/linux/commits/Baoquan-He/s390-kexec-check-the-return-value-of-ipl_report_finish/20211116-112827
+> base:   https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
+> config: s390-allmodconfig (attached as .config)
+> compiler: s390-linux-gcc (GCC) 11.2.0
+> reproduce (this is a W=1 build):
+>         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+>         chmod +x ~/bin/make.cross
+>         # https://github.com/0day-ci/linux/commit/d5463ab680d37f95b493b71c487a51c039dfe845
+>         git remote add linux-review https://github.com/0day-ci/linux
+>         git fetch --no-tags linux-review Baoquan-He/s390-kexec-check-the-return-value-of-ipl_report_finish/20211116-112827
+>         git checkout d5463ab680d37f95b493b71c487a51c039dfe845
+>         # save the attached .config to linux build tree
+>         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.2.0 make.cross ARCH=s390 
+> 
+> If you fix the issue, kindly add following tag as appropriate
+> Reported-by: kernel test robot <lkp@intel.com>
+> 
+> All errors (new ones prefixed by >>):
+> 
+>    arch/s390/kernel/machine_kexec_file.c: In function 'arch_kimage_file_post_load_cleanup':
+> >> arch/s390/kernel/machine_kexec_file.c:332:9: error: implicit declaration of function 'kvfree'; did you mean 'vfree'? [-Werror=implicit-function-declaration]
+>      332 |         kvfree(image->arch.ipl_buf);
+>          |         ^~~~~~
+>          |         vfree
 
-Looks OK to me. The extra objects built in Makefile.kvm are all behind
-CONFIG symbols we don't enable.
+OK, kvfree is not wrong, seems vfree is more appropriate since it's
+clear the ipl_buf is allocated with zvalloc() in ipl_report_finish().
 
-Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
+Hi Heiko,
 
-cheers
+Could you help modify the code in your tree or append below patch to
+mute the lkp complaint? Sorry for the inconvenience.
+
+
+From 8ff5547d0b31093bb361328bc9df8bf19e96155a Mon Sep 17 00:00:00 2001
+From: Baoquan He <bhe@redhat.com>
+Date: Thu, 18 Nov 2021 14:37:53 +0800
+Subject: [PATCH] s390/kexec: use vfree to free memory from vmalloc
+
+Since it's clear that memory is allocated with vzalloc in ipl_report_finish(),
+let's use vfree to free the memory instead since it's more efficient than
+kvfree.
+
+This fixes the warning reported by lkp.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Baoquan He <bhe@redhat.com>
+---
+ arch/s390/kernel/machine_kexec_file.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
+index 7f51837e9bc2..351a7ff69a43 100644
+--- a/arch/s390/kernel/machine_kexec_file.c
++++ b/arch/s390/kernel/machine_kexec_file.c
+@@ -329,7 +329,7 @@ int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
+ 
+ int arch_kimage_file_post_load_cleanup(struct kimage *image)
+ {
+-	kvfree(image->arch.ipl_buf);
++	vfree(image->arch.ipl_buf);
+ 	image->arch.ipl_buf = NULL;
+ 
+ 	return kexec_image_post_load_cleanup_default(image);
+-- 
+2.17.2
+
