@@ -2,244 +2,166 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05D54C433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 19 Nov 2021 09:23:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7EE8CC433FE
+	for <linux-s390@archiver.kernel.org>; Fri, 19 Nov 2021 09:39:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DE32B61A79
-	for <linux-s390@archiver.kernel.org>; Fri, 19 Nov 2021 09:23:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5E9F361241
+	for <linux-s390@archiver.kernel.org>; Fri, 19 Nov 2021 09:39:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233983AbhKSJ0w (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 19 Nov 2021 04:26:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46100 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232838AbhKSJ0w (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 19 Nov 2021 04:26:52 -0500
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 039DFC061574;
-        Fri, 19 Nov 2021 01:23:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=MIME-Version:Content-Type:References:
-        In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=s69dtZTPtWdn4nuXhO5u8qh8vqOiDAUWW2VvLvwoldU=; b=wNvYamDoPaQC8pMtQwoV7gojWQ
-        suDorKgPjTpvmHWDm7SHcr3n74C4FV7ACFp3L0p1jYwLc+3f24tcVugZzVrols+ZR3t/8DsMGIKlf
-        IKzoprKdVpWE8uhGnvCTrRhQcxc/xnV4nmufR1j916s+egIWWDdtPxBVkqJg1rcNsZ5b4YKj5+ARf
-        T4RACuqeGJWqt0LqzR+S6xyS8pR7311g6WBVdOBCnHBwUcuSxiwnn93PNrp9Y73cxDnY60z7/ZvM+
-        +S1RzC5LJe1B8MmbOzszDpl/ZRGaxUk44TjGIa1hxBmZlxkyAj5IqUwujOISgKuh3i0xSHQ7nVWtp
-        iEsLbg4Q==;
-Received: from [2001:8b0:10b:1:4a2a:e3ff:fe14:8625] (helo=u3832b3a9db3152.ant.amazon.com)
-        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1mo07L-009xIr-Us; Fri, 19 Nov 2021 09:23:36 +0000
-Message-ID: <0d8cd126fb15488ae1b523f799fe749f02c4cc8c.camel@infradead.org>
-Subject: Re: [PATCH v3 08/12] KVM: Propagate vcpu explicitly to
- mark_page_dirty_in_slot()
-From:   David Woodhouse <dwmw2@infradead.org>
-To:     Sean Christopherson <seanjc@google.com>
-Cc:     Paolo Bonzini <pbonzini@redhat.com>, kvm <kvm@vger.kernel.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Joao Martins <joao.m.martins@oracle.com>,
-        "jmattson @ google . com" <jmattson@google.com>,
-        "wanpengli @ tencent . com" <wanpengli@tencent.com>,
-        "vkuznets @ redhat . com" <vkuznets@redhat.com>,
-        "mtosatti @ redhat . com" <mtosatti@redhat.com>,
-        "joro @ 8bytes . org" <joro@8bytes.org>, karahmed@amazon.com,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Anup Patel <anup.patel@wdc.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        kvmarm@lists.cs.columbia.edu,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org
-Date:   Fri, 19 Nov 2021 09:23:29 +0000
-In-Reply-To: <YZatsB3oadj6dgb8@google.com>
-References: <20211117174003.297096-1-dwmw2@infradead.org>
-         <20211117174003.297096-9-dwmw2@infradead.org>
-         <85d9fec17f32c3eb9e100e56b91af050.squirrel@twosheds.infradead.org>
-         <4c48546b-eb4a-dff7-cc38-5df54f73f5d4@redhat.com>
-         <20b5952e76c54a3a5dfe5a898e3b835404ac6fb1.camel@infradead.org>
-         <YZaeL5YztL3p1nLM@google.com> <YZagjzYUsixbFre9@google.com>
-         <35AEC3FD-B46A-451D-B7D5-4B1BDD5407BD@infradead.org>
-         <YZatsB3oadj6dgb8@google.com>
-Content-Type: multipart/signed; micalg="sha-256"; protocol="application/pkcs7-signature";
-        boundary="=-xmDH/MHbX/vObHZ+w1qZ"
-User-Agent: Evolution 3.36.5-0ubuntu1 
+        id S233716AbhKSJm3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 19 Nov 2021 04:42:29 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:63882 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232695AbhKSJm2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 19 Nov 2021 04:42:28 -0500
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1AJ8meiH012400;
+        Fri, 19 Nov 2021 09:39:24 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=8XPBQzrGf7RAFz/mp4k2ulz1rru9La9OwtwiMhCqD8g=;
+ b=mIgM8HMoiCkTx6bkpBtdSQtI709YVuahnqo+er56RadHAmkt9JKcjoQgb8+ks/Nykbjo
+ dok7p8rn0dQXWwLxCITsXvKmlm2AG37FM+yfjSSfA+aS0h5+3GvaPYwo4XFqgpIqE7/N
+ k9UhTGXiTUbEfDcV0T8uhdwYJqYQn07t8T6i6a+7abywdpXUt1cjW1M4HOPm2tCKXF3W
+ XbeYGk8giEj4P4JVCV8ErC2zxuu1qFWy9V1GXUNdr4aa8bTnd6WgmWmJgRXTfSEkTiCn
+ JyNnXGtRtR0XW9zRJ9B0yGrDRjzOUeLoXi6i77gL7fBUxQL1vdPgFL3tC8f1A1kb2Xz2 Hg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ce8r78xaw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 19 Nov 2021 09:39:24 +0000
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1AJ9dO4k024954;
+        Fri, 19 Nov 2021 09:39:24 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ce8r78x9x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 19 Nov 2021 09:39:23 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1AJ9XgUC017780;
+        Fri, 19 Nov 2021 09:39:21 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03ams.nl.ibm.com with ESMTP id 3ca50axyjt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 19 Nov 2021 09:39:21 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1AJ9dGCZ3474094
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 19 Nov 2021 09:39:16 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D701DA4060;
+        Fri, 19 Nov 2021 09:39:16 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4CDB8A4065;
+        Fri, 19 Nov 2021 09:39:16 +0000 (GMT)
+Received: from [9.171.67.41] (unknown [9.171.67.41])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 19 Nov 2021 09:39:16 +0000 (GMT)
+Message-ID: <d9ec2704-f41c-eafa-1945-ce845d65be8a@de.ibm.com>
+Date:   Fri, 19 Nov 2021 10:39:15 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.0
+Subject: Re: [PATCH] s390/test_unwind: use raw opcode instead of invalid
+ instruction
+Content-Language: en-US
+To:     Nick Desaulniers <ndesaulniers@google.com>,
+        Ilie Halip <ilie.halip@gmail.com>
+Cc:     linux-kernel@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Mete Durlu <meted@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        linux-s390@vger.kernel.org, llvm@lists.linux.dev,
+        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
+References: <20211117174822.3632412-1-ilie.halip@gmail.com>
+ <CAKwvOd=9tsHHhPBOx2ORZoJP09VsX5dRZn58qj3MzCc2vmVosg@mail.gmail.com>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+In-Reply-To: <CAKwvOd=9tsHHhPBOx2ORZoJP09VsX5dRZn58qj3MzCc2vmVosg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: tagg4k6TQGl81lGEf23XTenlqCHy7oAW
+X-Proofpoint-ORIG-GUID: mgS0t17czhPX2hRs0q1efXrGjoI8-t1Q
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-11-19_08,2021-11-17_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ impostorscore=0 phishscore=0 malwarescore=0 mlxlogscore=999 spamscore=0
+ adultscore=0 lowpriorityscore=0 clxscore=1011 mlxscore=0
+ priorityscore=1501 bulkscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2110150000 definitions=main-2111190052
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
---=-xmDH/MHbX/vObHZ+w1qZ
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, 2021-11-18 at 19:46 +0000, Sean Christopherson wrote:
-> It is sufficient for the current physical CPU to have an active vCPU, whi=
-ch is
-> generally guaranteed in the MMU code because, with a few exceptions, popu=
-lating
-> SPTEs is done in vCPU context.
->=20
-> mmap() will never directly trigger SPTE creation, KVM first requires a vC=
-PU to
-> fault on the new address.  munmap() is a pure zap flow, i.e. won't create=
- a
-> present SPTE and trigger the writeback of the dirty bit.
+Am 19.11.21 um 02:10 schrieb Nick Desaulniers:
+> On Wed, Nov 17, 2021 at 9:48 AM Ilie Halip <ilie.halip@gmail.com> wrote:
+>>
+>> Building with clang & LLVM_IAS=1 leads to an error:
+>>      arch/s390/lib/test_unwind.c:179:4: error: invalid register pair
+>>                          "       mvcl    %%r1,%%r1\n"
+>>                          ^
+>>
+>> The test creates an invalid instruction that would trap at runtime, but the
+>> LLVM inline assembler tries to validate it at compile time too.
+>>
+>> Use the raw instruction opcode instead.
+>>
+>> Link: https://github.com/ClangBuiltLinux/linux/issues/1421
+>> Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+>> Signed-off-by: Ilie Halip <ilie.halip@gmail.com>
+> 
+> Ilie, thanks for the patch!
+> 
+> So if I understand
+> https://sourceware.org/binutils/docs/as/s390-Directives.html#s390-Directives
+> https://sourceware.org/binutils/docs/as/s390-Formats.html
+> that `e,` prefix is for 16B opcodes?
 
-OK, thanks.
+e is an instruction format as specified by the architecture.
+See http://publibfp.dhe.ibm.com/epubs/pdf/a227832c.pdf
+without any parameters.
+Normally RR would be the right thing for MVCL, but since
+we try to build an invalid opcode without the assembler
+noticing (ab)using e seem like a safer approach.
 
-> That's also why I dislike using kvm_get_running_vcpu(); when it's needed,=
- there's
-> a valid vCPU from the caller, but it deliberately gets dropped and indire=
-ctly
-> picked back up.
+> 
+> LGTM, thanks again.
+> Suggested-by: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
+> Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
 
-Yeah. So as things stand we have a kvm_write_guest() function which
-takes a 'struct kvm *', as well as a kvm_vcpu_write_guest() function
-which takes a 'struct kvm_vcpu *'.
-
-But it is verboten to *use* the kvm_write_guest() or mark_page_dirty()
-functions unless you actually *do* have an active vCPU. Do so, and the
-kernel might just crash; not even a graceful failure mode.
-
-That's a fairly awful bear trap that has now caught me *twice*. I'm
-kind of amused that in all my hairy inline asm and pinning and crap for
-guest memory access, the thing that's been *broken* is where I just
-used the *existing* kvm_write_wall_clock() which does the simple
-kvm_write_guest() thing.
-
-I think at the very least perhaps we should do something like this in
-mark_page_dirty_in_slot():
-
- WARN_ON_ONCE(!kvm_get_running_vcpu() || kvm_get_running_vcpu()->kvm !=3D k=
-vm);
-
-(For illustration only; I'd actually use a local vcpu variable *and*
-pass that vcpu to kvm_dirty_ring_get())
-
-On propagating the caller's vcpu through and killing off the non-vCPU
-versions of the functions, I'm torn... because even if we insist on *a*
-vCPU being passed, it might be *the* vCPU, and that's just setting a
-more subtle trap (which would have bitten my GPC invalidate code, for
-example).
-
-There are other more complex approaches like adding an extra ring, with
-spinlocks, for the 'not from a vCPU' cases. But I think that's
-overkill.
+added those and added my RB. applied to the s390 tree. Thanks
 
 
-
-
-
-
-
---=-xmDH/MHbX/vObHZ+w1qZ
-Content-Type: application/pkcs7-signature; name="smime.p7s"
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Transfer-Encoding: base64
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwEAAKCCECow
-ggUcMIIEBKADAgECAhEA4rtJSHkq7AnpxKUY8ZlYZjANBgkqhkiG9w0BAQsFADCBlzELMAkGA1UE
-BhMCR0IxGzAZBgNVBAgTEkdyZWF0ZXIgTWFuY2hlc3RlcjEQMA4GA1UEBxMHU2FsZm9yZDEaMBgG
-A1UEChMRQ09NT0RPIENBIExpbWl0ZWQxPTA7BgNVBAMTNENPTU9ETyBSU0EgQ2xpZW50IEF1dGhl
-bnRpY2F0aW9uIGFuZCBTZWN1cmUgRW1haWwgQ0EwHhcNMTkwMTAyMDAwMDAwWhcNMjIwMTAxMjM1
-OTU5WjAkMSIwIAYJKoZIhvcNAQkBFhNkd213MkBpbmZyYWRlYWQub3JnMIIBIjANBgkqhkiG9w0B
-AQEFAAOCAQ8AMIIBCgKCAQEAsv3wObLTCbUA7GJqKj9vHGf+Fa+tpkO+ZRVve9EpNsMsfXhvFpb8
-RgL8vD+L133wK6csYoDU7zKiAo92FMUWaY1Hy6HqvVr9oevfTV3xhB5rQO1RHJoAfkvhy+wpjo7Q
-cXuzkOpibq2YurVStHAiGqAOMGMXhcVGqPuGhcVcVzVUjsvEzAV9Po9K2rpZ52FE4rDkpDK1pBK+
-uOAyOkgIg/cD8Kugav5tyapydeWMZRJQH1vMQ6OVT24CyAn2yXm2NgTQMS1mpzStP2ioPtTnszIQ
-Ih7ASVzhV6csHb8Yrkx8mgllOyrt9Y2kWRRJFm/FPRNEurOeNV6lnYAXOymVJwIDAQABo4IB0zCC
-Ac8wHwYDVR0jBBgwFoAUgq9sjPjF/pZhfOgfPStxSF7Ei8AwHQYDVR0OBBYEFLfuNf820LvaT4AK
-xrGK3EKx1DE7MA4GA1UdDwEB/wQEAwIFoDAMBgNVHRMBAf8EAjAAMB0GA1UdJQQWMBQGCCsGAQUF
-BwMEBggrBgEFBQcDAjBGBgNVHSAEPzA9MDsGDCsGAQQBsjEBAgEDBTArMCkGCCsGAQUFBwIBFh1o
-dHRwczovL3NlY3VyZS5jb21vZG8ubmV0L0NQUzBaBgNVHR8EUzBRME+gTaBLhklodHRwOi8vY3Js
-LmNvbW9kb2NhLmNvbS9DT01PRE9SU0FDbGllbnRBdXRoZW50aWNhdGlvbmFuZFNlY3VyZUVtYWls
-Q0EuY3JsMIGLBggrBgEFBQcBAQR/MH0wVQYIKwYBBQUHMAKGSWh0dHA6Ly9jcnQuY29tb2RvY2Eu
-Y29tL0NPTU9ET1JTQUNsaWVudEF1dGhlbnRpY2F0aW9uYW5kU2VjdXJlRW1haWxDQS5jcnQwJAYI
-KwYBBQUHMAGGGGh0dHA6Ly9vY3NwLmNvbW9kb2NhLmNvbTAeBgNVHREEFzAVgRNkd213MkBpbmZy
-YWRlYWQub3JnMA0GCSqGSIb3DQEBCwUAA4IBAQALbSykFusvvVkSIWttcEeifOGGKs7Wx2f5f45b
-nv2ghcxK5URjUvCnJhg+soxOMoQLG6+nbhzzb2rLTdRVGbvjZH0fOOzq0LShq0EXsqnJbbuwJhK+
-PnBtqX5O23PMHutP1l88AtVN+Rb72oSvnD+dK6708JqqUx2MAFLMevrhJRXLjKb2Mm+/8XBpEw+B
-7DisN4TMlLB/d55WnT9UPNHmQ+3KFL7QrTO8hYExkU849g58Dn3Nw3oCbMUgny81ocrLlB2Z5fFG
-Qu1AdNiBA+kg/UxzyJZpFbKfCITd5yX49bOriL692aMVDyqUvh8fP+T99PqorH4cIJP6OxSTdxKM
-MIIFHDCCBASgAwIBAgIRAOK7SUh5KuwJ6cSlGPGZWGYwDQYJKoZIhvcNAQELBQAwgZcxCzAJBgNV
-BAYTAkdCMRswGQYDVQQIExJHcmVhdGVyIE1hbmNoZXN0ZXIxEDAOBgNVBAcTB1NhbGZvcmQxGjAY
-BgNVBAoTEUNPTU9ETyBDQSBMaW1pdGVkMT0wOwYDVQQDEzRDT01PRE8gUlNBIENsaWVudCBBdXRo
-ZW50aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBMB4XDTE5MDEwMjAwMDAwMFoXDTIyMDEwMTIz
-NTk1OVowJDEiMCAGCSqGSIb3DQEJARYTZHdtdzJAaW5mcmFkZWFkLm9yZzCCASIwDQYJKoZIhvcN
-AQEBBQADggEPADCCAQoCggEBALL98Dmy0wm1AOxiaio/bxxn/hWvraZDvmUVb3vRKTbDLH14bxaW
-/EYC/Lw/i9d98CunLGKA1O8yogKPdhTFFmmNR8uh6r1a/aHr301d8YQea0DtURyaAH5L4cvsKY6O
-0HF7s5DqYm6tmLq1UrRwIhqgDjBjF4XFRqj7hoXFXFc1VI7LxMwFfT6PStq6WedhROKw5KQytaQS
-vrjgMjpICIP3A/CroGr+bcmqcnXljGUSUB9bzEOjlU9uAsgJ9sl5tjYE0DEtZqc0rT9oqD7U57My
-ECIewElc4VenLB2/GK5MfJoJZTsq7fWNpFkUSRZvxT0TRLqznjVepZ2AFzsplScCAwEAAaOCAdMw
-ggHPMB8GA1UdIwQYMBaAFIKvbIz4xf6WYXzoHz0rcUhexIvAMB0GA1UdDgQWBBS37jX/NtC72k+A
-CsaxitxCsdQxOzAOBgNVHQ8BAf8EBAMCBaAwDAYDVR0TAQH/BAIwADAdBgNVHSUEFjAUBggrBgEF
-BQcDBAYIKwYBBQUHAwIwRgYDVR0gBD8wPTA7BgwrBgEEAbIxAQIBAwUwKzApBggrBgEFBQcCARYd
-aHR0cHM6Ly9zZWN1cmUuY29tb2RvLm5ldC9DUFMwWgYDVR0fBFMwUTBPoE2gS4ZJaHR0cDovL2Ny
-bC5jb21vZG9jYS5jb20vQ09NT0RPUlNBQ2xpZW50QXV0aGVudGljYXRpb25hbmRTZWN1cmVFbWFp
-bENBLmNybDCBiwYIKwYBBQUHAQEEfzB9MFUGCCsGAQUFBzAChklodHRwOi8vY3J0LmNvbW9kb2Nh
-LmNvbS9DT01PRE9SU0FDbGllbnRBdXRoZW50aWNhdGlvbmFuZFNlY3VyZUVtYWlsQ0EuY3J0MCQG
-CCsGAQUFBzABhhhodHRwOi8vb2NzcC5jb21vZG9jYS5jb20wHgYDVR0RBBcwFYETZHdtdzJAaW5m
-cmFkZWFkLm9yZzANBgkqhkiG9w0BAQsFAAOCAQEAC20spBbrL71ZEiFrbXBHonzhhirO1sdn+X+O
-W579oIXMSuVEY1LwpyYYPrKMTjKECxuvp24c829qy03UVRm742R9Hzjs6tC0oatBF7KpyW27sCYS
-vj5wbal+TttzzB7rT9ZfPALVTfkW+9qEr5w/nSuu9PCaqlMdjABSzHr64SUVy4ym9jJvv/FwaRMP
-gew4rDeEzJSwf3eeVp0/VDzR5kPtyhS+0K0zvIWBMZFPOPYOfA59zcN6AmzFIJ8vNaHKy5QdmeXx
-RkLtQHTYgQPpIP1Mc8iWaRWynwiE3ecl+PWzq4i+vdmjFQ8qlL4fHz/k/fT6qKx+HCCT+jsUk3cS
-jDCCBeYwggPOoAMCAQICEGqb4Tg7/ytrnwHV2binUlYwDQYJKoZIhvcNAQEMBQAwgYUxCzAJBgNV
-BAYTAkdCMRswGQYDVQQIExJHcmVhdGVyIE1hbmNoZXN0ZXIxEDAOBgNVBAcTB1NhbGZvcmQxGjAY
-BgNVBAoTEUNPTU9ETyBDQSBMaW1pdGVkMSswKQYDVQQDEyJDT01PRE8gUlNBIENlcnRpZmljYXRp
-b24gQXV0aG9yaXR5MB4XDTEzMDExMDAwMDAwMFoXDTI4MDEwOTIzNTk1OVowgZcxCzAJBgNVBAYT
-AkdCMRswGQYDVQQIExJHcmVhdGVyIE1hbmNoZXN0ZXIxEDAOBgNVBAcTB1NhbGZvcmQxGjAYBgNV
-BAoTEUNPTU9ETyBDQSBMaW1pdGVkMT0wOwYDVQQDEzRDT01PRE8gUlNBIENsaWVudCBBdXRoZW50
-aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKC
-AQEAvrOeV6wodnVAFsc4A5jTxhh2IVDzJXkLTLWg0X06WD6cpzEup/Y0dtmEatrQPTRI5Or1u6zf
-+bGBSyD9aH95dDSmeny1nxdlYCeXIoymMv6pQHJGNcIDpFDIMypVpVSRsivlJTRENf+RKwrB6vcf
-WlP8dSsE3Rfywq09N0ZfxcBa39V0wsGtkGWC+eQKiz4pBZYKjrc5NOpG9qrxpZxyb4o4yNNwTqza
-aPpGRqXB7IMjtf7tTmU2jqPMLxFNe1VXj9XB1rHvbRikw8lBoNoSWY66nJN/VCJv5ym6Q0mdCbDK
-CMPybTjoNCQuelc0IAaO4nLUXk0BOSxSxt8kCvsUtQIDAQABo4IBPDCCATgwHwYDVR0jBBgwFoAU
-u69+Aj36pvE8hI6t7jiY7NkyMtQwHQYDVR0OBBYEFIKvbIz4xf6WYXzoHz0rcUhexIvAMA4GA1Ud
-DwEB/wQEAwIBhjASBgNVHRMBAf8ECDAGAQH/AgEAMBEGA1UdIAQKMAgwBgYEVR0gADBMBgNVHR8E
-RTBDMEGgP6A9hjtodHRwOi8vY3JsLmNvbW9kb2NhLmNvbS9DT01PRE9SU0FDZXJ0aWZpY2F0aW9u
-QXV0aG9yaXR5LmNybDBxBggrBgEFBQcBAQRlMGMwOwYIKwYBBQUHMAKGL2h0dHA6Ly9jcnQuY29t
-b2RvY2EuY29tL0NPTU9ET1JTQUFkZFRydXN0Q0EuY3J0MCQGCCsGAQUFBzABhhhodHRwOi8vb2Nz
-cC5jb21vZG9jYS5jb20wDQYJKoZIhvcNAQEMBQADggIBAHhcsoEoNE887l9Wzp+XVuyPomsX9vP2
-SQgG1NgvNc3fQP7TcePo7EIMERoh42awGGsma65u/ITse2hKZHzT0CBxhuhb6txM1n/y78e/4ZOs
-0j8CGpfb+SJA3GaBQ+394k+z3ZByWPQedXLL1OdK8aRINTsjk/H5Ns77zwbjOKkDamxlpZ4TKSDM
-KVmU/PUWNMKSTvtlenlxBhh7ETrN543j/Q6qqgCWgWuMAXijnRglp9fyadqGOncjZjaaSOGTTFB+
-E2pvOUtY+hPebuPtTbq7vODqzCM6ryEhNhzf+enm0zlpXK7q332nXttNtjv7VFNYG+I31gnMrwfH
-M5tdhYF/8v5UY5g2xANPECTQdu9vWPoqNSGDt87b3gXb1AiGGaI06vzgkejL580ul+9hz9D0S0U4
-jkhJiA7EuTecP/CFtR72uYRBcunwwH3fciPjviDDAI9SnC/2aPY8ydehzuZutLbZdRJ5PDEJM/1t
-yZR2niOYihZ+FCbtf3D9mB12D4ln9icgc7CwaxpNSCPt8i/GqK2HsOgkL3VYnwtx7cJUmpvVdZ4o
-gnzgXtgtdk3ShrtOS1iAN2ZBXFiRmjVzmehoMof06r1xub+85hFQzVxZx5/bRaTKTlL8YXLI8nAb
-R9HWdFqzcOoB/hxfEyIQpx9/s81rgzdEZOofSlZHynoSMYIDyjCCA8YCAQEwga0wgZcxCzAJBgNV
-BAYTAkdCMRswGQYDVQQIExJHcmVhdGVyIE1hbmNoZXN0ZXIxEDAOBgNVBAcTB1NhbGZvcmQxGjAY
-BgNVBAoTEUNPTU9ETyBDQSBMaW1pdGVkMT0wOwYDVQQDEzRDT01PRE8gUlNBIENsaWVudCBBdXRo
-ZW50aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBAhEA4rtJSHkq7AnpxKUY8ZlYZjANBglghkgB
-ZQMEAgEFAKCCAe0wGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjEx
-MTE5MDkyMzI5WjAvBgkqhkiG9w0BCQQxIgQgYBPnOfezXAI1Dz5ZIzzHmzK6Tix24bzqjA6w6fcr
-80Qwgb4GCSsGAQQBgjcQBDGBsDCBrTCBlzELMAkGA1UEBhMCR0IxGzAZBgNVBAgTEkdyZWF0ZXIg
-TWFuY2hlc3RlcjEQMA4GA1UEBxMHU2FsZm9yZDEaMBgGA1UEChMRQ09NT0RPIENBIExpbWl0ZWQx
-PTA7BgNVBAMTNENPTU9ETyBSU0EgQ2xpZW50IEF1dGhlbnRpY2F0aW9uIGFuZCBTZWN1cmUgRW1h
-aWwgQ0ECEQDiu0lIeSrsCenEpRjxmVhmMIHABgsqhkiG9w0BCRACCzGBsKCBrTCBlzELMAkGA1UE
-BhMCR0IxGzAZBgNVBAgTEkdyZWF0ZXIgTWFuY2hlc3RlcjEQMA4GA1UEBxMHU2FsZm9yZDEaMBgG
-A1UEChMRQ09NT0RPIENBIExpbWl0ZWQxPTA7BgNVBAMTNENPTU9ETyBSU0EgQ2xpZW50IEF1dGhl
-bnRpY2F0aW9uIGFuZCBTZWN1cmUgRW1haWwgQ0ECEQDiu0lIeSrsCenEpRjxmVhmMA0GCSqGSIb3
-DQEBAQUABIIBAJkAuuqmZfjnN/z7/Qz5/AZcufBNujk/j0m6tIbcYwlAehdBCuQoYVIqOdYqbyz1
-j6fr1kqYb8L/RbwbgbkGiaQYVr1zCihUxCRhod1IrxwSFxuzE5ZscqSey9Pe+hj2FLdpzmWGisZI
-ask6dQLyY3fuDrojgJlZ3eExbuKAOyfNPpfI6hH8VU5LpGnLpy/w+17wiIAmKKMpmbmDtlDbf5mc
-dS6b3vAEoIxJcxHNUK/1rUzA6/4QmzBo8ZgzbbTEgfV+/1X4QUTPQwYshqMjEF9wf0U5a7DDXjjo
-+60jAPWFapK41pjV4W5WnC1FUB/3N0An+J85h5+5dEgqx4dNyRsAAAAAAAA=
-
-
---=-xmDH/MHbX/vObHZ+w1qZ--
-
+> 
+> I triple checked that GAS, clang, and GNU objdump are in agreement in
+> terms of encoding here.
+> 
+>> ---
+>>   arch/s390/lib/test_unwind.c | 2 +-
+>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/arch/s390/lib/test_unwind.c b/arch/s390/lib/test_unwind.c
+>> index cfc5f5557c06..d342bc884b94 100644
+>> --- a/arch/s390/lib/test_unwind.c
+>> +++ b/arch/s390/lib/test_unwind.c
+>> @@ -176,7 +176,7 @@ static noinline int unwindme_func4(struct unwindme *u)
+>>                   * trigger specification exception
+>>                   */
+>>                  asm volatile(
+>> -                       "       mvcl    %%r1,%%r1\n"
+>> +                       "       .insn e,0x0e11\n"       /* mvcl %%r1,%%r1" */
+>>                          "0:     nopr    %%r7\n"
+>>                          EX_TABLE(0b, 0b)
+>>                          :);
+>> --
+>> 2.25.1
+>>
+> 
+> 
