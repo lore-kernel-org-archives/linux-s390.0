@@ -2,101 +2,160 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BF0BCC433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 19 Nov 2021 17:21:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C56E1C433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 19 Nov 2021 18:16:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A4C5D61A62
-	for <linux-s390@archiver.kernel.org>; Fri, 19 Nov 2021 17:21:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AE42661A40
+	for <linux-s390@archiver.kernel.org>; Fri, 19 Nov 2021 18:16:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236566AbhKSRYW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 19 Nov 2021 12:24:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43008 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236424AbhKSRYW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 19 Nov 2021 12:24:22 -0500
-Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D4F4C061748
-        for <linux-s390@vger.kernel.org>; Fri, 19 Nov 2021 09:21:20 -0800 (PST)
-Received: by mail-pl1-x62a.google.com with SMTP id y8so8647174plg.1
-        for <linux-s390@vger.kernel.org>; Fri, 19 Nov 2021 09:21:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=intel-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=2U/4HYKnAZR7qNMIeDCg5S//595luEluzFk14uv4gBU=;
-        b=FQ6M7eMMvPf80QsdTpoBZi0VrX8bn7QeX7OvbRABdgkNvCMNjXzl7/FKjSfSUjRkzX
-         F1usfPnFQYNtajLRg0QRwSSgzt8mzXj0XCG2cnk0+F0m/6Zhw3KmrGwYuAHqWjDxU8h7
-         LoqDBYl4kQUeXb8kAZzT8ViJ+hkv5vLV1Goy6Yaluym7CVIoftX3Jldatma/nAYXl27p
-         pclrbJHG5C0Blu/232w4rLGJUG53x/PsyFdu4/UMHnSQZ8XMlr5FFqwE0la2E0Wy9pBi
-         QLaClBcQjJDmbuAEv+kCOvcY8AEg2J0pE5d377NWsFamWj8v0zJjbYMN2j8PjhK8WH2h
-         Pe+w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=2U/4HYKnAZR7qNMIeDCg5S//595luEluzFk14uv4gBU=;
-        b=x3OSGykVS1dXb6QvpAVSVaDrirFrpMJNEeksKbRX791bVjpF1p0ho+xCfiAcWk9Urf
-         qXBFKB2ME5KPCVt56YlEC76fkxObLEjw2GzAkbXDQDwSFXF7jgYVuCzcuO8DK8Mb2wxF
-         kjTn6OD7zr1aJv50KZilE77CqvedwvfxMNWG/yC6LK+brrmAhYpaTer4ewgoJPPnqbW8
-         Nmrs92DYifdg+M0lr/g+VERUJSZrW+lgDbfhe4dEnSx05A98cCCLqH1rLi7KN95mk+uk
-         yNdbr8l3UJB767rweXfYYy32GvNknqzCTQ3zHDMthrqMN1+SQL4oyT6dsQy2Fi38Ykww
-         vQkA==
-X-Gm-Message-State: AOAM531NgBAjbxWq7D+68wnKHopyjHylUhH1eTYd3YVO+jaEVA6nVYBm
-        s9pV6PwC72vYH6+ZuGt4Phs3IArZHyTpqvleV2iz8g==
-X-Google-Smtp-Source: ABdhPJxOTsb7kpZ1mbQBZyHvrw/GjkoPNdlC1Mnmi7QTa5v33P77eZ447VYbGdz8Hsj3aBiYzZhGTejFWOktm98P3BA=
-X-Received: by 2002:a17:90b:1e49:: with SMTP id pi9mr1505670pjb.220.1637342480174;
- Fri, 19 Nov 2021 09:21:20 -0800 (PST)
-MIME-Version: 1.0
-References: <20211109083309.584081-1-hch@lst.de> <20211109083309.584081-2-hch@lst.de>
- <CAPcyv4ijKTcABMs2tZEuPWo1WDOux+4XWN=DNF5v8SrQRSbfDg@mail.gmail.com> <20211119065645.GB15524@lst.de>
-In-Reply-To: <20211119065645.GB15524@lst.de>
-From:   Dan Williams <dan.j.williams@intel.com>
-Date:   Fri, 19 Nov 2021 09:21:09 -0800
-Message-ID: <CAPcyv4iFG0n-vdaEi4h5ken6mPrgW6Kz6UXCTRfaHi-c99GBnw@mail.gmail.com>
-Subject: Re: [PATCH 01/29] nvdimm/pmem: move dax_attribute_group from dax to pmem
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Mike Snitzer <snitzer@redhat.com>, Ira Weiny <ira.weiny@intel.com>,
-        device-mapper development <dm-devel@redhat.com>,
-        linux-xfs <linux-xfs@vger.kernel.org>,
-        Linux NVDIMM <nvdimm@lists.linux.dev>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        linux-erofs@lists.ozlabs.org,
-        linux-ext4 <linux-ext4@vger.kernel.org>,
-        virtualization@lists.linux-foundation.org
-Content-Type: text/plain; charset="UTF-8"
+        id S232069AbhKSSTz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 19 Nov 2021 13:19:55 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:13416 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231274AbhKSSTz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 19 Nov 2021 13:19:55 -0500
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1AJHmSHL013479;
+        Fri, 19 Nov 2021 18:16:32 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=trw3FmzT3Fsd1BqtNUtuEJTUHC/BqJdeM0IUp0uvMdU=;
+ b=XB2Q09tqPqZo1XZosVd2jrMPK+FqJsGiDHvojWJPNFTOB7UWUYfjVzCelbTxM7y21JHx
+ nfp9uFZoQLbGlVYKGWVm3ZdKAnJnhuRRAQxUhiJGqbddPxfezuWGmSl3EbEdZTfvUR1a
+ QtNV/4+d09FGJ4GRfWLiW3g/VwVdNQtuVCW4tB3EE+I8aegd6QeQGR2iCghfx/Tes7Gu
+ OG86dGsexYsbXlJlIm29ekw7ztc86dMlWkBwr+9419Xf8I0KDWhvgXPbyDKXUfIDawT9
+ PUS3AjHeUSCLPTYrd3ozm5EI3epnnoXIAityVwzDkmmJElJW2vV6acYbRwErVPRsQQnd YA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cegnaghej-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 19 Nov 2021 18:16:31 +0000
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1AJIFXUw000309;
+        Fri, 19 Nov 2021 18:16:31 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cegnaghdr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 19 Nov 2021 18:16:30 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1AJI67Dj014078;
+        Fri, 19 Nov 2021 18:16:28 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 3ca50b3en3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 19 Nov 2021 18:16:28 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1AJIGNIf32506144
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 19 Nov 2021 18:16:23 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 84A0A11C050;
+        Fri, 19 Nov 2021 18:16:23 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 354F311C054;
+        Fri, 19 Nov 2021 18:16:21 +0000 (GMT)
+Received: from sig-9-65-86-194.ibm.com (unknown [9.65.86.194])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 19 Nov 2021 18:16:21 +0000 (GMT)
+Message-ID: <01218c22a287665091f24c7023f4bcd42dbb2001.camel@linux.ibm.com>
+Subject: Re: [PATCH 0/3] KEXEC_SIG with appended signature
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Michal =?ISO-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>,
+        Nayna <nayna@linux.vnet.ibm.com>
+Cc:     keyrings@vger.kernel.org, Rob Herring <robh@kernel.org>,
+        linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Jessica Yu <jeyu@kernel.org>, linux-kernel@vger.kernel.org,
+        David Howells <dhowells@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Hari Bathini <hbathini@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linuxppc-dev@lists.ozlabs.org,
+        Frank van der Linden <fllinden@amazon.com>,
+        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
+        Daniel Axtens <dja@axtens.net>, buendgen@de.ibm.com
+Date:   Fri, 19 Nov 2021 13:16:20 -0500
+In-Reply-To: <20211119111823.GC34414@kunlun.suse.cz>
+References: <cover.1635948742.git.msuchanek@suse.de>
+         <87czneeurr.fsf@dja-thinkpad.axtens.net>
+         <20211105131401.GL11195@kunlun.suse.cz>
+         <87a6ifehin.fsf@dja-thinkpad.axtens.net>
+         <20211108120500.GO11195@kunlun.suse.cz>
+         <56d2ae87-b9bf-c9fc-1395-db4769a424ea@linux.vnet.ibm.com>
+         <20211112083055.GA34414@kunlun.suse.cz>
+         <8cd90fea-05c9-b5f9-5e0c-84f98b2f55cd@linux.vnet.ibm.com>
+         <20211116095343.GG34414@kunlun.suse.cz>
+         <604dad24-5406-509c-d765-905d74880523@linux.vnet.ibm.com>
+         <20211119111823.GC34414@kunlun.suse.cz>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-16.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Ud_BxINaktJxwpgZ0mp85T7m5PSxQJAV
+X-Proofpoint-GUID: _yxv3h6mYki0om6N6_HArTYQLcjn3315
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-11-19_14,2021-11-17_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 bulkscore=0
+ priorityscore=1501 impostorscore=0 phishscore=0 clxscore=1011
+ suspectscore=0 lowpriorityscore=0 mlxscore=0 spamscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2111190098
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Nov 18, 2021 at 10:56 PM Christoph Hellwig <hch@lst.de> wrote:
->
-> On Wed, Nov 17, 2021 at 09:44:25AM -0800, Dan Williams wrote:
-> > On Tue, Nov 9, 2021 at 12:33 AM Christoph Hellwig <hch@lst.de> wrote:
-> > >
-> > > dax_attribute_group is only used by the pmem driver, and can avoid the
-> > > completely pointless lookup by the disk name if moved there.  This
-> > > leaves just a single caller of dax_get_by_host, so move dax_get_by_host
-> > > into the same ifdef block as that caller.
-> > >
-> > > Signed-off-by: Christoph Hellwig <hch@lst.de>
-> > > Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-> > > Link: https://lore.kernel.org/r/20210922173431.2454024-3-hch@lst.de
-> > > Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-> >
-> > This one already made v5.16-rc1.
->
-> Yes, but 5.16-rc1 did not exist yet when I pointed the series.
->
-> Note that the series also has a conflict against 5.16-rc1 in pmem.c,
-> and buildbot pointed out the file systems need explicit dax.h
-> includes in a few files for some configurations.
->
-> The current branch is here, I just did not bother to repost without
-> any comments:
->
->    http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/dax-block-cleanup
->
-> no functional changes.
+On Fri, 2021-11-19 at 12:18 +0100, Michal Suchánek wrote:
+> Maybe I was not clear enough. If you happen to focus on an architecture
+> that supports IMA fully it's great.
+> 
+> My point of view is maintaining multiple architectures. Both end users
+> and people conecerend with security are rarely familiar with
+> architecture specifics. Portability of documentation and debugging
+> instructions across architectures is a concern.
+> 
+> IMA has large number of options with varying availablitily across
+> architectures for no apparent reason. The situation is complex and hard
+> to grasp.
 
-Do you just want to send me a pull request after you add all the acks?
+IMA measures, verifies, and audits the integrity of files based on a
+system wide policy.  The known "good" integrity value may be stored in
+the security.ima xattr or more recently as an appended signature.
+
+With both IMA kexec appraise and measurement policy rules, not only is
+the kernel image signature verified and the file hash included in the
+IMA measurement list, but the signature used to verify the integrity of
+the kexec kernel image is also included in the IMA measurement list
+(ima_template=ima-sig).
+
+Even without PECOFF support in IMA, IMA kexec measurement policy rules
+can be defined to supplement the KEXEC_SIG signature verfication.
+
+> 
+> In comparison the *_SIG options are widely available. The missing
+> support for KEXEC_SIG on POWER is trivial to add by cut&paste from s390.
+> With that all the documentation that exists already is also trivially
+> applicable to POWER. Any additional code cleanup is a bonus but not
+> really needed to enable the kexec lockdown on POWER.
+
+Before lockdown was upstreamed, Matthew made sure that IMA signature
+verification could co-exist.   Refer to commit 29d3c1c8dfe7 ("kexec:
+Allow kexec_file() with appropriate IMA policy when locked down").   If
+there is a problem with the downstream kexec lockdown patches, they
+should be fixed.
+
+The kexec kselftest might provide some insight into how the different
+signature verification methods and lockdown co-exist.
+
+As for adding KEXEC_SIG appended signature support on PowerPC based on
+the s390 code, it sounds reasonable.
+
+thanks,
+
+Mimi
+
