@@ -2,33 +2,33 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2AC79C41535
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DB33C28D15
 	for <linux-s390@archiver.kernel.org>; Sat, 20 Nov 2021 10:28:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236857AbhKTKbq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 20 Nov 2021 05:31:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43124 "EHLO
+        id S237310AbhKTKbs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 20 Nov 2021 05:31:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230149AbhKTKbh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 20 Nov 2021 05:31:37 -0500
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCB77C061756;
-        Sat, 20 Nov 2021 02:28:32 -0800 (PST)
+        with ESMTP id S230365AbhKTKbk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 20 Nov 2021 05:31:40 -0500
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07136C06175A;
+        Sat, 20 Nov 2021 02:28:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Sender:Content-Transfer-Encoding:
-        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:
-        Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=qgYU5vzDBKxIUC/iB5UVJS4/0uLVrDIq5zuDRSYxPkA=; b=daDQzc5oGDfad5+NKPDSrDpM4X
-        cAqWgP5VKWinhpOPDwzbeYHFwrx4ADs//HTG4TQvaE9bRMOd69jyfBiGwEdq9fgoKd/9+OgIWBVPw
-        4aySqw4km3vAcEpT94FhXQlIUay9aWr9QZ9iu+7ePenRpP3x2ZXVxrtM1lJBoVZmGkanPqqNWY6Bo
-        nqf4j997VOabnPEztdc5xzeH0gXmqLKnw+lMVUFjxOo59h5C1YvSrsCRSoxSNrpmPzJomv2IilH3Z
-        /GgsQY6saFhb0m0fzccgyg7Nn0CQCSyNLZHgdZVv/x0UbEpTQXgS6lToXbt3LL8wLos5trD5nfeoF
-        VAMTBGDw==;
+        d=infradead.org; s=desiato.20200630; h=Sender:Content-Transfer-Encoding:
+        Content-Type:MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:
+        To:From:Reply-To:Content-ID:Content-Description;
+        bh=CfsPll4/NdPuO0toqkRUmnZ03yoAM6IomYyn/Hv8YUw=; b=lDvGLdHU6s89Lp+FfbSx8JRQr7
+        S9cELf+pj/hpLk7u43/rBSdPpxRy1oaE4Rc1eJ8cgCT7F5EHNfgpmUyLv2g7Kr0EGIYzDA6LeQ4IW
+        uqtDt4/f697C488QG4DY2ugmRqwio+nP5mAVhMQdIubEyqlUV4hMoj7tG9+kJlqF+VrU2qv/3mduz
+        7sbvFWiKj3Cuw0PLq77tSSgYJ3bANDX6eVixBewnt9obd1NMyfdWvOA9LrUwLVh7CGlbyMvr1mWLg
+        SY9rkM2ZwA/IpjU9TfKeXxcmX1muhggaZvgrLYJx85mFMNaVzOze+zrcihfNabiX94qzu4ci+lszN
+        tTsOBqJw==;
 Received: from i7.infradead.org ([2001:8b0:10b:1:21e:67ff:fecb:7a92])
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1moNbQ-00AUNJ-Vp; Sat, 20 Nov 2021 10:28:13 +0000
+        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1moNbR-00H55t-Hr; Sat, 20 Nov 2021 10:28:13 +0000
 Received: from dwoodhou by i7.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1moNbQ-0002K5-7B; Sat, 20 Nov 2021 10:28:12 +0000
+        id 1moNbQ-0002KT-TJ; Sat, 20 Nov 2021 10:28:12 +0000
 From:   David Woodhouse <dwmw2@infradead.org>
 To:     Paolo Bonzini <pbonzini@redhat.com>, kvm <kvm@vger.kernel.org>
 Cc:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
@@ -55,116 +55,152 @@ Cc:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
         linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
         linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
         kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org
-Subject: [PATCH v4 01/11] KVM: Introduce CONFIG_HAVE_KVM_DIRTY_RING
-Date:   Sat, 20 Nov 2021 10:28:00 +0000
-Message-Id: <20211120102810.8858-2-dwmw2@infradead.org>
+Subject: [PATCH v4 09/11] KVM: x86/xen: Maintain valid mapping of Xen shared_info page
+Date:   Sat, 20 Nov 2021 10:28:08 +0000
+Message-Id: <20211120102810.8858-10-dwmw2@infradead.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20211120102810.8858-1-dwmw2@infradead.org>
 References: <20211120102810.8858-1-dwmw2@infradead.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: David Woodhouse <dwmw2@infradead.org>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by desiato.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 From: David Woodhouse <dwmw@amazon.co.uk>
 
-I'd like to make the build include dirty_ring.c based on whether the
-arch wants it or not. That's a whole lot simpler if there's a config
-symbol instead of doing it implicitly on KVM_DIRTY_LOG_PAGE_OFFSET
-being set to something non-zero.
+Use the newly reinstated gfn_to_pfn_cache to maintain a kernel mapping
+of the Xen shared_info page so that it can be accessed in atomic context.
+
+Note that we do not participate in dirty tracking for the shared info
+page and we do not explicitly mark it dirty every single tim we deliver
+an event channel interrupts. We wouldn't want to do that even if we *did*
+have a valid vCPU context with which to do so.
 
 Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
 ---
- arch/x86/kvm/Kconfig           | 1 +
- include/linux/kvm_dirty_ring.h | 8 ++++----
- virt/kvm/Kconfig               | 3 +++
- virt/kvm/kvm_main.c            | 4 ++--
- 4 files changed, 10 insertions(+), 6 deletions(-)
+ Documentation/virt/kvm/api.rst  | 12 ++++++++++++
+ arch/x86/include/asm/kvm_host.h |  2 +-
+ arch/x86/kvm/xen.c              | 25 ++++++++++++++-----------
+ 3 files changed, 27 insertions(+), 12 deletions(-)
 
-diff --git a/arch/x86/kvm/Kconfig b/arch/x86/kvm/Kconfig
-index 619186138176..d7fa0a42ac25 100644
---- a/arch/x86/kvm/Kconfig
-+++ b/arch/x86/kvm/Kconfig
-@@ -27,6 +27,7 @@ config KVM
- 	select MMU_NOTIFIER
- 	select HAVE_KVM_IRQCHIP
- 	select HAVE_KVM_IRQFD
-+	select HAVE_KVM_DIRTY_RING
- 	select IRQ_BYPASS_MANAGER
- 	select HAVE_KVM_IRQ_BYPASS
- 	select HAVE_KVM_IRQ_ROUTING
-diff --git a/include/linux/kvm_dirty_ring.h b/include/linux/kvm_dirty_ring.h
-index fb0fa18878e2..906f899813dc 100644
---- a/include/linux/kvm_dirty_ring.h
-+++ b/include/linux/kvm_dirty_ring.h
-@@ -27,9 +27,9 @@ struct kvm_dirty_ring {
- 	int index;
+diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
+index aeeb071c7688..455664c39d42 100644
+--- a/Documentation/virt/kvm/api.rst
++++ b/Documentation/virt/kvm/api.rst
+@@ -371,6 +371,9 @@ The bits in the dirty bitmap are cleared before the ioctl returns, unless
+ KVM_CAP_MANUAL_DIRTY_LOG_PROTECT2 is enabled.  For more information,
+ see the description of the capability.
+ 
++Note that the Xen shared info page, if configured, shall always be assumed
++to be dirty. KVM will not explicitly mark it such.
++
+ 4.9 KVM_SET_MEMORY_ALIAS
+ ------------------------
+ 
+@@ -5134,6 +5137,15 @@ KVM_XEN_ATTR_TYPE_SHARED_INFO
+   not aware of the Xen CPU id which is used as the index into the
+   vcpu_info[] array, so cannot know the correct default location.
+ 
++  Note that the shared info page may be constantly written to by KVM;
++  it contains the event channel bitmap used to deliver interrupts to
++  a Xen guest, amongst other things. It is exempt from dirty tracking
++  mechanisms — KVM will not explicitly mark the page as dirty each
++  time an event channel interrupt is delivered to the guest! Thus,
++  userspace should always assume that the designated GFN is dirty if
++  any vCPU has been running or any event channel interrupts can be
++  routed to the guest.
++
+ KVM_XEN_ATTR_TYPE_UPCALL_VECTOR
+   Sets the exception vector used to deliver Xen event channel upcalls.
+ 
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index 6ac61f85e07b..4b2b4ecf3b46 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1014,7 +1014,7 @@ struct msr_bitmap_range {
+ struct kvm_xen {
+ 	bool long_mode;
+ 	u8 upcall_vector;
+-	gfn_t shinfo_gfn;
++	struct gfn_to_pfn_cache shinfo_cache;
  };
  
--#if (KVM_DIRTY_LOG_PAGE_OFFSET == 0)
-+#ifndef CONFIG_HAVE_KVM_DIRTY_RING
- /*
-- * If KVM_DIRTY_LOG_PAGE_OFFSET not defined, kvm_dirty_ring.o should
-+ * If CONFIG_HAVE_HVM_DIRTY_RING not defined, kvm_dirty_ring.o should
-  * not be included as well, so define these nop functions for the arch.
-  */
- static inline u32 kvm_dirty_ring_get_rsvd_entries(void)
-@@ -69,7 +69,7 @@ static inline bool kvm_dirty_ring_soft_full(struct kvm_dirty_ring *ring)
- 	return true;
+ enum kvm_irqchip_mode {
+diff --git a/arch/x86/kvm/xen.c b/arch/x86/kvm/xen.c
+index dff2bdf9507a..da4bf2c6407f 100644
+--- a/arch/x86/kvm/xen.c
++++ b/arch/x86/kvm/xen.c
+@@ -23,16 +23,21 @@ DEFINE_STATIC_KEY_DEFERRED_FALSE(kvm_xen_enabled, HZ);
+ 
+ static int kvm_xen_shared_info_init(struct kvm *kvm, gfn_t gfn)
+ {
++	struct gfn_to_pfn_cache *gpc = &kvm->arch.xen.shinfo_cache;
+ 	gpa_t gpa = gfn_to_gpa(gfn);
+ 	int wc_ofs, sec_hi_ofs;
+ 	int ret = 0;
+ 	int idx = srcu_read_lock(&kvm->srcu);
+ 
+-	if (kvm_is_error_hva(gfn_to_hva(kvm, gfn))) {
+-		ret = -EFAULT;
++	if (gfn == GPA_INVALID) {
++		kvm_gfn_to_pfn_cache_destroy(kvm, gpc);
+ 		goto out;
+ 	}
+-	kvm->arch.xen.shinfo_gfn = gfn;
++
++	ret = kvm_gfn_to_pfn_cache_init(kvm, gpc, NULL, false, true, gpa,
++					PAGE_SIZE, false);
++	if (ret)
++		goto out;
+ 
+ 	/* Paranoia checks on the 32-bit struct layout */
+ 	BUILD_BUG_ON(offsetof(struct compat_shared_info, wc) != 0x900);
+@@ -260,15 +265,9 @@ int kvm_xen_hvm_set_attr(struct kvm *kvm, struct kvm_xen_hvm_attr *data)
+ 		break;
+ 
+ 	case KVM_XEN_ATTR_TYPE_SHARED_INFO:
+-		if (data->u.shared_info.gfn == GPA_INVALID) {
+-			kvm->arch.xen.shinfo_gfn = GPA_INVALID;
+-			r = 0;
+-			break;
+-		}
+ 		r = kvm_xen_shared_info_init(kvm, data->u.shared_info.gfn);
+ 		break;
+ 
+-
+ 	case KVM_XEN_ATTR_TYPE_UPCALL_VECTOR:
+ 		if (data->u.vector && data->u.vector < 0x10)
+ 			r = -EINVAL;
+@@ -299,7 +298,10 @@ int kvm_xen_hvm_get_attr(struct kvm *kvm, struct kvm_xen_hvm_attr *data)
+ 		break;
+ 
+ 	case KVM_XEN_ATTR_TYPE_SHARED_INFO:
+-		data->u.shared_info.gfn = kvm->arch.xen.shinfo_gfn;
++		if (kvm->arch.xen.shinfo_cache.active)
++			data->u.shared_info.gfn = gpa_to_gfn(kvm->arch.xen.shinfo_cache.gpa);
++		else
++			data->u.shared_info.gfn = GPA_INVALID;
+ 		r = 0;
+ 		break;
+ 
+@@ -661,11 +663,12 @@ int kvm_xen_hvm_config(struct kvm *kvm, struct kvm_xen_hvm_config *xhc)
+ 
+ void kvm_xen_init_vm(struct kvm *kvm)
+ {
+-	kvm->arch.xen.shinfo_gfn = GPA_INVALID;
  }
  
--#else /* KVM_DIRTY_LOG_PAGE_OFFSET == 0 */
-+#else /* CONFIG_HAVE_KVM_DIRTY_RING */
- 
- u32 kvm_dirty_ring_get_rsvd_entries(void);
- int kvm_dirty_ring_alloc(struct kvm_dirty_ring *ring, int index, u32 size);
-@@ -92,6 +92,6 @@ struct page *kvm_dirty_ring_get_page(struct kvm_dirty_ring *ring, u32 offset);
- void kvm_dirty_ring_free(struct kvm_dirty_ring *ring);
- bool kvm_dirty_ring_soft_full(struct kvm_dirty_ring *ring);
- 
--#endif /* KVM_DIRTY_LOG_PAGE_OFFSET == 0 */
-+#endif /* CONFIG_HAVE_KVM_DIRTY_RING */
- 
- #endif	/* KVM_DIRTY_RING_H */
-diff --git a/virt/kvm/Kconfig b/virt/kvm/Kconfig
-index 62b39149b8c8..97cf5413ac25 100644
---- a/virt/kvm/Kconfig
-+++ b/virt/kvm/Kconfig
-@@ -13,6 +13,9 @@ config HAVE_KVM_IRQFD
- config HAVE_KVM_IRQ_ROUTING
-        bool
- 
-+config HAVE_KVM_DIRTY_RING
-+       bool
-+
- config HAVE_KVM_EVENTFD
-        bool
-        select EVENTFD
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 72c6453bcef4..8eb8c962838d 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -3432,7 +3432,7 @@ EXPORT_SYMBOL_GPL(kvm_vcpu_on_spin);
- 
- static bool kvm_page_in_dirty_ring(struct kvm *kvm, unsigned long pgoff)
+ void kvm_xen_destroy_vm(struct kvm *kvm)
  {
--#if KVM_DIRTY_LOG_PAGE_OFFSET > 0
-+#ifdef CONFIG_HAVE_KVM_DIRTY_RING
- 	return (pgoff >= KVM_DIRTY_LOG_PAGE_OFFSET) &&
- 	    (pgoff < KVM_DIRTY_LOG_PAGE_OFFSET +
- 	     kvm->dirty_ring_size / PAGE_SIZE);
-@@ -4135,7 +4135,7 @@ static long kvm_vm_ioctl_check_extension_generic(struct kvm *kvm, long arg)
- 	case KVM_CAP_NR_MEMSLOTS:
- 		return KVM_USER_MEM_SLOTS;
- 	case KVM_CAP_DIRTY_LOG_RING:
--#if KVM_DIRTY_LOG_PAGE_OFFSET > 0
-+#ifdef CONFIG_HAVE_KVM_DIRTY_RING
- 		return KVM_DIRTY_RING_MAX_ENTRIES * sizeof(struct kvm_dirty_gfn);
- #else
- 		return 0;
++	kvm_gfn_to_pfn_cache_destroy(kvm, &kvm->arch.xen.shinfo_cache);
++
+ 	if (kvm->arch.xen_hvm_config.msr)
+ 		static_branch_slow_dec_deferred(&kvm_xen_enabled);
+ }
 -- 
 2.31.1
 
