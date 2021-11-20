@@ -2,825 +2,1044 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 75FCDC433F5
-	for <linux-s390@archiver.kernel.org>; Sat, 20 Nov 2021 10:28:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 36827C433EF
+	for <linux-s390@archiver.kernel.org>; Sat, 20 Nov 2021 14:48:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229934AbhKTKbw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 20 Nov 2021 05:31:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43162 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230472AbhKTKbn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 20 Nov 2021 05:31:43 -0500
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12C15C06175D;
-        Sat, 20 Nov 2021 02:28:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=Sender:Content-Transfer-Encoding:
-        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:
-        Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=GvZsOWYUtDU9vFIuOYzAFyyQt31D73DjNFQebbB3268=; b=ELWsUjnj89JarU3iv5XxLQxFNj
-        ytgBDJS/WAKGYFL3Y1Ra7B7r2YO/jWi8sB73pKR/NWTkJN05U6Kj9xIsyPmhJ1ac6Zsj20nRDRPjw
-        u01ZB/I2vSrjcdm08JVlVfO1IhOiHuF1mjSjLBa+WWHYda7EFjaC7s3YN8ixrprdRoymp5ovLLPw4
-        k7AyZquBsHpk6qfoB9tcC8T3LlsSLwCpQL99vK9NBX2D5baZrdWbrUCn8ZfOIiV07nnGuNHYnMK2e
-        vmJI5PllBQpLBf3DzsQY/J8uTUUHim0CVGygzQQZ+ZMu2ZC4aGeI8riCvPFjqC0FigvsijKKbt7H0
-        3hE+1flg==;
-Received: from i7.infradead.org ([2001:8b0:10b:1:21e:67ff:fecb:7a92])
-        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1moNbR-00H55w-I1; Sat, 20 Nov 2021 10:28:13 +0000
-Received: from dwoodhou by i7.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1moNbQ-0002KW-W3; Sat, 20 Nov 2021 10:28:13 +0000
-From:   David Woodhouse <dwmw2@infradead.org>
-To:     Paolo Bonzini <pbonzini@redhat.com>, kvm <kvm@vger.kernel.org>
-Cc:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Joao Martins <joao.m.martins@oracle.com>,
-        "jmattson @ google . com" <jmattson@google.com>,
-        "wanpengli @ tencent . com" <wanpengli@tencent.com>,
-        "seanjc @ google . com" <seanjc@google.com>,
-        "vkuznets @ redhat . com" <vkuznets@redhat.com>,
-        "mtosatti @ redhat . com" <mtosatti@redhat.com>,
-        "joro @ 8bytes . org" <joro@8bytes.org>, karahmed@amazon.com,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Anup Patel <anup.patel@wdc.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        kvmarm@lists.cs.columbia.edu,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org
-Subject: [PATCH v4 10/11] KVM: x86/xen: Add KVM_IRQ_ROUTING_XEN_EVTCHN and event channel delivery
-Date:   Sat, 20 Nov 2021 10:28:09 +0000
-Message-Id: <20211120102810.8858-11-dwmw2@infradead.org>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20211120102810.8858-1-dwmw2@infradead.org>
-References: <20211120102810.8858-1-dwmw2@infradead.org>
+        id S236753AbhKTOvR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 20 Nov 2021 09:51:17 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:33802 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231861AbhKTOvQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 20 Nov 2021 09:51:16 -0500
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1AKEkvIF027601;
+        Sat, 20 Nov 2021 14:47:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : content-type : mime-version; s=pp1;
+ bh=bn/Fs1zGkezAXf0sPnNsKM9s9UMpbfCpgJ3gHVWia0M=;
+ b=esOoQ3/KauQf3Dl9BAdUpgblywouo3lX0mfA3QZU0VgWbGeIwGzIRYBezMs6mtNH7b3V
+ BgzOMycVrRF6JSrWA14fQ1ig0gc9/Zgu7MijHjZvTBmYOl0eqrJqRkOYu+bt+PxKDyvs
+ F/YoGsY37EiEL6ElyruAjomK1IwU1zNlPkK8TKq9kjti1H3fOsAXsSyeiLtxFVl32LUB
+ UVuXs4wQVDbifT5do7xxH9+epaZ2IdiwKCW8nrU3R30zvk7QfHG7J7fnPVMx52ePtfpO
+ OBRLjLwP92gmQjOJz4y2TA77qEptlI8YyTMRNAweLPU4IbO4/WZud5dUChv9736JaSyZ cw== 
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cf337r0f4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 20 Nov 2021 14:47:54 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1AKEgbZZ003570;
+        Sat, 20 Nov 2021 14:47:52 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma06fra.de.ibm.com with ESMTP id 3cer9j2f87-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 20 Nov 2021 14:47:52 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1AKElmqB2491090
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sat, 20 Nov 2021 14:47:48 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8C10C42042;
+        Sat, 20 Nov 2021 14:47:48 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3034E4203F;
+        Sat, 20 Nov 2021 14:47:48 +0000 (GMT)
+Received: from osiris (unknown [9.145.36.246])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Sat, 20 Nov 2021 14:47:48 +0000 (GMT)
+Date:   Sat, 20 Nov 2021 15:47:46 +0100
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [GIT PULL] s390 updates for 5.16-rc2
+Message-ID: <YZkKklfvwaRkxwqz@osiris>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 6KpOGV1M5m8vduUpMaxF1Lhxp_SVWwpg
+X-Proofpoint-ORIG-GUID: 6KpOGV1M5m8vduUpMaxF1Lhxp_SVWwpg
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: David Woodhouse <dwmw2@infradead.org>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by desiato.infradead.org. See http://www.infradead.org/rpr.html
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-11-20_04,2021-11-17_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ impostorscore=0 suspectscore=0 bulkscore=0 lowpriorityscore=0
+ mlxlogscore=999 spamscore=0 mlxscore=0 phishscore=0 adultscore=0
+ malwarescore=0 clxscore=1015 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2110150000 definitions=main-2111200094
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: David Woodhouse <dwmw@amazon.co.uk>
+Hi Linus,
 
-This adds basic support for delivering 2 level event channels to a guest.
+please pull s390 updates for 5.16-rc2. Besides the usual bunch of
+fixes and trivial cleanups this also touches x86 and samples
+code. This is required to add and rename a Kconfig option and fixes an
+incorrect merge resolution proposed by me when you merged the first
+round of s390 patches during the merge window.
 
-Initially, it only supports delivery via the IRQ routing table, triggered
-by an eventfd. In order to do so, it has a kvm_xen_set_evtchn_fast()
-function which will use the pre-mapped shared_info page if it already
-exists and is still valid, while the slow path through the irqfd_inject
-workqueue will remap the shared_info page if necessary.
+This has been acked by Steven Rostedt:
+https://lore.kernel.org/all/20211116174320.034c8901@gandalf.local.home/
 
-It sets the bits in the shared_info page but not the vcpu_info; that is
-deferred to __kvm_xen_has_interrupt() which raises the vector to the
-appropriate vCPU.
+Thanks,
+Heiko
 
-Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
----
- Documentation/virt/kvm/api.rst                |  21 ++
- arch/x86/include/asm/kvm_host.h               |   1 +
- arch/x86/kvm/irq_comm.c                       |  12 +
- arch/x86/kvm/x86.c                            |   3 +-
- arch/x86/kvm/xen.c                            | 262 +++++++++++++++++-
- arch/x86/kvm/xen.h                            |   9 +
- include/linux/kvm_host.h                      |   7 +
- include/uapi/linux/kvm.h                      |  11 +
- .../selftests/kvm/x86_64/xen_shinfo_test.c    | 112 +++++++-
- 9 files changed, 431 insertions(+), 7 deletions(-)
+The following changes since commit fa55b7dcdc43c1aa1ba12bca9d2dd4318c2a0dbf:
 
-diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
-index 455664c39d42..ec4d693851a2 100644
---- a/Documentation/virt/kvm/api.rst
-+++ b/Documentation/virt/kvm/api.rst
-@@ -1799,6 +1799,7 @@ No flags are specified so far, the corresponding field must be set to zero.
- 		struct kvm_irq_routing_msi msi;
- 		struct kvm_irq_routing_s390_adapter adapter;
- 		struct kvm_irq_routing_hv_sint hv_sint;
-+		struct kvm_irq_routing_xen_evtchn xen_evtchn;
- 		__u32 pad[8];
- 	} u;
-   };
-@@ -1808,6 +1809,7 @@ No flags are specified so far, the corresponding field must be set to zero.
-   #define KVM_IRQ_ROUTING_MSI 2
-   #define KVM_IRQ_ROUTING_S390_ADAPTER 3
-   #define KVM_IRQ_ROUTING_HV_SINT 4
-+  #define KVM_IRQ_ROUTING_XEN_EVTCHN 5
+  Linux 5.16-rc1 (2021-11-14 13:56:52 -0800)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.16-3
+
+for you to fetch changes up to 890e3dc8bb6ee630870560c34054692f7a45da42:
+
+  ftrace/samples: add s390 support for ftrace direct multi sample (2021-11-18 17:50:54 +0100)
+
+----------------------------------------------------------------
+s390 updates for 5.16-rc2
+
+- Add missing Kconfig option for ftrace direct multi sample, so it can
+  be compiled again, and also add s390 support for this sample.
+
+- Update Christian Borntraeger's email address.
+
+- Various fixes for memory layout setup. Besides other this makes it
+  possible to load shared DCSS segments again.
+
+- Fix copy to user space of swapped kdump oldmem.
+
+- Remove -mstack-guard and -mstack-size compile options when building
+  vdso binaries. This can happen when CONFIG_VMAP_STACK is disabled
+  and results in broken vdso code which causes more or less random
+  exceptions. Also remove the not needed -nostdlib option.
+
+- Fix memory leak on cpu hotplug and return code handling in kexec
+  code.
+
+- Wire up futex_waitv system call.
+
+- Replace snprintf with sysfs_emit where appropriate.
+
+----------------------------------------------------------------
+Alexander Egorenkov (1):
+      s390/dump: fix copying to user-space of swapped kdump oldmem
+
+Baoquan He (1):
+      s390/kexec: fix memory leak of ipl report buffer
+
+Christian Borntraeger (1):
+      MAINTAINERS: update email address of Christian Borntraeger
+
+Heiko Carstens (3):
+      s390/kexec: fix return code handling
+      ftrace/samples: add missing Kconfig option for ftrace direct multi sample
+      ftrace/samples: add s390 support for ftrace direct multi sample
+
+Masahiro Yamada (1):
+      s390/vdso: remove -nostdlib compiler flag
+
+Qing Wang (1):
+      s390: replace snprintf in show functions with sysfs_emit
+
+Sven Schnelle (1):
+      s390/vdso: filter out -mstack-guard and -mstack-size
+
+Vasily Gorbik (5):
+      s390/setup: avoid reserving memory above identity mapping
+      s390/setup: avoid using memblock_enforce_memory_limit
+      s390/setup: re-arrange memblock setup
+      s390/boot: simplify and fix kernel memory layout setup
+      s390: wire up sys_futex_waitv system call
+
+ .mailmap                              |  3 ++
+ MAINTAINERS                           |  4 +-
+ arch/s390/Kconfig                     |  3 +-
+ arch/s390/Makefile                    | 10 ++--
+ arch/s390/boot/startup.c              | 88 ++++++++++++-----------------------
+ arch/s390/include/asm/kexec.h         |  6 +++
+ arch/s390/kernel/crash_dump.c         |  4 +-
+ arch/s390/kernel/ipl.c                |  3 +-
+ arch/s390/kernel/machine_kexec_file.c | 18 ++++++-
+ arch/s390/kernel/setup.c              | 22 ++-------
+ arch/s390/kernel/syscalls/syscall.tbl |  1 +
+ arch/s390/kernel/vdso32/Makefile      |  2 +-
+ arch/s390/kernel/vdso64/Makefile      |  7 +--
+ arch/x86/Kconfig                      |  2 +-
+ drivers/s390/block/dasd_devmap.c      | 76 +++++++++++++++---------------
+ drivers/s390/char/raw3270.c           | 12 ++---
+ drivers/s390/cio/chp.c                |  2 +-
+ samples/Kconfig                       | 11 ++++-
+ samples/Makefile                      |  2 +-
+ samples/ftrace/Makefile               |  2 +-
+ samples/ftrace/ftrace-direct-multi.c  | 30 ++++++++++++
+ 21 files changed, 170 insertions(+), 138 deletions(-)
+
+diff --git a/.mailmap b/.mailmap
+index 14314e3c5d5e..6277bb27b4bf 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -71,6 +71,9 @@ Chao Yu <chao@kernel.org> <chao2.yu@samsung.com>
+ Chao Yu <chao@kernel.org> <yuchao0@huawei.com>
+ Chris Chiu <chris.chiu@canonical.com> <chiu@endlessm.com>
+ Chris Chiu <chris.chiu@canonical.com> <chiu@endlessos.org>
++Christian Borntraeger <borntraeger@linux.ibm.com> <borntraeger@de.ibm.com>
++Christian Borntraeger <borntraeger@linux.ibm.com> <cborntra@de.ibm.com>
++Christian Borntraeger <borntraeger@linux.ibm.com> <borntrae@de.ibm.com>
+ Christophe Ricard <christophe.ricard@gmail.com>
+ Christoph Hellwig <hch@lst.de>
+ Colin Ian King <colin.king@intel.com> <colin.king@canonical.com>
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 7a2345ce8521..b9a09edb3efb 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -10445,7 +10445,7 @@ F:	arch/riscv/include/uapi/asm/kvm*
+ F:	arch/riscv/kvm/
  
- flags:
+ KERNEL VIRTUAL MACHINE for s390 (KVM/s390)
+-M:	Christian Borntraeger <borntraeger@de.ibm.com>
++M:	Christian Borntraeger <borntraeger@linux.ibm.com>
+ M:	Janosch Frank <frankja@linux.ibm.com>
+ R:	David Hildenbrand <david@redhat.com>
+ R:	Claudio Imbrenda <imbrenda@linux.ibm.com>
+@@ -16573,7 +16573,7 @@ F:	drivers/video/fbdev/savage/
+ S390
+ M:	Heiko Carstens <hca@linux.ibm.com>
+ M:	Vasily Gorbik <gor@linux.ibm.com>
+-M:	Christian Borntraeger <borntraeger@de.ibm.com>
++M:	Christian Borntraeger <borntraeger@linux.ibm.com>
+ R:	Alexander Gordeev <agordeev@linux.ibm.com>
+ L:	linux-s390@vger.kernel.org
+ S:	Supported
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 8857ec3b97eb..2a5bb4f29cfe 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -47,7 +47,7 @@ config ARCH_SUPPORTS_UPROBES
+ config KASAN_SHADOW_OFFSET
+ 	hex
+ 	depends on KASAN
+-	default 0x18000000000000
++	default 0x1C000000000000
  
-@@ -1859,6 +1861,20 @@ address_hi must be zero.
- 	__u32 sint;
-   };
+ config S390
+ 	def_bool y
+@@ -194,6 +194,7 @@ config S390
+ 	select HAVE_RELIABLE_STACKTRACE
+ 	select HAVE_RSEQ
+ 	select HAVE_SAMPLE_FTRACE_DIRECT
++	select HAVE_SAMPLE_FTRACE_DIRECT_MULTI
+ 	select HAVE_SOFTIRQ_ON_OWN_STACK
+ 	select HAVE_SYSCALL_TRACEPOINTS
+ 	select HAVE_VIRT_CPU_ACCOUNTING
+diff --git a/arch/s390/Makefile b/arch/s390/Makefile
+index 69c45f600273..609e3697324b 100644
+--- a/arch/s390/Makefile
++++ b/arch/s390/Makefile
+@@ -77,10 +77,12 @@ KBUILD_AFLAGS_DECOMPRESSOR += $(aflags-y)
+ KBUILD_CFLAGS_DECOMPRESSOR += $(cflags-y)
  
-+  struct kvm_irq_routing_xen_evtchn {
-+	__u32 port;
-+	__u32 vcpu;
-+	__u32 priority;
-+  };
-+
-+
-+When KVM_CAP_XEN_HVM includes the KVM_XEN_HVM_CONFIG_EVTCHN_2LEVEL bit
-+in its indication of supported features, routing to Xen event channels
-+is supported. Although the priority field is present, only the value
-+KVM_XEN_HVM_CONFIG_EVTCHN_2LEVEL is supported, which means delivery by
-+2 level event channels. FIFO event channel support may be added in
-+the future.
-+
+ ifneq ($(call cc-option,-mstack-size=8192 -mstack-guard=128),)
+-cflags-$(CONFIG_CHECK_STACK) += -mstack-size=$(STACK_SIZE)
+-ifeq ($(call cc-option,-mstack-size=8192),)
+-cflags-$(CONFIG_CHECK_STACK) += -mstack-guard=$(CONFIG_STACK_GUARD)
+-endif
++  CC_FLAGS_CHECK_STACK := -mstack-size=$(STACK_SIZE)
++  ifeq ($(call cc-option,-mstack-size=8192),)
++    CC_FLAGS_CHECK_STACK += -mstack-guard=$(CONFIG_STACK_GUARD)
++  endif
++  export CC_FLAGS_CHECK_STACK
++  cflags-$(CONFIG_CHECK_STACK) += $(CC_FLAGS_CHECK_STACK)
+ endif
  
- 4.55 KVM_SET_TSC_KHZ
- --------------------
-@@ -7413,6 +7429,7 @@ PVHVM guests. Valid flags are::
-   #define KVM_XEN_HVM_CONFIG_INTERCEPT_HCALL	(1 << 1)
-   #define KVM_XEN_HVM_CONFIG_SHARED_INFO	(1 << 2)
-   #define KVM_XEN_HVM_CONFIG_RUNSTATE		(1 << 2)
-+  #define KVM_XEN_HVM_CONFIG_EVTCHN_2LEVEL	(1 << 3)
+ ifdef CONFIG_EXPOLINE
+diff --git a/arch/s390/boot/startup.c b/arch/s390/boot/startup.c
+index 7571dee72a0c..1aa11a8f57dd 100644
+--- a/arch/s390/boot/startup.c
++++ b/arch/s390/boot/startup.c
+@@ -149,82 +149,56 @@ static void setup_ident_map_size(unsigned long max_physmem_end)
  
- The KVM_XEN_HVM_CONFIG_HYPERCALL_MSR flag indicates that the KVM_XEN_HVM_CONFIG
- ioctl is available, for the guest to set its hypercall page.
-@@ -7432,6 +7449,10 @@ The KVM_XEN_HVM_CONFIG_RUNSTATE flag indicates that the runstate-related
- features KVM_XEN_VCPU_ATTR_TYPE_RUNSTATE_ADDR/_CURRENT/_DATA/_ADJUST are
- supported by the KVM_XEN_VCPU_SET_ATTR/KVM_XEN_VCPU_GET_ATTR ioctls.
- 
-+The KVM_XEN_HVM_CONFIG_EVTCHN_2LEVEL flag indicates that IRQ routing entries
-+of the type KVM_IRQ_ROUTING_XEN_EVTCHN are supported, with the priority
-+field set to indicate 2 level event channel delivery.
-+
- 8.31 KVM_CAP_PPC_MULTITCE
- -------------------------
- 
-diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index 4b2b4ecf3b46..6ea2446ab851 100644
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -604,6 +604,7 @@ struct kvm_vcpu_xen {
- 	u64 last_steal;
- 	u64 runstate_entry_time;
- 	u64 runstate_times[4];
-+	unsigned long evtchn_pending_sel;
- };
- 
- struct kvm_vcpu_arch {
-diff --git a/arch/x86/kvm/irq_comm.c b/arch/x86/kvm/irq_comm.c
-index d5b72a08e566..afd2de84be60 100644
---- a/arch/x86/kvm/irq_comm.c
-+++ b/arch/x86/kvm/irq_comm.c
-@@ -24,6 +24,7 @@
- 
- #include "hyperv.h"
- #include "x86.h"
-+#include "xen.h"
- 
- static int kvm_set_pic_irq(struct kvm_kernel_irq_routing_entry *e,
- 			   struct kvm *kvm, int irq_source_id, int level,
-@@ -175,6 +176,13 @@ int kvm_arch_set_irq_inatomic(struct kvm_kernel_irq_routing_entry *e,
- 			return r;
- 		break;
- 
-+#ifdef CONFIG_KVM_XEN
-+	case KVM_IRQ_ROUTING_XEN_EVTCHN:
-+		if (!level)
-+			return -1;
-+
-+		return kvm_xen_set_evtchn_fast(e, kvm);
-+#endif
- 	default:
- 		break;
- 	}
-@@ -310,6 +318,10 @@ int kvm_set_routing_entry(struct kvm *kvm,
- 		e->hv_sint.vcpu = ue->u.hv_sint.vcpu;
- 		e->hv_sint.sint = ue->u.hv_sint.sint;
- 		break;
-+#ifdef CONFIG_KVM_XEN
-+	case KVM_IRQ_ROUTING_XEN_EVTCHN:
-+		return kvm_xen_setup_evtchn(kvm, e, ue);
-+#endif
- 	default:
- 		return -EINVAL;
- 	}
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 5a403d92833f..fa56c590d8db 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -4147,7 +4147,8 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
- 	case KVM_CAP_XEN_HVM:
- 		r = KVM_XEN_HVM_CONFIG_HYPERCALL_MSR |
- 		    KVM_XEN_HVM_CONFIG_INTERCEPT_HCALL |
--		    KVM_XEN_HVM_CONFIG_SHARED_INFO;
-+		    KVM_XEN_HVM_CONFIG_SHARED_INFO |
-+		    KVM_XEN_HVM_CONFIG_EVTCHN_2LEVEL;
- 		if (sched_info_on())
- 			r |= KVM_XEN_HVM_CONFIG_RUNSTATE;
- 		break;
-diff --git a/arch/x86/kvm/xen.c b/arch/x86/kvm/xen.c
-index da4bf2c6407f..4b380d2157a9 100644
---- a/arch/x86/kvm/xen.c
-+++ b/arch/x86/kvm/xen.c
-@@ -16,6 +16,7 @@
- #include <trace/events/kvm.h>
- #include <xen/interface/xen.h>
- #include <xen/interface/vcpu.h>
-+#include <xen/interface/event_channel.h>
- 
- #include "trace.h"
- 
-@@ -195,6 +196,8 @@ void kvm_xen_update_runstate_guest(struct kvm_vcpu *v, int state)
- 
- int __kvm_xen_has_interrupt(struct kvm_vcpu *v)
+ static void setup_kernel_memory_layout(void)
  {
-+	unsigned long evtchn_pending_sel = READ_ONCE(v->arch.xen.evtchn_pending_sel);
-+	bool atomic = in_atomic() || !task_is_running(current);
- 	int err;
- 	u8 rc = 0;
+-	bool vmalloc_size_verified = false;
+-	unsigned long vmemmap_off;
+-	unsigned long vspace_left;
++	unsigned long vmemmap_start;
+ 	unsigned long rte_size;
+ 	unsigned long pages;
+-	unsigned long vmax;
  
-@@ -204,6 +207,9 @@ int __kvm_xen_has_interrupt(struct kvm_vcpu *v)
- 	 */
- 	struct gfn_to_hva_cache *ghc = &v->arch.xen.vcpu_info_cache;
- 	struct kvm_memslots *slots = kvm_memslots(v->kvm);
-+	bool ghc_valid = slots->generation == ghc->generation &&
-+		!kvm_is_error_hva(ghc->hva) && ghc->memslot;
-+
- 	unsigned int offset = offsetof(struct vcpu_info, evtchn_upcall_pending);
+ 	pages = ident_map_size / PAGE_SIZE;
+ 	/* vmemmap contains a multiple of PAGES_PER_SECTION struct pages */
+ 	vmemmap_size = SECTION_ALIGN_UP(pages) * sizeof(struct page);
  
- 	/* No need for compat handling here */
-@@ -219,8 +225,7 @@ int __kvm_xen_has_interrupt(struct kvm_vcpu *v)
- 	 * cache in kvm_read_guest_offset_cached(), but just uses
- 	 * __get_user() instead. And falls back to the slow path.
- 	 */
--	if (likely(slots->generation == ghc->generation &&
--		   !kvm_is_error_hva(ghc->hva) && ghc->memslot)) {
-+	if (!evtchn_pending_sel && ghc_valid) {
- 		/* Fast path */
- 		pagefault_disable();
- 		err = __get_user(rc, (u8 __user *)ghc->hva + offset);
-@@ -239,11 +244,82 @@ int __kvm_xen_has_interrupt(struct kvm_vcpu *v)
- 	 * and we'll end up getting called again from a context where we *can*
- 	 * fault in the page and wait for it.
- 	 */
--	if (in_atomic() || !task_is_running(current))
-+	if (atomic)
- 		return 1;
- 
--	kvm_read_guest_offset_cached(v->kvm, ghc, &rc, offset,
--				     sizeof(rc));
-+	if (!ghc_valid) {
-+		err = kvm_gfn_to_hva_cache_init(v->kvm, ghc, ghc->gpa, ghc->len);
-+		if (err || !ghc->memslot) {
-+			/*
-+			 * If this failed, userspace has screwed up the
-+			 * vcpu_info mapping. No interrupts for you.
-+			 */
-+			return 0;
-+		}
-+	}
-+
+ 	/* choose kernel address space layout: 4 or 3 levels. */
+-	vmemmap_off = round_up(ident_map_size, _REGION3_SIZE);
++	vmemmap_start = round_up(ident_map_size, _REGION3_SIZE);
+ 	if (IS_ENABLED(CONFIG_KASAN) ||
+ 	    vmalloc_size > _REGION2_SIZE ||
+-	    vmemmap_off + vmemmap_size + vmalloc_size + MODULES_LEN > _REGION2_SIZE)
+-		vmax = _REGION1_SIZE;
+-	else
+-		vmax = _REGION2_SIZE;
+-
+-	/* keep vmemmap_off aligned to a top level region table entry */
+-	rte_size = vmax == _REGION1_SIZE ? _REGION2_SIZE : _REGION3_SIZE;
+-	MODULES_END = vmax;
+-	if (is_prot_virt_host()) {
+-		/*
+-		 * forcing modules and vmalloc area under the ultravisor
+-		 * secure storage limit, so that any vmalloc allocation
+-		 * we do could be used to back secure guest storage.
+-		 */
+-		adjust_to_uv_max(&MODULES_END);
+-	}
+-
+-#ifdef CONFIG_KASAN
+-	if (MODULES_END < vmax) {
+-		/* force vmalloc and modules below kasan shadow */
+-		MODULES_END = min(MODULES_END, KASAN_SHADOW_START);
++	    vmemmap_start + vmemmap_size + vmalloc_size + MODULES_LEN >
++		    _REGION2_SIZE) {
++		MODULES_END = _REGION1_SIZE;
++		rte_size = _REGION2_SIZE;
+ 	} else {
+-		/*
+-		 * leave vmalloc and modules above kasan shadow but make
+-		 * sure they don't overlap with it
+-		 */
+-		vmalloc_size = min(vmalloc_size, vmax - KASAN_SHADOW_END - MODULES_LEN);
+-		vmalloc_size_verified = true;
+-		vspace_left = KASAN_SHADOW_START;
++		MODULES_END = _REGION2_SIZE;
++		rte_size = _REGION3_SIZE;
+ 	}
 +	/*
-+	 * Now we have a valid (protected by srcu) userspace HVA in
-+	 * ghc->hva which points to the struct vcpu_info. If there
-+	 * are any bits in the in-kernel evtchn_pending_sel then
-+	 * we need to write those to the guest vcpu_info and set
-+	 * its evtchn_upcall_pending flag. If there aren't any bits
-+	 * to add, we only want to *check* evtchn_upcall_pending.
++	 * forcing modules and vmalloc area under the ultravisor
++	 * secure storage limit, so that any vmalloc allocation
++	 * we do could be used to back secure guest storage.
 +	 */
-+	if (evtchn_pending_sel) {
-+		bool long_mode = v->kvm->arch.xen.long_mode;
-+
-+		if (!user_access_begin((void *)ghc->hva, sizeof(struct vcpu_info)))
-+			return 0;
-+
-+		if (IS_ENABLED(CONFIG_64BIT) && long_mode) {
-+			struct vcpu_info __user *vi = (void *)ghc->hva;
-+
-+			/* Attempt to set the evtchn_pending_sel bits in the
-+			 * guest, and if that succeeds then clear the same
-+			 * bits in the in-kernel version. */
-+			asm volatile("1:\t" LOCK_PREFIX "orq %0, %1\n"
-+				     "\tnotq %0\n"
-+				     "\t" LOCK_PREFIX "andq %0, %2\n"
-+				     "2:\n"
-+				     "\t.section .fixup,\"ax\"\n"
-+				     "3:\tjmp\t2b\n"
-+				     "\t.previous\n"
-+				     _ASM_EXTABLE_UA(1b, 3b)
-+				     : "=r" (evtchn_pending_sel),
-+				       "+m" (vi->evtchn_pending_sel),
-+				       "+m" (v->arch.xen.evtchn_pending_sel)
-+				     : "0" (evtchn_pending_sel));
-+		} else {
-+			struct compat_vcpu_info __user *vi = (void *)ghc->hva;
-+			u32 evtchn_pending_sel32 = evtchn_pending_sel;
-+
-+			/* Attempt to set the evtchn_pending_sel bits in the
-+			 * guest, and if that succeeds then clear the same
-+			 * bits in the in-kernel version. */
-+			asm volatile("1:\t" LOCK_PREFIX "orl %0, %1\n"
-+				     "\tnotl %0\n"
-+				     "\t" LOCK_PREFIX "andl %0, %2\n"
-+				     "2:\n"
-+				     "\t.section .fixup,\"ax\"\n"
-+				     "3:\tjmp\t2b\n"
-+				     "\t.previous\n"
-+				     _ASM_EXTABLE_UA(1b, 3b)
-+				     : "=r" (evtchn_pending_sel32),
-+				       "+m" (vi->evtchn_pending_sel),
-+				       "+m" (v->arch.xen.evtchn_pending_sel)
-+				     : "0" (evtchn_pending_sel32));
-+		}
-+		rc = 1;
-+		unsafe_put_user(rc, (u8 __user *)ghc->hva + offset, err);
-+
-+	err:
-+		user_access_end();
-+
-+		mark_page_dirty_in_slot(v->kvm, ghc->memslot, ghc->gpa >> PAGE_SHIFT);
-+	} else {
-+		__get_user(rc, (u8 __user *)ghc->hva + offset);
-+	}
++	adjust_to_uv_max(&MODULES_END);
++#ifdef CONFIG_KASAN
++	/* force vmalloc and modules below kasan shadow */
++	MODULES_END = min(MODULES_END, KASAN_SHADOW_START);
+ #endif
+ 	MODULES_VADDR = MODULES_END - MODULES_LEN;
+ 	VMALLOC_END = MODULES_VADDR;
  
- 	return rc;
+-	if (vmalloc_size_verified) {
+-		VMALLOC_START = VMALLOC_END - vmalloc_size;
+-	} else {
+-		vmemmap_off = round_up(ident_map_size, rte_size);
+-
+-		if (vmemmap_off + vmemmap_size > VMALLOC_END ||
+-		    vmalloc_size > VMALLOC_END - vmemmap_off - vmemmap_size) {
+-			/*
+-			 * allow vmalloc area to occupy up to 1/2 of
+-			 * the rest virtual space left.
+-			 */
+-			vmalloc_size = min(vmalloc_size, VMALLOC_END / 2);
+-		}
+-		VMALLOC_START = VMALLOC_END - vmalloc_size;
+-		vspace_left = VMALLOC_START;
+-	}
++	/* allow vmalloc area to occupy up to about 1/2 of the rest virtual space left */
++	vmalloc_size = min(vmalloc_size, round_down(VMALLOC_END / 2, _REGION3_SIZE));
++	VMALLOC_START = VMALLOC_END - vmalloc_size;
+ 
+-	pages = vspace_left / (PAGE_SIZE + sizeof(struct page));
++	/* split remaining virtual space between 1:1 mapping & vmemmap array */
++	pages = VMALLOC_START / (PAGE_SIZE + sizeof(struct page));
+ 	pages = SECTION_ALIGN_UP(pages);
+-	vmemmap_off = round_up(vspace_left - pages * sizeof(struct page), rte_size);
+-	/* keep vmemmap left most starting from a fresh region table entry */
+-	vmemmap_off = min(vmemmap_off, round_up(ident_map_size, rte_size));
+-	/* take care that identity map is lower then vmemmap */
+-	ident_map_size = min(ident_map_size, vmemmap_off);
++	/* keep vmemmap_start aligned to a top level region table entry */
++	vmemmap_start = round_down(VMALLOC_START - pages * sizeof(struct page), rte_size);
++	/* vmemmap_start is the future VMEM_MAX_PHYS, make sure it is within MAX_PHYSMEM */
++	vmemmap_start = min(vmemmap_start, 1UL << MAX_PHYSMEM_BITS);
++	/* make sure identity map doesn't overlay with vmemmap */
++	ident_map_size = min(ident_map_size, vmemmap_start);
+ 	vmemmap_size = SECTION_ALIGN_UP(ident_map_size / PAGE_SIZE) * sizeof(struct page);
+-	VMALLOC_START = max(vmemmap_off + vmemmap_size, VMALLOC_START);
+-	vmemmap = (struct page *)vmemmap_off;
++	/* make sure vmemmap doesn't overlay with vmalloc area */
++	VMALLOC_START = max(vmemmap_start + vmemmap_size, VMALLOC_START);
++	vmemmap = (struct page *)vmemmap_start;
  }
-@@ -740,3 +816,179 @@ int kvm_xen_hypercall(struct kvm_vcpu *vcpu)
  
+ /*
+diff --git a/arch/s390/include/asm/kexec.h b/arch/s390/include/asm/kexec.h
+index ea398a05f643..7f3c9ac34bd8 100644
+--- a/arch/s390/include/asm/kexec.h
++++ b/arch/s390/include/asm/kexec.h
+@@ -74,6 +74,12 @@ void *kexec_file_add_components(struct kimage *image,
+ int arch_kexec_do_relocs(int r_type, void *loc, unsigned long val,
+ 			 unsigned long addr);
+ 
++#define ARCH_HAS_KIMAGE_ARCH
++
++struct kimage_arch {
++	void *ipl_buf;
++};
++
+ extern const struct kexec_file_ops s390_kexec_image_ops;
+ extern const struct kexec_file_ops s390_kexec_elf_ops;
+ 
+diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
+index d72a6df058d7..785d54c9350c 100644
+--- a/arch/s390/kernel/crash_dump.c
++++ b/arch/s390/kernel/crash_dump.c
+@@ -191,8 +191,8 @@ static int copy_oldmem_user(void __user *dst, void *src, size_t count)
+ 				return rc;
+ 		} else {
+ 			/* Check for swapped kdump oldmem areas */
+-			if (oldmem_data.start && from - oldmem_data.size < oldmem_data.size) {
+-				from -= oldmem_data.size;
++			if (oldmem_data.start && from - oldmem_data.start < oldmem_data.size) {
++				from -= oldmem_data.start;
+ 				len = min(count, oldmem_data.size - from);
+ 			} else if (oldmem_data.start && from < oldmem_data.size) {
+ 				len = min(count, oldmem_data.size - from);
+diff --git a/arch/s390/kernel/ipl.c b/arch/s390/kernel/ipl.c
+index e2cc35775b99..5ad1dde23dc5 100644
+--- a/arch/s390/kernel/ipl.c
++++ b/arch/s390/kernel/ipl.c
+@@ -2156,7 +2156,7 @@ void *ipl_report_finish(struct ipl_report *report)
+ 
+ 	buf = vzalloc(report->size);
+ 	if (!buf)
+-		return ERR_PTR(-ENOMEM);
++		goto out;
+ 	ptr = buf;
+ 
+ 	memcpy(ptr, report->ipib, report->ipib->hdr.len);
+@@ -2195,6 +2195,7 @@ void *ipl_report_finish(struct ipl_report *report)
+ 	}
+ 
+ 	BUG_ON(ptr > buf + report->size);
++out:
+ 	return buf;
+ }
+ 
+diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
+index 528edff085d9..9975ad200d74 100644
+--- a/arch/s390/kernel/machine_kexec_file.c
++++ b/arch/s390/kernel/machine_kexec_file.c
+@@ -12,6 +12,7 @@
+ #include <linux/kexec.h>
+ #include <linux/module_signature.h>
+ #include <linux/verification.h>
++#include <linux/vmalloc.h>
+ #include <asm/boot_data.h>
+ #include <asm/ipl.h>
+ #include <asm/setup.h>
+@@ -170,6 +171,7 @@ static int kexec_file_add_ipl_report(struct kimage *image,
+ 	struct kexec_buf buf;
+ 	unsigned long addr;
+ 	void *ptr, *end;
++	int ret;
+ 
+ 	buf.image = image;
+ 
+@@ -199,9 +201,13 @@ static int kexec_file_add_ipl_report(struct kimage *image,
+ 		ptr += len;
+ 	}
+ 
++	ret = -ENOMEM;
+ 	buf.buffer = ipl_report_finish(data->report);
++	if (!buf.buffer)
++		goto out;
+ 	buf.bufsz = data->report->size;
+ 	buf.memsz = buf.bufsz;
++	image->arch.ipl_buf = buf.buffer;
+ 
+ 	data->memsz += buf.memsz;
+ 
+@@ -209,7 +215,9 @@ static int kexec_file_add_ipl_report(struct kimage *image,
+ 		data->kernel_buf + offsetof(struct lowcore, ipl_parmblock_ptr);
+ 	*lc_ipl_parmblock_ptr = (__u32)buf.mem;
+ 
+-	return kexec_add_buffer(&buf);
++	ret = kexec_add_buffer(&buf);
++out:
++	return ret;
+ }
+ 
+ void *kexec_file_add_components(struct kimage *image,
+@@ -322,3 +330,11 @@ int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
+ 	}
  	return 0;
  }
 +
-+static inline int max_evtchn_port(struct kvm *kvm)
++int arch_kimage_file_post_load_cleanup(struct kimage *image)
 +{
-+	if (IS_ENABLED(CONFIG_64BIT) && kvm->arch.xen.long_mode)
-+		return EVTCHN_2L_NR_CHANNELS;
-+	else
-+		return COMPAT_EVTCHN_2L_NR_CHANNELS;
++	vfree(image->arch.ipl_buf);
++	image->arch.ipl_buf = NULL;
++
++	return kexec_image_post_load_cleanup_default(image);
 +}
-+
-+/*
-+ * This follows the kvm_set_irq() API, so it returns:
-+ *  < 0   Interrupt was ignored (masked or not delivered for other reasons)
-+ *  = 0   Interrupt was coalesced (previous irq is still pending)
-+ *  > 0   Number of CPUs interrupt was delivered to
-+ */
-+int kvm_xen_set_evtchn_fast(struct kvm_kernel_irq_routing_entry *e,
-+			    struct kvm *kvm)
-+{
-+	struct gfn_to_pfn_cache *gpc = &kvm->arch.xen.shinfo_cache;
-+	struct kvm_vcpu *vcpu;
-+	unsigned long *pending_bits, *mask_bits;
-+	unsigned long flags;
-+	int port_word_bit;
-+	bool kick_vcpu = false;
-+	int idx;
-+	int rc;
-+
-+	vcpu = kvm_get_vcpu_by_id(kvm, e->xen_evtchn.vcpu);
-+	if (!vcpu)
-+		return -1;
-+
-+	if (!vcpu->arch.xen.vcpu_info_set)
-+		return -1;
-+
-+	if (e->xen_evtchn.port >= max_evtchn_port(kvm))
-+		return -1;
-+
-+	rc = -EWOULDBLOCK;
-+	read_lock_irqsave(&gpc->lock, flags);
-+
-+	idx = srcu_read_lock(&kvm->srcu);
-+	if (!kvm_gfn_to_pfn_cache_check(kvm, gpc, gpc->gpa, PAGE_SIZE))
-+		goto out_rcu;
-+
-+	if (IS_ENABLED(CONFIG_64BIT) && kvm->arch.xen.long_mode) {
-+		struct shared_info *shinfo = gpc->khva;
-+		pending_bits = (unsigned long *)&shinfo->evtchn_pending;
-+		mask_bits = (unsigned long *)&shinfo->evtchn_mask;
-+		port_word_bit = e->xen_evtchn.port / 64;
-+	} else {
-+		struct compat_shared_info *shinfo = gpc->khva;
-+		pending_bits = (unsigned long *)&shinfo->evtchn_pending;
-+		mask_bits = (unsigned long *)&shinfo->evtchn_mask;
-+		port_word_bit = e->xen_evtchn.port / 32;
-+	}
-+
-+	/*
-+	 * If this port wasn't already set, and if it isn't masked, then
-+	 * we try to set the corresponding bit in the in-kernel shadow of
-+	 * evtchn_pending_sel for the target vCPU. And if *that* wasn't
-+	 * already set, then we kick the vCPU in question to write to the
-+	 * *real* evtchn_pending_sel in its own guest vcpu_info struct.
-+	 */
-+	if (test_and_set_bit(e->xen_evtchn.port, pending_bits)) {
-+		rc = 0; /* It was already raised */
-+	} else if (test_bit(e->xen_evtchn.port, mask_bits)) {
-+		rc = -1; /* Masked */
-+	} else {
-+		rc = 1; /* Delivered. But was the vCPU waking already? */
-+		if (!test_and_set_bit(port_word_bit, &vcpu->arch.xen.evtchn_pending_sel))
-+			kick_vcpu = true;
-+	}
-+
-+ out_rcu:
-+	srcu_read_unlock(&kvm->srcu, idx);
-+	read_unlock_irqrestore(&gpc->lock, flags);
-+
-+	if (kick_vcpu) {
-+		kvm_make_request(KVM_REQ_EVENT, vcpu);
-+		kvm_vcpu_kick(vcpu);
-+	}
-+
-+	return rc;
-+}
-+
-+/* This is the version called from kvm_set_irq() as the .set function */
-+static int evtchn_set_fn(struct kvm_kernel_irq_routing_entry *e, struct kvm *kvm,
-+			 int irq_source_id, int level, bool line_status)
-+{
-+	bool mm_borrowed = false;
-+	int rc;
-+
-+	if (!level)
-+		return -1;
-+
-+	rc = kvm_xen_set_evtchn_fast(e, kvm);
-+	if (rc != -EWOULDBLOCK)
-+		return rc;
-+
-+	if (current->mm != kvm->mm) {
-+		/*
-+		 * If not on a thread which already belongs to this KVM,
-+		 * we'd better be in the irqfd workqueue.
-+		 */
-+		if (WARN_ON_ONCE(current->mm))
-+			return -EINVAL;
-+
-+		kthread_use_mm(kvm->mm);
-+		mm_borrowed = true;
-+	}
-+
-+	/*
-+	 * For the irqfd workqueue, using the main kvm->lock mutex is
-+	 * fine since this function is invoked from kvm_set_irq() with
-+	 * no other lock held, no srcu. In future if it will be called
-+	 * directly from a vCPU thread (e.g. on hypercall for an IPI)
-+	 * then it may need to switch to using a leaf-node mutex for
-+	 * serializing the shared_info mapping.
-+	 */
-+	mutex_lock(&kvm->lock);
-+
-+	/*
-+	 * It is theoretically possible for the page to be unmapped
-+	 * and the MMU notifier to invalidate the shared_info before
-+	 * we even get to use it. In that case, this looks like an
-+	 * infinite loop. It was tempting to do it via the userspace
-+	 * HVA instead... but that just *hides* the fact that it's
-+	 * an infinite loop, because if a fault occurs and it waits
-+	 * for the page to come back, it can *still* immediately
-+	 * fault and have to wait again, repeatedly.
-+	 *
-+	 * Conversely, the page could also have been reinstated by
-+	 * another thread before we even obtain the mutex above, so
-+	 * check again *first* before remapping it.
-+	 */
-+	do {
-+		struct gfn_to_pfn_cache *gpc = &kvm->arch.xen.shinfo_cache;
-+		int idx;
-+
-+		rc = kvm_xen_set_evtchn_fast(e, kvm);
-+		if (rc != -EWOULDBLOCK)
-+			break;
-+
-+		idx = srcu_read_lock(&kvm->srcu);
-+		rc = kvm_gfn_to_pfn_cache_refresh(kvm, gpc, gpc->gpa,
-+						  PAGE_SIZE, false);
-+		srcu_read_unlock(&kvm->srcu, idx);
-+	} while(!rc);
-+
-+	mutex_unlock(&kvm->lock);
-+
-+	if (mm_borrowed)
-+		kthread_unuse_mm(kvm->mm);
-+
-+	return rc;
-+}
-+
-+int kvm_xen_setup_evtchn(struct kvm *kvm,
-+			 struct kvm_kernel_irq_routing_entry *e,
-+			 const struct kvm_irq_routing_entry *ue)
-+
-+{
-+	if (ue->u.xen_evtchn.port >= max_evtchn_port(kvm))
-+		return -EINVAL;
-+
-+	/* We only support 2 level event channels for now */
-+	if (ue->u.xen_evtchn.priority != KVM_IRQ_ROUTING_XEN_EVTCHN_PRIO_2LEVEL)
-+		return -EINVAL;
-+
-+	e->xen_evtchn.port = ue->u.xen_evtchn.port;
-+	e->xen_evtchn.vcpu = ue->u.xen_evtchn.vcpu;
-+	e->xen_evtchn.priority = ue->u.xen_evtchn.priority;
-+	e->set = evtchn_set_fn;
-+
-+	return 0;
-+}
-diff --git a/arch/x86/kvm/xen.h b/arch/x86/kvm/xen.h
-index cc0cf5f37450..adbcc9ed59db 100644
---- a/arch/x86/kvm/xen.h
-+++ b/arch/x86/kvm/xen.h
-@@ -24,6 +24,12 @@ int kvm_xen_hvm_config(struct kvm *kvm, struct kvm_xen_hvm_config *xhc);
- void kvm_xen_init_vm(struct kvm *kvm);
- void kvm_xen_destroy_vm(struct kvm *kvm);
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index 40405f2304f1..225ab2d0a4c6 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -606,7 +606,7 @@ static void __init setup_resources(void)
  
-+int kvm_xen_set_evtchn_fast(struct kvm_kernel_irq_routing_entry *e,
-+			    struct kvm *kvm);
-+int kvm_xen_setup_evtchn(struct kvm *kvm,
-+			 struct kvm_kernel_irq_routing_entry *e,
-+			 const struct kvm_irq_routing_entry *ue);
-+
- static inline bool kvm_xen_msr_enabled(struct kvm *kvm)
+ static void __init setup_memory_end(void)
  {
- 	return static_branch_unlikely(&kvm_xen_enabled.key) &&
-@@ -134,6 +140,9 @@ struct compat_shared_info {
- 	struct compat_arch_shared_info arch;
- };
- 
-+#define COMPAT_EVTCHN_2L_NR_CHANNELS (8 *				\
-+				      sizeof_field(struct compat_shared_info, \
-+						   evtchn_pending))
- struct compat_vcpu_runstate_info {
-     int state;
-     uint64_t state_entry_time;
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index 457c38d75913..47fbc253d72b 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -470,6 +470,12 @@ struct kvm_hv_sint {
- 	u32 sint;
- };
- 
-+struct kvm_xen_evtchn {
-+	u32 port;
-+	u32 vcpu;
-+	u32 priority;
-+};
-+
- struct kvm_kernel_irq_routing_entry {
- 	u32 gsi;
- 	u32 type;
-@@ -490,6 +496,7 @@ struct kvm_kernel_irq_routing_entry {
- 		} msi;
- 		struct kvm_s390_adapter_int adapter;
- 		struct kvm_hv_sint hv_sint;
-+		struct kvm_xen_evtchn xen_evtchn;
- 	};
- 	struct hlist_node link;
- };
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index 1daa45268de2..12421e76adcb 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -1162,11 +1162,20 @@ struct kvm_irq_routing_hv_sint {
- 	__u32 sint;
- };
- 
-+struct kvm_irq_routing_xen_evtchn {
-+	__u32 port;
-+	__u32 vcpu;
-+	__u32 priority;
-+};
-+
-+#define KVM_IRQ_ROUTING_XEN_EVTCHN_PRIO_2LEVEL ((__u32)(-1))
-+
- /* gsi routing entry types */
- #define KVM_IRQ_ROUTING_IRQCHIP 1
- #define KVM_IRQ_ROUTING_MSI 2
- #define KVM_IRQ_ROUTING_S390_ADAPTER 3
- #define KVM_IRQ_ROUTING_HV_SINT 4
-+#define KVM_IRQ_ROUTING_XEN_EVTCHN 5
- 
- struct kvm_irq_routing_entry {
- 	__u32 gsi;
-@@ -1178,6 +1187,7 @@ struct kvm_irq_routing_entry {
- 		struct kvm_irq_routing_msi msi;
- 		struct kvm_irq_routing_s390_adapter adapter;
- 		struct kvm_irq_routing_hv_sint hv_sint;
-+		struct kvm_irq_routing_xen_evtchn xen_evtchn;
- 		__u32 pad[8];
- 	} u;
- };
-@@ -1208,6 +1218,7 @@ struct kvm_x86_mce {
- #define KVM_XEN_HVM_CONFIG_INTERCEPT_HCALL	(1 << 1)
- #define KVM_XEN_HVM_CONFIG_SHARED_INFO		(1 << 2)
- #define KVM_XEN_HVM_CONFIG_RUNSTATE		(1 << 3)
-+#define KVM_XEN_HVM_CONFIG_EVTCHN_2LEVEL	(1 << 4)
- 
- struct kvm_xen_hvm_config {
- 	__u32 flags;
-diff --git a/tools/testing/selftests/kvm/x86_64/xen_shinfo_test.c b/tools/testing/selftests/kvm/x86_64/xen_shinfo_test.c
-index a0699f00b3d6..a865e60a042c 100644
---- a/tools/testing/selftests/kvm/x86_64/xen_shinfo_test.c
-+++ b/tools/testing/selftests/kvm/x86_64/xen_shinfo_test.c
-@@ -14,6 +14,9 @@
- #include <stdint.h>
- #include <time.h>
- #include <sched.h>
-+#include <signal.h>
-+
-+#include <sys/eventfd.h>
- 
- #define VCPU_ID		5
- 
-@@ -22,10 +25,12 @@
- #define SHINFO_REGION_SLOT	10
- #define PAGE_SIZE		4096
- 
-+#define SHINFO_ADDR	(SHINFO_REGION_GPA)
- #define PVTIME_ADDR	(SHINFO_REGION_GPA + PAGE_SIZE)
- #define RUNSTATE_ADDR	(SHINFO_REGION_GPA + PAGE_SIZE + 0x20)
- #define VCPU_INFO_ADDR	(SHINFO_REGION_GPA + 0x40)
- 
-+#define SHINFO_VADDR	(SHINFO_REGION_GVA)
- #define RUNSTATE_VADDR	(SHINFO_REGION_GVA + PAGE_SIZE + 0x20)
- #define VCPU_INFO_VADDR	(SHINFO_REGION_GVA + 0x40)
- 
-@@ -73,15 +78,30 @@ struct vcpu_info {
-         struct pvclock_vcpu_time_info time;
- }; /* 64 bytes (x86) */
- 
-+struct shared_info {
-+	struct vcpu_info vcpu_info[32];
-+	unsigned long evtchn_pending[64];
-+	unsigned long evtchn_mask[64];
-+	struct pvclock_wall_clock wc;
-+	uint32_t wc_sec_hi;
-+	/* arch_shared_info here */
-+};
-+
- #define RUNSTATE_running  0
- #define RUNSTATE_runnable 1
- #define RUNSTATE_blocked  2
- #define RUNSTATE_offline  3
- 
-+struct {
-+	struct kvm_irq_routing info;
-+	struct kvm_irq_routing_entry entries[2];
-+} irq_routes;
-+
- static void evtchn_handler(struct ex_regs *regs)
- {
- 	struct vcpu_info *vi = (void *)VCPU_INFO_VADDR;
- 	vi->evtchn_upcall_pending = 0;
-+	vi->evtchn_pending_sel = 0;
- 
- 	GUEST_SYNC(0x20);
+-	memblock_remove(ident_map_size, ULONG_MAX);
++	memblock_remove(ident_map_size, PHYS_ADDR_MAX - ident_map_size);
+ 	max_pfn = max_low_pfn = PFN_DOWN(ident_map_size);
+ 	pr_notice("The maximum memory size is %luMB\n", ident_map_size >> 20);
  }
-@@ -127,7 +147,19 @@ static void guest_code(void)
- 	GUEST_SYNC(6);
- 	GUEST_ASSERT(rs->time[RUNSTATE_runnable] >= MIN_STEAL_TIME);
+@@ -637,14 +637,6 @@ static struct notifier_block kdump_mem_nb = {
  
--	GUEST_DONE();
-+	/* Attempt to deliver a *masked* interrupt */
-+	GUEST_SYNC(7);
-+
-+	/* Wait until we see the bit set */
-+	struct shared_info *si = (void *)SHINFO_VADDR;
-+	while (!si->evtchn_pending[0])
-+		__asm__ __volatile__ ("rep nop" : : : "memory");
-+
-+	/* Now deliver an *unmasked* interrupt */
-+	GUEST_SYNC(8);
-+
-+	for (;;)
-+		__asm__ __volatile__ ("rep nop" : : : "memory");
- }
+ #endif
  
- static int cmp_timespec(struct timespec *a, struct timespec *b)
-@@ -144,6 +176,11 @@ static int cmp_timespec(struct timespec *a, struct timespec *b)
- 		return 0;
- }
- 
-+static void handle_alrm(int sig)
-+{
-+	TEST_FAIL("IRQ delivery timed out");
-+}
-+
- int main(int argc, char *argv[])
- {
- 	struct timespec min_ts, max_ts, vm_ts;
-@@ -155,6 +192,7 @@ int main(int argc, char *argv[])
+-/*
+- * Make sure that the area above identity mapping is protected
+- */
+-static void __init reserve_above_ident_map(void)
+-{
+-	memblock_reserve(ident_map_size, ULONG_MAX);
+-}
+-
+ /*
+  * Reserve memory for kdump kernel to be loaded with kexec
+  */
+@@ -785,7 +777,6 @@ static void __init memblock_add_mem_detect_info(void)
  	}
+ 	memblock_set_bottom_up(false);
+ 	memblock_set_node(0, ULONG_MAX, &memblock.memory, 0);
+-	memblock_dump_all();
+ }
  
- 	bool do_runstate_tests = !!(xen_caps & KVM_XEN_HVM_CONFIG_RUNSTATE);
-+	bool do_eventfd_tests = !!(xen_caps & KVM_XEN_HVM_CONFIG_EVTCHN_2LEVEL);
+ /*
+@@ -826,9 +817,6 @@ static void __init setup_memory(void)
+ 		storage_key_init_range(start, end);
  
- 	clock_gettime(CLOCK_REALTIME, &min_ts);
+ 	psw_set_key(PAGE_DEFAULT_KEY);
+-
+-	/* Only cosmetics */
+-	memblock_enforce_memory_limit(memblock_end_of_DRAM());
+ }
  
-@@ -166,6 +204,11 @@ int main(int argc, char *argv[])
- 				    SHINFO_REGION_GPA, SHINFO_REGION_SLOT, 2, 0);
- 	virt_map(vm, SHINFO_REGION_GVA, SHINFO_REGION_GPA, 2);
+ static void __init relocate_amode31_section(void)
+@@ -999,24 +987,24 @@ void __init setup_arch(char **cmdline_p)
+ 	setup_control_program_code();
  
-+	struct shared_info *shinfo = addr_gpa2hva(vm, SHINFO_VADDR);
-+
-+	int zero_fd = open("/dev/zero", O_RDONLY);
-+	TEST_ASSERT(zero_fd != -1, "Failed to open /dev/zero");
-+
- 	struct kvm_xen_hvm_config hvmc = {
- 		.flags = KVM_XEN_HVM_CONFIG_INTERCEPT_HCALL,
- 		.msr = XEN_HYPERCALL_MSR,
-@@ -184,6 +227,16 @@ int main(int argc, char *argv[])
- 	};
- 	vm_ioctl(vm, KVM_XEN_HVM_SET_ATTR, &ha);
+ 	/* Do some memory reservations *before* memory is added to memblock */
+-	reserve_above_ident_map();
+ 	reserve_kernel();
+ 	reserve_initrd();
+ 	reserve_certificate_list();
+ 	reserve_mem_detect_info();
++	memblock_set_current_limit(ident_map_size);
+ 	memblock_allow_resize();
  
-+	/*
-+	 * Test what happens when the HVA of the shinfo page is remapped after
-+	 * the kernel has a reference to it. But make sure we copy the clock
-+	 * info over since that's only set at setup time, and we test it later.
-+	 */
-+	struct pvclock_wall_clock wc_copy = shinfo->wc;
-+	void *m = mmap(shinfo, PAGE_SIZE, PROT_READ|PROT_WRITE, MAP_FIXED|MAP_PRIVATE, zero_fd, 0);
-+	TEST_ASSERT(m == shinfo, "Failed to map /dev/zero over shared info");
-+	shinfo->wc = wc_copy;
-+
- 	struct kvm_xen_vcpu_attr vi = {
- 		.type = KVM_XEN_VCPU_ATTR_TYPE_VCPU_INFO,
- 		.u.gpa = VCPU_INFO_ADDR,
-@@ -214,6 +267,49 @@ int main(int argc, char *argv[])
- 		vcpu_ioctl(vm, VCPU_ID, KVM_XEN_VCPU_SET_ATTR, &st);
+ 	/* Get information about *all* installed memory */
+ 	memblock_add_mem_detect_info();
+ 
+ 	free_mem_detect_info();
++	setup_memory_end();
++	memblock_dump_all();
++	setup_memory();
+ 
+ 	relocate_amode31_section();
+ 	setup_cr();
+-
+ 	setup_uv();
+-	setup_memory_end();
+-	setup_memory();
+ 	dma_contiguous_reserve(ident_map_size);
+ 	vmcp_cma_reserve();
+ 	if (MACHINE_HAS_EDAT2)
+diff --git a/arch/s390/kernel/syscalls/syscall.tbl b/arch/s390/kernel/syscalls/syscall.tbl
+index df5261e5cfe1..ed9c5c2eafad 100644
+--- a/arch/s390/kernel/syscalls/syscall.tbl
++++ b/arch/s390/kernel/syscalls/syscall.tbl
+@@ -451,3 +451,4 @@
+ 446  common	landlock_restrict_self	sys_landlock_restrict_self	sys_landlock_restrict_self
+ # 447 reserved for memfd_secret
+ 448  common	process_mrelease	sys_process_mrelease		sys_process_mrelease
++449  common	futex_waitv		sys_futex_waitv			sys_futex_waitv
+diff --git a/arch/s390/kernel/vdso32/Makefile b/arch/s390/kernel/vdso32/Makefile
+index e3e6ac5686df..245bddfe9bc0 100644
+--- a/arch/s390/kernel/vdso32/Makefile
++++ b/arch/s390/kernel/vdso32/Makefile
+@@ -22,7 +22,7 @@ KBUILD_AFLAGS_32 += -m31 -s
+ KBUILD_CFLAGS_32 := $(filter-out -m64,$(KBUILD_CFLAGS))
+ KBUILD_CFLAGS_32 += -m31 -fPIC -shared -fno-common -fno-builtin
+ 
+-LDFLAGS_vdso32.so.dbg += -fPIC -shared -nostdlib -soname=linux-vdso32.so.1 \
++LDFLAGS_vdso32.so.dbg += -fPIC -shared -soname=linux-vdso32.so.1 \
+ 	--hash-style=both --build-id=sha1 -melf_s390 -T
+ 
+ $(targets:%=$(obj)/%.dbg): KBUILD_CFLAGS = $(KBUILD_CFLAGS_32)
+diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
+index 6568de236701..9e2b95a222a9 100644
+--- a/arch/s390/kernel/vdso64/Makefile
++++ b/arch/s390/kernel/vdso64/Makefile
+@@ -8,8 +8,9 @@ ARCH_REL_TYPE_ABS += R_390_GOT|R_390_PLT
+ include $(srctree)/lib/vdso/Makefile
+ obj-vdso64 = vdso_user_wrapper.o note.o
+ obj-cvdso64 = vdso64_generic.o getcpu.o
+-CFLAGS_REMOVE_getcpu.o = -pg $(CC_FLAGS_FTRACE) $(CC_FLAGS_EXPOLINE)
+-CFLAGS_REMOVE_vdso64_generic.o = -pg $(CC_FLAGS_FTRACE) $(CC_FLAGS_EXPOLINE)
++VDSO_CFLAGS_REMOVE := -pg $(CC_FLAGS_FTRACE) $(CC_FLAGS_EXPOLINE) $(CC_FLAGS_CHECK_STACK)
++CFLAGS_REMOVE_getcpu.o = $(VDSO_CFLAGS_REMOVE)
++CFLAGS_REMOVE_vdso64_generic.o = $(VDSO_CFLAGS_REMOVE)
+ 
+ # Build rules
+ 
+@@ -25,7 +26,7 @@ KBUILD_AFLAGS_64 += -m64 -s
+ 
+ KBUILD_CFLAGS_64 := $(filter-out -m64,$(KBUILD_CFLAGS))
+ KBUILD_CFLAGS_64 += -m64 -fPIC -shared -fno-common -fno-builtin
+-ldflags-y := -fPIC -shared -nostdlib -soname=linux-vdso64.so.1 \
++ldflags-y := -fPIC -shared -soname=linux-vdso64.so.1 \
+ 	     --hash-style=both --build-id=sha1 -T
+ 
+ $(targets:%=$(obj)/%.dbg): KBUILD_CFLAGS = $(KBUILD_CFLAGS_64)
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 95dd1ee01546..7399327d1eff 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -193,7 +193,7 @@ config X86
+ 	select HAVE_DYNAMIC_FTRACE_WITH_ARGS	if X86_64
+ 	select HAVE_DYNAMIC_FTRACE_WITH_DIRECT_CALLS
+ 	select HAVE_SAMPLE_FTRACE_DIRECT	if X86_64
+-	select HAVE_SAMPLE_FTRACE_MULTI_DIRECT	if X86_64
++	select HAVE_SAMPLE_FTRACE_DIRECT_MULTI	if X86_64
+ 	select HAVE_EBPF_JIT
+ 	select HAVE_EFFICIENT_UNALIGNED_ACCESS
+ 	select HAVE_EISA
+diff --git a/drivers/s390/block/dasd_devmap.c b/drivers/s390/block/dasd_devmap.c
+index 2c40fe15da55..6043c832d09e 100644
+--- a/drivers/s390/block/dasd_devmap.c
++++ b/drivers/s390/block/dasd_devmap.c
+@@ -731,7 +731,7 @@ static ssize_t dasd_ff_show(struct device *dev, struct device_attribute *attr,
+ 		ff_flag = (devmap->features & DASD_FEATURE_FAILFAST) != 0;
+ 	else
+ 		ff_flag = (DASD_FEATURE_DEFAULT & DASD_FEATURE_FAILFAST) != 0;
+-	return snprintf(buf, PAGE_SIZE, ff_flag ? "1\n" : "0\n");
++	return sysfs_emit(buf, ff_flag ? "1\n" : "0\n");
+ }
+ 
+ static ssize_t dasd_ff_store(struct device *dev, struct device_attribute *attr,
+@@ -773,7 +773,7 @@ dasd_ro_show(struct device *dev, struct device_attribute *attr, char *buf)
+ 	spin_unlock(&dasd_devmap_lock);
+ 
+ out:
+-	return snprintf(buf, PAGE_SIZE, ro_flag ? "1\n" : "0\n");
++	return sysfs_emit(buf, ro_flag ? "1\n" : "0\n");
+ }
+ 
+ static ssize_t
+@@ -834,7 +834,7 @@ dasd_erplog_show(struct device *dev, struct device_attribute *attr, char *buf)
+ 		erplog = (devmap->features & DASD_FEATURE_ERPLOG) != 0;
+ 	else
+ 		erplog = (DASD_FEATURE_DEFAULT & DASD_FEATURE_ERPLOG) != 0;
+-	return snprintf(buf, PAGE_SIZE, erplog ? "1\n" : "0\n");
++	return sysfs_emit(buf, erplog ? "1\n" : "0\n");
+ }
+ 
+ static ssize_t
+@@ -1033,13 +1033,13 @@ dasd_discipline_show(struct device *dev, struct device_attribute *attr,
+ 		dasd_put_device(device);
+ 		goto out;
+ 	} else {
+-		len = snprintf(buf, PAGE_SIZE, "%s\n",
+-			       device->discipline->name);
++		len = sysfs_emit(buf, "%s\n",
++				 device->discipline->name);
+ 		dasd_put_device(device);
+ 		return len;
  	}
+ out:
+-	len = snprintf(buf, PAGE_SIZE, "none\n");
++	len = sysfs_emit(buf, "none\n");
+ 	return len;
+ }
  
-+	int irq_fd[2] = { -1, -1 };
-+
-+	if (do_eventfd_tests) {
-+		irq_fd[0] = eventfd(0, 0);
-+		irq_fd[1] = eventfd(0, 0);
-+
-+		/* Unexpected, but not a KVM failure */
-+		if (irq_fd[0] == -1 || irq_fd[1] == -1)
-+			do_eventfd_tests = false;
-+	}
-+
-+	if (do_eventfd_tests) {
-+		irq_routes.info.nr = 2;
-+
-+		irq_routes.entries[0].gsi = 32;
-+		irq_routes.entries[0].type = KVM_IRQ_ROUTING_XEN_EVTCHN;
-+		irq_routes.entries[0].u.xen_evtchn.port = 15;
-+		irq_routes.entries[0].u.xen_evtchn.vcpu = VCPU_ID;
-+		irq_routes.entries[0].u.xen_evtchn.priority = KVM_IRQ_ROUTING_XEN_EVTCHN_PRIO_2LEVEL;
-+
-+		irq_routes.entries[1].gsi = 33;
-+		irq_routes.entries[1].type = KVM_IRQ_ROUTING_XEN_EVTCHN;
-+		irq_routes.entries[1].u.xen_evtchn.port = 66;
-+		irq_routes.entries[1].u.xen_evtchn.vcpu = VCPU_ID;
-+		irq_routes.entries[1].u.xen_evtchn.priority = KVM_IRQ_ROUTING_XEN_EVTCHN_PRIO_2LEVEL;
-+
-+		vm_ioctl(vm, KVM_SET_GSI_ROUTING, &irq_routes);
-+
-+		struct kvm_irqfd ifd = { };
-+
-+		ifd.fd = irq_fd[0];
-+		ifd.gsi = 32;
-+		vm_ioctl(vm, KVM_IRQFD, &ifd);
-+
-+		ifd.fd = irq_fd[1];
-+		ifd.gsi = 33;
-+		vm_ioctl(vm, KVM_IRQFD, &ifd);
-+
-+		struct sigaction sa = { };
-+		sa.sa_handler = handle_alrm;
-+		sigaction(SIGALRM, &sa, NULL);
-+	}
-+
- 	struct vcpu_info *vinfo = addr_gpa2hva(vm, VCPU_INFO_VADDR);
- 	vinfo->evtchn_upcall_pending = 0;
- 
-@@ -289,9 +385,23 @@ int main(int argc, char *argv[])
- 					sched_yield();
- 				} while (get_run_delay() < rundelay);
- 				break;
-+			case 7:
-+				if (!do_eventfd_tests)
-+					goto done;
-+				shinfo->evtchn_mask[0] = 0x8000;
-+				eventfd_write(irq_fd[0], 1UL);
-+				alarm(1);
-+				break;
-+			case 8:
-+				eventfd_write(irq_fd[1], 1UL);
-+				evtchn_irq_expected = true;
-+				break;
-+
- 			case 0x20:
- 				TEST_ASSERT(evtchn_irq_expected, "Unexpected event channel IRQ");
- 				evtchn_irq_expected = false;
-+				if (shinfo->evtchn_pending[1])
-+					goto done;
- 				break;
- 			}
+@@ -1056,30 +1056,30 @@ dasd_device_status_show(struct device *dev, struct device_attribute *attr,
+ 	if (!IS_ERR(device)) {
+ 		switch (device->state) {
+ 		case DASD_STATE_NEW:
+-			len = snprintf(buf, PAGE_SIZE, "new\n");
++			len = sysfs_emit(buf, "new\n");
  			break;
--- 
-2.31.1
-
+ 		case DASD_STATE_KNOWN:
+-			len = snprintf(buf, PAGE_SIZE, "detected\n");
++			len = sysfs_emit(buf, "detected\n");
+ 			break;
+ 		case DASD_STATE_BASIC:
+-			len = snprintf(buf, PAGE_SIZE, "basic\n");
++			len = sysfs_emit(buf, "basic\n");
+ 			break;
+ 		case DASD_STATE_UNFMT:
+-			len = snprintf(buf, PAGE_SIZE, "unformatted\n");
++			len = sysfs_emit(buf, "unformatted\n");
+ 			break;
+ 		case DASD_STATE_READY:
+-			len = snprintf(buf, PAGE_SIZE, "ready\n");
++			len = sysfs_emit(buf, "ready\n");
+ 			break;
+ 		case DASD_STATE_ONLINE:
+-			len = snprintf(buf, PAGE_SIZE, "online\n");
++			len = sysfs_emit(buf, "online\n");
+ 			break;
+ 		default:
+-			len = snprintf(buf, PAGE_SIZE, "no stat\n");
++			len = sysfs_emit(buf, "no stat\n");
+ 			break;
+ 		}
+ 		dasd_put_device(device);
+ 	} else
+-		len = snprintf(buf, PAGE_SIZE, "unknown\n");
++		len = sysfs_emit(buf, "unknown\n");
+ 	return len;
+ }
+ 
+@@ -1120,7 +1120,7 @@ static ssize_t dasd_vendor_show(struct device *dev,
+ 	device = dasd_device_from_cdev(to_ccwdev(dev));
+ 	vendor = "";
+ 	if (IS_ERR(device))
+-		return snprintf(buf, PAGE_SIZE, "%s\n", vendor);
++		return sysfs_emit(buf, "%s\n", vendor);
+ 
+ 	if (device->discipline && device->discipline->get_uid &&
+ 	    !device->discipline->get_uid(device, &uid))
+@@ -1128,7 +1128,7 @@ static ssize_t dasd_vendor_show(struct device *dev,
+ 
+ 	dasd_put_device(device);
+ 
+-	return snprintf(buf, PAGE_SIZE, "%s\n", vendor);
++	return sysfs_emit(buf, "%s\n", vendor);
+ }
+ 
+ static DEVICE_ATTR(vendor, 0444, dasd_vendor_show, NULL);
+@@ -1148,7 +1148,7 @@ dasd_uid_show(struct device *dev, struct device_attribute *attr, char *buf)
+ 	device = dasd_device_from_cdev(to_ccwdev(dev));
+ 	uid_string[0] = 0;
+ 	if (IS_ERR(device))
+-		return snprintf(buf, PAGE_SIZE, "%s\n", uid_string);
++		return sysfs_emit(buf, "%s\n", uid_string);
+ 
+ 	if (device->discipline && device->discipline->get_uid &&
+ 	    !device->discipline->get_uid(device, &uid)) {
+@@ -1183,7 +1183,7 @@ dasd_uid_show(struct device *dev, struct device_attribute *attr, char *buf)
+ 	}
+ 	dasd_put_device(device);
+ 
+-	return snprintf(buf, PAGE_SIZE, "%s\n", uid_string);
++	return sysfs_emit(buf, "%s\n", uid_string);
+ }
+ static DEVICE_ATTR(uid, 0444, dasd_uid_show, NULL);
+ 
+@@ -1201,7 +1201,7 @@ dasd_eer_show(struct device *dev, struct device_attribute *attr, char *buf)
+ 		eer_flag = dasd_eer_enabled(devmap->device);
+ 	else
+ 		eer_flag = 0;
+-	return snprintf(buf, PAGE_SIZE, eer_flag ? "1\n" : "0\n");
++	return sysfs_emit(buf, eer_flag ? "1\n" : "0\n");
+ }
+ 
+ static ssize_t
+@@ -1243,7 +1243,7 @@ dasd_expires_show(struct device *dev, struct device_attribute *attr, char *buf)
+ 	device = dasd_device_from_cdev(to_ccwdev(dev));
+ 	if (IS_ERR(device))
+ 		return -ENODEV;
+-	len = snprintf(buf, PAGE_SIZE, "%lu\n", device->default_expires);
++	len = sysfs_emit(buf, "%lu\n", device->default_expires);
+ 	dasd_put_device(device);
+ 	return len;
+ }
+@@ -1283,7 +1283,7 @@ dasd_retries_show(struct device *dev, struct device_attribute *attr, char *buf)
+ 	device = dasd_device_from_cdev(to_ccwdev(dev));
+ 	if (IS_ERR(device))
+ 		return -ENODEV;
+-	len = snprintf(buf, PAGE_SIZE, "%lu\n", device->default_retries);
++	len = sysfs_emit(buf, "%lu\n", device->default_retries);
+ 	dasd_put_device(device);
+ 	return len;
+ }
+@@ -1324,7 +1324,7 @@ dasd_timeout_show(struct device *dev, struct device_attribute *attr,
+ 	device = dasd_device_from_cdev(to_ccwdev(dev));
+ 	if (IS_ERR(device))
+ 		return -ENODEV;
+-	len = snprintf(buf, PAGE_SIZE, "%lu\n", device->blk_timeout);
++	len = sysfs_emit(buf, "%lu\n", device->blk_timeout);
+ 	dasd_put_device(device);
+ 	return len;
+ }
+@@ -1398,11 +1398,11 @@ static ssize_t dasd_hpf_show(struct device *dev, struct device_attribute *attr,
+ 		return -ENODEV;
+ 	if (!device->discipline || !device->discipline->hpf_enabled) {
+ 		dasd_put_device(device);
+-		return snprintf(buf, PAGE_SIZE, "%d\n", dasd_nofcx);
++		return sysfs_emit(buf, "%d\n", dasd_nofcx);
+ 	}
+ 	hpf = device->discipline->hpf_enabled(device);
+ 	dasd_put_device(device);
+-	return snprintf(buf, PAGE_SIZE, "%d\n", hpf);
++	return sysfs_emit(buf, "%d\n", hpf);
+ }
+ 
+ static DEVICE_ATTR(hpf, 0444, dasd_hpf_show, NULL);
+@@ -1416,13 +1416,13 @@ static ssize_t dasd_reservation_policy_show(struct device *dev,
+ 
+ 	devmap = dasd_find_busid(dev_name(dev));
+ 	if (IS_ERR(devmap)) {
+-		rc = snprintf(buf, PAGE_SIZE, "ignore\n");
++		rc = sysfs_emit(buf, "ignore\n");
+ 	} else {
+ 		spin_lock(&dasd_devmap_lock);
+ 		if (devmap->features & DASD_FEATURE_FAILONSLCK)
+-			rc = snprintf(buf, PAGE_SIZE, "fail\n");
++			rc = sysfs_emit(buf, "fail\n");
+ 		else
+-			rc = snprintf(buf, PAGE_SIZE, "ignore\n");
++			rc = sysfs_emit(buf, "ignore\n");
+ 		spin_unlock(&dasd_devmap_lock);
+ 	}
+ 	return rc;
+@@ -1457,14 +1457,14 @@ static ssize_t dasd_reservation_state_show(struct device *dev,
+ 
+ 	device = dasd_device_from_cdev(to_ccwdev(dev));
+ 	if (IS_ERR(device))
+-		return snprintf(buf, PAGE_SIZE, "none\n");
++		return sysfs_emit(buf, "none\n");
+ 
+ 	if (test_bit(DASD_FLAG_IS_RESERVED, &device->flags))
+-		rc = snprintf(buf, PAGE_SIZE, "reserved\n");
++		rc = sysfs_emit(buf, "reserved\n");
+ 	else if (test_bit(DASD_FLAG_LOCK_STOLEN, &device->flags))
+-		rc = snprintf(buf, PAGE_SIZE, "lost\n");
++		rc = sysfs_emit(buf, "lost\n");
+ 	else
+-		rc = snprintf(buf, PAGE_SIZE, "none\n");
++		rc = sysfs_emit(buf, "none\n");
+ 	dasd_put_device(device);
+ 	return rc;
+ }
+@@ -1531,7 +1531,7 @@ dasd_path_threshold_show(struct device *dev,
+ 	device = dasd_device_from_cdev(to_ccwdev(dev));
+ 	if (IS_ERR(device))
+ 		return -ENODEV;
+-	len = snprintf(buf, PAGE_SIZE, "%lu\n", device->path_thrhld);
++	len = sysfs_emit(buf, "%lu\n", device->path_thrhld);
+ 	dasd_put_device(device);
+ 	return len;
+ }
+@@ -1578,7 +1578,7 @@ dasd_path_autodisable_show(struct device *dev,
+ 	else
+ 		flag = (DASD_FEATURE_DEFAULT &
+ 			DASD_FEATURE_PATH_AUTODISABLE) != 0;
+-	return snprintf(buf, PAGE_SIZE, flag ? "1\n" : "0\n");
++	return sysfs_emit(buf, flag ? "1\n" : "0\n");
+ }
+ 
+ static ssize_t
+@@ -1616,7 +1616,7 @@ dasd_path_interval_show(struct device *dev,
+ 	device = dasd_device_from_cdev(to_ccwdev(dev));
+ 	if (IS_ERR(device))
+ 		return -ENODEV;
+-	len = snprintf(buf, PAGE_SIZE, "%lu\n", device->path_interval);
++	len = sysfs_emit(buf, "%lu\n", device->path_interval);
+ 	dasd_put_device(device);
+ 	return len;
+ }
+@@ -1662,9 +1662,9 @@ dasd_device_fcs_show(struct device *dev, struct device_attribute *attr,
+ 		return -ENODEV;
+ 	fc_sec = dasd_path_get_fcs_device(device);
+ 	if (fc_sec == -EINVAL)
+-		rc = snprintf(buf, PAGE_SIZE, "Inconsistent\n");
++		rc = sysfs_emit(buf, "Inconsistent\n");
+ 	else
+-		rc = snprintf(buf, PAGE_SIZE, "%s\n", dasd_path_get_fcs_str(fc_sec));
++		rc = sysfs_emit(buf, "%s\n", dasd_path_get_fcs_str(fc_sec));
+ 	dasd_put_device(device);
+ 
+ 	return rc;
+@@ -1677,7 +1677,7 @@ dasd_path_fcs_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
+ 	struct dasd_path *path = to_dasd_path(kobj);
+ 	unsigned int fc_sec = path->fc_security;
+ 
+-	return snprintf(buf, PAGE_SIZE, "%s\n", dasd_path_get_fcs_str(fc_sec));
++	return sysfs_emit(buf, "%s\n", dasd_path_get_fcs_str(fc_sec));
+ }
+ 
+ static struct kobj_attribute path_fcs_attribute =
+@@ -1698,7 +1698,7 @@ static ssize_t dasd_##_name##_show(struct device *dev,			\
+ 		val = _func(device);					\
+ 	dasd_put_device(device);					\
+ 									\
+-	return snprintf(buf, PAGE_SIZE, "%d\n", val);			\
++	return sysfs_emit(buf, "%d\n", val);			\
+ }									\
+ static DEVICE_ATTR(_name, 0444, dasd_##_name##_show, NULL);		\
+ 
+diff --git a/drivers/s390/char/raw3270.c b/drivers/s390/char/raw3270.c
+index 646ec796bb83..dfde0d941c3c 100644
+--- a/drivers/s390/char/raw3270.c
++++ b/drivers/s390/char/raw3270.c
+@@ -1047,24 +1047,24 @@ raw3270_probe (struct ccw_device *cdev)
+ static ssize_t
+ raw3270_model_show(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+-	return snprintf(buf, PAGE_SIZE, "%i\n",
+-			((struct raw3270 *) dev_get_drvdata(dev))->model);
++	return sysfs_emit(buf, "%i\n",
++			  ((struct raw3270 *)dev_get_drvdata(dev))->model);
+ }
+ static DEVICE_ATTR(model, 0444, raw3270_model_show, NULL);
+ 
+ static ssize_t
+ raw3270_rows_show(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+-	return snprintf(buf, PAGE_SIZE, "%i\n",
+-			((struct raw3270 *) dev_get_drvdata(dev))->rows);
++	return sysfs_emit(buf, "%i\n",
++			  ((struct raw3270 *)dev_get_drvdata(dev))->rows);
+ }
+ static DEVICE_ATTR(rows, 0444, raw3270_rows_show, NULL);
+ 
+ static ssize_t
+ raw3270_columns_show(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+-	return snprintf(buf, PAGE_SIZE, "%i\n",
+-			((struct raw3270 *) dev_get_drvdata(dev))->cols);
++	return sysfs_emit(buf, "%i\n",
++			  ((struct raw3270 *)dev_get_drvdata(dev))->cols);
+ }
+ static DEVICE_ATTR(columns, 0444, raw3270_columns_show, NULL);
+ 
+diff --git a/drivers/s390/cio/chp.c b/drivers/s390/cio/chp.c
+index 1097e76982a5..5440f285f349 100644
+--- a/drivers/s390/cio/chp.c
++++ b/drivers/s390/cio/chp.c
+@@ -285,7 +285,7 @@ static ssize_t chp_configure_show(struct device *dev,
+ 	if (status < 0)
+ 		return status;
+ 
+-	return snprintf(buf, PAGE_SIZE, "%d\n", status);
++	return sysfs_emit(buf, "%d\n", status);
+ }
+ 
+ static int cfg_wait_idle(void);
+diff --git a/samples/Kconfig b/samples/Kconfig
+index bec3528aa2de..43d2e9aa557f 100644
+--- a/samples/Kconfig
++++ b/samples/Kconfig
+@@ -31,6 +31,15 @@ config SAMPLE_FTRACE_DIRECT
+ 	  This builds an ftrace direct function example
+ 	  that hooks to wake_up_process and prints the parameters.
+ 
++config SAMPLE_FTRACE_DIRECT_MULTI
++	tristate "Build register_ftrace_direct_multi() example"
++	depends on DYNAMIC_FTRACE_WITH_DIRECT_CALLS && m
++	depends on HAVE_SAMPLE_FTRACE_DIRECT_MULTI
++	help
++	  This builds an ftrace direct function example
++	  that hooks to wake_up_process and schedule, and prints
++	  the function addresses.
++
+ config SAMPLE_TRACE_ARRAY
+         tristate "Build sample module for kernel access to Ftrace instancess"
+ 	depends on EVENT_TRACING && m
+@@ -237,5 +246,5 @@ endif # SAMPLES
+ config HAVE_SAMPLE_FTRACE_DIRECT
+ 	bool
+ 
+-config HAVE_SAMPLE_FTRACE_MULTI_DIRECT
++config HAVE_SAMPLE_FTRACE_DIRECT_MULTI
+ 	bool
+diff --git a/samples/Makefile b/samples/Makefile
+index b7b98307c2b4..4bcd6b93bffa 100644
+--- a/samples/Makefile
++++ b/samples/Makefile
+@@ -22,7 +22,7 @@ subdir-$(CONFIG_SAMPLE_TIMER)		+= timers
+ obj-$(CONFIG_SAMPLE_TRACE_EVENTS)	+= trace_events/
+ obj-$(CONFIG_SAMPLE_TRACE_PRINTK)	+= trace_printk/
+ obj-$(CONFIG_SAMPLE_FTRACE_DIRECT)	+= ftrace/
+-obj-$(CONFIG_SAMPLE_FTRACE_MULTI_DIRECT) += ftrace/
++obj-$(CONFIG_SAMPLE_FTRACE_DIRECT_MULTI) += ftrace/
+ obj-$(CONFIG_SAMPLE_TRACE_ARRAY)	+= ftrace/
+ subdir-$(CONFIG_SAMPLE_UHID)		+= uhid
+ obj-$(CONFIG_VIDEO_PCI_SKELETON)	+= v4l/
+diff --git a/samples/ftrace/Makefile b/samples/ftrace/Makefile
+index e8a3f8520a44..b9198e2eef28 100644
+--- a/samples/ftrace/Makefile
++++ b/samples/ftrace/Makefile
+@@ -3,7 +3,7 @@
+ obj-$(CONFIG_SAMPLE_FTRACE_DIRECT) += ftrace-direct.o
+ obj-$(CONFIG_SAMPLE_FTRACE_DIRECT) += ftrace-direct-too.o
+ obj-$(CONFIG_SAMPLE_FTRACE_DIRECT) += ftrace-direct-modify.o
+-obj-$(CONFIG_SAMPLE_FTRACE_MULTI_DIRECT) += ftrace-direct-multi.o
++obj-$(CONFIG_SAMPLE_FTRACE_DIRECT_MULTI) += ftrace-direct-multi.o
+ 
+ CFLAGS_sample-trace-array.o := -I$(src)
+ obj-$(CONFIG_SAMPLE_TRACE_ARRAY) += sample-trace-array.o
+diff --git a/samples/ftrace/ftrace-direct-multi.c b/samples/ftrace/ftrace-direct-multi.c
+index b6d7806b400e..2fafc9afcbf0 100644
+--- a/samples/ftrace/ftrace-direct-multi.c
++++ b/samples/ftrace/ftrace-direct-multi.c
+@@ -4,6 +4,7 @@
+ #include <linux/mm.h> /* for handle_mm_fault() */
+ #include <linux/ftrace.h>
+ #include <linux/sched/stat.h>
++#include <asm/asm-offsets.h>
+ 
+ extern void my_direct_func(unsigned long ip);
+ 
+@@ -14,6 +15,8 @@ void my_direct_func(unsigned long ip)
+ 
+ extern void my_tramp(void *);
+ 
++#ifdef CONFIG_X86_64
++
+ asm (
+ "	.pushsection    .text, \"ax\", @progbits\n"
+ "	.type		my_tramp, @function\n"
+@@ -31,6 +34,33 @@ asm (
+ "	.popsection\n"
+ );
+ 
++#endif /* CONFIG_X86_64 */
++
++#ifdef CONFIG_S390
++
++asm (
++"	.pushsection	.text, \"ax\", @progbits\n"
++"	.type		my_tramp, @function\n"
++"	.globl		my_tramp\n"
++"   my_tramp:"
++"	lgr		%r1,%r15\n"
++"	stmg		%r0,%r5,"__stringify(__SF_GPRS)"(%r15)\n"
++"	stg		%r14,"__stringify(__SF_GPRS+8*8)"(%r15)\n"
++"	aghi		%r15,"__stringify(-STACK_FRAME_OVERHEAD)"\n"
++"	stg		%r1,"__stringify(__SF_BACKCHAIN)"(%r15)\n"
++"	lgr		%r2,%r0\n"
++"	brasl		%r14,my_direct_func\n"
++"	aghi		%r15,"__stringify(STACK_FRAME_OVERHEAD)"\n"
++"	lmg		%r0,%r5,"__stringify(__SF_GPRS)"(%r15)\n"
++"	lg		%r14,"__stringify(__SF_GPRS+8*8)"(%r15)\n"
++"	lgr		%r1,%r0\n"
++"	br		%r1\n"
++"	.size		my_tramp, .-my_tramp\n"
++"	.popsection\n"
++);
++
++#endif /* CONFIG_S390 */
++
+ static struct ftrace_ops direct;
+ 
+ static int __init ftrace_direct_multi_init(void)
