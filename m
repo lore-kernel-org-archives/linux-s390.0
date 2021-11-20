@@ -2,151 +2,224 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00F60C433F5
-	for <linux-s390@archiver.kernel.org>; Sat, 20 Nov 2021 16:38:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 19B9DC4332F
+	for <linux-s390@archiver.kernel.org>; Sat, 20 Nov 2021 17:02:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231953AbhKTQlr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 20 Nov 2021 11:41:47 -0500
-Received: from mail-co1nam11on2047.outbound.protection.outlook.com ([40.107.220.47]:34400
-        "EHLO NAM11-CO1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S231390AbhKTQlr (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 20 Nov 2021 11:41:47 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=CclvOvqRR9+A5a3BuGU2uDenB5juh/HBZEGCqJIk04zHbBHtTHWTN0uaAE/18cfUz5adO+WgKv9AmwxNA7BljHxWRjFy3IyI7L6903vNbWHgkszOTDtgDJQckq+SR4pinayxqCjHu2J8wSpF/g8qXUt1/lb+OpEdeea5bcsAkLZOkGR4Mz7Tu4XXFZA6SvxZmap64yGGJ+g4FFjhExpIqP9h+dtKaK9vwIK+jF7Nfo/zGuTKm1H4ukwNC6XhNVbC0I9iOtgZH4xBqcqaDdR9ZBi4OXiCY8h2jf2QZ9QW+pvm164yOZL+khKajDx986ZgGQLGIjGOO5/IdQUdxWYXpg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=8w7VI9nHrW6Bo6BciDf+xS3BZ3J5x4jhQl3BnKXQO8s=;
- b=BnVi5iB1oaOPrgP6ZnE4ZxwQV8qkdrdCtP23JUxiuaKx+PjuXWS3Ak4ZlydPWrUrwqV2gvuDVAsDmZzFqM4OLmQjG+FRHjeRtVXdWqTO6YdYdVCf+nHL2rkZzGBzN6egPI9NgZtvTBUkc5Zbx4M/phDU0jOtOj3X+M23M6ONrGgbmYhiMfzBLy0pbMhHDgKpU34TM0B7P1cP4dmXXZICUHlpRJYuae3KT0KZpPshfXHKgldGgNDdur82VKT+EMY+f69eDzJPMio7gTVfduTYQugrTk3jRUfrmHzyfHs8PpUOAl7e43cJjlsqf2tffHQ5b1btt9l8XJ3TDr2GRmXhzw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.112.34) smtp.rcpttodomain=lists.linux.dev smtp.mailfrom=nvidia.com;
- dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
- header.from=nvidia.com; dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=8w7VI9nHrW6Bo6BciDf+xS3BZ3J5x4jhQl3BnKXQO8s=;
- b=OzI5LlCqHPNpX6uVrcEhrZCBcAghaAd2si+aEI8gR4Rb5L71GMreMvUbJV3OOJy0E8PJUj1gvxaCMroHBFcpZClkPrMkxrAu+JhqSEv7f6AbdI0pKXTyOQ2eXkq0uS3j4UOdNwcSbm0/ASTAv1Qj/skkkJjx76NKYgnEags6GdBW4//aqvdDp0bLcA+Io+cqFZ4V4H2QVapDcd5U1Z8c3OWaDaBD67Wrlc4p7EE30xkqjanhqa3GmXwadCPpRTiwHXca50ZCNfWTKJLDAeoLDRFVKfPtGenO9Ygg39VqK85agPEkKb9YOHUhhs8/RzIxTt2fefYkGpEa+GKOP1dpJQ==
-Received: from CO1PR15CA0059.namprd15.prod.outlook.com (2603:10b6:101:1f::27)
- by CY4PR1201MB2550.namprd12.prod.outlook.com (2603:10b6:903:ce::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4713.22; Sat, 20 Nov
- 2021 16:38:42 +0000
-Received: from CO1NAM11FT043.eop-nam11.prod.protection.outlook.com
- (2603:10b6:101:1f:cafe::57) by CO1PR15CA0059.outlook.office365.com
- (2603:10b6:101:1f::27) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4713.21 via Frontend
- Transport; Sat, 20 Nov 2021 16:38:42 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.34)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.112.34 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.112.34; helo=mail.nvidia.com;
-Received: from mail.nvidia.com (216.228.112.34) by
- CO1NAM11FT043.mail.protection.outlook.com (10.13.174.193) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.4713.20 via Frontend Transport; Sat, 20 Nov 2021 16:38:41 +0000
-Received: from [172.27.0.193] (172.20.187.6) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Sat, 20 Nov
- 2021 16:38:39 +0000
-Message-ID: <129f5e00-db76-3230-75a5-243e8cd5beb0@nvidia.com>
-Date:   Sat, 20 Nov 2021 18:38:37 +0200
+        id S231695AbhKTRF2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 20 Nov 2021 12:05:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44692 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229949AbhKTRF1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 20 Nov 2021 12:05:27 -0500
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3096FC061574;
+        Sat, 20 Nov 2021 09:02:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=MIME-Version:Content-Type:References:
+        In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=1djqxICSM9IYACohxCK/TatYXA+vpDHPuX47RR/2pVo=; b=eRJpUrg7QqrPDst2i5G+Wq/wlz
+        oDnChP+5KKyQM5dvW4Psx2kpJ+IIHBXD22EJH7/FdV1g+birlaTtwSPRTSAoln6pYUSEStJH76Z5L
+        CNfuJH70eBaAElTFKmK78NUx6OFzTigk5WNsIlrCCsEe7F4Ueb/QJ+IYTMUHSLRXswY30kqbqHUFp
+        e87JUEut76RykPQ3aa+2l54wTQdHrfpEvwMItb1KtPbEH4vEhw4fFMj5QWPLYYJOWrbZyhNWr/ugd
+        l4VJgcVU05qPR4MXdu1f35AExZ+CnP5WYa1vq3MTCnct9LmZFT65cEtsausZl1XkYkCzqsWxr+gdK
+        VsTsJDeQ==;
+Received: from [2001:8b0:10b:1:4a2a:e3ff:fe14:8625] (helo=u3832b3a9db3152.ant.amazon.com)
+        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1moTkf-00CkGg-Gi; Sat, 20 Nov 2021 17:02:09 +0000
+Message-ID: <df87f7e828f403013f30c2c8d77ea2694b49292e.camel@infradead.org>
+Subject: Re: [PATCH v4 11/11] KVM: x86: First attempt at converting nested
+ virtual APIC page to gpc
+From:   David Woodhouse <dwmw2@infradead.org>
+To:     Mika =?ISO-8859-1?Q?Penttil=E4?= <mika.penttila@nextfour.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, kvm <kvm@vger.kernel.org>
+Cc:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Joao Martins <joao.m.martins@oracle.com>,
+        "jmattson @ google . com" <jmattson@google.com>,
+        "wanpengli @ tencent . com" <wanpengli@tencent.com>,
+        "seanjc @ google . com" <seanjc@google.com>,
+        "vkuznets @ redhat . com" <vkuznets@redhat.com>,
+        "mtosatti @ redhat . com" <mtosatti@redhat.com>,
+        "joro @ 8bytes . org" <joro@8bytes.org>, karahmed@amazon.com,
+        Marc Zyngier <maz@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Anup Patel <anup.patel@wdc.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        kvmarm@lists.cs.columbia.edu,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org
+Date:   Sat, 20 Nov 2021 17:02:03 +0000
+In-Reply-To: <b806de35-167a-4c7c-f143-cff3ec279491@nextfour.com>
+References: <20211120102810.8858-1-dwmw2@infradead.org>
+         <20211120102810.8858-12-dwmw2@infradead.org>
+         <d87de1ec-8be7-3967-87b2-c8906c1ab1b3@nextfour.com>
+         <8f434989aebd257a36cafcb414edcc5906c02728.camel@infradead.org>
+         <b806de35-167a-4c7c-f143-cff3ec279491@nextfour.com>
+Content-Type: multipart/signed; micalg="sha-256"; protocol="application/pkcs7-signature";
+        boundary="=-4SL7/aYUfCZQHkl1DXdk"
+User-Agent: Evolution 3.36.5-0ubuntu1 
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: Regression in v5.16-rc1: Timeout in mlx5_health_wait_pci_up() may
- try to wait 245 million years
-Content-Language: en-US
-To:     Niklas Schnelle <schnelle@linux.ibm.com>,
-        Amir Tzin <amirtz@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-CC:     netdev <netdev@vger.kernel.org>, <regressions@lists.linux.dev>,
-        linux-s390 <linux-s390@vger.kernel.org>
-References: <15db9c1d11d32fb16269afceb527b5d743177ac4.camel@linux.ibm.com>
-From:   Moshe Shemesh <moshe@nvidia.com>
-In-Reply-To: <15db9c1d11d32fb16269afceb527b5d743177ac4.camel@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [172.20.187.6]
-X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
- HQMAIL107.nvidia.com (172.20.187.13)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 0822dfdb-1aca-4194-6aa0-08d9ac443673
-X-MS-TrafficTypeDiagnostic: CY4PR1201MB2550:
-X-Microsoft-Antispam-PRVS: <CY4PR1201MB2550E042BC6B770FF2684D4DD49D9@CY4PR1201MB2550.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: pzr16T/09RHWNcyR2TOmx1jnLI48dhsRG2UTaErvVKf2f3a5pks2dXCCXsBC0JWtOXwxnQLE/UN/Qv0mq5dRibLUF2XUQ8fZ/kEqyGdXgpTPXKxJmo+Gfjy0DkaMNTroof8PflBoie2rJajBY8H36E+fI5qGEy8aWkMSq303lYHnHG5xG/GoFzqW7bQuaB4ec731r9ONj8RMsSAoR8R/mYCnFE/jtgsBmtxLHN1asBg9kl/C61mwSiodMzTPrplllaTF+kml5uyUz6pis0CwcLO7kahhA38iinrvOlLXeJS+Bd8LWbAcnh0kn8E+bUR+fRcvnvSU+cYJD3eygkUi62QpsbH7N0n/dypZ/mXXAzYDFDVa4Ryy7Jv7t82XuXUH/WpDMzaRe581SJEsTkow1tHW2jD1UisL+QJBVs6Ug1lkHv1I4UBPFeoHe35QrKHPmqz2Amik1aSX4xArafosR6KeP5OPd5XpBgE43l2YgIcJBBgDF5Y/52LGtGvI199oqsT5wih3YHyspqZJ1Ky94wFtF4Nn88Dl/FG746Fso+7KaFhaBF9Ow/cWpk9yIfL4HSeVWOUEtQRiikr0qXjT8+6GJtR+OQBlILtoObc5Ie+Nvf3miu3TKFwTD/tz3u+SVAjZj3vxm1MavX0wHMQLStPSCwEheZTFZMUVOI+8TCyGAAOF6IHlD86X4N6RTEzw78IgbWJKHpAoQH78P4gGUUmzQ5CLmw9i8iK4uFu2rq0=
-X-Forefront-Antispam-Report: CIP:216.228.112.34;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid03.nvidia.com;CAT:NONE;SFS:(4636009)(36840700001)(46966006)(54906003)(47076005)(2616005)(70586007)(5660300002)(82310400003)(16576012)(110136005)(8676002)(31696002)(426003)(508600001)(356005)(36906005)(2906002)(26005)(86362001)(336012)(316002)(70206006)(186003)(6636002)(16526019)(36756003)(4326008)(31686004)(36860700001)(8936002)(7636003)(83380400001)(53546011)(43740500002);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Nov 2021 16:38:41.9833
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0822dfdb-1aca-4194-6aa0-08d9ac443673
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.34];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT043.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR1201MB2550
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Thank you for reporting Niklas.
 
-This is actually a case of use after free, as following that patch the 
-recovery flow goes through mlx5_tout_cleanup() while timeouts structure 
-is still needed in this flow.
+--=-4SL7/aYUfCZQHkl1DXdk
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-We know the root cause and will send a fix.
+On Sat, 2021-11-20 at 18:30 +0200, Mika Penttil=C3=A4 wrote:
+>=20
+> On 20.11.2021 18.21, David Woodhouse wrote:
+> > On Sat, 2021-11-20 at 17:48 +0200, Mika Penttil=C3=A4 wrote:
+> > > > @@ -9785,6 +9787,14 @@ static int vcpu_enter_guest(struct kvm_vcpu =
+*vcpu)
+> > > >         local_irq_disable();
+> > > >         vcpu->mode =3D IN_GUEST_MODE;
+> > > >    =20
+> > > > +     /*
+> > > > +      * If the guest requires direct access to mapped L1 pages, ch=
+eck
+> > > > +      * the caches are valid. Will raise KVM_REQ_GET_NESTED_STATE_=
+PAGES
+> > > > +      * to go and revalidate them, if necessary.
+> > > > +      */
+> > > > +     if (is_guest_mode(vcpu) && kvm_x86_ops.nested_ops->check_gues=
+t_maps)
+> > > > +             kvm_x86_ops.nested_ops->check_guest_maps(vcpu);
+> > >
+> > > But KVM_REQ_GET_NESTED_STATE_PAGES is not check until next
+> > > vcpu_enter_guest() entry ?
+> >
+> > Sure, but that's why this call to ->check_guest_maps() comes just a few
+> > lines *before* the 'if (kvm_cpu_exit_request(vcpu))' that will bounce
+> > us back out so that we go through vcpu_enter_guest() from the start
+> > again?
+>
+> Yes, I had forgotten that...=3D
+
+Having said that, I think Paolo was rightly trying to persuade me that
+we don't need the check there at all anyway. Because the *invalidation*
+will raise KVM_REQ_GPC_INVALIDATE, and that's sufficient to bounce us
+out of IN_GUEST_MODE without us having to check the GPC explicitly.
+
+We do need to ensure that we are up to date with memslots changes, but
+that's a bit simpler, and we have kvm_arch_memslots_changed() waking us
+for that too.
+
+So yeah, with sufficient thought I think we can be entirely event-
+driven instead of having to have an explicit *check* on entry.
 
 
-Thanks,
 
-Moshe.
 
-On 11/19/2021 12:58 PM, Niklas Schnelle wrote:
-> Hello Amir, Moshe, and Saeed,
->
-> (resent due to wrong netdev mailing list address, sorry about that)
->
-> During testing of PCI device recovery, I found a problem in the mlx5
-> recovery support introduced in v5.16-rc1 by commit 32def4120e48
-> ("net/mlx5: Read timeout values from DTOR"). It follows my analysis of
-> the problem.
->
-> When the device is in an error state, at least on s390 but I believe
-> also on other systems, it is isolated and all PCI MMIO reads return
-> 0xff. This is detected by your driver and it will immediately attempt
-> to recovery the device with a mlx5_core driver specific recovery
-> mechanism. Since at this point no reset has been done that would take
-> the device out of isolation this will of course fail as it can't
-> communicate with the device. Under normal circumstances this reset
-> would happen later during the new recovery flow introduced in
-> 4cdf2f4e24ff ("s390/pci: implement minimal PCI error recovery") once
-> firmware has done their side of the recovery allowing that to succeed
-> once the driver specific recovery has failed.
->
-> With v5.16-rc1 however the driver specific recovery gets stuck holding
-> locks which will block our recovery. Without our recovery mechanism
-> this can also be seen by "echo 1 > /sys/bus/pci/devices/<dev>/remove"
-> which hangs on the device lock forever.
->
-> Digging into this I tracked the problem down to
-> mlx5_health_wait_pci_up() hangig. I added a debug print to it and it
-> turns out that with the device isolated mlx5_tout_ms(dev, FW_RESET)
-> returns 774039849367420401 (0x6B...6B) milliseconds and we try to wait
-> 245 million years. After reverting that commit things work again,
-> though of course the driver specific recovery flow will still fail
-> before ours can kick in and finally succeed.
->
-> Thanks,
-> Niklas Schnelle
->
-> #regzbot introduced: 32def4120e48
->
+--=-4SL7/aYUfCZQHkl1DXdk
+Content-Type: application/pkcs7-signature; name="smime.p7s"
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Transfer-Encoding: base64
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwEAAKCCECow
+ggUcMIIEBKADAgECAhEA4rtJSHkq7AnpxKUY8ZlYZjANBgkqhkiG9w0BAQsFADCBlzELMAkGA1UE
+BhMCR0IxGzAZBgNVBAgTEkdyZWF0ZXIgTWFuY2hlc3RlcjEQMA4GA1UEBxMHU2FsZm9yZDEaMBgG
+A1UEChMRQ09NT0RPIENBIExpbWl0ZWQxPTA7BgNVBAMTNENPTU9ETyBSU0EgQ2xpZW50IEF1dGhl
+bnRpY2F0aW9uIGFuZCBTZWN1cmUgRW1haWwgQ0EwHhcNMTkwMTAyMDAwMDAwWhcNMjIwMTAxMjM1
+OTU5WjAkMSIwIAYJKoZIhvcNAQkBFhNkd213MkBpbmZyYWRlYWQub3JnMIIBIjANBgkqhkiG9w0B
+AQEFAAOCAQ8AMIIBCgKCAQEAsv3wObLTCbUA7GJqKj9vHGf+Fa+tpkO+ZRVve9EpNsMsfXhvFpb8
+RgL8vD+L133wK6csYoDU7zKiAo92FMUWaY1Hy6HqvVr9oevfTV3xhB5rQO1RHJoAfkvhy+wpjo7Q
+cXuzkOpibq2YurVStHAiGqAOMGMXhcVGqPuGhcVcVzVUjsvEzAV9Po9K2rpZ52FE4rDkpDK1pBK+
+uOAyOkgIg/cD8Kugav5tyapydeWMZRJQH1vMQ6OVT24CyAn2yXm2NgTQMS1mpzStP2ioPtTnszIQ
+Ih7ASVzhV6csHb8Yrkx8mgllOyrt9Y2kWRRJFm/FPRNEurOeNV6lnYAXOymVJwIDAQABo4IB0zCC
+Ac8wHwYDVR0jBBgwFoAUgq9sjPjF/pZhfOgfPStxSF7Ei8AwHQYDVR0OBBYEFLfuNf820LvaT4AK
+xrGK3EKx1DE7MA4GA1UdDwEB/wQEAwIFoDAMBgNVHRMBAf8EAjAAMB0GA1UdJQQWMBQGCCsGAQUF
+BwMEBggrBgEFBQcDAjBGBgNVHSAEPzA9MDsGDCsGAQQBsjEBAgEDBTArMCkGCCsGAQUFBwIBFh1o
+dHRwczovL3NlY3VyZS5jb21vZG8ubmV0L0NQUzBaBgNVHR8EUzBRME+gTaBLhklodHRwOi8vY3Js
+LmNvbW9kb2NhLmNvbS9DT01PRE9SU0FDbGllbnRBdXRoZW50aWNhdGlvbmFuZFNlY3VyZUVtYWls
+Q0EuY3JsMIGLBggrBgEFBQcBAQR/MH0wVQYIKwYBBQUHMAKGSWh0dHA6Ly9jcnQuY29tb2RvY2Eu
+Y29tL0NPTU9ET1JTQUNsaWVudEF1dGhlbnRpY2F0aW9uYW5kU2VjdXJlRW1haWxDQS5jcnQwJAYI
+KwYBBQUHMAGGGGh0dHA6Ly9vY3NwLmNvbW9kb2NhLmNvbTAeBgNVHREEFzAVgRNkd213MkBpbmZy
+YWRlYWQub3JnMA0GCSqGSIb3DQEBCwUAA4IBAQALbSykFusvvVkSIWttcEeifOGGKs7Wx2f5f45b
+nv2ghcxK5URjUvCnJhg+soxOMoQLG6+nbhzzb2rLTdRVGbvjZH0fOOzq0LShq0EXsqnJbbuwJhK+
+PnBtqX5O23PMHutP1l88AtVN+Rb72oSvnD+dK6708JqqUx2MAFLMevrhJRXLjKb2Mm+/8XBpEw+B
+7DisN4TMlLB/d55WnT9UPNHmQ+3KFL7QrTO8hYExkU849g58Dn3Nw3oCbMUgny81ocrLlB2Z5fFG
+Qu1AdNiBA+kg/UxzyJZpFbKfCITd5yX49bOriL692aMVDyqUvh8fP+T99PqorH4cIJP6OxSTdxKM
+MIIFHDCCBASgAwIBAgIRAOK7SUh5KuwJ6cSlGPGZWGYwDQYJKoZIhvcNAQELBQAwgZcxCzAJBgNV
+BAYTAkdCMRswGQYDVQQIExJHcmVhdGVyIE1hbmNoZXN0ZXIxEDAOBgNVBAcTB1NhbGZvcmQxGjAY
+BgNVBAoTEUNPTU9ETyBDQSBMaW1pdGVkMT0wOwYDVQQDEzRDT01PRE8gUlNBIENsaWVudCBBdXRo
+ZW50aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBMB4XDTE5MDEwMjAwMDAwMFoXDTIyMDEwMTIz
+NTk1OVowJDEiMCAGCSqGSIb3DQEJARYTZHdtdzJAaW5mcmFkZWFkLm9yZzCCASIwDQYJKoZIhvcN
+AQEBBQADggEPADCCAQoCggEBALL98Dmy0wm1AOxiaio/bxxn/hWvraZDvmUVb3vRKTbDLH14bxaW
+/EYC/Lw/i9d98CunLGKA1O8yogKPdhTFFmmNR8uh6r1a/aHr301d8YQea0DtURyaAH5L4cvsKY6O
+0HF7s5DqYm6tmLq1UrRwIhqgDjBjF4XFRqj7hoXFXFc1VI7LxMwFfT6PStq6WedhROKw5KQytaQS
+vrjgMjpICIP3A/CroGr+bcmqcnXljGUSUB9bzEOjlU9uAsgJ9sl5tjYE0DEtZqc0rT9oqD7U57My
+ECIewElc4VenLB2/GK5MfJoJZTsq7fWNpFkUSRZvxT0TRLqznjVepZ2AFzsplScCAwEAAaOCAdMw
+ggHPMB8GA1UdIwQYMBaAFIKvbIz4xf6WYXzoHz0rcUhexIvAMB0GA1UdDgQWBBS37jX/NtC72k+A
+CsaxitxCsdQxOzAOBgNVHQ8BAf8EBAMCBaAwDAYDVR0TAQH/BAIwADAdBgNVHSUEFjAUBggrBgEF
+BQcDBAYIKwYBBQUHAwIwRgYDVR0gBD8wPTA7BgwrBgEEAbIxAQIBAwUwKzApBggrBgEFBQcCARYd
+aHR0cHM6Ly9zZWN1cmUuY29tb2RvLm5ldC9DUFMwWgYDVR0fBFMwUTBPoE2gS4ZJaHR0cDovL2Ny
+bC5jb21vZG9jYS5jb20vQ09NT0RPUlNBQ2xpZW50QXV0aGVudGljYXRpb25hbmRTZWN1cmVFbWFp
+bENBLmNybDCBiwYIKwYBBQUHAQEEfzB9MFUGCCsGAQUFBzAChklodHRwOi8vY3J0LmNvbW9kb2Nh
+LmNvbS9DT01PRE9SU0FDbGllbnRBdXRoZW50aWNhdGlvbmFuZFNlY3VyZUVtYWlsQ0EuY3J0MCQG
+CCsGAQUFBzABhhhodHRwOi8vb2NzcC5jb21vZG9jYS5jb20wHgYDVR0RBBcwFYETZHdtdzJAaW5m
+cmFkZWFkLm9yZzANBgkqhkiG9w0BAQsFAAOCAQEAC20spBbrL71ZEiFrbXBHonzhhirO1sdn+X+O
+W579oIXMSuVEY1LwpyYYPrKMTjKECxuvp24c829qy03UVRm742R9Hzjs6tC0oatBF7KpyW27sCYS
+vj5wbal+TttzzB7rT9ZfPALVTfkW+9qEr5w/nSuu9PCaqlMdjABSzHr64SUVy4ym9jJvv/FwaRMP
+gew4rDeEzJSwf3eeVp0/VDzR5kPtyhS+0K0zvIWBMZFPOPYOfA59zcN6AmzFIJ8vNaHKy5QdmeXx
+RkLtQHTYgQPpIP1Mc8iWaRWynwiE3ecl+PWzq4i+vdmjFQ8qlL4fHz/k/fT6qKx+HCCT+jsUk3cS
+jDCCBeYwggPOoAMCAQICEGqb4Tg7/ytrnwHV2binUlYwDQYJKoZIhvcNAQEMBQAwgYUxCzAJBgNV
+BAYTAkdCMRswGQYDVQQIExJHcmVhdGVyIE1hbmNoZXN0ZXIxEDAOBgNVBAcTB1NhbGZvcmQxGjAY
+BgNVBAoTEUNPTU9ETyBDQSBMaW1pdGVkMSswKQYDVQQDEyJDT01PRE8gUlNBIENlcnRpZmljYXRp
+b24gQXV0aG9yaXR5MB4XDTEzMDExMDAwMDAwMFoXDTI4MDEwOTIzNTk1OVowgZcxCzAJBgNVBAYT
+AkdCMRswGQYDVQQIExJHcmVhdGVyIE1hbmNoZXN0ZXIxEDAOBgNVBAcTB1NhbGZvcmQxGjAYBgNV
+BAoTEUNPTU9ETyBDQSBMaW1pdGVkMT0wOwYDVQQDEzRDT01PRE8gUlNBIENsaWVudCBBdXRoZW50
+aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKC
+AQEAvrOeV6wodnVAFsc4A5jTxhh2IVDzJXkLTLWg0X06WD6cpzEup/Y0dtmEatrQPTRI5Or1u6zf
++bGBSyD9aH95dDSmeny1nxdlYCeXIoymMv6pQHJGNcIDpFDIMypVpVSRsivlJTRENf+RKwrB6vcf
+WlP8dSsE3Rfywq09N0ZfxcBa39V0wsGtkGWC+eQKiz4pBZYKjrc5NOpG9qrxpZxyb4o4yNNwTqza
+aPpGRqXB7IMjtf7tTmU2jqPMLxFNe1VXj9XB1rHvbRikw8lBoNoSWY66nJN/VCJv5ym6Q0mdCbDK
+CMPybTjoNCQuelc0IAaO4nLUXk0BOSxSxt8kCvsUtQIDAQABo4IBPDCCATgwHwYDVR0jBBgwFoAU
+u69+Aj36pvE8hI6t7jiY7NkyMtQwHQYDVR0OBBYEFIKvbIz4xf6WYXzoHz0rcUhexIvAMA4GA1Ud
+DwEB/wQEAwIBhjASBgNVHRMBAf8ECDAGAQH/AgEAMBEGA1UdIAQKMAgwBgYEVR0gADBMBgNVHR8E
+RTBDMEGgP6A9hjtodHRwOi8vY3JsLmNvbW9kb2NhLmNvbS9DT01PRE9SU0FDZXJ0aWZpY2F0aW9u
+QXV0aG9yaXR5LmNybDBxBggrBgEFBQcBAQRlMGMwOwYIKwYBBQUHMAKGL2h0dHA6Ly9jcnQuY29t
+b2RvY2EuY29tL0NPTU9ET1JTQUFkZFRydXN0Q0EuY3J0MCQGCCsGAQUFBzABhhhodHRwOi8vb2Nz
+cC5jb21vZG9jYS5jb20wDQYJKoZIhvcNAQEMBQADggIBAHhcsoEoNE887l9Wzp+XVuyPomsX9vP2
+SQgG1NgvNc3fQP7TcePo7EIMERoh42awGGsma65u/ITse2hKZHzT0CBxhuhb6txM1n/y78e/4ZOs
+0j8CGpfb+SJA3GaBQ+394k+z3ZByWPQedXLL1OdK8aRINTsjk/H5Ns77zwbjOKkDamxlpZ4TKSDM
+KVmU/PUWNMKSTvtlenlxBhh7ETrN543j/Q6qqgCWgWuMAXijnRglp9fyadqGOncjZjaaSOGTTFB+
+E2pvOUtY+hPebuPtTbq7vODqzCM6ryEhNhzf+enm0zlpXK7q332nXttNtjv7VFNYG+I31gnMrwfH
+M5tdhYF/8v5UY5g2xANPECTQdu9vWPoqNSGDt87b3gXb1AiGGaI06vzgkejL580ul+9hz9D0S0U4
+jkhJiA7EuTecP/CFtR72uYRBcunwwH3fciPjviDDAI9SnC/2aPY8ydehzuZutLbZdRJ5PDEJM/1t
+yZR2niOYihZ+FCbtf3D9mB12D4ln9icgc7CwaxpNSCPt8i/GqK2HsOgkL3VYnwtx7cJUmpvVdZ4o
+gnzgXtgtdk3ShrtOS1iAN2ZBXFiRmjVzmehoMof06r1xub+85hFQzVxZx5/bRaTKTlL8YXLI8nAb
+R9HWdFqzcOoB/hxfEyIQpx9/s81rgzdEZOofSlZHynoSMYIDyjCCA8YCAQEwga0wgZcxCzAJBgNV
+BAYTAkdCMRswGQYDVQQIExJHcmVhdGVyIE1hbmNoZXN0ZXIxEDAOBgNVBAcTB1NhbGZvcmQxGjAY
+BgNVBAoTEUNPTU9ETyBDQSBMaW1pdGVkMT0wOwYDVQQDEzRDT01PRE8gUlNBIENsaWVudCBBdXRo
+ZW50aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBAhEA4rtJSHkq7AnpxKUY8ZlYZjANBglghkgB
+ZQMEAgEFAKCCAe0wGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjEx
+MTIwMTcwMjAzWjAvBgkqhkiG9w0BCQQxIgQgDqdeOluGL8F7SQA0wK4ljjjYPGRqgR8Bt/078X0J
+K5swgb4GCSsGAQQBgjcQBDGBsDCBrTCBlzELMAkGA1UEBhMCR0IxGzAZBgNVBAgTEkdyZWF0ZXIg
+TWFuY2hlc3RlcjEQMA4GA1UEBxMHU2FsZm9yZDEaMBgGA1UEChMRQ09NT0RPIENBIExpbWl0ZWQx
+PTA7BgNVBAMTNENPTU9ETyBSU0EgQ2xpZW50IEF1dGhlbnRpY2F0aW9uIGFuZCBTZWN1cmUgRW1h
+aWwgQ0ECEQDiu0lIeSrsCenEpRjxmVhmMIHABgsqhkiG9w0BCRACCzGBsKCBrTCBlzELMAkGA1UE
+BhMCR0IxGzAZBgNVBAgTEkdyZWF0ZXIgTWFuY2hlc3RlcjEQMA4GA1UEBxMHU2FsZm9yZDEaMBgG
+A1UEChMRQ09NT0RPIENBIExpbWl0ZWQxPTA7BgNVBAMTNENPTU9ETyBSU0EgQ2xpZW50IEF1dGhl
+bnRpY2F0aW9uIGFuZCBTZWN1cmUgRW1haWwgQ0ECEQDiu0lIeSrsCenEpRjxmVhmMA0GCSqGSIb3
+DQEBAQUABIIBAHFCQtRj8bB81RnB2WzhXzi4BdWVU/QAWbWV1GoeN5K4kRYNLMjj/fWtIpHHL+7B
+q/u9Fcn5OJJVWs56zNjQU/3TWT9N8cU8kPL0kjLtikmOWgMuB14M3LqbAgKCMaEwagLGBiRSpL5b
+EgmhBo7jYRsDhvl7YGEKvjdx2+iMKcM9vhGrnRMrzT2562D+/v79wxUzvL3i2sMOQG7+g9aub7wJ
+uWOFAX+p1rY0uEJ3fydLr1c0/HzBmUU717KAgSNkvvhwMoalwyTroYQ7M/pIz9ZIP/21J+Es4N4b
+VRHfRlw/gTrZFBbqmdW1vn8hoSTsgaCY1x4cjYSl03y+/z/xhxkAAAAAAAA=
+
+
+--=-4SL7/aYUfCZQHkl1DXdk--
+
