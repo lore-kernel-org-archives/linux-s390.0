@@ -2,176 +2,151 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A334C433FE
-	for <linux-s390@archiver.kernel.org>; Sat, 20 Nov 2021 16:30:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00F60C433F5
+	for <linux-s390@archiver.kernel.org>; Sat, 20 Nov 2021 16:38:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231263AbhKTQda (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 20 Nov 2021 11:33:30 -0500
-Received: from mail-eopbgr150082.outbound.protection.outlook.com ([40.107.15.82]:59450
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        id S231953AbhKTQlr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 20 Nov 2021 11:41:47 -0500
+Received: from mail-co1nam11on2047.outbound.protection.outlook.com ([40.107.220.47]:34400
+        "EHLO NAM11-CO1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S229861AbhKTQd3 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 20 Nov 2021 11:33:29 -0500
+        id S231390AbhKTQlr (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 20 Nov 2021 11:41:47 -0500
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Qe+YSg/8CiCLVhCAuNIOhD130WyPrkAVkSVm1dNJwittJ+F2qKqjh4WdzjjS3rubdw2UFk5imxOdxHZWrbmEu4ocy7U2SRDyrMsOmojuekIkd5mOezo/uALnCzXXV4Pp2B7qoRsC+F/KbpKFmZykI+bbEfx/DdZV+4bfUBkf0JbpCwfSJhIjRqHGl9RiYjyH0ZrfKx/3fJ/SIiJinA8RWW0hus+yJ66vB0iCommV8S4y5eRs/7DrfEKWD/sIY4A+rsuo1LVQrde6xP6Jj/2nulxtLQxvfu0QtiC9aDS5/13LA+sCWA9FZgQCIjbl82LLyXvhVthWlbi3RN/EJvSb/g==
+ b=CclvOvqRR9+A5a3BuGU2uDenB5juh/HBZEGCqJIk04zHbBHtTHWTN0uaAE/18cfUz5adO+WgKv9AmwxNA7BljHxWRjFy3IyI7L6903vNbWHgkszOTDtgDJQckq+SR4pinayxqCjHu2J8wSpF/g8qXUt1/lb+OpEdeea5bcsAkLZOkGR4Mz7Tu4XXFZA6SvxZmap64yGGJ+g4FFjhExpIqP9h+dtKaK9vwIK+jF7Nfo/zGuTKm1H4ukwNC6XhNVbC0I9iOtgZH4xBqcqaDdR9ZBi4OXiCY8h2jf2QZ9QW+pvm164yOZL+khKajDx986ZgGQLGIjGOO5/IdQUdxWYXpg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=fuorUIDJ10syTZ83FH4BhOwXIcTWC2m2jgrIkRDpEec=;
- b=VpxdTo7IMF7jnnCzAwhj57qdM5NmcBsxLllXgllyeDv8pBA2cG33Zr+J+BuQYiwqJj4wxu9oV0yuXa+rF2w8oP0vdzdLBj3qjBRL207Tvg4ohqXySGMkUl0/Tsq3u+WZeT04s3RSeuiK3KWX2QR0DSnlR/l2BVyPqva3Npg45ZGB/EMbj1H/EEZ6mIl8XRIipXRajlFORFGOEIluW1fEMCjcWP9ESWF0+nJ2XWNWsVoJ+KInz4C4GywaaOrJhy4jQOlhajTWEVOfoYGp+1MRYq1gjnHN64nO6RlUmlWH5uT4niXVC120c9D0uavCmWFAZR1/WHLlVMgD3qQkqLqjYQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nextfour.com; dmarc=pass action=none header.from=nextfour.com;
- dkim=pass header.d=nextfour.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=NextfourGroupOy.onmicrosoft.com;
- s=selector2-NextfourGroupOy-onmicrosoft-com;
+ bh=8w7VI9nHrW6Bo6BciDf+xS3BZ3J5x4jhQl3BnKXQO8s=;
+ b=BnVi5iB1oaOPrgP6ZnE4ZxwQV8qkdrdCtP23JUxiuaKx+PjuXWS3Ak4ZlydPWrUrwqV2gvuDVAsDmZzFqM4OLmQjG+FRHjeRtVXdWqTO6YdYdVCf+nHL2rkZzGBzN6egPI9NgZtvTBUkc5Zbx4M/phDU0jOtOj3X+M23M6ONrGgbmYhiMfzBLy0pbMhHDgKpU34TM0B7P1cP4dmXXZICUHlpRJYuae3KT0KZpPshfXHKgldGgNDdur82VKT+EMY+f69eDzJPMio7gTVfduTYQugrTk3jRUfrmHzyfHs8PpUOAl7e43cJjlsqf2tffHQ5b1btt9l8XJ3TDr2GRmXhzw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.112.34) smtp.rcpttodomain=lists.linux.dev smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
+ header.from=nvidia.com; dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=fuorUIDJ10syTZ83FH4BhOwXIcTWC2m2jgrIkRDpEec=;
- b=Souxx6s8HSiJfrWOuEcH8gfbTskVQ2yM2WjxlAJ3xpD6J5GPLyD0AdKnjRZiRYiwfwL+77HvdAd8YVd7tZfgkq2y0hSVOZK8wAmo1S676DFj5Zpe9s6FqCo9CRXfKRDoKsd/vanHZtjS5Yk2K1u+quRMtrbDnYBYcZXYSTDGDb4=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nextfour.com;
-Received: from DBAPR03MB6630.eurprd03.prod.outlook.com (2603:10a6:10:194::6)
- by DB8PR03MB5546.eurprd03.prod.outlook.com (2603:10a6:10:106::33) with
+ bh=8w7VI9nHrW6Bo6BciDf+xS3BZ3J5x4jhQl3BnKXQO8s=;
+ b=OzI5LlCqHPNpX6uVrcEhrZCBcAghaAd2si+aEI8gR4Rb5L71GMreMvUbJV3OOJy0E8PJUj1gvxaCMroHBFcpZClkPrMkxrAu+JhqSEv7f6AbdI0pKXTyOQ2eXkq0uS3j4UOdNwcSbm0/ASTAv1Qj/skkkJjx76NKYgnEags6GdBW4//aqvdDp0bLcA+Io+cqFZ4V4H2QVapDcd5U1Z8c3OWaDaBD67Wrlc4p7EE30xkqjanhqa3GmXwadCPpRTiwHXca50ZCNfWTKJLDAeoLDRFVKfPtGenO9Ygg39VqK85agPEkKb9YOHUhhs8/RzIxTt2fefYkGpEa+GKOP1dpJQ==
+Received: from CO1PR15CA0059.namprd15.prod.outlook.com (2603:10b6:101:1f::27)
+ by CY4PR1201MB2550.namprd12.prod.outlook.com (2603:10b6:903:ce::13) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4713.19; Sat, 20 Nov
- 2021 16:30:23 +0000
-Received: from DBAPR03MB6630.eurprd03.prod.outlook.com
- ([fe80::78b9:c389:1d86:b28e]) by DBAPR03MB6630.eurprd03.prod.outlook.com
- ([fe80::78b9:c389:1d86:b28e%8]) with mapi id 15.20.4713.024; Sat, 20 Nov 2021
- 16:30:23 +0000
-Subject: Re: [PATCH v4 11/11] KVM: x86: First attempt at converting nested
- virtual APIC page to gpc
-To:     David Woodhouse <dwmw2@infradead.org>,
-        Paolo Bonzini <pbonzini@redhat.com>, kvm <kvm@vger.kernel.org>
-Cc:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Joao Martins <joao.m.martins@oracle.com>,
-        "jmattson @ google . com" <jmattson@google.com>,
-        "wanpengli @ tencent . com" <wanpengli@tencent.com>,
-        "seanjc @ google . com" <seanjc@google.com>,
-        "vkuznets @ redhat . com" <vkuznets@redhat.com>,
-        "mtosatti @ redhat . com" <mtosatti@redhat.com>,
-        "joro @ 8bytes . org" <joro@8bytes.org>, karahmed@amazon.com,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Anup Patel <anup.patel@wdc.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        kvmarm@lists.cs.columbia.edu,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org
-References: <20211120102810.8858-1-dwmw2@infradead.org>
- <20211120102810.8858-12-dwmw2@infradead.org>
- <d87de1ec-8be7-3967-87b2-c8906c1ab1b3@nextfour.com>
- <8f434989aebd257a36cafcb414edcc5906c02728.camel@infradead.org>
-From:   =?UTF-8?Q?Mika_Penttil=c3=a4?= <mika.penttila@nextfour.com>
-Message-ID: <b806de35-167a-4c7c-f143-cff3ec279491@nextfour.com>
-Date:   Sat, 20 Nov 2021 18:30:18 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
-In-Reply-To: <8f434989aebd257a36cafcb414edcc5906c02728.camel@infradead.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-ClientProxiedBy: HE1PR05CA0307.eurprd05.prod.outlook.com
- (2603:10a6:7:93::38) To DBAPR03MB6630.eurprd03.prod.outlook.com
- (2603:10a6:10:194::6)
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4713.22; Sat, 20 Nov
+ 2021 16:38:42 +0000
+Received: from CO1NAM11FT043.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:101:1f:cafe::57) by CO1PR15CA0059.outlook.office365.com
+ (2603:10b6:101:1f::27) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4713.21 via Frontend
+ Transport; Sat, 20 Nov 2021 16:38:42 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.34)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.112.34 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.112.34; helo=mail.nvidia.com;
+Received: from mail.nvidia.com (216.228.112.34) by
+ CO1NAM11FT043.mail.protection.outlook.com (10.13.174.193) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.4713.20 via Frontend Transport; Sat, 20 Nov 2021 16:38:41 +0000
+Received: from [172.27.0.193] (172.20.187.6) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Sat, 20 Nov
+ 2021 16:38:39 +0000
+Message-ID: <129f5e00-db76-3230-75a5-243e8cd5beb0@nvidia.com>
+Date:   Sat, 20 Nov 2021 18:38:37 +0200
 MIME-Version: 1.0
-Received: from [192.168.1.121] (91.145.109.188) by HE1PR05CA0307.eurprd05.prod.outlook.com (2603:10a6:7:93::38) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4713.19 via Frontend Transport; Sat, 20 Nov 2021 16:30:20 +0000
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: Regression in v5.16-rc1: Timeout in mlx5_health_wait_pci_up() may
+ try to wait 245 million years
+Content-Language: en-US
+To:     Niklas Schnelle <schnelle@linux.ibm.com>,
+        Amir Tzin <amirtz@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>
+CC:     netdev <netdev@vger.kernel.org>, <regressions@lists.linux.dev>,
+        linux-s390 <linux-s390@vger.kernel.org>
+References: <15db9c1d11d32fb16269afceb527b5d743177ac4.camel@linux.ibm.com>
+From:   Moshe Shemesh <moshe@nvidia.com>
+In-Reply-To: <15db9c1d11d32fb16269afceb527b5d743177ac4.camel@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [172.20.187.6]
+X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 81f9dad8-862d-4ed8-b579-08d9ac430cf2
-X-MS-TrafficTypeDiagnostic: DB8PR03MB5546:
-X-Microsoft-Antispam-PRVS: <DB8PR03MB55469B336CDBAE0A8F71AB1D839D9@DB8PR03MB5546.eurprd03.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:6790;
+X-MS-Office365-Filtering-Correlation-Id: 0822dfdb-1aca-4194-6aa0-08d9ac443673
+X-MS-TrafficTypeDiagnostic: CY4PR1201MB2550:
+X-Microsoft-Antispam-PRVS: <CY4PR1201MB2550E042BC6B770FF2684D4DD49D9@CY4PR1201MB2550.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: +JoNZ1kg7O3Ltu/OYsQfTWwJqqh0QigBQs5kaGf+nhbMrMvz3G6si0TclBBs/NPQHEvIFfFBUstyu2i4JeqFJz3q1ceze9yQPDnfUkNNO0yMpmsQYa+x6hSw9umqRTFHOPYojicq5+9J8F3ge5PMXY+Xvz47Yq0kT0/I9yBr5vPuF/fL5MuiAXfrVaLQ5XCVwoOm+qCNleDIzknxx+tG72++T5i1+qK9/Ssr0hRqk5iXjGZFB714mL81vqXQV+wldmAebboWNTja5ZhbWGUBe8Dmh+znlJvrb/mec98uil2AmNgwVfQrBeR3L05FsflqlcGRVAey/aK3tSd529kZ4r7VMcCtVuS7mz8lXSqckLuKQvIzR7G5U4ZcngQDftnms08aVRrXx7dja8yQTRlf182tyHNlYJdb5hLPT9l77OuPwWa6ClQ8bJXyAqvzcPNXYOJFUlQF4qvRrX18vLZnCXGO9Fue8NR7mHJNRcdkeVuaR1U1/m4qMyZWn5glYOlYcCD1m9YQ67uo3kFW9BrYMXsCXvcxMgZQs8Cp6oV7QEn/ee40OJ2+Z1wFB4+pivA0wtpG9tM9TZBk2aoSspbjHsrE6lIzBqFnpfno7KKojb6kPu/75dmSY7iV33FIjPTUYEkBuh/Yh35cBtk+Hos1unNwSOZm1fFe5ipvYuEqSaJMIjEC/9dx0xNPY/Ydmi3YmZZeGy0ZA+NQTybLj5oNvMMLwWgFYKtq1FSFrn2NTD3qLnibA8wnpzPMe5DZ3w/OHs15FlheUAo17Jl91kYTMw==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DBAPR03MB6630.eurprd03.prod.outlook.com;PTR:;CAT:NONE;SFS:(39830400003)(346002)(376002)(366004)(396003)(136003)(8936002)(86362001)(6486002)(38350700002)(38100700002)(7416002)(7406005)(8676002)(83380400001)(2616005)(956004)(66476007)(186003)(31696002)(508600001)(5660300002)(4001150100001)(31686004)(26005)(66556008)(2906002)(4744005)(36756003)(316002)(16576012)(66946007)(54906003)(4326008)(110136005)(52116002)(45980500001)(43740500002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?TDdua0tkWkJ2U0pRU3RpZVhtL1FzNndndlRWeTdwdnFmVnZGazdiY1pUUGFT?=
- =?utf-8?B?bms5eFdnL25rUDVXa240ZmFrN3gySU9jMmhDUFN2ZmIwdDVkVDU3cmU4V010?=
- =?utf-8?B?SEdLN3I3VVExam9RNUF5eXJTR2xlZ2lSRjgxa1hJNXgwL09UUWI1Y0hzTkRt?=
- =?utf-8?B?QUU3L0J5TXROWFlQZkVBWDJZd1J2OEFzSDV6OTRNbWF5cjdFV2g1ekQxR25r?=
- =?utf-8?B?Y0VIemtBckJ1eHVxeTBRbW9HRll6V3EvRHBvUXRENFRBVG9oU2k0MTNsZ0F3?=
- =?utf-8?B?TjFoZkpDekdrdGVNcWlTdGw0clhVOHpXdlJhZVNDUmZkUTRObzlWZG5XRTNT?=
- =?utf-8?B?RWRRaFJ6MEtBWDNhK3VIUmZpT0pKRW9aUGNSZFVPUjZOMnYxNEk1SHNTRnVC?=
- =?utf-8?B?ZTZweXlhejU1elV0cUEyWUw5Q1dIbTVsaTlTMm5rQ1MyNTBrSGpvZ3d5eWR2?=
- =?utf-8?B?Y2Q5d3RXZ2dDcmtRK0xld1lQamlXc2xwbnZsVU9pZ09tUzA2WnJ4Z0lGVVBC?=
- =?utf-8?B?alE4aSt6MGl5cTZoN1pSczFHZHZXamg2RGltWTlmdmVPU200N1pUNHVPaVp0?=
- =?utf-8?B?MzBBT1pGRjh5bndZK0E5V29DRyszaGxOWkRwLytKVEkrYTlsejNLaUNSWVpS?=
- =?utf-8?B?a214amRBNklLclhSVGE3K2o2R0czSjhHK0M5c2lveG1MckJ1T2RWQWxYeDQw?=
- =?utf-8?B?blJCcFM0M08vWWs3am5iU1d4MmtrUDk4aE5SQ3pGMkYvYWp6SmlhcVNON1NK?=
- =?utf-8?B?azJ1NFpxSnlDZS9jNDZPYytDbTkvZjY5L1N5MFdqZlJjQ1hObjhZSjVMY2Ex?=
- =?utf-8?B?V3N6UjAyWCt6M2dsbktSeXB1VFlPTXBsa0UvNk9XUWJwWk5jVjlUbXF5S1V1?=
- =?utf-8?B?SnY0Tnc2ajhQaFZ1N1V1bXV3dGhOWjcreTd0eHhhL1NaWkt6SS9uZGF2N3Uz?=
- =?utf-8?B?NFdqV3FSbGVGdm95ZzBpaXNSTXVBYWsyR2U2cG5ONTIzTEpVeGJtdC9rcVlE?=
- =?utf-8?B?QkJNbWVrS1gwclBoVUR6SHFhTGpSaEg0NGt2UkRvazJ1WERFaUNlUHJWTm9J?=
- =?utf-8?B?cnJNcTVQOUhWdDFhbnBBalJLV2luSFNWSFV3WCtZOEJHRWRzVFFyTUVVQ1pG?=
- =?utf-8?B?OFNXbUxkQnV5bDhQaHROWDhFeVA2L3FRaVZlZDVsUWtmSmVqbTZ2aWpqekph?=
- =?utf-8?B?akNtR0Vsc1pBZEVoa1JaVHhmQmYwdHlrazIrczZRTHhPY1BqL08waWdPeDJn?=
- =?utf-8?B?OTNNbDFlTmh2TkRyLzhBeFozcWU0VFlEbHppb3VSdVJRRDhGUDhFOThUZU5O?=
- =?utf-8?B?ampWK2ppS1NJMjRlS2ZlTVVBOFhNcmN0Y2ZrYjkzYlBtRjUzSFBnem5YUkpE?=
- =?utf-8?B?SkxZNnpGQkIwWlFQRFpXUkZRY3QvamF2Q3hqNUF0NkNNWEdyMEtUck16dTZ1?=
- =?utf-8?B?TitubVVQZjQxaUtpWnZDMC9za3ZGN2tFckhNUjlubDVrcTlMcmsyRkdlYnJG?=
- =?utf-8?B?MnZmUDl6NlVQQTA5OU0xdk1BQUJPaG9BV2d0ZkxKUzF4QmZHZGtkYWY1TlBy?=
- =?utf-8?B?dGd2eTE2bkM2czVqOU5UZzlDcHQzNVJHU2oyK3MrVis5VnRCQ1hrSGVSaS93?=
- =?utf-8?B?c1JZM3dKUXlFamt4S3pIcml6bjZRcVRTcGxVMngyNzd0UFQ5cWdvalk0OFdm?=
- =?utf-8?B?cVZ2N3RQZlZpV09Qb21Vc1FDRHNrTWdINzJqTVVXM0lmdGtPaDVvSXl2Nnlt?=
- =?utf-8?B?bXhuVUdFRmcreXpVWXR2WmNYbHdIczJ5NVBmdFBOMG5BQlovV2dFdWdqUnQr?=
- =?utf-8?B?YlRGS0hOOTJUMndHTTJobTBJRmhZQmNkL2VWUEdBbEg4alRNNXg2MFVoTktx?=
- =?utf-8?B?UWFFVzUwdS9sTE1zYWtTKzdTQVdxUnNvMVpPNWtwRVJYUy9ySzdCWHFMYkgy?=
- =?utf-8?B?TzRiUEhFMmJReVN6SE93UXd0MmxoYWVBMFJJNWl1TGlmc2phMG9oL0lMOXVl?=
- =?utf-8?B?UE1rWmluOWhLNTNoMDkwR09Uek1rVXlIWVhHZk11d3IxT0JwaWNFcEhWRmJy?=
- =?utf-8?B?N0Z0NUt1L2llSW1jQzdzZHZmeUpuMmhVeVIrajh6TzlkQTJsL3BHaFhpb1Zl?=
- =?utf-8?B?N3BsSkVQWHU3UDVJcTBrV2VVTFQ1WGI4TUpqd00zbGp6R3JtME5DbVFwcjhj?=
- =?utf-8?B?bklzWjFVVlE0SE84c0xpQkRCcGJrRnlzV01KTmFJRS9rVVArNjZBS2JjVm1T?=
- =?utf-8?B?Sms0c2FvOWMxQWoxV3ZEeU5YMTZBPT0=?=
-X-OriginatorOrg: nextfour.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 81f9dad8-862d-4ed8-b579-08d9ac430cf2
-X-MS-Exchange-CrossTenant-AuthSource: DBAPR03MB6630.eurprd03.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Nov 2021 16:30:23.1128
+X-Microsoft-Antispam-Message-Info: pzr16T/09RHWNcyR2TOmx1jnLI48dhsRG2UTaErvVKf2f3a5pks2dXCCXsBC0JWtOXwxnQLE/UN/Qv0mq5dRibLUF2XUQ8fZ/kEqyGdXgpTPXKxJmo+Gfjy0DkaMNTroof8PflBoie2rJajBY8H36E+fI5qGEy8aWkMSq303lYHnHG5xG/GoFzqW7bQuaB4ec731r9ONj8RMsSAoR8R/mYCnFE/jtgsBmtxLHN1asBg9kl/C61mwSiodMzTPrplllaTF+kml5uyUz6pis0CwcLO7kahhA38iinrvOlLXeJS+Bd8LWbAcnh0kn8E+bUR+fRcvnvSU+cYJD3eygkUi62QpsbH7N0n/dypZ/mXXAzYDFDVa4Ryy7Jv7t82XuXUH/WpDMzaRe581SJEsTkow1tHW2jD1UisL+QJBVs6Ug1lkHv1I4UBPFeoHe35QrKHPmqz2Amik1aSX4xArafosR6KeP5OPd5XpBgE43l2YgIcJBBgDF5Y/52LGtGvI199oqsT5wih3YHyspqZJ1Ky94wFtF4Nn88Dl/FG746Fso+7KaFhaBF9Ow/cWpk9yIfL4HSeVWOUEtQRiikr0qXjT8+6GJtR+OQBlILtoObc5Ie+Nvf3miu3TKFwTD/tz3u+SVAjZj3vxm1MavX0wHMQLStPSCwEheZTFZMUVOI+8TCyGAAOF6IHlD86X4N6RTEzw78IgbWJKHpAoQH78P4gGUUmzQ5CLmw9i8iK4uFu2rq0=
+X-Forefront-Antispam-Report: CIP:216.228.112.34;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid03.nvidia.com;CAT:NONE;SFS:(4636009)(36840700001)(46966006)(54906003)(47076005)(2616005)(70586007)(5660300002)(82310400003)(16576012)(110136005)(8676002)(31696002)(426003)(508600001)(356005)(36906005)(2906002)(26005)(86362001)(336012)(316002)(70206006)(186003)(6636002)(16526019)(36756003)(4326008)(31686004)(36860700001)(8936002)(7636003)(83380400001)(53546011)(43740500002);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Nov 2021 16:38:41.9833
  (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 972e95c2-9290-4a02-8705-4014700ea294
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: mHbOCN26dQF83LOG6qSJq/RLg4PcEjkWKMjmDqspL3Y/6v/Ao4HzOXwGrpAARrlZAKqOX/U1dS2FW1dD2FCTcooK4xVz3MuTLhOqaOPH8G8=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB8PR03MB5546
+X-MS-Exchange-CrossTenant-Network-Message-Id: 0822dfdb-1aca-4194-6aa0-08d9ac443673
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.34];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT043.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR1201MB2550
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Thank you for reporting Niklas.
 
+This is actually a case of use after free, as following that patch the 
+recovery flow goes through mlx5_tout_cleanup() while timeouts structure 
+is still needed in this flow.
 
-On 20.11.2021 18.21, David Woodhouse wrote:
-> On Sat, 2021-11-20 at 17:48 +0200, Mika Penttilä wrote:
->>> @@ -9785,6 +9787,14 @@ static int vcpu_enter_guest(struct kvm_vcpu *vcpu)
->>>         local_irq_disable();
->>>         vcpu->mode = IN_GUEST_MODE;
->>>     
->>> +     /*
->>> +      * If the guest requires direct access to mapped L1 pages, check
->>> +      * the caches are valid. Will raise KVM_REQ_GET_NESTED_STATE_PAGES
->>> +      * to go and revalidate them, if necessary.
->>> +      */
->>> +     if (is_guest_mode(vcpu) && kvm_x86_ops.nested_ops->check_guest_maps)
->>> +             kvm_x86_ops.nested_ops->check_guest_maps(vcpu);
->> But KVM_REQ_GET_NESTED_STATE_PAGES is not check until next
->> vcpu_enter_guest() entry ?
-> Sure, but that's why this call to ->check_guest_maps() comes just a few
-> lines *before* the 'if (kvm_cpu_exit_request(vcpu))' that will bounce
-> us back out so that we go through vcpu_enter_guest() from the start
-> again?
-Yes, I had forgotten that...
+We know the root cause and will send a fix.
+
 
 Thanks,
-Mika
 
+Moshe.
+
+On 11/19/2021 12:58 PM, Niklas Schnelle wrote:
+> Hello Amir, Moshe, and Saeed,
+>
+> (resent due to wrong netdev mailing list address, sorry about that)
+>
+> During testing of PCI device recovery, I found a problem in the mlx5
+> recovery support introduced in v5.16-rc1 by commit 32def4120e48
+> ("net/mlx5: Read timeout values from DTOR"). It follows my analysis of
+> the problem.
+>
+> When the device is in an error state, at least on s390 but I believe
+> also on other systems, it is isolated and all PCI MMIO reads return
+> 0xff. This is detected by your driver and it will immediately attempt
+> to recovery the device with a mlx5_core driver specific recovery
+> mechanism. Since at this point no reset has been done that would take
+> the device out of isolation this will of course fail as it can't
+> communicate with the device. Under normal circumstances this reset
+> would happen later during the new recovery flow introduced in
+> 4cdf2f4e24ff ("s390/pci: implement minimal PCI error recovery") once
+> firmware has done their side of the recovery allowing that to succeed
+> once the driver specific recovery has failed.
+>
+> With v5.16-rc1 however the driver specific recovery gets stuck holding
+> locks which will block our recovery. Without our recovery mechanism
+> this can also be seen by "echo 1 > /sys/bus/pci/devices/<dev>/remove"
+> which hangs on the device lock forever.
+>
+> Digging into this I tracked the problem down to
+> mlx5_health_wait_pci_up() hangig. I added a debug print to it and it
+> turns out that with the device isolated mlx5_tout_ms(dev, FW_RESET)
+> returns 774039849367420401 (0x6B...6B) milliseconds and we try to wait
+> 245 million years. After reverting that commit things work again,
+> though of course the driver specific recovery flow will still fail
+> before ours can kick in and finally succeed.
+>
+> Thanks,
+> Niklas Schnelle
+>
+> #regzbot introduced: 32def4120e48
+>
