@@ -2,33 +2,33 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C46AC433F5
-	for <linux-s390@archiver.kernel.org>; Sat, 20 Nov 2021 10:28:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A3C6C433F5
+	for <linux-s390@archiver.kernel.org>; Sat, 20 Nov 2021 10:28:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231196AbhKTKbn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 20 Nov 2021 05:31:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43116 "EHLO
+        id S231245AbhKTKbo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 20 Nov 2021 05:31:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229934AbhKTKbg (ORCPT
+        with ESMTP id S230060AbhKTKbg (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Sat, 20 Nov 2021 05:31:36 -0500
 Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6765C061574;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0294C061748;
         Sat, 20 Nov 2021 02:28:32 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=casper.20170209; h=Sender:Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:
         Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=6h0xVL2esfqq+zqj5xeWRwsV4t0vspg87ggVyWnX0Og=; b=cnPlXioA9dOko+9aiQD3x3xvz8
-        k4+xYsWzsD+ah6Jz3arFGWF9tXP9LVx29wiQhpNzu8FT0WAjWgIAbyrve93Wv3ByA46tlnlktQC/J
-        /j0SvGXdshI9YgfSh7MEhSGN9l4KxA2wAlbGvPbbtQxP7eChrHB4NIFpsQuQ82qlAYJweVpmS7p0l
-        q6irWDKqkFis4nkfSaPGhoGoaJy7JbDhOSMyqNk29FlkwtNXPnn2VlngD2C31hLXvte7kXaYKzqhR
-        kGX0N1vLwNcF8GdDzMKPXxpXhLNaD350UD4fCIJqXQXPmZ6wLJodtiPAF5A8nMjEnzZdd9vIvjURP
-        RqFyTDcw==;
+        bh=KJPYZZ7YbxCF8e4lw5Q63h+vhx2Z6IkGAc4ioCPd1zc=; b=gLQJt1MqY/7pf6bpVXzcjk7eg6
+        qDjzpgOK5B8Jd9QTZ5iFQOkfISKTTMoyeZGl9ImlZlYWvqwBt5rShPHJcE9Ct4xj5kE0RgXLZsL3c
+        knipbPPDRckV0hfzsdWV8t2YZMy5EfXj8REINmtrys8/c9PmXLEBBKD+ToVn7LzCKaeMGlYzUaG2W
+        pYGz5LNNrsqSmqfVbpMyurSV0naXfIrpjapd0JSzu4+TinGP90pC+FwXjNsCvnBiAWEFkP3wsFZ2m
+        vvuI/z/5TLMd8X/J0SWSrn5W29orp/tsEmbjknXrPuoa9u8XJD5hQJshDLx2d5ebYgY02G6+IR0jy
+        YQctaICA==;
 Received: from i7.infradead.org ([2001:8b0:10b:1:21e:67ff:fecb:7a92])
         by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1moNbQ-00AUNK-W3; Sat, 20 Nov 2021 10:28:13 +0000
+        id 1moNbQ-00AUNH-W3; Sat, 20 Nov 2021 10:28:13 +0000
 Received: from dwoodhou by i7.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1moNbQ-0002KB-Ce; Sat, 20 Nov 2021 10:28:12 +0000
+        id 1moNbQ-0002KK-JA; Sat, 20 Nov 2021 10:28:12 +0000
 From:   David Woodhouse <dwmw2@infradead.org>
 To:     Paolo Bonzini <pbonzini@redhat.com>, kvm <kvm@vger.kernel.org>
 Cc:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
@@ -55,9 +55,9 @@ Cc:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
         linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
         linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
         kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org
-Subject: [PATCH v4 03/11] KVM: s390: Use Makefile.kvm for common files
-Date:   Sat, 20 Nov 2021 10:28:02 +0000
-Message-Id: <20211120102810.8858-4-dwmw2@infradead.org>
+Subject: [PATCH v4 06/11] KVM: powerpc: Use Makefile.kvm for common files
+Date:   Sat, 20 Nov 2021 10:28:05 +0000
+Message-Id: <20211120102810.8858-7-dwmw2@infradead.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20211120102810.8858-1-dwmw2@infradead.org>
 References: <20211120102810.8858-1-dwmw2@infradead.org>
@@ -71,32 +71,42 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: David Woodhouse <dwmw@amazon.co.uk>
 
-Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/Makefile | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+It's all fairly baroque but in the end, I don't think there's any reason
+for $(KVM)/irqchip.o to have been handled differently, as they all end
+up in $(kvm-y) in the end anyway, regardless of whether they get there
+via $(common-objs-y) and the CPU-specific object lists.
 
-diff --git a/arch/s390/kvm/Makefile b/arch/s390/kvm/Makefile
-index b3aaadc60ead..e4f50453cf7f 100644
---- a/arch/s390/kvm/Makefile
-+++ b/arch/s390/kvm/Makefile
-@@ -3,13 +3,11 @@
+Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
+Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
+---
+ arch/powerpc/kvm/Makefile | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
+
+diff --git a/arch/powerpc/kvm/Makefile b/arch/powerpc/kvm/Makefile
+index 583c14ef596e..245f59118413 100644
+--- a/arch/powerpc/kvm/Makefile
++++ b/arch/powerpc/kvm/Makefile
+@@ -4,11 +4,8 @@
  #
- # Copyright IBM Corp. 2008
  
+ ccflags-y := -Ivirt/kvm -Iarch/powerpc/kvm
 -KVM := ../../../virt/kvm
--common-objs = $(KVM)/kvm_main.o $(KVM)/eventfd.o  $(KVM)/async_pf.o \
--	      $(KVM)/irqchip.o $(KVM)/vfio.o $(KVM)/binary_stats.o
+ 
+-common-objs-y = $(KVM)/kvm_main.o $(KVM)/eventfd.o $(KVM)/binary_stats.o
+-common-objs-$(CONFIG_KVM_VFIO) += $(KVM)/vfio.o
+-common-objs-$(CONFIG_KVM_MMIO) += $(KVM)/coalesced_mmio.o
 +include $(srctree)/virt/kvm/Makefile.kvm
  
- ccflags-y := -Ivirt/kvm -Iarch/s390/kvm
+ common-objs-y += powerpc.o emulate_loadstore.o
+ obj-$(CONFIG_KVM_EXIT_TIMING) += timing.o
+@@ -125,7 +122,6 @@ kvm-book3s_32-objs := \
+ kvm-objs-$(CONFIG_KVM_BOOK3S_32) := $(kvm-book3s_32-objs)
  
--kvm-objs := $(common-objs) kvm-s390.o intercept.o interrupt.o priv.o sigp.o
-+kvm-objs := kvm-s390.o intercept.o interrupt.o priv.o sigp.o
- kvm-objs += diag.o gaccess.o guestdbg.o vsie.o pv.o
+ kvm-objs-$(CONFIG_KVM_MPIC) += mpic.o
+-kvm-objs-$(CONFIG_HAVE_KVM_IRQ_ROUTING) += $(KVM)/irqchip.o
  
- obj-$(CONFIG_KVM) += kvm.o
+ kvm-objs := $(kvm-objs-m) $(kvm-objs-y)
+ 
 -- 
 2.31.1
 
