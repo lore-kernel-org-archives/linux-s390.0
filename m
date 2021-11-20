@@ -2,78 +2,102 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4256EC433F5
-	for <linux-s390@archiver.kernel.org>; Sat, 20 Nov 2021 07:57:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D3837C433FE
+	for <linux-s390@archiver.kernel.org>; Sat, 20 Nov 2021 10:28:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234442AbhKTH75 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 20 Nov 2021 02:59:57 -0500
-Received: from szxga02-in.huawei.com ([45.249.212.188]:26343 "EHLO
-        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229823AbhKTH7w (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 20 Nov 2021 02:59:52 -0500
-Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.57])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4Hx5Mp59jnzbhvB;
-        Sat, 20 Nov 2021 15:51:50 +0800 (CST)
-Received: from kwepemm600017.china.huawei.com (7.193.23.234) by
- dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.20; Sat, 20 Nov 2021 15:56:47 +0800
-Received: from pekphispre01995.huawei.com (7.218.2.67) by
- kwepemm600017.china.huawei.com (7.193.23.234) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.15; Sat, 20 Nov 2021 15:56:46 +0800
-From:   Daxing Guo <guodaxing@huawei.com>
-To:     <netdev@vger.kernel.org>
-CC:     <chenzhe@huawei.com>, <linux-s390@vger.kernel.org>,
-        <greg@kroah.com>, "Guo DaXing" <guodaxing@huawei.com>
-Subject: [PATCH] net/smc: loop in smc_listen
-Date:   Sat, 20 Nov 2021 15:54:51 +0800
-Message-ID: <20211120075451.16764-1-guodaxing@huawei.com>
-X-Mailer: git-send-email 2.17.1
+        id S230389AbhKTKbm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 20 Nov 2021 05:31:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43118 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229999AbhKTKbg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 20 Nov 2021 05:31:36 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAD02C06173E;
+        Sat, 20 Nov 2021 02:28:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Sender:Content-Transfer-Encoding:
+        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:
+        Reply-To:Content-Type:Content-ID:Content-Description;
+        bh=q7VGHKinevDsRFWG1p27WCAPowIobtShfo12HVfpNfo=; b=sqxBRluQyEEXp3lHG84c+NxuRo
+        UTZQ0dMhN+xHhtsnT+ru9Vepp1E5NbXj7qACaD8Tu4fHc4w3zmvs5S+p19bNaJsWRhv8G8Lf1d7K1
+        /tBvm99HD4EXX8fE6dQQn7nDYB7OspoTwaXGKT8GhJfANz6agfaSTOfa13r8XHJG8kiYn08VhgzFn
+        tZP5aj7exsZC9fqA839QZgNIgsBXFQNz04IG+GcTdV/3lWLc79mulog7lKwqaTrZcsTgJxkrvuCp9
+        g0l1rQYhaNn0xh6t80BbHe3T2EXZgDLokB3pis8mOZgNr5jx4BkzjI28EcxraARnCsb9s0nHWGfJN
+        elsUsV9w==;
+Received: from i7.infradead.org ([2001:8b0:10b:1:21e:67ff:fecb:7a92])
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1moNbR-00AUNL-0Q; Sat, 20 Nov 2021 10:28:13 +0000
+Received: from dwoodhou by i7.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1moNbQ-0002KN-Ml; Sat, 20 Nov 2021 10:28:12 +0000
+From:   David Woodhouse <dwmw2@infradead.org>
+To:     Paolo Bonzini <pbonzini@redhat.com>, kvm <kvm@vger.kernel.org>
+Cc:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Joao Martins <joao.m.martins@oracle.com>,
+        "jmattson @ google . com" <jmattson@google.com>,
+        "wanpengli @ tencent . com" <wanpengli@tencent.com>,
+        "seanjc @ google . com" <seanjc@google.com>,
+        "vkuznets @ redhat . com" <vkuznets@redhat.com>,
+        "mtosatti @ redhat . com" <mtosatti@redhat.com>,
+        "joro @ 8bytes . org" <joro@8bytes.org>, karahmed@amazon.com,
+        Marc Zyngier <maz@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Anup Patel <anup.patel@wdc.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        kvmarm@lists.cs.columbia.edu,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org
+Subject: [PATCH v4 07/11] KVM: arm64: Use Makefile.kvm for common files
+Date:   Sat, 20 Nov 2021 10:28:06 +0000
+Message-Id: <20211120102810.8858-8-dwmw2@infradead.org>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20211120102810.8858-1-dwmw2@infradead.org>
+References: <20211120102810.8858-1-dwmw2@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [7.218.2.67]
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- kwepemm600017.china.huawei.com (7.193.23.234)
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
+Sender: David Woodhouse <dwmw2@infradead.org>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Guo DaXing <guodaxing@huawei.com>
+From: David Woodhouse <dwmw@amazon.co.uk>
 
-The kernel_listen function in smc_listen will fail when all the available
-ports are occupied.  At this point smc->clcsock->sk->sk_data_ready has 
-been changed to smc_clcsock_data_ready.  When we call smc_listen again, 
-now both smc->clcsock->sk->sk_data_ready and smc->clcsk_data_ready point 
-to the smc_clcsock_data_ready function.
-
-The smc_clcsock_data_ready() function calls lsmc->clcsk_data_ready which 
-now points to itself resulting in an infinite loop.
-
-This patch restores smc->clcsock->sk->sk_data_ready with the old value.
-
-Signed-off-by: Guo DaXing <guodaxing@huawei.com>
+Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
+Acked-by: Marc Zyngier <maz@kernel.org>
 ---
- net/smc/af_smc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm64/kvm/Makefile | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 59284da9116d..078f5edf6d4d 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -2120,8 +2120,10 @@ static int smc_listen(struct socket *sock, int backlog)
- 	smc->clcsock->sk->sk_user_data =
- 		(void *)((uintptr_t)smc | SK_USER_DATA_NOCOPY);
- 	rc = kernel_listen(smc->clcsock, backlog);
--	if (rc)
-+	if (rc) {
-+		smc->clcsock->sk->sk_data_ready = smc->clcsk_data_ready;
- 		goto out;
-+	}
- 	sk->sk_max_ack_backlog = backlog;
- 	sk->sk_ack_backlog = 0;
- 	sk->sk_state = SMC_LISTEN;
+diff --git a/arch/arm64/kvm/Makefile b/arch/arm64/kvm/Makefile
+index 989bb5dad2c8..04a53f71a6b6 100644
+--- a/arch/arm64/kvm/Makefile
++++ b/arch/arm64/kvm/Makefile
+@@ -5,14 +5,12 @@
+ 
+ ccflags-y += -I $(srctree)/$(src)
+ 
+-KVM=../../../virt/kvm
++include $(srctree)/virt/kvm/Makefile.kvm
+ 
+ obj-$(CONFIG_KVM) += kvm.o
+ obj-$(CONFIG_KVM) += hyp/
+ 
+-kvm-y := $(KVM)/kvm_main.o $(KVM)/coalesced_mmio.o $(KVM)/eventfd.o \
+-	 $(KVM)/vfio.o $(KVM)/irqchip.o $(KVM)/binary_stats.o \
+-	 arm.o mmu.o mmio.o psci.o perf.o hypercalls.o pvtime.o \
++kvm-y += arm.o mmu.o mmio.o psci.o perf.o hypercalls.o pvtime.o \
+ 	 inject_fault.o va_layout.o handle_exit.o \
+ 	 guest.o debug.o reset.o sys_regs.o \
+ 	 vgic-sys-reg-v3.o fpsimd.o pmu.o \
 -- 
-2.20.1
+2.31.1
 
