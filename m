@@ -2,117 +2,288 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CEA40C433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 22 Nov 2021 13:36:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F33EC433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 22 Nov 2021 13:49:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236320AbhKVNjp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 22 Nov 2021 08:39:45 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:47828 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233288AbhKVNjp (ORCPT
+        id S239541AbhKVNwn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 22 Nov 2021 08:52:43 -0500
+Received: from out30-43.freemail.mail.aliyun.com ([115.124.30.43]:53451 "EHLO
+        out30-43.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230322AbhKVNwn (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 22 Nov 2021 08:39:45 -0500
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1AMCVL4N026583
-        for <linux-s390@vger.kernel.org>; Mon, 22 Nov 2021 13:36:38 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=TzC3MQrh2G8jTuOKXK/07MO370JlgvjK79m7C1OBhz0=;
- b=DJ4SjeyE8YKuW9XdsV0L0xUDfTRdYHJQf5xU8z31+IekpzDUIOXVkm6tUET79MKzjSaU
- TWzIq9PyiMmhRcVB6udRSQp1TUr1X+fAL4fQrLrsPi23/a7u1livCMhN96h6PRwWMkKb
- OkPXOuie+uyfjgNJ6MM7HAXKrx3hyysHevdoPT3AZUDMJwlUWylTLT9E7R2i06WhVCAx
- yODsV5+m5yfCWFC++fZ5By/kpXafdGNBb/+ZjYYmS05XhpfTom9kpM7x+b9NpPnwrWyG
- zO1Q5Ug3WPW7sRpEdp2F55rjkdMGjDHu9DGMGbB2IK8TLAPQI4/JNFAeOJIWnuCNy68I rw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cgb3qsrwa-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 22 Nov 2021 13:36:38 +0000
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1AMConSM000893
-        for <linux-s390@vger.kernel.org>; Mon, 22 Nov 2021 13:36:38 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cgb3qsrvg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 22 Nov 2021 13:36:38 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1AMDInr0021679;
-        Mon, 22 Nov 2021 13:36:35 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma04fra.de.ibm.com with ESMTP id 3cernax1rj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 22 Nov 2021 13:36:34 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1AMDaV8v64487822
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 22 Nov 2021 13:36:31 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 97CD0AE061;
-        Mon, 22 Nov 2021 13:36:31 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 79388AE051;
-        Mon, 22 Nov 2021 13:36:31 +0000 (GMT)
-Received: from [9.145.181.139] (unknown [9.145.181.139])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 22 Nov 2021 13:36:31 +0000 (GMT)
-Message-ID: <2db0176d-ab52-8ea9-3fb0-6190f4198c2c@linux.ibm.com>
-Date:   Mon, 22 Nov 2021 14:36:31 +0100
+        Mon, 22 Nov 2021 08:52:43 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R451e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0Uxl5sw6_1637588974;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0Uxl5sw6_1637588974)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Mon, 22 Nov 2021 21:49:34 +0800
+From:   Tony Lu <tonylu@linux.alibaba.com>
+To:     kgraul@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, guwen@linux.alibaba.com,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-rdma@vger.kernel.org
+Subject: [PATCH RFC net-next] net/smc: Unbind buffer size from clcsock and make it tunable
+Date:   Mon, 22 Nov 2021 21:42:56 +0800
+Message-Id: <20211122134255.63347-1-tonylu@linux.alibaba.com>
+X-Mailer: git-send-email 2.34.0
 MIME-Version: 1.0
-Subject: Re: [RFC v3 1/1] s390/cio: remove uevent suppress from cio driver
-Content-Language: en-US
-To:     Vineeth Vijayan <vneethv@linux.ibm.com>, cohuck@redhat.com,
-        linux-s390@vger.kernel.org
-References: <20211122103756.352463-1-vneethv@linux.ibm.com>
- <20211122103756.352463-2-vneethv@linux.ibm.com>
-From:   Peter Oberparleiter <oberpar@linux.ibm.com>
-In-Reply-To: <20211122103756.352463-2-vneethv@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: gek7u_6AQPY0k_VoasnqtJw-OOSyPNEU
-X-Proofpoint-ORIG-GUID: tdGtwjxMN0PgBXUcSwcpIUdO6UQeo9kY
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-11-22_07,2021-11-22_02,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 phishscore=0
- impostorscore=0 clxscore=1011 lowpriorityscore=0 adultscore=0
- priorityscore=1501 bulkscore=0 mlxlogscore=904 spamscore=0 mlxscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2111220071
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 22.11.2021 11:37, Vineeth Vijayan wrote:
-> commit fa1a8c23eb7d ("s390: cio: Delay uevents for subchannels")
-> introduced suppression of uevents for a subchannel until after it is
-> clear that the subchannel would not be unregistered again
-> immediately. This was done to avoid uevents being generated for I/O
-> subchannels with no valid device, which can happen on LPAR.
-> 
-> However, this also has some drawbacks: All subchannel drivers need to
-> manually remove the uevent suppression and generate an ADD uevent as
-> soon as they are sure that the subchannel will stay around. This misses
-> out on all uevents that are not the initial ADD uevent that would be
-> generated while uevents are suppressed; for example, all subchannels
-> were missing the BIND uevent.
-> 
-> As uevents being generated even for I/O subchannels without an
-> operational device turned out to be not as bad as missing uevents and
-> complicating the code flow, let's remove uevent suppression for
-> subchannel
-> 
-> Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
-> [cohuck@redhat.com: modified changelog]
+SMC uses smc->sk.sk_{rcv|snd}buf to create buffer for send buffer or
+RMB. And the values of buffer size inherits from clcsock. The clcsock is
+a TCP sock which is initiated during SMC connection startup.
 
-Looks good to me!
+The inherited buffer size doesn't fit SMC well. TCP provides two sysctl
+knobs to tune r/w buffers, net.ipv4.tcp_{r|w}mem, and SMC use the default
+value from TCP. The buffer size is tuned for TCP, but not fit SMC well
+in some scenarios. For example, we need larger buffer of SMC for high
+throughput applications, and smaller buffer of SMC for saving contiguous
+memory. We need to adjust the buffer size apart from TCP and not to
+disturb TCP.
 
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+This unbinds buffer size which inherits from clcsock, and provides
+sysctl knobs to adjust buffer size independently. These knobs can be
+tuned with different values for different net namespaces for performance
+and flexibility.
 
+Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
+Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
+---
+ Documentation/networking/smc-sysctl.rst | 20 ++++++
+ include/net/netns/smc.h                 |  5 ++
+ net/smc/Makefile                        |  2 +-
+ net/smc/af_smc.c                        | 17 +++++-
+ net/smc/smc_sysctl.c                    | 81 +++++++++++++++++++++++++
+ net/smc/smc_sysctl.h                    | 22 +++++++
+ 6 files changed, 144 insertions(+), 3 deletions(-)
+ create mode 100644 Documentation/networking/smc-sysctl.rst
+ create mode 100644 net/smc/smc_sysctl.c
+ create mode 100644 net/smc/smc_sysctl.h
 
-Regards,
-  Peter
-
+diff --git a/Documentation/networking/smc-sysctl.rst b/Documentation/networking/smc-sysctl.rst
+new file mode 100644
+index 000000000000..ba2be59a57dd
+--- /dev/null
++++ b/Documentation/networking/smc-sysctl.rst
+@@ -0,0 +1,20 @@
++.. SPDX-License-Identifier: GPL-2.0
++
++=========
++SMC Sysctl
++=========
++
++/proc/sys/net/smc/* Variables
++==============================
++
++wmem_default - INTEGER
++    Initial size of send buffer used by SMC sockets.
++    The default value inherits from net.ipv4.tcp_wmem[1].
++
++    Default: 16K
++
++rmem_default - INTEGER
++    Initial size of receive buffer (RMB) used by SMC sockets.
++    The default value inherits from net.ipv4.tcp_rmem[1].
++
++    Default: 131072 bytes.
+diff --git a/include/net/netns/smc.h b/include/net/netns/smc.h
+index ea8a9cf2619b..f948235e3156 100644
+--- a/include/net/netns/smc.h
++++ b/include/net/netns/smc.h
+@@ -12,5 +12,10 @@ struct netns_smc {
+ 	/* protect fback_rsn */
+ 	struct mutex			mutex_fback_rsn;
+ 	struct smc_stats_rsn		*fback_rsn;
++#ifdef CONFIG_SYSCTL
++	struct ctl_table_header		*smc_hdr;
++#endif
++	int				sysctl_wmem_default;
++	int				sysctl_rmem_default;
+ };
+ #endif
+diff --git a/net/smc/Makefile b/net/smc/Makefile
+index 196fb6f01b14..640af9a39f9c 100644
+--- a/net/smc/Makefile
++++ b/net/smc/Makefile
+@@ -4,4 +4,4 @@ obj-$(CONFIG_SMC)	+= smc.o
+ obj-$(CONFIG_SMC_DIAG)	+= smc_diag.o
+ smc-y := af_smc.o smc_pnet.o smc_ib.o smc_clc.o smc_core.o smc_wr.o smc_llc.o
+ smc-y += smc_cdc.o smc_tx.o smc_rx.o smc_close.o smc_ism.o smc_netlink.o smc_stats.o
+-smc-y += smc_tracepoint.o
++smc-y += smc_tracepoint.o smc_sysctl.o
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 5e93a5aa347e..543a6180be1d 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -51,6 +51,7 @@
+ #include "smc_close.h"
+ #include "smc_stats.h"
+ #include "smc_tracepoint.h"
++#include "smc_sysctl.h"
+ 
+ static DEFINE_MUTEX(smc_server_lgr_pending);	/* serialize link group
+ 						 * creation on server
+@@ -2722,8 +2723,8 @@ static int smc_create(struct net *net, struct socket *sock, int protocol,
+ 		sk_common_release(sk);
+ 		goto out;
+ 	}
+-	smc->sk.sk_sndbuf = max(smc->clcsock->sk->sk_sndbuf, SMC_BUF_MIN_SIZE);
+-	smc->sk.sk_rcvbuf = max(smc->clcsock->sk->sk_rcvbuf, SMC_BUF_MIN_SIZE);
++	smc->sk.sk_sndbuf = sock_net(sk)->smc.sysctl_wmem_default;
++	smc->sk.sk_rcvbuf = sock_net(sk)->smc.sysctl_rmem_default;
+ 
+ out:
+ 	return rc;
+@@ -2739,6 +2740,11 @@ unsigned int smc_net_id;
+ 
+ static __net_init int smc_net_init(struct net *net)
+ {
++	net->smc.sysctl_wmem_default = max(net->ipv4.sysctl_tcp_wmem[1],
++					   SMC_BUF_MIN_SIZE);
++	net->smc.sysctl_rmem_default = max(net->ipv4.sysctl_tcp_rmem[1],
++					   SMC_BUF_MIN_SIZE);
++
+ 	return smc_pnet_net_init(net);
+ }
+ 
+@@ -2845,6 +2851,12 @@ static int __init smc_init(void)
+ 		goto out_sock;
+ 	}
+ 
++	rc = smc_sysctl_init();
++	if (rc) {
++		pr_err("%s: sysctl fails with %d\n", __func__, rc);
++		goto out_sock;
++	}
++
+ 	static_branch_enable(&tcp_have_smc);
+ 	return 0;
+ 
+@@ -2885,6 +2897,7 @@ static void __exit smc_exit(void)
+ 	smc_clc_exit();
+ 	unregister_pernet_subsys(&smc_net_stat_ops);
+ 	unregister_pernet_subsys(&smc_net_ops);
++	smc_sysctl_exit();
+ 	rcu_barrier();
+ }
+ 
+diff --git a/net/smc/smc_sysctl.c b/net/smc/smc_sysctl.c
+new file mode 100644
+index 000000000000..6706fe1bd888
+--- /dev/null
++++ b/net/smc/smc_sysctl.c
+@@ -0,0 +1,81 @@
++// SPDX-License-Identifier: GPL-2.0
++
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/sysctl.h>
++#include <net/sock.h>
++#include <net/net_namespace.h>
++
++#include "smc_core.h"
++
++static int min_sndbuf = SMC_BUF_MIN_SIZE;
++static int min_rcvbuf = SMC_BUF_MIN_SIZE;
++
++static struct ctl_table smc_table[] = {
++	{
++		.procname	= "wmem_default",
++		.data		= &init_net.smc.sysctl_wmem_default,
++		.maxlen		= sizeof(init_net.smc.sysctl_wmem_default),
++		.mode		= 0644,
++		.proc_handler	= proc_dointvec_minmax,
++		.extra1		= &min_sndbuf,
++	},
++	{
++		.procname	= "rmem_default",
++		.data		= &init_net.smc.sysctl_rmem_default,
++		.maxlen		= sizeof(init_net.smc.sysctl_rmem_default),
++		.mode		= 0644,
++		.proc_handler	= proc_dointvec_minmax,
++		.extra1		= &min_rcvbuf,
++	},
++	{  }
++};
++
++static __net_init int smc_sysctl_init_net(struct net *net)
++{
++	struct ctl_table *table;
++
++	table = smc_table;
++	if (!net_eq(net, &init_net)) {
++		int i;
++
++		table = kmemdup(table, sizeof(smc_table), GFP_KERNEL);
++		if (!table)
++			goto err_alloc;
++
++		for (i = 0; i < ARRAY_SIZE(smc_table) - 1; i++)
++			table[i].data += (void *)net - (void *)&init_net;
++	}
++
++	net->smc.smc_hdr = register_net_sysctl(net, "net/smc", table);
++	if (!net->smc.smc_hdr)
++		goto err_reg;
++
++	return 0;
++
++err_reg:
++	if (!net_eq(net, &init_net))
++		kfree(table);
++err_alloc:
++	return -ENOMEM;
++}
++
++static __net_exit void smc_sysctl_exit_net(struct net *net)
++{
++	unregister_net_sysctl_table(net->smc.smc_hdr);
++}
++
++static struct pernet_operations smc_sysctl_ops __net_initdata = {
++	.init = smc_sysctl_init_net,
++	.exit = smc_sysctl_exit_net,
++};
++
++int __init smc_sysctl_init(void)
++{
++	return register_pernet_subsys(&smc_sysctl_ops);
++}
++
++void smc_sysctl_exit(void)
++{
++	unregister_pernet_subsys(&smc_sysctl_ops);
++}
+diff --git a/net/smc/smc_sysctl.h b/net/smc/smc_sysctl.h
+new file mode 100644
+index 000000000000..c01c5de3a3ea
+--- /dev/null
++++ b/net/smc/smc_sysctl.h
+@@ -0,0 +1,22 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++
++#ifndef _SMC_SYSCTL_H
++#define _SMC_SYSCTL_H
++
++#ifdef CONFIG_SYSCTL
++
++int smc_sysctl_init(void);
++void smc_sysctl_exit(void);
++
++#else
++
++int smc_sysctl_init(void)
++{
++	return 0;
++}
++
++void smc_sysctl_exit(void) { }
++
++#endif /* CONFIG_SYSCTL */
++
++#endif /* _SMC_SYSCTL_H */
 -- 
-Peter Oberparleiter
-Linux on Z Development - IBM Germany
+2.32.0.3.g01195cf9f
+
