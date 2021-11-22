@@ -2,123 +2,94 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA204C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 22 Nov 2021 12:40:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 12A1DC433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 22 Nov 2021 13:00:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234897AbhKVMnH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 22 Nov 2021 07:43:07 -0500
-Received: from out30-57.freemail.mail.aliyun.com ([115.124.30.57]:60569 "EHLO
-        out30-57.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231258AbhKVMnG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 22 Nov 2021 07:43:06 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0UxjgkRE_1637584796;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0UxjgkRE_1637584796)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Mon, 22 Nov 2021 20:39:57 +0800
-Date:   Mon, 22 Nov 2021 20:39:56 +0800
-From:   Tony Lu <tonylu@linux.alibaba.com>
-To:     Wen Gu <guwen@linux.alibaba.com>
-Cc:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dust.li@linux.alibaba.com,
-        syzkaller-bugs@googlegroups.com
-Subject: Re: [PATCH net] net/smc: Avoid warning of possible recursive locking
-Message-ID: <YZuPnJvTuq5GN5e3@TonyMac-Alibaba>
-Reply-To: Tony Lu <tonylu@linux.alibaba.com>
-References: <1637584373-49664-1-git-send-email-guwen@linux.alibaba.com>
+        id S234876AbhKVNDU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 22 Nov 2021 08:03:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33738 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232089AbhKVNDU (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 22 Nov 2021 08:03:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPS id B1AA560F9D;
+        Mon, 22 Nov 2021 13:00:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1637586013;
+        bh=fvznHXVCO2jkCGop3iXqSKromcXKmeTKcsQo92J+Koo=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=NY9W75cLC6w7E+B02qShS+bZ7+3qDNC+bnuSqK8l4F8HlYAyndehhbvkjAXYU79I+
+         OAr3NZL2K6kXX5uozS3cvQIA4EfdJ3vUE+YFMtewad6ARP9ilVeAyC+q6fOiFxXB3T
+         pdaH4xxokErtALbWlopyC7sorlF0quzPXzQ1r0yHUMIUE/2EeW7NqXnKig4uGMUZNv
+         CgA/Kj30fc7O3TAcfxji3NbRn5PvUjNIqOD/Rhjg8WcfVVIMGho/6tu2EI+361O78a
+         xHK/Chqi1/CP2akMuCLpDgn7BuvKPWCivgBdaTjQnEgGfLXpu9pdSrkmw3zFFCPuLX
+         vTkm4YbmxwaLg==
+Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id A604D60A50;
+        Mon, 22 Nov 2021 13:00:13 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1637584373-49664-1-git-send-email-guwen@linux.alibaba.com>
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH V7 net-next 0/6] ethtool: add support to set/get tx copybreak
+ buf size and rx buf len
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <163758601367.20556.3844471196744210850.git-patchwork-notify@kernel.org>
+Date:   Mon, 22 Nov 2021 13:00:13 +0000
+References: <20211118121245.49842-1-huangguangbin2@huawei.com>
+In-Reply-To: <20211118121245.49842-1-huangguangbin2@huawei.com>
+To:     Guangbin Huang <huangguangbin2@huawei.com>
+Cc:     davem@davemloft.net, kuba@kernel.org, mkubecek@suse.cz,
+        andrew@lunn.ch, amitc@mellanox.com, idosch@idosch.org,
+        danieller@nvidia.com, jesse.brandeburg@intel.com,
+        anthony.l.nguyen@intel.com, jdike@addtoit.com, richard@nod.at,
+        anton.ivanov@cambridgegreys.com, netanel@amazon.com,
+        akiyano@amazon.com, gtzalik@amazon.com, saeedb@amazon.com,
+        chris.snook@gmail.com, ulli.kroll@googlemail.com,
+        linus.walleij@linaro.org, jeroendb@google.com, csully@google.com,
+        awogbemila@google.com, jdmason@kudzu.us, rain.1986.08.12@gmail.com,
+        zyjzyj2000@gmail.com, kys@microsoft.com, haiyangz@microsoft.com,
+        mst@redhat.com, jasowang@redhat.com, doshir@vmware.com,
+        pv-drivers@vmware.com, jwi@linux.ibm.com, kgraul@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, johannes@sipsolutions.net,
+        netdev@vger.kernel.org, lipeng321@huawei.com,
+        chenhao288@hisilicon.com, linux-s390@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Nov 22, 2021 at 08:32:53PM +0800, Wen Gu wrote:
-> Possible recursive locking is detected by lockdep when SMC
-> falls back to TCP. The corresponding warnings are as follows:
-> 
->  ============================================
->  WARNING: possible recursive locking detected
->  5.16.0-rc1+ #18 Tainted: G            E
->  --------------------------------------------
->  wrk/1391 is trying to acquire lock:
->  ffff975246c8e7d8 (&ei->socket.wq.wait){..-.}-{3:3}, at: smc_switch_to_fallback+0x109/0x250 [smc]
-> 
->  but task is already holding lock:
->  ffff975246c8f918 (&ei->socket.wq.wait){..-.}-{3:3}, at: smc_switch_to_fallback+0xfe/0x250 [smc]
-> 
->  other info that might help us debug this:
->   Possible unsafe locking scenario:
-> 
->         CPU0
->         ----
->    lock(&ei->socket.wq.wait);
->    lock(&ei->socket.wq.wait);
-> 
->   *** DEADLOCK ***
-> 
->   May be due to missing lock nesting notation
-> 
->  2 locks held by wrk/1391:
->   #0: ffff975246040130 (sk_lock-AF_SMC){+.+.}-{0:0}, at: smc_connect+0x43/0x150 [smc]
->   #1: ffff975246c8f918 (&ei->socket.wq.wait){..-.}-{3:3}, at: smc_switch_to_fallback+0xfe/0x250 [smc]
-> 
->  stack backtrace:
->  Call Trace:
->   <TASK>
->   dump_stack_lvl+0x56/0x7b
->   __lock_acquire+0x951/0x11f0
->   lock_acquire+0x27a/0x320
->   ? smc_switch_to_fallback+0x109/0x250 [smc]
->   ? smc_switch_to_fallback+0xfe/0x250 [smc]
->   _raw_spin_lock_irq+0x3b/0x80
->   ? smc_switch_to_fallback+0x109/0x250 [smc]
->   smc_switch_to_fallback+0x109/0x250 [smc]
->   smc_connect_fallback+0xe/0x30 [smc]
->   __smc_connect+0xcf/0x1090 [smc]
->   ? mark_held_locks+0x61/0x80
->   ? __local_bh_enable_ip+0x77/0xe0
->   ? lockdep_hardirqs_on+0xbf/0x130
->   ? smc_connect+0x12a/0x150 [smc]
->   smc_connect+0x12a/0x150 [smc]
->   __sys_connect+0x8a/0xc0
->   ? syscall_enter_from_user_mode+0x20/0x70
->   __x64_sys_connect+0x16/0x20
->   do_syscall_64+0x34/0x90
->   entry_SYSCALL_64_after_hwframe+0x44/0xae
-> 
-> The nested locking in smc_switch_to_fallback() is considered to
-> possibly cause a deadlock because smc_wait->lock and clc_wait->lock
-> are the same type of lock. But actually it is safe so far since
-> there is no other place trying to obtain smc_wait->lock when
-> clc_wait->lock is held. So the patch replaces spin_lock() with
-> spin_lock_nested() to avoid false report by lockdep.
-> 
-> Link: https://lkml.org/lkml/2021/11/19/962
-> Fixes: 2153bd1e3d3d ("Transfer remaining wait queue entries during fallback")
-> Reported-by: syzbot+e979d3597f48262cb4ee@syzkaller.appspotmail.com
-> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+Hello:
 
-Acked-by: Tony Lu <tonylu@linux.alibaba.com>
+This series was applied to netdev/net-next.git (master)
+by David S. Miller <davem@davemloft.net>:
 
-> ---
->  net/smc/af_smc.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+On Thu, 18 Nov 2021 20:12:39 +0800 you wrote:
+> From: Hao Chen <chenhao288@hisilicon.com>
 > 
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index b61c802..2692cba 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -585,7 +585,7 @@ static void smc_switch_to_fallback(struct smc_sock *smc, int reason_code)
->  		 * to clcsocket->wq during the fallback.
->  		 */
->  		spin_lock_irqsave(&smc_wait->lock, flags);
-> -		spin_lock(&clc_wait->lock);
-> +		spin_lock_nested(&clc_wait->lock, SINGLE_DEPTH_NESTING);
->  		list_splice_init(&smc_wait->head, &clc_wait->head);
->  		spin_unlock(&clc_wait->lock);
->  		spin_unlock_irqrestore(&smc_wait->lock, flags);
-> -- 
-> 1.8.3.1
+> This series add support to set/get tx copybreak buf size and rx buf len via
+> ethtool and hns3 driver implements them.
+> 
+> Tx copybreak buf size is used for tx copybreak feature which for small size
+> packet or frag. Use ethtool --get-tunable command to get it, and ethtool
+> --set-tunable command to set it, examples are as follow:
+> 
+> [...]
+
+Here is the summary with links:
+  - [V7,net-next,1/6] ethtool: add support to set/get tx copybreak buf size via ethtool
+    https://git.kernel.org/netdev/net-next/c/448f413a8bdc
+  - [V7,net-next,2/6] net: hns3: add support to set/get tx copybreak buf size via ethtool for hns3 driver
+    https://git.kernel.org/netdev/net-next/c/e445f08af2b1
+  - [V7,net-next,3/6] ethtool: add support to set/get rx buf len via ethtool
+    https://git.kernel.org/netdev/net-next/c/0b70c256eba8
+  - [V7,net-next,4/6] ethtool: extend ringparam setting/getting API with rx_buf_len
+    https://git.kernel.org/netdev/net-next/c/7462494408cd
+  - [V7,net-next,5/6] net: hns3: add support to set/get rx buf len via ethtool for hns3 driver
+    https://git.kernel.org/netdev/net-next/c/e65a0231d2ca
+  - [V7,net-next,6/6] net: hns3: remove the way to set tx spare buf via module parameter
+    https://git.kernel.org/netdev/net-next/c/e175eb5fb054
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
