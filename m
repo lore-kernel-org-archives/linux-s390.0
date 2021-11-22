@@ -2,117 +2,118 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CA31C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 22 Nov 2021 16:47:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31501C433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 22 Nov 2021 17:42:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240410AbhKVQu7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 22 Nov 2021 11:50:59 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:19434 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S238381AbhKVQu7 (ORCPT
+        id S240096AbhKVRpM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 22 Nov 2021 12:45:12 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:31058 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S237678AbhKVRpL (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 22 Nov 2021 11:50:59 -0500
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1AMEvCCB007354;
-        Mon, 22 Nov 2021 16:47:49 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : from : to : cc : references : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=WlRIheCBP1xnezxGy0qETHi39Xs1+SgAOWRbAxGU4X4=;
- b=DRTsfK3ieaf5SLTyin5/OP74k+qDp4XgYtaxo0AqG4opcbRfMJhmri5i/DDeWh8ZKehV
- dlwpLVyrTbM/RL/b9neEnli1qNn5K9jbOqfDeAhFZdEke/IZTBAoEj8GRHbQjfnskLHh
- ey1Vmjg2R0gOkOb+DTm4WpvbrSxZzPQ2TWkoS66UhaCYGXvMcDN82LEA0npGygzOUBCn
- JVNoZ2HTnZAOAi+0tdtlHZxZQzQ/28E9X85FUrVN092gXTIoa+LtiV9G2itmw+aFF2Nt
- DZ9wwJ+N1Rnb6HodtEgv9QC8+ZZc0dYdIBN87pAFt0bsH5osyG3d2oZnBHD9S5+tUx4e zA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3cgcc84grj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 22 Nov 2021 16:47:49 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1AMGRaRu021094;
-        Mon, 22 Nov 2021 16:47:48 GMT
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3cgcc84gr8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 22 Nov 2021 16:47:48 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1AMGgCQK020930;
-        Mon, 22 Nov 2021 16:47:47 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma05fra.de.ibm.com with ESMTP id 3cern9fqas-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 22 Nov 2021 16:47:46 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1AMGliGu32244176
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 22 Nov 2021 16:47:44 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A824042049;
-        Mon, 22 Nov 2021 16:47:44 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3E88A4203F;
-        Mon, 22 Nov 2021 16:47:44 +0000 (GMT)
-Received: from [9.145.56.120] (unknown [9.145.56.120])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 22 Nov 2021 16:47:44 +0000 (GMT)
-Message-ID: <12d0d06b-8337-401e-fb87-e9c4e423cc11@linux.ibm.com>
-Date:   Mon, 22 Nov 2021 17:47:43 +0100
+        Mon, 22 Nov 2021 12:45:11 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1637602924;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=o4mlm08P1WadObb1MlpqsGPkZDJK+PxDrwM0H9rW8xg=;
+        b=YJkFU5gRM63b+zs4tPCwZyEIpIbcNR+qfC7ns9eKdMvv+1Ar7lyiixCs3LaTdFhK4W5TKy
+        BK1MDoyirNZ1dmmwAFVY5KHOg+rMduDWBPsuBYNeBBcvkgasNksoWgkU5DHeuJVMMn8hqk
+        vn+txsIy9Y8CdCLtCFRk6kLVPNkHmwU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-142-_48uOA2eMZ6o0pX6_T9r7Q-1; Mon, 22 Nov 2021 12:42:02 -0500
+X-MC-Unique: _48uOA2eMZ6o0pX6_T9r7Q-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C71491966321;
+        Mon, 22 Nov 2021 17:42:01 +0000 (UTC)
+Received: from localhost (unknown [10.2.17.242])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 65EA360C7F;
+        Mon, 22 Nov 2021 17:42:01 +0000 (UTC)
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Vineeth Vijayan <vneethv@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     oberpar@linux.ibm.com, vneethv@linux.ibm.com
+Subject: Re: [RFC v3 1/1] s390/cio: remove uevent suppress from cio driver
+In-Reply-To: <20211122103756.352463-2-vneethv@linux.ibm.com>
+Organization: Red Hat GmbH
+References: <20211122103756.352463-1-vneethv@linux.ibm.com>
+ <20211122103756.352463-2-vneethv@linux.ibm.com>
+User-Agent: Notmuch/0.33.1 (https://notmuchmail.org)
+Date:   Mon, 22 Nov 2021 18:41:59 +0100
+Message-ID: <875yskkryw.fsf@redhat.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH RFC net] net/smc: Ensure the active closing peer first
- closes clcsock
-Content-Language: en-US
-From:   Karsten Graul <kgraul@linux.ibm.com>
-To:     Tony Lu <tonylu@linux.alibaba.com>
-Cc:     kuba@kernel.org, davem@davemloft.net, guwen@linux.alibaba.com,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-rdma@vger.kernel.org
-References: <20211116033011.16658-1-tonylu@linux.alibaba.com>
- <9af1f859-0299-d1d7-d5ce-af46cf102025@linux.ibm.com>
-Organization: IBM Deutschland Research & Development GmbH
-In-Reply-To: <9af1f859-0299-d1d7-d5ce-af46cf102025@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 0TDTzXSvd3wR-VAU_8LaqnY3rx2sSrA2
-X-Proofpoint-GUID: oe566AgnXUD1EcdSLYlGZ70ng--0mPFH
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-11-22_08,2021-11-22_02,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 mlxlogscore=999
- impostorscore=0 mlxscore=0 malwarescore=0 phishscore=0 priorityscore=1501
- clxscore=1015 lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
- definitions=main-2111220084
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 17/11/2021 17:19, Karsten Graul wrote:
-> On 16/11/2021 04:30, Tony Lu wrote:
->> We found an issue when replacing TCP with SMC. When the actively closed
->> peer called close() in userspace, the clcsock of peer doesn't enter TCP
->> active close progress, but the passive closed peer close it first, and
->> enters TIME_WAIT state. It means the behavior doesn't match what we
->> expected. After reading RFC7609, there is no clear description of the
->> order in which we close clcsock during close progress.
-> 
-> Thanks for your detailed description, it helped me to understand the problem.
-> Your point is that SMC sockets should show the same behavior as TCP sockets
-> in this situation: the side that actively closed the socket should get into
-> TIME_WAIT state, and not the passive side. I agree with this.
-> Your idea to fix it looks like a good solution for me. But I need to do more
-> testing to make sure that other SMC implementations (not Linux) work as
-> expected with this change. For example, Linux does not actively monitor the 
-> clcsocket state, but if another implementation would do this it could happen
-> that the SMC socket is closed already when the clcsocket shutdown arrives, and
-> pending data transfers are aborted.
-> 
-> I will respond to your RFC when I finished my testing.
-> 
-> Thank you.
-> 
+On Mon, Nov 22 2021, Vineeth Vijayan <vneethv@linux.ibm.com> wrote:
 
-Testing and discussions are finished, the patch looks good.
-Can you please send your change as a patch to the mailing list?
+> commit fa1a8c23eb7d ("s390: cio: Delay uevents for subchannels")
+> introduced suppression of uevents for a subchannel until after it is
+> clear that the subchannel would not be unregistered again
+> immediately. This was done to avoid uevents being generated for I/O
+> subchannels with no valid device, which can happen on LPAR.
+>
+> However, this also has some drawbacks: All subchannel drivers need to
+> manually remove the uevent suppression and generate an ADD uevent as
+> soon as they are sure that the subchannel will stay around. This misses
+> out on all uevents that are not the initial ADD uevent that would be
+> generated while uevents are suppressed; for example, all subchannels
+> were missing the BIND uevent.
+>
+> As uevents being generated even for I/O subchannels without an
+> operational device turned out to be not as bad as missing uevents and
+> complicating the code flow, let's remove uevent suppression for
+> subchannel
+
+s/subchannel/subchannels./
+
+>
+> Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+> [cohuck@redhat.com: modified changelog]
+> ---
+>  drivers/s390/cio/chsc_sch.c     |  5 -----
+>  drivers/s390/cio/css.c          | 19 -------------------
+>  drivers/s390/cio/device.c       | 18 ------------------
+>  drivers/s390/cio/eadm_sch.c     |  5 -----
+>  drivers/s390/cio/vfio_ccw_drv.c |  5 -----
+>  5 files changed, 52 deletions(-)
+
+(...)
+
+> @@ -1035,16 +1027,6 @@ static int io_subchannel_probe(struct subchannel *sch)
+>  				      "attributes for subchannel "
+>  				      "0.%x.%04x (rc=%d)\n",
+>  				      sch->schid.ssid, sch->schid.sch_no, rc);
+> -		/*
+> -		 * The console subchannel already has an associated ccw_device.
+> -		 * Throw the delayed uevent for the subchannel, register
+> -		 * the ccw_device and exit.
+
+Maybe keep at least part of this comment?
+
+/*
+ * The console subchannel already has an associated ccw_device.
+ * Register it and exit.
+ */
+
+> -		 */
+> -		if (dev_get_uevent_suppress(&sch->dev)) {
+> -			/* should always be the case for the console */
+> -			dev_set_uevent_suppress(&sch->dev, 0);
+> -			kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
+> -		}
+>  		cdev = sch_get_cdev(sch);
+>  		rc = device_add(&cdev->dev);
+>  		if (rc) {
+
+Otherwise looks good to me.
+
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+
