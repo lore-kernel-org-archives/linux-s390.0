@@ -2,147 +2,121 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 931FCC433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 22 Nov 2021 15:02:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DBA8C433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 22 Nov 2021 15:08:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232963AbhKVPFh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 22 Nov 2021 10:05:37 -0500
-Received: from smtp-out1.suse.de ([195.135.220.28]:60516 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229542AbhKVPFg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 22 Nov 2021 10:05:36 -0500
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 1C34E218F0;
-        Mon, 22 Nov 2021 15:02:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1637593349; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ZvPdialsrkJMgYvpdKiSnsfyGngxWmNa/ZN7M0ULl+o=;
-        b=myZMIq0j4sZ8Deql43cZdR3zYzUiBJe7aU7qwq52RjOk8FOj7Ziu6j4xrZy1m93ceFQ0HX
-        EOOZWxU53InTXg9jYpyBZzm41hUGJueDadyV6hYvrYbwx04BUzUGZJqWQp42MxN8O2pJg6
-        NmojDb5uBHj/Y/Q7mmjRMVKuPlog1OI=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1637593349;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ZvPdialsrkJMgYvpdKiSnsfyGngxWmNa/ZN7M0ULl+o=;
-        b=G8bhMr7G6s/SNcLfl9NgCsVofulfiEKmZYKTougAofcsP4wv3IG8d/QkaqbmADtvZx03Nj
-        KEZwMpDqNnK2tVBQ==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id F0CDD13B44;
-        Mon, 22 Nov 2021 15:02:28 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id 9Gn6OQSxm2HtBgAAMHmgww
-        (envelope-from <vbabka@suse.cz>); Mon, 22 Nov 2021 15:02:28 +0000
-Message-ID: <b513bbcf-f1ea-cfa6-763a-003a60e51da5@suse.cz>
-Date:   Mon, 22 Nov 2021 16:02:28 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.1
+        id S233367AbhKVPLy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 22 Nov 2021 10:11:54 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:46148 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232194AbhKVPLy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 22 Nov 2021 10:11:54 -0500
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1AMF2WHC010448;
+        Mon, 22 Nov 2021 15:08:43 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=hkEt6EUnpd2QOQcb5OoImYzeD54WeZPwxSc6rCVkF/s=;
+ b=F+elT9zE57+C4s65cexX6Zx3kSLaIQYAhVttwB0j8KqVgx8dqkhg4YEOVml8t0IY76HS
+ 4A+/qIXhOgxZv8UuIN8kmvT0PXPpiYqzfZ7CFUkEYMxuc9RdJaUNwHvMDrkw0L+EhbXf
+ p533JP0gHTgqBvNWPoXpahN5hkgu6EBDV++XB4eHuCkROj/PecVfUw1M/Ml5S/U+v9Bn
+ gzrIfgs0M46hI5uVbSWD4ck8JZTmv07YhnySRGLyhLNjqG/A/RQKStdh0nqpzkMnOhbi
+ 4NH9Sqg+XNyxo4RugOFWgY1tAJk61hDluX1fjfpWNrvxzl/g2zJb0eLYbqcovjdD0Aj0 lA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cgdgh057y-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 22 Nov 2021 15:08:42 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1AMF5YOw024194;
+        Mon, 22 Nov 2021 15:08:42 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cgdgh057e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 22 Nov 2021 15:08:42 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1AMF7CM2029910;
+        Mon, 22 Nov 2021 15:08:40 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma04ams.nl.ibm.com with ESMTP id 3cernafmdd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 22 Nov 2021 15:08:40 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1AMF8cDa61735354
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 22 Nov 2021 15:08:38 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 222BF42042;
+        Mon, 22 Nov 2021 15:08:38 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id ACE9D4204D;
+        Mon, 22 Nov 2021 15:08:37 +0000 (GMT)
+Received: from [9.145.56.120] (unknown [9.145.56.120])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 22 Nov 2021 15:08:37 +0000 (GMT)
+Message-ID: <f08e1793-630f-32a6-6662-19edc362b386@linux.ibm.com>
+Date:   Mon, 22 Nov 2021 16:08:37 +0100
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [PATCH RFC net-next] net/smc: Unbind buffer size from clcsock and
+ make it tunable
 Content-Language: en-US
-To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Cc:     Faiyaz Mohammed <faiyazm@codeaurora.org>,
-        linux-mm <linux-mm@kvack.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-References: <20211117193932.4049412-1-gerald.schaefer@linux.ibm.com>
- <20211117193932.4049412-2-gerald.schaefer@linux.ibm.com>
- <9a4367c0-8141-f03c-e5a1-13483794d3e8@suse.cz>
- <20211119205943.1ee5da0d@thinkpad>
-From:   Vlastimil Babka <vbabka@suse.cz>
-Subject: Re: [RFC PATCH 1/1] mm/slub: fix endless "No data" printing for
- alloc/free_traces attribute
-In-Reply-To: <20211119205943.1ee5da0d@thinkpad>
+To:     Tony Lu <tonylu@linux.alibaba.com>
+Cc:     kuba@kernel.org, davem@davemloft.net, guwen@linux.alibaba.com,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-rdma@vger.kernel.org
+References: <20211122134255.63347-1-tonylu@linux.alibaba.com>
+From:   Karsten Graul <kgraul@linux.ibm.com>
+Organization: IBM Deutschland Research & Development GmbH
+In-Reply-To: <20211122134255.63347-1-tonylu@linux.alibaba.com>
 Content-Type: text/plain; charset=UTF-8
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Hx3ZXLxC7y6VD0aMKNj4KHUCuMqFUDpg
+X-Proofpoint-ORIG-GUID: dXt_ONC907U6klxHxIzRw2HbB6t27PzV
 Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-11-22_07,2021-11-22_02,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
+ bulkscore=0 impostorscore=0 adultscore=0 spamscore=0 phishscore=0
+ mlxlogscore=999 suspectscore=0 lowpriorityscore=0 malwarescore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2111220077
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 11/19/21 20:59, Gerald Schaefer wrote:
-> On Fri, 19 Nov 2021 11:41:38 +0100
-> Vlastimil Babka <vbabka@suse.cz> wrote:
+On 22/11/2021 14:42, Tony Lu wrote:
+> SMC uses smc->sk.sk_{rcv|snd}buf to create buffer for send buffer or
+> RMB. And the values of buffer size inherits from clcsock. The clcsock is
+> a TCP sock which is initiated during SMC connection startup.
 > 
->> On 11/17/21 20:39, Gerald Schaefer wrote:
->> > Reading from alloc/free_traces attribute in /sys/kernel/debug/slab/ results
->> > in an endless sequence of "No data". This is because slab_debugfs_start()
->> > does not check for a "past end of file" condition and return NULL.
->> 
->> I still have no idea how that endless sequence happens.
->> To get it, we would have to call slab_debugfs_show() repeatedly with such v
->> that *v == 0. Which should only happen with slab_debugfs_start() with *ppos
->> == 0. Which your patch won't change because you add a '*ppos > t->count'
->> condition, so *ppos has to be at least 1 to trigger this.
+> The inherited buffer size doesn't fit SMC well. TCP provides two sysctl
+> knobs to tune r/w buffers, net.ipv4.tcp_{r|w}mem, and SMC use the default
+> value from TCP. The buffer size is tuned for TCP, but not fit SMC well
+> in some scenarios. For example, we need larger buffer of SMC for high
+> throughput applications, and smaller buffer of SMC for saving contiguous
+> memory. We need to adjust the buffer size apart from TCP and not to
+> disturb TCP.
 > 
-> Yes, very strange. After a closer look to fs/seq_file.c, especially
-> seq_read_iter(), it seems that op->next will only be called when m->count == 0,
-> at least in the first while(1) loop. Printing "No data\n" sets m->count
-> to 8, so it will continue after Fill:, then call op->next, which returns NULL
-> and breaks the second while(1) loop, and also calls op->stop. Then it returns
-> from seq_read_iter(), only to be called again, and again, ...
+> This unbinds buffer size which inherits from clcsock, and provides
+> sysctl knobs to adjust buffer size independently. These knobs can be
+> tuned with different values for different net namespaces for performance
+> and flexibility.
 > 
-> Only when op->start returns NULL it will end it for good, probably
-> because seq_read_iter() will then return 0 instead of 8.
+> Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
+> Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
+> ---
 
-Ah, thanks for investigating.
+To activate SMC for existing programs usually the smc_run command or the
+preload library (both from the smc-tools package) are used.
+This commit introduced support to set the send and recv window sizes
+using command line parameters or environment variables:
 
-> Not sure if
-> there is a better way to fix this than by adding a second "return NULL"
-> to op->start, which feels a bit awkward and makes you wonder why the
-> "return NULL" from op->next is not enough.
+https://github.com/ibm-s390-linux/smc-tools/commit/59bfb99c588746f7dca1b3c97fd88f3f7cbc975f
 
-I think it's fine to require op->start to return NULL, even if it didn't
-cause this infinite loop.
-
->> 
->> But yeah, AFAIK we should detect this in slab_debugfs_start() anyway.
->> But I think the condition should be something like below, because we are
->> past end of file already with *ppos == t->count. But if both are 0, we want
->> to proceed for the "No data" output.
-> 
-> Ah ok, I wasn't sure about the "t->count > 0" case, i.e. if the check for
-> "*ppos > t->count" would still be correct there. So apparently it wouldn't,
-> and we need two checks, like you suggested
-> 
->> 
->> // to show the No data
->> if (!*ppos && !t->count)
->> 	return ppos;
->> 
->> if (*ppos >= t->count)
->> 	return ppos;
-> 
-> That should be return NULL here, right?
-
-Doh, right.
-
->> 
->> return ppos;
->> 
-> 
-> Will send a new patch, unless I find a better way after investigating the
-> endless seq_read_iter() calls mentioned above.
-> Is there an easy way to test the "t->count > 0" case, i.e. what would need
-> to be done to get some other reply than "No data"?
-
-Hm the debugfs files alloc_tracess/free_traces for any cache with non-zero
-objects (see /proc/slabinfo for that) should have t->count > 0. If the files
-are created for a cache, it means the related SLAB_STORE_USER debugging was
-enabled both during config and boot-time. If you see only a few caches with
-alloc_tracess/free_traces (because they are from e.g. some test module that
-adds SLAB_STORE_USER explicitly) and all happen to have 0 objects, boot with
-slub_debug=U parameter and then all caches will have this enabled and many
-will have >0 objects.
+Why another way to manipulate these sizes?
+Your solution would stop applications to set these values.
