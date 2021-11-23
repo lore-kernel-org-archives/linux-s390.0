@@ -2,54 +2,54 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C7F2C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 23 Nov 2021 21:16:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 01764C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 23 Nov 2021 21:17:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240384AbhKWVTM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 23 Nov 2021 16:19:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45382 "EHLO
+        id S239613AbhKWVUZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 23 Nov 2021 16:20:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240373AbhKWVTM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 23 Nov 2021 16:19:12 -0500
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F9C8C061574
-        for <linux-s390@vger.kernel.org>; Tue, 23 Nov 2021 13:16:03 -0800 (PST)
-Received: by mail-pj1-x102d.google.com with SMTP id gb13-20020a17090b060d00b001a674e2c4a8so417411pjb.4
-        for <linux-s390@vger.kernel.org>; Tue, 23 Nov 2021 13:16:03 -0800 (PST)
+        with ESMTP id S239691AbhKWVUR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 23 Nov 2021 16:20:17 -0500
+Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38CC5C061714
+        for <linux-s390@vger.kernel.org>; Tue, 23 Nov 2021 13:17:09 -0800 (PST)
+Received: by mail-pf1-x434.google.com with SMTP id x5so608120pfr.0
+        for <linux-s390@vger.kernel.org>; Tue, 23 Nov 2021 13:17:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=intel-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=l+zpQrvL4Qxe/qyBBz6nO1x+ZudVJHE22cDmvcF/TOE=;
-        b=3UTjzt/B58bzUMuj7IqqMnaCu5WYQAV5rK+fs5kaCfP78gUwTgy5Zlf3Be+wmIjr56
-         TnFB+KlAOrzucg0BEhVOP/JXfiAUD2ftEQJXj4AikeXTgWe03Spusb/0TUld0hhFX8v6
-         hoRoYhcMIe1fJGrizIl0u8fu7pfvZl0yQ6G/HZ/XblMR0kOZLIsIbaNzfqww2OtwK0QY
-         M2kpeuFwFxk8ZGruQVPxMGdqTXvMTUs/jjMoa2NVuNjPrbZJxiRI6LrTQ3lIM/koJIif
-         rP8I79qIKGLZ1fswpluH9sZNHRVBAzv8KTrCcmchw/ruDBCNrZVPKtgfRhQ9/KytnoiJ
-         mPYg==
+        bh=PQeh1LIqbqFtSovgn5WZ7VLYBwfefd3KuHYAxcJ6bdE=;
+        b=z/Kv5aF3II2Q1LX6Aazu4oeYGV1DsHDm6VPftSCm/GsXUqcvpUYlHGhNQfvcAEzM+t
+         KHEErzvzy9AE7efI2veDZidjjq+fK6s2UJs7fEhnYmQiPFx9rvXEwel822roodlc/FcK
+         DEv5SfZdo4Mf/qMs7Jb75ZFTHTDu0awILjq9sqTvXs+VIsFn7y/1XB/C+/lY4NwLFtHP
+         cHAfa2a7eS26AcezybSCXTWBbxiGPri9iUr8Wx/IV+DiOD4YHSNiMvTZGqn4/3tFE8gU
+         fEqZVpI1Dt83hXy63DNbfv4vosQWDr6RKn8ZmI1PKEqbMIgBEyzoH/HXIZQqJ3XqzuZq
+         V9lQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=l+zpQrvL4Qxe/qyBBz6nO1x+ZudVJHE22cDmvcF/TOE=;
-        b=gHJK//Q1LDCf1+5xRuvEVcMLJkar1CaM7w7zw3V77+w7KccoaG/QZVC72DvfEQa122
-         xs2ANkZLhzhZ6uWlc1Hnllrv9gUPAjK4YXG/lCK8lEEoixDw/3ztbt4N3AuZrXx+Um85
-         XA29leI6ge568Fby/FzZDPNu/Rx5emU6CAK+6XkXDyxeAiV1Cih2XQ2pH48Ba93cWAnY
-         BmUctTifkKJJv6IagpKBY4tE5DYFnSVMAGRigebHuF2UVVUVuOxK3RqqF4y2+rWjeUvM
-         7mhuW8xs309+KdCwNNd2+xM2ls9BF7rngjRgwS+0PCQSdQDvQvGd/rno+1nzajNFCB66
-         fryw==
-X-Gm-Message-State: AOAM533uoSmglbSmZ3S0KZg2xJlREp+rV2cJpOVv0L3TzV4R07TFwhmo
-        4OKdCnQgvZRCrD3yxpryg2JuQxBaY9yQZ/AEfxwkJJOlbo4=
-X-Google-Smtp-Source: ABdhPJxRRlv0NZQorv0M5t2wTRvBAaxVZY2wmbRu89506wlORAkd8KhXvCTyC5EAm4rzXSOWToX/mEdJ14fdPpKfw3k=
-X-Received: by 2002:a17:90b:1e07:: with SMTP id pg7mr494044pjb.93.1637702163126;
- Tue, 23 Nov 2021 13:16:03 -0800 (PST)
+        bh=PQeh1LIqbqFtSovgn5WZ7VLYBwfefd3KuHYAxcJ6bdE=;
+        b=FJVWuQs78ZWwFK4gTQoGIBTtkGgt553EVVGwDG56VrQj95t4UVWUWIsIVp2Am4hII4
+         Al5L9c+XNS6IL2dYhTLf2IGpSH02oZfa+AXVYPBC30yY6WkHROo2/og30205NeAg7gO/
+         RaGlbdYznRjvX0OvSsYLP8EGrhUjCddojamr0RE9/sal3U57w+E48lhuqmTBv3jl8C3y
+         jaLS9eJB/XkODJQrHtMa8PlncjJvPvXQ361lAAYC6fIjo/N2F7gacfuFA4kD0NsPvAGE
+         XNqcBjiWYt6lRU/K/9PtA6eRqgfoS7StrSQlDqgBxkXQVy9w3W5S25/UNeI5wrKSM6Pr
+         12RQ==
+X-Gm-Message-State: AOAM5307Zs2YFTQqaQVRRhmzhGhUdL3wr6V5cCmMo4gdu1i98JY7zN3L
+        RhARHrh49ofBVzEQv4O2SVQc/y+5Fnalzk2mynoKPQ==
+X-Google-Smtp-Source: ABdhPJxo6xmNJWXyaaVPBEUy4anrM6xGk5zJ5S54bOFTPTbJYWg88+GG8ODe3guk693xmG8x/Zkzy+Ul3gB1uuDCJIA=
+X-Received: by 2002:a63:5401:: with SMTP id i1mr6112849pgb.356.1637702228750;
+ Tue, 23 Nov 2021 13:17:08 -0800 (PST)
 MIME-Version: 1.0
-References: <20211109083309.584081-1-hch@lst.de> <20211109083309.584081-16-hch@lst.de>
-In-Reply-To: <20211109083309.584081-16-hch@lst.de>
+References: <20211109083309.584081-1-hch@lst.de> <20211109083309.584081-17-hch@lst.de>
+In-Reply-To: <20211109083309.584081-17-hch@lst.de>
 From:   Dan Williams <dan.j.williams@intel.com>
-Date:   Tue, 23 Nov 2021 13:15:52 -0800
-Message-ID: <CAPcyv4jDqfNj4iAYoewj53QEZjXR41UuE0LN49CtC_2qjrbazg@mail.gmail.com>
-Subject: Re: [PATCH 15/29] xfs: add xfs_zero_range and xfs_truncate_page helpers
+Date:   Tue, 23 Nov 2021 13:16:58 -0800
+Message-ID: <CAPcyv4jjvoT=aW+_Ks+8L60HG0ypesSi8A+a5F2JXu1dEWHVCw@mail.gmail.com>
+Subject: Re: [PATCH 16/29] fsdax: simplify the offset check in dax_iomap_zero
 To:     Christoph Hellwig <hch@lst.de>
 Cc:     Mike Snitzer <snitzer@redhat.com>, Ira Weiny <ira.weiny@intel.com>,
         device-mapper development <dm-devel@redhat.com>,
@@ -59,8 +59,7 @@ Cc:     Mike Snitzer <snitzer@redhat.com>, Ira Weiny <ira.weiny@intel.com>,
         linux-fsdevel <linux-fsdevel@vger.kernel.org>,
         linux-erofs@lists.ozlabs.org,
         linux-ext4 <linux-ext4@vger.kernel.org>,
-        virtualization@lists.linux-foundation.org,
-        Shiyang Ruan <ruansy.fnst@fujitsu.com>
+        virtualization@lists.linux-foundation.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
@@ -68,14 +67,9 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 On Tue, Nov 9, 2021 at 12:34 AM Christoph Hellwig <hch@lst.de> wrote:
 >
-> From: Shiyang Ruan <ruansy.fnst@fujitsu.com>
->
-> Add helpers to prepare for using different DAX operations.
->
-> Signed-off-by: Shiyang Ruan <ruansy.fnst@fujitsu.com>
-> [hch: split from a larger patch + slight cleanups]
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> The file relative offset must have the same alignment as the storage
+> offset, so use that and get rid of the call to iomap_sector.
 
-Looks good to me.
+Agree.
 
 Reviewed-by: Dan Williams <dan.j.williams@intel.com>
