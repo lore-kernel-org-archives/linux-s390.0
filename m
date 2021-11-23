@@ -2,122 +2,226 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E18D0C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 23 Nov 2021 19:44:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 12F43C433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 23 Nov 2021 19:45:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236928AbhKWTry (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 23 Nov 2021 14:47:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34748 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234047AbhKWTrx (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 23 Nov 2021 14:47:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FE6160F26;
-        Tue, 23 Nov 2021 19:44:39 +0000 (UTC)
-Date:   Tue, 23 Nov 2021 19:44:35 +0000
-From:   Catalin Marinas <catalin.marinas@arm.com>
-To:     Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc:     Andrey Ryabinin <ryabinin.a.a@gmail.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, kasan-dev@googlegroups.com,
-        linux-mm@kvack.org, Will Deacon <will@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Alexander Potapenko <glider@google.com>,
-        Yongqiang Liu <liuyongqiang13@huawei.com>
-Subject: Re: [PATCH v2] mm: Delay kmemleak object creation of module_alloc()
-Message-ID: <YZ1Eo2m3VKZTfthA@arm.com>
-References: <20211123143220.134361-1-wangkefeng.wang@huawei.com>
+        id S236014AbhKWTsT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 23 Nov 2021 14:48:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53130 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232144AbhKWTsS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 23 Nov 2021 14:48:18 -0500
+Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16787C061714
+        for <linux-s390@vger.kernel.org>; Tue, 23 Nov 2021 11:45:10 -0800 (PST)
+Received: by mail-pf1-x436.google.com with SMTP id b68so285161pfg.11
+        for <linux-s390@vger.kernel.org>; Tue, 23 Nov 2021 11:45:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=intel-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=w+rFmLhgbnDpLxCzHmV2glN1Ln3seAnXjsHProy9jpQ=;
+        b=8TuMlU3us3235PZEUw3+wIh4bMh3IEosMWINytQJPA8EsImL389OAaoHvBi2CGGdSf
+         Rh9yn/jAP3LDfN6pR6SaRHTOUUOMLxOtUmam8reDwGSfD4w6FZveFANrjn8s/jihbP8a
+         /9V60kc9Qtf+3Dml6kBEgRntEDh+nU+GrodQG++rP8I/zmuwILZOgR3w9QCJOIZ0g5zH
+         9zH2kBIZ/cPSJQRWiB/2Y/XDrzvPyF3Hv3bN8XyfkxJRgVz69+M/RXyGlI55Xt+WpWs9
+         wMU+SWPcM07FWqrOx/09zV4DI9sUcLhs84CFSiM/9XDv/STaLOihgU7ct0RV7chhixuh
+         VA4g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=w+rFmLhgbnDpLxCzHmV2glN1Ln3seAnXjsHProy9jpQ=;
+        b=NKjWtsjFPZ+9Qo8RvwKSDwmrhaDXC/JY3oZEyPJHaoHVWuQP7wT+UZsZRv/nyRziaP
+         hzmJOxS8c941XDKI7i3YGZnYZvr7wQV3mNw0hnJjTrBs0B0a7/FlabfhQjTHiiPTdSeu
+         sGpRgFue6V89FzNmrZFfsbAGJRm4qYpM0Kk8tj4xRAgaewK3sC1TSJkoHh0+7GG7dKMe
+         Elb4sIiU/kRYNw62uP5dBxQue/Lm1U4jLdNG2tOWr5y6S3YZ9nG3Z/z4kZ3JqTCAtczm
+         RT+quwLHgpddjszw6vGIK0mAFATwod4N35Dt7c8SdqJpcuhtRw/oXK6NX1gcUFLXF+gn
+         EqYA==
+X-Gm-Message-State: AOAM532+SjIRd/fUy+Sh3bQlss+6e+xnPSl0ogijs9BXTkUIuCEdAOlC
+        6QIuw1P9pszA4ZSwIF/nDwisdB/IiD2qbUDDiR5MxA==
+X-Google-Smtp-Source: ABdhPJyXaOgPCWXg03K7i5Yu4pkRtA/C9CDsmT0Wx6XfkWLs2OyDjuogWwUi8QvAPldXDBn8n1H52ogjjyzkBt9HYEc=
+X-Received: by 2002:aa7:8d0a:0:b0:4a2:82d7:1695 with SMTP id
+ j10-20020aa78d0a000000b004a282d71695mr8142364pfe.86.1637696709602; Tue, 23
+ Nov 2021 11:45:09 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211123143220.134361-1-wangkefeng.wang@huawei.com>
+References: <20211109083309.584081-1-hch@lst.de> <20211109083309.584081-15-hch@lst.de>
+In-Reply-To: <20211109083309.584081-15-hch@lst.de>
+From:   Dan Williams <dan.j.williams@intel.com>
+Date:   Tue, 23 Nov 2021 11:44:59 -0800
+Message-ID: <CAPcyv4gVjR05Go=WpK9k-FYO53o+X9PZz2nFL9gniz85nCXu4w@mail.gmail.com>
+Subject: Re: [PATCH 14/29] fsdax: simplify the pgoff calculation
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Mike Snitzer <snitzer@redhat.com>, Ira Weiny <ira.weiny@intel.com>,
+        device-mapper development <dm-devel@redhat.com>,
+        linux-xfs <linux-xfs@vger.kernel.org>,
+        Linux NVDIMM <nvdimm@lists.linux.dev>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        linux-erofs@lists.ozlabs.org,
+        linux-ext4 <linux-ext4@vger.kernel.org>,
+        virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Nov 23, 2021 at 10:32:20PM +0800, Kefeng Wang wrote:
-> Yongqiang reports a kmemleak panic when module insmod/rmmod with KASAN
-> enabled on x86[1].
-> 
-> When the module allocates memory, it's kmemleak_object is created successfully,
-> but the KASAN shadow memory of module allocation is not ready, so when kmemleak
-> scan the module's pointer, it will panic due to no shadow memory with KASAN.
-> 
-> module_alloc
->   __vmalloc_node_range
->     kmemleak_vmalloc
-> 				kmemleak_scan
-> 				  update_checksum
->   kasan_module_alloc
->     kmemleak_ignore
+On Tue, Nov 9, 2021 at 12:33 AM Christoph Hellwig <hch@lst.de> wrote:
+>
+> Replace the two steps of dax_iomap_sector and bdev_dax_pgoff with a
+> single dax_iomap_pgoff helper that avoids lots of cumbersome sector
+> conversions.
 
-Can you share the .config and the stack trace you get on arm64?
+Looks good,
 
-I have a suspicion there is no problem if KASAN_VMALLOC is enabled.
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
 
-> diff --git a/mm/kasan/shadow.c b/mm/kasan/shadow.c
-> index 4a4929b29a23..2ade2f484562 100644
-> --- a/mm/kasan/shadow.c
-> +++ b/mm/kasan/shadow.c
-> @@ -498,7 +498,7 @@ void kasan_release_vmalloc(unsigned long start, unsigned long end,
->  
->  #else /* CONFIG_KASAN_VMALLOC */
->  
-> -int kasan_module_alloc(void *addr, size_t size)
-> +int kasan_module_alloc(void *addr, size_t size, gfp_t gfp_mask)
+>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  drivers/dax/super.c | 14 --------------
+>  fs/dax.c            | 35 ++++++++++-------------------------
+>  include/linux/dax.h |  1 -
+>  3 files changed, 10 insertions(+), 40 deletions(-)
+>
+> diff --git a/drivers/dax/super.c b/drivers/dax/super.c
+> index 803942586d1b6..c0910687fbcb2 100644
+> --- a/drivers/dax/super.c
+> +++ b/drivers/dax/super.c
+> @@ -67,20 +67,6 @@ void dax_remove_host(struct gendisk *disk)
+>  }
+>  EXPORT_SYMBOL_GPL(dax_remove_host);
+>
+> -int bdev_dax_pgoff(struct block_device *bdev, sector_t sector, size_t size,
+> -               pgoff_t *pgoff)
+> -{
+> -       sector_t start_sect = bdev ? get_start_sect(bdev) : 0;
+> -       phys_addr_t phys_off = (start_sect + sector) * 512;
+> -
+> -       if (pgoff)
+> -               *pgoff = PHYS_PFN(phys_off);
+> -       if (phys_off % PAGE_SIZE || size % PAGE_SIZE)
+> -               return -EINVAL;
+> -       return 0;
+> -}
+> -EXPORT_SYMBOL(bdev_dax_pgoff);
+> -
+>  /**
+>   * dax_get_by_host() - temporary lookup mechanism for filesystem-dax
+>   * @bdev: block device to find a dax_device for
+> diff --git a/fs/dax.c b/fs/dax.c
+> index e51b4129d1b65..5364549d67a48 100644
+> --- a/fs/dax.c
+> +++ b/fs/dax.c
+> @@ -709,23 +709,22 @@ int dax_invalidate_mapping_entry_sync(struct address_space *mapping,
+>         return __dax_invalidate_entry(mapping, index, false);
+>  }
+>
+> -static sector_t dax_iomap_sector(const struct iomap *iomap, loff_t pos)
+> +static pgoff_t dax_iomap_pgoff(const struct iomap *iomap, loff_t pos)
 >  {
->  	void *ret;
->  	size_t scaled_size;
-> @@ -520,9 +520,14 @@ int kasan_module_alloc(void *addr, size_t size)
->  			__builtin_return_address(0));
->  
->  	if (ret) {
-> +		struct vm_struct *vm = find_vm_area(addr);
->  		__memset(ret, KASAN_SHADOW_INIT, shadow_size);
-> -		find_vm_area(addr)->flags |= VM_KASAN;
-> +		vm->flags |= VM_KASAN;
->  		kmemleak_ignore(ret);
+> -       return (iomap->addr + (pos & PAGE_MASK) - iomap->offset) >> 9;
+> +       phys_addr_t paddr = iomap->addr + (pos & PAGE_MASK) - iomap->offset;
 > +
-> +		if (vm->flags & VM_DELAY_KMEMLEAK)
-> +			kmemleak_vmalloc(vm, size, gfp_mask);
-> +
->  		return 0;
->  	}
-
-This function only exists if CONFIG_KASAN_VMALLOC=n.
-
-> diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-> index d2a00ad4e1dd..23c595b15839 100644
-> --- a/mm/vmalloc.c
-> +++ b/mm/vmalloc.c
-> @@ -3074,7 +3074,8 @@ void *__vmalloc_node_range(unsigned long size, unsigned long align,
->  	clear_vm_uninitialized_flag(area);
->  
->  	size = PAGE_ALIGN(size);
-> -	kmemleak_vmalloc(area, size, gfp_mask);
-> +	if (!(vm_flags & VM_DELAY_KMEMLEAK))
-> +		kmemleak_vmalloc(area, size, gfp_mask);
-
-So with KASAN_VMALLOC enabled, we'll miss the kmemleak allocation.
-
-You could add an IS_ENABLED(CONFIG_KASAN_VMALLOC) check but I'm not
-particularly fond of the delay approach (also think DEFER is probably a
-better name).
-
-A quick fix would be to make KMEMLEAK depend on !KASAN || KASAN_VMALLOC.
-We'll miss KASAN_SW_TAGS with kmemleak but I think vmalloc support could
-be enabled for this as well.
-
-What does KASAN do with other vmalloc() allocations when !KASAN_VMALLOC?
-Can we not have a similar approach. I don't fully understand why the
-module vmalloc() is a special case.
-
--- 
-Catalin
+> +       if (iomap->bdev)
+> +               paddr += (get_start_sect(iomap->bdev) << SECTOR_SHIFT);
+> +       return PHYS_PFN(paddr);
+>  }
+>
+>  static int copy_cow_page_dax(struct vm_fault *vmf, const struct iomap_iter *iter)
+>  {
+> -       sector_t sector = dax_iomap_sector(&iter->iomap, iter->pos);
+> +       pgoff_t pgoff = dax_iomap_pgoff(&iter->iomap, iter->pos);
+>         void *vto, *kaddr;
+> -       pgoff_t pgoff;
+>         long rc;
+>         int id;
+>
+> -       rc = bdev_dax_pgoff(iter->iomap.bdev, sector, PAGE_SIZE, &pgoff);
+> -       if (rc)
+> -               return rc;
+> -
+>         id = dax_read_lock();
+>         rc = dax_direct_access(iter->iomap.dax_dev, pgoff, 1, &kaddr, NULL);
+>         if (rc < 0) {
+> @@ -1013,14 +1012,10 @@ EXPORT_SYMBOL_GPL(dax_writeback_mapping_range);
+>  static int dax_iomap_pfn(const struct iomap *iomap, loff_t pos, size_t size,
+>                          pfn_t *pfnp)
+>  {
+> -       const sector_t sector = dax_iomap_sector(iomap, pos);
+> -       pgoff_t pgoff;
+> +       pgoff_t pgoff = dax_iomap_pgoff(iomap, pos);
+>         int id, rc;
+>         long length;
+>
+> -       rc = bdev_dax_pgoff(iomap->bdev, sector, size, &pgoff);
+> -       if (rc)
+> -               return rc;
+>         id = dax_read_lock();
+>         length = dax_direct_access(iomap->dax_dev, pgoff, PHYS_PFN(size),
+>                                    NULL, pfnp);
+> @@ -1129,7 +1124,7 @@ static vm_fault_t dax_pmd_load_hole(struct xa_state *xas, struct vm_fault *vmf,
+>  s64 dax_iomap_zero(loff_t pos, u64 length, struct iomap *iomap)
+>  {
+>         sector_t sector = iomap_sector(iomap, pos & PAGE_MASK);
+> -       pgoff_t pgoff;
+> +       pgoff_t pgoff = dax_iomap_pgoff(iomap, pos);
+>         long rc, id;
+>         void *kaddr;
+>         bool page_aligned = false;
+> @@ -1140,10 +1135,6 @@ s64 dax_iomap_zero(loff_t pos, u64 length, struct iomap *iomap)
+>             (size == PAGE_SIZE))
+>                 page_aligned = true;
+>
+> -       rc = bdev_dax_pgoff(iomap->bdev, sector, PAGE_SIZE, &pgoff);
+> -       if (rc)
+> -               return rc;
+> -
+>         id = dax_read_lock();
+>
+>         if (page_aligned)
+> @@ -1169,7 +1160,6 @@ static loff_t dax_iomap_iter(const struct iomap_iter *iomi,
+>         const struct iomap *iomap = &iomi->iomap;
+>         loff_t length = iomap_length(iomi);
+>         loff_t pos = iomi->pos;
+> -       struct block_device *bdev = iomap->bdev;
+>         struct dax_device *dax_dev = iomap->dax_dev;
+>         loff_t end = pos + length, done = 0;
+>         ssize_t ret = 0;
+> @@ -1203,9 +1193,8 @@ static loff_t dax_iomap_iter(const struct iomap_iter *iomi,
+>         while (pos < end) {
+>                 unsigned offset = pos & (PAGE_SIZE - 1);
+>                 const size_t size = ALIGN(length + offset, PAGE_SIZE);
+> -               const sector_t sector = dax_iomap_sector(iomap, pos);
+> +               pgoff_t pgoff = dax_iomap_pgoff(iomap, pos);
+>                 ssize_t map_len;
+> -               pgoff_t pgoff;
+>                 void *kaddr;
+>
+>                 if (fatal_signal_pending(current)) {
+> @@ -1213,10 +1202,6 @@ static loff_t dax_iomap_iter(const struct iomap_iter *iomi,
+>                         break;
+>                 }
+>
+> -               ret = bdev_dax_pgoff(bdev, sector, size, &pgoff);
+> -               if (ret)
+> -                       break;
+> -
+>                 map_len = dax_direct_access(dax_dev, pgoff, PHYS_PFN(size),
+>                                 &kaddr, NULL);
+>                 if (map_len < 0) {
+> diff --git a/include/linux/dax.h b/include/linux/dax.h
+> index 439c3c70e347b..324363b798ecd 100644
+> --- a/include/linux/dax.h
+> +++ b/include/linux/dax.h
+> @@ -107,7 +107,6 @@ static inline bool daxdev_mapping_supported(struct vm_area_struct *vma,
+>  #endif
+>
+>  struct writeback_control;
+> -int bdev_dax_pgoff(struct block_device *, sector_t, size_t, pgoff_t *pgoff);
+>  #if IS_ENABLED(CONFIG_FS_DAX)
+>  int dax_add_host(struct dax_device *dax_dev, struct gendisk *disk);
+>  void dax_remove_host(struct gendisk *disk);
+> --
+> 2.30.2
+>
