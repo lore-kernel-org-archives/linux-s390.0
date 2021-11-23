@@ -2,107 +2,125 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 942CFC433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 23 Nov 2021 08:36:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DC3F0C433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 23 Nov 2021 09:12:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230428AbhKWIji (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 23 Nov 2021 03:39:38 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:47710 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230176AbhKWIjh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 23 Nov 2021 03:39:37 -0500
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1AN5xL4i013984;
-        Tue, 23 Nov 2021 08:36:27 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=shRKH7UBv5R2UJfmy9nEN9ZlK7i4FnqT3gDYSUL/730=;
- b=CJAuv7xU2grgVlWqCVQ6kaFHpjfxIPisouLcOUMlGP0yHFdGAh7kcoOtwvE/rwejf5OD
- ZX8W0TeiPsGY7Zcr4vgeDFF4IeFoCVsTSIk7o5tAUMZ90WU4blwr2ysnPdkvXi/BibVV
- D0N/5bYUUS8p/o3lU2p+eYZeaClkUtEcof4gU1sjykMxrMLFYykMkT4GzTsjtLKQD4ff
- zTIW2O7a8CgZwHtDtn4UgrJEpFpTfAgZQmWhCYZjbNfsPFKsYEr/sOethsJAzlNJliph
- xj9m7voH533U4GpiSxWpEKwglAJPejGutBzyao67wQp4RZl5/bkbMpNSOUugPiyMbJNE Mg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cgqccwghk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 23 Nov 2021 08:36:27 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1AN8XPO5033856;
-        Tue, 23 Nov 2021 08:36:26 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cgqccwgh9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 23 Nov 2021 08:36:26 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1AN8SHpT028861;
-        Tue, 23 Nov 2021 08:36:25 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma02fra.de.ibm.com with ESMTP id 3cern9mfrg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 23 Nov 2021 08:36:24 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1AN8TDCn52494764
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 23 Nov 2021 08:29:13 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AF6D0A4064;
-        Tue, 23 Nov 2021 08:36:21 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5E6FEA4067;
-        Tue, 23 Nov 2021 08:36:21 +0000 (GMT)
-Received: from [9.145.60.43] (unknown [9.145.60.43])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 23 Nov 2021 08:36:21 +0000 (GMT)
-Message-ID: <dfab4238-3d76-822c-feee-8463054232aa@linux.ibm.com>
-Date:   Tue, 23 Nov 2021 09:36:22 +0100
+        id S234734AbhKWJPn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 23 Nov 2021 04:15:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46008 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229899AbhKWJPn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 23 Nov 2021 04:15:43 -0500
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 267E6C06173E
+        for <linux-s390@vger.kernel.org>; Tue, 23 Nov 2021 01:12:35 -0800 (PST)
+Received: by mail-wr1-x42c.google.com with SMTP id d5so37754618wrc.1
+        for <linux-s390@vger.kernel.org>; Tue, 23 Nov 2021 01:12:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=brainfault-org.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=HYs1wzwF6+J9dSOANXB9y6loDw9qWfCXBI2HZhWySNA=;
+        b=wltUiAygiHWsBEmc25AjNkPWeRE3z9px4T/cVrqarPBht3N5GOBcMj472TjSJxLh+F
+         0GPEkZ82ElidOxCepsH3qkVpZpghdJFzn6w8QY0bBYX7GfBGAa5PebvvpwYx1AMsWy+/
+         Hy0tXtM5hguM8ULFAxaSFY9L9pHflRmc5oBmZlGzdmDGxSVWLmJgoXyeLvirR3+EDdYc
+         x6uL63V8O6CZSV6meLPQPSVnuq81aNx6LBTQbWdIxp70MyirIsOfKBJ+3yy5wRokBv7P
+         ZHDdSS5XrKlSNk/fVqI4v77GmiM6rni3n8Pmp1gAXvY2q32B2g9mUwyOWVLBU2DWazev
+         nV6Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=HYs1wzwF6+J9dSOANXB9y6loDw9qWfCXBI2HZhWySNA=;
+        b=vRarO3y2qmIdctsZ4LtnzoLJtO0CC7gemierS2bOPrUFRvgrJ9ZEGPQT8FgTJHArCd
+         3oGbxnSgcOgEzW9Y0BSazDdrAHA4agNPXDHyjPxNsqVtmALdRfh7ROIS0pD28bhoA+zw
+         fxeG2RZ4jZNoWqhDEb+xByIUPawDidL4zzEtbuOmcy6c3Mc/cQ9lWmiZeWvpV7rJZo5b
+         wxsv4JgreOevMMFW4v+SCpCqsxtLZryuXrjpqIo0apppvQdSq9l9fBt4hrtD61UFTwH2
+         /KQ8cQG2Jre3fmz2NobkD7ajshTZkJaIV/+QHvzywyNp6+cwaveWBLhPVsu9Ksi/Fgfh
+         StUA==
+X-Gm-Message-State: AOAM531PNjd/V84yW7WoXECn2CebBAm8H2Q4777ggy8UMSPQw+0+QjTP
+        kaZWvxZHCvg/oY9kzv2PtC9Uk03uNY0bdGsIjBeBoA==
+X-Google-Smtp-Source: ABdhPJw3107qjhtYHlg0VKfoxcrKNwhATIgpuvcrTNAjZTbcT3w/UYNbeW1BEW91PyajE9x5O252/D9Dk01cQ3/AShU=
+X-Received: by 2002:a05:6000:1a45:: with SMTP id t5mr5400365wry.306.1637658753498;
+ Tue, 23 Nov 2021 01:12:33 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH net 2/2] net/smc: Ensure the active closing peer first
- closes clcsock
-Content-Language: en-US
-To:     Tony Lu <tonylu@linux.alibaba.com>
-Cc:     kuba@kernel.org, davem@davemloft.net, guwen@linux.alibaba.com,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-rdma@vger.kernel.org
-References: <20211123082515.65956-1-tonylu@linux.alibaba.com>
- <20211123082515.65956-3-tonylu@linux.alibaba.com>
-From:   Karsten Graul <kgraul@linux.ibm.com>
-Organization: IBM Deutschland Research & Development GmbH
-In-Reply-To: <20211123082515.65956-3-tonylu@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: XZUAuHg0DfJ1OQEzSQJJ9rysnmvPhLka
-X-Proofpoint-ORIG-GUID: b3Whlt_VSDlqV95wo0t4uUFXPcvQxNyZ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-11-23_02,2021-11-22_02,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- lowpriorityscore=0 bulkscore=0 spamscore=0 impostorscore=0 clxscore=1015
- mlxscore=0 priorityscore=1501 mlxlogscore=999 adultscore=0 suspectscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2111230044
+References: <20211121125451.9489-1-dwmw2@infradead.org> <20211121125451.9489-6-dwmw2@infradead.org>
+In-Reply-To: <20211121125451.9489-6-dwmw2@infradead.org>
+From:   Anup Patel <anup@brainfault.org>
+Date:   Tue, 23 Nov 2021 14:42:21 +0530
+Message-ID: <CAAhSdy307DqNuQEFCu2ze2jXJ7taDE6y6SwY9nHGA8yNPfggiQ@mail.gmail.com>
+Subject: Re: [PATCH v5 05/12] KVM: RISC-V: Use Makefile.kvm for common files
+To:     David Woodhouse <dwmw2@infradead.org>
+Cc:     Paolo Bonzini <pbonzini@redhat.com>, kvm <kvm@vger.kernel.org>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Joao Martins <joao.m.martins@oracle.com>,
+        "jmattson @ google . com" <jmattson@google.com>,
+        "wanpengli @ tencent . com" <wanpengli@tencent.com>,
+        "seanjc @ google . com" <seanjc@google.com>,
+        "vkuznets @ redhat . com" <vkuznets@redhat.com>,
+        "mtosatti @ redhat . com" <mtosatti@redhat.com>,
+        "joro @ 8bytes . org" <joro@8bytes.org>, karahmed@amazon.com,
+        Marc Zyngier <maz@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Anup Patel <anup.patel@wdc.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        kvmarm@lists.cs.columbia.edu,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        butt3rflyh4ck <butterflyhuangxx@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 23/11/2021 09:25, Tony Lu wrote:
-> The side that actively closed socket, it's clcsock doesn't enter
-> TIME_WAIT state, but the passive side does it. It should show the same
-> behavior as TCP sockets.
-> 
-> Consider this, when client actively closes the socket, the clcsock in
-> server enters TIME_WAIT state, which means the address is occupied and
-> won't be reused before TIME_WAIT dismissing. If we restarted server, the
-> service would be unavailable for a long time.
-> 
-> To solve this issue, shutdown the clcsock in [A], perform the TCP active
-> close progress first, before the passive closed side closing it. So that
-> the actively closed side enters TIME_WAIT, not the passive one.
-> 
+On Sun, Nov 21, 2021 at 6:25 PM David Woodhouse <dwmw2@infradead.org> wrote:
+>
+> From: David Woodhouse <dwmw@amazon.co.uk>
+>
+> Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
 
-Thank you, I will pick this up for our next submission to the net tree.
+Looks good to me.
 
+For KVM RISC-V,
+Acked-by: Anup Patel <anup.patel@wdc.com>
+Reviewed-by: Anup Patel <anup.patel@wdc.com>
+
+Thanks,
+Anup
+
+> ---
+>  arch/riscv/kvm/Makefile | 6 +-----
+>  1 file changed, 1 insertion(+), 5 deletions(-)
+>
+> diff --git a/arch/riscv/kvm/Makefile b/arch/riscv/kvm/Makefile
+> index 30cdd1df0098..300590225348 100644
+> --- a/arch/riscv/kvm/Makefile
+> +++ b/arch/riscv/kvm/Makefile
+> @@ -5,14 +5,10 @@
+>
+>  ccflags-y += -I $(srctree)/$(src)
+>
+> -KVM := ../../../virt/kvm
+> +include $(srctree)/virt/kvm/Makefile.kvm
+>
+>  obj-$(CONFIG_KVM) += kvm.o
+>
+> -kvm-y += $(KVM)/kvm_main.o
+> -kvm-y += $(KVM)/coalesced_mmio.o
+> -kvm-y += $(KVM)/binary_stats.o
+> -kvm-y += $(KVM)/eventfd.o
+>  kvm-y += main.o
+>  kvm-y += vm.o
+>  kvm-y += vmid.o
+> --
+> 2.31.1
+>
