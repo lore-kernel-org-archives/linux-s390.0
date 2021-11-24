@@ -2,79 +2,176 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA91CC433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 24 Nov 2021 04:46:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11B26C433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 24 Nov 2021 05:12:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229624AbhKXEtd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 23 Nov 2021 23:49:33 -0500
-Received: from out30-54.freemail.mail.aliyun.com ([115.124.30.54]:41652 "EHLO
-        out30-54.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229588AbhKXEtd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 23 Nov 2021 23:49:33 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0Uy3pXuY_1637729181;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0Uy3pXuY_1637729181)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 24 Nov 2021 12:46:21 +0800
-Date:   Wed, 24 Nov 2021 12:46:20 +0800
-From:   Tony Lu <tonylu@linux.alibaba.com>
-To:     Karsten Graul <kgraul@linux.ibm.com>
-Cc:     kuba@kernel.org, davem@davemloft.net, guwen@linux.alibaba.com,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-rdma@vger.kernel.org
-Subject: Re: [PATCH RFC net-next] net/smc: Unbind buffer size from clcsock
- and make it tunable
-Message-ID: <YZ22dvQYB0oWN4Mk@TonyMac-Alibaba>
-Reply-To: Tony Lu <tonylu@linux.alibaba.com>
-References: <20211122134255.63347-1-tonylu@linux.alibaba.com>
- <f08e1793-630f-32a6-6662-19edc362b386@linux.ibm.com>
- <YZyQg23Vqes4Ls5t@TonyMac-Alibaba>
- <9aaa03b2-4478-6dff-0bfc-06eba7ef2bf7@linux.ibm.com>
+        id S229932AbhKXFQC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 24 Nov 2021 00:16:02 -0500
+Received: from szxga03-in.huawei.com ([45.249.212.189]:28171 "EHLO
+        szxga03-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229817AbhKXFQB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 24 Nov 2021 00:16:01 -0500
+Received: from dggpemm500022.china.huawei.com (unknown [172.30.72.54])
+        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4HzTcN0v8kz8vYr;
+        Wed, 24 Nov 2021 13:11:00 +0800 (CST)
+Received: from dggpemm500001.china.huawei.com (7.185.36.107) by
+ dggpemm500022.china.huawei.com (7.185.36.162) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.20; Wed, 24 Nov 2021 13:12:50 +0800
+Received: from [10.174.177.243] (10.174.177.243) by
+ dggpemm500001.china.huawei.com (7.185.36.107) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
+ 15.1.2308.20; Wed, 24 Nov 2021 13:12:50 +0800
+Message-ID: <9f25b098-0253-4721-3b91-b7d3a79776c6@huawei.com>
+Date:   Wed, 24 Nov 2021 13:12:49 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9aaa03b2-4478-6dff-0bfc-06eba7ef2bf7@linux.ibm.com>
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.0
+Subject: Re: [PATCH v2] mm: Delay kmemleak object creation of module_alloc()
+Content-Language: en-US
+To:     Catalin Marinas <catalin.marinas@arm.com>
+CC:     Andrey Ryabinin <ryabinin.a.a@gmail.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+        <kasan-dev@googlegroups.com>, <linux-mm@kvack.org>,
+        Will Deacon <will@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Alexander Potapenko <glider@google.com>,
+        Yongqiang Liu <liuyongqiang13@huawei.com>
+References: <20211123143220.134361-1-wangkefeng.wang@huawei.com>
+ <YZ1Eo2m3VKZTfthA@arm.com>
+From:   Kefeng Wang <wangkefeng.wang@huawei.com>
+In-Reply-To: <YZ1Eo2m3VKZTfthA@arm.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.174.177.243]
+X-ClientProxiedBy: dggeme701-chm.china.huawei.com (10.1.199.97) To
+ dggpemm500001.china.huawei.com (7.185.36.107)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Nov 23, 2021 at 10:33:07AM +0100, Karsten Graul wrote:
-> On 23/11/2021 07:56, Tony Lu wrote:
-> > To solve this issue, we developed a set of patches to replace the
-> > AF_INET / SOCK_STREAM with AF_SMC / SMCPROTO_SMC{6} by configuration.
-> > So that we can control acceleration in kernel without any other changes
-> > in user-space, and won't break our application containers and publish
-> > workflow. These patches are still improving for upstream.
-> 
-> This sounds interesting. Will this also be namespace-based like the sysctls
-> in the current patch? Will this future change integrate nicely with the current
-> new sysctls? This might allow to activate smc for containers, selectively. 
-> 
-> Please send these changes in a patch series together when they are finished.
-> We would like to review them as a whole to see how things play together.
-> 
-> Thank you!
 
-Hi Graul,
+On 2021/11/24 3:44, Catalin Marinas wrote:
+> On Tue, Nov 23, 2021 at 10:32:20PM +0800, Kefeng Wang wrote:
+>> Yongqiang reports a kmemleak panic when module insmod/rmmod with KASAN
+>> enabled on x86[1].
+>>
+>> When the module allocates memory, it's kmemleak_object is created successfully,
+>> but the KASAN shadow memory of module allocation is not ready, so when kmemleak
+>> scan the module's pointer, it will panic due to no shadow memory with KASAN.
+>>
+>> module_alloc
+>>    __vmalloc_node_range
+>>      kmemleak_vmalloc
+>> 				kmemleak_scan
+>> 				  update_checksum
+>>    kasan_module_alloc
+>>      kmemleak_ignore
+> Can you share the .config and the stack trace you get on arm64?
 
-I am glad to hear that. The container, which is isolated by
-net-namespace, is the minimal deployment unit in our environment. The
-transparent replacement facility is namespace-based, so that we can
-control the applications behaviors according to the dimensions of
-containers.
+My gcc could not support CC_HAS_KASAN_SW_TAGS, so no repoduced on ARM64
 
-The per-netns sysctl is the first step, control the applications'
-buffer, and not to disturb TCP connections in the same container. The
-container's memory is not as large as that of a physical machine, and
-containers might run different workload applications, so we use
-per-netns sysctl to adjust buffer. And it can be sent out separately.
+>
+> I have a suspicion there is no problem if KASAN_VMALLOC is enabled.
 
-Then, we can allow to activate SMC for some containers with transparent
-replacement. These patches are improving, make sure the flexible enough
-for containers and applications scopes, and cohesion enough for
-upstream.
+Yes,  if KASAN_VMALLOC enabled, the memory of vmalloc shadow has been 
+populated in arch's kasan_init(),
 
-I will send them out as the containers solutions. Thank for you advice.
+there is no issue. but x86/arm64/s390 support dynamic allocation of 
+module area per module load by
 
-Thanks,
-Tony Lu
+kasan_module_alloc(), and this leads the above concurrent issue.
+
+>> diff --git a/mm/kasan/shadow.c b/mm/kasan/shadow.c
+>> index 4a4929b29a23..2ade2f484562 100644
+>> --- a/mm/kasan/shadow.c
+>> +++ b/mm/kasan/shadow.c
+>> @@ -498,7 +498,7 @@ void kasan_release_vmalloc(unsigned long start, unsigned long end,
+>>   
+>>   #else /* CONFIG_KASAN_VMALLOC */
+>>   
+>> -int kasan_module_alloc(void *addr, size_t size)
+>> +int kasan_module_alloc(void *addr, size_t size, gfp_t gfp_mask)
+>>   {
+>>   	void *ret;
+>>   	size_t scaled_size;
+>> @@ -520,9 +520,14 @@ int kasan_module_alloc(void *addr, size_t size)
+>>   			__builtin_return_address(0));
+>>   
+>>   	if (ret) {
+>> +		struct vm_struct *vm = find_vm_area(addr);
+>>   		__memset(ret, KASAN_SHADOW_INIT, shadow_size);
+>> -		find_vm_area(addr)->flags |= VM_KASAN;
+>> +		vm->flags |= VM_KASAN;
+>>   		kmemleak_ignore(ret);
+>> +
+>> +		if (vm->flags & VM_DELAY_KMEMLEAK)
+>> +			kmemleak_vmalloc(vm, size, gfp_mask);
+>> +
+>>   		return 0;
+>>   	}
+> This function only exists if CONFIG_KASAN_VMALLOC=n.
+yes.
+>
+>> diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+>> index d2a00ad4e1dd..23c595b15839 100644
+>> --- a/mm/vmalloc.c
+>> +++ b/mm/vmalloc.c
+>> @@ -3074,7 +3074,8 @@ void *__vmalloc_node_range(unsigned long size, unsigned long align,
+>>   	clear_vm_uninitialized_flag(area);
+>>   
+>>   	size = PAGE_ALIGN(size);
+>> -	kmemleak_vmalloc(area, size, gfp_mask);
+>> +	if (!(vm_flags & VM_DELAY_KMEMLEAK))
+>> +		kmemleak_vmalloc(area, size, gfp_mask);
+> So with KASAN_VMALLOC enabled, we'll miss the kmemleak allocation.
+
+See the definination, if KASAN_VMALLOC enabled, VM_DELAY_KMEMLEAK  is 0, 
+so kmemleak allocation
+
+still works.
+
+  
++#if defined(CONFIG_KASAN) && (defined(CONFIG_KASAN_GENERIC) || \
++	defined(CONFIG_KASAN_SW_TAGS)) && !defined(CONFIG_KASAN_VMALLOC)
++#define VM_DELAY_KMEMLEAK	0x00000800	/* delay kmemleak object create */
++#else
++#define VM_DELAY_KMEMLEAK	0
++#endif
++
+
+>
+> You could add an IS_ENABLED(CONFIG_KASAN_VMALLOC) check but I'm not
+> particularly fond of the delay approach (also think DEFER is probably a
+> better name).
+Will use DEFER instead.
+>
+> A quick fix would be to make KMEMLEAK depend on !KASAN || KASAN_VMALLOC.
+> We'll miss KASAN_SW_TAGS with kmemleak but I think vmalloc support could
+> be enabled for this as well.
+>
+> What does KASAN do with other vmalloc() allocations when !KASAN_VMALLOC?
+> Can we not have a similar approach. I don't fully understand why the
+> module vmalloc() is a special case.
+
+Only the shadow of module area is dynamic allocation , this exists on 
+ARM64 too.
+
+if no KASAN_VMALLOC, no shadow area for vmalloc,  other vmalloc 
+allocation is
+
+no problem. Correct me if I'm wrong.
+
+Thanks.
+
+>
