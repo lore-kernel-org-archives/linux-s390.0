@@ -2,96 +2,89 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CF982C433FE
-	for <linux-s390@archiver.kernel.org>; Wed, 24 Nov 2021 13:29:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CB1C6C4332F
+	for <linux-s390@archiver.kernel.org>; Wed, 24 Nov 2021 14:03:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351575AbhKXNcf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 24 Nov 2021 08:32:35 -0500
-Received: from smtp-out1.suse.de ([195.135.220.28]:44134 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351269AbhKXNab (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 24 Nov 2021 08:30:31 -0500
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id CCED321941;
-        Wed, 24 Nov 2021 13:27:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1637760438; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=mN2kL64eNA1N2PK/PmloaFO9N3vVjmU6wTcDc2qhV70=;
-        b=FMMYRpnfAGayOuJ/OK4NiO+Rx4lPtVOsvLnfUGWuitz77A9Q1LQzXEThtnv16Qf3SmSAwM
-        s2ZzzLYTAjhWFIweg/PzCBGYT7fz693yetXPDZ/nbU4tKRDFKxfMfTHwr/1OnUPihqoTaX
-        C/XDrJpV7ODrGvuHvUkkALx/m7QdGuc=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1637760438;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=mN2kL64eNA1N2PK/PmloaFO9N3vVjmU6wTcDc2qhV70=;
-        b=Mqki1S4QamNYU0y4PtzCs1Pt2rdDnqqPiT8W36clDnHP3O2iMu2RsASAK90x88WoZDwDNY
-        7hA994IhL7ztkgAw==
-Received: from kunlun.suse.cz (unknown [10.100.128.76])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id C4C7EA3B93;
-        Wed, 24 Nov 2021 13:27:17 +0000 (UTC)
-Date:   Wed, 24 Nov 2021 14:27:16 +0100
-From:   Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
-To:     Mimi Zohar <zohar@linux.ibm.com>
-Cc:     Philipp Rudo <prudo@redhat.com>, Nayna <nayna@linux.vnet.ibm.com>,
-        keyrings@vger.kernel.org, Rob Herring <robh@kernel.org>,
-        linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Jessica Yu <jeyu@kernel.org>, linux-kernel@vger.kernel.org,
-        David Howells <dhowells@redhat.com>,
+        id S1347013AbhKXOGc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 24 Nov 2021 09:06:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53632 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1356574AbhKXOEc (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 24 Nov 2021 09:04:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D472D6331F;
+        Wed, 24 Nov 2021 13:11:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1637759493;
+        bh=drOOjcV+aRgZ/mmAP4zeIn+mwO6sFw3ncXIhB1lvmvU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=F98gxW8RrKa3tiBEehSN+TE8g6GK0CEwzh1p+K0pQFlGLtjk3SIV4+2NvJuNzkB0r
+         lKsG+cg6GvA875i7MZVmq1+twb/OATaG82A1RpBNifInz5ulwy2pRgMQkHN8qpJirO
+         NkpuZPfrOwqX5p4ruiF8+OPIYhls9hgcQmJTvt/I=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Hari Bathini <hbathini@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linuxppc-dev@lists.ozlabs.org,
-        Frank van der Linden <fllinden@amazon.com>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Daniel Axtens <dja@axtens.net>, buendgen@de.ibm.com
-Subject: Re: [PATCH 0/3] KEXEC_SIG with appended signature
-Message-ID: <20211124132716.GT34414@kunlun.suse.cz>
-References: <20211108120500.GO11195@kunlun.suse.cz>
- <56d2ae87-b9bf-c9fc-1395-db4769a424ea@linux.vnet.ibm.com>
- <20211112083055.GA34414@kunlun.suse.cz>
- <8cd90fea-05c9-b5f9-5e0c-84f98b2f55cd@linux.vnet.ibm.com>
- <20211116095343.GG34414@kunlun.suse.cz>
- <604dad24-5406-509c-d765-905d74880523@linux.vnet.ibm.com>
- <20211119111823.GC34414@kunlun.suse.cz>
- <01218c22a287665091f24c7023f4bcd42dbb2001.camel@linux.ibm.com>
- <20211124120950.57c10a9f@rhtmp>
- <290c0097271c68f5a9fd1e8f6fdb542631981b33.camel@linux.ibm.com>
+        linux-s390@vger.kernel.org,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Thomas Backlund <tmb@iki.fi>
+Subject: [PATCH 5.15 259/279] signal/s390: Use force_sigsegv in default_trap_handler
+Date:   Wed, 24 Nov 2021 12:59:06 +0100
+Message-Id: <20211124115727.665407024@linuxfoundation.org>
+X-Mailer: git-send-email 2.34.0
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <290c0097271c68f5a9fd1e8f6fdb542631981b33.camel@linux.ibm.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Nov 24, 2021 at 08:10:10AM -0500, Mimi Zohar wrote:
-> On Wed, 2021-11-24 at 12:09 +0100, Philipp Rudo wrote:
-> > Now Michal wants to adapt KEXEC_SIG for ppc too so distros can rely on all
-> > architectures using the same mechanism and thus reduce maintenance cost.
-> > On the way there he even makes some absolutely reasonable improvements
-> > for everybody.
-> > 
-> > Why is that so controversial? What is the real problem that should be
-> > discussed here?
-> 
-> Nothing is controversial with what Michal wants to do.  I've already
-> said, "As for adding KEXEC_SIG appended signature support on PowerPC
-> based on the s390 code, it sounds reasonable."
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-Ok, I will resend the series with the arch-specific changes first to be
-independent of the core cleanup.
+commit 9bc508cf0791c8e5a37696de1a046d746fcbd9d8 upstream.
 
-Thanks
+Reading the history it is unclear why default_trap_handler calls
+do_exit.  It is not even menthioned in the commit where the change
+happened.  My best guess is that because it is unknown why the
+exception happened it was desired to guarantee the process never
+returned to userspace.
 
-Michal
+Using do_exit(SIGSEGV) has the problem that it will only terminate one
+thread of a process, leaving the process in an undefined state.
+
+Use force_sigsegv(SIGSEGV) instead which effectively has the same
+behavior except that is uses the ordinary signal mechanism and
+terminates all threads of a process and is generally well defined.
+
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Fixes: ca2ab03237ec ("[PATCH] s390: core changes")
+History Tree: https://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Link: https://lkml.kernel.org/r/20211020174406.17889-11-ebiederm@xmission.com
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+Cc: Thomas Backlund <tmb@iki.fi>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ arch/s390/kernel/traps.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/arch/s390/kernel/traps.c
++++ b/arch/s390/kernel/traps.c
+@@ -84,7 +84,7 @@ static void default_trap_handler(struct
+ {
+ 	if (user_mode(regs)) {
+ 		report_user_fault(regs, SIGSEGV, 0);
+-		do_exit(SIGSEGV);
++		force_sigsegv(SIGSEGV);
+ 	} else
+ 		die(regs, "Unknown program exception");
+ }
+
+
