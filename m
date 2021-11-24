@@ -2,129 +2,108 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B4EC9C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 24 Nov 2021 08:57:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DDB0AC433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 24 Nov 2021 10:08:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241025AbhKXJBD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 24 Nov 2021 04:01:03 -0500
-Received: from out30-133.freemail.mail.aliyun.com ([115.124.30.133]:56642 "EHLO
-        out30-133.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S241004AbhKXJA7 (ORCPT
+        id S238473AbhKXKLl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 24 Nov 2021 05:11:41 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:20978 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230515AbhKXKLl (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 24 Nov 2021 04:00:59 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04407;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0Uy5uIRo_1637744267;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0Uy5uIRo_1637744267)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 24 Nov 2021 16:57:47 +0800
-Date:   Wed, 24 Nov 2021 16:57:46 +0800
-From:   Tony Lu <tonylu@linux.alibaba.com>
-To:     Karsten Graul <kgraul@linux.ibm.com>
+        Wed, 24 Nov 2021 05:11:41 -0500
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1AO9pWOQ015011;
+        Wed, 24 Nov 2021 10:08:29 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=KdIKZkao5MHmcU9nfG+lATujxB6sNuLODpSuIVTHwcw=;
+ b=tMma7d7fw9WRWmE4kKJYjEYgpUH7bYakwOwKdMMCpBcb6G15PnlSfIiO/VQ5e6Fw0cV3
+ cwJy464Ud/rfGWILcqKxSN0geMqugLUBiij74dQOuWqwpsh3E4gxldW9M52ZTjc0XQ7t
+ YbItFuIncqC/D4ufkUN0gRzT1kWq+NDVafY0K1HPI1U0sOsJzChNjTaJri5cYpnmlNIz
+ 2XUgTPLBEMbuiMqfyyxdAMo/QghVG7ABE4ErtbouW1qN7px1clxjvK4B11uwYZQDtBS/
+ 04J5AtCkoGysdj+0j/BYB87cPxAxi0IHA5uSdAgwgww1IQz1Uy6hccOLDN4e8eLVIPfQ 8Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3chk4rgamr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 24 Nov 2021 10:08:28 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1AOA0Kiw013809;
+        Wed, 24 Nov 2021 10:08:28 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3chk4rgame-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 24 Nov 2021 10:08:27 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1AOA6wcl007373;
+        Wed, 24 Nov 2021 10:08:26 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 3cerna80vg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 24 Nov 2021 10:08:26 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1AOA8NUh22217182
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 24 Nov 2021 10:08:23 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 52CFDA4065;
+        Wed, 24 Nov 2021 10:08:23 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EC787A4060;
+        Wed, 24 Nov 2021 10:08:22 +0000 (GMT)
+Received: from [9.145.38.7] (unknown [9.145.38.7])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 24 Nov 2021 10:08:22 +0000 (GMT)
+Message-ID: <1f67548e-cbf6-0dce-82b5-10288a4583bd@linux.ibm.com>
+Date:   Wed, 24 Nov 2021 11:08:23 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [PATCH RFC net] net/smc: Ensure the active closing peer first
+ closes clcsock
+Content-Language: en-US
+To:     Tony Lu <tonylu@linux.alibaba.com>
 Cc:     kuba@kernel.org, davem@davemloft.net, guwen@linux.alibaba.com,
         netdev@vger.kernel.org, linux-s390@vger.kernel.org,
         linux-rdma@vger.kernel.org
-Subject: Re: [PATCH RFC net] net/smc: Ensure the active closing peer first
- closes clcsock
-Message-ID: <YZ3+ihxIU5l8mvWY@TonyMac-Alibaba>
-Reply-To: Tony Lu <tonylu@linux.alibaba.com>
 References: <20211116033011.16658-1-tonylu@linux.alibaba.com>
  <d83109fe-ae25-def0-b28e-f8695d4535c7@linux.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d83109fe-ae25-def0-b28e-f8695d4535c7@linux.ibm.com>
+ <YZ3+ihxIU5l8mvWY@TonyMac-Alibaba>
+From:   Karsten Graul <kgraul@linux.ibm.com>
+Organization: IBM Deutschland Research & Development GmbH
+In-Reply-To: <YZ3+ihxIU5l8mvWY@TonyMac-Alibaba>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: hajGgR40Vw03lTaolrItrFUOdFAo-1me
+X-Proofpoint-GUID: HkV2Q0ocY0zPYF47pg0nB-_LnQ0VcBpQ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-11-24_03,2021-11-23_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
+ mlxscore=0 adultscore=0 spamscore=0 malwarescore=0 phishscore=0
+ clxscore=1015 impostorscore=0 priorityscore=1501 mlxlogscore=999
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2111240057
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Nov 23, 2021 at 10:26:21AM +0100, Karsten Graul wrote:
-> On 16/11/2021 04:30, Tony Lu wrote:
-> > diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
-> > index 0f9ffba07d26..04620b53b74a 100644
-> > --- a/net/smc/smc_close.c
-> > +++ b/net/smc/smc_close.c
-> > @@ -228,6 +228,12 @@ int smc_close_active(struct smc_sock *smc)
-> >  			/* send close request */
-> >  			rc = smc_close_final(conn);
-> >  			sk->sk_state = SMC_PEERCLOSEWAIT1;
-> > +
-> > +			/* actively shutdown clcsock before peer close it,
-> > +			 * prevent peer from entering TIME_WAIT state.
-> > +			 */
-> > +			if (smc->clcsock && smc->clcsock->sk)
-> > +				rc = kernel_sock_shutdown(smc->clcsock, SHUT_RDWR);
-> >  		} else {
-> 
-> While integrating this patch I stumbled over the overwritten rc, which was
-> already set with the return value from smc_close_final().
-> Is the rc from kernel_sock_shutdown() even important for the result of this 
-> function? How to handle this in your opinion?
+On 24/11/2021 09:57, Tony Lu wrote:
+> IMHO, given that, it is better to not ignore smc_close_final(), and move 
+> kernel_sock_shutdown() to __smc_release(), because smc_shutdown() also
+> calls kernel_sock_shutdown() after smc_close_active() and
+> smc_close_shutdown_write(), then enters SMC_PEERCLOSEWAIT1. It's no need
+> to call it twice with SHUT_WR and SHUT_RDWR. 
 
-Hi Graul,
+Since the idea is to shutdown the socket before the remote peer shutdowns it
+first, are you sure that this shutdown in smc_release() is not too late?
+Is it sure that smc_release() is called in time for this processing?
 
-I have investigated the function smc_close_final() when return error:
-
-1. return -EPIPE
-  * conn->killed
-  * !conn->lgr || (conn->lgr->is_smcd && conn->lgr->peer_shutdown)
-
-2. return -ENOLINK
-  * !smc_link_usable(link)
-  * conn's link have changed during wr get free slot
-
-3. return -EBUSY
-  * smc_wr_tx_get_free_slot_index has no available slot
-
-The return code -EBUSY is important for user-space to recall close()
-again.
-
--ENOLINK and -EPIPE means there is no chance to tell peer to perform
-close progress. The applications should known this. And the clcsock will
-be released in the end.
-
-
-And the caller of upper function smc_close_active():
-
-1. __smc_release(), it doesn't handle rc and return it to user-space who
-called close() directly.
-
-2. smc_shutdown(), it return rc to caller, also with function
-kernel_sock_shutdown().
-
-IMHO, given that, it is better to not ignore smc_close_final(), and move 
-kernel_sock_shutdown() to __smc_release(), because smc_shutdown() also
-calls kernel_sock_shutdown() after smc_close_active() and
-smc_close_shutdown_write(), then enters SMC_PEERCLOSEWAIT1. It's no need
-to call it twice with SHUT_WR and SHUT_RDWR. 
-
-Here is the complete code of __smc_release in af_smc.c
-
-
-static int __smc_release(struct smc_sock *smc)
-{
-		struct sock *sk = &smc->sk;
-		int rc = 0, rc1 = 0;
-
-		if (!smc->use_fallback) {
-				rc = smc_close_active(smc);
-
-			    /* make sure don't call kernel_sock_shutdown() twice
-				 * after called smc_shutdown with SHUT_WR or SHUT_RDWR,
-				 * which will perform TCP closing progress.
-				 */
-				if (smc->clcsock && (!sk->sk_shutdown || 
-				    (sk->sk_shutdown & RCV_SHUTDOWN)) &&
-				    sk->sk_state == SMC_PEERCLOSEWAIT1) {
-					rc1 = kernel_sock_shutdown(smc->clcsock, SHUT_RDWR);
-					rc = rc ? rc : rc1;
-				}
-
-				sock_set_flag(sk, SOCK_DEAD);
-				sk->sk_shutdown |= SHUTDOWN_MASK;
-		} else {
-
-// code ignored
-
-
-Thanks for pointing it out, it would be more complete of this patch.
-
-Tony Lu
+Maybe its better to keep the shutdown in smc_close_active() and to use an rc1
+just like shown in your proposal, and return either the rc of smc_close_final() 
+or the rc of kernel_sock_shutdown().
+I see the possibility of calling shutdown twice for the clcsocket, but does it
+harm enough to give a reason to check it before in smc_shutdown()? I expect TCP
+to handle this already.
