@@ -2,54 +2,54 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D18FC433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 24 Nov 2021 02:41:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C00ECC433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 24 Nov 2021 02:47:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233951AbhKXCoJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 23 Nov 2021 21:44:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33162 "EHLO
+        id S237272AbhKXCuc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 23 Nov 2021 21:50:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232421AbhKXCoJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 23 Nov 2021 21:44:09 -0500
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D26AAC06173E
-        for <linux-s390@vger.kernel.org>; Tue, 23 Nov 2021 18:40:58 -0800 (PST)
-Received: by mail-pg1-x529.google.com with SMTP id t4so758812pgn.9
-        for <linux-s390@vger.kernel.org>; Tue, 23 Nov 2021 18:40:58 -0800 (PST)
+        with ESMTP id S232421AbhKXCua (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 23 Nov 2021 21:50:30 -0500
+Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F4024C061574
+        for <linux-s390@vger.kernel.org>; Tue, 23 Nov 2021 18:47:21 -0800 (PST)
+Received: by mail-pg1-x536.google.com with SMTP id m15so770394pgu.11
+        for <linux-s390@vger.kernel.org>; Tue, 23 Nov 2021 18:47:21 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=intel-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=XY5RlfJ4wk969SAhdu0eeba/cRDcEGFX6BIC3EnLQt8=;
-        b=u4emMr/x1DnGrylyXG/XED1B0JAzKJIqIDcJvC7Dltb93SI0bgLALNc/xx3fE/eqZ+
-         JLZdSBXcBeUsE3gYFy2qkeo6t2y2XuFS7FedCduv1RHpO8vyWXlQcx11qWzGXljZ4Nta
-         5OYO1lIxqTIseUFqkypGfAJj577OlmYBnt7dfkNQv9WXesT9Vr2pO7qsjUMO6hVcoGvW
-         LWz11ROd5H62YcZRNEwDlvUMRryoYOk1DV1Dg4YBgp+MSllvRl7B5PMc3nehblVandHp
-         KDygLbglHM1zSoblBzsW1nhsjCF5iPULo9A3DjLMb5w2hx0fDJrK0R8dTmPxHRAXcCgM
-         L96w==
+        bh=QDkzPn+vIexNrKZKKgoJ7mQpee2ZSq2mCl3rdYSyZRs=;
+        b=v+mOAcq/SMKI/6q1YGZhpUVRcKk3Bw1T+5aGwwKv9mK2S2/X3/d4jBb8CtZv2zYTwr
+         Pg1AqI7Z4Z4TlelZDn+KthnTvqDSRv6A+lCI2+ceJjR1FEDifVcdUwxhPiddV3WPjYrv
+         lC+zURcqUQmJYR3vyh6zvz4VGUf4KNwKq0in9nWSpYOBf6f6zXAokmgGs5Cq/v3LtIph
+         O7RhU1t8NRctmET5Lo+hqoJpyIArJ0ylytKPnuKYBx+d5J1szUdYJ5z55Dp/Qo4PGCAg
+         Moyefg0QnBnsCQDIz9YLw+w9C+cvtilKMUc0ArCtcauRumPts8w7o0gMvfkEEACUlRsr
+         KeFw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=XY5RlfJ4wk969SAhdu0eeba/cRDcEGFX6BIC3EnLQt8=;
-        b=zUTYH71D6KNWYTGQ7wa07eSclGMd02P5fYqBi9pzTu8ra1BnA9P0Cd3XAWQtS6OLoO
-         OYhTqB28NjAP7vTHDLHXJe/1oiPNMgYug2+03D3TvS/fjbJGDL+Y/bopozUZPv/TNqIw
-         lJWFwBJWywHnajLwWSzTjKP/+vLmWTi3EtOn+RH0ZlYeG+cOu0tQ9/yups0A6lZD8Qd9
-         lrVnZkZlKpEY3Mi8lY0NUsgNloXCXlkic/UmWM3iZBmun3fIxf07PWceNbfqz00CQy/s
-         Lgy/xYxN69/EwRFKI7SGKT6L5Gc/7keSAIazeZHjvwk7cbuDlCL53SoxYBuu043hoDU3
-         GSQQ==
-X-Gm-Message-State: AOAM531pifBk+6WhlAn40vcTc7mmgjh0W5CaoWC/w9/EaVpzHuY+5Fur
-        4IG6GxGdnaP1vHPtq2idV1eiz0+QhDiryDwasEkvmTphtW4=
-X-Google-Smtp-Source: ABdhPJzf7x9CNNO+bnTL7ccWPdJMGj5rcrJdH+gi4z67GahFamuGnCABtN5RCIhrCvjUMVb9BfOrAHDXXr0x3X1l1Pc=
-X-Received: by 2002:a63:88c3:: with SMTP id l186mr1768633pgd.377.1637721658407;
- Tue, 23 Nov 2021 18:40:58 -0800 (PST)
+        bh=QDkzPn+vIexNrKZKKgoJ7mQpee2ZSq2mCl3rdYSyZRs=;
+        b=hF+OE6NhSosI44ay52k7GUlghEBxo5opZfs4elRPxS3zpQ5m5UWW7M8QIbVV9UPlI5
+         E51wU56JGVZmFPCW11f8ieqooRXNib5G1TO6CMiT6d4WJVvFjx9EWsc+Oec/569n6SQ/
+         QWb7lOiLBavpAT0yHjTRFDcx304f6UiKHOJUARsGzwQGdhkLuhD3mKQzScx9b5xWcbcL
+         XlfgiP2IPrHOsJKmor85tqKAhlsH26EcK4MEsJEYanjD5+3rFEnmW5IU/d7tnVwRiVlL
+         9Req9KGklG0D5lWLpVaUPgH9eZE8QiJeq+jmR7ZGTNnn753trUpmRUDG6p0Cgbh/GA0D
+         fyQg==
+X-Gm-Message-State: AOAM531P0Fx3G9TuPnSKLndnJIwj1QGE4MaJHHClZZOA1KJ6+qgtQREK
+        esjcbdKRdw6f6QTKMAgCjy03TU/xxsP5K8oHFk9tMg==
+X-Google-Smtp-Source: ABdhPJwhulY7o10L5eF793HT2VpAfIjkz05UxjHV38L6J4vJZLIxSbRiUXQ9JXqnOQ3P5Me+Dt5jaZMn/7VokxocR94=
+X-Received: by 2002:a63:8141:: with SMTP id t62mr5500508pgd.5.1637722040536;
+ Tue, 23 Nov 2021 18:47:20 -0800 (PST)
 MIME-Version: 1.0
-References: <20211109083309.584081-1-hch@lst.de> <20211109083309.584081-22-hch@lst.de>
-In-Reply-To: <20211109083309.584081-22-hch@lst.de>
+References: <20211109083309.584081-1-hch@lst.de> <20211109083309.584081-23-hch@lst.de>
+In-Reply-To: <20211109083309.584081-23-hch@lst.de>
 From:   Dan Williams <dan.j.williams@intel.com>
-Date:   Tue, 23 Nov 2021 18:40:47 -0800
-Message-ID: <CAPcyv4hY4g82PrjMPO=1kiM5sL=3=yR66r6LeG8RS3Ha2k1eUw@mail.gmail.com>
-Subject: Re: [PATCH 21/29] xfs: move dax device handling into xfs_{alloc,free}_buftarg
+Date:   Tue, 23 Nov 2021 18:47:10 -0800
+Message-ID: <CAPcyv4gQO6F5-8Ux8ye5cU-W3ZQVDjj5614Xb8EsTvH9UhfAfg@mail.gmail.com>
+Subject: Re: [PATCH 22/29] iomap: add a IOMAP_DAX flag
 To:     Christoph Hellwig <hch@lst.de>
 Cc:     Mike Snitzer <snitzer@redhat.com>, Ira Weiny <ira.weiny@intel.com>,
         device-mapper development <dm-devel@redhat.com>,
@@ -67,12 +67,73 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 On Tue, Nov 9, 2021 at 12:34 AM Christoph Hellwig <hch@lst.de> wrote:
 >
-> Hide the DAX device lookup from the xfs_super.c code.
->
-> Reviewed-by: Christoph Hellwig <hch@lst.de>
+> Add a flag so that the file system can easily detect DAX operations.
 
-That's an interesting spelling of "Signed-off-by", but patch looks
-good to me too. I would have expected a robot to complain about
-missing sign-off?
+Looks ok, but I would have preferred a quick note about the rationale
+here before needing to read other patches to figure that out.
+
+If you add that you can add:
 
 Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+
+>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  fs/dax.c              | 7 ++++---
+>  include/linux/iomap.h | 1 +
+>  2 files changed, 5 insertions(+), 3 deletions(-)
+>
+> diff --git a/fs/dax.c b/fs/dax.c
+> index 5b52b878124ac..0bd6cdcbacfc4 100644
+> --- a/fs/dax.c
+> +++ b/fs/dax.c
+> @@ -1180,7 +1180,7 @@ int dax_zero_range(struct inode *inode, loff_t pos, loff_t len, bool *did_zero,
+>                 .inode          = inode,
+>                 .pos            = pos,
+>                 .len            = len,
+> -               .flags          = IOMAP_ZERO,
+> +               .flags          = IOMAP_DAX | IOMAP_ZERO,
+>         };
+>         int ret;
+>
+> @@ -1308,6 +1308,7 @@ dax_iomap_rw(struct kiocb *iocb, struct iov_iter *iter,
+>                 .inode          = iocb->ki_filp->f_mapping->host,
+>                 .pos            = iocb->ki_pos,
+>                 .len            = iov_iter_count(iter),
+> +               .flags          = IOMAP_DAX,
+>         };
+>         loff_t done = 0;
+>         int ret;
+> @@ -1461,7 +1462,7 @@ static vm_fault_t dax_iomap_pte_fault(struct vm_fault *vmf, pfn_t *pfnp,
+>                 .inode          = mapping->host,
+>                 .pos            = (loff_t)vmf->pgoff << PAGE_SHIFT,
+>                 .len            = PAGE_SIZE,
+> -               .flags          = IOMAP_FAULT,
+> +               .flags          = IOMAP_DAX | IOMAP_FAULT,
+>         };
+>         vm_fault_t ret = 0;
+>         void *entry;
+> @@ -1570,7 +1571,7 @@ static vm_fault_t dax_iomap_pmd_fault(struct vm_fault *vmf, pfn_t *pfnp,
+>         struct iomap_iter iter = {
+>                 .inode          = mapping->host,
+>                 .len            = PMD_SIZE,
+> -               .flags          = IOMAP_FAULT,
+> +               .flags          = IOMAP_DAX | IOMAP_FAULT,
+>         };
+>         vm_fault_t ret = VM_FAULT_FALLBACK;
+>         pgoff_t max_pgoff;
+> diff --git a/include/linux/iomap.h b/include/linux/iomap.h
+> index 6d1b08d0ae930..146a7e3e3ea11 100644
+> --- a/include/linux/iomap.h
+> +++ b/include/linux/iomap.h
+> @@ -141,6 +141,7 @@ struct iomap_page_ops {
+>  #define IOMAP_NOWAIT           (1 << 5) /* do not block */
+>  #define IOMAP_OVERWRITE_ONLY   (1 << 6) /* only pure overwrites allowed */
+>  #define IOMAP_UNSHARE          (1 << 7) /* unshare_file_range */
+> +#define IOMAP_DAX              (1 << 8) /* DAX mapping */
+>
+>  struct iomap_ops {
+>         /*
+> --
+> 2.30.2
+>
