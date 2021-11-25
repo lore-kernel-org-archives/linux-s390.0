@@ -2,71 +2,52 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A99F5C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 25 Nov 2021 03:12:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91D9EC433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 25 Nov 2021 06:22:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345263AbhKYDPU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 24 Nov 2021 22:15:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36264 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343951AbhKYDNU (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 24 Nov 2021 22:13:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPS id 84600610A5;
-        Thu, 25 Nov 2021 03:10:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637809809;
-        bh=PDbhTLENeDKD4hCJRLwsOlkso22AHxV48kZ/niUuKEY=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=PlBjj++s2jA2u1fS5cWqXGEY+wwyPUlH9+0ZguSO3meSs20lwEHIgsRx6G6W6DL+X
-         QkLGfPQTARqUmluyluqQW0w8UPIXu5Vnn3sUCG8SCoSTaJEveO62HREddJT6larLob
-         t1mjFjbkVAU7JX/It5v5XdValKs9RMseJJcl4DdMgTIoHPPRbu+leCjMMPGFjRMdQA
-         8uhste7iGmZH6zbtt+yLcKZ/yGeOu5oWbe6EmUD1UCW+zpUqSA6p/sDeDqy6Oz3IxF
-         V8eNqig9AlALGByjP3sPzleS5C/XG5saqnYzNfylXNdjEUD9F6tgOnqzKfzEIBmfaD
-         YXtSvzXLZW7oA==
-Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id 71EF460A4E;
-        Thu, 25 Nov 2021 03:10:09 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        id S1347163AbhKYG0I (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 25 Nov 2021 01:26:08 -0500
+Received: from out30-132.freemail.mail.aliyun.com ([115.124.30.132]:43015 "EHLO
+        out30-132.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1347534AbhKYGYI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 25 Nov 2021 01:24:08 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R541e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04407;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0UyESS1._1637821254;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0UyESS1._1637821254)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Thu, 25 Nov 2021 14:20:55 +0800
+From:   Tony Lu <tonylu@linux.alibaba.com>
+To:     kgraul@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: [PATCH net 0/2] Fixes for clcsock shutdown behaviors
+Date:   Thu, 25 Nov 2021 14:19:31 +0800
+Message-Id: <20211125061932.74874-1-tonylu@linux.alibaba.com>
+X-Mailer: git-send-email 2.34.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net 0/2] net/smc: fixes 2021-11-24
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <163780980946.14115.16946791187551049177.git-patchwork-notify@kernel.org>
-Date:   Thu, 25 Nov 2021 03:10:09 +0000
-References: <20211124123238.471429-1-kgraul@linux.ibm.com>
-In-Reply-To: <20211124123238.471429-1-kgraul@linux.ibm.com>
-To:     Karsten Graul <kgraul@linux.ibm.com>
-Cc:     davem@davemloft.net, kuba@kernel.org, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, hca@linux.ibm.com, jwi@linux.ibm.com,
-        guodaxing@huawei.com, tonylu@linux.alibaba.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
+These patches fix issues when calling kernel_sock_shutdown(). To make
+the solution clear, I split it into two patches.
 
-This series was applied to netdev/net.git (master)
-by Jakub Kicinski <kuba@kernel.org>:
+Patch 1 keeps the return code of smc_close_final() in
+smc_close_active(), which is more important than kernel_sock_shutdown().
 
-On Wed, 24 Nov 2021 13:32:36 +0100 you wrote:
-> Patch 1 from DaXing fixes a possible loop in smc_listen().
-> Patch 2 prevents a NULL pointer dereferencing while iterating
-> over the lower network devices.
-> 
-> Guo DaXing (1):
->   net/smc: Fix loop in smc_listen
-> 
-> [...]
+Patch 2 doesn't call clcsock shutdown twice when applications call
+smc_shutdown(). It should be okay to call kernel_sock_shutdown() twice,
+I decide to avoid it for slightly speed up releasing socket.
 
-Here is the summary with links:
-  - [net,1/2] net/smc: Fix NULL pointer dereferencing in smc_vlan_by_tcpsk()
-    https://git.kernel.org/netdev/net/c/587acad41f1b
-  - [net,2/2] net/smc: Fix loop in smc_listen
-    https://git.kernel.org/netdev/net/c/9ebb0c4b27a6
+Tony Lu (2):
+  net/smc: Keep smc_close_final rc during active close
+  net/smc: Don't call clcsock shutdown twice when smc shutdown
 
-You are awesome, thank you!
+ net/smc/af_smc.c    | 8 ++++++++
+ net/smc/smc_close.c | 8 ++++++--
+ 2 files changed, 14 insertions(+), 2 deletions(-)
+
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.32.0.3.g01195cf9f
 
