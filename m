@@ -2,276 +2,154 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01BCDC433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 25 Nov 2021 18:05:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 492E8C433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 25 Nov 2021 20:15:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356434AbhKYSI7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 25 Nov 2021 13:08:59 -0500
-Received: from smtp-out2.suse.de ([195.135.220.29]:57292 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234267AbhKYSGr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 25 Nov 2021 13:06:47 -0500
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id 8DCCC1FD3D;
-        Thu, 25 Nov 2021 18:03:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1637863413; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ppmq8eXKBK48QzJtq64n/wfpJftndpEVG5gddVJ3g6c=;
-        b=wD+eaSjEG00QXyzDIRqHqnRO+4kJ6iC2LANK/e9fdWmLOiKnTtW2rT+V25o1mQvwPhAsix
-        XqJ5HkwY25TfdzprAyuuvdWeZrdoB2xovlGm8w3H+6qWSBFmxBy9uK18/8OVGkA+Q+pLkj
-        37YBacWAHlGP0LkjRieY3HHOOYgNqjw=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1637863413;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ppmq8eXKBK48QzJtq64n/wfpJftndpEVG5gddVJ3g6c=;
-        b=QnHZcLCIiAGFD/VT22aaPOqT2vPKtWkux4fBsS9cU/KIKntpTSQHeES1zAAeX54Qm64s5N
-        WBtbd/iX/un1thAA==
-Received: from kitsune.suse.cz (kitsune.suse.cz [10.100.12.127])
-        by relay2.suse.de (Postfix) with ESMTP id 4317CA3B89;
-        Thu, 25 Nov 2021 18:03:33 +0000 (UTC)
-From:   Michal Suchanek <msuchanek@suse.de>
-To:     keyrings@vger.kernel.org
-Cc:     Michal Suchanek <msuchanek@suse.de>, kexec@lists.infradead.org,
-        Philipp Rudo <prudo@redhat.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Nayna <nayna@linux.vnet.ibm.com>, Rob Herring <robh@kernel.org>,
-        linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Jessica Yu <jeyu@kernel.org>, linux-kernel@vger.kernel.org,
-        David Howells <dhowells@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Hari Bathini <hbathini@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linuxppc-dev@lists.ozlabs.org,
-        Frank van der Linden <fllinden@amazon.com>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Daniel Axtens <dja@axtens.net>, buendgen@de.ibm.com,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Baoquan He <bhe@redhat.com>, linux-crypto@vger.kernel.org,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org
-Subject: [PATCH v2 3/6] kexec_file: Don't opencode appended signature verification.
-Date:   Thu, 25 Nov 2021 19:02:41 +0100
-Message-Id: <911210845d863b06de2404acae6fff06241f0458.1637862358.git.msuchanek@suse.de>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <cover.1637862358.git.msuchanek@suse.de>
-References: <cover.1637862358.git.msuchanek@suse.de>
+        id S1356904AbhKYUSR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 25 Nov 2021 15:18:17 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:24664 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1356918AbhKYUQQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 25 Nov 2021 15:16:16 -0500
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1APIGThp003789;
+        Thu, 25 Nov 2021 20:12:56 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=1jer6viQ0PIh7I6yEV6Pzc1F4T2k49KKRjl9+ShH404=;
+ b=Guv5hO2GkZmdZJQQ1kWcXo+pwXt6HKmYZdzn/TTz/q7Wjm02BS3r46zoqh+wvma8R/Kk
+ KgeiwvnAEdTu9pWKeh4JoCHPr/i/sbCRNzncMspp6sxROx0fePLXBBAgi2bqQSuzCKyA
+ Q2IBsyeUuowyyY0BQm1gZhpKf0+aPm5pSOj7tQ3W18CB2NrKgmxELOoq7Bdg6CxIHwxf
+ ALqcnOqY9wGzjlpmmx8RMz34qrGhmIrrZc1fzgUFBY5WLC9odQTvTPxASF3bTTUvsjB7
+ tMgkEWiVNJFz2gWLFPDKc5oZ+EGJbO8MePQmqdxGM2ruJtJg6h4OPUevxy36yxWeewG5 aA== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cjfmdsu0s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 25 Nov 2021 20:12:56 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1APK77g2028549;
+        Thu, 25 Nov 2021 20:12:54 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma03ams.nl.ibm.com with ESMTP id 3cernanuea-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 25 Nov 2021 20:12:53 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1APKCp3K30147032
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 25 Nov 2021 20:12:51 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A130BA405C;
+        Thu, 25 Nov 2021 20:12:51 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4222CA4054;
+        Thu, 25 Nov 2021 20:12:51 +0000 (GMT)
+Received: from thinkpad (unknown [9.171.40.168])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Thu, 25 Nov 2021 20:12:51 +0000 (GMT)
+Date:   Thu, 25 Nov 2021 21:12:49 +0100
+From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+To:     Vlastimil Babka <vbabka@suse.cz>
+Cc:     Faiyaz Mohammed <faiyazm@codeaurora.org>,
+        linux-mm <linux-mm@kvack.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [RFC PATCH 1/1] mm/slub: fix endless "No data" printing for
+ alloc/free_traces attribute
+Message-ID: <20211125211249.23a84729@thinkpad>
+In-Reply-To: <20211125171310.0fd27afa@thinkpad>
+References: <20211117193932.4049412-1-gerald.schaefer@linux.ibm.com>
+        <20211117193932.4049412-2-gerald.schaefer@linux.ibm.com>
+        <9a4367c0-8141-f03c-e5a1-13483794d3e8@suse.cz>
+        <20211119205943.1ee5da0d@thinkpad>
+        <b513bbcf-f1ea-cfa6-763a-003a60e51da5@suse.cz>
+        <20211122211400.41bf64cf@thinkpad>
+        <20211122213330.66b7893e@thinkpad>
+        <a081d544-41f0-29ab-6d46-1afa382af8be@suse.cz>
+        <20211125171310.0fd27afa@thinkpad>
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: FP8eDLUu6Fa5qFbgrBlY2m0gtcv_5pEy
+X-Proofpoint-GUID: FP8eDLUu6Fa5qFbgrBlY2m0gtcv_5pEy
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-11-25_07,2021-11-25_02,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
+ lowpriorityscore=0 suspectscore=0 adultscore=0 spamscore=0 impostorscore=0
+ mlxlogscore=797 malwarescore=0 clxscore=1015 phishscore=0 mlxscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2111250111
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Module verification already implements appeded signature verification.
+On Thu, 25 Nov 2021 17:13:10 +0100
+Gerald Schaefer <gerald.schaefer@linux.ibm.com> wrote:
 
-Reuse it for kexec_file.
+> On Tue, 23 Nov 2021 15:19:49 +0100
+> Vlastimil Babka <vbabka@suse.cz> wrote:
+> 
+> > On 11/22/21 21:33, Gerald Schaefer wrote:
+> > > On Mon, 22 Nov 2021 21:14:00 +0100
+> > > Gerald Schaefer <gerald.schaefer@linux.ibm.com> wrote:
+> > > 
+> > > [...]
+> > >> 
+> > >> Thanks. While testing this properly, yet another bug showed up. The idx
+> > >> in op->show remains 0 in all iterations, so I always see the same line
+> > >> printed t->count times (or infinitely, ATM). Not sure if this only shows
+> > >> on s390 due to endianness, but the reason is this:
+> > >> 
+> > >>   unsigned int idx = *(unsigned int *)v;
+> > 
+> > Uh, good catch. I was actually looking suspiciously at how we cast signed to
+> > unsigned, but didn't occur to me that shortening together with endiannes is
+> > the problem.
+> > 
+> > >> 
+> > >> IIUC, void *v is always the same as loff_t *ppos, and therefore idx also
+> > >> should be *ppos. De-referencing the loff_t * with an unsigned int * only
+> > >> gives the upper 32 bit half of the 64 bit value, which remains 0.
+> > >> 
+> > >> This would be fixed e.g. with
+> > >> 
+> > >>   unsigned int idx = (unsigned int) *(loff_t *) v;
+> > 
+> > With all this experience I'm now inclined to rather follow more the example
+> > in Documentation/filesystems/seq_file.rst and don't pass around the pointer
+> > that we got as ppos in slab_debugfs_start(), and that seq_file.c points to
+> > m->index.
+> > 
+> > In that example an own value is kmalloced:
+> > 
+> > loff_t *spos = kmalloc(sizeof(loff_t), GFP_KERNEL);
+> > 
+> > while we could just make this a field of loc_track?
+> 
+> Yes, following the example sounds good, and it would also make proper use
+> of *v in op->next, which might make the code more readable. It also looks
+> like it already does exactly what is needed here, i.e. have a simple
+> iterator that just counts the lines.
+> 
+> I don't think the iterator needs to be saved in loc_track. IIUC, it is
+> already passed around like in the example, and can then be simply compared
+> to t->count, similar to the existing code.
+> 
+> This is what I'm currently testing, and it seems to work fine. Will send
+> a new patch, if there are no objections:
 
-Signed-off-by: Michal Suchanek <msuchanek@suse.de>
----
- arch/powerpc/kexec/elf_64.c           | 21 ++++-----------------
- arch/s390/kernel/machine_kexec_file.c | 21 ++++-----------------
- include/linux/verification.h          |  3 +++
- kernel/module-internal.h              |  2 --
- kernel/module.c                       |  4 +++-
- kernel/module_signing.c               | 24 +++++++++++++++---------
- 6 files changed, 29 insertions(+), 46 deletions(-)
+Oh well, I have one objection, returning NULL from op->next will be
+passed to op->stop, and then it will not free the allocated value.
 
-diff --git a/arch/powerpc/kexec/elf_64.c b/arch/powerpc/kexec/elf_64.c
-index 25dc1071feec..266cb26d3ca0 100644
---- a/arch/powerpc/kexec/elf_64.c
-+++ b/arch/powerpc/kexec/elf_64.c
-@@ -153,12 +153,10 @@ static void *elf64_load(struct kimage *image, char *kernel_buf,
- }
- 
- #ifdef CONFIG_KEXEC_SIG
--int elf64_verify_sig(const char *kernel, unsigned long kernel_len)
-+int elf64_verify_sig(const char *kernel, unsigned long length)
- {
-+	size_t kernel_len = length;
- 	const unsigned long marker_len = sizeof(MODULE_SIG_STRING) - 1;
--	struct module_signature *ms;
--	unsigned long sig_len;
--	int ret;
- 
- 	if (marker_len > kernel_len)
- 		return -EKEYREJECTED;
-@@ -168,19 +166,8 @@ int elf64_verify_sig(const char *kernel, unsigned long kernel_len)
- 		return -EKEYREJECTED;
- 	kernel_len -= marker_len;
- 
--	ms = (void *)kernel + kernel_len - sizeof(*ms);
--	ret = mod_check_sig(ms, kernel_len, "kexec");
--	if (ret)
--		return ret;
--
--	sig_len = be32_to_cpu(ms->sig_len);
--	kernel_len -= sizeof(*ms) + sig_len;
--
--	return verify_pkcs7_signature(kernel, kernel_len,
--				      kernel + kernel_len, sig_len,
--				      VERIFY_USE_PLATFORM_KEYRING,
--				      VERIFYING_MODULE_SIGNATURE,
--				      NULL, NULL);
-+	return verify_appended_signature(kernel, &kernel_len, VERIFY_USE_PLATFORM_KEYRING,
-+					"kexec_file");
- }
- #endif /* CONFIG_KEXEC_SIG */
- 
-diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
-index 43a9abe48abd..432797249db3 100644
---- a/arch/s390/kernel/machine_kexec_file.c
-+++ b/arch/s390/kernel/machine_kexec_file.c
-@@ -24,12 +24,10 @@ const struct kexec_file_ops * const kexec_file_loaders[] = {
- };
- 
- #ifdef CONFIG_KEXEC_SIG
--int s390_verify_sig(const char *kernel, unsigned long kernel_len)
-+int s390_verify_sig(const char *kernel, unsigned long length)
- {
-+	size_t kernel_len = length;
- 	const unsigned long marker_len = sizeof(MODULE_SIG_STRING) - 1;
--	struct module_signature *ms;
--	unsigned long sig_len;
--	int ret;
- 
- 	/* Skip signature verification when not secure IPLed. */
- 	if (!ipl_secure_flag)
-@@ -43,19 +41,8 @@ int s390_verify_sig(const char *kernel, unsigned long kernel_len)
- 		return -EKEYREJECTED;
- 	kernel_len -= marker_len;
- 
--	ms = (void *)kernel + kernel_len - sizeof(*ms);
--	ret = mod_check_sig(ms, kernel_len, "kexec");
--	if (ret)
--		return ret;
--
--	sig_len = be32_to_cpu(ms->sig_len);
--	kernel_len -= sizeof(*ms) + sig_len;
--
--	return verify_pkcs7_signature(kernel, kernel_len,
--				      kernel + kernel_len, sig_len,
--				      VERIFY_USE_PLATFORM_KEYRING,
--				      VERIFYING_MODULE_SIGNATURE,
--				      NULL, NULL);
-+	return verify_appended_signature(kernel, &kernel_len, VERIFY_USE_PLATFORM_KEYRING,
-+					"kexec_file");
- }
- #endif /* CONFIG_KEXEC_SIG */
- 
-diff --git a/include/linux/verification.h b/include/linux/verification.h
-index a655923335ae..c1cf0582012a 100644
---- a/include/linux/verification.h
-+++ b/include/linux/verification.h
-@@ -60,5 +60,8 @@ extern int verify_pefile_signature(const void *pebuf, unsigned pelen,
- 				   enum key_being_used_for usage);
- #endif
- 
-+int verify_appended_signature(const void *data, size_t *len, struct key *trusted_keys,
-+			      const char *what);
-+
- #endif /* CONFIG_SYSTEM_DATA_VERIFICATION */
- #endif /* _LINUX_VERIFY_PEFILE_H */
-diff --git a/kernel/module-internal.h b/kernel/module-internal.h
-index 33783abc377b..80461e14bf29 100644
---- a/kernel/module-internal.h
-+++ b/kernel/module-internal.h
-@@ -27,5 +27,3 @@ struct load_info {
- 		unsigned int sym, str, mod, vers, info, pcpu;
- 	} index;
- };
--
--extern int mod_verify_sig(const void *mod, struct load_info *info);
-diff --git a/kernel/module.c b/kernel/module.c
-index 84a9141a5e15..8481933dfa92 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -57,6 +57,7 @@
- #include <linux/bsearch.h>
- #include <linux/dynamic_debug.h>
- #include <linux/audit.h>
-+#include <linux/verification.h>
- #include <uapi/linux/module.h>
- #include "module-internal.h"
- 
-@@ -2894,7 +2895,8 @@ static int module_sig_check(struct load_info *info, int flags)
- 	    memcmp(mod + info->len - markerlen, MODULE_SIG_STRING, markerlen) == 0) {
- 		/* We truncate the module to discard the signature */
- 		info->len -= markerlen;
--		err = mod_verify_sig(mod, info);
-+		err = verify_appended_signature(mod, &info->len,
-+						VERIFY_USE_SECONDARY_KEYRING, "module");
- 		if (!err) {
- 			info->sig_ok = true;
- 			return 0;
-diff --git a/kernel/module_signing.c b/kernel/module_signing.c
-index 8723ae70ea1f..f492e410564d 100644
---- a/kernel/module_signing.c
-+++ b/kernel/module_signing.c
-@@ -14,13 +14,19 @@
- #include <crypto/public_key.h>
- #include "module-internal.h"
- 
--/*
-- * Verify the signature on a module.
-+/**
-+ * verify_appended_signature - Verify the signature on a module with the
-+ * signature marker stripped.
-+ * @data: The data to be verified
-+ * @len: Size of @data.
-+ * @trusted_keys: Keyring to use for verification
-+ * @what: Informational string for log messages
-  */
--int mod_verify_sig(const void *mod, struct load_info *info)
-+int verify_appended_signature(const void *data, size_t *len,
-+			      struct key *trusted_keys, const char *what)
- {
- 	struct module_signature ms;
--	size_t sig_len, modlen = info->len;
-+	size_t sig_len, modlen = *len;
- 	int ret;
- 
- 	pr_devel("==>%s(,%zu)\n", __func__, modlen);
-@@ -28,18 +34,18 @@ int mod_verify_sig(const void *mod, struct load_info *info)
- 	if (modlen <= sizeof(ms))
- 		return -EBADMSG;
- 
--	memcpy(&ms, mod + (modlen - sizeof(ms)), sizeof(ms));
-+	memcpy(&ms, data + (modlen - sizeof(ms)), sizeof(ms));
- 
--	ret = mod_check_sig(&ms, modlen, "module");
-+	ret = mod_check_sig(&ms, modlen, what);
- 	if (ret)
- 		return ret;
- 
- 	sig_len = be32_to_cpu(ms.sig_len);
- 	modlen -= sig_len + sizeof(ms);
--	info->len = modlen;
-+	*len = modlen;
- 
--	return verify_pkcs7_signature(mod, modlen, mod + modlen, sig_len,
--				      VERIFY_USE_SECONDARY_KEYRING,
-+	return verify_pkcs7_signature(data, modlen, data + modlen, sig_len,
-+				      trusted_keys,
- 				      VERIFYING_MODULE_SIGNATURE,
- 				      NULL, NULL);
- }
--- 
-2.31.1
+The example is elegantly avoiding this, by not returning NULL anywhere,
+and also not stopping. Sigh.
 
+Maybe not return NULL in op->next, but only from op->start, and only
+when no allocation was made or it was freed already? Or free it only/
+already in op->next, when returning NULL?
