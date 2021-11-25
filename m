@@ -2,108 +2,71 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B4E88C433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 25 Nov 2021 01:11:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A99F5C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 25 Nov 2021 03:12:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242802AbhKYBOO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 24 Nov 2021 20:14:14 -0500
-Received: from szxga08-in.huawei.com ([45.249.212.255]:28105 "EHLO
-        szxga08-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345285AbhKYBMO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 24 Nov 2021 20:12:14 -0500
-Received: from dggpemm500022.china.huawei.com (unknown [172.30.72.56])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4J007m3PLPz1DJWs;
-        Thu, 25 Nov 2021 09:06:28 +0800 (CST)
-Received: from dggpemm500001.china.huawei.com (7.185.36.107) by
- dggpemm500022.china.huawei.com (7.185.36.162) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.20; Thu, 25 Nov 2021 09:09:01 +0800
-Received: from [10.174.177.243] (10.174.177.243) by
- dggpemm500001.china.huawei.com (7.185.36.107) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
- 15.1.2308.20; Thu, 25 Nov 2021 09:09:00 +0800
-Message-ID: <356d857b-1813-6132-d4ae-5bb41190a1a7@huawei.com>
-Date:   Thu, 25 Nov 2021 09:08:59 +0800
+        id S1345263AbhKYDPU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 24 Nov 2021 22:15:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36264 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1343951AbhKYDNU (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 24 Nov 2021 22:13:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPS id 84600610A5;
+        Thu, 25 Nov 2021 03:10:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1637809809;
+        bh=PDbhTLENeDKD4hCJRLwsOlkso22AHxV48kZ/niUuKEY=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=PlBjj++s2jA2u1fS5cWqXGEY+wwyPUlH9+0ZguSO3meSs20lwEHIgsRx6G6W6DL+X
+         QkLGfPQTARqUmluyluqQW0w8UPIXu5Vnn3sUCG8SCoSTaJEveO62HREddJT6larLob
+         t1mjFjbkVAU7JX/It5v5XdValKs9RMseJJcl4DdMgTIoHPPRbu+leCjMMPGFjRMdQA
+         8uhste7iGmZH6zbtt+yLcKZ/yGeOu5oWbe6EmUD1UCW+zpUqSA6p/sDeDqy6Oz3IxF
+         V8eNqig9AlALGByjP3sPzleS5C/XG5saqnYzNfylXNdjEUD9F6tgOnqzKfzEIBmfaD
+         YXtSvzXLZW7oA==
+Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id 71EF460A4E;
+        Thu, 25 Nov 2021 03:10:09 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.0
-Subject: Re: [PATCH v3] mm: Defer kmemleak object creation of module_alloc()
-Content-Language: en-US
-To:     Andrew Morton <akpm@linux-foundation.org>
-CC:     Andrey Ryabinin <ryabinin.a.a@gmail.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-        <kasan-dev@googlegroups.com>, <linux-mm@kvack.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Alexander Potapenko <glider@google.com>,
-        Yongqiang Liu <liuyongqiang13@huawei.com>
-References: <20211124142034.192078-1-wangkefeng.wang@huawei.com>
- <20211124135014.665649a0bcb872367b248cef@linux-foundation.org>
-From:   Kefeng Wang <wangkefeng.wang@huawei.com>
-In-Reply-To: <20211124135014.665649a0bcb872367b248cef@linux-foundation.org>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.177.243]
-X-ClientProxiedBy: dggeme701-chm.china.huawei.com (10.1.199.97) To
- dggpemm500001.china.huawei.com (7.185.36.107)
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net 0/2] net/smc: fixes 2021-11-24
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <163780980946.14115.16946791187551049177.git-patchwork-notify@kernel.org>
+Date:   Thu, 25 Nov 2021 03:10:09 +0000
+References: <20211124123238.471429-1-kgraul@linux.ibm.com>
+In-Reply-To: <20211124123238.471429-1-kgraul@linux.ibm.com>
+To:     Karsten Graul <kgraul@linux.ibm.com>
+Cc:     davem@davemloft.net, kuba@kernel.org, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, hca@linux.ibm.com, jwi@linux.ibm.com,
+        guodaxing@huawei.com, tonylu@linux.alibaba.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Hello:
 
-On 2021/11/25 5:50, Andrew Morton wrote:
-> On Wed, 24 Nov 2021 22:20:34 +0800 Kefeng Wang <wangkefeng.wang@huawei.com> wrote:
->
->> Yongqiang reports a kmemleak panic when module insmod/rmmod
->> with KASAN enabled(without KASAN_VMALLOC) on x86[1].
->>
->> When the module area allocates memory, it's kmemleak_object
->> is created successfully, but the KASAN shadow memory of module
->> allocation is not ready, so when kmemleak scan the module's
->> pointer, it will panic due to no shadow memory with KASAN check.
->>
->> module_alloc
->>    __vmalloc_node_range
->>      kmemleak_vmalloc
->> 				kmemleak_scan
->> 				  update_checksum
->>    kasan_module_alloc
->>      kmemleak_ignore
->>
->> Note, there is no problem if KASAN_VMALLOC enabled, the modules
->> area entire shadow memory is preallocated. Thus, the bug only
->> exits on ARCH which supports dynamic allocation of module area
->> per module load, for now, only x86/arm64/s390 are involved.
->>
->> Add a VM_DEFER_KMEMLEAK flags, defer vmalloc'ed object register
->> of kmemleak in module_alloc() to fix this issue.
->>
-> I guess this is worth backporting into -stable kernels?  If so, what
-> would be a suitable Fixes: target?  I suspect it goes back to the
-> initial KASAN merge date?
+This series was applied to netdev/net.git (master)
+by Jakub Kicinski <kuba@kernel.org>:
 
-The kasan_module_alloc() was introduced from v4.0,
+On Wed, 24 Nov 2021 13:32:36 +0100 you wrote:
+> Patch 1 from DaXing fixes a possible loop in smc_listen().
+> Patch 2 prevents a NULL pointer dereferencing while iterating
+> over the lower network devices.
+> 
+> Guo DaXing (1):
+>   net/smc: Fix loop in smc_listen
+> 
+> [...]
 
-s390: v4.20
+Here is the summary with links:
+  - [net,1/2] net/smc: Fix NULL pointer dereferencing in smc_vlan_by_tcpsk()
+    https://git.kernel.org/netdev/net/c/587acad41f1b
+  - [net,2/2] net/smc: Fix loop in smc_listen
+    https://git.kernel.org/netdev/net/c/9ebb0c4b27a6
 
-793213a82de4 s390/kasan: dynamic shadow mem allocation for modules
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-arm64: v4.4
 
-39d114ddc682 arm64: add KASAN support
-
-x86: v4.0
-
-bebf56a1b176 kasan: enable instrumentation of global variables
-
-> .
