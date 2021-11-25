@@ -2,94 +2,206 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CCF2C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 25 Nov 2021 13:28:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C5C4C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 25 Nov 2021 14:49:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351440AbhKYNcB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 25 Nov 2021 08:32:01 -0500
-Received: from out4436.biz.mail.alibaba.com ([47.88.44.36]:36362 "EHLO
-        out4436.biz.mail.alibaba.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1348505AbhKYNbA (ORCPT
+        id S1355807AbhKYOwZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 25 Nov 2021 09:52:25 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:5786 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1355935AbhKYOux (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 25 Nov 2021 08:31:00 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0UyGZa-C_1637846866;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0UyGZa-C_1637846866)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 25 Nov 2021 21:27:47 +0800
-From:   Tony Lu <tonylu@linux.alibaba.com>
-To:     kgraul@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: [PATCH net v2] net/smc: Don't call clcsock shutdown twice when smc shutdown
-Date:   Thu, 25 Nov 2021 21:24:32 +0800
-Message-Id: <20211125132431.23264-1-tonylu@linux.alibaba.com>
-X-Mailer: git-send-email 2.34.0
+        Thu, 25 Nov 2021 09:50:53 -0500
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1APCLqEm026607;
+        Thu, 25 Nov 2021 14:47:41 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=PX0YUOjdddJRBuo9d+YGvoLlYtMwaXGutqMR/DdlXEo=;
+ b=pBo4Oq9IxcJpqMXrmpw9n1jdP7SMed8cohH39FV/+oxp0/bpIlJccYp3z/YJgJjz4TBG
+ 0T3r9+hTJ5Y+Hpr/22e+mgEm71Pu5uKJQGPJ2G9cj47vTrKE1DmNrVvFGB8Aqmb3YMLr
+ j2FRIwrawREcpO+tDm3LmV1tgUQzGUww3TtY1ac8dFP03hZRpLGr64yYdtmSH0RmtsFL
+ USydfa+jXezDNKvpaB8eLKaWbN6Ka31zSzGyUKCHtPUsBT4ek18wqQ1r7Lum9R5B78Ed
+ cO1zPQQLCA9XgB9q1xBJaxuqomJ6CZJjyopNHbavuqLjhphX/x6hoKvGk7tV0042A2SS SQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3cjae7ax4f-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 25 Nov 2021 14:47:41 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1APEQFfb012615;
+        Thu, 25 Nov 2021 14:47:40 GMT
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3cjae7ax44-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 25 Nov 2021 14:47:40 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1APEgi2r025564;
+        Thu, 25 Nov 2021 14:47:39 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma01fra.de.ibm.com with ESMTP id 3cerna22as-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 25 Nov 2021 14:47:38 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1APElZf532112958
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 25 Nov 2021 14:47:35 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A801342054;
+        Thu, 25 Nov 2021 14:47:35 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5EC3942041;
+        Thu, 25 Nov 2021 14:47:35 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 25 Nov 2021 14:47:35 +0000 (GMT)
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+To:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH] s390x: Add strict mode to specification exception interpretation test
+Date:   Thu, 25 Nov 2021 15:47:26 +0100
+Message-Id: <20211125144726.1414645-1-scgl@linux.ibm.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <82750b44-6246-3f3c-4562-3d64d7378448@redhat.com>
+References: <82750b44-6246-3f3c-4562-3d64d7378448@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: ScLhlVQYLY7BjznejuSZj41a3_7IlX68
+X-Proofpoint-ORIG-GUID: rLWx__xJOv5pvla7lGA2CclZXAXMO01C
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-11-25_05,2021-11-25_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
+ impostorscore=0 phishscore=0 spamscore=0 adultscore=0 bulkscore=0
+ clxscore=1011 priorityscore=1501 mlxlogscore=999 lowpriorityscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2111250078
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-When applications call shutdown() with SHUT_RDWR in userspace,
-smc_close_active() calls kernel_sock_shutdown(), and it is called
-twice in smc_shutdown().
+While specification exception interpretation is not required to occur,
+it can be useful for automatic regression testing to fail the test if it
+does not occur.
+Add a `--strict` argument to enable this.
+`--strict` takes a list of machine types (as reported by STIDP)
+for which to enable strict mode, for example
+`--strict 8562,8561,3907,3906,2965,2964`
+will enable it for models z15 - z13.
+Alternatively, strict mode can be enabled for all but the listed machine
+types by prefixing the list with a `!`, for example
+`--strict !1090,1091,2064,2066,2084,2086,2094,2096,2097,2098,2817,2818,2827,2828`
+will enable it for z/Architecture models except those older than z13.
 
-This fixes this by checking sk_state before do clcsock shutdown, and
-avoids missing the application's call of smc_shutdown().
-
-Link: https://lore.kernel.org/linux-s390/1f67548e-cbf6-0dce-82b5-10288a4583bd@linux.ibm.com/
-Fixes: 606a63c9783a ("net/smc: Ensure the active closing peer first closes clcsock")
-Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
-Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
+Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
 ---
 
-changes:
+Apparently my message with inline patch did not make it to the mailing
+list for some reason, so here's the patch again.
 
-v1->v2:
-- code format
-- use bool do_shutdown
+ s390x/spec_ex-sie.c | 59 ++++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 53 insertions(+), 6 deletions(-)
 
----
- net/smc/af_smc.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
-
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 4b62c925a13e..9fd350fa22ba 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -2370,8 +2370,10 @@ static __poll_t smc_poll(struct file *file, struct socket *sock,
- static int smc_shutdown(struct socket *sock, int how)
- {
- 	struct sock *sk = sock->sk;
-+	bool do_shutdown = true;
- 	struct smc_sock *smc;
- 	int rc = -EINVAL;
-+	int old_state;
- 	int rc1 = 0;
+diff --git a/s390x/spec_ex-sie.c b/s390x/spec_ex-sie.c
+index 5dea411..9a063f9 100644
+--- a/s390x/spec_ex-sie.c
++++ b/s390x/spec_ex-sie.c
+@@ -7,6 +7,7 @@
+  * specification exception interpretation is off/on.
+  */
+ #include <libcflat.h>
++#include <stdlib.h>
+ #include <sclp.h>
+ #include <asm/page.h>
+ #include <asm/arch_def.h>
+@@ -36,7 +37,7 @@ static void reset_guest(void)
+ 	vm.sblk->icptcode = 0;
+ }
  
- 	smc = smc_sk(sk);
-@@ -2398,7 +2400,12 @@ static int smc_shutdown(struct socket *sock, int how)
- 	}
- 	switch (how) {
- 	case SHUT_RDWR:		/* shutdown in both directions */
-+		old_state = sk->sk_state;
- 		rc = smc_close_active(smc);
-+		if (old_state == SMC_ACTIVE &&
-+		    sk->sk_state == SMC_PEERCLOSEWAIT1)
-+			do_shutdown = false;
+-static void test_spec_ex_sie(void)
++static void test_spec_ex_sie(bool strict)
+ {
+ 	setup_guest();
+ 
+@@ -61,14 +62,60 @@ static void test_spec_ex_sie(void)
+ 	report(vm.sblk->icptcode == ICPT_PROGI
+ 	       && vm.sblk->iprcc == PGM_INT_CODE_SPECIFICATION,
+ 	       "Received specification exception intercept");
+-	if (vm.sblk->gpsw.addr == 0xdeadbeee)
+-		report_info("Interpreted initial exception, intercepted invalid program new PSW exception");
+-	else
+-		report_info("Did not interpret initial exception");
++	{
++		const char *msg;
 +
- 		break;
- 	case SHUT_WR:
- 		rc = smc_close_shutdown_write(smc);
-@@ -2408,7 +2415,7 @@ static int smc_shutdown(struct socket *sock, int how)
- 		/* nothing more to do because peer is not involved */
- 		break;
++		msg = "Interpreted initial exception, intercepted invalid program new PSW exception";
++		if (strict)
++			report(vm.sblk->gpsw.addr == 0xdeadbeee, msg);
++		else if (vm.sblk->gpsw.addr == 0xdeadbeee)
++			report_info(msg);
++		else
++			report_info("Did not interpret initial exception");
++	}
+ 	report_prefix_pop();
+ 	report_prefix_pop();
+ }
+ 
++static bool parse_strict(char **argv)
++{
++	uint16_t machine_id;
++	char *list;
++	bool ret;
++
++	if (!*argv)
++		return false;
++	if (strcmp("--strict", *argv))
++		return false;
++
++	machine_id = get_machine_id();
++	list = argv[1];
++	if (!list) {
++		printf("No argument to --strict, ignoring\n");
++		return false;
++	}
++	if (list[0] == '!') {
++		ret = true;
++		list++;
++	} else
++		ret = false;
++	while (true) {
++		long input = 0;
++
++		if (strlen(list) == 0)
++			return ret;
++		input = strtol(list, &list, 16);
++		if (*list == ',')
++			list++;
++		else if (*list != '\0')
++			break;
++		if (input == machine_id)
++			return !ret;
++	}
++	printf("Invalid --strict argument \"%s\", ignoring\n", list);
++	return ret;
++}
++
+ int main(int argc, char **argv)
+ {
+ 	if (!sclp_facilities.has_sief2) {
+@@ -76,7 +123,7 @@ int main(int argc, char **argv)
+ 		goto out;
  	}
--	if (smc->clcsock)
-+	if (do_shutdown && smc->clcsock)
- 		rc1 = kernel_sock_shutdown(smc->clcsock, how);
- 	/* map sock_shutdown_cmd constants to sk_shutdown value range */
- 	sk->sk_shutdown |= how + 1;
+ 
+-	test_spec_ex_sie();
++	test_spec_ex_sie(parse_strict(argv + 1));
+ out:
+ 	return report_summary();
+ }
 -- 
-2.32.0.3.g01195cf9f
+2.31.1
 
