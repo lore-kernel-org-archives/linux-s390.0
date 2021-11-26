@@ -2,42 +2,41 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F7C0C433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 26 Nov 2021 02:40:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 95734C4167E
+	for <linux-s390@archiver.kernel.org>; Fri, 26 Nov 2021 02:41:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358809AbhKZCnr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 25 Nov 2021 21:43:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49854 "EHLO mail.kernel.org"
+        id S1358532AbhKZCoS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 25 Nov 2021 21:44:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1358537AbhKZClp (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 25 Nov 2021 21:41:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 74AC861262;
-        Fri, 26 Nov 2021 02:34:55 +0000 (UTC)
+        id S1357798AbhKZCmL (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 25 Nov 2021 21:42:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BACD61157;
+        Fri, 26 Nov 2021 02:35:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637894096;
-        bh=GkcSQMSSz3XxRMsTMPfS8NF2WvHvNbeB8VLVVh5mg40=;
+        s=k20201202; t=1637894106;
+        bh=cCKOnF1J9lGvvt+vd6E2ZT5Fps/Grrz8rJbM4Wj70cE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TdhNKpP9YgPQbPjSdlkUWtulWs0xFMxlndsLQEhMhLe5FyRp3lglURdgft94l07ON
-         J0JKXvLdHkjpqqFm+unNl+XTRvJAVoD9sIFqkLDLJxJKVjUM6/YYeLwmfLDlML/k5V
-         a3j3+q2QYRXgpcwBJuvlyQcKm7WuFGg1DCeI0v48p6Z8q+Ky7K0lRiPVv68aPUBVeU
-         lAb2dyXlTFV4gPo38zE/CgNN8G+CDzzg96K6s7rQ2H5w7COjvmjVToXqHbUIytXduy
-         Jmrs9nJjIVKnPBAKcoxwsR4VpJXUYQP4H9hWt7dLGnTzc5z4X2R12qFQ6jKx17W2ZT
-         Ildel5TCzenPw==
+        b=pievkG9sSMofFLfTlDkW9rbugm5N0H19wXZ1Kd8UnbaEdrnD1KPB5KNawXa2cUrfA
+         1zw+zABXeNl/EF53Yi5A+Utm6pE6brfXEhV9InnOpM8Sr1EDZj/wHsfSTdn3BtnUGx
+         UZPWBsLzACWKfjoH8OlK0oK/hG5HBL6VHPJ3OdN5CRLhGuw+u+JK093T3rRIaxneL8
+         q3O9wk4AdSQsgu0TEOp20mo4GycE4oVMep0InPBMUeQBry/dGjJU9+CEIhnn4Sc1Pv
+         0wbnK2ABWWTY4yk1jpCbfltPnmSooQZ/w9LhLHgk18n1nYLdiiaBBSvU7J9Gng+0bV
+         j+lROwMt3Nbiw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wen Gu <guwen@linux.alibaba.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, kgraul@linux.ibm.com,
-        kuba@kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 05/19] net/smc: Transfer remaining wait queue entries during fallback
-Date:   Thu, 25 Nov 2021 21:34:34 -0500
-Message-Id: <20211126023448.442529-5-sashal@kernel.org>
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, borntraeger@linux.ibm.com,
+        agordeev@linux.ibm.com, svens@linux.ibm.com,
+        egorenar@linux.ibm.com, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 10/19] s390/setup: avoid using memblock_enforce_memory_limit
+Date:   Thu, 25 Nov 2021 21:34:39 -0500
+Message-Id: <20211126023448.442529-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211126023448.442529-1-sashal@kernel.org>
 References: <20211126023448.442529-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,82 +44,54 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Wen Gu <guwen@linux.alibaba.com>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-[ Upstream commit 2153bd1e3d3dbf6a3403572084ef6ed31c53c5f0 ]
+[ Upstream commit 5dbc4cb4667457b0c53bcd7bff11500b3c362975 ]
 
-The SMC fallback is incomplete currently. There may be some
-wait queue entries remaining in smc socket->wq, which should
-be removed to clcsocket->wq during the fallback.
+There is a difference in how architectures treat "mem=" option. For some
+that is an amount of online memory, for s390 and x86 this is the limiting
+max address. Some memblock api like memblock_enforce_memory_limit()
+take limit argument and explicitly treat it as the size of online memory,
+and use __find_max_addr to convert it to an actual max address. Current
+s390 usage:
 
-For example, in nginx/wrk benchmark, this issue causes an
-all-zeros test result:
+memblock_enforce_memory_limit(memblock_end_of_DRAM());
 
-server: nginx -g 'daemon off;'
-client: smc_run wrk -c 1 -t 1 -d 5 http://11.200.15.93/index.html
+yields different results depending on presence of memory holes (offline
+memory blocks in between online memory). If there are no memory holes
+limit == max_addr in memblock_enforce_memory_limit() and it does trim
+online memory and reserved memory regions. With memory holes present it
+actually does nothing.
 
-  Running 5s test @ http://11.200.15.93/index.html
-     1 threads and 1 connections
-     Thread Stats   Avg      Stdev     Max   ± Stdev
-     	Latency     0.00us    0.00us   0.00us    -nan%
-	Req/Sec     0.00      0.00     0.00      -nan%
-	0 requests in 5.00s, 0.00B read
-     Requests/sec:      0.00
-     Transfer/sec:       0.00B
+Since we already use memblock_remove() explicitly to trim online memory
+regions to potential limit (think mem=, kdump, addressing limits, etc.)
+drop the usage of memblock_enforce_memory_limit() altogether. Trimming
+reserved regions should not be required, since we now use
+memblock_set_current_limit() to limit allocations and any explicit memory
+reservations above the limit is an actual problem we should not hide.
 
-The reason for this all-zeros result is that when wrk used SMC
-to replace TCP, it added an eppoll_entry into smc socket->wq
-and expected to be notified if epoll events like EPOLL_IN/
-EPOLL_OUT occurred on the smc socket.
-
-However, once a fallback occurred, wrk switches to use clcsocket.
-Now it is clcsocket->wq instead of smc socket->wq which will
-be woken up. The eppoll_entry remaining in smc socket->wq does
-not work anymore and wrk stops the test.
-
-This patch fixes this issue by removing remaining wait queue
-entries from smc socket->wq to clcsocket->wq during the fallback.
-
-Link: https://www.spinics.net/lists/netdev/msg779769.html
-Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
-Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/af_smc.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ arch/s390/kernel/setup.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 6b0f09c5b195f..1fad05d6dd9ad 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -467,12 +467,26 @@ static void smc_link_save_peer_info(struct smc_link *link,
- 
- static void smc_switch_to_fallback(struct smc_sock *smc)
- {
-+	wait_queue_head_t *smc_wait = sk_sleep(&smc->sk);
-+	wait_queue_head_t *clc_wait = sk_sleep(smc->clcsock->sk);
-+	unsigned long flags;
-+
- 	smc->use_fallback = true;
- 	if (smc->sk.sk_socket && smc->sk.sk_socket->file) {
- 		smc->clcsock->file = smc->sk.sk_socket->file;
- 		smc->clcsock->file->private_data = smc->clcsock;
- 		smc->clcsock->wq.fasync_list =
- 			smc->sk.sk_socket->wq.fasync_list;
-+
-+		/* There may be some entries remaining in
-+		 * smc socket->wq, which should be removed
-+		 * to clcsocket->wq during the fallback.
-+		 */
-+		spin_lock_irqsave(&smc_wait->lock, flags);
-+		spin_lock(&clc_wait->lock);
-+		list_splice_init(&smc_wait->head, &clc_wait->head);
-+		spin_unlock(&clc_wait->lock);
-+		spin_unlock_irqrestore(&smc_wait->lock, flags);
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index f661f176966f5..9a0316a067a11 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -841,9 +841,6 @@ static void __init setup_memory(void)
+ 		storage_key_init_range(reg->base, reg->base + reg->size);
  	}
+ 	psw_set_key(PAGE_DEFAULT_KEY);
+-
+-	/* Only cosmetics */
+-	memblock_enforce_memory_limit(memblock_end_of_DRAM());
  }
  
+ /*
 -- 
 2.33.0
 
