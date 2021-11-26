@@ -2,152 +2,126 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B5E1C433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 25 Nov 2021 22:03:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EDA24C433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 26 Nov 2021 02:34:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236606AbhKYWG4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 25 Nov 2021 17:06:56 -0500
-Received: from smtp-out1.suse.de ([195.135.220.28]:52936 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235528AbhKYWE4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 25 Nov 2021 17:04:56 -0500
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 7B4AC21958;
-        Thu, 25 Nov 2021 22:01:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1637877703; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=MhGyyEy5L8WgdyokDEpWTRx8+YBeehBixiH5tCcNl20=;
-        b=vDucD2lk//nadMAhVmhbTapYwQZW3ZrItRdCfN0xUXBcsnTWOTfgo/kJDk7ctX/NpNfDqo
-        iZRWzJu6JZ3Btp3IA+Deetob3e8+EQJpG/n84m9KJL1JZQDXXEMvoUqz5Jaq76wOQyEJBP
-        ncIcyEWbIwsOxBFsaq4BJaVqX9B8QsI=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1637877703;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=MhGyyEy5L8WgdyokDEpWTRx8+YBeehBixiH5tCcNl20=;
-        b=UWX+LSYN552ZDT36jWj7VzJFEvX+VgOjIbAMMP4qVurg/P7X/gfd7ZxsQL3luXfb1vkwIW
-        f6tCeZiy9Na/k6Cw==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 5181013F95;
-        Thu, 25 Nov 2021 22:01:43 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id MiHxEscHoGHbUQAAMHmgww
-        (envelope-from <vbabka@suse.cz>); Thu, 25 Nov 2021 22:01:43 +0000
-Message-ID: <7c909b82-8e1c-a8ce-516d-e3aa9bc2fd81@suse.cz>
-Date:   Thu, 25 Nov 2021 23:00:47 +0100
+        id S1358060AbhKZChd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 25 Nov 2021 21:37:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47780 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1357668AbhKZCfc (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 25 Nov 2021 21:35:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B8557611C2;
+        Fri, 26 Nov 2021 02:32:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1637893934;
+        bh=LLaNTuYp6X0PdsP29TQBaA7+g4WHxWDJStntUYVy4Cg=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=My0+f6hj37IN6DGFBU/n5Gv8uRb6jco398bZOMKLmbwrHl+w1S31eR77Ihl12NCxc
+         YW95x73xAbZMlMoS/g/V75C7UgxCilRWb0vQkSnY1JDzVaT59MWzGneDPrWOIdUpqe
+         ZkJ/gUhg6VRhfK2VFRAM1ig3tStExhBb21ztfHUUnMVA3velz20WA9+ksYxOfgd9K8
+         T1PG5vVc4+/AZg0t5yMctI/VO72Vfe3B5p2xEhY9wSJH4UZTdXpCsdKytZFvoWaBob
+         WFOJq2HdGKR5k2eGz/EU2QCMkaM/tr9MlK9vIw/DLdxyu79ejR7JXfHOBATCF6rFSt
+         BaIrx4qg9qy+g==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Wen Gu <guwen@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, kgraul@linux.ibm.com,
+        kuba@kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 10/39] net/smc: Transfer remaining wait queue entries during fallback
+Date:   Thu, 25 Nov 2021 21:31:27 -0500
+Message-Id: <20211126023156.441292-10-sashal@kernel.org>
+X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20211126023156.441292-1-sashal@kernel.org>
+References: <20211126023156.441292-1-sashal@kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.0
-Subject: Re: [RFC PATCH 1/1] mm/slub: fix endless "No data" printing for
- alloc/free_traces attribute
-Content-Language: en-US
-To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Cc:     Faiyaz Mohammed <faiyazm@codeaurora.org>,
-        linux-mm <linux-mm@kvack.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-References: <20211117193932.4049412-1-gerald.schaefer@linux.ibm.com>
- <20211117193932.4049412-2-gerald.schaefer@linux.ibm.com>
- <9a4367c0-8141-f03c-e5a1-13483794d3e8@suse.cz>
- <20211119205943.1ee5da0d@thinkpad>
- <b513bbcf-f1ea-cfa6-763a-003a60e51da5@suse.cz>
- <20211122211400.41bf64cf@thinkpad> <20211122213330.66b7893e@thinkpad>
- <a081d544-41f0-29ab-6d46-1afa382af8be@suse.cz>
- <20211125171310.0fd27afa@thinkpad> <20211125211249.23a84729@thinkpad>
-From:   Vlastimil Babka <vbabka@suse.cz>
-In-Reply-To: <20211125211249.23a84729@thinkpad>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 11/25/21 21:12, Gerald Schaefer wrote:
-> On Thu, 25 Nov 2021 17:13:10 +0100
-> Gerald Schaefer <gerald.schaefer@linux.ibm.com> wrote:
-> 
->> On Tue, 23 Nov 2021 15:19:49 +0100
->> Vlastimil Babka <vbabka@suse.cz> wrote:
->>
->>> On 11/22/21 21:33, Gerald Schaefer wrote:
->>>> On Mon, 22 Nov 2021 21:14:00 +0100
->>>> Gerald Schaefer <gerald.schaefer@linux.ibm.com> wrote:
->>>>
->>>> [...]
->>>>>
->>>>> Thanks. While testing this properly, yet another bug showed up. The idx
->>>>> in op->show remains 0 in all iterations, so I always see the same line
->>>>> printed t->count times (or infinitely, ATM). Not sure if this only shows
->>>>> on s390 due to endianness, but the reason is this:
->>>>>
->>>>>   unsigned int idx = *(unsigned int *)v;
->>>
->>> Uh, good catch. I was actually looking suspiciously at how we cast signed to
->>> unsigned, but didn't occur to me that shortening together with endiannes is
->>> the problem.
->>>
->>>>>
->>>>> IIUC, void *v is always the same as loff_t *ppos, and therefore idx also
->>>>> should be *ppos. De-referencing the loff_t * with an unsigned int * only
->>>>> gives the upper 32 bit half of the 64 bit value, which remains 0.
->>>>>
->>>>> This would be fixed e.g. with
->>>>>
->>>>>   unsigned int idx = (unsigned int) *(loff_t *) v;
->>>
->>> With all this experience I'm now inclined to rather follow more the example
->>> in Documentation/filesystems/seq_file.rst and don't pass around the pointer
->>> that we got as ppos in slab_debugfs_start(), and that seq_file.c points to
->>> m->index.
->>>
->>> In that example an own value is kmalloced:
->>>
->>> loff_t *spos = kmalloc(sizeof(loff_t), GFP_KERNEL);
->>>
->>> while we could just make this a field of loc_track?
->>
->> Yes, following the example sounds good, and it would also make proper use
->> of *v in op->next, which might make the code more readable. It also looks
->> like it already does exactly what is needed here, i.e. have a simple
->> iterator that just counts the lines.
->>
->> I don't think the iterator needs to be saved in loc_track. IIUC, it is
->> already passed around like in the example, and can then be simply compared
->> to t->count, similar to the existing code.
+From: Wen Gu <guwen@linux.alibaba.com>
 
-Saving it the loc_track doesn't preclude using the pointer that's being
-passed around. It however avoids the extra kmalloc and turns out it
-should also solve the return NULL from op->next() issue you describe below?
+[ Upstream commit 2153bd1e3d3dbf6a3403572084ef6ed31c53c5f0 ]
 
->> This is what I'm currently testing, and it seems to work fine. Will send
->> a new patch, if there are no objections:
-> 
-> Oh well, I have one objection, returning NULL from op->next will be
-> passed to op->stop, and then it will not free the allocated value.
-> 
-> The example is elegantly avoiding this, by not returning NULL anywhere,
-> and also not stopping. Sigh.
-> 
-> Maybe not return NULL in op->next, but only from op->start, and only
-> when no allocation was made or it was freed already? Or free it only/
-> already in op->next, when returning NULL?
+The SMC fallback is incomplete currently. There may be some
+wait queue entries remaining in smc socket->wq, which should
+be removed to clcsocket->wq during the fallback.
 
-From these two probably the "free in op->next". But still inclined to
-store it in loc_track.
-Why does the API need to be so awkward...
+For example, in nginx/wrk benchmark, this issue causes an
+all-zeros test result:
 
+server: nginx -g 'daemon off;'
+client: smc_run wrk -c 1 -t 1 -d 5 http://11.200.15.93/index.html
+
+  Running 5s test @ http://11.200.15.93/index.html
+     1 threads and 1 connections
+     Thread Stats   Avg      Stdev     Max   ± Stdev
+     	Latency     0.00us    0.00us   0.00us    -nan%
+	Req/Sec     0.00      0.00     0.00      -nan%
+	0 requests in 5.00s, 0.00B read
+     Requests/sec:      0.00
+     Transfer/sec:       0.00B
+
+The reason for this all-zeros result is that when wrk used SMC
+to replace TCP, it added an eppoll_entry into smc socket->wq
+and expected to be notified if epoll events like EPOLL_IN/
+EPOLL_OUT occurred on the smc socket.
+
+However, once a fallback occurred, wrk switches to use clcsocket.
+Now it is clcsocket->wq instead of smc socket->wq which will
+be woken up. The eppoll_entry remaining in smc socket->wq does
+not work anymore and wrk stops the test.
+
+This patch fixes this issue by removing remaining wait queue
+entries from smc socket->wq to clcsocket->wq during the fallback.
+
+Link: https://www.spinics.net/lists/netdev/msg779769.html
+Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ net/smc/af_smc.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 32c1c7ce856d3..c6df2245c9a40 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -548,6 +548,10 @@ static void smc_stat_fallback(struct smc_sock *smc)
+ 
+ static void smc_switch_to_fallback(struct smc_sock *smc, int reason_code)
+ {
++	wait_queue_head_t *smc_wait = sk_sleep(&smc->sk);
++	wait_queue_head_t *clc_wait = sk_sleep(smc->clcsock->sk);
++	unsigned long flags;
++
+ 	smc->use_fallback = true;
+ 	smc->fallback_rsn = reason_code;
+ 	smc_stat_fallback(smc);
+@@ -556,6 +560,16 @@ static void smc_switch_to_fallback(struct smc_sock *smc, int reason_code)
+ 		smc->clcsock->file->private_data = smc->clcsock;
+ 		smc->clcsock->wq.fasync_list =
+ 			smc->sk.sk_socket->wq.fasync_list;
++
++		/* There may be some entries remaining in
++		 * smc socket->wq, which should be removed
++		 * to clcsocket->wq during the fallback.
++		 */
++		spin_lock_irqsave(&smc_wait->lock, flags);
++		spin_lock(&clc_wait->lock);
++		list_splice_init(&smc_wait->head, &clc_wait->head);
++		spin_unlock(&clc_wait->lock);
++		spin_unlock_irqrestore(&smc_wait->lock, flags);
+ 	}
+ }
+ 
+-- 
+2.33.0
 
