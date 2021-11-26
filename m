@@ -2,96 +2,96 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 083B4C433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 26 Nov 2021 02:47:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 10D33C433FE
+	for <linux-s390@archiver.kernel.org>; Fri, 26 Nov 2021 02:47:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357972AbhKZCuc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 25 Nov 2021 21:50:32 -0500
-Received: from out30-132.freemail.mail.aliyun.com ([115.124.30.132]:52845 "EHLO
-        out30-132.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1359112AbhKZCp5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 25 Nov 2021 21:45:57 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0UyJiZM._1637894563;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0UyJiZM._1637894563)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 26 Nov 2021 10:42:43 +0800
-From:   Tony Lu <tonylu@linux.alibaba.com>
-To:     kgraul@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: [PATCH net v3] net/smc: Don't call clcsock shutdown twice when smc shutdown
-Date:   Fri, 26 Nov 2021 10:41:35 +0800
-Message-Id: <20211126024134.45693-1-tonylu@linux.alibaba.com>
-X-Mailer: git-send-email 2.34.0
+        id S245223AbhKZCud (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 25 Nov 2021 21:50:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51032 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1352559AbhKZCqM (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 25 Nov 2021 21:46:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DE4096135F;
+        Fri, 26 Nov 2021 02:36:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1637894206;
+        bh=j1J/Be+AtqWEmIy3RZBDchghsQ1lLnJrU1m/FQSV4oc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=gmDxnkfnHL86ysdKnkyBVstgUh0X8gioWlcPiVM3Od0rbpWOD6P4k1jHGMv6SEheU
+         S2sZSJeOEcoyzR6ozqKi1xV4Kjl348hK6ak5ftoxvzZmcoAjYA2HG2KaW/LM+BYmnn
+         Rg0i4FuAhu6fpsfFz33XziZV2QEk2eynom/0uYCK54XmmSTZg4gGLMOaiPolC9FMh+
+         MaPWi4OtM8cYEhlL0Zztn0dX+reLT5KDikrUqo7ztEo6w/TZQOnGWW9F3fRH+8tiKT
+         C5Tb3iF//Aux3qm60b5eUoNy+VlfOTkDr7hQpUfYatKYz/pqp1JY+zh6O1L1qoFcg9
+         4uGlmRCSXbjZw==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, borntraeger@linux.ibm.com,
+        agordeev@linux.ibm.com, svens@linux.ibm.com,
+        egorenar@linux.ibm.com, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 3/8] s390/setup: avoid using memblock_enforce_memory_limit
+Date:   Thu, 25 Nov 2021 21:36:35 -0500
+Message-Id: <20211126023640.443271-3-sashal@kernel.org>
+X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20211126023640.443271-1-sashal@kernel.org>
+References: <20211126023640.443271-1-sashal@kernel.org>
 MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-When applications call shutdown() with SHUT_RDWR in userspace,
-smc_close_active() calls kernel_sock_shutdown(), and it is called
-twice in smc_shutdown().
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-This fixes this by checking sk_state before do clcsock shutdown, and
-avoids missing the application's call of smc_shutdown().
+[ Upstream commit 5dbc4cb4667457b0c53bcd7bff11500b3c362975 ]
 
-Link: https://lore.kernel.org/linux-s390/1f67548e-cbf6-0dce-82b5-10288a4583bd@linux.ibm.com/
-Fixes: 606a63c9783a ("net/smc: Ensure the active closing peer first closes clcsock")
-Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
-Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
+There is a difference in how architectures treat "mem=" option. For some
+that is an amount of online memory, for s390 and x86 this is the limiting
+max address. Some memblock api like memblock_enforce_memory_limit()
+take limit argument and explicitly treat it as the size of online memory,
+and use __find_max_addr to convert it to an actual max address. Current
+s390 usage:
+
+memblock_enforce_memory_limit(memblock_end_of_DRAM());
+
+yields different results depending on presence of memory holes (offline
+memory blocks in between online memory). If there are no memory holes
+limit == max_addr in memblock_enforce_memory_limit() and it does trim
+online memory and reserved memory regions. With memory holes present it
+actually does nothing.
+
+Since we already use memblock_remove() explicitly to trim online memory
+regions to potential limit (think mem=, kdump, addressing limits, etc.)
+drop the usage of memblock_enforce_memory_limit() altogether. Trimming
+reserved regions should not be required, since we now use
+memblock_set_current_limit() to limit allocations and any explicit memory
+reservations above the limit is an actual problem we should not hide.
+
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
+ arch/s390/kernel/setup.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-changes:
-
-v2->v3:
-- code format
-
-v1->v2:
-- code format
-- use bool do_shutdown
-
----
- net/smc/af_smc.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
-
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 4b62c925a13e..230072f9ec48 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -2370,8 +2370,10 @@ static __poll_t smc_poll(struct file *file, struct socket *sock,
- static int smc_shutdown(struct socket *sock, int how)
- {
- 	struct sock *sk = sock->sk;
-+	bool do_shutdown = true;
- 	struct smc_sock *smc;
- 	int rc = -EINVAL;
-+	int old_state;
- 	int rc1 = 0;
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index 9939879f5f253..2f3b7802d8b87 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -693,9 +693,6 @@ static void __init setup_memory(void)
+ 		storage_key_init_range(reg->base, reg->base + reg->size);
+ 	}
+ 	psw_set_key(PAGE_DEFAULT_KEY);
+-
+-	/* Only cosmetics */
+-	memblock_enforce_memory_limit(memblock_end_of_DRAM());
+ }
  
- 	smc = smc_sk(sk);
-@@ -2398,7 +2400,11 @@ static int smc_shutdown(struct socket *sock, int how)
- 	}
- 	switch (how) {
- 	case SHUT_RDWR:		/* shutdown in both directions */
-+		old_state = sk->sk_state;
- 		rc = smc_close_active(smc);
-+		if (old_state == SMC_ACTIVE &&
-+		    sk->sk_state == SMC_PEERCLOSEWAIT1)
-+			do_shutdown = false;
- 		break;
- 	case SHUT_WR:
- 		rc = smc_close_shutdown_write(smc);
-@@ -2408,7 +2414,7 @@ static int smc_shutdown(struct socket *sock, int how)
- 		/* nothing more to do because peer is not involved */
- 		break;
- 	}
--	if (smc->clcsock)
-+	if (do_shutdown && smc->clcsock)
- 		rc1 = kernel_sock_shutdown(smc->clcsock, how);
- 	/* map sock_shutdown_cmd constants to sk_shutdown value range */
- 	sk->sk_shutdown |= how + 1;
+ /*
 -- 
-2.32.0.3.g01195cf9f
+2.33.0
 
