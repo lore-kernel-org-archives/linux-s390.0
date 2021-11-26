@@ -2,59 +2,125 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D7A07C433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 26 Nov 2021 02:38:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 40935C433FE
+	for <linux-s390@archiver.kernel.org>; Fri, 26 Nov 2021 02:38:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245108AbhKZClR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 25 Nov 2021 21:41:17 -0500
-Received: from out30-56.freemail.mail.aliyun.com ([115.124.30.56]:54941 "EHLO
-        out30-56.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1357966AbhKZCjQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 25 Nov 2021 21:39:16 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0UyKa2w-_1637894161;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0UyKa2w-_1637894161)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 26 Nov 2021 10:36:02 +0800
-Date:   Fri, 26 Nov 2021 10:36:01 +0800
-From:   Tony Lu <tonylu@linux.alibaba.com>
-To:     Karsten Graul <kgraul@linux.ibm.com>
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: Re: [PATCH net v2] net/smc: Don't call clcsock shutdown twice when
- smc shutdown
-Message-ID: <YaBIEUO0eOUNqf0b@TonyMac-Alibaba>
-Reply-To: Tony Lu <tonylu@linux.alibaba.com>
-References: <20211125132431.23264-1-tonylu@linux.alibaba.com>
- <1a7b27ec-22fc-f1b0-6b7c-4a61c072ff38@linux.ibm.com>
+        id S1358482AbhKZClX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 25 Nov 2021 21:41:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48248 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1358272AbhKZCjW (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 25 Nov 2021 21:39:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB26E61222;
+        Fri, 26 Nov 2021 02:33:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1637894035;
+        bh=7WLptMkKjUMHnBXkZdMkjiZqlhlA2MnJ0vJjY7hwma8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=IBJxRWwN01saseFmUij3Gq75bhMRLIyCWyC+xvevH97xxVQ7kh4NyWkC37jSQaBfu
+         zkfNbMNqP+LaTI5mmS+CQlY+qInSYc3Tc/fpSn/H/7p5b8sWvCiSrJvVVt0TaS8/rL
+         q3csAOMfOuqNAMsKVnw7fsVLPOq2sS7vKtHPrSfVXoQad4XtvemsaVjxi/Q3Gy5Rw9
+         RulPea5VRbKDEwmHXWrmIrXh/eFiSIYHvyI3+QINO+IDbydS9cbK5cgOKaFX/RJnux
+         R8JWUUS0Y2kr+6E3K8VEqbIt+EoqtvDCaxrQBisfSWQjqMcm0G699CeW6xUbBZ0x2S
+         TizRVD3AQAtsQ==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Wen Gu <guwen@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, kgraul@linux.ibm.com,
+        kuba@kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 07/28] net/smc: Transfer remaining wait queue entries during fallback
+Date:   Thu, 25 Nov 2021 21:33:22 -0500
+Message-Id: <20211126023343.442045-7-sashal@kernel.org>
+X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20211126023343.442045-1-sashal@kernel.org>
+References: <20211126023343.442045-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1a7b27ec-22fc-f1b0-6b7c-4a61c072ff38@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Nov 25, 2021 at 03:51:06PM +0100, Karsten Graul wrote:
-> On 25/11/2021 14:24, Tony Lu wrote:
-> > @@ -2398,7 +2400,12 @@ static int smc_shutdown(struct socket *sock, int how)
-> >  	}
-> >  	switch (how) {
-> >  	case SHUT_RDWR:		/* shutdown in both directions */
-> > +		old_state = sk->sk_state;
-> >  		rc = smc_close_active(smc);
-> > +		if (old_state == SMC_ACTIVE &&
-> > +		    sk->sk_state == SMC_PEERCLOSEWAIT1)
-> > +			do_shutdown = false;
-> > +
-> >  		break;
-> 
-> Please send a v3 without the extra empty line before the break statement,
-> and then the patch is fine with me.
-> 
-> Thank you!
+From: Wen Gu <guwen@linux.alibaba.com>
 
-I will fix it, and send it out soon.
+[ Upstream commit 2153bd1e3d3dbf6a3403572084ef6ed31c53c5f0 ]
 
-Thanks,
-Tony Lu
+The SMC fallback is incomplete currently. There may be some
+wait queue entries remaining in smc socket->wq, which should
+be removed to clcsocket->wq during the fallback.
+
+For example, in nginx/wrk benchmark, this issue causes an
+all-zeros test result:
+
+server: nginx -g 'daemon off;'
+client: smc_run wrk -c 1 -t 1 -d 5 http://11.200.15.93/index.html
+
+  Running 5s test @ http://11.200.15.93/index.html
+     1 threads and 1 connections
+     Thread Stats   Avg      Stdev     Max   ± Stdev
+     	Latency     0.00us    0.00us   0.00us    -nan%
+	Req/Sec     0.00      0.00     0.00      -nan%
+	0 requests in 5.00s, 0.00B read
+     Requests/sec:      0.00
+     Transfer/sec:       0.00B
+
+The reason for this all-zeros result is that when wrk used SMC
+to replace TCP, it added an eppoll_entry into smc socket->wq
+and expected to be notified if epoll events like EPOLL_IN/
+EPOLL_OUT occurred on the smc socket.
+
+However, once a fallback occurred, wrk switches to use clcsocket.
+Now it is clcsocket->wq instead of smc socket->wq which will
+be woken up. The eppoll_entry remaining in smc socket->wq does
+not work anymore and wrk stops the test.
+
+This patch fixes this issue by removing remaining wait queue
+entries from smc socket->wq to clcsocket->wq during the fallback.
+
+Link: https://www.spinics.net/lists/netdev/msg779769.html
+Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ net/smc/af_smc.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index cfb5b9be0569d..9714c779adf0a 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -513,12 +513,26 @@ static void smc_link_save_peer_info(struct smc_link *link,
+ 
+ static void smc_switch_to_fallback(struct smc_sock *smc)
+ {
++	wait_queue_head_t *smc_wait = sk_sleep(&smc->sk);
++	wait_queue_head_t *clc_wait = sk_sleep(smc->clcsock->sk);
++	unsigned long flags;
++
+ 	smc->use_fallback = true;
+ 	if (smc->sk.sk_socket && smc->sk.sk_socket->file) {
+ 		smc->clcsock->file = smc->sk.sk_socket->file;
+ 		smc->clcsock->file->private_data = smc->clcsock;
+ 		smc->clcsock->wq.fasync_list =
+ 			smc->sk.sk_socket->wq.fasync_list;
++
++		/* There may be some entries remaining in
++		 * smc socket->wq, which should be removed
++		 * to clcsocket->wq during the fallback.
++		 */
++		spin_lock_irqsave(&smc_wait->lock, flags);
++		spin_lock(&clc_wait->lock);
++		list_splice_init(&smc_wait->head, &clc_wait->head);
++		spin_unlock(&clc_wait->lock);
++		spin_unlock_irqrestore(&smc_wait->lock, flags);
+ 	}
+ }
+ 
+-- 
+2.33.0
+
