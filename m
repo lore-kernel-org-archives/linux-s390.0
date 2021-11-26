@@ -2,27 +2,27 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 95734C4167E
-	for <linux-s390@archiver.kernel.org>; Fri, 26 Nov 2021 02:41:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 01AD7C43217
+	for <linux-s390@archiver.kernel.org>; Fri, 26 Nov 2021 02:42:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358532AbhKZCoS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 25 Nov 2021 21:44:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50034 "EHLO mail.kernel.org"
+        id S1358819AbhKZCpu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 25 Nov 2021 21:45:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1357798AbhKZCmL (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 25 Nov 2021 21:42:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BACD61157;
-        Fri, 26 Nov 2021 02:35:05 +0000 (UTC)
+        id S1358816AbhKZCns (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 25 Nov 2021 21:43:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 15A386127B;
+        Fri, 26 Nov 2021 02:35:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637894106;
-        bh=cCKOnF1J9lGvvt+vd6E2ZT5Fps/Grrz8rJbM4Wj70cE=;
+        s=k20201202; t=1637894147;
+        bh=NPyiNdSls0xvC2dIMXhp1fPbJk3Za+5YMISEGyNyKw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pievkG9sSMofFLfTlDkW9rbugm5N0H19wXZ1Kd8UnbaEdrnD1KPB5KNawXa2cUrfA
-         1zw+zABXeNl/EF53Yi5A+Utm6pE6brfXEhV9InnOpM8Sr1EDZj/wHsfSTdn3BtnUGx
-         UZPWBsLzACWKfjoH8OlK0oK/hG5HBL6VHPJ3OdN5CRLhGuw+u+JK093T3rRIaxneL8
-         q3O9wk4AdSQsgu0TEOp20mo4GycE4oVMep0InPBMUeQBry/dGjJU9+CEIhnn4Sc1Pv
-         0wbnK2ABWWTY4yk1jpCbfltPnmSooQZ/w9LhLHgk18n1nYLdiiaBBSvU7J9Gng+0bV
-         j+lROwMt3Nbiw==
+        b=QWB7Ew3/qHPJJK82m6CoM2nDZdEJr2NAk3pqlI0FBl/lzTkpNrXlJckdv+DzeJqxC
+         CkqJT15cSRgW8Q44/4Ods2NV0+82hNVhH+zBJCG4btsuxRZQENft7itTDVwx3KgeAK
+         V1ASZPOJyWYdoTQNvG+r9JP4zTShNil2fPS5P6Ziaf3QCQvE7BOEMzLMm6Aeb9S2uU
+         DMjoN7rbOwhrLpaCuAT7VpMaYLfpjbrWPMtxoCXrpKoOK5qzolQEZSn4skOf1siOCe
+         X6YJQZlw/biV+OCj1OUgIYv6BXyLbssQixOuf1cjZwbhIV2E6ZvzGQBPaRWmA1Q4Zm
+         5mdaIGPP9FjQg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Vasily Gorbik <gor@linux.ibm.com>,
@@ -30,12 +30,12 @@ Cc:     Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, borntraeger@linux.ibm.com,
         agordeev@linux.ibm.com, svens@linux.ibm.com,
         egorenar@linux.ibm.com, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 10/19] s390/setup: avoid using memblock_enforce_memory_limit
-Date:   Thu, 25 Nov 2021 21:34:39 -0500
-Message-Id: <20211126023448.442529-10-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 07/15] s390/setup: avoid using memblock_enforce_memory_limit
+Date:   Thu, 25 Nov 2021 21:35:25 -0500
+Message-Id: <20211126023533.442895-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211126023448.442529-1-sashal@kernel.org>
-References: <20211126023448.442529-1-sashal@kernel.org>
+In-Reply-To: <20211126023533.442895-1-sashal@kernel.org>
+References: <20211126023533.442895-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -79,10 +79,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 deletions(-)
 
 diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index f661f176966f5..9a0316a067a11 100644
+index e8bfd29bb1f9f..098794fc5dc81 100644
 --- a/arch/s390/kernel/setup.c
 +++ b/arch/s390/kernel/setup.c
-@@ -841,9 +841,6 @@ static void __init setup_memory(void)
+@@ -703,9 +703,6 @@ static void __init setup_memory(void)
  		storage_key_init_range(reg->base, reg->base + reg->size);
  	}
  	psw_set_key(PAGE_DEFAULT_KEY);
