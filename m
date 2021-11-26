@@ -2,312 +2,315 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B621C433FE
-	for <linux-s390@archiver.kernel.org>; Fri, 26 Nov 2021 10:23:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1797EC433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 26 Nov 2021 13:30:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376812AbhKZK0k (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 26 Nov 2021 05:26:40 -0500
-Received: from ivanoab7.miniserver.com ([37.128.132.42]:59010 "EHLO
-        www.kot-begemot.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232988AbhKZKYi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 26 Nov 2021 05:24:38 -0500
-Received: from [192.168.18.6] (helo=jain.kot-begemot.co.uk)
-        by www.kot-begemot.co.uk with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <anton.ivanov@cambridgegreys.com>)
-        id 1mqYLv-0000d8-W8; Fri, 26 Nov 2021 10:21:15 +0000
-Received: from jain.kot-begemot.co.uk ([192.168.3.3])
-        by jain.kot-begemot.co.uk with esmtp (Exim 4.94.2)
-        (envelope-from <anton.ivanov@cambridgegreys.com>)
-        id 1mqYLq-005WHS-Pn; Fri, 26 Nov 2021 10:21:10 +0000
-Subject: Re: [PATCH 4.9] hugetlbfs: flush TLBs correctly after
- huge_pmd_unshare
-To:     Nadav Amit <nadav.amit@gmail.com>, Nick Piggin <npiggin@gmail.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>, Linux-MM <linux-mm@kvack.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
-        linux-arch <linux-arch@vger.kernel.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>
-References: <3BD89231-2CB9-4CE5-B0FA-5B58419D7CB8@gmail.com>
-From:   Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Message-ID: <7a2feed4-7c73-c7ad-881e-c980235c8293@cambridgegreys.com>
-Date:   Fri, 26 Nov 2021 10:21:07 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        id S1344256AbhKZNdg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 26 Nov 2021 08:33:36 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:36188 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1348618AbhKZNbg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 26 Nov 2021 08:31:36 -0500
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1AQDNC7N016708;
+        Fri, 26 Nov 2021 13:28:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=6Q+BNdrRKNpSn5qVi8Vfiqjl7H7jFzGASBgqnpQiN60=;
+ b=bM6TGT1EDCjoSy97z0LmGJl0Qk+jEYzdMHwnTkrDGiliyn/btMzSXk6VCGLz6ogt+TVH
+ dP6zfMiWheeuuj8a4jNT0+5FnJwmddEgBne0wR421yk/GUz0KYHIxQcfU1OVLgJMx+xQ
+ jhz9yazaZJkSrGyzaiayxdjOJi3vMeHINqzgxWrXfFXcOWDlWrytDmDr87gvKdWpFNj/
+ 3AkGH3XFsz0EFpTm36fTAK5LFs5oRN/OnKWOzWGXi+28/+wtNFNI4UQPHfeDJFI9D1Sa
+ OA6vs+KgJtqK4oW+BVtxifFxoOMiflrB4xT9QZPWJcrB0Z8bAsExrcymFSJ/ZKsVuRQj kw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ck0dw828p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 26 Nov 2021 13:28:23 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1AQDRaQk036383;
+        Fri, 26 Nov 2021 13:28:22 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ck0dw8286-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 26 Nov 2021 13:28:22 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1AQDIXFe017064;
+        Fri, 26 Nov 2021 13:28:20 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma05fra.de.ibm.com with ESMTP id 3cernahqt5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 26 Nov 2021 13:28:20 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1AQDSGXt787072
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 26 Nov 2021 13:28:16 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D0A33A4071;
+        Fri, 26 Nov 2021 13:28:15 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7003DA406D;
+        Fri, 26 Nov 2021 13:28:15 +0000 (GMT)
+Received: from [9.145.67.231] (unknown [9.145.67.231])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 26 Nov 2021 13:28:15 +0000 (GMT)
+Message-ID: <08052bad-b494-c99b-27b3-bcfef0aa94fd@linux.ibm.com>
+Date:   Fri, 26 Nov 2021 14:28:15 +0100
 MIME-Version: 1.0
-In-Reply-To: <3BD89231-2CB9-4CE5-B0FA-5B58419D7CB8@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.0
+Subject: Re: [kvm-unit-tests PATCH 7/8] s390x: snippets: Add PV support
 Content-Language: en-US
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com,
+        thuth@redhat.com, seiden@linux.ibm.com, mhartmay@linux.ibm.com
+References: <20211123103956.2170-1-frankja@linux.ibm.com>
+ <20211123103956.2170-8-frankja@linux.ibm.com>
+ <20211123122219.3c18cf98@p-imbrenda>
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <20211123122219.3c18cf98@p-imbrenda>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Clacks-Overhead: GNU Terry Pratchett
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: aSdHv4KNAl5mqYuC5Za6knEXRh5timZ7
+X-Proofpoint-ORIG-GUID: rX6PG3GvULkkcmmuayhGUS7GklLe85mX
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-11-26_03,2021-11-25_02,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 priorityscore=1501
+ spamscore=0 lowpriorityscore=0 suspectscore=0 phishscore=0 mlxlogscore=999
+ clxscore=1015 malwarescore=0 bulkscore=0 impostorscore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
+ definitions=main-2111260077
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On 11/23/21 12:22, Claudio Imbrenda wrote:
+> On Tue, 23 Nov 2021 10:39:55 +0000
+> Janosch Frank <frankja@linux.ibm.com> wrote:
+> 
+>> To create a pv-snippet we need to generate an se-header. This can be
+>> done using a currently not released tool. This tool creates a
+>> se-header similar to `genprotimg` with the difference that the image
+>> itself will not be encrypted.
+>>
+>> The image for which we want to create a header must be a binary and
+>> padded to 4k. Therefore, we convert the compiled snippet to a binary,
+>> padd it to 4k, generate the header and convert it back to s390-64bit
+>> elf.
+>>
+>> The name of the tool can be specified using the config argument
+>> `--gen-se-header=`. The pv-snipptes will only be built when this
+>> option is specified. Furthermore, the Hostkey-Document must be
+>> specified. If not the build will be skipped.
+>>
+>> The host-snippet relation can be specified using the `pv-snippets`
+>> variable in s390x/Makefile, similar to the non-pv-snippets in
+>> 2f6fdb4a (s390x: snippets: Add snippet compilation, 2021-06-22)
+>>
+>> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+> 
+> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> 
+> but see a comment below
+> 
+>> ---
+>>   .gitignore          |  2 ++
+>>   configure           |  8 ++++++
+>>   lib/s390x/snippet.h |  7 +++++
+>>   s390x/Makefile      | 67 +++++++++++++++++++++++++++++++++++++--------
+>>   4 files changed, 73 insertions(+), 11 deletions(-)
+>>
+>> diff --git a/.gitignore b/.gitignore
+>> index 3d5be622..28a197bf 100644
+>> --- a/.gitignore
+>> +++ b/.gitignore
+>> @@ -25,3 +25,5 @@ cscope.*
+>>   /api/dirty-log-perf
+>>   /s390x/*.bin
+>>   /s390x/snippets/*/*.gbin
+>> +/s390x/snippets/*/*.hdr
+>> +/s390x/snippets/*/*.*obj
+>> \ No newline at end of file
+>> diff --git a/configure b/configure
+>> index 1d4d855e..9210912f 100755
+>> --- a/configure
+>> +++ b/configure
+>> @@ -26,6 +26,7 @@ target=
+>>   errata_force=0
+>>   erratatxt="$srcdir/errata.txt"
+>>   host_key_document=
+>> +gen_se_header=
+>>   page_size=
+>>   earlycon=
+>>   
+>> @@ -54,6 +55,9 @@ usage() {
+>>   	    --host-key-document=HOST_KEY_DOCUMENT
+>>   	                           Specify the machine-specific host-key document for creating
+>>   	                           a PVM image with 'genprotimg' (s390x only)
+>> +	    --gen-se-header=GEN_SE_HEADER
+>> +	                           Provide an executable to generate a PV header
+>> +				   requires --host-key-document. (s390x-snippets only)
+>>   	    --page-size=PAGE_SIZE
+>>   	                           Specify the page size (translation granule) (4k, 16k or
+>>   	                           64k, default is 64k, arm64 only)
+>> @@ -127,6 +131,9 @@ while [[ "$1" = -* ]]; do
+>>   	--host-key-document)
+>>   	    host_key_document="$arg"
+>>   	    ;;
+>> +	--gen-se-header)
+>> +	    gen_se_header="$arg"
+>> +	    ;;
+>>   	--page-size)
+>>   	    page_size="$arg"
+>>   	    ;;
+>> @@ -341,6 +348,7 @@ U32_LONG_FMT=$u32_long
+>>   WA_DIVIDE=$wa_divide
+>>   GENPROTIMG=${GENPROTIMG-genprotimg}
+>>   HOST_KEY_DOCUMENT=$host_key_document
+>> +GEN_SE_HEADER=$gen_se_header
+>>   EOF
+>>   if [ "$arch" = "arm" ] || [ "$arch" = "arm64" ]; then
+>>       echo "TARGET=$target" >> config.mak
+>> diff --git a/lib/s390x/snippet.h b/lib/s390x/snippet.h
+>> index 8e4765f8..6b77a8a9 100644
+>> --- a/lib/s390x/snippet.h
+>> +++ b/lib/s390x/snippet.h
+>> @@ -14,10 +14,17 @@
+>>   	_binary_s390x_snippets_##type##_##file##_gbin_start
+>>   #define SNIPPET_NAME_END(type, file) \
+>>   	_binary_s390x_snippets_##type##_##file##_gbin_end
+>> +#define SNIPPET_HDR_START(type, file) \
+>> +	_binary_s390x_snippets_##type##_##file##_hdr_start
+>> +#define SNIPPET_HDR_END(type, file) \
+>> +	_binary_s390x_snippets_##type##_##file##_hdr_end
+>> +
+>>   
+>>   /* Returns the length of the snippet */
+>>   #define SNIPPET_LEN(type, file) \
+>>   	((uintptr_t)SNIPPET_NAME_END(type, file) - (uintptr_t)SNIPPET_NAME_START(type, file))
+>> +#define SNIPPET_HDR_LEN(type, file) \
+>> +	((uintptr_t)SNIPPET_HDR_END(type, file) - (uintptr_t)SNIPPET_HDR_START(type, file))
+>>   
+>>   /*
+>>    * C snippet instructions start at 0x4000 due to the prefix and the
+>> diff --git a/s390x/Makefile b/s390x/Makefile
+>> index f95f2e61..55e6d962 100644
+>> --- a/s390x/Makefile
+>> +++ b/s390x/Makefile
+>> @@ -26,12 +26,20 @@ tests += $(TEST_DIR)/edat.elf
+>>   tests += $(TEST_DIR)/mvpg-sie.elf
+>>   tests += $(TEST_DIR)/spec_ex-sie.elf
+>>   
+>> +ifneq ($(HOST_KEY_DOCUMENT),)
+>> +ifneq ($(GEN_SE_HEADER),)
+>> +tests += $(pv-tests)
+>> +endif
+>> +endif
+>> +
+>>   tests_binary = $(patsubst %.elf,%.bin,$(tests))
+>>   ifneq ($(HOST_KEY_DOCUMENT),)
+>>   tests_pv_binary = $(patsubst %.bin,%.pv.bin,$(tests_binary))
+>>   else
+>>   tests_pv_binary =
+>> +GEN_SE_HEADER =
+>>   endif
+>> +snippets-obj = $(patsubst %.gbin,%.gobj,$(snippets))
+>>   
+>>   all: directories test_cases test_cases_binary test_cases_pv
+>>   
+>> @@ -82,26 +90,59 @@ asmlib = $(TEST_DIR)/cstart64.o $(TEST_DIR)/cpu.o
+>>   FLATLIBS = $(libcflat)
+>>   
+>>   SNIPPET_DIR = $(TEST_DIR)/snippets
+>> -snippet_asmlib = $(SNIPPET_DIR)/c/cstart.o lib/auxinfo.o
+>> +snippet_asmlib = $(SNIPPET_DIR)/c/cstart.o
+>> +snippet_lib = $(snippet_asmlib) lib/auxinfo.o
+>>   
+>>   # perquisites (=guests) for the snippet hosts.
+>>   # $(TEST_DIR)/<snippet-host>.elf: snippets = $(SNIPPET_DIR)/<c/asm>/<snippet>.gbin
+>>   $(TEST_DIR)/mvpg-sie.elf: snippets = $(SNIPPET_DIR)/c/mvpg-snippet.gbin
+>>   $(TEST_DIR)/spec_ex-sie.elf: snippets = $(SNIPPET_DIR)/c/spec_ex.gbin
+>>   
+>> -$(SNIPPET_DIR)/asm/%.gbin: $(SNIPPET_DIR)/asm/%.o $(FLATLIBS)
+>> -	$(OBJCOPY) -O binary $(patsubst %.gbin,%.o,$@) $@
+>> -	$(OBJCOPY) -I binary -O elf64-s390 -B "s390:64-bit" $@ $@
+>> +ifneq ($(GEN_SE_HEADER),)
+>> +snippets += $(pv-snippets)
+>> +tests += $(pv-tests)
+>> +snippet-hdr-obj = $(patsubst %.gbin,%.hdr.obj,$(pv-snippets))
+>> +else
+>> +snippet-hdr-obj =
+>> +endif
+>> +
+>> +# the asm/c snippets %.o have additional generated files as dependencies
+>> +$(SNIPPET_DIR)/asm/%.o: $(SNIPPET_DIR)/asm/%.S $(asm-offsets)
+>> +	$(CC) $(CFLAGS) -c -nostdlib -o $@ $<
+>> +
+>> +$(SNIPPET_DIR)/c/%.o: $(SNIPPET_DIR)/c/%.c $(asm-offsets)
+>> +	$(CC) $(CFLAGS) -c -nostdlib -o $@ $<
+>> +
+>> +$(SNIPPET_DIR)/asm/%.gbin: $(SNIPPET_DIR)/asm/%.o
+>> +	$(OBJCOPY) -O binary -j ".rodata" -j ".text" -j ".data" -j ".bss" --set-section-flags .bss=alloc,load,contents $(patsubst %.gbin,%.o,$@) $@
+>> +	truncate -s '%4096' $@
+>> +
+>> +$(SNIPPET_DIR)/c/%.gbin: $(SNIPPET_DIR)/c/%.o $(snippet_lib) $(FLATLIBS)
+>> +	$(CC) $(LDFLAGS) -o $@ -T $(SRCDIR)/s390x/snippets/c/flat.lds $(patsubst %.gbin,%.o,$@) $(snippet_lib) $(FLATLIBS)
+>> +	$(OBJCOPY) -O binary -j ".rodata" -j ".lowcore" -j ".text" -j ".data" -j ".bss" --set-section-flags .bss=alloc,load,contents $@ $@
+>> +	truncate -s '%4096' $@
+>> +
+>> +$(SNIPPET_DIR)/asm/%.hdr: $(SNIPPET_DIR)/asm/%.gbin $(HOST_KEY_DOCUMENT)
+>> +	$(GEN_SE_HEADER) -k $(HOST_KEY_DOCUMENT) -c $<,0x4000,0x00000000000000420000000000000000 --psw-addr 0x4000 -o $@
+>> +
+>> +$(SNIPPET_DIR)/c/%.hdr: $(SNIPPET_DIR)/c/%.gbin $(HOST_KEY_DOCUMENT)
+>> +	$(GEN_SE_HEADER) -k $(HOST_KEY_DOCUMENT) -c $<,0x0,0x00000000000000420000000000000000 --psw-addr 0x4000 -o $@
+> 
+> are they supposed to have different addresses?
+> the C files start at 0x4000, while the asm ones at 0
 
-
-On 26/11/2021 06:08, Nadav Amit wrote:
-> Below is a patch to address CVE-2021-4002 [1] that I created to backport
-> to 4.9. The stable kernels of 4.14 and prior ones do not have unified
-> TLB flushing code, and I managed to mess up the arch code a couple of
-> times.
-> 
-> Now that the CVE is public, I would appreciate your review of this
-> patch. I send 4.9 for review - the other ones (4.14 and prior) are
-> pretty similar.
-> 
-> [1] https://www.openwall.com/lists/oss-security/2021/11/25/1
-> 
-> Thanks,
-> Nadav
-
-I do not quite see the rationale for patching um
-
-It supports only standard size pages. You should not be able to map a huge page there (and hugetlbfs).
-
-I have "non-standard page size" somewhere towards the end of my queue, but it keeps falling through - not enough spare time to work on it.
-
-Brgds,
-
-A.
+That's a mistake I'll need to fix.
 
 > 
-> -- >8 --
-> 
-> From: Nadav Amit <namit@vmware.com>
-> Date: Sat, 20 Nov 2021 12:55:21 -0800
-> Subject: [kernel v4.9 ] hugetlbfs: flush TLBs correctly after
->   huge_pmd_unshare
-> 
-> When __unmap_hugepage_range() calls to huge_pmd_unshare() succeed, a TLB
-> flush is missing. This TLB flush must be performed before releasing the
-> i_mmap_rwsem, in order to prevent an unshared PMDs page from being
-> released and reused before the TLB flush took place.
-> 
-> Arguably, a comprehensive solution would use mmu_gather interface to
-> batch the TLB flushes and the PMDs page release, however it is not an
-> easy solution: (1) try_to_unmap_one() and try_to_migrate_one() also call
-> huge_pmd_unshare() and they cannot use the mmu_gather interface; and (2)
-> deferring the release of the page reference for the PMDs page until
-> after i_mmap_rwsem is dropeed can confuse huge_pmd_unshare() into
-> thinking PMDs are shared when they are not.
-> 
-> Fix __unmap_hugepage_range() by adding the missing TLB flush, and
-> forcing a flush when unshare is successful.
-> 
-> Fixes: 24669e58477e ("hugetlb: use mmu_gather instead of a temporary linked list for accumulating pages)" # 3.6
-> Signed-off-by: Nadav Amit <namit@vmware.com>
-> ---
->   arch/arm/include/asm/tlb.h  |  8 ++++++++
->   arch/ia64/include/asm/tlb.h | 10 ++++++++++
->   arch/s390/include/asm/tlb.h | 14 ++++++++++++++
->   arch/sh/include/asm/tlb.h   | 10 ++++++++++
->   arch/um/include/asm/tlb.h   | 12 ++++++++++++
->   include/asm-generic/tlb.h   |  2 ++
->   mm/hugetlb.c                | 19 +++++++++++++++++++
->   mm/memory.c                 | 16 ++++++++++++++++
->   8 files changed, 91 insertions(+)
-> 
-> diff --git a/arch/arm/include/asm/tlb.h b/arch/arm/include/asm/tlb.h
-> index 1e25cd80589e..1cee2d540956 100644
-> --- a/arch/arm/include/asm/tlb.h
-> +++ b/arch/arm/include/asm/tlb.h
-> @@ -278,6 +278,14 @@ tlb_remove_pmd_tlb_entry(struct mmu_gather *tlb, pmd_t *pmdp, unsigned long addr
->   	tlb_add_flush(tlb, addr);
->   }
->   
-> +static inline void
-> +tlb_flush_pmd_range(struct mmu_gather *tlb, unsigned long address,
-> +		    unsigned long size)
-> +{
-> +	tlb_add_flush(tlb, address);
-> +	tlb_add_flush(tlb, address + size - PMD_SIZE);
-> +}
-> +
->   #define pte_free_tlb(tlb, ptep, addr)	__pte_free_tlb(tlb, ptep, addr)
->   #define pmd_free_tlb(tlb, pmdp, addr)	__pmd_free_tlb(tlb, pmdp, addr)
->   #define pud_free_tlb(tlb, pudp, addr)	pud_free((tlb)->mm, pudp)
-> diff --git a/arch/ia64/include/asm/tlb.h b/arch/ia64/include/asm/tlb.h
-> index 77e541cf0e5d..34f4a5359561 100644
-> --- a/arch/ia64/include/asm/tlb.h
-> +++ b/arch/ia64/include/asm/tlb.h
-> @@ -272,6 +272,16 @@ __tlb_remove_tlb_entry (struct mmu_gather *tlb, pte_t *ptep, unsigned long addre
->   	tlb->end_addr = address + PAGE_SIZE;
->   }
->   
-> +static inline void
-> +tlb_flush_pmd_range(struct mmu_gather *tlb, unsigned long address,
-> +		    unsigned long size)
-> +{
-> +	if (tlb->start_addr > address)
-> +		tlb->start_addr = address;
-> +	if (tlb->end_addr < address + size)
-> +		tlb->end_addr = address + size;
-> +}
-> +
->   #define tlb_migrate_finish(mm)	platform_tlb_migrate_finish(mm)
->   
->   #define tlb_start_vma(tlb, vma)			do { } while (0)
-> diff --git a/arch/s390/include/asm/tlb.h b/arch/s390/include/asm/tlb.h
-> index 15711de10403..d2681d5a3d5a 100644
-> --- a/arch/s390/include/asm/tlb.h
-> +++ b/arch/s390/include/asm/tlb.h
-> @@ -116,6 +116,20 @@ static inline void tlb_remove_page_size(struct mmu_gather *tlb,
->   	return tlb_remove_page(tlb, page);
->   }
->   
-> +static inline void tlb_flush_pmd_range(struct mmu_gather *tlb,
-> +				unsigned long address, unsigned long size)
-> +{
-> +	/*
-> +	 * the range might exceed the original range that was provided to
-> +	 * tlb_gather_mmu(), so we need to update it despite the fact it is
-> +	 * usually not updated.
-> +	 */
-> +	if (tlb->start > address)
-> +		tlb->start = address;
-> +	if (tlb->end < address + size)
-> +		tlb->end = address + size;
-> +}
-> +
->   /*
->    * pte_free_tlb frees a pte table and clears the CRSTE for the
->    * page table from the tlb.
-> diff --git a/arch/sh/include/asm/tlb.h b/arch/sh/include/asm/tlb.h
-> index 025cdb1032f6..7aba716fd9a5 100644
-> --- a/arch/sh/include/asm/tlb.h
-> +++ b/arch/sh/include/asm/tlb.h
-> @@ -115,6 +115,16 @@ static inline bool __tlb_remove_page_size(struct mmu_gather *tlb,
->   	return __tlb_remove_page(tlb, page);
->   }
->   
-> +static inline voide
-> +tlb_flush_pmd_range(struct mmu_gather *tlb, unsigned long address,
-> +		    unsigned long size)
-> +{
-> +	if (tlb->start > address)
-> +		tlb->start = address;
-> +	if (tlb->end < address + size)
-> +		tlb->end = address + size;
-> +}
-> +
->   static inline bool __tlb_remove_pte_page(struct mmu_gather *tlb,
->   					 struct page *page)
->   {
-> diff --git a/arch/um/include/asm/tlb.h b/arch/um/include/asm/tlb.h
-> index 821ff0acfe17..6fb47b17179f 100644
-> --- a/arch/um/include/asm/tlb.h
-> +++ b/arch/um/include/asm/tlb.h
-> @@ -128,6 +128,18 @@ static inline void tlb_remove_page_size(struct mmu_gather *tlb,
->   	return tlb_remove_page(tlb, page);
->   }
->   
-> +static inline void
-> +tlb_flush_pmd_range(struct mmu_gather *tlb, unsigned long address,
-> +		    unsigned long size)
-> +{
-> +	tlb->need_flush = 1;
-> +
-> +	if (tlb->start > address)
-> +		tlb->start = address;
-> +	if (tlb->end < address + size)
-> +		tlb->end = address + size;
-> +}
-> +
->   /**
->    * tlb_remove_tlb_entry - remember a pte unmapping for later tlb invalidation.
->    *
-> diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
-> index c6d667187608..e9851100c0f7 100644
-> --- a/include/asm-generic/tlb.h
-> +++ b/include/asm-generic/tlb.h
-> @@ -123,6 +123,8 @@ void tlb_finish_mmu(struct mmu_gather *tlb, unsigned long start,
->   							unsigned long end);
->   extern bool __tlb_remove_page_size(struct mmu_gather *tlb, struct page *page,
->   				   int page_size);
-> +void tlb_flush_pmd_range(struct mmu_gather *tlb, unsigned long address,
-> +			 unsigned long size);
->   
->   static inline void __tlb_adjust_range(struct mmu_gather *tlb,
->   				      unsigned long address)
-> diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-> index de89e9295f6c..7d51211995b9 100644
-> --- a/mm/hugetlb.c
-> +++ b/mm/hugetlb.c
-> @@ -3395,6 +3395,7 @@ void __unmap_hugepage_range(struct mmu_gather *tlb, struct vm_area_struct *vma,
->   	unsigned long sz = huge_page_size(h);
->   	const unsigned long mmun_start = start;	/* For mmu_notifiers */
->   	const unsigned long mmun_end   = end;	/* For mmu_notifiers */
-> +	bool force_flush = false;
->   
->   	WARN_ON(!is_vm_hugetlb_page(vma));
->   	BUG_ON(start & ~huge_page_mask(h));
-> @@ -3411,6 +3412,8 @@ void __unmap_hugepage_range(struct mmu_gather *tlb, struct vm_area_struct *vma,
->   		ptl = huge_pte_lock(h, mm, ptep);
->   		if (huge_pmd_unshare(mm, &address, ptep)) {
->   			spin_unlock(ptl);
-> +			tlb_flush_pmd_range(tlb, address & PUD_MASK, PUD_SIZE);
-> +			force_flush = true;
->   			continue;
->   		}
->   
-> @@ -3467,6 +3470,22 @@ void __unmap_hugepage_range(struct mmu_gather *tlb, struct vm_area_struct *vma,
->   	}
->   	mmu_notifier_invalidate_range_end(mm, mmun_start, mmun_end);
->   	tlb_end_vma(tlb, vma);
-> +
-> +	/*
-> +	 * If we unshared PMDs, the TLB flush was not recorded in mmu_gather. We
-> +	 * could defer the flush until now, since by holding i_mmap_rwsem we
-> +	 * guaranteed that the last refernece would not be dropped. But we must
-> +	 * do the flushing before we return, as otherwise i_mmap_rwsem will be
-> +	 * dropped and the last reference to the shared PMDs page might be
-> +	 * dropped as well.
-> +	 *
-> +	 * In theory we could defer the freeing of the PMD pages as well, but
-> +	 * huge_pmd_unshare() relies on the exact page_count for the PMD page to
-> +	 * detect sharing, so we cannot defer the release of the page either.
-> +	 * Instead, do flush now.
-> +	 */
-> +	if (force_flush)
-> +		tlb_flush_mmu(tlb);
->   }
->   
->   void __unmap_hugepage_range_final(struct mmu_gather *tlb,
-> diff --git a/mm/memory.c b/mm/memory.c
-> index be592d434ad8..c2890dc104d9 100644
-> --- a/mm/memory.c
-> +++ b/mm/memory.c
-> @@ -320,6 +320,22 @@ bool __tlb_remove_page_size(struct mmu_gather *tlb, struct page *page, int page_
->   	return false;
->   }
->   
-> +void tlb_flush_pmd_range(struct mmu_gather *tlb, unsigned long address,
-> +			 unsigned long size)
-> +{
-> +	if (tlb->page_size != 0 && tlb->page_size != PMD_SIZE)
-> +		tlb_flush_mmu(tlb);
-> +
-> +	tlb->page_size = PMD_SIZE;
-> +	tlb->start = min(tlb->start, address);
-> +	tlb->end = max(tlb->end, address + size);
-> +	/*
-> +	 * Track the last address with which we adjusted the range. This
-> +	 * will be used later to adjust again after a mmu_flush due to
-> +	 * failed __tlb_remove_page
-> +	 */
-> +	tlb->addr = address + size - PMD_SIZE;
-> +}
->   #endif /* HAVE_GENERIC_MMU_GATHER */
->   
->   #ifdef CONFIG_HAVE_RCU_TABLE_FREE
+>> +
+>> +.SECONDARY:
+>> +%.gobj: %.gbin
+>> +	$(OBJCOPY) -I binary -O elf64-s390 -B "s390:64-bit" $< $@
+>> +
+>> +.SECONDARY:
+>> +%.hdr.obj: %.hdr
+>> +	$(OBJCOPY) -I binary -O elf64-s390 -B "s390:64-bit" $< $@
+>>   
+>> -$(SNIPPET_DIR)/c/%.gbin: $(SNIPPET_DIR)/c/%.o $(snippet_asmlib) $(FLATLIBS)
+>> -	$(CC) $(LDFLAGS) -o $@ -T $(SRCDIR)/s390x/snippets/c/flat.lds $(patsubst %.gbin,%.o,$@) $(snippet_asmlib) $(FLATLIBS)
+>> -	$(OBJCOPY) -O binary $@ $@
+>> -	$(OBJCOPY) -I binary -O elf64-s390 -B "s390:64-bit" $@ $@
+>>   
+>>   .SECONDEXPANSION:
+>> -%.elf: $$(snippets) %.o $(FLATLIBS) $(SRCDIR)/s390x/flat.lds $(asmlib)
+>> +%.elf: $(FLATLIBS) $(asmlib) $(SRCDIR)/s390x/flat.lds $$(snippets-obj) $$(snippet-hdr-obj) %.o
+>>   	$(CC) $(CFLAGS) -c -o $(@:.elf=.aux.o) $(SRCDIR)/lib/auxinfo.c -DPROGNAME=\"$@\"
+>> -	$(CC) $(LDFLAGS) -o $@ -T $(SRCDIR)/s390x/flat.lds $(filter %.o, $^) $(FLATLIBS) $(snippets) $(@:.elf=.aux.o)
+>> +	@$(CC) $(LDFLAGS) -o $@ -T $(SRCDIR)/s390x/flat.lds \
+>> +		$(filter %.o, $^) $(FLATLIBS) $(snippets-obj) $(snippet-hdr-obj) $(@:.elf=.aux.o) || \
+>> +		{ echo "Failure probably caused by missing definition of gen-se-header executable"; exit 1; }
+>>   	$(RM) $(@:.elf=.aux.o)
+>>   	@chmod a-x $@
+>>   
+>> @@ -114,8 +155,12 @@ $(SNIPPET_DIR)/c/%.gbin: $(SNIPPET_DIR)/c/%.o $(snippet_asmlib) $(FLATLIBS)
+>>   %.pv.bin: %.bin $(HOST_KEY_DOCUMENT)
+>>   	$(GENPROTIMG) --host-key-document $(HOST_KEY_DOCUMENT) --no-verify --image $< -o $@
+>>   
+>> +$(snippet_asmlib): $$(patsubst %.o,%.S,$$@) $(asm-offsets)
+>> +	$(CC) $(CFLAGS) -c -nostdlib -o $@ $<
+>> +
+>> +
+>>   arch_clean: asm_offsets_clean
+>> -	$(RM) $(TEST_DIR)/*.{o,elf,bin} $(TEST_DIR)/.*.d $(SNIPPET_DIR)/c/*.{o,gbin} $(SNIPPET_DIR)/c/.*.d lib/s390x/.*.d
+>> +	$(RM) $(TEST_DIR)/*.{o,elf,bin} $(SNIPPET_DIR)/*/*.{o,elf,*bin,*obj,hdr} $(SNIPPET_DIR)/asm/.*.d $(TEST_DIR)/.*.d lib/s390x/.*.d
+>>   
+>>   generated-files = $(asm-offsets)
+>>   $(tests:.elf=.o) $(asmlib) $(cflatobjs): $(generated-files)
 > 
 
--- 
-Anton R. Ivanov
-Cambridgegreys Limited. Registered in England. Company Number 10273661
-https://www.cambridgegreys.com/
