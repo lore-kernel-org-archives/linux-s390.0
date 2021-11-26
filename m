@@ -2,99 +2,86 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EA3AC433FE
-	for <linux-s390@archiver.kernel.org>; Fri, 26 Nov 2021 18:25:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DDCD5C433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 26 Nov 2021 19:31:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241053AbhKZS2Q (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 26 Nov 2021 13:28:16 -0500
-Received: from ivanoab7.miniserver.com ([37.128.132.42]:59112 "EHLO
-        www.kot-begemot.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231614AbhKZS0C (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 26 Nov 2021 13:26:02 -0500
-Received: from [192.168.18.6] (helo=jain.kot-begemot.co.uk)
-        by www.kot-begemot.co.uk with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <anton.ivanov@cambridgegreys.com>)
-        id 1mqfrn-0002RG-Qw; Fri, 26 Nov 2021 18:22:40 +0000
-Received: from madding.kot-begemot.co.uk ([192.168.3.98])
-        by jain.kot-begemot.co.uk with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.94.2)
-        (envelope-from <anton.ivanov@cambridgegreys.com>)
-        id 1mqfri-00637Z-Mx; Fri, 26 Nov 2021 18:22:33 +0000
-Subject: Re: [PATCH 4.9] hugetlbfs: flush TLBs correctly after
- huge_pmd_unshare
-To:     Nadav Amit <nadav.amit@gmail.com>
-Cc:     Nick Piggin <npiggin@gmail.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux-MM <linux-mm@kvack.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
-        linux-arch <linux-arch@vger.kernel.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>
-References: <3BD89231-2CB9-4CE5-B0FA-5B58419D7CB8@gmail.com>
- <7a2feed4-7c73-c7ad-881e-c980235c8293@cambridgegreys.com>
- <C1607574-0A6F-4CEC-B488-795750EEF968@gmail.com>
-From:   Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Organization: Cambridge Greys
-Message-ID: <5e2db11a-46ac-9b15-7b76-f27b718606c5@cambridgegreys.com>
-Date:   Fri, 26 Nov 2021 18:22:30 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        id S233255AbhKZTeN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 26 Nov 2021 14:34:13 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:38948 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236494AbhKZTcN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 26 Nov 2021 14:32:13 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BE32CB82871;
+        Fri, 26 Nov 2021 19:28:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 204EDC9305B;
+        Fri, 26 Nov 2021 19:28:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1637954937;
+        bh=LgkRBRvv+cKs3pwJC0Uy+xjgGeVp/1fHAIN7Q3a58e0=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=P9DTuNO9O9qNPxFLy1XUgwKWkBIe/w+yTJu3JexwnPJP0zLEUU/l62hcycRErZBpG
+         fxnxsp0YjWV28H579uyygI4GHsjf1RX/WOm1l9WpPI4M9ja21QDMLmz9h8VL00rX16
+         0+lnC8kbvp51nwHyxrkLY9XI/g6DcyGiZPm0bNM5ZG2Dz6AK0AnEke80P05sW89dwz
+         //ae9DKEoOxS/FxUaZSoYjXugWp/RxkqCWUDh48ZU3md/zJDX2aJj+kGvP2AGs31XU
+         J2eEi0A7l0MevhbOgvZjPWOdees3HHlrLu6i9Gf44qJCDY70Q/7XiO6U5GhVO70giI
+         GiFMqh7/bbr+w==
+Date:   Fri, 26 Nov 2021 11:28:55 -0800
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Tony Lu <tonylu@linux.alibaba.com>
+Cc:     kgraul@linux.ibm.com, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: Re: [PATCH net] net/smc: Clear memory when release and reuse buffer
+Message-ID: <20211126112855.37274cb7@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <20211125122858.90726-1-tonylu@linux.alibaba.com>
+References: <20211125122858.90726-1-tonylu@linux.alibaba.com>
 MIME-Version: 1.0
-In-Reply-To: <C1607574-0A6F-4CEC-B488-795750EEF968@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Clacks-Overhead: GNU Terry Pratchett
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 26/11/2021 17:49, Nadav Amit wrote:
+On Thu, 25 Nov 2021 20:28:59 +0800 Tony Lu wrote:
+> Currently, buffers are clear when smc create connections and reuse
+> buffer. It will slow down the speed of establishing new connection. In
+> most cases, the applications hope to establish connections as quickly as
+> possible.
 > 
->> On Nov 26, 2021, at 2:21 AM, Anton Ivanov <anton.ivanov@cambridgegreys.com> wrote:
->>
->>
->>
->> On 26/11/2021 06:08, Nadav Amit wrote:
->>> Below is a patch to address CVE-2021-4002 [1] that I created to backport
->>> to 4.9. The stable kernels of 4.14 and prior ones do not have unified
->>> TLB flushing code, and I managed to mess up the arch code a couple of
->>> times.
->>> Now that the CVE is public, I would appreciate your review of this
->>> patch. I send 4.9 for review - the other ones (4.14 and prior) are
->>> pretty similar.
->>> [1] https://www.openwall.com/lists/oss-security/2021/11/25/1
->>> Thanks,
->>> Nadav
->>
->> I do not quite see the rationale for patching um
->>
->> It supports only standard size pages. You should not be able to map a huge page there (and hugetlbfs).
->>
->> I have "non-standard page size" somewhere towards the end of my queue, but it keeps falling through - not enough spare time to work on it.
+> This patch moves memset() from connection creation path to release and
+> buffer unuse path, this trades off between speed of establishing and
+> release.
 > 
-> Thanks for your review.
+> Test environments:
+> - CPU Intel Xeon Platinum 8 core, mem 32 GiB, nic Mellanox CX4
+> - socket sndbuf / rcvbuf: 16384 / 131072 bytes
+> - w/o first round, 5 rounds, avg, 100 conns batch per round
+> - smc_buf_create() use bpftrace kprobe, introduces extra latency
 > 
-> I did not look at the dependencies, so I did not even look if
-> hugetlbfs depends on !um.
+> Latency benchmarks for smc_buf_create():
+>   w/o patch : 19040.0 ns
+>   w/  patch :  1932.6 ns
+>   ratio :        10.2% (-89.8%)
 > 
-> Do you prefer that for um, I will just do a BUG()? I prefer
-> to have a stub just to avoid potential build issues.
+> Latency benchmarks for socket create and connect:
+>   w/o patch :   143.3 us
+>   w/  patch :   102.2 us
+>   ratio :        71.3% (-28.7%)
 > 
+> The latency of establishing connections is reduced by 28.7%.
 > 
+> Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
+> Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
 
-Stub will be fine.
+The tag in the subject seems incorrect, we tag things as [PATCH net] 
+if they are fixes, and as [PATCH net-next] if they are new features,
+code refactoring or performance improvements.
 
-I was just checking in case I missed something.
+Is this a fix for a regression? In which case we need a Fixes tag to
+indicate where it was introduced. Otherwise it needs to be tagged as
+[PATCH net-next].
 
-Brgds,
-
--- 
-Anton R. Ivanov
-Cambridgegreys Limited. Registered in England. Company Number 10273661
-https://www.cambridgegreys.com/
+I'm assuming Karsten will take it via his tree, otherwise you'll need
+to repost.
