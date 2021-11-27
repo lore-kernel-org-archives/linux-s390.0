@@ -2,33 +2,33 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 456F0C433F5
-	for <linux-s390@archiver.kernel.org>; Sat, 27 Nov 2021 01:30:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A32AC433EF
+	for <linux-s390@archiver.kernel.org>; Sat, 27 Nov 2021 01:30:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352908AbhK0Bdt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 26 Nov 2021 20:33:49 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:40482 "EHLO
+        id S1347373AbhK0BeB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 26 Nov 2021 20:34:01 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:40502 "EHLO
         galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350786AbhK0BbP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 26 Nov 2021 20:31:15 -0500
-Message-ID: <20211126232735.369004773@linutronix.de>
+        with ESMTP id S1350144AbhK0BcA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 26 Nov 2021 20:32:00 -0500
+Message-ID: <20211126232735.489750235@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1637976175;
+        s=2020; t=1637976179;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         references:references; bh=ir5jZb4IZcCDGObECwlZouR2K23XLyndrt4jAkdV6zI=;
-        b=WPJ+FRFy5v5PNjMEye9NWhFG90LSbL/ajZ3Ot+1c/4H7f9U6tl/BtR4r0uGYtWK6s8vseW
-        vcFLmfz1feQTeGxE/iakq9hKo8jcHYbZbO8c0ziVNoNKyZnAHOjjZRkqpiQR/bjVsjFcDA
-        X3b2hjWqnvwhD2Mx//rY9KgfJ2Qu5cG286epPAu1FHp+cdcXw05ulMGgIgjvGCZdeow2HJ
-        +5cuqrQlp+J44/Ojce4VAKnTGdpgxbLjdyKCcUCng8aEDIE69yITv6G+4UXmqqDzspD/pE
-        ykT82aDz0ejfSTzhHUAWR6wpLvszlMWK3nNIVH6F2i5QvNnKaXC9iQascFXxMA==
+         references:references; bh=D1PGUTvbMCo12qSm9MpHyC/iszyAeQMlmvbSI9Ov2K8=;
+        b=dSOefgEzVF3y0kFgrBELTV78fRT2lvmklMRud2O8mTwCq1fooqITSW6M0o7Y1Ikoq6ZQgE
+        9lk4I+5L6XyUZDCm5WVLnAbSqz/C00eGpmuyJSiRTwCy1/gYpH38PfBD+eZjope/mcuEZY
+        Odm0tP/s6oSiFqLTWxH+vBCrptn6ud5dBR293EPQtv3luwM+554i5ZfZSS5OKWCTfRXkk3
+        VaKTFgeK5qhGhBVvvZYKycFTW3I+Cxa+jxVibbGjfhD7fyWmf4lBimd1YrS2cob1apVBBk
+        bje7cFpIi1OAHzZOid9MfC31Sn+QAtrkCI9oV5Wj9e6Mnif9NN7Z/f/w0DIJnA==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1637976175;
+        s=2020e; t=1637976179;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         references:references; bh=ir5jZb4IZcCDGObECwlZouR2K23XLyndrt4jAkdV6zI=;
-        b=gGV8Rw/qG6+hc0b+o6fGuBNh1BQB3U/mDF24NlJdOWuOeOvCKhAHxqIwjaSx8hIwGVQV2B
-        rgrXeKexct6+b0DA==
+         references:references; bh=D1PGUTvbMCo12qSm9MpHyC/iszyAeQMlmvbSI9Ov2K8=;
+        b=nFhopcGPYBSKoeH9CKS3nz+cxdVkftjHUy8fitQVgZ3dwO0mFLrSoZ7n4NnE11nUsB6YgH
+        PRseupyvssZHNJAw==
 From:   Thomas Gleixner <tglx@linutronix.de>
 To:     LKML <linux-kernel@vger.kernel.org>
 Cc:     Bjorn Helgaas <helgaas@kernel.org>, Marc Zygnier <maz@kernel.org>,
@@ -43,50 +43,52 @@ Cc:     Bjorn Helgaas <helgaas@kernel.org>, Marc Zygnier <maz@kernel.org>,
         Jon Mason <jdmason@kudzu.us>,
         Dave Jiang <dave.jiang@intel.com>,
         Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com
-Subject: [patch 18/32] powerpc/fsl_msi: Use msi_for_each_desc()
+Subject: [patch 20/32] PCI: hv: Rework MSI handling
 References: <20211126230957.239391799@linutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Date:   Sat, 27 Nov 2021 02:22:55 +0100 (CET)
+Date:   Sat, 27 Nov 2021 02:22:58 +0100 (CET)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Replace the about to vanish iterators and make use of the filtering.
+Replace the about to vanish iterators and make use of the filtering. Take
+the descriptor lock around the iterators.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 ---
- arch/powerpc/sysdev/fsl_msi.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/pci/controller/pci-hyperv.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
---- a/arch/powerpc/sysdev/fsl_msi.c
-+++ b/arch/powerpc/sysdev/fsl_msi.c
-@@ -125,17 +125,13 @@ static void fsl_teardown_msi_irqs(struct
- 	struct fsl_msi *msi_data;
- 	irq_hw_number_t hwirq;
+--- a/drivers/pci/controller/pci-hyperv.c
++++ b/drivers/pci/controller/pci-hyperv.c
+@@ -3445,18 +3445,23 @@ static int hv_pci_suspend(struct hv_devi
+ 
+ static int hv_pci_restore_msi_msg(struct pci_dev *pdev, void *arg)
+ {
+-	struct msi_desc *entry;
+ 	struct irq_data *irq_data;
++	struct msi_desc *entry;
++	int ret = 0;
  
 -	for_each_pci_msi_entry(entry, pdev) {
--		if (!entry->irq)
--			continue;
++	msi_lock_descs(&pdev->dev);
 +	msi_for_each_desc(entry, &pdev->dev, MSI_DESC_ASSOCIATED) {
- 		hwirq = virq_to_hw(entry->irq);
- 		msi_data = irq_get_chip_data(entry->irq);
- 		irq_set_msi_desc(entry->irq, NULL);
- 		irq_dispose_mapping(entry->irq);
- 		msi_bitmap_free_hwirqs(&msi_data->bitmap, hwirq, 1);
+ 		irq_data = irq_get_irq_data(entry->irq);
+-		if (WARN_ON_ONCE(!irq_data))
+-			return -EINVAL;
++		if (WARN_ON_ONCE(!irq_data)) {
++			ret = -EINVAL;
++			break;
++		}
+ 
+ 		hv_compose_msi_msg(irq_data, &entry->msg);
  	}
--
--	return;
++	msi_unlock_descs(&pdev->dev);
+ 
+-	return 0;
++	return ret;
  }
  
- static void fsl_compose_msi_msg(struct pci_dev *pdev, int hwirq,
-@@ -215,7 +211,7 @@ static int fsl_setup_msi_irqs(struct pci
- 		}
- 	}
- 
--	for_each_pci_msi_entry(entry, pdev) {
-+	msi_for_each_desc(entry, &pdev->dev, MSI_DESC_NOTASSOCIATED) {
- 		/*
- 		 * Loop over all the MSI devices until we find one that has an
- 		 * available interrupt.
+ /*
 
