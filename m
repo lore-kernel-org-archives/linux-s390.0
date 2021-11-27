@@ -2,36 +2,36 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 332D1C43219
-	for <linux-s390@archiver.kernel.org>; Sat, 27 Nov 2021 02:15:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4623CC433EF
+	for <linux-s390@archiver.kernel.org>; Sat, 27 Nov 2021 02:16:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351042AbhK0CSS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 26 Nov 2021 21:18:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47878 "EHLO
+        id S238087AbhK0CTz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 26 Nov 2021 21:19:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347782AbhK0CQO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 26 Nov 2021 21:16:14 -0500
+        with ESMTP id S241888AbhK0CRy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 26 Nov 2021 21:17:54 -0500
 Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6911C08EB49;
-        Fri, 26 Nov 2021 17:31:21 -0800 (PST)
-Message-ID: <20211126232735.608092027@linutronix.de>
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB58FC08EB4E;
+        Fri, 26 Nov 2021 17:31:26 -0800 (PST)
+Message-ID: <20211126232735.907470678@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1637976243;
+        s=2020; t=1637976251;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         references:references; bh=CzqGTYDUie5SurN5/gfV37QSqlTZtJhIqYh57XXY9vc=;
-        b=mR7VcmLjCTD6YR2uTyvWBjERMECm8Cw4Jj6ht3jyi5+2YjhXHbgnWumftGw4fwPQGUW67w
-        4IKFsgaiGX9nfjOuEgXU0vlhye7EV7UgOkShd/kcr5KWyzSAUJpvvBd5UQG7kY74Ifz9XV
-        R1LM/JsCefXEbIfcN5VXcLrKfSrYwzJr1RDnOQg+mQ3csSUp3jaSmG+JnqcBqm0UUNYiS+
-        yC1nPP42/tnQXIlIZ9+SUHYpVBfb8NoyprRkWInZwRq4DzRXGzj5Pv21Utt9yzVqKW8c0R
-        iIWu2zeDLzhroXP3cydm2R8PYnnQ0vCk7+p6MkD1ooqTDAyhFb30j23M3jfSBQ==
+         references:references; bh=QnjnYkBXEFvI+Fsy8bp88tNAU5py3G4+a5jOgsnpoFM=;
+        b=e4tPN2MY+RnFAi0QO3FosVkYfCkCI46VcHODqzMjPHJOZ1adMFVRPwPqqsGsV59lZuoik5
+        WxroKmbpYOoyY1tRPm8/cKzPl6mLKMDbD1MmMZUsOuLnJGOhADB+Aivhsxx82J6CGd4uk9
+        9fy3abvPdr4ME9vK0N1+rl8UC22e+zgCN9ywTcSEp8yngO7Qfil95LgMa7FuCmZ5+BPjdc
+        REiDTbH/N2qiUGDX3br/Br+wmYy26fxXbzTfL9E9jqkQU8tfgGQf+Jl8JmurTc1TjG2YDe
+        EXKBCNyJKxdZc2mPXkgHaEzD4Qgxdk3ncv/82TnGUvClOru50RoqLi+PlPeDhw==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1637976243;
+        s=2020e; t=1637976251;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         references:references; bh=CzqGTYDUie5SurN5/gfV37QSqlTZtJhIqYh57XXY9vc=;
-        b=xKeKlrGQqi9PHCEpifVXrG81rmqakkCMwgn8DUDCehI4/dqa6I7THfBc6yrTavfiiGRdp6
-        TPhDDr3aTH1iReDw==
+         references:references; bh=QnjnYkBXEFvI+Fsy8bp88tNAU5py3G4+a5jOgsnpoFM=;
+        b=4hDLZqARwmxiecKthosXSFMWCqCDod2k7Z+QrsEUb8Ogkw2XfAt8dd30Uzzjk2ybvWgy0j
+        X0VSl+dVEAYY+LAg==
 From:   Thomas Gleixner <tglx@linutronix.de>
 To:     LKML <linux-kernel@vger.kernel.org>
 Cc:     Bjorn Helgaas <helgaas@kernel.org>, Marc Zygnier <maz@kernel.org>,
@@ -46,137 +46,223 @@ Cc:     Bjorn Helgaas <helgaas@kernel.org>, Marc Zygnier <maz@kernel.org>,
         Jon Mason <jdmason@kudzu.us>,
         Dave Jiang <dave.jiang@intel.com>,
         Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com
-Subject: [patch 22/32] soc: ti: ti_sci_inta_msi: Rework MSI descriptor allocation
+Subject: [patch 27/32] genirq/msi: Make interrupt allocation less convoluted
 References: <20211126230957.239391799@linutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Date:   Sat, 27 Nov 2021 02:24:03 +0100 (CET)
+Date:   Sat, 27 Nov 2021 02:24:10 +0100 (CET)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
-Message-ID: <20211127012403.g7ECSNuiVvWmSzI4w0ttiP5MGVJmg9rEGBz266QE4iQ@z>
+Message-ID: <20211127012410.YrdFmo63WZ5NshKOWexeu53qj_Kt4p3VFr2LlEv9Yjo@z>
 
-Protect the allocation properly and use the core allocation and free
-mechanism.
-
-No functional change intended.
+There is no real reason to do several loops over the MSI descriptors
+instead of just doing one loop. In case of an error everything is undone
+anyway so it does not matter whether it's a partial or a full rollback.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 ---
- drivers/soc/ti/ti_sci_inta_msi.c |   71 +++++++++++++--------------------------
- 1 file changed, 25 insertions(+), 46 deletions(-)
+ .clang-format       |    1 
+ include/linux/msi.h |    7 --
+ kernel/irq/msi.c    |  129 +++++++++++++++++++++++++++-------------------------
+ 3 files changed, 70 insertions(+), 67 deletions(-)
 
---- a/drivers/soc/ti/ti_sci_inta_msi.c
-+++ b/drivers/soc/ti/ti_sci_inta_msi.c
-@@ -51,6 +51,7 @@ struct irq_domain *ti_sci_inta_msi_creat
- 	struct irq_domain *domain;
- 
- 	ti_sci_inta_msi_update_chip_ops(info);
-+	info->flags |= MSI_FLAG_FREE_MSI_DESCS;
- 
- 	domain = msi_create_irq_domain(fwnode, info, parent);
- 	if (domain)
-@@ -60,50 +61,31 @@ struct irq_domain *ti_sci_inta_msi_creat
- }
- EXPORT_SYMBOL_GPL(ti_sci_inta_msi_create_irq_domain);
- 
--static void ti_sci_inta_msi_free_descs(struct device *dev)
--{
--	struct msi_desc *desc, *tmp;
--
--	list_for_each_entry_safe(desc, tmp, dev_to_msi_list(dev), list) {
--		list_del(&desc->list);
--		free_msi_entry(desc);
--	}
--}
--
- static int ti_sci_inta_msi_alloc_descs(struct device *dev,
- 				       struct ti_sci_resource *res)
+--- a/.clang-format
++++ b/.clang-format
+@@ -216,7 +216,6 @@ ExperimentalAutoDetectBinPacking: false
+   - 'for_each_migratetype_order'
+   - 'for_each_msi_entry'
+   - 'for_each_msi_entry_safe'
+-  - 'for_each_msi_vector'
+   - 'for_each_net'
+   - 'for_each_net_continue_reverse'
+   - 'for_each_netdev'
+--- a/include/linux/msi.h
++++ b/include/linux/msi.h
+@@ -263,12 +263,7 @@ static inline struct msi_desc *msi_first
+ 	list_for_each_entry((desc), dev_to_msi_list((dev)), list)
+ #define for_each_msi_entry_safe(desc, tmp, dev)	\
+ 	list_for_each_entry_safe((desc), (tmp), dev_to_msi_list((dev)), list)
+-#define for_each_msi_vector(desc, __irq, dev)				\
+-	for_each_msi_entry((desc), (dev))				\
+-		if ((desc)->irq)					\
+-			for (__irq = (desc)->irq;			\
+-			     __irq < ((desc)->irq + (desc)->nvec_used);	\
+-			     __irq++)
++
+ #ifdef CONFIG_IRQ_MSI_IOMMU
+ static inline const void *msi_desc_get_iommu_cookie(struct msi_desc *desc)
  {
--	struct msi_desc *msi_desc;
-+	struct msi_desc msi_desc;
- 	int set, i, count = 0;
- 
-+	memset(&msi_desc, 0, sizeof(msi_desc));
-+
- 	for (set = 0; set < res->sets; set++) {
--		for (i = 0; i < res->desc[set].num; i++) {
--			msi_desc = alloc_msi_entry(dev, 1, NULL);
--			if (!msi_desc) {
--				ti_sci_inta_msi_free_descs(dev);
--				return -ENOMEM;
--			}
--
--			msi_desc->msi_index = res->desc[set].start + i;
--			INIT_LIST_HEAD(&msi_desc->list);
--			list_add_tail(&msi_desc->list, dev_to_msi_list(dev));
--			count++;
-+		for (i = 0; i < res->desc[set].num; i++, count++) {
-+			msi_desc.msi_index = res->desc[set].start + i;
-+			if (msi_add_msi_desc(dev, &msi_desc))
-+				goto fail;
- 		}
--		for (i = 0; i < res->desc[set].num_sec; i++) {
--			msi_desc = alloc_msi_entry(dev, 1, NULL);
--			if (!msi_desc) {
--				ti_sci_inta_msi_free_descs(dev);
--				return -ENOMEM;
--			}
--
--			msi_desc->msi_index = res->desc[set].start_sec + i;
--			INIT_LIST_HEAD(&msi_desc->list);
--			list_add_tail(&msi_desc->list, dev_to_msi_list(dev));
--			count++;
-+
-+		for (i = 0; i < res->desc[set].num_sec; i++, count++) {
-+			msi_desc.msi_index = res->desc[set].start_sec + i;
-+			if (msi_add_msi_desc(dev, &msi_desc))
-+				goto fail;
- 		}
- 	}
--
- 	return count;
-+fail:
-+	msi_free_msi_descs(dev);
-+	return -ENOMEM;
+--- a/kernel/irq/msi.c
++++ b/kernel/irq/msi.c
+@@ -873,23 +873,74 @@ static int msi_handle_pci_fail(struct ir
+ 	return allocated ? allocated : -ENOSPC;
  }
  
- int ti_sci_inta_msi_domain_alloc_irqs(struct device *dev,
-@@ -124,20 +106,18 @@ int ti_sci_inta_msi_domain_alloc_irqs(st
++#define VIRQ_CAN_RESERVE	0x01
++#define VIRQ_ACTIVATE		0x02
++#define VIRQ_NOMASK_QUIRK	0x04
++
++static int msi_init_virq(struct irq_domain *domain, int virq, unsigned int vflags)
++{
++	struct irq_data *irqd = irq_domain_get_irq_data(domain, virq);
++	int ret;
++
++	if (!vflags & VIRQ_CAN_RESERVE) {
++		irqd_clr_can_reserve(irqd);
++		if (vflags & VIRQ_NOMASK_QUIRK)
++			irqd_set_msi_nomask_quirk(irqd);
++	}
++
++	if (!(vflags & VIRQ_ACTIVATE))
++		return 0;
++
++	ret = irq_domain_activate_irq(irqd, vflags & VIRQ_CAN_RESERVE);
++	if (ret)
++		return ret;
++	/*
++	 * If the interrupt uses reservation mode, clear the activated bit
++	 * so request_irq() will assign the final vector.
++	 */
++	if (vflags & VIRQ_CAN_RESERVE)
++		irqd_clr_activated(irqd);
++	return 0;
++}
++
+ int __msi_domain_alloc_irqs(struct irq_domain *domain, struct device *dev,
+ 			    int nvec)
+ {
+ 	struct msi_domain_info *info = domain->host_data;
+ 	struct msi_domain_ops *ops = info->ops;
+-	struct irq_data *irq_data;
+-	struct msi_desc *desc;
+ 	msi_alloc_info_t arg = { };
++	unsigned int vflags = 0;
++	struct msi_desc *desc;
+ 	int allocated = 0;
+ 	int i, ret, virq;
+-	bool can_reserve;
+ 
+ 	ret = msi_domain_prepare_irqs(domain, dev, nvec, &arg);
  	if (ret)
  		return ret;
  
-+	msi_lock_descs(dev);
- 	nvec = ti_sci_inta_msi_alloc_descs(dev, res);
--	if (nvec <= 0)
--		return nvec;
--
--	ret = msi_domain_alloc_irqs(msi_domain, dev, nvec);
--	if (ret) {
--		dev_err(dev, "Failed to allocate IRQs %d\n", ret);
--		goto cleanup;
-+	if (nvec <= 0) {
-+		ret = nvec;
-+		goto unlock;
- 	}
+-	for_each_msi_entry(desc, dev) {
++	/*
++	 * This flag is set by the PCI layer as we need to activate
++	 * the MSI entries before the PCI layer enables MSI in the
++	 * card. Otherwise the card latches a random msi message.
++	 */
++	if (info->flags & MSI_FLAG_ACTIVATE_EARLY)
++		vflags |= VIRQ_ACTIVATE;
++
++	/*
++	 * Interrupt can use a reserved vector and will not occupy
++	 * a real device vector until the interrupt is requested.
++	 */
++	if (msi_check_reservation_mode(domain, info, dev)) {
++		vflags |= VIRQ_CAN_RESERVE;
++		/*
++		 * MSI affinity setting requires a special quirk (X86) when
++		 * reservation mode is active.
++		 */
++		if (domain->flags & IRQ_DOMAIN_MSI_NOMASK_QUIRK)
++			vflags |= VIRQ_NOMASK_QUIRK;
++	}
++
++	msi_for_each_desc(desc, dev, MSI_DESC_NOTASSOCIATED) {
+ 		ops->set_desc(&arg, desc);
  
--	return 0;
+ 		virq = __irq_domain_alloc_irqs(domain, -1, desc->nvec_used,
+@@ -901,49 +952,12 @@ int __msi_domain_alloc_irqs(struct irq_d
+ 		for (i = 0; i < desc->nvec_used; i++) {
+ 			irq_set_msi_desc_off(virq, i, desc);
+ 			irq_debugfs_copy_devname(virq + i, dev);
++			ret = msi_init_virq(domain, virq + i, vflags);
++			if (ret)
++				return ret;
+ 		}
+ 		allocated++;
+ 	}
 -
--cleanup:
--	ti_sci_inta_msi_free_descs(&pdev->dev);
-+	ret = msi_domain_alloc_irqs_descs_locked(msi_domain, dev, nvec);
-+	if (ret)
-+		dev_err(dev, "Failed to allocate IRQs %d\n", ret);
-+unlock:
-+	msi_unlock_descs(dev);
- 	return ret;
+-	can_reserve = msi_check_reservation_mode(domain, info, dev);
+-
+-	/*
+-	 * This flag is set by the PCI layer as we need to activate
+-	 * the MSI entries before the PCI layer enables MSI in the
+-	 * card. Otherwise the card latches a random msi message.
+-	 */
+-	if (!(info->flags & MSI_FLAG_ACTIVATE_EARLY))
+-		goto skip_activate;
+-
+-	for_each_msi_vector(desc, i, dev) {
+-		if (desc->irq == i) {
+-			virq = desc->irq;
+-			dev_dbg(dev, "irq [%d-%d] for MSI\n",
+-				virq, virq + desc->nvec_used - 1);
+-		}
+-
+-		irq_data = irq_domain_get_irq_data(domain, i);
+-		if (!can_reserve) {
+-			irqd_clr_can_reserve(irq_data);
+-			if (domain->flags & IRQ_DOMAIN_MSI_NOMASK_QUIRK)
+-				irqd_set_msi_nomask_quirk(irq_data);
+-		}
+-		ret = irq_domain_activate_irq(irq_data, can_reserve);
+-		if (ret)
+-			return ret;
+-	}
+-
+-skip_activate:
+-	/*
+-	 * If these interrupts use reservation mode, clear the activated bit
+-	 * so request_irq() will assign the final vector.
+-	 */
+-	if (can_reserve) {
+-		for_each_msi_vector(desc, i, dev) {
+-			irq_data = irq_domain_get_irq_data(domain, i);
+-			irqd_clr_activated(irq_data);
+-		}
+-	}
+ 	return 0;
  }
- EXPORT_SYMBOL_GPL(ti_sci_inta_msi_domain_alloc_irqs);
-@@ -145,6 +125,5 @@ EXPORT_SYMBOL_GPL(ti_sci_inta_msi_domain
- void ti_sci_inta_msi_domain_free_irqs(struct device *dev)
+ 
+@@ -1021,26 +1035,21 @@ int msi_domain_alloc_irqs(struct irq_dom
+ 
+ void __msi_domain_free_irqs(struct irq_domain *domain, struct device *dev)
  {
- 	msi_domain_free_irqs(dev->msi.domain, dev);
--	ti_sci_inta_msi_free_descs(dev);
+-	struct irq_data *irq_data;
++	struct irq_data *irqd;
+ 	struct msi_desc *desc;
+ 	int i;
+ 
+-	for_each_msi_vector(desc, i, dev) {
+-		irq_data = irq_domain_get_irq_data(domain, i);
+-		if (irqd_is_activated(irq_data))
+-			irq_domain_deactivate_irq(irq_data);
+-	}
+-
+-	for_each_msi_entry(desc, dev) {
+-		/*
+-		 * We might have failed to allocate an MSI early
+-		 * enough that there is no IRQ associated to this
+-		 * entry. If that's the case, don't do anything.
+-		 */
+-		if (desc->irq) {
+-			irq_domain_free_irqs(desc->irq, desc->nvec_used);
+-			desc->irq = 0;
++	/* Only handle MSI entries which have an interrupt associated */
++	msi_for_each_desc(desc, dev, MSI_DESC_ASSOCIATED) {
++		/* Make sure all interrupts are deactivated */
++		for (i = 0; i < desc->nvec_used; i++) {
++			irqd = irq_domain_get_irq_data(domain, desc->irq + i);
++			if (irqd && irqd_is_activated(irqd))
++				irq_domain_deactivate_irq(irqd);
+ 		}
++
++		irq_domain_free_irqs(desc->irq, desc->nvec_used);
++		desc->irq = 0;
+ 	}
  }
- EXPORT_SYMBOL_GPL(ti_sci_inta_msi_domain_free_irqs);
+ 
 
