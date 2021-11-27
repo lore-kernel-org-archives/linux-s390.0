@@ -2,33 +2,33 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53612C433F5
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ECEF8C4332F
 	for <linux-s390@archiver.kernel.org>; Sat, 27 Nov 2021 01:33:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352943AbhK0Bgf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        id S1350195AbhK0Bgf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
         Fri, 26 Nov 2021 20:36:35 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:40692 "EHLO
+Received: from Galois.linutronix.de ([193.142.43.55]:40688 "EHLO
         galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350169AbhK0Bee (ORCPT
+        with ESMTP id S1350158AbhK0Bee (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Fri, 26 Nov 2021 20:34:34 -0500
-Message-ID: <20211126232735.547996838@linutronix.de>
+Message-ID: <20211126232735.429897588@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1637976242;
+        s=2020; t=1637976239;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         references:references; bh=M3sqeQse3OBzh4UDcYwLpjiKs6TLrCNEA9mHCeGqCQM=;
-        b=cgPUhSOlittjItSzU9rVk7pIz+Dmldm+9H7h8zFmkgsaGX2w1r/62CA/PkDB1NBSh9qpI8
-        SD9UO/sBb3awGKJviOEbLV2JuiXaIptrmbtv6cC7dRJRU8ekSe7xzub83+SI2fSByEgmsN
-        bA7wRlH3LjNzcjuAqojHASSWoBlbX3C7HRMavdx6evbcpvTLGd9z9SYarYaed+fuhHf/+U
-        hUECZUk8HHAazgDK17lS2BVE78L5+jY2RRx6DAZT8Tzleoy5/ihkGhbN0a9WSRvs2bHwqX
-        MV2lLjLidGh5QiziqzVCcoRFAPF46cHqzk9ccXv7wPozHGRyg6AmoRTn8WfbLQ==
+         references:references; bh=dSVT/iBVTDrru1VCPsyUkPO+wlN5QYdJblBQDMf4a+Q=;
+        b=pISjU+ScSE766ZvLj2JjatL0nYetlaxeeKae2jMEzmLm8tCSb1ZWbb3+8cRtxa1psP7cr4
+        4rOZGexilEqQad+P3N2oaJc/YwuM2czBJ1qbg5uVvlNKz6UmkrSSYBw7JdrIybr4oM0mI7
+        AT3J9ISKwi8txA1TcMZV+ZTDYEpC9iVUyWVoJST78+mmFZ8gOUJl8V3tSq0i5l5kUng50+
+        OSq+IbsfFzz36z0d9aK+ZqJtavgWLviO5hmrRWm7sxi2lrEctk4fHstyDF2CzX7Zs4Ycfe
+        JNA+c4sBE4OiPMUenjN+78mlMijCWqxdMtQ737RWrlwOcrb7Et/cbrRqpeHpkQ==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1637976242;
+        s=2020e; t=1637976239;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         references:references; bh=M3sqeQse3OBzh4UDcYwLpjiKs6TLrCNEA9mHCeGqCQM=;
-        b=m5M0C+EdbGh1uNXpE9F3XBzjFOthgBJVY6/yTbxpsWpsbNUitEvgeHNLgSHOO87duXAtO4
-        Y8DYHmjRX/hQlWBA==
+         references:references; bh=dSVT/iBVTDrru1VCPsyUkPO+wlN5QYdJblBQDMf4a+Q=;
+        b=u1zjXzQM7bbXH2vPMl7HOTCZ5lM0q7FuZmQhG/Ll7+LA7Dl3BP/+UEE/fFnNODjyknLHe1
+        /+lqPdpSz4fdXDDg==
 From:   Thomas Gleixner <tglx@linutronix.de>
 To:     LKML <linux-kernel@vger.kernel.org>
 Cc:     Bjorn Helgaas <helgaas@kernel.org>, Marc Zygnier <maz@kernel.org>,
@@ -38,84 +38,56 @@ Cc:     Bjorn Helgaas <helgaas@kernel.org>, Marc Zygnier <maz@kernel.org>,
         Megha Dey <megha.dey@intel.com>,
         Ashok Raj <ashok.raj@intel.com>, linux-pci@vger.kernel.org,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
         Jon Mason <jdmason@kudzu.us>,
         Dave Jiang <dave.jiang@intel.com>,
-        Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [patch 21/32] NTB/msi: Convert to msi_on_each_desc()
+        Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com
+Subject: [patch 19/32] powerpc/mpic_u3msi: Use msi_for_each-desc()
 References: <20211126230957.239391799@linutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Date:   Sat, 27 Nov 2021 02:24:01 +0100 (CET)
+Date:   Sat, 27 Nov 2021 02:23:58 +0100 (CET)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
-Message-ID: <20211127012401.bi_9SMdV_RRVsAaeERqYKiIOvZ2stAXjpK8S1XjVxqc@z>
+Message-ID: <20211127012358.nG5Wu8J535e9PhLkfNz57EuAhFFfq_21mdL7zfFq7w4@z>
 
-Replace the about to vanish iterators, make use of the filtering and take
-the descriptor lock around the iteration.
+Replace the about to vanish iterators and make use of the filtering.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Jon Mason <jdmason@kudzu.us>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: Allen Hubbe <allenbh@gmail.com>
-Cc: linux-ntb@googlegroups.com
 ---
- drivers/ntb/msi.c |   19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+ arch/powerpc/sysdev/mpic_u3msi.c |    9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
---- a/drivers/ntb/msi.c
-+++ b/drivers/ntb/msi.c
-@@ -108,8 +108,10 @@ int ntb_msi_setup_mws(struct ntb_dev *nt
- 	if (!ntb->msi)
- 		return -EINVAL;
- 
--	desc = first_msi_entry(&ntb->pdev->dev);
-+	msi_lock_descs(&ntb->pdev->dev);
-+	desc = msi_first_desc(&ntb->pdev->dev);
- 	addr = desc->msg.address_lo + ((uint64_t)desc->msg.address_hi << 32);
-+	msi_unlock_descs(&ntb->pdev->dev);
- 
- 	for (peer = 0; peer < ntb_peer_port_count(ntb); peer++) {
- 		peer_widx = ntb_peer_highest_mw_idx(ntb, peer);
-@@ -281,13 +283,15 @@ int ntbm_msi_request_threaded_irq(struct
- 				  const char *name, void *dev_id,
- 				  struct ntb_msi_desc *msi_desc)
- {
-+	struct device *dev = &ntb->pdev->dev;
+--- a/arch/powerpc/sysdev/mpic_u3msi.c
++++ b/arch/powerpc/sysdev/mpic_u3msi.c
+@@ -104,17 +104,12 @@ static void u3msi_teardown_msi_irqs(stru
  	struct msi_desc *entry;
- 	int ret;
+ 	irq_hw_number_t hwirq;
  
- 	if (!ntb->msi)
- 		return -EINVAL;
- 
--	for_each_pci_msi_entry(entry, ntb->pdev) {
-+	msi_lock_descs(dev);
-+	msi_for_each_desc(entry, dev, MSI_DESC_ASSOCIATED) {
- 		if (irq_has_action(entry->irq))
- 			continue;
- 
-@@ -304,14 +308,17 @@ int ntbm_msi_request_threaded_irq(struct
- 		ret = ntbm_msi_setup_callback(ntb, entry, msi_desc);
- 		if (ret) {
- 			devm_free_irq(&ntb->dev, entry->irq, dev_id);
--			return ret;
-+			goto unlock;
- 		}
- 
+-	for_each_pci_msi_entry(entry, pdev) {
+-		if (!entry->irq)
+-			continue;
 -
--		return entry->irq;
-+		ret = entry->irq;
-+		goto unlock;
++	msi_for_each_desc(entry, &pdev->dev, MSI_DESC_ASSOCIATED) {
+ 		hwirq = virq_to_hw(entry->irq);
+ 		irq_set_msi_desc(entry->irq, NULL);
+ 		irq_dispose_mapping(entry->irq);
+ 		msi_bitmap_free_hwirqs(&msi_mpic->msi_bitmap, hwirq, 1);
  	}
-+	ret = -ENODEV;
- 
--	return -ENODEV;
-+unlock:
-+	msi_unlock_descs(dev);
-+	return ret;
+-
+-	return;
  }
- EXPORT_SYMBOL(ntbm_msi_request_threaded_irq);
  
+ static int u3msi_setup_msi_irqs(struct pci_dev *pdev, int nvec, int type)
+@@ -136,7 +131,7 @@ static int u3msi_setup_msi_irqs(struct p
+ 		return -ENXIO;
+ 	}
+ 
+-	for_each_pci_msi_entry(entry, pdev) {
++	msi_for_each_desc(entry, &pdev->dev, MSI_DESC_NOTASSOCIATED) {
+ 		hwirq = msi_bitmap_alloc_hwirqs(&msi_mpic->msi_bitmap, 1);
+ 		if (hwirq < 0) {
+ 			pr_debug("u3msi: failed allocating hwirq\n");
 
