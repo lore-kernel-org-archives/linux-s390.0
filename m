@@ -2,33 +2,33 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5812C433FE
-	for <linux-s390@archiver.kernel.org>; Sat, 27 Nov 2021 01:29:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6AA50C433F5
+	for <linux-s390@archiver.kernel.org>; Sat, 27 Nov 2021 01:29:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350353AbhK0BcQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 26 Nov 2021 20:32:16 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:40044 "EHLO
+        id S1348852AbhK0BcT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 26 Nov 2021 20:32:19 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:40506 "EHLO
         galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348743AbhK0BaP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 26 Nov 2021 20:30:15 -0500
-Message-ID: <20211126232734.590073487@linutronix.de>
+        with ESMTP id S1348605AbhK0BaO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 26 Nov 2021 20:30:14 -0500
+Message-ID: <20211126232734.411769132@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1637976155;
+        s=2020; t=1637976151;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         references:references; bh=AY9W+ny/WXY3VHtZbRLezKFnSFUN+7Vnt3UP4+pA62o=;
-        b=pzXJVPFceUY9/G67xPm2mJcUPbgXEYZZMhQykUkS2iMWY3/pV/5g+MnAcvv6htcphDO389
-        LoTx29v6kzmMFjF77kzlv7IUof6gr9WL9q+KrCRfOnFP0/nls3h/Hezg5MURMani7TvEIy
-        SEhhWXaexFZAGYEyw3+xv25+P+jnCn28KplgipqxWV5tsV6+D4ovRg1iMe7i4vIqKlWLK6
-        khpdu8bpwAluDrSpRxcuvN6DQg3V/ajbIwy4fRpl2+YqL53pGe7AjxKKTnYhv/vNVi0YHz
-        Aer5OOscLEqo0twW6eFIUBkA6+pWQH2FkT0RF9L0zzkRli4NoP0LBOvsJnO9+g==
+         references:references; bh=dWlRgqR+0drt9PwtC3seDhr2BnCncrRnkVfFxsvT5DI=;
+        b=ORqp+FjQyylJmjTUIXnpl2W3/2oMtLzKwyKbRsyw2DfIf8FbSlPGN20MYOubkIaQPtnOkx
+        zi1LFX0B8c8xYYm+Qd8yJNCcGmBAQ1Y8Qsq0cF/8Do1hEYoxi7xwOQ0Ha7+7Q3adJ2H6wU
+        5Z/KA11NvzTWKJ3lERiA5rZKIQBlmEtyqTVAN1HDHLiz940Ee07vKvBYMlmZ/M9DRAekLJ
+        pLRvpc+fvRECo+ew/XdgFL3hsx0xLGqb03CV5/TRk3NZWZhQvUyF7RPIgcLZhG/XCcUsmV
+        AzMxSqYaJM/VltFXsFFe4tv++EUOcfHKTl1Dw6QK+TvhEDCCjhsNA8OPq2yRog==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1637976155;
+        s=2020e; t=1637976151;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         references:references; bh=AY9W+ny/WXY3VHtZbRLezKFnSFUN+7Vnt3UP4+pA62o=;
-        b=aqPWjY1IPOoZHXYEogkwiHp2WRooRoN3L5dSW2q5VsVv2uZuzdND0QSP3lPBm0vIf+PQtw
-        1Nv5LekjqsUgmuCw==
+         references:references; bh=dWlRgqR+0drt9PwtC3seDhr2BnCncrRnkVfFxsvT5DI=;
+        b=oAwMdRVKeFKMPJ6Cy3BdvL9YEsvKROcJgbOIRSdt5ODq8RcJU0NdLrJrChsr+oNSSuygSc
+        FIQvMP4ptDkZBaBw==
 From:   Thomas Gleixner <tglx@linutronix.de>
 To:     LKML <linux-kernel@vger.kernel.org>
 Cc:     Bjorn Helgaas <helgaas@kernel.org>, Marc Zygnier <maz@kernel.org>,
@@ -43,107 +43,99 @@ Cc:     Bjorn Helgaas <helgaas@kernel.org>, Marc Zygnier <maz@kernel.org>,
         Jon Mason <jdmason@kudzu.us>,
         Dave Jiang <dave.jiang@intel.com>,
         Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com
-Subject: [patch 05/32] genirq/msi: Provide msi_alloc_msi_desc() and a simple allocator
+Subject: [patch 02/32] genirq/msi: Add mutex for MSI list protection
 References: <20211126230957.239391799@linutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Date:   Sat, 27 Nov 2021 02:22:35 +0100 (CET)
+Date:   Sat, 27 Nov 2021 02:22:30 +0100 (CET)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Provide msi_alloc_msi_desc() which takes a template MSI descriptor for
-initializing a newly allocated descriptor. This allows to simplify various
-usage sites of alloc_msi_entry() and moves the storage handling into the
-core code.
-
-For simple cases where only a linear vector space is required provide
-msi_add_simple_msi_descs() which just allocates a linear range of MSI
-descriptors and fills msi_desc::msi_index accordingly.
+For upcoming runtime extensions of MSI-X interrupts it's required to
+protect the MSI descriptor list. Add a mutex to struct msi_device_data and
+provide lock/unlock functions.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 ---
- include/linux/msi.h |    2 +
- kernel/irq/msi.c    |   59 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 61 insertions(+)
+ include/linux/msi.h |    6 ++++++
+ kernel/irq/msi.c    |   25 +++++++++++++++++++++++++
+ 2 files changed, 31 insertions(+)
 
 --- a/include/linux/msi.h
 +++ b/include/linux/msi.h
-@@ -302,6 +302,8 @@ static inline void pci_write_msi_msg(uns
- }
- #endif /* CONFIG_PCI_MSI */
+@@ -3,6 +3,7 @@
+ #define LINUX_MSI_H
  
-+int msi_add_msi_desc(struct device *dev, struct msi_desc *init_desc);
+ #include <linux/spinlock.h>
++#include <linux/mutex.h>
+ #include <linux/list.h>
+ #include <linux/bits.h>
+ #include <asm/msi.h>
+@@ -146,6 +147,7 @@ struct msi_desc {
+  * @attrs:		Pointer to the sysfs attribute group
+  * @platform_data:	Platform-MSI specific data
+  * @list:		List of MSI descriptors associated to the device
++ * @mutex:		Mutex protecting the MSI list
+  */
+ struct msi_device_data {
+ 	raw_spinlock_t			lock;
+@@ -153,6 +155,7 @@ struct msi_device_data {
+ 	const struct attribute_group    **attrs;
+ 	struct platform_msi_priv_data	*platform_data;
+ 	struct list_head		list;
++	struct mutex			mutex;
+ };
+ 
+ int msi_setup_device_data(struct device *dev);
+@@ -187,6 +190,9 @@ static inline unsigned int msi_get_virq(
+ 	return ret < 0 ? 0 : ret;
+ }
+ 
++void msi_lock_descs(struct device *dev);
++void msi_unlock_descs(struct device *dev);
 +
- struct msi_desc *alloc_msi_entry(struct device *dev, int nvec,
- 				 const struct irq_affinity_desc *affinity);
- void free_msi_entry(struct msi_desc *entry);
+ /* Helpers to hide struct msi_desc implementation details */
+ #define msi_desc_to_dev(desc)		((desc)->dev)
+ #define dev_to_msi_list(dev)		(&(dev)->msi.data->list)
 --- a/kernel/irq/msi.c
 +++ b/kernel/irq/msi.c
-@@ -61,6 +61,65 @@ void free_msi_entry(struct msi_desc *ent
+@@ -116,12 +116,37 @@ int msi_setup_device_data(struct device
+ 
+ 	raw_spin_lock_init(&md->lock);
+ 	INIT_LIST_HEAD(&md->list);
++	mutex_init(&md->mutex);
+ 	dev->msi.data = md;
+ 	devres_add(dev, md);
+ 	return 0;
  }
  
  /**
-+ * msi_add_msi_desc - Allocate and initialize a MSI descriptor
-+ * @dev:	Pointer to the device for which the descriptor is allocated
-+ * @init_desc:	Pointer to an MSI descriptor to initialize the new descriptor
-+ *
-+ * Return: 0 on success or an appropriate failure code.
++ * msi_lock_descs - Lock the MSI descriptor storage of a device
++ * @dev:	Device to operate on
 + */
-+int msi_add_msi_desc(struct device *dev, struct msi_desc *init_desc)
++void msi_lock_descs(struct device *dev)
 +{
-+	struct msi_desc *desc;
-+
-+	lockdep_assert_held(&dev->msi.data->mutex);
-+
-+	desc = alloc_msi_entry(dev, init_desc->nvec_used, init_desc->affinity);
-+	if (!desc)
-+		return -ENOMEM;
-+
-+	/* Copy the MSI index and type specific data to the new descriptor. */
-+	desc->msi_index = init_desc->msi_index;
-+	desc->pci = init_desc->pci;
-+
-+	list_add_tail(&desc->list, &dev->msi.data->list);
-+	return 0;
++	if (WARN_ON_ONCE(!dev->msi.data))
++		return;
++	mutex_lock(&dev->msi.data->mutex);
 +}
++EXPORT_SYMBOL_GPL(msi_lock_descs);
 +
 +/**
-+ * msi_add_simple_msi_descs - Allocate and initialize MSI descriptors
-+ * @dev:	Pointer to the device for which the descriptors are allocated
-+ * @index:	Index for the first MSI descriptor
-+ * @ndesc:	Number of descriptors to allocate
-+ *
-+ * Return: 0 on success or an appropriate failure code.
++ * msi_unlock_descs - Unlock the MSI descriptor storage of a device
++ * @dev:	Device to operate on
 + */
-+static int msi_add_simple_msi_descs(struct device *dev, unsigned int index, unsigned int ndesc)
++void msi_unlock_descs(struct device *dev)
 +{
-+	struct msi_desc *desc, *tmp;
-+	LIST_HEAD(list);
-+	unsigned int i;
-+
-+	lockdep_assert_held(&dev->msi.data->mutex);
-+
-+	for (i = 0; i < ndesc; i++) {
-+		desc = alloc_msi_entry(dev, 1, NULL);
-+		if (!desc)
-+			goto fail;
-+		desc->msi_index = index + i;
-+		list_add_tail(&desc->list, &list);
-+	}
-+	list_splice_tail(&list, &dev->msi.data->list);
-+	return 0;
-+
-+fail:
-+	list_for_each_entry_safe(desc, tmp, &list, list) {
-+		list_del(&desc->list);
-+		free_msi_entry(desc);
-+	}
-+	return -ENOMEM;
++	if (WARN_ON_ONCE(!dev->msi.data))
++		return;
++	mutex_unlock(&dev->msi.data->mutex);
 +}
++EXPORT_SYMBOL_GPL(msi_unlock_descs);
 +
 +/**
-  * msi_device_has_property - Check whether a device has a specific MSI property
-  * @dev:	Pointer to the device which is queried
-  * @prop:	Property to check for
+  * __msi_get_virq - Return Linux interrupt number of a MSI interrupt
+  * @dev:	Device to operate on
+  * @index:	MSI interrupt index to look for (0-based)
 
