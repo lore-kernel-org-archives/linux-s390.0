@@ -2,33 +2,33 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 58DA1C433FE
-	for <linux-s390@archiver.kernel.org>; Sat, 27 Nov 2021 01:33:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4929EC433F5
+	for <linux-s390@archiver.kernel.org>; Sat, 27 Nov 2021 01:33:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353119AbhK0Bgo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 26 Nov 2021 20:36:44 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:40708 "EHLO
+        id S1353256AbhK0Bgs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 26 Nov 2021 20:36:48 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:40712 "EHLO
         galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350318AbhK0Ben (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 26 Nov 2021 20:34:43 -0500
-Message-ID: <20211126232736.024070925@linutronix.de>
+        with ESMTP id S1351773AbhK0Ber (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 26 Nov 2021 20:34:47 -0500
+Message-ID: <20211126232736.135247787@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1637976254;
+        s=2020; t=1637976257;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         references:references; bh=euBPx94YXqL9tbrX7AhRmxA+Sq6PMX/F5CZP7vo89bw=;
-        b=Nr/v8cXMoqk5YmdMjhzUQEMIRwN5bDWTYyAvGZ9lxgcUk0nD2B5/d4pisbm7P3bG8TYpK5
-        CgG2yo/p4QZHdPwuXSFidp33hwkj/Nc0NrcbbV1GDABWVCtfekDW9TgiLqO4yXQCycBOpA
-        zhaE9lQA8tjK8TKIDQ5oA7R9wb3Bjc4zEPk53MMpWMR95aMfDtZcMMto5S3NQW81s5BAk2
-        XXpZFE5jhXabiJKKfUkaZVLWb1rynHBJZ9YQaH30oYfgonyy6jp8RBqOjL6+w9friRMTge
-        GRC7FUdh9unJe8zm/8nxTeBMj2Upyz3yMS/i/5q9wj5/hzklgmPpqryAK99lyw==
+         references:references; bh=2D8aNt4Gm/AldjGMDcfK5UGFdFdsKJp+Ma1rVxhtL/s=;
+        b=IMu/M7HoZX07RwfPGqm79c5PCeG8idiFGTgtVMLvnhz0urCey6NwUOt4pGUGpb1h8trht8
+        UaLeoLd06qV2LGePDGCAM6IEjoLkE0Nv8QUdmKgr+HmBOa6OpoGKMCPHBydPqjlI/JKE7a
+        udil6Jw17xNHKg/ymD8k/n2uGB9sLDhgUsxEGUOJ/C/6uxaYM9iBvfGqVsIVfYhGb23om3
+        JQh9nVS6wgC9v8004wMeW4uF+2tnugUrCycotpr9PgZJw35gOzcKQ5xNxSzzYYXsiYPABv
+        y3GhWG53uVZSuYEbhyl7LjwPt8VkV5B7tQHG8lptfOieh130dIKN6x0vvj9fqw==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1637976254;
+        s=2020e; t=1637976257;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         references:references; bh=euBPx94YXqL9tbrX7AhRmxA+Sq6PMX/F5CZP7vo89bw=;
-        b=WeCfUtaAwCAVY0kF/V7+nFkK7tyn7gtxUmkXxoDajJw3c7MGST31djpy/5QOtB2f2YeUHJ
-        vaviz+2a18GQLABQ==
+         references:references; bh=2D8aNt4Gm/AldjGMDcfK5UGFdFdsKJp+Ma1rVxhtL/s=;
+        b=3XpHFykvkwfAtJVqIbZ+lozXgHBHqPVx2/+FLhCJeO/4gFDHBmCPh6qWUU86DXy5db9CZx
+        NJ5cQORIBn3Pi8Cg==
 From:   Thomas Gleixner <tglx@linutronix.de>
 To:     LKML <linux-kernel@vger.kernel.org>
 Cc:     Bjorn Helgaas <helgaas@kernel.org>, Marc Zygnier <maz@kernel.org>,
@@ -43,163 +43,381 @@ Cc:     Bjorn Helgaas <helgaas@kernel.org>, Marc Zygnier <maz@kernel.org>,
         Jon Mason <jdmason@kudzu.us>,
         Dave Jiang <dave.jiang@intel.com>,
         Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com
-Subject: [patch 29/32] genirq/msi: Mop up old interfaces
+Subject: [patch 31/32] genirq/msi: Simplify sysfs handling
 References: <20211126230957.239391799@linutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Date:   Sat, 27 Nov 2021 02:24:13 +0100 (CET)
+Date:   Sat, 27 Nov 2021 02:24:17 +0100 (CET)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
-Message-ID: <20211127012413.rM3yRt4vWZea4_oFYUdHKF8isKvSf5topKUOLRcbDoM@z>
+Message-ID: <20211127012417.kRgH2LN5B_lFNbbXgbQISgFfNwTwF04DyPr2r5ly8Gw@z>
 
-Get rid of the old iterators, alloc/free functions and adjust the core code
-accordingly.
+The sysfs handling for MSI is a convoluted maze and it is in the way of
+supporting dynamic expansion of the MSI-X vectors because it only supports
+a one off bulk population/free of the sysfs entries.
+
+Change it to do:
+
+   1) Creating an empty sysfs attribute group when msi_device_data is
+      allocated
+
+   2) Populate the entries when the MSI descriptor is initialized
+
+   3) Free the entries when a MSI descriptor is detached from a Linux
+      interrupt.
+
+   4) Provide functions for the legacy non-irqdomain fallback code to
+      do a bulk population/free. This code won't support dynamic
+      expansion.
+
+This makes the code simpler and reduces the number of allocations as the
+empty attribute group can be shared.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 ---
- include/linux/msi.h |   15 ---------------
- kernel/irq/msi.c    |   31 +++++++++++++++----------------
- 2 files changed, 15 insertions(+), 31 deletions(-)
+ include/linux/msi.h |    7 +
+ kernel/irq/msi.c    |  196 +++++++++++++++++++++++-----------------------------
+ 2 files changed, 95 insertions(+), 108 deletions(-)
 
 --- a/include/linux/msi.h
 +++ b/include/linux/msi.h
-@@ -254,15 +254,7 @@ static inline struct msi_desc *msi_first
- #define msi_for_each_desc(desc, dev, filter)				\
- 	msi_for_each_desc_from(desc, dev, filter, 0)
+@@ -72,6 +72,7 @@ struct irq_data;
+ struct msi_desc;
+ struct pci_dev;
+ struct platform_msi_priv_data;
++struct device_attribute;
  
--/* Helpers to hide struct msi_desc implementation details */
- #define msi_desc_to_dev(desc)		((desc)->dev)
--#define dev_to_msi_list(dev)		(&(dev)->msi.data->list)
--#define first_msi_entry(dev)		\
--	list_first_entry(dev_to_msi_list((dev)), struct msi_desc, list)
--#define for_each_msi_entry(desc, dev)	\
--	list_for_each_entry((desc), dev_to_msi_list((dev)), list)
--#define for_each_msi_entry_safe(desc, tmp, dev)	\
--	list_for_each_entry_safe((desc), (tmp), dev_to_msi_list((dev)), list)
- 
+ void __get_cached_msi_msg(struct msi_desc *entry, struct msi_msg *msg);
+ #ifdef CONFIG_GENERIC_MSI_IRQ
+@@ -127,6 +128,7 @@ struct pci_msi_desc {
+  * @dev:	Pointer to the device which uses this descriptor
+  * @msg:	The last set MSI message cached for reuse
+  * @affinity:	Optional pointer to a cpu affinity mask for this descriptor
++ * @sysfs_attr:	Pointer to sysfs device attribute
+  *
+  * @write_msi_msg:	Callback that may be called when the MSI message
+  *			address or data changes
+@@ -146,6 +148,9 @@ struct msi_desc {
  #ifdef CONFIG_IRQ_MSI_IOMMU
- static inline const void *msi_desc_get_iommu_cookie(struct msi_desc *desc)
-@@ -288,10 +280,6 @@ static inline void msi_desc_set_iommu_co
+ 	const void			*iommu_cookie;
  #endif
++#ifdef CONFIG_SYSFS
++	struct device_attribute		*sysfs_attrs;
++#endif
  
- #ifdef CONFIG_PCI_MSI
--#define first_pci_msi_entry(pdev)	first_msi_entry(&(pdev)->dev)
--#define for_each_pci_msi_entry(desc, pdev)	\
--	for_each_msi_entry((desc), &(pdev)->dev)
--
- struct pci_dev *msi_desc_to_pci_dev(struct msi_desc *desc);
- void pci_write_msi_msg(unsigned int irq, struct msi_msg *msg);
- #else /* CONFIG_PCI_MSI */
-@@ -314,9 +302,6 @@ static inline void msi_free_msi_descs(st
- 	msi_free_msi_descs_range(dev, MSI_DESC_ALL, 0, UINT_MAX);
- }
- 
--struct msi_desc *alloc_msi_entry(struct device *dev, int nvec,
--				 const struct irq_affinity_desc *affinity);
--void free_msi_entry(struct msi_desc *entry);
- void __pci_read_msi_msg(struct msi_desc *entry, struct msi_msg *msg);
- void __pci_write_msi_msg(struct msi_desc *entry, struct msi_msg *msg);
- 
+ 	void (*write_msi_msg)(struct msi_desc *entry, void *data);
+ 	void *write_msi_msg_data;
+@@ -171,7 +176,6 @@ enum msi_desc_filter {
+  * @lock:		Spinlock to protect register access
+  * @properties:		MSI properties which are interesting to drivers
+  * @num_descs:		The number of allocated MSI descriptors for the device
+- * @attrs:		Pointer to the sysfs attribute group
+  * @platform_data:	Platform-MSI specific data
+  * @list:		List of MSI descriptors associated to the device
+  * @mutex:		Mutex protecting the MSI list
+@@ -182,7 +186,6 @@ struct msi_device_data {
+ 	raw_spinlock_t			lock;
+ 	unsigned long			properties;
+ 	unsigned int			num_descs;
+-	const struct attribute_group    **attrs;
+ 	struct platform_msi_priv_data	*platform_data;
+ 	struct list_head		list;
+ 	struct mutex			mutex;
 --- a/kernel/irq/msi.c
 +++ b/kernel/irq/msi.c
-@@ -19,8 +19,10 @@
+@@ -19,6 +19,7 @@
  
  #include "internals.h"
  
-+#define dev_to_msi_list(dev)	(&(dev)->msi.data->list)
-+
- /**
-- * alloc_msi_entry - Allocate an initialized msi_desc
-+ * msi_alloc_desc - Allocate an initialized msi_desc
-  * @dev:	Pointer to the device for which this is allocated
-  * @nvec:	The number of vectors used in this entry
-  * @affinity:	Optional pointer to an affinity mask array size of @nvec
-@@ -30,12 +32,11 @@
-  *
-  * Return: pointer to allocated &msi_desc on success or %NULL on failure
-  */
--struct msi_desc *alloc_msi_entry(struct device *dev, int nvec,
--				 const struct irq_affinity_desc *affinity)
-+static struct msi_desc *msi_alloc_desc(struct device *dev, int nvec,
-+					const struct irq_affinity_desc *affinity)
- {
--	struct msi_desc *desc;
-+	struct msi_desc *desc = kzalloc(sizeof(*desc), GFP_KERNEL);
- 
--	desc = kzalloc(sizeof(*desc), GFP_KERNEL);
- 	if (!desc)
- 		return NULL;
- 
-@@ -43,21 +44,19 @@ struct msi_desc *alloc_msi_entry(struct
- 	desc->dev = dev;
- 	desc->nvec_used = nvec;
- 	if (affinity) {
--		desc->affinity = kmemdup(affinity,
--			nvec * sizeof(*desc->affinity), GFP_KERNEL);
-+		desc->affinity = kmemdup(affinity, nvec * sizeof(*desc->affinity), GFP_KERNEL);
- 		if (!desc->affinity) {
- 			kfree(desc);
- 			return NULL;
- 		}
- 	}
--
- 	return desc;
- }
- 
--void free_msi_entry(struct msi_desc *entry)
-+static void msi_free_desc(struct msi_desc *desc)
- {
--	kfree(entry->affinity);
--	kfree(entry);
-+	kfree(desc->affinity);
-+	kfree(desc);
- }
++static inline int msi_sysfs_create_group(struct device *dev);
+ #define dev_to_msi_list(dev)	(&(dev)->msi.data->list)
  
  /**
-@@ -73,7 +72,7 @@ int msi_add_msi_desc(struct device *dev,
+@@ -208,6 +209,7 @@ static void msi_device_data_release(stru
+ int msi_setup_device_data(struct device *dev)
+ {
+ 	struct msi_device_data *md;
++	int ret;
  
- 	lockdep_assert_held(&dev->msi.data->mutex);
- 
--	desc = alloc_msi_entry(dev, init_desc->nvec_used, init_desc->affinity);
-+	desc = msi_alloc_desc(dev, init_desc->nvec_used, init_desc->affinity);
- 	if (!desc)
+ 	if (dev->msi.data)
+ 		return 0;
+@@ -216,6 +218,12 @@ int msi_setup_device_data(struct device
+ 	if (!md)
  		return -ENOMEM;
  
-@@ -103,7 +102,7 @@ int msi_add_simple_msi_descs(struct devi
++	ret = msi_sysfs_create_group(dev);
++	if (ret) {
++		devres_free(md);
++		return ret;
++	}
++
+ 	raw_spin_lock_init(&md->lock);
+ 	INIT_LIST_HEAD(&md->list);
+ 	mutex_init(&md->mutex);
+@@ -395,6 +403,20 @@ int __msi_get_virq(struct device *dev, u
+ EXPORT_SYMBOL_GPL(__msi_get_virq);
+ 
+ #ifdef CONFIG_SYSFS
++static struct attribute *msi_dev_attrs[] = {
++	NULL
++};
++
++static const struct attribute_group msi_irqs_group = {
++	.name	= "msi_irqs",
++	.attrs	= msi_dev_attrs,
++};
++
++static inline int msi_sysfs_create_group(struct device *dev)
++{
++	return devm_device_add_group(dev, &msi_irqs_group);
++}
++
+ static ssize_t msi_mode_show(struct device *dev, struct device_attribute *attr,
+ 			     char *buf)
+ {
+@@ -404,97 +426,74 @@ static ssize_t msi_mode_show(struct devi
+ 	return sysfs_emit(buf, "%s\n", is_msix ? "msix" : "msi");
+ }
+ 
+-/**
+- * msi_populate_sysfs - Populate msi_irqs sysfs entries for devices
+- * @dev:	The device(PCI, platform etc) who will get sysfs entries
+- */
+-static const struct attribute_group **msi_populate_sysfs(struct device *dev)
++static void msi_sysfs_remove_desc(struct device *dev, struct msi_desc *desc)
+ {
+-	const struct attribute_group **msi_irq_groups;
+-	struct attribute **msi_attrs, *msi_attr;
+-	struct device_attribute *msi_dev_attr;
+-	struct attribute_group *msi_irq_group;
+-	struct msi_desc *entry;
+-	int ret = -ENOMEM;
+-	int num_msi = 0;
+-	int count = 0;
++	struct device_attribute *attrs = desc->sysfs_attrs;
+ 	int i;
+ 
+-	/* Determine how many msi entries we have */
+-	msi_for_each_desc(entry, dev, MSI_DESC_ALL)
+-		num_msi += entry->nvec_used;
+-	if (!num_msi)
+-		return NULL;
++	if (!attrs)
++		return;
+ 
+-	/* Dynamically create the MSI attributes for the device */
+-	msi_attrs = kcalloc(num_msi + 1, sizeof(void *), GFP_KERNEL);
+-	if (!msi_attrs)
+-		return ERR_PTR(-ENOMEM);
+-
+-	msi_for_each_desc(entry, dev, MSI_DESC_ALL) {
+-		for (i = 0; i < entry->nvec_used; i++) {
+-			msi_dev_attr = kzalloc(sizeof(*msi_dev_attr), GFP_KERNEL);
+-			if (!msi_dev_attr)
+-				goto error_attrs;
+-			msi_attrs[count] = &msi_dev_attr->attr;
+-
+-			sysfs_attr_init(&msi_dev_attr->attr);
+-			msi_dev_attr->attr.name = kasprintf(GFP_KERNEL, "%d",
+-							    entry->irq + i);
+-			if (!msi_dev_attr->attr.name)
+-				goto error_attrs;
+-			msi_dev_attr->attr.mode = 0444;
+-			msi_dev_attr->show = msi_mode_show;
+-			++count;
+-		}
++	desc->sysfs_attrs = NULL;
++	for (i = 0; i < desc->nvec_used; i++) {
++		if (attrs[i].show)
++			sysfs_remove_file_from_group(&dev->kobj, &attrs[i].attr, msi_irqs_group.name);
++		kfree(attrs[i].attr.name);
+ 	}
++	kfree(attrs);
++}
+ 
+-	msi_irq_group = kzalloc(sizeof(*msi_irq_group), GFP_KERNEL);
+-	if (!msi_irq_group)
+-		goto error_attrs;
+-	msi_irq_group->name = "msi_irqs";
+-	msi_irq_group->attrs = msi_attrs;
+-
+-	msi_irq_groups = kcalloc(2, sizeof(void *), GFP_KERNEL);
+-	if (!msi_irq_groups)
+-		goto error_irq_group;
+-	msi_irq_groups[0] = msi_irq_group;
++static int msi_sysfs_populate_desc(struct device *dev, struct msi_desc *desc)
++{
++	struct device_attribute *attrs;
++	int ret, i;
+ 
+-	ret = sysfs_create_groups(&dev->kobj, msi_irq_groups);
+-	if (ret)
+-		goto error_irq_groups;
++	attrs = kcalloc(desc->nvec_used, sizeof(*attrs), GFP_KERNEL);
++	if (!attrs)
++		return -ENOMEM;
++
++	desc->sysfs_attrs = attrs;
++	for (i = 0; i < desc->nvec_used; i++) {
++		sysfs_attr_init(&attrs[i].attr);
++		attrs[i].attr.name = kasprintf(GFP_KERNEL, "%d", desc->irq + i);
++		if (!attrs[i].attr.name) {
++			ret = -ENOMEM;
++			goto fail;
++		}
+ 
+-	return msi_irq_groups;
++		attrs[i].attr.mode = 0444;
++		attrs[i].show = msi_mode_show;
+ 
+-error_irq_groups:
+-	kfree(msi_irq_groups);
+-error_irq_group:
+-	kfree(msi_irq_group);
+-error_attrs:
+-	count = 0;
+-	msi_attr = msi_attrs[count];
+-	while (msi_attr) {
+-		msi_dev_attr = container_of(msi_attr, struct device_attribute, attr);
+-		kfree(msi_attr->name);
+-		kfree(msi_dev_attr);
+-		++count;
+-		msi_attr = msi_attrs[count];
++		ret = sysfs_add_file_to_group(&dev->kobj, &attrs[i].attr, msi_irqs_group.name);
++		if (ret) {
++			attrs[i].show = NULL;
++			goto fail;
++		}
+ 	}
+-	kfree(msi_attrs);
+-	return ERR_PTR(ret);
++	return 0;
++
++fail:
++	msi_sysfs_remove_desc(dev, desc);
++	return ret;
+ }
+ 
++#ifdef CONFIG_PCI_MSI_ARCH_FALLBACK
+ /**
+  * msi_device_populate_sysfs - Populate msi_irqs sysfs entries for a device
+  * @dev:	The device(PCI, platform etc) which will get sysfs entries
+  */
+ int msi_device_populate_sysfs(struct device *dev)
+ {
+-	const struct attribute_group **group = msi_populate_sysfs(dev);
++	struct msi_desc *desc;
++	int ret;
+ 
+-	if (IS_ERR(group))
+-		return PTR_ERR(group);
+-	dev->msi.data->attrs = group;
++	msi_for_each_desc(desc, dev, MSI_DESC_ASSOCIATED) {
++		if (desc->sysfs_attrs)
++			continue;
++		ret = msi_sysfs_populate_desc(dev, desc);
++		if (ret)
++			return ret;
++	}
+ 	return 0;
+ }
+ 
+@@ -505,28 +504,17 @@ int msi_device_populate_sysfs(struct dev
+  */
+ void msi_device_destroy_sysfs(struct device *dev)
+ {
+-	const struct attribute_group **msi_irq_groups = dev->msi.data->attrs;
+-	struct device_attribute *dev_attr;
+-	struct attribute **msi_attrs;
+-	int count = 0;
+-
+-	dev->msi.data->attrs = NULL;
+-	if (!msi_irq_groups)
+-		return;
++	struct msi_desc *desc;
+ 
+-	sysfs_remove_groups(&dev->kobj, msi_irq_groups);
+-	msi_attrs = msi_irq_groups[0]->attrs;
+-	while (msi_attrs[count]) {
+-		dev_attr = container_of(msi_attrs[count], struct device_attribute, attr);
+-		kfree(dev_attr->attr.name);
+-		kfree(dev_attr);
+-		++count;
+-	}
+-	kfree(msi_attrs);
+-	kfree(msi_irq_groups[0]);
+-	kfree(msi_irq_groups);
++	msi_for_each_desc(desc, dev, MSI_DESC_ALL)
++		msi_sysfs_remove_desc(dev, desc);
+ }
+-#endif
++#endif /* CONFIG_PCI_MSI_ARCH_FALLBACK */
++#else /* CONFIG_SYSFS */
++static inline int msi_sysfs_create_group(struct device *dev) { return 0; }
++static inline int msi_sysfs_populate_desc(struct device *dev, struct msi_desc *desc) { return 0; }
++static inline void msi_sysfs_remove_desc(struct device *dev, struct msi_desc *desc) { }
++#endif /* !CONFIG_SYSFS */
+ 
+ #ifdef CONFIG_GENERIC_MSI_IRQ_DOMAIN
+ static inline void irq_chip_write_msi_msg(struct irq_data *data,
+@@ -959,6 +947,12 @@ int __msi_domain_alloc_irqs(struct irq_d
+ 			ret = msi_init_virq(domain, virq + i, vflags);
+ 			if (ret)
+ 				return ret;
++
++			if (info->flags & MSI_FLAG_DEV_SYSFS) {
++				ret = msi_sysfs_populate_desc(dev, desc);
++				if (ret)
++					return ret;
++			}
+ 		}
+ 		allocated++;
+ 	}
+@@ -1003,18 +997,7 @@ int msi_domain_alloc_irqs_descs_locked(s
+ 
+ 	ret = ops->domain_alloc_irqs(domain, dev, nvec);
+ 	if (ret)
+-		goto cleanup;
+-
+-	if (!(info->flags & MSI_FLAG_DEV_SYSFS))
+-		return 0;
+-
+-	ret = msi_device_populate_sysfs(dev);
+-	if (ret)
+-		goto cleanup;
+-	return 0;
+-
+-cleanup:
+-	msi_domain_free_irqs_descs_locked(domain, dev);
++		msi_domain_free_irqs_descs_locked(domain, dev);
+ 	return ret;
+ }
+ 
+@@ -1039,6 +1022,7 @@ int msi_domain_alloc_irqs(struct irq_dom
+ 
+ void __msi_domain_free_irqs(struct irq_domain *domain, struct device *dev)
+ {
++	struct msi_domain_info *info = domain->host_data;
+ 	struct irq_data *irqd;
+ 	struct msi_desc *desc;
+ 	int i;
+@@ -1053,6 +1037,8 @@ void __msi_domain_free_irqs(struct irq_d
+ 		}
+ 
+ 		irq_domain_free_irqs(desc->irq, desc->nvec_used);
++		if (info->flags & MSI_FLAG_DEV_SYSFS)
++			msi_sysfs_remove_desc(dev, desc);
+ 		desc->irq = 0;
+ 	}
+ }
+@@ -1081,8 +1067,6 @@ void msi_domain_free_irqs_descs_locked(s
+ 
  	lockdep_assert_held(&dev->msi.data->mutex);
  
- 	for (i = 0; i < ndesc; i++) {
--		desc = alloc_msi_entry(dev, 1, NULL);
-+		desc = msi_alloc_desc(dev, 1, NULL);
- 		if (!desc)
- 			goto fail;
- 		desc->msi_index = index + i;
-@@ -116,7 +115,7 @@ int msi_add_simple_msi_descs(struct devi
- fail:
- 	list_for_each_entry_safe(desc, tmp, &list, list) {
- 		list_del(&desc->list);
--		free_msi_entry(desc);
-+		msi_free_desc(desc);
- 	}
- 	return -ENOMEM;
+-	if (info->flags & MSI_FLAG_DEV_SYSFS)
+-		msi_device_destroy_sysfs(dev);
+ 	ops->domain_free_irqs(domain, dev);
+ 	msi_domain_free_msi_descs(info, dev);
  }
-@@ -143,7 +142,7 @@ void msi_free_msi_descs_range(struct dev
- 		if (desc->msi_index < base_index || desc->msi_index >= base_index + ndesc)
- 			continue;
- 		list_del(&desc->list);
--		free_msi_entry(desc);
-+		msi_free_desc(desc);
- 		dev->msi.data->num_descs--;
- 	}
- }
-@@ -779,7 +778,7 @@ int msi_domain_populate_irqs(struct irq_
- 
- 	msi_lock_descs(dev);
- 	for (virq = virq_base; virq < virq_base + nvec; virq++) {
--		desc = alloc_msi_entry(dev, 1, NULL);
-+		desc = msi_alloc_desc(dev, 1, NULL);
- 		if (!desc) {
- 			ret = -ENOMEM;
- 			goto fail;
 
