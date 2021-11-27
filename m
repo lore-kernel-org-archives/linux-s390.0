@@ -2,33 +2,33 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41603C43219
-	for <linux-s390@archiver.kernel.org>; Sat, 27 Nov 2021 01:31:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 12D8FC433EF
+	for <linux-s390@archiver.kernel.org>; Sat, 27 Nov 2021 01:31:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350918AbhK0BfG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 26 Nov 2021 20:35:06 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:40390 "EHLO
+        id S1350535AbhK0BfL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 26 Nov 2021 20:35:11 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:40490 "EHLO
         galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350649AbhK0BdB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 26 Nov 2021 20:33:01 -0500
-Message-ID: <20211126232734.411769132@linutronix.de>
+        with ESMTP id S1349876AbhK0BbS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 26 Nov 2021 20:31:18 -0500
+Message-ID: <20211126232735.429897588@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1637976212;
+        s=2020; t=1637976177;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         references:references; bh=dWlRgqR+0drt9PwtC3seDhr2BnCncrRnkVfFxsvT5DI=;
-        b=ErFEn9JAHZmB9N7TIfTOBXfqadUYsXpmipIzHwuhs1qUCDliJVI5OWR05sQtXVu27rTXEf
-        vwIl2QkSVsw/Qxi30tHLjeruo5PHb+yIuNXpoSkn3LI93hCPDrQe/mKvZ8NzUb2c9j4uyT
-        nSxZhq2G+Ov+hRATjuF6hb24yDDEQPMc8V+RYteTmsghpRtQWtq9wMKV+GaIyfpE9JXaRP
-        3giq5a+TVDahUjBTCNfv1xPWC9LqaZx+ZmPi1P32GMDSm7PQTA9p8o54Kjer59HeYMhUm8
-        WwOXhTP7Y1Pzd4w71w4kZqXr+QkUduldyjhasIlFU5v9Pr/nazqsGXFwi3fPiQ==
+         references:references; bh=dSVT/iBVTDrru1VCPsyUkPO+wlN5QYdJblBQDMf4a+Q=;
+        b=Xm0GCVY1m+0W428IA6zGlHkNzF9WUJ0VrGj0AezNSlzDGyPtju25fv3yLiH3aOBo8zYnsZ
+        PkyybXTSGBtd7i42Mo/8Qr+Ls1Ld6BoGicHqofwK+Pqx6fd3qJ/kljV6VOtE8cjdDhCtf6
+        rde5xFjmCAtXxiun8vFjXX0B/4mFbhEDIbBy96a9UtKX7vo6TDELi9ZoB1T/+C772xj7Pv
+        N6bv0WFrn/JjstShZBGC3axkfms4GgHc0zLMyMC0ISPAbnOZiBmG1/Vz7u7ZSyRTGSRtYN
+        h6/1Djh0B6XIHK3ktmLO+5sqJoLVItCf5KTZvmefZQU4xNds1zG4TIngfDuARQ==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1637976212;
+        s=2020e; t=1637976177;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         references:references; bh=dWlRgqR+0drt9PwtC3seDhr2BnCncrRnkVfFxsvT5DI=;
-        b=UXoJTaH8HHXYi93GRMVRUhgn+NP1loOvwQRR91dam6iZ7yWtaJkuebAQ3xt3KIuZVa1QKh
-        MzVvnRXez6BFs2BA==
+         references:references; bh=dSVT/iBVTDrru1VCPsyUkPO+wlN5QYdJblBQDMf4a+Q=;
+        b=xLS/rnrS52pKeIJoXWDMu7CBvqad8o74liCuyH1ND4Vvp+xDnyL9QzY6iar2s06evHw/uW
+        SnVpRUgfZJzhyRBQ==
 From:   Thomas Gleixner <tglx@linutronix.de>
 To:     LKML <linux-kernel@vger.kernel.org>
 Cc:     Bjorn Helgaas <helgaas@kernel.org>, Marc Zygnier <maz@kernel.org>,
@@ -43,100 +43,50 @@ Cc:     Bjorn Helgaas <helgaas@kernel.org>, Marc Zygnier <maz@kernel.org>,
         Jon Mason <jdmason@kudzu.us>,
         Dave Jiang <dave.jiang@intel.com>,
         Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com
-Subject: [patch 02/32] genirq/msi: Add mutex for MSI list protection
+Subject: [patch 19/32] powerpc/mpic_u3msi: Use msi_for_each-desc()
 References: <20211126230957.239391799@linutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Date:   Sat, 27 Nov 2021 02:23:31 +0100 (CET)
+Date:   Sat, 27 Nov 2021 02:22:56 +0100 (CET)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
-Message-ID: <20211127012331.U2PwAyS8kYdc3M5so8LoviQiJGtSp5hM5ygLLFO4GJ8@z>
 
-For upcoming runtime extensions of MSI-X interrupts it's required to
-protect the MSI descriptor list. Add a mutex to struct msi_device_data and
-provide lock/unlock functions.
+Replace the about to vanish iterators and make use of the filtering.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 ---
- include/linux/msi.h |    6 ++++++
- kernel/irq/msi.c    |   25 +++++++++++++++++++++++++
- 2 files changed, 31 insertions(+)
+ arch/powerpc/sysdev/mpic_u3msi.c |    9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
---- a/include/linux/msi.h
-+++ b/include/linux/msi.h
-@@ -3,6 +3,7 @@
- #define LINUX_MSI_H
+--- a/arch/powerpc/sysdev/mpic_u3msi.c
++++ b/arch/powerpc/sysdev/mpic_u3msi.c
+@@ -104,17 +104,12 @@ static void u3msi_teardown_msi_irqs(stru
+ 	struct msi_desc *entry;
+ 	irq_hw_number_t hwirq;
  
- #include <linux/spinlock.h>
-+#include <linux/mutex.h>
- #include <linux/list.h>
- #include <linux/bits.h>
- #include <asm/msi.h>
-@@ -146,6 +147,7 @@ struct msi_desc {
-  * @attrs:		Pointer to the sysfs attribute group
-  * @platform_data:	Platform-MSI specific data
-  * @list:		List of MSI descriptors associated to the device
-+ * @mutex:		Mutex protecting the MSI list
-  */
- struct msi_device_data {
- 	raw_spinlock_t			lock;
-@@ -153,6 +155,7 @@ struct msi_device_data {
- 	const struct attribute_group    **attrs;
- 	struct platform_msi_priv_data	*platform_data;
- 	struct list_head		list;
-+	struct mutex			mutex;
- };
- 
- int msi_setup_device_data(struct device *dev);
-@@ -187,6 +190,9 @@ static inline unsigned int msi_get_virq(
- 	return ret < 0 ? 0 : ret;
+-	for_each_pci_msi_entry(entry, pdev) {
+-		if (!entry->irq)
+-			continue;
+-
++	msi_for_each_desc(entry, &pdev->dev, MSI_DESC_ASSOCIATED) {
+ 		hwirq = virq_to_hw(entry->irq);
+ 		irq_set_msi_desc(entry->irq, NULL);
+ 		irq_dispose_mapping(entry->irq);
+ 		msi_bitmap_free_hwirqs(&msi_mpic->msi_bitmap, hwirq, 1);
+ 	}
+-
+-	return;
  }
  
-+void msi_lock_descs(struct device *dev);
-+void msi_unlock_descs(struct device *dev);
-+
- /* Helpers to hide struct msi_desc implementation details */
- #define msi_desc_to_dev(desc)		((desc)->dev)
- #define dev_to_msi_list(dev)		(&(dev)->msi.data->list)
---- a/kernel/irq/msi.c
-+++ b/kernel/irq/msi.c
-@@ -116,12 +116,37 @@ int msi_setup_device_data(struct device
+ static int u3msi_setup_msi_irqs(struct pci_dev *pdev, int nvec, int type)
+@@ -136,7 +131,7 @@ static int u3msi_setup_msi_irqs(struct p
+ 		return -ENXIO;
+ 	}
  
- 	raw_spin_lock_init(&md->lock);
- 	INIT_LIST_HEAD(&md->list);
-+	mutex_init(&md->mutex);
- 	dev->msi.data = md;
- 	devres_add(dev, md);
- 	return 0;
- }
- 
- /**
-+ * msi_lock_descs - Lock the MSI descriptor storage of a device
-+ * @dev:	Device to operate on
-+ */
-+void msi_lock_descs(struct device *dev)
-+{
-+	if (WARN_ON_ONCE(!dev->msi.data))
-+		return;
-+	mutex_lock(&dev->msi.data->mutex);
-+}
-+EXPORT_SYMBOL_GPL(msi_lock_descs);
-+
-+/**
-+ * msi_unlock_descs - Unlock the MSI descriptor storage of a device
-+ * @dev:	Device to operate on
-+ */
-+void msi_unlock_descs(struct device *dev)
-+{
-+	if (WARN_ON_ONCE(!dev->msi.data))
-+		return;
-+	mutex_unlock(&dev->msi.data->mutex);
-+}
-+EXPORT_SYMBOL_GPL(msi_unlock_descs);
-+
-+/**
-  * __msi_get_virq - Return Linux interrupt number of a MSI interrupt
-  * @dev:	Device to operate on
-  * @index:	MSI interrupt index to look for (0-based)
+-	for_each_pci_msi_entry(entry, pdev) {
++	msi_for_each_desc(entry, &pdev->dev, MSI_DESC_NOTASSOCIATED) {
+ 		hwirq = msi_bitmap_alloc_hwirqs(&msi_mpic->msi_bitmap, 1);
+ 		if (hwirq < 0) {
+ 			pr_debug("u3msi: failed allocating hwirq\n");
 
