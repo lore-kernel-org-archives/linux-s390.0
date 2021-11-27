@@ -2,33 +2,33 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 807E2C433F5
-	for <linux-s390@archiver.kernel.org>; Sat, 27 Nov 2021 01:33:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B786C433F5
+	for <linux-s390@archiver.kernel.org>; Sat, 27 Nov 2021 01:33:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351246AbhK0BgS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 26 Nov 2021 20:36:18 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:40506 "EHLO
+        id S1348065AbhK0BgV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 26 Nov 2021 20:36:21 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:40678 "EHLO
         galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348133AbhK0BeQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 26 Nov 2021 20:34:16 -0500
-Message-ID: <20211126232734.888679179@linutronix.de>
+        with ESMTP id S1345102AbhK0BeU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 26 Nov 2021 20:34:20 -0500
+Message-ID: <20211126232735.130164978@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1637976225;
+        s=2020; t=1637976231;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         references:references; bh=iosGiYlhYBo//aWwbi8Bz/t2OkGIwccy2DoihzPp5zA=;
-        b=40YviKYnOvOpo2LPbpCcMx/rLpbC1H/L39Ec3bzfX8a2rmfbpDuv4N0RrmDJOPB+l+yz8g
-        Kgmy+V9woKa9KA8QGmvQo3CFlbyU5Gd00ktNj2VoNu9ZNUugRVYPZGlk2xOANbWoKy05zL
-        /Eq8qqtgtdFOWD1jEcTX1uKCwdNOv3mDe+n3bnUZ4Vk9W9h/vDiuM4tpe6RZdow64D3JwE
-        5gNS7cSd1nwXyoLjAfLLn5CWNaqV5LX5CtLsI1bQfP5vPGylP/p7yoyT68pDkQBhqEDEs9
-        EeYXXuvxuqXNfJBVcJjWokSGjWrUJT9QpUZOQKO6ODeK12v6cNJfBI/0J8lpFw==
+         references:references; bh=bDqDcBZ6Ac8mk8Pi4m81SdvqMSMLhFM8ia6/waF9mec=;
+        b=St0aVbpnc3WECutTSdVn9BPOUKXe38biQ493aKheeovz/6rpzVRtrq6YxfPjt4MyWwkumE
+        dn5Rsmc2dUgAYFZjTQnB+RIQZS0mg1dy/PNMXJjIdMUoaOWQT1mDvNXCOcxzDK3KfAUozL
+        VA81HVOpGzpkNCldgfVDgq11psm+YdlqZQIiW+FyKPa1vERT0NalYSdqP0yfuKdyqssHro
+        zBW9mCYP50vFTvi62vwTbFURmcbuzQyJ7S2Xt1+oSzl9qBlD6Nwa9XpNKi+0PUyNP2opgr
+        gZdmrBVQbCFFPbEGN9+lcEfaX81M1uy6ZaI9Z9GYpk906O6OkfMscGgMe6YnKg==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1637976225;
+        s=2020e; t=1637976231;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         references:references; bh=iosGiYlhYBo//aWwbi8Bz/t2OkGIwccy2DoihzPp5zA=;
-        b=bKbppomiggw04KqWWKJ988/Y3zmjEFpPo+XO/Kqfm8uHvix/fNHwRsd+SrPovpLZ3d8v9H
-        s4XshDWRCMbt+JBA==
+         references:references; bh=bDqDcBZ6Ac8mk8Pi4m81SdvqMSMLhFM8ia6/waF9mec=;
+        b=IUp4pTsAMnBJgnLtXNBCngP8Subu5N09d4GuMkS0IoSTXUObgfoJsIKVHdsJF45UG+OH6D
+        dyyVGK54UuhcfXCA==
 From:   Thomas Gleixner <tglx@linutronix.de>
 To:     LKML <linux-kernel@vger.kernel.org>
 Cc:     Bjorn Helgaas <helgaas@kernel.org>, Marc Zygnier <maz@kernel.org>,
@@ -43,70 +43,46 @@ Cc:     Bjorn Helgaas <helgaas@kernel.org>, Marc Zygnier <maz@kernel.org>,
         Jon Mason <jdmason@kudzu.us>,
         Dave Jiang <dave.jiang@intel.com>,
         Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com
-Subject: [patch 10/32] PCI/MSI: Let core code free MSI descriptors
+Subject: [patch 14/32] s390/pci: Rework MSI descriptor walk
 References: <20211126230957.239391799@linutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Date:   Sat, 27 Nov 2021 02:23:44 +0100 (CET)
+Date:   Sat, 27 Nov 2021 02:23:50 +0100 (CET)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
-Message-ID: <20211127012344.KcP9zdxYH2z1I4FrDuUDNahpiYxBhze2TdJM9Uf2UHQ@z>
+Message-ID: <20211127012350.xHFC1TUVhvi4UVMfWRrN6zH4mzBgaggQjTUsELsKfTo@z>
 
-Set the domain info flag which tells the core code to free the MSI
-descriptors from msi_domain_free_irqs() and add an explicit call to the
-core function into the legacy code.
+Replace the about to vanish iterators and make use of the filtering.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-s390@vger.kernel.org
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- drivers/pci/msi/irqdomain.c |    3 ++-
- drivers/pci/msi/legacy.c    |    1 +
- drivers/pci/msi/msi.c       |   14 --------------
- 3 files changed, 3 insertions(+), 15 deletions(-)
+ arch/s390/pci/pci_irq.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/drivers/pci/msi/irqdomain.c
-+++ b/drivers/pci/msi/irqdomain.c
-@@ -171,7 +171,8 @@ struct irq_domain *pci_msi_create_irq_do
- 	if (info->flags & MSI_FLAG_USE_DEF_CHIP_OPS)
- 		pci_msi_domain_update_chip_ops(info);
+--- a/arch/s390/pci/pci_irq.c
++++ b/arch/s390/pci/pci_irq.c
+@@ -303,7 +303,7 @@ int arch_setup_msi_irqs(struct pci_dev *
  
--	info->flags |= MSI_FLAG_ACTIVATE_EARLY | MSI_FLAG_DEV_SYSFS;
-+	info->flags |= MSI_FLAG_ACTIVATE_EARLY | MSI_FLAG_DEV_SYSFS |
-+		       MSI_FLAG_FREE_MSI_DESCS;
- 	if (IS_ENABLED(CONFIG_GENERIC_IRQ_RESERVATION_MODE))
- 		info->flags |= MSI_FLAG_MUST_REACTIVATE;
+ 	/* Request MSI interrupts */
+ 	hwirq = bit;
+-	for_each_pci_msi_entry(msi, pdev) {
++	msi_for_each_desc(msi, &pdev->dev, MSI_DESC_NOTASSOCIATED) {
+ 		rc = -EIO;
+ 		if (hwirq - bit >= msi_vecs)
+ 			break;
+@@ -362,9 +362,7 @@ void arch_teardown_msi_irqs(struct pci_d
+ 		return;
  
---- a/drivers/pci/msi/legacy.c
-+++ b/drivers/pci/msi/legacy.c
-@@ -81,4 +81,5 @@ void pci_msi_legacy_teardown_msi_irqs(st
- {
- 	msi_device_destroy_sysfs(&dev->dev);
- 	arch_teardown_msi_irqs(dev);
-+	msi_free_msi_descs(&dev->dev);
- }
---- a/drivers/pci/msi/msi.c
-+++ b/drivers/pci/msi/msi.c
-@@ -224,22 +224,8 @@ EXPORT_SYMBOL_GPL(pci_write_msi_msg);
- 
- static void free_msi_irqs(struct pci_dev *dev)
- {
--	struct list_head *msi_list = dev_to_msi_list(&dev->dev);
--	struct msi_desc *entry, *tmp;
--	int i;
--
--	for_each_pci_msi_entry(entry, dev)
--		if (entry->irq)
--			for (i = 0; i < entry->nvec_used; i++)
--				BUG_ON(irq_has_action(entry->irq + i));
--
- 	pci_msi_teardown_msi_irqs(dev);
- 
--	list_for_each_entry_safe(entry, tmp, msi_list, list) {
--		list_del(&entry->list);
--		free_msi_entry(entry);
--	}
--
- 	if (dev->msix_base) {
- 		iounmap(dev->msix_base);
- 		dev->msix_base = NULL;
+ 	/* Release MSI interrupts */
+-	for_each_pci_msi_entry(msi, pdev) {
+-		if (!msi->irq)
+-			continue;
++	msi_for_each_desc(msi, &pdev->dev, MSI_DESC_ASSOCIATED) {
+ 		irq_set_msi_desc(msi->irq, NULL);
+ 		irq_free_desc(msi->irq);
+ 		msi->msg.address_lo = 0;
 
