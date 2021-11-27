@@ -2,32 +2,39 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 99019C433F5
-	for <linux-s390@archiver.kernel.org>; Sat, 27 Nov 2021 12:35:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A25AC4332F
+	for <linux-s390@archiver.kernel.org>; Sat, 27 Nov 2021 19:25:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239513AbhK0Mio (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 27 Nov 2021 07:38:44 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:38978 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242443AbhK0Mgn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 27 Nov 2021 07:36:43 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CD159B81B33;
-        Sat, 27 Nov 2021 12:33:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFB5FC53FAD;
-        Sat, 27 Nov 2021 12:33:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638016406;
-        bh=jDfQyHsi3RriZ5ZWV8f+HEUm1N4gUzCAPBaQlnUROlA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RvixBZ/ISwOAUImnksfi7zufQTgUiqeLh/7boi8Gt5SIP7YchCvymFs19VAM+pqQo
-         zjsGrjhGOqrYedKeM7bug0fJlGXWkldVSjj/ZtkL8dpoOrPARzAeroMsQSxSSLXYZ+
-         GT3Hs1K1hfMe+l7Tkwp0ugaxHRcZ+LUpK2NveDWM=
-Date:   Sat, 27 Nov 2021 13:33:24 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Thomas Gleixner <tglx@linutronix.de>
+        id S234644AbhK0T2N (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 27 Nov 2021 14:28:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43774 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235665AbhK0T0M (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 27 Nov 2021 14:26:12 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A209DC061763;
+        Sat, 27 Nov 2021 11:22:29 -0800 (PST)
+From:   Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1638040947;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=B1qxQCFfbrdFSxQkL8hZX6Zfer69wbZc+107UOQS45k=;
+        b=E1FJbCvWO7yuYLjHi6JwLKVgq2jlrRGKU1HBNyRwkQgjKRoSGjUb4pVTuxy8aoeGJGziDl
+        r8JphJFwXy3pRd938tJMCqGxnJcUAp9iA6H7wUgVJDLPQYC0hlltbZnQ7fw5eKbBG50NEQ
+        FXLOJNHJX5/bywfSByEFauxlCkc/tKg30CWc3nYUoynQmX3k2ccGXnhWmWx3vjTJiI2hhg
+        isRToszMiuoEqJ2vNhYq2qaKA1Kc14PumeixOZdyhyijjHMgqhIG/j3ipGInWGCKUkhwTV
+        LJZ6KSloel2ZHgcO4LenCtL2OSRR9rqtn2MV2WNvi6r/dOTn5fDEhunBQL8+VA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1638040947;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=B1qxQCFfbrdFSxQkL8hZX6Zfer69wbZc+107UOQS45k=;
+        b=YbWaCIQ16i7j9FW8GIP6eOod9vGpKoNmsdX1E4W3VcFQqHxjQb/AxNhkFM9vvx1QRhO7Yp
+        kNlszx9Qprspl7CA==
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     LKML <linux-kernel@vger.kernel.org>,
         Bjorn Helgaas <helgaas@kernel.org>,
         Marc Zygnier <maz@kernel.org>,
@@ -41,39 +48,45 @@ Cc:     LKML <linux-kernel@vger.kernel.org>,
         Jon Mason <jdmason@kudzu.us>,
         Dave Jiang <dave.jiang@intel.com>,
         Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com
-Subject: Re: [patch 32/32] genirq/msi: Convert storage to xarray
-Message-ID: <YaIllD3pSVCI/gbj@kroah.com>
+Subject: Re: [patch 07/32] genirq/msi: Count the allocated MSI descriptors
+In-Reply-To: <YaIiPISLr7VokL8P@kroah.com>
 References: <20211126230957.239391799@linutronix.de>
- <20211126232736.190744801@linutronix.de>
+ <20211126232734.708730446@linutronix.de> <YaIiPISLr7VokL8P@kroah.com>
+Date:   Sat, 27 Nov 2021 20:22:26 +0100
+Message-ID: <87o865flot.ffs@tglx>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211126232736.190744801@linutronix.de>
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sat, Nov 27, 2021 at 02:23:17AM +0100, Thomas Gleixner wrote:
-> The current linked list storage for MSI descriptors is suboptimal in
-> several ways:
-> 
->   1) Looking up a MSI desciptor requires a O(n) list walk in the worst case
-> 
->   2) The upcoming support of runtime expansion of MSI-X vectors would need
->      to do a full list walk to figure out whether a particular index is
->      already associated.
-> 
->   3) Runtime expansion of sparse allocations is even more complex as the
->      current implementation assumes an ordered list (increasing MSI index).
-> 
-> Use an xarray which solves all of the above problems nicely.
-> 
-> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-> ---
->  include/linux/msi.h |   19 ++---
->  kernel/irq/msi.c    |  188 ++++++++++++++++++++++------------------------------
->  2 files changed, 90 insertions(+), 117 deletions(-)
+On Sat, Nov 27 2021 at 13:19, Greg Kroah-Hartman wrote:
+> On Sat, Nov 27, 2021 at 02:22:38AM +0100, Thomas Gleixner wrote:
+>> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+>
+> No changelog?
 
-Much simpler code too, nice!
+Bah. This one should not be there at all.
 
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Anyway, why do we care about the number of decriptors?
+>> +/**
+>> + * msi_device_num_descs - Query the number of allocated MSI descriptors of a device
+>> + * @dev:	The device to read from
+>> + *
+>> + * Note: This is a lockless snapshot of msi_device_data::num_descs
+>> + *
+>> + * Returns the number of MSI descriptors which are allocated for @dev
+>> + */
+>> +unsigned int msi_device_num_descs(struct device *dev)
+>> +{
+>> +	if (dev->msi.data)
+>> +		return dev->msi.data->num_descs;
+>
+> As this number can change after it is read, what will callers do with
+> it?
+
+I wanted to get rid of this, but then forgot. Getting old.
+
+Thanks,
+
+        tglx
