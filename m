@@ -2,220 +2,321 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72110C433F5
-	for <linux-s390@archiver.kernel.org>; Sun, 28 Nov 2021 01:02:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 47FD8C433F5
+	for <linux-s390@archiver.kernel.org>; Sun, 28 Nov 2021 03:59:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356757AbhK1BF5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 27 Nov 2021 20:05:57 -0500
-Received: from mail-bn7nam10on2046.outbound.protection.outlook.com ([40.107.92.46]:63553
-        "EHLO NAM10-BN7-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S231160AbhK1BD4 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 27 Nov 2021 20:03:56 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=OmLAEb264UyG/Rn/FQpifpXCLGRavFjVl3psdqQF9B0egPP7WP+5260eMgWKR3E7USn7+tGzmh7rMytt8nWqZ/UFtKiKIvSCuRBG2Lw0jf+EUIOvaatnxO1Tzr0gyxF5HA069FAawsG2QR7u9N6XVVsBpkbZwgy8ixWUTTm/kRKxWCt2eDQuyJNiUQkMRWcqcGArUI8udjGuxi1nizGJ0P8uwTE6Wu9NBwDFgNU1tKFi3mP7G6nlIc5ZTaXO7wpYAS7t2chXhGzWRmN6SCjMOA7+3ksbgQtK/CTRdc14Pmqq7yk1qufwgigBHqwYDJgIDNx/8HXlTo7E/P09RFrBnA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=rSuFiADXHEbRNF87F77c8iR5JVN750YAAsdtJGLNHkQ=;
- b=LC+vITO2Pknu3BtKn2IAkpc9iK8b+JMZ0X6A3lG8+TgS8JUkhRBC4Tb295c+1D4ePdqJ/e6aTsu/FQ7HbU7b3QHfuRkiL1ETqLs4nu25XjXUaXHHyef7Ug+oxAmt2Szu95hGLBCncdAfw9dNDXUC0nT6WPrQTM7BQBVVEws49V0GkaXfjYoAlcdwhBREZmASh2KDkGxYYdPtjSz4dxTL4UN5/PwE5DnV2ja5Itrfh8/XRg6s3HmsmZ5IkmGzbKRKVkiMFDPiZEEnsLbsYIwp50nUV9rDld//B6F9+gK7GhYAO1iG/7sfqqhsDDOJNDc8doL744Mf/EtbxpJAsvnOzg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=rSuFiADXHEbRNF87F77c8iR5JVN750YAAsdtJGLNHkQ=;
- b=ccvevOaSqVMxW7u5i4siD0URuTx1eU547U7hlW6n68q0z3FtoqHc3r6JOaF48U5BVtRDJi7B5xF38JSFkGXWP8uoRh9sMpJD4YGdJzj/iDfSTOjweHRnawXG78/GVfpuqH353trfhKs2u3/OwhPOawTbiIubR8dDIqAG5HLrNAvmBsqwAWlGuLHwIZy7bch1A8yOGV7tIue7GyNcBF/CkF9PgKVTxMxqpIxwBXwO1Opdiwk0Ak1BLaw8xQU+pCxMgvnQSlMif5QoWgvLuUnsc8un5wDV65TgqA5UJBKCxtFFFPMyeo146dBeTOQDkzPychl1BeIEqpRtePKEZYB5Rw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
- by BL1PR12MB5208.namprd12.prod.outlook.com (2603:10b6:208:311::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4734.22; Sun, 28 Nov
- 2021 01:00:38 +0000
-Received: from BL0PR12MB5506.namprd12.prod.outlook.com
- ([fe80::5897:83b2:a704:7909]) by BL0PR12MB5506.namprd12.prod.outlook.com
- ([fe80::5897:83b2:a704:7909%8]) with mapi id 15.20.4734.023; Sun, 28 Nov 2021
- 01:00:38 +0000
-Date:   Sat, 27 Nov 2021 21:00:37 -0400
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Thomas Gleixner <tglx@linutronix.de>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Bjorn Helgaas <helgaas@kernel.org>,
-        Marc Zygnier <maz@kernel.org>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Megha Dey <megha.dey@intel.com>,
-        Ashok Raj <ashok.raj@intel.com>, linux-pci@vger.kernel.org,
+        id S1347699AbhK1ECZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 27 Nov 2021 23:02:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41856 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1343810AbhK1EAX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 27 Nov 2021 23:00:23 -0500
+Received: from mail-qt1-x833.google.com (mail-qt1-x833.google.com [IPv6:2607:f8b0:4864:20::833])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31A26C06174A;
+        Sat, 27 Nov 2021 19:57:08 -0800 (PST)
+Received: by mail-qt1-x833.google.com with SMTP id 8so12913101qtx.5;
+        Sat, 27 Nov 2021 19:57:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=fJ8xfnVA+NPUIa5t4yWgB58hLT4DLWUqrE9DXdtQP+o=;
+        b=a5JTXAi8QEj68vc4ha+mPXa/ak1/OEEuTBec3AMtr1hEzo8fmCz3oIwEmN3K8kvQYB
+         67gv/rNWFdzwHiZFz09bpXG9HR51wjgigxUHIjdtAoVE4YB1vUAdNadlYIOtRZECxgba
+         qt3C1oVJF96hYIQdDKlDO0FBz0TCdg6G1jktJ3RCIVLkJZMOcXupEqyjZfFMvq2MAme6
+         UgcKwKoiTAaN0noh2ql7FQQ0Jxhmh2WckqBiI0uS0tM+dBCqWKfFUMxoZTvkiS3PR3wT
+         /2lsgPXrHRO/TwsRXE/k4NEjrGiabGxA6/xpgMyYfvSqIbYUO/V0Hzjl329Ng6juxWHT
+         KZPQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=fJ8xfnVA+NPUIa5t4yWgB58hLT4DLWUqrE9DXdtQP+o=;
+        b=4C6Vqaso+l2IUpyiEbdZ2SXnIl0b64oOmzu6OukVkbhVMGVndO2DoIouAiLcttLNXd
+         GLCC0dZXhuF7CiEma0nV85UsCgl+Ahb4avVBDKm0Kcfk2e0H6slgbid9y2IJYa8YcVPM
+         s8JFWAJfjPgPaHx9OAKVXbMvCU0RrC1C2NsoEokYbymRnf4V0boS99n1lOO18Xwo0ubA
+         n6yrLVIqsJoMouYlBj9WqH3lLnxjKDYqKM/heZ+Rnq76+1dIg8K+kg/jmD6830ceJc3Q
+         KKG/XHKzBISzvLOSOb67VcmNcMeeWRM9jGg2asO30cGakGGCSaPsVAQbD0TI03ABvzmS
+         7kTQ==
+X-Gm-Message-State: AOAM530V41QuNcU+T+L9ikKlpjzT8BBmcWRnTUjqN2sT4H/RJmg77rYb
+        vm+92Lcv4qcw26OF1XVAeU05qYXbyljYdw==
+X-Google-Smtp-Source: ABdhPJy1HODbinFYUK0hw6hMtPG5eVjRVeAWjrsAbI29+G07rR15rsN4J5IN8e01ddnXvrZIRqJNZg==
+X-Received: by 2002:ac8:7fc2:: with SMTP id b2mr35277966qtk.114.1638071826940;
+        Sat, 27 Nov 2021 19:57:06 -0800 (PST)
+Received: from localhost ([66.216.211.25])
+        by smtp.gmail.com with ESMTPSA id x17sm6473647qta.66.2021.11.27.19.57.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 27 Nov 2021 19:57:06 -0800 (PST)
+From:   Yury Norov <yury.norov@gmail.com>
+To:     linux-kernel@vger.kernel.org, Yury Norov <yury.norov@gmail.com>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Alexey Klimov <aklimov@redhat.com>,
+        Amitkumar Karwar <amitkarwar@gmail.com>,
+        Andi Kleen <ak@linux.intel.com>, Andrew Lunn <andrew@lunn.ch>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andy Gross <agross@kernel.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Andy Shevchenko <andy@infradead.org>,
+        Anup Patel <anup.patel@wdc.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Christoph Lameter <cl@linux.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        David Airlie <airlied@linux.ie>,
+        David Laight <David.Laight@ACULAB.COM>,
+        Dennis Zhou <dennis@kernel.org>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Geetha sowjanya <gakula@marvell.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Jon Mason <jdmason@kudzu.us>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com
-Subject: Re: [patch 04/32] genirq/msi: Provide a set of advanced MSI
- accessors and iterators
-Message-ID: <20211128010037.GV4670@nvidia.com>
-References: <20211126230957.239391799@linutronix.de>
- <20211126232734.531194050@linutronix.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211126232734.531194050@linutronix.de>
-X-ClientProxiedBy: BLAPR03CA0075.namprd03.prod.outlook.com
- (2603:10b6:208:329::20) To BL0PR12MB5506.namprd12.prod.outlook.com
- (2603:10b6:208:1cb::22)
+        Guo Ren <guoren@kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Ian Rogers <irogers@google.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Jason Wessel <jason.wessel@windriver.com>,
+        Jens Axboe <axboe@fb.com>, Jiri Olsa <jolsa@redhat.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Kees Cook <keescook@chromium.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Marc Zyngier <maz@kernel.org>, Marcin Wojtas <mw@semihalf.com>,
+        Mark Gross <markgross@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matti Vaittinen <mazziesaccount@gmail.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Mel Gorman <mgorman@suse.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Petr Mladek <pmladek@suse.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Roy Pledge <Roy.Pledge@nxp.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Solomon Peachy <pizza@shaftnet.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Subbaraya Sundeep <sbhatta@marvell.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Sunil Goutham <sgoutham@marvell.com>,
+        Tariq Toukan <tariqt@nvidia.com>, Tejun Heo <tj@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Vineet Gupta <vgupta@kernel.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Will Deacon <will@kernel.org>,
+        bcm-kernel-feedback-list@broadcom.com, kvm@vger.kernel.org,
+        linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-crypto@vger.kernel.org, linux-csky@vger.kernel.org,
+        linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-mm@kvack.org, linux-perf-users@vger.kernel.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH 0/9] lib/bitmap: optimize bitmap_weight() usage
+Date:   Sat, 27 Nov 2021 19:56:55 -0800
+Message-Id: <20211128035704.270739-1-yury.norov@gmail.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Received: from mlx.ziepe.ca (142.162.113.129) by BLAPR03CA0075.namprd03.prod.outlook.com (2603:10b6:208:329::20) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4734.22 via Frontend Transport; Sun, 28 Nov 2021 01:00:38 +0000
-Received: from jgg by mlx with local (Exim 4.94)        (envelope-from <jgg@nvidia.com>)        id 1mr8YX-003nwf-Bm; Sat, 27 Nov 2021 21:00:37 -0400
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 8752eb34-cae0-4763-7454-08d9b20a7de8
-X-MS-TrafficTypeDiagnostic: BL1PR12MB5208:
-X-Microsoft-Antispam-PRVS: <BL1PR12MB52083FF4CCDE1E0B8307FCE9C2659@BL1PR12MB5208.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:4714;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: LUxCNuIZ25saZFExii+ANE36ff9Gyi4cDtsxZKnZpabPJ2MbRaNpRzBL4p9fKuITkTXg5ZPP55sardmOZlV7juWZvB3BY1hn40kjN1l4npVeKXgf8wSLUbT8O30nbP6JPlUBKa8N61asiafaFgBblAubrhHCOjYlTdFkPUXRYW+GRKGeghzSBBBdpygrf0PPdOEbyDUNwsKDebcpVpxq2zNCA9DqOY178PBYDKGQDP0/AFtj9qmsBA2sgubljwWyaTWadDsSu01UJIbkB0wpY6kt9dVVF08MeMYC4VpqqTmix5FM+LZuKrq+i61Wy9ETK3eNkb8psrQ2PnmFaw18ZpzCqoPoB+JOyHYkkFe4E35e+L3wX6hiIDuciiWHU3NfFpjKZJzzh+02CG6CvkuZEFakcEi60ra5DkjTC6iu56W4/AmyRID2nrccPEFKC6blaqbRIffn9iL4TWzQf9CFR9bsZgalDviflcvAVBDK7ceArGmMo0j/R1S6vuNeDu3l23XqWO5PNbVpBsgOqLh7+pxWA+QdkqHj+cMHrBLh5gBD1YzfwJE3SP+3cgbPiAK3AYWDKFbtY/kzjiSOnolbLUZnDIBVd9JG1mHBWwPInin/KFCEU4XI7uHQGUBYY1+0/oTbAUNVEFMRhXvQwE4//w==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(86362001)(66946007)(26005)(508600001)(426003)(66476007)(2616005)(36756003)(8676002)(66556008)(38100700002)(9746002)(6916009)(83380400001)(8936002)(5660300002)(54906003)(2906002)(7416002)(9786002)(316002)(33656002)(1076003)(186003)(4326008);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?O1/xMy3YlSOccFzKS8MT6xkwzfF//odEuhpUs4hbvakw0tS5HCmvMlz41z6N?=
- =?us-ascii?Q?k1LBoj2Vu9fS0BK1O9ZA2J9o8lAjuHYVIVqo2HZkryxAv60pFjkpThgmvVG1?=
- =?us-ascii?Q?U7RRFXJblbefuJVp2YTv2UgXleYKM9ieaDJQlbJericd2Oexatvjra7wZtM1?=
- =?us-ascii?Q?Es59C6Had/X6eY2bHQ5pStI96DAecsvKkU09EYJy4LcVhWhLao05ls3x7r1I?=
- =?us-ascii?Q?dwKRziCsOwU+pV6xYNc04BSl73Lu3GtDwW/G+YV4qBe8Y/r+Ja93obvJBCmp?=
- =?us-ascii?Q?kkGfyjzCyUWjKQ3muLhxglS35E3NjIoHcKjTZX+9Ts/A2wN7oNEKTJyAejgu?=
- =?us-ascii?Q?ZaDnxYGB2hpni5ZMaH5EZA+G5Df9VGEDLXERztgipCNXUxUpWhrSfUJOgDll?=
- =?us-ascii?Q?t0JF4O/5g4MfoXs5oGjttxlQ5WDd+L/WAWOBLwwVGZiUhLPby0swWo3/KeuT?=
- =?us-ascii?Q?aQfLRnvxOxh0nTjUTO5Hfk2TSrVJ8LWjnrODuJ/E7MJkFWEPzDI8+QghHwPW?=
- =?us-ascii?Q?0axAdhHOM8Yy4p9pOW83Q+K+ToJFhmCjhhLP8I5ocYlUI6V2IfI3G/UHkbjA?=
- =?us-ascii?Q?bgrfRfxokPqJBDqLwRdDsiiAqPkuclA0GB7KjKphfAw1F6IsS91WXjAxlDRV?=
- =?us-ascii?Q?Sc8BFvUFMPVTO9evTriRXXeDbMmV3ybiDqoJcN70rkYKq/SXbo/7lhfoe4S2?=
- =?us-ascii?Q?c2ls1qnwh9A9sxzkdxubpEkr1gnT/l2YgwyuYP/61shhrfyd39/PidjsyhcB?=
- =?us-ascii?Q?AOxNQTuJOi+ncxI679cH5FU5ua+HLFhsAGoAOka/dGTGmnz5BrD84yzZJeLi?=
- =?us-ascii?Q?2egosyWl0MeFekCh6WmHc6Fgk7+lmwNbxhoBTcDYhL6tn+BVcREMeMChLOd+?=
- =?us-ascii?Q?7duWxb93ttTdXOTK5E+G7Tv2dET/7LLXsIb57feg7jEiphBh9OmQ7xppIXo/?=
- =?us-ascii?Q?Z2xPC1ZpTGT0dJzesLUPCIXLp33KBbUyPNYZaMgX2M0a/LfSuN6VWjsqeyiy?=
- =?us-ascii?Q?zzsAAPVJepLHr/PIwP36EDLqVgGuEAroTaMg/Nmq2g1h8uMXyCVek+6DjaYM?=
- =?us-ascii?Q?VJxqdtwk7GK+MD9MmoQTp4Jl/xngIbHXPYYllvnXPp+08H3neHhY7SKXRQvM?=
- =?us-ascii?Q?HUK1dd/6YteiHH2JND6Y9rHIyeneTeyUBiA2dnp7K48AqLqUACq3LOEuJVa1?=
- =?us-ascii?Q?usVOLQ4z5zEdU2Wgz0kP2usDPbHTqUB2pOsxEZ8Ti7WjFgZF6Urtucn70te3?=
- =?us-ascii?Q?72uxQft0UKCx5SOVVThIfi1Gd2MOl9MaAcwwatPUXkWDbztvEeZq+aYkAv/A?=
- =?us-ascii?Q?5VHi4Ws6ZrjHS+YroIvFqBRNUMwYmax4B8CpGIn/cOcFCPZKgpbtw0wznhAF?=
- =?us-ascii?Q?9ZCF02bHEaF2ofVKYMWaIzchBi+pXaeys/hwaYeCv+QhiSeDilVTdNiBCnko?=
- =?us-ascii?Q?WjVLDbGBDQNqCPl3czRr37O/cS/csWxmQQ/mgQ72r1J7nPLCsuBFGQQT1PBy?=
- =?us-ascii?Q?Ef4/3YwU5WukD6NvOjyeDtq0wE/FshE7Al8tpjKpbPch7W1NZ7kPa+hwmZ51?=
- =?us-ascii?Q?YFqZ6EalFje4lYaw/8U=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8752eb34-cae0-4763-7454-08d9b20a7de8
-X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5506.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Nov 2021 01:00:38.3400
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: EQRpN3xw4r09o19QPl+gR9ZtN6+qbn5jb3axmfZ6Rsb6SoobPNU4gAKWGmCbDdYl
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5208
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sat, Nov 27, 2021 at 02:22:33AM +0100, Thomas Gleixner wrote:
-> In preparation for dynamic handling of MSI-X interrupts provide a new set
-> of MSI descriptor accessor functions and iterators. They are benefitial per
-> se as they allow to cleanup quite some code in various MSI domain
-> implementations.
-> 
-> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
->  include/linux/msi.h |   58 ++++++++++++++++++++++++++++
->  kernel/irq/msi.c    |  107 ++++++++++++++++++++++++++++++++++++++++++++++++++++
->  2 files changed, 165 insertions(+)
-> 
-> +++ b/include/linux/msi.h
-> @@ -140,6 +140,18 @@ struct msi_desc {
->  	struct pci_msi_desc		pci;
->  };
->  
-> +/*
-> + * Filter values for the MSI descriptor iterators and accessor functions.
-> + */
-> +enum msi_desc_filter {
-> +	/* All descriptors */
-> +	MSI_DESC_ALL,
-> +	/* Descriptors which have no interrupt associated */
-> +	MSI_DESC_NOTASSOCIATED,
-> +	/* Descriptors which have an interrupt associated */
-> +	MSI_DESC_ASSOCIATED,
-> +};
-> +
->  /**
->   * msi_device_data - MSI per device data
->   * @lock:		Spinlock to protect register access
-> @@ -148,6 +160,8 @@ struct msi_desc {
->   * @platform_data:	Platform-MSI specific data
->   * @list:		List of MSI descriptors associated to the device
->   * @mutex:		Mutex protecting the MSI list
-> + * @__next:		Cached pointer to the next entry for iterators
-> + * @__filter:		Cached descriptor filter
->   */
->  struct msi_device_data {
->  	raw_spinlock_t			lock;
-> @@ -156,6 +170,8 @@ struct msi_device_data {
->  	struct platform_msi_priv_data	*platform_data;
->  	struct list_head		list;
->  	struct mutex			mutex;
-> +	struct msi_desc			*__next;
-> +	enum msi_desc_filter		__filter;
->  };
->  
->  int msi_setup_device_data(struct device *dev);
-> @@ -193,6 +209,48 @@ static inline unsigned int msi_get_virq(
->  void msi_lock_descs(struct device *dev);
->  void msi_unlock_descs(struct device *dev);
->  
-> +struct msi_desc *__msi_first_desc(struct device *dev, enum msi_desc_filter filter, unsigned int base_index);
-> +struct msi_desc *msi_next_desc(struct device *dev);
-> +
-> +/**
-> + * msi_first_desc - Get the first MSI descriptor associated to the device
-> + * @dev:	Device to search
-> + */
-> +static inline struct msi_desc *msi_first_desc(struct device *dev)
-> +{
-> +	return __msi_first_desc(dev, MSI_DESC_ALL, 0);
-> +}
-> +
-> +
-> +/**
-> + * msi_for_each_desc_from - Iterate the MSI descriptors from a given index
-> + *
-> + * @desc:	struct msi_desc pointer used as iterator
-> + * @dev:	struct device pointer - device to iterate
-> + * @filter:	Filter for descriptor selection
-> + * @base_index:	MSI index to iterate from
-> + *
-> + * Notes:
-> + *  - The loop must be protected with a msi_lock_descs()/msi_unlock_descs()
-> + *    pair.
-> + *  - It is safe to remove a retrieved MSI descriptor in the loop.
-> + */
-> +#define msi_for_each_desc_from(desc, dev, filter, base_index)			\
-> +	for ((desc) = __msi_first_desc((dev), (filter), (base_index)); (desc);	\
-> +	     (desc) = msi_next_desc((dev)))
+In many cases people use bitmap_weight()-based functions like this:
 
-Given this ends up as an xarray it feels really weird that there is a
-hidden shared __next/__iter_idx instead of having the caller provide
-the index storage as is normal for xa operations.
+	if (num_present_cpus() > 1)
+		do_something();
 
-I understand why that isn't desirable at this patch where the storage
-would have to be a list_head pointer, but still, seems like an odd
-place to end up at the end of the series.
+This may take considerable amount of time on many-cpus machines because
+num_present_cpus() will traverse every word of underlying cpumask
+unconditionally.
 
-eg add index here unused and then the last patch uses it instead of
-__iter_idx.
+We can significantly improve on it for many real cases if stop traversing
+the mask as soon as we count present cpus to any number greater than 1:
 
-Also, I don't understand why filter was stored in the dev and not
-passed into msi_next_desc() in the macro here?
+	if (num_present_cpus_gt(1))
+		do_something();
 
-Jason
+To implement this idea, the series adds bitmap_weight_{eq,gt,le}
+functions together with corresponding wrappers in cpumask and nodemask.
+
+Yury Norov (9):
+  lib/bitmap: add bitmap_weight_{eq,gt,le}
+  lib/bitmap: implement bitmap_{empty,full} with bitmap_weight_eq()
+  all: replace bitmap_weigth() with bitmap_{empty,full,eq,gt,le}
+  tools: sync bitmap_weight() usage with the kernel
+  lib/cpumask: add cpumask_weight_{eq,gt,le}
+  lib/nodemask: add nodemask_weight_{eq,gt,le}
+  lib/cpumask: add num_{possible,present,active}_cpus_{eq,gt,le}
+  lib/nodemask: add num_node_state_eq()
+  MAINTAINERS: add cpumask and nodemask files to BITMAP_API
+
+ MAINTAINERS                                   |  4 ++
+ arch/alpha/kernel/process.c                   |  2 +-
+ arch/arc/kernel/smp.c                         |  2 +-
+ arch/arm/kernel/machine_kexec.c               |  2 +-
+ arch/arm/mach-exynos/exynos.c                 |  2 +-
+ arch/arm/mm/cache-b15-rac.c                   |  2 +-
+ arch/arm64/kernel/smp.c                       |  2 +-
+ arch/arm64/mm/context.c                       |  2 +-
+ arch/csky/mm/asid.c                           |  2 +-
+ arch/csky/mm/context.c                        |  2 +-
+ arch/ia64/kernel/setup.c                      |  2 +-
+ arch/ia64/mm/tlb.c                            |  8 +--
+ arch/mips/cavium-octeon/octeon-irq.c          |  4 +-
+ arch/mips/kernel/crash.c                      |  2 +-
+ arch/mips/kernel/i8253.c                      |  2 +-
+ arch/mips/kernel/perf_event_mipsxx.c          |  4 +-
+ arch/mips/kernel/rtlx-cmp.c                   |  2 +-
+ arch/mips/kernel/smp.c                        |  4 +-
+ arch/mips/kernel/vpe-cmp.c                    |  2 +-
+ .../loongson2ef/common/cs5536/cs5536_mfgpt.c  |  2 +-
+ arch/mips/mm/context.c                        |  2 +-
+ arch/mips/mm/tlbex.c                          |  2 +-
+ arch/nds32/kernel/perf_event_cpu.c            |  4 +-
+ arch/nios2/kernel/cpuinfo.c                   |  2 +-
+ arch/powerpc/kernel/smp.c                     |  2 +-
+ arch/powerpc/kernel/watchdog.c                |  4 +-
+ arch/powerpc/platforms/85xx/smp.c             |  2 +-
+ arch/powerpc/platforms/pseries/hotplug-cpu.c  |  4 +-
+ arch/powerpc/sysdev/mpic.c                    |  2 +-
+ arch/powerpc/xmon/xmon.c                      | 10 +--
+ arch/riscv/kvm/vmid.c                         |  2 +-
+ arch/s390/kernel/perf_cpum_cf.c               |  2 +-
+ arch/sparc/kernel/mdesc.c                     |  6 +-
+ arch/x86/events/amd/core.c                    |  2 +-
+ arch/x86/kernel/alternative.c                 |  8 +--
+ arch/x86/kernel/apic/apic.c                   |  4 +-
+ arch/x86/kernel/apic/apic_flat_64.c           |  2 +-
+ arch/x86/kernel/apic/probe_32.c               |  2 +-
+ arch/x86/kernel/cpu/mce/dev-mcelog.c          |  2 +-
+ arch/x86/kernel/cpu/resctrl/rdtgroup.c        | 18 +++---
+ arch/x86/kernel/hpet.c                        |  2 +-
+ arch/x86/kernel/i8253.c                       |  2 +-
+ arch/x86/kernel/kvm.c                         |  2 +-
+ arch/x86/kernel/kvmclock.c                    |  2 +-
+ arch/x86/kernel/smpboot.c                     |  4 +-
+ arch/x86/kernel/tsc.c                         |  2 +-
+ arch/x86/kvm/hyperv.c                         |  8 +--
+ arch/x86/mm/amdtopology.c                     |  2 +-
+ arch/x86/mm/mmio-mod.c                        |  2 +-
+ arch/x86/mm/numa_emulation.c                  |  4 +-
+ arch/x86/platform/uv/uv_nmi.c                 |  2 +-
+ arch/x86/xen/smp_pv.c                         |  2 +-
+ arch/x86/xen/spinlock.c                       |  2 +-
+ drivers/acpi/numa/srat.c                      |  2 +-
+ drivers/clk/samsung/clk-exynos4.c             |  2 +-
+ drivers/clocksource/ingenic-timer.c           |  3 +-
+ drivers/cpufreq/pcc-cpufreq.c                 |  2 +-
+ drivers/cpufreq/qcom-cpufreq-hw.c             |  2 +-
+ drivers/cpufreq/scmi-cpufreq.c                |  2 +-
+ drivers/crypto/ccp/ccp-dev-v5.c               |  5 +-
+ drivers/dma/mv_xor.c                          |  5 +-
+ drivers/firmware/psci/psci_checker.c          |  2 +-
+ drivers/gpu/drm/i810/i810_drv.c               |  2 +-
+ drivers/gpu/drm/i915/i915_pmu.c               |  2 +-
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_smp.c      |  2 +-
+ drivers/hv/channel_mgmt.c                     |  4 +-
+ drivers/iio/adc/mxs-lradc-adc.c               |  3 +-
+ drivers/iio/dummy/iio_simple_dummy_buffer.c   |  4 +-
+ drivers/iio/industrialio-buffer.c             |  2 +-
+ drivers/iio/industrialio-trigger.c            |  2 +-
+ drivers/infiniband/hw/hfi1/affinity.c         | 13 ++--
+ drivers/infiniband/hw/qib/qib_file_ops.c      |  2 +-
+ drivers/infiniband/hw/qib/qib_iba7322.c       |  2 +-
+ drivers/infiniband/sw/siw/siw_main.c          |  3 +-
+ drivers/irqchip/irq-bcm6345-l1.c              |  2 +-
+ drivers/irqchip/irq-gic.c                     |  2 +-
+ drivers/memstick/core/ms_block.c              |  4 +-
+ drivers/net/caif/caif_virtio.c                |  2 +-
+ drivers/net/dsa/b53/b53_common.c              |  2 +-
+ drivers/net/ethernet/broadcom/bcmsysport.c    |  6 +-
+ .../cavium/liquidio/cn23xx_vf_device.c        |  2 +-
+ drivers/net/ethernet/hisilicon/hns/hns_enet.c |  2 +-
+ .../net/ethernet/intel/ice/ice_virtchnl_pf.c  |  4 +-
+ .../net/ethernet/intel/ixgbe/ixgbe_sriov.c    |  2 +-
+ .../net/ethernet/marvell/mvpp2/mvpp2_main.c   |  2 +-
+ .../marvell/octeontx2/nic/otx2_ethtool.c      |  2 +-
+ .../marvell/octeontx2/nic/otx2_flows.c        |  8 +--
+ .../ethernet/marvell/octeontx2/nic/otx2_pf.c  |  2 +-
+ drivers/net/ethernet/mellanox/mlx4/cmd.c      | 10 +--
+ drivers/net/ethernet/mellanox/mlx4/eq.c       |  4 +-
+ drivers/net/ethernet/mellanox/mlx4/main.c     |  2 +-
+ .../ethernet/mellanox/mlx5/core/en_ethtool.c  |  2 +-
+ drivers/net/ethernet/qlogic/qed/qed_dev.c     |  3 +-
+ drivers/net/ethernet/qlogic/qed/qed_rdma.c    |  4 +-
+ drivers/net/ethernet/qlogic/qed/qed_roce.c    |  2 +-
+ drivers/net/wireless/ath/ath9k/hw.c           |  2 +-
+ drivers/net/wireless/marvell/mwifiex/main.c   |  4 +-
+ drivers/net/wireless/st/cw1200/queue.c        |  3 +-
+ drivers/nvdimm/region.c                       |  2 +-
+ drivers/nvme/host/pci.c                       |  2 +-
+ drivers/perf/arm-cci.c                        |  2 +-
+ drivers/perf/arm_pmu.c                        |  6 +-
+ drivers/perf/hisilicon/hisi_uncore_pmu.c      |  2 +-
+ drivers/perf/thunderx2_pmu.c                  |  3 +-
+ drivers/perf/xgene_pmu.c                      |  2 +-
+ .../intel/speed_select_if/isst_if_common.c    |  6 +-
+ drivers/pwm/pwm-pca9685.c                     |  2 +-
+ drivers/scsi/lpfc/lpfc_init.c                 |  2 +-
+ drivers/soc/bcm/brcmstb/biuctrl.c             |  2 +-
+ drivers/soc/fsl/dpio/dpio-service.c           |  4 +-
+ drivers/soc/fsl/qbman/qman_test_stash.c       |  2 +-
+ drivers/spi/spi-dw-bt1.c                      |  2 +-
+ drivers/staging/media/tegra-video/vi.c        |  2 +-
+ drivers/thermal/intel/intel_powerclamp.c      | 10 ++-
+ drivers/virt/acrn/hsm.c                       |  2 +-
+ fs/ocfs2/cluster/heartbeat.c                  | 14 ++---
+ fs/xfs/xfs_sysfs.c                            |  2 +-
+ include/linux/bitmap.h                        | 45 ++++++++++---
+ include/linux/cpumask.h                       | 55 ++++++++++++++++
+ include/linux/kdb.h                           |  2 +-
+ include/linux/nodemask.h                      | 29 +++++++++
+ kernel/debug/kdb/kdb_bt.c                     |  2 +-
+ kernel/irq/affinity.c                         |  2 +-
+ kernel/padata.c                               |  2 +-
+ kernel/printk/printk.c                        |  2 +-
+ kernel/rcu/tree_nocb.h                        |  4 +-
+ kernel/rcu/tree_plugin.h                      |  2 +-
+ kernel/reboot.c                               |  4 +-
+ kernel/sched/core.c                           | 10 +--
+ kernel/sched/topology.c                       |  4 +-
+ kernel/time/clockevents.c                     |  4 +-
+ kernel/time/clocksource.c                     |  2 +-
+ lib/bitmap.c                                  | 63 +++++++++++++++++++
+ mm/mempolicy.c                                |  2 +-
+ mm/page_alloc.c                               |  2 +-
+ mm/percpu.c                                   |  6 +-
+ mm/slab.c                                     |  2 +-
+ mm/vmstat.c                                   |  4 +-
+ tools/include/linux/bitmap.h                  | 42 ++++++++++---
+ tools/lib/bitmap.c                            | 60 ++++++++++++++++++
+ tools/perf/builtin-c2c.c                      |  4 +-
+ tools/perf/util/pmu.c                         |  2 +-
+ 142 files changed, 490 insertions(+), 251 deletions(-)
+
+-- 
+2.25.1
+
