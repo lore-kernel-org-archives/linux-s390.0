@@ -2,197 +2,95 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A173C43217
-	for <linux-s390@archiver.kernel.org>; Sun, 28 Nov 2021 18:50:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8D9FC433FE
+	for <linux-s390@archiver.kernel.org>; Sun, 28 Nov 2021 19:24:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359391AbhK1Sxf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 28 Nov 2021 13:53:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36584 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353164AbhK1Svc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 28 Nov 2021 13:51:32 -0500
-Received: from mail-qv1-xf35.google.com (mail-qv1-xf35.google.com [IPv6:2607:f8b0:4864:20::f35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 285E4C061761;
-        Sun, 28 Nov 2021 10:47:22 -0800 (PST)
-Received: by mail-qv1-xf35.google.com with SMTP id b11so12272923qvm.7;
-        Sun, 28 Nov 2021 10:47:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=+5JBAVd8frUmOsccut4e882tgrn1djQ8KjHhL4/ag+E=;
-        b=oEs9cCLNoYNdz+AbfzXoumcqnU2rFCFJ5TyCH12jj8Ix0vmr0cjhof0ocW5eqSpQbo
-         mrHrVXqzVgn1iu3yISJ4wwf50y2BGwES4qCIZWk6z19v3s6rfhM8ODKHsnHGdu0xSYmn
-         zutWpoWgGKrfvlhNB+FDfgo3OCF/7V6L7yaewLYpZDm48/8KLn7Bhlr/nJjgfB4Oiw7i
-         hyEVArk/04uNSdzcAMwME+LGzw661S1XN1lrF6iOjE5r2wDmrufbwXHGBlcjc0XG2JfP
-         D0I2JqoyhsvbiLTErDYg5FY5mgjhIpdLZ1XuQkVWsomuMWeu+IFVGskruJ1MCFhjIPEq
-         wYYw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=+5JBAVd8frUmOsccut4e882tgrn1djQ8KjHhL4/ag+E=;
-        b=Lub/jRMp5HbX/7AjjLJnC/Vab99j2ktajIscJ9p2O6ch5U1lp/Tn0kez/DgbArTIGQ
-         8m0oT0VC3mu6/D7QM/K64f825IqQ4PV23NUCnCcnk8nFkicrpjsqSr7IxL/MTT6eX1Jz
-         Z+dw/0FVdyxd0Et0huAs5Bs4+wvok1a0lYjNLiH3mY5SqhISqzNpNbHt9Ji2ypsmIhhc
-         jPwFpCvP+KFDmfu6fFMX79YeK1cgg4EKuV/9A4TfEP+HICmXhvopXpxMm4EtX7uosV4c
-         366JCnn+KwEE3AhUWUrH2Hta6Bko4ew4pO9sElQVR5XIlgMrUgBm+nmRDXH/H7vYzwxX
-         Uxag==
-X-Gm-Message-State: AOAM53320Fj3LXJh5QRh59wXQpCYDVyyf8woeqAdQ+P/OHA+vu4K/MtR
-        gE/G4I2K/wEgTDVt18/4JKw=
-X-Google-Smtp-Source: ABdhPJy+21VmTcm+AhhPYb7MVuOfGbfxLsGp1r9C41IKKFVcOTnAXjsR8SRxKxcOFPC3Y4DL0s01XQ==
-X-Received: by 2002:a05:6214:2348:: with SMTP id hu8mr12230119qvb.9.1638125241136;
-        Sun, 28 Nov 2021 10:47:21 -0800 (PST)
-Received: from localhost ([66.216.211.25])
-        by smtp.gmail.com with ESMTPSA id e13sm7457944qte.56.2021.11.28.10.47.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 28 Nov 2021 10:47:20 -0800 (PST)
-Date:   Sun, 28 Nov 2021 10:47:12 -0800
-From:   Yury Norov <yury.norov@gmail.com>
-To:     Dennis Zhou <dennis@kernel.org>
-Cc:     Joe Perches <joe@perches.com>, linux-kernel@vger.kernel.org,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexey Klimov <aklimov@redhat.com>,
-        Amitkumar Karwar <amitkarwar@gmail.com>,
-        Andi Kleen <ak@linux.intel.com>, Andrew Lunn <andrew@lunn.ch>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Gross <agross@kernel.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Andy Shevchenko <andy@infradead.org>,
-        Anup Patel <anup.patel@wdc.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Christoph Lameter <cl@linux.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        David Airlie <airlied@linux.ie>,
-        David Laight <David.Laight@aculab.com>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Geetha sowjanya <gakula@marvell.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        id S231168AbhK1T1u (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 28 Nov 2021 14:27:50 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:49012 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231132AbhK1TZs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 28 Nov 2021 14:25:48 -0500
+From:   Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1638127351;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=E8ZA6r18LEZgOr5P11pd+i/cnzZnNK1YQYI4tPYAbOM=;
+        b=1YKU3JyEyoZRh+5u8fo5O/vBh7sicXRx7Fj4DTxbEdtFf6aqbsmBhL0Q5WtmRUHghVxiam
+        rKbyEBozj1+buwXrREWtFxjJ8Y4Y6rOWOE6EWLB1+TTIOhZ/IVmPttmH/o0DpsZ5ZdLRuV
+        lJR/qDH3ubxNoq2bodlwpuaJbIiyryUmwleic4odgu2IkmitmIopuqjKg8Qj2JRIhnp9fc
+        2HrXJBx/9JEYig1cqAol7nCxoQeQjwUfd0EzLFje9FUkj/RxYWqjIT13gg64dPTjA0lhP6
+        biYCAullKh2samIVc2cvdQw3N4Vh1BgOEfrqSQyb/PvJhY1ZVpJpu9eX3ikjZg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1638127351;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=E8ZA6r18LEZgOr5P11pd+i/cnzZnNK1YQYI4tPYAbOM=;
+        b=FiJeG6EV1QNjM8G/zn+0eV9ZRIvTcZ/40YSeBolEBORH/p5Ai5/fXABtEaB7X4cOTebr+5
+        NmiMXS+QE5FVTxBg==
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Bjorn Helgaas <helgaas@kernel.org>,
+        Marc Zygnier <maz@kernel.org>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Megha Dey <megha.dey@intel.com>,
+        Ashok Raj <ashok.raj@intel.com>, linux-pci@vger.kernel.org,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Guo Ren <guoren@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Ian Rogers <irogers@google.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Jason Wessel <jason.wessel@windriver.com>,
-        Jens Axboe <axboe@fb.com>, Jiri Olsa <jolsa@redhat.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Kees Cook <keescook@chromium.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Marc Zyngier <maz@kernel.org>, Marcin Wojtas <mw@semihalf.com>,
-        Mark Gross <markgross@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Matti Vaittinen <mazziesaccount@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Mel Gorman <mgorman@suse.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Petr Mladek <pmladek@suse.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Roy Pledge <Roy.Pledge@nxp.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Solomon Peachy <pizza@shaftnet.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Subbaraya Sundeep <sbhatta@marvell.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Sunil Goutham <sgoutham@marvell.com>,
-        Tariq Toukan <tariqt@nvidia.com>, Tejun Heo <tj@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Vineet Gupta <vgupta@kernel.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Vivien Didelot <vivien.didelot@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Will Deacon <will@kernel.org>,
-        bcm-kernel-feedback-list@broadcom.com, kvm@vger.kernel.org,
-        linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-crypto@vger.kernel.org, linux-csky@vger.kernel.org,
-        linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-mm@kvack.org, linux-perf-users@vger.kernel.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org, linuxppc-dev@lists.ozlabs.org
-Subject: Re: [PATCH 7/9] lib/cpumask: add
- num_{possible,present,active}_cpus_{eq,gt,le}
-Message-ID: <20211128184712.GA309073@lapt>
-References: <20211128035704.270739-1-yury.norov@gmail.com>
- <20211128035704.270739-8-yury.norov@gmail.com>
- <8f389151c39a8a5b6b31d5238cb680305225d9f2.camel@perches.com>
- <20211128174320.GA304543@lapt>
- <YaPCOPqpI/oKrTXl@fedora>
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Jon Mason <jdmason@kudzu.us>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com
+Subject: Re: [patch 04/32] genirq/msi: Provide a set of advanced MSI
+ accessors and iterators
+In-Reply-To: <20211128010037.GV4670@nvidia.com>
+References: <20211126230957.239391799@linutronix.de>
+ <20211126232734.531194050@linutronix.de>
+ <20211128010037.GV4670@nvidia.com>
+Date:   Sun, 28 Nov 2021 20:22:30 +0100
+Message-ID: <877dcsf5l5.ffs@tglx>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YaPCOPqpI/oKrTXl@fedora>
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sun, Nov 28, 2021 at 12:54:00PM -0500, Dennis Zhou wrote:
-> Hello,
-> 
-> On Sun, Nov 28, 2021 at 09:43:20AM -0800, Yury Norov wrote:
-> > On Sun, Nov 28, 2021 at 09:07:52AM -0800, Joe Perches wrote:
-> > > On Sat, 2021-11-27 at 19:57 -0800, Yury Norov wrote:
-> > > > Add num_{possible,present,active}_cpus_{eq,gt,le} and replace num_*_cpus()
-> > > > with one of new functions where appropriate. This allows num_*_cpus_*()
-> > > > to return earlier depending on the condition.
-> > > []
-> > > > diff --git a/arch/arc/kernel/smp.c b/arch/arc/kernel/smp.c
-> > > []
-> > > > @@ -103,7 +103,7 @@ void __init smp_prepare_cpus(unsigned int max_cpus)
-> > > >  	 * if platform didn't set the present map already, do it now
-> > > >  	 * boot cpu is set to present already by init/main.c
-> > > >  	 */
-> > > > -	if (num_present_cpus() <= 1)
-> > > > +	if (num_present_cpus_le(2))
-> > > >  		init_cpu_present(cpu_possible_mask);
-> > > 
-> > > ?  is this supposed to be 2 or 1
-> > 
-> > X <= 1 is the equivalent of X < 2.
-> > 
-> > > > diff --git a/drivers/cpufreq/pcc-cpufreq.c b/drivers/cpufreq/pcc-cpufreq.c
-> > > []
-> > > > @@ -593,7 +593,7 @@ static int __init pcc_cpufreq_init(void)
-> > > >  		return ret;
-> > > >  	}
-> > > >  
-> > > > -	if (num_present_cpus() > 4) {
-> > > > +	if (num_present_cpus_gt(4)) {
-> > > >  		pcc_cpufreq_driver.flags |= CPUFREQ_NO_AUTO_DYNAMIC_SWITCHING;
-> > > >  		pr_err("%s: Too many CPUs, dynamic performance scaling disabled\n",
-> > > >  		       __func__);
-> > > 
-> > > It looks as if the present variants should be using the same values
-> > > so the _le test above with 1 changed to 2 looks odd.
-> >  
-> 
-> I think the confusion comes from le meaning less than rather than lt.
-> Given the general convention of: lt (<), le (<=), eg (=), ge (>=),
-> gt (>), I'd consider renaming your le to lt.
+On Sat, Nov 27 2021 at 21:00, Jason Gunthorpe wrote:
+> On Sat, Nov 27, 2021 at 02:22:33AM +0100, Thomas Gleixner wrote:
+>> + * Notes:
+>> + *  - The loop must be protected with a msi_lock_descs()/msi_unlock_descs()
+>> + *    pair.
+>> + *  - It is safe to remove a retrieved MSI descriptor in the loop.
+>> + */
+>> +#define msi_for_each_desc_from(desc, dev, filter, base_index)			\
+>> +	for ((desc) = __msi_first_desc((dev), (filter), (base_index)); (desc);	\
+>> +	     (desc) = msi_next_desc((dev)))
+>
+> Given this ends up as an xarray it feels really weird that there is a
+> hidden shared __next/__iter_idx instead of having the caller provide
+> the index storage as is normal for xa operations.
+>
+> I understand why that isn't desirable at this patch where the storage
+> would have to be a list_head pointer, but still, seems like an odd
+> place to end up at the end of the series.
+>
+> eg add index here unused and then the last patch uses it instead of
+> __iter_idx.
 
-Ok, makes sense. I'll rename in v2 and add <= and >= versions.
+TBH, didn't think about doing just that. OTH, given the experience of
+looking at the creative mess people create, this was probably also a
+vain attempt to make it harder in the future.
+
+> Also, I don't understand why filter was stored in the dev and not
+> passed into msi_next_desc() in the macro here?
+
+No real reason. I probably just stored it along with the rest. Lemme try
+that index approach.
+
+Thanks,
+
+        tglx
