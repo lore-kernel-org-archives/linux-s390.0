@@ -2,104 +2,178 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 28E5BC433F5
-	for <linux-s390@archiver.kernel.org>; Sun, 28 Nov 2021 21:44:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6180CC433EF
+	for <linux-s390@archiver.kernel.org>; Sun, 28 Nov 2021 23:38:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232829AbhK1VsK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 28 Nov 2021 16:48:10 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:47940 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S236303AbhK1VqK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 28 Nov 2021 16:46:10 -0500
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1ASKud1L006735;
-        Sun, 28 Nov 2021 21:42:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=53T3DVQXoOmGk0Ru/bhYIr21fbVr8KqJ17GtJgDRD9I=;
- b=l3n4T7on+31LPEFelJ6Pu/7akDMPbgrPmUOsJ5gi1kWmekxE1GKlbF7A3RI+PkswfSdx
- mKZNTlf10solSPUSonUdJJt/ns8QxHSayq41bNSXXj/s43SmYlQNSPFGmb6F+lFjC0ij
- SzNejjGEvlXdgSnJ0Z9Bgn0rzyje+SGqqTZCQOjqGoXSVtqMTViKUBIa24nNln+MO2jB
- FZ0GOF4fcPbMJXPnL4B1q1EoqSDSQ129vb7ux37q811fQgvaaEVCxiA7PortAs+YPC21
- LuSkZV9+X5Q1OKG+RWZWE3JrLb7spqU3aDoCg+MfSRucwpd0W1te8g7zRElkMFQbGBPG kA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3cmh8d8f2n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 28 Nov 2021 21:42:50 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1ASLeB8R032291;
-        Sun, 28 Nov 2021 21:42:49 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3cmh8d8f2a-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 28 Nov 2021 21:42:49 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1ASLbHKJ028231;
-        Sun, 28 Nov 2021 21:42:48 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma01fra.de.ibm.com with ESMTP id 3ckca96fq8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 28 Nov 2021 21:42:48 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1ASLgj7U59113762
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sun, 28 Nov 2021 21:42:45 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B56A6A405B;
-        Sun, 28 Nov 2021 21:42:45 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5D53FA4054;
-        Sun, 28 Nov 2021 21:42:45 +0000 (GMT)
-Received: from [9.145.59.207] (unknown [9.145.59.207])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Sun, 28 Nov 2021 21:42:45 +0000 (GMT)
-Message-ID: <883f1ab1-21be-9019-d8c6-3942a0b8588c@linux.ibm.com>
-Date:   Sun, 28 Nov 2021 22:42:50 +0100
+        id S1359578AbhK1Xlt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 28 Nov 2021 18:41:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42518 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241220AbhK1Xjr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 28 Nov 2021 18:39:47 -0500
+Received: from mail-qk1-x732.google.com (mail-qk1-x732.google.com [IPv6:2607:f8b0:4864:20::732])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 898A5C06174A;
+        Sun, 28 Nov 2021 15:36:30 -0800 (PST)
+Received: by mail-qk1-x732.google.com with SMTP id 193so20935202qkh.10;
+        Sun, 28 Nov 2021 15:36:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=+pvPLMMOaG75eXeO+MYWVtFy7p98nfe1U4iD6DUFgqs=;
+        b=FqHxiwrQ7QYivLGpovhQrNQCHUCj7LxMV2WH4G2Ujzkjgck5ZuLpYg6YmyS5/pcjd8
+         PioI6TsqEy6uPfhoz8wEavEgHnpCryLeBpBEb8dr5G6s12WteiFVLQFxrBR47EVsTB3X
+         ndIWwpq8YabRGonzz7m7f+N7UJXzBMp2vfRHxXo9M1u6ZB6qiEh6DrJAZ2z7gRkAQ5sC
+         IqRPeZsbgWqH6z7gZV/iyVzYOISv9QQ48jjOTsL+5HMXkolOWVbHK0gj+h+Ra3+OPnrQ
+         HZwGnjmshXRb1nFHqTfVME98Ezv2622Zg9Ol7LGc837jR3cjnZ1W8PCl/MaA7m1eTWjV
+         ggTQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=+pvPLMMOaG75eXeO+MYWVtFy7p98nfe1U4iD6DUFgqs=;
+        b=7aCKBvnO39Y1LuXAjf4CAl3P3dr+n5iUSl7lBKO5t77W1Le21lLr7YvRw5FaPKHmiq
+         ShOcyu57BVIRMNdlGnbI7HN6yV8DB/P0OlwZIZSm0MdLTk/GO/V3xwjg10HglkSYi5Pe
+         KrwAAOWXjINFeJyw7pAJvUpSmV+8tZGvKFTlXrPIHi044KxyTJK2kYrHPdVS+PzBJxmJ
+         pbWzbRIiqHJKtcgqWhXjLSdGtZNNl/WztchxAiPoYIaXMWhM8IZ5xaQK8EkvKC6k4Sv1
+         Ur5vhoAmKInmDomlj15CoBqvBDVzl9Cdf/xXZmiMwTzxKaN+tsRQDozr7sbd7WLF+IzA
+         jhGg==
+X-Gm-Message-State: AOAM533px3vhgBpnIVbCj0cROWTiO3A0pfax9x4pTNf3EOCzzykhbySL
+        8xS7jW+rvn1ISeyXYMYWOKs=
+X-Google-Smtp-Source: ABdhPJwjz8dPYMt9os+urjypBO3KPO0n0aAUmhuhKTUddMw0/hFm/BxjybZbsejId+j0oxfauAhjwQ==
+X-Received: by 2002:a05:620a:4491:: with SMTP id x17mr26762094qkp.528.1638142589577;
+        Sun, 28 Nov 2021 15:36:29 -0800 (PST)
+Received: from localhost ([66.216.211.25])
+        by smtp.gmail.com with ESMTPSA id h19sm8013261qth.63.2021.11.28.15.36.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 28 Nov 2021 15:36:28 -0800 (PST)
+Date:   Sun, 28 Nov 2021 15:36:27 -0800
+From:   Yury Norov <yury.norov@gmail.com>
+To:     Nicholas Piggin <npiggin@gmail.com>
+Cc:     Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Andy Gross <agross@kernel.org>,
+        David Airlie <airlied@linux.ie>,
+        Alexey Klimov <aklimov@redhat.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Amitkumar Karwar <amitkarwar@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Andy Shevchenko <andy@infradead.org>,
+        Anup Patel <anup.patel@wdc.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>, Jens Axboe <axboe@fb.com>,
+        bcm-kernel-feedback-list@broadcom.com,
+        Borislav Petkov <bp@alien8.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christoph Lameter <cl@linux.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        David Laight <David.Laight@ACULAB.COM>,
+        Dennis Zhou <dennis@kernel.org>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Geetha sowjanya <gakula@marvell.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Guo Ren <guoren@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Ian Rogers <irogers@google.com>,
+        Jason Wessel <jason.wessel@windriver.com>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Kees Cook <keescook@chromium.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Kalle Valo <kvalo@codeaurora.org>, kvm@vger.kernel.org,
+        Lee Jones <lee.jones@linaro.org>, linux-alpha@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        Russell King <linux@armlinux.org.uk>,
+        linux-crypto@vger.kernel.org, linux-csky@vger.kernel.org,
+        linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-mm@kvack.org,
+        linux-perf-users@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        Andy Lutomirski <luto@kernel.org>,
+        Mark Gross <markgross@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Matti Vaittinen <mazziesaccount@gmail.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Mel Gorman <mgorman@suse.de>,
+        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Marcin Wojtas <mw@semihalf.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Solomon Peachy <pizza@shaftnet.org>,
+        Petr Mladek <pmladek@suse.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Roy Pledge <Roy.Pledge@nxp.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Subbaraya Sundeep <sbhatta@marvell.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Sunil Goutham <sgoutham@marvell.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Tejun Heo <tj@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Vineet Gupta <vgupta@kernel.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        Will Deacon <will@kernel.org>
+Subject: Re: [PATCH 0/9] lib/bitmap: optimize bitmap_weight() usage
+Message-ID: <20211128233627.GA323159@lapt>
+References: <20211128035704.270739-1-yury.norov@gmail.com>
+ <1638096766.3elxdzb8ly.astroid@bobo.none>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH net] net/smc: Clear memory when release and reuse buffer
-Content-Language: en-US
-To:     Jakub Kicinski <kuba@kernel.org>,
-        Tony Lu <tonylu@linux.alibaba.com>
-Cc:     davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <20211125122858.90726-1-tonylu@linux.alibaba.com>
- <20211126112855.37274cb7@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-From:   Karsten Graul <kgraul@linux.ibm.com>
-Organization: IBM Deutschland Research & Development GmbH
-In-Reply-To: <20211126112855.37274cb7@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: gArUDayhvrN29MTxd2k2bNRQBnzh0YlT
-X-Proofpoint-GUID: RbmPb3ySMcWuxDcUW-fEtS-yD77t07at
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-11-28_07,2021-11-28_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 adultscore=0
- mlxscore=0 clxscore=1015 priorityscore=1501 malwarescore=0
- lowpriorityscore=0 spamscore=0 impostorscore=0 phishscore=0
- mlxlogscore=999 bulkscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2110150000 definitions=main-2111280126
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1638096766.3elxdzb8ly.astroid@bobo.none>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 26/11/2021 20:28, Jakub Kicinski wrote:
-> The tag in the subject seems incorrect, we tag things as [PATCH net] 
-> if they are fixes, and as [PATCH net-next] if they are new features,
-> code refactoring or performance improvements.
+On Sun, Nov 28, 2021 at 09:08:41PM +1000, Nicholas Piggin wrote:
+> Excerpts from Yury Norov's message of November 28, 2021 1:56 pm:
+> > In many cases people use bitmap_weight()-based functions like this:
+> > 
+> > 	if (num_present_cpus() > 1)
+> > 		do_something();
+> > 
+> > This may take considerable amount of time on many-cpus machines because
+> > num_present_cpus() will traverse every word of underlying cpumask
+> > unconditionally.
+> > 
+> > We can significantly improve on it for many real cases if stop traversing
+> > the mask as soon as we count present cpus to any number greater than 1:
+> > 
+> > 	if (num_present_cpus_gt(1))
+> > 		do_something();
+> > 
+> > To implement this idea, the series adds bitmap_weight_{eq,gt,le}
+> > functions together with corresponding wrappers in cpumask and nodemask.
 > 
-> Is this a fix for a regression? In which case we need a Fixes tag to
-> indicate where it was introduced. Otherwise it needs to be tagged as
-> [PATCH net-next].
-> 
-> I'm assuming Karsten will take it via his tree, otherwise you'll need
-> to repost.
-> 
+> There would be no change to callers if you maintain counters like what
+> is done for num_online_cpus() today. Maybe some fixes to arch code that
+> does not use set_cpu_possible() etc APIs required, but AFAIKS it would
+> be better to fix such cases anyway.
 
-We are testing this change atm and will submit it via our tree.
-Very nice change, I like it!
+Thanks, Nick. I'll try to do this.
