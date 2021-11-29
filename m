@@ -2,96 +2,81 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 48595C433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 29 Nov 2021 18:16:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E7DC8C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 29 Nov 2021 18:23:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350564AbhK2SUB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 29 Nov 2021 13:20:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59928 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349599AbhK2SSB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 Nov 2021 13:18:01 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95423C0698FC;
-        Mon, 29 Nov 2021 06:46:02 -0800 (PST)
-From:   Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1638197160;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=moCVXIgDd3WnVTqImBDpITWvvySrFpXIFP1kWeQJHKU=;
-        b=3S6nmBadZg5tSz0rZHXEDZM40jhTHe/7y2CLs37JoDJvOsqgG2cw7AFkhZmO3IdHZkuU9R
-        pVQt9YCIdmL3mqxv0ggmb01VmoCUbHZRd64fJZOBgy3p6qf0yt+N3IeVkNZOmjc2ffHdBW
-        Fe3cKz/hyz3coikXPRJojbmAf8pnQXCKIifn18l8SAPBIAtd++qZL7lcd2GUQ43ReBZSSb
-        YEaX4dZnsyMGt030d1oeJE78U9xH9MpjyOlXGXYTOBLeSTyHK/p9iuz/Yv3815hL8aqm+X
-        NprgrTl+hvQHD/9Rby3+aV+xzNqCHnMwOelYZ23ZX4e7euce2B93n/AvKumo8A==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1638197160;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=moCVXIgDd3WnVTqImBDpITWvvySrFpXIFP1kWeQJHKU=;
-        b=vkhx9Uk6Dv9aGqVVDjVmHZWJ3IWDihE7siFS7bF7kSJaV33N0jk920aDAUwoTwmfFwotsF
-        Cg8b0iVzhVwufjCA==
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Bjorn Helgaas <helgaas@kernel.org>,
-        Marc Zygnier <maz@kernel.org>,
+        id S1377787AbhK2S1N (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 29 Nov 2021 13:27:13 -0500
+Received: from ale.deltatee.com ([204.191.154.188]:44806 "EHLO
+        ale.deltatee.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1349752AbhK2SZM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 Nov 2021 13:25:12 -0500
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=deltatee.com; s=20200525; h=Subject:In-Reply-To:MIME-Version:Date:
+        Message-ID:From:References:Cc:To:content-disposition;
+        bh=WV/TNnYNnFcZxzUqPd3ZA5cAcLIoTgfWNZK1F+bgrdE=; b=i+hqBeVjGcPhRQj4lEj6ktxCov
+        xKEF9uG+mDz4HqGRMeO1nFng5r97jDgdDGG1iqzovojY+adfOjUTtvG8uqnd15ZiaUUp693volE2B
+        KXhlE9aQ8xsPkhjnw7xII1M9i5KGePGLSmBETHhUtfpToXeBhXkuZHD5OmdpzNDPqUiflVkb77FpC
+        FW2ajJwdYW5jzNtTPgxbGDl9d3+DcfT81G5QAc7Vk6FluGUu4xjgynE1j/uiY9T9SQ0e6SJTZ3XO+
+        BAmRg2cHOZ+nH6spZy/PpJToErS9Pz3NxOZFgp1OA5J1gaFVsyhN3zOWGqk7CGNHNrX/X9laeQK7J
+        JayDubbA==;
+Received: from guinness.priv.deltatee.com ([172.16.1.162])
+        by ale.deltatee.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.94.2)
+        (envelope-from <logang@deltatee.com>)
+        id 1mrlHS-00ANgo-Vh; Mon, 29 Nov 2021 11:21:36 -0700
+To:     Thomas Gleixner <tglx@linutronix.de>,
+        LKML <linux-kernel@vger.kernel.org>
+Cc:     Bjorn Helgaas <helgaas@kernel.org>, Marc Zygnier <maz@kernel.org>,
         Alex Williamson <alex.williamson@redhat.com>,
         Kevin Tian <kevin.tian@intel.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Megha Dey <megha.dey@intel.com>,
         Ashok Raj <ashok.raj@intel.com>, linux-pci@vger.kernel.org,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
         Jon Mason <jdmason@kudzu.us>,
         Dave Jiang <dave.jiang@intel.com>,
-        Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com
-Subject: Re: [patch 04/32] genirq/msi: Provide a set of advanced MSI
- accessors and iterators
-In-Reply-To: <20211129140112.GX4670@nvidia.com>
-References: <877dcsf5l5.ffs@tglx> <87o863e2j0.ffs@tglx>
- <20211129140112.GX4670@nvidia.com>
-Date:   Mon, 29 Nov 2021 15:46:00 +0100
-Message-ID: <87a6hndnpz.ffs@tglx>
+        Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+References: <20211126230957.239391799@linutronix.de>
+ <20211126232735.547996838@linutronix.de>
+From:   Logan Gunthorpe <logang@deltatee.com>
+Message-ID: <7daba0e2-73a3-4980-c3a5-a71f6b597b22@deltatee.com>
+Date:   Mon, 29 Nov 2021 11:21:30 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <20211126232735.547996838@linutronix.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-CA
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: 172.16.1.162
+X-SA-Exim-Rcpt-To: borntraeger@de.ibm.com, hca@linux.ibm.com, linux-s390@vger.kernel.org, linux-ntb@googlegroups.com, allenbh@gmail.com, dave.jiang@intel.com, jdmason@kudzu.us, gregkh@linuxfoundation.org, linux-pci@vger.kernel.org, ashok.raj@intel.com, megha.dey@intel.com, jgg@nvidia.com, kevin.tian@intel.com, alex.williamson@redhat.com, maz@kernel.org, helgaas@kernel.org, linux-kernel@vger.kernel.org, tglx@linutronix.de
+X-SA-Exim-Mail-From: logang@deltatee.com
+Subject: Re: [patch 21/32] NTB/msi: Convert to msi_on_each_desc()
+X-SA-Exim-Version: 4.2.1 (built Sat, 13 Feb 2021 17:57:42 +0000)
+X-SA-Exim-Scanned: Yes (on ale.deltatee.com)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Jason,
 
-On Mon, Nov 29 2021 at 10:01, Jason Gunthorpe wrote:
-> On Mon, Nov 29, 2021 at 10:26:11AM +0100, Thomas Gleixner wrote:
->> After looking at all the call sites again, there is no real usage for
->> this local index variable.
->> 
->> If anything needs the index of a descriptor then it's available in the
->> descriptor itself. That won't change because the low level message write
->> code needs the index too and the only accessible storage there is
->> msi_desc.
->
-> Oh, that makes it simpler, just use the current desc->index as the
-> input to the xa_for_each_start() and then there should be no need of
-> hidden state?
 
-That works for alloc, but on free that's going to end up badly.
+On 2021-11-26 6:23 p.m., Thomas Gleixner wrote:
+> Replace the about to vanish iterators, make use of the filtering and take
+> the descriptor lock around the iteration.
+> 
+> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Jon Mason <jdmason@kudzu.us>
+> Cc: Dave Jiang <dave.jiang@intel.com>
+> Cc: Allen Hubbe <allenbh@gmail.com>
+> Cc: linux-ntb@googlegroups.com
 
->> What for? The usage sites should not have to care about the storage
->> details of a facility they are using.
->
-> Generally for_each things shouldn't have hidden state that prevents
-> them from being nested. It is just an unexpected design pattern..
+This patch looks good to me:
 
-I'm not seeing any sensible use case for:
-
-     msi_for_each_desc(dev)
-        msi_for_each_desc(dev)
-
-If that ever comes forth, I'm happy to debate this further :)
+Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
 
 Thanks,
 
-        tglx
+Logan
