@@ -2,92 +2,159 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0677DC433FE
-	for <linux-s390@archiver.kernel.org>; Mon, 29 Nov 2021 14:28:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2613EC433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 29 Nov 2021 14:28:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378310AbhK2Obv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 29 Nov 2021 09:31:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38180 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348983AbhK2O3L (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 Nov 2021 09:29:11 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAAEEC0048D8;
-        Mon, 29 Nov 2021 05:04:45 -0800 (PST)
-From:   Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1638191084;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+        id S1377765AbhK2OcH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 29 Nov 2021 09:32:07 -0500
+Received: from smtp-out2.suse.de ([195.135.220.29]:45348 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1378315AbhK2O3r (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 Nov 2021 09:29:47 -0500
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id A4C461FD38;
+        Mon, 29 Nov 2021 14:26:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1638195973; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=SrMx0EikLor0m9R8RMLCsVyJFUvZ7DWG9Nt3FfGUjHw=;
-        b=Z5w7/WyffNWkPpVy2OwqkWVdnch2IT/5obz3VzycGQuRvXEK+12h3jDmVBGCq36Z9VreAI
-        JkirRTFU2cf9EKwPVMGPoO6yKJO0iKAi3l0aAJfgQXDjIypVGvr8EQsZyWoPztdjN3AWR2
-        JEhcakuIYe/1waQNlHLU5WkmdTtbVrIPo0U5bcLxCa5QHza++5ccIYlzf/i1crGIC56f2a
-        vxfdI6Q3oY8ziLmra6HLeBWIemaiUiSSnje2qAYh0n1/IJu573hE55d3ZXxhfVQoXelytq
-        DV7UDSkDtPhOgMXRXxvGyPfBqqoEix6Na23ZzxT136Ay7DPkAiwi0eaLHmPA+A==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1638191084;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+        bh=P/2mMER5BWy4uVFtFkCYgpdYQadaiIdXAQCEaONlzSI=;
+        b=NHoyZ8/ObXjEjSR5g2Mumxcfogs07QrJjTw/QzeZOq761ClUixVSxCarDfvX8rbW2peTDP
+        46FOnOM81cFzFRGzOmpJbYQscM54ZFaLKxb0tWbFLugfY/gA6Vha6xqoPqrEsaJpS1wekt
+        xKKTpdDNgaHOiIPrIMZj6+RK2Dfe360=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1638195973;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=SrMx0EikLor0m9R8RMLCsVyJFUvZ7DWG9Nt3FfGUjHw=;
-        b=uFEsq4VQIKwpP4IPvBxJj7CH5oO01savZVSv+qKxq28D2EkgSK+FTImT6+XanOuO6wpsZf
-        XOQtUeHRkXGYnuBQ==
-To:     Niklas Schnelle <schnelle@linux.ibm.com>,
-        LKML <linux-kernel@vger.kernel.org>
-Cc:     Bjorn Helgaas <helgaas@kernel.org>, Marc Zygnier <maz@kernel.org>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Megha Dey <megha.dey@intel.com>,
-        Ashok Raj <ashok.raj@intel.com>, linux-pci@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Jon Mason <jdmason@kudzu.us>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com
-Subject: Re: [patch 14/32] s390/pci: Rework MSI descriptor walk
-In-Reply-To: <22589eefb62ac6f99f576082a65e7987a6761329.camel@linux.ibm.com>
-References: <20211126230957.239391799@linutronix.de>
- <20211126232735.130164978@linutronix.de>
- <22589eefb62ac6f99f576082a65e7987a6761329.camel@linux.ibm.com>
-Date:   Mon, 29 Nov 2021 14:04:43 +0100
-Message-ID: <87fsrfdses.ffs@tglx>
+        bh=P/2mMER5BWy4uVFtFkCYgpdYQadaiIdXAQCEaONlzSI=;
+        b=DcLDjsksdtpwoGQWVjqPhkL0r2a1jvvtnsnb6/q8CAaUK6+uaBT8bJkb/ZpfJfB6GaXGnj
+        ZO6pdKEZU45FUDDQ==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 7EDDC13B15;
+        Mon, 29 Nov 2021 14:26:13 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id hSkyHgXjpGGFfwAAMHmgww
+        (envelope-from <vbabka@suse.cz>); Mon, 29 Nov 2021 14:26:13 +0000
+Message-ID: <9cd2e67b-4769-ad91-2b2a-1899bdf3f8fc@suse.cz>
+Date:   Mon, 29 Nov 2021 15:26:13 +0100
 MIME-Version: 1.0
-Content-Type: text/plain
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.2
+Subject: Re: [PATCH] mm/slub: fix endianness bug for alloc/free_traces
+ attributes
+Content-Language: en-US
+To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc:     linux-mm <linux-mm@kvack.org>, LKML <linux-kernel@vger.kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Faiyaz Mohammed <faiyazm@codeaurora.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>
+References: <7c909b82-8e1c-a8ce-516d-e3aa9bc2fd81@suse.cz>
+ <20211126171848.17534-1-gerald.schaefer@linux.ibm.com>
+From:   Vlastimil Babka <vbabka@suse.cz>
+In-Reply-To: <20211126171848.17534-1-gerald.schaefer@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Niklas,
+On 11/26/21 18:18, Gerald Schaefer wrote:
+> On big-endian s390, the alloc/free_traces attributes produce endless
+> output, because of always 0 idx in slab_debugfs_show().
+> 
+> idx is de-referenced from *v, which points to a loff_t value, with
+> 
+> unsigned int idx = *(unsigned int *)v;
+> 
+> This will only give the upper 32 bits on big-endian, which remain 0.
+> 
+> Instead of only fixing this de-reference, during discussion it seemed
+> more appropriate to change the seq_ops so that they use an explicit
+> iterator in private loc_track struct.
+> 
+> This patch adds idx to loc_track, which will also fix the endianness bug.
+> 
+> Link: https://lore.kernel.org/r/20211117193932.4049412-1-gerald.schaefer@linux.ibm.com
+> Fixes: 64dd68497be7 ("mm: slub: move sysfs slab alloc/free interfaces to debugfs")
+> Cc: <stable@vger.kernel.org> # v5.14+
+> Reported-by: Steffen Maier <maier@linux.ibm.com>
+> Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 
-On Mon, Nov 29 2021 at 11:31, Niklas Schnelle wrote:
-> On Sat, 2021-11-27 at 02:23 +0100, Thomas Gleixner wrote:
->
-> while the change looks good to me I ran into some trouble trying to
-> test it. I tried with the git repository you linked in the cover
-> letter:
-> git://git.kernel.org/pub/scm/linux/kernel/git/tglx/devel.git msi-v1-part-3
->
-> But with that I get the following linker error on s390:
->
-> s390x-11.2.0-ld: drivers/pci/msi/legacy.o: in function `pci_msi_legacy_setup_msi_irqs':
-> /home/nschnelle/mainline/drivers/pci/msi/legacy.c:72: undefined reference to `msi_device_populate_sysfs'
-> s390x-11.2.0-ld: drivers/pci/msi/legacy.o: in function `pci_msi_legacy_teardown_msi_irqs':
-> /home/nschnelle/mainline/drivers/pci/msi/legacy.c:78: undefined reference to `msi_device_destroy_sysfs'
-> make: *** [Makefile:1161: vmlinux] Error 1
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
 
-Yes, that got reported before and I fixed it locally already.
+With a nit below:
 
-> This is caused by a misspelling of CONFIG_PCI_MSI_ARCH_FALLBACKS
-> (missing the final S) in kernel/irq/msi.c. With that fixed everything
-> builds and MSI IRQs work fine. So with that fixed you have my
->
-> Acked-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> ---
+>  mm/slub.c | 15 +++++++++------
+>  1 file changed, 9 insertions(+), 6 deletions(-)
+> 
+> diff --git a/mm/slub.c b/mm/slub.c
+> index a8626825a829..abe7db581d68 100644
+> --- a/mm/slub.c
+> +++ b/mm/slub.c
+> @@ -5081,6 +5081,7 @@ struct loc_track {
+>  	unsigned long max;
+>  	unsigned long count;
+>  	struct location *loc;
+> +	loff_t idx;
+>  };
+>  
+>  static struct dentry *slab_debugfs_root;
+> @@ -6052,11 +6053,11 @@ __initcall(slab_sysfs_init);
+>  #if defined(CONFIG_SLUB_DEBUG) && defined(CONFIG_DEBUG_FS)
+>  static int slab_debugfs_show(struct seq_file *seq, void *v)
+>  {
+> -
+> -	struct location *l;
+> -	unsigned int idx = *(unsigned int *)v;
+>  	struct loc_track *t = seq->private;
+> +	struct location *l;
+> +	unsigned long idx;
+>  
+> +	idx = (unsigned long) t->idx;
+>  	if (idx < t->count) {
+>  		l = &t->loc[idx];
+>  
+> @@ -6105,16 +6106,18 @@ static void *slab_debugfs_next(struct seq_file *seq, void *v, loff_t *ppos)
+>  {
+>  	struct loc_track *t = seq->private;
+>  
+> -	v = ppos;
+> -	++*ppos;
+> +	t->idx = ++(*ppos);
+>  	if (*ppos <= t->count)
+> -		return v;
+> +		return ppos;
 
-Thanks for testing and dealing with my ineptness.
+What I had in mind, and to be more in line with the seq_file example, would
+be to return &t->idx here. Then it's what gets passed to slab_debugfs_show()
+as 'v'. But since we ignore 'v' there, it probably doesn't matter.
 
-       tglx
+>  
+>  	return NULL;
+>  }
+>  
+>  static void *slab_debugfs_start(struct seq_file *seq, loff_t *ppos)
+>  {
+> +	struct loc_track *t = seq->private;
+> +
+> +	t->idx = *ppos;
+>  	return ppos;
+
+And same here.
+
+>  }
+>  
+> 
+
