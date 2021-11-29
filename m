@@ -2,533 +2,435 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA34FC433FE
-	for <linux-s390@archiver.kernel.org>; Mon, 29 Nov 2021 17:20:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2696AC4332F
+	for <linux-s390@archiver.kernel.org>; Mon, 29 Nov 2021 17:50:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349032AbhK2RXy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 29 Nov 2021 12:23:54 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:46348 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S242293AbhK2RVx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 29 Nov 2021 12:21:53 -0500
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1ATHG84a005039;
-        Mon, 29 Nov 2021 17:18:17 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=A5eI13WmlZQDrzHsYOwfrN9/J/g5V1PL5yHo0izcXSo=;
- b=p60m9ZJRK58W7M/BJFjsavmW4IHcsDekjGm0BHTEuVk8hiNJwc6c6R82wiLOioZV1DF3
- 1fvqhTyAjoRyeC3d92dvuCj7wMeZ0vtVh/Nn0ov/ZNTvd38v8rlRc/TQVrkKMZ80Wjm8
- eptFyfW5dJ08hOSfFEnO3LNvpr8n1mkkrgn7HwaMxcDd8rFTFlG4/iLiHo3Ki6Y81Du2
- fE/toCrTKnHH9z+Trer6ijsM9BJpqi5tIywqod/VG7SeYQTbIa1PsyavjVVnP6bf3rXk
- og8pQxxs5AQglrLj7S+ey9v/Je1tGWMumV2IZgYNoCS2mcoQ2biwqCAcIfzVuW7CyNbQ kQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cn345820e-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 29 Nov 2021 17:18:17 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1ATHHEx2013406;
-        Mon, 29 Nov 2021 17:18:16 GMT
-Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cn34581yk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 29 Nov 2021 17:18:16 +0000
-Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
-        by ppma02wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1ATGucnB013197;
-        Mon, 29 Nov 2021 17:18:14 GMT
-Received: from b03cxnp08025.gho.boulder.ibm.com (b03cxnp08025.gho.boulder.ibm.com [9.17.130.17])
-        by ppma02wdc.us.ibm.com with ESMTP id 3ckcaaf9kk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 29 Nov 2021 17:18:14 +0000
-Received: from b03ledav002.gho.boulder.ibm.com (b03ledav002.gho.boulder.ibm.com [9.17.130.233])
-        by b03cxnp08025.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1ATHIDYU56885622
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 29 Nov 2021 17:18:13 GMT
-Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 943C013605D;
-        Mon, 29 Nov 2021 17:18:13 +0000 (GMT)
-Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 43C8813604F;
-        Mon, 29 Nov 2021 17:18:11 +0000 (GMT)
-Received: from farman-thinkpad-t470p (unknown [9.211.76.243])
-        by b03ledav002.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Mon, 29 Nov 2021 17:18:11 +0000 (GMT)
-Message-ID: <595bba117f20742dd581fd951555b0e1f630264e.camel@linux.ibm.com>
-Subject: Re: [RE]: [PATCH v3 10/10] vfio/ccw: Move the lifecycle of the
- struct vfio_ccw_private to the mdev
-From:   Eric Farman <farman@linux.ibm.com>
-To:     "Liu, Yi L" <yi.l.liu@intel.com>, Jason Gunthorpe <jgg@nvidia.com>
-Cc:     "airlied@linux.ie" <airlied@linux.ie>,
-        "akrowiak@linux.ibm.com" <akrowiak@linux.ibm.com>,
-        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
-        "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>,
-        "cohuck@redhat.com" <cohuck@redhat.com>,
-        "corbet@lwn.net" <corbet@lwn.net>, Daniel Vetter <daniel@ffwll.ch>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        id S1345034AbhK2Rxz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 29 Nov 2021 12:53:55 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:55256 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242755AbhK2Rvv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 Nov 2021 12:51:51 -0500
+From:   Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1638208111;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Tbl3+zAOEmpP6ZGCt/BD/PG2cZ3xnDr+Tb2+yq81oZo=;
+        b=arWwcpj6Q/D6pvkRJiP142R5s1arQMXkHQxn/zOjEbHQImbzvbopydkHkJVlZU1LyU8wcj
+        lfTHFIczOSU8/AxvkV7RlMv59UNEsq07wTaCjGR0hhzFxAJqBfsG+RQLUCnFd9mRROoZHy
+        oM36Hu/i3jaiMslNkMd8KSiGnZnfD6E9OtVayofH2faDlnYttgS8ROCBpOUjRvircInDcE
+        D7QYx/vTcwEIm1WQMEwbO3ryNqgSOcogR0awZvPqk+/4Ssex92D191dUHP56nk8LNkAmH/
+        ofoyFF9VV4Dvtt12/JcPQ5Oupu94FrnmDjslyjx9Wa1m2kjHBmo475RB/hQL+w==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1638208111;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Tbl3+zAOEmpP6ZGCt/BD/PG2cZ3xnDr+Tb2+yq81oZo=;
+        b=5xRw1Cp/h/haoQhJAxftFnjCbEc9UKH/scHgQVSdL5qC+aJRF+i0MC2mtjiyiG1rOEKaPZ
+        igMovB8jTE5WtwCQ==
+To:     linux-kernel@vger.kernel.org
+Cc:     Ben Segall <bsegall@google.com>, Boqun Feng <boqun.feng@gmail.com>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Mel Gorman <mgorman@suse.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Waiman Long <longman@redhat.com>,
+        Will Deacon <will@kernel.org>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Brian Cain <bcain@codeaurora.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Chris Zankel <chris@zankel.net>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Guo Ren <guoren@kernel.org>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        "Vivi, Rodrigo" <rodrigo.vivi@intel.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        "Wang, Zhi A" <zhi.a.wang@intel.com>,
-        "kwankhede@nvidia.com" <kwankhede@nvidia.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>
-Date:   Mon, 29 Nov 2021 12:18:10 -0500
-In-Reply-To: <PH0PR11MB5658A7BB11922E5B6267892AC3619@PH0PR11MB5658.namprd11.prod.outlook.com>
-References: <PH0PR11MB5658A7BB11922E5B6267892AC3619@PH0PR11MB5658.namprd11.prod.outlook.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-16.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: BmwITCNvvTA5VRuRy3cbh2Kc0uPgOB4n
-X-Proofpoint-ORIG-GUID: EkFGmA16HXv7C7TcmraxdC6UWkL4Zbnv
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-11-29_10,2021-11-28_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
- lowpriorityscore=0 malwarescore=0 priorityscore=1501 adultscore=0
- mlxscore=0 suspectscore=0 impostorscore=0 clxscore=1011 spamscore=0
- phishscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2111290081
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Paul Mackerras <paulus@samba.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Rich Felker <dalias@libc.org>,
+        Richard Henderson <rth@twiddle.net>,
+        Russell King <linux@armlinux.org.uk>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        linux-ia64@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH 11/11] locking: Allow to include asm/spinlock_types.h from linux/spinlock_types_raw.h
+Date:   Mon, 29 Nov 2021 18:46:54 +0100
+Message-Id: <20211129174654.668506-12-bigeasy@linutronix.de>
+In-Reply-To: <20211129174654.668506-1-bigeasy@linutronix.de>
+References: <20211129174654.668506-1-bigeasy@linutronix.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 2021-11-24 at 12:25 +0000, Liu, Yi L wrote:
-> > From: Jason Gunthorpe <jgg@nvidia.com>
-> > Sent: Fri, 1 Oct 2021 14:52:51 -0300
-> > 
-> > The css_driver's main purpose is to create/destroy the mdev and
-> > relay the
-> > shutdown, irq, sch_event, and chp_event css_driver ops to the
-> > single
-> > created vfio_device, if it exists.
-> > 
-> > Reframe the boundary where the css_driver domain switches to the
-> > vfio
-> > domain by using rcu to read and refcount the vfio_device out of the
-> > sch's
-> > drvdata. The mdev probe/remove will manage the drvdata of the
-> > parent.
-> > 
-> > The vfio core code refcounting thus guarantees that when a
-> > css_driver
-> > callback is running the vfio_device is registered, simplifying the
-> > understanding of the whole lifecycle.
-> > 
-> > Finally the vfio_ccw_private is allocated/freed during probe/remove
-> > of the
-> > mdev like any other vfio_device struct.
-> 
-> Hi Eric,
-> 
-> how about the status of this patch? 
+The printk header file includes ratelimit_types.h for its __ratelimit()
+based usage. It is required for the static initializer used in
+printk_ratelimited(). It uses a raw_spinlock_t and includes the
+spinlock_types.h.
 
-Hi YiLiu,
+PREEMPT_RT substitutes spinlock_t with a rtmutex based implementation and so
+its spinlock_t implmentation (provided by spinlock_rt.h) includes rtmutex.h=
+ and
+atomic.h which leads to recursive includes where defines are missing.
 
-To be honest I never got this far in the series, as the middle of the
-series got into some more involved rework than I had the bandwidth to
-consider. Not sure I'll be able to do anything with it before the year
-end holiday, but I've noted your interest in getting this in line with
-the rest of vfio_device so I don't drop it too far down the list.
+By including only the raw_spinlock_t defines it avoids the atomic.h
+related includes at this stage.
 
-Thanks,
-Eric
+An example on powerpc:
 
-> I found it is a good clean up to make
-> vfio ccw behave same with other vfio_device users. Also, I'd like to
-> do a
-> clean up to consolidate the vfio_device allocation which needs the
-> vfio
-> ccw private allocation happen in the mdev probe. So it would be nice
-> to
-> build the cleanup based on this patch.
-> 
-> Regards,
-> Yi Liu
-> 
-> > Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> > ---
-> >  drivers/s390/cio/vfio_ccw_drv.c     | 67 ++++++++++++++-----------
-> > ----
-> >  drivers/s390/cio/vfio_ccw_ops.c     | 40 +++++++----------
-> >  drivers/s390/cio/vfio_ccw_private.h | 23 +++++++++-
-> >  3 files changed, 69 insertions(+), 61 deletions(-)
-> > 
-> > diff --git a/drivers/s390/cio/vfio_ccw_drv.c
-> > b/drivers/s390/cio/vfio_ccw_drv.c
-> > index 18ad047811d111..c5582fc9c46c9e 100644
-> > --- a/drivers/s390/cio/vfio_ccw_drv.c
-> > +++ b/drivers/s390/cio/vfio_ccw_drv.c
-> > @@ -86,13 +86,19 @@ static void vfio_ccw_crw_todo(struct
-> > work_struct *work)
-> >   */
-> >  static void vfio_ccw_sch_irq(struct subchannel *sch)
-> >  {
-> > -	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
-> > +	struct vfio_ccw_private *private = vfio_ccw_get_priv(sch);
-> > +
-> > +	/* IRQ should not be delivered after the mdev is destroyed */
-> > +	if (WARN_ON(!private))
-> > +		return;
-> >  
-> >  	inc_irq_stat(IRQIO_CIO);
-> >  	vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_INTERRUPT);
-> > +	vfio_device_put(&private->vdev);
-> >  }
-> >  
-> > -static struct vfio_ccw_private *vfio_ccw_alloc_private(struct
-> > subchannel *sch)
-> > +struct vfio_ccw_private *vfio_ccw_alloc_private(struct mdev_device
-> > *mdev,
-> > +						struct subchannel *sch)
-> >  {
-> >  	struct vfio_ccw_private *private;
-> >  
-> > @@ -100,6 +106,8 @@ static struct vfio_ccw_private
-> > *vfio_ccw_alloc_private(struct subchannel *sch)
-> >  	if (!private)
-> >  		return ERR_PTR(-ENOMEM);
-> >  
-> > +	vfio_init_group_dev(&private->vdev, &mdev->dev,
-> > +			    &vfio_ccw_dev_ops);
-> >  	private->sch = sch;
-> >  	mutex_init(&private->io_mutex);
-> >  	private->state = VFIO_CCW_STATE_CLOSED;
-> > @@ -145,11 +153,12 @@ static struct vfio_ccw_private
-> > *vfio_ccw_alloc_private(struct subchannel *sch)
-> >  	kfree(private->cp.guest_cp);
-> >  out_free_private:
-> >  	mutex_destroy(&private->io_mutex);
-> > +	vfio_uninit_group_dev(&private->vdev);
-> >  	kfree(private);
-> >  	return ERR_PTR(-ENOMEM);
-> >  }
-> >  
-> > -static void vfio_ccw_free_private(struct vfio_ccw_private
-> > *private)
-> > +void vfio_ccw_free_private(struct vfio_ccw_private *private)
-> >  {
-> >  	struct vfio_ccw_crw *crw, *temp;
-> >  
-> > @@ -164,14 +173,14 @@ static void vfio_ccw_free_private(struct
-> > vfio_ccw_private *private)
-> >  	kmem_cache_free(vfio_ccw_io_region, private->io_region);
-> >  	kfree(private->cp.guest_cp);
-> >  	mutex_destroy(&private->io_mutex);
-> > -	kfree(private);
-> > +	vfio_uninit_group_dev(&private->vdev);
-> > +	kfree_rcu(private, rcu);
-> >  }
-> >  
-> >  static int vfio_ccw_sch_probe(struct subchannel *sch)
-> >  {
-> >  	struct pmcw *pmcw = &sch->schib.pmcw;
-> > -	struct vfio_ccw_private *private;
-> > -	int ret = -ENOMEM;
-> > +	int ret;
-> >  
-> >  	if (pmcw->qf) {
-> >  		dev_warn(&sch->dev, "vfio: ccw: does not support QDIO:
-> > %s\n",
-> > @@ -179,15 +188,9 @@ static int vfio_ccw_sch_probe(struct
-> > subchannel *sch)
-> >  		return -ENODEV;
-> >  	}
-> >  
-> > -	private = vfio_ccw_alloc_private(sch);
-> > -	if (IS_ERR(private))
-> > -		return PTR_ERR(private);
-> > -
-> > -	dev_set_drvdata(&sch->dev, private);
-> > -
-> > -	ret = vfio_ccw_mdev_reg(sch);
-> > +	ret = mdev_register_device(&sch->dev, &vfio_ccw_mdev_ops);
-> >  	if (ret)
-> > -		goto out_free;
-> > +		return ret;
-> >  
-> >  	if (dev_get_uevent_suppress(&sch->dev)) {
-> >  		dev_set_uevent_suppress(&sch->dev, 0);
-> > @@ -198,22 +201,11 @@ static int vfio_ccw_sch_probe(struct
-> > subchannel *sch)
-> >  			   sch->schid.cssid, sch->schid.ssid,
-> >  			   sch->schid.sch_no);
-> >  	return 0;
-> > -
-> > -out_free:
-> > -	dev_set_drvdata(&sch->dev, NULL);
-> > -	vfio_ccw_free_private(private);
-> > -	return ret;
-> >  }
-> >  
-> >  static void vfio_ccw_sch_remove(struct subchannel *sch)
-> >  {
-> > -	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
-> > -
-> > -	vfio_ccw_mdev_unreg(sch);
-> > -
-> > -	dev_set_drvdata(&sch->dev, NULL);
-> > -
-> > -	vfio_ccw_free_private(private);
-> > +	mdev_unregister_device(&sch->dev);
-> >  
-> >  	VFIO_CCW_MSG_EVENT(4, "unbound from subchannel %x.%x.%04x\n",
-> >  			   sch->schid.cssid, sch->schid.ssid,
-> > @@ -222,10 +214,14 @@ static void vfio_ccw_sch_remove(struct
-> > subchannel *sch)
-> >  
-> >  static void vfio_ccw_sch_shutdown(struct subchannel *sch)
-> >  {
-> > -	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
-> > +	struct vfio_ccw_private *private = vfio_ccw_get_priv(sch);
-> > +
-> > +	if (!private)
-> > +		return;
-> >  
-> >  	vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_CLOSE);
-> >  	vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_BROKEN);
-> > +	vfio_device_put(&private->vdev);
-> >  }
-> >  
-> >  /**
-> > @@ -240,14 +236,14 @@ static void vfio_ccw_sch_shutdown(struct
-> > subchannel *sch)
-> >   */
-> >  static int vfio_ccw_sch_event(struct subchannel *sch, int process)
-> >  {
-> > -	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
-> > +	struct vfio_ccw_private *private = vfio_ccw_get_priv(sch);
-> >  	unsigned long flags;
-> >  	int rc = -EAGAIN;
-> >  
-> > -	spin_lock_irqsave(sch->lock, flags);
-> > -	if (!device_is_registered(&sch->dev))
-> > -		goto out_unlock;
-> > +	if (!private)
-> > +		return -EAGAIN;
-> >  
-> > +	spin_lock_irqsave(sch->lock, flags);
-> >  	if (work_pending(&sch->todo_work))
-> >  		goto out_unlock;
-> >  
-> > @@ -260,7 +256,7 @@ static int vfio_ccw_sch_event(struct subchannel
-> > *sch, int process)
-> >  
-> >  out_unlock:
-> >  	spin_unlock_irqrestore(sch->lock, flags);
-> > -
-> > +	vfio_device_put(&private->vdev);
-> >  	return rc;
-> >  }
-> >  
-> > @@ -294,7 +290,7 @@ static void vfio_ccw_queue_crw(struct
-> > vfio_ccw_private *private,
-> >  static int vfio_ccw_chp_event(struct subchannel *sch,
-> >  			      struct chp_link *link, int event)
-> >  {
-> > -	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
-> > +	struct vfio_ccw_private *private = vfio_ccw_get_priv(sch);
-> >  	int mask = chp_ssd_get_mask(&sch->ssd_info, link);
-> >  	int retry = 255;
-> >  
-> > @@ -307,8 +303,10 @@ static int vfio_ccw_chp_event(struct
-> > subchannel *sch,
-> >  			   sch->schid.ssid, sch->schid.sch_no,
-> >  			   mask, event);
-> >  
-> > -	if (cio_update_schib(sch))
-> > +	if (cio_update_schib(sch)) {
-> > +		vfio_device_put(&private->vdev);
-> >  		return -ENODEV;
-> > +	}
-> >  
-> >  	switch (event) {
-> >  	case CHP_VARY_OFF:
-> > @@ -338,6 +336,7 @@ static int vfio_ccw_chp_event(struct subchannel
-> > *sch,
-> >  		break;
-> >  	}
-> >  
-> > +	vfio_device_put(&private->vdev);
-> >  	return 0;
-> >  }
-> >  
-> > diff --git a/drivers/s390/cio/vfio_ccw_ops.c
-> > b/drivers/s390/cio/vfio_ccw_ops.c
-> > index 68aae25a0a4be0..414b11ea7eebf9 100644
-> > --- a/drivers/s390/cio/vfio_ccw_ops.c
-> > +++ b/drivers/s390/cio/vfio_ccw_ops.c
-> > @@ -17,8 +17,6 @@
-> >  
-> >  #include "vfio_ccw_private.h"
-> >  
-> > -static const struct vfio_device_ops vfio_ccw_dev_ops;
-> > -
-> >  static int vfio_ccw_mdev_reset(struct vfio_ccw_private *private)
-> >  {
-> >  	/*
-> > @@ -88,26 +86,27 @@ static struct attribute_group
-> > *mdev_type_groups[] = {
-> >  
-> >  static int vfio_ccw_mdev_probe(struct mdev_device *mdev)
-> >  {
-> > -	struct vfio_ccw_private *private = dev_get_drvdata(mdev-
-> > >dev.parent);
-> > +	struct subchannel *sch = to_subchannel(mdev->dev.parent);
-> > +	struct vfio_ccw_private *private;
-> >  	int ret;
-> >  
-> > -	memset(&private->vdev, 0, sizeof(private->vdev));
-> > -	vfio_init_group_dev(&private->vdev, &mdev->dev,
-> > -			    &vfio_ccw_dev_ops);
-> > +	private = vfio_ccw_alloc_private(mdev, sch);
-> > +	if (IS_ERR(private))
-> > +		return PTR_ERR(private);
-> >  
-> >  	VFIO_CCW_MSG_EVENT(2, "mdev %s, sch %x.%x.%04x: create\n",
-> > -			   dev_name(private->vdev.dev),
-> > -			   private->sch->schid.cssid, private->sch-
-> > >schid.ssid,
-> > -			   private->sch->schid.sch_no);
-> > +			   dev_name(private->vdev.dev), sch-
-> > >schid.cssid,
-> > +			   sch->schid.ssid, sch->schid.sch_no);
-> >  
-> >  	ret = vfio_register_emulated_iommu_dev(&private->vdev);
-> >  	if (ret)
-> > -		goto err_init;
-> > +		goto err_alloc;
-> >  	dev_set_drvdata(&mdev->dev, private);
-> > +	dev_set_drvdata(&sch->dev, private);
-> >  	return 0;
-> >  
-> > -err_init:
-> > -	vfio_uninit_group_dev(&private->vdev);
-> > +err_alloc:
-> > +	vfio_ccw_free_private(private);
-> >  	return ret;
-> >  }
-> >  
-> > @@ -120,8 +119,9 @@ static void vfio_ccw_mdev_remove(struct
-> > mdev_device *mdev)
-> >  			   private->sch->schid.cssid, private->sch-
-> > >schid.ssid,
-> >  			   private->sch->schid.sch_no);
-> >  
-> > +	dev_set_drvdata(&private->sch->dev, NULL);
-> >  	vfio_unregister_group_dev(&private->vdev);
-> > -	vfio_uninit_group_dev(&private->vdev);
-> > +	vfio_ccw_free_private(private);
-> >  }
-> >  
-> >  static int vfio_ccw_mdev_open_device(struct vfio_device *vdev)
-> > @@ -595,7 +595,7 @@ static unsigned int
-> > vfio_ccw_get_available(struct mdev_type *mtype)
-> >  	return 1;
-> >  }
-> >  
-> > -static const struct vfio_device_ops vfio_ccw_dev_ops = {
-> > +const struct vfio_device_ops vfio_ccw_dev_ops = {
-> >  	.open_device = vfio_ccw_mdev_open_device,
-> >  	.close_device = vfio_ccw_mdev_close_device,
-> >  	.read = vfio_ccw_mdev_read,
-> > @@ -615,19 +615,9 @@ struct mdev_driver vfio_ccw_mdev_driver = {
-> >  	.get_available = vfio_ccw_get_available,
-> >  };
-> >  
-> > -static const struct mdev_parent_ops vfio_ccw_mdev_ops = {
-> > +const struct mdev_parent_ops vfio_ccw_mdev_ops = {
-> >  	.owner			= THIS_MODULE,
-> >  	.device_driver		= &vfio_ccw_mdev_driver,
-> >  	.device_api		= VFIO_DEVICE_API_CCW_STRING,
-> >  	.supported_type_groups  = mdev_type_groups,
-> >  };
-> > -
-> > -int vfio_ccw_mdev_reg(struct subchannel *sch)
-> > -{
-> > -	return mdev_register_device(&sch->dev, &vfio_ccw_mdev_ops);
-> > -}
-> > -
-> > -void vfio_ccw_mdev_unreg(struct subchannel *sch)
-> > -{
-> > -	mdev_unregister_device(&sch->dev);
-> > -}
-> > diff --git a/drivers/s390/cio/vfio_ccw_private.h
-> > b/drivers/s390/cio/vfio_ccw_private.h
-> > index 67ee9c624393b0..852ff94fc107d6 100644
-> > --- a/drivers/s390/cio/vfio_ccw_private.h
-> > +++ b/drivers/s390/cio/vfio_ccw_private.h
-> > @@ -24,6 +24,8 @@
-> >  #include "css.h"
-> >  #include "vfio_ccw_cp.h"
-> >  
-> > +struct mdev_device;
-> > +
-> >  #define VFIO_CCW_OFFSET_SHIFT   10
-> >  #define VFIO_CCW_OFFSET_TO_INDEX(off)	(off >>
-> > VFIO_CCW_OFFSET_SHIFT)
-> >  #define VFIO_CCW_INDEX_TO_OFFSET(index)	((u64)(index) <<
-> > VFIO_CCW_OFFSET_SHIFT)
-> > @@ -69,6 +71,7 @@ struct vfio_ccw_crw {
-> >  /**
-> >   * struct vfio_ccw_private
-> >   * @vdev: Embedded VFIO device
-> > + * @rcu: head for kfree_rcu()
-> >   * @sch: pointer to the subchannel
-> >   * @state: internal state of the device
-> >   * @completion: synchronization helper of the I/O completion
-> > @@ -91,6 +94,7 @@ struct vfio_ccw_crw {
-> >   */
-> >  struct vfio_ccw_private {
-> >  	struct vfio_device vdev;
-> > +	struct rcu_head rcu;
-> >  	struct subchannel	*sch;
-> >  	int			state;
-> >  	struct completion	*completion;
-> > @@ -115,10 +119,25 @@ struct vfio_ccw_private {
-> >  	struct work_struct	crw_work;
-> >  } __aligned(8);
-> >  
-> > -extern int vfio_ccw_mdev_reg(struct subchannel *sch);
-> > -extern void vfio_ccw_mdev_unreg(struct subchannel *sch);
-> > +struct vfio_ccw_private *vfio_ccw_alloc_private(struct mdev_device
-> > *mdev,
-> > +						struct subchannel
-> > *sch);
-> > +void vfio_ccw_free_private(struct vfio_ccw_private *private);
-> >  
-> >  extern struct mdev_driver vfio_ccw_mdev_driver;
-> > +extern const struct mdev_parent_ops vfio_ccw_mdev_ops;
-> > +extern const struct vfio_device_ops vfio_ccw_dev_ops;
-> > +
-> > +static inline struct vfio_ccw_private *vfio_ccw_get_priv(struct
-> > subchannel *sch)
-> > +{
-> > +	struct vfio_ccw_private *private;
-> > +
-> > +	rcu_read_lock();
-> > +	private = dev_get_drvdata(&sch->dev);
-> > +	if (private && !vfio_device_try_get(&private->vdev))
-> > +		private = NULL;
-> > +	rcu_read_unlock();
-> > +	return private;
-> > +}
-> >  
-> >  /*
-> >   * States of the device statemachine.
-> > -- 
-> > 2.33.0
+|  CALL    scripts/atomic/check-atomics.sh
+|In file included from include/linux/bug.h:5,
+|                 from include/linux/page-flags.h:10,
+|                 from kernel/bounds.c:10:
+|arch/powerpc/include/asm/page_32.h: In function =E2=80=98clear_page=E2=80=
+=99:
+|arch/powerpc/include/asm/bug.h:87:4: error: implicit declaration of functi=
+on =E2=80=98__WARN=E2=80=99 [-Werror=3Dimplicit-function-declaration]
+|   87 |    __WARN();    \
+|      |    ^~~~~~
+|arch/powerpc/include/asm/page_32.h:48:2: note: in expansion of macro =E2=
+=80=98WARN_ON=E2=80=99
+|   48 |  WARN_ON((unsigned long)addr & (L1_CACHE_BYTES - 1));
+|      |  ^~~~~~~
+|arch/powerpc/include/asm/bug.h:58:17: error: invalid application of =E2=80=
+=98sizeof=E2=80=99 to incomplete type =E2=80=98struct bug_entry=E2=80=99
+|   58 |     "i" (sizeof(struct bug_entry)), \
+|      |                 ^~~~~~
+|arch/powerpc/include/asm/bug.h:89:3: note: in expansion of macro =E2=80=98=
+BUG_ENTRY=E2=80=99
+|   89 |   BUG_ENTRY(PPC_TLNEI " %4, 0",   \
+|      |   ^~~~~~~~~
+|arch/powerpc/include/asm/page_32.h:48:2: note: in expansion of macro =E2=
+=80=98WARN_ON=E2=80=99
+|   48 |  WARN_ON((unsigned long)addr & (L1_CACHE_BYTES - 1));
+|      |  ^~~~~~~
+|In file included from arch/powerpc/include/asm/ptrace.h:298,
+|                 from arch/powerpc/include/asm/hw_irq.h:12,
+|                 from arch/powerpc/include/asm/irqflags.h:12,
+|                 from include/linux/irqflags.h:16,
+|                 from include/asm-generic/cmpxchg-local.h:6,
+|                 from arch/powerpc/include/asm/cmpxchg.h:526,
+|                 from arch/powerpc/include/asm/atomic.h:11,
+|                 from include/linux/atomic.h:7,
+|                 from include/linux/rwbase_rt.h:6,
+|                 from include/linux/rwlock_types.h:55,
+|                 from include/linux/spinlock_types.h:74,
+|                 from include/linux/ratelimit_types.h:7,
+|                 from include/linux/printk.h:10,
+|                 from include/asm-generic/bug.h:22,
+|                 from arch/powerpc/include/asm/bug.h:109,
+|                 from include/linux/bug.h:5,
+|                 from include/linux/page-flags.h:10,
+|                 from kernel/bounds.c:10:
+|include/linux/thread_info.h: In function =E2=80=98copy_overflow=E2=80=99:
+|include/linux/thread_info.h:210:2: error: implicit declaration of function=
+ =E2=80=98WARN=E2=80=99 [-Werror=3Dimplicit-function-declaration]
+|  210 |  WARN(1, "Buffer overflow detected (%d < %lu)!\n", size, count);
+|      |  ^~~~
+
+The WARN / BUG include pulls in printk.h and then ptrace.h expects WARN
+(from bug.h) which is not yet complete. Even hw_irq.h has WARN_ON()
+statements.
+
+On POWERPC64 there are missing atomic64 defines while building 32bit
+VDSO:
+|  VDSO32C arch/powerpc/kernel/vdso32/vgettimeofday.o
+|In file included from include/linux/atomic.h:80,
+|                 from include/linux/rwbase_rt.h:6,
+|                 from include/linux/rwlock_types.h:55,
+|                 from include/linux/spinlock_types.h:74,
+|                 from include/linux/ratelimit_types.h:7,
+|                 from include/linux/printk.h:10,
+|                 from include/linux/kernel.h:19,
+|                 from arch/powerpc/include/asm/page.h:11,
+|                 from arch/powerpc/include/asm/vdso/gettimeofday.h:5,
+|                 from include/vdso/datapage.h:137,
+|                 from lib/vdso/gettimeofday.c:5,
+|                 from <command-line>:
+|include/linux/atomic-arch-fallback.h: In function =E2=80=98arch_atomic64_i=
+nc=E2=80=99:
+|include/linux/atomic-arch-fallback.h:1447:2: error: implicit declaration o=
+f function =E2=80=98arch_atomic64_add=E2=80=99; did you mean =E2=80=98arch_=
+atomic_add=E2=80=99? [-Werror=3Dimpl
+|icit-function-declaration]
+| 1447 |  arch_atomic64_add(1, v);
+|      |  ^~~~~~~~~~~~~~~~~
+|      |  arch_atomic_add
+
+The generic fallback is not included, atomics itself are not used. If
+kernel.h does not include printk.h then it comes later from the bug.h
+include.
+
+Allow asm/spinlock_types.h to be included from
+linux/spinlock_types_raw.h.
+
+Cc: Albert Ou <aou@eecs.berkeley.edu>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Brian Cain <bcain@codeaurora.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Chris Zankel <chris@zankel.net>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Guo Ren <guoren@kernel.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Matt Turner <mattst88@gmail.com>
+Cc: Max Filippov <jcmvbkbc@gmail.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: Rich Felker <dalias@libc.org>
+Cc: Richard Henderson <rth@twiddle.net>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: linux-alpha@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-csky@vger.kernel.org
+Cc: linux-hexagon@vger.kernel.org
+Cc: linux-ia64@vger.kernel.org
+Cc: linux-riscv@lists.infradead.org
+Cc: linux-s390@vger.kernel.org
+Cc: linux-sh@vger.kernel.org
+Cc: linux-xtensa@linux-xtensa.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+---
+ arch/alpha/include/asm/spinlock_types.h          | 2 +-
+ arch/arm/include/asm/spinlock_types.h            | 2 +-
+ arch/arm64/include/asm/spinlock_types.h          | 2 +-
+ arch/csky/include/asm/spinlock_types.h           | 2 +-
+ arch/hexagon/include/asm/spinlock_types.h        | 2 +-
+ arch/ia64/include/asm/spinlock_types.h           | 2 +-
+ arch/powerpc/include/asm/simple_spinlock_types.h | 2 +-
+ arch/powerpc/include/asm/spinlock_types.h        | 2 +-
+ arch/riscv/include/asm/spinlock_types.h          | 2 +-
+ arch/s390/include/asm/spinlock_types.h           | 2 +-
+ arch/sh/include/asm/spinlock_types.h             | 2 +-
+ arch/xtensa/include/asm/spinlock_types.h         | 2 +-
+ include/linux/ratelimit_types.h                  | 2 +-
+ include/linux/spinlock_types_up.h                | 2 +-
+ 14 files changed, 14 insertions(+), 14 deletions(-)
+
+diff --git a/arch/alpha/include/asm/spinlock_types.h b/arch/alpha/include/a=
+sm/spinlock_types.h
+index 1d5716bc060be..2526fd3be5fd7 100644
+--- a/arch/alpha/include/asm/spinlock_types.h
++++ b/arch/alpha/include/asm/spinlock_types.h
+@@ -2,7 +2,7 @@
+ #ifndef _ALPHA_SPINLOCK_TYPES_H
+ #define _ALPHA_SPINLOCK_TYPES_H
+=20
+-#ifndef __LINUX_SPINLOCK_TYPES_H
++#ifndef __LINUX_SPINLOCK_TYPES_RAW_H
+ # error "please don't include this file directly"
+ #endif
+=20
+diff --git a/arch/arm/include/asm/spinlock_types.h b/arch/arm/include/asm/s=
+pinlock_types.h
+index 5976958647fe1..0c14b36ef1013 100644
+--- a/arch/arm/include/asm/spinlock_types.h
++++ b/arch/arm/include/asm/spinlock_types.h
+@@ -2,7 +2,7 @@
+ #ifndef __ASM_SPINLOCK_TYPES_H
+ #define __ASM_SPINLOCK_TYPES_H
+=20
+-#ifndef __LINUX_SPINLOCK_TYPES_H
++#ifndef __LINUX_SPINLOCK_TYPES_RAW_H
+ # error "please don't include this file directly"
+ #endif
+=20
+diff --git a/arch/arm64/include/asm/spinlock_types.h b/arch/arm64/include/a=
+sm/spinlock_types.h
+index 18782f0c47212..11ab1c0776977 100644
+--- a/arch/arm64/include/asm/spinlock_types.h
++++ b/arch/arm64/include/asm/spinlock_types.h
+@@ -5,7 +5,7 @@
+ #ifndef __ASM_SPINLOCK_TYPES_H
+ #define __ASM_SPINLOCK_TYPES_H
+=20
+-#if !defined(__LINUX_SPINLOCK_TYPES_H) && !defined(__ASM_SPINLOCK_H)
++#if !defined(__LINUX_SPINLOCK_TYPES_RAW_H) && !defined(__ASM_SPINLOCK_H)
+ # error "please don't include this file directly"
+ #endif
+=20
+diff --git a/arch/csky/include/asm/spinlock_types.h b/arch/csky/include/asm=
+/spinlock_types.h
+index 8ff0f6ff3a006..db87a12c3827d 100644
+--- a/arch/csky/include/asm/spinlock_types.h
++++ b/arch/csky/include/asm/spinlock_types.h
+@@ -3,7 +3,7 @@
+ #ifndef __ASM_CSKY_SPINLOCK_TYPES_H
+ #define __ASM_CSKY_SPINLOCK_TYPES_H
+=20
+-#ifndef __LINUX_SPINLOCK_TYPES_H
++#ifndef __LINUX_SPINLOCK_TYPES_RAW_H
+ # error "please don't include this file directly"
+ #endif
+=20
+diff --git a/arch/hexagon/include/asm/spinlock_types.h b/arch/hexagon/inclu=
+de/asm/spinlock_types.h
+index 19d233497ba52..d5f66495b670f 100644
+--- a/arch/hexagon/include/asm/spinlock_types.h
++++ b/arch/hexagon/include/asm/spinlock_types.h
+@@ -8,7 +8,7 @@
+ #ifndef _ASM_SPINLOCK_TYPES_H
+ #define _ASM_SPINLOCK_TYPES_H
+=20
+-#ifndef __LINUX_SPINLOCK_TYPES_H
++#ifndef __LINUX_SPINLOCK_TYPES_RAW_H
+ # error "please don't include this file directly"
+ #endif
+=20
+diff --git a/arch/ia64/include/asm/spinlock_types.h b/arch/ia64/include/asm=
+/spinlock_types.h
+index 6e345fefcdcab..14b8a161c1652 100644
+--- a/arch/ia64/include/asm/spinlock_types.h
++++ b/arch/ia64/include/asm/spinlock_types.h
+@@ -2,7 +2,7 @@
+ #ifndef _ASM_IA64_SPINLOCK_TYPES_H
+ #define _ASM_IA64_SPINLOCK_TYPES_H
+=20
+-#ifndef __LINUX_SPINLOCK_TYPES_H
++#ifndef __LINUX_SPINLOCK_TYPES_RAW_H
+ # error "please don't include this file directly"
+ #endif
+=20
+diff --git a/arch/powerpc/include/asm/simple_spinlock_types.h b/arch/powerp=
+c/include/asm/simple_spinlock_types.h
+index 0f3cdd8faa959..08243338069d2 100644
+--- a/arch/powerpc/include/asm/simple_spinlock_types.h
++++ b/arch/powerpc/include/asm/simple_spinlock_types.h
+@@ -2,7 +2,7 @@
+ #ifndef _ASM_POWERPC_SIMPLE_SPINLOCK_TYPES_H
+ #define _ASM_POWERPC_SIMPLE_SPINLOCK_TYPES_H
+=20
+-#ifndef __LINUX_SPINLOCK_TYPES_H
++#ifndef __LINUX_SPINLOCK_TYPES_RAW_H
+ # error "please don't include this file directly"
+ #endif
+=20
+diff --git a/arch/powerpc/include/asm/spinlock_types.h b/arch/powerpc/inclu=
+de/asm/spinlock_types.h
+index c5d742f18021d..d5f8a74ed2e8c 100644
+--- a/arch/powerpc/include/asm/spinlock_types.h
++++ b/arch/powerpc/include/asm/spinlock_types.h
+@@ -2,7 +2,7 @@
+ #ifndef _ASM_POWERPC_SPINLOCK_TYPES_H
+ #define _ASM_POWERPC_SPINLOCK_TYPES_H
+=20
+-#ifndef __LINUX_SPINLOCK_TYPES_H
++#ifndef __LINUX_SPINLOCK_TYPES_RAW_H
+ # error "please don't include this file directly"
+ #endif
+=20
+diff --git a/arch/riscv/include/asm/spinlock_types.h b/arch/riscv/include/a=
+sm/spinlock_types.h
+index f398e7638dd63..5a35a49505da2 100644
+--- a/arch/riscv/include/asm/spinlock_types.h
++++ b/arch/riscv/include/asm/spinlock_types.h
+@@ -6,7 +6,7 @@
+ #ifndef _ASM_RISCV_SPINLOCK_TYPES_H
+ #define _ASM_RISCV_SPINLOCK_TYPES_H
+=20
+-#ifndef __LINUX_SPINLOCK_TYPES_H
++#ifndef __LINUX_SPINLOCK_TYPES_RAW_H
+ # error "please don't include this file directly"
+ #endif
+=20
+diff --git a/arch/s390/include/asm/spinlock_types.h b/arch/s390/include/asm=
+/spinlock_types.h
+index a2bbfd7df85fa..b69695e399574 100644
+--- a/arch/s390/include/asm/spinlock_types.h
++++ b/arch/s390/include/asm/spinlock_types.h
+@@ -2,7 +2,7 @@
+ #ifndef __ASM_SPINLOCK_TYPES_H
+ #define __ASM_SPINLOCK_TYPES_H
+=20
+-#ifndef __LINUX_SPINLOCK_TYPES_H
++#ifndef __LINUX_SPINLOCK_TYPES_RAW_H
+ # error "please don't include this file directly"
+ #endif
+=20
+diff --git a/arch/sh/include/asm/spinlock_types.h b/arch/sh/include/asm/spi=
+nlock_types.h
+index e82369f286a20..907bda4b1619a 100644
+--- a/arch/sh/include/asm/spinlock_types.h
++++ b/arch/sh/include/asm/spinlock_types.h
+@@ -2,7 +2,7 @@
+ #ifndef __ASM_SH_SPINLOCK_TYPES_H
+ #define __ASM_SH_SPINLOCK_TYPES_H
+=20
+-#ifndef __LINUX_SPINLOCK_TYPES_H
++#ifndef __LINUX_SPINLOCK_TYPES_RAW_H
+ # error "please don't include this file directly"
+ #endif
+=20
+diff --git a/arch/xtensa/include/asm/spinlock_types.h b/arch/xtensa/include=
+/asm/spinlock_types.h
+index 64c9389254f13..797aed7df3dd8 100644
+--- a/arch/xtensa/include/asm/spinlock_types.h
++++ b/arch/xtensa/include/asm/spinlock_types.h
+@@ -2,7 +2,7 @@
+ #ifndef __ASM_SPINLOCK_TYPES_H
+ #define __ASM_SPINLOCK_TYPES_H
+=20
+-#if !defined(__LINUX_SPINLOCK_TYPES_H) && !defined(__ASM_SPINLOCK_H)
++#if !defined(__LINUX_SPINLOCK_TYPES_RAW_H) && !defined(__ASM_SPINLOCK_H)
+ # error "please don't include this file directly"
+ #endif
+=20
+diff --git a/include/linux/ratelimit_types.h b/include/linux/ratelimit_type=
+s.h
+index b676aa419eef8..c21c7f8103e2b 100644
+--- a/include/linux/ratelimit_types.h
++++ b/include/linux/ratelimit_types.h
+@@ -4,7 +4,7 @@
+=20
+ #include <linux/bits.h>
+ #include <linux/param.h>
+-#include <linux/spinlock_types.h>
++#include <linux/spinlock_types_raw.h>
+=20
+ #define DEFAULT_RATELIMIT_INTERVAL	(5 * HZ)
+ #define DEFAULT_RATELIMIT_BURST		10
+diff --git a/include/linux/spinlock_types_up.h b/include/linux/spinlock_typ=
+es_up.h
+index c09b6407ae1b3..7f86a2016ac5c 100644
+--- a/include/linux/spinlock_types_up.h
++++ b/include/linux/spinlock_types_up.h
+@@ -1,7 +1,7 @@
+ #ifndef __LINUX_SPINLOCK_TYPES_UP_H
+ #define __LINUX_SPINLOCK_TYPES_UP_H
+=20
+-#ifndef __LINUX_SPINLOCK_TYPES_H
++#ifndef __LINUX_SPINLOCK_TYPES_RAW_H
+ # error "please don't include this file directly"
+ #endif
+=20
+--=20
+2.34.0
 
