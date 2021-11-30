@@ -2,75 +2,103 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5A86C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 30 Nov 2021 12:30:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 92C3DC433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 30 Nov 2021 15:20:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241594AbhK3Mdg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 30 Nov 2021 07:33:36 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:60792 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230089AbhK3Mdb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 Nov 2021 07:33:31 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 83039B819A1;
-        Tue, 30 Nov 2021 12:30:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 3CCD7C53FCF;
-        Tue, 30 Nov 2021 12:30:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638275410;
-        bh=D4Jx5pr2GCQBpfUB5CbwXnYAfoFu8JJD965nyq/2FYk=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=F44qcdebI/L7PX/f1VA0DkjVaLJzGiwXYgtgZfu11LGcneCbdnTo0adNJgWtIEfw2
-         imYMWuhvKzPub3OXfOihRCevJqhM6i3f7IMQ+sBUMbHhYobVtfwWGe8nKnkN//2j4d
-         AkugUEY45zzH2oaPD9MxFNFo2gHiug3aDZRu955Vk5Px/mrUZ/Ec+LvwaRTLX3nkVx
-         av34QTSxnDV2Bnh5VSbAKBl9uR+B0hXcgZP0lkaDfFjJxDItVFxxO2SIys/yYTfa0o
-         kHQoMU4n2M77pD56RznI8KqmKCeCmdMTqUZXo4QsHuRywojFGvDfdFuNVZ8d/kYNEL
-         Aw5Obempe997Q==
-Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id 1B93E60A94;
-        Tue, 30 Nov 2021 12:30:10 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        id S243197AbhK3PX5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 30 Nov 2021 10:23:57 -0500
+Received: from out30-130.freemail.mail.aliyun.com ([115.124.30.130]:50318 "EHLO
+        out30-130.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S239195AbhK3PUx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 30 Nov 2021 10:20:53 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0UytYDy2_1638285451;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0UytYDy2_1638285451)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Tue, 30 Nov 2021 23:17:31 +0800
+From:   Dust Li <dust.li@linux.alibaba.com>
+To:     Karsten Graul <kgraul@linux.ibm.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Ursula Braun <ubraun@linux.ibm.com>
+Cc:     Tony Lu <tonylu@linux.alibaba.com>,
+        Wen Gu <guwen@linux.alibaba.com>, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH net] net/smc: fix wrong list_del in smc_lgr_cleanup_early
+Date:   Tue, 30 Nov 2021 23:17:31 +0800
+Message-Id: <20211130151731.55951-1-dust.li@linux.alibaba.com>
+X-Mailer: git-send-email 2.19.1.3.ge56e4f7
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] MAINTAINERS: s390/net: add Alexandra and Wenjia as
- maintainer
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <163827541010.1181.10845531566402474498.git-patchwork-notify@kernel.org>
-Date:   Tue, 30 Nov 2021 12:30:10 +0000
-References: <20211130073358.4079471-1-kgraul@linux.ibm.com>
-In-Reply-To: <20211130073358.4079471-1-kgraul@linux.ibm.com>
-To:     Karsten Graul <kgraul@linux.ibm.com>
-Cc:     davem@davemloft.net, kuba@kernel.org, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, hca@linux.ibm.com, jwi@linux.ibm.com,
-        wenjia@linux.ibm.com, wintera@linux.ibm.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
+smc_lgr_cleanup_early() meant to deleted the link
+group from the link group list, but it deleted
+the list head by mistake.
 
-This patch was applied to netdev/net.git (master)
-by David S. Miller <davem@davemloft.net>:
+This may cause memory corruption since we didn't
+remove the real link group from the list and later
+memseted the link group structure.
+We got a list corruption panic when testing:
 
-On Tue, 30 Nov 2021 08:33:58 +0100 you wrote:
-> Add Alexandra and Wenjia as maintainers for drivers/s390/net and iucv.
-> Also, remove myself as maintainer for these areas.
-> 
-> Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-> Acked-by: Alexandra Winter <wintera@linux.ibm.com>
-> Acked-by: Wenjia Zhang <wenjia@linux.ibm.com>
-> 
-> [...]
+[  231.277259] list_del corruption. prev->next should be ffff8881398a8000, but was 0000000000000000
+[  231.278222] ------------[ cut here ]------------
+[  231.278726] kernel BUG at lib/list_debug.c:53!
+[  231.279326] invalid opcode: 0000 [#1] SMP NOPTI
+[  231.279803] CPU: 0 PID: 5 Comm: kworker/0:0 Not tainted 5.10.46+ #435
+[  231.280466] Hardware name: Alibaba Cloud ECS, BIOS 8c24b4c 04/01/2014
+[  231.281248] Workqueue: events smc_link_down_work
+[  231.281732] RIP: 0010:__list_del_entry_valid+0x70/0x90
+[  231.282258] Code: 4c 60 82 e8 7d cc 6a 00 0f 0b 48 89 fe 48 c7 c7 88 4c
+60 82 e8 6c cc 6a 00 0f 0b 48 89 fe 48 c7 c7 c0 4c 60 82 e8 5b cc 6a 00 <0f>
+0b 48 89 fe 48 c7 c7 00 4d 60 82 e8 4a cc 6a 00 0f 0b cc cc cc
+[  231.284146] RSP: 0018:ffffc90000033d58 EFLAGS: 00010292
+[  231.284685] RAX: 0000000000000054 RBX: ffff8881398a8000 RCX: 0000000000000000
+[  231.285415] RDX: 0000000000000001 RSI: ffff88813bc18040 RDI: ffff88813bc18040
+[  231.286141] RBP: ffffffff8305ad40 R08: 0000000000000003 R09: 0000000000000001
+[  231.286873] R10: ffffffff82803da0 R11: ffffc90000033b90 R12: 0000000000000001
+[  231.287606] R13: 0000000000000000 R14: ffff8881398a8000 R15: 0000000000000003
+[  231.288337] FS:  0000000000000000(0000) GS:ffff88813bc00000(0000) knlGS:0000000000000000
+[  231.289160] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  231.289754] CR2: 0000000000e72058 CR3: 000000010fa96006 CR4: 00000000003706f0
+[  231.290485] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  231.291211] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  231.291940] Call Trace:
+[  231.292211]  smc_lgr_terminate_sched+0x53/0xa0
+[  231.292677]  smc_switch_conns+0x75/0x6b0
+[  231.293085]  ? update_load_avg+0x1a6/0x590
+[  231.293517]  ? ttwu_do_wakeup+0x17/0x150
+[  231.293907]  ? update_load_avg+0x1a6/0x590
+[  231.294317]  ? newidle_balance+0xca/0x3d0
+[  231.294716]  smcr_link_down+0x50/0x1a0
+[  231.295090]  ? __wake_up_common_lock+0x77/0x90
+[  231.295534]  smc_link_down_work+0x46/0x60
+[  231.295933]  process_one_work+0x18b/0x350
 
-Here is the summary with links:
-  - [net] MAINTAINERS: s390/net: add Alexandra and Wenjia as maintainer
-    https://git.kernel.org/netdev/net/c/34d8778a9437
+Fixes: a0a62ee15a829 ("net/smc: separate locks for SMCD and SMCR link group lists")
+Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
+---
+ net/smc/smc_core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-You are awesome, thank you!
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index bb52c8b5f148..ae2d5fa6dfca 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -635,8 +635,8 @@ void smc_lgr_cleanup_early(struct smc_connection *conn)
+ 	lgr_list = smc_lgr_list_head(lgr, &lgr_lock);
+ 	spin_lock_bh(lgr_lock);
+ 	/* do not use this link group for new connections */
+-	if (!list_empty(lgr_list))
+-		list_del_init(lgr_list);
++	if (!list_empty(&lgr->list))
++		list_del_init(&lgr->list);
+ 	spin_unlock_bh(lgr_lock);
+ 	__smc_lgr_terminate(lgr, true);
+ }
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.19.1.3.ge56e4f7
 
