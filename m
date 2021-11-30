@@ -2,30 +2,39 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B8ABC433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 30 Nov 2021 19:21:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F708C433FE
+	for <linux-s390@archiver.kernel.org>; Tue, 30 Nov 2021 19:48:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245736AbhK3TZM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 30 Nov 2021 14:25:12 -0500
-Received: from ale.deltatee.com ([204.191.154.188]:57912 "EHLO
-        ale.deltatee.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239820AbhK3TZL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 Nov 2021 14:25:11 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=deltatee.com; s=20200525; h=Subject:In-Reply-To:MIME-Version:Date:
-        Message-ID:From:References:Cc:To:content-disposition;
-        bh=Dlyz49EtKbJqaNzZfY1tx0m9Yx6JL073qjZfik+uWwE=; b=VEornqptojdVzaRUFG+WqR1CYD
-        GF5KRyNgtfYRTD6G10G4SN4gIAkwQ2CzgN4UUfuM0nazIEfV6ByTXoLsuRLJWIZcC1zrTuAZXLxdb
-        GVND9pkSL5czg6JUyIpVKoyl2mMHN+ZUkB7QML2Ozuabyn5UTrmPnZvmVu2g2zVrlm5zphOgc51X5
-        kziw93b1XB+yHPG1ChiV6lUR4/dTF+cr+AtJ9dN8s5UWqHSFMQpV7n1TNzuc54YPDQqZ3KuKhEs3K
-        DG4mm5pm8xhOKLxvC1gesniPE++b0EoASHbZnuyBPB+f7q1Li4IiO5e+D62zngvT0fqbnyPMZNWwi
-        l1uIvong==;
-Received: from guinness.priv.deltatee.com ([172.16.1.162])
-        by ale.deltatee.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.94.2)
-        (envelope-from <logang@deltatee.com>)
-        id 1ms8gy-00BCOF-Ov; Tue, 30 Nov 2021 12:21:29 -0700
-To:     Thomas Gleixner <tglx@linutronix.de>,
+        id S239472AbhK3Tv0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 30 Nov 2021 14:51:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45214 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229789AbhK3Tv0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 Nov 2021 14:51:26 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6F1CC061574;
+        Tue, 30 Nov 2021 11:48:06 -0800 (PST)
+From:   Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1638301684;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=1PGGF31MvMk64+aUTPz1Do+PDXuwrIRZVKdbxPEpPtA=;
+        b=ImCfCdMo1PZpLtuIcF6Rj5ARB8ef5RpenBUExBPbXPPr+8bN9WMYe4oyt1V4pCd0eCwN6e
+        yHAt2OGCqmdRALT7Rt5mVmF534yWoBhld2/cUnq8cIxN0bBcStG5lHwFuq5h6eB5gCO9mg
+        kFhn2MyDRC1yvdkmtfzSZqJNOndrH/kwWAdO0jQjUzP/oyzIUxxzJI53RK8fASv+Swd7+/
+        J2Qd7JWTh3Sh2KH0q5ntBjnDt1ZXTv2XZyf/XZWHuMjwM48GVfslEfWoDb3MDwQB2EHQrz
+        ifVBxZe85gLpvLrRPyyUORzxQV+aO2d8xqChM+3OXVrAPpvkkot7mRcYqZAo6g==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1638301684;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=1PGGF31MvMk64+aUTPz1Do+PDXuwrIRZVKdbxPEpPtA=;
+        b=d9drm8P01nreGyeEJWDqg3F3BtYVO2MXSzMAs0qxXvVlrbJwPISqszjuUxq9r0HtVKZ/dN
+        0rB0UDfOIfUbDyDQ==
+To:     Logan Gunthorpe <logang@deltatee.com>,
         LKML <linux-kernel@vger.kernel.org>
 Cc:     Bjorn Helgaas <helgaas@kernel.org>, Marc Zygnier <maz@kernel.org>,
         Alex Williamson <alex.williamson@redhat.com>,
@@ -39,58 +48,45 @@ Cc:     Bjorn Helgaas <helgaas@kernel.org>, Marc Zygnier <maz@kernel.org>,
         Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com,
         linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>, x86@kernel.org
+Subject: Re: [patch 21/32] NTB/msi: Convert to msi_on_each_desc()
+In-Reply-To: <d6f13729-1b83-fa7d-3f0d-98d4e3f7a2aa@deltatee.com>
 References: <20211126230957.239391799@linutronix.de>
  <20211126232735.547996838@linutronix.de>
  <7daba0e2-73a3-4980-c3a5-a71f6b597b22@deltatee.com> <874k7ueldt.ffs@tglx>
  <6ba084d6-2b26-7c86-4526-8fcd3d921dfd@deltatee.com> <87ilwacwp8.ffs@tglx>
-From:   Logan Gunthorpe <logang@deltatee.com>
-Message-ID: <d6f13729-1b83-fa7d-3f0d-98d4e3f7a2aa@deltatee.com>
-Date:   Tue, 30 Nov 2021 12:21:21 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+ <d6f13729-1b83-fa7d-3f0d-98d4e3f7a2aa@deltatee.com>
+Date:   Tue, 30 Nov 2021 20:48:03 +0100
+Message-ID: <87v909bf2k.ffs@tglx>
 MIME-Version: 1.0
-In-Reply-To: <87ilwacwp8.ffs@tglx>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-CA
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 172.16.1.162
-X-SA-Exim-Rcpt-To: x86@kernel.org, borntraeger@de.ibm.com, hca@linux.ibm.com, linux-s390@vger.kernel.org, linux-ntb@googlegroups.com, allenbh@gmail.com, dave.jiang@intel.com, jdmason@kudzu.us, gregkh@linuxfoundation.org, linux-pci@vger.kernel.org, ashok.raj@intel.com, megha.dey@intel.com, jgg@nvidia.com, kevin.tian@intel.com, alex.williamson@redhat.com, maz@kernel.org, helgaas@kernel.org, linux-kernel@vger.kernel.org, tglx@linutronix.de
-X-SA-Exim-Mail-From: logang@deltatee.com
-Subject: Re: [patch 21/32] NTB/msi: Convert to msi_on_each_desc()
-X-SA-Exim-Version: 4.2.1 (built Sat, 13 Feb 2021 17:57:42 +0000)
-X-SA-Exim-Scanned: Yes (on ale.deltatee.com)
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Logan,
 
+On Tue, Nov 30 2021 at 12:21, Logan Gunthorpe wrote:
+> On 2021-11-29 5:29 p.m., Thomas Gleixner wrote:
+>> I'm way too tired to come up with a proper solution for that, but that
+>> PCI_IRQ_VIRTUAL has to die ASAP.
+>
+> I'm willing to volunteer a bit of my time to clean this up, but I'd need
+> a bit more direction on what a proper solution would look like. The MSI
+> domain code is far from well documented nor is it easy to understand.
 
-On 2021-11-29 5:29 p.m., Thomas Gleixner wrote:
-> At the conceptual level these interrupts are in separate irq domains:
-> 
->      |   _______________________
->      |   |                      |
->      |   | NTB                  |
->      |   |                      |
->      |   | PCI config space     |
->      |   |     MSI-X space      | <- #1 Global or per IOMMU zone PCI/MSI domain
->      |   |_____________________ |
->      |---|                      |
->          | Memory window A      |
->          | Memory window ..     | <- #2 Per device NTB domain
->          | Memory window N      |
->          |______________________|
-> 
-> You surely can see the disctinction between #1 and #2, right?
+Fair enough. I'm struggling with finding time to document that properly.
 
-I wouldn't say that's entirely obvious or even irrefutable. However, I'm
-certainly open to this approach if it improves the code.
+I've not yet made my mind up what the best way forward for this is, but
+I have a few ideas which I want to explore deeper.
 
-> I'm way too tired to come up with a proper solution for that, but that
-> PCI_IRQ_VIRTUAL has to die ASAP.
+But the most important question is right now on which architectures
+these switchtec virtual interrupt things are used.
 
-I'm willing to volunteer a bit of my time to clean this up, but I'd need
-a bit more direction on what a proper solution would look like. The MSI
-domain code is far from well documented nor is it easy to understand.
+If it's used on any architecture which does not use hierarchical
+irqdomains for MSI (x86, arm, arm64, power64), then using irqdomains is
+obviously a non-starter unless falling back to a single interrupt would
+not be considered a regression :)
 
-Logan
+Thanks,
+
+        tglx
