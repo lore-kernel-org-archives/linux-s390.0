@@ -2,141 +2,153 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 688B0C433F5
-	for <linux-s390@archiver.kernel.org>; Wed,  1 Dec 2021 10:16:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CD03C4332F
+	for <linux-s390@archiver.kernel.org>; Wed,  1 Dec 2021 11:48:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348542AbhLAKUO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 1 Dec 2021 05:20:14 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:39622 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232413AbhLAKUO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Dec 2021 05:20:14 -0500
-From:   Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1638353809;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+        id S1349013AbhLALwD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 1 Dec 2021 06:52:03 -0500
+Received: from smtp-out1.suse.de ([195.135.220.28]:42012 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1348563AbhLALwC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Dec 2021 06:52:02 -0500
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id E8C3D212C2;
+        Wed,  1 Dec 2021 11:48:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1638359319; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=wbiMD6K2khcbAApwZxiyDtRNkrqwDaQ0eoVHy6k+DAE=;
-        b=DQUYrHcJWTXltulp1feZwgRWzO09qEXPzvxuFWK/F/3vV+hE7s8CvVv6RqfJklXeAyAD0H
-        hXnqwh3YlJY3/KlsOG6lNhqsiSkRSaQo109zXU8Ncji5c2Mnmi+NDUCeV5vck2olRwXun2
-        HlwLphiG6uDz/ms4mXztbEY8g8Uq4diKY7gqfozy+jiG3TEWSq0lOlzMCzXfp/v3aU0NW2
-        tqKUStD1xTEwlY3c0rCYvZSspZ7m4XoWnyinjMBzlicvdmaWcHxr9zGGVseTAHlpQUJ/xS
-        nZaskQBDuO+Vx1r7kgboo6bwhFWWXtWR6Qt9J9qr/PFiXQk6HzJiXwtK5YvgUA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1638353809;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+        bh=WrpXoBK/4LwwvZ609Va7mvqZYMz7+OB0m9N/bzmDziw=;
+        b=HoFAEUtdm1wIBQkZ8wytWV68qtGZn5Zx5grFcSya42VQirGgSCl6A+DC2vIcZ5TdyxdbTr
+        W2NAmwDLCRrnNBybHxojCOdjDjD70hWsiQ6QiXdF+k7JVvpls0tm3Ngx0XWYwG/B7neevV
+        w/0YAfAcfrGr1j1OEHqZd2YRZeXZFvw=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1638359319;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=wbiMD6K2khcbAApwZxiyDtRNkrqwDaQ0eoVHy6k+DAE=;
-        b=UinCQtLZesRyTqT4YgZIT5MQ5x/D3n9gdny+zdaLwIM15OXm6LTqjUB6YeI2mys6irMEFC
-        QZPVYEsXsxomKLCA==
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Logan Gunthorpe <logang@deltatee.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Bjorn Helgaas <helgaas@kernel.org>,
-        Marc Zygnier <maz@kernel.org>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Megha Dey <megha.dey@intel.com>,
-        Ashok Raj <ashok.raj@intel.com>, linux-pci@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jon Mason <jdmason@kudzu.us>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>, x86@kernel.org,
-        Joerg Roedel <jroedel@suse.de>,
-        iommu@lists.linux-foundation.org
-Subject: Re: [patch 21/32] NTB/msi: Convert to msi_on_each_desc()
-In-Reply-To: <20211201001748.GF4670@nvidia.com>
-References: <20211126230957.239391799@linutronix.de>
- <20211126232735.547996838@linutronix.de>
- <7daba0e2-73a3-4980-c3a5-a71f6b597b22@deltatee.com> <874k7ueldt.ffs@tglx>
- <6ba084d6-2b26-7c86-4526-8fcd3d921dfd@deltatee.com> <87ilwacwp8.ffs@tglx>
- <d6f13729-1b83-fa7d-3f0d-98d4e3f7a2aa@deltatee.com> <87v909bf2k.ffs@tglx>
- <20211130202800.GE4670@nvidia.com> <87o861banv.ffs@tglx>
- <20211201001748.GF4670@nvidia.com>
-Date:   Wed, 01 Dec 2021 11:16:47 +0100
-Message-ID: <87mtlkaauo.ffs@tglx>
+        bh=WrpXoBK/4LwwvZ609Va7mvqZYMz7+OB0m9N/bzmDziw=;
+        b=lFf3wqoLPgzv6s+15hy2N/O1nDrvid9mKt3tQRAPUvx23YZo+486dPM+tI4vMosa0+voxm
+        ihq/i/mlKzqbKOBA==
+Received: from kunlun.suse.cz (unknown [10.100.128.76])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 3A7ECA3B81;
+        Wed,  1 Dec 2021 11:48:37 +0000 (UTC)
+Date:   Wed, 1 Dec 2021 12:48:36 +0100
+From:   Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
+To:     Baoquan He <bhe@redhat.com>
+Cc:     Nayna <nayna@linux.vnet.ibm.com>, Mimi Zohar <zohar@linux.ibm.com>,
+        David Howells <dhowells@redhat.com>, keyrings@vger.kernel.org,
+        Paul Mackerras <paulus@samba.org>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Rob Herring <robh@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        James Morris <jmorris@namei.org>,
+        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        linux-crypto@vger.kernel.org,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+        Hari Bathini <hbathini@linux.ibm.com>,
+        Daniel Axtens <dja@axtens.net>,
+        Philipp Rudo <prudo@redhat.com>,
+        Frank van der Linden <fllinden@amazon.com>,
+        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        linux-security-module@vger.kernel.org,
+        Jessica Yu <jeyu@kernel.org>, linux-integrity@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org,
+        "David S. Miller" <davem@davemloft.net>,
+        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
+        buendgen@de.ibm.com
+Subject: Re: [PATCH v2 0/6] KEXEC_SIG with appended signature
+Message-ID: <20211201114836.GD117207@kunlun.suse.cz>
+References: <cover.1637862358.git.msuchanek@suse.de>
+ <20211201023747.GN21646@MiWiFi-R3L-srv>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211201023747.GN21646@MiWiFi-R3L-srv>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Jason,
+Hello,
 
-CC+ IOMMU folks
+On Wed, Dec 01, 2021 at 10:37:47AM +0800, Baoquan He wrote:
+> Hi,
+> 
+> On 11/25/21 at 07:02pm, Michal Suchanek wrote:
+> > Hello,
+> > 
+> > This is resend of the KEXEC_SIG patchset.
+> > 
+> > The first patch is new because it'a a cleanup that does not require any
+> > change to the module verification code.
+> > 
+> > The second patch is the only one that is intended to change any
+> > functionality.
+> > 
+> > The rest only deduplicates code but I did not receive any review on that
+> > part so I don't know if it's desirable as implemented.
+> 
+> Do you have the link of your 1st version?
 
-On Tue, Nov 30 2021 at 20:17, Jason Gunthorpe wrote:
-> On Tue, Nov 30, 2021 at 10:23:16PM +0100, Thomas Gleixner wrote:
->> The real problem is where to store the MSI descriptors because the PCI
->> device has its own real PCI/MSI-X interrupts which means it still shares
->> the storage space.
->
-> Er.. I never realized that just looking at the patches :|
->
-> That is relevant to all real "IMS" users. IDXD escaped this because
-> it, IMHO, wrongly used the mdev with the IRQ layer. The mdev is purely
-> a messy artifact of VFIO, it should not be required to make the IRQ
-> layers work.
+This is the previous version:
+https://lore.kernel.org/lkml/cover.1635948742.git.msuchanek@suse.de/
 
-> I don't think it makes sense that the msi_desc would point to a mdev,
-> the iommu layer consumes the msi_desc_to_dev(), it really should point
-> to the physical device that originates the message with a proper
-> iommu ops/data/etc.
+Thanks
 
-Looking at the device slices as subdevices with their own struct device
-makes a lot of sense from the conceptual level. That makes is pretty
-much obvious to manage the MSIs of those devices at this level like we
-do for any other device.
+Michal
 
-Whether mdev is the right encapsulation for these subdevices is an
-orthogonal problem.
-
-I surely agree that msi_desc::dev is an interesting question, but we
-already have this disconnect of msi_desc::dev and DMA today due to DMA
-aliasing. I haven't looked at that in detail yet, but of course the
-alias handling is substantially different accross the various IOMMU
-implementations.
-
-Though I fear there is also a use case for MSI-X and IMS tied to the
-same device. That network card you are talking about might end up using
-MSI-X for a control block and then IMS for the actual network queues
-when it is used as physical function device as a whole, but that's
-conceptually a different case.
-
->> I'm currently tending to partition the index space in the xarray:
->> 
->>  0x00000000 - 0x0000ffff          PCI/MSI-X
->>  0x00010000 - 0x0001ffff          NTB
->
-> It is OK, with some xarray work it can be range allocating & reserving
-> so that the msi_domain_alloc_irqs() flows can carve out chunks of the
-> number space..
->
-> Another view is the msi_domain_alloc_irqs() flows should have their
-> own xarrays..
-
-Yes, I was thinking about that as well. The trivial way would be:
-
-    struct xarray     store[MSI_MAX_STORES];
-
-and then have a store index for each allocation domain. With the
-proposed encapsulation of the xarray handling that's definitely
-feasible. Whether that buys much is a different question. Let me think
-about it some more.
-
->> which is feasible now with the range modifications and way simpler to do
->> with xarray than with the linked list.
->
-> Indeed!
-
-I'm glad you like the approach.
-
-Thanks,
-
-        tglx
-
-
+> And after going through the whole series, it doesn't tell what this
+> patch series intends to do in cover-letter or patch log.
+> 
+> Thanks
+> Baoquan
+> 
+> > 
+> > The first two patches can be applied separately without the rest.
+> > 
+> > Thanks
+> > 
+> > Michal
+> > 
+> > Michal Suchanek (6):
+> >   s390/kexec_file: Don't opencode appended signature check.
+> >   powerpc/kexec_file: Add KEXEC_SIG support.
+> >   kexec_file: Don't opencode appended signature verification.
+> >   module: strip the signature marker in the verification function.
+> >   module: Use key_being_used_for for log messages in
+> >     verify_appended_signature
+> >   module: Move duplicate mod_check_sig users code to mod_parse_sig
+> > 
+> >  arch/powerpc/Kconfig                     | 11 +++++
+> >  arch/powerpc/kexec/elf_64.c              | 14 ++++++
+> >  arch/s390/kernel/machine_kexec_file.c    | 42 ++----------------
+> >  crypto/asymmetric_keys/asymmetric_type.c |  1 +
+> >  include/linux/module_signature.h         |  1 +
+> >  include/linux/verification.h             |  4 ++
+> >  kernel/module-internal.h                 |  2 -
+> >  kernel/module.c                          | 12 +++--
+> >  kernel/module_signature.c                | 56 +++++++++++++++++++++++-
+> >  kernel/module_signing.c                  | 33 +++++++-------
+> >  security/integrity/ima/ima_modsig.c      | 22 ++--------
+> >  11 files changed, 113 insertions(+), 85 deletions(-)
+> > 
+> > -- 
+> > 2.31.1
+> > 
+> > 
+> > _______________________________________________
+> > kexec mailing list
+> > kexec@lists.infradead.org
+> > http://lists.infradead.org/mailman/listinfo/kexec
+> > 
+> 
