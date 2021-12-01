@@ -2,126 +2,141 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B9FFC433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  1 Dec 2021 06:34:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 688B0C433F5
+	for <linux-s390@archiver.kernel.org>; Wed,  1 Dec 2021 10:16:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235534AbhLAGh1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 1 Dec 2021 01:37:27 -0500
-Received: from out30-54.freemail.mail.aliyun.com ([115.124.30.54]:45710 "EHLO
-        out30-54.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230303AbhLAGh0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Dec 2021 01:37:26 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04357;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0UyzaKDW_1638340444;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0UyzaKDW_1638340444)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 01 Dec 2021 14:34:04 +0800
-Date:   Wed, 1 Dec 2021 14:34:03 +0800
-From:   Tony Lu <tonylu@linux.alibaba.com>
-To:     Dust Li <dust.li@linux.alibaba.com>
-Cc:     Karsten Graul <kgraul@linux.ibm.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Ursula Braun <ubraun@linux.ibm.com>,
-        Wen Gu <guwen@linux.alibaba.com>, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: Re: [PATCH net v3] net/smc: fix wrong list_del in
- smc_lgr_cleanup_early
-Message-ID: <YacXW60POz1SKyDq@TonyMac-Alibaba>
-Reply-To: Tony Lu <tonylu@linux.alibaba.com>
-References: <20211201030230.8896-1-dust.li@linux.alibaba.com>
+        id S1348542AbhLAKUO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 1 Dec 2021 05:20:14 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:39622 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232413AbhLAKUO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Dec 2021 05:20:14 -0500
+From:   Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1638353809;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=wbiMD6K2khcbAApwZxiyDtRNkrqwDaQ0eoVHy6k+DAE=;
+        b=DQUYrHcJWTXltulp1feZwgRWzO09qEXPzvxuFWK/F/3vV+hE7s8CvVv6RqfJklXeAyAD0H
+        hXnqwh3YlJY3/KlsOG6lNhqsiSkRSaQo109zXU8Ncji5c2Mnmi+NDUCeV5vck2olRwXun2
+        HlwLphiG6uDz/ms4mXztbEY8g8Uq4diKY7gqfozy+jiG3TEWSq0lOlzMCzXfp/v3aU0NW2
+        tqKUStD1xTEwlY3c0rCYvZSspZ7m4XoWnyinjMBzlicvdmaWcHxr9zGGVseTAHlpQUJ/xS
+        nZaskQBDuO+Vx1r7kgboo6bwhFWWXtWR6Qt9J9qr/PFiXQk6HzJiXwtK5YvgUA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1638353809;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=wbiMD6K2khcbAApwZxiyDtRNkrqwDaQ0eoVHy6k+DAE=;
+        b=UinCQtLZesRyTqT4YgZIT5MQ5x/D3n9gdny+zdaLwIM15OXm6LTqjUB6YeI2mys6irMEFC
+        QZPVYEsXsxomKLCA==
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Logan Gunthorpe <logang@deltatee.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Bjorn Helgaas <helgaas@kernel.org>,
+        Marc Zygnier <maz@kernel.org>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Megha Dey <megha.dey@intel.com>,
+        Ashok Raj <ashok.raj@intel.com>, linux-pci@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jon Mason <jdmason@kudzu.us>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>, x86@kernel.org,
+        Joerg Roedel <jroedel@suse.de>,
+        iommu@lists.linux-foundation.org
+Subject: Re: [patch 21/32] NTB/msi: Convert to msi_on_each_desc()
+In-Reply-To: <20211201001748.GF4670@nvidia.com>
+References: <20211126230957.239391799@linutronix.de>
+ <20211126232735.547996838@linutronix.de>
+ <7daba0e2-73a3-4980-c3a5-a71f6b597b22@deltatee.com> <874k7ueldt.ffs@tglx>
+ <6ba084d6-2b26-7c86-4526-8fcd3d921dfd@deltatee.com> <87ilwacwp8.ffs@tglx>
+ <d6f13729-1b83-fa7d-3f0d-98d4e3f7a2aa@deltatee.com> <87v909bf2k.ffs@tglx>
+ <20211130202800.GE4670@nvidia.com> <87o861banv.ffs@tglx>
+ <20211201001748.GF4670@nvidia.com>
+Date:   Wed, 01 Dec 2021 11:16:47 +0100
+Message-ID: <87mtlkaauo.ffs@tglx>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20211201030230.8896-1-dust.li@linux.alibaba.com>
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Dec 01, 2021 at 11:02:30AM +0800, Dust Li wrote:
-> smc_lgr_cleanup_early() meant to delete the link
-> group from the link group list, but it deleted
-> the list head by mistake.
-> 
-> This may cause memory corruption since we didn't
-> remove the real link group from the list and later
-> memseted the link group structure.
-> We got a list corruption panic when testing:
-> 
-> [  231.277259] list_del corruption. prev->next should be ffff8881398a8000, but was 0000000000000000
-> [  231.278222] ------------[ cut here ]------------
-> [  231.278726] kernel BUG at lib/list_debug.c:53!
-> [  231.279326] invalid opcode: 0000 [#1] SMP NOPTI
-> [  231.279803] CPU: 0 PID: 5 Comm: kworker/0:0 Not tainted 5.10.46+ #435
-> [  231.280466] Hardware name: Alibaba Cloud ECS, BIOS 8c24b4c 04/01/2014
-> [  231.281248] Workqueue: events smc_link_down_work
-> [  231.281732] RIP: 0010:__list_del_entry_valid+0x70/0x90
-> [  231.282258] Code: 4c 60 82 e8 7d cc 6a 00 0f 0b 48 89 fe 48 c7 c7 88 4c
-> 60 82 e8 6c cc 6a 00 0f 0b 48 89 fe 48 c7 c7 c0 4c 60 82 e8 5b cc 6a 00 <0f>
-> 0b 48 89 fe 48 c7 c7 00 4d 60 82 e8 4a cc 6a 00 0f 0b cc cc cc
-> [  231.284146] RSP: 0018:ffffc90000033d58 EFLAGS: 00010292
-> [  231.284685] RAX: 0000000000000054 RBX: ffff8881398a8000 RCX: 0000000000000000
-> [  231.285415] RDX: 0000000000000001 RSI: ffff88813bc18040 RDI: ffff88813bc18040
-> [  231.286141] RBP: ffffffff8305ad40 R08: 0000000000000003 R09: 0000000000000001
-> [  231.286873] R10: ffffffff82803da0 R11: ffffc90000033b90 R12: 0000000000000001
-> [  231.287606] R13: 0000000000000000 R14: ffff8881398a8000 R15: 0000000000000003
-> [  231.288337] FS:  0000000000000000(0000) GS:ffff88813bc00000(0000) knlGS:0000000000000000
-> [  231.289160] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> [  231.289754] CR2: 0000000000e72058 CR3: 000000010fa96006 CR4: 00000000003706f0
-> [  231.290485] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> [  231.291211] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> [  231.291940] Call Trace:
-> [  231.292211]  smc_lgr_terminate_sched+0x53/0xa0
-> [  231.292677]  smc_switch_conns+0x75/0x6b0
-> [  231.293085]  ? update_load_avg+0x1a6/0x590
-> [  231.293517]  ? ttwu_do_wakeup+0x17/0x150
-> [  231.293907]  ? update_load_avg+0x1a6/0x590
-> [  231.294317]  ? newidle_balance+0xca/0x3d0
-> [  231.294716]  smcr_link_down+0x50/0x1a0
-> [  231.295090]  ? __wake_up_common_lock+0x77/0x90
-> [  231.295534]  smc_link_down_work+0x46/0x60
-> [  231.295933]  process_one_work+0x18b/0x350
-> 
-> Fixes: a0a62ee15a829 ("net/smc: separate locks for SMCD and SMCR link group lists")
-> Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
-> Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+Jason,
 
-This patch looks good to me, thank you.
+CC+ IOMMU folks
 
-Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+On Tue, Nov 30 2021 at 20:17, Jason Gunthorpe wrote:
+> On Tue, Nov 30, 2021 at 10:23:16PM +0100, Thomas Gleixner wrote:
+>> The real problem is where to store the MSI descriptors because the PCI
+>> device has its own real PCI/MSI-X interrupts which means it still shares
+>> the storage space.
+>
+> Er.. I never realized that just looking at the patches :|
+>
+> That is relevant to all real "IMS" users. IDXD escaped this because
+> it, IMHO, wrongly used the mdev with the IRQ layer. The mdev is purely
+> a messy artifact of VFIO, it should not be required to make the IRQ
+> layers work.
 
-> ---
-> v2: Remove unused lgr_list
-> v2->v3: Fix uninitialized lgr_lock, thanks Jakub Kicinski !
-> ---
->  net/smc/smc_core.c | 7 +++----
->  1 file changed, 3 insertions(+), 4 deletions(-)
-> 
-> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-> index bb52c8b5f148..387d28b2f8dd 100644
-> --- a/net/smc/smc_core.c
-> +++ b/net/smc/smc_core.c
-> @@ -625,18 +625,17 @@ int smcd_nl_get_lgr(struct sk_buff *skb, struct netlink_callback *cb)
->  void smc_lgr_cleanup_early(struct smc_connection *conn)
->  {
->  	struct smc_link_group *lgr = conn->lgr;
-> -	struct list_head *lgr_list;
->  	spinlock_t *lgr_lock;
->  
->  	if (!lgr)
->  		return;
->  
->  	smc_conn_free(conn);
-> -	lgr_list = smc_lgr_list_head(lgr, &lgr_lock);
-> +	smc_lgr_list_head(lgr, &lgr_lock);
->  	spin_lock_bh(lgr_lock);
->  	/* do not use this link group for new connections */
-> -	if (!list_empty(lgr_list))
-> -		list_del_init(lgr_list);
-> +	if (!list_empty(&lgr->list))
-> +		list_del_init(&lgr->list);
->  	spin_unlock_bh(lgr_lock);
->  	__smc_lgr_terminate(lgr, true);
->  }
-> -- 
-> 2.19.1.3.ge56e4f7
+> I don't think it makes sense that the msi_desc would point to a mdev,
+> the iommu layer consumes the msi_desc_to_dev(), it really should point
+> to the physical device that originates the message with a proper
+> iommu ops/data/etc.
+
+Looking at the device slices as subdevices with their own struct device
+makes a lot of sense from the conceptual level. That makes is pretty
+much obvious to manage the MSIs of those devices at this level like we
+do for any other device.
+
+Whether mdev is the right encapsulation for these subdevices is an
+orthogonal problem.
+
+I surely agree that msi_desc::dev is an interesting question, but we
+already have this disconnect of msi_desc::dev and DMA today due to DMA
+aliasing. I haven't looked at that in detail yet, but of course the
+alias handling is substantially different accross the various IOMMU
+implementations.
+
+Though I fear there is also a use case for MSI-X and IMS tied to the
+same device. That network card you are talking about might end up using
+MSI-X for a control block and then IMS for the actual network queues
+when it is used as physical function device as a whole, but that's
+conceptually a different case.
+
+>> I'm currently tending to partition the index space in the xarray:
+>> 
+>>  0x00000000 - 0x0000ffff          PCI/MSI-X
+>>  0x00010000 - 0x0001ffff          NTB
+>
+> It is OK, with some xarray work it can be range allocating & reserving
+> so that the msi_domain_alloc_irqs() flows can carve out chunks of the
+> number space..
+>
+> Another view is the msi_domain_alloc_irqs() flows should have their
+> own xarrays..
+
+Yes, I was thinking about that as well. The trivial way would be:
+
+    struct xarray     store[MSI_MAX_STORES];
+
+and then have a store index for each allocation domain. With the
+proposed encapsulation of the xarray handling that's definitely
+feasible. Whether that buys much is a different question. Let me think
+about it some more.
+
+>> which is feasible now with the range modifications and way simpler to do
+>> with xarray than with the linked list.
+>
+> Indeed!
+
+I'm glad you like the approach.
+
+Thanks,
+
+        tglx
+
+
