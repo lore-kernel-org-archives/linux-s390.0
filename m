@@ -2,142 +2,125 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CF122C433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  1 Dec 2021 16:29:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C6E4C433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  1 Dec 2021 17:10:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350657AbhLAQcY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 1 Dec 2021 11:32:24 -0500
-Received: from mga07.intel.com ([134.134.136.100]:31192 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243240AbhLAQcY (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 1 Dec 2021 11:32:24 -0500
-X-IronPort-AV: E=McAfee;i="6200,9189,10185"; a="299880560"
-X-IronPort-AV: E=Sophos;i="5.87,279,1631602800"; 
-   d="scan'208";a="299880560"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Dec 2021 08:28:59 -0800
-X-IronPort-AV: E=Sophos;i="5.87,279,1631602800"; 
-   d="scan'208";a="602213420"
-Received: from cjlee1-mobl1.amr.corp.intel.com (HELO [10.212.64.69]) ([10.212.64.69])
-  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Dec 2021 08:28:54 -0800
-Message-ID: <8c2262ba-173e-0007-bc4c-94ec54b2847d@intel.com>
-Date:   Wed, 1 Dec 2021 09:28:52 -0700
+        id S235258AbhLARNf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 1 Dec 2021 12:13:35 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:23000 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231379AbhLARNe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Dec 2021 12:13:34 -0500
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B1Glfh8018387;
+        Wed, 1 Dec 2021 17:10:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=2YkocgshkxUm4oqRLSxIPYhafjxpXZO2WxBkFPjg/BQ=;
+ b=Sheuo6HKUWdNyW4JCrVRN2s+eGFFlAVJvNAVZPioNwW74IAj1RxNDAGVjHkcAjQB1+mI
+ zFlcu8jwNj+BuIZ7pjIAXOMoY2RQ+j7AE9I96NsnkHupRUFFqxzQB46uXORJJmrmy5Vd
+ plbOmxW1I/GXej6T2v96BIWuqDv/DwdxwNvAvKI+8LMnfsTGKeqduTfgJB8urfYlqGYU
+ YuNPCIL8JljNuxp5pIDxnW9rAIftwsiWTA01AkeK1ScZXSUGWYNjpWpyvrci/YBB+/F0
+ cVfWjri1q72OMJvrz/Jh+2uFuUQolSY6XshqQYqOMcjil6LTnzc5kGlCR9aq4a45X8Ec 8w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cpcvqrekh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 01 Dec 2021 17:10:11 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1B1Go6El029260;
+        Wed, 1 Dec 2021 17:10:11 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cpcvqrej7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 01 Dec 2021 17:10:10 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1B1H7lwv021638;
+        Wed, 1 Dec 2021 17:10:08 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma06ams.nl.ibm.com with ESMTP id 3ckbxkc9rq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 01 Dec 2021 17:10:08 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1B1H2b7r27722050
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 1 Dec 2021 17:02:37 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 02D6F4C050;
+        Wed,  1 Dec 2021 17:10:05 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 877104C05A;
+        Wed,  1 Dec 2021 17:10:04 +0000 (GMT)
+Received: from funtu.home (unknown [9.145.74.207])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed,  1 Dec 2021 17:10:04 +0000 (GMT)
+Subject: Re: [RFC PATCH] s390: vfio-ap: Register the vfio_ap module for the
+ "ap" parent bus
+To:     Thomas Huth <thuth@redhat.com>, linux-s390@vger.kernel.org,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>
+Cc:     linux-kernel@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+References: <20211201141110.94636-1-thuth@redhat.com>
+From:   Harald Freudenberger <freude@linux.ibm.com>
+Message-ID: <210e3c57-bdc2-09ed-3e41-8dab57e8f36c@linux.ibm.com>
+Date:   Wed, 1 Dec 2021 18:10:04 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.1
-Subject: Re: [patch 21/32] NTB/msi: Convert to msi_on_each_desc()
-Content-Language: en-US
-To:     Thomas Gleixner <tglx@linutronix.de>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Logan Gunthorpe <logang@deltatee.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Bjorn Helgaas <helgaas@kernel.org>,
-        Marc Zygnier <maz@kernel.org>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Megha Dey <megha.dey@intel.com>,
-        Ashok Raj <ashok.raj@intel.com>, linux-pci@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jon Mason <jdmason@kudzu.us>, Allen Hubbe <allenbh@gmail.com>,
-        linux-ntb@googlegroups.com, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>, x86@kernel.org,
-        Joerg Roedel <jroedel@suse.de>,
-        iommu@lists.linux-foundation.org
-References: <20211126230957.239391799@linutronix.de>
- <20211126232735.547996838@linutronix.de>
- <7daba0e2-73a3-4980-c3a5-a71f6b597b22@deltatee.com> <874k7ueldt.ffs@tglx>
- <6ba084d6-2b26-7c86-4526-8fcd3d921dfd@deltatee.com> <87ilwacwp8.ffs@tglx>
- <d6f13729-1b83-fa7d-3f0d-98d4e3f7a2aa@deltatee.com> <87v909bf2k.ffs@tglx>
- <20211130202800.GE4670@nvidia.com> <87o861banv.ffs@tglx>
- <20211201001748.GF4670@nvidia.com> <87mtlkaauo.ffs@tglx>
-From:   Dave Jiang <dave.jiang@intel.com>
-In-Reply-To: <87mtlkaauo.ffs@tglx>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+In-Reply-To: <20211201141110.94636-1-thuth@redhat.com>
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: B2Do6vHDdT1A4H27gGkvjGoA2cOYhBDQ
+X-Proofpoint-ORIG-GUID: KE5ZKGfpvVmQ1VOYdJ9wOeRsawfF1EY8
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-11-30_10,2021-12-01_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ mlxlogscore=999 malwarescore=0 bulkscore=0 spamscore=0 impostorscore=0
+ adultscore=0 phishscore=0 mlxscore=0 clxscore=1011 suspectscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2112010092
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On 01.12.21 15:11, Thomas Huth wrote:
+> The crypto devices that we can use with the vfio_ap module are sitting
+> on the "ap" bus, not on the "vfio_ap" bus that the module defines
+> itself. With this change, the vfio_ap module now gets automatically
+> loaded if a supported crypto adapter is available in the host.
+>
+> Signed-off-by: Thomas Huth <thuth@redhat.com>
+> ---
+>  Note: Marked as "RFC" since I'm not 100% sure about it ...
+>        please review carefully!
+>
+>  drivers/s390/crypto/vfio_ap_drv.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
+> index 4d2556bc7fe5..5580e40608a4 100644
+> --- a/drivers/s390/crypto/vfio_ap_drv.c
+> +++ b/drivers/s390/crypto/vfio_ap_drv.c
+> @@ -39,7 +39,7 @@ static struct ap_device_id ap_queue_ids[] = {
+>  	{ /* end of sibling */ },
+>  };
+>  
+> -MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
+> +MODULE_DEVICE_TABLE(ap, ap_queue_ids);
+>  
+>  /**
+>   * vfio_ap_queue_dev_probe:
+Hello Thomas, interesting.
+Did you test this ? I mean did you build a kernel and have it run on a s390 with crypto cards available ?
+My strong feeling is that this will make the AP bus code stumble as the code silently assumes there are exact
+two types of ap devices attached to the ap bus: ap cards and ap queues. This is a fair assumption as the ap bus
+is the 'owner' of what's attached to the bus it maintains. But with this change and no further arrangements
+in the ap bus code my feeling is ...
+However, Tony is the owner of the vfio ap stuff, so maybe he has another opinion.
+Harald Freudenberger
 
-On 12/1/2021 3:16 AM, Thomas Gleixner wrote:
-> Jason,
->
-> CC+ IOMMU folks
->
-> On Tue, Nov 30 2021 at 20:17, Jason Gunthorpe wrote:
->> On Tue, Nov 30, 2021 at 10:23:16PM +0100, Thomas Gleixner wrote:
->>> The real problem is where to store the MSI descriptors because the PCI
->>> device has its own real PCI/MSI-X interrupts which means it still shares
->>> the storage space.
->> Er.. I never realized that just looking at the patches :|
->>
->> That is relevant to all real "IMS" users. IDXD escaped this because
->> it, IMHO, wrongly used the mdev with the IRQ layer. The mdev is purely
->> a messy artifact of VFIO, it should not be required to make the IRQ
->> layers work.
->> I don't think it makes sense that the msi_desc would point to a mdev,
->> the iommu layer consumes the msi_desc_to_dev(), it really should point
->> to the physical device that originates the message with a proper
->> iommu ops/data/etc.
-> Looking at the device slices as subdevices with their own struct device
-> makes a lot of sense from the conceptual level. That makes is pretty
-> much obvious to manage the MSIs of those devices at this level like we
-> do for any other device.
->
-> Whether mdev is the right encapsulation for these subdevices is an
-> orthogonal problem.
->
-> I surely agree that msi_desc::dev is an interesting question, but we
-> already have this disconnect of msi_desc::dev and DMA today due to DMA
-> aliasing. I haven't looked at that in detail yet, but of course the
-> alias handling is substantially different accross the various IOMMU
-> implementations.
->
-> Though I fear there is also a use case for MSI-X and IMS tied to the
-> same device. That network card you are talking about might end up using
-> MSI-X for a control block and then IMS for the actual network queues
-> when it is used as physical function device as a whole, but that's
-> conceptually a different case.
-
-Hi Thomas. This is actually the IDXD usage for a mediated device passed 
-to a guest kernel when we plumb the pass through of IMS to the guest 
-rather than doing previous implementation of having a MSIX vector on 
-guest backed by IMS. The control block for the mediated device is 
-emulated and therefore an emulated MSIX vector will be surfaced as 
-vector 0. However the queues will backed by IMS vectors. So we end up 
-needing MSIX and IMS coexist running on the guest kernel for the same 
-device.
-
-DJ
-
->
->>> I'm currently tending to partition the index space in the xarray:
->>>
->>>   0x00000000 - 0x0000ffff          PCI/MSI-X
->>>   0x00010000 - 0x0001ffff          NTB
->> It is OK, with some xarray work it can be range allocating & reserving
->> so that the msi_domain_alloc_irqs() flows can carve out chunks of the
->> number space..
->>
->> Another view is the msi_domain_alloc_irqs() flows should have their
->> own xarrays..
-> Yes, I was thinking about that as well. The trivial way would be:
->
->      struct xarray     store[MSI_MAX_STORES];
->
-> and then have a store index for each allocation domain. With the
-> proposed encapsulation of the xarray handling that's definitely
-> feasible. Whether that buys much is a different question. Let me think
-> about it some more.
->
->>> which is feasible now with the range modifications and way simpler to do
->>> with xarray than with the linked list.
->> Indeed!
-> I'm glad you like the approach.
->
-> Thanks,
->
->          tglx
->
->
