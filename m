@@ -2,117 +2,143 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C2AC5C433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  1 Dec 2021 02:31:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 67A1DC433F5
+	for <linux-s390@archiver.kernel.org>; Wed,  1 Dec 2021 02:38:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241212AbhLACfK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 30 Nov 2021 21:35:10 -0500
-Received: from out30-42.freemail.mail.aliyun.com ([115.124.30.42]:57949 "EHLO
-        out30-42.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235229AbhLACfJ (ORCPT
+        id S1346236AbhLACle (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 30 Nov 2021 21:41:34 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:53289 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1346225AbhLACl2 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 30 Nov 2021 21:35:09 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0UyvwTLH_1638325907;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0UyvwTLH_1638325907)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 01 Dec 2021 10:31:48 +0800
-From:   Dust Li <dust.li@linux.alibaba.com>
-To:     Karsten Graul <kgraul@linux.ibm.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Ursula Braun <ubraun@linux.ibm.com>
-Cc:     Tony Lu <tonylu@linux.alibaba.com>,
-        Wen Gu <guwen@linux.alibaba.com>, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH net v2] net/smc: fix wrong list_del in smc_lgr_cleanup_early
-Date:   Wed,  1 Dec 2021 10:31:47 +0800
-Message-Id: <20211201023147.42923-1-dust.li@linux.alibaba.com>
-X-Mailer: git-send-email 2.19.1.3.ge56e4f7
+        Tue, 30 Nov 2021 21:41:28 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1638326287;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=W0n5k4sl9AYBphe6cujkRUTAtSAAGA+Ca8Fn1jgb3kw=;
+        b=N3mzgk9UowmoT9bOELTegEg+modpoOEo2XRxoZTD2ZXoKI8rBY5ktzlsSp7cEDex0f4GM5
+        PbSWp/f4WI7VrjtC8cbiIG/PUy4NLouem1PL0surhgLCqlVQxmJtyJR33k858Un97cROcV
+        jgl/5eajJjl23AtbjXmW4lJNzUyD28c=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-420-PtZgyoLZM6iWg_vjmPTmng-1; Tue, 30 Nov 2021 21:38:04 -0500
+X-MC-Unique: PtZgyoLZM6iWg_vjmPTmng-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 133C5102C7EB;
+        Wed,  1 Dec 2021 02:37:59 +0000 (UTC)
+Received: from localhost (ovpn-12-42.pek2.redhat.com [10.72.12.42])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 3ADC560C13;
+        Wed,  1 Dec 2021 02:37:50 +0000 (UTC)
+Date:   Wed, 1 Dec 2021 10:37:47 +0800
+From:   Baoquan He <bhe@redhat.com>
+To:     Michal Suchanek <msuchanek@suse.de>
+Cc:     keyrings@vger.kernel.org, kexec@lists.infradead.org,
+        Philipp Rudo <prudo@redhat.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Nayna <nayna@linux.vnet.ibm.com>, Rob Herring <robh@kernel.org>,
+        linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Jessica Yu <jeyu@kernel.org>, linux-kernel@vger.kernel.org,
+        David Howells <dhowells@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Hari Bathini <hbathini@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linuxppc-dev@lists.ozlabs.org,
+        Frank van der Linden <fllinden@amazon.com>,
+        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
+        Daniel Axtens <dja@axtens.net>, buendgen@de.ibm.com,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        linux-crypto@vger.kernel.org, linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+Subject: Re: [PATCH v2 0/6] KEXEC_SIG with appended signature
+Message-ID: <20211201023747.GN21646@MiWiFi-R3L-srv>
+References: <cover.1637862358.git.msuchanek@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cover.1637862358.git.msuchanek@suse.de>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-smc_lgr_cleanup_early() meant to delete the link
-group from the link group list, but it deleted
-the list head by mistake.
+Hi,
 
-This may cause memory corruption since we didn't
-remove the real link group from the list and later
-memseted the link group structure.
-We got a list corruption panic when testing:
+On 11/25/21 at 07:02pm, Michal Suchanek wrote:
+> Hello,
+> 
+> This is resend of the KEXEC_SIG patchset.
+> 
+> The first patch is new because it'a a cleanup that does not require any
+> change to the module verification code.
+> 
+> The second patch is the only one that is intended to change any
+> functionality.
+> 
+> The rest only deduplicates code but I did not receive any review on that
+> part so I don't know if it's desirable as implemented.
 
-[  231.277259] list_del corruption. prev->next should be ffff8881398a8000, but was 0000000000000000
-[  231.278222] ------------[ cut here ]------------
-[  231.278726] kernel BUG at lib/list_debug.c:53!
-[  231.279326] invalid opcode: 0000 [#1] SMP NOPTI
-[  231.279803] CPU: 0 PID: 5 Comm: kworker/0:0 Not tainted 5.10.46+ #435
-[  231.280466] Hardware name: Alibaba Cloud ECS, BIOS 8c24b4c 04/01/2014
-[  231.281248] Workqueue: events smc_link_down_work
-[  231.281732] RIP: 0010:__list_del_entry_valid+0x70/0x90
-[  231.282258] Code: 4c 60 82 e8 7d cc 6a 00 0f 0b 48 89 fe 48 c7 c7 88 4c
-60 82 e8 6c cc 6a 00 0f 0b 48 89 fe 48 c7 c7 c0 4c 60 82 e8 5b cc 6a 00 <0f>
-0b 48 89 fe 48 c7 c7 00 4d 60 82 e8 4a cc 6a 00 0f 0b cc cc cc
-[  231.284146] RSP: 0018:ffffc90000033d58 EFLAGS: 00010292
-[  231.284685] RAX: 0000000000000054 RBX: ffff8881398a8000 RCX: 0000000000000000
-[  231.285415] RDX: 0000000000000001 RSI: ffff88813bc18040 RDI: ffff88813bc18040
-[  231.286141] RBP: ffffffff8305ad40 R08: 0000000000000003 R09: 0000000000000001
-[  231.286873] R10: ffffffff82803da0 R11: ffffc90000033b90 R12: 0000000000000001
-[  231.287606] R13: 0000000000000000 R14: ffff8881398a8000 R15: 0000000000000003
-[  231.288337] FS:  0000000000000000(0000) GS:ffff88813bc00000(0000) knlGS:0000000000000000
-[  231.289160] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  231.289754] CR2: 0000000000e72058 CR3: 000000010fa96006 CR4: 00000000003706f0
-[  231.290485] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  231.291211] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[  231.291940] Call Trace:
-[  231.292211]  smc_lgr_terminate_sched+0x53/0xa0
-[  231.292677]  smc_switch_conns+0x75/0x6b0
-[  231.293085]  ? update_load_avg+0x1a6/0x590
-[  231.293517]  ? ttwu_do_wakeup+0x17/0x150
-[  231.293907]  ? update_load_avg+0x1a6/0x590
-[  231.294317]  ? newidle_balance+0xca/0x3d0
-[  231.294716]  smcr_link_down+0x50/0x1a0
-[  231.295090]  ? __wake_up_common_lock+0x77/0x90
-[  231.295534]  smc_link_down_work+0x46/0x60
-[  231.295933]  process_one_work+0x18b/0x350
+Do you have the link of your 1st version?
 
-Fixes: a0a62ee15a829 ("net/smc: separate locks for SMCD and SMCR link group lists")
-Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
-Acked-by: Karsten Graul <kgraul@linux.ibm.com>
----
-v2:
-- Remove unused lgr_list
----
- net/smc/smc_core.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+And after going through the whole series, it doesn't tell what this
+patch series intends to do in cover-letter or patch log.
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index bb52c8b5f148..8759f9fd8113 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -625,18 +625,16 @@ int smcd_nl_get_lgr(struct sk_buff *skb, struct netlink_callback *cb)
- void smc_lgr_cleanup_early(struct smc_connection *conn)
- {
- 	struct smc_link_group *lgr = conn->lgr;
--	struct list_head *lgr_list;
- 	spinlock_t *lgr_lock;
- 
- 	if (!lgr)
- 		return;
- 
- 	smc_conn_free(conn);
--	lgr_list = smc_lgr_list_head(lgr, &lgr_lock);
- 	spin_lock_bh(lgr_lock);
- 	/* do not use this link group for new connections */
--	if (!list_empty(lgr_list))
--		list_del_init(lgr_list);
-+	if (!list_empty(&lgr->list))
-+		list_del_init(&lgr->list);
- 	spin_unlock_bh(lgr_lock);
- 	__smc_lgr_terminate(lgr, true);
- }
--- 
-2.19.1.3.ge56e4f7
+Thanks
+Baoquan
+
+> 
+> The first two patches can be applied separately without the rest.
+> 
+> Thanks
+> 
+> Michal
+> 
+> Michal Suchanek (6):
+>   s390/kexec_file: Don't opencode appended signature check.
+>   powerpc/kexec_file: Add KEXEC_SIG support.
+>   kexec_file: Don't opencode appended signature verification.
+>   module: strip the signature marker in the verification function.
+>   module: Use key_being_used_for for log messages in
+>     verify_appended_signature
+>   module: Move duplicate mod_check_sig users code to mod_parse_sig
+> 
+>  arch/powerpc/Kconfig                     | 11 +++++
+>  arch/powerpc/kexec/elf_64.c              | 14 ++++++
+>  arch/s390/kernel/machine_kexec_file.c    | 42 ++----------------
+>  crypto/asymmetric_keys/asymmetric_type.c |  1 +
+>  include/linux/module_signature.h         |  1 +
+>  include/linux/verification.h             |  4 ++
+>  kernel/module-internal.h                 |  2 -
+>  kernel/module.c                          | 12 +++--
+>  kernel/module_signature.c                | 56 +++++++++++++++++++++++-
+>  kernel/module_signing.c                  | 33 +++++++-------
+>  security/integrity/ima/ima_modsig.c      | 22 ++--------
+>  11 files changed, 113 insertions(+), 85 deletions(-)
+> 
+> -- 
+> 2.31.1
+> 
+> 
+> _______________________________________________
+> kexec mailing list
+> kexec@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/kexec
+> 
 
