@@ -2,125 +2,213 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C6E4C433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  1 Dec 2021 17:10:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3AB76C433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  1 Dec 2021 17:35:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235258AbhLARNf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 1 Dec 2021 12:13:35 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:23000 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231379AbhLARNe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Dec 2021 12:13:34 -0500
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B1Glfh8018387;
-        Wed, 1 Dec 2021 17:10:11 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=2YkocgshkxUm4oqRLSxIPYhafjxpXZO2WxBkFPjg/BQ=;
- b=Sheuo6HKUWdNyW4JCrVRN2s+eGFFlAVJvNAVZPioNwW74IAj1RxNDAGVjHkcAjQB1+mI
- zFlcu8jwNj+BuIZ7pjIAXOMoY2RQ+j7AE9I96NsnkHupRUFFqxzQB46uXORJJmrmy5Vd
- plbOmxW1I/GXej6T2v96BIWuqDv/DwdxwNvAvKI+8LMnfsTGKeqduTfgJB8urfYlqGYU
- YuNPCIL8JljNuxp5pIDxnW9rAIftwsiWTA01AkeK1ScZXSUGWYNjpWpyvrci/YBB+/F0
- cVfWjri1q72OMJvrz/Jh+2uFuUQolSY6XshqQYqOMcjil6LTnzc5kGlCR9aq4a45X8Ec 8w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cpcvqrekh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 01 Dec 2021 17:10:11 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1B1Go6El029260;
-        Wed, 1 Dec 2021 17:10:11 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cpcvqrej7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 01 Dec 2021 17:10:10 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1B1H7lwv021638;
-        Wed, 1 Dec 2021 17:10:08 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma06ams.nl.ibm.com with ESMTP id 3ckbxkc9rq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 01 Dec 2021 17:10:08 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1B1H2b7r27722050
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 1 Dec 2021 17:02:37 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 02D6F4C050;
-        Wed,  1 Dec 2021 17:10:05 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 877104C05A;
-        Wed,  1 Dec 2021 17:10:04 +0000 (GMT)
-Received: from funtu.home (unknown [9.145.74.207])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed,  1 Dec 2021 17:10:04 +0000 (GMT)
-Subject: Re: [RFC PATCH] s390: vfio-ap: Register the vfio_ap module for the
- "ap" parent bus
-To:     Thomas Huth <thuth@redhat.com>, linux-s390@vger.kernel.org,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>
-Cc:     linux-kernel@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-References: <20211201141110.94636-1-thuth@redhat.com>
-From:   Harald Freudenberger <freude@linux.ibm.com>
-Message-ID: <210e3c57-bdc2-09ed-3e41-8dab57e8f36c@linux.ibm.com>
-Date:   Wed, 1 Dec 2021 18:10:04 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        id S238726AbhLARjC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 1 Dec 2021 12:39:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60898 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233404AbhLARjA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Dec 2021 12:39:00 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D199C061574;
+        Wed,  1 Dec 2021 09:35:38 -0800 (PST)
+From:   Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1638380135;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=Wl46BdwZ1KGmv50G3jfsI0iPOejQIWMQSjLutgaOqHk=;
+        b=Pt+06zaIN+XpTYcehYRys4HS6+cE2m00/PDyN9TVIqeywPk9TTKPncOzAFiuKRSxOoNPqI
+        AIVc5kWzV7DZUepaLnecpQSpeilOo7HLcvABG0FHIM99zFsj6YzMuKoxBIMB2mIDHDvWPF
+        WXoI8orNajSMfj/abMIouU/kReMZpmDjvA+dmGmp8L9lqueEILj0Y0HXBPxUo5O8RSP88C
+        yr/AToa8X9keo82ZrPu4y700gVV5afLfh3oCl/0OThPa+UJI1XHydF4PfhiY5m57ipzz6W
+        L1I8Kt9UNYWk+vEoTJzmxbnGYdcT0Zq7nFWc9XJ2N4OWIbexFvFzd88vDoSGrA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1638380135;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=Wl46BdwZ1KGmv50G3jfsI0iPOejQIWMQSjLutgaOqHk=;
+        b=MnhqyMiRcxE0SVcEGB/228XRCWh7TIQj1mDZaA2bSHkC/rEWlG373NhsYy4dvo0s23asR9
+        YhsM2tmL5EKUQkBw==
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Logan Gunthorpe <logang@deltatee.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Bjorn Helgaas <helgaas@kernel.org>,
+        Marc Zygnier <maz@kernel.org>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Megha Dey <megha.dey@intel.com>,
+        Ashok Raj <ashok.raj@intel.com>, linux-pci@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jon Mason <jdmason@kudzu.us>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>, x86@kernel.org,
+        Joerg Roedel <jroedel@suse.de>,
+        iommu@lists.linux-foundation.org
+Subject: Re: [patch 21/32] NTB/msi: Convert to msi_on_each_desc()
+In-Reply-To: <20211201130023.GH4670@nvidia.com>
+References: <7daba0e2-73a3-4980-c3a5-a71f6b597b22@deltatee.com>
+ <874k7ueldt.ffs@tglx> <6ba084d6-2b26-7c86-4526-8fcd3d921dfd@deltatee.com>
+ <87ilwacwp8.ffs@tglx> <d6f13729-1b83-fa7d-3f0d-98d4e3f7a2aa@deltatee.com>
+ <87v909bf2k.ffs@tglx> <20211130202800.GE4670@nvidia.com>
+ <87o861banv.ffs@tglx> <20211201001748.GF4670@nvidia.com>
+ <87mtlkaauo.ffs@tglx> <20211201130023.GH4670@nvidia.com>
+Date:   Wed, 01 Dec 2021 18:35:35 +0100
+Message-ID: <87y2548byw.ffs@tglx>
 MIME-Version: 1.0
-In-Reply-To: <20211201141110.94636-1-thuth@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: B2Do6vHDdT1A4H27gGkvjGoA2cOYhBDQ
-X-Proofpoint-ORIG-GUID: KE5ZKGfpvVmQ1VOYdJ9wOeRsawfF1EY8
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-11-30_10,2021-12-01_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- mlxlogscore=999 malwarescore=0 bulkscore=0 spamscore=0 impostorscore=0
- adultscore=0 phishscore=0 mlxscore=0 clxscore=1011 suspectscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2112010092
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 01.12.21 15:11, Thomas Huth wrote:
-> The crypto devices that we can use with the vfio_ap module are sitting
-> on the "ap" bus, not on the "vfio_ap" bus that the module defines
-> itself. With this change, the vfio_ap module now gets automatically
-> loaded if a supported crypto adapter is available in the host.
+On Wed, Dec 01 2021 at 09:00, Jason Gunthorpe wrote:
+> On Wed, Dec 01, 2021 at 11:16:47AM +0100, Thomas Gleixner wrote:
+>> Looking at the device slices as subdevices with their own struct device
+>> makes a lot of sense from the conceptual level.
 >
-> Signed-off-by: Thomas Huth <thuth@redhat.com>
-> ---
->  Note: Marked as "RFC" since I'm not 100% sure about it ...
->        please review carefully!
->
->  drivers/s390/crypto/vfio_ap_drv.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-> index 4d2556bc7fe5..5580e40608a4 100644
-> --- a/drivers/s390/crypto/vfio_ap_drv.c
-> +++ b/drivers/s390/crypto/vfio_ap_drv.c
-> @@ -39,7 +39,7 @@ static struct ap_device_id ap_queue_ids[] = {
->  	{ /* end of sibling */ },
->  };
->  
-> -MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
-> +MODULE_DEVICE_TABLE(ap, ap_queue_ids);
->  
->  /**
->   * vfio_ap_queue_dev_probe:
-Hello Thomas, interesting.
-Did you test this ? I mean did you build a kernel and have it run on a s390 with crypto cards available ?
-My strong feeling is that this will make the AP bus code stumble as the code silently assumes there are exact
-two types of ap devices attached to the ap bus: ap cards and ap queues. This is a fair assumption as the ap bus
-is the 'owner' of what's attached to the bus it maintains. But with this change and no further arrangements
-in the ap bus code my feeling is ...
-However, Tony is the owner of the vfio ap stuff, so maybe he has another opinion.
-Harald Freudenberger
+> Except IMS is not just for subdevices, it should be usable for any
+> driver in any case as a general interrupt mechiansm, as you alluded to
+> below about ethernet queues. ntb seems to be the current example of
+> this need..
 
+But NTB is operating through an abstraction layer and is not a direct
+PCIe device driver.
+
+> IDXD is not so much making device "slices", but virtualizing and
+> sharing a PCI device. The IDXD hardware is multi-queue like the NIC I
+> described and the VFIO driver is simply allocating queues from a PCI
+> device for specific usages and assigning them interrupts.
+
+Right.
+
+But what is the representation for that resulting device? Some VFIO
+specific homebrewn muck or something which is based on struct device?
+
+Right now with VF passthrough, I can see the interrupts which are
+associated to the device.
+
+How is that going to be with something which is just made up? Does that
+expose it's own msi properties then somewhere hidden in the VFIO layer?
+
+See below.
+
+> There is already a char dev interface that equally allocates queues
+> from the same IDXD device, why shouldn't it be able to access IMS
+> interrupt pools too?
+
+Why wouldn't it be able to do so?
+
+> IMHO a well designed IDXD driver should put all the PCI MMIO, queue
+> mangement, interrupts, etc in the PCI driver layer, and the VFIO
+> driver layer should only deal with the MMIO trapping and VFIO
+> interfacing.
+>
+> From this view it is conceptually wrong to have the VFIO driver
+> directly talking to MMIO registers in the PCI device or owning the
+> irq_chip.
+
+The VFIO driver does not own the irq chip ever. The irq chip is of
+course part of the underlying infrastructure. I never asked for that.
+
+PCIe driver
+     Owns the PCI/MSI[x] interrupts for the control block
+
+     Has a control mechanism which handles queues or whatever the
+     device is partitioned into, that's what I called slice.
+
+     The irqdomain is part of that control mechanism and the irqchip
+     implementation belongs to that as well. It has to because the
+     message store is device specific.
+
+     Whether the doamin and chip implementation is in a separate
+     drivers/irqchip/foo.c file for sharing or directly built into the
+     PCIe driver itself does not matter.
+
+     When it allocates a slice for whatever usage then it also
+     allocates the IMS interrupts (though the VFIO people want to
+     have only one and do the allocations later on demand).
+
+     That allocation cannot be part of the PCI/MSIx interrupt
+     domain as we already agreed on.
+
+We have several problems to solve. Let me look at it from both point of
+views:
+
+    1) Storage
+
+       A) Having "subdevices" solves the storage problem nicely and
+          makes everything just fall in place. Even for a purely
+          physical multiqueue device one can argue that each queue is a
+          "subdevice" of the physical device. The fact that we lump them
+          all together today is not an argument against that.
+
+       B) Requires extra storage in the PCIe device and extra storage
+          per subdevice, queue to keep track of the interrupts which
+          are associated to it.
+
+    2) Exposure of VFIO interrupts via sysfs
+
+       A) Just works
+
+       B) Requires extra mechanisms to expose it
+
+    3) On demand expansion of the vectors for VFIO
+
+       A) Just works because the device has an irqdomain assigned.
+
+       B) Requires extra indirections to do that
+
+    4) IOMMU msi_desc::dev
+
+       A) I think that's reasonably simple to address by having the
+          relationship to the underlying PCIe device stored in struct
+          device, which is not really adding any complexity to the IOMMU
+          code.
+
+          Quite the contrary it could be used to make the DMA aliasing a
+          problem of device setup time and not a lookup per interrupt
+          allocation in the IOMMU code.
+
+       B) No change required.
+
+    4) PASID
+
+       While an Intel IDXD specific issue, it want's to be solved
+       without any nasty hacks.
+
+       A) Having a "subdevice" allows to associate the PASID with the
+          underlying struct device which makes IOMMU integration trivial
+
+       B) Needs some other custom hackery to get that solved
+
+So both variants come with their ups and downs.
+
+IMO A) is the right thing to do when looking at all the involved moving
+pieces.
+
+> It would be very odd for the PCI driver to allocate interrupts from
+> some random external struct device when it is creating queues on the
+> PCI device.
+
+No. That's not what I want.
+
+>> and then have a store index for each allocation domain. With the
+>> proposed encapsulation of the xarray handling that's definitely
+>> feasible. Whether that buys much is a different question. Let me think
+>> about it some more.
+>
+> Any possibility that the 'IMS' xarray could be outside the struct
+> device?
+
+We could, but we really want to keep things tied to devices which is the
+right thing to do.
+
+Thanks,
+
+        tglx
