@@ -2,81 +2,135 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D500C433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  1 Dec 2021 14:11:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 953ABC4332F
+	for <linux-s390@archiver.kernel.org>; Wed,  1 Dec 2021 14:52:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349757AbhLAOOs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 1 Dec 2021 09:14:48 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:51173 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1347634AbhLAOOn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Dec 2021 09:14:43 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1638367879;
+        id S243765AbhLAOzc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 1 Dec 2021 09:55:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50532 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242347AbhLAOz0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Dec 2021 09:55:26 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55C3FC061574;
+        Wed,  1 Dec 2021 06:52:05 -0800 (PST)
+From:   Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1638370323;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=44DmGJCM71PMnaeTZP6TQRDBqOIP9Ji0NQKrnFfyg3k=;
-        b=N1zG/3otZlOXlkARJ6AacTUVpAy8lJ1h9b0CWaeSl4rDH/r3H6ZM5cA8103jFeQt1N9Axt
-        fxHknxqARCLqMb6FfNMKfuCpdZw6ivWIIt6OTvZOgkqC4A3AAMF0EGKkIgwaNM05QzNAKX
-        bEQQsPx8OMmsKEzKF97xpD3n1QSnxnY=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-25-c8m6ceT7MT-7NiGisl-IOQ-1; Wed, 01 Dec 2021 09:11:15 -0500
-X-MC-Unique: c8m6ceT7MT-7NiGisl-IOQ-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4E16483DCD2;
-        Wed,  1 Dec 2021 14:11:14 +0000 (UTC)
-Received: from thuth.com (unknown [10.39.195.186])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 3B5D55D6BA;
-        Wed,  1 Dec 2021 14:11:12 +0000 (UTC)
-From:   Thomas Huth <thuth@redhat.com>
-To:     linux-s390@vger.kernel.org, Tony Krowiak <akrowiak@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>
-Cc:     linux-kernel@vger.kernel.org,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [RFC PATCH] s390: vfio-ap: Register the vfio_ap module for the "ap" parent bus
-Date:   Wed,  1 Dec 2021 15:11:10 +0100
-Message-Id: <20211201141110.94636-1-thuth@redhat.com>
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=BTbSr5Tnue7aLzSgJJm9awkXjJzR21QR4KzXcy3eBrc=;
+        b=GlbNwZ4D0pGu3V697epfgZEeLrmaD/2KCVk3PSbXS5CtHEz3XyQGYf3l84zFOWR7HO/+pR
+        qBnx6gA3eOMh2RzL39CN8JVZzGiRrRPmmHZ8CHTeYKkKvchcvLPNgXwCSxWmmCVofpEJmI
+        rNPgtI1cSC9SYw6MVXzLDp3UJpiKw4FJtUj11vYAeN7eL/AGYGWZhDsSSRaXE1YIbWZrai
+        cLe4esqu/0neHx/rJBCKGu6bLTWvO7fjlheOC27IDxnm5i1vf7PC1SeYQMizsLJ+TMtg07
+        Q9uOcE5s42RhwfPwZBCHsz8qCR5nL4M1v8HtPC4wO59T8QPyN9aVf98sja8qYw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1638370323;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=BTbSr5Tnue7aLzSgJJm9awkXjJzR21QR4KzXcy3eBrc=;
+        b=avo6A8LECbQFww8OTS/mru02KDfMYMzNo/d+exTLTa9qwAm7vhwLxgo3LL7UnS1TJSx9MP
+        9tN1Qpe5I0EOkJAA==
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Logan Gunthorpe <logang@deltatee.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Bjorn Helgaas <helgaas@kernel.org>,
+        Marc Zygnier <maz@kernel.org>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Megha Dey <megha.dey@intel.com>,
+        Ashok Raj <ashok.raj@intel.com>, linux-pci@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jon Mason <jdmason@kudzu.us>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>, x86@kernel.org
+Subject: Re: [patch 21/32] NTB/msi: Convert to msi_on_each_desc()
+In-Reply-To: <87o861banv.ffs@tglx>
+References: <20211126230957.239391799@linutronix.de>
+ <20211126232735.547996838@linutronix.de>
+ <7daba0e2-73a3-4980-c3a5-a71f6b597b22@deltatee.com> <874k7ueldt.ffs@tglx>
+ <6ba084d6-2b26-7c86-4526-8fcd3d921dfd@deltatee.com> <87ilwacwp8.ffs@tglx>
+ <d6f13729-1b83-fa7d-3f0d-98d4e3f7a2aa@deltatee.com> <87v909bf2k.ffs@tglx>
+ <20211130202800.GE4670@nvidia.com> <87o861banv.ffs@tglx>
+Date:   Wed, 01 Dec 2021 15:52:02 +0100
+Message-ID: <871r2w9y3x.ffs@tglx>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The crypto devices that we can use with the vfio_ap module are sitting
-on the "ap" bus, not on the "vfio_ap" bus that the module defines
-itself. With this change, the vfio_ap module now gets automatically
-loaded if a supported crypto adapter is available in the host.
+On Tue, Nov 30 2021 at 22:23, Thomas Gleixner wrote:
+> On Tue, Nov 30 2021 at 16:28, Jason Gunthorpe wrote:
+>
+> The real problem is where to store the MSI descriptors because the PCI
+> device has its own real PCI/MSI-X interrupts which means it still shares
+> the storage space.
 
-Signed-off-by: Thomas Huth <thuth@redhat.com>
----
- Note: Marked as "RFC" since I'm not 100% sure about it ...
-       please review carefully!
+Bah. I confused myself by staring at the existing code instead of
+looking at how this NTB stuff actually works.
 
- drivers/s390/crypto/vfio_ap_drv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+So if I understand it correctly then the end result looks like this:
 
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index 4d2556bc7fe5..5580e40608a4 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -39,7 +39,7 @@ static struct ap_device_id ap_queue_ids[] = {
- 	{ /* end of sibling */ },
- };
- 
--MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
-+MODULE_DEVICE_TABLE(ap, ap_queue_ids);
- 
- /**
-  * vfio_ap_queue_dev_probe:
--- 
-2.27.0
+1) PCIe device (switchtec)
+
+   The device has 4 MSI[X] interrupts: event, dma_rpc, message,
+   doorbell. The event and dma_rpc interrupts are requested by the
+   switchtec PCI driver itself.
+
+2) Switchtec character device
+
+   The switchtec PCI driver creates a character device which is exposed
+   for device specific IOCTLs
+
+   The device belongs to the switchtec_class device class.
+
+3) Switchtec NTB device
+
+   The ntb_hw_switchtec driver registers the switchtec_class class
+   interface.
+
+   So when #2 is registered with the driver core the switchtec class
+   interface add_dev() function is invoked. That function creates a NTB
+   device, requests the message and the doorbell interrupts which have
+   been allocated by the underlying PCIe device driver (#1) and
+   registers the NTB device with the NTB core.
+
+4) The NTB core then tries to use the virtual MSI vectors which have
+   been allocated by the switchtec driver in #1 and requires the msg
+   write intercept to actually expose it to the peers.
+
+So we really can go and create a MSI irqdomain and stick the pointer
+into stdev->dev.irqdomain. The parent domain of this irqdomain is
+
+     stdev->pdev.dev.irqdomain->parent
+
+which is either the irq remapping domain or the vector domain. Which is
+pretty much what I proposed as general facility for IMS/IDXD. I need to
+go back and polish that up on top of the current pile.
+
+Along with that have an irq chip implementation which exposes:
+
+static struct irq_chip ntb_chip = {
+	.name			= "ntb",
+	.irq_ack		= irq_chip_ack_parent,
+	.irq_write_msi_msg	= ntb_msi_write_msg,
+#ifdef CONFIG_SMP
+	.irq_set_affinity	= irq_chip_set_affinity_parent,
+#endif
+};
+
+We just need some reasonable solution for the DMA/remap problem Jason
+mentioned vs. msi_desc::dev, but that wants to be cleaned up in any
+case for all the aliasing muck.
+
+Thanks,
+
+        tglx
+
 
