@@ -2,33 +2,36 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74370C433F5
-	for <linux-s390@archiver.kernel.org>; Wed,  1 Dec 2021 18:47:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CA6ABC433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  1 Dec 2021 20:21:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244791AbhLASvQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 1 Dec 2021 13:51:16 -0500
-Received: from mga11.intel.com ([192.55.52.93]:21949 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244775AbhLASvP (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 1 Dec 2021 13:51:15 -0500
-X-IronPort-AV: E=McAfee;i="6200,9189,10185"; a="234031712"
-X-IronPort-AV: E=Sophos;i="5.87,279,1631602800"; 
-   d="scan'208";a="234031712"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Dec 2021 10:47:37 -0800
-X-IronPort-AV: E=Sophos;i="5.87,279,1631602800"; 
-   d="scan'208";a="602264166"
-Received: from djiang5-mobl1.amr.corp.intel.com (HELO [10.212.64.69]) ([10.212.64.69])
-  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Dec 2021 10:47:35 -0800
-Message-ID: <df00b87e-00dc-d998-8b64-46b16dba46eb@intel.com>
-Date:   Wed, 1 Dec 2021 11:47:35 -0700
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.1
-Subject: Re: [patch 21/32] NTB/msi: Convert to msi_on_each_desc()
-Content-Language: en-US
-To:     Thomas Gleixner <tglx@linutronix.de>,
-        Jason Gunthorpe <jgg@nvidia.com>
+        id S234856AbhLAUYy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 1 Dec 2021 15:24:54 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:42958 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239682AbhLAUYx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Dec 2021 15:24:53 -0500
+From:   Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1638390090;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=XT2wUHCzGqHpG3jIMlo/pIyGWM+MoMGI0fdIA1I0A8A=;
+        b=sbuHX70HoTMCTvQEj76ryoHtY6DI/+vfWQUUTksXv5nW00dxNOLlfEf+NQCz6Pogx5cxON
+        bhRF88wSNqWpcTNv9HaatLPgrCGX0FGWrQAnsen2OD3fyuFPACA0gZPfxirNBuQftKtmT5
+        4Op58ZCeMmrKMz4Z8WoqOFXQ3cKyVtBKzlvGjlr/RhzK9Ahw34co+9UumRt/RTSkMs801E
+        Cretx0BdbZEKZc1FLKEWd6L80nSP+2vCsRkRP1T0gS5MoDWFW6qmctB251f5A2HDydi5oa
+        Tnfblrtx1T/f60OF/c5T2Fyb4vrRpmWhvShkmrMLsD5S2WagNLxTzanYcRPV4w==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1638390090;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=XT2wUHCzGqHpG3jIMlo/pIyGWM+MoMGI0fdIA1I0A8A=;
+        b=8iqy66nCBYTd+SSVovf1ktB8lPStcgQyxhheRTxqvNeAhaIQi+dceoXbFQtKXalHyXIYz5
+        VLgGaC6YwmaKVnAA==
+To:     Jason Gunthorpe <jgg@nvidia.com>
 Cc:     Logan Gunthorpe <logang@deltatee.com>,
         LKML <linux-kernel@vger.kernel.org>,
         Bjorn Helgaas <helgaas@kernel.org>,
@@ -38,68 +41,152 @@ Cc:     Logan Gunthorpe <logang@deltatee.com>,
         Megha Dey <megha.dey@intel.com>,
         Ashok Raj <ashok.raj@intel.com>, linux-pci@vger.kernel.org,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jon Mason <jdmason@kudzu.us>, Allen Hubbe <allenbh@gmail.com>,
-        linux-ntb@googlegroups.com, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
+        Jon Mason <jdmason@kudzu.us>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>, x86@kernel.org,
         Joerg Roedel <jroedel@suse.de>,
         iommu@lists.linux-foundation.org
-References: <20211126230957.239391799@linutronix.de>
- <20211126232735.547996838@linutronix.de>
- <7daba0e2-73a3-4980-c3a5-a71f6b597b22@deltatee.com> <874k7ueldt.ffs@tglx>
- <6ba084d6-2b26-7c86-4526-8fcd3d921dfd@deltatee.com> <87ilwacwp8.ffs@tglx>
- <d6f13729-1b83-fa7d-3f0d-98d4e3f7a2aa@deltatee.com> <87v909bf2k.ffs@tglx>
- <20211130202800.GE4670@nvidia.com> <87o861banv.ffs@tglx>
- <20211201001748.GF4670@nvidia.com> <87mtlkaauo.ffs@tglx>
- <8c2262ba-173e-0007-bc4c-94ec54b2847d@intel.com> <87pmqg88xq.ffs@tglx>
-From:   Dave Jiang <dave.jiang@intel.com>
-In-Reply-To: <87pmqg88xq.ffs@tglx>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [patch 21/32] NTB/msi: Convert to msi_on_each_desc()
+In-Reply-To: <20211201181406.GM4670@nvidia.com>
+References: <6ba084d6-2b26-7c86-4526-8fcd3d921dfd@deltatee.com>
+ <87ilwacwp8.ffs@tglx> <d6f13729-1b83-fa7d-3f0d-98d4e3f7a2aa@deltatee.com>
+ <87v909bf2k.ffs@tglx> <20211130202800.GE4670@nvidia.com>
+ <87o861banv.ffs@tglx> <20211201001748.GF4670@nvidia.com>
+ <87mtlkaauo.ffs@tglx> <20211201130023.GH4670@nvidia.com>
+ <87y2548byw.ffs@tglx> <20211201181406.GM4670@nvidia.com>
+Date:   Wed, 01 Dec 2021 21:21:29 +0100
+Message-ID: <87mtlk84ae.ffs@tglx>
+MIME-Version: 1.0
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Jason,
 
-On 12/1/2021 11:41 AM, Thomas Gleixner wrote:
-> Dave,
+On Wed, Dec 01 2021 at 14:14, Jason Gunthorpe wrote:
+> On Wed, Dec 01, 2021 at 06:35:35PM +0100, Thomas Gleixner wrote:
+>> On Wed, Dec 01 2021 at 09:00, Jason Gunthorpe wrote:
+>> But NTB is operating through an abstraction layer and is not a direct
+>> PCIe device driver.
 >
-> please trim your replies.
->
-> On Wed, Dec 01 2021 at 09:28, Dave Jiang wrote:
->
->> On 12/1/2021 3:16 AM, Thomas Gleixner wrote:
->>> Jason,
->>>
->>> CC+ IOMMU folks
->>>
->>> On Tue, Nov 30 2021 at 20:17, Jason Gunthorpe wrote:
->>>> On Tue, Nov 30, 2021 at 10:23:16PM +0100, Thomas Gleixner wrote:
->>> Though I fear there is also a use case for MSI-X and IMS tied to the
->>> same device. That network card you are talking about might end up using
->>> MSI-X for a control block and then IMS for the actual network queues
->>> when it is used as physical function device as a whole, but that's
->>> conceptually a different case.
->> Hi Thomas. This is actually the IDXD usage for a mediated device passed
->> to a guest kernel when we plumb the pass through of IMS to the guest
->> rather than doing previous implementation of having a MSIX vector on
->> guest backed by IMS.
-> Which makes a lot of sense.
->
->> The control block for the mediated device is emulated and therefore an
->> emulated MSIX vector will be surfaced as vector 0. However the queues
->> will backed by IMS vectors. So we end up needing MSIX and IMS coexist
->> running on the guest kernel for the same device.
-> Why? What's wrong with using straight MSI-X for all of them?
+> I'm not sure exactly how NTB seems to be split between switchtec and
+> the ntb code, but since the ntbd code seems to be doing MMIO touches,
+> it feels like part of a PCIe driver?
 
-The hardware implementation does not have enough MSIX vectors for 
-guests. There are only 9 MSIX vectors total (8 for queues) and 2048 IMS 
-vectors. So if we are to do MSI-X for all of them, then we need to do 
-the IMS backed MSIX scheme rather than passthrough IMS to guests.
+It's a maze of magic PCIe driver with callbacks left and right into the
+underlying NTB hardware driver which itself does some stuff on its own
+and also calls back into the underlying PCIe driver.
+
+Decomposing that thing feels like being trapped in the Labyrinth of
+Knossos. But let's ignore that for a moment.
+
+>> The VFIO driver does not own the irq chip ever. The irq chip is of
+>> course part of the underlying infrastructure. I never asked for that.
+>
+> That isn't quite what I ment.. I ment the PCIe driver cannot create
+> the domain or make use of the irq_chip until the VFIO layer comes
+> along and provides the struct device. To me this is backwards
+> layering, the interrupts come from the PCIe layer and should exist
+> independently from VFIO.
+
+See below.
+
+>>      When it allocates a slice for whatever usage then it also
+>>      allocates the IMS interrupts (though the VFIO people want to
+>>      have only one and do the allocations later on demand).
+>> 
+>>      That allocation cannot be part of the PCI/MSIx interrupt
+>>      domain as we already agreed on.
+>
+> Yes, it is just an open question of where the new irq_domain need to
+> reside
+
+The irqdomain is created by and part of the physical device. But that
+does not mean that the interrupts which are allocated from that irq
+domain are stored in the physical device representation.
+
+Going by that logic, the PCI/MSI domain would store all MSI[X]
+interrupts which are allocated on some root bridge or wherever.
+
+They are obviously stored per PCI device, but the irqdomain is owned
+e.g. by the underlying IOMMU zone.
+
+The irqdomain is managing and handing out resources. Like any other
+resource manager does.
+
+See?
+
+>>     1) Storage
+>> 
+>>        A) Having "subdevices" solves the storage problem nicely and
+>>           makes everything just fall in place. Even for a purely
+>>           physical multiqueue device one can argue that each queue is a
+>>           "subdevice" of the physical device. The fact that we lump them
+>>           all together today is not an argument against that.
+>
+> I don't like the idea that queue is a device, that is trying to force
+> a struct device centric world onto a queue which doesn't really want
+> it..
+
+Here we are at the point where we agree to disagree.
+
+Of course a queue is a resource, but what prevents us to represent a
+queue as a carved out subdevice of the physical device?
+
+Look at it from the VF point of view. If VFs are disabled then all
+resources belong to the physical device. If VFs are enabled then the
+hardware/firmware splits the resources into separate subdevices which
+have their own device representation, interrupt storage etc.
+
+As VFs have a scalability limitation due to the underlying PCIe
+restrictions the step we are talking about now is to split the queues up
+in software which means nothing else than creating a software
+representation of finer grained and more scalable subdevices.
+
+So why would we want to pretend that these are not devices?
+
+They are from a conceptual and topology view a subdevice of the physical
+device. Just because they are named queues does not make it any
+different.
+
+Let's look at VFIO again. If VFIO passes a VF through then it builds a
+wrapper around the VF device.
+
+So if a queue is represented as a subdevice, then VFIO can just build
+a wrapper around that subdevice.
+
+But with your model, VFIO has to create a device, request a queue,
+wrestle the interrupts in place, etc. Which is exactly the opposite of
+how VFs are handled.
+
+So again, why would we want to make software managed subdevices look
+exactly the opposite way like hardware/firmware managed subdevices?
+
+Let me also look at the cdev which is exposed by the phsyical device.
+
+The cdev is nothing else than a software vehicle to create a /dev/
+node. (ignore the switchtec case which (ab)uses the cdev to connect to
+NTB). The cdev allows user space to allocate/release a resource.
+
+Of course it can just allocate a queue and stick the necessary
+interrupts into the physical device MSI descriptor storage.
+
+But there is no reason why the queue allocation cannot allocate a
+subdevice representing the queue.
+
+That makes the VFIO and the cdev case just using the same underlying
+representation which can expose it's properties via the underlying
+device.
+
+Which in turn is consistent all over the place and does not require any
+special case for anything. Neither for interrupts nor for anything else.
+
+Thanks,
+
+        tglx
 
 
->
-> Thanks,
->
->          tglx
->
+
