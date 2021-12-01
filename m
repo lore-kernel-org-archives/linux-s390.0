@@ -2,101 +2,117 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EDA07C433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  1 Dec 2021 02:22:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C2AC5C433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  1 Dec 2021 02:31:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346091AbhLACZ2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 30 Nov 2021 21:25:28 -0500
-Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:54352 "EHLO
-        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1346062AbhLACZ0 (ORCPT
+        id S241212AbhLACfK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 30 Nov 2021 21:35:10 -0500
+Received: from out30-42.freemail.mail.aliyun.com ([115.124.30.42]:57949 "EHLO
+        out30-42.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235229AbhLACfJ (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 30 Nov 2021 21:25:26 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0UywXgH9_1638325322;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0UywXgH9_1638325322)
+        Tue, 30 Nov 2021 21:35:09 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0UyvwTLH_1638325907;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0UyvwTLH_1638325907)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 01 Dec 2021 10:22:03 +0800
-Date:   Wed, 1 Dec 2021 10:22:02 +0800
-From:   "dust.li" <dust.li@linux.alibaba.com>
-To:     kernel test robot <lkp@intel.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
+          Wed, 01 Dec 2021 10:31:48 +0800
+From:   Dust Li <dust.li@linux.alibaba.com>
+To:     Karsten Graul <kgraul@linux.ibm.com>,
         "David S . Miller" <davem@davemloft.net>,
         Jakub Kicinski <kuba@kernel.org>,
         Ursula Braun <ubraun@linux.ibm.com>
-Cc:     kbuild-all@lists.01.org, Tony Lu <tonylu@linux.alibaba.com>,
+Cc:     Tony Lu <tonylu@linux.alibaba.com>,
         Wen Gu <guwen@linux.alibaba.com>, linux-s390@vger.kernel.org,
         netdev@vger.kernel.org
-Subject: Re: [PATCH net] net/smc: fix wrong list_del in smc_lgr_cleanup_early
-Message-ID: <20211201022202.GB38461@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20211130151731.55951-1-dust.li@linux.alibaba.com>
- <202112010159.e2LA9rIR-lkp@intel.com>
+Subject: [PATCH net v2] net/smc: fix wrong list_del in smc_lgr_cleanup_early
+Date:   Wed,  1 Dec 2021 10:31:47 +0800
+Message-Id: <20211201023147.42923-1-dust.li@linux.alibaba.com>
+X-Mailer: git-send-email 2.19.1.3.ge56e4f7
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <202112010159.e2LA9rIR-lkp@intel.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Dec 01, 2021 at 02:07:46AM +0800, kernel test robot wrote:
->Hi Dust,
->
->Thank you for the patch! Perhaps something to improve:
->
->[auto build test WARNING on net/master]
->
->url:    https://github.com/0day-ci/linux/commits/Dust-Li/net-smc-fix-wrong-list_del-in-smc_lgr_cleanup_early/20211130-232151
->base:   https://git.kernel.org/pub/scm/linux/kernel/git/davem/net.git 34d8778a943761121f391b7921f79a7adbe1feaf
->config: arc-allyesconfig (https://download.01.org/0day-ci/archive/20211201/202112010159.e2LA9rIR-lkp@intel.com/config)
->compiler: arceb-elf-gcc (GCC) 11.2.0
->reproduce (this is a W=1 build):
->        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
->        chmod +x ~/bin/make.cross
->        # https://github.com/0day-ci/linux/commit/9b9af6a458f20989d91478dc8e038325978e16d5
->        git remote add linux-review https://github.com/0day-ci/linux
->        git fetch --no-tags linux-review Dust-Li/net-smc-fix-wrong-list_del-in-smc_lgr_cleanup_early/20211130-232151
->        git checkout 9b9af6a458f20989d91478dc8e038325978e16d5
->        # save the config file to linux build tree
->        mkdir build_dir
->        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.2.0 make.cross O=build_dir ARCH=arc SHELL=/bin/bash net/smc/
->
->If you fix the issue, kindly add following tag as appropriate
->Reported-by: kernel test robot <lkp@intel.com>
->
->All warnings (new ones prefixed by >>):
->
->   net/smc/smc_core.c: In function 'smc_lgr_cleanup_early':
->>> net/smc/smc_core.c:628:27: warning: variable 'lgr_list' set but not used [-Wunused-but-set-variable]
->     628 |         struct list_head *lgr_list;
->         |                           ^~~~~~~~
-Sorry, I will send a v2 to fix this.
+smc_lgr_cleanup_early() meant to delete the link
+group from the link group list, but it deleted
+the list head by mistake.
 
->
->
->vim +/lgr_list +628 net/smc/smc_core.c
->
->8f9dde4bf230f5 Guvenc Gulce  2020-12-01  624  
->51e3dfa8906ace Ursula Braun  2020-02-25  625  void smc_lgr_cleanup_early(struct smc_connection *conn)
->51e3dfa8906ace Ursula Braun  2020-02-25  626  {
->51e3dfa8906ace Ursula Braun  2020-02-25  627  	struct smc_link_group *lgr = conn->lgr;
->9ec6bf19ec8bb1 Karsten Graul 2020-05-03 @628  	struct list_head *lgr_list;
->9ec6bf19ec8bb1 Karsten Graul 2020-05-03  629  	spinlock_t *lgr_lock;
->51e3dfa8906ace Ursula Braun  2020-02-25  630  
->51e3dfa8906ace Ursula Braun  2020-02-25  631  	if (!lgr)
->51e3dfa8906ace Ursula Braun  2020-02-25  632  		return;
->51e3dfa8906ace Ursula Braun  2020-02-25  633  
->51e3dfa8906ace Ursula Braun  2020-02-25  634  	smc_conn_free(conn);
->9ec6bf19ec8bb1 Karsten Graul 2020-05-03  635  	lgr_list = smc_lgr_list_head(lgr, &lgr_lock);
->9ec6bf19ec8bb1 Karsten Graul 2020-05-03  636  	spin_lock_bh(lgr_lock);
->9ec6bf19ec8bb1 Karsten Graul 2020-05-03  637  	/* do not use this link group for new connections */
->9b9af6a458f209 Dust Li       2021-11-30  638  	if (!list_empty(&lgr->list))
->9b9af6a458f209 Dust Li       2021-11-30  639  		list_del_init(&lgr->list);
->9ec6bf19ec8bb1 Karsten Graul 2020-05-03  640  	spin_unlock_bh(lgr_lock);
->f9aab6f2ce5761 Ursula Braun  2020-09-10  641  	__smc_lgr_terminate(lgr, true);
->51e3dfa8906ace Ursula Braun  2020-02-25  642  }
->51e3dfa8906ace Ursula Braun  2020-02-25  643  
->
->---
->0-DAY CI Kernel Test Service, Intel Corporation
->https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+This may cause memory corruption since we didn't
+remove the real link group from the list and later
+memseted the link group structure.
+We got a list corruption panic when testing:
+
+[  231.277259] list_del corruption. prev->next should be ffff8881398a8000, but was 0000000000000000
+[  231.278222] ------------[ cut here ]------------
+[  231.278726] kernel BUG at lib/list_debug.c:53!
+[  231.279326] invalid opcode: 0000 [#1] SMP NOPTI
+[  231.279803] CPU: 0 PID: 5 Comm: kworker/0:0 Not tainted 5.10.46+ #435
+[  231.280466] Hardware name: Alibaba Cloud ECS, BIOS 8c24b4c 04/01/2014
+[  231.281248] Workqueue: events smc_link_down_work
+[  231.281732] RIP: 0010:__list_del_entry_valid+0x70/0x90
+[  231.282258] Code: 4c 60 82 e8 7d cc 6a 00 0f 0b 48 89 fe 48 c7 c7 88 4c
+60 82 e8 6c cc 6a 00 0f 0b 48 89 fe 48 c7 c7 c0 4c 60 82 e8 5b cc 6a 00 <0f>
+0b 48 89 fe 48 c7 c7 00 4d 60 82 e8 4a cc 6a 00 0f 0b cc cc cc
+[  231.284146] RSP: 0018:ffffc90000033d58 EFLAGS: 00010292
+[  231.284685] RAX: 0000000000000054 RBX: ffff8881398a8000 RCX: 0000000000000000
+[  231.285415] RDX: 0000000000000001 RSI: ffff88813bc18040 RDI: ffff88813bc18040
+[  231.286141] RBP: ffffffff8305ad40 R08: 0000000000000003 R09: 0000000000000001
+[  231.286873] R10: ffffffff82803da0 R11: ffffc90000033b90 R12: 0000000000000001
+[  231.287606] R13: 0000000000000000 R14: ffff8881398a8000 R15: 0000000000000003
+[  231.288337] FS:  0000000000000000(0000) GS:ffff88813bc00000(0000) knlGS:0000000000000000
+[  231.289160] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  231.289754] CR2: 0000000000e72058 CR3: 000000010fa96006 CR4: 00000000003706f0
+[  231.290485] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  231.291211] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  231.291940] Call Trace:
+[  231.292211]  smc_lgr_terminate_sched+0x53/0xa0
+[  231.292677]  smc_switch_conns+0x75/0x6b0
+[  231.293085]  ? update_load_avg+0x1a6/0x590
+[  231.293517]  ? ttwu_do_wakeup+0x17/0x150
+[  231.293907]  ? update_load_avg+0x1a6/0x590
+[  231.294317]  ? newidle_balance+0xca/0x3d0
+[  231.294716]  smcr_link_down+0x50/0x1a0
+[  231.295090]  ? __wake_up_common_lock+0x77/0x90
+[  231.295534]  smc_link_down_work+0x46/0x60
+[  231.295933]  process_one_work+0x18b/0x350
+
+Fixes: a0a62ee15a829 ("net/smc: separate locks for SMCD and SMCR link group lists")
+Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
+Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+---
+v2:
+- Remove unused lgr_list
+---
+ net/smc/smc_core.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index bb52c8b5f148..8759f9fd8113 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -625,18 +625,16 @@ int smcd_nl_get_lgr(struct sk_buff *skb, struct netlink_callback *cb)
+ void smc_lgr_cleanup_early(struct smc_connection *conn)
+ {
+ 	struct smc_link_group *lgr = conn->lgr;
+-	struct list_head *lgr_list;
+ 	spinlock_t *lgr_lock;
+ 
+ 	if (!lgr)
+ 		return;
+ 
+ 	smc_conn_free(conn);
+-	lgr_list = smc_lgr_list_head(lgr, &lgr_lock);
+ 	spin_lock_bh(lgr_lock);
+ 	/* do not use this link group for new connections */
+-	if (!list_empty(lgr_list))
+-		list_del_init(lgr_list);
++	if (!list_empty(&lgr->list))
++		list_del_init(&lgr->list);
+ 	spin_unlock_bh(lgr_lock);
+ 	__smc_lgr_terminate(lgr, true);
+ }
+-- 
+2.19.1.3.ge56e4f7
+
