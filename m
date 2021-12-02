@@ -2,62 +2,65 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A1F2C433F5
-	for <linux-s390@archiver.kernel.org>; Thu,  2 Dec 2021 11:13:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 89B28C433F5
+	for <linux-s390@archiver.kernel.org>; Thu,  2 Dec 2021 11:26:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357206AbhLBLQf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 2 Dec 2021 06:16:35 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:54172 "EHLO
+        id S1357017AbhLBL3p (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 2 Dec 2021 06:29:45 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:57682 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234763AbhLBLQf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Dec 2021 06:16:35 -0500
+        by vger.kernel.org with ESMTP id S1345845AbhLBL3o (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Dec 2021 06:29:44 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1638443592;
+        s=mimecast20190719; t=1638444382;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=zDx7pyskBIHWNmIa7jFxsgFUTyyGtRftiQzsPbzbtNA=;
-        b=P/4vKxMlXMmk3XGcqk8TdEqSDZJXh7nXy2d0ipf/hon+lDzUmhqOWVZ2u/HgzHvudX0i2l
-        KjuztmnRHrm0OQmTSS1aNsJspBXKUqd9XTSDL1Y8dyXR+eNjpMTmNwbKrQotafV/MTL5Ep
-        JaFhBtJeNoqQAw3HUh5zBCpp5hr3lI4=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=lDz7Gl7O/a6QxEzSyH8lRwP13RtbZV0kax667QfBu/c=;
+        b=EF9rm+keEA60ywDxV1dna3wR2KkANUzHGCsw65kDpGAoU6QDqFBXtu+MsjI7HcYu3G4XYg
+        XZ1mgKSGuS1GWeGHBNFhN4LGNpGSOZI35q1P4dsnET4TmUKQ8xplT1Z4QqkildXyMaGYJ+
+        3aG+dm/ZOfGKWrRFzXHvVhW4vje6L7I=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-520-WkqMhPRfNGWv4U8mC0ufSA-1; Thu, 02 Dec 2021 06:13:11 -0500
-X-MC-Unique: WkqMhPRfNGWv4U8mC0ufSA-1
-Received: by mail-wm1-f72.google.com with SMTP id v62-20020a1cac41000000b0033719a1a714so13806558wme.6
-        for <linux-s390@vger.kernel.org>; Thu, 02 Dec 2021 03:13:11 -0800 (PST)
+ us-mta-371-B89nv0TfOcmnB-VQwK3C6A-1; Thu, 02 Dec 2021 06:26:21 -0500
+X-MC-Unique: B89nv0TfOcmnB-VQwK3C6A-1
+Received: by mail-wm1-f71.google.com with SMTP id i131-20020a1c3b89000000b00337f92384e0so1529308wma.5
+        for <linux-s390@vger.kernel.org>; Thu, 02 Dec 2021 03:26:21 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent
-         :content-language:to:cc:references:from:organization:subject
-         :in-reply-to:content-transfer-encoding;
-        bh=zDx7pyskBIHWNmIa7jFxsgFUTyyGtRftiQzsPbzbtNA=;
-        b=d2v2zD8zHBN2LQJik16RBZcoA4FxRWj1rNWnIIbs/rflFvRLIwIaUkjiBrmzDB1pXJ
-         Q77RWvpPE+9W+Gi4/qSLdpUf8NqTAyQ38lGwj5OkTEt5ZChfgiWwtRRe/l2ziyUYPKvz
-         MXopvMVuhpDXuE3Lc1+8U701T7uK4z6ERpt+x8vVefT1A/1mOXFqKHqK+zi7xmBOBjZk
-         kQhviF0xl/XAOtKNMG8i6rekz2iLGKjSS987m2dY3uKFc9mRpXwU8Nsok0TIkE7PvkhN
-         KfyZaOZ38f+4E9h0VgA7UveeJhZGa85kqEFglHitQXmONSeLyqduY6cnskjYWpVnMe7/
-         8mhQ==
-X-Gm-Message-State: AOAM530H+quD7WKzeOdOFjNYNBJsXeY3/XeujYrtkk90vZTpfZz8e/p1
-        7jWAHrcb5/TY38t/e2a+gI2OF31kne8x+JTg/0AmGm1FTjqqbX4XNIWFhtBjLNCTmClds8mmymk
-        wdiUZ1cN3EKbQK+9/VC6xTg==
-X-Received: by 2002:adf:aa08:: with SMTP id p8mr13699008wrd.572.1638443590170;
-        Thu, 02 Dec 2021 03:13:10 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJyzObIE/bfAsh/wgaVECiwfDHjoqoOJjiYXV4XCikcLWWPCsFub6kr0pn3SA7/j8ZQURAjT1w==
-X-Received: by 2002:adf:aa08:: with SMTP id p8mr13698979wrd.572.1638443589924;
-        Thu, 02 Dec 2021 03:13:09 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:from:to:cc:references:organization:in-reply-to
+         :content-transfer-encoding;
+        bh=lDz7Gl7O/a6QxEzSyH8lRwP13RtbZV0kax667QfBu/c=;
+        b=3D7XLWaIQJMI5FwIgXrfkQgYmkjhvvkIbQUyv13GUB7KwP6qKNcQHGhJYH+3EmkN9m
+         c0THIg8rljIJJvJuTnVX8Qo0GX4XikckhnsS2taEigBYj1pulhSihj/5QqfPjJFNzzwI
+         45rdfqaBowD0LUJQCfrW/30ny87Blhh0A4cjeowlSBYTZJTD/wUjZULLH5h2pcJ2yTx8
+         X1eDAifNRAtJsMF9MnENx1VgMV+kWaLXA8vxsEK6OBJ/G4M2N+pK748XKym1iUvVLMc5
+         2Q+XrZeWGU5Gy4MQ8AlZhpyaoGo5XVoPdHxIrfA85kDnJ3G+6UVZn3TwKn0b+tAKY2CA
+         E7xA==
+X-Gm-Message-State: AOAM532LQkuLJujoruEsnyfctym42fWinyjEcGHc222oCJCMuznMl+P8
+        A19DX907Zgt2Bjwp1D4T9S8QfUxMi0ddCvBVWzYERqgd5BW+M/0Dx4LYnkC2uM93cM0Ej1zt9lH
+        FeLbmbS2k14/7SQcph18TDQ==
+X-Received: by 2002:a05:600c:202:: with SMTP id 2mr5681812wmi.134.1638444380197;
+        Thu, 02 Dec 2021 03:26:20 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxMDm2ZHgmwsMQE5O2JaJyj6R5MG6Z9006cnJBbuG9m6i0+3MgupmDqot5W08j+xUfC3Vawig==
+X-Received: by 2002:a05:600c:202:: with SMTP id 2mr5681780wmi.134.1638444379976;
+        Thu, 02 Dec 2021 03:26:19 -0800 (PST)
 Received: from ?IPV6:2003:d8:2f44:9200:3344:447e:353c:bf0b? (p200300d82f4492003344447e353cbf0b.dip0.t-ipconnect.de. [2003:d8:2f44:9200:3344:447e:353c:bf0b])
-        by smtp.gmail.com with ESMTPSA id r17sm1940286wmq.5.2021.12.02.03.13.09
+        by smtp.gmail.com with ESMTPSA id j11sm2402688wrt.3.2021.12.02.03.26.19
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 02 Dec 2021 03:13:09 -0800 (PST)
-Message-ID: <95160439-2aa9-765f-9f06-16952e42a495@redhat.com>
-Date:   Thu, 2 Dec 2021 12:13:08 +0100
+        Thu, 02 Dec 2021 03:26:19 -0800 (PST)
+Message-ID: <ea6ec055-2682-44b1-2aae-20dfcebf9b85@redhat.com>
+Date:   Thu, 2 Dec 2021 12:26:18 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.2.0
+Subject: Re: [kvm-unit-tests PATCH v1 2/2] s390x: firq: floating interrupt
+ test
 Content-Language: en-US
+From:   David Hildenbrand <david@redhat.com>
 To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
 Cc:     kvm@vger.kernel.org, Thomas Huth <thuth@redhat.com>,
         Janosch Frank <frankja@linux.ibm.com>,
@@ -67,108 +70,35 @@ Cc:     kvm@vger.kernel.org, Thomas Huth <thuth@redhat.com>,
 References: <20211202095843.41162-1-david@redhat.com>
  <20211202095843.41162-3-david@redhat.com>
  <20211202120113.2dd279a8@p-imbrenda>
-From:   David Hildenbrand <david@redhat.com>
+ <95160439-2aa9-765f-9f06-16952e42a495@redhat.com>
 Organization: Red Hat
-Subject: Re: [kvm-unit-tests PATCH v1 2/2] s390x: firq: floating interrupt
- test
-In-Reply-To: <20211202120113.2dd279a8@p-imbrenda>
+In-Reply-To: <95160439-2aa9-765f-9f06-16952e42a495@redhat.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
->> +static void wait_for_sclp_int(void)
->> +{
->> +	/* Enable SCLP interrupts on this CPU only. */
->> +	ctl_set_bit(0, CTL0_SERVICE_SIGNAL);
->> +
->> +	set_flag(1);
+On 02.12.21 12:13, David Hildenbrand wrote:
+>>> +static void wait_for_sclp_int(void)
+>>> +{
+>>> +	/* Enable SCLP interrupts on this CPU only. */
+>>> +	ctl_set_bit(0, CTL0_SERVICE_SIGNAL);
+>>> +
+>>> +	set_flag(1);
+>>
+>> why not just WRITE_ONCE/READ_ONCE?
 > 
-> why not just WRITE_ONCE/READ_ONCE?
+> Because I shamelessly copied that from s390x/smp.c ;)
 
-Because I shamelessly copied that from s390x/smp.c ;)
+Oh, and also because WRITE_ONCE/READ_ONCE are semantically the wrong
+thing to use:
 
->> +	set_flag(0);
->> +
->> +	/* Start CPU #1 and let it wait for the interrupt. */
->> +	psw.mask = extract_psw_mask();
->> +	psw.addr = (unsigned long)wait_for_sclp_int;
->> +	ret = smp_cpu_setup(1, psw);
->> +	if (ret) {
->> +		report_skip("cpu #1 not found");
-> 
-> ...which means that this will hang, and so will all the other report*
-> functions. maybe you should manually unset the flag before calling the
-> various report* functions.
+"Prevent the compiler from merging or refetching reads or writes. The
+compiler is also forbidden from reordering successive instances of
+READ_ONCE and WRITE_ONCE"
 
-Good point, thanks!
-
-> 
->> +		goto out;
->> +	}
->> +
->> +	/* Wait until the CPU #1 at least enabled SCLP interrupts. */
->> +	wait_for_flag();
->> +
->> +	/*
->> +	 * We'd have to jump trough some hoops to sense e.g., via SIGP
->> +	 * CONDITIONAL EMERGENCY SIGNAL if CPU #1 is already in the
->> +	 * wait state.
->> +	 *
->> +	 * Although not completely reliable, use SIGP SENSE RUNNING STATUS
->> +	 * until not reported as running -- after all, our SCLP processing
->> +	 * will take some time as well and make races very rare.
->> +	 */
->> +	while(smp_sense_running_status(1));
->> +
->> +	h = alloc_page();
-> 
-> do you really need to dynamically allocate one page?
-> is there a reason for not using a simple static buffer? (which you can
-> have aligned and statically initialized)
-
-I don't really have a strong opinion. I do prefer dynamic alloctions,
-though, if there isn't a good reason not to use them. No need to mess
-with page alignments manually.
-
-> 
->> +	memset(h, 0, sizeof(*h));
-> 
-> otherwise, if you really want to allocate the memory, get rid of the
-> memset; the allocator always returns zeroed memory (unless you
-> explicitly ask not to by using flags)
-
-Right. "special" FLAG_DONTZERO in that semantics in that allocator.
-
-> 
->> +	h->length = 4096;
->> +	ret = servc(SCLP_CMDW_READ_CPU_INFO, __pa(h));
->> +	if (ret) {
->> +		report_fail("SCLP_CMDW_READ_CPU_INFO failed");
->> +		goto out_destroy;
->> +	}
->> +
->> +	/*
->> +	 * Wait until the interrupt gets delivered on CPU #1, marking the
-> 
-> why do you expect the interrupt to be delivered on CPU1? could it not
-> be delivered on CPU0?
-
-We don't enable SCLP interrupts + external interrupts on CPU #0 because
-we'll only call sclp_setup_int() on CPU #1.
-
-> 
->> +	 * SCLP requests as done.
->> +	 */
->> +	sclp_wait_busy();
-> 
-> this is logically not wrong (and should stay, because it makes clear
-> what you are trying to do), but strictly speaking it's not needed since
-> the report below will hang as long as the SCLP busy flag is set. 
-
-Right. But it's really clearer to just have this in the code.
-
+We need memory barriers to prevent reordering with surrounding code.
 
 -- 
 Thanks,
