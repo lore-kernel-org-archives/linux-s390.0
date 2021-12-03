@@ -2,212 +2,158 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BCD9C433EF
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Dec 2021 11:22:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D6B8C433F5
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Dec 2021 11:34:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380378AbhLCL0R (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 3 Dec 2021 06:26:17 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:29250 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S243477AbhLCL0Q (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Dec 2021 06:26:16 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1638530572;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=IymphDaNy8Caf2ydY0dE5fG+Pn7fihEWUEErdH0dHFk=;
-        b=JL/tMFWNcWARo/Ggp7Au9YER0+PJ6W2gbOWxe3pb0fvNWIc6CIgcnfGl6sN+grV1r1aRpS
-        YnAQhqqN2RKe5Eo5zd8RHrrspm90HU5PhI49Y5PGnrc40QPSUcCyO/NYpHODyMc0eC4AxY
-        S8IkqTSoK9xl8rdoT6kqRL29t7W7yTo=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-460-CANU6gewNoyFoerjINZG7A-1; Fri, 03 Dec 2021 06:22:51 -0500
-X-MC-Unique: CANU6gewNoyFoerjINZG7A-1
-Received: by mail-wm1-f71.google.com with SMTP id z138-20020a1c7e90000000b003319c5f9164so3289500wmc.7
-        for <linux-s390@vger.kernel.org>; Fri, 03 Dec 2021 03:22:49 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=IymphDaNy8Caf2ydY0dE5fG+Pn7fihEWUEErdH0dHFk=;
-        b=kwTgRGoNy6l+zbcbtuaiBTutfbkYw1fkSplW3iT1h0m533psu4AhwSwkt9IrbfBtQa
-         DdSQoW8YcGOQjzVZGRzQB1N5Ye/JYKZP+guT3yAPWmZApqa7Tq1qh7q/si9eKYbtwbkH
-         t0rUKs1rfJLZeLCXj/ZTozGNKUvrx3rhBY/ZeVe0YBevM8ffoMIMyVKnhCMgTm4UX0Hc
-         XmS2unOTDKJAGdEV+fvyzS//us4Kx1lS/S4q8hr8wUA8d8/mJWYN6YjULT03sd3/vhkP
-         L/YmlukxwZStq0g+YJq3WF7sggssNBbiTlNOwO4VuKt5z68fUgGNQIkrpV/FAgBnJHGD
-         L5Gg==
-X-Gm-Message-State: AOAM53079tFtiDsjWGqIbRvaU44th9cFVvXlV5JIYMEphVGpcR7WiIxa
-        pmZpBSNqXSIIqC7VDAPmNIXnTPEjXyXMu4ALIAwAq2zfT9cQM5x3Tioqncx7QLgxNgq7LlhJoh6
-        AjtnFwca4i0yzXSoCBltrGg==
-X-Received: by 2002:a05:600c:3505:: with SMTP id h5mr14103590wmq.22.1638530568926;
-        Fri, 03 Dec 2021 03:22:48 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxXZw2b2beme0syQIMDho7kOHkuCQJ29YlpAFGIPtBB3pbiCuyCjv89RYo3hTw6z5gCgFvs/g==
-X-Received: by 2002:a05:600c:3505:: with SMTP id h5mr14103556wmq.22.1638530568671;
-        Fri, 03 Dec 2021 03:22:48 -0800 (PST)
-Received: from [10.33.192.183] (nat-pool-str-t.redhat.com. [149.14.88.106])
-        by smtp.gmail.com with ESMTPSA id y142sm2418180wmc.40.2021.12.03.03.22.47
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 03 Dec 2021 03:22:48 -0800 (PST)
-Message-ID: <10bf23af-d6ff-965b-d360-5f1bd65a7a88@redhat.com>
-Date:   Fri, 3 Dec 2021 12:22:47 +0100
+        id S1380569AbhLCLhf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 3 Dec 2021 06:37:35 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:27610 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1380587AbhLCLh1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Dec 2021 06:37:27 -0500
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B3BGTZo014986;
+        Fri, 3 Dec 2021 11:34:02 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=QBha6az350dekEPmQVkx9Lj0VCIDI+RfePfNLlNCqTw=;
+ b=H/T2qWV35uqlZdzAwlSqJtaZtMhggOIQIKNCNt4gzy/qCf+mSTvwJPYsV5VGt+fDmbG7
+ OrNF0utLM4g5XAOK4r/0vPq0cKMjUnEA/N5tazHJq5ZSS+f60cF+GCNb/yJRV2aO80Og
+ Dj1Wml1dIDH/gM2yYDatTT5FLSDRJcWpjLO4Rb5bCq8b53mazGVEHOUUVsDg9rZvKZet
+ B3m4E6rXGx9EJGoskokgkHO6fQHqIJTjJfFIXMsR7rDcHsPKAwPDillEf/+8/df42nj1
+ ykG/kJqYja1Xi+8es+RgCKymvgpTuwT9Zi6Oqn3YqP/DuHb2mTdhp3zQ6aZ8vIdk2dII XA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cqj7hr965-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 03 Dec 2021 11:34:01 +0000
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1B3BH2RU016253;
+        Fri, 3 Dec 2021 11:34:01 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cqj7hr95k-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 03 Dec 2021 11:34:01 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1B3BX9cu005616;
+        Fri, 3 Dec 2021 11:33:58 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma04ams.nl.ibm.com with ESMTP id 3ckcadd7xh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 03 Dec 2021 11:33:58 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1B3BXuS231195520
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 3 Dec 2021 11:33:56 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 15BCB52057;
+        Fri,  3 Dec 2021 11:33:56 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id C96AA5204F;
+        Fri,  3 Dec 2021 11:33:55 +0000 (GMT)
+From:   Karsten Graul <kgraul@linux.ibm.com>
+To:     David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Wen Gu <guwen@linux.alibaba.com>
+Subject: [PATCH net-next] net/smc: Clear memory when release and reuse buffer
+Date:   Fri,  3 Dec 2021 12:33:31 +0100
+Message-Id: <20211203113331.2818873-1-kgraul@linux.ibm.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [kvm-unit-tests PATCH v2 2/2] s390x: firq: floating interrupt
- test
-Content-Language: en-US
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Sebastian Mitterle <smitterl@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org
-References: <20211202123553.96412-1-david@redhat.com>
- <20211202123553.96412-3-david@redhat.com>
- <11f0ff2f-2bae-0f1b-753f-b0e9dc24b345@redhat.com>
- <20211203121819.145696b0@p-imbrenda>
-From:   Thomas Huth <thuth@redhat.com>
-In-Reply-To: <20211203121819.145696b0@p-imbrenda>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: TYTHsu3dV7_woQ2F9Pf7dse3KjZXQFXv
+X-Proofpoint-ORIG-GUID: _McMgQmGEngWnh_GdA1kBoplHRagcUJb
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2021-12-03_06,2021-12-02_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
+ adultscore=0 impostorscore=0 spamscore=0 bulkscore=0 priorityscore=1501
+ phishscore=0 suspectscore=0 mlxlogscore=999 lowpriorityscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2112030072
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 03/12/2021 12.18, Claudio Imbrenda wrote:
-> On Fri, 3 Dec 2021 11:55:31 +0100
-> Thomas Huth <thuth@redhat.com> wrote:
-> 
->> On 02/12/2021 13.35, David Hildenbrand wrote:
->>> We had a KVM BUG fixed by kernel commit a3e03bc1368c ("KVM: s390: index
->>> kvm->arch.idle_mask by vcpu_idx"), whereby a floating interrupt might get
->>> stuck forever because a CPU in the wait state would not get woken up.
->>>
->>> The issue can be triggered when CPUs are created in a nonlinear fashion,
->>> such that the CPU address ("core-id") and the KVM cpu id don't match.
->>>
->>> So let's start with a floating interrupt test that will trigger a
->>> floating interrupt (via SCLP) to be delivered to a CPU in the wait state.
->>
->> Thank you very much for tackling this! Some remarks below...
->>
->>> Signed-off-by: David Hildenbrand <david@redhat.com>
->>> ---
->>>    lib/s390x/sclp.c    |  11 ++--
->>>    lib/s390x/sclp.h    |   1 +
->>>    s390x/Makefile      |   1 +
->>>    s390x/firq.c        | 122 ++++++++++++++++++++++++++++++++++++++++++++
->>>    s390x/unittests.cfg |  10 ++++
->>>    5 files changed, 142 insertions(+), 3 deletions(-)
->>>    create mode 100644 s390x/firq.c
->>>
->>> diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
->>> index 0272249..33985eb 100644
->>> --- a/lib/s390x/sclp.c
->>> +++ b/lib/s390x/sclp.c
->>> @@ -60,9 +60,7 @@ void sclp_setup_int(void)
->>>    void sclp_handle_ext(void)
->>>    {
->>>    	ctl_clear_bit(0, CTL0_SERVICE_SIGNAL);
->>> -	spin_lock(&sclp_lock);
->>> -	sclp_busy = false;
->>> -	spin_unlock(&sclp_lock);
->>> +	sclp_clear_busy();
->>>    }
->>>    
->>>    void sclp_wait_busy(void)
->>> @@ -89,6 +87,13 @@ void sclp_mark_busy(void)
->>>    	}
->>>    }
->>>    
->>> +void sclp_clear_busy(void)
->>> +{
->>> +	spin_lock(&sclp_lock);
->>> +	sclp_busy = false;
->>> +	spin_unlock(&sclp_lock);
->>> +}
->>> +
->>>    static void sclp_read_scp_info(ReadInfo *ri, int length)
->>>    {
->>>    	unsigned int commands[] = { SCLP_CMDW_READ_SCP_INFO_FORCED,
->>> diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
->>> index 61e9cf5..fead007 100644
->>> --- a/lib/s390x/sclp.h
->>> +++ b/lib/s390x/sclp.h
->>> @@ -318,6 +318,7 @@ void sclp_setup_int(void);
->>>    void sclp_handle_ext(void);
->>>    void sclp_wait_busy(void);
->>>    void sclp_mark_busy(void);
->>> +void sclp_clear_busy(void);
->>>    void sclp_console_setup(void);
->>>    void sclp_print(const char *str);
->>>    void sclp_read_info(void);
->>> diff --git a/s390x/Makefile b/s390x/Makefile
->>> index f95f2e6..1e567c1 100644
->>> --- a/s390x/Makefile
->>> +++ b/s390x/Makefile
->>> @@ -25,6 +25,7 @@ tests += $(TEST_DIR)/uv-host.elf
->>>    tests += $(TEST_DIR)/edat.elf
->>>    tests += $(TEST_DIR)/mvpg-sie.elf
->>>    tests += $(TEST_DIR)/spec_ex-sie.elf
->>> +tests += $(TEST_DIR)/firq.elf
->>>    
->>>    tests_binary = $(patsubst %.elf,%.bin,$(tests))
->>>    ifneq ($(HOST_KEY_DOCUMENT),)
->>> diff --git a/s390x/firq.c b/s390x/firq.c
->>> new file mode 100644
->>> index 0000000..1f87718
->>> --- /dev/null
->>> +++ b/s390x/firq.c
->>> @@ -0,0 +1,122 @@
->>> +/* SPDX-License-Identifier: GPL-2.0-only */
->>> +/*
->>> + * Floating interrupt tests.
->>> + *
->>> + * Copyright 2021 Red Hat Inc
->>> + *
->>> + * Authors:
->>> + *    David Hildenbrand <david@redhat.com>
->>> + */
->>> +#include <libcflat.h>
->>> +#include <asm/asm-offsets.h>
->>> +#include <asm/interrupt.h>
->>> +#include <asm/page.h>
->>> +#include <asm-generic/barrier.h>
->>> +
->>> +#include <sclp.h>
->>> +#include <smp.h>
->>> +#include <alloc_page.h>
->>> +
->>> +static void wait_for_sclp_int(void)
->>> +{
->>> +	/* Enable SCLP interrupts on this CPU only. */
->>> +	ctl_set_bit(0, CTL0_SERVICE_SIGNAL);
->>> +
->>> +	/* Enable external interrupts and go to the wait state. */
->>> +	wait_for_interrupt(PSW_MASK_EXT);
->>> +}
->>
->> What happens if the CPU got an interrupt? Should there be a "while (true)"
-> 
-> it should not get any interrupts, but if it does anyway...
-> 
->> at the end of the function to avoid that the CPU ends up crashing at the end
->> of the function?
-> 
-> ... we have this in smp_cpu_setup_state, after the call to the actual
-> function body:
-> 
-> /* If the function returns, just loop here */
-> 0:      j       0
-> 
-> so if the function returns, it will hang in there anyway
+From: Tony Lu <tonylu@linux.alibaba.com>
 
-Ah, great, so we're fine indeed!
+Currently, buffers are cleared when smc connections are created and
+buffers are reused. This slows down the speed of establishing new
+connections. In most cases, the applications want to establish
+connections as quickly as possible.
 
-  Thomas
+This patch moves memset() from connection creation path to release and
+buffer unuse path, this trades off between speed of establishing and
+release.
+
+Test environments:
+- CPU Intel Xeon Platinum 8 core, mem 32 GiB, nic Mellanox CX4
+- socket sndbuf / rcvbuf: 16384 / 131072 bytes
+- w/o first round, 5 rounds, avg, 100 conns batch per round
+- smc_buf_create() use bpftrace kprobe, introduces extra latency
+
+Latency benchmarks for smc_buf_create():
+  w/o patch : 19040.0 ns
+  w/  patch :  1932.6 ns
+  ratio :        10.2% (-89.8%)
+
+Latency benchmarks for socket create and connect:
+  w/o patch :   143.3 us
+  w/  patch :   102.2 us
+  ratio :        71.3% (-28.7%)
+
+The latency of establishing connections is reduced by 28.7%.
+
+Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
+Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+---
+ net/smc/smc_core.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
+
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 387d28b2f8dd..85be94cabb01 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -1101,18 +1101,24 @@ static void smcr_buf_unuse(struct smc_buf_desc *rmb_desc,
+ 		smc_buf_free(lgr, true, rmb_desc);
+ 	} else {
+ 		rmb_desc->used = 0;
++		memset(rmb_desc->cpu_addr, 0, rmb_desc->len);
+ 	}
+ }
+ 
+ static void smc_buf_unuse(struct smc_connection *conn,
+ 			  struct smc_link_group *lgr)
+ {
+-	if (conn->sndbuf_desc)
++	if (conn->sndbuf_desc) {
+ 		conn->sndbuf_desc->used = 0;
+-	if (conn->rmb_desc && lgr->is_smcd)
++		memset(conn->sndbuf_desc->cpu_addr, 0, conn->sndbuf_desc->len);
++	}
++	if (conn->rmb_desc && lgr->is_smcd) {
+ 		conn->rmb_desc->used = 0;
+-	else if (conn->rmb_desc)
++		memset(conn->rmb_desc->cpu_addr, 0, conn->rmb_desc->len +
++		       sizeof(struct smcd_cdc_msg));
++	} else if (conn->rmb_desc) {
+ 		smcr_buf_unuse(conn->rmb_desc, lgr);
++	}
+ }
+ 
+ /* remove a finished connection from its link group */
+@@ -2148,7 +2154,6 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
+ 		if (buf_desc) {
+ 			SMC_STAT_RMB_SIZE(smc, is_smcd, is_rmb, bufsize);
+ 			SMC_STAT_BUF_REUSE(smc, is_smcd, is_rmb);
+-			memset(buf_desc->cpu_addr, 0, bufsize);
+ 			break; /* found reusable slot */
+ 		}
+ 
+-- 
+2.32.0
 
