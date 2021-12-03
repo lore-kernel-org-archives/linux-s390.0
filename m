@@ -2,158 +2,236 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D6B8C433F5
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Dec 2021 11:34:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DFD86C433EF
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Dec 2021 11:46:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380569AbhLCLhf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 3 Dec 2021 06:37:35 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:27610 "EHLO
+        id S1352213AbhLCLtz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 3 Dec 2021 06:49:55 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:28602 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1380587AbhLCLh1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Dec 2021 06:37:27 -0500
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B3BGTZo014986;
-        Fri, 3 Dec 2021 11:34:02 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=QBha6az350dekEPmQVkx9Lj0VCIDI+RfePfNLlNCqTw=;
- b=H/T2qWV35uqlZdzAwlSqJtaZtMhggOIQIKNCNt4gzy/qCf+mSTvwJPYsV5VGt+fDmbG7
- OrNF0utLM4g5XAOK4r/0vPq0cKMjUnEA/N5tazHJq5ZSS+f60cF+GCNb/yJRV2aO80Og
- Dj1Wml1dIDH/gM2yYDatTT5FLSDRJcWpjLO4Rb5bCq8b53mazGVEHOUUVsDg9rZvKZet
- B3m4E6rXGx9EJGoskokgkHO6fQHqIJTjJfFIXMsR7rDcHsPKAwPDillEf/+8/df42nj1
- ykG/kJqYja1Xi+8es+RgCKymvgpTuwT9Zi6Oqn3YqP/DuHb2mTdhp3zQ6aZ8vIdk2dII XA== 
+        by vger.kernel.org with ESMTP id S234517AbhLCLty (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Dec 2021 06:49:54 -0500
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B3BGTpM029109;
+        Fri, 3 Dec 2021 11:46:31 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=7nEPitOQgvr+4RmmwmtposdjRghdpHuA5VE2oEPOO4A=;
+ b=SuHXHhoJqB+BrFMeNMRLQo7UIM8QUL8hk+BVt+i7d4J3KWa2tPUNvF0ZpTXRN0cnTwYN
+ rlAU18pnsB77RNxK52oRQQkDaeTs2xpX6MHN6SasncclNvUNxYX4fipNEHFUyQvp3usU
+ 7JfTh1Wg4aFeqQiHH0gEH5+3VVQApuZEdSn8OCLCLaxaYbiAAAQhPaF3+OZmmBIMRBC8
+ Kx14IxyHgal7KTtcZ/pLfw3wZlaRk37YrndBntAcVU9dX/fvt1dk0JC7jUV1Ry7rPB+n
+ bcJfY+dNzoJlIEtMRc86935pPAvIvGBZHEEaUQ+MPrpoHJkyWnXBFPeTf3ra7p9aF9cJ eA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cqj7hr965-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cqj7j8emu-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Dec 2021 11:34:01 +0000
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1B3BH2RU016253;
-        Fri, 3 Dec 2021 11:34:01 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cqj7hr95k-1
+        Fri, 03 Dec 2021 11:46:31 +0000
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1B3BHTBk005211;
+        Fri, 3 Dec 2021 11:46:30 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cqj7j8em8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Dec 2021 11:34:01 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1B3BX9cu005616;
-        Fri, 3 Dec 2021 11:33:58 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 3ckcadd7xh-1
+        Fri, 03 Dec 2021 11:46:30 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1B3Bdi91017632;
+        Fri, 3 Dec 2021 11:46:27 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma05fra.de.ibm.com with ESMTP id 3ckcaaaks9-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 03 Dec 2021 11:33:58 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1B3BXuS231195520
+        Fri, 03 Dec 2021 11:46:27 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1B3BkOrk26214692
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 3 Dec 2021 11:33:56 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 15BCB52057;
-        Fri,  3 Dec 2021 11:33:56 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id C96AA5204F;
-        Fri,  3 Dec 2021 11:33:55 +0000 (GMT)
-From:   Karsten Graul <kgraul@linux.ibm.com>
-To:     David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        Wen Gu <guwen@linux.alibaba.com>
-Subject: [PATCH net-next] net/smc: Clear memory when release and reuse buffer
-Date:   Fri,  3 Dec 2021 12:33:31 +0100
-Message-Id: <20211203113331.2818873-1-kgraul@linux.ibm.com>
-X-Mailer: git-send-email 2.32.0
+        Fri, 3 Dec 2021 11:46:24 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 30A4811C05B;
+        Fri,  3 Dec 2021 11:46:24 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C78D011C04C;
+        Fri,  3 Dec 2021 11:46:23 +0000 (GMT)
+Received: from [9.171.91.109] (unknown [9.171.91.109])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri,  3 Dec 2021 11:46:23 +0000 (GMT)
+Message-ID: <81dce30b-5432-05ab-f2a5-1d995ff51d81@linux.vnet.ibm.com>
+Date:   Fri, 3 Dec 2021 12:46:23 +0100
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [kvm-unit-tests PATCH] s390x: Add strict mode to specification
+ exception interpretation test
+Content-Language: en-US
+To:     Thomas Huth <thuth@redhat.com>,
+        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+References: <82750b44-6246-3f3c-4562-3d64d7378448@redhat.com>
+ <20211125144726.1414645-1-scgl@linux.ibm.com>
+ <6e8f0354-bf35-3e59-c99d-046ee1979d1f@redhat.com>
+From:   Janis Schoetterl-Glausch <scgl@linux.vnet.ibm.com>
+In-Reply-To: <6e8f0354-bf35-3e59-c99d-046ee1979d1f@redhat.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: TYTHsu3dV7_woQ2F9Pf7dse3KjZXQFXv
-X-Proofpoint-ORIG-GUID: _McMgQmGEngWnh_GdA1kBoplHRagcUJb
+X-Proofpoint-ORIG-GUID: bqnHSYoOJ1QLe6ujDlskY9cib91EVbJo
+X-Proofpoint-GUID: xNV2JNdD2N7mUXGSRVx5d1l5VctocJrO
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2021-12-03_06,2021-12-02_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
- adultscore=0 impostorscore=0 spamscore=0 bulkscore=0 priorityscore=1501
- phishscore=0 suspectscore=0 mlxlogscore=999 lowpriorityscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
+ priorityscore=1501 lowpriorityscore=0 malwarescore=0 clxscore=1015
+ phishscore=0 mlxlogscore=999 bulkscore=0 suspectscore=0 spamscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2110150000 definitions=main-2112030072
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Tony Lu <tonylu@linux.alibaba.com>
+On 12/3/21 12:15, Thomas Huth wrote:
+> On 25/11/2021 15.47, Janis Schoetterl-Glausch wrote:
+>> While specification exception interpretation is not required to occur,
+>> it can be useful for automatic regression testing to fail the test if it
+>> does not occur.
+>> Add a `--strict` argument to enable this.
+> 
+> Thank you very much for adding this!
 
-Currently, buffers are cleared when smc connections are created and
-buffers are reused. This slows down the speed of establishing new
-connections. In most cases, the applications want to establish
-connections as quickly as possible.
+Sure :)
+> 
+> Some comments below...
+> 
+>> `--strict` takes a list of machine types (as reported by STIDP)
+>> for which to enable strict mode, for example
+>> `--strict 8562,8561,3907,3906,2965,2964`
+>> will enable it for models z15 - z13.
+>> Alternatively, strict mode can be enabled for all but the listed machine
+>> types by prefixing the list with a `!`, for example
+>> `--strict !1090,1091,2064,2066,2084,2086,2094,2096,2097,2098,2817,2818,2827,2828`
+>> will enable it for z/Architecture models except those older than z13.
+>>
+>> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+>> ---
+>>
+>> Apparently my message with inline patch did not make it to the mailing
+>> list for some reason, so here's the patch again.
+>>
+>>   s390x/spec_ex-sie.c | 59 ++++++++++++++++++++++++++++++++++++++++-----
+>>   1 file changed, 53 insertions(+), 6 deletions(-)
+>>
+>> diff --git a/s390x/spec_ex-sie.c b/s390x/spec_ex-sie.c
+>> index 5dea411..9a063f9 100644
+>> --- a/s390x/spec_ex-sie.c
+>> +++ b/s390x/spec_ex-sie.c
+>> @@ -7,6 +7,7 @@
+>>    * specification exception interpretation is off/on.
+>>    */
+>>   #include <libcflat.h>
+>> +#include <stdlib.h>
+>>   #include <sclp.h>
+>>   #include <asm/page.h>
+>>   #include <asm/arch_def.h>
+>> @@ -36,7 +37,7 @@ static void reset_guest(void)
+>>       vm.sblk->icptcode = 0;
+>>   }
+>>   -static void test_spec_ex_sie(void)
+>> +static void test_spec_ex_sie(bool strict)
+>>   {
+>>       setup_guest();
+>>   @@ -61,14 +62,60 @@ static void test_spec_ex_sie(void)
+>>       report(vm.sblk->icptcode == ICPT_PROGI
+>>              && vm.sblk->iprcc == PGM_INT_CODE_SPECIFICATION,
+>>              "Received specification exception intercept");
+>> -    if (vm.sblk->gpsw.addr == 0xdeadbeee)
+>> -        report_info("Interpreted initial exception, intercepted invalid program new PSW exception");
+>> -    else
+>> -        report_info("Did not interpret initial exception");
+>> +    {
+>> +        const char *msg;
+> 
+> Could you please move the variable declaration to the beginning of the function? Then you could get rid of the curly brackets and one level of indentation.
 
-This patch moves memset() from connection creation path to release and
-buffer unuse path, this trades off between speed of establishing and
-release.
+Yes.
+> 
+>> +        msg = "Interpreted initial exception, intercepted invalid program new PSW exception";
+>> +        if (strict)
+>> +            report(vm.sblk->gpsw.addr == 0xdeadbeee, msg);
+>> +        else if (vm.sblk->gpsw.addr == 0xdeadbeee)
+>> +            report_info(msg);
+>> +        else
+>> +            report_info("Did not interpret initial exception");
+>> +    }
+>>       report_prefix_pop();
+>>       report_prefix_pop();
+>>   }
+>>   +static bool parse_strict(char **argv)
+>> +{
+>> +    uint16_t machine_id;
+>> +    char *list;
+>> +    bool ret;
+>> +
+>> +    if (!*argv)
+>> +        return false;
+> 
+> I think this works ok with out current implementation of argv, but that's an "inofficial" implementation detail, so in case this ever gets changed, it might be better to check argc first before dereferencing argv here ... so could you please add a check for argc, too?
 
-Test environments:
-- CPU Intel Xeon Platinum 8 core, mem 32 GiB, nic Mellanox CX4
-- socket sndbuf / rcvbuf: 16384 / 131072 bytes
-- w/o first round, 5 rounds, avg, 100 conns batch per round
-- smc_buf_create() use bpftrace kprobe, introduces extra latency
+This is required by POSIX, isn't it? But then whether or not we comply with it is another question.
+> 
+>> +    if (strcmp("--strict", *argv))
+>> +        return false;
+>> +
+>> +    machine_id = get_machine_id();
+>> +    list = argv[1];
 
-Latency benchmarks for smc_buf_create():
-  w/o patch : 19040.0 ns
-  w/  patch :  1932.6 ns
-  ratio :        10.2% (-89.8%)
+This needs to be covered by the argc check too, then.
 
-Latency benchmarks for socket create and connect:
-  w/o patch :   143.3 us
-  w/  patch :   102.2 us
-  ratio :        71.3% (-28.7%)
+>> +    if (!list) {
+>> +        printf("No argument to --strict, ignoring\n");
+>> +        return false;
+> 
+> You could also support --strict without arguments - that could turn on the strict mode unconditionally, I think.
 
-The latency of establishing connections is reduced by 28.7%.
-
-Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
-Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/smc/smc_core.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
-
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 387d28b2f8dd..85be94cabb01 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -1101,18 +1101,24 @@ static void smcr_buf_unuse(struct smc_buf_desc *rmb_desc,
- 		smc_buf_free(lgr, true, rmb_desc);
- 	} else {
- 		rmb_desc->used = 0;
-+		memset(rmb_desc->cpu_addr, 0, rmb_desc->len);
- 	}
- }
- 
- static void smc_buf_unuse(struct smc_connection *conn,
- 			  struct smc_link_group *lgr)
- {
--	if (conn->sndbuf_desc)
-+	if (conn->sndbuf_desc) {
- 		conn->sndbuf_desc->used = 0;
--	if (conn->rmb_desc && lgr->is_smcd)
-+		memset(conn->sndbuf_desc->cpu_addr, 0, conn->sndbuf_desc->len);
-+	}
-+	if (conn->rmb_desc && lgr->is_smcd) {
- 		conn->rmb_desc->used = 0;
--	else if (conn->rmb_desc)
-+		memset(conn->rmb_desc->cpu_addr, 0, conn->rmb_desc->len +
-+		       sizeof(struct smcd_cdc_msg));
-+	} else if (conn->rmb_desc) {
- 		smcr_buf_unuse(conn->rmb_desc, lgr);
-+	}
- }
- 
- /* remove a finished connection from its link group */
-@@ -2148,7 +2154,6 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
- 		if (buf_desc) {
- 			SMC_STAT_RMB_SIZE(smc, is_smcd, is_rmb, bufsize);
- 			SMC_STAT_BUF_REUSE(smc, is_smcd, is_rmb);
--			memset(buf_desc->cpu_addr, 0, bufsize);
- 			break; /* found reusable slot */
- 		}
- 
--- 
-2.32.0
+--strict ! works. Granted it's not the best UI, but it is more consistent,
+you could do --strict $(get list of ids from somewhere) and if the list is empty the semantics stay the same. 
+> 
+>> +    }
+>> +    if (list[0] == '!') {
+>> +        ret = true;
+>> +        list++;
+>> +    } else
+>> +        ret = false;
+>> +    while (true) {
+>> +        long input = 0;
+>> +
+>> +        if (strlen(list) == 0)
+>> +            return ret;
+>> +        input = strtol(list, &list, 16);
+>> +        if (*list == ',')
+>> +            list++;
+>> +        else if (*list != '\0')
+>> +            break;
+>> +        if (input == machine_id)
+>> +            return !ret;
+>> +    }
+>> +    printf("Invalid --strict argument \"%s\", ignoring\n", list);
+>> +    return ret;
+>> +}
+>> +
+>>   int main(int argc, char **argv)
+>>   {
+>>       if (!sclp_facilities.has_sief2) {
+>> @@ -76,7 +123,7 @@ int main(int argc, char **argv)
+>>           goto out;
+>>       }
+>>   -    test_spec_ex_sie();
+>> +    test_spec_ex_sie(parse_strict(argv + 1));
+>>   out:
+>>       return report_summary();
+>>   }
+>>
+> 
+>  Thomas
+> 
 
