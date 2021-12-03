@@ -2,98 +2,288 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BB68EC433F5
-	for <linux-s390@archiver.kernel.org>; Fri,  3 Dec 2021 10:43:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C4112C433F5
+	for <linux-s390@archiver.kernel.org>; Fri,  3 Dec 2021 10:55:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380105AbhLCKrR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 3 Dec 2021 05:47:17 -0500
-Received: from foss.arm.com ([217.140.110.172]:47116 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1380187AbhLCKrJ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 3 Dec 2021 05:47:09 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 365D315BF;
-        Fri,  3 Dec 2021 02:43:45 -0800 (PST)
-Received: from a077416.arm.com (unknown [10.163.33.180])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 187413F5A1;
-        Fri,  3 Dec 2021 02:43:40 -0800 (PST)
-From:   Amit Daniel Kachhap <amit.kachhap@arm.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>,
-        Vincenzo Frascino <Vincenzo.Frascino@arm.com>,
-        Kevin Brodsky <kevin.brodsky@arm.com>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        kexec <kexec@lists.infradead.org>,
-        Amit Daniel Kachhap <amit.kachhap@arm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        id S1380163AbhLCK67 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 3 Dec 2021 05:58:59 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:26630 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S237048AbhLCK67 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Dec 2021 05:58:59 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1638528935;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=nFj9rWN7S7vuib57ob5QlML0gmhUnKVbSla0HzR2Qjs=;
+        b=bmkNcHd7ViJAjiSJEI1gLM8QPW5JjTrviAZ+xviBaSsJTzwUm8OqJ6t3ntdiXeKtoBsrj+
+        LSs1Cxl7kfkConMbBVN73uK90uVGGV1IUkw3Bc4zkds7jkzzgWBWW476gafKaPIVH4ujdD
+        yd+pvjZ7ELKXCcG2mhD246M1ZE+kwmM=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-514-zi3fnaDIPDWWUac8YmQUtw-1; Fri, 03 Dec 2021 05:55:34 -0500
+X-MC-Unique: zi3fnaDIPDWWUac8YmQUtw-1
+Received: by mail-wm1-f70.google.com with SMTP id a64-20020a1c7f43000000b003335e5dc26bso1348337wmd.8
+        for <linux-s390@vger.kernel.org>; Fri, 03 Dec 2021 02:55:33 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent
+         :content-language:to:cc:references:from:subject:in-reply-to
+         :content-transfer-encoding;
+        bh=nFj9rWN7S7vuib57ob5QlML0gmhUnKVbSla0HzR2Qjs=;
+        b=As24zYbIM9USGLMykrEjVZLeqRZ27L6fczQsWFSzOwFKS1YESCU1CE2f0m4Fz7s8tB
+         W2fuum+S/1Fa4AMB2/IZdotF1fT1s1+hlhqH0xiddzavzukKf2bMq9l2o5eFhk9DCcSb
+         ni7WD6Dh70VIAii0nRQz4zPwsGbxNBjhMl/O7b6asO1wO+Ll0ascBLpoAeqVoZcVWTuQ
+         TeoU3lp9XGAzukPmmcZVg8JjVcPEsSpmdnh+k1m7fOgh8q/mMviTEewC0C6AY1wYwTYw
+         SFGfb/4qYCaddeLl8DOJgx23EsQXsP3KIyKoFbKjQcGRZaNozT7h/F+y93gAt5afd5fU
+         AiRg==
+X-Gm-Message-State: AOAM530yHVP0azmZ79rIkzcEIjdag3iYDFFn+FhE5cML3MC4me8SVpwq
+        SVq8zqv7lJPPNT+P5muc/LES85lULYtUIgztMjb4HNKMa8xuav0SsDZTdBk/s1V421WSnTPUXvP
+        5fFBR93/dn1hmUlR4sO+FzQ==
+X-Received: by 2002:adf:db04:: with SMTP id s4mr20392073wri.467.1638528932755;
+        Fri, 03 Dec 2021 02:55:32 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxZEQ+qZhV43zN2BozwBHr6roxUn9gyXW8s8bQmG1Ykj1VkU+fnEngvgmzKikpNKHkJ0EK/Zg==
+X-Received: by 2002:adf:db04:: with SMTP id s4mr20392048wri.467.1638528932519;
+        Fri, 03 Dec 2021 02:55:32 -0800 (PST)
+Received: from [10.33.192.183] (nat-pool-str-t.redhat.com. [149.14.88.106])
+        by smtp.gmail.com with ESMTPSA id o10sm2914435wri.15.2021.12.03.02.55.31
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 03 Dec 2021 02:55:32 -0800 (PST)
+Message-ID: <11f0ff2f-2bae-0f1b-753f-b0e9dc24b345@redhat.com>
+Date:   Fri, 3 Dec 2021 11:55:31 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Content-Language: en-US
+To:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
+Cc:     Janosch Frank <frankja@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390 <linux-s390@vger.kernel.org>
-Subject: [RFC PATCH 13/14] s390/crash_dump: Use the new interface copy_oldmem_page_buf
-Date:   Fri,  3 Dec 2021 16:12:30 +0530
-Message-Id: <20211203104231.17597-14-amit.kachhap@arm.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20211203104231.17597-1-amit.kachhap@arm.com>
-References: <20211203104231.17597-1-amit.kachhap@arm.com>
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Sebastian Mitterle <smitterl@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org
+References: <20211202123553.96412-1-david@redhat.com>
+ <20211202123553.96412-3-david@redhat.com>
+From:   Thomas Huth <thuth@redhat.com>
+Subject: Re: [kvm-unit-tests PATCH v2 2/2] s390x: firq: floating interrupt
+ test
+In-Reply-To: <20211202123553.96412-3-david@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The current interface copy_oldmem_page() passes user pointer without
-__user annotation and hence does unnecessary user/kernel pointer
-conversions during its implementation.
+On 02/12/2021 13.35, David Hildenbrand wrote:
+> We had a KVM BUG fixed by kernel commit a3e03bc1368c ("KVM: s390: index
+> kvm->arch.idle_mask by vcpu_idx"), whereby a floating interrupt might get
+> stuck forever because a CPU in the wait state would not get woken up.
+> 
+> The issue can be triggered when CPUs are created in a nonlinear fashion,
+> such that the CPU address ("core-id") and the KVM cpu id don't match.
+> 
+> So let's start with a floating interrupt test that will trigger a
+> floating interrupt (via SCLP) to be delivered to a CPU in the wait state.
 
-Use the interface copy_oldmem_page_buf() to avoid this issue.
+Thank you very much for tackling this! Some remarks below...
 
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-CC: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: linux-s390 <linux-s390@vger.kernel.org>
-Signed-off-by: Amit Daniel Kachhap <amit.kachhap@arm.com>
----
- arch/s390/kernel/crash_dump.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+> ---
+>   lib/s390x/sclp.c    |  11 ++--
+>   lib/s390x/sclp.h    |   1 +
+>   s390x/Makefile      |   1 +
+>   s390x/firq.c        | 122 ++++++++++++++++++++++++++++++++++++++++++++
+>   s390x/unittests.cfg |  10 ++++
+>   5 files changed, 142 insertions(+), 3 deletions(-)
+>   create mode 100644 s390x/firq.c
+> 
+> diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
+> index 0272249..33985eb 100644
+> --- a/lib/s390x/sclp.c
+> +++ b/lib/s390x/sclp.c
+> @@ -60,9 +60,7 @@ void sclp_setup_int(void)
+>   void sclp_handle_ext(void)
+>   {
+>   	ctl_clear_bit(0, CTL0_SERVICE_SIGNAL);
+> -	spin_lock(&sclp_lock);
+> -	sclp_busy = false;
+> -	spin_unlock(&sclp_lock);
+> +	sclp_clear_busy();
+>   }
+>   
+>   void sclp_wait_busy(void)
+> @@ -89,6 +87,13 @@ void sclp_mark_busy(void)
+>   	}
+>   }
+>   
+> +void sclp_clear_busy(void)
+> +{
+> +	spin_lock(&sclp_lock);
+> +	sclp_busy = false;
+> +	spin_unlock(&sclp_lock);
+> +}
+> +
+>   static void sclp_read_scp_info(ReadInfo *ri, int length)
+>   {
+>   	unsigned int commands[] = { SCLP_CMDW_READ_SCP_INFO_FORCED,
+> diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+> index 61e9cf5..fead007 100644
+> --- a/lib/s390x/sclp.h
+> +++ b/lib/s390x/sclp.h
+> @@ -318,6 +318,7 @@ void sclp_setup_int(void);
+>   void sclp_handle_ext(void);
+>   void sclp_wait_busy(void);
+>   void sclp_mark_busy(void);
+> +void sclp_clear_busy(void);
+>   void sclp_console_setup(void);
+>   void sclp_print(const char *str);
+>   void sclp_read_info(void);
+> diff --git a/s390x/Makefile b/s390x/Makefile
+> index f95f2e6..1e567c1 100644
+> --- a/s390x/Makefile
+> +++ b/s390x/Makefile
+> @@ -25,6 +25,7 @@ tests += $(TEST_DIR)/uv-host.elf
+>   tests += $(TEST_DIR)/edat.elf
+>   tests += $(TEST_DIR)/mvpg-sie.elf
+>   tests += $(TEST_DIR)/spec_ex-sie.elf
+> +tests += $(TEST_DIR)/firq.elf
+>   
+>   tests_binary = $(patsubst %.elf,%.bin,$(tests))
+>   ifneq ($(HOST_KEY_DOCUMENT),)
+> diff --git a/s390x/firq.c b/s390x/firq.c
+> new file mode 100644
+> index 0000000..1f87718
+> --- /dev/null
+> +++ b/s390x/firq.c
+> @@ -0,0 +1,122 @@
+> +/* SPDX-License-Identifier: GPL-2.0-only */
+> +/*
+> + * Floating interrupt tests.
+> + *
+> + * Copyright 2021 Red Hat Inc
+> + *
+> + * Authors:
+> + *    David Hildenbrand <david@redhat.com>
+> + */
+> +#include <libcflat.h>
+> +#include <asm/asm-offsets.h>
+> +#include <asm/interrupt.h>
+> +#include <asm/page.h>
+> +#include <asm-generic/barrier.h>
+> +
+> +#include <sclp.h>
+> +#include <smp.h>
+> +#include <alloc_page.h>
+> +
+> +static void wait_for_sclp_int(void)
+> +{
+> +	/* Enable SCLP interrupts on this CPU only. */
+> +	ctl_set_bit(0, CTL0_SERVICE_SIGNAL);
+> +
+> +	/* Enable external interrupts and go to the wait state. */
+> +	wait_for_interrupt(PSW_MASK_EXT);
+> +}
 
-diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
-index 785d54c9350c..b1f8a908e8ca 100644
---- a/arch/s390/kernel/crash_dump.c
-+++ b/arch/s390/kernel/crash_dump.c
-@@ -214,8 +214,8 @@ static int copy_oldmem_user(void __user *dst, void *src, size_t count)
- /*
-  * Copy one page from "oldmem"
-  */
--ssize_t copy_oldmem_page(unsigned long pfn, char *buf, size_t csize,
--			 unsigned long offset, int userbuf)
-+ssize_t copy_oldmem_page_buf(unsigned long pfn, char __user *ubuf, char *kbuf,
-+			     size_t csize, unsigned long offset)
- {
- 	void *src;
- 	int rc;
-@@ -223,10 +223,10 @@ ssize_t copy_oldmem_page(unsigned long pfn, char *buf, size_t csize,
- 	if (!csize)
- 		return 0;
- 	src = (void *) (pfn << PAGE_SHIFT) + offset;
--	if (userbuf)
--		rc = copy_oldmem_user((void __force __user *) buf, src, csize);
-+	if (ubuf)
-+		rc = copy_oldmem_user((void __user *) ubuf, src, csize);
- 	else
--		rc = copy_oldmem_kernel((void *) buf, src, csize);
-+		rc = copy_oldmem_kernel((void *) kbuf, src, csize);
- 	return rc;
- }
- 
-@@ -261,7 +261,7 @@ static int remap_oldmem_pfn_range_kdump(struct vm_area_struct *vma,
-  * Remap "oldmem" for zfcp/nvme dump
-  *
-  * We only map available memory above HSA size. Memory below HSA size
-- * is read on demand using the copy_oldmem_page() function.
-+ * is read on demand using the copy_oldmem_page_buf() function.
-  */
- static int remap_oldmem_pfn_range_zfcpdump(struct vm_area_struct *vma,
- 					   unsigned long from,
--- 
-2.17.1
+What happens if the CPU got an interrupt? Should there be a "while (true)" 
+at the end of the function to avoid that the CPU ends up crashing at the end 
+of the function?
+
+> +/*
+> + * Some KVM versions might mix CPUs when looking for a floating IRQ target,
+> + * accidentially detecting a stopped CPU as waiting and resulting in the actually
+> + * waiting CPU not getting woken up for the interrupt.
+> + */
+> +static void test_wait_state_delivery(void)
+> +{
+> +	struct psw psw;
+> +	SCCBHeader *h;
+> +	int ret;
+> +
+> +	report_prefix_push("wait state delivery");
+> +
+> +	if (smp_query_num_cpus() < 3) {
+> +		report_skip("need at least 3 CPUs for this test");
+> +		goto out;
+> +	}
+> +
+> +	if (stap()) {
+> +		report_skip("need to start on CPU #0");
+> +		goto out;
+> +	}
+
+I think I'd rather turn this into an assert() instead ... no strong opinion 
+about it, though.
+
+> +
+> +	/*
+> +	 * We want CPU #2 to be stopped. This should be the case at this
+> +	 * point, however, we want to sense if it even exists as well.
+> +	 */
+> +	ret = smp_cpu_stop(2);
+> +	if (ret) {
+> +		report_skip("CPU #2 not found");
+
+Since you already queried for the availablity of at least 3 CPUs above, I 
+think you could turn this into a report_fail() instead?
+
+> +		goto out;
+> +	}
+> +
+> +	/*
+> +	 * We're going to perform an SCLP service call but expect
+> +	 * the interrupt on CPU #1 while it is in the wait state.
+> +	 */
+> +	sclp_mark_busy();
+> +
+> +	/* Start CPU #1 and let it wait for the interrupt. */
+> +	psw.mask = extract_psw_mask();
+> +	psw.addr = (unsigned long)wait_for_sclp_int;
+> +	ret = smp_cpu_setup(1, psw);
+> +	if (ret) {
+> +		sclp_clear_busy();
+> +		report_skip("cpu #1 not found");
+> +		goto out;
+> +	}
+> +
+> +	/*
+> +	 * We'd have to jump trough some hoops to sense e.g., via SIGP
+> +	 * CONDITIONAL EMERGENCY SIGNAL if CPU #1 is already in the
+> +	 * wait state.
+> +	 *
+> +	 * Although not completely reliable, use SIGP SENSE RUNNING STATUS
+> +	 * until not reported as running -- after all, our SCLP processing
+> +	 * will take some time as well and smp_cpu_setup() returns when we're
+> +	 * either already in wait_for_sclp_int() or just about to execute it.
+> +	 */
+> +	while(smp_sense_running_status(1));
+> +
+> +	h = alloc_page();
+> +	h->length = 4096;
+> +	ret = servc(SCLP_CMDW_READ_CPU_INFO, __pa(h));
+> +	if (ret) {
+> +		sclp_clear_busy();
+> +		report_fail("SCLP_CMDW_READ_CPU_INFO failed");
+> +		goto out_destroy;
+> +	}
+> +
+> +	/*
+> +	 * Wait until the interrupt gets delivered on CPU #1, marking the
+> +	 * SCLP requests as done.
+> +	 */
+> +	sclp_wait_busy();
+> +
+> +	report(true, "sclp interrupt delivered");
+> +
+> +out_destroy:
+> +	free_page(h);
+> +	smp_cpu_destroy(1);
+> +out:
+> +	report_prefix_pop();
+> +}
+
+Anyway, code looks fine for me, either with my comments addressed or not:
+
+Reviewed-by: Thomas Huth <thuth@redhat.com>
 
