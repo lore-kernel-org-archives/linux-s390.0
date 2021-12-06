@@ -2,33 +2,33 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D91A0C433FE
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Dec 2021 22:52:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4679AC433FE
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Dec 2021 22:52:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376534AbhLFWz3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Dec 2021 17:55:29 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:48024 "EHLO
+        id S1376719AbhLFWzl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Dec 2021 17:55:41 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:48138 "EHLO
         galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358806AbhLFWyv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Dec 2021 17:54:51 -0500
-Message-ID: <20211206210748.198359105@linutronix.de>
+        with ESMTP id S1359424AbhLFWy5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Dec 2021 17:54:57 -0500
+Message-ID: <20211206210748.414712173@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1638831080;
+        s=2020; t=1638831087;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         references:references; bh=mHgTxiBl9Pg381SuWjuguHHZxZ6bDXurYM8uLZLwzPA=;
-        b=BKB85X+Y76cMSyJV8pdeV1lBt8PONMLc3g6vJQjY5TF5snNtC126+QJYm3ZIVMhyl4wdPD
-        R0cNDVDb6sx4XiV1XgwDnh7jWGaekehSZkZ01v0oan8MDdAD2tA2SvAT++EXPGl8AWEkKV
-        UHZdE4IwHJyuxvUdZdcf74H4VOxkYauhHbPCv7hV7rJoTDig26Edmhbie0zozApc4A6xtM
-        bU8oNK5gv//JGnrfK20cHKESEpzwTsOD+UQiDFPc2BKu4WtuDW4eOlfL0o905IXgNQ2x0y
-        DBcFAkjCPdMPmGXSiBtXfGvxSLu9cTQ/s8dYFEc+amlV5XqMi6LyFgYZwVXbqA==
+         references:references; bh=doaEN4PngPF6b3Ms4+nCLub9WRL+cYqg2iUonunceVg=;
+        b=mDVbOZFMq2r0fFSal6nGytKiR9N0dKq5PqwK3juP1cFnlgmQUuw4LpkD1Hpm/hkbKZm+u7
+        Yea4cNfID7VRix/TmSW0sPFLvyDtgOlkMm7w8ymCcbMXlPLtwak2/32g8dpHmlOP3O/F6G
+        jdU4NlHvekujXArGpsBa5yUjWwJ1eEzk2cniYcCq3kZdS9WskWSkWr65L4WuQjer6xqU1f
+        Ul5hlmIH9G0tFTvOrZ6TNqwpU2DDuWudK+A/4sOQoKvCebsyPKW3/F+OiN3j2Uvb53neJ1
+        tJE6RPkzzdtCxeELmNPrSmNWxRMUlB41D5TaNxMfPsoV84Jl5DW5WZfsZ5VwLQ==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1638831080;
+        s=2020e; t=1638831087;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         references:references; bh=mHgTxiBl9Pg381SuWjuguHHZxZ6bDXurYM8uLZLwzPA=;
-        b=p6ikB7Z47CfB9pZ8VBdJ2rKZANFys8tTYPu22ZmoXF+kzUT9a0nWoXxn5DEPaP9nFcZ4bS
-        dE9G+kw0csS3zoCA==
+         references:references; bh=doaEN4PngPF6b3Ms4+nCLub9WRL+cYqg2iUonunceVg=;
+        b=edZkzp0cQopCCOVDx2I8Wc5M/D97TZhEVVbeeZnpase12JmLW+w6pTojHaCFf7vSYnKATQ
+        gAtXqukltBF2IkBw==
 From:   Thomas Gleixner <tglx@linutronix.de>
 To:     LKML <linux-kernel@vger.kernel.org>
 Cc:     Bjorn Helgaas <helgaas@kernel.org>, Marc Zygnier <maz@kernel.org>,
@@ -47,64 +47,43 @@ Cc:     Bjorn Helgaas <helgaas@kernel.org>, Marc Zygnier <maz@kernel.org>,
         Jon Mason <jdmason@kudzu.us>,
         Dave Jiang <dave.jiang@intel.com>,
         Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com
-Subject: [patch V2 11/31] x86/pci/xen: Use msi_for_each_desc()
+Subject: [patch V2 15/31] powerpc/cell/axon_msi: Convert to msi_on_each_desc()
 References: <20211206210600.123171746@linutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Date:   Mon,  6 Dec 2021 23:51:20 +0100 (CET)
+Date:   Mon,  6 Dec 2021 23:51:26 +0100 (CET)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Replace the about to vanish iterators.
+Replace the about to vanish iterators and make use of the filtering.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 ---
- arch/x86/pci/xen.c |   14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ arch/powerpc/platforms/cell/axon_msi.c |    7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
---- a/arch/x86/pci/xen.c
-+++ b/arch/x86/pci/xen.c
-@@ -184,7 +184,7 @@ static int xen_setup_msi_irqs(struct pci
- 	if (ret)
- 		goto error;
- 	i = 0;
--	for_each_pci_msi_entry(msidesc, dev) {
-+	msi_for_each_desc(msidesc, &dev->dev, MSI_DESC_NOTASSOCIATED) {
- 		irq = xen_bind_pirq_msi_to_irq(dev, msidesc, v[i],
- 					       (type == PCI_CAP_ID_MSI) ? nvec : 1,
- 					       (type == PCI_CAP_ID_MSIX) ?
-@@ -235,7 +235,7 @@ static int xen_hvm_setup_msi_irqs(struct
- 	if (type == PCI_CAP_ID_MSI && nvec > 1)
- 		return 1;
+--- a/arch/powerpc/platforms/cell/axon_msi.c
++++ b/arch/powerpc/platforms/cell/axon_msi.c
+@@ -265,7 +265,7 @@ static int axon_msi_setup_msi_irqs(struc
+ 	if (rc)
+ 		return rc;
  
--	for_each_pci_msi_entry(msidesc, dev) {
-+	msi_for_each_desc(msidesc, &dev->dev, MSI_DESC_NOTASSOCIATED) {
- 		pirq = xen_allocate_pirq_msi(dev, msidesc);
- 		if (pirq < 0) {
- 			irq = -ENODEV;
-@@ -270,7 +270,7 @@ static int xen_initdom_setup_msi_irqs(st
- 	int ret = 0;
- 	struct msi_desc *msidesc;
+-	for_each_pci_msi_entry(entry, dev) {
++	msi_for_each_desc(entry, &dev->dev, MSI_DESC_NOTASSOCIATED) {
+ 		virq = irq_create_direct_mapping(msic->irq_domain);
+ 		if (!virq) {
+ 			dev_warn(&dev->dev,
+@@ -288,10 +288,7 @@ static void axon_msi_teardown_msi_irqs(s
  
--	for_each_pci_msi_entry(msidesc, dev) {
-+	msi_for_each_desc(msidesc, &dev->dev, MSI_DESC_NOTASSOCIATED) {
- 		struct physdev_map_pirq map_irq;
- 		domid_t domid;
+ 	dev_dbg(&dev->dev, "axon_msi: tearing down msi irqs\n");
  
-@@ -389,11 +389,9 @@ static void xen_teardown_msi_irqs(struct
- 	struct msi_desc *msidesc;
- 	int i;
- 
--	for_each_pci_msi_entry(msidesc, dev) {
--		if (msidesc->irq) {
--			for (i = 0; i < msidesc->nvec_used; i++)
--				xen_destroy_irq(msidesc->irq + i);
--		}
-+	msi_for_each_desc(msidesc, &dev->dev, MSI_DESC_ASSOCIATED) {
-+		for (i = 0; i < msidesc->nvec_used; i++)
-+			xen_destroy_irq(msidesc->irq + i);
+-	for_each_pci_msi_entry(entry, dev) {
+-		if (!entry->irq)
+-			continue;
+-
++	msi_for_each_desc(entry, &dev->dev, MSI_DESC_ASSOCIATED) {
+ 		irq_set_msi_desc(entry->irq, NULL);
+ 		irq_dispose_mapping(entry->irq);
  	}
- }
- 
 
