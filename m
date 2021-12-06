@@ -2,35 +2,32 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D2F23C433FE
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Dec 2021 21:13:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3898AC433F5
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Dec 2021 21:16:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350332AbhLFVRA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Dec 2021 16:17:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58410 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350355AbhLFVQ5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Dec 2021 16:16:57 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26E57C061359;
-        Mon,  6 Dec 2021 13:13:28 -0800 (PST)
+        id S1350781AbhLFVTl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Dec 2021 16:19:41 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:47962 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1350954AbhLFVTW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Dec 2021 16:19:22 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 73D3BCE1411;
-        Mon,  6 Dec 2021 21:13:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B55F0C341C6;
-        Mon,  6 Dec 2021 21:13:22 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A8217CE185C;
+        Mon,  6 Dec 2021 21:15:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3CF1C341C6;
+        Mon,  6 Dec 2021 21:15:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638825204;
-        bh=ewmuxsY11nEr8SFgDbQVXcVDgcxMTM324HMwRtemalk=;
+        s=k20201202; t=1638825349;
+        bh=CtcKASc9UMnknSvliK8E7YX1Ljqy0C2xHCE6Xh0Ics8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bVxWkZ2JiM+rUYpzfw5AhoczNGCtBVMq16DbnibjhljtOQ2xAksAG0Q0sIZqJvDpL
-         ajq2ZbGIUdFb06nvc0oIdM1D0b2GigOORRTRtsA0sW1ch8E390X8atcbdSdY3uGmhJ
-         /aUl1q7mMZBTsaMAeFb0AXzke7Nm5FdF44R4ZLGISUqrb+BA0rE/0khyUO/o51pWru
-         l18zjaR8NQcsd+rPAlqSMg/l0VjUv07X/1Ct1/IKncHLjvntRQ4WDOVNXRYouXPsoj
-         qJaB1N/t4kIkiJCivxqAJkeHsLo2fd6dOr2GbSY+ztJwkh5zYvtYENe0PWavE9gw9H
-         UtlA+dTuY8RoA==
+        b=SL2CzDCOx1kS7dquvVh1H2GJx7AIIWg9YHwPMpmVimpB+X9Y4KtQ6T0z/btBs4Z9g
+         BtaYqFZDNyh7otyphtv+C9DD9uytmvZUJ90Sp/VsTIV1mS+IowBcfSVP0YIf2cMex4
+         x7mwDpsP9WcGkz6FhDSfQZCudVQpKEpr+HFiFS5st612qF5lEBJujjYy+iYId9xMXg
+         6TYlOCT5tueEfH64D6vlQ1c5sXLT0tQDBYSJbJmCEaIe5+wl+xWoWDYnKEPabNAW73
+         FsJGWiOd2rl5ZNVtGVXMccRvSP/foaXJbRiQApdbY1OiYr6SPoRIi/JU+iWRIYkGo0
+         6izF6nJGS4vgw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Ilie Halip <ilie.halip@gmail.com>,
@@ -39,14 +36,15 @@ Cc:     Ilie Halip <ilie.halip@gmail.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, gor@linux.ibm.com,
-        borntraeger@linux.ibm.com, nathan@kernel.org, meted@linux.ibm.com,
-        linux-s390@vger.kernel.org, llvm@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.15 06/24] s390/test_unwind: use raw opcode instead of invalid instruction
-Date:   Mon,  6 Dec 2021 16:12:11 -0500
-Message-Id: <20211206211230.1660072-6-sashal@kernel.org>
+        borntraeger@linux.ibm.com, nathan@kernel.org, svens@linux.ibm.com,
+        iii@linux.ibm.com, meted@linux.ibm.com, linux-s390@vger.kernel.org,
+        llvm@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.10 03/15] s390/test_unwind: use raw opcode instead of invalid instruction
+Date:   Mon,  6 Dec 2021 16:15:03 -0500
+Message-Id: <20211206211520.1660478-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211206211230.1660072-1-sashal@kernel.org>
-References: <20211206211230.1660072-1-sashal@kernel.org>
+In-Reply-To: <20211206211520.1660478-1-sashal@kernel.org>
+References: <20211206211520.1660478-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -85,7 +83,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/arch/s390/lib/test_unwind.c b/arch/s390/lib/test_unwind.c
-index ecf327d743a03..c0635cf787e31 100644
+index 6bad84c372dcb..b0b67e6d1f6e2 100644
 --- a/arch/s390/lib/test_unwind.c
 +++ b/arch/s390/lib/test_unwind.c
 @@ -171,10 +171,11 @@ static noinline int unwindme_func4(struct unwindme *u)
