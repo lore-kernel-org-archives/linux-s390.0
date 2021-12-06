@@ -2,36 +2,33 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8372CC4321E
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Dec 2021 22:52:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 58637C433F5
+	for <linux-s390@archiver.kernel.org>; Mon,  6 Dec 2021 22:52:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376974AbhLFW4U (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Dec 2021 17:56:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54148 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359713AbhLFWzM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Dec 2021 17:55:12 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52E4AC061D60;
-        Mon,  6 Dec 2021 14:51:25 -0800 (PST)
-Message-ID: <20211206210748.305656158@linutronix.de>
+        id S1377382AbhLFW4V (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Dec 2021 17:56:21 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:48330 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1359516AbhLFWzH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Dec 2021 17:55:07 -0500
+Message-ID: <20211206210748.737904583@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1638831084;
+        s=2020; t=1638831096;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         references:references; bh=Llq/xc7jQ8Xd7gII/ZN8QZkMZgTGCYn2L7HFq42V+hA=;
-        b=Z2biEVRp+uIYck8r4Ho+V21YXII6yZ5ZRe38dX2SGGbQEilaMhIIBS+2IEq6sPpnqjPpuN
-        qQ+spdcJ5hQdQlkQeo3Sqz9NnuylGzktoi8AVjGh8OmbhMV3HvqkWhBhICHjjvKMJu6p0j
-        w+EQFpg9MCXMdPidPi+SrM7XNAY9KM+Z5mHiwpamR4rBy1p2Srmgn8bFkkcswG3lq+7drk
-        HiZieyWr3molk0V+3zEapZBf+CgVGomuwIRfjNGQyOdMeaey22DpkF7rcH1ZPM2PBZ/94N
-        3qbYP+WoVk0EXQnE2KLkhLs4qGHKpDH6bnwaDLh3XA1tzRqm5ls7hq1S54xFhg==
+         references:references; bh=CzqGTYDUie5SurN5/gfV37QSqlTZtJhIqYh57XXY9vc=;
+        b=1RPNxtfr5VOlwanCXHzzCGA5Okk7iWaKRIecmxZqcQ6GJ0N+TtqkJB4YBgKir4DpaFIby2
+        TRL5d8Yy6CPk4zvOP3IAjf8rBmhgoTlm/L1kch6yeBRZBqQv1tnis78DJISBVkWqedG7kW
+        +UF+HoUE+QXVYx2FHqbtaf8jvVW1CIcSK0Lt9gdkhNLog4N5iX/+i0lCCEkRdUsCAH5BS+
+        M8Ui7QxFmKA/zA6UsxNXXH9SHexJzn01o7N0bxnreZcIW5uaSDvXRX6Db6sRqabEbx7TII
+        t2IyHWZfEGz8M5lT0y6GzRbyCNuKzYCId/ZxJxgQ9wg+WoVlQuVF7cJLPCN54g==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1638831084;
+        s=2020e; t=1638831096;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         references:references; bh=Llq/xc7jQ8Xd7gII/ZN8QZkMZgTGCYn2L7HFq42V+hA=;
-        b=fV+NCA62RUR8rO/r5/VENKLtT9TPLmuFCqDiM2Pu6iytwciOqUFqiJGeIQfx53iyI8pjpS
-        5T4WtTJIXTp/qeDQ==
+         references:references; bh=CzqGTYDUie5SurN5/gfV37QSqlTZtJhIqYh57XXY9vc=;
+        b=Jct3bSAMJvPsNwVF2TBaEtc50EznqpM+HcoTb5h9bKmrJfg+EG2SWo9/6tVTtRKQrwReAU
+        pte3E9Jf8LXGmsBA==
 From:   Thomas Gleixner <tglx@linutronix.de>
 To:     LKML <linux-kernel@vger.kernel.org>
 Cc:     Bjorn Helgaas <helgaas@kernel.org>, Marc Zygnier <maz@kernel.org>,
@@ -42,55 +39,144 @@ Cc:     Bjorn Helgaas <helgaas@kernel.org>, Marc Zygnier <maz@kernel.org>,
         Ashok Raj <ashok.raj@intel.com>, linux-pci@vger.kernel.org,
         Cedric Le Goater <clg@kaod.org>,
         xen-devel@lists.xenproject.org, Juergen Gross <jgross@suse.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Niklas Schnelle <schnelle@linux.ibm.com>,
         linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Logan Gunthorpe <logang@deltatee.com>,
         Jon Mason <jdmason@kudzu.us>,
         Dave Jiang <dave.jiang@intel.com>,
         Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com
-Subject: [patch V2 13/31] s390/pci: Rework MSI descriptor walk
+Subject: [patch V2 21/31] soc: ti: ti_sci_inta_msi: Rework MSI descriptor allocation
 References: <20211206210600.123171746@linutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Date:   Mon,  6 Dec 2021 23:51:23 +0100 (CET)
+Date:   Mon,  6 Dec 2021 23:51:36 +0100 (CET)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Replace the about to vanish iterators and make use of the filtering.
+Protect the allocation properly and use the core allocation and free
+mechanism.
+
+No functional change intended.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Acked-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/pci/pci_irq.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/soc/ti/ti_sci_inta_msi.c |   71 +++++++++++++--------------------------
+ 1 file changed, 25 insertions(+), 46 deletions(-)
 
---- a/arch/s390/pci/pci_irq.c
-+++ b/arch/s390/pci/pci_irq.c
-@@ -303,7 +303,7 @@ int arch_setup_msi_irqs(struct pci_dev *
+--- a/drivers/soc/ti/ti_sci_inta_msi.c
++++ b/drivers/soc/ti/ti_sci_inta_msi.c
+@@ -51,6 +51,7 @@ struct irq_domain *ti_sci_inta_msi_creat
+ 	struct irq_domain *domain;
  
- 	/* Request MSI interrupts */
- 	hwirq = bit;
--	for_each_pci_msi_entry(msi, pdev) {
-+	msi_for_each_desc(msi, &pdev->dev, MSI_DESC_NOTASSOCIATED) {
- 		rc = -EIO;
- 		if (hwirq - bit >= msi_vecs)
- 			break;
-@@ -362,9 +362,7 @@ void arch_teardown_msi_irqs(struct pci_d
- 		return;
+ 	ti_sci_inta_msi_update_chip_ops(info);
++	info->flags |= MSI_FLAG_FREE_MSI_DESCS;
  
- 	/* Release MSI interrupts */
--	for_each_pci_msi_entry(msi, pdev) {
--		if (!msi->irq)
--			continue;
-+	msi_for_each_desc(msi, &pdev->dev, MSI_DESC_ASSOCIATED) {
- 		irq_set_msi_desc(msi->irq, NULL);
- 		irq_free_desc(msi->irq);
- 		msi->msg.address_lo = 0;
+ 	domain = msi_create_irq_domain(fwnode, info, parent);
+ 	if (domain)
+@@ -60,50 +61,31 @@ struct irq_domain *ti_sci_inta_msi_creat
+ }
+ EXPORT_SYMBOL_GPL(ti_sci_inta_msi_create_irq_domain);
+ 
+-static void ti_sci_inta_msi_free_descs(struct device *dev)
+-{
+-	struct msi_desc *desc, *tmp;
+-
+-	list_for_each_entry_safe(desc, tmp, dev_to_msi_list(dev), list) {
+-		list_del(&desc->list);
+-		free_msi_entry(desc);
+-	}
+-}
+-
+ static int ti_sci_inta_msi_alloc_descs(struct device *dev,
+ 				       struct ti_sci_resource *res)
+ {
+-	struct msi_desc *msi_desc;
++	struct msi_desc msi_desc;
+ 	int set, i, count = 0;
+ 
++	memset(&msi_desc, 0, sizeof(msi_desc));
++
+ 	for (set = 0; set < res->sets; set++) {
+-		for (i = 0; i < res->desc[set].num; i++) {
+-			msi_desc = alloc_msi_entry(dev, 1, NULL);
+-			if (!msi_desc) {
+-				ti_sci_inta_msi_free_descs(dev);
+-				return -ENOMEM;
+-			}
+-
+-			msi_desc->msi_index = res->desc[set].start + i;
+-			INIT_LIST_HEAD(&msi_desc->list);
+-			list_add_tail(&msi_desc->list, dev_to_msi_list(dev));
+-			count++;
++		for (i = 0; i < res->desc[set].num; i++, count++) {
++			msi_desc.msi_index = res->desc[set].start + i;
++			if (msi_add_msi_desc(dev, &msi_desc))
++				goto fail;
+ 		}
+-		for (i = 0; i < res->desc[set].num_sec; i++) {
+-			msi_desc = alloc_msi_entry(dev, 1, NULL);
+-			if (!msi_desc) {
+-				ti_sci_inta_msi_free_descs(dev);
+-				return -ENOMEM;
+-			}
+-
+-			msi_desc->msi_index = res->desc[set].start_sec + i;
+-			INIT_LIST_HEAD(&msi_desc->list);
+-			list_add_tail(&msi_desc->list, dev_to_msi_list(dev));
+-			count++;
++
++		for (i = 0; i < res->desc[set].num_sec; i++, count++) {
++			msi_desc.msi_index = res->desc[set].start_sec + i;
++			if (msi_add_msi_desc(dev, &msi_desc))
++				goto fail;
+ 		}
+ 	}
+-
+ 	return count;
++fail:
++	msi_free_msi_descs(dev);
++	return -ENOMEM;
+ }
+ 
+ int ti_sci_inta_msi_domain_alloc_irqs(struct device *dev,
+@@ -124,20 +106,18 @@ int ti_sci_inta_msi_domain_alloc_irqs(st
+ 	if (ret)
+ 		return ret;
+ 
++	msi_lock_descs(dev);
+ 	nvec = ti_sci_inta_msi_alloc_descs(dev, res);
+-	if (nvec <= 0)
+-		return nvec;
+-
+-	ret = msi_domain_alloc_irqs(msi_domain, dev, nvec);
+-	if (ret) {
+-		dev_err(dev, "Failed to allocate IRQs %d\n", ret);
+-		goto cleanup;
++	if (nvec <= 0) {
++		ret = nvec;
++		goto unlock;
+ 	}
+ 
+-	return 0;
+-
+-cleanup:
+-	ti_sci_inta_msi_free_descs(&pdev->dev);
++	ret = msi_domain_alloc_irqs_descs_locked(msi_domain, dev, nvec);
++	if (ret)
++		dev_err(dev, "Failed to allocate IRQs %d\n", ret);
++unlock:
++	msi_unlock_descs(dev);
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(ti_sci_inta_msi_domain_alloc_irqs);
+@@ -145,6 +125,5 @@ EXPORT_SYMBOL_GPL(ti_sci_inta_msi_domain
+ void ti_sci_inta_msi_domain_free_irqs(struct device *dev)
+ {
+ 	msi_domain_free_irqs(dev->msi.domain, dev);
+-	ti_sci_inta_msi_free_descs(dev);
+ }
+ EXPORT_SYMBOL_GPL(ti_sci_inta_msi_domain_free_irqs);
 
