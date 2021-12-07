@@ -2,82 +2,80 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 11C7CC433EF
-	for <linux-s390@archiver.kernel.org>; Tue,  7 Dec 2021 09:27:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB137C433EF
+	for <linux-s390@archiver.kernel.org>; Tue,  7 Dec 2021 09:43:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231565AbhLGJar (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 7 Dec 2021 04:30:47 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:8158 "EHLO
+        id S234204AbhLGJqi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 7 Dec 2021 04:46:38 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:64912 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231250AbhLGJaq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Dec 2021 04:30:46 -0500
+        by vger.kernel.org with ESMTP id S229833AbhLGJqh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Dec 2021 04:46:37 -0500
 Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B79IiPS005096;
-        Tue, 7 Dec 2021 09:27:16 GMT
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B79Id1F005007;
+        Tue, 7 Dec 2021 09:43:07 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=V2Q5oxnMQx3uk57DHKUmBUi4N+cjLpm4PKacLQprv7E=;
- b=m5a2xMNzPnkPA9cFbRNqlJwrJijUmohjK3UaC254UVKiC0J49iswFD5uPnJZr6IagPF/
- fJjm96+n12U92pt9dNG4fiRPZN8i7HxabeakBgIzGQA6PRSGoazP6HI0xeF7HKN7hANx
- 1REIhayQuVnki/n81240PW2UnOp7ghb+qgBvC+8NlzPma4+YM3v0O/pqrvuSXQuvTkIZ
- fl3PfpTINY0/k9jV2jVyTkjBjdsGdvSUSSQBdjoabH6GWdX8TW7NUxnIJvsZPWbCdX68
- za7Dp/OfsJTkMjRSTo3rozqqmPKhd9BB5da2O0pMdroD1Rd0quj+eAGThTtbedq63mVw qw== 
+ bh=UnBiD/egeF7dy4Nuo8p2kVTS4IN2wiYqpa4ZNARF3iU=;
+ b=Uu5Zcv26LMNi/Sjk+gLlIPR3meBwPKnHra+3vgkdT1joCpKH0HWaquftMKg6nKwBo+am
+ XArnHjCkXpzRPnquQAcULa6dKEpee/+BtBwN858HHPUmj9xRoi8LrTDPGdedG5KZQB4B
+ TNfDyA4nDpxvL50UQiKVqHBQMvm2L5j0ZPhsSrXcvJdiIoXKuo7LBXB5DuUd2HLRgvTb
+ 1vEdmeMp6nh5EFsn5xxybFDPAauJloziQjZA0car4tT6OhqIx/mxn6NbIokXAuBXeT4u
+ CIJCy50Zne8/zokA19kWTjl/EP20eTmoOyuua4sHIYeVyqUzod27TnnzwD5FL7dxbttQ 4Q== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ct4vag4c2-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ct4vagcsb-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Dec 2021 09:27:16 +0000
+        Tue, 07 Dec 2021 09:43:07 +0000
 Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1B79JXNT006268;
-        Tue, 7 Dec 2021 09:27:15 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ct4vag4b9-1
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1B79NBXL022336;
+        Tue, 7 Dec 2021 09:43:07 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ct4vagcrm-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Dec 2021 09:27:15 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1B797xpa010660;
-        Tue, 7 Dec 2021 09:27:13 GMT
+        Tue, 07 Dec 2021 09:43:06 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1B79ckDa003007;
+        Tue, 7 Dec 2021 09:43:04 GMT
 Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03fra.de.ibm.com with ESMTP id 3cqyy9bmb0-1
+        by ppma06ams.nl.ibm.com with ESMTP id 3cqykj4uup-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Dec 2021 09:27:13 +0000
+        Tue, 07 Dec 2021 09:43:04 +0000
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1B79R9ac29688084
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1B79h1n129688284
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 7 Dec 2021 09:27:09 GMT
+        Tue, 7 Dec 2021 09:43:01 GMT
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7D3D2A4064;
-        Tue,  7 Dec 2021 09:27:09 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 28FBCA4065;
+        Tue,  7 Dec 2021 09:43:01 +0000 (GMT)
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E1F32A405B;
-        Tue,  7 Dec 2021 09:27:08 +0000 (GMT)
-Received: from [9.145.93.53] (unknown [9.145.93.53])
+        by IMSVA (Postfix) with ESMTP id 80851A405C;
+        Tue,  7 Dec 2021 09:43:00 +0000 (GMT)
+Received: from [9.171.1.200] (unknown [9.171.1.200])
         by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue,  7 Dec 2021 09:27:08 +0000 (GMT)
-Message-ID: <c6896c31-b9db-e241-5f47-fc96fd53a2cb@linux.ibm.com>
-Date:   Tue, 7 Dec 2021 10:27:08 +0100
+        Tue,  7 Dec 2021 09:43:00 +0000 (GMT)
+Message-ID: <35dc03b6-b3c5-2c80-2325-9267feca2f03@linux.ibm.com>
+Date:   Tue, 7 Dec 2021 10:43:57 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH v3 0/3] KVM: s390: Some gaccess cleanup
+ Thunderbird/91.2.0
+Subject: Re: [PATCH v5 1/1] s390x: KVM: accept STSI for CPU topology
+ information
 Content-Language: en-US
-To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Cc:     David Hildenbrand <david@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20211126164549.7046-1-scgl@linux.ibm.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-In-Reply-To: <20211126164549.7046-1-scgl@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
+        david@redhat.com, thuth@redhat.com, imbrenda@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com
+References: <20211122131443.66632-1-pmorel@linux.ibm.com>
+ <20211122131443.66632-2-pmorel@linux.ibm.com>
+From:   Pierre Morel <pmorel@linux.ibm.com>
+In-Reply-To: <20211122131443.66632-2-pmorel@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: kt7cm8b2ih5EJj38F1nOtP_toeUlZ0Xs
-X-Proofpoint-GUID: URCbZb5jyrKevbnIeM_0QHCAx0oIilHF
+X-Proofpoint-ORIG-GUID: N3Iw1165qtdL5oBkAT8syiqF0ebv-Bu2
+X-Proofpoint-GUID: -Ju5ZFKynIDB0k7ump4fMSJ25A0U59yt
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2021-12-07_03,2021-12-06_02,2021-12-02_01
@@ -85,124 +83,278 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowprio
  adultscore=0 clxscore=1015 impostorscore=0 phishscore=0 suspectscore=0
  spamscore=0 malwarescore=0 mlxlogscore=999 priorityscore=1501 bulkscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
- definitions=main-2112070054
+ definitions=main-2112070056
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 11/26/21 17:45, Janis Schoetterl-Glausch wrote:
-> Cleanup s390 guest access code a bit, getting rid of some code
-> duplication and improving readability.
-> 
-> v2 -> v3
-> 	minor changes only
-> 		typo fixes
-> 		whitespace
-> 		line reordering
-> 		picked up Reviewed-by's
-> 
-> v1 -> v2
-> 	separate patch for renamed variable
-> 		fragment_len instead of seg
-> 	expand comment of guest_range_to_gpas
-> 	fix nits
+gentle ping
 
-Thanks, picked
+On 11/22/21 14:14, Pierre Morel wrote:
+> We let the userland hypervisor know if the machine support the CPU
+> topology facility using a new KVM capability: KVM_CAP_S390_CPU_TOPOLOGY.
+> 
+> The PTF instruction will report a topology change if there is any change
+> with a previous STSI_15_1_2 SYSIB.
+> Changes inside a STSI_15_1_2 SYSIB occur if CPU bits are set or clear
+> inside the CPU Topology List Entry CPU mask field, which happens with
+> changes in CPU polarization, dedication, CPU types and adding or
+> removing CPUs in a socket.
+> 
+> The reporting to the guest is done using the Multiprocessor
+> Topology-Change-Report (MTCR) bit of the utility entry of the guest's
+> SCA which will be cleared during the interpretation of PTF.
+> 
+> To check if the topology has been modified we use a new field of the
+> arch vCPU to save the previous real CPU ID at the end of a schedule
+> and verify on next schedule that the CPU used is in the same socket.
+> 
+> We assume in this patch:
+> - no polarization change: only horizontal polarization is currently
+>    used in linux.
+> - no CPU Type change: only IFL Type are supported in Linux
+> - Dedication: with this patch, only a complete dedicated CPU stack can
+>    take benefit of the CPU Topology.
+> 
+> STSI(15.1.x) gives information on the CPU configuration topology.
+> Let's accept the interception of STSI with the function code 15 and
+> let the userland part of the hypervisor handle it when userland
+> support the CPU Topology facility.
+> 
+> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> ---
+>   Documentation/virt/kvm/api.rst   | 16 ++++++++++
+>   arch/s390/include/asm/kvm_host.h | 14 ++++++---
+>   arch/s390/kvm/kvm-s390.c         | 52 +++++++++++++++++++++++++++++++-
+>   arch/s390/kvm/priv.c             |  7 ++++-
+>   arch/s390/kvm/vsie.c             |  3 ++
+>   include/uapi/linux/kvm.h         |  1 +
+>   6 files changed, 87 insertions(+), 6 deletions(-)
+> 
+> diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
+> index aeeb071c7688..e5c9da0782a6 100644
+> --- a/Documentation/virt/kvm/api.rst
+> +++ b/Documentation/virt/kvm/api.rst
+> @@ -7484,3 +7484,19 @@ The argument to KVM_ENABLE_CAP is also a bitmask, and must be a subset
+>   of the result of KVM_CHECK_EXTENSION.  KVM will forward to userspace
+>   the hypercalls whose corresponding bit is in the argument, and return
+>   ENOSYS for the others.
+> +
+> +8.17 KVM_CAP_S390_CPU_TOPOLOGY
+> +------------------------------
+> +
+> +:Capability: KVM_CAP_S390_CPU_TOPOLOGY
+> +:Architectures: s390
+> +:Type: vm
+> +
+> +This capability indicates that kvm will provide the S390 CPU Topology facility
+> +which consist of the interpretation of the PTF instruction for the Function
+> +Code 2 along with interception and forwarding of both the PTF instruction
+> +with function Codes 0 or 1 and the STSI(15,1,x) instruction to the userland
+> +hypervisor.
+> +
+> +The stfle facility 11, CPU Topology facility, should not be provided to the
+> +guest without this capability.
+> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+> index a604d51acfc8..cccc09a8fdab 100644
+> --- a/arch/s390/include/asm/kvm_host.h
+> +++ b/arch/s390/include/asm/kvm_host.h
+> @@ -95,15 +95,19 @@ struct bsca_block {
+>   	union ipte_control ipte_control;
+>   	__u64	reserved[5];
+>   	__u64	mcn;
+> -	__u64	reserved2;
+> +#define ESCA_UTILITY_MTCR	0x8000
+> +	__u16	utility;
+> +	__u8	reserved2[6];
+>   	struct bsca_entry cpu[KVM_S390_BSCA_CPU_SLOTS];
+>   };
+>   
+>   struct esca_block {
+>   	union ipte_control ipte_control;
+> -	__u64   reserved1[7];
+> +	__u64   reserved1[6];
+> +	__u16	utility;
+> +	__u8	reserved2[6];
+>   	__u64   mcn[4];
+> -	__u64   reserved2[20];
+> +	__u64   reserved3[20];
+>   	struct esca_entry cpu[KVM_S390_ESCA_CPU_SLOTS];
+>   };
+>   
+> @@ -228,7 +232,7 @@ struct kvm_s390_sie_block {
+>   	__u8	icptcode;		/* 0x0050 */
+>   	__u8	icptstatus;		/* 0x0051 */
+>   	__u16	ihcpu;			/* 0x0052 */
+> -	__u8	reserved54;		/* 0x0054 */
+> +	__u8	mtcr;			/* 0x0054 */
+>   #define IICTL_CODE_NONE		 0x00
+>   #define IICTL_CODE_MCHK		 0x01
+>   #define IICTL_CODE_EXT		 0x02
+> @@ -247,6 +251,7 @@ struct kvm_s390_sie_block {
+>   #define ECB_SPECI	0x08
+>   #define ECB_SRSI	0x04
+>   #define ECB_HOSTPROTINT	0x02
+> +#define ECB_PTF		0x01
+>   	__u8	ecb;			/* 0x0061 */
+>   #define ECB2_CMMA	0x80
+>   #define ECB2_IEP	0x20
+> @@ -748,6 +753,7 @@ struct kvm_vcpu_arch {
+>   	bool skey_enabled;
+>   	struct kvm_s390_pv_vcpu pv;
+>   	union diag318_info diag318_info;
+> +	int prev_cpu;
+>   };
+>   
+>   struct kvm_vm_stat {
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 14a18ba5ff2c..b40d2a20bce0 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -606,6 +606,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+>   	case KVM_CAP_S390_PROTECTED:
+>   		r = is_prot_virt_host();
+>   		break;
+> +	case KVM_CAP_S390_CPU_TOPOLOGY:
+> +		r = test_facility(11);
+> +		break;
+>   	default:
+>   		r = 0;
+>   	}
+> @@ -817,6 +820,20 @@ int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct kvm_enable_cap *cap)
+>   		icpt_operexc_on_all_vcpus(kvm);
+>   		r = 0;
+>   		break;
+> +	case KVM_CAP_S390_CPU_TOPOLOGY:
+> +		r = -EINVAL;
+> +		mutex_lock(&kvm->lock);
+> +		if (kvm->created_vcpus) {
+> +			r = -EBUSY;
+> +		} else if (test_facility(11)) {
+> +			set_kvm_facility(kvm->arch.model.fac_mask, 11);
+> +			set_kvm_facility(kvm->arch.model.fac_list, 11);
+> +			r = 0;
+> +		}
+> +		mutex_unlock(&kvm->lock);
+> +		VM_EVENT(kvm, 3, "ENABLE: CPU TOPOLOGY %s",
+> +			 r ? "(not available)" : "(success)");
+> +		break;
+>   	default:
+>   		r = -EINVAL;
+>   		break;
+> @@ -3089,18 +3106,44 @@ __u64 kvm_s390_get_cpu_timer(struct kvm_vcpu *vcpu)
+>   	return value;
+>   }
+>   
+> -void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
+> +static void kvm_s390_set_mtcr(struct kvm_vcpu *vcpu)
+>   {
+> +	struct esca_block *esca = vcpu->kvm->arch.sca;
+>   
+> +	if (vcpu->arch.sie_block->ecb & ECB_PTF) {
+> +		ipte_lock(vcpu);
+> +		WRITE_ONCE(esca->utility, ESCA_UTILITY_MTCR);
+> +		ipte_unlock(vcpu);
+> +	}
+> +}
+> +
+> +void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
+> +{
+>   	gmap_enable(vcpu->arch.enabled_gmap);
+>   	kvm_s390_set_cpuflags(vcpu, CPUSTAT_RUNNING);
+>   	if (vcpu->arch.cputm_enabled && !is_vcpu_idle(vcpu))
+>   		__start_cpu_timer_accounting(vcpu);
+>   	vcpu->cpu = cpu;
+> +
+> +	/*
+> +	 * With PTF interpretation the guest will be aware of topology
+> +	 * change when the Multiprocessor Topology-Change-Report is pending.
+> +	 * We check for events modifying the result of STSI_15_2:
+> +	 * - A new vCPU has been hotplugged (prev_cpu == -1)
+> +	 * - The real CPU backing up the vCPU moved to another socket
+> +	 */
+> +	if (vcpu->arch.sie_block->ecb & ECB_PTF) {
+> +		if (vcpu->arch.prev_cpu == -1 ||
+> +		    (topology_physical_package_id(cpu) !=
+> +		     topology_physical_package_id(vcpu->arch.prev_cpu)))
+> +			kvm_s390_set_mtcr(vcpu);
+> +	}
+>   }
+>   
+>   void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
+>   {
+> +	/* Remember which CPU was backing the vCPU */
+> +	vcpu->arch.prev_cpu = vcpu->cpu;
+>   	vcpu->cpu = -1;
+>   	if (vcpu->arch.cputm_enabled && !is_vcpu_idle(vcpu))
+>   		__stop_cpu_timer_accounting(vcpu);
+> @@ -3220,6 +3263,13 @@ static int kvm_s390_vcpu_setup(struct kvm_vcpu *vcpu)
+>   		vcpu->arch.sie_block->ecb |= ECB_HOSTPROTINT;
+>   	if (test_kvm_facility(vcpu->kvm, 9))
+>   		vcpu->arch.sie_block->ecb |= ECB_SRSI;
+> +
+> +	/* PTF needs guest facilities to enable interpretation */
+> +	if (test_kvm_facility(vcpu->kvm, 11))
+> +		vcpu->arch.sie_block->ecb |= ECB_PTF;
+> +	/* Set the prev_cpu value to an impossible value to detect a new vcpu */
+> +	vcpu->arch.prev_cpu = -1;
+> +
+>   	if (test_kvm_facility(vcpu->kvm, 73))
+>   		vcpu->arch.sie_block->ecb |= ECB_TE;
+>   	if (!kvm_is_ucontrol(vcpu->kvm))
+> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+> index 417154b314a6..26d165733496 100644
+> --- a/arch/s390/kvm/priv.c
+> +++ b/arch/s390/kvm/priv.c
+> @@ -861,7 +861,8 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
+>   	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
+>   		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+>   
+> -	if (fc > 3) {
+> +	if ((fc > 3 && fc != 15) ||
+> +	    (fc == 15 && !test_kvm_facility(vcpu->kvm, 11))) {
+>   		kvm_s390_set_psw_cc(vcpu, 3);
+>   		return 0;
+>   	}
+> @@ -898,6 +899,10 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
+>   			goto out_no_data;
+>   		handle_stsi_3_2_2(vcpu, (void *) mem);
+>   		break;
+> +	case 15:
+> +		trace_kvm_s390_handle_stsi(vcpu, fc, sel1, sel2, operand2);
+> +		insert_stsi_usr_data(vcpu, operand2, ar, fc, sel1, sel2);
+> +		return -EREMOTE;
+>   	}
+>   	if (kvm_s390_pv_cpu_is_protected(vcpu)) {
+>   		memcpy((void *)sida_origin(vcpu->arch.sie_block), (void *)mem,
+> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+> index acda4b6fc851..da0397cf2cc7 100644
+> --- a/arch/s390/kvm/vsie.c
+> +++ b/arch/s390/kvm/vsie.c
+> @@ -503,6 +503,9 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+>   	/* Host-protection-interruption introduced with ESOP */
+>   	if (test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_ESOP))
+>   		scb_s->ecb |= scb_o->ecb & ECB_HOSTPROTINT;
+> +	/* CPU Topology */
+> +	if (test_kvm_facility(vcpu->kvm, 11))
+> +		scb_s->ecb |= scb_o->ecb & ECB_PTF;
+>   	/* transactional execution */
+>   	if (test_kvm_facility(vcpu->kvm, 73) && wants_tx) {
+>   		/* remap the prefix is tx is toggled on */
+> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+> index 1daa45268de2..273c62dfbe9a 100644
+> --- a/include/uapi/linux/kvm.h
+> +++ b/include/uapi/linux/kvm.h
+> @@ -1131,6 +1131,7 @@ struct kvm_ppc_resize_hpt {
+>   #define KVM_CAP_EXIT_ON_EMULATION_FAILURE 204
+>   #define KVM_CAP_ARM_MTE 205
+>   #define KVM_CAP_VM_MOVE_ENC_CONTEXT_FROM 206
+> +#define KVM_CAP_S390_CPU_TOPOLOGY 207
+>   
+>   #ifdef KVM_CAP_IRQ_ROUTING
+>   
+> 
 
-> 
-> Janis Schoetterl-Glausch (3):
->    KVM: s390: gaccess: Refactor gpa and length calculation
->    KVM: s390: gaccess: Refactor access address range check
->    KVM: s390: gaccess: Cleanup access to guest pages
-> 
->   arch/s390/kvm/gaccess.c | 158 +++++++++++++++++++++++-----------------
->   1 file changed, 92 insertions(+), 66 deletions(-)
-> 
-> Range-diff against v2:
-> 1:  60d050210198 ! 1:  e5d7d2d7a4da KVM: s390: gaccess: Refactor gpa and length calculation
->      @@ Metadata
->        ## Commit message ##
->           KVM: s390: gaccess: Refactor gpa and length calculation
->       
->      -    Improve readability be renaming the length variable and
->      +    Improve readability by renaming the length variable and
->           not calculating the offset manually.
->       
->           Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
->      +    Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
->       
->        ## arch/s390/kvm/gaccess.c ##
->       @@ arch/s390/kvm/gaccess.c: int access_guest(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar, void *data,
->      @@ arch/s390/kvm/gaccess.c: int access_guest(struct kvm_vcpu *vcpu, unsigned long g
->        	psw_t *psw = &vcpu->arch.sie_block->gpsw;
->       -	unsigned long _len, nr_pages, gpa, idx;
->       +	unsigned long nr_pages, gpa, idx;
->      -+	unsigned int fragment_len;
->        	unsigned long pages_array[2];
->      ++	unsigned int fragment_len;
->        	unsigned long *pages;
->        	int need_ipte_lock;
->      + 	union asce asce;
->       @@ arch/s390/kvm/gaccess.c: int access_guest(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar, void *data,
->        		ipte_lock(vcpu);
->        	rc = guest_page_range(vcpu, ga, ar, pages, nr_pages, asce, mode);
-> 2:  7080846c8c07 ! 2:  91cadb42cbbc KVM: s390: gaccess: Refactor access address range check
->      @@ Commit message
->           range.
->       
->           Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
->      +    Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
->       
->        ## arch/s390/kvm/gaccess.c ##
->       @@ arch/s390/kvm/gaccess.c: static int low_address_protection_enabled(struct kvm_vcpu *vcpu,
->      @@ arch/s390/kvm/gaccess.c: static int low_address_protection_enabled(struct kvm_vc
->       + * a correct exception into the guest.
->       + * The resulting gpas are stored into @gpas, unless it is NULL.
->       + *
->      -+ * Note: All gpas except the first one start at the beginning of a page.
->      ++ * Note: All fragments except the first one start at the beginning of a page.
->       + *       When deriving the boundaries of a fragment from a gpa, all but the last
->       + *       fragment end at the end of the page.
->       + *
->      @@ arch/s390/kvm/gaccess.c: int access_guest(struct kvm_vcpu *vcpu, unsigned long g
->        {
->        	psw_t *psw = &vcpu->arch.sie_block->gpsw;
->       -	unsigned long nr_pages, gpa, idx;
->      +-	unsigned long pages_array[2];
->       +	unsigned long nr_pages, idx;
->      ++	unsigned long gpa_array[2];
->        	unsigned int fragment_len;
->      --	unsigned long pages_array[2];
->       -	unsigned long *pages;
->      -+	unsigned long gpa_array[2];
->       +	unsigned long *gpas;
->        	int need_ipte_lock;
->        	union asce asce;
-> 3:  c991cbdbfbd5 ! 3:  f5000a22efcd KVM: s390: gaccess: Cleanup access to guest frames
->      @@ Metadata
->       Author: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
->       
->        ## Commit message ##
->      -    KVM: s390: gaccess: Cleanup access to guest frames
->      +    KVM: s390: gaccess: Cleanup access to guest pages
->       
->           Introduce a helper function for guest frame access.
->       
->           Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
->      +    Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
->       
->        ## arch/s390/kvm/gaccess.c ##
->       @@ arch/s390/kvm/gaccess.c: static int guest_range_to_gpas(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
->      @@ arch/s390/kvm/gaccess.c: static int guest_range_to_gpas(struct kvm_vcpu *vcpu, u
->        }
->        
->       +static int access_guest_page(struct kvm *kvm, enum gacc_mode mode, gpa_t gpa,
->      -+			      void *data, unsigned int len)
->      ++			     void *data, unsigned int len)
->       +{
->       +	const unsigned int offset = offset_in_page(gpa);
->       +	const gfn_t gfn = gpa_to_gfn(gpa);
-> 
-> base-commit: d25f27432f80a800a3592db128254c8140bd71bf
-> 
-
+-- 
+Pierre Morel
+IBM Lab Boeblingen
