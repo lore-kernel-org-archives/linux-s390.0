@@ -2,53 +2,52 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BCE45C433FE
-	for <linux-s390@archiver.kernel.org>; Tue,  7 Dec 2021 09:05:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7EF1BC433EF
+	for <linux-s390@archiver.kernel.org>; Tue,  7 Dec 2021 09:05:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233433AbhLGJI4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 7 Dec 2021 04:08:56 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:47102 "EHLO
+        id S233443AbhLGJI5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 7 Dec 2021 04:08:57 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:7254 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S233443AbhLGJIw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Dec 2021 04:08:52 -0500
+        by vger.kernel.org with ESMTP id S233444AbhLGJIx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Dec 2021 04:08:53 -0500
 Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B77GcDc021792;
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B77GgwY021919;
         Tue, 7 Dec 2021 09:05:14 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=J1cVPa61Sfoe3YsYUFudEdPhxP2kYGghhFOxL3FKzfI=;
- b=SaToWhHVSSWQd2jpxavkklphMeW6ATSkFJE+RTEz6h7/G/PK32jiCjuU0UrImtBRDkMe
- ukx4QwzQC4JlF7ecR3gCHKrJKzoMbVB3GUNL7hYpWbhtNbKmtiEoM3GM4RwkrBXJOB1E
- sq4hsYfzKvUXeVhGvYl9w0iM1tCWLD33/uES/MraYxBSBh+H2BYgmZ0p1mYiJE4kRmaS
- vUT5OVMofn0HlecD5Lwom0VFoz28U4dxGddBiHei1buWmwv/8+2f26XbjU3mvJekot+0
- +aRFyCp2VFim0l4CHe+mnFRxO8LQoZ4a4lb0Qbi4XYa2n+o/4TVpJ6NU+aFR5Zu7gosP UQ== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3ct334t3mp-1
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=w95JY3a0CWtzfwtZh6Iq4UdGzJ9F26M9G2wG6rW1RXw=;
+ b=LH0PiMZl0hIeG+oshQ1UyAKdeVtomZhHJzt3yt/mjLV2aT0FSX+oYhV7vsGqwWNp63cs
+ ebu4H0yEdGND09G4LToe9dPDATykvCSz9HSGYRYHuJ13XnmMrnbn4P+L5QIs5vNYMJ1V
+ 7BPVzS9DEJ3OuF+Dndp3Ozf2ciEcFBWu3lXzANJmivb5R0GMz+NsiIA1O2GuJbD+pzO/
+ W4PzjU2azROAFPKObiXwIXoKE3lpjCRju2EGrNzrrcpYNLiszAqdf02Vbvz3fHPlUsBr
+ LxFc3ZJNl9eYnWPgjvaqh+6R80BUurSFh3RnYEVOAEVZoFBMMZ5R7Y/0B9KrWgqj4bHZ FA== 
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3ct334t3mf-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Dec 2021 09:05:14 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1B791rfK000406;
-        Tue, 7 Dec 2021 09:05:13 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3cqyy9ve8p-1
+        Tue, 07 Dec 2021 09:05:13 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1B793k61007461;
+        Tue, 7 Dec 2021 09:05:12 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma05fra.de.ibm.com with ESMTP id 3cqyy9beer-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Tue, 07 Dec 2021 09:05:12 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1B79592030146880
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1B7958Vx12779802
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 7 Dec 2021 09:05:09 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 267E9AE063;
-        Tue,  7 Dec 2021 09:05:09 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 15756AE051;
-        Tue,  7 Dec 2021 09:05:09 +0000 (GMT)
+        Tue, 7 Dec 2021 09:05:08 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CE5124204F;
+        Tue,  7 Dec 2021 09:05:08 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BCD9642049;
+        Tue,  7 Dec 2021 09:05:08 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Tue,  7 Dec 2021 09:05:09 +0000 (GMT)
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Tue,  7 Dec 2021 09:05:08 +0000 (GMT)
 Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55271)
-        id 7B924E12B0; Tue,  7 Dec 2021 10:05:08 +0100 (CET)
+        id 6F651E0792; Tue,  7 Dec 2021 10:05:08 +0100 (CET)
 From:   Alexandra Winter <wintera@linux.ibm.com>
 To:     David Miller <davem@davemloft.net>,
         Jakub Kicinski <kuba@kernel.org>
@@ -56,71 +55,46 @@ Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
         Heiko Carstens <hca@linux.ibm.com>,
         Julian Wiedmann <jwi@linux.ibm.com>,
         Alexandra Winter <wintera@linux.ibm.com>
-Subject: [PATCH net-next 5/5] s390/qeth: remove check for packing mode in qeth_check_outbound_queue()
-Date:   Tue,  7 Dec 2021 10:04:52 +0100
-Message-Id: <20211207090452.1155688-6-wintera@linux.ibm.com>
+Subject: [PATCH net-next 0/5] s390/net: updates 2021-12-06
+Date:   Tue,  7 Dec 2021 10:04:47 +0100
+Message-Id: <20211207090452.1155688-1-wintera@linux.ibm.com>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20211207090452.1155688-1-wintera@linux.ibm.com>
-References: <20211207090452.1155688-1-wintera@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Yfa6lWlB4tmLzH1ur8tm1ubO68G8CYWb
-X-Proofpoint-ORIG-GUID: Yfa6lWlB4tmLzH1ur8tm1ubO68G8CYWb
+X-Proofpoint-GUID: ZCMfmYfnS8mq6sEXDlmFqzteq3aA1C4g
+X-Proofpoint-ORIG-GUID: ZCMfmYfnS8mq6sEXDlmFqzteq3aA1C4g
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2021-12-07_03,2021-12-06_02,2021-12-02_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
  adultscore=0 mlxscore=0 malwarescore=0 lowpriorityscore=0 bulkscore=0
- suspectscore=0 phishscore=0 mlxlogscore=999 impostorscore=0 clxscore=1015
+ suspectscore=0 phishscore=0 mlxlogscore=999 impostorscore=0 clxscore=1011
  spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2110150000 definitions=main-2112070054
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+Please apply the following patches to netdev's net-next tree.
 
-If qeth_check_outbound_queue() finds a partially filled TX buffer on
-the queue and flushes it, then the queue _must_ have been in packing
-mode.
+This brings some maintenance improvements and removes some
+unnecessary code checks.
 
-Remove the redundant check when updating the relevant statistics.
+Julian Wiedmann (5):
+  s390/qeth: simplify qeth_receive_skb()
+  s390/qeth: split up L2 netdev_ops
+  s390/qeth: don't offer .ndo_bridge_* ops for OSA devices
+  s390/qeth: fine-tune .ndo_select_queue()
+  s390/qeth: remove check for packing mode in
+    qeth_check_outbound_queue()
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
-Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
----
- drivers/s390/net/qeth_core_main.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/s390/net/qeth_core.h      |  4 +--
+ drivers/s390/net/qeth_core_main.c | 54 +++++++++++++++----------------
+ drivers/s390/net/qeth_l2_main.c   | 52 ++++++++++++++++++-----------
+ drivers/s390/net/qeth_l3_main.c   | 13 +-------
+ 4 files changed, 62 insertions(+), 61 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 093ee14e8051..c296e0556f49 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -3635,12 +3635,10 @@ static void qeth_check_outbound_queue(struct qeth_qdio_out_q *queue)
- 	if ((atomic_read(&queue->used_buffers) <= QETH_LOW_WATERMARK_PACK) ||
- 	    !atomic_read(&queue->set_pci_flags_count)) {
- 		unsigned int index, flush_cnt;
--		bool q_was_packing;
- 
- 		spin_lock(&queue->lock);
- 
- 		index = queue->next_buf_to_fill;
--		q_was_packing = queue->do_pack;
- 
- 		flush_cnt = qeth_switch_to_nonpacking_if_needed(queue);
- 		if (!flush_cnt && !atomic_read(&queue->set_pci_flags_count))
-@@ -3648,8 +3646,7 @@ static void qeth_check_outbound_queue(struct qeth_qdio_out_q *queue)
- 
- 		if (flush_cnt) {
- 			qeth_flush_buffers(queue, index, flush_cnt);
--			if (q_was_packing)
--				QETH_TXQ_STAT_ADD(queue, bufs_pack, flush_cnt);
-+			QETH_TXQ_STAT_ADD(queue, bufs_pack, flush_cnt);
- 		}
- 
- 		spin_unlock(&queue->lock);
 -- 
 2.32.0
 
