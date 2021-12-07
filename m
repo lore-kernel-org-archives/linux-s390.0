@@ -2,128 +2,141 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2771EC433EF
-	for <linux-s390@archiver.kernel.org>; Tue,  7 Dec 2021 16:05:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0CDC2C433F5
+	for <linux-s390@archiver.kernel.org>; Tue,  7 Dec 2021 16:10:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233775AbhLGQJR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 7 Dec 2021 11:09:17 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:8462 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S233074AbhLGQJQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Dec 2021 11:09:16 -0500
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B7EN04u013225;
-        Tue, 7 Dec 2021 16:05:45 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=dNa4cmQJdFIYFVoH7vH/hnRiHRI2W1Gnz3wVRj+Ghf8=;
- b=lAL/dO7IAgIqFH4LTSQ46TRm5TNPUh+0yYnwLeReckIKtzFAuPTI/QkdB6rx6UfWXa3b
- d27RQWpwazuapyvnAscyKUm8cmqReO14xE30TvEY+HAeCuYjqzW80yJbECH9fu8+pamY
- w1bRGUm3HzCSmIMskXtdkvwIMIv45OS1Fh3qt36qj9mWrBmt3hriUvGHyZ94peqyqQNF
- u4N80RsOn1Ai63TX1Jp6y1eJT3FqRRLrwYgPSwTQlLMHmDFlVeEBAaXfCMCbsy9JMgKd
- mP8ZdT5ZQomxnMvf4/OBq1vKyDiVRsijV/b0z3sSljufUUp70HH0S3M9jEI9l/EXyNib Xg== 
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3ct9b0ja9f-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Dec 2021 16:05:45 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1B7G3k4V023214;
-        Tue, 7 Dec 2021 16:05:44 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma06fra.de.ibm.com with ESMTP id 3cqykfq4rj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Dec 2021 16:05:43 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1B7G5eCP24379726
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 7 Dec 2021 16:05:40 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 32D6342042;
-        Tue,  7 Dec 2021 16:05:40 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4CF3C42041;
-        Tue,  7 Dec 2021 16:05:39 +0000 (GMT)
-Received: from linux6.. (unknown [9.114.12.104])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue,  7 Dec 2021 16:05:39 +0000 (GMT)
-From:   Janosch Frank <frankja@linux.ibm.com>
-To:     kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        borntraeger@linux.ibm.com
-Subject: [PATCH] s390: uv: Add offset comments to UV query struct
-Date:   Tue,  7 Dec 2021 16:05:10 +0000
-Message-Id: <20211207160510.1818-1-frankja@linux.ibm.com>
-X-Mailer: git-send-email 2.32.0
+        id S239487AbhLGQON (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 7 Dec 2021 11:14:13 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:37491 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S239483AbhLGQOH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Dec 2021 11:14:07 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1638893436;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=cRuhMEvh5y04pVDZ1GcGtb8K0Y4SblDcdZyDgF/tcjA=;
+        b=DedKeLok1diy9Ladi5VHoTOqPW4ZRdW6hUysZkvp0w0CbSQiOypF1WFpUIjmKQ9GaGXnDX
+        hF+O4SRkGYku0HpjhlAqCMxCcX49n5fpZvYATA8I4WVIvsi16S7cynhctjlkOrS2ppYpfR
+        sVSteKu2ODM4XBg34IMhfH3bsaPmho0=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-559-RhqUZOdDO7OBgmU9unhUqg-1; Tue, 07 Dec 2021 11:10:31 -0500
+X-MC-Unique: RhqUZOdDO7OBgmU9unhUqg-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 8693F801B25;
+        Tue,  7 Dec 2021 16:10:25 +0000 (UTC)
+Received: from rhtmp (unknown [10.39.192.202])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 2F3E25BE0C;
+        Tue,  7 Dec 2021 16:10:17 +0000 (UTC)
+Date:   Tue, 7 Dec 2021 17:10:14 +0100
+From:   Philipp Rudo <prudo@redhat.com>
+To:     Michal Suchanek <msuchanek@suse.de>
+Cc:     keyrings@vger.kernel.org, kexec@lists.infradead.org,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Nayna <nayna@linux.vnet.ibm.com>, Rob Herring <robh@kernel.org>,
+        linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Jessica Yu <jeyu@kernel.org>, linux-kernel@vger.kernel.org,
+        David Howells <dhowells@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Hari Bathini <hbathini@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linuxppc-dev@lists.ozlabs.org,
+        Frank van der Linden <fllinden@amazon.com>,
+        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
+        Daniel Axtens <dja@axtens.net>, buendgen@de.ibm.com,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Baoquan He <bhe@redhat.com>, linux-crypto@vger.kernel.org,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+Subject: Re: [PATCH v2 0/6] KEXEC_SIG with appended signature
+Message-ID: <20211207171014.2cfc4a54@rhtmp>
+In-Reply-To: <cover.1637862358.git.msuchanek@suse.de>
+References: <cover.1637862358.git.msuchanek@suse.de>
+Organization: Red Hat inc.
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 630cH48Qx-D7zg4CRrr9VaV6nrG2fWs2
-X-Proofpoint-ORIG-GUID: 630cH48Qx-D7zg4CRrr9VaV6nrG2fWs2
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2021-12-07_06,2021-12-06_02,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- lowpriorityscore=0 suspectscore=0 priorityscore=1501 impostorscore=0
- adultscore=0 mlxscore=0 phishscore=0 malwarescore=0 spamscore=0
- mlxlogscore=999 bulkscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2110150000 definitions=main-2112070098
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Changes to the struct are easier to manage with offset comments so
-let's add some.
+Hi Michal,
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- arch/s390/include/asm/uv.h | 34 +++++++++++++++++-----------------
- 1 file changed, 17 insertions(+), 17 deletions(-)
+i finally had the time to take a closer look at the series. Except for
+the nit in patch 4 and my personal preference in patch 6 the code looks
+good to me.
 
-diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-index 72d3e49c2860..235bd5cc8289 100644
---- a/arch/s390/include/asm/uv.h
-+++ b/arch/s390/include/asm/uv.h
-@@ -91,23 +91,23 @@ struct uv_cb_header {
- 
- /* Query Ultravisor Information */
- struct uv_cb_qui {
--	struct uv_cb_header header;
--	u64 reserved08;
--	u64 inst_calls_list[4];
--	u64 reserved30[2];
--	u64 uv_base_stor_len;
--	u64 reserved48;
--	u64 conf_base_phys_stor_len;
--	u64 conf_base_virt_stor_len;
--	u64 conf_virt_var_stor_len;
--	u64 cpu_stor_len;
--	u32 reserved70[3];
--	u32 max_num_sec_conf;
--	u64 max_guest_stor_addr;
--	u8  reserved88[158 - 136];
--	u16 max_guest_cpu_id;
--	u64 uv_feature_indications;
--	u8  reserveda0[200 - 168];
-+	struct uv_cb_header header;		/* 0x0000 */
-+	u64 reserved08;				/* 0x0008 */
-+	u64 inst_calls_list[4];			/* 0x0010 */
-+	u64 reserved30[2];			/* 0x0030 */
-+	u64 uv_base_stor_len;			/* 0x0040 */
-+	u64 reserved48;				/* 0x0048 */
-+	u64 conf_base_phys_stor_len;		/* 0x0050 */
-+	u64 conf_base_virt_stor_len;		/* 0x0058 */
-+	u64 conf_virt_var_stor_len;		/* 0x0060 */
-+	u64 cpu_stor_len;			/* 0x0068 */
-+	u32 reserved70[3];			/* 0x0070 */
-+	u32 max_num_sec_conf;			/* 0x007c */
-+	u64 max_guest_stor_addr;		/* 0x0080 */
-+	u8  reserved88[158 - 136];		/* 0x0088 */
-+	u16 max_guest_cpu_id;			/* 0x009e */
-+	u64 uv_feature_indications;		/* 0x00a0 */
-+	u8  reserveda0[200 - 168];		/* 0x00a8 */
- } __packed __aligned(8);
- 
- /* Initialize Ultravisor */
--- 
-2.32.0
+What I don't like are the commit messages on the first commits. In my
+opinion they are so short that they are almost useless. For example in
+patch 2 there is absolutely no explanation why you can simply copy the
+s390 over to ppc. Or in patch 3 you are silently changing the error
+code in kexec from EKEYREJECT to ENODATA. So I would appreciate it if
+you could improve them a little.
+
+Thanks
+Philipp
+
+On Thu, 25 Nov 2021 19:02:38 +0100
+Michal Suchanek <msuchanek@suse.de> wrote:
+
+> Hello,
+> 
+> This is resend of the KEXEC_SIG patchset.
+> 
+> The first patch is new because it'a a cleanup that does not require any
+> change to the module verification code.
+> 
+> The second patch is the only one that is intended to change any
+> functionality.
+> 
+> The rest only deduplicates code but I did not receive any review on that
+> part so I don't know if it's desirable as implemented.
+> 
+> The first two patches can be applied separately without the rest.
+> 
+> Thanks
+> 
+> Michal
+> 
+> Michal Suchanek (6):
+>   s390/kexec_file: Don't opencode appended signature check.
+>   powerpc/kexec_file: Add KEXEC_SIG support.
+>   kexec_file: Don't opencode appended signature verification.
+>   module: strip the signature marker in the verification function.
+>   module: Use key_being_used_for for log messages in
+>     verify_appended_signature
+>   module: Move duplicate mod_check_sig users code to mod_parse_sig
+> 
+>  arch/powerpc/Kconfig                     | 11 +++++
+>  arch/powerpc/kexec/elf_64.c              | 14 ++++++
+>  arch/s390/kernel/machine_kexec_file.c    | 42 ++----------------
+>  crypto/asymmetric_keys/asymmetric_type.c |  1 +
+>  include/linux/module_signature.h         |  1 +
+>  include/linux/verification.h             |  4 ++
+>  kernel/module-internal.h                 |  2 -
+>  kernel/module.c                          | 12 +++--
+>  kernel/module_signature.c                | 56 +++++++++++++++++++++++-
+>  kernel/module_signing.c                  | 33 +++++++-------
+>  security/integrity/ima/ima_modsig.c      | 22 ++--------
+>  11 files changed, 113 insertions(+), 85 deletions(-)
+> 
 
