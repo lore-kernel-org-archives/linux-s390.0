@@ -2,76 +2,48 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 731D1C433F5
-	for <linux-s390@archiver.kernel.org>; Tue,  7 Dec 2021 16:11:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 67017C433F5
+	for <linux-s390@archiver.kernel.org>; Tue,  7 Dec 2021 17:19:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239504AbhLGQO7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 7 Dec 2021 11:14:59 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:47128 "EHLO
+        id S235453AbhLGRWj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 7 Dec 2021 12:22:39 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:34638 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S239431AbhLGQO7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Dec 2021 11:14:59 -0500
+        by vger.kernel.org with ESMTP id S235660AbhLGRWi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Dec 2021 12:22:38 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1638893488;
+        s=mimecast20190719; t=1638897546;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=q14zqMaClWT6A6pjsZ9r/kKotJ2Nm5bDx7Gi7LWBtyI=;
-        b=LYD0u2jtFpVoW+a55U9gyxzCudDqIEnVga7fWi3DNlvEGxJ0OH6LY7WIMhwfsGj9fczZM0
-        meZqb2mqJmqfO3+wN5WUb0iLuNWhF8kcapgjRdXU0Vuw2zIMBr7THCOeLU1hzN95UtNMF3
-        vcqQXGGsIlMegUsTjHck3gth7EKpAAg=
+        bh=qYNdMSp2/bnC/tqj/M0RADUR7M1vytGWLh17FbECqTI=;
+        b=CeT1usT7AQJ1lmctkRahbGNhKbpfs3saqIPI780Ml+LLdzMNCGCNifqhtcKsb7y6GwIY/B
+        DJs2MSyHpsQ/6Cpnzy+MSg7SDiKPhRWiLKo6uicnOBuXON9wMfoLtWWuLbkKglMv7MYxSl
+        ZlKueMAH9XoY/Iu+nWlXA23UTiDhyvU=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-505-BdX3DYBpO-KAjRBFDzmJRA-1; Tue, 07 Dec 2021 11:11:25 -0500
-X-MC-Unique: BdX3DYBpO-KAjRBFDzmJRA-1
+ us-mta-158-ZqFqyxanOOSTzTmwBh9oiQ-1; Tue, 07 Dec 2021 12:19:03 -0500
+X-MC-Unique: ZqFqyxanOOSTzTmwBh9oiQ-1
 Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 106B31006AA2;
-        Tue,  7 Dec 2021 16:11:21 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 634C010151EC;
+        Tue,  7 Dec 2021 17:19:02 +0000 (UTC)
 Received: from rhtmp (unknown [10.39.192.202])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D0F241972E;
-        Tue,  7 Dec 2021 16:11:14 +0000 (UTC)
-Date:   Tue, 7 Dec 2021 17:11:12 +0100
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 6CC1B19D9D;
+        Tue,  7 Dec 2021 17:18:57 +0000 (UTC)
+Date:   Tue, 7 Dec 2021 18:18:55 +0100
 From:   Philipp Rudo <prudo@redhat.com>
-To:     Michal Suchanek <msuchanek@suse.de>
-Cc:     keyrings@vger.kernel.org, kexec@lists.infradead.org,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Nayna <nayna@linux.vnet.ibm.com>, Rob Herring <robh@kernel.org>,
-        linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Jessica Yu <jeyu@kernel.org>, linux-kernel@vger.kernel.org,
-        David Howells <dhowells@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Hari Bathini <hbathini@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linuxppc-dev@lists.ozlabs.org,
-        Frank van der Linden <fllinden@amazon.com>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Daniel Axtens <dja@axtens.net>, buendgen@de.ibm.com,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Baoquan He <bhe@redhat.com>, linux-crypto@vger.kernel.org,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org
-Subject: Re: [PATCH v2 4/6] module: strip the signature marker in the
- verification function.
-Message-ID: <20211207171112.03850036@rhtmp>
-In-Reply-To: <0f9bbbc4800d5329485b6bdabbbe1ef3b2169b02.1637862358.git.msuchanek@suse.de>
-References: <cover.1637862358.git.msuchanek@suse.de>
-        <0f9bbbc4800d5329485b6bdabbbe1ef3b2169b02.1637862358.git.msuchanek@suse.de>
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, egorenar@linux.ibm.com, ltao@redhat.com
+Subject: Re: [PATCH v2 1/2] s390/kexec_file: print some more error messages
+Message-ID: <20211207181855.521b7d94@rhtmp>
+In-Reply-To: <Ya9988i7o788He/z@osiris>
+References: <20211207125749.6998-1-prudo@redhat.com>
+        <20211207125749.6998-2-prudo@redhat.com>
+        <Ya9988i7o788He/z@osiris>
 Organization: Red Hat inc.
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -81,135 +53,57 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Michal,
+Hi Heiko,
 
-On Thu, 25 Nov 2021 19:02:42 +0100
-Michal Suchanek <msuchanek@suse.de> wrote:
+On Tue, 7 Dec 2021 16:29:55 +0100
+Heiko Carstens <hca@linux.ibm.com> wrote:
 
-> It is stripped by each caller separately.
+> Hi Philipp,
 > 
-> Signed-off-by: Michal Suchanek <msuchanek@suse.de>
-> ---
->  arch/powerpc/kexec/elf_64.c           |  9 ---------
->  arch/s390/kernel/machine_kexec_file.c |  9 ---------
->  kernel/module.c                       |  7 +------
->  kernel/module_signing.c               | 12 ++++++++++--
+> On Tue, Dec 07, 2021 at 01:57:48PM +0100, Philipp Rudo wrote:
+> > Be kind and give some more information on what went wrong.
+> > 
+> > Signed-off-by: Philipp Rudo <prudo@redhat.com>  
+> ...
+> > @@ -304,15 +306,22 @@ int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
+> >  		sym = (void *)pi->ehdr + symtab->sh_offset;
+> >  		sym += ELF64_R_SYM(relas[i].r_info);
+> >  
+> > -		if (sym->st_shndx == SHN_UNDEF)
+> > +		if (sym->st_shndx == SHN_UNDEF) {
+> > +			pr_err("Undefined symbol\n");
+> >  			return -ENOEXEC;
+> > +		}
+> >  
+> > -		if (sym->st_shndx == SHN_COMMON)
+> > +		if (sym->st_shndx == SHN_COMMON) {
+> > +			pr_err("symbol in common section\n");
+> >  			return -ENOEXEC;
+> > +		}
+> >  
+> >  		if (sym->st_shndx >= pi->ehdr->e_shnum &&
+> > -		    sym->st_shndx != SHN_ABS)
+> > +		    sym->st_shndx != SHN_ABS) {
+> > +			pr_err("Invalid section %d for symbol\n",
+> > +			       sym->st_shndx);
+> >  			return -ENOEXEC;  
+> 
+> So, if you add the additional error messages here, then I'd really
+> like to see also the name of the symbol which is causing
+> problems. Just like it is done on x86.
+> Sorry for nitpicking :)
 
-kernel/module_signing.c is only compiled with MODULE_SIG enabled but
-KEXEC_SIG only selects MODULE_SIG_FORMAT. In the unlikely case that
-KEXEC_SIG is enabled but MODULE_SIG isn't this causes a build breakage.
-So you need to update KEXEC_SIG to select MODULE_SIG instead of
-MODULE_SIG_FORMAT for s390 and ppc.
+I actually dropped the name on purpose. At least for my work flow
+knowing which check failed is more important as that already allows
+me to search for, e.g. all undefined symbols as each of them can cause
+trouble. Which symbol exactly triggered the check isn't that important.
+In addition, the code to get a symbol name is rather ugly. At least
+when you compare it to its usefulness.
 
-Thanks
+But when you insist...
+
 Philipp
 
->  4 files changed, 11 insertions(+), 26 deletions(-)
-> 
-> diff --git a/arch/powerpc/kexec/elf_64.c b/arch/powerpc/kexec/elf_64.c
-> index 266cb26d3ca0..63634c95265d 100644
-> --- a/arch/powerpc/kexec/elf_64.c
-> +++ b/arch/powerpc/kexec/elf_64.c
-> @@ -156,15 +156,6 @@ static void *elf64_load(struct kimage *image, char *kernel_buf,
->  int elf64_verify_sig(const char *kernel, unsigned long length)
->  {
->  	size_t kernel_len = length;
-> -	const unsigned long marker_len = sizeof(MODULE_SIG_STRING) - 1;
-> -
-> -	if (marker_len > kernel_len)
-> -		return -EKEYREJECTED;
-> -
-> -	if (memcmp(kernel + kernel_len - marker_len, MODULE_SIG_STRING,
-> -		   marker_len))
-> -		return -EKEYREJECTED;
-> -	kernel_len -= marker_len;
->  
->  	return verify_appended_signature(kernel, &kernel_len, VERIFY_USE_PLATFORM_KEYRING,
->  					"kexec_file");
-> diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
-> index 432797249db3..c4632c1a1b59 100644
-> --- a/arch/s390/kernel/machine_kexec_file.c
-> +++ b/arch/s390/kernel/machine_kexec_file.c
-> @@ -27,20 +27,11 @@ const struct kexec_file_ops * const kexec_file_loaders[] = {
->  int s390_verify_sig(const char *kernel, unsigned long length)
->  {
->  	size_t kernel_len = length;
-> -	const unsigned long marker_len = sizeof(MODULE_SIG_STRING) - 1;
->  
->  	/* Skip signature verification when not secure IPLed. */
->  	if (!ipl_secure_flag)
->  		return 0;
->  
-> -	if (marker_len > kernel_len)
-> -		return -EKEYREJECTED;
-> -
-> -	if (memcmp(kernel + kernel_len - marker_len, MODULE_SIG_STRING,
-> -		   marker_len))
-> -		return -EKEYREJECTED;
-> -	kernel_len -= marker_len;
-> -
->  	return verify_appended_signature(kernel, &kernel_len, VERIFY_USE_PLATFORM_KEYRING,
->  					"kexec_file");
->  }
-> diff --git a/kernel/module.c b/kernel/module.c
-> index 8481933dfa92..d91ca0f93a40 100644
-> --- a/kernel/module.c
-> +++ b/kernel/module.c
-> @@ -2882,7 +2882,6 @@ static inline void kmemleak_load_module(const struct module *mod,
->  static int module_sig_check(struct load_info *info, int flags)
->  {
->  	int err = -ENODATA;
-> -	const unsigned long markerlen = sizeof(MODULE_SIG_STRING) - 1;
->  	const char *reason;
->  	const void *mod = info->hdr;
->  
-> @@ -2890,11 +2889,7 @@ static int module_sig_check(struct load_info *info, int flags)
->  	 * Require flags == 0, as a module with version information
->  	 * removed is no longer the module that was signed
->  	 */
-> -	if (flags == 0 &&
-> -	    info->len > markerlen &&
-> -	    memcmp(mod + info->len - markerlen, MODULE_SIG_STRING, markerlen) == 0) {
-> -		/* We truncate the module to discard the signature */
-> -		info->len -= markerlen;
-> +	if (flags == 0) {
->  		err = verify_appended_signature(mod, &info->len,
->  						VERIFY_USE_SECONDARY_KEYRING, "module");
->  		if (!err) {
-> diff --git a/kernel/module_signing.c b/kernel/module_signing.c
-> index f492e410564d..4c28cb55275f 100644
-> --- a/kernel/module_signing.c
-> +++ b/kernel/module_signing.c
-> @@ -15,8 +15,7 @@
->  #include "module-internal.h"
->  
->  /**
-> - * verify_appended_signature - Verify the signature on a module with the
-> - * signature marker stripped.
-> + * verify_appended_signature - Verify the signature on a module
->   * @data: The data to be verified
->   * @len: Size of @data.
->   * @trusted_keys: Keyring to use for verification
-> @@ -25,12 +24,21 @@
->  int verify_appended_signature(const void *data, size_t *len,
->  			      struct key *trusted_keys, const char *what)
->  {
-> +	const unsigned long markerlen = sizeof(MODULE_SIG_STRING) - 1;
->  	struct module_signature ms;
->  	size_t sig_len, modlen = *len;
->  	int ret;
->  
->  	pr_devel("==>%s(,%zu)\n", __func__, modlen);  
->  
-> +	if (markerlen > modlen)
-> +		return -ENODATA;
-> +
-> +	if (memcmp(data + modlen - markerlen, MODULE_SIG_STRING,
-> +		   markerlen))
-> +		return -ENODATA;
-> +	modlen -= markerlen;
-> +
->  	if (modlen <= sizeof(ms))
->  		return -EBADMSG;
->  
+P.S. To avoid an other round for that patch. Do you also want the two
+     pr_debugs?
 
