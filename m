@@ -2,108 +2,159 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 67017C433F5
-	for <linux-s390@archiver.kernel.org>; Tue,  7 Dec 2021 17:19:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4031AC433EF
+	for <linux-s390@archiver.kernel.org>; Tue,  7 Dec 2021 17:32:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235453AbhLGRWj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 7 Dec 2021 12:22:39 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:34638 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235660AbhLGRWi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Dec 2021 12:22:38 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1638897546;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
+        id S240029AbhLGRf6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 7 Dec 2021 12:35:58 -0500
+Received: from smtp-out1.suse.de ([195.135.220.28]:60796 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240016AbhLGRf6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Dec 2021 12:35:58 -0500
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id DF2B621B3A;
+        Tue,  7 Dec 2021 17:32:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1638898345; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=qYNdMSp2/bnC/tqj/M0RADUR7M1vytGWLh17FbECqTI=;
-        b=CeT1usT7AQJ1lmctkRahbGNhKbpfs3saqIPI780Ml+LLdzMNCGCNifqhtcKsb7y6GwIY/B
-        DJs2MSyHpsQ/6Cpnzy+MSg7SDiKPhRWiLKo6uicnOBuXON9wMfoLtWWuLbkKglMv7MYxSl
-        ZlKueMAH9XoY/Iu+nWlXA23UTiDhyvU=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-158-ZqFqyxanOOSTzTmwBh9oiQ-1; Tue, 07 Dec 2021 12:19:03 -0500
-X-MC-Unique: ZqFqyxanOOSTzTmwBh9oiQ-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        bh=p08l+Qiu75dUbkbrDOZgOW1nBpHuW/LpB0uPvXqmigg=;
+        b=cH4AxDh7Z5spAiCFuPHAKizEL1PsQcuD6sHy/nDy6g6DqJxWj6EKz9trYz9SGJPlcnDGb8
+        9bDOPN4fQWIT+Snc356AncuT877BC9fLVRUEESgMaCpLUQ6mQ3DLrgvBE5l/VAwWgPb/Gd
+        DydMC8itHDTzzR0LreU778OxrU87fbU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1638898345;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=p08l+Qiu75dUbkbrDOZgOW1nBpHuW/LpB0uPvXqmigg=;
+        b=S/L+c98qLLuIOJFQUyXpN3vhB98AZn1gpW5qWmNanBuCQ6j06b/XWIz1noRFtgEfQIaB3q
+        LER5Q9QzIbV0TYCA==
+Received: from kunlun.suse.cz (unknown [10.100.128.76])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 634C010151EC;
-        Tue,  7 Dec 2021 17:19:02 +0000 (UTC)
-Received: from rhtmp (unknown [10.39.192.202])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 6CC1B19D9D;
-        Tue,  7 Dec 2021 17:18:57 +0000 (UTC)
-Date:   Tue, 7 Dec 2021 18:18:55 +0100
-From:   Philipp Rudo <prudo@redhat.com>
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, egorenar@linux.ibm.com, ltao@redhat.com
-Subject: Re: [PATCH v2 1/2] s390/kexec_file: print some more error messages
-Message-ID: <20211207181855.521b7d94@rhtmp>
-In-Reply-To: <Ya9988i7o788He/z@osiris>
-References: <20211207125749.6998-1-prudo@redhat.com>
-        <20211207125749.6998-2-prudo@redhat.com>
-        <Ya9988i7o788He/z@osiris>
-Organization: Red Hat inc.
+        by relay2.suse.de (Postfix) with ESMTPS id 05243A3B83;
+        Tue,  7 Dec 2021 17:32:23 +0000 (UTC)
+Date:   Tue, 7 Dec 2021 18:32:21 +0100
+From:   Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
+To:     Philipp Rudo <prudo@redhat.com>
+Cc:     keyrings@vger.kernel.org, kexec@lists.infradead.org,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Nayna <nayna@linux.vnet.ibm.com>, Rob Herring <robh@kernel.org>,
+        linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Jessica Yu <jeyu@kernel.org>, linux-kernel@vger.kernel.org,
+        David Howells <dhowells@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Hari Bathini <hbathini@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linuxppc-dev@lists.ozlabs.org,
+        Frank van der Linden <fllinden@amazon.com>,
+        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
+        Daniel Axtens <dja@axtens.net>, buendgen@de.ibm.com,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Baoquan He <bhe@redhat.com>, linux-crypto@vger.kernel.org,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+Subject: Re: [PATCH v2 0/6] KEXEC_SIG with appended signature
+Message-ID: <20211207173221.GM117207@kunlun.suse.cz>
+References: <cover.1637862358.git.msuchanek@suse.de>
+ <20211207171014.2cfc4a54@rhtmp>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211207171014.2cfc4a54@rhtmp>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Heiko,
-
-On Tue, 7 Dec 2021 16:29:55 +0100
-Heiko Carstens <hca@linux.ibm.com> wrote:
-
-> Hi Philipp,
+On Tue, Dec 07, 2021 at 05:10:14PM +0100, Philipp Rudo wrote:
+> Hi Michal,
 > 
-> On Tue, Dec 07, 2021 at 01:57:48PM +0100, Philipp Rudo wrote:
-> > Be kind and give some more information on what went wrong.
+> i finally had the time to take a closer look at the series. Except for
+> the nit in patch 4 and my personal preference in patch 6 the code looks
+> good to me.
+> 
+> What I don't like are the commit messages on the first commits. In my
+> opinion they are so short that they are almost useless. For example in
+> patch 2 there is absolutely no explanation why you can simply copy the
+> s390 over to ppc.
+
+They use the same signature format. I suppose I can add a note saying
+that.
+
+> Or in patch 3 you are silently changing the error
+> code in kexec from EKEYREJECT to ENODATA. So I would appreciate it if
+
+Not sure what I should do about this. The different implementations use
+different random error codes, and when they are unified the error code
+clearly changes for one or the other.
+
+Does anything depend on a particular error code returned?
+
+Thanks
+
+Michal
+
+> you could improve them a little.
+> 
+> Thanks
+> Philipp
+> 
+> On Thu, 25 Nov 2021 19:02:38 +0100
+> Michal Suchanek <msuchanek@suse.de> wrote:
+> 
+> > Hello,
 > > 
-> > Signed-off-by: Philipp Rudo <prudo@redhat.com>  
-> ...
-> > @@ -304,15 +306,22 @@ int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
-> >  		sym = (void *)pi->ehdr + symtab->sh_offset;
-> >  		sym += ELF64_R_SYM(relas[i].r_info);
-> >  
-> > -		if (sym->st_shndx == SHN_UNDEF)
-> > +		if (sym->st_shndx == SHN_UNDEF) {
-> > +			pr_err("Undefined symbol\n");
-> >  			return -ENOEXEC;
-> > +		}
-> >  
-> > -		if (sym->st_shndx == SHN_COMMON)
-> > +		if (sym->st_shndx == SHN_COMMON) {
-> > +			pr_err("symbol in common section\n");
-> >  			return -ENOEXEC;
-> > +		}
-> >  
-> >  		if (sym->st_shndx >= pi->ehdr->e_shnum &&
-> > -		    sym->st_shndx != SHN_ABS)
-> > +		    sym->st_shndx != SHN_ABS) {
-> > +			pr_err("Invalid section %d for symbol\n",
-> > +			       sym->st_shndx);
-> >  			return -ENOEXEC;  
+> > This is resend of the KEXEC_SIG patchset.
+> > 
+> > The first patch is new because it'a a cleanup that does not require any
+> > change to the module verification code.
+> > 
+> > The second patch is the only one that is intended to change any
+> > functionality.
+> > 
+> > The rest only deduplicates code but I did not receive any review on that
+> > part so I don't know if it's desirable as implemented.
+> > 
+> > The first two patches can be applied separately without the rest.
+> > 
+> > Thanks
+> > 
+> > Michal
+> > 
+> > Michal Suchanek (6):
+> >   s390/kexec_file: Don't opencode appended signature check.
+> >   powerpc/kexec_file: Add KEXEC_SIG support.
+> >   kexec_file: Don't opencode appended signature verification.
+> >   module: strip the signature marker in the verification function.
+> >   module: Use key_being_used_for for log messages in
+> >     verify_appended_signature
+> >   module: Move duplicate mod_check_sig users code to mod_parse_sig
+> > 
+> >  arch/powerpc/Kconfig                     | 11 +++++
+> >  arch/powerpc/kexec/elf_64.c              | 14 ++++++
+> >  arch/s390/kernel/machine_kexec_file.c    | 42 ++----------------
+> >  crypto/asymmetric_keys/asymmetric_type.c |  1 +
+> >  include/linux/module_signature.h         |  1 +
+> >  include/linux/verification.h             |  4 ++
+> >  kernel/module-internal.h                 |  2 -
+> >  kernel/module.c                          | 12 +++--
+> >  kernel/module_signature.c                | 56 +++++++++++++++++++++++-
+> >  kernel/module_signing.c                  | 33 +++++++-------
+> >  security/integrity/ima/ima_modsig.c      | 22 ++--------
+> >  11 files changed, 113 insertions(+), 85 deletions(-)
+> > 
 > 
-> So, if you add the additional error messages here, then I'd really
-> like to see also the name of the symbol which is causing
-> problems. Just like it is done on x86.
-> Sorry for nitpicking :)
-
-I actually dropped the name on purpose. At least for my work flow
-knowing which check failed is more important as that already allows
-me to search for, e.g. all undefined symbols as each of them can cause
-trouble. Which symbol exactly triggered the check isn't that important.
-In addition, the code to get a symbol name is rather ugly. At least
-when you compare it to its usefulness.
-
-But when you insist...
-
-Philipp
-
-P.S. To avoid an other round for that patch. Do you also want the two
-     pr_debugs?
-
