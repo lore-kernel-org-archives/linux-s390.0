@@ -2,163 +2,74 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C959C433F5
-	for <linux-s390@archiver.kernel.org>; Mon,  6 Dec 2021 22:52:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A856BC433EF
+	for <linux-s390@archiver.kernel.org>; Tue,  7 Dec 2021 01:10:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377362AbhLFW4V (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 6 Dec 2021 17:56:21 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:48392 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359684AbhLFWzK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Dec 2021 17:55:10 -0500
-Message-ID: <20211206210748.847219474@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1638831100;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         references:references; bh=BUH8kO9WlotKw1Jm4iAVN62jvoEejpolEUEH0KsFyqY=;
-        b=tkf6bcVZHT1vI5JwxsngLbDMdnn2lBna/IkgSEZ9qzd3LKYAdX5p3zvNKUebBGpCAM6CJx
-        BbKf+B1Qk5UyIKOzpvq++GVC6W6rWHVd0BvjEVOtA/GJvzzu66VcQgk+kGe+ar7QZPe6t0
-        /ww5Acp8h5i0qKoObgyWrNfQ08o3c2XWlUN4zltdcbyzTI9jfj1h9knJjj8mYFeNzno8W+
-        OrSP+fB66SMGpTT1Y+4sLn8gpfJhkXq6fpNwI1zgA2WGZsdX1ibWLHtxfQAZNPGKhNrNy6
-        xmWW8XjfZUQpp7yv/8hWXrYyZavzKNpUoFIYuiefEaNe9+P8ge2U69ebgZMuoA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1638831100;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         references:references; bh=BUH8kO9WlotKw1Jm4iAVN62jvoEejpolEUEH0KsFyqY=;
-        b=V7ZDB1fDrNysdWEbulYRahYuzwoHAn9aIh3jtzGHZC23V577AVQihnfAkbh0fZTVDbvuIZ
-        V36JM4tCqbvyYeAA==
-From:   Thomas Gleixner <tglx@linutronix.de>
-To:     LKML <linux-kernel@vger.kernel.org>
-Cc:     Bjorn Helgaas <helgaas@kernel.org>, Marc Zygnier <maz@kernel.org>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Megha Dey <megha.dey@intel.com>,
-        Ashok Raj <ashok.raj@intel.com>, linux-pci@vger.kernel.org,
-        Cedric Le Goater <clg@kaod.org>,
-        xen-devel@lists.xenproject.org, Juergen Gross <jgross@suse.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Jon Mason <jdmason@kudzu.us>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com
-Subject: [patch V2 23/31] bus: fsl-mc-msi: Simplify MSI descriptor handling
-References: <20211206210600.123171746@linutronix.de>
+        id S243614AbhLGBNl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 6 Dec 2021 20:13:41 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:49136 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243579AbhLGBNl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Dec 2021 20:13:41 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B4DC8B81648;
+        Tue,  7 Dec 2021 01:10:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 7F717C341CD;
+        Tue,  7 Dec 2021 01:10:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1638839409;
+        bh=PuIqe6GW2pYb2QfLQkfJepAKx7llRzTMxpRR9uA3xmw=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=uaG/lDdgKbtKU3PMTeXNUKNAXEjExgETEYhWrra7nodnygbgzCuVcRh0ODyMVk0iS
+         epz2KkT8IfyA73mDMZ3P0pZxUs4rxz/TdCaujfO959jKm8NwzjIHtavILCUVhosslO
+         qACbQYNsng7d/HmmHA7HtdRpQA6SlXs9z9Tqj5WPZuE3JSoMDCMlfHBZCMRSDv61g+
+         UaKAujhzMA0mRy5vFV0wgFAy2LOlbKLQr36LbVVRnlHLCvWCs3yJa1l00oiLeZ9HtJ
+         lSAB1JKd8RwSg2lkt9RkaPQ3jzJmbFCraAmQHPrFY4W/6/PKoo1Spt1SZq1toXCPlC
+         P+HBcYAw4SHtg==
+Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id 6AEB760A4D;
+        Tue,  7 Dec 2021 01:10:09 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Date:   Mon,  6 Dec 2021 23:51:39 +0100 (CET)
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next] net/smc: Clear memory when release and reuse buffer
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <163883940943.24390.11317200690336644085.git-patchwork-notify@kernel.org>
+Date:   Tue, 07 Dec 2021 01:10:09 +0000
+References: <20211203113331.2818873-1-kgraul@linux.ibm.com>
+In-Reply-To: <20211203113331.2818873-1-kgraul@linux.ibm.com>
+To:     Karsten Graul <kgraul@linux.ibm.com>
+Cc:     davem@davemloft.net, kuba@kernel.org, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, hca@linux.ibm.com,
+        tonylu@linux.alibaba.com, guwen@linux.alibaba.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Let the MSI irq domain code handle descriptor allocation and free.
+Hello:
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
----
- drivers/bus/fsl-mc/fsl-mc-msi.c |   61 ++--------------------------------------
- 1 file changed, 4 insertions(+), 57 deletions(-)
+This patch was applied to netdev/net-next.git (master)
+by Jakub Kicinski <kuba@kernel.org>:
 
---- a/drivers/bus/fsl-mc/fsl-mc-msi.c
-+++ b/drivers/bus/fsl-mc/fsl-mc-msi.c
-@@ -170,6 +170,7 @@ struct irq_domain *fsl_mc_msi_create_irq
- 		fsl_mc_msi_update_dom_ops(info);
- 	if (info->flags & MSI_FLAG_USE_DEF_CHIP_OPS)
- 		fsl_mc_msi_update_chip_ops(info);
-+	info->flags |= MSI_FLAG_ALLOC_SIMPLE_MSI_DESCS | MSI_FLAG_FREE_MSI_DESCS;
- 
- 	domain = msi_create_irq_domain(fwnode, info, parent);
- 	if (domain)
-@@ -210,45 +211,7 @@ struct irq_domain *fsl_mc_find_msi_domai
- 	return msi_domain;
- }
- 
--static void fsl_mc_msi_free_descs(struct device *dev)
--{
--	struct msi_desc *desc, *tmp;
--
--	list_for_each_entry_safe(desc, tmp, dev_to_msi_list(dev), list) {
--		list_del(&desc->list);
--		free_msi_entry(desc);
--	}
--}
--
--static int fsl_mc_msi_alloc_descs(struct device *dev, unsigned int irq_count)
--
--{
--	unsigned int i;
--	int error;
--	struct msi_desc *msi_desc;
--
--	for (i = 0; i < irq_count; i++) {
--		msi_desc = alloc_msi_entry(dev, 1, NULL);
--		if (!msi_desc) {
--			dev_err(dev, "Failed to allocate msi entry\n");
--			error = -ENOMEM;
--			goto cleanup_msi_descs;
--		}
--
--		msi_desc->msi_index = i;
--		INIT_LIST_HEAD(&msi_desc->list);
--		list_add_tail(&msi_desc->list, dev_to_msi_list(dev));
--	}
--
--	return 0;
--
--cleanup_msi_descs:
--	fsl_mc_msi_free_descs(dev);
--	return error;
--}
--
--int fsl_mc_msi_domain_alloc_irqs(struct device *dev,
--				 unsigned int irq_count)
-+int fsl_mc_msi_domain_alloc_irqs(struct device *dev,  unsigned int irq_count)
- {
- 	struct irq_domain *msi_domain;
- 	int error;
-@@ -261,28 +224,17 @@ int fsl_mc_msi_domain_alloc_irqs(struct
- 	if (error)
- 		return error;
- 
--	if (!list_empty(dev_to_msi_list(dev)))
-+	if (msi_first_desc(dev, MSI_DESC_ALL))
- 		return -EINVAL;
- 
--	error = fsl_mc_msi_alloc_descs(dev, irq_count);
--	if (error < 0)
--		return error;
--
- 	/*
- 	 * NOTE: Calling this function will trigger the invocation of the
- 	 * its_fsl_mc_msi_prepare() callback
- 	 */
- 	error = msi_domain_alloc_irqs(msi_domain, dev, irq_count);
- 
--	if (error) {
-+	if (error)
- 		dev_err(dev, "Failed to allocate IRQs\n");
--		goto cleanup_msi_descs;
--	}
--
--	return 0;
--
--cleanup_msi_descs:
--	fsl_mc_msi_free_descs(dev);
- 	return error;
- }
- 
-@@ -295,9 +247,4 @@ void fsl_mc_msi_domain_free_irqs(struct
- 		return;
- 
- 	msi_domain_free_irqs(msi_domain, dev);
--
--	if (list_empty(dev_to_msi_list(dev)))
--		return;
--
--	fsl_mc_msi_free_descs(dev);
- }
+On Fri,  3 Dec 2021 12:33:31 +0100 you wrote:
+> From: Tony Lu <tonylu@linux.alibaba.com>
+> 
+> Currently, buffers are cleared when smc connections are created and
+> buffers are reused. This slows down the speed of establishing new
+> connections. In most cases, the applications want to establish
+> connections as quickly as possible.
+> 
+> [...]
+
+Here is the summary with links:
+  - [net-next] net/smc: Clear memory when release and reuse buffer
+    https://git.kernel.org/netdev/net-next/c/1c5526968e27
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
