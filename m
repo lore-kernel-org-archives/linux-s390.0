@@ -2,159 +2,118 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4031AC433EF
-	for <linux-s390@archiver.kernel.org>; Tue,  7 Dec 2021 17:32:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 674D7C433EF
+	for <linux-s390@archiver.kernel.org>; Tue,  7 Dec 2021 17:40:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240029AbhLGRf6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 7 Dec 2021 12:35:58 -0500
-Received: from smtp-out1.suse.de ([195.135.220.28]:60796 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240016AbhLGRf6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Dec 2021 12:35:58 -0500
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id DF2B621B3A;
-        Tue,  7 Dec 2021 17:32:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1638898345; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=p08l+Qiu75dUbkbrDOZgOW1nBpHuW/LpB0uPvXqmigg=;
-        b=cH4AxDh7Z5spAiCFuPHAKizEL1PsQcuD6sHy/nDy6g6DqJxWj6EKz9trYz9SGJPlcnDGb8
-        9bDOPN4fQWIT+Snc356AncuT877BC9fLVRUEESgMaCpLUQ6mQ3DLrgvBE5l/VAwWgPb/Gd
-        DydMC8itHDTzzR0LreU778OxrU87fbU=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1638898345;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=p08l+Qiu75dUbkbrDOZgOW1nBpHuW/LpB0uPvXqmigg=;
-        b=S/L+c98qLLuIOJFQUyXpN3vhB98AZn1gpW5qWmNanBuCQ6j06b/XWIz1noRFtgEfQIaB3q
-        LER5Q9QzIbV0TYCA==
-Received: from kunlun.suse.cz (unknown [10.100.128.76])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 05243A3B83;
-        Tue,  7 Dec 2021 17:32:23 +0000 (UTC)
-Date:   Tue, 7 Dec 2021 18:32:21 +0100
-From:   Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
+        id S235158AbhLGRoZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 7 Dec 2021 12:44:25 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:6896 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229943AbhLGRoZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Dec 2021 12:44:25 -0500
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B7GptKk008525
+        for <linux-s390@vger.kernel.org>; Tue, 7 Dec 2021 17:40:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=sapi+1WJMj4XmAro8Lx+FM3mApZBsNe84ybL6n0u1XQ=;
+ b=c0qkudIa/HJvmPJqc24ybPCSgsBTKhgd9aip1r9M3CW1IkZaJpAGuCt/UZB83lGaqUvd
+ /LnAoR+prYi0BksPo8NSaPDJUU77A2o2JMOZjW7fowk8jbKJEQJ0tPvfT2viqEB2kUYn
+ 5RcyQoXtuKx82Lvo+mK7QWkbMCHz/xLWkWnw2IxVG5IhR13sI1br8/cVAtzqAZD8cgWY
+ 8RBeJvXJVZuJQSZ8vxJmMnfOPmbw8OFbzuNuny+WysNzgVmvSsvXbf4N19HWi9dGf4sb
+ Ld/JxPKr+X/xPJb4LzTkkqUrgG1UV5SqUcNXt7+Mt+s8TaTmBpWWbVFdfCvN9V32xj3D Gg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ctbgt0ysb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 07 Dec 2021 17:40:54 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1B7HG2xu030052
+        for <linux-s390@vger.kernel.org>; Tue, 7 Dec 2021 17:40:53 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ctbgt0yrv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 07 Dec 2021 17:40:53 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1B7HVrM6012628;
+        Tue, 7 Dec 2021 17:40:52 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma05fra.de.ibm.com with ESMTP id 3cqyy9fq1h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 07 Dec 2021 17:40:51 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1B7HentG18809186
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 7 Dec 2021 17:40:49 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 13D1811C052;
+        Tue,  7 Dec 2021 17:40:49 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CEA0C11C050;
+        Tue,  7 Dec 2021 17:40:48 +0000 (GMT)
+Received: from osiris (unknown [9.145.144.163])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Tue,  7 Dec 2021 17:40:48 +0000 (GMT)
+Date:   Tue, 7 Dec 2021 18:40:47 +0100
+From:   Heiko Carstens <hca@linux.ibm.com>
 To:     Philipp Rudo <prudo@redhat.com>
-Cc:     keyrings@vger.kernel.org, kexec@lists.infradead.org,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Nayna <nayna@linux.vnet.ibm.com>, Rob Herring <robh@kernel.org>,
-        linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Jessica Yu <jeyu@kernel.org>, linux-kernel@vger.kernel.org,
-        David Howells <dhowells@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Hari Bathini <hbathini@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linuxppc-dev@lists.ozlabs.org,
-        Frank van der Linden <fllinden@amazon.com>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Daniel Axtens <dja@axtens.net>, buendgen@de.ibm.com,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Baoquan He <bhe@redhat.com>, linux-crypto@vger.kernel.org,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org
-Subject: Re: [PATCH v2 0/6] KEXEC_SIG with appended signature
-Message-ID: <20211207173221.GM117207@kunlun.suse.cz>
-References: <cover.1637862358.git.msuchanek@suse.de>
- <20211207171014.2cfc4a54@rhtmp>
+Cc:     linux-s390@vger.kernel.org, egorenar@linux.ibm.com, ltao@redhat.com
+Subject: Re: [PATCH v2 1/2] s390/kexec_file: print some more error messages
+Message-ID: <Ya+cn+1tNhCPtXeQ@osiris>
+References: <20211207125749.6998-1-prudo@redhat.com>
+ <20211207125749.6998-2-prudo@redhat.com>
+ <Ya9988i7o788He/z@osiris>
+ <20211207181855.521b7d94@rhtmp>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20211207171014.2cfc4a54@rhtmp>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20211207181855.521b7d94@rhtmp>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: pAS62S2v_56CZC6pp0hTItT95Uu4HGFx
+X-Proofpoint-ORIG-GUID: 51Wtq3oRsLPFIEn04Vop5H-b51LBKKum
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2021-12-07_07,2021-12-06_02,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
+ malwarescore=0 phishscore=0 mlxlogscore=880 bulkscore=0 priorityscore=1501
+ suspectscore=0 lowpriorityscore=0 spamscore=0 mlxscore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
+ definitions=main-2112070109
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Dec 07, 2021 at 05:10:14PM +0100, Philipp Rudo wrote:
-> Hi Michal,
+> > > -		if (sym->st_shndx == SHN_COMMON)
+> > > +		if (sym->st_shndx == SHN_COMMON) {
+> > > +			pr_err("symbol in common section\n");
+> > >  			return -ENOEXEC;
+> > > +		}
+> > >  
+> > >  		if (sym->st_shndx >= pi->ehdr->e_shnum &&
+> > > -		    sym->st_shndx != SHN_ABS)
+> > > +		    sym->st_shndx != SHN_ABS) {
+> > > +			pr_err("Invalid section %d for symbol\n",
+> > > +			       sym->st_shndx);
+> > >  			return -ENOEXEC;  
+> > 
+> > So, if you add the additional error messages here, then I'd really
+> > like to see also the name of the symbol which is causing
+> > problems. Just like it is done on x86.
+> > Sorry for nitpicking :)
 > 
-> i finally had the time to take a closer look at the series. Except for
-> the nit in patch 4 and my personal preference in patch 6 the code looks
-> good to me.
+> I actually dropped the name on purpose. At least for my work flow
+> knowing which check failed is more important as that already allows
+> me to search for, e.g. all undefined symbols as each of them can cause
+> trouble. Which symbol exactly triggered the check isn't that important.
+> In addition, the code to get a symbol name is rather ugly. At least
+> when you compare it to its usefulness.
 > 
-> What I don't like are the commit messages on the first commits. In my
-> opinion they are so short that they are almost useless. For example in
-> patch 2 there is absolutely no explanation why you can simply copy the
-> s390 over to ppc.
+> But when you insist...
 
-They use the same signature format. I suppose I can add a note saying
-that.
+Yes, please.
 
-> Or in patch 3 you are silently changing the error
-> code in kexec from EKEYREJECT to ENODATA. So I would appreciate it if
+> P.S. To avoid an other round for that patch. Do you also want the two
+>      pr_debugs?
 
-Not sure what I should do about this. The different implementations use
-different random error codes, and when they are unified the error code
-clearly changes for one or the other.
+No, I don't think they are needed.
 
-Does anything depend on a particular error code returned?
-
-Thanks
-
-Michal
-
-> you could improve them a little.
-> 
-> Thanks
-> Philipp
-> 
-> On Thu, 25 Nov 2021 19:02:38 +0100
-> Michal Suchanek <msuchanek@suse.de> wrote:
-> 
-> > Hello,
-> > 
-> > This is resend of the KEXEC_SIG patchset.
-> > 
-> > The first patch is new because it'a a cleanup that does not require any
-> > change to the module verification code.
-> > 
-> > The second patch is the only one that is intended to change any
-> > functionality.
-> > 
-> > The rest only deduplicates code but I did not receive any review on that
-> > part so I don't know if it's desirable as implemented.
-> > 
-> > The first two patches can be applied separately without the rest.
-> > 
-> > Thanks
-> > 
-> > Michal
-> > 
-> > Michal Suchanek (6):
-> >   s390/kexec_file: Don't opencode appended signature check.
-> >   powerpc/kexec_file: Add KEXEC_SIG support.
-> >   kexec_file: Don't opencode appended signature verification.
-> >   module: strip the signature marker in the verification function.
-> >   module: Use key_being_used_for for log messages in
-> >     verify_appended_signature
-> >   module: Move duplicate mod_check_sig users code to mod_parse_sig
-> > 
-> >  arch/powerpc/Kconfig                     | 11 +++++
-> >  arch/powerpc/kexec/elf_64.c              | 14 ++++++
-> >  arch/s390/kernel/machine_kexec_file.c    | 42 ++----------------
-> >  crypto/asymmetric_keys/asymmetric_type.c |  1 +
-> >  include/linux/module_signature.h         |  1 +
-> >  include/linux/verification.h             |  4 ++
-> >  kernel/module-internal.h                 |  2 -
-> >  kernel/module.c                          | 12 +++--
-> >  kernel/module_signature.c                | 56 +++++++++++++++++++++++-
-> >  kernel/module_signing.c                  | 33 +++++++-------
-> >  security/integrity/ima/ima_modsig.c      | 22 ++--------
-> >  11 files changed, 113 insertions(+), 85 deletions(-)
-> > 
-> 
+Thank you!
