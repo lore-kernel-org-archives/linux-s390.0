@@ -2,150 +2,142 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D64ECC433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Dec 2021 08:04:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 252CEC433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Dec 2021 08:10:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240425AbhLHIIL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Dec 2021 03:08:11 -0500
-Received: from mga09.intel.com ([134.134.136.24]:10250 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244637AbhLHIIL (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 8 Dec 2021 03:08:11 -0500
-X-IronPort-AV: E=McAfee;i="6200,9189,10191"; a="237587617"
-X-IronPort-AV: E=Sophos;i="5.87,296,1631602800"; 
-   d="scan'208";a="237587617"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Dec 2021 00:04:39 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.87,296,1631602800"; 
-   d="scan'208";a="612013346"
-Received: from lkp-server02.sh.intel.com (HELO 9e1e9f9b3bcb) ([10.239.97.151])
-  by orsmga004.jf.intel.com with ESMTP; 08 Dec 2021 00:04:35 -0800
-Received: from kbuild by 9e1e9f9b3bcb with local (Exim 4.92)
-        (envelope-from <lkp@intel.com>)
-        id 1murwJ-0000GF-2Y; Wed, 08 Dec 2021 08:04:35 +0000
-Date:   Wed, 8 Dec 2021 16:04:22 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     kbuild-all@lists.01.org, alex.williamson@redhat.com,
-        cohuck@redhat.com, schnelle@linux.ibm.com, farman@linux.ibm.com,
-        pmorel@linux.ibm.com, borntraeger@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, gerald.schaefer@linux.ibm.com
-Subject: Re: [PATCH 23/32] KVM: s390: pci: handle refresh of PCI translations
-Message-ID: <202112081537.qiFqvLb1-lkp@intel.com>
-References: <20211207205743.150299-24-mjrosato@linux.ibm.com>
+        id S244664AbhLHINv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Dec 2021 03:13:51 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:45804 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S244653AbhLHINu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Dec 2021 03:13:50 -0500
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B86N7w9022178;
+        Wed, 8 Dec 2021 08:10:17 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=Yov6zh/U1Si+vqKskjQnhGfHU9BznGr/TOyvV0YNvQY=;
+ b=qfyYWu4qrclCWWyS/pYKDM9nRpa0xqzXStrET8MrDsDVY89/mgwg9hqOTPboDgns6jif
+ hDcTSX1AnqmSdgRXNfirDajkATIfxSFZB/zD71Igj5Bu+8lGcBZpjLVxUPwvIR8pg3jw
+ RsvR0ViJr+sG/JDZjJZjte75FlDjc0nFlQ6dOYRnl7gVylpIMPyykwfhCdeY4Zre+Wrk
+ Os24DYc57B8Z+tLLq929cMU6eIHxmqNZmUbnuSOOZ7GnFbhjiTAnlwpd08dWA+kO5PGW
+ LCB6oynj6KCGLYJu/DcMYOFptN3x9xZUOzr7vQ3npx6+6/fcgaiOnLG/O1DKfz627/Vs Kg== 
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ctqd19uc9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Dec 2021 08:10:17 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1B889Epi024752;
+        Wed, 8 Dec 2021 08:10:15 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma04ams.nl.ibm.com with ESMTP id 3cqyyaw41v-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Dec 2021 08:10:15 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1B882T4814483904
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 8 Dec 2021 08:02:29 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 85884A4068;
+        Wed,  8 Dec 2021 08:10:11 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2E008A405F;
+        Wed,  8 Dec 2021 08:10:11 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.145.3.18])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed,  8 Dec 2021 08:10:11 +0000 (GMT)
+Date:   Wed, 8 Dec 2021 09:10:08 +0100
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        borntraeger@linux.ibm.com
+Subject: Re: [PATCH] s390: uv: Add offset comments to UV query struct
+Message-ID: <20211208091008.09874eba@p-imbrenda>
+In-Reply-To: <20211207160510.1818-1-frankja@linux.ibm.com>
+References: <20211207160510.1818-1-frankja@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211207205743.150299-24-mjrosato@linux.ibm.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: QbGl6heyQSBO0KB4zJ7nhIwEgnJQBaVc
+X-Proofpoint-GUID: QbGl6heyQSBO0KB4zJ7nhIwEgnJQBaVc
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2021-12-08_03,2021-12-06_02,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 clxscore=1015
+ bulkscore=0 impostorscore=0 adultscore=0 mlxscore=0 mlxlogscore=999
+ spamscore=0 phishscore=0 priorityscore=1501 lowpriorityscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2112080054
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Matthew,
+On Tue,  7 Dec 2021 16:05:10 +0000
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-I love your patch! Perhaps something to improve:
+> Changes to the struct are easier to manage with offset comments so
+> let's add some.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>  arch/s390/include/asm/uv.h | 34 +++++++++++++++++-----------------
+>  1 file changed, 17 insertions(+), 17 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
+> index 72d3e49c2860..235bd5cc8289 100644
+> --- a/arch/s390/include/asm/uv.h
+> +++ b/arch/s390/include/asm/uv.h
+> @@ -91,23 +91,23 @@ struct uv_cb_header {
+>  
+>  /* Query Ultravisor Information */
+>  struct uv_cb_qui {
+> -	struct uv_cb_header header;
+> -	u64 reserved08;
+> -	u64 inst_calls_list[4];
+> -	u64 reserved30[2];
+> -	u64 uv_base_stor_len;
+> -	u64 reserved48;
+> -	u64 conf_base_phys_stor_len;
+> -	u64 conf_base_virt_stor_len;
+> -	u64 conf_virt_var_stor_len;
+> -	u64 cpu_stor_len;
+> -	u32 reserved70[3];
+> -	u32 max_num_sec_conf;
+> -	u64 max_guest_stor_addr;
+> -	u8  reserved88[158 - 136];
+> -	u16 max_guest_cpu_id;
+> -	u64 uv_feature_indications;
+> -	u8  reserveda0[200 - 168];
+> +	struct uv_cb_header header;		/* 0x0000 */
+> +	u64 reserved08;				/* 0x0008 */
+> +	u64 inst_calls_list[4];			/* 0x0010 */
+> +	u64 reserved30[2];			/* 0x0030 */
+> +	u64 uv_base_stor_len;			/* 0x0040 */
+> +	u64 reserved48;				/* 0x0048 */
+> +	u64 conf_base_phys_stor_len;		/* 0x0050 */
+> +	u64 conf_base_virt_stor_len;		/* 0x0058 */
+> +	u64 conf_virt_var_stor_len;		/* 0x0060 */
+> +	u64 cpu_stor_len;			/* 0x0068 */
+> +	u32 reserved70[3];			/* 0x0070 */
+> +	u32 max_num_sec_conf;			/* 0x007c */
+> +	u64 max_guest_stor_addr;		/* 0x0080 */
+> +	u8  reserved88[158 - 136];		/* 0x0088 */
+> +	u16 max_guest_cpu_id;			/* 0x009e */
+> +	u64 uv_feature_indications;		/* 0x00a0 */
+> +	u8  reserveda0[200 - 168];		/* 0x00a8 */
 
-[auto build test WARNING on v5.16-rc4]
-[cannot apply to s390/features kvms390/next awilliam-vfio/next next-20211207]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch]
+since you're changing stuff, maybe fix the name?
+s/reserveda0/reserveda8/
 
-url:    https://github.com/0day-ci/linux/commits/Matthew-Rosato/KVM-s390-enable-zPCI-for-interpretive-execution/20211208-050204
-base:    0fcfb00b28c0b7884635dacf38e46d60bf3d4eb1
-config: s390-allyesconfig (https://download.01.org/0day-ci/archive/20211208/202112081537.qiFqvLb1-lkp@intel.com/config)
-compiler: s390-linux-gcc (GCC) 11.2.0
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # https://github.com/0day-ci/linux/commit/84cb5df859beb99f52b3d3b133ff1f9b5a459558
-        git remote add linux-review https://github.com/0day-ci/linux
-        git fetch --no-tags linux-review Matthew-Rosato/KVM-s390-enable-zPCI-for-interpretive-execution/20211208-050204
-        git checkout 84cb5df859beb99f52b3d3b133ff1f9b5a459558
-        # save the config file to linux build tree
-        mkdir build_dir
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.2.0 make.cross O=build_dir ARCH=s390 SHELL=/bin/bash arch/s390/kvm/
+with that fixed:
 
-If you fix the issue, kindly add following tag as appropriate
-Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-All warnings (new ones prefixed by >>):
+>  } __packed __aligned(8);
+>  
+>  /* Initialize Ultravisor */
 
->> arch/s390/kvm/pci.c:179:16: warning: no previous prototype for 'dma_walk_guest_cpu_trans' [-Wmissing-prototypes]
-     179 | unsigned long *dma_walk_guest_cpu_trans(struct kvm_vcpu *vcpu,
-         |                ^~~~~~~~~~~~~~~~~~~~~~~~
-
-
-vim +/dma_walk_guest_cpu_trans +179 arch/s390/kvm/pci.c
-
-   178	
- > 179	unsigned long *dma_walk_guest_cpu_trans(struct kvm_vcpu *vcpu,
-   180						struct kvm_zdev_ioat *ioat,
-   181						dma_addr_t dma_addr)
-   182	{
-   183		unsigned long *rto, *sto, *pto;
-   184		unsigned int rtx, rts, sx, px, idx;
-   185		struct page *page;
-   186		gpa_t addr;
-   187		int i;
-   188	
-   189		/* Pin guest segment table if needed */
-   190		rtx = calc_rtx(dma_addr);
-   191		rto = ioat->head[(rtx / ZPCI_TABLE_ENTRIES_PER_PAGE)];
-   192		rts = rtx * ZPCI_TABLE_PAGES;
-   193		if (!ioat->seg[rts]) {
-   194			if (!reg_entry_isvalid(rto[rtx % ZPCI_TABLE_ENTRIES_PER_PAGE]))
-   195				return NULL;
-   196			sto = get_rt_sto(rto[rtx % ZPCI_TABLE_ENTRIES_PER_PAGE]);
-   197			addr = ((u64)sto & ZPCI_RTE_ADDR_MASK);
-   198			idx = srcu_read_lock(&vcpu->kvm->srcu);
-   199			for (i = 0; i < ZPCI_TABLE_PAGES; i++) {
-   200				page = gfn_to_page(vcpu->kvm, gpa_to_gfn(addr));
-   201				if (is_error_page(page)) {
-   202					srcu_read_unlock(&vcpu->kvm->srcu, idx);
-   203					return NULL;
-   204				}
-   205				ioat->seg[rts + i] = page_to_virt(page) +
-   206						     (addr & ~PAGE_MASK);
-   207				addr += PAGE_SIZE;
-   208			}
-   209			srcu_read_unlock(&vcpu->kvm->srcu, idx);
-   210		}
-   211	
-   212		/* Allocate pin pointers for another segment table if needed */
-   213		if (!ioat->pt[rtx]) {
-   214			ioat->pt[rtx] = kcalloc(ZPCI_TABLE_ENTRIES,
-   215						(sizeof(unsigned long *)), GFP_KERNEL);
-   216			if (!ioat->pt[rtx])
-   217				return NULL;
-   218		}
-   219		/* Pin guest page table if needed */
-   220		sx = calc_sx(dma_addr);
-   221		sto = ioat->seg[(rts + (sx / ZPCI_TABLE_ENTRIES_PER_PAGE))];
-   222		if (!ioat->pt[rtx][sx]) {
-   223			if (!reg_entry_isvalid(sto[sx % ZPCI_TABLE_ENTRIES_PER_PAGE]))
-   224				return NULL;
-   225			pto = get_st_pto(sto[sx % ZPCI_TABLE_ENTRIES_PER_PAGE]);
-   226			if (!pto)
-   227				return NULL;
-   228			addr = ((u64)pto & ZPCI_STE_ADDR_MASK);
-   229			idx = srcu_read_lock(&vcpu->kvm->srcu);
-   230			page = gfn_to_page(vcpu->kvm, gpa_to_gfn(addr));
-   231			srcu_read_unlock(&vcpu->kvm->srcu, idx);
-   232			if (is_error_page(page))
-   233				return NULL;
-   234			ioat->pt[rtx][sx] = page_to_virt(page) + (addr & ~PAGE_MASK);
-   235		}
-   236		pto = ioat->pt[rtx][sx];
-   237	
-   238		/* Return guest PTE */
-   239		px = calc_px(dma_addr);
-   240		return &pto[px];
-   241	}
-   242	
-
----
-0-DAY CI Kernel Test Service, Intel Corporation
-https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
