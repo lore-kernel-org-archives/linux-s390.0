@@ -2,144 +2,198 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 19791C433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Dec 2021 14:33:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C2274C433FE
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Dec 2021 15:04:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231398AbhLHOhM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Dec 2021 09:37:12 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:14100 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235192AbhLHOhL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Dec 2021 09:37:11 -0500
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B8DMg0X020975;
-        Wed, 8 Dec 2021 14:33:39 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=xIW1H2jSzOIOpq9Vd7TDRv1GCS4O1mkWCPZuT3KG6Ts=;
- b=XuiFqogsW0B+k+DebHrrdmFfZ0IVFRQtt5gJ2ypdT/IQWF4zp8KqdPNCV1AaYGCQXBfI
- CxPyMFXkBt1WaCAGSKw+j3ZZySB4U/1zXY29FCSDD7UK/R06irSupA/Nk3K25kMehJvH
- PxyrkLiwvC4tsLoCQFL8LNmGgUP6SyMlN2XVMCbcArWtYBNXIM7WDo5BxI0YSWZxV+VE
- L/2yvfmiiUeytxhM80/pJzBSy3lUMMHgDtWci1Ii8z9q/UpTMbhLeyrMuq5Z821hPQZl
- znzcMQ390tL53DlUdtLgvASYDD9lgvfp0x4pU8KBsSEcWuMgZGvQZBCmjwhEWZNmCEH8 yg== 
+        id S235614AbhLHPI1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Dec 2021 10:08:27 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:10024 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235616AbhLHPIW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Dec 2021 10:08:22 -0500
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B8ErGRc017260;
+        Wed, 8 Dec 2021 15:04:49 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=5ZzGJFNHOId4Fg8Lm8qhIqr7WLjSOU+9kIfRCaUQ4Ck=;
+ b=nH1KyjX0pXYieqXIUNScTM1kvGu0IGoNrSdSZxe8T0ld6i7kjjC9nHSHqNRs9ewhQFpJ
+ BzEyOyFTOipR41W+Q61CJJ0FK5pP3TYYosqnw8HVy6ygqIPcJINJyw21Un0lSOdz2owI
+ n2U5HjKmurGUX27sBMgr9hHLmaaxwoQi6f9MbZEfHMYHQGHkeLf9lm0dBEOjmeuiR1bz
+ CngrVawlhZsn3DhOn9MAQwrN7ouS7Jl6Hn04is0WG9tDrJ1uXN1jn/GI2Rx4jFYyoDnI
+ MGF5ZIiGw7v6/dTkTx3RJuMum05KK3gRlhM0a4/nieg15l6aP3y0x63EYJIphSKBbhXl zg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ctwhp9gvp-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ctxv688pe-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 08 Dec 2021 14:33:39 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1B8EIrUw038725;
-        Wed, 8 Dec 2021 14:33:38 GMT
-Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ctwhp9gvb-1
+        Wed, 08 Dec 2021 15:04:49 +0000
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1B8EvCwp028277;
+        Wed, 8 Dec 2021 15:04:49 GMT
+Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ctxv688p0-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 08 Dec 2021 14:33:38 +0000
-Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
-        by ppma01dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1B8ERtZ1016538;
-        Wed, 8 Dec 2021 14:33:37 GMT
-Received: from b03cxnp08025.gho.boulder.ibm.com (b03cxnp08025.gho.boulder.ibm.com [9.17.130.17])
-        by ppma01dal.us.ibm.com with ESMTP id 3cqyycn2b1-1
+        Wed, 08 Dec 2021 15:04:48 +0000
+Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
+        by ppma04wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1B8Elsxv017866;
+        Wed, 8 Dec 2021 15:04:47 GMT
+Received: from b01cxnp22035.gho.pok.ibm.com (b01cxnp22035.gho.pok.ibm.com [9.57.198.25])
+        by ppma04wdc.us.ibm.com with ESMTP id 3cqyyb3nxp-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 08 Dec 2021 14:33:37 +0000
-Received: from b03ledav002.gho.boulder.ibm.com (b03ledav002.gho.boulder.ibm.com [9.17.130.233])
-        by b03cxnp08025.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1B8EXXcG60031350
+        Wed, 08 Dec 2021 15:04:47 +0000
+Received: from b01ledav003.gho.pok.ibm.com (b01ledav003.gho.pok.ibm.com [9.57.199.108])
+        by b01cxnp22035.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1B8F4k3t27001156
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 8 Dec 2021 14:33:33 GMT
-Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A7964136068;
-        Wed,  8 Dec 2021 14:33:33 +0000 (GMT)
-Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BE69B13604F;
-        Wed,  8 Dec 2021 14:33:31 +0000 (GMT)
-Received: from farman-thinkpad-t470p (unknown [9.211.151.152])
-        by b03ledav002.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Wed,  8 Dec 2021 14:33:31 +0000 (GMT)
-Message-ID: <920e05abe1116263a00a51104feb80a07acca0c1.camel@linux.ibm.com>
-Subject: Re: [PATCH 01/32] s390/sclp: detect the zPCI interpretation facility
-From:   Eric Farman <farman@linux.ibm.com>
-To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Wed, 8 Dec 2021 15:04:46 GMT
+Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EA9D6B2066;
+        Wed,  8 Dec 2021 15:04:45 +0000 (GMT)
+Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 60D9DB206C;
+        Wed,  8 Dec 2021 15:04:38 +0000 (GMT)
+Received: from [9.211.152.43] (unknown [9.211.152.43])
+        by b01ledav003.gho.pok.ibm.com (Postfix) with ESMTP;
+        Wed,  8 Dec 2021 15:04:37 +0000 (GMT)
+Message-ID: <97f867f3-d582-c8d2-9336-98a92d184961@linux.ibm.com>
+Date:   Wed, 8 Dec 2021 10:04:36 -0500
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [PATCH 20/32] KVM: s390: pci: provide routines for
+ enabling/disabling interpretation
+Content-Language: en-US
+To:     Niklas Schnelle <schnelle@linux.ibm.com>,
         linux-s390@vger.kernel.org
 Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
-        schnelle@linux.ibm.com, pmorel@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, gerald.schaefer@linux.ibm.com,
-        agordeev@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
-        imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
-        oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
-        pasic@linux.ibm.com, kvm@vger.kernel.org,
+        farman@linux.ibm.com, pmorel@linux.ibm.com,
+        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
+        vneethv@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com,
+        thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Date:   Wed, 08 Dec 2021 09:33:30 -0500
-In-Reply-To: <3ed8f5ca-e508-e261-e71d-875f5762f2f9@linux.ibm.com>
 References: <20211207205743.150299-1-mjrosato@linux.ibm.com>
-         <20211207205743.150299-2-mjrosato@linux.ibm.com>
-         <3ed8f5ca-e508-e261-e71d-875f5762f2f9@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-16.el8) 
-Mime-Version: 1.0
+ <20211207205743.150299-21-mjrosato@linux.ibm.com>
+ <8c2f83d2186e93965eba74356126df7fd35d9a41.camel@linux.ibm.com>
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <8c2f83d2186e93965eba74356126df7fd35d9a41.camel@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Wyn5hZyz-h2SMAZywB2SaIV3iiGurTa7
-X-Proofpoint-ORIG-GUID: p0RNlG_i9UIB6FRVmcYrOXKqTFge2_23
+X-Proofpoint-GUID: VYcW3kS46ytNN2s9cpT_PSjtLMj7etNf
+X-Proofpoint-ORIG-GUID: N3yFQjtM4d6m7eWHLPpL1QjRC_br2zB6
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2021-12-08_05,2021-12-08_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- lowpriorityscore=0 suspectscore=0 mlxlogscore=999 clxscore=1011
- impostorscore=0 spamscore=0 phishscore=0 adultscore=0 mlxscore=0
- bulkscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2112080091
+ definitions=2021-12-08_06,2021-12-08_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
+ adultscore=0 mlxlogscore=999 malwarescore=0 spamscore=0 clxscore=1015
+ suspectscore=0 lowpriorityscore=0 impostorscore=0 phishscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2112080093
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 2021-12-08 at 12:12 +0100, Christian Borntraeger wrote:
-> Am 07.12.21 um 21:57 schrieb Matthew Rosato:
-> > Detect the zPCI Load/Store Interpretation facility.
-> > 
-> > Reviewed-by: Eric Farman <farman@linux.ibm.com>
-> > Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> > ---
-> >   arch/s390/include/asm/sclp.h   | 1 +
-> >   drivers/s390/char/sclp_early.c | 1 +
-> >   2 files changed, 2 insertions(+)
-> > 
-> > diff --git a/arch/s390/include/asm/sclp.h
-> > b/arch/s390/include/asm/sclp.h
-> > index c68ea35de498..c84e8e0ca344 100644
-> > --- a/arch/s390/include/asm/sclp.h
-> > +++ b/arch/s390/include/asm/sclp.h
-> > @@ -88,6 +88,7 @@ struct sclp_info {
-> >   	unsigned char has_diag318 : 1;
-> >   	unsigned char has_sipl : 1;
-> >   	unsigned char has_dirq : 1;
-> > +	unsigned char has_zpci_interp : 1;
+On 12/8/21 4:44 AM, Niklas Schnelle wrote:
+> On Tue, 2021-12-07 at 15:57 -0500, Matthew Rosato wrote:
+>> These routines will be wired into the vfio_pci_zdev ioctl handlers to
+>> respond to requests to enable / disable a device for zPCI Load/Store
+>> interpretation.
+>>
+>> The first time such a request is received, enable the necessary facilities
+>> for the guest.
+>>
+>> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+>> ---
+>>   arch/s390/include/asm/kvm_pci.h |  4 ++
+>>   arch/s390/kvm/pci.c             | 91 +++++++++++++++++++++++++++++++++
+>>   arch/s390/pci/pci.c             |  3 ++
+>>   3 files changed, 98 insertions(+)
+>>
+>> diff --git a/arch/s390/include/asm/kvm_pci.h b/arch/s390/include/asm/kvm_pci.h
+>> index 3e491a39704c..5d6283acb54c 100644
+>> --- a/arch/s390/include/asm/kvm_pci.h
+>>
+> ---8<---
+>> 		return rc;
+>> +	}
+>> +
+>> +	/*
+>> +	 * Store information about the identity of the kvm guest allowed to
+>> +	 * access this device via interpretation to be used by host CLP
+>> +	 */
+>> +	zdev->gd = gd;
+>> +
+>> +	rc = zpci_enable_device(zdev);
+>> +	if (rc)
+>> +		goto err;
+>> +
+>> +	/* Re-register the IOMMU that was already created */
+>> +	rc = zpci_register_ioat(zdev, 0, zdev->start_dma, zdev->end_dma,
+>> +				(u64)zdev->dma_table);
 > 
-> maybe use zpci_lsi (load store interpretion) as pci interpretion
-> would be something else (also fix the the subject line).
-> With that
+> The zdev->dma_table is a virtual address but we need an absolute
+> address in the MPCIFC so the above should use
+> virt_to_phys(zdev->dma_table) to be compatible with future V != R
+> kernel memory. As of now since virtual and absolute kernel addresses
+> are the same this is not a bug and we've had this (wrong) pattern in
+> the rest of the code but let's get it righht here from the start.
 > 
-> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> See also my commit "s390/pci: use physical addresses in DMA tables"
+> that is currently in the s390 feature branch.
 
-My r-b can stay with Christian's suggested change.
+You're right of course -- I saw those changes happening as I prepared 
+this series but I didn't want to delay getting comments any longer, what 
+with the holidays approaching.  Of course, I didn't realize they were 
+already out on the feature branch.
+
+I suspect there is some more of this also in the code related to 
+handling RPCIT.  AEN setup too.
 
 > 
+>> +	if (rc)
+>> +		goto err;
+>> +
+>> +	return rc;
+>> +
+>> +err:
+>> +	zdev->gd = 0;
+>> +	return rc;
+>> +}
+>> +EXPORT_SYMBOL_GPL(kvm_s390_pci_interp_enable);
+>> +
+>> +int kvm_s390_pci_interp_disable(struct zpci_dev *zdev)
+>> +{
+>> +	int rc;
+>> +
+>> +	if (zdev->gd == 0)
+>> +		return -EINVAL;
+>> +
+>> +	/* Remove the host CLP guest designation */
+>> +	zdev->gd = 0;
+>> +
+>> +	if (zdev_enabled(zdev)) {
+>> +		rc = zpci_disable_device(zdev);
+>> +		if (rc)
+>> +			return rc;
+>> +	}
+>> +
+>> +	rc = zpci_enable_device(zdev);
+>> +	if (rc)
+>> +		return rc;
+>> +
+>> +	/* Re-register the IOMMU that was already created */
+>> +	rc = zpci_register_ioat(zdev, 0, zdev->start_dma, zdev->end_dma,
+>> +				(u64)zdev->dma_table);
 > 
-> >   	unsigned int ibc;
-> >   	unsigned int mtid;
-> >   	unsigned int mtid_cp;
-> > diff --git a/drivers/s390/char/sclp_early.c
-> > b/drivers/s390/char/sclp_early.c
-> > index b64feab62caa..2e8199b7ae50 100644
-> > --- a/drivers/s390/char/sclp_early.c
-> > +++ b/drivers/s390/char/sclp_early.c
-> > @@ -45,6 +45,7 @@ static void __init
-> > sclp_early_facilities_detect(void)
-> >   	sclp.has_gisaf = !!(sccb->fac118 & 0x08);
-> >   	sclp.has_hvs = !!(sccb->fac119 & 0x80);
-> >   	sclp.has_kss = !!(sccb->fac98 & 0x01);
-> > +	sclp.has_zpci_interp = !!(sccb->fac118 & 0x01);
-> >   	if (sccb->fac85 & 0x02)
-> >   		S390_lowcore.machine_flags |= MACHINE_FLAG_ESOP;
-> >   	if (sccb->fac91 & 0x40)
-> > 
+> Same as above
+> 
+>> +
+>> +	return rc;
+>> +}
+>> +EXPORT_SYMBOL_GPL(kvm_s390_pci_interp_disable);
+>> +
+>>
+> ---8<---
+> 
 
