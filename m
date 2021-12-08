@@ -2,168 +2,144 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A8CAC433F5
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Dec 2021 14:25:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 19791C433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Dec 2021 14:33:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235084AbhLHO3B (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Dec 2021 09:29:01 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:34620 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232661AbhLHO3A (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Dec 2021 09:29:00 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1638973527;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=1IVTJNfmaEDM23Hd/62LzRs7TSG8ZwNZGUSqYW+zQh4=;
-        b=aek1E5RTmdupvyNPL27JlW4WFnUNxVWjvAHzYeg44lCLx6jyHsdYaRD2mmnahG8s76FLjb
-        cvWd5znoBN7hZG2fP9bXOew7U7E7wyySu8DXyGZLxxlewecO+u1mlx/lSOcPu8GFY0SHJv
-        aQ3KjRFx5QCL098LSeyJ67iiVQfbHm4=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-253-TK7W-aVPPBKkn5IsyGmK6Q-1; Wed, 08 Dec 2021 09:25:24 -0500
-X-MC-Unique: TK7W-aVPPBKkn5IsyGmK6Q-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E9818801AAB;
-        Wed,  8 Dec 2021 14:25:22 +0000 (UTC)
-Received: from localhost (unknown [10.39.193.94])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 62E7D781EF;
-        Wed,  8 Dec 2021 14:25:22 +0000 (UTC)
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Thomas Huth <thuth@redhat.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Tony Krowiak <akrowiak@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>
-Cc:     linux-kernel@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [RFC PATCH] s390: vfio-ap: Register the vfio_ap module for the
- "ap" parent bus
-In-Reply-To: <0f1c6b3e-7e33-6fd1-11e7-f4857ec55105@redhat.com>
-Organization: Red Hat GmbH
-References: <20211201141110.94636-1-thuth@redhat.com>
- <210e3c57-bdc2-09ed-3e41-8dab57e8f36c@linux.ibm.com>
- <319a5ce7-873b-b8b9-1fa8-f2a69b418ac4@redhat.com>
- <15a39981-37ca-ed2d-3baf-c4cb74f8c343@linux.ibm.com>
- <0f1c6b3e-7e33-6fd1-11e7-f4857ec55105@redhat.com>
-User-Agent: Notmuch/0.34 (https://notmuchmail.org)
-Date:   Wed, 08 Dec 2021 15:25:20 +0100
-Message-ID: <87a6hbtbqn.fsf@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+        id S231398AbhLHOhM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Dec 2021 09:37:12 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:14100 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235192AbhLHOhL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Dec 2021 09:37:11 -0500
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B8DMg0X020975;
+        Wed, 8 Dec 2021 14:33:39 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=xIW1H2jSzOIOpq9Vd7TDRv1GCS4O1mkWCPZuT3KG6Ts=;
+ b=XuiFqogsW0B+k+DebHrrdmFfZ0IVFRQtt5gJ2ypdT/IQWF4zp8KqdPNCV1AaYGCQXBfI
+ CxPyMFXkBt1WaCAGSKw+j3ZZySB4U/1zXY29FCSDD7UK/R06irSupA/Nk3K25kMehJvH
+ PxyrkLiwvC4tsLoCQFL8LNmGgUP6SyMlN2XVMCbcArWtYBNXIM7WDo5BxI0YSWZxV+VE
+ L/2yvfmiiUeytxhM80/pJzBSy3lUMMHgDtWci1Ii8z9q/UpTMbhLeyrMuq5Z821hPQZl
+ znzcMQ390tL53DlUdtLgvASYDD9lgvfp0x4pU8KBsSEcWuMgZGvQZBCmjwhEWZNmCEH8 yg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ctwhp9gvp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Dec 2021 14:33:39 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1B8EIrUw038725;
+        Wed, 8 Dec 2021 14:33:38 GMT
+Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ctwhp9gvb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Dec 2021 14:33:38 +0000
+Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
+        by ppma01dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1B8ERtZ1016538;
+        Wed, 8 Dec 2021 14:33:37 GMT
+Received: from b03cxnp08025.gho.boulder.ibm.com (b03cxnp08025.gho.boulder.ibm.com [9.17.130.17])
+        by ppma01dal.us.ibm.com with ESMTP id 3cqyycn2b1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Dec 2021 14:33:37 +0000
+Received: from b03ledav002.gho.boulder.ibm.com (b03ledav002.gho.boulder.ibm.com [9.17.130.233])
+        by b03cxnp08025.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1B8EXXcG60031350
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 8 Dec 2021 14:33:33 GMT
+Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A7964136068;
+        Wed,  8 Dec 2021 14:33:33 +0000 (GMT)
+Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BE69B13604F;
+        Wed,  8 Dec 2021 14:33:31 +0000 (GMT)
+Received: from farman-thinkpad-t470p (unknown [9.211.151.152])
+        by b03ledav002.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Wed,  8 Dec 2021 14:33:31 +0000 (GMT)
+Message-ID: <920e05abe1116263a00a51104feb80a07acca0c1.camel@linux.ibm.com>
+Subject: Re: [PATCH 01/32] s390/sclp: detect the zPCI interpretation facility
+From:   Eric Farman <farman@linux.ibm.com>
+To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        linux-s390@vger.kernel.org
+Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
+        schnelle@linux.ibm.com, pmorel@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, gerald.schaefer@linux.ibm.com,
+        agordeev@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
+        imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
+        oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Date:   Wed, 08 Dec 2021 09:33:30 -0500
+In-Reply-To: <3ed8f5ca-e508-e261-e71d-875f5762f2f9@linux.ibm.com>
+References: <20211207205743.150299-1-mjrosato@linux.ibm.com>
+         <20211207205743.150299-2-mjrosato@linux.ibm.com>
+         <3ed8f5ca-e508-e261-e71d-875f5762f2f9@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-16.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Wyn5hZyz-h2SMAZywB2SaIV3iiGurTa7
+X-Proofpoint-ORIG-GUID: p0RNlG_i9UIB6FRVmcYrOXKqTFge2_23
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2021-12-08_05,2021-12-08_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ lowpriorityscore=0 suspectscore=0 mlxlogscore=999 clxscore=1011
+ impostorscore=0 spamscore=0 phishscore=0 adultscore=0 mlxscore=0
+ bulkscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2112080091
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Dec 08 2021, Thomas Huth <thuth@redhat.com> wrote:
+On Wed, 2021-12-08 at 12:12 +0100, Christian Borntraeger wrote:
+> Am 07.12.21 um 21:57 schrieb Matthew Rosato:
+> > Detect the zPCI Load/Store Interpretation facility.
+> > 
+> > Reviewed-by: Eric Farman <farman@linux.ibm.com>
+> > Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> > ---
+> >   arch/s390/include/asm/sclp.h   | 1 +
+> >   drivers/s390/char/sclp_early.c | 1 +
+> >   2 files changed, 2 insertions(+)
+> > 
+> > diff --git a/arch/s390/include/asm/sclp.h
+> > b/arch/s390/include/asm/sclp.h
+> > index c68ea35de498..c84e8e0ca344 100644
+> > --- a/arch/s390/include/asm/sclp.h
+> > +++ b/arch/s390/include/asm/sclp.h
+> > @@ -88,6 +88,7 @@ struct sclp_info {
+> >   	unsigned char has_diag318 : 1;
+> >   	unsigned char has_sipl : 1;
+> >   	unsigned char has_dirq : 1;
+> > +	unsigned char has_zpci_interp : 1;
+> 
+> maybe use zpci_lsi (load store interpretion) as pci interpretion
+> would be something else (also fix the the subject line).
+> With that
+> 
+> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 
-> On 02/12/2021 09.33, Harald Freudenberger wrote:
->> On 02.12.21 08:13, Thomas Huth wrote:
->>> On 01/12/2021 18.10, Harald Freudenberger wrote:
->>>> On 01.12.21 15:11, Thomas Huth wrote:
->>>>> The crypto devices that we can use with the vfio_ap module are sitting
->>>>> on the "ap" bus, not on the "vfio_ap" bus that the module defines
->>>>> itself. With this change, the vfio_ap module now gets automatically
->>>>> loaded if a supported crypto adapter is available in the host.
->>>>>
->>>>> Signed-off-by: Thomas Huth <thuth@redhat.com>
->>>>> ---
->>>>>  =C2=A0 Note: Marked as "RFC" since I'm not 100% sure about it ...
->>>>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 please review carefully!
->>>>>
->>>>>  =C2=A0 drivers/s390/crypto/vfio_ap_drv.c | 2 +-
->>>>>  =C2=A0 1 file changed, 1 insertion(+), 1 deletion(-)
->>>>>
->>>>> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/=
-vfio_ap_drv.c
->>>>> index 4d2556bc7fe5..5580e40608a4 100644
->>>>> --- a/drivers/s390/crypto/vfio_ap_drv.c
->>>>> +++ b/drivers/s390/crypto/vfio_ap_drv.c
->>>>> @@ -39,7 +39,7 @@ static struct ap_device_id ap_queue_ids[] =3D {
->>>>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 { /* end of sibling */ },
->>>>>  =C2=A0 };
->>>>>  =C2=A0 -MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
->>>>> +MODULE_DEVICE_TABLE(ap, ap_queue_ids);
->>>>>  =C2=A0 =C2=A0 /**
->>>>>  =C2=A0=C2=A0 * vfio_ap_queue_dev_probe:
->>>> Hello Thomas, interesting.
->>>> Did you test this ? I mean did you build a kernel and have it run on a=
- s390 with crypto cards available ?
->>>
->>> Yes, I've tested it. Without the patch, the vfio_ap module does not get=
- loaded automatically if a crypto card is available. With the patch applied=
-, the vfio_ap module correctly gets loaded automatically on my system (simi=
-lar to the vfio_ccw module).
->>>
->>>> My strong feeling is that this will make the AP bus code stumble as th=
-e code silently assumes there are exact
->>>> two types of ap devices attached to the ap bus: ap cards and ap queues.
->>>
->>> This is only about getting the module loaded automatically once such a =
-device is available ... AFAIK it does not grab any of the devices automatic=
-ally, so there shouldn't be any problems?
->>>
->>>  =C2=A0Thomas
->>>
->> Yes, of course for the automatic module load works this way. But you und=
-erstand that now
->> the vfio devices are childs of the ap bus and thus are siblings of the a=
-p queue and ap card
->> devices. As I wrote the ap bus code is not prepared to deal with a 3th t=
-ype of devices
->> dangling on the ap bus. So you should test what happens when there are r=
-eal vfio ap devices
->> in use together with 'regular' ap card and queue devices.
+My r-b can stay with Christian's suggested change.
 
-Um, the queues/cards are devices on the bus, and just can have
-different drivers bound to them, right? The only device that the vfio-ap
-driver creates is the matrix device (which does not live on the ap bus),
-and this patch doesn't change that. It only correctly creates a table
-for a driver that already matched on the ap bus.
-
->
-> I pondered about this for a while, but I still do not quite understand. T=
-he=20
-> MODULE_DEVICE_TABLE macro only adds a __mod_something_device_table symbol=
- to=20
-> the module, it does not change the hierarchy of the vfio devices ... so t=
-his=20
-> is really only about loading the module automatically. Or do you say that=
-=20
-> there is already a problem if a user loads the module manually and thus i=
-t=20
-> should not get loaded automatically?
-
-Correct me if I'm wrong, but don't the devices on the ap bus need to be
-actually configured before they can attach to a non-default
-(i.e. vfio-ap) driver? IOW, it's not a simple bind operation, but extra
-configuration is required, so a loaded vfio-ap module should not affect
-any devices not configured to actually use it at all.
-
->
->> However, I am still not sure if it is preferable to have the vfio ap mod=
-ule loaded automatically. The majority
->> of customers will never use vfio ap devices - this is specific to kvm ho=
-sts only.
-> vfio-ccw also gets loaded automatically via MODULE_DEVICE_TABLE, so I thi=
-nk=20
-> vfio-ap should be handled the same way.
-> (Or should we maybe rather remove the MODULE_DEVICE_TABLE line from both=
-=20
-> modules instead?)
-
-MODULE_DEVICE_TABLE declares "I can drive these devices", so it doesn't
-feel correct to remove them. If the modules should not be autoloaded,
-the system must be configured to not autoload them.
-
-Besides, is loading an extra module really causing that much harm? Does
-vfio-ap drag in too much other stuff?
+> 
+> 
+> >   	unsigned int ibc;
+> >   	unsigned int mtid;
+> >   	unsigned int mtid_cp;
+> > diff --git a/drivers/s390/char/sclp_early.c
+> > b/drivers/s390/char/sclp_early.c
+> > index b64feab62caa..2e8199b7ae50 100644
+> > --- a/drivers/s390/char/sclp_early.c
+> > +++ b/drivers/s390/char/sclp_early.c
+> > @@ -45,6 +45,7 @@ static void __init
+> > sclp_early_facilities_detect(void)
+> >   	sclp.has_gisaf = !!(sccb->fac118 & 0x08);
+> >   	sclp.has_hvs = !!(sccb->fac119 & 0x80);
+> >   	sclp.has_kss = !!(sccb->fac98 & 0x01);
+> > +	sclp.has_zpci_interp = !!(sccb->fac118 & 0x01);
+> >   	if (sccb->fac85 & 0x02)
+> >   		S390_lowcore.machine_flags |= MACHINE_FLAG_ESOP;
+> >   	if (sccb->fac91 & 0x40)
+> > 
 
