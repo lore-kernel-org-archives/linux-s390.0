@@ -2,183 +2,187 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4ED0AC433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Dec 2021 09:44:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 65DA4C43217
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Dec 2021 09:55:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229707AbhLHJsB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Dec 2021 04:48:01 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:18958 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230088AbhLHJsA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Dec 2021 04:48:00 -0500
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B89IcaP021475;
-        Wed, 8 Dec 2021 09:44:27 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=X106KzP5HDDfFU/aM/UB2UNxwHBMudb95OXKi1Xy1/I=;
- b=L97sxL3m9n9yAACNZArOT7SxUVQbg0dLyWgMSBOXwK8jM7fDuy4E3Xwo9KYkh4jI2TJc
- hmmlDYJ1g0IlH2xkKC5sDeqtnTysIY03ao4knGoWcHD5pmNQe8a8OU+EQyyttgRjRjT+
- tdlFLjwXxHJVautUukYEKx0wkqnTO7BAvLHmWSlB+RQ3D3w0KnV5CWrsQblVmP4SQ8Ub
- ro5MMfIVN10uOyGpE4b7gTRf/PO0JRJ+wS7ECySI+jVt20pg3AutTiob6H8YonYV3nP9
- vh+Rybr5sAFPXxOaY5Avd7CNfRX0uv5+to0ayUlcIvxaluu1yqRxdt0NtRFUOrC/ZWCg mA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ctsy7gds7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 08 Dec 2021 09:44:27 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1B89gNd2011547;
-        Wed, 8 Dec 2021 09:44:26 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ctsy7gdrn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 08 Dec 2021 09:44:26 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1B89gqEJ012650;
-        Wed, 8 Dec 2021 09:44:24 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 3cqykje6bw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 08 Dec 2021 09:44:24 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1B89iLpO14877056
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 8 Dec 2021 09:44:21 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DFAD6AE058;
-        Wed,  8 Dec 2021 09:44:20 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8BE13AE045;
-        Wed,  8 Dec 2021 09:44:19 +0000 (GMT)
-Received: from sig-9-145-190-99.de.ibm.com (unknown [9.145.190.99])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed,  8 Dec 2021 09:44:19 +0000 (GMT)
-Message-ID: <8c2f83d2186e93965eba74356126df7fd35d9a41.camel@linux.ibm.com>
-Subject: Re: [PATCH 20/32] KVM: s390: pci: provide routines for
- enabling/disabling interpretation
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
-        farman@linux.ibm.com, pmorel@linux.ibm.com,
-        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
-        vneethv@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com,
-        thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Date:   Wed, 08 Dec 2021 10:44:19 +0100
-In-Reply-To: <20211207205743.150299-21-mjrosato@linux.ibm.com>
-References: <20211207205743.150299-1-mjrosato@linux.ibm.com>
-         <20211207205743.150299-21-mjrosato@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-16.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Cjfpa-oblD2e2FpldvJHdLyEh8RdKqLb
-X-Proofpoint-ORIG-GUID: spuxnzSjjEEHsu_lDU0Xh-s5OvFxKagv
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2021-12-08_03,2021-12-06_02,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
- adultscore=0 clxscore=1011 phishscore=0 spamscore=0 lowpriorityscore=0
- priorityscore=1501 mlxlogscore=999 malwarescore=0 impostorscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2112080062
+        id S231190AbhLHJ6u (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Dec 2021 04:58:50 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:21422 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231238AbhLHJ6t (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Dec 2021 04:58:49 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1638957317;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=RbXsax9ldMWCPX0huGTH/ykVh4lOIdMfM3HnOVtd9Sg=;
+        b=aIngM+RNlDJYqmFVsxxa/oDJnNiNn9DbRcV1bedZrbJoegN7HM4sl68oOoNS5OtMBiHZPZ
+        +9VnOhbTUpfLg+4+W7TaUhK5oWXD7mYxvh3Kf/s3RfcImuIz1SRGQWreGeFlFK94l7QSXV
+        38KpndJoC2fotNGC0rhLRX6MPZmDVTw=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-413-MBArii7hOAGNVhEwT_QDGA-1; Wed, 08 Dec 2021 04:55:12 -0500
+X-MC-Unique: MBArii7hOAGNVhEwT_QDGA-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 8C4231023F4D;
+        Wed,  8 Dec 2021 09:55:07 +0000 (UTC)
+Received: from rhtmp (unknown [10.39.193.91])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id A1B142B178;
+        Wed,  8 Dec 2021 09:54:57 +0000 (UTC)
+Date:   Wed, 8 Dec 2021 10:54:55 +0100
+From:   Philipp Rudo <prudo@redhat.com>
+To:     Michal =?UTF-8?B?U3VjaMOhbmVr?= <msuchanek@suse.de>
+Cc:     keyrings@vger.kernel.org, kexec@lists.infradead.org,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Nayna <nayna@linux.vnet.ibm.com>, Rob Herring <robh@kernel.org>,
+        linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Jessica Yu <jeyu@kernel.org>, linux-kernel@vger.kernel.org,
+        David Howells <dhowells@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Hari Bathini <hbathini@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linuxppc-dev@lists.ozlabs.org,
+        Frank van der Linden <fllinden@amazon.com>,
+        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
+        Daniel Axtens <dja@axtens.net>, buendgen@de.ibm.com,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Baoquan He <bhe@redhat.com>, linux-crypto@vger.kernel.org,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+Subject: Re: [PATCH v2 0/6] KEXEC_SIG with appended signature
+Message-ID: <20211208105455.00085532@rhtmp>
+In-Reply-To: <20211207173221.GM117207@kunlun.suse.cz>
+References: <cover.1637862358.git.msuchanek@suse.de>
+        <20211207171014.2cfc4a54@rhtmp>
+        <20211207173221.GM117207@kunlun.suse.cz>
+Organization: Red Hat inc.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 2021-12-07 at 15:57 -0500, Matthew Rosato wrote:
-> These routines will be wired into the vfio_pci_zdev ioctl handlers to
-> respond to requests to enable / disable a device for zPCI Load/Store
-> interpretation.
-> 
-> The first time such a request is received, enable the necessary facilities
-> for the guest.
-> 
-> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> ---
->  arch/s390/include/asm/kvm_pci.h |  4 ++
->  arch/s390/kvm/pci.c             | 91 +++++++++++++++++++++++++++++++++
->  arch/s390/pci/pci.c             |  3 ++
->  3 files changed, 98 insertions(+)
-> 
-> diff --git a/arch/s390/include/asm/kvm_pci.h b/arch/s390/include/asm/kvm_pci.h
-> index 3e491a39704c..5d6283acb54c 100644
-> --- a/arch/s390/include/asm/kvm_pci.h
-> 
----8<---
-> 		return rc;
-> +	}
-> +
-> +	/*
-> +	 * Store information about the identity of the kvm guest allowed to
-> +	 * access this device via interpretation to be used by host CLP
-> +	 */
-> +	zdev->gd = gd;
-> +
-> +	rc = zpci_enable_device(zdev);
-> +	if (rc)
-> +		goto err;
-> +
-> +	/* Re-register the IOMMU that was already created */
-> +	rc = zpci_register_ioat(zdev, 0, zdev->start_dma, zdev->end_dma,
-> +				(u64)zdev->dma_table);
+Hi Michal,
 
-The zdev->dma_table is a virtual address but we need an absolute
-address in the MPCIFC so the above should use
-virt_to_phys(zdev->dma_table) to be compatible with future V != R
-kernel memory. As of now since virtual and absolute kernel addresses
-are the same this is not a bug and we've had this (wrong) pattern in
-the rest of the code but let's get it righht here from the start.
+On Tue, 7 Dec 2021 18:32:21 +0100
+Michal Such=C3=A1nek <msuchanek@suse.de> wrote:
 
-See also my commit "s390/pci: use physical addresses in DMA tables"
-that is currently in the s390 feature branch.
+> On Tue, Dec 07, 2021 at 05:10:14PM +0100, Philipp Rudo wrote:
+> > Hi Michal,
+> >=20
+> > i finally had the time to take a closer look at the series. Except for
+> > the nit in patch 4 and my personal preference in patch 6 the code looks
+> > good to me.
+> >=20
+> > What I don't like are the commit messages on the first commits. In my
+> > opinion they are so short that they are almost useless. For example in
+> > patch 2 there is absolutely no explanation why you can simply copy the
+> > s390 over to ppc. =20
+>=20
+> They use the same signature format. I suppose I can add a note saying
+> that.
 
-> +	if (rc)
-> +		goto err;
-> +
-> +	return rc;
-> +
-> +err:
-> +	zdev->gd = 0;
-> +	return rc;
-> +}
-> +EXPORT_SYMBOL_GPL(kvm_s390_pci_interp_enable);
-> +
-> +int kvm_s390_pci_interp_disable(struct zpci_dev *zdev)
-> +{
-> +	int rc;
-> +
-> +	if (zdev->gd == 0)
-> +		return -EINVAL;
-> +
-> +	/* Remove the host CLP guest designation */
-> +	zdev->gd = 0;
-> +
-> +	if (zdev_enabled(zdev)) {
-> +		rc = zpci_disable_device(zdev);
-> +		if (rc)
-> +			return rc;
-> +	}
-> +
-> +	rc = zpci_enable_device(zdev);
-> +	if (rc)
-> +		return rc;
-> +
-> +	/* Re-register the IOMMU that was already created */
-> +	rc = zpci_register_ioat(zdev, 0, zdev->start_dma, zdev->end_dma,
-> +				(u64)zdev->dma_table);
+The note is what I was asking for. For me the commit message is an
+important piece of documentation for other developers (or yourself in a
+year). That's why in my opinion it's important to describe _why_ you do
+something in it as you cannot get the _why_ by reading the code.
 
-Same as above
+> > Or in patch 3 you are silently changing the error
+> > code in kexec from EKEYREJECT to ENODATA. So I would appreciate it if =
+=20
+>=20
+> Not sure what I should do about this. The different implementations use
+> different random error codes, and when they are unified the error code
+> clearly changes for one or the other.
 
-> +
-> +	return rc;
-> +}
-> +EXPORT_SYMBOL_GPL(kvm_s390_pci_interp_disable);
-> +
-> 
----8<---
+My complaint wasn't that you change the return code. There's no way to
+avoid choosing one over the other. It's again that you don't document
+the change in the commit message for others.
+
+> Does anything depend on a particular error code returned?
+
+Not that I know of. At least in the kexec-tools ENODATA and EKEYREJECT
+are handled the same way.
+
+Thanks
+Philipp
+
+
+> Thanks
+>=20
+> Michal
+>=20
+> > you could improve them a little.
+> >=20
+> > Thanks
+> > Philipp
+> >=20
+> > On Thu, 25 Nov 2021 19:02:38 +0100
+> > Michal Suchanek <msuchanek@suse.de> wrote:
+> >  =20
+> > > Hello,
+> > >=20
+> > > This is resend of the KEXEC_SIG patchset.
+> > >=20
+> > > The first patch is new because it'a a cleanup that does not require a=
+ny
+> > > change to the module verification code.
+> > >=20
+> > > The second patch is the only one that is intended to change any
+> > > functionality.
+> > >=20
+> > > The rest only deduplicates code but I did not receive any review on t=
+hat
+> > > part so I don't know if it's desirable as implemented.
+> > >=20
+> > > The first two patches can be applied separately without the rest.
+> > >=20
+> > > Thanks
+> > >=20
+> > > Michal
+> > >=20
+> > > Michal Suchanek (6):
+> > >   s390/kexec_file: Don't opencode appended signature check.
+> > >   powerpc/kexec_file: Add KEXEC_SIG support.
+> > >   kexec_file: Don't opencode appended signature verification.
+> > >   module: strip the signature marker in the verification function.
+> > >   module: Use key_being_used_for for log messages in
+> > >     verify_appended_signature
+> > >   module: Move duplicate mod_check_sig users code to mod_parse_sig
+> > >=20
+> > >  arch/powerpc/Kconfig                     | 11 +++++
+> > >  arch/powerpc/kexec/elf_64.c              | 14 ++++++
+> > >  arch/s390/kernel/machine_kexec_file.c    | 42 ++----------------
+> > >  crypto/asymmetric_keys/asymmetric_type.c |  1 +
+> > >  include/linux/module_signature.h         |  1 +
+> > >  include/linux/verification.h             |  4 ++
+> > >  kernel/module-internal.h                 |  2 -
+> > >  kernel/module.c                          | 12 +++--
+> > >  kernel/module_signature.c                | 56 ++++++++++++++++++++++=
++-
+> > >  kernel/module_signing.c                  | 33 +++++++-------
+> > >  security/integrity/ima/ima_modsig.c      | 22 ++--------
+> > >  11 files changed, 113 insertions(+), 85 deletions(-)
+> > >  =20
+> >  =20
+>=20
 
