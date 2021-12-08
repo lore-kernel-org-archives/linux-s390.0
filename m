@@ -2,85 +2,90 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D4E1DC433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Dec 2021 18:04:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F2269C433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Dec 2021 18:19:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233150AbhLHSID (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Dec 2021 13:08:03 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:15554 "EHLO
+        id S234975AbhLHSWi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Dec 2021 13:22:38 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:17426 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S232619AbhLHSIC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Dec 2021 13:08:02 -0500
+        by vger.kernel.org with ESMTP id S231815AbhLHSWh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Dec 2021 13:22:37 -0500
 Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B8HrN1F009069;
-        Wed, 8 Dec 2021 18:04:30 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=lcsH5uBVVZ7wWcQqhdR9FrF4NMNzd0QUAXCBwgL+e+4=;
- b=ofD5GIq5Yvj1g7T3Jo0Ork/ZFHc9YtkBQmj2YHuycdL0lV4/RogYGFBE74vkZGj8Yrn3
- bJm4K6EBkm4bXrvKbA4glI5sletZqomaFPinw4lAvPqDEQil/zHFM7hFLEdKKW8YFTtr
- r6CixBySJN9qcdXXjRGeHmXYEc+aMv6QLjBs//T6JINdQrc1MpT5/XoYWDrbkFHWJMu+
- 4H9C9DZLa1NiXpdU9GP2KabQcVA8I9nks67gH8spMvtB1d0ewdpvVYziY8OglcqnJeBg
- rdQwrDtGENqwmT+4NDEyQX09O+cKcpza/6o9mFsLmNSqSw9bDPaed7H54liE9dNWXcc1 mQ== 
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B8HrHDV008954;
+        Wed, 8 Dec 2021 18:19:05 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=VpuyRHQVLmacLBoAhzw36/Cfws7MZWgO8Iw88Its8xY=;
+ b=Wwd9Wn79QznlP3hbbGW+OlX6E2IF69H2yb9YUcRIhrQnaB6lga458D2fif813MIBnQ+p
+ lUjDA9yxWNgljjYwjMu3071HNDuijpxwCQb6X0y8OdTJRng3jdtLCUrH6DUzG4gTmcV+
+ T1ZiMOSfy0/CFRhvRI19y+IWPkDskDHhmPsw4IwyZSKXz5OwEdG28DAt78dJetS2BhiP
+ rgOM6Y9khAlNoUuK5DgJkfhyqNCvhdAjlI+q3skJi+wwnthfktkHPlI2ETSI8Oqbd8qg
+ p7hGNmmHeGjui3/rIYEdCsYVsJ7yc+gkjVrKgDNc3F8YejbOBq+21A3Gaw5bRg0zVgoB JA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3cu1gjr6as-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3cu1gjrfks-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 08 Dec 2021 18:04:30 +0000
+        Wed, 08 Dec 2021 18:19:04 +0000
 Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1B8Ht2Xp012428;
-        Wed, 8 Dec 2021 18:04:29 GMT
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3cu1gjr6ak-1
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1B8Ht2YH012428;
+        Wed, 8 Dec 2021 18:19:04 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3cu1gjrfk0-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 08 Dec 2021 18:04:29 +0000
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1B8I1uUr030500;
-        Wed, 8 Dec 2021 18:04:29 GMT
-Received: from b01cxnp22036.gho.pok.ibm.com (b01cxnp22036.gho.pok.ibm.com [9.57.198.26])
-        by ppma03dal.us.ibm.com with ESMTP id 3cqyybtr57-1
+        Wed, 08 Dec 2021 18:19:04 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1B8IG1gI014955;
+        Wed, 8 Dec 2021 18:19:02 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma05fra.de.ibm.com with ESMTP id 3cqyy9ryst-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 08 Dec 2021 18:04:28 +0000
-Received: from b01ledav003.gho.pok.ibm.com (b01ledav003.gho.pok.ibm.com [9.57.199.108])
-        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1B8I4R9E21038002
+        Wed, 08 Dec 2021 18:19:02 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1B8IIxrQ28639538
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 8 Dec 2021 18:04:27 GMT
-Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E6D36B206B;
-        Wed,  8 Dec 2021 18:04:26 +0000 (GMT)
-Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D10DEB205F;
-        Wed,  8 Dec 2021 18:04:21 +0000 (GMT)
-Received: from [9.211.152.43] (unknown [9.211.152.43])
-        by b01ledav003.gho.pok.ibm.com (Postfix) with ESMTP;
-        Wed,  8 Dec 2021 18:04:21 +0000 (GMT)
-Message-ID: <e54bd244-06eb-6217-8511-4867df085ff5@linux.ibm.com>
-Date:   Wed, 8 Dec 2021 13:04:20 -0500
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH 23/32] KVM: s390: pci: handle refresh of PCI translations
-Content-Language: en-US
-To:     Niklas Schnelle <schnelle@linux.ibm.com>,
+        Wed, 8 Dec 2021 18:18:59 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 00EC6AE04D;
+        Wed,  8 Dec 2021 18:18:59 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AE079AE045;
+        Wed,  8 Dec 2021 18:18:57 +0000 (GMT)
+Received: from sig-9-145-190-99.de.ibm.com (unknown [9.145.190.99])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed,  8 Dec 2021 18:18:57 +0000 (GMT)
+Message-ID: <798938f464812c7ca7a37059434629441701e3ea.camel@linux.ibm.com>
+Subject: Re: [PATCH 07/32] s390/pci: externalize the SIC operation controls
+ and routine
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Matthew Rosato <mjrosato@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
         linux-s390@vger.kernel.org
 Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
-        farman@linux.ibm.com, pmorel@linux.ibm.com,
-        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
-        vneethv@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com,
-        thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
+        farman@linux.ibm.com, pmorel@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, gerald.schaefer@linux.ibm.com,
+        agordeev@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
+        imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
+        oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, kvm@vger.kernel.org,
         linux-kernel@vger.kernel.org
+Date:   Wed, 08 Dec 2021 19:18:57 +0100
+In-Reply-To: <d1b7d0be6603f473017faf3cf5f47cab92db3bef.camel@linux.ibm.com>
 References: <20211207205743.150299-1-mjrosato@linux.ibm.com>
- <20211207205743.150299-24-mjrosato@linux.ibm.com>
- <fc3c836ccb697a7e7123ab70015bd2a40b7cb5d4.camel@linux.ibm.com>
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <fc3c836ccb697a7e7123ab70015bd2a40b7cb5d4.camel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+         <20211207205743.150299-8-mjrosato@linux.ibm.com>
+         <bc3b60f7-833d-6d50-dcd0-b102a190c69d@linux.ibm.com>
+         <614215b5aa14102c7b43913b234463199401a156.camel@linux.ibm.com>
+         <eea46eb2-c14e-3bc1-d8e4-b6b28c677fe2@linux.ibm.com>
+         <a53b6402cefdef7645d1771a8b74782689b4e6dc.camel@linux.ibm.com>
+         <d28e6848-8fa4-c2c4-1140-7da5bcbe1287@linux.ibm.com>
+         <d1b7d0be6603f473017faf3cf5f47cab92db3bef.camel@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-16.el8) 
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 2BcVULNEX31Tx4Wn_41d_L4khGm7Lz1t
-X-Proofpoint-ORIG-GUID: nuAJZYHxFSAYTbfaOZNPzm1XLLKoCcvE
+X-Proofpoint-GUID: U5l3vAD5qt3dPDDB_Ee69wpHunpfjw1R
+X-Proofpoint-ORIG-GUID: 81nXNdgNawkFl5Hg5FlaEpqmI4x3WTge
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2021-12-08_07,2021-12-08_01,2021-12-02_01
@@ -93,83 +98,103 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 12/8/21 5:30 AM, Niklas Schnelle wrote:
-> On Tue, 2021-12-07 at 15:57 -0500, Matthew Rosato wrote:
->> Add a routine that will perform a shadow operation between a guest
->> and host IOAT.  A subsequent patch will invoke this in response to
->> an 04 RPCIT instruction intercept.
->>
->> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
->> ---
->>   arch/s390/include/asm/kvm_pci.h |   1 +
->>   arch/s390/include/asm/pci_dma.h |   1 +
->>   arch/s390/kvm/pci.c             | 191 ++++++++++++++++++++++++++++++++
->>   arch/s390/kvm/pci.h             |   4 +-
->>   4 files changed, 196 insertions(+), 1 deletion(-)
->>
->> diff --git a/arch/s390/include/asm/kvm_pci.h b/arch/s390/include/asm/kvm_pci.h
->> index 254275399f21..97e3a369135d 100644
->> --- a/arch/s390/include/asm/kvm_pci.h
->> +++ b/arch/s390/include/asm/kvm_pci.h
->> @@ -30,6 +30,7 @@ struct kvm_zdev_ioat {
->>   struct kvm_zdev {
->>   	struct zpci_dev *zdev;
->>   	struct kvm *kvm;
->> +	u64 rpcit_count;
->>   	struct kvm_zdev_ioat ioat;
->>   	struct zpci_fib fib;
->>   };
->> diff --git a/arch/s390/include/asm/pci_dma.h b/arch/s390/include/asm/pci_dma.h
->> index e1d3c1d3fc8a..0ca15e5db3d9 100644
->> --- a/arch/s390/include/asm/pci_dma.h
->> +++ b/arch/s390/include/asm/pci_dma.h
->> @@ -52,6 +52,7 @@ enum zpci_ioat_dtype {
->>   #define ZPCI_TABLE_ENTRIES		(ZPCI_TABLE_SIZE / ZPCI_TABLE_ENTRY_SIZE)
->>   #define ZPCI_TABLE_PAGES		(ZPCI_TABLE_SIZE >> PAGE_SHIFT)
->>   #define ZPCI_TABLE_ENTRIES_PAGES	(ZPCI_TABLE_ENTRIES * ZPCI_TABLE_PAGES)
->> +#define ZPCI_TABLE_ENTRIES_PER_PAGE	(ZPCI_TABLE_ENTRIES / ZPCI_TABLE_PAGES)
->>   
->>   #define ZPCI_TABLE_BITS			11
->>   #define ZPCI_PT_BITS			8
->> diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
->> index a1c0c0881332..858c5ecdc8b9 100644
->> --- a/arch/s390/kvm/pci.c
->> +++ b/arch/s390/kvm/pci.c
->> @@ -123,6 +123,195 @@ int kvm_s390_pci_aen_init(u8 nisc)
->>   	return rc;
->>   }
->>   
->> +static int dma_shadow_cpu_trans(struct kvm_vcpu *vcpu, unsigned long *entry,
->> +				unsigned long *gentry)
->> +{
->> +	unsigned long idx;
->> +	struct page *page;
->> +	void *gaddr = NULL;
->> +	kvm_pfn_t pfn;
->> +	gpa_t addr;
->> +	int rc = 0;
->> +
->> +	if (pt_entry_isvalid(*gentry)) {
->> +		/* pin and validate */
->> +		addr = *gentry & ZPCI_PTE_ADDR_MASK;
->> +		idx = srcu_read_lock(&vcpu->kvm->srcu);
->> +		page = gfn_to_page(vcpu->kvm, gpa_to_gfn(addr));
->> +		srcu_read_unlock(&vcpu->kvm->srcu, idx);
->> +		if (is_error_page(page))
->> +			return -EIO;
->> +		gaddr = page_to_virt(page) + (addr & ~PAGE_MASK);
-> 
-> Hmm, this looks like a virtual vs physical address mixup to me that is
-> currently not a problem because kernel virtual addresses are equal to
-> their physical address. Here page_to_virt(page) gives us a virtual
-> address but the entries in the I/O translation table have to be
-> physical (aka absolute) addresses.
-> 
-> With my commit "s390/pci: use physical addresses in DMA tables"
-> currently in the s390 feature branch this is also reflected in the
-> argument types taken by set_pt_pfaa() below so gaddr should have type
-> phys_addr_t not void *. That should also remove the need for the cast
-> to unsigned long for the duplicate check.
+On Wed, 2021-12-08 at 17:41 +0100, Niklas Schnelle wrote:
+> On Wed, 2021-12-08 at 11:20 -0500, Matthew Rosato wrote:
+> > On 12/8/21 10:59 AM, Niklas Schnelle wrote:
+> > > On Wed, 2021-12-08 at 10:33 -0500, Matthew Rosato wrote:
+> > > > On 12/8/21 8:53 AM, Niklas Schnelle wrote:
+> > > > > On Wed, 2021-12-08 at 14:09 +0100, Christian Borntraeger wrote:
+> > > > > > Am 07.12.21 um 21:57 schrieb Matthew Rosato:
+> > > > > > > A subsequent patch will be issuing SIC from KVM -- export the necessary
+> > > > > > > routine and make the operation control definitions available from a header.
+> > > > > > > Because the routine will now be exported, let's swap the purpose of
+> > > > > > > zpci_set_irq_ctrl and __zpci_set_irq_ctrl, leaving the latter as a static
+> > > > > > > within pci_irq.c only for SIC calls that don't specify an iib.
+> > > > > > 
+> > > > > > Maybe it would be simpler to export the __ version instead of renaming everything.
+> > > > > > Whatever Niklas prefers.
+> > > > > 
+> > > > > See below I think it's just not worth it having both variants at all.
+> > > > > 
+> > > > > > > Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> > > > > > > ---
+> > > > > > >     arch/s390/include/asm/pci_insn.h | 17 +++++++++--------
+> > > > > > >     arch/s390/pci/pci_insn.c         |  3 ++-
+> > > > > > >     arch/s390/pci/pci_irq.c          | 28 ++++++++++++++--------------
+> > > > > > >     3 files changed, 25 insertions(+), 23 deletions(-)
+> > > > > > > 
+> > > > > > > diff --git a/arch/s390/include/asm/pci_insn.h b/arch/s390/include/asm/pci_insn.h
+> > > > > > > index 61cf9531f68f..5331082fa516 100644
+> > > > > > > --- a/arch/s390/include/asm/pci_insn.h
+> > > > > > > +++ b/arch/s390/include/asm/pci_insn.h
+> > > > > > > @@ -98,6 +98,14 @@ struct zpci_fib {
+> > > > > > >     	u32 gd;
+> > > > > > >     } __packed __aligned(8);
+> > > > > > >     
+> > > > > > > +/* Set Interruption Controls Operation Controls  */
+> > > > > > > +#define	SIC_IRQ_MODE_ALL		0
+> > > > > > > +#define	SIC_IRQ_MODE_SINGLE		1
+> > > > > > > +#define	SIC_IRQ_MODE_DIRECT		4
+> > > > > > > +#define	SIC_IRQ_MODE_D_ALL		16
+> > > > > > > +#define	SIC_IRQ_MODE_D_SINGLE		17
+> > > > > > > +#define	SIC_IRQ_MODE_SET_CPU		18
+> > > > > > > +
+> > > > > > >     /* directed interruption information block */
+> > > > > > >     struct zpci_diib {
+> > > > > > >     	u32 : 1;
+> > > > > > > @@ -134,13 +142,6 @@ int __zpci_store(u64 data, u64 req, u64 offset);
+> > > > > > >     int zpci_store(const volatile void __iomem *addr, u64 data, unsigned long len);
+> > > > > > >     int __zpci_store_block(const u64 *data, u64 req, u64 offset);
+> > > > > > >     void zpci_barrier(void);
+> > > > > > > -int __zpci_set_irq_ctrl(u16 ctl, u8 isc, union zpci_sic_iib *iib);
+> > > > > > > -
+> > > > > > > -static inline int zpci_set_irq_ctrl(u16 ctl, u8 isc)
+> > > > > > > -{
+> > > > > > > -	union zpci_sic_iib iib = {{0}};
+> > > > > > > -
+> > > > > > > -	return __zpci_set_irq_ctrl(ctl, isc, &iib);
+> > > > > > > -}
+> > > > > > > +int zpci_set_irq_ctrl(u16 ctl, u8 isc, union zpci_sic_iib *iib);
+> > > > > 
+> > > > > Since the __zpci_set_irq_ctrl() was already non static/inline the above
+> > > > > inline to non-inline change shouldn't make a performance difference.
+> > > > > 
+> > > > > Looking at this makes me wonder though. Wouldn't it make sense to just
+> > > > > have the zpci_set_irq_ctrl() function inline in the header. Its body is
+> > > > > a single instruction inline asm plus a test_facility(). The latter by
+> > > > > the way I think also looks rather out of place there considering we
+> > > > > call zpci_set_irq_ctrl() in the interrupt handler and facilities can't
+> > > > > go away so it's pretty silly to check for it on every single
+> > > > > interrupt.. unless I'm totally missing something.
+> > > > 
+> > > > This test_facility isn't new to this patch
+> > > 
+> > > Yeah I got that part, your patch just made me look.
+> > > 
+> > > > , it was added via
+> > > > 
+> > > > commit 48070c73058be6de9c0d754d441ed7092dfc8f12
+> > > > Author: Christian Borntraeger <borntraeger@de.ibm.com>
+> > > > Date:   Mon Oct 30 14:38:58 2017 +0100
+> > > > 
+> > > >       s390/pci: do not require AIS facility
+> > > > 
+> > > > It looks like in the past, we would not even initialize zpci at all if
+> > > > AIS wasn't available.  With this, we initialize PCI but only do the SIC
+> > > > when we have AIS, which makes sense.
+> > > 
+> > > Ah yes I guess that is the something I was missing. I was wondering why
+> > > that wasn't just tested for during init.
+> > > 
+> > > > So for this patch, the sane thing to do is probably just keep the
+> > > > test_facility() in place and move to header, inline.
+> > > 
+> > > Yes sounds good.
 
-Right...  Like the other comment re: virtual vs physical address I will 
-take a look and fix for v2.
+As discussed out of band, slight change of plan. Let's keep the
+implementation in pci_insn.c for now but remove the __* prefix and the
+iib 0 wrapper. This way we get rid of potential confusion of swapping
+what each variant does and we also don't need to export a __* prefixed
+function. I tried it out locally and having the iib 0 at the callsites
+indeed doesn't look worse.
+
