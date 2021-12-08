@@ -2,281 +2,134 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07FCBC433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  8 Dec 2021 10:58:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B627C433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  8 Dec 2021 11:13:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231966AbhLHLCR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Dec 2021 06:02:17 -0500
-Received: from mga03.intel.com ([134.134.136.65]:10137 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231961AbhLHLCQ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 8 Dec 2021 06:02:16 -0500
-X-IronPort-AV: E=McAfee;i="6200,9189,10191"; a="237748651"
-X-IronPort-AV: E=Sophos;i="5.87,297,1631602800"; 
-   d="scan'208";a="237748651"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Dec 2021 02:58:44 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.87,297,1631602800"; 
-   d="scan'208";a="580564513"
-Received: from lkp-server02.sh.intel.com (HELO 9e1e9f9b3bcb) ([10.239.97.151])
-  by fmsmga004.fm.intel.com with ESMTP; 08 Dec 2021 02:58:40 -0800
-Received: from kbuild by 9e1e9f9b3bcb with local (Exim 4.92)
-        (envelope-from <lkp@intel.com>)
-        id 1muuem-0000Rc-4l; Wed, 08 Dec 2021 10:58:40 +0000
-Date:   Wed, 8 Dec 2021 18:58:18 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     kbuild-all@lists.01.org, alex.williamson@redhat.com,
-        cohuck@redhat.com, schnelle@linux.ibm.com, farman@linux.ibm.com,
-        pmorel@linux.ibm.com, borntraeger@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, gerald.schaefer@linux.ibm.com
-Subject: Re: [PATCH 21/32] KVM: s390: pci: provide routines for
- enabling/disabling interrupt forwarding
-Message-ID: <202112081717.0Nu4b7a2-lkp@intel.com>
-References: <20211207205743.150299-22-mjrosato@linux.ibm.com>
+        id S229498AbhLHLQh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Dec 2021 06:16:37 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:25526 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229479AbhLHLQh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Dec 2021 06:16:37 -0500
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B89mZrF000839;
+        Wed, 8 Dec 2021 11:13:05 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=HeRu8SwC9vox6YeZojQZza3ZgW6HuKUhVsZB4788DAs=;
+ b=Wq5s4XGfW/Vgto2tqsYow8vlG5e0FR6Nvn1aQkIeVdu+MMhfDr9Z0qEBPgh4FEZCdwW6
+ g84oKhyGrkAM4OGH/5ibh5qFoxMl64CTeVFfdM+NYZzn7O86/m8s0Xn8FJRzUoYijWCI
+ z8F9UG8OTomVk7704657hKtLPzrTQnYlZe74fV4zh8rgM8mzQtSJvJhXkmXgn8erqiPu
+ BMobx6xSQiJehxaquqRRJTk7VkJtni6xh6XksIZYIVsJW+P+E5xVeZwdm3acMGCoXSSX
+ cqQM7qBqg8wUdnwK/jEzY2Yq08sy7WKOM9fA7ki4xJI5IxJHhCR5rRfrhZDGUFDUnvWt Iw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cttdb9epj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Dec 2021 11:13:05 +0000
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1B8Awsep004261;
+        Wed, 8 Dec 2021 11:13:05 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cttdb9enx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Dec 2021 11:13:04 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1B8BATns027353;
+        Wed, 8 Dec 2021 11:13:02 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03fra.de.ibm.com with ESMTP id 3cqyy9nctx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Dec 2021 11:13:02 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1B8BCxIr28246492
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 8 Dec 2021 11:12:59 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DED6611C05B;
+        Wed,  8 Dec 2021 11:12:58 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E781811C054;
+        Wed,  8 Dec 2021 11:12:57 +0000 (GMT)
+Received: from [9.171.54.177] (unknown [9.171.54.177])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed,  8 Dec 2021 11:12:57 +0000 (GMT)
+Message-ID: <3ed8f5ca-e508-e261-e71d-875f5762f2f9@linux.ibm.com>
+Date:   Wed, 8 Dec 2021 12:12:57 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211207205743.150299-22-mjrosato@linux.ibm.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [PATCH 01/32] s390/sclp: detect the zPCI interpretation facility
+Content-Language: en-US
+To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
+        schnelle@linux.ibm.com, farman@linux.ibm.com, pmorel@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
+        vneethv@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com,
+        thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20211207205743.150299-1-mjrosato@linux.ibm.com>
+ <20211207205743.150299-2-mjrosato@linux.ibm.com>
+From:   Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20211207205743.150299-2-mjrosato@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: eliOqbfoqCwPRpMYTHXAT_-MbxcB2fVI
+X-Proofpoint-ORIG-GUID: B0-q5xW2-umgVEaSKEmcco75vJDer0fD
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2021-12-08_03,2021-12-08_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
+ adultscore=0 mlxscore=0 mlxlogscore=999 priorityscore=1501 malwarescore=0
+ bulkscore=0 spamscore=0 suspectscore=0 clxscore=1015 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
+ definitions=main-2112080071
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Matthew,
+Am 07.12.21 um 21:57 schrieb Matthew Rosato:
+> Detect the zPCI Load/Store Interpretation facility.
+> 
+> Reviewed-by: Eric Farman <farman@linux.ibm.com>
+> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> ---
+>   arch/s390/include/asm/sclp.h   | 1 +
+>   drivers/s390/char/sclp_early.c | 1 +
+>   2 files changed, 2 insertions(+)
+> 
+> diff --git a/arch/s390/include/asm/sclp.h b/arch/s390/include/asm/sclp.h
+> index c68ea35de498..c84e8e0ca344 100644
+> --- a/arch/s390/include/asm/sclp.h
+> +++ b/arch/s390/include/asm/sclp.h
+> @@ -88,6 +88,7 @@ struct sclp_info {
+>   	unsigned char has_diag318 : 1;
+>   	unsigned char has_sipl : 1;
+>   	unsigned char has_dirq : 1;
+> +	unsigned char has_zpci_interp : 1;
 
-I love your patch! Yet something to improve:
+maybe use zpci_lsi (load store interpretion) as pci interpretion would be something else (also fix the the subject line).
+With that
 
-[auto build test ERROR on v5.16-rc4]
-[cannot apply to s390/features kvms390/next awilliam-vfio/next next-20211208]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch]
-
-url:    https://github.com/0day-ci/linux/commits/Matthew-Rosato/KVM-s390-enable-zPCI-for-interpretive-execution/20211208-050204
-base:    0fcfb00b28c0b7884635dacf38e46d60bf3d4eb1
-config: s390-allmodconfig (https://download.01.org/0day-ci/archive/20211208/202112081717.0Nu4b7a2-lkp@intel.com/config)
-compiler: s390-linux-gcc (GCC) 11.2.0
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # https://github.com/0day-ci/linux/commit/6604d174d51ffe79c280462e77e8f75c107b2076
-        git remote add linux-review https://github.com/0day-ci/linux
-        git fetch --no-tags linux-review Matthew-Rosato/KVM-s390-enable-zPCI-for-interpretive-execution/20211208-050204
-        git checkout 6604d174d51ffe79c280462e77e8f75c107b2076
-        # save the config file to linux build tree
-        mkdir build_dir
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.2.0 make.cross O=build_dir ARCH=s390 SHELL=/bin/bash arch/s390/kvm/
-
-If you fix the issue, kindly add following tag as appropriate
-Reported-by: kernel test robot <lkp@intel.com>
-
-All errors (new ones prefixed by >>):
-
-   In file included from include/vdso/const.h:5,
-                    from include/linux/const.h:4,
-                    from include/uapi/linux/kernel.h:6,
-                    from include/linux/cache.h:5,
-                    from include/linux/printk.h:9,
-                    from include/asm-generic/bug.h:22,
-                    from arch/s390/include/asm/bug.h:68,
-                    from include/linux/bug.h:5,
-                    from include/linux/mmdebug.h:5,
-                    from include/linux/percpu.h:5,
-                    from include/linux/context_tracking_state.h:5,
-                    from include/linux/hardirq.h:5,
-                    from include/linux/kvm_host.h:7,
-                    from arch/s390/kvm/pci.c:10:
-   arch/s390/kvm/pci.c: In function 'kvm_s390_pci_aen_exit':
-   arch/s390/include/asm/pci.h:27:41: error: 'CONFIG_PCI_NR_FUNCTIONS' undeclared (first use in this function); did you mean 'CONFIG_FAIL_FUNCTION'?
-      27 | #define ZPCI_NR_DEVICES                 CONFIG_PCI_NR_FUNCTIONS
-         |                                         ^~~~~~~~~~~~~~~~~~~~~~~
-   include/uapi/linux/const.h:32:44: note: in definition of macro '__ALIGN_KERNEL_MASK'
-      32 | #define __ALIGN_KERNEL_MASK(x, mask)    (((x) + (mask)) & ~(mask))
-         |                                            ^
-   include/linux/align.h:8:33: note: in expansion of macro '__ALIGN_KERNEL'
-       8 | #define ALIGN(x, a)             __ALIGN_KERNEL((x), (a))
-         |                                 ^~~~~~~~~~~~~~
-   include/linux/mm.h:224:26: note: in expansion of macro 'ALIGN'
-     224 | #define PAGE_ALIGN(addr) ALIGN(addr, PAGE_SIZE)
-         |                          ^~~~~
-   arch/s390/kvm/pci.c:56:26: note: in expansion of macro 'PAGE_ALIGN'
-      56 |         size = get_order(PAGE_ALIGN(ZPCI_NR_DEVICES *
-         |                          ^~~~~~~~~~
-   arch/s390/kvm/pci.c:56:37: note: in expansion of macro 'ZPCI_NR_DEVICES'
-      56 |         size = get_order(PAGE_ALIGN(ZPCI_NR_DEVICES *
-         |                                     ^~~~~~~~~~~~~~~
-   arch/s390/include/asm/pci.h:27:41: note: each undeclared identifier is reported only once for each function it appears in
-      27 | #define ZPCI_NR_DEVICES                 CONFIG_PCI_NR_FUNCTIONS
-         |                                         ^~~~~~~~~~~~~~~~~~~~~~~
-   include/uapi/linux/const.h:32:44: note: in definition of macro '__ALIGN_KERNEL_MASK'
-      32 | #define __ALIGN_KERNEL_MASK(x, mask)    (((x) + (mask)) & ~(mask))
-         |                                            ^
-   include/linux/align.h:8:33: note: in expansion of macro '__ALIGN_KERNEL'
-       8 | #define ALIGN(x, a)             __ALIGN_KERNEL((x), (a))
-         |                                 ^~~~~~~~~~~~~~
-   include/linux/mm.h:224:26: note: in expansion of macro 'ALIGN'
-     224 | #define PAGE_ALIGN(addr) ALIGN(addr, PAGE_SIZE)
-         |                          ^~~~~
-   arch/s390/kvm/pci.c:56:26: note: in expansion of macro 'PAGE_ALIGN'
-      56 |         size = get_order(PAGE_ALIGN(ZPCI_NR_DEVICES *
-         |                          ^~~~~~~~~~
-   arch/s390/kvm/pci.c:56:37: note: in expansion of macro 'ZPCI_NR_DEVICES'
-      56 |         size = get_order(PAGE_ALIGN(ZPCI_NR_DEVICES *
-         |                                     ^~~~~~~~~~~~~~~
-   In file included from include/linux/pci.h:1886,
-                    from arch/s390/kvm/pci.c:11:
-   arch/s390/kvm/pci.c: In function 'kvm_s390_pci_aen_init':
-   arch/s390/include/asm/pci.h:27:41: error: 'CONFIG_PCI_NR_FUNCTIONS' undeclared (first use in this function); did you mean 'CONFIG_FAIL_FUNCTION'?
-      27 | #define ZPCI_NR_DEVICES                 CONFIG_PCI_NR_FUNCTIONS
-         |                                         ^~~~~~~~~~~~~~~~~~~~~~~
-   arch/s390/kvm/pci.c:73:30: note: in expansion of macro 'ZPCI_NR_DEVICES'
-      73 |         aift.kzdev = kcalloc(ZPCI_NR_DEVICES, sizeof(struct kvm_zdev),
-         |                              ^~~~~~~~~~~~~~~
-   arch/s390/kvm/pci.c: In function 'kvm_zpci_set_airq':
->> arch/s390/kvm/pci.c:128:19: error: implicit declaration of function 'ZPCI_CREATE_REQ' [-Werror=implicit-function-declaration]
-     128 |         u64 req = ZPCI_CREATE_REQ(zdev->fh, 0, ZPCI_MOD_FC_REG_INT);
-         |                   ^~~~~~~~~~~~~~~
-   cc1: some warnings being treated as errors
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 
 
-vim +/ZPCI_CREATE_REQ +128 arch/s390/kvm/pci.c
-
-  > 11	#include <linux/pci.h>
-    12	#include <asm/kvm_pci.h>
-    13	#include <asm/pci.h>
-    14	#include <asm/pci_insn.h>
-    15	#include <asm/sclp.h>
-    16	#include "pci.h"
-    17	#include "kvm-s390.h"
-    18	
-    19	static struct zpci_aift aift;
-    20	
-    21	static inline int __set_irq_noiib(u16 ctl, u8 isc)
-    22	{
-    23		union zpci_sic_iib iib = {{0}};
-    24	
-    25		return zpci_set_irq_ctrl(ctl, isc, &iib);
-    26	}
-    27	
-    28	struct zpci_aift *kvm_s390_pci_get_aift(void)
-    29	{
-    30		return &aift;
-    31	}
-    32	
-    33	/* Caller must hold the aift lock before calling this function */
-    34	void kvm_s390_pci_aen_exit(void)
-    35	{
-    36		struct zpci_gaite *gait;
-    37		unsigned long flags;
-    38		struct airq_iv *sbv;
-    39		struct kvm_zdev **gait_kzdev;
-    40		int size;
-    41	
-    42		/* Clear the GAIT and forwarding summary vector */
-    43		__set_irq_noiib(SIC_SET_AENI_CONTROLS, 0);
-    44	
-    45		spin_lock_irqsave(&aift.gait_lock, flags);
-    46		gait = aift.gait;
-    47		sbv = aift.sbv;
-    48		gait_kzdev = aift.kzdev;
-    49		aift.gait = 0;
-    50		aift.sbv = 0;
-    51		aift.kzdev = 0;
-    52		spin_unlock_irqrestore(&aift.gait_lock, flags);
-    53	
-    54		if (sbv)
-    55			airq_iv_release(sbv);
-    56		size = get_order(PAGE_ALIGN(ZPCI_NR_DEVICES *
-    57					    sizeof(struct zpci_gaite)));
-    58		free_pages((unsigned long)gait, size);
-    59		kfree(gait_kzdev);
-    60	}
-    61	
-    62	int kvm_s390_pci_aen_init(u8 nisc)
-    63	{
-    64		union zpci_sic_iib iib = {{0}};
-    65		struct page *page;
-    66		int rc = 0, size;
-    67	
-    68		/* If already enabled for AEN, bail out now */
-    69		if (aift.gait || aift.sbv)
-    70			return -EPERM;
-    71	
-    72		mutex_lock(&aift.lock);
-    73		aift.kzdev = kcalloc(ZPCI_NR_DEVICES, sizeof(struct kvm_zdev),
-    74				     GFP_KERNEL);
-    75		if (!aift.kzdev) {
-    76			rc = -ENOMEM;
-    77			goto unlock;
-    78		}
-    79		aift.sbv = airq_iv_create(ZPCI_NR_DEVICES, AIRQ_IV_ALLOC, 0);
-    80		if (!aift.sbv) {
-    81			rc = -ENOMEM;
-    82			goto free_zdev;
-    83		}
-    84		size = get_order(PAGE_ALIGN(ZPCI_NR_DEVICES *
-    85					    sizeof(struct zpci_gaite)));
-    86		page = alloc_pages(GFP_KERNEL | __GFP_ZERO, size);
-    87		if (!page) {
-    88			rc = -ENOMEM;
-    89			goto free_sbv;
-    90		}
-    91		aift.gait = (struct zpci_gaite *)page_to_phys(page);
-    92	
-    93		iib.aipb.faisb = (u64)aift.sbv->vector;
-    94		iib.aipb.gait = (u64)aift.gait;
-    95		iib.aipb.afi = nisc;
-    96		iib.aipb.faal = ZPCI_NR_DEVICES;
-    97	
-    98		/* Setup Adapter Event Notification Interpretation */
-    99		if (zpci_set_irq_ctrl(SIC_SET_AENI_CONTROLS, 0, &iib)) {
-   100			rc = -EIO;
-   101			goto free_gait;
-   102		}
-   103	
-   104		/* Enable floating IRQs */
-   105		if (__set_irq_noiib(SIC_IRQ_MODE_SINGLE, nisc)) {
-   106			rc = -EIO;
-   107			kvm_s390_pci_aen_exit();
-   108		}
-   109	
-   110		goto unlock;
-   111	
-   112	free_gait:
-   113		size = get_order(PAGE_ALIGN(ZPCI_NR_DEVICES *
-   114					    sizeof(struct zpci_gaite)));
-   115		free_pages((unsigned long)aift.gait, size);
-   116	free_sbv:
-   117		airq_iv_release(aift.sbv);
-   118	free_zdev:
-   119		kfree(aift.kzdev);
-   120	unlock:
-   121		mutex_unlock(&aift.lock);
-   122		return rc;
-   123	}
-   124	
-   125	/* Modify PCI: Register floating adapter interruption forwarding */
-   126	static int kvm_zpci_set_airq(struct zpci_dev *zdev)
-   127	{
- > 128		u64 req = ZPCI_CREATE_REQ(zdev->fh, 0, ZPCI_MOD_FC_REG_INT);
-   129		struct zpci_fib fib = {0};
-   130		u8 status;
-   131	
-   132		fib.fmt0.isc = zdev->kzdev->fib.fmt0.isc;
-   133		fib.fmt0.sum = 1;       /* enable summary notifications */
-   134		fib.fmt0.noi = airq_iv_end(zdev->aibv);
-   135		fib.fmt0.aibv = (unsigned long) zdev->aibv->vector;
-   136		fib.fmt0.aibvo = 0;
-   137		fib.fmt0.aisb = (unsigned long) aift.sbv->vector + (zdev->aisb/64) * 8;
-   138		fib.fmt0.aisbo = zdev->aisb & 63;
-   139		fib.gd = zdev->gd;
-   140	
-   141		return zpci_mod_fc(req, &fib, &status) ? -EIO : 0;
-   142	}
-   143	
-
----
-0-DAY CI Kernel Test Service, Intel Corporation
-https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+>   	unsigned int ibc;
+>   	unsigned int mtid;
+>   	unsigned int mtid_cp;
+> diff --git a/drivers/s390/char/sclp_early.c b/drivers/s390/char/sclp_early.c
+> index b64feab62caa..2e8199b7ae50 100644
+> --- a/drivers/s390/char/sclp_early.c
+> +++ b/drivers/s390/char/sclp_early.c
+> @@ -45,6 +45,7 @@ static void __init sclp_early_facilities_detect(void)
+>   	sclp.has_gisaf = !!(sccb->fac118 & 0x08);
+>   	sclp.has_hvs = !!(sccb->fac119 & 0x80);
+>   	sclp.has_kss = !!(sccb->fac98 & 0x01);
+> +	sclp.has_zpci_interp = !!(sccb->fac118 & 0x01);
+>   	if (sccb->fac85 & 0x02)
+>   		S390_lowcore.machine_flags |= MACHINE_FLAG_ESOP;
+>   	if (sccb->fac91 & 0x40)
+> 
