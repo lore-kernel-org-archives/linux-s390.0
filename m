@@ -2,127 +2,239 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50663C433FE
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Dec 2021 14:57:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43F8DC433F5
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Dec 2021 15:08:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231797AbhLIPBW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Dec 2021 10:01:22 -0500
-Received: from smtp-out1.suse.de ([195.135.220.28]:54906 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230312AbhLIPBW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Dec 2021 10:01:22 -0500
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 2EB09210FF;
-        Thu,  9 Dec 2021 14:57:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1639061867; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=B7f6qRahiw5jhS0ShhXv7YNAlwGFAuEPvz02wcswTDY=;
-        b=gPgeGBOqAj1w2/IfiYiUJZQKOR5J82A1Jcgx9IB9Lg4xy6yn6SJ5BFAlgLdbOLu1hHG7vE
-        0panrH92CgFnCxooEeYXPRniRiGQzT2/9Wq8WzmBRRrKzV/iXa5gM6ei/5FlPbBPij83bp
-        vqSVzkoMk5Lf/ek96wOP4gFIEnDAhro=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1639061867;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=B7f6qRahiw5jhS0ShhXv7YNAlwGFAuEPvz02wcswTDY=;
-        b=ifKqt7859hHQVpcEXofA567hptOij+KjdqlWOciBCOlO/gkAk2kGLrViK2ee2A72WKzrh7
-        l33DkpGEwGJL82CQ==
-Received: from kunlun.suse.cz (unknown [10.100.128.76])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 44CA3A3B95;
-        Thu,  9 Dec 2021 14:57:45 +0000 (UTC)
-Date:   Thu, 9 Dec 2021 15:57:44 +0100
-From:   Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
-To:     Nayna <nayna@linux.vnet.ibm.com>
-Cc:     keyrings@vger.kernel.org, kexec@lists.infradead.org,
-        Philipp Rudo <prudo@redhat.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Rob Herring <robh@kernel.org>, linux-s390@vger.kernel.org,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Jessica Yu <jeyu@kernel.org>, linux-kernel@vger.kernel.org,
-        David Howells <dhowells@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Hari Bathini <hbathini@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linuxppc-dev@lists.ozlabs.org,
-        Frank van der Linden <fllinden@amazon.com>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Daniel Axtens <dja@axtens.net>, buendgen@de.ibm.com,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Baoquan He <bhe@redhat.com>, linux-crypto@vger.kernel.org,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org
-Subject: Re: [PATCH v2 0/6] KEXEC_SIG with appended signature
-Message-ID: <20211209145744.GQ117207@kunlun.suse.cz>
-References: <cover.1637862358.git.msuchanek@suse.de>
- <b5e6ec36-a9ec-22f4-be58-28d48bdc38b4@linux.vnet.ibm.com>
+        id S234387AbhLIPLi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Dec 2021 10:11:38 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:20654 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234269AbhLIPLh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Dec 2021 10:11:37 -0500
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B9F4DaQ011025;
+        Thu, 9 Dec 2021 15:08:02 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=jAIufpj5dwywjaqhic/kNyO+DVSpb6FWUpESb5ObnDg=;
+ b=X1ZnrBG94HkOm2otUctqed7nBUUaReFtFwcgwaaGvtp9WOxNoTDYS6iwUZOCPUkN3Bi8
+ eNEJa2jYgy9hqQH89L1P2M7f3HetEcpKDKlrYq5A7eFbwg6796xjTs9kaqs796HYxrxH
+ r7LTUi3NQuZ+5Yv5B254Cf5vFcTaRiZnBrPxL550/rqGaiXXv0C6YvecfcK9lBkcrtn+
+ C/eNRVk2Gush94mNitVc69awqUC01kiBcG26fzUf9Q1AusVY2iSgw6i9NVckvkZVzkka
+ 9+DaHDgweMXDRHFtB4xkFRAsEm8LKd6CKEEnnUZDBebYazyvU6QuV6wAUvIOavZpIc3X eg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cum470363-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 09 Dec 2021 15:08:01 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1B9F4VY8011638;
+        Thu, 9 Dec 2021 15:08:00 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cum47035h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 09 Dec 2021 15:08:00 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1B9F31sx015839;
+        Thu, 9 Dec 2021 15:07:58 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma06ams.nl.ibm.com with ESMTP id 3cqykjts0w-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 09 Dec 2021 15:07:58 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1B9F7tPv29557186
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 9 Dec 2021 15:07:55 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EF67CAE05A;
+        Thu,  9 Dec 2021 15:07:54 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 11504AE051;
+        Thu,  9 Dec 2021 15:07:54 +0000 (GMT)
+Received: from [9.171.49.66] (unknown [9.171.49.66])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu,  9 Dec 2021 15:07:53 +0000 (GMT)
+Message-ID: <4ba965b7-f5b7-a93c-005b-dece761732a9@linux.ibm.com>
+Date:   Thu, 9 Dec 2021 16:07:53 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b5e6ec36-a9ec-22f4-be58-28d48bdc38b4@linux.vnet.ibm.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [PATCH 08/32] s390/pci: stash associated GISA designation
+Content-Language: en-US
+To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
+        schnelle@linux.ibm.com, farman@linux.ibm.com, pmorel@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
+        vneethv@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com,
+        thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20211207205743.150299-1-mjrosato@linux.ibm.com>
+ <20211207205743.150299-9-mjrosato@linux.ibm.com>
+From:   Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20211207205743.150299-9-mjrosato@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: FuQSgzHMN1wSW617zeWmw5B2kVLTv_rL
+X-Proofpoint-GUID: xQURwOHUN0EpzfcLtW0OxDbFji_3gAdd
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2021-12-09_06,2021-12-08_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxlogscore=999
+ priorityscore=1501 malwarescore=0 bulkscore=0 impostorscore=0 phishscore=0
+ suspectscore=0 mlxscore=0 lowpriorityscore=0 spamscore=0 clxscore=1015
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
+ definitions=main-2112090082
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello,
 
-On Wed, Dec 08, 2021 at 08:50:54PM -0500, Nayna wrote:
+
+Am 07.12.21 um 21:57 schrieb Matthew Rosato:
+> For passthrough devices, we will need to know the GISA designation of the
+> guest if interpretation facilities are to be used.  Setup to stash this in
+> the zdev and set a default of 0 (no GISA designation) for now; a subsequent
+> patch will set a valid GISA designation for passthrough devices.
+> Also, extend mpcific routines to specify this stashed designation as part
+> of the mpcific command.
 > 
-> On 11/25/21 13:02, Michal Suchanek wrote:
-> > Hello,
+> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+
+> ---
+>   arch/s390/include/asm/pci.h     | 1 +
+>   arch/s390/include/asm/pci_clp.h | 3 ++-
+>   arch/s390/pci/pci.c             | 9 +++++++++
+>   arch/s390/pci/pci_clp.c         | 1 +
+>   arch/s390/pci/pci_irq.c         | 5 +++++
+>   5 files changed, 18 insertions(+), 1 deletion(-)
 > 
-> Hi Michael,
+> diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+> index 90824be5ce9a..2474b8d30f2a 100644
+> --- a/arch/s390/include/asm/pci.h
+> +++ b/arch/s390/include/asm/pci.h
+> @@ -123,6 +123,7 @@ struct zpci_dev {
+>   	enum zpci_state state;
+>   	u32		fid;		/* function ID, used by sclp */
+>   	u32		fh;		/* function handle, used by insn's */
+> +	u32		gd;		/* GISA designation for passthrough */
+>   	u16		vfn;		/* virtual function number */
+>   	u16		pchid;		/* physical channel ID */
+>   	u8		pfgid;		/* function group ID */
+> diff --git a/arch/s390/include/asm/pci_clp.h b/arch/s390/include/asm/pci_clp.h
+> index 1f4b666e85ee..3af8d196da74 100644
+> --- a/arch/s390/include/asm/pci_clp.h
+> +++ b/arch/s390/include/asm/pci_clp.h
+> @@ -173,7 +173,8 @@ struct clp_req_set_pci {
+>   	u16 reserved2;
+>   	u8 oc;				/* operation controls */
+>   	u8 ndas;			/* number of dma spaces */
+> -	u64 reserved3;
+> +	u32 reserved3;
+> +	u32 gd;				/* GISA designation */
+>   } __packed;
+>   
+>   /* Set PCI function response */
+> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+> index 2f9b78fa82a5..9b4d3d78b444 100644
+> --- a/arch/s390/pci/pci.c
+> +++ b/arch/s390/pci/pci.c
+> @@ -119,6 +119,7 @@ int zpci_register_ioat(struct zpci_dev *zdev, u8 dmaas,
+>   	fib.pba = base;
+>   	fib.pal = limit;
+>   	fib.iota = iota | ZPCI_IOTA_RTTO_FLAG;
+> +	fib.gd = zdev->gd;
+>   	cc = zpci_mod_fc(req, &fib, &status);
+>   	if (cc)
+>   		zpci_dbg(3, "reg ioat fid:%x, cc:%d, status:%d\n", zdev->fid, cc, status);
+> @@ -132,6 +133,8 @@ int zpci_unregister_ioat(struct zpci_dev *zdev, u8 dmaas)
+>   	struct zpci_fib fib = {0};
+>   	u8 cc, status;
+>   
+> +	fib.gd = zdev->gd;
+> +
+>   	cc = zpci_mod_fc(req, &fib, &status);
+>   	if (cc)
+>   		zpci_dbg(3, "unreg ioat fid:%x, cc:%d, status:%d\n", zdev->fid, cc, status);
+> @@ -159,6 +162,7 @@ int zpci_fmb_enable_device(struct zpci_dev *zdev)
+>   	atomic64_set(&zdev->unmapped_pages, 0);
+>   
+>   	fib.fmb_addr = virt_to_phys(zdev->fmb);
+> +	fib.gd = zdev->gd;
+>   	cc = zpci_mod_fc(req, &fib, &status);
+>   	if (cc) {
+>   		kmem_cache_free(zdev_fmb_cache, zdev->fmb);
+> @@ -177,6 +181,8 @@ int zpci_fmb_disable_device(struct zpci_dev *zdev)
+>   	if (!zdev->fmb)
+>   		return -EINVAL;
+>   
+> +	fib.gd = zdev->gd;
+> +
+>   	/* Function measurement is disabled if fmb address is zero */
+>   	cc = zpci_mod_fc(req, &fib, &status);
+>   	if (cc == 3) /* Function already gone. */
+> @@ -807,6 +813,9 @@ struct zpci_dev *zpci_create_device(u32 fid, u32 fh, enum zpci_state state)
+>   	zdev->fid = fid;
+>   	zdev->fh = fh;
+>   
+> +	/* For now, assume it is not a passthrough device */
+> +	zdev->gd = 0;
+> +
+>   	/* Query function properties and update zdev */
+>   	rc = clp_query_pci_fn(zdev);
+>   	if (rc)
+> diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
+> index be077b39da33..e9ed0e4a5cf0 100644
+> --- a/arch/s390/pci/pci_clp.c
+> +++ b/arch/s390/pci/pci_clp.c
+> @@ -240,6 +240,7 @@ static int clp_set_pci_fn(struct zpci_dev *zdev, u32 *fh, u8 nr_dma_as, u8 comma
+>   		rrb->request.fh = zdev->fh;
+>   		rrb->request.oc = command;
+>   		rrb->request.ndas = nr_dma_as;
+> +		rrb->request.gd = zdev->gd;
+>   
+>   		rc = clp_req(rrb, CLP_LPS_PCI);
+>   		if (rrb->response.hdr.rsp == CLP_RC_SETPCIFN_BUSY) {
+> diff --git a/arch/s390/pci/pci_irq.c b/arch/s390/pci/pci_irq.c
+> index 6b29e39496d1..9e8b4507234d 100644
+> --- a/arch/s390/pci/pci_irq.c
+> +++ b/arch/s390/pci/pci_irq.c
+> @@ -43,6 +43,7 @@ static int zpci_set_airq(struct zpci_dev *zdev)
+>   	fib.fmt0.aibvo = 0;	/* each zdev has its own interrupt vector */
+>   	fib.fmt0.aisb = (unsigned long) zpci_sbv->vector + (zdev->aisb/64)*8;
+>   	fib.fmt0.aisbo = zdev->aisb & 63;
+> +	fib.gd = zdev->gd;
+>   
+>   	return zpci_mod_fc(req, &fib, &status) ? -EIO : 0;
+>   }
+> @@ -54,6 +55,8 @@ static int zpci_clear_airq(struct zpci_dev *zdev)
+>   	struct zpci_fib fib = {0};
+>   	u8 cc, status;
+>   
+> +	fib.gd = zdev->gd;
+> +
+>   	cc = zpci_mod_fc(req, &fib, &status);
+>   	if (cc == 3 || (cc == 1 && status == 24))
+>   		/* Function already gone or IRQs already deregistered. */
+> @@ -72,6 +75,7 @@ static int zpci_set_directed_irq(struct zpci_dev *zdev)
+>   	fib.fmt = 1;
+>   	fib.fmt1.noi = zdev->msi_nr_irqs;
+>   	fib.fmt1.dibvo = zdev->msi_first_bit;
+> +	fib.gd = zdev->gd;
+>   
+>   	return zpci_mod_fc(req, &fib, &status) ? -EIO : 0;
+>   }
+> @@ -84,6 +88,7 @@ static int zpci_clear_directed_irq(struct zpci_dev *zdev)
+>   	u8 cc, status;
+>   
+>   	fib.fmt = 1;
+> +	fib.gd = zdev->gd;
+>   	cc = zpci_mod_fc(req, &fib, &status);
+>   	if (cc == 3 || (cc == 1 && status == 24))
+>   		/* Function already gone or IRQs already deregistered. */
 > 
-> > 
-> > This is resend of the KEXEC_SIG patchset.
-> > 
-> > The first patch is new because it'a a cleanup that does not require any
-> > change to the module verification code.
-> > 
-> > The second patch is the only one that is intended to change any
-> > functionality.
-> > 
-> > The rest only deduplicates code but I did not receive any review on that
-> > part so I don't know if it's desirable as implemented.
-> > 
-> > The first two patches can be applied separately without the rest.
-> 
-> Patch 2 fails to apply on v5.16-rc4. Can you please also include git
-> tree/branch while posting the patches ?
-
-Sorry, I did not have a clean base and the Kconfig had another change.
-
-Here is a tree with the changes applied:
-https://github.com/hramrach/kernel/tree/kexec_sig
-
-> 
-> Secondly, I see that you add the powerpc support in Patch 2 and then modify
-> it again in Patch 5 after cleanup. Why not add the support for powerpc after
-> the clean up ? This will reduce some rework and also probably simplify
-> patches.
-
-That's because I don't know if the later patches will be accepted. By
-queueing this patch first it can be applied standalone to ppc tree
-without regard for the other patches. It's a copy of the s390 code so it
-needs the same rework - not really adding complexity.
-
-Thanks
-
-Michal
