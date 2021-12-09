@@ -2,161 +2,123 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BDE3C433EF
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Dec 2021 09:12:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B8BEC4332F
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Dec 2021 09:22:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234162AbhLIJQ1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Dec 2021 04:16:27 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:43812 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229654AbhLIJQ1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Dec 2021 04:16:27 -0500
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B98wRn4005373;
-        Thu, 9 Dec 2021 09:12:54 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=JmcQClMRutBZg0exBO9eE3sOpVbfCJRjME933j2p6Uk=;
- b=hN0hhLJ3icu8akfiIZw0jxrnWu5sMxZYFZClIt4pyxmB2VNDdg7rM7eN7DPvzMzEoRZx
- LwF1dl1mGRmS7yotkmaK1r5mBbMZPu3zBuECVKPnO1SmM4/iKTK1M/Ff1xy++HWc21+9
- PHlzpWTWdEQDLD6YUUJknKTJhUkYsYtMunQDljl/sX+8CBaiq4DIpKwYevVV8ktHAa+n
- nX1TKXpGG9KN3HQNQOorvQgAKcJQybdzZrqxsUWpIGYk+tg6fGVPjV/RSoT3vP3Kr2rt
- XFv8gBSdDS+JsNtjHm8y2IkRN3s/UtNgRYidCh8ss1YZqXNf9yTlfHt+JqfiDiROEDR/ MA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cuert08ag-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 09 Dec 2021 09:12:54 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1B993dnN022094;
-        Thu, 9 Dec 2021 09:12:53 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cuert089m-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 09 Dec 2021 09:12:53 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1B99Bvje019538;
-        Thu, 9 Dec 2021 09:12:51 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03ams.nl.ibm.com with ESMTP id 3cqyyafc5a-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 09 Dec 2021 09:12:51 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1B99CmQI22937892
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 9 Dec 2021 09:12:48 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E3805AE073;
-        Thu,  9 Dec 2021 09:12:47 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E7FDCAE055;
-        Thu,  9 Dec 2021 09:12:46 +0000 (GMT)
-Received: from [9.171.63.16] (unknown [9.171.63.16])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu,  9 Dec 2021 09:12:46 +0000 (GMT)
-Message-ID: <e4afc101-a85b-8de6-d0db-bc6e93180db6@linux.ibm.com>
-Date:   Thu, 9 Dec 2021 10:13:45 +0100
+        id S235909AbhLIJZf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Dec 2021 04:25:35 -0500
+Received: from smtp-out2.suse.de ([195.135.220.29]:37704 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235687AbhLIJZd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Dec 2021 04:25:33 -0500
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id 3B32B1FD2A;
+        Thu,  9 Dec 2021 09:21:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1639041718; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=jo3sn1byKWtiTn1dBpjtwdFa6oBSNCtz/xhF6ucACsY=;
+        b=y5YzNG0rNKaO9NxPBAvDaQoQJPkQmG2LM54kVRigZuFPeyYKpKjohXF5zSI+IMLN4805NR
+        PkkekB5S0F8a10njKbZFjLTgzTAvz8uTJAnMFj/1fbYEyKhhWdWB66C9iz1Fa9DfR0cDsy
+        yshj9dKYiEAUsXxJ+DIpi0rjIY+0z9o=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1639041718;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=jo3sn1byKWtiTn1dBpjtwdFa6oBSNCtz/xhF6ucACsY=;
+        b=UmTHULVEapvtK0ndlxOwHm+jDi1BGZ/4ZhnM7iTiCPnzFci+pO9RE5k+RBPEDy456LoCP6
+        ab98l4y69aWfTuBQ==
+Received: from kunlun.suse.cz (unknown [10.100.128.76])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 46A5DA3B95;
+        Thu,  9 Dec 2021 09:21:56 +0000 (UTC)
+Date:   Thu, 9 Dec 2021 10:21:55 +0100
+From:   Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
+To:     Nayna <nayna@linux.vnet.ibm.com>
+Cc:     keyrings@vger.kernel.org, kexec@lists.infradead.org,
+        Philipp Rudo <prudo@redhat.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Rob Herring <robh@kernel.org>, linux-s390@vger.kernel.org,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Jessica Yu <jeyu@kernel.org>, linux-kernel@vger.kernel.org,
+        David Howells <dhowells@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Hari Bathini <hbathini@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linuxppc-dev@lists.ozlabs.org,
+        Frank van der Linden <fllinden@amazon.com>,
+        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
+        Daniel Axtens <dja@axtens.net>, buendgen@de.ibm.com,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Baoquan He <bhe@redhat.com>, linux-crypto@vger.kernel.org,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+Subject: Re: [PATCH v2 2/6] powerpc/kexec_file: Add KEXEC_SIG support.
+Message-ID: <20211209092155.GO117207@kunlun.suse.cz>
+References: <cover.1637862358.git.msuchanek@suse.de>
+ <8b30a3c6a4e845eb77f276298424811897efdebf.1637862358.git.msuchanek@suse.de>
+ <c3c9c6e4-6371-2f5a-ac94-fa4389d5dbe5@linux.vnet.ibm.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.0
-Subject: Re: [PATCH 10/32] s390/pci: stash dtsm and maxstbl
-Content-Language: en-US
-To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
-        schnelle@linux.ibm.com, farman@linux.ibm.com,
-        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
-        vneethv@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com,
-        thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20211207205743.150299-1-mjrosato@linux.ibm.com>
- <20211207205743.150299-11-mjrosato@linux.ibm.com>
-From:   Pierre Morel <pmorel@linux.ibm.com>
-In-Reply-To: <20211207205743.150299-11-mjrosato@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: T1T86lCEi_8TNhrPeo7RXe2m1vddi1Hg
-X-Proofpoint-GUID: jQ3q2uxiqF_kZP-KX03L8w7tfOTk49Yh
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2021-12-09_04,2021-12-08_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- impostorscore=0 suspectscore=0 adultscore=0 mlxscore=0 bulkscore=0
- mlxlogscore=999 phishscore=0 priorityscore=1501 spamscore=0 clxscore=1015
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2112090048
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c3c9c6e4-6371-2f5a-ac94-fa4389d5dbe5@linux.vnet.ibm.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Hello,
 
-
-On 12/7/21 21:57, Matthew Rosato wrote:
-> Store information about what IOAT designation types are supported by
-> underlying hardware as well as the largest store block size allowed.
-> These values will be needed by passthrough.
+On Wed, Dec 08, 2021 at 08:51:47PM -0500, Nayna wrote:
 > 
-> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> ---
->   arch/s390/include/asm/pci.h     | 2 ++
->   arch/s390/include/asm/pci_clp.h | 6 ++++--
->   arch/s390/pci/pci_clp.c         | 2 ++
->   3 files changed, 8 insertions(+), 2 deletions(-)
+> On 11/25/21 13:02, Michal Suchanek wrote:
+> > Copy the code from s390x
+> > 
+> > Signed-off-by: Michal Suchanek<msuchanek@suse.de>
+> > ---
+> >   arch/powerpc/Kconfig        | 11 +++++++++++
+> >   arch/powerpc/kexec/elf_64.c | 36 ++++++++++++++++++++++++++++++++++++
+> >   2 files changed, 47 insertions(+)
+> > 
+> > diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+> > index ac0c515552fd..ecc1227a77f1 100644
+> > --- a/arch/powerpc/Kconfig
+> > +++ b/arch/powerpc/Kconfig
+> > @@ -561,6 +561,17 @@ config KEXEC_FILE
+> >   config ARCH_HAS_KEXEC_PURGATORY
+> >   	def_bool KEXEC_FILE
+> > 
+> > +config KEXEC_SIG
+> > +	bool "Verify kernel signature during kexec_file_load() syscall"
+> > +	depends on KEXEC_FILE && MODULE_SIG_FORMAT
 > 
-> diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-> index 2474b8d30f2a..1a8f9f42da3a 100644
-> --- a/arch/s390/include/asm/pci.h
-> +++ b/arch/s390/include/asm/pci.h
-> @@ -126,9 +126,11 @@ struct zpci_dev {
->   	u32		gd;		/* GISA designation for passthrough */
->   	u16		vfn;		/* virtual function number */
->   	u16		pchid;		/* physical channel ID */
-> +	u16		maxstbl;	/* Maximum store block size */
->   	u8		pfgid;		/* function group ID */
->   	u8		pft;		/* pci function type */
->   	u8		port;
-> +	u8		dtsm;		/* Supported DT mask */
->   	u8		rid_available	: 1;
->   	u8		has_hp_slot	: 1;
->   	u8		has_resources	: 1;
-> diff --git a/arch/s390/include/asm/pci_clp.h b/arch/s390/include/asm/pci_clp.h
-> index 3af8d196da74..124fadfb74b9 100644
-> --- a/arch/s390/include/asm/pci_clp.h
-> +++ b/arch/s390/include/asm/pci_clp.h
-> @@ -153,9 +153,11 @@ struct clp_rsp_query_pci_grp {
->   	u8			:  6;
->   	u8 frame		:  1;
->   	u8 refresh		:  1;	/* TLB refresh mode */
-> -	u16 reserved2;
-> +	u16			:  3;
-> +	u16 maxstbl		: 13;	/* Maximum store block size */
->   	u16 mui;
-> -	u16			: 16;
-> +	u8 dtsm;			/* Supported DT mask */
-> +	u8 reserved3;
->   	u16 maxfaal;
->   	u16			:  4;
->   	u16 dnoi		: 12;
-> diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
-> index e9ed0e4a5cf0..bc7446566cbc 100644
-> --- a/arch/s390/pci/pci_clp.c
-> +++ b/arch/s390/pci/pci_clp.c
-> @@ -103,6 +103,8 @@ static void clp_store_query_pci_fngrp(struct zpci_dev *zdev,
->   	zdev->max_msi = response->noi;
->   	zdev->fmb_update = response->mui;
->   	zdev->version = response->version;
-> +	zdev->maxstbl = response->maxstbl;
-> +	zdev->dtsm = response->dtsm;
->   
->   	switch (response->version) {
->   	case 1:
+> After manually applying the patch, the build is failing with the following
+> error:
 > 
+> build failed with error "arch/powerpc/kexec/elf_64.o: In function
+> `elf64_verify_sig':
+> /root/kernel/linus/linux/arch/powerpc/kexec/elf_64.c:160: undefined
+> reference to `verify_appended_signature'"
 
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+This patch does not add call to verify_appended_signature.
 
+Maybe you applied the following patch as well?
 
--- 
-Pierre Morel
-IBM Lab Boeblingen
+Thanks
+
+Michal
