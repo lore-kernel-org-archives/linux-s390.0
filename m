@@ -2,158 +2,107 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41EA7C433F5
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Dec 2021 21:54:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1395FC433EF
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Dec 2021 22:09:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232906AbhLIV5x (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Dec 2021 16:57:53 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:29846 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231868AbhLIV5v (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Dec 2021 16:57:51 -0500
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B9KZHjb027392;
-        Thu, 9 Dec 2021 21:53:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=WMWPuPqMKkG7POp8eawwV4RyD7I/ba69OipN2SLIhY8=;
- b=CQvQZs82boi9r/eoannQphMh+dI0uZhcqNDtBHo5FK+3ZSVy6ZL3noAsV3RzaXUdAGzl
- maworrN7wm4zu+ueXaE6DbbtmSyABIcqp3AXXadrzv59wybqvXuAiuLBhi5sYRo/ohAJ
- KCp3bTvihHt2x2Ds7SHmcr3I20WigbNag2S85aN29mmldXcx/mukpQvKbKjsbvmAmccA
- oPqB5T4kaw7VFy9Ge8WASuFOY7fm/qdgclaufYBEC1CY8jzy1HiwAWIcqr+CpV+q3gFW
- uu4KBoZ7QjsoTPorlYuWd4XViUrgqUQbBg/bFzKhQdsD5AhNDK374+iog2ZV9WYkTyCq SA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cup7pwehy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 09 Dec 2021 21:53:39 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1B9LrdNB019382;
-        Thu, 9 Dec 2021 21:53:39 GMT
-Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cup7pwehr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 09 Dec 2021 21:53:39 +0000
-Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
-        by ppma02wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1B9LcEZB011635;
-        Thu, 9 Dec 2021 21:53:37 GMT
-Received: from b03cxnp07028.gho.boulder.ibm.com (b03cxnp07028.gho.boulder.ibm.com [9.17.130.15])
-        by ppma02wdc.us.ibm.com with ESMTP id 3cqyyc2mqn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 09 Dec 2021 21:53:37 +0000
-Received: from b03ledav001.gho.boulder.ibm.com (b03ledav001.gho.boulder.ibm.com [9.17.130.232])
-        by b03cxnp07028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1B9LrZ3927132204
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 9 Dec 2021 21:53:35 GMT
-Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 93B856E056;
-        Thu,  9 Dec 2021 21:53:35 +0000 (GMT)
-Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 97FCF6E052;
-        Thu,  9 Dec 2021 21:53:33 +0000 (GMT)
-Received: from [9.211.103.28] (unknown [9.211.103.28])
-        by b03ledav001.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Thu,  9 Dec 2021 21:53:33 +0000 (GMT)
-Message-ID: <790c68ce-070d-c391-0c3a-4637c616fa5e@linux.vnet.ibm.com>
-Date:   Thu, 9 Dec 2021 16:53:33 -0500
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.0
-Subject: Re: [PATCH v2 2/6] powerpc/kexec_file: Add KEXEC_SIG support.
-Content-Language: en-US
-To:     =?UTF-8?Q?Michal_Such=c3=a1nek?= <msuchanek@suse.de>
-Cc:     keyrings@vger.kernel.org, kexec@lists.infradead.org,
-        Philipp Rudo <prudo@redhat.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Rob Herring <robh@kernel.org>, linux-s390@vger.kernel.org,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
+        id S232270AbhLIWNa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Dec 2021 17:13:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59712 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232333AbhLIWN3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Dec 2021 17:13:29 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA64EC061746;
+        Thu,  9 Dec 2021 14:09:55 -0800 (PST)
+From:   Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1639087793;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=B+lqUDLWtnvLeY/KahuIZ2Xvfr4Bwoi1ABSMRvnITCk=;
+        b=WW18ExaRnpYiWwbxv1Oo+xyj2rfXtsbPW+X7DVsTiaqB6wgXzATusvwhCl2GaS0rdR+WnS
+        tJqrFACnb/P7aMyauV0Fi+Y2Ij1B/GX/eVn6EGdEM6K0YI6JQPA4aM+WtDI3/kaLnHJ2QX
+        nipiipByknmKWpGePlYzrzCt1B7GA4MVVwpoZbz8+GW4x4UCOWa7s+e/WbNp3weWyzEOkB
+        ChXF2+m0tC/eW9+h/iL1fdpba0kWZqBeWFWjFofAKXGAntdvIInQwwsjY75CFMBPXGsfyC
+        5gDlVAIJET2FXFHnFwbuWUKB2ii1p17poTV9Hn4kr4bxvGjeaFlv5zW+2fiLpg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1639087793;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=B+lqUDLWtnvLeY/KahuIZ2Xvfr4Bwoi1ABSMRvnITCk=;
+        b=qVn3U9HWxK+h6v6N25iCCmQPsywBb9D/DewlfObPZ14vxsbLUpThsREQ0c1etj4ttkaC80
+        m8v8EwcoDdMel9DA==
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     "Tian, Kevin" <kevin.tian@intel.com>,
+        "Jiang, Dave" <dave.jiang@intel.com>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Bjorn Helgaas <helgaas@kernel.org>,
+        Marc Zygnier <maz@kernel.org>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        "Dey, Megha" <megha.dey@intel.com>,
+        "Raj, Ashok" <ashok.raj@intel.com>,
+        "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jon Mason <jdmason@kudzu.us>, Allen Hubbe <allenbh@gmail.com>,
+        "linux-ntb@googlegroups.com" <linux-ntb@googlegroups.com>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Jessica Yu <jeyu@kernel.org>, linux-kernel@vger.kernel.org,
-        David Howells <dhowells@redhat.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Hari Bathini <hbathini@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linuxppc-dev@lists.ozlabs.org,
-        Frank van der Linden <fllinden@amazon.com>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Daniel Axtens <dja@axtens.net>, buendgen@de.ibm.com,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Baoquan He <bhe@redhat.com>, linux-crypto@vger.kernel.org,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org
-References: <cover.1637862358.git.msuchanek@suse.de>
- <8b30a3c6a4e845eb77f276298424811897efdebf.1637862358.git.msuchanek@suse.de>
- <c3c9c6e4-6371-2f5a-ac94-fa4389d5dbe5@linux.vnet.ibm.com>
- <20211209092155.GO117207@kunlun.suse.cz>
-From:   Nayna <nayna@linux.vnet.ibm.com>
-In-Reply-To: <20211209092155.GO117207@kunlun.suse.cz>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: x2XUc9cxjnO1DJ8AfathjBta2FnXVAlc
-X-Proofpoint-ORIG-GUID: HZolCF3M1gk1kZAg8NUwVeVyMGL04EK2
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2021-12-09_09,2021-12-08_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
- lowpriorityscore=0 mlxlogscore=999 malwarescore=0 priorityscore=1501
- clxscore=1015 suspectscore=0 adultscore=0 bulkscore=0 phishscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2112090112
+        "x86@kernel.org" <x86@kernel.org>, Joerg Roedel <jroedel@suse.de>,
+        "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>
+Subject: Re: [patch 21/32] NTB/msi: Convert to msi_on_each_desc()
+In-Reply-To: <20211209205835.GZ6385@nvidia.com>
+References: <8c2262ba-173e-0007-bc4c-94ec54b2847d@intel.com>
+ <87pmqg88xq.ffs@tglx> <df00b87e-00dc-d998-8b64-46b16dba46eb@intel.com>
+ <87k0go8432.ffs@tglx> <f4cc305b-a329-6d27-9fca-b74ebc9fa0c1@intel.com>
+ <878rx480fk.ffs@tglx>
+ <BN9PR11MB52765F2EF8420C60FD5945D18C709@BN9PR11MB5276.namprd11.prod.outlook.com>
+ <87sfv2yy19.ffs@tglx> <20211209162129.GS6385@nvidia.com>
+ <878rwtzfh1.ffs@tglx> <20211209205835.GZ6385@nvidia.com>
+Date:   Thu, 09 Dec 2021 23:09:52 +0100
+Message-ID: <8735n1zaz3.ffs@tglx>
+MIME-Version: 1.0
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-On 12/9/21 04:21, Michal Suchánek wrote:
-> Hello,
-Hi,
-> On Wed, Dec 08, 2021 at 08:51:47PM -0500, Nayna wrote:
->> On 11/25/21 13:02, Michal Suchanek wrote:
->>> Copy the code from s390x
->>>
->>> Signed-off-by: Michal Suchanek<msuchanek@suse.de>
->>> ---
->>>    arch/powerpc/Kconfig        | 11 +++++++++++
->>>    arch/powerpc/kexec/elf_64.c | 36 ++++++++++++++++++++++++++++++++++++
->>>    2 files changed, 47 insertions(+)
->>>
->>> diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
->>> index ac0c515552fd..ecc1227a77f1 100644
->>> --- a/arch/powerpc/Kconfig
->>> +++ b/arch/powerpc/Kconfig
->>> @@ -561,6 +561,17 @@ config KEXEC_FILE
->>>    config ARCH_HAS_KEXEC_PURGATORY
->>>    	def_bool KEXEC_FILE
->>>
->>> +config KEXEC_SIG
->>> +	bool "Verify kernel signature during kexec_file_load() syscall"
->>> +	depends on KEXEC_FILE && MODULE_SIG_FORMAT
->> After manually applying the patch, the build is failing with the following
->> error:
->>
->> build failed with error "arch/powerpc/kexec/elf_64.o: In function
->> `elf64_verify_sig':
->> /root/kernel/linus/linux/arch/powerpc/kexec/elf_64.c:160: undefined
->> reference to `verify_appended_signature'"
-> This patch does not add call to verify_appended_signature.
+On Thu, Dec 09 2021 at 16:58, Jason Gunthorpe wrote:
+> On Thu, Dec 09, 2021 at 09:32:42PM +0100, Thomas Gleixner wrote:
+>> That was my thought to avoid having different mechanisms.
+>> 
+>> The address/data pair is computed in two places:
+>> 
+>>   1) Activation of an interrupt
+>>   2) Affinity setting on an interrupt
+>> 
+>> Both configure the IRTE when interrupt remapping is in place.
+>> 
+>> In both cases a vector is allocated in the vector domain and based on
+>> the resulting target APIC / vector number pair the IRTE is
+>> (re)configured.
+>> 
+>> So putting the hypercall into the vIRTE update is the obvious
+>> place. Both activation and affinity setting can fail and propagate an
+>> error code down to the originating caller.
+>> 
+>> Hmm?
 >
-> Maybe you applied the following patch as well?
+> Okay, I think I get it. Would be nice to have someone from intel
+> familiar with the vIOMMU protocols and qemu code remark what the
+> hypervisor side can look like.
+>
+> There is a bit more work here, we'd have to change VFIO to somehow
+> entirely disconnect the kernel IRQ logic from the MSI table and
+> directly pass control of it to the guest after the hypervisor IOMMU IR
+> secures it. ie directly mmap the msi-x table into the guest
 
-Yes, I tried build after applying all the patches.
+That makes everything consistent and a clear cut on all levels, right?
 
-Thanks & Regards,
+Thanks,
 
-     - Nayna
+        tglx
 
