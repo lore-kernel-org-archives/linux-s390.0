@@ -2,101 +2,127 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7390CC433F5
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Dec 2021 08:05:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2687C433EF
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Dec 2021 08:37:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232130AbhLIIJS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Dec 2021 03:09:18 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:58056 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229941AbhLIIJR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Dec 2021 03:09:17 -0500
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B97wHRw017171;
-        Thu, 9 Dec 2021 08:05:41 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=aem6cxPuggi+bEcKCDWY67UuJqxHPpCkyuvaVcktjuY=;
- b=eLpbqbOAsYmfzik8E6A3VkXsfr0T4jWMOWgEafDrkk/z/Ka+HZ2EwTHHtdPZKjoNK0/i
- XZXvN6vECydDlPA/T23mCijx9SNdyL4/4RYexYAdH4b8ExD+Hz/tyski1+wD2yV1OjSX
- bZD08nKga5usK8AFXFj4t9OnVDsN8SpHG7noY03XNX3v2GXqc0SNyT4vq5246drD8w8B
- JnWgPfcNQj2RKFuBpoKxcet2IoUpGfs0lBFJ/2gvTBZkMQcils5Wg4TZkaXXs8XDTpm5
- BERACozs2nxzR9dh65zbv4qwUPn050nDuo+UWbIeOjNDYBSgI3oBbilShIcR6r6ZaJDX 2Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cudvng57s-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 09 Dec 2021 08:05:41 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1B981Nhj028775;
-        Thu, 9 Dec 2021 08:05:41 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cudvng56w-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 09 Dec 2021 08:05:41 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1B97w4qx017173;
-        Thu, 9 Dec 2021 08:05:38 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma03ams.nl.ibm.com with ESMTP id 3cqyyaehnf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 09 Dec 2021 08:05:38 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1B97vpBL28377388
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 9 Dec 2021 07:57:51 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4411C42049;
-        Thu,  9 Dec 2021 08:05:36 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DFD3242047;
-        Thu,  9 Dec 2021 08:05:35 +0000 (GMT)
-Received: from [9.145.54.108] (unknown [9.145.54.108])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu,  9 Dec 2021 08:05:35 +0000 (GMT)
-Message-ID: <4dc02778-0098-0201-e124-d75691de7b8e@linux.ibm.com>
-Date:   Thu, 9 Dec 2021 09:05:36 +0100
+        id S232965AbhLIIkm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Dec 2021 03:40:42 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:37670 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232803AbhLIIkl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Dec 2021 03:40:41 -0500
+From:   Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1639039027;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=lzMFnVW/85YWmTw86Zk7iMM6erPIn8vff7QnFiF41HE=;
+        b=H2fIzRBiecZzkrgJpASWNRz2D5zY326mVdbBNkuOsxv9stoVdblJS/rFVzIIRGAkRdSnEf
+        drC7nyP/8YokJ9Oj0D0UO1sSaI0BtbvnEeGXu6362wTmW3gTypNrfMb7UX+LAScqMj3R2J
+        /IMCRDSnxGJ+vMyAPKqLS8MDarmWHCRuUd0hw7ZaNyZJOGVNBBc6/Hrseu5ph1y/ip3aDy
+        TdBtadiqCB3jjz2f23h/QrMIKCsvV5FbgRpjyQXtwKj3jCSgQOy/I+cb/kyZacgIa6FWFC
+        riI6ed5iHo8iL/iA82Fa8MRYTAp7z+uRaMCY63FYFqPkDn2l6pjl5rXHgXSw2g==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1639039027;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=lzMFnVW/85YWmTw86Zk7iMM6erPIn8vff7QnFiF41HE=;
+        b=bi+8IbnjSJqim1yrMqKUqz/cyLW1+6NdX2qMdIWNvgW9Q9i8LMYUfva+UJ6WnT6hFxJ4P1
+        qo6SpDKNWDp8qqDA==
+To:     "Tian, Kevin" <kevin.tian@intel.com>,
+        "Jiang, Dave" <dave.jiang@intel.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Logan Gunthorpe <logang@deltatee.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Bjorn Helgaas <helgaas@kernel.org>,
+        Marc Zygnier <maz@kernel.org>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        "Dey, Megha" <megha.dey@intel.com>,
+        "Raj, Ashok" <ashok.raj@intel.com>,
+        "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jon Mason <jdmason@kudzu.us>, Allen Hubbe <allenbh@gmail.com>,
+        "linux-ntb@googlegroups.com" <linux-ntb@googlegroups.com>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        "x86@kernel.org" <x86@kernel.org>, Joerg Roedel <jroedel@suse.de>,
+        "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>
+Subject: RE: [patch 21/32] NTB/msi: Convert to msi_on_each_desc()
+In-Reply-To: <BN9PR11MB52765F2EF8420C60FD5945D18C709@BN9PR11MB5276.namprd11.prod.outlook.com>
+References: <20211126230957.239391799@linutronix.de>
+ <20211126232735.547996838@linutronix.de>
+ <7daba0e2-73a3-4980-c3a5-a71f6b597b22@deltatee.com> <874k7ueldt.ffs@tglx>
+ <6ba084d6-2b26-7c86-4526-8fcd3d921dfd@deltatee.com> <87ilwacwp8.ffs@tglx>
+ <d6f13729-1b83-fa7d-3f0d-98d4e3f7a2aa@deltatee.com> <87v909bf2k.ffs@tglx>
+ <20211130202800.GE4670@nvidia.com> <87o861banv.ffs@tglx>
+ <20211201001748.GF4670@nvidia.com> <87mtlkaauo.ffs@tglx>
+ <8c2262ba-173e-0007-bc4c-94ec54b2847d@intel.com> <87pmqg88xq.ffs@tglx>
+ <df00b87e-00dc-d998-8b64-46b16dba46eb@intel.com> <87k0go8432.ffs@tglx>
+ <f4cc305b-a329-6d27-9fca-b74ebc9fa0c1@intel.com> <878rx480fk.ffs@tglx>
+ <BN9PR11MB52765F2EF8420C60FD5945D18C709@BN9PR11MB5276.namprd11.prod.outlook.com>
+Date:   Thu, 09 Dec 2021 09:37:06 +0100
+Message-ID: <87sfv2yy19.ffs@tglx>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.2
-Subject: Re: [PATCH net-next 10/13] net/smc: add net device tracker to struct
- smc_pnetentry
-Content-Language: en-US
-To:     Eric Dumazet <eric.dumazet@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Cc:     netdev <netdev@vger.kernel.org>,
-        Eric Dumazet <edumazet@google.com>,
-        linux-s390 <linux-s390@vger.kernel.org>
-References: <20211207013039.1868645-1-eric.dumazet@gmail.com>
- <20211207013039.1868645-11-eric.dumazet@gmail.com>
-From:   Karsten Graul <kgraul@linux.ibm.com>
-Organization: IBM Deutschland Research & Development GmbH
-In-Reply-To: <20211207013039.1868645-11-eric.dumazet@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: y6AIrqNNH9cwHfv75pBjiB0vgeU2cd3q
-X-Proofpoint-ORIG-GUID: pQCraAoMfrWeeIozVYTyHN4kOuyjNCXt
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2021-12-09_03,2021-12-08_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
- spamscore=0 adultscore=0 priorityscore=1501 malwarescore=0 impostorscore=0
- clxscore=1015 mlxlogscore=999 lowpriorityscore=0 mlxscore=0 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
- definitions=main-2112090043
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 07/12/2021 02:30, Eric Dumazet wrote:
-> From: Eric Dumazet <edumazet@google.com>
-> 
-> Signed-off-by: Eric Dumazet <edumazet@google.com>
-> ---
->  net/smc/smc_pnet.c | 9 +++++----
->  1 file changed, 5 insertions(+), 4 deletions(-)
-> 
+On Thu, Dec 09 2021 at 05:23, Kevin Tian wrote:
+>> From: Thomas Gleixner <tglx@linutronix.de>
+>> I don't see anything wrong with that. A subdevice is it's own entity and
+>> VFIO can chose the most conveniant representation of it to the guest
+>> obviously.
+>> 
+>> How that is backed on the host does not really matter. You can expose
+>> MSI-X to the guest with a INTx backing as well.
+>> 
+>
+> Agree with this point. How the interrupts are represented to the guest
+> is orthogonal to how the backend resource is allocated. Physically MSI-X 
+> and IMS can be enabled simultaneously on an IDXD device. Once 
+> dynamic allocation is allowed for both, either one can be allocated for
+> a subdevice (with only difference on supported #subdevices). 
+>
+> When an interrupt resource is exposed to the guest with the same type 
+> (e.g. MSI-on-MSI or IMS-on-IMS), it can be also passed through to the 
+> guest as long as a hypercall machinery is in place to get addr/data pair 
+> from the host (as you suggested earlier).
 
-Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+As I pointed out in the conclusion of this thread, IMS is only going to
+be supported with interrupt remapping in place on both host and guest.
+
+As these devices are requiring a vIOMMU on the guest anyway (PASID, User
+IO page tables), the required hypercalls are part of the vIOMMU/IR
+implementation. If you look at it from the irqdomain hierarchy view:
+
+                         |- PCI-MSI
+  VECTOR -- [v]IOMMU/IR -|- PCI-MSI-X
+                         |- PCI-IMS
+
+So host and guest use just the same representation which makes a ton of
+sense.
+
+There are two places where this matters:
+
+  1) The activate() callback of the IR domain
+
+  2) The irq_set_affinity() callback of the irqchip associated with the
+     IR domain
+
+Both callbacks are allowed to fail and the error code is handed back to
+the originating call site.
+
+If you look at the above hierarchy view then MSI/MSI-X/IMS are all
+treated in exactly the same way. It all becomes the common case.
+
+No?
+
+Thanks,
+
+        tglx
+
+
