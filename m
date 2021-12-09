@@ -2,31 +2,31 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0C45C433FE
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Dec 2021 06:38:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BAE86C4321E
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Dec 2021 06:38:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233203AbhLIGmU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        id S233215AbhLIGmU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
         Thu, 9 Dec 2021 01:42:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37214 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232078AbhLIGmT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Dec 2021 01:42:19 -0500
+        with ESMTP id S233208AbhLIGmU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Dec 2021 01:42:20 -0500
 Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1174C0617A2;
-        Wed,  8 Dec 2021 22:38:46 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 571FCC061746;
+        Wed,  8 Dec 2021 22:38:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
         References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
         Content-Type:Content-ID:Content-Description;
-        bh=htUwCCtUX9PzaWFdnDFl1fOu5jD7a6JFE1uiwtWNOPg=; b=Ly1440zV0cByQIdm/JOJLcXfce
-        Cmkz7+jw/VqfHgFGrbTl71KaS4k2In58H6KfSgRWGaevWPTW2/PS57P45xFxxEIm1B+DgS4RP/0Ex
-        1GLC3yln1HyXJ0i4DAvkQ2nPdKoN4gvO6lDsSMJOR5Mt9+DydbBhkCgm0hrP3FKvNQTNVqvtcRhj3
-        xurivO4JuBdw6btE8A7e9MB0JsPavzaTJjDFoFTEupuLEykjGP9jc9vT1jiEAatK7CUqVFomhY+7n
-        BopT9SE3KODZGIO/I51SZdjBCswHgu2jGA8iG9++UswyJ4Aq7napF1fMe1n6IeRXyJui7v6Dh9BN3
-        aLWpjGRw==;
+        bh=ouNiv2rrKa9k8QRwbohahE8DrswboT5nHLE2typSANU=; b=N7Rsz6p6yt49RTrhwjWPSlhceD
+        CALFi9S5eAp1bh236cOyKU8rTo3i9jM0Ve/65KnR7XyWCSozmquN1bNVDtfmGmbwJP2yH6h0GCbS7
+        yQDwr9YDSUqRlAuXlee/lzt5Rki0HjojpUSkLQVkrFwVgj/B7pr6Ul1Ju7cdbWRe25k/i9bCL71kc
+        CrSPLQwg91Sok6ItP+daavYVhqBKZ+cqG3qs2Xi5SfzJgfcuPbNIzXp0hJKw4bz1ndQM7ykVSg47z
+        1Fh133uaXd+HQEyu6Xe83YWZwtNGAdulTN089HddpxlBD1XQzIk2ner0wPishkUQppK8mKpuTxdUg
+        TWY3Sgag==;
 Received: from [2001:4bb8:180:a1c8:2d0e:135:af53:41f8] (helo=localhost)
         by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1mvD4X-0096hQ-JJ; Thu, 09 Dec 2021 06:38:30 +0000
+        id 1mvD4d-0096hv-8z; Thu, 09 Dec 2021 06:38:36 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     Dan Williams <dan.j.williams@intel.com>,
         Vishal Verma <vishal.l.verma@intel.com>,
@@ -44,9 +44,9 @@ Cc:     Alasdair Kergon <agk@redhat.com>,
         nvdimm@lists.linux.dev, linux-s390@vger.kernel.org,
         linux-fsdevel@vger.kernel.org,
         virtualization@lists.linux-foundation.org
-Subject: [PATCH 1/5] uio: remove copy_from_iter_flushcache() and copy_mc_to_iter()
-Date:   Thu,  9 Dec 2021 07:38:24 +0100
-Message-Id: <20211209063828.18944-2-hch@lst.de>
+Subject: [PATCH 5/5] dax: always use _copy_mc_to_iter in dax_copy_to_iter
+Date:   Thu,  9 Dec 2021 07:38:28 +0100
+Message-Id: <20211209063828.18944-6-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20211209063828.18944-1-hch@lst.de>
 References: <20211209063828.18944-1-hch@lst.de>
@@ -57,67 +57,76 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-These two wrappers are never used.
+While using the MC-safe copy routines is rather pointless on a virtual device
+like virtiofs, it also isn't harmful at all.  So just use _copy_mc_to_iter
+unconditionally to simplify the code.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/nvdimm/pmem.c |  4 ++--
- include/linux/uio.h   | 20 +-------------------
- 2 files changed, 3 insertions(+), 21 deletions(-)
+ drivers/dax/super.c | 10 ----------
+ fs/fuse/virtio_fs.c |  1 -
+ include/linux/dax.h |  1 -
+ 3 files changed, 12 deletions(-)
 
-diff --git a/drivers/nvdimm/pmem.c b/drivers/nvdimm/pmem.c
-index 4190c8c46ca88..8294f1c701baa 100644
---- a/drivers/nvdimm/pmem.c
-+++ b/drivers/nvdimm/pmem.c
-@@ -302,8 +302,8 @@ static long pmem_dax_direct_access(struct dax_device *dax_dev,
+diff --git a/drivers/dax/super.c b/drivers/dax/super.c
+index ff676a07480c8..fe783234ca669 100644
+--- a/drivers/dax/super.c
++++ b/drivers/dax/super.c
+@@ -107,8 +107,6 @@ enum dax_device_flags {
+ 	DAXDEV_SYNC,
+ 	/* do not use uncached operations to write data */
+ 	DAXDEV_CACHED,
+-	/* do not use mcsafe operations to read data */
+-	DAXDEV_NOMCSAFE,
+ };
+ 
+ /**
+@@ -171,8 +169,6 @@ size_t dax_copy_to_iter(struct dax_device *dax_dev, pgoff_t pgoff, void *addr,
+ 	 * via access_ok() in vfs_red, so use the 'no check' version to bypass
+ 	 * the HARDENED_USERCOPY overhead.
+ 	 */
+-	if (test_bit(DAXDEV_NOMCSAFE, &dax_dev->flags))
+-		return _copy_to_iter(addr, bytes, i);
+ 	return _copy_mc_to_iter(addr, bytes, i);
  }
  
- /*
-- * Use the 'no check' versions of copy_from_iter_flushcache() and
-- * copy_mc_to_iter() to bypass HARDENED_USERCOPY overhead. Bounds
-+ * Use the 'no check' versions of _copy_from_iter_flushcache() and
-+ * _copy_mc_to_iter() to bypass HARDENED_USERCOPY overhead. Bounds
-  * checking, both file offset and device offset, is handled by
-  * dax_iomap_actor()
-  */
-diff --git a/include/linux/uio.h b/include/linux/uio.h
-index 6350354f97e90..494d552c1d663 100644
---- a/include/linux/uio.h
-+++ b/include/linux/uio.h
-@@ -196,7 +196,7 @@ bool copy_from_iter_full_nocache(void *addr, size_t bytes, struct iov_iter *i)
- #ifdef CONFIG_ARCH_HAS_UACCESS_FLUSHCACHE
- /*
-  * Note, users like pmem that depend on the stricter semantics of
-- * copy_from_iter_flushcache() than copy_from_iter_nocache() must check for
-+ * _copy_from_iter_flushcache() than _copy_from_iter_nocache() must check for
-  * IS_ENABLED(CONFIG_ARCH_HAS_UACCESS_FLUSHCACHE) before assuming that the
-  * destination is flushed from the cache on return.
-  */
-@@ -211,24 +211,6 @@ size_t _copy_mc_to_iter(const void *addr, size_t bytes, struct iov_iter *i);
- #define _copy_mc_to_iter _copy_to_iter
+@@ -242,12 +238,6 @@ void set_dax_cached(struct dax_device *dax_dev)
+ }
+ EXPORT_SYMBOL_GPL(set_dax_cached);
+ 
+-void set_dax_nomcsafe(struct dax_device *dax_dev)
+-{
+-	set_bit(DAXDEV_NOMCSAFE, &dax_dev->flags);
+-}
+-EXPORT_SYMBOL_GPL(set_dax_nomcsafe);
+-
+ bool dax_alive(struct dax_device *dax_dev)
+ {
+ 	lockdep_assert_held(&dax_srcu);
+diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+index 754319ce2a29b..d9c20b148ac19 100644
+--- a/fs/fuse/virtio_fs.c
++++ b/fs/fuse/virtio_fs.c
+@@ -838,7 +838,6 @@ static int virtio_fs_setup_dax(struct virtio_device *vdev, struct virtio_fs *fs)
+ 	if (IS_ERR(fs->dax_dev))
+ 		return PTR_ERR(fs->dax_dev);
+ 	set_dax_cached(fs->dax_dev);
+-	set_dax_nomcsafe(fs->dax_dev);
+ 	return devm_add_action_or_reset(&vdev->dev, virtio_fs_cleanup_dax,
+ 					fs->dax_dev);
+ }
+diff --git a/include/linux/dax.h b/include/linux/dax.h
+index d22cbf03d37d2..d267331bc37e7 100644
+--- a/include/linux/dax.h
++++ b/include/linux/dax.h
+@@ -90,7 +90,6 @@ static inline bool daxdev_mapping_supported(struct vm_area_struct *vma,
  #endif
  
--static __always_inline __must_check
--size_t copy_from_iter_flushcache(void *addr, size_t bytes, struct iov_iter *i)
--{
--	if (unlikely(!check_copy_size(addr, bytes, false)))
--		return 0;
--	else
--		return _copy_from_iter_flushcache(addr, bytes, i);
--}
--
--static __always_inline __must_check
--size_t copy_mc_to_iter(void *addr, size_t bytes, struct iov_iter *i)
--{
--	if (unlikely(!check_copy_size(addr, bytes, true)))
--		return 0;
--	else
--		return _copy_mc_to_iter(addr, bytes, i);
--}
--
- size_t iov_iter_zero(size_t bytes, struct iov_iter *);
- unsigned long iov_iter_alignment(const struct iov_iter *i);
- unsigned long iov_iter_gap_alignment(const struct iov_iter *i);
+ void set_dax_cached(struct dax_device *dax_dev);
+-void set_dax_nomcsafe(struct dax_device *dax_dev);
+ 
+ struct writeback_control;
+ #if defined(CONFIG_BLOCK) && defined(CONFIG_FS_DAX)
 -- 
 2.30.2
 
