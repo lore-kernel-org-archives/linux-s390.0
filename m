@@ -2,131 +2,144 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 121C8C433F5
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Dec 2021 01:01:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 66F78C4332F
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Dec 2021 01:51:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238323AbhLIBEg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 8 Dec 2021 20:04:36 -0500
-Received: from mail-mw2nam10on2065.outbound.protection.outlook.com ([40.107.94.65]:48661
-        "EHLO NAM10-MW2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S233885AbhLIBEg (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 8 Dec 2021 20:04:36 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=UvCbd4kDGQut/yGBRZzq4CNcchMR16AtWmODGIpoYhfE6o/cW2HJbyFb1D2avmx0bjTptDPDifkPaz6P+q6vTs2J/3QWzGb4mj81zWrrqUqtO5taBlJQttyMjWsqwPSlrHDvbZBv8823QLHJtL+tzpaCW5OQYEaU5NqaNpSYW8CLzgQIxztaGWImlT9kGn9Uz+GAbKdwGhAEuJ+n+FJ9sSIbIvQ+6Onziq3Q26YZR0Q4xcK22Pyk7eKAiDnUmal8Gg5gUPaw7Kq0ZkdEvCNngCO+61BVGccDSnkctwoE47W5Rm8X20uvcr/HbY+y4Xaap5Yl0Ce0+MTvM0Thp6YzZQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=KgiVroL99Eb0nfuME/RPoIYITyO9tKbqxVG0UmaTgnI=;
- b=BbxTC4JvtR97/ON/xGxCiUjq9gy2if+iHF35WKBXhw5FDoB/2ZdnLObc9YVwrJJlt+ojH8jzzdiBc8S+7IT4jvX+BBwd+xagRbTGKWe51G652ZmkaCIw1Xzrb/KTmt3uz3XOBzvJS6zaWxfFxvShgxE9jHTwEhfN4jMn6XJ1h+GtmmBc05TFIGN75lgEN+lrvps9cZtFJVSCSB3vaalnIPORtCKC4FHJfJhT+DIIObK10ZrvPLNwFZVeWRpPiuC7fHjOKKgc4amsH4Yl8jeHGSmZPYY3heET1aEHBdTIFJReNDDdBMmoMxx3HmUlxK3KAqZHcpZFy47R/2fE2lConQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=KgiVroL99Eb0nfuME/RPoIYITyO9tKbqxVG0UmaTgnI=;
- b=szYOgFrXoNS1Q0eHU0JPXka6BAs/zPzusxtZh2SKA8Ds8Ona9pHGZuAsYMfRbAAyVpin27ERyR3DGBx7T70muSylsWw5ssJapsxVTwejCzMLOWE13r1kWTL2oFlVimRJDeiHvVaJvIUHfyx/iJwcOoyimu3VkdaiJhxwyV230RcEAD4b86FIyNesZR0+ZX+K2gZHBYT1Y7wCRpPNRF1SrMh01p+unK3kEzz6m/M16Hgf50geOIKKxLRo4r6gmoBRqjJTqOB9gVDp1I/ah82wvoVRneIgaasA0eL88yscCLke01+5w4aV3rRT2YpVc/N6v+IWSpNXQuWzIgZKVti+XA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
- by BL1PR12MB5336.namprd12.prod.outlook.com (2603:10b6:208:314::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4778.12; Thu, 9 Dec
- 2021 01:01:02 +0000
-Received: from BL0PR12MB5506.namprd12.prod.outlook.com
- ([fe80::d8be:e4e4:ce53:6d11]) by BL0PR12MB5506.namprd12.prod.outlook.com
- ([fe80::d8be:e4e4:ce53:6d11%7]) with mapi id 15.20.4778.013; Thu, 9 Dec 2021
- 01:01:02 +0000
-Date:   Wed, 8 Dec 2021 21:01:00 -0400
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Thomas Gleixner <tglx@linutronix.de>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Bjorn Helgaas <helgaas@kernel.org>,
-        Marc Zygnier <maz@kernel.org>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Megha Dey <megha.dey@intel.com>,
-        Ashok Raj <ashok.raj@intel.com>, linux-pci@vger.kernel.org,
-        Cedric Le Goater <clg@kaod.org>,
-        xen-devel@lists.xenproject.org, Juergen Gross <jgross@suse.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Jon Mason <jdmason@kudzu.us>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com
-Subject: Re: [patch V2 00/31] genirq/msi, PCI/MSI: Spring cleaning - Part 3
-Message-ID: <20211209010100.GM6385@nvidia.com>
-References: <20211206210600.123171746@linutronix.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211206210600.123171746@linutronix.de>
-X-ClientProxiedBy: MN2PR19CA0045.namprd19.prod.outlook.com
- (2603:10b6:208:19b::22) To BL0PR12MB5506.namprd12.prod.outlook.com
- (2603:10b6:208:1cb::22)
+        id S237586AbhLIBzU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 8 Dec 2021 20:55:20 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:62774 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229680AbhLIBzT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Dec 2021 20:55:19 -0500
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B8NpFij020559;
+        Thu, 9 Dec 2021 01:51:02 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=lzNkL6HlG8uoD4LD2dknfufOrMTAzaPjmA2GavdwoYk=;
+ b=bGfF52MtqCIan3T31khGXLZ5V9SQmsU4tNjRDTsPk0R+5fMLn2gtnBKPbdfDuVa5s9QK
+ XmTVr0wMHAec3IqMumy0uRK150V/ZkYtf4Px4RsbTrVM9NS2NME5CgfEGqgnV82aUZ00
+ papvyzMMEPdotAsvuLc65+p4/1d6b7TvD2FdY3ubuGHJYgUW4w64dSV5iQqjf1stp22s
+ j91697c2DmCOoxj+0FsETRnoxKIVyspCZ/X0ets/IywZblS6I8ZBW/n5mKd5sRTVMANF
+ C8GODj+RezSazeQblBkrne22Q7MD+gT2+p8iZAbeqaa2y20zWnjaUpcNtyfi0g7Nsbgn 0w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cu1gk88we-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 09 Dec 2021 01:51:01 +0000
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1B91k8st023060;
+        Thu, 9 Dec 2021 01:51:00 GMT
+Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cu1gk88w2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 09 Dec 2021 01:51:00 +0000
+Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
+        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1B91mA8k014682;
+        Thu, 9 Dec 2021 01:50:59 GMT
+Received: from b03cxnp08027.gho.boulder.ibm.com (b03cxnp08027.gho.boulder.ibm.com [9.17.130.19])
+        by ppma04dal.us.ibm.com with ESMTP id 3cqyybtxwq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 09 Dec 2021 01:50:59 +0000
+Received: from b03ledav006.gho.boulder.ibm.com (b03ledav006.gho.boulder.ibm.com [9.17.130.237])
+        by b03cxnp08027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1B91ovro28115566
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 9 Dec 2021 01:50:57 GMT
+Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 00C6BC6063;
+        Thu,  9 Dec 2021 01:50:57 +0000 (GMT)
+Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F1C6DC6062;
+        Thu,  9 Dec 2021 01:50:54 +0000 (GMT)
+Received: from [9.211.91.166] (unknown [9.211.91.166])
+        by b03ledav006.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Thu,  9 Dec 2021 01:50:54 +0000 (GMT)
+Message-ID: <b5e6ec36-a9ec-22f4-be58-28d48bdc38b4@linux.vnet.ibm.com>
+Date:   Wed, 8 Dec 2021 20:50:54 -0500
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: cb2b6e79-f74f-49f0-cb95-08d9baaf5e8c
-X-MS-TrafficTypeDiagnostic: BL1PR12MB5336:EE_
-X-Microsoft-Antispam-PRVS: <BL1PR12MB53365CBDAECB06902C026D8AC2709@BL1PR12MB5336.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:7691;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: e17lyaqu5o5/7p3ntAAj6KuFyP+SAvPCdw1kW0GAKs8hmKhu4dY592nfacJ7yrTk5BrFP9pF0V36OizX+xtF1NtVgZOptQAEZsjh7B3TbkBqx8DXtJAXI79pIy11DZWL4JJKHy6KUVSWDpOwBV7352R6PzvhPA9OB5NjaYgnaGu/tupK+npuXVIT6K2jVfhJhXnTAIATAWyebbCMuo+VryfQWhF3827r0aKkkehAOhWY/CIu8lCy6aei6+I/yxaljhi9hksEMGHkz6Rgb6JmkvSuw3DZzUZk1CRGzn2MMjnTCMmkcUENCwfWD2hZbLAVEOtI3d1AHOgGIlPbuWMrPD4ezMF3BR2ELZHsZ8KRf+2O9t41PkwtWCCC91LW+3lYR+RA6qjmCW2WuDjLCfMDO7R2wC2J61iyF3/enJ8eorhnjmbeV1Esu9QaBSPxm8THCNhOFoH9xnLfIXidpe9q0Z91egFxvQ8yImflH36CZ7mUxisrozqbegiINuD9WIapAVErHy9ghW+oSIzXRxH0/mWDA58eQCFTmwsVcelfB4olk2DujWCDP7IpPX76NAZTR7uSVbXnV/FkBUBg969Et8r6kRcWGne978RAJyQMAEpUZniqIVIh54uQ1Ac97J80Z+W5V8oqbXLVOHU3n2JuVw==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(2616005)(66476007)(6916009)(2906002)(66946007)(4326008)(186003)(508600001)(6512007)(7416002)(66556008)(6506007)(1076003)(86362001)(38100700002)(33656002)(8936002)(8676002)(26005)(5660300002)(36756003)(4744005)(6486002)(54906003)(316002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?shMDjip6zDxHHhUR5OdRsGXgMFMHRWYs4sZfujZtVozMtzrjzTFPQjyrSIx8?=
- =?us-ascii?Q?omtSDQRdsTFLJ6Mgu2ug1Uz0h6SknWbu8DNfs8kKIHXd0lJH4IxD243tGA9C?=
- =?us-ascii?Q?4on2t4MQ+kL6XRVtdcr08oiJUYIUQp4tipOM3sCo7em07I06sow/1Ox8WixA?=
- =?us-ascii?Q?q6E2Td3wCbKPqw6FxUolKryjva/E85s18fnh7nYGoTl18eiOXm1YHxkSxXuG?=
- =?us-ascii?Q?GmaZ/ebgLDTtj3Aa3K8tIgWZ0NeQ8LSU1tAAWWuEG0C1hkrmd5Oc1vJ5OHxq?=
- =?us-ascii?Q?B12MbFmL/1kWrmhCE4WlxmszHKXkzJ4fpFhu8Cg2bCOLJQfLSvXWDlfyLVr8?=
- =?us-ascii?Q?bqki540ZTeFATnfq2wgPhSS8NHpBD14yJcImYfnOx5KiM0Li4yEVlV5Fv9IE?=
- =?us-ascii?Q?As4OvwVrxaPjfWzA3kIzAwd7SMT31z2TOhHsM+n+C4LacPRtwGHLW1PJf1NZ?=
- =?us-ascii?Q?mzDwBC1cc4ehs7pho0BiYBrqUycXMGcIsscYZPpUOU+nVGC7bQqh74mNKewR?=
- =?us-ascii?Q?vsxC0X5GcSCIhw4fFPuN5fU2RCOgAqsBJoQLgrviRZACjB+K3U72iy3wOdhs?=
- =?us-ascii?Q?N8C+kjU2bAymJlE5XWF+Um5FRcaZ6POCVo6hfecnryXLdFS9FlAspGNrziO5?=
- =?us-ascii?Q?kt0krhbNfUhavl3qbMuIzdM3H0rhf+6yuF8az15oKg3kQvCQzkNxkO5b+yaz?=
- =?us-ascii?Q?kolMo/5mZ0EJNPxq71ZA2pKn6D3gGSpxUZ3uQw3PROJj1x3nWLDimri0/966?=
- =?us-ascii?Q?UbDck4JTjuaNHqtpmKlL19UlhCn7a2R7BqRSmHuKn7/nRFIyOhLGqNrVVCkE?=
- =?us-ascii?Q?6/YXoVAz38p8o8d8/SeKvVjX58TwFmMFuHHAoZNuLQTcHm3Z7d1rFz22qP1I?=
- =?us-ascii?Q?RY+GJNiBjHLJlmtyU71FcLKEiyHHdo0DAt6KzNc538/Re22ZhEeC56Kd8bge?=
- =?us-ascii?Q?BVppaL7E5wSXf2UqHSgVN37oGpN1GUksBAlK8cbdU1alXDSYCq3aUzQ7RG1u?=
- =?us-ascii?Q?Pu7LkZUf2N6ajM5ud6T9c6aKXNEBs4qgBzL5VCgXGlciXa9EYhBbdpeGc/sQ?=
- =?us-ascii?Q?HypMDnmDr35vZcCGnkro56TJLUn2dIq/jEehKJUVHx1oXIGUp8UBpiYMrAmF?=
- =?us-ascii?Q?GT49cRyNB7ivkpviR6IPL+u1ZBvmM09Ts2k2aaomvFgje3mH2TQ5Y64dePxW?=
- =?us-ascii?Q?KFNKx43aywyGFxSGVNSxdAdOn5F+dmbnJa4hM5YxmbJkgTKtHkN2j7+3Dcwg?=
- =?us-ascii?Q?9c3hMi/76nXZbEal5CP8nmGseHAUX0hwpXM632u3E8ObsTuciqkPASfd6uaD?=
- =?us-ascii?Q?/fZTct4PYQXVfX+4gpLfIs8ltipj5tsDxHVyiZLzDWRFIjj1Mqb9SDmLSKkY?=
- =?us-ascii?Q?XWi3HLR7+UjHEfUGkPGVWnDgy/0HZHWoeVksytpNzmXSLOP7jZFj3BA3DZip?=
- =?us-ascii?Q?Kdo9gh7v8rODP8cZfy34t54uZVQAMto9DAj2dqwvBzs3xqo6/ue3k0c7z5nG?=
- =?us-ascii?Q?uT1bUnZyYkoo+joTvN7JabYbZEzdb96Gvjsf5z9r0kBYlnXHsBbw6iOSHT0d?=
- =?us-ascii?Q?zU0DcX2WcswaFrAmk/Y=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: cb2b6e79-f74f-49f0-cb95-08d9baaf5e8c
-X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5506.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Dec 2021 01:01:02.0307
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Ac5j/fEW5mAA9d0JCPW6WGG1MEYtFnJRc1YLJlObCO0269ZPl958o0fLCYYWvNi+
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5336
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.0
+Subject: Re: [PATCH v2 0/6] KEXEC_SIG with appended signature
+Content-Language: en-US
+To:     Michal Suchanek <msuchanek@suse.de>, keyrings@vger.kernel.org
+Cc:     kexec@lists.infradead.org, Philipp Rudo <prudo@redhat.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Rob Herring <robh@kernel.org>, linux-s390@vger.kernel.org,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Jessica Yu <jeyu@kernel.org>, linux-kernel@vger.kernel.org,
+        David Howells <dhowells@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Hari Bathini <hbathini@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linuxppc-dev@lists.ozlabs.org,
+        Frank van der Linden <fllinden@amazon.com>,
+        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
+        Daniel Axtens <dja@axtens.net>, buendgen@de.ibm.com,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Baoquan He <bhe@redhat.com>, linux-crypto@vger.kernel.org,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+References: <cover.1637862358.git.msuchanek@suse.de>
+From:   Nayna <nayna@linux.vnet.ibm.com>
+In-Reply-To: <cover.1637862358.git.msuchanek@suse.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: xrnPnY685HKWDzMtt8FN4mvhzwUwSKub
+X-Proofpoint-ORIG-GUID: PnjZLCiMbUjVAQT56miJWZSqnDdO6KM6
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2021-12-09_01,2021-12-08_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=984
+ lowpriorityscore=0 malwarescore=0 spamscore=0 bulkscore=0 suspectscore=0
+ impostorscore=0 adultscore=0 priorityscore=1501 mlxscore=0 clxscore=1011
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2112090006
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Dec 06, 2021 at 11:51:02PM +0100, Thomas Gleixner wrote:
-> This is the third part of [PCI]MSI refactoring which aims to provide the
-> ability of expanding MSI-X vectors after enabling MSI-X.
 
-I read through this and didn't have any substantive remarks
+On 11/25/21 13:02, Michal Suchanek wrote:
+> Hello,
 
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Hi Michael,
 
-Jason
+>
+> This is resend of the KEXEC_SIG patchset.
+>
+> The first patch is new because it'a a cleanup that does not require any
+> change to the module verification code.
+>
+> The second patch is the only one that is intended to change any
+> functionality.
+>
+> The rest only deduplicates code but I did not receive any review on that
+> part so I don't know if it's desirable as implemented.
+>
+> The first two patches can be applied separately without the rest.
+
+Patch 2 fails to apply on v5.16-rc4. Can you please also include git 
+tree/branch while posting the patches ?
+
+Secondly, I see that you add the powerpc support in Patch 2 and then 
+modify it again in Patch 5 after cleanup. Why not add the support for 
+powerpc after the clean up ? This will reduce some rework and also 
+probably simplify patches.
+
+Thanks & Regards,
+
+      - Nayna
+
