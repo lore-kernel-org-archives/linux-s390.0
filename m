@@ -2,300 +2,172 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E031C433EF
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Dec 2021 20:41:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 647CFC433EF
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Dec 2021 20:58:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232242AbhLIUoo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Dec 2021 15:44:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39104 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231238AbhLIUon (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Dec 2021 15:44:43 -0500
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BCA2C061746;
-        Thu,  9 Dec 2021 12:41:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=MIME-Version:Content-Type:References:
-        In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=uSyJMaW/SvNLnUFnRFZXYo5bhsJ8p/CGtudZrQrj4OQ=; b=qLim/VmXvC7vp7q71i6566MgaE
-        iEGThHcNVJgT9xg0Lx3nWKF+fjIm0NwTy4faSGUnkCTBSzTsAVQ1MoYDN0vuni8YbD++MjZSWy9ZH
-        znm3vR0hVxSINhDva+MZb3FUGrWNlO7JGMTX3yK+eTwhpE5ltt+I0ifJBvSIrnp1IwbuZhBLXwlJV
-        SVR1OwtMg/ugxmR0B3OK7X0m3n3FEK60MCpLiOtluztVKtjgkLyRGfZnh3ElZ0b8KqKWPLGeueDUQ
-        4tBejdGK2z8jgnaRkUsA1LVE96cBD/CIkPWvwoGb+Lg40YIsaNZ2QurShEWh1q16Z4vGjUysRoVwd
-        oZpm4SeQ==;
-Received: from 54-240-197-234.amazon.com ([54.240.197.234] helo=freeip.amazon.com)
-        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1mvQDn-00HVUV-CH; Thu, 09 Dec 2021 20:40:55 +0000
-Message-ID: <b614d9ae0fe7910cfa72eee0b4077776f8012e5f.camel@infradead.org>
-Subject: Re: [PATCH v5 08/12] KVM: Reinstate gfn_to_pfn_cache with
- invalidation support
-From:   David Woodhouse <dwmw2@infradead.org>
-To:     Paolo Bonzini <pbonzini@redhat.com>, kvm <kvm@vger.kernel.org>
-Cc:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Joao Martins <joao.m.martins@oracle.com>,
-        "jmattson @ google . com" <jmattson@google.com>,
-        "wanpengli @ tencent . com" <wanpengli@tencent.com>,
-        "seanjc @ google . com" <seanjc@google.com>,
-        "vkuznets @ redhat . com" <vkuznets@redhat.com>,
-        "mtosatti @ redhat . com" <mtosatti@redhat.com>,
-        "joro @ 8bytes . org" <joro@8bytes.org>, karahmed@amazon.com,
-        Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Anup Patel <anup.patel@wdc.com>,
+        id S231511AbhLIVCQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Dec 2021 16:02:16 -0500
+Received: from mail-mw2nam12on2042.outbound.protection.outlook.com ([40.107.244.42]:18528
+        "EHLO NAM12-MW2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S229505AbhLIVCQ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 9 Dec 2021 16:02:16 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=P0F1wGeeeSm0jWQ7PJvkm0VraZFI6DEryoaV3mbMzPWdbKyRlV9rsBxezRl15wXmhAHyq6oGCxvXGi92yVCFg6yY+LRYDs18x9R1e1APCfPYUSKSu1O2AeB4FEheAYhnsRQ5ak8DU8vTc+/kz3CKOoLFpSF4rFU0YSz6CLpeEGaUIEIb0hD0GxOwMBSQ4G5mDO4xzvzMomm6Us3FhLPIdOg5h+fAuwfxPg6mxC4EmI8ic/aL0D+wW+tuBmoTpDRb5j6K2xn8J65Smfo1nSyfW4kEWwa6877YzL0cFAnrg21Kj6JYM4ev8tIv4Y1TulfV0QG0ZYnXj3Aido1UXSKxzw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=L+etbLonmzIXmgDqLGAV7I5NYJ3/Xqeek3tduaG0wTc=;
+ b=C/zgCQ5g1vFm1o5FnlvrwjbiRJH5cNgbtVdsWt4sjfLTCDB5zg6WSOVthidr1K6PD80c9GCP7IpppBmC+C6k1DtxKjStFY8BrXIO7x6eZ8c1GIZrMP9I7LrpMiutry85qpOrUXSqG7BWeJUXtlUzjispo9QEXSIPI11OxGrWjm8Be2kY422lDRyDHlQfY+a/KMBLFb57O6O0W8v/NYarK6vmb7AP4H7mPfb/lBuAedI7FXNXc3UcQYI3kGyk92kx/p+omhbuZWnf4FCNKl2W9bRoPx+KH7k4R60Tp3T6NhEnvuw4tyNOPnx80K/aUgFiRbul3snxpfMXVlyjnTCZWQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=L+etbLonmzIXmgDqLGAV7I5NYJ3/Xqeek3tduaG0wTc=;
+ b=fF6YyYA16hMPZjjcpfQ8SqHj3LXQV80hOfz5p+L6IDPFgLWJQn80jIg1xxlZ8ON2xlyHLuaqMd+Xl5T3lGQkOPXwRldSfQcxkSEJROUflzJ6HdGiuWlZznUgl0qyZtHTbiTJdbKWUIvKxbSXjh0HeRTVMnsEW5bOT2aCoQT94H/Ui7pi3PRqz6MmAkUX97DuWI4vo1mCOuf41vwe7hHXp+DgNAHCNitcRO5/wk37pHbTLcz4D0qYeMsjm3oi9D3TAFFJNxdA4K9P1yKK6XX1FXZTOCF0Mrsr+Kav+1RYaYbh6Xx3JL8qrg+3CfGTTTBTfIANqkoZvH1rL6btzNy/fQ==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
+ by BL1PR12MB5143.namprd12.prod.outlook.com (2603:10b6:208:31b::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4755.11; Thu, 9 Dec
+ 2021 20:58:36 +0000
+Received: from BL0PR12MB5506.namprd12.prod.outlook.com
+ ([fe80::d8be:e4e4:ce53:6d11]) by BL0PR12MB5506.namprd12.prod.outlook.com
+ ([fe80::d8be:e4e4:ce53:6d11%7]) with mapi id 15.20.4778.013; Thu, 9 Dec 2021
+ 20:58:36 +0000
+Date:   Thu, 9 Dec 2021 16:58:35 -0400
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Thomas Gleixner <tglx@linutronix.de>
+Cc:     "Tian, Kevin" <kevin.tian@intel.com>,
+        "Jiang, Dave" <dave.jiang@intel.com>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Bjorn Helgaas <helgaas@kernel.org>,
+        Marc Zygnier <maz@kernel.org>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        "Dey, Megha" <megha.dey@intel.com>,
+        "Raj, Ashok" <ashok.raj@intel.com>,
+        "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jon Mason <jdmason@kudzu.us>, Allen Hubbe <allenbh@gmail.com>,
+        "linux-ntb@googlegroups.com" <linux-ntb@googlegroups.com>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        kvmarm@lists.cs.columbia.edu,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        butt3rflyh4ck <butterflyhuangxx@gmail.com>
-Date:   Thu, 09 Dec 2021 20:40:48 +0000
-In-Reply-To: <b1bacc6f-be56-4108-6e52-4315a021184b@redhat.com>
-References: <20211121125451.9489-1-dwmw2@infradead.org>
-         <20211121125451.9489-9-dwmw2@infradead.org>
-         <b1bacc6f-be56-4108-6e52-4315a021184b@redhat.com>
-Content-Type: multipart/signed; micalg="sha-256"; protocol="application/pkcs7-signature";
-        boundary="=-tGdrPlP/CxoRpyQj0J8H"
-User-Agent: Evolution 3.36.5-0ubuntu1 
+        "x86@kernel.org" <x86@kernel.org>, Joerg Roedel <jroedel@suse.de>,
+        "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>
+Subject: Re: [patch 21/32] NTB/msi: Convert to msi_on_each_desc()
+Message-ID: <20211209205835.GZ6385@nvidia.com>
+References: <8c2262ba-173e-0007-bc4c-94ec54b2847d@intel.com>
+ <87pmqg88xq.ffs@tglx>
+ <df00b87e-00dc-d998-8b64-46b16dba46eb@intel.com>
+ <87k0go8432.ffs@tglx>
+ <f4cc305b-a329-6d27-9fca-b74ebc9fa0c1@intel.com>
+ <878rx480fk.ffs@tglx>
+ <BN9PR11MB52765F2EF8420C60FD5945D18C709@BN9PR11MB5276.namprd11.prod.outlook.com>
+ <87sfv2yy19.ffs@tglx>
+ <20211209162129.GS6385@nvidia.com>
+ <878rwtzfh1.ffs@tglx>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <878rwtzfh1.ffs@tglx>
+X-ClientProxiedBy: MN2PR01CA0053.prod.exchangelabs.com (2603:10b6:208:23f::22)
+ To BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
 MIME-Version: 1.0
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: fc8ccbdb-d4c7-4eac-a345-08d9bb56aae2
+X-MS-TrafficTypeDiagnostic: BL1PR12MB5143:EE_
+X-Microsoft-Antispam-PRVS: <BL1PR12MB5143EED6110D434088B09783C2709@BL1PR12MB5143.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8273;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: xopPjCyTjnO4ZcSOE4+KpTz0QlOLNH4cLXixgkTHNoiKR8zwrvNR696wEjZSJau8dAGZSOqe1SOaC+7OjQeCDBTy+afEkF5+RJJkY0yv7tCa05jR6xMC/qd3HKaK6e0WF49/2ff4Ii9I+yqb/XOj4HNejHHGB9yi7Q6gcpm6iHcy+k0KoogPxAOyYyT8Yo5fTEU996bWSD6IuoDD7T4EI74L6RJKFxk+BNebO+GVNSQB8WwwwLDz4EOacAErKbdEaZCnGijkGPAdtChAH1h55lT9bpCBdf81a5pI8BMOUBQlN1D1Z3pN9mbanUoeJHmaiQfN6AKKA//sos/W/GnWowQgEszI2wsa3l9XZ+MhnE/jHaTdB0E6I4OF/wDYFryrou9hIUQFRcG2S6pFCsmxF6WDahemd5NnsopJr17N22DD8yd2VbAMIkkXEzdGld1lFL1JwUlUQxt6DiVVCIadqz8mzqdA+NvOIuZlojhtS+TbxeXx/MQgOKquTjpbq0Y+8Z2epAHI70sDlbH695zTeswvQrbR5pNBc7F9l34ZUzrpjkbmLwBpj4jgLUTAvZIv6tMGpjp9lL252bDdXHonE5AZEcWtKUkUHZ8YEXTfyGTeyojDBNtZTWMZXqIn9xixdFHwrMz+FWGoVk7VDTU6Ng==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(316002)(83380400001)(66476007)(6512007)(6916009)(26005)(66556008)(6486002)(2616005)(8936002)(5660300002)(54906003)(66946007)(2906002)(38100700002)(8676002)(36756003)(186003)(4326008)(33656002)(508600001)(6506007)(86362001)(7416002)(1076003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?RGnNdxm3ODL9Lj9rmlJhmr6W/sE9lIRuiqSpM31NWtci3finTvgujJVEKysP?=
+ =?us-ascii?Q?1SmrtVbhI5yyfP1uRWXFfpiUzHYTALqiV8USQIcx8yKizHZgoKSCN9FuGacF?=
+ =?us-ascii?Q?Uu7q6VotlLTQLnno6DwtvMMY0PvqkgtTymdIqQFZ20fLMxMbOSLEFGfAogvq?=
+ =?us-ascii?Q?Xf4QYtWZ2DzgsdnfdaPVD50fVJvblWTIXdroVNDaUrgfGNMQdq/i2+FX6lDs?=
+ =?us-ascii?Q?sYyTXrSHryu03USidqoa/UBXETj4LRAipEvbi2ttLMlT/uNLS3/2Uxnon38K?=
+ =?us-ascii?Q?RW27Eowr3uNwGtrNAztymB7OSu4Ec+ABMp+Vhy+L0zpMWvCymhcG2+NyOkyd?=
+ =?us-ascii?Q?YmXFi+zaivJMnYkEDuU8ukPLKO6miyFaUSRx33IgPLvS9Cc5LCe9YRImhstB?=
+ =?us-ascii?Q?vv8EhFhOMM4k+gKibvmZcBlgT7vWCtmDzq715GMZ5MPwqjO1URgtE3R58nBk?=
+ =?us-ascii?Q?HZI7GhDuwM/K/yiNm9T/+bNloTICaqWO6Kb8heHnhVKIHm+KmFjcxiY7V7x/?=
+ =?us-ascii?Q?oA55mDx7n6yqaEM3TfHKNCrEI/RdZ7bQsebU1KWhfUcib07F0mIQp4Zb7qBi?=
+ =?us-ascii?Q?hGNBexoIXkOrbijxJwEtZBC9sgzT/Qww74PuVgOgKEESSVW5ZUflHEU0LXwe?=
+ =?us-ascii?Q?d7e+npw7P2HOKySYIMNQ/ar1+fHOsHNbBtzg4/NXEB69C38yBToiBvp2zjbP?=
+ =?us-ascii?Q?kiY81gRhn2MnIg6Ins27of7NDUgJIybLZCfOs/sjT1f9MAseSLBY9Oit2wvw?=
+ =?us-ascii?Q?GjkcTGgbIClOQFcpsc34HDKWodUKp9Prh7IYCt2mniJy37pGbjsZSIj95iyW?=
+ =?us-ascii?Q?hdXdWsBDPEAU5F4QOiaWM6M4FMMOAKB7UkBuQRw6wy/rVli6c0AjP2Co9Klb?=
+ =?us-ascii?Q?RPeYo8+AC8ICqV+u/ZW+p9y+2FqAJ0JFap/i0i7aGAFurXUXjvsR3DAlCl92?=
+ =?us-ascii?Q?T/UZGoSpTuKs7IhYOby0z0sAhWX/dgl/JITPG1mlTv2/mYxLh8McQgt63FeP?=
+ =?us-ascii?Q?AIXhh3VLR5RLhZFjh4uJeJBt1ow1zqkrS7MvB/7T38ry1Msj33l1zvSKtU/h?=
+ =?us-ascii?Q?7xBfR1HxCxn+1E8X3tzKCZ7cdgUv4L/ZOujyagizPrRYKeadNhlnDs64EiBQ?=
+ =?us-ascii?Q?XvC/+P3HtnCvXt2+TUpNsS6V85zyykBm3nduv3l6juWkUxqj4EeQOgOo1bSm?=
+ =?us-ascii?Q?/J+RQGOU4w1WHbMPf35mHoR0qyhpBO9GX3hp8HiBOgqemoRaPvt/rVzMbTbD?=
+ =?us-ascii?Q?YORO6tvJrf4cYCangWgIWiBWke8U3f9DwHbP4X9oaIqocrKNhmDZ3ehZZXac?=
+ =?us-ascii?Q?zKyy4hXgd5aapGAE+WkvqgkVDh3JGmhNUswn1ja8sOT3CUAhSWJgqaaerMg+?=
+ =?us-ascii?Q?Nghq/voG+MVCyU/bYbrYrHIB3dBJBx/8Zqe84eQXos7lGlC9H1E5VEYD+q0L?=
+ =?us-ascii?Q?2VaVcIei953J1F5VqcnM4WzB/TlzF+zAnKaelXQY9q+URuvwhW20k2OeUH7z?=
+ =?us-ascii?Q?p+Mwin3+4/pTJ7bvPiYhJXQqzvz/ZCVpwZW0URDBtPa1vCnFV9p9R1nKrN8y?=
+ =?us-ascii?Q?jTP/S3YXHJU4P7qA1PE=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: fc8ccbdb-d4c7-4eac-a345-08d9bb56aae2
+X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5506.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Dec 2021 20:58:35.9915
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: E4Qw5mKrSRJfZ7zj0ngG3x5ixYTjty9weeD7GOeS3Fv97ES6XIVOAzwzgZ8k8Thn
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5143
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Thu, Dec 09, 2021 at 09:32:42PM +0100, Thomas Gleixner wrote:
+> On Thu, Dec 09 2021 at 12:21, Jason Gunthorpe wrote:
+> > On Thu, Dec 09, 2021 at 09:37:06AM +0100, Thomas Gleixner wrote:
+> > If we keep the MSI emulation in the hypervisor then MSI != IMS.  The
+> > MSI code needs to write a addr/data pair compatible with the emulation
+> > and the IMS code needs to write an addr/data pair from the
+> > hypercall. Seems like this scenario is best avoided!
+> >
+> > From this perspective I haven't connected how virtual interrupt
+> > remapping helps in the guest? Is this a way to provide the hypercall
+> > I'm imagining above?
+> 
+> That was my thought to avoid having different mechanisms.
+> 
+> The address/data pair is computed in two places:
+> 
+>   1) Activation of an interrupt
+>   2) Affinity setting on an interrupt
+> 
+> Both configure the IRTE when interrupt remapping is in place.
+> 
+> In both cases a vector is allocated in the vector domain and based on
+> the resulting target APIC / vector number pair the IRTE is
+> (re)configured.
+> 
+> So putting the hypercall into the vIRTE update is the obvious
+> place. Both activation and affinity setting can fail and propagate an
+> error code down to the originating caller.
+> 
+> Hmm?
 
---=-tGdrPlP/CxoRpyQj0J8H
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Okay, I think I get it. Would be nice to have someone from intel
+familiar with the vIOMMU protocols and qemu code remark what the
+hypervisor side can look like.
 
-On Thu, 2021-12-09 at 19:34 +0100, Paolo Bonzini wrote:
-> Sorry for the late review...
+There is a bit more work here, we'd have to change VFIO to somehow
+entirely disconnect the kernel IRQ logic from the MSI table and
+directly pass control of it to the guest after the hypervisor IOMMU IR
+secures it. ie directly mmap the msi-x table into the guest
 
-
-NP, very useful fixes. Thanks. Incremental patch looks like this. It
-passes the xen_shinfo_test self-test; will test it with real Xen guests
-tomorrow and repost based on your kvm/next tree once it shows up.
-
-diff --git a/virt/kvm/pfncache.c b/virt/kvm/pfncache.c
-index d8c6e1d4a647..9e3c662f815f 100644
---- a/virt/kvm/pfncache.c
-+++ b/virt/kvm/pfncache.c
-@@ -124,6 +124,33 @@ static void __release_gpc(struct kvm *kvm, kvm_pfn_t p=
-fn, void *khva,
- 	}
- }
-=20
-+static kvm_pfn_t hva_to_pfn_retry(struct kvm *kvm, unsigned long uhva)
-+{
-+	unsigned long mmu_seq;
-+	kvm_pfn_t new_pfn;
-+	int retry;
-+
-+	do {
-+		mmu_seq =3D kvm->mmu_notifier_seq;
-+		smp_rmb();
-+
-+		/* We always request a writeable mapping */
-+		new_pfn =3D hva_to_pfn(uhva, false, NULL, true, NULL);
-+		if (is_error_noslot_pfn(new_pfn))
-+			break;
-+
-+		KVM_MMU_READ_LOCK(kvm);
-+		retry =3D mmu_notifier_retry_hva(kvm, mmu_seq, uhva);
-+		KVM_MMU_READ_UNLOCK(kvm);
-+		if (!retry)
-+			break;
-+
-+		cond_resched();
-+	} while (1);
-+
-+	return new_pfn;
-+}
-+
- int kvm_gfn_to_pfn_cache_refresh(struct kvm *kvm, struct gfn_to_pfn_cache =
-*gpc,
- 				 gpa_t gpa, unsigned long len, bool dirty)
- {
-@@ -147,7 +174,7 @@ int kvm_gfn_to_pfn_cache_refresh(struct kvm *kvm, struc=
-t gfn_to_pfn_cache *gpc,
-=20
- 	old_gpa =3D gpc->gpa;
- 	old_pfn =3D gpc->pfn;
--	old_khva =3D gpc->khva;
-+	old_khva =3D (void *)((unsigned long)gpc->khva & ~PAGE_MASK);
- 	old_uhva =3D gpc->uhva;
- 	old_valid =3D gpc->valid;
- 	old_dirty =3D gpc->dirty;
-@@ -178,8 +205,6 @@ int kvm_gfn_to_pfn_cache_refresh(struct kvm *kvm, struc=
-t gfn_to_pfn_cache *gpc,
- 	if (!old_valid || old_uhva !=3D gpc->uhva) {
- 		unsigned long uhva =3D gpc->uhva;
- 		void *new_khva =3D NULL;
--		unsigned long mmu_seq;
--		int retry;
-=20
- 		/* Placeholders for "hva is valid but not yet mapped" */
- 		gpc->pfn =3D KVM_PFN_ERR_FAULT;
-@@ -188,28 +213,15 @@ int kvm_gfn_to_pfn_cache_refresh(struct kvm *kvm, str=
-uct gfn_to_pfn_cache *gpc,
-=20
- 		write_unlock_irq(&gpc->lock);
-=20
--	retry_map:
--		mmu_seq =3D kvm->mmu_notifier_seq;
--		smp_rmb();
--
--		/* We always request a writeable mapping */
--		new_pfn =3D hva_to_pfn(uhva, false, NULL, true, NULL);
-+		new_pfn =3D hva_to_pfn_retry(kvm, uhva);
- 		if (is_error_noslot_pfn(new_pfn)) {
- 			ret =3D -EFAULT;
- 			goto map_done;
- 		}
-=20
--		KVM_MMU_READ_LOCK(kvm);
--		retry =3D mmu_notifier_retry_hva(kvm, mmu_seq, uhva);
--		KVM_MMU_READ_UNLOCK(kvm);
--		if (retry) {
--			cond_resched();
--			goto retry_map;
--		}
--
- 		if (gpc->kernel_map) {
- 			if (new_pfn =3D=3D old_pfn) {
--				new_khva =3D (void *)((unsigned long)old_khva - page_offset);
-+				new_khva =3D old_khva;
- 				old_pfn =3D KVM_PFN_ERR_FAULT;
- 				old_khva =3D NULL;
- 			} else if (pfn_valid(new_pfn)) {
-@@ -219,7 +231,9 @@ int kvm_gfn_to_pfn_cache_refresh(struct kvm *kvm, struc=
-t gfn_to_pfn_cache *gpc,
- 				new_khva =3D memremap(pfn_to_hpa(new_pfn), PAGE_SIZE, MEMREMAP_WB);
- #endif
- 			}
--			if (!new_khva)
-+			if (new_khva)
-+				new_khva +=3D page_offset;
-+			else
- 				ret =3D -EFAULT;
- 		}
-=20
-@@ -232,7 +246,7 @@ int kvm_gfn_to_pfn_cache_refresh(struct kvm *kvm, struc=
-t gfn_to_pfn_cache *gpc,
- 		} else {
- 			/* At this point, gpc->valid may already have been cleared */
- 			gpc->pfn =3D new_pfn;
--			gpc->khva =3D new_khva + page_offset;
-+			gpc->khva =3D new_khva;
- 		}
- 	} else {
- 		/* If the HVA=E2=86=92PFN mapping was already valid, don't unmap it. */
-
---=-tGdrPlP/CxoRpyQj0J8H
-Content-Type: application/pkcs7-signature; name="smime.p7s"
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Transfer-Encoding: base64
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwEAAKCCECow
-ggUcMIIEBKADAgECAhEA4rtJSHkq7AnpxKUY8ZlYZjANBgkqhkiG9w0BAQsFADCBlzELMAkGA1UE
-BhMCR0IxGzAZBgNVBAgTEkdyZWF0ZXIgTWFuY2hlc3RlcjEQMA4GA1UEBxMHU2FsZm9yZDEaMBgG
-A1UEChMRQ09NT0RPIENBIExpbWl0ZWQxPTA7BgNVBAMTNENPTU9ETyBSU0EgQ2xpZW50IEF1dGhl
-bnRpY2F0aW9uIGFuZCBTZWN1cmUgRW1haWwgQ0EwHhcNMTkwMTAyMDAwMDAwWhcNMjIwMTAxMjM1
-OTU5WjAkMSIwIAYJKoZIhvcNAQkBFhNkd213MkBpbmZyYWRlYWQub3JnMIIBIjANBgkqhkiG9w0B
-AQEFAAOCAQ8AMIIBCgKCAQEAsv3wObLTCbUA7GJqKj9vHGf+Fa+tpkO+ZRVve9EpNsMsfXhvFpb8
-RgL8vD+L133wK6csYoDU7zKiAo92FMUWaY1Hy6HqvVr9oevfTV3xhB5rQO1RHJoAfkvhy+wpjo7Q
-cXuzkOpibq2YurVStHAiGqAOMGMXhcVGqPuGhcVcVzVUjsvEzAV9Po9K2rpZ52FE4rDkpDK1pBK+
-uOAyOkgIg/cD8Kugav5tyapydeWMZRJQH1vMQ6OVT24CyAn2yXm2NgTQMS1mpzStP2ioPtTnszIQ
-Ih7ASVzhV6csHb8Yrkx8mgllOyrt9Y2kWRRJFm/FPRNEurOeNV6lnYAXOymVJwIDAQABo4IB0zCC
-Ac8wHwYDVR0jBBgwFoAUgq9sjPjF/pZhfOgfPStxSF7Ei8AwHQYDVR0OBBYEFLfuNf820LvaT4AK
-xrGK3EKx1DE7MA4GA1UdDwEB/wQEAwIFoDAMBgNVHRMBAf8EAjAAMB0GA1UdJQQWMBQGCCsGAQUF
-BwMEBggrBgEFBQcDAjBGBgNVHSAEPzA9MDsGDCsGAQQBsjEBAgEDBTArMCkGCCsGAQUFBwIBFh1o
-dHRwczovL3NlY3VyZS5jb21vZG8ubmV0L0NQUzBaBgNVHR8EUzBRME+gTaBLhklodHRwOi8vY3Js
-LmNvbW9kb2NhLmNvbS9DT01PRE9SU0FDbGllbnRBdXRoZW50aWNhdGlvbmFuZFNlY3VyZUVtYWls
-Q0EuY3JsMIGLBggrBgEFBQcBAQR/MH0wVQYIKwYBBQUHMAKGSWh0dHA6Ly9jcnQuY29tb2RvY2Eu
-Y29tL0NPTU9ET1JTQUNsaWVudEF1dGhlbnRpY2F0aW9uYW5kU2VjdXJlRW1haWxDQS5jcnQwJAYI
-KwYBBQUHMAGGGGh0dHA6Ly9vY3NwLmNvbW9kb2NhLmNvbTAeBgNVHREEFzAVgRNkd213MkBpbmZy
-YWRlYWQub3JnMA0GCSqGSIb3DQEBCwUAA4IBAQALbSykFusvvVkSIWttcEeifOGGKs7Wx2f5f45b
-nv2ghcxK5URjUvCnJhg+soxOMoQLG6+nbhzzb2rLTdRVGbvjZH0fOOzq0LShq0EXsqnJbbuwJhK+
-PnBtqX5O23PMHutP1l88AtVN+Rb72oSvnD+dK6708JqqUx2MAFLMevrhJRXLjKb2Mm+/8XBpEw+B
-7DisN4TMlLB/d55WnT9UPNHmQ+3KFL7QrTO8hYExkU849g58Dn3Nw3oCbMUgny81ocrLlB2Z5fFG
-Qu1AdNiBA+kg/UxzyJZpFbKfCITd5yX49bOriL692aMVDyqUvh8fP+T99PqorH4cIJP6OxSTdxKM
-MIIFHDCCBASgAwIBAgIRAOK7SUh5KuwJ6cSlGPGZWGYwDQYJKoZIhvcNAQELBQAwgZcxCzAJBgNV
-BAYTAkdCMRswGQYDVQQIExJHcmVhdGVyIE1hbmNoZXN0ZXIxEDAOBgNVBAcTB1NhbGZvcmQxGjAY
-BgNVBAoTEUNPTU9ETyBDQSBMaW1pdGVkMT0wOwYDVQQDEzRDT01PRE8gUlNBIENsaWVudCBBdXRo
-ZW50aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBMB4XDTE5MDEwMjAwMDAwMFoXDTIyMDEwMTIz
-NTk1OVowJDEiMCAGCSqGSIb3DQEJARYTZHdtdzJAaW5mcmFkZWFkLm9yZzCCASIwDQYJKoZIhvcN
-AQEBBQADggEPADCCAQoCggEBALL98Dmy0wm1AOxiaio/bxxn/hWvraZDvmUVb3vRKTbDLH14bxaW
-/EYC/Lw/i9d98CunLGKA1O8yogKPdhTFFmmNR8uh6r1a/aHr301d8YQea0DtURyaAH5L4cvsKY6O
-0HF7s5DqYm6tmLq1UrRwIhqgDjBjF4XFRqj7hoXFXFc1VI7LxMwFfT6PStq6WedhROKw5KQytaQS
-vrjgMjpICIP3A/CroGr+bcmqcnXljGUSUB9bzEOjlU9uAsgJ9sl5tjYE0DEtZqc0rT9oqD7U57My
-ECIewElc4VenLB2/GK5MfJoJZTsq7fWNpFkUSRZvxT0TRLqznjVepZ2AFzsplScCAwEAAaOCAdMw
-ggHPMB8GA1UdIwQYMBaAFIKvbIz4xf6WYXzoHz0rcUhexIvAMB0GA1UdDgQWBBS37jX/NtC72k+A
-CsaxitxCsdQxOzAOBgNVHQ8BAf8EBAMCBaAwDAYDVR0TAQH/BAIwADAdBgNVHSUEFjAUBggrBgEF
-BQcDBAYIKwYBBQUHAwIwRgYDVR0gBD8wPTA7BgwrBgEEAbIxAQIBAwUwKzApBggrBgEFBQcCARYd
-aHR0cHM6Ly9zZWN1cmUuY29tb2RvLm5ldC9DUFMwWgYDVR0fBFMwUTBPoE2gS4ZJaHR0cDovL2Ny
-bC5jb21vZG9jYS5jb20vQ09NT0RPUlNBQ2xpZW50QXV0aGVudGljYXRpb25hbmRTZWN1cmVFbWFp
-bENBLmNybDCBiwYIKwYBBQUHAQEEfzB9MFUGCCsGAQUFBzAChklodHRwOi8vY3J0LmNvbW9kb2Nh
-LmNvbS9DT01PRE9SU0FDbGllbnRBdXRoZW50aWNhdGlvbmFuZFNlY3VyZUVtYWlsQ0EuY3J0MCQG
-CCsGAQUFBzABhhhodHRwOi8vb2NzcC5jb21vZG9jYS5jb20wHgYDVR0RBBcwFYETZHdtdzJAaW5m
-cmFkZWFkLm9yZzANBgkqhkiG9w0BAQsFAAOCAQEAC20spBbrL71ZEiFrbXBHonzhhirO1sdn+X+O
-W579oIXMSuVEY1LwpyYYPrKMTjKECxuvp24c829qy03UVRm742R9Hzjs6tC0oatBF7KpyW27sCYS
-vj5wbal+TttzzB7rT9ZfPALVTfkW+9qEr5w/nSuu9PCaqlMdjABSzHr64SUVy4ym9jJvv/FwaRMP
-gew4rDeEzJSwf3eeVp0/VDzR5kPtyhS+0K0zvIWBMZFPOPYOfA59zcN6AmzFIJ8vNaHKy5QdmeXx
-RkLtQHTYgQPpIP1Mc8iWaRWynwiE3ecl+PWzq4i+vdmjFQ8qlL4fHz/k/fT6qKx+HCCT+jsUk3cS
-jDCCBeYwggPOoAMCAQICEGqb4Tg7/ytrnwHV2binUlYwDQYJKoZIhvcNAQEMBQAwgYUxCzAJBgNV
-BAYTAkdCMRswGQYDVQQIExJHcmVhdGVyIE1hbmNoZXN0ZXIxEDAOBgNVBAcTB1NhbGZvcmQxGjAY
-BgNVBAoTEUNPTU9ETyBDQSBMaW1pdGVkMSswKQYDVQQDEyJDT01PRE8gUlNBIENlcnRpZmljYXRp
-b24gQXV0aG9yaXR5MB4XDTEzMDExMDAwMDAwMFoXDTI4MDEwOTIzNTk1OVowgZcxCzAJBgNVBAYT
-AkdCMRswGQYDVQQIExJHcmVhdGVyIE1hbmNoZXN0ZXIxEDAOBgNVBAcTB1NhbGZvcmQxGjAYBgNV
-BAoTEUNPTU9ETyBDQSBMaW1pdGVkMT0wOwYDVQQDEzRDT01PRE8gUlNBIENsaWVudCBBdXRoZW50
-aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKC
-AQEAvrOeV6wodnVAFsc4A5jTxhh2IVDzJXkLTLWg0X06WD6cpzEup/Y0dtmEatrQPTRI5Or1u6zf
-+bGBSyD9aH95dDSmeny1nxdlYCeXIoymMv6pQHJGNcIDpFDIMypVpVSRsivlJTRENf+RKwrB6vcf
-WlP8dSsE3Rfywq09N0ZfxcBa39V0wsGtkGWC+eQKiz4pBZYKjrc5NOpG9qrxpZxyb4o4yNNwTqza
-aPpGRqXB7IMjtf7tTmU2jqPMLxFNe1VXj9XB1rHvbRikw8lBoNoSWY66nJN/VCJv5ym6Q0mdCbDK
-CMPybTjoNCQuelc0IAaO4nLUXk0BOSxSxt8kCvsUtQIDAQABo4IBPDCCATgwHwYDVR0jBBgwFoAU
-u69+Aj36pvE8hI6t7jiY7NkyMtQwHQYDVR0OBBYEFIKvbIz4xf6WYXzoHz0rcUhexIvAMA4GA1Ud
-DwEB/wQEAwIBhjASBgNVHRMBAf8ECDAGAQH/AgEAMBEGA1UdIAQKMAgwBgYEVR0gADBMBgNVHR8E
-RTBDMEGgP6A9hjtodHRwOi8vY3JsLmNvbW9kb2NhLmNvbS9DT01PRE9SU0FDZXJ0aWZpY2F0aW9u
-QXV0aG9yaXR5LmNybDBxBggrBgEFBQcBAQRlMGMwOwYIKwYBBQUHMAKGL2h0dHA6Ly9jcnQuY29t
-b2RvY2EuY29tL0NPTU9ET1JTQUFkZFRydXN0Q0EuY3J0MCQGCCsGAQUFBzABhhhodHRwOi8vb2Nz
-cC5jb21vZG9jYS5jb20wDQYJKoZIhvcNAQEMBQADggIBAHhcsoEoNE887l9Wzp+XVuyPomsX9vP2
-SQgG1NgvNc3fQP7TcePo7EIMERoh42awGGsma65u/ITse2hKZHzT0CBxhuhb6txM1n/y78e/4ZOs
-0j8CGpfb+SJA3GaBQ+394k+z3ZByWPQedXLL1OdK8aRINTsjk/H5Ns77zwbjOKkDamxlpZ4TKSDM
-KVmU/PUWNMKSTvtlenlxBhh7ETrN543j/Q6qqgCWgWuMAXijnRglp9fyadqGOncjZjaaSOGTTFB+
-E2pvOUtY+hPebuPtTbq7vODqzCM6ryEhNhzf+enm0zlpXK7q332nXttNtjv7VFNYG+I31gnMrwfH
-M5tdhYF/8v5UY5g2xANPECTQdu9vWPoqNSGDt87b3gXb1AiGGaI06vzgkejL580ul+9hz9D0S0U4
-jkhJiA7EuTecP/CFtR72uYRBcunwwH3fciPjviDDAI9SnC/2aPY8ydehzuZutLbZdRJ5PDEJM/1t
-yZR2niOYihZ+FCbtf3D9mB12D4ln9icgc7CwaxpNSCPt8i/GqK2HsOgkL3VYnwtx7cJUmpvVdZ4o
-gnzgXtgtdk3ShrtOS1iAN2ZBXFiRmjVzmehoMof06r1xub+85hFQzVxZx5/bRaTKTlL8YXLI8nAb
-R9HWdFqzcOoB/hxfEyIQpx9/s81rgzdEZOofSlZHynoSMYIDyjCCA8YCAQEwga0wgZcxCzAJBgNV
-BAYTAkdCMRswGQYDVQQIExJHcmVhdGVyIE1hbmNoZXN0ZXIxEDAOBgNVBAcTB1NhbGZvcmQxGjAY
-BgNVBAoTEUNPTU9ETyBDQSBMaW1pdGVkMT0wOwYDVQQDEzRDT01PRE8gUlNBIENsaWVudCBBdXRo
-ZW50aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBAhEA4rtJSHkq7AnpxKUY8ZlYZjANBglghkgB
-ZQMEAgEFAKCCAe0wGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjEx
-MjA5MjA0MDQ4WjAvBgkqhkiG9w0BCQQxIgQgNKR+2FqdFvuYYS5QlSdWvFjgvLdXA/Zk2SF3Qw/T
-GQIwgb4GCSsGAQQBgjcQBDGBsDCBrTCBlzELMAkGA1UEBhMCR0IxGzAZBgNVBAgTEkdyZWF0ZXIg
-TWFuY2hlc3RlcjEQMA4GA1UEBxMHU2FsZm9yZDEaMBgGA1UEChMRQ09NT0RPIENBIExpbWl0ZWQx
-PTA7BgNVBAMTNENPTU9ETyBSU0EgQ2xpZW50IEF1dGhlbnRpY2F0aW9uIGFuZCBTZWN1cmUgRW1h
-aWwgQ0ECEQDiu0lIeSrsCenEpRjxmVhmMIHABgsqhkiG9w0BCRACCzGBsKCBrTCBlzELMAkGA1UE
-BhMCR0IxGzAZBgNVBAgTEkdyZWF0ZXIgTWFuY2hlc3RlcjEQMA4GA1UEBxMHU2FsZm9yZDEaMBgG
-A1UEChMRQ09NT0RPIENBIExpbWl0ZWQxPTA7BgNVBAMTNENPTU9ETyBSU0EgQ2xpZW50IEF1dGhl
-bnRpY2F0aW9uIGFuZCBTZWN1cmUgRW1haWwgQ0ECEQDiu0lIeSrsCenEpRjxmVhmMA0GCSqGSIb3
-DQEBAQUABIIBALE2mhhxIH4wj9n5zA1zicXIStKsDJdtlfqqWxmNgfPaTJCXNfnffCKDw9bUMFnM
-bpypluAGM6E9cdxUq18ztElwau4NSqTaI5bgDfcUv8dDORzxSsFTc3jpEcLSrRAYXmaS6z1+XfxL
-Imc8mWmfyAUJJPxA+kkubrUYpPZw5lwnlyFWRhf4rZliWJso7cE2I0AOLCPW+sgrPzP1l8lnyEia
-4O1Af8HmlfeHECLYqpYwcSzJpRQMf42a7f2iIzxa+2tTNN74Eo3NsygW/XhxWnnjqTCfRdqY+GgZ
-ZNUTvjeV5u3iFGEOPPDfIW3I1QQCld+3VIRi73d0iGGsBQzzQRgAAAAAAAA=
-
-
---=-tGdrPlP/CxoRpyQj0J8H--
-
+Jason
