@@ -2,599 +2,155 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E5423C433EF
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Dec 2021 06:38:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CC2EC433F5
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Dec 2021 07:38:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233225AbhLIGmX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Dec 2021 01:42:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37234 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232078AbhLIGmW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Dec 2021 01:42:22 -0500
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC100C061746;
-        Wed,  8 Dec 2021 22:38:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
-        References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
-        Content-Type:Content-ID:Content-Description;
-        bh=nn8GtjdHPWjHvtKLdFW4ACZFrY6mUDVYXTAF0BxnsTs=; b=ThgDj4pp/KlE8rWqzpXowxMZ3V
-        3Qm82c+cErNZKwDP9XLj8woOONYTMUv4DfqbSSGYr7f8l0Wpaj/3tLDdf13p/mEdHAzechUvXsplR
-        hw8qr54sdQ6QI6fbxGlVA1L67ovn5NSEMVbo84KuOloLDFe9uq6Mp+mpCkMdYxNBlH/lTYxiIzRt6
-        kmOwrTNijtOJ9qp9eIhW0YoKiJ8LVxoyd+v3/aZkjiZjelsdfCJ0usIklRULGN+kThxBeC2cMtFHA
-        wtXDI/iv6FrbYkpfDPU1wcVIS7KaGQVgjJj7KEeJAInef6XSEb8KV1XJy8asB4l/5wY0eSCjXYuEf
-        LuLzfZOg==;
-Received: from [2001:4bb8:180:a1c8:2d0e:135:af53:41f8] (helo=localhost)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1mvD4b-0096hm-Jx; Thu, 09 Dec 2021 06:38:34 +0000
-From:   Christoph Hellwig <hch@lst.de>
-To:     Dan Williams <dan.j.williams@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>
-Cc:     Alasdair Kergon <agk@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        Matthew Wilcox <willy@infradead.org>, dm-devel@redhat.com,
-        nvdimm@lists.linux.dev, linux-s390@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org,
-        virtualization@lists.linux-foundation.org
-Subject: [PATCH 4/5] dax: remove the copy_from_iter and copy_to_iter methods
-Date:   Thu,  9 Dec 2021 07:38:27 +0100
-Message-Id: <20211209063828.18944-5-hch@lst.de>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20211209063828.18944-1-hch@lst.de>
-References: <20211209063828.18944-1-hch@lst.de>
-MIME-Version: 1.0
+        id S233891AbhLIHl6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Dec 2021 02:41:58 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:51236 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229787AbhLIHl6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Dec 2021 02:41:58 -0500
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B97Rk2H004140
+        for <linux-s390@vger.kernel.org>; Thu, 9 Dec 2021 07:38:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=K18KTvTYgMLK0QaoPEVXxMRVcNS+gHcgGj2Ze+jmHkM=;
+ b=cfcPUVsAxOTRDFPKpESLs9fJv4YS8UMv6GLqJKu1qMbzebTn6Rwlta6enzbnax7ZmVo5
+ hsiD5f7bBQWTn8ruwPV0YkLpi2WCBgB0LgXDewNdT1vkhDclfaN+ibgyeVXJ7YxDmVoQ
+ ljYLhcav3Yb4jQGbIL12fulFBmoovjLIgTmPLHGeqfq+FgbqjsY394Cc5QfZYv1Gc8vA
+ 5sT4C6GdDcswOJ9MI3dcAnqYxRlClxa4kKGz4yTa/YdsxyTc+/0QyviHDtal7sUcztUu
+ ozQkiv332XKLFSRfjcHePEk+yO8U6mwm4GYU8hhYtir6ZlECTFbk11LzBp2fNNdLJD62 tw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cudeb06k9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 09 Dec 2021 07:38:25 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1B97atbt037841
+        for <linux-s390@vger.kernel.org>; Thu, 9 Dec 2021 07:38:24 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cudeb06jn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 09 Dec 2021 07:38:24 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1B97WDUY012584;
+        Thu, 9 Dec 2021 07:38:22 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma03fra.de.ibm.com with ESMTP id 3cqyy9vehm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 09 Dec 2021 07:38:22 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1B97cJgM27066776
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 9 Dec 2021 07:38:19 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A65314C046;
+        Thu,  9 Dec 2021 07:38:19 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 677284C059;
+        Thu,  9 Dec 2021 07:38:19 +0000 (GMT)
+Received: from oc8242746057.ibm.com.com (unknown [9.171.4.115])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu,  9 Dec 2021 07:38:19 +0000 (GMT)
+From:   Alexander Egorenkov <egorenar@linux.ibm.com>
+To:     ltao@redhat.com, prudo@redhat.com
+Cc:     hca@linux.ibm.com, linux-s390@vger.kernel.org
+Subject: [PATCH v2 1/1] s390/kexec: handle R_390_PLT32DBL rela in arch_kexec_apply_relocations_add()
+Date:   Thu,  9 Dec 2021 08:38:17 +0100
+Message-Id: <20211209073817.82196-1-egorenar@linux.ibm.com>
+X-Mailer: git-send-email 2.31.1
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: arnc0c-bs_y40agDJ5ovu4IhQlNihPpr
+X-Proofpoint-GUID: 6lfgjIUw8Zj0lPS-PxRxEGytyoj2WfUf
 Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2021-12-09_03,2021-12-08_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1015
+ malwarescore=0 suspectscore=0 bulkscore=0 phishscore=0 priorityscore=1501
+ lowpriorityscore=0 adultscore=0 mlxscore=0 mlxlogscore=999 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
+ definitions=main-2112090039
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-These methods indirect the actual DAX read/write path.  In the end pmem
-uses magic flush and mc safe variants and fuse and dcssblk use plain ones
-while device mapper picks redirects to the underlying device.
+Starting with gcc 11.3, the C compiler will generate PLT-relative function
+calls even if they are local and do not require it. Later on during linking,
+the linker will replace all PLT-relative calls to local functions with
+PC-relative ones. Unfortunately, the purgatory code of kexec/kdump is
+not being linked as a regular executable or shared library would have been,
+and therefore, all PLT-relative addresses remain in the generated purgatory
+object code unresolved. This leads to the situation where the purgatory
+code is being executed during kdump with all PLT-relative addresses
+unresolved. And this results in endless loops within the purgatory code.
 
-Add set_dax_virtual() and set_dax_nomcsafe() APIs for fuse to skip these
-special variants, then use them everywhere as they fall back to the plain
-ones on s390 anyway and remove an indirect call from the read/write path
-as well as a lot of boilerplate code.
+Furthermore, the clang C compiler has always behaved like described above
+and this commit should fix kdump for kernels built with the latter.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Because the purgatory code is no regular executable or shared library,
+contains only calls to local functions and has no PLT, all R_390_PLT32DBL
+relocation entries can be resolved just like a R_390_PC32DBL one.
+
+* https://refspecs.linuxfoundation.org/ELF/zSeries/lzsabi0_zSeries/x1633.html#AEN1699
+
+Relocation entries of purgatory code generated with gcc 11.3
+------------------------------------------------------------
+
+$ readelf -r linux/arch/s390/purgatory/purgatory.o
+
+Relocation section '.rela.text' at offset 0x370 contains 5 entries:
+  Offset          Info           Type           Sym. Value    Sym. Name + Addend
+00000000005c  000c00000013 R_390_PC32DBL     0000000000000000 purgatory_sha_regions + 2
+00000000007a  000d00000014 R_390_PLT32DBL    0000000000000000 sha256_update + 2
+00000000008c  000e00000014 R_390_PLT32DBL    0000000000000000 sha256_final + 2
+000000000092  000800000013 R_390_PC32DBL     0000000000000000 .LC0 + 2
+0000000000a0  000f00000014 R_390_PLT32DBL    0000000000000000 memcmp + 2
+
+Relocation entries of purgatory code generated with gcc 11.2
+------------------------------------------------------------
+
+$ readelf -r linux/arch/s390/purgatory/purgatory.o
+
+Relocation section '.rela.text' at offset 0x368 contains 5 entries:
+  Offset          Info           Type           Sym. Value    Sym. Name + Addend
+00000000005c  000c00000013 R_390_PC32DBL     0000000000000000 purgatory_sha_regions + 2
+00000000007a  000d00000013 R_390_PC32DBL     0000000000000000 sha256_update + 2
+00000000008c  000e00000013 R_390_PC32DBL     0000000000000000 sha256_final + 2
+000000000092  000800000013 R_390_PC32DBL     0000000000000000 .LC0 + 2
+0000000000a0  000f00000013 R_390_PC32DBL     0000000000000000 memcmp + 2
+
+Signed-off-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Reported-by: Tao Liu <ltao@redhat.com>
+Suggested-by: Philipp Rudo <prudo@redhat.com>
 ---
- drivers/dax/super.c           | 36 ++++++++++++++--
- drivers/md/dm-linear.c        | 20 ---------
- drivers/md/dm-log-writes.c    | 80 -----------------------------------
- drivers/md/dm-stripe.c        | 20 ---------
- drivers/md/dm.c               | 50 ----------------------
- drivers/nvdimm/pmem.c         | 20 ---------
- drivers/s390/block/dcssblk.c  | 14 ------
- fs/dax.c                      |  5 ---
- fs/fuse/virtio_fs.c           | 19 +--------
- include/linux/dax.h           |  9 ++--
- include/linux/device-mapper.h |  4 --
- 11 files changed, 37 insertions(+), 240 deletions(-)
+Changes since v1:
+=================
+* Alternative version of the fix but this time in arch_kexec_apply_relocations_add()
+  in order not to force every user of arch_kexec_do_relocs() to handle R_390_PC32DBL
+  and avoid breaking other users with unexpected bhavior 
 
-diff --git a/drivers/dax/super.c b/drivers/dax/super.c
-index e81d5ee57390f..ff676a07480c8 100644
---- a/drivers/dax/super.c
-+++ b/drivers/dax/super.c
-@@ -105,6 +105,10 @@ enum dax_device_flags {
- 	DAXDEV_WRITE_CACHE,
- 	/* flag to check if device supports synchronous flush */
- 	DAXDEV_SYNC,
-+	/* do not use uncached operations to write data */
-+	DAXDEV_CACHED,
-+	/* do not use mcsafe operations to read data */
-+	DAXDEV_NOMCSAFE,
- };
+ arch/s390/kernel/machine_kexec_file.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
+index 876cdd3c994e..8f43575a4dd3 100644
+--- a/arch/s390/kernel/machine_kexec_file.c
++++ b/arch/s390/kernel/machine_kexec_file.c
+@@ -348,6 +348,10 @@ int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
+ 		addr = section->sh_addr + relas[i].r_offset;
  
- /**
-@@ -146,9 +150,15 @@ size_t dax_copy_from_iter(struct dax_device *dax_dev, pgoff_t pgoff, void *addr,
- 	if (!dax_alive(dax_dev))
- 		return 0;
- 
--	return dax_dev->ops->copy_from_iter(dax_dev, pgoff, addr, bytes, i);
-+	/*
-+	 * The userspace address for the memory copy has already been validated
-+	 * via access_ok() in vfs_write, so use the 'no check' version to bypass
-+	 * the HARDENED_USERCOPY overhead.
-+	 */
-+	if (test_bit(DAXDEV_CACHED, &dax_dev->flags))
-+		return _copy_from_iter(addr, bytes, i);
-+	return _copy_from_iter_flushcache(addr, bytes, i);
- }
--EXPORT_SYMBOL_GPL(dax_copy_from_iter);
- 
- size_t dax_copy_to_iter(struct dax_device *dax_dev, pgoff_t pgoff, void *addr,
- 		size_t bytes, struct iov_iter *i)
-@@ -156,9 +166,15 @@ size_t dax_copy_to_iter(struct dax_device *dax_dev, pgoff_t pgoff, void *addr,
- 	if (!dax_alive(dax_dev))
- 		return 0;
- 
--	return dax_dev->ops->copy_to_iter(dax_dev, pgoff, addr, bytes, i);
-+	/*
-+	 * The userspace address for the memory copy has already been validated
-+	 * via access_ok() in vfs_red, so use the 'no check' version to bypass
-+	 * the HARDENED_USERCOPY overhead.
-+	 */
-+	if (test_bit(DAXDEV_NOMCSAFE, &dax_dev->flags))
-+		return _copy_to_iter(addr, bytes, i);
-+	return _copy_mc_to_iter(addr, bytes, i);
- }
--EXPORT_SYMBOL_GPL(dax_copy_to_iter);
- 
- int dax_zero_page_range(struct dax_device *dax_dev, pgoff_t pgoff,
- 			size_t nr_pages)
-@@ -220,6 +236,18 @@ void set_dax_synchronous(struct dax_device *dax_dev)
- }
- EXPORT_SYMBOL_GPL(set_dax_synchronous);
- 
-+void set_dax_cached(struct dax_device *dax_dev)
-+{
-+	set_bit(DAXDEV_CACHED, &dax_dev->flags);
-+}
-+EXPORT_SYMBOL_GPL(set_dax_cached);
+ 		r_type = ELF64_R_TYPE(relas[i].r_info);
 +
-+void set_dax_nomcsafe(struct dax_device *dax_dev)
-+{
-+	set_bit(DAXDEV_NOMCSAFE, &dax_dev->flags);
-+}
-+EXPORT_SYMBOL_GPL(set_dax_nomcsafe);
++		if (r_type == R_390_PLT32DBL)
++			r_type = R_390_PC32DBL;
 +
- bool dax_alive(struct dax_device *dax_dev)
- {
- 	lockdep_assert_held(&dax_srcu);
-diff --git a/drivers/md/dm-linear.c b/drivers/md/dm-linear.c
-index 90de42f6743ac..1b97a11d71517 100644
---- a/drivers/md/dm-linear.c
-+++ b/drivers/md/dm-linear.c
-@@ -180,22 +180,6 @@ static long linear_dax_direct_access(struct dm_target *ti, pgoff_t pgoff,
- 	return dax_direct_access(dax_dev, pgoff, nr_pages, kaddr, pfn);
- }
- 
--static size_t linear_dax_copy_from_iter(struct dm_target *ti, pgoff_t pgoff,
--		void *addr, size_t bytes, struct iov_iter *i)
--{
--	struct dax_device *dax_dev = linear_dax_pgoff(ti, &pgoff);
--
--	return dax_copy_from_iter(dax_dev, pgoff, addr, bytes, i);
--}
--
--static size_t linear_dax_copy_to_iter(struct dm_target *ti, pgoff_t pgoff,
--		void *addr, size_t bytes, struct iov_iter *i)
--{
--	struct dax_device *dax_dev = linear_dax_pgoff(ti, &pgoff);
--
--	return dax_copy_to_iter(dax_dev, pgoff, addr, bytes, i);
--}
--
- static int linear_dax_zero_page_range(struct dm_target *ti, pgoff_t pgoff,
- 				      size_t nr_pages)
- {
-@@ -206,8 +190,6 @@ static int linear_dax_zero_page_range(struct dm_target *ti, pgoff_t pgoff,
- 
- #else
- #define linear_dax_direct_access NULL
--#define linear_dax_copy_from_iter NULL
--#define linear_dax_copy_to_iter NULL
- #define linear_dax_zero_page_range NULL
- #endif
- 
-@@ -225,8 +207,6 @@ static struct target_type linear_target = {
- 	.prepare_ioctl = linear_prepare_ioctl,
- 	.iterate_devices = linear_iterate_devices,
- 	.direct_access = linear_dax_direct_access,
--	.dax_copy_from_iter = linear_dax_copy_from_iter,
--	.dax_copy_to_iter = linear_dax_copy_to_iter,
- 	.dax_zero_page_range = linear_dax_zero_page_range,
- };
- 
-diff --git a/drivers/md/dm-log-writes.c b/drivers/md/dm-log-writes.c
-index cdb22e7a1d0da..139b09b06eda9 100644
---- a/drivers/md/dm-log-writes.c
-+++ b/drivers/md/dm-log-writes.c
-@@ -902,51 +902,6 @@ static void log_writes_io_hints(struct dm_target *ti, struct queue_limits *limit
- }
- 
- #if IS_ENABLED(CONFIG_FS_DAX)
--static int log_dax(struct log_writes_c *lc, sector_t sector, size_t bytes,
--		   struct iov_iter *i)
--{
--	struct pending_block *block;
--
--	if (!bytes)
--		return 0;
--
--	block = kzalloc(sizeof(struct pending_block), GFP_KERNEL);
--	if (!block) {
--		DMERR("Error allocating dax pending block");
--		return -ENOMEM;
--	}
--
--	block->data = kzalloc(bytes, GFP_KERNEL);
--	if (!block->data) {
--		DMERR("Error allocating dax data space");
--		kfree(block);
--		return -ENOMEM;
--	}
--
--	/* write data provided via the iterator */
--	if (!copy_from_iter(block->data, bytes, i)) {
--		DMERR("Error copying dax data");
--		kfree(block->data);
--		kfree(block);
--		return -EIO;
--	}
--
--	/* rewind the iterator so that the block driver can use it */
--	iov_iter_revert(i, bytes);
--
--	block->datalen = bytes;
--	block->sector = bio_to_dev_sectors(lc, sector);
--	block->nr_sectors = ALIGN(bytes, lc->sectorsize) >> lc->sectorshift;
--
--	atomic_inc(&lc->pending_blocks);
--	spin_lock_irq(&lc->blocks_lock);
--	list_add_tail(&block->list, &lc->unflushed_blocks);
--	spin_unlock_irq(&lc->blocks_lock);
--	wake_up_process(lc->log_kthread);
--
--	return 0;
--}
--
- static struct dax_device *log_writes_dax_pgoff(struct dm_target *ti,
- 		pgoff_t *pgoff)
- {
-@@ -964,37 +919,6 @@ static long log_writes_dax_direct_access(struct dm_target *ti, pgoff_t pgoff,
- 	return dax_direct_access(dax_dev, pgoff, nr_pages, kaddr, pfn);
- }
- 
--static size_t log_writes_dax_copy_from_iter(struct dm_target *ti,
--					    pgoff_t pgoff, void *addr, size_t bytes,
--					    struct iov_iter *i)
--{
--	struct log_writes_c *lc = ti->private;
--	sector_t sector = pgoff * PAGE_SECTORS;
--	struct dax_device *dax_dev = log_writes_dax_pgoff(ti, &pgoff);
--	int err;
--
--	/* Don't bother doing anything if logging has been disabled */
--	if (!lc->logging_enabled)
--		goto dax_copy;
--
--	err = log_dax(lc, sector, bytes, i);
--	if (err) {
--		DMWARN("Error %d logging DAX write", err);
--		return 0;
--	}
--dax_copy:
--	return dax_copy_from_iter(dax_dev, pgoff, addr, bytes, i);
--}
--
--static size_t log_writes_dax_copy_to_iter(struct dm_target *ti,
--					  pgoff_t pgoff, void *addr, size_t bytes,
--					  struct iov_iter *i)
--{
--	struct dax_device *dax_dev = log_writes_dax_pgoff(ti, &pgoff);
--
--	return dax_copy_to_iter(dax_dev, pgoff, addr, bytes, i);
--}
--
- static int log_writes_dax_zero_page_range(struct dm_target *ti, pgoff_t pgoff,
- 					  size_t nr_pages)
- {
-@@ -1005,8 +929,6 @@ static int log_writes_dax_zero_page_range(struct dm_target *ti, pgoff_t pgoff,
- 
- #else
- #define log_writes_dax_direct_access NULL
--#define log_writes_dax_copy_from_iter NULL
--#define log_writes_dax_copy_to_iter NULL
- #define log_writes_dax_zero_page_range NULL
- #endif
- 
-@@ -1024,8 +946,6 @@ static struct target_type log_writes_target = {
- 	.iterate_devices = log_writes_iterate_devices,
- 	.io_hints = log_writes_io_hints,
- 	.direct_access = log_writes_dax_direct_access,
--	.dax_copy_from_iter = log_writes_dax_copy_from_iter,
--	.dax_copy_to_iter = log_writes_dax_copy_to_iter,
- 	.dax_zero_page_range = log_writes_dax_zero_page_range,
- };
- 
-diff --git a/drivers/md/dm-stripe.c b/drivers/md/dm-stripe.c
-index 50dba3f39274c..e566115ec0bb8 100644
---- a/drivers/md/dm-stripe.c
-+++ b/drivers/md/dm-stripe.c
-@@ -324,22 +324,6 @@ static long stripe_dax_direct_access(struct dm_target *ti, pgoff_t pgoff,
- 	return dax_direct_access(dax_dev, pgoff, nr_pages, kaddr, pfn);
- }
- 
--static size_t stripe_dax_copy_from_iter(struct dm_target *ti, pgoff_t pgoff,
--		void *addr, size_t bytes, struct iov_iter *i)
--{
--	struct dax_device *dax_dev = stripe_dax_pgoff(ti, &pgoff);
--
--	return dax_copy_from_iter(dax_dev, pgoff, addr, bytes, i);
--}
--
--static size_t stripe_dax_copy_to_iter(struct dm_target *ti, pgoff_t pgoff,
--		void *addr, size_t bytes, struct iov_iter *i)
--{
--	struct dax_device *dax_dev = stripe_dax_pgoff(ti, &pgoff);
--
--	return dax_copy_to_iter(dax_dev, pgoff, addr, bytes, i);
--}
--
- static int stripe_dax_zero_page_range(struct dm_target *ti, pgoff_t pgoff,
- 				      size_t nr_pages)
- {
-@@ -350,8 +334,6 @@ static int stripe_dax_zero_page_range(struct dm_target *ti, pgoff_t pgoff,
- 
- #else
- #define stripe_dax_direct_access NULL
--#define stripe_dax_copy_from_iter NULL
--#define stripe_dax_copy_to_iter NULL
- #define stripe_dax_zero_page_range NULL
- #endif
- 
-@@ -488,8 +470,6 @@ static struct target_type stripe_target = {
- 	.iterate_devices = stripe_iterate_devices,
- 	.io_hints = stripe_io_hints,
- 	.direct_access = stripe_dax_direct_access,
--	.dax_copy_from_iter = stripe_dax_copy_from_iter,
--	.dax_copy_to_iter = stripe_dax_copy_to_iter,
- 	.dax_zero_page_range = stripe_dax_zero_page_range,
- };
- 
-diff --git a/drivers/md/dm.c b/drivers/md/dm.c
-index f4b972af10928..1b7e4ec9e2f57 100644
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -1027,54 +1027,6 @@ static long dm_dax_direct_access(struct dax_device *dax_dev, pgoff_t pgoff,
- 	return ret;
- }
- 
--static size_t dm_dax_copy_from_iter(struct dax_device *dax_dev, pgoff_t pgoff,
--				    void *addr, size_t bytes, struct iov_iter *i)
--{
--	struct mapped_device *md = dax_get_private(dax_dev);
--	sector_t sector = pgoff * PAGE_SECTORS;
--	struct dm_target *ti;
--	long ret = 0;
--	int srcu_idx;
--
--	ti = dm_dax_get_live_target(md, sector, &srcu_idx);
--
--	if (!ti)
--		goto out;
--	if (!ti->type->dax_copy_from_iter) {
--		ret = copy_from_iter(addr, bytes, i);
--		goto out;
--	}
--	ret = ti->type->dax_copy_from_iter(ti, pgoff, addr, bytes, i);
-- out:
--	dm_put_live_table(md, srcu_idx);
--
--	return ret;
--}
--
--static size_t dm_dax_copy_to_iter(struct dax_device *dax_dev, pgoff_t pgoff,
--		void *addr, size_t bytes, struct iov_iter *i)
--{
--	struct mapped_device *md = dax_get_private(dax_dev);
--	sector_t sector = pgoff * PAGE_SECTORS;
--	struct dm_target *ti;
--	long ret = 0;
--	int srcu_idx;
--
--	ti = dm_dax_get_live_target(md, sector, &srcu_idx);
--
--	if (!ti)
--		goto out;
--	if (!ti->type->dax_copy_to_iter) {
--		ret = copy_to_iter(addr, bytes, i);
--		goto out;
--	}
--	ret = ti->type->dax_copy_to_iter(ti, pgoff, addr, bytes, i);
-- out:
--	dm_put_live_table(md, srcu_idx);
--
--	return ret;
--}
--
- static int dm_dax_zero_page_range(struct dax_device *dax_dev, pgoff_t pgoff,
- 				  size_t nr_pages)
- {
-@@ -3024,8 +2976,6 @@ static const struct block_device_operations dm_rq_blk_dops = {
- 
- static const struct dax_operations dm_dax_ops = {
- 	.direct_access = dm_dax_direct_access,
--	.copy_from_iter = dm_dax_copy_from_iter,
--	.copy_to_iter = dm_dax_copy_to_iter,
- 	.zero_page_range = dm_dax_zero_page_range,
- };
- 
-diff --git a/drivers/nvdimm/pmem.c b/drivers/nvdimm/pmem.c
-index 85b3339286bd8..b08f0642aa257 100644
---- a/drivers/nvdimm/pmem.c
-+++ b/drivers/nvdimm/pmem.c
-@@ -301,28 +301,8 @@ static long pmem_dax_direct_access(struct dax_device *dax_dev,
- 	return __pmem_direct_access(pmem, pgoff, nr_pages, kaddr, pfn);
- }
- 
--/*
-- * Use the 'no check' versions of _copy_from_iter_flushcache() and
-- * _copy_mc_to_iter() to bypass HARDENED_USERCOPY overhead. Bounds
-- * checking, both file offset and device offset, is handled by
-- * dax_iomap_actor()
-- */
--static size_t pmem_copy_from_iter(struct dax_device *dax_dev, pgoff_t pgoff,
--		void *addr, size_t bytes, struct iov_iter *i)
--{
--	return _copy_from_iter_flushcache(addr, bytes, i);
--}
--
--static size_t pmem_copy_to_iter(struct dax_device *dax_dev, pgoff_t pgoff,
--		void *addr, size_t bytes, struct iov_iter *i)
--{
--	return _copy_mc_to_iter(addr, bytes, i);
--}
--
- static const struct dax_operations pmem_dax_ops = {
- 	.direct_access = pmem_dax_direct_access,
--	.copy_from_iter = pmem_copy_from_iter,
--	.copy_to_iter = pmem_copy_to_iter,
- 	.zero_page_range = pmem_dax_zero_page_range,
- };
- 
-diff --git a/drivers/s390/block/dcssblk.c b/drivers/s390/block/dcssblk.c
-index 10823debc09bd..d614843caf6cc 100644
---- a/drivers/s390/block/dcssblk.c
-+++ b/drivers/s390/block/dcssblk.c
-@@ -44,18 +44,6 @@ static const struct block_device_operations dcssblk_devops = {
- 	.release 	= dcssblk_release,
- };
- 
--static size_t dcssblk_dax_copy_from_iter(struct dax_device *dax_dev,
--		pgoff_t pgoff, void *addr, size_t bytes, struct iov_iter *i)
--{
--	return copy_from_iter(addr, bytes, i);
--}
--
--static size_t dcssblk_dax_copy_to_iter(struct dax_device *dax_dev,
--		pgoff_t pgoff, void *addr, size_t bytes, struct iov_iter *i)
--{
--	return copy_to_iter(addr, bytes, i);
--}
--
- static int dcssblk_dax_zero_page_range(struct dax_device *dax_dev,
- 				       pgoff_t pgoff, size_t nr_pages)
- {
-@@ -72,8 +60,6 @@ static int dcssblk_dax_zero_page_range(struct dax_device *dax_dev,
- 
- static const struct dax_operations dcssblk_dax_ops = {
- 	.direct_access = dcssblk_dax_direct_access,
--	.copy_from_iter = dcssblk_dax_copy_from_iter,
--	.copy_to_iter = dcssblk_dax_copy_to_iter,
- 	.zero_page_range = dcssblk_dax_zero_page_range,
- };
- 
-diff --git a/fs/dax.c b/fs/dax.c
-index e0eecd8e3a8f8..cd03485867a74 100644
---- a/fs/dax.c
-+++ b/fs/dax.c
-@@ -1260,11 +1260,6 @@ static loff_t dax_iomap_iter(const struct iomap_iter *iomi,
- 		if (map_len > end - pos)
- 			map_len = end - pos;
- 
--		/*
--		 * The userspace address for the memory copy has already been
--		 * validated via access_ok() in either vfs_read() or
--		 * vfs_write(), depending on which operation we are doing.
--		 */
- 		if (iov_iter_rw(iter) == WRITE)
- 			xfer = dax_copy_from_iter(dax_dev, pgoff, kaddr,
- 					map_len, iter);
-diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index 5c03a0364a9bb..754319ce2a29b 100644
---- a/fs/fuse/virtio_fs.c
-+++ b/fs/fuse/virtio_fs.c
-@@ -753,20 +753,6 @@ static long virtio_fs_direct_access(struct dax_device *dax_dev, pgoff_t pgoff,
- 	return nr_pages > max_nr_pages ? max_nr_pages : nr_pages;
- }
- 
--static size_t virtio_fs_copy_from_iter(struct dax_device *dax_dev,
--				       pgoff_t pgoff, void *addr,
--				       size_t bytes, struct iov_iter *i)
--{
--	return copy_from_iter(addr, bytes, i);
--}
--
--static size_t virtio_fs_copy_to_iter(struct dax_device *dax_dev,
--				       pgoff_t pgoff, void *addr,
--				       size_t bytes, struct iov_iter *i)
--{
--	return copy_to_iter(addr, bytes, i);
--}
--
- static int virtio_fs_zero_page_range(struct dax_device *dax_dev,
- 				     pgoff_t pgoff, size_t nr_pages)
- {
-@@ -783,8 +769,6 @@ static int virtio_fs_zero_page_range(struct dax_device *dax_dev,
- 
- static const struct dax_operations virtio_fs_dax_ops = {
- 	.direct_access = virtio_fs_direct_access,
--	.copy_from_iter = virtio_fs_copy_from_iter,
--	.copy_to_iter = virtio_fs_copy_to_iter,
- 	.zero_page_range = virtio_fs_zero_page_range,
- };
- 
-@@ -853,7 +837,8 @@ static int virtio_fs_setup_dax(struct virtio_device *vdev, struct virtio_fs *fs)
- 	fs->dax_dev = alloc_dax(fs, &virtio_fs_dax_ops);
- 	if (IS_ERR(fs->dax_dev))
- 		return PTR_ERR(fs->dax_dev);
--
-+	set_dax_cached(fs->dax_dev);
-+	set_dax_nomcsafe(fs->dax_dev);
- 	return devm_add_action_or_reset(&vdev->dev, virtio_fs_cleanup_dax,
- 					fs->dax_dev);
- }
-diff --git a/include/linux/dax.h b/include/linux/dax.h
-index c04f46478e3b5..d22cbf03d37d2 100644
---- a/include/linux/dax.h
-+++ b/include/linux/dax.h
-@@ -28,12 +28,6 @@ struct dax_operations {
- 	 */
- 	bool (*dax_supported)(struct dax_device *, struct block_device *, int,
- 			sector_t, sector_t);
--	/* copy_from_iter: required operation for fs-dax direct-i/o */
--	size_t (*copy_from_iter)(struct dax_device *, pgoff_t, void *, size_t,
--			struct iov_iter *);
--	/* copy_to_iter: required operation for fs-dax direct-i/o */
--	size_t (*copy_to_iter)(struct dax_device *, pgoff_t, void *, size_t,
--			struct iov_iter *);
- 	/* zero_page_range: required operation. Zero page range   */
- 	int (*zero_page_range)(struct dax_device *, pgoff_t, size_t);
- };
-@@ -95,6 +89,9 @@ static inline bool daxdev_mapping_supported(struct vm_area_struct *vma,
- }
- #endif
- 
-+void set_dax_cached(struct dax_device *dax_dev);
-+void set_dax_nomcsafe(struct dax_device *dax_dev);
-+
- struct writeback_control;
- #if defined(CONFIG_BLOCK) && defined(CONFIG_FS_DAX)
- int dax_add_host(struct dax_device *dax_dev, struct gendisk *disk);
-diff --git a/include/linux/device-mapper.h b/include/linux/device-mapper.h
-index a7df155ea49b8..b26fecf6c8e87 100644
---- a/include/linux/device-mapper.h
-+++ b/include/linux/device-mapper.h
-@@ -147,8 +147,6 @@ typedef int (*dm_busy_fn) (struct dm_target *ti);
-  */
- typedef long (*dm_dax_direct_access_fn) (struct dm_target *ti, pgoff_t pgoff,
- 		long nr_pages, void **kaddr, pfn_t *pfn);
--typedef size_t (*dm_dax_copy_iter_fn)(struct dm_target *ti, pgoff_t pgoff,
--		void *addr, size_t bytes, struct iov_iter *i);
- typedef int (*dm_dax_zero_page_range_fn)(struct dm_target *ti, pgoff_t pgoff,
- 		size_t nr_pages);
- 
-@@ -200,8 +198,6 @@ struct target_type {
- 	dm_iterate_devices_fn iterate_devices;
- 	dm_io_hints_fn io_hints;
- 	dm_dax_direct_access_fn direct_access;
--	dm_dax_copy_iter_fn dax_copy_from_iter;
--	dm_dax_copy_iter_fn dax_copy_to_iter;
- 	dm_dax_zero_page_range_fn dax_zero_page_range;
- 
- 	/* For internal device-mapper use. */
+ 		ret = arch_kexec_do_relocs(r_type, loc, val, addr);
+ 		if (ret) {
+ 			pr_err("Unknown rela relocation: %d\n", r_type);
 -- 
-2.30.2
+2.31.1
 
