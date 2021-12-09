@@ -2,154 +2,107 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4AFCAC433EF
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Dec 2021 15:28:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC98FC433EF
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Dec 2021 15:36:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234404AbhLIPcT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Dec 2021 10:32:19 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:18756 "EHLO
+        id S239944AbhLIPjd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Dec 2021 10:39:33 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:35728 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S231371AbhLIPcT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Dec 2021 10:32:19 -0500
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B9FM2Kd013251;
-        Thu, 9 Dec 2021 15:28:45 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=7OngiWdZx77vIHpZ2oC5RsazscGBNhLbYdx2EDiL50Q=;
- b=dtB5Lsz4MtecMpKIvxzRjzlUDp6IebwCwFAPK/b8dw2L3FO/wR8nHvRYJdCOHmaUX8JE
- Biey/O9Acl52j8oZUMMro1QlZCJGZ6jBZ+44oFceATDBZVHKJmVmbvuVqPgkmMNatSVN
- 4Hl5H2wPNQ2JPmvx82c5Wy5xEK5+d5sWgyv+m5zfTIAkn9rDFa64egvNgnt10xseS9+U
- IznazDbadwg5sL5dCZ0Ec7zgM+dg6sy9gVUFwW5PQUo1A+6ubXo5H57DAoiKmIUy2EKj
- C4dbzX6l3kMUDS171X7cefNwtnWU8RUf8yfaENEi4vEteaPVd6cAGccNwwqqo8f7CicZ Uw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3cukkh1j94-1
+        by vger.kernel.org with ESMTP id S234492AbhLIPjd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Dec 2021 10:39:33 -0500
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B9FRmIR005017;
+        Thu, 9 Dec 2021 15:35:56 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=tOxvwVBBJYKeBkWLLdqRTh3gpNj9EkW44GL8kpDN4nc=;
+ b=BipimZF71I8xhnavwZ7+1iK+3lAdq7NxR5TSlwAZLn/tQdYBiCMGY1U3+Kv3JHC4ZEiH
+ 6Hk6+ZVD4bT3Xed3ZSHoCjEURkdVktUccJXObf6ObVP10QskgcAas/e7Vo+ZgtMHa9xl
+ 9hATC/buDiNloxeRS6C256HnnKTG1OC0SD+tkk/91yhWKiRcEYFFRTpq9Q8YS4Gp1FRQ
+ Kz/TsRNxZEu7lTEakKmQPtJUjIAyxBm0RfU09Bo//lvOuhAfJ+9okAZXO6hgw4qfglWS
+ n80m2JeAHBcAMYz9YFGZIaA3xo+ASCHkFN55kfk6K2mXB58lNiX3CPkutANzdUdDfYkh Zg== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3cum1qrrhk-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 09 Dec 2021 15:28:45 +0000
-Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1B9ET2k6012213;
-        Thu, 9 Dec 2021 15:28:44 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3cukkh1j87-1
+        Thu, 09 Dec 2021 15:35:55 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1B9FXwg4025409;
+        Thu, 9 Dec 2021 15:35:53 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03ams.nl.ibm.com with ESMTP id 3cqyyajyp4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 09 Dec 2021 15:28:44 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1B9FCUFK029667;
-        Thu, 9 Dec 2021 15:28:42 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma01fra.de.ibm.com with ESMTP id 3cqyya106d-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 09 Dec 2021 15:28:42 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1B9FSeDm29491586
+        Thu, 09 Dec 2021 15:35:53 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1B9FZolg28115276
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 9 Dec 2021 15:28:40 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E582AA4064;
-        Thu,  9 Dec 2021 15:28:39 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E935EA405B;
-        Thu,  9 Dec 2021 15:28:38 +0000 (GMT)
-Received: from [9.171.49.66] (unknown [9.171.49.66])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu,  9 Dec 2021 15:28:38 +0000 (GMT)
-Message-ID: <8357aa40-a518-1645-d4f2-bd12975bcb4b@linux.ibm.com>
-Date:   Thu, 9 Dec 2021 16:28:38 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH 11/32] s390/pci: add helper function to find device by
- handle
-Content-Language: en-US
-To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
-        schnelle@linux.ibm.com, farman@linux.ibm.com, pmorel@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
-        vneethv@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com,
-        thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20211207205743.150299-1-mjrosato@linux.ibm.com>
- <20211207205743.150299-12-mjrosato@linux.ibm.com>
-From:   Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20211207205743.150299-12-mjrosato@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        Thu, 9 Dec 2021 15:35:50 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3D98EAE06E;
+        Thu,  9 Dec 2021 15:35:50 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E9DDDAE045;
+        Thu,  9 Dec 2021 15:35:49 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu,  9 Dec 2021 15:35:49 +0000 (GMT)
+From:   Julian Wiedmann <jwi@linux.ibm.com>
+To:     David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Cc:     linux-netdev <netdev@vger.kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH] MAINTAINERS: s390/net: remove myself as maintainer
+Date:   Thu,  9 Dec 2021 16:35:46 +0100
+Message-Id: <20211209153546.1152921-1-jwi@linux.ibm.com>
+X-Mailer: git-send-email 2.32.0
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: V-IfF0SV2WDiAWAHx01LYneFLL4nWb1N
-X-Proofpoint-ORIG-GUID: BPW_wyB90wFSomuiexKh9wdSohW0PZQ_
+X-Proofpoint-ORIG-GUID: E8QdBocmNiaxo0BzIGQzuyNEnVI8GLGL
+X-Proofpoint-GUID: E8QdBocmNiaxo0BzIGQzuyNEnVI8GLGL
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2021-12-09_06,2021-12-08_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- lowpriorityscore=0 phishscore=0 adultscore=0 priorityscore=1501
- bulkscore=0 malwarescore=0 mlxlogscore=999 clxscore=1015 impostorscore=0
- mlxscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2112090082
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ lowpriorityscore=0 malwarescore=0 mlxlogscore=633 phishscore=0
+ suspectscore=0 bulkscore=0 mlxscore=0 adultscore=0 impostorscore=0
+ clxscore=1011 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2112090084
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+I won't have access to the relevant HW and docs much longer.
 
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+---
+ MAINTAINERS | 2 --
+ 1 file changed, 2 deletions(-)
 
-Am 07.12.21 um 21:57 schrieb Matthew Rosato:
-> Intercepted zPCI instructions will specify the desired function via a
-> function handle.  Add a routine to find the device with the specified
-> handle.
-> 
-> Acked-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 7e51081b6708..6dd20c31d875 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -16623,7 +16623,6 @@ W:	http://www.ibm.com/developerworks/linux/linux390/
+ F:	drivers/iommu/s390-iommu.c
+ 
+ S390 IUCV NETWORK LAYER
+-M:	Julian Wiedmann <jwi@linux.ibm.com>
+ M:	Alexandra Winter <wintera@linux.ibm.com>
+ M:	Wenjia Zhang <wenjia@linux.ibm.com>
+ L:	linux-s390@vger.kernel.org
+@@ -16635,7 +16634,6 @@ F:	include/net/iucv/
+ F:	net/iucv/
+ 
+ S390 NETWORK DRIVERS
+-M:	Julian Wiedmann <jwi@linux.ibm.com>
+ M:	Alexandra Winter <wintera@linux.ibm.com>
+ M:	Wenjia Zhang <wenjia@linux.ibm.com>
+ L:	linux-s390@vger.kernel.org
+-- 
+2.32.0
 
-I guess we do not have hundreds of devices, so this should be fast enough.
-I guess long term wit hundreds of VFs we might want to redo the zpci_list
-into a tree but for now as this is just like get_zdev_by_fid
-
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-
-> ---
->   arch/s390/include/asm/pci.h |  1 +
->   arch/s390/pci/pci.c         | 16 ++++++++++++++++
->   2 files changed, 17 insertions(+)
-> 
-> diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-> index 1a8f9f42da3a..00a2c24d6d2b 100644
-> --- a/arch/s390/include/asm/pci.h
-> +++ b/arch/s390/include/asm/pci.h
-> @@ -275,6 +275,7 @@ static inline struct zpci_dev *to_zpci_dev(struct device *dev)
->   }
->   
->   struct zpci_dev *get_zdev_by_fid(u32);
-> +struct zpci_dev *get_zdev_by_fh(u32 fh);
->   
->   /* DMA */
->   int zpci_dma_init(void);
-> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-> index 9b4d3d78b444..af1c0ae017b1 100644
-> --- a/arch/s390/pci/pci.c
-> +++ b/arch/s390/pci/pci.c
-> @@ -76,6 +76,22 @@ struct zpci_dev *get_zdev_by_fid(u32 fid)
->   	return zdev;
->   }
->   
-> +struct zpci_dev *get_zdev_by_fh(u32 fh)
-> +{
-> +	struct zpci_dev *tmp, *zdev = NULL;
-> +
-> +	spin_lock(&zpci_list_lock);
-> +	list_for_each_entry(tmp, &zpci_list, entry) {
-> +		if (tmp->fh == fh) {
-> +			zdev = tmp;
-> +			break;
-> +		}
-> +	}
-> +	spin_unlock(&zpci_list_lock);
-> +	return zdev;
-> +}
-> +EXPORT_SYMBOL_GPL(get_zdev_by_fh);
-> +
->   void zpci_remove_reserved_devices(void)
->   {
->   	struct zpci_dev *tmp, *zdev;
-> 
