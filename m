@@ -2,134 +2,158 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42E9EC433EF
-	for <linux-s390@archiver.kernel.org>; Thu,  9 Dec 2021 21:03:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 41EA7C433F5
+	for <linux-s390@archiver.kernel.org>; Thu,  9 Dec 2021 21:54:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232553AbhLIVHG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 9 Dec 2021 16:07:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44334 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232547AbhLIVHG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Dec 2021 16:07:06 -0500
-Received: from mail-io1-xd36.google.com (mail-io1-xd36.google.com [IPv6:2607:f8b0:4864:20::d36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E671C061746;
-        Thu,  9 Dec 2021 13:03:32 -0800 (PST)
-Received: by mail-io1-xd36.google.com with SMTP id c3so8198303iob.6;
-        Thu, 09 Dec 2021 13:03:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=OQHy1bXS7MSNc4y1X7Ea+FIUv0jLINhYPtZYDEpKbkE=;
-        b=FhQ85vNKHELwZo0nkCQibyvUxqFyQZ8r9HhGYfEqeBcJI5OgQpd0zTKTiwqZYvh60i
-         qjsAhP03ZKxoU9+cHeJdrlXQrxI+whAiA8lqzhwWYF7zlQ/xjje85v1RkkUo3ZEHOSU+
-         9aOs6BBudIhoml99lowBeByulXk0Es3Y9YbPTlP8wTMzapdGRmBVlUXcHGklztQKEk9l
-         n9VVb4s/5cRwmt+E97QAUaDArG1yQX/2JdE/Xl0qJn1eE+v9eN2zMLnWvIjnFO4Iz0Q9
-         d+5IriPiiRSFMD/LfCZIy5obLpKahKrTu5KcJICfwM/PMAhTUuC/dyJo9L1nwXhJdyPg
-         E4cA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=OQHy1bXS7MSNc4y1X7Ea+FIUv0jLINhYPtZYDEpKbkE=;
-        b=fgsBiniGBixNhFekedFZ1xr2RdYoC16VPcYFl6/3pznfnkmMU+uFoqQ5mgYPnHCXKz
-         /FHo3vkXzUhDa1sDpFEiHXHStsulh5tLOTzlj/CkMzv7jOkb/EQKJi7ciSsnBN1AWfDH
-         GYaBThrbCoBxopauVi2mnlgtqCabG67q3Rcuz/SFi9OE5XixA4yNlOLut5eB9dnY3pqY
-         H6g9acFGfqrxApdqBn76TGb6v0C0m42DxzatqKEF4rDbztUn0TPFW4z4vML9G/CfkcCD
-         1UV0pVW2KzYLqZ61UHeQFXCHfXgfbn1eXziOzmJZ2oKc54pYDar5HqlsUQ49Q4C729Tk
-         TppQ==
-X-Gm-Message-State: AOAM530ZGx/geQ0R/tHGAnyO3G6t1MQKBfJKQiUeBGyY3c+7WlfAnqgb
-        klbjH6Pa0BPasXPloFVBGi5DsxvEvnItPdjDS4A=
-X-Google-Smtp-Source: ABdhPJzdR8/xxlTzc1bhOu3h5WQNw3hb9R+B7FFn/3yf7TVl7aIyML2KG3xS+LK6+egSaCHAjnHNjsBgCItR+Bz7wsI=
-X-Received: by 2002:a6b:7711:: with SMTP id n17mr16789543iom.21.1639083811769;
- Thu, 09 Dec 2021 13:03:31 -0800 (PST)
+        id S232906AbhLIV5x (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 9 Dec 2021 16:57:53 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:29846 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231868AbhLIV5v (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Dec 2021 16:57:51 -0500
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B9KZHjb027392;
+        Thu, 9 Dec 2021 21:53:40 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=WMWPuPqMKkG7POp8eawwV4RyD7I/ba69OipN2SLIhY8=;
+ b=CQvQZs82boi9r/eoannQphMh+dI0uZhcqNDtBHo5FK+3ZSVy6ZL3noAsV3RzaXUdAGzl
+ maworrN7wm4zu+ueXaE6DbbtmSyABIcqp3AXXadrzv59wybqvXuAiuLBhi5sYRo/ohAJ
+ KCp3bTvihHt2x2Ds7SHmcr3I20WigbNag2S85aN29mmldXcx/mukpQvKbKjsbvmAmccA
+ oPqB5T4kaw7VFy9Ge8WASuFOY7fm/qdgclaufYBEC1CY8jzy1HiwAWIcqr+CpV+q3gFW
+ uu4KBoZ7QjsoTPorlYuWd4XViUrgqUQbBg/bFzKhQdsD5AhNDK374+iog2ZV9WYkTyCq SA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cup7pwehy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 09 Dec 2021 21:53:39 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1B9LrdNB019382;
+        Thu, 9 Dec 2021 21:53:39 GMT
+Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cup7pwehr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 09 Dec 2021 21:53:39 +0000
+Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
+        by ppma02wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1B9LcEZB011635;
+        Thu, 9 Dec 2021 21:53:37 GMT
+Received: from b03cxnp07028.gho.boulder.ibm.com (b03cxnp07028.gho.boulder.ibm.com [9.17.130.15])
+        by ppma02wdc.us.ibm.com with ESMTP id 3cqyyc2mqn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 09 Dec 2021 21:53:37 +0000
+Received: from b03ledav001.gho.boulder.ibm.com (b03ledav001.gho.boulder.ibm.com [9.17.130.232])
+        by b03cxnp07028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1B9LrZ3927132204
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 9 Dec 2021 21:53:35 GMT
+Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 93B856E056;
+        Thu,  9 Dec 2021 21:53:35 +0000 (GMT)
+Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 97FCF6E052;
+        Thu,  9 Dec 2021 21:53:33 +0000 (GMT)
+Received: from [9.211.103.28] (unknown [9.211.103.28])
+        by b03ledav001.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Thu,  9 Dec 2021 21:53:33 +0000 (GMT)
+Message-ID: <790c68ce-070d-c391-0c3a-4637c616fa5e@linux.vnet.ibm.com>
+Date:   Thu, 9 Dec 2021 16:53:33 -0500
 MIME-Version: 1.0
-References: <20211209063828.18944-1-hch@lst.de> <20211209063828.18944-3-hch@lst.de>
-In-Reply-To: <20211209063828.18944-3-hch@lst.de>
-From:   Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Date:   Thu, 9 Dec 2021 22:03:20 +0100
-Message-ID: <CAM9Jb+j2Gu8MCyV1w-E=C-MPFW6zQLTi1M9kM+36efrbFZRPtQ@mail.gmail.com>
-Subject: Re: [PATCH 2/5] dax: simplify dax_synchronous and set_dax_synchronous
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Dan Williams <dan.j.williams@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Alasdair Kergon <agk@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.0
+Subject: Re: [PATCH v2 2/6] powerpc/kexec_file: Add KEXEC_SIG support.
+Content-Language: en-US
+To:     =?UTF-8?Q?Michal_Such=c3=a1nek?= <msuchanek@suse.de>
+Cc:     keyrings@vger.kernel.org, kexec@lists.infradead.org,
+        Philipp Rudo <prudo@redhat.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Rob Herring <robh@kernel.org>, linux-s390@vger.kernel.org,
         Vasily Gorbik <gor@linux.ibm.com>,
+        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Jessica Yu <jeyu@kernel.org>, linux-kernel@vger.kernel.org,
+        David Howells <dhowells@redhat.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        Matthew Wilcox <willy@infradead.org>, dm-devel@redhat.com,
-        Linux NVDIMM <nvdimm@lists.linux.dev>,
-        linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        virtualization@lists.linux-foundation.org
-Content-Type: text/plain; charset="UTF-8"
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Hari Bathini <hbathini@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linuxppc-dev@lists.ozlabs.org,
+        Frank van der Linden <fllinden@amazon.com>,
+        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
+        Daniel Axtens <dja@axtens.net>, buendgen@de.ibm.com,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Baoquan He <bhe@redhat.com>, linux-crypto@vger.kernel.org,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+References: <cover.1637862358.git.msuchanek@suse.de>
+ <8b30a3c6a4e845eb77f276298424811897efdebf.1637862358.git.msuchanek@suse.de>
+ <c3c9c6e4-6371-2f5a-ac94-fa4389d5dbe5@linux.vnet.ibm.com>
+ <20211209092155.GO117207@kunlun.suse.cz>
+From:   Nayna <nayna@linux.vnet.ibm.com>
+In-Reply-To: <20211209092155.GO117207@kunlun.suse.cz>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: x2XUc9cxjnO1DJ8AfathjBta2FnXVAlc
+X-Proofpoint-ORIG-GUID: HZolCF3M1gk1kZAg8NUwVeVyMGL04EK2
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2021-12-09_09,2021-12-08_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
+ lowpriorityscore=0 mlxlogscore=999 malwarescore=0 priorityscore=1501
+ clxscore=1015 suspectscore=0 adultscore=0 bulkscore=0 phishscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2112090112
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-> Remove the pointless wrappers.
->
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  drivers/dax/super.c |  8 ++++----
->  include/linux/dax.h | 12 ++----------
->  2 files changed, 6 insertions(+), 14 deletions(-)
->
-> diff --git a/drivers/dax/super.c b/drivers/dax/super.c
-> index e7152a6c4cc40..e18155f43a635 100644
-> --- a/drivers/dax/super.c
-> +++ b/drivers/dax/super.c
-> @@ -208,17 +208,17 @@ bool dax_write_cache_enabled(struct dax_device *dax_dev)
->  }
->  EXPORT_SYMBOL_GPL(dax_write_cache_enabled);
->
-> -bool __dax_synchronous(struct dax_device *dax_dev)
-> +bool dax_synchronous(struct dax_device *dax_dev)
->  {
->         return test_bit(DAXDEV_SYNC, &dax_dev->flags);
->  }
-> -EXPORT_SYMBOL_GPL(__dax_synchronous);
-> +EXPORT_SYMBOL_GPL(dax_synchronous);
->
-> -void __set_dax_synchronous(struct dax_device *dax_dev)
-> +void set_dax_synchronous(struct dax_device *dax_dev)
->  {
->         set_bit(DAXDEV_SYNC, &dax_dev->flags);
->  }
-> -EXPORT_SYMBOL_GPL(__set_dax_synchronous);
-> +EXPORT_SYMBOL_GPL(set_dax_synchronous);
->
->  bool dax_alive(struct dax_device *dax_dev)
->  {
-> diff --git a/include/linux/dax.h b/include/linux/dax.h
-> index 87ae4c9b1d65b..3bd1fdb5d5f4b 100644
-> --- a/include/linux/dax.h
-> +++ b/include/linux/dax.h
-> @@ -48,16 +48,8 @@ void put_dax(struct dax_device *dax_dev);
->  void kill_dax(struct dax_device *dax_dev);
->  void dax_write_cache(struct dax_device *dax_dev, bool wc);
->  bool dax_write_cache_enabled(struct dax_device *dax_dev);
-> -bool __dax_synchronous(struct dax_device *dax_dev);
-> -static inline bool dax_synchronous(struct dax_device *dax_dev)
-> -{
-> -       return  __dax_synchronous(dax_dev);
-> -}
-> -void __set_dax_synchronous(struct dax_device *dax_dev);
-> -static inline void set_dax_synchronous(struct dax_device *dax_dev)
-> -{
-> -       __set_dax_synchronous(dax_dev);
-> -}
-> +bool dax_synchronous(struct dax_device *dax_dev);
-> +void set_dax_synchronous(struct dax_device *dax_dev);
->  /*
->   * Check if given mapping is supported by the file / underlying device.
->   */
 
-Looks good to me.
+On 12/9/21 04:21, Michal Suchánek wrote:
+> Hello,
+Hi,
+> On Wed, Dec 08, 2021 at 08:51:47PM -0500, Nayna wrote:
+>> On 11/25/21 13:02, Michal Suchanek wrote:
+>>> Copy the code from s390x
+>>>
+>>> Signed-off-by: Michal Suchanek<msuchanek@suse.de>
+>>> ---
+>>>    arch/powerpc/Kconfig        | 11 +++++++++++
+>>>    arch/powerpc/kexec/elf_64.c | 36 ++++++++++++++++++++++++++++++++++++
+>>>    2 files changed, 47 insertions(+)
+>>>
+>>> diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+>>> index ac0c515552fd..ecc1227a77f1 100644
+>>> --- a/arch/powerpc/Kconfig
+>>> +++ b/arch/powerpc/Kconfig
+>>> @@ -561,6 +561,17 @@ config KEXEC_FILE
+>>>    config ARCH_HAS_KEXEC_PURGATORY
+>>>    	def_bool KEXEC_FILE
+>>>
+>>> +config KEXEC_SIG
+>>> +	bool "Verify kernel signature during kexec_file_load() syscall"
+>>> +	depends on KEXEC_FILE && MODULE_SIG_FORMAT
+>> After manually applying the patch, the build is failing with the following
+>> error:
+>>
+>> build failed with error "arch/powerpc/kexec/elf_64.o: In function
+>> `elf64_verify_sig':
+>> /root/kernel/linus/linux/arch/powerpc/kexec/elf_64.c:160: undefined
+>> reference to `verify_appended_signature'"
+> This patch does not add call to verify_appended_signature.
+>
+> Maybe you applied the following patch as well?
 
-Reviewed-by: Pankaj Gupta <pankaj.gupta@ionos.com>
+Yes, I tried build after applying all the patches.
+
+Thanks & Regards,
+
+     - Nayna
+
