@@ -2,177 +2,227 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8707C433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 10 Dec 2021 12:39:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A809C433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 10 Dec 2021 13:27:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237946AbhLJMnS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 10 Dec 2021 07:43:18 -0500
-Received: from mail-dm6nam11on2087.outbound.protection.outlook.com ([40.107.223.87]:16641
-        "EHLO NAM11-DM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S232216AbhLJMnR (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 10 Dec 2021 07:43:17 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=EL1bdkTy9wg0ugHWYciT0/8Xi7mX7GFJAZmaagvEsu2BbvJwBqmuwRgRDhvQ4QmATUC9rV3FbQEcJ8czJoE9v0mBsyaO5C2VFCVnpMF/blwQBRb2MReJcQ8Ip/NQf9gA5xD9Y38SVK4tFrXu6U7FUFvCNUgEbDo19O8OJXz37OQonObOhUYhIFABEg7IOXI0b9r3L5fRZV3xRdQUks+TzuFoo98zxLTBjiNipUqgsBY9wgwB7ilKIuDY1Uk3tG6BJqOh7jMaVTrJq3NrZEPMUw216AQgxgEX6u5R/rTb+k9yYOiTdX6eGpJ+J4UVhhvsodjI7TWtxEDHl/svu7wy/w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=A0fMPmab2uvG9MU19FoSeQxZlEvv5TWqraNaKqSb4L0=;
- b=PPKCDvd4v/avBQJZAtGlueusswebvDL4psopcOstfACTKg14KBVB2hEorbIoA1WdKYT04GIZNmWk/0RlTy2v3eLOHwAw4rQsrGA/IWViaLEMOJa2BFCQ9qJ5rkWMFFW8HlhRZy+HwRw6Kt2rZY+whnvheb28L4s0+Q2xHplacpjI+u8wR/VvtoIv55wUmv9L3M+GvX0uxPvAedazcK0hyadnbPBy/3Lng0E5Wmt7zzBNE/fUdUVKrsZ6bpyvDb2x12epIGvu0g99jWqmAsIeYsekluXT00BaHRUD2mM1dH5L7dZr8uicGqQiev2cFgIpMXRaQlBWo7pfZECTdrCiKA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=A0fMPmab2uvG9MU19FoSeQxZlEvv5TWqraNaKqSb4L0=;
- b=BBW/0dakS2jqkXVp5y7UdCnXsY5ZcAmxCxBfWNIQatlyOcJXbSyYQ7JevDWSZ7fsylEivY7tyhl+hrBpfJlQBNW8h3T1RPpcnn/fhPVNScuv9iiqYcIz8t+MFrn1Z4lU6qvvk4JNCq5FCMxvFmR3+NAYfgpxIpk+7o7IY54ngtskKtEBGsGEtCPKD7HuSLQ0aZ4xg9cSRZldjM9lxiiZQx/RLxmN9/BGc9F9EBETEg4ySrNEg/l1MtW03H5JeE0c7R0sy4EMb0/j0K6pKS+UJVdOTtFHH4PtUzwzC8G7piFKEJ4yCQsY8IIrVZXjz0H3rMAyTzr04x0HC4NBIdLJug==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
- by BL1PR12MB5175.namprd12.prod.outlook.com (2603:10b6:208:318::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4755.21; Fri, 10 Dec
- 2021 12:39:40 +0000
-Received: from BL0PR12MB5506.namprd12.prod.outlook.com
- ([fe80::d8be:e4e4:ce53:6d11]) by BL0PR12MB5506.namprd12.prod.outlook.com
- ([fe80::d8be:e4e4:ce53:6d11%7]) with mapi id 15.20.4778.015; Fri, 10 Dec 2021
- 12:39:40 +0000
-Date:   Fri, 10 Dec 2021 08:39:38 -0400
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     "Tian, Kevin" <kevin.tian@intel.com>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        "Jiang, Dave" <dave.jiang@intel.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Bjorn Helgaas <helgaas@kernel.org>,
-        Marc Zygnier <maz@kernel.org>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        "Dey, Megha" <megha.dey@intel.com>,
-        "Raj, Ashok" <ashok.raj@intel.com>,
-        "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jon Mason <jdmason@kudzu.us>, Allen Hubbe <allenbh@gmail.com>,
-        "linux-ntb@googlegroups.com" <linux-ntb@googlegroups.com>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        "x86@kernel.org" <x86@kernel.org>, Joerg Roedel <jroedel@suse.de>,
-        "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>
-Subject: Re: [patch 21/32] NTB/msi: Convert to msi_on_each_desc()
-Message-ID: <20211210123938.GF6385@nvidia.com>
-References: <f4cc305b-a329-6d27-9fca-b74ebc9fa0c1@intel.com>
- <878rx480fk.ffs@tglx>
- <BN9PR11MB52765F2EF8420C60FD5945D18C709@BN9PR11MB5276.namprd11.prod.outlook.com>
- <87sfv2yy19.ffs@tglx>
- <20211209162129.GS6385@nvidia.com>
- <878rwtzfh1.ffs@tglx>
- <20211209205835.GZ6385@nvidia.com>
- <8735n1zaz3.ffs@tglx>
- <87sfv1xq3b.ffs@tglx>
- <BN9PR11MB527619B099061B3814EB40408C719@BN9PR11MB5276.namprd11.prod.outlook.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BN9PR11MB527619B099061B3814EB40408C719@BN9PR11MB5276.namprd11.prod.outlook.com>
-X-ClientProxiedBy: YT3PR01CA0134.CANPRD01.PROD.OUTLOOK.COM
- (2603:10b6:b01:83::29) To BL0PR12MB5506.namprd12.prod.outlook.com
- (2603:10b6:208:1cb::22)
+        id S241802AbhLJNaq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 10 Dec 2021 08:30:46 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:40700 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235759AbhLJNaq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 10 Dec 2021 08:30:46 -0500
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1BAD6e4S013035;
+        Fri, 10 Dec 2021 13:27:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=g8mjf7yT4sUfGXNRSVv2wV8bVE4YsrEFdhmLbtC9Roo=;
+ b=lBTHH8LcWqBdALOpHkpuJvuj83LPTVivjK+SShvJBHiamSlDN1yRDXpkdtMm8eTtswUu
+ sKXd49CV6B+DiJ8MqcbBSrMkDW7tgajVyv7Z5RvoZJOA39u/Ze0OEb5aO1H0cYyCM8bh
+ Pt75VAweVAFWdE6rwVJrMjeuc37yTfj14mKFwt2bqleRtdty7Gs9BX54KKjcT5xV7br3
+ STmIOq03dwuC8sLRNNyfTAEAUwmpYWvJQdamXf7nnBIpkTdZX8WD6kWRayHViOlri24O
+ bitCmDaMWpn/Eb5g0bMfCThF/E1V5JCgJPQACel0CkyT3rvkQ7t1z6MtH72far4Ohiub QQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cv7g1gch8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 10 Dec 2021 13:27:10 +0000
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1BAD6o8Q013252;
+        Fri, 10 Dec 2021 13:27:10 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cv7g1gcgc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 10 Dec 2021 13:27:10 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1BADNbsv006037;
+        Fri, 10 Dec 2021 13:27:08 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma04ams.nl.ibm.com with ESMTP id 3cqyybkc3a-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 10 Dec 2021 13:27:07 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1BADR2q625362914
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 10 Dec 2021 13:27:02 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8F29D11C054;
+        Fri, 10 Dec 2021 13:27:02 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7AE9E11C04A;
+        Fri, 10 Dec 2021 13:27:01 +0000 (GMT)
+Received: from [9.171.76.123] (unknown [9.171.76.123])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 10 Dec 2021 13:27:01 +0000 (GMT)
+Message-ID: <7df88bde-2b63-4a91-036c-28527f56e22d@linux.ibm.com>
+Date:   Fri, 10 Dec 2021 14:27:01 +0100
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 4806e7e9-7a76-4bb1-b693-08d9bbda226e
-X-MS-TrafficTypeDiagnostic: BL1PR12MB5175:EE_
-X-Microsoft-Antispam-PRVS: <BL1PR12MB5175B993160D961E298DFF7BC2719@BL1PR12MB5175.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:8273;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 7OUv25Hec6nhNmWfa4k67A61Ykz6P8Cuzfmzf/zZ+KSaPflfAP4Z/g/8NGa5RYbbX6uZ1znpFGRwqxtGyE2FPsROnNN7WkNBSNJlS4NhNqvNmtXiDVWdcbnf+luelRKtmyE2c9F8CYQhZ84zIahzDHMCZ3LqTIJcrMCQisyHtVXyzldMyqj+vYG5L+HAt5DFbiBKb3sOrDPcZfc69+6X3OWlK9Gg8XOTmVXzh9r/49f7Cp1rnEdNVEO7WAvE9WBpyv2ruV7QKapfJB2dA5dsx6wo4suCZzCOO+9LtEyFKxXR6OAKPT9sYSy5wwlw0dSoWR1Ix5ZkMsBdS1z/ZclR7royJJXo386s99LPO+smkG6u2KKVK6hwQhEMMCOavL2aiuNliM+A3GHj9/pkRES+k4F3HTaGE+6QI4srqoGDxdcpcEl0vpbTbtjUlo2832ylg1hubn9negzUYuzXNA4DXz0gMThXryTPFFUmsVoNOlop8T3TDmWWAw1tu9TDfVbulzDiXtJnTs2b3PhhloXI9BOdiaXnBGO9T2v4CC3/l2idUR29zuoob2e7g4hpYS+uI8ZnzQqhe7TJcd4ZKJu8DvB6jUhPgeSTgQe94fAQksWWqofSU6f02RWCeJkQT3sInTVsfpFjnbSM/873otwB1A==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(8936002)(86362001)(6512007)(26005)(8676002)(83380400001)(508600001)(54906003)(186003)(66476007)(66556008)(66946007)(2906002)(6506007)(36756003)(5660300002)(1076003)(38100700002)(6916009)(33656002)(6486002)(4326008)(316002)(7416002)(2616005);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?i/ysojPts8ffnSarDicHAUTx9pHOgqOQAo1YAtjI2NxKqqnKB3lST9DEpZVN?=
- =?us-ascii?Q?g39pVdKXoHr8d4UkJ1OIlNBDNg7lAnT3Bjxhibfy63ecz0b3RonUHswQNH6E?=
- =?us-ascii?Q?ztpRcYmyDw4DcHVgij0qRQOTODDycNl3UuwBhR1mwDSEtAIMvIxd04MxwuG4?=
- =?us-ascii?Q?GxcWMEvAgqjgl0uNe1jzJwThPtoHlj6KXy/ejFQlhjhl7QBsZa258CZuKf2+?=
- =?us-ascii?Q?fkl4OAeBabS0347aDh+vrPe0mabIwjo9sSJ+dcuQe1b5Tx0rgD6TT9FemX62?=
- =?us-ascii?Q?ITOti4DUiL1AIZvzRPRKFylU2ZggZT746RSM3eRd8xBc1fYv/oZDGBsZEBLs?=
- =?us-ascii?Q?j7n4GxbdE7iDVG0Dhd3RNYUxPqzuGh2vSf35/iQsUXxzO3vIluu6BYgPSCTk?=
- =?us-ascii?Q?+8lktQr5+9by0ZMuA2vWkn0cYHYHfJOpEC+w0hH78Xqhrw37gnsexKocX8Oi?=
- =?us-ascii?Q?Bd7Vtske7Vij72qkp1a6beErFfbG+pQal5e0Cbl8lUcA90Otbr/8OCGtoLOu?=
- =?us-ascii?Q?z1iewx/QqA0UIx8HO06hfHRyAwG+5fmq7QYBYFHgmwLX6ZvfbEZLEhqPqHXT?=
- =?us-ascii?Q?CLi00pkuAkC8e/1nEHP5vcyPtw+gpInINM488oZn7hGVPkc8A80sKtxyJ5av?=
- =?us-ascii?Q?2xpUzwOM2GX5p9sdOgpKZXFt8xYLahu27rBmTExlFTL8L6a2pZ6la5qcV1Hb?=
- =?us-ascii?Q?zIUWoZ7T2u7CcwWgmi3BJprvQKtSWOaoZoDjfiz/rKDIa5MTRbOPMzLF3yAA?=
- =?us-ascii?Q?8otKkl7NTup7NFYNZYYHwsBoqyeEC4CfElXuuX8IKarOLnq+++I4IP7u12Sk?=
- =?us-ascii?Q?deMC6fsu0WORdmw4xLvM2+hzuTPj/773WMty5XGjgsRWXwaojZN1xIMePmjQ?=
- =?us-ascii?Q?7/8Pt2RlO6z1aL+5IsEkq7MGjd7GLBzpKnpwTfnLSrWzk3aImbSWmhqK+ifI?=
- =?us-ascii?Q?E1eyxxV1E/7PvK3npvPeHstxp+ovOY1AJX2VIgYMjEtkBodRcZzZIsZmf7ae?=
- =?us-ascii?Q?oRDM2AkLDP4FeFyvTUiLUyfChk5RG/Lcl8TGZLcU9rEvaJUgGdpYljKbwNiw?=
- =?us-ascii?Q?C5l6856bQJE1iwmN+83HNeRMAeiL3ppo2tGY/CRHvp3dLggg0Up4mAwouurW?=
- =?us-ascii?Q?0wY4opdaTIhbzsrT8zbWxYhUJAYpZha6scPdflvNt74OsKLP++6U67aAMgLN?=
- =?us-ascii?Q?60g4cicxSQMgPRO9RJdy49eiv0JaZxUxZgrtbnRW1oL0oZRWb793TbWHfR9l?=
- =?us-ascii?Q?QaievWhpl8VNyqTpPK8qInUcXgAIS6RikjrNK9EDPI/wbSu8Jz+f75V9iJ6W?=
- =?us-ascii?Q?ifEVebUYe8LA5AZ5+6+K5233DWCVxAuV/HZpMX7LPeBzN6H3b6dDDKgjn2qn?=
- =?us-ascii?Q?vHKr4ucV9inBGCICglARhHYBmSM+al+b9kResfviCsLfZGxoQpR7+fC4BetR?=
- =?us-ascii?Q?UvjRnJJV28bKT+s6Xlst1+MiGB/g2iHRG1D9zo7Fq1sePnjZBrnkblBecgAR?=
- =?us-ascii?Q?OR3OuDd1uwS3sBJ7iP9L0SVTVZo/9fDCgSv67A6dVjWUkfTeYSvCeSxIf1oL?=
- =?us-ascii?Q?CR1NAOKNiyUOM0sJoOk=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4806e7e9-7a76-4bb1-b693-08d9bbda226e
-X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5506.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Dec 2021 12:39:40.6613
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: /wyGge3EVTdLxsFgI+Q34aekTqjybgqd85HfSzjZfZhDGUei1uShjWrJWysgFRwt
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5175
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [PATCH 19/32] KVM: s390: mechanism to enable guest zPCI
+ Interpretation
+Content-Language: en-US
+To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
+        schnelle@linux.ibm.com, farman@linux.ibm.com, pmorel@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
+        vneethv@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com,
+        thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20211207205743.150299-1-mjrosato@linux.ibm.com>
+ <20211207205743.150299-20-mjrosato@linux.ibm.com>
+From:   Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20211207205743.150299-20-mjrosato@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: ksrWEH1EFFtqOOcqEP_NuBHvBFQY07J_
+X-Proofpoint-ORIG-GUID: Y0rX5weCRoKgLaaHvXVciBBR3QBT_NWQ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2021-12-10_04,2021-12-10_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ phishscore=0 suspectscore=0 bulkscore=0 mlxlogscore=999 impostorscore=0
+ clxscore=1015 adultscore=0 malwarescore=0 mlxscore=0 lowpriorityscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2112100073
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Dec 10, 2021 at 07:29:01AM +0000, Tian, Kevin wrote:
-> >   5) It's not possible for the kernel to reliably detect whether it is
-> >      running on bare metal or not. Yes we talked about heuristics, but
-> >      that's something I really want to avoid.
+
+
+Am 07.12.21 um 21:57 schrieb Matthew Rosato:
+> The guest must have access to certain facilities in order to allow
+> interpretive execution of zPCI instructions and adapter event
+> notifications.  However, there are some cases where a guest might
+> disable interpretation -- provide a mechanism via which we can defer
+> enabling the associated zPCI interpretation facilities until the guest
+> indicates it wishes to use them.
 > 
-> How would the hypercall mechanism avoid such heuristics?
+> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> ---
+>   arch/s390/include/asm/kvm_host.h |  4 +++
+>   arch/s390/kvm/kvm-s390.c         | 43 ++++++++++++++++++++++++++++++++
+>   arch/s390/kvm/kvm-s390.h         | 10 ++++++++
+>   3 files changed, 57 insertions(+)
+> 
+> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+> index 3f147b8d050b..38982c1de413 100644
+> --- a/arch/s390/include/asm/kvm_host.h
+> +++ b/arch/s390/include/asm/kvm_host.h
+> @@ -252,7 +252,10 @@ struct kvm_s390_sie_block {
+>   #define ECB2_IEP	0x20
+>   #define ECB2_PFMFI	0x08
+>   #define ECB2_ESCA	0x04
+> +#define ECB2_ZPCI_LSI	0x02
+>   	__u8    ecb2;                   /* 0x0062 */
+> +#define ECB3_AISI	0x20
+> +#define ECB3_AISII	0x10
+>   #define ECB3_DEA 0x08
+>   #define ECB3_AES 0x04
+>   #define ECB3_RI  0x01
+> @@ -938,6 +941,7 @@ struct kvm_arch{
+>   	int use_cmma;
+>   	int use_pfmfi;
+>   	int use_skf;
+> +	int use_zpci_interp;
+>   	int user_cpu_state_ctrl;
+>   	int user_sigp;
+>   	int user_stsi;
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index a680f2a02b67..361d742cdf0d 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -1023,6 +1023,47 @@ static int kvm_s390_vm_set_crypto(struct kvm *kvm, struct kvm_device_attr *attr)
+>   	return 0;
+>   }
+>   
+> +static void kvm_s390_vcpu_pci_setup(struct kvm_vcpu *vcpu)
+> +{
+> +	/*
+> +	 * If the facilities aren't available for PCI interpretation and
+> +	 * interrupt forwarding, we shouldn't be here.
+> +	 */
 
-It is clever, we don't have an vIOMMU that supplies vIR today, so by
-definition all guests are excluded and only bare metal works.
+This reads like we want a WARN_ON or BUG_ON, but as we call this uncoditionally this is
+actually a valid check. So instead of "shouldn't be here" say something like "bail out
+if interpretion is not active".  ?
 
-> > The charm is that his works for everything from INTx to IMS because all
-> > of them go through the same procedure, except that INTx (IO/APIC) does
-> > not support the reservation mode dance.
+> +	if (!vcpu->kvm->arch.use_zpci_interp)
+> +		return;
+> +
+> +	vcpu->arch.sie_block->ecb2 |= ECB2_ZPCI_LSI;
+> +	vcpu->arch.sie_block->ecb3 |= ECB3_AISII + ECB3_AISI;
+> +}
+> +
+> +void kvm_s390_vcpu_pci_enable_interp(struct kvm *kvm)
+> +{
+> +	struct kvm_vcpu *vcpu;
+> +	int i;
+> +
+> +	/*
+> +	 * If host facilities are available, turn on interpretation for the
+> +	 * life of this guest
+> +	 */
+> +	if (!test_facility(69) || !test_facility(70) || !test_facility(71) ||
+> +	    !test_facility(72))
+> +		return;
 
-Do we even have vIOAPIC?
+Wouldnt that also enable interpretion for VSIE? I guess we should check for the
+sclp facilities from patches 1,2,3, and 4 instead.
 
-> > Thoughts?
 
-It seems reasonable - do you have any idea how this all would work on
-ARM too? IMS on baremetal ARM is surely interesting. I assume they
-have a similar issue with trapping the MSI
-
-> Then Qemu needs to find out the GSI number for the vIRTE handle. 
-> Again Qemu doesn't have such information since it doesn't know 
-> which MSI[-X] entry points to this handle due to no trap.
-
-No this is already going wrong. qemu *cannot* know the MSI information
-because there is no MSI information for IMS.
-
-All qemu should get is the origin device information and data about
-how the guest wants the interrupt setup.
-
-Forget about guests and all of this complexity, design how to make
-VFIO work with IMS in pure userspace like DPDK.
-
-We must have a VFIO ioctl to acquire a addr/data pair and link it to
-an event fd.
-
-I'm not sure exactly how this should be done, it is 90% of what IMS
-is, except the VFIO irq_chip cannot touch any real HW and certainly
-cannot do mask/unmask..
-
-Maybe that is OK now that it requires IR?
-
-Jason
+> +
+> +	mutex_lock(&kvm->lock);
+> +
+> +	kvm->arch.use_zpci_interp = 1;
+> +
+> +	kvm_s390_vcpu_block_all(kvm);
+> +
+> +	kvm_for_each_vcpu(i, vcpu, kvm) {
+> +		kvm_s390_vcpu_pci_setup(vcpu);
+> +		kvm_s390_sync_request(KVM_REQ_VSIE_RESTART, vcpu);
+> +	}
+> +
+> +	kvm_s390_vcpu_unblock_all(kvm);
+> +	mutex_unlock(&kvm->lock);
+> +}
+> +
+>   static void kvm_s390_sync_request_broadcast(struct kvm *kvm, int req)
+>   {
+>   	int cx;
+> @@ -3288,6 +3329,8 @@ static int kvm_s390_vcpu_setup(struct kvm_vcpu *vcpu)
+>   h
+>   	kvm_s390_vcpu_crypto_setup(vcpu);
+>   
+> +	kvm_s390_vcpu_pci_setup(vcpu);
+> +
+>   	mutex_lock(&vcpu->kvm->lock);
+>   	if (kvm_s390_pv_is_protected(vcpu->kvm)) {
+>   		rc = kvm_s390_pv_create_cpu(vcpu, &uvrc, &uvrrc);
+> diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+> index c07a050d757d..a2eccb8b977e 100644
+> --- a/arch/s390/kvm/kvm-s390.h
+> +++ b/arch/s390/kvm/kvm-s390.h
+> @@ -481,6 +481,16 @@ void kvm_s390_reinject_machine_check(struct kvm_vcpu *vcpu,
+>    */
+>   void kvm_s390_vcpu_crypto_reset_all(struct kvm *kvm);
+>   
+> +/**
+> + * kvm_s390_vcpu_pci_enable_interp
+> + *
+> + * Set the associated PCI attributes for each vcpu to allow for zPCI Load/Store
+> + * interpretation as well as adapter interruption forwarding.
+> + *
+> + * @kvm: the KVM guest
+> + */
+> +void kvm_s390_vcpu_pci_enable_interp(struct kvm *kvm);
+> +
+>   /**
+>    * diag9c_forwarding_hz
+>    *
+> 
