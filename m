@@ -2,219 +2,159 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D9C72C433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 10 Dec 2021 07:38:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DA09C433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 10 Dec 2021 08:36:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238043AbhLJHll (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 10 Dec 2021 02:41:41 -0500
-Received: from mga02.intel.com ([134.134.136.20]:11201 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233882AbhLJHlf (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 10 Dec 2021 02:41:35 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1639121880; x=1670657880;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=BNQlx0w+RtnTGzK2cGVXlDGep0QRJAwj8io0a3TpCks=;
-  b=j4UoZd/miTwvZzCrP/8LGIV0rTfhYMcKGcwP2PzKR99Ig2uNBwoIhlB7
-   vr+a4JEas/Df5mCGxrtnCW4lKpa53kUngXVCK0W2hYTG7Wz2QGXVBM86I
-   iiAoSDqV1CinyUdX15buLBmzKfkBaCauyDA5BP0Gum44JdpplqojuEPXR
-   XvLl1VEjnL2khDw6mH80I80LHd8nWALVz7ob9Bo332HjAYkk6Qzy8jjv9
-   WUddHEg5X27FHlfioIwSdFC9kYbxS8ELRdMoW0hSWE8Be98NCIkpkaRbz
-   UNZwFptWh+p/xYxkD2OJElPshhgq/DNQ/h1gpPYsx7eOLqz8SECXklirB
-   A==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10193"; a="225569301"
-X-IronPort-AV: E=Sophos;i="5.88,194,1635231600"; 
-   d="scan'208";a="225569301"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Dec 2021 23:38:00 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.88,194,1635231600"; 
-   d="scan'208";a="659476102"
-Received: from fmsmsx603.amr.corp.intel.com ([10.18.126.83])
-  by fmsmga001.fm.intel.com with ESMTP; 09 Dec 2021 23:37:59 -0800
-Received: from fmsmsx610.amr.corp.intel.com (10.18.126.90) by
- fmsmsx603.amr.corp.intel.com (10.18.126.83) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.20; Thu, 9 Dec 2021 23:37:59 -0800
-Received: from FMSEDG603.ED.cps.intel.com (10.1.192.133) by
- fmsmsx610.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.20 via Frontend Transport; Thu, 9 Dec 2021 23:37:59 -0800
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (104.47.57.168)
- by edgegateway.intel.com (192.55.55.68) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2308.20; Thu, 9 Dec 2021 23:37:57 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=O+dI9ujepQ3DphCZKogwdcvCQ60acchNFpCAjaoIdl6pOkltLKLLcC94++C8tpc6Nsmo3Li9pw7er7Yve/dXb1I7Jp938wjTzrJE3/XpRtGewNgJolBi3YtGGmnR1gEwwtooB4JL+pdWLA+WVPRdKhmDJp7hAvsExFC3UQcgjSuJRHun3MC6A94rycokr5q8q69GMByzxIXUtEl8PZHGUBKzR1LC8nQbsGc/+gq9YMR7Z+eG1q7VvZx2sOZajCoQc8dnHtVsqTRXoJKlqY0ywo7821zcBnum8x+nWQ5a7wEKAAIMVN4J5ZyEid9YkLjyUFehNm8DRgCu4J2L+7+rtQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=BNQlx0w+RtnTGzK2cGVXlDGep0QRJAwj8io0a3TpCks=;
- b=h7aEon1ZHv+zCGFt+aaFJ0unTyslEwyeVxO1X5v65uItxZGvElKHY9PkEwlnTYt4wMR9R/Tq9/ai53nclHd1NKv7I1hQKa0mcFdy/n2djE7wuN6Dx3JWGc7DDXPzn/YWkui42VXifzAD/z5mB5UyAoLwfhT1OyhTlzlVGrJWV24qeitxqRHsuEcwoiYF2RJI0uPd3Zbow0rxs3673L1Uahd0CA0n34aWmeKTgzGaL4FfLRRBL/Abn6Wzef41CiFFU6mh5dE9SjV+E/cNjTI0Y6xXPS/2pirUNltmEhoVzdOfRE5G2qmEWCwxGDzhWWo2NCr1CDwUuKMFJTBUVbBKiA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=intel.onmicrosoft.com;
- s=selector2-intel-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=BNQlx0w+RtnTGzK2cGVXlDGep0QRJAwj8io0a3TpCks=;
- b=WNOJGeNxajnETHlTMXTMZGSGGNBR98YT64Q2uGlnejSJr9snbFixeuDXrDsMS0jM/rxV5NR9NQ7MxoVHD2GDfnnal/xo4u4bqXCbcCTaaFFo5Efzwli137G63G0oKb2Xh3qj1U8B2jGTPszP0ZPQklpgqQaBzOy1QG9zeoGtp5k=
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
- by BN8PR11MB3652.namprd11.prod.outlook.com (2603:10b6:408:87::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4755.20; Fri, 10 Dec
- 2021 07:37:42 +0000
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::5c8a:9266:d416:3e04]) by BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::5c8a:9266:d416:3e04%2]) with mapi id 15.20.4755.016; Fri, 10 Dec 2021
- 07:37:42 +0000
-From:   "Tian, Kevin" <kevin.tian@intel.com>
-To:     Thomas Gleixner <tglx@linutronix.de>,
-        Jason Gunthorpe <jgg@nvidia.com>
-CC:     Logan Gunthorpe <logang@deltatee.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Bjorn Helgaas <helgaas@kernel.org>,
-        "Marc Zygnier" <maz@kernel.org>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        "Dey, Megha" <megha.dey@intel.com>,
-        "Raj, Ashok" <ashok.raj@intel.com>,
-        "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jon Mason <jdmason@kudzu.us>,
-        "Jiang, Dave" <dave.jiang@intel.com>,
-        Allen Hubbe <allenbh@gmail.com>,
-        "linux-ntb@googlegroups.com" <linux-ntb@googlegroups.com>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        "x86@kernel.org" <x86@kernel.org>, Joerg Roedel <jroedel@suse.de>,
-        "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>
-Subject: RE: [patch 21/32] NTB/msi: Convert to msi_on_each_desc()
-Thread-Topic: [patch 21/32] NTB/msi: Convert to msi_on_each_desc()
-Thread-Index: AQHX4y1VNaiO68omHEet2J9DWrVARKwa1YEAgAAp0QCAABreAIAAIi2AgAE8MoCAAAd1gIAACyoAgAAPcQCAADDDAIAAp1uAgAAttoCAAEzjgIAACsMAgAAjl4CAAD2IAIAA6NQAgABcawCAAAmigIAAKimAgAAjYoCAAPMeAIAAGgMAgAis5HCAAEEdAIAANO7AgAA+74CAAQZAYA==
-Date:   Fri, 10 Dec 2021 07:37:41 +0000
-Message-ID: <BN9PR11MB5276B9A8D0C4D824999F81508C719@BN9PR11MB5276.namprd11.prod.outlook.com>
-References: <87y2548byw.ffs@tglx> <20211201181406.GM4670@nvidia.com>
- <87mtlk84ae.ffs@tglx> <87r1av7u3d.ffs@tglx>
- <20211202135502.GP4670@nvidia.com> <87wnkm6c77.ffs@tglx>
- <20211202200017.GS4670@nvidia.com> <87o85y63m8.ffs@tglx>
- <20211203003749.GT4670@nvidia.com> <877dcl681d.ffs@tglx>
- <20211203164104.GX4670@nvidia.com>
- <BN9PR11MB52766CC46D3D4865308F61D98C709@BN9PR11MB5276.namprd11.prod.outlook.com>
- <87pmq6ywu3.ffs@tglx>
- <BN9PR11MB5276BDE2AC58ADA7A66CAFBA8C709@BN9PR11MB5276.namprd11.prod.outlook.com>
- <87mtl9zs7e.ffs@tglx>
-In-Reply-To: <87mtl9zs7e.ffs@tglx>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 2c4dff50-9b29-4e5a-026b-08d9bbaff302
-x-ms-traffictypediagnostic: BN8PR11MB3652:EE_
-x-ld-processed: 46c98d88-e344-4ed4-8496-4ed7712e255d,ExtAddr
-x-microsoft-antispam-prvs: <BN8PR11MB36525B62261B546958717F438C719@BN8PR11MB3652.namprd11.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:10000;
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: goExaWsUUmqLVeDkmWRV6YxpdPVQm7QpMYaE7y4GjrEePd0EtLC9FrLcAplcdhW3IZTRC9EbcBuS0nuYeJ3KhLRyBwskhIb7Nn8Iev0ZiJt9DgKtxLQuxub2CCFFpmGr54AMwhvBuKy8yEQmQ6XZHmLZcsYAuglFNHPbYrpHgsoso8K1qcv5D6wKz2co3LYrOQcLyz7jIULOhZ1rt83+MmcgK87w6x5hFEosLu3Odwg/sZ0kx6lOVtgoCGJu9TJ0O/gUsiM6xQCTKzmkjigb4jc+qsNwxXnZ0/7LdV63wMFRIlcJsj1CgIiNI/O1oIL+xfaBaG/N5uDHeiLMy5jRK2a65zmH7lFVS8SG83wgYy256ndvtJgV80iHRJfJJFsk1P7eOM5jPT7DXMLzjAfI3wx41xGkRtbEGJWtaDuqxRrRZGTcyiDdbPlSwDZlRlrAmwlxlanpj2ZuRSBTwsCfVX1vaqOjvushI0M8ln+35vLYUEjWCC+ImsgY6+xEolpdmqUECwaPxQC8+z3lTdZSAzFG5xQCd9H7WFX4x61KutIlhe0aveu4fQQgLJ5KOedVi6FRcfaezKfW+rRUXhmz70TCTvJXaNrFqYzBTSneqbd7UO8G2FG7BUFzpneXNs7Y8CV/WRQj34D03S6ACwJF3Sz7jWixWfGc2fm00hMm1b6RysyObZBVK+/AP3z8tWOVINRoAQXoubkoJ5m/Zladgw==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(366004)(186003)(2906002)(55016003)(38070700005)(7696005)(7416002)(5660300002)(508600001)(6506007)(86362001)(71200400001)(122000001)(26005)(9686003)(76116006)(82960400001)(4326008)(66946007)(66556008)(66446008)(38100700002)(64756008)(110136005)(52536014)(33656002)(316002)(66476007)(8936002)(54906003)(8676002);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?cmkwQnF3N2ZSYVl1UE1laFEvR3BJR01TSEF1Tnc3Z3V3L3dvWTV3MkZrcUg4?=
- =?utf-8?B?Vy84QUJLdHRQRmxidmF2MkhYR2NTUWtjeW92cTRIVVJOSlE1VHVrQmlDekxR?=
- =?utf-8?B?OFo3Uk9lTDd3dHVQcHhzcHdnRVFhKy9oTFdaUmNQdTVWOHNUQjBieFZybDRD?=
- =?utf-8?B?b1ZiZ3ZWZFNYODhVVGpKODU4djNWRm94VGNpbE00QXpocWw0dVFMdTJmZGhk?=
- =?utf-8?B?ZVBUbnRHa2RobUNUb2cxbVBIVGlmaUNJMUpMa0JIazNuVytxSmFxTnY0bDNT?=
- =?utf-8?B?Z2htRDBjM1JZc3FEdkVrOHdjZ3FqYXdiVlBPM2krMU9taWZFTHV4RjJuRW5x?=
- =?utf-8?B?NzBoRFowdzlUbmxPWnhoNEpYVmd0RjJacnJ4UXpQSGJEeldYMVdQNHVBbWp6?=
- =?utf-8?B?OHYvUjRUdWRUdHhreFNlVjFhMzdydW1tWWRmYTJmcmlIdjZINzladjVIdnF6?=
- =?utf-8?B?Zkc0cTdRelR6bkZWb25mWWcrNFNuVU45RXE3anp5bUR0aWMyclhpa0NZZFQ1?=
- =?utf-8?B?eXVveTZsbU5INGVwN2pFbk5na2JYS0tvc01uLzJpYjdZUng0TXAzRVAzczJ5?=
- =?utf-8?B?U1Y2a0ppZFVIcldHT080R3VibzF6NXQ1UWQ5YU5SQ2NLT3VleWt4NG5UUTJq?=
- =?utf-8?B?Q2RGOWp1cDArQ0NsMnJ2UWdacjZSai9vU3dOck1NMDlqMjRFVm00NGxTSGE4?=
- =?utf-8?B?bWJiSWZBaExycUtsRkd0dy83ckNVay95L21URTNQblczVWFFWkZPRG1IS0pj?=
- =?utf-8?B?bGY2aHZseS8razBPaXhxTVJqSkRXS0lteUhVRDZpNnMvWkNsWEpYZ2lCc2ps?=
- =?utf-8?B?OEdST2VoSmhCNGJuZVVHV21qZjUyb3liYzFlcVgxWkdRV0lYQVVld1BtQ2Fm?=
- =?utf-8?B?M0tPaDV2K1EyS0FXcXBqV1N5Vm5QL3N4WFhGSFBFK3drajhvb2hNbzFzc3dG?=
- =?utf-8?B?NVl0YlVWeUFhVWIyYkpyTU1pVFNoT1hJTE1IU3Q5RmN4eDRKdG1zN0dtWjFE?=
- =?utf-8?B?REQzOWRYRDBYNmhaZ1c5aU9TU0hvKzBGR2tjQ0xIc0RpamJOc3RkSFR6cHJN?=
- =?utf-8?B?Q2R2VklTbGNaWW1YK3Y1Y3MrN3BWM0FQU0dBYS9OWGVHQ3FlMVZnL01ReVF1?=
- =?utf-8?B?NFE0cmkwRm5LdUUrcFdRamhMV2ZxRFh5VFYrNERvNWQvMS8rdjJUMnlRRENx?=
- =?utf-8?B?NDVKQmx0SCtNKytGaCtINXVTL1dwQnpXYmtEQnJ3RFhMYUN0N05UWXRkMW03?=
- =?utf-8?B?NVRPTjVpS1BOTTBxTUtFOXVWSFJ1SzA3bzU0bXM0SGYvUENJQjk1bFAzY0Zr?=
- =?utf-8?B?L3M4Mi8zZW1vMWRwQnJRaEhjazdBbVNncCsySEx6ekE5eStiNWtyQjV0cG5F?=
- =?utf-8?B?ejNLUEFBYUtUUGpKMUJEelR0OWNFUTJXV3NDZERyUUtTWGRFVUhTYzBHcy92?=
- =?utf-8?B?ZGJVTmtQbTBjNXZObStJcjhVS2F1SlFWdG94RFJQejlsY0d6N2l2dWpNdkN6?=
- =?utf-8?B?MGxiZHpzUzlpbzREcWdqVUsxYW5iWkFDbDViQkx3RUNDZlhQOFAyTVdjKzRo?=
- =?utf-8?B?dDVvNEZNNkZLbEFFMFA3N3BMSjVPclNxTFE2OUlyMXRQeFlaZXVqQzJ0dGJK?=
- =?utf-8?B?V1pJVm1PbElDZWtwZ251Q3Q4UFF6UDZFSlpFL1pHRno2MlFiSzJhT01ld2VS?=
- =?utf-8?B?cVczY1BpUGIvV3F5azIxZWNYTjg3RUh1dkhOb2srN3ZiKzJ2b2xvWUpJdnNj?=
- =?utf-8?B?L0dmZEdmeGtiZXB1dXhQbWJqYjV5WCt6QWM4bXV1Z05wZEFXSVN1Vitvb1FG?=
- =?utf-8?B?SmtQK1AxUzBTWXVWZ3NURTZzaTVjVTVLOUV3SnczaDZ4dnNOMnFZU3pOUExI?=
- =?utf-8?B?SW51S0JtYjZvbnlsUmZPb0hWbzBGN3orU0JQUUlFWUszdnducEc0MVBRZFkw?=
- =?utf-8?B?Y1E2d3F2UmVZZlJKaVhSa3VhVGdEM0RQL1cyd1paM1pUZEV0TjhTdzNNaUdZ?=
- =?utf-8?B?OUk0TElCcUhycjRtRWNna05vUmNOaTdYK1JyeUlaNE82ZmtCVjRQV1RIa0JD?=
- =?utf-8?B?bW93MWRTNFl6c21zTktZcXFWZ3pyRjc2bEpvQmJmbWV0RUNNVlk4TzlidHdm?=
- =?utf-8?B?bHFKZE0yQ2pyN015aDRHK2ZaM3U4NUR6S2FYMTNoZS93b2tDRmpQQ3hXKzRY?=
- =?utf-8?Q?J2+wbxh4KkEV0tVbMPXcPZQ=3D?=
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2c4dff50-9b29-4e5a-026b-08d9bbaff302
-X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Dec 2021 07:37:41.9007
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: MElgu4qeVfYtk4HOYNmN2LGMWVj+aLsN9RojoTS9+PFGWIPLKiNYL6ge9VfqXiXJjGWakalphOeoHXEt1UKg7w==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN8PR11MB3652
-X-OriginatorOrg: intel.com
+        id S238539AbhLJIkN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 10 Dec 2021 03:40:13 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:57004 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232663AbhLJIkM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 10 Dec 2021 03:40:12 -0500
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1BA6wkPR040266;
+        Fri, 10 Dec 2021 08:36:37 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=FJ2WBO1seFaD3EU10SvBw7CNtQkrcZB2rnVjxCeLqfM=;
+ b=nao+kDG5ZdrSVf74uxjJu6mCzGLh+uajSFXLNsq5QhYFXRmLRnixF3b5doXoEh/EJEmT
+ 4XSFTB+F3zuNL0VAaNz/id//JH5m8nOFqysiL8CfvMU/aJG65c0vqwEa91AspbRNIK2w
+ pAc1krGN/2GYndxFmBRwONl/ELmTMtKzLreZgJwMZHK1vK2vCCquy/vKKB0qZej3rOIm
+ H9Xj1KuExFejahmvf7YuM8UG27cNfMtO745ZEAA1mk3KKzVDnw32anEwbD6WQ1wo0XZe
+ m7S+pwetMqsW4indg2oakgXjcSBWKWbO4ChxkEYIm9KjGei1oRlXG62n0ShNHH5Zl8qZ Ow== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cv23nhrty-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 10 Dec 2021 08:36:37 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1BA7Rgpl021771;
+        Fri, 10 Dec 2021 08:36:37 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cv23nhrss-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 10 Dec 2021 08:36:37 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1BA8S65c011156;
+        Fri, 10 Dec 2021 08:36:34 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma06fra.de.ibm.com with ESMTP id 3cqykget2n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 10 Dec 2021 08:36:34 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1BA8aV4g27591064
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 10 Dec 2021 08:36:31 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0D772A4054;
+        Fri, 10 Dec 2021 08:36:31 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CC182A4067;
+        Fri, 10 Dec 2021 08:36:29 +0000 (GMT)
+Received: from sig-9-145-163-175.de.ibm.com (unknown [9.145.163.175])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 10 Dec 2021 08:36:29 +0000 (GMT)
+Message-ID: <d08ddd8008468dddb02876c38313c17e57be89af.camel@linux.ibm.com>
+Subject: Re: [PATCH 14/32] KVM: s390: pci: do initial setup for AEN
+ interpretation
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Matthew Rosato <mjrosato@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        linux-s390@vger.kernel.org
+Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
+        farman@linux.ibm.com, pmorel@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, gerald.schaefer@linux.ibm.com,
+        agordeev@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
+        imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
+        oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Date:   Fri, 10 Dec 2021 09:36:29 +0100
+In-Reply-To: <31980a07-e2e8-cef3-f0b4-370dad4cb14c@linux.ibm.com>
+References: <20211207205743.150299-1-mjrosato@linux.ibm.com>
+         <20211207205743.150299-15-mjrosato@linux.ibm.com>
+         <596857e3-ab13-7513-eeda-ed407fe22732@linux.ibm.com>
+         <31980a07-e2e8-cef3-f0b4-370dad4cb14c@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-16.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: toWC4W74o5bzcLAcc3TR0xGgU_7EsKtc
+X-Proofpoint-GUID: 5qo78H_0h78S6eR4H29CDSe9yDRDJF7C
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2021-12-10_03,2021-12-08_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 spamscore=0
+ mlxscore=0 priorityscore=1501 phishscore=0 bulkscore=0 malwarescore=0
+ impostorscore=0 clxscore=1015 mlxlogscore=999 adultscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2112100047
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-PiBGcm9tOiBUaG9tYXMgR2xlaXhuZXIgPHRnbHhAbGludXRyb25peC5kZT4NCj4gU2VudDogVGh1
-cnNkYXksIERlY2VtYmVyIDksIDIwMjEgMTE6NTggUE0NCj4gDQo+IE9uIFRodSwgRGVjIDA5IDIw
-MjEgYXQgMTI6MTcsIEtldmluIFRpYW4gd3JvdGU6DQo+ID4+IEZyb206IFRob21hcyBHbGVpeG5l
-ciA8dGdseEBsaW51dHJvbml4LmRlPg0KPiA+PiBJIHRoaW5rIHlvdSBhcmUgbG9va2luZyBhdCB0
-aGF0IGZyb20gdGhlIGludGVybmFsIGltcGxlbWVudGF0aW9uIGRldGFpbHMNCj4gPj4gb2YgSURY
-RC4gQnV0IHlvdSBjYW4ganVzdCBtb2RlbCBpdCBpbiBhbiBJRFhEIGltcGxlbWVudGF0aW9uIGFn
-bm9zdGljDQo+ID4+IHdheToNCj4gPj4NCj4gPj4gICAgICBFTlFDTUQoUEFTSUQsIElNUy1FTlRS
-WSwuLi4uLikNCj4gPg0KPiA+IE5vdCBleGFjdGx5IElNUy1FTlRSWS4gTVNJLUVOVFJZIGFsc28g
-d29ya3MuDQo+IA0KPiBTdXJlLg0KPiANCj4gPj4NCj4gPj4gaW1wbGllcyBhbiBvbiBkZW1hbmQg
-YWxsb2NhdGlvbiBvZiBhIHZpcnR1YWwgcXVldWUsIHdoaWNoIGlzIGRlYWxsb2NhdGVkDQo+ID4+
-IHdoZW4gdGhlIGNvbW1hbmQgY29tcGxldGVzLiBUaGUgUEFTSUQgYW5kIElNUy1FTlRSWSBhY3Qg
-YXMgdGhlDQo+ICdxdWV1ZScNCj4gPj4gaWRlbnRpZmllci4NCj4gPj4NCj4gPj4gVGhlIGltcGxl
-bWVudGF0aW9uIGRldGFpbCBvZiBJRFhEIHRoYXQgaXQgZXhlY3V0ZXMgdGhlc2UgY29tcHV0YXRp
-b25zIG9uDQo+ID4+IGFuIGludGVybmFsIHNoYXJlZCB3b3JrcXVldWUgZG9lcyBub3QgY2hhbmdl
-IHRoYXQuDQo+ID4+DQo+ID4+IFN1Y2ggYSB3b3JrcXVldWUgY2FuIG9ubHkgZXhlY3V0ZSBvbmUg
-ZW5xdWV1ZWQgY29tbWFuZCBhdCBhIHRpbWUsDQo+ID4+IHdoaWNoDQo+ID4+IG1lYW5zIHRoYXQg
-ZHVyaW5nIHRoZSBleGVjdXRpb24gb2YgYSBwYXJ0aWN1bGFyIGNvbW1hbmQgdGhhdCBJRFhEDQo+
-ID4+IGludGVybmFsIHdvcmtxdWV1ZSByZXByZXNlbnRzIHRoZSAndmlydHVhbCBxdWV1ZScgd2hp
-Y2ggaXMgaWRlbnRpZmllZCBieQ0KPiA+PiB0aGUgdW5pcXVlIFBBU0lEL0lNUy1FTlRSWSBwYWly
-Lg0KPiA+DQo+ID4gV2hpbGUgaXQncyBvbmUgd2F5IG9mIGxvb2tpbmcgYXQgdGhpcyBtb2RlbCBk
-byB3ZSB3YW50IHRvIGFjdHVhbGx5DQo+ID4gY3JlYXRlIHNvbWUgb2JqZWN0cyB0byByZXByZXNl
-bnQgdGhpcyAndmlydHVhbCBxdWV1ZScgY29uY2VwdD8gdGhhdA0KPiA+IGltcGxpZXMgZWFjaCBF
-TlFDTUQgbXVzdCBiZSBtb2RlcmF0ZWQgdG8gY3JlYXRlIHN1Y2ggc2hvcnQtbGlmZXNwYW4NCj4g
-PiBvYmplY3RzIGFuZCBJJ20gbm90IHN1cmUgdGhlIGJlbmVmaXQgb2YgZG9pbmcgc28uDQo+IA0K
-PiBZb3UgZG9uJ3QgaGF2ZSB0byBjcmVhdGUgYW55dGhpbmcuIFRoZSBQQVNJRC9FTlRSWSBwYWly
-IHJlcHJlc2VudHMgdGhhdA0KPiAndmlydHVhbCBxdWV1ZScsIHJpZ2h0Pw0KDQpZZXMNCg0KPiAN
-Cj4gPiBJZiBub3QgdGhlbiBmcm9tIGRyaXZlciBwLm8udiBpdCdzIHN0aWxsIG9uZSBxdWV1ZSBy
-ZXNvdXJjZSBhbmQgZHJpdmVyDQo+ID4gbmVlZHMgdG8gbWFuYWdlIGl0cyBhc3NvY2lhdGlvbiB3
-aXRoIG11bHRpcGxlIGludGVycnVwdCBlbnRyaWVzIGFuZA0KPiA+IFBBU0lEcyB3aGVuIGl0J3Mg
-Y29ubmVjdGVkIHRvIG11bHRpcGxlIGNsaWVudHMuDQo+IA0KPiBUaGF0J3MgY29ycmVjdCwgYnV0
-IHRoZXJlIGlzIG5vdGhpbmcgcHJvYmxlbWF0aWMgd2l0aCBpdC4gSXQncyBsaWtlDQo+IGFsbG9j
-YXRpbmcgbXVsdGlwbGUgaW50ZXJydXB0cyBmb3IgYW55IG90aGVyIGhhcmR3YXJlIGRldmljZSBv
-cg0KPiBzdWJkZXZpY2UsIHJpZ2h0Pw0KDQpObyBxdWVzdGlvbiBvbiB0aGlzLiBKdXN0IHdhbnQg
-dG8gcG9pbnQgb3V0IHN1Y2ggdXNhZ2UgZXhhbXBsZSANCnNpbmNlIEphc29uIG1lbnRpb25lZCBp
-dC4g8J+Yig0KDQo+IA0KPiBXaGF0J3MgcHJvYmFibHkgbW9yZSBpbnRlcnJlc3RpbmcgaXMgaG93
-IHRoZSBQQVNJRC9pbnRlcnJ1cHQvUklEDQo+IHJlbGF0aW9ucyBhcmUgbWFuYWdlZC4NCj4gDQoN
-CnllcywgdGhhdCdzIHNvbWV0aGluZyB3ZSBuZWVkIGZ1cnRoZXIgdGhpbmsgb2YuDQoNClRoYW5r
-cw0KS2V2aW4NCg==
+On Thu, 2021-12-09 at 15:20 -0500, Matthew Rosato wrote:
+> On 12/9/21 2:54 PM, Christian Borntraeger wrote:
+> > Am 07.12.21 um 21:57 schrieb Matthew Rosato:
+> > > Initial setup for Adapter Event Notification Interpretation for zPCI
+> > > passthrough devices.  Specifically, allocate a structure for 
+> > > forwarding of
+> > > adapter events and pass the address of this structure to firmware.
+> > > 
+> > > Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> > > ---
+> > >   arch/s390/include/asm/pci_insn.h |  12 ++++
+> > >   arch/s390/kvm/interrupt.c        |  17 +++++
+> > >   arch/s390/kvm/kvm-s390.c         |   3 +
+> > >   arch/s390/kvm/pci.c              | 113 +++++++++++++++++++++++++++++++
+> > >   arch/s390/kvm/pci.h              |  42 ++++++++++++
+> > >   5 files changed, 187 insertions(+)
+> > >   create mode 100644 arch/s390/kvm/pci.h
+> > > 
+---8<---
+> > >   int kvm_s390_pci_dev_open(struct zpci_dev *zdev)
+> > >   {
+> > > @@ -55,3 +162,9 @@ int kvm_s390_pci_attach_kvm(struct zpci_dev *zdev, 
+> > > struct kvm *kvm)
+> > >       return 0;
+> > >   }
+> > >   EXPORT_SYMBOL_GPL(kvm_s390_pci_attach_kvm);
+> > > +
+> > > +void kvm_s390_pci_init(void)
+> > > +{
+> > > +    spin_lock_init(&aift.gait_lock);
+> > > +    mutex_init(&aift.lock);
+> > > +}
+> > 
+> > Can we maybe use designated initializer for the static definition of 
+> > aift, e.g. something
+> > like
+> > static struct zpci_aift aift = {
+> >      .gait_lock = __SPIN_LOCK_UNLOCKED(aift.gait_lock),
+> >      .lock    = __MUTEX_INITIALIZER(aift.lock),
+> > }
+> > and get rid of the init function? >
+> 
+> Maybe -- I can certainly do the above, but I do add a call to 
+> zpci_get_mdd() in the init function (patch 23), so if I want to in patch 
+> 23 instead add .mdd = zpci_get_mdd() to this designated initializer I'd 
+> have to re-work zpci_get_mdd (patch 12) to return the mdd rather than 
+> the CLP LIST PCI return code.  We want at least a warning if we're 
+> setting a 0 for mdd because the CLP failed for some bizarre reason.
+> 
+> I guess one option would be to move the WARN_ON into the zpci_get_mdd() 
+> function itself and then now we can do
+
+Hmm, if we do change zpci_get_mdd() which I'm generally fine with I
+feel like the initializer would be weird mix of truly static lock
+initialization and a function that actually does a CLP.
+I'm also a little worried about initialization order if kvm is built-
+in. The CLP should work even with PCI not initialized but what if for
+example the facility isn't even there?
+
+Also if you do change zpci_get-mdd() I'd prefer a pr_err() instead of a
+WARN_ON(), no reason to crash the system for this if it runs with
+panic-on-warn. So I think overall keeping it as is makes more sense.
+
