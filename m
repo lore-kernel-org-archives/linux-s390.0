@@ -2,156 +2,197 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 60085C433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 10 Dec 2021 14:17:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A3A35C433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 10 Dec 2021 14:22:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239075AbhLJOUq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 10 Dec 2021 09:20:46 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:25399 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S238547AbhLJOUp (ORCPT
+        id S242038AbhLJOZg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 10 Dec 2021 09:25:36 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:10782 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232310AbhLJOZf (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 10 Dec 2021 09:20:45 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1639145830;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=kAS8YtaRzDwTBft61hF97SlcoBkaxxqGmF+wyCNWJ8A=;
-        b=XiRg+QTtc71jH+287fzo66Q7SZEWk7x+tkHcDeKZYMx/dya/08ha7OKbut3dNkq4ALGLqi
-        OvqRdeXf98EY91XdLBVcyibgi5B5d+7DdTF7Bb63FqOVc7MI6MRUvrp3KYBq9Rs3nxZ4aW
-        1UuVxIuMBTfcj6N42uF8OOk6K8UqLHo=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-413-eeZyP13LOWiAd_cdWjWvAA-1; Fri, 10 Dec 2021 09:17:09 -0500
-X-MC-Unique: eeZyP13LOWiAd_cdWjWvAA-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 249C7835E20;
-        Fri, 10 Dec 2021 14:17:07 +0000 (UTC)
-Received: from horse.redhat.com (unknown [10.22.17.42])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 12ED719C59;
-        Fri, 10 Dec 2021 14:16:30 +0000 (UTC)
-Received: by horse.redhat.com (Postfix, from userid 10451)
-        id 967302209DD; Fri, 10 Dec 2021 09:16:29 -0500 (EST)
-Date:   Fri, 10 Dec 2021 09:16:29 -0500
-From:   Vivek Goyal <vgoyal@redhat.com>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Dan Williams <dan.j.williams@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Alasdair Kergon <agk@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        Matthew Wilcox <willy@infradead.org>, dm-devel@redhat.com,
-        nvdimm@lists.linux.dev, linux-s390@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org,
-        virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH 4/5] dax: remove the copy_from_iter and copy_to_iter
- methods
-Message-ID: <YbNhPXBg7G/ridkV@redhat.com>
-References: <20211209063828.18944-1-hch@lst.de>
- <20211209063828.18944-5-hch@lst.de>
+        Fri, 10 Dec 2021 09:25:35 -0500
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1BADvm8x008389;
+        Fri, 10 Dec 2021 14:22:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=VVeR8QBvzs2y1tQH21iTGgNnpjv/MTLz/B/Yt0LNyvY=;
+ b=b/7lzJ+EZPRr1vCp1Iq81KAgvYU+f6sPLQoJaRy4f6Rq4VT+Zs1esi14gsWmBgRm80Wt
+ JDs7+BUOcq9xmSxSZB05GAgfJUb/N00Cr8ihUa+m/CuZ2aFWsTcJUqSFFNSu3cL4gvNk
+ e+mgJAWuX//dbz3XcApWJF+0zXKPUvA5GHY58r0DoeC0rVYNQ3f77aYcNmZijq67fHbb
+ JdsorSZMPBpYU7YqAdOYsZgFLyCA9nlw9w9h2v1SrbcuBO0vH0Um1nofMSmwlvXJGBIR
+ Vt3dp70WJ1hkXBuBTccs49Vuw+qo+LqUCnLv84f4Q21TnX7xCS+YN7AvmG7QuGqzf8vH 0A== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cv886gf6x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 10 Dec 2021 14:21:59 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1BADwWZc010186;
+        Fri, 10 Dec 2021 14:21:59 GMT
+Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cv886gf6h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 10 Dec 2021 14:21:59 +0000
+Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
+        by ppma05wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1BAEG4EC024535;
+        Fri, 10 Dec 2021 14:21:58 GMT
+Received: from b01cxnp22033.gho.pok.ibm.com (b01cxnp22033.gho.pok.ibm.com [9.57.198.23])
+        by ppma05wdc.us.ibm.com with ESMTP id 3cqyycg5gb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 10 Dec 2021 14:21:58 +0000
+Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
+        by b01cxnp22033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1BAELvRi35455456
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 10 Dec 2021 14:21:57 GMT
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 23A8B2806D;
+        Fri, 10 Dec 2021 14:21:57 +0000 (GMT)
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4401128058;
+        Fri, 10 Dec 2021 14:21:49 +0000 (GMT)
+Received: from [9.211.51.40] (unknown [9.211.51.40])
+        by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTP;
+        Fri, 10 Dec 2021 14:21:48 +0000 (GMT)
+Message-ID: <6127b774-1042-0057-6b5b-29471554149b@linux.ibm.com>
+Date:   Fri, 10 Dec 2021 09:21:47 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211209063828.18944-5-hch@lst.de>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [PATCH 19/32] KVM: s390: mechanism to enable guest zPCI
+ Interpretation
+Content-Language: en-US
+To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        linux-s390@vger.kernel.org
+Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
+        schnelle@linux.ibm.com, farman@linux.ibm.com, pmorel@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
+        vneethv@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com,
+        thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20211207205743.150299-1-mjrosato@linux.ibm.com>
+ <20211207205743.150299-20-mjrosato@linux.ibm.com>
+ <7df88bde-2b63-4a91-036c-28527f56e22d@linux.ibm.com>
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <7df88bde-2b63-4a91-036c-28527f56e22d@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: rMBuYAGuVOTHq6Pq4s-1AtIQ7GhoM3aJ
+X-Proofpoint-ORIG-GUID: sUdoKL0ACDD2ok_bQf5fxtr_eavOwNQ5
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2021-12-10_04,2021-12-10_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
+ priorityscore=1501 mlxlogscore=999 malwarescore=0 phishscore=0 spamscore=0
+ bulkscore=0 lowpriorityscore=0 clxscore=1015 adultscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
+ definitions=main-2112100081
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Dec 09, 2021 at 07:38:27AM +0100, Christoph Hellwig wrote:
-> These methods indirect the actual DAX read/write path.  In the end pmem
-> uses magic flush and mc safe variants and fuse and dcssblk use plain ones
-> while device mapper picks redirects to the underlying device.
+On 12/10/21 8:27 AM, Christian Borntraeger wrote:
 > 
-> Add set_dax_virtual() and set_dax_nomcsafe() APIs for fuse to skip these
-> special variants, then use them everywhere as they fall back to the plain
-> ones on s390 anyway and remove an indirect call from the read/write path
-> as well as a lot of boilerplate code.
 > 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  drivers/dax/super.c           | 36 ++++++++++++++--
->  drivers/md/dm-linear.c        | 20 ---------
->  drivers/md/dm-log-writes.c    | 80 -----------------------------------
->  drivers/md/dm-stripe.c        | 20 ---------
->  drivers/md/dm.c               | 50 ----------------------
->  drivers/nvdimm/pmem.c         | 20 ---------
->  drivers/s390/block/dcssblk.c  | 14 ------
->  fs/dax.c                      |  5 ---
->  fs/fuse/virtio_fs.c           | 19 +--------
->  include/linux/dax.h           |  9 ++--
->  include/linux/device-mapper.h |  4 --
->  11 files changed, 37 insertions(+), 240 deletions(-)
+> Am 07.12.21 um 21:57 schrieb Matthew Rosato:
+>> The guest must have access to certain facilities in order to allow
+>> interpretive execution of zPCI instructions and adapter event
+>> notifications.  However, there are some cases where a guest might
+>> disable interpretation -- provide a mechanism via which we can defer
+>> enabling the associated zPCI interpretation facilities until the guest
+>> indicates it wishes to use them.
+>>
+>> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+>> ---
+>>   arch/s390/include/asm/kvm_host.h |  4 +++
+>>   arch/s390/kvm/kvm-s390.c         | 43 ++++++++++++++++++++++++++++++++
+>>   arch/s390/kvm/kvm-s390.h         | 10 ++++++++
+>>   3 files changed, 57 insertions(+)
+>>
+>> diff --git a/arch/s390/include/asm/kvm_host.h 
+>> b/arch/s390/include/asm/kvm_host.h
+>> index 3f147b8d050b..38982c1de413 100644
+>> --- a/arch/s390/include/asm/kvm_host.h
+>> +++ b/arch/s390/include/asm/kvm_host.h
+>> @@ -252,7 +252,10 @@ struct kvm_s390_sie_block {
+>>   #define ECB2_IEP    0x20
+>>   #define ECB2_PFMFI    0x08
+>>   #define ECB2_ESCA    0x04
+>> +#define ECB2_ZPCI_LSI    0x02
+>>       __u8    ecb2;                   /* 0x0062 */
+>> +#define ECB3_AISI    0x20
+>> +#define ECB3_AISII    0x10
+>>   #define ECB3_DEA 0x08
+>>   #define ECB3_AES 0x04
+>>   #define ECB3_RI  0x01
+>> @@ -938,6 +941,7 @@ struct kvm_arch{
+>>       int use_cmma;
+>>       int use_pfmfi;
+>>       int use_skf;
+>> +    int use_zpci_interp;
+>>       int user_cpu_state_ctrl;
+>>       int user_sigp;
+>>       int user_stsi;
+>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>> index a680f2a02b67..361d742cdf0d 100644
+>> --- a/arch/s390/kvm/kvm-s390.c
+>> +++ b/arch/s390/kvm/kvm-s390.c
+>> @@ -1023,6 +1023,47 @@ static int kvm_s390_vm_set_crypto(struct kvm 
+>> *kvm, struct kvm_device_attr *attr)
+>>       return 0;
+>>   }
+>> +static void kvm_s390_vcpu_pci_setup(struct kvm_vcpu *vcpu)
+>> +{
+>> +    /*
+>> +     * If the facilities aren't available for PCI interpretation and
+>> +     * interrupt forwarding, we shouldn't be here.
+>> +     */
+> 
+> This reads like we want a WARN_ON or BUG_ON, but as we call this 
+> uncoditionally this is
+> actually a valid check. So instead of "shouldn't be here" say something 
+> like "bail out
+> if interpretion is not active".  ?
+
+Right, this comment block is plain wrong.  We expect to get here under 
+multiple circumstances and its OK for this bit to be off:
+- initial vcpu setup (use_zpci_interp is off)
+- Right after we set use_zpci_interp=1 (turn on ECB for all vcpu)
+- hotplug vcpu setup (use_zpci_interp might be on or off)
+
+Will re-word.
+
+> 
+>> +    if (!vcpu->kvm->arch.use_zpci_interp)
+>> +        return;
+>> +
+>> +    vcpu->arch.sie_block->ecb2 |= ECB2_ZPCI_LSI;
+>> +    vcpu->arch.sie_block->ecb3 |= ECB3_AISII + ECB3_AISI;
+>> +}
+>> +
+>> +void kvm_s390_vcpu_pci_enable_interp(struct kvm *kvm)
+>> +{
+>> +    struct kvm_vcpu *vcpu;
+>> +    int i;
+>> +
+>> +    /*
+>> +     * If host facilities are available, turn on interpretation for the
+>> +     * life of this guest
+>> +     */
+>> +    if (!test_facility(69) || !test_facility(70) || 
+>> !test_facility(71) ||
+>> +        !test_facility(72))
+>> +        return;
+> 
+> Wouldnt that also enable interpretion for VSIE? I guess we should check 
+> for the
+> sclp facilities from patches 1,2,3, and 4 instead.
 > 
 
-[..]
-> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-> index 5c03a0364a9bb..754319ce2a29b 100644
-> --- a/fs/fuse/virtio_fs.c
-> +++ b/fs/fuse/virtio_fs.c
-> @@ -753,20 +753,6 @@ static long virtio_fs_direct_access(struct dax_device *dax_dev, pgoff_t pgoff,
->  	return nr_pages > max_nr_pages ? max_nr_pages : nr_pages;
->  }
->  
-> -static size_t virtio_fs_copy_from_iter(struct dax_device *dax_dev,
-> -				       pgoff_t pgoff, void *addr,
-> -				       size_t bytes, struct iov_iter *i)
-> -{
-> -	return copy_from_iter(addr, bytes, i);
-> -}
-> -
-> -static size_t virtio_fs_copy_to_iter(struct dax_device *dax_dev,
-> -				       pgoff_t pgoff, void *addr,
-> -				       size_t bytes, struct iov_iter *i)
-> -{
-> -	return copy_to_iter(addr, bytes, i);
-> -}
-> -
->  static int virtio_fs_zero_page_range(struct dax_device *dax_dev,
->  				     pgoff_t pgoff, size_t nr_pages)
->  {
-> @@ -783,8 +769,6 @@ static int virtio_fs_zero_page_range(struct dax_device *dax_dev,
->  
->  static const struct dax_operations virtio_fs_dax_ops = {
->  	.direct_access = virtio_fs_direct_access,
-> -	.copy_from_iter = virtio_fs_copy_from_iter,
-> -	.copy_to_iter = virtio_fs_copy_to_iter,
->  	.zero_page_range = virtio_fs_zero_page_range,
->  };
->  
-> @@ -853,7 +837,8 @@ static int virtio_fs_setup_dax(struct virtio_device *vdev, struct virtio_fs *fs)
->  	fs->dax_dev = alloc_dax(fs, &virtio_fs_dax_ops);
->  	if (IS_ERR(fs->dax_dev))
->  		return PTR_ERR(fs->dax_dev);
-> -
-> +	set_dax_cached(fs->dax_dev);
+Good point -- will change.
 
-Looks good to me from virtiofs point of view.
-
-Reviewed-by: Vivek Goyal <vgoyal@redhat.com>
-
-Going forward, I am wondering should virtiofs use flushcache version as
-well. What if host filesystem is using DAX and mapping persistent memory
-pfn directly into qemu address space. I have never tested that.
-
-Right now we are relying on applications to do fsync/msync on virtiofs
-for data persistence.
-
-> +	set_dax_nomcsafe(fs->dax_dev);
->  	return devm_add_action_or_reset(&vdev->dev, virtio_fs_cleanup_dax,
->  					fs->dax_dev);
->  }
-
-Thanks
-Vivek
 
