@@ -2,227 +2,163 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A809C433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 10 Dec 2021 13:27:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 14A53C433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 10 Dec 2021 14:05:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241802AbhLJNaq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 10 Dec 2021 08:30:46 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:40700 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235759AbhLJNaq (ORCPT
+        id S233620AbhLJOJJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 10 Dec 2021 09:09:09 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:38523 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230463AbhLJOJJ (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 10 Dec 2021 08:30:46 -0500
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1BAD6e4S013035;
-        Fri, 10 Dec 2021 13:27:11 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=g8mjf7yT4sUfGXNRSVv2wV8bVE4YsrEFdhmLbtC9Roo=;
- b=lBTHH8LcWqBdALOpHkpuJvuj83LPTVivjK+SShvJBHiamSlDN1yRDXpkdtMm8eTtswUu
- sKXd49CV6B+DiJ8MqcbBSrMkDW7tgajVyv7Z5RvoZJOA39u/Ze0OEb5aO1H0cYyCM8bh
- Pt75VAweVAFWdE6rwVJrMjeuc37yTfj14mKFwt2bqleRtdty7Gs9BX54KKjcT5xV7br3
- STmIOq03dwuC8sLRNNyfTAEAUwmpYWvJQdamXf7nnBIpkTdZX8WD6kWRayHViOlri24O
- bitCmDaMWpn/Eb5g0bMfCThF/E1V5JCgJPQACel0CkyT3rvkQ7t1z6MtH72far4Ohiub QQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cv7g1gch8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 10 Dec 2021 13:27:10 +0000
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1BAD6o8Q013252;
-        Fri, 10 Dec 2021 13:27:10 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cv7g1gcgc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 10 Dec 2021 13:27:10 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1BADNbsv006037;
-        Fri, 10 Dec 2021 13:27:08 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma04ams.nl.ibm.com with ESMTP id 3cqyybkc3a-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 10 Dec 2021 13:27:07 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1BADR2q625362914
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 10 Dec 2021 13:27:02 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8F29D11C054;
-        Fri, 10 Dec 2021 13:27:02 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7AE9E11C04A;
-        Fri, 10 Dec 2021 13:27:01 +0000 (GMT)
-Received: from [9.171.76.123] (unknown [9.171.76.123])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 10 Dec 2021 13:27:01 +0000 (GMT)
-Message-ID: <7df88bde-2b63-4a91-036c-28527f56e22d@linux.ibm.com>
-Date:   Fri, 10 Dec 2021 14:27:01 +0100
+        Fri, 10 Dec 2021 09:09:09 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1639145133;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=1IPYd/U/Ts1tZJpb5JWXIO6VaK+NnfSEAcLoJXiiX6k=;
+        b=U0HVff06h/J7uBSCVm07/LOKCJfS1hbt0NZ+cJG7PweIfXOCa4eNj0if53hwhZhF9sf/4D
+        15/4sPPPhxPWeKZpTQGUlPw7+/FAV30bHA9Yaq+944rHibssKCrlkl0Xdw3TFawL4ZOFNL
+        rtluFEIQYxXySHN3sKYm2Lmim3lvQlg=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-507-AXVHfjlYNN-rOCr5ug7-OA-1; Fri, 10 Dec 2021 09:05:32 -0500
+X-MC-Unique: AXVHfjlYNN-rOCr5ug7-OA-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id ECA031017965;
+        Fri, 10 Dec 2021 14:05:29 +0000 (UTC)
+Received: from horse.redhat.com (unknown [10.22.17.42])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 7C13919C59;
+        Fri, 10 Dec 2021 14:05:02 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+        id AC32F2209DD; Fri, 10 Dec 2021 09:05:01 -0500 (EST)
+Date:   Fri, 10 Dec 2021 09:05:01 -0500
+From:   Vivek Goyal <vgoyal@redhat.com>
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Dan Williams <dan.j.williams@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Alasdair Kergon <agk@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        Miklos Szeredi <miklos@szeredi.hu>,
+        Matthew Wilcox <willy@infradead.org>, dm-devel@redhat.com,
+        nvdimm@lists.linux.dev, linux-s390@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org,
+        virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH 5/5] dax: always use _copy_mc_to_iter in dax_copy_to_iter
+Message-ID: <YbNejVRF5NQB0r83@redhat.com>
+References: <20211209063828.18944-1-hch@lst.de>
+ <20211209063828.18944-6-hch@lst.de>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH 19/32] KVM: s390: mechanism to enable guest zPCI
- Interpretation
-Content-Language: en-US
-To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
-        schnelle@linux.ibm.com, farman@linux.ibm.com, pmorel@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
-        vneethv@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com,
-        thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20211207205743.150299-1-mjrosato@linux.ibm.com>
- <20211207205743.150299-20-mjrosato@linux.ibm.com>
-From:   Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20211207205743.150299-20-mjrosato@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ksrWEH1EFFtqOOcqEP_NuBHvBFQY07J_
-X-Proofpoint-ORIG-GUID: Y0rX5weCRoKgLaaHvXVciBBR3QBT_NWQ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2021-12-10_04,2021-12-10_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- phishscore=0 suspectscore=0 bulkscore=0 mlxlogscore=999 impostorscore=0
- clxscore=1015 adultscore=0 malwarescore=0 mlxscore=0 lowpriorityscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2112100073
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211209063828.18944-6-hch@lst.de>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Thu, Dec 09, 2021 at 07:38:28AM +0100, Christoph Hellwig wrote:
+> While using the MC-safe copy routines is rather pointless on a virtual device
+> like virtiofs,
+
+I was wondering about that. Is it completely pointless.
+
+Typically we are just mapping host page cache into qemu address space.
+That shows as virtiofs device pfn in guest and that pfn is mapped into
+guest application address space in mmap() call.
+
+Given on host its DRAM, so I would not expect machine check on load side
+so there was no need to use machine check safe variant. But what if host
+filesystem is on persistent memory and using DAX. In that case load in
+guest can trigger a machine check. Not sure if that machine check will
+actually travel into the guest and unblock read() operation or not.
+
+But this sounds like a good change from virtiofs point of view, anyway.
+
+Thanks
+Vivek
 
 
-Am 07.12.21 um 21:57 schrieb Matthew Rosato:
-> The guest must have access to certain facilities in order to allow
-> interpretive execution of zPCI instructions and adapter event
-> notifications.  However, there are some cases where a guest might
-> disable interpretation -- provide a mechanism via which we can defer
-> enabling the associated zPCI interpretation facilities until the guest
-> indicates it wishes to use them.
+> it also isn't harmful at all.  So just use _copy_mc_to_iter
+> unconditionally to simplify the code.
 > 
-> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 > ---
->   arch/s390/include/asm/kvm_host.h |  4 +++
->   arch/s390/kvm/kvm-s390.c         | 43 ++++++++++++++++++++++++++++++++
->   arch/s390/kvm/kvm-s390.h         | 10 ++++++++
->   3 files changed, 57 insertions(+)
+>  drivers/dax/super.c | 10 ----------
+>  fs/fuse/virtio_fs.c |  1 -
+>  include/linux/dax.h |  1 -
+>  3 files changed, 12 deletions(-)
 > 
-> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-> index 3f147b8d050b..38982c1de413 100644
-> --- a/arch/s390/include/asm/kvm_host.h
-> +++ b/arch/s390/include/asm/kvm_host.h
-> @@ -252,7 +252,10 @@ struct kvm_s390_sie_block {
->   #define ECB2_IEP	0x20
->   #define ECB2_PFMFI	0x08
->   #define ECB2_ESCA	0x04
-> +#define ECB2_ZPCI_LSI	0x02
->   	__u8    ecb2;                   /* 0x0062 */
-> +#define ECB3_AISI	0x20
-> +#define ECB3_AISII	0x10
->   #define ECB3_DEA 0x08
->   #define ECB3_AES 0x04
->   #define ECB3_RI  0x01
-> @@ -938,6 +941,7 @@ struct kvm_arch{
->   	int use_cmma;
->   	int use_pfmfi;
->   	int use_skf;
-> +	int use_zpci_interp;
->   	int user_cpu_state_ctrl;
->   	int user_sigp;
->   	int user_stsi;
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index a680f2a02b67..361d742cdf0d 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -1023,6 +1023,47 @@ static int kvm_s390_vm_set_crypto(struct kvm *kvm, struct kvm_device_attr *attr)
->   	return 0;
->   }
->   
-> +static void kvm_s390_vcpu_pci_setup(struct kvm_vcpu *vcpu)
-> +{
-> +	/*
-> +	 * If the facilities aren't available for PCI interpretation and
-> +	 * interrupt forwarding, we shouldn't be here.
-> +	 */
-
-This reads like we want a WARN_ON or BUG_ON, but as we call this uncoditionally this is
-actually a valid check. So instead of "shouldn't be here" say something like "bail out
-if interpretion is not active".  ?
-
-> +	if (!vcpu->kvm->arch.use_zpci_interp)
-> +		return;
-> +
-> +	vcpu->arch.sie_block->ecb2 |= ECB2_ZPCI_LSI;
-> +	vcpu->arch.sie_block->ecb3 |= ECB3_AISII + ECB3_AISI;
-> +}
-> +
-> +void kvm_s390_vcpu_pci_enable_interp(struct kvm *kvm)
-> +{
-> +	struct kvm_vcpu *vcpu;
-> +	int i;
-> +
-> +	/*
-> +	 * If host facilities are available, turn on interpretation for the
-> +	 * life of this guest
-> +	 */
-> +	if (!test_facility(69) || !test_facility(70) || !test_facility(71) ||
-> +	    !test_facility(72))
-> +		return;
-
-Wouldnt that also enable interpretion for VSIE? I guess we should check for the
-sclp facilities from patches 1,2,3, and 4 instead.
-
-
-> +
-> +	mutex_lock(&kvm->lock);
-> +
-> +	kvm->arch.use_zpci_interp = 1;
-> +
-> +	kvm_s390_vcpu_block_all(kvm);
-> +
-> +	kvm_for_each_vcpu(i, vcpu, kvm) {
-> +		kvm_s390_vcpu_pci_setup(vcpu);
-> +		kvm_s390_sync_request(KVM_REQ_VSIE_RESTART, vcpu);
-> +	}
-> +
-> +	kvm_s390_vcpu_unblock_all(kvm);
-> +	mutex_unlock(&kvm->lock);
-> +}
-> +
->   static void kvm_s390_sync_request_broadcast(struct kvm *kvm, int req)
->   {
->   	int cx;
-> @@ -3288,6 +3329,8 @@ static int kvm_s390_vcpu_setup(struct kvm_vcpu *vcpu)
->   h
->   	kvm_s390_vcpu_crypto_setup(vcpu);
->   
-> +	kvm_s390_vcpu_pci_setup(vcpu);
-> +
->   	mutex_lock(&vcpu->kvm->lock);
->   	if (kvm_s390_pv_is_protected(vcpu->kvm)) {
->   		rc = kvm_s390_pv_create_cpu(vcpu, &uvrc, &uvrrc);
-> diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-> index c07a050d757d..a2eccb8b977e 100644
-> --- a/arch/s390/kvm/kvm-s390.h
-> +++ b/arch/s390/kvm/kvm-s390.h
-> @@ -481,6 +481,16 @@ void kvm_s390_reinject_machine_check(struct kvm_vcpu *vcpu,
->    */
->   void kvm_s390_vcpu_crypto_reset_all(struct kvm *kvm);
->   
-> +/**
-> + * kvm_s390_vcpu_pci_enable_interp
-> + *
-> + * Set the associated PCI attributes for each vcpu to allow for zPCI Load/Store
-> + * interpretation as well as adapter interruption forwarding.
-> + *
-> + * @kvm: the KVM guest
-> + */
-> +void kvm_s390_vcpu_pci_enable_interp(struct kvm *kvm);
-> +
->   /**
->    * diag9c_forwarding_hz
->    *
+> diff --git a/drivers/dax/super.c b/drivers/dax/super.c
+> index ff676a07480c8..fe783234ca669 100644
+> --- a/drivers/dax/super.c
+> +++ b/drivers/dax/super.c
+> @@ -107,8 +107,6 @@ enum dax_device_flags {
+>  	DAXDEV_SYNC,
+>  	/* do not use uncached operations to write data */
+>  	DAXDEV_CACHED,
+> -	/* do not use mcsafe operations to read data */
+> -	DAXDEV_NOMCSAFE,
+>  };
+>  
+>  /**
+> @@ -171,8 +169,6 @@ size_t dax_copy_to_iter(struct dax_device *dax_dev, pgoff_t pgoff, void *addr,
+>  	 * via access_ok() in vfs_red, so use the 'no check' version to bypass
+>  	 * the HARDENED_USERCOPY overhead.
+>  	 */
+> -	if (test_bit(DAXDEV_NOMCSAFE, &dax_dev->flags))
+> -		return _copy_to_iter(addr, bytes, i);
+>  	return _copy_mc_to_iter(addr, bytes, i);
+>  }
+>  
+> @@ -242,12 +238,6 @@ void set_dax_cached(struct dax_device *dax_dev)
+>  }
+>  EXPORT_SYMBOL_GPL(set_dax_cached);
+>  
+> -void set_dax_nomcsafe(struct dax_device *dax_dev)
+> -{
+> -	set_bit(DAXDEV_NOMCSAFE, &dax_dev->flags);
+> -}
+> -EXPORT_SYMBOL_GPL(set_dax_nomcsafe);
+> -
+>  bool dax_alive(struct dax_device *dax_dev)
+>  {
+>  	lockdep_assert_held(&dax_srcu);
+> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+> index 754319ce2a29b..d9c20b148ac19 100644
+> --- a/fs/fuse/virtio_fs.c
+> +++ b/fs/fuse/virtio_fs.c
+> @@ -838,7 +838,6 @@ static int virtio_fs_setup_dax(struct virtio_device *vdev, struct virtio_fs *fs)
+>  	if (IS_ERR(fs->dax_dev))
+>  		return PTR_ERR(fs->dax_dev);
+>  	set_dax_cached(fs->dax_dev);
+> -	set_dax_nomcsafe(fs->dax_dev);
+>  	return devm_add_action_or_reset(&vdev->dev, virtio_fs_cleanup_dax,
+>  					fs->dax_dev);
+>  }
+> diff --git a/include/linux/dax.h b/include/linux/dax.h
+> index d22cbf03d37d2..d267331bc37e7 100644
+> --- a/include/linux/dax.h
+> +++ b/include/linux/dax.h
+> @@ -90,7 +90,6 @@ static inline bool daxdev_mapping_supported(struct vm_area_struct *vma,
+>  #endif
+>  
+>  void set_dax_cached(struct dax_device *dax_dev);
+> -void set_dax_nomcsafe(struct dax_device *dax_dev);
+>  
+>  struct writeback_control;
+>  #if defined(CONFIG_BLOCK) && defined(CONFIG_FS_DAX)
+> -- 
+> 2.30.2
 > 
+
