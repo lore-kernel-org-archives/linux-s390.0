@@ -2,94 +2,92 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47154C433F5
-	for <linux-s390@archiver.kernel.org>; Sun, 12 Dec 2021 15:03:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D75BCC433EF
+	for <linux-s390@archiver.kernel.org>; Sun, 12 Dec 2021 20:50:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230031AbhLLPDO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 12 Dec 2021 10:03:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49186 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229759AbhLLPDN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 12 Dec 2021 10:03:13 -0500
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79338C061714
-        for <linux-s390@vger.kernel.org>; Sun, 12 Dec 2021 07:03:13 -0800 (PST)
-Received: by mail-pj1-x1033.google.com with SMTP id nh10-20020a17090b364a00b001a69adad5ebso11360235pjb.2
-        for <linux-s390@vger.kernel.org>; Sun, 12 Dec 2021 07:03:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=intel-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ndCqA56yDPdk4/U5zH+4CHcCyXDgYIZ2oi0MLXCjqSE=;
-        b=lhO3UYFyJKrqzq5HPDfc+PFbsq6QQfW7AmBNbExvbtFXlq0wrjQecG2WRqAzp6e4AG
-         dLqR+L0MONeWmNZKrCWbmSw7KsFBqjQk0a6JStD9bDnpx6T5Rf298y84DqrtyoiNln+j
-         /nxi0T904eMzGulj/yucVxrxufrXlv7SPyx3OB+4L7NQnQPGsSQQIeP+cWrzCOBXdsdB
-         9uR0OqjTM+0xenAf71ShyHD6/tIbAIQM7rMQSqR1TDFxRmDysjPBgtFNyHL48igzxdl/
-         aA0JNL1H+gyAVZzrzpbutn6XyR9YQkl5t8TYUpejKIAviNSqCIACT31/viHV0LOGrf3g
-         xFYg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ndCqA56yDPdk4/U5zH+4CHcCyXDgYIZ2oi0MLXCjqSE=;
-        b=cyi26SgaxvPu4gDB7H3ExpqrMG6SUJAxzQYYnOkUNTOqLWwp9EnhkJhvKbr4tDByzQ
-         NQF7sJM7f0OalBvXhydVi79Hv/oAOXBR8Z6fPAB9vOTwHZVtfmWftsSwneVQTx6P8fgq
-         Vi0ZDOfblT2Oix8E/CWmS0VJZvDQXdFixXlHYeHhBzvWhiZt5G9wsMuwcxb++COklpCY
-         mooX/1pF2+vUgYBJ3d6cF3oLM7jh2MRpJTJSBZBGK+rLWBvZwIcR5cgtD8YUzMDFnRMu
-         e7tHLUfEHwMcHbcNsxi5myumiHtw7t1H5Ak1v9zSliigtnCAm4f9Z3mBn2rwER+zO+/+
-         c+Nw==
-X-Gm-Message-State: AOAM53107wit+xOk+d3v4mEogUCR2cknnPOjyg1Nd+htveTIkB2evt9C
-        C63hNLM+0P4SobozyjpiyqE2WdrAUxlSvuM672wWWw==
-X-Google-Smtp-Source: ABdhPJzM6ThjE9fb1jBuOnaTRvStJ0J72a1wwy0FvBkYR9v9S0zmF+mqndMBqw+OLDevQiB5qKGoueX9OBCB41euCZc=
-X-Received: by 2002:a17:902:6acb:b0:142:76c3:d35f with SMTP id
- i11-20020a1709026acb00b0014276c3d35fmr89560721plt.89.1639321392929; Sun, 12
- Dec 2021 07:03:12 -0800 (PST)
-MIME-Version: 1.0
-References: <20211209063828.18944-1-hch@lst.de> <20211209063828.18944-6-hch@lst.de>
-In-Reply-To: <20211209063828.18944-6-hch@lst.de>
-From:   Dan Williams <dan.j.williams@intel.com>
-Date:   Sun, 12 Dec 2021 07:03:02 -0800
-Message-ID: <CAPcyv4gYXqbNRLkM4zJUq=sZuw4h_T+BSTXmESXc8juiWijKbQ@mail.gmail.com>
-Subject: Re: [PATCH 5/5] dax: always use _copy_mc_to_iter in dax_copy_to_iter
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Alasdair Kergon <agk@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Ira Weiny <ira.weiny@intel.com>,
+        id S231722AbhLLUuo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 12 Dec 2021 15:50:44 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:59282 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231532AbhLLUuo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 12 Dec 2021 15:50:44 -0500
+From:   Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1639342242;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=w3giibguzthIGHYHZS8eAHBYfn6QZq1ks3+DemGTi2A=;
+        b=oLGM0fJWooQOY1C0QcNqNUf1Nt9JIwFQ/JkKPqr2NcAAgY0Ia2UAOsHWXbkqrxD5dGI9Bj
+        wSuaWdPSIWfyBnVpV8V7URTH5aJd0ivsI1tg+96Yj8PqzajDOg8PQg3F375Mn0xleyXtXs
+        IAWGgYhPt55iHkmlj9WPhpFq1lNr2GNfn+Hq8Cbe5tT09PCd4JA5k5f1e1S7m5cNzsmRqN
+        PNzgZQNxwIfT6oxKifUC5+vze6DMYkz8my+C/uMCG+Wm2184S5HAbG4gosXtqgqMiRxutU
+        v0LibPW+tVdCOdFWlzKmvB7s9K+vQIFLmcbKyqDBjhDMPTMhuZ4ZeyMrNXAMXw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1639342242;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=w3giibguzthIGHYHZS8eAHBYfn6QZq1ks3+DemGTi2A=;
+        b=jlqj5iobosYd6KCJKJLfe1h8raKVADcf0qJ+sMUPFX8AiT7ouYDhQUAu7kEfKliB+AcapX
+        suBlA8e5xDCALdDw==
+To:     "Tian, Kevin" <kevin.tian@intel.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Cc:     "Jiang, Dave" <dave.jiang@intel.com>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Bjorn Helgaas <helgaas@kernel.org>,
+        Marc Zygnier <maz@kernel.org>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        "Dey, Megha" <megha.dey@intel.com>,
+        "Raj, Ashok" <ashok.raj@intel.com>,
+        "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jon Mason <jdmason@kudzu.us>, Allen Hubbe <allenbh@gmail.com>,
+        "linux-ntb@googlegroups.com" <linux-ntb@googlegroups.com>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        Matthew Wilcox <willy@infradead.org>,
-        device-mapper development <dm-devel@redhat.com>,
-        Linux NVDIMM <nvdimm@lists.linux.dev>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        virtualization@lists.linux-foundation.org
-Content-Type: text/plain; charset="UTF-8"
+        "x86@kernel.org" <x86@kernel.org>, "Rodel, Jorg" <jroedel@suse.de>,
+        "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>
+Subject: RE: [patch 21/32] NTB/msi: Convert to msi_on_each_desc()
+In-Reply-To: <BL1PR11MB5271BFC6B2218CF7E9151EE88C739@BL1PR11MB5271.namprd11.prod.outlook.com>
+References: <f4cc305b-a329-6d27-9fca-b74ebc9fa0c1@intel.com>
+ <878rx480fk.ffs@tglx>
+ <BN9PR11MB52765F2EF8420C60FD5945D18C709@BN9PR11MB5276.namprd11.prod.outlook.com>
+ <87sfv2yy19.ffs@tglx> <20211209162129.GS6385@nvidia.com>
+ <878rwtzfh1.ffs@tglx> <20211209205835.GZ6385@nvidia.com>
+ <8735n1zaz3.ffs@tglx> <87sfv1xq3b.ffs@tglx>
+ <BN9PR11MB527619B099061B3814EB40408C719@BN9PR11MB5276.namprd11.prod.outlook.com>
+ <20211210123938.GF6385@nvidia.com>
+ <BN9PR11MB5276B2584F928B4BFD4573428C729@BN9PR11MB5276.namprd11.prod.outlook.com>
+ <87lf0qvfze.ffs@tglx>
+ <BL1PR11MB5271BFC6B2218CF7E9151EE88C739@BL1PR11MB5271.namprd11.prod.outlook.com>
+Date:   Sun, 12 Dec 2021 21:50:41 +0100
+Message-ID: <87ilvtv97i.ffs@tglx>
+MIME-Version: 1.0
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Dec 8, 2021 at 10:38 PM Christoph Hellwig <hch@lst.de> wrote:
+Kevin,
+
+On Sun, Dec 12 2021 at 02:14, Kevin Tian wrote:
+>> From: Thomas Gleixner <tglx@linutronix.de>
+> I just continue the thought practice along that direction to see what
+> the host flow will be like (step by step). Looking at the current 
+> implementation is just one necessary step in my thought practice to 
+> help refine the picture. When I found something which may be 
+> worth being aligned then I shared to avoid follow a wrong direction 
+> too far.
 >
-> While using the MC-safe copy routines is rather pointless on a virtual device
-> like virtiofs, it also isn't harmful at all.  So just use _copy_mc_to_iter
-> unconditionally to simplify the code.
+> If both of your think it simply adds noise to this discussion, I can
+> surely hold back and focus on 'concept' only.
 
-From a correctness perspective, yes, but from a performance perspective, see:
+All good. We _want_ your participartion for sure. Comparing and
+contrasting it to the existing flow is fine.
 
-enable_copy_mc_fragile()
+Thanks,
 
-...on those platforms fast-string copy implementation is replaced with
-a manual unrolled copy. So this will cause a performance regression on
-those platforms.
-
-How about let's keep this as is / still only use it for PMEM where end
-users are already dealing with the performance difference across
-platforms? I considered exporting an indicator of which backend
-routine has been selected from arch/x86/lib/copy_mc.c, but it got
-messy quickly so I fell back to just keeping the status quo.
+        tglx
