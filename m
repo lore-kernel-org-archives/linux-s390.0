@@ -2,55 +2,54 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FA89C433EF
-	for <linux-s390@archiver.kernel.org>; Sun, 12 Dec 2021 14:22:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 04E91C433EF
+	for <linux-s390@archiver.kernel.org>; Sun, 12 Dec 2021 14:23:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231394AbhLLOWb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 12 Dec 2021 09:22:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40092 "EHLO
+        id S231386AbhLLOXx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 12 Dec 2021 09:23:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231392AbhLLOWb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 12 Dec 2021 09:22:31 -0500
-Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFC65C061714
-        for <linux-s390@vger.kernel.org>; Sun, 12 Dec 2021 06:22:30 -0800 (PST)
-Received: by mail-pf1-x42f.google.com with SMTP id x131so12709852pfc.12
-        for <linux-s390@vger.kernel.org>; Sun, 12 Dec 2021 06:22:30 -0800 (PST)
+        with ESMTP id S231383AbhLLOXw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 12 Dec 2021 09:23:52 -0500
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94386C061751
+        for <linux-s390@vger.kernel.org>; Sun, 12 Dec 2021 06:23:52 -0800 (PST)
+Received: by mail-pj1-x1032.google.com with SMTP id gf14-20020a17090ac7ce00b001a7a2a0b5c3so12814911pjb.5
+        for <linux-s390@vger.kernel.org>; Sun, 12 Dec 2021 06:23:52 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=intel-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=DZjYIL5Meh9WPTLeEH+cczxaNrQ4dGhT95FlbuKwOdM=;
-        b=InloMfMHit9I2BP2ZAxscR4m8S0WqeQXb/3EdrF9Humvvh2KWl+DC597jSlAGabELB
-         DKTerSvnwB6GzWYotS0B9i033X/RFINibj/zOD0xrbstT+NhnIidusj/k7Ta2k1KwAr+
-         EG4TvrpQJgRKRNS+j8HgfWmKEn0+BAHbJ+kjXAkWBw/H2S7Ll4HSeVLamvPnZ0Gv8yyl
-         TLlpEyqP9KcyM139lWFcqovUaohDL62uyQPIquf1zd1gLEhLHxB1hln6xdDrM6LbhG63
-         WHJWWDnlHRBcfJYMi86Gvpdgy5byWgeSLzaPT/b6VuOcGwSqgKTbI7648s4ZDB3zrsX3
-         7FTA==
+        bh=8lwwZWzMg5a3s7lwMASlg5tu9b+fzGmp/D7TMwKxKFc=;
+        b=C1VDazYvOsHerGRum3UpDemvC3bLBABNz77cgqTNDNW/AlDRjmxr+knCqOb3lbM8WO
+         nCuRMxTi17hjy2mfZFS6DLg1CC+TyYg8zaU2aBeKKFky3Rcsp4/9vOZKTntOjByb+hJ5
+         0z6NFJU2SLN62ZWqorLtNFaHccHYM1JZ7Mu2yHUUiPrzmD1llDNRqRtKoHw0vprZZn1C
+         nm6MqHIyalByp/KuSOcHH4nPAdw2l3b13tMdWhLdbsNZfg7ms1Wl3ArmPz5baUq43ARi
+         V4c990kOWIh9SL0yrCBDZ7oIc/+hdYouELCNB6m6IMhS2kuwbJLs9VZytg0tPw2o9EEM
+         7w2g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=DZjYIL5Meh9WPTLeEH+cczxaNrQ4dGhT95FlbuKwOdM=;
-        b=QiwZLQeSDpTg3Zzcv2peQAFdj+1Y+V2qWGro6aQd0om5zorM03s+ozpZep9I/AD3rs
-         jp5npOER0kVgtWaCD0oZ+7wZTCpsqujCuIJ/r4IwCdFTvUYZ7StUSLJBw4ejmTjjswDM
-         QtfBwjGo2BikxfXFcp1vYjJ9D0azpszzCIt1anbU5Xf8C/OaihfA4bWe+wJKNYHfLBA6
-         Dqw0naQNkEb2V8InpeCotDC4QMrZtYFv33/giVrjPoY+FxYaWzGVdcEIDzMB41PPNCRT
-         /jc8n63nEAdGa+CA+fxBGZtc4U5kGZZFwc/PW+KccS5tqiiWGYLmvq386q1PZfce1/PB
-         7F/g==
-X-Gm-Message-State: AOAM530munqr4TJ/5YrgWrq3oWOvMnIF3W7j7YYUc6x11fnPZTHOp8Mv
-        OguveByy0JjUaQmhkhFJFsHHSiqFpv+0GnXp7cXQoQ==
-X-Google-Smtp-Source: ABdhPJyxbhOi5AL5eM6jiu7484TwbdU5pKz4nFxYJvBebbsi3mSjMdfP5DTSAeCbzo51p2wcGaag8JGjamOTAXCXkd0=
-X-Received: by 2002:a62:7ec4:0:b0:4a3:219b:7008 with SMTP id
- z187-20020a627ec4000000b004a3219b7008mr28747585pfc.3.1639318950463; Sun, 12
- Dec 2021 06:22:30 -0800 (PST)
+        bh=8lwwZWzMg5a3s7lwMASlg5tu9b+fzGmp/D7TMwKxKFc=;
+        b=wmxznaLO84IHXsf+L0qLAby2vT3cwPZTQpcJ+IR63Cilx9YxJSSpaFcfe22znNWnEa
+         apAFp895tztDZnuKGw8F1iw3M6B4E8rfYey84oln0poakIJW+bazs5jAPOEc/U+rC6M7
+         fgVerbCwVcbDJ4Wn+mRXsD8/ffsvm+LUz42vi2Sfxzown7WtQVsb00QmDNegNi+faS2b
+         lj6l/7DP12b/uymLiSArKRnKOZRmcX/qw0c8wk3GbSzr31vhDifdWG0+aued5fJXv5S2
+         AoZelU0+5ZNp2b4/yAhCcnrc3ZjS4y844Rwh9iYYdDOl6Q0rw8gWKFeYOPG03DPPnEfg
+         Iv9Q==
+X-Gm-Message-State: AOAM532K2rfrDsUUoq2Z6ClUw+x5uik43DftCrME8xMhmEcAN/pjHN3a
+        eQqcz3RCe0lbQ9I4FUgQW2DPeqNpbMjTghusiBCllg==
+X-Google-Smtp-Source: ABdhPJwD+M0MBopqkFuJGa9sgfSVBzZnNozNDZqwXOq1RFaO0zbunOMva9BpA++y2ooxKRxQrM2G01fpVQgDA3WnFR8=
+X-Received: by 2002:a17:90b:1e49:: with SMTP id pi9mr38028565pjb.220.1639319032132;
+ Sun, 12 Dec 2021 06:23:52 -0800 (PST)
 MIME-Version: 1.0
-References: <20211209063828.18944-1-hch@lst.de> <20211209063828.18944-2-hch@lst.de>
-In-Reply-To: <20211209063828.18944-2-hch@lst.de>
+References: <20211209063828.18944-1-hch@lst.de> <20211209063828.18944-3-hch@lst.de>
+In-Reply-To: <20211209063828.18944-3-hch@lst.de>
 From:   Dan Williams <dan.j.williams@intel.com>
-Date:   Sun, 12 Dec 2021 06:22:20 -0800
-Message-ID: <CAPcyv4gwfVi389e+cES=E6O13+y36OffZPCe+iZguCT_gpjmZA@mail.gmail.com>
-Subject: Re: [PATCH 1/5] uio: remove copy_from_iter_flushcache() and copy_mc_to_iter()
+Date:   Sun, 12 Dec 2021 06:23:41 -0800
+Message-ID: <CAPcyv4gZvE69C8wCukFGgFLqzD49U8Wn8X4F9N6RmMFebgyqzg@mail.gmail.com>
+Subject: Re: [PATCH 2/5] dax: simplify dax_synchronous and set_dax_synchronous
 To:     Christoph Hellwig <hch@lst.de>
 Cc:     Vishal Verma <vishal.l.verma@intel.com>,
         Dave Jiang <dave.jiang@intel.com>,
@@ -76,75 +75,68 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 On Wed, Dec 8, 2021 at 10:38 PM Christoph Hellwig <hch@lst.de> wrote:
 >
-> These two wrappers are never used.
+> Remove the pointless wrappers.
 >
 > Signed-off-by: Christoph Hellwig <hch@lst.de>
+
+Looks good, not sure why those ever existed.
+
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+
 > ---
->  drivers/nvdimm/pmem.c |  4 ++--
->  include/linux/uio.h   | 20 +-------------------
->  2 files changed, 3 insertions(+), 21 deletions(-)
+>  drivers/dax/super.c |  8 ++++----
+>  include/linux/dax.h | 12 ++----------
+>  2 files changed, 6 insertions(+), 14 deletions(-)
 >
-> diff --git a/drivers/nvdimm/pmem.c b/drivers/nvdimm/pmem.c
-> index 4190c8c46ca88..8294f1c701baa 100644
-> --- a/drivers/nvdimm/pmem.c
-> +++ b/drivers/nvdimm/pmem.c
-> @@ -302,8 +302,8 @@ static long pmem_dax_direct_access(struct dax_device *dax_dev,
+> diff --git a/drivers/dax/super.c b/drivers/dax/super.c
+> index e7152a6c4cc40..e18155f43a635 100644
+> --- a/drivers/dax/super.c
+> +++ b/drivers/dax/super.c
+> @@ -208,17 +208,17 @@ bool dax_write_cache_enabled(struct dax_device *dax_dev)
 >  }
+>  EXPORT_SYMBOL_GPL(dax_write_cache_enabled);
 >
->  /*
-> - * Use the 'no check' versions of copy_from_iter_flushcache() and
-> - * copy_mc_to_iter() to bypass HARDENED_USERCOPY overhead. Bounds
-> + * Use the 'no check' versions of _copy_from_iter_flushcache() and
-> + * _copy_mc_to_iter() to bypass HARDENED_USERCOPY overhead. Bounds
->   * checking, both file offset and device offset, is handled by
->   * dax_iomap_actor()
->   */
-
-This comment change does not make sense since it is saying why pmem is
-using the "_" versions. However, I assume this whole comment goes away
-in a later patch.
-
-> diff --git a/include/linux/uio.h b/include/linux/uio.h
-> index 6350354f97e90..494d552c1d663 100644
-> --- a/include/linux/uio.h
-> +++ b/include/linux/uio.h
-> @@ -196,7 +196,7 @@ bool copy_from_iter_full_nocache(void *addr, size_t bytes, struct iov_iter *i)
->  #ifdef CONFIG_ARCH_HAS_UACCESS_FLUSHCACHE
->  /*
->   * Note, users like pmem that depend on the stricter semantics of
-> - * copy_from_iter_flushcache() than copy_from_iter_nocache() must check for
-> + * _copy_from_iter_flushcache() than _copy_from_iter_nocache() must check for
->   * IS_ENABLED(CONFIG_ARCH_HAS_UACCESS_FLUSHCACHE) before assuming that the
->   * destination is flushed from the cache on return.
->   */
-
-Same here.
-
-> @@ -211,24 +211,6 @@ size_t _copy_mc_to_iter(const void *addr, size_t bytes, struct iov_iter *i);
->  #define _copy_mc_to_iter _copy_to_iter
->  #endif
+> -bool __dax_synchronous(struct dax_device *dax_dev)
+> +bool dax_synchronous(struct dax_device *dax_dev)
+>  {
+>         return test_bit(DAXDEV_SYNC, &dax_dev->flags);
+>  }
+> -EXPORT_SYMBOL_GPL(__dax_synchronous);
+> +EXPORT_SYMBOL_GPL(dax_synchronous);
 >
-> -static __always_inline __must_check
-> -size_t copy_from_iter_flushcache(void *addr, size_t bytes, struct iov_iter *i)
+> -void __set_dax_synchronous(struct dax_device *dax_dev)
+> +void set_dax_synchronous(struct dax_device *dax_dev)
+>  {
+>         set_bit(DAXDEV_SYNC, &dax_dev->flags);
+>  }
+> -EXPORT_SYMBOL_GPL(__set_dax_synchronous);
+> +EXPORT_SYMBOL_GPL(set_dax_synchronous);
+>
+>  bool dax_alive(struct dax_device *dax_dev)
+>  {
+> diff --git a/include/linux/dax.h b/include/linux/dax.h
+> index 87ae4c9b1d65b..3bd1fdb5d5f4b 100644
+> --- a/include/linux/dax.h
+> +++ b/include/linux/dax.h
+> @@ -48,16 +48,8 @@ void put_dax(struct dax_device *dax_dev);
+>  void kill_dax(struct dax_device *dax_dev);
+>  void dax_write_cache(struct dax_device *dax_dev, bool wc);
+>  bool dax_write_cache_enabled(struct dax_device *dax_dev);
+> -bool __dax_synchronous(struct dax_device *dax_dev);
+> -static inline bool dax_synchronous(struct dax_device *dax_dev)
 > -{
-> -       if (unlikely(!check_copy_size(addr, bytes, false)))
-> -               return 0;
-> -       else
-> -               return _copy_from_iter_flushcache(addr, bytes, i);
+> -       return  __dax_synchronous(dax_dev);
 > -}
-> -
-> -static __always_inline __must_check
-> -size_t copy_mc_to_iter(void *addr, size_t bytes, struct iov_iter *i)
+> -void __set_dax_synchronous(struct dax_device *dax_dev);
+> -static inline void set_dax_synchronous(struct dax_device *dax_dev)
 > -{
-> -       if (unlikely(!check_copy_size(addr, bytes, true)))
-> -               return 0;
-> -       else
-> -               return _copy_mc_to_iter(addr, bytes, i);
+> -       __set_dax_synchronous(dax_dev);
 > -}
-> -
->  size_t iov_iter_zero(size_t bytes, struct iov_iter *);
->  unsigned long iov_iter_alignment(const struct iov_iter *i);
->  unsigned long iov_iter_gap_alignment(const struct iov_iter *i);
+> +bool dax_synchronous(struct dax_device *dax_dev);
+> +void set_dax_synchronous(struct dax_device *dax_dev);
+>  /*
+>   * Check if given mapping is supported by the file / underlying device.
+>   */
 > --
 > 2.30.2
 >
