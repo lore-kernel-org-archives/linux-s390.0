@@ -2,134 +2,193 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 32947C433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 13 Dec 2021 16:11:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AC88C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 13 Dec 2021 16:17:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240483AbhLMQLP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 13 Dec 2021 11:11:15 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:32574 "EHLO
+        id S240618AbhLMQR6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 13 Dec 2021 11:17:58 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:40936 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236838AbhLMQLO (ORCPT
+        by vger.kernel.org with ESMTP id S240607AbhLMQR5 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 13 Dec 2021 11:11:14 -0500
+        Mon, 13 Dec 2021 11:17:57 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1639411873;
+        s=mimecast20190719; t=1639412276;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=kxYrzFZ5aQZcKiNKGplZGCKDDpbz86OviVlYCbHfgJI=;
-        b=dnSl93OrH9B0gxCc9yU3sv5pTZJN03almxo8hGcXoQ8hiZMBMgVRXmpyZeoqioU38Yc8T1
-        fUTFN5qyGGIfljzMF+bP0efeU7gHl/s8bibIWx7udg0yduVb7mCG4BULv2PMHScpNR1w4W
-        nIkaS2uSGIT2i4jQ5MeaFpX9h67QStg=
+        bh=Zgm1TTb9mRYOZNW01H/VVMVpM00k6pLnOlu/2f/Ro58=;
+        b=WnmaUglzoLzdxuZ96EwWe7IZtxLCvK2wo4qW3SyU1tIFUhQ7+FTLvLXYT4AVfwkluHm8so
+        03t7+oOMiBDm5QL1RITfDeJhJWUe1PgVY93/VIQyWFGzu18V1LkMsVx8+ViTaxiAMdKxyE
+        JiEkqb04btwbSIy0IcZCoxUFuF3zlQQ=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-598-M7kOco1jPqi7Bew0bBlfBw-1; Mon, 13 Dec 2021 11:11:10 -0500
-X-MC-Unique: M7kOco1jPqi7Bew0bBlfBw-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+ us-mta-56-Xi8VqCsjNuuM18ClmLa9mw-1; Mon, 13 Dec 2021 11:17:53 -0500
+X-MC-Unique: Xi8VqCsjNuuM18ClmLa9mw-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C996185EE69;
-        Mon, 13 Dec 2021 16:11:08 +0000 (UTC)
-Received: from localhost (unknown [10.39.193.174])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 6A106ADCB;
-        Mon, 13 Dec 2021 16:11:08 +0000 (UTC)
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Harald Freudenberger <freude@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>, linux-s390@vger.kernel.org,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>
-Cc:     linux-kernel@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: Re: [RFC PATCH] s390: vfio-ap: Register the vfio_ap module for the
- "ap" parent bus
-In-Reply-To: <8512bb0a-a34a-09b0-65f3-781f3d092364@linux.ibm.com>
-Organization: Red Hat GmbH
-References: <20211201141110.94636-1-thuth@redhat.com>
- <8512bb0a-a34a-09b0-65f3-781f3d092364@linux.ibm.com>
-User-Agent: Notmuch/0.34 (https://notmuchmail.org)
-Date:   Mon, 13 Dec 2021 17:11:06 +0100
-Message-ID: <87k0g8scx1.fsf@redhat.com>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B8D261015DA0;
+        Mon, 13 Dec 2021 16:17:51 +0000 (UTC)
+Received: from horse.redhat.com (unknown [10.22.17.75])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 5A17260C9F;
+        Mon, 13 Dec 2021 16:17:50 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+        id D90BB2209DD; Mon, 13 Dec 2021 11:17:49 -0500 (EST)
+Date:   Mon, 13 Dec 2021 11:17:49 -0500
+From:   Vivek Goyal <vgoyal@redhat.com>
+To:     Dan Williams <dan.j.williams@intel.com>
+Cc:     Christoph Hellwig <hch@lst.de>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Alasdair Kergon <agk@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        Miklos Szeredi <miklos@szeredi.hu>,
+        Matthew Wilcox <willy@infradead.org>,
+        device-mapper development <dm-devel@redhat.com>,
+        Linux NVDIMM <nvdimm@lists.linux.dev>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        virtualization@lists.linux-foundation.org,
+        "Dr. David Alan Gilbert" <dgilbert@redhat.com>
+Subject: Re: [PATCH 4/5] dax: remove the copy_from_iter and copy_to_iter
+ methods
+Message-ID: <YbdyLc+V1xyp8sc5@redhat.com>
+References: <20211209063828.18944-1-hch@lst.de>
+ <20211209063828.18944-5-hch@lst.de>
+ <YbNhPXBg7G/ridkV@redhat.com>
+ <CAPcyv4g4_yFqDeS+pnAZOxcB=Ua+iArK5mqn0iMG4PX6oL=F_A@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAPcyv4g4_yFqDeS+pnAZOxcB=Ua+iArK5mqn0iMG4PX6oL=F_A@mail.gmail.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Dec 13 2021, Harald Freudenberger <freude@linux.ibm.com> wrote:
+On Sun, Dec 12, 2021 at 06:44:26AM -0800, Dan Williams wrote:
+> On Fri, Dec 10, 2021 at 6:17 AM Vivek Goyal <vgoyal@redhat.com> wrote:
+> >
+> > On Thu, Dec 09, 2021 at 07:38:27AM +0100, Christoph Hellwig wrote:
+> > > These methods indirect the actual DAX read/write path.  In the end pmem
+> > > uses magic flush and mc safe variants and fuse and dcssblk use plain ones
+> > > while device mapper picks redirects to the underlying device.
+> > >
+> > > Add set_dax_virtual() and set_dax_nomcsafe() APIs for fuse to skip these
+> > > special variants, then use them everywhere as they fall back to the plain
+> > > ones on s390 anyway and remove an indirect call from the read/write path
+> > > as well as a lot of boilerplate code.
+> > >
+> > > Signed-off-by: Christoph Hellwig <hch@lst.de>
+> > > ---
+> > >  drivers/dax/super.c           | 36 ++++++++++++++--
+> > >  drivers/md/dm-linear.c        | 20 ---------
+> > >  drivers/md/dm-log-writes.c    | 80 -----------------------------------
+> > >  drivers/md/dm-stripe.c        | 20 ---------
+> > >  drivers/md/dm.c               | 50 ----------------------
+> > >  drivers/nvdimm/pmem.c         | 20 ---------
+> > >  drivers/s390/block/dcssblk.c  | 14 ------
+> > >  fs/dax.c                      |  5 ---
+> > >  fs/fuse/virtio_fs.c           | 19 +--------
+> > >  include/linux/dax.h           |  9 ++--
+> > >  include/linux/device-mapper.h |  4 --
+> > >  11 files changed, 37 insertions(+), 240 deletions(-)
+> > >
+> >
+> > [..]
+> > > diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+> > > index 5c03a0364a9bb..754319ce2a29b 100644
+> > > --- a/fs/fuse/virtio_fs.c
+> > > +++ b/fs/fuse/virtio_fs.c
+> > > @@ -753,20 +753,6 @@ static long virtio_fs_direct_access(struct dax_device *dax_dev, pgoff_t pgoff,
+> > >       return nr_pages > max_nr_pages ? max_nr_pages : nr_pages;
+> > >  }
+> > >
+> > > -static size_t virtio_fs_copy_from_iter(struct dax_device *dax_dev,
+> > > -                                    pgoff_t pgoff, void *addr,
+> > > -                                    size_t bytes, struct iov_iter *i)
+> > > -{
+> > > -     return copy_from_iter(addr, bytes, i);
+> > > -}
+> > > -
+> > > -static size_t virtio_fs_copy_to_iter(struct dax_device *dax_dev,
+> > > -                                    pgoff_t pgoff, void *addr,
+> > > -                                    size_t bytes, struct iov_iter *i)
+> > > -{
+> > > -     return copy_to_iter(addr, bytes, i);
+> > > -}
+> > > -
+> > >  static int virtio_fs_zero_page_range(struct dax_device *dax_dev,
+> > >                                    pgoff_t pgoff, size_t nr_pages)
+> > >  {
+> > > @@ -783,8 +769,6 @@ static int virtio_fs_zero_page_range(struct dax_device *dax_dev,
+> > >
+> > >  static const struct dax_operations virtio_fs_dax_ops = {
+> > >       .direct_access = virtio_fs_direct_access,
+> > > -     .copy_from_iter = virtio_fs_copy_from_iter,
+> > > -     .copy_to_iter = virtio_fs_copy_to_iter,
+> > >       .zero_page_range = virtio_fs_zero_page_range,
+> > >  };
+> > >
+> > > @@ -853,7 +837,8 @@ static int virtio_fs_setup_dax(struct virtio_device *vdev, struct virtio_fs *fs)
+> > >       fs->dax_dev = alloc_dax(fs, &virtio_fs_dax_ops);
+> > >       if (IS_ERR(fs->dax_dev))
+> > >               return PTR_ERR(fs->dax_dev);
+> > > -
+> > > +     set_dax_cached(fs->dax_dev);
+> >
+> > Looks good to me from virtiofs point of view.
+> >
+> > Reviewed-by: Vivek Goyal <vgoyal@redhat.com>
+> >
+> > Going forward, I am wondering should virtiofs use flushcache version as
+> > well. What if host filesystem is using DAX and mapping persistent memory
+> > pfn directly into qemu address space. I have never tested that.
+> >
+> > Right now we are relying on applications to do fsync/msync on virtiofs
+> > for data persistence.
+> 
+> This sounds like it would need coordination with a paravirtualized
+> driver that can indicate whether the host side is pmem or not, like
+> the virtio_pmem driver.
 
-> On 01.12.21 15:11, Thomas Huth wrote:
->> The crypto devices that we can use with the vfio_ap module are sitting
->> on the "ap" bus, not on the "vfio_ap" bus that the module defines
->> itself. With this change, the vfio_ap module now gets automatically
->> loaded if a supported crypto adapter is available in the host.
->>
->> Signed-off-by: Thomas Huth <thuth@redhat.com>
->> ---
->>  Note: Marked as "RFC" since I'm not 100% sure about it ...
->>        please review carefully!
->>
->>  drivers/s390/crypto/vfio_ap_drv.c | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfi=
-o_ap_drv.c
->> index 4d2556bc7fe5..5580e40608a4 100644
->> --- a/drivers/s390/crypto/vfio_ap_drv.c
->> +++ b/drivers/s390/crypto/vfio_ap_drv.c
->> @@ -39,7 +39,7 @@ static struct ap_device_id ap_queue_ids[] =3D {
->>  	{ /* end of sibling */ },
->>  };
->>=20=20
->> -MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
->> +MODULE_DEVICE_TABLE(ap, ap_queue_ids);
->>=20=20
->>  /**
->>   * vfio_ap_queue_dev_probe:
-> I had a chance to check this now.
-> First I have to apologize about the dispute with vfio devices appearing o=
-n the ap bus.
-> That's not the case with this patch. As Connie states the MODULE_DEVICE_T=
-ABLE() does not
-> change the parent of a device and vfio_ap_drv is a driver for ap devices =
-and thus
-> belongs to the ap bus anyway.
-> So what's left is that with this change the vfio_ap kernel module is auto=
-matically loaded
-> when an ap device type 10-13 is recognized by the ap bus. So the intentio=
-n of the patch
-> is fulfilled.
-> Yet another kernel module which may occupy memory but will never get used=
- by most customers.
-> This may not be a problem but I had a glance at the list of kernel module=
-s loaded on my
-> LPAR with and without the patch and the difference is:
-> ...
-> kvm=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 512000=C2=A0 1 vfio_ap
-> vfio_ap=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0 28672=C2=A0 0
-> ...
-> So the vfio_ap module has a dependency to the biggest kernel module ever =
-- kvm.
-> Do I need to say something more?
->
-> If this dependency is removed then I would not hesitate to accept this pa=
-tch. However
-> this is up to Tony as he is the maintainer of the vfio ap device driver.
+Agreed. Let me check the details of virtio_pmem driver.
 
-I don't think you can drop the kvm reference, as the code in vfio-ap
-obviously depends on it...
+> However, if the guest sends any fsync/msync
+> you would still need to go explicitly cache flush any dirty page
+> because you can't necessarily trust that the guest did that already.
 
-One possibility is simply blocking autoload of the module in userspace by
-default, and only allow it to be loaded automatically when e.g. qemu-kvm
-is installed on the system. This is obviously something that needs to be
-decided by the distros.
+So host dax functionality will already take care of that, IIUC, right?
+I see a dax_flush() call in dax_writeback_one(). I am assuming that's
+the will take care of flushing dirty pages when guest issues
+fsync()/msync(). So probably don't have to do anything extra here.
 
-(kvm might actually be autoloaded already, so autoloading vfio-ap would
-not really make it worse.)
+I think qemu should map files using MAP_SYNC though in this case though.
+Any read/writes to virtiofs files will turn into host file load/store
+operations. So flushcache in guest makes more sense with MAP_SYNC which
+should make sure any filesystem metadata will already persist after
+fault completion. And later guest can do writes followed by flush and
+ensure data persists too.
+
+IOW, I probably only need to do following.
+
+- In virtiofs virtual device, add a notion of kind of dax window or memory
+  it supports. So may be some kind of "writethrough" property of virtiofs
+  dax cache.
+
+- Use this property in virtiofs driver to decide whether to use 
+  plain copy_from_iter() or _copy_from_iter_flushcache().
+
+- qemu should use mmap(MAP_SYNC) if host filesystem is on persistent
+  memory.
+
+Thanks
+Vivek
 
