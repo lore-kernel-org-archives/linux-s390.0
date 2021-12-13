@@ -2,105 +2,140 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 48D0FC433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 13 Dec 2021 13:42:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B972C433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 13 Dec 2021 14:26:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237716AbhLMNmn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 13 Dec 2021 08:42:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56778 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231224AbhLMNmn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Dec 2021 08:42:43 -0500
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF694C061574;
-        Mon, 13 Dec 2021 05:42:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=fzITg/C3AS/xrQ0JoO9TDJsVEk/WX7/81xritNYAsiM=; b=a3g9gHu2+gfYdV7A698je03RQW
-        U3hQDkE6nmLgCdzcacomQPwTyfAEMg8EbiUnwbA1r+G4w8GHzmG8bNzGWm2Rgyjx9S+vaB16ho13J
-        MBXtE5Eff2mDxmDJbd6xqqnH7MwRUvVuVklLEUvtBiPT65P70G52RhCfNikNrZq5ZJmsWDgoJpPOP
-        4YmjK9Hi7l10AaGPO1KGlUoO9AG7xxU8D/EDx0Df2lyTnEwsf2CcXYWVAKMCckHCOcbSxS32XjJHa
-        4wkLpX0pKi302peWLolD9n7Eh/yWFkQwWRfa+CX9u6JEaTdy0NYxiuUi195i7pDy+KCmTD8K6PZUB
-        1krsfYVw==;
-Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1mwlb8-00CpkO-IA; Mon, 13 Dec 2021 13:42:34 +0000
-Date:   Mon, 13 Dec 2021 13:42:34 +0000
-From:   Matthew Wilcox <willy@infradead.org>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Baoquan He <bhe@redhat.com>, Vivek Goyal <vgoyal@redhat.com>,
-        Dave Young <dyoung@redhat.com>, kexec@lists.infradead.org,
-        Tiezhu Yang <yangtiezhu@loongson.cn>,
-        linux-kernel@vger.kernel.org,
-        Amit Daniel Kachhap <amit.kachhap@arm.com>,
-        linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 3/3] vmcore: Convert read_from_oldmem() to take an
- iov_iter
-Message-ID: <YbdNyjqSugLqsEXN@casper.infradead.org>
-References: <20211213000636.2932569-1-willy@infradead.org>
- <20211213000636.2932569-4-willy@infradead.org>
- <20211213080257.GC20986@lst.de>
+        id S233657AbhLMO0D (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 13 Dec 2021 09:26:03 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:44310 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S232951AbhLMO0C (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 13 Dec 2021 09:26:02 -0500
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1BDCsVKM025467;
+        Mon, 13 Dec 2021 14:26:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=kibr89ov/HcgTKiY9mPYgwz1IUarjRNnXOw00C1Q+xA=;
+ b=MlZgTPY7Y1bxDR90LEiG0I1r1RQWhGHrUUqIbYkb3XeNXrO9HEppMDSCILY4ISA+Bjn3
+ k2pqyh6k+tpU8B+EsYDLEDFcQCXwhJ9nq+xF94gPR3v0P4lONr0UVHiC0+/5O4lj2QWJ
+ trNq/lhdQ1qDHWWRwyZ+mithSxwwf26EBqB7mr58vmPZymMY1nwCJxOvVoonjZ07QXRW
+ KTKDR/8eAiXkjQPB67Yv6pjRld2keOjlT+7hgCHkD1FG8YvS2O9qPO8F6QvgEWp6h8qn
+ t+axD3n3ujRpYTOtrY4t9/1+0mer5Ysly196uVexdFiOlMhNW28LGbilC8eO17ZLRzS4 Rg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3cx5cqc02x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 13 Dec 2021 14:26:00 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1BDDqt7n030375;
+        Mon, 13 Dec 2021 14:26:00 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3cx5cqc02g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 13 Dec 2021 14:26:00 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1BDEOBb9019782;
+        Mon, 13 Dec 2021 14:25:58 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma02fra.de.ibm.com with ESMTP id 3cvkm8n154-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 13 Dec 2021 14:25:58 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1BDEI0UM46793122
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 13 Dec 2021 14:18:00 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 27D3F11C050;
+        Mon, 13 Dec 2021 14:25:55 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 64B1211C054;
+        Mon, 13 Dec 2021 14:25:54 +0000 (GMT)
+Received: from [9.171.24.181] (unknown [9.171.24.181])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 13 Dec 2021 14:25:54 +0000 (GMT)
+Message-ID: <fbc46b35-10af-2c7e-6e47-e4987070ad83@linux.ibm.com>
+Date:   Mon, 13 Dec 2021 15:26:58 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211213080257.GC20986@lst.de>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.0
+Subject: Re: [PATCH v5 1/1] s390x: KVM: accept STSI for CPU topology
+ information
+Content-Language: en-US
+To:     Heiko Carstens <hca@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, borntraeger@de.ibm.com,
+        frankja@linux.ibm.com, cohuck@redhat.com, david@redhat.com,
+        thuth@redhat.com, gor@linux.ibm.com
+References: <20211122131443.66632-1-pmorel@linux.ibm.com>
+ <20211122131443.66632-2-pmorel@linux.ibm.com>
+ <20211209133616.650491fd@p-imbrenda> <YbImqX/NEus71tZ1@osiris>
+From:   Pierre Morel <pmorel@linux.ibm.com>
+In-Reply-To: <YbImqX/NEus71tZ1@osiris>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: qsGjA7Ow13OHSb7NkX6iHBncsZ6Zj-9P
+X-Proofpoint-ORIG-GUID: ZBLa6J2wrQVR7ETyp8rRyXt89foSjxM-
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2021-12-13_06,2021-12-13_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
+ bulkscore=0 lowpriorityscore=0 impostorscore=0 mlxlogscore=999 spamscore=0
+ priorityscore=1501 phishscore=0 clxscore=1015 adultscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
+ definitions=main-2112130090
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Dec 13, 2021 at 09:02:57AM +0100, Christoph Hellwig wrote:
-> >  
-> >  ssize_t elfcorehdr_read(char *buf, size_t count, u64 *ppos)
-> >  {
-> > -	return read_from_oldmem(buf, count, ppos, 0,
-> > +	struct kvec kvec = { .iov_base = buf, .iov_len = count };
-> > +	struct iov_iter iter;
-> > +
-> > +	iov_iter_kvec(&iter, READ, &kvec, 1, count);
-> > +
-> > +	return read_from_oldmem(&iter, count, ppos,
-> >  				cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT));
-> >  }
+
+
+On 12/9/21 16:54, Heiko Carstens wrote:
+> On Thu, Dec 09, 2021 at 01:36:16PM +0100, Claudio Imbrenda wrote:
+>> On Mon, 22 Nov 2021 14:14:43 +0100
+>> Pierre Morel <pmorel@linux.ibm.com> wrote:
+>>
+>>> We let the userland hypervisor know if the machine support the CPU
+>>> topology facility using a new KVM capability: KVM_CAP_S390_CPU_TOPOLOGY.
+>>>
+>>> The PTF instruction will report a topology change if there is any change
+>>> with a previous STSI_15_1_2 SYSIB.
+>>> Changes inside a STSI_15_1_2 SYSIB occur if CPU bits are set or clear
+>>> inside the CPU Topology List Entry CPU mask field, which happens with
+>>> changes in CPU polarization, dedication, CPU types and adding or
+>>> removing CPUs in a socket.
+>>>
+>>> The reporting to the guest is done using the Multiprocessor
+>>> Topology-Change-Report (MTCR) bit of the utility entry of the guest's
+>>> SCA which will be cleared during the interpretation of PTF.
+>>>
+>>> To check if the topology has been modified we use a new field of the
+>>> arch vCPU to save the previous real CPU ID at the end of a schedule
+>>> and verify on next schedule that the CPU used is in the same socket.
+>>>
+>>> We assume in this patch:
+>>> - no polarization change: only horizontal polarization is currently
+>>>    used in linux.
 > 
-> elfcorehdr_read should probably also take an iov_iter while we're at it.
+> Why is this assumption necessary? The statement that Linux runs only
+> with horizontal polarization is not true.
+> 
 
-I don't like how that looks.  For example:
+Right, I will rephrase this as:
 
-@@ -1246,11 +1247,14 @@ static int __init parse_crash_elf64_headers(void)
-        int rc=0;
-        Elf64_Ehdr ehdr;
-        u64 addr;
-+       struct iov_iter iter;
-+       struct kvec kvec = { .iov_base = &ehdr, .iov_len = sizeof(ehdr) };
+"Polarization change is not taken into account, QEMU intercepts queries 
+for polarization change (PTF) and only provides horizontal polarization 
+indication to Guest's Linux."
 
-        addr = elfcorehdr_addr;
-
-        /* Read Elf header */
--       rc = elfcorehdr_read((char *)&ehdr, sizeof(Elf64_Ehdr), &addr);
-+       iov_iter_kvec(&iter, READ, &kvec, 1, sizeof(ehdr));
-+       rc = elfcorehdr_read(&iter, &addr);
-        if (rc < 0)
-                return rc;
-
-@@ -1277,7 +1281,10 @@ static int __init parse_crash_elf64_headers(void)
-        if (!elfcorebuf)
-                return -ENOMEM;
-        addr = elfcorehdr_addr;
--       rc = elfcorehdr_read(elfcorebuf, elfcorebuf_sz_orig, &addr);
-+       kvec.iov_base = elfcorebuf;
-+       kvec.iov_len = elfcorebuf_sz_orig;
-+       iov_iter_kvec(&iter, READ, &kvec, 1, elfcorebuf_sz_orig);
-+       rc = elfcorehdr_read(&iter, &addr);
-        if (rc < 0)
-                goto fail;
+@Heiko, I did not find any usage of the polarization in the kernel other 
+than an indication in the sysfs. Is there currently other use of the 
+polarization that I did not see?
 
 
-I don't think this makes the code clearer, and it's already pretty ugly
-code.  I'd rather leave constructing the iov_iter to elfcorehdr_read().
-(Same remarks apply to elfcorehdr_read_notes())
 
-> I also don't quite understand why we even need the arch overrides for it,
-> but that would require some digging into the history of this interface.
-
-I decided I didn't want to know ;-)
+-- 
+Pierre Morel
+IBM Lab Boeblingen
