@@ -2,154 +2,179 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EBE5CC433EF
-	for <linux-s390@archiver.kernel.org>; Sun, 12 Dec 2021 23:42:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D3834C433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 13 Dec 2021 00:06:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230084AbhLLXm5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 12 Dec 2021 18:42:57 -0500
-Received: from mail-bn8nam11on2088.outbound.protection.outlook.com ([40.107.236.88]:46304
-        "EHLO NAM11-BN8-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S229505AbhLLXm4 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 12 Dec 2021 18:42:56 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=kC3WFb3vfdZqwJyuPWsQLPwwW+cYXRfw4TQ7LlLwqCvkWOdqcKli+B1IlWCEoakrTmBA9dUl+LosyoOJk1q9kpuSiEMo4F4M3mtsz9YLWENGbOraMjuEZdKTey9+TAWgYJUUYzwUB+ESAsQwEkkqPDqkg+6riPfE3jFj2/1SluDEmSKLQe3JWFq+M4oDC1ml8YWkK/K0DfbPY2raugMQZAdE9Rg2IdDBaX4cmGGsW/lLwtf0mYI9XR+Wtmo3IUctMgNDWtikioGPvuqhYZpqxOLx2FT1LnpsmQlX6d41Q24lQmwoOTZyH/etseQjgV4N/8dQIOa4lP/pusykP2g3/A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=+0Vpovmm6vQTotSgXEnGEIiSXkUxHTSYHym39GNpzC0=;
- b=LcoIwF1vkZIRamOMXr69XHzO7kwIjYl1CfZpmsWFTT7EqZF2oE8Eti5Xu0QeNR7xJefFMFFX2/97BwwvK/B4OJzHYx7SqgEhooLJb9c0gLWaE58uAPNdtqete72FFQqtsQGf837qvF9CkabUiHEr1u7jNTBZA3Cuykudj2ouWUawyE7i4vSKuw6waEsvVj6Wt+a+2EuzQhYlG+VB7oLqe+CkcVYBmDQ8O4z1IBelUdiI2hAmQa6FxitncQ2catbtKkgSHPKA3XkvOG5hwAXWsNJQZh09frpnfAx3Bg09P3QPILH0wo2KZXYW4inSem+nEMfwH4LLvLNtHCA3FlPfqQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=+0Vpovmm6vQTotSgXEnGEIiSXkUxHTSYHym39GNpzC0=;
- b=lWgkH5QpL1PXAk12AuT7rIhE40FjZgJ0FqFtUrYyWpVkhqJqktbEAf0k8yTuiyZ1tNXNfFhxM1HQupanQ9piDk4o3ioo5o/BadmqmTa1UAjILF5eotU7Agsmiqq3v4IBQ9yy7RHvpHqM9nE617/yjxw4C22F80lzYDp0ZveSiWibJWVzFiqVFH+y11EoxiXl86Rig3qg63R/lAPRLfjwMU4egv2l0VyciC7q86dmOzPHlv7euqkBF4R23UjecXbgq0RwggMIXoWnXn8gMW4SIccLir0hT/oSO8wLOecJqoYMXa/uMmYkljtzXq3RmyjrzJnTrqKdihfT6BqrHXjC5g==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
- by BL1PR12MB5189.namprd12.prod.outlook.com (2603:10b6:208:308::20) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4778.11; Sun, 12 Dec
- 2021 23:42:53 +0000
-Received: from BL0PR12MB5506.namprd12.prod.outlook.com
- ([fe80::d8be:e4e4:ce53:6d11]) by BL0PR12MB5506.namprd12.prod.outlook.com
- ([fe80::d8be:e4e4:ce53:6d11%7]) with mapi id 15.20.4778.017; Sun, 12 Dec 2021
- 23:42:53 +0000
-Date:   Sun, 12 Dec 2021 19:42:06 -0400
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Thomas Gleixner <tglx@linutronix.de>
-Cc:     "Tian, Kevin" <kevin.tian@intel.com>,
-        "Jiang, Dave" <dave.jiang@intel.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Bjorn Helgaas <helgaas@kernel.org>,
-        Marc Zygnier <maz@kernel.org>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        "Dey, Megha" <megha.dey@intel.com>,
-        "Raj, Ashok" <ashok.raj@intel.com>,
-        "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jon Mason <jdmason@kudzu.us>, Allen Hubbe <allenbh@gmail.com>,
-        "linux-ntb@googlegroups.com" <linux-ntb@googlegroups.com>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        "x86@kernel.org" <x86@kernel.org>, Joerg Roedel <jroedel@suse.de>,
-        "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>
-Subject: Re: [patch 21/32] NTB/msi: Convert to msi_on_each_desc()
-Message-ID: <20211212234206.GO6385@nvidia.com>
-References: <87sfv2yy19.ffs@tglx>
- <20211209162129.GS6385@nvidia.com>
- <878rwtzfh1.ffs@tglx>
- <20211209205835.GZ6385@nvidia.com>
- <8735n1zaz3.ffs@tglx>
- <87sfv1xq3b.ffs@tglx>
- <BN9PR11MB527619B099061B3814EB40408C719@BN9PR11MB5276.namprd11.prod.outlook.com>
- <20211210123938.GF6385@nvidia.com>
- <BN9PR11MB5276B2584F928B4BFD4573428C729@BN9PR11MB5276.namprd11.prod.outlook.com>
- <87lf0qvfze.ffs@tglx>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87lf0qvfze.ffs@tglx>
-X-ClientProxiedBy: BYAPR06CA0026.namprd06.prod.outlook.com
- (2603:10b6:a03:d4::39) To BL0PR12MB5506.namprd12.prod.outlook.com
- (2603:10b6:208:1cb::22)
+        id S230266AbhLMAGu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 12 Dec 2021 19:06:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41012 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230206AbhLMAGt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 12 Dec 2021 19:06:49 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91BC3C06173F;
+        Sun, 12 Dec 2021 16:06:49 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
+        References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
+        Content-Type:Content-ID:Content-Description;
+        bh=2kcPCntTwKjxs8BtewFrXF8P1gkqleQIfk0SKAzJAwk=; b=mQr3499WyGyralX215DywFDBfN
+        iQSkBf+sr90e/77C2c0q0fb9vvADZHRZMveeQpFhgTFZQTDWUGYu8jlYSMa7n0kiWzstjXXkUdJXS
+        4j4tjRdYEyBRsNbQKaqREi0DhKcg6GOrQcRqqetBFgm3AtA4X6qxSADhtEp64L3VqVpN7GL9S2bBV
+        6ezTmSaRKOb6VaQy8teoC4kM10ozXsVrU05lFxZgT0SthYJMFYAekNsYej9Qsl/NKWFSBK3JE97Me
+        ksIE5s4bwM5vecpn0ZuFlqnSeWnZJ+JfjfFYxFzPx1D7gUikZQ6hjEJzg9XEcz/ladWf95trcOTjl
+        uLsIRGJg==;
+Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1mwYrW-00CIuK-Ag; Mon, 13 Dec 2021 00:06:38 +0000
+From:   "Matthew Wilcox (Oracle)" <willy@infradead.org>
+To:     Baoquan He <bhe@redhat.com>, Vivek Goyal <vgoyal@redhat.com>,
+        Dave Young <dyoung@redhat.com>, kexec@lists.infradead.org
+Cc:     "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Tiezhu Yang <yangtiezhu@loongson.cn>,
+        linux-kernel@vger.kernel.org,
+        Amit Daniel Kachhap <amit.kachhap@arm.com>,
+        Christoph Hellwig <hch@lst.de>, linux-s390@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+Subject: [PATCH 3/3] vmcore: Convert read_from_oldmem() to take an iov_iter
+Date:   Mon, 13 Dec 2021 00:06:36 +0000
+Message-Id: <20211213000636.2932569-4-willy@infradead.org>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20211213000636.2932569-1-willy@infradead.org>
+References: <20211213000636.2932569-1-willy@infradead.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 75bcb45a-5a9d-43ae-14d1-08d9bdc91dcc
-X-MS-TrafficTypeDiagnostic: BL1PR12MB5189:EE_
-X-Microsoft-Antispam-PRVS: <BL1PR12MB5189B8B297380C6843F5DC3FC2739@BL1PR12MB5189.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:7219;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: TdtI9ZGXLMjR9jAG7a3fQtI9GKIFtDXLsKgXy49L5AMR1U5BoFPjpyVR4ShcKECorIPbT4zqHydv26MtZ0Ud3eDIrjH8UbWbAppShAy0lpWTJAMrYERkr+DixQrvhm47SDhvbRfim6sHNesd6Puw1n2sMU6i7pQt1WeDDEXqIleaWQX73AgJISiIdiN10rGW12r8DcFDyBNz+AgdIq75CvOpn7+GeZsDnqm03VekZ9yiG/eNwBhl46uZvR54LfUoWAiujGyrQ9ChoSwZXBwfPlf/YJId4dPE/w1LSokFViukXd+TWF9Eya/xvC1Prs/E4ZklYs3mp/ANbcsApRawbg2MuKFWNeMcEVBI8ZvhXCKvDav0OUuj8Us4woNDyWIE+R5CN9XZOO+YtRm/yk7198/6O1ne7iaxYIl87w22pApbWZvTyXli5ouZjN4rAs8jn3hvH1rJqNq35jD7ANcWmTwxd3y+YOx3L9sCUiszmm50/Je3dijS1oSiEIXlaKHWOhGrSIgaGfWsbk6UEbj1ZI7FPGAvfBhrjFXcFGkq6ZzOitFO4H2MwhhwM7BN2K8AdEfaT6+WrZpzwvwfH8VKebcDKtRzzxH+Uh38hRGD82Rou3L2hWz+j1NS65PbHHMehgv7XSsmXId+TQvcqoWdEA==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(38100700002)(36756003)(6512007)(6486002)(2906002)(8936002)(26005)(54906003)(6506007)(2616005)(33656002)(8676002)(6666004)(66556008)(186003)(5660300002)(4744005)(86362001)(66476007)(66946007)(6916009)(83380400001)(508600001)(1076003)(7416002)(4326008)(316002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?7qs/JYJvTCIiPEhbM7KQfQcilivWDeDAZAyL9wFnOG9am2T8pfjam5qw8PNv?=
- =?us-ascii?Q?3uAiwKPOk4Zo3Nzsx1YuRyDzrI6HcakpBZua8TQd2/OsrCfanKSwMl39JMHv?=
- =?us-ascii?Q?CUKzzJf+Qhc6vuQftzPNJUsh5lbaRy1uMn1wjCV64ItDp/BoswHQ+DX5fkbX?=
- =?us-ascii?Q?OP6WeQS71SH8AOLCHL+vbxEVh0/Us2PW6pbWZHt+WGNaHggFcFfNnN+z8RC9?=
- =?us-ascii?Q?hRBHp4DyK4gmMbJtCXgXDWdu7I0oW3DlN1JTymEaAVaDAfnLmn36gJ/lzRwO?=
- =?us-ascii?Q?Pv78ras//8usBfs6sH+Z6Cnn/F/OSp6tM5StajRoBV5T0INFzTrD5MJvv0cF?=
- =?us-ascii?Q?AvtaqOHTjmTK0ktzFTqnN61YB7sOJJo29jBW9AIpbWmf3fjDYe3EMIqiuGUs?=
- =?us-ascii?Q?IotpcI6LEF3BgqQLRXVQvhGia2rSUO9bQ6QLk2wtJt7DkhUBu5wPCL9T3f7c?=
- =?us-ascii?Q?VVLSLIhGfOyMGM0AWDYgI60NpnK5D4KIJaTtnp+3UQklMJ204QNEVB7UB9bu?=
- =?us-ascii?Q?wy3rIwn6w5RuOCN3k5/D6dzJtLA6AMkoLQa94viZwokJdQkB4kZOVXxSmG6b?=
- =?us-ascii?Q?Di/0U1AZvfR/RJBrYnsfYjje/a4Kol7BKJHTDFkXNv7awxEkasZD6NPxhpUA?=
- =?us-ascii?Q?+I5Vq/hVpygKBz9j6jnu61GFx5v9hkcDi5dPNr15UzZpEcdyYFG049naQubK?=
- =?us-ascii?Q?BR+k1AWOaxRBPLNyiiPXgZO1fIqcWY+IIUITkvTVrzPP71fVWpFZgOk8Vgxj?=
- =?us-ascii?Q?rUX79hmlE4BU3bINx2ACs1kMcjkNIaYl+/C80/+Lg41OVWyhCEWDv1wBesGt?=
- =?us-ascii?Q?h+jVyYb9NtK/bzVdnJfrQW0mi2ByRxe6DdhSCg1MFjp0HCnIoaNq5izuZy+1?=
- =?us-ascii?Q?t2q5ufjsEukwlo1Cnh94P0Trkhvq/WRD+6n2f/URDlgxzdOfWPUfwvMLv8UI?=
- =?us-ascii?Q?s07hz0PDc6/2+3HKbv5W2sos62d9bpjL96bwRwgU6VPF4DiuFdx7iAG2N2CL?=
- =?us-ascii?Q?TcoYP4L1C1IzRt/4raJlTdWcGC3MKxOIvJpVQGDnPrsEUA39tQOeV19T1YGQ?=
- =?us-ascii?Q?Yf8mM7qbFVibJttmQRsM4Qiv7VZ7fxE0o1IdAoT7y8MmwDKZoEmmHt2uHOUg?=
- =?us-ascii?Q?qP2jwmSXcmVvF1hn0XMCq5BKBA86BhDUYkhWFfjyktoEkaWQ8GwhN0BO0Uxr?=
- =?us-ascii?Q?J+VcHYdGvKTKOtKQELRdijjfBq8cjFGQACvgAlQccnkkEP+6DueiQ9qBb80G?=
- =?us-ascii?Q?l6nUXb0LVHZWtMtxUIYCq1GYhJA2531BMdvDQHAy151VmaSSCwtz4ZjOfa5w?=
- =?us-ascii?Q?9NEcZ7nz3P+U9+dVzCf0v/jwmJ1bHAb8SgRgsafgRKjTU/Y0yk0sXvrx1Nas?=
- =?us-ascii?Q?FGZNFOav/WnAWgv49yVp+cb5u+i5fKeco3pb8mTu4/TsGDKwX4XqtueyydJC?=
- =?us-ascii?Q?5b+tS0BikpjzHhz8iiIZs4lBBQFssf44mC3rfjbxPN7fIMirTfop17T3aF8M?=
- =?us-ascii?Q?C4kIxe+w7/sk69jvll5DwyD5W8gfKZzTuow3A1XkYd8MdRpTzCuZfoQZdcU6?=
- =?us-ascii?Q?vCmREsxMCGff4zGbsLY=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 75bcb45a-5a9d-43ae-14d1-08d9bdc91dcc
-X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5506.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Dec 2021 23:42:53.7032
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: GqeEBk9m/aMKOxlbaNkfd5Jax0mGlr2RTRFiSnOPQNnzc/ILQoUU3jgAKHGXBH2M
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5189
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sun, Dec 12, 2021 at 01:12:05AM +0100, Thomas Gleixner wrote:
+Remove the read_from_oldmem() wrapper introduced earlier and convert
+all the remaining callers to pass an iov_iter.
 
->      PCI/MSI and PCI/MSI-X are just implementations of IMS
-> 
-> Not more, not less. The fact that they have very strict rules about the
-> storage space and the fact that they are mutually exclusive does not
-> change that at all.
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+---
+ arch/x86/kernel/crash_dump_64.c |  7 +++++-
+ fs/proc/vmcore.c                | 40 +++++++++++++--------------------
+ include/linux/crash_dump.h      | 10 ++++-----
+ 3 files changed, 25 insertions(+), 32 deletions(-)
 
-And the mess we have is that virtualiation broke this
-design. Virtualization made MSI/MSI-X special!
+diff --git a/arch/x86/kernel/crash_dump_64.c b/arch/x86/kernel/crash_dump_64.c
+index 8d91e5f2e14d..991e09b80852 100644
+--- a/arch/x86/kernel/crash_dump_64.c
++++ b/arch/x86/kernel/crash_dump_64.c
+@@ -68,6 +68,11 @@ ssize_t copy_oldmem_page_encrypted(struct iov_iter *iter, unsigned long pfn,
+ 
+ ssize_t elfcorehdr_read(char *buf, size_t count, u64 *ppos)
+ {
+-	return read_from_oldmem(buf, count, ppos, 0,
++	struct kvec kvec = { .iov_base = buf, .iov_len = count };
++	struct iov_iter iter;
++
++	iov_iter_kvec(&iter, READ, &kvec, 1, count);
++
++	return read_from_oldmem(&iter, count, ppos,
+ 				cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT));
+ }
+diff --git a/fs/proc/vmcore.c b/fs/proc/vmcore.c
+index 443cbaf16ec8..986474f02a02 100644
+--- a/fs/proc/vmcore.c
++++ b/fs/proc/vmcore.c
+@@ -132,7 +132,7 @@ static int open_vmcore(struct inode *inode, struct file *file)
+ }
+ 
+ /* Reads a page from the oldmem device from given offset. */
+-ssize_t read_from_oldmem_iter(struct iov_iter *iter, size_t count,
++ssize_t read_from_oldmem(struct iov_iter *iter, size_t count,
+ 			 u64 *ppos, bool encrypted)
+ {
+ 	unsigned long pfn, offset;
+@@ -180,27 +180,6 @@ ssize_t read_from_oldmem_iter(struct iov_iter *iter, size_t count,
+ 	return read;
+ }
+ 
+-ssize_t read_from_oldmem(char *buf, size_t count,
+-			 u64 *ppos, int userbuf,
+-			 bool encrypted)
+-{
+-	struct iov_iter iter;
+-	struct iovec iov;
+-	struct kvec kvec;
+-
+-	if (userbuf) {
+-		iov.iov_base = (__force void __user *)buf;
+-		iov.iov_len = count;
+-		iov_iter_init(&iter, READ, &iov, 1, count);
+-	} else {
+-		kvec.iov_base = buf;
+-		kvec.iov_len = count;
+-		iov_iter_kvec(&iter, READ, &kvec, 1, count);
+-	}
+-
+-	return read_from_oldmem_iter(&iter, count, ppos, encrypted);
+-}
+-
+ /*
+  * Architectures may override this function to allocate ELF header in 2nd kernel
+  */
+@@ -220,7 +199,12 @@ void __weak elfcorehdr_free(unsigned long long addr)
+  */
+ ssize_t __weak elfcorehdr_read(char *buf, size_t count, u64 *ppos)
+ {
+-	return read_from_oldmem(buf, count, ppos, 0, false);
++	struct kvec kvec = { .iov_base = buf, .iov_len = count };
++	struct iov_iter iter;
++
++	iov_iter_kvec(&iter, READ, &kvec, 1, count);
++
++	return read_from_oldmem(&iter, count, ppos, false);
+ }
+ 
+ /*
+@@ -228,7 +212,13 @@ ssize_t __weak elfcorehdr_read(char *buf, size_t count, u64 *ppos)
+  */
+ ssize_t __weak elfcorehdr_read_notes(char *buf, size_t count, u64 *ppos)
+ {
+-	return read_from_oldmem(buf, count, ppos, 0, cc_platform_has(CC_ATTR_MEM_ENCRYPT));
++	struct kvec kvec = { .iov_base = buf, .iov_len = count };
++	struct iov_iter iter;
++
++	iov_iter_kvec(&iter, READ, &kvec, 1, count);
++
++	return read_from_oldmem(&iter, count, ppos,
++			cc_platform_has(CC_ATTR_MEM_ENCRYPT));
+ }
+ 
+ /*
+@@ -405,7 +395,7 @@ static ssize_t __read_vmcore(struct iov_iter *iter, loff_t *fpos)
+ 					    m->offset + m->size - *fpos,
+ 					    iter->count);
+ 			start = m->paddr + *fpos - m->offset;
+-			tmp = read_from_oldmem_iter(iter, tsz, &start,
++			tmp = read_from_oldmem(iter, tsz, &start,
+ 					cc_platform_has(CC_ATTR_MEM_ENCRYPT));
+ 			if (tmp < 0)
+ 				return tmp;
+diff --git a/include/linux/crash_dump.h b/include/linux/crash_dump.h
+index a1cf7d5c03c7..0f3a656293b0 100644
+--- a/include/linux/crash_dump.h
++++ b/include/linux/crash_dump.h
+@@ -134,13 +134,11 @@ static inline int vmcore_add_device_dump(struct vmcoredd_data *data)
+ #endif /* CONFIG_PROC_VMCORE_DEVICE_DUMP */
+ 
+ #ifdef CONFIG_PROC_VMCORE
+-ssize_t read_from_oldmem(char *buf, size_t count,
+-			 u64 *ppos, int userbuf,
+-			 bool encrypted);
++ssize_t read_from_oldmem(struct iov_iter *iter, size_t count,
++			 u64 *ppos, bool encrypted);
+ #else
+-static inline ssize_t read_from_oldmem(char *buf, size_t count,
+-				       u64 *ppos, int userbuf,
+-				       bool encrypted)
++static inline ssize_t read_from_oldmem(struct iov_iter *iter, size_t count,
++				       u64 *ppos, bool encrypted)
+ {
+ 	return -EOPNOTSUPP;
+ }
+-- 
+2.33.0
 
-I am wondering if we just need to bite the bullet and force the
-introduction of a new ACPI flag for the APIC that says one of:
-- message addr/data pairs work correctly (baremetal)
-- creating message addr/data pairs need to use a hypercall protocol
-- property not defined so assume only MSI/MSI-X/etc work.
-
-Intel was originally trying to do this with the 'IMS enabled' PCI
-Capability block, but a per PCI device capability is in the wrong
-layer.
-
-Jason
