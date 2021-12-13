@@ -2,137 +2,120 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90D32C4332F
-	for <linux-s390@archiver.kernel.org>; Mon, 13 Dec 2021 18:18:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C32AC433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 13 Dec 2021 18:54:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238893AbhLMSSS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 13 Dec 2021 13:18:18 -0500
-Received: from smtp-out1.suse.de ([195.135.220.28]:43556 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240751AbhLMSSR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Dec 2021 13:18:17 -0500
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 9378921124;
-        Mon, 13 Dec 2021 18:18:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1639419495; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=NtQ8d+/Axp3K9ITeu3xtcjul+fARTB+MWAgeAY7ES8g=;
-        b=G8llMkyqtSY82FpwvCQhlAcn6w1eeAAzzCKiQLREiDT2DKkX36QGiKHbeCLl6yCnTKa74+
-        4lQeQOCNZD5bqLp+6OIHyhhSwqsZXESV9Q9YVUccz5RJEvIQeiFzWTuARjxhMlXYuom92/
-        v7Yz16k3di3NxyYQAscDXqh84O6payY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1639419495;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=NtQ8d+/Axp3K9ITeu3xtcjul+fARTB+MWAgeAY7ES8g=;
-        b=l+gO/DX1Vu/uXhALY45OHtc0N8cE8PsYdcruiRw0rzhYjtSwLhfrkPFCn441EcotXQWX7y
-        9OnYaR8zUFBuliCg==
-Received: from kunlun.suse.cz (unknown [10.100.128.76])
+        id S236426AbhLMSyQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 13 Dec 2021 13:54:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46592 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233160AbhLMSyP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 13 Dec 2021 13:54:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B4B5C061574;
+        Mon, 13 Dec 2021 10:54:15 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id D3257A3B83;
-        Mon, 13 Dec 2021 18:18:14 +0000 (UTC)
-Date:   Mon, 13 Dec 2021 19:18:13 +0100
-From:   Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
-To:     Nayna <nayna@linux.vnet.ibm.com>
-Cc:     keyrings@vger.kernel.org, kexec@lists.infradead.org,
-        Philipp Rudo <prudo@redhat.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Rob Herring <robh@kernel.org>, linux-s390@vger.kernel.org,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Jessica Yu <jeyu@kernel.org>, linux-kernel@vger.kernel.org,
-        David Howells <dhowells@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Hari Bathini <hbathini@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linuxppc-dev@lists.ozlabs.org,
-        Frank van der Linden <fllinden@amazon.com>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Daniel Axtens <dja@axtens.net>, buendgen@de.ibm.com,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Baoquan He <bhe@redhat.com>, linux-crypto@vger.kernel.org,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org
-Subject: Re: [PATCH v2 2/6] powerpc/kexec_file: Add KEXEC_SIG support.
-Message-ID: <20211213181813.GV117207@kunlun.suse.cz>
-References: <cover.1637862358.git.msuchanek@suse.de>
- <8b30a3c6a4e845eb77f276298424811897efdebf.1637862358.git.msuchanek@suse.de>
- <17153a1c-86c6-6ffd-35d6-5329829661df@linux.vnet.ibm.com>
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E2F7B81249;
+        Mon, 13 Dec 2021 18:54:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C30A4C34604;
+        Mon, 13 Dec 2021 18:54:11 +0000 (UTC)
+Date:   Mon, 13 Dec 2021 13:54:10 -0500
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc:     Josh Poimboeuf <jpoimboe@redhat.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Petr Mladek <pmladek@suse.com>,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        "Naveen N . Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "live-patching@vger.kernel.org" <live-patching@vger.kernel.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>
+Subject: Re: [PATCH v1 0/5] Implement livepatch on PPC32
+Message-ID: <20211213135410.12642d8f@gandalf.local.home>
+In-Reply-To: <fc3099b8-9f12-3e47-08a0-05abc37a0482@csgroup.eu>
+References: <cover.1635423081.git.christophe.leroy@csgroup.eu>
+        <20211028093547.48c69dfe@gandalf.local.home>
+        <6209682d-0caa-b779-8763-376a984d8ed8@csgroup.eu>
+        <20211213121536.25e5488d@gandalf.local.home>
+        <5511f43c-192a-622b-7c72-52e07f0032c2@csgroup.eu>
+        <20211213123338.65eda5a0@gandalf.local.home>
+        <fc3099b8-9f12-3e47-08a0-05abc37a0482@csgroup.eu>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17153a1c-86c6-6ffd-35d6-5329829661df@linux.vnet.ibm.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello,
+On Mon, 13 Dec 2021 17:50:52 +0000
+Christophe Leroy <christophe.leroy@csgroup.eu> wrote:
 
-On Sun, Dec 12, 2021 at 07:46:53PM -0500, Nayna wrote:
-> 
-> On 11/25/21 13:02, Michal Suchanek wrote:
-> > Copy the code from s390x
-> > 
-> > Signed-off-by: Michal Suchanek <msuchanek@suse.de>
-> > ---
-> >   arch/powerpc/Kconfig        | 11 +++++++++++
-> >   arch/powerpc/kexec/elf_64.c | 36 ++++++++++++++++++++++++++++++++++++
-> >   2 files changed, 47 insertions(+)
-> > 
-> > diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-> > index ac0c515552fd..ecc1227a77f1 100644
-> > --- a/arch/powerpc/Kconfig
-> > +++ b/arch/powerpc/Kconfig
-> > @@ -561,6 +561,17 @@ config KEXEC_FILE
-> >   config ARCH_HAS_KEXEC_PURGATORY
-> >   	def_bool KEXEC_FILE
-> > 
-> > +config KEXEC_SIG
-> > +	bool "Verify kernel signature during kexec_file_load() syscall"
-> > +	depends on KEXEC_FILE && MODULE_SIG_FORMAT
-> > +	help
-> > +	  This option makes kernel signature verification mandatory for
-> > +	  the kexec_file_load() syscall.
-> > +
-> 
-> Resending my last response as looks like it didn't go through mailing list
-> because of some wrong formatting. My apologies to those who are receiving it
-> twice.
-> 
-> Since powerpc also supports IMA_ARCH_POLICY for kernel image signature
-> verification, please include the following:
-> 
-> "An alternative implementation for the powerpc arch is IMA_ARCH_POLICY. It
-> verifies the appended kernel image signature and additionally includes both
-> the signed and unsigned file hashes in the IMA measurement list, extends the
-> IMA PCR in the TPM, and prevents blacklisted binary kernel images from being
-> kexec'd."
+> @@ -958,6 +942,12 @@ unsigned long prepare_ftrace_return(unsigned long 
+> parent, unsigned long ip,
+>   out:
+>   	return parent;
+>   }
+> +
+> +void ftrace_graph_func(unsigned long ip, unsigned long parent_ip,
+> +		       struct ftrace_ops *op, struct ftrace_regs *fregs)
+> +{
+> +	prepare_ftrace_return(ip, kernel_stack_pointer(&fregs->regs), 0);
+> +}
 
-It also does blacklist based on the file hash?
+I have for powerpc prepare_ftrace_return as:
 
-There is a downstream patch that adds the support for the module
-signatures, and when the code is reused for KEXEC_SIG the blacklist
-also applies to it.
 
-Which kind of shows that people really want to use the IMA features but
-with no support on some major architectures it's not going to work.
+unsigned long prepare_ftrace_return(unsigned long parent, unsigned long ip,
+                                                unsigned long sp)
+{
+        unsigned long return_hooker;
 
-Thanks
+        if (unlikely(ftrace_graph_is_dead()))
+                goto out;
 
-Michal
+        if (unlikely(atomic_read(&current->tracing_graph_pause)))
+                goto out;
+
+        return_hooker = ppc_function_entry(return_to_handler);
+
+        if (!function_graph_enter(parent, ip, 0, (unsigned long *)sp))
+                parent = return_hooker;
+out:
+        return parent;
+}
+
+Which means you'll need different parameters to it than what x86 has, which
+has the prototype of:
+
+void prepare_ftrace_return(unsigned long ip, unsigned long *parent,
+			   unsigned long frame_pointer)
+
+and it does not use the frame_pointer for this case, which is why it is
+zero.
+
+For powerpc though, it uses the stack pointer, so you parameters are
+incorrect. Looks like it should be:
+
+	prepare_ftrace_return(parent_ip, ip, kernel_stack_pointer(&fregs->regs));
+
+And that will likely not be enough. I'll need to update the ctr register,
+as that is where the return address is saved. So you'll probably need it to be:
+
+void ftrace_graph_func(unsigned long ip, unsigned long parent_ip,
+		       struct ftrace_ops *op, struct ftrace_regs *fregs)
+{
+	unsigned long parent;
+
+	parent = prepare_ftrace_return(parent_ip, ip, kernel_stack_pointer(&fregs->regs));
+	fregs->regs.ctr = parent;
+}
+
+
+
+-- Steve
