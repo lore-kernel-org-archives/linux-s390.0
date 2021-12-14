@@ -2,206 +2,147 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DABCBC433FE
-	for <linux-s390@archiver.kernel.org>; Mon, 13 Dec 2021 21:06:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DE09C433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Dec 2021 06:09:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243082AbhLMVF7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 13 Dec 2021 16:05:59 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:22358 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S243070AbhLMVF6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 13 Dec 2021 16:05:58 -0500
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1BDKEX1n016717;
-        Mon, 13 Dec 2021 21:05:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=rgE5PSsOCbGdEWUOvZ0pRoP7hzyxITJomcJINmGifMc=;
- b=Ze3Hxn3bzJxjdUq+T0bs4No/6QdKSA9kEmoE9vWp71tj21/odb52T9WxrIiPURYhVbaq
- 3UXNktgL4KWbALF3sV6oANIEH5l7S3JUtj96g/Egk96PVtAztXczPNL7+PlrFzo+TAJl
- 7hhziRLL93pu0Qpi0cqweAbTznq8Yu/Ff3/oDc+qwdl/6L3Wuf8PEoueIUKEokxkdBrU
- 6cKYuj8nNRtP416pzHBnCxEemY7kqWcZtIW4VFPJ25+ktj1bt9cb0oZXOUW/PtJsO+rC
- TqpxbLLQ+T7jwnbsowLzOFkcpTTEz4vfbjaaVkuUoUcWCqSEat4Tn7am1sFF7iwxmZQF dg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cx9r9eq3m-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 13 Dec 2021 21:05:58 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1BDKEYaV016889;
-        Mon, 13 Dec 2021 21:05:58 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cx9r9eq2s-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 13 Dec 2021 21:05:57 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1BDL2GWD026903;
-        Mon, 13 Dec 2021 21:05:55 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma06ams.nl.ibm.com with ESMTP id 3cvk8hrran-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 13 Dec 2021 21:05:55 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1BDL5qLl45613426
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 13 Dec 2021 21:05:52 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E79A8A4067;
-        Mon, 13 Dec 2021 21:05:51 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D73D1A4066;
-        Mon, 13 Dec 2021 21:05:51 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Mon, 13 Dec 2021 21:05:51 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
-        id 803E0E041D; Mon, 13 Dec 2021 22:05:51 +0100 (CET)
-From:   Eric Farman <farman@linux.ibm.com>
-To:     Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
-Subject: [RFC PATCH v5 1/1] KVM: s390: Clarify SIGP orders versus STOP/RESTART
-Date:   Mon, 13 Dec 2021 22:05:50 +0100
-Message-Id: <20211213210550.856213-2-farman@linux.ibm.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20211213210550.856213-1-farman@linux.ibm.com>
-References: <20211213210550.856213-1-farman@linux.ibm.com>
+        id S230318AbhLNGJ7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Dec 2021 01:09:59 -0500
+Received: from mail-eopbgr120045.outbound.protection.outlook.com ([40.107.12.45]:24005
+        "EHLO FRA01-PR2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S229744AbhLNGJ6 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 14 Dec 2021 01:09:58 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=YRupdwl94fyjRKDFNZadb2JZKhN1K84HGC2X3jA8bVrBhzjmm8a9ktlNM8RppWG64yUCjNVK4J5ZPOTm8Zql2Hita7EZ+z04S42brb7DlpJ0Cb2xCiZ5TV1l4LoX4UR7WtG2FXbsfz08+m42Ha1EwfDC/YYz4/o1hydD6wZKvwyHdiysgX+x353DdtCXy7Ue+Gapql3K+Qc6QS1xvHPuEGEgKjydbN/vBqhQftJ15D57gU3RnIkbkCNcTbsMNkjoUXZ5tDcpgJtkoSE6clcQ3Ah1LbVECCE+131vjLxyWXjBpkSxoZh78nZQqixaDSPB61fyyCzw/b2CbRvCXJQ/Ww==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Js61Dq4bYtQSuX0iCX8NZ6AEapsKwphPvHWUEjg77Hs=;
+ b=ODV2yX1nQ+ity5ls4Ct7cc5xa+bw/wASaAnpnUY13XES3AVV7bOPj7hnWNTnvW75RfLvsGMQ9mET2wM+TZR50zg5cojhXe1y7FpBH5PIGTSsqjMerDr9LiPxjp+dNUW1uVur1WKKB+wdEBlUNy9dA3P2c7rOgV3B3eDDW7uTPih/9zo2Vrjhvwro5+I5EfzrnhfPwWT/Qh3ojED8G2ILwbM+Y7YJZvdE5qazCLLQsebkZi0OLwdENz5L+0fwDccFLXK3SjXAD1Hc4Mt6bzDyh5RX9eizjNcHg3rEFlZw8fnccsSRXUJ7K0IS6cNOtZUpzjOcv4vZgyw4E8km+SxodQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=csgroup.eu; dmarc=pass action=none header.from=csgroup.eu;
+ dkim=pass header.d=csgroup.eu; arc=none
+Received: from MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM (2603:10a6:501:31::15)
+ by MRZP264MB2237.FRAP264.PROD.OUTLOOK.COM (2603:10a6:501:a::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4778.17; Tue, 14 Dec
+ 2021 06:09:55 +0000
+Received: from MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
+ ([fe80::fc67:d895:7965:663f]) by MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
+ ([fe80::fc67:d895:7965:663f%2]) with mapi id 15.20.4778.018; Tue, 14 Dec 2021
+ 06:09:55 +0000
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+To:     Steven Rostedt <rostedt@goodmis.org>
+CC:     Josh Poimboeuf <jpoimboe@redhat.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Petr Mladek <pmladek@suse.com>,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        "Naveen N . Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "live-patching@vger.kernel.org" <live-patching@vger.kernel.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>
+Subject: Re: [PATCH v1 0/5] Implement livepatch on PPC32
+Thread-Topic: [PATCH v1 0/5] Implement livepatch on PPC32
+Thread-Index: AQHXy/a61L5ufkyTwk+E9T1IN+85JqvoaYCAgEhc+YCAACuvAIAABD6AgAAAzACAAATPgIAAEbEAgAALEoCAAANtgIAArk+A
+Date:   Tue, 14 Dec 2021 06:09:55 +0000
+Message-ID: <76ce2dd7-691e-df73-727c-110713c07cda@csgroup.eu>
+References: <cover.1635423081.git.christophe.leroy@csgroup.eu>
+ <20211028093547.48c69dfe@gandalf.local.home>
+ <6209682d-0caa-b779-8763-376a984d8ed8@csgroup.eu>
+ <20211213121536.25e5488d@gandalf.local.home>
+ <5511f43c-192a-622b-7c72-52e07f0032c2@csgroup.eu>
+ <20211213123338.65eda5a0@gandalf.local.home>
+ <fc3099b8-9f12-3e47-08a0-05abc37a0482@csgroup.eu>
+ <20211213135410.12642d8f@gandalf.local.home>
+ <8df90f94-9939-0178-b92b-6ae6ea81784c@csgroup.eu>
+ <20211213144603.47d7c908@gandalf.local.home>
+In-Reply-To: <20211213144603.47d7c908@gandalf.local.home>
+Accept-Language: fr-FR, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+user-agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=csgroup.eu;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: ac4de434-bb26-4302-a13b-08d9bec8597e
+x-ms-traffictypediagnostic: MRZP264MB2237:EE_
+x-microsoft-antispam-prvs: <MRZP264MB223744896BA2C93AA3CC7D9FED759@MRZP264MB2237.FRAP264.PROD.OUTLOOK.COM>
+x-ms-oob-tlc-oobclassifiers: OLM:6430;
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: qiOHU2dDRnYroG0xbZiHVBiapngnEZEHESRIYyUXot9U7tkBnAcBvTUUklfvR8LofsHsLFBPcIOj7ikTlknnVKmWTN0WZGyb5yeYYLyTC/qYDAhQncMO+hRReNpETomkhlqk0L3c1o3wDRRYQTH1rdfbp2qWaduhE6AMXfekREVsYTjnkh/Bs1vePhGY0mmmmGMqasF7uXGhZkq/dHH3P2r6Ssi3amFzS3kdOd6vB4tvM+TwJA1KiGvEqCL556xMjZ2cjTTQmQr+8ApB3gopZYlQ1fhNwOoyxIUApzq5fc1M+L/6/A/Oz1wZg5ixBRKEceYNtOJi04D4c9ruO4kHWGu2uV1K3WVKrmqAVp9iennDRXEMke7CfJpV8RwsGoRmGHa9tVm1Hs6jHsbzw9JseJtWJpM/l3xBP2QGQIi7i3H2dBgrlYjFWi1gknLXq5AWBAeGN64CRW5aHUfd1EqbsYKgg1nNWaQ9b3/cndhTkg9Noq5kfDHhThyOxzgWIG9xVOQh1hOWVsUHwzFA2PkrfdCiqWza5CsYYcu2rS6+vg4ZrXCUMDxGYvTuA1CazYtqXRu2b5jVUwoi08xNRiGDb4aFKMz4Ts5mjAcelAwvcPYYbFp6TrlY//zVBabhRFrTUwMaV4yUnYJrciFOrKoF9fzLLr/OXrI+o35xlQsgS6bPqQicfnt7etxwEDV+z3z2TO0ViN6kzOsX6ojZpCdT3czOu7FtAolq6zhjnb6J6FONFkCK4WpEBu5FkyJSGppdGCkUj7z4K8G4CPjv/5ecTg==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(4636009)(366004)(2906002)(86362001)(6512007)(31696002)(7416002)(4326008)(4744005)(26005)(5660300002)(316002)(44832011)(8936002)(38070700005)(76116006)(122000001)(66946007)(64756008)(66476007)(66556008)(66446008)(83380400001)(31686004)(54906003)(186003)(6916009)(71200400001)(36756003)(2616005)(8676002)(508600001)(6506007)(38100700002)(6486002)(66574015)(91956017)(45980500001)(43740500002);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?Y2FOa1dSeHh3dGJUejFZeUZuLytVQlNVYUJGTm94d1JCN1crUEg3YlIvbmdX?=
+ =?utf-8?B?OHVzNnB4TGJ1WmJkeDNNLyt0eG83Q3RqRUpoNFVYWjVvM3Flck1sRTRQa0kz?=
+ =?utf-8?B?MUhVQWdIemorN25HM1loRXZQbUplTVA5VkxiTVdQbVJEN0ViMXY2RFd6a0Zx?=
+ =?utf-8?B?TkY2QlN3QzRUM3hVTEhxRVIycGQ3L1ppcExmWGRacFlrK1lYSDI5MHJNcUlG?=
+ =?utf-8?B?L3dkWFg0SVYxb2pVNjJ0MmlZQWhaR3VWdHRGSTcvdllFY09USUdiYlRNRE9l?=
+ =?utf-8?B?dmFUcVpFT1dLaWRLb0J3UDBEcGJxaHpjSnE1MzZBcVZjaWdsV3Q3dWxPOWVj?=
+ =?utf-8?B?a1U0ZUtINWhUa0RMTGxQdUVETnhSeVdRNUxGMzdrczFDaXUvd2hvUWJzcVBt?=
+ =?utf-8?B?TXRkOU9HbGViaWV5a1pQMzliNUxFdFdZSHJRNVJRV1JPalVVUVFhb0JQWmZV?=
+ =?utf-8?B?ZFdQcWV3U2x5QmcwdVB0Znh4VkRaaVd5UTdJS2lpenhqem40N1ZueUNZRnBP?=
+ =?utf-8?B?WjdoeE03Z0hBTFRJcXVDSTlQektiZnpJMlUvVEtSYi8rYjV3aTBpS3ViQVZl?=
+ =?utf-8?B?RFNrWVgxYzdrS1VtZGZqV3VFdkk1elBBckkvQlRTYmh0VHBDSEJodGVnVCty?=
+ =?utf-8?B?bGNCRVptL0RhNmo1WTZHaUZVUnVMQXNVbm14YjZodEV3ZW42aHpvbHYrZjVu?=
+ =?utf-8?B?SGl0RkU5WGp2U1E2TG9QRUF3dXZ5aDdqY3F2TFljWUs1OGVCTXJqdlI5bjBk?=
+ =?utf-8?B?SlBZZmRQUUY3dFVINlhqZDMwdXB0SEhRTitkTEExMjFwU3hEUjVqcndkWWZ4?=
+ =?utf-8?B?Kzl2WGsya3pRWmRDa3d2VzVSMTJkVXFzdm1LTnVqUk9ZRVJOMi82UExzYzBk?=
+ =?utf-8?B?U1hycEtGWHh3cVNkVVRhb25MUWlScnp3SE44N2FXbXFQcWs4N084VkVVWXAr?=
+ =?utf-8?B?MVBjOFRxbGQralROck1KeUp1a3hUMk4vNmNHeFgvVnljbTlGWTR1a3MrWEFj?=
+ =?utf-8?B?WUQzMER0aEU3a1Q3VjhHenlZZy9aTHE5WWNUVGtEbVdmQ2NBMHdQeGpJcWJK?=
+ =?utf-8?B?ejhwYUFjQ09KTmRSUDh4cFVoaVJ4SzRIR01KMDQ1ajBLZTg4ak5yU3E5eVlt?=
+ =?utf-8?B?R1pCdjRJVi9MUXpiaVU5ZkRYdWJ5UFNXNURHbFkxWVpSRExsWk5IN2I0dXE1?=
+ =?utf-8?B?aXg2TVdyamtUdzAyUjIzTmcvSC8zN1RRbGk1VXVRMVRwSUhiQUs1U05wUlZq?=
+ =?utf-8?B?YWNSWW1mTkdxWWoybE5kT2ZEQkJUdXRVS0pWOUZaK2lTTlJtd2tjQ2laN21j?=
+ =?utf-8?B?Z0NTODM4L2NuM0FMY1l2d2N4MlQwU29WL2V0TVZ5Y1ppS1Rqem5mTlVzZlBs?=
+ =?utf-8?B?bXEraElLajFUNUlmMTkyZFNKT09OTVZ1ejdiakltZmhuRGNDZHNLSnpoTGRT?=
+ =?utf-8?B?SG5qWGNOTWRqWGo5dHlqblVCUGI2MUtXWjMyNndlRFk2ekFIYzJYWS9TaGF3?=
+ =?utf-8?B?TE9nRGQvQTBoUFIyYndFN2hsdkdEWmYwTXYyekpRU0pJYXJrN0VISWkrS3BJ?=
+ =?utf-8?B?elBUMjVhRUxkWXJyVzJVc2NlVEwyRXp2dEN5d0ZkejA4MHFBNG1CK3dEUnJy?=
+ =?utf-8?B?VjhDaGRBVldGTzIwSy8wYjdXdG5ET2dhd214cEdGcUl0OHZOQ015Vm9MVmg2?=
+ =?utf-8?B?c1ZONGgxQzJmOERSZ0dZMiswNzdhMFVNQW1yZWU3QlV4c3hvUm5tWWlHYzBs?=
+ =?utf-8?B?THhRQnQvUFlZQVlMck4wZkpGTFpNdFFvOHRXT2F1U0ExYVFJZEdaOU0wSk5W?=
+ =?utf-8?B?UEw5bGlxbW5tQmxnNjBON1UweUk2cU1mZk8yRzRRQ2hsQ0RQay8wZFlFVHAv?=
+ =?utf-8?B?T0ptVFcveXdoZ0Q4RFNDQ1lJSTZndjhqbllldEtxWDRhYnQwTkZjd0M5MDlZ?=
+ =?utf-8?B?cUoxa2JFMldINGR4SWNxZlBveXFYZGF6TUlzdFh1cWVmTlBZQkxjVjNPN0dr?=
+ =?utf-8?B?bUtsbXBicmdQV2s3UXlRa2o1aGR6RWUvV3RnejJMbStGUjBjaWlsZkhtSFda?=
+ =?utf-8?B?aDRqVHBjYnJEZzdxaWtWVzVXYVg1TURWVkIzaWVuL1YxdTBLQlRwY0s2SXhI?=
+ =?utf-8?B?K25Fc3IvbWY4WTJBTDRFUmVkWTJFc3hBK3MzSnhFdVQveXl3OWdESEVxUHl4?=
+ =?utf-8?B?alhzYTgvRmUzUUo1am9TbWZ3RnhpT0xMRnNHN3ZteG84c3pocVJUeE14clUy?=
+ =?utf-8?Q?2hvOGTxoD862x/sLZK2I2WbcqeLUJajaAvV6h0tygc=3D?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <5B11F45A2E510E4A8FE8ABD5A2016F66@FRAP264.PROD.OUTLOOK.COM>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Oj4ZaMkbYwxd4lfwOQJLY8b70f3pMdPP
-X-Proofpoint-GUID: 6DWpg0IJyTo3zizbhIcN4NwUB-vjNaUF
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2021-12-13_10,2021-12-13_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 clxscore=1015
- priorityscore=1501 bulkscore=0 phishscore=0 mlxlogscore=999 mlxscore=0
- adultscore=0 impostorscore=0 lowpriorityscore=0 spamscore=0 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
- definitions=main-2112130125
+X-OriginatorOrg: csgroup.eu
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-Network-Message-Id: ac4de434-bb26-4302-a13b-08d9bec8597e
+X-MS-Exchange-CrossTenant-originalarrivaltime: 14 Dec 2021 06:09:55.3106
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 9914def7-b676-4fda-8815-5d49fb3b45c8
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: xJkQaIyW5rSEO2WpQF7vkZEas639udVJh0wqSjL6xRi9FgNIqEPNnyj76NtyaTI5H9qge3QYo9b58bXSLNeHy+vKNoxVHBartSQQ/6T65bc=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MRZP264MB2237
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-With KVM_CAP_S390_USER_SIGP, there are only five Signal Processor
-orders (CONDITIONAL EMERGENCY SIGNAL, EMERGENCY SIGNAL, EXTERNAL CALL,
-SENSE, and SENSE RUNNING STATUS) which are intended for frequent use
-and thus are processed in-kernel. The remainder are sent to userspace
-with the KVM_CAP_S390_USER_SIGP capability. Of those, three orders
-(RESTART, STOP, and STOP AND STORE STATUS) have the potential to
-inject work back into the kernel, and thus are asynchronous.
-
-Let's look for those pending IRQs when processing one of the in-kernel
-SIGP orders, and return BUSY (CC2) if one is in process. This is in
-agreement with the Principles of Operation, which states that only one
-order can be "active" on a CPU at a time.
-
-Suggested-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
----
- arch/s390/kvm/interrupt.c |  7 +++++++
- arch/s390/kvm/kvm-s390.c  |  9 +++++++--
- arch/s390/kvm/kvm-s390.h  |  1 +
- arch/s390/kvm/sigp.c      | 28 ++++++++++++++++++++++++++++
- 4 files changed, 43 insertions(+), 2 deletions(-)
-
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 37f47e32d9c4..d339e1c47e4d 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -2115,6 +2115,13 @@ int kvm_s390_is_stop_irq_pending(struct kvm_vcpu *vcpu)
- 	return test_bit(IRQ_PEND_SIGP_STOP, &li->pending_irqs);
- }
- 
-+int kvm_s390_is_restart_irq_pending(struct kvm_vcpu *vcpu)
-+{
-+	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
-+
-+	return test_bit(IRQ_PEND_RESTART, &li->pending_irqs);
-+}
-+
- void kvm_s390_clear_stop_irq(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 5f52e7eec02f..bfdf610bfecb 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4641,10 +4641,15 @@ int kvm_s390_vcpu_stop(struct kvm_vcpu *vcpu)
- 		}
- 	}
- 
--	/* SIGP STOP and SIGP STOP AND STORE STATUS has been fully processed */
-+	/*
-+	 * Set the VCPU to STOPPED and THEN clear the interrupt flag,
-+	 * now that the SIGP STOP and SIGP STOP AND STORE STATUS orders
-+	 * have been fully processed. This will ensure that the VCPU
-+	 * is kept BUSY if another VCPU is inquiring with SIGP SENSE.
-+	 */
-+	kvm_s390_set_cpuflags(vcpu, CPUSTAT_STOPPED);
- 	kvm_s390_clear_stop_irq(vcpu);
- 
--	kvm_s390_set_cpuflags(vcpu, CPUSTAT_STOPPED);
- 	__disable_ibs_on_vcpu(vcpu);
- 
- 	for (i = 0; i < online_vcpus; i++) {
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index c07a050d757d..1876ab0c293f 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -427,6 +427,7 @@ void kvm_s390_destroy_adapters(struct kvm *kvm);
- int kvm_s390_ext_call_pending(struct kvm_vcpu *vcpu);
- extern struct kvm_device_ops kvm_flic_ops;
- int kvm_s390_is_stop_irq_pending(struct kvm_vcpu *vcpu);
-+int kvm_s390_is_restart_irq_pending(struct kvm_vcpu *vcpu);
- void kvm_s390_clear_stop_irq(struct kvm_vcpu *vcpu);
- int kvm_s390_set_irq_state(struct kvm_vcpu *vcpu,
- 			   void __user *buf, int len);
-diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
-index 5ad3fb4619f1..c4884de0858b 100644
---- a/arch/s390/kvm/sigp.c
-+++ b/arch/s390/kvm/sigp.c
-@@ -276,6 +276,34 @@ static int handle_sigp_dst(struct kvm_vcpu *vcpu, u8 order_code,
- 	if (!dst_vcpu)
- 		return SIGP_CC_NOT_OPERATIONAL;
- 
-+	/*
-+	 * SIGP RESTART, SIGP STOP, and SIGP STOP AND STORE STATUS orders
-+	 * are processed asynchronously. Until the affected VCPU finishes
-+	 * its work and calls back into KVM to clear the (RESTART or STOP)
-+	 * interrupt, we need to return any new non-reset orders "busy".
-+	 *
-+	 * This is important because a single VCPU could issue:
-+	 *  1) SIGP STOP $DESTINATION
-+	 *  2) SIGP SENSE $DESTINATION
-+	 *
-+	 * If the SIGP SENSE would not be rejected as "busy", it could
-+	 * return an incorrect answer as to whether the VCPU is STOPPED
-+	 * or OPERATING.
-+	 */
-+	if (order_code != SIGP_INITIAL_CPU_RESET &&
-+	    order_code != SIGP_CPU_RESET) {
-+		/*
-+		 * Lockless check. Both SIGP STOP and SIGP (RE)START
-+		 * properly synchronize everything while processing
-+		 * their orders, while the guest cannot observe a
-+		 * difference when issuing other orders from two
-+		 * different VCPUs.
-+		 */
-+		if (kvm_s390_is_stop_irq_pending(dst_vcpu) ||
-+		    kvm_s390_is_restart_irq_pending(dst_vcpu))
-+			return SIGP_CC_BUSY;
-+	}
-+
- 	switch (order_code) {
- 	case SIGP_SENSE:
- 		vcpu->stat.instruction_sigp_sense++;
--- 
-2.32.0
-
+DQoNCkxlIDEzLzEyLzIwMjEgw6AgMjA6NDYsIFN0ZXZlbiBSb3N0ZWR0IGEgw6ljcml0wqA6DQo+
+IE9uIE1vbiwgMTMgRGVjIDIwMjEgMTk6MzM6NDcgKzAwMDANCj4gQ2hyaXN0b3BoZSBMZXJveSA8
+Y2hyaXN0b3BoZS5sZXJveUBjc2dyb3VwLmV1PiB3cm90ZToNCj4gDQo+PiBTVGlsbCB0aGUgc2Ft
+ZSBPb3BzLCBiZWxvdw0KPiANCj4gVW5mb3J0dW5hdGVseSwgSSBkb24ndCBoYXZlIGEgUFBDIG1h
+Y2hpbmUgKDMyIG5vciA2NCBiaXQpIHRvIGhlbHAgZGVidWcNCj4gdGhpcy4NCj4gDQo+IA0KPj4g
+SSB3aWxsIGxvb2sgbW9yZSBjbG9zZWx5IHRvbW9ycm93Lg0KPiANCj4gT0ssIHRoYW5rcy4NCj4g
+DQoNClRoZSBPb3BzIHdhcyBkdWUgdG8gZnRyYWNlX2NhbGxlcigpIHNldHRpbmcgdGhlIHJlZ3Mg
+YXJndW1lbnQgdG8gTlVMTC4NCg0KQWZ0ZXIgZml4aW5nIHRoYXQsIEknbSBiYWNrIGludG8gYSBz
+aXR1YXRpb24gd2hlcmUgSSBnZXQgIlRlc3RpbmcgdHJhY2VyIA0KZnVuY3Rpb25fZ3JhcGg6IEZB
+SUxFRCEiDQoNCldpbGwgY29udGludWUgaW52ZXN0aWdhdGluZy4NCg0KQ2hyaXN0b3BoZQ==
