@@ -2,121 +2,133 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC338C433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Dec 2021 14:23:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6EC6C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Dec 2021 14:26:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234902AbhLNOXF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Dec 2021 09:23:05 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:53391 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234899AbhLNOXE (ORCPT
+        id S231932AbhLNO0f (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Dec 2021 09:26:35 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:28598 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231143AbhLNO0f (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Dec 2021 09:23:04 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1639491784;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=QkYkB6Kf2sa6GjT4KwY+Pd7w7SplqbJNTIRwfEOjpBQ=;
-        b=F9ADpoNOFPiVHuqNy0RnqUYfXmMTRxUPbIN/Y8zWzAJcoOmb28Z6OZmNpMgfoC1r3dHTjz
-        nM4/fwl3qCy7qenz5Uxl0Am+51Xopug1GaqioA+m43cpe95DyhSA04DGqgFJi5QV+llyJr
-        byr93UxSUGqbIpj/IdDyMG4jzRXMrpA=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-295-bjU_FyyzOjuDB6MrfzVczw-1; Tue, 14 Dec 2021 09:23:01 -0500
-X-MC-Unique: bjU_FyyzOjuDB6MrfzVczw-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CD3AD801ADC;
-        Tue, 14 Dec 2021 14:22:58 +0000 (UTC)
-Received: from horse.redhat.com (unknown [10.22.33.95])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 389FC60C9F;
-        Tue, 14 Dec 2021 14:22:43 +0000 (UTC)
-Received: by horse.redhat.com (Postfix, from userid 10451)
-        id 926EA2233DF; Tue, 14 Dec 2021 09:22:42 -0500 (EST)
-Date:   Tue, 14 Dec 2021 09:22:42 -0500
-From:   Vivek Goyal <vgoyal@redhat.com>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Dan Williams <dan.j.williams@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Alasdair Kergon <agk@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        Matthew Wilcox <willy@infradead.org>,
-        device-mapper development <dm-devel@redhat.com>,
-        Linux NVDIMM <nvdimm@lists.linux.dev>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH 4/5] dax: remove the copy_from_iter and copy_to_iter
- methods
-Message-ID: <YbiosqZoG8e6rDkj@redhat.com>
-References: <20211209063828.18944-1-hch@lst.de>
- <20211209063828.18944-5-hch@lst.de>
- <YbNhPXBg7G/ridkV@redhat.com>
- <CAPcyv4g4_yFqDeS+pnAZOxcB=Ua+iArK5mqn0iMG4PX6oL=F_A@mail.gmail.com>
- <20211213082318.GB21462@lst.de>
+        Tue, 14 Dec 2021 09:26:35 -0500
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1BED90JX007433;
+        Tue, 14 Dec 2021 14:26:05 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ content-transfer-encoding : in-reply-to; s=pp1;
+ bh=5IDVvaOqs/M3ujUhAS1nkCGOrtDe4vl4SwHL89S0Xdg=;
+ b=cJjOtaJJPkquyFm0ftVR55TchRrTILl+LolXcdVOi0x4v3W9jGq8vSxNiJ57/yA8Abye
+ oN0ms9Ck+SKBi60uyq0luSiRcsbdha+DqXaMSSYtfQ1/aLuNo7NwszIv4i63vqd6FNJ6
+ evMdGA2zHrj98vyA4+Kn1b90aXfFtmY9VhZ82rUC1ePPgcYby6RPg7Dutu0qX3uT4uni
+ UZvXk+SuJqFIpAi6MXMQtSr148al5vGvMReRW3Tz/rL3MR2CCeFEQ+Gj+T4rmMJboVxl
+ xzFisyHXbfBisLTfEUikuwpg3hESpbFgMbDpRYGH/uKCNZQsWCQLPRHIg1yZ3EEVXS/+ FA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cx9r9ptk6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 14 Dec 2021 14:26:05 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1BEDCXJg015524;
+        Tue, 14 Dec 2021 14:26:04 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cx9r9ptj4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 14 Dec 2021 14:26:04 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1BEDiCfN032733;
+        Tue, 14 Dec 2021 14:26:02 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma06ams.nl.ibm.com with ESMTP id 3cvk8j035r-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 14 Dec 2021 14:26:02 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1BEEPxsf43909628
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 14 Dec 2021 14:25:59 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CB5CC4C04A;
+        Tue, 14 Dec 2021 14:25:59 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 484894C04E;
+        Tue, 14 Dec 2021 14:25:59 +0000 (GMT)
+Received: from osiris (unknown [9.145.168.104])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Tue, 14 Dec 2021 14:25:59 +0000 (GMT)
+Date:   Tue, 14 Dec 2021 15:25:57 +0100
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc:     Steven Rostedt <rostedt@goodmis.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Petr Mladek <pmladek@suse.com>,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        "Naveen N . Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "live-patching@vger.kernel.org" <live-patching@vger.kernel.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>
+Subject: Re: [PATCH v1 0/5] Implement livepatch on PPC32
+Message-ID: <YbipdU5X4HNDWIni@osiris>
+References: <cover.1635423081.git.christophe.leroy@csgroup.eu>
+ <20211028093547.48c69dfe@gandalf.local.home>
+ <6209682d-0caa-b779-8763-376a984d8ed8@csgroup.eu>
+ <20211213121536.25e5488d@gandalf.local.home>
+ <5511f43c-192a-622b-7c72-52e07f0032c2@csgroup.eu>
+ <20211213123338.65eda5a0@gandalf.local.home>
+ <fc3099b8-9f12-3e47-08a0-05abc37a0482@csgroup.eu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20211213082318.GB21462@lst.de>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <fc3099b8-9f12-3e47-08a0-05abc37a0482@csgroup.eu>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: JnbFfRm75kVyNUBP3Cs4lugyZBEgQEnO
+X-Proofpoint-GUID: 3DaxL9v1MACAb8vQfjQA_AaDRKRC4gR5
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2021-12-14_06,2021-12-14_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1011
+ suspectscore=0 mlxlogscore=832 lowpriorityscore=0 malwarescore=0
+ adultscore=0 priorityscore=1501 phishscore=0 bulkscore=0 spamscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2112140082
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Dec 13, 2021 at 09:23:18AM +0100, Christoph Hellwig wrote:
-> On Sun, Dec 12, 2021 at 06:44:26AM -0800, Dan Williams wrote:
-> > On Fri, Dec 10, 2021 at 6:17 AM Vivek Goyal <vgoyal@redhat.com> wrote:
-> > > Going forward, I am wondering should virtiofs use flushcache version as
-> > > well. What if host filesystem is using DAX and mapping persistent memory
-> > > pfn directly into qemu address space. I have never tested that.
-> > >
-> > > Right now we are relying on applications to do fsync/msync on virtiofs
-> > > for data persistence.
+On Mon, Dec 13, 2021 at 05:50:52PM +0000, Christophe Leroy wrote:
+> Le 13/12/2021 à 18:33, Steven Rostedt a écrit :
+> > On Mon, 13 Dec 2021 17:30:48 +0000
+> > Christophe Leroy <christophe.leroy@csgroup.eu> wrote:
 > > 
-> > This sounds like it would need coordination with a paravirtualized
-> > driver that can indicate whether the host side is pmem or not, like
-> > the virtio_pmem driver. However, if the guest sends any fsync/msync
-> > you would still need to go explicitly cache flush any dirty page
-> > because you can't necessarily trust that the guest did that already.
-> 
-> Do we?  The application can't really know what backend it is on, so
-> it sounds like the current virtiofs implementation doesn't really, does it?
+> >> Thanks, I will try that.
+> >>
+> >> I can't find ftrace_graph_func() in s390. Does it mean that s390 doesn't
+> >> have a working function tracer anymore ?
+> >>
+> >> I see your commit 0c0593b45c9b4 ("x86/ftrace: Make function graph use
+> >> ftrace directly") is dated 8 Oct 2021 while 5740a7c71ab6 ("s390/ftrace:
+> >> add HAVE_DYNAMIC_FTRACE_WITH_ARGS support") is 4 Oct 2021.
+> > 
+> > Hmm, maybe not. I can't test it.
+> > 
+> > This needs to be fixed if that's the case.
+> > 
+> > Thanks for bringing it up!
 
-Agreed that application does not know what backend it is on. So virtiofs
-just offers regular posix API where applications have to do fsync/msync
-for data persistence. No support for mmap(MAP_SYNC). We don't offer persistent
-memory programming model on virtiofs. That's not the expectation. DAX 
-is used only to bypass guest page cache.
+It still works, we run the full ftrace/kprobes selftests from the
+kernel every day on multiple machines with several kernels (besides
+other Linus' tree, but also linux-next). That said, I wanted to change
+s390's code follow what x86 is currently doing anyway.
 
-With this assumption, I think we might not have to use flushcache version
-at all even if shared filesystem is on persistent memory on host. 
-
-- We mmap() host files into qemu address space. So any dax store in virtiofs
-  should make corresponding pages dirty in page cache on host and when
-  and fsync()/msync() comes later, it should flush all the data to PMEM.
-
-- In case of file extending writes, virtiofs falls back to regular
-  FUSE_WRITE path (and not use DAX), and in that case host pmem driver
-  should make sure writes are flushed to pmem immediately.
-
-Are there any other path I am missing. If not, looks like we might not
-have to use flushcache version in virtiofs at all as long as we are not
-offering guest applications user space flushes and MAP_SYNC support.
-
-We still might have to use machine check safe variant though as loads
-might generate synchronous machine check. What's not clear to me is
-that if this MC safe variant should be used only in case of PMEM or
-should it be used in case of non-PMEM as well.
-
-Vivek
-
+One thing to note: commit 5740a7c71ab6 ("s390/ftrace: add
+HAVE_DYNAMIC_FTRACE_WITH_ARGS support") looks only that simple because
+ftrace_caller _and_ ftrace_regs_caller used to save all register
+contents into the pt_regs structure, which never was a requirement,
+but implicitly fulfills the HAVE_DYNAMIC_FTRACE_WITH_ARGS
+requirements.
+Not sure if powerpc passes enough register contents via pt_regs for
+HAVE_DYNAMIC_FTRACE_WITH_ARGS though. Might be something to check?
