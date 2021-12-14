@@ -2,200 +2,165 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A367C43217
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Dec 2021 19:43:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 54F5DC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Dec 2021 20:33:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237479AbhLNTnX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Dec 2021 14:43:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50324 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232335AbhLNTnV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Dec 2021 14:43:21 -0500
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51BF7C061574;
-        Tue, 14 Dec 2021 11:43:21 -0800 (PST)
-Received: by mail-pf1-x42e.google.com with SMTP id z6so18701459pfe.7;
-        Tue, 14 Dec 2021 11:43:21 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=LCilH12wWw0seUa3hiJyDy0VxFX2Q3bA7Y0HXIYHhF8=;
-        b=mgUrMQhC4/CUdwucboxOLaDGWbb/3r/d8db3O9NgfZYUYEd6Zjz2nbba51SL7zLe8Y
-         HoPx+IQ/X0fM2kJmgKk06iLEcvvTYlX2h8Als5lC5pEfulogO+sUqemRF4n6m2Eekf4w
-         CtPoyJGaZ6slsRjff5y3xVucnMlyQBZjuB7TsLW/QfR5HbmU2eCSX+iDyn3uJA04puJa
-         dF//PJEuj31ulpS82MggltzR4G2RUQnzjtNrp/7HOGpfHVW7cNQpoT3ypqVvpPJEUhsf
-         QvGgSrM2kq5yWe5ythTOhC41utztrjpAcYlGjjw1vz9wzYdQhMtOLwSCYyXNwoJoZq7H
-         sX/w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=LCilH12wWw0seUa3hiJyDy0VxFX2Q3bA7Y0HXIYHhF8=;
-        b=ISs8iGmjulzRcyw/4adfQiamM2bLA3tYj4Sg2mBjKQfJej36Y8qqgtux5H2PY1v+h5
-         /LTKC/x9hDeUysiJ1hI9CwdEF9uJoPfLHiQnAriD/yRXKjjBixvEEd5fqtHuoDXraxPd
-         leDnrLOZgN75PBWfam6fVjHqDTYwkYybl8zAcm/Kj/nO02nDNMNJ/kyzsr2v1BibIjMI
-         SUTALArnDPKadExaDnJrTf6SRRU9n2LE5rwq4E9+Fh9Tm84OtQnCOvU5fzgD6q2eCqQq
-         So/LzfxiodAcCTt1rhEOdFkVDE3gscDycnEwAIWqb/fh5vC3EM7ECm0PhWbeTkrcsu2i
-         BoLg==
-X-Gm-Message-State: AOAM532CzldWSv+XJh+tm5YtzmT/yF/Nl3fs/q48+iMrYW7JfW/ImKjY
-        KgRufOPIjMuu4TWK67tTW+TOOaTRRHn+VNa/Nu0=
-X-Google-Smtp-Source: ABdhPJx1omsyXEH84uuE4kzYpPBu5v24anF9kQ0616INOFdPlqou2FDes2afxUGAuG2JNukP2+Sny94qEgWXdVVJ7J8=
-X-Received: by 2002:a63:3f4e:: with SMTP id m75mr4955451pga.587.1639511000707;
- Tue, 14 Dec 2021 11:43:20 -0800 (PST)
-MIME-Version: 1.0
-References: <20211128035704.270739-1-yury.norov@gmail.com> <20211128035704.270739-3-yury.norov@gmail.com>
- <YaPGDOvBzhiRFcOP@qmqm.qmqm.pl>
-In-Reply-To: <YaPGDOvBzhiRFcOP@qmqm.qmqm.pl>
-From:   Yury Norov <yury.norov@gmail.com>
-Date:   Tue, 14 Dec 2021 11:43:09 -0800
-Message-ID: <CAAH8bW9-dbENFUrwPUQ-uJVVX_s=PWb2zpAJ8BqkV3vJE696mA@mail.gmail.com>
-Subject: Re: [PATCH 2/9] lib/bitmap: implement bitmap_{empty,full} with bitmap_weight_eq()
-To:     =?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>
-Cc:     linux-kernel@vger.kernel.org,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexey Klimov <aklimov@redhat.com>,
-        Amitkumar Karwar <amitkarwar@gmail.com>,
-        Andi Kleen <ak@linux.intel.com>, Andrew Lunn <andrew@lunn.ch>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Gross <agross@kernel.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Andy Shevchenko <andy@infradead.org>,
-        Anup Patel <anup.patel@wdc.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Christoph Lameter <cl@linux.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        David Airlie <airlied@linux.ie>,
-        David Laight <David.Laight@aculab.com>,
-        Dennis Zhou <dennis@kernel.org>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Geetha sowjanya <gakula@marvell.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Guo Ren <guoren@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
+        id S237649AbhLNUdX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Dec 2021 15:33:23 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:27871 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S237659AbhLNUdW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 14 Dec 2021 15:33:22 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1639514001;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=r6UEz37RENDqZc874C7RATl7+g+LJCAFHhK7C3YHwPU=;
+        b=a+qtkqFC/Vw/O11JceEjrn105au8pNM9Irzz+RL6eVf3aczMucfWe1EA1MFnYJz3IaVxU1
+        z/gEGEav/ybrjNB6rHCTuCspBCMpBcBUQqUWk47EmLqns3ygcUDM8C7qJFv6zWeZ9CxIyt
+        i4TNFc0RYIkgGJyk59Q1EfZeJn1FM/8=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-599-e3Qt5gtLO6ShEmU376si3A-1; Tue, 14 Dec 2021 15:33:16 -0500
+X-MC-Unique: e3Qt5gtLO6ShEmU376si3A-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0A0E51006AA0;
+        Tue, 14 Dec 2021 20:33:14 +0000 (UTC)
+Received: from horse.redhat.com (unknown [10.22.33.95])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 6E3C422DFC;
+        Tue, 14 Dec 2021 20:32:44 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+        id EB1B82233DF; Tue, 14 Dec 2021 15:32:43 -0500 (EST)
+Date:   Tue, 14 Dec 2021 15:32:43 -0500
+From:   Vivek Goyal <vgoyal@redhat.com>
+To:     Dan Williams <dan.j.williams@intel.com>
+Cc:     Christoph Hellwig <hch@lst.de>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Alasdair Kergon <agk@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>,
+        Ira Weiny <ira.weiny@intel.com>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Ian Rogers <irogers@google.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Jason Wessel <jason.wessel@windriver.com>,
-        Jens Axboe <axboe@fb.com>, Jiri Olsa <jolsa@redhat.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Kees Cook <keescook@chromium.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Marc Zyngier <maz@kernel.org>, Marcin Wojtas <mw@semihalf.com>,
-        Mark Gross <markgross@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Matti Vaittinen <mazziesaccount@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Mel Gorman <mgorman@suse.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Petr Mladek <pmladek@suse.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Roy Pledge <Roy.Pledge@nxp.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Solomon Peachy <pizza@shaftnet.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Subbaraya Sundeep <sbhatta@marvell.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Sunil Goutham <sgoutham@marvell.com>,
-        Tariq Toukan <tariqt@nvidia.com>, Tejun Heo <tj@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Vineet Gupta <vgupta@kernel.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Vivien Didelot <vivien.didelot@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Will Deacon <will@kernel.org>,
-        bcm-kernel-feedback-list@broadcom.com, kvm@vger.kernel.org,
-        linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-crypto@vger.kernel.org, linux-csky@vger.kernel.org,
-        linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-mm@kvack.org, linux-perf-users@vger.kernel.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org, linuxppc-dev@lists.ozlabs.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        Miklos Szeredi <miklos@szeredi.hu>,
+        Matthew Wilcox <willy@infradead.org>,
+        device-mapper development <dm-devel@redhat.com>,
+        Linux NVDIMM <nvdimm@lists.linux.dev>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH 4/5] dax: remove the copy_from_iter and copy_to_iter
+ methods
+Message-ID: <Ybj/azxrUyU4PZEr@redhat.com>
+References: <20211209063828.18944-1-hch@lst.de>
+ <20211209063828.18944-5-hch@lst.de>
+ <YbNhPXBg7G/ridkV@redhat.com>
+ <CAPcyv4g4_yFqDeS+pnAZOxcB=Ua+iArK5mqn0iMG4PX6oL=F_A@mail.gmail.com>
+ <20211213082318.GB21462@lst.de>
+ <YbiosqZoG8e6rDkj@redhat.com>
+ <CAPcyv4hFjKsPrPTB4NtLHiY8gyaELz9+45N1OFj3hz+uJ=9JnA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAPcyv4hFjKsPrPTB4NtLHiY8gyaELz9+45N1OFj3hz+uJ=9JnA@mail.gmail.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sun, Nov 28, 2021 at 10:10 AM Micha=C5=82 Miros=C5=82aw
-<mirq-linux@rere.qmqm.pl> wrote:
->
-> On Sat, Nov 27, 2021 at 07:56:57PM -0800, Yury Norov wrote:
-> > Now as we have bitmap_weight_eq(), switch bitmap_full() and
-> > bitmap_empty() to using it.
+On Tue, Dec 14, 2021 at 08:41:30AM -0800, Dan Williams wrote:
+> On Tue, Dec 14, 2021 at 6:23 AM Vivek Goyal <vgoyal@redhat.com> wrote:
 > >
-> > Signed-off-by: Yury Norov <yury.norov@gmail.com>
-> > ---
-> >  include/linux/bitmap.h | 26 ++++++++++----------------
-> >  1 file changed, 10 insertions(+), 16 deletions(-)
+> > On Mon, Dec 13, 2021 at 09:23:18AM +0100, Christoph Hellwig wrote:
+> > > On Sun, Dec 12, 2021 at 06:44:26AM -0800, Dan Williams wrote:
+> > > > On Fri, Dec 10, 2021 at 6:17 AM Vivek Goyal <vgoyal@redhat.com> wrote:
+> > > > > Going forward, I am wondering should virtiofs use flushcache version as
+> > > > > well. What if host filesystem is using DAX and mapping persistent memory
+> > > > > pfn directly into qemu address space. I have never tested that.
+> > > > >
+> > > > > Right now we are relying on applications to do fsync/msync on virtiofs
+> > > > > for data persistence.
+> > > >
+> > > > This sounds like it would need coordination with a paravirtualized
+> > > > driver that can indicate whether the host side is pmem or not, like
+> > > > the virtio_pmem driver. However, if the guest sends any fsync/msync
+> > > > you would still need to go explicitly cache flush any dirty page
+> > > > because you can't necessarily trust that the guest did that already.
+> > >
+> > > Do we?  The application can't really know what backend it is on, so
+> > > it sounds like the current virtiofs implementation doesn't really, does it?
 > >
-> > diff --git a/include/linux/bitmap.h b/include/linux/bitmap.h
-> > index 996041f771c8..2d951e4dc814 100644
-> > --- a/include/linux/bitmap.h
-> > +++ b/include/linux/bitmap.h
-> > @@ -386,22 +386,6 @@ static inline int bitmap_subset(const unsigned lon=
-g *src1,
-> >               return __bitmap_subset(src1, src2, nbits);
-> >  }
+> > Agreed that application does not know what backend it is on. So virtiofs
+> > just offers regular posix API where applications have to do fsync/msync
+> > for data persistence. No support for mmap(MAP_SYNC). We don't offer persistent
+> > memory programming model on virtiofs. That's not the expectation. DAX
+> > is used only to bypass guest page cache.
 > >
-> > -static inline bool bitmap_empty(const unsigned long *src, unsigned nbi=
-ts)
-> > -{
-> > -     if (small_const_nbits(nbits))
-> > -             return ! (*src & BITMAP_LAST_WORD_MASK(nbits));
-> > -
-> > -     return find_first_bit(src, nbits) =3D=3D nbits;
-> > -}
->
-> Since this is supposed to be an optimization, I would go all the way and
-> replace this with the trivial implementation instead:
->
-> bool bitmap_empty(long *bits, size_t nbits)
-> {
->         for (; nbits >=3D BITS_PER_LONG; ++bits, nbits -=3D BITS_PER_LONG=
-)
->                 if (*bits)
->                         return false;
->
->         if (nbits && *bits & BITMAP_LAST_WORD_MASK(nbits))
->                 return false;
->
->         return true;
-> }
+> > With this assumption, I think we might not have to use flushcache version
+> > at all even if shared filesystem is on persistent memory on host.
+> >
+> > - We mmap() host files into qemu address space. So any dax store in virtiofs
+> >   should make corresponding pages dirty in page cache on host and when
+> >   and fsync()/msync() comes later, it should flush all the data to PMEM.
+> >
+> > - In case of file extending writes, virtiofs falls back to regular
+> >   FUSE_WRITE path (and not use DAX), and in that case host pmem driver
+> >   should make sure writes are flushed to pmem immediately.
+> >
+> > Are there any other path I am missing. If not, looks like we might not
+> > have to use flushcache version in virtiofs at all as long as we are not
+> > offering guest applications user space flushes and MAP_SYNC support.
+> >
+> > We still might have to use machine check safe variant though as loads
+> > might generate synchronous machine check. What's not clear to me is
+> > that if this MC safe variant should be used only in case of PMEM or
+> > should it be used in case of non-PMEM as well.
+> 
+> It should be used on any memory address that can throw exception on
+> load, which is any physical address, in paths that can tolerate
+> memcpy() returning an error code, most I/O paths, and can tolerate
+> slower copy performance on older platforms that do not support MC
+> recovery with fast string operations, to date that's only PMEM users.
 
-This is what current implementations basically do, based on find_first_bit(=
-).
+Ok, So basically latest cpus can do fast string operations with MC
+recovery so that using MC safe variant is not a problem.
 
-I think that for long bitmaps the most time consuming operation is moving
-data to L1, and for short bitmaps the difference between approaches is
-barely measurable.
+Then there is range of cpus which can do MC recovery but do slower
+versions of memcpy and that's where the issue is.
 
-But hweght_long on each iteration can't be more effective than the current
-version. So, I'll drop this patch for v2 and keep things unchanged.
+So if we knew that virtiofs dax window is backed by a pmem device
+then we should always use MC safe variant. Even if it means paying
+the price of slow version for the sake of correctness. 
+
+But if we are not using pmem on host, then there is no point in
+using MC safe variant.
+
+IOW.
+
+	if (virtiofs_backed_by_pmem) {
+		use_mc_safe_version
+	else
+		use_non_mc_safe_version
+	}
+
+Now question is, how do we know if virtiofs dax window is backed by
+a pmem or not. I checked virtio_pmem driver and that does not seem
+to communicate anything like that. It just communicates start of the
+range and size of range, nothing else.
+
+I don't have full handle on stack of modules of virtio_pmem, but my guess
+is it probably is using MC safe version always (because it does not
+know anthing about the backing storage).
+
+/me will definitely like to pay penalty of slower memcpy if virtiofs
+device is not backed by a pmem.
+
+Vivek
+
