@@ -2,281 +2,200 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66B5FC433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Dec 2021 18:13:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A367C43217
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Dec 2021 19:43:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234105AbhLNSNX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Dec 2021 13:13:23 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:57016 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232235AbhLNSNW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Dec 2021 13:13:22 -0500
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1BEGVTRM029485;
-        Tue, 14 Dec 2021 18:13:22 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=yXCS/7lQ5vgFe+eQD9z5O+yp6ZJbtCb2/AkfsbYwFOg=;
- b=gOAd0QBdhu6qUnDDDaGlgzvMrM2qE6PS9lSB1jJZs9lC5+RTu/hMcS4LLa5A/U2Dw1Hx
- aexd4Z1pFx5NYY+I21cTT1MU0mnxfX+RrRnfUWh9E14dhnqg2LTRMRqTHUBtN+QrVOWN
- kP6ujD3JE5v5hzhcXJsXdon7iwECvMjwI0AL1gSnrlGH+uQgVXyzjnfBZ2I6k2VnuJ9p
- aN68kyfMncZ+XZZm5bfVAwYREesCHkyHTXG1AD0RZZHxQRYS1zDx1bUpLFcE5sgaEHaC
- +GaM/T8IwQHQ6rYh6D1tXjewNoN6HBnzo7tPnHUL2l89ieSLGCSTfXJ2NTALfl+Mo3QB +w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cxxv631xa-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Dec 2021 18:13:22 +0000
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1BEGVtPv030517;
-        Tue, 14 Dec 2021 18:13:21 GMT
-Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cxxv631wv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Dec 2021 18:13:21 +0000
-Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
-        by ppma05wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1BEHwD9B012989;
-        Tue, 14 Dec 2021 18:13:20 GMT
-Received: from b01cxnp23032.gho.pok.ibm.com (b01cxnp23032.gho.pok.ibm.com [9.57.198.27])
-        by ppma05wdc.us.ibm.com with ESMTP id 3cvkmamftg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Dec 2021 18:13:20 +0000
-Received: from b01ledav006.gho.pok.ibm.com (b01ledav006.gho.pok.ibm.com [9.57.199.111])
-        by b01cxnp23032.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1BEIDJpC21823852
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 14 Dec 2021 18:13:19 GMT
-Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E3FE6AC077;
-        Tue, 14 Dec 2021 18:13:18 +0000 (GMT)
-Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 27E9AAC06A;
-        Tue, 14 Dec 2021 18:13:13 +0000 (GMT)
-Received: from [9.211.79.24] (unknown [9.211.79.24])
-        by b01ledav006.gho.pok.ibm.com (Postfix) with ESMTP;
-        Tue, 14 Dec 2021 18:13:12 +0000 (GMT)
-Message-ID: <6472fa11-09f4-3e0f-dbec-cf76bcf342c4@linux.ibm.com>
-Date:   Tue, 14 Dec 2021 13:13:11 -0500
+        id S237479AbhLNTnX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Dec 2021 14:43:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50324 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232335AbhLNTnV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Dec 2021 14:43:21 -0500
+Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51BF7C061574;
+        Tue, 14 Dec 2021 11:43:21 -0800 (PST)
+Received: by mail-pf1-x42e.google.com with SMTP id z6so18701459pfe.7;
+        Tue, 14 Dec 2021 11:43:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=LCilH12wWw0seUa3hiJyDy0VxFX2Q3bA7Y0HXIYHhF8=;
+        b=mgUrMQhC4/CUdwucboxOLaDGWbb/3r/d8db3O9NgfZYUYEd6Zjz2nbba51SL7zLe8Y
+         HoPx+IQ/X0fM2kJmgKk06iLEcvvTYlX2h8Als5lC5pEfulogO+sUqemRF4n6m2Eekf4w
+         CtPoyJGaZ6slsRjff5y3xVucnMlyQBZjuB7TsLW/QfR5HbmU2eCSX+iDyn3uJA04puJa
+         dF//PJEuj31ulpS82MggltzR4G2RUQnzjtNrp/7HOGpfHVW7cNQpoT3ypqVvpPJEUhsf
+         QvGgSrM2kq5yWe5ythTOhC41utztrjpAcYlGjjw1vz9wzYdQhMtOLwSCYyXNwoJoZq7H
+         sX/w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=LCilH12wWw0seUa3hiJyDy0VxFX2Q3bA7Y0HXIYHhF8=;
+        b=ISs8iGmjulzRcyw/4adfQiamM2bLA3tYj4Sg2mBjKQfJej36Y8qqgtux5H2PY1v+h5
+         /LTKC/x9hDeUysiJ1hI9CwdEF9uJoPfLHiQnAriD/yRXKjjBixvEEd5fqtHuoDXraxPd
+         leDnrLOZgN75PBWfam6fVjHqDTYwkYybl8zAcm/Kj/nO02nDNMNJ/kyzsr2v1BibIjMI
+         SUTALArnDPKadExaDnJrTf6SRRU9n2LE5rwq4E9+Fh9Tm84OtQnCOvU5fzgD6q2eCqQq
+         So/LzfxiodAcCTt1rhEOdFkVDE3gscDycnEwAIWqb/fh5vC3EM7ECm0PhWbeTkrcsu2i
+         BoLg==
+X-Gm-Message-State: AOAM532CzldWSv+XJh+tm5YtzmT/yF/Nl3fs/q48+iMrYW7JfW/ImKjY
+        KgRufOPIjMuu4TWK67tTW+TOOaTRRHn+VNa/Nu0=
+X-Google-Smtp-Source: ABdhPJx1omsyXEH84uuE4kzYpPBu5v24anF9kQ0616INOFdPlqou2FDes2afxUGAuG2JNukP2+Sny94qEgWXdVVJ7J8=
+X-Received: by 2002:a63:3f4e:: with SMTP id m75mr4955451pga.587.1639511000707;
+ Tue, 14 Dec 2021 11:43:20 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH 22/32] KVM: s390: pci: provide routines for
- enabling/disabling IOAT assist
-Content-Language: en-US
-To:     Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
-        schnelle@linux.ibm.com, farman@linux.ibm.com,
-        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
-        vneethv@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com,
-        thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20211207205743.150299-1-mjrosato@linux.ibm.com>
- <20211207205743.150299-23-mjrosato@linux.ibm.com>
- <c1f1ca6b-916d-418a-5bc3-8debe53bfa5e@linux.ibm.com>
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <c1f1ca6b-916d-418a-5bc3-8debe53bfa5e@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: s6IONFe6IMq3KCUvLOt22jH7LD4LnVxY
-X-Proofpoint-GUID: CMPzJUg5HEFSct7Fct0hdJg-tTBGf_yZ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2021-12-14_07,2021-12-14_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- mlxlogscore=999 clxscore=1015 bulkscore=0 phishscore=0 suspectscore=0
- lowpriorityscore=0 mlxscore=0 malwarescore=0 adultscore=0 spamscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2112140098
+References: <20211128035704.270739-1-yury.norov@gmail.com> <20211128035704.270739-3-yury.norov@gmail.com>
+ <YaPGDOvBzhiRFcOP@qmqm.qmqm.pl>
+In-Reply-To: <YaPGDOvBzhiRFcOP@qmqm.qmqm.pl>
+From:   Yury Norov <yury.norov@gmail.com>
+Date:   Tue, 14 Dec 2021 11:43:09 -0800
+Message-ID: <CAAH8bW9-dbENFUrwPUQ-uJVVX_s=PWb2zpAJ8BqkV3vJE696mA@mail.gmail.com>
+Subject: Re: [PATCH 2/9] lib/bitmap: implement bitmap_{empty,full} with bitmap_weight_eq()
+To:     =?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>
+Cc:     linux-kernel@vger.kernel.org,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Alexey Klimov <aklimov@redhat.com>,
+        Amitkumar Karwar <amitkarwar@gmail.com>,
+        Andi Kleen <ak@linux.intel.com>, Andrew Lunn <andrew@lunn.ch>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andy Gross <agross@kernel.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Andy Shevchenko <andy@infradead.org>,
+        Anup Patel <anup.patel@wdc.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Christoph Lameter <cl@linux.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        David Airlie <airlied@linux.ie>,
+        David Laight <David.Laight@aculab.com>,
+        Dennis Zhou <dennis@kernel.org>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Geetha sowjanya <gakula@marvell.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Guo Ren <guoren@kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Ian Rogers <irogers@google.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Jason Wessel <jason.wessel@windriver.com>,
+        Jens Axboe <axboe@fb.com>, Jiri Olsa <jolsa@redhat.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Kees Cook <keescook@chromium.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Marc Zyngier <maz@kernel.org>, Marcin Wojtas <mw@semihalf.com>,
+        Mark Gross <markgross@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matti Vaittinen <mazziesaccount@gmail.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Mel Gorman <mgorman@suse.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Petr Mladek <pmladek@suse.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Roy Pledge <Roy.Pledge@nxp.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Solomon Peachy <pizza@shaftnet.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Subbaraya Sundeep <sbhatta@marvell.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Sunil Goutham <sgoutham@marvell.com>,
+        Tariq Toukan <tariqt@nvidia.com>, Tejun Heo <tj@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Vineet Gupta <vgupta@kernel.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Will Deacon <will@kernel.org>,
+        bcm-kernel-feedback-list@broadcom.com, kvm@vger.kernel.org,
+        linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-crypto@vger.kernel.org, linux-csky@vger.kernel.org,
+        linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-mm@kvack.org, linux-perf-users@vger.kernel.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org, linuxppc-dev@lists.ozlabs.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 12/14/21 12:46 PM, Pierre Morel wrote:
-> 
-> 
-> On 12/7/21 21:57, Matthew Rosato wrote:
->> These routines will be wired into the vfio_pci_zdev ioctl handlers to
->> respond to requests to enable / disable a device for PCI I/O Address
->> Translation assistance.
->>
->> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
->> ---
->>   arch/s390/include/asm/kvm_pci.h |  15 ++++
->>   arch/s390/include/asm/pci_dma.h |   2 +
->>   arch/s390/kvm/pci.c             | 133 ++++++++++++++++++++++++++++++++
->>   arch/s390/kvm/pci.h             |   2 +
->>   4 files changed, 152 insertions(+)
->>
->> diff --git a/arch/s390/include/asm/kvm_pci.h 
->> b/arch/s390/include/asm/kvm_pci.h
->> index 54a0afdbe7d0..254275399f21 100644
->> --- a/arch/s390/include/asm/kvm_pci.h
->> +++ b/arch/s390/include/asm/kvm_pci.h
->> @@ -16,11 +16,21 @@
->>   #include <linux/kvm_host.h>
->>   #include <linux/kvm.h>
->>   #include <linux/pci.h>
->> +#include <linux/mutex.h>
->>   #include <asm/pci_insn.h>
->> +#include <asm/pci_dma.h>
->> +
->> +struct kvm_zdev_ioat {
->> +    unsigned long *head[ZPCI_TABLE_PAGES];
->> +    unsigned long **seg;
->> +    unsigned long ***pt;
->> +    struct mutex lock;
->> +};
->>   struct kvm_zdev {
->>       struct zpci_dev *zdev;
->>       struct kvm *kvm;
->> +    struct kvm_zdev_ioat ioat;
->>       struct zpci_fib fib;
->>   };
->> @@ -33,6 +43,11 @@ extern int kvm_s390_pci_aif_enable(struct zpci_dev 
->> *zdev, struct zpci_fib *fib,
->>                      bool assist);
->>   extern int kvm_s390_pci_aif_disable(struct zpci_dev *zdev);
->> +extern int kvm_s390_pci_ioat_probe(struct zpci_dev *zdev);
->> +extern int kvm_s390_pci_ioat_enable(struct zpci_dev *zdev, u64 iota);
->> +extern int kvm_s390_pci_ioat_disable(struct zpci_dev *zdev);
->> +extern u8 kvm_s390_pci_get_dtsm(struct zpci_dev *zdev);
->> +
->>   extern int kvm_s390_pci_interp_probe(struct zpci_dev *zdev);
->>   extern int kvm_s390_pci_interp_enable(struct zpci_dev *zdev);
->>   extern int kvm_s390_pci_interp_disable(struct zpci_dev *zdev);
->> diff --git a/arch/s390/include/asm/pci_dma.h 
->> b/arch/s390/include/asm/pci_dma.h
->> index 3b8e89d4578a..e1d3c1d3fc8a 100644
->> --- a/arch/s390/include/asm/pci_dma.h
->> +++ b/arch/s390/include/asm/pci_dma.h
->> @@ -50,6 +50,8 @@ enum zpci_ioat_dtype {
->>   #define ZPCI_TABLE_ALIGN        ZPCI_TABLE_SIZE
->>   #define ZPCI_TABLE_ENTRY_SIZE        (sizeof(unsigned long))
->>   #define ZPCI_TABLE_ENTRIES        (ZPCI_TABLE_SIZE / 
->> ZPCI_TABLE_ENTRY_SIZE)
->> +#define ZPCI_TABLE_PAGES        (ZPCI_TABLE_SIZE >> PAGE_SHIFT)
->> +#define ZPCI_TABLE_ENTRIES_PAGES    (ZPCI_TABLE_ENTRIES * 
->> ZPCI_TABLE_PAGES)
->>   #define ZPCI_TABLE_BITS            11
->>   #define ZPCI_PT_BITS            8
->> diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
->> index 3a29398dd53b..a1c0c0881332 100644
->> --- a/arch/s390/kvm/pci.c
->> +++ b/arch/s390/kvm/pci.c
->> @@ -12,6 +12,7 @@
->>   #include <asm/kvm_pci.h>
->>   #include <asm/pci.h>
->>   #include <asm/pci_insn.h>
->> +#include <asm/pci_dma.h>
->>   #include <asm/sclp.h>
->>   #include "pci.h"
->>   #include "kvm-s390.h"
->> @@ -315,6 +316,131 @@ int kvm_s390_pci_aif_disable(struct zpci_dev *zdev)
->>   }
->>   EXPORT_SYMBOL_GPL(kvm_s390_pci_aif_disable);
->> +int kvm_s390_pci_ioat_probe(struct zpci_dev *zdev)
->> +{
->> +    return 0;
->> +}
->> +EXPORT_SYMBOL_GPL(kvm_s390_pci_ioat_probe);
->> +
->> +int kvm_s390_pci_ioat_enable(struct zpci_dev *zdev, u64 iota)
->> +{
->> +    gpa_t gpa = (gpa_t)(iota & ZPCI_RTE_ADDR_MASK);
->> +    struct kvm_zdev_ioat *ioat;
->> +    struct page *page;
->> +    struct kvm *kvm;
->> +    unsigned int idx;
->> +    void *iaddr;
->> +    int i, rc = 0;
->> +
->> +    if (!zdev->kzdev || !zdev->kzdev->kvm || zdev->kzdev->ioat.head[0])
->> +        return -EINVAL;
-> 
-> The only caller already checked zdev->kzdev.
+On Sun, Nov 28, 2021 at 10:10 AM Micha=C5=82 Miros=C5=82aw
+<mirq-linux@rere.qmqm.pl> wrote:
+>
+> On Sat, Nov 27, 2021 at 07:56:57PM -0800, Yury Norov wrote:
+> > Now as we have bitmap_weight_eq(), switch bitmap_full() and
+> > bitmap_empty() to using it.
+> >
+> > Signed-off-by: Yury Norov <yury.norov@gmail.com>
+> > ---
+> >  include/linux/bitmap.h | 26 ++++++++++----------------
+> >  1 file changed, 10 insertions(+), 16 deletions(-)
+> >
+> > diff --git a/include/linux/bitmap.h b/include/linux/bitmap.h
+> > index 996041f771c8..2d951e4dc814 100644
+> > --- a/include/linux/bitmap.h
+> > +++ b/include/linux/bitmap.h
+> > @@ -386,22 +386,6 @@ static inline int bitmap_subset(const unsigned lon=
+g *src1,
+> >               return __bitmap_subset(src1, src2, nbits);
+> >  }
+> >
+> > -static inline bool bitmap_empty(const unsigned long *src, unsigned nbi=
+ts)
+> > -{
+> > -     if (small_const_nbits(nbits))
+> > -             return ! (*src & BITMAP_LAST_WORD_MASK(nbits));
+> > -
+> > -     return find_first_bit(src, nbits) =3D=3D nbits;
+> > -}
+>
+> Since this is supposed to be an optimization, I would go all the way and
+> replace this with the trivial implementation instead:
+>
+> bool bitmap_empty(long *bits, size_t nbits)
+> {
+>         for (; nbits >=3D BITS_PER_LONG; ++bits, nbits -=3D BITS_PER_LONG=
+)
+>                 if (*bits)
+>                         return false;
+>
+>         if (nbits && *bits & BITMAP_LAST_WORD_MASK(nbits))
+>                 return false;
+>
+>         return true;
+> }
 
-I tend to get overzealous with these checks..
+This is what current implementations basically do, based on find_first_bit(=
+).
 
-> Could we use a macro to replace zdev->kzdev->ioat.head[0] ?
-> like
-> #define shadow_pgtbl_initialized zdev->kzdev->ioat.head[0] >
-> Would be clearer for me.
+I think that for long bitmaps the most time consuming operation is moving
+data to L1, and for short bitmaps the difference between approaches is
+barely measurable.
 
-Sure
-
-> 
->> +
->> +    /* Ensure supported type specified */
->> +    if ((iota & ZPCI_IOTA_RTTO_FLAG) != ZPCI_IOTA_RTTO_FLAG)
->> +        return -EINVAL;
->> +
->> +    kvm = zdev->kzdev->kvm;
->> +    ioat = &zdev->kzdev->ioat;
->> +    mutex_lock(&ioat->lock);
->> +    idx = srcu_read_lock(&kvm->srcu);
->> +    for (i = 0; i < ZPCI_TABLE_PAGES; i++) {
->> +        page = gfn_to_page(kvm, gpa_to_gfn(gpa));
-
-In relation to your question below about where things are being pinned...
-
-Here the call to gfn_to_page does the pin (this call eventually drives 
-hva_to_pfn for pinning)
-
->> +        if (is_error_page(page)) {
->> +            srcu_read_unlock(&kvm->srcu, idx);
->> +            rc = -EIO;
->> +            goto out;
->> +        }
->> +        iaddr = page_to_virt(page) + (gpa & ~PAGE_MASK);
->> +        ioat->head[i] = (unsigned long *)iaddr;
-
-^^ here we store what was pinned above in ioat->head[] and can use it 
-later for unpinning.
-
-But looking again now I think for the is_error_page() case above here I 
-should also be going to unpin: to cleanup in case we were somewhere in 
-the middle of the loop and so have some pages pinned already.
-
->> +        gpa += PAGE_SIZE;
->> +    }
->> +    srcu_read_unlock(&kvm->srcu, idx);
->> +
->> +    zdev->kzdev->ioat.seg = kcalloc(ZPCI_TABLE_ENTRIES_PAGES,
->> +                    sizeof(unsigned long *), GFP_KERNEL);
->> +    if (!zdev->kzdev->ioat.seg)
->> +        goto unpin;
->> +    zdev->kzdev->ioat.pt = kcalloc(ZPCI_TABLE_ENTRIES,
->> +                       sizeof(unsigned long **), GFP_KERNEL);
->> +    if (!zdev->kzdev->ioat.pt)
->> +        goto free_seg;
->> +
->> +out:
->> +    mutex_unlock(&ioat->lock);
->> +    return rc;
->> +
->> +free_seg:
->> +    kfree(zdev->kzdev->ioat.seg);
->> +unpin:
->> +    for (i = 0; i < ZPCI_TABLE_PAGES; i++) {
->> +        kvm_release_pfn_dirty((u64)ioat->head[i] >> PAGE_SHIFT);
-> 
-> I did not find when the pages are pinned.
-
-See above.
-
-> 
->> +        ioat->head[i] = 0;
->> +    }
->> +    mutex_unlock(&ioat->lock);
->> +    return -ENOMEM;
->> +}
->> +EXPORT_SYMBOL_GPL(kvm_s390_pci_ioat_enable);
->> +
-> 
-> ...snip...
->>
-> 
-
+But hweght_long on each iteration can't be more effective than the current
+version. So, I'll drop this patch for v2 and keep things unchanged.
