@@ -2,328 +2,129 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1C30C4332F
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Dec 2021 16:29:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D50D2C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Dec 2021 16:41:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235907AbhLNQ3x (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Dec 2021 11:29:53 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:32738 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235973AbhLNQ3t (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Dec 2021 11:29:49 -0500
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1BEElBMe039968;
-        Tue, 14 Dec 2021 16:29:49 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=I0IxPFhapMsOH/lCVPyc3/RwBpmdW3aagQn5YPiyCTk=;
- b=pjbjd8VLYa9VpwgVrrV7EdtLV659O6+fmLaGLk3PtxlGAWtAzjhSIivVmEflrZcU6XQB
- i02ouXPtsh8uURVOBdLRDan/GqdKj+9GfopRBVquvSoqK9/FsZWYCgOYssmA3+adb2Yt
- YqTZx4oB3HFUDKgfCl6ON8Ywl9Uup+fjQYS7bcy1m81G8m0FKlw3CpMmCPvGzI1U4anW
- AZFtYemY1lRbTII5nZEb0YtGfigLzyEPVgTIOV8p/Xb9SgutGe96FFbWjQ0Kccck3Mz2
- EOlMd+x/X6G93RlDxWGR3LOlS6tnuSzR3tRpMHxZV7Z0n7HflCzSzgtMpjWpUFmtq/qe 5w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cx9r935sd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Dec 2021 16:29:49 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1BEFXLxj007069;
-        Tue, 14 Dec 2021 16:29:48 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cx9r935qr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Dec 2021 16:29:48 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1BEFgLG8031172;
-        Tue, 14 Dec 2021 16:29:46 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma04fra.de.ibm.com with ESMTP id 3cvkma7waj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Dec 2021 16:29:46 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1BEGLjGP48497080
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 14 Dec 2021 16:21:45 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E02E6A4055;
-        Tue, 14 Dec 2021 16:29:42 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D846AA4051;
-        Tue, 14 Dec 2021 16:29:41 +0000 (GMT)
-Received: from [9.171.24.181] (unknown [9.171.24.181])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 14 Dec 2021 16:29:41 +0000 (GMT)
-Message-ID: <b7952a40-7bc9-b46a-d675-ea26685adf74@linux.ibm.com>
-Date:   Tue, 14 Dec 2021 17:30:45 +0100
+        id S229836AbhLNQlk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Dec 2021 11:41:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36140 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229942AbhLNQlk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Dec 2021 11:41:40 -0500
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5926C061574
+        for <linux-s390@vger.kernel.org>; Tue, 14 Dec 2021 08:41:39 -0800 (PST)
+Received: by mail-pl1-x635.google.com with SMTP id v19so13951891plo.7
+        for <linux-s390@vger.kernel.org>; Tue, 14 Dec 2021 08:41:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=intel-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=t/nnzQN9F5r4zFSkk8iYiBeWCGCkT6Dn6wCuQkQZ9ZI=;
+        b=dZAHZODGRVbZR2ysy2aU8tziv8EUSVJ4G7lyxIrGTVAuZTAI+h8NEwG8q7Ti0dmlRz
+         FUs67aDUBnh6oEQuwW9klnzG6whuDB0WHzvC+u6KewQCpZ3qzZkQxOjXcIwIOakbw+W8
+         0IPx5KqHgVMSuYrfYVo/3t/drPQ+jE/inPZaZAe65sMgMfC0QFbD7dio6ED/HtOLm8GC
+         OtyfjDtD51vI1WL0SiPHAHoYFrmLR9/1Ewk0VndBGOMrtBOrC2Xs+YWkZlTmM1nQ+fwf
+         xp9G/2UCykZKzSIljzl9L8OafZyAgDu+6bByD3Jg+aWM9iQLLGlyuMF0JKsj5Ok6ufkJ
+         np+w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=t/nnzQN9F5r4zFSkk8iYiBeWCGCkT6Dn6wCuQkQZ9ZI=;
+        b=2UOTJ904abXiveEJh6q0tn/kAMj80+MOUsQ5gb7FlPWVlyNnNwteD9p4kH/MWOAHiE
+         WobPOBfNNN7jgNHwlszIO7QR0sIPs0XEEmKuiy+vCSbgGlyfe3ufvdSwZ0D7OjLeCmSm
+         JhFj95lszhZu91UP/t3bK9ntE/OfrgBtILKOycptg8g4eKF7+iBdVihzR+R/WNkFAFSB
+         cnvcwpb4yzEUmtnwP0I47FhIpAfz+HVt5/R7i5YONw3QisPHgMOdxdYZSEC6ocyI/Uab
+         nHykOkMnL0YXtnzwWQ5FaSZGsjDJIxp4HKc2SomoV3fVRjMn11AQbmmtYyuuARj9+OHE
+         HP1Q==
+X-Gm-Message-State: AOAM531Bnwu04BfQUgMLFbwGhR6QGzMGrb+gjkP2m0yZA38yGIBc+oCz
+        4szMLcQ5l+LNYuwCvdsFTR4js/7KdD7WobxtFbtqHQ==
+X-Google-Smtp-Source: ABdhPJw+O9j0H9UWQxoVKDQYePJLlAtoMN+dCn3S6Q/xMAfRBDp6O2XP6nSywAkX3lUHqDKzBphvkGiQvj7Lgmg0w8E=
+X-Received: by 2002:a17:902:bb87:b0:148:a2e7:fb52 with SMTP id
+ m7-20020a170902bb8700b00148a2e7fb52mr124861pls.147.1639500099392; Tue, 14 Dec
+ 2021 08:41:39 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.0
-Subject: Re: [PATCH 27/32] vfio-pci/zdev: wire up zPCI interpretive execution
- support
-Content-Language: en-US
-To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
-        schnelle@linux.ibm.com, farman@linux.ibm.com,
-        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
-        vneethv@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com,
-        thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20211207205743.150299-1-mjrosato@linux.ibm.com>
- <20211207205743.150299-28-mjrosato@linux.ibm.com>
-From:   Pierre Morel <pmorel@linux.ibm.com>
-In-Reply-To: <20211207205743.150299-28-mjrosato@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: O2_wivXN2sdsc0TlNayUla4D16w_VY2I
-X-Proofpoint-ORIG-GUID: qJ7-sw8IdKuX5ujtyRpioVJCcw9oxlfB
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2021-12-14_07,2021-12-14_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 bulkscore=0
- spamscore=0 phishscore=0 adultscore=0 malwarescore=0 priorityscore=1501
- lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2112140090
+References: <20211209063828.18944-1-hch@lst.de> <20211209063828.18944-5-hch@lst.de>
+ <YbNhPXBg7G/ridkV@redhat.com> <CAPcyv4g4_yFqDeS+pnAZOxcB=Ua+iArK5mqn0iMG4PX6oL=F_A@mail.gmail.com>
+ <20211213082318.GB21462@lst.de> <YbiosqZoG8e6rDkj@redhat.com>
+In-Reply-To: <YbiosqZoG8e6rDkj@redhat.com>
+From:   Dan Williams <dan.j.williams@intel.com>
+Date:   Tue, 14 Dec 2021 08:41:30 -0800
+Message-ID: <CAPcyv4hFjKsPrPTB4NtLHiY8gyaELz9+45N1OFj3hz+uJ=9JnA@mail.gmail.com>
+Subject: Re: [PATCH 4/5] dax: remove the copy_from_iter and copy_to_iter methods
+To:     Vivek Goyal <vgoyal@redhat.com>
+Cc:     Christoph Hellwig <hch@lst.de>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Alasdair Kergon <agk@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        Miklos Szeredi <miklos@szeredi.hu>,
+        Matthew Wilcox <willy@infradead.org>,
+        device-mapper development <dm-devel@redhat.com>,
+        Linux NVDIMM <nvdimm@lists.linux.dev>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Tue, Dec 14, 2021 at 6:23 AM Vivek Goyal <vgoyal@redhat.com> wrote:
+>
+> On Mon, Dec 13, 2021 at 09:23:18AM +0100, Christoph Hellwig wrote:
+> > On Sun, Dec 12, 2021 at 06:44:26AM -0800, Dan Williams wrote:
+> > > On Fri, Dec 10, 2021 at 6:17 AM Vivek Goyal <vgoyal@redhat.com> wrote:
+> > > > Going forward, I am wondering should virtiofs use flushcache version as
+> > > > well. What if host filesystem is using DAX and mapping persistent memory
+> > > > pfn directly into qemu address space. I have never tested that.
+> > > >
+> > > > Right now we are relying on applications to do fsync/msync on virtiofs
+> > > > for data persistence.
+> > >
+> > > This sounds like it would need coordination with a paravirtualized
+> > > driver that can indicate whether the host side is pmem or not, like
+> > > the virtio_pmem driver. However, if the guest sends any fsync/msync
+> > > you would still need to go explicitly cache flush any dirty page
+> > > because you can't necessarily trust that the guest did that already.
+> >
+> > Do we?  The application can't really know what backend it is on, so
+> > it sounds like the current virtiofs implementation doesn't really, does it?
+>
+> Agreed that application does not know what backend it is on. So virtiofs
+> just offers regular posix API where applications have to do fsync/msync
+> for data persistence. No support for mmap(MAP_SYNC). We don't offer persistent
+> memory programming model on virtiofs. That's not the expectation. DAX
+> is used only to bypass guest page cache.
+>
+> With this assumption, I think we might not have to use flushcache version
+> at all even if shared filesystem is on persistent memory on host.
+>
+> - We mmap() host files into qemu address space. So any dax store in virtiofs
+>   should make corresponding pages dirty in page cache on host and when
+>   and fsync()/msync() comes later, it should flush all the data to PMEM.
+>
+> - In case of file extending writes, virtiofs falls back to regular
+>   FUSE_WRITE path (and not use DAX), and in that case host pmem driver
+>   should make sure writes are flushed to pmem immediately.
+>
+> Are there any other path I am missing. If not, looks like we might not
+> have to use flushcache version in virtiofs at all as long as we are not
+> offering guest applications user space flushes and MAP_SYNC support.
+>
+> We still might have to use machine check safe variant though as loads
+> might generate synchronous machine check. What's not clear to me is
+> that if this MC safe variant should be used only in case of PMEM or
+> should it be used in case of non-PMEM as well.
 
-
-On 12/7/21 21:57, Matthew Rosato wrote:
-> Introduce support for VFIO_DEVICE_FEATURE_ZPCI_INTERP, which is a new
-> VFIO_DEVICE_FEATURE ioctl.  This interface is used to indicate that an
-> s390x vfio-pci device wishes to enable/disable zPCI interpretive
-> execution, which allows zPCI instructions to be executed directly by
-> underlying firmware without KVM involvement.
-> 
-> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> ---
->   arch/s390/include/asm/kvm_pci.h  |  1 +
->   drivers/vfio/pci/vfio_pci_core.c |  2 +
->   drivers/vfio/pci/vfio_pci_zdev.c | 76 ++++++++++++++++++++++++++++++++
->   include/linux/vfio_pci_core.h    | 10 +++++
->   include/uapi/linux/vfio.h        |  7 +++
->   include/uapi/linux/vfio_zdev.h   | 15 +++++++
->   6 files changed, 111 insertions(+)
-> 
-> diff --git a/arch/s390/include/asm/kvm_pci.h b/arch/s390/include/asm/kvm_pci.h
-> index 6526908ac834..062bac720428 100644
-> --- a/arch/s390/include/asm/kvm_pci.h
-> +++ b/arch/s390/include/asm/kvm_pci.h
-> @@ -35,6 +35,7 @@ struct kvm_zdev {
->   	struct kvm_zdev_ioat ioat;
->   	struct zpci_fib fib;
->   	struct notifier_block nb;
-> +	bool interp;
->   };
->   
->   extern int kvm_s390_pci_dev_open(struct zpci_dev *zdev);
-> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
-> index fc57d4d0abbe..2b2d64a2190c 100644
-> --- a/drivers/vfio/pci/vfio_pci_core.c
-> +++ b/drivers/vfio/pci/vfio_pci_core.c
-> @@ -1172,6 +1172,8 @@ long vfio_pci_core_ioctl(struct vfio_device *core_vdev, unsigned int cmd,
->   			mutex_unlock(&vdev->vf_token->lock);
->   
->   			return 0;
-> +		case VFIO_DEVICE_FEATURE_ZPCI_INTERP:
-> +			return vfio_pci_zdev_feat_interp(vdev, feature, arg);
->   		default:
->   			return -ENOTTY;
->   		}
-> diff --git a/drivers/vfio/pci/vfio_pci_zdev.c b/drivers/vfio/pci/vfio_pci_zdev.c
-> index cfd7f44b06c1..b205e0ad1fd3 100644
-> --- a/drivers/vfio/pci/vfio_pci_zdev.c
-> +++ b/drivers/vfio/pci/vfio_pci_zdev.c
-> @@ -54,6 +54,10 @@ static int zpci_group_cap(struct zpci_dev *zdev, struct vfio_info_cap *caps)
->   		.version = zdev->version
->   	};
->   
-> +	/* Some values are different for interpreted devices */
-> +	if (zdev->kzdev && zdev->kzdev->interp)
-> +		cap.maxstbl = zdev->maxstbl;
-
-right did not see that so my comment on patch 30 is not right.
-
-> +
->   	return vfio_info_add_capability(caps, &cap.header, sizeof(cap));
->   }
->   
-> @@ -138,6 +142,70 @@ int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
->   	return ret;
->   }
->   
-> +int vfio_pci_zdev_feat_interp(struct vfio_pci_core_device *vdev,
-> +			      struct vfio_device_feature feature,
-> +			      unsigned long arg)
-> +{
-> +	struct zpci_dev *zdev = to_zpci(vdev->pdev);
-> +	struct vfio_device_zpci_interp *data;
-> +	struct vfio_device_feature *feat;
-> +	unsigned long minsz;
-> +	int size, rc;
-> +
-> +	if (!zdev || !zdev->kzdev)
-> +		return -EINVAL;
-> +
-> +	/*
-> +	 * If PROBE requested and feature not found, leave immediately.
-> +	 * Otherwise, keep going as GET or SET may also be specified.
-> +	 */
-> +	if (feature.flags & VFIO_DEVICE_FEATURE_PROBE) {
-> +		rc = kvm_s390_pci_interp_probe(zdev);
-> +		if (rc)
-> +			return rc;
-> +	}
-> +	if (!(feature.flags & (VFIO_DEVICE_FEATURE_GET +
-> +			       VFIO_DEVICE_FEATURE_SET)))
-> +		return 0;
-> +
-> +	size = sizeof(*feat) + sizeof(*data);
-> +	feat = kzalloc(size, GFP_KERNEL);
-> +	if (!feat)
-> +		return -ENOMEM;
-> +
-> +	data = (struct vfio_device_zpci_interp *)&feat->data;
-> +	minsz = offsetofend(struct vfio_device_feature, flags);
-> +
-> +	/* Get the rest of the payload for GET/SET */
-> +	rc = copy_from_user(data, (void __user *)(arg + minsz),
-> +			    sizeof(*data));
-
-Here as in patch 28, I think yo ushould take care of feature.argsz
-
-
-> +	if (rc)
-> +		rc = -EINVAL;
-> +
-> +	if (feature.flags & VFIO_DEVICE_FEATURE_GET) {
-> +		if (zdev->gd != 0)
-> +			data->flags = VFIO_DEVICE_ZPCI_FLAG_INTERP;
-> +		else
-> +			data->flags = 0;
-> +		data->fh = zdev->fh;
-> +		/* userspace is using host fh, give interpreted clp values */
-> +		zdev->kzdev->interp = true;
-> +
-> +		if (copy_to_user((void __user *)arg, feat, size))
-> +			rc = -EFAULT;
-> +	} else if (feature.flags & VFIO_DEVICE_FEATURE_SET) {
-> +		if (data->flags == VFIO_DEVICE_ZPCI_FLAG_INTERP)
-> +			rc = kvm_s390_pci_interp_enable(zdev);
-> +		else if (data->flags == 0)
-> +			rc = kvm_s390_pci_interp_disable(zdev);
-> +		else
-> +			rc = -EINVAL;
-> +	}
-> +
-> +	kfree(feat);
-> +	return rc;
-> +}
-> +
->   static int vfio_pci_zdev_group_notifier(struct notifier_block *nb,
->   					unsigned long action, void *data)
->   {
-> @@ -167,6 +235,7 @@ int vfio_pci_zdev_open(struct vfio_pci_core_device *vdev)
->   		return -ENODEV;
->   
->   	zdev->kzdev->nb.notifier_call = vfio_pci_zdev_group_notifier;
-> +	zdev->kzdev->interp = false;
->   
->   	ret = vfio_register_notifier(vdev->vdev.dev, VFIO_GROUP_NOTIFY,
->   				     &events, &zdev->kzdev->nb);
-> @@ -186,6 +255,13 @@ int vfio_pci_zdev_release(struct vfio_pci_core_device *vdev)
->   	vfio_unregister_notifier(vdev->vdev.dev, VFIO_GROUP_NOTIFY,
->   				 &zdev->kzdev->nb);
->   
-> +	/*
-> +	 * If the device was using interpretation, don't trust that userspace
-> +	 * did the appropriate cleanup
-> +	 */
-> +	if (zdev->gd != 0)
-> +		kvm_s390_pci_interp_disable(zdev);
-> +
->   	kvm_s390_pci_dev_release(zdev);
->   
->   	return 0;
-> diff --git a/include/linux/vfio_pci_core.h b/include/linux/vfio_pci_core.h
-> index 14079da409f1..92dc43c827c9 100644
-> --- a/include/linux/vfio_pci_core.h
-> +++ b/include/linux/vfio_pci_core.h
-> @@ -198,6 +198,9 @@ static inline int vfio_pci_igd_init(struct vfio_pci_core_device *vdev)
->   #ifdef CONFIG_VFIO_PCI_ZDEV
->   extern int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
->   				       struct vfio_info_cap *caps);
-> +int vfio_pci_zdev_feat_interp(struct vfio_pci_core_device *vdev,
-> +			      struct vfio_device_feature feature,
-> +			      unsigned long arg);
->   int vfio_pci_zdev_open(struct vfio_pci_core_device *vdev);
->   int vfio_pci_zdev_release(struct vfio_pci_core_device *vdev);
->   #else
-> @@ -207,6 +210,13 @@ static inline int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
->   	return -ENODEV;
->   }
->   
-> +static inline int vfio_pci_zdev_feat_interp(struct vfio_pci_core_device *vdev,
-> +					    struct vfio_device_feature feature,
-> +					    unsigned long arg)
-> +{
-> +	return -ENOTTY;
-> +}
-> +
->   static inline int vfio_pci_zdev_open(struct vfio_pci_core_device *vdev)
->   {
->   	return -ENODEV;
-> diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-> index ef33ea002b0b..b9a75485b8e7 100644
-> --- a/include/uapi/linux/vfio.h
-> +++ b/include/uapi/linux/vfio.h
-> @@ -1002,6 +1002,13 @@ struct vfio_device_feature {
->    */
->   #define VFIO_DEVICE_FEATURE_PCI_VF_TOKEN	(0)
->   
-> +/*
-> + * Provide support for enabling interpretation of zPCI instructions.  This
-> + * feature is only valid for s390x PCI devices.  Data provided when setting
-> + * and getting this feature is futher described in vfio_zdev.h
-> + */
-> +#define VFIO_DEVICE_FEATURE_ZPCI_INTERP		(1)
-> +
->   /* -------- API for Type1 VFIO IOMMU -------- */
->   
->   /**
-> diff --git a/include/uapi/linux/vfio_zdev.h b/include/uapi/linux/vfio_zdev.h
-> index b4309397b6b2..575f0410dc66 100644
-> --- a/include/uapi/linux/vfio_zdev.h
-> +++ b/include/uapi/linux/vfio_zdev.h
-> @@ -75,4 +75,19 @@ struct vfio_device_info_cap_zpci_pfip {
->   	__u8 pfip[];
->   };
->   
-> +/**
-> + * VFIO_DEVICE_FEATURE_ZPCI_INTERP
-> + *
-> + * This feature is used for enabling zPCI instruction interpretation for a
-> + * device.  No data is provided when setting this feature.  When getting
-> + * this feature, the following structure is provided which details whether
-> + * or not interpretation is active and provides the guest with host device
-> + * information necessary to enable interpretation.
-> + */
-> +struct vfio_device_zpci_interp {
-> +	__u64 flags;
-> +#define VFIO_DEVICE_ZPCI_FLAG_INTERP 1
-> +	__u32 fh;		/* Host device function handle */
-> +};
-> +
->   #endif
-> 
-
--- 
-Pierre Morel
-IBM Lab Boeblingen
+It should be used on any memory address that can throw exception on
+load, which is any physical address, in paths that can tolerate
+memcpy() returning an error code, most I/O paths, and can tolerate
+slower copy performance on older platforms that do not support MC
+recovery with fast string operations, to date that's only PMEM users.
