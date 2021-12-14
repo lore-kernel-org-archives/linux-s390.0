@@ -2,133 +2,177 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B6EC6C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Dec 2021 14:26:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2194FC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Dec 2021 14:59:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231932AbhLNO0f (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Dec 2021 09:26:35 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:28598 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231143AbhLNO0f (ORCPT
+        id S234088AbhLNO7X (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Dec 2021 09:59:23 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:46888 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232616AbhLNO7X (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Dec 2021 09:26:35 -0500
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1BED90JX007433;
-        Tue, 14 Dec 2021 14:26:05 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- content-transfer-encoding : in-reply-to; s=pp1;
- bh=5IDVvaOqs/M3ujUhAS1nkCGOrtDe4vl4SwHL89S0Xdg=;
- b=cJjOtaJJPkquyFm0ftVR55TchRrTILl+LolXcdVOi0x4v3W9jGq8vSxNiJ57/yA8Abye
- oN0ms9Ck+SKBi60uyq0luSiRcsbdha+DqXaMSSYtfQ1/aLuNo7NwszIv4i63vqd6FNJ6
- evMdGA2zHrj98vyA4+Kn1b90aXfFtmY9VhZ82rUC1ePPgcYby6RPg7Dutu0qX3uT4uni
- UZvXk+SuJqFIpAi6MXMQtSr148al5vGvMReRW3Tz/rL3MR2CCeFEQ+Gj+T4rmMJboVxl
- xzFisyHXbfBisLTfEUikuwpg3hESpbFgMbDpRYGH/uKCNZQsWCQLPRHIg1yZ3EEVXS/+ FA== 
+        Tue, 14 Dec 2021 09:59:23 -0500
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1BEEmXYU021242;
+        Tue, 14 Dec 2021 14:59:22 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=MzM9dBEun0fHvPVR9vM3PuPGKzAZl/8OMytYz2PWxRo=;
+ b=KDOqhKMlA4sYfoWlWwU6Gg/bMRYBJgf1wWQKk/ykRHa43QHjVm79FtqMzAF++ZntXcXT
+ MknMk84RPdqS7iEhiPIXrV0I1k1yRfDJJfV6UxYCteR4b4stSjAkt9UY5eBvWMZ5hc2d
+ RblxeNa+fQjy6sAKaXteILboy4mjpe3CwJJSkoQC7nX/NwakiF29FeOaoAr8QzA3dQOu
+ +4hHLH8y7a1sAfpoNchB1RUfeCJjSxrD5ldWlGvxO81xDWnqcveOOFM8rv2d6LGEsWsL
+ 9B9sAOIsy4cuK0J86MFhRE/TBmzKKvmsYW5U3swZ4/ptumSPoCjq/qihhkjI8Ave1Dob 1g== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cx9r9ptk6-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cx9rafved-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Dec 2021 14:26:05 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1BEDCXJg015524;
-        Tue, 14 Dec 2021 14:26:04 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cx9r9ptj4-1
+        Tue, 14 Dec 2021 14:59:22 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1BEEwROh005839;
+        Tue, 14 Dec 2021 14:59:21 GMT
+Received: from ppma01wdc.us.ibm.com (fd.55.37a9.ip4.static.sl-reverse.com [169.55.85.253])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cx9rafvdw-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Dec 2021 14:26:04 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1BEDiCfN032733;
-        Tue, 14 Dec 2021 14:26:02 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma06ams.nl.ibm.com with ESMTP id 3cvk8j035r-1
+        Tue, 14 Dec 2021 14:59:21 +0000
+Received: from pps.filterd (ppma01wdc.us.ibm.com [127.0.0.1])
+        by ppma01wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1BEEWBUJ014727;
+        Tue, 14 Dec 2021 14:59:20 GMT
+Received: from b01cxnp23033.gho.pok.ibm.com (b01cxnp23033.gho.pok.ibm.com [9.57.198.28])
+        by ppma01wdc.us.ibm.com with ESMTP id 3cvkmagd14-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 14 Dec 2021 14:26:02 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1BEEPxsf43909628
+        Tue, 14 Dec 2021 14:59:20 +0000
+Received: from b01ledav006.gho.pok.ibm.com (b01ledav006.gho.pok.ibm.com [9.57.199.111])
+        by b01cxnp23033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1BEExJjx50069914
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 14 Dec 2021 14:25:59 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CB5CC4C04A;
-        Tue, 14 Dec 2021 14:25:59 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 484894C04E;
-        Tue, 14 Dec 2021 14:25:59 +0000 (GMT)
-Received: from osiris (unknown [9.145.168.104])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Tue, 14 Dec 2021 14:25:59 +0000 (GMT)
-Date:   Tue, 14 Dec 2021 15:25:57 +0100
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc:     Steven Rostedt <rostedt@goodmis.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Petr Mladek <pmladek@suse.com>,
-        Joe Lawrence <joe.lawrence@redhat.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        "Naveen N . Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "live-patching@vger.kernel.org" <live-patching@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>
-Subject: Re: [PATCH v1 0/5] Implement livepatch on PPC32
-Message-ID: <YbipdU5X4HNDWIni@osiris>
-References: <cover.1635423081.git.christophe.leroy@csgroup.eu>
- <20211028093547.48c69dfe@gandalf.local.home>
- <6209682d-0caa-b779-8763-376a984d8ed8@csgroup.eu>
- <20211213121536.25e5488d@gandalf.local.home>
- <5511f43c-192a-622b-7c72-52e07f0032c2@csgroup.eu>
- <20211213123338.65eda5a0@gandalf.local.home>
- <fc3099b8-9f12-3e47-08a0-05abc37a0482@csgroup.eu>
+        Tue, 14 Dec 2021 14:59:19 GMT
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1F3F1AC075;
+        Tue, 14 Dec 2021 14:59:19 +0000 (GMT)
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6BC5FAC060;
+        Tue, 14 Dec 2021 14:59:13 +0000 (GMT)
+Received: from [9.211.79.24] (unknown [9.211.79.24])
+        by b01ledav006.gho.pok.ibm.com (Postfix) with ESMTP;
+        Tue, 14 Dec 2021 14:59:13 +0000 (GMT)
+Message-ID: <bb401f7d-7b2d-15ef-51c8-2c63be70f04c@linux.ibm.com>
+Date:   Tue, 14 Dec 2021 09:59:11 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [PATCH 30/32] vfio-pci/zdev: add DTSM to clp group capability
+Content-Language: en-US
+To:     Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
+        schnelle@linux.ibm.com, farman@linux.ibm.com,
+        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
+        vneethv@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com,
+        thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20211207205743.150299-1-mjrosato@linux.ibm.com>
+ <20211207205743.150299-31-mjrosato@linux.ibm.com>
+ <b54b2ee9-3d7f-11b7-9aa4-e5dafd01a086@linux.ibm.com>
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <b54b2ee9-3d7f-11b7-9aa4-e5dafd01a086@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <fc3099b8-9f12-3e47-08a0-05abc37a0482@csgroup.eu>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: JnbFfRm75kVyNUBP3Cs4lugyZBEgQEnO
-X-Proofpoint-GUID: 3DaxL9v1MACAb8vQfjQA_AaDRKRC4gR5
+X-Proofpoint-GUID: hzmXHhR6DxiFNB1VzwWaSFX3vuC_vCxw
+X-Proofpoint-ORIG-GUID: UPfsLR96wmCl1CfsA1dgUK9C7cBrYbnc
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2021-12-14_06,2021-12-14_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1011
- suspectscore=0 mlxlogscore=832 lowpriorityscore=0 malwarescore=0
- adultscore=0 priorityscore=1501 phishscore=0 bulkscore=0 spamscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2112140082
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ malwarescore=0 clxscore=1015 priorityscore=1501 spamscore=0 bulkscore=0
+ mlxlogscore=999 lowpriorityscore=0 mlxscore=0 adultscore=0 phishscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2112140084
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Dec 13, 2021 at 05:50:52PM +0000, Christophe Leroy wrote:
-> Le 13/12/2021 � 18:33, Steven Rostedt a �crit�:
-> > On Mon, 13 Dec 2021 17:30:48 +0000
-> > Christophe Leroy <christophe.leroy@csgroup.eu> wrote:
-> > 
-> >> Thanks, I will try that.
-> >>
-> >> I can't find ftrace_graph_func() in s390. Does it mean that s390 doesn't
-> >> have a working function tracer anymore ?
-> >>
-> >> I see your commit 0c0593b45c9b4 ("x86/ftrace: Make function graph use
-> >> ftrace directly") is dated 8 Oct 2021 while 5740a7c71ab6 ("s390/ftrace:
-> >> add HAVE_DYNAMIC_FTRACE_WITH_ARGS support") is 4 Oct 2021.
-> > 
-> > Hmm, maybe not. I can't test it.
-> > 
-> > This needs to be fixed if that's the case.
-> > 
-> > Thanks for bringing it up!
+On 12/14/21 4:58 AM, Pierre Morel wrote:
+> 
+> 
+> On 12/7/21 21:57, Matthew Rosato wrote:
+>> The DTSM, or designation type supported mask, indicates what IOAT formats
+>> are available to the guest.  For an interpreted device, userspace will 
+>> not
+>> know what format(s) the IOAT assist supports, so pass it via the
+>> capability chain.  Since the value belongs to the Query PCI Function 
+>> Group
+>> clp, let's extend the existing capability with a new version.
+>>
+>> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+>> ---
+>>   drivers/vfio/pci/vfio_pci_zdev.c | 9 ++++++---
+>>   include/uapi/linux/vfio_zdev.h   | 3 +++
+>>   2 files changed, 9 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/vfio/pci/vfio_pci_zdev.c 
+>> b/drivers/vfio/pci/vfio_pci_zdev.c
+>> index 85be77492a6d..342b59ed36c9 100644
+>> --- a/drivers/vfio/pci/vfio_pci_zdev.c
+>> +++ b/drivers/vfio/pci/vfio_pci_zdev.c
+>> @@ -45,19 +45,22 @@ static int zpci_group_cap(struct zpci_dev *zdev, 
+>> struct vfio_info_cap *caps)
+>>   {
+>>       struct vfio_device_info_cap_zpci_group cap = {
+>>           .header.id = VFIO_DEVICE_INFO_CAP_ZPCI_GROUP,
+>> -        .header.version = 1,
+>> +        .header.version = 2,
+>>           .dasm = zdev->dma_mask,
+>>           .msi_addr = zdev->msi_addr,
+>>           .flags = VFIO_DEVICE_INFO_ZPCI_FLAG_REFRESH,
+>>           .mui = zdev->fmb_update,
+>>           .noi = zdev->max_msi,
+>>           .maxstbl = ZPCI_MAX_WRITE_SIZE,
+> 
+> This, maxstbl, is not part of the patch but shouldn't we consider it too?
+> The maxstbl is fixed for intercepted VFIO because the kernel is handling 
+> the STBL instruction in behalf of the guest.
+> Here the guest will use STBL directly.
+> 
+> I think we should report the right maxstbl value.
+> 
 
-It still works, we run the full ftrace/kprobes selftests from the
-kernel every day on multiple machines with several kernels (besides
-other Linus' tree, but also linux-next). That said, I wanted to change
-s390's code follow what x86 is currently doing anyway.
+I think we are OK, I think you missed the line that does this already, 
+it was added in patch 27 when we wire up interpretive execution.  So, 
+here we are defaulting to reporting ZPCI_MAX_WRITE_SIZE, and then ...
 
-One thing to note: commit 5740a7c71ab6 ("s390/ftrace: add
-HAVE_DYNAMIC_FTRACE_WITH_ARGS support") looks only that simple because
-ftrace_caller _and_ ftrace_regs_caller used to save all register
-contents into the pt_regs structure, which never was a requirement,
-but implicitly fulfills the HAVE_DYNAMIC_FTRACE_WITH_ARGS
-requirements.
-Not sure if powerpc passes enough register contents via pt_regs for
-HAVE_DYNAMIC_FTRACE_WITH_ARGS though. Might be something to check?
+>> -        .version = zdev->version
+>> +        .version = zdev->version,
+>> +        .dtsm = 0
+>>       };
+>>       /* Some values are different for interpreted devices */
+>> -    if (zdev->kzdev && zdev->kzdev->interp)
+>> +    if (zdev->kzdev && zdev->kzdev->interp) {
+>>           cap.maxstbl = zdev->maxstbl;
+
+... Here we overwrite this with the hardware value only for interpreted 
+devices.  Just like we are also now additionally doing for DTSM with 
+this patch.
+
+>> +        cap.dtsm = kvm_s390_pci_get_dtsm(zdev);
+>> +    }
+>>       return vfio_info_add_capability(caps, &cap.header, sizeof(cap));
+>>   }
+>> diff --git a/include/uapi/linux/vfio_zdev.h 
+>> b/include/uapi/linux/vfio_zdev.h
+>> index 1a5229b7bb18..b4c2ba8e71f0 100644
+>> --- a/include/uapi/linux/vfio_zdev.h
+>> +++ b/include/uapi/linux/vfio_zdev.h
+>> @@ -47,6 +47,9 @@ struct vfio_device_info_cap_zpci_group {
+>>       __u16 noi;        /* Maximum number of MSIs */
+>>       __u16 maxstbl;        /* Maximum Store Block Length */
+>>       __u8 version;        /* Supported PCI Version */
+>> +    /* End of version 1 */
+>> +    __u8 dtsm;        /* Supported IOAT Designations */
+>> +    /* End of version 2 */
+>>   };
+>>   /**
+>>
+> 
+
