@@ -2,96 +2,85 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 18059C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Dec 2021 13:59:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D648C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 14 Dec 2021 14:01:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234611AbhLNN7H (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Dec 2021 08:59:07 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:44960 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232428AbhLNN7G (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Dec 2021 08:59:06 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1639490345;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=m/5pRcl9h3yj8MAkqvRPCHvPcL0c1vkmrKvq7UUnKBk=;
-        b=UzRdxE/mQTqhVgFF+18bIUa2Tn92UKJxfy17YFX3FmarrZuOVDsoyISMWw4MFQpBWRe4EI
-        +LrPqx9CtcLCnsu8CxCKZcTnRW3oviixIMI+HvwRlyPS7C7JtBSU4sfTwNVILPe/IqXSqm
-        4L11ggliQUMqUeeFcI4ym2sO6+YPmNc=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-93-0kDh8FCsOqi2t6NYQJXz-g-1; Tue, 14 Dec 2021 08:59:04 -0500
-X-MC-Unique: 0kDh8FCsOqi2t6NYQJXz-g-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S234738AbhLNOBx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Dec 2021 09:01:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54274 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234696AbhLNOBw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Dec 2021 09:01:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4256BC061574;
+        Tue, 14 Dec 2021 06:01:52 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BA20F1966320;
-        Tue, 14 Dec 2021 13:59:01 +0000 (UTC)
-Received: from horse.redhat.com (unknown [10.22.33.95])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 25B375BE02;
-        Tue, 14 Dec 2021 13:59:01 +0000 (UTC)
-Received: by horse.redhat.com (Postfix, from userid 10451)
-        id A5F242233DF; Tue, 14 Dec 2021 08:59:00 -0500 (EST)
-Date:   Tue, 14 Dec 2021 08:59:00 -0500
-From:   Vivek Goyal <vgoyal@redhat.com>
-To:     Dan Williams <dan.j.williams@intel.com>
-Cc:     Christoph Hellwig <hch@lst.de>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Alasdair Kergon <agk@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        Matthew Wilcox <willy@infradead.org>,
-        device-mapper development <dm-devel@redhat.com>,
-        Linux NVDIMM <nvdimm@lists.linux.dev>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH 5/5] dax: always use _copy_mc_to_iter in dax_copy_to_iter
-Message-ID: <YbijJOjhLAwvyNag@redhat.com>
-References: <20211209063828.18944-1-hch@lst.de>
- <20211209063828.18944-6-hch@lst.de>
- <YbNejVRF5NQB0r83@redhat.com>
- <CAPcyv4i_HdnMcq6MmDMt-a5p=ojh_vsoAiES0vUYEh7HvC1O-A@mail.gmail.com>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CBA7B614DA;
+        Tue, 14 Dec 2021 14:01:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC22CC34601;
+        Tue, 14 Dec 2021 14:01:49 +0000 (UTC)
+Date:   Tue, 14 Dec 2021 09:01:48 -0500
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc:     Josh Poimboeuf <jpoimboe@redhat.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Petr Mladek <pmladek@suse.com>,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        "Naveen N . Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "live-patching@vger.kernel.org" <live-patching@vger.kernel.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>
+Subject: Re: [PATCH v1 0/5] Implement livepatch on PPC32
+Message-ID: <20211214090148.264f4660@gandalf.local.home>
+In-Reply-To: <aac75717-a3ac-c0b4-3e79-dc6eb9c26d8c@csgroup.eu>
+References: <cover.1635423081.git.christophe.leroy@csgroup.eu>
+        <20211028093547.48c69dfe@gandalf.local.home>
+        <6209682d-0caa-b779-8763-376a984d8ed8@csgroup.eu>
+        <20211213121536.25e5488d@gandalf.local.home>
+        <5511f43c-192a-622b-7c72-52e07f0032c2@csgroup.eu>
+        <20211213123338.65eda5a0@gandalf.local.home>
+        <fc3099b8-9f12-3e47-08a0-05abc37a0482@csgroup.eu>
+        <20211213135410.12642d8f@gandalf.local.home>
+        <8df90f94-9939-0178-b92b-6ae6ea81784c@csgroup.eu>
+        <20211213144603.47d7c908@gandalf.local.home>
+        <76ce2dd7-691e-df73-727c-110713c07cda@csgroup.eu>
+        <aac75717-a3ac-c0b4-3e79-dc6eb9c26d8c@csgroup.eu>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAPcyv4i_HdnMcq6MmDMt-a5p=ojh_vsoAiES0vUYEh7HvC1O-A@mail.gmail.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sun, Dec 12, 2021 at 06:48:05AM -0800, Dan Williams wrote:
-> On Fri, Dec 10, 2021 at 6:05 AM Vivek Goyal <vgoyal@redhat.com> wrote:
-> >
-> > On Thu, Dec 09, 2021 at 07:38:28AM +0100, Christoph Hellwig wrote:
-> > > While using the MC-safe copy routines is rather pointless on a virtual device
-> > > like virtiofs,
-> >
-> > I was wondering about that. Is it completely pointless.
-> >
-> > Typically we are just mapping host page cache into qemu address space.
-> > That shows as virtiofs device pfn in guest and that pfn is mapped into
-> > guest application address space in mmap() call.
-> >
-> > Given on host its DRAM, so I would not expect machine check on load side
-> > so there was no need to use machine check safe variant.
+On Tue, 14 Dec 2021 08:35:14 +0100
+Christophe Leroy <christophe.leroy@csgroup.eu> wrote:
+
+> > Will continue investigating.
+> >   
 > 
-> That's a broken assumption, DRAM experiences multi-bit ECC errors.
-> Machine checks, data aborts, etc existed before PMEM.
+> trace_selftest_startup_function_graph() calls register_ftrace_direct() 
+> which returns -ENOSUPP because powerpc doesn't select 
+> CONFIG_DYNAMIC_FTRACE_WITH_DIRECT_CALLS.
+> 
+> Should TEST_DIRECT_TRAMP depend on CONFIG_DYNAMIC_FTRACE_WITH_DIRECT_CALLS ?
 
-So we should use MC safe variant when loading from DRAM as well?
-(If needed platoform support is there).
+Yes, that should be:
 
-Vivek
+#if defined(CONFIG_DYNAMIC_FTRACE) && \
+    defined(CONFIG_HAVE_DYNAMIC_FTRACE_WITH_DIRECT_CALLS)
+#define TEST_DIRECT_TRAMP
+noinline __noclone static void trace_direct_tramp(void) { }
+#endif
 
+
+And make it test it with or without the args.
+
+Thanks for finding this.
+
+-- Steve
