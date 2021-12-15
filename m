@@ -2,66 +2,98 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DBEF1C433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Dec 2021 19:15:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 956DFC433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Dec 2021 20:51:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344123AbhLOTPR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Dec 2021 14:15:17 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:59454 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344116AbhLOTPQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Dec 2021 14:15:16 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3484EB820E7;
-        Wed, 15 Dec 2021 19:15:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id EC5C2C36AE2;
-        Wed, 15 Dec 2021 19:15:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1639595714;
-        bh=TnB5QGesTygDmnU823pUl5hlL7VPzYvpHiA32BRyVy0=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=HsoqROnm3QN7B/GDrshtT1tNbeMj3BGUMjhJmRFTMTGIe0tSmoSWH/rbZ/tzWjftn
-         8tsWTN/y4tEeakKU1D6iaPBPG6P36EQaGE4XuNkjbCosYjPxngpVBsD4SjMBcm0Ntw
-         HGSvT+LW3Ps2oDlNUetiyOTKALL+AbtHBvOyDYAcsXIxPlQq2Cnh7mR6jtsLJGLZKC
-         oLMn80YwtjsAG9BFAs6n6YYe/WAjCwJ3e3FBdG/6QCEq55uKBGkT3F0654Pp0oxwdV
-         5yI6aUKPhIhKqJTBQiclasHeUJkOrvrAxr1W1BVCyEvCZqdRIp5tQNJc1NfrlhWX/9
-         /xf8p+zIAN8nQ==
-Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id D3E7D60A12;
-        Wed, 15 Dec 2021 19:15:13 +0000 (UTC)
-Subject: Re: [GIT PULL] s390 updates for 5.16-rc6
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <Ybo4kWEmz2yVEhoE@osiris>
-References: <Ybo4kWEmz2yVEhoE@osiris>
-X-PR-Tracked-List-Id: <linux-s390.vger.kernel.org>
-X-PR-Tracked-Message-Id: <Ybo4kWEmz2yVEhoE@osiris>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.16-5
-X-PR-Tracked-Commit-Id: 85bf17b28f97ca2749968d8786dc423db320d9c2
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: d9c1e6409cf47585a1f9abdd9b37d62ca7910966
-Message-Id: <163959571386.3685.5157764727883349464.pr-tracker-bot@kernel.org>
-Date:   Wed, 15 Dec 2021 19:15:13 +0000
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+        id S234245AbhLOUvF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Dec 2021 15:51:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56280 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233662AbhLOUvD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Dec 2021 15:51:03 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBD17C061574;
+        Wed, 15 Dec 2021 12:51:02 -0800 (PST)
+From:   Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1639601459;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=77DCNiXl9B9x9ao8a3ckFicR+A7/8jsezE822YCoYkI=;
+        b=0MC08SjOyHUSb632XivZnR6xp+J+lhdSt8dO4cVV21Usd+LFkCWMDMI5c2zqdprtPX8VcT
+        Z63tf+3EiGKcUHte1/483d4Z/hf6cKDNCZfSHwK0n7HeyH7/U5ccqzZJxTdJSRVkjhfdtR
+        IiH4xihB3g4E9MBjV2NktVFtgbdOo75IOpoHPIb3/7VdumCnWORcJgrzfHtGplNM5fxLCo
+        lWD8Oek/DpAbTtzS5eZ0f2xj6cql1OA57lGXY/RPOvZpVY8gxierMi9GKVnemFayVy076Y
+        M6+9Lfqa20tO87mNob/FrOG2y8clrn6urg7hwKRz/nQ9j3qTabd4wVqNL/bu2w==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1639601459;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=77DCNiXl9B9x9ao8a3ckFicR+A7/8jsezE822YCoYkI=;
+        b=SDPAxqej8tM3beNMTA3MRfQgMQzvFbRgGCzPLoilB6fEB/QgGtIDQRto0CY8QP/ghtYPeu
+        cjbHVwPoa9R9VUCQ==
+To:     LKML <linux-kernel@vger.kernel.org>
+Cc:     Bjorn Helgaas <helgaas@kernel.org>, Marc Zygnier <maz@kernel.org>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Megha Dey <megha.dey@intel.com>,
+        Ashok Raj <ashok.raj@intel.com>, linux-pci@vger.kernel.org,
+        Cedric Le Goater <clg@kaod.org>,
+        xen-devel@lists.xenproject.org, Juergen Gross <jgross@suse.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        Jon Mason <jdmason@kudzu.us>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com,
+        Nishanth Menon <nm@ti.com>
+Subject: Re: [patch V2 21/31] soc: ti: ti_sci_inta_msi: Rework MSI
+ descriptor allocation
+In-Reply-To: <20211206210748.737904583@linutronix.de>
+References: <20211206210600.123171746@linutronix.de>
+ <20211206210748.737904583@linutronix.de>
+Date:   Wed, 15 Dec 2021 21:50:58 +0100
+Message-ID: <87a6h1r3rh.ffs@tglx>
+MIME-Version: 1.0
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The pull request you sent on Wed, 15 Dec 2021 19:48:49 +0100:
+On Mon, Dec 06 2021 at 23:51, Thomas Gleixner wrote:
+>
+> No functional change intended.
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.16-5
+Famous last words.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/d9c1e6409cf47585a1f9abdd9b37d62ca7910966
+>  static int ti_sci_inta_msi_alloc_descs(struct device *dev,
+>  				       struct ti_sci_resource *res)
+>  {
+> -	struct msi_desc *msi_desc;
+> +	struct msi_desc msi_desc;
+>  	int set, i, count = 0;
+>  
+> +	memset(&msi_desc, 0, sizeof(msi_desc));
 
-Thank you!
+This fails to initialize msi_desc.nvec_used which makes the subsequent
+interrupt allocation fail. Delta fix below.
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+Thanks,
+
+        tglx
+---
+--- a/drivers/soc/ti/ti_sci_inta_msi.c
++++ b/drivers/soc/ti/ti_sci_inta_msi.c
+@@ -68,6 +68,7 @@ static int ti_sci_inta_msi_alloc_descs(s
+ 	int set, i, count = 0;
+ 
+ 	memset(&msi_desc, 0, sizeof(msi_desc));
++	msi_desc.nvec_used = 1;
+ 
+ 	for (set = 0; set < res->sets; set++) {
+ 		for (i = 0; i < res->desc[set].num; i++, count++) {
