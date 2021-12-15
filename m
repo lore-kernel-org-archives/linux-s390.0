@@ -2,70 +2,68 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0006CC433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Dec 2021 13:07:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03918C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Dec 2021 13:24:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234692AbhLONHg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Dec 2021 08:07:36 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:32888 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234376AbhLONHg (ORCPT
+        id S242827AbhLONYf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Dec 2021 08:24:35 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:49720 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S237399AbhLONYe (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 15 Dec 2021 08:07:36 -0500
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1BFCveui014522;
-        Wed, 15 Dec 2021 13:07:36 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=0+AIDY6aicStdOTOtfpuutFkGIYd/2EI3Dhgl0iB0GE=;
- b=A24UhHtLd2mnxVPiseeH+OYyY9vml71Re+jGpk8yqH0Tkt1rIuLIAyZFNo8Av1KPinf9
- 0NXZOSQ7D4+j/JbhHSTL9BiYuV5MyxAHkWpBTYwvG2T8vyeJ4mfTecKzNtm8xSZG12Dy
- UF8lpZhXCT1u7CX+datpBJ099kXL5Ee9ja0zuFwMm7ccsRBxPAavDKWJMIN6eF/3gGIk
- qD0x88rj1PUtgnaAq7upUn3NruBiK7e3w7YvkHXdqkVDK2Irffpm9P0SPbpcu01lAHBF
- 3GDWsnU1myktRHniWWr9sbNMq7yIBaTBXMTQvJWLWaQspkifhc8CwI5N2ehE4GTXEkZR rA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cygtrr8wm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Dec 2021 13:07:35 +0000
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1BFCx2Ah025536;
-        Wed, 15 Dec 2021 13:07:35 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cygtrr8vh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Dec 2021 13:07:35 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1BFD7Pv4012518;
-        Wed, 15 Dec 2021 13:07:32 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma02fra.de.ibm.com with ESMTP id 3cy7sjcvdq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Dec 2021 13:07:32 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1BFD7TsN38994386
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 15 Dec 2021 13:07:29 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E7A5DA4057;
-        Wed, 15 Dec 2021 13:07:28 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 673D8A405B;
-        Wed, 15 Dec 2021 13:07:28 +0000 (GMT)
-Received: from [9.171.32.186] (unknown [9.171.32.186])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 15 Dec 2021 13:07:28 +0000 (GMT)
-Message-ID: <c6536d85-dcee-1b6b-08bc-335716c7f23e@de.ibm.com>
-Date:   Wed, 15 Dec 2021 14:07:27 +0100
+        Wed, 15 Dec 2021 08:24:34 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1639574674;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=faX0xzTuw4r5Ss1p1Z66O3C+rjUZMW4qDeU2/6j1vvQ=;
+        b=B0tBW3Iv4VJi6HafhbAT2cNrO+1o1JkbEZeU86ah7IK/KSPLo13Nl7CbuHXcHLUpVqKslH
+        +iiG+SWpPlbb7EFHFG5wEIrvsZYwkk4jv8LVU1YEYq609Cv6+lnaRhAsigB0vZT6m+DrSO
+        L2YDG4ZWaG2ur0iRwmOOrE0VQZskDYU=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-280-h-eYk1FxOqCAGHnfQ4QRlQ-1; Wed, 15 Dec 2021 08:24:33 -0500
+X-MC-Unique: h-eYk1FxOqCAGHnfQ4QRlQ-1
+Received: by mail-wr1-f70.google.com with SMTP id v18-20020a5d5912000000b001815910d2c0so5916704wrd.1
+        for <linux-s390@vger.kernel.org>; Wed, 15 Dec 2021 05:24:33 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:organization:in-reply-to
+         :content-transfer-encoding;
+        bh=faX0xzTuw4r5Ss1p1Z66O3C+rjUZMW4qDeU2/6j1vvQ=;
+        b=MHwvBSW+2vtxRfP7ODYebf/4enUAIDaAV6HNVE1MUjf53SS4M6iJ5q+r3nJp0YhPyQ
+         lypMLK7xbY9dqdL1GwgLHJ3ruN8Oyxsg5j9UuZkJT0atluNHr4/cwz072YapYo0LadII
+         hYgqY+n3nA3WjTe3QZKmrWgeqqIiVoS57RPSDotTweiZeWfXXNgkzNPNzqmvgOyHXeBg
+         KveaTktb+sbndw19cX3kUep6bstLAPl6oROHRAnhNS86DIjZs2P6wpCmmrENZRYfjv8F
+         lKFUWMuiJn5ODGNEpFzKZURVcl3vGGre9MYkq7/oOgF6pC2orIz7Zd0/dIdAkYIK58fT
+         NLLw==
+X-Gm-Message-State: AOAM532jWX7WN9Haga/0hPlfekxe0drtedNvVV6g2n85iUPaXrJ3R97n
+        +Z24JpE1rVI0NTG+maTtat/JUbQe+ScGycS7SuOyW3EATE9snKXXl2t+LyiAOi1TwckHMNUnUzA
+        QkvhzlUGv1flYZr80hUK8Rg==
+X-Received: by 2002:a5d:4e92:: with SMTP id e18mr4477449wru.89.1639574672098;
+        Wed, 15 Dec 2021 05:24:32 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxvYE115YTEnXyOnYw+6M9nPcYQcDwa5GAYcHppd/Ruc2VVaVYWw55fHwyFOHuOPUuAyhomuw==
+X-Received: by 2002:a5d:4e92:: with SMTP id e18mr4477429wru.89.1639574671898;
+        Wed, 15 Dec 2021 05:24:31 -0800 (PST)
+Received: from [192.168.3.132] (p5b0c609b.dip0.t-ipconnect.de. [91.12.96.155])
+        by smtp.gmail.com with ESMTPSA id b132sm1894704wmd.38.2021.12.15.05.24.31
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 15 Dec 2021 05:24:31 -0800 (PST)
+Message-ID: <3832e4ab-ffb7-3389-908d-99225ccea038@redhat.com>
+Date:   Wed, 15 Dec 2021 14:24:30 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
+ Thunderbird/91.2.0
 Subject: Re: [RFC PATCH v5 1/1] KVM: s390: Clarify SIGP orders versus
  STOP/RESTART
 Content-Language: en-US
 To:     Eric Farman <farman@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
         Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Thomas Huth <thuth@redhat.com>
 Cc:     Heiko Carstens <hca@linux.ibm.com>,
@@ -73,28 +71,16 @@ Cc:     Heiko Carstens <hca@linux.ibm.com>,
         linux-s390@vger.kernel.org
 References: <20211213210550.856213-1-farman@linux.ibm.com>
  <20211213210550.856213-2-farman@linux.ibm.com>
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
 In-Reply-To: <20211213210550.856213-2-farman@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: k49_iMw4vKlu42L2E7j03tTn7QjQnykj
-X-Proofpoint-GUID: 5l40OtMiCEzqw4uSbYosrnZ74vwcpQUP
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2021-12-15_08,2021-12-14_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 spamscore=0
- phishscore=0 suspectscore=0 clxscore=1015 bulkscore=0 adultscore=0
- malwarescore=0 mlxscore=0 lowpriorityscore=0 impostorscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2112150074
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-Am 13.12.21 um 22:05 schrieb Eric Farman:
+On 13.12.21 22:05, Eric Farman wrote:
 > With KVM_CAP_S390_USER_SIGP, there are only five Signal Processor
 > orders (CONDITIONAL EMERGENCY SIGNAL, EMERGENCY SIGNAL, EXTERNAL CALL,
 > SENSE, and SENSE RUNNING STATUS) which are intended for frequent use
@@ -107,111 +93,16 @@ Am 13.12.21 um 22:05 schrieb Eric Farman:
 > SIGP orders, and return BUSY (CC2) if one is in process. This is in
 > agreement with the Principles of Operation, which states that only one
 > order can be "active" on a CPU at a time.
-
-As far as I understand this fixes a real bug with some test tools. Correct?
-Then a stable tag might be appropriate.
-(Still have to review this)
-
-How hard would it be to also build a kvm-unit test testcase?
-
+> 
 > Suggested-by: David Hildenbrand <david@redhat.com>
 > Signed-off-by: Eric Farman <farman@linux.ibm.com>
 > ---
->   arch/s390/kvm/interrupt.c |  7 +++++++
->   arch/s390/kvm/kvm-s390.c  |  9 +++++++--
->   arch/s390/kvm/kvm-s390.h  |  1 +
->   arch/s390/kvm/sigp.c      | 28 ++++++++++++++++++++++++++++
->   4 files changed, 43 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> index 37f47e32d9c4..d339e1c47e4d 100644
-> --- a/arch/s390/kvm/interrupt.c
-> +++ b/arch/s390/kvm/interrupt.c
-> @@ -2115,6 +2115,13 @@ int kvm_s390_is_stop_irq_pending(struct kvm_vcpu *vcpu)
->   	return test_bit(IRQ_PEND_SIGP_STOP, &li->pending_irqs);
->   }
->   
-> +int kvm_s390_is_restart_irq_pending(struct kvm_vcpu *vcpu)
-> +{
-> +	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
-> +
-> +	return test_bit(IRQ_PEND_RESTART, &li->pending_irqs);
-> +}
-> +
->   void kvm_s390_clear_stop_irq(struct kvm_vcpu *vcpu)
->   {
->   	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 5f52e7eec02f..bfdf610bfecb 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -4641,10 +4641,15 @@ int kvm_s390_vcpu_stop(struct kvm_vcpu *vcpu)
->   		}
->   	}
->   
-> -	/* SIGP STOP and SIGP STOP AND STORE STATUS has been fully processed */
-> +	/*
-> +	 * Set the VCPU to STOPPED and THEN clear the interrupt flag,
-> +	 * now that the SIGP STOP and SIGP STOP AND STORE STATUS orders
-> +	 * have been fully processed. This will ensure that the VCPU
-> +	 * is kept BUSY if another VCPU is inquiring with SIGP SENSE.
-> +	 */
-> +	kvm_s390_set_cpuflags(vcpu, CPUSTAT_STOPPED);
->   	kvm_s390_clear_stop_irq(vcpu);
->   
-> -	kvm_s390_set_cpuflags(vcpu, CPUSTAT_STOPPED);
->   	__disable_ibs_on_vcpu(vcpu);
->   
->   	for (i = 0; i < online_vcpus; i++) {
-> diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-> index c07a050d757d..1876ab0c293f 100644
-> --- a/arch/s390/kvm/kvm-s390.h
-> +++ b/arch/s390/kvm/kvm-s390.h
-> @@ -427,6 +427,7 @@ void kvm_s390_destroy_adapters(struct kvm *kvm);
->   int kvm_s390_ext_call_pending(struct kvm_vcpu *vcpu);
->   extern struct kvm_device_ops kvm_flic_ops;
->   int kvm_s390_is_stop_irq_pending(struct kvm_vcpu *vcpu);
-> +int kvm_s390_is_restart_irq_pending(struct kvm_vcpu *vcpu);
->   void kvm_s390_clear_stop_irq(struct kvm_vcpu *vcpu);
->   int kvm_s390_set_irq_state(struct kvm_vcpu *vcpu,
->   			   void __user *buf, int len);
-> diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
-> index 5ad3fb4619f1..c4884de0858b 100644
-> --- a/arch/s390/kvm/sigp.c
-> +++ b/arch/s390/kvm/sigp.c
-> @@ -276,6 +276,34 @@ static int handle_sigp_dst(struct kvm_vcpu *vcpu, u8 order_code,
->   	if (!dst_vcpu)
->   		return SIGP_CC_NOT_OPERATIONAL;
->   
-> +	/*
-> +	 * SIGP RESTART, SIGP STOP, and SIGP STOP AND STORE STATUS orders
-> +	 * are processed asynchronously. Until the affected VCPU finishes
-> +	 * its work and calls back into KVM to clear the (RESTART or STOP)
-> +	 * interrupt, we need to return any new non-reset orders "busy".
-> +	 *
-> +	 * This is important because a single VCPU could issue:
-> +	 *  1) SIGP STOP $DESTINATION
-> +	 *  2) SIGP SENSE $DESTINATION
-> +	 *
-> +	 * If the SIGP SENSE would not be rejected as "busy", it could
-> +	 * return an incorrect answer as to whether the VCPU is STOPPED
-> +	 * or OPERATING.
-> +	 */
-> +	if (order_code != SIGP_INITIAL_CPU_RESET &&
-> +	    order_code != SIGP_CPU_RESET) {
-> +		/*
-> +		 * Lockless check. Both SIGP STOP and SIGP (RE)START
-> +		 * properly synchronize everything while processing
-> +		 * their orders, while the guest cannot observe a
-> +		 * difference when issuing other orders from two
-> +		 * different VCPUs.
-> +		 */
-> +		if (kvm_s390_is_stop_irq_pending(dst_vcpu) ||
-> +		    kvm_s390_is_restart_irq_pending(dst_vcpu))
-> +			return SIGP_CC_BUSY;
-> +	}
-> +
->   	switch (order_code) {
->   	case SIGP_SENSE:
->   		vcpu->stat.instruction_sigp_sense++;
-> 
+
+In general, LGTM. As raised, with SIGP RESTART there are other cases we
+could fix in the kernel, but they are of very low priority IMHO.
+
+-- 
+Thanks,
+
+David / dhildenb
+
