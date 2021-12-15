@@ -2,208 +2,168 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D3A26C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Dec 2021 10:31:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5609AC433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Dec 2021 12:06:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241686AbhLOKbP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Dec 2021 05:31:15 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:60106 "EHLO
+        id S242287AbhLOMGB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Dec 2021 07:06:01 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:36813 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S241681AbhLOKbP (ORCPT
+        by vger.kernel.org with ESMTP id S236954AbhLOMGA (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 15 Dec 2021 05:31:15 -0500
+        Wed, 15 Dec 2021 07:06:00 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1639564274;
+        s=mimecast20190719; t=1639569960;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=VTGLyY6hDvfJisvSsGOM1bt/y1TKbXPdUsXzyZE3JvY=;
-        b=TLQgF+6PMm/B11LECsMuIwRH6meWYcWsCYiLO3s1efEb+k1nyKVsuOjgE1hL8wI0GGzf7X
-        HAi8t7tcUv/YIR0hJvGS1IadL7Z+OlondwIR/vw5ACExeo6PRmYo9lp+7w5z9fhgh5wEo8
-        C8qa9WfX6X0k2lF/frtnZl+fASOIxBs=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=5nFpQ6cduCeSMbccEFc0gIMqs2KB4TheEAXhDJB6cHg=;
+        b=GEgEdfmAOCCO1UAdjj7lcF5UcETObjHZCnrthW+rdU1JIfAJ51oaDHd7BgZL0FRUK3Nbc2
+        f3BVIq7aQv5wrIcVRxumQ2ppaHemcJELGZOWZD3c1hjGo7Oe1+rWjW4qV97teHy1eEC5m8
+        qDjjPcV4c7sCqGoua3HJocTUihAcwHg=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-56-0H-PkOtzNP--ID7Hz_26bg-1; Wed, 15 Dec 2021 05:31:11 -0500
-X-MC-Unique: 0H-PkOtzNP--ID7Hz_26bg-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C57EB760EB;
-        Wed, 15 Dec 2021 10:31:08 +0000 (UTC)
-Received: from localhost (unknown [10.39.195.21])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id A249674EB5;
-        Wed, 15 Dec 2021 10:30:52 +0000 (UTC)
-Date:   Wed, 15 Dec 2021 10:30:50 +0000
-From:   Stefan Hajnoczi <stefanha@redhat.com>
-To:     Vivek Goyal <vgoyal@redhat.com>
-Cc:     Dan Williams <dan.j.williams@intel.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Alasdair Kergon <agk@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        Matthew Wilcox <willy@infradead.org>,
-        device-mapper development <dm-devel@redhat.com>,
-        Linux NVDIMM <nvdimm@lists.linux.dev>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH 4/5] dax: remove the copy_from_iter and copy_to_iter
- methods
-Message-ID: <YbnD2iDmN92Bure9@stefanha-x1.localdomain>
-References: <20211209063828.18944-1-hch@lst.de>
- <20211209063828.18944-5-hch@lst.de>
- <YbNhPXBg7G/ridkV@redhat.com>
- <CAPcyv4g4_yFqDeS+pnAZOxcB=Ua+iArK5mqn0iMG4PX6oL=F_A@mail.gmail.com>
- <20211213082318.GB21462@lst.de>
- <YbiosqZoG8e6rDkj@redhat.com>
- <CAPcyv4hFjKsPrPTB4NtLHiY8gyaELz9+45N1OFj3hz+uJ=9JnA@mail.gmail.com>
- <Ybj/azxrUyU4PZEr@redhat.com>
+ us-mta-112-b-YBs73CPTyzxEgnrUJXsw-1; Wed, 15 Dec 2021 07:05:56 -0500
+X-MC-Unique: b-YBs73CPTyzxEgnrUJXsw-1
+Received: by mail-wr1-f69.google.com with SMTP id a11-20020adffb8b000000b001a0b0f4afe9so3054061wrr.13
+        for <linux-s390@vger.kernel.org>; Wed, 15 Dec 2021 04:05:56 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent
+         :content-language:to:cc:references:from:subject:in-reply-to
+         :content-transfer-encoding;
+        bh=5nFpQ6cduCeSMbccEFc0gIMqs2KB4TheEAXhDJB6cHg=;
+        b=SMxZ8e/oliruzCVjbwdNgSPtHf++7zu2WVjL/wRnojxNlu4V65wNom5luR4PpFeCDu
+         QVxwatFXynuODiJETygbulgWF5eV33vY+GaGzzxdbRyc9qwwkEO/pllipKWhZD5VBRK1
+         3oUV0BzFVQI7la7lDHoORR1yfYMTUXjmMIPEXyve0WLtWjWB1tFiw2h4pKoGfzfhBosf
+         xGgeh1G6R98JfOqBmPRQ3P2e20eQ0LnPxRE50ZJGWmXaEZWCSvo0xRLQg369SCOrpPDZ
+         xsrmb0Mz+vUAOtjs7k9pRM+KJ8CbRZkXWZUKcMr1SPxb6Rr5D8yCmSqM+kayDjxCFgpO
+         i6Ag==
+X-Gm-Message-State: AOAM532368yO8JpO1ghgQwM054xopCleFw7C8YEbRAF4A0sleGEu8wj3
+        B6sVfVwYJJv5NLpGdizti0gzzUxABEDr1Kqvplap0nvUi8Uz4sCh9Sedi/nc0sYuycFR/KokHlS
+        6LiIBisSTrr0Uf5J1J4MIOg==
+X-Received: by 2002:a5d:5912:: with SMTP id v18mr4046382wrd.144.1639569955599;
+        Wed, 15 Dec 2021 04:05:55 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyxnVBjLRjVoyS6pA2ah+8a/ieDtsvKK9/J9/tJ54F2erl5Katslc3OMv9ZF9ctr1FZVwPxVg==
+X-Received: by 2002:a5d:5912:: with SMTP id v18mr4046365wrd.144.1639569955366;
+        Wed, 15 Dec 2021 04:05:55 -0800 (PST)
+Received: from [10.33.192.183] (nat-pool-str-t.redhat.com. [149.14.88.106])
+        by smtp.gmail.com with ESMTPSA id m20sm5369211wmq.11.2021.12.15.04.05.54
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 15 Dec 2021 04:05:54 -0800 (PST)
+Message-ID: <6aaf6c60-a258-29e3-fcec-82c77d3945a4@redhat.com>
+Date:   Wed, 15 Dec 2021 13:05:53 +0100
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="fVCyKoqL/Gzi3K+T"
-Content-Disposition: inline
-In-Reply-To: <Ybj/azxrUyU4PZEr@redhat.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Content-Language: en-US
+To:     Tony Krowiak <akrowiak@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>
+Cc:     linux-kernel@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+References: <20211201141110.94636-1-thuth@redhat.com>
+ <8512bb0a-a34a-09b0-65f3-781f3d092364@linux.ibm.com>
+ <87k0g8scx1.fsf@redhat.com>
+ <1eb9ca5c-b1bb-b768-64ee-e4a1b31bb171@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+Subject: Re: [RFC PATCH] s390: vfio-ap: Register the vfio_ap module for the
+ "ap" parent bus
+In-Reply-To: <1eb9ca5c-b1bb-b768-64ee-e4a1b31bb171@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On 14/12/2021 22.55, Tony Krowiak wrote:
+> 
+> 
+> On 12/13/21 11:11, Cornelia Huck wrote:
+>> On Mon, Dec 13 2021, Harald Freudenberger <freude@linux.ibm.com> wrote:
+>>
+>>> On 01.12.21 15:11, Thomas Huth wrote:
+>>>> The crypto devices that we can use with the vfio_ap module are sitting
+>>>> on the "ap" bus, not on the "vfio_ap" bus that the module defines
+>>>> itself. With this change, the vfio_ap module now gets automatically
+>>>> loaded if a supported crypto adapter is available in the host.
+>>>>
+>>>> Signed-off-by: Thomas Huth <thuth@redhat.com>
+>>>> ---
+>>>>   Note: Marked as "RFC" since I'm not 100% sure about it ...
+>>>>         please review carefully!
+>>>>
+>>>>   drivers/s390/crypto/vfio_ap_drv.c | 2 +-
+>>>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>>>
+>>>> diff --git a/drivers/s390/crypto/vfio_ap_drv.c 
+>>>> b/drivers/s390/crypto/vfio_ap_drv.c
+>>>> index 4d2556bc7fe5..5580e40608a4 100644
+>>>> --- a/drivers/s390/crypto/vfio_ap_drv.c
+>>>> +++ b/drivers/s390/crypto/vfio_ap_drv.c
+>>>> @@ -39,7 +39,7 @@ static struct ap_device_id ap_queue_ids[] = {
+>>>>       { /* end of sibling */ },
+>>>>   };
+>>>> -MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
+>>>> +MODULE_DEVICE_TABLE(ap, ap_queue_ids);
+>>>>   /**
+>>>>    * vfio_ap_queue_dev_probe:
+>>> I had a chance to check this now.
+>>> First I have to apologize about the dispute with vfio devices appearing 
+>>> on the ap bus.
+>>> That's not the case with this patch. As Connie states the 
+>>> MODULE_DEVICE_TABLE() does not
+>>> change the parent of a device and vfio_ap_drv is a driver for ap devices 
+>>> and thus
+>>> belongs to the ap bus anyway.
+>>> So what's left is that with this change the vfio_ap kernel module is 
+>>> automatically loaded
+>>> when an ap device type 10-13 is recognized by the ap bus. So the 
+>>> intention of the patch
+>>> is fulfilled.
+>>> Yet another kernel module which may occupy memory but will never get used 
+>>> by most customers.
+>>> This may not be a problem but I had a glance at the list of kernel 
+>>> modules loaded on my
+>>> LPAR with and without the patch and the difference is:
+>>> ...
+>>> kvm                   512000  1 vfio_ap
+>>> vfio_ap                28672  0
+>>> ...
+>>> So the vfio_ap module has a dependency to the biggest kernel module ever 
+>>> - kvm.
+>>> Do I need to say something more?
+>>>
+>>> If this dependency is removed then I would not hesitate to accept this 
+>>> patch. However
+>>> this is up to Tony as he is the maintainer of the vfio ap device driver.
+>> I don't think you can drop the kvm reference, as the code in vfio-ap
+>> obviously depends on it...
+>>
+>> One possibility is simply blocking autoload of the module in userspace by
+>> default, and only allow it to be loaded automatically when e.g. qemu-kvm
+>> is installed on the system. This is obviously something that needs to be
+>> decided by the distros.
+>>
+>> (kvm might actually be autoloaded already, so autoloading vfio-ap would
+>> not really make it worse.)
+> 
+> Of the vfio_ccw module is automatically loaded, then the kvm
+> module will also get loaded. I startup up a RHEL8.3 system and
+> sure enough, the vfio_ccw module is loaded along with the
+> kvm, vfio and mdev modules. If this is true for all distros, then
+> it wouldn't make much difference if the vfio_ap module is
+> autoloaded too.
 
---fVCyKoqL/Gzi3K+T
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I think I don't mind too much if we auto-load vfio-ap or not - but I think 
+we should make it consistent with vfio-ccw. So either auto-load both modules 
+(if the corresponding devices are available), or remove the 
+MODULE_DEVICE_TABLE() entries from both modules?
 
-On Tue, Dec 14, 2021 at 03:32:43PM -0500, Vivek Goyal wrote:
-> On Tue, Dec 14, 2021 at 08:41:30AM -0800, Dan Williams wrote:
-> > On Tue, Dec 14, 2021 at 6:23 AM Vivek Goyal <vgoyal@redhat.com> wrote:
-> > >
-> > > On Mon, Dec 13, 2021 at 09:23:18AM +0100, Christoph Hellwig wrote:
-> > > > On Sun, Dec 12, 2021 at 06:44:26AM -0800, Dan Williams wrote:
-> > > > > On Fri, Dec 10, 2021 at 6:17 AM Vivek Goyal <vgoyal@redhat.com> w=
-rote:
-> > > > > > Going forward, I am wondering should virtiofs use flushcache ve=
-rsion as
-> > > > > > well. What if host filesystem is using DAX and mapping persiste=
-nt memory
-> > > > > > pfn directly into qemu address space. I have never tested that.
-> > > > > >
-> > > > > > Right now we are relying on applications to do fsync/msync on v=
-irtiofs
-> > > > > > for data persistence.
-> > > > >
-> > > > > This sounds like it would need coordination with a paravirtualized
-> > > > > driver that can indicate whether the host side is pmem or not, li=
-ke
-> > > > > the virtio_pmem driver. However, if the guest sends any fsync/msy=
-nc
-> > > > > you would still need to go explicitly cache flush any dirty page
-> > > > > because you can't necessarily trust that the guest did that alrea=
-dy.
-> > > >
-> > > > Do we?  The application can't really know what backend it is on, so
-> > > > it sounds like the current virtiofs implementation doesn't really, =
-does it?
-> > >
-> > > Agreed that application does not know what backend it is on. So virti=
-ofs
-> > > just offers regular posix API where applications have to do fsync/msy=
-nc
-> > > for data persistence. No support for mmap(MAP_SYNC). We don't offer p=
-ersistent
-> > > memory programming model on virtiofs. That's not the expectation. DAX
-> > > is used only to bypass guest page cache.
-> > >
-> > > With this assumption, I think we might not have to use flushcache ver=
-sion
-> > > at all even if shared filesystem is on persistent memory on host.
-> > >
-> > > - We mmap() host files into qemu address space. So any dax store in v=
-irtiofs
-> > >   should make corresponding pages dirty in page cache on host and when
-> > >   and fsync()/msync() comes later, it should flush all the data to PM=
-EM.
-> > >
-> > > - In case of file extending writes, virtiofs falls back to regular
-> > >   FUSE_WRITE path (and not use DAX), and in that case host pmem driver
-> > >   should make sure writes are flushed to pmem immediately.
-> > >
-> > > Are there any other path I am missing. If not, looks like we might not
-> > > have to use flushcache version in virtiofs at all as long as we are n=
-ot
-> > > offering guest applications user space flushes and MAP_SYNC support.
-> > >
-> > > We still might have to use machine check safe variant though as loads
-> > > might generate synchronous machine check. What's not clear to me is
-> > > that if this MC safe variant should be used only in case of PMEM or
-> > > should it be used in case of non-PMEM as well.
-> >=20
-> > It should be used on any memory address that can throw exception on
-> > load, which is any physical address, in paths that can tolerate
-> > memcpy() returning an error code, most I/O paths, and can tolerate
-> > slower copy performance on older platforms that do not support MC
-> > recovery with fast string operations, to date that's only PMEM users.
->=20
-> Ok, So basically latest cpus can do fast string operations with MC
-> recovery so that using MC safe variant is not a problem.
->=20
-> Then there is range of cpus which can do MC recovery but do slower
-> versions of memcpy and that's where the issue is.
->=20
-> So if we knew that virtiofs dax window is backed by a pmem device
-> then we should always use MC safe variant. Even if it means paying
-> the price of slow version for the sake of correctness.=20
->=20
-> But if we are not using pmem on host, then there is no point in
-> using MC safe variant.
->=20
-> IOW.
->=20
-> 	if (virtiofs_backed_by_pmem) {
-> 		use_mc_safe_version
-> 	else
-> 		use_non_mc_safe_version
-> 	}
->=20
-> Now question is, how do we know if virtiofs dax window is backed by
-> a pmem or not. I checked virtio_pmem driver and that does not seem
-> to communicate anything like that. It just communicates start of the
-> range and size of range, nothing else.
->=20
-> I don't have full handle on stack of modules of virtio_pmem, but my guess
-> is it probably is using MC safe version always (because it does not
-> know anthing about the backing storage).
->=20
-> /me will definitely like to pay penalty of slower memcpy if virtiofs
-> device is not backed by a pmem.
-
-Reads from the page cache handle machine checks (filemap_read() ->
-raw_copy_to_user()). I think virtiofs should therefore always handle
-machine checks when reading from the DAX Window.
-
-Stefan
-
---fVCyKoqL/Gzi3K+T
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmG5w9oACgkQnKSrs4Gr
-c8j4SQf/fNuEZjHQ7MgEmyQ7cl+ER5jQ4O1RsP/Y0hXNm9hU5bbbbeRF+BIcSsj7
-cmU9GGe6McyCdpHBOjaUPbRJkEmwA3F6Sbr4c8xm8dL21fPP6TNJu/4gLXmI6+KY
-kNihoEXb/lWXT8YQcngs3s1pkScfsZaxPnUo6m4E/dMLbxkikpIDqfQI9m6KzSUL
-uqODFy0itv0pIKrN+OGweqx+UKBZ3DofuOzUUAGZRae/WENY7fRhVzPH359eDfXO
-aDPOB9PFwnNxHYiNpQDgyhoOeG0B6+erdSDHzPcYvOoXWHbsaHKI854Ocg3i1sah
-QCfMd4tH3XVaVS1cwnupcnXt9IFNmg==
-=ySzP
------END PGP SIGNATURE-----
-
---fVCyKoqL/Gzi3K+T--
+  Thomas
 
