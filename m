@@ -2,67 +2,69 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 03918C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Dec 2021 13:24:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FFB9C433FE
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Dec 2021 13:57:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242827AbhLONYf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Dec 2021 08:24:35 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:49720 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237399AbhLONYe (ORCPT
+        id S243065AbhLON5l (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Dec 2021 08:57:41 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:37332 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S237608AbhLON5j (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 15 Dec 2021 08:24:34 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1639574674;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=faX0xzTuw4r5Ss1p1Z66O3C+rjUZMW4qDeU2/6j1vvQ=;
-        b=B0tBW3Iv4VJi6HafhbAT2cNrO+1o1JkbEZeU86ah7IK/KSPLo13Nl7CbuHXcHLUpVqKslH
-        +iiG+SWpPlbb7EFHFG5wEIrvsZYwkk4jv8LVU1YEYq609Cv6+lnaRhAsigB0vZT6m+DrSO
-        L2YDG4ZWaG2ur0iRwmOOrE0VQZskDYU=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-280-h-eYk1FxOqCAGHnfQ4QRlQ-1; Wed, 15 Dec 2021 08:24:33 -0500
-X-MC-Unique: h-eYk1FxOqCAGHnfQ4QRlQ-1
-Received: by mail-wr1-f70.google.com with SMTP id v18-20020a5d5912000000b001815910d2c0so5916704wrd.1
-        for <linux-s390@vger.kernel.org>; Wed, 15 Dec 2021 05:24:33 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:organization:in-reply-to
-         :content-transfer-encoding;
-        bh=faX0xzTuw4r5Ss1p1Z66O3C+rjUZMW4qDeU2/6j1vvQ=;
-        b=MHwvBSW+2vtxRfP7ODYebf/4enUAIDaAV6HNVE1MUjf53SS4M6iJ5q+r3nJp0YhPyQ
-         lypMLK7xbY9dqdL1GwgLHJ3ruN8Oyxsg5j9UuZkJT0atluNHr4/cwz072YapYo0LadII
-         hYgqY+n3nA3WjTe3QZKmrWgeqqIiVoS57RPSDotTweiZeWfXXNgkzNPNzqmvgOyHXeBg
-         KveaTktb+sbndw19cX3kUep6bstLAPl6oROHRAnhNS86DIjZs2P6wpCmmrENZRYfjv8F
-         lKFUWMuiJn5ODGNEpFzKZURVcl3vGGre9MYkq7/oOgF6pC2orIz7Zd0/dIdAkYIK58fT
-         NLLw==
-X-Gm-Message-State: AOAM532jWX7WN9Haga/0hPlfekxe0drtedNvVV6g2n85iUPaXrJ3R97n
-        +Z24JpE1rVI0NTG+maTtat/JUbQe+ScGycS7SuOyW3EATE9snKXXl2t+LyiAOi1TwckHMNUnUzA
-        QkvhzlUGv1flYZr80hUK8Rg==
-X-Received: by 2002:a5d:4e92:: with SMTP id e18mr4477449wru.89.1639574672098;
-        Wed, 15 Dec 2021 05:24:32 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxvYE115YTEnXyOnYw+6M9nPcYQcDwa5GAYcHppd/Ruc2VVaVYWw55fHwyFOHuOPUuAyhomuw==
-X-Received: by 2002:a5d:4e92:: with SMTP id e18mr4477429wru.89.1639574671898;
-        Wed, 15 Dec 2021 05:24:31 -0800 (PST)
-Received: from [192.168.3.132] (p5b0c609b.dip0.t-ipconnect.de. [91.12.96.155])
-        by smtp.gmail.com with ESMTPSA id b132sm1894704wmd.38.2021.12.15.05.24.31
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 15 Dec 2021 05:24:31 -0800 (PST)
-Message-ID: <3832e4ab-ffb7-3389-908d-99225ccea038@redhat.com>
-Date:   Wed, 15 Dec 2021 14:24:30 +0100
+        Wed, 15 Dec 2021 08:57:39 -0500
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1BFDUUKK020582;
+        Wed, 15 Dec 2021 13:57:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=GP7pjLcoYthJpbF0bz9LAu4NN813NR3H2kHv50mJyTk=;
+ b=Px0t/DaA4IyNSV+crU6ryemR74Md372/q5+Xr6qXxiN+MoB/Kdfuwr/zgDa5H2MXknLJ
+ tH7wUyzIL7E99fKFh5xqZuhsm1EMt4lufFUphpKCYJWdFFjf9Wn9GHLoxKlxwg5jEHmV
+ wQv7qbX0W94fLkv2Q1mGQwh8x+NRUS0lh5TllcxDKvTSyW5st7BUAgXPUEZilbXkZkRx
+ vV56beQeseoz+j0mPJxbLRy6Tcwe9tUf6INhbnQMusZjD2dbR4URinWVc1yRwdtXWalk
+ Za/OxhG0zeeowjQ6yqkATUIdpIMn+INAzdXUSX06Jcvhmb7wuEith6DWo3g9Jjih9jmY ng== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3cyfv3jpwf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 15 Dec 2021 13:57:38 +0000
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1BFDtkVr009465;
+        Wed, 15 Dec 2021 13:57:37 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3cyfv3jpw2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 15 Dec 2021 13:57:37 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1BFDqi8x020263;
+        Wed, 15 Dec 2021 13:57:35 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma06ams.nl.ibm.com with ESMTP id 3cy78e5rkq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 15 Dec 2021 13:57:35 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1BFDvW6k23265622
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 15 Dec 2021 13:57:32 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 32C9242054;
+        Wed, 15 Dec 2021 13:57:32 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A3A664204D;
+        Wed, 15 Dec 2021 13:57:31 +0000 (GMT)
+Received: from [9.171.32.186] (unknown [9.171.32.186])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 15 Dec 2021 13:57:31 +0000 (GMT)
+Message-ID: <28d795f7-e3f7-e64d-88eb-264a30167961@de.ibm.com>
+Date:   Wed, 15 Dec 2021 14:57:31 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.0
+ Thunderbird/91.3.0
 Subject: Re: [RFC PATCH v5 1/1] KVM: s390: Clarify SIGP orders versus
  STOP/RESTART
 Content-Language: en-US
-To:     Eric Farman <farman@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
+To:     David Hildenbrand <david@redhat.com>,
+        Eric Farman <farman@linux.ibm.com>,
         Janosch Frank <frankja@linux.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Thomas Huth <thuth@redhat.com>
@@ -71,38 +73,49 @@ Cc:     Heiko Carstens <hca@linux.ibm.com>,
         linux-s390@vger.kernel.org
 References: <20211213210550.856213-1-farman@linux.ibm.com>
  <20211213210550.856213-2-farman@linux.ibm.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <20211213210550.856213-2-farman@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
+ <3832e4ab-ffb7-3389-908d-99225ccea038@redhat.com>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+In-Reply-To: <3832e4ab-ffb7-3389-908d-99225ccea038@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: C66EkEN1bTGfKgxHinpTApwdGbwD5J8o
+X-Proofpoint-ORIG-GUID: CpNU_36gU5tazeRIR06KC2W53M4wZywX
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2021-12-15_09,2021-12-14_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
+ suspectscore=0 spamscore=0 adultscore=0 malwarescore=0 clxscore=1015
+ priorityscore=1501 mlxlogscore=999 lowpriorityscore=0 phishscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2112150077
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 13.12.21 22:05, Eric Farman wrote:
-> With KVM_CAP_S390_USER_SIGP, there are only five Signal Processor
-> orders (CONDITIONAL EMERGENCY SIGNAL, EMERGENCY SIGNAL, EXTERNAL CALL,
-> SENSE, and SENSE RUNNING STATUS) which are intended for frequent use
-> and thus are processed in-kernel. The remainder are sent to userspace
-> with the KVM_CAP_S390_USER_SIGP capability. Of those, three orders
-> (RESTART, STOP, and STOP AND STORE STATUS) have the potential to
-> inject work back into the kernel, and thus are asynchronous.
+
+
+Am 15.12.21 um 14:24 schrieb David Hildenbrand:
+> On 13.12.21 22:05, Eric Farman wrote:
+>> With KVM_CAP_S390_USER_SIGP, there are only five Signal Processor
+>> orders (CONDITIONAL EMERGENCY SIGNAL, EMERGENCY SIGNAL, EXTERNAL CALL,
+>> SENSE, and SENSE RUNNING STATUS) which are intended for frequent use
+>> and thus are processed in-kernel. The remainder are sent to userspace
+>> with the KVM_CAP_S390_USER_SIGP capability. Of those, three orders
+>> (RESTART, STOP, and STOP AND STORE STATUS) have the potential to
+>> inject work back into the kernel, and thus are asynchronous.
+>>
+>> Let's look for those pending IRQs when processing one of the in-kernel
+>> SIGP orders, and return BUSY (CC2) if one is in process. This is in
+>> agreement with the Principles of Operation, which states that only one
+>> order can be "active" on a CPU at a time.
+>>
+>> Suggested-by: David Hildenbrand <david@redhat.com>
+>> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+>> ---
 > 
-> Let's look for those pending IRQs when processing one of the in-kernel
-> SIGP orders, and return BUSY (CC2) if one is in process. This is in
-> agreement with the Principles of Operation, which states that only one
-> order can be "active" on a CPU at a time.
-> 
-> Suggested-by: David Hildenbrand <david@redhat.com>
-> Signed-off-by: Eric Farman <farman@linux.ibm.com>
-> ---
+> In general, LGTM. As raised, with SIGP RESTART there are other cases we
+> could fix in the kernel, but they are of very low priority IMHO.
 
-In general, LGTM. As raised, with SIGP RESTART there are other cases we
-could fix in the kernel, but they are of very low priority IMHO.
-
--- 
-Thanks,
-
-David / dhildenb
+Does that qualify as an RB, assuming that we can fix the other cases later on?
 
