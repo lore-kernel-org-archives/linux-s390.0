@@ -2,176 +2,82 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DE1AC4332F
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Dec 2021 17:45:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 47DCBC4332F
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Dec 2021 18:12:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237810AbhLORpp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Dec 2021 12:45:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40878 "EHLO
+        id S237730AbhLOSMh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Dec 2021 13:12:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235513AbhLORpn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Dec 2021 12:45:43 -0500
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA136C061574;
-        Wed, 15 Dec 2021 09:45:42 -0800 (PST)
-Received: by mail-pj1-x102a.google.com with SMTP id n15-20020a17090a160f00b001a75089daa3so21092777pja.1;
-        Wed, 15 Dec 2021 09:45:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=RLdWdHoT6O3wLXgWsRx2m2m62hSjV0BcJXlTjn5JUFY=;
-        b=fVGVY8wqrxR8Y9FDXFtr4SE6iyR8BVVbZ5vgJ4y8dkqTnryOyAM1f7oIOnezuj4A6J
-         xZUPr4yWMlNLYsHQ1fallxSJg8aU00+SwAnq0ijeJb6rpCasKd3VYye0HMu7Rz4Fmzli
-         VTY7ooY+g0kHA+TAUoyyLgzX0mSn9ha1KmFllLdg51BzQBC+Mgmo9+XdPBjphX6Y4e34
-         aHA3UHFWRC7Btex9u1tZiEFoYFee/G/WGm4rYd3nNUPqV0MpixQGc6Vx0PruHv6wejmQ
-         Ow0n2j4fyu9ba9vCZKTh9cTJvx1bERx0Yn7rh5DuRA2QxMZuAeUzJXU06wIQ9Mevfcss
-         WI7w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=RLdWdHoT6O3wLXgWsRx2m2m62hSjV0BcJXlTjn5JUFY=;
-        b=sXa4PcQUXBKlR2VROcfOlrvxsOIi4XVb+mljr5YNYnVds/2Me+M5DI44i8rGe9Rcnk
-         UY8yugizTuUUUgzZfMVuh3URcNtM660AB1Gkd67ZcxQTgY24kDF9abv/x9fBJqAeEReX
-         7Zhgo7ET0YVC0GzDKs17CDVjYYvF160fhZSSG+SILcsHJRVm1vPoqWcO6rSfwCUaY+lV
-         PlbbsWM06gUdehVGBC4896CjSbgZKstoR0VClDQoo6UyaLnWd9E9cshdwORHG/jN/RdJ
-         xaV+ctip9qT+NOtVFAFVnv0azE6qDGv3C/xyePJvckwSI/ZKrDcygb4xLSWyNvJ6P6b4
-         7aPQ==
-X-Gm-Message-State: AOAM531bZh5ia5V0qOR9CYeeK4bH6cqyS2+9ClJCKIRMj41tZ4/JaYmR
-        GzI4SXUAq703SpgzI+2TkhJHRYocxravu9zYHsQ=
-X-Google-Smtp-Source: ABdhPJxIcVzS1V95pBlMUcYP2k7Lrcyzl/rBNhnf3pbvrkTovj6aQvXpyQPCUffP2FcbLTl6T7AIgJQIhLFRrE2qAuQ=
-X-Received: by 2002:a17:90a:4a06:: with SMTP id e6mr968675pjh.228.1639590342342;
- Wed, 15 Dec 2021 09:45:42 -0800 (PST)
+        with ESMTP id S233548AbhLOSMg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Dec 2021 13:12:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 955BEC06173E;
+        Wed, 15 Dec 2021 10:12:36 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 55095B82004;
+        Wed, 15 Dec 2021 18:12:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1EE1C36AE3;
+        Wed, 15 Dec 2021 18:12:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1639591954;
+        bh=2wZ+UURKbZvHgojJB88tl5FRcu4BOxSu67wzI+vjpGg=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=HM0rnVLZfljLK9JJWxd9NPQHToafZgrI3Ceo0hU3/fNXFMYUPxdddNPdundo3qDnB
+         o2BWvHOBSgqf7mok2IUODXYHYvY1mWjZrv+GDqfYZyLeeA804VNza9C/X+Ci4IkJnF
+         POjDDw7nh7uUXRKA2ytDjX30qbLVynnxVJuRY1RnV9uw0vNL/VMw2DvHbOFuWE4n1b
+         D+S+FldxVtWlvoztxC8Oe/aHqEoQLvS6yalyje1nHXmQDQrbvtV7mc9TdA1fcLadRZ
+         jOUnPWUyvJFOeNCmvwFpF/iOo6LQtWKvaiw85IHAExHRhRIq4hVu0NKvvISJU6j1gN
+         8iDEosJ4pMHOA==
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     daniel@iogearbox.net, ast@kernel.org, andrii@kernel.org
+Cc:     bpf@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@linux.ibm.com,
+        agordeev@linux.ibm.com, akpm@linux-foundation.org,
+        peterx@redhat.com, linux-s390@vger.kernel.org
+Subject: [PATCH bpf-next v4 1/3] add includes masked by cgroup -> bpf dependency
+Date:   Wed, 15 Dec 2021 10:12:29 -0800
+Message-Id: <20211215181231.1053479-2-kuba@kernel.org>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20211215181231.1053479-1-kuba@kernel.org>
+References: <20211215181231.1053479-1-kuba@kernel.org>
 MIME-Version: 1.0
-References: <20211128035704.270739-1-yury.norov@gmail.com> <20211128035704.270739-3-yury.norov@gmail.com>
- <YaPGDOvBzhiRFcOP@qmqm.qmqm.pl> <CAAH8bW9-dbENFUrwPUQ-uJVVX_s=PWb2zpAJ8BqkV3vJE696mA@mail.gmail.com>
- <0ccb827de1164b2989d652bfb6f1bbab@AcuMS.aculab.com>
-In-Reply-To: <0ccb827de1164b2989d652bfb6f1bbab@AcuMS.aculab.com>
-From:   Yury Norov <yury.norov@gmail.com>
-Date:   Wed, 15 Dec 2021 09:45:30 -0800
-Message-ID: <CAAH8bW-u5AsFTXUOJPRkF-6dk1LcL7PE0Tm+dUc9Ctb6JMy=tg@mail.gmail.com>
-Subject: Re: [PATCH 2/9] lib/bitmap: implement bitmap_{empty,full} with bitmap_weight_eq()
-To:     David Laight <David.Laight@aculab.com>
-Cc:     =?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexey Klimov <aklimov@redhat.com>,
-        Amitkumar Karwar <amitkarwar@gmail.com>,
-        Andi Kleen <ak@linux.intel.com>, Andrew Lunn <andrew@lunn.ch>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Gross <agross@kernel.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Andy Shevchenko <andy@infradead.org>,
-        Anup Patel <anup.patel@wdc.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Christoph Lameter <cl@linux.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        David Airlie <airlied@linux.ie>,
-        Dennis Zhou <dennis@kernel.org>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Geetha sowjanya <gakula@marvell.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Guo Ren <guoren@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Ian Rogers <irogers@google.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Jason Wessel <jason.wessel@windriver.com>,
-        Jens Axboe <axboe@fb.com>, Jiri Olsa <jolsa@redhat.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Kees Cook <keescook@chromium.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Marc Zyngier <maz@kernel.org>, Marcin Wojtas <mw@semihalf.com>,
-        Mark Gross <markgross@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Matti Vaittinen <mazziesaccount@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Mel Gorman <mgorman@suse.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Petr Mladek <pmladek@suse.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Roy Pledge <Roy.Pledge@nxp.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Solomon Peachy <pizza@shaftnet.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Subbaraya Sundeep <sbhatta@marvell.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Sunil Goutham <sgoutham@marvell.com>,
-        Tariq Toukan <tariqt@nvidia.com>, Tejun Heo <tj@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Vineet Gupta <vgupta@kernel.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Vivien Didelot <vivien.didelot@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Will Deacon <will@kernel.org>,
-        "bcm-kernel-feedback-list@broadcom.com" 
-        <bcm-kernel-feedback-list@broadcom.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>,
-        "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
-        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "linux-perf-users@vger.kernel.org" <linux-perf-users@vger.kernel.org>,
-        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-snps-arc@lists.infradead.org" 
-        <linux-snps-arc@lists.infradead.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Dec 15, 2021 at 12:41 AM David Laight <David.Laight@aculab.com> wrote:
->
-> From: Yury Norov
-> > Sent: 14 December 2021 19:43
-> ...
-> >
-> > I think that for long bitmaps the most time consuming operation is moving
-> > data to L1, and for short bitmaps the difference between approaches is
-> > barely measurable.
-> >
-> > But hweght_long on each iteration can't be more effective than the current
-> > version. So, I'll drop this patch for v2 and keep things unchanged.
->
-> Actually do bitmap_full/empty() calls make any sense at all?
-> The result is stale since bitmaps are designed to do locked operations.
-> If you have a lock covering the bitmap then you should be using
-> something that uses non-locked accesses.
-> Rightly or wrongly that isn't the bitmap api.
+cgroup pulls in BPF which pulls in a lot of includes.
+We're about to break that chain so fix those who were
+depending on it.
 
-Are you talking about __{set,clear}_bit()?
-include/asm-generic/bitops/non-atomic.h
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+---
+CC: hca@linux.ibm.com
+CC: gor@linux.ibm.com
+CC: borntraeger@linux.ibm.com
+CC: agordeev@linux.ibm.com
+CC: akpm@linux-foundation.org
+CC: peterx@redhat.com
+CC: linux-s390@vger.kernel.org
+---
+ arch/s390/mm/hugetlbpage.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/s390/mm/hugetlbpage.c b/arch/s390/mm/hugetlbpage.c
+index da36d13ffc16..082793d497ec 100644
+--- a/arch/s390/mm/hugetlbpage.c
++++ b/arch/s390/mm/hugetlbpage.c
+@@ -9,6 +9,7 @@
+ #define KMSG_COMPONENT "hugetlb"
+ #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
+ 
++#include <asm/pgalloc.h>
+ #include <linux/mm.h>
+ #include <linux/hugetlb.h>
+ #include <linux/mman.h>
+-- 
+2.31.1
+
