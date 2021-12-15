@@ -2,177 +2,79 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 464D4C433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 14 Dec 2021 23:43:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8906EC433FE
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Dec 2021 02:31:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236348AbhLNXnu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 14 Dec 2021 18:43:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47774 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234614AbhLNXnu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Dec 2021 18:43:50 -0500
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E792AC06173E
-        for <linux-s390@vger.kernel.org>; Tue, 14 Dec 2021 15:43:49 -0800 (PST)
-Received: by mail-pj1-x1034.google.com with SMTP id n15-20020a17090a160f00b001a75089daa3so18682670pja.1
-        for <linux-s390@vger.kernel.org>; Tue, 14 Dec 2021 15:43:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=intel-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=9ZgiCaY5T0l0ZMYR/Mztq5hUwLAkj4TagBnnAdRgHzk=;
-        b=o60Xt32UY2brLgl906BjCGYAiHBp6YXZoHuzVMpf/TBtDvCHXRupMf0YCfnhHpR+Vo
-         ENpVSux42eejaXSB6ZEshx3h13Zl9SmbgbENxP6Ri1p6CwkmqTTn5hcYInIIzggrD8/X
-         gk3rCFal8xdLl4fMLMU5kKB5ailzqJJUhzcKFZshEt9xR/KcqWhkCKR1oyUBKFMLV449
-         YYf1FurMhK2QwH/5A3k4eF4RmNfF8RGS96hg8jqQJNZVfEceTwyccP/YcyOJyHahBQhv
-         O6h7DDmQmI+W7XhAIKaIuECI8c4odfFfK9I0cfRBHiNPO6uLMRPqzSJyCmjraYWSUCnC
-         i3gg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=9ZgiCaY5T0l0ZMYR/Mztq5hUwLAkj4TagBnnAdRgHzk=;
-        b=V61b0IAfWLb53x/Pqt++dv7ZC5DiQSIaN4xJOshyR7IP1N7TnxicvkYiRh9YmGF4eo
-         xZNaSdlthnAHWC9TvkS2pDCjen17lT8gKn33fTWsM2+dBteS4iHz5l3EXqhC9yipaOf+
-         pXr/GPp57/Kgkkzz3wFjdXempH4X/b+pa8fg6jV2jZHAnhGi/oeNfSvFHxrOFavA7kDs
-         JbA0sc6Dk6QSft7WH+92tk0iCCHUql+ibJZBjBUkbApcZT6wdSAH0VtDf82/Ae68PoJC
-         Mt6kuloi4HukiNSVqcJ+plm6uFM0PL0gKFeZcomA7Qmb1PfUzH1c9kUPAHh9xz4bb+T3
-         hPXg==
-X-Gm-Message-State: AOAM533NeFMULgP0ioJ9AtCp5x1gGb8dwKRAY5FL6ylbkKJMoxk6CoDR
-        8W27uS7fGu8d2R4EyU2sH4dsOPX6pyvs+qa08v1t7w==
-X-Google-Smtp-Source: ABdhPJy+4yBj3d67HMDz3DTq4QLF9yJ3cfSdJiIkjC96epZNko/gKghY4BBpEhMwNLi1UZe5rRHfaBU5MSuVxaK2JYI=
-X-Received: by 2002:a17:90b:1e07:: with SMTP id pg7mr8641641pjb.93.1639525429353;
- Tue, 14 Dec 2021 15:43:49 -0800 (PST)
+        id S235861AbhLOCbv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 14 Dec 2021 21:31:51 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:50960 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235251AbhLOCbv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Dec 2021 21:31:51 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 265A4617B4;
+        Wed, 15 Dec 2021 02:31:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16F37C3460E;
+        Wed, 15 Dec 2021 02:31:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1639535510;
+        bh=2wZ+UURKbZvHgojJB88tl5FRcu4BOxSu67wzI+vjpGg=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=nYgReUjkcRSOvU23BK1Lgznx3Lo2FvicBcb/7FkbUjji5AwjqcCjD2OVtlZ2ByTsf
+         SKP81dj9Eg8P4smVy9xIv3t2uMWgwyY1RJwqIdATL2rOLOHKKicEYkSN3n5IMBhWii
+         PWYV3KbJBe5qnHtGMA7Jl0GBXxL/c4f05Dv/qbfcIJfZ3L9Aquk2tmkTWj7BrYieUA
+         Klvuto06CiKX/i6gnMxaBbarqR4E7AcI+jMsMtQwW1ISYHV3cZUymJqoRzssOSLo+w
+         5c0anW1JHM28IU7ZyqrLxcQhDwVzH6vSp/9LEq4t3QV8nO4ZawnBpAXZvIgtDPfjUf
+         oRVeYJiJzJ4qA==
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     daniel@iogearbox.net, ast@kernel.org, andrii@kernel.org
+Cc:     bpf@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@linux.ibm.com,
+        agordeev@linux.ibm.com, akpm@linux-foundation.org,
+        peterx@redhat.com, linux-s390@vger.kernel.org
+Subject: [PATCH bpf-next v2 3/4] add includes masked by cgroup -> bpf dependency
+Date:   Tue, 14 Dec 2021 18:31:25 -0800
+Message-Id: <20211215023126.659200-4-kuba@kernel.org>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20211215023126.659200-1-kuba@kernel.org>
+References: <20211215023126.659200-1-kuba@kernel.org>
 MIME-Version: 1.0
-References: <20211209063828.18944-1-hch@lst.de> <20211209063828.18944-5-hch@lst.de>
- <YbNhPXBg7G/ridkV@redhat.com> <CAPcyv4g4_yFqDeS+pnAZOxcB=Ua+iArK5mqn0iMG4PX6oL=F_A@mail.gmail.com>
- <20211213082318.GB21462@lst.de> <YbiosqZoG8e6rDkj@redhat.com>
- <CAPcyv4hFjKsPrPTB4NtLHiY8gyaELz9+45N1OFj3hz+uJ=9JnA@mail.gmail.com> <Ybj/azxrUyU4PZEr@redhat.com>
-In-Reply-To: <Ybj/azxrUyU4PZEr@redhat.com>
-From:   Dan Williams <dan.j.williams@intel.com>
-Date:   Tue, 14 Dec 2021 15:43:38 -0800
-Message-ID: <CAPcyv4h_iFe8U8UrXCbhAYaruFm-xg0n_U3H8wnK-uGoEubTvw@mail.gmail.com>
-Subject: Re: [PATCH 4/5] dax: remove the copy_from_iter and copy_to_iter methods
-To:     Vivek Goyal <vgoyal@redhat.com>
-Cc:     Christoph Hellwig <hch@lst.de>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Alasdair Kergon <agk@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        Matthew Wilcox <willy@infradead.org>,
-        device-mapper development <dm-devel@redhat.com>,
-        Linux NVDIMM <nvdimm@lists.linux.dev>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        virtualization@lists.linux-foundation.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Dec 14, 2021 at 12:33 PM Vivek Goyal <vgoyal@redhat.com> wrote:
->
-> On Tue, Dec 14, 2021 at 08:41:30AM -0800, Dan Williams wrote:
-> > On Tue, Dec 14, 2021 at 6:23 AM Vivek Goyal <vgoyal@redhat.com> wrote:
-> > >
-> > > On Mon, Dec 13, 2021 at 09:23:18AM +0100, Christoph Hellwig wrote:
-> > > > On Sun, Dec 12, 2021 at 06:44:26AM -0800, Dan Williams wrote:
-> > > > > On Fri, Dec 10, 2021 at 6:17 AM Vivek Goyal <vgoyal@redhat.com> wrote:
-> > > > > > Going forward, I am wondering should virtiofs use flushcache version as
-> > > > > > well. What if host filesystem is using DAX and mapping persistent memory
-> > > > > > pfn directly into qemu address space. I have never tested that.
-> > > > > >
-> > > > > > Right now we are relying on applications to do fsync/msync on virtiofs
-> > > > > > for data persistence.
-> > > > >
-> > > > > This sounds like it would need coordination with a paravirtualized
-> > > > > driver that can indicate whether the host side is pmem or not, like
-> > > > > the virtio_pmem driver. However, if the guest sends any fsync/msync
-> > > > > you would still need to go explicitly cache flush any dirty page
-> > > > > because you can't necessarily trust that the guest did that already.
-> > > >
-> > > > Do we?  The application can't really know what backend it is on, so
-> > > > it sounds like the current virtiofs implementation doesn't really, does it?
-> > >
-> > > Agreed that application does not know what backend it is on. So virtiofs
-> > > just offers regular posix API where applications have to do fsync/msync
-> > > for data persistence. No support for mmap(MAP_SYNC). We don't offer persistent
-> > > memory programming model on virtiofs. That's not the expectation. DAX
-> > > is used only to bypass guest page cache.
-> > >
-> > > With this assumption, I think we might not have to use flushcache version
-> > > at all even if shared filesystem is on persistent memory on host.
-> > >
-> > > - We mmap() host files into qemu address space. So any dax store in virtiofs
-> > >   should make corresponding pages dirty in page cache on host and when
-> > >   and fsync()/msync() comes later, it should flush all the data to PMEM.
-> > >
-> > > - In case of file extending writes, virtiofs falls back to regular
-> > >   FUSE_WRITE path (and not use DAX), and in that case host pmem driver
-> > >   should make sure writes are flushed to pmem immediately.
-> > >
-> > > Are there any other path I am missing. If not, looks like we might not
-> > > have to use flushcache version in virtiofs at all as long as we are not
-> > > offering guest applications user space flushes and MAP_SYNC support.
-> > >
-> > > We still might have to use machine check safe variant though as loads
-> > > might generate synchronous machine check. What's not clear to me is
-> > > that if this MC safe variant should be used only in case of PMEM or
-> > > should it be used in case of non-PMEM as well.
-> >
-> > It should be used on any memory address that can throw exception on
-> > load, which is any physical address, in paths that can tolerate
-> > memcpy() returning an error code, most I/O paths, and can tolerate
-> > slower copy performance on older platforms that do not support MC
-> > recovery with fast string operations, to date that's only PMEM users.
->
-> Ok, So basically latest cpus can do fast string operations with MC
-> recovery so that using MC safe variant is not a problem.
->
-> Then there is range of cpus which can do MC recovery but do slower
-> versions of memcpy and that's where the issue is.
->
-> So if we knew that virtiofs dax window is backed by a pmem device
-> then we should always use MC safe variant. Even if it means paying
-> the price of slow version for the sake of correctness.
->
-> But if we are not using pmem on host, then there is no point in
-> using MC safe variant.
->
-> IOW.
->
->         if (virtiofs_backed_by_pmem) {
+cgroup pulls in BPF which pulls in a lot of includes.
+We're about to break that chain so fix those who were
+depending on it.
 
-No, PMEM should not be considered at all relative to whether to use MC
-or not, it is 100% a decision of whether you expect virtiofs users
-will balk more at unhandled machine checks or performance regressions
-on the platforms that set "enable_copy_mc_fragile()". See
-quirk_intel_brickland_xeon_ras_cap() and
-quirk_intel_purley_xeon_ras_cap() in arch/x86/kernel/quirks.c.
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+---
+CC: hca@linux.ibm.com
+CC: gor@linux.ibm.com
+CC: borntraeger@linux.ibm.com
+CC: agordeev@linux.ibm.com
+CC: akpm@linux-foundation.org
+CC: peterx@redhat.com
+CC: linux-s390@vger.kernel.org
+---
+ arch/s390/mm/hugetlbpage.c | 1 +
+ 1 file changed, 1 insertion(+)
 
->                 use_mc_safe_version
->         else
->                 use_non_mc_safe_version
->         }
->
-> Now question is, how do we know if virtiofs dax window is backed by
-> a pmem or not. I checked virtio_pmem driver and that does not seem
-> to communicate anything like that. It just communicates start of the
-> range and size of range, nothing else.
->
-> I don't have full handle on stack of modules of virtio_pmem, but my guess
-> is it probably is using MC safe version always (because it does not
-> know anthing about the backing storage).
->
-> /me will definitely like to pay penalty of slower memcpy if virtiofs
-> device is not backed by a pmem.
+diff --git a/arch/s390/mm/hugetlbpage.c b/arch/s390/mm/hugetlbpage.c
+index da36d13ffc16..082793d497ec 100644
+--- a/arch/s390/mm/hugetlbpage.c
++++ b/arch/s390/mm/hugetlbpage.c
+@@ -9,6 +9,7 @@
+ #define KMSG_COMPONENT "hugetlb"
+ #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
+ 
++#include <asm/pgalloc.h>
+ #include <linux/mm.h>
+ #include <linux/hugetlb.h>
+ #include <linux/mman.h>
+-- 
+2.31.1
 
-I assume you meant "not like", but again PMEM has no bearing on
-whether using that device will throw machine checks. I'm sure there
-are people that would make the opposite tradeoff.
