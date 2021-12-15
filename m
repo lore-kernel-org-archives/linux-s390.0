@@ -2,119 +2,136 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0000FC433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 15 Dec 2021 14:02:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D9B5DC433FE
+	for <linux-s390@archiver.kernel.org>; Wed, 15 Dec 2021 14:38:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243125AbhLOOCb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 15 Dec 2021 09:02:31 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:31991 "EHLO
+        id S243414AbhLOOim (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 15 Dec 2021 09:38:42 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:33764 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S243128AbhLOOCa (ORCPT
+        by vger.kernel.org with ESMTP id S243396AbhLOOil (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 15 Dec 2021 09:02:30 -0500
+        Wed, 15 Dec 2021 09:38:41 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1639576949;
+        s=mimecast20190719; t=1639579121;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=q6MoDlUh4lUQ6kt2VQqZXRRS2ITxVqs8vvu8gVek5AM=;
-        b=hHY0FaUvEIOqqd2G8RD2g0kudMw9o5VAwP7WxQDJKFSVKgNfLLG49eOyhzzIgI3x0yvYM0
-        4WgHOBrGe4gJ+/mJjZQcb6onrCZh1MCNzNCcGbpkDIVj/SbJi8xdBIXO2DYx8mehsTNTTR
-        X6PlxNscJEp91doQ1q/eQU4efj3ceZ4=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=t6pfROBDfzPHrRI6V70wzqnGyNtkI6mkFt3s2V28EO0=;
+        b=WmMiQ/XWbWW94lt4UrdrwdNhyBQ3vDE+BWxd1A+Y3fIqt/6YbYmla7xHqqD16cs0RrBSO7
+        kA/Orq5Js9ZKM8YB/20D35bFB5Dd4pNEXVekN43E/XgXLb5h/SvL6qFwDUKdSb2yZj/0le
+        r2zk4QXKjsnLPdaYNKw+VMFyaP4ArMw=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-37-DrShDNDwM5Cbss7vFcMHCQ-1; Wed, 15 Dec 2021 09:02:22 -0500
-X-MC-Unique: DrShDNDwM5Cbss7vFcMHCQ-1
-Received: by mail-wm1-f70.google.com with SMTP id j25-20020a05600c1c1900b00332372c252dso9047403wms.1
-        for <linux-s390@vger.kernel.org>; Wed, 15 Dec 2021 06:02:21 -0800 (PST)
+ us-mta-214-jv93mh9SOBahe5eomrRIIw-1; Wed, 15 Dec 2021 09:38:38 -0500
+X-MC-Unique: jv93mh9SOBahe5eomrRIIw-1
+Received: by mail-wm1-f71.google.com with SMTP id j25-20020a05600c1c1900b00332372c252dso9102337wms.1
+        for <linux-s390@vger.kernel.org>; Wed, 15 Dec 2021 06:38:37 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:organization:in-reply-to
+         :content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=q6MoDlUh4lUQ6kt2VQqZXRRS2ITxVqs8vvu8gVek5AM=;
-        b=Rnwd4a8VOeRPasSstsGTOqJwdVlkVesU3m+wYBX0ByuqFKPymfkTliF0cNO0mWfILg
-         xDgZfQxLpFTR9fcXYm18FYP54xwqP8du81brwqty1Xz71l0Jblb9qkEJLOKK9m/1Dv4x
-         eZB3VN/INqs5LixrU4S2cxPOHeF5hVRn8TcBO0eQX3usBVExmxHYWatfkrQqihPU25I5
-         kKB8QvpaFehCyQiDN8axRengm1pjy+J+VCv4+2PvXkWpDdrHtYs4TeJ6TBnnWKWDS9GZ
-         Ntlcp9Pvx3wP9HXuD7hhhvwfO797PZzA9Tzoh8atp7ggmTxlJVx+CxiVhBsLAa5K3MaW
-         v2NA==
-X-Gm-Message-State: AOAM532avHgTcxCN/f9TW0JbEuY6eKE4NZWJndj/g1YkVyFMPM8qbCjM
-        WPxNDsI7up2XJEOCtRHN35bOPmrLyGmQ4CNehh8ez8mQQcZqtvRXqLvnYZZIn2fRGP5GmkMz3Xx
-        yUGCJqG/0g6uyuc0Z6mFXYA==
-X-Received: by 2002:a5d:4c86:: with SMTP id z6mr4479237wrs.219.1639576940104;
-        Wed, 15 Dec 2021 06:02:20 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwT+b4PVmror5PHHyh1MdgIRMB1RrENwGezITjRa5018QaGc8DMlEZhh+RI6d8sbWJ+WNeJFA==
-X-Received: by 2002:a5d:4c86:: with SMTP id z6mr4479218wrs.219.1639576939906;
-        Wed, 15 Dec 2021 06:02:19 -0800 (PST)
-Received: from [192.168.3.132] (p5b0c609b.dip0.t-ipconnect.de. [91.12.96.155])
-        by smtp.gmail.com with ESMTPSA id r20sm1146840wmd.37.2021.12.15.06.02.19
+        bh=t6pfROBDfzPHrRI6V70wzqnGyNtkI6mkFt3s2V28EO0=;
+        b=MmigvRCu2hXxedWCDIDSSEoaw9D+PAf1XYTNoqSJdMskEs3wQJlgQvcJhui5KCdgfq
+         OoTwuL1d4v/ULrPIqkfmL/RWI31vGHiuVXc3JCkvPtt7TcqX4Ggi/HmU7c4ItFXxvYWF
+         gopZHiGfd8DrdQBCfHvIo98Uxm+gD+Y4JrhmNw9JxMCxIpRNlVdp27UhzuLt0Q51XytI
+         itqimOBiNPhxT/5cNTD3r3uREyBr/QNn4RhDp2eAOmeoNGt1SH7EAycqVXOvTgMpcR3y
+         8vzK63+lymH97KQM4MXOhIavc81foKmuTZNyIeyxOtlt0NuJXV4e6RUQbkNT1WUZQcXB
+         T9HA==
+X-Gm-Message-State: AOAM530alxV3DWcQPmW9kgYJJn3J0SHD6voMeEdYMTUpELbr54bS33xr
+        M/hybWPQB02RfMXdZgsB1geGMQd4V5NJfZQPlGrurFamcqaH7JF6R8Ku/qmSVJWgi1Z/PdqCDQP
+        bzXGE/hbCoDcMrJEoRyiDfA==
+X-Received: by 2002:a1c:2:: with SMTP id 2mr64280wma.41.1639579116877;
+        Wed, 15 Dec 2021 06:38:36 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzEr/EwQXQrqQjR6qrytGRdqfOvPeN52Dtw1JE/+pcZhnuNslRF0n07yrBSjm4zuYBuGpEggQ==
+X-Received: by 2002:a1c:2:: with SMTP id 2mr64262wma.41.1639579116662;
+        Wed, 15 Dec 2021 06:38:36 -0800 (PST)
+Received: from [10.33.192.183] (nat-pool-str-t.redhat.com. [149.14.88.106])
+        by smtp.gmail.com with ESMTPSA id g124sm5190048wme.28.2021.12.15.06.38.35
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 15 Dec 2021 06:02:19 -0800 (PST)
-Message-ID: <a7c7567d-9345-ea85-4866-c0de28decd29@redhat.com>
-Date:   Wed, 15 Dec 2021 15:02:18 +0100
+        Wed, 15 Dec 2021 06:38:36 -0800 (PST)
+Message-ID: <2a889dcf-e20f-84cc-cc69-6cb381764047@redhat.com>
+Date:   Wed, 15 Dec 2021 15:38:35 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.0
-Subject: Re: [RFC PATCH v5 1/1] KVM: s390: Clarify SIGP orders versus
- STOP/RESTART
+ Thunderbird/91.3.0
+Subject: Re: [RFC PATCH] s390: vfio-ap: Register the vfio_ap module for the
+ "ap" parent bus
 Content-Language: en-US
-To:     Christian Borntraeger <borntraeger@de.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20211213210550.856213-1-farman@linux.ibm.com>
- <20211213210550.856213-2-farman@linux.ibm.com>
- <3832e4ab-ffb7-3389-908d-99225ccea038@redhat.com>
- <28d795f7-e3f7-e64d-88eb-264a30167961@de.ibm.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <28d795f7-e3f7-e64d-88eb-264a30167961@de.ibm.com>
-Content-Type: text/plain; charset=UTF-8
+To:     Cornelia Huck <cohuck@redhat.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>
+Cc:     linux-kernel@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+References: <20211201141110.94636-1-thuth@redhat.com>
+ <8512bb0a-a34a-09b0-65f3-781f3d092364@linux.ibm.com>
+ <87k0g8scx1.fsf@redhat.com>
+ <1eb9ca5c-b1bb-b768-64ee-e4a1b31bb171@linux.ibm.com>
+ <6aaf6c60-a258-29e3-fcec-82c77d3945a4@redhat.com> <87tufaqbex.fsf@redhat.com>
+From:   Thomas Huth <thuth@redhat.com>
+In-Reply-To: <87tufaqbex.fsf@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 15.12.21 14:57, Christian Borntraeger wrote:
+On 15/12/2021 13.51, Cornelia Huck wrote:
+> On Wed, Dec 15 2021, Thomas Huth <thuth@redhat.com> wrote:
 > 
-> 
-> Am 15.12.21 um 14:24 schrieb David Hildenbrand:
->> On 13.12.21 22:05, Eric Farman wrote:
->>> With KVM_CAP_S390_USER_SIGP, there are only five Signal Processor
->>> orders (CONDITIONAL EMERGENCY SIGNAL, EMERGENCY SIGNAL, EXTERNAL CALL,
->>> SENSE, and SENSE RUNNING STATUS) which are intended for frequent use
->>> and thus are processed in-kernel. The remainder are sent to userspace
->>> with the KVM_CAP_S390_USER_SIGP capability. Of those, three orders
->>> (RESTART, STOP, and STOP AND STORE STATUS) have the potential to
->>> inject work back into the kernel, and thus are asynchronous.
+>> On 14/12/2021 22.55, Tony Krowiak wrote:
 >>>
->>> Let's look for those pending IRQs when processing one of the in-kernel
->>> SIGP orders, and return BUSY (CC2) if one is in process. This is in
->>> agreement with the Principles of Operation, which states that only one
->>> order can be "active" on a CPU at a time.
 >>>
->>> Suggested-by: David Hildenbrand <david@redhat.com>
->>> Signed-off-by: Eric Farman <farman@linux.ibm.com>
->>> ---
+>>> On 12/13/21 11:11, Cornelia Huck wrote:
+>>>> One possibility is simply blocking autoload of the module in userspace by
+>>>> default, and only allow it to be loaded automatically when e.g. qemu-kvm
+>>>> is installed on the system. This is obviously something that needs to be
+>>>> decided by the distros.
+>>>>
+>>>> (kvm might actually be autoloaded already, so autoloading vfio-ap would
+>>>> not really make it worse.)
+>>>
+>>> Of the vfio_ccw module is automatically loaded, then the kvm
+>>> module will also get loaded. I startup up a RHEL8.3 system and
+>>> sure enough, the vfio_ccw module is loaded along with the
+>>> kvm, vfio and mdev modules. If this is true for all distros, then
+>>> it wouldn't make much difference if the vfio_ap module is
+>>> autoloaded too.
 >>
->> In general, LGTM. As raised, with SIGP RESTART there are other cases we
->> could fix in the kernel, but they are of very low priority IMHO.
+>> I think I don't mind too much if we auto-load vfio-ap or not - but I think
+>> we should make it consistent with vfio-ccw. So either auto-load both modules
+>> (if the corresponding devices are available), or remove the
+>> MODULE_DEVICE_TABLE() entries from both modules?
 > 
-> Does that qualify as an RB, assuming that we can fix the other cases later on?
+> I think we really need to take a step back and think about the purpose
+> of adding a MODULE_DEVICE_TABLE()... basically, it declares which types
+> of devices on a certain bus a driver supports, in a way that can be
+> consumed by userspace (after file2alias.c worked on it).
 > 
+> Userspace typically uses this to match devices it is notified about to
+> drivers that could possibly drive those devices. In general, the
+> assumption is that you will want to have the drivers for your devices
+> loaded. In some cases (drivers only used in special cases, like here),
+> it might be a better idea to autoload the drivers only under certain
+> circumstances (e.g. if you know you're going to run KVM guests).
+> 
+> My main point, however, is that we're talking about policy here: whether
+> a potentially useful driver should be loaded or not is a decision that
+> should be made by userspace. Not providing a MODULE_DEVICE_TABLE does
+> not look like the right solution, as it deprives userspace of the
+> information to autoload the driver, if it actually wants to do so.
 
-Certainly an Acked-by: David Hildenbrand <david@redhat.com> , to fully
-review I need some more time (maybe tomorrow)
+Thanks, Cornelia, that's a very valid point, I didn't see it from this 
+perspective yet, but it sounds like the right way to handle this. So I think 
+my patch should be applied, and if we then agree that the module should not 
+be auto-loaded by default, it should be handled with the appropriate changes 
+in userspace instead.
 
--- 
-Thanks,
-
-David / dhildenb
+  Thomas
 
