@@ -2,144 +2,127 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 59378C433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 16 Dec 2021 10:44:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7492C433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 16 Dec 2021 11:26:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236212AbhLPKoV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 16 Dec 2021 05:44:21 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:24502 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236196AbhLPKoP (ORCPT
+        id S236661AbhLPL0F (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 16 Dec 2021 06:26:05 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:61576 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S236647AbhLPL0C (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 16 Dec 2021 05:44:15 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1639651454;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=8DEb8MqXT+vRwhg8h6rjl02uHMel/Pw3PdEFDjnoCfk=;
-        b=GWQqn/+n4Dq5Bje00NSCZ8oyuYIhITzDqz+hvSej83pr9qFYgR99b//B9Ofb7qgKz7weH+
-        V16MfTeGQkJF6lphaMdrg5FCZda3YbQfJDl+HT/MzYDgF8ZP7IXz1j4ngcxUdPpeQi2dQM
-        vJXgzHJVLeChXRyD3XJlHImEJK+Dnzo=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-150-E4OY7zS3OyCxhRAdD-s6cw-1; Thu, 16 Dec 2021 05:44:09 -0500
-X-MC-Unique: E4OY7zS3OyCxhRAdD-s6cw-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A27C41006AA1;
-        Thu, 16 Dec 2021 10:44:07 +0000 (UTC)
-Received: from localhost (unknown [10.39.193.22])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 42C1592A73;
-        Thu, 16 Dec 2021 10:44:07 +0000 (UTC)
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Harald Freudenberger <freude@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>, linux-s390@vger.kernel.org,
+        Thu, 16 Dec 2021 06:26:02 -0500
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1BGAfm37005116;
+        Thu, 16 Dec 2021 11:26:01 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=qhejk9Xe+Hy4NuzX0gEZGgDr2UCHbSBZ3zggci4eepc=;
+ b=QQ7OpSFP/PNrkIENKMKSPUToZHUihKKEyPlG6nG4if2OR/fAAngY4ABkwHOZTkDP0Xhw
+ WwDW/O5pQelKGPAN+P7Zl68BpwSbWPL2dPoM4EhugYUCkyvPyPAPfo2LQyFXTMqhvq+B
+ JLQQoukPZ65UAWWUlxXRwON63sAaWF3BFpPNIUxHTspdrwNPTJ4c1sUU9aTWcfqfuMJF
+ 4STfR9OG4dKQ4qfSQLYNTsUAXVMSoYRN3k1bTZxP60nrQWZmTPX4mIkT8wYa8IxjuOYg
+ 6+sUBTEiDqhKY8wcJfNlt+cRhqZHH1kEJ8ndFokDRxuSGK4hfg4qPDPf8LVFS79KqH+X HA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3cye125n57-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 16 Dec 2021 11:26:01 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1BGAtRbL013908;
+        Thu, 16 Dec 2021 11:26:01 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3cye125n4q-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 16 Dec 2021 11:26:01 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1BGBBjcd024404;
+        Thu, 16 Dec 2021 11:25:59 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma04ams.nl.ibm.com with ESMTP id 3cy7qw678q-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 16 Dec 2021 11:25:59 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1BGBPtIo33685958
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 16 Dec 2021 11:25:55 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B6CEE4C058;
+        Thu, 16 Dec 2021 11:25:55 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3025B4C05A;
+        Thu, 16 Dec 2021 11:25:55 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.42.46])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Thu, 16 Dec 2021 11:25:55 +0000 (GMT)
+Date:   Thu, 16 Dec 2021 12:25:52 +0100
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Cornelia Huck <cohuck@redhat.com>
+Cc:     Thomas Huth <thuth@redhat.com>,
         Tony Krowiak <akrowiak@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>
-Cc:     linux-kernel@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
+        Harald Freudenberger <freude@linux.ibm.com>,
+        linux-s390@vger.kernel.org, Jason Herne <jjherne@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>
 Subject: Re: [RFC PATCH] s390: vfio-ap: Register the vfio_ap module for the
  "ap" parent bus
-In-Reply-To: <80cf2be3-9b7e-896d-afc6-376b8f7f9414@linux.ibm.com>
-Organization: Red Hat GmbH
+Message-ID: <20211216122552.0ee1b998.pasic@linux.ibm.com>
+In-Reply-To: <87r1acrfzi.fsf@redhat.com>
 References: <20211201141110.94636-1-thuth@redhat.com>
- <8512bb0a-a34a-09b0-65f3-781f3d092364@linux.ibm.com>
- <80cf2be3-9b7e-896d-afc6-376b8f7f9414@linux.ibm.com>
-User-Agent: Notmuch/0.34 (https://notmuchmail.org)
-Date:   Thu, 16 Dec 2021 11:44:04 +0100
-Message-ID: <87o85grfrf.fsf@redhat.com>
+        <8512bb0a-a34a-09b0-65f3-781f3d092364@linux.ibm.com>
+        <87k0g8scx1.fsf@redhat.com>
+        <1eb9ca5c-b1bb-b768-64ee-e4a1b31bb171@linux.ibm.com>
+        <6aaf6c60-a258-29e3-fcec-82c77d3945a4@redhat.com>
+        <87tufaqbex.fsf@redhat.com>
+        <20211216000229.7a284661.pasic@linux.ibm.com>
+        <87r1acrfzi.fsf@redhat.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+Content-Type: text/plain; charset=US-ASCII
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: tav5ChsLlnpMwU0_PgLPU6mkSst4IlK_
+X-Proofpoint-ORIG-GUID: jBoMzwEckF-4xLMVg4DDRuy6qhbRpKVw
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2021-12-16_04,2021-12-16_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 impostorscore=0 spamscore=0 clxscore=1015
+ adultscore=0 mlxscore=0 lowpriorityscore=0 phishscore=0 bulkscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2112160063
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Dec 16 2021, Harald Freudenberger <freude@linux.ibm.com> wrote:
+On Thu, 16 Dec 2021 11:39:13 +0100
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-> On 13.12.21 16:44, Harald Freudenberger wrote:
->> On 01.12.21 15:11, Thomas Huth wrote:
->>> The crypto devices that we can use with the vfio_ap module are sitting
->>> on the "ap" bus, not on the "vfio_ap" bus that the module defines
->>> itself. With this change, the vfio_ap module now gets automatically
->>> loaded if a supported crypto adapter is available in the host.
->>>
->>> Signed-off-by: Thomas Huth <thuth@redhat.com>
->>> ---
->>>  Note: Marked as "RFC" since I'm not 100% sure about it ...
->>>        please review carefully!
->>>
->>>  drivers/s390/crypto/vfio_ap_drv.c | 2 +-
->>>  1 file changed, 1 insertion(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vf=
-io_ap_drv.c
->>> index 4d2556bc7fe5..5580e40608a4 100644
->>> --- a/drivers/s390/crypto/vfio_ap_drv.c
->>> +++ b/drivers/s390/crypto/vfio_ap_drv.c
->>> @@ -39,7 +39,7 @@ static struct ap_device_id ap_queue_ids[] =3D {
->>>  	{ /* end of sibling */ },
->>>  };
->>>=20=20
->>> -MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
->>> +MODULE_DEVICE_TABLE(ap, ap_queue_ids);
->>>=20=20
->>>  /**
->>>   * vfio_ap_queue_dev_probe:
->> I had a chance to check this now.
->> First I have to apologize about the dispute with vfio devices appearing =
-on the ap bus.
->> That's not the case with this patch. As Connie states the MODULE_DEVICE_=
-TABLE() does not
->> change the parent of a device and vfio_ap_drv is a driver for ap devices=
- and thus
->> belongs to the ap bus anyway.
->> So what's left is that with this change the vfio_ap kernel module is aut=
-omatically loaded
->> when an ap device type 10-13 is recognized by the ap bus. So the intenti=
-on of the patch
->> is fulfilled.
->> Yet another kernel module which may occupy memory but will never get use=
-d by most customers.
->> This may not be a problem but I had a glance at the list of kernel modul=
-es loaded on my
->> LPAR with and without the patch and the difference is:
->> ...
->> kvm=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 512000=C2=A0 1 vfio_ap
->> vfio_ap=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0 28672=C2=A0 0
->> ...
->> So the vfio_ap module has a dependency to the biggest kernel module ever=
- - kvm.
->> Do I need to say something more?
->>
->> If this dependency is removed then I would not hesitate to accept this p=
-atch. However
->> this is up to Tony as he is the maintainer of the vfio ap device driver.
->>
->>
-> I need to throw in another point: with building initrd with dracut the ke=
-rnel module
-> dependencies are evaluated. As of now this means that the zcrypt device d=
-river
-> zoo is required in case you need to have crypto support for an encrypted =
-root or
-> data disk at boot time. With vfio ap driver dependency enforced as requir=
-ement
-> from the AP bus there also comes the dependency to the kvm kernel module.
-> So the kvm kernel module needs to be part of the initrd now. I am not sur=
-e if this
-> is desired.
+> > Also what does vfio-pci do? As far as I can tell vfio-pci does not
+> > participate in module auto loading just because there are pci devices.
+> > The have some smart override I don't quite understand:
+> > https://patchwork.ozlabs.org/project/linux-pci/patch/20210826103912.128972-11-yishaih@nvidia.com/
+> > Before, I don't think they had a MODULE_DEVICE_TABLE:
+> > https://elixir.bootlin.com/linux/v5.8.18/source/drivers/vfio/pci/vfio_pci.c  
+> 
+> I don't think it makes sense to look at pci for inspiration here; they
+> have a myriad of different device types, while ap only has a few (and
+> probably not that many different ones on a given system), and css only
+> has one that really matters.
 
-Again, this simply means that the vfio-ap device needs to be
-blacklisted. Not sure if building the initrd is also honouring the stuff
-mentioned in man 5 modprobe.d, I'm not an expert there. But that is
-nothing that the kernel should decide.
+I really don't understand how they having a myraid of different device
+types is relevant here. Are they not taking care of that by using
+PCI_ANY_ID anyway? Can you please explain?
 
+Please have another look at the commit message of 
+cc6711b0bf36 ("PCI / VFIO: Add 'override_only' support for VFIO PCI sub system").
+They generate alias(es) that catch every PCI device (via PCI_ANY_ID), but
+in a way that precludes auto-loading and enables a generic 'override'
+algorithm.
+
+Regards,
+Halil
