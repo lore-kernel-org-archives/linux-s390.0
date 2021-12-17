@@ -2,340 +2,187 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47A29C433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 17 Dec 2021 08:21:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 96A1AC433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 17 Dec 2021 09:41:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233761AbhLQIVO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 17 Dec 2021 03:21:14 -0500
-Received: from relay.sw.ru ([185.231.240.75]:41350 "EHLO relay.sw.ru"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230377AbhLQIVO (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 17 Dec 2021 03:21:14 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=virtuozzo.com; s=relay; h=MIME-Version:Message-Id:Date:Subject:From:
-        Content-Type; bh=pDjfFIdDdVXXMPSil9iEKbKF8fJOdHI7/Q0gh6xQ34w=; b=X8RPgZ6yVUZD
-        3Y9cBJNTwkeMHdU44vvDRZUupnhQWBJt14hzWPuOzdS9Mwll4Jj7aTjX0kc8ilYdWfHhzEp37xctT
-        ZdXsD3/8oYSdihEFcbozYpTV5kvcjDDlzsYf1KIJEIjFR79wJs0gb1qc+kYsreHv9FgJ9Uiifn2Bl
-        mhauY=;
-Received: from [192.168.15.79] (helo=cobook.home)
-        by relay.sw.ru with esmtp (Exim 4.94.2)
-        (envelope-from <nikita.yushchenko@virtuozzo.com>)
-        id 1my8Te-003jwy-Cd; Fri, 17 Dec 2021 11:20:30 +0300
-From:   Nikita Yushchenko <nikita.yushchenko@virtuozzo.com>
-To:     Will Deacon <will@kernel.org>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Nick Piggin <npiggin@gmail.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Arnd Bergmann <arnd@arndb.de>
-Cc:     x86@kernel.org, linux-kernel@vger.kernel.org,
-        linux-arch@vger.kernel.org, linux-mm@kvack.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        sparclinux@vger.kernel.org, kernel@openvz.org
-Subject: [PATCH/RFC] mm: add and use batched version of __tlb_remove_table()
-Date:   Fri, 17 Dec 2021 11:19:10 +0300
-Message-Id: <20211217081909.596413-1-nikita.yushchenko@virtuozzo.com>
-X-Mailer: git-send-email 2.30.2
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S234487AbhLQJlV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 17 Dec 2021 04:41:21 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:57944 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233456AbhLQJlU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 17 Dec 2021 04:41:20 -0500
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1BH9NUV8018689;
+        Fri, 17 Dec 2021 09:41:20 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=1V2h6CdA68+Ix1SJbVML7WtOGTNAplQbD008lyEOFzY=;
+ b=a+VvS0pyzA1RcAn22LrWw5He6Pz7wV6AnICiv/0lGd5AtPIJla0XR6+B6T7NwJjtuoEH
+ 0mZF/m/itZvIs431ZPsJJoDKBQsCN+s+1CiJb2eMfDmDH/iRsbYU47DmoC9cOjrAj+zE
+ BTtSYrRQMXCC9m4rmGcfRKRbP2O8zL+Hp5muvcAz4J9d6pdiQHvccWGRGryXglil4AZB
+ TR84/HD1rh0r/P8gWDB4hdjuEQKeH0aMFDsO+GLM1pKOuZGYbiqMYdpKE3t1Q8lXcRWl
+ hW0sAbisbP2VKG5A7EtEEcZnaIN+KsbTwC5fNiWpbnEl3rvNxGXcEeNB6eKBPQdvlb/8 GA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cyn1km27v-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 17 Dec 2021 09:41:20 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1BH9RbFZ001842;
+        Fri, 17 Dec 2021 09:41:19 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cyn1km26s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 17 Dec 2021 09:41:19 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1BH9Xlvs013143;
+        Fri, 17 Dec 2021 09:41:17 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma04ams.nl.ibm.com with ESMTP id 3cy7qwfqka-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 17 Dec 2021 09:41:16 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1BH9fDdg30867958
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 17 Dec 2021 09:41:13 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B9397A4051;
+        Fri, 17 Dec 2021 09:41:13 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 83BF4A4055;
+        Fri, 17 Dec 2021 09:41:12 +0000 (GMT)
+Received: from sig-9-145-149-59.de.ibm.com (unknown [9.145.149.59])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 17 Dec 2021 09:41:12 +0000 (GMT)
+Message-ID: <e2525cc5e236852f23bfc22c49e150edf67d8e10.camel@linux.ibm.com>
+Subject: Re: [PATCH 23/32] KVM: s390: pci: handle refresh of PCI translations
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Matthew Rosato <mjrosato@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
+        farman@linux.ibm.com, borntraeger@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, gerald.schaefer@linux.ibm.com,
+        agordeev@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
+        imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
+        oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Date:   Fri, 17 Dec 2021 10:41:12 +0100
+In-Reply-To: <ee217f34-539f-2759-e4ac-5098e3923555@linux.ibm.com>
+References: <20211207205743.150299-1-mjrosato@linux.ibm.com>
+         <20211207205743.150299-24-mjrosato@linux.ibm.com>
+         <d2af697e-bf48-e78b-eed6-766f0790232f@linux.ibm.com>
+         <a963388d-b13e-07c5-c256-c91671b3aa73@linux.ibm.com>
+         <9a953a7938218afed246e93995d22ee7d09a81f3.camel@linux.ibm.com>
+         <ee217f34-539f-2759-e4ac-5098e3923555@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Vy7a1gi6tcHhcK5s5bCt3BykxBTP31cs
+X-Proofpoint-GUID: Q5vGsOesOpy4B_D25kFuoR89pQGrXlT6
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2021-12-17_03,2021-12-16_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxlogscore=999
+ lowpriorityscore=0 priorityscore=1501 impostorscore=0 suspectscore=0
+ clxscore=1015 malwarescore=0 spamscore=0 mlxscore=0 adultscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2112170054
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-When batched page table freeing via struct mmu_table_batch is used, the
-final freeing in __tlb_remove_table_free() executes a loop, calling
-arch hook __tlb_remove_table() to free each table individually.
+On Thu, 2021-12-16 at 09:51 -0500, Matthew Rosato wrote:
+> On 12/16/21 9:39 AM, Niklas Schnelle wrote:
+> > On Tue, 2021-12-14 at 12:54 -0500, Matthew Rosato wrote:
+> > > On 12/14/21 11:59 AM, Pierre Morel wrote:
+> > > > On 12/7/21 21:57, Matthew Rosato wrote:
+> > > > > Add a routine that will perform a shadow operation between a guest
+> > > > > and host IOAT.  A subsequent patch will invoke this in response to
+> > > > > an 04 RPCIT instruction intercept.
+> > > > > 
+> > > > > Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> > > > > ---
+> > > > >    arch/s390/include/asm/kvm_pci.h |   1 +
+> > > > >    arch/s390/include/asm/pci_dma.h |   1 +
+> > > > >    arch/s390/kvm/pci.c             | 191 ++++++++++++++++++++++++++++++++
+> > > > >    arch/s390/kvm/pci.h             |   4 +-
+> > > > >    4 files changed, 196 insertions(+), 1 deletion(-)
+> > > > > 
+> > ---8<---
+> > > > > +
+> > > > > +int kvm_s390_pci_refresh_trans(struct kvm_vcpu *vcpu, unsigned long req,
+> > > > > +                   unsigned long start, unsigned long size)
+> > > > > +{
+> > > > > +    struct zpci_dev *zdev;
+> > > > > +    u32 fh;
+> > > > > +    int rc;
+> > > > > +
+> > > > > +    /* If the device has a SHM bit on, let userspace take care of
+> > > > > this */
+> > > > > +    fh = req >> 32;
+> > > > > +    if ((fh & aift.mdd) != 0)
+> > > > > +        return -EOPNOTSUPP;
+> > > > 
+> > > > I think you should make this check in the caller.
+> > > 
+> > > OK
+> > > 
+> > > > > +
+> > > > > +    /* Make sure this is a valid device associated with this guest */
+> > > > > +    zdev = get_zdev_by_fh(fh);
+> > > > > +    if (!zdev || !zdev->kzdev || zdev->kzdev->kvm != vcpu->kvm)
+> > > > > +        return -EINVAL;
+> > > > > +
+> > > > > +    /* Only proceed if the device is using the assist */
+> > > > > +    if (zdev->kzdev->ioat.head[0] == 0)
+> > > > > +        return -EOPNOTSUPP;
+> > > > 
+> > > > Using the assist means using interpretation over using interception and
+> > > > legacy vfio-pci. right?
+> > > 
+> > > Right - more specifically that the IOAT assist feature was never set via
+> > > the vfio feature ioctl, so we can't handle the RPCIT for this device and
+> > > so throw to userspace.
+> > > 
+> > > The way the QEMU series is being implemented, a device using
+> > > interpretation will always have the IOAT feature set on.
+> > > 
+> > > > > +
+> > > > > +    rc = dma_table_shadow(vcpu, zdev, start, size);
+> > > > > +    if (rc > 0)
+> > > > > +        rc = zpci_refresh_trans((u64) zdev->fh << 32, start, size);
+> > > > 
+> > > > Here you lose the status reported by the hardware.
+> > > > You should directly use __rpcit(fn, addr, range, &status);
+> > > 
+> > > OK, I can have a look at doing this.
+> > > 
+> > > @Niklas thoughts on how you would want this exported.  Renamed to
+> > > zpci_rpcit or so?
+> > 
+> > Hmm with using __rpcit() directly we would lose the error reporting in
+> > s390dbf and this ist still kind of a RPCIT in the host. How about we
+> > add the status as an out parameter to zpci_refresh_trans()? But yes if
+> 
+> Another advantage of doing this would be that we then also keep the cc2 
+> retry logic in zpci_refresh_trans(), which would be nice.
 
-Shift that loop down to archs. This allows archs to optimize it, by
-freeing multiple tables in a single release_pages() call. This is
-faster than individual put_page() calls, especially with memcg
-accounting enabled.
+Yeah thought about that too. If we don't have that I believe the guest
+would retry but that means doing two full intercepts and going through
+all the other logic too. Since these retries are afaik extremely rare
+it shouldn't matter much but on the other hand I would expect them to
+only happen when the system is overloaded and then doing all this extra
+work surely isn't helpful.
 
-Signed-off-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Signed-off-by: Nikita Yushchenko <nikita.yushchenko@virtuozzo.com>
----
- arch/arm/include/asm/tlb.h                   |  5 ++++
- arch/arm64/include/asm/tlb.h                 |  5 ++++
- arch/powerpc/include/asm/book3s/32/pgalloc.h |  8 +++++++
- arch/powerpc/include/asm/book3s/64/pgalloc.h |  1 +
- arch/powerpc/include/asm/nohash/pgalloc.h    |  8 +++++++
- arch/powerpc/mm/book3s64/pgtable.c           |  8 +++++++
- arch/s390/include/asm/tlb.h                  |  1 +
- arch/s390/mm/pgalloc.c                       |  8 +++++++
- arch/sparc/include/asm/pgalloc_64.h          |  8 +++++++
- arch/x86/include/asm/tlb.h                   |  5 ++++
- include/asm-generic/tlb.h                    |  2 +-
- include/linux/swap.h                         |  5 +++-
- mm/mmu_gather.c                              |  6 +----
- mm/swap_state.c                              | 24 +++++++++++++++-----
- 14 files changed, 81 insertions(+), 13 deletions(-)
+> 
+> However we do still lose the returned CC value from the instruction. 
+> But I think we can infer a CC1 from a nonzero status and a CC3 from a 
+> zero status so maybe this is OK too.
 
-diff --git a/arch/arm/include/asm/tlb.h b/arch/arm/include/asm/tlb.h
-index b8cbe03ad260..37f8a5193581 100644
---- a/arch/arm/include/asm/tlb.h
-+++ b/arch/arm/include/asm/tlb.h
-@@ -34,6 +34,11 @@ static inline void __tlb_remove_table(void *_table)
- 	free_page_and_swap_cache((struct page *)_table);
- }
- 
-+static inline void __tlb_remove_tables(void **tables, int nr)
-+{
-+	free_pages_and_swap_cache_nolru((struct page **)tables, nr);
-+}
-+
- #include <asm-generic/tlb.h>
- 
- static inline void
-diff --git a/arch/arm64/include/asm/tlb.h b/arch/arm64/include/asm/tlb.h
-index c995d1f4594f..c70dd428e1f6 100644
---- a/arch/arm64/include/asm/tlb.h
-+++ b/arch/arm64/include/asm/tlb.h
-@@ -16,6 +16,11 @@ static inline void __tlb_remove_table(void *_table)
- 	free_page_and_swap_cache((struct page *)_table);
- }
- 
-+static inline void __tlb_remove_tables(void **tables, int nr)
-+{
-+	free_pages_and_swap_cache_nolru((struct page **)tables, nr);
-+}
-+
- #define tlb_flush tlb_flush
- static void tlb_flush(struct mmu_gather *tlb);
- 
-diff --git a/arch/powerpc/include/asm/book3s/32/pgalloc.h b/arch/powerpc/include/asm/book3s/32/pgalloc.h
-index dc5c039eb28e..880369de688a 100644
---- a/arch/powerpc/include/asm/book3s/32/pgalloc.h
-+++ b/arch/powerpc/include/asm/book3s/32/pgalloc.h
-@@ -66,6 +66,14 @@ static inline void __tlb_remove_table(void *_table)
- 	pgtable_free(table, shift);
- }
- 
-+static inline void __tlb_remove_tables(void **tables, int nr)
-+{
-+	int i;
-+
-+	for (i = 0; i < nr; i++)
-+		__tlb_remove_table(tables[i]);
-+}
-+
- static inline void __pte_free_tlb(struct mmu_gather *tlb, pgtable_t table,
- 				  unsigned long address)
- {
-diff --git a/arch/powerpc/include/asm/book3s/64/pgalloc.h b/arch/powerpc/include/asm/book3s/64/pgalloc.h
-index e1af0b394ceb..f3dcd735e4ce 100644
---- a/arch/powerpc/include/asm/book3s/64/pgalloc.h
-+++ b/arch/powerpc/include/asm/book3s/64/pgalloc.h
-@@ -20,6 +20,7 @@ extern pmd_t *pmd_fragment_alloc(struct mm_struct *, unsigned long);
- extern void pmd_fragment_free(unsigned long *);
- extern void pgtable_free_tlb(struct mmu_gather *tlb, void *table, int shift);
- extern void __tlb_remove_table(void *_table);
-+extern void __tlb_remove_tables(void **tables, int nr);
- void pte_frag_destroy(void *pte_frag);
- 
- static inline pgd_t *radix__pgd_alloc(struct mm_struct *mm)
-diff --git a/arch/powerpc/include/asm/nohash/pgalloc.h b/arch/powerpc/include/asm/nohash/pgalloc.h
-index 29c43665a753..170f5fda3dc1 100644
---- a/arch/powerpc/include/asm/nohash/pgalloc.h
-+++ b/arch/powerpc/include/asm/nohash/pgalloc.h
-@@ -63,6 +63,14 @@ static inline void __tlb_remove_table(void *_table)
- 	pgtable_free(table, shift);
- }
- 
-+static inline void __tlb_remove_tables(void **tables, int nr)
-+{
-+	int i;
-+
-+	for (i = 0; i < nr; i++)
-+		__tlb_remove_table(tables[i]);
-+}
-+
- static inline void __pte_free_tlb(struct mmu_gather *tlb, pgtable_t table,
- 				  unsigned long address)
- {
-diff --git a/arch/powerpc/mm/book3s64/pgtable.c b/arch/powerpc/mm/book3s64/pgtable.c
-index 9e16c7b1a6c5..f95fb42fadfa 100644
---- a/arch/powerpc/mm/book3s64/pgtable.c
-+++ b/arch/powerpc/mm/book3s64/pgtable.c
-@@ -412,6 +412,14 @@ void __tlb_remove_table(void *_table)
- 	return pgtable_free(table, index);
- }
- 
-+void __tlb_remove_tables(void **tables, int nr)
-+{
-+	int i;
-+
-+	for (i = 0; i < nr; i++)
-+		__tlb_remove_table(tables[i]);
-+}
-+
- #ifdef CONFIG_PROC_FS
- atomic_long_t direct_pages_count[MMU_PAGE_COUNT];
- 
-diff --git a/arch/s390/include/asm/tlb.h b/arch/s390/include/asm/tlb.h
-index fe6407f0eb1b..144d3db1441e 100644
---- a/arch/s390/include/asm/tlb.h
-+++ b/arch/s390/include/asm/tlb.h
-@@ -23,6 +23,7 @@
-  */
- 
- void __tlb_remove_table(void *_table);
-+void __tlb_remove_tables(void **tables, int nr);
- static inline void tlb_flush(struct mmu_gather *tlb);
- static inline bool __tlb_remove_page_size(struct mmu_gather *tlb,
- 					  struct page *page, int page_size);
-diff --git a/arch/s390/mm/pgalloc.c b/arch/s390/mm/pgalloc.c
-index 781965f7210e..6a685a895fdb 100644
---- a/arch/s390/mm/pgalloc.c
-+++ b/arch/s390/mm/pgalloc.c
-@@ -315,6 +315,14 @@ void __tlb_remove_table(void *_table)
- 	}
- }
- 
-+void __tlb_remove_tables(void **tables, int nr)
-+{
-+	int i;
-+
-+	for (i = 0; i < nr; i++)
-+		__tlb_remove_table(tables[i]);
-+}
-+
- /*
-  * Base infrastructure required to generate basic asces, region, segment,
-  * and page tables that do not make use of enhanced features like EDAT1.
-diff --git a/arch/sparc/include/asm/pgalloc_64.h b/arch/sparc/include/asm/pgalloc_64.h
-index 7b5561d17ab1..eb7c9bf46747 100644
---- a/arch/sparc/include/asm/pgalloc_64.h
-+++ b/arch/sparc/include/asm/pgalloc_64.h
-@@ -92,6 +92,14 @@ static inline void __tlb_remove_table(void *_table)
- 		is_page = true;
- 	pgtable_free(table, is_page);
- }
-+
-+static inline void __tlb_remove_tables(void **tables, int nr)
-+{
-+	int i;
-+
-+	for (i = 0; i < nr; i++)
-+		__tlb_remove_table(tables[i]);
-+}
- #else /* CONFIG_SMP */
- static inline void pgtable_free_tlb(struct mmu_gather *tlb, void *table, bool is_page)
- {
-diff --git a/arch/x86/include/asm/tlb.h b/arch/x86/include/asm/tlb.h
-index 1bfe979bb9bc..253a62be888c 100644
---- a/arch/x86/include/asm/tlb.h
-+++ b/arch/x86/include/asm/tlb.h
-@@ -37,4 +37,9 @@ static inline void __tlb_remove_table(void *table)
- 	free_page_and_swap_cache(table);
- }
- 
-+static inline void __tlb_remove_tables(void **tables, int nr)
-+{
-+	free_pages_and_swap_cache_nolru((struct page **)tables, nr);
-+}
-+
- #endif /* _ASM_X86_TLB_H */
-diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
-index 2c68a545ffa7..923c65d986dc 100644
---- a/include/asm-generic/tlb.h
-+++ b/include/asm-generic/tlb.h
-@@ -148,7 +148,7 @@
-  *  Useful if your architecture has non-page page directories.
-  *
-  *  When used, an architecture is expected to provide __tlb_remove_table()
-- *  which does the actual freeing of these pages.
-+ *  and __tlb_remove_tables() which do the actual freeing of these pages.
-  *
-  *  MMU_GATHER_RCU_TABLE_FREE
-  *
-diff --git a/include/linux/swap.h b/include/linux/swap.h
-index d1ea44b31f19..86a1b0a61889 100644
---- a/include/linux/swap.h
-+++ b/include/linux/swap.h
-@@ -460,6 +460,7 @@ extern void clear_shadow_from_swap_cache(int type, unsigned long begin,
- extern void free_swap_cache(struct page *);
- extern void free_page_and_swap_cache(struct page *);
- extern void free_pages_and_swap_cache(struct page **, int);
-+extern void free_pages_and_swap_cache_nolru(struct page **, int);
- extern struct page *lookup_swap_cache(swp_entry_t entry,
- 				      struct vm_area_struct *vma,
- 				      unsigned long addr);
-@@ -565,7 +566,9 @@ static inline struct address_space *swap_address_space(swp_entry_t entry)
- #define free_page_and_swap_cache(page) \
- 	put_page(page)
- #define free_pages_and_swap_cache(pages, nr) \
--	release_pages((pages), (nr));
-+	release_pages((pages), (nr))
-+#define free_pages_and_swap_cache_nolru(pages, nr) \
-+	release_pages((pages), (nr))
- 
- static inline void free_swap_cache(struct page *page)
- {
-diff --git a/mm/mmu_gather.c b/mm/mmu_gather.c
-index 1b9837419bf9..2faa0d59aeca 100644
---- a/mm/mmu_gather.c
-+++ b/mm/mmu_gather.c
-@@ -95,11 +95,7 @@ bool __tlb_remove_page_size(struct mmu_gather *tlb, struct page *page, int page_
- 
- static void __tlb_remove_table_free(struct mmu_table_batch *batch)
- {
--	int i;
--
--	for (i = 0; i < batch->nr; i++)
--		__tlb_remove_table(batch->tables[i]);
--
-+	__tlb_remove_tables(batch->tables, batch->nr);
- 	free_page((unsigned long)batch);
- }
- 
-diff --git a/mm/swap_state.c b/mm/swap_state.c
-index 8d4104242100..76c3d4a756a3 100644
---- a/mm/swap_state.c
-+++ b/mm/swap_state.c
-@@ -307,17 +307,29 @@ void free_page_and_swap_cache(struct page *page)
- 
- /*
-  * Passed an array of pages, drop them all from swapcache and then release
-- * them.  They are removed from the LRU and freed if this is their last use.
-+ * them.  They are optionally removed from the LRU and freed if this is their
-+ * last use.
-  */
--void free_pages_and_swap_cache(struct page **pages, int nr)
-+static void __free_pages_and_swap_cache(struct page **pages, int nr,
-+		bool do_lru)
- {
--	struct page **pagep = pages;
- 	int i;
- 
--	lru_add_drain();
-+	if (do_lru)
-+		lru_add_drain();
- 	for (i = 0; i < nr; i++)
--		free_swap_cache(pagep[i]);
--	release_pages(pagep, nr);
-+		free_swap_cache(pages[i]);
-+	release_pages(pages, nr);
-+}
-+
-+void free_pages_and_swap_cache(struct page **pages, int nr)
-+{
-+	__free_pages_and_swap_cache(pages, nr, true);
-+}
-+
-+void free_pages_and_swap_cache_nolru(struct page **pages, int nr)
-+{
-+	__free_pages_and_swap_cache(pages, nr, false);
- }
- 
- static inline bool swap_use_vma_readahead(void)
--- 
-2.30.2
+I agree.
+
 
