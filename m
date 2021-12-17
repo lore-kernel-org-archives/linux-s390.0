@@ -2,66 +2,65 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88264C433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 17 Dec 2021 17:43:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C358C433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 17 Dec 2021 17:54:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238653AbhLQRnB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 17 Dec 2021 12:43:01 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:15822 "EHLO
+        id S239469AbhLQRyl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 17 Dec 2021 12:54:41 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4458 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S238518AbhLQRm7 (ORCPT
+        by vger.kernel.org with ESMTP id S236205AbhLQRyk (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 17 Dec 2021 12:42:59 -0500
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1BHHLvKi024132;
-        Fri, 17 Dec 2021 17:42:59 GMT
+        Fri, 17 Dec 2021 12:54:40 -0500
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1BHFbiT3038646;
+        Fri, 17 Dec 2021 17:54:40 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=xqxP4WBcDQzakO2WKSxBM/qT0CRp0SAYV75Dpsw0VNs=;
- b=Oc6sF1ZLEfrNG3vXNOX92WRRUEhDYZ/IeuTDeLjqLQYia2TRUPPRcAPqOxrNPjK+3YNY
- aShSDLfrkv0IHXOMcvEVbV4zuIwVBZ/seRhz/jN2/GhxEcXA54jDaAJWSEeoyp6bz1os
- lue8eij6gO6n+O84CvYhb0429gzPbQxyB6rAf9d74meJSNcYeuvj0cmFUt8U7oyy614U
- 57eQRFeyVyWbniYD+CP2AEKwizhCL2d78f3Dh8pUWKF9k98eYGneYejUA0HPNRKFQ3Cw
- zEthVfOgqqj+e9TnLIjdAB9b5uKbf1RKA0weVoN2FcVJbBUwiJz9pTJR0BvEcl5nHAbS hA== 
+ bh=pC5Vw65YNMKN7BRe0+upli9ur6fMFqFYirBeQT/nF+8=;
+ b=OAKWXY/CChPMl1aE1tA1TVyVq0ZYVRor5hESdjw0+QNvhMnbwWl187w3qR48cHE9ps/e
+ JxwvnQugfwFecfOlMN3RrVFq/k5axWFTzqnKtUc59dVezCQF5D/z+3C/LngZy+je4VKU
+ 9MohTIVFPu2+0tBnrtv8a3gIj/Xm0okEIu7VdCDOo5Ixl2vHCqDMqAAIzB6RI/jFp1QF
+ Fu4N9GHSpwG8My/4+A26+OyMOWhyQln5gPHvsw5iiD5er/94O0BhbNPQeAtRutV8J67I
+ XVKWO98X6FPVHNhKcrVisToT+unco2ryCADPJebHETeDvxu+Q2GkYm0Nc4qHV2cG3Mw7 2w== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cyqbjyq90-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cymkx73he-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 17 Dec 2021 17:42:58 +0000
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1BHHNIf1031311;
-        Fri, 17 Dec 2021 17:42:58 GMT
-Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3cyqbjyq8s-1
+        Fri, 17 Dec 2021 17:54:40 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1BHHe4v5019853;
+        Fri, 17 Dec 2021 17:54:40 GMT
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3cymkx73h2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 17 Dec 2021 17:42:58 +0000
-Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
-        by ppma01dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1BHHBfmB012876;
-        Fri, 17 Dec 2021 17:42:57 GMT
-Received: from b01cxnp22034.gho.pok.ibm.com (b01cxnp22034.gho.pok.ibm.com [9.57.198.24])
-        by ppma01dal.us.ibm.com with ESMTP id 3cy7e55xeb-1
+        Fri, 17 Dec 2021 17:54:40 +0000
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1BHHDTcP015277;
+        Fri, 17 Dec 2021 17:54:39 GMT
+Received: from b01cxnp22036.gho.pok.ibm.com (b01cxnp22036.gho.pok.ibm.com [9.57.198.26])
+        by ppma03dal.us.ibm.com with ESMTP id 3cy772f37m-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 17 Dec 2021 17:42:57 +0000
+        Fri, 17 Dec 2021 17:54:39 +0000
 Received: from b01ledav002.gho.pok.ibm.com (b01ledav002.gho.pok.ibm.com [9.57.199.107])
-        by b01cxnp22034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1BHHgtlv36110826
+        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1BHHsbeO9110338
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 17 Dec 2021 17:42:56 GMT
+        Fri, 17 Dec 2021 17:54:37 GMT
 Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DD06B12405A;
-        Fri, 17 Dec 2021 17:42:55 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id B99A5124054;
+        Fri, 17 Dec 2021 17:54:37 +0000 (GMT)
 Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4113C124058;
-        Fri, 17 Dec 2021 17:42:52 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 60EAD124058;
+        Fri, 17 Dec 2021 17:54:33 +0000 (GMT)
 Received: from [9.211.79.24] (unknown [9.211.79.24])
         by b01ledav002.gho.pok.ibm.com (Postfix) with ESMTP;
-        Fri, 17 Dec 2021 17:42:52 +0000 (GMT)
-Message-ID: <abc2bcc9-f5bd-e32a-6561-286c3a508408@linux.ibm.com>
-Date:   Fri, 17 Dec 2021 12:42:51 -0500
+        Fri, 17 Dec 2021 17:54:33 +0000 (GMT)
+Message-ID: <28bc9d59-9772-ceae-f48d-1cd3445a105d@linux.ibm.com>
+Date:   Fri, 17 Dec 2021 12:54:32 -0500
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.3.0
-Subject: Re: [PATCH 15/32] KVM: s390: pci: enable host forwarding of Adapter
- Event Notifications
+Subject: Re: [PATCH 25/32] vfio/pci: re-introduce CONFIG_VFIO_PCI_ZDEV
 Content-Language: en-US
 To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
         linux-s390@vger.kernel.org
@@ -74,132 +73,60 @@ Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
         thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
         linux-kernel@vger.kernel.org
 References: <20211207205743.150299-1-mjrosato@linux.ibm.com>
- <20211207205743.150299-16-mjrosato@linux.ibm.com>
- <8fdf9da0-8213-f116-5e2f-5767e1d9b80e@linux.ibm.com>
+ <20211207205743.150299-26-mjrosato@linux.ibm.com>
+ <01530507-184c-782d-0ae3-632df0308d56@linux.ibm.com>
 From:   Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <8fdf9da0-8213-f116-5e2f-5767e1d9b80e@linux.ibm.com>
+In-Reply-To: <01530507-184c-782d-0ae3-632df0308d56@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 99mPdl16XJNvCoqPHhILdhOpWd8NVRGF
-X-Proofpoint-ORIG-GUID: p5OVMoIjX3pJtdLk4eBmFHTKVqpPxEm1
+X-Proofpoint-GUID: pffhY7zYv-hrkZTELdQ_1Ydm31F73XE5
+X-Proofpoint-ORIG-GUID: WYSFZ5k5DHr3IwWXYRannv5Iehw7-TfV
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2021-12-17_07,2021-12-16_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 adultscore=0
- malwarescore=0 bulkscore=0 mlxlogscore=999 impostorscore=0
- lowpriorityscore=0 suspectscore=0 phishscore=0 spamscore=0
- priorityscore=1501 clxscore=1015 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2110150000 definitions=main-2112170100
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 suspectscore=0
+ clxscore=1015 lowpriorityscore=0 malwarescore=0 spamscore=0
+ priorityscore=1501 phishscore=0 mlxscore=0 mlxlogscore=999 impostorscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2112170100
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 12/17/21 11:56 AM, Christian Borntraeger wrote:
+On 12/17/21 11:49 AM, Christian Borntraeger wrote:
+> 
+> 
 > Am 07.12.21 um 21:57 schrieb Matthew Rosato:
->> In cases where interrupts are not forwarded to the guest via firmware,
->> KVM is responsible for ensuring delivery.  When an interrupt presents
->> with the forwarding bit, we must process the forwarding tables until
->> all interrupts are delivered.
+>> This was previously removed as unnecessary; while that was true, 
+>> subsequent
+>> changes will make KVM an additional required component for vfio-pci-zdev.
+>> Let's re-introduce CONFIG_VFIO_PCI_ZDEV as now there is actually a reason
+>> to say 'n' for it (when not planning to CONFIG_KVM).
 >>
 >> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
 >> ---
-> [...]
+>>   drivers/vfio/pci/Kconfig      | 11 +++++++++++
+>>   drivers/vfio/pci/Makefile     |  2 +-
+>>   include/linux/vfio_pci_core.h |  2 +-
+>>   3 files changed, 13 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/vfio/pci/Kconfig b/drivers/vfio/pci/Kconfig
+>> index 860424ccda1b..fedd1d4cb592 100644
+>> --- a/drivers/vfio/pci/Kconfig
+>> +++ b/drivers/vfio/pci/Kconfig
+>> @@ -42,5 +42,16 @@ config VFIO_PCI_IGD
+>>         and LPC bridge config space.
+>>         To enable Intel IGD assignment through vfio-pci, say Y.
+>> +
+>> +config VFIO_PCI_ZDEV
+>> +    bool "VFIO PCI extensions for s390x KVM passthrough"
+>> +    depends on S390 && KVM
 > 
->> +static void aen_host_forward(struct zpci_aift *aift, unsigned long si)
->> +{
->> +    struct kvm_s390_gisa_interrupt *gi;
->> +    struct zpci_gaite *gaite;
->> +    struct kvm *kvm;
->> +
->> +    gaite = (struct zpci_gaite *)aift->gait +
->> +        (si * sizeof(struct zpci_gaite));
->> +    if (gaite->count == 0)
->> +        return;
->> +    if (gaite->aisb != 0)
->> +        set_bit_inv(gaite->aisbo, (unsigned long *)gaite->aisb);
->> +
->> +    kvm = kvm_s390_pci_si_to_kvm(aift, si);
->> +    if (kvm == 0)
->> +        return;
->> +    gi = &kvm->arch.gisa_int;
->> +
->> +    if (!(gi->origin->g1.simm & AIS_MODE_MASK(gaite->gisc)) ||
->> +        !(gi->origin->g1.nimm & AIS_MODE_MASK(gaite->gisc))) {
->> +        gisa_set_ipm_gisc(gi->origin, gaite->gisc);
->> +        if (hrtimer_active(&gi->timer))
->> +            hrtimer_cancel(&gi->timer);
->> +        hrtimer_start(&gi->timer, 0, HRTIMER_MODE_REL);
->> +        kvm->stat.aen_forward++;
->> +    }
->> +}
->> +
->> +static void aen_process_gait(u8 isc)
->> +{
->> +    bool found = false, first = true;
->> +    union zpci_sic_iib iib = {{0}};
->> +    unsigned long si, flags;
->> +    struct zpci_aift *aift;
->> +
->> +    aift = kvm_s390_pci_get_aift();
->> +    spin_lock_irqsave(&aift->gait_lock, flags);
->> +
->> +    if (!aift->gait) {
->> +        spin_unlock_irqrestore(&aift->gait_lock, flags);
->> +        return;
->> +    }
->> +
->> +    for (si = 0;;) {
->> +        /* Scan adapter summary indicator bit vector */
->> +        si = airq_iv_scan(aift->sbv, si, airq_iv_end(aift->sbv));
->> +        if (si == -1UL) {
->> +            if (first || found) {
->> +                /* Reenable interrupts. */
->> +                if (zpci_set_irq_ctrl(SIC_IRQ_MODE_SINGLE, isc,
->> +                              &iib))
->> +                    break;
->> +                first = found = false;
->> +            } else {
->> +                /* Interrupts on and all bits processed */
->> +                break;
->> +            }
->> +            found = false;
->> +            si = 0;
->> +            continue;
->> +        }
->> +        found = true;
->> +        aen_host_forward(aift, si);
->> +    }
->> +
->> +    spin_unlock_irqrestore(&aift->gait_lock, flags);
->> +}
->> +
->>   static void gib_alert_irq_handler(struct airq_struct *airq,
->>                     struct tpi_info *tpi_info)
->>   {
->> +    struct tpi_adapter_info *info = (struct tpi_adapter_info *)tpi_info;
->> +
->>       inc_irq_stat(IRQIO_GAL);
->> -    process_gib_alert_list();
->> +
->> +    if (info->forward || info->error)
->> +        aen_process_gait(info->isc);
->> +    else
->> +        process_gib_alert_list();
->>   }
+> does this also depend on vfio-pci?
 > 
-> Not sure, would it make sense to actually do both after an alert 
-> interrupt or do we always get a separate interrupt for event vs. irq?
-> [..]
 
-Good point - I thought this was an either/or scenario but I went back 
-and doubled checked -- looks like it is indeed possible to get a single 
-interrupt that indicates processing of both AEN events and the alert 
-list is required.  (It is also possible to get interrupts that indicate 
-processing of only one or the other is required).  So, my code above is 
-wrong.
+Yes - but this config statement is already contained within an 'if 
+VFIO_PCI' block along with config VFIO_PCI_VGA and config VFIO_PCI_IGD.
 
-However, we also don't need to call process_gib_alert_list() 
-unconditionally after handling AEN -- there is more information we can 
-check in tpi_adapter_info to decide whether that is necessary (aism);  I 
-will add this.
+
