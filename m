@@ -2,69 +2,67 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 56DD3C433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 17 Dec 2021 15:19:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F90AC433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 17 Dec 2021 16:49:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231394AbhLQPTK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 17 Dec 2021 10:19:10 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:61278 "EHLO
+        id S239326AbhLQQtT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 17 Dec 2021 11:49:19 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:7322 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S231348AbhLQPTK (ORCPT
+        by vger.kernel.org with ESMTP id S235967AbhLQQtR (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 17 Dec 2021 10:19:10 -0500
+        Fri, 17 Dec 2021 11:49:17 -0500
 Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1BHEHhPh016380;
-        Fri, 17 Dec 2021 15:19:10 GMT
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1BHGeqGt016438;
+        Fri, 17 Dec 2021 16:49:13 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=LmhtobFpfbhe6CnXrUzcqxfVYLSg15S+JL4hsbqQs/0=;
- b=fQ/wdDLvnNkPLkxwIoVG3AMlS/2i0c8cHbv96OovQi4tqkuqYsD5x+urzsMmig70opA+
- ctuGDrPmAFBcXOht4dVfKtVnz9SM3FrtKFZfo0x1IMeI6lby6Rjl4U9eccWMbbAAhkuC
- wQwwKpKIiQePyo9e/DEObW3+QoGIinuzL+cPSQ7U0PgwS5CaL0oep0/zL38lfq3qhBZN
- BhsGoMptYU9VkbtwaC3kReizf8TYPO+TDWMpx/6UN/9gTLL0xJL/I94RRAkSgA3GDzfM
- q0mMWAaYvUH5vv8eRsLJGAAmW8n8+WDQrd98rR5iwOTW/OE6wFFwWXcgchfwr9YiYBi1 8A== 
+ bh=k09d+GGnx5zwaMlBATH76XnriCr9KMVpFUw6EzYvU+0=;
+ b=H6Pgyh5RFoMBGchwYLvyD/32j/Mqj8nbn7UNkDN7zbNo85nPeZH24XSdLrHCF2xe/7NN
+ ymGrTJgiVY6ZfH8Ehvy5J4JHxuqstbVPsB901XhwqLWfPzv/AqpZ3ewKi/8t8NJyyV7c
+ hyJSGMbO93zeIb9o9DziOh9QtyBG8fA5QJ3QUtv1hqeSoV7Sw3c2QlCKXdysEqxHgvKf
+ SqnoRaD7j+LibAMrOtfJKoKXwM0r1HT7ku65wIPTKqcukninu+4L8EnqwxMGllSUOfe1
+ w76xbpJE+zqMqKAEj2gq20b7fFyXgq/rwCysTZPQ+6GR9Z79QTFHZjoq4D3RpVlhidAn 0g== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3d0v689b90-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3d0v68bcrc-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 17 Dec 2021 15:19:09 +0000
+        Fri, 17 Dec 2021 16:49:12 +0000
 Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1BHFAsEY029605;
-        Fri, 17 Dec 2021 15:19:09 GMT
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3d0v689b8n-1
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1BHGUNr1017364;
+        Fri, 17 Dec 2021 16:49:12 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3d0v68bcqy-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 17 Dec 2021 15:19:09 +0000
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1BHFDSKr002926;
-        Fri, 17 Dec 2021 15:19:08 GMT
-Received: from b01cxnp22033.gho.pok.ibm.com (b01cxnp22033.gho.pok.ibm.com [9.57.198.23])
-        by ppma03dal.us.ibm.com with ESMTP id 3cy772bcxj-1
+        Fri, 17 Dec 2021 16:49:12 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1BHGOYWi006552;
+        Fri, 17 Dec 2021 16:49:10 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma03fra.de.ibm.com with ESMTP id 3cy7k9t9bm-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 17 Dec 2021 15:19:08 +0000
-Received: from b01ledav002.gho.pok.ibm.com (b01ledav002.gho.pok.ibm.com [9.57.199.107])
-        by b01cxnp22033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1BHFJ7Ja14549482
+        Fri, 17 Dec 2021 16:49:10 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1BHGn7sd42598910
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 17 Dec 2021 15:19:07 GMT
-Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EB51F12405C;
-        Fri, 17 Dec 2021 15:19:06 +0000 (GMT)
-Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D928B124069;
-        Fri, 17 Dec 2021 15:19:02 +0000 (GMT)
-Received: from [9.211.79.24] (unknown [9.211.79.24])
-        by b01ledav002.gho.pok.ibm.com (Postfix) with ESMTP;
-        Fri, 17 Dec 2021 15:19:02 +0000 (GMT)
-Message-ID: <edd0dcee-12db-bc31-203a-bc1c94a072a5@linux.ibm.com>
-Date:   Fri, 17 Dec 2021 10:19:01 -0500
+        Fri, 17 Dec 2021 16:49:07 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0964411C058;
+        Fri, 17 Dec 2021 16:49:07 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1CF2811C04C;
+        Fri, 17 Dec 2021 16:49:06 +0000 (GMT)
+Received: from [9.171.54.231] (unknown [9.171.54.231])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 17 Dec 2021 16:49:06 +0000 (GMT)
+Message-ID: <01530507-184c-782d-0ae3-632df0308d56@linux.ibm.com>
+Date:   Fri, 17 Dec 2021 17:49:05 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.3.0
-Subject: Re: [PATCH 16/32] KVM: s390: expose the guest zPCI interpretation
- facility
+Subject: Re: [PATCH 25/32] vfio/pci: re-introduce CONFIG_VFIO_PCI_ZDEV
 Content-Language: en-US
-To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
-        linux-s390@vger.kernel.org
+To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
 Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
         schnelle@linux.ibm.com, farman@linux.ibm.com, pmorel@linux.ibm.com,
         hca@linux.ibm.com, gor@linux.ibm.com,
@@ -74,72 +72,89 @@ Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
         thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
         linux-kernel@vger.kernel.org
 References: <20211207205743.150299-1-mjrosato@linux.ibm.com>
- <20211207205743.150299-17-mjrosato@linux.ibm.com>
- <23ee6e80-b857-11ab-1d80-c8b1f4ff6f04@linux.ibm.com>
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <23ee6e80-b857-11ab-1d80-c8b1f4ff6f04@linux.ibm.com>
+ <20211207205743.150299-26-mjrosato@linux.ibm.com>
+From:   Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20211207205743.150299-26-mjrosato@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 1Qt-TK5IIhz3iqrFs_Hock8DMrn_5rHx
-X-Proofpoint-GUID: xrYnc8mY-vB6ZjuDRqwRaDG3FxoMAjoh
+X-Proofpoint-ORIG-GUID: tBUQpTeDvmphaPRVLfZB_mhTL0Yu_Izk
+X-Proofpoint-GUID: 2ZJ3pyQlADeZbsWjn6FIHIYfN-RFBW11
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2021-12-17_05,2021-12-16_01,2021-12-02_01
+ definitions=2021-12-17_06,2021-12-16_01,2021-12-02_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 lowpriorityscore=0
  phishscore=0 impostorscore=0 malwarescore=0 suspectscore=0 mlxlogscore=999
  bulkscore=0 priorityscore=1501 clxscore=1015 spamscore=0 adultscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
- definitions=main-2112170088
+ definitions=main-2112170095
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 12/17/21 10:05 AM, Christian Borntraeger wrote:
-> 
-> 
-> Am 07.12.21 um 21:57 schrieb Matthew Rosato:
->> This facility will be used to enable interpretive execution of zPCI
->> instructions.
->>
->> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
->> ---
->>   arch/s390/kvm/kvm-s390.c | 4 ++++
->>   1 file changed, 4 insertions(+)
->>
->> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->> index c8fe9b7c2395..09991d05c871 100644
->> --- a/arch/s390/kvm/kvm-s390.c
->> +++ b/arch/s390/kvm/kvm-s390.c
->> @@ -2751,6 +2751,10 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned 
->> long type)
->>           set_kvm_facility(kvm->arch.model.fac_mask, 147);
->>           set_kvm_facility(kvm->arch.model.fac_list, 147);
->>       }
->> +    if (sclp.has_zpci_interp && test_facility(69)) {
->> +        set_kvm_facility(kvm->arch.model.fac_mask, 69);
->> +        set_kvm_facility(kvm->arch.model.fac_list, 69);
->> +    }
-> 
-> 
-> Do we need the setting of these stfle bits somewhere? I think QEMU sets 
-> them as well for the guest. > We only need this when the kernel probes for this (test_kvm_facility)
-> But then the question is, shouldnt
-> we then simply check for sclp bits in those places?
-> See also patch 19. We need to build it in a way that allows VSIE support 
-> later on.
-> 
 
-Right, so this currently sets the facility bits but we don't set the 
-associated guest SCLP bits.  I guess since we are not enabling for VSIE 
-now it would make sense to not set either.
 
-So then just to confirm we are on the same page:  I will drop these 
-patches 16-18 and leave the kvm facilities unset until we wish to enable 
-VSIE.  And then also make sure we are checking sclp bits (e.g. patch 
-19).  OK?
+Am 07.12.21 um 21:57 schrieb Matthew Rosato:
+> This was previously removed as unnecessary; while that was true, subsequent
+> changes will make KVM an additional required component for vfio-pci-zdev.
+> Let's re-introduce CONFIG_VFIO_PCI_ZDEV as now there is actually a reason
+> to say 'n' for it (when not planning to CONFIG_KVM).
+> 
+> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> ---
+>   drivers/vfio/pci/Kconfig      | 11 +++++++++++
+>   drivers/vfio/pci/Makefile     |  2 +-
+>   include/linux/vfio_pci_core.h |  2 +-
+>   3 files changed, 13 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/vfio/pci/Kconfig b/drivers/vfio/pci/Kconfig
+> index 860424ccda1b..fedd1d4cb592 100644
+> --- a/drivers/vfio/pci/Kconfig
+> +++ b/drivers/vfio/pci/Kconfig
+> @@ -42,5 +42,16 @@ config VFIO_PCI_IGD
+>   	  and LPC bridge config space.
+>   
+>   	  To enable Intel IGD assignment through vfio-pci, say Y.
+> +
+> +config VFIO_PCI_ZDEV
+> +	bool "VFIO PCI extensions for s390x KVM passthrough"
+> +	depends on S390 && KVM
 
->>       if (css_general_characteristics.aiv && test_facility(65))
->>           set_kvm_facility(kvm->arch.model.fac_mask, 65);
->>
+does this also depend on vfio-pci?
 
+> +	default y
+> +	help
+> +	  Support s390x-specific extensions to enable support for enhancements
+> +	  to KVM passthrough capabilities, such as interpretive execution of
+> +	  zPCI instructions.
+> +
+> +	  To enable s390x KVM vfio-pci extensions, say Y.
+>   endif
+>   endif
+> diff --git a/drivers/vfio/pci/Makefile b/drivers/vfio/pci/Makefile
+> index 349d68d242b4..01b1f83d83d7 100644
+> --- a/drivers/vfio/pci/Makefile
+> +++ b/drivers/vfio/pci/Makefile
+> @@ -1,7 +1,7 @@
+>   # SPDX-License-Identifier: GPL-2.0-only
+>   
+>   vfio-pci-core-y := vfio_pci_core.o vfio_pci_intrs.o vfio_pci_rdwr.o vfio_pci_config.o
+> -vfio-pci-core-$(CONFIG_S390) += vfio_pci_zdev.o
+> +vfio-pci-core-$(CONFIG_VFIO_PCI_ZDEV) += vfio_pci_zdev.o
+>   obj-$(CONFIG_VFIO_PCI_CORE) += vfio-pci-core.o
+>   
+>   vfio-pci-y := vfio_pci.o
+> diff --git a/include/linux/vfio_pci_core.h b/include/linux/vfio_pci_core.h
+> index ef9a44b6cf5d..5e2bca3b89db 100644
+> --- a/include/linux/vfio_pci_core.h
+> +++ b/include/linux/vfio_pci_core.h
+> @@ -195,7 +195,7 @@ static inline int vfio_pci_igd_init(struct vfio_pci_core_device *vdev)
+>   }
+>   #endif
+>   
+> -#ifdef CONFIG_S390
+> +#ifdef CONFIG_VFIO_PCI_ZDEV
+>   extern int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
+>   				       struct vfio_info_cap *caps);
+>   #else
+> 
