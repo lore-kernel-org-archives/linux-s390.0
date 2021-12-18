@@ -2,51 +2,51 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB94DC433FE
-	for <linux-s390@archiver.kernel.org>; Sat, 18 Dec 2021 21:20:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C330C43217
+	for <linux-s390@archiver.kernel.org>; Sat, 18 Dec 2021 21:20:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234495AbhLRVUr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 18 Dec 2021 16:20:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56234 "EHLO
+        id S234356AbhLRVUt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 18 Dec 2021 16:20:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234367AbhLRVUf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 18 Dec 2021 16:20:35 -0500
-Received: from mail-ot1-x335.google.com (mail-ot1-x335.google.com [IPv6:2607:f8b0:4864:20::335])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB7FDC06173F;
-        Sat, 18 Dec 2021 13:20:34 -0800 (PST)
-Received: by mail-ot1-x335.google.com with SMTP id x19-20020a9d7053000000b0055c8b39420bso7509080otj.1;
-        Sat, 18 Dec 2021 13:20:34 -0800 (PST)
+        with ESMTP id S234465AbhLRVUo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 18 Dec 2021 16:20:44 -0500
+Received: from mail-ot1-x32e.google.com (mail-ot1-x32e.google.com [IPv6:2607:f8b0:4864:20::32e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0D48C061401;
+        Sat, 18 Dec 2021 13:20:43 -0800 (PST)
+Received: by mail-ot1-x32e.google.com with SMTP id w6-20020a9d77c6000000b0055e804fa524so7492711otl.3;
+        Sat, 18 Dec 2021 13:20:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=WiGS3vOK/v3O0DRzsnqINP2MiU5j/NpA/iskqvega7k=;
-        b=HlMNMuUlRLXl3FqNn86I8HMu4WV/KumXU+SYAsh5OSyredjYqpIOYGrBMItLxHzICY
-         RN3GxhpucVS2cEpQMiODoGYePr8Nq2sWHf9LcLO3Wt2YulTnoKg3c1cjdIq07nAW9GiJ
-         uGFWERQJyQgWYyrbtTxNAnq3T1rixNekBD2ai9fTLLh9dBZWHb8c2GPqXlB932zfX3o+
-         GuHX8YNBw2KAnZJZYEkpeiEnQZqfyuEgudpeOc4ta605tUeKYBdtF+JkgS/rSzrBBc6+
-         ah74/2SyVrK6WwdV7QMD08hzgClZ8gGcpdeagLX+n8RBmOqtIeXoz2fiGHcFwqgruiTn
-         mm+w==
+        bh=yzUNsvJwnd0v47Q5AxP6lhYkyqcCWxa0P2De/g+O3S0=;
+        b=aeyrRdsbMj+T7Uh+RBjZZWB/kA4U6108/E5yXjYzEClA1t4rVOhg/TvjA0URGEfjoS
+         8yYx9V7mJF6lmAgq1RzTAn0dXWVtCFnCSFSksRA2bCDS1+uiI+TNu4nmPvKC0vculKAb
+         2vav+lP6DUjfNbJW+bp5U8XrXK8lFMlsnqbY6Zewmwd9n5fAAW+kNcP//A8BmAU23hFg
+         Lq0+BqGt31qmsHiR1/82tonV9twgXObMrhuAwajRpq5K5rv0K69gHMcZp/93pbohASi1
+         adq5kjwvFtWTOSo4i7GJNxLBBtYCHu1eTmkd8vxkfTbiK5L1H6Us5Ch8+PPNqfwfmUKe
+         oUZA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=WiGS3vOK/v3O0DRzsnqINP2MiU5j/NpA/iskqvega7k=;
-        b=m9SniXETgqGmnoDqNxbHXhebDIcD9+9cj2ItE6oCCpaXi4g/GcIYyLpj3FaUKwUCpt
-         4ZDuqDBNpxxJ0wDyhEei7pOBONvhRr11sD5u9bDwqCllljvdaR2o2GaIsYoXKWCT+c1H
-         lYZGvdbxJP4kbUyJtyVdMP3z6U8lIzT2nDjUvZn4ZYpIkklsIFOqY0NOKk28qlhlxKF5
-         wThBJuUyoPXHfLEs5gdy0OPM9gdO3D/yp+ZF3/MovqqzdgGN7bDIyL1M3eIH3s/NTSSe
-         oYQMkMcUA2CV+YxAuNrbgWuv9+C2BzbQCyXxBkzEYhlt6e0Qm03WagS79/1d8lzeeuwa
-         hSuA==
-X-Gm-Message-State: AOAM532UNLWqxbIFEG+XQMNZgBzAfTu+vy4PveatBTnX0jcBpQlWcWTJ
-        4/CxV3b5bUmW49BzRHbdJMPy4F/XbOcs/A==
-X-Google-Smtp-Source: ABdhPJwkbwteJnk73XW9/tIkjfN6zwjshhmi56ETknCa39Kzdv3ha1PxAhH7MlEZqAvyT17uV1w/Cw==
-X-Received: by 2002:a05:6830:1358:: with SMTP id r24mr6673017otq.8.1639862433693;
-        Sat, 18 Dec 2021 13:20:33 -0800 (PST)
+        bh=yzUNsvJwnd0v47Q5AxP6lhYkyqcCWxa0P2De/g+O3S0=;
+        b=ybFHFk5jbFNbS500SMwAUlg12+xbWkV6a8r2GE8C/DtbbePaqdk5nviB2nYTaOIQWG
+         CCUo4K+a4GPJWeTYuIFQL3qUB4FBUeNcx7qVQtpbCnhJxrnPE+TJQ/HO+Tc+UxYYBwmK
+         PbDxtVy0KOH/698GalvD8luagi40P92AiHXDqlB0r1WewcR1YtIegaz8GA2CyyH9GGmG
+         6GJq/Z5ubPZ2dTSmhWS5nQx07nk2ZT7n9ACk3LYHhu7tnAYwBlalg7ov0rBEpAvVt4jh
+         bj4Jw3aZvrJJQtk1kyL/PVswynWXPVzlHPCVptm4Mc5pL3u/MD7fPb4/E6eax4RXyZ0s
+         u04g==
+X-Gm-Message-State: AOAM530511QBgKMz+sDnVRHADEL/8UhJExqffsrdmGbMqBkbwpq4jfOu
+        1D5NGa8FlKPk5HZS6azrE8/pJfKW0789UA==
+X-Google-Smtp-Source: ABdhPJwfIZ0Qa4eLLyeYlPDfGf2rm+0UPfH1JNF0NiYHXOLlCwWJPU0EMB/YwfrozpLsXV17jLZYCg==
+X-Received: by 2002:a05:6830:2681:: with SMTP id l1mr6437156otu.378.1639862442812;
+        Sat, 18 Dec 2021 13:20:42 -0800 (PST)
 Received: from localhost (searspoint.nvidia.com. [216.228.112.21])
-        by smtp.gmail.com with ESMTPSA id t12sm2156587ood.22.2021.12.18.13.20.32
+        by smtp.gmail.com with ESMTPSA id s1sm2263399ooo.11.2021.12.18.13.20.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 18 Dec 2021 13:20:33 -0800 (PST)
+        Sat, 18 Dec 2021 13:20:42 -0800 (PST)
 From:   Yury Norov <yury.norov@gmail.com>
 To:     linux-kernel@vger.kernel.org, Yury Norov <yury.norov@gmail.com>,
         "James E.J. Bottomley" <jejb@linux.ibm.com>,
@@ -134,9 +134,9 @@ To:     linux-kernel@vger.kernel.org, Yury Norov <yury.norov@gmail.com>,
         linux-mm@kvack.org, linux-perf-users@vger.kernel.org,
         linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
         linux-snps-arc@lists.infradead.org, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH 05/17] all: replace cpumask_weight with cpumask_empty where appropriate
-Date:   Sat, 18 Dec 2021 13:20:01 -0800
-Message-Id: <20211218212014.1315894-6-yury.norov@gmail.com>
+Subject: [PATCH 08/17] all: replace bitmap_weight with bitmap_weight_{eq,gt,ge,lt,le} where appropriate
+Date:   Sat, 18 Dec 2021 13:20:04 -0800
+Message-Id: <20211218212014.1315894-9-yury.norov@gmail.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20211218212014.1315894-1-yury.norov@gmail.com>
 References: <20211218212014.1315894-1-yury.norov@gmail.com>
@@ -146,344 +146,238 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-In many cases, kernel code calls cpumask_weight() to check if any bit of
-a given cpumask is set. We can do it more efficiently with cpumask_empty()
-because cpumask_empty() stops traversing the cpumask as soon as it finds
-first set bit, while cpumask_weight() counts all bits unconditionally.
+Kernel code calls bitmap_weight() to compare the weight of bitmap with
+a given number. We can do it more efficiently with bitmap_weight_{eq, ...}
+because conditional bitmap_weight may stop traversing the bitmap earlier,
+as soon as condition is met.
+
+This patch replaces bitmap_weight with conditional versions where possible,
+except for small bitmaps which size is not configurable and  known at
+constant time. In that case conditional version of bitmap_weight would not
+benefit due to small_const_nbits() optimization; but readability may
+suffer.
 
 Signed-off-by: Yury Norov <yury.norov@gmail.com>
 ---
- arch/alpha/kernel/process.c            |  2 +-
- arch/ia64/kernel/setup.c               |  2 +-
- arch/x86/kernel/cpu/resctrl/rdtgroup.c | 14 +++++++-------
- arch/x86/mm/mmio-mod.c                 |  2 +-
- arch/x86/platform/uv/uv_nmi.c          |  2 +-
- drivers/cpufreq/qcom-cpufreq-hw.c      |  2 +-
- drivers/cpufreq/scmi-cpufreq.c         |  2 +-
- drivers/gpu/drm/i915/i915_pmu.c        |  2 +-
- drivers/infiniband/hw/hfi1/affinity.c  |  4 ++--
- drivers/irqchip/irq-bcm6345-l1.c       |  2 +-
- kernel/irq/affinity.c                  |  2 +-
- kernel/padata.c                        |  2 +-
- kernel/rcu/tree_nocb.h                 |  4 ++--
- kernel/rcu/tree_plugin.h               |  2 +-
- kernel/sched/core.c                    |  2 +-
- kernel/sched/topology.c                |  2 +-
- kernel/time/clocksource.c              |  2 +-
- mm/vmstat.c                            |  4 ++--
- 18 files changed, 27 insertions(+), 27 deletions(-)
+ arch/x86/kernel/cpu/resctrl/rdtgroup.c                 |  2 +-
+ drivers/iio/dummy/iio_simple_dummy_buffer.c            |  4 ++--
+ drivers/iio/industrialio-trigger.c                     |  2 +-
+ drivers/memstick/core/ms_block.c                       |  4 ++--
+ drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c         |  2 +-
+ .../net/ethernet/marvell/octeontx2/nic/otx2_ethtool.c  |  2 +-
+ .../net/ethernet/marvell/octeontx2/nic/otx2_flows.c    |  4 ++--
+ drivers/net/ethernet/mellanox/mlx4/cmd.c               | 10 +++-------
+ drivers/net/ethernet/mellanox/mlx4/eq.c                |  4 ++--
+ drivers/net/ethernet/mellanox/mlx4/fw.c                |  4 ++--
+ drivers/net/ethernet/mellanox/mlx4/main.c              |  2 +-
+ drivers/perf/thunderx2_pmu.c                           |  4 ++--
+ drivers/staging/media/tegra-video/vi.c                 |  2 +-
+ 13 files changed, 21 insertions(+), 25 deletions(-)
 
-diff --git a/arch/alpha/kernel/process.c b/arch/alpha/kernel/process.c
-index f4759e4ee4a9..a4415ad44982 100644
---- a/arch/alpha/kernel/process.c
-+++ b/arch/alpha/kernel/process.c
-@@ -125,7 +125,7 @@ common_shutdown_1(void *generic_ptr)
- 	/* Wait for the secondaries to halt. */
- 	set_cpu_present(boot_cpuid, false);
- 	set_cpu_possible(boot_cpuid, false);
--	while (cpumask_weight(cpu_present_mask))
-+	while (!cpumask_empty(cpu_present_mask))
- 		barrier();
- #endif
- 
-diff --git a/arch/ia64/kernel/setup.c b/arch/ia64/kernel/setup.c
-index 5010348fa21b..fd6301eafa9d 100644
---- a/arch/ia64/kernel/setup.c
-+++ b/arch/ia64/kernel/setup.c
-@@ -572,7 +572,7 @@ setup_arch (char **cmdline_p)
- #ifdef CONFIG_ACPI_HOTPLUG_CPU
- 	prefill_possible_map();
- #endif
--	per_cpu_scan_finalize((cpumask_weight(&early_cpu_possible_map) == 0 ?
-+	per_cpu_scan_finalize((cpumask_empty(&early_cpu_possible_map) ?
- 		32 : cpumask_weight(&early_cpu_possible_map)),
- 		additional_cpus > 0 ? additional_cpus : 0);
- #endif /* CONFIG_ACPI_NUMA */
 diff --git a/arch/x86/kernel/cpu/resctrl/rdtgroup.c b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-index b57b3db9a6a7..e23ff03290b8 100644
+index e23ff03290b8..9d42e592c1cf 100644
 --- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
 +++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-@@ -341,14 +341,14 @@ static int cpus_mon_write(struct rdtgroup *rdtgrp, cpumask_var_t newmask,
+@@ -2752,7 +2752,7 @@ static int __init_one_rdt_domain(struct rdt_domain *d, struct resctrl_schema *s,
+ 	 * bitmap_weight() does not access out-of-bound memory.
+ 	 */
+ 	tmp_cbm = cfg->new_ctrl;
+-	if (bitmap_weight(&tmp_cbm, r->cache.cbm_len) < r->cache.min_cbm_bits) {
++	if (bitmap_weight_lt(&tmp_cbm, r->cache.cbm_len, r->cache.min_cbm_bits)) {
+ 		rdt_last_cmd_printf("No space on %s:%d\n", s->name, d->id);
+ 		return -ENOSPC;
+ 	}
+diff --git a/drivers/iio/dummy/iio_simple_dummy_buffer.c b/drivers/iio/dummy/iio_simple_dummy_buffer.c
+index 59aa60d4ca37..cd2470ddf82b 100644
+--- a/drivers/iio/dummy/iio_simple_dummy_buffer.c
++++ b/drivers/iio/dummy/iio_simple_dummy_buffer.c
+@@ -72,8 +72,8 @@ static irqreturn_t iio_simple_dummy_trigger_h(int irq, void *p)
+ 		int i, j;
  
- 	/* Check whether cpus belong to parent ctrl group */
- 	cpumask_andnot(tmpmask, newmask, &prgrp->cpu_mask);
--	if (cpumask_weight(tmpmask)) {
-+	if (!cpumask_empty(tmpmask)) {
- 		rdt_last_cmd_puts("Can only add CPUs to mongroup that belong to parent\n");
+ 		for (i = 0, j = 0;
+-		     i < bitmap_weight(indio_dev->active_scan_mask,
+-				       indio_dev->masklength);
++		     bitmap_weight_gt(indio_dev->active_scan_mask,
++				       indio_dev->masklength, i);
+ 		     i++, j++) {
+ 			j = find_next_bit(indio_dev->active_scan_mask,
+ 					  indio_dev->masklength, j);
+diff --git a/drivers/iio/industrialio-trigger.c b/drivers/iio/industrialio-trigger.c
+index f504ed351b3e..98c54022fecf 100644
+--- a/drivers/iio/industrialio-trigger.c
++++ b/drivers/iio/industrialio-trigger.c
+@@ -331,7 +331,7 @@ int iio_trigger_detach_poll_func(struct iio_trigger *trig,
+ {
+ 	struct iio_dev_opaque *iio_dev_opaque = to_iio_dev_opaque(pf->indio_dev);
+ 	bool no_other_users =
+-		bitmap_weight(trig->pool, CONFIG_IIO_CONSUMERS_PER_TRIGGER) == 1;
++		bitmap_weight_eq(trig->pool, CONFIG_IIO_CONSUMERS_PER_TRIGGER, 1);
+ 	int ret = 0;
+ 
+ 	if (trig->ops && trig->ops->set_trigger_state && no_other_users) {
+diff --git a/drivers/memstick/core/ms_block.c b/drivers/memstick/core/ms_block.c
+index 0cda6c6baefc..5cdd987e78f7 100644
+--- a/drivers/memstick/core/ms_block.c
++++ b/drivers/memstick/core/ms_block.c
+@@ -155,8 +155,8 @@ static int msb_validate_used_block_bitmap(struct msb_data *msb)
+ 	for (i = 0; i < msb->zone_count; i++)
+ 		total_free_blocks += msb->free_block_count[i];
+ 
+-	if (msb->block_count - bitmap_weight(msb->used_blocks_bitmap,
+-					msb->block_count) == total_free_blocks)
++	if (bitmap_weight_eq(msb->used_blocks_bitmap, msb->block_count,
++				msb->block_count - total_free_blocks))
+ 		return 0;
+ 
+ 	pr_err("BUG: free block counts don't match the bitmap");
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
+index 214a38de3f41..35297d8a488b 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
+@@ -246,7 +246,7 @@ int ixgbe_disable_sriov(struct ixgbe_adapter *adapter)
+ #endif
+ 
+ 	/* Disable VMDq flag so device will be set in VM mode */
+-	if (bitmap_weight(adapter->fwd_bitmask, adapter->num_rx_pools) == 1) {
++	if (bitmap_weight_eq(adapter->fwd_bitmask, adapter->num_rx_pools, 1)) {
+ 		adapter->flags &= ~IXGBE_FLAG_VMDQ_ENABLED;
+ 		adapter->flags &= ~IXGBE_FLAG_SRIOV_ENABLED;
+ 		rss = min_t(int, ixgbe_max_rss_indices(adapter),
+diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_ethtool.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_ethtool.c
+index d85db90632d6..a55fd1d0c653 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_ethtool.c
++++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_ethtool.c
+@@ -287,7 +287,7 @@ static int otx2_set_channels(struct net_device *dev,
+ 	if (!channel->rx_count || !channel->tx_count)
+ 		return -EINVAL;
+ 
+-	if (bitmap_weight(&pfvf->rq_bmap, pfvf->hw.rx_queues) > 1) {
++	if (bitmap_weight_gt(&pfvf->rq_bmap, pfvf->hw.rx_queues, 1)) {
+ 		netdev_err(dev,
+ 			   "Receive queues are in use by TC police action\n");
+ 		return -EINVAL;
+diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_flows.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_flows.c
+index 80b2d64b4136..55c899a6fcdd 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_flows.c
++++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_flows.c
+@@ -1170,8 +1170,8 @@ int otx2_remove_flow(struct otx2_nic *pfvf, u32 location)
+ 		 * interface mac address and configure CGX/RPM block in
+ 		 * promiscuous mode
+ 		 */
+-		if (bitmap_weight(&flow_cfg->dmacflt_bmap,
+-				  flow_cfg->dmacflt_max_flows) == 1)
++		if (bitmap_weight_eq(&flow_cfg->dmacflt_bmap,
++				     flow_cfg->dmacflt_max_flows, 1))
+ 			otx2_update_rem_pfmac(pfvf, DMAC_ADDR_DEL);
+ 	} else {
+ 		err = otx2_remove_flow_msg(pfvf, flow->entry, false);
+diff --git a/drivers/net/ethernet/mellanox/mlx4/cmd.c b/drivers/net/ethernet/mellanox/mlx4/cmd.c
+index c56d2194cbfc..5bca0c68f00a 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/cmd.c
++++ b/drivers/net/ethernet/mellanox/mlx4/cmd.c
+@@ -2792,9 +2792,8 @@ int mlx4_slave_convert_port(struct mlx4_dev *dev, int slave, int port)
+ {
+ 	unsigned n;
+ 	struct mlx4_active_ports actv_ports = mlx4_get_active_ports(dev, slave);
+-	unsigned m = bitmap_weight(actv_ports.ports, dev->caps.num_ports);
+ 
+-	if (port <= 0 || port > m)
++	if (port <= 0 || bitmap_weight_lt(actv_ports.ports, dev->caps.num_ports, port))
+ 		return -EINVAL;
+ 
+ 	n = find_first_bit(actv_ports.ports, dev->caps.num_ports);
+@@ -3404,10 +3403,6 @@ int mlx4_vf_set_enable_smi_admin(struct mlx4_dev *dev, int slave, int port,
+ 	struct mlx4_priv *priv = mlx4_priv(dev);
+ 	struct mlx4_active_ports actv_ports = mlx4_get_active_ports(
+ 			&priv->dev, slave);
+-	int min_port = find_first_bit(actv_ports.ports,
+-				      priv->dev.caps.num_ports) + 1;
+-	int max_port = min_port - 1 +
+-		bitmap_weight(actv_ports.ports, priv->dev.caps.num_ports);
+ 
+ 	if (slave == mlx4_master_func_num(dev))
+ 		return 0;
+@@ -3417,7 +3412,8 @@ int mlx4_vf_set_enable_smi_admin(struct mlx4_dev *dev, int slave, int port,
+ 	    enabled < 0 || enabled > 1)
+ 		return -EINVAL;
+ 
+-	if (min_port == max_port && dev->caps.num_ports > 1) {
++	if (dev->caps.num_ports > 1 &&
++	    bitmap_weight_eq(actv_ports.ports, priv->dev.caps.num_ports, 1)) {
+ 		mlx4_info(dev, "SMI access disallowed for single ported VFs\n");
+ 		return -EPROTONOSUPPORT;
+ 	}
+diff --git a/drivers/net/ethernet/mellanox/mlx4/eq.c b/drivers/net/ethernet/mellanox/mlx4/eq.c
+index 414e390e6b48..0c09432ff389 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/eq.c
++++ b/drivers/net/ethernet/mellanox/mlx4/eq.c
+@@ -1435,8 +1435,8 @@ int mlx4_is_eq_shared(struct mlx4_dev *dev, int vector)
+ 	if (vector <= 0 || (vector >= dev->caps.num_comp_vectors + 1))
+ 		return -EINVAL;
+ 
+-	return !!(bitmap_weight(priv->eq_table.eq[vector].actv_ports.ports,
+-				dev->caps.num_ports) > 1);
++	return bitmap_weight_gt(priv->eq_table.eq[vector].actv_ports.ports,
++				dev->caps.num_ports, 1);
+ }
+ EXPORT_SYMBOL(mlx4_is_eq_shared);
+ 
+diff --git a/drivers/net/ethernet/mellanox/mlx4/fw.c b/drivers/net/ethernet/mellanox/mlx4/fw.c
+index 42c96c9d7fb1..855aae326ccb 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/fw.c
++++ b/drivers/net/ethernet/mellanox/mlx4/fw.c
+@@ -1300,8 +1300,8 @@ int mlx4_QUERY_DEV_CAP_wrapper(struct mlx4_dev *dev, int slave,
+ 	actv_ports = mlx4_get_active_ports(dev, slave);
+ 	first_port = find_first_bit(actv_ports.ports, dev->caps.num_ports);
+ 	for (slave_port = 0, real_port = first_port;
+-	     real_port < first_port +
+-	     bitmap_weight(actv_ports.ports, dev->caps.num_ports);
++	     bitmap_weight_gt(actv_ports.ports, dev->caps.num_ports,
++			      real_port - first_port);
+ 	     ++real_port, ++slave_port) {
+ 		if (flags & (MLX4_DEV_CAP_FLAG_WOL_PORT1 << real_port))
+ 			flags |= MLX4_DEV_CAP_FLAG_WOL_PORT1 << slave_port;
+diff --git a/drivers/net/ethernet/mellanox/mlx4/main.c b/drivers/net/ethernet/mellanox/mlx4/main.c
+index b187c210d4d6..cfbaa7ac712f 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/main.c
++++ b/drivers/net/ethernet/mellanox/mlx4/main.c
+@@ -1383,7 +1383,7 @@ static int mlx4_mf_bond(struct mlx4_dev *dev)
+ 		   dev->persist->num_vfs + 1);
+ 
+ 	/* only single port vfs are allowed */
+-	if (bitmap_weight(slaves_port_1_2, dev->persist->num_vfs + 1) > 1) {
++	if (bitmap_weight_gt(slaves_port_1_2, dev->persist->num_vfs + 1, 1)) {
+ 		mlx4_warn(dev, "HA mode unsupported for dual ported VFs\n");
  		return -EINVAL;
  	}
- 
- 	/* Check whether cpus are dropped from this group */
- 	cpumask_andnot(tmpmask, &rdtgrp->cpu_mask, newmask);
--	if (cpumask_weight(tmpmask)) {
-+	if (!cpumask_empty(tmpmask)) {
- 		/* Give any dropped cpus to parent rdtgroup */
- 		cpumask_or(&prgrp->cpu_mask, &prgrp->cpu_mask, tmpmask);
- 		update_closid_rmid(tmpmask, prgrp);
-@@ -359,7 +359,7 @@ static int cpus_mon_write(struct rdtgroup *rdtgrp, cpumask_var_t newmask,
- 	 * and update per-cpu rmid
- 	 */
- 	cpumask_andnot(tmpmask, newmask, &rdtgrp->cpu_mask);
--	if (cpumask_weight(tmpmask)) {
-+	if (!cpumask_empty(tmpmask)) {
- 		head = &prgrp->mon.crdtgrp_list;
- 		list_for_each_entry(crgrp, head, mon.crdtgrp_list) {
- 			if (crgrp == rdtgrp)
-@@ -394,7 +394,7 @@ static int cpus_ctrl_write(struct rdtgroup *rdtgrp, cpumask_var_t newmask,
- 
- 	/* Check whether cpus are dropped from this group */
- 	cpumask_andnot(tmpmask, &rdtgrp->cpu_mask, newmask);
--	if (cpumask_weight(tmpmask)) {
-+	if (!cpumask_empty(tmpmask)) {
- 		/* Can't drop from default group */
- 		if (rdtgrp == &rdtgroup_default) {
- 			rdt_last_cmd_puts("Can't drop CPUs from default group\n");
-@@ -413,12 +413,12 @@ static int cpus_ctrl_write(struct rdtgroup *rdtgrp, cpumask_var_t newmask,
- 	 * and update per-cpu closid/rmid.
- 	 */
- 	cpumask_andnot(tmpmask, newmask, &rdtgrp->cpu_mask);
--	if (cpumask_weight(tmpmask)) {
-+	if (!cpumask_empty(tmpmask)) {
- 		list_for_each_entry(r, &rdt_all_groups, rdtgroup_list) {
- 			if (r == rdtgrp)
- 				continue;
- 			cpumask_and(tmpmask1, &r->cpu_mask, tmpmask);
--			if (cpumask_weight(tmpmask1))
-+			if (!cpumask_empty(tmpmask1))
- 				cpumask_rdtgrp_clear(r, tmpmask1);
- 		}
- 		update_closid_rmid(tmpmask, rdtgrp);
-@@ -488,7 +488,7 @@ static ssize_t rdtgroup_cpus_write(struct kernfs_open_file *of,
- 
- 	/* check that user didn't specify any offline cpus */
- 	cpumask_andnot(tmpmask, newmask, cpu_online_mask);
--	if (cpumask_weight(tmpmask)) {
-+	if (!cpumask_empty(tmpmask)) {
- 		ret = -EINVAL;
- 		rdt_last_cmd_puts("Can only assign online CPUs\n");
- 		goto unlock;
-diff --git a/arch/x86/mm/mmio-mod.c b/arch/x86/mm/mmio-mod.c
-index 933a2ebad471..c3317f0650d8 100644
---- a/arch/x86/mm/mmio-mod.c
-+++ b/arch/x86/mm/mmio-mod.c
-@@ -400,7 +400,7 @@ static void leave_uniprocessor(void)
- 	int cpu;
- 	int err;
- 
--	if (!cpumask_available(downed_cpus) || cpumask_weight(downed_cpus) == 0)
-+	if (!cpumask_available(downed_cpus) || cpumask_empty(downed_cpus))
+diff --git a/drivers/perf/thunderx2_pmu.c b/drivers/perf/thunderx2_pmu.c
+index 05378c0fd8f3..ebfa66b212c7 100644
+--- a/drivers/perf/thunderx2_pmu.c
++++ b/drivers/perf/thunderx2_pmu.c
+@@ -623,8 +623,8 @@ static void tx2_uncore_event_start(struct perf_event *event, int flags)
  		return;
- 	pr_notice("Re-enabling CPUs...\n");
- 	for_each_cpu(cpu, downed_cpus) {
-diff --git a/arch/x86/platform/uv/uv_nmi.c b/arch/x86/platform/uv/uv_nmi.c
-index 1e9ff28bc2e0..ea277fc08357 100644
---- a/arch/x86/platform/uv/uv_nmi.c
-+++ b/arch/x86/platform/uv/uv_nmi.c
-@@ -985,7 +985,7 @@ static int uv_handle_nmi(unsigned int reason, struct pt_regs *regs)
  
- 	/* Clear global flags */
- 	if (master) {
--		if (cpumask_weight(uv_nmi_cpu_mask))
-+		if (!cpumask_empty(uv_nmi_cpu_mask))
- 			uv_nmi_cleanup_mask();
- 		atomic_set(&uv_nmi_cpus_in_nmi, -1);
- 		atomic_set(&uv_nmi_cpu, -1);
-diff --git a/drivers/cpufreq/qcom-cpufreq-hw.c b/drivers/cpufreq/qcom-cpufreq-hw.c
-index 05f3d7876e44..95a0c57ab5bb 100644
---- a/drivers/cpufreq/qcom-cpufreq-hw.c
-+++ b/drivers/cpufreq/qcom-cpufreq-hw.c
-@@ -482,7 +482,7 @@ static int qcom_cpufreq_hw_cpu_init(struct cpufreq_policy *policy)
- 	}
+ 	/* Start timer for first event */
+-	if (bitmap_weight(tx2_pmu->active_counters,
+-				tx2_pmu->max_counters) == 1) {
++	if (bitmap_weight_eq(tx2_pmu->active_counters,
++				tx2_pmu->max_counters, 1)) {
+ 		hrtimer_start(&tx2_pmu->hrtimer,
+ 			ns_to_ktime(tx2_pmu->hrtimer_interval),
+ 			HRTIMER_MODE_REL_PINNED);
+diff --git a/drivers/staging/media/tegra-video/vi.c b/drivers/staging/media/tegra-video/vi.c
+index 69d9787d5338..98d878a5ca6b 100644
+--- a/drivers/staging/media/tegra-video/vi.c
++++ b/drivers/staging/media/tegra-video/vi.c
+@@ -436,7 +436,7 @@ static int tegra_channel_enum_format(struct file *file, void *fh,
+ 	if (!IS_ENABLED(CONFIG_VIDEO_TEGRA_TPG))
+ 		fmts_bitmap = chan->fmts_bitmap;
  
- 	qcom_get_related_cpus(index, policy->cpus);
--	if (!cpumask_weight(policy->cpus)) {
-+	if (cpumask_empty(policy->cpus)) {
- 		dev_err(dev, "Domain-%d failed to get related CPUs\n", index);
- 		ret = -ENOENT;
- 		goto error;
-diff --git a/drivers/cpufreq/scmi-cpufreq.c b/drivers/cpufreq/scmi-cpufreq.c
-index 1e0cd4d165f0..919fa6e3f462 100644
---- a/drivers/cpufreq/scmi-cpufreq.c
-+++ b/drivers/cpufreq/scmi-cpufreq.c
-@@ -154,7 +154,7 @@ static int scmi_cpufreq_init(struct cpufreq_policy *policy)
- 	 * table and opp-shared.
- 	 */
- 	ret = dev_pm_opp_of_get_sharing_cpus(cpu_dev, priv->opp_shared_cpus);
--	if (ret || !cpumask_weight(priv->opp_shared_cpus)) {
-+	if (ret || cpumask_empty(priv->opp_shared_cpus)) {
- 		/*
- 		 * Either opp-table is not set or no opp-shared was found.
- 		 * Use the CPU mask from SCMI to designate CPUs sharing an OPP
-diff --git a/drivers/gpu/drm/i915/i915_pmu.c b/drivers/gpu/drm/i915/i915_pmu.c
-index 0b488d49694c..962e8d6bf6ea 100644
---- a/drivers/gpu/drm/i915/i915_pmu.c
-+++ b/drivers/gpu/drm/i915/i915_pmu.c
-@@ -1048,7 +1048,7 @@ static int i915_pmu_cpu_online(unsigned int cpu, struct hlist_node *node)
- 	GEM_BUG_ON(!pmu->base.event_init);
+-	if (f->index >= bitmap_weight(fmts_bitmap, MAX_FORMAT_NUM))
++	if (bitmap_weight_le(fmts_bitmap, MAX_FORMAT_NUM, f->index))
+ 		return -EINVAL;
  
- 	/* Select the first online CPU as a designated reader. */
--	if (!cpumask_weight(&i915_pmu_cpumask))
-+	if (cpumask_empty(&i915_pmu_cpumask))
- 		cpumask_set_cpu(cpu, &i915_pmu_cpumask);
- 
- 	return 0;
-diff --git a/drivers/infiniband/hw/hfi1/affinity.c b/drivers/infiniband/hw/hfi1/affinity.c
-index 98c813ba4304..38eee675369a 100644
---- a/drivers/infiniband/hw/hfi1/affinity.c
-+++ b/drivers/infiniband/hw/hfi1/affinity.c
-@@ -667,7 +667,7 @@ int hfi1_dev_affinity_init(struct hfi1_devdata *dd)
- 			 * engines, use the same CPU cores as general/control
- 			 * context.
- 			 */
--			if (cpumask_weight(&entry->def_intr.mask) == 0)
-+			if (cpumask_empty(&entry->def_intr.mask))
- 				cpumask_copy(&entry->def_intr.mask,
- 					     &entry->general_intr_mask);
- 		}
-@@ -687,7 +687,7 @@ int hfi1_dev_affinity_init(struct hfi1_devdata *dd)
- 		 * vectors, use the same CPU core as the general/control
- 		 * context.
- 		 */
--		if (cpumask_weight(&entry->comp_vect_mask) == 0)
-+		if (cpumask_empty(&entry->comp_vect_mask))
- 			cpumask_copy(&entry->comp_vect_mask,
- 				     &entry->general_intr_mask);
- 	}
-diff --git a/drivers/irqchip/irq-bcm6345-l1.c b/drivers/irqchip/irq-bcm6345-l1.c
-index fd079215c17f..142a7431745f 100644
---- a/drivers/irqchip/irq-bcm6345-l1.c
-+++ b/drivers/irqchip/irq-bcm6345-l1.c
-@@ -315,7 +315,7 @@ static int __init bcm6345_l1_of_init(struct device_node *dn,
- 			cpumask_set_cpu(idx, &intc->cpumask);
- 	}
- 
--	if (!cpumask_weight(&intc->cpumask)) {
-+	if (cpumask_empty(&intc->cpumask)) {
- 		ret = -ENODEV;
- 		goto out_free;
- 	}
-diff --git a/kernel/irq/affinity.c b/kernel/irq/affinity.c
-index f7ff8919dc9b..18740faf0eb1 100644
---- a/kernel/irq/affinity.c
-+++ b/kernel/irq/affinity.c
-@@ -258,7 +258,7 @@ static int __irq_build_affinity_masks(unsigned int startvec,
- 	nodemask_t nodemsk = NODE_MASK_NONE;
- 	struct node_vectors *node_vectors;
- 
--	if (!cpumask_weight(cpu_mask))
-+	if (cpumask_empty(cpu_mask))
- 		return 0;
- 
- 	nodes = get_nodes_in_cpumask(node_to_cpumask, cpu_mask, &nodemsk);
-diff --git a/kernel/padata.c b/kernel/padata.c
-index 18d3a5c699d8..e5819bb8bd1d 100644
---- a/kernel/padata.c
-+++ b/kernel/padata.c
-@@ -181,7 +181,7 @@ int padata_do_parallel(struct padata_shell *ps,
- 		goto out;
- 
- 	if (!cpumask_test_cpu(*cb_cpu, pd->cpumask.cbcpu)) {
--		if (!cpumask_weight(pd->cpumask.cbcpu))
-+		if (cpumask_empty(pd->cpumask.cbcpu))
- 			goto out;
- 
- 		/* Select an alternate fallback CPU and notify the caller. */
-diff --git a/kernel/rcu/tree_nocb.h b/kernel/rcu/tree_nocb.h
-index 1e40519d1a05..bc038a451768 100644
---- a/kernel/rcu/tree_nocb.h
-+++ b/kernel/rcu/tree_nocb.h
-@@ -1169,7 +1169,7 @@ void __init rcu_init_nohz(void)
- 	struct rcu_data *rdp;
- 
- #if defined(CONFIG_NO_HZ_FULL)
--	if (tick_nohz_full_running && cpumask_weight(tick_nohz_full_mask))
-+	if (tick_nohz_full_running && !cpumask_empty(tick_nohz_full_mask))
- 		need_rcu_nocb_mask = true;
- #endif /* #if defined(CONFIG_NO_HZ_FULL) */
- 
-@@ -1353,7 +1353,7 @@ static void __init rcu_organize_nocb_kthreads(void)
-  */
- void rcu_bind_current_to_nocb(void)
- {
--	if (cpumask_available(rcu_nocb_mask) && cpumask_weight(rcu_nocb_mask))
-+	if (cpumask_available(rcu_nocb_mask) && !cpumask_empty(rcu_nocb_mask))
- 		WARN_ON(sched_setaffinity(current->pid, rcu_nocb_mask));
- }
- EXPORT_SYMBOL_GPL(rcu_bind_current_to_nocb);
-diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
-index 54ef0e8c8742..3857ff6cb6f7 100644
---- a/kernel/rcu/tree_plugin.h
-+++ b/kernel/rcu/tree_plugin.h
-@@ -1216,7 +1216,7 @@ static void rcu_boost_kthread_setaffinity(struct rcu_node *rnp, int outgoingcpu)
- 		    cpu != outgoingcpu)
- 			cpumask_set_cpu(cpu, cm);
- 	cpumask_and(cm, cm, housekeeping_cpumask(HK_FLAG_RCU));
--	if (cpumask_weight(cm) == 0)
-+	if (cpumask_empty(cm))
- 		cpumask_copy(cm, housekeeping_cpumask(HK_FLAG_RCU));
- 	set_cpus_allowed_ptr(t, cm);
- 	mutex_unlock(&rnp->boost_kthread_mutex);
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 83872f95a1ea..9b3ec14227e1 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -8715,7 +8715,7 @@ int cpuset_cpumask_can_shrink(const struct cpumask *cur,
- {
- 	int ret = 1;
- 
--	if (!cpumask_weight(cur))
-+	if (cpumask_empty(cur))
- 		return ret;
- 
- 	ret = dl_cpuset_cpumask_can_shrink(cur, trial);
-diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
-index d201a7052a29..8478e2a8cd65 100644
---- a/kernel/sched/topology.c
-+++ b/kernel/sched/topology.c
-@@ -74,7 +74,7 @@ static int sched_domain_debug_one(struct sched_domain *sd, int cpu, int level,
- 			break;
- 		}
- 
--		if (!cpumask_weight(sched_group_span(group))) {
-+		if (cpumask_empty(sched_group_span(group))) {
- 			printk(KERN_CONT "\n");
- 			printk(KERN_ERR "ERROR: empty group\n");
- 			break;
-diff --git a/kernel/time/clocksource.c b/kernel/time/clocksource.c
-index 95d7ca35bdf2..cee5da1e54c4 100644
---- a/kernel/time/clocksource.c
-+++ b/kernel/time/clocksource.c
-@@ -343,7 +343,7 @@ void clocksource_verify_percpu(struct clocksource *cs)
- 	cpus_read_lock();
- 	preempt_disable();
- 	clocksource_verify_choose_cpus();
--	if (cpumask_weight(&cpus_chosen) == 0) {
-+	if (cpumask_empty(&cpus_chosen)) {
- 		preempt_enable();
- 		cpus_read_unlock();
- 		pr_warn("Not enough CPUs to check clocksource '%s'.\n", cs->name);
-diff --git a/mm/vmstat.c b/mm/vmstat.c
-index d701c335628c..295642e2c24c 100644
---- a/mm/vmstat.c
-+++ b/mm/vmstat.c
-@@ -2032,7 +2032,7 @@ static void __init init_cpu_node_state(void)
- 	int node;
- 
- 	for_each_online_node(node) {
--		if (cpumask_weight(cpumask_of_node(node)) > 0)
-+		if (!cpumask_empty(cpumask_of_node(node)))
- 			node_set_state(node, N_CPU);
- 	}
- }
-@@ -2059,7 +2059,7 @@ static int vmstat_cpu_dead(unsigned int cpu)
- 
- 	refresh_zone_stat_thresholds();
- 	node_cpus = cpumask_of_node(node);
--	if (cpumask_weight(node_cpus) > 0)
-+	if (!cpumask_empty(node_cpus))
- 		return 0;
- 
- 	node_clear_state(node, N_CPU);
+ 	for (i = 0; i < f->index + 1; i++, index++)
 -- 
 2.30.2
 
