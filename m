@@ -2,160 +2,284 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36318C433F5
-	for <linux-s390@archiver.kernel.org>; Sat, 18 Dec 2021 16:12:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 51056C433EF
+	for <linux-s390@archiver.kernel.org>; Sat, 18 Dec 2021 21:20:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233582AbhLRQM2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 18 Dec 2021 11:12:28 -0500
-Received: from mail-eopbgr120054.outbound.protection.outlook.com ([40.107.12.54]:19905
-        "EHLO FRA01-PR2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S229524AbhLRQM2 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 18 Dec 2021 11:12:28 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=eoEY2ygIDg6ZfnZNgq5x8mzrIfzjldZOUr2LKU/zrgHSWdjLqAYt8htDgFiQ0zXK1FX9FpuWAYkpHN78EcEvBKEmOpl0qPiLQe+Ya2KLiGgnRQ26qePP2mOqOM8qb+KrscvUjvplF/S1d9IcDJk4F2t2+Tr0eKACK9doCrdz+/1jnN4kubLxvNli5HjfkCmD3Q3RUDn8i8CFtO5NpNvfeIIl4H/wEw+cBJPpGUVI2QsZbPxLct4RWwylBnPV61v0qr5DdyHRiS5uUexW/alTM7jQ57fj0qAcAtRnl3kZvnrvk/Nkh89goE0YdJpORuXJshSzssxceUPZoqn8JX/W2g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=WS98UrZ2QTlU2q2CA0E+f2vNNhzQxghO1XRjC+vS06s=;
- b=YgwffdDSqxhuWfpMGTZrNQ/RtrpTMeG+DOu7kog6NYUZr4DTSpncIkJxFBCxc2eQIBqBzOlSs5B55V3ELFxBpOEQCS9/kKXrKtPvaZ+HzlBQ335L4jqV6BbQGYbgFhsrbXMHJ7TIs001GcQ0eRnKBx/1matmkqDeWuo8EOi9Rq2H1QwCErb88Df6sWzOQh3HR5JD1DLhHHEJbYDXrs8qxk89+SbJXEH1NAX9oxSMrGOzoY5W/KWsKA4pM0Bhu4k2vhOf8S7A/ypO1MtbkVDUS7bP93GE/tsJ7jGjPtEwrvWk67N6Vw221fWS1Bfcgi4OhaV+p/s2kDNrnG+lJssolg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=csgroup.eu; dmarc=pass action=none header.from=csgroup.eu;
- dkim=pass header.d=csgroup.eu; arc=none
-Received: from MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM (2603:10a6:501:31::15)
- by MRZP264MB1750.FRAP264.PROD.OUTLOOK.COM (2603:10a6:501:a::8) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4801.17; Sat, 18 Dec 2021 16:12:25 +0000
-Received: from MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
- ([fe80::f0ef:856d:b0de:e85d]) by MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
- ([fe80::f0ef:856d:b0de:e85d%5]) with mapi id 15.20.4801.017; Sat, 18 Dec 2021
- 16:12:24 +0000
-From:   Christophe Leroy <christophe.leroy@csgroup.eu>
-To:     Steven Rostedt <rostedt@goodmis.org>
-CC:     Josh Poimboeuf <jpoimboe@redhat.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Petr Mladek <pmladek@suse.com>,
-        Joe Lawrence <joe.lawrence@redhat.com>,
+        id S234287AbhLRVUT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 18 Dec 2021 16:20:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56170 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230480AbhLRVUS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 18 Dec 2021 16:20:18 -0500
+Received: from mail-oi1-x230.google.com (mail-oi1-x230.google.com [IPv6:2607:f8b0:4864:20::230])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F184C061574;
+        Sat, 18 Dec 2021 13:20:18 -0800 (PST)
+Received: by mail-oi1-x230.google.com with SMTP id r26so9354373oiw.5;
+        Sat, 18 Dec 2021 13:20:18 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=JzsjdMdsnVfTtF2jA28Re9um5Pc1jpset8TjSm+sCCQ=;
+        b=JJsYWCM4ZBrFr/QGYcVtz1O5XpwXMR8kjk5zvlx1xd9d3Bnfs+RyARM+UF2BFzbQzh
+         Gtz0Jhiop3r+qa0tUyPUPAMdU6Jzy350IR0tNVuhpUl5a46wJZSSCfrlTroVV0iEzWQm
+         jnatXUCyMxUjx4zPd6MbwV+jlb+bcIyfWFewnkHP1g6bfMLkxOoJnBeNiY1ltSGyKLUW
+         NJO78tJlSMx+Op9iY217snQDmDuDZZGnfHCB/c9C+zObP29p/bUuiIWC4jVIoflp+GZQ
+         +vsH2Ey++3hW+p7C5pzF3cKCahFFKGna42dCmd+BpNpZItDrp0SdGfIa8OEsJ5ce8y7A
+         EIWw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=JzsjdMdsnVfTtF2jA28Re9um5Pc1jpset8TjSm+sCCQ=;
+        b=xgY6/Txzwb3iK+Jl2xwcNDPv2AKxxdcywww5yieirupvunu8ZI3FAYMw+1qI9A1TkZ
+         u3+0InpVcCX+xAx2Sopr2kLP1LpeuCenZNMGkh7MV1RF6JYzCRhAVxwp4RpEh62za8sW
+         Yl5tQ0S1m59XX+yvGrzyUo2R8iEAT6a/O3AwPZzc9PNg3aG+D8DVUaJ4S5EYZh+B//yx
+         ZryAXsNt49RlmFfwqYhiqFkf+rT5JYuy2AfavIvyvz6syPup41ggeZoQJZa7y4Ieg9nR
+         oDXJO3c+3uuLKzXHw5RLP4zR+NA5fKFW5vjogYFEAZotdpX6lSvwbALb1dDU2nXz8VxF
+         b04A==
+X-Gm-Message-State: AOAM532JVjUdHz3Fx8TMLVX+Yuo3KVTKXfZ7DdRO9ClLLOPlt+c0y3XO
+        lASmYyEcs+H9uLfn4LDVmHY3rL7O+I1t/Q==
+X-Google-Smtp-Source: ABdhPJx5aJcpDQGi8bZmEiNIZHDj12WYIMCd+iCUv3wO5n9NxzqY0XYaFcTOfyycv/QCCz3me1Quxg==
+X-Received: by 2002:a05:6808:a8f:: with SMTP id q15mr12338850oij.65.1639862417151;
+        Sat, 18 Dec 2021 13:20:17 -0800 (PST)
+Received: from localhost (searspoint.nvidia.com. [216.228.112.21])
+        by smtp.gmail.com with ESMTPSA id g26sm2402061ots.25.2021.12.18.13.20.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 18 Dec 2021 13:20:16 -0800 (PST)
+From:   Yury Norov <yury.norov@gmail.com>
+To:     linux-kernel@vger.kernel.org, Yury Norov <yury.norov@gmail.com>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Alexey Klimov <aklimov@redhat.com>,
+        Amitkumar Karwar <amitkarwar@gmail.com>,
+        Andi Kleen <ak@linux.intel.com>, Andrew Lunn <andrew@lunn.ch>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andy Gross <agross@kernel.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Andy Shevchenko <andy@infradead.org>,
+        Anup Patel <anup.patel@wdc.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Christoph Lameter <cl@linux.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        David Airlie <airlied@linux.ie>,
+        David Laight <David.Laight@ACULAB.COM>,
+        Dennis Zhou <dennis@kernel.org>,
+        Emil Renner Berthing <kernel@esmil.dk>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Geetha sowjanya <gakula@marvell.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Guo Ren <guoren@kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Ian Rogers <irogers@google.com>,
         Ingo Molnar <mingo@redhat.com>,
-        "Naveen N . Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "live-patching@vger.kernel.org" <live-patching@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>
-Subject: Re: [PATCH v1 0/5] Implement livepatch on PPC32
-Thread-Topic: [PATCH v1 0/5] Implement livepatch on PPC32
-Thread-Index: AQHXy/a61L5ufkyTwk+E9T1IN+85JqvoaYCAgEhc+YCAACuvAIAABD6AgAAAzACAAATPgIAAEbEAgAALEoCAAANtgIAArk+AgAAX1gCAAGwBAIAGbdEA
-Date:   Sat, 18 Dec 2021 16:12:24 +0000
-Message-ID: <d14826b6-adbf-8825-d097-8b0b1eac8574@csgroup.eu>
-References: <cover.1635423081.git.christophe.leroy@csgroup.eu>
- <20211028093547.48c69dfe@gandalf.local.home>
- <6209682d-0caa-b779-8763-376a984d8ed8@csgroup.eu>
- <20211213121536.25e5488d@gandalf.local.home>
- <5511f43c-192a-622b-7c72-52e07f0032c2@csgroup.eu>
- <20211213123338.65eda5a0@gandalf.local.home>
- <fc3099b8-9f12-3e47-08a0-05abc37a0482@csgroup.eu>
- <20211213135410.12642d8f@gandalf.local.home>
- <8df90f94-9939-0178-b92b-6ae6ea81784c@csgroup.eu>
- <20211213144603.47d7c908@gandalf.local.home>
- <76ce2dd7-691e-df73-727c-110713c07cda@csgroup.eu>
- <aac75717-a3ac-c0b4-3e79-dc6eb9c26d8c@csgroup.eu>
- <20211214090148.264f4660@gandalf.local.home>
-In-Reply-To: <20211214090148.264f4660@gandalf.local.home>
-Accept-Language: fr-FR, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-user-agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=csgroup.eu;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 93b56b1a-4d2f-4733-a4ea-08d9c2412dfe
-x-ms-traffictypediagnostic: MRZP264MB1750:EE_
-x-microsoft-antispam-prvs: <MRZP264MB17507A7C55F831671D06AC59ED799@MRZP264MB1750.FRAP264.PROD.OUTLOOK.COM>
-x-ms-oob-tlc-oobclassifiers: OLM:4941;
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: 6Xb+eaOrlGl1ZhC2jOPuiLv1FzujEeWUQb2RcMStPTKjZTQ4PeQNpudl69+ZyrxyCek61vHWru4GIUjS5O/mzHLekVqUz5kGEwPBMMmFxfz7kBiRbZkjZ2P6RVou7Y0VTZBublE/V3DVvL2ODySquNjih6qfC6MUOQUddz/Hd9JhNP1qvdRsXafHxl1/v902LJBRAGfWGkLp6YftJps3Ex5PJ9vYtBGwCYUHBQ9iIeuStpnakAHI1rlUSl3MIftukEPDtOD4pkHFeLv305TkPRE9ChxIpOdy6Ytow5TtSpu2Cjg17L5KjHy4YbszeEbUtrv/zpj3vCXCQ/L01oVdRW5clldDye5oZLENUI/6hoQG1o6kaJi14nDwWWKmuaxErjF+JkD5/VAk2Tnx3+/lL4IIL0W+2zhKelDueKCDz+ts/gz1um956TudsmIptq+RTzdLWqNJR2gZ7XbllzkmO6TMSO839vV00ftVrutuC+vSURBTJhHQmiy4zbQW4vxIN75w5OiSfJUEkJqHDgfgJDwaMI8lGfT/kx7sI0YK5p/mjeSJ4qlmlgRSiPaJ7FpKQXDgfM44tBMuCEfRSC5xNuUGKOFLmWlzBtqykjb74hnFoXh19NB9MyXvAcMwsdl+/PCltX23DP8s2oqtyUHezZNfMj9qHcV1GJvmoYkzZ5ptasNwqFaEz5Fb4HE1cukoSYdoMw6VL7Ddszqbc/ZT2RUku61y2fV1ubzB9CzcgwzFqe7y/Qp6WVTiaUIZrL5CvhsB1Eio/gLtIuDSxzI6KA==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(4636009)(366004)(66946007)(316002)(4326008)(31696002)(6512007)(54906003)(91956017)(44832011)(86362001)(76116006)(31686004)(7416002)(71200400001)(8676002)(8936002)(66446008)(64756008)(66556008)(66476007)(38100700002)(6486002)(122000001)(6916009)(508600001)(26005)(6506007)(186003)(5660300002)(2616005)(83380400001)(38070700005)(2906002)(36756003)(43740500002)(45980500001);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?d2ZrM2JYQnoxaUtQUzVOUURGYjlaREszNkNzQlFFUEkyWnVzZjhmN3pWRTVm?=
- =?utf-8?B?Q0QyMjdlODJaaElES3hUc0RKQU5mTUorUXBVMXQycG9DL0VLZmczdG96Q1RC?=
- =?utf-8?B?YzM1VmF4MmpESFloQU9PeUx4ejJZV05xRkdTMjhBRHRMZUxHM1hGcFROa3FT?=
- =?utf-8?B?TDFwWW0xWE8yMzVNWlJYeDF4c0JnWXNEQ05pREpYamtFT1VzK1MvK21OcDc1?=
- =?utf-8?B?Z2JOVVBwSlBqbDR2T1FlU2VLdVJVK0pLOFBtWUI1eHo4a1Jla3BITy80WEZI?=
- =?utf-8?B?ODVGSGkrZmtwKzRQQjRjUXpyTGxOM3Era2pTZUxaTWRPcitOSTRtekFaTzZ2?=
- =?utf-8?B?ajU0d0VNY0xZaS9vRFRSeUptR3pEV2xQYlVsTGNoUVRVUnU3UFZja040dmU5?=
- =?utf-8?B?TGZkV0ZIZlN5OWZwS3o4WUxweTBqT2QrOXR2TUtISUtrUFFmMTNmWDl2dnVM?=
- =?utf-8?B?UHV1Mk9UVXdFQzFqMnFKUXZQQWZGTm9GWHF5UXp6b1lSZW5YS3hFUWEvNG5r?=
- =?utf-8?B?aW9OSDY1dmt4c1FjcExDTitwRzFMa0s3R0s5ZnFvbnFJMEQ1WUF2dUdLQkkx?=
- =?utf-8?B?d0V5YjVYYWpaMW12dXExb1pvaXBEQU1FcjY1QUpMTVJXME0zQUdSU2lXemww?=
- =?utf-8?B?M0FQWHU5TXJvV3JYaUlLMnRyY245Y3VKbE1ZMERGN3FKcUZsc3RFd1hXTUN2?=
- =?utf-8?B?Wndad3NhT0xpR01lbGViM3FyZU1HT200Z1NFM1dvTGl2NFlXNVUwemY5M0hW?=
- =?utf-8?B?MHd2dEQxakw2OGNVMHM0VEkzbHBTby9sdXIxQ293STZFSy9ydVRWZkF3NmV6?=
- =?utf-8?B?OWZLM2lFaUZjSmNFN3gzRnhNN3IxOWM0WFYzdXRFa1BPL2RKbTNPdGtsdERn?=
- =?utf-8?B?S2FXMnV2RURxdXAzckNQa3B1TndHNlRKVGF2WWVHNTIwaXIvRHFEK2kzWDkv?=
- =?utf-8?B?b0hFOUtJOXRsSEhGbm1aSjRnR1lMai9BalcyS3MwSmFQV21IZDZwbzVJVldJ?=
- =?utf-8?B?TzJqNk42eW1leXl3K1dZUFlCVDhUYUFSK2xjMjY4cCtNN2daTkNhbW1qK3BR?=
- =?utf-8?B?c2Q3c2R2YzNEanpieVkwUkcvbU4zNHFBdllSUE5FOEJiZW1zU3FUQXdETUlv?=
- =?utf-8?B?ZkVnblFzTjV0VHd2UlZiS3YvQmJBOFVXbFN5N21jcUo2QVJ3U0JrSkw3QkVG?=
- =?utf-8?B?RkZGUkhRSjRSU3JZbVVnVS9iQ2tqVkJSbmh6ZHFSMkJiSUhrdDRFeDl6RnRx?=
- =?utf-8?B?TGlGeGMzZVdkUklvNlF6dUpNNTZSVUZ1a1FLTHk5Z3VFcS9yZ3FaOG0ycUhD?=
- =?utf-8?B?T1Zpd0xaclVFdmlpYUVBSU4rV3pCbUhaKzFQT2FGbzRTWUtwWkpldXQ3a21j?=
- =?utf-8?B?cjJNNlplMkhGNXRDM21PbFBiRzJPWjVkYy9lbm9ZMXFudkRjaWZkSEIrOTll?=
- =?utf-8?B?dk42eEZKZzZiSGtCdmpYTFRydldTWWcwYUh5TWVpbjFER2xHTmFzNzV1Z2xv?=
- =?utf-8?B?d0NRQ04rUjJSSko3a0dBakY3TlErRDRLaUtuWkNlL1hsYkJDdzBVRVlldkFR?=
- =?utf-8?B?Y2tNaFNPcDZmRDRMR291Skl6WHVXUVl3L0JRWFlGNUp2djVSSGY3d24wd1U2?=
- =?utf-8?B?V2V3cGE3T1JSM2JvcW1vSlp6SmNkajJ1Y2c5QXlKWThlV2h3NHBBQUtYUS9V?=
- =?utf-8?B?dzJLTGttTnJiSFBPRVR3T0NyWXhKSlloRFUweEFqWk41RjF2VDdvbE9xOE1u?=
- =?utf-8?B?dS9oSE90N2xnOUd5cXpzS2Q0SFlQcHI4bkE3VDRJVXpSaUxQNkw1MzNlc2sy?=
- =?utf-8?B?Q1BlQWtJWmxWYk82eVV5d0k0TnRjREVaeVpiSE9LU0JyOHlTSExQSjVnSHlS?=
- =?utf-8?B?aWxhZUZXN2xJSFNrNGZaQ1FZbllrUHFySEIyQmk1Qm9uRUtMVFRYeERPQ25y?=
- =?utf-8?B?MUtJRFlRaEZMczRJTllUaVpUUWk4UTNvNTlnQml2aDRFRHBQMDJZU1hob0dl?=
- =?utf-8?B?ZFphWGpaVmhiS2c2MEUrN1Bab0ZsT2s1VHo4RExFRmQ1MEc3aFRmMlhwd3lk?=
- =?utf-8?B?L2lxeUxqWURMZEtEb1lHS2d2TkE3dzlsdTNCQ3NjWjd4MUxiWWZiOVd1R1Y5?=
- =?utf-8?B?R3hhcEZ0ZXhGcEMxVHRVWmtHMWdpWUN4S1pEcERCR05FUXFONkJWL3ByZnV2?=
- =?utf-8?B?VC9kZFpkUWI5Y0d4U0tHMEoxSnlYZW5NT1ZQbEZZbkxNbWtXYnlvTGNJbUFU?=
- =?utf-8?Q?2x8rrQRI4EyRGMXAgLOcghbz0DG4Jo88UawCdH2q+I=3D?=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <FFE1DE220091514AADBF0C09C41558E2@FRAP264.PROD.OUTLOOK.COM>
-Content-Transfer-Encoding: base64
+        Jakub Kicinski <kuba@kernel.org>,
+        Jason Wessel <jason.wessel@windriver.com>,
+        Jens Axboe <axboe@fb.com>, Jiri Olsa <jolsa@redhat.com>,
+        Joe Perches <joe@perches.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Kees Cook <keescook@chromium.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Marc Zyngier <maz@kernel.org>, Marcin Wojtas <mw@semihalf.com>,
+        Mark Gross <markgross@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matti Vaittinen <mazziesaccount@gmail.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Mel Gorman <mgorman@suse.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Petr Mladek <pmladek@suse.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Russell King <linux@armlinux.org.uk>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Solomon Peachy <pizza@shaftnet.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Subbaraya Sundeep <sbhatta@marvell.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Sunil Goutham <sgoutham@marvell.com>,
+        Tariq Toukan <tariqt@nvidia.com>, Tejun Heo <tj@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Vineet Gupta <vgupta@kernel.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Will Deacon <will@kernel.org>,
+        bcm-kernel-feedback-list@broadcom.com, kvm@vger.kernel.org,
+        linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-crypto@vger.kernel.org, linux-csky@vger.kernel.org,
+        linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-mm@kvack.org, linux-perf-users@vger.kernel.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH v2 00/17] lib/bitmap: optimize bitmap_weight() usage
+Date:   Sat, 18 Dec 2021 13:19:56 -0800
+Message-Id: <20211218212014.1315894-1-yury.norov@gmail.com>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-X-OriginatorOrg: csgroup.eu
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-Network-Message-Id: 93b56b1a-4d2f-4733-a4ea-08d9c2412dfe
-X-MS-Exchange-CrossTenant-originalarrivaltime: 18 Dec 2021 16:12:24.9180
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 9914def7-b676-4fda-8815-5d49fb3b45c8
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: ThK6kQpPtghxDOw8nol8aE1ESPAiz4Kr0xOnbr0myItOSTxEjY5pF1fyeEfZ+jFOF/vwajs22zpajIwP3ggfMJnoeMhyWhmZ+q7ykUdg7AY=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MRZP264MB1750
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-DQoNCkxlIDE0LzEyLzIwMjEgw6AgMTU6MDEsIFN0ZXZlbiBSb3N0ZWR0IGEgw6ljcml0wqA6DQo+
-IE9uIFR1ZSwgMTQgRGVjIDIwMjEgMDg6MzU6MTQgKzAxMDANCj4gQ2hyaXN0b3BoZSBMZXJveSA8
-Y2hyaXN0b3BoZS5sZXJveUBjc2dyb3VwLmV1PiB3cm90ZToNCj4gDQo+Pj4gV2lsbCBjb250aW51
-ZSBpbnZlc3RpZ2F0aW5nLg0KPj4+ICAgIA0KPj4NCj4+IHRyYWNlX3NlbGZ0ZXN0X3N0YXJ0dXBf
-ZnVuY3Rpb25fZ3JhcGgoKSBjYWxscyByZWdpc3Rlcl9mdHJhY2VfZGlyZWN0KCkNCj4+IHdoaWNo
-IHJldHVybnMgLUVOT1NVUFAgYmVjYXVzZSBwb3dlcnBjIGRvZXNuJ3Qgc2VsZWN0DQo+PiBDT05G
-SUdfRFlOQU1JQ19GVFJBQ0VfV0lUSF9ESVJFQ1RfQ0FMTFMuDQo+Pg0KPj4gU2hvdWxkIFRFU1Rf
-RElSRUNUX1RSQU1QIGRlcGVuZCBvbiBDT05GSUdfRFlOQU1JQ19GVFJBQ0VfV0lUSF9ESVJFQ1Rf
-Q0FMTFMgPw0KPiANCj4gWWVzLCB0aGF0IHNob3VsZCBiZToNCj4gDQo+ICNpZiBkZWZpbmVkKENP
-TkZJR19EWU5BTUlDX0ZUUkFDRSkgJiYgXA0KPiAgICAgIGRlZmluZWQoQ09ORklHX0hBVkVfRFlO
-QU1JQ19GVFJBQ0VfV0lUSF9ESVJFQ1RfQ0FMTFMpDQo+ICNkZWZpbmUgVEVTVF9ESVJFQ1RfVFJB
-TVANCj4gbm9pbmxpbmUgX19ub2Nsb25lIHN0YXRpYyB2b2lkIHRyYWNlX2RpcmVjdF90cmFtcCh2
-b2lkKSB7IH0NCj4gI2VuZGlmDQo+IA0KPiANCj4gQW5kIG1ha2UgaXQgdGVzdCBpdCB3aXRoIG9y
-IHdpdGhvdXQgdGhlIGFyZ3MuDQo+IA0KDQpTaG91bGRuJ3QgaXQganVzdCBiZToNCg0KI2lmZGVm
-IENPTkZJR19EWU5BTUlDX0ZUUkFDRV9XSVRIX0RJUkVDVF9DQUxMUw0KDQpCZWNhdXNlDQoNCnJl
-Z2lzdGVyX2Z0cmFjZV9kaXJlY3QoKSBkZXBlbmRzIG9uIHRoYXQgc3ltYm9sLCBzbyBpZiB5b3Ug
-aGF2ZSANCkNPTkZJR19EWU5BTUlDX0ZUUkFDRSAmJiBDT05GSUdfSEFWRV9EWU5BTUlDX0ZUUkFD
-RV9XSVRIX0RJUkVDVF9DQUxMUyANCmJ1dCBub3QgRFlOQU1JQ19GVFJBQ0VfV0lUSF9SRUdTIHRo
-ZW4gDQpDT05GSUdfRFlOQU1JQ19GVFJBQ0VfV0lUSF9ESVJFQ1RfQ0FMTFMgaXMgdW5zZXQgYW5k
-IA0KcmVnaXN0ZXJfZnRyYWNlX2RpcmVjdCgpIHJldHVybnMgLUVOT1RTVVBQDQoNCkNocmlzdG9w
-aGU=
+In many cases people use bitmap_weight()-based functions to compare
+the result against a number of expression:
+
+	if (cpumask_weight(...) > 1)
+		do_something();
+
+This may take considerable amount of time on many-cpus machines because
+cpumask_weight(...) will traverse every word of underlying cpumask
+unconditionally.
+
+We can significantly improve on it for many real cases if stop traversing
+the mask as soon as we count cpus to any number greater than 1:
+
+	if (cpumask_weight_gt(..., 1))
+		do_something();
+
+To implement this idea, the series adds bitmap_weight_cmp() function
+and bitmap_weight_{eq,gt,ge,lt,le} macros on top of it; corresponding
+wrappers in cpumask and nodemask.
+
+There are 3 cpumasks, for which weight is counted frequently: possible,
+present and active. They all are read-mostly, and to optimize counting
+number of set bits for them, this series adds atomic counters, similarly
+to online cpumask.
+
+v1: https://lkml.org/lkml/2021/11/27/339
+v2:
+  - add bitmap_weight_cmp();
+  - fix bitmap_weight_le semantics and provide full set of {eq,gt,ge,lt,le}
+    as wrappers around bitmap_weight_cmp();
+  - don't touch small bitmaps (less than 32 bits) - optimization works
+    only for large bitmaps;
+  - move bitmap_weight() == 0 -> bitmap_empty() conversion to a separate
+    patch, ditto cpumask_weight() and nodes_weight;
+  - add counters for possible, present and active cpus;
+  - drop bitmap_empty() where possible;
+  - various fixes around bit counting that spotted my eyes.
+
+Yury Norov (17):
+  all: don't use bitmap_weight() where possible
+  drivers: rename num_*_cpus variables
+  fix open-coded for_each_set_bit()
+  all: replace bitmap_weight with bitmap_empty where appropriate
+  all: replace cpumask_weight with cpumask_empty where appropriate
+  all: replace nodes_weight with nodes_empty where appropriate
+  lib/bitmap: add bitmap_weight_{cmp,eq,gt,ge,lt,le} functions
+  all: replace bitmap_weight with bitmap_weight_{eq,gt,ge,lt,le} where
+    appropriate
+  lib/cpumask: add cpumask_weight_{eq,gt,ge,lt,le}
+  lib/nodemask: add nodemask_weight_{eq,gt,ge,lt,le}
+  lib/nodemask: add num_node_state_eq()
+  kernel/cpu.c: fix init_cpu_online
+  kernel/cpu: add num_possible_cpus counter
+  kernel/cpu: add num_present_cpu counter
+  kernel/cpu: add num_active_cpu counter
+  tools/bitmap: sync bitmap_weight
+  MAINTAINERS: add cpumask and nodemask files to BITMAP_API
+
+ MAINTAINERS                                   |   4 +
+ arch/alpha/kernel/process.c                   |   2 +-
+ arch/ia64/kernel/setup.c                      |   2 +-
+ arch/ia64/mm/tlb.c                            |   2 +-
+ arch/mips/cavium-octeon/octeon-irq.c          |   4 +-
+ arch/mips/kernel/crash.c                      |   2 +-
+ arch/nds32/kernel/perf_event_cpu.c            |   2 +-
+ arch/powerpc/kernel/smp.c                     |   2 +-
+ arch/powerpc/kernel/watchdog.c                |   2 +-
+ arch/powerpc/xmon/xmon.c                      |   4 +-
+ arch/s390/kernel/perf_cpum_cf.c               |   2 +-
+ arch/x86/kernel/cpu/resctrl/rdtgroup.c        |  16 +--
+ arch/x86/kernel/smpboot.c                     |   4 +-
+ arch/x86/kvm/hyperv.c                         |   8 +-
+ arch/x86/mm/amdtopology.c                     |   2 +-
+ arch/x86/mm/mmio-mod.c                        |   2 +-
+ arch/x86/mm/numa_emulation.c                  |   4 +-
+ arch/x86/platform/uv/uv_nmi.c                 |   2 +-
+ drivers/acpi/numa/srat.c                      |   2 +-
+ drivers/cpufreq/qcom-cpufreq-hw.c             |   2 +-
+ drivers/cpufreq/scmi-cpufreq.c                |   2 +-
+ drivers/firmware/psci/psci_checker.c          |   2 +-
+ drivers/gpu/drm/i915/i915_pmu.c               |   2 +-
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_smp.c      |   2 +-
+ drivers/hv/channel_mgmt.c                     |   4 +-
+ drivers/iio/dummy/iio_simple_dummy_buffer.c   |   4 +-
+ drivers/iio/industrialio-trigger.c            |   2 +-
+ drivers/infiniband/hw/hfi1/affinity.c         |  13 +-
+ drivers/infiniband/hw/qib/qib_file_ops.c      |   2 +-
+ drivers/infiniband/hw/qib/qib_iba7322.c       |   2 +-
+ drivers/irqchip/irq-bcm6345-l1.c              |   2 +-
+ drivers/leds/trigger/ledtrig-cpu.c            |   6 +-
+ drivers/memstick/core/ms_block.c              |   4 +-
+ drivers/net/dsa/b53/b53_common.c              |   6 +-
+ drivers/net/ethernet/broadcom/bcmsysport.c    |   6 +-
+ .../net/ethernet/intel/ice/ice_virtchnl_pf.c  |   4 +-
+ .../net/ethernet/intel/ixgbe/ixgbe_sriov.c    |   2 +-
+ .../marvell/octeontx2/nic/otx2_ethtool.c      |   2 +-
+ .../marvell/octeontx2/nic/otx2_flows.c        |   8 +-
+ .../ethernet/marvell/octeontx2/nic/otx2_pf.c  |   2 +-
+ drivers/net/ethernet/mellanox/mlx4/cmd.c      |  33 ++---
+ drivers/net/ethernet/mellanox/mlx4/eq.c       |   4 +-
+ drivers/net/ethernet/mellanox/mlx4/fw.c       |   4 +-
+ drivers/net/ethernet/mellanox/mlx4/main.c     |   2 +-
+ drivers/net/ethernet/qlogic/qed/qed_rdma.c    |   4 +-
+ drivers/net/ethernet/qlogic/qed/qed_roce.c    |   2 +-
+ drivers/perf/arm-cci.c                        |   2 +-
+ drivers/perf/arm_pmu.c                        |   4 +-
+ drivers/perf/hisilicon/hisi_uncore_pmu.c      |   2 +-
+ drivers/perf/thunderx2_pmu.c                  |   4 +-
+ drivers/perf/xgene_pmu.c                      |   2 +-
+ drivers/scsi/lpfc/lpfc_init.c                 |   2 +-
+ drivers/scsi/storvsc_drv.c                    |   6 +-
+ drivers/soc/fsl/qbman/qman_test_stash.c       |   2 +-
+ drivers/staging/media/tegra-video/vi.c        |   2 +-
+ drivers/thermal/intel/intel_powerclamp.c      |   9 +-
+ include/linux/bitmap.h                        |  80 +++++++++++
+ include/linux/cpumask.h                       | 131 +++++++++++++-----
+ include/linux/nodemask.h                      |  40 ++++++
+ kernel/cpu.c                                  |  54 ++++++++
+ kernel/irq/affinity.c                         |   2 +-
+ kernel/padata.c                               |   2 +-
+ kernel/rcu/tree_nocb.h                        |   4 +-
+ kernel/rcu/tree_plugin.h                      |   2 +-
+ kernel/sched/core.c                           |  10 +-
+ kernel/sched/topology.c                       |   4 +-
+ kernel/time/clockevents.c                     |   2 +-
+ kernel/time/clocksource.c                     |   2 +-
+ lib/bitmap.c                                  |  21 +++
+ mm/mempolicy.c                                |   2 +-
+ mm/page_alloc.c                               |   2 +-
+ mm/vmstat.c                                   |   4 +-
+ tools/include/linux/bitmap.h                  |  44 ++++++
+ tools/lib/bitmap.c                            |  20 +++
+ tools/perf/builtin-c2c.c                      |   4 +-
+ tools/perf/util/pmu.c                         |   2 +-
+ 76 files changed, 480 insertions(+), 183 deletions(-)
+
+-- 
+2.30.2
+
