@@ -2,138 +2,138 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B74DC433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 20 Dec 2021 17:25:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0254CC433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 20 Dec 2021 18:11:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234505AbhLTRZP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 20 Dec 2021 12:25:15 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:25244 "EHLO
+        id S240335AbhLTSLN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 20 Dec 2021 13:11:13 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:37246 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233139AbhLTRZO (ORCPT
+        by vger.kernel.org with ESMTP id S240332AbhLTSLM (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 20 Dec 2021 12:25:14 -0500
+        Mon, 20 Dec 2021 13:11:12 -0500
 Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1BKGSs9b016600;
-        Mon, 20 Dec 2021 17:25:14 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=gqSD4h4kvlqVEOACO6pfhDgwtbRTJH/z9VOTPQEA4kA=;
- b=HulK5k8roXdJwT2+/7jcKYJIoYIrtt6K2Nc1XG07kQ9SsQEd7PHq57hJSfTYZABx3SEH
- ZSLgBzm6SZY40PRY8Yi/mjPwLLjvvJV3P0TziY+tLYKXw1KlRnCAKVNo6H+TG3PYIdFj
- VffkAQUY/PBa6ANod83V0w5h7fFWTjNuO+2l9w0YPDcce/cEJys3x8kq71mEnPr7r28I
- E7yI+hY7PXomDAVcsAEOKvqfkdKvqf08hGBXcMAGmk28JqqGQ4K8P9jnp/ARZvwCuhlN
- xrkiWCK0I1ylKG/WxtmZlreEkEegfTOmbpowcp6nQXSz4dxJc5qIrro72qra6ePwW/xb iw== 
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1BKHinxa022122;
+        Mon, 20 Dec 2021 18:11:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=uq8LYrtkuLTktp4XCUxI9Z+w4fQ3/w09etQgw07T4iY=;
+ b=DOfTEW/CjrvDMR5aq5AdYCW4tCrFqg2TOfCattsmLqydlt2GrH+rfEhF2rzxHosThO1Z
+ wzxUOx9siUYPGpYnkQZf3kWhqAdgtQuftS0ahF9txBC+WxaHRspFTwNfrnqEvLC8YpV6
+ WF34zcKNM1w1UprWNMiSxh1KtgGIbjOi5pWZ14KoGyjQdDqkldgVqonqIn1DZQR+bhmH
+ 3nat41dl/a53KnXj9NEBWad1SDcxTIAKXZRvePSFP5RgRkhHb4WwTQHPQ7bU9mkwPsoF
+ iUUGBbB+OsKKKHMR2LdFTXtwVJ4lhdgSGYjPgm/Q10v78v48hbRYj13JkF7ajkpY7Xs7 5Q== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3d1sqn8dp2-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3d1sqn96c4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Dec 2021 17:25:14 +0000
+        Mon, 20 Dec 2021 18:11:11 +0000
 Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1BKGrFvq016984;
-        Mon, 20 Dec 2021 17:25:13 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3d1sqn8dn3-1
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1BKHjPad031611;
+        Mon, 20 Dec 2021 18:11:11 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3d1sqn96be-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Dec 2021 17:25:13 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1BKHNUda015231;
-        Mon, 20 Dec 2021 17:25:11 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma04fra.de.ibm.com with ESMTP id 3d1799x17p-1
+        Mon, 20 Dec 2021 18:11:11 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1BKI4iB5029688;
+        Mon, 20 Dec 2021 18:11:09 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma03fra.de.ibm.com with ESMTP id 3d1799pc9r-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 20 Dec 2021 17:25:11 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1BKHP7iB41353608
+        Mon, 20 Dec 2021 18:11:08 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1BKI2soE48497062
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 20 Dec 2021 17:25:07 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A47C2AE051;
-        Mon, 20 Dec 2021 17:25:07 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9C414AE045;
-        Mon, 20 Dec 2021 17:25:06 +0000 (GMT)
-Received: from [9.171.18.110] (unknown [9.171.18.110])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 20 Dec 2021 17:25:06 +0000 (GMT)
-Message-ID: <3c7e0bb9-f698-066b-8f6d-93c45438ff32@linux.ibm.com>
-Date:   Mon, 20 Dec 2021 18:26:17 +0100
+        Mon, 20 Dec 2021 18:02:54 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AE40F52050;
+        Mon, 20 Dec 2021 18:11:05 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id 9AA6D5204E;
+        Mon, 20 Dec 2021 18:11:05 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 25651)
+        id 560B8E63B2; Mon, 20 Dec 2021 19:11:05 +0100 (CET)
+From:   Christian Borntraeger <borntraeger@linux.ibm.com>
+To:     Paolo Bonzini <pbonzini@redhat.com>
+Cc:     KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+Subject: [GIT PULL 1/6] KVM: s390: Fix names of skey constants in api documentation
+Date:   Mon, 20 Dec 2021 19:10:59 +0100
+Message-Id: <20211220181104.595009-2-borntraeger@linux.ibm.com>
+X-Mailer: git-send-email 2.33.1
+In-Reply-To: <20211220181104.595009-1-borntraeger@linux.ibm.com>
+References: <20211220181104.595009-1-borntraeger@linux.ibm.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.0
-Subject: Re: [PATCH 13/32] KVM: s390: pci: add basic kvm_zdev structure
-Content-Language: en-US
-To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
-        schnelle@linux.ibm.com, farman@linux.ibm.com,
-        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
-        vneethv@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com,
-        thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20211207205743.150299-1-mjrosato@linux.ibm.com>
- <20211207205743.150299-14-mjrosato@linux.ibm.com>
- <37b5de48-adef-225e-fafc-f918b64e7736@linux.ibm.com>
-From:   Pierre Morel <pmorel@linux.ibm.com>
-In-Reply-To: <37b5de48-adef-225e-fafc-f918b64e7736@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: NIW17LTxKi8tqhU4MdcEcwiTb9b4kVic
-X-Proofpoint-GUID: z_THP8IatfApU7TLD_NvyKHRKAC_bPMc
+X-Proofpoint-ORIG-GUID: otH4a5O1ebnH1jSIxdlx4nnmdRGD96PQ
+X-Proofpoint-GUID: RdsgtP3cLR7_iXsSTW-5anTsm_GSHqOj
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2021-12-20_08,2021-12-20_01,2021-12-02_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
- priorityscore=1501 mlxlogscore=999 spamscore=0 clxscore=1015 bulkscore=0
+ priorityscore=1501 mlxlogscore=858 spamscore=0 clxscore=1015 bulkscore=0
  mlxscore=0 impostorscore=0 lowpriorityscore=0 malwarescore=0 adultscore=0
  suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2112200096
+ engine=8.12.0-2110150000 definitions=main-2112200101
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+From: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
 
+They are defined in include/uapi/linux/kvm.h as
+KVM_S390_GET_SKEYS_NONE and KVM_S390_SKEYS_MAX, but the
+api documetation talks of KVM_S390_GET_KEYS_NONE and
+KVM_S390_SKEYS_ALLOC_MAX respectively.
 
-On 12/17/21 21:26, Matthew Rosato wrote:
-> On 12/7/21 3:57 PM, Matthew Rosato wrote:
->> This structure will be used to carry kvm passthrough information 
->> related to
->> zPCI devices.
->>
->> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
->> ---
-> ...
->>   static inline bool zdev_enabled(struct zpci_dev *zdev)
->> diff --git a/arch/s390/kvm/Makefile b/arch/s390/kvm/Makefile
->> index b3aaadc60ead..95ea865e5d29 100644
->> --- a/arch/s390/kvm/Makefile
->> +++ b/arch/s390/kvm/Makefile
->> @@ -10,6 +10,6 @@ common-objs = $(KVM)/kvm_main.o $(KVM)/eventfd.o  
->> $(KVM)/async_pf.o \
->>   ccflags-y := -Ivirt/kvm -Iarch/s390/kvm
->>   kvm-objs := $(common-objs) kvm-s390.o intercept.o interrupt.o priv.o 
->> sigp.o
->> -kvm-objs += diag.o gaccess.o guestdbg.o vsie.o pv.o
->> +kvm-objs += diag.o gaccess.o guestdbg.o vsie.o pv.o pci.o
-> 
-> This should instead be
-> 
-> kvm-objs-$(CONFIG_PCI) += pci.o
-> 
-> I think this makes sense as we aren't about to do PCI passthrough 
-> support anyway if the host kernel doesn't support PCI (no vfio-pci, 
-> etc).   This will quiet the kernel test robot complaints about 
-> CONFIG_PCI_NR_FUNCTIONS seen on the next patch in this series.
+Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Message-Id: <20211118102522.569660-1-scgl@linux.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+---
+ Documentation/virt/kvm/api.rst | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-hum, then you will need more than this to put all pci references in 
-priv.c and kvm-s390.c away.
-
-> 
->>   obj-$(CONFIG_KVM) += kvm.o
-
-
-
+diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
+index aeeb071c7688..b86c7edae888 100644
+--- a/Documentation/virt/kvm/api.rst
++++ b/Documentation/virt/kvm/api.rst
+@@ -3701,7 +3701,7 @@ KVM with the currently defined set of flags.
+ :Architectures: s390
+ :Type: vm ioctl
+ :Parameters: struct kvm_s390_skeys
+-:Returns: 0 on success, KVM_S390_GET_KEYS_NONE if guest is not using storage
++:Returns: 0 on success, KVM_S390_GET_SKEYS_NONE if guest is not using storage
+           keys, negative value on error
+ 
+ This ioctl is used to get guest storage key values on the s390
+@@ -3720,7 +3720,7 @@ you want to get.
+ 
+ The count field is the number of consecutive frames (starting from start_gfn)
+ whose storage keys to get. The count field must be at least 1 and the maximum
+-allowed value is defined as KVM_S390_SKEYS_ALLOC_MAX. Values outside this range
++allowed value is defined as KVM_S390_SKEYS_MAX. Values outside this range
+ will cause the ioctl to return -EINVAL.
+ 
+ The skeydata_addr field is the address to a buffer large enough to hold count
+@@ -3744,7 +3744,7 @@ you want to set.
+ 
+ The count field is the number of consecutive frames (starting from start_gfn)
+ whose storage keys to get. The count field must be at least 1 and the maximum
+-allowed value is defined as KVM_S390_SKEYS_ALLOC_MAX. Values outside this range
++allowed value is defined as KVM_S390_SKEYS_MAX. Values outside this range
+ will cause the ioctl to return -EINVAL.
+ 
+ The skeydata_addr field is the address to a buffer containing count bytes of
 -- 
-Pierre Morel
-IBM Lab Boeblingen
+2.33.1
+
