@@ -2,138 +2,122 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 994D9C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 22 Dec 2021 08:22:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6AE80C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 22 Dec 2021 22:35:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239781AbhLVIWj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 22 Dec 2021 03:22:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34654 "EHLO
+        id S230223AbhLVWfg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 22 Dec 2021 17:35:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239783AbhLVIWi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Dec 2021 03:22:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CBC4C061574;
-        Wed, 22 Dec 2021 00:22:38 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 911AA61913;
-        Wed, 22 Dec 2021 08:22:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0265CC36AE8;
-        Wed, 22 Dec 2021 08:22:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1640161357;
-        bh=2XdBX3wzyy6S5BxKK0ZicVvab6NsAf6qcGVNsQ9XyZI=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=KtdKY+FXEiDVg9WQNV0t7EC6t4i7gAAFZ+kBlTZtb0HBt9x8jhg/odf9AySq5PB4b
-         iMxJPs/aCg28tgmd20/QLFYgyU8rv9U8nYl0vzOjWgWsMffpnId5R0AGx+4wOcZLzO
-         OK7VtF7KeXGYBaiwjS8kDYiXdwy0Wsp29BhWN6Pzn38t95I/FbsY39qB6lQwvOmPkW
-         eMEdQ0jUlOJZhmT/Onp3kifA/GXbi5EPXwqRwGIRNFqOIZftsbR6fnlLarjwz01mkt
-         ch9boYJ1kfbIpo99eCFpb5AdirSJlePYOaHN8g+RaekBhLXBNxc2druEoONM/aJTGj
-         OmoCAF3S6L3hQ==
-Received: by mail-ua1-f48.google.com with SMTP id y23so2777266uay.7;
-        Wed, 22 Dec 2021 00:22:36 -0800 (PST)
-X-Gm-Message-State: AOAM532ZYPruz1+CjKpaKSpyv24HkOHxPxmVCtRE+ezcAXhxQuYhtl7i
-        Z5ETppmIH8Y2yEFQXgxB1GdTRUEla+MEQXPbJMA=
-X-Google-Smtp-Source: ABdhPJyrBN3Y+GFr2Jt9nGnwL8yvmgKGPxXYCH/BMlHDVbFRTyxSsMe3GTBWxXqMbH4bqKtfuLnOWF72/H7yGJFpaXg=
-X-Received: by 2002:a05:6102:316e:: with SMTP id l14mr716344vsm.8.1640161355738;
- Wed, 22 Dec 2021 00:22:35 -0800 (PST)
+        with ESMTP id S229665AbhLVWff (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Dec 2021 17:35:35 -0500
+Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53739C061574;
+        Wed, 22 Dec 2021 14:35:35 -0800 (PST)
+Received: by mail-lf1-x12d.google.com with SMTP id j11so6631130lfg.3;
+        Wed, 22 Dec 2021 14:35:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=509cil0OJ5qdfWw2ojcCOYSwHBJ9P8vwyQkD+G8mLLA=;
+        b=ddZKfL8FvoJ0XwnKMMmKWLGJ3VqFSFGglRVDb0+PqM2DxuwldMzReXdg0Ebtk9Yobi
+         AVztMug/XvayfxM3v8GOeWIfRsrkU3pfCylaBXUmoqsMO81lth0cxfRUKMa/jua7By8h
+         fSZ6R/sGKPh5nSmA0ASRGeLeb6wdCjfYNft0YG0y8ivi5U/BpBfokB9hcGa9coBwNOMN
+         Gg+cjCxIPhQ2b7TcbEc1gjiCTijvdkgEF9rXZGv3s6zgXp/f1hq5bp68059Gc1Z9wTvm
+         bIqvGf1ZD6DqjfSFh05rCeUC0528fcV+nKXNDyihLdVmnm+p0/XORPV26mvKGpvGa4Zb
+         OjAw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=509cil0OJ5qdfWw2ojcCOYSwHBJ9P8vwyQkD+G8mLLA=;
+        b=fPeJNrcjM0I21LFplQ6E42/HD1nBdO6KIBrT2hzIxhad8b4k2Yon4YRl15g0szmmPg
+         c6Z0VReoQToYgyNI0e8EirDlkXtDc5rKJMvlhqC+RFFF8NE43rE79aAP4WzSM2Px96cM
+         WVyxHH8I78qg1D1BFMSTzc7P5ai3RkHE1X7A+/dIFV4/Cuw2eu6xmtYV5LbjxKYh+Qw7
+         kbLiH3vL6MbxaUcfFWHmGcDxKxvuY4kUpsGfTnqFRrKj5M37p/uawi96DHpsq2/iX7p5
+         G4C8WAm40iW/1mP1vlEq4HZY5klMQcbeE2W4+C7K9tq8kLp6Gisk1Qi/mVm3vZrlFmzp
+         6Jjg==
+X-Gm-Message-State: AOAM532L3Jo3ZsQYkTP6XdfVAzOy0FX5nfBkvqDDQ5Na9hI9XfW8dzBh
+        alHtqg6JaY8sIRWgGJ9SeCcgyvC275L6/aAk89DsfBPvaUM=
+X-Google-Smtp-Source: ABdhPJyfufBHYdDFQz+ah/Iw/iZGRxjmctUcUf2op+2vKNZiQPXrZB6SUilBWwF8JJMaI1eDbZeGr+HUSlFNJ5XDS4Q=
+X-Received: by 2002:a05:6512:3486:: with SMTP id v6mr3634731lfr.483.1640212533273;
+ Wed, 22 Dec 2021 14:35:33 -0800 (PST)
 MIME-Version: 1.0
-References: <20211221170057.2637763-1-guoren@kernel.org> <20211221170057.2637763-5-guoren@kernel.org>
- <c084037b-1f30-53be-bf6b-06e3401b20e8@csgroup.eu> <CAJF2gTQbpVczn=Zz9rgvgNRSM9AFaoc2zVz9YaL_hWpgYSaR2w@mail.gmail.com>
- <7ce6caf5-b16d-97de-fcc3-882a9a98437a@csgroup.eu>
-In-Reply-To: <7ce6caf5-b16d-97de-fcc3-882a9a98437a@csgroup.eu>
-From:   Guo Ren <guoren@kernel.org>
-Date:   Wed, 22 Dec 2021 16:22:24 +0800
-X-Gmail-Original-Message-ID: <CAJF2gTR5NbuVRkBWyEiCmsq4y3Ua_JMZSPcX=LQdzo2tOCFyYQ@mail.gmail.com>
-Message-ID: <CAJF2gTR5NbuVRkBWyEiCmsq4y3Ua_JMZSPcX=LQdzo2tOCFyYQ@mail.gmail.com>
-Subject: Re: [PATCH 4/8] sched: powerpc: Remove unused TASK_SIZE_OF
-To:     Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc:     "will@kernel.org" <will@kernel.org>,
-        "tglx@linutronix.de" <tglx@linutronix.de>,
-        "benh@kernel.crashing.org" <benh@kernel.crashing.org>,
-        "arnd@arndb.de" <arnd@arndb.de>,
-        "mingo@redhat.com" <mingo@redhat.com>,
-        "peterz@infradead.org" <peterz@infradead.org>,
-        "juri.lelli@redhat.com" <juri.lelli@redhat.com>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        Guo Ren <guoren@linux.alibaba.com>,
-        "x86@kernel.org" <x86@kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "sparclinux@vger.kernel.or" <sparclinux@vger.kernel.or>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "inux-parisc@vger.kernel.org" <inux-parisc@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>
+References: <20211220092318.5793-1-tianjia.zhang@linux.alibaba.com> <20211220092318.5793-2-tianjia.zhang@linux.alibaba.com>
+In-Reply-To: <20211220092318.5793-2-tianjia.zhang@linux.alibaba.com>
+From:   Julian Calaby <julian.calaby@gmail.com>
+Date:   Thu, 23 Dec 2021 09:35:21 +1100
+Message-ID: <CAGRGNgXE_5H20K+e9oejqybOGh8JezMpi2yrDJKqaZ4rWJkZdA@mail.gmail.com>
+Subject: Re: [PATCH 1/5] crypto: sha256 - remove duplicate generic hash init function
+To:     Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-crypto@vger.kernel.org, linux-mips@vger.kernel.org,
+        LKML <linux-kernel@vger.kernel.org>,
+        linuxppc-dev@lists.ozlabs.org,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Got it. Thx
+Hi Tianjia,
 
-On Wed, Dec 22, 2021 at 3:27 PM Christophe Leroy
-<christophe.leroy@csgroup.eu> wrote:
+On Mon, Dec 20, 2021 at 8:25 PM Tianjia Zhang
+<tianjia.zhang@linux.alibaba.com> wrote:
 >
+> crypto_sha256_init() and sha256_base_init() are the same repeated
+> implementations, remove the crypto_sha256_init() in generic
+> implementation, sha224 is the same process.
 >
+> Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+> ---
+>  crypto/sha256_generic.c | 16 ++--------------
+>  1 file changed, 2 insertions(+), 14 deletions(-)
 >
-> Le 22/12/2021 =C3=A0 04:02, Guo Ren a =C3=A9crit :
-> > On Wed, Dec 22, 2021 at 2:43 AM Christophe Leroy
-> > <christophe.leroy@csgroup.eu> wrote:
-> >>
-> >>
-> >>
-> >> Le 21/12/2021 =C3=A0 18:00, guoren@kernel.org a =C3=A9crit :
-> >>> From: Guo Ren <guoren@linux.alibaba.com>
-> >>>
-> >>> This macro isn't used in Linux sched, now. Delete in
-> >>> include/linux/sched.h and arch's include/asm.
-> >>>
-> >>> Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-> >>> ---
-> >>>    arch/powerpc/include/asm/task_size_64.h | 6 ++----
-> >>>    1 file changed, 2 insertions(+), 4 deletions(-)
-> >>>
-> >>> diff --git a/arch/powerpc/include/asm/task_size_64.h b/arch/powerpc/i=
-nclude/asm/task_size_64.h
-> >>> index c993482237ed..7e2eca4fac4d 100644
-> >>> --- a/arch/powerpc/include/asm/task_size_64.h
-> >>> +++ b/arch/powerpc/include/asm/task_size_64.h
-> >>> @@ -44,12 +44,10 @@
-> >>>     */
-> >>>    #define TASK_SIZE_USER32 (0x0000000100000000UL - (1 * PAGE_SIZE))
-> >>>
-> >>> -#define TASK_SIZE_OF(tsk)                                           =
- \
-> >>> -     (test_tsk_thread_flag(tsk, TIF_32BIT) ? TASK_SIZE_USER32 :     =
- \
-> >>> +#define TASK_SIZE                                                   =
- \
-> >>> +     (test_tsk_thread_flag(current, TIF_32BIT) ? TASK_SIZE_USER32 : =
- \
-> >>>                                                TASK_SIZE_USER64)
-> >>
-> >> I think you should use test_thread_flag() instead.
-> >>
-> >> Or even better: use is_32bit_task() and bring back this macro as a
-> >> single line, something like:
-> >>
-> >> #define TASK_SIZE (is_32bit_task() ? TASK_SIZE_USER32 : TASK_SIZE_USER=
-64)
-> > Okay, looks better. I would fix it in the next version.
+> diff --git a/crypto/sha256_generic.c b/crypto/sha256_generic.c
+> index 3b377197236e..bf147b01e313 100644
+> --- a/crypto/sha256_generic.c
+> +++ b/crypto/sha256_generic.c
+> @@ -72,7 +60,7 @@ EXPORT_SYMBOL(crypto_sha256_finup);
 >
-> Note that is_32bit_task() exists on powerpc, parisc and sparc.
->
-> For other ones you can still use test_thread_flag() instead of
-> test_tsk_thread_flag(current)
+>  static struct shash_alg sha256_algs[2] = { {
+>         .digestsize     =       SHA256_DIGEST_SIZE,
+> -       .init           =       crypto_sha256_init,
+> +       .init           =       sha256_base_init,
+>         .update         =       crypto_sha256_update,
+>         .final          =       crypto_sha256_final,
+>         .finup          =       crypto_sha256_finup,
+> @@ -86,7 +74,7 @@ static struct shash_alg sha256_algs[2] = { {
+>         }
+>  }, {
+>         .digestsize     =       SHA224_DIGEST_SIZE,
+> -       .init           =       crypto_sha224_init,
+> +       .init           =       sha224_base_init,
+>         .update         =       crypto_sha256_update,
+>         .final          =       crypto_sha256_final,
+>         .finup          =       crypto_sha256_finup,
 
+Aren't these two functions defined as static inline functions? It
+appears that these crypto_ wrappers were added so there's "actual"
+referenceable functions for these structs.
 
+Did this actually compile?
 
---=20
-Best Regards
- Guo Ren
+Thanks,
 
-ML: https://lore.kernel.org/linux-csky/
+-- 
+Julian Calaby
+
+Email: julian.calaby@gmail.com
+Profile: http://www.google.com/profiles/julian.calaby/
