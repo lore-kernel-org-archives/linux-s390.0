@@ -2,211 +2,154 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B64BC433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 23 Dec 2021 09:55:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5A9FC433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 23 Dec 2021 17:40:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347524AbhLWJzs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 23 Dec 2021 04:55:48 -0500
-Received: from mail-am6eur05on2121.outbound.protection.outlook.com ([40.107.22.121]:4001
-        "EHLO EUR05-AM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S239351AbhLWJzs (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 23 Dec 2021 04:55:48 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Ssg+xVzoTiiAYSZtN9pHpYos604A5I4PRfUpjHJnzR6kVdkN5BlC+FLFhf4u/HN5DDmFfMpe+QRy78JOZot6WB/E1GByXC9wLRALw1+3UlIeTmQITnRCC82o+RnuUVATiPBm2wQXZjvhI5iCq4CkIvUYuepo/bMBXgKFsyePU/uoNXMwU02y0y9bJnMcUNLWxD8AuERwwrHD9OkcxfmTMVN+q8dGyXOtZky0BKbbXi9zTnOMbagh2npqZDFzCMziAKBuAZ87JdqAPzSvx1aXR2ED5aQGjs9sDjIEzNyJrVB7Sl7hZCxUn9+2zjycU3EwFKkWM6mGOSNYZ9so7vSqhw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=8bDg3DgTznj1nYYpa6+ml0oS30/RxArF7kzxE1FeOO8=;
- b=VVQlZpaLWilmdR9Bjy425DgvYQWm/i624wr13wbH1ExXTHXFIn414Xw+WZ9fFuq5Ll40m5izetdyVh8QqZBBavNyyU+s8IgL9PtS+8JVoXNDk7dabOQkpLedPJcil6AsnrkEStDFJfCICETZ4WdxT0d8O3lFgDBzaaPcrTLTwazfce2AsOVVvlIEUDsF8D8Vl/35oK2criBD7+pU2xRPW9OY0oiKQwXFKPPHs8M2Vneqk3M6nOVTVKH4SIFZdIm/N7jqn7OT1xD6DTBQ5kPK8zTZxxy5P1sDC20RmrNVNfOewr46uAY4VWMrd5lgrLBD2YGer54doSNJvbZXD/8/Kg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=virtuozzo.com; dmarc=pass action=none
- header.from=virtuozzo.com; dkim=pass header.d=virtuozzo.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=virtuozzo.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=8bDg3DgTznj1nYYpa6+ml0oS30/RxArF7kzxE1FeOO8=;
- b=RdomMqUERracOitAsS/3jc2+r3ajFaE0SIXkrDklfGl42zLWEVukeaWeK/n4Swuvmu/4DvCF2skmhoSJVV3CkmOQT8ZMMAoAMByyP6NIhHspwMEJAwdhsaHBfPUNeYjsEaXziHbwRVOn1f7cD6gkIKwL7wcjPt59rLz6uuBxN+4=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=virtuozzo.com;
-Received: from VE1PR08MB5630.eurprd08.prod.outlook.com (2603:10a6:800:1ae::7)
- by VI1PR08MB5328.eurprd08.prod.outlook.com (2603:10a6:803:13a::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4823.19; Thu, 23 Dec
- 2021 09:55:43 +0000
-Received: from VE1PR08MB5630.eurprd08.prod.outlook.com
- ([fe80::5807:e24c:a173:3b71]) by VE1PR08MB5630.eurprd08.prod.outlook.com
- ([fe80::5807:e24c:a173:3b71%4]) with mapi id 15.20.4823.019; Thu, 23 Dec 2021
- 09:55:43 +0000
-Subject: Re: [PATCH/RFC] mm: add and use batched version of
- __tlb_remove_table()
-To:     Dave Hansen <dave.hansen@intel.com>, Will Deacon <will@kernel.org>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Nick Piggin <npiggin@gmail.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Arnd Bergmann <arnd@arndb.de>
-Cc:     x86@kernel.org, linux-kernel@vger.kernel.org,
-        linux-arch@vger.kernel.org, linux-mm@kvack.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        sparclinux@vger.kernel.org, kernel@openvz.org
-References: <20211217081909.596413-1-nikita.yushchenko@virtuozzo.com>
- <fcbb726d-fe6a-8fe4-20fd-6a10cdef007a@intel.com>
- <d6094dc4-3976-e06f-696b-c55f696fe287@virtuozzo.com>
- <290cfe1c-564f-9779-0757-5ca281055e77@intel.com>
-From:   Nikita Yushchenko <nikita.yushchenko@virtuozzo.com>
-Message-ID: <22a7534c-4759-4e7e-de07-d33a3682c156@virtuozzo.com>
-Date:   Thu, 23 Dec 2021 12:55:38 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
-In-Reply-To: <290cfe1c-564f-9779-0757-5ca281055e77@intel.com>
-Content-Type: multipart/mixed;
- boundary="------------C841C10C78D715F3120DB136"
-Content-Language: en-US
-X-ClientProxiedBy: AM5PR0701CA0004.eurprd07.prod.outlook.com
- (2603:10a6:203:51::14) To VE1PR08MB5630.eurprd08.prod.outlook.com
- (2603:10a6:800:1ae::7)
+        id S233332AbhLWRkr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 23 Dec 2021 12:40:47 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4790 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231163AbhLWRkp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 23 Dec 2021 12:40:45 -0500
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1BNH7a0s001651;
+        Thu, 23 Dec 2021 17:40:26 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : content-type : in-reply-to :
+ mime-version; s=pp1; bh=eBmmDwkzofRz3Sq0LNHmfojyVVgiEMP+JJXGQTPyIh8=;
+ b=s+nIxbWQHW5lissyZM563PDk9kmeHqYJasn215svFBLLDZDgRZrn++eXN7AlVpl5EFZI
+ GQY/fePkDdfpKVQg59SGfRzpu/Dm3gn+bB9+YqTQzon+afXLF0PYjtWp+RQyYa381gG5
+ i7MyRXZsX6EHk+StD7z1rNJumo49p8t9N3Vkea7G8924/4T7T++clpsqAvKRE0/+ilZ5
+ QxYOKTWFKqgFuDeUvzt3ORmv4mhe8dn/FT6Ipd4Ydg0uCKNkR2yWfhC86llBKSrfaJQn
+ D2EdR7kJXwdp3Y5THQOUtDbRSaWlxIwtwPHVWFPycQp4dmME2Y6gjV8/0I2LANInOSqW fQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3d4u3p3072-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 23 Dec 2021 17:40:26 +0000
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1BNH8uKl007617;
+        Thu, 23 Dec 2021 17:40:25 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3d4u3p305t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 23 Dec 2021 17:40:25 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1BNHNJqn010075;
+        Thu, 23 Dec 2021 17:40:23 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma02fra.de.ibm.com with ESMTP id 3d179a6fu3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 23 Dec 2021 17:40:23 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1BNHeKuB27984166
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 23 Dec 2021 17:40:20 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B1CB242045;
+        Thu, 23 Dec 2021 17:40:20 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6DBB742041;
+        Thu, 23 Dec 2021 17:40:20 +0000 (GMT)
+Received: from osiris (unknown [9.145.187.9])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Thu, 23 Dec 2021 17:40:20 +0000 (GMT)
+Date:   Thu, 23 Dec 2021 18:40:18 +0100
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Miroslav Benes <mbenes@suse.cz>
+Cc:     Jerome Marchand <jmarchan@redhat.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] recordmcount.pl: look for jgnop instruction as well as
+ bcrl on s390
+Message-ID: <YcS0gg35kS21Zd3i@osiris>
+References: <20211210093827.1623286-1-jmarchan@redhat.com>
+ <alpine.LSU.2.21.2112230949520.19849@pobox.suse.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <alpine.LSU.2.21.2112230949520.19849@pobox.suse.cz>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: WYy1hleae0WXmHZwu0g5vXtuabE5tAwk
+X-Proofpoint-GUID: 6kKOXTTBIM7SXlilAVtiFpgI4jqgrUCr
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: d4f2e611-147c-46f8-74b1-08d9c5fa6263
-X-MS-TrafficTypeDiagnostic: VI1PR08MB5328:EE_
-X-Microsoft-Antispam-PRVS: <VI1PR08MB532827F2AC4A997429EDBC04F47E9@VI1PR08MB5328.eurprd08.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:457;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: g/x4uxXR1pmYjchvjyqYs0mZLKtffTkJapTkTgEPIVNQNxrUXIHNgfj6wn6slCNAtCPwXvo2QGLo+012k8xw44MgqxfrCJpbPu9acPoEmZ3vX0O0XhcMkEGBSGNwWP5ZnJM4VHsP1homIl6UdQIbXpp92XwHtRs8A0nXQ2m+jTDHJpZDTD9HtiGs1KZb9JbqI+cqZl7bevklrUaZh5mv6NSNcSKhqaF/r/UM574u6qGpcOkvflKiTIbxhNE+3nsNprfq2JSSS+ipCADDE0jQlNOO0e1CUS386HgpTS/TCVDoYQ4Ym3ifyzISVp3XxTecLmHQ8es7czNoZJTiBP7+APlEU79nq0MPfhJ75gvdJWR2rdqnzJhj3YvzGvjcIHx4VZEJix5OsaL0lVVrj/4QFhHgG6hUiGO9+pv6ep5gYc4gdlHz7cbRPgj+15iDTlsPBCpS4A4Y7lYK+8uDhlir7+30BHNgr0Tlf3nRb50QEyUESRG4XLHwpgK0Ci9PxV7YN8WI9eo/rpGOaOuvtCEhTNAuC/NYH0e6RIWJZfnuGcWNpSNFcRpCV4dvkfVeXjMold/JknNQpPk2gYo10m5u1zPmfpfCbLrmenCmiB6d2tKabb1SnNyXn9WuL5+/jXufZfz75RkmP9+P4197Hx3snOeI/a1hJ58GnDUxBAaGmz1q4SadG5XQGmChvGM/+GAV8eJNGXJ7TPDk5EaSRMzmDh1TImJZHJX6pIhEQGk8CsftsPLSGJXethzuR98jRTLc
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VE1PR08MB5630.eurprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(316002)(107886003)(83380400001)(6666004)(921005)(5660300002)(86362001)(186003)(26005)(508600001)(8676002)(6486002)(36756003)(2616005)(110136005)(44832011)(38100700002)(8936002)(66556008)(66476007)(4326008)(33964004)(2906002)(6506007)(31686004)(66946007)(31696002)(6512007)(7416002)(235185007)(43740500002)(45980500001);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?dkhSTEtlT2NLS3p3dENhZlYxVWgyakxwRnZoTU9pMjRPRDJHSGVuUkN2VEhK?=
- =?utf-8?B?VkhHWDNYa01CZ1hIbllIUUgwUkg1a3JXdlk4TTJLQ2VrUm1BcURYNlJkNVJD?=
- =?utf-8?B?YmtJeFlJT0dkYm1SVHliQ1RjYUwzbUkrTS9iMXVvYnZYRGFFVEVUZUllTndT?=
- =?utf-8?B?QTBFa3lPVWlWVW9vdStDbzhwSHBIbGxHdkFRd0tOTjRaZXV2Y3J2RzZJN3Bs?=
- =?utf-8?B?TkFadzdSeXBpbGF2Rlk0ZHRSQWd3V2JaTEo3WWJXOENpcVRJUGZ4OEtkWERK?=
- =?utf-8?B?TSt3cVpvQkgrTmR5ZUxCTHphSER5cDdma3o4cVgvcS82M1h6RmZWWXB2RkRs?=
- =?utf-8?B?L2wzMC9ZUDBCRWZ4ZitFdzBYTUd1RTJMMVZHVXcrYkxENzg1YXBxRTY2K3dI?=
- =?utf-8?B?VkkvRDRXWjd2Q2JWamhWQUczVTEzWVIyb3MxSnhpQVlnVC8yRGFzc2QwYkYz?=
- =?utf-8?B?Z3V5bkNwMVozdlh6WHhRaUNKM09jdldITVR2VlpqSlZPWWxSQ1JISWYvQVBh?=
- =?utf-8?B?MEMxU0c3ZEVidDNCQTJDYUF4NmgySDZkRk5Vbis4UGt1VUlLSSttQzBUcjRa?=
- =?utf-8?B?S2lxdjlOcnN6dGlVWGtIemtiVEFENUhXSyszaGtyTzFMbjBLVXI0OWR6R3dk?=
- =?utf-8?B?cmNpaEUxT3k0a0p1Y25NZDJjV1dLTnhOaEZzakhhK3FyS0hlWWM5REZmSzdz?=
- =?utf-8?B?UWFTUHRsbnFNVjNwSG9wM3pZQnJndzFxdEtoa2M4SWt3dmJjNEZ3aGo3Q2s1?=
- =?utf-8?B?aUtxb1RZY2J5WmxEL0VXZlJNZjlXUGhJS1NJV2hjdUN2RUNUc05SVVZmTFlU?=
- =?utf-8?B?OThUNUdGK3lndmxiZE5wRFRuUDMrZ3BNL0tSQUVLbnFFMytnZmNWQ2x0Z2d4?=
- =?utf-8?B?TzdMYi92cWRHRSsrSzExa2pRei9ONGU4My9aVHkxb1A4Rm9yUzJGakhRZ3BV?=
- =?utf-8?B?SHV4Q2VScVlCRW44ditVclU4ZTdnMHppVEhUY0pvQmE5b1dVWjU1S3RwT1RO?=
- =?utf-8?B?MnljL1FHRHV3Mm5XOHJqNUF6OUlsUmkrWUJRMWRsUmVmUUlmYXpUVnRkSWJW?=
- =?utf-8?B?WW9HKzRjUlQyd0FtVEl6TjlYdkl3VXVOdFp3elVYOE96ejlHbVZSek1HU0Y1?=
- =?utf-8?B?bm1qWUtLb2RxSXk0WVZtcVZ2cWFnY25OZ1Z2WjJpTDhUTFpzTkNBa3NxQnZB?=
- =?utf-8?B?ekN4TlNSOHk5aHV1VlNlRWQ3VWVyak1mbzRhSFZhT0ZTTkJhVy9yQWhjWlk5?=
- =?utf-8?B?aVVPem1jTFpQVmI2cElNSU1LOENZdHZqT1dZNEVFMlR6Z0phQ3ZNTkdWRVBG?=
- =?utf-8?B?YURmN2R4M0hKdGNNZDIxTFJNUDJZZFhLdVZ5NjJnSmRhbk9lNnZqQVBkTktH?=
- =?utf-8?B?dmFDdExDUVJzVGxpb1paVnl0OFFmb2tQUGFWeDVLb2VIdGtrb1pvNkNGb2wr?=
- =?utf-8?B?MC9rblRpVmZBOHprOUFMN3lzYWYyVGdCVmJ0bUZyZjgvdm9YQkE1NnVoUkQ3?=
- =?utf-8?B?aXNIcWVLREtxTTk3am5TbDVUNEFUYVRGMm1xYmZaVXBGOFpXSjcvUkxHUjFx?=
- =?utf-8?B?NFcyY0ZoTHlDTm45WGREV1ljU1NvMXQzdmJGZk9UeE9NM1oyd3F2R2RxZ0p3?=
- =?utf-8?B?d290cnRmWU1nRnJ5ZXhSSDlxSWI3cmVPOGU4THRIMzhOeEE2RnFMYkd1Slhp?=
- =?utf-8?B?c0M0ZDUyUGxFNzJkN0g3R05zSjRkQjNYa0RsbmVkY25PQ0drNFhrelgvQmpE?=
- =?utf-8?B?eFFRQnQycnpLb1J1ZUJsL3RFcWpPc3VyODFlWFZEWDF1a1F2RXp0ZXdjdkE1?=
- =?utf-8?B?dnprVVFwR3haNzRXSk13Y0dsSUNVUVdWbS9iVWtRTFhUQm92M2RlUUl2alZV?=
- =?utf-8?B?OC9LbnRIcjUvbkdjSjkxcVAycG9VenhsV2ZiL1BXdGY5am5LVXlRQWtaRStv?=
- =?utf-8?B?WjZNT2VBYWJDRDVzU1VQREdPWEtmQmxReWNXc2VwdGNyU3c5WjBsclEwK2tD?=
- =?utf-8?B?bS9nUFBPcENZTEJzU2tTQ2pHS3pWaWlBZm9PRU9JQnM3ZEJZS3RPT1p6REJF?=
- =?utf-8?B?WHovWGdIUXFVbzIxRmwxazhhZzhmdFE4bkVUeVJoRnpYaXBSTjlaZWRlWW5Q?=
- =?utf-8?B?dXdJMHZFZkU4b3UxOFlRcDNuc2MzeGR0Mk9UYlNnaTZMYWRzTGZkOWlLUndr?=
- =?utf-8?B?OG9PckJHa05FZ2QwYWsyUlNMYXNsU1F6YTlIc0RhQXpObHJielFxOHA5SjNm?=
- =?utf-8?B?YmNsMGxaUzU4MmhUUEplbFJhb2pBPT0=?=
-X-OriginatorOrg: virtuozzo.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d4f2e611-147c-46f8-74b1-08d9c5fa6263
-X-MS-Exchange-CrossTenant-AuthSource: VE1PR08MB5630.eurprd08.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Dec 2021 09:55:43.5295
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 0bc7f26d-0264-416e-a6fc-8352af79c58f
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: I6i8Fo386ZwOdV6ysCXm8W53w6aqRdi6fZSB0Z/12QCB67zXLxOBzr9wEw3pbCo/QR8+/6s/EnoYENLXStFJUFgno6VWNBsz+432SmmT4JU=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR08MB5328
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2021-12-23_04,2021-12-22_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 bulkscore=0
+ priorityscore=1501 mlxlogscore=999 adultscore=0 malwarescore=0
+ phishscore=0 lowpriorityscore=0 mlxscore=0 suspectscore=0 impostorscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2112230090
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
---------------C841C10C78D715F3120DB136
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-
->> I currently don't have numbers for this patch taken alone. This patch
->> originates from work done some years ago to reduce cost of memory
->> accounting, and x86-only version of this patch was in virtuozzo/openvz
->> kernel since then. Other patches from that work have been upstreamed,
->> but this one was missed.
->>
->> Still it's obvious that release_pages() shall be faster that a loop
->> calling put_page() - isn't that exactly the reason why release_pages()
->> exists and is different from a loop calling put_page()?
+> > On s390, recordmcount.pl is looking for "bcrl 0,<xxx>" instructions in
+> > the objdump -d outpout. However since binutils 2.37, objdump -d
+> > display "jgnop <xxx>" for the same instruction. Update the
+> > mcount_regex so that it accepts both.
+> > 
+> > Signed-off-by: Jerome Marchand <jmarchan@redhat.com>
+> > ---
+> >  scripts/recordmcount.pl | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/scripts/recordmcount.pl b/scripts/recordmcount.pl
+> > index 7d631aaa0ae1..52a000b057a5 100755
+> > --- a/scripts/recordmcount.pl
+> > +++ b/scripts/recordmcount.pl
+> > @@ -219,7 +219,7 @@ if ($arch eq "x86_64") {
+> >  
+> >  } elsif ($arch eq "s390" && $bits == 64) {
+> >      if ($cc =~ /-DCC_USING_HOTPATCH/) {
+> > -	$mcount_regex = "^\\s*([0-9a-fA-F]+):\\s*c0 04 00 00 00 00\\s*brcl\\s*0,[0-9a-f]+ <([^\+]*)>\$";
+> > +	$mcount_regex = "^\\s*([0-9a-fA-F]+):\\s*c0 04 00 00 00 00\\s*(bcrl\\s*0,|jgnop\\s*)[0-9a-f]+ <([^\+]*)>\$";
 > 
-> Yep, but this patch does a bunch of stuff to some really hot paths.  It
-> would be greatly appreciated if you could put in the effort to actually
-> put some numbers behind this.  Plenty of weird stuff happens on
-> computers that we suck at predicting.
+> there is a typo I did not notice before. Sorry about that *sigh*.
+> 
+> s/bcrl/brcl/ on the whole patch.
 
-I found the original report about high cost of memory accounting, and tried to repeat the test described 
-there, with and without the patch.
+Hm.. nice. So I will schedule the patch below for next week. Actually
+tested with the variants I mentioned in the commit message.
 
-The test is - run a script in 30 openvz containers in parallel, and measure average time per execution. 
-Script is attached.
+From 30b3302ae3e9fb30c4cef5c17a2a63ba6ba34195 Mon Sep 17 00:00:00 2001
+From: Heiko Carstens <hca@linux.ibm.com>
+Date: Thu, 23 Dec 2021 17:43:14 +0100
+Subject: [PATCH] recordmcount.pl: fix typo in s390 mcount regex
 
-I'm getting measurable improvement in average msecs per execution: 15360 ms without patch, 15170 ms with 
-patch. And this difference is reliably reproducible.
+Commit 85bf17b28f97 ("recordmcount.pl: look for jgnop instruction as well
+as bcrl on s390") added a new alternative mnemonic for the existing brcl
+instruction. This is required for the combination old gcc version (pre 9.0)
+and binutils since version 2.37.
+However at the same time this commit introduced a typo, replacing brcl with
+bcrl. As a result no mcount locations are detected anymore with old gcc
+versions (pre 9.0) and binutils before version 2.37.
+Fix this by using the correct mnemonic again.
 
-Nikita
+Reported-by: Miroslav Benes <mbenes@suse.cz>
+Cc: Jerome Marchand <jmarchan@redhat.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 85bf17b28f97 ("recordmcount.pl: look for jgnop instruction as well as bcrl on s390")
+Link: https://lore.kernel.org/r/alpine.LSU.2.21.2112230949520.19849@pobox.suse.cz
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+---
+ scripts/recordmcount.pl | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---------------C841C10C78D715F3120DB136
-Content-Type: application/x-sh;
- name="calcprimes.sh"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="calcprimes.sh"
+diff --git a/scripts/recordmcount.pl b/scripts/recordmcount.pl
+index 52a000b057a5..3ccb2c70add4 100755
+--- a/scripts/recordmcount.pl
++++ b/scripts/recordmcount.pl
+@@ -219,7 +219,7 @@ if ($arch eq "x86_64") {
+ 
+ } elsif ($arch eq "s390" && $bits == 64) {
+     if ($cc =~ /-DCC_USING_HOTPATCH/) {
+-	$mcount_regex = "^\\s*([0-9a-fA-F]+):\\s*c0 04 00 00 00 00\\s*(bcrl\\s*0,|jgnop\\s*)[0-9a-f]+ <([^\+]*)>\$";
++	$mcount_regex = "^\\s*([0-9a-fA-F]+):\\s*c0 04 00 00 00 00\\s*(brcl\\s*0,|jgnop\\s*)[0-9a-f]+ <([^\+]*)>\$";
+ 	$mcount_adjust = 0;
+     }
+     $alignment = 8;
+-- 
+2.32.0
 
-#!/bin/bash
-
-exec > ~/primes
-
-#storing the number to be checked
-for NUMBER in $(seq 1 100)
-do
-  i=2
-
-  #flag variable
-  f=0
-
-  #running a loop from 2 to number/2
-  while test $i -le `expr $NUMBER / 2`
-  do
-
-    #checking if i is factor of number
-    if test `expr $NUMBER % $i` -eq 0
-    then
-      f=1
-    fi
-
-    #increment the loop variable
-    i=`expr $i + 1`
-  done
-  if test $f -eq 1
-  then
-    echo "$NUMBER Not Prime"
-  else
-    echo "$NUMBER Prime"
-  fi
-done
-
---------------C841C10C78D715F3120DB136--
