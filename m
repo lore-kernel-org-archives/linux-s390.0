@@ -2,81 +2,106 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 910BDC433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Dec 2021 12:50:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E60F1C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Dec 2021 13:07:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231645AbhL1MuO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Dec 2021 07:50:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34198 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231132AbhL1MuN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Dec 2021 07:50:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8639BC061574;
-        Tue, 28 Dec 2021 04:50:12 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4AF33B811D8;
-        Tue, 28 Dec 2021 12:50:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id DB009C36AEB;
-        Tue, 28 Dec 2021 12:50:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1640695809;
-        bh=YXuwCkbPs72bsdnl04GFMAaLrgYSp8Aelfoqdg37GBQ=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=FmANAmaJFzvMcq2JXGqmmdRNxmfTOk8t7Le6pJFWnWgq115jNdlxUQODGJtOdt2Vc
-         gGMmUmmVgKzWeSgdre3fC5dzxHmZH8dArZwWgDhOaExoLI4yju4To2ZzdoDr/qaIir
-         fAi0s7y0GAnSUbtKxJ6S/WEeSP8R7i5wT+2Am8Zhd5tC2kWxv8V0we5h3XfBfzqAL3
-         7Nb9WWBwFGkcPY8tWWxyY1Mlr2UYGDCz60L5PJnnmm3e5jNaxulY+FCBSYis6JJXD+
-         hLOCU7uQauEgiYzgfdSOVmBxvCV/Qbli7Yj4LLZ47zZrS7BZ7T8RTFyIFOCMwCSyrG
-         z7Jpeq5D/DAxA==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id BF6FDC395E7;
-        Tue, 28 Dec 2021 12:50:09 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        id S232013AbhL1NHH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Dec 2021 08:07:07 -0500
+Received: from out30-56.freemail.mail.aliyun.com ([115.124.30.56]:38929 "EHLO
+        out30-56.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231977AbhL1NHG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 28 Dec 2021 08:07:06 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R841e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0V06pjRK_1640696822;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0V06pjRK_1640696822)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Tue, 28 Dec 2021 21:07:03 +0800
+From:   Tony Lu <tonylu@linux.alibaba.com>
+To:     kgraul@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: [PATCH 0/4] RDMA device net namespace support for SMC
+Date:   Tue, 28 Dec 2021 21:06:08 +0800
+Message-Id: <20211228130611.19124-1-tonylu@linux.alibaba.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net 0/2] net/smc: fix kernel panic caused by race of smc_sock
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <164069580977.6060.15231858958100599514.git-patchwork-notify@kernel.org>
-Date:   Tue, 28 Dec 2021 12:50:09 +0000
-References: <20211228090325.27263-1-dust.li@linux.alibaba.com>
-In-Reply-To: <20211228090325.27263-1-dust.li@linux.alibaba.com>
-To:     Dust Li <dust.li@linux.alibaba.com>
-Cc:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        guwen@linux.alibaba.com, tonylu@linux.alibaba.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
+This patch set introduces net namespace support for linkgroups.
 
-This series was applied to netdev/net.git (master)
-by David S. Miller <davem@davemloft.net>:
+Path 1 is the main approach to implement net ns support.
 
-On Tue, 28 Dec 2021 17:03:23 +0800 you wrote:
-> This patchset fixes the race between smc_release triggered by
-> close(2) and cdc_handle triggered by underlaying RDMA device.
-> 
-> The race is caused because the smc_connection may been released
-> before the pending tx CDC messages got its CQEs. In order to fix
-> this, I add a counter to track how many pending WRs we have posted
-> through the smc_connection, and only release the smc_connection
-> after there is no pending WRs on the connection.
-> 
-> [...]
+Path 2 - 4 are the additional modifications to let us know the netns.
+Also, I will submit changes of smc-tools to github later.
 
-Here is the summary with links:
-  - [net,1/2] net/smc: don't send CDC/LLC message if link not ready
-    https://git.kernel.org/netdev/net/c/90cee52f2e78
-  - [net,2/2] net/smc: fix kernel panic caused by race of smc_sock
-    https://git.kernel.org/netdev/net/c/349d43127dac
+Currently, smc doesn't support net namespace isolation. The ibdevs
+registered to smc are shared for all linkgroups and connections. When
+running applications in different net namespaces, such as container
+environment, applications should only use the ibdevs that belongs to the
+same net namespace.
 
-You are awesome, thank you!
+This adds a new field, net, in smc linkgroup struct. During first
+contact, it checks and find the linkgroup has same net namespace, if
+not, it is going to create and initialized the net field with first
+link's ibdev net namespace. When finding the rdma devices, it also checks
+the sk net device's and ibdev's net namespaces. After net namespace
+destroyed, the net device and ibdev move to root net namespace,
+linkgroups won't be matched, and wait for lgr free.
+
+If rdma net namespace exclusive mode is not enabled, it behaves as
+before.
+
+Steps to enable and test net namespaces:
+
+1. enable RDMA device net namespace exclusive support
+	rdma system set netns exclusive # default is shared
+
+2. create new net namespace, move and initialize them
+	ip netns add test1 
+	rdma dev set mlx5_1 netns test1
+	ip link set dev eth2 netns test1
+	ip netns exec test1 ip link set eth2 up
+	ip netns exec test1 ip addr add ${HOST_IP}/26 dev eth2
+
+3. setup server and client, connect N <-> M
+	ip netns exec test1 smc_run sockperf server --tcp # server
+	ip netns exec test1 smc_run sockperf pp --tcp -i ${SERVER_IP} # client
+
+4. netns isolated linkgroups (2 * 2 mesh) with their own linkgroups
+  - server
+LG-ID    LG-Role  LG-Type  VLAN  #Conns  PNET-ID
+00000100 SERV     SINGLE      0       0
+00000200 SERV     SINGLE      0       0
+00000300 SERV     SINGLE      0       0
+00000400 SERV     SINGLE      0       0
+
+  - client
+LG-ID    LG-Role  LG-Type  VLAN  #Conns  PNET-ID
+00000100 CLNT     SINGLE      0       0
+00000200 CLNT     SINGLE      0       0
+00000300 CLNT     SINGLE      0       0
+00000400 CLNT     SINGLE      0       0
+
+Tony Lu (4):
+  net/smc: Introduce net namespace support for linkgroup
+  net/smc: Add netlink net namespace support
+  net/smc: Print net namespace in log
+  net/smc: Add net namespace for tracepoints
+
+ include/uapi/linux/smc.h      |  2 ++
+ include/uapi/linux/smc_diag.h | 11 ++++++-----
+ net/smc/smc_core.c            | 31 ++++++++++++++++++++++---------
+ net/smc/smc_core.h            |  2 ++
+ net/smc/smc_diag.c            | 16 +++++++++-------
+ net/smc/smc_ib.h              |  7 +++++++
+ net/smc/smc_llc.c             | 19 ++++++++++++-------
+ net/smc/smc_pnet.c            | 21 ++++++++++++++++-----
+ net/smc/smc_tracepoint.h      | 23 ++++++++++++++++-------
+ 9 files changed, 92 insertions(+), 40 deletions(-)
+
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.32.0.3.g01195cf9f
 
