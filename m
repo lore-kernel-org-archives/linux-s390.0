@@ -2,152 +2,81 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3426FC4332F
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Dec 2021 10:08:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 910BDC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Dec 2021 12:50:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233489AbhL1KIb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Dec 2021 05:08:31 -0500
-Received: from mail-pj1-f50.google.com ([209.85.216.50]:46909 "EHLO
-        mail-pj1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231577AbhL1KI3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Dec 2021 05:08:29 -0500
-Received: by mail-pj1-f50.google.com with SMTP id rj2-20020a17090b3e8200b001b1944bad25so16624366pjb.5;
-        Tue, 28 Dec 2021 02:08:29 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=1LdjVJCupkO66VZRPSdtPXWlxTkxQlblL8anKkt6w1Y=;
-        b=ZxAXFS8epFPw09ZN0+5hygHuHtiZD15wSaBV6dxyVVAvNOnLiTLcLSpVzMBp3GRSKs
-         lHONSdKRFsYbvSS2nNdc9qIlUsl6URjcppunLPl7poQwyhsAq54aQFG1T5efkgB0WTpj
-         jszpoUuVcDSpiNtyCF/Iuv+E019pAkaqLrKm408xBzxLPCiT59hf7wA+OVGSqW1PuNBS
-         IqNSrixAy/47uuKqQSMp71+oq4JVQ+fqDdr+cgWwUC+3FyMTTUmoEZUTFjwdwPeTFdkk
-         2G9f/TmP0nFeemKqPiUCLCJcTYa9EtgokgorLJG3SqwEPSIAJjU+qr//95aOIB9Wm4dU
-         Qcww==
-X-Gm-Message-State: AOAM531kJlRu9ZXA2MVpfjDqV+WLIS9VCO+uQj4cWaFiXbaxO/6LYPJK
-        cz0WDB9ZfFOUiA17tbzDs4KXNIakGRV9DA==
-X-Google-Smtp-Source: ABdhPJwtJyt0BgB9nbPsBRAQG20xhRS7PITFUS4MEI44HL4ksxJALw2U9DOV/Yv9U25TYDqf80Z5gg==
-X-Received: by 2002:a17:90b:1e07:: with SMTP id pg7mr25529252pjb.228.1640686108603;
-        Tue, 28 Dec 2021 02:08:28 -0800 (PST)
-Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com. [209.85.216.52])
-        by smtp.gmail.com with ESMTPSA id rm3sm15580381pjb.8.2021.12.28.02.08.27
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 28 Dec 2021 02:08:28 -0800 (PST)
-Received: by mail-pj1-f52.google.com with SMTP id rj2-20020a17090b3e8200b001b1944bad25so16624295pjb.5;
-        Tue, 28 Dec 2021 02:08:27 -0800 (PST)
-X-Received: by 2002:a05:6122:21a6:: with SMTP id j38mr6293010vkd.39.1640686096258;
- Tue, 28 Dec 2021 02:08:16 -0800 (PST)
+        id S231645AbhL1MuO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Dec 2021 07:50:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34198 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231132AbhL1MuN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Dec 2021 07:50:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8639BC061574;
+        Tue, 28 Dec 2021 04:50:12 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4AF33B811D8;
+        Tue, 28 Dec 2021 12:50:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id DB009C36AEB;
+        Tue, 28 Dec 2021 12:50:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1640695809;
+        bh=YXuwCkbPs72bsdnl04GFMAaLrgYSp8Aelfoqdg37GBQ=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=FmANAmaJFzvMcq2JXGqmmdRNxmfTOk8t7Le6pJFWnWgq115jNdlxUQODGJtOdt2Vc
+         gGMmUmmVgKzWeSgdre3fC5dzxHmZH8dArZwWgDhOaExoLI4yju4To2ZzdoDr/qaIir
+         fAi0s7y0GAnSUbtKxJ6S/WEeSP8R7i5wT+2Am8Zhd5tC2kWxv8V0we5h3XfBfzqAL3
+         7Nb9WWBwFGkcPY8tWWxyY1Mlr2UYGDCz60L5PJnnmm3e5jNaxulY+FCBSYis6JJXD+
+         hLOCU7uQauEgiYzgfdSOVmBxvCV/Qbli7Yj4LLZ47zZrS7BZ7T8RTFyIFOCMwCSyrG
+         z7Jpeq5D/DAxA==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id BF6FDC395E7;
+        Tue, 28 Dec 2021 12:50:09 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20211227164317.4146918-1-schnelle@linux.ibm.com> <20211227164317.4146918-3-schnelle@linux.ibm.com>
-In-Reply-To: <20211227164317.4146918-3-schnelle@linux.ibm.com>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Tue, 28 Dec 2021 11:08:05 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdXk6VcDryekkMJ3aGFnw4LLWOWMi8M2PwjT81PsOsOBMQ@mail.gmail.com>
-Message-ID: <CAMuHMdXk6VcDryekkMJ3aGFnw4LLWOWMi8M2PwjT81PsOsOBMQ@mail.gmail.com>
-Subject: Re: [RFC 02/32] Kconfig: introduce HAS_IOPORT option and select it as necessary
-To:     Niklas Schnelle <schnelle@linux.ibm.com>
-Cc:     Arnd Bergmann <arnd@kernel.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        John Garry <john.garry@huawei.com>,
-        Nick Hu <nickhu@andestech.com>,
-        Greentime Hu <green.hu@gmail.com>,
-        Vincent Chen <deanbo422@gmail.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>, Guo Ren <guoren@kernel.org>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Chris Zankel <chris@zankel.net>,
-        Karol Gugala <kgugala@antmicro.com>,
-        Jeff Dike <jdike@addtoit.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Brian Cain <bcain@codeaurora.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Richard Henderson <rth@twiddle.net>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>,
-        Vineet Gupta <vgupta@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Rich Felker <dalias@libc.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
-        linux-arch@vger.kernel.org, linux-pci@vger.kernel.org,
-        linux-riscv@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-xtensa@linux-xtensa.org, openrisc@lists.librecores.org,
-        linux-s390@vger.kernel.org, linux-alpha@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        Michael Schmitz <schmitzmic@gmail.com>,
-        Greg Ungerer <gerg@linux-m68k.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net 0/2] net/smc: fix kernel panic caused by race of smc_sock
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <164069580977.6060.15231858958100599514.git-patchwork-notify@kernel.org>
+Date:   Tue, 28 Dec 2021 12:50:09 +0000
+References: <20211228090325.27263-1-dust.li@linux.alibaba.com>
+In-Reply-To: <20211228090325.27263-1-dust.li@linux.alibaba.com>
+To:     Dust Li <dust.li@linux.alibaba.com>
+Cc:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        guwen@linux.alibaba.com, tonylu@linux.alibaba.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Niklas,
+Hello:
 
-On Mon, Dec 27, 2021 at 5:44 PM Niklas Schnelle <schnelle@linux.ibm.com> wrote:
-> We introduce a new HAS_IOPORT Kconfig option to gate support for
-> I/O port access. In a future patch HAS_IOPORT=n will disable compilation
-> of the I/O accessor functions inb()/outb() and friends on architectures
-> which can not meaningfully support legacy I/O spaces. On these platforms
-> inb()/outb() etc are currently just stubs in asm-generic/io.h which when
-> called will cause a NULL pointer access which some compilers actually
-> detect and warn about.
->
-> The dependencies on HAS_IOPORT in drivers as well as ifdefs for
-> HAS_IOPORT specific sections will be added in subsequent patches on
-> a per subsystem basis. Then a final patch will ifdef the I/O access
-> functions on HAS_IOPORT thus turning any use not gated by HAS_IOPORT
-> into a compile-time warning.
->
-> Link: https://lore.kernel.org/lkml/CAHk-=wg80je=K7madF4e7WrRNp37e3qh6y10Svhdc7O8SZ_-8g@mail.gmail.com/
-> Co-developed-by: Arnd Bergmann <arnd@kernel.org>
-> Signed-off-by: Arnd Bergmann <arnd@kernel.org>
-> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+This series was applied to netdev/net.git (master)
+by David S. Miller <davem@davemloft.net>:
 
-Thanks for your patch!
+On Tue, 28 Dec 2021 17:03:23 +0800 you wrote:
+> This patchset fixes the race between smc_release triggered by
+> close(2) and cdc_handle triggered by underlaying RDMA device.
+> 
+> The race is caused because the smc_connection may been released
+> before the pending tx CDC messages got its CQEs. In order to fix
+> this, I add a counter to track how many pending WRs we have posted
+> through the smc_connection, and only release the smc_connection
+> after there is no pending WRs on the connection.
+> 
+> [...]
 
-> --- a/arch/m68k/Kconfig
-> +++ b/arch/m68k/Kconfig
-> @@ -16,6 +16,7 @@ config M68K
->         select GENERIC_CPU_DEVICES
->         select GENERIC_IOMAP
->         select GENERIC_IRQ_SHOW
-> +       select HAS_IOPORT
->         select HAVE_AOUT if MMU
->         select HAVE_ASM_MODVERSIONS
->         select HAVE_DEBUG_BUGVERBOSE
+Here is the summary with links:
+  - [net,1/2] net/smc: don't send CDC/LLC message if link not ready
+    https://git.kernel.org/netdev/net/c/90cee52f2e78
+  - [net,2/2] net/smc: fix kernel panic caused by race of smc_sock
+    https://git.kernel.org/netdev/net/c/349d43127dac
 
-This looks way too broad to me: most m68k platform do not have I/O
-port access support.
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-My gut feeling says:
 
-    select HAS_IOPORT if PCI || ISA
-
-but that might miss some intricate details...
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
