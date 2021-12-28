@@ -2,257 +2,152 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C21DAC433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Dec 2021 09:21:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3426FC4332F
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Dec 2021 10:08:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235879AbhL1JU4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Dec 2021 04:20:56 -0500
-Received: from out30-56.freemail.mail.aliyun.com ([115.124.30.56]:51423 "EHLO
-        out30-56.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233108AbhL1JUy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 28 Dec 2021 04:20:54 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R651e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0V057EhM_1640683240;
-Received: from e02h04404.eu6sqa(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0V057EhM_1640683240)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Tue, 28 Dec 2021 17:20:52 +0800
-From:   Wen Gu <guwen@linux.alibaba.com>
-To:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dust.li@linux.alibaba.com,
-        tonylu@linux.alibaba.com
-Subject: [RFC PATCH net 2/2] net/smc: Resolve the race between SMC-R link access and clear
-Date:   Tue, 28 Dec 2021 17:20:40 +0800
-Message-Id: <1640683240-62472-3-git-send-email-guwen@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1640683240-62472-1-git-send-email-guwen@linux.alibaba.com>
-References: <1640683240-62472-1-git-send-email-guwen@linux.alibaba.com>
+        id S233489AbhL1KIb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Dec 2021 05:08:31 -0500
+Received: from mail-pj1-f50.google.com ([209.85.216.50]:46909 "EHLO
+        mail-pj1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231577AbhL1KI3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Dec 2021 05:08:29 -0500
+Received: by mail-pj1-f50.google.com with SMTP id rj2-20020a17090b3e8200b001b1944bad25so16624366pjb.5;
+        Tue, 28 Dec 2021 02:08:29 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=1LdjVJCupkO66VZRPSdtPXWlxTkxQlblL8anKkt6w1Y=;
+        b=ZxAXFS8epFPw09ZN0+5hygHuHtiZD15wSaBV6dxyVVAvNOnLiTLcLSpVzMBp3GRSKs
+         lHONSdKRFsYbvSS2nNdc9qIlUsl6URjcppunLPl7poQwyhsAq54aQFG1T5efkgB0WTpj
+         jszpoUuVcDSpiNtyCF/Iuv+E019pAkaqLrKm408xBzxLPCiT59hf7wA+OVGSqW1PuNBS
+         IqNSrixAy/47uuKqQSMp71+oq4JVQ+fqDdr+cgWwUC+3FyMTTUmoEZUTFjwdwPeTFdkk
+         2G9f/TmP0nFeemKqPiUCLCJcTYa9EtgokgorLJG3SqwEPSIAJjU+qr//95aOIB9Wm4dU
+         Qcww==
+X-Gm-Message-State: AOAM531kJlRu9ZXA2MVpfjDqV+WLIS9VCO+uQj4cWaFiXbaxO/6LYPJK
+        cz0WDB9ZfFOUiA17tbzDs4KXNIakGRV9DA==
+X-Google-Smtp-Source: ABdhPJwtJyt0BgB9nbPsBRAQG20xhRS7PITFUS4MEI44HL4ksxJALw2U9DOV/Yv9U25TYDqf80Z5gg==
+X-Received: by 2002:a17:90b:1e07:: with SMTP id pg7mr25529252pjb.228.1640686108603;
+        Tue, 28 Dec 2021 02:08:28 -0800 (PST)
+Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com. [209.85.216.52])
+        by smtp.gmail.com with ESMTPSA id rm3sm15580381pjb.8.2021.12.28.02.08.27
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 28 Dec 2021 02:08:28 -0800 (PST)
+Received: by mail-pj1-f52.google.com with SMTP id rj2-20020a17090b3e8200b001b1944bad25so16624295pjb.5;
+        Tue, 28 Dec 2021 02:08:27 -0800 (PST)
+X-Received: by 2002:a05:6122:21a6:: with SMTP id j38mr6293010vkd.39.1640686096258;
+ Tue, 28 Dec 2021 02:08:16 -0800 (PST)
+MIME-Version: 1.0
+References: <20211227164317.4146918-1-schnelle@linux.ibm.com> <20211227164317.4146918-3-schnelle@linux.ibm.com>
+In-Reply-To: <20211227164317.4146918-3-schnelle@linux.ibm.com>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Tue, 28 Dec 2021 11:08:05 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdXk6VcDryekkMJ3aGFnw4LLWOWMi8M2PwjT81PsOsOBMQ@mail.gmail.com>
+Message-ID: <CAMuHMdXk6VcDryekkMJ3aGFnw4LLWOWMi8M2PwjT81PsOsOBMQ@mail.gmail.com>
+Subject: Re: [RFC 02/32] Kconfig: introduce HAS_IOPORT option and select it as necessary
+To:     Niklas Schnelle <schnelle@linux.ibm.com>
+Cc:     Arnd Bergmann <arnd@kernel.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        John Garry <john.garry@huawei.com>,
+        Nick Hu <nickhu@andestech.com>,
+        Greentime Hu <green.hu@gmail.com>,
+        Vincent Chen <deanbo422@gmail.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>, Guo Ren <guoren@kernel.org>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Chris Zankel <chris@zankel.net>,
+        Karol Gugala <kgugala@antmicro.com>,
+        Jeff Dike <jdike@addtoit.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Brian Cain <bcain@codeaurora.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Richard Henderson <rth@twiddle.net>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        Vineet Gupta <vgupta@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Rich Felker <dalias@libc.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
+        linux-arch@vger.kernel.org, linux-pci@vger.kernel.org,
+        linux-riscv@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-xtensa@linux-xtensa.org, openrisc@lists.librecores.org,
+        linux-s390@vger.kernel.org, linux-alpha@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        Michael Schmitz <schmitzmic@gmail.com>,
+        Greg Ungerer <gerg@linux-m68k.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-We encountered some crashes caused by the race between SMC-R
-link access and link clear triggered by link group termination
-in abnormal case, like port error.
+Hi Niklas,
 
-Here are some of panic stacks we met:
+On Mon, Dec 27, 2021 at 5:44 PM Niklas Schnelle <schnelle@linux.ibm.com> wrote:
+> We introduce a new HAS_IOPORT Kconfig option to gate support for
+> I/O port access. In a future patch HAS_IOPORT=n will disable compilation
+> of the I/O accessor functions inb()/outb() and friends on architectures
+> which can not meaningfully support legacy I/O spaces. On these platforms
+> inb()/outb() etc are currently just stubs in asm-generic/io.h which when
+> called will cause a NULL pointer access which some compilers actually
+> detect and warn about.
+>
+> The dependencies on HAS_IOPORT in drivers as well as ifdefs for
+> HAS_IOPORT specific sections will be added in subsequent patches on
+> a per subsystem basis. Then a final patch will ifdef the I/O access
+> functions on HAS_IOPORT thus turning any use not gated by HAS_IOPORT
+> into a compile-time warning.
+>
+> Link: https://lore.kernel.org/lkml/CAHk-=wg80je=K7madF4e7WrRNp37e3qh6y10Svhdc7O8SZ_-8g@mail.gmail.com/
+> Co-developed-by: Arnd Bergmann <arnd@kernel.org>
+> Signed-off-by: Arnd Bergmann <arnd@kernel.org>
+> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
 
-1) Race between smc_llc_flow_initiate() and smcr_link_clear()
+Thanks for your patch!
 
- BUG: kernel NULL pointer dereference, address: 0000000000000000
- Workqueue: smc_hs_wq smc_listen_work [smc]
- RIP: 0010:smc_llc_flow_initiate+0x44/0x190 [smc]
- Call Trace:
-  <TASK>
-  ? __smc_buf_create+0x75a/0x950 [smc]
-  smcr_lgr_reg_rmbs+0x2a/0xbf [smc]
-  smc_listen_work+0xf72/0x1230 [smc]
-  ? process_one_work+0x25c/0x600
-  process_one_work+0x25c/0x600
-  worker_thread+0x4f/0x3a0
-  ? process_one_work+0x600/0x600
-  kthread+0x15d/0x1a0
-  ? set_kthread_struct+0x40/0x40
-  ret_from_fork+0x1f/0x30
-  </TASK>
+> --- a/arch/m68k/Kconfig
+> +++ b/arch/m68k/Kconfig
+> @@ -16,6 +16,7 @@ config M68K
+>         select GENERIC_CPU_DEVICES
+>         select GENERIC_IOMAP
+>         select GENERIC_IRQ_SHOW
+> +       select HAS_IOPORT
+>         select HAVE_AOUT if MMU
+>         select HAVE_ASM_MODVERSIONS
+>         select HAVE_DEBUG_BUGVERBOSE
 
-smc_listen_work()                       __smc_lgr_terminate()
----------------------------------------------------------------
-                                       | smc_lgr_free()
-                                       |     |- smcr_link_clear()
-                                       |            |- memset(lnk, 0)
-smc_listen_rdma_reg()                  |
-  |- smcr_lgr_reg_rmbs()               |
-       |- smc_llc_flow_initiate()      |
-            |- access lnk->lgr (panic) |
+This looks way too broad to me: most m68k platform do not have I/O
+port access support.
 
-2) Race between smc_wr_tx_dismiss_slots() and smcr_link_clear()
+My gut feeling says:
 
- BUG: kernel NULL pointer dereference, address: 0000000000000000
- RIP: 0010:_find_first_bit+0x8/0x50
- Call Trace:
-  <TASK>
-  smc_wr_tx_dismiss_slots+0x34/0xc0 [smc]
-  ? smc_cdc_tx_filter+0x10/0x10 [smc]
-  smc_conn_free+0xd8/0x100 [smc]
-  __smc_release+0xf1/0x140 [smc]
-  smc_release+0x89/0x1b0 [smc]
-  __sock_release+0x37/0xb0
-  sock_close+0x14/0x20
-  __fput+0xa9/0x260
-  task_work_run+0x6b/0xb0
-  do_exit+0x3ef/0xd40
-  do_group_exit+0x47/0xb0
-  __x64_sys_exit_group+0x14/0x20
-  do_syscall_64+0x34/0x90
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
-  </TASK>
+    select HAS_IOPORT if PCI || ISA
 
-smc_conn_free()                           __smc_lgr_terminate()
-----------------------------------------------------------------
-                                         | smc_lgr_free()
-                                         |  |- smcr_link_clear()
-                                         |      |- smc_wr_free_link_mem()
-                                         |          |- lnk->wr_tx_mask = NULL;
-smc_wr_tx_dismiss_slots()                |
-  |- for_each_set_bit(link->wr_tx_mask)  |
-            |- (panic)                   |
+but that might miss some intricate details...
 
-These crashes are caused by clearing SMC-R link resources
-when someone is still accessing to them. So this patch tries
-to fix it by introducing reference count of SMC-R links and
-ensuring that the sensitive resources of links are not
-cleared until reference count is zero.
+Gr{oetje,eeting}s,
 
-The operation to the SMC-R link reference count can be concluded
-as follows:
+                        Geert
 
-object          [hold or initialized as 1]         [put]
---------------------------------------------------------------------
-links           smcr_link_init()                   smcr_link_clear()
-connections     smcr_lgr_conn_assign_link()        smc_conn_free()
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Through this way, the clear of SMC-R links is later than the
-free of all the smc connections above it, thus avoiding the
-unsafe reference to SMC-R links.
-
-Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
----
- net/smc/smc_core.c | 43 +++++++++++++++++++++++++++++++++++--------
- net/smc/smc_core.h |  4 ++++
- 2 files changed, 39 insertions(+), 8 deletions(-)
-
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index d72eb13..83a80e6 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -155,6 +155,7 @@ static int smcr_lgr_conn_assign_link(struct smc_connection *conn, bool first)
- 	if (!conn->lnk)
- 		return SMC_CLC_DECL_NOACTLINK;
- 	atomic_inc(&conn->lnk->conn_cnt);
-+	smcr_link_hold(conn->lnk); /* link_put in smc_conn_free() */
- 	return 0;
- }
- 
-@@ -746,6 +747,8 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
- 	}
- 	get_device(&lnk->smcibdev->ibdev->dev);
- 	atomic_inc(&lnk->smcibdev->lnk_cnt);
-+	refcount_set(&lnk->refcnt, 1); /* link refcnt is set to 1 */
-+	lnk->clearing = 0;
- 	lnk->path_mtu = lnk->smcibdev->pattr[lnk->ibport - 1].active_mtu;
- 	lnk->link_id = smcr_next_link_id(lgr);
- 	lnk->lgr = lgr;
-@@ -994,8 +997,12 @@ void smc_switch_link_and_count(struct smc_connection *conn,
- 			       struct smc_link *to_lnk)
- {
- 	atomic_dec(&conn->lnk->conn_cnt);
-+	/* put old link, hold in smcr_lgr_conn_assign_link() */
-+	smcr_link_put(conn->lnk);
- 	conn->lnk = to_lnk;
- 	atomic_inc(&conn->lnk->conn_cnt);
-+	/* hold new link, put in smc_conn_free() */
-+	smcr_link_hold(conn->lnk);
- }
- 
- struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
-@@ -1126,9 +1133,9 @@ void smc_conn_free(struct smc_connection *conn)
- 		/* smc connection wasn't registered to a link group
- 		 * or has already been freed before.
- 		 *
--		 * Judge these to ensure that lgr refcnt will be put
--		 * only once if connection has been registered to a
--		 * link group successfully.
-+		 * Judge these to ensure that lgr/link refcnt will be
-+		 * put only once if connection has been registered to
-+		 * a link group successfully.
- 		 */
- 		return;
- 
-@@ -1153,6 +1160,8 @@ void smc_conn_free(struct smc_connection *conn)
- 	if (!lgr->conns_num)
- 		smc_lgr_schedule_free_work(lgr);
- lgr_put:
-+	if (!lgr->is_smcd)
-+		smcr_link_put(conn->lnk); /* link_hold in smcr_lgr_conn_assign_link() */
- 	smc_lgr_put(lgr); /* lgr_hold in smc_lgr_register_conn() */
- }
- 
-@@ -1209,13 +1218,23 @@ static void smcr_rtoken_clear_link(struct smc_link *lnk)
- 	}
- }
- 
-+void __smcr_link_clear(struct smc_link *lnk)
-+{
-+	smc_wr_free_link_mem(lnk);
-+	smc_lgr_put(lnk->lgr);	/* lgr_hold in smcr_link_init() */
-+	memset(lnk, 0, sizeof(struct smc_link));
-+	lnk->state = SMC_LNK_UNUSED;
-+}
-+
- /* must be called under lgr->llc_conf_mutex lock */
- void smcr_link_clear(struct smc_link *lnk, bool log)
- {
- 	struct smc_ib_device *smcibdev;
- 
--	if (!lnk->lgr || lnk->state == SMC_LNK_UNUSED)
-+	if (lnk->clearing || !lnk->lgr ||
-+	    lnk->state == SMC_LNK_UNUSED)
- 		return;
-+	lnk->clearing = 1;
- 	lnk->peer_qpn = 0;
- 	smc_llc_link_clear(lnk, log);
- 	smcr_buf_unmap_lgr(lnk);
-@@ -1224,15 +1243,23 @@ void smcr_link_clear(struct smc_link *lnk, bool log)
- 	smc_wr_free_link(lnk);
- 	smc_ib_destroy_queue_pair(lnk);
- 	smc_ib_dealloc_protection_domain(lnk);
--	smc_wr_free_link_mem(lnk);
--	smc_lgr_put(lnk->lgr); /* lgr_hold in smcr_link_init() */
- 	smc_ibdev_cnt_dec(lnk);
- 	put_device(&lnk->smcibdev->ibdev->dev);
- 	smcibdev = lnk->smcibdev;
--	memset(lnk, 0, sizeof(struct smc_link));
--	lnk->state = SMC_LNK_UNUSED;
- 	if (!atomic_dec_return(&smcibdev->lnk_cnt))
- 		wake_up(&smcibdev->lnks_deleted);
-+	smcr_link_put(lnk); /* theoretically last link_put */
-+}
-+
-+void smcr_link_hold(struct smc_link *lnk)
-+{
-+	refcount_inc(&lnk->refcnt);
-+}
-+
-+void smcr_link_put(struct smc_link *lnk)
-+{
-+	if (refcount_dec_and_test(&lnk->refcnt))
-+		__smcr_link_clear(lnk);
- }
- 
- static void smcr_buf_free(struct smc_link_group *lgr, bool is_rmb,
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 51203b1..e73217f 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -137,6 +137,8 @@ struct smc_link {
- 	u8			peer_link_uid[SMC_LGR_ID_SIZE]; /* peer uid */
- 	u8			link_idx;	/* index in lgr link array */
- 	u8			link_is_asym;	/* is link asymmetric? */
-+	u8			clearing : 1;	/* link is being cleared */
-+	refcount_t		refcnt;		/* link reference count */
- 	struct smc_link_group	*lgr;		/* parent link group */
- 	struct work_struct	link_down_wrk;	/* wrk to bring link down */
- 	char			ibname[IB_DEVICE_NAME_MAX]; /* ib device name */
-@@ -504,6 +506,8 @@ void smc_rtoken_set2(struct smc_link_group *lgr, int rtok_idx, int link_id,
- int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
- 		   u8 link_idx, struct smc_init_info *ini);
- void smcr_link_clear(struct smc_link *lnk, bool log);
-+void smcr_link_hold(struct smc_link *lnk);
-+void smcr_link_put(struct smc_link *lnk);
- void smc_switch_link_and_count(struct smc_connection *conn,
- 			       struct smc_link *to_lnk);
- int smcr_buf_map_lgr(struct smc_link *lnk);
--- 
-1.8.3.1
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
