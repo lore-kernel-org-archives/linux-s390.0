@@ -2,80 +2,114 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4EA07C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 28 Dec 2021 06:48:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D11E7C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 28 Dec 2021 07:49:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235229AbhL1Gsd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Dec 2021 01:48:33 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:40684 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235211AbhL1Gsa (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Dec 2021 01:48:30 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 26169B80DB5;
-        Tue, 28 Dec 2021 06:48:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03D17C36AEB;
-        Tue, 28 Dec 2021 06:48:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1640674108;
-        bh=VNmoFKw8R9K2OcmjmelDhRhySWO6Ih0fBU/Aljv4crs=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p4P7PIVKeH9DRPDMaJHzgL9388gzhi6Jpx/12ZZaWUMeUmu0fZt7eygIyKX8iFEEp
-         5V7Qm2P/0tUCPOllQQS5zGIKo1i9xBMYcEo0LwM4nRrc1GBp4jY0IknZCs8CW+b8aC
-         +BWs1+cfSPC5J8+q7mLjVFtOZiazn965xbGrsrVnPhcbVr1Oo0pjsKAzECkfHZU1vW
-         5oE6//VIWrFOJ7unJPtQolyyGtYFSHR++InYTtZ7ns6hf2rxEtLmmIRGM3fv3SKrIk
-         WiGlzw3OZn26f4CGIp4O4kCTDg4moVXZYWKHXEQKA4j1miHCHincoRMHWP25QglKsk
-         Oqsjqp5no8Bdg==
-From:   guoren@kernel.org
-To:     guoren@kernel.org, will@kernel.org, tglx@linutronix.de,
-        benh@kernel.crashing.org, arnd@arndb.de, mingo@redhat.com,
-        peterz@infradead.org, juri.lelli@redhat.com,
-        christophe.leroy@csgroup.eu, hca@linux.ibm.com
-Cc:     linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, sparclinux@vger.kernel.or,
-        linuxppc-dev@lists.ozlabs.org, inux-parisc@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        x86@kernel.org, Guo Ren <guoren@linux.alibaba.com>
-Subject: [PATCH V3 8/8] sched: mips: Remove unused TASK_SIZE_OF
-Date:   Tue, 28 Dec 2021 14:47:29 +0800
-Message-Id: <20211228064730.2882351-9-guoren@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20211228064730.2882351-1-guoren@kernel.org>
-References: <20211228064730.2882351-1-guoren@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S235388AbhL1Htq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Dec 2021 02:49:46 -0500
+Received: from out30-45.freemail.mail.aliyun.com ([115.124.30.45]:57203 "EHLO
+        out30-45.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235393AbhL1Htq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 28 Dec 2021 02:49:46 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0V04IY3i_1640677771;
+Received: from e02h04404.eu6sqa(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0V04IY3i_1640677771)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Tue, 28 Dec 2021 15:49:44 +0800
+From:   Wen Gu <guwen@linux.alibaba.com>
+To:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [RFC PATCH net] net/smc: Reset conn->lgr when link group registration fails
+Date:   Tue, 28 Dec 2021 15:49:30 +0800
+Message-Id: <1640677770-112053-1-git-send-email-guwen@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Guo Ren <guoren@linux.alibaba.com>
+SMC connections might fail to be registered to a link group due to
+things like unable to find a link to assign to in its creation. As
+a result, connection creation will return a failure and most
+resources related to the connection won't be applied or initialized,
+such as conn->abort_work or conn->lnk.
 
-This macro isn't used in Linux sched, now. Delete in
-include/linux/sched.h and arch's include/asm.
+If smc_conn_free() is invoked later, it will try to access the
+resources related to the connection, which wasn't initialized, thus
+causing a panic.
 
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-Signed-off-by: Guo Ren <guoren@kernel.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Here is an example, a SMC-R connection failed to be registered
+to a link group and conn->lnk is NULL. The following crash will
+happen if smc_conn_free() tries to access conn->lnk in
+smc_cdc_tx_dismiss_slots().
+
+ BUG: kernel NULL pointer dereference, address: 0000000000000168
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 0 P4D 0
+ Oops: 0000 [#1] PREEMPT SMP PTI
+ CPU: 4 PID: 68 Comm: kworker/4:1 Kdump: loaded Tainted: G E     5.16.0-rc5+ #52
+ Workqueue: smc_hs_wq smc_listen_work [smc]
+ RIP: 0010:smc_wr_tx_dismiss_slots+0x1e/0xc0 [smc]
+ Call Trace:
+  <TASK>
+  smc_conn_free+0xd8/0x100 [smc]
+  smc_lgr_cleanup_early+0x15/0x90 [smc]
+  smc_listen_work+0x302/0x1230 [smc]
+  ? process_one_work+0x25c/0x600
+  process_one_work+0x25c/0x600
+  worker_thread+0x4f/0x3a0
+  ? process_one_work+0x600/0x600
+  kthread+0x15d/0x1a0
+  ? set_kthread_struct+0x40/0x40
+  ret_from_fork+0x1f/0x30
+  </TASK>
+
+This patch tries to fix this by resetting conn->lgr to NULL if an
+abnormal exit due to lgr register failure occurs in smc_conn_create(),
+thus avoiding the crash caused by accessing the uninitialized resources
+in smc_conn_free().
+
+Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
 ---
- arch/mips/include/asm/processor.h | 3 ---
- 1 file changed, 3 deletions(-)
+ net/smc/smc_core.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/include/asm/processor.h b/arch/mips/include/asm/processor.h
-index 4bb24579d12e..8871fc5b0baa 100644
---- a/arch/mips/include/asm/processor.h
-+++ b/arch/mips/include/asm/processor.h
-@@ -61,9 +61,6 @@ extern int arch_dup_task_struct(struct task_struct *dst, struct task_struct *src
- #define TASK_SIZE (test_thread_flag(TIF_32BIT_ADDR) ? TASK_SIZE32 : TASK_SIZE64)
- #define STACK_TOP_MAX	TASK_SIZE64
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 412bc85..1f40b8e 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -1815,7 +1815,7 @@ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
+ 	}
+ 	spin_unlock_bh(lgr_lock);
+ 	if (rc)
+-		return rc;
++		goto out_unreg;
  
--#define TASK_SIZE_OF(tsk)						\
--	(test_tsk_thread_flag(tsk, TIF_32BIT_ADDR) ? TASK_SIZE32 : TASK_SIZE64)
--
- #define TASK_IS_32BIT_ADDR test_thread_flag(TIF_32BIT_ADDR)
+ 	if (role == SMC_CLNT && !ini->first_contact_peer &&
+ 	    ini->first_contact_local) {
+@@ -1836,7 +1836,7 @@ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
+ 		rc = smc_lgr_register_conn(conn, true);
+ 		write_unlock_bh(&lgr->conns_lock);
+ 		if (rc)
+-			goto out;
++			goto out_unreg;
+ 	}
+ 	conn->local_tx_ctrl.common.type = SMC_CDC_MSG_TYPE;
+ 	conn->local_tx_ctrl.len = SMC_WR_TX_SIZE;
+@@ -1855,6 +1855,12 @@ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
  
- #endif
+ out:
+ 	return rc;
++out_unreg:
++	/* fail to register connection into a link group */
++	if (!lgr->conns_num && !delayed_work_pending(&lgr->free_work))
++		smc_lgr_schedule_free_work(lgr);
++	conn->lgr = NULL;
++	return rc;
+ }
+ 
+ #define SMCD_DMBE_SIZES		6 /* 0 -> 16KB, 1 -> 32KB, .. 6 -> 1MB */
 -- 
-2.25.1
+1.8.3.1
 
