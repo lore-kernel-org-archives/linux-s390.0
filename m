@@ -2,70 +2,68 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 21CA2C433FE
-	for <linux-s390@archiver.kernel.org>; Wed, 29 Dec 2021 17:20:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F5E9C433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 29 Dec 2021 18:17:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241074AbhL2RUS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 29 Dec 2021 12:20:18 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:54056 "EHLO
+        id S229593AbhL2SRE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 29 Dec 2021 13:17:04 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:44254 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241034AbhL2RUQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 29 Dec 2021 12:20:16 -0500
+        with ESMTP id S229472AbhL2SRD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 29 Dec 2021 13:17:03 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 491636153F;
-        Wed, 29 Dec 2021 17:20:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2B5EC36AE9;
-        Wed, 29 Dec 2021 17:20:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A52E6154A;
+        Wed, 29 Dec 2021 18:17:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id AE042C36AE7;
+        Wed, 29 Dec 2021 18:17:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1640798414;
-        bh=mD55XiGnaxJafKvRs4q7sk9He7DhV4oGwfUm+8MHPSs=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=c871heSWCTctS4GfXo9h3MeEdIN3+xN1XMTHmku30iWA8RKuAHoL9vEPa3clSxk3I
-         lYqgCYWrSaJvGEZkpKVFAlQ4aUWz0M2PkvdzVNqxJaC37+/H1MBCvkHWOKkmk8kwm1
-         sM3b5PIfgSqaCVOjfeV9864HlRBayb4Fua7XLpkebqflAstoOxvBMvEvKw31u31AL2
-         iTr8zj8c7GeUnyCv0B2NghKXe3exAf+GB/HqdoF3SN797ly5jlaudliZlisbwPBJMn
-         kAX6iM2/LNnkDDiHXND27O7a4DttQZLqab3RVRCQmetqRSTEGQP4cWlwwRwo5w887t
-         ZwiJE97ykLWog==
-Date:   Wed, 29 Dec 2021 09:20:12 -0800
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     Florian Fainelli <f.fainelli@gmail.com>
-Cc:     ast@kernel.org, daniel@iogearbox.net, bpf@vger.kernel.org,
-        netdev@vger.kernel.org, linux-bluetooth@vger.kernel.org,
-        linux-rdma@vger.kernel.org, linux-can@vger.kernel.org,
-        intel-wired-lan@lists.osuosl.org, linux-hams@vger.kernel.org,
-        ath11k@lists.infradead.org, linux-wireless@vger.kernel.org,
-        linux-nfs@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        bridge@lists.linux-foundation.org,
-        linux-decnet-user@lists.sourceforge.net,
-        linux-s390@vger.kernel.org, netfilter-devel@vger.kernel.org,
-        coreteam@netfilter.org, virtualization@lists.linux-foundation.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH bpf-next v2] net: don't include filter.h from net/sock.h
-Message-ID: <20211229092012.635e9f2b@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
-In-Reply-To: <5a82690c-7dc0-81de-4dd6-06e26e4b9b92@gmail.com>
-References: <20211229004913.513372-1-kuba@kernel.org>
-        <5a82690c-7dc0-81de-4dd6-06e26e4b9b92@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        s=k20201202; t=1640801822;
+        bh=Iq/8wAw2A+9RjyxxKXOC4ZrymhDtYJDG6qNqqpHW9nU=;
+        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+        b=KWJ0SdAfDCRzf6ZBh0PDL45kXomUXzp6prLyudt5IfuE9slaSOObhFGv1XdCfg8PX
+         nwECYQ+t22mq0j5Ns4zQJWGnvmSxkE99fpBDZ0Z1wG8xddRyPb/G9EJGqzuaURQ+nf
+         yWAGHjWxxchKfElqilZCdTaqmcXO/q/hdc0oLL9Gn4mrq8vU326Zyd2zfq/JNIZNEI
+         Rbi2p2tb/NFnkYNQSlk453XN1dnb87DdkRUTluoCdH/ICQnH8WTRqXQHvnBaO8HMqO
+         VDtxxLJHEYSKJainu5jCRpoc0xqYKe1EHIqxsRINTwPNlbrHeJSip+uacJecalLTpL
+         hjfGr1SYI/VvA==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 988A2C32795;
+        Wed, 29 Dec 2021 18:17:02 +0000 (UTC)
+Subject: Re: [GIT PULL] s390 update for 5.16-rc8
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <Ycwww97WDmQW9Oqa@osiris>
+References: <Ycwww97WDmQW9Oqa@osiris>
+X-PR-Tracked-List-Id: <linux-s390.vger.kernel.org>
+X-PR-Tracked-Message-Id: <Ycwww97WDmQW9Oqa@osiris>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.16-6
+X-PR-Tracked-Commit-Id: 4eb1782eaa9fa1c224ad1fa0d13a9f09c3ab2d80
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: eec4df26e24e978e49ccf9bcf49ca0f2ccdaeffe
+Message-Id: <164080182261.1560.3598658760089634279.pr-tracker-bot@kernel.org>
+Date:   Wed, 29 Dec 2021 18:17:02 +0000
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Jerome Marchand <jmarchan@redhat.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 28 Dec 2021 17:33:39 -0800 Florian Fainelli wrote:
-> It would be nice if we used the number of files rebuilt because of a 
-> header file change as another metric that the kernel is evaluated with 
-> from release to release (or even on a commit by commit basis). Food for 
-> thought.
+The pull request you sent on Wed, 29 Dec 2021 10:56:19 +0100:
 
-Maybe Andy has some thoughts, he has been working on dropping
-unnecessary includes of kernel.h, it seems.
+> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.16-6
 
-It'd be cool to plug something that'd warn us about significant
-increases in dependencies into the patchwork build bot.
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/eec4df26e24e978e49ccf9bcf49ca0f2ccdaeffe
 
-I have one more small series which un-includes uapi/bpf.h from
-netdevice.h at which point I hope we'll be largely in the clear 
-from build bot performance perspective.
+Thank you!
+
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
