@@ -2,120 +2,159 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 99D1DC43219
-	for <linux-s390@archiver.kernel.org>; Wed, 29 Dec 2021 01:33:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9238C4167D
+	for <linux-s390@archiver.kernel.org>; Wed, 29 Dec 2021 03:41:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238211AbhL2Bdv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 28 Dec 2021 20:33:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34314 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232378AbhL2Bdu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Dec 2021 20:33:50 -0500
-Received: from mail-vk1-xa34.google.com (mail-vk1-xa34.google.com [IPv6:2607:f8b0:4864:20::a34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06494C061574;
-        Tue, 28 Dec 2021 17:33:50 -0800 (PST)
-Received: by mail-vk1-xa34.google.com with SMTP id b77so11211673vka.11;
-        Tue, 28 Dec 2021 17:33:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=IBcil9O+VRrBlwSK9WQFnnXvi87jfhzw0Yvv4tQzzQ4=;
-        b=noDIEQ8P8sUYyX/OE18Q5FGCEdOtXRbYUWogiKJXUl19FWceFTLSzy33NO7370WsVb
-         xNtywJS1aHmXYo/ZkLPfxpKAuLKxK4YE+eVz8VTkizITqKtfycFbgYZ8mkgMJWEJt21+
-         SNTUf5JrpwvWrXhCSoo6DxEmJYz1lYAcgrZn5Siak7Xevszf8m10NCTaN+zXiqI+KIS/
-         Eu3eNT4oCfEFd0fiD/WXOlhQ5EblQr9RpaZdLMvylKbA5ymBdmZHyFsCK1nxmVisoAn9
-         uYVylo+Wo6Qmr7pTJyQxMeOn82Ns+dOHizKeng6bH3WIfBKj/q/NPdRFTbbgDlFIWhAW
-         0Xqg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=IBcil9O+VRrBlwSK9WQFnnXvi87jfhzw0Yvv4tQzzQ4=;
-        b=3eKziM9dojfbmU9z227wmvZxlUvkvXHU2ObjzOZ+JHo4TGEQOGkgkHXx0VIKXk6Rbf
-         wp0K0vm1TgBxuOtxfbryl3o+2Q18d/kTpo/EmRMCUboBYL7iH5dvQ7NnrwPvBIVala5L
-         Fb960C6ya+ThkV7RaGLzjOyzm3tR+1bNlgdjqUfG8MpB7CevtAbtY7PdIYXACooshlDs
-         j1Q4KTlpU0pYnu58qkRrzYRTUMRb0lo92oRsgedX0pJsGZ6vYSOF06g2nYBBGO5Cfbtx
-         L4uMl89CL7qfLKHaZ9X3cz0A0lM51OeW0utowExoHZO2TBteF5pymxgUYdMpmghYxy9q
-         1/8w==
-X-Gm-Message-State: AOAM533T5kB3Po560hb5BI3iCorpl3jAHUh+HrfpwytPABF935FHV/k4
-        rWQ/s+0C5WOUZuoj/Dh2Apo=
-X-Google-Smtp-Source: ABdhPJwKKoiH34wYig8kLDUOCk3RH8x02XOvCc3/C+ewf+rsM//1r3lSXc1Bk8D6hTuZbPILWEIFJw==
-X-Received: by 2002:a1f:9f04:: with SMTP id i4mr7411735vke.33.1640741629056;
-        Tue, 28 Dec 2021 17:33:49 -0800 (PST)
-Received: from [10.230.2.158] ([192.19.161.250])
-        by smtp.gmail.com with ESMTPSA id d15sm3964460vsb.18.2021.12.28.17.33.40
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 28 Dec 2021 17:33:48 -0800 (PST)
-Message-ID: <5a82690c-7dc0-81de-4dd6-06e26e4b9b92@gmail.com>
-Date:   Tue, 28 Dec 2021 17:33:39 -0800
+        id S234011AbhL2Dlq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 28 Dec 2021 22:41:46 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:34734 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233725AbhL2Dln (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Dec 2021 22:41:43 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64B43B817AB;
+        Wed, 29 Dec 2021 03:41:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BA1FC36AF2;
+        Wed, 29 Dec 2021 03:41:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1640749300;
+        bh=sMe3q8ad98okMs4HLXxIEZG5eWgoWBzrycggRgzNn0g=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=gfBUGGZtKlSdchISLRCbgoh5ApvOms88vBNDBueg3GSAqIXPSkyv3hT3+JLM3V8rd
+         NBXbvcDdAfWC4ZFlxNGOThtvDBg9TpHafmYp6AoKHdo7tXLFlhXn/lylE8k/3yGTpP
+         qaq0Iy+2+aSp302rKXO4x7uVkeduQCA9T79BgtkTt8BYVlCGkm7lz25aZ+zHWTEd0S
+         9pUWnmx3E/895Wpun2xbxI2jymz5JySeYBwqar7GOpedMrFMwNkqar44IVWO2AO8sP
+         JiT1Dd1gOzEi7FZfU/lHPGKEXgT7N7xI/S78pUQVJ5QyKVMrZUQVQPCKosaR34UMGK
+         rebkE+b3YsYqw==
+Received: by mail-wm1-f50.google.com with SMTP id g132so12789352wmg.2;
+        Tue, 28 Dec 2021 19:41:40 -0800 (PST)
+X-Gm-Message-State: AOAM532T8c2HGy6epaz094iKuhVcj1hQ9WeTPLevmuDbcKD+iDwQpZ53
+        bEstIlkuSlWny1luVuugVfS8iYNL/sFTrCvmOP4=
+X-Google-Smtp-Source: ABdhPJwExVf1S5yWbdFaQXvSS7m+9fv3xxH0eSVAhqrz/dUiLqmyF5p5xrdPthuPvZdKvgQOvhEXVEuNpJp0LGzgDhQ=
+X-Received: by 2002:a1c:7418:: with SMTP id p24mr20244545wmc.82.1640749287841;
+ Tue, 28 Dec 2021 19:41:27 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.1
-Subject: Re: [PATCH bpf-next v2] net: don't include filter.h from net/sock.h
-Content-Language: en-US
-To:     Jakub Kicinski <kuba@kernel.org>, ast@kernel.org,
-        daniel@iogearbox.net
-Cc:     bpf@vger.kernel.org, netdev@vger.kernel.org,
-        Marc Kleine-Budde <mkl@pengutronix.de>, marcel@holtmann.org,
-        johan.hedberg@gmail.com, luiz.dentz@gmail.com, dledford@redhat.com,
-        jgg@ziepe.ca, mustafa.ismail@intel.com, shiraz.saleem@intel.com,
-        leon@kernel.org, ap420073@gmail.com, wg@grandegger.com,
-        woojung.huh@microchip.com, andrew@lunn.ch,
-        vivien.didelot@gmail.com, olteanv@gmail.com,
-        george.mccollister@gmail.com, michael.chan@broadcom.com,
-        jesse.brandeburg@intel.com, anthony.l.nguyen@intel.com,
-        hawk@kernel.org, john.fastabend@gmail.com, tariqt@nvidia.com,
-        saeedm@nvidia.com, ecree.xilinx@gmail.com,
-        habetsm.xilinx@gmail.com, jreuter@yaina.de, dsahern@kernel.org,
-        kvalo@codeaurora.org, pkshih@realtek.com,
-        trond.myklebust@hammerspace.com, anna.schumaker@netapp.com,
-        viro@zeniv.linux.org.uk, andrii@kernel.org, mcgrof@kernel.org,
-        keescook@chromium.org, yzaikin@google.com, nikolay@nvidia.com,
-        jiri@nvidia.com, wintera@linux.ibm.com, wenjia@linux.ibm.com,
-        pablo@netfilter.org, kadlec@netfilter.org, fw@strlen.de,
-        ralf@linux-mips.org, jhs@mojatatu.com, xiyou.wangcong@gmail.com,
-        kgraul@linux.ibm.com, sgarzare@redhat.com,
-        steffen.klassert@secunet.com, herbert@gondor.apana.org.au,
-        arnd@arndb.de, linux-bluetooth@vger.kernel.org,
-        linux-rdma@vger.kernel.org, linux-can@vger.kernel.org,
-        intel-wired-lan@lists.osuosl.org, linux-hams@vger.kernel.org,
-        ath11k@lists.infradead.org, linux-wireless@vger.kernel.org,
-        linux-nfs@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        bridge@lists.linux-foundation.org,
-        linux-decnet-user@lists.sourceforge.net,
-        linux-s390@vger.kernel.org, netfilter-devel@vger.kernel.org,
-        coreteam@netfilter.org, virtualization@lists.linux-foundation.org
-References: <20211229004913.513372-1-kuba@kernel.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20211229004913.513372-1-kuba@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20211227164317.4146918-1-schnelle@linux.ibm.com>
+ <20211227164317.4146918-3-schnelle@linux.ibm.com> <CAMuHMdXk6VcDryekkMJ3aGFnw4LLWOWMi8M2PwjT81PsOsOBMQ@mail.gmail.com>
+ <d406b93a-0f76-d056-3380-65d459d05ea9@gmail.com>
+In-Reply-To: <d406b93a-0f76-d056-3380-65d459d05ea9@gmail.com>
+From:   Arnd Bergmann <arnd@kernel.org>
+Date:   Tue, 28 Dec 2021 22:41:18 -0500
+X-Gmail-Original-Message-ID: <CAK8P3a2j-OFUUp+haHoV4PyL-On4EASZ9+59SDqNqmL8Gv_k7Q@mail.gmail.com>
+Message-ID: <CAK8P3a2j-OFUUp+haHoV4PyL-On4EASZ9+59SDqNqmL8Gv_k7Q@mail.gmail.com>
+Subject: Re: [RFC 02/32] Kconfig: introduce HAS_IOPORT option and select it as necessary
+To:     Michael Schmitz <schmitzmic@gmail.com>
+Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        John Garry <john.garry@huawei.com>,
+        Nick Hu <nickhu@andestech.com>,
+        Greentime Hu <green.hu@gmail.com>,
+        Vincent Chen <deanbo422@gmail.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>, Guo Ren <guoren@kernel.org>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Chris Zankel <chris@zankel.net>,
+        Karol Gugala <kgugala@antmicro.com>,
+        Jeff Dike <jdike@addtoit.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Brian Cain <bcain@codeaurora.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Richard Henderson <rth@twiddle.net>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        Vineet Gupta <vgupta@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Rich Felker <dalias@libc.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
+        linux-arch@vger.kernel.org, linux-pci@vger.kernel.org,
+        linux-riscv@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-xtensa@linux-xtensa.org, openrisc@lists.librecores.org,
+        linux-s390@vger.kernel.org, linux-alpha@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        Greg Ungerer <gerg@linux-m68k.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Tue, Dec 28, 2021 at 8:20 PM Michael Schmitz <schmitzmic@gmail.com> wrote:
+> Am 28.12.2021 um 23:08 schrieb Geert Uytterhoeven:
+> > On Mon, Dec 27, 2021 at 5:44 PM Niklas Schnelle <schnelle@linux.ibm.com> wrote:
+> >> We introduce a new HAS_IOPORT Kconfig option to gate support for
+> >> I/O port access. In a future patch HAS_IOPORT=n will disable compilation
+> >> of the I/O accessor functions inb()/outb() and friends on architectures
+> >> which can not meaningfully support legacy I/O spaces. On these platforms
+> >> inb()/outb() etc are currently just stubs in asm-generic/io.h which when
+> >> called will cause a NULL pointer access which some compilers actually
+> >> detect and warn about.
+> >>
+> >> The dependencies on HAS_IOPORT in drivers as well as ifdefs for
+> >> HAS_IOPORT specific sections will be added in subsequent patches on
+> >> a per subsystem basis. Then a final patch will ifdef the I/O access
+> >> functions on HAS_IOPORT thus turning any use not gated by HAS_IOPORT
+> >> into a compile-time warning.
+> >>
+> >> Link: https://lore.kernel.org/lkml/CAHk-=wg80je=K7madF4e7WrRNp37e3qh6y10Svhdc7O8SZ_-8g@mail.gmail.com/
+> >> Co-developed-by: Arnd Bergmann <arnd@kernel.org>
+> >> Signed-off-by: Arnd Bergmann <arnd@kernel.org>
+> >> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> >
+> > Thanks for your patch!
+> >
+> >> --- a/arch/m68k/Kconfig
+> >> +++ b/arch/m68k/Kconfig
+> >> @@ -16,6 +16,7 @@ config M68K
+> >>         select GENERIC_CPU_DEVICES
+> >>         select GENERIC_IOMAP
+> >>         select GENERIC_IRQ_SHOW
+> >> +       select HAS_IOPORT
+> >>         select HAVE_AOUT if MMU
+> >>         select HAVE_ASM_MODVERSIONS
+> >>         select HAVE_DEBUG_BUGVERBOSE
+> >
+> > This looks way too broad to me: most m68k platform do not have I/O
+> > port access support.
+> >
+> > My gut feeling says:
+> >
+> >     select HAS_IOPORT if PCI || ISA
+> >
+> > but that might miss some intricate details...
+>
+> In particular, this misses the Atari ROM port ISA adapter case -
+>
+>         select HAS_IOPORT if PCI || ISA || ATARI_ROM_ISA
+>
+> might do instead.
 
+Right, makes sense. I had suggested to go the easy way and assume that
+each architecture would select HAS_IOPORT if any configuration supports
+it, but it looks like for m68k there is a clearly defined set of platforms that
+do.
 
-On 12/28/2021 4:49 PM, Jakub Kicinski wrote:
-> sock.h is pretty heavily used (5k objects rebuilt on x86 after
-> it's touched). We can drop the include of filter.h from it and
-> add a forward declaration of struct sk_filter instead.
-> This decreases the number of rebuilt objects when bpf.h
-> is touched from ~5k to ~1k.
-> 
-> There's a lot of missing includes this was masking. Primarily
-> in networking tho, this time.
-> 
-> Acked-by: Marc Kleine-Budde <mkl@pengutronix.de>
-> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Note that for the platforms that don't set any of the three symbols, the
+fallback makes inb() an alias for readb() with a different argument type,
+so there may be m68k specific drivers that rely on this, but those would
+already be broken if ATARI_ROM_ISA is set.
 
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-
-It would be nice if we used the number of files rebuilt because of a 
-header file change as another metric that the kernel is evaluated with 
-from release to release (or even on a commit by commit basis). Food for 
-thought.
--- 
-Florian
+          Arnd
