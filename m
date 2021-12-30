@@ -2,93 +2,70 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 92933C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 30 Dec 2021 03:50:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BD80C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 30 Dec 2021 04:00:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235512AbhL3Dub (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 29 Dec 2021 22:50:31 -0500
-Received: from out30-45.freemail.mail.aliyun.com ([115.124.30.45]:35453 "EHLO
-        out30-45.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235450AbhL3Dua (ORCPT
+        id S235661AbhL3EAZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 29 Dec 2021 23:00:25 -0500
+Received: from out30-54.freemail.mail.aliyun.com ([115.124.30.54]:44413 "EHLO
+        out30-54.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229558AbhL3EAZ (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 29 Dec 2021 22:50:30 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04407;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0V0IZcsQ_1640836227;
-Received: from 30.225.24.59(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0V0IZcsQ_1640836227)
+        Wed, 29 Dec 2021 23:00:25 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R901e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0V0Ii-rQ_1640836822;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0V0Ii-rQ_1640836822)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 30 Dec 2021 11:50:28 +0800
-Message-ID: <0082289b-d3dc-d202-ec37-844d8fe5303f@linux.alibaba.com>
-Date:   Thu, 30 Dec 2021 11:50:27 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.4.0
-Subject: Re: [RFC PATCH net] net/smc: Reset conn->lgr when link group
- registration fails
-To:     Karsten Graul <kgraul@linux.ibm.com>, davem@davemloft.net,
+          Thu, 30 Dec 2021 12:00:23 +0800
+Date:   Thu, 30 Dec 2021 12:00:22 +0800
+From:   "dust.li" <dust.li@linux.alibaba.com>
+To:     Karsten Graul <kgraul@linux.ibm.com>,
+        Wen Gu <guwen@linux.alibaba.com>, davem@davemloft.net,
         kuba@kernel.org
 Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Dust Li <dust.li@linux.alibaba.com>,
-        tonylu_linux <tonylu@linux.alibaba.com>
-References: <1640677770-112053-1-git-send-email-guwen@linux.alibaba.com>
- <07930fec-4109-0dfd-7df4-286cb56ec75b@linux.ibm.com>
-From:   Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <07930fec-4109-0dfd-7df4-286cb56ec75b@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        linux-kernel@vger.kernel.org, tonylu@linux.alibaba.com
+Subject: Re: [RFC PATCH net v2 2/2] net/smc: Resolve the race between SMC-R
+ link access and clear
+Message-ID: <20211230040022.GC55356@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <1640704432-76825-1-git-send-email-guwen@linux.alibaba.com>
+ <1640704432-76825-3-git-send-email-guwen@linux.alibaba.com>
+ <7311029c-2c56-d9c7-9ed5-87bc6a36511f@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7311029c-2c56-d9c7-9ed5-87bc6a36511f@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Thanks for your reply.
+On Wed, Dec 29, 2021 at 01:51:27PM +0100, Karsten Graul wrote:
+>On 28/12/2021 16:13, Wen Gu wrote:
+>> We encountered some crashes caused by the race between SMC-R
+>> link access and link clear triggered by link group termination
+>> in abnormal case, like port error.
+>
+>Without to dig deeper into this, there is already a refcount for links, see smc_wr_tx_link_hold().
+>In smc_wr_free_link() there are waits for the refcounts to become zero.
+>
+>Why do you need to introduce another refcounting instead of using the existing?
+>And if you have a good reason, do we still need the existing refcounting with your new
+>implementation?
+>
+>Maybe its enough to use the existing refcounting in the other functions like smc_llc_flow_initiate()?
+>
+>Btw: it is interesting what kind of crashes you see, we never met them in our setup.
 
-On 2021/12/29 9:07 pm, Karsten Graul wrote:
-> On 28/12/2021 08:49, Wen Gu wrote:
->> SMC connections might fail to be registered to a link group due to
->> things like unable to find a link to assign to in its creation. As
->> a result, connection creation will return a failure and most
->> resources related to the connection won't be applied or initialized,
->> such as conn->abort_work or conn->lnk.
-> 
-> I agree with your fix to set conn->lgr to NULL when smc_lgr_register_conn() fails.
-> 
-> It would probably be better to have smc_lgr_register_conn() set conn->lgr instead to set
-> it before in smc_conn_create(). So it would not be set at all then the registration failes.
-> 
+We are trying to using SMC + RDMA to boost application performance,
+we now have a product in the cloud called ERDMA which can be used
+in the virtual machine.
 
-I agree and will improve it, thanks.
+We are testing SMC with link down/up with short flow cases since
+in the cloud environment the RDMA device may be plugged in/out
+frequently, and there are many different applications, some of them
+may have pretty much short flows.
 
-> 
-> What I do not understand is the extra step after the new label out_unreg: that
-> may invoke smc_lgr_schedule_free_work(). You did not talk about that one.
-> Is the idea to have a new link group get freed() when a connection could not
-> be registered on it?
+>Its great to see you evaluating SMC in a cloud environment!
 
-I noticed that smc_conn_create() may be invoked by smc_listen_work(rdma/ism) and
-__smc_connect(rdma/ism).
+Thanks! We are trying to use SMC to boost performance for cloud
+applications, and we hope SMC can be more generic and widely used.
 
-In smc_listen_work() case, if smc_conn_create() fails at smc_lgr_register_conn()
-and returns a not-zero rc, the conn->lgr (which won't be reset in original
-implementation) will be freed through smc_listen_decline()->smc_conn_abort()->
-smc_conn_free()->smc_lgr_schedule_free_work().
-
-So I invoke smc_lgr_schedule_free_work() in label 'out_unreg:' to be consistent
-with the above behavior because the conn->lgr is reset to NULL in my implementation,
-thus smc_lgr_schedule_free_work() won't be invoked in smc_conn_free().
-
-In __smc_connect() case, I noticed that the behavior of __smc_connect() is not
-symmetric with smc_listen_work()'s. If smc_conn_create() fails at smc_lgr_register_conn()
-__smc_connect() will not try to free conn->lgr as what did in smc_listen_work().
-I am a bit puzzled about it and want to hear your opinions.
-
-In my humble opinion, it also should try to free link group in __smc_connect() case,
-so I invoke smc_lgr_schedule_free_work() in label 'out_unreg:'.
-
-> In that case I would expect this code after label create:
-> in smc_lgr_create(), when the rc from smc_lgr_register_conn() is not zero.
-> Thoughts?
-
-Maybe we should try to free the link group when the registration fails, no matter
-it is new created or already existing? If so, is it better to do it in the same
-place like label 'out_unreg'?
-
-Cheers,
-Wen Gu
