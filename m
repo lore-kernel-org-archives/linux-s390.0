@@ -2,165 +2,200 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B0FB0C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 30 Dec 2021 03:33:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4598CC4167B
+	for <linux-s390@archiver.kernel.org>; Thu, 30 Dec 2021 03:45:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233248AbhL3Dde (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 29 Dec 2021 22:33:34 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:30374 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S231751AbhL3Ddd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 29 Dec 2021 22:33:33 -0500
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1BU1gZjK032632;
-        Thu, 30 Dec 2021 03:33:32 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=OHLEHEuvQsUOBNtNyJQmOyXSioS+90Zvl0tvlsDoTU0=;
- b=RllvalWBpM0OEw9Lw53QcKM68/wy52D2UVTBHwewgtGPARokjxC0Nwha/kru19E40Cb6
- vk00AKqTu6RQxY+bD4iw+SXY+8jmdO4lkqfsXZVasVjPwNLXftLrE3osdrDe12BnSpR1
- pFWmV5+0ncOxZPWFHfJ7O/OlhGRhfTtO9eIiaw2wQtnY/QcsMbP7fn0TVqpf+9XPILjn
- XYlSSQ4/rT+7Ia66TM3DqWmR2DB8ZXwlmY1FotXxBxbZHbJ0KHsWO/NhDITFm422dEnC
- /xHd3mKiSbpq81c2F2YG2Pof4XZiAUZMIYd2PH4HxIaIm52qS4hHiJmnbdAEI1uTrbiN qA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3d84jm7rnx-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 30 Dec 2021 03:33:31 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1BU3TAZp028118;
-        Thu, 30 Dec 2021 03:33:31 GMT
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3d84jm7rnm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 30 Dec 2021 03:33:31 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1BU3RmC2005025;
-        Thu, 30 Dec 2021 03:33:29 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma05fra.de.ibm.com with ESMTP id 3d5tx9f0c9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 30 Dec 2021 03:33:29 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1BU3XQuv45941026
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 30 Dec 2021 03:33:26 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EF2AC4C05C;
-        Thu, 30 Dec 2021 03:33:25 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4AF724C040;
-        Thu, 30 Dec 2021 03:33:25 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.80.242])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Thu, 30 Dec 2021 03:33:25 +0000 (GMT)
-Date:   Thu, 30 Dec 2021 04:33:22 +0100
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Tony Krowiak <akrowiak@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, jjherne@linux.ibm.com, freude@linux.ibm.com,
-        borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        fiuczy@linux.ibm.com, Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH v17 08/15] s390/vfio-ap: keep track of active guests
-Message-ID: <20211230043322.2ba19bbd.pasic@linux.ibm.com>
-In-Reply-To: <20211021152332.70455-9-akrowiak@linux.ibm.com>
-References: <20211021152332.70455-1-akrowiak@linux.ibm.com>
-        <20211021152332.70455-9-akrowiak@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        id S235486AbhL3DpQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 29 Dec 2021 22:45:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39124 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235450AbhL3DpO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 29 Dec 2021 22:45:14 -0500
+Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13111C06173E;
+        Wed, 29 Dec 2021 19:45:14 -0800 (PST)
+Received: by mail-pf1-x436.google.com with SMTP id q3so15979815pfs.7;
+        Wed, 29 Dec 2021 19:45:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=subject:to:references:cc:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding;
+        bh=5E1c4uav1w29ypwAHwbdxz4O+xfES0SpMBM/hIdsoE0=;
+        b=WbuJzdZv6QdxI4sm1uAN5RK2dB/vxRRAL3AviYD6SfM29AlUSb5I5hMDIqugVgl6q5
+         V/7xuA/EOm2Dv0zChCOeqZsFvsMIm7UeuFMBWZAvuAVpy5VWIbHsXe0LO+k7wbZT9XA+
+         bKo1QUX3kp7MeKzCaqX8Qy0FWsFH26Y65uXLR/vaqgIBvGoVcBkMmv2ha7gL/lhC+wsc
+         9IDoT4MY3JFxvbdNQp9rzst5K+jmfgdTuMjjeHVOo5kymPqz9E6EMIfWlGg4R2VCRufH
+         r5zUkrJO0E2MYAcArK0leS4VFV7M5hYte5KRuaiLgKGVmb4cT/v9GFrgNcGmE2q7OUEY
+         IqTg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:references:cc:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding;
+        bh=5E1c4uav1w29ypwAHwbdxz4O+xfES0SpMBM/hIdsoE0=;
+        b=X/iQ5/eOga69xI1DYGh5N3MTn224+V3Z/T8cxkTwhmBJ3mWR8jP0KAKW1Plw9cnf5P
+         z2UOeeDxEc1AOXgpXtEK3wnLZ0UD9kLty1VaQSEMSWOehsPywcm11Ut0awjGw8Wzerf9
+         9ohNdvsfFUjlaG25eA9yD8KZqtww/BPBid+pel0alr2aEY5kg2ejO8jW0Uu5vQsGEOfF
+         NA43jY9K6SQq9+ZnNCk9yglCIeGcL+Bz6KzPSls9TxKzTBZ27q9Q3wET5hSA7bAXExVq
+         CkItPwS7wMmEYWZe3yWZaf2JSzoHrO+VT08Ctwp4sFDRbFiqp6zbIEtnDzBtsF5hcgaJ
+         JaQA==
+X-Gm-Message-State: AOAM532Tc8VGjitRcNmeD4uV2zdxK4eN/FRFV81Oc3HQz5bDMXHqk6CX
+        KIdqx7cWrViWXfNtodKOhAk=
+X-Google-Smtp-Source: ABdhPJzhu0vR0ubHbZDDMdnE240kX84aNyi3i3N9D1mBlwe522lCZMc1R9id41niT15FZfmjs4s+bA==
+X-Received: by 2002:a63:10a:: with SMTP id 10mr26111733pgb.170.1640835913587;
+        Wed, 29 Dec 2021 19:45:13 -0800 (PST)
+Received: from [10.1.1.24] (222-155-5-102-adsl.sparkbb.co.nz. [222.155.5.102])
+        by smtp.gmail.com with ESMTPSA id pg12sm29480602pjb.4.2021.12.29.19.44.48
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 29 Dec 2021 19:45:12 -0800 (PST)
+Subject: Re: [RFC 02/32] Kconfig: introduce HAS_IOPORT option and select it as
+ necessary
+To:     Arnd Bergmann <arnd@kernel.org>
+References: <20211227164317.4146918-1-schnelle@linux.ibm.com>
+ <20211227164317.4146918-3-schnelle@linux.ibm.com>
+ <CAMuHMdXk6VcDryekkMJ3aGFnw4LLWOWMi8M2PwjT81PsOsOBMQ@mail.gmail.com>
+ <d406b93a-0f76-d056-3380-65d459d05ea9@gmail.com>
+ <CAK8P3a2j-OFUUp+haHoV4PyL-On4EASZ9+59SDqNqmL8Gv_k7Q@mail.gmail.com>
+ <1f90f145-219e-1cad-6162-9959d43a27ad@gmail.com>
+ <CAK8P3a3NqU-3nUZ9ve=QyPPB5Uep3eK+_hicjjSiP8VuL4FYfA@mail.gmail.com>
+Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        John Garry <john.garry@huawei.com>,
+        Nick Hu <nickhu@andestech.com>,
+        Greentime Hu <green.hu@gmail.com>,
+        Vincent Chen <deanbo422@gmail.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>, Guo Ren <guoren@kernel.org>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Chris Zankel <chris@zankel.net>,
+        Karol Gugala <kgugala@antmicro.com>,
+        Jeff Dike <jdike@addtoit.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Brian Cain <bcain@codeaurora.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Richard Henderson <rth@twiddle.net>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        Vineet Gupta <vgupta@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Rich Felker <dalias@libc.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
+        linux-arch@vger.kernel.org, linux-pci@vger.kernel.org,
+        linux-riscv@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-xtensa@linux-xtensa.org, openrisc@lists.librecores.org,
+        linux-s390@vger.kernel.org, linux-alpha@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        Greg Ungerer <gerg@linux-m68k.org>
+From:   Michael Schmitz <schmitzmic@gmail.com>
+Message-ID: <0211719b-8402-9865-8e5d-5c0a35715816@gmail.com>
+Date:   Thu, 30 Dec 2021 16:44:45 +1300
+User-Agent: Mozilla/5.0 (X11; Linux ppc; rv:45.0) Gecko/20100101
+ Icedove/45.4.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ZqUoopOEfZB5AT4ANfgbYC8bGqj_COhY
-X-Proofpoint-ORIG-GUID: 64LDbmE7XijYeAVbRy85Qnc3eVZAZjlw
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2021-12-30_01,2021-12-29_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
- suspectscore=0 adultscore=0 lowpriorityscore=0 clxscore=1015 phishscore=0
- spamscore=0 mlxlogscore=999 bulkscore=0 malwarescore=0 impostorscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
- definitions=main-2112300015
+In-Reply-To: <CAK8P3a3NqU-3nUZ9ve=QyPPB5Uep3eK+_hicjjSiP8VuL4FYfA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 21 Oct 2021 11:23:25 -0400
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+Hi Arnd,
 
-> The vfio_ap device driver registers for notification when the pointer to
-> the KVM object for a guest is set. Let's store the KVM pointer as well as
-> the pointer to the mediated device when the KVM pointer is set.
+Am 30.12.2021 um 14:48 schrieb Arnd Bergmann:
+> On Tue, Dec 28, 2021 at 11:15 PM Michael Schmitz <schmitzmic@gmail.com> wrote:
+>> Am 29.12.2021 um 16:41 schrieb Arnd Bergmann:
+>>> On Tue, Dec 28, 2021 at 8:20 PM Michael Schmitz <schmitzmic@gmail.com> wrote:
+>> I'd hope not - we spent some effort to make sure setting ATARI_ROM_ISA
+>> does not affect other m68k platforms when e.g. building multiplatform
+>> kernels.
+>
+> Ok
+>
+>> Replacing inb() by readb() without any address translation won't do much
+>> good for m68k though - addresses in the traditional ISA I/O port range
+>> would hit the (unmapped) zero page.
+>
+> Correct, this is exactly the problem that Niklas is trying to solve here:
+> we do have drivers that hit this bug, and on s390 clang actually produces
+> a compile-time error for drivers that cause a NULL pointer dereference
+> this way.
 
-[..]
+Thanks for clarifying - I only saw Geert's CC and failed to go back to 
+the start of the thread.
+
+> What some other architectures do is to rely on inb()/outb() to have a
+> zero-based offset, and use an io_offset in PCI buses to ensure that a
+> low port number on the bus gets translated into a pointer value for the
+> virtual mapping in the kernel, which is then represented as an unsigned
+> int.
+
+M54xx does just that for Coldfire:
+
+arch/m68k/include/asm/io_no.h:
+#define PCI_IO_PA	0xf8000000		/* Host physical address */
+
+(used to set PCI BAR mappings, so matches your definition above).
+
+All other (MMU) m68k users of inb()/outb() apply an io_offset in the 
+platform specific address translation:
+
+arch/m68k/include/asm/io_mm.h:
+
+#define q40_isa_io_base  0xff400000
+#define enec_isa_read_base  0xfffa0000
+#define enec_isa_write_base 0xfffb0000
+
+arch/m68k/include/asm/amigayle.h:
+
+#define GAYLE_IO                (0xa20000+zTwoBase)     /* 16bit and 
+even 8bit registers */
+#define GAYLE_IO_8BITODD        (0xa30000+zTwoBase)     /* odd 8bit 
+registers */
+
+(all constants used in address translation inlines that are used by the 
+m68k inb()/outb() macros - you can call that the poor man's version of 
+PCI BAR mappings ...).
+
+So as long as support for any of the m68k PCI or ISA bridges is selected 
+in the kernel config, the appropriate IO space mapping is applied. If no 
+support for PCI or ISA bridges is selected, we already fall back to zero 
+offset mapping (but as far as I can tell, it shouldn't be possible to 
+build a kernel without bridge support but drivers that require it).
+
+>
+> As this is indistinguishable from architectures that just don't have
+> a base address for I/O ports (we unfortunately picked 0 as the default
+> PCI_IOBASE value), my suggestion was to start marking architectures
+> that may have this problem as using HAS_IOPORT in order to keep
+> the existing behavior unchanged. If m68k does not suffer from this,
+> making HAS_IOPORT conditional on those config options that actually
+> need it would of course be best.
+
+Following your description, HAS_IOPORT would be required for neither of 
+PCI, ISA or ATARI_ROM_ISA ??
+
+Cheers,
+
+	Michael
 
 
-> struct ap_matrix_dev {
->         ...
->         struct rw_semaphore guests_lock;
->         struct list_head guests;
->        ...
-> }
-> 
-> The 'guests_lock' field is a r/w semaphore to control access to the
-> 'guests' field. The 'guests' field is a list of ap_guest
-> structures containing the KVM and matrix_mdev pointers for each active
-> guest. An ap_guest structure will be stored into the list whenever the
-> vfio_ap device driver is notified that the KVM pointer has been set and
-> removed when notified that the KVM pointer has been cleared.
-> 
-
-Is this about the field or about the list including all the nodes? This
-reads lie guests_lock only protects the head element, which makes no
-sense to me. Because of how these lists work.
-
-The narrowest scope that could make sense is all the list_head stuff
-in the entire list. I.e. one would only need the lock to traverse or
-manipulate the list, while the payload would still be subject to
-the matrix_dev->lock mutex.
-
-[..]
-
-> +struct ap_guest {
-> +	struct kvm *kvm;
-> +	struct list_head node;
-> +};
-> +
->  /**
->   * struct ap_matrix_dev - Contains the data for the matrix device.
->   *
-> @@ -39,6 +44,9 @@
->   *		single ap_matrix_mdev device. It's quite coarse but we don't
->   *		expect much contention.
->   * @vfio_ap_drv: the vfio_ap device driver
-> + * @guests_lock: r/w semaphore for protecting access to @guests
-> + * @guests:	list of guests (struct ap_guest) using AP devices bound to the
-> + *		vfio_ap device driver.
-
-Please compare the above. Also if it is only about the access to the
-list, then you could drop the lock right after create, and not keep it
-till the very end of vfio_ap_mdev_set_kvm(). Right?
-
-In any case I'm skeptical about this whole struct ap_guest business. To
-me, it looks like something that just makes things more obscure and
-complicated without any real benefit.
-
-Regards,
-Halil
-
->   */
->  struct ap_matrix_dev {
->  	struct device device;
-> @@ -47,6 +55,8 @@ struct ap_matrix_dev {
->  	struct list_head mdev_list;
->  	struct mutex lock;
->  	struct ap_driver  *vfio_ap_drv;
-> +	struct rw_semaphore guests_lock;
-> +	struct list_head guests;
->  };
->  
->  extern struct ap_matrix_dev *matrix_dev;
-
+>
+>          Arnd
+>
