@@ -2,70 +2,103 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BD80C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 30 Dec 2021 04:00:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C1AE2C433FE
+	for <linux-s390@archiver.kernel.org>; Thu, 30 Dec 2021 10:40:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235661AbhL3EAZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 29 Dec 2021 23:00:25 -0500
-Received: from out30-54.freemail.mail.aliyun.com ([115.124.30.54]:44413 "EHLO
-        out30-54.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229558AbhL3EAZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 29 Dec 2021 23:00:25 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R901e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0V0Ii-rQ_1640836822;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0V0Ii-rQ_1640836822)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 30 Dec 2021 12:00:23 +0800
-Date:   Thu, 30 Dec 2021 12:00:22 +0800
-From:   "dust.li" <dust.li@linux.alibaba.com>
-To:     Karsten Graul <kgraul@linux.ibm.com>,
-        Wen Gu <guwen@linux.alibaba.com>, davem@davemloft.net,
-        kuba@kernel.org
+        id S238651AbhL3Kkp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 30 Dec 2021 05:40:45 -0500
+Received: from smtp06.smtpout.orange.fr ([80.12.242.128]:53111 "EHLO
+        smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238648AbhL3Kko (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Dec 2021 05:40:44 -0500
+Received: from pop-os.home ([86.243.171.122])
+        by smtp.orange.fr with ESMTPA
+        id 2srRnciv1MxZu2srRnOuEK; Thu, 30 Dec 2021 11:40:43 +0100
+X-ME-Helo: pop-os.home
+X-ME-Auth: YWZlNiIxYWMyZDliZWIzOTcwYTEyYzlhMmU3ZiQ1M2U2MzfzZDfyZTMxZTBkMTYyNDBjNDJlZmQ3ZQ==
+X-ME-Date: Thu, 30 Dec 2021 11:40:43 +0100
+X-ME-IP: 86.243.171.122
+From:   Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+To:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org
 Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, tonylu@linux.alibaba.com
-Subject: Re: [RFC PATCH net v2 2/2] net/smc: Resolve the race between SMC-R
- link access and clear
-Message-ID: <20211230040022.GC55356@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <1640704432-76825-1-git-send-email-guwen@linux.alibaba.com>
- <1640704432-76825-3-git-send-email-guwen@linux.alibaba.com>
- <7311029c-2c56-d9c7-9ed5-87bc6a36511f@linux.ibm.com>
+        linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Subject: [PATCH] net/smc: Use the bitmap API when applicable
+Date:   Thu, 30 Dec 2021 11:40:40 +0100
+Message-Id: <2fe6e0424bed3ebd4098d3b881946ddf55342d1f.1640860762.git.christophe.jaillet@wanadoo.fr>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7311029c-2c56-d9c7-9ed5-87bc6a36511f@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Dec 29, 2021 at 01:51:27PM +0100, Karsten Graul wrote:
->On 28/12/2021 16:13, Wen Gu wrote:
->> We encountered some crashes caused by the race between SMC-R
->> link access and link clear triggered by link group termination
->> in abnormal case, like port error.
->
->Without to dig deeper into this, there is already a refcount for links, see smc_wr_tx_link_hold().
->In smc_wr_free_link() there are waits for the refcounts to become zero.
->
->Why do you need to introduce another refcounting instead of using the existing?
->And if you have a good reason, do we still need the existing refcounting with your new
->implementation?
->
->Maybe its enough to use the existing refcounting in the other functions like smc_llc_flow_initiate()?
->
->Btw: it is interesting what kind of crashes you see, we never met them in our setup.
+Using the bitmap API is less verbose than hand writing them.
+It also improves the semantic.
 
-We are trying to using SMC + RDMA to boost application performance,
-we now have a product in the cloud called ERDMA which can be used
-in the virtual machine.
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+---
+ net/smc/smc_wr.c | 19 +++++--------------
+ 1 file changed, 5 insertions(+), 14 deletions(-)
 
-We are testing SMC with link down/up with short flow cases since
-in the cloud environment the RDMA device may be plugged in/out
-frequently, and there are many different applications, some of them
-may have pretty much short flows.
-
->Its great to see you evaluating SMC in a cloud environment!
-
-Thanks! We are trying to use SMC to boost performance for cloud
-applications, and we hope SMC can be more generic and widely used.
+diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
+index 600ab5889227..1b09012d637a 100644
+--- a/net/smc/smc_wr.c
++++ b/net/smc/smc_wr.c
+@@ -54,11 +54,7 @@ struct smc_wr_tx_pend {	/* control data for a pending send request */
+ /* returns true if at least one tx work request is pending on the given link */
+ static inline bool smc_wr_is_tx_pend(struct smc_link *link)
+ {
+-	if (find_first_bit(link->wr_tx_mask, link->wr_tx_cnt) !=
+-							link->wr_tx_cnt) {
+-		return true;
+-	}
+-	return false;
++	return !bitmap_empty(link->wr_tx_mask, link->wr_tx_cnt);
+ }
+ 
+ /* wait till all pending tx work requests on the given link are completed */
+@@ -674,9 +670,7 @@ void smc_wr_free_link(struct smc_link *lnk)
+ 	smc_wr_wakeup_tx_wait(lnk);
+ 
+ 	if (smc_wr_tx_wait_no_pending_sends(lnk))
+-		memset(lnk->wr_tx_mask, 0,
+-		       BITS_TO_LONGS(SMC_WR_BUF_CNT) *
+-						sizeof(*lnk->wr_tx_mask));
++		bitmap_zero(lnk->wr_tx_mask, SMC_WR_BUF_CNT);
+ 	wait_event(lnk->wr_reg_wait, (!atomic_read(&lnk->wr_reg_refcnt)));
+ 	wait_event(lnk->wr_tx_wait, (!atomic_read(&lnk->wr_tx_refcnt)));
+ 
+@@ -729,7 +723,7 @@ void smc_wr_free_link_mem(struct smc_link *lnk)
+ 	lnk->wr_tx_compl = NULL;
+ 	kfree(lnk->wr_tx_pends);
+ 	lnk->wr_tx_pends = NULL;
+-	kfree(lnk->wr_tx_mask);
++	bitmap_free(lnk->wr_tx_mask);
+ 	lnk->wr_tx_mask = NULL;
+ 	kfree(lnk->wr_tx_sges);
+ 	lnk->wr_tx_sges = NULL;
+@@ -805,9 +799,7 @@ int smc_wr_alloc_link_mem(struct smc_link *link)
+ 				   GFP_KERNEL);
+ 	if (!link->wr_rx_sges)
+ 		goto no_mem_wr_tx_sges;
+-	link->wr_tx_mask = kcalloc(BITS_TO_LONGS(SMC_WR_BUF_CNT),
+-				   sizeof(*link->wr_tx_mask),
+-				   GFP_KERNEL);
++	link->wr_tx_mask = bitmap_zalloc(SMC_WR_BUF_CNT, GFP_KERNEL);
+ 	if (!link->wr_tx_mask)
+ 		goto no_mem_wr_rx_sges;
+ 	link->wr_tx_pends = kcalloc(SMC_WR_BUF_CNT,
+@@ -920,8 +912,7 @@ int smc_wr_create_link(struct smc_link *lnk)
+ 		goto dma_unmap;
+ 	}
+ 	smc_wr_init_sge(lnk);
+-	memset(lnk->wr_tx_mask, 0,
+-	       BITS_TO_LONGS(SMC_WR_BUF_CNT) * sizeof(*lnk->wr_tx_mask));
++	bitmap_zero(lnk->wr_tx_mask, SMC_WR_BUF_CNT);
+ 	init_waitqueue_head(&lnk->wr_tx_wait);
+ 	atomic_set(&lnk->wr_tx_refcnt, 0);
+ 	init_waitqueue_head(&lnk->wr_reg_wait);
+-- 
+2.32.0
 
