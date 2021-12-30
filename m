@@ -2,243 +2,105 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 124BAC433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 30 Dec 2021 18:01:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DD871C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 30 Dec 2021 18:55:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236585AbhL3SBD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 30 Dec 2021 13:01:03 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:7586 "EHLO
+        id S241681AbhL3SzM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 30 Dec 2021 13:55:12 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:31984 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S236001AbhL3SBB (ORCPT
+        by vger.kernel.org with ESMTP id S241661AbhL3SzL (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 30 Dec 2021 13:01:01 -0500
+        Thu, 30 Dec 2021 13:55:11 -0500
 Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1BUF2lPi012182;
-        Thu, 30 Dec 2021 17:55:48 GMT
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1BUF2laN012223;
+        Thu, 30 Dec 2021 18:55:07 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=vrTuNqV4RMc/ilGTXtm+S+xQwgoz5G0GI0AWVkAp9Ec=;
- b=ewVVpXxVXR/JEYjQvdwjjfPj0ru0nBKVfq72fcOfYYZ8jAS9tePlhEaQ9kMLr0h/CgTK
- y68TNmd+C8q/n9qzIk2vtqpBhLeY8Jdx+FO151AnHmPwN5WS6JBGICvwBZO9iZ4NLU9b
- 8H1cyT36697NPoMluCoqBv4glwi4oYldBx20Da49/rGFo/So1L0FiHzLQ9ZkQB/ud3zf
- aZXUjAvq8JC5sOygoC6AotRRm0heA9B9JXfglwv1wrgHuWwx1cjERBt6rS6B3mmilpiB
- /stLix6hyhyxTo4Fa0gDTqQslPIK37UGYO/j8YMRpPpyXvFofo49jjMMLtsvQflBq8Op 5Q== 
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=Y2+11PFKAFAinMj5TTgQRiquEgA30BhgYDn1/Wa3RXY=;
+ b=Kq9fjWXZ/LG71R78u0eHLGfoT4u0bJIxR4t7qa7gdzdWZ57bP4XDr7L3TilXs3cK+D1x
+ DZLZsB8uOX5UbMaXrB0szMee5z1y0SA2ur0/v8rR4MGeez+eJGOtmnhaQHPlCmY41uJr
+ szIBz8Rg8eX9cUysJUPUEtLnz3vrJWjlhN9JR0QufS9AewxuLopGv5WAO8EAsnfwSsi4
+ Z3rDj1S15ogw9tvlY9IC5fECUFBOLxL9O/m9cAr4OHyDXC1JIop7pd+ZJBgR/d7+f5tm
+ NXoYwzB1+zh68FqUVRdPRA9WoAiSAnQlf+H64N1dJFl1Unm98oPyt9d2TNQFLWHo+aAw 3g== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3d9f2m2jpx-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3d9f2m3bs6-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 30 Dec 2021 17:55:47 +0000
+        Thu, 30 Dec 2021 18:55:06 +0000
 Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1BUHhHaO019662;
-        Thu, 30 Dec 2021 17:55:47 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3d9f2m2jpb-1
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1BUIRrm6001554;
+        Thu, 30 Dec 2021 18:55:06 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3d9f2m3brt-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 30 Dec 2021 17:55:47 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1BUHqMHH014894;
-        Thu, 30 Dec 2021 17:55:45 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma01fra.de.ibm.com with ESMTP id 3d5tx9m9wu-1
+        Thu, 30 Dec 2021 18:55:06 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1BUIqRXZ013461;
+        Thu, 30 Dec 2021 18:55:04 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma04ams.nl.ibm.com with ESMTP id 3d5txb66y6-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 30 Dec 2021 17:55:45 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1BUHtf6d36503898
+        Thu, 30 Dec 2021 18:55:04 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1BUIt1cB37093750
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 30 Dec 2021 17:55:41 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 80797A4054;
-        Thu, 30 Dec 2021 17:55:41 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 90DEFA405B;
-        Thu, 30 Dec 2021 17:55:40 +0000 (GMT)
-Received: from [9.145.148.112] (unknown [9.145.148.112])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 30 Dec 2021 17:55:40 +0000 (GMT)
-Message-ID: <aa72bd76-2af5-202d-8a2c-afb5a700b6c0@linux.ibm.com>
-Date:   Thu, 30 Dec 2021 18:55:40 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.0
-Subject: Re: [PATCH] scsi: Do not break scan luns loop if add single lun
- failed
-Content-Language: en-US
-To:     Wenchao Hao <haowenchao@huawei.com>,
-        "James E . J . Bottomley" <jejb@linux.ibm.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-        James Smart <james.smart@broadcom.com>,
-        Dick Kennedy <dick.kennedy@broadcom.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        GR-QLogic-Storage-Upstream@marvell.com,
-        Hannes Reinecke <hare@suse.de>,
-        Martin Wilck <martin.wilck@suse.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Benjamin Block <bblock@linux.ibm.com>,
-        Ming Lei <ming.lei@redhat.com>
-Cc:     Zhiqiang Liu <liuzhiqiang26@huawei.com>,
-        Feilong Lin <linfeilong@huawei.com>, Wu Bo <wubo40@huawei.com>
-References: <20211225232911.1117843-1-haowenchao@huawei.com>
-From:   Steffen Maier <maier@linux.ibm.com>
-In-Reply-To: <20211225232911.1117843-1-haowenchao@huawei.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: WVK6rLWyMvFuuJV-iwgYC27-GNoenQWu
-X-Proofpoint-ORIG-GUID: BsdB5KAvYxPjCw8iuUDSo5v5GjP4RpLw
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Thu, 30 Dec 2021 18:55:01 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9045D42045;
+        Thu, 30 Dec 2021 18:55:01 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 365194204D;
+        Thu, 30 Dec 2021 18:55:01 +0000 (GMT)
+Received: from [9.145.32.195] (unknown [9.145.32.195])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 30 Dec 2021 18:55:01 +0000 (GMT)
+Message-ID: <c4f5827f-fe48-d295-6d97-3848cc144171@linux.ibm.com>
+Date:   Thu, 30 Dec 2021 19:55:01 +0100
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.1
+Subject: Re: [PATCH net 1/2] net/smc: don't send CDC/LLC message if link not
+ ready
+Content-Language: en-US
+To:     dust.li@linux.alibaba.com,
+        "David S . Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        Wen Gu <guwen@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>
+References: <20211228090325.27263-1-dust.li@linux.alibaba.com>
+ <20211228090325.27263-2-dust.li@linux.alibaba.com>
+ <2b3dd919-029c-cd44-b39c-5467bb723c0f@linux.ibm.com>
+ <20211230030226.GA55356@linux.alibaba.com>
+From:   Karsten Graul <kgraul@linux.ibm.com>
+Organization: IBM Deutschland Research & Development GmbH
+In-Reply-To: <20211230030226.GA55356@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: VVxIcB3SCYgJ6yH7qp2JlpJla32hWWk3
+X-Proofpoint-ORIG-GUID: TTFxzlXsMDKiendUqJCe80E5Es3mmSmp
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2021-12-30_06,2021-12-30_02,2021-12-02_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- mlxlogscore=999 impostorscore=0 bulkscore=0 clxscore=1011
+ mlxlogscore=999 impostorscore=0 bulkscore=0 clxscore=1015
  priorityscore=1501 spamscore=0 mlxscore=0 lowpriorityscore=0 adultscore=0
  phishscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2110150000 definitions=main-2112300101
+ scancount=1 engine=8.12.0-2110150000 definitions=main-2112300107
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 12/26/21 00:29, Wenchao Hao wrote:
-> Failed to add a single lun does not mean all luns are unaccessible,
-> if we break the scan luns loop, the other luns reported by REPORT LUNS
-> command would not be probed any more.
-> 
-> In this case, we might loss some luns which are accessible.
+On 30/12/2021 04:02, dust.li wrote:
+> On Wed, Dec 29, 2021 at 01:36:06PM +0100, Karsten Graul wrote:
+>> On 28/12/2021 10:03, Dust Li wrote:
+> I saw David has already applied this to net, should I send another
+> patch to add some comments ?
 
-Could you please add more details about the specific use case, where this 
-actually was a problem, for my understanding?
-
-> 
-> Signed-off-by: Wenchao Hao <haowenchao@huawei.com>
-> ---
->   drivers/scsi/scsi_scan.c | 4 ++--
->   1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/scsi/scsi_scan.c b/drivers/scsi/scsi_scan.c
-> index 23e1c0acdeae..fee7ce082103 100644
-> --- a/drivers/scsi/scsi_scan.c
-> +++ b/drivers/scsi/scsi_scan.c
-> @@ -1476,13 +1476,13 @@ static int scsi_report_lun_scan(struct scsi_target *starget, blist_flags_t bflag
->   				lun, NULL, NULL, rescan, NULL);
->   			if (res == SCSI_SCAN_NO_RESPONSE) {
->   				/*
-> -				 * Got some results, but now none, abort.
-> +				 * Got some results, but now none, abort this lun
-
-abort => skip ?
-
->   				 */
->   				sdev_printk(KERN_ERR, sdev,
->   					"Unexpected response"
->   					" from lun %llu while scanning, scan"
->   					" aborted\n", (unsigned long long)lun);
-
-That message would no longer be correct with your change, as it would not abort 
-the scan any more.
-
-> -				break;
-> +				continue;
->   			}
->   		}
->   	}
-
-
-Wouldn't this change existing semantics for LLDDs intentionally returning 
--ENXIO from their slave_alloc() callback in certain cases?:
-
-
-> static struct scsi_device *scsi_alloc_sdev(struct scsi_target *starget,
-...
-> 	if (shost->hostt->slave_alloc) {
-> 		ret = shost->hostt->slave_alloc(sdev);
-> 		if (ret) {
-> 			/*
-> 			 * if LLDD reports slave not present, don't clutter
-> 			 * console with alloc failure messages
-> 			 */
-> 			if (ret == -ENXIO)
-> 				display_failure_msg = 0;
-> 			goto out_device_destroy;
-...
-> out_device_destroy:
-> 	__scsi_remove_device(sdev);
-> out:
-> 	if (display_failure_msg)
-> 		printk(ALLOC_FAILURE_MSG, __func__);
-> 	return NULL;
-
-
-scsi_probe_and_add_lun() [such as called by scsi_report_lun_scan() for the case 
-at hand] converts this case into a SCSI_SCAN_NO_RESPONSE return value.
-
-> static int scsi_probe_and_add_lun(struct scsi_target *starget,
-...
-> 	int res = SCSI_SCAN_NO_RESPONSE, result_len = 256;
-...
-> 		sdev = scsi_alloc_sdev(starget, lun, hostdata);
-> 	if (!sdev)
-> 		goto out;
-...
->  out:
-> 	return res;
-
-
-Such as being used by zfcp:
-
-> static int zfcp_scsi_slave_alloc(struct scsi_device *sdev)
-> {
-...
-> 	unit = zfcp_unit_find(port, zfcp_scsi_dev_lun(sdev));
-> 	if (unit)
-> 		put_device(&unit->dev);
-> 
-> 	if (!unit && !(allow_lun_scan && npiv)) {
-> 		put_device(&port->dev);
-> 		return -ENXIO;
-                        ^^^^^^
-
-which implements an initiator-based LUN masking that is necessary for shared 
-HBAs virtualized without NPIV.
-https://www.ibm.com/docs/en/linux-on-systems?topic=devices-manually-configured-fcp-luns
-
-While things might still work, as zfcp now "just" gets (much) more callbacks to 
-slave_alloc() it has to end with -ENXIO, the user may get flooded with the 
-error(!) sdev_printk on "Unexpected response from LUN ..." in 
-scsi_report_lun_scan().
-In the worst case, we could get this message now 64k - 1 times in a zfcp 
-scenario connected to IBM DS8000 storage being able to map (all) 64k volumes to 
-a single initiator (HBA), where the user via zfcp sysfs decided to use only the 
-first lun reported (for the vHBA).
-
-Other LLLDs also seem to intentionally return -ENXIO from slave_alloc() 
-callbacks, such as but not limited to lpfc or qla2xxx:
-
-> int fc_slave_alloc(struct scsi_device *sdev)
-> {
-> 	struct fc_rport *rport = starget_to_rport(scsi_target(sdev));
-> 
-> 	if (!rport || fc_remote_port_chkready(rport))
-> 		return -ENXIO;
-
-> static int
-> qla2xxx_slave_alloc(struct scsi_device *sdev)
-> {
-> 	struct fc_rport *rport = starget_to_rport(scsi_target(sdev));
-> 
-> 	if (!rport || fc_remote_port_chkready(rport))
-> 		return -ENXIO;
-
+You could send a follow-on patch with your additional information, which
+I find is very helpful! Thanks.
 
 -- 
-Mit freundlichen Gruessen / Kind regards
-Steffen Maier
-
-Linux on IBM Z and LinuxONE
-
-https://www.ibm.com/privacy/us/en/
-IBM Deutschland Research & Development GmbH
-Vorsitzender des Aufsichtsrats: Gregor Pillen
-Geschaeftsfuehrung: Dirk Wittkopp
-Sitz der Gesellschaft: Boeblingen
-Registergericht: Amtsgericht Stuttgart, HRB 243294
+Karsten
