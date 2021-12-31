@@ -2,84 +2,150 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BB0DC433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 31 Dec 2021 06:08:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA2B2C433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 31 Dec 2021 09:13:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237276AbhLaGI4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 31 Dec 2021 01:08:56 -0500
-Received: from out30-56.freemail.mail.aliyun.com ([115.124.30.56]:34072 "EHLO
-        out30-56.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234461AbhLaGI4 (ORCPT
+        id S229549AbhLaJNN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 31 Dec 2021 04:13:13 -0500
+Received: from out30-44.freemail.mail.aliyun.com ([115.124.30.44]:48393 "EHLO
+        out30-44.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229475AbhLaJNL (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 31 Dec 2021 01:08:56 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R971e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0V0PKB2o_1640930933;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0V0PKB2o_1640930933)
+        Fri, 31 Dec 2021 04:13:11 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0V0Q87DI_1640941988;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0V0Q87DI_1640941988)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 31 Dec 2021 14:08:54 +0800
-From:   Dust Li <dust.li@linux.alibaba.com>
-To:     Karsten Graul <kgraul@linux.ibm.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        Wen Gu <guwen@linux.alibaba.com>,
-        Tony Lu <tonylu@linux.alibaba.com>
-Subject: [PATCH net] net/smc: add comments for smc_link_{usable|sendable}
-Date:   Fri, 31 Dec 2021 14:08:53 +0800
-Message-Id: <20211231060853.8106-1-dust.li@linux.alibaba.com>
-X-Mailer: git-send-email 2.19.1.3.ge56e4f7
-In-Reply-To: <20211228090325.27263-2-dust.li@linux.alibaba.com>
-References: <20211228090325.27263-2-dust.li@linux.alibaba.com>
+          Fri, 31 Dec 2021 17:13:09 +0800
+Date:   Fri, 31 Dec 2021 17:13:08 +0800
+From:   Tony Lu <tonylu@linux.alibaba.com>
+To:     Karsten Graul <kgraul@linux.ibm.com>
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: Re: [PATCH net-next] net/smc: Introduce TCP ULP support
+Message-ID: <Yc7JpBuI718bVzW3@TonyMac-Alibaba>
+Reply-To: Tony Lu <tonylu@linux.alibaba.com>
+References: <20211228134435.41774-1-tonylu@linux.alibaba.com>
+ <97ea52de-5419-22ee-7f55-b92887dcaada@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <97ea52de-5419-22ee-7f55-b92887dcaada@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Add comments for both smc_link_sendable() and smc_link_usable()
-to help better distinguish and use them.
+On Thu, Dec 30, 2021 at 04:03:19PM +0100, Karsten Graul wrote:
+> On 28/12/2021 14:44, Tony Lu wrote:
+> > This implements TCP ULP for SMC, helps applications to replace TCP with
+> > SMC protocol in place. And we use it to implement transparent
+> > replacement.
+> > 
+> > This replaces original TCP sockets with SMC, reuse TCP as clcsock when
+> > calling setsockopt with TCP_ULP option, and without any overhead.
+> 
+> This looks very interesting. Can you provide a simple userspace example about 
+> how to use ULP with smc?
 
-No function changes.
+Here is a userspace C/S application:
 
-Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
----
- net/smc/smc_core.h | 17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+	fd = socket(AF_INET, SOCK_STREAM, 0);
 
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index d63b08274197..1e2926760eb0 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -407,7 +407,13 @@ static inline struct smc_connection *smc_lgr_find_conn(
- 	return res;
- }
- 
--/* returns true if the specified link is usable */
-+/*
-+ * Returns true if the specified link is usable.
-+ *
-+ * usable means the link is ready to receive RDMA messages, map memory
-+ * on the link, etc. This doesn't ensure we are able to send RDMA messages
-+ * on this link, if sending RDMA messages is needed, use smc_link_sendable()
-+ */
- static inline bool smc_link_usable(struct smc_link *lnk)
- {
- 	if (lnk->state == SMC_LNK_UNUSED || lnk->state == SMC_LNK_INACTIVE)
-@@ -415,6 +421,15 @@ static inline bool smc_link_usable(struct smc_link *lnk)
- 	return true;
- }
- 
-+/*
-+ * Returns true if the specified link is ready to receive AND send RDMA
-+ * messages.
-+ *
-+ * For the client side in first contact, the underlying QP may still in
-+ * RESET or RTR when the link state is ACTIVATING, checks in smc_link_usable()
-+ * is not strong enough. For those places that need to send any CDC or LLC
-+ * messages, use smc_link_sendable(), otherwise, use smc_link_usable() instead
-+ */
- static inline bool smc_link_sendable(struct smc_link *lnk)
- {
- 	return smc_link_usable(lnk) &&
--- 
-2.19.1.3.ge56e4f7
+	addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = htonl(INADDR_ANY);      /* for server */
+	addr.sin_addr.s_addr = inet_addr("127.0.0.1"); /* for client */
+    addr.sin_port = htons(PORT);
 
+	/* kernel will find and load smc module, init smc socket and replace
+	 * tcp with smc, use the "clean" tcp as clcsock.
+	 */
+	ret = setsockopt(fd, SOL_TCP, TCP_ULP, "smc", sizeof("smc"));
+	if (ret) /* if ulp init failed, TCP progress can be continued */
+		printf("replace tcp with smc failed, use tcp");
+	
+	/* After this, this tcp socket will behave as smc socket. If error
+	 * happened, this socket is still a normal tcp socket.
+	 *
+	 * We check tcp socket's state, so after bind(), connect() or listen(),
+	 * ulp setup will be failed.
+	 */
+	bind(fd, (struct sockaddr *)&addr, sizeof(addr)); /* calls smc_bind() */
+	connect(...); /* for client, smc_connect() */
+	listen(...);  /* for server, smc_listen() */
+	accept(...);  /* for server, smc_accept() */
+
+This approach is not convenient to use, it is a possible usage in
+userspace. The more important scene is to work with BPF.
+
+Transparent replacement with BPF:
+	
+	BPF provides a series of attach points, like:
+	- BPF_CGROUP_INET_SOCK_CREATE, /* calls in the end of inet_create() */
+	- BPF_CGROUP_INET4_BIND,       /* calls in the end of inet_bind() */
+	- BPF_CGROUP_INET6_BIND,
+
+	So that we can inject BPF programs into these points in userspace:
+
+	SEC("cgroup/connect4")
+	int replace_to_smc(struct bpf_sock_addr *addr)
+	{
+		int pid = bpf_get_current_pid_tgid() >> 32;
+		long ret;
+
+		/* use-defined rules/filters, such as pid, tcp src/dst address, etc...*/
+		if (pid != DESIRED_PID)
+			return 0;
+
+		<...>
+	
+		ret = bpf_setsockopt(addr, SOL_TCP, TCP_ULP, "smc", sizeof("smc"));
+		if (ret) {
+			bpf_printk("replace TCP with SMC error: %ld\n", ret);
+			return 0;
+		}
+		return 0;
+	}
+
+	Then use libbpf to load it with attach type BPF_CGROUP_INET4_CONNECT.
+	Everytime userspace appliations try to bind socket, it will run this
+	BPF prog, check user-defined rule and determine to replace with
+	SMC. Because this BPF is injected outside of user applications, so
+	we can use BPF to implement flexible and non-intrusive transparent
+	replacement.
+
+	BPF helper bpf_setsockopt() limits the options to call, so TCP_ULP
+	is not allowed now. I will send patches out to allow TCP_ULP option
+	after this approach is merged, which is suggested by BPF's developer.
+	Here is the link about BPF patch:
+
+	https://lore.kernel.org/netdev/20211209090250.73927-1-tonylu@linux.alibaba.com/
+
+> And how do you make sure that the in-band CLC handshake doesn't interfere with the
+> previous TCP traffic, is the idea to put some kind of protocol around it so both
+> sides 'know' when the protocol ended and the CLC handshake starts?
+
+Yes, we need a "clean" TCP socket to replace with SMC. To archive it,
+smc_ulp_init will check the state of TCP socket.
+
+First, we make sure that socket is a REALLY TCP sockets.
+
+	if (tcp->type != SOCK_STREAM || sk->sk_protocol != IPPROTO_TCP ||
+		(sk->sk_family != AF_INET && sk->sk_family != AF_INET6))
+
+Then check the state of socket, and makes sure this socket is a newly
+created userspace socket, not connects to others, no data transferred
+ever.
+
+	if (tcp->state != SS_UNCONNECTED || !tcp->file || tcp->wq.fasync_list)
+
+Consider this, we don't need to multiplex this socket, clcsock
+handshaking is the first "user". This behaves likes LD_PRELOAD (smc_run),
+the difference is the location to replace, user-space or kernel-space.
+
+Setting this in an old socket (has traffic already) is more general than
+current state, and we need more methods to handle this like a protocol
+wrap it. I would improve this ability in the future. Currently,
+transparent replace it in create and bind stage can coverage most
+scenes.
+
+Thank you.
+Tony Lu
