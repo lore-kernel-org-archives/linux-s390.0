@@ -2,57 +2,55 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD12AC433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 31 Dec 2021 03:15:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 200BFC433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 31 Dec 2021 06:00:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237559AbhLaDPr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 30 Dec 2021 22:15:47 -0500
-Received: from out30-43.freemail.mail.aliyun.com ([115.124.30.43]:52735 "EHLO
-        out30-43.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229953AbhLaDPr (ORCPT
+        id S232995AbhLaGAn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 31 Dec 2021 01:00:43 -0500
+Received: from out30-42.freemail.mail.aliyun.com ([115.124.30.42]:47434 "EHLO
+        out30-42.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230479AbhLaGAm (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 30 Dec 2021 22:15:47 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R611e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04407;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0V0OfjCG_1640920544;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0V0OfjCG_1640920544)
+        Fri, 31 Dec 2021 01:00:42 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R961e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0V0Og.qp_1640930439;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0V0Og.qp_1640930439)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 31 Dec 2021 11:15:45 +0800
-Date:   Fri, 31 Dec 2021 11:15:44 +0800
-From:   "dust.li" <dust.li@linux.alibaba.com>
-To:     Karsten Graul <kgraul@linux.ibm.com>,
+          Fri, 31 Dec 2021 14:00:40 +0800
+Date:   Fri, 31 Dec 2021 14:00:39 +0800
+From:   Tony Lu <tonylu@linux.alibaba.com>
+To:     Colin Ian King <colin.i.king@gmail.com>
+Cc:     Karsten Graul <kgraul@linux.ibm.com>,
         "David S . Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        Wen Gu <guwen@linux.alibaba.com>,
-        Tony Lu <tonylu@linux.alibaba.com>
-Subject: Re: [PATCH net 1/2] net/smc: don't send CDC/LLC message if link not
- ready
-Message-ID: <20211231031544.GA31579@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20211228090325.27263-1-dust.li@linux.alibaba.com>
- <20211228090325.27263-2-dust.li@linux.alibaba.com>
- <2b3dd919-029c-cd44-b39c-5467bb723c0f@linux.ibm.com>
- <20211230030226.GA55356@linux.alibaba.com>
- <c4f5827f-fe48-d295-6d97-3848cc144171@linux.ibm.com>
+        Jakub Kicinski <kuba@kernel.org>, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, kernel-janitors@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] net/smc: remove redundant re-assignment of pointer link
+Message-ID: <Yc6ch2hVWwb6coa4@TonyMac-Alibaba>
+Reply-To: Tony Lu <tonylu@linux.alibaba.com>
+References: <20211230153900.274049-1-colin.i.king@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <c4f5827f-fe48-d295-6d97-3848cc144171@linux.ibm.com>
+In-Reply-To: <20211230153900.274049-1-colin.i.king@gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Dec 30, 2021 at 07:55:01PM +0100, Karsten Graul wrote:
->On 30/12/2021 04:02, dust.li wrote:
->> On Wed, Dec 29, 2021 at 01:36:06PM +0100, Karsten Graul wrote:
->>> On 28/12/2021 10:03, Dust Li wrote:
->> I saw David has already applied this to net, should I send another
->> patch to add some comments ?
->
->You could send a follow-on patch with your additional information, which
->I find is very helpful! Thanks.
+On Thu, Dec 30, 2021 at 03:39:00PM +0000, Colin Ian King wrote:
+> The pointer link is being re-assigned the same value that it was
+> initialized with in the previous declaration statement. The
+> re-assignment is redundant and can be removed.
+> 
+> Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
 
-Sure, will do
+It would be better to add Fixes statement in the end of message.
 
->
->-- 
->Karsten
+  Fixes: 387707fdf486 ("net/smc: convert static link ID to dynamic references")
+
+And [PATCH net ...] is fine to point out the target. The patch itself
+looks good to me, thanks.
+
+Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+
+Thanks,
+Tony Lu
