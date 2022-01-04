@@ -2,79 +2,108 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88AE5C433F5
-	for <linux-s390@archiver.kernel.org>; Tue,  4 Jan 2022 02:13:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E50CC433EF
+	for <linux-s390@archiver.kernel.org>; Tue,  4 Jan 2022 03:00:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230490AbiADCNe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 3 Jan 2022 21:13:34 -0500
-Received: from out30-42.freemail.mail.aliyun.com ([115.124.30.42]:58803 "EHLO
-        out30-42.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229469AbiADCNe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 3 Jan 2022 21:13:34 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R371e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04407;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0V0nqt.T_1641262408;
-Received: from 30.225.24.14(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0V0nqt.T_1641262408)
+        id S232459AbiADC77 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 3 Jan 2022 21:59:59 -0500
+Received: from out30-56.freemail.mail.aliyun.com ([115.124.30.56]:59861 "EHLO
+        out30-56.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232440AbiADC77 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 3 Jan 2022 21:59:59 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0V0oYYYM_1641265187;
+Received: from e02h04404.eu6sqa(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0V0oYYYM_1641265187)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Tue, 04 Jan 2022 10:13:29 +0800
-Message-ID: <31d6cfe4-3f6b-98e4-1760-9f0c296f3292@linux.alibaba.com>
-Date:   Tue, 4 Jan 2022 10:13:27 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.4.0
-Subject: Re: [RFC PATCH net] net/smc: Reset conn->lgr when link group
- registration fails
-To:     Karsten Graul <kgraul@linux.ibm.com>, davem@davemloft.net,
-        kuba@kernel.org
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Dust Li <dust.li@linux.alibaba.com>,
-        tonylu_linux <tonylu@linux.alibaba.com>
-References: <1640677770-112053-1-git-send-email-guwen@linux.alibaba.com>
- <07930fec-4109-0dfd-7df4-286cb56ec75b@linux.ibm.com>
- <0082289b-d3dc-d202-ec37-844d8fe5303f@linux.alibaba.com>
- <3cef644a-aeb3-ee15-9809-e560f7b24a5c@linux.ibm.com>
+          Tue, 04 Jan 2022 10:59:57 +0800
 From:   Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <3cef644a-aeb3-ee15-9809-e560f7b24a5c@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+To:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dust.li@linux.alibaba.com,
+        tonylu@linux.alibaba.com
+Subject: [PATCH net v2] net/smc: Reset conn->lgr when link group registration fails
+Date:   Tue,  4 Jan 2022 10:59:47 +0800
+Message-Id: <1641265187-108970-1-git-send-email-guwen@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Thanks for your reply.
+SMC connections might fail to be registered to a link group due to
+things like unable to find a link to assign to in its creation. As
+a result, connection creation will return a failure and most
+resources related to the connection won't be applied or initialized,
+such as conn->abort_work or conn->lnk.
 
-On 2022/1/3 6:52 pm, Karsten Graul wrote:
-> On 30/12/2021 04:50, Wen Gu wrote:
->> Thanks for your reply.
->>
->> On 2021/12/29 9:07 pm, Karsten Graul wrote:
->>> On 28/12/2021 08:49, Wen Gu wrote:
->>>> SMC connections might fail to be registered to a link group due to
->>>> things like unable to find a link to assign to in its creation. As
->>>> a result, connection creation will return a failure and most
->>>> resources related to the connection won't be applied or initialized,
->>>> such as conn->abort_work or conn->lnk.
->>> What I do not understand is the extra step after the new label out_unreg: that
->>> may invoke smc_lgr_schedule_free_work(). You did not talk about that one.
->>> Is the idea to have a new link group get freed() when a connection could not
->>> be registered on it?
->> Maybe we should try to free the link group when the registration fails, no matter
->> it is new created or already existing? If so, is it better to do it in the same
->> place like label 'out_unreg'?
-> 
-> I agree with your idea.
-> 
-> With the proposed change that conn->lgr gets not even set when the registration fails
-> we would not need the "conn->lgr = NULL;" after label out_unreg?
+If smc_conn_free() is invoked later, it will try to access the
+resources related to the connection, which wasn't initialized, thus
+causing a panic.
 
-Yes, conn->lgr now will be reset in smc_lgr_register_conn() if registration fails.
+Here is an example, a SMC-R connection failed to be registered
+to a link group and conn->lnk is NULL. The following crash will
+happen if smc_conn_free() tries to access conn->lnk in
+smc_cdc_tx_dismiss_slots().
 
-> 
-> And as far as I understand the invocation of smc_lgr_schedule_free_work(lgr) is only
-> needed after label "create", because when an existing link group was found and the registration
-> failed then its free work would already be started when no more connections are assigned
-> to the link group, right?
+ BUG: kernel NULL pointer dereference, address: 0000000000000168
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 0 P4D 0
+ Oops: 0000 [#1] PREEMPT SMP PTI
+ CPU: 4 PID: 68 Comm: kworker/4:1 Kdump: loaded Tainted: G E     5.16.0-rc5+ #52
+ Workqueue: smc_hs_wq smc_listen_work [smc]
+ RIP: 0010:smc_wr_tx_dismiss_slots+0x1e/0xc0 [smc]
+ Call Trace:
+  <TASK>
+  smc_conn_free+0xd8/0x100 [smc]
+  smc_lgr_cleanup_early+0x15/0x90 [smc]
+  smc_listen_work+0x302/0x1230 [smc]
+  ? process_one_work+0x25c/0x600
+  process_one_work+0x25c/0x600
+  worker_thread+0x4f/0x3a0
+  ? process_one_work+0x600/0x600
+  kthread+0x15d/0x1a0
+  ? set_kthread_struct+0x40/0x40
+  ret_from_fork+0x1f/0x30
+  </TASK>
 
-Thanks for your explanation. I also agree with only invoking smc_lgr_schedule_free_work(lgr)
-after label "create" now. I will improve it and send a v2 patch.
+This patch tries to fix this by resetting conn->lgr to NULL if an
+abnormal exit occurs in smc_lgr_register_conn(), thus avoiding the
+crash caused by accessing the uninitialized resources in smc_conn_free(),
+and scheduling the link group's free work if it is new created.
 
-Thanks,
-Wen Gu
+Fixes: 56bc3b2094b4 ("net/smc: assign link to a new connection")
+Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+---
+ net/smc/smc_core.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 412bc85..8edc43a 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -171,8 +171,10 @@ static int smc_lgr_register_conn(struct smc_connection *conn, bool first)
+ 
+ 	if (!conn->lgr->is_smcd) {
+ 		rc = smcr_lgr_conn_assign_link(conn, first);
+-		if (rc)
++		if (rc) {
++			conn->lgr = NULL;
+ 			return rc;
++		}
+ 	}
+ 	/* find a new alert_token_local value not yet used by some connection
+ 	 * in this link group
+@@ -1835,8 +1837,10 @@ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
+ 		write_lock_bh(&lgr->conns_lock);
+ 		rc = smc_lgr_register_conn(conn, true);
+ 		write_unlock_bh(&lgr->conns_lock);
+-		if (rc)
++		if (rc) {
++			smc_lgr_schedule_free_work(lgr);
+ 			goto out;
++		}
+ 	}
+ 	conn->local_tx_ctrl.common.type = SMC_CDC_MSG_TYPE;
+ 	conn->local_tx_ctrl.len = SMC_WR_TX_SIZE;
+-- 
+1.8.3.1
+
