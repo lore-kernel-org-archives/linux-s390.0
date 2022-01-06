@@ -2,52 +2,149 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43D74C433EF
-	for <linux-s390@archiver.kernel.org>; Thu,  6 Jan 2022 11:33:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B087C433EF
+	for <linux-s390@archiver.kernel.org>; Thu,  6 Jan 2022 12:42:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238529AbiAFLdp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 6 Jan 2022 06:33:45 -0500
-Received: from out30-132.freemail.mail.aliyun.com ([115.124.30.132]:50647 "EHLO
-        out30-132.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S238526AbiAFLdo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Jan 2022 06:33:44 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R961e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0V15yeda_1641468821;
-Received: from 30.225.24.14(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0V15yeda_1641468821)
+        id S238947AbiAFMmS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 6 Jan 2022 07:42:18 -0500
+Received: from out30-57.freemail.mail.aliyun.com ([115.124.30.57]:46055 "EHLO
+        out30-57.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S238945AbiAFMmS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Jan 2022 07:42:18 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0V16OO3w_1641472929;
+Received: from e02h04404.eu6sqa(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0V16OO3w_1641472929)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 06 Jan 2022 19:33:42 +0800
-Message-ID: <998065f4-eb0e-3799-4bdb-345daf2d963d@linux.alibaba.com>
-Date:   Thu, 6 Jan 2022 19:33:41 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.4.0
-Subject: Re: [PATCH net v4] net/smc: Reset conn->lgr when link group
- registration fails
-To:     Karsten Graul <kgraul@linux.ibm.com>, davem@davemloft.net,
-        kuba@kernel.org
+          Thu, 06 Jan 2022 20:42:16 +0800
+From:   Wen Gu <guwen@linux.alibaba.com>
+To:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org
 Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
         linux-kernel@vger.kernel.org
-References: <1641451455-41647-1-git-send-email-guwen@linux.alibaba.com>
- <96521e26-7d51-7451-3cf4-cca37da9dc24@linux.ibm.com>
-From:   Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <96521e26-7d51-7451-3cf4-cca37da9dc24@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH net v5] net/smc: Reset conn->lgr when link group registration fails
+Date:   Thu,  6 Jan 2022 20:42:08 +0800
+Message-Id: <1641472928-55944-1-git-send-email-guwen@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+SMC connections might fail to be registered in a link group due to
+unable to find a usable link during its creation. As a result,
+smc_conn_create() will return a failure and most resources related
+to the connection won't be applied or initialized, such as
+conn->abort_work or conn->lnk.
 
+If smc_conn_free() is invoked later, it will try to access the
+uninitialized resources related to the connection, thus causing
+a warning or crash.
 
-On 2022/1/6 6:00 pm, Karsten Graul wrote:
+This patch tries to fix this by resetting conn->lgr to NULL if an
+abnormal exit occurs in smc_lgr_register_conn(), thus avoiding the
+access to uninitialized resources in smc_conn_free().
 
-> Looks like I missed a prereq patch here, but wo'nt conn->lgr be set to NULL
-> after smc_conn_free() called smc_lgr_unregister_conn()?
+Meanwhile, the new created link group should be terminated if smc
+connections can't be registered in it. So smc_lgr_cleanup_early() is
+modified to take care of link group only and invoked to terminate
+unusable link group by smc_conn_create(). The call to smc_conn_free()
+is moved out from smc_lgr_cleanup_early() to smc_conn_abort().
 
-Right... I should hold a local copy of lgr in smc_conn_abort().
+Fixes: 56bc3b2094b4 ("net/smc: assign link to a new connection")
+Suggested-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+---
+v1->v2:
+- Reset conn->lgr to NULL in smc_lgr_register_conn().
+- Only free new created link group.
+v2->v3:
+- Using __smc_lgr_terminate() instead of smc_lgr_schedule_free_work()
+  for an immediate free.
+v3->v4:
+- Modify smc_lgr_cleanup_early() and invoke it from smc_conn_create().
+v4->v5:
+- Hold a local copy of lgr in smc_conn_abort().
+---
+ net/smc/af_smc.c   |  8 +++++---
+ net/smc/smc_core.c | 12 +++++++-----
+ net/smc/smc_core.h |  2 +-
+ 3 files changed, 13 insertions(+), 9 deletions(-)
 
-My another RFC patch removes 'conn->lgr = NULL' from smc_lgr_unregister_conn(),
-so I make a mistake here...
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 230072f..e244b88 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -630,10 +630,12 @@ static int smc_connect_decline_fallback(struct smc_sock *smc, int reason_code,
+ 
+ static void smc_conn_abort(struct smc_sock *smc, int local_first)
+ {
++	struct smc_connection *conn = &smc->conn;
++	struct smc_link_group *lgr = conn->lgr;
++
++	smc_conn_free(conn);
+ 	if (local_first)
+-		smc_lgr_cleanup_early(&smc->conn);
+-	else
+-		smc_conn_free(&smc->conn);
++		smc_lgr_cleanup_early(lgr);
+ }
+ 
+ /* check if there is a rdma device available for this connection. */
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index a684936..c9a8092 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -171,8 +171,10 @@ static int smc_lgr_register_conn(struct smc_connection *conn, bool first)
+ 
+ 	if (!conn->lgr->is_smcd) {
+ 		rc = smcr_lgr_conn_assign_link(conn, first);
+-		if (rc)
++		if (rc) {
++			conn->lgr = NULL;
+ 			return rc;
++		}
+ 	}
+ 	/* find a new alert_token_local value not yet used by some connection
+ 	 * in this link group
+@@ -622,15 +624,13 @@ int smcd_nl_get_lgr(struct sk_buff *skb, struct netlink_callback *cb)
+ 	return skb->len;
+ }
+ 
+-void smc_lgr_cleanup_early(struct smc_connection *conn)
++void smc_lgr_cleanup_early(struct smc_link_group *lgr)
+ {
+-	struct smc_link_group *lgr = conn->lgr;
+ 	spinlock_t *lgr_lock;
+ 
+ 	if (!lgr)
+ 		return;
+ 
+-	smc_conn_free(conn);
+ 	smc_lgr_list_head(lgr, &lgr_lock);
+ 	spin_lock_bh(lgr_lock);
+ 	/* do not use this link group for new connections */
+@@ -1832,8 +1832,10 @@ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
+ 		write_lock_bh(&lgr->conns_lock);
+ 		rc = smc_lgr_register_conn(conn, true);
+ 		write_unlock_bh(&lgr->conns_lock);
+-		if (rc)
++		if (rc) {
++			smc_lgr_cleanup_early(lgr);
+ 			goto out;
++		}
+ 	}
+ 	conn->local_tx_ctrl.common.type = SMC_CDC_MSG_TYPE;
+ 	conn->local_tx_ctrl.len = SMC_WR_TX_SIZE;
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index d63b082..73d0c35 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -468,7 +468,7 @@ static inline void smc_set_pci_values(struct pci_dev *pci_dev,
+ struct smc_sock;
+ struct smc_clc_msg_accept_confirm;
+ 
+-void smc_lgr_cleanup_early(struct smc_connection *conn);
++void smc_lgr_cleanup_early(struct smc_link_group *lgr);
+ void smc_lgr_terminate_sched(struct smc_link_group *lgr);
+ void smcr_port_add(struct smc_ib_device *smcibdev, u8 ibport);
+ void smcr_port_err(struct smc_ib_device *smcibdev, u8 ibport);
+-- 
+1.8.3.1
 
-I will fix this. Thank you.
-
-Wen Gu
