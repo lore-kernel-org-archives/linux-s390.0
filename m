@@ -2,98 +2,78 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DCE51C433F5
-	for <linux-s390@archiver.kernel.org>; Thu,  6 Jan 2022 13:02:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 534CAC433EF
+	for <linux-s390@archiver.kernel.org>; Thu,  6 Jan 2022 14:00:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239176AbiAFNCi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 6 Jan 2022 08:02:38 -0500
-Received: from out30-44.freemail.mail.aliyun.com ([115.124.30.44]:51512 "EHLO
-        out30-44.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S238944AbiAFNCh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Jan 2022 08:02:37 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0V16OQG._1641474154;
-Received: from 30.225.24.14(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0V16OQG._1641474154)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 06 Jan 2022 21:02:35 +0800
-Message-ID: <747c3399-4e6f-0353-95bf-6b6f3a0f5f60@linux.alibaba.com>
-Date:   Thu, 6 Jan 2022 21:02:34 +0800
+        id S239866AbiAFOAZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 6 Jan 2022 09:00:25 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:60986 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239827AbiAFOAL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Jan 2022 09:00:11 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C683161671;
+        Thu,  6 Jan 2022 14:00:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 38262C36AE0;
+        Thu,  6 Jan 2022 14:00:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1641477610;
+        bh=tXw20TSMnJAfLo2/ltFm5pQ5jx8+rY8SqxALuPVcfyI=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=ZFdocrwWQ/OVKDg3MdJAI1zzvRc4RtymBAZz1qVjZXHNFChDSqlXBXmZ1rQDvMCbY
+         nSMLGEMiAl0LDF9nfG5grt8mFYlsbHWTVxPDH0U3Y+3UafPsMSHwIj+6yZVUkUWPxj
+         dDIkpnfD21lQr3V6R7BodGMJXmYJUsGaGECxJc2R7gJqpsuYSN5uV4VUGZesfaGLbt
+         d4L5ima+HtsHMehrInweluvF0sbK/Y036EZIZ9oBQsKv+TGNn8ecjWvdHLRk5+UUYO
+         TlM9KZHBQtAFLuL+IFdHXem/ROURzPVdA7TJGWxr0LAG5SzCiPqBsdAwT/4VGvpaAr
+         BZCPqw3RQs1TQ==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 22534F79403;
+        Thu,  6 Jan 2022 14:00:10 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.4.0
-Subject: Re: [RFC PATCH net v2 1/2] net/smc: Resolve the race between link
- group access and termination
-To:     Karsten Graul <kgraul@linux.ibm.com>, davem@davemloft.net,
-        kuba@kernel.org
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dust.li@linux.alibaba.com,
-        tonylu@linux.alibaba.com
-References: <1640704432-76825-1-git-send-email-guwen@linux.alibaba.com>
- <1640704432-76825-2-git-send-email-guwen@linux.alibaba.com>
- <4ec6e460-96d1-fedc-96ff-79a98fd38de8@linux.ibm.com>
- <0a972bf8-1d7b-a211-2c11-50e86c87700e@linux.alibaba.com>
- <4df6c3c1-7d52-6bfa-9b0d-365de5332c06@linux.ibm.com>
- <095c6e45-dd9e-1809-ae51-224679783241@linux.alibaba.com>
- <1cf77005-1825-0d34-6d34-e1b513c28113@linux.ibm.com>
-From:   Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <1cf77005-1825-0d34-6d34-e1b513c28113@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net v5] net/smc: Reset conn->lgr when link group registration
+ fails
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <164147761013.14327.180691218581013319.git-patchwork-notify@kernel.org>
+Date:   Thu, 06 Jan 2022 14:00:10 +0000
+References: <1641472928-55944-1-git-send-email-guwen@linux.alibaba.com>
+In-Reply-To: <1641472928-55944-1-git-send-email-guwen@linux.alibaba.com>
+To:     Wen Gu <guwen@linux.alibaba.com>
+Cc:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Thanks for your reply.
+Hello:
 
-On 2022/1/5 8:03 pm, Karsten Graul wrote:
-> On 05/01/2022 09:27, Wen Gu wrote:
->> On 2022/1/3 6:36 pm, Karsten Graul wrote:
->>> On 31/12/2021 10:44, Wen Gu wrote:
->>>> On 2021/12/29 8:56 pm, Karsten Graul wrote:
->>>>> On 28/12/2021 16:13, Wen Gu wrote:
->>>>>> We encountered some crashes caused by the race between the access
->>>>>> and the termination of link groups.
->> So I think checking conn->alert_token_local has the same effect with checking conn->lgr to
->> identify whether the link group pointed by conn->lgr is still healthy and able to be used.
+This patch was applied to netdev/net.git (master)
+by David S. Miller <davem@davemloft.net>:
+
+On Thu,  6 Jan 2022 20:42:08 +0800 you wrote:
+> SMC connections might fail to be registered in a link group due to
+> unable to find a usable link during its creation. As a result,
+> smc_conn_create() will return a failure and most resources related
+> to the connection won't be applied or initialized, such as
+> conn->abort_work or conn->lnk.
 > 
-> Yeah that sounds like a good solution for that! So is it now guaranteed that conn->lgr is always
-> set and this check can really be removed completely, or should there be a new helper that checks
-> conn->lgr and the alert_token, like smc_lgr_valid() ?
+> If smc_conn_free() is invoked later, it will try to access the
+> uninitialized resources related to the connection, thus causing
+> a warning or crash.
+> 
+> [...]
 
-In my humble opinion, the link group pointed by conn->lgr might have the following
-three stages if we remove 'conn->lgr = NULL' from smc_lgr_unregister_conn().
+Here is the summary with links:
+  - [net,v5] net/smc: Reset conn->lgr when link group registration fails
+    https://git.kernel.org/netdev/net/c/36595d8ad46d
 
-1. conn->lgr = NULL and conn->alert_token_local is zero
-
-This means that the connection has never been registered in a link group. conn->lgr is clearly
-unable to use.
-
-2. conn->lgr != NULL and conn->alert_token_local is non-zero
-
-This means that the connection has been registered in a link group, and conn->lgr is valid to access.
-
-3. conn->lgr != NULL but conn->alert_token_local is zero
-
-This means that the connection was registered in a link group before, but is unregistered from
-it now. conn->lgr shouldn't be used anymore.
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
 
-So I am trying this way:
-
-1) Introduce a new helper smc_conn_lgr_state() to check the three stages mentioned above.
-
-   enum smc_conn_lgr_state {
-          SMC_CONN_LGR_ORPHAN,    /* conn was never registered in a link group */
-          SMC_CONN_LGR_VALID,     /* conn is registered in a link group now */
-          SMC_CONN_LGR_INVALID,   /* conn was registered in a link group, but now
-                                     is unregistered from it and conn->lgr should
-                                     not be used any more */
-   };
-
-2) replace the current conn->lgr check with the new helper.
-
-These new changes are under testing now.
-
-What do you think about it? :)
-
-Thanks,
-Wen Gu
