@@ -2,100 +2,130 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 52374C433EF
-	for <linux-s390@archiver.kernel.org>; Thu,  6 Jan 2022 14:42:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB0BBC433EF
+	for <linux-s390@archiver.kernel.org>; Fri,  7 Jan 2022 09:54:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240006AbiAFOmk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 6 Jan 2022 09:42:40 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:36012 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237699AbiAFOmj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Jan 2022 09:42:39 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1641480159;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=ziI0c5zpDrfARzHWSXczYyQXV4rhV2uF5H/yu3MCuIA=;
-        b=hzjCB8vgmtRRoJgUfU+7Tqssh59RVeI0eWmS+3a235FiajsGSLfkkjpWwp66nYDVgZKDHu
-        0yztWn5AnhP0IX+hXURGGUimEoM8kpTf1fXD44UzYUNcbaFzDdLHqtYvs0e9pQmkpTQptt
-        sHvQUJudodyszxvXBV1+OGJoz3TnMns=
-Received: from mail-qv1-f71.google.com (mail-qv1-f71.google.com
- [209.85.219.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-433-d15LkCC6P1m9gSVpK1645A-1; Thu, 06 Jan 2022 09:42:38 -0500
-X-MC-Unique: d15LkCC6P1m9gSVpK1645A-1
-Received: by mail-qv1-f71.google.com with SMTP id jr7-20020a0562142a8700b00411a73d8adaso2260851qvb.3
-        for <linux-s390@vger.kernel.org>; Thu, 06 Jan 2022 06:42:38 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=ziI0c5zpDrfARzHWSXczYyQXV4rhV2uF5H/yu3MCuIA=;
-        b=G+Bv0sO2tKBKFlnaqc5zj1mva6lDrNGWoh3U+j2YnOcsL27XiTs6Lj6ZYEP0KXkqxv
-         F2sbGd/uIDw2Vk0G6EYduy2cVsQ+NZ3sWkAbrbyAQQ22CcGXCy/rZB51O+OEsdxLb3Oz
-         CmyutqlHPAvrx/T+/O0NFmWP4BqpF8j0qikUQxPjVSrV1GieBay5urcjS9T5qlsLV/LG
-         OkNSZsdBtlEzIMKQ2mVkFDTt0oOeLQfmBjOHoz4zf5OeQdJ7+2rOi9i01xfdBekNtVZL
-         Yljmml0MfQAIFPXcrxNpgGc4VhDcYsaNTLHDbaS3AdOhF8BPgGY8IVij8g0teRCZUJbQ
-         udTw==
-X-Gm-Message-State: AOAM532OcCkoCJhH1ocaOdBYW9qPknFJenQP6nJ7SXDcJaV5QXALU6h6
-        2LXEG46z7WvM/eqCMB2zx7Tzle5CLNNVlV0vrN9f1uuQssfzkjv2j14CBg0MG4Cqa4VF+xQtCA9
-        zr4oXjPhPSQDKy7AIOEo5
-X-Received: by 2002:a05:620a:bcc:: with SMTP id s12mr40958046qki.440.1641480157661;
-        Thu, 06 Jan 2022 06:42:37 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJz3FRhHacqx3hvXCbD5dR5jpsBPvBE8m7URZnWLXDzc/nf2wfv2oNDbZeyhxFZfEJhygNyDig==
-X-Received: by 2002:a05:620a:bcc:: with SMTP id s12mr40958035qki.440.1641480157454;
-        Thu, 06 Jan 2022 06:42:37 -0800 (PST)
-Received: from localhost (pool-68-160-176-52.bstnma.fios.verizon.net. [68.160.176.52])
-        by smtp.gmail.com with ESMTPSA id t3sm2038461qtc.7.2022.01.06.06.42.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 06 Jan 2022 06:42:37 -0800 (PST)
-Date:   Thu, 6 Jan 2022 09:42:36 -0500
-From:   Mike Snitzer <snitzer@redhat.com>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Dan Williams <dan.j.williams@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Alasdair Kergon <agk@redhat.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        Matthew Wilcox <willy@infradead.org>, dm-devel@redhat.com,
-        nvdimm@lists.linux.dev, linux-s390@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org,
-        virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH 4/4] dax: remove the copy_from_iter and copy_to_iter
- methods
-Message-ID: <Ydb/3P+8nvjCjYfO@redhat.com>
-References: <20211215084508.435401-1-hch@lst.de>
- <20211215084508.435401-5-hch@lst.de>
+        id S236860AbiAGJyd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 7 Jan 2022 04:54:33 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:25662 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S236845AbiAGJyc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 7 Jan 2022 04:54:32 -0500
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20788OXF030221;
+        Fri, 7 Jan 2022 09:54:29 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=yn+LZK13t96NQ70dE3DDtgrpMgvTlTKwsCocVjhcrlM=;
+ b=kCpJgZ6XWEOg7iDo3ScCRRv1jB3J2D5ZkBfHViPNz/o4l3Sg1Eh6JX7DJGw4hZcntbsn
+ YEmCuvM7DPRg5Id0wYr+GbqDkL1qxjIwjqQwMVUvYrOi9tb/JgMrbdoZ6iPybFqM/a6v
+ q63FGVWRdWWWvzhe9RwHhSmuUqfFkA19MFj4pWbENmzVa+aOOc8pm6gsFuPwX/2Ci4mn
+ 9tYxwfZub019ppL/eQEfTdB8cHJP5Hoqo3sSKGBx3CBlLw+fUehQtiMI1ueq/y5Nyd/7
+ +s2mYRlS9j/SpLLng5QcmEj6AO4MIb4FpZWknkuC5BS4cOa76Uof/thlIkKGr5smz6t9 9w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3de4wkpgm6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 07 Jan 2022 09:54:29 +0000
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 2079lLxe009385;
+        Fri, 7 Jan 2022 09:54:28 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3de4wkpgkv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 07 Jan 2022 09:54:28 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2079rgH3016632;
+        Fri, 7 Jan 2022 09:54:27 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma04fra.de.ibm.com with ESMTP id 3de4xgct3f-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 07 Jan 2022 09:54:26 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2079sOmP44368218
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 7 Jan 2022 09:54:24 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9265B11C04C;
+        Fri,  7 Jan 2022 09:54:24 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 255A111C050;
+        Fri,  7 Jan 2022 09:54:24 +0000 (GMT)
+Received: from [9.145.27.136] (unknown [9.145.27.136])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri,  7 Jan 2022 09:54:24 +0000 (GMT)
+Message-ID: <ed37164f-74b1-de58-8308-4a11ea352faa@linux.ibm.com>
+Date:   Fri, 7 Jan 2022 10:54:29 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211215084508.435401-5-hch@lst.de>
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.1
+Subject: Re: [RFC PATCH net v2 1/2] net/smc: Resolve the race between link
+ group access and termination
+Content-Language: en-US
+To:     Wen Gu <guwen@linux.alibaba.com>, davem@davemloft.net,
+        kuba@kernel.org
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dust.li@linux.alibaba.com,
+        tonylu@linux.alibaba.com
+References: <1640704432-76825-1-git-send-email-guwen@linux.alibaba.com>
+ <1640704432-76825-2-git-send-email-guwen@linux.alibaba.com>
+ <4ec6e460-96d1-fedc-96ff-79a98fd38de8@linux.ibm.com>
+ <0a972bf8-1d7b-a211-2c11-50e86c87700e@linux.alibaba.com>
+ <4df6c3c1-7d52-6bfa-9b0d-365de5332c06@linux.ibm.com>
+ <095c6e45-dd9e-1809-ae51-224679783241@linux.alibaba.com>
+ <1cf77005-1825-0d34-6d34-e1b513c28113@linux.ibm.com>
+ <747c3399-4e6f-0353-95bf-6b6f3a0f5f60@linux.alibaba.com>
+From:   Karsten Graul <kgraul@linux.ibm.com>
+Organization: IBM Deutschland Research & Development GmbH
+In-Reply-To: <747c3399-4e6f-0353-95bf-6b6f3a0f5f60@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: HGC5T7kzdwfc6PxtRwMDCpgBrMvzg27r
+X-Proofpoint-ORIG-GUID: ldC3e0SUjeuOkS4n9fU1amkxicM9Yumk
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-01-07_03,2022-01-06_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ adultscore=0 impostorscore=0 suspectscore=0 mlxlogscore=999 mlxscore=0
+ clxscore=1015 phishscore=0 priorityscore=1501 bulkscore=0 malwarescore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2201070068
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Dec 15 2021 at  3:45P -0500,
-Christoph Hellwig <hch@lst.de> wrote:
-
-> These methods indirect the actual DAX read/write path.  In the end pmem
-> uses magic flush and mc safe variants and fuse and dcssblk use plain ones
-> while device mapper picks redirects to the underlying device.
+On 06/01/2022 14:02, Wen Gu wrote:
+> Thanks for your reply.
 > 
-> Add set_dax_nocache() and set_dax_nomc() APIs to control which copy
-> routines are used to remove indirect call from the read/write fast path
-> as well as a lot of boilerplate code.
+> On 2022/1/5 8:03 pm, Karsten Graul wrote:
+>> On 05/01/2022 09:27, Wen Gu wrote:
+>>> On 2022/1/3 6:36 pm, Karsten Graul wrote:
+>>>> On 31/12/2021 10:44, Wen Gu wrote:
+>>>>> On 2021/12/29 8:56 pm, Karsten Graul wrote:
+>>>>>> On 28/12/2021 16:13, Wen Gu wrote:
+>>>>>>> We encountered some crashes caused by the race between the access
+>>>>>>> and the termination of link groups.
+> So I am trying this way:
 > 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> Reviewed-by: Vivek Goyal <vgoyal@redhat.com> [virtiofs]
+> 1) Introduce a new helper smc_conn_lgr_state() to check the three stages mentioned above.
+> 
+>   enum smc_conn_lgr_state {
+>          SMC_CONN_LGR_ORPHAN,    /* conn was never registered in a link group */
+>          SMC_CONN_LGR_VALID,     /* conn is registered in a link group now */
+>          SMC_CONN_LGR_INVALID,   /* conn was registered in a link group, but now
+>                                     is unregistered from it and conn->lgr should
+>                                     not be used any more */
+>   };
+> 
+> 2) replace the current conn->lgr check with the new helper.
+> 
+> These new changes are under testing now.
+> 
+> What do you think about it? :)
 
-Late to the game here, but quite a lot of dax DM code removed, thanks!
-
-Reviewed-by: Mike Snitzer <snitzer@redhat.com>
-
+Sounds good, but is it really needed to separate 3 cases, i.e. who is really using them 3?
+Doesn't it come down to a more simple smc_conn_lgr_valid() which is easier to implement in
+the various places in the code? (i.e.: if (smc_conn_lgr_valid()) ....)
+Valid would mean conn->lgr != NULL and conn->alert_token_local != 0. The more special cases
+would check what they want by there own.
