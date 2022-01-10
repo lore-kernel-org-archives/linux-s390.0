@@ -2,108 +2,67 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DF799C433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 10 Jan 2022 18:15:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C243AC433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 10 Jan 2022 18:27:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238832AbiAJSPI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 10 Jan 2022 13:15:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58074 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238804AbiAJSPH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 10 Jan 2022 13:15:07 -0500
-Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EE01C06173F;
-        Mon, 10 Jan 2022 10:15:07 -0800 (PST)
-Received: from zn.tnic (dslb-088-067-202-008.088.067.pools.vodafone-ip.de [88.67.202.8])
+        id S241535AbiAJS14 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 10 Jan 2022 13:27:56 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:43644 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241513AbiAJS1z (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 10 Jan 2022 13:27:55 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id C94C31EC0588;
-        Mon, 10 Jan 2022 19:15:00 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1641838501;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=yJijyw2InAbx08UK5J76GgYEEJY5KfsyCm4JE5m3fms=;
-        b=XNy8DlnSFy5+pvHFn1Uae4lUG0DSZMGU0faYz8w+Fv7gpg6JAo9zXBqKieOd8I7vD58WvZ
-        Mx4VozLANk7ONAXZcUc6pDwdBR8Ge12nIcRlXQHzQAsDV8Ir7IWhmVTLfOCEzMRx6QGAIl
-        SSSYTY/xkGLIfNjTCjZvCI60KIoezZE=
-Date:   Mon, 10 Jan 2022 19:15:03 +0100
-From:   Borislav Petkov <bp@alien8.de>
-To:     Thomas Gleixner <tglx@linutronix.de>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Bjorn Helgaas <helgaas@kernel.org>,
-        Marc Zygnier <maz@kernel.org>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Megha Dey <megha.dey@intel.com>,
-        Ashok Raj <ashok.raj@intel.com>, linux-pci@vger.kernel.org,
-        Cedric Le Goater <clg@kaod.org>,
-        xen-devel@lists.xenproject.org, Juergen Gross <jgross@suse.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Jon Mason <jdmason@kudzu.us>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com
-Subject: Re: [patch] genirq/msi: Populate sysfs entry only once
-Message-ID: <Ydx3p35NW6Y9tDvO@zn.tnic>
-References: <20211206210600.123171746@linutronix.de>
- <20211206210749.224917330@linutronix.de>
- <87leznqx2a.ffs@tglx>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <87leznqx2a.ffs@tglx>
+        by ams.source.kernel.org (Postfix) with ESMTPS id B08A6B8174B;
+        Mon, 10 Jan 2022 18:27:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 857FBC36AE3;
+        Mon, 10 Jan 2022 18:27:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1641839273;
+        bh=MRAtAKsifPv7LtwI5VAsM5XI73L03Lnuv4F8W3ubOYo=;
+        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+        b=U7dYB14BzDmi/UU7P3kmRXXWHajxTqY4bCWdAbyZedtD6Wk6so9SaEOS2I7ETHH4i
+         nEdkIpqCWRgLf+xp3Og8hgPZILbv88r2iixgQ3iv6gR6r+HZPaedP+ki7FgDNDLgaL
+         e5OuL0ZA2DtMhGVMtux9429pY733dS0+iKwLi1/DQpSDHoirijzKWLQnAZ2jmvWwLm
+         3XiI6X5Of/Nb3+v8aiUE8Te+4pHOoDAWBaInBIt/SLsTT3YB6NKoufDTSzUqPVP0fH
+         7TfDs+r070gO3oArYpcuULUAQ8/eSRuUXDFysbpfNp7qY/Ts6ucmcJGGU8g7uVNymf
+         EEEDTnsduEfSA==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 74FEAF6078B;
+        Mon, 10 Jan 2022 18:27:53 +0000 (UTC)
+Subject: Re: [GIT PULL] s390 updates for 5.17 merge window
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <YdvNGdx2O4u3hFwn@osiris>
+References: <YdvNGdx2O4u3hFwn@osiris>
+X-PR-Tracked-List-Id: <linux-s390.vger.kernel.org>
+X-PR-Tracked-Message-Id: <YdvNGdx2O4u3hFwn@osiris>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.17-1
+X-PR-Tracked-Commit-Id: 0704a8586f75663cf30a283bbeeca09eb4e60a07
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: f0d43b3a3809f280806825df2454fd83f71874c4
+Message-Id: <164183927347.9673.13323844448508638691.pr-tracker-bot@kernel.org>
+Date:   Mon, 10 Jan 2022 18:27:53 +0000
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Andy Polyakov <appro@openssl.org>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jan 10, 2022 at 07:12:45PM +0100, Thomas Gleixner wrote:
-> The MSI entries for multi-MSI are populated en bloc for the MSI descriptor,
-> but the current code invokes the population inside the per interrupt loop
-> which triggers a warning in the sysfs code and causes the interrupt
-> allocation to fail.
-> 
-> Move it outside of the loop so it works correctly for single and multi-MSI.
-> 
-> Fixes: bf5e758f02fc ("genirq/msi: Simplify sysfs handling")
-> Reported-by: Borislav Petkov <bp@alien8.de>
-> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-> ---
->  kernel/irq/msi.c |   11 +++++------
->  1 file changed, 5 insertions(+), 6 deletions(-)
-> 
-> --- a/kernel/irq/msi.c
-> +++ b/kernel/irq/msi.c
-> @@ -887,12 +887,11 @@ int __msi_domain_alloc_irqs(struct irq_d
->  			ret = msi_init_virq(domain, virq + i, vflags);
->  			if (ret)
->  				return ret;
-> -
-> -			if (info->flags & MSI_FLAG_DEV_SYSFS) {
-> -				ret = msi_sysfs_populate_desc(dev, desc);
-> -				if (ret)
-> -					return ret;
-> -			}
-> +		}
-> +		if (info->flags & MSI_FLAG_DEV_SYSFS) {
-> +			ret = msi_sysfs_populate_desc(dev, desc);
-> +			if (ret)
-> +				return ret;
->  		}
->  		allocated++;
->  	}
+The pull request you sent on Mon, 10 Jan 2022 07:07:21 +0100:
 
-Yap, works.
+> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.17-1
 
-Tested-by: Borislav Petkov <bp@suse.de>
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/f0d43b3a3809f280806825df2454fd83f71874c4
+
+Thank you!
 
 -- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
