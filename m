@@ -2,82 +2,163 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 94086C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 10 Jan 2022 13:56:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59BABC433FE
+	for <linux-s390@archiver.kernel.org>; Mon, 10 Jan 2022 14:30:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233941AbiAJN4J (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 10 Jan 2022 08:56:09 -0500
-Received: from out30-56.freemail.mail.aliyun.com ([115.124.30.56]:49142 "EHLO
-        out30-56.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233369AbiAJN4I (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 10 Jan 2022 08:56:08 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R871e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04357;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0V1T45S6_1641822965;
-Received: from 30.225.24.19(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0V1T45S6_1641822965)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Mon, 10 Jan 2022 21:56:06 +0800
-Message-ID: <2098bb01-1aad-cb38-8b0b-a43e4c40c013@linux.alibaba.com>
-Date:   Mon, 10 Jan 2022 21:56:05 +0800
+        id S235512AbiAJOad (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 10 Jan 2022 09:30:33 -0500
+Received: from mout.kundenserver.de ([212.227.126.130]:40055 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235510AbiAJO27 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 10 Jan 2022 09:28:59 -0500
+Received: from mail-wr1-f54.google.com ([209.85.221.54]) by
+ mrelayeu.kundenserver.de (mreue009 [213.165.67.97]) with ESMTPSA (Nemesis) id
+ 1MyK9U-1m8X1J1Mpo-00yhft; Mon, 10 Jan 2022 15:28:57 +0100
+Received: by mail-wr1-f54.google.com with SMTP id v6so27050965wra.8;
+        Mon, 10 Jan 2022 06:28:57 -0800 (PST)
+X-Gm-Message-State: AOAM532VBMarH7QeVUHGoz8+ZXjU/9qZZeVZVz90AB9wVWVF/f/m2yjD
+        M7TXr0hBOeDI3wSDD6t42Wu4QNex4i4JfLRdij8=
+X-Google-Smtp-Source: ABdhPJwP2dj7vwEXcQpaQSkksNl0ZEmP7KqS5c95/LhZe5KvkABgHfbU/HDC2zAjxcbRJXknKfqyiFGKdYDX7S/ttBs=
+X-Received: by 2002:a05:6000:16c7:: with SMTP id h7mr17539097wrf.317.1641824936821;
+ Mon, 10 Jan 2022 06:28:56 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.4.0
-Subject: Re: [PATCH net 1/3] net/smc: Resolve the race between link group
- access and termination
-To:     Karsten Graul <kgraul@linux.ibm.com>, davem@davemloft.net,
-        kuba@kernel.org
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <1641806784-93141-1-git-send-email-guwen@linux.alibaba.com>
- <1641806784-93141-2-git-send-email-guwen@linux.alibaba.com>
- <3525a4cd-1bc7-1008-910b-fb89597cc10a@linux.ibm.com>
-From:   Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <3525a4cd-1bc7-1008-910b-fb89597cc10a@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20211228143958.3409187-1-guoren@kernel.org> <20211228143958.3409187-12-guoren@kernel.org>
+In-Reply-To: <20211228143958.3409187-12-guoren@kernel.org>
+From:   Arnd Bergmann <arnd@arndb.de>
+Date:   Mon, 10 Jan 2022 15:28:40 +0100
+X-Gmail-Original-Message-ID: <CAK8P3a0H2Nq=bFdzWGzzGuFWP85JA7=Td6_rb8GqOF3bYCRJBw@mail.gmail.com>
+Message-ID: <CAK8P3a0H2Nq=bFdzWGzzGuFWP85JA7=Td6_rb8GqOF3bYCRJBw@mail.gmail.com>
+Subject: Re: [PATCH V2 11/17] riscv: compat: Add elf.h implementation
+To:     Guo Ren <guoren@kernel.org>
+Cc:     Palmer Dabbelt <palmer@dabbelt.com>, Arnd Bergmann <arnd@arndb.de>,
+        Anup Patel <anup.patel@wdc.com>,
+        gregkh <gregkh@linuxfoundation.org>,
+        liush <liush@allwinnertech.com>, Wei Fu <wefu@redhat.com>,
+        Drew Fustini <drew@beagleboard.org>,
+        Wang Junqiang <wangjunqiang@iscas.ac.cn>,
+        Christoph Hellwig <hch@infradead.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-csky@vger.kernel.org,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        inux-parisc@vger.kernel.org,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Guo Ren <guoren@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Provags-ID: V03:K1:UXLcJaB2lA59YOxwVTQMBTB9Dxji9s7QCHe0L7WJKm/zT8kjwvJ
+ LBjfwCCXJ/N9g7kU69rg+/0EvE2V8nB7GMF9P5FdaYUvOWUrZjBOg+gBanVkEGe4nGS+gU1
+ 8Xf8k4fDqhQcn3LL+8hWphPJsrAxWcQ+EFPACTlxX+KeCmtT8e9jRJkmlC+eSDByMH3JQpC
+ QwVuQNtUX5VMAzqJpf1qw==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:HoS1Cfn33y0=:PConMlud95CuR/s+ENDO8j
+ Ww8aJhs5Ekbl///6FhHqJvuP/JCTeh7mxyXPpzUN3+nHP50EYZO3IccdpdYDzS0i6rta7poqd
+ 0+MHUB1dC5NHSXq7+K5fuC6JV6HEuW03p0s218WvrY1JS1WAeSg/U2oFd42Y0miGh+fbxeURe
+ BEDN3EacpJJWsvZMIWaQB2c4E80LxGUcjLHVlTYy3cGvxXrWlewDSe9Q3YSHqX2OxHvFra9Y1
+ iacjjPdOoSg28DTtAkE0lsgzWma34lAz8+2ZmqR5iqOsQ/UQMKc3lbKVjxyKb1h0dn7KDoKwQ
+ 86zMwLCY6HwT2/4tH8Q2vo6dIABEbit3qXl+3+t2rlt0jaqJ1lRXy0WoV4yovKRXKgr9EQrLI
+ vAHP/+Z/jGTTDOdxAs4Lz8jXaSA7n09S2iPz9muukRCtaV2vz7vSylhJFRyb176Yh+g73Sjwr
+ /EV+kFNwU/5GaK5FtE894LoZPbfyYXtR80ccbWc4mzXcgiGSV4+kmmv5+HDKJuF/0Tvhmxb6V
+ RaNcmGAeRt1uOrGShSUArpz48oCGx9sdsNJjLaO7/tjBntpjdEKo/b/z9GAWDb4MYFPox33vy
+ JVhLLYUWb/hHQ3mn3KY7jcvAu8xogbG67nZWJe81LWlHUVBxnEi/mAbfz8f31bXlx3VR42/79
+ zze8iRoiPpPNjzfW/V6GffCmJDtaTwbEcAcNtuJ2+3H5TsSbrGZgkdG7yvWiaaDGt0EXLFOb/
+ PUCrDfBdyUw8e/nxfEaVOyb7qcc+UYeNif3GiE6TRCeqChpq4ET4SNU7YLpjmek18j2lkqmlq
+ k1BGXt0oneRdhdFqllETd4UBBhB9R7DxyQOyTge6+EJPPGzwSA=
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Tue, Dec 28, 2021 at 3:39 PM <guoren@kernel.org> wrote:
+>
+> From: Guo Ren <guoren@linux.alibaba.com>
+>
+> Implement necessary type and macro for compat elf. See the code
+> comment for detail.
+>
+> Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+> Signed-off-by: Guo Ren <guoren@kernel.org>
+> Cc: Arnd Bergmann <arnd@arndb.de>
 
+This looks mostly correct,
 
-On 2022/1/10 8:25 pm, Karsten Graul wrote:
-> On 10/01/2022 10:26, Wen Gu wrote:
->> We encountered some crashes caused by the race between the access
->> and the termination of link groups.
->>
+> +/*
+> + * FIXME: not sure SET_PERSONALITY for compat process is right!
+> + */
+> +#define SET_PERSONALITY(ex)                                               \
+> +do {    if ((ex).e_ident[EI_CLASS] == ELFCLASS32)                         \
+> +               set_thread_flag(TIF_32BIT);                                \
+> +       else                                                               \
+> +               clear_thread_flag(TIF_32BIT);                              \
+> +       set_personality(PER_LINUX | (current->personality & (~PER_MASK))); \
+> +} while (0)
 
->> @@ -1120,8 +1122,22 @@ void smc_conn_free(struct smc_connection *conn)
->>   {
->>   	struct smc_link_group *lgr = conn->lgr;
->>   
->> -	if (!lgr)
->> +	if (!lgr || conn->freed)
->> +		/* The connection has never been registered in a
->> +		 * link group, or has already been freed.
->> +		 *
->> +		 * Check to ensure that the refcnt of link group
->> +		 * won't be put incorrectly.
-> 
-> I would delete the second sentence here, its obvious enough.
-> 
->> +		 */
->>   		return;
->> +
->> +	conn->freed = 1;
->> +	if (!conn->alert_token_local)
->> +		/* The connection was registered in a link group
->> +		 * defore, but now it is unregistered from it.
-> 
-> 'before' ... But would maybe the following be more exact:
-> 
-> 'Connection already unregistered from link group.'
-> 
-> 
-> We still review the patches...
-> 
+This means the personality after exec is always set to PER_LINUX, not
+PER_LINUX32, which I think is wrong: you want the PER_LINUX32
+setting to stick, just like the upper bits do in the default implementation.
 
-Thanks for your detailed and patient review. The comments will
-be improved as you suggested.
+What the other ones do is:
 
-Thanks,
-Wen Gu
+| arch/parisc/include/asm/elf.h-
+set_personality((current->personality & ~PER_MASK) | PER_LINUX); \
+
+This looks like the same problem you introduce here: always forcing PER_LINUX
+instead of PER_LINUX32 makes it impossible to use PER_LINUX32.
+
+| arch/alpha/include/asm/elf.h:#define SET_PERSONALITY(EX)
+                           \
+| arch/alpha/include/asm/elf.h-   set_personality(((EX).e_flags &
+EF_ALPHA_32BIT)         \
+| arch/alpha/include/asm/elf.h-      ? PER_LINUX_32BIT : PER_LINUX)
+| arch/csky/include/asm/elf.h:#define SET_PERSONALITY(ex)
+set_personality(PER_LINUX)
+| arch/nds32/include/asm/elf.h:#define SET_PERSONALITY(ex)
+set_personality(PER_LINUX)
+
+These look even worse: instead of forcing the lower bits to
+PER_LINUX/PER_LINUX32 and
+leaving the upper bits untouched, these also clear the upper bits
+unconditionally.
+
+| arch/arm64/include/asm/elf.h:#define SET_PERSONALITY(ex)
+                                   \
+| arch/arm64/include/asm/elf.h-   current->personality &=
+~READ_IMPLIES_EXEC;                     \
+| arch/x86/um/asm/elf.h:#define SET_PERSONALITY(ex) do {} while(0)
+| arch/x86/include/asm/elf.h:#define set_personality_64bit()      do {
+} while (0)
+| arch/x86/kernel/process_64.c:static void __set_personality_ia32(void)
+|         current->personality |= force_personality32;
+
+Inconsistent: does not enforce PER_LINUX/PER_LINUX32 as the default
+implementation
+does, but just leaves the value untouched (other than (re)setting
+READ_IMPLIES_EXEC).
+I think this is harmless otherwise, as we generally ignore the lower
+bits, except for the
+bit of code that checks for PER_LINUX32 in override_architecture() to mangle the
+output of sys_newuname() or in /proc/cpuinfo.
+
+| arch/s390/include/asm/elf.h-    if
+(personality(current->personality) != PER_LINUX32)   \
+| arch/s390/include/asm/elf.h-            set_personality(PER_LINUX |
+                   \
+| arch/s390/include/asm/elf.h-
+(current->personality & ~PER_MASK));    \
+| arch/powerpc/include/asm/elf.h- if
+(personality(current->personality) != PER_LINUX32)   \
+| arch/powerpc/include/asm/elf.h-         set_personality(PER_LINUX |
+                   \
+| arch/powerpc/include/asm/elf.h-
+(current->personality & (~PER_MASK)));  \
+| arch/sparc/include/asm/elf_64.h-        if
+(personality(current->personality) != PER_LINUX32)   \
+| arch/sparc/include/asm/elf_64.h-
+set_personality(PER_LINUX |             \
+| arch/sparc/include/asm/elf_64.h-
+(current->personality & (~PER_MASK)));  \
+
+This is probably the behavior you want to copy.
+
+      Arnd
