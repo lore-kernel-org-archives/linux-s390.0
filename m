@@ -2,157 +2,113 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E768C4332F
-	for <linux-s390@archiver.kernel.org>; Mon, 10 Jan 2022 19:31:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8F42C433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 10 Jan 2022 23:06:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243524AbiAJTbP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 10 Jan 2022 14:31:15 -0500
-Received: from mga03.intel.com ([134.134.136.65]:1828 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243831AbiAJTbO (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 10 Jan 2022 14:31:14 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1641843074; x=1673379074;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=cbEnl3Vfju27AwT6EgqVlpPsZM4JemUZUkFPfJnaPBA=;
-  b=HmcXGgoOUPWoAQTB8QrTUhD6aBX/GkeS8Omwz3aQXEZhK2vTd8Ji0M1Z
-   nvScB0ls6A2ROwDSKgYRm3XFB84+FfmWBsSO1gq6RxrH8qjG/ebCrZ0V6
-   blh7TQhhrUFfbMl9LR7cTSMf6ZSweG6lPX9HQfuTllmpNxLhLkAPitXxe
-   pd6Ohylku9o7tvuzY4Rba1TWMC5b10FxnDP98iajSBdV3giX+TOdnn2St
-   aXkFZcYnkIsci6D2pY8jRqXwyUqSL4aB7kBTVDGEfR8N5Ygg0GuW3lkW4
-   JhJ3j1cl48dqvnhTdVCcLBQZjpSaPUMvAdrQCznT7zaIR4XfudIPZshoq
-   A==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10223"; a="243259724"
-X-IronPort-AV: E=Sophos;i="5.88,277,1635231600"; 
-   d="scan'208";a="243259724"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jan 2022 11:31:13 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.88,277,1635231600"; 
-   d="scan'208";a="472174244"
-Received: from lkp-server01.sh.intel.com (HELO 276f1b88eecb) ([10.239.97.150])
-  by orsmga003.jf.intel.com with ESMTP; 10 Jan 2022 11:31:10 -0800
-Received: from kbuild by 276f1b88eecb with local (Exim 4.92)
-        (envelope-from <lkp@intel.com>)
-        id 1n70Nq-0003tC-2U; Mon, 10 Jan 2022 19:31:10 +0000
-Date:   Tue, 11 Jan 2022 03:30:09 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Michal Suchanek <msuchanek@suse.de>, keyrings@vger.kernel.org,
-        linux-crypto@vger.kernel.org, linux-integrity@vger.kernel.org
-Cc:     kbuild-all@lists.01.org, Michal Suchanek <msuchanek@suse.de>,
-        kexec@lists.infradead.org, Philipp Rudo <prudo@redhat.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Nayna <nayna@linux.vnet.ibm.com>, Rob Herring <robh@kernel.org>,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH v4 6/6] module: Move duplicate mod_check_sig users code
- to mod_parse_sig
-Message-ID: <202201110303.sLPF0o29-lkp@intel.com>
-References: <59d134a3eae4fa802ed9135385cee6fe4838ec01.1641822505.git.msuchanek@suse.de>
+        id S1345611AbiAJXGu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 10 Jan 2022 18:06:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42158 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S245234AbiAJXGu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 10 Jan 2022 18:06:50 -0500
+Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE67DC061756
+        for <linux-s390@vger.kernel.org>; Mon, 10 Jan 2022 15:06:49 -0800 (PST)
+Received: by mail-pl1-x62c.google.com with SMTP id h1so14355812pls.11
+        for <linux-s390@vger.kernel.org>; Mon, 10 Jan 2022 15:06:49 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=y+VBsHBfwIdG2OzWHPdI/WIqfhyYeKNFkPIFzGKgGjs=;
+        b=X/BYePGBzH1Y0U06VN7h0LTAx5XkiSMJkjX4bzEruFI1kwOUOCZ/UQD5Hz1I4ruAQl
+         PKrgHenyxeASQaRZZvzIOgMnuzQdonH1VvyAbdvdjbchbZ2+uMZc22CuQapKF6//7uez
+         U7SEtzQCYOhll5kuSGrRuD3424eXtMM1K2q20cLcgofjiBKZpwYAGGu/G+SgPu+Ah0Ai
+         cMXFe7zrtF2HSeLvPaMRp85OO6XQzOWT5yW68a8WQ+brErvfPeLpyOXHT8jSayE1ssES
+         B/xCP4larnCmFQsqFp3LTl28pqvPRHXZOcO2unNP2YugKO4xbE5RD1x5r36xyKuMboWr
+         viJg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=y+VBsHBfwIdG2OzWHPdI/WIqfhyYeKNFkPIFzGKgGjs=;
+        b=xU9mpAh5guvKxV1bcG+vVY62IfCXRdA79EjwjA1J86Lia0faIWu6BDud3X8s8GZnMl
+         XwT1kcw9yOJmVL0ZTOO8UOVdi6R2OXd2XeQTfUzQll70yyrW13WqUMjwgIyvC3Q/HXN9
+         RCM0rxh03Zjk65M99WkXY0Qrr1cF7QVcec+Mp/IQZAyrtH9MFZIud7F+0bjL5K/f0h7Q
+         e0YPduFM6QXn2tll8zOeRQICeC/Ju5cAf/EfMa47mgr/SbmP1rR02Wq/V3E336S6VJh1
+         xcMBw9M9qV4Ydi0ixYQPnD4VKXur+Sb7WDj9p9jPtgUMWE2aGYNA0PXbK4Yg6xcf+urZ
+         BIjw==
+X-Gm-Message-State: AOAM532Ixt5pMGOgysdnv5Lsgv+w7RZwa6e3a/OOKKrtuQVbd8ed4PgW
+        zElhUJzI5DzJ56KMqlQdsvMswg==
+X-Google-Smtp-Source: ABdhPJwuqul2WTZrr6xhkm1p+58Y11+q37mOxYmOZK51ca5s/4q/F/MIfrRIm+VTh9ySZMN7V9F+qQ==
+X-Received: by 2002:a17:90a:d90b:: with SMTP id c11mr37450pjv.211.1641856009160;
+        Mon, 10 Jan 2022 15:06:49 -0800 (PST)
+Received: from google.com (157.214.185.35.bc.googleusercontent.com. [35.185.214.157])
+        by smtp.gmail.com with ESMTPSA id d1sm4554170pgd.66.2022.01.10.15.06.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 10 Jan 2022 15:06:48 -0800 (PST)
+Date:   Mon, 10 Jan 2022 23:06:44 +0000
+From:   Sean Christopherson <seanjc@google.com>
+To:     Chao Gao <chao.gao@intel.com>
+Cc:     kvm@vger.kernel.org, pbonzini@redhat.com, kevin.tian@intel.com,
+        tglx@linutronix.de, Marc Zyngier <maz@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Anup Patel <anup.patel@wdc.com>,
+        Atish Patra <atish.patra@wdc.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Jim Mattson <jmattson@google.com>,
+        Joerg Roedel <joro@8bytes.org>, Ingo Molnar <mingo@redhat.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "Maciej S. Szmigiero" <maciej.szmigiero@oracle.com>,
+        Fabiano Rosas <farosas@linux.ibm.com>,
+        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
+        =?iso-8859-1?Q?C=E9dric?= Le Goater <clg@kaod.org>,
+        Bharata B Rao <bharata@linux.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu,
+        linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, kvm-riscv@lists.infradead.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH 3/6] KVM: Remove opaque from
+ kvm_arch_check_processor_compat
+Message-ID: <Ydy8BCfE0jhJd5uE@google.com>
+References: <20211227081515.2088920-1-chao.gao@intel.com>
+ <20211227081515.2088920-4-chao.gao@intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <59d134a3eae4fa802ed9135385cee6fe4838ec01.1641822505.git.msuchanek@suse.de>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20211227081515.2088920-4-chao.gao@intel.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Michal,
+On Mon, Dec 27, 2021, Chao Gao wrote:
+> No arch implementation uses this opaque now.
 
-Thank you for the patch! Yet something to improve:
-
-[auto build test ERROR on powerpc/next]
-[also build test ERROR on s390/features linus/master jeyu/modules-next v5.16 next-20220110]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch]
-
-url:    https://github.com/0day-ci/linux/commits/Michal-Suchanek/KEXEC_SIG-with-appended-signature/20220110-215157
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/powerpc/linux.git next
-config: arc-allyesconfig (https://download.01.org/0day-ci/archive/20220111/202201110303.sLPF0o29-lkp@intel.com/config)
-compiler: arceb-elf-gcc (GCC) 11.2.0
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # https://github.com/0day-ci/linux/commit/cc363ca7724d96c534c176b8ed248336f562b7ae
-        git remote add linux-review https://github.com/0day-ci/linux
-        git fetch --no-tags linux-review Michal-Suchanek/KEXEC_SIG-with-appended-signature/20220110-215157
-        git checkout cc363ca7724d96c534c176b8ed248336f562b7ae
-        # save the config file to linux build tree
-        mkdir build_dir
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.2.0 make.cross O=build_dir ARCH=arc SHELL=/bin/bash
-
-If you fix the issue, kindly add following tag as appropriate
-Reported-by: kernel test robot <lkp@intel.com>
-
-All errors (new ones prefixed by >>):
-
-   kernel/module_signing.c: In function 'verify_appended_signature':
->> kernel/module_signing.c:33:35: error: passing argument 2 of 'mod_parse_sig' from incompatible pointer type [-Werror=incompatible-pointer-types]
-      33 |         ret = mod_parse_sig(data, len, &sig_len, key_being_used_for[purpose]);
-         |                                   ^~~
-         |                                   |
-         |                                   long unsigned int *
-   In file included from kernel/module_signing.c:11:
-   include/linux/module_signature.h:45:45: note: expected 'size_t *' {aka 'unsigned int *'} but argument is of type 'long unsigned int *'
-      45 | int mod_parse_sig(const void *data, size_t *len, size_t *sig_len, const char *name);
-         |                                     ~~~~~~~~^~~
-   kernel/module_signing.c:33:40: error: passing argument 3 of 'mod_parse_sig' from incompatible pointer type [-Werror=incompatible-pointer-types]
-      33 |         ret = mod_parse_sig(data, len, &sig_len, key_being_used_for[purpose]);
-         |                                        ^~~~~~~~
-         |                                        |
-         |                                        long unsigned int *
-   In file included from kernel/module_signing.c:11:
-   include/linux/module_signature.h:45:58: note: expected 'size_t *' {aka 'unsigned int *'} but argument is of type 'long unsigned int *'
-      45 | int mod_parse_sig(const void *data, size_t *len, size_t *sig_len, const char *name);
-         |                                                  ~~~~~~~~^~~~~~~
-   cc1: some warnings being treated as errors
---
-   security/integrity/ima/ima_modsig.c: In function 'ima_read_modsig':
->> security/integrity/ima/ima_modsig.c:47:33: error: passing argument 2 of 'mod_parse_sig' from incompatible pointer type [-Werror=incompatible-pointer-types]
-      47 |         rc = mod_parse_sig(buf, &buf_len, &sig_len, func_tokens[func]);
-         |                                 ^~~~~~~~
-         |                                 |
-         |                                 long unsigned int *
-   In file included from security/integrity/ima/ima_modsig.c:12:
-   include/linux/module_signature.h:45:45: note: expected 'size_t *' {aka 'unsigned int *'} but argument is of type 'long unsigned int *'
-      45 | int mod_parse_sig(const void *data, size_t *len, size_t *sig_len, const char *name);
-         |                                     ~~~~~~~~^~~
-   security/integrity/ima/ima_modsig.c:47:43: error: passing argument 3 of 'mod_parse_sig' from incompatible pointer type [-Werror=incompatible-pointer-types]
-      47 |         rc = mod_parse_sig(buf, &buf_len, &sig_len, func_tokens[func]);
-         |                                           ^~~~~~~~
-         |                                           |
-         |                                           long unsigned int *
-   In file included from security/integrity/ima/ima_modsig.c:12:
-   include/linux/module_signature.h:45:58: note: expected 'size_t *' {aka 'unsigned int *'} but argument is of type 'long unsigned int *'
-      45 | int mod_parse_sig(const void *data, size_t *len, size_t *sig_len, const char *name);
-         |                                                  ~~~~~~~~^~~~~~~
-   cc1: some warnings being treated as errors
-
-
-vim +/mod_parse_sig +33 kernel/module_signing.c
-
-    16	
-    17	/**
-    18	 * verify_appended_signature - Verify the signature on a module
-    19	 * @data: The data to be verified
-    20	 * @len: Size of @data.
-    21	 * @trusted_keys: Keyring to use for verification
-    22	 * @purpose: The use to which the key is being put
-    23	 */
-    24	int verify_appended_signature(const void *data, unsigned long *len,
-    25				      struct key *trusted_keys,
-    26				      enum key_being_used_for purpose)
-    27	{
-    28		unsigned long sig_len;
-    29		int ret;
-    30	
-    31		pr_devel("==>%s %s(,%lu)\n", __func__, key_being_used_for[purpose], *len);
-    32	
-  > 33		ret = mod_parse_sig(data, len, &sig_len, key_being_used_for[purpose]);
-
----
-0-DAY CI Kernel Test Service, Intel Corporation
-https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+Except for the RISC-V part, this can be a pure revert of commit b99040853738 ("KVM:
+Pass kvm_init()'s opaque param to additional arch funcs").  I think it makes sense
+to process it as a revert, with a short blurb in the changelog to note that RISC-V
+is manually modified as RISC-V support came along in the interim.
