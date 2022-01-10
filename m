@@ -2,173 +2,234 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9406EC433F5
-	for <linux-s390@archiver.kernel.org>; Sun,  9 Jan 2022 21:36:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7954EC433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 10 Jan 2022 06:07:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237123AbiAIVgo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 9 Jan 2022 16:36:44 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:62888 "EHLO
+        id S233320AbiAJGHj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 10 Jan 2022 01:07:39 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:4996 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S233873AbiAIVgn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 9 Jan 2022 16:36:43 -0500
+        by vger.kernel.org with ESMTP id S230451AbiAJGHj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 10 Jan 2022 01:07:39 -0500
 Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 209G6t30019537;
-        Sun, 9 Jan 2022 21:36:41 GMT
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20A42hEB019579;
+        Mon, 10 Jan 2022 06:07:29 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=bjVFy4e/dTyFvJDD8SHxBSGEDpnz2rkKYHQyHr2XUKs=;
- b=bn/MX7bP9erQgY6bF1a2xNNxpyV3f/62tPXtqB+Bd+SCbgRrRs4m0B6/ykgGQLfAU+99
- BlEUgERYme2glWwClOjZIDQf7ej09cTu9IZWzyfz25+/4QjrqG/9iG7/l6JBihmxQObv
- NNY1VOyDLu3ebfhFkfmlzVxLqciC+02RxcuHCRaeV5GocnAwAVPKbPAvvf19cAzMEwnW
- frV338+/87uGtyoxjQhSrSadEWwPCvDjOckN1HGtCVY07P3Rf/kwzcQHZF2D90RTpg6r
- aPOXiABwg1eKx7Ch6wC6YiSmWpJWmqAHAiiqhzjlgVD7cuiDiD7FYOoh3ZMuuoWbfNan eA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3dfm044nxy-1
+ subject : message-id : content-type : mime-version; s=pp1;
+ bh=xRCHIJw4fwBY+2OYsV0u7K9th9v7WxMwIdEg8ZJ4CKw=;
+ b=OS+Al7pExv8xN7CsJ+drgKdJrZTAWrP36L+wnstynwUzka1cxVLJcQ3FGa+WDfx3ifdq
+ Hy20u1xuB6/BkeTGbXB3d017+RFUV3yF84Yt7G8Bk2jXXZytT6yYyPlDSe8qtsUGRNNJ
+ h3VvFoeSzeZwBohVHicgAYh2qaUYt6VMF0/mBFmyspa8NuCq53ytIIsIgU5THfBdP0Es
+ qOD9FQed6NHwrEqNLXXn76dCJ6qzY2AmIwRG3YLfivTIgntuH32rL0PXfOYZpYnXQGi+
+ ID1Gv7fgoMMEnWjr9OtYSiTJLeN0vD+MhzgoZw39vsiEfk2l+58MAHTHPs2Nul7JW0Vd 2g== 
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3dfm04ar3f-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 09 Jan 2022 21:36:41 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 209LQBhH005785;
-        Sun, 9 Jan 2022 21:36:41 GMT
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3dfm044nxq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 09 Jan 2022 21:36:40 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 209LXn2C028281;
-        Sun, 9 Jan 2022 21:36:39 GMT
+        Mon, 10 Jan 2022 06:07:28 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20A63YEO009530;
+        Mon, 10 Jan 2022 06:07:27 GMT
 Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma06fra.de.ibm.com with ESMTP id 3df1vhxmug-1
+        by ppma02fra.de.ibm.com with ESMTP id 3df289gk0d-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 09 Jan 2022 21:36:39 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 209LaZV447186382
+        Mon, 10 Jan 2022 06:07:26 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20A67NN429622616
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sun, 9 Jan 2022 21:36:35 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C02DFA405F;
-        Sun,  9 Jan 2022 21:36:35 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 22FD6A4054;
-        Sun,  9 Jan 2022 21:36:35 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.37.42])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Sun,  9 Jan 2022 21:36:35 +0000 (GMT)
-Date:   Sun, 9 Jan 2022 22:36:32 +0100
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Tony Krowiak <akrowiak@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, jjherne@linux.ibm.com, freude@linux.ibm.com,
-        borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        fiuczy@linux.ibm.com, Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH v17 09/15] s390/vfio-ap: allow hot plug/unplug of AP
- resources using mdev device
-Message-ID: <20220109223632.03830576.pasic@linux.ibm.com>
-In-Reply-To: <20211021152332.70455-10-akrowiak@linux.ibm.com>
-References: <20211021152332.70455-1-akrowiak@linux.ibm.com>
-        <20211021152332.70455-10-akrowiak@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
+        Mon, 10 Jan 2022 06:07:23 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 63F4D11C05C;
+        Mon, 10 Jan 2022 06:07:23 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 24F7411C071;
+        Mon, 10 Jan 2022 06:07:23 +0000 (GMT)
+Received: from osiris (unknown [9.145.76.99])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Mon, 10 Jan 2022 06:07:23 +0000 (GMT)
+Date:   Mon, 10 Jan 2022 07:07:21 +0100
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Andy Polyakov <appro@openssl.org>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [GIT PULL] s390 updates for 5.17 merge window
+Message-ID: <YdvNGdx2O4u3hFwn@osiris>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: L_UdoSJFgxHFImM8OJwzbiPUdR1OaNEa
-X-Proofpoint-ORIG-GUID: dJrNuTbFu9vwAuGtbs6S_dPbAi-AvYa-
+X-Proofpoint-GUID: qgEbrZT0AmbQ36gVtESGLtFavYTf6-mN
+X-Proofpoint-ORIG-GUID: qgEbrZT0AmbQ36gVtESGLtFavYTf6-mN
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-01-09_10,2022-01-07_01,2021-12-02_01
+ definitions=2022-01-10_02,2022-01-07_01,2021-12-02_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
  phishscore=0 mlxlogscore=999 impostorscore=0 mlxscore=0 adultscore=0
- malwarescore=0 clxscore=1015 bulkscore=0 priorityscore=1501 spamscore=0
+ malwarescore=0 clxscore=1011 bulkscore=0 priorityscore=1501 spamscore=0
  suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2201090156
+ engine=8.12.0-2110150000 definitions=main-2201100042
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 21 Oct 2021 11:23:26 -0400
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+Hi Linus,
 
-> Keep in mind that the kvm->lock must be taken outside of the
-> matrix_mdev->lock to avoid circular lock dependencies (i.e., a lockdep
-> splat). This will necessitate taking the matrix_dev->guests_lock in order
-> to find the guest(s) in the matrix_dev->guests list to which the affected
-> APQN(s) may be assigned. The kvm->lock can then be taken prior to the
-> matrix_dev->lock and the APCB plugged into the guest without any problem.
+please pull s390 update for 5.17 merge window.
 
-IMHO correct and sane locking is one of the key points we have to
-resolve. Frankly, I'm having trouble understanding the why behind some
-of your changes, compared to v16, and I suspect that looking for a good
-locking scheme might have played a role.
+Besides all the small improvements and cleanups the most notable part
+is the fast vector/SIMD implementation of the ChaCha20 stream cipher,
+which is an adaptation of Andy Polyakov's code for the kernel.
 
-In the beginning, I was not very keen on taking the kvm->lock first
-and the matrix_dev->lock, but the more I think about it the more I
-become convinced that this is probably the simplest way to resolve the
-problem in a satisfactory manner. I don't like the idea of
-hogging the kvm->lock and potentially stalling out some core kvm code
-because there is contention on matrix_dev->lock. And it is kind of up to
-the user-space and the guests, how much pressure is put on the
-matrix_dev->lock. And I'm still worried about that, but when I went
-through the alternatives, my mood turned form bad to worse. Because of
-that, I'm fine with this solution, provided some of the KVM/s390
-maintainers ack it as well. I don't feel comfortable making a call on
-this alone.
+Thanks,
+Heiko
 
-That said, let me also sum up my thoughts on alternatives and
-non-alternatives, hopefully for the benefit of other reviewers.
+The following changes since commit 0fcfb00b28c0b7884635dacf38e46d60bf3d4eb1:
 
-1) I deeply regret that I used to argue against handling PQAP in
-userspace with an ioctl as Pierre originally proposed. I was unaware of
-the kvm->lock vcpu->lock locking order. Back then we didn't use to
-have that sequence, but the rule was already there. I guess we could
-still go back to that scheme of handling PQAP if QEMU were to support
-it, and thus break the circle, but that would result in a very ugly
-dependency (we would need QEMU support for dynamic, and we would have
-to handle the case of an old QEMU). Technically it is still possible, but
-very ugly.
-2) I've contemplated if it is possible to simulate the userspace exit
-and re-entry via ioctl in KVM. But looking at the code, it does not
-look like a sane option to me.
-3) I also considered using a read-write lock for matrix_dev->lock. In
-theory a read-write lock that favors reads in a sense that a steady
-stream of readers can starve the writers would work. But rwsem can't be
-used in this situation because rwsem is fair, in a sense that a waiting
-writers may effectively block readers that try to acquire the lock while
-the lock is held as a read lock. So while rwsem in practice does allow
-for more parallelism regarding lock dependency circles it does not
-provide any benefits over a mutex.
-4) I considered srcu as well. But rcu is a very different beast and does
-not seem to be a great fit for what we are trying to do here. We are
-not not fine with working with a stale copy of the matrix in most of the
-situations.
-5) I also contemplated, if relaxing the mutual exclusion is possible.
-PQAP only needs the CRYCB matrix to check whether the queue is in the
-config or not. So maybe we could get away without taking the
-matrix_dev->lock and doing separate locking for the queue in question,
-and instead of delaying any updates to the CRYCB while processing AQIC,
-we could just work with whatever we see in the CRYCB. Since the setting
-up of the interrupts is asynchronous with respect to the instruction
-requesting it (PQAP/AQIC) and the CRYCB masks are relevant in the
-instruction context... So I was thinking: if we were to introduce a
-separate lock for the AQIC state, and find the queue without taking
-the matrix_dev->lock, we could actually process the PQAP/AQIC without
-the matrix_dev->lock. But then because we would have vcpu->lock -->
-vfio_ap_queue->lock, we would have to avoid ending up with a circle
-on the cleanup path, and also avoid races on the cleanup path. I'm not
-sure how tricky that would end up being, if at all possible.
-6) We could practically implement that unfair read-write lock with
-a mutex and condition variables (and a waitqueue), but that wouldn't
-simplify things either. Still if we want to avoid taking kvm->lock
-before taking the vfio_ap lock, it may be the most straight forward
-alternative.
+  Linux 5.16-rc4 (2021-12-05 14:08:22 -0800)
 
-At the end let me also state, that my understanding of some of the
-details is still incomplete.
+are available in the Git repository at:
 
-Regards,
-Halil
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.17-1
 
+for you to fetch changes up to 0704a8586f75663cf30a283bbeeca09eb4e60a07:
 
+  s390/dasd: use default_groups in kobj_type (2022-01-08 17:44:05 +0100)
+
+----------------------------------------------------------------
+s390 updates for 5.17 merge window
+
+- add fast vector/SIMD implementation of the ChaCha20 stream cipher,
+  which mainly adapts Andy Polyakov's code for the kernel
+
+- add status attribute to AP queue device so users can easily figure
+  out its status
+
+- fix race in page table release code, and and lots of documentation
+
+- remove uevent suppress from cio device driver, since it turned out
+  that it generated more problems than it solved problems
+
+- quite a lot of virtual vs physical address confusion fixes
+
+- various other small improvements and cleanups all over the place
+
+----------------------------------------------------------------
+Alexander Egorenkov (1):
+      s390/sclp: release SCLP early buffer after kernel initialization
+
+Alexander Gordeev (4):
+      s390/nmi: disable interrupts on extended save area update
+      s390/mm: fix 2KB pgtable release race
+      s390/mm: better annotate 2KB pagetable fragments handling
+      s390/mm: check 2KB-fragment page on release
+
+Eric W. Biederman (1):
+      s390/exit: remove dead reference to do_exit from copy_thread
+
+Greg Kroah-Hartman (2):
+      s390/sclp_sd: use default_groups in kobj_type
+      s390/dasd: use default_groups in kobj_type
+
+Guo Ren (1):
+      s390: remove unused TASK_SIZE_OF
+
+Heiko Carstens (14):
+      s390/vmcp: use page_to_virt instead of page_to_phys
+      s390/nmi: add missing __pa/__va address conversion of extended save area
+      s390/mm: add missing phys_to_virt translation to page table dumper
+      s390/diag: use pfn_to_phys() instead of open coding
+      s390/cmm: add missing virt_to_phys() conversion
+      s390/pgalloc: add virt/phys address handling to base asce functions
+      s390/pgalloc: use pointers instead of unsigned long values
+      s390/ap: add missing virt_to_phys address conversion
+      s390/sclp: fix memblock_phys_free() vs memblock_free() confusion
+      s390/smp: fix memblock_phys_free() vs memblock_free() confusion
+      s390/uv: fix memblock virtual vs physical address confusion
+      s390/disassembler: update opcode table
+      s390/crypto: fix compile error for ChaCha20 module
+      s390/crash_dump: fix virtual vs physical address handling
+
+Juergen Christ (1):
+      s390/zcrypt: CCA control CPRB sending
+
+Julian Wiedmann (9):
+      s390/qdio: remove QDIO_SBAL_SIZE macro
+      s390/qdio: improve handling of CIWs
+      s390/qdio: avoid allocating the qdio_irq with GFP_DMA
+      s390/qdio: clean up access to queue in qdio_handle_activate_check()
+      s390/qdio: clarify handler logic for qdio_handle_activate_check()
+      s390/qdio: split qdio_inspect_queue()
+      s390/qdio: split do_QDIO()
+      s390/qdio: remove unneeded sanity check in qdio_do_sqbs()
+      s390/qdio: clarify logical vs absolute in QIB's kerneldoc
+
+Niklas Schnelle (3):
+      s390/pci: use phys_to_virt() for AIBVs/DIBVs
+      s390/pci: use physical addresses in DMA tables
+      s390/pci: simplify __pciwb_mio() inline asm
+
+Patrick Steuer (1):
+      s390/crypto: add SIMD implementation for ChaCha20
+
+Tony Krowiak (1):
+      s390/vfio-ap: add status attribute to AP queue device's sysfs dir
+
+Vineeth Vijayan (1):
+      s390/cio: remove uevent suppress from cio driver
+
+ arch/s390/configs/debug_defconfig |   1 +
+ arch/s390/configs/defconfig       |   1 +
+ arch/s390/crypto/Makefile         |   2 +
+ arch/s390/crypto/chacha-glue.c    | 100 +++++
+ arch/s390/crypto/chacha-s390.S    | 907 ++++++++++++++++++++++++++++++++++++++
+ arch/s390/crypto/chacha-s390.h    |  14 +
+ arch/s390/include/asm/ap.h        |   4 +-
+ arch/s390/include/asm/diag.h      |   4 +-
+ arch/s390/include/asm/nmi.h       |   6 +-
+ arch/s390/include/asm/pci_dma.h   |  29 +-
+ arch/s390/include/asm/processor.h |   3 +-
+ arch/s390/include/asm/qdio.h      |  25 +-
+ arch/s390/include/asm/vx-insn.h   | 117 +++++
+ arch/s390/kernel/crash_dump.c     |   2 +-
+ arch/s390/kernel/dis.c            |   1 +
+ arch/s390/kernel/machine_kexec.c  |   2 +-
+ arch/s390/kernel/nmi.c            |  43 +-
+ arch/s390/kernel/process.c        |   1 -
+ arch/s390/kernel/setup.c          |   2 +-
+ arch/s390/kernel/smp.c            |  35 +-
+ arch/s390/kernel/uv.c             |  10 +-
+ arch/s390/mm/cmm.c                |   2 +-
+ arch/s390/mm/fault.c              |   8 +-
+ arch/s390/mm/init.c               |   3 +
+ arch/s390/mm/pgalloc.c            | 244 +++++++---
+ arch/s390/pci/pci.c               |   2 +-
+ arch/s390/pci/pci_dma.c           |  26 +-
+ arch/s390/pci/pci_insn.c          |   5 +-
+ arch/s390/pci/pci_irq.c           |   6 +-
+ arch/s390/tools/opcodes.txt       |   3 +-
+ drivers/crypto/Kconfig            |  12 +
+ drivers/iommu/s390-iommu.c        |  10 +-
+ drivers/s390/block/dasd_devmap.c  |   3 +-
+ drivers/s390/char/sclp_early.c    |   2 +-
+ drivers/s390/char/sclp_sd.c       |   3 +-
+ drivers/s390/char/vmcp.c          |   4 +-
+ drivers/s390/cio/chsc_sch.c       |   5 -
+ drivers/s390/cio/css.c            |  19 -
+ drivers/s390/cio/device.c         |  20 +-
+ drivers/s390/cio/eadm_sch.c       |   5 -
+ drivers/s390/cio/qdio.h           |   7 +-
+ drivers/s390/cio/qdio_main.c      | 210 +++++----
+ drivers/s390/cio/qdio_setup.c     |  22 +-
+ drivers/s390/cio/vfio_ccw_drv.c   |   5 -
+ drivers/s390/crypto/vfio_ap_drv.c |  79 +++-
+ drivers/s390/crypto/zcrypt_api.c  |   7 +-
+ drivers/s390/net/qeth_core_main.c |  36 +-
+ drivers/s390/scsi/zfcp_qdio.c     |  19 +-
+ 48 files changed, 1703 insertions(+), 373 deletions(-)
+ create mode 100644 arch/s390/crypto/chacha-glue.c
+ create mode 100644 arch/s390/crypto/chacha-s390.S
+ create mode 100644 arch/s390/crypto/chacha-s390.h
 
