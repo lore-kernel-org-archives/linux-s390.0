@@ -2,110 +2,127 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 786D8C4332F
-	for <linux-s390@archiver.kernel.org>; Tue, 11 Jan 2022 03:08:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B4452C433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 11 Jan 2022 08:23:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243632AbiAKDIw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 10 Jan 2022 22:08:52 -0500
-Received: from mga17.intel.com ([192.55.52.151]:21785 "EHLO mga17.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231326AbiAKDIv (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 10 Jan 2022 22:08:51 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1641870531; x=1673406531;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=RMI1RbSj7Nf4sUd+ZkqJlzpz1NnGp0vcp4SZw2pUIQ4=;
-  b=RSpicIQe+l5aR4AIzuC7Z2G+QfPrxtJX2eUH1qOY1k3rT6EwxePehKGR
-   VcpNjVzxpM5q5aq+g1/U+HYQqByxWC+ikXsREKKcm9P/6HvQqxqx0xc5d
-   80ca176wYGw+0I6CvsxB0yKyYcqGAU4RdQmqiHxfen2mMynEEZxRt09pF
-   aL3kt1wUbPDK0911UGkoiibrke7aenkr/OkFxdj8DXwwkloDxtatHulJO
-   Dk1LhvrNCn41twWI7BU27Y1Qm3tlRLuHgQRLEaiwKDsKIIah4gCa6JXB5
-   dPYZynFvjofaS3G0BhWJm23OtMYQPbWhwzVzw2x45xSEsIW38zY7Y8isc
-   w==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10223"; a="224085784"
-X-IronPort-AV: E=Sophos;i="5.88,278,1635231600"; 
-   d="scan'208";a="224085784"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jan 2022 19:08:51 -0800
-X-IronPort-AV: E=Sophos;i="5.88,278,1635231600"; 
-   d="scan'208";a="622907157"
-Received: from gao-cwp.sh.intel.com (HELO gao-cwp) ([10.239.159.105])
-  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jan 2022 19:08:40 -0800
-Date:   Tue, 11 Jan 2022 11:19:34 +0800
-From:   Chao Gao <chao.gao@intel.com>
-To:     Sean Christopherson <seanjc@google.com>
-Cc:     kvm@vger.kernel.org, pbonzini@redhat.com, kevin.tian@intel.com,
-        tglx@linutronix.de, Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Anup Patel <anup.patel@wdc.com>,
-        Atish Patra <atish.patra@wdc.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Wanpeng Li <wanpengli@tencent.com>,
-        Jim Mattson <jmattson@google.com>,
-        Joerg Roedel <joro@8bytes.org>, Ingo Molnar <mingo@redhat.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "Maciej S. Szmigiero" <maciej.szmigiero@oracle.com>,
-        Fabiano Rosas <farosas@linux.ibm.com>,
-        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
-        =?iso-8859-1?Q?C=E9dric?= Le Goater <clg@kaod.org>,
-        Bharata B Rao <bharata@linux.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu,
-        linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, kvm-riscv@lists.infradead.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 3/6] KVM: Remove opaque from
- kvm_arch_check_processor_compat
-Message-ID: <20220111031933.GB2175@gao-cwp>
-References: <20211227081515.2088920-1-chao.gao@intel.com>
- <20211227081515.2088920-4-chao.gao@intel.com>
- <Ydy8BCfE0jhJd5uE@google.com>
+        id S236159AbiAKIXO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 11 Jan 2022 03:23:14 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:43504 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231130AbiAKIXN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 11 Jan 2022 03:23:13 -0500
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20B6M46N006394;
+        Tue, 11 Jan 2022 08:23:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=ZCXiORw8q4kMLigaeWbCEr1ZbPrWij1oIpz06YA8rxA=;
+ b=S3f5OetpLok3Be2CnYgiKrtAE1kWYUG+VQ4nMJGvncSWPAdO/DsQXbLQYQ9pCG8WicW/
+ Xps6ZA+mN5l2nS0B9ozVqPPJ8fgqA0MkYTCuV51ePXLrfuIcGXGbFhtXU7DaJDUUrtc4
+ daI2VRPdeIUduquDVlIoOai9gPPAeVPSBXbfg9DAzp9OJ787VstVx0GvaI9FuU8pplqG
+ GXAexwgPXRDJel3i4KS5P/svW2FAcUS8dy/2xUnhFgwNW5qVYbnJZx6yARD+T8IPXLWi
+ YdUEi7Y12mb80VYoSSIOrQfI5WKpGLguoxSNFxfd1VN4jBwLEnM0sOMjHBQ1AcGpNyej kw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dh4jdasgp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 11 Jan 2022 08:23:12 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20B7psTJ030195;
+        Tue, 11 Jan 2022 08:23:11 GMT
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dh4jdasg3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 11 Jan 2022 08:23:11 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20B8DgS5025268;
+        Tue, 11 Jan 2022 08:23:09 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma01fra.de.ibm.com with ESMTP id 3dfwhhx62b-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 11 Jan 2022 08:23:09 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20B8N6v138863202
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 11 Jan 2022 08:23:06 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B499D4C05A;
+        Tue, 11 Jan 2022 08:23:06 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5FA724C044;
+        Tue, 11 Jan 2022 08:23:06 +0000 (GMT)
+Received: from [9.145.30.70] (unknown [9.145.30.70])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 11 Jan 2022 08:23:06 +0000 (GMT)
+Message-ID: <8b720956-c8fe-0fe2-b019-70518d5c60c8@linux.ibm.com>
+Date:   Tue, 11 Jan 2022 09:23:08 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Ydy8BCfE0jhJd5uE@google.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.1
+Subject: Re: [PATCH net 1/3] net/smc: Resolve the race between link group
+ access and termination
+Content-Language: en-US
+To:     Wen Gu <guwen@linux.alibaba.com>, davem@davemloft.net,
+        kuba@kernel.org
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <1641806784-93141-1-git-send-email-guwen@linux.alibaba.com>
+ <1641806784-93141-2-git-send-email-guwen@linux.alibaba.com>
+From:   Karsten Graul <kgraul@linux.ibm.com>
+Organization: IBM Deutschland Research & Development GmbH
+In-Reply-To: <1641806784-93141-2-git-send-email-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 3-XXLShBQ0Q4E7NQgLXScZgiyhhOrOrK
+X-Proofpoint-ORIG-GUID: oMbR3VimQlmhhihOmexF_qD8Y4fVweVl
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-01-11_03,2022-01-10_02,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 impostorscore=0
+ mlxscore=0 adultscore=0 clxscore=1015 mlxlogscore=999 lowpriorityscore=0
+ priorityscore=1501 suspectscore=0 phishscore=0 bulkscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
+ definitions=main-2201110044
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jan 10, 2022 at 11:06:44PM +0000, Sean Christopherson wrote:
->On Mon, Dec 27, 2021, Chao Gao wrote:
->> No arch implementation uses this opaque now.
->
->Except for the RISC-V part, this can be a pure revert of commit b99040853738 ("KVM:
->Pass kvm_init()'s opaque param to additional arch funcs").  I think it makes sense
->to process it as a revert, with a short blurb in the changelog to note that RISC-V
->is manually modified as RISC-V support came along in the interim.
+On 10/01/2022 10:26, Wen Gu wrote:
+> We encountered some crashes caused by the race between the access
+> and the termination of link groups.
+> 
 
-commit b99040853738 adds opaque param to kvm_arch_hardware_setup(), which isn't
-reverted in this patch. I.e., this patch is a partial revert of b99040853738
-plus manual changes to RISC-V. Given that, "process it as a revert" means
-clearly say in changelog that this commit contains a partial revert of commit
-b99040853738 ("KVM: Pass kvm_init()'s opaque param to additional arch funcs").
+>  
+> +/* won't be freed until no one accesses to lgr anymore */
+> +static void __smc_lgr_free(struct smc_link_group *lgr)
+> +{
+> +	smc_lgr_free_bufs(lgr);
+> +	if (!lgr->is_smcd)
+> +		smc_wr_free_lgr_mem(lgr);
+> +	kfree(lgr);
+> +}
+> +
+>  /* remove a link group */
+>  static void smc_lgr_free(struct smc_link_group *lgr)
+>  {
+> @@ -1298,7 +1326,6 @@ static void smc_lgr_free(struct smc_link_group *lgr)
+>  		smc_llc_lgr_clear(lgr);
+>  	}
+>  
+> -	smc_lgr_free_bufs(lgr);
+>  	destroy_workqueue(lgr->tx_wq);
+>  	if (lgr->is_smcd) {
+>  		smc_ism_put_vlan(lgr->smcd, lgr->vlan_id);
+> @@ -1306,11 +1333,21 @@ static void smc_lgr_free(struct smc_link_group *lgr)
+>  		if (!atomic_dec_return(&lgr->smcd->lgr_cnt))
+>  			wake_up(&lgr->smcd->lgrs_deleted);
+>  	} else {
+> -		smc_wr_free_lgr_mem(lgr);
+>  		if (!atomic_dec_return(&lgr_cnt))
+>  			wake_up(&lgrs_deleted);
 
-Right?
+These waiters (seaparate ones for smcd and smcr) are used to wait for all lgrs 
+to be deleted when a module unload or reboot was triggered, so it must only be 
+woken up when the lgr is actually freed.
