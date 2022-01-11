@@ -2,342 +2,181 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C408FC433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 11 Jan 2022 10:00:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F24FC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 11 Jan 2022 10:04:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237370AbiAKKAX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 11 Jan 2022 05:00:23 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:3778 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237046AbiAKKAW (ORCPT
+        id S235485AbiAKKEC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 11 Jan 2022 05:04:02 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:1672 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234586AbiAKKEC (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 11 Jan 2022 05:00:22 -0500
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20B7aPlQ015796;
-        Tue, 11 Jan 2022 10:00:21 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=c9SdVrdxP+DbC5FpmnE055EG7CVEZXz93kVVeEWEeOA=;
- b=k1nmfwjQ+2STyo4uccbDONZZFNvAr+QKDJpsf7caH6dQYalib+Up7Up7h+ZZL76nfNV5
- zxvHPAJ7jeCH5I1T0UC/dqp3LJJRC7UooncVvNECdgZL0SwdAdvbSgqNNMr3VLCcjwjH
- w0PMqHuKhyQpYtj1kZ6rfu5RsiXI4n3fkPABhlQilPxn1gwmOSl5v63fTpB7OKiIFMiu
- LoC0WZA7GhCXm/Ji/GTT2Mk+1r6qQ02ejcelKM2VIdqHdlTLS/LALEOmFFwV0PekdKDE
- 0waqiCu0UFzuKLNAiA5X9xkEpbA2uvh7Gk/v+Kpw7oaowgsfd+/hGYpt14qzq62afahz qg== 
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dfm8k8mjw-1
+        Tue, 11 Jan 2022 05:04:02 -0500
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20B7cKTm015944;
+        Tue, 11 Jan 2022 10:03:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=5EBX0iufaeuC20EJe3BZZ7yAWIAZFPQsNZo3cADR32c=;
+ b=NnouLr/FKt3FvOZQidKTVYXvIDD9p9JfAfe4ghZFC9qHUoadfZ8OqD76OIwIExuRtilw
+ iorsEO5A3vbtmYoFW/NwNOdFVEyFCPoWBlh7MGwyN3MfhE9q79BsGwzDKJ0klZCEtL96
+ agnt2wJf1ImBSzl1LnPcv88Z3sdVYvBhOr91hzpjTJculWTVtIOyx/lAp16ZB0IpHsfp
+ /8hlXWfMn09X8OmWC2bCBfy6Ohpr95NaMXk31UYOJEDlct/Dr1kl6FAqJShLeDKntHiZ
+ lIsrAqx1lPtHtBb7Vfnw20rJrT7m610gDG0djo8pjbPA8mskjtk8pd1sPzDlt7zdKuij Hg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dh1b4r94g-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 11 Jan 2022 10:00:21 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20B9wXlu011653;
-        Tue, 11 Jan 2022 10:00:19 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma06fra.de.ibm.com with ESMTP id 3df1vjbyby-1
+        Tue, 11 Jan 2022 10:03:59 +0000
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20B9m8CV024690;
+        Tue, 11 Jan 2022 10:03:58 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dh1b4r93e-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 11 Jan 2022 10:00:19 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20BA0Gjl43712852
+        Tue, 11 Jan 2022 10:03:58 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20B9xuUx028812;
+        Tue, 11 Jan 2022 10:03:56 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 3df1vhw7n7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 11 Jan 2022 10:03:56 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20BA3sXj47644964
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 11 Jan 2022 10:00:16 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1195242052;
-        Tue, 11 Jan 2022 10:00:16 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id ADA3E4204D;
-        Tue, 11 Jan 2022 10:00:15 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 11 Jan 2022 10:00:15 +0000 (GMT)
-From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-To:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Nico Boehr <nrb@linux.ibm.com>
-Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-Subject: [PATCH] s390/uaccess: introduce bit field for OAC specifier
-Date:   Tue, 11 Jan 2022 11:00:03 +0100
-Message-Id: <20220111100003.743116-1-scgl@linux.ibm.com>
-X-Mailer: git-send-email 2.32.0
+        Tue, 11 Jan 2022 10:03:54 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F03474C04E;
+        Tue, 11 Jan 2022 10:03:53 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A91304C05A;
+        Tue, 11 Jan 2022 10:03:53 +0000 (GMT)
+Received: from [9.145.30.70] (unknown [9.145.30.70])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 11 Jan 2022 10:03:53 +0000 (GMT)
+Message-ID: <ac977743-9696-9723-5682-97ebbcca6828@linux.ibm.com>
+Date:   Tue, 11 Jan 2022 11:03:55 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.1
+Subject: Re: [PATCH net] net/smc: Avoid setting clcsock options after clcsock
+ released
+Content-Language: en-US
+To:     Wen Gu <guwen@linux.alibaba.com>, davem@davemloft.net,
+        kuba@kernel.org
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <1641807505-54454-1-git-send-email-guwen@linux.alibaba.com>
+From:   Karsten Graul <kgraul@linux.ibm.com>
+Organization: IBM Deutschland Research & Development GmbH
+In-Reply-To: <1641807505-54454-1-git-send-email-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: aq3xNdY2ndN_A8V4m9s1v4p1Mv94bX9p
-X-Proofpoint-GUID: aq3xNdY2ndN_A8V4m9s1v4p1Mv94bX9p
+X-Proofpoint-GUID: o4NAAuT755QcREWKbu0Yr3z7sP43NDTm
+X-Proofpoint-ORIG-GUID: lIp-rD-vBVU1p0y6TsXscFJqGOD0SsPx
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-01-11_03,2022-01-10_02,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 impostorscore=0
- mlxscore=0 clxscore=1011 bulkscore=0 mlxlogscore=999 lowpriorityscore=0
- suspectscore=0 spamscore=0 priorityscore=1501 malwarescore=0 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
- definitions=main-2201110054
+ definitions=2022-01-11_03,2022-01-11_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ clxscore=1015 suspectscore=0 bulkscore=0 malwarescore=0 priorityscore=1501
+ mlxscore=0 spamscore=0 phishscore=0 impostorscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2201110059
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Nico Boehr <nrb@linux.ibm.com>
+On 10/01/2022 10:38, Wen Gu wrote:
+> We encountered a crash in smc_setsockopt() and it is caused by
+> accessing smc->clcsock after clcsock was released.
+> 
+>  BUG: kernel NULL pointer dereference, address: 0000000000000020
+>  #PF: supervisor read access in kernel mode
+>  #PF: error_code(0x0000) - not-present page
+>  PGD 0 P4D 0
+>  Oops: 0000 [#1] PREEMPT SMP PTI
+>  CPU: 1 PID: 50309 Comm: nginx Kdump: loaded Tainted: G E     5.16.0-rc4+ #53
+>  RIP: 0010:smc_setsockopt+0x59/0x280 [smc]
+>  Call Trace:
+>   <TASK>
+>   __sys_setsockopt+0xfc/0x190
+>   __x64_sys_setsockopt+0x20/0x30
+>   do_syscall_64+0x34/0x90
+>   entry_SYSCALL_64_after_hwframe+0x44/0xae
+>  RIP: 0033:0x7f16ba83918e
+>   </TASK>
+> 
+> This patch tries to fix it by holding clcsock_release_lock and
+> checking whether clcsock has already been released. In case that
+> a crash of the same reason happens in smc_getsockopt(), this patch
+> also checkes smc->clcsock in smc_getsockopt().
+> 
+> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+> ---
+>  net/smc/af_smc.c | 16 +++++++++++++++-
+>  1 file changed, 15 insertions(+), 1 deletion(-)
+> 
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index 1c9289f..af423f4 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -2441,6 +2441,11 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
+>  	/* generic setsockopts reaching us here always apply to the
+>  	 * CLC socket
+>  	 */
+> +	mutex_lock(&smc->clcsock_release_lock);
+> +	if (!smc->clcsock) {
+> +		mutex_unlock(&smc->clcsock_release_lock);
+> +		return -EBADF;
+> +	}
+>  	if (unlikely(!smc->clcsock->ops->setsockopt))
+>  		rc = -EOPNOTSUPP;
+>  	else
+> @@ -2450,6 +2455,7 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
+>  		sk->sk_err = smc->clcsock->sk->sk_err;
+>  		sk_error_report(sk);
+>  	}
+> +	mutex_unlock(&smc->clcsock_release_lock);
 
-Previously, we've used  magic values to specify the OAC
-(operand-access control) for mvcos.
+In the switch() the function smc_switch_to_fallback() might be called which also
+accesses smc->clcsock without further checking. This should also be protected then?
+Also from all callers of smc_switch_to_fallback() ?
 
-Instead we introduce a bit field for it.
+There are more uses of smc->clcsock (e.g. smc_bind(), ...), so why does this problem 
+happen in setsockopt() for you only? I suspect it depends on the test case.
 
-When using a bit field, we cannot use an immediate value with K
-constraint anymore, since GCC older than 10 doesn't recognize
-the bit field union as a compile time constant.
-To make things work with older compilers,
-load the OAC value through a register.
+I wonder if it makes sense to check and protect smc->clcsock at all places in the code where 
+it is used... as of now we had no such races like you encountered. But I see that in theory 
+this problem could also happen in other code areas.
 
-Bloat-o-meter reports a slight increase in kernel size with this change:
-Total: Before=15692135, After=15693015, chg +0.01%
+>  
+>  	if (optlen < sizeof(int))
+>  		return -EINVAL;
+> @@ -2509,13 +2515,21 @@ static int smc_getsockopt(struct socket *sock, int level, int optname,
+>  			  char __user *optval, int __user *optlen)
+>  {
+>  	struct smc_sock *smc;
+> +	int rc;
+>  
+>  	smc = smc_sk(sock->sk);
+> +	mutex_lock(&smc->clcsock_release_lock);
+> +	if (!smc->clcsock) {
+> +		mutex_unlock(&smc->clcsock_release_lock);
+> +		return -EBADF;
+> +	}
+>  	/* socket options apply to the CLC socket */
+>  	if (unlikely(!smc->clcsock->ops->getsockopt))
+>  		return -EOPNOTSUPP;
+> -	return smc->clcsock->ops->getsockopt(smc->clcsock, level, optname,
+> +	rc = smc->clcsock->ops->getsockopt(smc->clcsock, level, optname,
+>  					     optval, optlen);
+> +	mutex_unlock(&smc->clcsock_release_lock);
+> +	return rc;
+>  }
+>  
+>  static int smc_ioctl(struct socket *sock, unsigned int cmd,
 
-Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-Co-developed-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
----
- arch/s390/include/asm/uaccess.h | 120 ++++++++++++++++++++------------
- arch/s390/lib/uaccess.c         |  24 +++++--
- 2 files changed, 95 insertions(+), 49 deletions(-)
-
-diff --git a/arch/s390/include/asm/uaccess.h b/arch/s390/include/asm/uaccess.h
-index ce550d06abc3..02b467461163 100644
---- a/arch/s390/include/asm/uaccess.h
-+++ b/arch/s390/include/asm/uaccess.h
-@@ -49,51 +49,85 @@ int __get_user_bad(void) __attribute__((noreturn));
- 
- #ifdef CONFIG_HAVE_MARCH_Z10_FEATURES
- 
-+union oac {
-+	unsigned int val;
-+	struct {
-+		struct {
-+			unsigned short key : 4;
-+			unsigned short     : 4;
-+			unsigned short as  : 2;
-+			unsigned short     : 4;
-+			unsigned short k   : 1;
-+			unsigned short a   : 1;
-+		} oac1;
-+		struct {
-+			unsigned short key : 4;
-+			unsigned short     : 4;
-+			unsigned short as  : 2;
-+			unsigned short     : 4;
-+			unsigned short k   : 1;
-+			unsigned short a   : 1;
-+		} oac2;
-+	};
-+};
-+
--#define __put_get_user_asm(to, from, size, insn)		\
--({								\
--	int __rc;						\
--								\
--	asm volatile(						\
--		insn "		0,%[spec]\n"			\
--		"0:	mvcos	%[_to],%[_from],%[_size]\n"	\
--		"1:	xr	%[rc],%[rc]\n"			\
--		"2:\n"						\
--		".pushsection .fixup, \"ax\"\n"			\
--		"3:	lhi	%[rc],%[retval]\n"		\
--		"	jg	2b\n"				\
--		".popsection\n"					\
--		EX_TABLE(0b,3b) EX_TABLE(1b,3b)			\
--		: [rc] "=&d" (__rc), [_to] "+Q" (*(to))		\
--		: [_size] "d" (size), [_from] "Q" (*(from)),	\
--		  [retval] "K" (-EFAULT), [spec] "K" (0x81UL)	\
--		: "cc", "0");					\
--	__rc;							\
-+#define __put_get_user_asm(to, from, size, oac_spec)			\
-+({									\
-+	int __rc;							\
-+									\
-+	asm volatile(							\
-+		"lr	0,%[spec]\n"					\
-+		"0:	mvcos	%[_to],%[_from],%[_size]\n"		\
-+		"1:	xr	%[rc],%[rc]\n"				\
-+		"2:\n"							\
-+		".pushsection .fixup, \"ax\"\n"				\
-+		"3:	lhi	%[rc],%[retval]\n"			\
-+		"	jg	2b\n"					\
-+		".popsection\n"						\
-+		EX_TABLE(0b,3b) EX_TABLE(1b,3b)				\
-+		: [rc] "=&d" (__rc), [_to] "+Q" (*(to))			\
-+		: [_size] "d" (size), [_from] "Q" (*(from)),		\
-+		  [retval] "K" (-EFAULT), [spec] "d" (oac_spec.val)	\
-+		: "cc", "0");						\
-+	__rc;								\
- })
- 
-+#define __put_user_asm(to, from, size)				\
-+	__put_get_user_asm(to, from, size, ((union oac) {	\
-+		.oac1.as = PSW_BITS_AS_SECONDARY,		\
-+		.oac1.a = 1					\
-+	}))
-+
-+#define __get_user_asm(to, from, size)				\
-+	__put_get_user_asm(to, from, size, ((union oac) {	\
-+		.oac2.as = PSW_BITS_AS_SECONDARY,		\
-+		.oac2.a = 1					\
-+	}))							\
-+
- static __always_inline int __put_user_fn(void *x, void __user *ptr, unsigned long size)
- {
- 	int rc;
- 
- 	switch (size) {
- 	case 1:
--		rc = __put_get_user_asm((unsigned char __user *)ptr,
--					(unsigned char *)x,
--					size, "llilh");
-+		rc = __put_user_asm((unsigned char __user *)ptr,
-+				    (unsigned char *)x,
-+				    size);
- 		break;
- 	case 2:
--		rc = __put_get_user_asm((unsigned short __user *)ptr,
--					(unsigned short *)x,
--					size, "llilh");
-+		rc = __put_user_asm((unsigned short __user *)ptr,
-+				    (unsigned short *)x,
-+				    size);
- 		break;
- 	case 4:
--		rc = __put_get_user_asm((unsigned int __user *)ptr,
--					(unsigned int *)x,
--					size, "llilh");
-+		rc = __put_user_asm((unsigned int __user *)ptr,
-+				    (unsigned int *)x,
-+				    size);
- 		break;
- 	case 8:
--		rc = __put_get_user_asm((unsigned long __user *)ptr,
--					(unsigned long *)x,
--					size, "llilh");
-+		rc = __put_user_asm((unsigned long __user *)ptr,
-+				    (unsigned long *)x,
-+				    size);
- 		break;
- 	default:
- 		__put_user_bad();
-@@ -108,24 +142,24 @@ static __always_inline int __get_user_fn(void *x, const void __user *ptr, unsign
- 
- 	switch (size) {
- 	case 1:
--		rc = __put_get_user_asm((unsigned char *)x,
--					(unsigned char __user *)ptr,
--					size, "lghi");
-+		rc = __get_user_asm((unsigned char *)x,
-+				    (unsigned char __user *)ptr,
-+				    size);
- 		break;
- 	case 2:
--		rc = __put_get_user_asm((unsigned short *)x,
--					(unsigned short __user *)ptr,
--					size, "lghi");
-+		rc = __get_user_asm((unsigned short *)x,
-+				    (unsigned short __user *)ptr,
-+				    size);
- 		break;
- 	case 4:
--		rc = __put_get_user_asm((unsigned int *)x,
--					(unsigned int __user *)ptr,
--					size, "lghi");
-+		rc = __get_user_asm((unsigned int *)x,
-+				    (unsigned int __user *)ptr,
-+				    size);
- 		break;
- 	case 8:
--		rc = __put_get_user_asm((unsigned long *)x,
--					(unsigned long __user *)ptr,
--					size, "lghi");
-+		rc = __get_user_asm((unsigned long *)x,
-+				    (unsigned long __user *)ptr,
-+				    size);
- 		break;
- 	default:
- 		__get_user_bad();
-diff --git a/arch/s390/lib/uaccess.c b/arch/s390/lib/uaccess.c
-index a596e69d3c47..d3a700385875 100644
---- a/arch/s390/lib/uaccess.c
-+++ b/arch/s390/lib/uaccess.c
-@@ -62,10 +62,14 @@ static inline unsigned long copy_from_user_mvcos(void *x, const void __user *ptr
- 						 unsigned long size)
- {
- 	unsigned long tmp1, tmp2;
-+	union oac spec = {
-+		.oac2.as = PSW_BITS_AS_SECONDARY,
-+		.oac2.a = 1,
-+	};
- 
- 	tmp1 = -4096UL;
- 	asm volatile(
--		"   lghi  0,%[spec]\n"
-+		"   lr   0,%[spec]\n"
- 		"0: .insn ss,0xc80000000000,0(%0,%2),0(%1),0\n"
- 		"6: jz    4f\n"
- 		"1: algr  %0,%3\n"
-@@ -84,7 +88,7 @@ static inline unsigned long copy_from_user_mvcos(void *x, const void __user *ptr
- 		"5:\n"
- 		EX_TABLE(0b,2b) EX_TABLE(3b,5b) EX_TABLE(6b,2b) EX_TABLE(7b,5b)
- 		: "+a" (size), "+a" (ptr), "+a" (x), "+a" (tmp1), "=a" (tmp2)
--		: [spec] "K" (0x81UL)
-+		: [spec] "d" (spec.val)
- 		: "cc", "memory", "0");
- 	return size;
- }
-@@ -135,10 +139,14 @@ static inline unsigned long copy_to_user_mvcos(void __user *ptr, const void *x,
- 					       unsigned long size)
- {
- 	unsigned long tmp1, tmp2;
-+	union oac spec = {
-+		.oac1.as = PSW_BITS_AS_SECONDARY,
-+		.oac1.a = 1,
-+	};
- 
- 	tmp1 = -4096UL;
- 	asm volatile(
--		"   llilh 0,%[spec]\n"
-+		"   lr 0,%[spec]\n"
- 		"0: .insn ss,0xc80000000000,0(%0,%1),0(%2),0\n"
- 		"6: jz    4f\n"
- 		"1: algr  %0,%3\n"
-@@ -157,7 +165,7 @@ static inline unsigned long copy_to_user_mvcos(void __user *ptr, const void *x,
- 		"5:\n"
- 		EX_TABLE(0b,2b) EX_TABLE(3b,5b) EX_TABLE(6b,2b) EX_TABLE(7b,5b)
- 		: "+a" (size), "+a" (ptr), "+a" (x), "+a" (tmp1), "=a" (tmp2)
--		: [spec] "K" (0x81UL)
-+		: [spec] "d" (spec.val)
- 		: "cc", "memory", "0");
- 	return size;
- }
-@@ -207,10 +215,14 @@ EXPORT_SYMBOL(raw_copy_to_user);
- static inline unsigned long clear_user_mvcos(void __user *to, unsigned long size)
- {
- 	unsigned long tmp1, tmp2;
-+	union oac spec = {
-+		.oac1.as = PSW_BITS_AS_SECONDARY,
-+		.oac1.a = 1,
-+	};
- 
- 	tmp1 = -4096UL;
- 	asm volatile(
--		"   llilh 0,%[spec]\n"
-+		"   lr 0,%[spec]\n"
- 		"0: .insn ss,0xc80000000000,0(%0,%1),0(%4),0\n"
- 		"   jz	  4f\n"
- 		"1: algr  %0,%2\n"
-@@ -228,7 +240,7 @@ static inline unsigned long clear_user_mvcos(void __user *to, unsigned long size
- 		"5:\n"
- 		EX_TABLE(0b,2b) EX_TABLE(3b,5b)
- 		: "+a" (size), "+a" (to), "+a" (tmp1), "=a" (tmp2)
--		: "a" (empty_zero_page), [spec] "K" (0x81UL)
-+		: "a" (empty_zero_page), [spec] "d" (spec.val)
- 		: "cc", "memory", "0");
- 	return size;
- }
 -- 
-2.32.0
-
+Karsten
