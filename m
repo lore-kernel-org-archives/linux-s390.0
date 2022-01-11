@@ -2,121 +2,75 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B3C0C433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 11 Jan 2022 16:03:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 052B1C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 11 Jan 2022 16:34:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243724AbiAKQDA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 11 Jan 2022 11:03:00 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:4044 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S240042AbiAKQC7 (ORCPT
+        id S1350023AbiAKQed (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 11 Jan 2022 11:34:33 -0500
+Received: from out4436.biz.mail.alibaba.com ([47.88.44.36]:7763 "EHLO
+        out4436.biz.mail.alibaba.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1349819AbiAKQea (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 11 Jan 2022 11:02:59 -0500
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20BEUe2m035994;
-        Tue, 11 Jan 2022 16:02:56 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=dMRAPPyuMvF9myQdsG2sQNq5e8o8ZFFCRM9aoVDt6Ew=;
- b=L4q3jur4wwQMEYRepCd2MrQwBoYDzJFm2hZEgeVs7+6wSM+4aSzSdYWZIJQgvMe2Vl6v
- KSbEQNx1AN8Kyy61kBTEjafX3kLiLijQgCAn0wChBlZ6a5oS6QdrrgIlAdYX/tsCq49M
- RmdbzFNTxaBozODDww3AJolpT0Br8CPZ/ErU70C//7vsQMgxSIT6SI+oFLI+FVBtn0xB
- vTRrHq/nxYtws5dBT+BmYkQddN0ghm4NfeEJpi96zL5qCthkA6rYro3TXsvd2XA9z3ds
- eU6rcZM7Wz+7+8j5xXKBm7Lrs8wOQh5GB+rMerLXYFg6Yx0ONrI+BVFXakiGtfUCSsI7 uA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dfmjf1j4c-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 11 Jan 2022 16:02:56 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20BFmAZB009888;
-        Tue, 11 Jan 2022 16:02:55 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dfmjf1j3j-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 11 Jan 2022 16:02:55 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20BFmAAm029495;
-        Tue, 11 Jan 2022 16:02:53 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma02fra.de.ibm.com with ESMTP id 3df289yngt-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 11 Jan 2022 16:02:53 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20BG2pFw39715102
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 11 Jan 2022 16:02:51 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1FF954C05E;
-        Tue, 11 Jan 2022 16:02:51 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C650D4C052;
-        Tue, 11 Jan 2022 16:02:50 +0000 (GMT)
-Received: from [9.145.30.70] (unknown [9.145.30.70])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 11 Jan 2022 16:02:50 +0000 (GMT)
-Message-ID: <b1882268-d8bb-eee9-8238-e30962928034@linux.ibm.com>
-Date:   Tue, 11 Jan 2022 17:02:53 +0100
+        Tue, 11 Jan 2022 11:34:30 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R321e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04357;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0V1aSp7J_1641918856;
+Received: from 30.39.146.113(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0V1aSp7J_1641918856)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Wed, 12 Jan 2022 00:34:17 +0800
+Message-ID: <719f264e-a70d-7bed-0873-ffbba8381841@linux.alibaba.com>
+Date:   Wed, 12 Jan 2022 00:34:16 +0800
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.1
-Subject: Re: [PATCH net 3/3] net/smc: Resolve the race between SMC-R link
- access and clear
-Content-Language: en-US
-To:     Wen Gu <guwen@linux.alibaba.com>, davem@davemloft.net,
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.4.0
+Subject: Re: [PATCH net] net/smc: Avoid setting clcsock options after clcsock
+ released
+To:     Karsten Graul <kgraul@linux.ibm.com>, davem@davemloft.net,
         kuba@kernel.org
 Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
         linux-kernel@vger.kernel.org
-References: <1641806784-93141-1-git-send-email-guwen@linux.alibaba.com>
- <1641806784-93141-4-git-send-email-guwen@linux.alibaba.com>
- <8f13aa62-6360-8038-3041-86fd51b40a3e@linux.ibm.com>
- <fa057e34-7626-2b19-2c2e-acd4999e7fe5@linux.alibaba.com>
-From:   Karsten Graul <kgraul@linux.ibm.com>
-Organization: IBM Deutschland Research & Development GmbH
-In-Reply-To: <fa057e34-7626-2b19-2c2e-acd4999e7fe5@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: CJDdKF2Pw4wYIPPP1_oN8N7Alr7CQzli
-X-Proofpoint-ORIG-GUID: emefwc9y2-8gEEFrZAKVMPb_lGlEVoLj
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-01-11_04,2022-01-11_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
- lowpriorityscore=0 spamscore=0 bulkscore=0 suspectscore=0 phishscore=0
- impostorscore=0 mlxscore=0 priorityscore=1501 clxscore=1015
- mlxlogscore=999 malwarescore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2110150000 definitions=main-2201110091
+References: <1641807505-54454-1-git-send-email-guwen@linux.alibaba.com>
+ <ac977743-9696-9723-5682-97ebbcca6828@linux.ibm.com>
+From:   Wen Gu <guwen@linux.alibaba.com>
+In-Reply-To: <ac977743-9696-9723-5682-97ebbcca6828@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 11/01/2022 16:49, Wen Gu wrote:
-> Thanks for your review.
-> 
-> On 2022/1/11 4:40 pm, Karsten Graul wrote:
->> On 10/01/2022 10:26, Wen Gu wrote:
->>> @@ -1226,15 +1245,23 @@ void smcr_link_clear(struct smc_link *lnk, bool log)
->>>       smc_wr_free_link(lnk);
->>>       smc_ib_destroy_queue_pair(lnk);
->>>       smc_ib_dealloc_protection_domain(lnk);
->>> -    smc_wr_free_link_mem(lnk);
->>> -    smc_lgr_put(lnk->lgr); /* lgr_hold in smcr_link_init() */
->>>       smc_ibdev_cnt_dec(lnk);
->>>       put_device(&lnk->smcibdev->ibdev->dev);
->>>       smcibdev = lnk->smcibdev;
->>> -    memset(lnk, 0, sizeof(struct smc_link));
->>> -    lnk->state = SMC_LNK_UNUSED;
->>>       if (!atomic_dec_return(&smcibdev->lnk_cnt))
->>>           wake_up(&smcibdev->lnks_deleted);
->>
->> Same here, waiter should not be woken up until the link memory is actually freed.
->>
-> 
-> OK, I will correct this as well.
-> 
-> And similarly I want to move smc_ibdev_cnt_dec() and put_device() to
-> __smcr_link_clear() as well to ensure that put link related resources
-> only when link is actually cleared. What do you think?
+Thanks for your reply.
 
-I think that's a good idea, yes.
+On 2022/1/11 6:03 pm, Karsten Graul wrote:
+> On 10/01/2022 10:38, Wen Gu wrote:
+>> We encountered a crash in smc_setsockopt() and it is caused by
+>> accessing smc->clcsock after clcsock was released.
+>>
+> 
+> In the switch() the function smc_switch_to_fallback() might be called which also
+> accesses smc->clcsock without further checking. This should also be protected then?
+> Also from all callers of smc_switch_to_fallback() ?
+> 
+> There are more uses of smc->clcsock (e.g. smc_bind(), ...), so why does this problem
+> happen in setsockopt() for you only? I suspect it depends on the test case.
+> 
+
+Yes, it depends on the test case. The crash described here only happens one time when
+I run a stress test of nginx/wrk, accompanied with frequent RNIC up/down operations.
+
+Considering accessing smc->clcsock after its release is an uncommon, low probability
+issue and only happens in setsockopt() in my test, I choce an simple way to fix it, using
+the existing clcsock_release_lock, and only check in smc_setsockopt() and smc_getsockopt().
+
+> I wonder if it makes sense to check and protect smc->clcsock at all places in the code where
+> it is used... as of now we had no such races like you encountered. But I see that in theory
+> this problem could also happen in other code areas.
+> 
+
+But inspired by your questions, I think maybe we should treat the race as a general problem?
+Do you think it is necessary to find all the potential race related to the clcsock release and
+fix them in a unified approach? like define smc->clcsock as RCU pointer, hold rcu read lock
+before accessing smc->clcsock and call synchronize_rcu() before resetting smc->clcsock? just a rough idea :)
+
+Or we should decide it later, do some more tests to see the probability of recurrence of this problem?
+
+Thanks,
+Wen Gu
