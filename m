@@ -2,214 +2,266 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C3FDC41535
-	for <linux-s390@archiver.kernel.org>; Tue, 11 Jan 2022 11:38:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CDE7CC433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 11 Jan 2022 12:27:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349669AbiAKLiG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 11 Jan 2022 06:38:06 -0500
-Received: from smtp-out2.suse.de ([195.135.220.29]:33672 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349563AbiAKLiA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 11 Jan 2022 06:38:00 -0500
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id 3ABB91F3BF;
-        Tue, 11 Jan 2022 11:37:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1641901078; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=WMeJYRdjSb6eOUZmaN5YfP8/wtUzUEKymy7rkLY/s6E=;
-        b=af8p/6PBECMt2AJo6d+lPXkOZ55rr4fwNZIs0bxZs9s07nPV2EUyC/bnqjiJzplw8B26YQ
-        LW7F4IS8CobnTZqvbhKrKH3E6gVTFRTu7zV87VpxwYOitPiL92wKGeOoTlvI7xyFF3SjCi
-        xu2qH1Ww5nLb3yyJCFULk2zcs+x5a0Q=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1641901078;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=WMeJYRdjSb6eOUZmaN5YfP8/wtUzUEKymy7rkLY/s6E=;
-        b=lq3s24y1prNekwRRb9+judS8MWA3UZXeHZG6GvZa7Tjekd2uucQeu/EJIofIFDFxG2hgo8
-        t8pW14jfvdwO5SBA==
-Received: from kitsune.suse.cz (kitsune.suse.cz [10.100.12.127])
-        by relay2.suse.de (Postfix) with ESMTP id E7A42A3B91;
-        Tue, 11 Jan 2022 11:37:57 +0000 (UTC)
-From:   Michal Suchanek <msuchanek@suse.de>
-To:     keyrings@vger.kernel.org, linux-crypto@vger.kernel.org,
-        linux-integrity@vger.kernel.org
-Cc:     Michal Suchanek <msuchanek@suse.de>, kexec@lists.infradead.org,
-        Philipp Rudo <prudo@redhat.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Nayna <nayna@linux.vnet.ibm.com>, Rob Herring <robh@kernel.org>,
-        linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Jessica Yu <jeyu@kernel.org>, linux-kernel@vger.kernel.org,
-        David Howells <dhowells@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Hari Bathini <hbathini@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linuxppc-dev@lists.ozlabs.org,
-        Frank van der Linden <fllinden@amazon.com>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Daniel Axtens <dja@axtens.net>, buendgen@de.ibm.com,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Baoquan He <bhe@redhat.com>,
-        linux-security-module@vger.kernel.org
-Subject: [PATCH v5 5/6] module: Use key_being_used_for for log messages in verify_appended_signature
-Date:   Tue, 11 Jan 2022 12:37:47 +0100
-Message-Id: <65d9913441b16e27b672cfabbab24fa5c12bee14.1641900831.git.msuchanek@suse.de>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <cover.1641900831.git.msuchanek@suse.de>
-References: <cover.1641900831.git.msuchanek@suse.de>
+        id S239870AbiAKM1P (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 11 Jan 2022 07:27:15 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:27782 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S239846AbiAKM1O (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 11 Jan 2022 07:27:14 -0500
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20BAwMYG022803;
+        Tue, 11 Jan 2022 12:27:14 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : to : cc : references : from : subject : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=vmDCe3jRYKbgTGE0LnL9ZZ+XpnzdvdngcGZhX40M+7c=;
+ b=Z5u8V/UL7zJeqd4BnhUBk/usEtFbNgWkt+JRZl9NVjlgb8pzfWHArfh4vaIpKJWVtoqp
+ Sv8T8r5CQ6neTLIdr0+vH43T8w+rhNgj9ZuD+kXS2p5gL62oVujMOqCdWESuLaYNK/T2
+ KI3QBXVqC8UNkd6FcqAlQNeeZJwJxA8FxA6rz4NE7Zk4jx3G7lHml+5r+dMA2ERSmrJW
+ LgU7Yvy4VHorZ1WzJDOKfASTzGADC7vlVFBni4B4yzJ2m+xqU2vPWNOxKxRUvvM2FhRj
+ HfJIX5rWppoMDP+terXBmpKBrF48F2afV0ngzwUhSM2bMI3XmeaKIRXhAZM3fGPxpQIK +Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3dh8m11svu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 11 Jan 2022 12:27:13 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20BCRDPJ030947;
+        Tue, 11 Jan 2022 12:27:13 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3dh8m11svb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 11 Jan 2022 12:27:13 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20BCC8bS020925;
+        Tue, 11 Jan 2022 12:27:11 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03fra.de.ibm.com with ESMTP id 3df2895k2b-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 11 Jan 2022 12:27:11 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20BCR8F039584090
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 11 Jan 2022 12:27:08 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 532E911C058;
+        Tue, 11 Jan 2022 12:27:08 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F401311C05E;
+        Tue, 11 Jan 2022 12:27:07 +0000 (GMT)
+Received: from [9.145.189.100] (unknown [9.145.189.100])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 11 Jan 2022 12:27:07 +0000 (GMT)
+Message-ID: <75d4a897-55dd-5140-ac8b-638fa18d2e17@linux.ibm.com>
+Date:   Tue, 11 Jan 2022 13:27:07 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Content-Language: en-US
+To:     Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     thuth@redhat.com, kvm@vger.kernel.org, cohuck@redhat.com,
+        imbrenda@linux.ibm.com, david@redhat.com
+References: <20220110133755.22238-1-pmorel@linux.ibm.com>
+ <20220110133755.22238-3-pmorel@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v3 2/4] s390x: stsi: Define vm_is_kvm to be
+ used in different tests
+In-Reply-To: <20220110133755.22238-3-pmorel@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: _5iuTYi6sxWoD5g-nM2Xz2fKQ0RJ71YG
+X-Proofpoint-ORIG-GUID: YtTWjZjz6ox3teKv2k9vJ-8Qz7_ofp9K
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-01-11_04,2022-01-11_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 malwarescore=0
+ clxscore=1015 priorityscore=1501 suspectscore=0 lowpriorityscore=0
+ impostorscore=0 mlxscore=0 spamscore=0 adultscore=0 mlxlogscore=999
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2201110072
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Add value for kexec appended signature and pass in key_being_used_for
-enum rather than a string to verify_appended_signature to produce log
-messages about the signature.
+On 1/10/22 14:37, Pierre Morel wrote:
+> We need in several tests to check if the VM we are running in
+> is KVM.
+> Let's add the test.
+> 
+> To check the VM type we use the STSI 3.2.2 instruction, let's
+> define it's response structure in a central header.
+> 
+> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> ---
+>   lib/s390x/stsi.h | 32 ++++++++++++++++++++++++++++++++
+>   lib/s390x/vm.c   | 39 +++++++++++++++++++++++++++++++++++++++
+>   lib/s390x/vm.h   |  1 +
+>   s390x/stsi.c     | 23 ++---------------------
+>   4 files changed, 74 insertions(+), 21 deletions(-)
+>   create mode 100644 lib/s390x/stsi.h
+> 
+> diff --git a/lib/s390x/stsi.h b/lib/s390x/stsi.h
+> new file mode 100644
+> index 00000000..02cc94a6
+> --- /dev/null
+> +++ b/lib/s390x/stsi.h
+> @@ -0,0 +1,32 @@
+> +/* SPDX-License-Identifier: GPL-2.0-or-later */
+> +/*
+> + * Structures used to Store System Information
+> + *
+> + * Copyright (c) 2021 IBM Inc
+> + */
+> +
+> +#ifndef _S390X_STSI_H_
+> +#define _S390X_STSI_H_
+> +
+> +struct sysinfo_3_2_2 {
+> +	uint8_t reserved[31];
+> +	uint8_t count;
+> +	struct {
+> +		uint8_t reserved2[4];
+> +		uint16_t total_cpus;
+> +		uint16_t conf_cpus;
+> +		uint16_t standby_cpus;
+> +		uint16_t reserved_cpus;
+> +		uint8_t name[8];
+> +		uint32_t caf;
+> +		uint8_t cpi[16];
+> +		uint8_t reserved5[3];
+> +		uint8_t ext_name_encoding;
+> +		uint32_t reserved3;
+> +		uint8_t uuid[16];
+> +	} vm[8];
+> +	uint8_t reserved4[1504];
+> +	uint8_t ext_names[8][256];
+> +};
+> +
+> +#endif  /* _S390X_STSI_H_ */
+> diff --git a/lib/s390x/vm.c b/lib/s390x/vm.c
+> index a5b92863..3e11401e 100644
+> --- a/lib/s390x/vm.c
+> +++ b/lib/s390x/vm.c
+> @@ -12,6 +12,7 @@
+>   #include <alloc_page.h>
+>   #include <asm/arch_def.h>
+>   #include "vm.h"
+> +#include "stsi.h"
+>   
+>   /**
+>    * Detect whether we are running with TCG (instead of KVM)
 
-Signed-off-by: Michal Suchanek <msuchanek@suse.de>
----
- arch/powerpc/kexec/elf_64.c              |  2 +-
- arch/s390/kernel/machine_kexec_file.c    |  2 +-
- crypto/asymmetric_keys/asymmetric_type.c |  1 +
- include/linux/verification.h             |  4 +++-
- kernel/module.c                          |  3 ++-
- kernel/module_signing.c                  | 11 ++++++-----
- 6 files changed, 14 insertions(+), 9 deletions(-)
+We could add a fc < 3 check to the vm_is_tcg() function and add a 
+vm_is_lpar() which does a simple fc ==1 check.
 
-diff --git a/arch/powerpc/kexec/elf_64.c b/arch/powerpc/kexec/elf_64.c
-index 6dec8151ef73..c50869195d51 100644
---- a/arch/powerpc/kexec/elf_64.c
-+++ b/arch/powerpc/kexec/elf_64.c
-@@ -156,7 +156,7 @@ static void *elf64_load(struct kimage *image, char *kernel_buf,
- int elf64_verify_sig(const char *kernel, unsigned long kernel_len)
- {
- 	return verify_appended_signature(kernel, &kernel_len, VERIFY_USE_PLATFORM_KEYRING,
--					 "kexec_file");
-+					 VERIFYING_KEXEC_APPENDED_SIGNATURE);
- }
- #endif /* CONFIG_KEXEC_SIG */
- 
-diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
-index c3deccf1da83..63eec38e3137 100644
---- a/arch/s390/kernel/machine_kexec_file.c
-+++ b/arch/s390/kernel/machine_kexec_file.c
-@@ -32,7 +32,7 @@ int s390_verify_sig(const char *kernel, unsigned long kernel_len)
- 		return 0;
- 
- 	return verify_appended_signature(kernel, &kernel_len, VERIFY_USE_PLATFORM_KEYRING,
--					"kexec_file");
-+					VERIFYING_KEXEC_APPENDED_SIGNATURE);
- }
- #endif /* CONFIG_KEXEC_SIG */
- 
-diff --git a/crypto/asymmetric_keys/asymmetric_type.c b/crypto/asymmetric_keys/asymmetric_type.c
-index ad8af3d70ac0..6fd20eec3882 100644
---- a/crypto/asymmetric_keys/asymmetric_type.c
-+++ b/crypto/asymmetric_keys/asymmetric_type.c
-@@ -25,6 +25,7 @@ const char *const key_being_used_for[NR__KEY_BEING_USED_FOR] = {
- 	[VERIFYING_KEXEC_PE_SIGNATURE]		= "kexec PE sig",
- 	[VERIFYING_KEY_SIGNATURE]		= "key sig",
- 	[VERIFYING_KEY_SELF_SIGNATURE]		= "key self sig",
-+	[VERIFYING_KEXEC_APPENDED_SIGNATURE]	= "kexec appended sig",
- 	[VERIFYING_UNSPECIFIED_SIGNATURE]	= "unspec sig",
- };
- EXPORT_SYMBOL_GPL(key_being_used_for);
-diff --git a/include/linux/verification.h b/include/linux/verification.h
-index 32db9287a7b0..f92c49443b4f 100644
---- a/include/linux/verification.h
-+++ b/include/linux/verification.h
-@@ -26,6 +26,7 @@ enum key_being_used_for {
- 	VERIFYING_KEXEC_PE_SIGNATURE,
- 	VERIFYING_KEY_SIGNATURE,
- 	VERIFYING_KEY_SELF_SIGNATURE,
-+	VERIFYING_KEXEC_APPENDED_SIGNATURE,
- 	VERIFYING_UNSPECIFIED_SIGNATURE,
- 	NR__KEY_BEING_USED_FOR
- };
-@@ -61,7 +62,8 @@ extern int verify_pefile_signature(const void *pebuf, unsigned pelen,
- #endif
- 
- int verify_appended_signature(const void *data, unsigned long *len,
--			      struct key *trusted_keys, const char *what);
-+			      struct key *trusted_keys,
-+			      enum key_being_used_for purpose);
- 
- #endif /* CONFIG_SYSTEM_DATA_VERIFICATION */
- #endif /* _LINUX_VERIFY_PEFILE_H */
-diff --git a/kernel/module.c b/kernel/module.c
-index d91ca0f93a40..0a359dc6b690 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -2891,7 +2891,8 @@ static int module_sig_check(struct load_info *info, int flags)
- 	 */
- 	if (flags == 0) {
- 		err = verify_appended_signature(mod, &info->len,
--						VERIFY_USE_SECONDARY_KEYRING, "module");
-+						VERIFY_USE_SECONDARY_KEYRING,
-+						VERIFYING_MODULE_SIGNATURE);
- 		if (!err) {
- 			info->sig_ok = true;
- 			return 0;
-diff --git a/kernel/module_signing.c b/kernel/module_signing.c
-index 39a6dd7c6dd2..20857d2a15ca 100644
---- a/kernel/module_signing.c
-+++ b/kernel/module_signing.c
-@@ -19,17 +19,18 @@
-  * @data: The data to be verified
-  * @len: Size of @data.
-  * @trusted_keys: Keyring to use for verification
-- * @what: Informational string for log messages
-+ * @purpose: The use to which the key is being put
-  */
- int verify_appended_signature(const void *data, unsigned long *len,
--			      struct key *trusted_keys, const char *what)
-+			      struct key *trusted_keys,
-+			      enum key_being_used_for purpose)
- {
- 	const unsigned long markerlen = sizeof(MODULE_SIG_STRING) - 1;
- 	struct module_signature *ms;
- 	unsigned long sig_len, modlen = *len;
- 	int ret;
- 
--	pr_devel("==>%s(,%lu)\n", __func__, modlen);
-+	pr_devel("==>%s %s(,%lu)\n", __func__, key_being_used_for[purpose], modlen);
- 
- 	if (markerlen > modlen)
- 		return -ENODATA;
-@@ -44,7 +45,7 @@ int verify_appended_signature(const void *data, unsigned long *len,
- 
- 	ms = data + modlen - sizeof(*ms);
- 
--	ret = mod_check_sig(ms, modlen, what);
-+	ret = mod_check_sig(ms, modlen, key_being_used_for[purpose]);
- 	if (ret)
- 		return ret;
- 
-@@ -54,6 +55,6 @@ int verify_appended_signature(const void *data, unsigned long *len,
- 
- 	return verify_pkcs7_signature(data, modlen, data + modlen, sig_len,
- 				      trusted_keys,
--				      VERIFYING_MODULE_SIGNATURE,
-+				      purpose,
- 				      NULL, NULL);
- }
--- 
-2.31.1
+> @@ -43,3 +44,41 @@ out:
+>   	free_page(buf);
+>   	return is_tcg;
+>   }
+> +
+> +/**
+> + * Detect whether we are running with KVM
+> + */
+> +
+> +bool vm_is_kvm(void)
+> +{
+> +	/* EBCDIC for "KVM/" */
+> +	const uint8_t kvm_ebcdic[] = { 0xd2, 0xe5, 0xd4, 0x61 };
+> +	static bool initialized;
+> +	static bool is_kvm;
+> +	struct sysinfo_3_2_2 *stsi_322;
+> +
+> +	if (initialized)
+> +		return is_kvm;
+> +
+> +	if (stsi_get_fc() < 3) {
+> +		initialized = true;
+> +		return is_kvm;
+> +	}
+> +
+> +	stsi_322 = alloc_page();
+> +	if (!stsi_322)
+> +		return false;
+> +
+> +	if (stsi(stsi_322, 3, 2, 2))
+> +		goto out;
+> +
+> +	/*
+> +	 * If the manufacturer string is "KVM/" in EBCDIC, then we
+> +	 * are on KVM (otherwise the string is "IBM" in EBCDIC)
+> +	 */
+> +	is_kvm = !memcmp(&stsi_322->vm[0].cpi, kvm_ebcdic, sizeof(kvm_ebcdic));
+
+So I had a look at this before Christmas and I think it's wrong.
+
+QEMU will still set the cpi to KVM/LINUX if we are under tcg.
+So we need to do add a !tcg check here and fix this comment.
+
+I.e. we always have the KVM/LINUX cpi but if we're under TCG the 
+manufacturer in fc == 1 is QEMU. I'm not sure if this is intentional and 
+if we want to fix this at some point or not.
+
+> +	initialized = true;
+> +out:
+> +	free_page(stsi_322);
+> +	return is_kvm;
+> +}
+> diff --git a/lib/s390x/vm.h b/lib/s390x/vm.h
+> index 7abba0cc..44097b4a 100644
+> --- a/lib/s390x/vm.h
+> +++ b/lib/s390x/vm.h
+> @@ -9,5 +9,6 @@
+>   #define _S390X_VM_H_
+>   
+>   bool vm_is_tcg(void);
+> +bool vm_is_kvm(void);
+>   
+>   #endif  /* _S390X_VM_H_ */
+> diff --git a/s390x/stsi.c b/s390x/stsi.c
+> index 391f8849..1ed045e2 100644
+> --- a/s390x/stsi.c
+> +++ b/s390x/stsi.c
+> @@ -13,27 +13,8 @@
+>   #include <asm/asm-offsets.h>
+>   #include <asm/interrupt.h>
+>   #include <smp.h>
+> +#include "stsi.h"
+>   
+> -struct stsi_322 {
+> -	uint8_t reserved[31];
+> -	uint8_t count;
+> -	struct {
+> -		uint8_t reserved2[4];
+> -		uint16_t total_cpus;
+> -		uint16_t conf_cpus;
+> -		uint16_t standby_cpus;
+> -		uint16_t reserved_cpus;
+> -		uint8_t name[8];
+> -		uint32_t caf;
+> -		uint8_t cpi[16];
+> -		uint8_t reserved5[3];
+> -		uint8_t ext_name_encoding;
+> -		uint32_t reserved3;
+> -		uint8_t uuid[16];
+> -	} vm[8];
+> -	uint8_t reserved4[1504];
+> -	uint8_t ext_names[8][256];
+> -};
+>   static uint8_t pagebuf[PAGE_SIZE * 2] __attribute__((aligned(PAGE_SIZE * 2)));
+>   
+>   static void test_specs(void)
+> @@ -91,7 +72,7 @@ static void test_3_2_2(void)
+>   	/* EBCDIC for "KVM/" */
+>   	const uint8_t cpi_kvm[] = { 0xd2, 0xe5, 0xd4, 0x61 };
+>   	const char vm_name_ext[] = "kvm-unit-test";
+> -	struct stsi_322 *data = (void *)pagebuf;
+> +	struct sysinfo_3_2_2 *data = (void *)pagebuf;
+>   
+>   	report_prefix_push("3.2.2");
+>   
+> 
 
