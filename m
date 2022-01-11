@@ -2,59 +2,78 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 95235C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 11 Jan 2022 15:36:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86EB9C433FE
+	for <linux-s390@archiver.kernel.org>; Tue, 11 Jan 2022 15:46:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245303AbiAKPgG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 11 Jan 2022 10:36:06 -0500
-Received: from out30-133.freemail.mail.aliyun.com ([115.124.30.133]:58141 "EHLO
-        out30-133.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S240480AbiAKPgF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 11 Jan 2022 10:36:05 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R621e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0V1afBHr_1641915362;
-Received: from 30.39.146.113(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0V1afBHr_1641915362)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Tue, 11 Jan 2022 23:36:03 +0800
-Message-ID: <ee973642-6bae-e748-cea9-ed18bca461f0@linux.alibaba.com>
-Date:   Tue, 11 Jan 2022 23:36:02 +0800
+        id S243948AbiAKPql (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 11 Jan 2022 10:46:41 -0500
+Received: from mout.kundenserver.de ([212.227.17.24]:44707 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240010AbiAKPqk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 11 Jan 2022 10:46:40 -0500
+Received: from mail-wm1-f48.google.com ([209.85.128.48]) by
+ mrelayeu.kundenserver.de (mreue109 [213.165.67.113]) with ESMTPSA (Nemesis)
+ id 1N79q6-1mHX7K2h9o-017WVg; Tue, 11 Jan 2022 16:46:38 +0100
+Received: by mail-wm1-f48.google.com with SMTP id e5so11364324wmq.1;
+        Tue, 11 Jan 2022 07:46:38 -0800 (PST)
+X-Gm-Message-State: AOAM533QG5EGLvNOjqRhv+pSIHPRQ6LL9SkCwSpGuII0dprxoZkRRsZY
+        uCLnTmo9kwRzf3sMlp2u7+BmmeT0kpDNOnHX5mA=
+X-Google-Smtp-Source: ABdhPJwB2xKozQuCORkKSCQAL8ClRXdu0xcIO+JF0MBbhis3uIel6aCgUYRUOftHzuYWMBNA7fgNkNtxR2C9Ihxf1Yo=
+X-Received: by 2002:a05:600c:5c1:: with SMTP id p1mr2988726wmd.1.1641915998117;
+ Tue, 11 Jan 2022 07:46:38 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.4.0
-Subject: Re: [PATCH net 1/3] net/smc: Resolve the race between link group
- access and termination
-To:     Karsten Graul <kgraul@linux.ibm.com>, davem@davemloft.net,
-        kuba@kernel.org
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <1641806784-93141-1-git-send-email-guwen@linux.alibaba.com>
- <1641806784-93141-2-git-send-email-guwen@linux.alibaba.com>
- <8b720956-c8fe-0fe2-b019-70518d5c60c8@linux.ibm.com>
-From:   Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <8b720956-c8fe-0fe2-b019-70518d5c60c8@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20220111083515.502308-1-hch@lst.de>
+In-Reply-To: <20220111083515.502308-1-hch@lst.de>
+From:   Arnd Bergmann <arnd@arndb.de>
+Date:   Tue, 11 Jan 2022 16:46:21 +0100
+X-Gmail-Original-Message-ID: <CAK8P3a2nY60Pgz1Q0YJ-bMsJdJfFNw8q6R7R2WzPCj+tVdA=+g@mail.gmail.com>
+Message-ID: <CAK8P3a2nY60Pgz1Q0YJ-bMsJdJfFNw8q6R7R2WzPCj+tVdA=+g@mail.gmail.com>
+Subject: Re: consolidate the compat fcntl definitions
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linux-arch <linux-arch@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Provags-ID: V03:K1:OhqwhpDN2ksPKZsBYhrIQ0Jy/a2mcdyEzEvgvAilHeQi8HUC6D0
+ XD3UZZXtkDC0wz9zAmXZILu0SRnEkV2TvA+Vna+RRAegFesdETytq27fHjaAFrM4ZomTVQS
+ rYChRPOGjQFxEom9Vc9ua/N0ZsgoDA1Rx/25h8VslivCKlCcQY8h/v/3+/hqbvZz+Ce1yBE
+ kq5hRM/4IHzmUlqDdvJrg==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:u7BSYyK0FWg=:tUu0i99KWoFD2LamSf60D6
+ ZfBcp6W7ZmDOTFCGr3jRBrAHuAb1Sh9ZKoTTQoAmEeFARn6cQPagUSlAqB4jUFSqFQ++UTbHY
+ LU9tjpaZSbIweC9XIXkSjykSpPVIX9RuHNymMLfbXxHXlUxGQCSMdaEuNkGJFAKOr5kRCwRiq
+ r9I9Sufz5PUbcgYGSXaiIXWA6AZc/E75RfLScTdMr18xmZF70D4bmj2bV5tn+rP2GKoi+4oCu
+ 7wIH+j5jcFyVswAd5f18r/Jz/JOxBZ5lkBcy3GoWL7dvNcoHK3XanVFMzO8R4SDB4Krj3bDOl
+ fKqA7lhDu/FUYGj4Ulr5MZn03yxAThWc5KX7jJXPNsXSmSq05tkAR2pQMw2ctWu1I5hh+U7h/
+ K71JhtYAC69vfQLd3FFKxFD9xdaIzVJPTfWLpFg4kaFC6Of/eAEm9Ui9eCbgGIuBdIeGtqOyp
+ ZKo0vt3Wp9att8c8puUYa4cKzUPaBVL/Cu6LFD4SZ1mo6RXyh9SFXNPmXVbITukts0rCX5RSn
+ iFaP25llRgorIrihPDUr6N10ZPbqg22OASy/Aa7VS5wDHUMVXMCxQTZEGrco44OLUsPIRomN/
+ X3fjkXh+dbD0OiDkTkNJpf24hYgMsBn4/QW8+apGMpHlrim3k6framygL7ZOO58Xd4kl95W4r
+ FbIUZjsVuIsVZ9ML1wcDNVa1qjBqRChEIvnqKUKgdG0SVWJMAXezCKMkXDP9MwPNGwvkuvn16
+ w+4oXbWxYkVPuNKUiDMbZSXj2z9Abc7+w5KlZxSEsgaQrqSjTwxEGLR+SrRaWX6lBGFNsdYhG
+ uODMcaoBEAfUpM0BObiDS3o/GJrFrfOj/3614xE4UnHN/QU3oE=
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Thanks for your review.
+On Tue, Jan 11, 2022 at 9:35 AM Christoph Hellwig <hch@lst.de> wrote:
+>
+> Hi all,
+>
+> currenty the compat fcnt definitions are duplicate for all compat
+> architectures, and the native fcntl64 definitions aren't even usable
+> from userspace due to a bogus CONFIG_64BIT ifdef.  This series tries
+> to sort out all that.
 
-On 2022/1/11 4:23 pm, Karsten Graul wrote:
-> On 10/01/2022 10:26, Wen Gu wrote:
->> We encountered some crashes caused by the race between the access
->> and the termination of link groups.
->>
-> 
-> These waiters (seaparate ones for smcd and smcr) are used to wait for all lgrs
-> to be deleted when a module unload or reboot was triggered, so it must only be
-> woken up when the lgr is actually freed.
+The changes look good, but I have the same comment on your last patch that
+I had for Guo Ren's version. Once we have resolved that, I can apply the
+series in the asm-generic tree, or provide an Ack to have it all merged
+along with the compat mode changes in the risc-v tree.
 
-Thanks for your reminding, I will move the wake-up code to __smc_lgr_free().
-
-And maybe the vlan put and device put of smcd are also need to be moved
-to __smc_lgr_free()?, because it also seems to be more suitable to put these
-resources when lgr is actually freed. What do you think?
-
-Thanks,
-Wen Gu
+       Arnd
