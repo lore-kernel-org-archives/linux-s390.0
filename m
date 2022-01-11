@@ -2,68 +2,70 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 28C3DC433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 11 Jan 2022 15:49:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8BD2CC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 11 Jan 2022 15:51:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343571AbiAKPtL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 11 Jan 2022 10:49:11 -0500
-Received: from out30-42.freemail.mail.aliyun.com ([115.124.30.42]:60844 "EHLO
-        out30-42.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235534AbiAKPtL (ORCPT
+        id S1343685AbiAKPvK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 11 Jan 2022 10:51:10 -0500
+Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:39355 "EHLO
+        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229868AbiAKPvJ (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 11 Jan 2022 10:49:11 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R411e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0V1aSjdJ_1641916148;
-Received: from 30.39.146.113(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0V1aSjdJ_1641916148)
+        Tue, 11 Jan 2022 10:51:09 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0V1afDFU_1641916266;
+Received: from 30.39.146.113(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0V1afDFU_1641916266)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Tue, 11 Jan 2022 23:49:08 +0800
-Message-ID: <fa057e34-7626-2b19-2c2e-acd4999e7fe5@linux.alibaba.com>
-Date:   Tue, 11 Jan 2022 23:49:07 +0800
+          Tue, 11 Jan 2022 23:51:07 +0800
+Message-ID: <72c440bf-8fc9-8371-3229-bee0aa02c65f@linux.alibaba.com>
+Date:   Tue, 11 Jan 2022 23:51:06 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
  Gecko/20100101 Thunderbird/91.4.0
-Subject: Re: [PATCH net 3/3] net/smc: Resolve the race between SMC-R link
- access and clear
+Subject: Re: [PATCH net 1/3] net/smc: Resolve the race between link group
+ access and termination
 To:     Karsten Graul <kgraul@linux.ibm.com>, davem@davemloft.net,
         kuba@kernel.org
 Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
         linux-kernel@vger.kernel.org
 References: <1641806784-93141-1-git-send-email-guwen@linux.alibaba.com>
- <1641806784-93141-4-git-send-email-guwen@linux.alibaba.com>
- <8f13aa62-6360-8038-3041-86fd51b40a3e@linux.ibm.com>
+ <1641806784-93141-2-git-send-email-guwen@linux.alibaba.com>
+ <8b720956-c8fe-0fe2-b019-70518d5c60c8@linux.ibm.com>
+ <ee973642-6bae-e748-cea9-ed18bca461f0@linux.alibaba.com>
+ <3897d6e8-1191-b42b-9553-c2720f3a92eb@linux.ibm.com>
 From:   Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <8f13aa62-6360-8038-3041-86fd51b40a3e@linux.ibm.com>
+In-Reply-To: <3897d6e8-1191-b42b-9553-c2720f3a92eb@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Thanks for your review.
 
-On 2022/1/11 4:40 pm, Karsten Graul wrote:
-> On 10/01/2022 10:26, Wen Gu wrote:
->> @@ -1226,15 +1245,23 @@ void smcr_link_clear(struct smc_link *lnk, bool log)
->>   	smc_wr_free_link(lnk);
->>   	smc_ib_destroy_queue_pair(lnk);
->>   	smc_ib_dealloc_protection_domain(lnk);
->> -	smc_wr_free_link_mem(lnk);
->> -	smc_lgr_put(lnk->lgr); /* lgr_hold in smcr_link_init() */
->>   	smc_ibdev_cnt_dec(lnk);
->>   	put_device(&lnk->smcibdev->ibdev->dev);
->>   	smcibdev = lnk->smcibdev;
->> -	memset(lnk, 0, sizeof(struct smc_link));
->> -	lnk->state = SMC_LNK_UNUSED;
->>   	if (!atomic_dec_return(&smcibdev->lnk_cnt))
->>   		wake_up(&smcibdev->lnks_deleted);
+
+On 2022/1/11 11:46 pm, Karsten Graul wrote:
+> On 11/01/2022 16:36, Wen Gu wrote:
+>> Thanks for your review.
+>>
+>> On 2022/1/11 4:23 pm, Karsten Graul wrote:
+>>> On 10/01/2022 10:26, Wen Gu wrote:
+>>>> We encountered some crashes caused by the race between the access
+>>>> and the termination of link groups.
+>>>>
+>>>
+>>> These waiters (seaparate ones for smcd and smcr) are used to wait for all lgrs
+>>> to be deleted when a module unload or reboot was triggered, so it must only be
+>>> woken up when the lgr is actually freed.
+>>
+>> Thanks for your reminding, I will move the wake-up code to __smc_lgr_free().
+>>
+>> And maybe the vlan put and device put of smcd are also need to be moved
+>> to __smc_lgr_free()?, because it also seems to be more suitable to put these
+>> resources when lgr is actually freed. What do you think?
 > 
-> Same here, waiter should not be woken up until the link memory is actually freed.
-> 
+> Keep the calls to smc_ism_put_vlan() and put_device() in smc_lgr_free(),
+> thats okay for SMC-D.
 
-OK, I will correct this as well.
-
-And similarly I want to move smc_ibdev_cnt_dec() and put_device() to
-__smcr_link_clear() as well to ensure that put link related resources
-only when link is actually cleared. What do you think?
+OK.
 
 Thanks,
 Wen Gu
