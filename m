@@ -2,94 +2,138 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AFE3AC4321E
-	for <linux-s390@archiver.kernel.org>; Wed, 12 Jan 2022 08:28:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86D42C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 12 Jan 2022 09:40:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351618AbiALI2r (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 12 Jan 2022 03:28:47 -0500
-Received: from mout.kundenserver.de ([212.227.17.24]:57099 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351621AbiALI2q (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 12 Jan 2022 03:28:46 -0500
-Received: from mail-wr1-f49.google.com ([209.85.221.49]) by
- mrelayeu.kundenserver.de (mreue107 [213.165.67.113]) with ESMTPSA (Nemesis)
- id 1MOAmt-1mjhPp0ATh-00OTvi; Wed, 12 Jan 2022 09:28:44 +0100
-Received: by mail-wr1-f49.google.com with SMTP id e9so2773286wra.2;
-        Wed, 12 Jan 2022 00:28:43 -0800 (PST)
-X-Gm-Message-State: AOAM532WPRCdfBOA6lx0jSM2auWD4YvIb6sNEYEjCRnPciRNY2RlRucS
-        LGN61U51nHvP8VdAeEsVM9jAVdu8r3Q4e0vOF4Q=
-X-Google-Smtp-Source: ABdhPJzCQAXjKL7v7gwqeNOizFH7EmO4xK5MJG/Z0khXPuJErSXk+hZMQMifsbbqaAU9IP9YduLhizzW87q9+u/zsmI=
-X-Received: by 2002:a05:6000:16c7:: with SMTP id h7mr6863134wrf.317.1641976123587;
- Wed, 12 Jan 2022 00:28:43 -0800 (PST)
+        id S238079AbiALJkI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 12 Jan 2022 04:40:08 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:46616 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1352136AbiALJjm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 12 Jan 2022 04:39:42 -0500
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20C8pLh8029510;
+        Wed, 12 Jan 2022 09:39:32 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=/9tK+VS/cnDyK47dSrtk7wEbYK8TmwqMeslMQZr03Gg=;
+ b=LbmJfzedl1NZspCQM2pTJV4k1LnRDtjNcK62X+AMEq7Ohrcecak6JZivD3BYLG9jwvTj
+ 9p32iQsd3jBAKFuI719iCeGoQ4n4khnHiFNGqYI+DApchtQPpO/DD/hhDzGgJVHGUjY0
+ Nkug2ht8Xn0xOUyw7kVzDH47igUANuVLb3YOe/Xas//nnsL05OSCzagnPoK8NgO+ca1k
+ F9Xzx+bZ7AB8/In2SG/m7a14aSssuNZexvKRXEZZAEF7ObcQoph4GWYHrn2+ww9TWjn7
+ XW2PGp4BteWMosCNhMOuxyxTZBUuP2+HfiNXLgXshvNtppT2dTsEC6YmcS9mSfLkw4yx XA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dhuugruys-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 Jan 2022 09:39:31 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20C9YF30022278;
+        Wed, 12 Jan 2022 09:39:31 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dhuugruya-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 Jan 2022 09:39:31 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20C9c0q6019207;
+        Wed, 12 Jan 2022 09:39:29 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma03ams.nl.ibm.com with ESMTP id 3df289qnn2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 Jan 2022 09:39:29 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20C9TO1d44696000
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 12 Jan 2022 09:29:24 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 273624C052;
+        Wed, 12 Jan 2022 09:38:27 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CADCA4C040;
+        Wed, 12 Jan 2022 09:38:26 +0000 (GMT)
+Received: from [9.145.42.178] (unknown [9.145.42.178])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 12 Jan 2022 09:38:26 +0000 (GMT)
+Message-ID: <5dd7ffd1-28e2-24cc-9442-1defec27375e@linux.ibm.com>
+Date:   Wed, 12 Jan 2022 10:38:27 +0100
 MIME-Version: 1.0
-References: <20220111083515.502308-1-hch@lst.de> <20220111083515.502308-5-hch@lst.de>
- <CAK8P3a0mHC5=OOGV=sGnC9JqZWxzsJyZbTefnCtryQU3o3PY_g@mail.gmail.com> <20220112075609.GA4854@lst.de>
-In-Reply-To: <20220112075609.GA4854@lst.de>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Wed, 12 Jan 2022 09:28:26 +0100
-X-Gmail-Original-Message-ID: <CAK8P3a1ONn=FiPU3669MjBMntS-1K5bgX4pHforUsYJ7yhwZ-g@mail.gmail.com>
-Message-ID: <CAK8P3a1ONn=FiPU3669MjBMntS-1K5bgX4pHforUsYJ7yhwZ-g@mail.gmail.com>
-Subject: Re: [PATCH 4/5] uapi: always define F_GETLK64/F_SETLK64/F_SETLKW64 in fcntl.h
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        Jeff Layton <jlayton@kernel.org>,
-        "J. Bruce Fields" <bfields@fieldses.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:ojcfELcF0YhMWzD8LtY6EPxZUyJuORY5IzRKjV/HhlgohnKtGQC
- JYo7XAz+MKsQSQ3TLKX8hri/6/1LRTr9TE+jgWvumLMvIVrSagHY8afKFXVyaM+gwTtA5L7
- K2hR7zo5U76QjJrILF4+3yVBZkjyGp/9ilUvCcE8mrEytVC6oCeBL57t7sMPxGm19ojw2lq
- WvHgi92ARXqenTHycu6mg==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:4WpxcbWvK9k=:cmU54THCfxUt1DIjRLEBmK
- ntIBIIIf40mn7QF4658v9FvbNc5y6Z83xf7+TgrpNnglg2cCc1vlLzEgYO8oJ5YBmdgs1WD/h
- uErrUSxPnLVluANaztVmx065Zxse75GKIOfdI8IJC5kq6yJ/UIoukxJOQnF2urHAwLDlFcqPA
- SraFMF3IvQWcBZB2cYRpi2khAb932HFH64eG9GaosPaND0b1VdfDZEE2cdxSk56Uj+emIqm4a
- RkJryuUJlUeDq8yAPK0t2cHOeYUm8pVX7semLTpTvl7wBQBdp+tnFNajO8LRsPrn5rKP3UEor
- m4nbd8lBrkgRYzH9Vv/N9rJVtrGs//0PVjEpXq36oLOBO5UDFt4t37Vibv330SB2AWAu/Kc1d
- P7LfP6Wi10FW05lilDquVoXxJJJFe+VDR8Il6wuFUraA1oozdE6Gbq3xvaYW6pTvUVAq/gAgv
- iroaVGYYt/YBidzZOxzmZQpLAxmpJgGG/1JynWbsUP6oe5bZ+CphzUUkpd1V9Z/mjwyFgR7Zf
- Skl4z6LCwhaJuksvSHFP9ZrDdP5XtjtNW1Actx+/iBwo2VvGh7eME/f8vAVPqQxfw0DDe/pgm
- kMluiZXKMFxte8IAVB/ApTl8gupGr0M90OQjEFpiTiydctm3uCfPEctDytkg9fkBhe9Z02RLC
- MDfEwEKWqki/Y7mEwlu2J7fsIRfhp6RfxhIzBfmEYg5f6tFqqfpsJIc1oN8w8twkpcm8=
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.1
+Subject: Re: [PATCH net] net/smc: Avoid setting clcsock options after clcsock
+ released
+Content-Language: en-US
+To:     Wen Gu <guwen@linux.alibaba.com>, davem@davemloft.net,
+        kuba@kernel.org
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <1641807505-54454-1-git-send-email-guwen@linux.alibaba.com>
+ <ac977743-9696-9723-5682-97ebbcca6828@linux.ibm.com>
+ <719f264e-a70d-7bed-0873-ffbba8381841@linux.alibaba.com>
+From:   Karsten Graul <kgraul@linux.ibm.com>
+Organization: IBM Deutschland Research & Development GmbH
+In-Reply-To: <719f264e-a70d-7bed-0873-ffbba8381841@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: tPZaZ1IPn9yd5DD0-GpKOGqaSXfABRQh
+X-Proofpoint-GUID: GoDvYq22Le5GCgMA3oR7v9STTm0mUyB_
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-01-12_03,2022-01-11_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
+ suspectscore=0 clxscore=1015 bulkscore=0 spamscore=0 priorityscore=1501
+ mlxscore=0 mlxlogscore=868 malwarescore=0 lowpriorityscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2201120061
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Jan 12, 2022 at 8:56 AM Christoph Hellwig <hch@lst.de> wrote:
->
-> On Tue, Jan 11, 2022 at 04:33:30PM +0100, Arnd Bergmann wrote:
-> > This is a very subtle change to the exported UAPI header contents:
-> > On 64-bit architectures, the three unusable numbers are now always
-> > shown, rather than depending on a user-controlled symbol.
->
-> Well, the change is bigger and less subtle.  Before this change the
-> constants were never visible to userspace at all (except on mips),
-> because the #ifdef CONFIG_64BIT it never set for userspace builds.
+On 11/01/2022 17:34, Wen Gu wrote:
+> Thanks for your reply.
+> 
+> On 2022/1/11 6:03 pm, Karsten Graul wrote:
+>> On 10/01/2022 10:38, Wen Gu wrote:
+>>> We encountered a crash in smc_setsockopt() and it is caused by
+>>> accessing smc->clcsock after clcsock was released.
+>>>
+>>
+>> In the switch() the function smc_switch_to_fallback() might be called which also
+>> accesses smc->clcsock without further checking. This should also be protected then?
+>> Also from all callers of smc_switch_to_fallback() ?
+>>
+>> There are more uses of smc->clcsock (e.g. smc_bind(), ...), so why does this problem
+>> happen in setsockopt() for you only? I suspect it depends on the test case.
+>>
+> 
+> Yes, it depends on the test case. The crash described here only happens one time when
+> I run a stress test of nginx/wrk, accompanied with frequent RNIC up/down operations.
+> 
+> Considering accessing smc->clcsock after its release is an uncommon, low probability
+> issue and only happens in setsockopt() in my test, I choce an simple way to fix it, using
+> the existing clcsock_release_lock, and only check in smc_setsockopt() and smc_getsockopt().
+> 
+>> I wonder if it makes sense to check and protect smc->clcsock at all places in the code where
+>> it is used... as of now we had no such races like you encountered. But I see that in theory
+>> this problem could also happen in other code areas.
+>>
+> 
+> But inspired by your questions, I think maybe we should treat the race as a general problem?
+> Do you think it is necessary to find all the potential race related to the clcsock release and
+> fix them in a unified approach? like define smc->clcsock as RCU pointer, hold rcu read lock
+> before accessing smc->clcsock and call synchronize_rcu() before resetting smc->clcsock? just a rough idea :)
+> 
+> Or we should decide it later, do some more tests to see the probability of recurrence of this problem?
 
-I suppose you mean /always/ visible here, with that ifndef.
+I like the idea to use RCU with rcu_assign_pointer() to protect that pointer!
 
-> > This is probably what we want here for compatibility reasons, but I think
-> > it should be explained in the changelog text, and I'd like Jeff or Bruce
-> > to comment on it as well: the alternative here would be to make the
-> > uapi definition depend on __BITS_PER_LONG==32, which is
-> > technically the right thing to do but more a of a change.
->
-> I can change this to #if __BITS_PER_LONG==32 || defined(__KERNEL__),
-> but it will still be change in what userspace sees.
+Lets go with your initial patch (improved to address the access in smc_switch_to_fallback())
+for now because it solves your current problem. 
 
-Exactly, that is the tradeoff, which is why I'd like the flock maintainers
-to say which way they prefer. We can either do it more correctly (hiding
-the constants from user space when they are not usable), or with less
-change (removing the incorrect #ifdef). Either way sounds reasonable
-to me, I mainly care that this is explained in the changelog and that the
-maintainers are aware of the two options.
+I put that RCU thing on our list, but if either of us here starts working on that please let the
+others know so we don't end up doing parallel work on this. But I doubt that we will be able to start working
+on that soon.
 
-        Arnd
+Thanks for the good idea!
+
