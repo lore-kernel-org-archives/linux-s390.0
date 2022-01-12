@@ -2,107 +2,133 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD6F0C4332F
-	for <linux-s390@archiver.kernel.org>; Wed, 12 Jan 2022 11:15:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0347C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 12 Jan 2022 11:53:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352789AbiALLPk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 12 Jan 2022 06:15:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59348 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237932AbiALLPj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 12 Jan 2022 06:15:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5B46C06173F;
-        Wed, 12 Jan 2022 03:15:38 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8C09EB81DC0;
-        Wed, 12 Jan 2022 11:15:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20B19C36AEA;
-        Wed, 12 Jan 2022 11:15:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1641986136;
-        bh=RTTu6nWijk2G34RQ8PR1ea0narp9zXHqxMjZSrcL0co=;
-        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-        b=Hq5LE8KaLV3xNlfl8hONGT11QmqFJgF5ZZ53zgnsdO9DYAJ3B8+wjU1jSIWeFQ3/D
-         CaFHUcDIXoppDdArCINBydMDN3XpiApt2gXzo3WfUQ9EosZsIz+fETbj6cGaJgODcQ
-         RZjbF9LA/EWCKAuGks8VTqUhgG/KYGeeO094JHFcgGFdZ+k6BgYzvYRyQgp0IWuabE
-         6Amw158NYWiJ4GIMYCwvGg+6cm48+dwbs/dP2cMG/t24qKzlZsJcARwnFtoH8cDJjI
-         ORDJ0PD0+aoOGK4FPG7XBpY4YizNUp6zImN53U/p5QaZfcKlKu0EVwLvcYWDLCGCVV
-         ObzsbCCfB0d5Q==
-Message-ID: <f86483fca8b0dc68ce243ba47998ff3296a3b6f8.camel@kernel.org>
-Subject: Re: [PATCH 4/5] uapi: always define F_GETLK64/F_SETLK64/F_SETLKW64
- in fcntl.h
-From:   Jeff Layton <jlayton@kernel.org>
-To:     Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>
-Cc:     Guo Ren <guoren@kernel.org>,
-        the arch/x86 maintainers <x86@kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        "J. Bruce Fields" <bfields@fieldses.org>
-Date:   Wed, 12 Jan 2022 06:15:33 -0500
-In-Reply-To: <CAK8P3a1ONn=FiPU3669MjBMntS-1K5bgX4pHforUsYJ7yhwZ-g@mail.gmail.com>
-References: <20220111083515.502308-1-hch@lst.de>
-         <20220111083515.502308-5-hch@lst.de>
-         <CAK8P3a0mHC5=OOGV=sGnC9JqZWxzsJyZbTefnCtryQU3o3PY_g@mail.gmail.com>
-         <20220112075609.GA4854@lst.de>
-         <CAK8P3a1ONn=FiPU3669MjBMntS-1K5bgX4pHforUsYJ7yhwZ-g@mail.gmail.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-User-Agent: Evolution 3.42.2 (3.42.2-1.fc35) 
+        id S240142AbiALLxD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 12 Jan 2022 06:53:03 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:47946 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S231301AbiALLxA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 12 Jan 2022 06:53:00 -0500
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20CBZu2Z018712;
+        Wed, 12 Jan 2022 11:52:57 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=2IYjVAcUZFYCWjH34ePtxnIej+sBhsH6eWJhxUehLgQ=;
+ b=lc4X+w7YCdn7TYurfA2ykuki5m2UWKKTPyinpUkAI2CLTaSp+7d5mBmI6XasATJBKxRk
+ US/bJBXNOI2cfLFIZwouCx1Widi3xHEsB8+bjL522rTEIizeQxxDRg4Kk4hs8zB5MQXc
+ J/g7OXt5PU1bjgZQCYvjuHKc5YJwd4qNZyg5i7KIZ6DO/QA7gyS/vvH0Sv6K5W6emeIR
+ gIpV1flsjgU9ZV6f85VB0rwuPWa3PP0P3lwEz4+bK5yjD/So6igHK0EUEY2UFcIEfFK8
+ 9LQz+1pXJtEzRpsAAnfp4RQhAuZ1W7lOzDrPfLNPmdJ+sTCcETYAVhIKLQObrDs9xCm4 HA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3dhvrc3rfv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 Jan 2022 11:52:57 +0000
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20CBFrKU029814;
+        Wed, 12 Jan 2022 11:52:56 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3dhvrc3rf4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 Jan 2022 11:52:56 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20CBm1HS026909;
+        Wed, 12 Jan 2022 11:52:55 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma03ams.nl.ibm.com with ESMTP id 3df289thnb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 Jan 2022 11:52:55 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20CBhm9N26673494
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 12 Jan 2022 11:43:48 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 953114C081;
+        Wed, 12 Jan 2022 11:52:51 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E0E474C097;
+        Wed, 12 Jan 2022 11:52:50 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.56.243])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Wed, 12 Jan 2022 11:52:50 +0000 (GMT)
+Date:   Wed, 12 Jan 2022 12:52:17 +0100
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Tony Krowiak <akrowiak@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, jjherne@linux.ibm.com, freude@linux.ibm.com,
+        borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        fiuczy@linux.ibm.com, Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v17 06/15] s390/vfio-ap: refresh guest's APCB by
+ filtering APQNs assigned to mdev
+Message-ID: <20220112125217.108e0fba.pasic@linux.ibm.com>
+In-Reply-To: <831f8897-b7cd-8240-c607-be3a106bad5c@linux.ibm.com>
+References: <20211021152332.70455-1-akrowiak@linux.ibm.com>
+        <20211021152332.70455-7-akrowiak@linux.ibm.com>
+        <20211227095301.34a91ca4.pasic@linux.ibm.com>
+        <831f8897-b7cd-8240-c607-be3a106bad5c@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Q7ASgJJCw0MbMLlHkqBjCNcRucoRahkS
+X-Proofpoint-GUID: uUTllvUaeYlvT8nOgTEphpbBF84PcXzw
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-01-12_04,2022-01-11_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ priorityscore=1501 suspectscore=0 clxscore=1015 adultscore=0 mlxscore=0
+ phishscore=0 impostorscore=0 spamscore=0 mlxlogscore=999 bulkscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2201120075
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 2022-01-12 at 09:28 +0100, Arnd Bergmann wrote:
-> On Wed, Jan 12, 2022 at 8:56 AM Christoph Hellwig <hch@lst.de> wrote:
-> > 
-> > On Tue, Jan 11, 2022 at 04:33:30PM +0100, Arnd Bergmann wrote:
-> > > This is a very subtle change to the exported UAPI header contents:
-> > > On 64-bit architectures, the three unusable numbers are now always
-> > > shown, rather than depending on a user-controlled symbol.
-> > 
-> > Well, the change is bigger and less subtle.  Before this change the
-> > constants were never visible to userspace at all (except on mips),
-> > because the #ifdef CONFIG_64BIT it never set for userspace builds.
+On Tue, 11 Jan 2022 16:19:06 -0500
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+
+> >
+> > Also we could probably do the filtering incrementally. In a sense that
+> > at a time only so much changes, and we know that the invariant was
+> > preserved without that change. But that would probably end up trading
+> > complexity for cycles. I will trust your judgment and your tests on this
+> > matter.  
 > 
-> I suppose you mean /always/ visible here, with that ifndef.
-> 
-> > > This is probably what we want here for compatibility reasons, but I think
-> > > it should be explained in the changelog text, and I'd like Jeff or Bruce
-> > > to comment on it as well: the alternative here would be to make the
-> > > uapi definition depend on __BITS_PER_LONG==32, which is
-> > > technically the right thing to do but more a of a change.
-> > 
-> > I can change this to #if __BITS_PER_LONG==32 || defined(__KERNEL__),
-> > but it will still be change in what userspace sees.
-> 
-> Exactly, that is the tradeoff, which is why I'd like the flock maintainers
-> to say which way they prefer. We can either do it more correctly (hiding
-> the constants from user space when they are not usable), or with less
-> change (removing the incorrect #ifdef). Either way sounds reasonable
-> to me, I mainly care that this is explained in the changelog and that the
-> maintainers are aware of the two options.
-> 
+> I am not entirely clear on what you are suggesting. I think you are
+> suggesting that there may not be a need to look at every APQN
+> assigned to the mdev when an adapter or domain is assigned or
+> unassigned or a queue is probed or removed. Maybe you can clarify
+> what you are suggesting here.
 
-I don't have a strong opinion here. If we were taking symbols away that
-were previously visible to userland it would be one thing, but since
-we're just adding symbols that may not have been there before, this
-seems less likely to break anything.
+Exactly. For example if we have the following assigned
+adapters:
+1, 2, 3
+domains:
+1, 2, 3
+and the operation we are trying to perform is assign domain 4, then it
+is sufficient to have a look at the queues with the APQNs (1,4), (2,4)
+and (3, 4). We don't have to examine all the 14 queues.
 
-I probably lean toward Christoph's original solution instead of keeping
-the conditional definitions. It's hard to imagine there are many
-programs that care whether these other symbols are defined or not.
+When an unassign dapter is performed, there is no need to do the
+re-filtering, because there is nothing that can pop-back or go away. And
+on unassign domain is performed, then all we care about are the queues
+of that domain on the filtered adapters.
 
-You can add this to the original patch:
+Similarly if after that successful assign the queue (3,4) gets removed
+(from vfio_ap) and then added back again and probed, we only have to
+look at the queues (3, 1), (3, 2), (3, 3).
 
-Acked-by: Jeff Layton <jlayton@kernel.org>
+But I'm OK with the current design of this. It is certainly conceptually
+simpler to say we have a master-copy and we filter that master-copy based
+on the very same rules every time something changes. I'm really fine
+either way as log as it works well. :D
 
+Regards,
+Halil
