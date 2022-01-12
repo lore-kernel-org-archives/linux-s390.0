@@ -2,118 +2,59 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36B3EC433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 12 Jan 2022 07:11:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DE94C4332F
+	for <linux-s390@archiver.kernel.org>; Wed, 12 Jan 2022 07:56:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351140AbiALHLi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 12 Jan 2022 02:11:38 -0500
-Received: from out30-132.freemail.mail.aliyun.com ([115.124.30.132]:33911 "EHLO
-        out30-132.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237258AbiALHLh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 12 Jan 2022 02:11:37 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R611e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0V1dZVxb_1641971494;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0V1dZVxb_1641971494)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 12 Jan 2022 15:11:34 +0800
-Date:   Wed, 12 Jan 2022 15:11:34 +0800
-From:   "dust.li" <dust.li@linux.alibaba.com>
-To:     Wen Gu <guwen@linux.alibaba.com>, kgraul@linux.ibm.com,
-        davem@davemloft.net, kuba@kernel.org
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net] net/smc: Avoid setting clcsock options after clcsock
- released
-Message-ID: <20220112071134.GA47613@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <1641807505-54454-1-git-send-email-guwen@linux.alibaba.com>
+        id S237563AbiALH4O (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 12 Jan 2022 02:56:14 -0500
+Received: from verein.lst.de ([213.95.11.211]:45167 "EHLO verein.lst.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S237500AbiALH4O (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 12 Jan 2022 02:56:14 -0500
+Received: by verein.lst.de (Postfix, from userid 2407)
+        id BD67E68AFE; Wed, 12 Jan 2022 08:56:09 +0100 (CET)
+Date:   Wed, 12 Jan 2022 08:56:09 +0100
+From:   Christoph Hellwig <hch@lst.de>
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     Christoph Hellwig <hch@lst.de>, Guo Ren <guoren@kernel.org>,
+        the arch/x86 maintainers <x86@kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linux-arch <linux-arch@vger.kernel.org>,
+        Jeff Layton <jlayton@kernel.org>,
+        "J. Bruce Fields" <bfields@fieldses.org>
+Subject: Re: [PATCH 4/5] uapi: always define F_GETLK64/F_SETLK64/F_SETLKW64
+ in fcntl.h
+Message-ID: <20220112075609.GA4854@lst.de>
+References: <20220111083515.502308-1-hch@lst.de> <20220111083515.502308-5-hch@lst.de> <CAK8P3a0mHC5=OOGV=sGnC9JqZWxzsJyZbTefnCtryQU3o3PY_g@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1641807505-54454-1-git-send-email-guwen@linux.alibaba.com>
+In-Reply-To: <CAK8P3a0mHC5=OOGV=sGnC9JqZWxzsJyZbTefnCtryQU3o3PY_g@mail.gmail.com>
+User-Agent: Mutt/1.5.17 (2007-11-01)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Jan 10, 2022 at 05:38:25PM +0800, Wen Gu wrote:
->We encountered a crash in smc_setsockopt() and it is caused by
->accessing smc->clcsock after clcsock was released.
->
-> BUG: kernel NULL pointer dereference, address: 0000000000000020
-> #PF: supervisor read access in kernel mode
-> #PF: error_code(0x0000) - not-present page
-> PGD 0 P4D 0
-> Oops: 0000 [#1] PREEMPT SMP PTI
-> CPU: 1 PID: 50309 Comm: nginx Kdump: loaded Tainted: G E     5.16.0-rc4+ #53
-> RIP: 0010:smc_setsockopt+0x59/0x280 [smc]
-> Call Trace:
->  <TASK>
->  __sys_setsockopt+0xfc/0x190
->  __x64_sys_setsockopt+0x20/0x30
->  do_syscall_64+0x34/0x90
->  entry_SYSCALL_64_after_hwframe+0x44/0xae
-> RIP: 0033:0x7f16ba83918e
->  </TASK>
->
->This patch tries to fix it by holding clcsock_release_lock and
->checking whether clcsock has already been released. In case that
->a crash of the same reason happens in smc_getsockopt(), this patch
->also checkes smc->clcsock in smc_getsockopt().
->
->Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
->---
-> net/smc/af_smc.c | 16 +++++++++++++++-
-> 1 file changed, 15 insertions(+), 1 deletion(-)
->
->diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
->index 1c9289f..af423f4 100644
->--- a/net/smc/af_smc.c
->+++ b/net/smc/af_smc.c
->@@ -2441,6 +2441,11 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
-> 	/* generic setsockopts reaching us here always apply to the
-> 	 * CLC socket
-> 	 */
->+	mutex_lock(&smc->clcsock_release_lock);
->+	if (!smc->clcsock) {
->+		mutex_unlock(&smc->clcsock_release_lock);
->+		return -EBADF;
->+	}
-> 	if (unlikely(!smc->clcsock->ops->setsockopt))
-> 		rc = -EOPNOTSUPP;
-> 	else
->@@ -2450,6 +2455,7 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
-> 		sk->sk_err = smc->clcsock->sk->sk_err;
-> 		sk_error_report(sk);
-> 	}
->+	mutex_unlock(&smc->clcsock_release_lock);
-> 
-> 	if (optlen < sizeof(int))
-> 		return -EINVAL;
->@@ -2509,13 +2515,21 @@ static int smc_getsockopt(struct socket *sock, int level, int optname,
-> 			  char __user *optval, int __user *optlen)
-> {
-> 	struct smc_sock *smc;
->+	int rc;
-> 
-> 	smc = smc_sk(sock->sk);
->+	mutex_lock(&smc->clcsock_release_lock);
->+	if (!smc->clcsock) {
->+		mutex_unlock(&smc->clcsock_release_lock);
->+		return -EBADF;
->+	}
-> 	/* socket options apply to the CLC socket */
-> 	if (unlikely(!smc->clcsock->ops->getsockopt))
-Missed a mutex_unlock() here ?
+On Tue, Jan 11, 2022 at 04:33:30PM +0100, Arnd Bergmann wrote:
+> This is a very subtle change to the exported UAPI header contents:
+> On 64-bit architectures, the three unusable numbers are now always
+> shown, rather than depending on a user-controlled symbol.
 
-> 		return -EOPNOTSUPP;
+Well, the change is bigger and less subtle.  Before this change the
+constants were never visible to userspace at all (except on mips),
+because the #ifdef CONFIG_64BIT it never set for userspace builds.
 
->-	return smc->clcsock->ops->getsockopt(smc->clcsock, level, optname,
->+	rc = smc->clcsock->ops->getsockopt(smc->clcsock, level, optname,
-> 					     optval, optlen);
->+	mutex_unlock(&smc->clcsock_release_lock);
->+	return rc;
-> }
-> 
-> static int smc_ioctl(struct socket *sock, unsigned int cmd,
->-- 
->1.8.3.1
+> This is probably what we want here for compatibility reasons, but I think
+> it should be explained in the changelog text, and I'd like Jeff or Bruce
+> to comment on it as well: the alternative here would be to make the
+> uapi definition depend on __BITS_PER_LONG==32, which is
+> technically the right thing to do but more a of a change.
+
+I can change this to #if __BITS_PER_LONG==32 || defined(__KERNEL__),
+but it will still be change in what userspace sees.
