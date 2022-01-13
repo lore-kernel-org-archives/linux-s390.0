@@ -2,216 +2,150 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D0904C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 13 Jan 2022 15:03:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0140C433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 13 Jan 2022 15:09:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229539AbiAMPDJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 13 Jan 2022 10:03:09 -0500
-Received: from out30-132.freemail.mail.aliyun.com ([115.124.30.132]:33795 "EHLO
-        out30-132.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233641AbiAMPDI (ORCPT
+        id S235985AbiAMPJ0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 13 Jan 2022 10:09:26 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:47842 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235988AbiAMPJZ (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 13 Jan 2022 10:03:08 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04357;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0V1k7W57_1642086178;
-Received: from e02h04404.eu6sqa(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0V1k7W57_1642086178)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 13 Jan 2022 23:03:06 +0800
-From:   Wen Gu <guwen@linux.alibaba.com>
-To:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH net] net/smc: Transitional solution for clcsock race issue
-Date:   Thu, 13 Jan 2022 23:02:57 +0800
-Message-Id: <1642086177-130611-1-git-send-email-guwen@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
+        Thu, 13 Jan 2022 10:09:25 -0500
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20DDq9u4010321;
+        Thu, 13 Jan 2022 15:09:22 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=7LX5KeAirnDHIYJQqXMWNufA/g4qmD+wx5smisw5wbM=;
+ b=s9vailyQj2majgh9Yq5+b1P/kGn7M72S3/zBzWeqy08cYOz9UHhOXltISWwM2SgF/S2E
+ WadkGwgSC7Epd4vZhEN+o8iJIoiYZVxTkR/fPnKX/RIIQ+SZr0wisYrEP+u2qmc0GZDK
+ rrWTlxr89tlHeksHGAJvNZBULESeVGAqNYo2uhh6pTho8DfxP4TdVxqkKffc13wfWH79
+ FZ8is1cEq3vI7ChzFai9MUEvJqAk8bZFa6YgGpCupbqERZD7Ld45Ia/76MsiS/U4qlqV
+ d2w+Byv6Ih3k9nyUHRawGTxoUS0ul0put6w3j2z9fHyJ027WOxAC0ma2MdDMdoLm0iv2 nw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3djnbe1nmb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 13 Jan 2022 15:09:22 +0000
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20DF5VZv009362;
+        Thu, 13 Jan 2022 15:09:21 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3djnbe1nk9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 13 Jan 2022 15:09:21 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20DF7ORa025162;
+        Thu, 13 Jan 2022 15:09:19 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03fra.de.ibm.com with ESMTP id 3df289upsa-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 13 Jan 2022 15:09:19 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20DF9FC442729918
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 13 Jan 2022 15:09:15 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E186BA407C;
+        Thu, 13 Jan 2022 15:09:14 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5B6F9A405F;
+        Thu, 13 Jan 2022 15:09:14 +0000 (GMT)
+Received: from [9.171.57.64] (unknown [9.171.57.64])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 13 Jan 2022 15:09:14 +0000 (GMT)
+Message-ID: <4a54cba5-6fce-7810-2966-b990d0dbb7c3@linux.ibm.com>
+Date:   Thu, 13 Jan 2022 16:09:14 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.0
+Subject: Re: KVM: Warn if mark_page_dirty() is called without an active vCPU
+Content-Language: en-US
+To:     David Woodhouse <dwmw2@infradead.org>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Cc:     butterflyhuangxx@gmail.com, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, seanjc@google.com,
+        Cornelia Huck <cohuck@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Thomas Huth <thuth@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+References: <e8f40b8765f2feefb653d8a67e487818f66581aa.camel@infradead.org>
+ <20220113120609.736701-1-borntraeger@linux.ibm.com>
+ <e9e5521d-21e5-8f6f-902c-17b0516b9839@redhat.com>
+ <b6d9785d769f98da0b057fac643b0f088e346a94.camel@infradead.org>
+ <c685a543-a524-9c95-4b85-f53a0ff744a9@linux.ibm.com>
+ <bfc53985a178f43a3a21796f33449570cf9e4649.camel@infradead.org>
+From:   Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <bfc53985a178f43a3a21796f33449570cf9e4649.camel@infradead.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: zhB1xhAe4LBWJhH9SRJkn9MP5dxb3LLA
+X-Proofpoint-GUID: morpnHT-q60JuDUQdTVAIhkTneeom_hM
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-01-13_07,2022-01-13_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ priorityscore=1501 suspectscore=0 lowpriorityscore=0 clxscore=1015
+ adultscore=0 spamscore=0 impostorscore=0 malwarescore=0 phishscore=0
+ bulkscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2201130093
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-We encountered a crash in smc_setsockopt() and it is caused by
-accessing smc->clcsock after clcsock was released.
 
- BUG: kernel NULL pointer dereference, address: 0000000000000020
- #PF: supervisor read access in kernel mode
- #PF: error_code(0x0000) - not-present page
- PGD 0 P4D 0
- Oops: 0000 [#1] PREEMPT SMP PTI
- CPU: 1 PID: 50309 Comm: nginx Kdump: loaded Tainted: G E     5.16.0-rc4+ #53
- RIP: 0010:smc_setsockopt+0x59/0x280 [smc]
- Call Trace:
-  <TASK>
-  __sys_setsockopt+0xfc/0x190
-  __x64_sys_setsockopt+0x20/0x30
-  do_syscall_64+0x34/0x90
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
- RIP: 0033:0x7f16ba83918e
-  </TASK>
 
-This patch tries to fix it by holding clcsock_release_lock and
-checking whether clcsock has already been released before access.
+Am 13.01.22 um 14:22 schrieb David Woodhouse:
+> On Thu, 2022-01-13 at 13:51 +0100, Christian Borntraeger wrote:
+>>> Btw, that get_map_page() in arch/s390/kvm/interrupt.c looks like it has
+>>> the same use-after-free problem that kvm_map_gfn() used to have. It
+>>> probably wants converting to the new gfn_to_pfn_cache.
+>>>
+>>> Take a look at how I resolve the same issue for delivering Xen event
+>>> channel interrupts.
+>>
+>> Do you have a commit ID for your Xen event channel fix?
+> 
+> 14243b387137 ("KVM: x86/xen: Add KVM_IRQ_ROUTING_XEN_EVTCHN and event
+> channel delivery") and the commits reworking the gfn_to_pfn_cache which
+> lead up to it.
+> 
+> Questions: In your kvm_set_routing_entry() where it calls
+> gmap_translate() to turn the summary_addr and ind_addr from guest
+> addresses to userspace virtual addresses, what protects those
+> translations? If the gmap changes before kvm_set_routing_entry() even
+> returns, what ensures that the IRQ gets retranslated?
 
-In case that a crash of the same reason happens in smc_getsockopt()
-or smc_switch_to_fallback(), this patch also checkes smc->clcsock
-in them too. And the caller of smc_switch_to_fallback() will identify
-whether fallback succeeds according to the return value.
+In the end the gmap translated between guest physical and host virtual, just
+like the kvm memslots. This is done in kvm_arch_commit_memory_region. The gmap
+is a method where we share the last level page table between the guest mapping
+and the user mapping. That is why our memslots have to be on 1 MB boundary (our
+page tables have 256 4k entries). So instead of gmap we could have used the
+memslots as well for translation.
 
-Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
----
- net/smc/af_smc.c | 63 +++++++++++++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 51 insertions(+), 12 deletions(-)
+I have trouble seeing a kernel integrity issue: worst case is that we point to
+a different address in the userspace mapping if qemu would change the memslots
+maybe even to an invalid one. But then the access should fail (for invalid) or
+you get a self-inflicted bit flips on your own address space if you play such
+games.
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 12c52c7..c625af3 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -566,12 +566,17 @@ static void smc_stat_fallback(struct smc_sock *smc)
- 	mutex_unlock(&net->smc.mutex_fback_rsn);
- }
- 
--static void smc_switch_to_fallback(struct smc_sock *smc, int reason_code)
-+static int smc_switch_to_fallback(struct smc_sock *smc, int reason_code)
- {
- 	wait_queue_head_t *smc_wait = sk_sleep(&smc->sk);
--	wait_queue_head_t *clc_wait = sk_sleep(smc->clcsock->sk);
-+	wait_queue_head_t *clc_wait;
- 	unsigned long flags;
- 
-+	mutex_lock(&smc->clcsock_release_lock);
-+	if (!smc->clcsock) {
-+		mutex_unlock(&smc->clcsock_release_lock);
-+		return -EBADF;
-+	}
- 	smc->use_fallback = true;
- 	smc->fallback_rsn = reason_code;
- 	smc_stat_fallback(smc);
-@@ -586,18 +591,30 @@ static void smc_switch_to_fallback(struct smc_sock *smc, int reason_code)
- 		 * smc socket->wq, which should be removed
- 		 * to clcsocket->wq during the fallback.
- 		 */
-+		clc_wait = sk_sleep(smc->clcsock->sk);
- 		spin_lock_irqsave(&smc_wait->lock, flags);
- 		spin_lock_nested(&clc_wait->lock, SINGLE_DEPTH_NESTING);
- 		list_splice_init(&smc_wait->head, &clc_wait->head);
- 		spin_unlock(&clc_wait->lock);
- 		spin_unlock_irqrestore(&smc_wait->lock, flags);
- 	}
-+	mutex_unlock(&smc->clcsock_release_lock);
-+	return 0;
- }
- 
- /* fall back during connect */
- static int smc_connect_fallback(struct smc_sock *smc, int reason_code)
- {
--	smc_switch_to_fallback(smc, reason_code);
-+	struct net *net = sock_net(&smc->sk);
-+	int rc = 0;
-+
-+	rc = smc_switch_to_fallback(smc, reason_code);
-+	if (rc) { /* fallback fails */
-+		this_cpu_inc(net->smc.smc_stats->clnt_hshake_err_cnt);
-+		if (smc->sk.sk_state == SMC_INIT)
-+			sock_put(&smc->sk); /* passive closing */
-+		return rc;
-+	}
- 	smc_copy_sock_settings_to_clc(smc);
- 	smc->connect_nonblock = 0;
- 	if (smc->sk.sk_state == SMC_INIT)
-@@ -1518,11 +1535,12 @@ static void smc_listen_decline(struct smc_sock *new_smc, int reason_code,
- {
- 	/* RDMA setup failed, switch back to TCP */
- 	smc_conn_abort(new_smc, local_first);
--	if (reason_code < 0) { /* error, no fallback possible */
-+	if (reason_code < 0 ||
-+	    smc_switch_to_fallback(new_smc, reason_code)) {
-+		/* error, no fallback possible */
- 		smc_listen_out_err(new_smc);
- 		return;
- 	}
--	smc_switch_to_fallback(new_smc, reason_code);
- 	if (reason_code && reason_code != SMC_CLC_DECL_PEERDECL) {
- 		if (smc_clc_send_decline(new_smc, reason_code, version) < 0) {
- 			smc_listen_out_err(new_smc);
-@@ -1964,8 +1982,11 @@ static void smc_listen_work(struct work_struct *work)
- 
- 	/* check if peer is smc capable */
- 	if (!tcp_sk(newclcsock->sk)->syn_smc) {
--		smc_switch_to_fallback(new_smc, SMC_CLC_DECL_PEERNOSMC);
--		smc_listen_out_connected(new_smc);
-+		rc = smc_switch_to_fallback(new_smc, SMC_CLC_DECL_PEERNOSMC);
-+		if (rc)
-+			smc_listen_out_err(new_smc);
-+		else
-+			smc_listen_out_connected(new_smc);
- 		return;
- 	}
- 
-@@ -2254,7 +2275,9 @@ static int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
- 
- 	if (msg->msg_flags & MSG_FASTOPEN) {
- 		if (sk->sk_state == SMC_INIT && !smc->connect_nonblock) {
--			smc_switch_to_fallback(smc, SMC_CLC_DECL_OPTUNSUPP);
-+			rc = smc_switch_to_fallback(smc, SMC_CLC_DECL_OPTUNSUPP);
-+			if (rc)
-+				goto out;
- 		} else {
- 			rc = -EINVAL;
- 			goto out;
-@@ -2447,6 +2470,11 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
- 	/* generic setsockopts reaching us here always apply to the
- 	 * CLC socket
- 	 */
-+	mutex_lock(&smc->clcsock_release_lock);
-+	if (!smc->clcsock) {
-+		mutex_unlock(&smc->clcsock_release_lock);
-+		return -EBADF;
-+	}
- 	if (unlikely(!smc->clcsock->ops->setsockopt))
- 		rc = -EOPNOTSUPP;
- 	else
-@@ -2456,6 +2484,7 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
- 		sk->sk_err = smc->clcsock->sk->sk_err;
- 		sk_error_report(sk);
- 	}
-+	mutex_unlock(&smc->clcsock_release_lock);
- 
- 	if (optlen < sizeof(int))
- 		return -EINVAL;
-@@ -2472,7 +2501,7 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
- 	case TCP_FASTOPEN_NO_COOKIE:
- 		/* option not supported by SMC */
- 		if (sk->sk_state == SMC_INIT && !smc->connect_nonblock) {
--			smc_switch_to_fallback(smc, SMC_CLC_DECL_OPTUNSUPP);
-+			rc = smc_switch_to_fallback(smc, SMC_CLC_DECL_OPTUNSUPP);
- 		} else {
- 			rc = -EINVAL;
- 		}
-@@ -2515,13 +2544,23 @@ static int smc_getsockopt(struct socket *sock, int level, int optname,
- 			  char __user *optval, int __user *optlen)
- {
- 	struct smc_sock *smc;
-+	int rc;
- 
- 	smc = smc_sk(sock->sk);
-+	mutex_lock(&smc->clcsock_release_lock);
-+	if (!smc->clcsock) {
-+		mutex_unlock(&smc->clcsock_release_lock);
-+		return -EBADF;
-+	}
- 	/* socket options apply to the CLC socket */
--	if (unlikely(!smc->clcsock->ops->getsockopt))
-+	if (unlikely(!smc->clcsock->ops->getsockopt)) {
-+		mutex_unlock(&smc->clcsock_release_lock);
- 		return -EOPNOTSUPP;
--	return smc->clcsock->ops->getsockopt(smc->clcsock, level, optname,
--					     optval, optlen);
-+	}
-+	rc = smc->clcsock->ops->getsockopt(smc->clcsock, level, optname,
-+					   optval, optlen);
-+	mutex_unlock(&smc->clcsock_release_lock);
-+	return rc;
- }
- 
- static int smc_ioctl(struct socket *sock, unsigned int cmd,
--- 
-1.8.3.1
+Well, one thing:  if QEMU changes memslots, it might need to redo the irqfd
+registration as well as we do not follow these changes. Maybe this is something
+that we could improve as future QEMUs could do more changes regarding memslots.
 
+> 
+> And later in adapter_indicators_set() where you take that userspace
+> virtual address and pass it to your get_map_page() function, the same
+> question: what if userspace does a concurrent mmap() and changes the
+> physical page that the userspace address points to?
+> 
+> In the latter case, at least it does look like you don't support
+> external memory accessed only by a PFN without having a corresponding
+> struct page. So at least you don't end up accessing a page that can now
+> belong to *another* guest, because the original underlying page is
+> locked. You're probably OK in that case, so it's just the gmap changing
+> that we need to focus on?
