@@ -2,55 +2,46 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72BBCC4332F
-	for <linux-s390@archiver.kernel.org>; Thu, 13 Jan 2022 18:50:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E812BC433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 13 Jan 2022 19:10:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237622AbiAMSur (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 13 Jan 2022 13:50:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39548 "EHLO
+        id S237854AbiAMTKN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 13 Jan 2022 14:10:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234118AbiAMSur (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 13 Jan 2022 13:50:47 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFEFAC061574;
-        Thu, 13 Jan 2022 10:50:46 -0800 (PST)
+        with ESMTP id S237853AbiAMTKN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 13 Jan 2022 14:10:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AE78C061574;
+        Thu, 13 Jan 2022 11:10:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9B726B82326;
-        Thu, 13 Jan 2022 18:50:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F25C7C36AE9;
-        Thu, 13 Jan 2022 18:50:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D54161D3F;
+        Thu, 13 Jan 2022 19:10:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AB0CC36AEB;
+        Thu, 13 Jan 2022 19:10:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642099844;
-        bh=FSWt886XgYsw7G7l3qo5p3On5r/WJnz+eCmQ5Qpdd0M=;
+        s=k20201202; t=1642101011;
+        bh=mDkV0+0LoJMZROFw0QWyf8e4iQci/VWjWhc7T3wuhFw=;
         h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=dnggfMrNjlIyO+NMIKoYed6mB25pA6bYhoPlA3Qm2pv9CDsbSRexHcnusVV+Uo7Be
-         IjhhH7a69A+SGgX4AmgRQLNhXhWxQPTFnHQ2bV9Niin+2gQIddf43772iaR3Odt8w3
-         YLOidr0P43eVDc+EHm1SMImpGiaYm4dS9a6s+I3Z1PWg5+v2TGRjQ1LwJOLAteovaG
-         uDyJvV/1P/OOX1zO3oVGiPDHTDBHQkxiPmmtohod10pYMfP2QeXlDWDV4lofdd9tSw
-         PPbMxJNiXxq8NbEy0CbLLEuvTHSW/b4iCk1x27OaNCo1QjKyVFXxcb4ykKoN+Vx/mi
-         iUfYpMx42K48g==
-Date:   Thu, 13 Jan 2022 10:50:42 -0800
+        b=TYF4Jcc+5i0wp/4N9fUKZvusoy7FwXAYe3FyFjc6lVXFS1LyBneXgkutysIJdUX/x
+         H7Y8NWmhfMYcjGBlmDRP3sE3Vml362xTlIqdUWu31d0fDUuhebRR64p/YFye30awSE
+         D5Urh6SgVRyFm5jWin6u/Cy6AfGDOrZxW9mtPAkq2HW4mfirb8JvRYzdBOeZmAi5K2
+         HKKfdhkx1iIZKhxfCWwwX6P+i9JMkAX+VAAhgxW/RutlPS56OKmm4TOdi4YXiBZ3lF
+         GecKdHwllsMfib9jS128+ITYdEVhie4nbM/RbDQfe763J7tSvDn1lnvMzYZC+vpGFo
+         7uSSLPnhBk6yQ==
+Date:   Thu, 13 Jan 2022 11:10:10 -0800
 From:   Jakub Kicinski <kuba@kernel.org>
-To:     Karsten Graul <kgraul@linux.ibm.com>
-Cc:     Tony Lu <tonylu@linux.alibaba.com>,
-        "D. Wythe" <alibuda@linux.alibaba.com>, dust.li@linux.alibaba.com,
-        davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: Re: [PATCH net-next v2] net/smc: Reduce overflow of smc clcsock
- listen queue
-Message-ID: <20220113105042.7a45aeb1@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
-In-Reply-To: <5a5ba1b6-93d7-5c1e-aab2-23a52727fbd1@linux.ibm.com>
-References: <1641301961-59331-1-git-send-email-alibuda@linux.alibaba.com>
-        <8a60dabb-1799-316c-80b5-14c920fe98ab@linux.ibm.com>
-        <20220105044049.GA107642@e02h04389.eu6sqa>
-        <20220105085748.GD31579@linux.alibaba.com>
-        <b98aefce-e425-9501-aacc-8e5a4a12953e@linux.ibm.com>
-        <20220105150612.GA75522@e02h04389.eu6sqa>
-        <d35569df-e0e0-5ea7-9aeb-7ffaeef04b14@linux.ibm.com>
-        <YdaUuOq+SkhYTWU8@TonyMac-Alibaba>
-        <5a5ba1b6-93d7-5c1e-aab2-23a52727fbd1@linux.ibm.com>
+To:     Wen Gu <guwen@linux.alibaba.com>
+Cc:     kgraul@linux.ibm.com, davem@davemloft.net,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net v2 0/3] net/smc: Fixes for race in smc link group
+ termination
+Message-ID: <20220113111010.3d4c5f4c@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
+In-Reply-To: <1642063002-45688-1-git-send-email-guwen@linux.alibaba.com>
+References: <1642063002-45688-1-git-send-email-guwen@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -58,14 +49,14 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 13 Jan 2022 09:07:51 +0100 Karsten Graul wrote:
-> Lets decide that when you have a specific control that you want to implement. 
-> I want to have a very good to introduce another interface into the SMC module,
-> making the code more complex and all of that. The decision for the netlink interface 
-> was also done because we have the impression that this is the NEW way to go, and
-> since we had no interface before we started with the most modern way to implement it.
+On Thu, 13 Jan 2022 16:36:39 +0800 Wen Gu wrote:
+> We encountered some crashes recently and they are caused by the
+> race between the access and free of link/link group in abnormal
+> smc link group termination. The crashes can be reproduced in
+> frequent abnormal link group termination, like setting RNICs up/down.
 > 
-> TCP et al have a history with sysfs, so thats why it is still there. 
-> But I might be wrong on that...
+> This set of patches tries to fix this by extending the life cycle
+> of link/link group to ensure that they won't be referred to after
+> cleared or freed.
 
-To the best of my knowledge you are correct.
+Looks applied, thanks.
