@@ -2,115 +2,112 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B88BC433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 14 Jan 2022 11:20:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E4947C433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 14 Jan 2022 11:58:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231949AbiANLUM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 14 Jan 2022 06:20:12 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:12452 "EHLO
+        id S240934AbiANL6w (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 14 Jan 2022 06:58:52 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:28104 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S240785AbiANLUM (ORCPT
+        by vger.kernel.org with ESMTP id S240915AbiANL6t (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 14 Jan 2022 06:20:12 -0500
+        Fri, 14 Jan 2022 06:58:49 -0500
 Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20E9uUex038975;
-        Fri, 14 Jan 2022 11:20:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20EBqmls006270;
+        Fri, 14 Jan 2022 11:58:45 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=zs9Vs8BInhFQrY+SYtiH6aG9sHlPwB6ir4xVIZYWnas=;
- b=ZOyc/evImRo1+7kQluHmGJHpI0+ffh4J6tW669XAWcnFWl0lZh8aOTDWnm3SOQMGwy/h
- /HodBk9APEbxOFORZPRyvVycZr4wPVKixm11fBMgtodP9LsOVzwROhBir7RpI7sHn1zW
- wecuDIQ961qnNzfa4c2O9I4NUUk2LQ6XYkVJfZt8v6eSEp9qViE2Ll6C4XIc5L7c/pFn
- fqcLDiUCT8Tfv+xii5TKhRlNsY81VNieggJXin1qMB0c2087/CwHG3kmbl2+df8vXRiV
- iFTi16E0NgSdgy9a+TI0eowV/Zcs3thnNdWJC/bamfSB1OKaD7F3mJJB+hdqrp6K9tBy 8w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dk702scqx-1
+ bh=7a5Rr5NSCIa/jUx6lPSwalDwDCLvamBMnf9cJzqBIvY=;
+ b=iyFJXLcT9BEibaB22vd5+dinmtzBaxNbaVXe6iBPWhMilXDlbe9PSb4CdzUiaz+/evER
+ wXBr/WdBVduV46VV7Bk01Fy0piuaqAJiY13v0WyDFN4RKwfAoAVKqdW5+a3+Rzybic25
+ 2pkWc/uaVP+I1rMPlyCQTwJjWc9LZEmK4oDkhifQmMFPIeSSnQj5e/b3aJVin/q1ym1m
+ /MtCs5RLB+e61OXIZnmHkdCJEYcwzvVxOa2+IO5FZT3P84NhhKKo4AvZl1T3SuUs2qFX
+ RujBVUTB7d2hGDFBnSvZimLPyj+zREdFmCzEoQqWk2/hCdBybK1Qxnvi2bUcodoiokoQ Qw== 
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dk8pgr399-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 14 Jan 2022 11:20:12 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20EAj2mN029336;
-        Fri, 14 Jan 2022 11:20:11 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dk702scq4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 14 Jan 2022 11:20:11 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20EBDU3E015335;
-        Fri, 14 Jan 2022 11:20:09 GMT
+        Fri, 14 Jan 2022 11:58:44 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20EBut8q027120;
+        Fri, 14 Jan 2022 11:58:42 GMT
 Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma03fra.de.ibm.com with ESMTP id 3df28a2pmf-1
+        by ppma01fra.de.ibm.com with ESMTP id 3dfwhjx89f-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 14 Jan 2022 11:20:09 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20EBK6rg44171574
+        Fri, 14 Jan 2022 11:58:42 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20EBwds542402244
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 14 Jan 2022 11:20:06 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0A4064C050;
-        Fri, 14 Jan 2022 11:20:06 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 935014C046;
-        Fri, 14 Jan 2022 11:20:05 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.145.8.156])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 14 Jan 2022 11:20:05 +0000 (GMT)
-Date:   Fri, 14 Jan 2022 12:19:00 +0100
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com,
-        thuth@redhat.com, cohuck@redhat.com, nrb@linux.ibm.com
-Subject: Re: [kvm-unit-tests PATCH 5/5] s390x: firq: Fix sclp buffer
- allocation
-Message-ID: <20220114121900.540bf127@p-imbrenda>
-In-Reply-To: <20220114100245.8643-6-frankja@linux.ibm.com>
-References: <20220114100245.8643-1-frankja@linux.ibm.com>
-        <20220114100245.8643-6-frankja@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        Fri, 14 Jan 2022 11:58:39 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 18F40A4051;
+        Fri, 14 Jan 2022 11:58:39 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A4EDDA4040;
+        Fri, 14 Jan 2022 11:58:38 +0000 (GMT)
+Received: from [9.145.186.190] (unknown [9.145.186.190])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 14 Jan 2022 11:58:38 +0000 (GMT)
+Message-ID: <45b2b8d0-b913-20cd-62ca-e6014505632c@linux.ibm.com>
+Date:   Fri, 14 Jan 2022 12:58:38 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.5.0
+Subject: Re: [PATCH] s390/qeth: Remove redundant 'flush_workqueue()' calls
+Content-Language: en-US
+To:     Xu Wang <vulab@iscas.ac.cn>, wenjia@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@linux.ibm.com,
+        agordeev@linux.ibm.com
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20220114084218.42586-1-vulab@iscas.ac.cn>
+From:   Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <20220114084218.42586-1-vulab@iscas.ac.cn>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: tqgk-skTUEjNLS4XtN9JzGB19lXedfx7
-X-Proofpoint-ORIG-GUID: Uex3p1Yi7nFrxUGsc17f6nXWbIidTR5b
+X-Proofpoint-GUID: NzWqRMjSy_WK9YdUYjrMAbT4yXh1RsUd
+X-Proofpoint-ORIG-GUID: NzWqRMjSy_WK9YdUYjrMAbT4yXh1RsUd
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2022-01-14_04,2022-01-14_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
- adultscore=0 impostorscore=0 phishscore=0 mlxlogscore=999 malwarescore=0
- spamscore=0 bulkscore=0 priorityscore=1501 lowpriorityscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2201140074
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
+ priorityscore=1501 phishscore=0 mlxlogscore=999 malwarescore=0
+ lowpriorityscore=0 adultscore=0 impostorscore=0 suspectscore=0
+ clxscore=1011 mlxscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2110150000 definitions=main-2201140077
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 14 Jan 2022 10:02:45 +0000
-Janosch Frank <frankja@linux.ibm.com> wrote:
 
-> We need a 32 bit address for the sclp buffer so let's use a page from
-> the first 31 bits.
+
+On 14.01.22 09:42, Xu Wang wrote:
+> 'destroy_workqueue()' already drains the queue before destroying it, so
+> there is no need to flush it explicitly.
 > 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
+> Remove the redundant 'flush_workqueue()' calls.
+> 
+> Signed-off-by: Xu Wang <vulab@iscas.ac.cn>
 > ---
->  s390x/firq.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  drivers/s390/net/qeth_l3_main.c | 1 -
+>  1 file changed, 1 deletion(-)
 > 
-> diff --git a/s390x/firq.c b/s390x/firq.c
-> index 1f877183..a0ef1555 100644
-> --- a/s390x/firq.c
-> +++ b/s390x/firq.c
-> @@ -87,7 +87,7 @@ static void test_wait_state_delivery(void)
->  	 */
->  	while(smp_sense_running_status(1));
+> diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+> index 9251ad276ee8..d2f422a9a4f7 100644
+> --- a/drivers/s390/net/qeth_l3_main.c
+> +++ b/drivers/s390/net/qeth_l3_main.c
+> @@ -1961,7 +1961,6 @@ static void qeth_l3_remove_device(struct ccwgroup_device *cgdev)
+>  	if (card->dev->reg_state == NETREG_REGISTERED)
+>  		unregister_netdev(card->dev);
 >  
-> -	h = alloc_page();
-> +	h = alloc_pages_flags(1, AREA_DMA31);
->  	h->length = 4096;
->  	ret = servc(SCLP_CMDW_READ_CPU_INFO, __pa(h));
->  	if (ret) {
+> -	flush_workqueue(card->cmd_wq);
+>  	destroy_workqueue(card->cmd_wq);
+>  	qeth_l3_clear_ip_htable(card, 0);
+>  	qeth_l3_clear_ipato_list(card);
 
+Thanks for pointing this out!
+
+IMO, this can go to net-next as it is not a fix, but removes redundancy.
+
+Acked-by: Alexandra Winter <wintera@linux.ibm.com>
