@@ -2,131 +2,109 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 11CB4C433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 14 Jan 2022 13:01:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E5EBDC433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 14 Jan 2022 13:07:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235278AbiANNBf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 14 Jan 2022 08:01:35 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:28228 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235107AbiANNBf (ORCPT
+        id S235110AbiANNHO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 14 Jan 2022 08:07:14 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:27502 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S231283AbiANNHN (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 14 Jan 2022 08:01:35 -0500
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20EBvqP0020762;
-        Fri, 14 Jan 2022 13:01:34 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
+        Fri, 14 Jan 2022 08:07:13 -0500
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20EBNx5m013382;
+        Fri, 14 Jan 2022 13:07:13 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=icOy2fM80h5sQ2FnAfa96cl17OXMQJ+rd/uso+7fqJ4=;
- b=f25H0gZogzHz7I/6QI3vUMQgFm861RfYgr1W4oqGLVe/g6evQ+r/akJMsh9tTNcVNDGx
- AmJhgBidI6tqBOzahkDfTvwvyxYXyTIsZKit4xdqTgLa0+GV8PGCUIz8xxt1Dk5PM8Dz
- Nv0iBxtCxf1votElJKYokxJdcJRzhVF8wlYcZD7xD27ooORyibsj5r+x3iIjO7JzOb9s
- aGj48wUR5+JjgHNWSwPglF6iURQOEV8sw0ZhEqI80IsQkFUW5iJbp9E2FnumBTax2cYz
- 3L7dcLXgIC7BTLGwi3BYrSlTNpWcPzboIUH43mgX4Z6jd3lySNskxPS1XUXTeTUceCew lA== 
+ bh=yHDvSZZ2+cnBhHUPru3bAJ6lkG/WZViVLgxOo9z7t30=;
+ b=FuGFLCk3Ls9mCBQd3cTw8m0r3ESKkEUwJ3JaIGDfKPgtgmsR+aXlnHpo8+U6RN0LmIgk
+ 5WTzCSR0xWMWONMEaPDNzXdMHu6zdXW4MHL/URq8RfNtMh55/Ke79hAlFKyVb6IeXsVq
+ Y19nh2pO7acFoUC7+tATOyLNiYhR9EL6c5t0el12b7nR+l6zxqf7Ggl7axxMR0npeg2z
+ W5bkOHwbeAJozYTX2vVxyhgxPzhIYx3eLxR9ibiRkfS93dyJyj3uMkHhjiXzBTN2dMtS
+ wh+/0ZauVW2wGvpLaiwjy193uGNd4FWumGwlHeqC72mY8VacIgBCCGWy20fqzZnaP/YZ MA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dk8rvh3vm-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3dk8911qwk-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 14 Jan 2022 13:01:34 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20ECvB43004956;
-        Fri, 14 Jan 2022 13:01:33 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dk8rvh3v2-1
+        Fri, 14 Jan 2022 13:07:13 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20ED0DZ7006843;
+        Fri, 14 Jan 2022 13:07:12 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3dk8911qw2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 14 Jan 2022 13:01:33 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20ECv0fY029711;
-        Fri, 14 Jan 2022 13:01:32 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03ams.nl.ibm.com with ESMTP id 3df28aeb9a-1
+        Fri, 14 Jan 2022 13:07:12 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20ECwMUl026470;
+        Fri, 14 Jan 2022 13:07:11 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06fra.de.ibm.com with ESMTP id 3df1vkbnx2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 14 Jan 2022 13:01:31 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20ED1Qhn14746030
+        Fri, 14 Jan 2022 13:07:10 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20ED77vx32375054
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 14 Jan 2022 13:01:26 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8CAA7A4078;
-        Fri, 14 Jan 2022 13:01:26 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 27E80A4055;
-        Fri, 14 Jan 2022 13:01:26 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.145.8.156])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 14 Jan 2022 13:01:26 +0000 (GMT)
-Date:   Fri, 14 Jan 2022 14:01:23 +0100
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Nico Boehr <nrb@linux.ibm.com>
-Cc:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com,
-        cohuck@redhat.com
+        Fri, 14 Jan 2022 13:07:07 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 91FCC5204F;
+        Fri, 14 Jan 2022 13:07:07 +0000 (GMT)
+Received: from [9.145.160.142] (unknown [9.145.160.142])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 3970F52050;
+        Fri, 14 Jan 2022 13:07:07 +0000 (GMT)
+Message-ID: <95395aff-a7ba-217c-2e44-f9bcc14a2823@linux.ibm.com>
+Date:   Fri, 14 Jan 2022 14:07:06 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
 Subject: Re: [kvm-unit-tests PATCH 4/5] s390x: smp: Allocate memory in DMA31
  space
-Message-ID: <20220114140123.10bf0406@p-imbrenda>
-In-Reply-To: <f840f66aa615ce167187754842268662cd466b92.camel@linux.ibm.com>
+Content-Language: en-US
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com,
+        thuth@redhat.com, cohuck@redhat.com
 References: <20220114100245.8643-1-frankja@linux.ibm.com>
-        <20220114100245.8643-5-frankja@linux.ibm.com>
-        <f840f66aa615ce167187754842268662cd466b92.camel@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+ <20220114100245.8643-5-frankja@linux.ibm.com>
+ <f840f66aa615ce167187754842268662cd466b92.camel@linux.ibm.com>
+ <20220114135712.6473723a@p-imbrenda>
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <20220114135712.6473723a@p-imbrenda>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: e3GnnXu2voXqKzXby4m2iGiXjWaYjZrw
-X-Proofpoint-ORIG-GUID: jNrdFLQ0CGtYCq8wo-cfKCo7MZVcvfT2
+X-Proofpoint-ORIG-GUID: qY6Yg1cKft7UF-b2MGHdYWmdSvCbxBaq
+X-Proofpoint-GUID: BOxSrM0tAeTaxLPFExxabvtFAjYmMkrT
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2022-01-14_04,2022-01-14_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- suspectscore=0 malwarescore=0 mlxscore=0 bulkscore=0 mlxlogscore=999
- priorityscore=1501 clxscore=1015 phishscore=0 spamscore=0 adultscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2201140088
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 phishscore=0
+ malwarescore=0 bulkscore=0 impostorscore=0 adultscore=0 mlxlogscore=999
+ priorityscore=1501 lowpriorityscore=0 mlxscore=0 spamscore=0 clxscore=1015
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
+ definitions=main-2201140088
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 14 Jan 2022 13:50:52 +0100
-Nico Boehr <nrb@linux.ibm.com> wrote:
-
-> On Fri, 2022-01-14 at 10:02 +0000, Janosch Frank wrote:
-> > The store status at address order works with 31 bit addresses so
-> > let's
-> > use them.
-> >=20
-> > Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> > ---
-> > =C2=A0s390x/smp.c | 4 ++--
-> > =C2=A01 file changed, 2 insertions(+), 2 deletions(-)
-> >=20
-> > diff --git a/s390x/smp.c b/s390x/smp.c
-> > index 32f128b3..c91f170b 100644
-> > --- a/s390x/smp.c
-> > +++ b/s390x/smp.c =20
->=20
-> [...]
->=20
-> > @@ -244,7 +244,7 @@ static void test_func_initial(void)
-> > =C2=A0
-> > =C2=A0static void test_reset_initial(void)
-> > =C2=A0{
-> > -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0struct cpu_status *status =
-=3D alloc_pages(0);
-> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0struct cpu_status *status =
-=3D alloc_pages_flags(1, AREA_DMA31); =20
->=20
-> Why do we need two pages now?
-
-actually, wait.....
-
-        struct cpu_status *status =3D alloc_pages_flags(1, AREA_DMA31);
-        uint32_t r;
-
-        report_prefix_push("store status at address");
-        memset(status, 0, PAGE_SIZE * 2);
-
-we were allocating one page, and using 2!
-
-@Janosch do we need 1 or 2 pages?
+T24gMS8xNC8yMiAxMzo1NywgQ2xhdWRpbyBJbWJyZW5kYSB3cm90ZToNCj4gT24gRnJpLCAx
+NCBKYW4gMjAyMiAxMzo1MDo1MiArMDEwMA0KPiBOaWNvIEJvZWhyIDxucmJAbGludXguaWJt
+LmNvbT4gd3JvdGU6DQo+IA0KPj4gT24gRnJpLCAyMDIyLTAxLTE0IGF0IDEwOjAyICswMDAw
+LCBKYW5vc2NoIEZyYW5rIHdyb3RlOg0KPj4+IFRoZSBzdG9yZSBzdGF0dXMgYXQgYWRkcmVz
+cyBvcmRlciB3b3JrcyB3aXRoIDMxIGJpdCBhZGRyZXNzZXMgc28NCj4+PiBsZXQncw0KPj4+
+IHVzZSB0aGVtLg0KPj4+DQo+Pj4gU2lnbmVkLW9mZi1ieTogSmFub3NjaCBGcmFuayA8ZnJh
+bmtqYUBsaW51eC5pYm0uY29tPg0KPj4+IC0tLQ0KPj4+ICDCoHMzOTB4L3NtcC5jIHwgNCAr
+Ky0tDQo+Pj4gIMKgMSBmaWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlv
+bnMoLSkNCj4+Pg0KPj4+IGRpZmYgLS1naXQgYS9zMzkweC9zbXAuYyBiL3MzOTB4L3NtcC5j
+DQo+Pj4gaW5kZXggMzJmMTI4YjMuLmM5MWYxNzBiIDEwMDY0NA0KPj4+IC0tLSBhL3MzOTB4
+L3NtcC5jDQo+Pj4gKysrIGIvczM5MHgvc21wLmMNCj4+DQo+PiBbLi4uXQ0KPj4NCj4+PiBA
+QCAtMjQ0LDcgKzI0NCw3IEBAIHN0YXRpYyB2b2lkIHRlc3RfZnVuY19pbml0aWFsKHZvaWQp
+DQo+Pj4gICANCj4+PiAgwqBzdGF0aWMgdm9pZCB0ZXN0X3Jlc2V0X2luaXRpYWwodm9pZCkN
+Cj4+PiAgwqB7DQo+Pj4gLcKgwqDCoMKgwqDCoMKgc3RydWN0IGNwdV9zdGF0dXMgKnN0YXR1
+cyA9IGFsbG9jX3BhZ2VzKDApOw0KPj4+ICvCoMKgwqDCoMKgwqDCoHN0cnVjdCBjcHVfc3Rh
+dHVzICpzdGF0dXMgPSBhbGxvY19wYWdlc19mbGFncygxLCBBUkVBX0RNQTMxKTsNCj4+DQo+
+PiBXaHkgZG8gd2UgbmVlZCB0d28gcGFnZXMgbm93Pw0KPiANCj4gb2gsIGdvb2QgY2F0Y2gN
+Cg0KSW5kZWVkDQoNCj4gDQo+IHRoZSBuZXh0IHBhdGNoIGhhcyB0aGUgc2FtZSBpc3N1ZQ0K
+PiANCj4gSSBjYW4gZml4IHRoZW0gdXAgd2hlbiBJIHF1ZXVlIHRoZW0NCj4gDQoNClByb2Jh
+Ymx5IGJlY2F1c2UgSSBjb3BpZWQgdGhhdCBsaW5lIGZyb20gc29tZXdoZXJlIDotKQ0KWWVh
+aCwgeW91IGNhbiBmaXggdGhhdCB1cCBpZiB5b3Ugd2FudC4NCg==
