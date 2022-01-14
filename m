@@ -2,27 +2,27 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0EC6BC43217
-	for <linux-s390@archiver.kernel.org>; Fri, 14 Jan 2022 05:49:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 41AD3C4332F
+	for <linux-s390@archiver.kernel.org>; Fri, 14 Jan 2022 05:49:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239217AbiANFtG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 14 Jan 2022 00:49:06 -0500
-Received: from out30-132.freemail.mail.aliyun.com ([115.124.30.132]:35913 "EHLO
-        out30-132.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S239150AbiANFtC (ORCPT
+        id S239232AbiANFtF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 14 Jan 2022 00:49:05 -0500
+Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:37464 "EHLO
+        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S236473AbiANFtA (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 14 Jan 2022 00:49:02 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0V1nMT2A_1642139339;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0V1nMT2A_1642139339)
+        Fri, 14 Jan 2022 00:49:00 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0V1nMT1l_1642139337;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0V1nMT1l_1642139337)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 14 Jan 2022 13:48:59 +0800
+          Fri, 14 Jan 2022 13:48:57 +0800
 From:   Tony Lu <tonylu@linux.alibaba.com>
 To:     kgraul@linux.ibm.com
 Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
         linux-s390@vger.kernel.org
-Subject: [RFC PATCH net-next 5/6] net/smc: Unbind buffer size from clcsock and make it tunable
-Date:   Fri, 14 Jan 2022 13:48:51 +0800
-Message-Id: <20220114054852.38058-6-tonylu@linux.alibaba.com>
+Subject: [RFC PATCH net-next 3/6] net/smc: Introduce smc_ib_cq to bind link and cq
+Date:   Fri, 14 Jan 2022 13:48:49 +0800
+Message-Id: <20220114054852.38058-4-tonylu@linux.alibaba.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220114054852.38058-1-tonylu@linux.alibaba.com>
 References: <20220114054852.38058-1-tonylu@linux.alibaba.com>
@@ -32,259 +32,306 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-SMC uses smc->sk.sk_{rcv|snd}buf to create buffer for send buffer or
-RMB. And the values of buffer size inherits from clcsock. The clcsock is
-a TCP sock which is initiated during SMC connection startup.
-
-The inherited buffer size doesn't fit SMC well. TCP provides two sysctl
-knobs to tune r/w buffers, net.ipv4.tcp_{r|w}mem, and SMC use the default
-value from TCP. The buffer size is tuned for TCP, but not fit SMC well
-in some scenarios. For example, we need larger buffer of SMC for high
-throughput applications, and smaller buffer of SMC for saving contiguous
-memory. We need to adjust the buffer size apart from TCP and not to
-disturb TCP.
-
-This unbinds buffer size which inherits from clcsock, and provides
-sysctl knobs to adjust buffer size independently. These knobs can be
-tuned with different values for different net namespaces for performance
-and flexibility.
+This patch introduces struct smc_ib_cq as a medium between smc_link and
+ib_cq. Every smc_link can access ib_cq from their own, and unbinds
+smc_link from smc_ib_device. This allows flexible mapping, prepares for
+multiple CQs support.
 
 Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
-Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
 ---
- Documentation/networking/smc-sysctl.rst | 20 ++++++
- include/net/netns/smc.h                 |  5 ++
- net/smc/Makefile                        |  2 +-
- net/smc/af_smc.c                        | 17 +++++-
- net/smc/smc_sysctl.c                    | 81 +++++++++++++++++++++++++
- net/smc/smc_sysctl.h                    | 22 +++++++
- 6 files changed, 144 insertions(+), 3 deletions(-)
- create mode 100644 Documentation/networking/smc-sysctl.rst
- create mode 100644 net/smc/smc_sysctl.c
- create mode 100644 net/smc/smc_sysctl.h
+ net/smc/smc_core.h |  2 ++
+ net/smc/smc_ib.c   | 52 +++++++++++++++++++++++++++++++++-------------
+ net/smc/smc_ib.h   | 14 +++++++++----
+ net/smc/smc_wr.c   | 34 +++++++++++++++---------------
+ 4 files changed, 67 insertions(+), 35 deletions(-)
 
-diff --git a/Documentation/networking/smc-sysctl.rst b/Documentation/networking/smc-sysctl.rst
-new file mode 100644
-index 000000000000..ba2be59a57dd
---- /dev/null
-+++ b/Documentation/networking/smc-sysctl.rst
-@@ -0,0 +1,20 @@
-+.. SPDX-License-Identifier: GPL-2.0
-+
-+=========
-+SMC Sysctl
-+=========
-+
-+/proc/sys/net/smc/* Variables
-+==============================
-+
-+wmem_default - INTEGER
-+    Initial size of send buffer used by SMC sockets.
-+    The default value inherits from net.ipv4.tcp_wmem[1].
-+
-+    Default: 16K
-+
-+rmem_default - INTEGER
-+    Initial size of receive buffer (RMB) used by SMC sockets.
-+    The default value inherits from net.ipv4.tcp_rmem[1].
-+
-+    Default: 131072 bytes.
-diff --git a/include/net/netns/smc.h b/include/net/netns/smc.h
-index ea8a9cf2619b..f948235e3156 100644
---- a/include/net/netns/smc.h
-+++ b/include/net/netns/smc.h
-@@ -12,5 +12,10 @@ struct netns_smc {
- 	/* protect fback_rsn */
- 	struct mutex			mutex_fback_rsn;
- 	struct smc_stats_rsn		*fback_rsn;
-+#ifdef CONFIG_SYSCTL
-+	struct ctl_table_header		*smc_hdr;
-+#endif
-+	int				sysctl_wmem_default;
-+	int				sysctl_rmem_default;
- };
- #endif
-diff --git a/net/smc/Makefile b/net/smc/Makefile
-index 196fb6f01b14..640af9a39f9c 100644
---- a/net/smc/Makefile
-+++ b/net/smc/Makefile
-@@ -4,4 +4,4 @@ obj-$(CONFIG_SMC)	+= smc.o
- obj-$(CONFIG_SMC_DIAG)	+= smc_diag.o
- smc-y := af_smc.o smc_pnet.o smc_ib.o smc_clc.o smc_core.o smc_wr.o smc_llc.o
- smc-y += smc_cdc.o smc_tx.o smc_rx.o smc_close.o smc_ism.o smc_netlink.o smc_stats.o
--smc-y += smc_tracepoint.o
-+smc-y += smc_tracepoint.o smc_sysctl.o
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index ffab9cee747d..0650b5971e0a 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -51,6 +51,7 @@
- #include "smc_close.h"
- #include "smc_stats.h"
- #include "smc_tracepoint.h"
-+#include "smc_sysctl.h"
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 521c64a3d8d3..fd10cad8fb77 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -86,6 +86,8 @@ struct smc_link {
+ 	struct ib_pd		*roce_pd;	/* IB protection domain,
+ 						 * unique for every RoCE QP
+ 						 */
++	struct smc_ib_cq	*smcibcq_recv;	/* cq for recv */
++	struct smc_ib_cq	*smcibcq_send;	/* cq for send */
+ 	struct ib_qp		*roce_qp;	/* IB queue pair */
+ 	struct ib_qp_attr	qp_attr;	/* IB queue pair attributes */
  
- static DEFINE_MUTEX(smc_server_lgr_pending);	/* serialize link group
- 						 * creation on server
-@@ -2851,8 +2852,8 @@ static int __smc_create(struct net *net, struct socket *sock, int protocol,
- 		smc->clcsock = clcsock;
- 	}
- 
--	smc->sk.sk_sndbuf = max(smc->clcsock->sk->sk_sndbuf, SMC_BUF_MIN_SIZE);
--	smc->sk.sk_rcvbuf = max(smc->clcsock->sk->sk_rcvbuf, SMC_BUF_MIN_SIZE);
-+	smc->sk.sk_sndbuf = sock_net(sk)->smc.sysctl_wmem_default;
-+	smc->sk.sk_rcvbuf = sock_net(sk)->smc.sysctl_rmem_default;
- 
- out:
- 	return rc;
-@@ -2932,6 +2933,11 @@ unsigned int smc_net_id;
- 
- static __net_init int smc_net_init(struct net *net)
+diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+index 9a162810ed8c..b08b9af4c156 100644
+--- a/net/smc/smc_ib.c
++++ b/net/smc/smc_ib.c
+@@ -133,7 +133,7 @@ int smc_ib_ready_link(struct smc_link *lnk)
+ 	if (rc)
+ 		goto out;
+ 	smc_wr_remember_qp_attr(lnk);
+-	rc = ib_req_notify_cq(lnk->smcibdev->roce_cq_recv,
++	rc = ib_req_notify_cq(lnk->smcibcq_recv->roce_cq,
+ 			      IB_CQ_SOLICITED_MASK);
+ 	if (rc)
+ 		goto out;
+@@ -672,6 +672,8 @@ void smc_ib_destroy_queue_pair(struct smc_link *lnk)
  {
-+	net->smc.sysctl_wmem_default = max(net->ipv4.sysctl_tcp_wmem[1],
-+					   SMC_BUF_MIN_SIZE);
-+	net->smc.sysctl_rmem_default = max(net->ipv4.sysctl_tcp_rmem[1],
-+					   SMC_BUF_MIN_SIZE);
-+
- 	return smc_pnet_net_init(net);
+ 	if (lnk->roce_qp)
+ 		ib_destroy_qp(lnk->roce_qp);
++	lnk->smcibcq_send = NULL;
++	lnk->smcibcq_recv = NULL;
+ 	lnk->roce_qp = NULL;
  }
  
-@@ -3044,6 +3050,12 @@ static int __init smc_init(void)
- 		goto out_sock;
+@@ -682,8 +684,8 @@ int smc_ib_create_queue_pair(struct smc_link *lnk)
+ 	struct ib_qp_init_attr qp_attr = {
+ 		.event_handler = smc_ib_qp_event_handler,
+ 		.qp_context = lnk,
+-		.send_cq = lnk->smcibdev->roce_cq_send,
+-		.recv_cq = lnk->smcibdev->roce_cq_recv,
++		.send_cq = lnk->smcibdev->roce_cq_send->roce_cq,
++		.recv_cq = lnk->smcibdev->roce_cq_recv->roce_cq,
+ 		.srq = NULL,
+ 		.cap = {
+ 				/* include unsolicited rdma_writes as well,
+@@ -701,10 +703,13 @@ int smc_ib_create_queue_pair(struct smc_link *lnk)
+ 
+ 	lnk->roce_qp = ib_create_qp(lnk->roce_pd, &qp_attr);
+ 	rc = PTR_ERR_OR_ZERO(lnk->roce_qp);
+-	if (IS_ERR(lnk->roce_qp))
++	if (IS_ERR(lnk->roce_qp)) {
+ 		lnk->roce_qp = NULL;
+-	else
++	} else {
++		lnk->smcibcq_send = lnk->smcibdev->roce_cq_send;
++		lnk->smcibcq_recv = lnk->smcibdev->roce_cq_recv;
+ 		smc_wr_remember_qp_attr(lnk);
++	}
+ 	return rc;
+ }
+ 
+@@ -824,6 +829,7 @@ void smc_ib_buf_unmap_sg(struct smc_link *lnk,
+ long smc_ib_setup_per_ibdev(struct smc_ib_device *smcibdev)
+ {
+ 	struct ib_cq_init_attr cqattr =	{ .cqe = SMC_MAX_CQE };
++	struct smc_ib_cq *smcibcq_send, *smcibcq_recv;
+ 	int cq_send_vector, cq_recv_vector;
+ 	int cqe_size_order, smc_order;
+ 	long rc;
+@@ -837,34 +843,52 @@ long smc_ib_setup_per_ibdev(struct smc_ib_device *smcibdev)
+ 	smc_order = MAX_ORDER - cqe_size_order - 1;
+ 	if (SMC_MAX_CQE + 2 > (0x00000001 << smc_order) * PAGE_SIZE)
+ 		cqattr.cqe = (0x00000001 << smc_order) * PAGE_SIZE - 2;
++	smcibcq_send = kmalloc(sizeof(*smcibcq_send), GFP_KERNEL);
++	if (!smcibcq_send) {
++		rc = -ENOMEM;
++		goto out;
++	}
+ 	cq_send_vector = smc_ib_get_least_used_vector(smcibdev);
++	smcibcq_send->smcibdev = smcibdev;
++	smcibcq_send->is_send = 1;
+ 	cqattr.comp_vector = cq_send_vector;
+-	smcibdev->roce_cq_send = ib_create_cq(smcibdev->ibdev,
+-					      smc_wr_tx_cq_handler, NULL,
+-					      smcibdev, &cqattr);
++	smcibcq_send->roce_cq = ib_create_cq(smcibdev->ibdev,
++					     smc_wr_tx_cq_handler, NULL,
++					     smcibcq_send, &cqattr);
+ 	rc = PTR_ERR_OR_ZERO(smcibdev->roce_cq_send);
+ 	if (IS_ERR(smcibdev->roce_cq_send)) {
+ 		smcibdev->roce_cq_send = NULL;
+ 		goto err_send;
  	}
- 
-+	rc = smc_sysctl_init();
-+	if (rc) {
-+		pr_err("%s: sysctl fails with %d\n", __func__, rc);
-+		goto out_sock;
++	smcibdev->roce_cq_send = smcibcq_send;
++	smcibcq_recv = kmalloc(sizeof(*smcibcq_recv), GFP_KERNEL);
++	if (!smcibcq_recv) {
++		rc = -ENOMEM;
++		goto err_send;
 +	}
-+
- 	static_branch_enable(&tcp_have_smc);
- 	return 0;
+ 	cq_recv_vector = smc_ib_get_least_used_vector(smcibdev);
++	smcibcq_recv->smcibdev = smcibdev;
++	smcibcq_recv->is_send = 0;
+ 	cqattr.comp_vector = cq_recv_vector;
+-	smcibdev->roce_cq_recv = ib_create_cq(smcibdev->ibdev,
+-					      smc_wr_rx_cq_handler, NULL,
+-					      smcibdev, &cqattr);
++	smcibcq_recv->roce_cq = ib_create_cq(smcibdev->ibdev,
++					     smc_wr_rx_cq_handler, NULL,
++					     smcibcq_recv, &cqattr);
+ 	rc = PTR_ERR_OR_ZERO(smcibdev->roce_cq_recv);
+ 	if (IS_ERR(smcibdev->roce_cq_recv)) {
+ 		smcibdev->roce_cq_recv = NULL;
+ 		goto err_recv;
+ 	}
++	smcibdev->roce_cq_recv = smcibcq_recv;
+ 	smc_wr_add_dev(smcibdev);
+ 	smcibdev->initialized = 1;
+ 	goto out;
  
-@@ -3085,6 +3097,7 @@ static void __exit smc_exit(void)
- 	smc_clc_exit();
- 	unregister_pernet_subsys(&smc_net_stat_ops);
- 	unregister_pernet_subsys(&smc_net_ops);
-+	smc_sysctl_exit();
- 	rcu_barrier();
+ err_recv:
++	kfree(smcibcq_recv);
+ 	smc_ib_put_vector(smcibdev, cq_recv_vector);
+-	ib_destroy_cq(smcibdev->roce_cq_send);
++	ib_destroy_cq(smcibcq_send->roce_cq);
+ err_send:
++	kfree(smcibcq_send);
+ 	smc_ib_put_vector(smcibdev, cq_send_vector);
+ out:
+ 	mutex_unlock(&smcibdev->mutex);
+@@ -877,8 +901,8 @@ static void smc_ib_cleanup_per_ibdev(struct smc_ib_device *smcibdev)
+ 	if (!smcibdev->initialized)
+ 		goto out;
+ 	smcibdev->initialized = 0;
+-	ib_destroy_cq(smcibdev->roce_cq_recv);
+-	ib_destroy_cq(smcibdev->roce_cq_send);
++	ib_destroy_cq(smcibdev->roce_cq_recv->roce_cq);
++	ib_destroy_cq(smcibdev->roce_cq_send->roce_cq);
+ 	smc_wr_remove_dev(smcibdev);
+ out:
+ 	mutex_unlock(&smcibdev->mutex);
+diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
+index a748b74e56e6..5b34274ecf47 100644
+--- a/net/smc/smc_ib.h
++++ b/net/smc/smc_ib.h
+@@ -32,15 +32,21 @@ struct smc_ib_devices {			/* list of smc ib devices definition */
+ extern struct smc_ib_devices	smc_ib_devices; /* list of smc ib devices */
+ extern struct smc_lgr_list smc_lgr_list; /* list of linkgroups */
+ 
++struct smc_ib_cq {		/* ib_cq wrapper for smc */
++	struct list_head	list;
++	struct smc_ib_device	*smcibdev;	/* parent ib device */
++	struct ib_cq		*roce_cq;	/* real ib_cq for link */
++	struct tasklet_struct	tasklet;	/* tasklet for wr */
++	bool			is_send;	/* send for recv cq */
++};
++
+ struct smc_ib_device {				/* ib-device infos for smc */
+ 	struct list_head	list;
+ 	struct ib_device	*ibdev;
+ 	struct ib_port_attr	pattr[SMC_MAX_PORTS];	/* ib dev. port attrs */
+ 	struct ib_event_handler	event_handler;	/* global ib_event handler */
+-	struct ib_cq		*roce_cq_send;	/* send completion queue */
+-	struct ib_cq		*roce_cq_recv;	/* recv completion queue */
+-	struct tasklet_struct	send_tasklet;	/* called by send cq handler */
+-	struct tasklet_struct	recv_tasklet;	/* called by recv cq handler */
++	struct smc_ib_cq	*roce_cq_send;	/* send completion queue */
++	struct smc_ib_cq	*roce_cq_recv;	/* recv completion queue */
+ 	char			mac[SMC_MAX_PORTS][ETH_ALEN];
+ 						/* mac address per port*/
+ 	u8			pnetid[SMC_MAX_PORTS][SMC_MAX_PNETID_LEN];
+diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
+index 24be1d03fef9..011435efb65b 100644
+--- a/net/smc/smc_wr.c
++++ b/net/smc/smc_wr.c
+@@ -135,7 +135,7 @@ static inline void smc_wr_tx_process_cqe(struct ib_wc *wc)
+ 
+ static void smc_wr_tx_tasklet_fn(struct tasklet_struct *t)
+ {
+-	struct smc_ib_device *dev = from_tasklet(dev, t, send_tasklet);
++	struct smc_ib_cq *smcibcq = from_tasklet(smcibcq, t, tasklet);
+ 	struct ib_wc wc[SMC_WR_MAX_POLL_CQE];
+ 	int i = 0, rc;
+ 	int polled = 0;
+@@ -144,9 +144,9 @@ static void smc_wr_tx_tasklet_fn(struct tasklet_struct *t)
+ 	polled++;
+ 	do {
+ 		memset(&wc, 0, sizeof(wc));
+-		rc = ib_poll_cq(dev->roce_cq_send, SMC_WR_MAX_POLL_CQE, wc);
++		rc = ib_poll_cq(smcibcq->roce_cq, SMC_WR_MAX_POLL_CQE, wc);
+ 		if (polled == 1) {
+-			ib_req_notify_cq(dev->roce_cq_send,
++			ib_req_notify_cq(smcibcq->roce_cq,
+ 					 IB_CQ_NEXT_COMP |
+ 					 IB_CQ_REPORT_MISSED_EVENTS);
+ 		}
+@@ -161,9 +161,9 @@ static void smc_wr_tx_tasklet_fn(struct tasklet_struct *t)
+ 
+ void smc_wr_tx_cq_handler(struct ib_cq *ib_cq, void *cq_context)
+ {
+-	struct smc_ib_device *dev = (struct smc_ib_device *)cq_context;
++	struct smc_ib_cq *smcibcq = (struct smc_ib_cq *)cq_context;
+ 
+-	tasklet_schedule(&dev->send_tasklet);
++	tasklet_schedule(&smcibcq->tasklet);
  }
  
-diff --git a/net/smc/smc_sysctl.c b/net/smc/smc_sysctl.c
-new file mode 100644
-index 000000000000..6706fe1bd888
---- /dev/null
-+++ b/net/smc/smc_sysctl.c
-@@ -0,0 +1,81 @@
-+// SPDX-License-Identifier: GPL-2.0
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/sysctl.h>
-+#include <net/sock.h>
-+#include <net/net_namespace.h>
-+
-+#include "smc_core.h"
-+
-+static int min_sndbuf = SMC_BUF_MIN_SIZE;
-+static int min_rcvbuf = SMC_BUF_MIN_SIZE;
-+
-+static struct ctl_table smc_table[] = {
-+	{
-+		.procname	= "wmem_default",
-+		.data		= &init_net.smc.sysctl_wmem_default,
-+		.maxlen		= sizeof(init_net.smc.sysctl_wmem_default),
-+		.mode		= 0644,
-+		.proc_handler	= proc_dointvec_minmax,
-+		.extra1		= &min_sndbuf,
-+	},
-+	{
-+		.procname	= "rmem_default",
-+		.data		= &init_net.smc.sysctl_rmem_default,
-+		.maxlen		= sizeof(init_net.smc.sysctl_rmem_default),
-+		.mode		= 0644,
-+		.proc_handler	= proc_dointvec_minmax,
-+		.extra1		= &min_rcvbuf,
-+	},
-+	{  }
-+};
-+
-+static __net_init int smc_sysctl_init_net(struct net *net)
-+{
-+	struct ctl_table *table;
-+
-+	table = smc_table;
-+	if (!net_eq(net, &init_net)) {
-+		int i;
-+
-+		table = kmemdup(table, sizeof(smc_table), GFP_KERNEL);
-+		if (!table)
-+			goto err_alloc;
-+
-+		for (i = 0; i < ARRAY_SIZE(smc_table) - 1; i++)
-+			table[i].data += (void *)net - (void *)&init_net;
-+	}
-+
-+	net->smc.smc_hdr = register_net_sysctl(net, "net/smc", table);
-+	if (!net->smc.smc_hdr)
-+		goto err_reg;
-+
-+	return 0;
-+
-+err_reg:
-+	if (!net_eq(net, &init_net))
-+		kfree(table);
-+err_alloc:
-+	return -ENOMEM;
-+}
-+
-+static __net_exit void smc_sysctl_exit_net(struct net *net)
-+{
-+	unregister_net_sysctl_table(net->smc.smc_hdr);
-+}
-+
-+static struct pernet_operations smc_sysctl_ops __net_initdata = {
-+	.init = smc_sysctl_init_net,
-+	.exit = smc_sysctl_exit_net,
-+};
-+
-+int __init smc_sysctl_init(void)
-+{
-+	return register_pernet_subsys(&smc_sysctl_ops);
-+}
-+
-+void smc_sysctl_exit(void)
-+{
-+	unregister_pernet_subsys(&smc_sysctl_ops);
-+}
-diff --git a/net/smc/smc_sysctl.h b/net/smc/smc_sysctl.h
-new file mode 100644
-index 000000000000..c01c5de3a3ea
---- /dev/null
-+++ b/net/smc/smc_sysctl.h
-@@ -0,0 +1,22 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+
-+#ifndef _SMC_SYSCTL_H
-+#define _SMC_SYSCTL_H
-+
-+#ifdef CONFIG_SYSCTL
-+
-+int smc_sysctl_init(void);
-+void smc_sysctl_exit(void);
-+
-+#else
-+
-+int smc_sysctl_init(void)
-+{
-+	return 0;
-+}
-+
-+void smc_sysctl_exit(void) { }
-+
-+#endif /* CONFIG_SYSCTL */
-+
-+#endif /* _SMC_SYSCTL_H */
+ /*---------------------------- request submission ---------------------------*/
+@@ -306,7 +306,7 @@ int smc_wr_tx_send(struct smc_link *link, struct smc_wr_tx_pend_priv *priv)
+ 	struct smc_wr_tx_pend *pend;
+ 	int rc;
+ 
+-	ib_req_notify_cq(link->smcibdev->roce_cq_send,
++	ib_req_notify_cq(link->smcibcq_send->roce_cq,
+ 			 IB_CQ_NEXT_COMP | IB_CQ_REPORT_MISSED_EVENTS);
+ 	pend = container_of(priv, struct smc_wr_tx_pend, priv);
+ 	rc = ib_post_send(link->roce_qp, &link->wr_tx_ibs[pend->idx], NULL);
+@@ -323,7 +323,7 @@ int smc_wr_tx_v2_send(struct smc_link *link, struct smc_wr_tx_pend_priv *priv,
+ 	int rc;
+ 
+ 	link->wr_tx_v2_ib->sg_list[0].length = len;
+-	ib_req_notify_cq(link->smcibdev->roce_cq_send,
++	ib_req_notify_cq(link->smcibcq_send->roce_cq,
+ 			 IB_CQ_NEXT_COMP | IB_CQ_REPORT_MISSED_EVENTS);
+ 	rc = ib_post_send(link->roce_qp, link->wr_tx_v2_ib, NULL);
+ 	if (rc) {
+@@ -367,7 +367,7 @@ int smc_wr_reg_send(struct smc_link *link, struct ib_mr *mr)
+ {
+ 	int rc;
+ 
+-	ib_req_notify_cq(link->smcibdev->roce_cq_send,
++	ib_req_notify_cq(link->smcibcq_send->roce_cq,
+ 			 IB_CQ_NEXT_COMP | IB_CQ_REPORT_MISSED_EVENTS);
+ 	link->wr_reg_state = POSTED;
+ 	link->wr_reg.wr.wr_id = (u64)(uintptr_t)mr;
+@@ -476,7 +476,7 @@ static inline void smc_wr_rx_process_cqes(struct ib_wc wc[], int num)
+ 
+ static void smc_wr_rx_tasklet_fn(struct tasklet_struct *t)
+ {
+-	struct smc_ib_device *dev = from_tasklet(dev, t, recv_tasklet);
++	struct smc_ib_cq *smcibcq = from_tasklet(smcibcq, t, tasklet);
+ 	struct ib_wc wc[SMC_WR_MAX_POLL_CQE];
+ 	int polled = 0;
+ 	int rc;
+@@ -485,9 +485,9 @@ static void smc_wr_rx_tasklet_fn(struct tasklet_struct *t)
+ 	polled++;
+ 	do {
+ 		memset(&wc, 0, sizeof(wc));
+-		rc = ib_poll_cq(dev->roce_cq_recv, SMC_WR_MAX_POLL_CQE, wc);
++		rc = ib_poll_cq(smcibcq->roce_cq, SMC_WR_MAX_POLL_CQE, wc);
+ 		if (polled == 1) {
+-			ib_req_notify_cq(dev->roce_cq_recv,
++			ib_req_notify_cq(smcibcq->roce_cq,
+ 					 IB_CQ_SOLICITED_MASK
+ 					 | IB_CQ_REPORT_MISSED_EVENTS);
+ 		}
+@@ -501,9 +501,9 @@ static void smc_wr_rx_tasklet_fn(struct tasklet_struct *t)
+ 
+ void smc_wr_rx_cq_handler(struct ib_cq *ib_cq, void *cq_context)
+ {
+-	struct smc_ib_device *dev = (struct smc_ib_device *)cq_context;
++	struct smc_ib_cq *smcibcq = (struct smc_ib_cq *)cq_context;
+ 
+-	tasklet_schedule(&dev->recv_tasklet);
++	tasklet_schedule(&smcibcq->tasklet);
+ }
+ 
+ int smc_wr_rx_post_init(struct smc_link *link)
+@@ -830,14 +830,14 @@ int smc_wr_alloc_link_mem(struct smc_link *link)
+ 
+ void smc_wr_remove_dev(struct smc_ib_device *smcibdev)
+ {
+-	tasklet_kill(&smcibdev->recv_tasklet);
+-	tasklet_kill(&smcibdev->send_tasklet);
++	tasklet_kill(&smcibdev->roce_cq_recv->tasklet);
++	tasklet_kill(&smcibdev->roce_cq_send->tasklet);
+ }
+ 
+ void smc_wr_add_dev(struct smc_ib_device *smcibdev)
+ {
+-	tasklet_setup(&smcibdev->recv_tasklet, smc_wr_rx_tasklet_fn);
+-	tasklet_setup(&smcibdev->send_tasklet, smc_wr_tx_tasklet_fn);
++	tasklet_setup(&smcibdev->roce_cq_recv->tasklet, smc_wr_rx_tasklet_fn);
++	tasklet_setup(&smcibdev->roce_cq_send->tasklet, smc_wr_tx_tasklet_fn);
+ }
+ 
+ int smc_wr_create_link(struct smc_link *lnk)
 -- 
 2.32.0.3.g01195cf9f
 
