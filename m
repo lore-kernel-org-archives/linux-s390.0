@@ -2,79 +2,57 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 45A5EC433EF
-	for <linux-s390@archiver.kernel.org>; Sun, 16 Jan 2022 12:40:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA821C433EF
+	for <linux-s390@archiver.kernel.org>; Sun, 16 Jan 2022 17:47:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232180AbiAPMkK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 16 Jan 2022 07:40:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34694 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230105AbiAPMkK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 16 Jan 2022 07:40:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFD8CC061574;
-        Sun, 16 Jan 2022 04:40:09 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E35D60EB7;
-        Sun, 16 Jan 2022 12:40:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id C3315C36AE7;
-        Sun, 16 Jan 2022 12:40:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642336808;
-        bh=0M3mNi8vd3Zj2xyIgNHYR+VmiKRhYbTT8j4+kMp55PE=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=quOLF+rjuNkKllZfi84JrrkC8m2HGs0TjuyKKDHKMDzNnSHROSrtwp4menJ1bib1F
-         /coF/67hAcpE25RvVVPSl0h88XjI33fRM307thiwh8EbrzAcLPg1C/Wq/xaWcPRdeU
-         DZp321AjUrrf05+mvVx+IEjj3Dt3it/Bs6O7kRJqGw9rw/8PJN2py2ExXDtUQVb4XK
-         lYcwgIXXMkwIV+HqQLi5U44f70B5u/kM3KABI+6xi+Ge76PSnRmqWpnpVMtgXfwUXe
-         JsCJFEzHoU0N4XldHp1ki3+7n6MNknw6AzRJVO7IK92qOHx/97fJ+S2Rwddr6omGUa
-         GMJCo4sexF5DQ==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id ABC7BF60799;
-        Sun, 16 Jan 2022 12:40:08 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        id S235922AbiAPRr5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 16 Jan 2022 12:47:57 -0500
+Received: from out30-133.freemail.mail.aliyun.com ([115.124.30.133]:33736 "EHLO
+        out30-133.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231224AbiAPRr5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 16 Jan 2022 12:47:57 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0V1xwBmp_1642355274;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0V1xwBmp_1642355274)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Mon, 17 Jan 2022 01:47:54 +0800
+Date:   Mon, 17 Jan 2022 01:47:53 +0800
+From:   Tony Lu <tonylu@linux.alibaba.com>
+To:     Leon Romanovsky <leon@kernel.org>
+Cc:     kgraul@linux.ibm.com, kuba@kernel.org, davem@davemloft.net,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        RDMA mailing list <linux-rdma@vger.kernel.org>
+Subject: Re: [RFC PATCH net-next 0/6] net/smc: Spread workload over multiple
+ cores
+Message-ID: <YeRaSdg8TcNJsGBB@TonyMac-Alibaba>
+Reply-To: Tony Lu <tonylu@linux.alibaba.com>
+References: <20220114054852.38058-1-tonylu@linux.alibaba.com>
+ <YePesYRnrKCh1vFy@unreal>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net v2] net/smc: Fix hung_task when removing SMC-R devices
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <164233680869.3883.15974762125113238993.git-patchwork-notify@kernel.org>
-Date:   Sun, 16 Jan 2022 12:40:08 +0000
-References: <1642319022-99525-1-git-send-email-guwen@linux.alibaba.com>
-In-Reply-To: <1642319022-99525-1-git-send-email-guwen@linux.alibaba.com>
-To:     Wen Gu <guwen@linux.alibaba.com>
-Cc:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org,
-        dust.li@linux.alibaba.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YePesYRnrKCh1vFy@unreal>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
-
-This patch was applied to netdev/net.git (master)
-by David S. Miller <davem@davemloft.net>:
-
-On Sun, 16 Jan 2022 15:43:42 +0800 you wrote:
-> A hung_task is observed when removing SMC-R devices. Suppose that
-> a link group has two active links(lnk_A, lnk_B) associated with two
-> different SMC-R devices(dev_A, dev_B). When dev_A is removed, the
-> link group will be removed from smc_lgr_list and added into
-> lgr_linkdown_list. lnk_A will be cleared and smcibdev(A)->lnk_cnt
-> will reach to zero. However, when dev_B is removed then, the link
-> group can't be found in smc_lgr_list and lnk_B won't be cleared,
-> making smcibdev->lnk_cnt never reaches zero, which causes a hung_task.
+On Sun, Jan 16, 2022 at 11:00:33AM +0200, Leon Romanovsky wrote:
+> On Fri, Jan 14, 2022 at 01:48:46PM +0800, Tony Lu wrote:
+> > <snip>
+> > 
+> > These patches are still improving, I am very glad to hear your advice.
 > 
-> [...]
+> Please CC RDMA mailing list next time.
 
-Here is the summary with links:
-  - [net,v2] net/smc: Fix hung_task when removing SMC-R devices
-    https://git.kernel.org/netdev/net/c/56d99e81ecbc
+I will do it in the next patch.
+ 
+> Why didn't you use already existed APIs in drivers/infiniband/core/cq.c?
+> ib_cq_pool_get() will do most if not all of your open-coded CQ spreading
+> logic.
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Thanks for your advice. I have looked into this API about shared CQ
+pool. It should suit for this scene after my brief test. I will replace
+the logic of least-used CQ to this CQ pool API in the next patch.
 
-
+Thank you.
+Tony Lu
