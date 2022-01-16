@@ -2,74 +2,60 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F086C433EF
-	for <linux-s390@archiver.kernel.org>; Sat, 15 Jan 2022 23:00:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BCB0DC433EF
+	for <linux-s390@archiver.kernel.org>; Sun, 16 Jan 2022 07:18:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233871AbiAOXAM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 15 Jan 2022 18:00:12 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:52730 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231483AbiAOXAL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 15 Jan 2022 18:00:11 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5CA99B80C83;
-        Sat, 15 Jan 2022 23:00:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 29539C36AEF;
-        Sat, 15 Jan 2022 23:00:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642287609;
-        bh=yKSa1yO06cC7xDb44AAOZz+o9oAW/joqyx8YUk6xLCg=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=ZH6ARvIoQlMGAyMsJZD7PVYUVBRKeNyPp+m40WTbyQY11VqVQmw6g5D6QmWCxJtGa
-         uvHcUDGbbIRzz4vs7cAYyQGlluIpuyzEoTbjilHYNMpdJcUcFYyR9GWyV+H2cgTZ5/
-         mXphCW2atzxue60BYFsXeOth3L/L3ttbvgirZr1aG/TISMIm04RoF1jphK4PWYSq2F
-         HEUAtgSAoCk5D6E7aQttGmBzA4LHywdgXOql7D4+5/ecuS0acx/nWKJR3hOlkl8FP+
-         HrNIzfDZLEDX33wItMstP83vK6xgBZd8hez0F8RKvoCLL1DsbrMzZD2NpZXJs84aiR
-         0VwJMltSGJY+w==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 1196DF6079A;
-        Sat, 15 Jan 2022 23:00:09 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        id S233260AbiAPHSE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 16 Jan 2022 02:18:04 -0500
+Received: from out30-43.freemail.mail.aliyun.com ([115.124.30.43]:37474 "EHLO
+        out30-43.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230116AbiAPHSD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 16 Jan 2022 02:18:03 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0V1wL1M2_1642317480;
+Received: from 30.39.162.39(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0V1wL1M2_1642317480)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Sun, 16 Jan 2022 15:18:01 +0800
+Message-ID: <5ebaaf18-bfdc-b59f-c541-7e32fb2e50fb@linux.alibaba.com>
+Date:   Sun, 16 Jan 2022 15:18:00 +0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] net/smc: Remove unused function declaration
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <164228760906.1385.6668664437675144815.git-patchwork-notify@kernel.org>
-Date:   Sat, 15 Jan 2022 23:00:09 +0000
-References: <1642167345-77338-1-git-send-email-guwen@linux.alibaba.com>
-In-Reply-To: <1642167345-77338-1-git-send-email-guwen@linux.alibaba.com>
-To:     Wen Gu <guwen@linux.alibaba.com>
-Cc:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.4.0
+Subject: Re: [PATCH net] net/smc: Fix hung_task when removing SMC-R devices
+To:     dust.li@linux.alibaba.com, kgraul@linux.ibm.com,
+        davem@davemloft.net, kuba@kernel.org
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
         linux-kernel@vger.kernel.org
+References: <1642167444-107744-1-git-send-email-guwen@linux.alibaba.com>
+ <20220115102947.GB13341@linux.alibaba.com>
+From:   Wen Gu <guwen@linux.alibaba.com>
+In-Reply-To: <20220115102947.GB13341@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
 
-This patch was applied to netdev/net.git (master)
-by David S. Miller <davem@davemloft.net>:
 
-On Fri, 14 Jan 2022 21:35:45 +0800 you wrote:
-> The declaration of smc_wr_tx_dismiss_slots() is unused.
-> So remove it.
+On 2022/1/15 6:29 pm, dust.li wrote:
+> On Fri, Jan 14, 2022 at 09:37:24PM +0800, Wen Gu wrote:
+>> A hung_task is observed when removing SMC-R devices.
 > 
-> Fixes: 349d43127dac ("net/smc: fix kernel panic caused by race of smc_sock")
-> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
-> ---
->  net/smc/smc_wr.h | 4 ----
->  1 file changed, 4 deletions(-)
+> Good catch, thank you !
+> 
+> Update the comments of smc_smcr_terminate_all as well ?
+> 
 
-Here is the summary with links:
-  - [net] net/smc: Remove unused function declaration
-    https://git.kernel.org/netdev/net/c/9404bc1e58e4
+OK, will do. Thank you!
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Thanks,
+Wen Gu
 
+>>
+>> Fixes: 349d43127dac ("net/smc: fix kernel panic caused by race of smc_sock")
+>> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+> 
+> Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
+> 
 
