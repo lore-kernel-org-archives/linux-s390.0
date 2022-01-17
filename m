@@ -2,177 +2,143 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 56181C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 17 Jan 2022 15:03:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57CD2C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 17 Jan 2022 15:06:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240305AbiAQPD5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 17 Jan 2022 10:03:57 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:50018 "EHLO
+        id S240399AbiAQPGI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 17 Jan 2022 10:06:08 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4032 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S240304AbiAQPD4 (ORCPT
+        by vger.kernel.org with ESMTP id S240401AbiAQPGE (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 17 Jan 2022 10:03:56 -0500
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20HEK3Co010380;
-        Mon, 17 Jan 2022 15:03:54 GMT
+        Mon, 17 Jan 2022 10:06:04 -0500
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20HDw1Fi028630;
+        Mon, 17 Jan 2022 15:06:02 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=/E3Goe4+VaKpv1ylPScDepE8ToBPeMKqZspQF6YeMjc=;
- b=JvBrdhnyrxcwzRiVxzZHOPDX+fxA1GSEoNV2wU044H22POzkyE6K2jTTHarz10qGcCnD
- bUKTeJfiG9347qSs4w4tpUVmhWzGDndHeDk/malc25i3Q33bhcVEpoc4N2A4pKe/K0N8
- 9c8V8n+ulNfT7Ja5IL0VdLEYWeiIR56iceQUjQD6zaHgBRt766BdBleXIUNcjXlbAIKK
- VxYq97GivP+Z9oF9aUZyMPOxAVWX9DoEFU+s43bIgKHieyVxV1y4wGirYExCIg8dhcH/
- krQ0AN3pAI+voS9Vm8HZQYgOqnvHCgKEdWHUZTCVq4YR5drQm5YICvt/HkUosJJMIs3d Uw== 
+ bh=/M3GOBw3RpA4RhYZMHohcKKbS0ryG2KKvwytJ6MHYIA=;
+ b=PoOHwnPm3XeZK416fqNUFjOHFBdgZKazoA8Z3c+v2hQWSNiWrNTQpwfdDh49dqvRxaQp
+ IkBoxDpqA/vgA1wq5sldTeJq0QXNvhee7wNFLQ0F02MhzpGIrP59eu+d+OI3H+cfM7NL
+ 8puXR00G3i7fKyClpeHUuaKxPEGXa/Q0IujfsI+62YTMiDGMXlgwlQsBotTMa7byHjpg
+ 5ImiZ2ccFai0bIGJFqn+7HMtjnw9osK45MOvJIfHpeQWwGsKc/pMEGB4BtrEVA4PeXAw
+ mJsoEsmTOFx3Et5sRKr5ulFd5vbv0xYoGBMwIgPpWfcxmplJ6xpsAdB5rzz77mwiBojJ WQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dn7krv5sh-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dn9t41bjg-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 17 Jan 2022 15:03:53 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20HEbn0g030404;
-        Mon, 17 Jan 2022 15:03:53 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dn7krv5rm-1
+        Mon, 17 Jan 2022 15:06:02 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20HEtmYY025711;
+        Mon, 17 Jan 2022 15:06:01 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dn9t41bhe-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 17 Jan 2022 15:03:53 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20HF2rVR007232;
-        Mon, 17 Jan 2022 15:03:51 GMT
+        Mon, 17 Jan 2022 15:06:01 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20HF3k58017917;
+        Mon, 17 Jan 2022 15:05:59 GMT
 Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma01fra.de.ibm.com with ESMTP id 3dknw94d7m-1
+        by ppma04fra.de.ibm.com with ESMTP id 3dknw94cfr-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 17 Jan 2022 15:03:51 +0000
+        Mon, 17 Jan 2022 15:05:59 +0000
 Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20HF3iwm40960420
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20HF5vu030867922
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 17 Jan 2022 15:03:44 GMT
+        Mon, 17 Jan 2022 15:05:57 GMT
 Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8D6244C04A;
-        Mon, 17 Jan 2022 15:03:44 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id DE92A4C050;
+        Mon, 17 Jan 2022 15:05:56 +0000 (GMT)
 Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 166D74C040;
-        Mon, 17 Jan 2022 15:03:44 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 8AFA54C044;
+        Mon, 17 Jan 2022 15:05:56 +0000 (GMT)
 Received: from [9.171.80.201] (unknown [9.171.80.201])
         by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 17 Jan 2022 15:03:43 +0000 (GMT)
-Message-ID: <cc221aec-838c-c710-fe41-c523cc2fd787@linux.ibm.com>
-Date:   Mon, 17 Jan 2022 16:05:27 +0100
+        Mon, 17 Jan 2022 15:05:56 +0000 (GMT)
+Message-ID: <32ac01d4-a662-57bd-42ce-5feba4e03ede@linux.ibm.com>
+Date:   Mon, 17 Jan 2022 16:07:40 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.3.0
-Subject: Re: [kvm-unit-tests PATCH v3 2/4] s390x: stsi: Define vm_is_kvm to be
- used in different tests
+Subject: Re: [kvm-unit-tests PATCH v3 3/4] s390x: topology: Check the Perform
+ Topology Function
 Content-Language: en-US
 To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
 Cc:     linux-s390@vger.kernel.org, frankja@linux.ibm.com,
         thuth@redhat.com, kvm@vger.kernel.org, cohuck@redhat.com,
         david@redhat.com
 References: <20220110133755.22238-1-pmorel@linux.ibm.com>
- <20220110133755.22238-3-pmorel@linux.ibm.com>
- <20220111140811.2a7f49c2@p-imbrenda>
+ <20220110133755.22238-4-pmorel@linux.ibm.com>
+ <20220111122526.60e31b38@p-imbrenda>
 From:   Pierre Morel <pmorel@linux.ibm.com>
-In-Reply-To: <20220111140811.2a7f49c2@p-imbrenda>
+In-Reply-To: <20220111122526.60e31b38@p-imbrenda>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: uU5GboWXR-BVwC8rI-EW_l5k1hYzorf2
-X-Proofpoint-GUID: NIhH5VKaF1fs684XYLKT1xlz6AvmgLxF
+X-Proofpoint-GUID: wc-MBZZlcl_q-EP-BgGLnr7pwRg7lzkh
+X-Proofpoint-ORIG-GUID: y0MpG6dQvC0tzp9A8uSmFe2opSAIEAaL
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2022-01-17_07,2022-01-14_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- adultscore=0 spamscore=0 impostorscore=0 bulkscore=0 mlxscore=0
- clxscore=1015 lowpriorityscore=0 malwarescore=0 mlxlogscore=999
- phishscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2110150000 definitions=main-2201170093
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
+ adultscore=0 lowpriorityscore=0 mlxlogscore=999 bulkscore=0 mlxscore=0
+ clxscore=1015 impostorscore=0 priorityscore=1501 phishscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2201170093
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
 
-On 1/11/22 14:08, Claudio Imbrenda wrote:
-> On Mon, 10 Jan 2022 14:37:53 +0100
+On 1/11/22 12:25, Claudio Imbrenda wrote:
+> On Mon, 10 Jan 2022 14:37:54 +0100
 > Pierre Morel <pmorel@linux.ibm.com> wrote:
 > 
->> We need in several tests to check if the VM we are running in
->> is KVM.
->> Let's add the test.
+>> We check the PTF instruction.
 >>
->> To check the VM type we use the STSI 3.2.2 instruction, let's
->> define it's response structure in a central header.
+>> - We do not expect to support vertical polarization.
+>>
+>> - We do not expect the Modified Topology Change Report to be
+>> pending or not at the moment the first PTF instruction with
+>> PTF_CHECK function code is done as some code already did run
+>> a polarization change may have occur.
 >>
 >> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 >> ---
->>   lib/s390x/stsi.h | 32 ++++++++++++++++++++++++++++++++
->>   lib/s390x/vm.c   | 39 +++++++++++++++++++++++++++++++++++++++
->>   lib/s390x/vm.h   |  1 +
->>   s390x/stsi.c     | 23 ++---------------------
->>   4 files changed, 74 insertions(+), 21 deletions(-)
->>   create mode 100644 lib/s390x/stsi.h
+>>   s390x/Makefile      |   1 +
+>>   s390x/topology.c    | 115 ++++++++++++++++++++++++++++++++++++++++++++
+>>   s390x/unittests.cfg |   3 ++
+>>   3 files changed, 119 insertions(+)
+>>   create mode 100644 s390x/topology.c
 >>
->> diff --git a/lib/s390x/stsi.h b/lib/s390x/stsi.h
+>> diff --git a/s390x/Makefile b/s390x/Makefile
+>> index 1e567c11..fa21a882 100644
+>> --- a/s390x/Makefile
+>> +++ b/s390x/Makefile
+>> @@ -26,6 +26,7 @@ tests += $(TEST_DIR)/edat.elf
+>>   tests += $(TEST_DIR)/mvpg-sie.elf
+>>   tests += $(TEST_DIR)/spec_ex-sie.elf
+>>   tests += $(TEST_DIR)/firq.elf
+>> +tests += $(TEST_DIR)/topology.elf
+>>   
+>>   tests_binary = $(patsubst %.elf,%.bin,$(tests))
+>>   ifneq ($(HOST_KEY_DOCUMENT),)
+>> diff --git a/s390x/topology.c b/s390x/topology.c
 >> new file mode 100644
->> index 00000000..02cc94a6
+>> index 00000000..a227555e
 >> --- /dev/null
->> +++ b/lib/s390x/stsi.h
->> @@ -0,0 +1,32 @@
->> +/* SPDX-License-Identifier: GPL-2.0-or-later */
+>> +++ b/s390x/topology.c
+>> @@ -0,0 +1,115 @@
+>> +/* SPDX-License-Identifier: GPL-2.0-only */
 >> +/*
->> + * Structures used to Store System Information
+>> + * CPU Topology
 >> + *
->> + * Copyright (c) 2021 IBM Inc
+>> + * Copyright (c) 2021 IBM Corp
 > 
 > Copyright IBM Corp. 2021
 
-OK
-
-> 
->> + */
->> +
->> +#ifndef _S390X_STSI_H_
->> +#define _S390X_STSI_H_
-> 
-> [...]
-> 
->> +
->> +/**
->> + * Detect whether we are running with KVM
->> + */
->> +
->> +bool vm_is_kvm(void)
->> +{
->> +	/* EBCDIC for "KVM/" */
->> +	const uint8_t kvm_ebcdic[] = { 0xd2, 0xe5, 0xd4, 0x61 };
->> +	static bool initialized;
->> +	static bool is_kvm;
->> +	struct sysinfo_3_2_2 *stsi_322;
->> +
->> +	if (initialized)
->> +		return is_kvm;
->> +
->> +	if (stsi_get_fc() < 3) {
->> +		initialized = true;
->> +		return is_kvm;
->> +	}
->> +
->> +	stsi_322 = alloc_page();
->> +	if (!stsi_322)
->> +		return false;
-> 
-> I don't like returning false if the allocation fails.
-> The allocation should not fail: assert(stsi_322);
-
-OK, right.
-
-> 
->> +
->> +	if (stsi(stsi_322, 3, 2, 2))
->> +		goto out;
->> +
-
-Thanks for the review,
-
+Yes thanks
 Pierre
 
 -- 
