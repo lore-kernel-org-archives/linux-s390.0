@@ -2,103 +2,150 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74AE1C433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 17 Jan 2022 08:27:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 97A80C433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 17 Jan 2022 09:39:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233417AbiAQI1a (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 17 Jan 2022 03:27:30 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:43633 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232342AbiAQI1a (ORCPT
+        id S235780AbiAQJj1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 17 Jan 2022 04:39:27 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55552 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233505AbiAQJj0 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 17 Jan 2022 03:27:30 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1642408049;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=5AiDyqvFvh3yOegzgJFQoLQBwCo7wbjcGj2xMIv/7xE=;
-        b=Uh0Ge4sIDwHsYqm674ok8WIDLWlWcXEoD7bIxN3h0qJn4BjFUd/hEVvW9ufqAvet7D9xIH
-        1jwHYfPR5Kbben5KpK2mBOH/Nruy73L5kAUNiegxJaAt3YXbXdRNg8z4OSlsZGl/g4bEhU
-        21x+ylUpKzrR7KGbks8Y1Z9ePSvAs9Q=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-6-SPOh4V6aOeeiwiZwSERg3w-1; Mon, 17 Jan 2022 03:27:28 -0500
-X-MC-Unique: SPOh4V6aOeeiwiZwSERg3w-1
-Received: by mail-wm1-f69.google.com with SMTP id 24-20020a05600c229800b0034bfa8a1531so3545152wmf.1
-        for <linux-s390@vger.kernel.org>; Mon, 17 Jan 2022 00:27:27 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=5AiDyqvFvh3yOegzgJFQoLQBwCo7wbjcGj2xMIv/7xE=;
-        b=Tz9tKKCdIT85cifB9sHd+ozUjauvllMzH4EveI/8EMvlPx+8/7k9qnyTmIveTLAxzB
-         9CHFJpcdsYBM8UZakyUABYs5azDRHkVn9p/EFE2loVNqX39RPylZiNsf/LVQ5Ms1ys9J
-         1ZZUb+A5OoR29MIrdKoaSshNuUDKi2mERHGlTaHRkj7q87xTwy9ECyq9QQ+nQgJ7jzuF
-         xhPM5kZUWHQJyCdp/ezu7v0Cv51C0/uoU8DkQYct4/AJZwrQOjtCE3UGUAXpHlgJTAKN
-         rE1WKlwwk+VtN0Cl1f15zbqEEUU4EGuus4f8FbPdCQpTZDJCQ+I36Y8yLzOuEgyaqMWt
-         z0eA==
-X-Gm-Message-State: AOAM533svh/JvKLdvSu5l24ewVdvFNt2AyT74UnslymxZB+lwWzMq+Jm
-        jVBwvrJe5Qj/drWUIf4qKGv1fxHO5OVnfTIa9azEwGfbprJb6gYf7Ij3SjmKd3IeTyLJeJCix1k
-        aEOu9wydiOyofMTWjBnNIng==
-X-Received: by 2002:a05:600c:1e8e:: with SMTP id be14mr7423362wmb.30.1642408046963;
-        Mon, 17 Jan 2022 00:27:26 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxmSkskdohPD3R4PDk0Urfw0voyV4lTR4GN3RTrgxGfrqifw7hI7f7kMWAl75gDkdsEbn4Ksg==
-X-Received: by 2002:a05:600c:1e8e:: with SMTP id be14mr7423345wmb.30.1642408046819;
-        Mon, 17 Jan 2022 00:27:26 -0800 (PST)
-Received: from [192.168.8.100] (tmo-098-68.customers.d1-online.com. [80.187.98.68])
-        by smtp.gmail.com with ESMTPSA id p2sm15764709wmg.44.2022.01.17.00.27.23
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 17 Jan 2022 00:27:26 -0800 (PST)
-Message-ID: <41d23c24-7395-c7a0-047b-03c6abb71020@redhat.com>
-Date:   Mon, 17 Jan 2022 09:27:22 +0100
+        Mon, 17 Jan 2022 04:39:26 -0500
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20H8ST2T009218;
+        Mon, 17 Jan 2022 09:39:26 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=7AtWFSkraXq7ydvQ6tEoJAZ04E5ViY5tC2GnCJ4my24=;
+ b=ZZf0NX0EDmSFomLQZYQxuIe/qJy4BCxEA2KVsg8ldumSnfs4eAKMq/ER4lnUKdp7SmyY
+ TpNszwslYY4dUFcLc4WSPWLew0h8KVk8bm04QVXAZo99SKxyahSo8veyIDd1QDirJsht
+ C7e+qALEsMk2RSkFR5t8wicLo9cySdhltxTaJJkfWvSHfDZ9dNhw3F4ttD9OpwkbchcL
+ 4FHEljTvSD6adgm2xd6EtCEcBZU9En3pAqUVb+Dcagd/7+TwxY38i2u8VqzDna6hoR31
+ FIGR8/fY0TMNxdEitm65QFfrnZ4nmxyxgL+4Zmt4Q9CwBeC+XxL1ENUyEGsZh/lrcVcg 0g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dn4yt98mp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 17 Jan 2022 09:39:26 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20H9Rx7G015108;
+        Mon, 17 Jan 2022 09:39:26 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dn4yt98m0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 17 Jan 2022 09:39:25 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20H9YtDb004106;
+        Mon, 17 Jan 2022 09:39:23 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma04fra.de.ibm.com with ESMTP id 3dknw91j4a-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 17 Jan 2022 09:39:23 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20H9dJdF46989746
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 17 Jan 2022 09:39:19 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E490CA4066;
+        Mon, 17 Jan 2022 09:39:18 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 54AF1A405B;
+        Mon, 17 Jan 2022 09:39:18 +0000 (GMT)
+Received: from [9.145.19.65] (unknown [9.145.19.65])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 17 Jan 2022 09:39:18 +0000 (GMT)
+Message-ID: <600f34b9-83c2-7096-d268-33953b0a4324@linux.ibm.com>
+Date:   Mon, 17 Jan 2022 10:39:17 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.0
-Subject: Re: [PATCH v2 05/30] s390/airq: pass more TPI info to airq handlers
+ Thunderbird/91.3.0
+Subject: Re: [kvm-unit-tests PATCH 3/5] s390x: diag308: Only test subcode 2
+ under QEMU
 Content-Language: en-US
-To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
-        schnelle@linux.ibm.com, farman@linux.ibm.com, pmorel@linux.ibm.com,
-        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
-        vneethv@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com,
-        pasic@linux.ibm.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20220114203145.242984-1-mjrosato@linux.ibm.com>
- <20220114203145.242984-6-mjrosato@linux.ibm.com>
-From:   Thomas Huth <thuth@redhat.com>
-In-Reply-To: <20220114203145.242984-6-mjrosato@linux.ibm.com>
+To:     Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        david@redhat.com, cohuck@redhat.com, nrb@linux.ibm.com
+References: <20220114100245.8643-1-frankja@linux.ibm.com>
+ <20220114100245.8643-4-frankja@linux.ibm.com>
+ <999498b3-6b1d-69ae-c80f-2a10102d95bd@redhat.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <999498b3-6b1d-69ae-c80f-2a10102d95bd@redhat.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 8IBgrzJy3D0Umykowa3r7yLfhe3StvpM
+X-Proofpoint-ORIG-GUID: nnrNU9WzAvh4kiBWnqpI-iAeKSdXWyuS
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-01-17_03,2022-01-14_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 phishscore=0
+ bulkscore=0 malwarescore=0 spamscore=0 adultscore=0 mlxscore=0
+ suspectscore=0 mlxlogscore=999 impostorscore=0 priorityscore=1501
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2201170061
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 14/01/2022 21.31, Matthew Rosato wrote:
-> A subsequent patch will introduce an airq handler that requires additional
-> TPI information beyond directed vs floating, so pass the entire tpi_info
-> structure via the handler.  Only pci actually uses this information today,
-> for the other airq handlers this is effectively a no-op.
+On 1/17/22 08:04, Thomas Huth wrote:
+> On 14/01/2022 11.02, Janosch Frank wrote:
+>> Other hypervisors might implement it and therefore not send a
+>> specification exception.
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> ---
+>>    s390x/diag308.c | 15 ++++++++++++++-
+>>    1 file changed, 14 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/s390x/diag308.c b/s390x/diag308.c
+>> index c9d6c499..414dbdf4 100644
+>> --- a/s390x/diag308.c
+>> +++ b/s390x/diag308.c
+>> @@ -8,6 +8,7 @@
+>>    #include <libcflat.h>
+>>    #include <asm/asm-offsets.h>
+>>    #include <asm/interrupt.h>
+>> +#include <vm.h>
+>>    
+>>    /* The diagnose calls should be blocked in problem state */
+>>    static void test_priv(void)
+>> @@ -75,7 +76,7 @@ static void test_subcode6(void)
+>>    /* Unsupported subcodes should generate a specification exception */
+>>    static void test_unsupported_subcode(void)
+>>    {
+>> -	int subcodes[] = { 2, 0x101, 0xffff, 0x10001, -1 };
+>> +	int subcodes[] = { 0x101, 0xffff, 0x10001, -1 };
+>>    	int idx;
+>>    
+>>    	for (idx = 0; idx < ARRAY_SIZE(subcodes); idx++) {
+>> @@ -85,6 +86,18 @@ static void test_unsupported_subcode(void)
+>>    		check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
+>>    		report_prefix_pop();
+>>    	}
+>> +
+>> +	/*
+>> +	 * Subcode 2 is not available under QEMU but might be on other
+>> +	 * hypervisors.
+>> +	 */
+>> +	if (vm_is_tcg() || vm_is_kvm()) {
+>> +		report_prefix_pushf("0x%04x", 2);
 > 
-> Reviewed-by: Eric Farman <farman@linux.ibm.com>
-> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
-> Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> ---
->   arch/s390/include/asm/airq.h     | 3 ++-
->   arch/s390/kvm/interrupt.c        | 4 +++-
->   arch/s390/pci/pci_irq.c          | 9 +++++++--
->   drivers/s390/cio/airq.c          | 2 +-
->   drivers/s390/cio/qdio_thinint.c  | 6 ++++--
->   drivers/s390/crypto/ap_bus.c     | 9 ++++++---
->   drivers/s390/virtio/virtio_ccw.c | 4 +++-
->   7 files changed, 26 insertions(+), 11 deletions(-)
+> Maybe replace the format string with "0002" and drop the "2" parameter?
 
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+Sure
+
+> 
+>> +		expect_pgm_int();
+>> +		asm volatile ("diag %0,%1,0x308" :: "d"(0), "d"(2));
+>> +		check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
+>> +		report_prefix_pop();
+>> +	}
+>>    }
+>>    
+>>    static struct {
+> 
+> Reviewed-by: Thomas Huth <thuth@redhat.com>
+
+Thanks
 
