@@ -2,245 +2,236 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DB9AC433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 17 Jan 2022 12:29:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 218F5C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 17 Jan 2022 14:56:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239855AbiAQM3c (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 17 Jan 2022 07:29:32 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:55668 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S231537AbiAQM3c (ORCPT
+        id S237173AbiAQO4A (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 17 Jan 2022 09:56:00 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:3242 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234410AbiAQO4A (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 17 Jan 2022 07:29:32 -0500
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20H9vg0c026569;
-        Mon, 17 Jan 2022 12:29:31 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
+        Mon, 17 Jan 2022 09:56:00 -0500
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20HE9Mmq021756;
+        Mon, 17 Jan 2022 14:55:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=Jhw74Q0ZA1B5FRWJ7Ovl7UMYmHpd6o0tDAaLcyQwQ5g=;
- b=dwQpauLv4gH0NEVj99WfaryH+BQgdY1McCGKH3PW/I+Z5LMpiA1xQqMKl1A+D5xyZ1Q/
- ggra1JoRK4en/4eeyVUpJvQpVWFbOCCiN0T3R+iRMyyjcuj84yH6y8hp4WLATBcqCi0d
- qlclEeuRcMK6dPTAGMOv3DgOKVxrlsF64gimxUQ8GIxnxIJfFV8gvtr3sBBjZ9fiUNpj
- OYDgLY2oTcDVvqaOS7GW4s7WhC7MT5p4zRl7/xGbd27TfKBIlx7FBgseWY699nfzQQRM
- irIoEwMD4rBtpwMJUiuqFswsFRvtZY5qpqcq5IaTfPSKEA9UvvU07E06AT9M+igG8a/t sA== 
+ bh=EM/Zo8XomvPxayzfziPj1hc+/GTt4F6iaw8bM5d2Uy4=;
+ b=kbFBUgPIc6nCXcwUWFLvnpmiek+rc9lbJnm/k2EH3R5u7gcNEYmU5PRSkalA1ke04yUg
+ wk683lx9ZTe2oY8i5URyxoYmbBMK+e5GkA41kNL8us03biH+L6plmsE42ChOUlRS/HkL
+ S+rFklhhAhY+xTIdFM1fUUxLR/4l8Rj6t/xcPexFIeMUhoNC7FPtIrBz+rNbGvZ+2pPU
+ SJLklP9VXOsYNZbMmdFgkG86LvOU4NqR69csFRlCFpeTGdHSw5kHJTieOjX0jBvUR1op
+ aljOq+4w3N7w9gwTrBVkQUP7rWF+J4lwEG9mARINm+mVdR/dIbCfeUNmzzHKsDW4u00R 9A== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3dn69mkbqb-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dn7m6uxp7-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 17 Jan 2022 12:29:31 +0000
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20HBlZR3027470;
-        Mon, 17 Jan 2022 12:29:31 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3dn69mkbpw-1
+        Mon, 17 Jan 2022 14:55:59 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20HEpip6019093;
+        Mon, 17 Jan 2022 14:55:58 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dn7m6uxnx-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 17 Jan 2022 12:29:31 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20HCD9bc016683;
-        Mon, 17 Jan 2022 12:29:29 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma04ams.nl.ibm.com with ESMTP id 3dknw8uumc-1
+        Mon, 17 Jan 2022 14:55:58 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20HEt9xV023751;
+        Mon, 17 Jan 2022 14:55:56 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03ams.nl.ibm.com with ESMTP id 3dknw9d5vd-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 17 Jan 2022 12:29:29 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20HCTNnq41484556
+        Mon, 17 Jan 2022 14:55:56 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20HEtouh43712914
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 17 Jan 2022 12:29:23 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5C2CEA404D;
-        Mon, 17 Jan 2022 12:29:23 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 54547A405D;
-        Mon, 17 Jan 2022 12:29:22 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.145.3.16])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 17 Jan 2022 12:29:22 +0000 (GMT)
-Date:   Mon, 17 Jan 2022 13:29:20 +0100
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, alex.williamson@redhat.com,
-        cohuck@redhat.com, schnelle@linux.ibm.com, farman@linux.ibm.com,
-        pmorel@linux.ibm.com, borntraeger@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, gerald.schaefer@linux.ibm.com,
-        agordeev@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
-        vneethv@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com,
-        thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 06/30] s390/airq: allow for airq structure that uses
- an input vector
-Message-ID: <20220117132920.213bf0bd@p-imbrenda>
-In-Reply-To: <20220114203145.242984-7-mjrosato@linux.ibm.com>
-References: <20220114203145.242984-1-mjrosato@linux.ibm.com>
-        <20220114203145.242984-7-mjrosato@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        Mon, 17 Jan 2022 14:55:50 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B6C784C058;
+        Mon, 17 Jan 2022 14:55:50 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5C02F4C040;
+        Mon, 17 Jan 2022 14:55:50 +0000 (GMT)
+Received: from [9.171.80.201] (unknown [9.171.80.201])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 17 Jan 2022 14:55:50 +0000 (GMT)
+Message-ID: <e9a00d5f-98db-c68b-6cea-ecddb945d49b@linux.ibm.com>
+Date:   Mon, 17 Jan 2022 15:57:33 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [kvm-unit-tests PATCH v3 2/4] s390x: stsi: Define vm_is_kvm to be
+ used in different tests
+Content-Language: en-US
+To:     Janosch Frank <frankja@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     thuth@redhat.com, kvm@vger.kernel.org, cohuck@redhat.com,
+        imbrenda@linux.ibm.com, david@redhat.com
+References: <20220110133755.22238-1-pmorel@linux.ibm.com>
+ <20220110133755.22238-3-pmorel@linux.ibm.com>
+ <75d4a897-55dd-5140-ac8b-638fa18d2e17@linux.ibm.com>
+From:   Pierre Morel <pmorel@linux.ibm.com>
+In-Reply-To: <75d4a897-55dd-5140-ac8b-638fa18d2e17@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: mi00v2XWW5_9dqNyHAnjWZeh11y65dSm
-X-Proofpoint-GUID: BVN8kD0eghT5z4ARzxEUqbHF8mrbHwpG
+X-Proofpoint-ORIG-GUID: cCI8CGwWuimwq4bBLjP7j50huPVu9WWC
+X-Proofpoint-GUID: 1i6VZURULOndMQ0qps5Vwk82AIDwLVHU
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-01-17_05,2022-01-14_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 adultscore=0
- suspectscore=0 priorityscore=1501 bulkscore=0 impostorscore=0 mlxscore=0
- clxscore=1015 lowpriorityscore=0 spamscore=0 malwarescore=0 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
- definitions=main-2201170077
+ definitions=2022-01-17_06,2022-01-14_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ priorityscore=1501 suspectscore=0 adultscore=0 clxscore=1015 spamscore=0
+ mlxlogscore=999 impostorscore=0 bulkscore=0 phishscore=0
+ lowpriorityscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2110150000 definitions=main-2201170093
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 14 Jan 2022 15:31:21 -0500
-Matthew Rosato <mjrosato@linux.ibm.com> wrote:
 
-> When doing device passthrough where interrupts are being forwarded
-> from host to guest, we wish to use a pinned section of guest memory
-> as the vector (the same memory used by the guest as the vector).
 
-maybe expand the description of the patch to explain what exactly is
-being done in this patch. Namely: you add a parameter to a function
-(and some logic in the function to use the new parameter), but the
-function is not being used yet. And pinning is also done somewhere else.
+On 1/11/22 13:27, Janosch Frank wrote:
+> On 1/10/22 14:37, Pierre Morel wrote:
+>> We need in several tests to check if the VM we are running in
+>> is KVM.
+>> Let's add the test.
+>>
+>> To check the VM type we use the STSI 3.2.2 instruction, let's
+>> define it's response structure in a central header.
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> ---
+>>   lib/s390x/stsi.h | 32 ++++++++++++++++++++++++++++++++
+>>   lib/s390x/vm.c   | 39 +++++++++++++++++++++++++++++++++++++++
+>>   lib/s390x/vm.h   |  1 +
+>>   s390x/stsi.c     | 23 ++---------------------
+>>   4 files changed, 74 insertions(+), 21 deletions(-)
+>>   create mode 100644 lib/s390x/stsi.h
+>>
+>> diff --git a/lib/s390x/stsi.h b/lib/s390x/stsi.h
+>> new file mode 100644
+>> index 00000000..02cc94a6
+>> --- /dev/null
+>> +++ b/lib/s390x/stsi.h
+>> @@ -0,0 +1,32 @@
+>> +/* SPDX-License-Identifier: GPL-2.0-or-later */
+>> +/*
+>> + * Structures used to Store System Information
+>> + *
+>> + * Copyright (c) 2021 IBM Inc
+>> + */
+>> +
+>> +#ifndef _S390X_STSI_H_
+>> +#define _S390X_STSI_H_
+>> +
+>> +struct sysinfo_3_2_2 {
+>> +    uint8_t reserved[31];
+>> +    uint8_t count;
+>> +    struct {
+>> +        uint8_t reserved2[4];
+>> +        uint16_t total_cpus;
+>> +        uint16_t conf_cpus;
+>> +        uint16_t standby_cpus;
+>> +        uint16_t reserved_cpus;
+>> +        uint8_t name[8];
+>> +        uint32_t caf;
+>> +        uint8_t cpi[16];
+>> +        uint8_t reserved5[3];
+>> +        uint8_t ext_name_encoding;
+>> +        uint32_t reserved3;
+>> +        uint8_t uuid[16];
+>> +    } vm[8];
+>> +    uint8_t reserved4[1504];
+>> +    uint8_t ext_names[8][256];
+>> +};
+>> +
+>> +#endif  /* _S390X_STSI_H_ */
+>> diff --git a/lib/s390x/vm.c b/lib/s390x/vm.c
+>> index a5b92863..3e11401e 100644
+>> --- a/lib/s390x/vm.c
+>> +++ b/lib/s390x/vm.c
+>> @@ -12,6 +12,7 @@
+>>   #include <alloc_page.h>
+>>   #include <asm/arch_def.h>
+>>   #include "vm.h"
+>> +#include "stsi.h"
+>>   /**
+>>    * Detect whether we are running with TCG (instead of KVM)
+> 
+> We could add a fc < 3 check to the vm_is_tcg() function and add a 
 
-maybe you can add something like
+OK
 
-	This patch adds a new parameter for airq_iv_create to pass the
-	existing vector pinned in guest memory and to use it when
-	needed instead of allocating a new one.
+> vm_is_lpar() which does a simple fc ==1 check.
 
-Apart from that, the patch looks good.
+hum, the doc says 1 is basic, 2 is lpar, 3 is vm, shouldn't we
+do a check on fc == 2 or have a vm_is_vm checking fc < 3 ?
+
+Do you have an experimental return on this?
 
 > 
-> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> ---
->  arch/s390/include/asm/airq.h     |  4 +++-
->  arch/s390/pci/pci_irq.c          |  8 ++++----
->  drivers/s390/cio/airq.c          | 10 +++++++---
->  drivers/s390/virtio/virtio_ccw.c |  2 +-
->  4 files changed, 15 insertions(+), 9 deletions(-)
+>> @@ -43,3 +44,41 @@ out:
+>>       free_page(buf);
+>>       return is_tcg;
+>>   }
+>> +
+>> +/**
+>> + * Detect whether we are running with KVM
+>> + */
+>> +
+>> +bool vm_is_kvm(void)
+>> +{
+>> +    /* EBCDIC for "KVM/" */
+>> +    const uint8_t kvm_ebcdic[] = { 0xd2, 0xe5, 0xd4, 0x61 };
+>> +    static bool initialized;
+>> +    static bool is_kvm;
+>> +    struct sysinfo_3_2_2 *stsi_322;
+>> +
+>> +    if (initialized)
+>> +        return is_kvm;
+>> +
+>> +    if (stsi_get_fc() < 3) {
+>> +        initialized = true;
+>> +        return is_kvm;
+>> +    }
+>> +
+>> +    stsi_322 = alloc_page();
+>> +    if (!stsi_322)
+>> +        return false;
+>> +
+>> +    if (stsi(stsi_322, 3, 2, 2))
+>> +        goto out;
+>> +
+>> +    /*
+>> +     * If the manufacturer string is "KVM/" in EBCDIC, then we
+>> +     * are on KVM (otherwise the string is "IBM" in EBCDIC)
+>> +     */
+>> +    is_kvm = !memcmp(&stsi_322->vm[0].cpi, kvm_ebcdic, 
+>> sizeof(kvm_ebcdic));
 > 
-> diff --git a/arch/s390/include/asm/airq.h b/arch/s390/include/asm/airq.h
-> index 7918a7d09028..e82e5626e139 100644
-> --- a/arch/s390/include/asm/airq.h
-> +++ b/arch/s390/include/asm/airq.h
-> @@ -47,8 +47,10 @@ struct airq_iv {
->  #define AIRQ_IV_PTR		4	/* Allocate the ptr array */
->  #define AIRQ_IV_DATA		8	/* Allocate the data array */
->  #define AIRQ_IV_CACHELINE	16	/* Cacheline alignment for the vector */
-> +#define AIRQ_IV_GUESTVEC	32	/* Vector is a pinned guest page */
->  
-> -struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags);
-> +struct airq_iv *airq_iv_create(unsigned long bits, unsigned long
-> flags,
-> +			       unsigned long *vec);
->  void airq_iv_release(struct airq_iv *iv);
->  unsigned long airq_iv_alloc(struct airq_iv *iv, unsigned long num);
->  void airq_iv_free(struct airq_iv *iv, unsigned long bit, unsigned
-> long num); diff --git a/arch/s390/pci/pci_irq.c
-> b/arch/s390/pci/pci_irq.c index cc4c8d7c8f5c..0d0a02a9fbbf 100644
-> --- a/arch/s390/pci/pci_irq.c
-> +++ b/arch/s390/pci/pci_irq.c
-> @@ -296,7 +296,7 @@ int arch_setup_msi_irqs(struct pci_dev *pdev, int
-> nvec, int type) zdev->aisb = bit;
->  
->  		/* Create adapter interrupt vector */
-> -		zdev->aibv = airq_iv_create(msi_vecs, AIRQ_IV_DATA |
-> AIRQ_IV_BITLOCK);
-> +		zdev->aibv = airq_iv_create(msi_vecs, AIRQ_IV_DATA |
-> AIRQ_IV_BITLOCK, NULL); if (!zdev->aibv)
->  			return -ENOMEM;
->  
-> @@ -419,7 +419,7 @@ static int __init zpci_directed_irq_init(void)
->  	union zpci_sic_iib iib = {{0}};
->  	unsigned int cpu;
->  
-> -	zpci_sbv = airq_iv_create(num_possible_cpus(), 0);
-> +	zpci_sbv = airq_iv_create(num_possible_cpus(), 0, NULL);
->  	if (!zpci_sbv)
->  		return -ENOMEM;
->  
-> @@ -441,7 +441,7 @@ static int __init zpci_directed_irq_init(void)
->  		zpci_ibv[cpu] = airq_iv_create(cache_line_size() *
-> BITS_PER_BYTE, AIRQ_IV_DATA |
->  					       AIRQ_IV_CACHELINE |
-> -					       (!cpu ? AIRQ_IV_ALLOC
-> : 0));
-> +					       (!cpu ? AIRQ_IV_ALLOC
-> : 0), NULL); if (!zpci_ibv[cpu])
->  			return -ENOMEM;
->  	}
-> @@ -458,7 +458,7 @@ static int __init zpci_floating_irq_init(void)
->  	if (!zpci_ibv)
->  		return -ENOMEM;
->  
-> -	zpci_sbv = airq_iv_create(ZPCI_NR_DEVICES, AIRQ_IV_ALLOC);
-> +	zpci_sbv = airq_iv_create(ZPCI_NR_DEVICES, AIRQ_IV_ALLOC,
-> NULL); if (!zpci_sbv)
->  		goto out_free;
->  
-> diff --git a/drivers/s390/cio/airq.c b/drivers/s390/cio/airq.c
-> index 2f2226786319..375a58b1c838 100644
-> --- a/drivers/s390/cio/airq.c
-> +++ b/drivers/s390/cio/airq.c
-> @@ -122,10 +122,12 @@ static inline unsigned long iv_size(unsigned
-> long bits)
->   * airq_iv_create - create an interrupt vector
->   * @bits: number of bits in the interrupt vector
->   * @flags: allocation flags
-> + * @vec: pointer to pinned guest memory if AIRQ_IV_GUESTVEC
->   *
->   * Returns a pointer to an interrupt vector structure
->   */
-> -struct airq_iv *airq_iv_create(unsigned long bits, unsigned long
-> flags) +struct airq_iv *airq_iv_create(unsigned long bits, unsigned
-> long flags,
-> +			       unsigned long *vec)
->  {
->  	struct airq_iv *iv;
->  	unsigned long size;
-> @@ -146,6 +148,8 @@ struct airq_iv *airq_iv_create(unsigned long
-> bits, unsigned long flags) &iv->vector_dma);
->  		if (!iv->vector)
->  			goto out_free;
-> +	} else if (flags & AIRQ_IV_GUESTVEC) {
-> +		iv->vector = vec;
->  	} else {
->  		iv->vector = cio_dma_zalloc(size);
->  		if (!iv->vector)
-> @@ -185,7 +189,7 @@ struct airq_iv *airq_iv_create(unsigned long
-> bits, unsigned long flags) kfree(iv->avail);
->  	if (iv->flags & AIRQ_IV_CACHELINE && iv->vector)
->  		dma_pool_free(airq_iv_cache, iv->vector,
-> iv->vector_dma);
-> -	else
-> +	else if (!(iv->flags & AIRQ_IV_GUESTVEC))
->  		cio_dma_free(iv->vector, size);
->  	kfree(iv);
->  out:
-> @@ -204,7 +208,7 @@ void airq_iv_release(struct airq_iv *iv)
->  	kfree(iv->bitlock);
->  	if (iv->flags & AIRQ_IV_CACHELINE)
->  		dma_pool_free(airq_iv_cache, iv->vector,
-> iv->vector_dma);
-> -	else
-> +	else if (!(iv->flags & AIRQ_IV_GUESTVEC))
->  		cio_dma_free(iv->vector, iv_size(iv->bits));
->  	kfree(iv->avail);
->  	kfree(iv);
-> diff --git a/drivers/s390/virtio/virtio_ccw.c
-> b/drivers/s390/virtio/virtio_ccw.c index 52c376d15978..410498d693f8
-> 100644 --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -241,7 +241,7 @@ static struct airq_info *new_airq_info(int index)
->  		return NULL;
->  	rwlock_init(&info->lock);
->  	info->aiv = airq_iv_create(VIRTIO_IV_BITS, AIRQ_IV_ALLOC |
-> AIRQ_IV_PTR
-> -				   | AIRQ_IV_CACHELINE);
-> +				   | AIRQ_IV_CACHELINE, NULL);
->  	if (!info->aiv) {
->  		kfree(info);
->  		return NULL;
+> So I had a look at this before Christmas and I think it's wrong.
+> 
+> QEMU will still set the cpi to KVM/LINUX if we are under tcg.
+> So we need to do add a !tcg check here and fix this comment.
+> 
+> I.e. we always have the KVM/LINUX cpi but if we're under TCG the 
+> manufacturer in fc == 1 is QEMU. I'm not sure if this is intentional and 
+> if we want to fix this at some point or not.
 
+indeed I did not check this!!
+
+> 
+>> +    initialized = true;
+>> +out:
+>> +    free_page(stsi_322);
+>> +    return is_kvm;
+>> +}
+
+...snip...
+
+Thanks for the review, I make the changes.
+Pierre
+
+-- 
+Pierre Morel
+IBM Lab Boeblingen
