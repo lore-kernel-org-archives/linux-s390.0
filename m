@@ -2,209 +2,152 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5588C433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 17 Jan 2022 15:13:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D54BC433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 17 Jan 2022 15:35:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240371AbiAQPNO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 17 Jan 2022 10:13:14 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:2974 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230202AbiAQPNO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 17 Jan 2022 10:13:14 -0500
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20HDviSI018352;
-        Mon, 17 Jan 2022 15:13:13 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=16UotllAKznZT4KieQy+6b3nwme+qZWB4csvLOcC9NE=;
- b=UZUvAQSCDwJGxVu4THgGUMvSdQK+o0g0ArxzU7cTJ68o7TuSp9gDuT4XQpTI6loLsrLW
- gNLr67doDB5RwecFzKVukPniisK7hyn8rdABXsmiJaclwDIwytrNdVH27xRReyXIhirR
- tbaBlxi94Og6LP/ZVGPlDUFh8bu8ASypG0tg0DJpd3iYCUM6xoutCiSl1q7Bh/D1zFZI
- QiWqQb3JFYsM3YcIp7mgdwg0jcTfeccQlt9Re1vNVx3JJRtYSejCikQwWhxHgZgCvRdi
- c1iDOgn+cf5uAm1Q8CBvYl5PRcmb0FfUs028UKmO4FU7Pw0ay5t/0+uMttLBtm1HHs3O 1Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dn9t3hex2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 17 Jan 2022 15:13:13 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20HECiCN018878;
-        Mon, 17 Jan 2022 15:13:12 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dn9t3hewj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 17 Jan 2022 15:13:12 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20HF972G015147;
-        Mon, 17 Jan 2022 15:13:11 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 3dknhj5byc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 17 Jan 2022 15:13:10 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20HFD7uV35127798
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 17 Jan 2022 15:13:07 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B58894C05A;
-        Mon, 17 Jan 2022 15:13:07 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 511764C05C;
-        Mon, 17 Jan 2022 15:13:07 +0000 (GMT)
-Received: from [9.171.80.201] (unknown [9.171.80.201])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 17 Jan 2022 15:13:07 +0000 (GMT)
-Message-ID: <9aa09fba-27ef-ddd5-462a-165b38f6d58a@linux.ibm.com>
-Date:   Mon, 17 Jan 2022 16:14:50 +0100
+        id S237239AbiAQPfb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 17 Jan 2022 10:35:31 -0500
+Received: from mail-bn7nam10on2059.outbound.protection.outlook.com ([40.107.92.59]:54496
+        "EHLO NAM10-BN7-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S232982AbiAQPfb (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 17 Jan 2022 10:35:31 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=HCyv4slg0AQ2+S1xnKO2eXl8pWYet+IVWiWpCykz9DJdXUi2sovbmO3a58eUvSn/n8z/gVKdjmiM15BYelfYw7NwC5oCnnTw6WY0ndj+xwbkWVT+xzZQqOFEqGpfD2/kkjcBkCM6bLwPeEKIlO1oypz12dw65lTMyrdD0GJ98mA/BLvNmBtIy9wl2jlqTjcFu7wXO5COf8b672yZjV5T0IGHZH646Y6A4GeMCZNoXKX2oyld5dg3L9AuRpzU489JykwxdyrAvMAfDH6+3lOfSRdtuG0SJ2MGcAw3fPrVcfco1OJ0Bbt8k4CZs6pChip9NBri17v+Doisltylhh3RVA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=UmR8nNlMg+f20Zz/n46bTCzy9mvqcGENV0DiAE/L9k8=;
+ b=GYGTr5RWXLon+joqraGj6vCAke45DLZk7BGoXzAV/BR0bK+Oy/GL1iXUQI2IL/fC/YaqkF5i4BuQi5mFvU1Sk7cz6+SUxnj5Rsd0Dnyhq81EUY7m0pvcy24aIhIUv3NcjJHrXMyFcr6EnENckJITUaCQbl5j1NXQMhEyOVV7fNCCwQysfCFDW/Gdu4+Ic2tBfzDJzXKUqADpa1PuU0+ytDIXBVLZPqEFuW2UjipSSbb6UEFj6f5uF5ub+dma7zrKUqnbXSvNE/9wZptYFKWNo8XN+Ym+iVp5+RDmn0d+WnqeQ0tGPej+WPsCb2vxkwCJi835B11YQMp3PPeZ/gsCGg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=UmR8nNlMg+f20Zz/n46bTCzy9mvqcGENV0DiAE/L9k8=;
+ b=o6ipN4VRRIUwwHY9wlBsd2JDfe8vOFI1Hion4AxR3TLQv9t0hgEBuNiYydDBbnWs16gN4ezeFqDEH+fzcvxHvllm+nhUsl2Pd+MRc2AsWSfXw+WblldbJWRh9yJPUY1cxKdY5RXM9gQ09FNICalaoi/uYtW8pTjsXw7bKFPewAijyGZ7vSrGH5yirQJ2qjV5o9DuHth27IaruNrYOSWdU/qcFbzXD2bFQ3pXpEm83Vsufseh/9Cv1ZjupYHiL7NzHe5tAIkXxWbRn4i7/QiFxKWd4mSrfaBQIto0i/GZLzgZERD2/J9sCM/K0hCV+jocOuXHz+rUvtUzL4ukP90ecQ==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from BL0PR12MB5506.namprd12.prod.outlook.com (2603:10b6:208:1cb::22)
+ by BYAPR12MB3541.namprd12.prod.outlook.com (2603:10b6:a03:13c::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4888.10; Mon, 17 Jan
+ 2022 15:35:28 +0000
+Received: from BL0PR12MB5506.namprd12.prod.outlook.com
+ ([fe80::464:eb3d:1fde:e6af]) by BL0PR12MB5506.namprd12.prod.outlook.com
+ ([fe80::464:eb3d:1fde:e6af%8]) with mapi id 15.20.4888.014; Mon, 17 Jan 2022
+ 15:35:28 +0000
+Date:   Mon, 17 Jan 2022 11:35:27 -0400
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Eric Farman <farman@linux.ibm.com>
+Cc:     Liu Yi L <yi.l.liu@intel.com>,
+        "airlied@linux.ie" <airlied@linux.ie>,
+        "akrowiak@linux.ibm.com" <akrowiak@linux.ibm.com>,
+        "alex.williamson@redhat.com" <alex.williamson@redhat.com>,
+        "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>,
+        "cohuck@redhat.com" <cohuck@redhat.com>,
+        "corbet@lwn.net" <corbet@lwn.net>, Daniel Vetter <daniel@ffwll.ch>,
+        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        "Vivi, Rodrigo" <rodrigo.vivi@intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        "Wang, Zhi A" <zhi.a.wang@intel.com>,
+        "kwankhede@nvidia.com" <kwankhede@nvidia.com>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>
+Subject: Re: [RE]: [PATCH v3 10/10] vfio/ccw: Move the lifecycle of the
+ struct vfio_ccw_private to the mdev
+Message-ID: <20220117153527.GA84788@nvidia.com>
+References: <PH0PR11MB5658A7BB11922E5B6267892AC3619@PH0PR11MB5658.namprd11.prod.outlook.com>
+ <595bba117f20742dd581fd951555b0e1f630264e.camel@linux.ibm.com>
+ <PH0PR11MB565874CB787A1ACFB12CFF6CC3679@PH0PR11MB5658.namprd11.prod.outlook.com>
+ <24628dc7-c6b2-1287-b435-e12e7b3d59a8@intel.com>
+ <9866678ecaafffebbfad8493e192e248b8be8f27.camel@linux.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9866678ecaafffebbfad8493e192e248b8be8f27.camel@linux.ibm.com>
+X-ClientProxiedBy: MN2PR12CA0007.namprd12.prod.outlook.com
+ (2603:10b6:208:a8::20) To BL0PR12MB5506.namprd12.prod.outlook.com
+ (2603:10b6:208:1cb::22)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [kvm-unit-tests PATCH v3 4/4] s390x: topology: Checking
- Configuration Topology Information
-Content-Language: en-US
-To:     Janosch Frank <frankja@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     thuth@redhat.com, kvm@vger.kernel.org, cohuck@redhat.com,
-        imbrenda@linux.ibm.com, david@redhat.com
-References: <20220110133755.22238-1-pmorel@linux.ibm.com>
- <20220110133755.22238-5-pmorel@linux.ibm.com>
- <45dea0fb-5605-5f98-74c7-d68f7841f1b6@linux.ibm.com>
-From:   Pierre Morel <pmorel@linux.ibm.com>
-In-Reply-To: <45dea0fb-5605-5f98-74c7-d68f7841f1b6@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Iupiuaj9BqB0Kbv7uk_egi32mX57YD52
-X-Proofpoint-GUID: u5hFrp191SF59Zb57pJ28-ysR8qa4QIM
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-01-17_07,2022-01-14_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- impostorscore=0 mlxscore=0 clxscore=1015 malwarescore=0 adultscore=0
- mlxlogscore=999 suspectscore=0 phishscore=0 bulkscore=0 priorityscore=1501
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2201170093
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: c3a4f5db-b8b8-41f0-de87-08d9d9cefd28
+X-MS-TrafficTypeDiagnostic: BYAPR12MB3541:EE_
+X-Microsoft-Antispam-PRVS: <BYAPR12MB3541DE710AADEC408E1E8405C2579@BYAPR12MB3541.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:5797;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: sp7mp2jL+13KpP1FbhzF4JTdRShi/tPTrMlvRhX1KC8HxfpARtKNqKbx0/jCtrDshJAP27lIO4e3rMp0Po0Ep7lE/PGbN+z6JXpk0/oudZvRLo5jopVbh+F4C36KcA+9P9dQ4ThN2FrU42IEFO77oopOCI87Ssmcw34xfuscw8HvN15ZgC9AgU5gllaj0Sybr8u+02U4E9TxiAdsw3/4lBkDXX8XgRWvX2HAPf/AFJf6NYxZ7/pTqp4WcEB+zRVcXwt2id+AVsZDWECymAMJYjG6PmWouZ5dOR8mDwpHlfxtp88KZj0VDH1GN5DoyNgr7E1WY8QsS54glF8OLrPj6athF6l/O47oJIq6raN7MxAgMrKT8c0vrR/RAI7+L607JrIo5Mp9wq9QZySXZW4iiXJYtyNeDo8CeS+2Dnpx69F8RGoCpbVLsl5FoSDo4lT00npR87Bhb6jbfgTkxnhqqyMfO9lk4dPN4vgq837OGFZiWFGUaNWMpd9pkLXw/ao1/AQHvSBP54PIWmr8+XfOgrTLxc9B3XaFcZAMcOXLdo5+0JrW377U4qkMtpIXZsB8KaTV29aAaHjvWrmd2ocTsBlUogXN3FaB457kahz0dZRoMtppMSjPyb5DDFNJP+zY14zCuvJomOhuZsJqUb0fYw==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL0PR12MB5506.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(6506007)(33656002)(2906002)(36756003)(5660300002)(6486002)(2616005)(1076003)(508600001)(38100700002)(6512007)(4744005)(8676002)(7416002)(4326008)(8936002)(26005)(66556008)(66946007)(66476007)(54906003)(6916009)(316002)(86362001)(186003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?oyukQBtDx0LlPmbjquT4fLQoyJbSeqpaVQwX7hoF9QG8yh3y2bEZGU2EQ66Z?=
+ =?us-ascii?Q?t0iaBBT28cGvcc9aWdzgVEmbTJJhauaRLdnjnxxf1885YYJEf+KUYirxiDJi?=
+ =?us-ascii?Q?eNB6MG5dnyFAWUD1N8i4X3HMOEUmRFm20FMbowUuBylZUiEOGDYDyxaib20h?=
+ =?us-ascii?Q?KCnobwQlvkWk/Tgx+K3EyZqOg0CsUjxR3oC7CRMJJsB0oJRE1EJwm8+vMnyt?=
+ =?us-ascii?Q?MGl0qfWDSnanTzSTwtjUlhrOH4/vYXlgC0bo+Z68I1epqXloC/YWikpq2WjE?=
+ =?us-ascii?Q?OWUJqpeGok9DZfAmcVEi0mQ/OQ6LopAWVzOZU/aiRu44pweo39YHB8zdi5Vj?=
+ =?us-ascii?Q?jAohhR2WqWeND7y9iz7UqB2eWNR4zGKAYkUJWhjYwAHBn5WDt/mUE6TsdwUc?=
+ =?us-ascii?Q?Wjwku9zKlp0aT/lqzx8YtacMw7B051FPyBle3s+G/UJarY05mVVTOYaIKIof?=
+ =?us-ascii?Q?1HuZWHwtZVg3rA3wqqRX7KWJ5yCnztUpScdpJtDBUb9NS1WukFw4LattC9bY?=
+ =?us-ascii?Q?opbWLaGX/1TckN7UQbpAoGIh+7uF/V4wFPcSOSHMrRSI/nVOGIXZzoMQ/8AY?=
+ =?us-ascii?Q?LViWzQdkHbmqs0/DNxrkgZzaH/4uWuwU07TQiFrUSYzhmx/lo3uNp1XCoir5?=
+ =?us-ascii?Q?OUokwI6xHUnci5u78Xte0BLdE1zPw9ckN+t8zCfbbFkb5tgMyoZBMOdlLmcq?=
+ =?us-ascii?Q?wMkZ8qs8KHzgiywCWwp4Xd7S+9pH8eB0AHTFfSkW6aJ10Z+qStWVv6+4v9/S?=
+ =?us-ascii?Q?cbivC3COgGq8iBjlbRdRFnC8/Da9xB0IZkNgolKuMS2WL3VksebimN/GUVr4?=
+ =?us-ascii?Q?rt+U7/v4WOfMwf9c7xJQo/GHP6TFxj3GK+LUlqYQqeKNJQLC09GTtZZWck1x?=
+ =?us-ascii?Q?NXDI+phYQR9HPVpGZzUQf1bIh/eGwZytPkYzdpaSQs5xZ2hs0Wn7zUpJWEBk?=
+ =?us-ascii?Q?tTwuuLt32FSz4TkM6oDoeHW6jSlYC1X15SZoXKI0oqZk2UfTygcYeNEEMohE?=
+ =?us-ascii?Q?MQnptHaPJVkgWkeO1eIFKu9UAopBt8M1HeC8kL5TEnGBfqnEYjliIsEo5qGb?=
+ =?us-ascii?Q?eonB+BptfJnlrsQnb671YIqDMyVBhlW0YjQGb2k8SXvn1fmMI1ZBoefA2/NW?=
+ =?us-ascii?Q?o0R8KjR4gnajbZjQ7238Vmnt1iriPCFatsN2exnO1MIV8HODgx88nSWhaPF8?=
+ =?us-ascii?Q?4xzidDnhi6t8B/QeGW+BrkBy8AnGkOJNsW9vEpWKSyVeXr8m/uiW6nDQlWpj?=
+ =?us-ascii?Q?6FiTqIzqS1ROh/YCitAU/VmepiCS0CY+ZEQiVyxou5toFNwm2LIG1p8Osf9F?=
+ =?us-ascii?Q?vS73oOi9BYxkI+2ghZYpl+I49037zU7r11JRFl3W/URGwmS78/DogUUcuMjZ?=
+ =?us-ascii?Q?8BX1bXSYvaLPzxIu+9q7CSTC6z+qZ2GS4tgiVNMQan1mkn2VD1bO5gDHp+l8?=
+ =?us-ascii?Q?2fn7U59vMQxEWDkyKrIpANJvB4JmrQD7Pk5MbBz0bjWYqkt1j74MXMQ5PY2w?=
+ =?us-ascii?Q?Wj35b4V/0zdEXvP9RMcIsOWq0yC1tWudybtZuIAU/N53p3m+uIPUrxRN3wub?=
+ =?us-ascii?Q?ldL+0x19ZU80CY/rjNc=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: c3a4f5db-b8b8-41f0-de87-08d9d9cefd28
+X-MS-Exchange-CrossTenant-AuthSource: BL0PR12MB5506.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Jan 2022 15:35:28.5627
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: Fus8QrqwSSJzq6Bxuf9AU4cl9BQvkZnzxzH3kj/PjrDrCec2/PRKM/LrQHhlwK+l
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR12MB3541
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 1/11/22 14:30, Janosch Frank wrote:
-> On 1/10/22 14:37, Pierre Morel wrote:
->> STSI with function code 15 is used to store the CPU configuration
->> topology.
->>
->> We check :
->> - if the topology stored is coherent between the QEMU -smp
->>    parameters and kernel parameters.
->> - the number of CPUs
->> - the maximum number of CPUs
->> - the number of containers of each levels for every STSI(15.1.x)
->>    instruction allowed by the machine.
+On Fri, Jan 14, 2022 at 11:30:36AM -0500, Eric Farman wrote:
+> On Fri, 2022-01-14 at 20:28 +0800, Liu Yi L wrote:
+> > Hi Eric,
+> > 
+> > Hope you are back from new year holiday.:-) Have you got chane to
+> > consider
+> > this patch?
 > 
-> The full review of this will take some time.
+> Hi Yi Liu,
 > 
->>
->> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->> ---
->>   lib/s390x/stsi.h    |  44 +++++++++
->>   s390x/topology.c    | 231 ++++++++++++++++++++++++++++++++++++++++++++
->>   s390x/unittests.cfg |   1 +
->>   3 files changed, 276 insertions(+)
->>
->> diff --git a/lib/s390x/stsi.h b/lib/s390x/stsi.h
->> index 02cc94a6..e3fc7ac0 100644
->> --- a/lib/s390x/stsi.h
->> +++ b/lib/s390x/stsi.h
->> @@ -29,4 +29,48 @@ struct sysinfo_3_2_2 {
->>       uint8_t ext_names[8][256];
->>   };
->> +struct topology_core {
->> +    uint8_t nl;
->> +    uint8_t reserved1[3];
->> +    uint8_t reserved4:5;
->> +    uint8_t d:1;
->> +    uint8_t pp:2;
->> +    uint8_t type;
->> +    uint16_t origin;
->> +    uint64_t mask;
->> +};
->> +
->> +struct topology_container {
->> +    uint8_t nl;
->> +    uint8_t reserved[6];
->> +    uint8_t id;
->> +};
->> +
->> +union topology_entry {
->> +    uint8_t nl;
->> +    struct topology_core cpu;
->> +    struct topology_container container;
->> +};
->> +
->> +#define CPU_TOPOLOGY_MAX_LEVEL 6
->> +struct sysinfo_15_1_x {
->> +    uint8_t reserved0[2];
->> +    uint16_t length;
->> +    uint8_t mag[CPU_TOPOLOGY_MAX_LEVEL];
->> +    uint8_t reserved10;
-> 
-> reserved0a?
+> It's coming up the list, but it's not there yet. Haven't forgotten. :)
 
-OK
+Liu would like to see ccw use a normal lifecycle for the vfio_device
+backing memory, is there a shorter path to achieve that then what I
+came up with?
 
-> 
->> +    uint8_t mnest;
->> +    uint8_t reserved12[4];
-> 
-> reserved0c?
-
-OK
-
-> 
->> +    union topology_entry tle[0];
-
-...snip...
-
->> +static void stsi_check_tle_coherency(struct sysinfo_15_1_x *info, int 
->> sel2)
->> +{
->> +    struct topology_container *tc, *end;
->> +    struct topology_core *cpus;
->> +    int n = 0;
->> +    int i;
->> +
->> +    report_prefix_push("TLE coherency");
->> +
->> +    tc = (void *)&info->tle[0];
-> 
-> tc = &info->tle[0].container ?
-
-Yes, clearly better than a cast.
-
-> 
->> +    end = (struct topology_container *)((unsigned long)info + 
-...snip...
->> +    /* For each level found in STSI */
->> +    for (i = 1; i < CPU_TOPOLOGY_MAX_LEVEL; i++) {
->> +        /*
->> +         * For non QEMU/KVM hypervizor the concatanation of the levels
-> 
-> hypervisor
-> 
-> concatenation
-
-Yes, thanks.
-
-> 
->> +         * above level 1 are architecture dependent.
-
-...snip...
-
-Thanks,
-Pierre
-
--- 
-Pierre Morel
-IBM Lab Boeblingen
+Jason
