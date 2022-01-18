@@ -2,111 +2,233 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 19C21C433FE
-	for <linux-s390@archiver.kernel.org>; Tue, 18 Jan 2022 09:15:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8760C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 18 Jan 2022 09:48:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240515AbiARJPj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 18 Jan 2022 04:15:39 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:49832 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S240550AbiARJPi (ORCPT
+        id S233417AbiARJse (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 18 Jan 2022 04:48:34 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:53992 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232585AbiARJse (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 18 Jan 2022 04:15:38 -0500
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20I8SCrW009764;
-        Tue, 18 Jan 2022 09:15:38 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=xFDTL+y+53UJYvU29HtOdFhWRpsfui3wq0YRriYeVYI=;
- b=BDAt+6B3lUF6Zt+sw0QZFGDnAl5CVajtps7gYPGB0BbQ18ejRzsV7gE2m6f2UDp7dgvP
- jqW3GdKWFDq98As0JwVEqHC6/vmx9ZCddNLC02COSo5gJfWsRXSOiMa9y8uYnZVSwiII
- RGA2+6bmSdGiR/Jv8u3EIKoTTqKLpEZcTL3ra/O7F8bmaIiR9+MMrAjqt9zsSF7oXohN
- yQeFoYOeFPUvgajfEE4MRLfe8t5KhmfF2Sjhz9T2hTk8PpWdig8wkMf8Gk2Rsw/ObHxz
- 2sbjFwOb5+zgawu4XDOYETlPpG+S+OfTCann0uPYlumnimOoyVXTj5optfZG6Mw9L7Xx KQ== 
+        Tue, 18 Jan 2022 04:48:34 -0500
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20I6QqHq016393;
+        Tue, 18 Jan 2022 09:48:33 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=EdPwNuQrqAvTuWVT0ODa8mxO+y2WE/frrmMVg5Z8hIA=;
+ b=Z2PMnoz0cg90e4GtGlC9Ptm2XKQkQfh7+MH00WhAJ96Y863vK1FJnyNMa8HBb2UFUlA7
+ rInuz2IovZoF0VNJ+zX+pC7JDCCffyhVYZFFh6A5wkKuPsdy2DDERuZG4adhACrYLFsf
+ vw6vUquFWGvhwElSBAHIqfcRPExWL9vVyfVvG8ljJFCyR+nxAo6WTQpnOgoLp+v0aEbn
+ aULm34S1v1SwWkO+DICDxsEzR4HhXxmarYfuddWWmkVxZ1+iuWB91UIcGOkuKhVzJFWd
+ XX8JXPWW2LbVZUvPMOHxpT99MXTkZMJqmTPKPC31xmU11rGKi5OXMd4DoaU4znNrPFlS OQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dnt2m0u2c-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dnr9sm7xt-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 Jan 2022 09:15:37 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20I9CaWa009676;
-        Tue, 18 Jan 2022 09:15:37 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dnt2m0u1s-1
+        Tue, 18 Jan 2022 09:48:33 +0000
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20I9bM83014697;
+        Tue, 18 Jan 2022 09:48:33 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dnr9sm7wt-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 Jan 2022 09:15:37 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20I9DYug002972;
-        Tue, 18 Jan 2022 09:15:35 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma06ams.nl.ibm.com with ESMTP id 3dknhjadtt-1
+        Tue, 18 Jan 2022 09:48:32 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20I9m4qS005709;
+        Tue, 18 Jan 2022 09:48:30 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma04fra.de.ibm.com with ESMTP id 3dknw99ej8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 Jan 2022 09:15:35 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20I9FWlX31195586
+        Tue, 18 Jan 2022 09:48:30 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20I9mPfY28180822
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 18 Jan 2022 09:15:32 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1584D52059;
-        Tue, 18 Jan 2022 09:15:32 +0000 (GMT)
-Received: from osiris (unknown [9.145.173.74])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id AA0F75205A;
-        Tue, 18 Jan 2022 09:15:31 +0000 (GMT)
-Date:   Tue, 18 Jan 2022 10:15:30 +0100
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     cgel.zte@gmail.com
-Cc:     oleg@redhat.com, gor@linux.ibm.com, borntraeger@linux.ibm.com,
-        agordeev@linux.ibm.com, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Minghao Chi <chi.minghao@zte.com.cn>,
-        Zeal Robot <zealci@zte.com.cn>
-Subject: Re: [PATCH] arch/s390/kernel: remove unneeded rc variable
-Message-ID: <YeaFMspieut8Y6tJ@osiris>
-References: <20220118075115.925468-1-chi.minghao@zte.com.cn>
+        Tue, 18 Jan 2022 09:48:25 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CCFFDAE045;
+        Tue, 18 Jan 2022 09:48:25 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DE9FDAE04D;
+        Tue, 18 Jan 2022 09:48:24 +0000 (GMT)
+Received: from [9.171.70.230] (unknown [9.171.70.230])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 18 Jan 2022 09:48:24 +0000 (GMT)
+Message-ID: <8a1ca4cf-a51a-9d45-0ed4-b48f6d8fb4a2@linux.ibm.com>
+Date:   Tue, 18 Jan 2022 10:50:07 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220118075115.925468-1-chi.minghao@zte.com.cn>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [PATCH v2 06/30] s390/airq: allow for airq structure that uses an
+ input vector
+Content-Language: en-US
+To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
+        schnelle@linux.ibm.com, farman@linux.ibm.com,
+        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
+        vneethv@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com,
+        thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20220114203145.242984-1-mjrosato@linux.ibm.com>
+ <20220114203145.242984-7-mjrosato@linux.ibm.com>
+From:   Pierre Morel <pmorel@linux.ibm.com>
+In-Reply-To: <20220114203145.242984-7-mjrosato@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: ltU9_hDbkiSkduJFuQr1CgVQT2_Rj1qb
-X-Proofpoint-GUID: a1cxWxBiZ7YSt3qLMwbcA9Ypt5P0Wtp6
+X-Proofpoint-GUID: qB1WlVRsqgjGOTP_b6IfGDHdJ_gKI3S7
+X-Proofpoint-ORIG-GUID: rCzn2GvFPO6DyN4L_G_K8di86xPVJirz
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2022-01-18_02,2022-01-14_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 phishscore=0
- clxscore=1011 mlxscore=0 spamscore=0 impostorscore=0 bulkscore=0
- adultscore=0 lowpriorityscore=0 priorityscore=1501 mlxlogscore=659
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2201180055
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 spamscore=0
+ malwarescore=0 suspectscore=0 impostorscore=0 mlxscore=0
+ priorityscore=1501 adultscore=0 lowpriorityscore=0 clxscore=1015
+ bulkscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2201180057
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jan 18, 2022 at 07:51:15AM +0000, cgel.zte@gmail.com wrote:
-> From: Minghao Chi <chi.minghao@zte.com.cn>
+
+
+On 1/14/22 21:31, Matthew Rosato wrote:
+> When doing device passthrough where interrupts are being forwarded
+> from host to guest, we wish to use a pinned section of guest memory
+> as the vector (the same memory used by the guest as the vector).
 > 
-> Return value from user_regset_copyin() directly instead
-> of taking this in another redundant variable.
-> 
-> Reported-by: Zeal Robot <zealci@zte.com.cn>
-> Signed-off-by: Minghao Chi <chi.minghao@zte.com.cn>
-> Signed-off-by: CGEL ZTE <cgel.zte@gmail.com>
+> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+
+
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+
+
 > ---
->  arch/s390/kernel/ptrace.c | 5 +----
->  1 file changed, 1 insertion(+), 4 deletions(-)
-...
-> -	int rc;
-> -
->  	if (!MACHINE_HAS_VX)
->  		return -ENODEV;
->  	if (target == current)
->  		save_fpu_regs();
->  
-> -	rc = user_regset_copyin(&pos, &count, &kbuf, &ubuf,
-> +	return user_regset_copyin(&pos, &count, &kbuf, &ubuf,
->  				target->thread.fpu.vxrs + __NUM_VXRS_LOW, 0, -1);
-> -	return rc;
+>   arch/s390/include/asm/airq.h     |  4 +++-
+>   arch/s390/pci/pci_irq.c          |  8 ++++----
+>   drivers/s390/cio/airq.c          | 10 +++++++---
+>   drivers/s390/virtio/virtio_ccw.c |  2 +-
+>   4 files changed, 15 insertions(+), 9 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/airq.h b/arch/s390/include/asm/airq.h
+> index 7918a7d09028..e82e5626e139 100644
+> --- a/arch/s390/include/asm/airq.h
+> +++ b/arch/s390/include/asm/airq.h
+> @@ -47,8 +47,10 @@ struct airq_iv {
+>   #define AIRQ_IV_PTR		4	/* Allocate the ptr array */
+>   #define AIRQ_IV_DATA		8	/* Allocate the data array */
+>   #define AIRQ_IV_CACHELINE	16	/* Cacheline alignment for the vector */
+> +#define AIRQ_IV_GUESTVEC	32	/* Vector is a pinned guest page */
+>   
+> -struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags);
+> +struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags,
+> +			       unsigned long *vec);
+>   void airq_iv_release(struct airq_iv *iv);
+>   unsigned long airq_iv_alloc(struct airq_iv *iv, unsigned long num);
+>   void airq_iv_free(struct airq_iv *iv, unsigned long bit, unsigned long num);
+> diff --git a/arch/s390/pci/pci_irq.c b/arch/s390/pci/pci_irq.c
+> index cc4c8d7c8f5c..0d0a02a9fbbf 100644
+> --- a/arch/s390/pci/pci_irq.c
+> +++ b/arch/s390/pci/pci_irq.c
+> @@ -296,7 +296,7 @@ int arch_setup_msi_irqs(struct pci_dev *pdev, int nvec, int type)
+>   		zdev->aisb = bit;
+>   
+>   		/* Create adapter interrupt vector */
+> -		zdev->aibv = airq_iv_create(msi_vecs, AIRQ_IV_DATA | AIRQ_IV_BITLOCK);
+> +		zdev->aibv = airq_iv_create(msi_vecs, AIRQ_IV_DATA | AIRQ_IV_BITLOCK, NULL);
+>   		if (!zdev->aibv)
+>   			return -ENOMEM;
+>   
+> @@ -419,7 +419,7 @@ static int __init zpci_directed_irq_init(void)
+>   	union zpci_sic_iib iib = {{0}};
+>   	unsigned int cpu;
+>   
+> -	zpci_sbv = airq_iv_create(num_possible_cpus(), 0);
+> +	zpci_sbv = airq_iv_create(num_possible_cpus(), 0, NULL);
+>   	if (!zpci_sbv)
+>   		return -ENOMEM;
+>   
+> @@ -441,7 +441,7 @@ static int __init zpci_directed_irq_init(void)
+>   		zpci_ibv[cpu] = airq_iv_create(cache_line_size() * BITS_PER_BYTE,
+>   					       AIRQ_IV_DATA |
+>   					       AIRQ_IV_CACHELINE |
+> -					       (!cpu ? AIRQ_IV_ALLOC : 0));
+> +					       (!cpu ? AIRQ_IV_ALLOC : 0), NULL);
+>   		if (!zpci_ibv[cpu])
+>   			return -ENOMEM;
+>   	}
+> @@ -458,7 +458,7 @@ static int __init zpci_floating_irq_init(void)
+>   	if (!zpci_ibv)
+>   		return -ENOMEM;
+>   
+> -	zpci_sbv = airq_iv_create(ZPCI_NR_DEVICES, AIRQ_IV_ALLOC);
+> +	zpci_sbv = airq_iv_create(ZPCI_NR_DEVICES, AIRQ_IV_ALLOC, NULL);
+>   	if (!zpci_sbv)
+>   		goto out_free;
+>   
+> diff --git a/drivers/s390/cio/airq.c b/drivers/s390/cio/airq.c
+> index 2f2226786319..375a58b1c838 100644
+> --- a/drivers/s390/cio/airq.c
+> +++ b/drivers/s390/cio/airq.c
+> @@ -122,10 +122,12 @@ static inline unsigned long iv_size(unsigned long bits)
+>    * airq_iv_create - create an interrupt vector
+>    * @bits: number of bits in the interrupt vector
+>    * @flags: allocation flags
+> + * @vec: pointer to pinned guest memory if AIRQ_IV_GUESTVEC
+>    *
+>    * Returns a pointer to an interrupt vector structure
+>    */
+> -struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags)
+> +struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags,
+> +			       unsigned long *vec)
+>   {
+>   	struct airq_iv *iv;
+>   	unsigned long size;
+> @@ -146,6 +148,8 @@ struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags)
+>   					     &iv->vector_dma);
+>   		if (!iv->vector)
+>   			goto out_free;
+> +	} else if (flags & AIRQ_IV_GUESTVEC) {
+> +		iv->vector = vec;
+>   	} else {
+>   		iv->vector = cio_dma_zalloc(size);
+>   		if (!iv->vector)
+> @@ -185,7 +189,7 @@ struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags)
+>   	kfree(iv->avail);
+>   	if (iv->flags & AIRQ_IV_CACHELINE && iv->vector)
+>   		dma_pool_free(airq_iv_cache, iv->vector, iv->vector_dma);
+> -	else
+> +	else if (!(iv->flags & AIRQ_IV_GUESTVEC))
+>   		cio_dma_free(iv->vector, size);
+>   	kfree(iv);
+>   out:
+> @@ -204,7 +208,7 @@ void airq_iv_release(struct airq_iv *iv)
+>   	kfree(iv->bitlock);
+>   	if (iv->flags & AIRQ_IV_CACHELINE)
+>   		dma_pool_free(airq_iv_cache, iv->vector, iv->vector_dma);
+> -	else
+> +	else if (!(iv->flags & AIRQ_IV_GUESTVEC))
+>   		cio_dma_free(iv->vector, iv_size(iv->bits));
+>   	kfree(iv->avail);
+>   	kfree(iv);
+> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+> index 52c376d15978..410498d693f8 100644
+> --- a/drivers/s390/virtio/virtio_ccw.c
+> +++ b/drivers/s390/virtio/virtio_ccw.c
+> @@ -241,7 +241,7 @@ static struct airq_info *new_airq_info(int index)
+>   		return NULL;
+>   	rwlock_init(&info->lock);
+>   	info->aiv = airq_iv_create(VIRTIO_IV_BITS, AIRQ_IV_ALLOC | AIRQ_IV_PTR
+> -				   | AIRQ_IV_CACHELINE);
+> +				   | AIRQ_IV_CACHELINE, NULL);
+>   	if (!info->aiv) {
+>   		kfree(info);
+>   		return NULL;
+> 
 
-This "breaks" indentation. Could you guys please stop sending such
-semi-automated generated questionable patches? I really don't see any
-benefit besides code churn, and the possibility of introducing bugs.
-
-Thanks!
+-- 
+Pierre Morel
+IBM Lab Boeblingen
