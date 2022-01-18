@@ -2,119 +2,158 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7D04C433FE
-	for <linux-s390@archiver.kernel.org>; Tue, 18 Jan 2022 04:52:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E832C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 18 Jan 2022 06:49:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236855AbiAREwJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 17 Jan 2022 23:52:09 -0500
-Received: from drummond.us ([74.95.14.229]:45641 "EHLO
-        talisker.home.drummond.us" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S231827AbiAREwJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 17 Jan 2022 23:52:09 -0500
-Received: from talisker.home.drummond.us (localhost [127.0.0.1])
-        by talisker.home.drummond.us (8.15.2/8.15.2/Debian-20) with ESMTP id 20I4hKxA765034;
-        Mon, 17 Jan 2022 20:43:20 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=home.drummond.us;
-        s=default; t=1642481000;
-        bh=JFi+HKlyMuoco5DMezAYc0cpMIkALY2NRgqxQb8XaVQ=;
-        h=From:To:Cc:Subject:Date:From;
-        b=HrfroqxJrad3DzZ6FT4waFIt4MeHoVb4BxDueoszUUfOdgocQu4B3/GEGCbfH7j+4
-         bCnukvS8DMk0QncCM+4cnd67oBI11AUaZSfyA1jy6TaXA3X5Kcb8WqFT1lOO/G4bU0
-         sE937UadIfrwnyajiN2sClndEDW/LSMvKjwv+nnxvNZNZDwNa20sogsmB1xI0fuutp
-         TyP5IwYKNFjesXLYErOM4Z88Ci8VqrvFMwxoLr+OAwdySfNxgdpWQg9mNN1heppfgk
-         /c+IM2lyAghg9dy8t50eqPnrKRsXzAsmMkXQhyUwc1ZmqI7/AHP52rv9ZYELVdXPsV
-         F6MVEFQaeeKrg==
-Received: (from walt@localhost)
-        by talisker.home.drummond.us (8.15.2/8.15.2/Submit) id 20I4hDNe765026;
-        Mon, 17 Jan 2022 20:43:13 -0800
-From:   Walt Drummond <walt@drummond.us>
-To:     agordeev@linux.ibm.com, arnd@arndb.de, benh@kernel.crashing.org,
-        borntraeger@linux.ibm.com, chris@zankel.net, davem@davemloft.net,
-        gregkh@linuxfoundation.org, hca@linux.ibm.com, deller@gmx.de,
-        ink@jurassic.park.msu.ru, James.Bottomley@HansenPartnership.com,
-        jirislaby@kernel.org, mattst88@gmail.com, jcmvbkbc@gmail.com,
-        mpe@ellerman.id.au, paulus@samba.org, rth@twiddle.net,
-        dalias@libc.org, tsbogend@alpha.franken.de, gor@linux.ibm.com,
-        ysato@users.osdn.me
-Cc:     linux-kernel@vger.kernel.org, ar@cs.msu.ru, walt@drummond.us,
-        linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org,
-        linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
-Subject: [PATCH 0/3] status: TTY status message request
-Date:   Mon, 17 Jan 2022 20:42:57 -0800
-Message-Id: <20220118044259.764945-1-walt@drummond.us>
-X-Mailer: git-send-email 2.30.2
+        id S242873AbiARGtb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 18 Jan 2022 01:49:31 -0500
+Received: from mga06.intel.com ([134.134.136.31]:49404 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231146AbiARGta (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 18 Jan 2022 01:49:30 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1642488570; x=1674024570;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=Qle7iYX0bWtMWgGrX9XT60FWnCJkJa+OHVP1jvUZDP4=;
+  b=Rsow8Wi8jaU5B7KucTCVKEeTuY2+OLQbIDTjtUmxp3PSsGhqsRqnTsvL
+   AzKkjMTQpKd/VExxHiQSWqTEmi1vid7Jr/XiCjWQB/j9TkvuBeL7xGUX/
+   drBkvXrbBAn10z68XMekAnFfY2u3J7h3RR+Fgrn7XM6L3Gw8l5YSYuZgv
+   QZRyFQ7+HsT0i6xH8gYvDPPizMcP7b8vbUbwgr/VfYL2EfX3mN8ahz5Nk
+   XrahR7zPGnScGKfWsY5wQfk/hardyUcu9WFZsNFMTowJu14mXcEiffhz9
+   MZmZquge3Ly61dc5b/of3ND4ulq/fxRlzB7vVK3aXT54LLLVCQyKb+ipN
+   g==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10230"; a="305484638"
+X-IronPort-AV: E=Sophos;i="5.88,296,1635231600"; 
+   d="scan'208";a="305484638"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Jan 2022 22:49:29 -0800
+X-IronPort-AV: E=Sophos;i="5.88,296,1635231600"; 
+   d="scan'208";a="531648541"
+Received: from hyperv-sh4.sh.intel.com ([10.239.48.22])
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Jan 2022 22:49:17 -0800
+From:   Chao Gao <chao.gao@intel.com>
+To:     kvm@vger.kernel.org, seanjc@google.com, pbonzini@redhat.com,
+        kevin.tian@intel.com, tglx@linutronix.de
+Cc:     Chao Gao <chao.gao@intel.com>, Albert Ou <aou@eecs.berkeley.edu>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Anup Patel <anup@brainfault.org>,
+        Atish Patra <atishp@atishpatra.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Bharata B Rao <bharata@linux.ibm.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        David Hildenbrand <david@redhat.com>,
+        Fabiano Rosas <farosas@linux.ibm.com>,
+        Hector Martin <marcan@marcan.st>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        James Morse <james.morse@arm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Jim Mattson <jmattson@google.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        John Garry <john.garry@huawei.com>,
+        kvmarm@lists.cs.columbia.edu, kvm-riscv@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        "Maciej S. Szmigiero" <maciej.szmigiero@oracle.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Paul Mackerras <paulus@samba.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
+        Shaokun Zhang <zhangshaokun@hisilicon.com>,
+        Sumanth Korikkar <sumanthk@linux.ibm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Will Deacon <will@kernel.org>, x86@kernel.org
+Subject: [PATCH v2 0/4] Improve KVM's interaction with CPU hotplug
+Date:   Tue, 18 Jan 2022 14:44:23 +0800
+Message-Id: <20220118064430.3882337-1-chao.gao@intel.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This patchset adds TTY status message request feature to the n_tty
-line dicipline.  This feature prints a brief message containing basic
-system and process group information to a user's TTY in response to a
-new control character in the line dicipline (default Ctrl-T) or the
-TIOCSTAT ioctl.  The message contains the current system load, the
-name and PID of an interesting process in the forground process group,
-it's run time, percent CPU usage and RSS.  An example of this message
-is:
+Changes from v1->v2: (all comments/suggestions on v1 are from Sean, thanks)
+ - Merged v1's patch 2 into patch 1, and v1's patch 5 into patch 6.
+ - Use static_call for check_processor_compatibility().
+ - Generate patch 2 with "git revert" and do manual changes based on that.
+ - Loosen the WARN_ON() in kvm_arch_check_processor_compat() instead of
+   removing it.
+ - KVM always prevent incompatible CPUs from being brought up regardless of
+   running VMs.
+ - Use pr_warn instead of pr_info to emit logs when KVM finds offending
+   CPUs.
 
-  load: 0.31  cmd: sleep 3616843 [sleeping] 0.36r 0.00u 0.00s 0% 696k
+KVM registers its CPU hotplug callback to CPU starting section. And in the
+callback, KVM enables hardware virtualization on hotplugged CPUs if any VM
+is running on existing CPUs.
 
-User API visible changes are limited to:
- - The addition of VSTATUS in termios.c_cc[]
- - The addition of NOKERNINFO bit in termios.l_cflags
- - The addition of the TIOCSTAT ioctl number
+There are two problems in the process:
+1. KVM doesn't do compatibility checks before enabling hardware
+virtualization on hotplugged CPUs. This may cause #GP if VMX isn't
+supported or vmentry failure if some in-use VMX features are missing on
+hotplugged CPUs. Both break running VMs.
+2. Callbacks in CPU STARTING section cannot fail. So, even if KVM finds
+some incompatible CPUs, its callback cannot block CPU hotplug.
 
-None of these changes break the existing kernel api as the termios
-structure on all architectures has enough space in the control
-character array (.c_cc) for the new character, and the other changes
-are space agnostic.
+This series improves KVM's interaction with CPU hotplug to avoid
+incompatible CPUs breaking running VMs. Following changes are made:
 
-This feature is in many other Unix-like systems, both current and
-historical.  In other implementations, this feature would also send
-SIGINFO to the process group; this implementation does not.
+1. move KVM's CPU hotplug callback to ONLINE section (suggested by Thomas)
+2. do compatibility checks on hotplugged CPUs.
+3. abort onlining incompatible CPUs
 
-Walt Drummond (3):
-  vstatus: Allow the n_tty line dicipline to write to a user tty
-  vstatus: Add user space API definitions for VSTATUS, NOKERNINFO and
-    TIOCSTAT
-  status: Display an informational message when the VSTATUS character is
-    pressed or TIOCSTAT ioctl is called.
+This series is a follow-up to the discussion about KVM and CPU hotplug
+https://lore.kernel.org/lkml/3d3296f0-9245-40f9-1b5a-efffdb082de9@redhat.com/T/
 
- arch/alpha/include/asm/termios.h         |   4 +-
- arch/alpha/include/uapi/asm/ioctls.h     |   1 +
- arch/alpha/include/uapi/asm/termbits.h   |  34 ++---
- arch/ia64/include/asm/termios.h          |   4 +-
- arch/ia64/include/uapi/asm/termbits.h    |  34 ++---
- arch/mips/include/asm/termios.h          |   4 +-
- arch/mips/include/uapi/asm/ioctls.h      |   1 +
- arch/mips/include/uapi/asm/termbits.h    |  36 ++---
- arch/parisc/include/asm/termios.h        |   4 +-
- arch/parisc/include/uapi/asm/ioctls.h    |   1 +
- arch/parisc/include/uapi/asm/termbits.h  |  34 ++---
- arch/powerpc/include/asm/termios.h       |   4 +-
- arch/powerpc/include/uapi/asm/ioctls.h   |   2 +
- arch/powerpc/include/uapi/asm/termbits.h |  34 ++---
- arch/s390/include/asm/termios.h          |   4 +-
- arch/sh/include/uapi/asm/ioctls.h        |   1 +
- arch/sparc/include/uapi/asm/ioctls.h     |   1 +
- arch/sparc/include/uapi/asm/termbits.h   |  38 +++---
- arch/xtensa/include/uapi/asm/ioctls.h    |   1 +
- drivers/tty/Makefile                     |   2 +-
- drivers/tty/n_tty.c                      | 113 +++++++++++-----
- drivers/tty/n_tty_status.c               | 162 +++++++++++++++++++++++
- drivers/tty/tty_io.c                     |   2 +-
- include/asm-generic/termios.h            |   4 +-
- include/linux/tty.h                      | 123 ++++++++---------
- include/uapi/asm-generic/ioctls.h        |   1 +
- include/uapi/asm-generic/termbits.h      |  34 ++---
- 27 files changed, 461 insertions(+), 222 deletions(-)
- create mode 100644 drivers/tty/n_tty_status.c
+Note: this series is tested only on Intel systems.
+
+Chao Gao (4):
+  KVM: x86: Move check_processor_compatibility from init ops to runtime
+    ops
+  Partially revert "KVM: Pass kvm_init()'s opaque param to additional
+    arch funcs"
+  KVM: Rename and move CPUHP_AP_KVM_STARTING to ONLINE section
+  KVM: Do compatibility checks on hotplugged CPUs
+
+ arch/arm64/kvm/arm.c               |  2 +-
+ arch/mips/kvm/mips.c               |  2 +-
+ arch/powerpc/kvm/powerpc.c         |  2 +-
+ arch/riscv/kvm/main.c              |  2 +-
+ arch/s390/kvm/kvm-s390.c           |  2 +-
+ arch/x86/include/asm/kvm-x86-ops.h |  1 +
+ arch/x86/include/asm/kvm_host.h    |  2 +-
+ arch/x86/kvm/svm/svm.c             |  4 +-
+ arch/x86/kvm/vmx/evmcs.c           |  2 +-
+ arch/x86/kvm/vmx/evmcs.h           |  2 +-
+ arch/x86/kvm/vmx/vmx.c             | 12 +++---
+ arch/x86/kvm/x86.c                 | 16 +++++---
+ include/linux/cpuhotplug.h         |  2 +-
+ include/linux/kvm_host.h           |  2 +-
+ virt/kvm/kvm_main.c                | 62 ++++++++++++++++++++----------
+ 15 files changed, 71 insertions(+), 44 deletions(-)
 
 -- 
-2.30.2
+2.25.1
 
