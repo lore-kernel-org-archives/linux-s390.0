@@ -2,148 +2,111 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C66DFC433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 18 Jan 2022 08:53:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 19C21C433FE
+	for <linux-s390@archiver.kernel.org>; Tue, 18 Jan 2022 09:15:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240355AbiARIxd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 18 Jan 2022 03:53:33 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:44280 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229762AbiARIxc (ORCPT
+        id S240515AbiARJPj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 18 Jan 2022 04:15:39 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:49832 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S240550AbiARJPi (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 18 Jan 2022 03:53:32 -0500
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20I7VAsf006436;
-        Tue, 18 Jan 2022 08:53:31 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=f8n/nm79ebuzyK9dbiGbeICF1KGhYlIIhAz7ACIrlNM=;
- b=hrwglocs4xaOeoIzabT8EsQkulLgGCtlQxEkEGyNkOWeJlV//czH27QSVrpXTE0NJ3Hk
- YUogtNXpKOZKAI7LghxR8dRr35tFkJ1h0A4iuiYGKlDGHzfOlF1gh6kTZfjsvBzjRoyT
- wIS4O5VnT+V4X7QtP3sBfArTfJtLGcBdEvX2l1YERqMhxnuuoF60Uc9nOYpPJ9szMFvO
- JtOBi4+KX9EdIp9X0fOAP+0tETJ5/coM6u0p1AgPpT7L+ZvF1uvu3MWF/BKdkpbxgV3V
- g1+KvIaD3gZe4Yaih+/xAEMusyNixpVLsNKmrGrokFVM9oT6mbQwmjdIGYEAxWfHv+cZ AA== 
+        Tue, 18 Jan 2022 04:15:38 -0500
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20I8SCrW009764;
+        Tue, 18 Jan 2022 09:15:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=xFDTL+y+53UJYvU29HtOdFhWRpsfui3wq0YRriYeVYI=;
+ b=BDAt+6B3lUF6Zt+sw0QZFGDnAl5CVajtps7gYPGB0BbQ18ejRzsV7gE2m6f2UDp7dgvP
+ jqW3GdKWFDq98As0JwVEqHC6/vmx9ZCddNLC02COSo5gJfWsRXSOiMa9y8uYnZVSwiII
+ RGA2+6bmSdGiR/Jv8u3EIKoTTqKLpEZcTL3ra/O7F8bmaIiR9+MMrAjqt9zsSF7oXohN
+ yQeFoYOeFPUvgajfEE4MRLfe8t5KhmfF2Sjhz9T2hTk8PpWdig8wkMf8Gk2Rsw/ObHxz
+ 2sbjFwOb5+zgawu4XDOYETlPpG+S+OfTCann0uPYlumnimOoyVXTj5optfZG6Mw9L7Xx KQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dnfgy4wep-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dnt2m0u2c-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 Jan 2022 08:53:30 +0000
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20I8kPKQ010600;
-        Tue, 18 Jan 2022 08:53:30 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dnfgy4we6-1
+        Tue, 18 Jan 2022 09:15:37 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20I9CaWa009676;
+        Tue, 18 Jan 2022 09:15:37 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dnt2m0u1s-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 Jan 2022 08:53:30 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20I8fDf9020407;
-        Tue, 18 Jan 2022 08:53:27 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma03fra.de.ibm.com with ESMTP id 3dknwa93n5-1
+        Tue, 18 Jan 2022 09:15:37 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20I9DYug002972;
+        Tue, 18 Jan 2022 09:15:35 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma06ams.nl.ibm.com with ESMTP id 3dknhjadtt-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 Jan 2022 08:53:27 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20I8rOdE19136964
+        Tue, 18 Jan 2022 09:15:35 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20I9FWlX31195586
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 18 Jan 2022 08:53:24 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 727F34C040;
-        Tue, 18 Jan 2022 08:53:24 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BF0DF4C058;
-        Tue, 18 Jan 2022 08:53:23 +0000 (GMT)
-Received: from [9.171.19.84] (unknown [9.171.19.84])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 18 Jan 2022 08:53:23 +0000 (GMT)
-Message-ID: <d39d9a13-e797-b7d3-6240-db3957b6ff53@linux.ibm.com>
-Date:   Tue, 18 Jan 2022 09:53:23 +0100
+        Tue, 18 Jan 2022 09:15:32 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1584D52059;
+        Tue, 18 Jan 2022 09:15:32 +0000 (GMT)
+Received: from osiris (unknown [9.145.173.74])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id AA0F75205A;
+        Tue, 18 Jan 2022 09:15:31 +0000 (GMT)
+Date:   Tue, 18 Jan 2022 10:15:30 +0100
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     cgel.zte@gmail.com
+Cc:     oleg@redhat.com, gor@linux.ibm.com, borntraeger@linux.ibm.com,
+        agordeev@linux.ibm.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Minghao Chi <chi.minghao@zte.com.cn>,
+        Zeal Robot <zealci@zte.com.cn>
+Subject: Re: [PATCH] arch/s390/kernel: remove unneeded rc variable
+Message-ID: <YeaFMspieut8Y6tJ@osiris>
+References: <20220118075115.925468-1-chi.minghao@zte.com.cn>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.0
-Subject: Re: [PATCH] KVM: avoid warning on s390 in mark_page_dirty
-Content-Language: en-US
-To:     Paolo Bonzini <pbonzini@redhat.com>, dwmw2@infradead.org
-Cc:     butterflyhuangxx@gmail.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, seanjc@google.com,
-        Cornelia Huck <cohuck@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Thomas Huth <thuth@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-References: <e9e5521d-21e5-8f6f-902c-17b0516b9839@redhat.com>
- <20220113122924.740496-1-borntraeger@linux.ibm.com>
- <eda019b1-8e1d-5d2b-4be4-2725e5814b23@linux.ibm.com>
- <14380a1b-669f-8f0f-139b-7c89fabd4276@redhat.com>
-From:   Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <14380a1b-669f-8f0f-139b-7c89fabd4276@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220118075115.925468-1-chi.minghao@zte.com.cn>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: sn5TIcq1oEcEU3i10RvD_Li7TgQykj0l
-X-Proofpoint-ORIG-GUID: ZvseGFlLZjZRliYEn4S9CrhkUBpqPkRv
+X-Proofpoint-ORIG-GUID: ltU9_hDbkiSkduJFuQr1CgVQT2_Rj1qb
+X-Proofpoint-GUID: a1cxWxBiZ7YSt3qLMwbcA9Ypt5P0Wtp6
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-01-18_01,2022-01-14_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 adultscore=0
- bulkscore=0 phishscore=0 priorityscore=1501 impostorscore=0 mlxscore=0
- suspectscore=0 malwarescore=0 lowpriorityscore=0 spamscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2201180053
+ definitions=2022-01-18_02,2022-01-14_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 phishscore=0
+ clxscore=1011 mlxscore=0 spamscore=0 impostorscore=0 bulkscore=0
+ adultscore=0 lowpriorityscore=0 priorityscore=1501 mlxlogscore=659
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2201180055
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Am 18.01.22 um 09:44 schrieb Paolo Bonzini:
-> On 1/18/22 09:37, Christian Borntraeger wrote:
->> Am 13.01.22 um 13:29 schrieb Christian Borntraeger:
->>> Avoid warnings on s390 like
->>> [ 1801.980931] CPU: 12 PID: 117600 Comm: kworker/12:0 Tainted: G            E 5.17.0-20220113.rc0.git0.32ce2abb03cf.300.fc35.s390x+next #1
->>> [ 1801.980938] Workqueue: events irqfd_inject [kvm]
->>> [...]
->>> [ 1801.981057] Call Trace:
->>> [ 1801.981060]  [<000003ff805f0f5c>] mark_page_dirty_in_slot+0xa4/0xb0 [kvm]
->>> [ 1801.981083]  [<000003ff8060e9fe>] adapter_indicators_set+0xde/0x268 [kvm]
->>> [ 1801.981104]  [<000003ff80613c24>] set_adapter_int+0x64/0xd8 [kvm]
->>> [ 1801.981124]  [<000003ff805fb9aa>] kvm_set_irq+0xc2/0x130 [kvm]
->>> [ 1801.981144]  [<000003ff805f8d86>] irqfd_inject+0x76/0xa0 [kvm]
->>> [ 1801.981164]  [<0000000175e56906>] process_one_work+0x1fe/0x470
->>> [ 1801.981173]  [<0000000175e570a4>] worker_thread+0x64/0x498
->>> [ 1801.981176]  [<0000000175e5ef2c>] kthread+0x10c/0x110
->>> [ 1801.981180]  [<0000000175de73c8>] __ret_from_fork+0x40/0x58
->>> [ 1801.981185]  [<000000017698440a>] ret_from_fork+0xa/0x40
->>>
->>> when writing to a guest from an irqfd worker as long as we do not have
->>> the dirty ring.
->>>
->>> Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
->>> ---
->>>   virt/kvm/kvm_main.c | 2 ++
->>>   1 file changed, 2 insertions(+)
->>>
->>> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
->>> index 504158f0e131..1a682d3e106d 100644
->>> --- a/virt/kvm/kvm_main.c
->>> +++ b/virt/kvm/kvm_main.c
->>> @@ -3163,8 +3163,10 @@ void mark_page_dirty_in_slot(struct kvm *kvm,
->>>   {
->>>       struct kvm_vcpu *vcpu = kvm_get_running_vcpu();
->>> +#ifdef CONFIG_HAVE_KVM_DIRTY_RING
->>>       if (WARN_ON_ONCE(!vcpu) || WARN_ON_ONCE(vcpu->kvm != kvm))
->>>           return;
->>> +#endif
->>>       if (memslot && kvm_slot_dirty_track_enabled(memslot)) {
->>>           unsigned long rel_gfn = gfn - memslot->base_gfn;
->>
->> Paolo, are you going to pick this for next for the time being?
->>
+On Tue, Jan 18, 2022 at 07:51:15AM +0000, cgel.zte@gmail.com wrote:
+> From: Minghao Chi <chi.minghao@zte.com.cn>
 > 
-> Yep, done now.
+> Return value from user_regset_copyin() directly instead
+> of taking this in another redundant variable.
 > 
-> Paolo
+> Reported-by: Zeal Robot <zealci@zte.com.cn>
+> Signed-off-by: Minghao Chi <chi.minghao@zte.com.cn>
+> Signed-off-by: CGEL ZTE <cgel.zte@gmail.com>
+> ---
+>  arch/s390/kernel/ptrace.c | 5 +----
+>  1 file changed, 1 insertion(+), 4 deletions(-)
+...
+> -	int rc;
+> -
+>  	if (!MACHINE_HAS_VX)
+>  		return -ENODEV;
+>  	if (target == current)
+>  		save_fpu_regs();
+>  
+> -	rc = user_regset_copyin(&pos, &count, &kbuf, &ubuf,
+> +	return user_regset_copyin(&pos, &count, &kbuf, &ubuf,
+>  				target->thread.fpu.vxrs + __NUM_VXRS_LOW, 0, -1);
+> -	return rc;
 
-Thanks. I just realized that Davids patch meanwhile landed in Linus tree. So better
-take this via master and not next.
-Maybe also add
-Fixes: 2efd61a608b0 ("KVM: Warn if mark_page_dirty() is called without an active vCPU")
-in case the patch is picked for stable
+This "breaks" indentation. Could you guys please stop sending such
+semi-automated generated questionable patches? I really don't see any
+benefit besides code churn, and the possibility of introducing bugs.
+
+Thanks!
