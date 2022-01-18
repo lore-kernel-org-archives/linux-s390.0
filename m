@@ -2,65 +2,65 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 441A1C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 18 Jan 2022 18:05:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 277E7C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 18 Jan 2022 18:37:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347699AbiARSFl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 18 Jan 2022 13:05:41 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:61800 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237348AbiARSFl (ORCPT
+        id S244860AbiARShW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 18 Jan 2022 13:37:22 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:47030 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S244841AbiARShW (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 18 Jan 2022 13:05:41 -0500
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20IGvbt8015118;
-        Tue, 18 Jan 2022 18:05:40 GMT
+        Tue, 18 Jan 2022 13:37:22 -0500
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20IGvHRn030232;
+        Tue, 18 Jan 2022 18:37:21 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=fSu/Xg8aajTRlELlulYjnIVdNTp9KCsX1D7Q3mCfhvI=;
- b=kqj789nuPIB5EFkJvYifwCBg/rZ03aMKtpwznroks084hXzkyIEqWcT36i/qH5/KUHFo
- Oxd4kchQxvipjAPHp7WfiZFuYZ51Y6QQaJZ1rrtiF+aH2mhHQS9+DVV5iWqiI/CazA5G
- QHyypcqp7I5ELvF7n8HmkKTgKi1GuJ37O+jQyJpZ3sZz+gcEfEYSfzSsyX7K6ayGo2Kb
- d5MET6fRFaTfuvb5LNTEQJb3oJ80HCkGchOHb4sDzM+AGkmKBifKAT/WyelK2dRD1J4/
- 2QZbdTVuWDxpPC4Js2PvsgXomMBG1dcfeXovc7zQXXE+88YReYL0HNCO32/ulkwm9zvR PQ== 
+ bh=0IMeSBcFtQ6ENgaIyTd1O8tNJg337yrCQNAUAa9CNuM=;
+ b=sBHjaKypymUFSYy66ch9aK9FRIYKyVGlpno3gOrNdB00yc82hxS0tjQ3WxpPrPdQ4O5t
+ WULWOp0gUjT2s2RpDrrci8gr5Aa3S3CVsCjLgTt0BdSTEE8tPJNwfaxLj5dQptM9ZNzP
+ HUCWsh4z2ISfopp0daX6tTOEMcl27Gz6Di3dFpRVnQ4YyHP4+zmtgn1gNtUs/ZsAzDpx
+ tbF7A5Re9YxHHm1D61mL95Rb/2jekst+z/D2Wg2SoFp5eX1NzndclR5VSWungazvFXDc
+ MIBOZOsGjNvlyK9EfnM8eDXWz+POGcUUu0Y7VXESdT57sXO/AFnGbEOlDh77WpN1FaC+ Tw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dp1hfsjgs-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3dp1h8aqr4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 Jan 2022 18:05:40 +0000
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20II5eAd004347;
-        Tue, 18 Jan 2022 18:05:40 GMT
-Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dp1hfsjg0-1
+        Tue, 18 Jan 2022 18:37:21 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20IIPOwL008721;
+        Tue, 18 Jan 2022 18:37:20 GMT
+Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3dp1h8aqqn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 Jan 2022 18:05:40 +0000
-Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
-        by ppma05wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20II1vkl014261;
-        Tue, 18 Jan 2022 18:05:38 GMT
-Received: from b03cxnp07027.gho.boulder.ibm.com (b03cxnp07027.gho.boulder.ibm.com [9.17.130.14])
-        by ppma05wdc.us.ibm.com with ESMTP id 3dknwaq3eh-1
+        Tue, 18 Jan 2022 18:37:20 +0000
+Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
+        by ppma04wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20IIHn1o030733;
+        Tue, 18 Jan 2022 18:37:20 GMT
+Received: from b03cxnp08027.gho.boulder.ibm.com (b03cxnp08027.gho.boulder.ibm.com [9.17.130.19])
+        by ppma04wdc.us.ibm.com with ESMTP id 3dknwaqnqf-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 Jan 2022 18:05:38 +0000
+        Tue, 18 Jan 2022 18:37:19 +0000
 Received: from b03ledav001.gho.boulder.ibm.com (b03ledav001.gho.boulder.ibm.com [9.17.130.232])
-        by b03cxnp07027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20II5aFr34078978
+        by b03cxnp08027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20IIbI2w17957168
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 18 Jan 2022 18:05:36 GMT
+        Tue, 18 Jan 2022 18:37:18 GMT
 Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5C11C6E052;
-        Tue, 18 Jan 2022 18:05:36 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id CEC256E05B;
+        Tue, 18 Jan 2022 18:37:18 +0000 (GMT)
 Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 66F7A6E05F;
-        Tue, 18 Jan 2022 18:05:34 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id C8E1F6E072;
+        Tue, 18 Jan 2022 18:37:16 +0000 (GMT)
 Received: from [9.163.19.30] (unknown [9.163.19.30])
         by b03ledav001.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Tue, 18 Jan 2022 18:05:34 +0000 (GMT)
-Message-ID: <2b624b9b-3cc3-23cd-d53f-385332ae6a0e@linux.ibm.com>
-Date:   Tue, 18 Jan 2022 13:05:33 -0500
+        Tue, 18 Jan 2022 18:37:16 +0000 (GMT)
+Message-ID: <104bb7a4-68e7-adb1-91f4-d6fce09b99e7@linux.ibm.com>
+Date:   Tue, 18 Jan 2022 13:37:16 -0500
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.4.0
-Subject: Re: [PATCH v2 23/30] vfio/pci: re-introduce CONFIG_VFIO_PCI_ZDEV
+Subject: Re: [PATCH v2 24/30] vfio-pci/zdev: wire up group notifier
 Content-Language: en-US
 To:     Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org
 Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
@@ -72,113 +72,119 @@ Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
         thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
         linux-kernel@vger.kernel.org
 References: <20220114203145.242984-1-mjrosato@linux.ibm.com>
- <20220114203145.242984-24-mjrosato@linux.ibm.com>
- <1ea61cf3-65b2-87ec-55b4-7dfa5f623d15@linux.ibm.com>
- <e1cd6368-bb1a-1a4d-df83-8190524b9a4d@linux.ibm.com>
- <4cde7eee-72ef-6bec-bb19-606ca57302dd@linux.ibm.com>
+ <20220114203145.242984-25-mjrosato@linux.ibm.com>
+ <0af94334-27ac-7e05-86ea-465857e9dadd@linux.ibm.com>
 From:   Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <4cde7eee-72ef-6bec-bb19-606ca57302dd@linux.ibm.com>
+In-Reply-To: <0af94334-27ac-7e05-86ea-465857e9dadd@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: -xnS3U12NbZCRBlClX7mf8S5XnZOptRb
-X-Proofpoint-ORIG-GUID: NWtrTaeC_H6_LdyNZxD6Dbc2UrhQRqdQ
+X-Proofpoint-ORIG-GUID: XNtEfXUqbmnCOA7Lp2BBSa6vf4wGX7Cs
+X-Proofpoint-GUID: 075JrzAsHVnxKO0CpKjmRzrbnF9Ri7Y5
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2022-01-18_05,2022-01-18_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
- malwarescore=0 priorityscore=1501 clxscore=1015 mlxlogscore=999
- spamscore=0 lowpriorityscore=0 adultscore=0 bulkscore=0 impostorscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2201180109
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
+ lowpriorityscore=0 clxscore=1015 suspectscore=0 bulkscore=0
+ mlxlogscore=999 priorityscore=1501 impostorscore=0 adultscore=0
+ phishscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2201180112
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 1/18/22 12:45 PM, Pierre Morel wrote:
+On 1/18/22 12:34 PM, Pierre Morel wrote:
 > 
 > 
-> On 1/18/22 18:32, Matthew Rosato wrote:
->> On 1/18/22 12:20 PM, Pierre Morel wrote:
->>>
->>>
->>> On 1/14/22 21:31, Matthew Rosato wrote:
->>>> This was previously removed as unnecessary; while that was true, 
->>>> subsequent
->>>> changes will make KVM an additional required component for 
->>>> vfio-pci-zdev.
->>>> Let's re-introduce CONFIG_VFIO_PCI_ZDEV as now there is actually a 
->>>> reason
->>>> to say 'n' for it (when not planning to CONFIG_KVM).
->>>>
->>>> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
->>>> ---
->>>>   drivers/vfio/pci/Kconfig      | 11 +++++++++++
->>>>   drivers/vfio/pci/Makefile     |  2 +-
->>>>   include/linux/vfio_pci_core.h |  2 +-
->>>>   3 files changed, 13 insertions(+), 2 deletions(-)
->>>>
->>>> diff --git a/drivers/vfio/pci/Kconfig b/drivers/vfio/pci/Kconfig
->>>> index 860424ccda1b..fedd1d4cb592 100644
->>>> --- a/drivers/vfio/pci/Kconfig
->>>> +++ b/drivers/vfio/pci/Kconfig
->>>> @@ -42,5 +42,16 @@ config VFIO_PCI_IGD
->>>>         and LPC bridge config space.
->>>>         To enable Intel IGD assignment through vfio-pci, say Y.
->>>> +
->>>> +config VFIO_PCI_ZDEV
->>>> +    bool "VFIO PCI extensions for s390x KVM passthrough"
->>>> +    depends on S390 && KVM
->>>> +    default y
->>>> +    help
->>>> +      Support s390x-specific extensions to enable support for 
->>>> enhancements
->>>> +      to KVM passthrough capabilities, such as interpretive 
->>>> execution of
->>>> +      zPCI instructions.
->>>> +
->>>> +      To enable s390x KVM vfio-pci extensions, say Y.
->>>
->>> In several patches we check on CONFIG_PCI (14,15,16,17 and 22) but we 
->>> may have PCI without VFIO_PCI, wouldn't it be a problem?
->>>
->>> Here we define a new CONFIG entry and I have two questions:
->>>
->>> 1- there is no dependency on VFIO_PCI while the functionality is 
->>> obviously based on VFIO_PCI
+> On 1/14/22 21:31, Matthew Rosato wrote:
+>> KVM zPCI passthrough device logic will need a reference to the associated
+>> kvm guest that has access to the device.  Let's register a group notifier
+>> for VFIO_GROUP_NOTIFY_SET_KVM to catch this information in order to 
+>> create
+>> an association between a kvm guest and the host zdev.
 >>
->> It's not obvious from this diff, but this 'config VFIO_PCI_ZDEV' 
->> statement is within an 'if VFIO_PCI' statement, just like VFIO_PCI_IGD 
->> above -- so the dependency is there.
-> 
-> sorry, I remember now you already answered this to Christian last time.
-> 
+>> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+>> ---
+>>   arch/s390/include/asm/kvm_pci.h  |  2 ++
+>>   drivers/vfio/pci/vfio_pci_core.c |  2 ++
+>>   drivers/vfio/pci/vfio_pci_zdev.c | 46 ++++++++++++++++++++++++++++++++
+>>   include/linux/vfio_pci_core.h    | 10 +++++++
+>>   4 files changed, 60 insertions(+)
 >>
->>>
->>> 2- Wouldn't it be possible to use this item and the single condition 
->>> for the different checks we need through the new VFIO interpretation 
->>> functionality.
->>
->> Possibly, but 1) we'd have to make linking arch/s390/kvm/pci.o 
->> dependent on CONFIG_VFIO_PCI instead of CONFIG_PCI in patch 14 and 2) 
->> if the relationship between CONFIG_VFIO_PCI and CONFIG_PCI were to 
->> ever change (though I don't see why it would..), we would be broken 
->> because the symbols we are referencing really require CONFIG_PCI (as 
->> they are located in s390 PCI).
->>
+>> diff --git a/arch/s390/include/asm/kvm_pci.h 
+>> b/arch/s390/include/asm/kvm_pci.h
+>> index fa90729a35cf..97a90b37c87d 100644
+>> --- a/arch/s390/include/asm/kvm_pci.h
+>> +++ b/arch/s390/include/asm/kvm_pci.h
+>> @@ -17,6 +17,7 @@
+>>   #include <linux/kvm.h>
+>>   #include <linux/pci.h>
+>>   #include <linux/mutex.h>
+>> +#include <linux/notifier.h>
+>>   #include <asm/pci_insn.h>
+>>   #include <asm/pci_dma.h>
+>> @@ -33,6 +34,7 @@ struct kvm_zdev {
+>>       u64 rpcit_count;
+>>       struct kvm_zdev_ioat ioat;
+>>       struct zpci_fib fib;
+>> +    struct notifier_block nb;
+>>   };
+>>   int kvm_s390_pci_dev_open(struct zpci_dev *zdev);
+>> diff --git a/drivers/vfio/pci/vfio_pci_core.c 
+>> b/drivers/vfio/pci/vfio_pci_core.c
+>> index f948e6cd2993..fc57d4d0abbe 100644
+>> --- a/drivers/vfio/pci/vfio_pci_core.c
+>> +++ b/drivers/vfio/pci/vfio_pci_core.c
+>> @@ -452,6 +452,7 @@ void vfio_pci_core_close_device(struct vfio_device 
+>> *core_vdev)
+>>       vfio_pci_vf_token_user_add(vdev, -1);
+>>       vfio_spapr_pci_eeh_release(vdev->pdev);
+>> +    vfio_pci_zdev_release(vdev);
+>>       vfio_pci_core_disable(vdev);
+>>       mutex_lock(&vdev->igate);
+>> @@ -470,6 +471,7 @@ EXPORT_SYMBOL_GPL(vfio_pci_core_close_device);
+>>   void vfio_pci_core_finish_enable(struct vfio_pci_core_device *vdev)
+>>   {
+>>       vfio_pci_probe_mmaps(vdev);
+>> +    vfio_pci_zdev_open(vdev);
+>>       vfio_spapr_pci_eeh_open(vdev->pdev);
+>>       vfio_pci_vf_token_user_add(vdev, 1);
+>>   }
+>> diff --git a/drivers/vfio/pci/vfio_pci_zdev.c 
+>> b/drivers/vfio/pci/vfio_pci_zdev.c
+>> index ea4c0d2b0663..5c2bddc57b39 100644
+>> --- a/drivers/vfio/pci/vfio_pci_zdev.c
+>> +++ b/drivers/vfio/pci/vfio_pci_zdev.c
+>> @@ -13,6 +13,7 @@
+>>   #include <linux/vfio_zdev.h>
+>>   #include <asm/pci_clp.h>
+>>   #include <asm/pci_io.h>
+>> +#include <asm/kvm_pci.h>
+>>   #include <linux/vfio_pci_core.h>
+>> @@ -136,3 +137,48 @@ int vfio_pci_info_zdev_add_caps(struct 
+>> vfio_pci_core_device *vdev,
+>>       return ret;
+>>   }
+>> +
+>> +static int vfio_pci_zdev_group_notifier(struct notifier_block *nb,
+>> +                    unsigned long action, void *data)
+>> +{
+>> +    struct kvm_zdev *kzdev = container_of(nb, struct kvm_zdev, nb);
+>> +
+>> +    if (action == VFIO_GROUP_NOTIFY_SET_KVM) {
+>> +        if (!data || !kzdev->zdev)
+>> +            return NOTIFY_DONE;
+>> +        kvm_s390_pci_attach_kvm(kzdev->zdev, data);
 > 
-> Yes but VFIO_PCI_ZDEV depends on KVM, PCI and on VFIO_PCI
-> Wouldn't a single config item for this new code be easier to manage and 
-> understand?
+> Why not just set kzdev->kvm = data ?
 > 
+> alternatively, define kvm_s390_pci_attach_kvm() as an inline instead of 
+> a global function.
+> 
+> otherwise LGTM
 
-I guess my primary resistance is to abstracting/hiding the dependency. 
-Yes, userspace will never setup for zPCI interpretation without 
-CONFIG_VFIO_PCI{_ZDEV}, but that's not where the compilation dependency 
-is -- it's on CONFIG_PCI specifically.
+At some point in the past this function did more than just set a 
+pointer...  You are correct there's no need for this abstraction now, 
+let's just set kzdev->kvm = data directly here and drop the 
+kvm_s390_pci_attach_kvm function.
 
-But I guess on the other hand you could argue why even bother building 
-pci.o into kvm without CONFIG_VFIO_PCI_ZDEV as it will never be used.
-
-OK, I will have a look at making this change.  It will require a little 
-reorganization, at least moving this patch up before patch 14.
