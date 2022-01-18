@@ -2,32 +2,32 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C9928C43217
-	for <linux-s390@archiver.kernel.org>; Tue, 18 Jan 2022 02:26:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8375C433FE
+	for <linux-s390@archiver.kernel.org>; Tue, 18 Jan 2022 02:54:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245300AbiARC0p (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 17 Jan 2022 21:26:45 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:38730 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245576AbiARCYm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 17 Jan 2022 21:24:42 -0500
+        id S239456AbiARCyJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 17 Jan 2022 21:54:09 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:52892 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240459AbiARCfx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 17 Jan 2022 21:35:53 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EC5C6B81236;
-        Tue, 18 Jan 2022 02:24:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25722C36AF2;
-        Tue, 18 Jan 2022 02:24:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 78B87612E3;
+        Tue, 18 Jan 2022 02:35:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BEF5C341DB;
+        Tue, 18 Jan 2022 02:35:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642472679;
-        bh=WB5Fr75X8G4jw0/y8XuyPCD1/8boh+YgNcljnWxG620=;
+        s=k20201202; t=1642473351;
+        bh=ckflUerAfLhOFK4VpMPfLsx+zloNep3KUJDX17KtN8s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kqTo4oGylP80XBGENs2kr2FjwFdQ3xBd6o0dDHKSdb6Bem9pZwGI9VNHG387N/dC9
-         z45Q4x+o5chkCBWZodYFq48Vp8bMhUz9RDpcNH19t75nsvCxwgrmKlHnRPP69nnQri
-         795rqd4cQNaXS5hEkFJu29pvj2tGsCYhO450iqyv9Q0xss7YXyT9I6F7zd0L4ziDBw
-         1pbPsiLi53qRrkbs71QC3TxAwS+SVJTSOi0oSjEAGhIHghChEw0UMQrzqV9+sPcKMx
-         tH9Th6EFbnB4Txv9Pp4iGeaAGDPQOA1/sC2dKVtrXef7001+3lqCzk1BgwobouVzVv
-         X8GHlFHyMF9hg==
+        b=VCLkFDHx+REuNDYQUpTod/mi9mCD1sUlP1kZ9ZzsgV59XAL9mF0/zgkewfvtJdBOZ
+         jYh3ws+0nh4DS0+9+zqBk/6rh9czrOQBaNdGM7rKUZGalpgJn4+8MdBlX/Bsd01Mkk
+         iE1XRJqYeNJVkgj05w146zYC6Q0XzOAL8oSjEmjbtaxIuf+cgj5E5CsE8PGgqKYlxk
+         uccktA9eF7Qpc28O3+z+UuhjAiYwaLQequu8ZLyDohwUzgpafv2EZiyAHuKVJlrZ1K
+         Cex9CKTUmZ0p2DEUbjI1zI21vzvMcCUUOzcBH5W35Yt/mPSTWqLvzWyU+FoMswdP/x
+         ZGZgpypgkB2sA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Heiko Carstens <hca@linux.ibm.com>,
@@ -35,14 +35,14 @@ Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, gor@linux.ibm.com,
         borntraeger@linux.ibm.com, egorenar@linux.ibm.com,
         agordeev@linux.ibm.com, svens@linux.ibm.com, ebiederm@xmission.com,
-        rppt@kernel.org, valentin.schneider@arm.com, iii@linux.ibm.com,
+        valentin.schneider@arm.com, rppt@kernel.org, iii@linux.ibm.com,
         linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 095/217] s390/nmi: add missing __pa/__va address conversion of extended save area
-Date:   Mon, 17 Jan 2022 21:17:38 -0500
-Message-Id: <20220118021940.1942199-95-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 081/188] s390/nmi: add missing __pa/__va address conversion of extended save area
+Date:   Mon, 17 Jan 2022 21:30:05 -0500
+Message-Id: <20220118023152.1948105-81-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220118021940.1942199-1-sashal@kernel.org>
-References: <20220118021940.1942199-1-sashal@kernel.org>
+In-Reply-To: <20220118023152.1948105-1-sashal@kernel.org>
+References: <20220118023152.1948105-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -134,7 +134,7 @@ index 20f8e1868853f..3f18c1412eba3 100644
  		/* Validate floating point registers */
  		asm volatile(
 diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index 78a8ea6fd582a..2e280e812dfd1 100644
+index 1a04e5bdf6555..5c3d3d8f6b5d8 100644
 --- a/arch/s390/kernel/smp.c
 +++ b/arch/s390/kernel/smp.c
 @@ -622,7 +622,7 @@ int smp_store_status(int cpu)
