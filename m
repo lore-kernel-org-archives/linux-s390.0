@@ -2,295 +2,240 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C18C9C433FE
-	for <linux-s390@archiver.kernel.org>; Tue, 18 Jan 2022 09:52:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E58BBC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 18 Jan 2022 09:52:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234348AbiARJwb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 18 Jan 2022 04:52:31 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:12844 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234265AbiARJw0 (ORCPT
+        id S234542AbiARJwi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 18 Jan 2022 04:52:38 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:14594 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234287AbiARJw3 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 18 Jan 2022 04:52:26 -0500
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20I8b8b3031631;
-        Tue, 18 Jan 2022 09:52:26 GMT
+        Tue, 18 Jan 2022 04:52:29 -0500
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20I8k6LZ004175;
+        Tue, 18 Jan 2022 09:52:29 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=iLPfG/0ey//iHt3OUUFh9h4nxNifafMbGm4x1cO3F84=;
- b=LVTTiIYKSZTvawujEMc33aVoD/Nn7h/ifxcqjsfKM/qIR2rzZKe2VXTOWXif5SPfP8JJ
- E03pRcikgoMvakHusAWFX3hvPDwE73DUV4s5mu+7LDBa2jeqlb5vI+jRpaej2AszhN6J
- VNQqLID18MN3HcUen7TLZgWV/g3XtT7PBA510mqZ1e/nIOnxWAzgpkvEajWq0FQSF+B6
- i8K/8X9Yl5BXR6lAbLfdAWW/ZK0quDTt0wDZ+NFhfdjXEfEVOMMF2cgpKDu8pFJPjxxU
- cLVW8VS5TZvHFrnJdhOCu2YBOgD+t8khysjoe6egTxaiRkrCFC2LbVIaxFekpJNwoBQy iw== 
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dnq02e6ws-1
+ bh=5jnnRocybQwud1+JWWBzraM1tg2NmecDq0ayPT6xZ2M=;
+ b=ozoyZJpjIo01IYfMYjF10D/8Y0dzDv5HJPiyHEk1kjrsUZ9fCqE5tRgg/tGl7lryk9g0
+ 3Jj2xSU+D2z6tbs+fj+hTFd5oQWsxzYInce5nyRbdFoIlMd4VnsIVOplDTX0fafuQ3xF
+ JWzkyX9mEsG6eony6VuZNkynHPknfX6Xwf2dcKALlQBfPU5pUe7XKIMX92CW81isRZK6
+ wgsTirSun3uzcMQ4uk4woy2SZe8mgKFEXG3+FgW1hK2KQ2deYaSy951uuqzU6a1VQCgT
+ d3xS0I0FhUgG+8eEfJa2DrzSOsfVVGDdgJylMlLZoFvTxd1E2KoTcjT/rimkp1JEogAV Rw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dnqdwdmjd-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 Jan 2022 09:52:25 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20I9lESY028621;
-        Tue, 18 Jan 2022 09:52:23 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma05fra.de.ibm.com with ESMTP id 3dnm6r2hnc-1
+        Tue, 18 Jan 2022 09:52:28 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20I8oCQX017409;
+        Tue, 18 Jan 2022 09:52:28 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dnqdwdmht-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 Jan 2022 09:52:23 +0000
+        Tue, 18 Jan 2022 09:52:28 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20I9lMm3000745;
+        Tue, 18 Jan 2022 09:52:26 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma06fra.de.ibm.com with ESMTP id 3dknhj1k7x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 18 Jan 2022 09:52:26 +0000
 Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20I9qHMm38797640
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20I9qLtN38928828
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 18 Jan 2022 09:52:17 GMT
+        Tue, 18 Jan 2022 09:52:21 GMT
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A54F1A4051;
-        Tue, 18 Jan 2022 09:52:17 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 75379A405F;
+        Tue, 18 Jan 2022 09:52:21 +0000 (GMT)
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 59778A4057;
-        Tue, 18 Jan 2022 09:52:17 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 1D6B4A4059;
+        Tue, 18 Jan 2022 09:52:21 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 18 Jan 2022 09:52:17 +0000 (GMT)
+        Tue, 18 Jan 2022 09:52:21 +0000 (GMT)
 From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-To:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Nico Boehr <nrb@linux.ibm.com>
-Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [RFC PATCH v1 01/10] s390/uaccess: Add storage key checked access to user memory
-Date:   Tue, 18 Jan 2022 10:52:01 +0100
-Message-Id: <20220118095210.1651483-2-scgl@linux.ibm.com>
+To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [RFC PATCH v1 03/10] KVM: s390: handle_tprot: Honor storage keys
+Date:   Tue, 18 Jan 2022 10:52:03 +0100
+Message-Id: <20220118095210.1651483-4-scgl@linux.ibm.com>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20220118095210.1651483-1-scgl@linux.ibm.com>
 References: <20220118095210.1651483-1-scgl@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: kZilrPbufwDMeJE1GP6RQyuRpsn-JDwo
-X-Proofpoint-GUID: kZilrPbufwDMeJE1GP6RQyuRpsn-JDwo
+X-Proofpoint-ORIG-GUID: 4MtchkQpCUZ3ba72f4NUoEmpUiendRfU
+X-Proofpoint-GUID: s0JHzV2DFWGrk5HROngH64EfyC-7GDgI
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2022-01-18_02,2022-01-14_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 lowpriorityscore=0
- adultscore=0 suspectscore=0 bulkscore=0 clxscore=1015 impostorscore=0
- priorityscore=1501 spamscore=0 malwarescore=0 phishscore=0 mlxlogscore=999
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
- definitions=main-2201180057
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 clxscore=1015
+ priorityscore=1501 lowpriorityscore=0 impostorscore=0 phishscore=0
+ adultscore=0 bulkscore=0 spamscore=0 mlxlogscore=999 suspectscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2201180057
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-KVM needs a mechanism to do accesses to guest memory that honor
-storage key protection.
-Since the copy_to/from_user implementation makes use of move
-instructions that support having an additional access key supplied,
-we can implement __copy_from/to_user_with_key by enhancing the
-existing implementation.
+Use the access key operand to check for key protection when
+translating guest addresses.
+Since the translation code checks for accessing exceptions/error hvas,
+we can remove the check here and simplify the control flow.
+Keep checking if the memory is read-only even if such memslots are
+currently not supported.
+
+handle_tprot was the last user of guest_translate_address,
+so remove it.
 
 Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 ---
- arch/s390/include/asm/uaccess.h | 32 ++++++++++++++++++
- arch/s390/lib/uaccess.c         | 57 +++++++++++++++++++++++----------
- 2 files changed, 72 insertions(+), 17 deletions(-)
+ arch/s390/kvm/gaccess.c |  9 ------
+ arch/s390/kvm/gaccess.h |  3 --
+ arch/s390/kvm/priv.c    | 66 ++++++++++++++++++++++-------------------
+ 3 files changed, 35 insertions(+), 43 deletions(-)
 
-diff --git a/arch/s390/include/asm/uaccess.h b/arch/s390/include/asm/uaccess.h
-index 02b467461163..5138040348cc 100644
---- a/arch/s390/include/asm/uaccess.h
-+++ b/arch/s390/include/asm/uaccess.h
-@@ -33,6 +33,38 @@ static inline int __range_ok(unsigned long addr, unsigned long size)
+diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+index 92ab96d55504..efe33cda38b6 100644
+--- a/arch/s390/kvm/gaccess.c
++++ b/arch/s390/kvm/gaccess.c
+@@ -1104,15 +1104,6 @@ int guest_translate_address_with_key(struct kvm_vcpu *vcpu, unsigned long gva, u
+ 				 access_key);
+ }
  
- #define access_ok(addr, size) __access_ok(addr, size)
+-int guest_translate_address(struct kvm_vcpu *vcpu, unsigned long gva, u8 ar,
+-			    unsigned long *gpa, enum gacc_mode mode)
+-{
+-	char access_key = psw_bits(vcpu->arch.sie_block->gpsw).key;
+-
+-	return guest_translate_address_with_key(vcpu, gva, ar, gpa, mode,
+-						access_key);
+-}
+-
+ /**
+  * check_gva_range - test a range of guest virtual addresses for accessibility
+  * @vcpu: virtual cpu
+diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
+index 3df432702cd6..0d4416178bb6 100644
+--- a/arch/s390/kvm/gaccess.h
++++ b/arch/s390/kvm/gaccess.h
+@@ -190,9 +190,6 @@ int guest_translate_address_with_key(struct kvm_vcpu *vcpu, unsigned long gva, u
+ 				     unsigned long *gpa, enum gacc_mode mode,
+ 				     char access_key);
  
-+unsigned long __must_check
-+raw_copy_from_user_with_key(void *to, const void __user *from, unsigned long n,
-+			    char key);
+-int guest_translate_address(struct kvm_vcpu *vcpu, unsigned long gva,
+-			    u8 ar, unsigned long *gpa, enum gacc_mode mode);
+-
+ int check_gva_range(struct kvm_vcpu *vcpu, unsigned long gva, u8 ar,
+ 		    unsigned long length, enum gacc_mode mode,
+ 		    char access_key);
+diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+index 417154b314a6..7c68f893545c 100644
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -1443,10 +1443,11 @@ int kvm_s390_handle_eb(struct kvm_vcpu *vcpu)
+ 
+ static int handle_tprot(struct kvm_vcpu *vcpu)
+ {
+-	u64 address1, address2;
+-	unsigned long hva, gpa;
+-	int ret = 0, cc = 0;
++	u64 address, operand2;
++	unsigned long gpa;
++	char access_key;
+ 	bool writable;
++	int ret, cc;
+ 	u8 ar;
+ 
+ 	vcpu->stat.instruction_tprot++;
+@@ -1454,43 +1455,46 @@ static int handle_tprot(struct kvm_vcpu *vcpu)
+ 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
+ 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+ 
+-	kvm_s390_get_base_disp_sse(vcpu, &address1, &address2, &ar, NULL);
++	kvm_s390_get_base_disp_sse(vcpu, &address, &operand2, &ar, NULL);
++	access_key = (operand2 & 0xf0) >> 4;
+ 
+-	/* we only handle the Linux memory detection case:
+-	 * access key == 0
+-	 * everything else goes to userspace. */
+-	if (address2 & 0xf0)
+-		return -EOPNOTSUPP;
+ 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_DAT)
+ 		ipte_lock(vcpu);
+-	ret = guest_translate_address(vcpu, address1, ar, &gpa, GACC_STORE);
+-	if (ret == PGM_PROTECTION) {
 +
-+unsigned long __must_check
-+raw_copy_to_user_with_key(void __user *to, const void *from, unsigned long n,
-+			  char key);
++	ret = guest_translate_address_with_key(vcpu, address, ar, &gpa,
++					       GACC_STORE, access_key);
++	if (ret == 0) {
++		gfn_to_hva_prot(vcpu->kvm, gpa_to_gfn(gpa), &writable);
++	} else if (ret == PGM_PROTECTION) {
++		writable = false;
+ 		/* Write protected? Try again with read-only... */
+-		cc = 1;
+-		ret = guest_translate_address(vcpu, address1, ar, &gpa,
+-					      GACC_FETCH);
++		ret = guest_translate_address_with_key(vcpu, address, ar, &gpa,
++						       GACC_FETCH, access_key);
+ 	}
+-	if (ret) {
+-		if (ret == PGM_ADDRESSING || ret == PGM_TRANSLATION_SPEC) {
+-			ret = kvm_s390_inject_program_int(vcpu, ret);
+-		} else if (ret > 0) {
+-			/* Translation not available */
+-			kvm_s390_set_psw_cc(vcpu, 3);
++	if (ret >= 0) {
++		cc = -1;
 +
-+static __always_inline __must_check unsigned long
-+__copy_from_user_with_key(void *to, const void __user *from, unsigned long n,
-+			  char key)
-+{
-+	might_fault();
-+	if (should_fail_usercopy())
-+		return n;
-+	instrument_copy_from_user(to, from, n);
-+	check_object_size(to, n, false);
-+	return raw_copy_from_user_with_key(to, from, n, key);
-+}
++		/* Fetching permitted; storing permitted */
++		if (ret == 0 && writable)
++			cc = 0;
++		/* Fetching permitted; storing not permitted */
++		else if (ret == 0 && !writable)
++			cc = 1;
++		/* Fetching not permitted; storing not permitted */
++		else if (ret == PGM_PROTECTION)
++			cc = 2;
++		/* Translation not available */
++		else if (ret != PGM_ADDRESSING && ret != PGM_TRANSLATION_SPEC)
++			cc = 3;
 +
-+static __always_inline __must_check unsigned long
-+__copy_to_user_with_key(void __user *to, const void *from, unsigned long n,
-+			char key)
-+{
-+	might_fault();
-+	if (should_fail_usercopy())
-+		return n;
-+	instrument_copy_to_user(to, from, n);
-+	check_object_size(from, n, true);
-+	return raw_copy_to_user_with_key(to, from, n, key);
-+}
-+
- unsigned long __must_check
- raw_copy_from_user(void *to, const void __user *from, unsigned long n);
++		if (cc != -1) {
++			kvm_s390_set_psw_cc(vcpu, cc);
+ 			ret = 0;
++		} else {
++			ret = kvm_s390_inject_program_int(vcpu, ret);
+ 		}
+-		goto out_unlock;
+ 	}
  
-diff --git a/arch/s390/lib/uaccess.c b/arch/s390/lib/uaccess.c
-index d3a700385875..ce7a150dd93a 100644
---- a/arch/s390/lib/uaccess.c
-+++ b/arch/s390/lib/uaccess.c
-@@ -59,11 +59,13 @@ static inline int copy_with_mvcos(void)
- #endif
- 
- static inline unsigned long copy_from_user_mvcos(void *x, const void __user *ptr,
--						 unsigned long size)
-+						 unsigned long size, char key)
- {
- 	unsigned long tmp1, tmp2;
- 	union oac spec = {
-+		.oac2.key = key,
- 		.oac2.as = PSW_BITS_AS_SECONDARY,
-+		.oac2.k = 1,
- 		.oac2.a = 1,
- 	};
- 
-@@ -94,19 +96,19 @@ static inline unsigned long copy_from_user_mvcos(void *x, const void __user *ptr
- }
- 
- static inline unsigned long copy_from_user_mvcp(void *x, const void __user *ptr,
--						unsigned long size)
-+						unsigned long size, char key)
- {
- 	unsigned long tmp1, tmp2;
- 
- 	tmp1 = -256UL;
- 	asm volatile(
- 		"   sacf  0\n"
--		"0: mvcp  0(%0,%2),0(%1),%3\n"
-+		"0: mvcp  0(%0,%2),0(%1),%[key]\n"
- 		"7: jz    5f\n"
- 		"1: algr  %0,%3\n"
- 		"   la    %1,256(%1)\n"
- 		"   la    %2,256(%2)\n"
--		"2: mvcp  0(%0,%2),0(%1),%3\n"
-+		"2: mvcp  0(%0,%2),0(%1),%[key]\n"
- 		"8: jnz   1b\n"
- 		"   j     5f\n"
- 		"3: la    %4,255(%1)\n"	/* %4 = ptr + 255 */
-@@ -115,7 +117,7 @@ static inline unsigned long copy_from_user_mvcp(void *x, const void __user *ptr,
- 		"   slgr  %4,%1\n"
- 		"   clgr  %0,%4\n"	/* copy crosses next page boundary? */
- 		"   jnh   6f\n"
--		"4: mvcp  0(%4,%2),0(%1),%3\n"
-+		"4: mvcp  0(%4,%2),0(%1),%[key]\n"
- 		"9: slgr  %0,%4\n"
- 		"   j     6f\n"
- 		"5: slgr  %0,%0\n"
-@@ -123,24 +125,36 @@ static inline unsigned long copy_from_user_mvcp(void *x, const void __user *ptr,
- 		EX_TABLE(0b,3b) EX_TABLE(2b,3b) EX_TABLE(4b,6b)
- 		EX_TABLE(7b,3b) EX_TABLE(8b,3b) EX_TABLE(9b,6b)
- 		: "+a" (size), "+a" (ptr), "+a" (x), "+a" (tmp1), "=a" (tmp2)
--		: : "cc", "memory");
-+		: [key] "d" (key << 4)
-+		: "cc", "memory");
- 	return size;
- }
- 
- unsigned long raw_copy_from_user(void *to, const void __user *from, unsigned long n)
- {
- 	if (copy_with_mvcos())
--		return copy_from_user_mvcos(to, from, n);
--	return copy_from_user_mvcp(to, from, n);
-+		return copy_from_user_mvcos(to, from, n, 0);
-+	return copy_from_user_mvcp(to, from, n, 0);
- }
- EXPORT_SYMBOL(raw_copy_from_user);
- 
--static inline unsigned long copy_to_user_mvcos(void __user *ptr, const void *x,
--					       unsigned long size)
-+unsigned long raw_copy_from_user_with_key(void *to, const void __user *from,
-+					  unsigned long n, char key)
-+{
-+	if (copy_with_mvcos())
-+		return copy_from_user_mvcos(to, from, n, key);
-+	return copy_from_user_mvcp(to, from, n, key);
-+}
-+EXPORT_SYMBOL(raw_copy_from_user_with_key);
-+
-+inline unsigned long copy_to_user_mvcos(void __user *ptr, const void *x,
-+					unsigned long size, char key)
- {
- 	unsigned long tmp1, tmp2;
- 	union oac spec = {
-+		.oac1.key = key,
- 		.oac1.as = PSW_BITS_AS_SECONDARY,
-+		.oac1.k = 1,
- 		.oac1.a = 1,
- 	};
- 
-@@ -171,19 +185,19 @@ static inline unsigned long copy_to_user_mvcos(void __user *ptr, const void *x,
- }
- 
- static inline unsigned long copy_to_user_mvcs(void __user *ptr, const void *x,
--					      unsigned long size)
-+					      unsigned long size, char key)
- {
- 	unsigned long tmp1, tmp2;
- 
- 	tmp1 = -256UL;
- 	asm volatile(
- 		"   sacf  0\n"
--		"0: mvcs  0(%0,%1),0(%2),%3\n"
-+		"0: mvcs  0(%0,%1),0(%2),%[key]\n"
- 		"7: jz    5f\n"
- 		"1: algr  %0,%3\n"
- 		"   la    %1,256(%1)\n"
- 		"   la    %2,256(%2)\n"
--		"2: mvcs  0(%0,%1),0(%2),%3\n"
-+		"2: mvcs  0(%0,%1),0(%2),%[key]\n"
- 		"8: jnz   1b\n"
- 		"   j     5f\n"
- 		"3: la    %4,255(%1)\n" /* %4 = ptr + 255 */
-@@ -192,7 +206,7 @@ static inline unsigned long copy_to_user_mvcs(void __user *ptr, const void *x,
- 		"   slgr  %4,%1\n"
- 		"   clgr  %0,%4\n"	/* copy crosses next page boundary? */
- 		"   jnh   6f\n"
--		"4: mvcs  0(%4,%1),0(%2),%3\n"
-+		"4: mvcs  0(%4,%1),0(%2),%[key]\n"
- 		"9: slgr  %0,%4\n"
- 		"   j     6f\n"
- 		"5: slgr  %0,%0\n"
-@@ -200,17 +214,26 @@ static inline unsigned long copy_to_user_mvcs(void __user *ptr, const void *x,
- 		EX_TABLE(0b,3b) EX_TABLE(2b,3b) EX_TABLE(4b,6b)
- 		EX_TABLE(7b,3b) EX_TABLE(8b,3b) EX_TABLE(9b,6b)
- 		: "+a" (size), "+a" (ptr), "+a" (x), "+a" (tmp1), "=a" (tmp2)
--		: : "cc", "memory");
-+		: [key] "d" (key << 4)
-+		: "cc", "memory");
- 	return size;
- }
- 
- unsigned long raw_copy_to_user(void __user *to, const void *from, unsigned long n)
- {
- 	if (copy_with_mvcos())
--		return copy_to_user_mvcos(to, from, n);
--	return copy_to_user_mvcs(to, from, n);
-+		return copy_to_user_mvcos(to, from, n, 0);
-+	return copy_to_user_mvcs(to, from, n, 0);
- }
- EXPORT_SYMBOL(raw_copy_to_user);
-+unsigned long raw_copy_to_user_with_key(void __user *to, const void *from,
-+					unsigned long n, char key)
-+{
-+	if (copy_with_mvcos())
-+		return copy_to_user_mvcos(to, from, n, key);
-+	return copy_to_user_mvcs(to, from, n, key);
-+}
-+EXPORT_SYMBOL(raw_copy_to_user_with_key);
- 
- static inline unsigned long clear_user_mvcos(void __user *to, unsigned long size)
- {
+-	hva = gfn_to_hva_prot(vcpu->kvm, gpa_to_gfn(gpa), &writable);
+-	if (kvm_is_error_hva(hva)) {
+-		ret = kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
+-	} else {
+-		if (!writable)
+-			cc = 1;		/* Write not permitted ==> read-only */
+-		kvm_s390_set_psw_cc(vcpu, cc);
+-		/* Note: CC2 only occurs for storage keys (not supported yet) */
+-	}
+-out_unlock:
+ 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_DAT)
+ 		ipte_unlock(vcpu);
+ 	return ret;
 -- 
 2.32.0
 
