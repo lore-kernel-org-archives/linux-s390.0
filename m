@@ -2,247 +2,102 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D294C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 18 Jan 2022 06:49:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 66837C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 18 Jan 2022 07:51:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243744AbiARGtr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 18 Jan 2022 01:49:47 -0500
-Received: from mga07.intel.com ([134.134.136.100]:32573 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243775AbiARGtq (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 18 Jan 2022 01:49:46 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1642488586; x=1674024586;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=osuXG+anjBv2tJZWB6/GHb9x1pC7y9dn5ivYyboeLSo=;
-  b=OQPv49FnWbTk/L02sc2r1vsmVmqJ1ApP7tPv4wlrCfRwimimQ3A9GikJ
-   JBgtsGBrQAx6HPSZdmcSav3EwHTKkFSDklXWebR3oVwXgSDBNDeUEqwJ1
-   gHPIvQWA7AF7mpip7Du480bjly3dLm93RTSzEIIfab4UMnbtfvK+hDSu6
-   W5SnkoCKmVlv8dj0ffaPu8RTwciDTNhk6LGU/mDXZe1vA1sY6ol2dyhba
-   U/9lNamHg96jJpbxgmBf4WXVXNjssud+fW9fqzv9Ybi4qUSX53jSNEHkk
-   T3/n+ycq7Q1eGIfMzH36m7RvPEv2Mi7ZyPdTcBzYmTh1+h13ZUt84nuRf
-   Q==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10230"; a="308090438"
-X-IronPort-AV: E=Sophos;i="5.88,296,1635231600"; 
-   d="scan'208";a="308090438"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Jan 2022 22:49:46 -0800
-X-IronPort-AV: E=Sophos;i="5.88,296,1635231600"; 
-   d="scan'208";a="531648627"
-Received: from hyperv-sh4.sh.intel.com ([10.239.48.22])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Jan 2022 22:49:35 -0800
-From:   Chao Gao <chao.gao@intel.com>
-To:     kvm@vger.kernel.org, seanjc@google.com, pbonzini@redhat.com,
-        kevin.tian@intel.com, tglx@linutronix.de
-Cc:     Chao Gao <chao.gao@intel.com>, Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Anup Patel <anup@brainfault.org>,
-        Atish Patra <atishp@atishpatra.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Wanpeng Li <wanpengli@tencent.com>,
-        Jim Mattson <jmattson@google.com>,
-        Joerg Roedel <joro@8bytes.org>, Ingo Molnar <mingo@redhat.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "Maciej S. Szmigiero" <maciej.szmigiero@oracle.com>,
-        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
-        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Bharata B Rao <bharata@linux.ibm.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Fabiano Rosas <farosas@linux.ibm.com>,
-        linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu,
-        linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, kvm-riscv@lists.infradead.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org
-Subject: [PATCH v2 2/4] Partially revert "KVM: Pass kvm_init()'s opaque param to additional arch funcs"
-Date:   Tue, 18 Jan 2022 14:44:25 +0800
-Message-Id: <20220118064430.3882337-3-chao.gao@intel.com>
+        id S245575AbiARHvX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 18 Jan 2022 02:51:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49108 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234433AbiARHvX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 Jan 2022 02:51:23 -0500
+Received: from mail-qv1-xf2d.google.com (mail-qv1-xf2d.google.com [IPv6:2607:f8b0:4864:20::f2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4342EC061574;
+        Mon, 17 Jan 2022 23:51:23 -0800 (PST)
+Received: by mail-qv1-xf2d.google.com with SMTP id u26so8034382qva.7;
+        Mon, 17 Jan 2022 23:51:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=UidKo7hCYa0j6KX7wCdHG3uu8L0hYfqcUNzoEu8+6d8=;
+        b=PXpfIjazQFVC3iIsZ+DLuV2bkEegja5jS44H78trfb+SkHr6N2teSrrK3UZOz6YQx6
+         DfVinYh7nlZw2ghwmmvXOWLNpNiRUiI2jCGt3OOkX4Ep/NY21BDw1b14VWwTS9Cv59eA
+         xYqSiWP8yBxYZXetl1Fq/khLPG/zgnVY7dJufxwF37Xbt/AP0Gsax1oahA055/GCf1t8
+         aNEeKAkGFy442Lgb2hwCUyKF+t2I+4b1ssWtJzKRlbiSVnfxiYrWsws8G0++yHkc7mFL
+         yT4bw2k1N2/8vkLZ/pzFxIMqIYzlWIZxHHNqPBse1TmH98F1k7ucXbZPZmLeArNDZTiY
+         xJbg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=UidKo7hCYa0j6KX7wCdHG3uu8L0hYfqcUNzoEu8+6d8=;
+        b=ejA1zriFqLdmGKeqaZLhTsZ+pljQqDsAeIvuce37kZ701qJ9/PZ5brNyoDnd5CFc6D
+         dElZrnAijyBq7HKSi0rD/sDmPvC4uf5tOo4wJOlwrdP0QzIQjxQ1D77tgSZajE+XFPe9
+         ig+qbU+RskCkXF+bCPeO9pmPIAHN+Aem9YkigYqljUgr2Sqe2zPz/sBHDps9JKBlgfzp
+         wlApJ9r/q3Ep/1eTVEX6G4g+9yIMvNYDlJuBU/NGGJ9tYwSmx0qIwlEO6S+UTbgLOn6X
+         /eCOvjQLq6h8pw7iL2Lvkg2/TB33Ytgz/9HL5rhkHyMgBtoi6LqxqOkZZYbuFVEbsWFK
+         n/BQ==
+X-Gm-Message-State: AOAM531X1ondZKk+I1Q4mNuTLD+YlYjRgdyvJG88mdXM0djYBY7uPa2m
+        gOEp6wSkYAWzg5Rcizxl0tU=
+X-Google-Smtp-Source: ABdhPJwbpL7a7Z9np1IShby3+vmuNZvC01FJjtGYp4iZhevM1OoiQqSFuYgz+SxLT+BTmPyiFWpgew==
+X-Received: by 2002:a05:6214:626:: with SMTP id a6mr21482019qvx.114.1642492282523;
+        Mon, 17 Jan 2022 23:51:22 -0800 (PST)
+Received: from localhost.localdomain ([193.203.214.57])
+        by smtp.gmail.com with ESMTPSA id c7sm10562605qtx.67.2022.01.17.23.51.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 17 Jan 2022 23:51:22 -0800 (PST)
+From:   cgel.zte@gmail.com
+X-Google-Original-From: chi.minghao@zte.com.cn
+To:     oleg@redhat.com
+Cc:     hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@linux.ibm.com,
+        agordeev@linux.ibm.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Minghao Chi <chi.minghao@zte.com.cn>,
+        Zeal Robot <zealci@zte.com.cn>, CGEL ZTE <cgel.zte@gmail.com>
+Subject: [PATCH] arch/s390/kernel: remove unneeded rc variable
+Date:   Tue, 18 Jan 2022 07:51:15 +0000
+Message-Id: <20220118075115.925468-1-chi.minghao@zte.com.cn>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220118064430.3882337-1-chao.gao@intel.com>
-References: <20220118064430.3882337-1-chao.gao@intel.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This partially reverts commit b99040853738 ("KVM: Pass kvm_init()'s opaque
-param to additional arch funcs") remove opaque from
-kvm_arch_check_processor_compat because no one uses this opaque now.
-Address conflicts for ARM (due to file movement) and manually handle RISC-V
-which comes after the commit.
+From: Minghao Chi <chi.minghao@zte.com.cn>
 
-And changes about kvm_arch_hardware_setup() in original commit are still
-needed so they are not reverted.
+Return value from user_regset_copyin() directly instead
+of taking this in another redundant variable.
 
-Signed-off-by: Chao Gao <chao.gao@intel.com>
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Minghao Chi <chi.minghao@zte.com.cn>
+Signed-off-by: CGEL ZTE <cgel.zte@gmail.com>
 ---
- arch/arm64/kvm/arm.c       |  2 +-
- arch/mips/kvm/mips.c       |  2 +-
- arch/powerpc/kvm/powerpc.c |  2 +-
- arch/riscv/kvm/main.c      |  2 +-
- arch/s390/kvm/kvm-s390.c   |  2 +-
- arch/x86/kvm/x86.c         |  2 +-
- include/linux/kvm_host.h   |  2 +-
- virt/kvm/kvm_main.c        | 16 +++-------------
- 8 files changed, 10 insertions(+), 20 deletions(-)
+ arch/s390/kernel/ptrace.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
-index 868109cf96b4..92ab3d5516ce 100644
---- a/arch/arm64/kvm/arm.c
-+++ b/arch/arm64/kvm/arm.c
-@@ -73,7 +73,7 @@ int kvm_arch_hardware_setup(void *opaque)
- 	return 0;
- }
- 
--int kvm_arch_check_processor_compat(void *opaque)
-+int kvm_arch_check_processor_compat(void)
+diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
+index 0ea3d02b378d..2ac936ae7b2b 100644
+--- a/arch/s390/kernel/ptrace.c
++++ b/arch/s390/kernel/ptrace.c
+@@ -1048,16 +1048,13 @@ static int s390_vxrs_high_set(struct task_struct *target,
+ 			      unsigned int pos, unsigned int count,
+ 			      const void *kbuf, const void __user *ubuf)
  {
- 	return 0;
- }
-diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
-index e59cb6246f76..c5dc4fe53bfc 100644
---- a/arch/mips/kvm/mips.c
-+++ b/arch/mips/kvm/mips.c
-@@ -140,7 +140,7 @@ int kvm_arch_hardware_setup(void *opaque)
- 	return 0;
- }
- 
--int kvm_arch_check_processor_compat(void *opaque)
-+int kvm_arch_check_processor_compat(void)
- {
- 	return 0;
- }
-diff --git a/arch/powerpc/kvm/powerpc.c b/arch/powerpc/kvm/powerpc.c
-index 2ad0ccd202d5..30c817f3fa0c 100644
---- a/arch/powerpc/kvm/powerpc.c
-+++ b/arch/powerpc/kvm/powerpc.c
-@@ -423,7 +423,7 @@ int kvm_arch_hardware_setup(void *opaque)
- 	return 0;
- }
- 
--int kvm_arch_check_processor_compat(void *opaque)
-+int kvm_arch_check_processor_compat(void)
- {
- 	return kvmppc_core_check_processor_compat();
- }
-diff --git a/arch/riscv/kvm/main.c b/arch/riscv/kvm/main.c
-index 2e5ca43c8c49..992877e78393 100644
---- a/arch/riscv/kvm/main.c
-+++ b/arch/riscv/kvm/main.c
-@@ -20,7 +20,7 @@ long kvm_arch_dev_ioctl(struct file *filp,
- 	return -EINVAL;
- }
- 
--int kvm_arch_check_processor_compat(void *opaque)
-+int kvm_arch_check_processor_compat(void)
- {
- 	return 0;
- }
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 9c6d45d0d345..99c70d881cb6 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -252,7 +252,7 @@ int kvm_arch_hardware_enable(void)
- 	return 0;
- }
- 
--int kvm_arch_check_processor_compat(void *opaque)
-+int kvm_arch_check_processor_compat(void)
- {
- 	return 0;
- }
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index f8bc1948a8b5..6f3bf78afb29 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -11470,7 +11470,7 @@ void kvm_arch_hardware_unsetup(void)
- 	static_call(kvm_x86_hardware_unsetup)();
- }
- 
--int kvm_arch_check_processor_compat(void *opaque)
-+int kvm_arch_check_processor_compat(void)
- {
- 	struct cpuinfo_x86 *c = &cpu_data(smp_processor_id());
- 
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index 3c47b146851a..a51e9ab520fc 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -1310,7 +1310,7 @@ int kvm_arch_hardware_enable(void);
- void kvm_arch_hardware_disable(void);
- int kvm_arch_hardware_setup(void *opaque);
- void kvm_arch_hardware_unsetup(void);
--int kvm_arch_check_processor_compat(void *opaque);
-+int kvm_arch_check_processor_compat(void);
- int kvm_arch_vcpu_runnable(struct kvm_vcpu *vcpu);
- bool kvm_arch_vcpu_in_kernel(struct kvm_vcpu *vcpu);
- int kvm_arch_vcpu_should_kick(struct kvm_vcpu *vcpu);
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 6e8e9d36f382..148f7169b431 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -5603,22 +5603,14 @@ struct kvm_vcpu * __percpu *kvm_get_running_vcpus(void)
-         return &kvm_running_vcpu;
- }
- 
--struct kvm_cpu_compat_check {
--	void *opaque;
--	int *ret;
--};
+-	int rc;
 -
--static void check_processor_compat(void *data)
-+static void check_processor_compat(void *rtn)
- {
--	struct kvm_cpu_compat_check *c = data;
--
--	*c->ret = kvm_arch_check_processor_compat(c->opaque);
-+	*(int *)rtn = kvm_arch_check_processor_compat();
+ 	if (!MACHINE_HAS_VX)
+ 		return -ENODEV;
+ 	if (target == current)
+ 		save_fpu_regs();
+ 
+-	rc = user_regset_copyin(&pos, &count, &kbuf, &ubuf,
++	return user_regset_copyin(&pos, &count, &kbuf, &ubuf,
+ 				target->thread.fpu.vxrs + __NUM_VXRS_LOW, 0, -1);
+-	return rc;
  }
  
- int kvm_init(void *opaque, unsigned vcpu_size, unsigned vcpu_align,
- 		  struct module *module)
- {
--	struct kvm_cpu_compat_check c;
- 	int r;
- 	int cpu;
- 
-@@ -5646,10 +5638,8 @@ int kvm_init(void *opaque, unsigned vcpu_size, unsigned vcpu_align,
- 	if (r < 0)
- 		goto out_free_1;
- 
--	c.ret = &r;
--	c.opaque = opaque;
- 	for_each_online_cpu(cpu) {
--		smp_call_function_single(cpu, check_processor_compat, &c, 1);
-+		smp_call_function_single(cpu, check_processor_compat, &r, 1);
- 		if (r < 0)
- 			goto out_free_2;
- 	}
+ static int s390_system_call_get(struct task_struct *target,
 -- 
 2.25.1
 
