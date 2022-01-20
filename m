@@ -2,103 +2,124 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CAFB2C4332F
-	for <linux-s390@archiver.kernel.org>; Thu, 20 Jan 2022 11:05:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DAC8C433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 20 Jan 2022 11:20:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229780AbiATLFU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 20 Jan 2022 06:05:20 -0500
-Received: from mout.kundenserver.de ([212.227.126.131]:59917 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229908AbiATLEX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 20 Jan 2022 06:04:23 -0500
-Received: from mail-oo1-f45.google.com ([209.85.161.45]) by
- mrelayeu.kundenserver.de (mreue010 [213.165.67.97]) with ESMTPSA (Nemesis) id
- 1MJmbB-1mqMtJ1Bo9-00K55w; Thu, 20 Jan 2022 12:04:20 +0100
-Received: by mail-oo1-f45.google.com with SMTP id b20-20020a4a3414000000b002dda566aba7so1888654ooa.13;
-        Thu, 20 Jan 2022 03:04:19 -0800 (PST)
-X-Gm-Message-State: AOAM532CO6xxk8E9jLiCM+zO6LCOrYZPptZaB69JP9XI1jtA299h6MJk
-        ngAhhKcUcYmqJuVnlkYx61M0uPsv8i8HF772Gr8=
-X-Google-Smtp-Source: ABdhPJxdLg6SDZjsvGmAsYmn2qy9+2h/ODrSB5K/8pY/EXdxIA8KLQS4DyhVSmna3jImvkgL6VaV1O46bPcTyjt0SVc=
-X-Received: by 2002:a05:6808:1490:: with SMTP id e16mr6881848oiw.84.1642673470519;
- Thu, 20 Jan 2022 02:11:10 -0800 (PST)
+        id S230454AbiATLUN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 20 Jan 2022 06:20:13 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:17758 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S230429AbiATLUL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 20 Jan 2022 06:20:11 -0500
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20K8wQN6013978;
+        Thu, 20 Jan 2022 11:20:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=q8d+JmubsiEGkGrlJwoa+jl3OgIFkhx9mMub8kNkuwE=;
+ b=crIM0taexLN+W2B7IMoHp+XMgll4k3V/oB2ffYahGgQMUDAZcsmpozh8LAPS+rjvIPcs
+ 738xynN6nUSukPDApbDRdOcWZl4bjRxbXVoc1WIKeM2JGBv1IC8JNRluQzJ9W6EvtlDw
+ volLiN7ZEn09PvhnWEF+wNMskYBwsSl/uKbckbegP/0LSBk54fZn5T6Bx1NZpOQr9h+J
+ TJIL7g4Ar4Wju7f2tmn70eAkNXtWgfmUhjLs8w4brPtXiTnCVnhqEJQweNDoeIZcHdRq
+ CXI1v0IH/h4JistnUodBLllRZxTq5RqLZRD8oVXJH6fv6ceqshjvAkWO/VnEfLGdgRMo UA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3dq4putp9n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 20 Jan 2022 11:20:09 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20KA8iuL029890;
+        Thu, 20 Jan 2022 11:20:09 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3dq4putp94-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 20 Jan 2022 11:20:09 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20KB7wOt003547;
+        Thu, 20 Jan 2022 11:20:07 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma06fra.de.ibm.com with ESMTP id 3dknhjpraf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 20 Jan 2022 11:20:07 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20KBK3O639715222
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 20 Jan 2022 11:20:03 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 45BEB11C07B;
+        Thu, 20 Jan 2022 11:20:03 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C1F6F11C04C;
+        Thu, 20 Jan 2022 11:20:02 +0000 (GMT)
+Received: from [9.171.13.121] (unknown [9.171.13.121])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 20 Jan 2022 11:20:02 +0000 (GMT)
+Message-ID: <6de14f3a-fd8a-49d4-3102-ca8f339d8728@linux.ibm.com>
+Date:   Thu, 20 Jan 2022 12:20:02 +0100
 MIME-Version: 1.0
-References: <20220120073911.99857-18-guoren@kernel.org>
-In-Reply-To: <20220120073911.99857-18-guoren@kernel.org>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Thu, 20 Jan 2022 11:10:53 +0100
-X-Gmail-Original-Message-ID: <CAK8P3a1_qwRpfHRyF75WEqfxGxgVnfB15vNS-egQctx7R5-DvA@mail.gmail.com>
-Message-ID: <CAK8P3a1_qwRpfHRyF75WEqfxGxgVnfB15vNS-egQctx7R5-DvA@mail.gmail.com>
-Subject: Re: [PATCH V3 17/17] KVM: compat: riscv: Prevent KVM_COMPAT from
- being selected
-To:     Guo Ren <guoren@kernel.org>
-Cc:     Palmer Dabbelt <palmer@dabbelt.com>, Arnd Bergmann <arnd@arndb.de>,
-        Anup Patel <anup@brainfault.org>,
-        gregkh <gregkh@linuxfoundation.org>,
-        liush <liush@allwinnertech.com>, Wei Fu <wefu@redhat.com>,
-        Drew Fustini <drew@beagleboard.org>,
-        Wang Junqiang <wangjunqiang@iscas.ac.cn>,
-        Christoph Hellwig <hch@lst.de>,
-        Christoph Hellwig <hch@infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-csky@vger.kernel.org,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        inux-parisc@vger.kernel.org,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Guo Ren <guoren@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:j2ac7wj3LsCM9f+9e4oJASCScxFtNHRtjDDmqr4iy577NRpRpAF
- bMlnZKMV2DYLGVHn0K8JkZd3T2GqO0MNYXz6fcH0qw593jQUksbXGnoN9YSzPzIKe/+5lR6
- vkhBO4+bgoTilrYFReGT0M6jgFRRpZLN5x34QH1WXbatlFvqzaiqNUUsFz12Ol1tTe4FtAC
- rXedzAAJ/vw3lOUWSKspw==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:lXSZfcmtm/Q=:SRkDkTuRkxkElxz6iLbS59
- GIp6kV1MlGEO3mJBtnAbsuOWkQw4kQj/9qsIc+2rcwTpPcav4RPYAGNqu9DqJTWdxcTXNf9dC
- /xmtASxwkvFd4AzugE3Q4gpYN25r9TIZSzjGzEARt0BEGr1ApLRzz7WVuXzGIAYyPiS9XTJoe
- eAgovehaJOZ330IGzXZ7LSk/JNIA3CK+JRDrC0CNIW5kOdMvm9iW41PchyrvZfZe2C594XuH3
- xak/xHfeJFO/2JymqAgswcgw1XUNz8vvfP35bBQ8p3RasPTraw35wKH4EOAn3q26ZFY9w1B9W
- m5gfQHyMh/VPHG2tsWMSoTlax9ph7UhUiN5gh/k58YOsLKyT6ISze7pnBHwhNmXssr8ki0MfD
- pl8/zYlSJ/JiUuODbPcdOT+CTxz252Vsawl+h/vKIPNIY/YzuehZpomjExbGFDZE3fF3h/Rhq
- A/nOx3JB6I9b2My0LG25SOp4uLRaZFobO431tfN+WFR2ibA9IcLJKUCbE6sG3WE3Y1qmuQzNt
- Z1EUZgbjxhoGlLmVxYCxz/lCYk6oWSiHqdZYH6ndPu+P5/ntPFz3hoYDtRbNtVBis/VJaZ+95
- +dOEJFKQMU6hl7wrhwwz2QOoHREd+vGyt67I2d+LwdeR0hwFt6kVEuDRdWRA0r/ZTXIRAzqha
- kDu+CMpRtAKykZ7yJeMkbmM6HFCFbOOWfSJ7PcOd5hGhEobjmAW8MWA+WR2EtUy6CERoxoNMa
- LFarC1NWQZdjgZZ4YJaiE+StPfkuerPENJADsFQ3xCcuHphZVRRO6oFl3BBsfigYILDnoloM8
- 3fCM88jEaxZcsKibADiiJb3hBMbiH9Ib9PhlY1WMb5esQikAcg=
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.0
+Subject: Re: [RFC PATCH v1 06/10] KVM: s390: Add vm IOCTL for key checked
+ guest absolute memory access
+Content-Language: en-US
+To:     Thomas Huth <thuth@redhat.com>,
+        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20220118095210.1651483-1-scgl@linux.ibm.com>
+ <20220118095210.1651483-7-scgl@linux.ibm.com>
+ <069c72b6-457f-65c7-652e-e6eca7235fca@redhat.com>
+From:   Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <069c72b6-457f-65c7-652e-e6eca7235fca@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: tEaNHQjN40Df7antsZ4nerz26218eQ_Y
+X-Proofpoint-ORIG-GUID: fjL2rJnzhgeRNE88aRdwV5xNHiHpvwZt
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-01-20_04,2022-01-20_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ lowpriorityscore=0 mlxlogscore=999 spamscore=0 mlxscore=0 phishscore=0
+ priorityscore=1501 adultscore=0 impostorscore=0 suspectscore=0
+ malwarescore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2201200056
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jan 20, 2022 at 8:39 AM <guoren@kernel.org> wrote:
->
-> From: Guo Ren <guoren@linux.alibaba.com>
->
-> Current riscv doesn't support the 32bit KVM/arm API. Let's make it
-> clear by not selecting KVM_COMPAT.
->
-> Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-> ---
->  virt/kvm/Kconfig | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/virt/kvm/Kconfig b/virt/kvm/Kconfig
-> index f4834c20e4a6..a8c5c9f06b3c 100644
-> --- a/virt/kvm/Kconfig
-> +++ b/virt/kvm/Kconfig
-> @@ -53,7 +53,7 @@ config KVM_GENERIC_DIRTYLOG_READ_PROTECT
->
->  config KVM_COMPAT
->         def_bool y
-> -       depends on KVM && COMPAT && !(S390 || ARM64)
-> +       depends on KVM && COMPAT && !(S390 || ARM64 || RISCV)
 
-Maybe this should be flipped around into a positive list now?
-The remaining architectures would be mips, powerpc and x86, but it's unclear
-if this actually meant to work on all of them, or any potential ones
-added in the
-future.
 
-       Arnd
+Am 20.01.22 um 11:38 schrieb Thomas Huth:
+> On 18/01/2022 10.52, Janis Schoetterl-Glausch wrote:
+>> Channel I/O honors storage keys and is performed on absolute memory.
+>> For I/O emulation user space therefore needs to be able to do key
+>> checked accesses.
+>> The vm IOCTL supports read/write accesses, as well as checking
+>> if an access would succeed.
+> ...
+>> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+>> index e3f450b2f346..dd04170287fd 100644
+>> --- a/include/uapi/linux/kvm.h
+>> +++ b/include/uapi/linux/kvm.h
+>> @@ -572,6 +572,8 @@ struct kvm_s390_mem_op {
+>>   #define KVM_S390_MEMOP_LOGICAL_WRITE    1
+>>   #define KVM_S390_MEMOP_SIDA_READ    2
+>>   #define KVM_S390_MEMOP_SIDA_WRITE    3
+>> +#define KVM_S390_MEMOP_ABSOLUTE_READ    4
+>> +#define KVM_S390_MEMOP_ABSOLUTE_WRITE    5
+> 
+> Not quite sure about this - maybe it is, but at least I'd like to see this discussed: Do we really want to re-use the same ioctl layout for both, the VM and the VCPU file handles? Where the userspace developer has to know that the *_ABSOLUTE_* ops only work with VM handles, and the others only work with the VCPU handles? A CPU can also address absolute memory, so why not adding the *_ABSOLUTE_* ops there, too? And if we'd do that, wouldn't it be sufficient to have the VCPU ioctls only - or do you want to call these ioctls from spots in QEMU where you do not have a VCPU handle available? (I/O instructions are triggered from a CPU, so I'd assume that you should have a VCPU handle around?)
+
+I paritally agree. the ABSOLUTE calls should also work from a VCPU handle. But you also want to be able to call this from a different thread than the vpcu threads as you do not want to kick a CPU out of the kernel just for that. So it makes sense to have this ioctl also for the VM fd.
+> 
+>   Thomas
+> 
+> 
