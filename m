@@ -2,151 +2,105 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 83AE2C433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 20 Jan 2022 16:00:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A1592C433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 20 Jan 2022 18:19:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376772AbiATQA3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 20 Jan 2022 11:00:29 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4258 "EHLO
+        id S233346AbiATST3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 20 Jan 2022 13:19:29 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:16276 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S243632AbiATQA2 (ORCPT
+        by vger.kernel.org with ESMTP id S233332AbiATST1 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 Jan 2022 11:00:28 -0500
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20KFmDep008880;
-        Thu, 20 Jan 2022 16:00:26 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=gupPrdVIdj7SwKoI26HJCs2fOy4ojWK4YXYErXoYjgs=;
- b=E9Dhs/wQiEfoJBUTUPo9UN87chjFQFrISk5M072aPUCdKheVVw6ilsvLPt/lNx4wpHwg
- ezyeo+3zF0UhffEg1dihvzM/dI8OCSCT/LtDxEMPElONwUPKtZYvAo6iNIcAkI/53AEm
- JG7DbDGv8C258/lBIQ1ROgempIhGerdIzeY/V7bu91s6Sd1vBAgFTPLRbUpKHV6ULSLH
- 40RjXN6MYYHNjHLdPXZCL1sWc/vZIRG178cQb6VUZWuVM19gQrdXOHrf9Fe7VbyZ6KVx
- oTbblZ3939zfJJln6o8yW4SBS4QuP23LYH9xS9mZbCFm6LxBvYB8Ei41O/QgqEddWrww 2w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dqapngfpa-1
+        Thu, 20 Jan 2022 13:19:27 -0500
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20KGM1Zh001474;
+        Thu, 20 Jan 2022 18:19:26 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=WPFpWAdP7and+FKr6Wq+Q68wA2Yfmcy0zvGP+nmcYPU=;
+ b=rAuq4hg18XaaZqnbUxpEI75F161TrQFsLe+QEoPiM8Z3Up5rgypdpSFfxYexSffsq9B9
+ b3skQ/dgyv5lTQrCoDbeOVeRDwI1OSC9EazBe8Fbdkmzo/8r1F9y0vTSTF3VmFA7rxoo
+ m8bXnDn+RzcwK1J4rSHDIa2uzvABlhyORJ8WlfNxAlzA/v7mmb8rieH2SrKKzNizyDM3
+ A6ZPKd9bzZN41zlvw/Uq4ieGIXXiOfBr3HgXOq0zKUqG9RMmGFM/bDpo5rL4dtg2Oguk
+ HV8+xVwNbtgxM2JJmNAhgh8pXof0m8yLHZ2egb/9ZHJJk+Aoib+sv/mSMZMM+/M1YL5D 8w== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dq60e2me4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 20 Jan 2022 16:00:26 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20KG0PkW015835;
-        Thu, 20 Jan 2022 16:00:26 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dqapngfkx-1
+        Thu, 20 Jan 2022 18:19:26 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20KI4Kd2014630;
+        Thu, 20 Jan 2022 18:19:24 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03ams.nl.ibm.com with ESMTP id 3dknwac4ap-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 20 Jan 2022 16:00:25 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20KFvqmm028139;
-        Thu, 20 Jan 2022 16:00:22 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 3dknhk380q-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 20 Jan 2022 16:00:22 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20KG0JYh42336628
+        Thu, 20 Jan 2022 18:19:23 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20KIJKk338011292
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 20 Jan 2022 16:00:19 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C2A14A4066;
-        Thu, 20 Jan 2022 16:00:19 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4E210A4068;
-        Thu, 20 Jan 2022 16:00:19 +0000 (GMT)
-Received: from [9.171.36.133] (unknown [9.171.36.133])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 20 Jan 2022 16:00:19 +0000 (GMT)
-Message-ID: <591d2e47-edd9-453a-a888-c43ba5b76a1e@linux.ibm.com>
-Date:   Thu, 20 Jan 2022 17:00:18 +0100
+        Thu, 20 Jan 2022 18:19:20 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8679A4C058;
+        Thu, 20 Jan 2022 18:19:20 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 25A874C040;
+        Thu, 20 Jan 2022 18:19:20 +0000 (GMT)
+Received: from osiris (unknown [9.145.85.126])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Thu, 20 Jan 2022 18:19:20 +0000 (GMT)
+Date:   Thu, 20 Jan 2022 19:19:18 +0100
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH v1 01/10] s390/uaccess: Add storage key checked
+ access to user memory
+Message-ID: <YemnprCIEjjGFeTn@osiris>
+References: <20220118095210.1651483-1-scgl@linux.ibm.com>
+ <20220118095210.1651483-2-scgl@linux.ibm.com>
+ <YefeakONMN4PLlml@osiris>
+ <422595a5-b24b-8760-ff0e-112322142de7@linux.ibm.com>
+ <YegQCTqEsiFTUZ2R@osiris>
+ <dbfec527-b995-e382-dafa-c3459e1e45ed@linux.ibm.com>
+ <YelcCEuVbIg9ND90@osiris>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH net-next v2] net/smc: Reduce overflow of smc clcsock
- listen queue
-Content-Language: en-US
-To:     Tony Lu <tonylu@linux.alibaba.com>,
-        Karsten Graul <kgraul@linux.ibm.com>
-Cc:     "D. Wythe" <alibuda@linux.alibaba.com>, dust.li@linux.alibaba.com,
-        kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <1641301961-59331-1-git-send-email-alibuda@linux.alibaba.com>
- <8a60dabb-1799-316c-80b5-14c920fe98ab@linux.ibm.com>
- <20220105044049.GA107642@e02h04389.eu6sqa>
- <20220105085748.GD31579@linux.alibaba.com>
- <b98aefce-e425-9501-aacc-8e5a4a12953e@linux.ibm.com>
- <20220105150612.GA75522@e02h04389.eu6sqa>
- <d35569df-e0e0-5ea7-9aeb-7ffaeef04b14@linux.ibm.com>
- <YdaUuOq+SkhYTWU8@TonyMac-Alibaba>
- <5a5ba1b6-93d7-5c1e-aab2-23a52727fbd1@linux.ibm.com>
- <YelmFWn7ot0iQCYG@TonyMac-Alibaba>
-From:   Stefan Raspl <raspl@linux.ibm.com>
-In-Reply-To: <YelmFWn7ot0iQCYG@TonyMac-Alibaba>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YelcCEuVbIg9ND90@osiris>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: dsBJzItTA-47pkbs7Bd9WYnuSK2Smar3
-X-Proofpoint-ORIG-GUID: K6gQPcKdjNxaAW_w8gQ53t0SKhqEEu98
+X-Proofpoint-ORIG-GUID: wO7_9hgtjWZi7Q1IkVvIssjmPN7AVpE6
+X-Proofpoint-GUID: wO7_9hgtjWZi7Q1IkVvIssjmPN7AVpE6
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-01-20_06,2022-01-20_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
- impostorscore=0 phishscore=0 lowpriorityscore=0 clxscore=1011 adultscore=0
- mlxscore=0 suspectscore=0 bulkscore=0 spamscore=0 malwarescore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2201200081
+ definitions=2022-01-20_07,2022-01-20_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
+ mlxscore=0 lowpriorityscore=0 mlxlogscore=729 malwarescore=0
+ priorityscore=1501 phishscore=0 spamscore=0 bulkscore=0 adultscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2201200091
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 1/20/22 14:39, Tony Lu wrote:
-> On Thu, Jan 13, 2022 at 09:07:51AM +0100, Karsten Graul wrote:
->> On 06/01/2022 08:05, Tony Lu wrote:
->>
->> I think of the following approach: the default maximum of active workers in a
->> work queue is defined by WQ_MAX_ACTIVE (512). when this limit is hit then we
->> have slightly lesser than 512 parallel SMC handshakes running at the moment,
->> and new workers would be enqueued without to become active.
->> In that case (max active workers reached) I would tend to fallback new connections
->> to TCP. We would end up with lesser connections using SMC, but for the user space
->> applications there would be nearly no change compared to TCP (no dropped TCP connection
->> attempts, no need to reconnect).
->> Imho, most users will never run into this problem, so I think its fine to behave like this.
+On Thu, Jan 20, 2022 at 01:56:40PM +0100, Heiko Carstens wrote:
+> > 2. Implementation changes
+> >    2.1 Modify common code
 > 
-> This makes sense to me, thanks.
+> In general such changes are done in way that common code is or _may_ be
+> modified to fulfill our needs. Common code header file explicitely states
+> that architectures should get rid of private instances of
+> copy_{to,from}_user() and __copy_{to,from}_user{,_inatomic}().
 > 
->>
->> As far as I understand you, you still see a good reason in having another behavior
->> implemented in parallel (controllable by user) which enqueues all incoming connections
->> like in your patch proposal? But how to deal with the out-of-memory problems that might
->> happen with that?
-> 
-> There is a possible scene, when the user only wants to use SMC protocol, such
-> as performance benchmark, or explicitly specify SMC protocol, they can
-> afford the lower speed of incoming connection creation, but enjoy the
-> higher QPS after creation.
-> 
->> Lets decide that when you have a specific control that you want to implement.
->> I want to have a very good to introduce another interface into the SMC module,
->> making the code more complex and all of that. The decision for the netlink interface
->> was also done because we have the impression that this is the NEW way to go, and
->> since we had no interface before we started with the most modern way to implement it.
->>
->> TCP et al have a history with sysfs, so thats why it is still there.
->> But I might be wrong on that...
-> 
-> Thanks for the information that I don't know about the decision for new
-> control interface. I am understanding your decision about the interface.
-> We are glad to contribute the knobs to smc_netlink.c in the next patches.
-> 
-> There is something I want to discuss here about the persistent
-> configuration, we need to store new config in system, and make sure that
-> it could be loaded correctly after boot up. A possible solution is to
-> extend smc-tools for new config, and work with systemd for auto-loading.
-> If it works, we are glad to contribute these to smc-tools.
+> So we should not add anything like that to arch code again, since nobody
+> would expect that.
 
-I'd be definitely open to look into patches for smc-tools that extend it to 
-configure SMC properties, and that provide the capability to read (and apply) a 
-config from a file! We can discuss what you'd imagine as an interface before you 
-implement it, too.
-
-Ciao,
-Stefan
+Or to be more specific: I think the most simple solution would be to
+try to get the new *key variants into include/linux/uaccess.h, and add
+the raw variants in architecture code, similar to the rest of the
+uaccess functions.
+There is some (sort of) prior art with copy_mc_to_kernel() even,
+though that can only partially be compared.
