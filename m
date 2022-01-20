@@ -2,88 +2,114 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C33A8C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 20 Jan 2022 10:34:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A1C4C433FE
+	for <linux-s390@archiver.kernel.org>; Thu, 20 Jan 2022 10:38:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242138AbiATKe0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 20 Jan 2022 05:34:26 -0500
-Received: from mout.kundenserver.de ([217.72.192.74]:39841 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234927AbiATKeX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 20 Jan 2022 05:34:23 -0500
-Received: from mail-wm1-f53.google.com ([209.85.128.53]) by
- mrelayeu.kundenserver.de (mreue106 [213.165.67.113]) with ESMTPSA (Nemesis)
- id 1M3UEW-1nB2jf1J34-000aYh; Thu, 20 Jan 2022 11:34:21 +0100
-Received: by mail-wm1-f53.google.com with SMTP id q141-20020a1ca793000000b00347b48dfb53so12714962wme.0;
-        Thu, 20 Jan 2022 02:34:21 -0800 (PST)
-X-Gm-Message-State: AOAM532mmwt4WDlPeYfxPfmVVWoGR6VohFudIl8oMshBEnKsEHLabE64
-        fddo/O528bZajEpSKh5xNaMt27PNXKxNgnM4XwI=
-X-Google-Smtp-Source: ABdhPJxEAFXYVk6DktXv3061JPbB7MqrKutmOAXqbVu5eyk6Pz36dhnH8dbuNkOxd7GlFiEfJn/5TzSKv0rhSZwiTMY=
-X-Received: by 2002:a7b:ce96:: with SMTP id q22mr8113766wmj.82.1642671479094;
- Thu, 20 Jan 2022 01:37:59 -0800 (PST)
+        id S242470AbiATKih (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 20 Jan 2022 05:38:37 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:22887 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1376326AbiATKif (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 20 Jan 2022 05:38:35 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1642675114;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=sFpN3f0uduDA3tQ7l5sXIVy8xoN2m2qwc3s/2ZpwE2I=;
+        b=CBWQbPJOD0nY8gsyaGhlSbLLEZ458+TdTU0e1WBVhpuI2tlT4GV4IcSEXYgbT4yrMBylmb
+        JJr4GGUANc6xfq/29dXXryRIM+h7sVZIJ/HWXlkClPOGfE8SPKo4/VqlXdxKu1qMU9p2VR
+        1FI99IIVAfOp0DpQmmnaRlZ9dy4W4cM=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-81-u9dQgkaeMIK0p8DY-3jULw-1; Thu, 20 Jan 2022 05:38:32 -0500
+X-MC-Unique: u9dQgkaeMIK0p8DY-3jULw-1
+Received: by mail-wm1-f72.google.com with SMTP id o3-20020a05600c4fc300b0034aee9534bdso2579117wmq.2
+        for <linux-s390@vger.kernel.org>; Thu, 20 Jan 2022 02:38:32 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=sFpN3f0uduDA3tQ7l5sXIVy8xoN2m2qwc3s/2ZpwE2I=;
+        b=w62tTMI2XOzVulenYtPWx+tuQ9btnjSrh/U4qcFKg7hQmXTQyOjUHUDOZcgrLs2IpT
+         BwqWzbsG1si2whBYUXVSIGKNqth61sVlgnEibyoIs0ETOrCjqaQl3ZLa/3B7HqVtvtpI
+         NSEso8059B/g8TBTky3yZLCeNS+vJG7rcjiwvKlQv1+8RB6fv43zDGlA/l3UFY0XNlyz
+         TKh3amrV0vUZpILBew8ROHifBCixvsEgYSTsloXXASMyemqDJeWa0o+Tj8ZmAlZovCaW
+         bBUwtGHGGwqJBcEC/3mlAmtxtK6DU4WbQOgVRIagtlOAuw8OahurZWuVLxOeDus9ZUlG
+         oyNA==
+X-Gm-Message-State: AOAM531EDxFQ/vub7roC91MHO01lqT9GRHKoyKz2U8qXjHTSjhDqWvKF
+        kDpiDGwaAf7BdGlVQSPzHm9FwbnMU0I6iw71XNzTfNra5dQKXXNNT7fJY7A1IxSYdfWTkO6ZKR/
+        6pTFksj3oZFI9ZQEHrwVABQ==
+X-Received: by 2002:a05:6000:152:: with SMTP id r18mr3963431wrx.598.1642675111368;
+        Thu, 20 Jan 2022 02:38:31 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzfvIX06o0KrIvdE4knevl3OSMRO8haaYDO1DIVACVjH75Q5KDVwCs2c7eUgWYh9T6sdMZ1nw==
+X-Received: by 2002:a05:6000:152:: with SMTP id r18mr3963404wrx.598.1642675111135;
+        Thu, 20 Jan 2022 02:38:31 -0800 (PST)
+Received: from [10.33.192.183] (nat-pool-str-t.redhat.com. [149.14.88.106])
+        by smtp.gmail.com with ESMTPSA id n10sm1005966wrf.96.2022.01.20.02.38.30
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 20 Jan 2022 02:38:30 -0800 (PST)
+Message-ID: <069c72b6-457f-65c7-652e-e6eca7235fca@redhat.com>
+Date:   Thu, 20 Jan 2022 11:38:29 +0100
 MIME-Version: 1.0
-References: <20220120073911.99857-14-guoren@kernel.org>
-In-Reply-To: <20220120073911.99857-14-guoren@kernel.org>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Thu, 20 Jan 2022 10:37:43 +0100
-X-Gmail-Original-Message-ID: <CAK8P3a03-3QTC-vxmnbouK7wBd8iunPGZpX0-Jf6ntS1DY0E=w@mail.gmail.com>
-Message-ID: <CAK8P3a03-3QTC-vxmnbouK7wBd8iunPGZpX0-Jf6ntS1DY0E=w@mail.gmail.com>
-Subject: Re: [PATCH V3 13/17] riscv: compat: signal: Add rt_frame implementation
-To:     Guo Ren <guoren@kernel.org>
-Cc:     Palmer Dabbelt <palmer@dabbelt.com>, Arnd Bergmann <arnd@arndb.de>,
-        Anup Patel <anup@brainfault.org>,
-        gregkh <gregkh@linuxfoundation.org>,
-        liush <liush@allwinnertech.com>, Wei Fu <wefu@redhat.com>,
-        Drew Fustini <drew@beagleboard.org>,
-        Wang Junqiang <wangjunqiang@iscas.ac.cn>,
-        Christoph Hellwig <hch@lst.de>,
-        Christoph Hellwig <hch@infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-csky@vger.kernel.org,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        inux-parisc@vger.kernel.org,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Guo Ren <guoren@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:maXbNfNUf4coYMldaGrFVEumiNLwf3mNjO8XH1NNRoQtd2zeNdf
- gJEKLqKMfYWyqs6qTQw//UbtBSSV7qnDMo4ZyuQD84WhLaDnkmEwjBajkAQ4pB7qq2o0a3R
- +22Xsievc4CmTwghx28LxQOByrgKHl80yDKUA/B1bqK2dqdxv8c4iCHGcnVEngTzHZSLqLW
- npYIW6C29QfRyI0RmBDuA==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:5eelWh45nRQ=:AMM50bWtIrqXR/xRnTg739
- oGEH6ShLu3ymDZw+hsNqhPbKWVHQNfN/3jsM7tWA0iDBQ1y1xtekBTK0+aXoQ/VBWEBdmyEPJ
- qyv4Ve/9RE+GqfZomw4fOrm8KTGD9xhwvK9VMGudqtjJSOZK4uiTo30XZTu0EG2IA8j0YHFyr
- 0uxBgeOaSGDtgAw45cc9K+qNzaQ8ib8VEf3wZLcs9IKyZTg8rTwhOrM9biEV/LgK/kFvSlMnd
- rs9MRvxF5IsE+cw7rvT13frPZuWKwSgZOlxNarR4UDADuAHHndwfIRY2D/dqkCpnrYA4zTn8a
- ZqPNAeBjWgMB0zjSj+RS+Mk5vqae59Y1ZklhScn9tn47CsOSkcuhvVZT7fwguPnacB6fGOpd6
- CD1P3r7RBqU4v1+pJZOKmrHm8R/J5YjZ8ofgRJ0qaKenTATdefw3yhyjRJzXH51Zt4EtYRbAa
- 2sF1uUkto7mgVq/71+FsAoNtxyY8QdPkQVzJAn814eVPzXCExvgQkutB53i6RcNS/iPJy+Dac
- rK7k8YgLXzNMUL3GQei2uh09d4O4tW6Qq2tbr8GUlOZj6Ts/ZlDv70b5Umfw94iQAEB3T0Lzl
- ZrwZ10uZR4K4wA3JzBBILU0gjA7XNdaMgTIQLJh1BoSfMlinYRGJ5OPUymdIN8/oUQhxcfER5
- apKGnaHiBU66x3JTNDT/QrJT3BABEeZvJ54m0K1ciYAjHC46PoeYWsChBKaKnXgyt43uT+OQr
- YetzrTAzjjsVrRr2FhV4LSBP07YLx4v84Qsp1bIv6ZPA9QqCfI1TFcFbNY/QkQaw/eXMpTgNb
- nfiUfWvLadhY0FJAgIBxgkQwBMNAFnVXFfi4PedWKF5OUlaTI8Pc9eYGapjDiLnBOxhOAC3
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.0
+Subject: Re: [RFC PATCH v1 06/10] KVM: s390: Add vm IOCTL for key checked
+ guest absolute memory access
+Content-Language: en-US
+To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20220118095210.1651483-1-scgl@linux.ibm.com>
+ <20220118095210.1651483-7-scgl@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+In-Reply-To: <20220118095210.1651483-7-scgl@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jan 20, 2022 at 8:39 AM <guoren@kernel.org> wrote:
->
-> From: Guo Ren <guoren@linux.alibaba.com>
->
-> Implement compat_setup_rt_frame for sigcontext save & restore. The
-> main process is the same with signal, but the rv32 pt_regs' size
-> is different from rv64's, so we needs convert them.
->
-> Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-> Signed-off-by: Guo Ren <guoren@kernel.org>
-> Cc: Arnd Bergmann <arnd@arndb.de>
+On 18/01/2022 10.52, Janis Schoetterl-Glausch wrote:
+> Channel I/O honors storage keys and is performed on absolute memory.
+> For I/O emulation user space therefore needs to be able to do key
+> checked accesses.
+> The vm IOCTL supports read/write accesses, as well as checking
+> if an access would succeed.
+...
+> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+> index e3f450b2f346..dd04170287fd 100644
+> --- a/include/uapi/linux/kvm.h
+> +++ b/include/uapi/linux/kvm.h
+> @@ -572,6 +572,8 @@ struct kvm_s390_mem_op {
+>   #define KVM_S390_MEMOP_LOGICAL_WRITE	1
+>   #define KVM_S390_MEMOP_SIDA_READ	2
+>   #define KVM_S390_MEMOP_SIDA_WRITE	3
+> +#define KVM_S390_MEMOP_ABSOLUTE_READ	4
+> +#define KVM_S390_MEMOP_ABSOLUTE_WRITE	5
 
-I hope someone else can properly review this part, it's not my area
-but it looks complex enough that it could bring subtle bugs.
+Not quite sure about this - maybe it is, but at least I'd like to see this 
+discussed: Do we really want to re-use the same ioctl layout for both, the 
+VM and the VCPU file handles? Where the userspace developer has to know that 
+the *_ABSOLUTE_* ops only work with VM handles, and the others only work 
+with the VCPU handles? A CPU can also address absolute memory, so why not 
+adding the *_ABSOLUTE_* ops there, too? And if we'd do that, wouldn't it be 
+sufficient to have the VCPU ioctls only - or do you want to call these 
+ioctls from spots in QEMU where you do not have a VCPU handle available? 
+(I/O instructions are triggered from a CPU, so I'd assume that you should 
+have a VCPU handle around?)
 
-       Arnd
+  Thomas
+
+
