@@ -2,131 +2,84 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CFB60C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 20 Jan 2022 09:20:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA513C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 20 Jan 2022 09:26:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241348AbiATJUG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 20 Jan 2022 04:20:06 -0500
-Received: from out30-133.freemail.mail.aliyun.com ([115.124.30.133]:48449 "EHLO
-        out30-133.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S239702AbiATJUF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 Jan 2022 04:20:05 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0V2Lw44Q_1642670401;
-Received: from 30.43.104.217(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0V2Lw44Q_1642670401)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 20 Jan 2022 17:20:02 +0800
-Message-ID: <220be582-a2c2-bc3c-ce6b-0eda2a297ba1@linux.alibaba.com>
-Date:   Thu, 20 Jan 2022 17:20:01 +0800
+        id S241210AbiATJ0j (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 20 Jan 2022 04:26:39 -0500
+Received: from mout.kundenserver.de ([212.227.126.135]:35575 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234276AbiATJ0i (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 20 Jan 2022 04:26:38 -0500
+Received: from mail-oi1-f170.google.com ([209.85.167.170]) by
+ mrelayeu.kundenserver.de (mreue010 [213.165.67.97]) with ESMTPSA (Nemesis) id
+ 1MqbDs-1mX06m2Ey0-00mfPd; Thu, 20 Jan 2022 10:26:36 +0100
+Received: by mail-oi1-f170.google.com with SMTP id q186so8478481oih.8;
+        Thu, 20 Jan 2022 01:26:35 -0800 (PST)
+X-Gm-Message-State: AOAM530IS6cMCdv3arv1VITiCM41IZlTFYKedU3XPQQraoDSFQvHiYtB
+        lrVraWDG10iuGZ2ZJMFWfUsF1JRzoAeo78l1PK8=
+X-Google-Smtp-Source: ABdhPJwUHTIEKGF9B/deLoD+NLX/BPhPwhEAEkpKqsuu70hdzaWxQnSHkYBLqgySPz6euydrj/73VVU+G7+wmpaPV1k=
+X-Received: by 2002:a05:6808:2206:: with SMTP id bd6mr6829962oib.11.1642670794688;
+ Thu, 20 Jan 2022 01:26:34 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.5.0
-Subject: Re: [RFC PATCH net-next] net/smc: Introduce receive queue flow
- control support
-Content-Language: en-US
-To:     Leon Romanovsky <leon@kernel.org>
-Cc:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20220120065140.5385-1-guangguan.wang@linux.alibaba.com>
- <YekcWYwg399vR18R@unreal>
-From:   Guangguan Wang <guangguan.wang@linux.alibaba.com>
-In-Reply-To: <YekcWYwg399vR18R@unreal>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <20220120073911.99857-5-guoren@kernel.org>
+In-Reply-To: <20220120073911.99857-5-guoren@kernel.org>
+From:   Arnd Bergmann <arnd@arndb.de>
+Date:   Thu, 20 Jan 2022 10:26:18 +0100
+X-Gmail-Original-Message-ID: <CAK8P3a3ixShQBKmdXWxf8QdB_aLeWr7TQB+7MqQBSgh0-shSSQ@mail.gmail.com>
+Message-ID: <CAK8P3a3ixShQBKmdXWxf8QdB_aLeWr7TQB+7MqQBSgh0-shSSQ@mail.gmail.com>
+Subject: Re: [PATCH V3 04/17] syscalls: compat: Fix the missing part for __SYSCALL_COMPAT
+To:     Guo Ren <guoren@kernel.org>
+Cc:     Palmer Dabbelt <palmer@dabbelt.com>, Arnd Bergmann <arnd@arndb.de>,
+        Anup Patel <anup@brainfault.org>,
+        gregkh <gregkh@linuxfoundation.org>,
+        liush <liush@allwinnertech.com>, Wei Fu <wefu@redhat.com>,
+        Drew Fustini <drew@beagleboard.org>,
+        Wang Junqiang <wangjunqiang@iscas.ac.cn>,
+        Christoph Hellwig <hch@lst.de>,
+        Christoph Hellwig <hch@infradead.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-csky@vger.kernel.org,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        inux-parisc@vger.kernel.org,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Guo Ren <guoren@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Provags-ID: V03:K1:9+M0fmdb5HxFeLZX9pIqezr+U7soQTbqk+JjtRs2FIL6hfst5O4
+ 2BQfFrTCSQVRnaR/fgEHUJOO70yHaGyLxtJj4EYgVaqfAN5xJTyCv/VoAJcfB7BOoxCvwS3
+ MYW00xSfV4tr14+j8/NYptBPa/Ix+5VygRkmhO2iqPTyB03zQLV5vryYNqFPR2w5k4x02Y6
+ TsZpLJc0Xmc1lJsPQZRZg==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:nUtO5XneSiM=:Dg12rz9J3w1TQnxrs/E87G
+ iesAAgSk2cZqLybrx9KAQoiYkbu8unUjK1VJXdruvwBXb1OyXQoDIfLZsAx0aTt0YXKAa0A/H
+ AOyz1OVRRpVA6uLccCRnnlUoqHceRjCBDgFyH9oWc3Az3c0OXlhJEycCggpc1NDn1t/XBg1Me
+ y4mZNvF3ItCXVn8G2bkjcjRAB2rY64oE/2YNCAGld6AQppFrkRMLtM8gbc1bZgJO2Qdl4/+kX
+ ob38D6pruMcguRg80vHYA+Jq32WcmYbY4LS/8l5l+zfsGcJxhYrjRvtmadwk3qasckMn4iJTV
+ pxpWoWzAPDvrpwGb09ijS0uCUztqlBGZJawiizg10VZQsgtfqELHpw+lhibeUpGzMrlCy5ZK1
+ 3EJDvtMx186UF8Ih7VZRpb2HVKXxry+rF0LdOuVwpsz36Aztw5StTL8I6sqVvpiZkG+syTS5L
+ rvOruz6CL6Qz8wWyrQFKTZda1IwxALpBpan8aHexjjE+yvdbmme6ZAEq/gh57B5cL8ObHte/f
+ rkXz4586yb0YgEBF5V2fX3BzUWrQHpnR13Xga/gVkQy2x4q2MPsdVNlWESuUkZxmZ11YDWL7T
+ a5UQywC02JzoRKEti73luxoQ1K8rwExYfyUaBtzN46VajCjZ2iLa+5DZleXTz0b1CJyNIxDIh
+ XugEsiMi8P1dH8pEa39CHcbWmQgDH8ixCYrx0eOm6xc+HMiKG5QB1HGf1uGLHJyUIqUZV2FKd
+ w99m5jj8ake0mC8UFOr3AjYJsG/rwK2EC4t6lrdKPGrjRlduZQpg97LrkjJrHPD1CJxsdpjgA
+ tivxNThey85wjJQBGsTjaQpN03Y8rBDs/vczTRjQDoJ396CASY=
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2022/1/20 16:24, Leon Romanovsky wrote:
-> On Thu, Jan 20, 2022 at 02:51:40PM +0800, Guangguan Wang wrote:
->> This implement rq flow control in smc-r link layer. QPs
->> communicating without rq flow control, in the previous
->> version, may result in RNR (reveive not ready) error, which
->> means when sq sends a message to the remote qp, but the
->> remote qp's rq has no valid rq entities to receive the message.
->> In RNR condition, the rdma transport layer may retransmit
->> the messages again and again until the rq has any entities,
->> which may lower the performance, especially in heavy traffic.
->> Using credits to do rq flow control can avoid the occurrence
->> of RNR.
->>
->> Test environment:
->> - CPU Intel Xeon Platinum 8 core, mem 32 GiB, nic Mellanox CX4.
->> - redis benchmark 6.2.3 and redis server 6.2.3.
->> - redis server: redis-server --save "" --appendonly no
->>   --protected-mode no --io-threads 7 --io-threads-do-reads yes
->> - redis client: redis-benchmark -h 192.168.26.36 -q -t set,get
->>   -P 1 --threads 7 -n 2000000 -c 200 -d 10
->>
->>  Before:
->>  SET: 205229.23 requests per second, p50=0.799 msec
->>  GET: 212278.16 requests per second, p50=0.751 msec
->>
->>  After:
->>  SET: 623674.69 requests per second, p50=0.303 msec
->>  GET: 688326.00 requests per second, p50=0.271 msec
->>
->> The test of redis-benchmark shows that more than 3X rps
->> improvement after the implementation of rq flow control.
->>
->> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
->> ---
->>  net/smc/af_smc.c   | 12 ++++++
->>  net/smc/smc_cdc.c  | 10 ++++-
->>  net/smc/smc_cdc.h  |  3 +-
->>  net/smc/smc_clc.c  |  3 ++
->>  net/smc/smc_clc.h  |  3 +-
->>  net/smc/smc_core.h | 17 ++++++++-
->>  net/smc/smc_ib.c   |  6 ++-
->>  net/smc/smc_llc.c  | 92 +++++++++++++++++++++++++++++++++++++++++++++-
->>  net/smc/smc_llc.h  |  5 +++
->>  net/smc/smc_wr.c   | 30 ++++++++++++---
->>  net/smc/smc_wr.h   | 54 ++++++++++++++++++++++++++-
->>  11 files changed, 222 insertions(+), 13 deletions(-)
-> 
-> <...>
-> 
->> +		// set peer rq credits watermark, if less than init_credits * 2/3,
->> +		// then credit announcement is needed.
-> 
-> <...>
-> 
->> +		// set peer rq credits watermark, if less than init_credits * 2/3,
->> +		// then credit announcement is needed.
-> 
-> <...>
-> 
->> +	// credits have already been announced to peer
-> 
-> <...>
-> 
->> +	// set local rq credits high watermark to lnk->wr_rx_cnt / 3,
->> +	// if local rq credits more than high watermark, announcement is needed.
-> 
-> <...>
-> 
->> +// get one tx credit, and peer rq credits dec
-> 
-> <...>
-> 
->> +// put tx credits, when some failures occurred after tx credits got
->> +// or receive announce credits msgs
->> +static inline void smc_wr_tx_put_credits(struct smc_link *link, int credits, bool wakeup)
-> 
-> <...>
-> 
->> +// to check whether peer rq credits is lower than watermark.
->> +static inline int smc_wr_tx_credits_need_announce(struct smc_link *link)
-> 
-> <...>
-> 
->> +// get local rq credits and set credits to zero.
->> +// may called when announcing credits
->> +static inline int smc_wr_rx_get_credits(struct smc_link *link)
-> 
-> Please try to use C-style comments.
-> 
-> Thanks
+On Thu, Jan 20, 2022 at 8:38 AM <guoren@kernel.org> wrote:
+>
+> From: Guo Ren <guoren@linux.alibaba.com>
+>
+> Make "uapi asm unistd.h" could be used for architectures' COMPAT
+> mode. The __SYSCALL_COMPAT is first used in riscv.
+>
+> Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+> Signed-off-by: Guo Ren <guoren@kernel.org>
+> Cc: Arnd Bergmann <arnd@arndb.de>
 
-Thanks for your advice, I will modify it in the next version of patch.
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
