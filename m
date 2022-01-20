@@ -2,91 +2,99 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97AF4C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 20 Jan 2022 13:39:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 16E18C433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 20 Jan 2022 13:43:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238908AbiATNjj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 20 Jan 2022 08:39:39 -0500
-Received: from out30-43.freemail.mail.aliyun.com ([115.124.30.43]:58092 "EHLO
-        out30-43.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232587AbiATNji (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 Jan 2022 08:39:38 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04357;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0V2MrCwo_1642685974;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0V2MrCwo_1642685974)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 20 Jan 2022 21:39:34 +0800
-Date:   Thu, 20 Jan 2022 21:39:33 +0800
-From:   Tony Lu <tonylu@linux.alibaba.com>
-To:     Karsten Graul <kgraul@linux.ibm.com>
-Cc:     "D. Wythe" <alibuda@linux.alibaba.com>, dust.li@linux.alibaba.com,
-        kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: Re: [PATCH net-next v2] net/smc: Reduce overflow of smc clcsock
- listen queue
-Message-ID: <YelmFWn7ot0iQCYG@TonyMac-Alibaba>
-Reply-To: Tony Lu <tonylu@linux.alibaba.com>
-References: <1641301961-59331-1-git-send-email-alibuda@linux.alibaba.com>
- <8a60dabb-1799-316c-80b5-14c920fe98ab@linux.ibm.com>
- <20220105044049.GA107642@e02h04389.eu6sqa>
- <20220105085748.GD31579@linux.alibaba.com>
- <b98aefce-e425-9501-aacc-8e5a4a12953e@linux.ibm.com>
- <20220105150612.GA75522@e02h04389.eu6sqa>
- <d35569df-e0e0-5ea7-9aeb-7ffaeef04b14@linux.ibm.com>
- <YdaUuOq+SkhYTWU8@TonyMac-Alibaba>
- <5a5ba1b6-93d7-5c1e-aab2-23a52727fbd1@linux.ibm.com>
+        id S234066AbiATNnS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 20 Jan 2022 08:43:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49710 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231760AbiATNnS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 20 Jan 2022 08:43:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0582C061574;
+        Thu, 20 Jan 2022 05:43:17 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AB9A4B81D5B;
+        Thu, 20 Jan 2022 13:43:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AD52C340E8;
+        Thu, 20 Jan 2022 13:43:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1642686195;
+        bh=D+Etye9r3fua1x02UnecAbZv0CalmuxTOWCQ+e8HzdE=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=cN8TeiZRwruoIRJkOoV5cCJrRkANf7l3v6f2dnF2xlBmUXAwCKjGM3kmUmmr7lfcJ
+         1APkSDv+D1H3WQp3uuaV0kT/S8OeoYHOyoCm+Uh5ZwvEw7IhawBDNn89d/q5eyXPa3
+         nAY2sqd8hpAZSIAYJGf70xVxfIBc+dqte1gPEuhjwCNzY97jFtY3PEtY924x+w0WZd
+         wAeTD/djlb2LaOfPp5PAZ48mZs2FwdBxQt7SiLMX8KePhQm69b789EqQ8wWQDq0dC/
+         8Od7DRhnmvf6YwO+Awvtgi4eoym2J8Zy/zeuP32XDNFMzEGlHelD0Dh2qQJ7xmBcHR
+         1Xfu4zn6tGfTQ==
+Received: by mail-vk1-f169.google.com with SMTP id z15so393775vkp.13;
+        Thu, 20 Jan 2022 05:43:15 -0800 (PST)
+X-Gm-Message-State: AOAM530ztEEKfU5JodV39Z2gFeZVMW1ONO+knS9Gubx6OGhHrhE4BxPl
+        /+H7A+6YWz03uQspLPqUgts+iT3ffL3usEUCN94=
+X-Google-Smtp-Source: ABdhPJxsPoD4QKSG5cjRmiwRNbBq9kp7PjD2iW5iWTPRRES5wTkmV/37UExZW0GDHhLl6tuiT3nFW4CEpN2qDzbKvC8=
+X-Received: by 2002:a1f:2844:: with SMTP id o65mr15161979vko.2.1642686194514;
+ Thu, 20 Jan 2022 05:43:14 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5a5ba1b6-93d7-5c1e-aab2-23a52727fbd1@linux.ibm.com>
+References: <20220120073911.99857-16-guoren@kernel.org> <CAK8P3a0Mr2m2dVoVss59cN-9X7GVBD29VQLo3m4xswRznk_WUQ@mail.gmail.com>
+In-Reply-To: <CAK8P3a0Mr2m2dVoVss59cN-9X7GVBD29VQLo3m4xswRznk_WUQ@mail.gmail.com>
+From:   Guo Ren <guoren@kernel.org>
+Date:   Thu, 20 Jan 2022 21:43:03 +0800
+X-Gmail-Original-Message-ID: <CAJF2gTTGD_Ks2pO4jXx+QbiLV4nkjzk6mP-xKJOCvHtGTeFfOQ@mail.gmail.com>
+Message-ID: <CAJF2gTTGD_Ks2pO4jXx+QbiLV4nkjzk6mP-xKJOCvHtGTeFfOQ@mail.gmail.com>
+Subject: Re: [PATCH V3 15/17] riscv: compat: Add UXL_32 support in start_thread
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     Palmer Dabbelt <palmer@dabbelt.com>,
+        Anup Patel <anup@brainfault.org>,
+        gregkh <gregkh@linuxfoundation.org>,
+        liush <liush@allwinnertech.com>, Wei Fu <wefu@redhat.com>,
+        Drew Fustini <drew@beagleboard.org>,
+        Wang Junqiang <wangjunqiang@iscas.ac.cn>,
+        Christoph Hellwig <hch@lst.de>,
+        Christoph Hellwig <hch@infradead.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-csky@vger.kernel.org,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        inux-parisc@vger.kernel.org,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Guo Ren <guoren@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jan 13, 2022 at 09:07:51AM +0100, Karsten Graul wrote:
-> On 06/01/2022 08:05, Tony Lu wrote:
-> 
-> I think of the following approach: the default maximum of active workers in a
-> work queue is defined by WQ_MAX_ACTIVE (512). when this limit is hit then we
-> have slightly lesser than 512 parallel SMC handshakes running at the moment,
-> and new workers would be enqueued without to become active.
-> In that case (max active workers reached) I would tend to fallback new connections
-> to TCP. We would end up with lesser connections using SMC, but for the user space
-> applications there would be nearly no change compared to TCP (no dropped TCP connection
-> attempts, no need to reconnect).
-> Imho, most users will never run into this problem, so I think its fine to behave like this.
+On Thu, Jan 20, 2022 at 9:39 PM Arnd Bergmann <arnd@arndb.de> wrote:
+>
+> On Thu, Jan 20, 2022 at 8:39 AM <guoren@kernel.org> wrote:
+> > +
+> > +#ifdef CONFIG_COMPAT
+> > +       if (is_compat_task())
+> > +               regs->status |= SR_UXL_32;
+> > +#endif
+>
+>
+> You should not need that #ifdef, as the is_compat_task() definition is
+> meant to drop the code at compile time, unless the SR_UXL_32
+> definition is not visible here.
+I almost put CONFIG_COMPAT in every compat related code, because I
+hope the next arch that wants to support COMPAT could easily find
+where to be modified.
 
-This makes sense to me, thanks.
+>
+>          Arnd
 
-> 
-> As far as I understand you, you still see a good reason in having another behavior 
-> implemented in parallel (controllable by user) which enqueues all incoming connections
-> like in your patch proposal? But how to deal with the out-of-memory problems that might 
-> happen with that?
 
-There is a possible scene, when the user only wants to use SMC protocol, such
-as performance benchmark, or explicitly specify SMC protocol, they can
-afford the lower speed of incoming connection creation, but enjoy the
-higher QPS after creation.
 
-> Lets decide that when you have a specific control that you want to implement. 
-> I want to have a very good to introduce another interface into the SMC module,
-> making the code more complex and all of that. The decision for the netlink interface 
-> was also done because we have the impression that this is the NEW way to go, and
-> since we had no interface before we started with the most modern way to implement it.
-> 
-> TCP et al have a history with sysfs, so thats why it is still there. 
-> But I might be wrong on that...
+-- 
+Best Regards
+ Guo Ren
 
-Thanks for the information that I don't know about the decision for new
-control interface. I am understanding your decision about the interface.
-We are glad to contribute the knobs to smc_netlink.c in the next patches.
-
-There is something I want to discuss here about the persistent
-configuration, we need to store new config in system, and make sure that
-it could be loaded correctly after boot up. A possible solution is to
-extend smc-tools for new config, and work with systemd for auto-loading.
-If it works, we are glad to contribute these to smc-tools.
-
-Thank you.
-Tony Lu
+ML: https://lore.kernel.org/linux-csky/
