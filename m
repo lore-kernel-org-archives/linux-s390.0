@@ -2,32 +2,35 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AED9C43217
-	for <linux-s390@archiver.kernel.org>; Thu, 20 Jan 2022 07:40:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC13BC433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 20 Jan 2022 07:40:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359050AbiATHkH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 20 Jan 2022 02:40:07 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:34004 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359054AbiATHj5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 20 Jan 2022 02:39:57 -0500
+        id S1359119AbiATHke (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 20 Jan 2022 02:40:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50354 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1359067AbiATHkM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 20 Jan 2022 02:40:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CCD7C061401;
+        Wed, 19 Jan 2022 23:40:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1CA78B81CCF;
-        Thu, 20 Jan 2022 07:39:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A05DFC340E0;
-        Thu, 20 Jan 2022 07:39:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CB35CB81CEF;
+        Thu, 20 Jan 2022 07:40:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B58F6C340E7;
+        Thu, 20 Jan 2022 07:40:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642664393;
-        bh=TB1cKcwW57nQHzTCrY5lspTnI3wC9JPEw8XnIvQmQQE=;
+        s=k20201202; t=1642664408;
+        bh=HCo+0EXrzShRg2XMs1Q20AbxCv/6Dc5VhMysukxHOII=;
         h=From:To:Cc:Subject:Date:From;
-        b=TU0FfEvbuSNDwvJyGU97vHk7QDrEgJka0b/abORkc1WbXNfWmzsdqgBouy22n1S+7
-         yQ0JJWBDT9X64Bju7Fz9l0EXGG0gOH8eS7qqf90fZrJESYRsOfI0O0pUz/TS3Gn/Be
-         sTplQdJIqFtzkvZB3X2XlO9DIyj+NYFZL4tLv+0DVwFXdGwukIflRadQSh05hfViCQ
-         Jr7r05QdaDilEK/XS9gqA4fJeahz7uMkbzISAqeBJvgkj2M/tu1WuHTCTcGjr2kR/A
-         TRSoGGHJAU4MimPa9zRCI0/zEQHJHXJ347v4eTcwx/SGt8tK3bx0PqgHXLjPbyUuql
-         KKNAJ5QRXSvHg==
+        b=ALQzn1umnAQs3gCfDBM5tH06Cx9ozUimsyDkfyP/rlsWS75GZZSluP9e2mMqACejV
+         pKHeG4rZ9ICMw8vzyctx0sSZ2KcpmshaFSuPL2zJK4n4D3QGqFfU29SlXwedu9xyMZ
+         NK5oUMHF0CvgSJ7i+zCzRFcfmMBlcdy9zUjjZ3BLVcdtZMX8xOBmCfDCcmP9vSwwLi
+         C5hJLa6bdy7spUuNP/TZV2teMbYLtbNfPzGC1o69UUZ1UPLknIISGabNM0UVRlD3LA
+         qKxsz/wn3yL71v+fBtTQJqoCmcAiQIbm5rp9/odpn6os+QcZErV60Y2/2bw0n1htGx
+         4/YQitSb7Yhog==
 From:   guoren@kernel.org
 To:     guoren@kernel.org, palmer@dabbelt.com, arnd@arndb.de,
         anup@brainfault.org, gregkh@linuxfoundation.org,
@@ -38,10 +41,11 @@ Cc:     linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
         sparclinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
         inux-parisc@vger.kernel.org, linux-mips@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, x86@kernel.org,
-        Guo Ren <guoren@linux.alibaba.com>
-Subject: [PATCH V3 03/17] asm-generic: compat: Cleanup duplicate definitions
-Date:   Thu, 20 Jan 2022 15:38:56 +0800
-Message-Id: <20220120073911.99857-4-guoren@kernel.org>
+        Guo Ren <guoren@linux.alibaba.com>,
+        Anup Patel <anup.patel@wdc.com>
+Subject: [PATCH V3 05/17] riscv: Fixup difference with defconfig
+Date:   Thu, 20 Jan 2022 15:38:58 +0800
+Message-Id: <20220120073911.99857-6-guoren@kernel.org>
 X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -51,916 +55,177 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Guo Ren <guoren@linux.alibaba.com>
 
-There are 7 64bit architectures that support Linux COMPAT mode to
-run 32bit applications. A lot of definitions are duplicate:
- - COMPAT_USER_HZ
- - COMPAT_RLIM_INFINITY
- - COMPAT_OFF_T_MAX
- - __compat_uid_t, __compat_uid_t
- - compat_dev_t
- - compat_ipc_pid_t
- - struct compat_flock
- - struct compat_flock64
- - struct compat_statfs
- - struct compat_ipc64_perm, compat_semid64_ds,
-	  compat_msqid64_ds, compat_shmid64_ds
+Let's follow the origin patch's spirit:
 
-Cleanup duplicate definitions and merge them into asm-generic.
+The only difference between rv32_defconfig and defconfig is that
+rv32_defconfig has  CONFIG_ARCH_RV32I=y.
 
+This is helpful to compare rv64-compat-rv32 v.s. rv32-linux.
+
+Fixes: 1b937e8faa87ccfb ("RISC-V: Add separate defconfig for 32bit systems")
 Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 Signed-off-by: Guo Ren <guoren@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Anup Patel <anup.patel@wdc.com>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
 ---
- arch/arm64/include/asm/compat.h   | 108 +++-----------------------
- arch/mips/include/asm/compat.h    |  24 ++----
- arch/parisc/include/asm/compat.h  |  47 ++----------
- arch/powerpc/include/asm/compat.h |  47 ++----------
- arch/s390/include/asm/compat.h    | 109 +++-----------------------
- arch/sparc/include/asm/compat.h   |  39 ++++------
- arch/x86/include/asm/compat.h     | 114 +++-------------------------
- include/asm-generic/compat.h      | 122 ++++++++++++++++++++++++++++++
- 8 files changed, 191 insertions(+), 419 deletions(-)
+ arch/riscv/Makefile               |   4 +
+ arch/riscv/configs/rv32_defconfig | 135 ------------------------------
+ 2 files changed, 4 insertions(+), 135 deletions(-)
+ delete mode 100644 arch/riscv/configs/rv32_defconfig
 
-diff --git a/arch/arm64/include/asm/compat.h b/arch/arm64/include/asm/compat.h
-index eaa6ca062d89..f54f295efae3 100644
---- a/arch/arm64/include/asm/compat.h
-+++ b/arch/arm64/include/asm/compat.h
-@@ -5,9 +5,18 @@
- #ifndef __ASM_COMPAT_H
- #define __ASM_COMPAT_H
- 
-+#define COMPAT_RLIM_INFINITY		0xffffffff
+diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
+index 8a107ed18b0d..a02e588c4947 100644
+--- a/arch/riscv/Makefile
++++ b/arch/riscv/Makefile
+@@ -148,3 +148,7 @@ PHONY += rv64_randconfig
+ rv64_randconfig:
+ 	$(Q)$(MAKE) KCONFIG_ALLCONFIG=$(srctree)/arch/riscv/configs/64-bit.config \
+ 		-f $(srctree)/Makefile randconfig
 +
- #define compat_mode_t compat_mode_t
- typedef u16		compat_mode_t;
- 
-+#define __compat_uid_t	__compat_uid_t
-+typedef u16		__compat_uid_t;
-+typedef u16		__compat_gid_t;
-+
-+#define compat_ipc_pid_t compat_ipc_pid_t
-+typedef u16		 compat_ipc_pid_t;
-+
- #include <asm-generic/compat.h>
- 
- #ifdef CONFIG_COMPAT
-@@ -19,21 +28,15 @@ typedef u16		compat_mode_t;
- #include <linux/sched.h>
- #include <linux/sched/task_stack.h>
- 
--#define COMPAT_USER_HZ		100
- #ifdef __AARCH64EB__
- #define COMPAT_UTS_MACHINE	"armv8b\0\0"
- #else
- #define COMPAT_UTS_MACHINE	"armv8l\0\0"
- #endif
- 
--typedef u16		__compat_uid_t;
--typedef u16		__compat_gid_t;
- typedef u16		__compat_uid16_t;
- typedef u16		__compat_gid16_t;
--typedef u32		compat_dev_t;
- typedef s32		compat_nlink_t;
--typedef u16		compat_ipc_pid_t;
--typedef __kernel_fsid_t	compat_fsid_t;
- 
- struct compat_stat {
- #ifdef __AARCH64EB__
-@@ -65,106 +68,13 @@ struct compat_stat {
- 	compat_ulong_t	__unused4[2];
- };
- 
--struct compat_flock {
--	short		l_type;
--	short		l_whence;
--	compat_off_t	l_start;
--	compat_off_t	l_len;
--	compat_pid_t	l_pid;
--};
--
- #define F_GETLK64	12	/*  using 'struct flock64' */
- #define F_SETLK64	13
- #define F_SETLKW64	14
- 
--struct compat_flock64 {
--	short		l_type;
--	short		l_whence;
--	compat_loff_t	l_start;
--	compat_loff_t	l_len;
--	compat_pid_t	l_pid;
--};
--
--struct compat_statfs {
--	int		f_type;
--	int		f_bsize;
--	int		f_blocks;
--	int		f_bfree;
--	int		f_bavail;
--	int		f_files;
--	int		f_ffree;
--	compat_fsid_t	f_fsid;
--	int		f_namelen;	/* SunOS ignores this field. */
--	int		f_frsize;
--	int		f_flags;
--	int		f_spare[4];
--};
--
--#define COMPAT_RLIM_INFINITY		0xffffffff
--
--#define COMPAT_OFF_T_MAX	0x7fffffff
--
- #define compat_user_stack_pointer() (user_stack_pointer(task_pt_regs(current)))
- #define COMPAT_MINSIGSTKSZ	2048
- 
--struct compat_ipc64_perm {
--	compat_key_t key;
--	__compat_uid32_t uid;
--	__compat_gid32_t gid;
--	__compat_uid32_t cuid;
--	__compat_gid32_t cgid;
--	unsigned short mode;
--	unsigned short __pad1;
--	unsigned short seq;
--	unsigned short __pad2;
--	compat_ulong_t unused1;
--	compat_ulong_t unused2;
--};
--
--struct compat_semid64_ds {
--	struct compat_ipc64_perm sem_perm;
--	compat_ulong_t sem_otime;
--	compat_ulong_t sem_otime_high;
--	compat_ulong_t sem_ctime;
--	compat_ulong_t sem_ctime_high;
--	compat_ulong_t sem_nsems;
--	compat_ulong_t __unused3;
--	compat_ulong_t __unused4;
--};
--
--struct compat_msqid64_ds {
--	struct compat_ipc64_perm msg_perm;
--	compat_ulong_t msg_stime;
--	compat_ulong_t msg_stime_high;
--	compat_ulong_t msg_rtime;
--	compat_ulong_t msg_rtime_high;
--	compat_ulong_t msg_ctime;
--	compat_ulong_t msg_ctime_high;
--	compat_ulong_t msg_cbytes;
--	compat_ulong_t msg_qnum;
--	compat_ulong_t msg_qbytes;
--	compat_pid_t   msg_lspid;
--	compat_pid_t   msg_lrpid;
--	compat_ulong_t __unused4;
--	compat_ulong_t __unused5;
--};
--
--struct compat_shmid64_ds {
--	struct compat_ipc64_perm shm_perm;
--	compat_size_t  shm_segsz;
--	compat_ulong_t shm_atime;
--	compat_ulong_t shm_atime_high;
--	compat_ulong_t shm_dtime;
--	compat_ulong_t shm_dtime_high;
--	compat_ulong_t shm_ctime;
--	compat_ulong_t shm_ctime_high;
--	compat_pid_t   shm_cpid;
--	compat_pid_t   shm_lpid;
--	compat_ulong_t shm_nattch;
--	compat_ulong_t __unused4;
--	compat_ulong_t __unused5;
--};
--
- static inline int is_compat_task(void)
- {
- 	return test_thread_flag(TIF_32BIT);
-diff --git a/arch/mips/include/asm/compat.h b/arch/mips/include/asm/compat.h
-index bbb3bc5a42fd..cc2d76953792 100644
---- a/arch/mips/include/asm/compat.h
-+++ b/arch/mips/include/asm/compat.h
-@@ -9,12 +9,17 @@
- #include <asm/page.h>
- #include <asm/ptrace.h>
- 
-+#define __compat_uid_t	__compat_uid_t
- typedef s32		__compat_uid_t;
- typedef s32		__compat_gid_t;
-+
-+#define __compat_uid32_t __compat_uid32_t
- typedef __compat_uid_t	__compat_uid32_t;
- typedef __compat_gid_t	__compat_gid32_t;
--#define __compat_uid32_t __compat_uid32_t
--#define __compat_gid32_t __compat_gid32_t
-+
-+#define compat_flock		compat_flock
-+#define compat_statfs		compat_statfs
-+#define compat_ipc64_perm	compat_ipc64_perm
- 
- #define _COMPAT_NSIG		128		/* Don't ask !$@#% ...	*/
- #define _COMPAT_NSIG_BPW	32
-@@ -22,12 +27,9 @@ typedef u32		compat_sigset_word;
- 
- #include <asm-generic/compat.h>
- 
--#define COMPAT_USER_HZ		100
- #define COMPAT_UTS_MACHINE	"mips\0\0\0"
- 
--typedef u32		compat_dev_t;
- typedef u32		compat_nlink_t;
--typedef s32		compat_ipc_pid_t;
- typedef struct {
- 	s32	val[2];
- } compat_fsid_t;
-@@ -69,14 +71,6 @@ struct compat_flock {
- #define F_SETLK64	34
- #define F_SETLKW64	35
- 
--struct compat_flock64 {
--	short		l_type;
--	short		l_whence;
--	compat_loff_t	l_start;
--	compat_loff_t	l_len;
--	compat_pid_t	l_pid;
--};
--
- struct compat_statfs {
- 	int		f_type;
- 	int		f_bsize;
-@@ -92,10 +86,6 @@ struct compat_statfs {
- 	int		f_spare[5];
- };
- 
--#define COMPAT_RLIM_INFINITY	0x7fffffffUL
--
--#define COMPAT_OFF_T_MAX	0x7fffffff
--
- struct compat_ipc64_perm {
- 	compat_key_t key;
- 	__compat_uid32_t uid;
-diff --git a/arch/parisc/include/asm/compat.h b/arch/parisc/include/asm/compat.h
-index c04f5a637c39..113476345c76 100644
---- a/arch/parisc/include/asm/compat.h
-+++ b/arch/parisc/include/asm/compat.h
-@@ -8,19 +8,21 @@
- #include <linux/sched.h>
- #include <linux/thread_info.h>
- 
-+#define COMPAT_RLIM_INFINITY	0xffffffff
-+
- #define compat_mode_t compat_mode_t
- typedef u16	compat_mode_t;
- 
-+#define compat_ipc_pid_t compat_ipc_pid_t
-+typedef u16	compat_ipc_pid_t;
-+
-+#define compat_ipc64_perm compat_ipc64_perm
-+
- #include <asm-generic/compat.h>
- 
--#define COMPAT_USER_HZ 		100
- #define COMPAT_UTS_MACHINE	"parisc\0\0"
- 
--typedef u32	__compat_uid_t;
--typedef u32	__compat_gid_t;
--typedef u32	compat_dev_t;
- typedef u16	compat_nlink_t;
--typedef u16	compat_ipc_pid_t;
- 
- struct compat_stat {
- 	compat_dev_t		st_dev;	/* dev_t is 32 bits on parisc */
-@@ -53,37 +55,6 @@ struct compat_stat {
- 	u32			st_spare4[3];
- };
- 
--struct compat_flock {
--	short			l_type;
--	short			l_whence;
--	compat_off_t		l_start;
--	compat_off_t		l_len;
--	compat_pid_t		l_pid;
--};
--
--struct compat_flock64 {
--	short			l_type;
--	short			l_whence;
--	compat_loff_t		l_start;
--	compat_loff_t		l_len;
--	compat_pid_t		l_pid;
--};
--
--struct compat_statfs {
--	s32		f_type;
--	s32		f_bsize;
--	s32		f_blocks;
--	s32		f_bfree;
--	s32		f_bavail;
--	s32		f_files;
--	s32		f_ffree;
--	__kernel_fsid_t	f_fsid;
--	s32		f_namelen;
--	s32		f_frsize;
--	s32		f_flags;
--	s32		f_spare[4];
--};
--
- struct compat_sigcontext {
- 	compat_int_t sc_flags;
- 	compat_int_t sc_gr[32]; /* PSW in sc_gr[0] */
-@@ -93,10 +64,6 @@ struct compat_sigcontext {
- 	compat_int_t sc_sar; /* cr11 */
- };
- 
--#define COMPAT_RLIM_INFINITY 0xffffffff
--
--#define COMPAT_OFF_T_MAX	0x7fffffff
--
- struct compat_ipc64_perm {
- 	compat_key_t key;
- 	__compat_uid_t uid;
-diff --git a/arch/powerpc/include/asm/compat.h b/arch/powerpc/include/asm/compat.h
-index 7afc96fb6524..6369c6debc9c 100644
---- a/arch/powerpc/include/asm/compat.h
-+++ b/arch/powerpc/include/asm/compat.h
-@@ -8,20 +8,22 @@
- #include <linux/types.h>
- #include <linux/sched.h>
- 
-+#define COMPAT_RLIM_INFINITY		0xffffffff
-+
-+#define compat_ipc_pid_t compat_ipc_pid_t
-+typedef u16		compat_ipc_pid_t;
-+
-+#define compat_ipc64_perm compat_ipc64_perm
-+
- #include <asm-generic/compat.h>
- 
--#define COMPAT_USER_HZ		100
- #ifdef __BIG_ENDIAN__
- #define COMPAT_UTS_MACHINE	"ppc\0\0"
- #else
- #define COMPAT_UTS_MACHINE	"ppcle\0\0"
- #endif
- 
--typedef u32		__compat_uid_t;
--typedef u32		__compat_gid_t;
--typedef u32		compat_dev_t;
- typedef s16		compat_nlink_t;
--typedef u16		compat_ipc_pid_t;
- typedef __kernel_fsid_t	compat_fsid_t;
- 
- struct compat_stat {
-@@ -44,45 +46,10 @@ struct compat_stat {
- 	u32		__unused4[2];
- };
- 
--struct compat_flock {
--	short		l_type;
--	short		l_whence;
--	compat_off_t	l_start;
--	compat_off_t	l_len;
--	compat_pid_t	l_pid;
--};
--
- #define F_GETLK64	12	/*  using 'struct flock64' */
- #define F_SETLK64	13
- #define F_SETLKW64	14
- 
--struct compat_flock64 {
--	short		l_type;
--	short		l_whence;
--	compat_loff_t	l_start;
--	compat_loff_t	l_len;
--	compat_pid_t	l_pid;
--};
--
--struct compat_statfs {
--	int		f_type;
--	int		f_bsize;
--	int		f_blocks;
--	int		f_bfree;
--	int		f_bavail;
--	int		f_files;
--	int		f_ffree;
--	compat_fsid_t	f_fsid;
--	int		f_namelen;	/* SunOS ignores this field. */
--	int		f_frsize;
--	int		f_flags;
--	int		f_spare[4];
--};
--
--#define COMPAT_RLIM_INFINITY		0xffffffff
--
--#define COMPAT_OFF_T_MAX	0x7fffffff
--
- /*
-  * ipc64_perm is actually 32/64bit clean but since the compat layer refers to
-  * it we may as well define it.
-diff --git a/arch/s390/include/asm/compat.h b/arch/s390/include/asm/compat.h
-index cdc7ae72529d..442829e03c76 100644
---- a/arch/s390/include/asm/compat.h
-+++ b/arch/s390/include/asm/compat.h
-@@ -9,9 +9,21 @@
- #include <linux/sched/task_stack.h>
- #include <linux/thread_info.h>
- 
-+#define COMPAT_RLIM_INFINITY	0xffffffff
-+
- #define compat_mode_t	compat_mode_t
- typedef u16		compat_mode_t;
- 
-+#define __compat_uid_t	__compat_uid_t
-+typedef u16		__compat_uid_t;
-+typedef u16		__compat_gid_t;
-+
-+#define compat_dev_t	compat_dev_t
-+typedef u16		compat_dev_t;
-+
-+#define compat_ipc_pid_t compat_ipc_pid_t
-+typedef u16		 compat_ipc_pid_t;
-+
- #include <asm-generic/compat.h>
- 
- #define __TYPE_IS_PTR(t) (!__builtin_types_compatible_p( \
-@@ -53,14 +65,9 @@ typedef u16		compat_mode_t;
- 			 PSW32_MASK_MCHECK | PSW32_MASK_PSTATE | \
- 			 PSW32_ASC_PRIMARY)
- 
--#define COMPAT_USER_HZ		100
- #define COMPAT_UTS_MACHINE	"s390\0\0\0\0"
- 
--typedef u16		__compat_uid_t;
--typedef u16		__compat_gid_t;
--typedef u16		compat_dev_t;
- typedef u16		compat_nlink_t;
--typedef u16		compat_ipc_pid_t;
- typedef __kernel_fsid_t	compat_fsid_t;
- 
- typedef struct {
-@@ -102,41 +109,10 @@ struct compat_stat {
- 	u32		__unused5;
- };
- 
--struct compat_flock {
--	short		l_type;
--	short		l_whence;
--	compat_off_t	l_start;
--	compat_off_t	l_len;
--	compat_pid_t	l_pid;
--};
--
- #define F_GETLK64       12
- #define F_SETLK64       13
- #define F_SETLKW64      14    
- 
--struct compat_flock64 {
--	short		l_type;
--	short		l_whence;
--	compat_loff_t	l_start;
--	compat_loff_t	l_len;
--	compat_pid_t	l_pid;
--};
--
--struct compat_statfs {
--	u32		f_type;
--	u32		f_bsize;
--	u32		f_blocks;
--	u32		f_bfree;
--	u32		f_bavail;
--	u32		f_files;
--	u32		f_ffree;
--	compat_fsid_t	f_fsid;
--	u32		f_namelen;
--	u32		f_frsize;
--	u32		f_flags;
--	u32		f_spare[4];
--};
--
- struct compat_statfs64 {
- 	u32		f_type;
- 	u32		f_bsize;
-@@ -152,10 +128,6 @@ struct compat_statfs64 {
- 	u32		f_spare[4];
- };
- 
--#define COMPAT_RLIM_INFINITY		0xffffffff
--
--#define COMPAT_OFF_T_MAX	0x7fffffff
--
- /*
-  * A pointer passed in from user mode. This should not
-  * be used for syscall parameters, just declare them
-@@ -178,61 +150,4 @@ static inline int is_compat_task(void)
- 
- #endif
- 
--struct compat_ipc64_perm {
--	compat_key_t key;
--	__compat_uid32_t uid;
--	__compat_gid32_t gid;
--	__compat_uid32_t cuid;
--	__compat_gid32_t cgid;
--	compat_mode_t mode;
--	unsigned short __pad1;
--	unsigned short seq;
--	unsigned short __pad2;
--	unsigned int __unused1;
--	unsigned int __unused2;
--};
--
--struct compat_semid64_ds {
--	struct compat_ipc64_perm sem_perm;
--	compat_ulong_t sem_otime;
--	compat_ulong_t sem_otime_high;
--	compat_ulong_t sem_ctime;
--	compat_ulong_t sem_ctime_high;
--	compat_ulong_t sem_nsems;
--	compat_ulong_t __unused1;
--	compat_ulong_t __unused2;
--};
--
--struct compat_msqid64_ds {
--	struct compat_ipc64_perm msg_perm;
--	compat_ulong_t msg_stime;
--	compat_ulong_t msg_stime_high;
--	compat_ulong_t msg_rtime;
--	compat_ulong_t msg_rtime_high;
--	compat_ulong_t msg_ctime;
--	compat_ulong_t msg_ctime_high;
--	compat_ulong_t msg_cbytes;
--	compat_ulong_t msg_qnum;
--	compat_ulong_t msg_qbytes;
--	compat_pid_t   msg_lspid;
--	compat_pid_t   msg_lrpid;
--	compat_ulong_t __unused1;
--	compat_ulong_t __unused2;
--};
--
--struct compat_shmid64_ds {
--	struct compat_ipc64_perm shm_perm;
--	compat_size_t  shm_segsz;
--	compat_ulong_t shm_atime;
--	compat_ulong_t shm_atime_high;
--	compat_ulong_t shm_dtime;
--	compat_ulong_t shm_dtime_high;
--	compat_ulong_t shm_ctime;
--	compat_ulong_t shm_ctime_high;
--	compat_pid_t   shm_cpid;
--	compat_pid_t   shm_lpid;
--	compat_ulong_t shm_nattch;
--	compat_ulong_t __unused1;
--	compat_ulong_t __unused2;
--};
- #endif /* _ASM_S390X_COMPAT_H */
-diff --git a/arch/sparc/include/asm/compat.h b/arch/sparc/include/asm/compat.h
-index bd949fcf9d63..44c7d1db3c80 100644
---- a/arch/sparc/include/asm/compat.h
-+++ b/arch/sparc/include/asm/compat.h
-@@ -9,16 +9,26 @@
- #define compat_mode_t	compat_mode_t
- typedef u16		compat_mode_t;
- 
-+#define __compat_uid_t	__compat_uid_t
-+typedef u16		__compat_uid_t;
-+typedef u16		__compat_gid_t;
-+
-+#define compat_dev_t	compat_dev_t
-+typedef u16		compat_dev_t;
-+
-+#define compat_ipc_pid_t compat_ipc_pid_t
-+typedef u16		 compat_ipc_pid_t;
-+
-+#define compat_flock	compat_flock
-+#define compat_flock64	compat_flock64
-+
-+#define compat_ipc64_perm compat_ipc64_perm
-+
- #include <asm-generic/compat.h>
- 
--#define COMPAT_USER_HZ		100
- #define COMPAT_UTS_MACHINE	"sparc\0\0"
- 
--typedef u16		__compat_uid_t;
--typedef u16		__compat_gid_t;
--typedef u16		compat_dev_t;
- typedef s16		compat_nlink_t;
--typedef u16		compat_ipc_pid_t;
- typedef __kernel_fsid_t	compat_fsid_t;
- 
- struct compat_stat {
-@@ -97,25 +107,6 @@ struct compat_flock64 {
- 	short		__unused;
- };
- 
--struct compat_statfs {
--	int		f_type;
--	int		f_bsize;
--	int		f_blocks;
--	int		f_bfree;
--	int		f_bavail;
--	int		f_files;
--	int		f_ffree;
--	compat_fsid_t	f_fsid;
--	int		f_namelen;	/* SunOS ignores this field. */
--	int		f_frsize;
--	int		f_flags;
--	int		f_spare[4];
--};
--
--#define COMPAT_RLIM_INFINITY 0x7fffffff
--
--#define COMPAT_OFF_T_MAX	0x7fffffff
--
- struct compat_ipc64_perm {
- 	compat_key_t key;
- 	__compat_uid32_t uid;
-diff --git a/arch/x86/include/asm/compat.h b/arch/x86/include/asm/compat.h
-index 7516e4199b3c..3512a9fbca2b 100644
---- a/arch/x86/include/asm/compat.h
-+++ b/arch/x86/include/asm/compat.h
-@@ -12,19 +12,26 @@
- #include <asm/user32.h>
- #include <asm/unistd.h>
- 
-+#define COMPAT_RLIM_INFINITY	0xffffffff
-+
- #define compat_mode_t	compat_mode_t
- typedef u16		compat_mode_t;
- 
-+#define __compat_uid_t	__compat_uid_t
-+typedef u16		__compat_uid_t;
-+typedef u16		__compat_gid_t;
-+
-+#define compat_dev_t	compat_dev_t
-+typedef u16		compat_dev_t;
-+
-+#define compat_ipc_pid_t compat_ipc_pid_t
-+typedef u16		 compat_ipc_pid_t;
-+
- #include <asm-generic/compat.h>
- 
--#define COMPAT_USER_HZ		100
- #define COMPAT_UTS_MACHINE	"i686\0\0"
- 
--typedef u16		__compat_uid_t;
--typedef u16		__compat_gid_t;
--typedef u16		compat_dev_t;
- typedef u16		compat_nlink_t;
--typedef u16		compat_ipc_pid_t;
- typedef __kernel_fsid_t	compat_fsid_t;
- 
- struct compat_stat {
-@@ -50,107 +57,10 @@ struct compat_stat {
- 	u32		__unused5;
- };
- 
--struct compat_flock {
--	short		l_type;
--	short		l_whence;
--	compat_off_t	l_start;
--	compat_off_t	l_len;
--	compat_pid_t	l_pid;
--};
--
- #define F_GETLK64	12	/*  using 'struct flock64' */
- #define F_SETLK64	13
- #define F_SETLKW64	14
- 
--/*
-- * IA32 uses 4 byte alignment for 64 bit quantities,
-- * so we need to pack this structure.
-- */
--struct compat_flock64 {
--	short		l_type;
--	short		l_whence;
--	compat_loff_t	l_start;
--	compat_loff_t	l_len;
--	compat_pid_t	l_pid;
--} __attribute__((packed));
--
--struct compat_statfs {
--	int		f_type;
--	int		f_bsize;
--	int		f_blocks;
--	int		f_bfree;
--	int		f_bavail;
--	int		f_files;
--	int		f_ffree;
--	compat_fsid_t	f_fsid;
--	int		f_namelen;	/* SunOS ignores this field. */
--	int		f_frsize;
--	int		f_flags;
--	int		f_spare[4];
--};
--
--#define COMPAT_RLIM_INFINITY		0xffffffff
--
--#define COMPAT_OFF_T_MAX	0x7fffffff
--
--struct compat_ipc64_perm {
--	compat_key_t key;
--	__compat_uid32_t uid;
--	__compat_gid32_t gid;
--	__compat_uid32_t cuid;
--	__compat_gid32_t cgid;
--	unsigned short mode;
--	unsigned short __pad1;
--	unsigned short seq;
--	unsigned short __pad2;
--	compat_ulong_t unused1;
--	compat_ulong_t unused2;
--};
--
--struct compat_semid64_ds {
--	struct compat_ipc64_perm sem_perm;
--	compat_ulong_t sem_otime;
--	compat_ulong_t sem_otime_high;
--	compat_ulong_t sem_ctime;
--	compat_ulong_t sem_ctime_high;
--	compat_ulong_t sem_nsems;
--	compat_ulong_t __unused3;
--	compat_ulong_t __unused4;
--};
--
--struct compat_msqid64_ds {
--	struct compat_ipc64_perm msg_perm;
--	compat_ulong_t msg_stime;
--	compat_ulong_t msg_stime_high;
--	compat_ulong_t msg_rtime;
--	compat_ulong_t msg_rtime_high;
--	compat_ulong_t msg_ctime;
--	compat_ulong_t msg_ctime_high;
--	compat_ulong_t msg_cbytes;
--	compat_ulong_t msg_qnum;
--	compat_ulong_t msg_qbytes;
--	compat_pid_t   msg_lspid;
--	compat_pid_t   msg_lrpid;
--	compat_ulong_t __unused4;
--	compat_ulong_t __unused5;
--};
--
--struct compat_shmid64_ds {
--	struct compat_ipc64_perm shm_perm;
--	compat_size_t  shm_segsz;
--	compat_ulong_t shm_atime;
--	compat_ulong_t shm_atime_high;
--	compat_ulong_t shm_dtime;
--	compat_ulong_t shm_dtime_high;
--	compat_ulong_t shm_ctime;
--	compat_ulong_t shm_ctime_high;
--	compat_pid_t   shm_cpid;
--	compat_pid_t   shm_lpid;
--	compat_ulong_t shm_nattch;
--	compat_ulong_t __unused4;
--	compat_ulong_t __unused5;
--};
--
- #ifdef CONFIG_X86_X32_ABI
- #define COMPAT_USE_64BIT_TIME \
- 	(!!(task_pt_regs(current)->orig_ax & __X32_SYSCALL_BIT))
-diff --git a/include/asm-generic/compat.h b/include/asm-generic/compat.h
-index d46c0201cc34..5d4cb53e4dfc 100644
---- a/include/asm-generic/compat.h
-+++ b/include/asm-generic/compat.h
-@@ -2,6 +2,18 @@
- #ifndef __ASM_GENERIC_COMPAT_H
- #define __ASM_GENERIC_COMPAT_H
- 
-+#ifndef COMPAT_USER_HZ
-+#define COMPAT_USER_HZ		100
-+#endif
-+
-+#ifndef COMPAT_RLIM_INFINITY
-+#define COMPAT_RLIM_INFINITY	0x7fffffff
-+#endif
-+
-+#ifndef COMPAT_OFF_T_MAX
-+#define COMPAT_OFF_T_MAX	0x7fffffff
-+#endif
-+
- /* These types are common across all compat ABIs */
- typedef u32 compat_size_t;
- typedef s32 compat_ssize_t;
-@@ -24,6 +36,11 @@ typedef u32 compat_caddr_t;
- typedef u32 compat_aio_context_t;
- typedef u32 compat_old_sigset_t;
- 
-+#ifndef __compat_uid_t
-+typedef u32 __compat_uid_t;
-+typedef u32 __compat_gid_t;
-+#endif
-+
- #ifndef __compat_uid32_t
- typedef u32 __compat_uid32_t;
- typedef u32 __compat_gid32_t;
-@@ -47,4 +64,109 @@ typedef u32 compat_sigset_word;
- #define _COMPAT_NSIG_BPW 32
- #endif
- 
-+#ifndef compat_dev_t
-+typedef u32 compat_dev_t;
-+#endif
-+
-+#ifndef compat_ipc_pid_t
-+typedef s32 compat_ipc_pid_t;
-+#endif
-+
-+#ifndef compat_flock
-+struct compat_flock {
-+	compat_short_t	l_type;
-+	compat_short_t	l_whence;
-+	compat_off_t	l_start;
-+	compat_off_t	l_len;
-+	compat_pid_t	l_pid;
-+} __attribute__((packed));
-+#endif
-+
-+#ifndef compat_flock64
-+struct compat_flock64 {
-+	compat_short_t	l_type;
-+	compat_short_t	l_whence;
-+	compat_loff_t	l_start;
-+	compat_loff_t	l_len;
-+	compat_pid_t	l_pid;
-+} __attribute__((packed));
-+#endif
-+
-+#ifndef compat_statfs
-+struct compat_statfs {
-+	compat_uint_t	f_type;
-+	compat_uint_t	f_bsize;
-+	compat_uint_t	f_blocks;
-+	compat_uint_t	f_bfree;
-+	compat_uint_t	f_bavail;
-+	compat_uint_t	f_files;
-+	compat_uint_t	f_ffree;
-+	__kernel_fsid_t	f_fsid;
-+	compat_uint_t	f_namelen;
-+	compat_uint_t	f_frsize;
-+	compat_uint_t	f_flags;
-+	compat_uint_t	f_spare[4];
-+} __attribute__((packed));
-+#endif
-+
-+#ifndef compat_ipc64_perm
-+struct compat_ipc64_perm {
-+	compat_key_t key;
-+	__compat_uid32_t uid;
-+	__compat_gid32_t gid;
-+	__compat_uid32_t cuid;
-+	__compat_gid32_t cgid;
-+	compat_mode_t	mode;
-+	unsigned char	__pad1[4 - sizeof(compat_mode_t)];
-+	compat_ushort_t	seq;
-+	compat_ushort_t	__pad2;
-+	compat_ulong_t	unused1;
-+	compat_ulong_t	unused2;
-+} __attribute__((packed));
-+
-+struct compat_semid64_ds {
-+	struct compat_ipc64_perm sem_perm;
-+	compat_ulong_t sem_otime;
-+	compat_ulong_t sem_otime_high;
-+	compat_ulong_t sem_ctime;
-+	compat_ulong_t sem_ctime_high;
-+	compat_ulong_t sem_nsems;
-+	compat_ulong_t __unused3;
-+	compat_ulong_t __unused4;
-+} __attribute__((packed));
-+
-+struct compat_msqid64_ds {
-+	struct compat_ipc64_perm msg_perm;
-+	compat_ulong_t msg_stime;
-+	compat_ulong_t msg_stime_high;
-+	compat_ulong_t msg_rtime;
-+	compat_ulong_t msg_rtime_high;
-+	compat_ulong_t msg_ctime;
-+	compat_ulong_t msg_ctime_high;
-+	compat_ulong_t msg_cbytes;
-+	compat_ulong_t msg_qnum;
-+	compat_ulong_t msg_qbytes;
-+	compat_pid_t   msg_lspid;
-+	compat_pid_t   msg_lrpid;
-+	compat_ulong_t __unused4;
-+	compat_ulong_t __unused5;
-+} __attribute__((packed));
-+
-+struct compat_shmid64_ds {
-+	struct compat_ipc64_perm shm_perm;
-+	compat_size_t  shm_segsz;
-+	compat_ulong_t shm_atime;
-+	compat_ulong_t shm_atime_high;
-+	compat_ulong_t shm_dtime;
-+	compat_ulong_t shm_dtime_high;
-+	compat_ulong_t shm_ctime;
-+	compat_ulong_t shm_ctime_high;
-+	compat_pid_t   shm_cpid;
-+	compat_pid_t   shm_lpid;
-+	compat_ulong_t shm_nattch;
-+	compat_ulong_t __unused4;
-+	compat_ulong_t __unused5;
-+} __attribute__((packed));
-+#endif
-+
- #endif
++PHONY += rv32_defconfig
++rv32_defconfig:
++	$(Q)$(MAKE) -f $(srctree)/Makefile defconfig 32-bit.config
+diff --git a/arch/riscv/configs/rv32_defconfig b/arch/riscv/configs/rv32_defconfig
+deleted file mode 100644
+index 8b56a7f1eb06..000000000000
+--- a/arch/riscv/configs/rv32_defconfig
++++ /dev/null
+@@ -1,135 +0,0 @@
+-CONFIG_SYSVIPC=y
+-CONFIG_POSIX_MQUEUE=y
+-CONFIG_NO_HZ_IDLE=y
+-CONFIG_HIGH_RES_TIMERS=y
+-CONFIG_BPF_SYSCALL=y
+-CONFIG_IKCONFIG=y
+-CONFIG_IKCONFIG_PROC=y
+-CONFIG_CGROUPS=y
+-CONFIG_CGROUP_SCHED=y
+-CONFIG_CFS_BANDWIDTH=y
+-CONFIG_CGROUP_BPF=y
+-CONFIG_NAMESPACES=y
+-CONFIG_USER_NS=y
+-CONFIG_CHECKPOINT_RESTORE=y
+-CONFIG_BLK_DEV_INITRD=y
+-CONFIG_EXPERT=y
+-# CONFIG_SYSFS_SYSCALL is not set
+-CONFIG_SOC_SIFIVE=y
+-CONFIG_SOC_VIRT=y
+-CONFIG_ARCH_RV32I=y
+-CONFIG_SMP=y
+-CONFIG_HOTPLUG_CPU=y
+-CONFIG_VIRTUALIZATION=y
+-CONFIG_KVM=m
+-CONFIG_JUMP_LABEL=y
+-CONFIG_MODULES=y
+-CONFIG_MODULE_UNLOAD=y
+-CONFIG_NET=y
+-CONFIG_PACKET=y
+-CONFIG_UNIX=y
+-CONFIG_INET=y
+-CONFIG_IP_MULTICAST=y
+-CONFIG_IP_ADVANCED_ROUTER=y
+-CONFIG_IP_PNP=y
+-CONFIG_IP_PNP_DHCP=y
+-CONFIG_IP_PNP_BOOTP=y
+-CONFIG_IP_PNP_RARP=y
+-CONFIG_NETLINK_DIAG=y
+-CONFIG_NET_9P=y
+-CONFIG_NET_9P_VIRTIO=y
+-CONFIG_PCI=y
+-CONFIG_PCIEPORTBUS=y
+-CONFIG_PCI_HOST_GENERIC=y
+-CONFIG_PCIE_XILINX=y
+-CONFIG_DEVTMPFS=y
+-CONFIG_DEVTMPFS_MOUNT=y
+-CONFIG_BLK_DEV_LOOP=y
+-CONFIG_VIRTIO_BLK=y
+-CONFIG_BLK_DEV_SD=y
+-CONFIG_BLK_DEV_SR=y
+-CONFIG_SCSI_VIRTIO=y
+-CONFIG_ATA=y
+-CONFIG_SATA_AHCI=y
+-CONFIG_SATA_AHCI_PLATFORM=y
+-CONFIG_NETDEVICES=y
+-CONFIG_VIRTIO_NET=y
+-CONFIG_MACB=y
+-CONFIG_E1000E=y
+-CONFIG_R8169=y
+-CONFIG_MICROSEMI_PHY=y
+-CONFIG_INPUT_MOUSEDEV=y
+-CONFIG_SERIAL_8250=y
+-CONFIG_SERIAL_8250_CONSOLE=y
+-CONFIG_SERIAL_OF_PLATFORM=y
+-CONFIG_SERIAL_EARLYCON_RISCV_SBI=y
+-CONFIG_HVC_RISCV_SBI=y
+-CONFIG_VIRTIO_CONSOLE=y
+-CONFIG_HW_RANDOM=y
+-CONFIG_HW_RANDOM_VIRTIO=y
+-CONFIG_SPI=y
+-CONFIG_SPI_SIFIVE=y
+-# CONFIG_PTP_1588_CLOCK is not set
+-CONFIG_DRM=y
+-CONFIG_DRM_RADEON=y
+-CONFIG_DRM_VIRTIO_GPU=y
+-CONFIG_FB=y
+-CONFIG_FRAMEBUFFER_CONSOLE=y
+-CONFIG_USB=y
+-CONFIG_USB_XHCI_HCD=y
+-CONFIG_USB_XHCI_PLATFORM=y
+-CONFIG_USB_EHCI_HCD=y
+-CONFIG_USB_EHCI_HCD_PLATFORM=y
+-CONFIG_USB_OHCI_HCD=y
+-CONFIG_USB_OHCI_HCD_PLATFORM=y
+-CONFIG_USB_STORAGE=y
+-CONFIG_USB_UAS=y
+-CONFIG_MMC=y
+-CONFIG_MMC_SPI=y
+-CONFIG_RTC_CLASS=y
+-CONFIG_VIRTIO_PCI=y
+-CONFIG_VIRTIO_BALLOON=y
+-CONFIG_VIRTIO_INPUT=y
+-CONFIG_VIRTIO_MMIO=y
+-CONFIG_RPMSG_CHAR=y
+-CONFIG_RPMSG_VIRTIO=y
+-CONFIG_EXT4_FS=y
+-CONFIG_EXT4_FS_POSIX_ACL=y
+-CONFIG_AUTOFS4_FS=y
+-CONFIG_MSDOS_FS=y
+-CONFIG_VFAT_FS=y
+-CONFIG_TMPFS=y
+-CONFIG_TMPFS_POSIX_ACL=y
+-CONFIG_NFS_FS=y
+-CONFIG_NFS_V4=y
+-CONFIG_NFS_V4_1=y
+-CONFIG_NFS_V4_2=y
+-CONFIG_ROOT_NFS=y
+-CONFIG_9P_FS=y
+-CONFIG_CRYPTO_USER_API_HASH=y
+-CONFIG_CRYPTO_DEV_VIRTIO=y
+-CONFIG_PRINTK_TIME=y
+-CONFIG_DEBUG_FS=y
+-CONFIG_DEBUG_PAGEALLOC=y
+-CONFIG_SCHED_STACK_END_CHECK=y
+-CONFIG_DEBUG_VM=y
+-CONFIG_DEBUG_VM_PGFLAGS=y
+-CONFIG_DEBUG_MEMORY_INIT=y
+-CONFIG_DEBUG_PER_CPU_MAPS=y
+-CONFIG_SOFTLOCKUP_DETECTOR=y
+-CONFIG_WQ_WATCHDOG=y
+-CONFIG_DEBUG_TIMEKEEPING=y
+-CONFIG_DEBUG_RT_MUTEXES=y
+-CONFIG_DEBUG_SPINLOCK=y
+-CONFIG_DEBUG_MUTEXES=y
+-CONFIG_DEBUG_RWSEMS=y
+-CONFIG_DEBUG_ATOMIC_SLEEP=y
+-CONFIG_STACKTRACE=y
+-CONFIG_DEBUG_LIST=y
+-CONFIG_DEBUG_PLIST=y
+-CONFIG_DEBUG_SG=y
+-# CONFIG_RCU_TRACE is not set
+-CONFIG_RCU_EQS_DEBUG=y
+-# CONFIG_FTRACE is not set
+-# CONFIG_RUNTIME_TESTING_MENU is not set
+-CONFIG_MEMTEST=y
 -- 
 2.25.1
 
