@@ -2,32 +2,35 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B6CCBC433FE
-	for <linux-s390@archiver.kernel.org>; Thu, 20 Jan 2022 07:40:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F2FCC4332F
+	for <linux-s390@archiver.kernel.org>; Thu, 20 Jan 2022 07:40:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359059AbiATHkC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 20 Jan 2022 02:40:02 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:33964 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359041AbiATHjs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 20 Jan 2022 02:39:48 -0500
+        id S1359045AbiATHkG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 20 Jan 2022 02:40:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50310 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1359042AbiATHkC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 20 Jan 2022 02:40:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19E1FC061748;
+        Wed, 19 Jan 2022 23:40:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2A154B81CEF;
-        Thu, 20 Jan 2022 07:39:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17D94C340E4;
-        Thu, 20 Jan 2022 07:39:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AE6FF616CB;
+        Thu, 20 Jan 2022 07:40:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77E4FC340E4;
+        Thu, 20 Jan 2022 07:39:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642664386;
-        bh=wgws1+8L9i7kbgvgjdXAZl1XEXSQpZhiEofGPemoDl4=;
+        s=k20201202; t=1642664401;
+        bh=qJD57/3gY2zSXRpnVNbFWGCqBWFY0D9tiSWAxkhZbKc=;
         h=From:To:Cc:Subject:Date:From;
-        b=ud8l55tDJs0qsT01YNvnvWlOjIPKiurRmv+VTuSNrEiZD9q/k0YA3cROmmbFVIR2l
-         nxELsCgfhZTAXqrWeYMw7ujI8NgOifJIyGOYjXNXKiqdu4EYVO5DFQThdLqCwOLf3N
-         7cQ2xcz3nbSLOkM1FTf9yegh8JsjDbntzNSNz/PHI/rZ5oLmvwlNcwO8Shjkmgjat0
-         9IFeN00MNcpfYpoYG9soTzGa9F/vMau5+E83t+ioOak5tzofeUoSTdhKwJuaapeFn3
-         Fii9X23QYYXRbJFtE1QijCuHlxV8VrQYEm7J8hGmRk6mtRInHLFHIjm4RI2tO/QNaW
-         OBjHH733VOmcA==
+        b=eBsR/dy1OpHMDhW7jv7iycskNO7Zb5mtmViqMVB04MQWPwNmSdCA7D0CNCn93+NS9
+         mpmN3e/NrrGKeXWFoTLOdq1UZBu78nPcZWZb64/db/RwarbJiQ2NT2WDFbZQ+STZU5
+         98VhN2UoAe1VyOeRMeeRDF3shfVwElpy9Bzx7FJmQ+1CkHES5nerIsqJpuJePUIpoa
+         rRUsM0noMR1mALjqV39hKsrmvHI2/AIf779OPRaLQOl8tliIDSsdLPsMR/UW0mx0xM
+         kul53QXAASbtyVn04arKws3tSmUBJ8FHBZmVbBj4hK90pqzqQb4XH6mklLupChHK0c
+         QN/l//xn272jQ==
 From:   guoren@kernel.org
 To:     guoren@kernel.org, palmer@dabbelt.com, arnd@arndb.de,
         anup@brainfault.org, gregkh@linuxfoundation.org,
@@ -39,9 +42,9 @@ Cc:     linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
         inux-parisc@vger.kernel.org, linux-mips@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, x86@kernel.org,
         Guo Ren <guoren@linux.alibaba.com>
-Subject: [PATCH V3 02/17] fs: stat: compat: Add __ARCH_WANT_COMPAT_STAT
-Date:   Thu, 20 Jan 2022 15:38:55 +0800
-Message-Id: <20220120073911.99857-3-guoren@kernel.org>
+Subject: [PATCH V3 04/17] syscalls: compat: Fix the missing part for __SYSCALL_COMPAT
+Date:   Thu, 20 Jan 2022 15:38:57 +0800
+Message-Id: <20220120073911.99857-5-guoren@kernel.org>
 X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -51,121 +54,61 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Guo Ren <guoren@linux.alibaba.com>
 
-RISC-V doesn't neeed compat_stat, so using __ARCH_WANT_COMPAT_STAT
-to exclude unnecessary SYSCALL functions.
+Make "uapi asm unistd.h" could be used for architectures' COMPAT
+mode. The __SYSCALL_COMPAT is first used in riscv.
 
 Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 Signed-off-by: Guo Ren <guoren@kernel.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Arnd Bergmann <arnd@arndb.de>
 ---
- arch/arm64/include/asm/unistd.h   | 1 +
- arch/mips/include/asm/unistd.h    | 2 ++
- arch/parisc/include/asm/unistd.h  | 1 +
- arch/powerpc/include/asm/unistd.h | 1 +
- arch/s390/include/asm/unistd.h    | 1 +
- arch/sparc/include/asm/unistd.h   | 1 +
- arch/x86/include/asm/unistd.h     | 1 +
- fs/stat.c                         | 2 +-
- 8 files changed, 9 insertions(+), 1 deletion(-)
+ include/uapi/asm-generic/unistd.h       | 4 ++--
+ tools/include/uapi/asm-generic/unistd.h | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/include/asm/unistd.h b/arch/arm64/include/asm/unistd.h
-index 4e65da3445c7..037feba03a51 100644
---- a/arch/arm64/include/asm/unistd.h
-+++ b/arch/arm64/include/asm/unistd.h
-@@ -3,6 +3,7 @@
-  * Copyright (C) 2012 ARM Ltd.
-  */
- #ifdef CONFIG_COMPAT
-+#define __ARCH_WANT_COMPAT_STAT
- #define __ARCH_WANT_COMPAT_STAT64
- #define __ARCH_WANT_SYS_GETHOSTNAME
- #define __ARCH_WANT_SYS_PAUSE
-diff --git a/arch/mips/include/asm/unistd.h b/arch/mips/include/asm/unistd.h
-index c2196b1b6604..25a5253db7f4 100644
---- a/arch/mips/include/asm/unistd.h
-+++ b/arch/mips/include/asm/unistd.h
-@@ -50,6 +50,8 @@
- # ifdef CONFIG_32BIT
- #  define __ARCH_WANT_STAT64
- #  define __ARCH_WANT_SYS_TIME32
-+# else
-+#  define __ARCH_WANT_COMPAT_STAT
- # endif
- # ifdef CONFIG_MIPS32_O32
- #  define __ARCH_WANT_SYS_TIME32
-diff --git a/arch/parisc/include/asm/unistd.h b/arch/parisc/include/asm/unistd.h
-index cd438e4150f6..14e0668184cb 100644
---- a/arch/parisc/include/asm/unistd.h
-+++ b/arch/parisc/include/asm/unistd.h
-@@ -168,6 +168,7 @@ type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5)	\
- #define __ARCH_WANT_SYS_CLONE
- #define __ARCH_WANT_SYS_CLONE3
- #define __ARCH_WANT_COMPAT_SYS_SENDFILE
-+#define __ARCH_WANT_COMPAT_STAT
+diff --git a/include/uapi/asm-generic/unistd.h b/include/uapi/asm-generic/unistd.h
+index 1c48b0ae3ba3..45fa180cc56a 100644
+--- a/include/uapi/asm-generic/unistd.h
++++ b/include/uapi/asm-generic/unistd.h
+@@ -383,7 +383,7 @@ __SYSCALL(__NR_syslog, sys_syslog)
  
- #ifdef CONFIG_64BIT
- #define __ARCH_WANT_SYS_TIME
-diff --git a/arch/powerpc/include/asm/unistd.h b/arch/powerpc/include/asm/unistd.h
-index 5eb462af6766..b1129b4ef57d 100644
---- a/arch/powerpc/include/asm/unistd.h
-+++ b/arch/powerpc/include/asm/unistd.h
-@@ -44,6 +44,7 @@
- #define __ARCH_WANT_SYS_TIME
- #define __ARCH_WANT_SYS_UTIME
- #define __ARCH_WANT_SYS_NEWFSTATAT
-+#define __ARCH_WANT_COMPAT_STAT
- #define __ARCH_WANT_COMPAT_SYS_SENDFILE
- #endif
- #define __ARCH_WANT_SYS_FORK
-diff --git a/arch/s390/include/asm/unistd.h b/arch/s390/include/asm/unistd.h
-index 9e9f75ef046a..4260bc5ce7f8 100644
---- a/arch/s390/include/asm/unistd.h
-+++ b/arch/s390/include/asm/unistd.h
-@@ -28,6 +28,7 @@
- #define __ARCH_WANT_SYS_SIGPENDING
- #define __ARCH_WANT_SYS_SIGPROCMASK
- # ifdef CONFIG_COMPAT
-+#   define __ARCH_WANT_COMPAT_STAT
- #   define __ARCH_WANT_SYS_TIME32
- #   define __ARCH_WANT_SYS_UTIME32
- # endif
-diff --git a/arch/sparc/include/asm/unistd.h b/arch/sparc/include/asm/unistd.h
-index 1e66278ba4a5..d6bc76706a7a 100644
---- a/arch/sparc/include/asm/unistd.h
-+++ b/arch/sparc/include/asm/unistd.h
-@@ -46,6 +46,7 @@
- #define __ARCH_WANT_SYS_TIME
- #define __ARCH_WANT_SYS_UTIME
- #define __ARCH_WANT_COMPAT_SYS_SENDFILE
-+#define __ARCH_WANT_COMPAT_STAT
- #endif
+ /* kernel/ptrace.c */
+ #define __NR_ptrace 117
+-__SYSCALL(__NR_ptrace, sys_ptrace)
++__SC_COMP(__NR_ptrace, sys_ptrace, compat_sys_ptrace)
  
- #ifdef __32bit_syscall_numbers__
-diff --git a/arch/x86/include/asm/unistd.h b/arch/x86/include/asm/unistd.h
-index 80e9d5206a71..761173ccc33c 100644
---- a/arch/x86/include/asm/unistd.h
-+++ b/arch/x86/include/asm/unistd.h
-@@ -22,6 +22,7 @@
- #  include <asm/unistd_32_ia32.h>
- #  define __ARCH_WANT_SYS_TIME
- #  define __ARCH_WANT_SYS_UTIME
-+#  define __ARCH_WANT_COMPAT_STAT
- #  define __ARCH_WANT_COMPAT_SYS_PREADV64
- #  define __ARCH_WANT_COMPAT_SYS_PWRITEV64
- #  define __ARCH_WANT_COMPAT_SYS_PREADV64V2
-diff --git a/fs/stat.c b/fs/stat.c
-index 28d2020ba1f4..ffdeb9065d53 100644
---- a/fs/stat.c
-+++ b/fs/stat.c
-@@ -639,7 +639,7 @@ SYSCALL_DEFINE5(statx,
- 	return do_statx(dfd, filename, flags, mask, buffer);
- }
+ /* kernel/sched/core.c */
+ #define __NR_sched_setparam 118
+@@ -779,7 +779,7 @@ __SYSCALL(__NR_rseq, sys_rseq)
+ #define __NR_kexec_file_load 294
+ __SYSCALL(__NR_kexec_file_load,     sys_kexec_file_load)
+ /* 295 through 402 are unassigned to sync up with generic numbers, don't use */
+-#if __BITS_PER_LONG == 32
++#if defined(__SYSCALL_COMPAT) || __BITS_PER_LONG == 32
+ #define __NR_clock_gettime64 403
+ __SYSCALL(__NR_clock_gettime64, sys_clock_gettime)
+ #define __NR_clock_settime64 404
+diff --git a/tools/include/uapi/asm-generic/unistd.h b/tools/include/uapi/asm-generic/unistd.h
+index 4557a8b6086f..aafe5cfeb27c 100644
+--- a/tools/include/uapi/asm-generic/unistd.h
++++ b/tools/include/uapi/asm-generic/unistd.h
+@@ -383,7 +383,7 @@ __SYSCALL(__NR_syslog, sys_syslog)
  
--#ifdef CONFIG_COMPAT
-+#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_STAT)
- static int cp_compat_stat(struct kstat *stat, struct compat_stat __user *ubuf)
- {
- 	struct compat_stat tmp;
+ /* kernel/ptrace.c */
+ #define __NR_ptrace 117
+-__SYSCALL(__NR_ptrace, sys_ptrace)
++__SC_COMP(__NR_ptrace, sys_ptrace, compat_sys_ptrace)
+ 
+ /* kernel/sched/core.c */
+ #define __NR_sched_setparam 118
+@@ -779,7 +779,7 @@ __SYSCALL(__NR_rseq, sys_rseq)
+ #define __NR_kexec_file_load 294
+ __SYSCALL(__NR_kexec_file_load,     sys_kexec_file_load)
+ /* 295 through 402 are unassigned to sync up with generic numbers, don't use */
+-#if __BITS_PER_LONG == 32
++#if defined(__SYSCALL_COMPAT) || __BITS_PER_LONG == 32
+ #define __NR_clock_gettime64 403
+ __SYSCALL(__NR_clock_gettime64, sys_clock_gettime)
+ #define __NR_clock_settime64 404
 -- 
 2.25.1
 
