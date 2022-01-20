@@ -2,139 +2,124 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CAF8C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 20 Jan 2022 08:25:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F429C433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 20 Jan 2022 08:34:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239758AbiATIZG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 20 Jan 2022 03:25:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60766 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232274AbiATIZF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 20 Jan 2022 03:25:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6EE1C061574;
-        Thu, 20 Jan 2022 00:25:04 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 719B2B81D0A;
-        Thu, 20 Jan 2022 08:25:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94134C340E0;
-        Thu, 20 Jan 2022 08:25:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642667102;
-        bh=J7fp2W6HYZjVZNGtMZQ54GtqC/k7L5nnzFcph+ZWpc0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=j8W96MgPfh/LY4xQc9Dh4CPmsBLaKLSMhwZbLNuqQiEgJUXnJsWV+J1AhWYoaLmRS
-         LcIBmoP3+JXxcdETcAJ7WVNjEMr2ZTu5P7iTNUQy/1ziJTwpXu6m1jGck2YXOAO0yk
-         P3Y/SvTgXWddaeL3FmWNV3CjtPhHCbjVXrfiVjNkF+ocktvEYZjQaSwB7P3kCieZHa
-         ke0BNGPTvEYwJv8KYoaRXNugxjRRF6Com5ul52+qOz64LHDamv/sK6NB7HDG4TGL4n
-         mM5BlpbCITRn+Lg5h/78sG2BAMY/2iS3WLzXb9GmKQeRB+aHLbCOAYLVg/bgE0nSSy
-         38XpkYvBsW+eQ==
-Date:   Thu, 20 Jan 2022 10:24:57 +0200
-From:   Leon Romanovsky <leon@kernel.org>
-To:     Guangguan Wang <guangguan.wang@linux.alibaba.com>
-Cc:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH net-next] net/smc: Introduce receive queue flow
- control support
-Message-ID: <YekcWYwg399vR18R@unreal>
-References: <20220120065140.5385-1-guangguan.wang@linux.alibaba.com>
+        id S1359233AbiATIeR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 20 Jan 2022 03:34:17 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:15048 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S241086AbiATIeM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 20 Jan 2022 03:34:12 -0500
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20K8UTjp030775;
+        Thu, 20 Jan 2022 08:34:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=OsxXYYpnpnKEZcPtYMguiYwQkUhE07ZUhxDGK55P3u0=;
+ b=L2jZbi1cSRzBx21Jkn7Wt0lSib1gleQcBHssi0wNYSiANThNHMNUdWXO6XoMZs/bt5KW
+ uH2v1DKTfrDmYFh529rb9rR59sAunzT7I24CA7sqyNAoTduVDTg+RCku/xyPHyYCT8tg
+ UUm4KFnkTpJ3xZRH0SPgTgmtGzl6NUMudxA076tghiohbmUsjX6h9YvHuGBDN2LuL+fO
+ V5PVmeJSGxh7V7reBy2v3NJqsmU0ezyBuQTJX2+j0O7lmQW87GqbpC95CdpclUg8R8HT
+ fpSJ496YG+YXo2tE8zGodtin8azCvZHNKGe5kNa0PnuM8WLxjuKTHexBYtZVLbwAJzTL OQ== 
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dq0rduu1g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 20 Jan 2022 08:34:12 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20K8XvEL031328;
+        Thu, 20 Jan 2022 08:34:10 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma01fra.de.ibm.com with ESMTP id 3dknw9vxhe-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 20 Jan 2022 08:34:09 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20K8Y6tv46399836
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 20 Jan 2022 08:34:06 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 56B7E11C050;
+        Thu, 20 Jan 2022 08:34:06 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0222411C069;
+        Thu, 20 Jan 2022 08:34:06 +0000 (GMT)
+Received: from [9.171.35.3] (unknown [9.171.35.3])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 20 Jan 2022 08:34:05 +0000 (GMT)
+Message-ID: <dbfec527-b995-e382-dafa-c3459e1e45ed@linux.ibm.com>
+Date:   Thu, 20 Jan 2022 09:34:05 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220120065140.5385-1-guangguan.wang@linux.alibaba.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.0
+Subject: Re: [RFC PATCH v1 01/10] s390/uaccess: Add storage key checked access
+ to user memory
+Content-Language: en-US
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20220118095210.1651483-1-scgl@linux.ibm.com>
+ <20220118095210.1651483-2-scgl@linux.ibm.com> <YefeakONMN4PLlml@osiris>
+ <422595a5-b24b-8760-ff0e-112322142de7@linux.ibm.com>
+ <YegQCTqEsiFTUZ2R@osiris>
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+In-Reply-To: <YegQCTqEsiFTUZ2R@osiris>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 1C0e0_hKvi77xjgtN13nOzw2G_QP7Gut
+X-Proofpoint-ORIG-GUID: 1C0e0_hKvi77xjgtN13nOzw2G_QP7Gut
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-01-20_03,2022-01-19_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=560 clxscore=1015
+ priorityscore=1501 lowpriorityscore=0 phishscore=0 suspectscore=0
+ spamscore=0 mlxscore=0 bulkscore=0 impostorscore=0 adultscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2201200044
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jan 20, 2022 at 02:51:40PM +0800, Guangguan Wang wrote:
-> This implement rq flow control in smc-r link layer. QPs
-> communicating without rq flow control, in the previous
-> version, may result in RNR (reveive not ready) error, which
-> means when sq sends a message to the remote qp, but the
-> remote qp's rq has no valid rq entities to receive the message.
-> In RNR condition, the rdma transport layer may retransmit
-> the messages again and again until the rq has any entities,
-> which may lower the performance, especially in heavy traffic.
-> Using credits to do rq flow control can avoid the occurrence
-> of RNR.
+On 1/19/22 14:20, Heiko Carstens wrote:
+> On Wed, Jan 19, 2022 at 12:02:34PM +0100, Janis Schoetterl-Glausch wrote:
+>>> That's a lot of code churn... I would have expected that the existing
+>>> functions will be renamed, get an additional key parameter, and the
+>>> current API is implemented by defines which map copy_to_user() &
+>>> friends to the new functions, and add a zero key.
+>>
+>> I don't think I understand you. I can implement raw_copy_from/to_user
+>> in terms of raw_copy_from/to_user_with_key, which does save a few lines,
+>> but that's it, isn't it?
 > 
-> Test environment:
-> - CPU Intel Xeon Platinum 8 core, mem 32 GiB, nic Mellanox CX4.
-> - redis benchmark 6.2.3 and redis server 6.2.3.
-> - redis server: redis-server --save "" --appendonly no
->   --protected-mode no --io-threads 7 --io-threads-do-reads yes
-> - redis client: redis-benchmark -h 192.168.26.36 -q -t set,get
->   -P 1 --threads 7 -n 2000000 -c 200 -d 10
+> Right you are. I only looked at your patch, and forgot about that all
+> the wrapping is nowadays done in common code.
 > 
->  Before:
->  SET: 205229.23 requests per second, p50=0.799 msec
->  GET: 212278.16 requests per second, p50=0.751 msec
+> So what I really don't like about this approach is that we get an arch
+> specific copy_to_user() implementation back. This means that all those
+> extra calls like might_fault(), instrument_copy_to_user(), and friends
+> now have to be kept in sync by us again, if new instrumentation or
+> security options are added to common code.
 > 
->  After:
->  SET: 623674.69 requests per second, p50=0.303 msec
->  GET: 688326.00 requests per second, p50=0.271 msec
-> 
-> The test of redis-benchmark shows that more than 3X rps
-> improvement after the implementation of rq flow control.
-> 
-> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
-> ---
->  net/smc/af_smc.c   | 12 ++++++
->  net/smc/smc_cdc.c  | 10 ++++-
->  net/smc/smc_cdc.h  |  3 +-
->  net/smc/smc_clc.c  |  3 ++
->  net/smc/smc_clc.h  |  3 +-
->  net/smc/smc_core.h | 17 ++++++++-
->  net/smc/smc_ib.c   |  6 ++-
->  net/smc/smc_llc.c  | 92 +++++++++++++++++++++++++++++++++++++++++++++-
->  net/smc/smc_llc.h  |  5 +++
->  net/smc/smc_wr.c   | 30 ++++++++++++---
->  net/smc/smc_wr.h   | 54 ++++++++++++++++++++++++++-
->  11 files changed, 222 insertions(+), 13 deletions(-)
+> Given that this is manual work / monitoring I'm sure this will not
+> work in the mid or long term, like it has been proven several times in
+> the past for other features. We need something better, which works
+> out-of-the-box wrt common code changes / enhancements.
 
-<...>
+What are our options?
 
-> +		// set peer rq credits watermark, if less than init_credits * 2/3,
-> +		// then credit announcement is needed.
+1. Tooling
+   1.1 Automatic monitoring
+   1.2 ?
+2. Implementation changes
+   2.1 Modify common code
+   2.2 Don't modify common code, pass key argument via well known location
+   2.3 ?
 
-<...>
-
-> +		// set peer rq credits watermark, if less than init_credits * 2/3,
-> +		// then credit announcement is needed.
-
-<...>
-
-> +	// credits have already been announced to peer
-
-<...>
-
-> +	// set local rq credits high watermark to lnk->wr_rx_cnt / 3,
-> +	// if local rq credits more than high watermark, announcement is needed.
-
-<...>
-
-> +// get one tx credit, and peer rq credits dec
-
-<...>
-
-> +// put tx credits, when some failures occurred after tx credits got
-> +// or receive announce credits msgs
-> +static inline void smc_wr_tx_put_credits(struct smc_link *link, int credits, bool wakeup)
-
-<...>
-
-> +// to check whether peer rq credits is lower than watermark.
-> +static inline int smc_wr_tx_credits_need_announce(struct smc_link *link)
-
-<...>
-
-> +// get local rq credits and set credits to zero.
-> +// may called when announcing credits
-> +static inline int smc_wr_rx_get_credits(struct smc_link *link)
-
-Please try to use C-style comments.
-
-Thanks
+Neither of 2.1 and 2.2 seem great.
+How might 1.1 work? A build error if they are out of sync?
