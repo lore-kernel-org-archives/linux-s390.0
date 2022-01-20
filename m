@@ -2,96 +2,103 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8818C433FE
-	for <linux-s390@archiver.kernel.org>; Thu, 20 Jan 2022 14:50:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 34051C4332F
+	for <linux-s390@archiver.kernel.org>; Thu, 20 Jan 2022 14:57:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352260AbiATOud (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 20 Jan 2022 09:50:33 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:60864 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1355513AbiATOuc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 Jan 2022 09:50:32 -0500
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20KEAVdN024673;
-        Thu, 20 Jan 2022 14:50:29 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=G0GLH3eBIxn3Kw4jl0UpIRAQjkLezR3hyq+r6CC0WfM=;
- b=L79X4a1EC3HXz08vZTE+GX1HMfBsnmyQiIMBHpvSDJ8w8jHbYJD2QfdnwfIU+VP9j+OE
- gC30EHl3CukPghXyrGi3b14lOr7tMGKTtz+lT0B8jjuAip5FhCb5EsS5RBJlKupTwtE5
- IG/anDxA2nomEX5ScaIJXJ0vWhaeARl5RM3w14fziyhWX0NDYoyDLIhHuLvExgpX6sto
- IL2L3v9JtMDSkhQuK0wBL7loZ+pVBXovIekMQDYJKn1qUpvI4D94h0sEW92lprE8EevY
- 3kUXAKGIEQVoCes6uTcMU7PiRaoPo2ssp7G+JHFueczfkqEie7loxOQZq2vjOnb0AZ9F Lw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dq7yc2u7p-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 20 Jan 2022 14:50:29 +0000
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20KEBkdZ000885;
-        Thu, 20 Jan 2022 14:50:29 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dq7yc2u6m-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 20 Jan 2022 14:50:28 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20KEmBGw006868;
-        Thu, 20 Jan 2022 14:50:26 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma03ams.nl.ibm.com with ESMTP id 3dknwaakdj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 20 Jan 2022 14:50:26 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20KEoOjJ44499398
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 20 Jan 2022 14:50:24 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 54BEB52065;
-        Thu, 20 Jan 2022 14:50:24 +0000 (GMT)
-Received: from [9.145.155.19] (unknown [9.145.155.19])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 145A352057;
-        Thu, 20 Jan 2022 14:50:24 +0000 (GMT)
-Message-ID: <4c600724-3306-0f0e-36dc-52f4f23825bc@linux.ibm.com>
-Date:   Thu, 20 Jan 2022 15:50:26 +0100
+        id S1357157AbiATO5s (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 20 Jan 2022 09:57:48 -0500
+Received: from mout.kundenserver.de ([217.72.192.75]:42733 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1356745AbiATO5r (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 20 Jan 2022 09:57:47 -0500
+Received: from mail-oi1-f181.google.com ([209.85.167.181]) by
+ mrelayeu.kundenserver.de (mreue107 [213.165.67.113]) with ESMTPSA (Nemesis)
+ id 1MHndY-1n7lap2Jvi-00Es1l; Thu, 20 Jan 2022 15:57:45 +0100
+Received: by mail-oi1-f181.google.com with SMTP id t9so9168099oie.12;
+        Thu, 20 Jan 2022 06:57:44 -0800 (PST)
+X-Gm-Message-State: AOAM532ur7kb+ZJ3gkm0JgO0s8P5UWnOgJaBPq7evKhod0Uk0ONZn2C/
+        nXJDWfIBAjEUHqIChtcKEYQKjBJDBXi85nHgFSY=
+X-Google-Smtp-Source: ABdhPJwjtLdN6iyHNeRuxhdvl9Y6OeJzbUgAsOZS1tuaBlnRH/pfBDfrQe9jdzUZRHtHuLOgUQesyOgPAeGaNPDH+P4=
+X-Received: by 2002:a05:6808:9a:: with SMTP id s26mr7926312oic.108.1642690663723;
+ Thu, 20 Jan 2022 06:57:43 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH net-next] net/smc: Use kvzalloc for allocating
- smc_link_group
-Content-Language: en-US
-To:     Tony Lu <tonylu@linux.alibaba.com>
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20220120140928.7137-1-tonylu@linux.alibaba.com>
-From:   Karsten Graul <kgraul@linux.ibm.com>
-Organization: IBM Deutschland Research & Development GmbH
-In-Reply-To: <20220120140928.7137-1-tonylu@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 4E58KdpiEjPVoyvWrAxK-SP3bbAjV13o
-X-Proofpoint-GUID: vO0io9QmNxdihfN5Z0ND_K3LPE2waQdQ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-01-20_04,2022-01-20_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- malwarescore=0 clxscore=1015 impostorscore=0 adultscore=0 mlxscore=0
- mlxlogscore=999 priorityscore=1501 spamscore=0 suspectscore=0 phishscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2201200076
+References: <20220120073911.99857-8-guoren@kernel.org> <CAK8P3a1UvqsS-D7cVXBkp4KCRWDfquQ6QTkvrQ=FqLxhsAi7Rw@mail.gmail.com>
+ <f16cf10425a14c2e8183d5c90667ce72@AcuMS.aculab.com> <CAJF2gTRwh40xDBkoRJWZEUketKFDAy7_z=-WW7E=T46yH4zPvw@mail.gmail.com>
+In-Reply-To: <CAJF2gTRwh40xDBkoRJWZEUketKFDAy7_z=-WW7E=T46yH4zPvw@mail.gmail.com>
+From:   Arnd Bergmann <arnd@arndb.de>
+Date:   Thu, 20 Jan 2022 15:57:27 +0100
+X-Gmail-Original-Message-ID: <CAK8P3a3FLnqibdXCGR8c+mm92HSiuvocZDeW8MyoTO_L1sYT=w@mail.gmail.com>
+Message-ID: <CAK8P3a3FLnqibdXCGR8c+mm92HSiuvocZDeW8MyoTO_L1sYT=w@mail.gmail.com>
+Subject: Re: [PATCH V3 07/17] riscv: compat: Re-implement TASK_SIZE for COMPAT_32BIT
+To:     Guo Ren <guoren@kernel.org>
+Cc:     David Laight <David.Laight@aculab.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Anup Patel <anup@brainfault.org>,
+        gregkh <gregkh@linuxfoundation.org>,
+        liush <liush@allwinnertech.com>, Wei Fu <wefu@redhat.com>,
+        Drew Fustini <drew@beagleboard.org>,
+        Wang Junqiang <wangjunqiang@iscas.ac.cn>,
+        Christoph Hellwig <hch@lst.de>,
+        Christoph Hellwig <hch@infradead.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        "inux-parisc@vger.kernel.org" <inux-parisc@vger.kernel.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Guo Ren <guoren@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Provags-ID: V03:K1:ebq+f8qblaxd9E/WdJgeKxnEvzsD5T+KESng71vOs/CWvdRMDlH
+ NkzD0RmyN8eSV4KFIA7QtXifTjrQqboztxcBuvgGrnrhQyc3CXAiweVRT3N4SGZbkQpU1RK
+ c/MQoab7YcK4IKxNzDnIBOEcQSW/NfJtQzz03FrWhfbjodQcezVr3JOKqdquhdOqrtDIJyh
+ LaXQmo0QAPULP2HCb1zrQ==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:ja7xTabe8b4=:rOkAX4N/fElJ9mRJ1qbsTv
+ /CLiyFtBXVu7wVnESukj51MjR0Su+7KjNooXiyCuMsYKBa/suOX/6xED3vHQfsy5Ko73zLOPo
+ JOrPPFQeqMONk3jWn7UNFkOxmP3gvynqIdzvnnAhUl+NJE9O2rXUZzMnR5cEAFswgmF4+43p1
+ MH22WI0HeDMg97CbAQGQ9MEoQN81BNzhqqebKpT7g8a4crXrzb1UDVmZFg5kaMI6X05Rq+yJZ
+ V27Ws40orOduuzBVb9/XePF3WrNLMsJU8H6IT+pn6bVcOlC6hOu8FOWudLprPT3s65NPNmkAq
+ drGEG4WFOei0mj2R8t5rxicizUmHC6I+Z3vShqSnSw3KcCICpmExzUSvCqWtP+ZgK0Yqz/cbS
+ BWvifAK/rjqJj/QAVvfpdNdQNl422rx5XOhO1ftmUMkS6MK7QRW3qKx+YMizyavtJatszuOmN
+ Ef1wzw5neeRaeJuJiFBcEbTTJKl4uBeAsfdpiuj8QHlfbwb/8hzF8MrXKi9TgFD088+fWDjwV
+ 6IPf2MbZng+MWfg6BbIx9DVrqo5XgUy0K30hWcOhdpih4KfOkKhCfruICqG5hrQcVPPnQqGKj
+ MX+uj4tlit+dsAnW41X9KDnEahpWqlMPKKDWPbqeAQJAaoMzN1a5XvZH0SGG9/sjbuNeO+gq1
+ BGkwDsQew29OnF49WnZfzxTXOZFfTJIkDmVflXVoG0DLq6UjQ8p/yFexOKQ28RUanYvm/jp6I
+ 9uj4ePgs6wlM1o2NOU/BqQg9JYng+bUPaX50zsHimewZAIMGHJWrs9kHXOXrvr3AwjtPI+v68
+ /34uGlgUXshE5Ckncx1XJWF/Vk+4gke4OEGECWQD5jOFxqwaVw=
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 20/01/2022 15:09, Tony Lu wrote:
-> When analyzed memory usage of SMC, we found that the size of struct
-> smc_link_group is 16048 bytes, which is too big for a busy machine to
-> allocate contiguous memory. Using kvzalloc instead that falls back to
-> vmalloc if there has not enough contiguous memory.
+On Thu, Jan 20, 2022 at 2:27 PM Guo Ren <guoren@kernel.org> wrote:
+> On Thu, Jan 20, 2022 at 8:53 PM David Laight <David.Laight@aculab.com> wrote:
+> > I think the x86-64 32bit compat code even puts the boundary at 4GB.
+> Yes, we could give rv32 compat for 4GB with some effort. But it's unnecessary.
+>
+> There are no history issues for rv32, we use compat mode to reduce
+> memory footprint. eg: only 64MB memory available.
+>
+> At end compat for 4GB is another topic, let's give the initial compat
+> for 2GB support to riscv.
 
-I am wondering where the needed contiguous memory for the required RMB buffers should come from when 
-you don't even get enough storage for the initial link group?
+I think it's fine either way. Having the entire 4GB space available is nice
+when you are trying to build 32-bit software natively rather then using a
+cross-compiler, as you can just do it on a larger machine that supports both.
 
-The idea is that when the system is so low on contiguous memory then a link group creation should fail 
-early, because most of the later buffer allocations will also fail then later.
+One example of software that runs into virtual memory size limitations is
+the gnu linker when building large applications, but it's unlikely that you'll
+actually need to run applications that run into this, while also needing to
+build them natively.
+
+Using the same limit as on native 32-bit machines can help with compatibility
+of certain software, but again this is rarely a problem and I have not seen any
+reports of issues with the 4GB TASK_SIZE_32 on arm64. On x86, there
+is an option to use the native 3GB TASK_SIZE for compat tasks. This was
+introduced to work around buggy applications a long time ago, but is
+probably not used any more in practice.
+
+       Arnd
