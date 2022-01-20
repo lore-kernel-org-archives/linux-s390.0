@@ -2,100 +2,110 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 32ECBC433FE
-	for <linux-s390@archiver.kernel.org>; Thu, 20 Jan 2022 10:26:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E5E61C433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 20 Jan 2022 10:27:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359845AbiATK0i (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 20 Jan 2022 05:26:38 -0500
-Received: from mout.kundenserver.de ([212.227.126.187]:44115 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359849AbiATK0b (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 20 Jan 2022 05:26:31 -0500
-Received: from mail-lf1-f48.google.com ([209.85.167.48]) by
- mrelayeu.kundenserver.de (mreue009 [213.165.67.97]) with ESMTPSA (Nemesis) id
- 1MDQqk-1n3JeX0LO2-00AXcO; Thu, 20 Jan 2022 11:26:27 +0100
-Received: by mail-lf1-f48.google.com with SMTP id y15so11517075lfa.9;
-        Thu, 20 Jan 2022 02:26:26 -0800 (PST)
-X-Gm-Message-State: AOAM532xDvuVhYMxLbcdtQvp1d215j2HzuUlfURZ/QSlKIUEAP93LuhQ
-        lJwQvU/b2Qy7BZzYhvoUfCXyYvnAagNvyxJqJA8=
-X-Google-Smtp-Source: ABdhPJzWEQOVmrSCBjLkthqjYvCekql2pWig3E9/sv1NmQbjWn/17+5wGi2Yo7L626/g8+PxrkZBITeqW35NrwNIykU=
-X-Received: by 2002:adf:e193:: with SMTP id az19mr26654977wrb.407.1642671389935;
- Thu, 20 Jan 2022 01:36:29 -0800 (PST)
+        id S242144AbiATK1x (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 20 Jan 2022 05:27:53 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:11074 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S241964AbiATK1u (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 20 Jan 2022 05:27:50 -0500
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20K9wbex020333;
+        Thu, 20 Jan 2022 10:27:50 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=DVIj3GFgTkgKFo2VvBZ/iCyurbcDaBoDFE2fV/wwMxE=;
+ b=VKTX+OH0G5TYiuEH20v5oDLvR2Z2yGd+RShzd4JK3xZ4xbSDaylOOBbAbqiLPNG6BxUp
+ FV9wia2OYYk5VJQ4/gauu+SqSm+gf1V2GfND88i3AD+xm0oVrxTAjELumLjLHyVvDm5Q
+ ++FnGXmTWVFRtx7Bji3VMsFwjRmm48O2XvBlOu5ef2cvKJxlyOuG3PW3F29NlrPWF7aJ
+ Xriymftk45GZIOcgjlcGel+FhbFGdQ4Za1jV0pIQgOoGVW7sVoxXd00wIYS9Fc0hpD6D
+ ZjMiPUrxMrZ4paZG9JRsSavcnXiFc88ifun05/pIlCdSgB59uPRkYSZ+uPGU5df5bOG4 qA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dq5k1rgw0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 20 Jan 2022 10:27:50 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20KA0JwE024807;
+        Thu, 20 Jan 2022 10:27:50 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dq5k1rgvk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 20 Jan 2022 10:27:50 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20KANp0C026798;
+        Thu, 20 Jan 2022 10:27:48 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma06ams.nl.ibm.com with ESMTP id 3dknhk030r-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 20 Jan 2022 10:27:47 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20KARirJ10354998
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 20 Jan 2022 10:27:44 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A0EBFA4082;
+        Thu, 20 Jan 2022 10:27:44 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2B98AA405F;
+        Thu, 20 Jan 2022 10:27:44 +0000 (GMT)
+Received: from [9.171.38.24] (unknown [9.171.38.24])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 20 Jan 2022 10:27:44 +0000 (GMT)
+Message-ID: <d5247a6c-2088-cbfa-20f9-c1c748f90daf@linux.ibm.com>
+Date:   Thu, 20 Jan 2022 11:27:43 +0100
 MIME-Version: 1.0
-References: <20220120073911.99857-11-guoren@kernel.org>
-In-Reply-To: <20220120073911.99857-11-guoren@kernel.org>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Thu, 20 Jan 2022 10:36:13 +0100
-X-Gmail-Original-Message-ID: <CAK8P3a2HaeFGdOr4Rm_ZcEP0rjh2Mo53=-ZRnEPtFfnmzfeE6g@mail.gmail.com>
-Message-ID: <CAK8P3a2HaeFGdOr4Rm_ZcEP0rjh2Mo53=-ZRnEPtFfnmzfeE6g@mail.gmail.com>
-Subject: Re: [PATCH V3 10/17] riscv: compat: Add elf.h implementation
-To:     Guo Ren <guoren@kernel.org>
-Cc:     Palmer Dabbelt <palmer@dabbelt.com>, Arnd Bergmann <arnd@arndb.de>,
-        Anup Patel <anup@brainfault.org>,
-        gregkh <gregkh@linuxfoundation.org>,
-        liush <liush@allwinnertech.com>, Wei Fu <wefu@redhat.com>,
-        Drew Fustini <drew@beagleboard.org>,
-        Wang Junqiang <wangjunqiang@iscas.ac.cn>,
-        Christoph Hellwig <hch@lst.de>,
-        Christoph Hellwig <hch@infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-csky@vger.kernel.org,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        inux-parisc@vger.kernel.org,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Guo Ren <guoren@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:WdJOJl6YzyOdYWVXjRix9lYlHeJZIv5iJHrmuIVaDqLFDQ1EiIK
- 8+AmjN/KKi39Y40ytr6lStCUPCk86RSetD7Ky3Ku8gyGxI7YopXEt67RLk4AX8/csNLQdYO
- +nH6rV1G3fN6/PaqLe5OLSandGt6MRuf141GUaLa/4skCLaq3vNWJR7zzbwREBG2EE+IYfX
- Thlr52eI5vQmDhLO/Mm6Q==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:DnKiGbdM/8k=:DRqsKQ77GSg8KHbAgZc+SZ
- xYFxbfQqvCJspxrhWKsImyHPbulWQ4yZGeFgNNDZPNAcqNwBeIVOsy8KeBSR0QH/SwYJlb9ii
- ESwmuJSK5zLXC1cQypxj0W3S0lLsI5G5gZ99wENyaucJ4Cfe5Akz7pMW2AEHOI1byUVo++Q/S
- CIZjmKRY3oRSr+WtDxHPUgBeYIlSPgXIrvw2OOtz5lX6j3NL3uCBIkd2Hl+qCy7KJZum1HCiZ
- Wg5JLB/sDb5WYTCvshUT6/XvYXOZ08D16dYT25wu9IwdXR7Bau53RuKgguLaUFA0his6viv+A
- sOqoAx6UItWZZmvXrbsjfN8wVn0AeDJWJFvKRM79c5qUUJIx9/qPIlG+OYgHYdQRh8HcK7abp
- mm2Fo37LlXhk00Yfy/ecOV2Pd822p9D2QRpW6qG/FPQYZBkj1qBtx57hbqQ0xlig9Ck5U0T0h
- fvrhs4eFoZYO31eLzGXikMSUynq8ughF25dkceX2E7MRNLLkk9nbEd/QDV+d1YBB6DtudThgk
- /EhVobqFKFRM1Xmvh6YJyIYXARdNpR4ZJHdd0EwzVvR/yDMZrmI1bnAsDUsRscqApZ/UKGs1v
- VmEbwroWt6mHxQZrnv6yDCnPK1woeryJHv+/xjBSQjGbd94n96FcKvSHQe02fXKqh5PFcWRLT
- boGJLwfdkLOCMjAh2BSDZ7iK8hENyuf64lkT/qjV/zpXa3s86RJZGgJVn5jh1azZVsderb2hf
- vLduqGkL47xCAqUnEaB2m1E5k4VdvTKbibkPZ5T8scins26WZzDDYRpBM822r5YKwxZzz4MAv
- c+Bba5wIaPsJ6+ldV1uC9zYkY4F4/Fp75wYGi2Vf99HStHbLdhzaUhsGXtUf6l1AtNBNwlA
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.0
+Subject: Re: [RFC PATCH v1 02/10] KVM: s390: Honor storage keys when accessing
+ guest memory
+Content-Language: en-US
+To:     Janosch Frank <frankja@linux.ibm.com>,
+        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>
+Cc:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+References: <20220118095210.1651483-1-scgl@linux.ibm.com>
+ <20220118095210.1651483-3-scgl@linux.ibm.com>
+ <e5b06907-471d-fe4f-8461-a7dea37abca2@linux.ibm.com>
+From:   Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <e5b06907-471d-fe4f-8461-a7dea37abca2@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 1Y7FW37KP1asLZqtYofSVCCT09h35gef
+X-Proofpoint-ORIG-GUID: t_eo0gSrPiFTT1nOlu1ssWHltFclHPuQ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-01-20_03,2022-01-20_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ bulkscore=0 mlxlogscore=999 phishscore=0 spamscore=0 mlxscore=0
+ malwarescore=0 lowpriorityscore=0 impostorscore=0 suspectscore=0
+ clxscore=1015 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2201200050
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jan 20, 2022 at 8:39 AM <guoren@kernel.org> wrote:
-> From: Guo Ren <guoren@linux.alibaba.com>
->
-> Implement necessary type and macro for compat elf. See the code
-> comment for detail.
->
-> Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
 
-> +
-> +/*
-> + * FIXME: not sure SET_PERSONALITY for compat process is right!
-> + */
-> +#define SET_PERSONALITY(ex)                                    \
-> +do {    if ((ex).e_ident[EI_CLASS] == ELFCLASS32)              \
-> +               set_thread_flag(TIF_32BIT);                     \
-> +       else                                                    \
-> +               clear_thread_flag(TIF_32BIT);                   \
-> +       if (personality(current->personality) != PER_LINUX32)   \
-> +               set_personality(PER_LINUX |                     \
-> +                       (current->personality & (~PER_MASK)));  \
-> +} while (0)
-> +
+Am 18.01.22 um 15:38 schrieb Janosch Frank:
+[...]
+> /*
+> We'll do an actual access via the mv instruction which will return access errors to us so we don't need to check here.
+> */
 
-The implementation looks good to me now,  you can remove that comment above it.
+Be slightly more verbose I guess. Something like
+We'll do an actual access via the mv instruction which will return access errors to us so we don't need to check here.
+By using key 0 all checks are skipped and no performance overhead occurs.
 
-        Arnd
+?
+
+>> +    rc = guest_range_to_gpas(vcpu, ga, ar, gpas, len, asce, mode, 0);
