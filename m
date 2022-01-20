@@ -2,99 +2,75 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16E18C433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 20 Jan 2022 13:43:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91810C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 20 Jan 2022 14:11:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234066AbiATNnS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 20 Jan 2022 08:43:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49710 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231760AbiATNnS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 20 Jan 2022 08:43:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0582C061574;
-        Thu, 20 Jan 2022 05:43:17 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AB9A4B81D5B;
-        Thu, 20 Jan 2022 13:43:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AD52C340E8;
-        Thu, 20 Jan 2022 13:43:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642686195;
-        bh=D+Etye9r3fua1x02UnecAbZv0CalmuxTOWCQ+e8HzdE=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=cN8TeiZRwruoIRJkOoV5cCJrRkANf7l3v6f2dnF2xlBmUXAwCKjGM3kmUmmr7lfcJ
-         1APkSDv+D1H3WQp3uuaV0kT/S8OeoYHOyoCm+Uh5ZwvEw7IhawBDNn89d/q5eyXPa3
-         nAY2sqd8hpAZSIAYJGf70xVxfIBc+dqte1gPEuhjwCNzY97jFtY3PEtY924x+w0WZd
-         wAeTD/djlb2LaOfPp5PAZ48mZs2FwdBxQt7SiLMX8KePhQm69b789EqQ8wWQDq0dC/
-         8Od7DRhnmvf6YwO+Awvtgi4eoym2J8Zy/zeuP32XDNFMzEGlHelD0Dh2qQJ7xmBcHR
-         1Xfu4zn6tGfTQ==
-Received: by mail-vk1-f169.google.com with SMTP id z15so393775vkp.13;
-        Thu, 20 Jan 2022 05:43:15 -0800 (PST)
-X-Gm-Message-State: AOAM530ztEEKfU5JodV39Z2gFeZVMW1ONO+knS9Gubx6OGhHrhE4BxPl
-        /+H7A+6YWz03uQspLPqUgts+iT3ffL3usEUCN94=
-X-Google-Smtp-Source: ABdhPJxsPoD4QKSG5cjRmiwRNbBq9kp7PjD2iW5iWTPRRES5wTkmV/37UExZW0GDHhLl6tuiT3nFW4CEpN2qDzbKvC8=
-X-Received: by 2002:a1f:2844:: with SMTP id o65mr15161979vko.2.1642686194514;
- Thu, 20 Jan 2022 05:43:14 -0800 (PST)
+        id S1344818AbiATOLP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 20 Jan 2022 09:11:15 -0500
+Received: from out30-44.freemail.mail.aliyun.com ([115.124.30.44]:42374 "EHLO
+        out30-44.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1344741AbiATOLP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 20 Jan 2022 09:11:15 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R391e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0V2N7nuG_1642687871;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0V2N7nuG_1642687871)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Thu, 20 Jan 2022 22:11:12 +0800
+From:   Tony Lu <tonylu@linux.alibaba.com>
+To:     kgraul@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [PATCH net-next] net/smc: Use kvzalloc for allocating smc_link_group
+Date:   Thu, 20 Jan 2022 22:09:30 +0800
+Message-Id: <20220120140928.7137-1-tonylu@linux.alibaba.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-References: <20220120073911.99857-16-guoren@kernel.org> <CAK8P3a0Mr2m2dVoVss59cN-9X7GVBD29VQLo3m4xswRznk_WUQ@mail.gmail.com>
-In-Reply-To: <CAK8P3a0Mr2m2dVoVss59cN-9X7GVBD29VQLo3m4xswRznk_WUQ@mail.gmail.com>
-From:   Guo Ren <guoren@kernel.org>
-Date:   Thu, 20 Jan 2022 21:43:03 +0800
-X-Gmail-Original-Message-ID: <CAJF2gTTGD_Ks2pO4jXx+QbiLV4nkjzk6mP-xKJOCvHtGTeFfOQ@mail.gmail.com>
-Message-ID: <CAJF2gTTGD_Ks2pO4jXx+QbiLV4nkjzk6mP-xKJOCvHtGTeFfOQ@mail.gmail.com>
-Subject: Re: [PATCH V3 15/17] riscv: compat: Add UXL_32 support in start_thread
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Palmer Dabbelt <palmer@dabbelt.com>,
-        Anup Patel <anup@brainfault.org>,
-        gregkh <gregkh@linuxfoundation.org>,
-        liush <liush@allwinnertech.com>, Wei Fu <wefu@redhat.com>,
-        Drew Fustini <drew@beagleboard.org>,
-        Wang Junqiang <wangjunqiang@iscas.ac.cn>,
-        Christoph Hellwig <hch@lst.de>,
-        Christoph Hellwig <hch@infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-csky@vger.kernel.org,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        inux-parisc@vger.kernel.org,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Guo Ren <guoren@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jan 20, 2022 at 9:39 PM Arnd Bergmann <arnd@arndb.de> wrote:
->
-> On Thu, Jan 20, 2022 at 8:39 AM <guoren@kernel.org> wrote:
-> > +
-> > +#ifdef CONFIG_COMPAT
-> > +       if (is_compat_task())
-> > +               regs->status |= SR_UXL_32;
-> > +#endif
->
->
-> You should not need that #ifdef, as the is_compat_task() definition is
-> meant to drop the code at compile time, unless the SR_UXL_32
-> definition is not visible here.
-I almost put CONFIG_COMPAT in every compat related code, because I
-hope the next arch that wants to support COMPAT could easily find
-where to be modified.
+When analyzed memory usage of SMC, we found that the size of struct
+smc_link_group is 16048 bytes, which is too big for a busy machine to
+allocate contiguous memory. Using kvzalloc instead that falls back to
+vmalloc if there has not enough contiguous memory.
 
->
->          Arnd
+Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
+---
+ net/smc/smc_core.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-
-
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 8935ef4811b0..a5024b098540 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -828,7 +828,7 @@ static int smc_lgr_create(struct smc_sock *smc, struct smc_init_info *ini)
+ 		}
+ 	}
+ 
+-	lgr = kzalloc(sizeof(*lgr), GFP_KERNEL);
++	lgr = kvzalloc(sizeof(*lgr), GFP_KERNEL);
+ 	if (!lgr) {
+ 		rc = SMC_CLC_DECL_MEM;
+ 		goto ism_put_vlan;
+@@ -914,7 +914,7 @@ static int smc_lgr_create(struct smc_sock *smc, struct smc_init_info *ini)
+ free_wq:
+ 	destroy_workqueue(lgr->tx_wq);
+ free_lgr:
+-	kfree(lgr);
++	kvfree(lgr);
+ ism_put_vlan:
+ 	if (ini->is_smcd && ini->vlan_id)
+ 		smc_ism_put_vlan(ini->ism_dev[ini->ism_selected], ini->vlan_id);
+@@ -1317,7 +1317,7 @@ static void smc_lgr_free(struct smc_link_group *lgr)
+ 		if (!atomic_dec_return(&lgr_cnt))
+ 			wake_up(&lgrs_deleted);
+ 	}
+-	kfree(lgr);
++	kvfree(lgr);
+ }
+ 
+ static void smc_sk_wake_ups(struct smc_sock *smc)
 -- 
-Best Regards
- Guo Ren
+2.32.0.3.g01195cf9f
 
-ML: https://lore.kernel.org/linux-csky/
