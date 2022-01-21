@@ -2,119 +2,122 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB300C433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 21 Jan 2022 09:22:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7053C433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 21 Jan 2022 09:47:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379711AbiAUJWi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 21 Jan 2022 04:22:38 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:41276 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238087AbiAUJWh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 Jan 2022 04:22:37 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5FF73B81F86;
-        Fri, 21 Jan 2022 09:22:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F944C340E7;
-        Fri, 21 Jan 2022 09:22:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642756954;
-        bh=DoEBSYVdhxCk2hRPozcTctknq4n34sTJPxtSYV1nfhs=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=Rect2n4o+iX3RzSuMqm7blYH7Jp/hn6KvYVHNZi4gBL8iFIvMsCmxh1McTEwDN7si
-         Jp36PSgZTxLoEYXNkuZPZHbuOSaCX325CmGEKFE7qdL/bJYrG4zQFtGn5SCOJLFLuv
-         L3sc4NOwY7+X2UWdBb2ueG0AClbmiy7IwW458aaaf3XIv3BTv/IAj4XAqFCgdH7ih5
-         t6ToBIUrsVsbMOObBDp9gxf4Mq/Pzd4XB1xuRpofrh2pf52fyeSpwwMuzAAf2V+eki
-         7yzqCn4T+d70ueboR1lGAMbTJ8dL8zQnETPkZDzy+/H5QLqca4OHltjQ5kVikRSe2h
-         DVpmSiH6xAKgg==
-Received: by mail-ua1-f46.google.com with SMTP id 2so15760319uax.10;
-        Fri, 21 Jan 2022 01:22:34 -0800 (PST)
-X-Gm-Message-State: AOAM53196M1cZscAyKE2qAvkrAM3e+mKaqv9NIpY7NsFl6bZ8pNSBJ5p
-        JUbWbLwtnhhEob97KdWyPRCy46GVGgmGMTI5Qh8=
-X-Google-Smtp-Source: ABdhPJy/0MHzL1Lj83ABpPKlmasRjxPdpSw7edTfCXcU+fXON/ztRB09l8EfH009hsjqC4mDy1GaKsQom5NTP4rqtk4=
-X-Received: by 2002:a05:6102:34ec:: with SMTP id bi12mr1057047vsb.51.1642756953041;
- Fri, 21 Jan 2022 01:22:33 -0800 (PST)
+        id S1349702AbiAUJrG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 21 Jan 2022 04:47:06 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:25772 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231417AbiAUJrG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 21 Jan 2022 04:47:06 -0500
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20L7g08x015892;
+        Fri, 21 Jan 2022 09:46:42 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : references : date : in-reply-to : message-id : mime-version :
+ content-type; s=pp1; bh=f4JHYwcMV4e54zOcpahbFz7a636zX1CrTjpqpd0Hni4=;
+ b=k5f0xmhwIzf/2+N+cuwvATMnZTef9Fw4GlsvDQPZYuakpxxiiBDobA0sC+NWNThrHAan
+ VAHEcKR8ndldzGKxcpgQTttczQ7vc21p0Kfo9UNJpVH9UC0BcV9A/UwK6ah+8aenTCHM
+ VqSv0xKN3F6NJpkRapzAEQI87bazEPYLCLsDCVl8Av2kBxozVV+hUSx2JbcNLKEjAdO7
+ Vvtp+zHr9h4qRz3febws7sA0cr1QqeOvhWT6Z7R3HaX3Y1uFA+aa/75rWhgFRcf237Ig
+ j9oL0qTqgRVwBXR7lYRJZXt1ix66dkR8IuUoWyfsgg7be8qDgQQWCwCRgU6IAZ45o3Bw bg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dqrnmt7ps-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 21 Jan 2022 09:46:42 +0000
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20L9ba1T028069;
+        Fri, 21 Jan 2022 09:46:42 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dqrnmt7p8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 21 Jan 2022 09:46:41 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20L9bwBf010145;
+        Fri, 21 Jan 2022 09:46:39 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma04ams.nl.ibm.com with ESMTP id 3dqj37u66m-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 21 Jan 2022 09:46:39 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20L9kbJE33489330
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 21 Jan 2022 09:46:37 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4F5FF5204F;
+        Fri, 21 Jan 2022 09:46:37 +0000 (GMT)
+Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id 0AA785204E;
+        Fri, 21 Jan 2022 09:46:37 +0000 (GMT)
+From:   Sven Schnelle <svens@linux.ibm.com>
+To:     Yinan Liu <yinan@linux.alibaba.com>
+Cc:     rostedt@goodmis.org, peterz@infradead.org,
+        mark-pk.tsai@mediatek.com, mingo@redhat.com,
+        linux-kernel@vger.kernel.org, hca@linux.ibm.com,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH v8] scripts: ftrace - move the sort-processing in
+ ftrace_init
+References: <20210911135043.16014-1-yinan@linux.alibaba.com>
+        <20211212113358.34208-1-yinan@linux.alibaba.com>
+        <20211212113358.34208-2-yinan@linux.alibaba.com>
+Date:   Fri, 21 Jan 2022 10:46:36 +0100
+In-Reply-To: <20211212113358.34208-2-yinan@linux.alibaba.com> (Yinan Liu's
+        message of "Sun, 12 Dec 2021 19:33:58 +0800")
+Message-ID: <yt9dee51ctfn.fsf@linux.ibm.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.50 (gnu/linux)
 MIME-Version: 1.0
-References: <20220120073911.99857-9-guoren@kernel.org> <CAK8P3a0LxB3we9wHOa4OPmNow6wz5NP49zeYhh7QXNv-MiR8UA@mail.gmail.com>
- <CAJF2gTQVUF4LSO0a6_MV8x-UAiJw32pAFyS1oPNLXhcEaemzqg@mail.gmail.com> <CAK8P3a1sOejkdOyoRUfw4ESS7ewX_8Wj9tQNrZ40OiuDqJnrmw@mail.gmail.com>
-In-Reply-To: <CAK8P3a1sOejkdOyoRUfw4ESS7ewX_8Wj9tQNrZ40OiuDqJnrmw@mail.gmail.com>
-From:   Guo Ren <guoren@kernel.org>
-Date:   Fri, 21 Jan 2022 17:22:22 +0800
-X-Gmail-Original-Message-ID: <CAJF2gTSzMym_PS36JgpWLQUdAO3nq+z7mdDWRT=EzQq+waPSpA@mail.gmail.com>
-Message-ID: <CAJF2gTSzMym_PS36JgpWLQUdAO3nq+z7mdDWRT=EzQq+waPSpA@mail.gmail.com>
-Subject: Re: [PATCH V3 08/17] riscv: compat: syscall: Add compat_sys_call_table
- implementation
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Palmer Dabbelt <palmer@dabbelt.com>,
-        Anup Patel <anup@brainfault.org>,
-        gregkh <gregkh@linuxfoundation.org>,
-        liush <liush@allwinnertech.com>, Wei Fu <wefu@redhat.com>,
-        Drew Fustini <drew@beagleboard.org>,
-        Wang Junqiang <wangjunqiang@iscas.ac.cn>,
-        Christoph Hellwig <hch@lst.de>,
-        Christoph Hellwig <hch@infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-csky@vger.kernel.org,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        inux-parisc@vger.kernel.org,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Guo Ren <guoren@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: zVbhHmFDTo2cvPeVVJLmshdKet41wDXE
+X-Proofpoint-ORIG-GUID: ctD1dqNde2JwWJCSjezwvpQYBEa-03Hp
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-01-21_06,2022-01-20_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1011
+ suspectscore=0 mlxscore=0 adultscore=0 mlxlogscore=999 lowpriorityscore=0
+ bulkscore=0 priorityscore=1501 malwarescore=0 impostorscore=0 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2201110000
+ definitions=main-2201210063
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Jan 21, 2022 at 4:57 PM Arnd Bergmann <arnd@arndb.de> wrote:
->
-> On Fri, Jan 21, 2022 at 7:25 AM Guo Ren <guoren@kernel.org> wrote:
-> > On Thu, Jan 20, 2022 at 10:43 PM Arnd Bergmann <arnd@arndb.de> wrote:
-> > > On Thu, Jan 20, 2022 at 8:39 AM <guoren@kernel.org> wrote:
->
-> > > Are you sure these are the right calling conventions? According to [1],
-> > > I think the 64-bit argument should be in an aligned pair of registers,
-> > > which means you need an extra pad argument as in the arm64 version
-> > > of these functions. Same for ftruncate64, pread64, pwrite64, and
-> > > readahead.
-> >
-> > [1] has abandoned.
-> >
-> > See:
-> > https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/master/riscv-cc.adoc
->
-> Ok, thanks for the reference, I picked the first one that came up in
-> a google search and didn't expect this to ever have changed.
->
-> > > I still feel like these should be the common implementations next to the
-> > > native handlers inside of an #ifdef CONFIG_COMPAT.
-> > >
-> > > The names clash with the custom versions defined for powerpc and sparc,
-> > > but the duplicates look compatible if you can account for the padded
-> > > argument and the lo/hi order of the pairs, so could just be removed here
-> > > (all other architectures use custom function names instead).
-> > I would try it later.
->
-> This becomes easier then, as powerpc and sparc already have the non-padded
-> calling conventions, so you could just generalize those without looking at
-> the other architectures or adding the padding. The powerpc version already
-> has the dual-endian version, so using that will work on big-endian sparc and
-> on little-endian riscv as well, though we may need to come up with a better name
-> for the arg_u32/arg_u64/merge_64 macros in order to put that into a global
-> header without namespace collisions.
-Sounds good, thanks!
+Hi Yinan,
 
+Yinan Liu <yinan@linux.alibaba.com> writes:
+
+> When the kernel starts, the initialization of ftrace takes
+> up a portion of the time (approximately 6~8ms) to sort mcount
+> addresses. We can save this time by moving mcount-sorting to
+> compile time.
 >
->          Arnd
+> Signed-off-by: Yinan Liu <yinan@linux.alibaba.com>
+> Reported-by: kernel test robot <lkp@intel.com>
+> Reported-by: kernel test robot <oliver.sang@intel.com>
+> ---
+>  kernel/trace/ftrace.c   |  11 +++-
+>  scripts/Makefile        |   6 +-
+>  scripts/link-vmlinux.sh |   6 +-
+>  scripts/sorttable.c     |   2 +
+>  scripts/sorttable.h     | 120 +++++++++++++++++++++++++++++++++++++++-
+>  5 files changed, 137 insertions(+), 8 deletions(-)
 
+while i like the idea, this unfortunately breaks ftrace on s390. The
+reason for that is that the compiler generates relocation entries for
+all the addresses in __mcount_loc. During boot, the s390 decompressor
+iterates through all the relocations and overwrites the nicely
+sorted list between __start_mcount_loc and __stop_mcount_loc with
+the unsorted list because the relocations entries are not adjusted.
 
+Of course we could just disable that option, but that would make us
+different compared to x86 which i don't like. Adding code to sort the
+relocation would of course also fix that, but i don't think it is a good
+idea to rely on the order of relocations.
 
--- 
-Best Regards
- Guo Ren
+Any thoughts how a fix could look like, and whether that could also be a
+problem on other architectures?
 
-ML: https://lore.kernel.org/linux-csky/
+Thanks
+Sven
