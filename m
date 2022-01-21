@@ -2,101 +2,82 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C6A4C4332F
-	for <linux-s390@archiver.kernel.org>; Fri, 21 Jan 2022 06:59:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B50B7C433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 21 Jan 2022 07:05:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348863AbiAUG7q (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 21 Jan 2022 01:59:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55324 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233755AbiAUG7q (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 Jan 2022 01:59:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51499C061574;
-        Thu, 20 Jan 2022 22:59:45 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 09A16B81F4F;
-        Fri, 21 Jan 2022 06:59:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE0C6C36AE3;
-        Fri, 21 Jan 2022 06:59:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642748382;
-        bh=4ShAu9TMO9pCCFhxDCpJN37xIb8io+l6Oyhyz+wkc74=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=rkWc8GrmU4jDh8MIgKhU1tVmZnCPK978zpVeaoKL9BABXmrLvJhp7qT1axvVYenFf
-         EXl+ILKxghGdYexiqzYSqUGqzgOJdRw9gxLBkPt1lugs/J2H5kUsa8aA2+geA99vJC
-         kLBagAY8ht9vk/XtIQSnuK2KgVnBG1tZNY3D+9ZpekZpAe6KG4Y1gKHuohLVN8Frmz
-         tT2NlAfoov0vkk9BzpknOsIfrUfWc/Co/Jj4RBd96p/9JkewBRZ2gjADB/m/KTeuzB
-         RegN4xP87sZHPeAD0ROhV9YXpgX9yXjHzCBlxEjIP0LlJnVH/PD2rGtIyqpYIfLIwl
-         Ft604c34avssg==
-Received: by mail-vk1-f180.google.com with SMTP id 48so1865315vki.0;
-        Thu, 20 Jan 2022 22:59:42 -0800 (PST)
-X-Gm-Message-State: AOAM5315llELNQu4h1g/U6Q4fRld37XjlC1fehpgLa18vIjiUPleHx0M
-        D4yU8yOl4Dm+pjGRLE8rCwedNF6TvqB6dYLEe2E=
-X-Google-Smtp-Source: ABdhPJzfHGuI3QjQ1xrUHESSAg6lyHrYGXHJnEkduCUf4mRHX9u1+bm5wEa4HeHgEF2DEq8OtNRB3r3xOJW73X//3VQ=
-X-Received: by 2002:ac5:cbc8:: with SMTP id h8mr1146902vkn.8.1642748381690;
- Thu, 20 Jan 2022 22:59:41 -0800 (PST)
+        id S1349004AbiAUHFG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 21 Jan 2022 02:05:06 -0500
+Received: from out30-133.freemail.mail.aliyun.com ([115.124.30.133]:50531 "EHLO
+        out30-133.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233755AbiAUHFF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 21 Jan 2022 02:05:05 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0V2Ps0xP_1642748702;
+Received: from 30.225.24.42(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0V2Ps0xP_1642748702)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Fri, 21 Jan 2022 15:05:03 +0800
+Message-ID: <ad5c1c9b-5d9e-cd0f-88c7-4420bc9ed0e5@linux.alibaba.com>
+Date:   Fri, 21 Jan 2022 15:05:02 +0800
 MIME-Version: 1.0
-References: <20220120073911.99857-7-guoren@kernel.org> <CAK8P3a00uYPBBphpipBoqCnGFwr_C9vDzS1p1iLN==YTVOARug@mail.gmail.com>
-In-Reply-To: <CAK8P3a00uYPBBphpipBoqCnGFwr_C9vDzS1p1iLN==YTVOARug@mail.gmail.com>
-From:   Guo Ren <guoren@kernel.org>
-Date:   Fri, 21 Jan 2022 14:59:30 +0800
-X-Gmail-Original-Message-ID: <CAJF2gTQVgDkyVdoezsrA4AN=9C7RMOxZBCyLB2JvQkKYsLud3Q@mail.gmail.com>
-Message-ID: <CAJF2gTQVgDkyVdoezsrA4AN=9C7RMOxZBCyLB2JvQkKYsLud3Q@mail.gmail.com>
-Subject: Re: [PATCH V3 06/17] riscv: compat: Add basic compat date type implementation
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Palmer Dabbelt <palmer@dabbelt.com>,
-        Anup Patel <anup@brainfault.org>,
-        gregkh <gregkh@linuxfoundation.org>,
-        liush <liush@allwinnertech.com>, Wei Fu <wefu@redhat.com>,
-        Drew Fustini <drew@beagleboard.org>,
-        Wang Junqiang <wangjunqiang@iscas.ac.cn>,
-        Christoph Hellwig <hch@lst.de>,
-        Christoph Hellwig <hch@infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-csky@vger.kernel.org,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        inux-parisc@vger.kernel.org,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Guo Ren <guoren@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.4.0
+Subject: Re: [PATCH net] net/smc: Transitional solution for clcsock race issue
+From:   Wen Gu <guwen@linux.alibaba.com>
+To:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <1642086177-130611-1-git-send-email-guwen@linux.alibaba.com>
+In-Reply-To: <1642086177-130611-1-git-send-email-guwen@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jan 20, 2022 at 5:35 PM Arnd Bergmann <arnd@arndb.de> wrote:
->
-> On Thu, Jan 20, 2022 at 8:38 AM <guoren@kernel.org> wrote:
->
-> > @@ -0,0 +1,136 @@
-> > +/* SPDX-License-Identifier: GPL-2.0-only */
-> > +#ifndef __ASM_COMPAT_H
-> > +#define __ASM_COMPAT_H
-> > +
-> > +#define compat_mode_t  compat_mode_t
-> > +typedef u16            compat_mode_t;
->
-> I think this one is wrong, as rv32 should get the native definition from
->
-> include/uapi/asm-generic/posix_types.h:typedef unsigned int     __kernel_mode_t;
->
-> I think it works if you just remove those two lines. The rest looks good to me.
-Yes, you are right. compat_mode_t should be unsigned int.
 
->
->        Arnd
+On 2022/1/13 11:02 pm, Wen Gu wrote:
+> We encountered a crash in smc_setsockopt() and it is caused by
+> accessing smc->clcsock after clcsock was released.
+> 
+>   BUG: kernel NULL pointer dereference, address: 0000000000000020
+>   #PF: supervisor read access in kernel mode
+>   #PF: error_code(0x0000) - not-present page
+>   PGD 0 P4D 0
+>   Oops: 0000 [#1] PREEMPT SMP PTI
+>   CPU: 1 PID: 50309 Comm: nginx Kdump: loaded Tainted: G E     5.16.0-rc4+ #53
+>   RIP: 0010:smc_setsockopt+0x59/0x280 [smc]
+>   Call Trace:
+>    <TASK>
+>    __sys_setsockopt+0xfc/0x190
+>    __x64_sys_setsockopt+0x20/0x30
+>    do_syscall_64+0x34/0x90
+>    entry_SYSCALL_64_after_hwframe+0x44/0xae
+>   RIP: 0033:0x7f16ba83918e
+>    </TASK>
+> 
+> This patch tries to fix it by holding clcsock_release_lock and
+> checking whether clcsock has already been released before access.
+> 
+> In case that a crash of the same reason happens in smc_getsockopt()
+> or smc_switch_to_fallback(), this patch also checkes smc->clcsock
+> in them too. And the caller of smc_switch_to_fallback() will identify
+> whether fallback succeeds according to the return value.
+> 
+> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+> ---
+>   net/smc/af_smc.c | 63 +++++++++++++++++++++++++++++++++++++++++++++-----------
+>   1 file changed, 51 insertions(+), 12 deletions(-)
+> 
 
+Sorry for bothering, just wonder if this patch needs further improvements?
 
+The previous discussion can be found in:
+https://lore.kernel.org/lkml/5dd7ffd1-28e2-24cc-9442-1defec27375e@linux.ibm.com/T/
 
--- 
-Best Regards
- Guo Ren
+I sent this patch with a new subject instead of sending a v2 of the previously
+discussed patch because I think the original subject seems not appropriate anymore
+after introducing check of clcsock in smc_switch_to_fallback().
 
-ML: https://lore.kernel.org/linux-csky/
+Thanks,
+Wen Gu
+
