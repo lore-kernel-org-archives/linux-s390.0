@@ -2,120 +2,178 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 648B1C4332F
-	for <linux-s390@archiver.kernel.org>; Fri, 21 Jan 2022 07:13:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43D26C433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 21 Jan 2022 07:32:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378867AbiAUHNN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 21 Jan 2022 02:13:13 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:50736 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245097AbiAUHNL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 Jan 2022 02:13:11 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 916C2B81F42;
-        Fri, 21 Jan 2022 07:13:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AE92C340E9;
-        Fri, 21 Jan 2022 07:13:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642749188;
-        bh=SYu90Dv3l/L+64SNcy50aiw16Lnx3umbKRTsGOMrQkg=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=k3uRWzp0SWvrQt4wpv0wp6HqoqMuube0dVeHTED+DvTqJqQ9JteKgAHFuRzMK7La9
-         hdnPtmnF2+6oHL0sMYFETK3B/JMjsOW1iHomI2Xxura1sskJ+xnkPbfy35KWaVO1oF
-         26rdD0dYwJ3PYFSq+U3dWovrDZcwDzLVyfSAEZDEYRmJINM8Tmg0Ctmu12Rf81s5Ac
-         gTKy8KVDZlLocphtUaf3ZDWDQa7DnN48hoqfKvLktVOOCow1KTrdDLQoLL6djNiLnt
-         IAwyIbddJ0s5SrRTLwybw+lS0U5xtFSYhGyprgDLn7Xl/Wos5XISZ+lA6JoDVYmrwQ
-         LJ4wkPbrGtrCw==
-Received: by mail-ua1-f42.google.com with SMTP id y4so15340383uad.1;
-        Thu, 20 Jan 2022 23:13:08 -0800 (PST)
-X-Gm-Message-State: AOAM5308pWH6ry++BaLmChZuZ3Tca0RPutSXFGz86STO/h5THSW/2DwP
-        H9XGfWX/4Z/iecxCE17m44cgXCq1PA9sQ1deBuY=
-X-Google-Smtp-Source: ABdhPJx6xNJuRVb4aLVlJ7P9bbeDPtJXSmXNRd3kkpQg8PkHlzrym8B0ENWLs0YxpXjFKvxlitpnKg+MIWjsd2Jznqg=
-X-Received: by 2002:a67:c89e:: with SMTP id v30mr1186161vsk.2.1642749187280;
- Thu, 20 Jan 2022 23:13:07 -0800 (PST)
+        id S245385AbiAUHcf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 21 Jan 2022 02:32:35 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:36360 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S239626AbiAUHcd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 21 Jan 2022 02:32:33 -0500
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20L7CIjw013178;
+        Fri, 21 Jan 2022 07:32:32 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=sa/X22agqvoRs7vfFvCjXvJ1lq8n8/NDjwG4Ir2dd6E=;
+ b=s6wjl87UrKyiqk6qG2wKlD69K4ktMxMSqao8oZp4L9D9g8mcSv0AUnTgPIXYBpPKVr7W
+ E+L+3NbPgoq+ZH42r3eGTP1LtNFXPybRIB1uwj2GQpMVOULoY4H5tqwnMxrcXyfRH0Ft
+ qshmgWpF5w3QoEynqAIOeKff9tZ782epV66E2q0nSVeAVe9aAcxh02WZtenOc2SdqqGx
+ /fZFjIPHbiLk+k/KoSAlg3P1471e64pD1S4912Mu3rId34p81iBsNQ+VL2j1EYhQ3v/k
+ J75x8cLqBs0ztUqi7cU1LHvCvY+Jtc8GldraoxRG/k21SYgKtgNg8V29tsFz9NrIvvRt Ig== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dqr7s8cf6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 21 Jan 2022 07:32:31 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20L7IG1P004658;
+        Fri, 21 Jan 2022 07:32:29 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 3dqjdpj2tt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 21 Jan 2022 07:32:29 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20L7WQAk25690424
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 21 Jan 2022 07:32:26 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2408FA4053;
+        Fri, 21 Jan 2022 07:32:26 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A94E1A4057;
+        Fri, 21 Jan 2022 07:32:25 +0000 (GMT)
+Received: from [9.171.71.185] (unknown [9.171.71.185])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 21 Jan 2022 07:32:25 +0000 (GMT)
+Message-ID: <b6896b1a-d529-1504-091c-d41287c01dc8@linux.ibm.com>
+Date:   Fri, 21 Jan 2022 08:32:25 +0100
 MIME-Version: 1.0
-References: <20220120073911.99857-14-guoren@kernel.org> <CAK8P3a03-3QTC-vxmnbouK7wBd8iunPGZpX0-Jf6ntS1DY0E=w@mail.gmail.com>
-In-Reply-To: <CAK8P3a03-3QTC-vxmnbouK7wBd8iunPGZpX0-Jf6ntS1DY0E=w@mail.gmail.com>
-From:   Guo Ren <guoren@kernel.org>
-Date:   Fri, 21 Jan 2022 15:12:56 +0800
-X-Gmail-Original-Message-ID: <CAJF2gTRMWj0yVLn2=16Gu1O-6tuqLaxcdduw0YnDK6vrizJEsQ@mail.gmail.com>
-Message-ID: <CAJF2gTRMWj0yVLn2=16Gu1O-6tuqLaxcdduw0YnDK6vrizJEsQ@mail.gmail.com>
-Subject: Re: [PATCH V3 13/17] riscv: compat: signal: Add rt_frame implementation
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Palmer Dabbelt <palmer@dabbelt.com>,
-        Anup Patel <anup@brainfault.org>,
-        gregkh <gregkh@linuxfoundation.org>,
-        liush <liush@allwinnertech.com>, Wei Fu <wefu@redhat.com>,
-        Drew Fustini <drew@beagleboard.org>,
-        Wang Junqiang <wangjunqiang@iscas.ac.cn>,
-        Christoph Hellwig <hch@lst.de>,
-        Christoph Hellwig <hch@infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-csky@vger.kernel.org,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        inux-parisc@vger.kernel.org,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Guo Ren <guoren@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.0
+Subject: Re: [RFC PATCH v1 01/10] s390/uaccess: Add storage key checked access
+ to user memory
+Content-Language: en-US
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20220118095210.1651483-1-scgl@linux.ibm.com>
+ <20220118095210.1651483-2-scgl@linux.ibm.com> <YefeakONMN4PLlml@osiris>
+ <422595a5-b24b-8760-ff0e-112322142de7@linux.ibm.com>
+ <YegQCTqEsiFTUZ2R@osiris>
+ <dbfec527-b995-e382-dafa-c3459e1e45ed@linux.ibm.com>
+ <YelcCEuVbIg9ND90@osiris> <YemnprCIEjjGFeTn@osiris>
+From:   Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <YemnprCIEjjGFeTn@osiris>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: RO7iWQhBA4QmDAjDkUUd7W4pExsPtxv8
+X-Proofpoint-ORIG-GUID: RO7iWQhBA4QmDAjDkUUd7W4pExsPtxv8
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-01-21_02,2022-01-20_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ priorityscore=1501 malwarescore=0 mlxscore=0 bulkscore=0 clxscore=1015
+ impostorscore=0 lowpriorityscore=0 mlxlogscore=999 spamscore=0
+ phishscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2201210047
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jan 20, 2022 at 6:31 PM Arnd Bergmann <arnd@arndb.de> wrote:
->
-> On Thu, Jan 20, 2022 at 8:39 AM <guoren@kernel.org> wrote:
-> >
-> > From: Guo Ren <guoren@linux.alibaba.com>
-> >
-> > Implement compat_setup_rt_frame for sigcontext save & restore. The
-> > main process is the same with signal, but the rv32 pt_regs' size
-> > is different from rv64's, so we needs convert them.
-> >
-> > Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-> > Signed-off-by: Guo Ren <guoren@kernel.org>
-> > Cc: Arnd Bergmann <arnd@arndb.de>
->
-> I hope someone else can properly review this part, it's not my area
-> but it looks complex enough that it could bring subtle bugs.
-Here are ltp signal test results:
-
-sigaction01                                        PASS       0
-sigaction02                                        PASS       0
-sigaltstack01                                      PASS       0
-sigaltstack02                                      PASS       0
-sighold02                                          PASS       0
-signal01                                           PASS       0
-signal02                                           PASS       0
-signal03                                           PASS       0
-signal04                                           PASS       0
-signal05                                           PASS       0
-signal06                                           CONF       32
-signalfd01                                         PASS       0
-signalfd4_01                                       PASS       0
-signalfd4_02                                       PASS       0
-sigpending02                                       PASS       0
-sigprocmask01                                      PASS       0
-sigrelse01                                         PASS       0
-sigsuspend01                                       PASS       0
-sigtimedwait01                                     PASS       0
-sigwait01                                          PASS       0
-sigwaitinfo01                                      CONF       32
 
 
->
->        Arnd
+Am 20.01.22 um 19:19 schrieb Heiko Carstens:
+> On Thu, Jan 20, 2022 at 01:56:40PM +0100, Heiko Carstens wrote:
+>>> 2. Implementation changes
+>>>     2.1 Modify common code
+>>
+>> In general such changes are done in way that common code is or _may_ be
+>> modified to fulfill our needs. Common code header file explicitely states
+>> that architectures should get rid of private instances of
+>> copy_{to,from}_user() and __copy_{to,from}_user{,_inatomic}().
+>>
+>> So we should not add anything like that to arch code again, since nobody
+>> would expect that.
+> 
+> Or to be more specific: I think the most simple solution would be to
+> try to get the new *key variants into include/linux/uaccess.h, and add
+> the raw variants in architecture code, similar to the rest of the
+> uaccess functions.
+> There is some (sort of) prior art with copy_mc_to_kernel() even,
+> though that can only partially be compared.
 
+So in essence adding something like this and then providing raw_copy_from/to_user_key?
+(whitespace damaged, just pasted in)
 
-
--- 
-Best Regards
- Guo Ren
-
-ML: https://lore.kernel.org/linux-csky/
+diff --git a/include/linux/uaccess.h b/include/linux/uaccess.h
+index ac0394087f7d..3b6e78ee211c 100644
+--- a/include/linux/uaccess.h
++++ b/include/linux/uaccess.h
+@@ -201,6 +201,59 @@ copy_to_user(void __user *to, const void *from, unsigned long n)
+         return n;
+  }
+  
++
++#if defined(__s390x__) && defined(CONFIG_KVM)
++/*
++ * Variants that pass along an access key. Uses by KVM on s390x to implement
++ * key checks for guests that use storage keys Must be kept in sync with the
++ * non-key variants from above. The only difference is the _key suffix when
++ * calling raw_copy_from/to_user_key.
++ */
++static inline __must_check unsigned long
++_copy_from_user_key(void *to, const void __user *from, unsigned long n, u8 key)
++{
++       unsigned long res = n;
++       might_fault();
++       if (!should_fail_usercopy() && likely(access_ok(from, n))) {
++               instrument_copy_from_user(to, from, n);
++               res = raw_copy_from_user_key(to, from, n, key);
++       }
++       if (unlikely(res))
++               memset(to + (n - res), 0, res);
++       return res;
++}
++
++static inline __must_check unsigned long
++_copy_to_user_key(void __user *to, const void *from, unsigned long n, u8 key)
++{
++       might_fault();
++       if (should_fail_usercopy())
++               return n;
++       if (access_ok(to, n)) {
++               instrument_copy_to_user(to, from, n);
++               n = raw_copy_to_user_key(to, from, n, key);
++       }
++       return n;
++}
++
++static __always_inline unsigned long __must_check
++copy_from_user_key(void *to, const void __user *from, unsigned long n, u8 key)
++{
++       if (likely(check_copy_size(to, n, false)))
++               n = _copy_from_user_key(to, from, n, key);
++       return n;
++}
++
++static __always_inline unsigned long __must_check
++copy_to_user_key(void __user *to, const void *from, unsigned long n, u8 key)
++{
++       if (likely(check_copy_size(from, n, true)))
++               n = _copy_to_user_key(to, from, n);
++       return n;
++}
++#endif
++
++
+  #ifndef copy_mc_to_kernel
+  /*
+   * Without arch opt-in this generic copy_mc_to_kernel() will not handle
