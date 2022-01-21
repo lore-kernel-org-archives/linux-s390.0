@@ -2,57 +2,55 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 005D8C433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 21 Jan 2022 16:36:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7314C433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 21 Jan 2022 16:48:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344758AbiAUQgZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 21 Jan 2022 11:36:25 -0500
-Received: from out30-130.freemail.mail.aliyun.com ([115.124.30.130]:58245 "EHLO
-        out30-130.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234718AbiAUQgY (ORCPT
+        id S1349304AbiAUQsm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 21 Jan 2022 11:48:42 -0500
+Received: from out30-56.freemail.mail.aliyun.com ([115.124.30.56]:33739 "EHLO
+        out30-56.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1349221AbiAUQsk (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 21 Jan 2022 11:36:24 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R221e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0V2SImAL_1642782981;
-Received: from 30.39.181.79(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0V2SImAL_1642782981)
+        Fri, 21 Jan 2022 11:48:40 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R521e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0V2SWIhF_1642783712;
+Received: from 30.39.181.79(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0V2SWIhF_1642783712)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Sat, 22 Jan 2022 00:36:22 +0800
-Message-ID: <b21d51b2-5480-4550-7cd6-c16060261970@linux.alibaba.com>
-Date:   Sat, 22 Jan 2022 00:36:21 +0800
+          Sat, 22 Jan 2022 00:48:33 +0800
+Message-ID: <0b73df73-d5e8-32a8-1495-63596b256392@linux.alibaba.com>
+Date:   Sat, 22 Jan 2022 00:48:32 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
  Gecko/20100101 Thunderbird/91.5.0
 Subject: Re: [RFC PATCH net-next] net/smc: Introduce receive queue flow
  control support
 Content-Language: en-US
-To:     Karsten Graul <kgraul@linux.ibm.com>, davem@davemloft.net,
-        kuba@kernel.org
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+To:     Tony Lu <tonylu@linux.alibaba.com>
+Cc:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
         linux-kernel@vger.kernel.org
 References: <20220120065140.5385-1-guangguan.wang@linux.alibaba.com>
- <20da5fa9-6158-d04c-6f44-29e550ed97d0@linux.ibm.com>
+ <YelwGOBhjBFsVPxA@TonyMac-Alibaba>
 From:   Guangguan Wang <guangguan.wang@linux.alibaba.com>
-In-Reply-To: <20da5fa9-6158-d04c-6f44-29e550ed97d0@linux.ibm.com>
+In-Reply-To: <YelwGOBhjBFsVPxA@TonyMac-Alibaba>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2022/1/20 19:03, Karsten Graul wrote:> 
-> I really appreciate your effort to improve the performance and solve existing bottle necks,
-> but please keep in mind that the SMC module implements the IBM SMC protocol that is
-> described here: https://www.ibm.com/support/pages/node/6326337
-> (you can find these links in the source code, too).
+On 2022/1/20 22:22, Tony Lu wrote:>>  #include "smc_ib.h"
+>>  
+>> -#define SMC_RMBS_PER_LGR_MAX	255	/* max. # of RMBs per link group */
+>> +#define SMC_RMBS_PER_LGR_MAX	32	/* max. # of RMBs per link group. Correspondingly,
+>> +					 * SMC_WR_BUF_CNT should not be less than 2 *
+>> +					 * SMC_RMBS_PER_LGR_MAX, since every connection at
+>> +					 * least has two rq/sq credits in average, otherwise
+>> +					 * may result in waiting for credits in sending process.
+>> +					 */
 > 
-> Your patch makes changes that are not described in this design paper and may lead to
-> future incompatibilities with other platforms that support the IBM SMC protocol.
+> This gives a fixed limit for per link group connections. Using tunable
+> knobs to control this for different workload would be better. It also
+> reduce the completion of free slots in the same link group and link.
 > 
-> For example:
-> - you start using one of the reserved bytes in struct smc_cdc_msg
-> - you define a new smc_llc message type 0x0A
-> - you change the maximum number of connections per link group from 255 to 32
-> 
-> We need to start a discussion about your (good!) ideas with the owners of the protocol.
 
-Thanks for your affirmation of my effort and looking forward
-to the conclusion of the protocol discussion.
+It is a good idea, but I find a patch (https://lore.kernel.org/linux-s390/20220114054852.38058-7-tonylu@linux.alibaba.com/) where you have already done this idea.
