@@ -2,55 +2,100 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A7314C433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 21 Jan 2022 16:48:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B810C433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 21 Jan 2022 18:11:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349304AbiAUQsm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 21 Jan 2022 11:48:42 -0500
-Received: from out30-56.freemail.mail.aliyun.com ([115.124.30.56]:33739 "EHLO
-        out30-56.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1349221AbiAUQsk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 21 Jan 2022 11:48:40 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R521e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0V2SWIhF_1642783712;
-Received: from 30.39.181.79(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0V2SWIhF_1642783712)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Sat, 22 Jan 2022 00:48:33 +0800
-Message-ID: <0b73df73-d5e8-32a8-1495-63596b256392@linux.alibaba.com>
-Date:   Sat, 22 Jan 2022 00:48:32 +0800
+        id S1351841AbiAUSLx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 21 Jan 2022 13:11:53 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:49590 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1351822AbiAUSLx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 Jan 2022 13:11:53 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16742B81F69;
+        Fri, 21 Jan 2022 18:11:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA999C340E1;
+        Fri, 21 Jan 2022 18:11:49 +0000 (UTC)
+Date:   Fri, 21 Jan 2022 13:11:48 -0500
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Sven Schnelle <svens@linux.ibm.com>,
+        Yinan Liu <yinan@linux.alibaba.com>, peterz@infradead.org,
+        mark-pk.tsai@mediatek.com, mingo@redhat.com,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH v8] scripts: ftrace - move the sort-processing in
+ ftrace_init
+Message-ID: <20220121131148.2025bc5b@gandalf.local.home>
+In-Reply-To: <YeqOFHNfxKcNXNrn@osiris>
+References: <20210911135043.16014-1-yinan@linux.alibaba.com>
+        <20211212113358.34208-1-yinan@linux.alibaba.com>
+        <20211212113358.34208-2-yinan@linux.alibaba.com>
+        <yt9dee51ctfn.fsf@linux.ibm.com>
+        <YeqOFHNfxKcNXNrn@osiris>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.5.0
-Subject: Re: [RFC PATCH net-next] net/smc: Introduce receive queue flow
- control support
-Content-Language: en-US
-To:     Tony Lu <tonylu@linux.alibaba.com>
-Cc:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20220120065140.5385-1-guangguan.wang@linux.alibaba.com>
- <YelwGOBhjBFsVPxA@TonyMac-Alibaba>
-From:   Guangguan Wang <guangguan.wang@linux.alibaba.com>
-In-Reply-To: <YelwGOBhjBFsVPxA@TonyMac-Alibaba>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2022/1/20 22:22, Tony Lu wrote:>>  #include "smc_ib.h"
->>  
->> -#define SMC_RMBS_PER_LGR_MAX	255	/* max. # of RMBs per link group */
->> +#define SMC_RMBS_PER_LGR_MAX	32	/* max. # of RMBs per link group. Correspondingly,
->> +					 * SMC_WR_BUF_CNT should not be less than 2 *
->> +					 * SMC_RMBS_PER_LGR_MAX, since every connection at
->> +					 * least has two rq/sq credits in average, otherwise
->> +					 * may result in waiting for credits in sending process.
->> +					 */
-> 
-> This gives a fixed limit for per link group connections. Using tunable
-> knobs to control this for different workload would be better. It also
-> reduce the completion of free slots in the same link group and link.
-> 
+On Fri, 21 Jan 2022 11:42:28 +0100
+Heiko Carstens <hca@linux.ibm.com> wrote:
 
-It is a good idea, but I find a patch (https://lore.kernel.org/linux-s390/20220114054852.38058-7-tonylu@linux.alibaba.com/) where you have already done this idea.
+> This really should be addressed before rc1 is out, otherwise s390 is
+> broken if somebody enables ftrace.
+> Where "broken" translates to random crashes as soon as ftrace is
+> enabled, which again is nowadays quite common.
+
+Instead of reverting, should we just add this patch?
+
+-- Steve
+
+diff --git a/kernel/trace/Kconfig b/kernel/trace/Kconfig
+index f468767bc287..752ed89a293b 100644
+--- a/kernel/trace/Kconfig
++++ b/kernel/trace/Kconfig
+@@ -70,6 +70,13 @@ config HAVE_C_RECORDMCOUNT
+ 	help
+ 	  C version of recordmcount available?
+ 
++config BUILDTIME_MCOUNT_SORT
++       bool
++       default y
++       depends on BUILDTIME_TABLE_SORT && !S390
++       help
++         Sort the mcount_loc section at build time.
++
+ config TRACER_MAX_TRACE
+ 	bool
+ 
+@@ -918,7 +925,7 @@ config EVENT_TRACE_TEST_SYSCALLS
+ config FTRACE_SORT_STARTUP_TEST
+        bool "Verify compile time sorting of ftrace functions"
+        depends on DYNAMIC_FTRACE
+-       depends on BUILDTIME_TABLE_SORT
++       depends on BUILDTIME_MCOUNT_SORT
+        help
+ 	 Sorting of the mcount_loc sections that is used to find the
+ 	 where the ftrace knows where to patch functions for tracing
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index 403e485bf091..b01e1fa62193 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -6429,10 +6429,10 @@ static int ftrace_process_locs(struct module *mod,
+ 
+ 	/*
+ 	 * Sorting mcount in vmlinux at build time depend on
+-	 * CONFIG_BUILDTIME_TABLE_SORT, while mcount loc in
++	 * CONFIG_BUILDTIME_MCOUNT_SORT, while mcount loc in
+ 	 * modules can not be sorted at build time.
+ 	 */
+-	if (!IS_ENABLED(CONFIG_BUILDTIME_TABLE_SORT) || mod) {
++	if (!IS_ENABLED(CONFIG_BUILDTIME_MCOUNT_SORT) || mod) {
+ 		sort(start, count, sizeof(*start),
+ 		     ftrace_cmp_ips, NULL);
+ 	} else {
