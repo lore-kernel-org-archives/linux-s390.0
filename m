@@ -2,157 +2,219 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81AE1C433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 21 Jan 2022 11:29:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F31EC433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 21 Jan 2022 12:43:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380128AbiAUL3u (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 21 Jan 2022 06:29:50 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:10222 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1349905AbiAUL3t (ORCPT
+        id S1380436AbiAUMn0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 21 Jan 2022 07:43:26 -0500
+Received: from out30-56.freemail.mail.aliyun.com ([115.124.30.56]:45569 "EHLO
+        out30-56.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1380442AbiAUMn0 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 21 Jan 2022 06:29:49 -0500
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20LAgZCM028202;
-        Fri, 21 Jan 2022 11:29:27 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : references : date : in-reply-to : message-id : mime-version :
- content-type; s=pp1; bh=Q9ei9VJUKz0sT0uGO/P2sPkgIGa9GD27HpVjME4ge6c=;
- b=Nk70Nk7rNh4Fvyg3BBGt1bhM2LZAWW4XJL4ZYWYkl9zk73jJCxYSCR0vJeeW2FBwJvIX
- B4y03wrnzO1WMegLHGA2cESa6Yrtz9efdOnzLRmGZd1n/CmTzPdeAJDsdkcqdDk88TKU
- I3Ow3XrbI5hLGQ+Sf3R2rbZL8bG3JmcFUvUEY5UPk7KpDTvGcDeDnFMawJJLS6viKOCM
- zoqIV6Tu9f0OXUN1PzXZs0a/rflF5NFqaz/6W3eOwb6kafDxPPT2tu2Q8GNNIx31xAbP
- FmCMVauLpegmlDWvecVmE7m4dPFWhmSObOsk8hpaZmCXMi4VRIu9Pvf/3gRT7ZDzsRta jg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3dquae8qk3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 21 Jan 2022 11:29:27 +0000
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20LBJVdQ027502;
-        Fri, 21 Jan 2022 11:29:26 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3dquae8qjr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 21 Jan 2022 11:29:26 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20LBC1No015261;
-        Fri, 21 Jan 2022 11:29:24 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma04ams.nl.ibm.com with ESMTP id 3dqj37v1ay-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 21 Jan 2022 11:29:24 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20LBTMvr43319766
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 21 Jan 2022 11:29:22 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4CB2F11C04A;
-        Fri, 21 Jan 2022 11:29:22 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0500111C050;
-        Fri, 21 Jan 2022 11:29:22 +0000 (GMT)
-Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Fri, 21 Jan 2022 11:29:21 +0000 (GMT)
-From:   Sven Schnelle <svens@linux.ibm.com>
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Yinan Liu <yinan@linux.alibaba.com>, rostedt@goodmis.org,
-        peterz@infradead.org, mark-pk.tsai@mediatek.com, mingo@redhat.com,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH v8] scripts: ftrace - move the sort-processing in
- ftrace_init
-References: <20210911135043.16014-1-yinan@linux.alibaba.com>
-        <20211212113358.34208-1-yinan@linux.alibaba.com>
-        <20211212113358.34208-2-yinan@linux.alibaba.com>
-        <yt9dee51ctfn.fsf@linux.ibm.com> <YeqOFHNfxKcNXNrn@osiris>
-        <yt9d8rv9cpdq.fsf@linux.ibm.com>
-Date:   Fri, 21 Jan 2022 12:29:21 +0100
-In-Reply-To: <yt9d8rv9cpdq.fsf@linux.ibm.com> (Sven Schnelle's message of
-        "Fri, 21 Jan 2022 12:14:09 +0100")
-Message-ID: <yt9d4k5xcooe.fsf@linux.ibm.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: VszLzLK5D8E12wbpmlmrxEHE_ymEFlZt
-X-Proofpoint-ORIG-GUID: iijYK5lyd7OhKY1Pq3_eASSle0ZJ51b3
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-01-21_06,2022-01-21_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- clxscore=1015 impostorscore=0 bulkscore=0 malwarescore=0 adultscore=0
- mlxscore=0 lowpriorityscore=0 phishscore=0 mlxlogscore=999 suspectscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2201210075
+        Fri, 21 Jan 2022 07:43:26 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04357;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0V2RitQW_1642768988;
+Received: from e02h04404.eu6sqa(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0V2RitQW_1642768988)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Fri, 21 Jan 2022 20:43:24 +0800
+From:   Wen Gu <guwen@linux.alibaba.com>
+To:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH net v2] net/smc: Transitional solution for clcsock race issue
+Date:   Fri, 21 Jan 2022 20:43:08 +0800
+Message-Id: <1642768988-126174-1-git-send-email-guwen@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Sven Schnelle <svens@linux.ibm.com> writes:
+We encountered a crash in smc_setsockopt() and it is caused by
+accessing smc->clcsock after clcsock was released.
 
-> Heiko Carstens <hca@linux.ibm.com> writes:
->
->> On Fri, Jan 21, 2022 at 10:46:36AM +0100, Sven Schnelle wrote:
->>> Hi Yinan,
->>> 
->>> Yinan Liu <yinan@linux.alibaba.com> writes:
->>> 
->>> > When the kernel starts, the initialization of ftrace takes
->>> > up a portion of the time (approximately 6~8ms) to sort mcount
->>> > addresses. We can save this time by moving mcount-sorting to
->>> > compile time.
->>> >
->>> > Signed-off-by: Yinan Liu <yinan@linux.alibaba.com>
->>> > Reported-by: kernel test robot <lkp@intel.com>
->>> > Reported-by: kernel test robot <oliver.sang@intel.com>
->>> > ---
->>> >  kernel/trace/ftrace.c   |  11 +++-
->>> >  scripts/Makefile        |   6 +-
->>> >  scripts/link-vmlinux.sh |   6 +-
->>> >  scripts/sorttable.c     |   2 +
->>> >  scripts/sorttable.h     | 120 +++++++++++++++++++++++++++++++++++++++-
->>> >  5 files changed, 137 insertions(+), 8 deletions(-)
->>> 
->>> while i like the idea, this unfortunately breaks ftrace on s390. The
->>> reason for that is that the compiler generates relocation entries for
->>> all the addresses in __mcount_loc. During boot, the s390 decompressor
->>> iterates through all the relocations and overwrites the nicely
->>> sorted list between __start_mcount_loc and __stop_mcount_loc with
->>> the unsorted list because the relocations entries are not adjusted.
->>> 
->>> Of course we could just disable that option, but that would make us
->>> different compared to x86 which i don't like. Adding code to sort the
->>> relocation would of course also fix that, but i don't think it is a good
->>> idea to rely on the order of relocations.
->>> 
->>> Any thoughts how a fix could look like, and whether that could also be a
->>> problem on other architectures?
->>
->> Sven, thanks for figuring this out. Can you confirm that reverting
->> commit 72b3942a173c ("scripts: ftrace - move the sort-processing in
->> ftrace_init") fixes the problem?
->
-> Yes, reverting this commit fixes it.
->
->> This really should be addressed before rc1 is out, otherwise s390 is
->> broken if somebody enables ftrace.
->> Where "broken" translates to random crashes as soon as ftrace is
->> enabled, which again is nowadays quite common.
->
-> I wasn't able to reproduce these crashes on my systems so far. For the
-> readers here, we're seeing about 10-15 systems crashing every night,
-> usually in the 00basic/ ftrace testcases.
->
-> In most of the case it looks like register corruption, where some random
-> register is or'd or parts are overwritten with 0x0004000000000000,
-> sometimes 0x00f4000000000000. I haven't found yts found a commit that
-> might cause this.
+ BUG: kernel NULL pointer dereference, address: 0000000000000020
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 0 P4D 0
+ Oops: 0000 [#1] PREEMPT SMP PTI
+ CPU: 1 PID: 50309 Comm: nginx Kdump: loaded Tainted: G E     5.16.0-rc4+ #53
+ RIP: 0010:smc_setsockopt+0x59/0x280 [smc]
+ Call Trace:
+  <TASK>
+  __sys_setsockopt+0xfc/0x190
+  __x64_sys_setsockopt+0x20/0x30
+  do_syscall_64+0x34/0x90
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+ RIP: 0033:0x7f16ba83918e
+  </TASK>
 
-Thinking of it, 04 and f4 are exactly the bytes we're patching in our brcl
-instructions right at the beginning of the function. So i guess that
-because of this bug the ftrace code now writes those bytes to the wrong
-location, sometimes hitting the register save area. I haven't verified
-that, but i think there's a high likelyhood.
+This patch tries to fix it by holding clcsock_release_lock and
+checking whether clcsock has already been released before access.
 
-/Sven
+In case that a crash of the same reason happens in smc_getsockopt()
+or smc_switch_to_fallback(), this patch also checkes smc->clcsock
+in them too. And the caller of smc_switch_to_fallback() will identify
+whether fallback succeeds according to the return value.
+
+Fixes: fd57770dd198 ("net/smc: wait for pending work before clcsock release_sock")
+Link: https://lore.kernel.org/lkml/5dd7ffd1-28e2-24cc-9442-1defec27375e@linux.ibm.com/T/
+Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+---
+ net/smc/af_smc.c | 63 +++++++++++++++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 51 insertions(+), 12 deletions(-)
+
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 12c52c7..c625af3 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -566,12 +566,17 @@ static void smc_stat_fallback(struct smc_sock *smc)
+ 	mutex_unlock(&net->smc.mutex_fback_rsn);
+ }
+ 
+-static void smc_switch_to_fallback(struct smc_sock *smc, int reason_code)
++static int smc_switch_to_fallback(struct smc_sock *smc, int reason_code)
+ {
+ 	wait_queue_head_t *smc_wait = sk_sleep(&smc->sk);
+-	wait_queue_head_t *clc_wait = sk_sleep(smc->clcsock->sk);
++	wait_queue_head_t *clc_wait;
+ 	unsigned long flags;
+ 
++	mutex_lock(&smc->clcsock_release_lock);
++	if (!smc->clcsock) {
++		mutex_unlock(&smc->clcsock_release_lock);
++		return -EBADF;
++	}
+ 	smc->use_fallback = true;
+ 	smc->fallback_rsn = reason_code;
+ 	smc_stat_fallback(smc);
+@@ -586,18 +591,30 @@ static void smc_switch_to_fallback(struct smc_sock *smc, int reason_code)
+ 		 * smc socket->wq, which should be removed
+ 		 * to clcsocket->wq during the fallback.
+ 		 */
++		clc_wait = sk_sleep(smc->clcsock->sk);
+ 		spin_lock_irqsave(&smc_wait->lock, flags);
+ 		spin_lock_nested(&clc_wait->lock, SINGLE_DEPTH_NESTING);
+ 		list_splice_init(&smc_wait->head, &clc_wait->head);
+ 		spin_unlock(&clc_wait->lock);
+ 		spin_unlock_irqrestore(&smc_wait->lock, flags);
+ 	}
++	mutex_unlock(&smc->clcsock_release_lock);
++	return 0;
+ }
+ 
+ /* fall back during connect */
+ static int smc_connect_fallback(struct smc_sock *smc, int reason_code)
+ {
+-	smc_switch_to_fallback(smc, reason_code);
++	struct net *net = sock_net(&smc->sk);
++	int rc = 0;
++
++	rc = smc_switch_to_fallback(smc, reason_code);
++	if (rc) { /* fallback fails */
++		this_cpu_inc(net->smc.smc_stats->clnt_hshake_err_cnt);
++		if (smc->sk.sk_state == SMC_INIT)
++			sock_put(&smc->sk); /* passive closing */
++		return rc;
++	}
+ 	smc_copy_sock_settings_to_clc(smc);
+ 	smc->connect_nonblock = 0;
+ 	if (smc->sk.sk_state == SMC_INIT)
+@@ -1518,11 +1535,12 @@ static void smc_listen_decline(struct smc_sock *new_smc, int reason_code,
+ {
+ 	/* RDMA setup failed, switch back to TCP */
+ 	smc_conn_abort(new_smc, local_first);
+-	if (reason_code < 0) { /* error, no fallback possible */
++	if (reason_code < 0 ||
++	    smc_switch_to_fallback(new_smc, reason_code)) {
++		/* error, no fallback possible */
+ 		smc_listen_out_err(new_smc);
+ 		return;
+ 	}
+-	smc_switch_to_fallback(new_smc, reason_code);
+ 	if (reason_code && reason_code != SMC_CLC_DECL_PEERDECL) {
+ 		if (smc_clc_send_decline(new_smc, reason_code, version) < 0) {
+ 			smc_listen_out_err(new_smc);
+@@ -1964,8 +1982,11 @@ static void smc_listen_work(struct work_struct *work)
+ 
+ 	/* check if peer is smc capable */
+ 	if (!tcp_sk(newclcsock->sk)->syn_smc) {
+-		smc_switch_to_fallback(new_smc, SMC_CLC_DECL_PEERNOSMC);
+-		smc_listen_out_connected(new_smc);
++		rc = smc_switch_to_fallback(new_smc, SMC_CLC_DECL_PEERNOSMC);
++		if (rc)
++			smc_listen_out_err(new_smc);
++		else
++			smc_listen_out_connected(new_smc);
+ 		return;
+ 	}
+ 
+@@ -2254,7 +2275,9 @@ static int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+ 
+ 	if (msg->msg_flags & MSG_FASTOPEN) {
+ 		if (sk->sk_state == SMC_INIT && !smc->connect_nonblock) {
+-			smc_switch_to_fallback(smc, SMC_CLC_DECL_OPTUNSUPP);
++			rc = smc_switch_to_fallback(smc, SMC_CLC_DECL_OPTUNSUPP);
++			if (rc)
++				goto out;
+ 		} else {
+ 			rc = -EINVAL;
+ 			goto out;
+@@ -2447,6 +2470,11 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
+ 	/* generic setsockopts reaching us here always apply to the
+ 	 * CLC socket
+ 	 */
++	mutex_lock(&smc->clcsock_release_lock);
++	if (!smc->clcsock) {
++		mutex_unlock(&smc->clcsock_release_lock);
++		return -EBADF;
++	}
+ 	if (unlikely(!smc->clcsock->ops->setsockopt))
+ 		rc = -EOPNOTSUPP;
+ 	else
+@@ -2456,6 +2484,7 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
+ 		sk->sk_err = smc->clcsock->sk->sk_err;
+ 		sk_error_report(sk);
+ 	}
++	mutex_unlock(&smc->clcsock_release_lock);
+ 
+ 	if (optlen < sizeof(int))
+ 		return -EINVAL;
+@@ -2472,7 +2501,7 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
+ 	case TCP_FASTOPEN_NO_COOKIE:
+ 		/* option not supported by SMC */
+ 		if (sk->sk_state == SMC_INIT && !smc->connect_nonblock) {
+-			smc_switch_to_fallback(smc, SMC_CLC_DECL_OPTUNSUPP);
++			rc = smc_switch_to_fallback(smc, SMC_CLC_DECL_OPTUNSUPP);
+ 		} else {
+ 			rc = -EINVAL;
+ 		}
+@@ -2515,13 +2544,23 @@ static int smc_getsockopt(struct socket *sock, int level, int optname,
+ 			  char __user *optval, int __user *optlen)
+ {
+ 	struct smc_sock *smc;
++	int rc;
+ 
+ 	smc = smc_sk(sock->sk);
++	mutex_lock(&smc->clcsock_release_lock);
++	if (!smc->clcsock) {
++		mutex_unlock(&smc->clcsock_release_lock);
++		return -EBADF;
++	}
+ 	/* socket options apply to the CLC socket */
+-	if (unlikely(!smc->clcsock->ops->getsockopt))
++	if (unlikely(!smc->clcsock->ops->getsockopt)) {
++		mutex_unlock(&smc->clcsock_release_lock);
+ 		return -EOPNOTSUPP;
+-	return smc->clcsock->ops->getsockopt(smc->clcsock, level, optname,
+-					     optval, optlen);
++	}
++	rc = smc->clcsock->ops->getsockopt(smc->clcsock, level, optname,
++					   optval, optlen);
++	mutex_unlock(&smc->clcsock_release_lock);
++	return rc;
+ }
+ 
+ static int smc_ioctl(struct socket *sock, unsigned int cmd,
+-- 
+1.8.3.1
+
