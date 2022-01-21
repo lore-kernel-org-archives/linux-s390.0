@@ -2,82 +2,120 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B50B7C433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 21 Jan 2022 07:05:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 648B1C4332F
+	for <linux-s390@archiver.kernel.org>; Fri, 21 Jan 2022 07:13:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349004AbiAUHFG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 21 Jan 2022 02:05:06 -0500
-Received: from out30-133.freemail.mail.aliyun.com ([115.124.30.133]:50531 "EHLO
-        out30-133.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233755AbiAUHFF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 21 Jan 2022 02:05:05 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0V2Ps0xP_1642748702;
-Received: from 30.225.24.42(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0V2Ps0xP_1642748702)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 21 Jan 2022 15:05:03 +0800
-Message-ID: <ad5c1c9b-5d9e-cd0f-88c7-4420bc9ed0e5@linux.alibaba.com>
-Date:   Fri, 21 Jan 2022 15:05:02 +0800
+        id S1378867AbiAUHNN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 21 Jan 2022 02:13:13 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:50736 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S245097AbiAUHNL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 Jan 2022 02:13:11 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 916C2B81F42;
+        Fri, 21 Jan 2022 07:13:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AE92C340E9;
+        Fri, 21 Jan 2022 07:13:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1642749188;
+        bh=SYu90Dv3l/L+64SNcy50aiw16Lnx3umbKRTsGOMrQkg=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=k3uRWzp0SWvrQt4wpv0wp6HqoqMuube0dVeHTED+DvTqJqQ9JteKgAHFuRzMK7La9
+         hdnPtmnF2+6oHL0sMYFETK3B/JMjsOW1iHomI2Xxura1sskJ+xnkPbfy35KWaVO1oF
+         26rdD0dYwJ3PYFSq+U3dWovrDZcwDzLVyfSAEZDEYRmJINM8Tmg0Ctmu12Rf81s5Ac
+         gTKy8KVDZlLocphtUaf3ZDWDQa7DnN48hoqfKvLktVOOCow1KTrdDLQoLL6djNiLnt
+         IAwyIbddJ0s5SrRTLwybw+lS0U5xtFSYhGyprgDLn7Xl/Wos5XISZ+lA6JoDVYmrwQ
+         LJ4wkPbrGtrCw==
+Received: by mail-ua1-f42.google.com with SMTP id y4so15340383uad.1;
+        Thu, 20 Jan 2022 23:13:08 -0800 (PST)
+X-Gm-Message-State: AOAM5308pWH6ry++BaLmChZuZ3Tca0RPutSXFGz86STO/h5THSW/2DwP
+        H9XGfWX/4Z/iecxCE17m44cgXCq1PA9sQ1deBuY=
+X-Google-Smtp-Source: ABdhPJx6xNJuRVb4aLVlJ7P9bbeDPtJXSmXNRd3kkpQg8PkHlzrym8B0ENWLs0YxpXjFKvxlitpnKg+MIWjsd2Jznqg=
+X-Received: by 2002:a67:c89e:: with SMTP id v30mr1186161vsk.2.1642749187280;
+ Thu, 20 Jan 2022 23:13:07 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.4.0
-Subject: Re: [PATCH net] net/smc: Transitional solution for clcsock race issue
-From:   Wen Gu <guwen@linux.alibaba.com>
-To:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <1642086177-130611-1-git-send-email-guwen@linux.alibaba.com>
-In-Reply-To: <1642086177-130611-1-git-send-email-guwen@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20220120073911.99857-14-guoren@kernel.org> <CAK8P3a03-3QTC-vxmnbouK7wBd8iunPGZpX0-Jf6ntS1DY0E=w@mail.gmail.com>
+In-Reply-To: <CAK8P3a03-3QTC-vxmnbouK7wBd8iunPGZpX0-Jf6ntS1DY0E=w@mail.gmail.com>
+From:   Guo Ren <guoren@kernel.org>
+Date:   Fri, 21 Jan 2022 15:12:56 +0800
+X-Gmail-Original-Message-ID: <CAJF2gTRMWj0yVLn2=16Gu1O-6tuqLaxcdduw0YnDK6vrizJEsQ@mail.gmail.com>
+Message-ID: <CAJF2gTRMWj0yVLn2=16Gu1O-6tuqLaxcdduw0YnDK6vrizJEsQ@mail.gmail.com>
+Subject: Re: [PATCH V3 13/17] riscv: compat: signal: Add rt_frame implementation
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     Palmer Dabbelt <palmer@dabbelt.com>,
+        Anup Patel <anup@brainfault.org>,
+        gregkh <gregkh@linuxfoundation.org>,
+        liush <liush@allwinnertech.com>, Wei Fu <wefu@redhat.com>,
+        Drew Fustini <drew@beagleboard.org>,
+        Wang Junqiang <wangjunqiang@iscas.ac.cn>,
+        Christoph Hellwig <hch@lst.de>,
+        Christoph Hellwig <hch@infradead.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-csky@vger.kernel.org,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        inux-parisc@vger.kernel.org,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Guo Ren <guoren@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Thu, Jan 20, 2022 at 6:31 PM Arnd Bergmann <arnd@arndb.de> wrote:
+>
+> On Thu, Jan 20, 2022 at 8:39 AM <guoren@kernel.org> wrote:
+> >
+> > From: Guo Ren <guoren@linux.alibaba.com>
+> >
+> > Implement compat_setup_rt_frame for sigcontext save & restore. The
+> > main process is the same with signal, but the rv32 pt_regs' size
+> > is different from rv64's, so we needs convert them.
+> >
+> > Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+> > Signed-off-by: Guo Ren <guoren@kernel.org>
+> > Cc: Arnd Bergmann <arnd@arndb.de>
+>
+> I hope someone else can properly review this part, it's not my area
+> but it looks complex enough that it could bring subtle bugs.
+Here are ltp signal test results:
 
-On 2022/1/13 11:02 pm, Wen Gu wrote:
-> We encountered a crash in smc_setsockopt() and it is caused by
-> accessing smc->clcsock after clcsock was released.
-> 
->   BUG: kernel NULL pointer dereference, address: 0000000000000020
->   #PF: supervisor read access in kernel mode
->   #PF: error_code(0x0000) - not-present page
->   PGD 0 P4D 0
->   Oops: 0000 [#1] PREEMPT SMP PTI
->   CPU: 1 PID: 50309 Comm: nginx Kdump: loaded Tainted: G E     5.16.0-rc4+ #53
->   RIP: 0010:smc_setsockopt+0x59/0x280 [smc]
->   Call Trace:
->    <TASK>
->    __sys_setsockopt+0xfc/0x190
->    __x64_sys_setsockopt+0x20/0x30
->    do_syscall_64+0x34/0x90
->    entry_SYSCALL_64_after_hwframe+0x44/0xae
->   RIP: 0033:0x7f16ba83918e
->    </TASK>
-> 
-> This patch tries to fix it by holding clcsock_release_lock and
-> checking whether clcsock has already been released before access.
-> 
-> In case that a crash of the same reason happens in smc_getsockopt()
-> or smc_switch_to_fallback(), this patch also checkes smc->clcsock
-> in them too. And the caller of smc_switch_to_fallback() will identify
-> whether fallback succeeds according to the return value.
-> 
-> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
-> ---
->   net/smc/af_smc.c | 63 +++++++++++++++++++++++++++++++++++++++++++++-----------
->   1 file changed, 51 insertions(+), 12 deletions(-)
-> 
+sigaction01                                        PASS       0
+sigaction02                                        PASS       0
+sigaltstack01                                      PASS       0
+sigaltstack02                                      PASS       0
+sighold02                                          PASS       0
+signal01                                           PASS       0
+signal02                                           PASS       0
+signal03                                           PASS       0
+signal04                                           PASS       0
+signal05                                           PASS       0
+signal06                                           CONF       32
+signalfd01                                         PASS       0
+signalfd4_01                                       PASS       0
+signalfd4_02                                       PASS       0
+sigpending02                                       PASS       0
+sigprocmask01                                      PASS       0
+sigrelse01                                         PASS       0
+sigsuspend01                                       PASS       0
+sigtimedwait01                                     PASS       0
+sigwait01                                          PASS       0
+sigwaitinfo01                                      CONF       32
 
-Sorry for bothering, just wonder if this patch needs further improvements?
 
-The previous discussion can be found in:
-https://lore.kernel.org/lkml/5dd7ffd1-28e2-24cc-9442-1defec27375e@linux.ibm.com/T/
+>
+>        Arnd
 
-I sent this patch with a new subject instead of sending a v2 of the previously
-discussed patch because I think the original subject seems not appropriate anymore
-after introducing check of clcsock in smc_switch_to_fallback().
 
-Thanks,
-Wen Gu
 
+-- 
+Best Regards
+ Guo Ren
+
+ML: https://lore.kernel.org/linux-csky/
