@@ -2,54 +2,64 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3300AC433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 21 Jan 2022 02:47:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B7C1C433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 21 Jan 2022 03:24:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348540AbiAUCrk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 20 Jan 2022 21:47:40 -0500
-Received: from out30-57.freemail.mail.aliyun.com ([115.124.30.57]:45321 "EHLO
+        id S233303AbiAUDYf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 20 Jan 2022 22:24:35 -0500
+Received: from out30-57.freemail.mail.aliyun.com ([115.124.30.57]:39232 "EHLO
         out30-57.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1348500AbiAUCri (ORCPT
+        by vger.kernel.org with ESMTP id S230304AbiAUDYf (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 Jan 2022 21:47:38 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0V2PNhOp_1642733255;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0V2PNhOp_1642733255)
+        Thu, 20 Jan 2022 22:24:35 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0V2OrEC9_1642735473;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0V2OrEC9_1642735473)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 21 Jan 2022 10:47:36 +0800
-Date:   Fri, 21 Jan 2022 10:47:34 +0800
+          Fri, 21 Jan 2022 11:24:33 +0800
+Date:   Fri, 21 Jan 2022 11:24:32 +0800
 From:   Tony Lu <tonylu@linux.alibaba.com>
-To:     Stefan Raspl <raspl@linux.ibm.com>
-Cc:     Karsten Graul <kgraul@linux.ibm.com>,
-        "D. Wythe" <alibuda@linux.alibaba.com>, dust.li@linux.alibaba.com,
-        kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: Re: [PATCH net-next v2] net/smc: Reduce overflow of smc clcsock
- listen queue
-Message-ID: <YeoexsVAgklvdu+x@TonyMac-Alibaba>
+To:     Karsten Graul <kgraul@linux.ibm.com>
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH net-next] net/smc: Use kvzalloc for allocating
+ smc_link_group
+Message-ID: <YeoncJZoa3ELWyxM@TonyMac-Alibaba>
 Reply-To: Tony Lu <tonylu@linux.alibaba.com>
-References: <8a60dabb-1799-316c-80b5-14c920fe98ab@linux.ibm.com>
- <20220105044049.GA107642@e02h04389.eu6sqa>
- <20220105085748.GD31579@linux.alibaba.com>
- <b98aefce-e425-9501-aacc-8e5a4a12953e@linux.ibm.com>
- <20220105150612.GA75522@e02h04389.eu6sqa>
- <d35569df-e0e0-5ea7-9aeb-7ffaeef04b14@linux.ibm.com>
- <YdaUuOq+SkhYTWU8@TonyMac-Alibaba>
- <5a5ba1b6-93d7-5c1e-aab2-23a52727fbd1@linux.ibm.com>
- <YelmFWn7ot0iQCYG@TonyMac-Alibaba>
- <591d2e47-edd9-453a-a888-c43ba5b76a1e@linux.ibm.com>
+References: <20220120140928.7137-1-tonylu@linux.alibaba.com>
+ <4c600724-3306-0f0e-36dc-52f4f23825bc@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <591d2e47-edd9-453a-a888-c43ba5b76a1e@linux.ibm.com>
+In-Reply-To: <4c600724-3306-0f0e-36dc-52f4f23825bc@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jan 20, 2022 at 05:00:18PM +0100, Stefan Raspl wrote:
-> I'd be definitely open to look into patches for smc-tools that extend it to
-> configure SMC properties, and that provide the capability to read (and
-> apply) a config from a file! We can discuss what you'd imagine as an
-> interface before you implement it, too.
+On Thu, Jan 20, 2022 at 03:50:26PM +0100, Karsten Graul wrote:
+> On 20/01/2022 15:09, Tony Lu wrote:
+> > When analyzed memory usage of SMC, we found that the size of struct
+> > smc_link_group is 16048 bytes, which is too big for a busy machine to
+> > allocate contiguous memory. Using kvzalloc instead that falls back to
+> > vmalloc if there has not enough contiguous memory.
+> 
+> I am wondering where the needed contiguous memory for the required RMB buffers should come from when 
+> you don't even get enough storage for the initial link group?
 
-Thanks for your reply. I will complete my detailed proposal, and send it
-out later.
+Yes, this is what I want to talking about. The RMB buffers size inherits
+from TCP, we cannot assume that RMB is always larger than 16k bytes, the
+tcp_mem can be changed on the fly, and it can be tuned to very small for
+saving memory. Also, If we freed existed link group or somewhere else,
+we can allocate enough contiguous memory for the new link group.
+
+> The idea is that when the system is so low on contiguous memory then a link group creation should fail 
+> early, because most of the later buffer allocations will also fail then later.
+
+IMHO, it is not a "pre-checker" for allocating buffer, it is a reminder
+for us to save contiguous memory, this is a precious resource, and a
+possible way to do this. This patch is not the best approach to solve
+this problem, but the simplest one. A possible approach to allocate
+link array in link group with a pointer to another memory. Glad to hear
+your advice.
+
+Thanks,
+Tony Lu
