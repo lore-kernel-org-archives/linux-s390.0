@@ -2,64 +2,199 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B7C1C433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 21 Jan 2022 03:24:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24DC3C4332F
+	for <linux-s390@archiver.kernel.org>; Fri, 21 Jan 2022 06:25:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233303AbiAUDYf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 20 Jan 2022 22:24:35 -0500
-Received: from out30-57.freemail.mail.aliyun.com ([115.124.30.57]:39232 "EHLO
-        out30-57.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230304AbiAUDYf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 Jan 2022 22:24:35 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0V2OrEC9_1642735473;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0V2OrEC9_1642735473)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 21 Jan 2022 11:24:33 +0800
-Date:   Fri, 21 Jan 2022 11:24:32 +0800
-From:   Tony Lu <tonylu@linux.alibaba.com>
-To:     Karsten Graul <kgraul@linux.ibm.com>
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH net-next] net/smc: Use kvzalloc for allocating
- smc_link_group
-Message-ID: <YeoncJZoa3ELWyxM@TonyMac-Alibaba>
-Reply-To: Tony Lu <tonylu@linux.alibaba.com>
-References: <20220120140928.7137-1-tonylu@linux.alibaba.com>
- <4c600724-3306-0f0e-36dc-52f4f23825bc@linux.ibm.com>
+        id S1378699AbiAUGZp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 21 Jan 2022 01:25:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47866 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1378696AbiAUGZp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 Jan 2022 01:25:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2E31C06173F;
+        Thu, 20 Jan 2022 22:25:44 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E6647B81F4A;
+        Fri, 21 Jan 2022 06:25:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88D23C36AE7;
+        Fri, 21 Jan 2022 06:25:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1642746341;
+        bh=Isi0LP5N8Hd28Ba/kM6pY+YaZm5nWrdB7apzNizLGkI=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=QGovHoz1oiofsdeaaXvjyotkiuHEDH0/CO+SlieoWuLCgx5KtV+Ai2Csju6ecvcNn
+         xTbsrzAaDUp9BLR9AyNzODSTM1WIjQcjd/vxArKlUGwNgK09W1bVBsghi+Zm7UWemM
+         uEtNuhsOXX8Ugo1Y4qHLm4MRe1sX1QcTL2nYe/FfR+RV6+/ofNF6GmJUNEvEHvHK+e
+         w1SoJRREbXxjcdQQSlT7aN2dH/O/U5TVCUyEr9r+jtwrROIzQilSGVx4QeQK9dZVSh
+         d1xgfZJVGsxLsNdaiWOd+utFZwUfcRwN3wT3+g6qcQI0ranll2u6k7n00Y/woKgW8j
+         jDKVRZ3MkFA6w==
+Received: by mail-ua1-f45.google.com with SMTP id r15so15165463uao.3;
+        Thu, 20 Jan 2022 22:25:41 -0800 (PST)
+X-Gm-Message-State: AOAM531o1hGvHoRX5X6NRHKYSV3HPnON1mXcOnKe386cx1rrWYA36DfY
+        M1NGgl+PD3UWDui+YcedmjcKpQniT2wYk59fM8o=
+X-Google-Smtp-Source: ABdhPJwB7ga72MDOno+HFBeeiGH/FKsBJy+/4qpm4/UjbqnmBZuKa8XMIWL0JsmA8KTM5bJQlsAjrV4ffWb0zfo7B4M=
+X-Received: by 2002:a67:e016:: with SMTP id c22mr1147085vsl.51.1642746340414;
+ Thu, 20 Jan 2022 22:25:40 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4c600724-3306-0f0e-36dc-52f4f23825bc@linux.ibm.com>
+References: <20220120073911.99857-9-guoren@kernel.org> <CAK8P3a0LxB3we9wHOa4OPmNow6wz5NP49zeYhh7QXNv-MiR8UA@mail.gmail.com>
+In-Reply-To: <CAK8P3a0LxB3we9wHOa4OPmNow6wz5NP49zeYhh7QXNv-MiR8UA@mail.gmail.com>
+From:   Guo Ren <guoren@kernel.org>
+Date:   Fri, 21 Jan 2022 14:25:29 +0800
+X-Gmail-Original-Message-ID: <CAJF2gTQVUF4LSO0a6_MV8x-UAiJw32pAFyS1oPNLXhcEaemzqg@mail.gmail.com>
+Message-ID: <CAJF2gTQVUF4LSO0a6_MV8x-UAiJw32pAFyS1oPNLXhcEaemzqg@mail.gmail.com>
+Subject: Re: [PATCH V3 08/17] riscv: compat: syscall: Add compat_sys_call_table
+ implementation
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     Palmer Dabbelt <palmer@dabbelt.com>,
+        Anup Patel <anup@brainfault.org>,
+        gregkh <gregkh@linuxfoundation.org>,
+        liush <liush@allwinnertech.com>, Wei Fu <wefu@redhat.com>,
+        Drew Fustini <drew@beagleboard.org>,
+        Wang Junqiang <wangjunqiang@iscas.ac.cn>,
+        Christoph Hellwig <hch@lst.de>,
+        Christoph Hellwig <hch@infradead.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-csky@vger.kernel.org,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        inux-parisc@vger.kernel.org,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Guo Ren <guoren@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jan 20, 2022 at 03:50:26PM +0100, Karsten Graul wrote:
-> On 20/01/2022 15:09, Tony Lu wrote:
-> > When analyzed memory usage of SMC, we found that the size of struct
-> > smc_link_group is 16048 bytes, which is too big for a busy machine to
-> > allocate contiguous memory. Using kvzalloc instead that falls back to
-> > vmalloc if there has not enough contiguous memory.
-> 
-> I am wondering where the needed contiguous memory for the required RMB buffers should come from when 
-> you don't even get enough storage for the initial link group?
+On Thu, Jan 20, 2022 at 10:43 PM Arnd Bergmann <arnd@arndb.de> wrote:
+>
+> On Thu, Jan 20, 2022 at 8:39 AM <guoren@kernel.org> wrote:
+> >
+> >  /* The array of function pointers for syscalls. */
+> >  extern void * const sys_call_table[];
+> > +#ifdef CONFIG_COMPAT
+> > +extern void * const compat_sys_call_table[];
+> > +#endif
+>
+> No need for the #ifdef, the normal convention is to just define the
+> extern declaration unconditionally for symbols that may or may not be defined.
+Okay
 
-Yes, this is what I want to talking about. The RMB buffers size inherits
-from TCP, we cannot assume that RMB is always larger than 16k bytes, the
-tcp_mem can be changed on the fly, and it can be tuned to very small for
-saving memory. Also, If we freed existed link group or somewhere else,
-we can allocate enough contiguous memory for the new link group.
+>
+> > +COMPAT_SYSCALL_DEFINE3(truncate64, const char __user *, pathname,
+> > +                      arg_u32p(length))
+> > +{
+> > +       return ksys_truncate(pathname, arg_u64(length));
+> > +}
+>
+> Are you sure these are the right calling conventions? According to [1],
+> I think the 64-bit argument should be in an aligned pair of registers,
+> which means you need an extra pad argument as in the arm64 version
+> of these functions. Same for ftruncate64, pread64, pwrite64, and
+> readahead.
 
-> The idea is that when the system is so low on contiguous memory then a link group creation should fail 
-> early, because most of the later buffer allocations will also fail then later.
+[1] has abandoned.
 
-IMHO, it is not a "pre-checker" for allocating buffer, it is a reminder
-for us to save contiguous memory, this is a precious resource, and a
-possible way to do this. This patch is not the best approach to solve
-this problem, but the simplest one. A possible approach to allocate
-link array in link group with a pointer to another memory. Glad to hear
-your advice.
+See:
+https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/master/riscv-cc.adoc
 
-Thanks,
-Tony Lu
+Ltp test results:
+
+ftruncate01                                        PASS       0
+ftruncate01_64                                     PASS       0
+ftruncate03                                        PASS       0
+ftruncate03_64                                     PASS       0
+ftruncate04                                        CONF       32
+ftruncate04_64                                     CONF       32
+
+truncate02                                         PASS       0
+truncate02_64                                      PASS       0
+truncate03                                         PASS       0
+truncate03_64                                      PASS       0
+
+pread01                                            PASS       0
+pread01_64                                         PASS       0
+pread02                                            PASS       0
+pread02_64                                         PASS       0
+pread03                                            PASS       0
+pread03_64                                         PASS       0
+
+pwrite01_64                                        PASS       0
+pwrite02_64                                        PASS       0
+pwrite03_64                                        PASS       0
+pwrite04_64                                        PASS       0
+
+readahead01                                        PASS       0
+readahead02                                        CONF       32
+
+
+>
+> > +COMPAT_SYSCALL_DEFINE3(ftruncate64, unsigned int, fd, arg_u32p(length))
+> > +{
+> > +       return ksys_ftruncate(fd, arg_u64(length));
+> > +}
+> > +
+> > +COMPAT_SYSCALL_DEFINE6(fallocate, int, fd, int, mode,
+> > +                      arg_u32p(offset), arg_u32p(len))
+> > +{
+> > +       return ksys_fallocate(fd, mode, arg_u64(offset), arg_u64(len));
+> > +}
+> > +
+> > +COMPAT_SYSCALL_DEFINE5(pread64, unsigned int, fd, char __user *, buf,
+> > +                      size_t, count, arg_u32p(pos))
+> > +{
+> > +       return ksys_pread64(fd, buf, count, arg_u64(pos));
+> > +}
+> > +
+> > +COMPAT_SYSCALL_DEFINE5(pwrite64, unsigned int, fd,
+> > +                      const char __user *, buf, size_t, count, arg_u32p(pos))
+> > +{
+> > +       return ksys_pwrite64(fd, buf, count, arg_u64(pos));
+> > +}
+> > +
+> > +COMPAT_SYSCALL_DEFINE6(sync_file_range, int, fd, arg_u32p(offset),
+> > +                      arg_u32p(nbytes), unsigned int, flags)
+> > +{
+> > +       return ksys_sync_file_range(fd, arg_u64(offset), arg_u64(nbytes),
+> > +                                   flags);
+> > +}
+> > +
+> > +COMPAT_SYSCALL_DEFINE4(readahead, int, fd, arg_u32p(offset),
+> > +                      size_t, count)
+> > +{
+> > +       return ksys_readahead(fd, arg_u64(offset), count);
+> > +}
+> > +
+> > +COMPAT_SYSCALL_DEFINE6(fadvise64_64, int, fd, int, advice, arg_u32p(offset),
+> > +                      arg_u32p(len))
+> > +{
+> > +       return ksys_fadvise64_64(fd, arg_u64(offset), arg_u64(len), advice);
+> > +}
+>
+> I still feel like these should be the common implementations next to the
+> native handlers inside of an #ifdef CONFIG_COMPAT.
+>
+> The names clash with the custom versions defined for powerpc and sparc,
+> but the duplicates look compatible if you can account for the padded
+> argument and the lo/hi order of the pairs, so could just be removed here
+> (all other architectures use custom function names instead).
+I would try it later.
+
+>
+>         Arnd
+>
+> [1] https://riscv.org/wp-content/uploads/2015/01/riscv-calling.pdf
+
+
+
+-- 
+Best Regards
+ Guo Ren
+
+ML: https://lore.kernel.org/linux-csky/
