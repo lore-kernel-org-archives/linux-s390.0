@@ -2,244 +2,110 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B2BCBC433EF
-	for <linux-s390@archiver.kernel.org>; Sun, 23 Jan 2022 00:12:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EF24C433FE
+	for <linux-s390@archiver.kernel.org>; Sun, 23 Jan 2022 18:42:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235244AbiAWAMB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 22 Jan 2022 19:12:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36596 "EHLO
+        id S240221AbiAWSmo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 23 Jan 2022 13:42:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235160AbiAWAL4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 22 Jan 2022 19:11:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6DE2C061744;
-        Sat, 22 Jan 2022 16:11:55 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 57EF9B80AB1;
-        Sun, 23 Jan 2022 00:11:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AB49C36AE7;
-        Sun, 23 Jan 2022 00:11:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642896713;
-        bh=JNisxRfei9m4NnvzKTq3L3CEJBbv2R5zSIfl/bLX5Hg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TSueYz6gzOsDq9HNGpLoJpGlhZdhNlqoR7xP1+mtpsezSpb0Og/V4CaiLuX6qW2Ho
-         fA3NZDP0I7z4K7x9R895tPAlclavlaG6lTSDspNn/xUfUPq0iX81+AfRb6PngzC8cG
-         TMY1kDZpNMQkRFlSdBufvWARSQYKwLQvKsarVLBhG92PdG8sPsQ4ozGzhAh/dq6ESi
-         bZWYL0I5bG12D1RPx2HY7vLwCJUbikfd/P9/y6qeMU6rCX9TwEkklBrJ8D9jyiQQwp
-         ROibQbDM8D4LIuVyzliCNTgxfev7BAnsUpMWdP4pTO9UC0FyQtGL6YyNv/LGeHsXb+
-         WO70douGwJP/A==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wen Gu <guwen@linux.alibaba.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, kgraul@linux.ibm.com,
-        kuba@kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 10/19] net/smc: Resolve the race between SMC-R link access and clear
-Date:   Sat, 22 Jan 2022 19:11:03 -0500
-Message-Id: <20220123001113.2460140-10-sashal@kernel.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220123001113.2460140-1-sashal@kernel.org>
-References: <20220123001113.2460140-1-sashal@kernel.org>
+        with ESMTP id S239906AbiAWSly (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 23 Jan 2022 13:41:54 -0500
+Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01BE0C061763;
+        Sun, 23 Jan 2022 10:41:54 -0800 (PST)
+Received: by mail-pl1-x62f.google.com with SMTP id x11so7708017plg.6;
+        Sun, 23 Jan 2022 10:41:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=O3KT5VKSFvO3GdRn4FJX6rtqnPjQLFUvXRpKrWgV0vk=;
+        b=Kl5oq/zPHhzFnmY1AQ/X1WXwEJ/77u/DsV5WzawwBW5htJum8noY7sVHr104trMone
+         0luZQz2YmdZVgBfkBF7XUtbU9U5NNNE77xLkoQ6e44CE/RvA9plyW2k9hGC6yj4hcQuJ
+         3veVmDisG0BBCnjxVejMYJbzG51E1SUUiavOLrCnhpLmFLG2cjoWTdfbKr211UkALHeQ
+         2UQ9q6rFTw5kdo2WkXGDG4DycaPBW+FTwLqtIRIMJWOFHbQOJNBGAkvI2xkJd9ogpR0/
+         QJ92P/ea5Xg/x4A1RP8yiI6aL+2j8Go7YQU125GnF0jEpsfIT0Swhds7G6WuudRZkBgQ
+         i7XQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=O3KT5VKSFvO3GdRn4FJX6rtqnPjQLFUvXRpKrWgV0vk=;
+        b=cPzUMJk09ubWBOfHQVyNaidwKQeXM9xI6A1XzbcTEhAak0AhuWUEqBFHPkCWj0KZSX
+         j3oPNkNzRlAXFAp55HdQDLYjGIJei7qZmd8EnvVsIQIhX6O71OxSbdDUW7/01R4FdvZ2
+         bbzn83m4K+ltj3rs278T54MvHjYlzM+vLi8B7DT4M5vZRj52wyL8UEk23voWihuOsPDV
+         sQKBAuCorZtUl6FLCfdnyno+Xx6FnRMyGjiJscBsFmQ7jC3WfoGCnl2KXRjymlVCLUUu
+         lxvUdQ94uL2ovlu4dRa3v6nT6YQqq7gNSVFja9QRvrHGhNTOJ6J88hGAkeaE/G2SODPI
+         T+9A==
+X-Gm-Message-State: AOAM531kY/DhehXPe8LpqVC6Fxa6HY7rUWi/3J8Ueg5doX5Lyc0lq2Wn
+        dGGHYuMBwTpNvAQvo9+UCYE=
+X-Google-Smtp-Source: ABdhPJyA03nygberi3JeFhIpeLaKgTDTgDNIwOWLUJrakKCuQW5OTWU8/LphWZHA5drEVEeiqoOhkA==
+X-Received: by 2002:a17:902:6841:b0:149:6791:5a4f with SMTP id f1-20020a170902684100b0014967915a4fmr11869454pln.123.1642963313406;
+        Sun, 23 Jan 2022 10:41:53 -0800 (PST)
+Received: from localhost (searspoint.nvidia.com. [216.228.112.21])
+        by smtp.gmail.com with ESMTPSA id my11sm8413621pjb.35.2022.01.23.10.41.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 23 Jan 2022 10:41:53 -0800 (PST)
+From:   Yury Norov <yury.norov@gmail.com>
+To:     Yury Norov <yury.norov@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        David Laight <David.Laight@aculab.com>,
+        Joe Perches <joe@perches.com>, Dennis Zhou <dennis@kernel.org>,
+        Emil Renner Berthing <kernel@esmil.dk>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
+        Alexey Klimov <aklimov@redhat.com>,
+        linux-kernel@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        Sumanth Korikkar <sumanthk@linux.ibm.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        kernel test robot <lkp@intel.com>, linux-s390@vger.kernel.org
+Subject: [PATCH 40/54] arch/s390: replace cpumask_weight with cpumask_weight_eq where appropriate
+Date:   Sun, 23 Jan 2022 10:39:11 -0800
+Message-Id: <20220123183925.1052919-41-yury.norov@gmail.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20220123183925.1052919-1-yury.norov@gmail.com>
+References: <20220123183925.1052919-1-yury.norov@gmail.com>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Wen Gu <guwen@linux.alibaba.com>
+cfset_all_start() calls cpumask_weight() to compare the weight of cpumask
+with a given number. We can do it more efficiently with
+cpumask_weight_{eq, ...} because conditional cpumask_weight may stop
+traversing the cpumask earlier, as soon as condition is met.
 
-[ Upstream commit 20c9398d3309d170300d67643b851fd26783af24 ]
-
-We encountered some crashes caused by the race between SMC-R
-link access and link clear that triggered by abnormal link
-group termination, such as port error.
-
-Here is an example of this kind of crashes:
-
- BUG: kernel NULL pointer dereference, address: 0000000000000000
- Workqueue: smc_hs_wq smc_listen_work [smc]
- RIP: 0010:smc_llc_flow_initiate+0x44/0x190 [smc]
- Call Trace:
-  <TASK>
-  ? __smc_buf_create+0x75a/0x950 [smc]
-  smcr_lgr_reg_rmbs+0x2a/0xbf [smc]
-  smc_listen_work+0xf72/0x1230 [smc]
-  ? process_one_work+0x25c/0x600
-  process_one_work+0x25c/0x600
-  worker_thread+0x4f/0x3a0
-  ? process_one_work+0x600/0x600
-  kthread+0x15d/0x1a0
-  ? set_kthread_struct+0x40/0x40
-  ret_from_fork+0x1f/0x30
-  </TASK>
-
-smc_listen_work()                     __smc_lgr_terminate()
----------------------------------------------------------------
-                                    | smc_lgr_free()
-                                    |  |- smcr_link_clear()
-                                    |      |- memset(lnk, 0)
-smc_listen_rdma_reg()               |
- |- smcr_lgr_reg_rmbs()             |
-     |- smc_llc_flow_initiate()     |
-         |- access lnk->lgr (panic) |
-
-These crashes are similarly caused by clearing SMC-R link
-resources when some functions is still accessing to them.
-This patch tries to fix the issue by introducing reference
-count of SMC-R links and ensuring that the sensitive resources
-of links won't be cleared until reference count reaches zero.
-
-The operation to the SMC-R link reference count can be concluded
-as follows:
-
-object          [hold or initialized as 1]         [put]
---------------------------------------------------------------------
-links           smcr_link_init()                   smcr_link_clear()
-connections     smc_conn_create()                  smc_conn_free()
-
-Through this way, the clear of SMC-R links is later than the
-free of all the smc connections above it, thus avoiding the
-unsafe reference to SMC-R links.
-
-Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Yury Norov <yury.norov@gmail.com>
 ---
- net/smc/smc_core.c | 52 +++++++++++++++++++++++++++++++++++-----------
- net/smc/smc_core.h |  4 ++++
- 2 files changed, 44 insertions(+), 12 deletions(-)
+ arch/s390/kernel/perf_cpum_cf.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 84b89d13c3359..f4de45ac88189 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -745,6 +745,8 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
- 	}
- 	get_device(&lnk->smcibdev->ibdev->dev);
- 	atomic_inc(&lnk->smcibdev->lnk_cnt);
-+	refcount_set(&lnk->refcnt, 1); /* link refcnt is set to 1 */
-+	lnk->clearing = 0;
- 	lnk->path_mtu = lnk->smcibdev->pattr[lnk->ibport - 1].active_mtu;
- 	lnk->link_id = smcr_next_link_id(lgr);
- 	lnk->lgr = lgr;
-@@ -994,8 +996,12 @@ void smc_switch_link_and_count(struct smc_connection *conn,
- 			       struct smc_link *to_lnk)
- {
- 	atomic_dec(&conn->lnk->conn_cnt);
-+	/* link_hold in smc_conn_create() */
-+	smcr_link_put(conn->lnk);
- 	conn->lnk = to_lnk;
- 	atomic_inc(&conn->lnk->conn_cnt);
-+	/* link_put in smc_conn_free() */
-+	smcr_link_hold(conn->lnk);
- }
- 
- struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
-@@ -1152,6 +1158,8 @@ void smc_conn_free(struct smc_connection *conn)
- 	if (!lgr->conns_num)
- 		smc_lgr_schedule_free_work(lgr);
- lgr_put:
-+	if (!lgr->is_smcd)
-+		smcr_link_put(conn->lnk); /* link_hold in smc_conn_create() */
- 	smc_lgr_put(lgr); /* lgr_hold in smc_conn_create() */
- }
- 
-@@ -1208,22 +1216,11 @@ static void smcr_rtoken_clear_link(struct smc_link *lnk)
- 	}
- }
- 
--/* must be called under lgr->llc_conf_mutex lock */
--void smcr_link_clear(struct smc_link *lnk, bool log)
-+static void __smcr_link_clear(struct smc_link *lnk)
- {
- 	struct smc_link_group *lgr = lnk->lgr;
- 	struct smc_ib_device *smcibdev;
- 
--	if (!lgr || lnk->state == SMC_LNK_UNUSED)
--		return;
--	lnk->peer_qpn = 0;
--	smc_llc_link_clear(lnk, log);
--	smcr_buf_unmap_lgr(lnk);
--	smcr_rtoken_clear_link(lnk);
--	smc_ib_modify_qp_error(lnk);
--	smc_wr_free_link(lnk);
--	smc_ib_destroy_queue_pair(lnk);
--	smc_ib_dealloc_protection_domain(lnk);
- 	smc_wr_free_link_mem(lnk);
- 	smc_ibdev_cnt_dec(lnk);
- 	put_device(&lnk->smcibdev->ibdev->dev);
-@@ -1235,6 +1232,35 @@ void smcr_link_clear(struct smc_link *lnk, bool log)
- 	smc_lgr_put(lgr); /* lgr_hold in smcr_link_init() */
- }
- 
-+/* must be called under lgr->llc_conf_mutex lock */
-+void smcr_link_clear(struct smc_link *lnk, bool log)
-+{
-+	if (!lnk->lgr || lnk->clearing ||
-+	    lnk->state == SMC_LNK_UNUSED)
-+		return;
-+	lnk->clearing = 1;
-+	lnk->peer_qpn = 0;
-+	smc_llc_link_clear(lnk, log);
-+	smcr_buf_unmap_lgr(lnk);
-+	smcr_rtoken_clear_link(lnk);
-+	smc_ib_modify_qp_error(lnk);
-+	smc_wr_free_link(lnk);
-+	smc_ib_destroy_queue_pair(lnk);
-+	smc_ib_dealloc_protection_domain(lnk);
-+	smcr_link_put(lnk); /* theoretically last link_put */
-+}
-+
-+void smcr_link_hold(struct smc_link *lnk)
-+{
-+	refcount_inc(&lnk->refcnt);
-+}
-+
-+void smcr_link_put(struct smc_link *lnk)
-+{
-+	if (refcount_dec_and_test(&lnk->refcnt))
-+		__smcr_link_clear(lnk);
-+}
-+
- static void smcr_buf_free(struct smc_link_group *lgr, bool is_rmb,
- 			  struct smc_buf_desc *buf_desc)
- {
-@@ -1872,6 +1898,8 @@ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
- 			goto out;
- 	}
- 	smc_lgr_hold(conn->lgr); /* lgr_put in smc_conn_free() */
-+	if (!conn->lgr->is_smcd)
-+		smcr_link_hold(conn->lnk); /* link_put in smc_conn_free() */
- 	conn->freed = 0;
- 	conn->local_tx_ctrl.common.type = SMC_CDC_MSG_TYPE;
- 	conn->local_tx_ctrl.len = SMC_WR_TX_SIZE;
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 51203b16307be..e73217f52f3dd 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -137,6 +137,8 @@ struct smc_link {
- 	u8			peer_link_uid[SMC_LGR_ID_SIZE]; /* peer uid */
- 	u8			link_idx;	/* index in lgr link array */
- 	u8			link_is_asym;	/* is link asymmetric? */
-+	u8			clearing : 1;	/* link is being cleared */
-+	refcount_t		refcnt;		/* link reference count */
- 	struct smc_link_group	*lgr;		/* parent link group */
- 	struct work_struct	link_down_wrk;	/* wrk to bring link down */
- 	char			ibname[IB_DEVICE_NAME_MAX]; /* ib device name */
-@@ -504,6 +506,8 @@ void smc_core_exit(void);
- int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
- 		   u8 link_idx, struct smc_init_info *ini);
- void smcr_link_clear(struct smc_link *lnk, bool log);
-+void smcr_link_hold(struct smc_link *lnk);
-+void smcr_link_put(struct smc_link *lnk);
- void smc_switch_link_and_count(struct smc_connection *conn,
- 			       struct smc_link *to_lnk);
- int smcr_buf_map_lgr(struct smc_link *lnk);
+diff --git a/arch/s390/kernel/perf_cpum_cf.c b/arch/s390/kernel/perf_cpum_cf.c
+index ee8707abdb6a..4d217f7f5ccf 100644
+--- a/arch/s390/kernel/perf_cpum_cf.c
++++ b/arch/s390/kernel/perf_cpum_cf.c
+@@ -975,7 +975,7 @@ static int cfset_all_start(struct cfset_request *req)
+ 		return -ENOMEM;
+ 	cpumask_and(mask, &req->mask, cpu_online_mask);
+ 	on_each_cpu_mask(mask, cfset_ioctl_on, &p, 1);
+-	if (atomic_read(&p.cpus_ack) != cpumask_weight(mask)) {
++	if (!cpumask_weight_eq(mask, atomic_read(&p.cpus_ack))) {
+ 		on_each_cpu_mask(mask, cfset_ioctl_off, &p, 1);
+ 		rc = -EIO;
+ 		debug_sprintf_event(cf_dbg, 4, "%s CPUs missing", __func__);
 -- 
-2.34.1
+2.30.2
 
