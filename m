@@ -2,62 +2,63 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FAE1C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 24 Jan 2022 14:06:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EFA94C433FE
+	for <linux-s390@archiver.kernel.org>; Mon, 24 Jan 2022 14:23:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238669AbiAXOGm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 24 Jan 2022 09:06:42 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:36648 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S238660AbiAXOGl (ORCPT
+        id S237582AbiAXOXK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 24 Jan 2022 09:23:10 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:58464 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233777AbiAXOXJ (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 24 Jan 2022 09:06:41 -0500
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20OE68fw005568;
-        Mon, 24 Jan 2022 14:06:40 GMT
+        Mon, 24 Jan 2022 09:23:09 -0500
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20OEHn9d024040;
+        Mon, 24 Jan 2022 14:23:09 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=tdtbvqPv4g1N2hZ6zbSuMnxoPUPRln7YqGOxvMovGFY=;
- b=aDnnE4VD4i8QE3UhHBjHx/m5YAy1aAlPzB1liU6gjv9WJ7UoBLvkh5st7JGyDgz0JO1w
- C15DJ7tbq0UNA4iuMSMEPeHgfD/s+gQRe5YAgJ8/3FzY/uvWHxYdUBUX28NTg41FFViE
- FFlpS4JqZbsq5W68gQVNuMZ7ZkJEZZF0FfmWZCYmZq7J9W6uXT/ko/De7YYav276hBSI
- IUzvQHOKiotEAPemIXCGLJ78UvIn+B/Sw/sWkBg5sL8NuhS8ylIInzhqxVagS9LqjOpz
- Dq6NXZOJu0Rl0pQgLhn8AI5nc5l6d6RluVkJztJrYKTqxMFjAOeXICqdtSKmCRbDJeL1 iA== 
+ bh=3Gi2hLt+bNgz5tm+Bi1697AiriDVx9I1AVurtmodAV4=;
+ b=oZQoeoVlYFzq6XEK3fSHVHJWUNlQC49I0yWF/ZCSzZKNwv1IOvOKKqGQipdSMV73zCyj
+ GbnH8NmQqqnEhdCpTPJvq9oz5+lA+j35oEV4tkEQ7gUN5cJwynogzAwz8EYCAaeq3F7b
+ jnnE8a4MTmEnrGymQNb0M4n56yFblyScZCvmiv4GokS3orwPbaaDFbARqI5fRpF06n/f
+ xzQxYGpk7r2hs5XEaw5VVo1MkgQ92zW7z+VCMis7K5eSBycVO8IVXOnnXgGXEM7Hpx/i
+ YoKHmnLG3D4vN0g79CDxRr7lL9FCIFCK++IiL+cKl/cImjbCBsPwsr1+CIcXi0sJRPw2 Hg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3dsvduhvtv-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dsuwab4yc-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 24 Jan 2022 14:06:40 +0000
-Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20OE6ecA007608;
-        Mon, 24 Jan 2022 14:06:40 GMT
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3dsvduhvsx-1
+        Mon, 24 Jan 2022 14:23:09 +0000
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20OEHwvX025092;
+        Mon, 24 Jan 2022 14:23:08 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dsuwab4xd-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 24 Jan 2022 14:06:40 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20OE3BoB025365;
-        Mon, 24 Jan 2022 14:06:38 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma06fra.de.ibm.com with ESMTP id 3dr96j4an9-1
+        Mon, 24 Jan 2022 14:23:08 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20OEIFDY030997;
+        Mon, 24 Jan 2022 14:23:06 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma06ams.nl.ibm.com with ESMTP id 3dr96j5a84-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 24 Jan 2022 14:06:38 +0000
+        Mon, 24 Jan 2022 14:23:06 +0000
 Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20OE6W7j46858694
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20OEN2vL45875592
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 24 Jan 2022 14:06:32 GMT
+        Mon, 24 Jan 2022 14:23:02 GMT
 Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 67F3052065;
-        Mon, 24 Jan 2022 14:06:32 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 74E0252051;
+        Mon, 24 Jan 2022 14:23:02 +0000 (GMT)
 Received: from [9.171.67.78] (unknown [9.171.67.78])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 516955205F;
-        Mon, 24 Jan 2022 14:06:31 +0000 (GMT)
-Message-ID: <8bef8c96-219e-3c40-246b-b974c45a5315@linux.ibm.com>
-Date:   Mon, 24 Jan 2022 15:08:21 +0100
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 6C67652052;
+        Mon, 24 Jan 2022 14:23:01 +0000 (GMT)
+Message-ID: <7125d611-5440-09ae-429a-7a087dd77868@linux.ibm.com>
+Date:   Mon, 24 Jan 2022 15:24:51 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.3.0
-Subject: Re: [PATCH v2 08/30] s390/pci: stash associated GISA designation
+Subject: Re: [PATCH v2 17/30] KVM: s390: mechanism to enable guest zPCI
+ Interpretation
 Content-Language: en-US
 To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
 Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
@@ -67,24 +68,23 @@ Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
         frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
         vneethv@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com,
         thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Christian Borntraeger <borntraeger@de.ibm.com>
+        linux-kernel@vger.kernel.org
 References: <20220114203145.242984-1-mjrosato@linux.ibm.com>
- <20220114203145.242984-9-mjrosato@linux.ibm.com>
+ <20220114203145.242984-18-mjrosato@linux.ibm.com>
 From:   Pierre Morel <pmorel@linux.ibm.com>
-In-Reply-To: <20220114203145.242984-9-mjrosato@linux.ibm.com>
+In-Reply-To: <20220114203145.242984-18-mjrosato@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 0saFj80rLb-OvTylP6lAGZG_0aDoZlss
-X-Proofpoint-ORIG-GUID: R97uy2NP1fMqMX2HuHh_VvZ-0k-lkXIt
+X-Proofpoint-ORIG-GUID: 69c1T2xJGaRDDGl2HI-Ja3HIsCn4C4Ic
+X-Proofpoint-GUID: 4JjUKej3LRprS32yTqfFsSkk-vnLuGGj
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2022-01-24_07,2022-01-24_01,2021-12-02_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- phishscore=0 mlxlogscore=999 spamscore=0 impostorscore=0
- lowpriorityscore=0 malwarescore=0 clxscore=1015 mlxscore=0 adultscore=0
- bulkscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ mlxlogscore=999 suspectscore=0 adultscore=0 spamscore=0 malwarescore=0
+ phishscore=0 mlxscore=0 impostorscore=0 clxscore=1015 bulkscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2201110000 definitions=main-2201240094
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
@@ -93,150 +93,132 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 
 On 1/14/22 21:31, Matthew Rosato wrote:
-> For passthrough devices, we will need to know the GISA designation of the
-> guest if interpretation facilities are to be used.  Setup to stash this in
-> the zdev and set a default of 0 (no GISA designation) for now; a subsequent
-> patch will set a valid GISA designation for passthrough devices.
-> Also, extend mpcific routines to specify this stashed designation as part
-> of the mpcific command.
+> The guest must have access to certain facilities in order to allow
+> interpretive execution of zPCI instructions and adapter event
+> notifications.  However, there are some cases where a guest might
+> disable interpretation -- provide a mechanism via which we can defer
+> enabling the associated zPCI interpretation facilities until the guest
+> indicates it wishes to use them.
 > 
-> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> Reviewed-by: Eric Farman <farman@linux.ibm.com>
-> Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
 > Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
 > ---
->   arch/s390/include/asm/pci.h     | 1 +
->   arch/s390/include/asm/pci_clp.h | 3 ++-
->   arch/s390/pci/pci.c             | 6 ++++++
->   arch/s390/pci/pci_clp.c         | 1 +
->   arch/s390/pci/pci_irq.c         | 5 +++++
->   5 files changed, 15 insertions(+), 1 deletion(-)
+>   arch/s390/include/asm/kvm_host.h |  4 ++++
+>   arch/s390/kvm/kvm-s390.c         | 40 ++++++++++++++++++++++++++++++++
+>   arch/s390/kvm/kvm-s390.h         | 10 ++++++++
+>   3 files changed, 54 insertions(+)
 > 
-> diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-> index 90824be5ce9a..2474b8d30f2a 100644
-> --- a/arch/s390/include/asm/pci.h
-> +++ b/arch/s390/include/asm/pci.h
-> @@ -123,6 +123,7 @@ struct zpci_dev {
->   	enum zpci_state state;
->   	u32		fid;		/* function ID, used by sclp */
->   	u32		fh;		/* function handle, used by insn's */
-> +	u32		gd;		/* GISA designation for passthrough */
-
-I already gave my R-B, and do not want to remove it, but wouldn't it be 
-possible to use more explicit names like gisa_designation instead of 
-just gd.
-It would not change anything to the functionality but would facilitate 
-the maintenance?
-
->   	u16		vfn;		/* virtual function number */
->   	u16		pchid;		/* physical channel ID */
->   	u8		pfgid;		/* function group ID */
-> diff --git a/arch/s390/include/asm/pci_clp.h b/arch/s390/include/asm/pci_clp.h
-> index 1f4b666e85ee..3af8d196da74 100644
-> --- a/arch/s390/include/asm/pci_clp.h
-> +++ b/arch/s390/include/asm/pci_clp.h
-> @@ -173,7 +173,8 @@ struct clp_req_set_pci {
->   	u16 reserved2;
->   	u8 oc;				/* operation controls */
->   	u8 ndas;			/* number of dma spaces */
-> -	u64 reserved3;
-> +	u32 reserved3;
-> +	u32 gd;				/* GISA designation */
-
-here too.
-
-
->   } __packed;
->   
->   /* Set PCI function response */
-> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-> index 792f8e0f2178..0c9879dae752 100644
-> --- a/arch/s390/pci/pci.c
-> +++ b/arch/s390/pci/pci.c
-> @@ -119,6 +119,7 @@ int zpci_register_ioat(struct zpci_dev *zdev, u8 dmaas,
->   	fib.pba = base;
->   	fib.pal = limit;
->   	fib.iota = iota | ZPCI_IOTA_RTTO_FLAG;
-> +	fib.gd = zdev->gd;
->   	cc = zpci_mod_fc(req, &fib, &status);
->   	if (cc)
->   		zpci_dbg(3, "reg ioat fid:%x, cc:%d, status:%d\n", zdev->fid, cc, status);
-> @@ -132,6 +133,8 @@ int zpci_unregister_ioat(struct zpci_dev *zdev, u8 dmaas)
->   	struct zpci_fib fib = {0};
->   	u8 cc, status;
->   
-> +	fib.gd = zdev->gd;
-> +
->   	cc = zpci_mod_fc(req, &fib, &status);
->   	if (cc)
->   		zpci_dbg(3, "unreg ioat fid:%x, cc:%d, status:%d\n", zdev->fid, cc, status);
-> @@ -159,6 +162,7 @@ int zpci_fmb_enable_device(struct zpci_dev *zdev)
->   	atomic64_set(&zdev->unmapped_pages, 0);
->   
->   	fib.fmb_addr = virt_to_phys(zdev->fmb);
-> +	fib.gd = zdev->gd;
->   	cc = zpci_mod_fc(req, &fib, &status);
->   	if (cc) {
->   		kmem_cache_free(zdev_fmb_cache, zdev->fmb);
-> @@ -177,6 +181,8 @@ int zpci_fmb_disable_device(struct zpci_dev *zdev)
->   	if (!zdev->fmb)
->   		return -EINVAL;
->   
-> +	fib.gd = zdev->gd;
-> +
->   	/* Function measurement is disabled if fmb address is zero */
->   	cc = zpci_mod_fc(req, &fib, &status);
->   	if (cc == 3) /* Function already gone. */
-> diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
-> index be077b39da33..e9ed0e4a5cf0 100644
-> --- a/arch/s390/pci/pci_clp.c
-> +++ b/arch/s390/pci/pci_clp.c
-> @@ -240,6 +240,7 @@ static int clp_set_pci_fn(struct zpci_dev *zdev, u32 *fh, u8 nr_dma_as, u8 comma
->   		rrb->request.fh = zdev->fh;
->   		rrb->request.oc = command;
->   		rrb->request.ndas = nr_dma_as;
-> +		rrb->request.gd = zdev->gd;
->   
->   		rc = clp_req(rrb, CLP_LPS_PCI);
->   		if (rrb->response.hdr.rsp == CLP_RC_SETPCIFN_BUSY) {
-> diff --git a/arch/s390/pci/pci_irq.c b/arch/s390/pci/pci_irq.c
-> index 2f675355fd0c..17e5adfe1273 100644
-> --- a/arch/s390/pci/pci_irq.c
-> +++ b/arch/s390/pci/pci_irq.c
-> @@ -43,6 +43,7 @@ static int zpci_set_airq(struct zpci_dev *zdev)
->   	fib.fmt0.aibvo = 0;	/* each zdev has its own interrupt vector */
->   	fib.fmt0.aisb = virt_to_phys(zpci_sbv->vector) + (zdev->aisb / 64) * 8;
->   	fib.fmt0.aisbo = zdev->aisb & 63;
-> +	fib.gd = zdev->gd;
->   
->   	return zpci_mod_fc(req, &fib, &status) ? -EIO : 0;
+> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+> index 3f147b8d050b..38982c1de413 100644
+> --- a/arch/s390/include/asm/kvm_host.h
+> +++ b/arch/s390/include/asm/kvm_host.h
+> @@ -252,7 +252,10 @@ struct kvm_s390_sie_block {
+>   #define ECB2_IEP	0x20
+>   #define ECB2_PFMFI	0x08
+>   #define ECB2_ESCA	0x04
+> +#define ECB2_ZPCI_LSI	0x02
+>   	__u8    ecb2;                   /* 0x0062 */
+> +#define ECB3_AISI	0x20
+> +#define ECB3_AISII	0x10
+>   #define ECB3_DEA 0x08
+>   #define ECB3_AES 0x04
+>   #define ECB3_RI  0x01
+> @@ -938,6 +941,7 @@ struct kvm_arch{
+>   	int use_cmma;
+>   	int use_pfmfi;
+>   	int use_skf;
+> +	int use_zpci_interp;
+>   	int user_cpu_state_ctrl;
+>   	int user_sigp;
+>   	int user_stsi;
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index ab8b56deed11..b6c32fc3b272 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -1029,6 +1029,44 @@ static int kvm_s390_vm_set_crypto(struct kvm *kvm, struct kvm_device_attr *attr)
+>   	return 0;
 >   }
-> @@ -54,6 +55,8 @@ static int zpci_clear_airq(struct zpci_dev *zdev)
->   	struct zpci_fib fib = {0};
->   	u8 cc, status;
 >   
-> +	fib.gd = zdev->gd;
+> +static void kvm_s390_vcpu_pci_setup(struct kvm_vcpu *vcpu)
+> +{
+> +	/* Only set the ECB bits after guest requests zPCI interpretation */
+> +	if (!vcpu->kvm->arch.use_zpci_interp)
+> +		return;
 > +
->   	cc = zpci_mod_fc(req, &fib, &status);
->   	if (cc == 3 || (cc == 1 && status == 24))
->   		/* Function already gone or IRQs already deregistered. */
-> @@ -72,6 +75,7 @@ static int zpci_set_directed_irq(struct zpci_dev *zdev)
->   	fib.fmt = 1;
->   	fib.fmt1.noi = zdev->msi_nr_irqs;
->   	fib.fmt1.dibvo = zdev->msi_first_bit;
-> +	fib.gd = zdev->gd;
+> +	vcpu->arch.sie_block->ecb2 |= ECB2_ZPCI_LSI;
+> +	vcpu->arch.sie_block->ecb3 |= ECB3_AISII + ECB3_AISI;
+
+As far as I understood, the interpretation is only possible if a gisa 
+designation is associated with the PCI function via CLP enable.
+
+Why do we setup the SIE ECB only when the guest requests for 
+interpretation and not systematically in vcpu_setup?
+
+If ECB2_ZPCI_LSI, ECB3_AISII or ECB3_AISI have an effect when the gisa 
+designation is not specified shouldn't we have a way to clear these bits?
+
+> +}
+> +
+> +void kvm_s390_vcpu_pci_enable_interp(struct kvm *kvm)
+> +{
+> +	struct kvm_vcpu *vcpu;
+> +	int i;
+> +
+> +	/*
+> +	 * If host is configured for PCI and the necessary facilities are
+> +	 * available, turn on interpretation for the life of this guest
+> +	 */
+> +	if (!IS_ENABLED(CONFIG_PCI) || !sclp.has_zpci_lsi || !sclp.has_aisii ||
+> +	    !sclp.has_aeni || !sclp.has_aisi)
+> +		return;
+> +
+> +	mutex_lock(&kvm->lock);
+> +
+> +	kvm->arch.use_zpci_interp = 1;
+> +
+> +	kvm_s390_vcpu_block_all(kvm);
+> +
+> +	kvm_for_each_vcpu(i, vcpu, kvm) {
+> +		kvm_s390_vcpu_pci_setup(vcpu);
+> +		kvm_s390_sync_request(KVM_REQ_VSIE_RESTART, vcpu);
+> +	}
+> +
+> +	kvm_s390_vcpu_unblock_all(kvm);
+> +	mutex_unlock(&kvm->lock);
+> +}
+> +
+>   static void kvm_s390_sync_request_broadcast(struct kvm *kvm, int req)
+>   {
+>   	int cx;
+> @@ -3282,6 +3320,8 @@ static int kvm_s390_vcpu_setup(struct kvm_vcpu *vcpu)
 >   
->   	return zpci_mod_fc(req, &fib, &status) ? -EIO : 0;
->   }
-> @@ -84,6 +88,7 @@ static int zpci_clear_directed_irq(struct zpci_dev *zdev)
->   	u8 cc, status;
+>   	kvm_s390_vcpu_crypto_setup(vcpu);
 >   
->   	fib.fmt = 1;
-> +	fib.gd = zdev->gd;
->   	cc = zpci_mod_fc(req, &fib, &status);
->   	if (cc == 3 || (cc == 1 && status == 24))
->   		/* Function already gone or IRQs already deregistered. */
+> +	kvm_s390_vcpu_pci_setup(vcpu);
+> +
+>   	mutex_lock(&vcpu->kvm->lock);
+>   	if (kvm_s390_pv_is_protected(vcpu->kvm)) {
+>   		rc = kvm_s390_pv_create_cpu(vcpu, &uvrc, &uvrrc);
+> diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+> index c07a050d757d..a2eccb8b977e 100644
+> --- a/arch/s390/kvm/kvm-s390.h
+> +++ b/arch/s390/kvm/kvm-s390.h
+> @@ -481,6 +481,16 @@ void kvm_s390_reinject_machine_check(struct kvm_vcpu *vcpu,
+>    */
+>   void kvm_s390_vcpu_crypto_reset_all(struct kvm *kvm);
+>   
+> +/**
+> + * kvm_s390_vcpu_pci_enable_interp
+> + *
+> + * Set the associated PCI attributes for each vcpu to allow for zPCI Load/Store
+> + * interpretation as well as adapter interruption forwarding.
+> + *
+> + * @kvm: the KVM guest
+> + */
+> +void kvm_s390_vcpu_pci_enable_interp(struct kvm *kvm);
+> +
+>   /**
+>    * diag9c_forwarding_hz
+>    *
 > 
 
 -- 
