@@ -2,152 +2,423 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D932DC433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 25 Jan 2022 13:15:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 013F7C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 25 Jan 2022 13:26:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1576014AbiAYNPs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 25 Jan 2022 08:15:48 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:43825 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1575910AbiAYNN6 (ORCPT
+        id S1576808AbiAYN0N (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 25 Jan 2022 08:26:13 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:19970 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1576611AbiAYNYG (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 25 Jan 2022 08:13:58 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1643116436;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=EJ2RoCCHw0iEYJKh5Pl0+R5jmzTmOENS7idwYfPTh+w=;
-        b=dcek2mKUbHHTZSUx4Rb7skrmFDudgmnppjdeF2T+HpSoLC01CajLckHCbAoXG9sHSKR6iB
-        8/Il3G3aiLhrXfJMzNfVy7iJ+J0mORjyT0c8rds5VrX4Vr2VqFTruIpWPN7JSq2eTpzppy
-        WGAOtBwYizaipSQNgAk//1lIP/PewRM=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-444-mGihD3uLPkiEmN9MuTanAA-1; Tue, 25 Jan 2022 08:13:55 -0500
-X-MC-Unique: mGihD3uLPkiEmN9MuTanAA-1
-Received: by mail-ed1-f70.google.com with SMTP id k5-20020a508ac5000000b00408dec8390aso2198943edk.13
-        for <linux-s390@vger.kernel.org>; Tue, 25 Jan 2022 05:13:54 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:organization:in-reply-to
-         :content-transfer-encoding;
-        bh=EJ2RoCCHw0iEYJKh5Pl0+R5jmzTmOENS7idwYfPTh+w=;
-        b=XhwFecG/7V72g1YGf9no29ay0ypZ9PwKBQNpRKjsYHAJStJHeyd6MkvK80EF0HLPrC
-         vISvihaklW3+tptyvC1SAQy/tIv1kNjLpQZYArHx8JVkub5ET+9YbFHT7s9mM4vowyox
-         AAlmaqHtePnrhiB/CKrwkgPogMzWDob2iA/moPtr4+XmbMogrh0hVaXjwjBPmEPWymHr
-         HkMfWpbn1nYh8kyHjdlbtHpwQsQqJwyfvxJUS3HvIlccHV/7DKLkIZ7HO88ooI7QO5VW
-         WVrWgctV6bLpkgaUcbo7R9m0AQhGnkXxUPvWTYPuMKR4WdxkzfhX6gXkoiyI3AOzoFj/
-         csXA==
-X-Gm-Message-State: AOAM5327Uy7ZWSajGG9RvJMbefVSAEONBmKK6CP4JoC9B16o/kWxRG51
-        dcFJAKCw0EvAPH7g8CGpIUfqpzrg63dQg4ArwEqUIdcM5NTe/fHuENDnVeHpySZDEC+WSuN+8Od
-        sTaO8uoQ7Vz/owdeBHIwHxw==
-X-Received: by 2002:aa7:d541:: with SMTP id u1mr20021013edr.205.1643116433809;
-        Tue, 25 Jan 2022 05:13:53 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzceNfHm5lPSxQ3MW0l4VoMp2F+3V9e9ADWPrkIZ5wSE0xUiaxRKV7PcWyLIMFLykYJK0XLMA==
-X-Received: by 2002:aa7:d541:: with SMTP id u1mr20020995edr.205.1643116433519;
-        Tue, 25 Jan 2022 05:13:53 -0800 (PST)
-Received: from ?IPV6:2003:cb:c70f:8000:9797:8f:1ed9:7596? (p200300cbc70f80009797008f1ed97596.dip0.t-ipconnect.de. [2003:cb:c70f:8000:9797:8f:1ed9:7596])
-        by smtp.gmail.com with ESMTPSA id k4sm7821815edo.55.2022.01.25.05.13.52
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 25 Jan 2022 05:13:52 -0800 (PST)
-Message-ID: <9a888391-1020-89b0-65ed-5c93f2cc8642@redhat.com>
-Date:   Tue, 25 Jan 2022 14:13:51 +0100
+        Tue, 25 Jan 2022 08:24:06 -0500
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20PCJuGu031081;
+        Tue, 25 Jan 2022 13:24:01 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=jLrcOpzvI8VIHDSYkgypuSuYkQeYLnzarUN+jMDB9js=;
+ b=c4NaJz8CYjlRw5dqRPLB6QO52gfpUZBtbUbxS0kTjNVu6YiJXBvwXiTJ9d3wIo8/466n
+ S3NWDXFRctS7oYZMAz+/wRZxpO7z1xnpdBDoPJwL6uJq1qmJS2p7gxUynW/S1Ptl1tUr
+ XpxwNY/kj9qB4yEy7ZVB8cdKOphyS2Mk/nbsUtXsAZGTkI+TNSWlCcTbH8KUnHggG5Ak
+ Wj44StYdOM8Vou6cIreIcruTWe7t4FUfBFdXIkntXHBSKEV+u3q6/v1EsfDZ5qR4MzHw
+ WCL6klwIWNblng+MOcBl+QoforSECiV77hL7NmWpNKKyaOQbaryo6otjb9T1xIC4Janw Pg== 
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dtevcccsf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 25 Jan 2022 13:24:01 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20PDCuB8007836;
+        Tue, 25 Jan 2022 13:23:58 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma04fra.de.ibm.com with ESMTP id 3dr9j9d2dt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 25 Jan 2022 13:23:58 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20PDEH2X47120866
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 25 Jan 2022 13:14:17 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0398EA4065;
+        Tue, 25 Jan 2022 13:23:50 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 97044A405B;
+        Tue, 25 Jan 2022 13:23:49 +0000 (GMT)
+Received: from osiris (unknown [9.145.2.152])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Tue, 25 Jan 2022 13:23:49 +0000 (GMT)
+Date:   Tue, 25 Jan 2022 14:23:48 +0100
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Janosch Frank <frankja@linux.ibm.com>
+Subject: Re: [RFC PATCH] uaccess: Add mechanism for key checked access to
+ user memory
+Message-ID: <Ye/55AdsFzkpD7m7@osiris>
+References: <YerCfDceDszqbdHU@osiris>
+ <20220124103812.2340666-1-scgl@linux.ibm.com>
+ <Ye7kuJ51QWFBGoJ4@osiris>
+ <92c2d051-e25f-7b3a-c811-dd1ce85f1b9b@linux.ibm.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.0
-Subject: Re: [PATCH qemu] s390x: sck: load into a temporary not into in1
-Content-Language: en-US
-To:     Nico Boehr <nrb@linux.ibm.com>, qemu-devel@nongnu.org
-Cc:     richard.henderson@linaro.org, thuth@redhat.com,
-        linux-s390@vger.kernel.org
-References: <20220125122914.567599-1-nrb@linux.ibm.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <20220125122914.567599-1-nrb@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <92c2d051-e25f-7b3a-c811-dd1ce85f1b9b@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Rj3V75LjHc_qWF_vUoT2Zf4hRzw15sfr
+X-Proofpoint-ORIG-GUID: Rj3V75LjHc_qWF_vUoT2Zf4hRzw15sfr
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-01-25_02,2022-01-25_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ lowpriorityscore=0 adultscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999
+ clxscore=1015 phishscore=0 spamscore=0 bulkscore=0 suspectscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2201250085
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 25.01.22 13:29, Nico Boehr wrote:
-> We previously loaded into in1, but in1 is not filled during
-> disassembly and hence always zero. This leads to an assertion failure:
+> > Please make this _fully_ symmetrical to the existing copy_to/from_user()
+> > implementations, like I tried to say several times. Maybe I wasn't clear
+> > enough about this. Also the default implementation - that is if an
+> > architecture makes use of copy_to_user_key() without providing a
+> > raw_copy_from_user_key() implementation - should fallback to regular
+> > copy_to_user() semantics, like I tried to outline with the ifndef example
+> > of raw_copy_from_user_key() previously.
 > 
->   qemu-system-s390x: /home/nrb/qemu/include/tcg/tcg.h:654: temp_idx:
->   Assertion `n >= 0 && n < tcg_ctx->nb_temps' failed.`
-> 
-> Instead, load into a temporary and pass that to the helper.
-> 
-> This fixes the SCK test I sent here under TCG:
-> <https://www.spinics.net/lists/kvm/msg265169.html>
-> 
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-> ---
->  target/s390x/tcg/translate.c | 11 +++++++++--
->  1 file changed, 9 insertions(+), 2 deletions(-)
-> 
-> diff --git a/target/s390x/tcg/translate.c b/target/s390x/tcg/translate.c
-> index 46dea733571e..dc0baec5a5f4 100644
-> --- a/target/s390x/tcg/translate.c
-> +++ b/target/s390x/tcg/translate.c
-> @@ -4290,9 +4290,16 @@ static DisasJumpType op_stcke(DisasContext *s, DisasOps *o)
->  #ifndef CONFIG_USER_ONLY
->  static DisasJumpType op_sck(DisasContext *s, DisasOps *o)
->  {
-> -    tcg_gen_qemu_ld_i64(o->in1, o->addr1, get_mem_index(s), MO_TEUQ | MO_ALIGN);
-> -    gen_helper_sck(cc_op, cpu_env, o->in1);
-> +    TCGv_i64 t1;
-> +
-> +    t1 = tcg_temp_new_i64();
-> +
-> +    tcg_gen_qemu_ld_i64(t1, o->addr1, get_mem_index(s), MO_TEUQ | MO_ALIGN);
-> +    gen_helper_sck(cc_op, cpu_env, t1);
->      set_cc_static(s);
-> +
-> +    tcg_temp_free_i64(t1);
-> +
->      return DISAS_NEXT;
->  }
->  
+> That does help. One thing I'm still confused about is the rational
+> for the default implementation.
 
-I think you can actually just reuse in2_m2_64a, similar as we handle SCKC
+This is to avoid link errors, and potentially having something that
+works everywhere without having to add ifdefs everywhere in case this
+needs to be used in common code.
 
+Again: this is just a proposal, nothing else.
 
-diff --git a/target/s390x/tcg/insn-data.def b/target/s390x/tcg/insn-data.def
-index f0af458aee..3a78606866 100644
---- a/target/s390x/tcg/insn-data.def
-+++ b/target/s390x/tcg/insn-data.def
-@@ -1317,7 +1317,7 @@
- /* SET ADDRESS SPACE CONTROL FAST */
-     F(0xb279, SACF,    S,     Z,   0, a2, 0, 0, sacf, 0, IF_PRIV)
- /* SET CLOCK */
--    F(0xb204, SCK,     S,     Z,   la2, 0, 0, 0, sck, 0, IF_PRIV | IF_IO)
-+    F(0xb204, SCK,     S,     Z,   0, m2_64a, 0, 0, sck, 0, IF_PRIV | IF_IO)
- /* SET CLOCK COMPARATOR */
-     F(0xb206, SCKC,    S,     Z,   0, m2_64a, 0, 0, sckc, 0, IF_PRIV | IF_IO)
- /* SET CLOCK PROGRAMMABLE FIELD */
-diff --git a/target/s390x/tcg/translate.c b/target/s390x/tcg/translate.c
-index f180853e7a..c18011920e 100644
---- a/target/s390x/tcg/translate.c
-+++ b/target/s390x/tcg/translate.c
-@@ -4295,8 +4295,7 @@ static DisasJumpType op_stcke(DisasContext *s, DisasOps *o)
- #ifndef CONFIG_USER_ONLY
- static DisasJumpType op_sck(DisasContext *s, DisasOps *o)
+> Are you suggesting that copy_from/to_user be implemented in terms of
+> copy_from/to_user_with_key? I didn't think so, even tho you said something along
+> those lines, because I assumed you were referring to the architecture specific
+> implementations for copy_from/to_user, since we weren't talking about
+> common code changes back then and Christian's suggestion didn't feature it either.
+> 
+> When you say "fully symmetrical" do you mean all functions that wrap architecture
+> defined access to user space:
+> __copy_from_user_inatomic
+> __copy_from_user
+> __copy_to_user_inatomic
+> __copy_to_user
+> _copy_from_user
+> _copy_to_user
+> copy_from_user
+> copy_to_user
+> __copy_from_user_inatomic_nocache
+> copy_struct_from_user
+> copy_from_user_nofault
+> copy_to_user_nofault
+> strncpy_from_user_nofault
+> strnlen_user_nofault
+
+I meant something like below - not even compile tested. It is missing
+any comments, commit message and sanity checks. That's up to you.
+
+Patch is on top of your patch, and of course needs to be splitted.
+
+diff --git a/arch/s390/include/asm/uaccess.h b/arch/s390/include/asm/uaccess.h
+index 35fda4251f47..422066d7c5e2 100644
+--- a/arch/s390/include/asm/uaccess.h
++++ b/arch/s390/include/asm/uaccess.h
+@@ -33,31 +33,33 @@ static inline int __range_ok(unsigned long addr, unsigned long size)
+ 
+ #define access_ok(addr, size) __access_ok(addr, size)
+ 
+-#define raw_copy_from_user_with_key raw_copy_from_user_with_key
++#define raw_copy_from_user_key raw_copy_from_user_key
+ unsigned long __must_check
+-raw_copy_from_user_with_key(void *to, const void __user *from, unsigned long n,
+-			    unsigned long key);
++raw_copy_from_user_key(void *to, const void __user *from, unsigned long n,
++		       unsigned long key);
+ 
+-#define raw_copy_to_user_with_key raw_copy_to_user_with_key
++#define raw_copy_to_user_key raw_copy_to_user_key
+ unsigned long __must_check
+-raw_copy_to_user_with_key(void __user *to, const void *from, unsigned long n,
+-			  unsigned long key);
++raw_copy_to_user_key(void __user *to, const void *from, unsigned long n,
++		     unsigned long key);
+ 
+ static __always_inline unsigned long __must_check
+ raw_copy_from_user(void *to, const void __user *from, unsigned long n)
  {
--    tcg_gen_qemu_ld_i64(o->in1, o->addr1, get_mem_index(s), MO_TEUQ | MO_ALIGN);
--    gen_helper_sck(cc_op, cpu_env, o->in1);
-+    gen_helper_sck(cc_op, cpu_env, o->in2);
-     set_cc_static(s);
-     return DISAS_NEXT;
+-	return raw_copy_from_user_with_key(to, from, n, 0);
++	return raw_copy_from_user_key(to, from, n, 0);
  }
-
-
--- 
-Thanks,
-
-David / dhildenb
-
+ 
+ static __always_inline unsigned long __must_check
+ raw_copy_to_user(void __user *to, const void *from, unsigned long n)
+ {
+-	return raw_copy_to_user_with_key(to, from, n, 0);
++	return raw_copy_to_user_key(to, from, n, 0);
+ }
+ 
+ #ifndef CONFIG_KASAN
+ #define INLINE_COPY_FROM_USER
+ #define INLINE_COPY_TO_USER
++#define INLINE_COPY_FROM_USER_KEY
++#define INLINE_COPY_TO_USER_KEY
+ #endif
+ 
+ int __put_user_bad(void) __attribute__((noreturn));
+diff --git a/arch/s390/lib/uaccess.c b/arch/s390/lib/uaccess.c
+index 2e4e55580185..689a5ab3121a 100644
+--- a/arch/s390/lib/uaccess.c
++++ b/arch/s390/lib/uaccess.c
+@@ -59,7 +59,7 @@ static inline int copy_with_mvcos(void)
+ #endif
+ 
+ static inline unsigned long copy_from_user_mvcos(void *x, const void __user *ptr,
+-						 unsigned long size, u8 key)
++						 unsigned long size, unsigned long key)
+ {
+ 	unsigned long tmp1, tmp2;
+ 	union oac spec = {
+@@ -96,7 +96,7 @@ static inline unsigned long copy_from_user_mvcos(void *x, const void __user *ptr
+ }
+ 
+ static inline unsigned long copy_from_user_mvcp(void *x, const void __user *ptr,
+-						unsigned long size, u8 key)
++						unsigned long size, unsigned long key)
+ {
+ 	unsigned long tmp1, tmp2;
+ 
+@@ -130,17 +130,17 @@ static inline unsigned long copy_from_user_mvcp(void *x, const void __user *ptr,
+ 	return size;
+ }
+ 
+-unsigned long raw_copy_from_user_with_key(void *to, const void __user *from,
+-					  unsigned long n, unsigned long key)
++unsigned long raw_copy_from_user_key(void *to, const void __user *from,
++				     unsigned long n, unsigned long key)
+ {
+ 	if (copy_with_mvcos())
+-		return copy_from_user_mvcos(to, from, n, (u8)key);
+-	return copy_from_user_mvcp(to, from, n, (u8)key);
++		return copy_from_user_mvcos(to, from, n, key);
++	return copy_from_user_mvcp(to, from, n, key);
+ }
+-EXPORT_SYMBOL(raw_copy_from_user_with_key);
++EXPORT_SYMBOL(raw_copy_from_user_key);
+ 
+-inline unsigned long copy_to_user_mvcos(void __user *ptr, const void *x,
+-					unsigned long size, u8 key)
++static inline unsigned long copy_to_user_mvcos(void __user *ptr, const void *x,
++					       unsigned long size, unsigned long key)
+ {
+ 	unsigned long tmp1, tmp2;
+ 	union oac spec = {
+@@ -177,7 +177,7 @@ inline unsigned long copy_to_user_mvcos(void __user *ptr, const void *x,
+ }
+ 
+ static inline unsigned long copy_to_user_mvcs(void __user *ptr, const void *x,
+-					      unsigned long size, u8 key)
++					      unsigned long size, unsigned long key)
+ {
+ 	unsigned long tmp1, tmp2;
+ 
+@@ -211,14 +211,14 @@ static inline unsigned long copy_to_user_mvcs(void __user *ptr, const void *x,
+ 	return size;
+ }
+ 
+-unsigned long raw_copy_to_user_with_key(void __user *to, const void *from,
+-					unsigned long n, unsigned long key)
++unsigned long raw_copy_to_user_key(void __user *to, const void *from,
++				   unsigned long n, unsigned long key)
+ {
+ 	if (copy_with_mvcos())
+-		return copy_to_user_mvcos(to, from, n, (u8)key);
+-	return copy_to_user_mvcs(to, from, n, (u8)key);
++		return copy_to_user_mvcos(to, from, n, key);
++	return copy_to_user_mvcs(to, from, n, key);
+ }
+-EXPORT_SYMBOL(raw_copy_to_user_with_key);
++EXPORT_SYMBOL(raw_copy_to_user_key);
+ 
+ static inline unsigned long clear_user_mvcos(void __user *to, unsigned long size)
+ {
+diff --git a/include/linux/uaccess.h b/include/linux/uaccess.h
+index adce966edb7a..644955b31958 100644
+--- a/include/linux/uaccess.h
++++ b/include/linux/uaccess.h
+@@ -114,20 +114,6 @@ __copy_from_user(void *to, const void __user *from, unsigned long n)
+ 	return raw_copy_from_user(to, from, n);
+ }
+ 
+-#ifdef raw_copy_from_user_with_key
+-static __always_inline __must_check unsigned long
+-__copy_from_user_with_key(void *to, const void __user *from, unsigned long n,
+-			  unsigned long key)
+-{
+-	might_fault();
+-	if (should_fail_usercopy())
+-		return n;
+-	instrument_copy_from_user(to, from, n);
+-	check_object_size(to, n, false);
+-	return raw_copy_from_user_with_key(to, from, n, key);
+-}
+-#endif /* raw_copy_from_user_with_key */
+-
+ /**
+  * __copy_to_user_inatomic: - Copy a block of data into user space, with less checking.
+  * @to:   Destination address, in user space.
+@@ -162,20 +148,6 @@ __copy_to_user(void __user *to, const void *from, unsigned long n)
+ 	return raw_copy_to_user(to, from, n);
+ }
+ 
+-#ifdef raw_copy_to_user_with_key
+-static __always_inline __must_check unsigned long
+-__copy_to_user_with_key(void __user *to, const void *from, unsigned long n,
+-			unsigned long key)
+-{
+-	might_fault();
+-	if (should_fail_usercopy())
+-		return n;
+-	instrument_copy_to_user(to, from, n);
+-	check_object_size(from, n, true);
+-	return raw_copy_to_user_with_key(to, from, n, key);
+-}
+-#endif /* raw_copy_to_user_with_key */
+-
+ #ifdef INLINE_COPY_FROM_USER
+ static inline __must_check unsigned long
+ _copy_from_user(void *to, const void __user *from, unsigned long n)
+@@ -229,6 +201,81 @@ copy_to_user(void __user *to, const void *from, unsigned long n)
+ 	return n;
+ }
+ 
++#ifndef raw_copy_from_user_key
++static __always_inline unsigned long __must_check
++raw_copy_from_user_key(void *to, const void __user *from, unsigned long n,
++		       unsigned long key)
++{
++	return raw_copy_from_user(to, from, n);
++}
++#endif
++
++#ifdef INLINE_COPY_FROM_USER_KEY
++static inline __must_check unsigned long
++_copy_from_user_key(void *to, const void __user *from, unsigned long n,
++		    unsigned long key)
++{
++	unsigned long res = n;
++	might_fault();
++	if (!should_fail_usercopy() && likely(access_ok(from, n))) {
++		instrument_copy_from_user(to, from, n);
++		res = raw_copy_from_user_key(to, from, n, key);
++	}
++	if (unlikely(res))
++		memset(to + (n - res), 0, res);
++	return res;
++}
++#else
++extern __must_check unsigned long
++_copy_from_user_key(void *, const void __user *, unsigned long, unsigned long);
++#endif
++
++#ifndef raw_copy_to_user
++static __always_inline unsigned long __must_check
++raw_copy_to_user_key(void __user *to, const void *from, unsigned long n,
++		     unsigned long key)
++{
++	return raw_copy_to_user(to, from, n);
++}
++#endif
++
++#ifdef INLINE_COPY_TO_USER_KEY
++static inline __must_check unsigned long
++_copy_to_user_key(void __user *to, const void *from, unsigned long n,
++		  unsigned long key)
++{
++	might_fault();
++	if (should_fail_usercopy())
++		return n;
++	if (access_ok(to, n)) {
++		instrument_copy_to_user(to, from, n);
++		n = raw_copy_to_user_key(to, from, n, key);
++	}
++	return n;
++}
++#else
++extern __must_check unsigned long
++_copy_to_user_key(void __user *, const void *, unsigned long, unsigned long);
++#endif
++
++static __always_inline unsigned long __must_check
++copy_from_user_key(void *to, const void __user *from, unsigned long n,
++		   unsigned long key)
++{
++	if (likely(check_copy_size(to, n, false)))
++		n = _copy_from_user(to, from, n);
++	return n;
++}
++
++static __always_inline unsigned long __must_check
++copy_to_user_key(void __user *to, const void *from, unsigned long n,
++		 unsigned long key)
++{
++	if (likely(check_copy_size(from, n, true)))
++		n = _copy_to_user(to, from, n);
++	return n;
++}
++
+ #ifndef copy_mc_to_kernel
+ /*
+  * Without arch opt-in this generic copy_mc_to_kernel() will not handle
+diff --git a/lib/usercopy.c b/lib/usercopy.c
+index 7413dd300516..c13394d0f306 100644
+--- a/lib/usercopy.c
++++ b/lib/usercopy.c
+@@ -37,6 +37,39 @@ unsigned long _copy_to_user(void __user *to, const void *from, unsigned long n)
+ EXPORT_SYMBOL(_copy_to_user);
+ #endif
+ 
++#ifndef INLINE_COPY_FROM_USER_KEY
++unsigned long _copy_from_user_key(void *to, const void __user *from,
++				  unsigned long n, unsigned long key)
++{
++	unsigned long res = n;
++	might_fault();
++	if (!should_fail_usercopy() && likely(access_ok(from, n))) {
++		instrument_copy_from_user(to, from, n);
++		res = raw_copy_from_user_key(to, from, n, key);
++	}
++	if (unlikely(res))
++		memset(to + (n - res), 0, res);
++	return res;
++}
++EXPORT_SYMBOL(_copy_from_user_key);
++#endif
++
++#ifndef INLINE_COPY_TO_USER_KEY
++unsigned long _copy_to_user_key(void __user *to, const void *from,
++				unsigned long n, unsigned long key)
++{
++	might_fault();
++	if (should_fail_usercopy())
++		return n;
++	if (likely(access_ok(to, n))) {
++		instrument_copy_to_user(to, from, n);
++		n = raw_copy_to_user_key(to, from, n, key);
++	}
++	return n;
++}
++EXPORT_SYMBOL(_copy_to_user_key);
++#endif
++
+ /**
+  * check_zeroed_user: check if a userspace buffer only contains zero bytes
+  * @from: Source address, in userspace.
