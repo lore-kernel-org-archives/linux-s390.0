@@ -2,68 +2,68 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E05CC433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 25 Jan 2022 13:30:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D8ECC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 25 Jan 2022 14:19:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387020AbiAYNa4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 25 Jan 2022 08:30:56 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:59768 "EHLO
+        id S1578203AbiAYOTf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 25 Jan 2022 09:19:35 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:18178 "EHLO
         mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1577065AbiAYN2T (ORCPT
+        by vger.kernel.org with ESMTP id S1357292AbiAYORA (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 25 Jan 2022 08:28:19 -0500
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20PDC68N013984;
-        Tue, 25 Jan 2022 13:28:14 GMT
+        Tue, 25 Jan 2022 09:17:00 -0500
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20PDkY4s003547;
+        Tue, 25 Jan 2022 14:16:56 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=Y8AQAx7pdo5NCiqYDsxe/2JWdeVRlx9pu21d8bMBJws=;
- b=SF9S6u1m5soRO80JbcCwrgWYj+PcbPNrQPX0CFyQb+Ifn6zp065Utq0cGNntntExd5le
- PqFnsjStZTnREZRb42Y3Js0OtdcmUChcrG8dEaY6kocZGEUXP02ns/tQUb4qsT7ol8/l
- 1sowCTYxxs6ufKJMtJsYJBhrS0cBapRSNa1QQOI4JJY/I8dBfe05CcltWPCAd9hUq3IB
- s5kqBSem0WGjUv8yVxEbTaAmdlUXNXIvSQYXcFCWWQk5rB8IqBctWbAnOpx3gZMFgSSz
- uxXAaStBq2qhz/DARI0VJzvUw+FO44tPRNc8FqzEFOj5NwS6XkEv8XLg6hb/prn4R9l7 jw== 
+ bh=mYq5JDg13uDsrZMP6NRJGD5L60XAYIdStHtqqnfdoso=;
+ b=q2EVJvRKgpdGLIUfrjffDmfUWyXv3z7UUZopsE4K6qSIDhX7Gd9LzXQn49CxP6HkAhZm
+ nGmk7Uic4KWR3EkstIiInmA84WuutxN9XL4ELVDpD6KcPLgAgq2HaQKGZyoNztgt5BVg
+ +R4/3AuCouregyIg5veCctWn+MAloPJyAf1SnDAPdqpucKkjLa6cADwpOPx79FL/aIs4
+ 7URgIRHKUDEaY2Syero83k3x53wcGIvpIwUsFEJVbrVTg1sSk58yc7afzA3FJyc80TKq
+ gcHVGF17su4ElvMtCDJ+er8PAr1JYUU1L7iVlbhTOEkHZoxQMMnMjA88rsUHK6FzxOdq Lw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dthvh8a0n-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dtjcwrs0s-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 25 Jan 2022 13:28:13 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20PDJCYX005651;
-        Tue, 25 Jan 2022 13:28:13 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dthvh8a09-1
+        Tue, 25 Jan 2022 14:16:56 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20PDxF4p023352;
+        Tue, 25 Jan 2022 14:16:56 GMT
+Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dtjcwrs0f-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 25 Jan 2022 13:28:13 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20PDRPNR015144;
-        Tue, 25 Jan 2022 13:28:11 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma01fra.de.ibm.com with ESMTP id 3dr9j9d48h-1
+        Tue, 25 Jan 2022 14:16:56 +0000
+Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
+        by ppma01dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20PEDXRL001736;
+        Tue, 25 Jan 2022 14:16:55 GMT
+Received: from b03cxnp08027.gho.boulder.ibm.com (b03cxnp08027.gho.boulder.ibm.com [9.17.130.19])
+        by ppma01dal.us.ibm.com with ESMTP id 3dr9jau4ep-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 25 Jan 2022 13:28:11 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20PDS8hT27591118
+        Tue, 25 Jan 2022 14:16:55 +0000
+Received: from b03ledav006.gho.boulder.ibm.com (b03ledav006.gho.boulder.ibm.com [9.17.130.237])
+        by b03cxnp08027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20PEGrYM14746196
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 25 Jan 2022 13:28:08 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0FE70AE045;
-        Tue, 25 Jan 2022 13:28:08 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EB597AE057;
-        Tue, 25 Jan 2022 13:28:06 +0000 (GMT)
-Received: from [9.171.58.95] (unknown [9.171.58.95])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 25 Jan 2022 13:28:06 +0000 (GMT)
-Message-ID: <12b9fba1-38b4-057d-49f4-969f2e7e1be3@linux.ibm.com>
-Date:   Tue, 25 Jan 2022 14:29:57 +0100
+        Tue, 25 Jan 2022 14:16:53 GMT
+Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 965E1C6057;
+        Tue, 25 Jan 2022 14:16:53 +0000 (GMT)
+Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B8058C6059;
+        Tue, 25 Jan 2022 14:16:51 +0000 (GMT)
+Received: from [9.163.21.206] (unknown [9.163.21.206])
+        by b03ledav006.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Tue, 25 Jan 2022 14:16:51 +0000 (GMT)
+Message-ID: <5f3797f7-e127-7de0-dc96-4b04e5ff839a@linux.ibm.com>
+Date:   Tue, 25 Jan 2022 09:16:51 -0500
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH v2 20/30] KVM: s390: pci: provide routines for
- enabling/disabling IOAT assist
+ Thunderbird/91.4.0
+Subject: Re: [PATCH v2 26/30] vfio-pci/zdev: wire up zPCI adapter interrupt
+ forwarding support
 Content-Language: en-US
-To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
+To:     Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org
 Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
         schnelle@linux.ibm.com, farman@linux.ibm.com,
         borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
@@ -73,223 +73,128 @@ Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
         thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
         linux-kernel@vger.kernel.org
 References: <20220114203145.242984-1-mjrosato@linux.ibm.com>
- <20220114203145.242984-21-mjrosato@linux.ibm.com>
-From:   Pierre Morel <pmorel@linux.ibm.com>
-In-Reply-To: <20220114203145.242984-21-mjrosato@linux.ibm.com>
+ <20220114203145.242984-27-mjrosato@linux.ibm.com>
+ <75c74f80-0a74-40dc-6797-473522ef2803@linux.ibm.com>
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <75c74f80-0a74-40dc-6797-473522ef2803@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: X8kfcrxN8VCzGWKZdicZwnHJcGAKAyZ9
-X-Proofpoint-ORIG-GUID: 1hXTUuoSq8xFdx-m3Q3Uz5R2aEGJfYqM
+X-Proofpoint-GUID: b4LTNCYgYA8sIBFki02fcmAy9HooTZ1l
+X-Proofpoint-ORIG-GUID: ShlgW-cZmxT6p6N-TXtYw82vyYmY-keJ
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2022-01-25_02,2022-01-25_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 mlxscore=0
- clxscore=1015 impostorscore=0 priorityscore=1501 phishscore=0
- lowpriorityscore=0 spamscore=0 adultscore=0 bulkscore=0 malwarescore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2201250085
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 mlxlogscore=999
+ phishscore=0 malwarescore=0 adultscore=0 lowpriorityscore=0
+ priorityscore=1501 impostorscore=0 suspectscore=0 clxscore=1015 mlxscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2201250092
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 1/14/22 21:31, Matthew Rosato wrote:
-> These routines will be wired into the vfio_pci_zdev ioctl handlers to
-> respond to requests to enable / disable a device for PCI I/O Address
-> Translation assistance.
+On 1/25/22 7:36 AM, Pierre Morel wrote:
 > 
-> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> ---
->   arch/s390/include/asm/kvm_pci.h |  15 ++++
->   arch/s390/include/asm/pci_dma.h |   2 +
->   arch/s390/kvm/pci.c             | 139 ++++++++++++++++++++++++++++++++
->   arch/s390/kvm/pci.h             |   2 +
->   4 files changed, 158 insertions(+)
 > 
-> diff --git a/arch/s390/include/asm/kvm_pci.h b/arch/s390/include/asm/kvm_pci.h
-> index 01fe14fffd7a..770849f13a70 100644
-> --- a/arch/s390/include/asm/kvm_pci.h
-> +++ b/arch/s390/include/asm/kvm_pci.h
-> @@ -16,11 +16,21 @@
->   #include <linux/kvm_host.h>
->   #include <linux/kvm.h>
->   #include <linux/pci.h>
-> +#include <linux/mutex.h>
->   #include <asm/pci_insn.h>
-> +#include <asm/pci_dma.h>
-> +
-> +struct kvm_zdev_ioat {
-> +	unsigned long *head[ZPCI_TABLE_PAGES];
-> +	unsigned long **seg;
-> +	unsigned long ***pt;
-> +	struct mutex lock;
+> On 1/14/22 21:31, Matthew Rosato wrote:
+>> Introduce support for VFIO_DEVICE_FEATURE_ZPCI_AIF, which is a new
+>> VFIO_DEVICE_FEATURE ioctl.  This interface is used to indicate that an
+>> s390x vfio-pci device wishes to enable/disable zPCI adapter interrupt
+>> forwarding, which allows underlying firmware to deliver interrupts
+>> directly to the associated kvm guest.
+>>
+>> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+>> ---
+>>   arch/s390/include/asm/kvm_pci.h  |  2 +
+>>   drivers/vfio/pci/vfio_pci_core.c |  2 +
+>>   drivers/vfio/pci/vfio_pci_zdev.c | 98 +++++++++++++++++++++++++++++++-
+>>   include/linux/vfio_pci_core.h    | 10 ++++
+>>   include/uapi/linux/vfio.h        |  7 +++
+>>   include/uapi/linux/vfio_zdev.h   | 20 +++++++
+>>   6 files changed, 138 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/arch/s390/include/asm/kvm_pci.h 
+>> b/arch/s390/include/asm/kvm_pci.h
+>> index dc00c3f27a00..dbab349a4a75 100644
+>> --- a/arch/s390/include/asm/kvm_pci.h
+>> +++ b/arch/s390/include/asm/kvm_pci.h
+>> @@ -36,6 +36,8 @@ struct kvm_zdev {
+>>       struct zpci_fib fib;
+>>       struct notifier_block nb;
+>>       bool interp;
+>> +    bool aif;
+>> +    bool fhost;
+> 
+> Can we please have a comment on these booleans? > Can we have explicit naming to be able to follow their usage more easily?
+> May be aif_float and aif_host to match with the VFIO feature?
 
-Can we please rename the mutex ioat_lock to have a unique name easy to 
-follow for maintenance.
-Can you please add a description about when the lock should be used?
+Sure, rename would be fine.
 
-> +};
->   
->   struct kvm_zdev {
->   	struct zpci_dev *zdev;
->   	struct kvm *kvm;
-> +	struct kvm_zdev_ioat ioat;
->   	struct zpci_fib fib;
->   };
->   
-> @@ -33,6 +43,11 @@ int kvm_s390_pci_aif_enable(struct zpci_dev *zdev, struct zpci_fib *fib,
->   			    bool assist);
->   int kvm_s390_pci_aif_disable(struct zpci_dev *zdev);
->   
-> +int kvm_s390_pci_ioat_probe(struct zpci_dev *zdev);
-> +int kvm_s390_pci_ioat_enable(struct zpci_dev *zdev, u64 iota);
-> +int kvm_s390_pci_ioat_disable(struct zpci_dev *zdev);
-> +u8 kvm_s390_pci_get_dtsm(struct zpci_dev *zdev);
-> +
->   int kvm_s390_pci_interp_probe(struct zpci_dev *zdev);
->   int kvm_s390_pci_interp_enable(struct zpci_dev *zdev);
->   int kvm_s390_pci_interp_disable(struct zpci_dev *zdev);
-> diff --git a/arch/s390/include/asm/pci_dma.h b/arch/s390/include/asm/pci_dma.h
-> index 91e63426bdc5..69e616d0712c 100644
-> --- a/arch/s390/include/asm/pci_dma.h
-> +++ b/arch/s390/include/asm/pci_dma.h
-> @@ -50,6 +50,8 @@ enum zpci_ioat_dtype {
->   #define ZPCI_TABLE_ALIGN		ZPCI_TABLE_SIZE
->   #define ZPCI_TABLE_ENTRY_SIZE		(sizeof(unsigned long))
->   #define ZPCI_TABLE_ENTRIES		(ZPCI_TABLE_SIZE / ZPCI_TABLE_ENTRY_SIZE)
-> +#define ZPCI_TABLE_PAGES		(ZPCI_TABLE_SIZE >> PAGE_SHIFT)
-> +#define ZPCI_TABLE_ENTRIES_PAGES	(ZPCI_TABLE_ENTRIES * ZPCI_TABLE_PAGES)
->   
->   #define ZPCI_TABLE_BITS			11
->   #define ZPCI_PT_BITS			8
-> diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
-> index 7ed9abc476b6..39c13c25a700 100644
-> --- a/arch/s390/kvm/pci.c
-> +++ b/arch/s390/kvm/pci.c
-> @@ -13,12 +13,15 @@
->   #include <asm/pci.h>
->   #include <asm/pci_insn.h>
->   #include <asm/pci_io.h>
-> +#include <asm/pci_dma.h>
->   #include <asm/sclp.h>
->   #include "pci.h"
->   #include "kvm-s390.h"
->   
->   struct zpci_aift *aift;
->   
-> +#define shadow_ioat_init zdev->kzdev->ioat.head[0]
-> +
->   static inline int __set_irq_noiib(u16 ctl, u8 isc)
->   {
->   	union zpci_sic_iib iib = {{0}};
-> @@ -344,6 +347,135 @@ int kvm_s390_pci_aif_disable(struct zpci_dev *zdev)
->   }
->   EXPORT_SYMBOL_GPL(kvm_s390_pci_aif_disable);
->   
-> +int kvm_s390_pci_ioat_probe(struct zpci_dev *zdev)
-> +{
-> +	/* Must have a KVM association registered */
+As for a comment, maybe something like
 
-may be add something like : "The ioat structure is embeded in kzdev"
+bool aif_float; /* Enabled for floating interrupt assist */
+bool aif_host;  /* Require host delivery */
 
-> +	if (!zdev->kzdev || !zdev->kzdev->kvm)
-
-Why do we need to check for kvm ?
-Having kzdev is already tested by the unique caller.
-
-> +		return -EINVAL;
-> +
-> +	return 0;
-> +}
-> +EXPORT_SYMBOL_GPL(kvm_s390_pci_ioat_probe);
-> +
-> +int kvm_s390_pci_ioat_enable(struct zpci_dev *zdev, u64 iota)
-> +{
-> +	gpa_t gpa = (gpa_t)(iota & ZPCI_RTE_ADDR_MASK);
-> +	struct kvm_zdev_ioat *ioat;
-> +	struct page *page;
-> +	struct kvm *kvm;
-> +	unsigned int idx;
-> +	void *iaddr;
-> +	int i, rc = 0;
-
-no need to initialize rc
-
-> +
-> +	if (shadow_ioat_init)
-> +		return -EINVAL;
-> +
-> +	/* Ensure supported type specified */
-> +	if ((iota & ZPCI_IOTA_RTTO_FLAG) != ZPCI_IOTA_RTTO_FLAG)
-> +		return -EINVAL;
-> +
-> +	kvm = zdev->kzdev->kvm;
-> +	ioat = &zdev->kzdev->ioat;
-> +	mutex_lock(&ioat->lock);
-> +	idx = srcu_read_lock(&kvm->srcu);
-> +	for (i = 0; i < ZPCI_TABLE_PAGES; i++) {
-> +		page = gfn_to_page(kvm, gpa_to_gfn(gpa));
-> +		if (is_error_page(page)) {
-> +			srcu_read_unlock(&kvm->srcu, idx);
-> +			rc = -EIO;
-> +			goto out;
-
-			goto unpin ?
-
-> +		}
-> +		iaddr = page_to_virt(page) + (gpa & ~PAGE_MASK);
-> +		ioat->head[i] = (unsigned long *)iaddr;
-> +		gpa += PAGE_SIZE;
-> +	}
-> +	srcu_read_unlock(&kvm->srcu, idx);
-> +
-> +	zdev->kzdev->ioat.seg = kcalloc(ZPCI_TABLE_ENTRIES_PAGES,
-> +					sizeof(unsigned long *), GFP_KERNEL);
-
-What about:
-
-         ioat->seg = kcalloc(ZPCI_TABLE_ENTRIES_PAGES,
-                             sizeof(*ioat->seg), GFP_KERNEL);
-	if (!ioat->seg)
 ...
-	ioat->pt = ...
-?
 
-> +	if (!zdev->kzdev->ioat.seg)
-> +		goto unpin;
-> +	zdev->kzdev->ioat.pt = kcalloc(ZPCI_TABLE_ENTRIES,
-> +				       sizeof(unsigned long **), GFP_KERNEL);
-> +	if (!zdev->kzdev->ioat.pt)
-> +		goto free_seg;
-> +
-> +out:
-> +	mutex_unlock(&ioat->lock);
-> +	return rc;
+>> diff --git a/include/uapi/linux/vfio_zdev.h 
+>> b/include/uapi/linux/vfio_zdev.h
+>> index 575f0410dc66..c574e23f9385 100644
+>> --- a/include/uapi/linux/vfio_zdev.h
+>> +++ b/include/uapi/linux/vfio_zdev.h
+>> @@ -90,4 +90,24 @@ struct vfio_device_zpci_interp {
+>>       __u32 fh;        /* Host device function handle */
+>>   };
+>> +/**
+>> + * VFIO_DEVICE_FEATURE_ZPCI_AIF
+>> + *
+>> + * This feature is used for enabling forwarding of adapter interrupts 
+>> directly
+>> + * from firmware to the guest.  When setting this feature, the flags 
+>> indicate
+>> + * whether to enable/disable the feature and the structure defined 
+>> below is
+>> + * used to setup the forwarding structures.  When getting this 
+>> feature, only
+>> + * the flags are used to indicate the current state.
+>> + */
+>> +struct vfio_device_zpci_aif {
+>> +    __u64 flags;
+>> +#define VFIO_DEVICE_ZPCI_FLAG_AIF_FLOAT 1
+>> +#define VFIO_DEVICE_ZPCI_FLAG_AIF_HOST 2
+> 
+> I think we need more information on these flags.
+> What does AIF_FLOAT and what does AIF_HOST ?
+> 
 
-	return 0 ?
+You actually asked for this already on Jan 19 :), here's a copy of that 
+response inline here:
 
-> +
-> +free_seg:
-> +	kfree(zdev->kzdev->ioat.seg);
+I can add a small line comment for each, like:
 
-kfree(ioat->seg) ?
-rc = -ENOMEM;
+  AIF_FLOAT 1 /* Floating interrupts enabled */
+  AIF_HOST 2  /* Host delivery forced */
 
-> +unpin:
-> +	for (i = 0; i < ZPCI_TABLE_PAGES; i++) {
-> +		kvm_release_pfn_dirty((u64)ioat->head[i] >> PAGE_SHIFT);
-> +		ioat->head[i] = 0;
-> +	}
-> +	mutex_unlock(&ioat->lock);
-> +	return -ENOMEM;
+But here's a bit more detail:
 
-	return rc;
+On SET:
+AIF_FLOAT = 1 means enable the interrupt forwarding assist for floating 
+interrupt delivery
+AIF_FLOAT = 0 means to disable it.
+AIF_HOST = 1 means the assist will always deliver the interrupt to the 
+host and let the host inject it
+AIF_HOST = 0 host only gets interrupts when firmware can't deliver
 
-> +}
-...snip...
+on GET, we just indicate the current settings from the most recent SET, 
+meaning:
+AIF_FLOAT = 1 interrupt forwarding assist is currently active
+AIF_FLOAT = 0 interrupt forwarding assist is not currently active
+AIF_HOST = 1 interrupt forwarding will always go through host
+AIF_HOST = 0 interrupt forwarding will only go through the host when 
+necessary
 
--- 
-Pierre Morel
-IBM Lab Boeblingen
+My thought would be add the line comments in this patch and then the 
+additional detail in a follow-on patch that adds vfio zPCI to 
+Documentation/S390
+
