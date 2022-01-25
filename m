@@ -2,120 +2,162 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7807DC433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 25 Jan 2022 12:31:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C413DC433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 25 Jan 2022 12:39:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1450411AbiAYMbs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 25 Jan 2022 07:31:48 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:25286 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1451078AbiAYM3i (ORCPT
+        id S1383401AbiAYMjC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 25 Jan 2022 07:39:02 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:44732 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1383484AbiAYMff (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 25 Jan 2022 07:29:38 -0500
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20PCK12j000768;
-        Tue, 25 Jan 2022 12:29:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : content-transfer-encoding : mime-version; s=pp1;
- bh=emwkbs6YjOuH3VFhZtvs7dxU1IGRDZDvVQtbya4xOk4=;
- b=AwPeAL+9nleKpFSLoMgMLZKWlWnE2BTu7i+jgg3xbFuWK2r+/RzRHYbswjREIEdtIqMA
- cHbXsVsOC6P7pGiWkvL4OJVdOgQvlOw/qJ2x35rW3yjkaJRduOfNQdARbj0uZTYnN2B3
- slsqb7Qf4QgtFabq+ZA2Yc11yWyiW/TeVVI3Ry0F3BdznhvDDRWSoPmXVFmYG09IZya0
- cH4g0R05z2MHgBScAzW3g7OUZw04GIXtMLgdtDM1wIX+6ALrcEnG2JnwkzV93B0I4uuK
- E59/GC4y2ZSZKpuhfiRkn1pFT1XmhBUVU3aHiZLe84HrMFssVd/LteWvymxxFofZ+POy Ew== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3dtafr9dts-1
+        Tue, 25 Jan 2022 07:35:35 -0500
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20PCJwPE031256;
+        Tue, 25 Jan 2022 12:35:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=uGoEhpWT+5nBi9sYi1zFDyYPjs17abSNc6ADbovLhDU=;
+ b=FLsIeyS20hJn5w2aMCE2cyNkQu3LRduvwCYIM+n46DHaJPPqHxyolDLOsKNrfa/AxNpD
+ AUS/lHNZ+8yuStrqll3b0OtXdzqyEpCZ1U/NC7X0cfA+ziiHThlP0HOF4qidh+wCuvDE
+ 4ATq9GkFvoRV2LN38gBezxgFOXfqyxwFoad9dBhOUe2H1O3dA+xDnNK+K6LUsS3Lyqmm
+ 3DdedNlT4XumAQXWDsLg5qeUUuSaeNZfuUkifwcJMG4zcragyMGWtH02Sqns3ZoHc7Ab
+ heplU7WCcXctuL24LmB2K/Rh6vYZw3d6NowWBsffWxZYL7seMFDY1maqOXNCweLCBl0v Nw== 
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dtevcbax2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 25 Jan 2022 12:29:19 +0000
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20PCTJ2c003571;
-        Tue, 25 Jan 2022 12:29:19 GMT
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3dtafr9dt1-1
+        Tue, 25 Jan 2022 12:35:29 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20PCVrlL000560;
+        Tue, 25 Jan 2022 12:35:27 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma02fra.de.ibm.com with ESMTP id 3dr9j9cmep-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 25 Jan 2022 12:29:19 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20PCI8qb015503;
-        Tue, 25 Jan 2022 12:29:17 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma05fra.de.ibm.com with ESMTP id 3dr9j8vkmd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 25 Jan 2022 12:29:17 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20PCTFBC37552478
+        Tue, 25 Jan 2022 12:35:27 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20PCZOlI44106200
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 25 Jan 2022 12:29:15 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3BBC65205A;
-        Tue, 25 Jan 2022 12:29:15 +0000 (GMT)
-Received: from t46lp57.lnxne.boe (unknown [9.152.108.100])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id DCD4A52051;
-        Tue, 25 Jan 2022 12:29:14 +0000 (GMT)
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     qemu-devel@nongnu.org
-Cc:     richard.henderson@linaro.org, thuth@redhat.com, david@redhat.com,
-        linux-s390@vger.kernel.org
-Subject: [PATCH qemu] s390x: sck: load into a temporary not into in1
-Date:   Tue, 25 Jan 2022 13:29:14 +0100
-Message-Id: <20220125122914.567599-1-nrb@linux.ibm.com>
-X-Mailer: git-send-email 2.31.1
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: KRxqDOvoE6pHizKyx_EAa8yxpDmr6S8I
-X-Proofpoint-ORIG-GUID: WcGOCJE45nR-JYG7_Y-bXXO0gb43Zp1e
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Tue, 25 Jan 2022 12:35:24 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2C9F1AE057;
+        Tue, 25 Jan 2022 12:35:24 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C8AAFAE053;
+        Tue, 25 Jan 2022 12:35:23 +0000 (GMT)
+Received: from [9.171.4.230] (unknown [9.171.4.230])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 25 Jan 2022 12:35:23 +0000 (GMT)
+Message-ID: <92c2d051-e25f-7b3a-c811-dd1ce85f1b9b@linux.ibm.com>
+Date:   Tue, 25 Jan 2022 13:35:23 +0100
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.0
+Subject: Re: [RFC PATCH] uaccess: Add mechanism for key checked access to user
+ memory
+Content-Language: en-US
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <YerCfDceDszqbdHU@osiris>
+ <20220124103812.2340666-1-scgl@linux.ibm.com> <Ye7kuJ51QWFBGoJ4@osiris>
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+In-Reply-To: <Ye7kuJ51QWFBGoJ4@osiris>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: vsBhkIBCjJ_rhSlt5lD3ujFMrTrOo3er
+X-Proofpoint-ORIG-GUID: vsBhkIBCjJ_rhSlt5lD3ujFMrTrOo3er
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2022-01-25_02,2022-01-25_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 adultscore=0
- malwarescore=0 spamscore=0 phishscore=0 lowpriorityscore=0 clxscore=1011
- priorityscore=1501 impostorscore=0 mlxscore=0 bulkscore=0 mlxlogscore=865
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2201110000
- definitions=main-2201250078
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ lowpriorityscore=0 adultscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999
+ clxscore=1015 phishscore=0 spamscore=0 bulkscore=0 suspectscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2201250081
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-We previously loaded into in1, but in1 is not filled during
-disassembly and hence always zero. This leads to an assertion failure:
+On 1/24/22 18:41, Heiko Carstens wrote:
+> On Mon, Jan 24, 2022 at 11:38:12AM +0100, Janis Schoetterl-Glausch wrote:
+>> KVM on s390 needs a mechanism to do accesses to guest memory
+>> that honors storage key protection.
+>> __copy_from/to_user_with_key is implemented by introducing
+>> raw_copy_from/to_user_with_key.
+>> Since the existing uaccess implementation on s390 makes use of move
+>> instructions that support having an additional access key supplied,
+>> we can implement raw_copy_from/to_user_with_key by enhancing the
+>> existing implementation.
+>>
+>> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+>> ---
+>>
+>> This works for us and compiles on other architectures (tested x86).
+>> The patch only implements __copy_from/to_user_with_key, since those
+>> are the ones we actually need. On other architectures those functions
+>> don't exists, but they aren't used either, so it's not a problem.
+> 
+> Adding an API where only underscored function names are to be used can be
+> considered suboptimal.
+> 
+>> Should we also implement single and no underscore variants? Why?
+>> Completeness?
+> 
+> Please make this _fully_ symmetrical to the existing copy_to/from_user()
+> implementations, like I tried to say several times. Maybe I wasn't clear
+> enough about this. Also the default implementation - that is if an
+> architecture makes use of copy_to_user_key() without providing a
+> raw_copy_from_user_key() implementation - should fallback to regular
+> copy_to_user() semantics, like I tried to outline with the ifndef example
+> of raw_copy_from_user_key() previously.
 
-  qemu-system-s390x: /home/nrb/qemu/include/tcg/tcg.h:654: temp_idx:
-  Assertion `n >= 0 && n < tcg_ctx->nb_temps' failed.`
+That does help. One thing I'm still confused about is the rational
+for the default implementation.
+Are you suggesting that copy_from/to_user be implemented in terms of
+copy_from/to_user_with_key? I didn't think so, even tho you said something along
+those lines, because I assumed you were referring to the architecture specific
+implementations for copy_from/to_user, since we weren't talking about
+common code changes back then and Christian's suggestion didn't feature it either.
 
-Instead, load into a temporary and pass that to the helper.
+When you say "fully symmetrical" do you mean all functions that wrap architecture
+defined access to user space:
+__copy_from_user_inatomic
+__copy_from_user
+__copy_to_user_inatomic
+__copy_to_user
+_copy_from_user
+_copy_to_user
+copy_from_user
+copy_to_user
+__copy_from_user_inatomic_nocache
+copy_struct_from_user
+copy_from_user_nofault
+copy_to_user_nofault
+strncpy_from_user_nofault
+strnlen_user_nofault
+> 
+> Furthermore this should be splitted into two patches: one which adds the
+> common code infrastructure, like described above; and a second patch which
+> adds the actual s390 architecture backend/override.
+> 
+> The patches should contain a _detailed_ description why the first patch,
+> aka API, should probably be in common code (staying in sync with code
+> instrumentation, etc.); and of course it should contain enough information
+> for people not familiar with s390's storage keys so they can figure out
+> what this is about.
+> 
+> Hopefully we get some feedback and either this is acceptable for common
+> code one way or the other, or we have to maintain this on our own, and get
+> the additional maintenance cost for free.
+> 
+> Please make sure to add Al Viro, Kees Cook, Arnd Bergmann, and Andrew
+> Morton to cc on your next version, so we hopefully come to a conclusion and
+> can move on.
 
-This fixes the SCK test I sent here under TCG:
-<https://www.spinics.net/lists/kvm/msg265169.html>
-
-Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
----
- target/s390x/tcg/translate.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
-
-diff --git a/target/s390x/tcg/translate.c b/target/s390x/tcg/translate.c
-index 46dea733571e..dc0baec5a5f4 100644
---- a/target/s390x/tcg/translate.c
-+++ b/target/s390x/tcg/translate.c
-@@ -4290,9 +4290,16 @@ static DisasJumpType op_stcke(DisasContext *s, DisasOps *o)
- #ifndef CONFIG_USER_ONLY
- static DisasJumpType op_sck(DisasContext *s, DisasOps *o)
- {
--    tcg_gen_qemu_ld_i64(o->in1, o->addr1, get_mem_index(s), MO_TEUQ | MO_ALIGN);
--    gen_helper_sck(cc_op, cpu_env, o->in1);
-+    TCGv_i64 t1;
-+
-+    t1 = tcg_temp_new_i64();
-+
-+    tcg_gen_qemu_ld_i64(t1, o->addr1, get_mem_index(s), MO_TEUQ | MO_ALIGN);
-+    gen_helper_sck(cc_op, cpu_env, t1);
-     set_cc_static(s);
-+
-+    tcg_temp_free_i64(t1);
-+
-     return DISAS_NEXT;
- }
- 
--- 
-2.31.1
-
+Thanks, will do.
