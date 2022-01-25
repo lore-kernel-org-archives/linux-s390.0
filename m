@@ -2,122 +2,166 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC9DCC433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 25 Jan 2022 12:04:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 83920C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 25 Jan 2022 12:26:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1390880AbiAYME1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 25 Jan 2022 07:04:27 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:37059 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1351262AbiAYMAo (ORCPT
+        id S1382225AbiAYM0B (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 25 Jan 2022 07:26:01 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:64122 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1448003AbiAYMVk (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 25 Jan 2022 07:00:44 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1643112031;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=2lsdYPIqQ4QlcpvU2QM4ze8T2zz+UGakXhoLQCT2xuc=;
-        b=NED8xet4OZL3J00CxHbetxFWuuzj/zWX2STD+VrGJdB37A/qMKhs8nxC65RLm7yxzmz1zT
-        +hDy7aXN5hhqYv0WnACEd1yF3TuL8XdQ/DRmNQl8PjAMNR0l/LrcJzULRGI2i2L0ojI3cE
-        w2QJgyiFK28SD9G8lPfzikK6+qm111E=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-312-pPmG_M77P_K92Ibxg4OdeQ-1; Tue, 25 Jan 2022 07:00:30 -0500
-X-MC-Unique: pPmG_M77P_K92Ibxg4OdeQ-1
-Received: by mail-wm1-f71.google.com with SMTP id d140-20020a1c1d92000000b0034edefd55caso1119766wmd.4
-        for <linux-s390@vger.kernel.org>; Tue, 25 Jan 2022 04:00:30 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=2lsdYPIqQ4QlcpvU2QM4ze8T2zz+UGakXhoLQCT2xuc=;
-        b=2K+yTwso29oyUm7RhnN+FlPVGQlooaDdl3pXq+GWihcen2GC1wF55U9qIHsXMCc7fU
-         HJ3Oy9aqEhMvWUnzfr+y0mx0yCN5ESSib8320wBRi+wVDohqwByW2INfBhBSlh0Z5Ww1
-         PwmmSQoiRC58bIOgk1hfDnrV/c5jerFHth0SehBjoXQsBk25cxEIPUrnPpMUjalKt25j
-         iH4m75sE1CIxqQK/JQ5DE35RuZSlCfaYHc3Eh+1RMEIeKLrflnHx7Z5ADGkpIi7IKI8I
-         ZafyJRpoG8OPGcywkSpeNFwPv5gj5clo5gfQPjL3S5xgnb5de+5pvJT69Mu7S4+MQKnr
-         3LEw==
-X-Gm-Message-State: AOAM530FHf57F1p/cxGIMTrxf4O70BQT4SE8xl21W/JyL16QnrjofvTX
-        CqJWARGg/LUSj/JLCu7MhjFYtxGMDyLyg2zrc2dIq2rP0s6BXU8hM6D0gDxbblcazlE9pGJv5pS
-        GmOQ9MMvWDIKSjHpSIbNKog==
-X-Received: by 2002:a1c:cc08:: with SMTP id h8mr2659691wmb.156.1643112029285;
-        Tue, 25 Jan 2022 04:00:29 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJygqV37/XDy+29IPJuuFxB8Vr2Cp0cFygEJ6RlKk0ecIA/aj6eOc5JLqKQTmnbzn5TcAS8pZA==
-X-Received: by 2002:a1c:cc08:: with SMTP id h8mr2659671wmb.156.1643112029092;
-        Tue, 25 Jan 2022 04:00:29 -0800 (PST)
-Received: from [10.33.192.183] (nat-pool-str-t.redhat.com. [149.14.88.106])
-        by smtp.gmail.com with ESMTPSA id g5sm12180088wri.108.2022.01.25.04.00.28
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 25 Jan 2022 04:00:28 -0800 (PST)
-Message-ID: <3035e023-d71a-407b-2ba6-45ad0ae85a9e@redhat.com>
-Date:   Tue, 25 Jan 2022 13:00:27 +0100
+        Tue, 25 Jan 2022 07:21:40 -0500
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20PCK3Xl009939;
+        Tue, 25 Jan 2022 12:21:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=DSC4tF8JBAB/RYcyPBdMDahatWCJeXMwVRaiqjTudKw=;
+ b=k3tTxNJUykPlLxHQ4+C5L6F+0fDTKJFiMZX5rdCCPS22AAF2+7Vx73wQZSOYbh3oQBmv
+ Z/4ysrk1ufIkXoeGnUs9dxyHfZ1P1hbW78e/S/ylRDOo6nAVNwCm3eevRqUN9jkv+ePk
+ 1DHbnFmR8zyy8tqhI5zS9MH0NJP7K6ZAv9fK/gRaxmvsohqHXnI/QngnHH7jKZ0+n56V
+ NIJDXiRIY3W2m3zGovvt+wRjgvjKKy9opLierbZplYMvEKTqJTKZa+zFJbHPZVG+5JH7
+ TfsatcukEY7j5VP+hoZMlUOjhm12LQ+wBls0vxk8yKeDyPOSGXelVfWv1h/IRf3zj0gz Wg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dtgj68taa-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 25 Jan 2022 12:21:28 +0000
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20PCK4UM009982;
+        Tue, 25 Jan 2022 12:21:28 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dtgj68t9d-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 25 Jan 2022 12:21:27 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20PCI6ue015267;
+        Tue, 25 Jan 2022 12:21:25 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma05fra.de.ibm.com with ESMTP id 3dr9j8vhu2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 25 Jan 2022 12:21:25 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20PCLLIK40567078
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 25 Jan 2022 12:21:21 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 74BBCAE05D;
+        Tue, 25 Jan 2022 12:21:21 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8838AAE053;
+        Tue, 25 Jan 2022 12:21:20 +0000 (GMT)
+Received: from [9.171.58.95] (unknown [9.171.58.95])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 25 Jan 2022 12:21:20 +0000 (GMT)
+Message-ID: <9df849f6-dd99-93ea-8e35-3daffd38e694@linux.ibm.com>
+Date:   Tue, 25 Jan 2022 13:23:10 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.0
-Subject: Re: [RFC PATCH v1 06/10] KVM: s390: Add vm IOCTL for key checked
- guest absolute memory access
+ Thunderbird/91.3.0
+Subject: Re: [PATCH v2 15/30] KVM: s390: pci: do initial setup for AEN
+ interpretation
 Content-Language: en-US
-To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Cc:     David Hildenbrand <david@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
+        schnelle@linux.ibm.com, farman@linux.ibm.com,
+        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
+        vneethv@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com,
+        thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
         linux-kernel@vger.kernel.org
-References: <20220118095210.1651483-1-scgl@linux.ibm.com>
- <20220118095210.1651483-7-scgl@linux.ibm.com>
- <069c72b6-457f-65c7-652e-e6eca7235fca@redhat.com>
- <8647fcaf-6d8a-4678-0695-4b1cc797b3b1@linux.ibm.com>
-From:   Thomas Huth <thuth@redhat.com>
-In-Reply-To: <8647fcaf-6d8a-4678-0695-4b1cc797b3b1@linux.ibm.com>
+References: <20220114203145.242984-1-mjrosato@linux.ibm.com>
+ <20220114203145.242984-16-mjrosato@linux.ibm.com>
+From:   Pierre Morel <pmorel@linux.ibm.com>
+In-Reply-To: <20220114203145.242984-16-mjrosato@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: S5PrdewDgWoiq6HanT2AfCrqJNJX_R9I
+X-Proofpoint-GUID: 7nA0Zl6bEdcQ2DuoV6JU8y0LH4XESY5o
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-01-25_02,2022-01-25_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
+ mlxlogscore=999 priorityscore=1501 bulkscore=0 spamscore=0 malwarescore=0
+ adultscore=0 impostorscore=0 clxscore=1015 suspectscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2201250078
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 20/01/2022 13.23, Janis Schoetterl-Glausch wrote:
-> On 1/20/22 11:38, Thomas Huth wrote:
->> On 18/01/2022 10.52, Janis Schoetterl-Glausch wrote:
->>> Channel I/O honors storage keys and is performed on absolute memory.
->>> For I/O emulation user space therefore needs to be able to do key
->>> checked accesses.
->>> The vm IOCTL supports read/write accesses, as well as checking
->>> if an access would succeed.
->> ...
->>> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
->>> index e3f450b2f346..dd04170287fd 100644
->>> --- a/include/uapi/linux/kvm.h
->>> +++ b/include/uapi/linux/kvm.h
->>> @@ -572,6 +572,8 @@ struct kvm_s390_mem_op {
->>>    #define KVM_S390_MEMOP_LOGICAL_WRITE    1
->>>    #define KVM_S390_MEMOP_SIDA_READ    2
->>>    #define KVM_S390_MEMOP_SIDA_WRITE    3
->>> +#define KVM_S390_MEMOP_ABSOLUTE_READ    4
->>> +#define KVM_S390_MEMOP_ABSOLUTE_WRITE    5
->>
->> Not quite sure about this - maybe it is, but at least I'd like to see this discussed: Do we really want to re-use the same ioctl layout for both, the VM and the VCPU file handles? Where the userspace developer has to know that the *_ABSOLUTE_* ops only work with VM handles, and the others only work with the VCPU handles? A CPU can also address absolute memory, so why not adding the *_ABSOLUTE_* ops there, too? And if we'd do that, wouldn't it be sufficient to have the VCPU ioctls only - or do you want to call these ioctls from spots in QEMU where you do not have a VCPU handle available? (I/O instructions are triggered from a CPU, so I'd assume that you should have a VCPU handle around?)
+
+
+On 1/14/22 21:31, Matthew Rosato wrote:
+> Initial setup for Adapter Event Notification Interpretation for zPCI
+> passthrough devices.  Specifically, allocate a structure for forwarding of
+> adapter events and pass the address of this structure to firmware.
 > 
-> There are some differences between the vm and the vcpu memops.
-> No storage or fetch protection overrides apply to IO/vm memops, after all there is no control register to enable them.
-> Additionally, quiescing is not required for IO, tho in practice we use the same code path for the vcpu and the vm here.
-> Allowing absolute accesses with a vcpu is doable, but I'm not sure what the use case for it would be, I'm not aware of
-> a precedence in the architecture. Of course the vcpu memop already supports logical=real accesses.
+> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> ---
+>   arch/s390/include/asm/pci.h      |   4 +
+>   arch/s390/include/asm/pci_insn.h |  12 +++
+>   arch/s390/kvm/interrupt.c        |  14 +++
+>   arch/s390/kvm/kvm-s390.c         |   9 ++
+>   arch/s390/kvm/pci.c              | 144 +++++++++++++++++++++++++++++++
+>   arch/s390/kvm/pci.h              |  42 +++++++++
+>   arch/s390/pci/pci.c              |   6 ++
+>   7 files changed, 231 insertions(+)
+>   create mode 100644 arch/s390/kvm/pci.h
+> 
+...snip...
 
-Ok. Maybe it then would be better to call new ioctl and the new op defines 
-differently, to avoid confusion? E.g. call it "vmmemop" and use:
+> new file mode 100644
+> index 000000000000..b2000ed7b8c3
+> --- /dev/null
+> +++ b/arch/s390/kvm/pci.h
+> @@ -0,0 +1,42 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +/*
+> + * s390 kvm PCI passthrough support
+> + *
+> + * Copyright IBM Corp. 2021
+> + *
+> + *    Author(s): Matthew Rosato <mjrosato@linux.ibm.com>
+> + */
+> +
+> +#ifndef __KVM_S390_PCI_H
+> +#define __KVM_S390_PCI_H
+> +
+> +#include <linux/pci.h>
+> +#include <linux/mutex.h>
+> +#include <asm/airq.h>
+> +#include <asm/kvm_pci.h>
+> +
+> +struct zpci_gaite {
+> +	u32 gisa;
+> +	u8 gisc;
+> +	u8 count;
+> +	u8 reserved;
+> +	u8 aisbo;
+> +	u64 aisb;
+> +};
+> +
+> +struct zpci_aift {
+> +	struct zpci_gaite *gait;
+> +	struct airq_iv *sbv;
+> +	struct kvm_zdev **kzdev;
+> +	spinlock_t gait_lock; /* Protects the gait, used during AEN forward */
+> +	struct mutex lock; /* Protects the other structures in aift */
 
-#define KVM_S390_VMMEMOP_ABSOLUTE_READ    1
-#define KVM_S390_VMMEMOP_ABSOLUTE_WRITE   2
+To facilitate review and debug, can we please rename the lock aift_lock?
 
-?
 
-  Thomas
+> +};
+> +
+> +extern struct zpci_aift *aift;
+> +
+...snip...
 
+
+-- 
+Pierre Morel
+IBM Lab Boeblingen
