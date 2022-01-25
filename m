@@ -2,166 +2,120 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 83920C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 25 Jan 2022 12:26:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7807DC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 25 Jan 2022 12:31:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382225AbiAYM0B (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 25 Jan 2022 07:26:01 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:64122 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1448003AbiAYMVk (ORCPT
+        id S1450411AbiAYMbs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 25 Jan 2022 07:31:48 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:25286 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1451078AbiAYM3i (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 25 Jan 2022 07:21:40 -0500
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20PCK3Xl009939;
-        Tue, 25 Jan 2022 12:21:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=DSC4tF8JBAB/RYcyPBdMDahatWCJeXMwVRaiqjTudKw=;
- b=k3tTxNJUykPlLxHQ4+C5L6F+0fDTKJFiMZX5rdCCPS22AAF2+7Vx73wQZSOYbh3oQBmv
- Z/4ysrk1ufIkXoeGnUs9dxyHfZ1P1hbW78e/S/ylRDOo6nAVNwCm3eevRqUN9jkv+ePk
- 1DHbnFmR8zyy8tqhI5zS9MH0NJP7K6ZAv9fK/gRaxmvsohqHXnI/QngnHH7jKZ0+n56V
- NIJDXiRIY3W2m3zGovvt+wRjgvjKKy9opLierbZplYMvEKTqJTKZa+zFJbHPZVG+5JH7
- TfsatcukEY7j5VP+hoZMlUOjhm12LQ+wBls0vxk8yKeDyPOSGXelVfWv1h/IRf3zj0gz Wg== 
+        Tue, 25 Jan 2022 07:29:38 -0500
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20PCK12j000768;
+        Tue, 25 Jan 2022 12:29:20 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=emwkbs6YjOuH3VFhZtvs7dxU1IGRDZDvVQtbya4xOk4=;
+ b=AwPeAL+9nleKpFSLoMgMLZKWlWnE2BTu7i+jgg3xbFuWK2r+/RzRHYbswjREIEdtIqMA
+ cHbXsVsOC6P7pGiWkvL4OJVdOgQvlOw/qJ2x35rW3yjkaJRduOfNQdARbj0uZTYnN2B3
+ slsqb7Qf4QgtFabq+ZA2Yc11yWyiW/TeVVI3Ry0F3BdznhvDDRWSoPmXVFmYG09IZya0
+ cH4g0R05z2MHgBScAzW3g7OUZw04GIXtMLgdtDM1wIX+6ALrcEnG2JnwkzV93B0I4uuK
+ E59/GC4y2ZSZKpuhfiRkn1pFT1XmhBUVU3aHiZLe84HrMFssVd/LteWvymxxFofZ+POy Ew== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dtgj68taa-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3dtafr9dts-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 25 Jan 2022 12:21:28 +0000
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20PCK4UM009982;
-        Tue, 25 Jan 2022 12:21:28 GMT
+        Tue, 25 Jan 2022 12:29:19 +0000
+Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20PCTJ2c003571;
+        Tue, 25 Jan 2022 12:29:19 GMT
 Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dtgj68t9d-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3dtafr9dt1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 25 Jan 2022 12:21:27 +0000
+        Tue, 25 Jan 2022 12:29:19 +0000
 Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20PCI6ue015267;
-        Tue, 25 Jan 2022 12:21:25 GMT
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20PCI8qb015503;
+        Tue, 25 Jan 2022 12:29:17 GMT
 Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma05fra.de.ibm.com with ESMTP id 3dr9j8vhu2-1
+        by ppma05fra.de.ibm.com with ESMTP id 3dr9j8vkmd-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 25 Jan 2022 12:21:25 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20PCLLIK40567078
+        Tue, 25 Jan 2022 12:29:17 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20PCTFBC37552478
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 25 Jan 2022 12:21:21 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 74BBCAE05D;
-        Tue, 25 Jan 2022 12:21:21 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8838AAE053;
-        Tue, 25 Jan 2022 12:21:20 +0000 (GMT)
-Received: from [9.171.58.95] (unknown [9.171.58.95])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 25 Jan 2022 12:21:20 +0000 (GMT)
-Message-ID: <9df849f6-dd99-93ea-8e35-3daffd38e694@linux.ibm.com>
-Date:   Tue, 25 Jan 2022 13:23:10 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH v2 15/30] KVM: s390: pci: do initial setup for AEN
- interpretation
-Content-Language: en-US
-To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
-        schnelle@linux.ibm.com, farman@linux.ibm.com,
-        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
-        vneethv@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com,
-        thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20220114203145.242984-1-mjrosato@linux.ibm.com>
- <20220114203145.242984-16-mjrosato@linux.ibm.com>
-From:   Pierre Morel <pmorel@linux.ibm.com>
-In-Reply-To: <20220114203145.242984-16-mjrosato@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        Tue, 25 Jan 2022 12:29:15 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3BBC65205A;
+        Tue, 25 Jan 2022 12:29:15 +0000 (GMT)
+Received: from t46lp57.lnxne.boe (unknown [9.152.108.100])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id DCD4A52051;
+        Tue, 25 Jan 2022 12:29:14 +0000 (GMT)
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     qemu-devel@nongnu.org
+Cc:     richard.henderson@linaro.org, thuth@redhat.com, david@redhat.com,
+        linux-s390@vger.kernel.org
+Subject: [PATCH qemu] s390x: sck: load into a temporary not into in1
+Date:   Tue, 25 Jan 2022 13:29:14 +0100
+Message-Id: <20220125122914.567599-1-nrb@linux.ibm.com>
+X-Mailer: git-send-email 2.31.1
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: S5PrdewDgWoiq6HanT2AfCrqJNJX_R9I
-X-Proofpoint-GUID: 7nA0Zl6bEdcQ2DuoV6JU8y0LH4XESY5o
+X-Proofpoint-GUID: KRxqDOvoE6pHizKyx_EAa8yxpDmr6S8I
+X-Proofpoint-ORIG-GUID: WcGOCJE45nR-JYG7_Y-bXXO0gb43Zp1e
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2022-01-25_02,2022-01-25_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
- mlxlogscore=999 priorityscore=1501 bulkscore=0 spamscore=0 malwarescore=0
- adultscore=0 impostorscore=0 clxscore=1015 suspectscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2201250078
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 adultscore=0
+ malwarescore=0 spamscore=0 phishscore=0 lowpriorityscore=0 clxscore=1011
+ priorityscore=1501 impostorscore=0 mlxscore=0 bulkscore=0 mlxlogscore=865
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2201110000
+ definitions=main-2201250078
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+We previously loaded into in1, but in1 is not filled during
+disassembly and hence always zero. This leads to an assertion failure:
 
+  qemu-system-s390x: /home/nrb/qemu/include/tcg/tcg.h:654: temp_idx:
+  Assertion `n >= 0 && n < tcg_ctx->nb_temps' failed.`
 
-On 1/14/22 21:31, Matthew Rosato wrote:
-> Initial setup for Adapter Event Notification Interpretation for zPCI
-> passthrough devices.  Specifically, allocate a structure for forwarding of
-> adapter events and pass the address of this structure to firmware.
-> 
-> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> ---
->   arch/s390/include/asm/pci.h      |   4 +
->   arch/s390/include/asm/pci_insn.h |  12 +++
->   arch/s390/kvm/interrupt.c        |  14 +++
->   arch/s390/kvm/kvm-s390.c         |   9 ++
->   arch/s390/kvm/pci.c              | 144 +++++++++++++++++++++++++++++++
->   arch/s390/kvm/pci.h              |  42 +++++++++
->   arch/s390/pci/pci.c              |   6 ++
->   7 files changed, 231 insertions(+)
->   create mode 100644 arch/s390/kvm/pci.h
-> 
-...snip...
+Instead, load into a temporary and pass that to the helper.
 
-> new file mode 100644
-> index 000000000000..b2000ed7b8c3
-> --- /dev/null
-> +++ b/arch/s390/kvm/pci.h
-> @@ -0,0 +1,42 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +/*
-> + * s390 kvm PCI passthrough support
-> + *
-> + * Copyright IBM Corp. 2021
-> + *
-> + *    Author(s): Matthew Rosato <mjrosato@linux.ibm.com>
-> + */
-> +
-> +#ifndef __KVM_S390_PCI_H
-> +#define __KVM_S390_PCI_H
-> +
-> +#include <linux/pci.h>
-> +#include <linux/mutex.h>
-> +#include <asm/airq.h>
-> +#include <asm/kvm_pci.h>
-> +
-> +struct zpci_gaite {
-> +	u32 gisa;
-> +	u8 gisc;
-> +	u8 count;
-> +	u8 reserved;
-> +	u8 aisbo;
-> +	u64 aisb;
-> +};
-> +
-> +struct zpci_aift {
-> +	struct zpci_gaite *gait;
-> +	struct airq_iv *sbv;
-> +	struct kvm_zdev **kzdev;
-> +	spinlock_t gait_lock; /* Protects the gait, used during AEN forward */
-> +	struct mutex lock; /* Protects the other structures in aift */
+This fixes the SCK test I sent here under TCG:
+<https://www.spinics.net/lists/kvm/msg265169.html>
 
-To facilitate review and debug, can we please rename the lock aift_lock?
+Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+---
+ target/s390x/tcg/translate.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-
-> +};
-> +
-> +extern struct zpci_aift *aift;
-> +
-...snip...
-
-
+diff --git a/target/s390x/tcg/translate.c b/target/s390x/tcg/translate.c
+index 46dea733571e..dc0baec5a5f4 100644
+--- a/target/s390x/tcg/translate.c
++++ b/target/s390x/tcg/translate.c
+@@ -4290,9 +4290,16 @@ static DisasJumpType op_stcke(DisasContext *s, DisasOps *o)
+ #ifndef CONFIG_USER_ONLY
+ static DisasJumpType op_sck(DisasContext *s, DisasOps *o)
+ {
+-    tcg_gen_qemu_ld_i64(o->in1, o->addr1, get_mem_index(s), MO_TEUQ | MO_ALIGN);
+-    gen_helper_sck(cc_op, cpu_env, o->in1);
++    TCGv_i64 t1;
++
++    t1 = tcg_temp_new_i64();
++
++    tcg_gen_qemu_ld_i64(t1, o->addr1, get_mem_index(s), MO_TEUQ | MO_ALIGN);
++    gen_helper_sck(cc_op, cpu_env, t1);
+     set_cc_static(s);
++
++    tcg_temp_free_i64(t1);
++
+     return DISAS_NEXT;
+ }
+ 
 -- 
-Pierre Morel
-IBM Lab Boeblingen
+2.31.1
+
