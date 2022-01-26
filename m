@@ -2,232 +2,127 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E569C28CF5
-	for <linux-s390@archiver.kernel.org>; Wed, 26 Jan 2022 08:29:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7B04C28CF5
+	for <linux-s390@archiver.kernel.org>; Wed, 26 Jan 2022 08:42:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238452AbiAZI3N (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 26 Jan 2022 03:29:13 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:2176 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S238420AbiAZI3N (ORCPT
+        id S238542AbiAZImW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 26 Jan 2022 03:42:22 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:3910 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230519AbiAZImW (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 26 Jan 2022 03:29:13 -0500
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20Q7gEjX011988;
-        Wed, 26 Jan 2022 08:29:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=4O1LaYBtBVXXFfGMFvzbd33V2xh8PK+DDgbSDlxs7Gk=;
- b=BdINqNs1l8zRqShM4YbVbhKxiTItX3O+ogHZYq6DaLCjHn1xLR96olx/CcDoLWJrkSbr
- Y6P+Ws0dlqGRQAcO7brHfEEPwkKLA6rqcFH37RCPFDilHFJDKozb81vWinXQ6K0eDlQr
- /+CrbotsBCFzdKaXTcLIpYE5I3ROJNKfGdtempuK2ZGTpS8ArKqG4/wDhkSdkysPU/Ml
- IjJ8z/pU4VPyMORPSxH9ma5CTLDfx+Lrjvzc1JFIPZBlur6eDoQBHflEIxa8zos2Uzwq
- ezqb5MhkzeANsaICw7zCOn6c5KeqmS5imAM9CK4FhhWewaIyNyYP+qT2Nr+xnv0l64tI zw== 
+        Wed, 26 Jan 2022 03:42:22 -0500
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20Q7fnFA025456;
+        Wed, 26 Jan 2022 08:42:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=p+YI+iN3bc/74H1C+T2icE0+x3L7F1FZU4LF2apsySc=;
+ b=h4z6/3E8gRfgo0G4Sd76bLBVQ6uqMfLYmGSdLDUsN15h8PUGDeFtnLhriPjLhdNTvAyG
+ yWtCCgjXzM35PJ46mmNX0kXy0+lvpd7llNpQr4vbyapgBNkvErleSaMX1tKEmNCUEFry
+ /ciOQE8RsRs1Xwr86miZ2zcAlc5pGK4F2MWACngvBXV2lPu8GLTVtXWvN6o69ZC2EI54
+ WO/Q94FPeHr/zNiyuwLaZJRD1JE1rzIBrG8eVMg/Pv+JlAYNo8x67ONPAifh52v8i5Nb
+ I0DttRbb71GD3dVFyd05w6w0bIxozpx4hishi5ZhGaqwofxkwfCvZRzgDDrA3XtPAg+Q KQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3du24xrtf2-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3du24s92wq-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 26 Jan 2022 08:29:12 +0000
-Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20Q7he43014250;
-        Wed, 26 Jan 2022 08:29:11 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3du24xrteq-1
+        Wed, 26 Jan 2022 08:42:07 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20Q8QIFs025307;
+        Wed, 26 Jan 2022 08:42:07 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3du24s92vr-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 26 Jan 2022 08:29:11 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20Q8Rndu028204;
-        Wed, 26 Jan 2022 08:29:10 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma04ams.nl.ibm.com with ESMTP id 3dr9j9c8sm-1
+        Wed, 26 Jan 2022 08:42:07 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20Q8fuZl014897;
+        Wed, 26 Jan 2022 08:42:05 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 3dr9j9caet-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 26 Jan 2022 08:29:09 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20Q8T5Ge24183142
+        Wed, 26 Jan 2022 08:42:04 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20Q8g2EN31392034
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 26 Jan 2022 08:29:05 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7363DAE04D;
-        Wed, 26 Jan 2022 08:29:05 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6C9DDAE056;
-        Wed, 26 Jan 2022 08:29:04 +0000 (GMT)
-Received: from [9.171.51.88] (unknown [9.171.51.88])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 26 Jan 2022 08:29:04 +0000 (GMT)
-Message-ID: <6fe34d89-5e38-86ef-ded1-cc1463c95294@linux.ibm.com>
-Date:   Wed, 26 Jan 2022 09:30:56 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH v2 20/30] KVM: s390: pci: provide routines for
- enabling/disabling IOAT assist
-Content-Language: en-US
-To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
-        schnelle@linux.ibm.com, farman@linux.ibm.com,
-        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
-        vneethv@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com,
-        thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20220114203145.242984-1-mjrosato@linux.ibm.com>
- <20220114203145.242984-21-mjrosato@linux.ibm.com>
- <12b9fba1-38b4-057d-49f4-969f2e7e1be3@linux.ibm.com>
- <5de7c3ef-9c25-56d3-cc46-e002f8742dbe@linux.ibm.com>
-From:   Pierre Morel <pmorel@linux.ibm.com>
-In-Reply-To: <5de7c3ef-9c25-56d3-cc46-e002f8742dbe@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+        Wed, 26 Jan 2022 08:42:02 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4AB7A5204F;
+        Wed, 26 Jan 2022 08:42:02 +0000 (GMT)
+Received: from t46lp57.lnxne.boe (unknown [9.152.108.100])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 03A415204E;
+        Wed, 26 Jan 2022 08:42:01 +0000 (GMT)
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     qemu-devel@nongnu.org
+Cc:     richard.henderson@linaro.org, thuth@redhat.com, david@redhat.com,
+        linux-s390@vger.kernel.org
+Subject: [PATCH qemu v2] s390x: sck: load into a temporary not into in1
+Date:   Wed, 26 Jan 2022 09:42:01 +0100
+Message-Id: <20220126084201.774457-1-nrb@linux.ibm.com>
+X-Mailer: git-send-email 2.31.1
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: htvxpfVF0lNJ49hP64-XMALOR51Q5SP4
-X-Proofpoint-ORIG-GUID: EaM53XzZk5eumS5dYsnFCXy-mrvXAU_W
+X-Proofpoint-ORIG-GUID: dswzQ1BNB8KJRcftcFiFlw7WgODVlTUy
+X-Proofpoint-GUID: FNRvmUGG6LpYsYHwcG3wbjrR6AjvTaRp
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2022-01-26_02,2022-01-25_02,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- priorityscore=1501 phishscore=0 bulkscore=0 mlxscore=0 adultscore=0
- clxscore=1015 impostorscore=0 spamscore=0 malwarescore=0 mlxlogscore=999
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2201260044
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 clxscore=1015
+ suspectscore=0 bulkscore=0 malwarescore=0 adultscore=0 mlxlogscore=999
+ priorityscore=1501 lowpriorityscore=0 spamscore=0 impostorscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2201260049
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+We previously loaded into in1, but in1 is not filled during
+disassembly and hence always zero. This leads to an assertion failure:
 
+  qemu-system-s390x: /home/nrb/qemu/include/tcg/tcg.h:654: temp_idx:
+  Assertion `n >= 0 && n < tcg_ctx->nb_temps' failed.`
 
-On 1/25/22 15:47, Matthew Rosato wrote:
-> On 1/25/22 8:29 AM, Pierre Morel wrote:
->>
->>
->> On 1/14/22 21:31, Matthew Rosato wrote:
->>> These routines will be wired into the vfio_pci_zdev ioctl handlers to
->>> respond to requests to enable / disable a device for PCI I/O Address
->>> Translation assistance.
->>>
->>> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
->>> ---
->>>   arch/s390/include/asm/kvm_pci.h |  15 ++++
->>>   arch/s390/include/asm/pci_dma.h |   2 +
->>>   arch/s390/kvm/pci.c             | 139 ++++++++++++++++++++++++++++++++
->>>   arch/s390/kvm/pci.h             |   2 +
->>>   4 files changed, 158 insertions(+)
->>>
->>> diff --git a/arch/s390/include/asm/kvm_pci.h 
->>> b/arch/s390/include/asm/kvm_pci.h
->>> index 01fe14fffd7a..770849f13a70 100644
->>> --- a/arch/s390/include/asm/kvm_pci.h
->>> +++ b/arch/s390/include/asm/kvm_pci.h
->>> @@ -16,11 +16,21 @@
->>>   #include <linux/kvm_host.h>
->>>   #include <linux/kvm.h>
->>>   #include <linux/pci.h>
->>> +#include <linux/mutex.h>
->>>   #include <asm/pci_insn.h>
->>> +#include <asm/pci_dma.h>
->>> +
->>> +struct kvm_zdev_ioat {
->>> +    unsigned long *head[ZPCI_TABLE_PAGES];
->>> +    unsigned long **seg;
->>> +    unsigned long ***pt;
->>> +    struct mutex lock;
->>
->> Can we please rename the mutex ioat_lock to have a unique name easy to 
->> follow for maintenance.
->> Can you please add a description about when the lock should be used?
->>
-> 
-> OK.  The lock is meant to protect the contents of kvm_zdev_ioat -- I'll 
-> think of something to describe it.
-> 
->>> +};
->>>   struct kvm_zdev {
->>>       struct zpci_dev *zdev;
->>>       struct kvm *kvm;
->>> +    struct kvm_zdev_ioat ioat;
->>>       struct zpci_fib fib;
->>>   };
->>> @@ -33,6 +43,11 @@ int kvm_s390_pci_aif_enable(struct zpci_dev *zdev, 
->>> struct zpci_fib *fib,
->>>                   bool assist);
->>>   int kvm_s390_pci_aif_disable(struct zpci_dev *zdev);
->>> +int kvm_s390_pci_ioat_probe(struct zpci_dev *zdev);
->>> +int kvm_s390_pci_ioat_enable(struct zpci_dev *zdev, u64 iota);
->>> +int kvm_s390_pci_ioat_disable(struct zpci_dev *zdev);
->>> +u8 kvm_s390_pci_get_dtsm(struct zpci_dev *zdev);
->>> +
->>>   int kvm_s390_pci_interp_probe(struct zpci_dev *zdev);
->>>   int kvm_s390_pci_interp_enable(struct zpci_dev *zdev);
->>>   int kvm_s390_pci_interp_disable(struct zpci_dev *zdev);
->>> diff --git a/arch/s390/include/asm/pci_dma.h 
->>> b/arch/s390/include/asm/pci_dma.h
->>> index 91e63426bdc5..69e616d0712c 100644
->>> --- a/arch/s390/include/asm/pci_dma.h
->>> +++ b/arch/s390/include/asm/pci_dma.h
->>> @@ -50,6 +50,8 @@ enum zpci_ioat_dtype {
->>>   #define ZPCI_TABLE_ALIGN        ZPCI_TABLE_SIZE
->>>   #define ZPCI_TABLE_ENTRY_SIZE        (sizeof(unsigned long))
->>>   #define ZPCI_TABLE_ENTRIES        (ZPCI_TABLE_SIZE / 
->>> ZPCI_TABLE_ENTRY_SIZE)
->>> +#define ZPCI_TABLE_PAGES        (ZPCI_TABLE_SIZE >> PAGE_SHIFT)
->>> +#define ZPCI_TABLE_ENTRIES_PAGES    (ZPCI_TABLE_ENTRIES * 
->>> ZPCI_TABLE_PAGES)
->>>   #define ZPCI_TABLE_BITS            11
->>>   #define ZPCI_PT_BITS            8
->>> diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
->>> index 7ed9abc476b6..39c13c25a700 100644
->>> --- a/arch/s390/kvm/pci.c
->>> +++ b/arch/s390/kvm/pci.c
->>> @@ -13,12 +13,15 @@
->>>   #include <asm/pci.h>
->>>   #include <asm/pci_insn.h>
->>>   #include <asm/pci_io.h>
->>> +#include <asm/pci_dma.h>
->>>   #include <asm/sclp.h>
->>>   #include "pci.h"
->>>   #include "kvm-s390.h"
->>>   struct zpci_aift *aift;
->>> +#define shadow_ioat_init zdev->kzdev->ioat.head[0]
->>> +
->>>   static inline int __set_irq_noiib(u16 ctl, u8 isc)
->>>   {
->>>       union zpci_sic_iib iib = {{0}};
->>> @@ -344,6 +347,135 @@ int kvm_s390_pci_aif_disable(struct zpci_dev 
->>> *zdev)
->>>   }
->>>   EXPORT_SYMBOL_GPL(kvm_s390_pci_aif_disable);
->>> +int kvm_s390_pci_ioat_probe(struct zpci_dev *zdev)
->>> +{
->>> +    /* Must have a KVM association registered */
->>
->> may be add something like : "The ioat structure is embeded in kzdev"
->>
->>> +    if (!zdev->kzdev || !zdev->kzdev->kvm)
->>
->> Why do we need to check for kvm ?
->> Having kzdev is already tested by the unique caller.
->>
-> 
-> We probably don't need to check for the kzdev because the caller already 
-> did this, agreed there.
-> 
-> But as for checking the kvm association, Alex asked for this in a 
-> comment to v1 (comment was against one of the vfio patches that call 
-> these routines) -- The reason being the probe comes from a userspace 
-> request and can be against any vfio-pci(-zdev) device at any time, and 
-> there's no point in proceeding if this device is not associated with a 
-> KVM guest -- It's possible for the KVM notifier to also pass a null KVM 
-> address -- so I think it's better to just be sure here.  In a 
-> well-behaved environment we would never see this (so, another case for 
-> an s390dbf entry)
+Instead, use in2_la2_m64a to load from storage into in2 and pass that to
+the helper, which matches what we already do for SCKC.
 
-I thought the check could be done even if the userspace is not 
-associated with KVM. But of course OK if Alex asked I would have missed 
-some point.
+This fixes the SCK test I sent here under TCG:
+<https://www.spinics.net/lists/kvm/msg265169.html>
 
+Suggested-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+---
+ target/s390x/tcg/insn-data.def | 2 +-
+ target/s390x/tcg/translate.c   | 3 +--
+ 2 files changed, 2 insertions(+), 3 deletions(-)
 
-
+diff --git a/target/s390x/tcg/insn-data.def b/target/s390x/tcg/insn-data.def
+index 3e5594210c88..848a9c9e622f 100644
+--- a/target/s390x/tcg/insn-data.def
++++ b/target/s390x/tcg/insn-data.def
+@@ -1317,7 +1317,7 @@
+ /* SET ADDRESS SPACE CONTROL FAST */
+     F(0xb279, SACF,    S,     Z,   0, a2, 0, 0, sacf, 0, IF_PRIV)
+ /* SET CLOCK */
+-    F(0xb204, SCK,     S,     Z,   la2, 0, 0, 0, sck, 0, IF_PRIV | IF_IO)
++    F(0xb204, SCK,     S,     Z,   0, m2_64a, 0, 0, sck, 0, IF_PRIV | IF_IO)
+ /* SET CLOCK COMPARATOR */
+     F(0xb206, SCKC,    S,     Z,   0, m2_64a, 0, 0, sckc, 0, IF_PRIV | IF_IO)
+ /* SET CLOCK PROGRAMMABLE FIELD */
+diff --git a/target/s390x/tcg/translate.c b/target/s390x/tcg/translate.c
+index dcc249a197ce..7fb87cd9f3b7 100644
+--- a/target/s390x/tcg/translate.c
++++ b/target/s390x/tcg/translate.c
+@@ -4295,8 +4295,7 @@ static DisasJumpType op_stcke(DisasContext *s, DisasOps *o)
+ #ifndef CONFIG_USER_ONLY
+ static DisasJumpType op_sck(DisasContext *s, DisasOps *o)
+ {
+-    tcg_gen_qemu_ld_i64(o->in1, o->addr1, get_mem_index(s), MO_TEQ | MO_ALIGN);
+-    gen_helper_sck(cc_op, cpu_env, o->in1);
++    gen_helper_sck(cc_op, cpu_env, o->in2);
+     set_cc_static(s);
+     return DISAS_NEXT;
+ }
 -- 
-Pierre Morel
-IBM Lab Boeblingen
+2.31.1
+
