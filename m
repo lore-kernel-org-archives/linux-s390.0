@@ -2,108 +2,59 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 044CDC433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 25 Jan 2022 20:30:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 76E25C28CF5
+	for <linux-s390@archiver.kernel.org>; Wed, 26 Jan 2022 07:23:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232054AbiAYUa4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 25 Jan 2022 15:30:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36808 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232049AbiAYUaz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 25 Jan 2022 15:30:55 -0500
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73569C06173B;
-        Tue, 25 Jan 2022 12:30:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=eAYuA3IYpDa6asQzwjsBPd1aG38lL6DwpQeaWb0KZyc=; b=u7umuGcoWurUr5OPmMAUZ3xGOO
-        YZiX6q/jpumt1aXHBk0BRLa5mmm9kCWWQpjv+D+DNgzXt/hAZ/1V8K68SoeXS2I4ruU9h1fnzRxL7
-        Q+v8WVLR5gsp86yCkzDQtJhNLAl0+mfJakpZ69hu4fKdKAkmEtvCPvmiRSlDnANtsDQT6pz4hjSzR
-        xMbM9JQTQYMOR+ZtpeyzckbV9oBqTDIZOAdvoQRotKUuqC5AMSg6f3IBy3cCqcPm6s/ntnHh2qrQf
-        Qn7DZFJJ/KLQ2aRQ9i+Rk7qAATcNDR2Tc7uzY7jX7MYwF/4xCi5ms7LWHkr//RCN1H/PeV/jKv5KR
-        lb1i4Ksw==;
-Received: from mcgrof by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nCSSq-009VdS-1L; Tue, 25 Jan 2022 20:30:52 +0000
-Date:   Tue, 25 Jan 2022 12:30:52 -0800
-From:   Luis Chamberlain <mcgrof@kernel.org>
-To:     Michal Suchanek <msuchanek@suse.de>,
-        David Howells <dhowells@redhat.com>,
-        Aaron Tomlin <atomlin@redhat.com>
-Cc:     keyrings@vger.kernel.org, linux-crypto@vger.kernel.org,
-        linux-integrity@vger.kernel.org, kexec@lists.infradead.org,
-        Philipp Rudo <prudo@redhat.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Nayna <nayna@linux.vnet.ibm.com>, Rob Herring <robh@kernel.org>,
-        linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Jessica Yu <jeyu@kernel.org>, linux-kernel@vger.kernel.org,
-        David Howells <dhowells@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Hari Bathini <hbathini@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linuxppc-dev@lists.ozlabs.org,
-        Frank van der Linden <fllinden@amazon.com>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Daniel Axtens <dja@axtens.net>, buendgen@de.ibm.com,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Baoquan He <bhe@redhat.com>,
-        linux-security-module@vger.kernel.org
-Subject: Re: [PATCH v5 0/6] KEXEC_SIG with appended signature
-Message-ID: <YfBd/EDGUx9UIHcb@bombadil.infradead.org>
-References: <cover.1641900831.git.msuchanek@suse.de>
+        id S237726AbiAZHX0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 26 Jan 2022 02:23:26 -0500
+Received: from out30-54.freemail.mail.aliyun.com ([115.124.30.54]:40866 "EHLO
+        out30-54.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S237725AbiAZHX0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 26 Jan 2022 02:23:26 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0V2uVFRL_1643181803;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0V2uVFRL_1643181803)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Wed, 26 Jan 2022 15:23:24 +0800
+Date:   Wed, 26 Jan 2022 15:23:22 +0800
+From:   Tony Lu <tonylu@linux.alibaba.com>
+To:     Leon Romanovsky <leon@kernel.org>
+Cc:     kgraul@linux.ibm.com, kuba@kernel.org, davem@davemloft.net,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        RDMA mailing list <linux-rdma@vger.kernel.org>
+Subject: Re: [RFC PATCH net-next 0/6] net/smc: Spread workload over multiple
+ cores
+Message-ID: <YfD26mhGkM9DFBV+@TonyMac-Alibaba>
+Reply-To: Tony Lu <tonylu@linux.alibaba.com>
+References: <20220114054852.38058-1-tonylu@linux.alibaba.com>
+ <YePesYRnrKCh1vFy@unreal>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <cover.1641900831.git.msuchanek@suse.de>
-Sender: Luis Chamberlain <mcgrof@infradead.org>
+In-Reply-To: <YePesYRnrKCh1vFy@unreal>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Jan 11, 2022 at 12:37:42PM +0100, Michal Suchanek wrote:
-> Hello,
+On Sun, Jan 16, 2022 at 11:00:33AM +0200, Leon Romanovsky wrote:
 > 
-> This is a refresh of the KEXEC_SIG series.
+> Please CC RDMA mailing list next time.
 > 
-> This adds KEXEC_SIG support on powerpc and deduplicates the code dealing
-> with appended signatures in the kernel.
-> 
-> powerpc supports IMA_KEXEC but that's an exception rather than the norm.
-> On the other hand, KEXEC_SIG is portable across platforms.
-> 
-> For distributions to have uniform security features across platforms one
-> option should be used on all platforms.
-> 
-> Thanks
-> 
-> Michal
-> 
-> Previous revision: https://lore.kernel.org/linuxppc-dev/cover.1637862358.git.msuchanek@suse.de/
-> Patched kernel tree: https://github.com/hramrach/kernel/tree/kexec_sig
-> 
-> Michal Suchanek (6):
->   s390/kexec_file: Don't opencode appended signature check.
->   powerpc/kexec_file: Add KEXEC_SIG support.
->   kexec_file: Don't opencode appended signature verification.
->   module: strip the signature marker in the verification function.
->   module: Use key_being_used_for for log messages in
->     verify_appended_signature
->   module: Move duplicate mod_check_sig users code to mod_parse_sig
+> Why didn't you use already existed APIs in drivers/infiniband/core/cq.c?
+> ib_cq_pool_get() will do most if not all of your open-coded CQ spreading
+> logic.
 
-What tree should this go through? I'd prefer if over through modules
-tree as it can give a chance for Aaron Tomlin to work with this for his
-code refactoring of kernel/module*.c to kernel/module/
+I am working on replacing with ib_cq_pool_get(), this need ib_poll_context
+to indicate the poller which provides by ib_poll_handler(). It's okay
+for now, but for the callback function. When it polled a ib_wc, it
+would call wc->wr_cqe->done(cq, wc), which is the union with wr_id. The
+wr_id is heavily used in SMC.
 
-  Luis
+In this patch set, I am not going to change the logic which is out of cq
+allocation. So I have to use original interface to allocate cq this
+time.
+
+I am glad to hear your advice, if I missed information or misunderstood.
+
+Thanks,
+Tony Lu
