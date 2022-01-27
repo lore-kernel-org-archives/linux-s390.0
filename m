@@ -2,162 +2,142 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A5C13C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 27 Jan 2022 14:46:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8089C433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 27 Jan 2022 14:48:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242635AbiA0Oqr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 27 Jan 2022 09:46:47 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:53764 "EHLO
+        id S238166AbiA0Osr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 27 Jan 2022 09:48:47 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4432 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S238054AbiA0Oqq (ORCPT
+        by vger.kernel.org with ESMTP id S238164AbiA0Osr (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 27 Jan 2022 09:46:46 -0500
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20REfpig024671;
-        Thu, 27 Jan 2022 14:46:46 GMT
+        Thu, 27 Jan 2022 09:48:47 -0500
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20REfkhI037202;
+        Thu, 27 Jan 2022 14:48:47 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=+RzLkcHlFaPXCJzhflaR4lFutXAmrNgaHURiY4V8Zg0=;
- b=D7jb2cK761AOzvsh9UFao2DCi3HT1osoFfC8gsOU9VtPGpZRxpuLUzdblqM2fTtCO0Ba
- ticZhkp06B/mh8Xs+RdCd8MPyxgFOG5LANsIPRH/1MJNSdNtv50xg2m7jZCfWOSTO71w
- l2tYejlUWzCTXNa9wIJqTVxBSY1YcEt2n9uC7QI/P108Rh8/ivU6JfvSHEhSm4kSY8In
- bMdmNqTW6GHw+SWnN/0O3PoZ2tGUZYykLnmCL6vSvMK6N2L0qUWqgRT8ZcbDFaXHjjFr
- 1gswNw2JJbrOiGCHKIboeBadMCFkg9FkfVKxgm+His1nivVZH7Ts3DDzOo7tHbt3RYrH 3A== 
+ bh=HL8Ok0bxRpotvVJgli4toUrwvcNQQiHkYva6uE8SYHg=;
+ b=B5wWiJUYkYN49tSRNa+C2mv12OxD/gda+dmRd0hK5zHIS4K6L1DfyhG5pygx49lOldST
+ ZkcwRzV68X6mRQPoy6EAoqtfMiUz+gexqGBkbmGf5drlyz8aS9yK6nEg0QH8uQ8XYYa5
+ gJJdj95Xz76WeR0GV1xiDwLRQzvCrHu09VcYr3jepAPNUuHmJVklFxKyPBayhmkUxNak
+ 2fFenKi0UOLsUca4ZSDoMPtg5KfJZZInL7PC5Oym45ZtOLWaqEsAZlrtL0KBctZTxfIb
+ q1i1POkXeq5eV83glCtZkMu19xsW+vLhuA5+4+P604gU3lnnMvK9WI2i9qtpy8qgDiju OQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3duun6tggv-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3duu7bkhvx-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 27 Jan 2022 14:46:46 +0000
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20REkkeX010085;
-        Thu, 27 Jan 2022 14:46:46 GMT
-Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3duun6tggc-1
+        Thu, 27 Jan 2022 14:48:46 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20REgs0K040699;
+        Thu, 27 Jan 2022 14:48:46 GMT
+Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3duu7bkhvn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 27 Jan 2022 14:46:46 +0000
-Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
-        by ppma04wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20REgUu8024436;
-        Thu, 27 Jan 2022 14:46:44 GMT
+        Thu, 27 Jan 2022 14:48:46 +0000
+Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
+        by ppma02dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20RElAHs006244;
+        Thu, 27 Jan 2022 14:48:45 GMT
 Received: from b01cxnp22036.gho.pok.ibm.com (b01cxnp22036.gho.pok.ibm.com [9.57.198.26])
-        by ppma04wdc.us.ibm.com with ESMTP id 3dr9jbvent-1
+        by ppma02dal.us.ibm.com with ESMTP id 3dt1xb6uyd-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 27 Jan 2022 14:46:44 +0000
+        Thu, 27 Jan 2022 14:48:45 +0000
 Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
-        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20REkhch6095328
+        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20REmgkU4325640
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 27 Jan 2022 14:46:43 GMT
+        Thu, 27 Jan 2022 14:48:42 GMT
 Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4FF9B2805E;
-        Thu, 27 Jan 2022 14:46:43 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 6506828067;
+        Thu, 27 Jan 2022 14:48:42 +0000 (GMT)
 Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 12F0D28059;
-        Thu, 27 Jan 2022 14:46:42 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 14CFF2805A;
+        Thu, 27 Jan 2022 14:48:41 +0000 (GMT)
 Received: from [9.65.230.214] (unknown [9.65.230.214])
         by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTP;
-        Thu, 27 Jan 2022 14:46:41 +0000 (GMT)
-Message-ID: <cd8314ae-de2a-10ab-f604-136c76e2dac3@linux.ibm.com>
-Date:   Thu, 27 Jan 2022 09:46:41 -0500
+        Thu, 27 Jan 2022 14:48:40 +0000 (GMT)
+Message-ID: <04166a97-f4ad-7db6-e00c-11a86f54914a@linux.ibm.com>
+Date:   Thu, 27 Jan 2022 09:48:40 -0500
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.3.0
 Subject: Re: [RFC PATCH] s390: vfio-ap: Register the vfio_ap module for the
  "ap" parent bus
 Content-Language: en-US
-To:     Cornelia Huck <cohuck@redhat.com>,
+To:     Cornelia Huck <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>,
         Harald Freudenberger <freude@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>, linux-s390@vger.kernel.org,
-        Halil Pasic <pasic@linux.ibm.com>,
+        linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
         Jason Herne <jjherne@linux.ibm.com>
 Cc:     linux-kernel@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
 References: <20211201141110.94636-1-thuth@redhat.com>
  <8512bb0a-a34a-09b0-65f3-781f3d092364@linux.ibm.com>
  <87k0g8scx1.fsf@redhat.com>
+ <1eb9ca5c-b1bb-b768-64ee-e4a1b31bb171@linux.ibm.com>
+ <6aaf6c60-a258-29e3-fcec-82c77d3945a4@redhat.com> <87tufaqbex.fsf@redhat.com>
 From:   Tony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <87k0g8scx1.fsf@redhat.com>
+In-Reply-To: <87tufaqbex.fsf@redhat.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: gpopjw62Nw4zKlgRCwX6uyjaxBmBqZ2E
-X-Proofpoint-ORIG-GUID: S8E8FkLDQQqgMCFfkTKjKHLVajLNikgG
+X-Proofpoint-ORIG-GUID: hf9YNZqztLL5yOE8eAx3rsXWz6ErmGJY
+X-Proofpoint-GUID: INFpb6rT95J2YgHIy3HhpnckKnHpSbI7
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2022-01-27_03,2022-01-27_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- adultscore=0 priorityscore=1501 spamscore=0 clxscore=1015 phishscore=0
- bulkscore=0 suspectscore=0 mlxlogscore=999 malwarescore=0 impostorscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2201270088
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0 mlxscore=0
+ spamscore=0 clxscore=1015 mlxlogscore=999 impostorscore=0 bulkscore=0
+ priorityscore=1501 phishscore=0 malwarescore=0 adultscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2201110000
+ definitions=main-2201270088
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
 
-On 12/13/21 11:11, Cornelia Huck wrote:
-> On Mon, Dec 13 2021, Harald Freudenberger <freude@linux.ibm.com> wrote:
+On 12/15/21 07:51, Cornelia Huck wrote:
+> On Wed, Dec 15 2021, Thomas Huth <thuth@redhat.com> wrote:
 >
->> On 01.12.21 15:11, Thomas Huth wrote:
->>> The crypto devices that we can use with the vfio_ap module are sitting
->>> on the "ap" bus, not on the "vfio_ap" bus that the module defines
->>> itself. With this change, the vfio_ap module now gets automatically
->>> loaded if a supported crypto adapter is available in the host.
+>> On 14/12/2021 22.55, Tony Krowiak wrote:
 >>>
->>> Signed-off-by: Thomas Huth <thuth@redhat.com>
->>> ---
->>>   Note: Marked as "RFC" since I'm not 100% sure about it ...
->>>         please review carefully!
->>>
->>>   drivers/s390/crypto/vfio_ap_drv.c | 2 +-
->>>   1 file changed, 1 insertion(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
->>> index 4d2556bc7fe5..5580e40608a4 100644
->>> --- a/drivers/s390/crypto/vfio_ap_drv.c
->>> +++ b/drivers/s390/crypto/vfio_ap_drv.c
->>> @@ -39,7 +39,7 @@ static struct ap_device_id ap_queue_ids[] = {
->>>   	{ /* end of sibling */ },
->>>   };
->>>   
->>> -MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
->>> +MODULE_DEVICE_TABLE(ap, ap_queue_ids);
->>>   
->>>   /**
->>>    * vfio_ap_queue_dev_probe:
->> I had a chance to check this now.
->> First I have to apologize about the dispute with vfio devices appearing on the ap bus.
->> That's not the case with this patch. As Connie states the MODULE_DEVICE_TABLE() does not
->> change the parent of a device and vfio_ap_drv is a driver for ap devices and thus
->> belongs to the ap bus anyway.
->> So what's left is that with this change the vfio_ap kernel module is automatically loaded
->> when an ap device type 10-13 is recognized by the ap bus. So the intention of the patch
->> is fulfilled.
->> Yet another kernel module which may occupy memory but will never get used by most customers.
->> This may not be a problem but I had a glance at the list of kernel modules loaded on my
->> LPAR with and without the patch and the difference is:
->> ...
->> kvm                   512000  1 vfio_ap
->> vfio_ap                28672  0
->> ...
->> So the vfio_ap module has a dependency to the biggest kernel module ever - kvm.
->> Do I need to say something more?
->>
->> If this dependency is removed then I would not hesitate to accept this patch. However
->> this is up to Tony as he is the maintainer of the vfio ap device driver.
-> I don't think you can drop the kvm reference, as the code in vfio-ap
-> obviously depends on it...
+>>> On 12/13/21 11:11, Cornelia Huck wrote:
+>>>> One possibility is simply blocking autoload of the module in userspace by
+>>>> default, and only allow it to be loaded automatically when e.g. qemu-kvm
+>>>> is installed on the system. This is obviously something that needs to be
+>>>> decided by the distros.
+>>>>
+>>>> (kvm might actually be autoloaded already, so autoloading vfio-ap would
+>>>> not really make it worse.)
+>>> Of the vfio_ccw module is automatically loaded, then the kvm
+>>> module will also get loaded. I startup up a RHEL8.3 system and
+>>> sure enough, the vfio_ccw module is loaded along with the
+>>> kvm, vfio and mdev modules. If this is true for all distros, then
+>>> it wouldn't make much difference if the vfio_ap module is
+>>> autoloaded too.
+>> I think I don't mind too much if we auto-load vfio-ap or not - but I think
+>> we should make it consistent with vfio-ccw. So either auto-load both modules
+>> (if the corresponding devices are available), or remove the
+>> MODULE_DEVICE_TABLE() entries from both modules?
+> I think we really need to take a step back and think about the purpose
+> of adding a MODULE_DEVICE_TABLE()... basically, it declares which types
+> of devices on a certain bus a driver supports, in a way that can be
+> consumed by userspace (after file2alias.c worked on it).
 >
-> One possibility is simply blocking autoload of the module in userspace by
-> default, and only allow it to be loaded automatically when e.g. qemu-kvm
-> is installed on the system. This is obviously something that needs to be
-> decided by the distros.
+> Userspace typically uses this to match devices it is notified about to
+> drivers that could possibly drive those devices. In general, the
+> assumption is that you will want to have the drivers for your devices
+> loaded. In some cases (drivers only used in special cases, like here),
+> it might be a better idea to autoload the drivers only under certain
+> circumstances (e.g. if you know you're going to run KVM guests).
 >
-> (kvm might actually be autoloaded already, so autoloading vfio-ap would
-> not really make it worse.)
+> My main point, however, is that we're talking about policy here: whether
+> a potentially useful driver should be loaded or not is a decision that
+> should be made by userspace. Not providing a MODULE_DEVICE_TABLE does
+> not look like the right solution, as it deprives userspace of the
+> information to autoload the driver, if it actually wants to do so.
 
-The vfio_ccw module, which is automatically loaded, also requires the 
-kvm module,
-so autoloading vfio_ap will not make much difference.
+I agree.
 
 >
 
