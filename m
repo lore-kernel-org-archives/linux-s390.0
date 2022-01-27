@@ -2,177 +2,240 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D6FC2C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 27 Jan 2022 15:10:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6F10C433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 27 Jan 2022 15:15:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242741AbiA0PKo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 27 Jan 2022 10:10:44 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:54316 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237375AbiA0PKo (ORCPT
+        id S232879AbiA0PPN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 27 Jan 2022 10:15:13 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:53160 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231149AbiA0PPN (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 27 Jan 2022 10:10:44 -0500
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20RF0m8g022031;
-        Thu, 27 Jan 2022 15:10:43 GMT
+        Thu, 27 Jan 2022 10:15:13 -0500
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20RF1qaJ016942;
+        Thu, 27 Jan 2022 15:15:13 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=s9iAbQPH5wdGGfkZEdZ6Ebgb4dldfIHHHbM5S9sJpwY=;
- b=fULlVQxahgLtMsOGZU90H4XaoADJct5xA/XQ53oAp2/wO+4y4zC0UNtWkB/2lJWA46Ab
- aLYfLskBi7JSH/V3ANzYL5uRXJapRqbJfhA0ed1/ziZFu3MwbnjzoDwjJb/9JheKLEpU
- 52YuKcmwS75SB+l/bSKSjbIgJPC1gPxyuaYDJKYc5lQbPstPy5febSLevYCbdkl791++
- THDsXwaPVT1ITi2T+JxqL+xjnUc9txTiGrCrTX2xtO8apRg+jRAjPWEIWG7nVVdmjB8l
- FHpnVDRCswmRYzTxdGXrhqzYKvVP6fEOUQBhkjv/FZgQqoAYQa97edEWP52FOfMHl6HA FQ== 
+ bh=mGdwYQBS2IeyJ0zCeqVU7VTYZoopQmAH4naBarL2Da8=;
+ b=Eg9IEtYAgGwfblKKu5iL8nLbkijscnGWNeK5PwHa7a8ejDn8EFlQ4aV1bI7AsbthyXEf
+ KgS83Ytwc2DurndGooktx23C4bSSpn8MLtu+PNCRljGnFPTw+O+Q1HpwOqeKQr1D8KHj
+ 3WYHHybhP5tbaqMQV7onaR6P+BhdexjoJQrb6aYpWhVICh2WRAWM9cr0e8hsPxZiD9D8
+ WsGsQVHam+XGs27dnN2eLNAT622mIaw4+w52UyVH7XL9LwldRKmyipC8sTtC5HasA4mM
+ W7RJ8c2y+VoczLOuTxCelPhEvUOVe+1SAZnGMzcHe33j4ej7ZMVlifMrYa928mjoL2iw tA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3duvh0t6am-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dutb5df0m-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 27 Jan 2022 15:10:43 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20RF1340023632;
-        Thu, 27 Jan 2022 15:10:42 GMT
-Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3duvh0t6aa-1
+        Thu, 27 Jan 2022 15:15:12 +0000
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20RF1p8k016816;
+        Thu, 27 Jan 2022 15:15:12 GMT
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dutb5df07-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 27 Jan 2022 15:10:42 +0000
-Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
-        by ppma01dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20RF8Yfx015443;
-        Thu, 27 Jan 2022 15:10:41 GMT
-Received: from b01cxnp22036.gho.pok.ibm.com (b01cxnp22036.gho.pok.ibm.com [9.57.198.26])
-        by ppma01dal.us.ibm.com with ESMTP id 3dr9jcncu1-1
+        Thu, 27 Jan 2022 15:15:12 +0000
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20RF7tnb005285;
+        Thu, 27 Jan 2022 15:15:11 GMT
+Received: from b01cxnp22034.gho.pok.ibm.com (b01cxnp22034.gho.pok.ibm.com [9.57.198.24])
+        by ppma03dal.us.ibm.com with ESMTP id 3dr9jcnjp9-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 27 Jan 2022 15:10:41 +0000
-Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
-        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20RFAcQ17996046
+        Thu, 27 Jan 2022 15:15:11 +0000
+Received: from b01ledav003.gho.pok.ibm.com (b01ledav003.gho.pok.ibm.com [9.57.199.108])
+        by b01cxnp22034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20RFF8no11600268
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 27 Jan 2022 15:10:38 GMT
-Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3515B28065;
-        Thu, 27 Jan 2022 15:10:38 +0000 (GMT)
-Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2C28D2805A;
-        Thu, 27 Jan 2022 15:10:37 +0000 (GMT)
-Received: from [9.65.230.214] (unknown [9.65.230.214])
-        by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTP;
-        Thu, 27 Jan 2022 15:10:36 +0000 (GMT)
-Message-ID: <f986c509-adea-ed8c-36a6-24715362661c@linux.ibm.com>
-Date:   Thu, 27 Jan 2022 10:10:36 -0500
+        Thu, 27 Jan 2022 15:15:08 GMT
+Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7DFDFB2072;
+        Thu, 27 Jan 2022 15:15:08 +0000 (GMT)
+Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 04BB3B2075;
+        Thu, 27 Jan 2022 15:15:00 +0000 (GMT)
+Received: from [9.163.21.206] (unknown [9.163.21.206])
+        by b01ledav003.gho.pok.ibm.com (Postfix) with ESMTP;
+        Thu, 27 Jan 2022 15:15:00 +0000 (GMT)
+Message-ID: <9abf1c43-7539-b7b9-6961-dc0e35f4120c@linux.ibm.com>
+Date:   Thu, 27 Jan 2022 10:14:59 -0500
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [RFC PATCH] s390: vfio-ap: Register the vfio_ap module for the
- "ap" parent bus
+ Thunderbird/91.4.0
+Subject: Re: [PATCH v2 12/30] s390/pci: get SHM information from list pci
 Content-Language: en-US
-To:     Thomas Huth <thuth@redhat.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>
-Cc:     linux-kernel@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-References: <20211201141110.94636-1-thuth@redhat.com>
- <8512bb0a-a34a-09b0-65f3-781f3d092364@linux.ibm.com>
- <e0558344-54a0-eebb-44e0-af61575a4769@linux.ibm.com>
- <345cc07e-e654-2607-57ff-95e78dbfe12d@redhat.com>
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <345cc07e-e654-2607-57ff-95e78dbfe12d@redhat.com>
+To:     Pierre Morel <pmorel@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        schnelle@linux.ibm.com
+Cc:     linux-s390@vger.kernel.org, alex.williamson@redhat.com,
+        cohuck@redhat.com, farman@linux.ibm.com, borntraeger@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        frankja@linux.ibm.com, david@redhat.com, vneethv@linux.ibm.com,
+        oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20220114203145.242984-1-mjrosato@linux.ibm.com>
+ <20220114203145.242984-13-mjrosato@linux.ibm.com>
+ <a0fbd50c-bfa4-5f62-6dea-18b85562fff6@linux.ibm.com>
+ <20220126111300.1084623e@p-imbrenda>
+ <773d3d7c-24a4-fad3-8700-2ecd083a3bad@linux.ibm.com>
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <773d3d7c-24a4-fad3-8700-2ecd083a3bad@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 16rFtcabWZeBcxek1IH2bxj0JaXoxTUk
-X-Proofpoint-GUID: NgoBdxy-QnIukt4D5m5hXxdr-l8NikWS
+X-Proofpoint-GUID: ZkDQoc8K4r8Ib3HQS0wUjTDsWuKgyKfN
+X-Proofpoint-ORIG-GUID: lJPvTt8AtWFbUO4qojzjOT0Ca828s7Y6
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2022-01-27_03,2022-01-27_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- suspectscore=0 phishscore=0 spamscore=0 clxscore=1015 bulkscore=0
- mlxlogscore=999 mlxscore=0 impostorscore=0 priorityscore=1501
- malwarescore=0 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2201110000 definitions=main-2201270092
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 impostorscore=0
+ mlxlogscore=999 spamscore=0 clxscore=1015 priorityscore=1501
+ suspectscore=0 mlxscore=0 bulkscore=0 adultscore=0 malwarescore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2201270092
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 1/27/22 05:33, Thomas Huth wrote:
-> On 14/12/2021 22.28, Tony Krowiak wrote:
+On 1/27/22 8:41 AM, Pierre Morel wrote:
+> 
+> 
+> On 1/26/22 11:13, Claudio Imbrenda wrote:
+>> On Tue, 18 Jan 2022 11:36:06 +0100
+>> Pierre Morel <pmorel@linux.ibm.com> wrote:
 >>
->>
->> On 12/13/21 10:44, Harald Freudenberger wrote:
->>> On 01.12.21 15:11, Thomas Huth wrote:
->>>> The crypto devices that we can use with the vfio_ap module are sitting
->>>> on the "ap" bus, not on the "vfio_ap" bus that the module defines
->>>> itself. With this change, the vfio_ap module now gets automatically
->>>> loaded if a supported crypto adapter is available in the host.
+>>> On 1/14/22 21:31, Matthew Rosato wrote:
+>>>> KVM will need information on the special handle mask used to indicate
+>>>> emulated devices.  In order to obtain this, a new type of list pci call
+>>>> must be made to gather the information.  Extend clp_list_pci_req to
+>>>> also fetch the model-dependent-data field that holds this mask.
 >>>>
->>>> Signed-off-by: Thomas Huth <thuth@redhat.com>
+>>>> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
 >>>> ---
->>>>   Note: Marked as "RFC" since I'm not 100% sure about it ...
->>>>         please review carefully!
+>>>>    arch/s390/include/asm/pci.h     |  1 +
+>>>>    arch/s390/include/asm/pci_clp.h |  2 +-
+>>>>    arch/s390/pci/pci_clp.c         | 28 +++++++++++++++++++++++++---
+>>>>    3 files changed, 27 insertions(+), 4 deletions(-)
 >>>>
->>>>   drivers/s390/crypto/vfio_ap_drv.c | 2 +-
->>>>   1 file changed, 1 insertion(+), 1 deletion(-)
->>>>
->>>> diff --git a/drivers/s390/crypto/vfio_ap_drv.c 
->>>> b/drivers/s390/crypto/vfio_ap_drv.c
->>>> index 4d2556bc7fe5..5580e40608a4 100644
->>>> --- a/drivers/s390/crypto/vfio_ap_drv.c
->>>> +++ b/drivers/s390/crypto/vfio_ap_drv.c
->>>> @@ -39,7 +39,7 @@ static struct ap_device_id ap_queue_ids[] = {
->>>>       { /* end of sibling */ },
->>>>   };
->>>> -MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
->>>> +MODULE_DEVICE_TABLE(ap, ap_queue_ids);
->>>>   /**
->>>>    * vfio_ap_queue_dev_probe:
->>> I had a chance to check this now.
->>> First I have to apologize about the dispute with vfio devices 
->>> appearing on the ap bus.
->>> That's not the case with this patch. As Connie states the 
->>> MODULE_DEVICE_TABLE() does not
->>> change the parent of a device and vfio_ap_drv is a driver for ap 
->>> devices and thus
->>> belongs to the ap bus anyway.
->>> So what's left is that with this change the vfio_ap kernel module is 
->>> automatically loaded
->>> when an ap device type 10-13 is recognized by the ap bus. So the 
->>> intention of the patch
->>> is fulfilled.
->>> Yet another kernel module which may occupy memory but will never get 
->>> used by most customers.
->>> This may not be a problem but I had a glance at the list of kernel 
->>> modules loaded on my
->>> LPAR with and without the patch and the difference is:
->>> ...
->>> kvm                   512000  1 vfio_ap
->>> vfio_ap                28672  0
->>> ...
->>> So the vfio_ap module has a dependency to the biggest kernel module 
->>> ever - kvm.
->>> Do I need to say something more?
+>>>> diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+>>>> index 00a2c24d6d2b..f3cd2da8128c 100644
+>>>> --- a/arch/s390/include/asm/pci.h
+>>>> +++ b/arch/s390/include/asm/pci.h
+>>>> @@ -227,6 +227,7 @@ int clp_enable_fh(struct zpci_dev *zdev, u32 
+>>>> *fh, u8 nr_dma_as);
+>>>>    int clp_disable_fh(struct zpci_dev *zdev, u32 *fh);
+>>>>    int clp_get_state(u32 fid, enum zpci_state *state);
+>>>>    int clp_refresh_fh(u32 fid, u32 *fh);
+>>>> +int zpci_get_mdd(u32 *mdd);
+>>>>    /* UID */
+>>>>    void update_uid_checking(bool new);
+>>>> diff --git a/arch/s390/include/asm/pci_clp.h 
+>>>> b/arch/s390/include/asm/pci_clp.h
+>>>> index 124fadfb74b9..d6bc324763f3 100644
+>>>> --- a/arch/s390/include/asm/pci_clp.h
+>>>> +++ b/arch/s390/include/asm/pci_clp.h
+>>>> @@ -76,7 +76,7 @@ struct clp_req_list_pci {
+>>>>    struct clp_rsp_list_pci {
+>>>>        struct clp_rsp_hdr hdr;
+>>>>        u64 resume_token;
+>>>> -    u32 reserved2;
+>>>> +    u32 mdd;
+>>>>        u16 max_fn;
+>>>>        u8            : 7;
+>>>>        u8 uid_checking        : 1;
+>>>> diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
+>>>> index bc7446566cbc..308ffb93413f 100644
+>>>> --- a/arch/s390/pci/pci_clp.c
+>>>> +++ b/arch/s390/pci/pci_clp.c
+>>>> @@ -328,7 +328,7 @@ int clp_disable_fh(struct zpci_dev *zdev, u32 *fh)
+>>>>    }
+>>>>    static int clp_list_pci_req(struct clp_req_rsp_list_pci *rrb,
+>>>> -                u64 *resume_token, int *nentries)
+>>>> +                u64 *resume_token, int *nentries, u32 *mdd)
+>>>>    {
+>>>>        int rc;
+>>>> @@ -354,6 +354,8 @@ static int clp_list_pci_req(struct 
+>>>> clp_req_rsp_list_pci *rrb,
+>>>>        *nentries = (rrb->response.hdr.len - LIST_PCI_HDR_LEN) /
+>>>>            rrb->response.entry_size;
+>>>>        *resume_token = rrb->response.resume_token;
+>>>> +    if (mdd)
+>>>> +        *mdd = rrb->response.mdd;
+>>>>        return rc;
+>>>>    }
+>>>> @@ -365,7 +367,7 @@ static int clp_list_pci(struct 
+>>>> clp_req_rsp_list_pci *rrb, void *data,
+>>>>        int nentries, i, rc;
+>>>>        do {
+>>>> -        rc = clp_list_pci_req(rrb, &resume_token, &nentries);
+>>>> +        rc = clp_list_pci_req(rrb, &resume_token, &nentries, NULL);
+>>>>            if (rc)
+>>>>                return rc;
+>>>>            for (i = 0; i < nentries; i++)
+>>>> @@ -383,7 +385,7 @@ static int clp_find_pci(struct 
+>>>> clp_req_rsp_list_pci *rrb, u32 fid,
+>>>>        int nentries, i, rc;
+>>>>        do {
+>>>> -        rc = clp_list_pci_req(rrb, &resume_token, &nentries);
+>>>> +        rc = clp_list_pci_req(rrb, &resume_token, &nentries, NULL);
+>>>>            if (rc)
+>>>>                return rc;
+>>>>            fh_list = rrb->response.fh_list;
+>>>> @@ -468,6 +470,26 @@ int clp_get_state(u32 fid, enum zpci_state *state)
+>>>>        return rc;
+>>>>    }
+>>>> +int zpci_get_mdd(u32 *mdd)
+>>>> +{
+>>>> +    struct clp_req_rsp_list_pci *rrb;
+>>>> +    u64 resume_token = 0;
+>>>> +    int nentries, rc;
+>>>> +
+>>>> +    if (!mdd)
+>>>> +        return -EINVAL;
 >>>
->>> If this dependency is removed then I would not hesitate to accept 
->>> this patch. However
->>> this is up to Tony as he is the maintainer of the vfio ap device 
->>> driver.
+>>> I think this tests is not useful.
+>>> The caller must take care not to call with a NULL pointer,
+>>> what the only caller today make sure.
 >>
->> The vfio_ap device driver has a dependency on kvm, it can not be 
->> removed.
->> If the user base for vfio_ap is minimal, then I see no reason why the 
->> vfio_ap
->> module should be automatically loaded when an AP device type 10-13 is
->> recognized by the AP bus. The module is needed only to pass through AP
->> queue devices to a KVM guest.
->
-> To continue the discussion here - it seems like my patch here won't be 
-> accepted? Shall I send another one instead to remove the bad 
-> MODLE_DEVICE_TABLE from the vfio_ap_drv.c file?
->
->  Thomas
+>> what if the caller does it anyway?
+>>
+>> I think the test is useful. if passing NULL is a bug, then maybe
+>> consider using BUG_ON, or WARN_ONCE
+> 
+> I think generally the caller is responsible for the test.
+> In our case for example the caller can use directly the address
+> of a u32 allocated on the stack or globaly and he knows if a test is 
+> useful or not.
+> 
+> Of course we can systematically check in every kernel function all 
+> pointer parameters against NULL.
+> But this is not userland, not even a inter-architecture core function 
+> and we can expect the kernel programmer to programm correctly.
 
-After re-reviewing all of the comments, I am okay with this patch:
+I appreciate your optimism :)
 
-Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> 
+> For our special case zpci_get_mdd() nor clp_list_pci_req() do access 
+> *mdd if mdd is NULL so that giving a NULL mdd pointer will not trigger a 
+> fault.
+> Also, the function is named zpci_get_mdd(u32 *mdd) if the caller do not 
+> give a pointer to mdd which would be quite stupid to call a function 
+> zpci_get_mdd() in this circumstance he will just no get mdd, no side 
+> effect.
+> So the only purpose having this test here is to say the caller that he 
+> forgot to check his mdd allocation.
+> My opinion is that he should have check.
 
-If there are any other objections, speak now or forever hold your peace:)
+Based on the thread of conversation, I'm going to assume you meant 'My 
+opinion that he should -not- have the check here'
+
+So, I'm generally a fan of being a bit defensive in paths that are not 
+performance-intensive and would therefore typically tend to agree with 
+Claudio.  But in this particular case, I'm willing to just drop this 
+check and move on, primarily because 1) we only have a single caller 
+already checking this case and 2) I don't really anticipate any 
+additional callers later.
+
+@Niklas do you care / is it OK to keep your R-b if I remove this 
+if(!mdd) check?
 
