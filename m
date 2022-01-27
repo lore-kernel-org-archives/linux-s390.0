@@ -2,125 +2,151 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5F1EC433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 27 Jan 2022 15:28:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 751C8C433FE
+	for <linux-s390@archiver.kernel.org>; Thu, 27 Jan 2022 15:53:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234682AbiA0P2l (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 27 Jan 2022 10:28:41 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:32018 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S233711AbiA0P2k (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 27 Jan 2022 10:28:40 -0500
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20RFDQS7029501;
-        Thu, 27 Jan 2022 15:28:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=1RhGbmelJqGMkcj2NwHS637JdQ29BM/p9rCbPkWpLA0=;
- b=TaNK9Xt31ZbGM5dsSxIIYSOYj2D+0zggCFFXe35ISLH/BpRonhqzBG63UUGdwBOD9ZrK
- v+GXBZdLQS3GhadV/wyhsG9LO1ztYY+pBcOpAgJUOZcU45neO77ll61fdtbGDbp0xWxJ
- IrRNF0ujnWzSNXJGA+SZiEK9Q7lMr8hNMO0M3N1QiTJHgsizxyokmidNdAC5A9vBGL5p
- wB+dkdEGoI7ST0M/os1arg/suj3rKlEjYjRema/Px09ST4gfm00NWP4EvcyPB5PTu2o6
- m8KN97skiHURUHoqV2ALaHYnu4I3T7CtViVspJyin0Y5JA+36fySTIHQi+Wo4WQV1uCl hw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3duwugr9pw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 27 Jan 2022 15:28:37 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20RFDnsX029964;
-        Thu, 27 Jan 2022 15:28:36 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3duwugr9p9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 27 Jan 2022 15:28:36 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20RFI8Ph029048;
-        Thu, 27 Jan 2022 15:28:35 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3dr9j9sgje-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 27 Jan 2022 15:28:35 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20RFSWES40632746
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 27 Jan 2022 15:28:32 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A38E34C04E;
-        Thu, 27 Jan 2022 15:28:32 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6D6EC4C044;
-        Thu, 27 Jan 2022 15:28:32 +0000 (GMT)
-Received: from [9.152.222.35] (unknown [9.152.222.35])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 27 Jan 2022 15:28:32 +0000 (GMT)
-Message-ID: <8f56ed63-79b4-2a75-4e95-f4f6a0ad8430@linux.ibm.com>
-Date:   Thu, 27 Jan 2022 16:28:38 +0100
+        id S243260AbiA0PxF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 27 Jan 2022 10:53:05 -0500
+Received: from mga09.intel.com ([134.134.136.24]:17045 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S243252AbiA0PxF (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 27 Jan 2022 10:53:05 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1643298785; x=1674834785;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=JKTRESHUFHpq6uGWo92fYQDo2Mb2Rgr7dqFyjOwkEO4=;
+  b=bxj2QTR2sOjtdvnpSC8xryUi6gRR7LOic4QU9bxLcg8OGzYbydlhRD3W
+   43FiwzE6jEqhTrt903jD4Mkj590+ZdkMs9a1S37hctW0LBVDNrsOE2EYX
+   7o9enxTDUj9r5NVh+ZX84DC/xvkLAeIB+H6Mcr/5aB/JY/XARnUFAiQ2h
+   AQjTCkW4/G6oaWS6VvktdlxGUVZ3zTWannk88kqphMBovbSw5cGqcpDaJ
+   kGxoPHIZpp0rlNJwF0fvEEJlqwKtw4ZrmthsbJA5O3V/UsouzWiK6CXAA
+   oOtJ/9wd57aCZ2eZpmP2WID69IvMmfB656CrCEqczTm3RgK69O4WnXBGB
+   Q==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10239"; a="246669262"
+X-IronPort-AV: E=Sophos;i="5.88,321,1635231600"; 
+   d="scan'208";a="246669262"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jan 2022 07:53:04 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.88,321,1635231600"; 
+   d="scan'208";a="618373997"
+Received: from lkp-server01.sh.intel.com (HELO 276f1b88eecb) ([10.239.97.150])
+  by FMSMGA003.fm.intel.com with ESMTP; 27 Jan 2022 07:53:01 -0800
+Received: from kbuild by 276f1b88eecb with local (Exim 4.92)
+        (envelope-from <lkp@intel.com>)
+        id 1nD753-000Mk6-97; Thu, 27 Jan 2022 15:53:01 +0000
+Date:   Thu, 27 Jan 2022 23:52:44 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com
+Cc:     kbuild-all@lists.01.org, kuba@kernel.org, davem@davemloft.net,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-rdma@vger.kernel.org, "D. Wythe" <alibuda@linux.alibaba.com>
+Subject: Re: [PATCH net-next 2/3] net/smc: Limits backlog connections
+Message-ID: <202201272349.KA4IX9hr-lkp@intel.com>
+References: <9b52fc3f11a2ae6f23224a178fd4cff9f9dd4eaa.1643284658.git.alibuda@linux.alibaba.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH net-next] net/smc: Use kvzalloc for allocating
- smc_link_group
-Content-Language: en-US
-To:     Tony Lu <tonylu@linux.alibaba.com>
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20220120140928.7137-1-tonylu@linux.alibaba.com>
- <4c600724-3306-0f0e-36dc-52f4f23825bc@linux.ibm.com>
- <YeoncJZoa3ELWyxM@TonyMac-Alibaba>
- <c5873d85-d791-319b-e3a1-86abda204b45@linux.ibm.com>
- <Ye51fyoWrXTevmLa@TonyMac-Alibaba>
-From:   Karsten Graul <kgraul@linux.ibm.com>
-Organization: IBM Deutschland Research & Development GmbH
-In-Reply-To: <Ye51fyoWrXTevmLa@TonyMac-Alibaba>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: CHtS7XBBw6KD0-u4xujdaEy6gANKcDZX
-X-Proofpoint-ORIG-GUID: XNcljYCyM-PHjNy1Wx0I2ApPu4M8Eqqi
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-01-27_03,2022-01-27_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
- adultscore=0 clxscore=1015 priorityscore=1501 phishscore=0 mlxlogscore=999
- lowpriorityscore=0 impostorscore=0 malwarescore=0 spamscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2201110000
- definitions=main-2201270092
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9b52fc3f11a2ae6f23224a178fd4cff9f9dd4eaa.1643284658.git.alibuda@linux.alibaba.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 24/01/2022 10:46, Tony Lu wrote:
-> On Fri, Jan 21, 2022 at 12:06:56PM +0100, Karsten Graul wrote:
->> On 21/01/2022 04:24, Tony Lu wrote:
->>> On Thu, Jan 20, 2022 at 03:50:26PM +0100, Karsten Graul wrote:
->>>> On 20/01/2022 15:09, Tony Lu wrote:
->> I am still not fully convinced of this change. It does not harm and the overhead of
->> a vmalloc() is acceptable because a link group is not created so often. But since
->> kvzmalloc() will first try to use normal kmalloc() and if that fails switch to the
->> (more expensive) vmalloc() this will not _save_ any contiguous memory.
->> And for the subsequent required allocations of at least one RMB we need another 16KB.
-> I agree with you. kvzmalloc doesn't save contiguous memory for the most
-> time, only when high order contiguous memory is used out, or malloc link
-> group when another link group just freed its buffer. This race window is
-> too small to reach it in real world.
+Hi Wythe",
 
-Okay I see we are in sync with that, and we should drop your kvzalloc() patch.
-It generates noise and doesn't solve a real problem.
+Thank you for the patch! Perhaps something to improve:
 
-I appreciate your work on this topic, but when I see the numbers then the whole lgr 
-WITH all links inside it would occupy less than one 4K page of memory (~3808 bytes).
-The vast majority of memory in this struct is needed by the
+[auto build test WARNING on net-next/master]
 
-struct smc_rtoken rtokens[255][3]; /*  3472 12240 */
+url:    https://github.com/0day-ci/linux/commits/D-Wythe/Optimizing-performance-in-short-lived/20220127-200912
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next.git fbb8295248e1d6f576d444309fcf79356008eac1
+config: arc-allyesconfig (https://download.01.org/0day-ci/archive/20220127/202201272349.KA4IX9hr-lkp@intel.com/config)
+compiler: arceb-elf-gcc (GCC) 11.2.0
+reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # https://github.com/0day-ci/linux/commit/718aff24f3fcc73ecb7bff17fcbe029b799c6624
+        git remote add linux-review https://github.com/0day-ci/linux
+        git fetch --no-tags linux-review D-Wythe/Optimizing-performance-in-short-lived/20220127-200912
+        git checkout 718aff24f3fcc73ecb7bff17fcbe029b799c6624
+        # save the config file to linux build tree
+        mkdir build_dir
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.2.0 make.cross O=build_dir ARCH=arc SHELL=/bin/bash net/smc/
 
-array. This is where continuous space could be saved, but that needs some effort
-to provide an equivalent fast way to store and lookup the RMBs.
+If you fix the issue, kindly add following tag as appropriate
+Reported-by: kernel test robot <lkp@intel.com>
 
-Moving out the links from the lgr will not help here.
+All warnings (new ones prefixed by >>):
 
-A link group holds up to 255 connections, so even with your 10000 connection test
-we need no more than 40 instances of lgr...I am not sure if it is worth the time that
-you need to spend for this particular change (lgr). The other topics you listed also
-sound interesting!
+   net/smc/af_smc.c: In function 'smc_listen':
+>> net/smc/af_smc.c:2202:25: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+    2202 |         smc->ori_af_ops = inet_csk(smc->clcsock->sk)->icsk_af_ops;
+         |                         ^
+
+
+vim +/const +2202 net/smc/af_smc.c
+
+  2166	
+  2167	static int smc_listen(struct socket *sock, int backlog)
+  2168	{
+  2169		struct sock *sk = sock->sk;
+  2170		struct smc_sock *smc;
+  2171		int rc;
+  2172	
+  2173		smc = smc_sk(sk);
+  2174		lock_sock(sk);
+  2175	
+  2176		rc = -EINVAL;
+  2177		if ((sk->sk_state != SMC_INIT && sk->sk_state != SMC_LISTEN) ||
+  2178		    smc->connect_nonblock)
+  2179			goto out;
+  2180	
+  2181		rc = 0;
+  2182		if (sk->sk_state == SMC_LISTEN) {
+  2183			sk->sk_max_ack_backlog = backlog;
+  2184			goto out;
+  2185		}
+  2186		/* some socket options are handled in core, so we could not apply
+  2187		 * them to the clc socket -- copy smc socket options to clc socket
+  2188		 */
+  2189		smc_copy_sock_settings_to_clc(smc);
+  2190		if (!smc->use_fallback)
+  2191			tcp_sk(smc->clcsock->sk)->syn_smc = 1;
+  2192	
+  2193		/* save original sk_data_ready function and establish
+  2194		 * smc-specific sk_data_ready function
+  2195		 */
+  2196		smc->clcsk_data_ready = smc->clcsock->sk->sk_data_ready;
+  2197		smc->clcsock->sk->sk_data_ready = smc_clcsock_data_ready;
+  2198		smc->clcsock->sk->sk_user_data =
+  2199			(void *)((uintptr_t)smc | SK_USER_DATA_NOCOPY);
+  2200	
+  2201		/* save origin ops */
+> 2202		smc->ori_af_ops = inet_csk(smc->clcsock->sk)->icsk_af_ops;
+  2203	
+  2204		smc->af_ops = *smc->ori_af_ops;
+  2205		smc->af_ops.syn_recv_sock = smc_tcp_syn_recv_sock;
+  2206	
+  2207		inet_csk(smc->clcsock->sk)->icsk_af_ops = &smc->af_ops;
+  2208	
+  2209		rc = kernel_listen(smc->clcsock, backlog);
+  2210		if (rc) {
+  2211			smc->clcsock->sk->sk_data_ready = smc->clcsk_data_ready;
+  2212			goto out;
+  2213		}
+  2214		sk->sk_max_ack_backlog = backlog;
+  2215		sk->sk_ack_backlog = 0;
+  2216		sk->sk_state = SMC_LISTEN;
+  2217	
+  2218	out:
+  2219		release_sock(sk);
+  2220		return rc;
+  2221	}
+  2222	
+
+---
+0-DAY CI Kernel Test Service, Intel Corporation
+https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
