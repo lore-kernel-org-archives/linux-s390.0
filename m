@@ -2,45 +2,31 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D6A4C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 27 Jan 2022 09:25:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69138C433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 27 Jan 2022 09:50:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238497AbiA0JZu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 27 Jan 2022 04:25:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33766 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229892AbiA0JZt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Jan 2022 04:25:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DB8EC061714;
-        Thu, 27 Jan 2022 01:25:49 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E2A53B820FC;
-        Thu, 27 Jan 2022 09:25:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2040C340E4;
-        Thu, 27 Jan 2022 09:25:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643275545;
-        bh=/TsNE9wrpevdjUVU/1n7bHxltY5w0diGCgkYNB0V404=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=AptJwHAos3tNVeZx/kKj71W7Zf046QaSjw3F4BjdQZsd8Fx5J6xIwIoIKK78b0ilX
-         w6fH5ry2OjCUadeKy33Oml92xXO7cuFGrlvPrAOqMTQ7MuyhH6yrjU8xDF0Mskr7rM
-         x9Dm0VNyz0iC/U/l1iEBsLvm0jNVZfKWW6Iwkd5T3xNvFfhUTnJmssbbN56mky+jpM
-         0TL4ghJ90UVvrMI9os2U5qg0T/vkUkT3oQY+qQopFLoe31Kr2XlqECJuXu38Iu2wHp
-         PY854QWWl4zAxOVD984NnKHJ9B4nO5dCVFE3egC4wv8RZFSwUtnCSykEcgajJJ4GtC
-         kgnkDsKIpzhjA==
-Date:   Thu, 27 Jan 2022 11:25:41 +0200
-From:   Leon Romanovsky <leon@kernel.org>
-To:     Tony Lu <tonylu@linux.alibaba.com>
+        id S230373AbiA0Jue (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 27 Jan 2022 04:50:34 -0500
+Received: from out30-132.freemail.mail.aliyun.com ([115.124.30.132]:38763 "EHLO
+        out30-132.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229483AbiA0Jue (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 27 Jan 2022 04:50:34 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0V2zUp2u_1643277031;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0V2zUp2u_1643277031)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Thu, 27 Jan 2022 17:50:31 +0800
+Date:   Thu, 27 Jan 2022 17:50:30 +0800
+From:   Tony Lu <tonylu@linux.alibaba.com>
+To:     Leon Romanovsky <leon@kernel.org>
 Cc:     Jason Gunthorpe <jgg@ziepe.ca>, kgraul@linux.ibm.com,
         kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
         linux-s390@vger.kernel.org,
         RDMA mailing list <linux-rdma@vger.kernel.org>
 Subject: Re: [RFC PATCH net-next 0/6] net/smc: Spread workload over multiple
  cores
-Message-ID: <YfJlFe3p2ABbzoYI@unreal>
+Message-ID: <YfJq5pygXS13XRhp@TonyMac-Alibaba>
+Reply-To: Tony Lu <tonylu@linux.alibaba.com>
 References: <20220114054852.38058-1-tonylu@linux.alibaba.com>
  <YePesYRnrKCh1vFy@unreal>
  <YfD26mhGkM9DFBV+@TonyMac-Alibaba>
@@ -50,48 +36,51 @@ References: <20220114054852.38058-1-tonylu@linux.alibaba.com>
  <YfJQ6AwYMA/i4HvH@TonyMac-Alibaba>
  <YfJcDfkBZfeYA1Z/@unreal>
  <YfJieyROaAKE+ZO0@TonyMac-Alibaba>
+ <YfJlFe3p2ABbzoYI@unreal>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YfJieyROaAKE+ZO0@TonyMac-Alibaba>
+In-Reply-To: <YfJlFe3p2ABbzoYI@unreal>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jan 27, 2022 at 05:14:35PM +0800, Tony Lu wrote:
-> On Thu, Jan 27, 2022 at 10:47:09AM +0200, Leon Romanovsky wrote:
-> > On Thu, Jan 27, 2022 at 03:59:36PM +0800, Tony Lu wrote:
-> > > 
-> > > Yes, I agree with you that the code is old. I think there are two
-> > > problems, one for performance issue, the other one for API refactor.
-> > > 
-> > > We are running into the performance issues mentioned in patches in our
-> > > cloud environment. So I think it is more urgent for a real world issue.
-> > > 
-> > > The current modification is less intrusive to the code. This makes
-> > > changes simpler. And current implement works for now, this is why I put
-> > > refactor behind.
+On Thu, Jan 27, 2022 at 11:25:41AM +0200, Leon Romanovsky wrote:
+> On Thu, Jan 27, 2022 at 05:14:35PM +0800, Tony Lu wrote:
+> > On Thu, Jan 27, 2022 at 10:47:09AM +0200, Leon Romanovsky wrote:
+> > > On Thu, Jan 27, 2022 at 03:59:36PM +0800, Tony Lu wrote:
 > > 
-> > We are not requesting to refactor the code, but properly use existing
-> > in-kernel API, while implementing new feature ("Spread workload over
-> > multiple cores").
+> > Sorry for that if I missed something about properly using existing
+> > in-kernel API. I am not sure the proper API is to use ib_cq_pool_get()
+> > and ib_cq_pool_put()?
+> > 
+> > If so, these APIs doesn't suit for current smc's usage, I have to
+> > refactor logic (tasklet and wr_id) in smc. I think it is a huge work
+> > and should do it with full discussion.
 > 
-> Sorry for that if I missed something about properly using existing
-> in-kernel API. I am not sure the proper API is to use ib_cq_pool_get()
-> and ib_cq_pool_put()?
-> 
-> If so, these APIs doesn't suit for current smc's usage, I have to
-> refactor logic (tasklet and wr_id) in smc. I think it is a huge work
-> and should do it with full discussion.
+> This discussion is not going anywhere. Just to summarize, we (Jason and I)
+> are asking to use existing API, from the beginning.
 
-This discussion is not going anywhere. Just to summarize, we (Jason and I)
-are asking to use existing API, from the beginning.
+Yes, I can't agree more with you about using existing API and I have
+tried them earlier. The existing APIs are easy to use if I wrote a new
+logic. I also don't want to repeat the codes.
 
-You can try and convince netdev maintainers to merge the code despite
-our request.
+The main obstacle is that the packet and wr processing of smc is
+tightly bound to the old API and not easy to replace with existing API.
 
-Thanks
+To solve a real issue, I have to fix it based on the old API. If using
+existing API in this patch, I have to refactor smc logics which needs
+more time. Our production tree is synced with smc next. So I choose to
+fix this issue first, then refactor these logic to fit existing API once
+and for all.
+ 
+> You can try and convince netdev maintainers to merge the code despite
+> our request.
 
-> 
-> Thanks,
-> Tony Lu
+That's not my purpose to recklessly merge this patch. I appreciate that
+you can tell me existing APIs are available. So I listened to everyone
+and decided to go with a compromise, fix it first, then refactor. 
+
+Thanks for your advice.
+
+Tony Lu
