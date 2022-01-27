@@ -2,54 +2,68 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B068C2BA4C
-	for <linux-s390@archiver.kernel.org>; Wed, 26 Jan 2022 15:43:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5FD4BC433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 27 Jan 2022 03:14:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243042AbiAZPnP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 26 Jan 2022 10:43:15 -0500
-Received: from out30-133.freemail.mail.aliyun.com ([115.124.30.133]:56722 "EHLO
+        id S235613AbiA0DOp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 26 Jan 2022 22:14:45 -0500
+Received: from out30-133.freemail.mail.aliyun.com ([115.124.30.133]:33616 "EHLO
         out30-133.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S243021AbiAZPnP (ORCPT
+        by vger.kernel.org with ESMTP id S229997AbiA0DOo (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 26 Jan 2022 10:43:15 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0V2vg.fT_1643211792;
-Received: from 30.225.24.71(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0V2vg.fT_1643211792)
+        Wed, 26 Jan 2022 22:14:44 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R771e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0V2xw8MM_1643253280;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0V2xw8MM_1643253280)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 26 Jan 2022 23:43:12 +0800
-Message-ID: <6b740b0c-791b-cc5f-0082-1ff1a519f16f@linux.alibaba.com>
-Date:   Wed, 26 Jan 2022 23:43:12 +0800
+          Thu, 27 Jan 2022 11:14:41 +0800
+Date:   Thu, 27 Jan 2022 11:14:37 +0800
+From:   Tony Lu <tonylu@linux.alibaba.com>
+To:     Jason Gunthorpe <jgg@ziepe.ca>
+Cc:     Leon Romanovsky <leon@kernel.org>, kgraul@linux.ibm.com,
+        kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org,
+        RDMA mailing list <linux-rdma@vger.kernel.org>
+Subject: Re: [RFC PATCH net-next 0/6] net/smc: Spread workload over multiple
+ cores
+Message-ID: <YfIOHZ7hSfogeTyS@TonyMac-Alibaba>
+Reply-To: Tony Lu <tonylu@linux.alibaba.com>
+References: <20220114054852.38058-1-tonylu@linux.alibaba.com>
+ <YePesYRnrKCh1vFy@unreal>
+ <YfD26mhGkM9DFBV+@TonyMac-Alibaba>
+ <20220126152806.GN8034@ziepe.ca>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.4.0
-Subject: Re: [PATCH net] net/smc: Forward wakeup to smc socket waitqueue after
- fallback
-From:   Wen Gu <guwen@linux.alibaba.com>
-To:     kgraul@linux.ibm.com
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <1643211184-53645-1-git-send-email-guwen@linux.alibaba.com>
-In-Reply-To: <1643211184-53645-1-git-send-email-guwen@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220126152806.GN8034@ziepe.ca>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 2022/1/26 11:33 pm, Wen Gu wrote:
-
+On Wed, Jan 26, 2022 at 11:28:06AM -0400, Jason Gunthorpe wrote:
+> On Wed, Jan 26, 2022 at 03:23:22PM +0800, Tony Lu wrote:
+> > On Sun, Jan 16, 2022 at 11:00:33AM +0200, Leon Romanovsky wrote:
+> > > 
+> > > Please CC RDMA mailing list next time.
+> > > 
+> > > Why didn't you use already existed APIs in drivers/infiniband/core/cq.c?
+> > > ib_cq_pool_get() will do most if not all of your open-coded CQ spreading
+> > > logic.
+> > 
+> > I am working on replacing with ib_cq_pool_get(), this need ib_poll_context
+> > to indicate the poller which provides by ib_poll_handler(). It's okay
+> > for now, but for the callback function. When it polled a ib_wc, it
+> > would call wc->wr_cqe->done(cq, wc), which is the union with wr_id. The
+> > wr_id is heavily used in SMC.
 > 
-> Fixes: 2153bd1e3d3d ("net/smc: Transfer remaining wait queue entries during fallback")
-> Suggested-by: Karsten Graul <kgraul@linux.ibm.com>
-> Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
-> ---
+> Part of using the new interface is converting to use wr_cqe, you
+> should just do that work instead of trying to duplicate a core API in
+> a driver.
 
-Hi Karsten,
+Thanks for your advice. This patch set aims to improve performance with
+current API in SMC protocol, which is more urgent. I will do that work
+with new API in the next separate patch.That work may require a lot of
+revisions, I will issue patches after a full discussion with Karsten
+and finalization of the solution.
 
-This patch uses the idea you mentioned in a very earlier discussion, it may be difficult to recall:
-https://lore.kernel.org/netdev/f51d3e86-0044-bc92-cdac-52bd978b056b@linux.ibm.com/
-
-So I add the 'Suggested-by:' tag.
-
-Thank you.
+Thanks,
+Tony Lu
