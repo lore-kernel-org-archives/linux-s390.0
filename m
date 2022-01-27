@@ -2,141 +2,151 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E7B8C433FE
-	for <linux-s390@archiver.kernel.org>; Thu, 27 Jan 2022 10:32:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3646C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 27 Jan 2022 10:34:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239511AbiA0Kc5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 27 Jan 2022 05:32:57 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:38656 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S239505AbiA0Kc4 (ORCPT
+        id S239110AbiA0KeA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 27 Jan 2022 05:34:00 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:45165 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S237623AbiA0Kd7 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 27 Jan 2022 05:32:56 -0500
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20R9fjiO017398;
-        Thu, 27 Jan 2022 10:32:45 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=qlg2GBduxp6GIl9IBt5bg67yncbbbKAJWeuTOq+D38w=;
- b=Yg5IKpspuINer+7KoO7TTNRaV4MXzEN2l6XK7F0O7cZQLOnFphce1znToSTmLIdO79h0
- IY2nqNZSwqXnhMdJnAp2LdqXAAuiXJQEYjnVyh0zTIiBqu960otSlt4NDq3DRfE5uJyf
- igrzCAG7Nd1wwJKzl19pHVhP0azGn4OaoJL4Do81NZEhICJsxZLjRnr2wxjM6lTnIEzp
- Ayu5u/GoagGnaGDJzaClx1EEKSiBdU6SWUkBmElwKzTvztitLZPya7qna/fuhisijPLg
- 8J/pcnt7lL2NofiihbTC42ylnpzb4eGxaCIYMccNX6BhzV/Cz/zkasULWkwu/CJvF1s7 Zw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dus019406-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 27 Jan 2022 10:32:45 +0000
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20RAQcCP025080;
-        Thu, 27 Jan 2022 10:32:45 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dus0193x3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 27 Jan 2022 10:32:45 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20RASQ9A016214;
-        Thu, 27 Jan 2022 10:32:42 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 3dr9j9pad4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 27 Jan 2022 10:32:42 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20RAWep537093796
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 27 Jan 2022 10:32:40 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 595D9AE0CE;
-        Thu, 27 Jan 2022 10:32:40 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E8073AE0B3;
-        Thu, 27 Jan 2022 10:32:39 +0000 (GMT)
-Received: from [9.145.35.183] (unknown [9.145.35.183])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 27 Jan 2022 10:32:39 +0000 (GMT)
-Message-ID: <a90563ea-2740-d4ca-d2f3-6b6861faf0de@linux.ibm.com>
-Date:   Thu, 27 Jan 2022 11:32:39 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH qemu v2] s390x: sck: load into a temporary not into in1
-Content-Language: en-US
-To:     Nico Boehr <nrb@linux.ibm.com>, qemu-devel@nongnu.org
-Cc:     linux-s390@vger.kernel.org, thuth@redhat.com,
-        richard.henderson@linaro.org, david@redhat.com
-References: <20220126084201.774457-1-nrb@linux.ibm.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-In-Reply-To: <20220126084201.774457-1-nrb@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: VioI6M4vsHeBowhx7xV_BYlt2HDQJU16
-X-Proofpoint-ORIG-GUID: gh6LpCXGAdak8xr3cCdrFPmwvQX9gwTJ
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Thu, 27 Jan 2022 05:33:59 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1643279639;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=tHJnjwaX7+NIVJtJcj9tiGjlPglWEq6X8f8Sk2sXdug=;
+        b=Gg0xhxaHEdBcFC8UNq5sGK36nxgdBcGva9oeJI7VTPB8OF6yszmuIJRiCH9EUsAVGCZCmL
+        T8AEzU+ilWJgIy816GrrrzIsvgUhfKWTYWaia8aMGjVezk0+ZB22ZIlmP21FnVWqz4xto5
+        aaZs1BJJLhA1MTmZ9XmUx/H2tS/tEng=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-281-22_k3obXMNOrgZBuz2WAVA-1; Thu, 27 Jan 2022 05:33:58 -0500
+X-MC-Unique: 22_k3obXMNOrgZBuz2WAVA-1
+Received: by mail-wm1-f72.google.com with SMTP id j6-20020a05600c1c0600b0034c02775da7so502934wms.3
+        for <linux-s390@vger.kernel.org>; Thu, 27 Jan 2022 02:33:57 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=tHJnjwaX7+NIVJtJcj9tiGjlPglWEq6X8f8Sk2sXdug=;
+        b=iirj1lENcp2UgUFh8o8Xg53m8GpjJp9P59C/COGnJov6wc17tpj+ZFU2vhGukyR4D2
+         hLKL7DXdhosU1lsLyydtm60nZLIXruPUSJlIKvoXLlH8uLRyeX6BGnCeC1fxt4xWakPJ
+         1311z5OTZ/xQMJcJh8ab913O+KwKeZxw7Fq2e2ksavF0lZrygCFVznTlLX6ayUqD/K2A
+         Cd5eQ7qfFTshb50jN0GQPYsrxpIlyHai0aKC8Dx3p7Euhe2rJtzz5nXDLDFk0f/VLqSx
+         7aS4VXyVMfFKpuAIUwTr5RA+B+kvXdrQt2RVIE4xY4ntcr6eK4YDUqCTp/zc7G4YjtaH
+         wDPQ==
+X-Gm-Message-State: AOAM5307VQ7GIbv0zUXuXsIulxMDtine9GkbQlc70DYcTNbUEgZ4TJNe
+        /MPCvFrnZXGHHDmhH6PGI02SQrIXZiBWerLRnkD4/wiV1exK9GSpz9eOaPXnym6VNCe7lgcnvg0
+        BGr5Ay4JOTz8PMoaKJs2jdQ==
+X-Received: by 2002:a5d:64ad:: with SMTP id m13mr2504468wrp.671.1643279636922;
+        Thu, 27 Jan 2022 02:33:56 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJw5IvihLfiDx/ynbIWg0oAQh+cwAQ+GhXf+waYye0ZXXq5LJn2ADpZKOO2KHn67cE0qkK6KJw==
+X-Received: by 2002:a5d:64ad:: with SMTP id m13mr2504453wrp.671.1643279636714;
+        Thu, 27 Jan 2022 02:33:56 -0800 (PST)
+Received: from [10.33.192.183] (nat-pool-str-t.redhat.com. [149.14.88.106])
+        by smtp.gmail.com with ESMTPSA id b2sm2080880wri.88.2022.01.27.02.33.55
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 27 Jan 2022 02:33:56 -0800 (PST)
+Message-ID: <345cc07e-e654-2607-57ff-95e78dbfe12d@redhat.com>
+Date:   Thu, 27 Jan 2022 11:33:55 +0100
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-01-27_02,2022-01-27_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
- bulkscore=0 mlxlogscore=999 impostorscore=0 priorityscore=1501
- phishscore=0 adultscore=0 clxscore=1015 mlxscore=0 lowpriorityscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2201270063
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [RFC PATCH] s390: vfio-ap: Register the vfio_ap module for the
+ "ap" parent bus
+Content-Language: en-US
+To:     Tony Krowiak <akrowiak@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>
+Cc:     linux-kernel@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+References: <20211201141110.94636-1-thuth@redhat.com>
+ <8512bb0a-a34a-09b0-65f3-781f3d092364@linux.ibm.com>
+ <e0558344-54a0-eebb-44e0-af61575a4769@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+In-Reply-To: <e0558344-54a0-eebb-44e0-af61575a4769@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 1/26/22 09:42, Nico Boehr wrote:
-> We previously loaded into in1, but in1 is not filled during
-> disassembly and hence always zero. This leads to an assertion failure:
+On 14/12/2021 22.28, Tony Krowiak wrote:
 > 
->    qemu-system-s390x: /home/nrb/qemu/include/tcg/tcg.h:654: temp_idx:
->    Assertion `n >= 0 && n < tcg_ctx->nb_temps' failed.`
 > 
-> Instead, use in2_la2_m64a to load from storage into in2 and pass that to
-> the helper, which matches what we already do for SCKC.
+> On 12/13/21 10:44, Harald Freudenberger wrote:
+>> On 01.12.21 15:11, Thomas Huth wrote:
+>>> The crypto devices that we can use with the vfio_ap module are sitting
+>>> on the "ap" bus, not on the "vfio_ap" bus that the module defines
+>>> itself. With this change, the vfio_ap module now gets automatically
+>>> loaded if a supported crypto adapter is available in the host.
+>>>
+>>> Signed-off-by: Thomas Huth <thuth@redhat.com>
+>>> ---
+>>>   Note: Marked as "RFC" since I'm not 100% sure about it ...
+>>>         please review carefully!
+>>>
+>>>   drivers/s390/crypto/vfio_ap_drv.c | 2 +-
+>>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>>
+>>> diff --git a/drivers/s390/crypto/vfio_ap_drv.c 
+>>> b/drivers/s390/crypto/vfio_ap_drv.c
+>>> index 4d2556bc7fe5..5580e40608a4 100644
+>>> --- a/drivers/s390/crypto/vfio_ap_drv.c
+>>> +++ b/drivers/s390/crypto/vfio_ap_drv.c
+>>> @@ -39,7 +39,7 @@ static struct ap_device_id ap_queue_ids[] = {
+>>>       { /* end of sibling */ },
+>>>   };
+>>> -MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
+>>> +MODULE_DEVICE_TABLE(ap, ap_queue_ids);
+>>>   /**
+>>>    * vfio_ap_queue_dev_probe:
+>> I had a chance to check this now.
+>> First I have to apologize about the dispute with vfio devices appearing on 
+>> the ap bus.
+>> That's not the case with this patch. As Connie states the 
+>> MODULE_DEVICE_TABLE() does not
+>> change the parent of a device and vfio_ap_drv is a driver for ap devices 
+>> and thus
+>> belongs to the ap bus anyway.
+>> So what's left is that with this change the vfio_ap kernel module is 
+>> automatically loaded
+>> when an ap device type 10-13 is recognized by the ap bus. So the intention 
+>> of the patch
+>> is fulfilled.
+>> Yet another kernel module which may occupy memory but will never get used 
+>> by most customers.
+>> This may not be a problem but I had a glance at the list of kernel modules 
+>> loaded on my
+>> LPAR with and without the patch and the difference is:
+>> ...
+>> kvm                   512000  1 vfio_ap
+>> vfio_ap                28672  0
+>> ...
+>> So the vfio_ap module has a dependency to the biggest kernel module ever - 
+>> kvm.
+>> Do I need to say something more?
+>>
+>> If this dependency is removed then I would not hesitate to accept this 
+>> patch. However
+>> this is up to Tony as he is the maintainer of the vfio ap device driver.
 > 
-> This fixes the SCK test I sent here under TCG:
-> <https://www.spinics.net/lists/kvm/msg265169.html>
-> 
-> Suggested-by: David Hildenbrand <david@redhat.com>
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+> The vfio_ap device driver has a dependency on kvm, it can not be removed.
+> If the user base for vfio_ap is minimal, then I see no reason why the vfio_ap
+> module should be automatically loaded when an AP device type 10-13 is
+> recognized by the AP bus. The module is needed only to pass through AP
+> queue devices to a KVM guest.
 
-@David: Was this already broken when it was implemented?
-I.e. do we want a "Fixes: 9dc67537 ("s390x/tcg: implement SET CLOCK ")" tag?
+To continue the discussion here - it seems like my patch here won't be 
+accepted? Shall I send another one instead to remove the bad 
+MODLE_DEVICE_TABLE from the vfio_ap_drv.c file?
 
-
-> ---
->   target/s390x/tcg/insn-data.def | 2 +-
->   target/s390x/tcg/translate.c   | 3 +--
->   2 files changed, 2 insertions(+), 3 deletions(-)
-> 
-> diff --git a/target/s390x/tcg/insn-data.def b/target/s390x/tcg/insn-data.def
-> index 3e5594210c88..848a9c9e622f 100644
-> --- a/target/s390x/tcg/insn-data.def
-> +++ b/target/s390x/tcg/insn-data.def
-> @@ -1317,7 +1317,7 @@
->   /* SET ADDRESS SPACE CONTROL FAST */
->       F(0xb279, SACF,    S,     Z,   0, a2, 0, 0, sacf, 0, IF_PRIV)
->   /* SET CLOCK */
-> -    F(0xb204, SCK,     S,     Z,   la2, 0, 0, 0, sck, 0, IF_PRIV | IF_IO)
-> +    F(0xb204, SCK,     S,     Z,   0, m2_64a, 0, 0, sck, 0, IF_PRIV | IF_IO)
->   /* SET CLOCK COMPARATOR */
->       F(0xb206, SCKC,    S,     Z,   0, m2_64a, 0, 0, sckc, 0, IF_PRIV | IF_IO)
->   /* SET CLOCK PROGRAMMABLE FIELD */
-> diff --git a/target/s390x/tcg/translate.c b/target/s390x/tcg/translate.c
-> index dcc249a197ce..7fb87cd9f3b7 100644
-> --- a/target/s390x/tcg/translate.c
-> +++ b/target/s390x/tcg/translate.c
-> @@ -4295,8 +4295,7 @@ static DisasJumpType op_stcke(DisasContext *s, DisasOps *o)
->   #ifndef CONFIG_USER_ONLY
->   static DisasJumpType op_sck(DisasContext *s, DisasOps *o)
->   {
-> -    tcg_gen_qemu_ld_i64(o->in1, o->addr1, get_mem_index(s), MO_TEQ | MO_ALIGN);
-> -    gen_helper_sck(cc_op, cpu_env, o->in1);
-> +    gen_helper_sck(cc_op, cpu_env, o->in2);
->       set_cc_static(s);
->       return DISAS_NEXT;
->   }
-> 
+  Thomas
 
