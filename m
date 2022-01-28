@@ -2,323 +2,195 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88418C4332F
-	for <linux-s390@archiver.kernel.org>; Fri, 28 Jan 2022 07:20:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B8B8C433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 28 Jan 2022 09:00:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346740AbiA1HUZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 28 Jan 2022 02:20:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55750 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230226AbiA1HUY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Jan 2022 02:20:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BF3BC061714;
-        Thu, 27 Jan 2022 23:20:24 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E036561BE6;
-        Fri, 28 Jan 2022 07:20:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57A25C340F5;
-        Fri, 28 Jan 2022 07:20:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643354423;
-        bh=T5hvP6N/YDzJivdP96HpAMsEBUvVss8W1EdZxq9UDZ4=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=rT9QbL1WnPZ2MHGbg0JvXIvyik13Be4VSHK3AZWcckQfOPTQ3p8BK92cMVnIvrzMg
-         MakENSENL+JCT+fJfjBxHS6GxPMra9V8+ZT+KUn2jwKlTN9HxC166Gja/waPD3bzgq
-         4JCS1G112hbc461us35r3Eed4yccGu1Em4uTf4Rw0YIYh75HZuXZZml/IpW7r4V0pG
-         TtUQAhmnS1cm9v7Gs28cGhDI9GH3HtS8WlxKplc7ac/dHKfNtZW1rl5KkFkQ3HGVJ7
-         x1M30Rp1WyZU5Ga8NNdFkmoINdLWHcZ4E7GPUs+o2KFHLSSPp0zGvLb9FWhLrIWM/a
-         CpHO/6lgegEkw==
-Received: by mail-ua1-f44.google.com with SMTP id e17so7139038uad.9;
-        Thu, 27 Jan 2022 23:20:23 -0800 (PST)
-X-Gm-Message-State: AOAM530zXmuKa8TqZYAc6jq4z3MzlbjUg1j8VJzr+xA0FYqWiq99QrJt
-        BCj+TVgeiacEvpBMrM3s8ztg/4MubeLixaIv3qo=
-X-Google-Smtp-Source: ABdhPJy2RpgEjhRo6X4RJ0pAxWaXFERfP1D6JpGvXcxtvMy0oyK9vzxHewNF9PQNMbdvJh891BhmawJDHyR3Cg69bT8=
-X-Received: by 2002:ab0:3565:: with SMTP id e5mr3609249uaa.97.1643354422066;
- Thu, 27 Jan 2022 23:20:22 -0800 (PST)
+        id S231596AbiA1JAg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 28 Jan 2022 04:00:36 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:23106 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S231588AbiA1JAf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 28 Jan 2022 04:00:35 -0500
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20S8i1rg013238;
+        Fri, 28 Jan 2022 09:00:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : to : cc : references : from : subject : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=gvzsCLVLCYGj8fasg6EJL4uHRzyblBs5v4QSJnKcAKU=;
+ b=hjxFNRG34t0GbkY/H7zQ9zPTbyMzjI0eKljsSGff7Sj+aQg2lyFj5OlY7PwHfIlyK3fa
+ At/t76I+zWi++t1LX0fo6Ny+jjvNpN8A4dM2gGmltHILimw24jv2AiBLb1k2QPlP/9eR
+ fk4td7lNkmqVbVOmvB+I3eUzyaaqrTtAu64rxQLtgir6rPfy5JUr6F4pcp2OtBuinvV6
+ 77chlXcCEMdN/esvjU8Vw8LfYjfcb/st5wm065NGazJVXDfq3rK3OBJjJB+Yi0DCe2H+
+ ZVxsqV2oPh7gJS7GvxI8JicUwB6NUDKKVjHlMYtKwwzv2LQV6WK6M2XS3F9lyUOHEUdL bw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3dvd7rg8dw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 28 Jan 2022 09:00:34 +0000
+Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20S8rVd8017752;
+        Fri, 28 Jan 2022 09:00:33 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3dvd7rg8d6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 28 Jan 2022 09:00:33 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20S8wmqd002272;
+        Fri, 28 Jan 2022 09:00:32 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma04ams.nl.ibm.com with ESMTP id 3dr9j9yf9s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 28 Jan 2022 09:00:32 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20S90SSY34865634
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 28 Jan 2022 09:00:29 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C27A6AE05A;
+        Fri, 28 Jan 2022 09:00:28 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 754FAAE063;
+        Fri, 28 Jan 2022 09:00:28 +0000 (GMT)
+Received: from [9.145.170.148] (unknown [9.145.170.148])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 28 Jan 2022 09:00:28 +0000 (GMT)
+Message-ID: <a11c343b-16e6-727c-dbec-1edfe5375fcf@linux.ibm.com>
+Date:   Fri, 28 Jan 2022 10:00:28 +0100
 MIME-Version: 1.0
-References: <20220120073911.99857-4-guoren@kernel.org> <CAK8P3a1UmnjHk8B6hSULiKv3FKoY5BW9=4=ESerQzc+4=LR5Zw@mail.gmail.com>
-In-Reply-To: <CAK8P3a1UmnjHk8B6hSULiKv3FKoY5BW9=4=ESerQzc+4=LR5Zw@mail.gmail.com>
-From:   Guo Ren <guoren@kernel.org>
-Date:   Fri, 28 Jan 2022 15:20:11 +0800
-X-Gmail-Original-Message-ID: <CAJF2gTRoVaD0yrh7_Lxwvn9KdYdUeiNH4YhiaY6+G=nt04r9Yw@mail.gmail.com>
-Message-ID: <CAJF2gTRoVaD0yrh7_Lxwvn9KdYdUeiNH4YhiaY6+G=nt04r9Yw@mail.gmail.com>
-Subject: Re: [PATCH V3 03/17] asm-generic: compat: Cleanup duplicate definitions
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Palmer Dabbelt <palmer@dabbelt.com>,
-        Anup Patel <anup@brainfault.org>,
-        gregkh <gregkh@linuxfoundation.org>,
-        liush <liush@allwinnertech.com>, Wei Fu <wefu@redhat.com>,
-        Drew Fustini <drew@beagleboard.org>,
-        Wang Junqiang <wangjunqiang@iscas.ac.cn>,
-        Christoph Hellwig <hch@lst.de>,
-        Christoph Hellwig <hch@infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-csky@vger.kernel.org,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        inux-parisc@vger.kernel.org,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Guo Ren <guoren@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Content-Language: en-US
+To:     Steffen Eiden <seiden@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20220127141559.35250-1-seiden@linux.ibm.com>
+ <20220127141559.35250-2-seiden@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH 1/4] s390x: uv-host: Add attestation test
+In-Reply-To: <20220127141559.35250-2-seiden@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Fv4zMttJeHviLpoJwlEDgk8KrV0o7TdL
+X-Proofpoint-ORIG-GUID: HrN4_Yipt9Ig0F5mNUVSZTlW0-Yf986A
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-01-27_06,2022-01-27_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
+ priorityscore=1501 mlxscore=0 malwarescore=0 clxscore=1015 suspectscore=0
+ bulkscore=0 spamscore=0 mlxlogscore=999 impostorscore=0 phishscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2201280051
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Jan 20, 2022 at 9:02 PM Arnd Bergmann <arnd@arndb.de> wrote:
->
->   On Thu, Jan 20, 2022 at 8:38 AM <guoren@kernel.org> wrote:
-> >
-> > From: Guo Ren <guoren@linux.alibaba.com>
-> >
-> > There are 7 64bit architectures that support Linux COMPAT mode to
-> > run 32bit applications. A lot of definitions are duplicate:
-> >  - COMPAT_USER_HZ
-> >  - COMPAT_RLIM_INFINITY
-> >  - COMPAT_OFF_T_MAX
-> >  - __compat_uid_t, __compat_uid_t
-> >  - compat_dev_t
-> >  - compat_ipc_pid_t
-> >  - struct compat_flock
-> >  - struct compat_flock64
-> >  - struct compat_statfs
-> >  - struct compat_ipc64_perm, compat_semid64_ds,
-> >           compat_msqid64_ds, compat_shmid64_ds
-> >
-> > Cleanup duplicate definitions and merge them into asm-generic.
-> >
-> > Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-> > Signed-off-by: Guo Ren <guoren@kernel.org>
-> > Cc: Arnd Bergmann <arnd@arndb.de>
->
-> > ---
-> >  arch/arm64/include/asm/compat.h   | 108 +++-----------------------
-> >  arch/mips/include/asm/compat.h    |  24 ++----
-> >  arch/parisc/include/asm/compat.h  |  47 ++----------
-> >  arch/powerpc/include/asm/compat.h |  47 ++----------
-> >  arch/s390/include/asm/compat.h    | 109 +++-----------------------
-> >  arch/sparc/include/asm/compat.h   |  39 ++++------
-> >  arch/x86/include/asm/compat.h     | 114 +++-------------------------
-> >  include/asm-generic/compat.h      | 122 ++++++++++++++++++++++++++++++
-> >  8 files changed, 191 insertions(+), 419 deletions(-)
-> >
-> > diff --git a/arch/arm64/include/asm/compat.h b/arch/arm64/include/asm/compat.h
-> > index eaa6ca062d89..f54f295efae3 100644
-> > --- a/arch/arm64/include/asm/compat.h
-> > +++ b/arch/arm64/include/asm/compat.h
-> > @@ -5,9 +5,18 @@
-> >  #ifndef __ASM_COMPAT_H
-> >  #define __ASM_COMPAT_H
-> >
-> > +#define COMPAT_RLIM_INFINITY           0xffffffff
-> ...
-> > +#ifndef COMPAT_RLIM_INFINITY
-> > +#define COMPAT_RLIM_INFINITY   0x7fffffff
-> > +#endif
->
-> While this is a correct conversion, I think the default should
-> be 0xffffffff, to match the asm-generic RLIM_INFINITY
-> definition, with only mips and sparc getting the exception
-Okay
+On 1/27/22 15:15, Steffen Eiden wrote:
+> Adds an invalid command test for attestation in the uv-host.
+> 
+> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 
->
-> > -struct compat_flock {
-> > -       short           l_type;
-> > -       short           l_whence;
-> > -       compat_off_t    l_start;
-> > -       compat_off_t    l_len;
-> > -       compat_pid_t    l_pid;
-> > -};
-> ...
-> > +#ifndef compat_flock
-> > +struct compat_flock {
-> > +       compat_short_t  l_type;
-> > +       compat_short_t  l_whence;
-> > +       compat_off_t    l_start;
-> > +       compat_off_t    l_len;
-> > +       compat_pid_t    l_pid;
-> > +} __attribute__((packed));
-> > +#endif
->
-> You are adding __attribute__((packed)) here, which I think has
-> no effect on the layout on the structure on any of the architectures
-> but it does change the alignment requirements needlessly.
->
-> Better leave it without the attribute.
-Okay
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 
->
-> > -struct compat_flock64 {
-> > -       short           l_type;
-> > -       short           l_whence;
-> > -       compat_loff_t   l_start;
-> > -       compat_loff_t   l_len;
-> > -       compat_pid_t    l_pid;
-> > -};
-> ...
-> > +#ifndef compat_flock64
-> > +struct compat_flock64 {
-> > +       compat_short_t  l_type;
-> > +       compat_short_t  l_whence;
-> > +       compat_loff_t   l_start;
-> > +       compat_loff_t   l_len;
-> > +       compat_pid_t    l_pid;
-> > +} __attribute__((packed));
-> > +#endif
->
-> This one is different: on all architectures other than x86,
-> the added packed attribute changes the size of the
-> structure by removing the four padding bytes at the
-> end. x86 originally added the attribute here to work around
-> the weirdness of the x86-32 ABI that aligns 64-bit values
-> on a 4-byte boundary.
->
-> The easiest workaround would be to have x86 keep its
-> custom definition. A slightly nicer version would drop the
-> attribute on x86 as well but instead change the compat_loff_t
-> definition to use compat_s64 instead of s64, giving it the
-> correct alignment.
-Okay, I would leave x86 origin first.
+> ---
+>   lib/s390x/asm/uv.h | 24 +++++++++++++++++++++++-
+>   s390x/uv-host.c    |  3 ++-
+>   2 files changed, 25 insertions(+), 2 deletions(-)
+> 
+> diff --git a/lib/s390x/asm/uv.h b/lib/s390x/asm/uv.h
+> index 97c90e81..38c322bf 100644
+> --- a/lib/s390x/asm/uv.h
+> +++ b/lib/s390x/asm/uv.h
+> @@ -1,10 +1,11 @@
+>   /*
+>    * s390x Ultravisor related definitions
+>    *
+> - * Copyright (c) 2020 IBM Corp
+> + * Copyright (c) 2020, 2022 IBM Corp
 
->
-> > -struct compat_statfs {
-> > -       int             f_type;
-> > -       int             f_bsize;
-> > -       int             f_blocks;
-> > -       int             f_bfree;
-> > -       int             f_bavail;
-> > -       int             f_files;
-> > -       int             f_ffree;
-> > -       compat_fsid_t   f_fsid;
-> > -       int             f_namelen;      /* SunOS ignores this field. */
-> > -       int             f_frsize;
-> > -       int             f_flags;
-> > -       int             f_spare[4];
-> > -};
-> ...
-> > +#ifndef compat_statfs
-> > +struct compat_statfs {
-> > +       compat_uint_t   f_type;
-> > +       compat_uint_t   f_bsize;
-> > +       compat_uint_t   f_blocks;
-> > +       compat_uint_t   f_bfree;
-> > +       compat_uint_t   f_bavail;
-> > +       compat_uint_t   f_files;
-> > +       compat_uint_t   f_ffree;
-> > +       __kernel_fsid_t f_fsid;
-> > +       compat_uint_t   f_namelen;
-> > +       compat_uint_t   f_frsize;
-> > +       compat_uint_t   f_flags;
-> > +       compat_uint_t   f_spare[4];
-> > +} __attribute__((packed));
-> > +#endif
->
-> None of the architectures use the packed attribute at the moment,
-> so please don't add one here.
->
-> Changing compat_fsid_t to __kernel_fsid_t is harmless, but seems
-> unnecessary.
-Okay. I would add another
-typedef __kernel_fsid_t compat_fsid_t;
-in the file.
+I'm not sure when we actually need/want to update this.
 
->
-> Changing the signed int to an unsigned int (regardless of notation)
-> may be a change in behavior. s390 is the only architecture
-> using unsigned members here at the moment, as of b8668fd0a7e1
-> ("s390/uapi: change struct statfs[64] member types to unsigned
-> values").
-> The description of that patch sounds like this was changed to fix
-> a bug, but I don't see what the actual problem would be in the
-> put_compat_statfs().
->
-> For the moment I'd suggest leaving this with the signed version,
-> with s390 being another exception next to mips. We can follow-up
-> with merging s390 into the common definition using either the
-> signed or unsigned types, but I think that needs to be a separate
-> patch with a detailed explanation.
-Okay, I would leave s390 origin first.
+>    *
+>    * Authors:
+>    *  Janosch Frank <frankja@linux.ibm.com>
+> + *  Steffen Eiden <seiden@linux.ibm.com>
 
->
->  +#ifndef compat_ipc64_perm
-> > +struct compat_ipc64_perm {
-> > +       compat_key_t key;
-> > +       __compat_uid32_t uid;
-> > +       __compat_gid32_t gid;
-> > +       __compat_uid32_t cuid;
-> > +       __compat_gid32_t cgid;
-> > +       compat_mode_t   mode;
-> > +       unsigned char   __pad1[4 - sizeof(compat_mode_t)];
-> > +       compat_ushort_t seq;
-> > +       compat_ushort_t __pad2;
-> > +       compat_ulong_t  unused1;
-> > +       compat_ulong_t  unused2;
-> > +} __attribute__((packed));
-> > +
-> > +struct compat_semid64_ds {
-> > +       struct compat_ipc64_perm sem_perm;
-> > +       compat_ulong_t sem_otime;
-> > +       compat_ulong_t sem_otime_high;
-> > +       compat_ulong_t sem_ctime;
-> > +       compat_ulong_t sem_ctime_high;
-> > +       compat_ulong_t sem_nsems;
-> > +       compat_ulong_t __unused3;
-> > +       compat_ulong_t __unused4;
-> > +} __attribute__((packed));
-> > +
-> > +struct compat_msqid64_ds {
-> > +       struct compat_ipc64_perm msg_perm;
-> > +       compat_ulong_t msg_stime;
-> > +       compat_ulong_t msg_stime_high;
-> > +       compat_ulong_t msg_rtime;
-> > +       compat_ulong_t msg_rtime_high;
-> > +       compat_ulong_t msg_ctime;
-> > +       compat_ulong_t msg_ctime_high;
-> > +       compat_ulong_t msg_cbytes;
-> > +       compat_ulong_t msg_qnum;
-> > +       compat_ulong_t msg_qbytes;
-> > +       compat_pid_t   msg_lspid;
-> > +       compat_pid_t   msg_lrpid;
-> > +       compat_ulong_t __unused4;
-> > +       compat_ulong_t __unused5;
-> > +} __attribute__((packed));
-> > +
-> > +struct compat_shmid64_ds {
-> > +       struct compat_ipc64_perm shm_perm;
-> > +       compat_size_t  shm_segsz;
-> > +       compat_ulong_t shm_atime;
-> > +       compat_ulong_t shm_atime_high;
-> > +       compat_ulong_t shm_dtime;
-> > +       compat_ulong_t shm_dtime_high;
-> > +       compat_ulong_t shm_ctime;
-> > +       compat_ulong_t shm_ctime_high;
-> > +       compat_pid_t   shm_cpid;
-> > +       compat_pid_t   shm_lpid;
-> > +       compat_ulong_t shm_nattch;
-> > +       compat_ulong_t __unused4;
-> > +       compat_ulong_t __unused5;
-> > +} __attribute__((packed));
-> > +#endif
->
-> I checked these in detail, looking at the seven architectures, and your
-> conversion looks exactly right (I had initially missed the part about
-> compat_mode_t that you got right).
->
-> As with compat_flock, the packed attribute has no impact on the layout
-> here, but please drop it anyway for consistency.
->
->         Arnd
+I usually add myself to this list once I made significant contributions 
+to the file (or if I create the file). If you have a look at the 
+kernel's kvm-s390.c you'll see that I'm not yet on the list of its authors.
 
+But, as visible in other discussions we're currently having, I'm not 
+aware of a definite guideline for this. Looks like we should find an 
+agreement within IBM and write it down.
 
+>    *
+>    * This code is free software; you can redistribute it and/or modify it
+>    * under the terms of the GNU General Public License version 2.
+> @@ -47,6 +48,7 @@
+>   #define UVC_CMD_UNPIN_PAGE_SHARED	0x0342
+>   #define UVC_CMD_SET_SHARED_ACCESS	0x1000
+>   #define UVC_CMD_REMOVE_SHARED_ACCESS	0x1001
+> +#define UVC_CMD_ATTESTATION		0x1020
+>   
+>   /* Bits in installed uv calls */
+>   enum uv_cmds_inst {
+> @@ -71,6 +73,7 @@ enum uv_cmds_inst {
+>   	BIT_UVC_CMD_UNSHARE_ALL = 20,
+>   	BIT_UVC_CMD_PIN_PAGE_SHARED = 21,
+>   	BIT_UVC_CMD_UNPIN_PAGE_SHARED = 22,
+> +	BIT_UVC_CMD_ATTESTATION = 28,
+>   };
+>   
+>   struct uv_cb_header {
+> @@ -178,6 +181,25 @@ struct uv_cb_cfs {
+>   	u64 paddr;
+>   }  __attribute__((packed))  __attribute__((aligned(8)));
+>   
+> +/* Retrieve Attestation Measurement */
+> +struct uv_cb_attest {
+> +	struct uv_cb_header header;	/* 0x0000 */
+> +	u64 reserved08[2];		/* 0x0008 */
+> +	u64 arcb_addr;			/* 0x0018 */
+> +	u64 continuation_token;		/* 0x0020 */
+> +	u8  reserved28[6];		/* 0x0028 */
+> +	u16 user_data_length;		/* 0x002e */
+> +	u8  user_data[256];		/* 0x0030 */
+> +	u32 reserved130[3];		/* 0x0130 */
+> +	u32 measurement_length;		/* 0x013c */
+> +	u64 measurement_address;	/* 0x0140 */
+> +	u8 config_uid[16];		/* 0x0148 */
+> +	u32 reserved158;		/* 0x0158 */
+> +	u32 add_data_length;		/* 0x015c */
+> +	u64 add_data_address;		/* 0x0160 */
+> +	u64 reserved168[4];		/* 0x0168 */
+> +}  __attribute__((packed))  __attribute__((aligned(8)));
+> +
+>   /* Set Secure Config Parameter */
+>   struct uv_cb_ssc {
+>   	struct uv_cb_header header;
+> diff --git a/s390x/uv-host.c b/s390x/uv-host.c
+> index 92a41069..0f8ab94a 100644
+> --- a/s390x/uv-host.c
+> +++ b/s390x/uv-host.c
+> @@ -2,7 +2,7 @@
+>   /*
+>    * Guest Ultravisor Call tests
+>    *
+> - * Copyright (c) 2021 IBM Corp
+> + * Copyright (c) 2021, 2022 IBM Corp
+>    *
+>    * Authors:
+>    *  Janosch Frank <frankja@linux.ibm.com>
+> @@ -418,6 +418,7 @@ static struct cmd_list invalid_cmds[] = {
+>   	{ "bogus", 0x4242, sizeof(struct uv_cb_header), -1},
+>   	{ "share", UVC_CMD_SET_SHARED_ACCESS, sizeof(struct uv_cb_share), BIT_UVC_CMD_SET_SHARED_ACCESS },
+>   	{ "unshare", UVC_CMD_REMOVE_SHARED_ACCESS, sizeof(struct uv_cb_share), BIT_UVC_CMD_REMOVE_SHARED_ACCESS },
+> +	{ "attest", UVC_CMD_ATTESTATION, sizeof(struct uv_cb_attest), BIT_UVC_CMD_ATTESTATION },
+>   	{ NULL, 0, 0 },
+>   };
+>   
+> 
 
--- 
-Best Regards
- Guo Ren
-
-ML: https://lore.kernel.org/linux-csky/
