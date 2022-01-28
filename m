@@ -2,106 +2,142 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 739E7C433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 28 Jan 2022 10:01:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7881FC433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 28 Jan 2022 11:51:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233152AbiA1KBk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 28 Jan 2022 05:01:40 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:49410 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231169AbiA1KBj (ORCPT
+        id S238823AbiA1Lv3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 28 Jan 2022 06:51:29 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:50624 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231424AbiA1Lv1 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 28 Jan 2022 05:01:39 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1643364098;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=v68MJEoDCvAlfTpX+eF/vA70bwnzsgjAdyequeEm8OU=;
-        b=F3bOyWN7u0U8nTyK4AT63P8mfCEcsQjnSLCYOgkChFyPgfcztlugpjPWtDM9mYrfRcPrJF
-        BSN5AB/LMsPtEWQXC/c/QBtOdGmWwMzc8+ChtiO/CD8u6Dyx/jBdxw+sTbIeu3moCHlSmO
-        GUVGjhp9+pNRp4y7YjUNPeKA2E06wHg=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-275-PItrjPvkPaeVIYuTfROdqA-1; Fri, 28 Jan 2022 05:01:37 -0500
-X-MC-Unique: PItrjPvkPaeVIYuTfROdqA-1
-Received: by mail-wr1-f70.google.com with SMTP id g17-20020adfa591000000b001da86c91c22so2075690wrc.5
-        for <linux-s390@vger.kernel.org>; Fri, 28 Jan 2022 02:01:37 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=v68MJEoDCvAlfTpX+eF/vA70bwnzsgjAdyequeEm8OU=;
-        b=Ph2ZQW0o2Wk5VOF8eNksztVDcvPcg287xnPACcV9ZysVgdZ9gCMkR8crukdZrkOyvE
-         L0lF8wyxr/sIMaqiPxlTyND0QmsYeZBDXSfZOdK/ZaG0Htp7iZq3qaF5LxPk914j3smi
-         OCWD3SZYdTdAb48U+Hc4zLM7lgPwHk7uGscXFkAZDGOtYRNzaUV5/SOCcce5kbm1AX9n
-         TGS+wCXj7t3xcV0BSF4p0WebbQFcVSOruaPQoYD3bYnR3xlVVPYSMtu4FJhN2S+DC+LL
-         sSqehrGVBUHUKV3OnppuEHx6jNRD7zjc4XOSog6up+Wb3rtlmauhfY+kDBBAYpkriA8n
-         MLSQ==
-X-Gm-Message-State: AOAM533Pu9AlRfgDOh+GXOuxFmVryE5omVQ8jjO/VwmtbW5y9rXij+E+
-        cwLEECMLDtZuW7YVeFzd6W40Nr1bVvc7E5BHAioU4wlYEGn/WWqJiggA9soLeJmzHxkPM3RFlfT
-        dqFuBJCO+JuuoOheWC0pYkg==
-X-Received: by 2002:a5d:6f13:: with SMTP id ay19mr6549681wrb.142.1643364096496;
-        Fri, 28 Jan 2022 02:01:36 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxPMVqmcjgdQvzbSAcg8Lt4tnZKlahOkes8AhdNGV97MHEExIeL5qWlk93V87mi5ayhXV7/Hg==
-X-Received: by 2002:a5d:6f13:: with SMTP id ay19mr6549666wrb.142.1643364096270;
-        Fri, 28 Jan 2022 02:01:36 -0800 (PST)
-Received: from [192.168.8.100] (tmo-096-196.customers.d1-online.com. [80.187.96.196])
-        by smtp.gmail.com with ESMTPSA id t14sm1555187wmq.43.2022.01.28.02.01.35
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 28 Jan 2022 02:01:35 -0800 (PST)
-Message-ID: <db8200f2-8c67-f0ed-931c-7406412a6024@redhat.com>
-Date:   Fri, 28 Jan 2022 11:01:34 +0100
+        Fri, 28 Jan 2022 06:51:27 -0500
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20SBgkxr024913;
+        Fri, 28 Jan 2022 11:51:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : content-type : mime-version; s=pp1;
+ bh=eC8ipLLB2uI8NrXbV8X1ysNXPc3iCrj4AIcThVib9jI=;
+ b=luXNgu5sJXei8SfEzJI5oJkBkl6wbU/9kKrqEhuJ5NNGQUlCLt/JZEtFih36tKTw9Qhx
+ 3HieB6nOpKy5oFDtoulCI1ykaeCyhT7t+0HP6HxYv7VuLzeBCC5/jNsURUxPxtjTbEE5
+ kpP+ojjc447Fc54sfiaRtQHCAP2XVyq+02ePJnUlHdIIQeuNqXTc4CEhcHzJw9zofAK9
+ 77SH8BxSXlhJWD0AXE1qyYrf0cu3I3b1Uv3VIU2TcwuO3DurGFFRqJVrfw2X+m/FuY0n
+ yRBgPFSXxNN/1r7MflrLoqaxHNkVmNBTP6urWpFYyuBggmUgcIsRLD47m5sYNmOyF/u7 GQ== 
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dvfuvr55a-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 28 Jan 2022 11:51:23 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20SBmVBI006861;
+        Fri, 28 Jan 2022 11:51:21 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma05fra.de.ibm.com with ESMTP id 3dr9j9p8sj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 28 Jan 2022 11:51:21 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20SBfZF021692736
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 28 Jan 2022 11:41:35 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 48C4DAE059;
+        Fri, 28 Jan 2022 11:51:15 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 05956AE055;
+        Fri, 28 Jan 2022 11:51:15 +0000 (GMT)
+Received: from localhost (unknown [9.171.48.148])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Fri, 28 Jan 2022 11:51:14 +0000 (GMT)
+Date:   Fri, 28 Jan 2022 12:51:13 +0100
+From:   Vasily Gorbik <gor@linux.ibm.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [GIT PULL] s390 updates for 5.17-rc2
+Message-ID: <your-ad-here.call-01643370673-ext-6058@work.hours>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: f9KlZ2Y-tMReijDSYTat2d6jUV8m1nmP
+X-Proofpoint-ORIG-GUID: f9KlZ2Y-tMReijDSYTat2d6jUV8m1nmP
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH qemu v2] s390x: sck: load into a temporary not into in1
-Content-Language: en-US
-To:     David Hildenbrand <david@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Nico Boehr <nrb@linux.ibm.com>, qemu-devel@nongnu.org
-Cc:     linux-s390@vger.kernel.org, richard.henderson@linaro.org
-References: <20220126084201.774457-1-nrb@linux.ibm.com>
- <a90563ea-2740-d4ca-d2f3-6b6861faf0de@linux.ibm.com>
- <463337d3-dad9-abbc-b0e3-544e08160234@redhat.com>
-From:   Thomas Huth <thuth@redhat.com>
-In-Reply-To: <463337d3-dad9-abbc-b0e3-544e08160234@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-01-28_02,2022-01-27_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ phishscore=0 clxscore=1011 priorityscore=1501 suspectscore=0 adultscore=0
+ bulkscore=0 mlxscore=0 impostorscore=0 malwarescore=0 spamscore=0
+ mlxlogscore=887 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2201280072
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 27/01/2022 11.45, David Hildenbrand wrote:
-> On 27.01.22 11:32, Janosch Frank wrote:
->> On 1/26/22 09:42, Nico Boehr wrote:
->>> We previously loaded into in1, but in1 is not filled during
->>> disassembly and hence always zero. This leads to an assertion failure:
->>>
->>>     qemu-system-s390x: /home/nrb/qemu/include/tcg/tcg.h:654: temp_idx:
->>>     Assertion `n >= 0 && n < tcg_ctx->nb_temps' failed.`
->>>
->>> Instead, use in2_la2_m64a to load from storage into in2 and pass that to
->>> the helper, which matches what we already do for SCKC.
->>>
->>> This fixes the SCK test I sent here under TCG:
->>> <https://www.spinics.net/lists/kvm/msg265169.html>
->>>
->>> Suggested-by: David Hildenbrand <david@redhat.com>
->>> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
->>
->> @David: Was this already broken when it was implemented?
->> I.e. do we want a "Fixes: 9dc67537 ("s390x/tcg: implement SET CLOCK ")" tag?
-> 
-> That sounds about right.
+Hello Linus,
 
-Thanks, queued to my s390x-next branch now:
+please pull s390 changes for 5.17-rc2.
 
-https://gitlab.com/thuth/qemu/-/commits/s390x-next/
+Thank you,
+Vasily
 
-  Thomas
+The following changes since commit e783362eb54cd99b2cac8b3a9aeac942e6f6ac07:
 
+  Linux 5.17-rc1 (2022-01-23 10:12:53 +0200)
 
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.17-3
+
+for you to fetch changes up to 663d34c8df98740f1e90241e78e456d00b3c6cad:
+
+  s390/hypfs: include z/VM guests with access control group set (2022-01-26 18:42:39 +0100)
+
+----------------------------------------------------------------
+s390 updates for 5.17-rc2
+
+- Fix loading of modules with lots of relocations and add a regression
+  test for it.
+
+- Fix machine check handling for vector validity and guarded storage
+  validity failures in KVM guests.
+
+- Fix hypervisor performance data to include z/VM guests with access
+  control group set.
+
+- Fix z900 build problem in uaccess code.
+
+- Update defconfigs.
+
+----------------------------------------------------------------
+Christian Borntraeger (2):
+      s390/nmi: handle guarded storage validity failures for KVM guests
+      s390/nmi: handle vector validity failures for KVM guests
+
+Heiko Carstens (2):
+      s390/uaccess: fix compile error
+      s390: update defconfigs
+
+Ilya Leoshkevich (2):
+      s390/module: fix loading modules with a lot of relocations
+      s390/module: test loading modules with a lot of relocations
+
+Vasily Gorbik (1):
+      s390/hypfs: include z/VM guests with access control group set
+
+ arch/s390/Kconfig                    | 15 +++++++++++
+ arch/s390/configs/debug_defconfig    | 20 +++++++--------
+ arch/s390/configs/defconfig          | 16 +++++++-----
+ arch/s390/configs/zfcpdump_defconfig |  3 +++
+ arch/s390/hypfs/hypfs_vm.c           |  6 +++--
+ arch/s390/include/asm/uaccess.h      |  4 +--
+ arch/s390/kernel/module.c            | 37 +++++++++++++-------------
+ arch/s390/kernel/nmi.c               | 27 +++++++++++++++----
+ arch/s390/lib/Makefile               |  3 +++
+ arch/s390/lib/test_modules.c         | 35 +++++++++++++++++++++++++
+ arch/s390/lib/test_modules.h         | 50 ++++++++++++++++++++++++++++++++++++
+ arch/s390/lib/test_modules_helpers.c | 13 ++++++++++
+ 12 files changed, 184 insertions(+), 45 deletions(-)
+ create mode 100644 arch/s390/lib/test_modules.c
+ create mode 100644 arch/s390/lib/test_modules.h
+ create mode 100644 arch/s390/lib/test_modules_helpers.c
