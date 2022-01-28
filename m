@@ -2,142 +2,90 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7881FC433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 28 Jan 2022 11:51:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A0869C433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 28 Jan 2022 13:55:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238823AbiA1Lv3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 28 Jan 2022 06:51:29 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:50624 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231424AbiA1Lv1 (ORCPT
+        id S234411AbiA1NzB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 28 Jan 2022 08:55:01 -0500
+Received: from out30-130.freemail.mail.aliyun.com ([115.124.30.130]:52916 "EHLO
+        out30-130.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234965AbiA1NzA (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 28 Jan 2022 06:51:27 -0500
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20SBgkxr024913;
-        Fri, 28 Jan 2022 11:51:23 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : content-type : mime-version; s=pp1;
- bh=eC8ipLLB2uI8NrXbV8X1ysNXPc3iCrj4AIcThVib9jI=;
- b=luXNgu5sJXei8SfEzJI5oJkBkl6wbU/9kKrqEhuJ5NNGQUlCLt/JZEtFih36tKTw9Qhx
- 3HieB6nOpKy5oFDtoulCI1ykaeCyhT7t+0HP6HxYv7VuLzeBCC5/jNsURUxPxtjTbEE5
- kpP+ojjc447Fc54sfiaRtQHCAP2XVyq+02ePJnUlHdIIQeuNqXTc4CEhcHzJw9zofAK9
- 77SH8BxSXlhJWD0AXE1qyYrf0cu3I3b1Uv3VIU2TcwuO3DurGFFRqJVrfw2X+m/FuY0n
- yRBgPFSXxNN/1r7MflrLoqaxHNkVmNBTP6urWpFYyuBggmUgcIsRLD47m5sYNmOyF/u7 GQ== 
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dvfuvr55a-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 28 Jan 2022 11:51:23 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20SBmVBI006861;
-        Fri, 28 Jan 2022 11:51:21 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma05fra.de.ibm.com with ESMTP id 3dr9j9p8sj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 28 Jan 2022 11:51:21 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20SBfZF021692736
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 28 Jan 2022 11:41:35 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 48C4DAE059;
-        Fri, 28 Jan 2022 11:51:15 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 05956AE055;
-        Fri, 28 Jan 2022 11:51:15 +0000 (GMT)
-Received: from localhost (unknown [9.171.48.148])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Fri, 28 Jan 2022 11:51:14 +0000 (GMT)
-Date:   Fri, 28 Jan 2022 12:51:13 +0100
-From:   Vasily Gorbik <gor@linux.ibm.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [GIT PULL] s390 updates for 5.17-rc2
-Message-ID: <your-ad-here.call-01643370673-ext-6058@work.hours>
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: f9KlZ2Y-tMReijDSYTat2d6jUV8m1nmP
-X-Proofpoint-ORIG-GUID: f9KlZ2Y-tMReijDSYTat2d6jUV8m1nmP
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Fri, 28 Jan 2022 08:55:00 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R761e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0V32luS0_1643378086;
+Received: from 192.168.1.13(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0V32luS0_1643378086)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Fri, 28 Jan 2022 21:54:52 +0800
+Message-ID: <e0d9d02f-6863-5ee0-4353-cd4194fec1de@linux.alibaba.com>
+Date:   Fri, 28 Jan 2022 21:54:45 +0800
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-01-28_02,2022-01-27_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- phishscore=0 clxscore=1011 priorityscore=1501 suspectscore=0 adultscore=0
- bulkscore=0 mlxscore=0 impostorscore=0 malwarescore=0 spamscore=0
- mlxlogscore=887 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2201280072
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.5.0
+Subject: Re: [PATCH net-next 3/3] net/smc: Fallback when handshake workqueue
+ congested
+To:     Matthieu Baerts <matthieu.baerts@tessares.net>,
+        kgraul@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+        MPTCP Upstream <mptcp@lists.linux.dev>
+References: <cover.1643284658.git.alibuda@linux.alibaba.com>
+ <ed4781cde8e3b9812d4a46ce676294a812c80e8f.1643284658.git.alibuda@linux.alibaba.com>
+ <1825f5e8-6d13-a317-4a96-f4a4fcf07409@tessares.net>
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+In-Reply-To: <1825f5e8-6d13-a317-4a96-f4a4fcf07409@tessares.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello Linus,
 
-please pull s390 changes for 5.17-rc2.
+This is a spelling error, which has nothing to do with MPTCP. I'll fix 
+it soon.
 
-Thank you,
-Vasily
 
-The following changes since commit e783362eb54cd99b2cac8b3a9aeac942e6f6ac07:
-
-  Linux 5.17-rc1 (2022-01-23 10:12:53 +0200)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.17-3
-
-for you to fetch changes up to 663d34c8df98740f1e90241e78e456d00b3c6cad:
-
-  s390/hypfs: include z/VM guests with access control group set (2022-01-26 18:42:39 +0100)
-
-----------------------------------------------------------------
-s390 updates for 5.17-rc2
-
-- Fix loading of modules with lots of relocations and add a regression
-  test for it.
-
-- Fix machine check handling for vector validity and guarded storage
-  validity failures in KVM guests.
-
-- Fix hypervisor performance data to include z/VM guests with access
-  control group set.
-
-- Fix z900 build problem in uaccess code.
-
-- Update defconfigs.
-
-----------------------------------------------------------------
-Christian Borntraeger (2):
-      s390/nmi: handle guarded storage validity failures for KVM guests
-      s390/nmi: handle vector validity failures for KVM guests
-
-Heiko Carstens (2):
-      s390/uaccess: fix compile error
-      s390: update defconfigs
-
-Ilya Leoshkevich (2):
-      s390/module: fix loading modules with a lot of relocations
-      s390/module: test loading modules with a lot of relocations
-
-Vasily Gorbik (1):
-      s390/hypfs: include z/VM guests with access control group set
-
- arch/s390/Kconfig                    | 15 +++++++++++
- arch/s390/configs/debug_defconfig    | 20 +++++++--------
- arch/s390/configs/defconfig          | 16 +++++++-----
- arch/s390/configs/zfcpdump_defconfig |  3 +++
- arch/s390/hypfs/hypfs_vm.c           |  6 +++--
- arch/s390/include/asm/uaccess.h      |  4 +--
- arch/s390/kernel/module.c            | 37 +++++++++++++-------------
- arch/s390/kernel/nmi.c               | 27 +++++++++++++++----
- arch/s390/lib/Makefile               |  3 +++
- arch/s390/lib/test_modules.c         | 35 +++++++++++++++++++++++++
- arch/s390/lib/test_modules.h         | 50 ++++++++++++++++++++++++++++++++++++
- arch/s390/lib/test_modules_helpers.c | 13 ++++++++++
- 12 files changed, 184 insertions(+), 45 deletions(-)
- create mode 100644 arch/s390/lib/test_modules.c
- create mode 100644 arch/s390/lib/test_modules.h
- create mode 100644 arch/s390/lib/test_modules_helpers.c
+在 2022/1/28 上午1:09, Matthieu Baerts 写道:
+> Hi,
+> 
+> (+cc MPTCP ML)
+> 
+> On 27/01/2022 13:08, D. Wythe wrote:
+>> From: "D. Wythe" <alibuda@linux.alibaba.com>
+>>
+>> This patch intends to provide a mechanism to allow automatic fallback to
+>> TCP according to the pressure of SMC handshake process. At present,
+>> frequent visits will cause the incoming connections to be backlogged in
+>> SMC handshake queue, raise the connections established time. Which is
+>> quite unacceptable for those applications who base on short lived
+>> connections.
+> 
+> (...)
+> 
+>> diff --git a/net/smc/Kconfig b/net/smc/Kconfig
+>> index 1ab3c5a..1903927 100644
+>> --- a/net/smc/Kconfig
+>> +++ b/net/smc/Kconfig
+>> @@ -19,3 +19,15 @@ config SMC_DIAG
+>>   	  smcss.
+>>   
+>>   	  if unsure, say Y.
+>> +
+>> +if MPTCP
+> 
+> After having read the code and the commit message, it is not clear to me
+>   why this new feature requires to have MPTCP enabled. May you share some
+> explanations about that please?
+> 
+>> +
+>> +config SMC_AUTO_FALLBACK
+>> +	bool "SMC: automatic fallback to TCP"
+>> +	default y
+>> +	help
+>> +	  Allow automatic fallback to TCP accroding to the pressure of SMC-R
+>> +	  handshake process.
+>> +
+>> +	  If that's not what you except or unsure, say N.
+>> +endif
+> 
+> Cheers,
+> Matt
