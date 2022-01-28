@@ -2,117 +2,66 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 55E9EC433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 28 Jan 2022 16:18:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DFDC7C433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 28 Jan 2022 17:36:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243261AbiA1QSS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 28 Jan 2022 11:18:18 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:30834 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235638AbiA1QSS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 28 Jan 2022 11:18:18 -0500
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20SFofX8030052;
-        Fri, 28 Jan 2022 16:17:42 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : references : date : in-reply-to : message-id : mime-version :
- content-type; s=pp1; bh=WIIEnY4LQjNNxPmo8R0V8UME5jMvyPgAX65kRzl76DE=;
- b=sEpNqsY6iohNXVKa0ENno++Xz7TAgntaSy7RompeOswHByMidzv92b8BM+VSPiDR1xDz
- RJ3H5z4cfbfgNeIv9lK0ghlCl84ejUfU3u7NiULdzdCiMz7D53tKz9bEFQKYCt9DSezV
- GoGP1UqUdPipIJ51tro+Te7VsYUWr0wlL75m0GkFYw8mNouM60cd5P6EBctcZx82csYM
- Z5B9+JFxJY1VS6X5uqPJ2G6cxIZzfJhQuyqzZcVjOr4ik9/s0qwO+IS8gETrUwPt2hja
- YHWp5lpZOuwxXttWbCZA7dmRbRAHzH/YscyzJzHsjgjoUy4MDeMCsuA6n/DEqGLmcnaR KA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dvh61up2b-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 28 Jan 2022 16:17:42 +0000
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20SFrJSh018510;
-        Fri, 28 Jan 2022 16:17:41 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dvh61up1f-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 28 Jan 2022 16:17:41 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20SGEC6U032075;
-        Fri, 28 Jan 2022 16:17:39 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03ams.nl.ibm.com with ESMTP id 3dr9ja373e-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 28 Jan 2022 16:17:39 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20SGHX7n38011174
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 28 Jan 2022 16:17:33 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A1525AE055;
-        Fri, 28 Jan 2022 16:17:33 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2D677AE045;
-        Fri, 28 Jan 2022 16:17:33 +0000 (GMT)
-Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Fri, 28 Jan 2022 16:17:33 +0000 (GMT)
-From:   Sven Schnelle <svens@linux.ibm.com>
-To:     Mark Rutland <mark.rutland@arm.com>
-Cc:     Steven Rostedt <rostedt@goodmis.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Yinan Liu <yinan@linux.alibaba.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Sachin Sant <sachinp@linux.ibm.com>,
-        linuxppc-dev@lists.ozlabs.org,
-        Russell King <linux@armlinux.org.uk>,
-        linux-arm-kernel@lists.infradead.org, hca@linux.ibm.com,
-        linux-s390@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>
-Subject: Re: ftrace hangs waiting for rcu
-References: <20220127114249.03b1b52b@gandalf.local.home>
-        <YfLjIOlGfFmbh1Zv@FVFF77S0Q05N> <yt9dy231yq90.fsf_-_@linux.ibm.com>
-        <YfQCohKWJg9H+uID@FVFF77S0Q05N> <yt9dee4rn8q7.fsf@linux.ibm.com>
-        <YfQVzba5thVs+qap@FVFF77S0Q05N>
-Date:   Fri, 28 Jan 2022 17:17:32 +0100
-In-Reply-To: <YfQVzba5thVs+qap@FVFF77S0Q05N> (Mark Rutland's message of "Fri,
-        28 Jan 2022 16:11:57 +0000")
-Message-ID: <yt9da6ffn8bn.fsf@linux.ibm.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: u8O8FusVp6nn3H4y_5Ekm_czzhxm816Q
-X-Proofpoint-ORIG-GUID: jYcgQy5HdrGbbLk3NI1FNR-A0FeeLH0u
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-01-28_05,2022-01-28_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=948
- lowpriorityscore=0 malwarescore=0 adultscore=0 impostorscore=0
- suspectscore=0 spamscore=0 priorityscore=1501 mlxscore=0 clxscore=1015
- phishscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2201280101
+        id S245194AbiA1RgD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 28 Jan 2022 12:36:03 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:43934 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344064AbiA1Rfz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Jan 2022 12:35:55 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 003B361904;
+        Fri, 28 Jan 2022 17:35:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 6C818C340EA;
+        Fri, 28 Jan 2022 17:35:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1643391354;
+        bh=2olI4zpUvSRBoJmHZLvC3bs1VAqhS5NlookV+B8UbUc=;
+        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+        b=oR47bgqH4pz2WxWVgWN1ol3P7GeZQ+3wfSOOGYrEIPYw62GMfLdS5/bbsIHEKl+8z
+         JGq0MVCIn15ezqndT0zKzSqn/A1RmPVYKwfDUvhwoTNJI5wcr7MdN0unzpEpu5976X
+         UHQYW2d6+5LrnQSYgoHv62H1pkT8a5LC5QNBm0IumZ2ZQ3GxEycolXhnrDog/GbaSI
+         mE3gW5cD8suieRZP+09oONUxL/uLOcpmNa0AUi6XKO58gf+eaAwRKHSQQbwP4oMV92
+         LXW9mYABC0fu1R+XVa1quavGe8wZfopxM0WbFTZrrQEV4RWmuLyWEqi+Z8KWFRRXPV
+         jl40salOZMoBQ==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 5BD60F60799;
+        Fri, 28 Jan 2022 17:35:54 +0000 (UTC)
+Subject: Re: [GIT PULL] s390 updates for 5.17-rc2
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <your-ad-here.call-01643370673-ext-6058@work.hours>
+References: <your-ad-here.call-01643370673-ext-6058@work.hours>
+X-PR-Tracked-List-Id: <linux-s390.vger.kernel.org>
+X-PR-Tracked-Message-Id: <your-ad-here.call-01643370673-ext-6058@work.hours>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.17-3
+X-PR-Tracked-Commit-Id: 663d34c8df98740f1e90241e78e456d00b3c6cad
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 7eb36254898131ef2feed7629ae93bc6a2c56d18
+Message-Id: <164339135437.16649.7920817978579498737.pr-tracker-bot@kernel.org>
+Date:   Fri, 28 Jan 2022 17:35:54 +0000
+To:     Vasily Gorbik <gor@linux.ibm.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Mark,
+The pull request you sent on Fri, 28 Jan 2022 12:51:13 +0100:
 
-Mark Rutland <mark.rutland@arm.com> writes:
+> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.17-3
 
-> On Fri, Jan 28, 2022 at 05:08:48PM +0100, Sven Schnelle wrote:
->> We noticed the PR from Paul and are currently testing the fix. So far
->> it's looking good. The configuration where we have seen the hang is a
->> bit unusual:
->> 
->> - 16 physical CPUs on the kvm host
->> - 248 logical CPUs inside kvm
->
-> Aha! 248 is notably *NOT* a power of two, and in this case the shift would be
-> wrong (ilog2() would give 7, when we need a shift of 8).
->
-> So I suspect you're hitting the same issue as I was.
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/7eb36254898131ef2feed7629ae93bc6a2c56d18
 
-Argh, indeed! I somehow changed 'power of two' to 'odd number' in my
-head. I guess it's time for the weekend. :-)
+Thank you!
 
-Thanks!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
