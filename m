@@ -2,66 +2,118 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DFDC7C433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 28 Jan 2022 17:36:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A791C433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 28 Jan 2022 17:47:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245194AbiA1RgD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 28 Jan 2022 12:36:03 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:43934 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344064AbiA1Rfz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Jan 2022 12:35:55 -0500
+        id S232727AbiA1Rr1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 28 Jan 2022 12:47:27 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:38700 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232613AbiA1Rr0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Jan 2022 12:47:26 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 003B361904;
-        Fri, 28 Jan 2022 17:35:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 6C818C340EA;
-        Fri, 28 Jan 2022 17:35:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 75455B82698;
+        Fri, 28 Jan 2022 17:47:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33536C340E0;
+        Fri, 28 Jan 2022 17:47:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643391354;
-        bh=2olI4zpUvSRBoJmHZLvC3bs1VAqhS5NlookV+B8UbUc=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=oR47bgqH4pz2WxWVgWN1ol3P7GeZQ+3wfSOOGYrEIPYw62GMfLdS5/bbsIHEKl+8z
-         JGq0MVCIn15ezqndT0zKzSqn/A1RmPVYKwfDUvhwoTNJI5wcr7MdN0unzpEpu5976X
-         UHQYW2d6+5LrnQSYgoHv62H1pkT8a5LC5QNBm0IumZ2ZQ3GxEycolXhnrDog/GbaSI
-         mE3gW5cD8suieRZP+09oONUxL/uLOcpmNa0AUi6XKO58gf+eaAwRKHSQQbwP4oMV92
-         LXW9mYABC0fu1R+XVa1quavGe8wZfopxM0WbFTZrrQEV4RWmuLyWEqi+Z8KWFRRXPV
-         jl40salOZMoBQ==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 5BD60F60799;
-        Fri, 28 Jan 2022 17:35:54 +0000 (UTC)
-Subject: Re: [GIT PULL] s390 updates for 5.17-rc2
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <your-ad-here.call-01643370673-ext-6058@work.hours>
-References: <your-ad-here.call-01643370673-ext-6058@work.hours>
-X-PR-Tracked-List-Id: <linux-s390.vger.kernel.org>
-X-PR-Tracked-Message-Id: <your-ad-here.call-01643370673-ext-6058@work.hours>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.17-3
-X-PR-Tracked-Commit-Id: 663d34c8df98740f1e90241e78e456d00b3c6cad
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 7eb36254898131ef2feed7629ae93bc6a2c56d18
-Message-Id: <164339135437.16649.7920817978579498737.pr-tracker-bot@kernel.org>
-Date:   Fri, 28 Jan 2022 17:35:54 +0000
-To:     Vasily Gorbik <gor@linux.ibm.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+        s=k20201202; t=1643392044;
+        bh=fe3LLriNJbj/gKNtEmQukHQOiIHZ1YakMJRXf8yzpGU=;
+        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
+        b=U9S5LM8k53fjc3ZoZgpVwLV8Pf9bUQUxbCPPKavJMi2sSyQduduuLOaFGx91GbRB9
+         be3gnTmHJ2FXzWOrLAx429VFTuX68rLjLBR/EfFVaC1i0e42dgUKg/xOhcxpzCDwaf
+         vJ+sNv4A3bMV7lm00hcrDgcZ/1mp2gytQfOC9w6gJ85Bj6n6FEXYdrSwf4JzxyqFQr
+         Q7+eTj8ztIMf2v0ldiriCOtwTDU4us8978zfulKRPRSL9wpeOfg9WsSDR2Grcn7jE5
+         He+RNcz/kHK7FwMuZZGl/nNAn5dVROelm/cjze+obZ826JwYjaMB3VrUm3t7Lj1kjt
+         zj1nXlCJm5nsA==
+Received: by paulmck-ThinkPad-P17-Gen-1.home (Postfix, from userid 1000)
+        id E7E835C098D; Fri, 28 Jan 2022 09:47:23 -0800 (PST)
+Date:   Fri, 28 Jan 2022 09:47:23 -0800
+From:   "Paul E. McKenney" <paulmck@kernel.org>
+To:     Mark Rutland <mark.rutland@arm.com>
+Cc:     Sven Schnelle <svens@linux.ibm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Yinan Liu <yinan@linux.alibaba.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Sachin Sant <sachinp@linux.ibm.com>,
+        linuxppc-dev@lists.ozlabs.org,
+        Russell King <linux@armlinux.org.uk>,
+        linux-arm-kernel@lists.infradead.org, hca@linux.ibm.com,
+        linux-s390@vger.kernel.org, andriin@fb.com
+Subject: Re: ftrace hangs waiting for rcu
+Message-ID: <20220128174723.GA2410054@paulmck-ThinkPad-P17-Gen-1>
+Reply-To: paulmck@kernel.org
+References: <20220127114249.03b1b52b@gandalf.local.home>
+ <YfLjIOlGfFmbh1Zv@FVFF77S0Q05N>
+ <yt9dy231yq90.fsf_-_@linux.ibm.com>
+ <YfQCohKWJg9H+uID@FVFF77S0Q05N>
+ <yt9dee4rn8q7.fsf@linux.ibm.com>
+ <YfQVzba5thVs+qap@FVFF77S0Q05N>
+ <20220128161547.GL4285@paulmck-ThinkPad-P17-Gen-1>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220128161547.GL4285@paulmck-ThinkPad-P17-Gen-1>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The pull request you sent on Fri, 28 Jan 2022 12:51:13 +0100:
+On Fri, Jan 28, 2022 at 08:15:47AM -0800, Paul E. McKenney wrote:
+> On Fri, Jan 28, 2022 at 04:11:57PM +0000, Mark Rutland wrote:
+> > On Fri, Jan 28, 2022 at 05:08:48PM +0100, Sven Schnelle wrote:
+> > > Hi Mark,
+> > > 
+> > > Mark Rutland <mark.rutland@arm.com> writes:
+> > > 
+> > > > On arm64 I bisected this down to:
+> > > >
+> > > >   7a30871b6a27de1a ("rcu-tasks: Introduce ->percpu_enqueue_shift for dynamic queue selection")
+> > > >
+> > > > Which was going wrong because ilog2() rounds down, and so the shift was wrong
+> > > > for any nr_cpus that was not a power-of-two. Paul had already fixed that in
+> > > > rcu-next, and just sent a pull request to Linus:
+> > > >
+> > > >   https://lore.kernel.org/lkml/20220128143251.GA2398275@paulmck-ThinkPad-P17-Gen-1/
+> > > >
+> > > > With that applied, I no longer see these hangs.
+> > > >
+> > > > Does your s390 test machine have a non-power-of-two nr_cpus, and does that fix
+> > > > the issue for you?
+> > > 
+> > > We noticed the PR from Paul and are currently testing the fix. So far
+> > > it's looking good. The configuration where we have seen the hang is a
+> > > bit unusual:
+> > > 
+> > > - 16 physical CPUs on the kvm host
+> > > - 248 logical CPUs inside kvm
+> > 
+> > Aha! 248 is notably *NOT* a power of two, and in this case the shift would be
+> > wrong (ilog2() would give 7, when we need a shift of 8).
+> > 
+> > So I suspect you're hitting the same issue as I was.
+> 
+> And apparently no one runs -next on systems having a non-power-of-two
+> number of CPUs.  ;-)
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.17-3
+And the fix is now in mainline.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/7eb36254898131ef2feed7629ae93bc6a2c56d18
+							Thanx, Paul
 
-Thank you!
-
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+> > Thanks,
+> > Mark.
+> > 
+> > > - debug kernel both on the host and kvm guest
+> > > 
+> > > So things are likely a bit slow in the kvm guest. Interesting is that
+> > > the number of CPUs is even. But maybe RCU sees an odd number of CPUs
+> > > and gets confused before all cpus are brought up. Have to read code/test
+> > > to see whether that could be possible.
+> > > 
+> > > Thanks for investigating!
+> > > Sven
