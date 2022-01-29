@@ -2,118 +2,82 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A791C433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 28 Jan 2022 17:47:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7B19C433F5
+	for <linux-s390@archiver.kernel.org>; Sat, 29 Jan 2022 03:43:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232727AbiA1Rr1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 28 Jan 2022 12:47:27 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:38700 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232613AbiA1Rr0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Jan 2022 12:47:26 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 75455B82698;
-        Fri, 28 Jan 2022 17:47:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33536C340E0;
-        Fri, 28 Jan 2022 17:47:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643392044;
-        bh=fe3LLriNJbj/gKNtEmQukHQOiIHZ1YakMJRXf8yzpGU=;
-        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
-        b=U9S5LM8k53fjc3ZoZgpVwLV8Pf9bUQUxbCPPKavJMi2sSyQduduuLOaFGx91GbRB9
-         be3gnTmHJ2FXzWOrLAx429VFTuX68rLjLBR/EfFVaC1i0e42dgUKg/xOhcxpzCDwaf
-         vJ+sNv4A3bMV7lm00hcrDgcZ/1mp2gytQfOC9w6gJ85Bj6n6FEXYdrSwf4JzxyqFQr
-         Q7+eTj8ztIMf2v0ldiriCOtwTDU4us8978zfulKRPRSL9wpeOfg9WsSDR2Grcn7jE5
-         He+RNcz/kHK7FwMuZZGl/nNAn5dVROelm/cjze+obZ826JwYjaMB3VrUm3t7Lj1kjt
-         zj1nXlCJm5nsA==
-Received: by paulmck-ThinkPad-P17-Gen-1.home (Postfix, from userid 1000)
-        id E7E835C098D; Fri, 28 Jan 2022 09:47:23 -0800 (PST)
-Date:   Fri, 28 Jan 2022 09:47:23 -0800
-From:   "Paul E. McKenney" <paulmck@kernel.org>
-To:     Mark Rutland <mark.rutland@arm.com>
-Cc:     Sven Schnelle <svens@linux.ibm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Yinan Liu <yinan@linux.alibaba.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Sachin Sant <sachinp@linux.ibm.com>,
-        linuxppc-dev@lists.ozlabs.org,
-        Russell King <linux@armlinux.org.uk>,
-        linux-arm-kernel@lists.infradead.org, hca@linux.ibm.com,
-        linux-s390@vger.kernel.org, andriin@fb.com
-Subject: Re: ftrace hangs waiting for rcu
-Message-ID: <20220128174723.GA2410054@paulmck-ThinkPad-P17-Gen-1>
-Reply-To: paulmck@kernel.org
-References: <20220127114249.03b1b52b@gandalf.local.home>
- <YfLjIOlGfFmbh1Zv@FVFF77S0Q05N>
- <yt9dy231yq90.fsf_-_@linux.ibm.com>
- <YfQCohKWJg9H+uID@FVFF77S0Q05N>
- <yt9dee4rn8q7.fsf@linux.ibm.com>
- <YfQVzba5thVs+qap@FVFF77S0Q05N>
- <20220128161547.GL4285@paulmck-ThinkPad-P17-Gen-1>
+        id S1352313AbiA2Dn0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 28 Jan 2022 22:43:26 -0500
+Received: from out30-54.freemail.mail.aliyun.com ([115.124.30.54]:40744 "EHLO
+        out30-54.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S241747AbiA2Dn0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 28 Jan 2022 22:43:26 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04407;MF=guangguan.wang@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0V34uYIR_1643427803;
+Received: from 30.15.211.55(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0V34uYIR_1643427803)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Sat, 29 Jan 2022 11:43:24 +0800
+Message-ID: <a297c8cf-384c-2184-aabb-49ee32476d99@linux.alibaba.com>
+Date:   Sat, 29 Jan 2022 11:43:22 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220128161547.GL4285@paulmck-ThinkPad-P17-Gen-1>
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.5.0
+Subject: Re: [RFC PATCH net-next] net/smc: Introduce receive queue flow
+ control support
+Content-Language: en-US
+To:     Stefan Raspl <raspl@linux.ibm.com>, kgraul@linux.ibm.com
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kuba@kernel.org, davem@davemloft.net
+References: <20220120065140.5385-1-guangguan.wang@linux.alibaba.com>
+ <1f13f001-e4d7-fdcd-6575-caa1be1526e1@linux.ibm.com>
+From:   Guangguan Wang <guangguan.wang@linux.alibaba.com>
+In-Reply-To: <1f13f001-e4d7-fdcd-6575-caa1be1526e1@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Jan 28, 2022 at 08:15:47AM -0800, Paul E. McKenney wrote:
-> On Fri, Jan 28, 2022 at 04:11:57PM +0000, Mark Rutland wrote:
-> > On Fri, Jan 28, 2022 at 05:08:48PM +0100, Sven Schnelle wrote:
-> > > Hi Mark,
-> > > 
-> > > Mark Rutland <mark.rutland@arm.com> writes:
-> > > 
-> > > > On arm64 I bisected this down to:
-> > > >
-> > > >   7a30871b6a27de1a ("rcu-tasks: Introduce ->percpu_enqueue_shift for dynamic queue selection")
-> > > >
-> > > > Which was going wrong because ilog2() rounds down, and so the shift was wrong
-> > > > for any nr_cpus that was not a power-of-two. Paul had already fixed that in
-> > > > rcu-next, and just sent a pull request to Linus:
-> > > >
-> > > >   https://lore.kernel.org/lkml/20220128143251.GA2398275@paulmck-ThinkPad-P17-Gen-1/
-> > > >
-> > > > With that applied, I no longer see these hangs.
-> > > >
-> > > > Does your s390 test machine have a non-power-of-two nr_cpus, and does that fix
-> > > > the issue for you?
-> > > 
-> > > We noticed the PR from Paul and are currently testing the fix. So far
-> > > it's looking good. The configuration where we have seen the hang is a
-> > > bit unusual:
-> > > 
-> > > - 16 physical CPUs on the kvm host
-> > > - 248 logical CPUs inside kvm
-> > 
-> > Aha! 248 is notably *NOT* a power of two, and in this case the shift would be
-> > wrong (ilog2() would give 7, when we need a shift of 8).
-> > 
-> > So I suspect you're hitting the same issue as I was.
+
+On 2022/1/25 17:42, Stefan Raspl wrote:
 > 
-> And apparently no one runs -next on systems having a non-power-of-two
-> number of CPUs.  ;-)
+> That's some truly substantial improvements!
+> But we need to be careful with protocol-level changes: There are other operating systems like z/OS and AIX which have compatible implementations of SMC, too. Changes like a reduction of connections per link group or usage of reserved fields would need to be coordinated, and likely would have unwanted side-effects even when used with older Linux kernel versions.
+> Changing the protocol is "expensive" insofar as it requires time to thoroughly discuss the changes, perform compatibility tests, and so on.
+> So I would like to urge you to investigate alternative ways that do not require protocol-level changes to address this scenario, e.g. by modifying the number of completion queue elements, to see if this could yield similar results.
+> 
+> Thx!
+> 
 
-And the fix is now in mainline.
+Yes, there are alternative ways, as RNR caused by the missmatch of send rate and receive rate, which means sending too fast
+or receiving too slow. What I have done in this patch is to backpressure the sending side when sending too fast.
 
-							Thanx, Paul
+Another solution is to process and refill the receive queue as quickly as posibble, which requires no protocol-level change. 
+The fllowing modifications are needed:
+- Enqueue cdc msgs to backlog queues instead of processing in rx tasklet. llc msgs remain unchanged.
+- A mempool is needed as cdc msgs are processed asynchronously. Allocate new receive buffers from mempool when refill receive queue.
+- Schedule backlog queues to other cpus, which are calculated by 4-tuple or 5-tuple hash of the connections, to process the cdc msgs,
+  in order to reduce the usage of the cpu where rx tasklet runs on.
 
-> > Thanks,
-> > Mark.
-> > 
-> > > - debug kernel both on the host and kvm guest
-> > > 
-> > > So things are likely a bit slow in the kvm guest. Interesting is that
-> > > the number of CPUs is even. But maybe RCU sees an odd number of CPUs
-> > > and gets confused before all cpus are brought up. Have to read code/test
-> > > to see whether that could be possible.
-> > > 
-> > > Thanks for investigating!
-> > > Sven
+the pseudocode shows below:
+rx_tasklet
+    if cdc_msgs
+        enqueue to backlog;
+	maybe smp_call_function_single_async is needed to wakeup the corresponding cpu to process backlog;
+        allocate new buffer and modify the sge in rq_wr;
+    else
+        process remains unchanged;
+    endif
+
+    post_recv rq_wr;
+end rx_tasklet
+
+smp_backlog_process in corresponding cpu, called by smp_call_function_single_async
+    for connections hashed to this cpu
+        for cdc_msgs in backlog
+            process cdc msgs;
+        end cdc_msgs
+    end connections
+end smp_backlog_process
+
+I‘d like to hear your suggestions of this solution.
+Thank you.
