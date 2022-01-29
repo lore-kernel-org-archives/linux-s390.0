@@ -2,35 +2,32 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F4F9C433EF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A311FC433FE
 	for <linux-s390@archiver.kernel.org>; Sat, 29 Jan 2022 12:21:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345558AbiA2MV2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 29 Jan 2022 07:21:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52560 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345577AbiA2MTF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 29 Jan 2022 07:19:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC75DC061748;
-        Sat, 29 Jan 2022 04:19:04 -0800 (PST)
+        id S1345577AbiA2MVa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 29 Jan 2022 07:21:30 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:48480 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345915AbiA2MT1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 29 Jan 2022 07:19:27 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F0FC60B65;
-        Sat, 29 Jan 2022 12:19:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6E62C340EE;
-        Sat, 29 Jan 2022 12:18:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C09860BAA;
+        Sat, 29 Jan 2022 12:19:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D2A0C340E5;
+        Sat, 29 Jan 2022 12:19:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643458743;
-        bh=1q1Bx0MtzBKneJKjQO9ZDlnA1jNMeMLD3S0crCJkAiw=;
+        s=k20201202; t=1643458762;
+        bh=qWtb6+cgEOxIhx/CvZddYYzDKOlMelvnzAQMykw6uB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hft9dR7QcD5PWmUuxAazJ8R6rDfIFcLUqOXhoikikiinU08a+eZY4F/DXoOJrc2Us
-         sYWaUplgGWqcyY3wB/h8QEpJsTg61FqavVCZkdt+1vTAKi+XNC2j2Iytv/iGdkh4s3
-         JDv3074n1Ahk4dbxUNsAtBteERVT0GtYYSEQS7jFHDkJ9YxONYpwmX0YwGFb1qQom2
-         ii58Gc1CuL3AeA426LnFFEp9i02k9N2QbP8iGMLOn1e8AAeTaAfez0Kcbx1aPZiZBg
-         Nv2wXVnOCB26/MjhC0OI+HkCSKP48MipNSnQb1HJt304c/wq2j0K3FnSEpKC97koZP
-         n18ZYGFUeYalQ==
+        b=m5J//ohlceAdks3ZShiqFPnKC4d/Xg1X/uzZV83pQaEZfMlwqoDk92/wlReoKkpA4
+         8TM3aionMNLtK78fMczZsndv/z1yDzu0EoGEHtbFxMeZXUosyPFCVzmre2KkVlAG9i
+         SzXTlIV1KSsf2yAJuF7UO04+o+Zi0skPJNAkpYF4oDM4OWSBh3pYBMYLmfgCBqS3Ea
+         gtFrWs6wAqO6bJmDBWnwBtyE7EN3rUMWQ6V3KF+JaqVx3uxjgpMVr/TozHhXHL0RoZ
+         27ySINuK/vDPPkasYxg9obfnDgBLg1OpNlt54BMGZEFQJa+1913Tb5NAwdvu98uTeE
+         mBnDl7j/LzrXw==
 From:   guoren@kernel.org
 To:     guoren@kernel.org, palmer@dabbelt.com, arnd@arndb.de,
         anup@brainfault.org, gregkh@linuxfoundation.org,
@@ -42,9 +39,9 @@ Cc:     linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, linux-parisc@vger.kernel.org,
         linux-mips@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         x86@kernel.org, Guo Ren <guoren@linux.alibaba.com>
-Subject: [PATCH V4 12/17] riscv: compat: vdso: Add rv32 VDSO base code implementation
-Date:   Sat, 29 Jan 2022 20:17:23 +0800
-Message-Id: <20220129121728.1079364-13-guoren@kernel.org>
+Subject: [PATCH V4 15/17] riscv: compat: ptrace: Add compat_arch_ptrace implement
+Date:   Sat, 29 Jan 2022 20:17:26 +0800
+Message-Id: <20220129121728.1079364-16-guoren@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220129121728.1079364-1-guoren@kernel.org>
 References: <20220129121728.1079364-1-guoren@kernel.org>
@@ -56,314 +53,200 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Guo Ren <guoren@linux.alibaba.com>
 
-There is no vgettimeofday supported in rv32 that makes simple to
-generate rv32 vdso code which only needs riscv64 compiler. Other
-architectures need change compiler or -m (machine parameter) to
-support vdso32 compiling. If rv32 support vgettimeofday (which
-cause C compile) in future, we would add CROSS_COMPILE to support
-that makes more requirement on compiler enviornment.
+Now, you can use native gdb on riscv64 for rv32 app debugging.
 
-linux-rv64/arch/riscv/kernel/compat_vdso/compat_vdso.so.dbg:
-file format elf64-littleriscv
+$ uname -a
+Linux buildroot 5.16.0-rc4-00036-gbef6b82fdf23-dirty #53 SMP Mon Dec 20 23:06:53 CST 2021 riscv64 GNU/Linux
+$ cat /proc/cpuinfo
+processor       : 0
+hart            : 0
+isa             : rv64imafdcsuh
+mmu             : sv48
 
-Disassembly of section .text:
+$ file /bin/busybox
+/bin/busybox: setuid ELF 32-bit LSB shared object, UCB RISC-V, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-riscv32-ilp32d.so.1, for GNU/Linux 5.15.0, stripped
+$ file /usr/bin/gdb
+/usr/bin/gdb: ELF 32-bit LSB shared object, UCB RISC-V, version 1 (GNU/Linux), dynamically linked, interpreter /lib/ld-linux-riscv32-ilp32d.so.1, for GNU/Linux 5.15.0, stripped
+$ /usr/bin/gdb /bin/busybox
+GNU gdb (GDB) 10.2
+Copyright (C) 2021 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+...
+Reading symbols from /bin/busybox...
+(No debugging symbols found in /bin/busybox)
+(gdb) b main
+Breakpoint 1 at 0x8ddc
+(gdb) r
+Starting program: /bin/busybox
+Failed to read a valid object file image from memory.
 
-0000000000000800 <__vdso_rt_sigreturn>:
- 800:   08b00893                li      a7,139
- 804:   00000073                ecall
- 808:   0000                    unimp
-        ...
+Breakpoint 1, 0x555a8ddc in main ()
+(gdb) i r
+ra             0x77df0b74       0x77df0b74
+sp             0x7fdd3d10       0x7fdd3d10
+gp             0x5567e800       0x5567e800 <bb_common_bufsiz1+160>
+tp             0x77f64280       0x77f64280
+t0             0x0      0
+t1             0x555a6fac       1431990188
+t2             0x77dd8db4       2011008436
+fp             0x7fdd3e34       0x7fdd3e34
+s1             0x7fdd3e34       2145205812
+a0             0xffffffff       -1
+a1             0x2000   8192
+a2             0x7fdd3e3c       2145205820
+a3             0x0      0
+a4             0x7fdd3d30       2145205552
+a5             0x555a8dc0       1431997888
+a6             0x77f2c170       2012397936
+a7             0x6a7c7a2f       1786542639
+s2             0x0      0
+s3             0x0      0
+s4             0x555a8dc0       1431997888
+s5             0x77f8a3a8       2012783528
+s6             0x7fdd3e3c       2145205820
+s7             0x5567cecc       1432866508
+--Type <RET> for more, q to quit, c to continue without paging--
+s8             0x1      1
+s9             0x0      0
+s10            0x55634448       1432568904
+s11            0x0      0
+t3             0x77df0bb8       2011106232
+t4             0x42fc   17148
+t5             0x0      0
+t6             0x40     64
+pc             0x555a8ddc       0x555a8ddc <main+28>
+(gdb) si
+0x555a78f0 in mallopt@plt ()
+(gdb) c
+Continuing.
+BusyBox v1.34.1 (2021-12-19 22:39:48 CST) multi-call binary.
+BusyBox is copyrighted by many authors between 1998-2015.
+Licensed under GPLv2. See source distribution for detailed
+copyright notices.
 
-000000000000080c <__vdso_getcpu>:
- 80c:   0a800893                li      a7,168
- 810:   00000073                ecall
- 814:   8082                    ret
-        ...
-
-0000000000000818 <__vdso_flush_icache>:
- 818:   10300893                li      a7,259
- 81c:   00000073                ecall
- 820:   8082                    ret
-
-linux-rv32/arch/riscv/kernel/vdso/vdso.so.dbg:
-file format elf32-littleriscv
-
-Disassembly of section .text:
-
-00000800 <__vdso_rt_sigreturn>:
- 800:   08b00893                li      a7,139
- 804:   00000073                ecall
- 808:   0000                    unimp
-        ...
-
-0000080c <__vdso_getcpu>:
- 80c:   0a800893                li      a7,168
- 810:   00000073                ecall
- 814:   8082                    ret
-        ...
-
-00000818 <__vdso_flush_icache>:
- 818:   10300893                li      a7,259
- 81c:   00000073                ecall
- 820:   8082                    ret
-
-Finally, reuse all *.S from vdso in compat_vdso that makes
-implementation clear and readable.
+Usage: busybox [function [arguments]...]
+   or: busybox --list[-full]
+...
+[Inferior 1 (process 107) exited normally]
+(gdb) q
 
 Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 Signed-off-by: Guo Ren <guoren@kernel.org>
 Cc: Arnd Bergmann <arnd@arndb.de>
 Cc: Palmer Dabbelt <palmer@dabbelt.com>
 ---
- arch/riscv/Makefile                           |  5 ++
- arch/riscv/include/asm/vdso.h                 |  9 +++
- arch/riscv/kernel/Makefile                    |  1 +
- arch/riscv/kernel/compat_vdso/.gitignore      |  2 +
- arch/riscv/kernel/compat_vdso/Makefile        | 68 +++++++++++++++++++
- arch/riscv/kernel/compat_vdso/compat_vdso.S   |  8 +++
- .../kernel/compat_vdso/compat_vdso.lds.S      |  3 +
- arch/riscv/kernel/compat_vdso/flush_icache.S  |  3 +
- .../compat_vdso/gen_compat_vdso_offsets.sh    |  5 ++
- arch/riscv/kernel/compat_vdso/getcpu.S        |  3 +
- arch/riscv/kernel/compat_vdso/note.S          |  3 +
- arch/riscv/kernel/compat_vdso/rt_sigreturn.S  |  3 +
- arch/riscv/kernel/vdso/vdso.S                 |  6 +-
- 13 files changed, 118 insertions(+), 1 deletion(-)
- create mode 100644 arch/riscv/kernel/compat_vdso/.gitignore
- create mode 100644 arch/riscv/kernel/compat_vdso/Makefile
- create mode 100644 arch/riscv/kernel/compat_vdso/compat_vdso.S
- create mode 100644 arch/riscv/kernel/compat_vdso/compat_vdso.lds.S
- create mode 100644 arch/riscv/kernel/compat_vdso/flush_icache.S
- create mode 100755 arch/riscv/kernel/compat_vdso/gen_compat_vdso_offsets.sh
- create mode 100644 arch/riscv/kernel/compat_vdso/getcpu.S
- create mode 100644 arch/riscv/kernel/compat_vdso/note.S
- create mode 100644 arch/riscv/kernel/compat_vdso/rt_sigreturn.S
+ arch/riscv/kernel/ptrace.c | 87 +++++++++++++++++++++++++++++++++++---
+ 1 file changed, 82 insertions(+), 5 deletions(-)
 
-diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
-index a02e588c4947..f73d50552e09 100644
---- a/arch/riscv/Makefile
-+++ b/arch/riscv/Makefile
-@@ -106,12 +106,17 @@ libs-$(CONFIG_EFI_STUB) += $(objtree)/drivers/firmware/efi/libstub/lib.a
- PHONY += vdso_install
- vdso_install:
- 	$(Q)$(MAKE) $(build)=arch/riscv/kernel/vdso $@
-+	$(if $(CONFIG_COMPAT),$(Q)$(MAKE) \
-+		$(build)=arch/riscv/kernel/compat_vdso $@)
+diff --git a/arch/riscv/kernel/ptrace.c b/arch/riscv/kernel/ptrace.c
+index a89243730153..bb387593a121 100644
+--- a/arch/riscv/kernel/ptrace.c
++++ b/arch/riscv/kernel/ptrace.c
+@@ -12,6 +12,7 @@
+ #include <asm/thread_info.h>
+ #include <asm/switch_to.h>
+ #include <linux/audit.h>
++#include <linux/compat.h>
+ #include <linux/ptrace.h>
+ #include <linux/elf.h>
+ #include <linux/regset.h>
+@@ -111,11 +112,6 @@ static const struct user_regset_view riscv_user_native_view = {
+ 	.n = ARRAY_SIZE(riscv_user_regset),
+ };
  
- ifeq ($(KBUILD_EXTMOD),)
- ifeq ($(CONFIG_MMU),y)
- prepare: vdso_prepare
- vdso_prepare: prepare0
- 	$(Q)$(MAKE) $(build)=arch/riscv/kernel/vdso include/generated/vdso-offsets.h
-+	$(if $(CONFIG_COMPAT),$(Q)$(MAKE) \
-+		$(build)=arch/riscv/kernel/compat_vdso include/generated/compat_vdso-offsets.h)
-+
- endif
- endif
- 
-diff --git a/arch/riscv/include/asm/vdso.h b/arch/riscv/include/asm/vdso.h
-index bc6f75f3a199..af981426fe0f 100644
---- a/arch/riscv/include/asm/vdso.h
-+++ b/arch/riscv/include/asm/vdso.h
-@@ -21,6 +21,15 @@
- 
- #define VDSO_SYMBOL(base, name)							\
- 	(void __user *)((unsigned long)(base) + __vdso_##name##_offset)
+-const struct user_regset_view *task_user_regset_view(struct task_struct *task)
+-{
+-	return &riscv_user_native_view;
+-}
+-
+ struct pt_regs_offset {
+ 	const char *name;
+ 	int offset;
+@@ -273,3 +269,84 @@ __visible void do_syscall_trace_exit(struct pt_regs *regs)
+ 		trace_sys_exit(regs, regs_return_value(regs));
+ #endif
+ }
 +
 +#ifdef CONFIG_COMPAT
-+#include <generated/compat_vdso-offsets.h>
++static int compat_riscv_gpr_get(struct task_struct *target,
++				const struct user_regset *regset,
++				struct membuf to)
++{
++	struct compat_user_regs_struct cregs;
 +
-+#define COMPAT_VDSO_SYMBOL(base, name)						\
-+	(void __user *)((unsigned long)(base) + compat__vdso_##name##_offset)
++	regs_to_cregs(&cregs, task_pt_regs(target));
 +
++	return membuf_write(&to, &cregs,
++			    sizeof(struct compat_user_regs_struct));
++}
++
++static int compat_riscv_gpr_set(struct task_struct *target,
++				const struct user_regset *regset,
++				unsigned int pos, unsigned int count,
++				const void *kbuf, const void __user *ubuf)
++{
++	int ret;
++	struct compat_user_regs_struct cregs;
++
++	ret = user_regset_copyin(&pos, &count, &kbuf, &ubuf, &cregs, 0, -1);
++
++	cregs_to_regs(&cregs, task_pt_regs(target));
++
++	return ret;
++}
++
++static const struct user_regset compat_riscv_user_regset[] = {
++	[REGSET_X] = {
++		.core_note_type = NT_PRSTATUS,
++		.n = ELF_NGREG,
++		.size = sizeof(compat_elf_greg_t),
++		.align = sizeof(compat_elf_greg_t),
++		.regset_get = compat_riscv_gpr_get,
++		.set = compat_riscv_gpr_set,
++	},
++#ifdef CONFIG_FPU
++	[REGSET_F] = {
++		.core_note_type = NT_PRFPREG,
++		.n = ELF_NFPREG,
++		.size = sizeof(elf_fpreg_t),
++		.align = sizeof(elf_fpreg_t),
++		.regset_get = riscv_fpr_get,
++		.set = riscv_fpr_set,
++	},
++#endif
++};
++
++static const struct user_regset_view compat_riscv_user_native_view = {
++	.name = "riscv",
++	.e_machine = EM_RISCV,
++	.regsets = compat_riscv_user_regset,
++	.n = ARRAY_SIZE(compat_riscv_user_regset),
++};
++
++long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
++			compat_ulong_t caddr, compat_ulong_t cdata)
++{
++	long ret = -EIO;
++
++	switch (request) {
++	default:
++		ret = compat_ptrace_request(child, request, caddr, cdata);
++		break;
++	}
++
++	return ret;
++}
 +#endif /* CONFIG_COMPAT */
 +
- #endif /* !__ASSEMBLY__ */
- 
- #endif /* CONFIG_MMU */
-diff --git a/arch/riscv/kernel/Makefile b/arch/riscv/kernel/Makefile
-index 954dc7043ad2..88e79f481c21 100644
---- a/arch/riscv/kernel/Makefile
-+++ b/arch/riscv/kernel/Makefile
-@@ -67,3 +67,4 @@ obj-$(CONFIG_JUMP_LABEL)	+= jump_label.o
- 
- obj-$(CONFIG_EFI)		+= efi.o
- obj-$(CONFIG_COMPAT)		+= compat_syscall_table.o
-+obj-$(CONFIG_COMPAT)		+= compat_vdso/
-diff --git a/arch/riscv/kernel/compat_vdso/.gitignore b/arch/riscv/kernel/compat_vdso/.gitignore
-new file mode 100644
-index 000000000000..19d83d846c1e
---- /dev/null
-+++ b/arch/riscv/kernel/compat_vdso/.gitignore
-@@ -0,0 +1,2 @@
-+# SPDX-License-Identifier: GPL-2.0-only
-+compat_vdso.lds
-diff --git a/arch/riscv/kernel/compat_vdso/Makefile b/arch/riscv/kernel/compat_vdso/Makefile
-new file mode 100644
-index 000000000000..7bbbbf94307f
---- /dev/null
-+++ b/arch/riscv/kernel/compat_vdso/Makefile
-@@ -0,0 +1,68 @@
-+# SPDX-License-Identifier: GPL-2.0-only
-+
-+# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
-+# the inclusion of generic Makefile.
-+ARCH_REL_TYPE_ABS := R_RISCV_32|R_RISCV_64|R_RISCV_JUMP_SLOT
-+include $(srctree)/lib/vdso/Makefile
-+# Symbols present in the compat_vdso
-+compat_vdso-syms  = rt_sigreturn
-+compat_vdso-syms += getcpu
-+compat_vdso-syms += flush_icache
-+
-+# Files to link into the compat_vdso
-+obj-compat_vdso = $(patsubst %, %.o, $(compat_vdso-syms)) note.o
-+
-+ccflags-y := -fno-stack-protector
-+
-+# Build rules
-+targets := $(obj-compat_vdso) compat_vdso.so compat_vdso.so.dbg compat_vdso.lds
-+obj-compat_vdso := $(addprefix $(obj)/, $(obj-compat_vdso))
-+
-+obj-y += compat_vdso.o
-+CPPFLAGS_compat_vdso.lds += -P -C -U$(ARCH)
-+
-+# Disable profiling and instrumentation for VDSO code
-+GCOV_PROFILE := n
-+KCOV_INSTRUMENT := n
-+KASAN_SANITIZE := n
-+UBSAN_SANITIZE := n
-+
-+# Force dependency
-+$(obj)/compat_vdso.o: $(obj)/compat_vdso.so
-+
-+# link rule for the .so file, .lds has to be first
-+$(obj)/compat_vdso.so.dbg: $(obj)/compat_vdso.lds $(obj-compat_vdso) FORCE
-+	$(call if_changed,compat_vdsold)
-+LDFLAGS_compat_vdso.so.dbg = -shared -S -soname=linux-compat_vdso.so.1 \
-+	--build-id=sha1 --hash-style=both --eh-frame-hdr
-+
-+# strip rule for the .so file
-+$(obj)/%.so: OBJCOPYFLAGS := -S
-+$(obj)/%.so: $(obj)/%.so.dbg FORCE
-+	$(call if_changed,objcopy)
-+
-+# Generate VDSO offsets using helper script
-+gen-compat_vdsosym := $(srctree)/$(src)/gen_compat_vdso_offsets.sh
-+quiet_cmd_compat_vdsosym = VDSOSYM $@
-+	cmd_compat_vdsosym = $(NM) $< | $(gen-compat_vdsosym) | LC_ALL=C sort > $@
-+
-+include/generated/compat_vdso-offsets.h: $(obj)/compat_vdso.so.dbg FORCE
-+	$(call if_changed,compat_vdsosym)
-+
-+# actual build commands
-+# The DSO images are built using a special linker script
-+# Make sure only to export the intended __compat_vdso_xxx symbol offsets.
-+quiet_cmd_compat_vdsold = VDSOLD  $@
-+      cmd_compat_vdsold = $(LD) $(ld_flags) -T $(filter-out FORCE,$^) -o $@.tmp && \
-+                   $(OBJCOPY) $(patsubst %, -G __compat_vdso_%, $(compat_vdso-syms)) $@.tmp $@ && \
-+                   rm $@.tmp
-+
-+# install commands for the unstripped file
-+quiet_cmd_compat_vdso_install = INSTALL $@
-+      cmd_compat_vdso_install = cp $(obj)/$@.dbg $(MODLIB)/compat_vdso/$@
-+
-+compat_vdso.so: $(obj)/compat_vdso.so.dbg
-+	@mkdir -p $(MODLIB)/compat_vdso
-+	$(call cmd,compat_vdso_install)
-+
-+compat_vdso_install: compat_vdso.so
-diff --git a/arch/riscv/kernel/compat_vdso/compat_vdso.S b/arch/riscv/kernel/compat_vdso/compat_vdso.S
-new file mode 100644
-index 000000000000..fea4a8b0c45d
---- /dev/null
-+++ b/arch/riscv/kernel/compat_vdso/compat_vdso.S
-@@ -0,0 +1,8 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+
-+#define	vdso_start	compat_vdso_start
-+#define	vdso_end	compat_vdso_end
-+
-+#define	__VDSO_PATH	"arch/riscv/kernel/compat_vdso/compat_vdso.so"
-+
-+#include <../vdso/vdso.S>
-diff --git a/arch/riscv/kernel/compat_vdso/compat_vdso.lds.S b/arch/riscv/kernel/compat_vdso/compat_vdso.lds.S
-new file mode 100644
-index 000000000000..02a9ec5dc7f6
---- /dev/null
-+++ b/arch/riscv/kernel/compat_vdso/compat_vdso.lds.S
-@@ -0,0 +1,3 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+
-+#include <../vdso/vdso.lds.S>
-diff --git a/arch/riscv/kernel/compat_vdso/flush_icache.S b/arch/riscv/kernel/compat_vdso/flush_icache.S
-new file mode 100644
-index 000000000000..88e21a84a974
---- /dev/null
-+++ b/arch/riscv/kernel/compat_vdso/flush_icache.S
-@@ -0,0 +1,3 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+
-+#include <../vdso/flush_icache.S>
-diff --git a/arch/riscv/kernel/compat_vdso/gen_compat_vdso_offsets.sh b/arch/riscv/kernel/compat_vdso/gen_compat_vdso_offsets.sh
-new file mode 100755
-index 000000000000..8ac070c783b3
---- /dev/null
-+++ b/arch/riscv/kernel/compat_vdso/gen_compat_vdso_offsets.sh
-@@ -0,0 +1,5 @@
-+#!/bin/sh
-+# SPDX-License-Identifier: GPL-2.0
-+
-+LC_ALL=C
-+sed -n -e 's/^[0]\+\(0[0-9a-fA-F]*\) . \(__vdso_[a-zA-Z0-9_]*\)$/\#define compat\2_offset\t0x\1/p'
-diff --git a/arch/riscv/kernel/compat_vdso/getcpu.S b/arch/riscv/kernel/compat_vdso/getcpu.S
-new file mode 100644
-index 000000000000..946449a15a94
---- /dev/null
-+++ b/arch/riscv/kernel/compat_vdso/getcpu.S
-@@ -0,0 +1,3 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+
-+#include <../vdso/getcpu.S>
-diff --git a/arch/riscv/kernel/compat_vdso/note.S b/arch/riscv/kernel/compat_vdso/note.S
-new file mode 100644
-index 000000000000..67c50898b8e5
---- /dev/null
-+++ b/arch/riscv/kernel/compat_vdso/note.S
-@@ -0,0 +1,3 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+
-+#include <../vdso/note.S>
-diff --git a/arch/riscv/kernel/compat_vdso/rt_sigreturn.S b/arch/riscv/kernel/compat_vdso/rt_sigreturn.S
-new file mode 100644
-index 000000000000..f4c98f18c053
---- /dev/null
-+++ b/arch/riscv/kernel/compat_vdso/rt_sigreturn.S
-@@ -0,0 +1,3 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+
-+#include <../vdso/rt_sigreturn.S>
-diff --git a/arch/riscv/kernel/vdso/vdso.S b/arch/riscv/kernel/vdso/vdso.S
-index df222245be05..83f1c899e8d8 100644
---- a/arch/riscv/kernel/vdso/vdso.S
-+++ b/arch/riscv/kernel/vdso/vdso.S
-@@ -7,12 +7,16 @@
- #include <linux/linkage.h>
- #include <asm/page.h>
- 
-+#ifndef __VDSO_PATH
-+#define __VDSO_PATH "arch/riscv/kernel/vdso/vdso.so"
++const struct user_regset_view *task_user_regset_view(struct task_struct *task)
++{
++#ifdef CONFIG_COMPAT
++	if (test_tsk_thread_flag(task, TIF_32BIT))
++		return &compat_riscv_user_native_view;
++	else
 +#endif
-+
- 	__PAGE_ALIGNED_DATA
- 
- 	.globl vdso_start, vdso_end
- 	.balign PAGE_SIZE
- vdso_start:
--	.incbin "arch/riscv/kernel/vdso/vdso.so"
-+	.incbin __VDSO_PATH
- 	.balign PAGE_SIZE
- vdso_end:
- 
++		return &riscv_user_native_view;
++}
 -- 
 2.25.1
 
