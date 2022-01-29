@@ -2,149 +2,99 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 599CBC433F5
-	for <linux-s390@archiver.kernel.org>; Sat, 29 Jan 2022 15:23:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F04BBC43219
+	for <linux-s390@archiver.kernel.org>; Sat, 29 Jan 2022 21:40:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351393AbiA2PXn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 29 Jan 2022 10:23:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36492 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348103AbiA2PXk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 29 Jan 2022 10:23:40 -0500
-Received: from mail-lj1-x232.google.com (mail-lj1-x232.google.com [IPv6:2a00:1450:4864:20::232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E80ACC061741
-        for <linux-s390@vger.kernel.org>; Sat, 29 Jan 2022 07:23:39 -0800 (PST)
-Received: by mail-lj1-x232.google.com with SMTP id c15so13187830ljf.11
-        for <linux-s390@vger.kernel.org>; Sat, 29 Jan 2022 07:23:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=drummond.us; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=0mCWH6Tux8tcx0O8BuZbvK36ydxh3XeFUHA8Flrblcc=;
-        b=cmvGYiFpo2ar6tVj5q2BCQVYb9k8BBD0XwhyxqAVItAmy2DCdgiftAuj8oc7BBE49Q
-         LjK1fzbe0hOX97nInIogSNxADc9w4GpCfyauU6NFtNktDIG03u61lrQy9hqdUvd6EUft
-         C6I/tHY4kzyBauIRoXYOzo9LGSe929OK0jEzQ59wjAL3By0a+QjA0M9X3G7I1kcoxcb7
-         Q0AdPG8TS8c6yTTOUze5l0qFpdoVitgV/p2s3UNbwqPC0EG+SKAZieLlLnSPMO8rnFD5
-         +FIv54+PLtXCBluE0vkOLnAVfI1OEciJIeE6mtAgIHH1+Z3qSeTB6dFp5Kah63auycAx
-         k05w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=0mCWH6Tux8tcx0O8BuZbvK36ydxh3XeFUHA8Flrblcc=;
-        b=hpDGdy+/ESF9NFkBfop6fXC4dFFz+shyD0T8I9kSeo0EDky32xCBTNo412EC+MLWad
-         h87fxhSRXzWgpDMEARwr22MNnBkeWe0mm44JIRJ6VjXTjAwjSfV6OGy0f0LQYfrABz64
-         /wpx1MOAXaOR4WQW8EH6s2hgSswhPJYiF7t9fPHszz/6gJPIVSH2dOjSsMdiBfIMFEjB
-         6H8aDEgFX96BXuV7vICR/QOBP7QiuMSTJZBx7zz6TL6PDtcZ/X8xQZf96KtT+NSm5ugy
-         LGrwq/LIgT2aPvasov1F3YQ7fQ8ADyJlnHuJORkOxv+OERTRJ5ehFtOAs1yCzTRMjTs4
-         krDA==
-X-Gm-Message-State: AOAM533TqCqm/kogUmA51ocZHxhpcSu9zDpKo1k0ihDHeQA6phgEnbML
-        AOtLTk6GQQ0AI2ndqCJjIm7SSYYzYmJbSvaT2bma/Q==
-X-Google-Smtp-Source: ABdhPJzK4pFoabd9NoIBHHNS2OQ2X0frUhiKWXvHsU/uBjqxnLeu+8dmN2me2gLqvfH4JEfcPiamxCIYMad5ipU8E2c=
-X-Received: by 2002:a2e:994a:: with SMTP id r10mr8482884ljj.254.1643469817879;
- Sat, 29 Jan 2022 07:23:37 -0800 (PST)
+        id S1346372AbiA2VkY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 29 Jan 2022 16:40:24 -0500
+Received: from mout.kundenserver.de ([212.227.126.134]:33407 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233129AbiA2VkW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 29 Jan 2022 16:40:22 -0500
+Received: from mail-ot1-f43.google.com ([209.85.210.43]) by
+ mrelayeu.kundenserver.de (mreue010 [213.165.67.97]) with ESMTPSA (Nemesis) id
+ 1MKKIZ-1mxmHb13Pz-00Lj0v; Sat, 29 Jan 2022 22:40:20 +0100
+Received: by mail-ot1-f43.google.com with SMTP id i16-20020a056830011000b005a3cc8d20fbso2826089otp.9;
+        Sat, 29 Jan 2022 13:40:19 -0800 (PST)
+X-Gm-Message-State: AOAM532uGFEAQ/r3avHpRSTjCMnoMLcVBHqAJhysaZqycCFO1YHD+rc3
+        KGSt8BekMqCCxzBPyaaoCftp52ERQFwSEyLRg7A=
+X-Google-Smtp-Source: ABdhPJxSc4cWbyXoSGQiQtpLi4PNMIRU496vg4S4jN8fyO8Z/BY7E62yNehuKgdWMqyCyzVpdMc329RL2rEKIxjEMaU=
+X-Received: by 2002:a9d:73da:: with SMTP id m26mr8391513otk.72.1643492418274;
+ Sat, 29 Jan 2022 13:40:18 -0800 (PST)
 MIME-Version: 1.0
-References: <20220118044259.764945-1-walt@drummond.us> <YfFQeC1cUVFmISMK@kroah.com>
-In-Reply-To: <YfFQeC1cUVFmISMK@kroah.com>
-From:   Walt Drummond <walt@drummond.us>
-Date:   Sat, 29 Jan 2022 07:23:26 -0800
-Message-ID: <CADCN6nyyChM=jb9nmc2jDg2UdHUoXp3E05=ifxRpcs=8k8t09Q@mail.gmail.com>
-Subject: Re: [PATCH 0/3] status: TTY status message request
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     agordeev@linux.ibm.com, arnd@arndb.de, benh@kernel.crashing.org,
-        borntraeger@linux.ibm.com, chris@zankel.net, davem@davemloft.net,
-        hca@linux.ibm.com, deller@gmx.de, ink@jurassic.park.msu.ru,
-        James.Bottomley@hansenpartnership.com, jirislaby@kernel.org,
-        mattst88@gmail.com, jcmvbkbc@gmail.com, mpe@ellerman.id.au,
-        paulus@samba.org, rth@twiddle.net, dalias@libc.org,
-        tsbogend@alpha.franken.de, gor@linux.ibm.com, ysato@users.osdn.me,
-        linux-kernel@vger.kernel.org, ar@cs.msu.ru,
-        linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org,
-        linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
+References: <20220129121728.1079364-1-guoren@kernel.org> <20220129121728.1079364-4-guoren@kernel.org>
+In-Reply-To: <20220129121728.1079364-4-guoren@kernel.org>
+From:   Arnd Bergmann <arnd@arndb.de>
+Date:   Sat, 29 Jan 2022 22:40:02 +0100
+X-Gmail-Original-Message-ID: <CAK8P3a0jK4quTT6txPakQuuAjyoMXRq1eM35pCFLo0PQNq+p2Q@mail.gmail.com>
+Message-ID: <CAK8P3a0jK4quTT6txPakQuuAjyoMXRq1eM35pCFLo0PQNq+p2Q@mail.gmail.com>
+Subject: Re: [PATCH V4 03/17] asm-generic: compat: Cleanup duplicate definitions
+To:     Guo Ren <guoren@kernel.org>
+Cc:     Palmer Dabbelt <palmer@dabbelt.com>, Arnd Bergmann <arnd@arndb.de>,
+        Anup Patel <anup@brainfault.org>,
+        gregkh <gregkh@linuxfoundation.org>,
+        liush <liush@allwinnertech.com>, Wei Fu <wefu@redhat.com>,
+        Drew Fustini <drew@beagleboard.org>,
+        Wang Junqiang <wangjunqiang@iscas.ac.cn>,
+        Christoph Hellwig <hch@lst.de>,
+        Christoph Hellwig <hch@infradead.org>,
+        linux-arch <linux-arch@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-csky@vger.kernel.org,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Guo Ren <guoren@linux.alibaba.com>
 Content-Type: text/plain; charset="UTF-8"
+X-Provags-ID: V03:K1:lnMfdgYEnSzWgrBdIox1QiTtJ/mhHPon38ownGxPYpb8Uida3VU
+ tfyy4FXB2xzzPbBOtGmv5a4pBMEEwyX8O9L1f+kulgNvew7caxFsmKjzWFd+zLH4Fejx5l+
+ xassjjrOzMYYfFKqcaxlqyWAWmJ/hygLwuzTj6az5ltiiR6k1hxnFeXy1bEFXbs8GorGkjJ
+ zEl1/GLHKvkmvf/pVWmjw==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:+xAXmlQqFQ0=:q+/YVKL9cK4h9X74Ey2YvJ
+ upHTbUlCwlp/hRQIU2bY3zQKgizxwntrROt8rL9SDmbxXt1t9xeiH9gl01IN5lHGQE4F509VY
+ PE5BcwOJWst8MWCYFiskFW5fHUP4hpqK1iiLACC8GL/xk+2vq8XvtkypvcwAFSPAhFPCOv5fk
+ WEFtf46LfdL1BtGJhTXpo6WAMgzu7+RQiKzGL2fpCWRQHeR/q0pVdgjxZATz0mklQA2ry0rxX
+ WlWL2KNZv85yJciTzU3lZ1+olVgzVJ6bW811KHgBuaoNefuqX9MOEZSCaHFnBX/l5gMPdrPll
+ 51wRPTqB8QRBvnqGZTfMdAHma8C3jx366/Llc5HJpqFmgSMXiAAVDu0zv9bUvRfau/eEbGRIW
+ AQYaxk5TgqDdohW4PzPqf4V+OA0jZnTZLhxdCi4CXgwUvqZtqAA/Gk7E+0sIte3LK+65xMZzL
+ 4hhAefxkz6QTglhcmXDFCozB4OpQqvtX/spngdIDdseRL0Z8Q0j/idC0e1mYPJt/NN9Hs9D/U
+ rbReiEIS5pjpCKzzxRoYx7K4b2sP/PXrfr3Iphm6JMwqfvyK5D+DgyFbZieQKdXelPOWdZJIr
+ mO1N72L4x2usAHDO3SKhIOq4HzITZIIT1IJFjosHJ1qI6o3/oPvGqMZeCZyN95DuM2YnUirFa
+ icB0qacmeX6rA85wW4PTuMQHLsGu69h0doRRlK2XxRu7ZFzzQ/Kww9dT6ZHYkh036G0NhjKTr
+ L5JFGyW2RyI8yUnOUh3949XJgOa2HNLfuhUC0YyHnI4HF7fNwJ7dTTebGHwbnZQmq08LP8udI
+ KFcvUfXzKU8E0W7uhYGAcWv+bpd1bPXOZ68FA3AaB80qORmrTU=
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-ACK, will do.
+On Sat, Jan 29, 2022 at 1:17 PM <guoren@kernel.org> wrote:
+>
+> From: Guo Ren <guoren@linux.alibaba.com>
+>
+> There are 7 64bit architectures that support Linux COMPAT mode to
+> run 32bit applications. A lot of definitions are duplicate:
+>  - COMPAT_USER_HZ
+>  - COMPAT_RLIM_INFINITY
+>  - COMPAT_OFF_T_MAX
+>  - __compat_uid_t, __compat_uid_t
+>  - compat_dev_t
+>  - compat_ipc_pid_t
+>  - struct compat_flock
+>  - struct compat_flock64
+>  - struct compat_statfs
+>  - struct compat_ipc64_perm, compat_semid64_ds,
+>           compat_msqid64_ds, compat_shmid64_ds
+>
+> Cleanup duplicate definitions and merge them into asm-generic.
+>
+> Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+> Signed-off-by: Guo Ren <guoren@kernel.org>
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Cc: Palmer Dabbelt <palmer@dabbelt.com>
 
-On Wed, Jan 26, 2022 at 5:45 AM Greg KH <gregkh@linuxfoundation.org> wrote:
->
-> On Mon, Jan 17, 2022 at 08:42:57PM -0800, Walt Drummond wrote:
-> > This patchset adds TTY status message request feature to the n_tty
-> > line dicipline.  This feature prints a brief message containing basic
-> > system and process group information to a user's TTY in response to a
-> > new control character in the line dicipline (default Ctrl-T) or the
-> > TIOCSTAT ioctl.  The message contains the current system load, the
-> > name and PID of an interesting process in the forground process group,
-> > it's run time, percent CPU usage and RSS.  An example of this message
-> > is:
-> >
-> >   load: 0.31  cmd: sleep 3616843 [sleeping] 0.36r 0.00u 0.00s 0% 696k
-> >
-> > User API visible changes are limited to:
-> >  - The addition of VSTATUS in termios.c_cc[]
-> >  - The addition of NOKERNINFO bit in termios.l_cflags
-> >  - The addition of the TIOCSTAT ioctl number
-> >
-> > None of these changes break the existing kernel api as the termios
-> > structure on all architectures has enough space in the control
-> > character array (.c_cc) for the new character, and the other changes
-> > are space agnostic.
-> >
-> > This feature is in many other Unix-like systems, both current and
-> > historical.  In other implementations, this feature would also send
-> > SIGINFO to the process group; this implementation does not.
-> >
-> > Walt Drummond (3):
-> >   vstatus: Allow the n_tty line dicipline to write to a user tty
-> >   vstatus: Add user space API definitions for VSTATUS, NOKERNINFO and
-> >     TIOCSTAT
-> >   status: Display an informational message when the VSTATUS character is
-> >     pressed or TIOCSTAT ioctl is called.
-> >
-> >  arch/alpha/include/asm/termios.h         |   4 +-
-> >  arch/alpha/include/uapi/asm/ioctls.h     |   1 +
-> >  arch/alpha/include/uapi/asm/termbits.h   |  34 ++---
-> >  arch/ia64/include/asm/termios.h          |   4 +-
-> >  arch/ia64/include/uapi/asm/termbits.h    |  34 ++---
-> >  arch/mips/include/asm/termios.h          |   4 +-
-> >  arch/mips/include/uapi/asm/ioctls.h      |   1 +
-> >  arch/mips/include/uapi/asm/termbits.h    |  36 ++---
-> >  arch/parisc/include/asm/termios.h        |   4 +-
-> >  arch/parisc/include/uapi/asm/ioctls.h    |   1 +
-> >  arch/parisc/include/uapi/asm/termbits.h  |  34 ++---
-> >  arch/powerpc/include/asm/termios.h       |   4 +-
-> >  arch/powerpc/include/uapi/asm/ioctls.h   |   2 +
-> >  arch/powerpc/include/uapi/asm/termbits.h |  34 ++---
-> >  arch/s390/include/asm/termios.h          |   4 +-
-> >  arch/sh/include/uapi/asm/ioctls.h        |   1 +
-> >  arch/sparc/include/uapi/asm/ioctls.h     |   1 +
-> >  arch/sparc/include/uapi/asm/termbits.h   |  38 +++---
-> >  arch/xtensa/include/uapi/asm/ioctls.h    |   1 +
-> >  drivers/tty/Makefile                     |   2 +-
-> >  drivers/tty/n_tty.c                      | 113 +++++++++++-----
-> >  drivers/tty/n_tty_status.c               | 162 +++++++++++++++++++++++
-> >  drivers/tty/tty_io.c                     |   2 +-
-> >  include/asm-generic/termios.h            |   4 +-
-> >  include/linux/tty.h                      | 123 ++++++++---------
-> >  include/uapi/asm-generic/ioctls.h        |   1 +
-> >  include/uapi/asm-generic/termbits.h      |  34 ++---
-> >  27 files changed, 461 insertions(+), 222 deletions(-)
-> >  create mode 100644 drivers/tty/n_tty_status.c
-> >
-> > --
-> > 2.30.2
-> >
->
-> You forgot to cc: me on patch 2/3, which would be needed if I was to
-> take them all.
->
-> Please fix up patch 2 and resend the whole series.
->
-> thanks,
->
-> greg k-h
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
