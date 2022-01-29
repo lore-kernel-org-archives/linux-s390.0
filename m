@@ -2,32 +2,35 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AB61FC43219
-	for <linux-s390@archiver.kernel.org>; Sat, 29 Jan 2022 12:20:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F4F9C433EF
+	for <linux-s390@archiver.kernel.org>; Sat, 29 Jan 2022 12:21:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345453AbiA2MT3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 29 Jan 2022 07:19:29 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:47992 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345096AbiA2MSm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 29 Jan 2022 07:18:42 -0500
+        id S1345558AbiA2MV2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 29 Jan 2022 07:21:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52560 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345577AbiA2MTF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 29 Jan 2022 07:19:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC75DC061748;
+        Sat, 29 Jan 2022 04:19:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 74CABB827AA;
-        Sat, 29 Jan 2022 12:18:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BFFDC340EE;
-        Sat, 29 Jan 2022 12:18:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F0FC60B65;
+        Sat, 29 Jan 2022 12:19:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6E62C340EE;
+        Sat, 29 Jan 2022 12:18:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643458718;
-        bh=AVBhZ6mvaynHSvTjpMrfy0VIb0ZM79b6721KFvNFepo=;
+        s=k20201202; t=1643458743;
+        bh=1q1Bx0MtzBKneJKjQO9ZDlnA1jNMeMLD3S0crCJkAiw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m33Jn6g9VkCeHbKptQ5QXrMUEdyOL4UJUAiX/ap+z+9/v/4O44ZviMWs7+l0WGJpa
-         qzfZzqbDcARNOJWx6bRhYNndcjJZ6GI/x14HvqIDGvPyPe9AVef251prxi/BsOvxvC
-         DaiF1MyomIcPPfcdfWJREWfNByFo9AiGFbE1wjGqkuliOLXpK79xUH3fyn27IyyG9P
-         F/IkxgYF4TORFgcOjMnNk+tBYJIE7Pr9OIDcc7yKQBv8lkW5yuGii8ldzZj+yRZg0y
-         jrv0aFgurKhRoJxJg/GbKqxR/Edt2AOMaICxehsZjDyWhIFK8qDdK0006N16xP1jK0
-         pXRIe/CiTS/xg==
+        b=hft9dR7QcD5PWmUuxAazJ8R6rDfIFcLUqOXhoikikiinU08a+eZY4F/DXoOJrc2Us
+         sYWaUplgGWqcyY3wB/h8QEpJsTg61FqavVCZkdt+1vTAKi+XNC2j2Iytv/iGdkh4s3
+         JDv3074n1Ahk4dbxUNsAtBteERVT0GtYYSEQS7jFHDkJ9YxONYpwmX0YwGFb1qQom2
+         ii58Gc1CuL3AeA426LnFFEp9i02k9N2QbP8iGMLOn1e8AAeTaAfez0Kcbx1aPZiZBg
+         Nv2wXVnOCB26/MjhC0OI+HkCSKP48MipNSnQb1HJt304c/wq2j0K3FnSEpKC97koZP
+         n18ZYGFUeYalQ==
 From:   guoren@kernel.org
 To:     guoren@kernel.org, palmer@dabbelt.com, arnd@arndb.de,
         anup@brainfault.org, gregkh@linuxfoundation.org,
@@ -39,9 +42,9 @@ Cc:     linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, linux-parisc@vger.kernel.org,
         linux-mips@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         x86@kernel.org, Guo Ren <guoren@linux.alibaba.com>
-Subject: [PATCH V4 08/17] riscv: compat: syscall: Add compat_sys_call_table implementation
-Date:   Sat, 29 Jan 2022 20:17:19 +0800
-Message-Id: <20220129121728.1079364-9-guoren@kernel.org>
+Subject: [PATCH V4 12/17] riscv: compat: vdso: Add rv32 VDSO base code implementation
+Date:   Sat, 29 Jan 2022 20:17:23 +0800
+Message-Id: <20220129121728.1079364-13-guoren@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220129121728.1079364-1-guoren@kernel.org>
 References: <20220129121728.1079364-1-guoren@kernel.org>
@@ -53,337 +56,314 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Guo Ren <guoren@linux.alibaba.com>
 
-Implement compat sys_call_table and some system call functions:
-truncate64, ftruncate64, fallocate, pread64, pwrite64,
-sync_file_range, readahead, fadvise64_64 which need argument
-translation.
+There is no vgettimeofday supported in rv32 that makes simple to
+generate rv32 vdso code which only needs riscv64 compiler. Other
+architectures need change compiler or -m (machine parameter) to
+support vdso32 compiling. If rv32 support vgettimeofday (which
+cause C compile) in future, we would add CROSS_COMPILE to support
+that makes more requirement on compiler enviornment.
+
+linux-rv64/arch/riscv/kernel/compat_vdso/compat_vdso.so.dbg:
+file format elf64-littleriscv
+
+Disassembly of section .text:
+
+0000000000000800 <__vdso_rt_sigreturn>:
+ 800:   08b00893                li      a7,139
+ 804:   00000073                ecall
+ 808:   0000                    unimp
+        ...
+
+000000000000080c <__vdso_getcpu>:
+ 80c:   0a800893                li      a7,168
+ 810:   00000073                ecall
+ 814:   8082                    ret
+        ...
+
+0000000000000818 <__vdso_flush_icache>:
+ 818:   10300893                li      a7,259
+ 81c:   00000073                ecall
+ 820:   8082                    ret
+
+linux-rv32/arch/riscv/kernel/vdso/vdso.so.dbg:
+file format elf32-littleriscv
+
+Disassembly of section .text:
+
+00000800 <__vdso_rt_sigreturn>:
+ 800:   08b00893                li      a7,139
+ 804:   00000073                ecall
+ 808:   0000                    unimp
+        ...
+
+0000080c <__vdso_getcpu>:
+ 80c:   0a800893                li      a7,168
+ 810:   00000073                ecall
+ 814:   8082                    ret
+        ...
+
+00000818 <__vdso_flush_icache>:
+ 818:   10300893                li      a7,259
+ 81c:   00000073                ecall
+ 820:   8082                    ret
+
+Finally, reuse all *.S from vdso in compat_vdso that makes
+implementation clear and readable.
 
 Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 Signed-off-by: Guo Ren <guoren@kernel.org>
 Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
 ---
- arch/riscv/include/asm/syscall.h         |  1 +
- arch/riscv/include/asm/unistd.h          | 11 +++++++
- arch/riscv/include/uapi/asm/unistd.h     |  2 +-
- arch/riscv/kernel/Makefile               |  1 +
- arch/riscv/kernel/compat_syscall_table.c | 19 ++++++++++++
- arch/riscv/kernel/sys_riscv.c            |  6 ++--
- fs/open.c                                | 24 +++++++++++++++
- fs/read_write.c                          | 16 ++++++++++
- fs/sync.c                                |  9 ++++++
- include/asm-generic/compat.h             |  7 +++++
- include/linux/compat.h                   | 37 ++++++++++++++++++++++++
- mm/fadvise.c                             | 11 +++++++
- mm/readahead.c                           |  7 +++++
- 13 files changed, 148 insertions(+), 3 deletions(-)
- create mode 100644 arch/riscv/kernel/compat_syscall_table.c
+ arch/riscv/Makefile                           |  5 ++
+ arch/riscv/include/asm/vdso.h                 |  9 +++
+ arch/riscv/kernel/Makefile                    |  1 +
+ arch/riscv/kernel/compat_vdso/.gitignore      |  2 +
+ arch/riscv/kernel/compat_vdso/Makefile        | 68 +++++++++++++++++++
+ arch/riscv/kernel/compat_vdso/compat_vdso.S   |  8 +++
+ .../kernel/compat_vdso/compat_vdso.lds.S      |  3 +
+ arch/riscv/kernel/compat_vdso/flush_icache.S  |  3 +
+ .../compat_vdso/gen_compat_vdso_offsets.sh    |  5 ++
+ arch/riscv/kernel/compat_vdso/getcpu.S        |  3 +
+ arch/riscv/kernel/compat_vdso/note.S          |  3 +
+ arch/riscv/kernel/compat_vdso/rt_sigreturn.S  |  3 +
+ arch/riscv/kernel/vdso/vdso.S                 |  6 +-
+ 13 files changed, 118 insertions(+), 1 deletion(-)
+ create mode 100644 arch/riscv/kernel/compat_vdso/.gitignore
+ create mode 100644 arch/riscv/kernel/compat_vdso/Makefile
+ create mode 100644 arch/riscv/kernel/compat_vdso/compat_vdso.S
+ create mode 100644 arch/riscv/kernel/compat_vdso/compat_vdso.lds.S
+ create mode 100644 arch/riscv/kernel/compat_vdso/flush_icache.S
+ create mode 100755 arch/riscv/kernel/compat_vdso/gen_compat_vdso_offsets.sh
+ create mode 100644 arch/riscv/kernel/compat_vdso/getcpu.S
+ create mode 100644 arch/riscv/kernel/compat_vdso/note.S
+ create mode 100644 arch/riscv/kernel/compat_vdso/rt_sigreturn.S
 
-diff --git a/arch/riscv/include/asm/syscall.h b/arch/riscv/include/asm/syscall.h
-index 7ac6a0e275f2..384a63b86420 100644
---- a/arch/riscv/include/asm/syscall.h
-+++ b/arch/riscv/include/asm/syscall.h
-@@ -16,6 +16,7 @@
+diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
+index a02e588c4947..f73d50552e09 100644
+--- a/arch/riscv/Makefile
++++ b/arch/riscv/Makefile
+@@ -106,12 +106,17 @@ libs-$(CONFIG_EFI_STUB) += $(objtree)/drivers/firmware/efi/libstub/lib.a
+ PHONY += vdso_install
+ vdso_install:
+ 	$(Q)$(MAKE) $(build)=arch/riscv/kernel/vdso $@
++	$(if $(CONFIG_COMPAT),$(Q)$(MAKE) \
++		$(build)=arch/riscv/kernel/compat_vdso $@)
  
- /* The array of function pointers for syscalls. */
- extern void * const sys_call_table[];
-+extern void * const compat_sys_call_table[];
- 
- /*
-  * Only the low 32 bits of orig_r0 are meaningful, so we return int.
-diff --git a/arch/riscv/include/asm/unistd.h b/arch/riscv/include/asm/unistd.h
-index 6c316093a1e5..5ddac412b578 100644
---- a/arch/riscv/include/asm/unistd.h
-+++ b/arch/riscv/include/asm/unistd.h
-@@ -11,6 +11,17 @@
- #define __ARCH_WANT_SYS_CLONE
- #define __ARCH_WANT_MEMFD_SECRET
- 
-+#ifdef CONFIG_COMPAT
-+#define __ARCH_WANT_COMPAT_TRUNCATE64
-+#define __ARCH_WANT_COMPAT_FTRUNCATE64
-+#define __ARCH_WANT_COMPAT_FALLOCATE
-+#define __ARCH_WANT_COMPAT_PREAD64
-+#define __ARCH_WANT_COMPAT_PWRITE64
-+#define __ARCH_WANT_COMPAT_SYNC_FILE_RANGE
-+#define __ARCH_WANT_COMPAT_READAHEAD
-+#define __ARCH_WANT_COMPAT_FADVISE64_64
-+#endif
+ ifeq ($(KBUILD_EXTMOD),)
+ ifeq ($(CONFIG_MMU),y)
+ prepare: vdso_prepare
+ vdso_prepare: prepare0
+ 	$(Q)$(MAKE) $(build)=arch/riscv/kernel/vdso include/generated/vdso-offsets.h
++	$(if $(CONFIG_COMPAT),$(Q)$(MAKE) \
++		$(build)=arch/riscv/kernel/compat_vdso include/generated/compat_vdso-offsets.h)
 +
- #include <uapi/asm/unistd.h>
+ endif
+ endif
  
- #define NR_syscalls (__NR_syscalls)
-diff --git a/arch/riscv/include/uapi/asm/unistd.h b/arch/riscv/include/uapi/asm/unistd.h
-index 8062996c2dfd..c9e50eed14aa 100644
---- a/arch/riscv/include/uapi/asm/unistd.h
-+++ b/arch/riscv/include/uapi/asm/unistd.h
-@@ -15,7 +15,7 @@
-  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-  */
+diff --git a/arch/riscv/include/asm/vdso.h b/arch/riscv/include/asm/vdso.h
+index bc6f75f3a199..af981426fe0f 100644
+--- a/arch/riscv/include/asm/vdso.h
++++ b/arch/riscv/include/asm/vdso.h
+@@ -21,6 +21,15 @@
  
--#ifdef __LP64__
-+#if defined(__LP64__) && !defined(__SYSCALL_COMPAT)
- #define __ARCH_WANT_NEW_STAT
- #define __ARCH_WANT_SET_GET_RLIMIT
- #endif /* __LP64__ */
+ #define VDSO_SYMBOL(base, name)							\
+ 	(void __user *)((unsigned long)(base) + __vdso_##name##_offset)
++
++#ifdef CONFIG_COMPAT
++#include <generated/compat_vdso-offsets.h>
++
++#define COMPAT_VDSO_SYMBOL(base, name)						\
++	(void __user *)((unsigned long)(base) + compat__vdso_##name##_offset)
++
++#endif /* CONFIG_COMPAT */
++
+ #endif /* !__ASSEMBLY__ */
+ 
+ #endif /* CONFIG_MMU */
 diff --git a/arch/riscv/kernel/Makefile b/arch/riscv/kernel/Makefile
-index 612556faa527..954dc7043ad2 100644
+index 954dc7043ad2..88e79f481c21 100644
 --- a/arch/riscv/kernel/Makefile
 +++ b/arch/riscv/kernel/Makefile
-@@ -66,3 +66,4 @@ obj-$(CONFIG_CRASH_DUMP)	+= crash_dump.o
- obj-$(CONFIG_JUMP_LABEL)	+= jump_label.o
+@@ -67,3 +67,4 @@ obj-$(CONFIG_JUMP_LABEL)	+= jump_label.o
  
  obj-$(CONFIG_EFI)		+= efi.o
-+obj-$(CONFIG_COMPAT)		+= compat_syscall_table.o
-diff --git a/arch/riscv/kernel/compat_syscall_table.c b/arch/riscv/kernel/compat_syscall_table.c
+ obj-$(CONFIG_COMPAT)		+= compat_syscall_table.o
++obj-$(CONFIG_COMPAT)		+= compat_vdso/
+diff --git a/arch/riscv/kernel/compat_vdso/.gitignore b/arch/riscv/kernel/compat_vdso/.gitignore
 new file mode 100644
-index 000000000000..651f2b009c28
+index 000000000000..19d83d846c1e
 --- /dev/null
-+++ b/arch/riscv/kernel/compat_syscall_table.c
-@@ -0,0 +1,19 @@
-+// SPDX-License-Identifier: GPL-2.0-only
++++ b/arch/riscv/kernel/compat_vdso/.gitignore
+@@ -0,0 +1,2 @@
++# SPDX-License-Identifier: GPL-2.0-only
++compat_vdso.lds
+diff --git a/arch/riscv/kernel/compat_vdso/Makefile b/arch/riscv/kernel/compat_vdso/Makefile
+new file mode 100644
+index 000000000000..7bbbbf94307f
+--- /dev/null
++++ b/arch/riscv/kernel/compat_vdso/Makefile
+@@ -0,0 +1,68 @@
++# SPDX-License-Identifier: GPL-2.0-only
 +
-+#define __SYSCALL_COMPAT
++# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
++# the inclusion of generic Makefile.
++ARCH_REL_TYPE_ABS := R_RISCV_32|R_RISCV_64|R_RISCV_JUMP_SLOT
++include $(srctree)/lib/vdso/Makefile
++# Symbols present in the compat_vdso
++compat_vdso-syms  = rt_sigreturn
++compat_vdso-syms += getcpu
++compat_vdso-syms += flush_icache
 +
-+#include <linux/compat.h>
-+#include <linux/syscalls.h>
-+#include <asm-generic/mman-common.h>
-+#include <asm-generic/syscalls.h>
-+#include <asm/syscall.h>
++# Files to link into the compat_vdso
++obj-compat_vdso = $(patsubst %, %.o, $(compat_vdso-syms)) note.o
 +
-+#undef __SYSCALL
-+#define __SYSCALL(nr, call)      [nr] = (call),
++ccflags-y := -fno-stack-protector
 +
-+asmlinkage long compat_sys_rt_sigreturn(void);
++# Build rules
++targets := $(obj-compat_vdso) compat_vdso.so compat_vdso.so.dbg compat_vdso.lds
++obj-compat_vdso := $(addprefix $(obj)/, $(obj-compat_vdso))
 +
-+void * const compat_sys_call_table[__NR_syscalls] = {
-+	[0 ... __NR_syscalls - 1] = sys_ni_syscall,
-+#include <asm/unistd.h>
-+};
-diff --git a/arch/riscv/kernel/sys_riscv.c b/arch/riscv/kernel/sys_riscv.c
-index 12f8a7fce78b..9c0194f176fc 100644
---- a/arch/riscv/kernel/sys_riscv.c
-+++ b/arch/riscv/kernel/sys_riscv.c
-@@ -33,7 +33,9 @@ SYSCALL_DEFINE6(mmap, unsigned long, addr, unsigned long, len,
- {
- 	return riscv_sys_mmap(addr, len, prot, flags, fd, offset, 0);
- }
--#else
-+#endif
++obj-y += compat_vdso.o
++CPPFLAGS_compat_vdso.lds += -P -C -U$(ARCH)
 +
-+#if defined(CONFIG_32BIT) || defined(CONFIG_COMPAT)
- SYSCALL_DEFINE6(mmap2, unsigned long, addr, unsigned long, len,
- 	unsigned long, prot, unsigned long, flags,
- 	unsigned long, fd, off_t, offset)
-@@ -44,7 +46,7 @@ SYSCALL_DEFINE6(mmap2, unsigned long, addr, unsigned long, len,
- 	 */
- 	return riscv_sys_mmap(addr, len, prot, flags, fd, offset, 12);
- }
--#endif /* !CONFIG_64BIT */
-+#endif
++# Disable profiling and instrumentation for VDSO code
++GCOV_PROFILE := n
++KCOV_INSTRUMENT := n
++KASAN_SANITIZE := n
++UBSAN_SANITIZE := n
++
++# Force dependency
++$(obj)/compat_vdso.o: $(obj)/compat_vdso.so
++
++# link rule for the .so file, .lds has to be first
++$(obj)/compat_vdso.so.dbg: $(obj)/compat_vdso.lds $(obj-compat_vdso) FORCE
++	$(call if_changed,compat_vdsold)
++LDFLAGS_compat_vdso.so.dbg = -shared -S -soname=linux-compat_vdso.so.1 \
++	--build-id=sha1 --hash-style=both --eh-frame-hdr
++
++# strip rule for the .so file
++$(obj)/%.so: OBJCOPYFLAGS := -S
++$(obj)/%.so: $(obj)/%.so.dbg FORCE
++	$(call if_changed,objcopy)
++
++# Generate VDSO offsets using helper script
++gen-compat_vdsosym := $(srctree)/$(src)/gen_compat_vdso_offsets.sh
++quiet_cmd_compat_vdsosym = VDSOSYM $@
++	cmd_compat_vdsosym = $(NM) $< | $(gen-compat_vdsosym) | LC_ALL=C sort > $@
++
++include/generated/compat_vdso-offsets.h: $(obj)/compat_vdso.so.dbg FORCE
++	$(call if_changed,compat_vdsosym)
++
++# actual build commands
++# The DSO images are built using a special linker script
++# Make sure only to export the intended __compat_vdso_xxx symbol offsets.
++quiet_cmd_compat_vdsold = VDSOLD  $@
++      cmd_compat_vdsold = $(LD) $(ld_flags) -T $(filter-out FORCE,$^) -o $@.tmp && \
++                   $(OBJCOPY) $(patsubst %, -G __compat_vdso_%, $(compat_vdso-syms)) $@.tmp $@ && \
++                   rm $@.tmp
++
++# install commands for the unstripped file
++quiet_cmd_compat_vdso_install = INSTALL $@
++      cmd_compat_vdso_install = cp $(obj)/$@.dbg $(MODLIB)/compat_vdso/$@
++
++compat_vdso.so: $(obj)/compat_vdso.so.dbg
++	@mkdir -p $(MODLIB)/compat_vdso
++	$(call cmd,compat_vdso_install)
++
++compat_vdso_install: compat_vdso.so
+diff --git a/arch/riscv/kernel/compat_vdso/compat_vdso.S b/arch/riscv/kernel/compat_vdso/compat_vdso.S
+new file mode 100644
+index 000000000000..fea4a8b0c45d
+--- /dev/null
++++ b/arch/riscv/kernel/compat_vdso/compat_vdso.S
+@@ -0,0 +1,8 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++
++#define	vdso_start	compat_vdso_start
++#define	vdso_end	compat_vdso_end
++
++#define	__VDSO_PATH	"arch/riscv/kernel/compat_vdso/compat_vdso.so"
++
++#include <../vdso/vdso.S>
+diff --git a/arch/riscv/kernel/compat_vdso/compat_vdso.lds.S b/arch/riscv/kernel/compat_vdso/compat_vdso.lds.S
+new file mode 100644
+index 000000000000..02a9ec5dc7f6
+--- /dev/null
++++ b/arch/riscv/kernel/compat_vdso/compat_vdso.lds.S
+@@ -0,0 +1,3 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++
++#include <../vdso/vdso.lds.S>
+diff --git a/arch/riscv/kernel/compat_vdso/flush_icache.S b/arch/riscv/kernel/compat_vdso/flush_icache.S
+new file mode 100644
+index 000000000000..88e21a84a974
+--- /dev/null
++++ b/arch/riscv/kernel/compat_vdso/flush_icache.S
+@@ -0,0 +1,3 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++
++#include <../vdso/flush_icache.S>
+diff --git a/arch/riscv/kernel/compat_vdso/gen_compat_vdso_offsets.sh b/arch/riscv/kernel/compat_vdso/gen_compat_vdso_offsets.sh
+new file mode 100755
+index 000000000000..8ac070c783b3
+--- /dev/null
++++ b/arch/riscv/kernel/compat_vdso/gen_compat_vdso_offsets.sh
+@@ -0,0 +1,5 @@
++#!/bin/sh
++# SPDX-License-Identifier: GPL-2.0
++
++LC_ALL=C
++sed -n -e 's/^[0]\+\(0[0-9a-fA-F]*\) . \(__vdso_[a-zA-Z0-9_]*\)$/\#define compat\2_offset\t0x\1/p'
+diff --git a/arch/riscv/kernel/compat_vdso/getcpu.S b/arch/riscv/kernel/compat_vdso/getcpu.S
+new file mode 100644
+index 000000000000..946449a15a94
+--- /dev/null
++++ b/arch/riscv/kernel/compat_vdso/getcpu.S
+@@ -0,0 +1,3 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++
++#include <../vdso/getcpu.S>
+diff --git a/arch/riscv/kernel/compat_vdso/note.S b/arch/riscv/kernel/compat_vdso/note.S
+new file mode 100644
+index 000000000000..67c50898b8e5
+--- /dev/null
++++ b/arch/riscv/kernel/compat_vdso/note.S
+@@ -0,0 +1,3 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++
++#include <../vdso/note.S>
+diff --git a/arch/riscv/kernel/compat_vdso/rt_sigreturn.S b/arch/riscv/kernel/compat_vdso/rt_sigreturn.S
+new file mode 100644
+index 000000000000..f4c98f18c053
+--- /dev/null
++++ b/arch/riscv/kernel/compat_vdso/rt_sigreturn.S
+@@ -0,0 +1,3 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++
++#include <../vdso/rt_sigreturn.S>
+diff --git a/arch/riscv/kernel/vdso/vdso.S b/arch/riscv/kernel/vdso/vdso.S
+index df222245be05..83f1c899e8d8 100644
+--- a/arch/riscv/kernel/vdso/vdso.S
++++ b/arch/riscv/kernel/vdso/vdso.S
+@@ -7,12 +7,16 @@
+ #include <linux/linkage.h>
+ #include <asm/page.h>
  
- /*
-  * Allows the instruction cache to be flushed from userspace.  Despite RISC-V
-diff --git a/fs/open.c b/fs/open.c
-index 9ff2f621b760..b25613f7c0a7 100644
---- a/fs/open.c
-+++ b/fs/open.c
-@@ -224,6 +224,21 @@ SYSCALL_DEFINE2(ftruncate64, unsigned int, fd, loff_t, length)
- }
- #endif /* BITS_PER_LONG == 32 */
++#ifndef __VDSO_PATH
++#define __VDSO_PATH "arch/riscv/kernel/vdso/vdso.so"
++#endif
++
+ 	__PAGE_ALIGNED_DATA
  
-+#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_TRUNCATE64)
-+COMPAT_SYSCALL_DEFINE3(truncate64, const char __user *, pathname,
-+		       compat_arg_u64_dual(length))
-+{
-+	return ksys_truncate(pathname, compat_arg_u64_glue(length));
-+}
-+#endif
-+
-+#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_FTRUNCATE64)
-+COMPAT_SYSCALL_DEFINE3(ftruncate64, unsigned int, fd,
-+		       compat_arg_u64_dual(length))
-+{
-+	return ksys_ftruncate(fd, compat_arg_u64_glue(length));
-+}
-+#endif
+ 	.globl vdso_start, vdso_end
+ 	.balign PAGE_SIZE
+ vdso_start:
+-	.incbin "arch/riscv/kernel/vdso/vdso.so"
++	.incbin __VDSO_PATH
+ 	.balign PAGE_SIZE
+ vdso_end:
  
- int vfs_fallocate(struct file *file, int mode, loff_t offset, loff_t len)
- {
-@@ -339,6 +354,15 @@ SYSCALL_DEFINE4(fallocate, int, fd, int, mode, loff_t, offset, loff_t, len)
- 	return ksys_fallocate(fd, mode, offset, len);
- }
- 
-+#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_FALLOCATE)
-+COMPAT_SYSCALL_DEFINE6(fallocate, int, fd, int, mode, compat_arg_u64_dual(offset),
-+		       compat_arg_u64_dual(len))
-+{
-+	return ksys_fallocate(fd, mode, compat_arg_u64_glue(offset),
-+			      compat_arg_u64_glue(len));
-+}
-+#endif
-+
- /*
-  * access() needs to use the real uid/gid, not the effective uid/gid.
-  * We do this by temporarily clearing all FS-related capabilities and
-diff --git a/fs/read_write.c b/fs/read_write.c
-index 0074afa7ecb3..548657c462e8 100644
---- a/fs/read_write.c
-+++ b/fs/read_write.c
-@@ -681,6 +681,14 @@ SYSCALL_DEFINE4(pread64, unsigned int, fd, char __user *, buf,
- 	return ksys_pread64(fd, buf, count, pos);
- }
- 
-+#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_PREAD64)
-+COMPAT_SYSCALL_DEFINE5(pread64, unsigned int, fd, char __user *, buf,
-+		       size_t, count, compat_arg_u64_dual(pos))
-+{
-+	return ksys_pread64(fd, buf, count, compat_arg_u64_glue(pos));
-+}
-+#endif
-+
- ssize_t ksys_pwrite64(unsigned int fd, const char __user *buf,
- 		      size_t count, loff_t pos)
- {
-@@ -707,6 +715,14 @@ SYSCALL_DEFINE4(pwrite64, unsigned int, fd, const char __user *, buf,
- 	return ksys_pwrite64(fd, buf, count, pos);
- }
- 
-+#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_PWRITE64)
-+COMPAT_SYSCALL_DEFINE5(pwrite64, unsigned int, fd, const char __user *, buf,
-+		       size_t, count, compat_arg_u64_dual(pos))
-+{
-+	return ksys_pwrite64(fd, buf, count, compat_arg_u64_glue(pos));
-+}
-+#endif
-+
- static ssize_t do_iter_readv_writev(struct file *filp, struct iov_iter *iter,
- 		loff_t *ppos, int type, rwf_t flags)
- {
-diff --git a/fs/sync.c b/fs/sync.c
-index 3ce8e2137f31..75edb7a664e5 100644
---- a/fs/sync.c
-+++ b/fs/sync.c
-@@ -367,6 +367,15 @@ SYSCALL_DEFINE4(sync_file_range, int, fd, loff_t, offset, loff_t, nbytes,
- 	return ksys_sync_file_range(fd, offset, nbytes, flags);
- }
- 
-+#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_SYNC_FILE_RANGE)
-+COMPAT_SYSCALL_DEFINE6(sync_file_range, int, fd, compat_arg_u64_dual(offset),
-+		       compat_arg_u64_dual(nbytes), unsigned int, flags)
-+{
-+	return ksys_sync_file_range(fd, compat_arg_u64_glue(offset),
-+				    compat_arg_u64_glue(nbytes), flags);
-+}
-+#endif
-+
- /* It would be nice if people remember that not all the world's an i386
-    when they introduce new system calls */
- SYSCALL_DEFINE4(sync_file_range2, int, fd, unsigned int, flags,
-diff --git a/include/asm-generic/compat.h b/include/asm-generic/compat.h
-index 32269059058a..cdf1124a4883 100644
---- a/include/asm-generic/compat.h
-+++ b/include/asm-generic/compat.h
-@@ -14,6 +14,13 @@
- #define COMPAT_OFF_T_MAX	0x7fffffff
- #endif
- 
-+#ifndef compat_arg_u64
-+#define compat_arg_u64(name)		u32  name##_lo, u32  name##_hi
-+#define compat_arg_u64_dual(name)	u32, name##_lo, u32, name##_hi
-+#define compat_arg_u64_glue(name)	(((u64)name##_hi << 32) | \
-+					 ((u64)name##_lo & 0xffffffffUL))
-+#endif
-+
- /* These types are common across all compat ABIs */
- typedef u32 compat_size_t;
- typedef s32 compat_ssize_t;
-diff --git a/include/linux/compat.h b/include/linux/compat.h
-index 1c758b0e0359..841d882c41e2 100644
---- a/include/linux/compat.h
-+++ b/include/linux/compat.h
-@@ -895,6 +895,43 @@ asmlinkage long compat_sys_sigaction(int sig,
- /* obsolete: net/socket.c */
- asmlinkage long compat_sys_socketcall(int call, u32 __user *args);
- 
-+#ifdef __ARCH_WANT_COMPAT_TRUNCATE64
-+asmlinkage long compat_sys_truncate64(const char __user *pathname, compat_arg_u64(len));
-+#endif
-+
-+#ifdef __ARCH_WANT_COMPAT_FTRUNCATE64
-+asmlinkage long compat_sys_ftruncate64(unsigned int fd, compat_arg_u64(len));
-+#endif
-+
-+#ifdef __ARCH_WANT_COMPAT_FALLOCATE
-+asmlinkage long compat_sys_fallocate(int fd, int mode, compat_arg_u64(offset),
-+				     compat_arg_u64(len));
-+#endif
-+
-+#ifdef __ARCH_WANT_COMPAT_PREAD64
-+asmlinkage long compat_sys_pread64(unsigned int fd, char __user * buf, size_t count,
-+				   compat_arg_u64(pos));
-+#endif
-+
-+#ifdef __ARCH_WANT_COMPAT_PWRITE64
-+asmlinkage long compat_sys_pwrite64(unsigned int fd, const char __user * buf, size_t count,
-+				    compat_arg_u64(pos));
-+#endif
-+
-+#ifdef __ARCH_WANT_COMPAT_SYNC_FILE_RANGE
-+asmlinkage long compat_sys_sync_file_range(int fd, compat_arg_u64(pos),
-+					   compat_arg_u64(nbytes), unsigned int flags);
-+#endif
-+
-+#ifdef __ARCH_WANT_COMPAT_FADVISE64_64
-+asmlinkage long compat_sys_fadvise64_64(int fd, int advice, compat_arg_u64(pos),
-+					compat_arg_u64(len));
-+#endif
-+
-+#ifdef __ARCH_WANT_COMPAT_READAHEAD
-+asmlinkage long compat_sys_readahead(int fd, compat_arg_u64(offset), size_t count);
-+#endif
-+
- #endif /* CONFIG_ARCH_HAS_SYSCALL_WRAPPER */
- 
- /**
-diff --git a/mm/fadvise.c b/mm/fadvise.c
-index d6baa4f451c5..8950f7c05d20 100644
---- a/mm/fadvise.c
-+++ b/mm/fadvise.c
-@@ -215,5 +215,16 @@ SYSCALL_DEFINE4(fadvise64, int, fd, loff_t, offset, size_t, len, int, advice)
- 	return ksys_fadvise64_64(fd, offset, len, advice);
- }
- 
-+#endif
-+
-+#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_FADVISE64_64)
-+
-+COMPAT_SYSCALL_DEFINE6(fadvise64_64, int, fd, int, advice, compat_arg_u64_dual(offset),
-+		       compat_arg_u64_dual(len))
-+{
-+	return ksys_fadvise64_64(fd, compat_arg_u64_glue(offset),
-+				 compat_arg_u64_glue(len), advice);
-+}
-+
- #endif
- #endif
-diff --git a/mm/readahead.c b/mm/readahead.c
-index cf0dcf89eb69..9adf57044299 100644
---- a/mm/readahead.c
-+++ b/mm/readahead.c
-@@ -640,6 +640,13 @@ SYSCALL_DEFINE3(readahead, int, fd, loff_t, offset, size_t, count)
- 	return ksys_readahead(fd, offset, count);
- }
- 
-+#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_READAHEAD)
-+COMPAT_SYSCALL_DEFINE4(readahead, int, fd, compat_arg_u64_dual(offset), size_t, count)
-+{
-+	return ksys_readahead(fd, compat_arg_u64_glue(offset), count);
-+}
-+#endif
-+
- /**
-  * readahead_expand - Expand a readahead request
-  * @ractl: The request to be expanded
 -- 
 2.25.1
 
