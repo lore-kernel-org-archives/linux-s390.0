@@ -2,113 +2,89 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C329C43219
-	for <linux-s390@archiver.kernel.org>; Sun, 30 Jan 2022 14:57:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0777BC433F5
+	for <linux-s390@archiver.kernel.org>; Sun, 30 Jan 2022 18:03:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355285AbiA3O5Y (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 30 Jan 2022 09:57:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33484 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347212AbiA3O5X (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 30 Jan 2022 09:57:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3AE8C061714;
-        Sun, 30 Jan 2022 06:57:22 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4710A61209;
-        Sun, 30 Jan 2022 14:57:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD710C340F4;
-        Sun, 30 Jan 2022 14:57:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643554641;
-        bh=JxoHCxPtVM6TBwNWYVTkv4xgv4xXqSSrocAD8RhKPvQ=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=Kos3V8Vk5hA0UEtlbCmKfvDbCn6hgvFJPW0hutP471S22DT8zQZjqZYl8oPtPERRN
-         mHTKJGaAu0B69fJNmAFmItV05nnqnnpRKb/kYsBaVswrhiA3ecXak702UJ1xD+aRyO
-         Cyu417cH+tx6RjZLY1F4C0+gldC8KeEtNsbWOyaylils+pWq32+O/qNqqF6K8vS+Qa
-         DU2SBhQ6eWn63e/dlaU9XUJXP5eg51s3F1n6055BcvsAgOgE2YRIXu5gQZ14MzwtZF
-         RJhpqwiYSrbL56M0Y1luR1ep1hIfdzFS7gAvAKX1Hfe2YnV2vSbhGb9SEapKZC8pBf
-         gYvL1GNaKIrpg==
-Received: by mail-vk1-f177.google.com with SMTP id 48so6819292vki.0;
-        Sun, 30 Jan 2022 06:57:21 -0800 (PST)
-X-Gm-Message-State: AOAM531SRkd//thuARO2vrWnSGybN+UPIiums/Svgjjbto+7QjfzP2Sp
-        NGvD6y/C6qS73OI1JKaTS38670D5BDrYaFvVsh0=
-X-Google-Smtp-Source: ABdhPJwXaD5cftVV1gTUpOLnxRw19SJ6xh2ZrT8jBGfIh39KXnRkloqQEHlrygYgN8HHE2HZ4UXsJQOHGX4lm9oymh8=
-X-Received: by 2002:a05:6122:1c5:: with SMTP id h5mr6907805vko.2.1643554640709;
- Sun, 30 Jan 2022 06:57:20 -0800 (PST)
+        id S1355768AbiA3SDI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 30 Jan 2022 13:03:08 -0500
+Received: from out30-43.freemail.mail.aliyun.com ([115.124.30.43]:58703 "EHLO
+        out30-43.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1355774AbiA3SDI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 30 Jan 2022 13:03:08 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0V3B8I4H_1643565783;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0V3B8I4H_1643565783)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Mon, 31 Jan 2022 02:03:04 +0800
+From:   Tony Lu <tonylu@linux.alibaba.com>
+To:     kgraul@linux.ibm.com, kuba@kernel.org, davem@davemloft.net
+Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [PATCH net-next 0/3] net/smc: Improvements for TCP_CORK and sendfile()
+Date:   Mon, 31 Jan 2022 02:02:54 +0800
+Message-Id: <20220130180256.28303-1-tonylu@linux.alibaba.com>
+X-Mailer: git-send-email 2.35.0
 MIME-Version: 1.0
-References: <20220129121728.1079364-1-guoren@kernel.org> <20220129121728.1079364-9-guoren@kernel.org>
- <CAK8P3a3JGP6fLVOyLgdNw2YpRSmArbEX8orUhRrN=GHmcdk=1g@mail.gmail.com>
- <CAJF2gTQQnrUFNQ85vvoMkpxnCWuMw8iXtPZOJwWGaEA9f+rTwA@mail.gmail.com> <CAK8P3a12CygLFT7qoQ9K=sowvTgNpeRej6Zh6Pv2PL_e2zMhMQ@mail.gmail.com>
-In-Reply-To: <CAK8P3a12CygLFT7qoQ9K=sowvTgNpeRej6Zh6Pv2PL_e2zMhMQ@mail.gmail.com>
-From:   Guo Ren <guoren@kernel.org>
-Date:   Sun, 30 Jan 2022 22:57:09 +0800
-X-Gmail-Original-Message-ID: <CAJF2gTSULHYYvAjfDvHiD-rJFsOy0-x58AKcD2upzpxaVf5sZQ@mail.gmail.com>
-Message-ID: <CAJF2gTSULHYYvAjfDvHiD-rJFsOy0-x58AKcD2upzpxaVf5sZQ@mail.gmail.com>
-Subject: Re: [PATCH V4 08/17] riscv: compat: syscall: Add compat_sys_call_table
- implementation
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Palmer Dabbelt <palmer@dabbelt.com>,
-        Anup Patel <anup@brainfault.org>,
-        gregkh <gregkh@linuxfoundation.org>,
-        liush <liush@allwinnertech.com>, Wei Fu <wefu@redhat.com>,
-        Drew Fustini <drew@beagleboard.org>,
-        Wang Junqiang <wangjunqiang@iscas.ac.cn>,
-        Christoph Hellwig <hch@lst.de>,
-        Christoph Hellwig <hch@infradead.org>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-csky@vger.kernel.org,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Guo Ren <guoren@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sun, Jan 30, 2022 at 7:32 PM Arnd Bergmann <arnd@arndb.de> wrote:
->
-> On Sun, Jan 30, 2022 at 6:54 AM Guo Ren <guoren@kernel.org> wrote:
-> > On Sun, Jan 30, 2022 at 6:41 AM Arnd Bergmann <arnd@arndb.de> wrote:
-> > >
-> > > I would make these endian-specific, and reverse them on big-endian
-> > > architectures. That way it
-> > > should be possible to share them across all compat architectures
-> > > without needing the override
-> > > option.
-> > I hope it could be another patch. Because it's not clear to
-> > _LITTLE_ENDIAN definition in archs.
-> >
-> > eg: Names could be __ORDER_LITTLE_ENDIAN__ CPU_LITTLE_ENDIAN
-> > SYS_SUPPORTS_LITTLE_ENDIAN __LITTLE_ENDIAN
-> >
-> > riscv is little-endian, but no any LITTLE_ENDIAN definition.
-> >
-> > So let's keep them in the patch, first, Thx
->
-> The correct way to do it is to check for CONFIG_CPU_BIG_ENDIAN,
-> which works on all architectures. Since nothing else selects the
-> __ARCH_WANT_COMPAT_* symbols, there is also no risk for
-> regressions, so just use this and leave the #ifndef compat_arg_u64
-> check in place.
-Okay, got it.
+Currently, SMC use default implement for syscall sendfile() [1], which
+is wildly used in nginx and big data sences. Usually, applications use
+sendfile() with TCP_CORK:
 
->
->       Arnd
+fstat(20, {st_mode=S_IFREG|0644, st_size=4096, ...}) = 0
+setsockopt(19, SOL_TCP, TCP_CORK, [1], 4) = 0
+writev(19, [{iov_base="HTTP/1.1 200 OK\r\nServer: nginx/1"..., iov_len=240}], 1) = 240
+sendfile(19, 20, [0] => [4096], 4096)   = 4096
+close(20)                               = 0
+setsockopt(19, SOL_TCP, TCP_CORK, [0], 4) = 0
 
+The above is an example of Nginx, when sendfile() on, Nginx first
+enables TCP_CORK, write headers, the data will not be sent. Then call
+sendfile(), it reads file and write to sndbuf. When TCP_CORK is cleared,
+all pending data is sent out.
 
+The performance of the default implement of sendfile is lower than when
+it is off. After investigation, it shows two parts to improve:
+- unnecessary lock contention of delayed work
+- less data per send than when sendfile off
+
+Patch #1 tries to reduce lock_sock() contention in smc_tx_work().
+Patch #2 removes timed work for corking, and let applications control
+it. See TCP_CORK [2] MSG_MORE [3].
+Patch #3 adds MSG_SENDPAGE_NOTLAST for corking more data when
+sendfile().
+
+Test environments:
+- CPU Intel Xeon Platinum 8 core, mem 32 GiB, nic Mellanox CX4
+- socket sndbuf / rcvbuf: 16384 / 131072 bytes
+- server: smc_run nginx
+- client: smc_run ./wrk -c 100 -t 2 -d 30 http://192.168.100.1:8080/4k.html
+- payload: 4KB local disk file
+
+Items                     QPS
+sendfile off        272477.10
+sendfile on (orig)  223622.79
+sendfile on (this)  395847.21
+
+This benchmark shows +45.28% improvement compared with sendfile off, and
++77.02% compared with original sendfile implement.
+
+[1] https://man7.org/linux/man-pages/man2/sendfile.2.html
+[2] https://linux.die.net/man/7/tcp
+[3] https://man7.org/linux/man-pages/man2/send.2.html
+
+Tony Lu (3):
+  net/smc: Send directly when TCP_CORK is cleared
+  net/smc: Remove corked dealyed work
+  net/smc: Cork when sendpage with MSG_SENDPAGE_NOTLAST flag
+
+ net/smc/af_smc.c |  8 ++++---
+ net/smc/smc_tx.c | 59 ++++++++++++++++++++++++++++++++----------------
+ net/smc/smc_tx.h |  3 +++
+ 3 files changed, 47 insertions(+), 23 deletions(-)
 
 -- 
-Best Regards
- Guo Ren
+2.32.0.3.g01195cf9f
 
-ML: https://lore.kernel.org/linux-csky/
