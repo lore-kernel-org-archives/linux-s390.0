@@ -2,36 +2,53 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CF5FC433EF
-	for <linux-s390@archiver.kernel.org>; Sat, 29 Jan 2022 22:42:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E855C43219
+	for <linux-s390@archiver.kernel.org>; Sun, 30 Jan 2022 05:47:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353359AbiA2Wm3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 29 Jan 2022 17:42:29 -0500
-Received: from mout.kundenserver.de ([212.227.17.13]:36377 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243417AbiA2Wm1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 29 Jan 2022 17:42:27 -0500
-Received: from mail-lf1-f41.google.com ([209.85.167.41]) by
- mrelayeu.kundenserver.de (mreue108 [213.165.67.113]) with ESMTPSA (Nemesis)
- id 1MUXh8-1mnVab0iZs-00QVLS; Sat, 29 Jan 2022 23:42:25 +0100
-Received: by mail-lf1-f41.google.com with SMTP id x11so19043465lfa.2;
-        Sat, 29 Jan 2022 14:42:24 -0800 (PST)
-X-Gm-Message-State: AOAM531LPENl6+KXxvfJsA9tqS18HNo2D2KpIbD6R5kD8gHnUNXXe7de
-        vOZK5fCmxmvo+UsqeygBjhn1hKpGAJ88W4PTRMc=
-X-Google-Smtp-Source: ABdhPJzI0D41s8yrwHglCZkVEr0x+bK1CMwYgZgaz1NErnnr1PsIuPoCJo0tLrBweMwgRCKK6bnEP4/locNb0Mfr0Gg=
-X-Received: by 2002:a05:6000:3c6:: with SMTP id b6mr11705793wrg.12.1643494389446;
- Sat, 29 Jan 2022 14:13:09 -0800 (PST)
+        id S1353761AbiA3Frc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 30 Jan 2022 00:47:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55116 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232598AbiA3Fr3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 30 Jan 2022 00:47:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F765C061714;
+        Sat, 29 Jan 2022 21:47:29 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3F4A760FE7;
+        Sun, 30 Jan 2022 05:47:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95FF4C340EF;
+        Sun, 30 Jan 2022 05:47:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1643521648;
+        bh=CFf7eYVsi2vfAFWFWWepRognCnx0qrq4RXbGFOfmx9c=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=NPAxCNaLTo4erRllOLayMfPUYfUOW9vn8x0aWJepTSfSmFE6cR2eBffVk6qUyvNdZ
+         v3wz8lOjDUgZTz25phHKEAzLGLT1NkVJp8AuWL2ej8PZnZfdv3FX2p4yUbOsNvaLc7
+         ad40OrZwitXivHc3LwQ2Z7IEwtIIa8viQ4z7g/2YsK4NgOLtEh5wOFyP+H7XH8E0bH
+         pTnTrhCsz05K8/+IBl0hK4EOqoejHMaIgxXuF2bpco6R1FaW174GiCmOEtCUbSh1QD
+         /vc0+bphJ+UVCMo6QbiAw+ofwI5iAXuGl0/v6S7yyySZLfYvKOlRd2M4ToNLzAH7hS
+         zlTbUHM35vSDw==
+Received: by mail-vk1-f181.google.com with SMTP id o15so6363423vki.2;
+        Sat, 29 Jan 2022 21:47:28 -0800 (PST)
+X-Gm-Message-State: AOAM532MGjO3TuDTHU5ruU1O+zAGAA0ZZO1mCbx/Nwm6stmtlSrN2yI8
+        82ymSTNg9Za86ll3PXG0t0eEhz+wj6xCQimhG7w=
+X-Google-Smtp-Source: ABdhPJxLWGk5CQ+MBw+7fcsDq1E1+v+xghtxN0mZV6UTIH/aZ2JMAd2qn/Emr/MxaYw7Fbc8Rg4biBjIlqvQekFa+1Q=
+X-Received: by 2002:a05:6122:1306:: with SMTP id e6mr6299952vkp.28.1643521647659;
+ Sat, 29 Jan 2022 21:47:27 -0800 (PST)
 MIME-Version: 1.0
-References: <20220129121728.1079364-1-guoren@kernel.org> <20220129121728.1079364-9-guoren@kernel.org>
-In-Reply-To: <20220129121728.1079364-9-guoren@kernel.org>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Sat, 29 Jan 2022 23:12:53 +0100
-X-Gmail-Original-Message-ID: <CAK8P3a3JGP6fLVOyLgdNw2YpRSmArbEX8orUhRrN=GHmcdk=1g@mail.gmail.com>
-Message-ID: <CAK8P3a3JGP6fLVOyLgdNw2YpRSmArbEX8orUhRrN=GHmcdk=1g@mail.gmail.com>
-Subject: Re: [PATCH V4 08/17] riscv: compat: syscall: Add compat_sys_call_table
- implementation
-To:     Guo Ren <guoren@kernel.org>
-Cc:     Palmer Dabbelt <palmer@dabbelt.com>, Arnd Bergmann <arnd@arndb.de>,
+References: <20220129121728.1079364-1-guoren@kernel.org> <20220129121728.1079364-7-guoren@kernel.org>
+ <CAK8P3a3_kVB78-26sxdsEjb3MMcco6U55tc7siCBFZbJjyH6Sw@mail.gmail.com>
+In-Reply-To: <CAK8P3a3_kVB78-26sxdsEjb3MMcco6U55tc7siCBFZbJjyH6Sw@mail.gmail.com>
+From:   Guo Ren <guoren@kernel.org>
+Date:   Sun, 30 Jan 2022 13:47:16 +0800
+X-Gmail-Original-Message-ID: <CAJF2gTThb8_-T0iOFVZoJrvZqeFvjfWB+AdFyOwtGhN9aG-MQQ@mail.gmail.com>
+Message-ID: <CAJF2gTThb8_-T0iOFVZoJrvZqeFvjfWB+AdFyOwtGhN9aG-MQQ@mail.gmail.com>
+Subject: Re: [PATCH V4 06/17] riscv: compat: Add basic compat date type implementation
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     Palmer Dabbelt <palmer@dabbelt.com>,
         Anup Patel <anup@brainfault.org>,
         gregkh <gregkh@linuxfoundation.org>,
         liush <liush@allwinnertech.com>, Wei Fu <wefu@redhat.com>,
@@ -52,49 +69,38 @@ Cc:     Palmer Dabbelt <palmer@dabbelt.com>, Arnd Bergmann <arnd@arndb.de>,
         "the arch/x86 maintainers" <x86@kernel.org>,
         Guo Ren <guoren@linux.alibaba.com>
 Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:0Yzxyzy2LWbvcWRmp6MeESLeJNu4HiYS0v+nd8H1Q5aXbPkaH3h
- mmZ+2CBXPSpeBCHtzPy5un72C3Yx1seV3vXVkpHT+PrN/YcMbemmvbgD0jHrvhFjno+Tg0Y
- fvqULPUJqNJz+T/rMGy3qgjmCSeLRmCbzt/mIBDRXs4LkxVEYtw0btA1HB91O2De7iHcXyM
- MWdMgVoQ1PPCsUPLhdUVA==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:dWjG/ko0EdY=:+zw7v6BvhXjWByWelgdfw6
- Q3AejGC3+HE8YYQOMcY+giFrl8yPSdiPa7+0ivr3Ipj1oiYMIStsvLVVvOY8ckTDM8oYnur8d
- pCR0f8xgp/UegOdYGfHTcYO1rm8N8sph8OxobFJFfrpIY0lW5cjCqOiNafseRDkhQxea28LWR
- fdb1R5Eg7T0rz8rq08gAxO01DFdaRkMoZXaD5K7Bb747a6m4JjuBfNrJkseFZJm2+W7mcByxw
- nk4ZYr9oPkHqtFRo3zVrt7E8Tk/2Var7bMvnGyk6GvuP8CzOYyUEmuKFFc/7hE5k8xpN/nywi
- I+6jt2iCtD8EV0DSW4pBvAUPYib8iuLvcRS1edR+G305Zao6WGB5+a7FmA6Uw3603dpIlOgB2
- F2y8megL4+vWzqKyv6eSeu8ZxR7/f4nOxveFRfDFpEtGwjvDNGl7cHj+ix2PH1mRfCfbmOkni
- q/w2/Kq50c4OAKOWhJ9rFHymKfb1kKJ1MpHy1rrG21kXl37KVdnm7u3XnSOg4DD0J/vlO0THX
- Enhjc8wH/8kr1DNcJLIog/ku3oTnUL2PUeTF9o8tJiAahGBk++9aEueAQUrZdu+uiY3ik85CZ
- PzVkPJ3bPZzaEEJn0XakE7dWgQ/PCdY7QGhdEVIcnw5rh4U8BIehof++NqNgeaSAZU/Spe5HT
- 0cGKu6qKg1XZUOjQPt7nihz+Gz7+b3pPTGlhvpYUnGJbUj8XSV5mveQs8u/f/80JOTHO9jWAG
- cE0wn/RVJklRA8VjUu2Oj7gXevld3Ox9fPQHMkkCVF1KzvVZ/TTSDT3zglwFcM3ZZPoopchfH
- d7OYU5Bhv76HpKNGmuP6lksZRTpQap8HmTAdW84KRODDXqchCk=
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-> Implement compat sys_call_table and some system call functions:
-> truncate64, ftruncate64, fallocate, pread64, pwrite64,
-> sync_file_range, readahead, fadvise64_64 which need argument
-> translation.
+On Sun, Jan 30, 2022 at 5:56 AM Arnd Bergmann <arnd@arndb.de> wrote:
 >
-> Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-> Signed-off-by: Guo Ren <guoren@kernel.org>
-> Cc: Arnd Bergmann <arnd@arndb.de>
+> On Sat, Jan 29, 2022 at 1:17 PM <guoren@kernel.org> wrote:
+> > +
+> > +#define COMPAT_RLIM_INFINITY   0x7fffffff
+> >
+> > +#define F_GETLK64      12
+> > +#define F_SETLK64      13
+> > +#define F_SETLKW64     14
+>
+> These now come from the generic definitions I think. The flock definitions
+> are just the normal ones,
+Yes, it could be removed after Christoph Hellwig's patch merged.
 
-This all looks really good, but I would change one detail:
+> and AFAICT the RLIM_INIFINITY definition here
+> is actually wrong and should be the default 0xffffffffu to match the
+> native (~0UL) definition.
+Yes, native rv32 used ~0UL, although its task_size is only 2.4GB.
 
-> +#ifndef compat_arg_u64
-> +#define compat_arg_u64(name)           u32  name##_lo, u32  name##_hi
-> +#define compat_arg_u64_dual(name)      u32, name##_lo, u32, name##_hi
-> +#define compat_arg_u64_glue(name)      (((u64)name##_hi << 32) | \
-> +                                        ((u64)name##_lo & 0xffffffffUL))
-> +#endif
+I would remove #define COMPAT_RLIM_INFINITY   0x7fffffff
 
-I would make these endian-specific, and reverse them on big-endian
-architectures. That way it
-should be possible to share them across all compat architectures
-without needing the override
-option.
+>
+>             Arnd
 
-        Arnd
+
+
+-- 
+Best Regards
+ Guo Ren
+
+ML: https://lore.kernel.org/linux-csky/
