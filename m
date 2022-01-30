@@ -2,120 +2,91 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7561C433EF
-	for <linux-s390@archiver.kernel.org>; Sun, 30 Jan 2022 18:03:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 031B0C433EF
+	for <linux-s390@archiver.kernel.org>; Sun, 30 Jan 2022 19:06:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355786AbiA3SDP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 30 Jan 2022 13:03:15 -0500
-Received: from out30-44.freemail.mail.aliyun.com ([115.124.30.44]:38818 "EHLO
-        out30-44.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236867AbiA3SDM (ORCPT
+        id S1355821AbiA3TGB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 30 Jan 2022 14:06:01 -0500
+Received: from out30-45.freemail.mail.aliyun.com ([115.124.30.45]:58628 "EHLO
+        out30-45.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231596AbiA3TFS (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 30 Jan 2022 13:03:12 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04357;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0V3BCr7L_1643565787;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0V3BCr7L_1643565787)
+        Sun, 30 Jan 2022 14:05:18 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0V3BCwlk_1643569515;
+Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0V3BCwlk_1643569515)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Mon, 31 Jan 2022 02:03:08 +0800
+          Mon, 31 Jan 2022 03:05:15 +0800
 From:   Tony Lu <tonylu@linux.alibaba.com>
 To:     kgraul@linux.ibm.com, kuba@kernel.org, davem@davemloft.net
 Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH net-next 3/3] net/smc: Cork when sendpage with MSG_SENDPAGE_NOTLAST flag
-Date:   Mon, 31 Jan 2022 02:02:57 +0800
-Message-Id: <20220130180256.28303-4-tonylu@linux.alibaba.com>
+Subject: [PATCH net-next] net/smc: Allocate pages of SMC-R on ibdev NUMA node
+Date:   Mon, 31 Jan 2022 03:03:00 +0800
+Message-Id: <20220130190259.94593-1-tonylu@linux.alibaba.com>
 X-Mailer: git-send-email 2.35.0
-In-Reply-To: <20220130180256.28303-1-tonylu@linux.alibaba.com>
-References: <20220130180256.28303-1-tonylu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This introduces a new corked flag, MSG_SENDPAGE_NOTLAST, which is
-involved in syscall sendfile() [1], it indicates this is not the last
-page. So we can cork the data until the page is not specify this flag.
-It has the same effect as MSG_MORE, but existed in sendfile() only.
+Currently, pages are allocated in the process context, for its NUMA node
+isn't equal to ibdev's, which is not the best policy for performance.
 
-This patch adds a option MSG_SENDPAGE_NOTLAST for corking data, try to
-cork more data before sending when using sendfile(), which acts like
-TCP's behaviour. Also, this reimplements the default sendpage to inform
-that it is supported to some extent.
+Applications will generally perform best when the processes are
+accessing memory on the same NUMA node. When numa_balancing enabled
+(which is enabled by most of OS distributions), it moves tasks closer to
+the memory of sndbuf or rmb and ibdev, meanwhile, the IRQs of ibdev bind
+to the same node usually. This reduces the latency when accessing remote
+memory.
 
-[1] https://man7.org/linux/man-pages/man2/sendfile.2.html
+According to our tests in different scenarios, there has up to 15.30%
+performance drop (Redis benchmark) when accessing remote memory.
 
 Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
 ---
- net/smc/af_smc.c |  4 +++-
- net/smc/smc_tx.c | 19 ++++++++++++++++++-
- net/smc/smc_tx.h |  2 ++
- 3 files changed, 23 insertions(+), 2 deletions(-)
+ net/smc/smc_core.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index ef021ec6b361..8b78010afe01 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -2729,8 +2729,10 @@ static ssize_t smc_sendpage(struct socket *sock, struct page *page,
- 		rc = kernel_sendpage(smc->clcsock, page, offset,
- 				     size, flags);
- 	} else {
-+		lock_sock(sk);
-+		rc = smc_tx_sendpage(smc, page, offset, size, flags);
-+		release_sock(sk);
- 		SMC_STAT_INC(smc, sendpage_cnt);
--		rc = sock_no_sendpage(sock, page, offset, size, flags);
- 	}
- 
- out:
-diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-index 9cec62cae7cb..a96ce162825e 100644
---- a/net/smc/smc_tx.c
-+++ b/net/smc/smc_tx.c
-@@ -235,7 +235,8 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
- 		 */
- 		if ((msg->msg_flags & MSG_OOB) && !send_remaining)
- 			conn->urg_tx_pend = true;
--		if ((msg->msg_flags & MSG_MORE || smc_tx_is_corked(smc)) &&
-+		if ((msg->msg_flags & MSG_MORE || smc_tx_is_corked(smc) ||
-+		     msg->msg_flags & MSG_SENDPAGE_NOTLAST) &&
- 		    (atomic_read(&conn->sndbuf_space)))
- 			/* for a corked socket defer the RDMA writes if
- 			 * sndbuf_space is still available. The applications
-@@ -257,6 +258,22 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 8935ef4811b0..2a28b045edfa 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -2065,9 +2065,10 @@ int smcr_buf_reg_lgr(struct smc_link *lnk)
  	return rc;
  }
  
-+int smc_tx_sendpage(struct smc_sock *smc, struct page *page, int offset,
-+		    size_t size, int flags)
-+{
-+	struct msghdr msg = {.msg_flags = flags};
-+	char *kaddr = kmap(page);
-+	struct kvec iov;
-+	int rc;
-+
-+	iov.iov_base = kaddr + offset;
-+	iov.iov_len = size;
-+	iov_iter_kvec(&msg.msg_iter, WRITE, &iov, 1, size);
-+	rc = smc_tx_sendmsg(smc, &msg, size);
-+	kunmap(page);
-+	return rc;
-+}
-+
- /***************************** sndbuf consumer *******************************/
+-static struct smc_buf_desc *smcr_new_buf_create(struct smc_link_group *lgr,
++static struct smc_buf_desc *smcr_new_buf_create(struct smc_connection *conn,
+ 						bool is_rmb, int bufsize)
+ {
++	int node = ibdev_to_node(conn->lnk->smcibdev->ibdev);
+ 	struct smc_buf_desc *buf_desc;
  
- /* sndbuf consumer: actual data transfer of one target chunk with ISM write */
-diff --git a/net/smc/smc_tx.h b/net/smc/smc_tx.h
-index a59f370b8b43..34b578498b1f 100644
---- a/net/smc/smc_tx.h
-+++ b/net/smc/smc_tx.h
-@@ -31,6 +31,8 @@ void smc_tx_pending(struct smc_connection *conn);
- void smc_tx_work(struct work_struct *work);
- void smc_tx_init(struct smc_sock *smc);
- int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len);
-+int smc_tx_sendpage(struct smc_sock *smc, struct page *page, int offset,
-+		    size_t size, int flags);
- int smc_tx_sndbuf_nonempty(struct smc_connection *conn);
- void smc_tx_sndbuf_nonfull(struct smc_sock *smc);
- void smc_tx_consumer_update(struct smc_connection *conn, bool force);
+ 	/* try to alloc a new buffer */
+@@ -2076,10 +2077,10 @@ static struct smc_buf_desc *smcr_new_buf_create(struct smc_link_group *lgr,
+ 		return ERR_PTR(-ENOMEM);
+ 
+ 	buf_desc->order = get_order(bufsize);
+-	buf_desc->pages = alloc_pages(GFP_KERNEL | __GFP_NOWARN |
+-				      __GFP_NOMEMALLOC | __GFP_COMP |
+-				      __GFP_NORETRY | __GFP_ZERO,
+-				      buf_desc->order);
++	buf_desc->pages = alloc_pages_node(node, GFP_KERNEL | __GFP_NOWARN |
++					   __GFP_NOMEMALLOC | __GFP_COMP |
++					   __GFP_NORETRY | __GFP_ZERO,
++					   buf_desc->order);
+ 	if (!buf_desc->pages) {
+ 		kfree(buf_desc);
+ 		return ERR_PTR(-EAGAIN);
+@@ -2190,7 +2191,7 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
+ 		if (is_smcd)
+ 			buf_desc = smcd_new_buf_create(lgr, is_rmb, bufsize);
+ 		else
+-			buf_desc = smcr_new_buf_create(lgr, is_rmb, bufsize);
++			buf_desc = smcr_new_buf_create(conn, is_rmb, bufsize);
+ 
+ 		if (PTR_ERR(buf_desc) == -ENOMEM)
+ 			break;
 -- 
 2.32.0.3.g01195cf9f
 
