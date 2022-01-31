@@ -2,91 +2,96 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 031B0C433EF
-	for <linux-s390@archiver.kernel.org>; Sun, 30 Jan 2022 19:06:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA0CAC433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 31 Jan 2022 00:24:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355821AbiA3TGB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 30 Jan 2022 14:06:01 -0500
-Received: from out30-45.freemail.mail.aliyun.com ([115.124.30.45]:58628 "EHLO
-        out30-45.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231596AbiA3TFS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 30 Jan 2022 14:05:18 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0V3BCwlk_1643569515;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0V3BCwlk_1643569515)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Mon, 31 Jan 2022 03:05:15 +0800
-From:   Tony Lu <tonylu@linux.alibaba.com>
-To:     kgraul@linux.ibm.com, kuba@kernel.org, davem@davemloft.net
-Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH net-next] net/smc: Allocate pages of SMC-R on ibdev NUMA node
-Date:   Mon, 31 Jan 2022 03:03:00 +0800
-Message-Id: <20220130190259.94593-1-tonylu@linux.alibaba.com>
-X-Mailer: git-send-email 2.35.0
+        id S1357143AbiAaAY5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 30 Jan 2022 19:24:57 -0500
+Received: from vmicros1.altlinux.org ([194.107.17.57]:41992 "EHLO
+        vmicros1.altlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233085AbiAaAY4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 30 Jan 2022 19:24:56 -0500
+Received: from mua.local.altlinux.org (mua.local.altlinux.org [192.168.1.14])
+        by vmicros1.altlinux.org (Postfix) with ESMTP id 419ED72C8FA;
+        Mon, 31 Jan 2022 03:24:54 +0300 (MSK)
+Received: by mua.local.altlinux.org (Postfix, from userid 508)
+        id 2F3347CCAA4; Mon, 31 Jan 2022 03:24:54 +0300 (MSK)
+Date:   Mon, 31 Jan 2022 03:24:54 +0300
+From:   "Dmitry V. Levin" <ldv@altlinux.org>
+To:     Tony Lu <tonylu@linux.alibaba.com>
+Cc:     kgraul@linux.ibm.com, kuba@kernel.org, davem@davemloft.net,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-rdma@vger.kernel.org, linux-api@vger.kernel.org
+Subject: Re: [PATCH 2/4] net/smc: Add netlink net namespace support
+Message-ID: <20220131002453.GA7599@altlinux.org>
+References: <20211228130611.19124-1-tonylu@linux.alibaba.com>
+ <20211228130611.19124-3-tonylu@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211228130611.19124-3-tonylu@linux.alibaba.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Currently, pages are allocated in the process context, for its NUMA node
-isn't equal to ibdev's, which is not the best policy for performance.
+On Tue, Dec 28, 2021 at 09:06:10PM +0800, Tony Lu wrote:
+> This adds net namespace ID to diag of linkgroup, helps us to distinguish
+> different namespaces, and net_cookie is unique in the whole system.
+> 
+> Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
+> ---
+>  include/uapi/linux/smc.h      |  2 ++
+>  include/uapi/linux/smc_diag.h | 11 ++++++-----
+>  net/smc/smc_core.c            |  3 +++
+>  net/smc/smc_diag.c            | 16 +++++++++-------
+>  4 files changed, 20 insertions(+), 12 deletions(-)
+> 
+> diff --git a/include/uapi/linux/smc.h b/include/uapi/linux/smc.h
+> index 20f33b27787f..6c2874fd2c00 100644
+> --- a/include/uapi/linux/smc.h
+> +++ b/include/uapi/linux/smc.h
+> @@ -119,6 +119,8 @@ enum {
+>  	SMC_NLA_LGR_R_CONNS_NUM,	/* u32 */
+>  	SMC_NLA_LGR_R_V2_COMMON,	/* nest */
+>  	SMC_NLA_LGR_R_V2,		/* nest */
+> +	SMC_NLA_LGR_R_NET_COOKIE,	/* u64 */
+> +	SMC_NLA_LGR_R_PAD,		/* flag */
+>  	__SMC_NLA_LGR_R_MAX,
+>  	SMC_NLA_LGR_R_MAX = __SMC_NLA_LGR_R_MAX - 1
+>  };
+> diff --git a/include/uapi/linux/smc_diag.h b/include/uapi/linux/smc_diag.h
+> index 8cb3a6fef553..c7008d87f1a4 100644
+> --- a/include/uapi/linux/smc_diag.h
+> +++ b/include/uapi/linux/smc_diag.h
+> @@ -84,11 +84,12 @@ struct smc_diag_conninfo {
+>  /* SMC_DIAG_LINKINFO */
+>  
+>  struct smc_diag_linkinfo {
+> -	__u8 link_id;			/* link identifier */
+> -	__u8 ibname[IB_DEVICE_NAME_MAX]; /* name of the RDMA device */
+> -	__u8 ibport;			/* RDMA device port number */
+> -	__u8 gid[40];			/* local GID */
+> -	__u8 peer_gid[40];		/* peer GID */
+> +	__u8		link_id;		    /* link identifier */
+> +	__u8		ibname[IB_DEVICE_NAME_MAX]; /* name of the RDMA device */
+> +	__u8		ibport;			    /* RDMA device port number */
+> +	__u8		gid[40];		    /* local GID */
+> +	__u8		peer_gid[40];		    /* peer GID */
+> +	__aligned_u64	net_cookie;                 /* RDMA device net namespace */
+>  };
+>  
+>  struct smc_diag_lgrinfo {
 
-Applications will generally perform best when the processes are
-accessing memory on the same NUMA node. When numa_balancing enabled
-(which is enabled by most of OS distributions), it moves tasks closer to
-the memory of sndbuf or rmb and ibdev, meanwhile, the IRQs of ibdev bind
-to the same node usually. This reduces the latency when accessing remote
-memory.
+I'm sorry but this is an ABI regression.
 
-According to our tests in different scenarios, there has up to 15.30%
-performance drop (Redis benchmark) when accessing remote memory.
+Since struct smc_diag_lgrinfo contains an object of type "struct smc_diag_linkinfo",
+offset of all subsequent members of struct smc_diag_lgrinfo is changed by
+this patch.
 
-Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
----
- net/smc/smc_core.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+As result, applications compiled with the old version of struct smc_diag_linkinfo
+will receive garbage in struct smc_diag_lgrinfo.role if the kernel implements
+this new version of struct smc_diag_linkinfo.
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 8935ef4811b0..2a28b045edfa 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -2065,9 +2065,10 @@ int smcr_buf_reg_lgr(struct smc_link *lnk)
- 	return rc;
- }
- 
--static struct smc_buf_desc *smcr_new_buf_create(struct smc_link_group *lgr,
-+static struct smc_buf_desc *smcr_new_buf_create(struct smc_connection *conn,
- 						bool is_rmb, int bufsize)
- {
-+	int node = ibdev_to_node(conn->lnk->smcibdev->ibdev);
- 	struct smc_buf_desc *buf_desc;
- 
- 	/* try to alloc a new buffer */
-@@ -2076,10 +2077,10 @@ static struct smc_buf_desc *smcr_new_buf_create(struct smc_link_group *lgr,
- 		return ERR_PTR(-ENOMEM);
- 
- 	buf_desc->order = get_order(bufsize);
--	buf_desc->pages = alloc_pages(GFP_KERNEL | __GFP_NOWARN |
--				      __GFP_NOMEMALLOC | __GFP_COMP |
--				      __GFP_NORETRY | __GFP_ZERO,
--				      buf_desc->order);
-+	buf_desc->pages = alloc_pages_node(node, GFP_KERNEL | __GFP_NOWARN |
-+					   __GFP_NOMEMALLOC | __GFP_COMP |
-+					   __GFP_NORETRY | __GFP_ZERO,
-+					   buf_desc->order);
- 	if (!buf_desc->pages) {
- 		kfree(buf_desc);
- 		return ERR_PTR(-EAGAIN);
-@@ -2190,7 +2191,7 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
- 		if (is_smcd)
- 			buf_desc = smcd_new_buf_create(lgr, is_rmb, bufsize);
- 		else
--			buf_desc = smcr_new_buf_create(lgr, is_rmb, bufsize);
-+			buf_desc = smcr_new_buf_create(conn, is_rmb, bufsize);
- 
- 		if (PTR_ERR(buf_desc) == -ENOMEM)
- 			break;
+
 -- 
-2.32.0.3.g01195cf9f
-
+ldv
