@@ -2,310 +2,125 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ECE8CC35272
-	for <linux-s390@archiver.kernel.org>; Mon, 31 Jan 2022 06:49:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E058C433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 31 Jan 2022 07:21:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357800AbiAaGtz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 31 Jan 2022 01:49:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42746 "EHLO
+        id S1348047AbiAaHVA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 31 Jan 2022 02:21:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357779AbiAaGty (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 Jan 2022 01:49:54 -0500
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AD90C061714;
-        Sun, 30 Jan 2022 22:49:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
-        :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=6AGTRKiyo3n1kN0MLVro9fLjev96qAcQ9JxUzJQ4Exg=; b=OX44eeG08FsSiBoK0NTB6AN//9
-        WIu9AG+Z0SnsQjPns4+rLEeJ03tiJ9hIOYUGPKGs1Kdsg18vV6uNY0yFPObKBNjxOUNM6qc4+gtPM
-        qId7I7d85PzGJ5Gyqf4lAqPHZQTor9mjoU7h4CVHaZxXVNnaNwcnx7xoCAkSEQVpRIB0MoI/n13xY
-        Ks30Ydhqt+0/wKst8QRww4+WaYdOEHk8FLpjLOAAqu5Zh+JyOF/Col3NH6cQiH+CEV37HfA5L1+0S
-        VVVpT2KgipBJputRepPJaYMifn502BXBVHQPx2JUJYoTlgug2M85LVPyT1Rx5R5TJSOgHKSUaq598
-        S1nRQ8xw==;
-Received: from [2001:4bb8:191:327d:13f5:1d0a:e266:6974] (helo=localhost)
-        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nEQVb-008AX1-F1; Mon, 31 Jan 2022 06:49:51 +0000
-From:   Christoph Hellwig <hch@lst.de>
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Guo Ren <guoren@kernel.org>, x86@kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: [PATCH 5/5] compat: consolidate the compat_flock{,64} definition
-Date:   Mon, 31 Jan 2022 07:49:33 +0100
-Message-Id: <20220131064933.3780271-6-hch@lst.de>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20220131064933.3780271-1-hch@lst.de>
-References: <20220131064933.3780271-1-hch@lst.de>
+        with ESMTP id S244130AbiAaHU7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 Jan 2022 02:20:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACF25C061714;
+        Sun, 30 Jan 2022 23:20:59 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F2A06128E;
+        Mon, 31 Jan 2022 07:20:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1FA4C340E8;
+        Mon, 31 Jan 2022 07:20:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1643613657;
+        bh=dOH4qTrfCAlGRwNf4g1KYdZmXGQX8HlE2W5ZivxPsgQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=GhMis8+ppudLodJ5Oc5DG8qUQyfcLn0gijgAHMcVHU+umIKXKj3Etf9S8Uqotqv4E
+         Tl+G7Xwum4WxNkkEJhLTgX3HblKiZR+uYcFdpvTjAGQ8iFpTmXvDC5oAkchG3OqJLY
+         qRyOcuZNHnsOjNwlTyqTjrZABLL9oGkq6vx5EtPNtwp23ysSnhaYyDW0IXRZJvXLRW
+         EhmeQOAFbSTjZQ3kaBujs8VzIP88UXn/WIBCFvYiOp6r7LCwfIc/J7tpkiB0xOhfSs
+         ppl/D2LNkp7aQFQa9a7Ju0Sgdk5E5gX2Qja0aH/t0J72M+Fu6ji6xPKlR83pQQlc9n
+         d3ycME0hRJtKw==
+Date:   Mon, 31 Jan 2022 09:20:52 +0200
+From:   Leon Romanovsky <leon@kernel.org>
+To:     Tony Lu <tonylu@linux.alibaba.com>
+Cc:     kgraul@linux.ibm.com, kuba@kernel.org, davem@davemloft.net,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        RDMA mailing list <linux-rdma@vger.kernel.org>
+Subject: Re: [PATCH net-next] net/smc: Allocate pages of SMC-R on ibdev NUMA
+ node
+Message-ID: <YfeN1BfPqhVz8mvy@unreal>
+References: <20220130190259.94593-1-tonylu@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220130190259.94593-1-tonylu@linux.alibaba.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Provide a single common definition for the compat_flock and
-compat_flock64 structures using the same tricks as for the native
-variants.  Another extra define is added for the packing required on
-x86.
+On Mon, Jan 31, 2022 at 03:03:00AM +0800, Tony Lu wrote:
+> Currently, pages are allocated in the process context, for its NUMA node
+> isn't equal to ibdev's, which is not the best policy for performance.
+> 
+> Applications will generally perform best when the processes are
+> accessing memory on the same NUMA node. When numa_balancing enabled
+> (which is enabled by most of OS distributions), it moves tasks closer to
+> the memory of sndbuf or rmb and ibdev, meanwhile, the IRQs of ibdev bind
+> to the same node usually. This reduces the latency when accessing remote
+> memory.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- arch/arm64/include/asm/compat.h   | 16 ----------------
- arch/mips/include/asm/compat.h    | 19 ++-----------------
- arch/parisc/include/asm/compat.h  | 16 ----------------
- arch/powerpc/include/asm/compat.h | 16 ----------------
- arch/s390/include/asm/compat.h    | 16 ----------------
- arch/sparc/include/asm/compat.h   | 18 +-----------------
- arch/x86/include/asm/compat.h     | 20 +++-----------------
- include/linux/compat.h            | 31 +++++++++++++++++++++++++++++++
- 8 files changed, 37 insertions(+), 115 deletions(-)
+It is very subjective per-specific test. I would expect that
+application will control NUMA memory policies (set_mempolicy(), ...)
+by itself without kernel setting NUMA node.
 
-diff --git a/arch/arm64/include/asm/compat.h b/arch/arm64/include/asm/compat.h
-index 2763287654081..e0faec1984a1c 100644
---- a/arch/arm64/include/asm/compat.h
-+++ b/arch/arm64/include/asm/compat.h
-@@ -65,22 +65,6 @@ struct compat_stat {
- 	compat_ulong_t	__unused4[2];
- };
- 
--struct compat_flock {
--	short		l_type;
--	short		l_whence;
--	compat_off_t	l_start;
--	compat_off_t	l_len;
--	compat_pid_t	l_pid;
--};
--
--struct compat_flock64 {
--	short		l_type;
--	short		l_whence;
--	compat_loff_t	l_start;
--	compat_loff_t	l_len;
--	compat_pid_t	l_pid;
--};
--
- struct compat_statfs {
- 	int		f_type;
- 	int		f_bsize;
-diff --git a/arch/mips/include/asm/compat.h b/arch/mips/include/asm/compat.h
-index 6a350c1f70d7e..6d6e5a451f4d9 100644
---- a/arch/mips/include/asm/compat.h
-+++ b/arch/mips/include/asm/compat.h
-@@ -55,23 +55,8 @@ struct compat_stat {
- 	s32		st_pad4[14];
- };
- 
--struct compat_flock {
--	short		l_type;
--	short		l_whence;
--	compat_off_t	l_start;
--	compat_off_t	l_len;
--	s32		l_sysid;
--	compat_pid_t	l_pid;
--	s32		pad[4];
--};
--
--struct compat_flock64 {
--	short		l_type;
--	short		l_whence;
--	compat_loff_t	l_start;
--	compat_loff_t	l_len;
--	compat_pid_t	l_pid;
--};
-+#define __ARCH_COMPAT_FLOCK_EXTRA_SYSID		s32 l_sysid;
-+#define __ARCH_COMPAT_FLOCK_PAD			s32 pad[4];
- 
- struct compat_statfs {
- 	int		f_type;
-diff --git a/arch/parisc/include/asm/compat.h b/arch/parisc/include/asm/compat.h
-index c04f5a637c390..a1e4534d80509 100644
---- a/arch/parisc/include/asm/compat.h
-+++ b/arch/parisc/include/asm/compat.h
-@@ -53,22 +53,6 @@ struct compat_stat {
- 	u32			st_spare4[3];
- };
- 
--struct compat_flock {
--	short			l_type;
--	short			l_whence;
--	compat_off_t		l_start;
--	compat_off_t		l_len;
--	compat_pid_t		l_pid;
--};
--
--struct compat_flock64 {
--	short			l_type;
--	short			l_whence;
--	compat_loff_t		l_start;
--	compat_loff_t		l_len;
--	compat_pid_t		l_pid;
--};
--
- struct compat_statfs {
- 	s32		f_type;
- 	s32		f_bsize;
-diff --git a/arch/powerpc/include/asm/compat.h b/arch/powerpc/include/asm/compat.h
-index 83d8f70779cbc..5ef3c7c83c343 100644
---- a/arch/powerpc/include/asm/compat.h
-+++ b/arch/powerpc/include/asm/compat.h
-@@ -44,22 +44,6 @@ struct compat_stat {
- 	u32		__unused4[2];
- };
- 
--struct compat_flock {
--	short		l_type;
--	short		l_whence;
--	compat_off_t	l_start;
--	compat_off_t	l_len;
--	compat_pid_t	l_pid;
--};
--
--struct compat_flock64 {
--	short		l_type;
--	short		l_whence;
--	compat_loff_t	l_start;
--	compat_loff_t	l_len;
--	compat_pid_t	l_pid;
--};
--
- struct compat_statfs {
- 	int		f_type;
- 	int		f_bsize;
-diff --git a/arch/s390/include/asm/compat.h b/arch/s390/include/asm/compat.h
-index 0f14b3188b1bb..07f04d37068b6 100644
---- a/arch/s390/include/asm/compat.h
-+++ b/arch/s390/include/asm/compat.h
-@@ -102,22 +102,6 @@ struct compat_stat {
- 	u32		__unused5;
- };
- 
--struct compat_flock {
--	short		l_type;
--	short		l_whence;
--	compat_off_t	l_start;
--	compat_off_t	l_len;
--	compat_pid_t	l_pid;
--};
--
--struct compat_flock64 {
--	short		l_type;
--	short		l_whence;
--	compat_loff_t	l_start;
--	compat_loff_t	l_len;
--	compat_pid_t	l_pid;
--};
--
- struct compat_statfs {
- 	u32		f_type;
- 	u32		f_bsize;
-diff --git a/arch/sparc/include/asm/compat.h b/arch/sparc/include/asm/compat.h
-index 108078751bb5a..d78fb44942e0f 100644
---- a/arch/sparc/include/asm/compat.h
-+++ b/arch/sparc/include/asm/compat.h
-@@ -75,23 +75,7 @@ struct compat_stat64 {
- 	unsigned int	__unused5;
- };
- 
--struct compat_flock {
--	short		l_type;
--	short		l_whence;
--	compat_off_t	l_start;
--	compat_off_t	l_len;
--	compat_pid_t	l_pid;
--	short		__unused;
--};
--
--struct compat_flock64 {
--	short		l_type;
--	short		l_whence;
--	compat_loff_t	l_start;
--	compat_loff_t	l_len;
--	compat_pid_t	l_pid;
--	short		__unused;
--};
-+#define __ARCH_COMPAT_FLOCK_PAD		short __unused;
- 
- struct compat_statfs {
- 	int		f_type;
-diff --git a/arch/x86/include/asm/compat.h b/arch/x86/include/asm/compat.h
-index 8d19a212f4f26..de794d8958663 100644
---- a/arch/x86/include/asm/compat.h
-+++ b/arch/x86/include/asm/compat.h
-@@ -50,25 +50,11 @@ struct compat_stat {
- 	u32		__unused5;
- };
- 
--struct compat_flock {
--	short		l_type;
--	short		l_whence;
--	compat_off_t	l_start;
--	compat_off_t	l_len;
--	compat_pid_t	l_pid;
--};
--
- /*
-- * IA32 uses 4 byte alignment for 64 bit quantities,
-- * so we need to pack this structure.
-+ * IA32 uses 4 byte alignment for 64 bit quantities, so we need to pack the
-+ * compat flock64 structure.
-  */
--struct compat_flock64 {
--	short		l_type;
--	short		l_whence;
--	compat_loff_t	l_start;
--	compat_loff_t	l_len;
--	compat_pid_t	l_pid;
--} __attribute__((packed));
-+#define __ARCH_NEED_COMPAT_FLOCK64_PACKED
- 
- struct compat_statfs {
- 	int		f_type;
-diff --git a/include/linux/compat.h b/include/linux/compat.h
-index 1c758b0e03598..a0481fe6c5d51 100644
---- a/include/linux/compat.h
-+++ b/include/linux/compat.h
-@@ -258,6 +258,37 @@ struct compat_rlimit {
- 	compat_ulong_t	rlim_max;
- };
- 
-+#ifdef __ARCH_NEED_COMPAT_FLOCK64_PACKED
-+#define __ARCH_COMPAT_FLOCK64_PACK	__attribute__((packed))
-+#else
-+#define __ARCH_COMPAT_FLOCK64_PACK
-+#endif
-+
-+struct compat_flock {
-+	short			l_type;
-+	short			l_whence;
-+	compat_off_t		l_start;
-+	compat_off_t		l_len;
-+#ifdef __ARCH_COMPAT_FLOCK_EXTRA_SYSID
-+	__ARCH_COMPAT_FLOCK_EXTRA_SYSID
-+#endif
-+	compat_pid_t		l_pid;
-+#ifdef __ARCH_COMPAT_FLOCK_PAD
-+	__ARCH_COMPAT_FLOCK_PAD
-+#endif
-+};
-+
-+struct compat_flock64 {
-+	short		l_type;
-+	short		l_whence;
-+	compat_loff_t	l_start;
-+	compat_loff_t	l_len;
-+	compat_pid_t	l_pid;
-+#ifdef __ARCH_COMPAT_FLOCK64_PAD
-+	__ARCH_COMPAT_FLOCK64_PAD
-+#endif
-+} __ARCH_COMPAT_FLOCK64_PACK;
-+
- struct compat_rusage {
- 	struct old_timeval32 ru_utime;
- 	struct old_timeval32 ru_stime;
--- 
-2.30.2
+Various *_alloc_node() APIs are applicable for in-kernel allocations
+where user can't control memory policy.
 
+I don't know SMC-R enough, but if I judge from your description, this
+allocation is controlled by the application.
+
+Thanks
+
+> 
+> According to our tests in different scenarios, there has up to 15.30%
+> performance drop (Redis benchmark) when accessing remote memory.
+> 
+> Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
+> ---
+>  net/smc/smc_core.c | 13 +++++++------
+>  1 file changed, 7 insertions(+), 6 deletions(-)
+> 
+> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+> index 8935ef4811b0..2a28b045edfa 100644
+> --- a/net/smc/smc_core.c
+> +++ b/net/smc/smc_core.c
+> @@ -2065,9 +2065,10 @@ int smcr_buf_reg_lgr(struct smc_link *lnk)
+>  	return rc;
+>  }
+>  
+> -static struct smc_buf_desc *smcr_new_buf_create(struct smc_link_group *lgr,
+> +static struct smc_buf_desc *smcr_new_buf_create(struct smc_connection *conn,
+>  						bool is_rmb, int bufsize)
+>  {
+> +	int node = ibdev_to_node(conn->lnk->smcibdev->ibdev);
+>  	struct smc_buf_desc *buf_desc;
+>  
+>  	/* try to alloc a new buffer */
+> @@ -2076,10 +2077,10 @@ static struct smc_buf_desc *smcr_new_buf_create(struct smc_link_group *lgr,
+>  		return ERR_PTR(-ENOMEM);
+>  
+>  	buf_desc->order = get_order(bufsize);
+> -	buf_desc->pages = alloc_pages(GFP_KERNEL | __GFP_NOWARN |
+> -				      __GFP_NOMEMALLOC | __GFP_COMP |
+> -				      __GFP_NORETRY | __GFP_ZERO,
+> -				      buf_desc->order);
+> +	buf_desc->pages = alloc_pages_node(node, GFP_KERNEL | __GFP_NOWARN |
+> +					   __GFP_NOMEMALLOC | __GFP_COMP |
+> +					   __GFP_NORETRY | __GFP_ZERO,
+> +					   buf_desc->order);
+>  	if (!buf_desc->pages) {
+>  		kfree(buf_desc);
+>  		return ERR_PTR(-EAGAIN);
+> @@ -2190,7 +2191,7 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
+>  		if (is_smcd)
+>  			buf_desc = smcd_new_buf_create(lgr, is_rmb, bufsize);
+>  		else
+> -			buf_desc = smcr_new_buf_create(lgr, is_rmb, bufsize);
+> +			buf_desc = smcr_new_buf_create(conn, is_rmb, bufsize);
+>  
+>  		if (PTR_ERR(buf_desc) == -ENOMEM)
+>  			break;
+> -- 
+> 2.32.0.3.g01195cf9f
+> 
