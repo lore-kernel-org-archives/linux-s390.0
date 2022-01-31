@@ -2,96 +2,129 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA0CAC433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 31 Jan 2022 00:24:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D1BEC433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 31 Jan 2022 06:23:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357143AbiAaAY5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 30 Jan 2022 19:24:57 -0500
-Received: from vmicros1.altlinux.org ([194.107.17.57]:41992 "EHLO
-        vmicros1.altlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233085AbiAaAY4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 30 Jan 2022 19:24:56 -0500
-Received: from mua.local.altlinux.org (mua.local.altlinux.org [192.168.1.14])
-        by vmicros1.altlinux.org (Postfix) with ESMTP id 419ED72C8FA;
-        Mon, 31 Jan 2022 03:24:54 +0300 (MSK)
-Received: by mua.local.altlinux.org (Postfix, from userid 508)
-        id 2F3347CCAA4; Mon, 31 Jan 2022 03:24:54 +0300 (MSK)
-Date:   Mon, 31 Jan 2022 03:24:54 +0300
-From:   "Dmitry V. Levin" <ldv@altlinux.org>
-To:     Tony Lu <tonylu@linux.alibaba.com>
-Cc:     kgraul@linux.ibm.com, kuba@kernel.org, davem@davemloft.net,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-rdma@vger.kernel.org, linux-api@vger.kernel.org
-Subject: Re: [PATCH 2/4] net/smc: Add netlink net namespace support
-Message-ID: <20220131002453.GA7599@altlinux.org>
-References: <20211228130611.19124-1-tonylu@linux.alibaba.com>
- <20211228130611.19124-3-tonylu@linux.alibaba.com>
+        id S235617AbiAaGXJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 31 Jan 2022 01:23:09 -0500
+Received: from smtp-out1.suse.de ([195.135.220.28]:35030 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235225AbiAaGXI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 Jan 2022 01:23:08 -0500
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 622DD21116;
+        Mon, 31 Jan 2022 06:23:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1643610186; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=glFJZo9ETm7z/ROJWLizrW+pr8HZoGe/q8WkURW8RkQ=;
+        b=w8KMAEvyM5acD//MgH4CajE1JEJz8SxcqA0XTBpjOLdP3Y3DfOPgmknPgt6vMEQSu2UxKr
+        u3k9g5AC6FK3rteUS6oQ2W4X6pdLAj2nmcydWV74bIC4MaopLhoOsqvmK/IQCZkgUjj+nU
+        t+q5jmvCPZIh0ma+eKW6RgMXyvuYuxQ=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1643610186;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=glFJZo9ETm7z/ROJWLizrW+pr8HZoGe/q8WkURW8RkQ=;
+        b=TDQphaJNby4XljQkkKeL0ahZQdHJQgHaQp8Z41WoJRUMdR2cjZ5r7SYEkGg5JZegoMuWcn
+        bVZwx8tB3cZ/YtBg==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 4E00713A89;
+        Mon, 31 Jan 2022 06:23:04 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id kb0eD0iA92GYMAAAMHmgww
+        (envelope-from <osalvador@suse.de>); Mon, 31 Jan 2022 06:23:04 +0000
+Date:   Mon, 31 Jan 2022 07:23:02 +0100
+From:   Oscar Salvador <osalvador@suse.de>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>, x86@kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org
+Subject: Re: [PATCH RFC v1] drivers/base/node: consolidate node device
+ subsystem initialization in node_dev_init()
+Message-ID: <YfeARpenqPii1WQH@localhost.localdomain>
+References: <20220128151540.164759-1-david@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20211228130611.19124-3-tonylu@linux.alibaba.com>
+In-Reply-To: <20220128151540.164759-1-david@redhat.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Dec 28, 2021 at 09:06:10PM +0800, Tony Lu wrote:
-> This adds net namespace ID to diag of linkgroup, helps us to distinguish
-> different namespaces, and net_cookie is unique in the whole system.
+On Fri, Jan 28, 2022 at 04:15:40PM +0100, David Hildenbrand wrote:
+> ... and call node_dev_init() after memory_dev_init() from driver_init(),
+> so before any of the existing arch/subsys calls. All online nodes should
+> be known at that point.
 > 
-> Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
-> ---
->  include/uapi/linux/smc.h      |  2 ++
->  include/uapi/linux/smc_diag.h | 11 ++++++-----
->  net/smc/smc_core.c            |  3 +++
->  net/smc/smc_diag.c            | 16 +++++++++-------
->  4 files changed, 20 insertions(+), 12 deletions(-)
+> This is in line with memory_dev_init(), which initializes the memory
+> device subsystem and creates all memory block devices.
 > 
-> diff --git a/include/uapi/linux/smc.h b/include/uapi/linux/smc.h
-> index 20f33b27787f..6c2874fd2c00 100644
-> --- a/include/uapi/linux/smc.h
-> +++ b/include/uapi/linux/smc.h
-> @@ -119,6 +119,8 @@ enum {
->  	SMC_NLA_LGR_R_CONNS_NUM,	/* u32 */
->  	SMC_NLA_LGR_R_V2_COMMON,	/* nest */
->  	SMC_NLA_LGR_R_V2,		/* nest */
-> +	SMC_NLA_LGR_R_NET_COOKIE,	/* u64 */
-> +	SMC_NLA_LGR_R_PAD,		/* flag */
->  	__SMC_NLA_LGR_R_MAX,
->  	SMC_NLA_LGR_R_MAX = __SMC_NLA_LGR_R_MAX - 1
->  };
-> diff --git a/include/uapi/linux/smc_diag.h b/include/uapi/linux/smc_diag.h
-> index 8cb3a6fef553..c7008d87f1a4 100644
-> --- a/include/uapi/linux/smc_diag.h
-> +++ b/include/uapi/linux/smc_diag.h
-> @@ -84,11 +84,12 @@ struct smc_diag_conninfo {
->  /* SMC_DIAG_LINKINFO */
->  
->  struct smc_diag_linkinfo {
-> -	__u8 link_id;			/* link identifier */
-> -	__u8 ibname[IB_DEVICE_NAME_MAX]; /* name of the RDMA device */
-> -	__u8 ibport;			/* RDMA device port number */
-> -	__u8 gid[40];			/* local GID */
-> -	__u8 peer_gid[40];		/* peer GID */
-> +	__u8		link_id;		    /* link identifier */
-> +	__u8		ibname[IB_DEVICE_NAME_MAX]; /* name of the RDMA device */
-> +	__u8		ibport;			    /* RDMA device port number */
-> +	__u8		gid[40];		    /* local GID */
-> +	__u8		peer_gid[40];		    /* peer GID */
-> +	__aligned_u64	net_cookie;                 /* RDMA device net namespace */
->  };
->  
->  struct smc_diag_lgrinfo {
+> Similar to memory_dev_init(), panic() if anything goes wrong, we don't
+> want to continue with such basic initialization errors.
+> 
+> The important part is that node_dev_init() gets called after
+> memory_dev_init() and after cpu_dev_init(), but before any of the
+> relevant archs call register_cpu() to register the new cpu device under
+> the node device. The latter should be the case for the current users
+> of topology_init().
 
-I'm sorry but this is an ABI regression.
+So, before this change we had something like this:
 
-Since struct smc_diag_lgrinfo contains an object of type "struct smc_diag_linkinfo",
-offset of all subsequent members of struct smc_diag_lgrinfo is changed by
-this patch.
+do_basic_setup
+ driver_init
+  memory_dev_init
+ do_init_calls
+  ...
+   topology_init
+    register_nodes/register_one_node
 
-As result, applications compiled with the old version of struct smc_diag_linkinfo
-will receive garbage in struct smc_diag_lgrinfo.role if the kernel implements
-this new version of struct smc_diag_linkinfo.
+And after the patch all happens in driver_init()
 
+driver_init
+ memory_dev_init
+ node_dev_init
+
+I guess this is fine as we do not have any ordering problems (aka: none
+of the functions we used to call before expect the nodes not to be
+there for some weird reason).
+
+So, no functional change, right?
+
+This certainly looks like an improvment. 
 
 -- 
-ldv
+Oscar Salvador
+SUSE Labs
