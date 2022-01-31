@@ -2,178 +2,83 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 29C58C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 31 Jan 2022 19:46:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 479CFC433FE
+	for <linux-s390@archiver.kernel.org>; Mon, 31 Jan 2022 22:19:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229770AbiAaTqY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 31 Jan 2022 14:46:24 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:11412 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231583AbiAaTqX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 31 Jan 2022 14:46:23 -0500
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20VIa0ib032286;
-        Mon, 31 Jan 2022 19:46:21 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=BHNUDP5GiTKTGhBKNrKC39J+HmI6BIablwOORHYIXp8=;
- b=mwA5jtDulLz/Gp/Y+qledbDEijGkW8CklVKEXKY/QKN5Ecj2UOTrxyI1MNZEIqbFcNq0
- oPbwrLr8RLAdh+brPjkrqBjSaYZ2c912/0YTD78L7VrcS6jwW0HjaLSNGyJ1g8kcnY9I
- HkyX7DxGR7bX7bQAZ5uICU+KhP2Mw8XdwKmUylMWjTkTQ9SMLmBS8ZCl8iop/an82gks
- J1TjhifYS5uGNoJs3F4RJgKg7+Ixz2YIoKhbP7yjc+bu2OEJp+GRhaGO1+9btNMFIVuc
- +N3Rva2rFr6T2L1Ya0slbYuvyRw69L/U+ccKk6zVVjLBrBWE0mdAPFbzzZXv5Z2Ylwp/ JA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dx33x64hg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 31 Jan 2022 19:46:21 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20VJ91E5022333;
-        Mon, 31 Jan 2022 19:46:20 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dx33x64h0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 31 Jan 2022 19:46:20 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20VJMUm6022056;
-        Mon, 31 Jan 2022 19:46:18 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3dvw79ektd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 31 Jan 2022 19:46:18 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20VJkFkD43778510
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 31 Jan 2022 19:46:15 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AC99E11C052;
-        Mon, 31 Jan 2022 19:46:15 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5BB4211C054;
-        Mon, 31 Jan 2022 19:46:15 +0000 (GMT)
-Received: from [9.171.28.92] (unknown [9.171.28.92])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 31 Jan 2022 19:46:15 +0000 (GMT)
-Message-ID: <3ebb60c6-016d-a770-ae1e-8109b4f29397@linux.ibm.com>
-Date:   Mon, 31 Jan 2022 20:46:15 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH net-next 3/3] net/smc: Cork when sendpage with
- MSG_SENDPAGE_NOTLAST flag
-Content-Language: en-US
-To:     Tony Lu <tonylu@linux.alibaba.com>, kgraul@linux.ibm.com,
-        kuba@kernel.org, davem@davemloft.net
-Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20220130180256.28303-1-tonylu@linux.alibaba.com>
- <20220130180256.28303-4-tonylu@linux.alibaba.com>
-From:   Stefan Raspl <raspl@linux.ibm.com>
-In-Reply-To: <20220130180256.28303-4-tonylu@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: tD9d7LC_HHriiRZ-PUM3h4xqXnCC_NLh
-X-Proofpoint-ORIG-GUID: MC7cS4-fEHWOyoAbNIQuaAOK53EyDV9L
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        id S232431AbiAaWTx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 31 Jan 2022 17:19:53 -0500
+Received: from mout.kundenserver.de ([217.72.192.73]:44207 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232213AbiAaWTx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 Jan 2022 17:19:53 -0500
+Received: from mail-ot1-f47.google.com ([209.85.210.47]) by
+ mrelayeu.kundenserver.de (mreue107 [213.165.67.113]) with ESMTPSA (Nemesis)
+ id 1M8QFi-1nAHJO2u12-004S46; Mon, 31 Jan 2022 23:19:50 +0100
+Received: by mail-ot1-f47.google.com with SMTP id g15-20020a9d6b0f000000b005a062b0dc12so14447815otp.4;
+        Mon, 31 Jan 2022 14:19:49 -0800 (PST)
+X-Gm-Message-State: AOAM5300s7H3HiZT7/ALZlbQL4+XMBMcpcRCqxXse+CMwLgyREt7CTVh
+        ReWIzABKLRLNgXPntwPlS7C6QAO1JxlT/LE6Q+o=
+X-Google-Smtp-Source: ABdhPJzNvIQa/ifQ4mpIl/LfU521F5G6KLcdIXkWgKV/jA7MRG2n/k6e84fLlMfFqeGk7bXCvjxkFnVtwxdt/dBnQNc=
+X-Received: by 2002:a9d:654f:: with SMTP id q15mr12902241otl.119.1643667588784;
+ Mon, 31 Jan 2022 14:19:48 -0800 (PST)
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-01-31_07,2022-01-31_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 bulkscore=0
- adultscore=0 impostorscore=0 mlxlogscore=999 malwarescore=0 phishscore=0
- suspectscore=0 mlxscore=0 spamscore=0 lowpriorityscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2201310125
+References: <20220131064933.3780271-1-hch@lst.de>
+In-Reply-To: <20220131064933.3780271-1-hch@lst.de>
+From:   Arnd Bergmann <arnd@arndb.de>
+Date:   Mon, 31 Jan 2022 23:19:32 +0100
+X-Gmail-Original-Message-ID: <CAK8P3a1YzdC1ev0FP-Pe0YyjsY+H3dNWErPGtB=zfcs3kVmkyw@mail.gmail.com>
+Message-ID: <CAK8P3a1YzdC1ev0FP-Pe0YyjsY+H3dNWErPGtB=zfcs3kVmkyw@mail.gmail.com>
+Subject: Re: consolidate the compat fcntl definitions v2
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linux-arch <linux-arch@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Provags-ID: V03:K1:Oz3mvogPccg/7xXrnVYc1t/5reQ5uLC3I9ySHFqCfH22nktDZk2
+ GiO2dxDqCqyaYLIVwvk51XQiOo3ffvYcODm+qVyNbWffBolCk5kBCIdNwuJYUoz/U0M04P7
+ YHPXOhWvKBhmn7zB1/uVYYlbhSUZG2fW6bmi32+wpXkhigUNfqpwvyzTmUcex77PxItycdN
+ hIkWF+6OjrEKXlrkvjnAw==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:aSNwj6GN85Q=:6u43FVFakJeCUyjujdXZAJ
+ nH1Eb1BCXn0p06iSS1ZrO055xSbokdvwGcAVA5hsWPMSsXvKy87UdhVhRzrdb9Uqf8TSfGHWg
+ m/rTBm4dsO9IxFqzCZBXGSz1a8FeujW//AujuH47pp41pjzE/CXFAukbGKA2gMs1idFSIbP4N
+ YUuRhRON1JoIpyXjxfwSoBqeBH6Iw/7yHika7VEJf8kTLTt288ET8b+Y/3/dHdqYLqTJIpiby
+ u+GSgygb0FARlJqqStxb7IbhwpPBW/F28dNddp/A5ETdLGn2UeGS5ILnDIEZpFwh3D5sYa3vw
+ KvkxeMQD5RHL0RU6ABF3VwKCNoh+HbLQ1shYXxgqr/vVkCzEcEDvbMps/iCVjzlB1av/EiLMO
+ 3bZ7FjR4cmvVVEGsCy3pkZJodILX2o5u3fFzoRb3sUZHXtl0KrRCE5Y1KpSjEQ6yhhXBZpdI8
+ wopTxBWbnQoinQjtRjMcROObLew2B4rJ6dBqJ7uAPiKXBPp031Kv0jbqAphCyfpS0pgEROnJr
+ X70gzHhsnbhgAENY3wlEN5xEOuwVOU0PPuTptiZATzOYBUagezvXWz1RAYR+5/RMRhpQ2OJrA
+ W1kH50NLO2Ar7eKx23ya8N8jQDQgb3PUHIOYVOeD1YQAl870H1Mosoh94GYKTaeieLlnKv0fj
+ uurqEyb9ilCd/OB27VlNBel/Xj8IJKutEccZMwF+6plyO69uWSiaMhkEs9Zxhfskzk/E=
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 1/30/22 19:02, Tony Lu wrote:
-> This introduces a new corked flag, MSG_SENDPAGE_NOTLAST, which is
-> involved in syscall sendfile() [1], it indicates this is not the last
-> page. So we can cork the data until the page is not specify this flag.
-> It has the same effect as MSG_MORE, but existed in sendfile() only.
-> 
-> This patch adds a option MSG_SENDPAGE_NOTLAST for corking data, try to
-> cork more data before sending when using sendfile(), which acts like
-> TCP's behaviour. Also, this reimplements the default sendpage to inform
-> that it is supported to some extent.
-> 
-> [1] https://man7.org/linux/man-pages/man2/sendfile.2.html
-> 
-> Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
-> ---
->   net/smc/af_smc.c |  4 +++-
->   net/smc/smc_tx.c | 19 ++++++++++++++++++-
->   net/smc/smc_tx.h |  2 ++
->   3 files changed, 23 insertions(+), 2 deletions(-)
-> 
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index ef021ec6b361..8b78010afe01 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -2729,8 +2729,10 @@ static ssize_t smc_sendpage(struct socket *sock, struct page *page,
->   		rc = kernel_sendpage(smc->clcsock, page, offset,
->   				     size, flags);
->   	} else {
-> +		lock_sock(sk);
-> +		rc = smc_tx_sendpage(smc, page, offset, size, flags);
-> +		release_sock(sk);
->   		SMC_STAT_INC(smc, sendpage_cnt);
-> -		rc = sock_no_sendpage(sock, page, offset, size, flags);
->   	}
->   
->   out:
-> diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-> index 9cec62cae7cb..a96ce162825e 100644
-> --- a/net/smc/smc_tx.c
-> +++ b/net/smc/smc_tx.c
-> @@ -235,7 +235,8 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
->   		 */
->   		if ((msg->msg_flags & MSG_OOB) && !send_remaining)
->   			conn->urg_tx_pend = true;
-> -		if ((msg->msg_flags & MSG_MORE || smc_tx_is_corked(smc)) &&
-> +		if ((msg->msg_flags & MSG_MORE || smc_tx_is_corked(smc) ||
-> +		     msg->msg_flags & MSG_SENDPAGE_NOTLAST) &&
->   		    (atomic_read(&conn->sndbuf_space)))
->   			/* for a corked socket defer the RDMA writes if
->   			 * sndbuf_space is still available. The applications
-> @@ -257,6 +258,22 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
->   	return rc;
->   }
->   
-> +int smc_tx_sendpage(struct smc_sock *smc, struct page *page, int offset,
-> +		    size_t size, int flags)
-> +{
-> +	struct msghdr msg = {.msg_flags = flags};
-> +	char *kaddr = kmap(page);
-> +	struct kvec iov;
-> +	int rc;
-> +
-> +	iov.iov_base = kaddr + offset;
-> +	iov.iov_len = size;
-> +	iov_iter_kvec(&msg.msg_iter, WRITE, &iov, 1, size);
-> +	rc = smc_tx_sendmsg(smc, &msg, size);
-> +	kunmap(page);
-> +	return rc;
-> +}
-> +
->   /***************************** sndbuf consumer *******************************/
->   
->   /* sndbuf consumer: actual data transfer of one target chunk with ISM write */
-> diff --git a/net/smc/smc_tx.h b/net/smc/smc_tx.h
-> index a59f370b8b43..34b578498b1f 100644
-> --- a/net/smc/smc_tx.h
-> +++ b/net/smc/smc_tx.h
-> @@ -31,6 +31,8 @@ void smc_tx_pending(struct smc_connection *conn);
->   void smc_tx_work(struct work_struct *work);
->   void smc_tx_init(struct smc_sock *smc);
->   int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len);
-> +int smc_tx_sendpage(struct smc_sock *smc, struct page *page, int offset,
-> +		    size_t size, int flags);
->   int smc_tx_sndbuf_nonempty(struct smc_connection *conn);
->   void smc_tx_sndbuf_nonfull(struct smc_sock *smc);
->   void smc_tx_consumer_update(struct smc_connection *conn, bool force);
-> 
+On Mon, Jan 31, 2022 at 7:49 AM Christoph Hellwig <hch@lst.de> wrote:
+>
+> Hi all,
+>
+> currenty the compat fcnt definitions are duplicate for all compat
+> architectures, and the native fcntl64 definitions aren't even usable
+> from userspace due to a bogus CONFIG_64BIT ifdef.  This series tries
+> to sort out all that.
+>
+> Changes since v1:
+>  - only make the F*64 defines uapi visible for 32-bit architectures
 
-Reviewed-by: Stefan Raspl <raspl@linux.ibm.com>
+Looks all good to me,
+
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+
+I think it would be best to merge this through the risc-v tree along
+with the coming compat support
+that depends on it. Alternatively, I can put it into my asm-generic
+tree for 5.18.
+
+         Arnd
