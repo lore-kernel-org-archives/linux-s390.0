@@ -2,101 +2,156 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 34C63C433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 31 Jan 2022 07:39:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 08095C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 31 Jan 2022 07:49:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237884AbiAaHjx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 31 Jan 2022 02:39:53 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:10272 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S235089AbiAaHjx (ORCPT
+        id S230468AbiAaHtM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 31 Jan 2022 02:49:12 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:48840 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S237945AbiAaHtD (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 31 Jan 2022 02:39:53 -0500
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20V7XuvW027604;
-        Mon, 31 Jan 2022 07:39:42 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=7iwIc/0uE4CQI9sIaooSotPFRwTQ6Q0TOGBw0+rbzVI=;
- b=V4Bnui0et6VzYKWMi/2UscyssXNBi5osQvrON9KGYXca9XkSElmm60w1RyZhhKW4vEUl
- whM6ZZG4xv+hE0XROjl/5Tn0TOmAHksOwGSt2itaYdSk4fiNTnHmbLad7ufkwNyjgkWL
- HMHX0zivavhBEkE07zKa+sDFkbB6IDoWtnr3NA1SfK3VVyNUO9ddSHsp77FO9U7ymaGI
- ODnImXapRkcPbDoQhpZxWGRDVakbvUzGFgJUBJTKTHsY/R7dSXUe4k1XKx5tTUd3Df08
- Do1Nw82gd+ZLd4PG2l5LbITyqIu58ceWSYkxsqITW5NSbL95LMrKuoRREBrJTeDgOhaW AQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3dwexp4q9g-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 31 Jan 2022 07:39:42 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20V7Z6uJ030865;
-        Mon, 31 Jan 2022 07:39:41 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3dwexp4q98-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 31 Jan 2022 07:39:41 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20V7cF5h030563;
-        Mon, 31 Jan 2022 07:39:39 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3dvw798tbx-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 31 Jan 2022 07:39:39 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20V7dbFk41943450
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 31 Jan 2022 07:39:37 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 550A611C052;
-        Mon, 31 Jan 2022 07:39:37 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F386111C050;
-        Mon, 31 Jan 2022 07:39:36 +0000 (GMT)
-Received: from [9.145.79.147] (unknown [9.145.79.147])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 31 Jan 2022 07:39:36 +0000 (GMT)
-Message-ID: <a11cc19d-a2c0-32e0-7534-11dac5f6753e@linux.ibm.com>
-Date:   Mon, 31 Jan 2022 08:39:52 +0100
+        Mon, 31 Jan 2022 02:49:03 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1643615343;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ZAt16hzi0jARVC2SH2tfH/9B/mqcxkzoEuuB90n1AMk=;
+        b=RThfABkIKceBoWUwczc2PcSRMwTqx7AeSYFsQXr4omRp7ZkXCsM+Ib847Rwn+wrj6U5gQj
+        BRGfDOisGpmgND6i8uMX+J9w6LBURAeWY58AO3/iSzUKk+35W+gY3IG4OD7ptLK7DP5Uoy
+        3IMFYnAPvZ6M9P5IBc/jbT8YHZJaTv0=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-333-XlA_d6_JMiq8EIOw30TSSg-1; Mon, 31 Jan 2022 02:48:58 -0500
+X-MC-Unique: XlA_d6_JMiq8EIOw30TSSg-1
+Received: by mail-wr1-f70.google.com with SMTP id w7-20020adfbac7000000b001d6f75e4faeso4485701wrg.7
+        for <linux-s390@vger.kernel.org>; Sun, 30 Jan 2022 23:48:58 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:organization:in-reply-to
+         :content-transfer-encoding;
+        bh=ZAt16hzi0jARVC2SH2tfH/9B/mqcxkzoEuuB90n1AMk=;
+        b=i4AFH3GsRfIFmzl7ZT5QS6wC4rFiAdMwoSjZEd02wiL2rG/kR21PV4yge8H40eLnjK
+         Mw9pC3ppRu8GC3t4kuk+zYbk2mRSKG+/MfJJJCdAT4LVb7SRMmpHorbYrD+wquGDLx0+
+         oNTQU2oxSezZ9zXOeAdz4cyJoY39zNm8u68uOdo2PtoVAxZWowxH3+Qo7an7VytSdx6B
+         ltRwOgNh5vTrbRQhieS7zREg80lnTxCl1D0lqF34/qth8VY4ZPNVgjwZaVE/9f8VXB7W
+         3Y7YLWGCwlB2/V9X9IL7kF7FVnO7pfDfe3VbBJLthMXGfQvVJ2Zmn3YM0Th4PjiUV3gZ
+         9uLw==
+X-Gm-Message-State: AOAM530amxJw9VfK385m+M4gaVV/nT66UbEc+2Ta7EljJlPQLzs+Ggur
+        5ayS8D54zdyk09i5NCY+kfA41UgNIMW38owvsqQpx9VQbZUJN3dsn9wfdYGV3MGJKy3waNcKsVe
+        9exxUZrIitBJFvsswoSC0wA==
+X-Received: by 2002:a05:6000:1008:: with SMTP id a8mr15911186wrx.563.1643615337601;
+        Sun, 30 Jan 2022 23:48:57 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJziNLNeLdU3x1hO5PuIt8mvz7fg18Pv6lGvSgHdK7fS7xha3a7EYrVkbUytI3CwE4ViZc3ZTg==
+X-Received: by 2002:a05:6000:1008:: with SMTP id a8mr15911171wrx.563.1643615337390;
+        Sun, 30 Jan 2022 23:48:57 -0800 (PST)
+Received: from ?IPV6:2003:cb:c709:b200:f007:5a26:32e7:8ef5? (p200300cbc709b200f0075a2632e78ef5.dip0.t-ipconnect.de. [2003:cb:c709:b200:f007:5a26:32e7:8ef5])
+        by smtp.gmail.com with ESMTPSA id y6sm5081791wrl.46.2022.01.30.23.48.55
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 30 Jan 2022 23:48:56 -0800 (PST)
+Message-ID: <3be2e20c-f0b9-c080-adf4-b0e17c046eb0@redhat.com>
+Date:   Mon, 31 Jan 2022 08:48:54 +0100
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH net] net/smc: Forward wakeup to smc socket waitqueue after
- fallback
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.0
+Subject: Re: [PATCH RFC v1] drivers/base/node: consolidate node device
+ subsystem initialization in node_dev_init()
 Content-Language: en-US
-To:     Wen Gu <guwen@linux.alibaba.com>, davem@davemloft.net,
-        kuba@kernel.org
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <1643211184-53645-1-git-send-email-guwen@linux.alibaba.com>
-From:   Karsten Graul <kgraul@linux.ibm.com>
-Organization: IBM Deutschland Research & Development GmbH
-In-Reply-To: <1643211184-53645-1-git-send-email-guwen@linux.alibaba.com>
+To:     Oscar Salvador <osalvador@suse.de>
+Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>, x86@kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org,
+        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org
+References: <20220128151540.164759-1-david@redhat.com>
+ <YfeARpenqPii1WQH@localhost.localdomain>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+In-Reply-To: <YfeARpenqPii1WQH@localhost.localdomain>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: MU1qctkQpv0rWYqh9LbEmKUDcYOrsmCD
-X-Proofpoint-ORIG-GUID: 8yjufBpds7F-sxT2dp7SXWLbUdxFUSlD
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-01-31_02,2022-01-28_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- suspectscore=0 lowpriorityscore=0 mlxscore=0 impostorscore=0 clxscore=1015
- phishscore=0 malwarescore=0 adultscore=0 bulkscore=0 spamscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2201310050
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 26/01/2022 16:33, Wen Gu wrote:
-> When we replace TCP with SMC and a fallback occurs, there may be
-> some socket waitqueue entries remaining in smc socket->wq, such
-> as eppoll_entries inserted by userspace applications.
+On 31.01.22 07:23, Oscar Salvador wrote:
+> On Fri, Jan 28, 2022 at 04:15:40PM +0100, David Hildenbrand wrote:
+>> ... and call node_dev_init() after memory_dev_init() from driver_init(),
+>> so before any of the existing arch/subsys calls. All online nodes should
+>> be known at that point.
+>>
+>> This is in line with memory_dev_init(), which initializes the memory
+>> device subsystem and creates all memory block devices.
+>>
+>> Similar to memory_dev_init(), panic() if anything goes wrong, we don't
+>> want to continue with such basic initialization errors.
+>>
+>> The important part is that node_dev_init() gets called after
+>> memory_dev_init() and after cpu_dev_init(), but before any of the
+>> relevant archs call register_cpu() to register the new cpu device under
+>> the node device. The latter should be the case for the current users
+>> of topology_init().
 > 
-> After the fallback, data flows over TCP/IP and only clcsocket->wq
-> will be woken up. Applications can't be notified by the entries
-> which were inserted in smc socket->wq before fallback. So we need
-> a mechanism to wake up smc socket->wq at the same time if some
-> entries remaining in it.
 
-Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+Hi Oscar,
+
+> So, before this change we had something like this:
+> 
+> do_basic_setup
+>  driver_init
+>   memory_dev_init
+>  do_init_calls
+>   ...
+>    topology_init
+>     register_nodes/register_one_node
+> 
+> And after the patch all happens in driver_init()
+> 
+> driver_init
+>  memory_dev_init
+>  node_dev_init
+> 
+> I guess this is fine as we do not have any ordering problems (aka: none
+> of the functions we used to call before expect the nodes not to be
+> there for some weird reason).
+> 
+> So, no functional change, right?
+> 
+
+Right, and the idea is that the online state of nodes (+ node/zone
+ranges) already has to be known at that point in time, because
+otherwise, we'd be in bigger trouble.
+
+Thanks!
+
+
+-- 
+Thanks,
+
+David / dhildenb
+
