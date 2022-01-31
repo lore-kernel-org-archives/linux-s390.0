@@ -2,69 +2,164 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 34BA3C4321E
-	for <linux-s390@archiver.kernel.org>; Mon, 31 Jan 2022 12:23:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8649BC433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 31 Jan 2022 12:25:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237652AbiAaMXM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 31 Jan 2022 07:23:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35896 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236654AbiAaMXL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 Jan 2022 07:23:11 -0500
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A43B1C061714;
-        Mon, 31 Jan 2022 04:23:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=LgcNEscPK7A82N0xwygPOGsKpSsV//8pkOJRPKbq18M=; b=fTeURvePtpWBWNVCu5sZZ9Oh4w
-        h3Bra+rreCVeO1rckuTuRM0RiWTbtxaemvfv3L1WnhxGjHhCbD9sXGipY4zxfUsVhTrp6LkBZB6hO
-        1soj7ib66BJyhmaNVF8J7POCawaByH+ixrvkwPiwUHiiH4tJ5bUB8GKpQzxDdp5ZJXZryEx1KgdA3
-        jgxHjAfbHvet9+WzmnL/naKMwJ9GJ1qiwlB2+vbMZebAapKNbNySMIRr7nQpjr/sQxzU2ZYwbhWcm
-        ZiFx4w595ItXCgdftwpwAQH5M2uOgtRbUYN41kob+5WpoK3kEegPqeOqIKkDXcfDdy8wkMNVxPRG3
-        4kjY9SMw==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nEVi4-009JmW-Jp; Mon, 31 Jan 2022 12:23:04 +0000
-Date:   Mon, 31 Jan 2022 04:23:04 -0800
-From:   Christoph Hellwig <hch@infradead.org>
-To:     guoren@kernel.org
-Cc:     palmer@dabbelt.com, arnd@arndb.de, anup@brainfault.org,
-        gregkh@linuxfoundation.org, liush@allwinnertech.com,
-        wefu@redhat.com, drew@beagleboard.org, wangjunqiang@iscas.ac.cn,
-        linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-riscv@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-parisc@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        x86@kernel.org, Guo Ren <guoren@linux.alibaba.com>,
-        Anup Patel <anup.patel@wdc.com>
-Subject: Re: [PATCH V4 05/17] riscv: Fixup difference with defconfig
-Message-ID: <YffUqErSVDgbGLTu@infradead.org>
-References: <20220129121728.1079364-1-guoren@kernel.org>
- <20220129121728.1079364-6-guoren@kernel.org>
+        id S1377056AbiAaMZR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 31 Jan 2022 07:25:17 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:39964 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S241079AbiAaMZQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 31 Jan 2022 07:25:16 -0500
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20VBBRq8026075;
+        Mon, 31 Jan 2022 12:25:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=O4wtQYp6ALZab4bMarZJKmfsVhNP5vqFbU9c7Z5Ke4U=;
+ b=mo2hwcwIuNUqiChyjNqU4w+6B97xNkZU+bYVrkK/siSyYp8OmTAZEViOuYoyT7Ouz2sW
+ t0UQWGK9/HfQHqUlnlFtO9/l7dcyRRI93i7zVPi/YnJyy5wS+I2GfUgZ1ehqcNnbZ7em
+ 5Iyq5SGWrJSos6wpcidsyyg+ZFMxBVfynh3Ubv8vDAdQVekv/zygaWRXgMMBwvpAmlnN
+ YTr99Ac5gnvFCzPGQ1xz51SXlwji6aL84zTCVO8EgLQL2KjCfsZ9vhZ6QqJPbuSFhXSM
+ 1ttPZGf2sGE13mrMjy4rIJS/s7NtQG5jayDQNmnaRagbBhGGYcNcmSyyqPyu+LopXN9g ew== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3dxbwa4s21-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 31 Jan 2022 12:25:12 +0000
+Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20VBWXVC019044;
+        Mon, 31 Jan 2022 12:25:12 GMT
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3dxbwa4s1g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 31 Jan 2022 12:25:12 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20VC8AlR024134;
+        Mon, 31 Jan 2022 12:25:10 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma01fra.de.ibm.com with ESMTP id 3dvw792gem-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 31 Jan 2022 12:25:10 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20VCP4bE21496296
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 31 Jan 2022 12:25:04 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 560E711C066;
+        Mon, 31 Jan 2022 12:25:04 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6819E11C054;
+        Mon, 31 Jan 2022 12:25:03 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.30.167])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Mon, 31 Jan 2022 12:25:03 +0000 (GMT)
+Date:   Mon, 31 Jan 2022 13:24:59 +0100
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Petr =?UTF-8?B?VGVzYcWZw61r?= <ptesarik@suse.cz>
+Cc:     Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Michael Mueller <mimu@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH 1/1] KVM: s390: index kvm->arch.idle_mask by vcpu_idx
+Message-ID: <20220131132459.125e560c.pasic@linux.ibm.com>
+In-Reply-To: <76a1c7b0-a073-02bb-1612-a74ca97105ec@suse.cz>
+References: <20210827125429.1912577-1-pasic@linux.ibm.com>
+        <3ca4de98-8f4d-9937-923e-f8865c96f82c@suse.cz>
+        <20220131125337.05f73251.pasic@linux.ibm.com>
+        <76a1c7b0-a073-02bb-1612-a74ca97105ec@suse.cz>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220129121728.1079364-6-guoren@kernel.org>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: UigN8Km17PMrofHcejV2lTkNHQs6wt41
+X-Proofpoint-ORIG-GUID: lvwfGf52pHtBj7sbVl-RSQSQmkiwO2wS
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-01-31_04,2022-01-28_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxscore=0
+ lowpriorityscore=0 bulkscore=0 clxscore=1015 priorityscore=1501
+ adultscore=0 impostorscore=0 spamscore=0 mlxlogscore=999 suspectscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2201310081
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sat, Jan 29, 2022 at 08:17:16PM +0800, guoren@kernel.org wrote:
-> From: Guo Ren <guoren@linux.alibaba.com>
-> 
-> Let's follow the origin patch's spirit:
-> 
-> The only difference between rv32_defconfig and defconfig is that
-> rv32_defconfig has  CONFIG_ARCH_RV32I=y.
-> 
-> This is helpful to compare rv64-compat-rv32 v.s. rv32-linux.
-> 
-> Fixes: 1b937e8faa87ccfb ("RISC-V: Add separate defconfig for 32bit systems")
-> Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-> Signed-off-by: Guo Ren <guoren@kernel.org>
+On Mon, 31 Jan 2022 13:09:26 +0100
+Petr Tesařík <ptesarik@suse.cz> wrote:
 
-Wouldn't a common.config that generats both the 32-bit and 64-bit
-configs a better idea?
+> Hi Halil,
+> 
+> Dne 31. 01. 22 v 12:53 Halil Pasic napsal(a):
+> > On Mon, 31 Jan 2022 11:13:18 +0100
+> > Petr Tesařík <ptesarik@suse.cz> wrote:
+> >   
+> >> Hi Halil,
+> >>
+> >> Dne 27. 08. 21 v 14:54 Halil Pasic napsal(a):  
+> >>> While in practice vcpu->vcpu_idx ==  vcpu->vcp_id is often true,
+> >>> it may not always be, and we must not rely on this.
+> >>>
+> >>> Currently kvm->arch.idle_mask is indexed by vcpu_id, which implies
+> >>> that code like
+> >>> for_each_set_bit(vcpu_id, kvm->arch.idle_mask, online_vcpus) {
+> >>>                   vcpu = kvm_get_vcpu(kvm, vcpu_id);
+> >>> 		do_stuff(vcpu);
+> >>> }
+> >>> is not legit. The trouble is, we do actually use kvm->arch.idle_mask
+> >>> like this. To fix this problem we have two options. Either use
+> >>> kvm_get_vcpu_by_id(vcpu_id), which would loop to find the right vcpu_id,
+> >>> or switch to indexing via vcpu_idx. The latter is preferable for obvious
+> >>> reasons.  
+> >>
+> >> I'm just backporting this fix to SLES 12 SP5, and I've noticed that
+> >> there is still this code in __floating_irq_kick():
+> >>
+> >> 	/* find idle VCPUs first, then round robin */
+> >> 	sigcpu = find_first_bit(fi->idle_mask, online_vcpus);
+> >> /* ... round robin loop removed ...
+> >> 	dst_vcpu = kvm_get_vcpu(kvm, sigcpu);
+> >>
+> >> It seems to me that this does exactly the thing that is not legit, but
+> >> I'm no expert. Did I miss something?
+> >>  
+> > 
+> > We made that legit by making the N-th bit in idle_mask correspond to the
+> > vcpu whose vcpu_idx == N. The second argument of kvm_get_vcpu() is the
+> > vcpu_idx. IMHO that ain't super-intuitive because it ain't spelled out.
+> > 
+> > So before this was a mismatch (with a vcpu_id based bitmap we would have
+> > to use kvm_get_vcpu_by_id()), and with this patch applied this code
+> > becomes legit because both idle_mask and kvm_get_vcpu() operate with
+> > vcpu_idx.
+> > 
+> > Does that make sense?  
+> 
+> Yes!
+> 
+> > I'm sorry the commit message did not convey this clearly enough...  
+> 
+> No, it's not your fault. I didn't pay enough attention to the change, 
+> and with vcpu_id and vcpu_idx being so similar I got confused.
+
+No problem at all!
+
+> 
+> In short, there's no bug now, indeed. Thanks for your patience.
+> 
+
+Thank you for being mindful when backporting!
+
+Regards,
+Halil
+
