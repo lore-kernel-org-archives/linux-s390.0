@@ -2,247 +2,121 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 094FDC433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 31 Jan 2022 13:39:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C3E6C433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 31 Jan 2022 13:49:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379019AbiAaNi4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 31 Jan 2022 08:38:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53532 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243165AbiAaNiw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 Jan 2022 08:38:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E6D8C061714;
-        Mon, 31 Jan 2022 05:38:52 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F1A6B612A4;
-        Mon, 31 Jan 2022 13:38:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63C51C340F1;
-        Mon, 31 Jan 2022 13:38:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643636331;
-        bh=RA0FVrl6eXQy361ALGzH978zET9hjuNIFCrB+wSQl5g=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=eoqRFG/nNASJJ2ghO0MXaXsK3x/8sEn8zE461QkX/XqEoCrM+7t03dyPlvxMBHb+k
-         JAOJOlobIJ9uwC3m0p9hZslwyi8MmrWp7XctqfDk3aNQVTztmJdAoKx0G5T46WCDvx
-         FVf5uZQpfFlXO7kTriG+6gC9ZyG9lp9Rkwu5ZzREucONL6xrL9S8y0ywvz81puGMFG
-         6UFgcJm0rSH87vxfufgrMEuZzWHwofArqB8Mq99Y+G54jP00gtmHudJ8RGZv+KXZfc
-         9G3Ao0gulozIwDQ7Toq1aobwn0Ka/WDqBVFF+ZI6xE6GItxG035MGBofMrfqH1X4bZ
-         sZyS7e9CU2t7g==
-Received: by mail-vk1-f171.google.com with SMTP id b77so8236608vka.11;
-        Mon, 31 Jan 2022 05:38:51 -0800 (PST)
-X-Gm-Message-State: AOAM533zRWs8QltLbia7wO67IHxIt1ctP+Bcv72SFujF2Qdo+H9TEf98
-        wRP0YOppg7C9dSvUyH2HzLtHery0fC9TouvYDzU=
-X-Google-Smtp-Source: ABdhPJzfz8qCfL1NXgodda1dSRl1VLyno35z1oJfIiOI1wGeFTV33rxyeukjw8DnP7wlrRwRPc0y9bOoMBTRs/ZlfGU=
-X-Received: by 2002:a1f:640e:: with SMTP id y14mr8256495vkb.2.1643636330386;
- Mon, 31 Jan 2022 05:38:50 -0800 (PST)
+        id S1379135AbiAaNtO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 31 Jan 2022 08:49:14 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:54294 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1379136AbiAaNtN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 31 Jan 2022 08:49:13 -0500
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20VDcnUU015318;
+        Mon, 31 Jan 2022 13:49:04 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=Sxh7o1iAKLCMsfWCRBQwf9so06hyTCNc37KOGh7foHY=;
+ b=BV2eW+3pPWeCxJOxN/Lju5kUqd+snBvwcevFdo0dC5sOe248x/l55zGafWZn5dKwxnOu
+ 6wvFJAmnJI5eMApq8y3hw9TWiWFDCPs76vKENt4API9+7TaCTncSGLD6XrZonLaIT3+E
+ JbamMhjUwsY2NiwIk4vA6ler0FPloUhYaayUNxWzAR+mUFz8by3D1xLtM03FQrD5+2f2
+ +nTc5bA7cEK99WvZe5SmJB6+RAoNw0tU3WYL8zKLViFAWnRDd22NhtbbTF28s9EBbXoQ
+ P9e1copgLsRawR0ZaSQaoNhFGCKwIh+oxqTvjAvkLrKDvMk4X9QVnGipS6QB9TD4LgnE FQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dx66bb7qa-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 31 Jan 2022 13:49:03 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20VDeg4t025665;
+        Mon, 31 Jan 2022 13:49:03 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dx66bb7p8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 31 Jan 2022 13:49:03 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20VDmBbp007404;
+        Mon, 31 Jan 2022 13:49:00 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma04ams.nl.ibm.com with ESMTP id 3dvw79byc6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 31 Jan 2022 13:49:00 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20VDmwGM12517878
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 31 Jan 2022 13:48:58 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 915A511C050;
+        Mon, 31 Jan 2022 13:48:58 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1EDDC11C052;
+        Mon, 31 Jan 2022 13:48:58 +0000 (GMT)
+Received: from [9.145.79.147] (unknown [9.145.79.147])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 31 Jan 2022 13:48:58 +0000 (GMT)
+Message-ID: <521e3f2a-8b00-43d4-b296-1253c351a3d2@linux.ibm.com>
+Date:   Mon, 31 Jan 2022 14:49:13 +0100
 MIME-Version: 1.0
-References: <20220131064933.3780271-1-hch@lst.de> <20220131064933.3780271-5-hch@lst.de>
-In-Reply-To: <20220131064933.3780271-5-hch@lst.de>
-From:   Guo Ren <guoren@kernel.org>
-Date:   Mon, 31 Jan 2022 21:38:39 +0800
-X-Gmail-Original-Message-ID: <CAJF2gTSo+wk93a5ybmC9GCK7H6W8OmuQFF84tqyXapKRajAP0g@mail.gmail.com>
-Message-ID: <CAJF2gTSo+wk93a5ybmC9GCK7H6W8OmuQFF84tqyXapKRajAP0g@mail.gmail.com>
-Subject: Re: [PATCH 4/5] uapi: always define F_GETLK64/F_SETLK64/F_SETLKW64 in fcntl.h
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        linux-arch <linux-arch@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH 2/4] net/smc: Add netlink net namespace support
+Content-Language: en-US
+To:     "Dmitry V. Levin" <ldv@altlinux.org>,
+        Tony Lu <tonylu@linux.alibaba.com>
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-api@vger.kernel.org
+References: <20211228130611.19124-1-tonylu@linux.alibaba.com>
+ <20211228130611.19124-3-tonylu@linux.alibaba.com>
+ <20220131002453.GA7599@altlinux.org>
+From:   Karsten Graul <kgraul@linux.ibm.com>
+Organization: IBM Deutschland Research & Development GmbH
+In-Reply-To: <20220131002453.GA7599@altlinux.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Q4L5XAycyIYWTBb2iAa0tMTYqsCrYQyi
+X-Proofpoint-ORIG-GUID: 0hntWQwo8aXJg7QmSotzx_D0sS_ptxr4
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-01-31_05,2022-01-31_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 clxscore=1011
+ impostorscore=0 lowpriorityscore=0 suspectscore=0 bulkscore=0 spamscore=0
+ mlxscore=0 mlxlogscore=999 priorityscore=1501 phishscore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2201110000
+ definitions=main-2201310088
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Acked-by: Guo Ren <guoren@kernel.org>
+On 31/01/2022 01:24, Dmitry V. Levin wrote:
+> On Tue, Dec 28, 2021 at 09:06:10PM +0800, Tony Lu wrote:
+>> This adds net namespace ID to diag of linkgroup, helps us to distinguish
+>> different namespaces, and net_cookie is unique in the whole system.
+>>
+> 
+> I'm sorry but this is an ABI regression.
+> 
+> Since struct smc_diag_lgrinfo contains an object of type "struct smc_diag_linkinfo",
+> offset of all subsequent members of struct smc_diag_lgrinfo is changed by
+> this patch.
+> 
+> As result, applications compiled with the old version of struct smc_diag_linkinfo
+> will receive garbage in struct smc_diag_lgrinfo.role if the kernel implements
+> this new version of struct smc_diag_linkinfo.
+> 
 
-On Mon, Jan 31, 2022 at 2:49 PM Christoph Hellwig <hch@lst.de> wrote:
->
-> The F_GETLK64/F_SETLK64/F_SETLKW64 fcntl opcodes are only implemented
-> for the 32-bit syscall APIs, but are also needed for compat handling
-> on 64-bit kernels.
->
-> Consolidate them in unistd.h instead of definining the internal compat
-> definitions in compat.h, which is rather errror prone (e.g. parisc
-> gets the values wrong currently).
->
-> Note that before this change they were never visible to userspace due
-> to the fact that CONFIG_64BIT is only set for kernel builds.
->
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  arch/arm64/include/asm/compat.h        | 4 ----
->  arch/mips/include/asm/compat.h         | 4 ----
->  arch/mips/include/uapi/asm/fcntl.h     | 4 ++--
->  arch/powerpc/include/asm/compat.h      | 4 ----
->  arch/s390/include/asm/compat.h         | 4 ----
->  arch/sparc/include/asm/compat.h        | 4 ----
->  arch/x86/include/asm/compat.h          | 4 ----
->  include/uapi/asm-generic/fcntl.h       | 4 ++--
->  tools/include/uapi/asm-generic/fcntl.h | 2 --
->  9 files changed, 4 insertions(+), 30 deletions(-)
->
-> diff --git a/arch/arm64/include/asm/compat.h b/arch/arm64/include/asm/compat.h
-> index eaa6ca062d89b..2763287654081 100644
-> --- a/arch/arm64/include/asm/compat.h
-> +++ b/arch/arm64/include/asm/compat.h
-> @@ -73,10 +73,6 @@ struct compat_flock {
->         compat_pid_t    l_pid;
->  };
->
-> -#define F_GETLK64      12      /*  using 'struct flock64' */
-> -#define F_SETLK64      13
-> -#define F_SETLKW64     14
-> -
->  struct compat_flock64 {
->         short           l_type;
->         short           l_whence;
-> diff --git a/arch/mips/include/asm/compat.h b/arch/mips/include/asm/compat.h
-> index bbb3bc5a42fd8..6a350c1f70d7e 100644
-> --- a/arch/mips/include/asm/compat.h
-> +++ b/arch/mips/include/asm/compat.h
-> @@ -65,10 +65,6 @@ struct compat_flock {
->         s32             pad[4];
->  };
->
-> -#define F_GETLK64      33
-> -#define F_SETLK64      34
-> -#define F_SETLKW64     35
-> -
->  struct compat_flock64 {
->         short           l_type;
->         short           l_whence;
-> diff --git a/arch/mips/include/uapi/asm/fcntl.h b/arch/mips/include/uapi/asm/fcntl.h
-> index 9e44ac810db94..0369a38e3d4f2 100644
-> --- a/arch/mips/include/uapi/asm/fcntl.h
-> +++ b/arch/mips/include/uapi/asm/fcntl.h
-> @@ -44,11 +44,11 @@
->  #define F_SETOWN       24      /*  for sockets. */
->  #define F_GETOWN       23      /*  for sockets. */
->
-> -#ifndef __mips64
-> +#if __BITS_PER_LONG == 32 || defined(__KERNEL__)
->  #define F_GETLK64      33      /*  using 'struct flock64' */
->  #define F_SETLK64      34
->  #define F_SETLKW64     35
-> -#endif
-> +#endif /* __BITS_PER_LONG == 32 || defined(__KERNEL__) */
->
->  #if _MIPS_SIM != _MIPS_SIM_ABI64
->  #define __ARCH_FLOCK_EXTRA_SYSID       long l_sysid;
-> diff --git a/arch/powerpc/include/asm/compat.h b/arch/powerpc/include/asm/compat.h
-> index 7afc96fb6524b..83d8f70779cbc 100644
-> --- a/arch/powerpc/include/asm/compat.h
-> +++ b/arch/powerpc/include/asm/compat.h
-> @@ -52,10 +52,6 @@ struct compat_flock {
->         compat_pid_t    l_pid;
->  };
->
-> -#define F_GETLK64      12      /*  using 'struct flock64' */
-> -#define F_SETLK64      13
-> -#define F_SETLKW64     14
-> -
->  struct compat_flock64 {
->         short           l_type;
->         short           l_whence;
-> diff --git a/arch/s390/include/asm/compat.h b/arch/s390/include/asm/compat.h
-> index cdc7ae72529d8..0f14b3188b1bb 100644
-> --- a/arch/s390/include/asm/compat.h
-> +++ b/arch/s390/include/asm/compat.h
-> @@ -110,10 +110,6 @@ struct compat_flock {
->         compat_pid_t    l_pid;
->  };
->
-> -#define F_GETLK64       12
-> -#define F_SETLK64       13
-> -#define F_SETLKW64      14
-> -
->  struct compat_flock64 {
->         short           l_type;
->         short           l_whence;
-> diff --git a/arch/sparc/include/asm/compat.h b/arch/sparc/include/asm/compat.h
-> index bd949fcf9d63b..108078751bb5a 100644
-> --- a/arch/sparc/include/asm/compat.h
-> +++ b/arch/sparc/include/asm/compat.h
-> @@ -84,10 +84,6 @@ struct compat_flock {
->         short           __unused;
->  };
->
-> -#define F_GETLK64      12
-> -#define F_SETLK64      13
-> -#define F_SETLKW64     14
-> -
->  struct compat_flock64 {
->         short           l_type;
->         short           l_whence;
-> diff --git a/arch/x86/include/asm/compat.h b/arch/x86/include/asm/compat.h
-> index 7516e4199b3c6..8d19a212f4f26 100644
-> --- a/arch/x86/include/asm/compat.h
-> +++ b/arch/x86/include/asm/compat.h
-> @@ -58,10 +58,6 @@ struct compat_flock {
->         compat_pid_t    l_pid;
->  };
->
-> -#define F_GETLK64      12      /*  using 'struct flock64' */
-> -#define F_SETLK64      13
-> -#define F_SETLKW64     14
-> -
->  /*
->   * IA32 uses 4 byte alignment for 64 bit quantities,
->   * so we need to pack this structure.
-> diff --git a/include/uapi/asm-generic/fcntl.h b/include/uapi/asm-generic/fcntl.h
-> index 98f4ff165b776..8c05d3d89ff18 100644
-> --- a/include/uapi/asm-generic/fcntl.h
-> +++ b/include/uapi/asm-generic/fcntl.h
-> @@ -116,13 +116,13 @@
->  #define F_GETSIG       11      /* for sockets. */
->  #endif
->
-> -#ifndef CONFIG_64BIT
-> +#if __BITS_PER_LONG == 32 || defined(__KERNEL__)
->  #ifndef F_GETLK64
->  #define F_GETLK64      12      /*  using 'struct flock64' */
->  #define F_SETLK64      13
->  #define F_SETLKW64     14
->  #endif
-> -#endif
-> +#endif /* __BITS_PER_LONG == 32 || defined(__KERNEL__) */
->
->  #ifndef F_SETOWN_EX
->  #define F_SETOWN_EX    15
-> diff --git a/tools/include/uapi/asm-generic/fcntl.h b/tools/include/uapi/asm-generic/fcntl.h
-> index bf961a71802e0..6e16722026f39 100644
-> --- a/tools/include/uapi/asm-generic/fcntl.h
-> +++ b/tools/include/uapi/asm-generic/fcntl.h
-> @@ -115,13 +115,11 @@
->  #define F_GETSIG       11      /* for sockets. */
->  #endif
->
-> -#ifndef CONFIG_64BIT
->  #ifndef F_GETLK64
->  #define F_GETLK64      12      /*  using 'struct flock64' */
->  #define F_SETLK64      13
->  #define F_SETLKW64     14
->  #endif
-> -#endif
->
->  #ifndef F_SETOWN_EX
->  #define F_SETOWN_EX    15
-> --
-> 2.30.2
->
+Good catch! This patch adds 2 ways to provide the net_cookie to user space, one is over the new
+netlink interface, and the other is using the old smc_diag way. 
+Imho to use the new netlink interface is good enough, there is no need to touch the smc_diag ABI.
+We already started adding new fields to the netlink interface only, this flexibility is 
+the reason why we added this interface initially.
 
+So a patch that removes
+	__aligned_u64	net_cookie;
+and
+	.lnk[0].net_cookie = net->net_cookie,
+should solve the issue. 
 
--- 
-Best Regards
- Guo Ren
-
-ML: https://lore.kernel.org/linux-csky/
+Thoughts?
