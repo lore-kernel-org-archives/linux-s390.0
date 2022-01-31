@@ -2,93 +2,98 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CEBBC433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 31 Jan 2022 12:46:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86905C43217
+	for <linux-s390@archiver.kernel.org>; Mon, 31 Jan 2022 12:49:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377988AbiAaMqe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 31 Jan 2022 07:46:34 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:8276 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1377935AbiAaMqb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 31 Jan 2022 07:46:31 -0500
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20VCbqif036194;
-        Mon, 31 Jan 2022 12:46:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=nh+RVENpbA1r3RMZCSSKROR/LLLUwDVrN3w9Pumuon8=;
- b=Bc+nFuL5dQ9Em0ZXdRak04eTq4eJojGzJlpJoqpo7VgxW3mPndw12fpRcQoT70ZU5aE0
- 6MwpZNxT+d9gGkPIoH2VqitYQVMbezRfozmJIxlfDJeUtpkZfASoo/d5dNX485XTmC7R
- uLESJ/QynnaO/BrX6+XB8C5vrgJb2K6WKOTgnC5csqDdG3kgvVFXvTvCso8CZslavNF8
- 4I2YRS4ZELZP9EFWGBhSQPULfzu1yj45gb2anYNHF253EBHmCK91wlKhFTlSNSQ3s+xT
- 8qrW5WAzKM9vyN6JX/PJwh9NgE3w/2KtwcONDtzZNoMjDp5Fs/EJwNozRP64fQVn8s71 uw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dx5a6tuah-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 31 Jan 2022 12:46:28 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20VCfQ1b008949;
-        Mon, 31 Jan 2022 12:46:28 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dx5a6tu9s-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 31 Jan 2022 12:46:28 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20VCgCl2002823;
-        Mon, 31 Jan 2022 12:46:25 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma04ams.nl.ibm.com with ESMTP id 3dvw79bdqa-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 31 Jan 2022 12:46:25 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20VCkNcK39387484
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 31 Jan 2022 12:46:23 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9C31C11C052;
-        Mon, 31 Jan 2022 12:46:23 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2A55511C04C;
-        Mon, 31 Jan 2022 12:46:23 +0000 (GMT)
-Received: from [9.145.79.147] (unknown [9.145.79.147])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 31 Jan 2022 12:46:23 +0000 (GMT)
-Message-ID: <83f520b1-d272-cafc-37b1-d086d68f2e9c@linux.ibm.com>
-Date:   Mon, 31 Jan 2022 13:46:38 +0100
+        id S1378122AbiAaMtW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 31 Jan 2022 07:49:22 -0500
+Received: from mout.kundenserver.de ([212.227.17.10]:41787 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240768AbiAaMtT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 Jan 2022 07:49:19 -0500
+Received: from mail-oi1-f176.google.com ([209.85.167.176]) by
+ mrelayeu.kundenserver.de (mreue109 [213.165.67.113]) with ESMTPSA (Nemesis)
+ id 1MzQc2-1mJ6320Q5o-00vQEz; Mon, 31 Jan 2022 13:49:16 +0100
+Received: by mail-oi1-f176.google.com with SMTP id v67so26377549oie.9;
+        Mon, 31 Jan 2022 04:49:15 -0800 (PST)
+X-Gm-Message-State: AOAM530MUhJjxHs4lN8uEOaSb8M+hbaDjaI0XH9LOJMiEFS5TJs59mvW
+        WWl2KRm09sLPH3x0egJ0DrXHFNU9MZs6JEah+R0=
+X-Google-Smtp-Source: ABdhPJy98n+kDWK/9SbbjWdkcIPv//3sxAoIsXTByqyfuSFCJCabGM0ZH14kpP64umFfYvpncQnk8rPRUpmA1wB2kjw=
+X-Received: by 2002:aca:2b16:: with SMTP id i22mr15607147oik.128.1643633354113;
+ Mon, 31 Jan 2022 04:49:14 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH v2 net-next 0/3] net/smc: Optimizing performance in
-Content-Language: en-US
-To:     "D. Wythe" <alibuda@linux.alibaba.com>
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        matthieu.baerts@tessares.net
-References: <cover.1643380219.git.alibuda@linux.alibaba.com>
-From:   Karsten Graul <kgraul@linux.ibm.com>
-Organization: IBM Deutschland Research & Development GmbH
-In-Reply-To: <cover.1643380219.git.alibuda@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: jp6sQAvkvPGwbrZFyc7RIG3WTR821-lw
-X-Proofpoint-GUID: WezDvuRvtofA6cZSN92KaH3o9r5641GK
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-01-31_05,2022-01-28_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 spamscore=0
- lowpriorityscore=0 adultscore=0 clxscore=1015 priorityscore=1501
- bulkscore=0 phishscore=0 suspectscore=0 malwarescore=0 mlxscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2201310083
+References: <20220129121728.1079364-1-guoren@kernel.org> <20220129121728.1079364-6-guoren@kernel.org>
+ <YffUqErSVDgbGLTu@infradead.org>
+In-Reply-To: <YffUqErSVDgbGLTu@infradead.org>
+From:   Arnd Bergmann <arnd@arndb.de>
+Date:   Mon, 31 Jan 2022 13:48:58 +0100
+X-Gmail-Original-Message-ID: <CAK8P3a1jZyVBW70K6_u3mvXYNowV4DTBxivKc2L=HbRK8SgRXg@mail.gmail.com>
+Message-ID: <CAK8P3a1jZyVBW70K6_u3mvXYNowV4DTBxivKc2L=HbRK8SgRXg@mail.gmail.com>
+Subject: Re: [PATCH V4 05/17] riscv: Fixup difference with defconfig
+To:     Christoph Hellwig <hch@infradead.org>
+Cc:     Guo Ren <guoren@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Anup Patel <anup@brainfault.org>,
+        gregkh <gregkh@linuxfoundation.org>,
+        liush <liush@allwinnertech.com>, Wei Fu <wefu@redhat.com>,
+        Drew Fustini <drew@beagleboard.org>,
+        Wang Junqiang <wangjunqiang@iscas.ac.cn>,
+        linux-arch <linux-arch@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-csky@vger.kernel.org,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Guo Ren <guoren@linux.alibaba.com>,
+        Anup Patel <anup.patel@wdc.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Provags-ID: V03:K1:djGQj121T/Up79PV9vFe3c3xFVYWtTtn038P31Wi6YWVhZsb7CH
+ EWUc8VlWcickQHCTaodxi2PwS/49NtPQkRJKgVjui3yT2gl4ORQlI1/MiZXJMdpsdD1aZSh
+ j5i7ILCBXXo9S6BeA8TxrAWH0lSCHoAJ1aoJOV69A1zT/H8uT9VxlxySVe4GNFkBrMXjAwW
+ wzeiuGQ17BqnsLNJLNKtg==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:ZH5LM8F2Bio=:iB3XsXNdUOq9ydk/56//Ap
+ ygzKiwd747DPcnWv4JephLLgjcJN/oPQ/nOfySsB/xbDPlB3cme3km4ROyqlWL0CAVzcs01gs
+ RhEc5wZoQCuocaDBY/qh20LWX2XgmGzstKMoAdLEJpwDT53xv8/RZzSW1GOS5Ugq/im3mCvEP
+ t4j5XvKwXkMuCt0yyWB4fzMIHX/fnyXoT+dt+B7l+hhIw/oFU/O9gV61t0DKpi/9smj22Y0d1
+ v1oPXyfkmDoaIclTGygnc9Iu5AcT89Qf7PttG5zsjj6vua8yFCX9thdOTVDI+19rYkmfPD+IN
+ CI4fCNvJqDHpArJ9q+d2w6qas4y9eYU9m2jSZu8pheXxCXJBoVhr0op0VwZJ2P8PNYGaYTPW+
+ W5W0FzRhsp45xn9G9MVN6/oYQqpV6x8bv8Fi5tTJJ2g4HGsrOc+Md3MvCq88yJiu3uJyYAvsP
+ uj1k70QZ4sl7dZpP0p98gD4i9GdncRnk96Mb7jvwt7yt+C05GKbz2rIpxoahiYoStdl0KPenj
+ ucYkY65kz7E9mad2H20UiA6Z0348ukzyAmSTaHzS+Mbi8en47i8/WPi3NYlm2duFIsOK2eX2f
+ luBlpwT9r5ZQXCXE9s1U7Y8NpBQ79ly7U58oJrc/yU7qmgZtlHLPeRZzObbFxQeWXk/hBBSjF
+ iF4lRgIU1qcoUDvnIBgDGwlnfObta2XyKhMT+GSJCXhTEHcoTIpfMR9aPYWV9B7+vvgxkbt9a
+ PDLwoWE+daaBhoHuyu7RQcNCXR8OxUI6Zldek/DhFHJjlXS3IGAEOfj+FUryc+sQks/wVfX5L
+ 3swFfq8Q/1DJJigRwhmxaY/F702+y0FrL+2b4Ijbzh0YjQOMco=
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 28/01/2022 15:44, D. Wythe wrote:
-> From: "D. Wythe" <alibuda@linux.alibaba.com>
-> 
+On Mon, Jan 31, 2022 at 1:23 PM Christoph Hellwig <hch@infradead.org> wrote:
+>
+> On Sat, Jan 29, 2022 at 08:17:16PM +0800, guoren@kernel.org wrote:
+> > From: Guo Ren <guoren@linux.alibaba.com>
+> >
+> > Let's follow the origin patch's spirit:
+> >
+> > The only difference between rv32_defconfig and defconfig is that
+> > rv32_defconfig has  CONFIG_ARCH_RV32I=y.
+> >
+> > This is helpful to compare rv64-compat-rv32 v.s. rv32-linux.
+> >
+> > Fixes: 1b937e8faa87ccfb ("RISC-V: Add separate defconfig for 32bit systems")
+> > Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+> > Signed-off-by: Guo Ren <guoren@kernel.org>
+>
+> Wouldn't a common.config that generats both the 32-bit and 64-bit
+> configs a better idea?
 
-Cover letter subject: "Optimizing performance in" ??
+I thought that is what the patch does, there is already the normal 64-bit
+defconfig, and the new makefile target makes this shared with 32-bit
+to prevent them from diverging again.
+
+        Arnd
