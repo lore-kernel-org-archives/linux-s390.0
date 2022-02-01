@@ -2,97 +2,110 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22E60C433F5
-	for <linux-s390@archiver.kernel.org>; Tue,  1 Feb 2022 07:51:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 999F9C43219
+	for <linux-s390@archiver.kernel.org>; Tue,  1 Feb 2022 09:13:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235244AbiBAHvj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 1 Feb 2022 02:51:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47654 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234355AbiBAHvi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Feb 2022 02:51:38 -0500
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3B4DC061714;
-        Mon, 31 Jan 2022 23:51:38 -0800 (PST)
-Received: by mail-pj1-x102e.google.com with SMTP id o64so16366675pjo.2;
-        Mon, 31 Jan 2022 23:51:38 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=to:cc:from:subject:message-id:date:user-agent:mime-version
-         :content-transfer-encoding:content-language;
-        bh=EgFo9ghDi1FqlXmS0tqqUfR+YTv3A1qP6YjpJ5SdGs4=;
-        b=MzCFBVr9tw3Mbk9jsA9GWZSlDw7uVe2T+SDT1T2Yb/1woqWGpTgpz9n1nTj/1MEjLA
-         xJS3uA+zVLriZi1Emc8tBO/+WalEJTJ3OraYh2aa5ryThSPaE4QP/CfyHgHJFheQIVZj
-         xVxoK11XToKt4TlfvFFBPzBNkukPDTxEy9qZL/mcBkdlhTkMOvrPF1BxVXqluP04qzTg
-         LOtybm2gzIf984S+dkpEMiZVAHK17M139Af2ekd8kC95uvx/1MFeWjKY701HGT5zj1qF
-         ZOoXa8eRQspeeakcyC8h0UtkqrScNiVXrLDYWAjvupqzxn6/XDrlYu9H/k4sgVRTATSH
-         ay3A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:to:cc:from:subject:message-id:date:user-agent
-         :mime-version:content-transfer-encoding:content-language;
-        bh=EgFo9ghDi1FqlXmS0tqqUfR+YTv3A1qP6YjpJ5SdGs4=;
-        b=bUrJR4KhOEEEdUR+2LNbQXFz9MQyGur1RxapH3gaDiEL6SebJ8SWnJ5Tp8b9Mwo4/L
-         pxgISWCzc1Nh+niyKx3DNzD9LlVH792OXsyXGAImC8p6enhnBJSTMoiiYrciXC8Cv/QG
-         VqFOitQ3BXFNidFNgmQtb1qeGw3gaNyt0DxtAk+E2o0ihn5X7/zkxseSUrvt8RIapQ0Q
-         c4t3JXSVxZ1qZGiWMfMbe+lRD3yFAiiDkLBRP8XZtExafFQrJu2J1+AMhK1bX8nXEuCr
-         uHIOn8h+97S5yoyBE5VD3QrGbfhGGVqvtlOtLOrTR3K5llGk8bk7Zj+obDgr0dDYFCQR
-         UjEA==
-X-Gm-Message-State: AOAM531CImhjP20Ku+z0w7CIFc5n5kQihvNUEPEnC7bcROoSlL7pc/mn
-        G/glNUKEuDZci7KteZjnahlSLd2aZXk=
-X-Google-Smtp-Source: ABdhPJy6oExljg421lAf8gS7yetpxTbKsezH3mkNHDxnn0qRFskEBAkjT4QeiItL3SeNuiVHFONmlQ==
-X-Received: by 2002:a17:90a:7a8a:: with SMTP id q10mr908260pjf.55.1643701898019;
-        Mon, 31 Jan 2022 23:51:38 -0800 (PST)
-Received: from [10.59.0.6] ([85.203.23.80])
-        by smtp.gmail.com with ESMTPSA id 9sm1634502pjl.55.2022.01.31.23.51.33
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 31 Jan 2022 23:51:37 -0800 (PST)
-To:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel <linux-kernel@vger.kernel.org>
-From:   Jia-Ju Bai <baijiaju1990@gmail.com>
-Subject: [BUG] net: smc: possible deadlock in smc_lgr_free() and
- smc_link_down_work()
-Message-ID: <11fe65b8-eda4-121e-ec32-378b918d0909@gmail.com>
-Date:   Tue, 1 Feb 2022 15:51:30 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S235059AbiBAJNw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 1 Feb 2022 04:13:52 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:53872 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230264AbiBAJNw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Feb 2022 04:13:52 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4F288B82D23;
+        Tue,  1 Feb 2022 09:13:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0E1CC340F3;
+        Tue,  1 Feb 2022 09:13:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1643706829;
+        bh=hnac9oX2VXGbCvTtbNqKOCdN7oRwr6SWdV4YiEu9kyM=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=C3jBCI/ixEWgjooyWZg0Pf2gLBAsWdYC5KQtZyJSy1bZaxpdqnqmZV2mLvS2b1IFc
+         ynbOpC5QIxeUjflPA3k50UNxGFgTQoueb8H6IcVSH4QOMcFXtHnzhO6sX44zxCdvIN
+         HwR1s0XWWFi+/c6gZbeyxVhey/XzQMNLmct/O0fM3zr53GHtf+E/aqGlthTlcrsyo5
+         083sI15A7w/gOmRl6iM3BFpIS67oz9XP33+endaam6lx52zO3Vy08Ow2PDfM/R/KDT
+         0hJa2m3h6TyU8/xhk/Ehpn6Ldkyugyv7t3+o+ZgnGtUgC+abBE49frlN5zhRV2SQUk
+         1J5pf/YToKspA==
+Received: by mail-vk1-f176.google.com with SMTP id y192so9993943vkc.8;
+        Tue, 01 Feb 2022 01:13:48 -0800 (PST)
+X-Gm-Message-State: AOAM532LncX1C+HJY/gE+ew+hpSD2cyvyEZ3wv7Pm3tEXru0ZyWq3T16
+        vRwWxgA+zWT1SiR9vlICd+0ode4PYGpaJiNQ0xw=
+X-Google-Smtp-Source: ABdhPJz8fzguZPbFnae5j7V9pl/dv5oQGM4hOb4aA5V9NpHM4cr9OW86mUtht2VbhtSN0zWJb+F+yH9GTu4P2KsI3X0=
+X-Received: by 2002:a05:6122:1c5:: with SMTP id h5mr9895590vko.2.1643706827991;
+ Tue, 01 Feb 2022 01:13:47 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+References: <20220129121728.1079364-1-guoren@kernel.org> <20220129121728.1079364-17-guoren@kernel.org>
+ <YffVZZg9GNcjgVdm@infradead.org> <CAJF2gTRXDotO1L1FMojQs6msrqvCzA782Pux8rg3AfZgA=y0ew@mail.gmail.com>
+ <20220201074457.GC29119@lst.de>
+In-Reply-To: <20220201074457.GC29119@lst.de>
+From:   Guo Ren <guoren@kernel.org>
+Date:   Tue, 1 Feb 2022 17:13:37 +0800
+X-Gmail-Original-Message-ID: <CAJF2gTTc=zwD__zXwYbO8vmup5evWJtzyiAF9Pm-UVHLJRc5hQ@mail.gmail.com>
+Message-ID: <CAJF2gTTc=zwD__zXwYbO8vmup5evWJtzyiAF9Pm-UVHLJRc5hQ@mail.gmail.com>
+Subject: Re: [PATCH V4 16/17] riscv: compat: Add COMPAT Kbuild skeletal support
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Christoph Hellwig <hch@infradead.org>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Anup Patel <anup@brainfault.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        liush <liush@allwinnertech.com>, Wei Fu <wefu@redhat.com>,
+        Drew Fustini <drew@beagleboard.org>,
+        Wang Junqiang <wangjunqiang@iscas.ac.cn>,
+        linux-arch <linux-arch@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-csky@vger.kernel.org,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Guo Ren <guoren@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello,
+On Tue, Feb 1, 2022 at 3:45 PM Christoph Hellwig <hch@lst.de> wrote:
+>
+> On Mon, Jan 31, 2022 at 09:50:58PM +0800, Guo Ren wrote:
+> > On Mon, Jan 31, 2022 at 8:26 PM Christoph Hellwig <hch@infradead.org> wrote:
+> > >
+> > > Given that most rv64 implementations can't run in rv32 mode, what is the
+> > > failure mode if someone tries it with the compat mode enabled?
+> > A static linked simple hello_world could still run on a non-compat
+> > support hardware. But most rv32 apps would meet different userspace
+> > segment faults.
+> >
+> > Current code would let the machine try the rv32 apps without detecting
+> > whether hw support or not.
+>
+> Hmm, we probably want some kind of check for not even offer running
+> rv32 binaries.  I guess trying to write UXL some time during early
+> boot and catching the resulting exception would be the way to go?
 
-My static analysis tool reports a possible deadlock in the smc module in 
-Linux 5.16:
-
-smc_lgr_free()
-   mutex_lock(&lgr->llc_conf_mutex); --> Line 1289 (Lock A)
-   smcr_link_clear()
-     smc_wr_free_link()
-       wait_event(lnk->wr_tx_wait, ...); --> Line 648 (Wait X)
-
-smc_link_down_work()
-   mutex_lock(&lgr->llc_conf_mutex); --> Line 1683 (Lock A)
-   smcr_link_down()
-     smcr_link_clear()
-       smc_wr_free_link()
-         smc_wr_wakeup_tx_wait()
-           wake_up_all(&lnk->wr_tx_wait); --> Line 78 (Wake X)
-
-When smc_lgr_free() is executed, "Wait X" is performed by holding "Lock 
-A". If smc_link_down_work() is executed at this time, "Wake X" cannot be 
-performed to wake up "Wait X" in smc_lgr_free(), because "Lock A" has 
-been already hold by smc_lgr_free(), causing a possible deadlock.
-
-I am not quite sure whether this possible problem is real and how to fix 
-it if it is real.
-Any feedback would be appreciated, thanks :)
+Emm... I think it's unnecessary. Free rv32 app running won't cause
+system problem, just as a wrong elf running. They are U-mode
+privileged.
+>
+> >
+> >
+> > --
+> > Best Regards
+> >  Guo Ren
+> >
+> > ML: https://lore.kernel.org/linux-csky/
+> ---end quoted text---
 
 
-Best wishes,
-Jia-Ju Bai
+
+-- 
+Best Regards
+ Guo Ren
+
+ML: https://lore.kernel.org/linux-csky/
