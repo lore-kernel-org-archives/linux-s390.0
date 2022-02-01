@@ -2,179 +2,129 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 785C6C433EF
-	for <linux-s390@archiver.kernel.org>; Tue,  1 Feb 2022 16:50:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AAF3CC433EF
+	for <linux-s390@archiver.kernel.org>; Tue,  1 Feb 2022 17:06:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241220AbiBAQu6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 1 Feb 2022 11:50:58 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:15944 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235246AbiBAQu5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Feb 2022 11:50:57 -0500
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 211F3Mje030314;
-        Tue, 1 Feb 2022 16:50:55 GMT
+        id S241403AbiBARGW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 1 Feb 2022 12:06:22 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:63012 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S231877AbiBARGV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Feb 2022 12:06:21 -0500
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 211H0Ybq016152;
+        Tue, 1 Feb 2022 17:06:17 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=zNVSTvZfXc4LemYI2NRyspRmWquswIG5l/qv0JJD7AE=;
- b=oFiAfD5MTxdl5GsII2xacyx0NWYjwAYZgvDw1M4edIlE4f7aOSblD/CXYoW41b+hlCvL
- BOwBlNbqfZ7GhcZoLfXP0Lac4+mooTjRc8OCpdfkcvz1n86VInyTWcLR/pUqnsiLrSw7
- aTwx8mzwrXSJgyAPNVJKobnplA0YkBpgdv+/6NuInVQkT6/aN2A6yatx2FdHXXzDfcaA
- VM+X1p/ZmKd1/tMtNIlDj/nMnuqL+tDSXH5opD8HuSWTPfXKq0QGiC76ou8e9Hv+oZXm
- kZYrLZSST9eDwifFfbAurLRYgYjywX4+2GvNisReNETQKb+xlb7n2ys5n36qZf9DRnAp +A== 
+ bh=onrqYIOKUr4RNTR6BCf3mCF2S16T7nddg5AP40Dp79A=;
+ b=YLMWhhuQIxEJwuegzaz1nfJaXranP7f6aHyrOA8ZQ65v6TMLjlXuNOgkyi4xL8Gxesuy
+ oZ9SrQ6UATj3vM99z3hhXU8cWNobev2MF6X2INhmaxlYR9On9afD9dYy6xHPxarFQELd
+ Yyfqk49+YHvRdWlE4dZqFkiIqZ+Pd0GQigjqHk1vNtCn5PNnb+A9PujY3pbNVxoMaw8s
+ cevaQ6psMWy9DbMEEqPJsuzu2AhoPbqxlEm3BuDYjQQ28qlZihDKL3aWNRAg1HNTh7Jp
+ E4Rma38RiAggfaVy/XygAFCaixpBzY1Ze7GgWneE3Jd23Qc0xVGEuyiHCjwTA9aB1nFf NQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dy1v9rxkn-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3dy6q4kght-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 01 Feb 2022 16:50:55 +0000
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 211GYGgS013114;
-        Tue, 1 Feb 2022 16:50:54 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dy1v9rxjy-1
+        Tue, 01 Feb 2022 17:06:17 +0000
+Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 211G0jIi028915;
+        Tue, 1 Feb 2022 17:06:17 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3dy6q4kgha-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 01 Feb 2022 16:50:54 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 211GmjCk000410;
-        Tue, 1 Feb 2022 16:50:52 GMT
+        Tue, 01 Feb 2022 17:06:16 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 211Gl9KU025334;
+        Tue, 1 Feb 2022 17:06:15 GMT
 Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 3dvw79phcf-1
+        by ppma06ams.nl.ibm.com with ESMTP id 3dvvujer20-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 01 Feb 2022 16:50:52 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 211Gon4W33161680
+        Tue, 01 Feb 2022 17:06:15 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 211H6Dpb47579530
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 1 Feb 2022 16:50:49 GMT
+        Tue, 1 Feb 2022 17:06:13 GMT
 Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C775B42042;
-        Tue,  1 Feb 2022 16:50:49 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id ECC8A42047;
+        Tue,  1 Feb 2022 17:06:12 +0000 (GMT)
 Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 529104204B;
-        Tue,  1 Feb 2022 16:50:49 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 7E88942045;
+        Tue,  1 Feb 2022 17:06:12 +0000 (GMT)
 Received: from [9.145.64.14] (unknown [9.145.64.14])
         by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue,  1 Feb 2022 16:50:49 +0000 (GMT)
-Message-ID: <6739dd5f-aaa9-dce9-4b06-08060fe267da@linux.ibm.com>
-Date:   Tue, 1 Feb 2022 17:50:48 +0100
+        Tue,  1 Feb 2022 17:06:12 +0000 (GMT)
+Message-ID: <0936d5f3-aef2-0553-408b-07b3bb47e36b@linux.ibm.com>
+Date:   Tue, 1 Feb 2022 18:06:12 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
  Thunderbird/91.5.0
-Subject: Re: [RFC PATCH net-next 0/6] net/smc: Spread workload over multiple
- cores
+Subject: Re: [BUG] net: smc: possible deadlock in smc_lgr_free() and
+ smc_link_down_work()
 Content-Language: en-US
-To:     Tony Lu <tonylu@linux.alibaba.com>
-Cc:     Leon Romanovsky <leon@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>,
-        kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org,
-        RDMA mailing list <linux-rdma@vger.kernel.org>
-References: <YfD26mhGkM9DFBV+@TonyMac-Alibaba>
- <20220126152806.GN8034@ziepe.ca> <YfIOHZ7hSfogeTyS@TonyMac-Alibaba>
- <YfI50xqsv20KDpz9@unreal> <YfJQ6AwYMA/i4HvH@TonyMac-Alibaba>
- <YfJcDfkBZfeYA1Z/@unreal> <YfJieyROaAKE+ZO0@TonyMac-Alibaba>
- <YfJlFe3p2ABbzoYI@unreal> <YfJq5pygXS13XRhp@TonyMac-Alibaba>
- <3fcfdf75-eb8c-426d-5874-3afdc49de743@linux.ibm.com>
- <YfOTa5uIPUw+gOfM@TonyMac-Alibaba>
+To:     Jia-Ju Bai <baijiaju1990@gmail.com>, davem@davemloft.net,
+        kuba@kernel.org
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel <linux-kernel@vger.kernel.org>
+References: <11fe65b8-eda4-121e-ec32-378b918d0909@gmail.com>
 From:   Karsten Graul <kgraul@linux.ibm.com>
 Organization: IBM Deutschland Research & Development GmbH
-In-Reply-To: <YfOTa5uIPUw+gOfM@TonyMac-Alibaba>
+In-Reply-To: <11fe65b8-eda4-121e-ec32-378b918d0909@gmail.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: n4aMzg8gaQzsKH-ttZNYz5iCEKQj9fgw
-X-Proofpoint-GUID: JO0ryo-iLdRdLpYbDYbNDWgBRPLyfZ20
+X-Proofpoint-GUID: pea68IG5Bj1ccet02yEexdujcsm8MwYP
+X-Proofpoint-ORIG-GUID: wR9E2Ty2RNbiLvkCityV-vItCyHpBkeq
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2022-02-01_08,2022-02-01_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 adultscore=0
- lowpriorityscore=0 suspectscore=0 bulkscore=0 clxscore=1015 phishscore=0
- priorityscore=1501 mlxscore=0 spamscore=0 mlxlogscore=999 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2201110000
- definitions=main-2202010093
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
+ priorityscore=1501 lowpriorityscore=0 bulkscore=0 mlxlogscore=999
+ clxscore=1015 suspectscore=0 mlxscore=0 adultscore=0 malwarescore=0
+ impostorscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2201110000 definitions=main-2202010095
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 28/01/2022 07:55, Tony Lu wrote:
-> On Thu, Jan 27, 2022 at 03:52:36PM +0100, Karsten Graul wrote:
->> On 27/01/2022 10:50, Tony Lu wrote:
->>> On Thu, Jan 27, 2022 at 11:25:41AM +0200, Leon Romanovsky wrote:
->>>> On Thu, Jan 27, 2022 at 05:14:35PM +0800, Tony Lu wrote:
->>>>> On Thu, Jan 27, 2022 at 10:47:09AM +0200, Leon Romanovsky wrote:
->>>>>> On Thu, Jan 27, 2022 at 03:59:36PM +0800, Tony Lu wrote:
->>>>>
->>>>> Sorry for that if I missed something about properly using existing
->>>>> in-kernel API. I am not sure the proper API is to use ib_cq_pool_get()
->>>>> and ib_cq_pool_put()?
->>>>>
->>>>> If so, these APIs doesn't suit for current smc's usage, I have to
->>>>> refactor logic (tasklet and wr_id) in smc. I think it is a huge work
->>>>> and should do it with full discussion.
->>>>
->>>> This discussion is not going anywhere. Just to summarize, we (Jason and I)
->>>> are asking to use existing API, from the beginning.
->>>
->>> Yes, I can't agree more with you about using existing API and I have
->>> tried them earlier. The existing APIs are easy to use if I wrote a new
->>> logic. I also don't want to repeat the codes.
->>>
->>> The main obstacle is that the packet and wr processing of smc is
->>> tightly bound to the old API and not easy to replace with existing API.
->>>
->>> To solve a real issue, I have to fix it based on the old API. If using
->>> existing API in this patch, I have to refactor smc logics which needs
->>> more time. Our production tree is synced with smc next. So I choose to
->>> fix this issue first, then refactor these logic to fit existing API once
->>> and for all.
->>
->> While I understand your approach to fix the issue first I need to say
->> that such interim fixes create an significant amount of effort that has to
->> be spent for review and test for others. And there is the increased risk 
->> to introduce new bugs by just this only-for-now fix.
+On 01/02/2022 08:51, Jia-Ju Bai wrote:
+> Hello,
 > 
-> Let's back to this patch itself. This approach spreads CQs to different
-> vectors, it tries to solve this issue under current design and not to
-> introduce more changes to make it easier to review and test. It severely
-> limits the performance of SMC when replacing TCP. This patch tries to
-> reduce the gap between SMC and TCP.
+> My static analysis tool reports a possible deadlock in the smc module in Linux 5.16:
 > 
-> To use newer API, it should have a lots of work to do with wr process
-> logic, for example remove tasklet handler, refactor wr_id logic. I have
-> no idea if we should do this? If it's okay and got your permission, I
-> will do this in the next patch.
-
-Hi Tony,
-
-I think there was quite a discussion now about this patch series and the conclusion from 
-the RDMA list and from my side was that if this code is changed it should be done using
-the new API. The current version re-implements code that is already available there.
-
-I agree that using the new API is the way to go, and I am in for any early discussions
-about the changes that are needed.
-
->> Given the fact that right now you are the only one who is affected by this problem
->> I recommend to keep your fix in your environment for now, and come back with the
->> final version. In the meantime I can use the saved time to review the bunch 
->> of other patches that we received.
+> smc_lgr_free()
+>   mutex_lock(&lgr->llc_conf_mutex); --> Line 1289 (Lock A)
+>   smcr_link_clear()
+>     smc_wr_free_link()
+>       wait_event(lnk->wr_tx_wait, ...); --> Line 648 (Wait X)
 > 
-> I really appreciate the time you spent reviewing our patch. Recently,
-> our team has submitted a lot of patches and got your detailed
-> suggestions, including panic (linkgroup, CDC), performance and so on.
-> We are using SMC in our public cloud environment. Therefore, we maintain
-> a internal tree and try to contribute these changes to upstream, and we
-> will continue to invest to improve the stability, performance and
-> compatibility, and focus on SMC for a long time.
+> smc_link_down_work()
+>   mutex_lock(&lgr->llc_conf_mutex); --> Line 1683 (Lock A)
+>   smcr_link_down()
+>     smcr_link_clear()
+>       smc_wr_free_link()
+>         smc_wr_wakeup_tx_wait()
+>           wake_up_all(&lnk->wr_tx_wait); --> Line 78 (Wake X)
 > 
-> We are willing to commit time and resource to help out in reviewing and
-> testing the patch in mail list and -next, as reviewer or tester.
+> When smc_lgr_free() is executed, "Wait X" is performed by holding "Lock A". If smc_link_down_work() is executed at this time, "Wake X" cannot be performed to wake up "Wait X" in smc_lgr_free(), because "Lock A" has been already hold by smc_lgr_free(), causing a possible deadlock.
 > 
-> We have built up CI/CD and nightly test for SMC. And we intend to send
-> test reports for each patch in the mail list, help to review, find out
-> panic and performance regression.
-> 
-> Not sure if this proposal will help save your time to review other
-> patches? Glad to hear your advice.
+> I am not quite sure whether this possible problem is real and how to fix it if it is real.
+> Any feedback would be appreciated, thanks :)
 
-Thanks for all the time and work you spend to bring SMC into a cloud environment!
-We really appreciate this a lot.
+A deeper analysis showed up that this reported possible deadlock is actually not a problem.
 
-Karsten
+The wait on line 648 in smc_wr.c
+	wait_event(lnk->wr_tx_wait, (!atomic_read(&lnk->wr_tx_refcnt)));
+waits as long as the refcount wr_tx_refcnt is not zero.
+
+Every time when a caller stops using a link wr_tx_refcnt is decreased, and when it reaches 
+zero the wr_tx_wait is woken up in smc_wr_tx_link_put() in smc_wr.h, line 70:
+		if (atomic_dec_and_test(&link->wr_tx_refcnt))
+			wake_up_all(&link->wr_tx_wait);
+
+Multiple callers of smc_wr_tx_link_put() do not run under the llc_conf_mutex lock, and those
+who run under this mutex are saved against the wait_event() in smc_wr_free_link().
+
+
+Thank you for reporting this finding! Which tool did you use for this analysis?
+
