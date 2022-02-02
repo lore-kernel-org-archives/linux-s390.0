@@ -2,155 +2,103 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 509F7C43217
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Feb 2022 02:02:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9B45C433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Feb 2022 03:09:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243763AbiBBCC3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 1 Feb 2022 21:02:29 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:46182 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242899AbiBBCC2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Feb 2022 21:02:28 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BE2A0B82FE6;
-        Wed,  2 Feb 2022 02:02:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 588E1C340FA;
-        Wed,  2 Feb 2022 02:02:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643767344;
-        bh=Lu17CtWHMQyIMd+r/gZ3QnCD3blDyX01IGU77gYzPwo=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=rVuAgKNepQhlXkSgJ4nOfKqdZ1m2QgRk9ZkvH8SvfvWkeorNEQdY83E2n5eXKfc79
-         VCuJEViT4M9HIVIMPr3BsvqjoERHgklnIISy31sSuU4uK2OLJWs1IQstgOysSW8fQ3
-         A4+TDqM4i+9dG2f1hGh94TQRtV9FMnT0rwP8iPWmKTMSzCFTVSM/jumBKMQgjTroNE
-         +jwQ76K54dK8UrZ95Lj5eu9y4l1FTA2KToTqrC9gowaW+jPXRuZTVpoBs8+clZOz6I
-         Yl2FZr99TUgkOSak2L7h6irEIbDEWdhFCcdReiCBHO2TFXtVzEQRwjOz0Twz2ZkMOl
-         aMu8vburo8Amg==
-Received: by mail-ua1-f43.google.com with SMTP id c36so16481553uae.13;
-        Tue, 01 Feb 2022 18:02:24 -0800 (PST)
-X-Gm-Message-State: AOAM533gOtoCWxjkxw3H551eW3dWJnj2JZR1x01so7aWkCrxNCCP8d8W
-        g9ZTJWEKPD1ZzUgYkQXEwUpfci/uF2ujM3xPrps=
-X-Google-Smtp-Source: ABdhPJzjbMxJZrbhxn6pmM0yG+DXrY57H4w+bp7CFApaAn/IyFQRMevzGEcLPsnqGd8f9H2BAFJtp6v6SwrSYMY64Dg=
-X-Received: by 2002:a67:e0d9:: with SMTP id m25mr10551317vsl.51.1643767343232;
- Tue, 01 Feb 2022 18:02:23 -0800 (PST)
+        id S243865AbiBBDJH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 1 Feb 2022 22:09:07 -0500
+Received: from vmicros1.altlinux.org ([194.107.17.57]:35664 "EHLO
+        vmicros1.altlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230342AbiBBDJG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Feb 2022 22:09:06 -0500
+Received: from mua.local.altlinux.org (mua.local.altlinux.org [192.168.1.14])
+        by vmicros1.altlinux.org (Postfix) with ESMTP id EC7A172C8FA;
+        Wed,  2 Feb 2022 06:09:04 +0300 (MSK)
+Received: by mua.local.altlinux.org (Postfix, from userid 508)
+        id DA5887CCAAC; Wed,  2 Feb 2022 06:09:04 +0300 (MSK)
+Date:   Wed, 2 Feb 2022 06:09:04 +0300
+From:   "Dmitry V. Levin" <ldv@altlinux.org>
+To:     Karsten Graul <kgraul@linux.ibm.com>
+Cc:     Tony Lu <tonylu@linux.alibaba.com>, kuba@kernel.org,
+        davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-api@vger.kernel.org
+Subject: [PATCH] Partially revert "net/smc: Add netlink net namespace support"
+Message-ID: <20220202030904.GA9742@altlinux.org>
+References: <20211228130611.19124-1-tonylu@linux.alibaba.com>
+ <20211228130611.19124-3-tonylu@linux.alibaba.com>
+ <20220131002453.GA7599@altlinux.org>
+ <521e3f2a-8b00-43d4-b296-1253c351a3d2@linux.ibm.com>
 MIME-Version: 1.0
-References: <20220201150545.1512822-1-guoren@kernel.org> <20220201150545.1512822-16-guoren@kernel.org>
-In-Reply-To: <20220201150545.1512822-16-guoren@kernel.org>
-From:   Guo Ren <guoren@kernel.org>
-Date:   Wed, 2 Feb 2022 10:02:12 +0800
-X-Gmail-Original-Message-ID: <CAJF2gTSpz94OBM_Ob92MdGOHt7p2akPS0Jco9B0rC0XJToh0eg@mail.gmail.com>
-Message-ID: <CAJF2gTSpz94OBM_Ob92MdGOHt7p2akPS0Jco9B0rC0XJToh0eg@mail.gmail.com>
-Subject: Re: [PATCH V5 15/21] riscv: compat: Add hw capability check for elf
-To:     Guo Ren <guoren@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Anup Patel <anup@brainfault.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        liush <liush@allwinnertech.com>, Wei Fu <wefu@redhat.com>,
-        Drew Fustini <drew@beagleboard.org>,
-        Wang Junqiang <wangjunqiang@iscas.ac.cn>,
-        Christoph Hellwig <hch@lst.de>
-Cc:     linux-arch <linux-arch@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-csky@vger.kernel.org,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Guo Ren <guoren@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <521e3f2a-8b00-43d4-b296-1253c351a3d2@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Feb 1, 2022 at 11:07 PM <guoren@kernel.org> wrote:
->
-> From: Guo Ren <guoren@linux.alibaba.com>
->
-> Detect hardware COMPAT (32bit U-mode) capability in rv64. If not
-> support COMPAT mode in hw, compat_elf_check_arch would return
-> false by compat_binfmt_elf.c
->
-> Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-> Signed-off-by: Guo Ren <guoren@kernel.org>
-> Cc: Arnd Bergmann <arnd@arndb.de>
-> Cc: Christoph Hellwig <hch@lst.de>
-> ---
->  arch/riscv/include/asm/elf.h |  3 ++-
->  arch/riscv/kernel/process.c  | 32 ++++++++++++++++++++++++++++++++
->  2 files changed, 34 insertions(+), 1 deletion(-)
->
-> diff --git a/arch/riscv/include/asm/elf.h b/arch/riscv/include/asm/elf.h
-> index aee40040917b..3a4293dc7229 100644
-> --- a/arch/riscv/include/asm/elf.h
-> +++ b/arch/riscv/include/asm/elf.h
-> @@ -40,7 +40,8 @@
->   * elf64_hdr e_machine's offset are different. The checker is
->   * a little bit simple compare to other architectures.
->   */
-> -#define compat_elf_check_arch(x) ((x)->e_machine == EM_RISCV)
-> +extern bool compat_elf_check_arch(Elf32_Ehdr *hdr);
-> +#define compat_elf_check_arch  compat_elf_check_arch
->
->  #define CORE_DUMP_USE_REGSET
->  #define ELF_EXEC_PAGESIZE      (PAGE_SIZE)
-> diff --git a/arch/riscv/kernel/process.c b/arch/riscv/kernel/process.c
-> index 1a666ad299b4..758847cba391 100644
-> --- a/arch/riscv/kernel/process.c
-> +++ b/arch/riscv/kernel/process.c
-> @@ -83,6 +83,38 @@ void show_regs(struct pt_regs *regs)
->                 dump_backtrace(regs, NULL, KERN_DEFAULT);
->  }
->
-> +#ifdef CONFIG_COMPAT
-> +static bool compat_mode_support __read_mostly;
-> +
-> +bool compat_elf_check_arch(Elf32_Ehdr *hdr)
-> +{
-> +       if (compat_mode_support && (hdr->e_machine == EM_RISCV))
-> +               return true;
-> +       else
-> +               return false;
-> +}
-> +
-> +static int compat_mode_detect(void)
-Forgot __init, here
+The change of sizeof(struct smc_diag_linkinfo) by commit 79d39fc503b4
+("net/smc: Add netlink net namespace support") introduced an ABI
+regression: since struct smc_diag_lgrinfo contains an object of
+type "struct smc_diag_linkinfo", offset of all subsequent members
+of struct smc_diag_lgrinfo was changed by that change.
 
-> +{
-> +       unsigned long tmp = csr_read(CSR_STATUS);
-> +
-> +       csr_write(CSR_STATUS, (tmp & ~SR_UXL) | SR_UXL_32);
-> +
-> +       if ((csr_read(CSR_STATUS) & SR_UXL) != SR_UXL_32) {
-> +               pr_info("riscv: 32bit compat mode detect failed\n");
-> +               compat_mode_support = false;
-> +       } else {
-> +               compat_mode_support = true;
-> +               pr_info("riscv: 32bit compat mode detected\n");
-> +       }
-> +
-> +       csr_write(CSR_STATUS, tmp);
-> +
-> +       return 0;
-> +}
-> +arch_initcall(compat_mode_detect);
-> +#endif
-> +
->  void start_thread(struct pt_regs *regs, unsigned long pc,
->         unsigned long sp)
->  {
-> --
-> 2.25.1
->
+As result, applications compiled with the old version
+of struct smc_diag_linkinfo will receive garbage in
+struct smc_diag_lgrinfo.role if the kernel implements
+this new version of struct smc_diag_linkinfo.
 
+Fix this regression by reverting the part of commit 79d39fc503b4 that
+changes struct smc_diag_linkinfo.  After all, there is SMC_GEN_NETLINK
+interface which is good enough, so there is probably no need to touch
+the smc_diag ABI in the first place.
 
+Fixes: 79d39fc503b4 ("net/smc: Add netlink net namespace support")
+Signed-off-by: Dmitry V. Levin <ldv@altlinux.org>
+---
+ include/uapi/linux/smc_diag.h | 11 +++++------
+ net/smc/smc_diag.c            |  2 --
+ 2 files changed, 5 insertions(+), 8 deletions(-)
+
+diff --git a/include/uapi/linux/smc_diag.h b/include/uapi/linux/smc_diag.h
+index c7008d87f1a4..8cb3a6fef553 100644
+--- a/include/uapi/linux/smc_diag.h
++++ b/include/uapi/linux/smc_diag.h
+@@ -84,12 +84,11 @@ struct smc_diag_conninfo {
+ /* SMC_DIAG_LINKINFO */
+ 
+ struct smc_diag_linkinfo {
+-	__u8		link_id;		    /* link identifier */
+-	__u8		ibname[IB_DEVICE_NAME_MAX]; /* name of the RDMA device */
+-	__u8		ibport;			    /* RDMA device port number */
+-	__u8		gid[40];		    /* local GID */
+-	__u8		peer_gid[40];		    /* peer GID */
+-	__aligned_u64	net_cookie;                 /* RDMA device net namespace */
++	__u8 link_id;			/* link identifier */
++	__u8 ibname[IB_DEVICE_NAME_MAX]; /* name of the RDMA device */
++	__u8 ibport;			/* RDMA device port number */
++	__u8 gid[40];			/* local GID */
++	__u8 peer_gid[40];		/* peer GID */
+ };
+ 
+ struct smc_diag_lgrinfo {
+diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
+index b8898c787d23..1fca2f90a9c7 100644
+--- a/net/smc/smc_diag.c
++++ b/net/smc/smc_diag.c
+@@ -146,13 +146,11 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
+ 	    (req->diag_ext & (1 << (SMC_DIAG_LGRINFO - 1))) &&
+ 	    !list_empty(&smc->conn.lgr->list)) {
+ 		struct smc_link *link = smc->conn.lnk;
+-		struct net *net = read_pnet(&link->smcibdev->ibdev->coredev.rdma_net);
+ 
+ 		struct smc_diag_lgrinfo linfo = {
+ 			.role = smc->conn.lgr->role,
+ 			.lnk[0].ibport = link->ibport,
+ 			.lnk[0].link_id = link->link_id,
+-			.lnk[0].net_cookie = net->net_cookie,
+ 		};
+ 
+ 		memcpy(linfo.lnk[0].ibname,
 -- 
-Best Regards
- Guo Ren
-
-ML: https://lore.kernel.org/linux-csky/
+ldv
