@@ -2,74 +2,54 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DAA51C43217
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Feb 2022 07:52:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 628BDC433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Feb 2022 12:54:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241475AbiBBHwG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Feb 2022 02:52:06 -0500
-Received: from verein.lst.de ([213.95.11.211]:33222 "EHLO verein.lst.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231368AbiBBHwE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 2 Feb 2022 02:52:04 -0500
-Received: by verein.lst.de (Postfix, from userid 2407)
-        id D45AE67373; Wed,  2 Feb 2022 08:51:59 +0100 (CET)
-Date:   Wed, 2 Feb 2022 08:51:59 +0100
-From:   Christoph Hellwig <hch@lst.de>
-To:     guoren@kernel.org
-Cc:     palmer@dabbelt.com, arnd@arndb.de, anup@brainfault.org,
-        gregkh@linuxfoundation.org, liush@allwinnertech.com,
-        wefu@redhat.com, drew@beagleboard.org, wangjunqiang@iscas.ac.cn,
-        hch@lst.de, linux-arch@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-csky@vger.kernel.org, linux-s390@vger.kernel.org,
-        sparclinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-parisc@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, x86@kernel.org,
-        Guo Ren <guoren@linux.alibaba.com>
-Subject: Re: [PATCH V5 15/21] riscv: compat: Add hw capability check for elf
-Message-ID: <20220202075159.GB18398@lst.de>
-References: <20220201150545.1512822-1-guoren@kernel.org> <20220201150545.1512822-16-guoren@kernel.org>
+        id S240924AbiBBMyD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Feb 2022 07:54:03 -0500
+Received: from out30-54.freemail.mail.aliyun.com ([115.124.30.54]:42243 "EHLO
+        out30-54.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233535AbiBBMyC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Feb 2022 07:54:02 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04407;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0V3S.Kr4_1643806438;
+Received: from 30.236.29.213(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0V3S.Kr4_1643806438)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Wed, 02 Feb 2022 20:54:00 +0800
+Message-ID: <0c4ab79c-5f46-5e56-5326-631a9bc1d4a7@linux.alibaba.com>
+Date:   Wed, 2 Feb 2022 20:53:58 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220201150545.1512822-16-guoren@kernel.org>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.5.0
+Subject: Re: [PATCH v2 net-next 1/3] net/smc: Make smc_tcp_listen_work()
+ independent
+To:     Karsten Graul <kgraul@linux.ibm.com>
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+        matthieu.baerts@tessares.net
+References: <cover.1643380219.git.alibuda@linux.alibaba.com>
+ <53383b68f056b4c6d697935d2ea1c170618eebbe.1643380219.git.alibuda@linux.alibaba.com>
+ <0b99dc4d-319e-e4fa-b4bf-ddce5005be47@linux.ibm.com>
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+In-Reply-To: <0b99dc4d-319e-e4fa-b4bf-ddce5005be47@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Feb 01, 2022 at 11:05:39PM +0800, guoren@kernel.org wrote:
-> +bool compat_elf_check_arch(Elf32_Ehdr *hdr)
-> +{
-> +	if (compat_mode_support && (hdr->e_machine == EM_RISCV))
-> +		return true;
-> +	else
-> +		return false;
-> +}
+That's right, 'extern' is unnecessary, I'll remove it soon.
 
-This can be simplified to:
+Looking forward for more advise.
 
-	return compat_mode_support && hdr->e_machine == EM_RISCV;
+Thanks.
 
-I'd also rename compat_mode_support to compat_mode_supported
 
-> +
-> +static int compat_mode_detect(void)
-> +{
-> +	unsigned long tmp = csr_read(CSR_STATUS);
-> +
-> +	csr_write(CSR_STATUS, (tmp & ~SR_UXL) | SR_UXL_32);
-> +
-> +	if ((csr_read(CSR_STATUS) & SR_UXL) != SR_UXL_32) {
-> +		pr_info("riscv: 32bit compat mode detect failed\n");
-> +		compat_mode_support = false;
-> +	} else {
-> +		compat_mode_support = true;
-> +		pr_info("riscv: 32bit compat mode detected\n");
-> +	}
-
-I don't think we need these printks here.
-
-Also this could be simplified to:
-
-	compat_mode_supported = (csr_read(CSR_STATUS) & SR_UXL) == SR_UXL_32;
+>>   
+>> +extern struct workqueue_struct	*smc_tcp_ls_wq;	/* wq for tcp listen work */
+> 
+> I don't think this extern is needed, the work queue is only used within af_smc.c, right?
+> Even the smc_hs_wq would not need to be extern, but this would be a future cleanup.
+> 
+>>   extern struct workqueue_struct	*smc_hs_wq;	/* wq for handshake work */
+>>   extern struct workqueue_struct	*smc_close_wq;	/* wq for close work */
+>>   
