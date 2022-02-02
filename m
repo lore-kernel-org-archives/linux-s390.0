@@ -2,129 +2,155 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AAF3CC433EF
-	for <linux-s390@archiver.kernel.org>; Tue,  1 Feb 2022 17:06:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 509F7C43217
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Feb 2022 02:02:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241403AbiBARGW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 1 Feb 2022 12:06:22 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:63012 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S231877AbiBARGV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Feb 2022 12:06:21 -0500
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 211H0Ybq016152;
-        Tue, 1 Feb 2022 17:06:17 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=onrqYIOKUr4RNTR6BCf3mCF2S16T7nddg5AP40Dp79A=;
- b=YLMWhhuQIxEJwuegzaz1nfJaXranP7f6aHyrOA8ZQ65v6TMLjlXuNOgkyi4xL8Gxesuy
- oZ9SrQ6UATj3vM99z3hhXU8cWNobev2MF6X2INhmaxlYR9On9afD9dYy6xHPxarFQELd
- Yyfqk49+YHvRdWlE4dZqFkiIqZ+Pd0GQigjqHk1vNtCn5PNnb+A9PujY3pbNVxoMaw8s
- cevaQ6psMWy9DbMEEqPJsuzu2AhoPbqxlEm3BuDYjQQ28qlZihDKL3aWNRAg1HNTh7Jp
- E4Rma38RiAggfaVy/XygAFCaixpBzY1Ze7GgWneE3Jd23Qc0xVGEuyiHCjwTA9aB1nFf NQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3dy6q4kght-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 01 Feb 2022 17:06:17 +0000
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 211G0jIi028915;
-        Tue, 1 Feb 2022 17:06:17 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3dy6q4kgha-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 01 Feb 2022 17:06:16 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 211Gl9KU025334;
-        Tue, 1 Feb 2022 17:06:15 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 3dvvujer20-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 01 Feb 2022 17:06:15 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 211H6Dpb47579530
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 1 Feb 2022 17:06:13 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id ECC8A42047;
-        Tue,  1 Feb 2022 17:06:12 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7E88942045;
-        Tue,  1 Feb 2022 17:06:12 +0000 (GMT)
-Received: from [9.145.64.14] (unknown [9.145.64.14])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue,  1 Feb 2022 17:06:12 +0000 (GMT)
-Message-ID: <0936d5f3-aef2-0553-408b-07b3bb47e36b@linux.ibm.com>
-Date:   Tue, 1 Feb 2022 18:06:12 +0100
+        id S243763AbiBBCC3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 1 Feb 2022 21:02:29 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:46182 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242899AbiBBCC2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Feb 2022 21:02:28 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BE2A0B82FE6;
+        Wed,  2 Feb 2022 02:02:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 588E1C340FA;
+        Wed,  2 Feb 2022 02:02:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1643767344;
+        bh=Lu17CtWHMQyIMd+r/gZ3QnCD3blDyX01IGU77gYzPwo=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=rVuAgKNepQhlXkSgJ4nOfKqdZ1m2QgRk9ZkvH8SvfvWkeorNEQdY83E2n5eXKfc79
+         VCuJEViT4M9HIVIMPr3BsvqjoERHgklnIISy31sSuU4uK2OLJWs1IQstgOysSW8fQ3
+         A4+TDqM4i+9dG2f1hGh94TQRtV9FMnT0rwP8iPWmKTMSzCFTVSM/jumBKMQgjTroNE
+         +jwQ76K54dK8UrZ95Lj5eu9y4l1FTA2KToTqrC9gowaW+jPXRuZTVpoBs8+clZOz6I
+         Yl2FZr99TUgkOSak2L7h6irEIbDEWdhFCcdReiCBHO2TFXtVzEQRwjOz0Twz2ZkMOl
+         aMu8vburo8Amg==
+Received: by mail-ua1-f43.google.com with SMTP id c36so16481553uae.13;
+        Tue, 01 Feb 2022 18:02:24 -0800 (PST)
+X-Gm-Message-State: AOAM533gOtoCWxjkxw3H551eW3dWJnj2JZR1x01so7aWkCrxNCCP8d8W
+        g9ZTJWEKPD1ZzUgYkQXEwUpfci/uF2ujM3xPrps=
+X-Google-Smtp-Source: ABdhPJzjbMxJZrbhxn6pmM0yG+DXrY57H4w+bp7CFApaAn/IyFQRMevzGEcLPsnqGd8f9H2BAFJtp6v6SwrSYMY64Dg=
+X-Received: by 2002:a67:e0d9:: with SMTP id m25mr10551317vsl.51.1643767343232;
+ Tue, 01 Feb 2022 18:02:23 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [BUG] net: smc: possible deadlock in smc_lgr_free() and
- smc_link_down_work()
-Content-Language: en-US
-To:     Jia-Ju Bai <baijiaju1990@gmail.com>, davem@davemloft.net,
-        kuba@kernel.org
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel <linux-kernel@vger.kernel.org>
-References: <11fe65b8-eda4-121e-ec32-378b918d0909@gmail.com>
-From:   Karsten Graul <kgraul@linux.ibm.com>
-Organization: IBM Deutschland Research & Development GmbH
-In-Reply-To: <11fe65b8-eda4-121e-ec32-378b918d0909@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: pea68IG5Bj1ccet02yEexdujcsm8MwYP
-X-Proofpoint-ORIG-GUID: wR9E2Ty2RNbiLvkCityV-vItCyHpBkeq
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-02-01_08,2022-02-01_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
- priorityscore=1501 lowpriorityscore=0 bulkscore=0 mlxlogscore=999
- clxscore=1015 suspectscore=0 mlxscore=0 adultscore=0 malwarescore=0
- impostorscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2201110000 definitions=main-2202010095
+References: <20220201150545.1512822-1-guoren@kernel.org> <20220201150545.1512822-16-guoren@kernel.org>
+In-Reply-To: <20220201150545.1512822-16-guoren@kernel.org>
+From:   Guo Ren <guoren@kernel.org>
+Date:   Wed, 2 Feb 2022 10:02:12 +0800
+X-Gmail-Original-Message-ID: <CAJF2gTSpz94OBM_Ob92MdGOHt7p2akPS0Jco9B0rC0XJToh0eg@mail.gmail.com>
+Message-ID: <CAJF2gTSpz94OBM_Ob92MdGOHt7p2akPS0Jco9B0rC0XJToh0eg@mail.gmail.com>
+Subject: Re: [PATCH V5 15/21] riscv: compat: Add hw capability check for elf
+To:     Guo Ren <guoren@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Anup Patel <anup@brainfault.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        liush <liush@allwinnertech.com>, Wei Fu <wefu@redhat.com>,
+        Drew Fustini <drew@beagleboard.org>,
+        Wang Junqiang <wangjunqiang@iscas.ac.cn>,
+        Christoph Hellwig <hch@lst.de>
+Cc:     linux-arch <linux-arch@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-csky@vger.kernel.org,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Guo Ren <guoren@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 01/02/2022 08:51, Jia-Ju Bai wrote:
-> Hello,
-> 
-> My static analysis tool reports a possible deadlock in the smc module in Linux 5.16:
-> 
-> smc_lgr_free()
->   mutex_lock(&lgr->llc_conf_mutex); --> Line 1289 (Lock A)
->   smcr_link_clear()
->     smc_wr_free_link()
->       wait_event(lnk->wr_tx_wait, ...); --> Line 648 (Wait X)
-> 
-> smc_link_down_work()
->   mutex_lock(&lgr->llc_conf_mutex); --> Line 1683 (Lock A)
->   smcr_link_down()
->     smcr_link_clear()
->       smc_wr_free_link()
->         smc_wr_wakeup_tx_wait()
->           wake_up_all(&lnk->wr_tx_wait); --> Line 78 (Wake X)
-> 
-> When smc_lgr_free() is executed, "Wait X" is performed by holding "Lock A". If smc_link_down_work() is executed at this time, "Wake X" cannot be performed to wake up "Wait X" in smc_lgr_free(), because "Lock A" has been already hold by smc_lgr_free(), causing a possible deadlock.
-> 
-> I am not quite sure whether this possible problem is real and how to fix it if it is real.
-> Any feedback would be appreciated, thanks :)
+On Tue, Feb 1, 2022 at 11:07 PM <guoren@kernel.org> wrote:
+>
+> From: Guo Ren <guoren@linux.alibaba.com>
+>
+> Detect hardware COMPAT (32bit U-mode) capability in rv64. If not
+> support COMPAT mode in hw, compat_elf_check_arch would return
+> false by compat_binfmt_elf.c
+>
+> Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+> Signed-off-by: Guo Ren <guoren@kernel.org>
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Cc: Christoph Hellwig <hch@lst.de>
+> ---
+>  arch/riscv/include/asm/elf.h |  3 ++-
+>  arch/riscv/kernel/process.c  | 32 ++++++++++++++++++++++++++++++++
+>  2 files changed, 34 insertions(+), 1 deletion(-)
+>
+> diff --git a/arch/riscv/include/asm/elf.h b/arch/riscv/include/asm/elf.h
+> index aee40040917b..3a4293dc7229 100644
+> --- a/arch/riscv/include/asm/elf.h
+> +++ b/arch/riscv/include/asm/elf.h
+> @@ -40,7 +40,8 @@
+>   * elf64_hdr e_machine's offset are different. The checker is
+>   * a little bit simple compare to other architectures.
+>   */
+> -#define compat_elf_check_arch(x) ((x)->e_machine == EM_RISCV)
+> +extern bool compat_elf_check_arch(Elf32_Ehdr *hdr);
+> +#define compat_elf_check_arch  compat_elf_check_arch
+>
+>  #define CORE_DUMP_USE_REGSET
+>  #define ELF_EXEC_PAGESIZE      (PAGE_SIZE)
+> diff --git a/arch/riscv/kernel/process.c b/arch/riscv/kernel/process.c
+> index 1a666ad299b4..758847cba391 100644
+> --- a/arch/riscv/kernel/process.c
+> +++ b/arch/riscv/kernel/process.c
+> @@ -83,6 +83,38 @@ void show_regs(struct pt_regs *regs)
+>                 dump_backtrace(regs, NULL, KERN_DEFAULT);
+>  }
+>
+> +#ifdef CONFIG_COMPAT
+> +static bool compat_mode_support __read_mostly;
+> +
+> +bool compat_elf_check_arch(Elf32_Ehdr *hdr)
+> +{
+> +       if (compat_mode_support && (hdr->e_machine == EM_RISCV))
+> +               return true;
+> +       else
+> +               return false;
+> +}
+> +
+> +static int compat_mode_detect(void)
+Forgot __init, here
 
-A deeper analysis showed up that this reported possible deadlock is actually not a problem.
+> +{
+> +       unsigned long tmp = csr_read(CSR_STATUS);
+> +
+> +       csr_write(CSR_STATUS, (tmp & ~SR_UXL) | SR_UXL_32);
+> +
+> +       if ((csr_read(CSR_STATUS) & SR_UXL) != SR_UXL_32) {
+> +               pr_info("riscv: 32bit compat mode detect failed\n");
+> +               compat_mode_support = false;
+> +       } else {
+> +               compat_mode_support = true;
+> +               pr_info("riscv: 32bit compat mode detected\n");
+> +       }
+> +
+> +       csr_write(CSR_STATUS, tmp);
+> +
+> +       return 0;
+> +}
+> +arch_initcall(compat_mode_detect);
+> +#endif
+> +
+>  void start_thread(struct pt_regs *regs, unsigned long pc,
+>         unsigned long sp)
+>  {
+> --
+> 2.25.1
+>
 
-The wait on line 648 in smc_wr.c
-	wait_event(lnk->wr_tx_wait, (!atomic_read(&lnk->wr_tx_refcnt)));
-waits as long as the refcount wr_tx_refcnt is not zero.
 
-Every time when a caller stops using a link wr_tx_refcnt is decreased, and when it reaches 
-zero the wr_tx_wait is woken up in smc_wr_tx_link_put() in smc_wr.h, line 70:
-		if (atomic_dec_and_test(&link->wr_tx_refcnt))
-			wake_up_all(&link->wr_tx_wait);
+-- 
+Best Regards
+ Guo Ren
 
-Multiple callers of smc_wr_tx_link_put() do not run under the llc_conf_mutex lock, and those
-who run under this mutex are saved against the wait_event() in smc_wr_free_link().
-
-
-Thank you for reporting this finding! Which tool did you use for this analysis?
-
+ML: https://lore.kernel.org/linux-csky/
