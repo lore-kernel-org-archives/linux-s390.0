@@ -2,50 +2,124 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B9F7FC433FE
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Feb 2022 14:04:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F479C43217
+	for <linux-s390@archiver.kernel.org>; Thu,  3 Feb 2022 02:44:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241977AbiBBOE2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Feb 2022 09:04:28 -0500
-Received: from out30-57.freemail.mail.aliyun.com ([115.124.30.57]:40340 "EHLO
-        out30-57.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234785AbiBBOE1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Feb 2022 09:04:27 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04357;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0V3RttOi_1643810662;
-Received: from 192.168.0.104(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0V3RttOi_1643810662)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 02 Feb 2022 22:04:23 +0800
-Message-ID: <d7ccabf9-04b1-c3a8-8d79-61860f145780@linux.alibaba.com>
-Date:   Wed, 2 Feb 2022 22:04:22 +0800
+        id S240122AbiBCCoQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Feb 2022 21:44:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41482 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229630AbiBCCoP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Feb 2022 21:44:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8D64C061714;
+        Wed,  2 Feb 2022 18:44:14 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7C649B8330A;
+        Thu,  3 Feb 2022 02:44:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33C42C340F6;
+        Thu,  3 Feb 2022 02:44:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1643856252;
+        bh=V51eVJiRBfBtAiPpggOpCZR3uh94Yz/dWJnManIUqRA=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=IfifaL/YvkQeOydK0cgYgy7MaOnD1ofDN9TZ9U0AAgJgX5vkoOM/UCN+eqFDFX8e0
+         SIROG24sqmSXhudRlXA3k1jWkp77oSEpy958cVODa3+sWBKJFg5/KfQgGGdSVjxxIs
+         tBS1ttU+VD/lfGZc6laeZXX3nMQbkvJraFwXMBoSDxQnFXqyuk7KNTCbNzoNPaUxXu
+         obu4PEKMkaRLF0VBJAceVG1kvUSawTvpCDv+XjctdvSnwyZA7NM+d+opMx9qUChsMA
+         QIiebpV47EWTVL21TA8YNmrdIhNU6Tt7q6oAVfTnyRCqH7wGOKGMQC/DtV00pJqZ7Z
+         uKgAZRx6fuHVA==
+Received: by mail-ua1-f50.google.com with SMTP id c36so2662895uae.13;
+        Wed, 02 Feb 2022 18:44:12 -0800 (PST)
+X-Gm-Message-State: AOAM530dWv5SezYpodmaWPAG61rIo/wPi4mSgGXb9lJmfM4pQkN5nm73
+        CuR79aC0qdVj+NkLKFBif1wZQiqTkPcUAvLObO4=
+X-Google-Smtp-Source: ABdhPJwcymlbtGZh6tQbwNbq4eIqK1FMhWR2Ntg5Vpt7lVSBlW8sS85pNzZxGeDyQITxXLpJvbICejijlor03wlRbBs=
+X-Received: by 2002:ab0:2092:: with SMTP id r18mr12760634uak.66.1643856251122;
+ Wed, 02 Feb 2022 18:44:11 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.5.0
-Subject: Re: [PATCH v2 net-next 3/3] net/smc: Fallback when handshake
- workqueue congested
-To:     Tony Lu <tonylu@linux.alibaba.com>
-Cc:     kgraul@linux.ibm.com, kuba@kernel.org, davem@davemloft.net,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-rdma@vger.kernel.org, matthieu.baerts@tessares.net
-References: <cover.1643380219.git.alibuda@linux.alibaba.com>
- <2d3f81193fc7a245c50b30329d0e84ae98427a33.1643380219.git.alibuda@linux.alibaba.com>
- <YfTDjXh8zP3WBAtg@TonyMac-Alibaba>
-From:   "D. Wythe" <alibuda@linux.alibaba.com>
-In-Reply-To: <YfTDjXh8zP3WBAtg@TonyMac-Alibaba>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+References: <20220201150545.1512822-1-guoren@kernel.org> <20220201150545.1512822-16-guoren@kernel.org>
+ <20220202075159.GB18398@lst.de>
+In-Reply-To: <20220202075159.GB18398@lst.de>
+From:   Guo Ren <guoren@kernel.org>
+Date:   Thu, 3 Feb 2022 10:44:00 +0800
+X-Gmail-Original-Message-ID: <CAJF2gTTxzFo1kdkCDH=2RKkQ1gEzOnUCjxotcsjrqivG4qg-Dw@mail.gmail.com>
+Message-ID: <CAJF2gTTxzFo1kdkCDH=2RKkQ1gEzOnUCjxotcsjrqivG4qg-Dw@mail.gmail.com>
+Subject: Re: [PATCH V5 15/21] riscv: compat: Add hw capability check for elf
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Palmer Dabbelt <palmer@dabbelt.com>, Arnd Bergmann <arnd@arndb.de>,
+        Anup Patel <anup@brainfault.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        liush <liush@allwinnertech.com>, Wei Fu <wefu@redhat.com>,
+        Drew Fustini <drew@beagleboard.org>,
+        Wang Junqiang <wangjunqiang@iscas.ac.cn>,
+        linux-arch <linux-arch@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-csky@vger.kernel.org,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Guo Ren <guoren@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Wed, Feb 2, 2022 at 3:52 PM Christoph Hellwig <hch@lst.de> wrote:
+>
+> On Tue, Feb 01, 2022 at 11:05:39PM +0800, guoren@kernel.org wrote:
+> > +bool compat_elf_check_arch(Elf32_Ehdr *hdr)
+> > +{
+> > +     if (compat_mode_support && (hdr->e_machine == EM_RISCV))
+> > +             return true;
+> > +     else
+> > +             return false;
+> > +}
+>
+> This can be simplified to:
+>
+>         return compat_mode_support && hdr->e_machine == EM_RISCV;
+Good point.
 
-Copy that. I'll try it in next version.
+>
+> I'd also rename compat_mode_support to compat_mode_supported
+Okay
 
-Thanks.
+>
+> > +
+> > +static int compat_mode_detect(void)
+> > +{
+> > +     unsigned long tmp = csr_read(CSR_STATUS);
+> > +
+> > +     csr_write(CSR_STATUS, (tmp & ~SR_UXL) | SR_UXL_32);
+> > +
+> > +     if ((csr_read(CSR_STATUS) & SR_UXL) != SR_UXL_32) {
+> > +             pr_info("riscv: 32bit compat mode detect failed\n");
+> > +             compat_mode_support = false;
+> > +     } else {
+> > +             compat_mode_support = true;
+> > +             pr_info("riscv: 32bit compat mode detected\n");
+> > +     }
+>
+> I don't think we need these printks here.
+Okay
 
-在 2022/1/29 下午12:33, Tony Lu 写道:
+>
+> Also this could be simplified to:
+>
+>         compat_mode_supported = (csr_read(CSR_STATUS) & SR_UXL) == SR_UXL_32;
+Okay
 
-> Using a netlink knob to control behavior with static key should be more
-> flexible. As I appended in the previous version of this patch.
-> 
-> Thank you,
-> Tony Lu
+
+
+-- 
+Best Regards
+ Guo Ren
+
+ML: https://lore.kernel.org/linux-csky/
