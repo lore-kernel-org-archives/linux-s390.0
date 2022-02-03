@@ -2,176 +2,236 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C0F1C433EF
-	for <linux-s390@archiver.kernel.org>; Thu,  3 Feb 2022 17:38:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E647AC433F5
+	for <linux-s390@archiver.kernel.org>; Thu,  3 Feb 2022 20:31:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233512AbiBCRiS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 3 Feb 2022 12:38:18 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:12790 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1352920AbiBCRiS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Feb 2022 12:38:18 -0500
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 213GhUKC006797;
-        Thu, 3 Feb 2022 17:38:18 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=UH8KPZHWVL/SjLef9PLK9/+V9aDWQdeyPcNJOCWgfas=;
- b=HWjdkOZ5Hop3y2XlWFHrw7f0uuJd+9XTqTTMHzwK4wbh2r3Xrtlf9rHUmN0GANslA/uS
- bjevYXbO1ISXaM1UN0afUn3LaFk+Ew52ABzM+DukECD26imJG2OU91SY9cYvv2dDTZfW
- AjAE0WULsA6hozuHPtMQ2C1/8h7axnESWQkhNKng0ykDBdvtVekvyaaaARD0PMMlkMrk
- XirhKR+tyshreF5vzHC10g86JbxctFK9x0BlovfNOoiaZd7q3HcBWUIDtvF1O6FOIMc3
- iPCxKYU0w4md1VcynMLGwC0FVDOGctVTIdj9bGkSQVkYod7MOtvcxZlcjHVspcL2wOTN qQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dyygrg8h5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 03 Feb 2022 17:38:17 +0000
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 213HH5XP024209;
-        Thu, 3 Feb 2022 17:38:17 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dyygrg8gr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 03 Feb 2022 17:38:17 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 213HXBlF017941;
-        Thu, 3 Feb 2022 17:38:15 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma02fra.de.ibm.com with ESMTP id 3dvw79xpf5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 03 Feb 2022 17:38:14 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 213HSF7q48628168
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 3 Feb 2022 17:28:15 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2C3BFA4057;
-        Thu,  3 Feb 2022 17:38:09 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B1285A404D;
-        Thu,  3 Feb 2022 17:38:08 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.145.1.135])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu,  3 Feb 2022 17:38:08 +0000 (GMT)
-Date:   Thu, 3 Feb 2022 17:37:39 +0100
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Steffen Eiden <seiden@linux.ibm.com>
-Cc:     Thomas Huth <thuth@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        id S1354169AbiBCUbK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 3 Feb 2022 15:31:10 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:33742 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239266AbiBCUat (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Feb 2022 15:30:49 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 770F8B835A6;
+        Thu,  3 Feb 2022 20:30:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 535E0C340F2;
+        Thu,  3 Feb 2022 20:30:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1643920247;
+        bh=5CgUbtEjWetjccIjMGSrNUZ2M+3dIRfWytZnM1eefAw=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=qZpNriAo6r/m8ICebt94eaUNYn1HMXd/EYqkrEEpOvK1gwdqOfyo6VUwU17SaujBW
+         2TgVcTn6pJnHkwJIzuXM/5/psbYYYBhbIgOB03Li9TFzpkyUUTvymvkFKcnKM5C5Ei
+         4m4SxD3h5vwWQk0kASOr5//aXGzHFtnEVC05uxoYT0+aSwEQl4KCeWHhSJrzA4tWTp
+         l0fuoYa+a9p7bQ+xWsAIGVBNnyznuDrSQuMwMkgn/SJTCJCiqDPPG0huCZ4W2uJFnd
+         8WmlPPDyyc78THCS1vNbBvN1dWbcgtnbzxRdBZR1QY3MNOVPG2au4+Z2kL0xYsLIzK
+         uZ8m+6AzqwWaQ==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Ilya Leoshkevich <iii@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, svens@linux.ibm.com,
         linux-s390@vger.kernel.org
-Subject: Re: [kvm-unit-tests PATCH v2 1/4] s390x: uv-host: Add attestation
- test
-Message-ID: <20220203173739.2b3b7d1e@p-imbrenda>
-In-Reply-To: <20220203091935.2716-2-seiden@linux.ibm.com>
-References: <20220203091935.2716-1-seiden@linux.ibm.com>
- <20220203091935.2716-2-seiden@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+Subject: [PATCH AUTOSEL 5.16 23/52] s390/module: test loading modules with a lot of relocations
+Date:   Thu,  3 Feb 2022 15:29:17 -0500
+Message-Id: <20220203202947.2304-23-sashal@kernel.org>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220203202947.2304-1-sashal@kernel.org>
+References: <20220203202947.2304-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: B8dpBd6y6Pim16T_jK08sZQR9FkLAvV_
-X-Proofpoint-GUID: aRAk8IHmC-a4MMutM0eOL9aR0HxODuxS
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-02-03_06,2022-02-03_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- lowpriorityscore=0 spamscore=0 malwarescore=0 suspectscore=0 bulkscore=0
- mlxscore=0 mlxlogscore=999 adultscore=0 priorityscore=1501 impostorscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2202030106
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu,  3 Feb 2022 09:19:32 +0000
-Steffen Eiden <seiden@linux.ibm.com> wrote:
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-> Adds an invalid command test for attestation in the uv-host.
-> 
-> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
-> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
->
-> ---
->  lib/s390x/asm/uv.h | 23 ++++++++++++++++++++++-
->  s390x/uv-host.c    |  1 +
->  2 files changed, 23 insertions(+), 1 deletion(-)
-> 
-> diff --git a/lib/s390x/asm/uv.h b/lib/s390x/asm/uv.h
-> index 97c90e81..7afbcffd 100644
-> --- a/lib/s390x/asm/uv.h
-> +++ b/lib/s390x/asm/uv.h
-> @@ -1,7 +1,7 @@
->  /*
->   * s390x Ultravisor related definitions
->   *
-> - * Copyright (c) 2020 IBM Corp
-> + * Copyright IBM Corp. 2020, 2022
->   *
->   * Authors:
->   *  Janosch Frank <frankja@linux.ibm.com>
-> @@ -47,6 +47,7 @@
->  #define UVC_CMD_UNPIN_PAGE_SHARED	0x0342
->  #define UVC_CMD_SET_SHARED_ACCESS	0x1000
->  #define UVC_CMD_REMOVE_SHARED_ACCESS	0x1001
-> +#define UVC_CMD_ATTESTATION		0x1020
->  
->  /* Bits in installed uv calls */
->  enum uv_cmds_inst {
-> @@ -71,6 +72,7 @@ enum uv_cmds_inst {
->  	BIT_UVC_CMD_UNSHARE_ALL = 20,
->  	BIT_UVC_CMD_PIN_PAGE_SHARED = 21,
->  	BIT_UVC_CMD_UNPIN_PAGE_SHARED = 22,
-> +	BIT_UVC_CMD_ATTESTATION = 28,
->  };
->  
->  struct uv_cb_header {
-> @@ -178,6 +180,25 @@ struct uv_cb_cfs {
->  	u64 paddr;
->  }  __attribute__((packed))  __attribute__((aligned(8)));
->  
-> +/* Retrieve Attestation Measurement */
-> +struct uv_cb_attest {
-> +	struct uv_cb_header header;	/* 0x0000 */
-> +	u64 reserved08[2];		/* 0x0008 */
-> +	u64 arcb_addr;			/* 0x0018 */
-> +	u64 continuation_token;		/* 0x0020 */
-> +	u8  reserved28[6];		/* 0x0028 */
-> +	u16 user_data_length;		/* 0x002e */
-> +	u8  user_data[256];		/* 0x0030 */
-> +	u32 reserved130[3];		/* 0x0130 */
-> +	u32 measurement_length;		/* 0x013c */
-> +	u64 measurement_address;	/* 0x0140 */
-> +	u8 config_uid[16];		/* 0x0148 */
-> +	u32 reserved158;		/* 0x0158 */
-> +	u32 add_data_length;		/* 0x015c */
-> +	u64 add_data_address;		/* 0x0160 */
-> +	u64 reserved168[4];		/* 0x0168 */
+[ Upstream commit 90c5318795eefa09a9f9aef8d18a904e24962b5c ]
 
-please use uint*_t types!
+Add a test in order to prevent regressions.
 
-with that fixed: 
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/s390/Kconfig                    | 15 +++++++++
+ arch/s390/lib/Makefile               |  3 ++
+ arch/s390/lib/test_modules.c         | 35 +++++++++++++++++++
+ arch/s390/lib/test_modules.h         | 50 ++++++++++++++++++++++++++++
+ arch/s390/lib/test_modules_helpers.c | 13 ++++++++
+ 5 files changed, 116 insertions(+)
+ create mode 100644 arch/s390/lib/test_modules.c
+ create mode 100644 arch/s390/lib/test_modules.h
+ create mode 100644 arch/s390/lib/test_modules_helpers.c
 
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
-> +}  __attribute__((packed))  __attribute__((aligned(8)));
-> +
->  /* Set Secure Config Parameter */
->  struct uv_cb_ssc {
->  	struct uv_cb_header header;
-> diff --git a/s390x/uv-host.c b/s390x/uv-host.c
-> index 92a41069..946f031e 100644
-> --- a/s390x/uv-host.c
-> +++ b/s390x/uv-host.c
-> @@ -418,6 +418,7 @@ static struct cmd_list invalid_cmds[] = {
->  	{ "bogus", 0x4242, sizeof(struct uv_cb_header), -1},
->  	{ "share", UVC_CMD_SET_SHARED_ACCESS, sizeof(struct uv_cb_share), BIT_UVC_CMD_SET_SHARED_ACCESS },
->  	{ "unshare", UVC_CMD_REMOVE_SHARED_ACCESS, sizeof(struct uv_cb_share), BIT_UVC_CMD_REMOVE_SHARED_ACCESS },
-> +	{ "attest", UVC_CMD_ATTESTATION, sizeof(struct uv_cb_attest), BIT_UVC_CMD_ATTESTATION },
->  	{ NULL, 0, 0 },
->  };
->  
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 2a5bb4f29cfed..0344c68f3ffde 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -947,6 +947,9 @@ config S390_GUEST
+ 
+ endmenu
+ 
++config S390_MODULES_SANITY_TEST_HELPERS
++	def_bool n
++
+ menu "Selftests"
+ 
+ config S390_UNWIND_SELFTEST
+@@ -973,4 +976,16 @@ config S390_KPROBES_SANITY_TEST
+ 
+ 	  Say N if you are unsure.
+ 
++config S390_MODULES_SANITY_TEST
++	def_tristate n
++	depends on KUNIT
++	default KUNIT_ALL_TESTS
++	prompt "Enable s390 specific modules tests"
++	select S390_MODULES_SANITY_TEST_HELPERS
++	help
++	  This option enables an s390 specific modules test. This option is
++	  not useful for distributions or general kernels, but only for
++	  kernel developers working on architecture code.
++
++	  Say N if you are unsure.
+ endmenu
+diff --git a/arch/s390/lib/Makefile b/arch/s390/lib/Makefile
+index 707cd4622c132..69feb8ed3312d 100644
+--- a/arch/s390/lib/Makefile
++++ b/arch/s390/lib/Makefile
+@@ -17,4 +17,7 @@ KASAN_SANITIZE_uaccess.o := n
+ obj-$(CONFIG_S390_UNWIND_SELFTEST) += test_unwind.o
+ CFLAGS_test_unwind.o += -fno-optimize-sibling-calls
+ 
++obj-$(CONFIG_S390_MODULES_SANITY_TEST) += test_modules.o
++obj-$(CONFIG_S390_MODULES_SANITY_TEST_HELPERS) += test_modules_helpers.o
++
+ lib-$(CONFIG_FUNCTION_ERROR_INJECTION) += error-inject.o
+diff --git a/arch/s390/lib/test_modules.c b/arch/s390/lib/test_modules.c
+new file mode 100644
+index 0000000000000..d056baa8fbb0c
+--- /dev/null
++++ b/arch/s390/lib/test_modules.c
+@@ -0,0 +1,35 @@
++// SPDX-License-Identifier: GPL-2.0+
++
++#include <kunit/test.h>
++#include <linux/module.h>
++
++#include "test_modules.h"
++
++#define DECLARE_RETURN(i) int test_modules_return_ ## i(void)
++REPEAT_10000(DECLARE_RETURN);
++
++/*
++ * Test that modules with many relocations are loaded properly.
++ */
++static void test_modules_many_vmlinux_relocs(struct kunit *test)
++{
++	int result = 0;
++
++#define CALL_RETURN(i) result += test_modules_return_ ## i()
++	REPEAT_10000(CALL_RETURN);
++	KUNIT_ASSERT_EQ(test, result, 49995000);
++}
++
++static struct kunit_case modules_testcases[] = {
++	KUNIT_CASE(test_modules_many_vmlinux_relocs),
++	{}
++};
++
++static struct kunit_suite modules_test_suite = {
++	.name = "modules_test_s390",
++	.test_cases = modules_testcases,
++};
++
++kunit_test_suites(&modules_test_suite);
++
++MODULE_LICENSE("GPL");
+diff --git a/arch/s390/lib/test_modules.h b/arch/s390/lib/test_modules.h
+new file mode 100644
+index 0000000000000..43b5e4b4af3e4
+--- /dev/null
++++ b/arch/s390/lib/test_modules.h
+@@ -0,0 +1,50 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++#ifndef TEST_MODULES_H
++#define TEST_MODULES_H
++
++#define __REPEAT_10000_3(f, x) \
++	f(x ## 0); \
++	f(x ## 1); \
++	f(x ## 2); \
++	f(x ## 3); \
++	f(x ## 4); \
++	f(x ## 5); \
++	f(x ## 6); \
++	f(x ## 7); \
++	f(x ## 8); \
++	f(x ## 9)
++#define __REPEAT_10000_2(f, x) \
++	__REPEAT_10000_3(f, x ## 0); \
++	__REPEAT_10000_3(f, x ## 1); \
++	__REPEAT_10000_3(f, x ## 2); \
++	__REPEAT_10000_3(f, x ## 3); \
++	__REPEAT_10000_3(f, x ## 4); \
++	__REPEAT_10000_3(f, x ## 5); \
++	__REPEAT_10000_3(f, x ## 6); \
++	__REPEAT_10000_3(f, x ## 7); \
++	__REPEAT_10000_3(f, x ## 8); \
++	__REPEAT_10000_3(f, x ## 9)
++#define __REPEAT_10000_1(f, x) \
++	__REPEAT_10000_2(f, x ## 0); \
++	__REPEAT_10000_2(f, x ## 1); \
++	__REPEAT_10000_2(f, x ## 2); \
++	__REPEAT_10000_2(f, x ## 3); \
++	__REPEAT_10000_2(f, x ## 4); \
++	__REPEAT_10000_2(f, x ## 5); \
++	__REPEAT_10000_2(f, x ## 6); \
++	__REPEAT_10000_2(f, x ## 7); \
++	__REPEAT_10000_2(f, x ## 8); \
++	__REPEAT_10000_2(f, x ## 9)
++#define REPEAT_10000(f) \
++	__REPEAT_10000_1(f, 0); \
++	__REPEAT_10000_1(f, 1); \
++	__REPEAT_10000_1(f, 2); \
++	__REPEAT_10000_1(f, 3); \
++	__REPEAT_10000_1(f, 4); \
++	__REPEAT_10000_1(f, 5); \
++	__REPEAT_10000_1(f, 6); \
++	__REPEAT_10000_1(f, 7); \
++	__REPEAT_10000_1(f, 8); \
++	__REPEAT_10000_1(f, 9)
++
++#endif
+diff --git a/arch/s390/lib/test_modules_helpers.c b/arch/s390/lib/test_modules_helpers.c
+new file mode 100644
+index 0000000000000..1670349a03eba
+--- /dev/null
++++ b/arch/s390/lib/test_modules_helpers.c
+@@ -0,0 +1,13 @@
++// SPDX-License-Identifier: GPL-2.0+
++
++#include <linux/export.h>
++
++#include "test_modules.h"
++
++#define DEFINE_RETURN(i) \
++	int test_modules_return_ ## i(void) \
++	{ \
++		return 1 ## i - 10000; \
++	} \
++	EXPORT_SYMBOL_GPL(test_modules_return_ ## i)
++REPEAT_10000(DEFINE_RETURN);
+-- 
+2.34.1
 
