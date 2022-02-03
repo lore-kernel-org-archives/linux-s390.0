@@ -2,124 +2,106 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F479C43217
-	for <linux-s390@archiver.kernel.org>; Thu,  3 Feb 2022 02:44:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DAF71C433F5
+	for <linux-s390@archiver.kernel.org>; Thu,  3 Feb 2022 09:19:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240122AbiBCCoQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Feb 2022 21:44:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41482 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229630AbiBCCoP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Feb 2022 21:44:15 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8D64C061714;
-        Wed,  2 Feb 2022 18:44:14 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7C649B8330A;
-        Thu,  3 Feb 2022 02:44:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33C42C340F6;
-        Thu,  3 Feb 2022 02:44:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643856252;
-        bh=V51eVJiRBfBtAiPpggOpCZR3uh94Yz/dWJnManIUqRA=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=IfifaL/YvkQeOydK0cgYgy7MaOnD1ofDN9TZ9U0AAgJgX5vkoOM/UCN+eqFDFX8e0
-         SIROG24sqmSXhudRlXA3k1jWkp77oSEpy958cVODa3+sWBKJFg5/KfQgGGdSVjxxIs
-         tBS1ttU+VD/lfGZc6laeZXX3nMQbkvJraFwXMBoSDxQnFXqyuk7KNTCbNzoNPaUxXu
-         obu4PEKMkaRLF0VBJAceVG1kvUSawTvpCDv+XjctdvSnwyZA7NM+d+opMx9qUChsMA
-         QIiebpV47EWTVL21TA8YNmrdIhNU6Tt7q6oAVfTnyRCqH7wGOKGMQC/DtV00pJqZ7Z
-         uKgAZRx6fuHVA==
-Received: by mail-ua1-f50.google.com with SMTP id c36so2662895uae.13;
-        Wed, 02 Feb 2022 18:44:12 -0800 (PST)
-X-Gm-Message-State: AOAM530dWv5SezYpodmaWPAG61rIo/wPi4mSgGXb9lJmfM4pQkN5nm73
-        CuR79aC0qdVj+NkLKFBif1wZQiqTkPcUAvLObO4=
-X-Google-Smtp-Source: ABdhPJwcymlbtGZh6tQbwNbq4eIqK1FMhWR2Ntg5Vpt7lVSBlW8sS85pNzZxGeDyQITxXLpJvbICejijlor03wlRbBs=
-X-Received: by 2002:ab0:2092:: with SMTP id r18mr12760634uak.66.1643856251122;
- Wed, 02 Feb 2022 18:44:11 -0800 (PST)
+        id S238730AbiBCJTr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 3 Feb 2022 04:19:47 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:36460 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230259AbiBCJTn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Feb 2022 04:19:43 -0500
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21398U28010843;
+        Thu, 3 Feb 2022 09:19:43 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=GrT1KThpskblIJhBRz1KgYFwrMCZvyDDmjGU2XElfSs=;
+ b=AqUaUNLhnHKSxinyCt3XCw1u6Um6XGQEMEBzfm2JDxhrXJbMnfJRonXD03Xu3bCao7BX
+ 8wcRr43pDGmMrmFyh4yo75aZT3eO4D0JSSYjd6mSEineLlhaLvIQnEKeGnzbFMsiAn5T
+ wbMeJaOqGCJNLCoZkvVDcigEc3PlhJutPfE+tNBA6IMwTGVFe8jT/sqSO2iTDXt+avXy
+ Cc3oMkahLyyaf2kMfpFy8vQtAZFVYLc0qMrvfUXVcnUxHjdwbJp+ZdrTj32kaTw7RFbk
+ gZsQh8dtBV+bJPYF/gh7NjFSbT0DtjbgNP4WwnuXVpHW/zU66nErr80k4t8RITVmUsyX iQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e09h03fma-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 03 Feb 2022 09:19:43 +0000
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 2139DZPq004458;
+        Thu, 3 Feb 2022 09:19:43 GMT
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e09h03fkh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 03 Feb 2022 09:19:42 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2139HJkO004438;
+        Thu, 3 Feb 2022 09:19:40 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma01fra.de.ibm.com with ESMTP id 3dvw79tajw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 03 Feb 2022 09:19:40 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21399iOJ35651926
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 3 Feb 2022 09:09:44 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1B1A852065;
+        Thu,  3 Feb 2022 09:19:37 +0000 (GMT)
+Received: from linux7.. (unknown [9.114.12.92])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 443A95204F;
+        Thu,  3 Feb 2022 09:19:36 +0000 (GMT)
+From:   Steffen Eiden <seiden@linux.ibm.com>
+To:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH v2 0/4] s390x: Attestation tests
+Date:   Thu,  3 Feb 2022 09:19:31 +0000
+Message-Id: <20220203091935.2716-1-seiden@linux.ibm.com>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-References: <20220201150545.1512822-1-guoren@kernel.org> <20220201150545.1512822-16-guoren@kernel.org>
- <20220202075159.GB18398@lst.de>
-In-Reply-To: <20220202075159.GB18398@lst.de>
-From:   Guo Ren <guoren@kernel.org>
-Date:   Thu, 3 Feb 2022 10:44:00 +0800
-X-Gmail-Original-Message-ID: <CAJF2gTTxzFo1kdkCDH=2RKkQ1gEzOnUCjxotcsjrqivG4qg-Dw@mail.gmail.com>
-Message-ID: <CAJF2gTTxzFo1kdkCDH=2RKkQ1gEzOnUCjxotcsjrqivG4qg-Dw@mail.gmail.com>
-Subject: Re: [PATCH V5 15/21] riscv: compat: Add hw capability check for elf
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Palmer Dabbelt <palmer@dabbelt.com>, Arnd Bergmann <arnd@arndb.de>,
-        Anup Patel <anup@brainfault.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        liush <liush@allwinnertech.com>, Wei Fu <wefu@redhat.com>,
-        Drew Fustini <drew@beagleboard.org>,
-        Wang Junqiang <wangjunqiang@iscas.ac.cn>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-csky@vger.kernel.org,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Guo Ren <guoren@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 3xGpmLeXa6MZnlR_u04kagF9SYA1HC51
+X-Proofpoint-GUID: AXnknwjIspHX60NSODF3QfIYbtyWaF9L
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-02-03_02,2022-02-01_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 impostorscore=0
+ suspectscore=0 lowpriorityscore=0 priorityscore=1501 malwarescore=0
+ spamscore=0 bulkscore=0 mlxlogscore=892 clxscore=1015 mlxscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2202030056
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Feb 2, 2022 at 3:52 PM Christoph Hellwig <hch@lst.de> wrote:
->
-> On Tue, Feb 01, 2022 at 11:05:39PM +0800, guoren@kernel.org wrote:
-> > +bool compat_elf_check_arch(Elf32_Ehdr *hdr)
-> > +{
-> > +     if (compat_mode_support && (hdr->e_machine == EM_RISCV))
-> > +             return true;
-> > +     else
-> > +             return false;
-> > +}
->
-> This can be simplified to:
->
->         return compat_mode_support && hdr->e_machine == EM_RISCV;
-Good point.
+This series adds some test in s390x/uv-guest.c verifying error paths of the
+Request Attestation Measurement UVC.
+Also adds a test in s390x/uv-host.c to verify that the
+Request Attestation Measurement UVC cannot be called in guest1.
 
->
-> I'd also rename compat_mode_support to compat_mode_supported
-Okay
+v1->v2:
+  * renamed 'uv_get_info(void)' to 'uv_get_query_data(void)'
+  * renamed various fields in 'struct uv_arcb_v1'
+  * added a test for invalid additional size
+  * added r-b from Janosch in PATCH 1/4
+  * added r-b from Janosch in PATCH 3/4
 
->
-> > +
-> > +static int compat_mode_detect(void)
-> > +{
-> > +     unsigned long tmp = csr_read(CSR_STATUS);
-> > +
-> > +     csr_write(CSR_STATUS, (tmp & ~SR_UXL) | SR_UXL_32);
-> > +
-> > +     if ((csr_read(CSR_STATUS) & SR_UXL) != SR_UXL_32) {
-> > +             pr_info("riscv: 32bit compat mode detect failed\n");
-> > +             compat_mode_support = false;
-> > +     } else {
-> > +             compat_mode_support = true;
-> > +             pr_info("riscv: 32bit compat mode detected\n");
-> > +     }
->
-> I don't think we need these printks here.
-Okay
+Steffen Eiden (4):
+  s390x: uv-host: Add attestation test
+  s390x: lib: Add QUI getter
+  s390x: uv-guest: remove duplicated checks
+  s390x: uv-guest: Add attestation tests
 
->
-> Also this could be simplified to:
->
->         compat_mode_supported = (csr_read(CSR_STATUS) & SR_UXL) == SR_UXL_32;
-Okay
-
-
+ lib/s390x/asm/uv.h |  28 ++++++-
+ lib/s390x/uv.c     |   8 ++
+ lib/s390x/uv.h     |   1 +
+ s390x/uv-guest.c   | 196 +++++++++++++++++++++++++++++++++++++++++----
+ s390x/uv-host.c    |   1 +
+ 5 files changed, 216 insertions(+), 18 deletions(-)
 
 -- 
-Best Regards
- Guo Ren
+2.30.2
 
-ML: https://lore.kernel.org/linux-csky/
