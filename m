@@ -2,58 +2,58 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D87BC433FE
-	for <linux-s390@archiver.kernel.org>; Fri,  4 Feb 2022 21:16:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AFE30C433F5
+	for <linux-s390@archiver.kernel.org>; Fri,  4 Feb 2022 21:16:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241970AbiBDVQS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 4 Feb 2022 16:16:18 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:9264 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S242019AbiBDVQF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Feb 2022 16:16:05 -0500
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 214HpQpS026488;
-        Fri, 4 Feb 2022 21:16:05 GMT
+        id S243163AbiBDVQ1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 4 Feb 2022 16:16:27 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:52064 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S241582AbiBDVQI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Feb 2022 16:16:08 -0500
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 214HpnUl010449;
+        Fri, 4 Feb 2022 21:16:08 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=Rtp8aoY8IjDkoknKIiXv/jqG9AOPBTMUfzg+ttPtn0Q=;
- b=QmWmSFrZWQwwEFtEVyZ50pC3P2lsThSalEDSY9hbUmLBPhz0fFvGa7AEwm/coOYbugdK
- Zpe66+bcDDPUkWNmkkOjOV9VYFjdsqEIgish7L1COihi82S8gSMvHScjsS2SVgKfHg9f
- 8VQRlCwGbu67hNQnLyWt27mGGTZO5y3XzjHb8yQPdS4vgKyq6R9KU//zTxd8zF1t3/2f
- h/yDf1C8oySaWUhr9uBvq/I/jz0kgP13oRyRKoxidRyKmx3jMvxKp+3JUV0JtoLsrqEp
- dae1hroK77G2GHGsKllQjWnDQL600jKaQj79Bk0E0sISQqbTOCy9OqV9oDGrhGUzcaam zg== 
+ bh=QfeB28pJr8D7CfHJ69dZVIPLPRYRUPBbGl8sdkItch4=;
+ b=DH6Pitngv6peuTyHVXnXe6CGLB7bYMqjRQNm7YpV/hXOjv92yKK9r9/c2rAMFAyG4SHH
+ AbPbh2hXjUAksZIErUGfK0HyDrY9syuZJeIEQNgmd7bz9Iso9OaAJosmswzOWYvC/RBq
+ aSiyX2fTQR4NGv8h67WE/mEOR23H4N+fIRtab+4PYqfrKXHEksHLws1Z7FISCRdbu4MV
+ R6KhhhgQR05xldJpfhNhJdKUzi/b1SbUBCIcD82nVE6L0Y9z/IezMe3tfEfMFrYk26PK
+ YO4KoZyf8PfN9PHOVgrPOSMIIJ/5w3vz/8guDmLHx4xmV8K/XVfCkCh6PpHpkLGAau5i Cw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3e0qx1ppjy-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3e109f6wn1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 04 Feb 2022 21:16:05 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 214KxH89001144;
-        Fri, 4 Feb 2022 21:16:05 GMT
-Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3e0qx1ppjr-1
+        Fri, 04 Feb 2022 21:16:08 +0000
+Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 214L8B4O012836;
+        Fri, 4 Feb 2022 21:16:07 GMT
+Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3e109f6wmu-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 04 Feb 2022 21:16:05 +0000
-Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
-        by ppma01dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 214LD5Ui009663;
-        Fri, 4 Feb 2022 21:16:04 GMT
-Received: from b03cxnp08027.gho.boulder.ibm.com (b03cxnp08027.gho.boulder.ibm.com [9.17.130.19])
-        by ppma01dal.us.ibm.com with ESMTP id 3e0r0syem1-1
+        Fri, 04 Feb 2022 21:16:07 +0000
+Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
+        by ppma05wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 214LCfEN011934;
+        Fri, 4 Feb 2022 21:16:07 GMT
+Received: from b03cxnp08025.gho.boulder.ibm.com (b03cxnp08025.gho.boulder.ibm.com [9.17.130.17])
+        by ppma05wdc.us.ibm.com with ESMTP id 3e0r0m2wc4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 04 Feb 2022 21:16:04 +0000
+        Fri, 04 Feb 2022 21:16:07 +0000
 Received: from b03ledav002.gho.boulder.ibm.com (b03ledav002.gho.boulder.ibm.com [9.17.130.233])
-        by b03cxnp08027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 214LG1se16646596
+        by b03cxnp08025.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 214LG5vf18678160
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 4 Feb 2022 21:16:01 GMT
+        Fri, 4 Feb 2022 21:16:05 GMT
 Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8A77B136060;
-        Fri,  4 Feb 2022 21:16:01 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id B65F6136063;
+        Fri,  4 Feb 2022 21:16:05 +0000 (GMT)
 Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 98DE8136063;
-        Fri,  4 Feb 2022 21:15:59 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id D739C136055;
+        Fri,  4 Feb 2022 21:16:03 +0000 (GMT)
 Received: from li-c92d2ccc-254b-11b2-a85c-a700b5bfb098.ibm.com.com (unknown [9.211.82.52])
         by b03ledav002.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Fri,  4 Feb 2022 21:15:59 +0000 (GMT)
+        Fri,  4 Feb 2022 21:16:03 +0000 (GMT)
 From:   Matthew Rosato <mjrosato@linux.ibm.com>
 To:     linux-s390@vger.kernel.org
 Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
@@ -65,65 +65,82 @@ Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
         thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
         linux-kernel@vger.kernel.org,
         Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v3 09/30] s390/pci: export some routines related to RPCIT processing
-Date:   Fri,  4 Feb 2022 16:15:15 -0500
-Message-Id: <20220204211536.321475-10-mjrosato@linux.ibm.com>
+Subject: [PATCH v3 11/30] s390/pci: add helper function to find device by handle
+Date:   Fri,  4 Feb 2022 16:15:17 -0500
+Message-Id: <20220204211536.321475-12-mjrosato@linux.ibm.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220204211536.321475-1-mjrosato@linux.ibm.com>
 References: <20220204211536.321475-1-mjrosato@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 0gXt0S2YqQNiqSo_RPAKPqJV55b3TuZM
-X-Proofpoint-GUID: NKLqWxNQkvE6YQcb4h5WCcUD1dylgRX_
+X-Proofpoint-GUID: 7oHTsjnQX8Fxf40J73cpYANDkVLjmfjC
+X-Proofpoint-ORIG-GUID: LI3PZL3S4wrlGDonn-RvloY9zYQ3Ocut
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2022-02-04_07,2022-02-03_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- suspectscore=0 mlxlogscore=994 adultscore=0 mlxscore=0 malwarescore=0
- clxscore=1015 impostorscore=0 phishscore=0 lowpriorityscore=0 spamscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=849 clxscore=1015
+ phishscore=0 impostorscore=0 malwarescore=0 mlxscore=0 adultscore=0
+ priorityscore=1501 spamscore=0 bulkscore=0 lowpriorityscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2201110000 definitions=main-2202040117
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-KVM will re-use dma_walk_cpu_trans to walk the host shadow table and
-will also need to be able to call zpci_refresh_trans to re-issue a RPCIT.
+Intercepted zPCI instructions will specify the desired function via a
+function handle.  Add a routine to find the device with the specified
+handle.
 
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Acked-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
 Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
 ---
- arch/s390/pci/pci_dma.c  | 1 +
- arch/s390/pci/pci_insn.c | 1 +
- 2 files changed, 2 insertions(+)
+ arch/s390/include/asm/pci.h |  1 +
+ arch/s390/pci/pci.c         | 16 ++++++++++++++++
+ 2 files changed, 17 insertions(+)
 
-diff --git a/arch/s390/pci/pci_dma.c b/arch/s390/pci/pci_dma.c
-index f46833a25526..a81de48d5ea7 100644
---- a/arch/s390/pci/pci_dma.c
-+++ b/arch/s390/pci/pci_dma.c
-@@ -116,6 +116,7 @@ unsigned long *dma_walk_cpu_trans(unsigned long *rto, dma_addr_t dma_addr)
- 	px = calc_px(dma_addr);
- 	return &pto[px];
+diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+index 7ee52a70a96f..3c0b9986dcdc 100644
+--- a/arch/s390/include/asm/pci.h
++++ b/arch/s390/include/asm/pci.h
+@@ -275,6 +275,7 @@ static inline struct zpci_dev *to_zpci_dev(struct device *dev)
  }
-+EXPORT_SYMBOL_GPL(dma_walk_cpu_trans);
  
- void dma_update_cpu_trans(unsigned long *entry, phys_addr_t page_addr, int flags)
+ struct zpci_dev *get_zdev_by_fid(u32);
++struct zpci_dev *get_zdev_by_fh(u32 fh);
+ 
+ /* DMA */
+ int zpci_dma_init(void);
+diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+index ca9c29386de6..04c16312ad54 100644
+--- a/arch/s390/pci/pci.c
++++ b/arch/s390/pci/pci.c
+@@ -76,6 +76,22 @@ struct zpci_dev *get_zdev_by_fid(u32 fid)
+ 	return zdev;
+ }
+ 
++struct zpci_dev *get_zdev_by_fh(u32 fh)
++{
++	struct zpci_dev *tmp, *zdev = NULL;
++
++	spin_lock(&zpci_list_lock);
++	list_for_each_entry(tmp, &zpci_list, entry) {
++		if (tmp->fh == fh) {
++			zdev = tmp;
++			break;
++		}
++	}
++	spin_unlock(&zpci_list_lock);
++	return zdev;
++}
++EXPORT_SYMBOL_GPL(get_zdev_by_fh);
++
+ void zpci_remove_reserved_devices(void)
  {
-diff --git a/arch/s390/pci/pci_insn.c b/arch/s390/pci/pci_insn.c
-index 2a47b3936e44..0509554301c7 100644
---- a/arch/s390/pci/pci_insn.c
-+++ b/arch/s390/pci/pci_insn.c
-@@ -95,6 +95,7 @@ int zpci_refresh_trans(u64 fn, u64 addr, u64 range)
- 
- 	return (cc) ? -EIO : 0;
- }
-+EXPORT_SYMBOL_GPL(zpci_refresh_trans);
- 
- /* Set Interruption Controls */
- int zpci_set_irq_ctrl(u16 ctl, u8 isc, union zpci_sic_iib *iib)
+ 	struct zpci_dev *tmp, *zdev;
 -- 
 2.27.0
 
