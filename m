@@ -2,58 +2,58 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B936DC433F5
-	for <linux-s390@archiver.kernel.org>; Fri,  4 Feb 2022 21:17:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0011C4332F
+	for <linux-s390@archiver.kernel.org>; Fri,  4 Feb 2022 21:17:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343944AbiBDVRX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 4 Feb 2022 16:17:23 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:48400 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S235523AbiBDVQa (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Feb 2022 16:16:30 -0500
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 214Jx4el016005;
-        Fri, 4 Feb 2022 21:16:30 GMT
+        id S1344434AbiBDVRZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 4 Feb 2022 16:17:25 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:18408 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S243400AbiBDVQf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Feb 2022 16:16:35 -0500
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 214I1G7g032196;
+        Fri, 4 Feb 2022 21:16:35 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=hmcK15jmALasJ7KT7q+FT1Rdo+H8SgNMDwkoL8KHQaE=;
- b=DzAnGAs7xAGV592O2X6ej+o3meh9M6LjhL7rfebZcRNRFtRbO9teibG4xnjc8+6NqJUs
- 01jlFQqqQ8qnguD/gfzTcfQBFj5GDPCSD8y42Qjx4X0NX19jzoJKQzuwJ54pz5KhkYjF
- pZI6a4YYQpiEYCFYlvTRyYhVlpGEztTacrVKlKkzhxY2pBKaPGa1VL+szHvU5t9bJHX9
- D5A5eCMm1bFmc3nT8AU5Q2x9l8nCpIJ8ElYRUwRCd7LL+UbRNyqoinvT0fIELgVFcMBN
- YYs7wmde2x/WdJLaYpko5F2EURVar94br1679tiUJ18dB3zqhJ0kubDaNhYC6YkGjHX5 hw== 
+ bh=2kW2+VEK6gOx/vl99AVl6Dc7lZkmeAzJHvn2DcPvZKQ=;
+ b=Xwnly80bJgqHkeWQsAHeTdMGfsCQ0ggWW+TBAWEju2YU2i0XLpKJ4ielPtvNtk6oIbc7
+ Q18m/RMISeEImIyLIwi2qlKYl2yz6L7xbkYOIqpdUCaZsNlbP5OUyW05NCOmorgOjSBG
+ v2jETTUv9833UzJiUu6/wsml55UgzEx5czrckiHWNyyK2K6kWCuqVAGdhIJ+oxJZwVex
+ +ulgRdsCg0v2mfeQCHP/w1l62mgkpsxSODUBLCKsc5kzx75nBdnhqjTlLKcZJj+/2Xx2
+ nE76QQsw7dj2eBSEGwER7hM9adEYKNwjBeWPtDW3LUmkqtbuv/fEdPXR1haFlObL6N5h AQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3e0rt5nn0n-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e0qx0xskm-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 04 Feb 2022 21:16:29 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 214LDP3b016537;
-        Fri, 4 Feb 2022 21:16:29 GMT
+        Fri, 04 Feb 2022 21:16:34 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 214L6bYw007736;
+        Fri, 4 Feb 2022 21:16:34 GMT
 Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3e0rt5nn09-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e0qx0xsjs-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 04 Feb 2022 21:16:29 +0000
+        Fri, 04 Feb 2022 21:16:34 +0000
 Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
-        by ppma05wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 214LCf8U011927;
-        Fri, 4 Feb 2022 21:16:28 GMT
-Received: from b03cxnp08028.gho.boulder.ibm.com (b03cxnp08028.gho.boulder.ibm.com [9.17.130.20])
-        by ppma05wdc.us.ibm.com with ESMTP id 3e0r0m2wk5-1
+        by ppma05wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 214LCgn0011957;
+        Fri, 4 Feb 2022 21:16:32 GMT
+Received: from b03cxnp07027.gho.boulder.ibm.com (b03cxnp07027.gho.boulder.ibm.com [9.17.130.14])
+        by ppma05wdc.us.ibm.com with ESMTP id 3e0r0m2wn1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 04 Feb 2022 21:16:28 +0000
+        Fri, 04 Feb 2022 21:16:32 +0000
 Received: from b03ledav002.gho.boulder.ibm.com (b03ledav002.gho.boulder.ibm.com [9.17.130.233])
-        by b03cxnp08028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 214LGRA931785378
+        by b03cxnp07027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 214LGVIM30671110
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 4 Feb 2022 21:16:27 GMT
+        Fri, 4 Feb 2022 21:16:31 GMT
 Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 15C0F136065;
-        Fri,  4 Feb 2022 21:16:27 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 294A3136067;
+        Fri,  4 Feb 2022 21:16:31 +0000 (GMT)
 Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 59823136055;
-        Fri,  4 Feb 2022 21:16:25 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 57421136055;
+        Fri,  4 Feb 2022 21:16:29 +0000 (GMT)
 Received: from li-c92d2ccc-254b-11b2-a85c-a700b5bfb098.ibm.com.com (unknown [9.211.82.52])
         by b03ledav002.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Fri,  4 Feb 2022 21:16:25 +0000 (GMT)
+        Fri,  4 Feb 2022 21:16:29 +0000 (GMT)
 From:   Matthew Rosato <mjrosato@linux.ibm.com>
 To:     linux-s390@vger.kernel.org
 Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
@@ -64,322 +64,170 @@ Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
         vneethv@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com,
         thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v3 22/30] KVM: s390: pci: handle refresh of PCI translations
-Date:   Fri,  4 Feb 2022 16:15:28 -0500
-Message-Id: <20220204211536.321475-23-mjrosato@linux.ibm.com>
+Subject: [PATCH v3 24/30] vfio-pci/zdev: wire up group notifier
+Date:   Fri,  4 Feb 2022 16:15:30 -0500
+Message-Id: <20220204211536.321475-25-mjrosato@linux.ibm.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220204211536.321475-1-mjrosato@linux.ibm.com>
 References: <20220204211536.321475-1-mjrosato@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: x4oF1JHi-K5m-tIH3gbYPqXqq3uaw-D3
-X-Proofpoint-ORIG-GUID: otz9KLY0R_XXqStTwBTvwgWglrlWq4YT
+X-Proofpoint-GUID: 9M9dsVg6DDpmuvSggcuuNcUJlbiFRzNK
+X-Proofpoint-ORIG-GUID: RCcr-FADDJov24cZplzEhFJb9OGT2JMi
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2022-02-04_07,2022-02-03_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 clxscore=1015
- spamscore=0 bulkscore=0 mlxlogscore=999 malwarescore=0 suspectscore=0
- adultscore=0 phishscore=0 priorityscore=1501 impostorscore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 clxscore=1015
+ mlxlogscore=999 suspectscore=0 spamscore=0 malwarescore=0 phishscore=0
+ priorityscore=1501 impostorscore=0 adultscore=0 mlxscore=0
  lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2201110000 definitions=main-2202040117
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Add a routine that will perform a shadow operation between a guest
-and host IOAT.  A subsequent patch will invoke this in response to
-an 04 RPCIT instruction intercept.
+KVM zPCI passthrough device logic will need a reference to the associated
+kvm guest that has access to the device.  Let's register a group notifier
+for VFIO_GROUP_NOTIFY_SET_KVM to catch this information in order to create
+an association between a kvm guest and the host zdev.
 
 Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
 ---
- arch/s390/include/asm/kvm_pci.h |   1 +
- arch/s390/include/asm/pci_dma.h |   1 +
- arch/s390/kvm/pci.c             | 201 +++++++++++++++++++++++++++++++-
- arch/s390/kvm/pci.h             |   8 +-
- 4 files changed, 209 insertions(+), 2 deletions(-)
+ arch/s390/include/asm/kvm_pci.h  |  2 ++
+ drivers/vfio/pci/vfio_pci_core.c |  2 ++
+ drivers/vfio/pci/vfio_pci_zdev.c | 46 ++++++++++++++++++++++++++++++++
+ include/linux/vfio_pci_core.h    | 10 +++++++
+ 4 files changed, 60 insertions(+)
 
 diff --git a/arch/s390/include/asm/kvm_pci.h b/arch/s390/include/asm/kvm_pci.h
-index 370d6ba041fe..e4696f5592e1 100644
+index e4696f5592e1..16290b4cf2a6 100644
 --- a/arch/s390/include/asm/kvm_pci.h
 +++ b/arch/s390/include/asm/kvm_pci.h
-@@ -29,6 +29,7 @@ struct kvm_zdev_ioat {
- struct kvm_zdev {
- 	struct zpci_dev *zdev;
- 	struct kvm *kvm;
-+	u64 rpcit_count;
+@@ -16,6 +16,7 @@
+ #include <linux/kvm.h>
+ #include <linux/pci.h>
+ #include <linux/mutex.h>
++#include <linux/notifier.h>
+ #include <asm/pci_insn.h>
+ #include <asm/pci_dma.h>
+ 
+@@ -32,6 +33,7 @@ struct kvm_zdev {
+ 	u64 rpcit_count;
  	struct kvm_zdev_ioat ioat;
  	struct zpci_fib fib;
- };
-diff --git a/arch/s390/include/asm/pci_dma.h b/arch/s390/include/asm/pci_dma.h
-index 69e616d0712c..38004e0a4383 100644
---- a/arch/s390/include/asm/pci_dma.h
-+++ b/arch/s390/include/asm/pci_dma.h
-@@ -52,6 +52,7 @@ enum zpci_ioat_dtype {
- #define ZPCI_TABLE_ENTRIES		(ZPCI_TABLE_SIZE / ZPCI_TABLE_ENTRY_SIZE)
- #define ZPCI_TABLE_PAGES		(ZPCI_TABLE_SIZE >> PAGE_SHIFT)
- #define ZPCI_TABLE_ENTRIES_PAGES	(ZPCI_TABLE_ENTRIES * ZPCI_TABLE_PAGES)
-+#define ZPCI_TABLE_ENTRIES_PER_PAGE	(ZPCI_TABLE_ENTRIES / ZPCI_TABLE_PAGES)
- 
- #define ZPCI_TABLE_BITS			11
- #define ZPCI_PT_BITS			8
-diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
-index fa9d6ac1755b..6e1bd20d3552 100644
---- a/arch/s390/kvm/pci.c
-+++ b/arch/s390/kvm/pci.c
-@@ -159,6 +159,201 @@ int kvm_s390_pci_aen_init(u8 nisc)
- 	return rc;
- }
- 
-+static int dma_shadow_cpu_trans(struct kvm_vcpu *vcpu, unsigned long *entry,
-+				unsigned long *gentry)
-+{
-+	phys_addr_t gaddr = 0;
-+	unsigned long idx;
-+	struct page *page;
-+	kvm_pfn_t pfn;
-+	gpa_t addr;
-+	int rc = 0;
-+
-+	if (pt_entry_isvalid(*gentry)) {
-+		/* pin and validate */
-+		addr = *gentry & ZPCI_PTE_ADDR_MASK;
-+		idx = srcu_read_lock(&vcpu->kvm->srcu);
-+		page = gfn_to_page(vcpu->kvm, gpa_to_gfn(addr));
-+		srcu_read_unlock(&vcpu->kvm->srcu, idx);
-+		if (is_error_page(page))
-+			return -EIO;
-+		gaddr = page_to_phys(page) + (addr & ~PAGE_MASK);
-+	}
-+
-+	if (pt_entry_isvalid(*entry)) {
-+		/* Either we are invalidating, replacing or no-op */
-+		if (gaddr != 0) {
-+			if ((*entry & ZPCI_PTE_ADDR_MASK) == gaddr) {
-+				/* Duplicate */
-+				kvm_release_pfn_dirty(*entry >> PAGE_SHIFT);
-+			} else {
-+				/* Replace */
-+				pfn = (*entry >> PAGE_SHIFT);
-+				invalidate_pt_entry(entry);
-+				set_pt_pfaa(entry, gaddr);
-+				validate_pt_entry(entry);
-+				kvm_release_pfn_dirty(pfn);
-+				rc = 1;
-+			}
-+		} else {
-+			/* Invalidate */
-+			pfn = (*entry >> PAGE_SHIFT);
-+			invalidate_pt_entry(entry);
-+			kvm_release_pfn_dirty(pfn);
-+			rc = 1;
-+		}
-+	} else if (gaddr != 0) {
-+		/* New Entry */
-+		set_pt_pfaa(entry, gaddr);
-+		validate_pt_entry(entry);
-+	}
-+
-+	return rc;
-+}
-+
-+static unsigned long *dma_walk_guest_cpu_trans(struct kvm_vcpu *vcpu,
-+					       struct kvm_zdev_ioat *ioat,
-+					       dma_addr_t dma_addr)
-+{
-+	unsigned long *rto, *sto, *pto;
-+	unsigned int rtx, rts, sx, px, idx;
-+	struct page *page;
-+	gpa_t addr;
-+	int i;
-+
-+	/* Pin guest segment table if needed */
-+	rtx = calc_rtx(dma_addr);
-+	rto = ioat->head[(rtx / ZPCI_TABLE_ENTRIES_PER_PAGE)];
-+	rts = rtx * ZPCI_TABLE_PAGES;
-+	if (!ioat->seg[rts]) {
-+		if (!reg_entry_isvalid(rto[rtx % ZPCI_TABLE_ENTRIES_PER_PAGE]))
-+			return NULL;
-+		sto = get_rt_sto(rto[rtx % ZPCI_TABLE_ENTRIES_PER_PAGE]);
-+		addr = ((u64)sto & ZPCI_RTE_ADDR_MASK);
-+		idx = srcu_read_lock(&vcpu->kvm->srcu);
-+		for (i = 0; i < ZPCI_TABLE_PAGES; i++) {
-+			page = gfn_to_page(vcpu->kvm, gpa_to_gfn(addr));
-+			if (is_error_page(page)) {
-+				srcu_read_unlock(&vcpu->kvm->srcu, idx);
-+				return NULL;
-+			}
-+			ioat->seg[rts + i] = page_to_virt(page) +
-+					     (addr & ~PAGE_MASK);
-+			addr += PAGE_SIZE;
-+		}
-+		srcu_read_unlock(&vcpu->kvm->srcu, idx);
-+	}
-+
-+	/* Allocate pin pointers for another segment table if needed */
-+	if (!ioat->pt[rtx]) {
-+		ioat->pt[rtx] = kcalloc(ZPCI_TABLE_ENTRIES,
-+					(sizeof(unsigned long *)), GFP_KERNEL);
-+		if (!ioat->pt[rtx])
-+			return NULL;
-+	}
-+	/* Pin guest page table if needed */
-+	sx = calc_sx(dma_addr);
-+	sto = ioat->seg[(rts + (sx / ZPCI_TABLE_ENTRIES_PER_PAGE))];
-+	if (!ioat->pt[rtx][sx]) {
-+		if (!reg_entry_isvalid(sto[sx % ZPCI_TABLE_ENTRIES_PER_PAGE]))
-+			return NULL;
-+		pto = get_st_pto(sto[sx % ZPCI_TABLE_ENTRIES_PER_PAGE]);
-+		if (!pto)
-+			return NULL;
-+		addr = ((u64)pto & ZPCI_STE_ADDR_MASK);
-+		idx = srcu_read_lock(&vcpu->kvm->srcu);
-+		page = gfn_to_page(vcpu->kvm, gpa_to_gfn(addr));
-+		srcu_read_unlock(&vcpu->kvm->srcu, idx);
-+		if (is_error_page(page))
-+			return NULL;
-+		ioat->pt[rtx][sx] = page_to_virt(page) + (addr & ~PAGE_MASK);
-+	}
-+	pto = ioat->pt[rtx][sx];
-+
-+	/* Return guest PTE */
-+	px = calc_px(dma_addr);
-+	return &pto[px];
-+}
-+
-+
-+static int dma_table_shadow(struct kvm_vcpu *vcpu, struct zpci_dev *zdev,
-+			    dma_addr_t dma_addr, size_t size)
-+{
-+	unsigned int nr_pages = PAGE_ALIGN(size) >> PAGE_SHIFT;
-+	struct kvm_zdev *kzdev = zdev->kzdev;
-+	unsigned long *entry, *gentry;
-+	int i, rc = 0, rc2;
-+
-+	if (!nr_pages || !kzdev)
-+		return -EINVAL;
-+
-+	mutex_lock(&kzdev->ioat.ioat_lock);
-+	if (!zdev->dma_table || !kzdev->ioat.head[0]) {
-+		rc = -EINVAL;
-+		goto out_unlock;
-+	}
-+
-+	for (i = 0; i < nr_pages; i++) {
-+		gentry = dma_walk_guest_cpu_trans(vcpu, &kzdev->ioat, dma_addr);
-+		if (!gentry)
-+			continue;
-+		entry = dma_walk_cpu_trans(zdev->dma_table, dma_addr);
-+
-+		if (!entry) {
-+			rc = -ENOMEM;
-+			goto out_unlock;
-+		}
-+
-+		rc2 = dma_shadow_cpu_trans(vcpu, entry, gentry);
-+		if (rc2 < 0) {
-+			rc = -EIO;
-+			goto out_unlock;
-+		}
-+		dma_addr += PAGE_SIZE;
-+		rc += rc2;
-+	}
-+
-+out_unlock:
-+	mutex_unlock(&kzdev->ioat.ioat_lock);
-+	return rc;
-+}
-+
-+int kvm_s390_pci_refresh_trans(struct kvm_vcpu *vcpu, unsigned long req,
-+			       unsigned long start, unsigned long size,
-+			       u8 *status)
-+{
-+	struct zpci_dev *zdev;
-+	u32 fh = req >> 32;
-+	int rc;
-+
-+	/* Make sure this is a valid device associated with this guest */
-+	zdev = get_zdev_by_fh(fh);
-+	if (!zdev || !zdev->kzdev || zdev->kzdev->kvm != vcpu->kvm) {
-+		*status = 0;
-+		return -EINVAL;
-+	}
-+
-+	/* Only proceed if the device is using the assist */
-+	if (zdev->kzdev->ioat.head[0] == 0)
-+		return -EOPNOTSUPP;
-+
-+	rc = dma_table_shadow(vcpu, zdev, start, size);
-+	if (rc < 0) {
-+		/*
-+		 * If errors encountered during shadow operations, we must
-+		 * fabricate status to present to the guest
-+		 */
-+		*status = KVM_S390_RPCIT_INS_RES;
-+	} else if (rc > 0) {
-+		/* Host RPCIT must be issued */
-+		rc = zpci_refresh_trans((u64) zdev->fh << 32, start, size,
-+					status);
-+	}
-+	zdev->kzdev->rpcit_count++;
-+
-+	return rc;
-+}
-+
- /* Modify PCI: Register floating adapter interruption forwarding */
- static int kvm_zpci_set_airq(struct zpci_dev *zdev)
- {
-@@ -640,6 +835,8 @@ EXPORT_SYMBOL_GPL(kvm_s390_pci_dev_release);
- 
- int kvm_s390_pci_init(void)
- {
-+	int rc;
-+
- 	aift = kzalloc(sizeof(struct zpci_aift), GFP_KERNEL);
- 	if (!aift)
- 		return -ENOMEM;
-@@ -647,5 +844,7 @@ int kvm_s390_pci_init(void)
- 	spin_lock_init(&aift->gait_lock);
- 	mutex_init(&aift->aift_lock);
- 
--	return 0;
-+	rc = zpci_get_mdd(&aift->mdd);
-+
-+	return rc;
- }
-diff --git a/arch/s390/kvm/pci.h b/arch/s390/kvm/pci.h
-index 0fa0e3d61aaa..a409680a1dc2 100644
---- a/arch/s390/kvm/pci.h
-+++ b/arch/s390/kvm/pci.h
-@@ -18,6 +18,9 @@
- 
- #define KVM_S390_PCI_DTSM_MASK 0x40
- 
-+#define KVM_S390_RPCIT_INS_RES 0x10
-+#define KVM_S390_RPCIT_ERR 0x28
-+
- struct zpci_gaite {
- 	u32 gisa;
- 	u8 gisc;
-@@ -33,6 +36,7 @@ struct zpci_aift {
- 	struct kvm_zdev **kzdev;
- 	spinlock_t gait_lock; /* Protects the gait, used during AEN forward */
- 	struct mutex aift_lock; /* Protects the other structures in aift */
-+	u32 mdd;
++	struct notifier_block nb;
  };
  
- extern struct zpci_aift *aift;
-@@ -48,7 +52,9 @@ static inline struct kvm *kvm_s390_pci_si_to_kvm(struct zpci_aift *aift,
+ int kvm_s390_pci_dev_open(struct zpci_dev *zdev);
+diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
+index f948e6cd2993..fc57d4d0abbe 100644
+--- a/drivers/vfio/pci/vfio_pci_core.c
++++ b/drivers/vfio/pci/vfio_pci_core.c
+@@ -452,6 +452,7 @@ void vfio_pci_core_close_device(struct vfio_device *core_vdev)
  
- int kvm_s390_pci_aen_init(u8 nisc);
- void kvm_s390_pci_aen_exit(void);
--
-+int kvm_s390_pci_refresh_trans(struct kvm_vcpu *vcpu, unsigned long req,
-+			       unsigned long start, unsigned long end,
-+			       u8 *status);
- int kvm_s390_pci_init(void);
+ 	vfio_pci_vf_token_user_add(vdev, -1);
+ 	vfio_spapr_pci_eeh_release(vdev->pdev);
++	vfio_pci_zdev_release(vdev);
+ 	vfio_pci_core_disable(vdev);
  
- #endif /* __KVM_S390_PCI_H */
+ 	mutex_lock(&vdev->igate);
+@@ -470,6 +471,7 @@ EXPORT_SYMBOL_GPL(vfio_pci_core_close_device);
+ void vfio_pci_core_finish_enable(struct vfio_pci_core_device *vdev)
+ {
+ 	vfio_pci_probe_mmaps(vdev);
++	vfio_pci_zdev_open(vdev);
+ 	vfio_spapr_pci_eeh_open(vdev->pdev);
+ 	vfio_pci_vf_token_user_add(vdev, 1);
+ }
+diff --git a/drivers/vfio/pci/vfio_pci_zdev.c b/drivers/vfio/pci/vfio_pci_zdev.c
+index ea4c0d2b0663..9f8284499111 100644
+--- a/drivers/vfio/pci/vfio_pci_zdev.c
++++ b/drivers/vfio/pci/vfio_pci_zdev.c
+@@ -13,6 +13,7 @@
+ #include <linux/vfio_zdev.h>
+ #include <asm/pci_clp.h>
+ #include <asm/pci_io.h>
++#include <asm/kvm_pci.h>
+ 
+ #include <linux/vfio_pci_core.h>
+ 
+@@ -136,3 +137,48 @@ int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
+ 
+ 	return ret;
+ }
++
++static int vfio_pci_zdev_group_notifier(struct notifier_block *nb,
++					unsigned long action, void *data)
++{
++	struct kvm_zdev *kzdev = container_of(nb, struct kvm_zdev, nb);
++
++	if (action == VFIO_GROUP_NOTIFY_SET_KVM) {
++		if (!data || !kzdev->zdev)
++			return NOTIFY_DONE;
++		kzdev->kvm = data;
++	}
++
++	return NOTIFY_OK;
++}
++
++void vfio_pci_zdev_open(struct vfio_pci_core_device *vdev)
++{
++	unsigned long events = VFIO_GROUP_NOTIFY_SET_KVM;
++	struct zpci_dev *zdev = to_zpci(vdev->pdev);
++
++	if (!zdev)
++		return;
++
++	if (kvm_s390_pci_dev_open(zdev))
++		return;
++
++	zdev->kzdev->nb.notifier_call = vfio_pci_zdev_group_notifier;
++
++	if (vfio_register_notifier(vdev->vdev.dev, VFIO_GROUP_NOTIFY,
++				   &events, &zdev->kzdev->nb))
++		kvm_s390_pci_dev_release(zdev);
++}
++
++void vfio_pci_zdev_release(struct vfio_pci_core_device *vdev)
++{
++	struct zpci_dev *zdev = to_zpci(vdev->pdev);
++
++	if (!zdev || !zdev->kzdev)
++		return;
++
++	vfio_unregister_notifier(vdev->vdev.dev, VFIO_GROUP_NOTIFY,
++				 &zdev->kzdev->nb);
++
++	kvm_s390_pci_dev_release(zdev);
++}
+diff --git a/include/linux/vfio_pci_core.h b/include/linux/vfio_pci_core.h
+index 5e2bca3b89db..05287f8ac855 100644
+--- a/include/linux/vfio_pci_core.h
++++ b/include/linux/vfio_pci_core.h
+@@ -198,12 +198,22 @@ static inline int vfio_pci_igd_init(struct vfio_pci_core_device *vdev)
+ #ifdef CONFIG_VFIO_PCI_ZDEV
+ extern int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
+ 				       struct vfio_info_cap *caps);
++void vfio_pci_zdev_open(struct vfio_pci_core_device *vdev);
++void vfio_pci_zdev_release(struct vfio_pci_core_device *vdev);
+ #else
+ static inline int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
+ 					      struct vfio_info_cap *caps)
+ {
+ 	return -ENODEV;
+ }
++
++static inline void vfio_pci_zdev_open(struct vfio_pci_core_device *vdev)
++{
++}
++
++static inline void vfio_pci_zdev_release(struct vfio_pci_core_device *vdev)
++{
++}
+ #endif
+ 
+ /* Will be exported for vfio pci drivers usage */
 -- 
 2.27.0
 
