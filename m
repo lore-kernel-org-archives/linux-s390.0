@@ -2,159 +2,78 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 14E40C433F5
-	for <linux-s390@archiver.kernel.org>; Sat,  5 Feb 2022 06:35:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C4596C433EF
+	for <linux-s390@archiver.kernel.org>; Sat,  5 Feb 2022 12:10:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379496AbiBEGfJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 5 Feb 2022 01:35:09 -0500
-Received: from out30-43.freemail.mail.aliyun.com ([115.124.30.43]:39803 "EHLO
-        out30-43.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237733AbiBEGfH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 5 Feb 2022 01:35:07 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0V3cFwZm_1644042904;
-Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0V3cFwZm_1644042904)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Sat, 05 Feb 2022 14:35:05 +0800
-From:   "D. Wythe" <alibuda@linux.alibaba.com>
-To:     kgraul@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        "D. Wythe" <alibuda@linux.alibaba.com>
-Subject: [PATCH net-next v3 3/3] net/smc: Fallback when handshake workqueue congested
-Date:   Sat,  5 Feb 2022 14:34:45 +0800
-Message-Id: <e623520d70b5c4c6360a33750d07243d66599018.1644041638.git.alibuda@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <cover.1644041637.git.alibuda@linux.alibaba.com>
-References: <cover.1644041637.git.alibuda@linux.alibaba.com>
+        id S238208AbiBEMKc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 5 Feb 2022 07:10:32 -0500
+Received: from mga04.intel.com ([192.55.52.120]:37205 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232479AbiBEMKc (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 5 Feb 2022 07:10:32 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1644063032; x=1675599032;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=lZP4CupIkHIl8x9BJu41rQxOUyIclXltfTO1C9bu780=;
+  b=RpS4nsTiEJVsRadApBDTxJxCnHyICwYpWc+itamsTmE9yGwoP2uplyl2
+   0GBQqq/fFm350uPhy9oYh/oHfhJAp6QyeTBnZvlApbKBDqsdvbBdYZrgB
+   /8dJsoXT4gGBdomRfINmG+mvX4ovA6lMlj8pX8KSnYg+7WP/ri2pZt5fz
+   gtJ4uhjZU269xhdEsYAXnWHkrNTrhiOzWvl4VlLlpbobha8cegxvE5TUN
+   9HGzZUYZg/EC5vyLB8YaLZzLMD56Z5ZUCxG2TGNw+Igl0p1Ye/9eY/HMd
+   qsg7wAXffWM3p8+Cxd23UE5vUVald9XfwepK1ktuTS8iJaMj5rRdQEd6j
+   Q==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10248"; a="247340766"
+X-IronPort-AV: E=Sophos;i="5.88,345,1635231600"; 
+   d="scan'208";a="247340766"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Feb 2022 04:10:31 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.88,345,1635231600"; 
+   d="scan'208";a="584391910"
+Received: from lkp-server01.sh.intel.com (HELO 276f1b88eecb) ([10.239.97.150])
+  by fmsmga008.fm.intel.com with ESMTP; 05 Feb 2022 04:10:30 -0800
+Received: from kbuild by 276f1b88eecb with local (Exim 4.92)
+        (envelope-from <lkp@intel.com>)
+        id 1nGJtd-000Z0M-H9; Sat, 05 Feb 2022 12:10:29 +0000
+Date:   Sat, 5 Feb 2022 20:09:48 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com
+Cc:     kbuild-all@lists.01.org, kuba@kernel.org, davem@davemloft.net,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-rdma@vger.kernel.org, "D. Wythe" <alibuda@linux.alibaba.com>
+Subject: [RFC PATCH] net/smc: smc_tcp_ls_wq can be static
+Message-ID: <20220205120947.GA10751@d01e203e4d07>
+References: <1d7365b47719546fe1f145affb01398d8287b381.1644041638.git.alibuda@linux.alibaba.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1d7365b47719546fe1f145affb01398d8287b381.1644041638.git.alibuda@linux.alibaba.com>
+X-Patchwork-Hint: ignore
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: "D. Wythe" <alibuda@linux.alibaba.com>
+net/smc/af_smc.c:62:25: warning: symbol 'smc_tcp_ls_wq' was not declared. Should it be static?
 
-This patch intends to provide a mechanism to allow automatic fallback to
-TCP according to the pressure of SMC handshake process. At present,
-frequent visits will cause the incoming connections to be backlogged in
-SMC handshake queue, raise the connections established time. Which is
-quite unacceptable for those applications who base on short lived
-connections.
-
-It should be optional for applications that don't care about connection
-established time. For now, this patch only provides the switch at the
-compile time.
-
-There are two ways to implement this mechanism:
-
-1. Fallback when TCP established.
-2. Fallback before TCP established.
-
-In the first way, we need to wait and receive CLC messages that the
-client will potentially send, and then actively reply with a decline
-message, in a sense, which is also a sort of SMC handshake, affect the
-connections established time on its way.
-
-In the second way, the only problem is that we need to inject SMC logic
-into TCP when it is about to reply the incoming SYN, since we already do
-that, it's seems not a problem anymore. And advantage is obvious, few
-additional processes are required to complete the fallback.
-
-This patch use the second way.
-
-Link: https://lore.kernel.org/all/1641301961-59331-1-git-send-email-alibuda@linux.alibaba.com/
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: kernel test robot <lkp@intel.com>
 ---
- include/linux/tcp.h  |  1 +
- net/ipv4/tcp_input.c |  3 ++-
- net/smc/Kconfig      | 12 ++++++++++++
- net/smc/af_smc.c     | 22 ++++++++++++++++++++++
- 4 files changed, 37 insertions(+), 1 deletion(-)
+ af_smc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/tcp.h b/include/linux/tcp.h
-index 78b91bb..1c4ae5d 100644
---- a/include/linux/tcp.h
-+++ b/include/linux/tcp.h
-@@ -394,6 +394,7 @@ struct tcp_sock {
- 	bool	is_mptcp;
- #endif
- #if IS_ENABLED(CONFIG_SMC)
-+	bool	(*smc_in_limited)(const struct sock *sk);
- 	bool	syn_smc;	/* SYN includes SMC */
- #endif
- 
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index dc49a3d..9890de9 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -6701,7 +6701,8 @@ static void tcp_openreq_init(struct request_sock *req,
- 	ireq->ir_num = ntohs(tcp_hdr(skb)->dest);
- 	ireq->ir_mark = inet_request_mark(sk, skb);
- #if IS_ENABLED(CONFIG_SMC)
--	ireq->smc_ok = rx_opt->smc_ok;
-+	ireq->smc_ok = rx_opt->smc_ok && !(tcp_sk(sk)->smc_in_limited &&
-+			tcp_sk(sk)->smc_in_limited(sk));
- #endif
- }
- 
-diff --git a/net/smc/Kconfig b/net/smc/Kconfig
-index 1ab3c5a..a4e1713 100644
---- a/net/smc/Kconfig
-+++ b/net/smc/Kconfig
-@@ -19,3 +19,15 @@ config SMC_DIAG
- 	  smcss.
- 
- 	  if unsure, say Y.
-+
-+if SMC
-+
-+config SMC_AUTO_FALLBACK
-+	bool "SMC: automatic fallback to TCP"
-+	default y
-+	help
-+	  Allow automatic fallback to TCP accroding to the pressure of SMC-R
-+	  handshake process.
-+
-+	  If that's not what you except or unsure, say N.
-+endif
 diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 66a0e64..49b8a29 100644
+index 05b88cbadf3d1..4969ac8029a98 100644
 --- a/net/smc/af_smc.c
 +++ b/net/smc/af_smc.c
-@@ -101,6 +101,24 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk, struct sk_buff
- 	return NULL;
- }
+@@ -59,7 +59,7 @@ static DEFINE_MUTEX(smc_client_lgr_pending);	/* serialize link group
+ 						 * creation on client
+ 						 */
  
-+#if IS_ENABLED(CONFIG_SMC_AUTO_FALLBACK)
-+static bool smc_is_in_limited(const struct sock *sk)
-+{
-+	const struct smc_sock *smc;
-+
-+	smc = (const struct smc_sock *)
-+		((uintptr_t)sk->sk_user_data & ~SK_USER_DATA_NOCOPY);
-+
-+	if (!smc)
-+		return true;
-+
-+	if (workqueue_congested(WORK_CPU_UNBOUND, smc_hs_wq))
-+		return true;
-+
-+	return false;
-+}
-+#endif
-+
- static struct smc_hashinfo smc_v4_hashinfo = {
- 	.lock = __RW_LOCK_UNLOCKED(smc_v4_hashinfo.lock),
- };
-@@ -2206,6 +2224,10 @@ static int smc_listen(struct socket *sock, int backlog)
+-struct workqueue_struct	*smc_tcp_ls_wq;	/* wq for tcp listen work */
++static struct workqueue_struct	*smc_tcp_ls_wq;	/* wq for tcp listen work */
+ struct workqueue_struct	*smc_hs_wq;	/* wq for handshake work */
+ struct workqueue_struct	*smc_close_wq;	/* wq for close work */
  
- 	inet_csk(smc->clcsock->sk)->icsk_af_ops = &smc->af_ops;
- 
-+#if IS_ENABLED(CONFIG_SMC_AUTO_FALLBACK)
-+	tcp_sk(smc->clcsock->sk)->smc_in_limited = smc_is_in_limited;
-+#endif
-+
- 	rc = kernel_listen(smc->clcsock, backlog);
- 	if (rc) {
- 		smc->clcsock->sk->sk_data_ready = smc->clcsk_data_ready;
--- 
-1.8.3.1
-
