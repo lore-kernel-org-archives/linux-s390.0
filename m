@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72058C433F5
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C0135C43219
 	for <linux-s390@archiver.kernel.org>; Mon,  7 Feb 2022 17:16:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379805AbiBGROj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 7 Feb 2022 12:14:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57682 "EHLO
+        id S1381374AbiBGROl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 7 Feb 2022 12:14:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358155AbiBGRAP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Feb 2022 12:00:15 -0500
+        with ESMTP id S1357739AbiBGRAL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Feb 2022 12:00:11 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D59E2C0401DF;
-        Mon,  7 Feb 2022 09:00:13 -0800 (PST)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 217GxK8H032028;
-        Mon, 7 Feb 2022 17:00:13 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD442C0401D6;
+        Mon,  7 Feb 2022 09:00:07 -0800 (PST)
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 217GxFU4001643;
+        Mon, 7 Feb 2022 17:00:07 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=7W8sGboste/34tX8WVzu+4JfHgJbL6kQDyucwJqjmKQ=;
- b=Uc/yAZiW7OQ7knyPcOn3zL7GntVdh3qSKP/fWjhjltiRyuoLUsDepl2gWnV6Xv2kbvG5
- XqVcf4UUPrvDL7Ry8sbIZTLvHeWA2Lm0QllC93DfPIiw5gcFOaWDcPtk58plXxCLqqMV
- G/+jqdmxZP7hb6heQ2s+k0Dutk7089ttnDItRKO/0K39VNt3hHDTSnrVJP+3e1FM8KOv
- OlGnuuz1R9yz8td7sCNj7wS2Aw89+daz342V6sZHQ0CTxaCGmj9NCFfQIcad/yyoqUZ+
- AdiQ1LMfOUkPFidt9rgNHvK+VpXur9g6CN0PaPvdySAnlnraeG5bPphlq6je+pz+LV+7 Gw== 
+ bh=cR8o6qHn0Nut0W0pG13ceP4boyb9RECueBYqhHCmi4c=;
+ b=sVu9HervUtTs8yhOrOY4CGJKLo1QbQdFDOhE9qU3T1RCDE0yrDZPDUxQeV7mdeUFe4j1
+ c0Z/FAh0xVmk/J0Dxjq/of3cwN452u5Tf43v/ysBTJKHA+3MVRoBiQoZpAjobkRN2E5G
+ GbeiWs/e83p/1a2/1oxFC4CLfuZKLs7zXAmn5a2Bj6Zaoq67PEtypiMWbSmyhOgFmH9x
+ M0VjpKD4OlRaJ7rU+1RVkLoC1G/qGHJug304it2h0pG20OVCQgsJwopSieBka4NJcM1m
+ 1+ywjgbtYEW3iEyEJc2nvGvCDNnKu6xSG+TsdI7sOwLiS18C0DTkZu9BfdrwmelupgV0 KQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3e22tqsy9e-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e22st9v2v-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Feb 2022 17:00:13 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 217H0CqI009787;
-        Mon, 7 Feb 2022 17:00:12 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3e22tqsy7v-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Feb 2022 17:00:12 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 217Gqp80015502;
-        Mon, 7 Feb 2022 17:00:10 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma02fra.de.ibm.com with ESMTP id 3e1gv95xvr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Feb 2022 17:00:09 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 217H05Pp42729926
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 07 Feb 2022 17:00:06 +0000
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 217GxJUW002048;
         Mon, 7 Feb 2022 17:00:05 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e22st9v1d-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 07 Feb 2022 17:00:05 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 217GqQfg008704;
+        Mon, 7 Feb 2022 17:00:03 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma04ams.nl.ibm.com with ESMTP id 3e1gv8xuwq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 07 Feb 2022 17:00:03 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 217H002u42926584
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 7 Feb 2022 17:00:00 GMT
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 386DBA4055;
-        Mon,  7 Feb 2022 17:00:05 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id F0FEAA4053;
+        Mon,  7 Feb 2022 16:59:59 +0000 (GMT)
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C102FA404D;
-        Mon,  7 Feb 2022 17:00:04 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 83808A405D;
+        Mon,  7 Feb 2022 16:59:59 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon,  7 Feb 2022 17:00:04 +0000 (GMT)
+        Mon,  7 Feb 2022 16:59:59 +0000 (GMT)
 From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
 To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
@@ -70,183 +70,259 @@ Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
         linux-s390@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
         Sven Schnelle <svens@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH v2 11/11] KVM: s390: Update api documentation for memop ioctl
-Date:   Mon,  7 Feb 2022 17:59:30 +0100
-Message-Id: <20220207165930.1608621-12-scgl@linux.ibm.com>
+Subject: [PATCH v2 01/11] s390/uaccess: Add copy_from/to_user_key functions
+Date:   Mon,  7 Feb 2022 17:59:20 +0100
+Message-Id: <20220207165930.1608621-2-scgl@linux.ibm.com>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20220207165930.1608621-1-scgl@linux.ibm.com>
 References: <20220207165930.1608621-1-scgl@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: x0au4goSVcS_aTRrZwtvNqgVLwFxMB4N
-X-Proofpoint-GUID: SU_hUoTV677Pooq6I6f7qYw28pCFC81v
+X-Proofpoint-GUID: QSqf3D44FJfbAf4SBZguIICIzo4rTDxV
+X-Proofpoint-ORIG-GUID: D2pJ0Q-h6tUXYOm8plQT9Yl0cl9YcQTX
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2022-02-07_06,2022-02-07_02,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxlogscore=788
- impostorscore=0 phishscore=0 suspectscore=0 malwarescore=0 mlxscore=0
- spamscore=0 priorityscore=1501 clxscore=1015 bulkscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ mlxlogscore=999 priorityscore=1501 malwarescore=0 phishscore=0
+ suspectscore=0 adultscore=0 spamscore=0 bulkscore=0 lowpriorityscore=0
+ mlxscore=0 clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2201110000 definitions=main-2202070103
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Document all currently existing operations, flags and explain under
-which circumstances they are available. Document the recently
-introduced absolute operations and the storage key protection flag,
-as well as the existing SIDA operations.
+Add copy_from/to_user_key functions, which perform storage key checking.
+These functions can be used by KVM for emulating instructions that need
+to be key checked.
+These functions differ from their non _key counterparts in
+include/linux/uaccess.h only in the additional key argument and must be
+kept in sync with those.
+
+Since the existing uaccess implementation on s390 makes use of move
+instructions that support having an additional access key supplied,
+we can implement raw_copy_from/to_user_key by enhancing the
+existing implementation.
 
 Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
 ---
- Documentation/virt/kvm/api.rst | 112 ++++++++++++++++++++++++++-------
- 1 file changed, 90 insertions(+), 22 deletions(-)
+ arch/s390/include/asm/uaccess.h | 22 +++++++++
+ arch/s390/lib/uaccess.c         | 81 +++++++++++++++++++++++++--------
+ 2 files changed, 85 insertions(+), 18 deletions(-)
 
-diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
-index a4267104db50..7b28657fe9de 100644
---- a/Documentation/virt/kvm/api.rst
-+++ b/Documentation/virt/kvm/api.rst
-@@ -3683,15 +3683,17 @@ The fields in each entry are defined as follows:
- 4.89 KVM_S390_MEM_OP
- --------------------
+diff --git a/arch/s390/include/asm/uaccess.h b/arch/s390/include/asm/uaccess.h
+index d74e26b48604..ba1bcb91af95 100644
+--- a/arch/s390/include/asm/uaccess.h
++++ b/arch/s390/include/asm/uaccess.h
+@@ -44,6 +44,28 @@ raw_copy_to_user(void __user *to, const void *from, unsigned long n);
+ #define INLINE_COPY_TO_USER
+ #endif
  
--:Capability: KVM_CAP_S390_MEM_OP
-+:Capability: KVM_CAP_S390_MEM_OP, KVM_CAP_S390_MEM_OP_EXTENSION
- :Architectures: s390
--:Type: vcpu ioctl
-+:Type: vm ioctl, vcpu ioctl
- :Parameters: struct kvm_s390_mem_op (in)
- :Returns: = 0 on success,
-           < 0 on generic error (e.g. -EFAULT or -ENOMEM),
-           > 0 if an exception occurred while walking the page tables
++unsigned long __must_check
++_copy_from_user_key(void *to, const void __user *from, unsigned long n, unsigned long key);
++
++static __always_inline unsigned long __must_check
++copy_from_user_key(void *to, const void __user *from, unsigned long n, unsigned long key)
++{
++	if (likely(check_copy_size(to, n, false)))
++		n = _copy_from_user_key(to, from, n, key);
++	return n;
++}
++
++unsigned long __must_check
++_copy_to_user_key(void __user *to, const void *from, unsigned long n, unsigned long key);
++
++static __always_inline unsigned long __must_check
++copy_to_user_key(void __user *to, const void *from, unsigned long n, unsigned long key)
++{
++	if (likely(check_copy_size(from, n, true)))
++		n = _copy_to_user_key(to, from, n, key);
++	return n;
++}
++
+ int __put_user_bad(void) __attribute__((noreturn));
+ int __get_user_bad(void) __attribute__((noreturn));
  
--Read or write data from/to the logical (virtual) memory of a VCPU.
-+Read or write data from/to the VM's memory.
-+The KVM_CAP_S390_MEM_OP_EXTENSION capability specifies what functionality is
-+supported.
+diff --git a/arch/s390/lib/uaccess.c b/arch/s390/lib/uaccess.c
+index 8a5d21461889..b709239feb5d 100644
+--- a/arch/s390/lib/uaccess.c
++++ b/arch/s390/lib/uaccess.c
+@@ -59,11 +59,13 @@ static inline int copy_with_mvcos(void)
+ #endif
  
- Parameters are specified via the following structure::
+ static inline unsigned long copy_from_user_mvcos(void *x, const void __user *ptr,
+-						 unsigned long size)
++						 unsigned long size, unsigned long key)
+ {
+ 	unsigned long tmp1, tmp2;
+ 	union oac spec = {
++		.oac2.key = key,
+ 		.oac2.as = PSW_BITS_AS_SECONDARY,
++		.oac2.k = 1,
+ 		.oac2.a = 1,
+ 	};
  
-@@ -3701,33 +3703,99 @@ Parameters are specified via the following structure::
- 	__u32 size;		/* amount of bytes */
- 	__u32 op;		/* type of operation */
- 	__u64 buf;		/* buffer in userspace */
--	__u8 ar;		/* the access register number */
--	__u8 reserved[31];	/* should be set to 0 */
-+	union {
-+		struct {
-+			__u8 ar;	/* the access register number */
-+			__u8 key;	/* access key to use for storage key protection */
-+		};
-+		__u32 sida_offset; /* offset into the sida */
-+		__u8 reserved[32]; /* must be set to 0 */
-+	};
-   };
+@@ -94,19 +96,19 @@ static inline unsigned long copy_from_user_mvcos(void *x, const void __user *ptr
+ }
  
--The type of operation is specified in the "op" field. It is either
--KVM_S390_MEMOP_LOGICAL_READ for reading from logical memory space or
--KVM_S390_MEMOP_LOGICAL_WRITE for writing to logical memory space. The
--KVM_S390_MEMOP_F_CHECK_ONLY flag can be set in the "flags" field to check
--whether the corresponding memory access would create an access exception
--(without touching the data in the memory at the destination). In case an
--access exception occurred while walking the MMU tables of the guest, the
--ioctl returns a positive error number to indicate the type of exception.
--This exception is also raised directly at the corresponding VCPU if the
--flag KVM_S390_MEMOP_F_INJECT_EXCEPTION is set in the "flags" field.
--
- The start address of the memory region has to be specified in the "gaddr"
- field, and the length of the region in the "size" field (which must not
- be 0). The maximum value for "size" can be obtained by checking the
- KVM_CAP_S390_MEM_OP capability. "buf" is the buffer supplied by the
- userspace application where the read data should be written to for
--KVM_S390_MEMOP_LOGICAL_READ, or where the data that should be written is
--stored for a KVM_S390_MEMOP_LOGICAL_WRITE. When KVM_S390_MEMOP_F_CHECK_ONLY
--is specified, "buf" is unused and can be NULL. "ar" designates the access
--register number to be used; the valid range is 0..15.
-+a read access, or where the data that should be written is stored for
-+a write access.  The "reserved" field is meant for future extensions.
-+Reserved and unused bytes must be set to 0. If any of the following are used,
-+this is enforced and -EINVAL will be returned:
-+``KVM_S390_MEMOP_ABSOLUTE_READ/WRITE``, ``KVM_S390_MEMOP_F_SKEY_PROTECTION``.
-+
-+The type of operation is specified in the "op" field. Flags modifying
-+their behavior can be set in the "flags" field. Undefined flag bits must
-+be set to 0.
-+
-+Possible operations are:
-+  * ``KVM_S390_MEMOP_LOGICAL_READ``
-+  * ``KVM_S390_MEMOP_LOGICAL_WRITE``
-+  * ``KVM_S390_MEMOP_ABSOLUTE_READ``
-+  * ``KVM_S390_MEMOP_ABSOLUTE_WRITE``
-+  * ``KVM_S390_MEMOP_SIDA_READ``
-+  * ``KVM_S390_MEMOP_SIDA_WRITE``
-+
-+Logical read/write:
-+^^^^^^^^^^^^^^^^^^^
-+
-+Access logical memory, i.e. translate the given guest address to an absolute
-+address given the state of the VCPU and use the absolute address as target of
-+the access. "ar" designates the access register number to be used; the valid
-+range is 0..15.
-+Logical accesses are permitted for the VCPU ioctl only.
-+Logical accesses are permitted for non secure guests only.
-+
-+Supported flags:
-+  * ``KVM_S390_MEMOP_F_CHECK_ONLY``
-+  * ``KVM_S390_MEMOP_F_INJECT_EXCEPTION``
-+  * ``KVM_S390_MEMOP_F_SKEY_PROTECTION``
-+
-+The KVM_S390_MEMOP_F_CHECK_ONLY flag can be set to check whether the
-+corresponding memory access would cause an access exception, without touching
-+the data in memory at the destination.
-+In this case, "buf" is unused and can be NULL.
-+
-+In case an access exception occurred during the access (or would occur
-+in case of KVM_S390_MEMOP_F_CHECK_ONLY), the ioctl returns a positive
-+error number indicating the type of exception. This exception is also
-+raised directly at the corresponding VCPU if the flag
-+KVM_S390_MEMOP_F_INJECT_EXCEPTION is set.
-+
-+If the KVM_S390_MEMOP_F_SKEY_PROTECTION flag is set, storage key
-+protection is also in effect and may cause exceptions if accesses are
-+prohibited given the access key passed in "key".
-+KVM_S390_MEMOP_F_SKEY_PROTECTION is available if KVM_CAP_S390_MEM_OP_EXTENSION
-+is > 0.
-+
-+Absolute read/write:
-+^^^^^^^^^^^^^^^^^^^^
-+
-+Access absolute memory. This operation is intended to be used with the
-+KVM_S390_MEMOP_F_SKEY_PROTECTION flag, to allow accessing memory and performing
-+the checks required for storage key protection as one operation (as opposed to
-+user space getting the storage keys, performing the checks, and accessing
-+memory thereafter, which could lead to a delay between check and access).
-+Absolute accesses are permitted for the VM ioctl if KVM_CAP_S390_MEM_OP_EXTENSION
-+is > 0.
-+Currently absolute accesses are not permitted for VCPU ioctls.
-+Absolute accesses are permitted for non secure guests only.
-+
-+Supported flags:
-+  * ``KVM_S390_MEMOP_F_CHECK_ONLY``
-+  * ``KVM_S390_MEMOP_F_SKEY_PROTECTION``
-+
-+The semantics of the flags are as for logical accesses.
-+
-+SIDA read/write:
-+^^^^^^^^^^^^^^^^
-+
-+Access the secure instruction data area which contains memory operands necessary
-+for instruction emulation for secure guests.
-+SIDA accesses are permitted for the VCPU ioctl only.
-+SIDA accesses are permitted for secure guests only.
+ static inline unsigned long copy_from_user_mvcp(void *x, const void __user *ptr,
+-						unsigned long size)
++						unsigned long size, unsigned long key)
+ {
+ 	unsigned long tmp1, tmp2;
  
--The "reserved" field is meant for future extensions. It is not used by
--KVM with the currently defined set of flags.
-+No flags are supported.
+ 	tmp1 = -256UL;
+ 	asm volatile(
+ 		"   sacf  0\n"
+-		"0: mvcp  0(%0,%2),0(%1),%3\n"
++		"0: mvcp  0(%0,%2),0(%1),%[key]\n"
+ 		"7: jz    5f\n"
+ 		"1: algr  %0,%3\n"
+ 		"   la    %1,256(%1)\n"
+ 		"   la    %2,256(%2)\n"
+-		"2: mvcp  0(%0,%2),0(%1),%3\n"
++		"2: mvcp  0(%0,%2),0(%1),%[key]\n"
+ 		"8: jnz   1b\n"
+ 		"   j     5f\n"
+ 		"3: la    %4,255(%1)\n"	/* %4 = ptr + 255 */
+@@ -115,7 +117,7 @@ static inline unsigned long copy_from_user_mvcp(void *x, const void __user *ptr,
+ 		"   slgr  %4,%1\n"
+ 		"   clgr  %0,%4\n"	/* copy crosses next page boundary? */
+ 		"   jnh   6f\n"
+-		"4: mvcp  0(%4,%2),0(%1),%3\n"
++		"4: mvcp  0(%4,%2),0(%1),%[key]\n"
+ 		"9: slgr  %0,%4\n"
+ 		"   j     6f\n"
+ 		"5: slgr  %0,%0\n"
+@@ -123,24 +125,49 @@ static inline unsigned long copy_from_user_mvcp(void *x, const void __user *ptr,
+ 		EX_TABLE(0b,3b) EX_TABLE(2b,3b) EX_TABLE(4b,6b)
+ 		EX_TABLE(7b,3b) EX_TABLE(8b,3b) EX_TABLE(9b,6b)
+ 		: "+a" (size), "+a" (ptr), "+a" (x), "+a" (tmp1), "=a" (tmp2)
+-		: : "cc", "memory");
++		: [key] "d" (key << 4)
++		: "cc", "memory");
+ 	return size;
+ }
  
- 4.90 KVM_S390_GET_SKEYS
- -----------------------
+-unsigned long raw_copy_from_user(void *to, const void __user *from, unsigned long n)
++static unsigned long raw_copy_from_user_key(void *to, const void __user *from,
++					    unsigned long n, unsigned long key)
+ {
+ 	if (copy_with_mvcos())
+-		return copy_from_user_mvcos(to, from, n);
+-	return copy_from_user_mvcp(to, from, n);
++		return copy_from_user_mvcos(to, from, n, key);
++	return copy_from_user_mvcp(to, from, n, key);
++}
++
++unsigned long raw_copy_from_user(void *to, const void __user *from, unsigned long n)
++{
++	return raw_copy_from_user_key(to, from, n, 0);
+ }
+ EXPORT_SYMBOL(raw_copy_from_user);
+ 
++unsigned long _copy_from_user_key(void *to, const void __user *from,
++				  unsigned long n, unsigned long key)
++{
++	unsigned long res = n;
++
++	might_fault();
++	if (!should_fail_usercopy()) {
++		instrument_copy_from_user(to, from, n);
++		res = raw_copy_from_user_key(to, from, n, key);
++	}
++	if (unlikely(res))
++		memset(to + (n - res), 0, res);
++	return res;
++}
++EXPORT_SYMBOL(_copy_from_user_key);
++
+ static inline unsigned long copy_to_user_mvcos(void __user *ptr, const void *x,
+-					       unsigned long size)
++					       unsigned long size, unsigned long key)
+ {
+ 	unsigned long tmp1, tmp2;
+ 	union oac spec = {
++		.oac1.key = key,
+ 		.oac1.as = PSW_BITS_AS_SECONDARY,
++		.oac1.k = 1,
+ 		.oac1.a = 1,
+ 	};
+ 
+@@ -171,19 +198,19 @@ static inline unsigned long copy_to_user_mvcos(void __user *ptr, const void *x,
+ }
+ 
+ static inline unsigned long copy_to_user_mvcs(void __user *ptr, const void *x,
+-					      unsigned long size)
++					      unsigned long size, unsigned long key)
+ {
+ 	unsigned long tmp1, tmp2;
+ 
+ 	tmp1 = -256UL;
+ 	asm volatile(
+ 		"   sacf  0\n"
+-		"0: mvcs  0(%0,%1),0(%2),%3\n"
++		"0: mvcs  0(%0,%1),0(%2),%[key]\n"
+ 		"7: jz    5f\n"
+ 		"1: algr  %0,%3\n"
+ 		"   la    %1,256(%1)\n"
+ 		"   la    %2,256(%2)\n"
+-		"2: mvcs  0(%0,%1),0(%2),%3\n"
++		"2: mvcs  0(%0,%1),0(%2),%[key]\n"
+ 		"8: jnz   1b\n"
+ 		"   j     5f\n"
+ 		"3: la    %4,255(%1)\n" /* %4 = ptr + 255 */
+@@ -192,7 +219,7 @@ static inline unsigned long copy_to_user_mvcs(void __user *ptr, const void *x,
+ 		"   slgr  %4,%1\n"
+ 		"   clgr  %0,%4\n"	/* copy crosses next page boundary? */
+ 		"   jnh   6f\n"
+-		"4: mvcs  0(%4,%1),0(%2),%3\n"
++		"4: mvcs  0(%4,%1),0(%2),%[key]\n"
+ 		"9: slgr  %0,%4\n"
+ 		"   j     6f\n"
+ 		"5: slgr  %0,%0\n"
+@@ -200,18 +227,36 @@ static inline unsigned long copy_to_user_mvcs(void __user *ptr, const void *x,
+ 		EX_TABLE(0b,3b) EX_TABLE(2b,3b) EX_TABLE(4b,6b)
+ 		EX_TABLE(7b,3b) EX_TABLE(8b,3b) EX_TABLE(9b,6b)
+ 		: "+a" (size), "+a" (ptr), "+a" (x), "+a" (tmp1), "=a" (tmp2)
+-		: : "cc", "memory");
++		: [key] "d" (key << 4)
++		: "cc", "memory");
+ 	return size;
+ }
+ 
+-unsigned long raw_copy_to_user(void __user *to, const void *from, unsigned long n)
++static unsigned long raw_copy_to_user_key(void __user *to, const void *from,
++					  unsigned long n, unsigned long key)
+ {
+ 	if (copy_with_mvcos())
+-		return copy_to_user_mvcos(to, from, n);
+-	return copy_to_user_mvcs(to, from, n);
++		return copy_to_user_mvcos(to, from, n, key);
++	return copy_to_user_mvcs(to, from, n, key);
++}
++
++unsigned long raw_copy_to_user(void __user *to, const void *from, unsigned long n)
++{
++	return raw_copy_to_user_key(to, from, n, 0);
+ }
+ EXPORT_SYMBOL(raw_copy_to_user);
+ 
++unsigned long _copy_to_user_key(void __user *to, const void *from,
++				unsigned long n, unsigned long key)
++{
++	might_fault();
++	if (should_fail_usercopy())
++		return n;
++	instrument_copy_to_user(to, from, n);
++	return raw_copy_to_user_key(to, from, n, key);
++}
++EXPORT_SYMBOL(_copy_to_user_key);
++
+ static inline unsigned long clear_user_mvcos(void __user *to, unsigned long size)
+ {
+ 	unsigned long tmp1, tmp2;
 -- 
 2.32.0
 
