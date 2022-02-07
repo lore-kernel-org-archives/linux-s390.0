@@ -2,127 +2,98 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 51EE5C433FE
-	for <linux-s390@archiver.kernel.org>; Mon,  7 Feb 2022 13:44:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A37FC433EF
+	for <linux-s390@archiver.kernel.org>; Mon,  7 Feb 2022 14:15:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239029AbiBGNn1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 7 Feb 2022 08:43:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42876 "EHLO
+        id S230299AbiBGOO5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 7 Feb 2022 09:14:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353403AbiBGNFN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Feb 2022 08:05:13 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D7D8C0401D2;
-        Mon,  7 Feb 2022 05:05:04 -0800 (PST)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 217BaCje024832;
-        Mon, 7 Feb 2022 13:05:03 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=9reA5PYbVXOY4Il5UEVRVO7g9nR9yFNlpSR7fCxMI7U=;
- b=c7fc1zI8s5tgeRjQ+Bs+S+Ljfm81Ugmc7cOspG4a9lysRqflAbYKIXj7tdKrQ/zMPnXe
- tGelKktw0wevQo43+T2T0+FrQe1z4ZJWDdjYSLCvQM89Qwq5tJsuPeZ6KPgf6GxHJEkk
- tRMKEt34xc4r9N5HdEaONmduwt+ia98q/h0XmfwG2LaHKJhpac7K4sf7KtmMluNtKLmu
- wwv9oKAEdHQ84sTXrR+p+E7VSKnh1GE2+srgTCqLKqZMolPh0FcGvjgh0RpOrwlnx1Vx
- fUnP/6w7QzBVUdZ+QDR/FVwwTFoqytNKGpWxD7nbsXo30QmWTCvntlMkXoLYTe4QRKPg ig== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3e22tqkxgg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Feb 2022 13:05:03 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 217D0Hkl012466;
-        Mon, 7 Feb 2022 13:05:03 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3e22tqkxfm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Feb 2022 13:05:03 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 217CwHxL012846;
-        Mon, 7 Feb 2022 13:05:00 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 3e1gv8vkbh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Feb 2022 13:05:00 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 217D4u7s30867896
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 7 Feb 2022 13:04:56 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 81EC1A4070;
-        Mon,  7 Feb 2022 13:04:56 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 94252A406D;
-        Mon,  7 Feb 2022 13:04:55 +0000 (GMT)
-Received: from [9.171.90.80] (unknown [9.171.90.80])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon,  7 Feb 2022 13:04:55 +0000 (GMT)
-Message-ID: <9a186055-2637-0113-18be-ab08b5db1c74@linux.ibm.com>
-Date:   Mon, 7 Feb 2022 14:04:55 +0100
+        with ESMTP id S1388570AbiBGNtd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Feb 2022 08:49:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A176C0401C0;
+        Mon,  7 Feb 2022 05:49:33 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B433461258;
+        Mon,  7 Feb 2022 13:49:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EEECC004E1;
+        Mon,  7 Feb 2022 13:49:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1644241772;
+        bh=VjD//5GmX4HtgK0McMZ2+tZ69u0OKe5K4PhsuFpSLoM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=jeqOzkD6gN0mxsHe/uCY5WZ3Wrr4+7QvGlSVPEQsAKbMeSMB9kgBLWH6UsBY2REh5
+         eLlFK/85/wc2qS9COKn11IC4Xz4V89cOtXEgQ5ao1GZ11GDqpGqSP5gYjzmQRx4LlK
+         d+pq6hkMlnWcQA3RjCa+JEE09Fofy/+c80nUZ0p6FMIIJVq7FQu27MTki4npopWZMx
+         LIHZHI/hZMS1TtAYe6ynbGel99OR27kQZKI8AXevbOSPxDP5/m4TautOU5dhqWDotF
+         xT8V1Ma4WzXm7q5HomLvjddsBzW4oHvbHHH7LXRrKfMVY2H+pSammx/l1pnFwSwykW
+         l3JMtwngGeeEw==
+Date:   Mon, 7 Feb 2022 15:49:26 +0200
+From:   Leon Romanovsky <leon@kernel.org>
+To:     Tony Lu <tonylu@linux.alibaba.com>
+Cc:     kgraul@linux.ibm.com, kuba@kernel.org, davem@davemloft.net,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        RDMA mailing list <linux-rdma@vger.kernel.org>
+Subject: Re: [PATCH net-next] net/smc: Allocate pages of SMC-R on ibdev NUMA
+ node
+Message-ID: <YgEjZonizb1Ugg2b@unreal>
+References: <20220130190259.94593-1-tonylu@linux.alibaba.com>
+ <YfeN1BfPqhVz8mvy@unreal>
+ <YgDtnk8g7y5oRKXB@TonyMac-Alibaba>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH v3 30/30] MAINTAINERS: additional files related kvm s390
- pci passthrough
-Content-Language: en-US
-To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
-        schnelle@linux.ibm.com, farman@linux.ibm.com, pmorel@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
-        vneethv@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com,
-        thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Christian Borntraeger <borntraeger@de.ibm.com>
-References: <20220204211536.321475-1-mjrosato@linux.ibm.com>
- <20220204211536.321475-31-mjrosato@linux.ibm.com>
-From:   Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20220204211536.321475-31-mjrosato@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: URjhQ3veZQwwF_Mw6-Jw4d08Ttlhjew-
-X-Proofpoint-GUID: BdCsKKWGCe2pWYq6U14wyGqQzTRWGCp9
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-02-07_05,2022-02-07_02,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxlogscore=999
- impostorscore=0 phishscore=0 suspectscore=0 malwarescore=0 mlxscore=0
- spamscore=0 priorityscore=1501 clxscore=1015 bulkscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2202070085
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YgDtnk8g7y5oRKXB@TonyMac-Alibaba>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-Am 04.02.22 um 22:15 schrieb Matthew Rosato:
-> Add entries from the s390 kvm subdirectory related to pci passthrough.
+On Mon, Feb 07, 2022 at 05:59:58PM +0800, Tony Lu wrote:
+> On Mon, Jan 31, 2022 at 09:20:52AM +0200, Leon Romanovsky wrote:
+> > On Mon, Jan 31, 2022 at 03:03:00AM +0800, Tony Lu wrote:
+> > > Currently, pages are allocated in the process context, for its NUMA node
+> > > isn't equal to ibdev's, which is not the best policy for performance.
+> > > 
+> > > Applications will generally perform best when the processes are
+> > > accessing memory on the same NUMA node. When numa_balancing enabled
+> > > (which is enabled by most of OS distributions), it moves tasks closer to
+> > > the memory of sndbuf or rmb and ibdev, meanwhile, the IRQs of ibdev bind
+> > > to the same node usually. This reduces the latency when accessing remote
+> > > memory.
+> > 
+> > It is very subjective per-specific test. I would expect that
+> > application will control NUMA memory policies (set_mempolicy(), ...)
+> > by itself without kernel setting NUMA node.
+> > 
+> > Various *_alloc_node() APIs are applicable for in-kernel allocations
+> > where user can't control memory policy.
+> > 
+> > I don't know SMC-R enough, but if I judge from your description, this
+> > allocation is controlled by the application.
 > 
-> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-
-
-Can you change that to  borntraeger@linux.ibm.com ?
-
-
-
-> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> ---
->   MAINTAINERS | 2 ++
->   1 file changed, 2 insertions(+)
+> The original design of SMC doesn't handle the memory allocation of
+> different NUMA node, and the application can't control the NUMA policy
+> in SMC.
 > 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index bb83dcbcb619..2762295ad85e 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -16900,6 +16900,8 @@ M:	Eric Farman <farman@linux.ibm.com>
->   L:	linux-s390@vger.kernel.org
->   L:	kvm@vger.kernel.org
->   S:	Supported
-> +F:	arch/s390/include/asm/kvm_pci.h
-> +F:	arch/s390/kvm/pci*
->   F:	drivers/vfio/pci/vfio_pci_zdev.c
->   F:	include/uapi/linux/vfio_zdev.h
->   
+> It allocates memory according to the NUMA node based on the process
+> context, which is determined by the scheduler. If application process
+> runs on NUMA node 0, SMC allocates on node 0 and so on, it all depends
+> on the scheduler. If RDMA device is attached to node 1, the process runs
+> on node 0, it allocates memory on node 0.
+> 
+> This patch tries to allocate memory on the same NUMA node of RDMA
+> device. Applications can't know the current node of RDMA device. The
+> scheduler knows the node of memory, and can let applications run on the
+> same node of memory and RDMA device.
+
+I don't know, everything explained above is controlled through memory
+policy, where application needs to run on same node as ibdev.
+
+Thanks
+
+> 
+> Thanks,
+> Tony Lu
