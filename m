@@ -2,40 +2,40 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DB762C433EF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F157AC433F5
 	for <linux-s390@archiver.kernel.org>; Mon,  7 Feb 2022 08:40:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232732AbiBGIhc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 7 Feb 2022 03:37:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59102 "EHLO
+        id S234224AbiBGIiA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 7 Feb 2022 03:38:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243626AbiBGIaX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Feb 2022 03:30:23 -0500
+        with ESMTP id S235635AbiBGIgI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Feb 2022 03:36:08 -0500
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 5B811C043184
-        for <linux-s390@vger.kernel.org>; Mon,  7 Feb 2022 00:30:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id CC5FAC043181
+        for <linux-s390@vger.kernel.org>; Mon,  7 Feb 2022 00:36:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1644222622;
+        s=mimecast20190719; t=1644222966;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=9Tgu8NU8kx/MzJz+tw2bHaoQFz1xbDGIOoBlb5WHVtg=;
-        b=NKGZHTmjW9atyQqYPgpGgeSAVgOM9cHduI35lMs9sBjqAQYIN5LFrnJbbDuPNXPM24ZAMh
-        KAunkBr/sKT0bHUdj+3u8BXJd3cSimoZ2F4Uiv6jXtGQb+wd8C3xzwLOMWUGI322l4EliX
-        yYZbSbQdnFWQ9wqooER+UXY+vlMk8fM=
+        bh=EnlsbuxwF4ALdiCaBmB6LDE1NtPSwP5sAmBAFk/m7Ms=;
+        b=N+2lxbhU+Kyr6g1zogRinYWZPkDCcTZhQoZwG0biM47o/8rRPuMVYt42LGM36uISLZulFL
+        8/f5fMGOIFMDezRffLDxQk3isxV0ZtjtNxE8X13BR6QdfzDmFl94ya+OiGrr1dAK2YXHDM
+        B1VFWZA5abn4bK5IYvFRC3gLR6usk0s=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-646-N8a6INfDMTKha-eEGwL6DA-1; Mon, 07 Feb 2022 03:30:19 -0500
-X-MC-Unique: N8a6INfDMTKha-eEGwL6DA-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+ us-mta-558-GjHXXjkVODuR9_aUygqaJw-1; Mon, 07 Feb 2022 03:36:03 -0500
+X-MC-Unique: GjHXXjkVODuR9_aUygqaJw-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 2CDFB8519E1;
-        Mon,  7 Feb 2022 08:30:17 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C24E0802926;
+        Mon,  7 Feb 2022 08:36:00 +0000 (UTC)
 Received: from localhost (unknown [10.39.193.241])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 18CB510589D0;
-        Mon,  7 Feb 2022 08:29:46 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 2C7B362D6E;
+        Mon,  7 Feb 2022 08:35:41 +0000 (UTC)
 From:   Cornelia Huck <cohuck@redhat.com>
 To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
 Cc:     alex.williamson@redhat.com, schnelle@linux.ibm.com,
@@ -46,44 +46,40 @@ Cc:     alex.williamson@redhat.com, schnelle@linux.ibm.com,
         vneethv@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com,
         thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 06/30] s390/airq: allow for airq structure that uses
- an input vector
-In-Reply-To: <20220204211536.321475-7-mjrosato@linux.ibm.com>
+Subject: Re: [PATCH v3 14/30] vfio/pci: re-introduce CONFIG_VFIO_PCI_ZDEV
+In-Reply-To: <20220204211536.321475-15-mjrosato@linux.ibm.com>
 Organization: Red Hat GmbH
 References: <20220204211536.321475-1-mjrosato@linux.ibm.com>
- <20220204211536.321475-7-mjrosato@linux.ibm.com>
+ <20220204211536.321475-15-mjrosato@linux.ibm.com>
 User-Agent: Notmuch/0.34 (https://notmuchmail.org)
-Date:   Mon, 07 Feb 2022 09:29:44 +0100
-Message-ID: <87fsovw03r.fsf@redhat.com>
+Date:   Mon, 07 Feb 2022 09:35:39 +0100
+Message-ID: <87czjzvztw.fsf@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 On Fri, Feb 04 2022, Matthew Rosato <mjrosato@linux.ibm.com> wrote:
 
-> When doing device passthrough where interrupts are being forwarded from
-> host to guest, we wish to use a pinned section of guest memory as the
-> vector (the same memory used by the guest as the vector). To accomplish
-> this, add a new parameter for airq_iv_create which allows passing an
-> existing vector to be used instead of allocating a new one. The caller
-> is responsible for ensuring the vector is pinned in memory as well as for
-> unpinning the memory when the vector is no longer needed.
+> This was previously removed as unnecessary; while that was true, subsequent
+> changes will make KVM an additional required component for vfio-pci-zdev.
+> Let's re-introduce CONFIG_VFIO_PCI_ZDEV as now there is actually a reason
+> to say 'n' for it (when not planning to CONFIG_KVM).
+
+Hm... can the file be split into parts that depend on KVM and parts that
+don't? Does anybody ever use vfio-pci on a non-kvm s390 system?
+
+[Apologies if that has been discussed before, this is my first look at
+this series.]
+
 >
-> A subsequent patch will use this new parameter for zPCI interpretation.
->
-> Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
 > Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
 > ---
->  arch/s390/include/asm/airq.h     |  4 +++-
->  arch/s390/pci/pci_irq.c          |  8 ++++----
->  drivers/s390/cio/airq.c          | 10 +++++++---
->  drivers/s390/virtio/virtio_ccw.c |  2 +-
->  4 files changed, 15 insertions(+), 9 deletions(-)
-
-For virtio-ccw:
-
-Acked-by: Cornelia Huck <cohuck@redhat.com>
+>  drivers/vfio/pci/Kconfig      | 11 +++++++++++
+>  drivers/vfio/pci/Makefile     |  2 +-
+>  include/linux/vfio_pci_core.h |  2 +-
+>  3 files changed, 13 insertions(+), 2 deletions(-)
+>
 
