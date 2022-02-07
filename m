@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1431C4167D
-	for <linux-s390@archiver.kernel.org>; Mon,  7 Feb 2022 17:16:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3DE63C46467
+	for <linux-s390@archiver.kernel.org>; Mon,  7 Feb 2022 17:16:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345765AbiBGROm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 7 Feb 2022 12:14:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57630 "EHLO
+        id S1382328AbiBGROn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 7 Feb 2022 12:14:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357960AbiBGRAN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Feb 2022 12:00:13 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AB22C0401D5;
-        Mon,  7 Feb 2022 09:00:11 -0800 (PST)
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 217GxWkY015455;
-        Mon, 7 Feb 2022 17:00:09 GMT
+        with ESMTP id S1357843AbiBGRAM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Feb 2022 12:00:12 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 035FEC0401DC;
+        Mon,  7 Feb 2022 09:00:08 -0800 (PST)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 217GxG72009009;
+        Mon, 7 Feb 2022 17:00:08 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=cAoUWdslfLuUyOGpLu3ifyKBA+8eVxhnvqLYFPYJfDk=;
- b=TWhWI5h3OerxFrnquEe0UresV+TqSX4QwHbAirGdRD73g0kNfwcTyJkjnNkkwFZKoRUi
- ncRJyAayE5CR0fJrq3oCnHvRdCG/qBXKaAUgSjt5jgxj8hg2Q7tCuTUcPiW2Arxmbdgz
- pMrbBjwV0v3A7eCgrxq8mOsyM8NkynYwVoASsDYKyAykbBIKKhj2878k8JUHAZzRvpKW
- w3LSLGlTR6YtidAxLQ9Ss65jI7Xs7Uu3OUK/L4EU4CC8Jd3K30ItvfSaN/2bNcQuZAID
- AyqCCbzrySqXg60KUW+97wid511C5ikMMLeGs7+OXGOqgWzgnYJ5/lKQTeJOt8NzmB/V SA== 
+ bh=8HxFcw/LuuAr6eGSl1pKnra7acQIWIwKfEErJjWktRI=;
+ b=b7kWGkqUtr+jd9I212KNyg7IBzjIixaYTIqM2PaI+9O3U9Y5P9q5la0xrMauQP/Pn7ab
+ DGTlz1IfLs8VYO0FP18HCh3NePpdCr7bYanekYdXG85jMZ+YjqZ9oH4UuyzvrJrbGHOa
+ 09yu0S7CQyP3hMu+BmopY1OyIAexhfHzPGYAnVYnoF19IYkA2c1OxdWPNoayRNyFQm0b
+ A1DpNAq7zdnLKT32xpvpYTrznP4KTaJ5Am+A7wZa9ZIu9xEpj4EkJy8NohF5DkqjdMnx
+ sPCqNH1TpEqXy7/z29kPscq9TLupAy6om2og5ng/QwVn27ZiyFFY/CknoQAK9v3m9mFq Xw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3e1huxcfdn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Feb 2022 17:00:09 +0000
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 217H00sP017346;
-        Mon, 7 Feb 2022 17:00:08 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3e1huxcfcj-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e355ac2bs-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Mon, 07 Feb 2022 17:00:08 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 217GqSWm009092;
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 217Gxdfb016739;
         Mon, 7 Feb 2022 17:00:07 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma04ams.nl.ibm.com with ESMTP id 3e1gv8xuxj-1
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e355ac2a9-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Feb 2022 17:00:06 +0000
+        Mon, 07 Feb 2022 17:00:07 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 217GqR7o008938;
+        Mon, 7 Feb 2022 17:00:04 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma04ams.nl.ibm.com with ESMTP id 3e1gv8xuwy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 07 Feb 2022 17:00:04 +0000
 Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 217GnxHm48103834
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 217H01Cu46727568
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 7 Feb 2022 16:49:59 GMT
+        Mon, 7 Feb 2022 17:00:01 GMT
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 96B9EA4057;
-        Mon,  7 Feb 2022 17:00:02 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 8E229A405D;
+        Mon,  7 Feb 2022 17:00:01 +0000 (GMT)
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 290CDA4051;
-        Mon,  7 Feb 2022 17:00:02 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 22E97A404D;
+        Mon,  7 Feb 2022 17:00:01 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon,  7 Feb 2022 17:00:02 +0000 (GMT)
+        Mon,  7 Feb 2022 17:00:01 +0000 (GMT)
 From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
 To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
@@ -70,279 +70,299 @@ Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
         linux-s390@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
         Sven Schnelle <svens@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH v2 06/11] KVM: s390: Add vm IOCTL for key checked guest absolute memory access
-Date:   Mon,  7 Feb 2022 17:59:25 +0100
-Message-Id: <20220207165930.1608621-7-scgl@linux.ibm.com>
+Subject: [PATCH v2 04/11] KVM: s390: selftests: Test TEST PROTECTION emulation
+Date:   Mon,  7 Feb 2022 17:59:23 +0100
+Message-Id: <20220207165930.1608621-5-scgl@linux.ibm.com>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20220207165930.1608621-1-scgl@linux.ibm.com>
 References: <20220207165930.1608621-1-scgl@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: FrQZyTs8pN4k_MRZ1nb5rUY6j1hGktYp
-X-Proofpoint-GUID: frfn6Y0yBnvVuhviJ6pK16efcHOnwx5W
+X-Proofpoint-GUID: jpp1kQKjDOf8fX7mhMJSbjdov3gbSSjf
+X-Proofpoint-ORIG-GUID: ONRtJZCF9TK7padN-Jr5fSih8CDcjSz-
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2022-02-07_06,2022-02-07_02,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- phishscore=0 impostorscore=0 bulkscore=0 adultscore=0 priorityscore=1501
- suspectscore=0 mlxscore=0 mlxlogscore=999 spamscore=0 malwarescore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 adultscore=0
+ suspectscore=0 clxscore=1015 lowpriorityscore=0 bulkscore=0 malwarescore=0
+ priorityscore=1501 spamscore=0 mlxlogscore=999 phishscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2201110000 definitions=main-2202070103
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Channel I/O honors storage keys and is performed on absolute memory.
-For I/O emulation user space therefore needs to be able to do key
-checked accesses.
-The vm IOCTL supports read/write accesses, as well as checking
-if an access would succeed.
-Unlike relying on KVM_S390_GET_SKEYS for key checking would,
-the vm IOCTL performs the check in lockstep with the read or write,
-by, ultimately, mapping the access to move instructions that
-support key protection checking with a supplied key.
-Fetch and storage protection override are not applicable to absolute
-accesses and so are not applied as they are when using the vcpu memop.
+Test the emulation of TEST PROTECTION in the presence of storage keys.
+Emulation only occurs under certain conditions, one of which is the host
+page being protected.
+Trigger this by protecting the test pages via mprotect.
 
 Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-Acked-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- arch/s390/kvm/gaccess.c  | 72 ++++++++++++++++++++++++++++++++++
- arch/s390/kvm/gaccess.h  |  6 +++
- arch/s390/kvm/kvm-s390.c | 84 ++++++++++++++++++++++++++++++++++++++++
- include/uapi/linux/kvm.h |  2 +
- 4 files changed, 164 insertions(+)
+ tools/testing/selftests/kvm/.gitignore    |   1 +
+ tools/testing/selftests/kvm/Makefile      |   1 +
+ tools/testing/selftests/kvm/s390x/tprot.c | 227 ++++++++++++++++++++++
+ 3 files changed, 229 insertions(+)
+ create mode 100644 tools/testing/selftests/kvm/s390x/tprot.c
 
-diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-index 37838f637707..d53a183c2005 100644
---- a/arch/s390/kvm/gaccess.c
-+++ b/arch/s390/kvm/gaccess.c
-@@ -795,6 +795,35 @@ static int low_address_protection_enabled(struct kvm_vcpu *vcpu,
- 	return 1;
- }
- 
-+static int vm_check_access_key(struct kvm *kvm, u8 access_key,
-+			       enum gacc_mode mode, gpa_t gpa)
-+{
-+	u8 storage_key, access_control;
-+	bool fetch_protected;
-+	unsigned long hva;
-+	int r;
-+
-+	if (access_key == 0)
-+		return 0;
-+
-+	hva = gfn_to_hva(kvm, gpa_to_gfn(gpa));
-+	if (kvm_is_error_hva(hva))
-+		return PGM_ADDRESSING;
-+
-+	mmap_read_lock(current->mm);
-+	r = get_guest_storage_key(current->mm, hva, &storage_key);
-+	mmap_read_unlock(current->mm);
-+	if (r)
-+		return r;
-+	access_control = FIELD_GET(_PAGE_ACC_BITS, storage_key);
-+	if (access_control == access_key)
-+		return 0;
-+	fetch_protected = storage_key & _PAGE_FP_BIT;
-+	if ((mode == GACC_FETCH || mode == GACC_IFETCH) && !fetch_protected)
-+		return 0;
-+	return PGM_PROTECTION;
-+}
-+
- static bool fetch_prot_override_applicable(struct kvm_vcpu *vcpu, enum gacc_mode mode,
- 					   union asce asce)
- {
-@@ -994,6 +1023,26 @@ access_guest_page_with_key(struct kvm *kvm, enum gacc_mode mode, gpa_t gpa,
- 	return 0;
- }
- 
-+int access_guest_abs_with_key(struct kvm *kvm, gpa_t gpa, void *data,
-+			      unsigned long len, enum gacc_mode mode, u8 access_key)
-+{
-+	int offset = offset_in_page(gpa);
-+	int fragment_len;
-+	int rc;
-+
-+	while (min(PAGE_SIZE - offset, len) > 0) {
-+		fragment_len = min(PAGE_SIZE - offset, len);
-+		rc = access_guest_page_with_key(kvm, mode, gpa, data, fragment_len, access_key);
-+		if (rc)
-+			return rc;
-+		offset = 0;
-+		len -= fragment_len;
-+		data += fragment_len;
-+		gpa += fragment_len;
-+	}
-+	return 0;
-+}
-+
- int access_guest_with_key(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
- 			  void *data, unsigned long len, enum gacc_mode mode,
- 			  u8 access_key)
-@@ -1144,6 +1193,29 @@ int check_gva_range(struct kvm_vcpu *vcpu, unsigned long gva, u8 ar,
- 	return rc;
- }
- 
-+/**
-+ * check_gpa_range - test a range of guest physical addresses for accessibility
-+ * @kvm: virtual machine instance
-+ * @gpa: guest physical address
-+ * @length: length of test range
-+ * @mode: access mode to test, relevant for storage keys
-+ * @access_key: access key to mach the storage keys with
+diff --git a/tools/testing/selftests/kvm/.gitignore b/tools/testing/selftests/kvm/.gitignore
+index dce7de7755e6..7903580a48ac 100644
+--- a/tools/testing/selftests/kvm/.gitignore
++++ b/tools/testing/selftests/kvm/.gitignore
+@@ -8,6 +8,7 @@
+ /s390x/memop
+ /s390x/resets
+ /s390x/sync_regs_test
++/s390x/tprot
+ /x86_64/amx_test
+ /x86_64/cpuid_test
+ /x86_64/cr4_cpuid_sync_test
+diff --git a/tools/testing/selftests/kvm/Makefile b/tools/testing/selftests/kvm/Makefile
+index 0e4926bc9a58..086f490e808d 100644
+--- a/tools/testing/selftests/kvm/Makefile
++++ b/tools/testing/selftests/kvm/Makefile
+@@ -121,6 +121,7 @@ TEST_GEN_PROGS_aarch64 += kvm_binary_stats_test
+ TEST_GEN_PROGS_s390x = s390x/memop
+ TEST_GEN_PROGS_s390x += s390x/resets
+ TEST_GEN_PROGS_s390x += s390x/sync_regs_test
++TEST_GEN_PROGS_s390x += s390x/tprot
+ TEST_GEN_PROGS_s390x += demand_paging_test
+ TEST_GEN_PROGS_s390x += dirty_log_test
+ TEST_GEN_PROGS_s390x += kvm_create_max_vcpus
+diff --git a/tools/testing/selftests/kvm/s390x/tprot.c b/tools/testing/selftests/kvm/s390x/tprot.c
+new file mode 100644
+index 000000000000..c097b9db495e
+--- /dev/null
++++ b/tools/testing/selftests/kvm/s390x/tprot.c
+@@ -0,0 +1,227 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * Test TEST PROTECTION emulation.
++ *
++ * Copyright IBM Corp. 2021
 + */
-+int check_gpa_range(struct kvm *kvm, unsigned long gpa, unsigned long length,
-+		    enum gacc_mode mode, u8 access_key)
-+{
-+	unsigned int fragment_len;
-+	int rc = 0;
 +
-+	while (length && !rc) {
-+		fragment_len = min(PAGE_SIZE - offset_in_page(gpa), length);
-+		rc = vm_check_access_key(kvm, access_key, mode, gpa);
-+		length -= fragment_len;
-+		gpa += fragment_len;
-+	}
-+	return rc;
++#include <sys/mman.h>
++#include "test_util.h"
++#include "kvm_util.h"
++
++#define PAGE_SHIFT 12
++#define PAGE_SIZE (1 << PAGE_SHIFT)
++#define CR0_FETCH_PROTECTION_OVERRIDE	(1UL << (63 - 38))
++#define CR0_STORAGE_PROTECTION_OVERRIDE	(1UL << (63 - 39))
++
++#define VCPU_ID 1
++
++static __aligned(PAGE_SIZE) uint8_t pages[2][PAGE_SIZE];
++static uint8_t *const page_store_prot = pages[0];
++static uint8_t *const page_fetch_prot = pages[1];
++
++/* Nonzero return value indicates that address not mapped */
++static int set_storage_key(void *addr, uint8_t key)
++{
++	int not_mapped = 0;
++
++	asm volatile (
++		       "lra	%[addr], 0(0,%[addr])\n"
++		"	jz	0f\n"
++		"	llill	%[not_mapped],1\n"
++		"	j	1f\n"
++		"0:	sske	%[key], %[addr]\n"
++		"1:"
++		: [addr] "+&a" (addr), [not_mapped] "+r" (not_mapped)
++		: [key] "r" (key)
++		: "cc"
++	);
++	return -not_mapped;
 +}
 +
- /**
-  * kvm_s390_check_low_addr_prot_real - check for low-address protection
-  * @vcpu: virtual cpu
-diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
-index c5f2e7311b17..1124ff282012 100644
---- a/arch/s390/kvm/gaccess.h
-+++ b/arch/s390/kvm/gaccess.h
-@@ -193,6 +193,12 @@ int guest_translate_address_with_key(struct kvm_vcpu *vcpu, unsigned long gva, u
- int check_gva_range(struct kvm_vcpu *vcpu, unsigned long gva, u8 ar,
- 		    unsigned long length, enum gacc_mode mode, u8 access_key);
- 
-+int check_gpa_range(struct kvm *kvm, unsigned long gpa, unsigned long length,
-+		    enum gacc_mode mode, u8 access_key);
++enum permission {
++	READ_WRITE = 0,
++	READ = 1,
++	RW_PROTECTED = 2,
++	TRANSL_UNAVAIL = 3,
++};
 +
-+int access_guest_abs_with_key(struct kvm *kvm, gpa_t gpa, void *data,
-+			      unsigned long len, enum gacc_mode mode, u8 access_key);
-+
- int access_guest_with_key(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
- 			  void *data, unsigned long len, enum gacc_mode mode,
- 			  u8 access_key);
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 71e61fb3f0d9..be9092295d3f 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2365,6 +2365,81 @@ static bool access_key_invalid(u8 access_key)
- 	return access_key > 0xf;
- }
- 
-+static int kvm_s390_vm_mem_op(struct kvm *kvm, struct kvm_s390_mem_op *mop)
++static enum permission test_protection(void *addr, uint8_t key)
 +{
-+	void __user *uaddr = (void __user *)mop->buf;
-+	u64 supported_flags;
-+	void *tmpbuf = NULL;
-+	u8 access_key = 0;
-+	int r, srcu_idx;
++	uint64_t mask;
 +
-+	supported_flags = KVM_S390_MEMOP_F_SKEY_PROTECTION
-+			  | KVM_S390_MEMOP_F_CHECK_ONLY;
-+	if (mop->flags & ~supported_flags)
-+		return -EINVAL;
-+	if (mop->size > MEM_OP_MAX_SIZE)
-+		return -E2BIG;
-+	if (kvm_s390_pv_is_protected(kvm))
-+		return -EINVAL;
-+	if (!(mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY)) {
-+		tmpbuf = vmalloc(mop->size);
-+		if (!tmpbuf)
-+			return -ENOMEM;
-+	}
-+	if (mop->flags & KVM_S390_MEMOP_F_SKEY_PROTECTION) {
-+		access_key = mop->key;
-+		mop->key = 0;
-+		if (access_key_invalid(access_key))
-+			return -EINVAL;
-+	}
-+	if (memchr_inv(&mop->reserved, 0, sizeof(mop->reserved)))
-+		return -EINVAL;
++	asm volatile (
++		       "tprot	%[addr], 0(%[key])\n"
++		"	ipm	%[mask]\n"
++		: [mask] "=r" (mask)
++		: [addr] "Q" (*(char *)addr),
++		  [key] "a" (key)
++		: "cc"
++	);
 +
-+	srcu_idx = srcu_read_lock(&kvm->srcu);
-+
-+	if (kvm_is_error_gpa(kvm, mop->gaddr)) {
-+		r = PGM_ADDRESSING;
-+		goto out_unlock;
-+	}
-+
-+	switch (mop->op) {
-+	case KVM_S390_MEMOP_ABSOLUTE_READ: {
-+		if (mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY) {
-+			r = check_gpa_range(kvm, mop->gaddr, mop->size, GACC_FETCH, access_key);
-+		} else {
-+			r = access_guest_abs_with_key(kvm, mop->gaddr, tmpbuf,
-+						      mop->size, GACC_FETCH, access_key);
-+			if (r == 0) {
-+				if (copy_to_user(uaddr, tmpbuf, mop->size))
-+					r = -EFAULT;
-+			}
-+		}
-+		break;
-+	}
-+	case KVM_S390_MEMOP_ABSOLUTE_WRITE: {
-+		if (mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY) {
-+			r = check_gpa_range(kvm, mop->gaddr, mop->size, GACC_STORE, access_key);
-+		} else {
-+			if (copy_from_user(tmpbuf, uaddr, mop->size)) {
-+				r = -EFAULT;
-+				break;
-+			}
-+			r = access_guest_abs_with_key(kvm, mop->gaddr, tmpbuf,
-+						      mop->size, GACC_STORE, access_key);
-+		}
-+		break;
-+	}
-+	default:
-+		r = -EINVAL;
-+	}
-+
-+out_unlock:
-+	srcu_read_unlock(&kvm->srcu, srcu_idx);
-+
-+	vfree(tmpbuf);
-+	return r;
++	return (enum permission)(mask >> 28);
 +}
 +
- long kvm_arch_vm_ioctl(struct file *filp,
- 		       unsigned int ioctl, unsigned long arg)
- {
-@@ -2489,6 +2564,15 @@ long kvm_arch_vm_ioctl(struct file *filp,
- 		}
- 		break;
- 	}
-+	case KVM_S390_MEM_OP: {
-+		struct kvm_s390_mem_op mem_op;
++enum stage {
++	STAGE_END,
++	STAGE_INIT_SIMPLE,
++	TEST_SIMPLE,
++	STAGE_INIT_FETCH_PROT_OVERRIDE,
++	TEST_FETCH_PROT_OVERRIDE,
++	TEST_STORAGE_PROT_OVERRIDE,
++};
 +
-+		if (copy_from_user(&mem_op, argp, sizeof(mem_op)) == 0)
-+			r = kvm_s390_vm_mem_op(kvm, &mem_op);
-+		else
-+			r = -EFAULT;
-+		break;
++struct test {
++	enum stage stage;
++	void *addr;
++	uint8_t key;
++	enum permission expected;
++} tests[] = {
++	/*
++	 * We perform each test in the array by executing TEST PROTECTION on
++	 * the specified addr with the specified key and checking if the returned
++	 * permissions match the expected value.
++	 * Both guest and host cooperate to set up the required test conditions.
++	 * A central condition is that the page targeted by addr has to be DAT
++	 * protected in the host mappings, in order for KVM to emulate the
++	 * TEST PROTECTION instruction.
++	 * Since the page tables are shared, the host uses mprotect to achieve
++	 * this.
++	 *
++	 * Test resulting in RW_PROTECTED/TRANSL_UNAVAIL will be interpreted
++	 * by SIE, not KVM, but there is no harm in testing them also.
++	 * See Enhanced Suppression-on-Protection Facilities in the
++	 * Interpretive-Execution Mode
++	 */
++	/*
++	 * guest: set storage key of page_store_prot to 1
++	 *        storage key of page_fetch_prot to 9 and enable
++	 *        protection for it
++	 * STAGE_INIT_SIMPLE
++	 * host: write protect both via mprotect
++	 */
++	/* access key 0 matches any storage key -> RW */
++	{ TEST_SIMPLE, page_store_prot, 0x00, READ_WRITE },
++	/* access key matches storage key -> RW */
++	{ TEST_SIMPLE, page_store_prot, 0x10, READ_WRITE },
++	/* mismatched keys, but no fetch protection -> RO */
++	{ TEST_SIMPLE, page_store_prot, 0x20, READ },
++	/* access key 0 matches any storage key -> RW */
++	{ TEST_SIMPLE, page_fetch_prot, 0x00, READ_WRITE },
++	/* access key matches storage key -> RW */
++	{ TEST_SIMPLE, page_fetch_prot, 0x90, READ_WRITE },
++	/* mismatched keys, fetch protection -> inaccessible */
++	{ TEST_SIMPLE, page_fetch_prot, 0x10, RW_PROTECTED },
++	/* page 0 not mapped yet -> translation not available */
++	{ TEST_SIMPLE, (void *)0x00, 0x10, TRANSL_UNAVAIL },
++	/*
++	 * host: try to map page 0
++	 * guest: set storage key of page 0 to 9 and enable fetch protection
++	 * STAGE_INIT_FETCH_PROT_OVERRIDE
++	 * host: write protect page 0
++	 *       enable fetch protection override
++	 */
++	/* mismatched keys, fetch protection, but override applies -> RO */
++	{ TEST_FETCH_PROT_OVERRIDE, (void *)0x00, 0x10, READ },
++	/* mismatched keys, fetch protection, override applies to 0-2048 only -> inaccessible */
++	{ TEST_FETCH_PROT_OVERRIDE, (void *)2049, 0x10, RW_PROTECTED },
++	/*
++	 * host: enable storage protection override
++	 */
++	/* mismatched keys, but override applies (storage key 9) -> RW */
++	{ TEST_STORAGE_PROT_OVERRIDE, page_fetch_prot, 0x10, READ_WRITE },
++	/* mismatched keys, no fetch protection, override doesn't apply -> RO */
++	{ TEST_STORAGE_PROT_OVERRIDE, page_store_prot, 0x20, READ },
++	/* mismatched keys, but override applies (storage key 9) -> RW */
++	{ TEST_STORAGE_PROT_OVERRIDE, (void *)2049, 0x10, READ_WRITE },
++	/* end marker */
++	{ STAGE_END, 0, 0, 0 },
++};
++
++static enum stage perform_next_stage(int *i, bool mapped_0)
++{
++	enum stage stage = tests[*i].stage;
++	enum permission result;
++	bool skip;
++
++	for (; tests[*i].stage == stage; (*i)++) {
++		/*
++		 * Some fetch protection override tests require that page 0
++		 * be mapped, however, when the hosts tries to map that page via
++		 * vm_vaddr_alloc, it may happen that some other page gets mapped
++		 * instead.
++		 * In order to skip these tests we detect this inside the guest
++		 */
++		skip = tests[*i].addr < (void *)4096 &&
++		       tests[*i].expected != TRANSL_UNAVAIL &&
++		       !mapped_0;
++		if (!skip) {
++			result = test_protection(tests[*i].addr, tests[*i].key);
++			GUEST_ASSERT_2(result == tests[*i].expected, *i, result);
++		}
 +	}
- 	default:
- 		r = -ENOTTY;
- 	}
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index 5771b026fbc0..ea81132a1cb1 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -575,6 +575,8 @@ struct kvm_s390_mem_op {
- #define KVM_S390_MEMOP_LOGICAL_WRITE	1
- #define KVM_S390_MEMOP_SIDA_READ	2
- #define KVM_S390_MEMOP_SIDA_WRITE	3
-+#define KVM_S390_MEMOP_ABSOLUTE_READ	4
-+#define KVM_S390_MEMOP_ABSOLUTE_WRITE	5
- /* flags for kvm_s390_mem_op->flags */
- #define KVM_S390_MEMOP_F_CHECK_ONLY		(1ULL << 0)
- #define KVM_S390_MEMOP_F_INJECT_EXCEPTION	(1ULL << 1)
++	return stage;
++}
++
++static void guest_code(void)
++{
++	bool mapped_0;
++	int i = 0;
++
++	GUEST_ASSERT_EQ(set_storage_key(page_store_prot, 0x10), 0);
++	GUEST_ASSERT_EQ(set_storage_key(page_fetch_prot, 0x98), 0);
++	GUEST_SYNC(STAGE_INIT_SIMPLE);
++	GUEST_SYNC(perform_next_stage(&i, false));
++
++	/* Fetch-protection override */
++	mapped_0 = !set_storage_key((void *)0, 0x98);
++	GUEST_SYNC(STAGE_INIT_FETCH_PROT_OVERRIDE);
++	GUEST_SYNC(perform_next_stage(&i, mapped_0));
++
++	/* Storage-protection override */
++	GUEST_SYNC(perform_next_stage(&i, mapped_0));
++}
++
++#define HOST_SYNC(vmp, stage)							\
++({										\
++	struct kvm_vm *__vm = (vmp);						\
++	struct ucall uc;							\
++	int __stage = (stage);							\
++										\
++	vcpu_run(__vm, VCPU_ID);						\
++	get_ucall(__vm, VCPU_ID, &uc);						\
++	if (uc.cmd == UCALL_ABORT) {						\
++		TEST_FAIL("line %lu: %s, hints: %lu, %lu", uc.args[1],		\
++			  (const char *)uc.args[0], uc.args[2], uc.args[3]);	\
++	}									\
++	ASSERT_EQ(uc.cmd, UCALL_SYNC);						\
++	ASSERT_EQ(uc.args[1], __stage);						\
++})
++
++int main(int argc, char *argv[])
++{
++	struct kvm_vm *vm;
++	struct kvm_run *run;
++	vm_vaddr_t guest_0_page;
++
++	vm = vm_create_default(VCPU_ID, 0, guest_code);
++	run = vcpu_state(vm, VCPU_ID);
++
++	HOST_SYNC(vm, STAGE_INIT_SIMPLE);
++	mprotect(addr_gva2hva(vm, (vm_vaddr_t)pages), PAGE_SIZE * 2, PROT_READ);
++	HOST_SYNC(vm, TEST_SIMPLE);
++
++	guest_0_page = vm_vaddr_alloc(vm, PAGE_SIZE, 0);
++	if (guest_0_page != 0)
++		print_skip("Did not allocate page at 0 for fetch protection override tests");
++	HOST_SYNC(vm, STAGE_INIT_FETCH_PROT_OVERRIDE);
++	if (guest_0_page == 0)
++		mprotect(addr_gva2hva(vm, (vm_vaddr_t)0), PAGE_SIZE, PROT_READ);
++	run->s.regs.crs[0] |= CR0_FETCH_PROTECTION_OVERRIDE;
++	run->kvm_dirty_regs = KVM_SYNC_CRS;
++	HOST_SYNC(vm, TEST_FETCH_PROT_OVERRIDE);
++
++	run->s.regs.crs[0] |= CR0_STORAGE_PROTECTION_OVERRIDE;
++	run->kvm_dirty_regs = KVM_SYNC_CRS;
++	HOST_SYNC(vm, TEST_STORAGE_PROT_OVERRIDE);
++}
 -- 
 2.32.0
 
