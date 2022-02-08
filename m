@@ -2,116 +2,106 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AC37FC433F5
-	for <linux-s390@archiver.kernel.org>; Tue,  8 Feb 2022 15:43:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E9A3C433EF
+	for <linux-s390@archiver.kernel.org>; Tue,  8 Feb 2022 16:53:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346341AbiBHPnZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 8 Feb 2022 10:43:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54304 "EHLO
+        id S1383538AbiBHQxi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 8 Feb 2022 11:53:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236426AbiBHPnY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Feb 2022 10:43:24 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0A64C061576;
-        Tue,  8 Feb 2022 07:43:23 -0800 (PST)
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 218FDG0H022003;
-        Tue, 8 Feb 2022 15:43:23 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=+7roFM4sxjNqB5+lcDqg04Ldhv5/yQXM6vCOIZ7c6RU=;
- b=PlQYSDFJbhEigpd2YhjewswJ7cuuwrHYwdAMqJugwWRNNnlRvqyPGoocaK59NPP1eKqq
- gJNlWU1MUKB10w3SmFs3+Y5cNF5LOPlXsUD4gMp+yfNV+PsjtenhAj3gvlrX0IBJiqCt
- pIP15SKkHEVplJNhgKikz1yhabUxsULyzcy/Tj2qemagNAKi9YEJTMikeXAXACO/choi
- bWWPii4YdXX7KkJBuEhCHWvG412nhOLGVaVdAw58sDa5hexDVk54Ortp4cJiugIwUkLs
- HaHTQDApdGPR1LUTRRxsKLQ2+dU4BEK6jSmYeA7Rt6c1GiOiwD2EEwCekcZGvFMHhPL5 ew== 
+        with ESMTP id S1352392AbiBHQxi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Feb 2022 11:53:38 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0F39C061576;
+        Tue,  8 Feb 2022 08:53:37 -0800 (PST)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 218FM1ho017798;
+        Tue, 8 Feb 2022 16:53:37 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=NF8RX9s8eGTpgxki+UFXPWbyeNzXKo7cQEW8+foLp5w=;
+ b=anbn7L9ew9qS+rJNskvukFBt99+eUjmgd6ehGByPRRn1ohCsM85CK6LslaVgp7AoolAd
+ gdiwiDpau9h8aNNAjjUyRD4mUAn8vUbtt0ETWb4w6XR2Exp378RJlQZ6//cdEOnj5tid
+ kEr869RKdLYTltalbus0lMmupX1aTb+aqTid4KpZJg+GGeRyFfEGcwcGEuuQsTHniOeZ
+ 9MODUvhyA3UQ6C6a5v8nkEq2vRCHDPy12XQ2RkwMyLZip/orAdE6sEZrNRcnSed5AhtM
+ +NWgZtJYDN7zhTw5WhFd+v5IZh/U+TECvMKcqf6q0IKLBaRuqaugNWmglNWs5ZwnzGeZ qw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3e3tyc0xep-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3e3u3nu97b-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Feb 2022 15:43:23 +0000
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 218FQZTi023939;
-        Tue, 8 Feb 2022 15:43:22 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3e3tyc0xdd-1
+        Tue, 08 Feb 2022 16:53:36 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 218Gk3nl007729;
+        Tue, 8 Feb 2022 16:53:36 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3e3u3nu970-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Feb 2022 15:43:22 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 218FcZFH012773;
-        Tue, 8 Feb 2022 15:43:20 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma03ams.nl.ibm.com with ESMTP id 3e1gv9fb23-1
+        Tue, 08 Feb 2022 16:53:36 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 218GX1b0021627;
+        Tue, 8 Feb 2022 16:53:34 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma06fra.de.ibm.com with ESMTP id 3e1ggj6thc-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Feb 2022 15:43:20 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 218FhH9X42074382
+        Tue, 08 Feb 2022 16:53:34 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 218GhPN745351300
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 8 Feb 2022 15:43:17 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4E9F0AE055;
-        Tue,  8 Feb 2022 15:43:17 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E983FAE05D;
-        Tue,  8 Feb 2022 15:43:16 +0000 (GMT)
-Received: from li-ca45c2cc-336f-11b2-a85c-c6e71de567f1.ibm.com (unknown [9.171.36.227])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue,  8 Feb 2022 15:43:16 +0000 (GMT)
-Message-ID: <be515acc30a69e5cbf2f01828685844b7beb0856.camel@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v4 2/4] s390x: stsi: Define vm_is_kvm to
- be used in different tests
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     thuth@redhat.com, kvm@vger.kernel.org, cohuck@redhat.com,
-        imbrenda@linux.ibm.com, david@redhat.com
-Date:   Tue, 08 Feb 2022 16:43:16 +0100
-In-Reply-To: <62c23e3a-8cc9-2072-6022-cb23dfa08ce7@linux.ibm.com>
-References: <20220208132709.48291-1-pmorel@linux.ibm.com>
-         <20220208132709.48291-3-pmorel@linux.ibm.com>
-         <62c23e3a-8cc9-2072-6022-cb23dfa08ce7@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.42.3 (3.42.3-1.fc35) 
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+        Tue, 8 Feb 2022 16:43:25 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C36274C052;
+        Tue,  8 Feb 2022 16:53:30 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6C6A84C040;
+        Tue,  8 Feb 2022 16:53:30 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue,  8 Feb 2022 16:53:30 +0000 (GMT)
+From:   Michael Mueller <mimu@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     cohuck@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com,
+        thuth@redhat.com, pasic@linux.ibm.com, david@redhat.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Michael Mueller <mimu@linux.ibm.com>
+Subject: [PATCH v2 0/1] KVM: s390: pv: make use of ultravisor AIV support
+Date:   Tue,  8 Feb 2022 17:53:09 +0100
+Message-Id: <20220208165310.3905815-1-mimu@linux.ibm.com>
+X-Mailer: git-send-email 2.32.0
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: jZ-hOnyXNeTFFMYouYoWHoWRJENZidTu
-X-Proofpoint-ORIG-GUID: 952ep0K_JWaqRoiT3kyrzRYrq9Lwdt6R
+X-Proofpoint-ORIG-GUID: w3WW58ySeN-21v47st4tZUEOqwhfO7w1
+X-Proofpoint-GUID: zxvwYcrK2aHxNVm2ht0DvRBl6xeE3xLQ
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2022-02-08_05,2022-02-07_02,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
- priorityscore=1501 adultscore=0 impostorscore=0 mlxscore=0 phishscore=0
- spamscore=0 malwarescore=0 mlxlogscore=899 bulkscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2201110000
- definitions=main-2202080096
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 phishscore=0
+ impostorscore=0 malwarescore=0 lowpriorityscore=0 suspectscore=0
+ bulkscore=0 priorityscore=1501 mlxscore=0 mlxlogscore=282 adultscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2202080101
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 2022-02-08 at 16:31 +0100, Janosch Frank wrote:
-> > diff --git a/lib/s390x/stsi.h b/lib/s390x/stsi.h
-> > new file mode 100644
-> > index 00000000..9b40664f
-> > --- /dev/null
-> > +++ b/lib/s390x/stsi.h
-> > @@ -0,0 +1,32 @@
-> > +/* SPDX-License-Identifier: GPL-2.0-or-later */
-> > +/*
-> > + * Structures used to Store System Information
-> > + *
-> > + * Copyright IBM Corp. 2022
-> > + */
-> > +
-> > +#ifndef _S390X_STSI_H_
-> > +#define _S390X_STSI_H_
-> > +
-> > +struct sysinfo_3_2_2 {
-> 
-> Any particular reason why you renamed this?
+This patch enables the ultravisor adapter interruption vitualization
+support.
 
-Stumbled across this as well. I think this makes it consistent with
-Linux' arch/s390/include/asm/sysinfo.h.
+Changes in v2:
+- moved GISA disable into "put CPUs in PV mode" routine
+- moved GISA enable into "pull CPUs out of PV mode" routine 
 
-The PoP, on the other hand, calls it SYSIB, so this at least resolves
-the inconsistency between kvm-unit-tests and Linux.
+[1] https://lore.kernel.org/lkml/ae7c65d8-f632-a7f4-926a-50b9660673a1@linux.ibm.com/T/#mcb67699bf458ba7482f6b7529afe589d1dbb5930
+
+Michael Mueller (1):
+  KVM: s390: pv: make use of ultravisor AIV support
+
+ arch/s390/include/asm/uv.h |  1 +
+ arch/s390/kvm/interrupt.c  | 53 +++++++++++++++++++++++++++++++++-----
+ arch/s390/kvm/kvm-s390.c   | 12 ++++++---
+ arch/s390/kvm/kvm-s390.h   | 11 ++++++++
+ 4 files changed, 68 insertions(+), 9 deletions(-)
+
+-- 
+2.32.0
+
