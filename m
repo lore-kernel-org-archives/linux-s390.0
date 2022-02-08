@@ -2,223 +2,244 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D3004C433EF
-	for <linux-s390@archiver.kernel.org>; Tue,  8 Feb 2022 17:22:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AF447C433EF
+	for <linux-s390@archiver.kernel.org>; Tue,  8 Feb 2022 17:43:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384196AbiBHRWX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 8 Feb 2022 12:22:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53464 "EHLO
+        id S1384372AbiBHRn2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 8 Feb 2022 12:43:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384195AbiBHRWU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Feb 2022 12:22:20 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B718CC0613C9;
-        Tue,  8 Feb 2022 09:22:18 -0800 (PST)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 218GqPD1022763;
-        Tue, 8 Feb 2022 17:22:15 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=5u5/fqZd6VZeY+yASRLeyY+z+vX4LQ+GCflHnSEGOfk=;
- b=ax0UynyOJyphOHV31hieVXDhowTvUwlJIYFW0Xr9QLqYo4n8rQxIU4ghw3dS+h6zpc57
- 7Kyeivk8rvrsCcTd0sAHDWKaqcOQGHJrdiACBh5HwFL3AlSDWAsYWRt38xZKCf7Q8BBI
- 6Ajcd82FB1QU8anXTMaH4X81jAgCHIyj6Zhy39Qe6S2XvQsBEzQvB8in9cnYX0VOimqa
- tddcV6OvPQmqOHASUz2zcZBwGyGatX0vhK5GeSh8iI8sCXOQXysrjyKnfjyiWbFLOrmz
- dq3a4yhcj4t2ZdYEwrNCi8zHTCxiQLz2GEYETcnzUrDfN7wL+5Zm+cdboR6jI2g1QrQW Sw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3e231a6nes-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Feb 2022 17:22:14 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 218Gtqtr004314;
-        Tue, 8 Feb 2022 17:22:14 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3e231a6ndx-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Feb 2022 17:22:14 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 218HIpqY024921;
-        Tue, 8 Feb 2022 17:22:12 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma04fra.de.ibm.com with ESMTP id 3e2ygq5tur-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Feb 2022 17:22:12 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 218HMAW243778550
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 8 Feb 2022 17:22:10 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0DB5FA4053;
-        Tue,  8 Feb 2022 17:22:10 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A5EF1A4051;
-        Tue,  8 Feb 2022 17:22:09 +0000 (GMT)
-Received: from [9.145.157.102] (unknown [9.145.157.102])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue,  8 Feb 2022 17:22:09 +0000 (GMT)
-Message-ID: <ab98ad0a-4c37-0ab7-02e2-a9bb439646f3@linux.ibm.com>
-Date:   Tue, 8 Feb 2022 18:22:09 +0100
+        with ESMTP id S1384360AbiBHRn1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Feb 2022 12:43:27 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8B247C06157A
+        for <linux-s390@vger.kernel.org>; Tue,  8 Feb 2022 09:43:26 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1644342205;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=fTAtQQtX8ynRTOTjJerCkOOYhkWBiy04WDPWHFPH1vo=;
+        b=aPl86JgzO6XXTb5h7sUe0LlxzbCDYZ7sMK5BZbuWkiQoaUi6Mx6WaddB+hDKXe26p5iHiH
+        Vba/r9NNrkyfb+OK6NEhVSnAGvAetOip9cSI723PWq6biWU1tVkNhHM2oI7t743bCeAT7d
+        cA13QH1sjogH/o0hXjo9XwEdnRZzvhg=
+Received: from mail-oo1-f69.google.com (mail-oo1-f69.google.com
+ [209.85.161.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-119-OFNwAsHbMD66lvMDL4b6OA-1; Tue, 08 Feb 2022 12:43:24 -0500
+X-MC-Unique: OFNwAsHbMD66lvMDL4b6OA-1
+Received: by mail-oo1-f69.google.com with SMTP id n8-20020a4abd08000000b002eabaaab571so11828319oop.11
+        for <linux-s390@vger.kernel.org>; Tue, 08 Feb 2022 09:43:24 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
+         :references:organization:mime-version:content-transfer-encoding;
+        bh=fTAtQQtX8ynRTOTjJerCkOOYhkWBiy04WDPWHFPH1vo=;
+        b=khOmnqtsLjbs0KcHiiFo9vbbv6vvLFSrjrOH8se8RSwnS3f3nCDlqhPm3U980/gtnR
+         Aq1AtKQSDAeQYAXOVzSh8/Z3mbbg4DD2akIWVeEM/T2iBmfhnpo1e04BQLxWdHI9iGyH
+         BU81/CR+mA+fp+9U9qf/zjhX1DDT24Z6P93c9ULjfJ6Y/Nd9D1vhQHYCz4gqMv4qZMq0
+         3howvnVqDAhszm6SGqsM3fDd4f0XQjDATlQz9Iuuo0eTywsrdt0SK+NE5KPsGuFGSL9m
+         h3BpXwjCNoSi8vbLTAw45OcfjMID7gXMQLg34mD4SBicXJFeVRIjLEXWI6lPj1qC92q7
+         h6cA==
+X-Gm-Message-State: AOAM533sqDIVams0SJhwSgTeqv+95WpgHG0efZXFL6sHkfy140nboW6X
+        V8c85UeHu0RVMvzQ3+NJDZwHaGxcK8RMaecuoQX3fM5vUOucAEE/Ri7IyGN/xK557HDXED3BxeI
+        j6dv52JmdrsyeSLqenWLIFQ==
+X-Received: by 2002:a9d:7745:: with SMTP id t5mr2336031otl.254.1644342201839;
+        Tue, 08 Feb 2022 09:43:21 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwO9ltSzIoG91Af/O1KWvnxNeiLqj6JxqFTQKli+Ed+9vVShlH1mHu2H9ZNDPJSfzOIE9vpMQ==
+X-Received: by 2002:a9d:7745:: with SMTP id t5mr2336007otl.254.1644342201559;
+        Tue, 08 Feb 2022 09:43:21 -0800 (PST)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id 12sm6101166oaj.31.2022.02.08.09.43.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 08 Feb 2022 09:43:21 -0800 (PST)
+Date:   Tue, 8 Feb 2022 10:43:19 -0700
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Matthew Rosato <mjrosato@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, cohuck@redhat.com,
+        schnelle@linux.ibm.com, farman@linux.ibm.com, pmorel@linux.ibm.com,
+        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
+        vneethv@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com,
+        thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Jason Gunthorpe <jgg@nvidia.com>
+Subject: Re: [PATCH v3 24/30] vfio-pci/zdev: wire up group notifier
+Message-ID: <20220208104319.4861fb22.alex.williamson@redhat.com>
+In-Reply-To: <20220204211536.321475-25-mjrosato@linux.ibm.com>
+References: <20220204211536.321475-1-mjrosato@linux.ibm.com>
+        <20220204211536.321475-25-mjrosato@linux.ibm.com>
+Organization: Red Hat
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [BUG] net: smc: possible deadlock in smc_lgr_free() and
- smc_link_down_work()
-Content-Language: en-US
-To:     Jia-Ju Bai <baijiaju1990@gmail.com>
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel <linux-kernel@vger.kernel.org>, davem@davemloft.net,
-        kuba@kernel.org
-References: <11fe65b8-eda4-121e-ec32-378b918d0909@gmail.com>
- <0936d5f3-aef2-0553-408b-07b3bb47e36b@linux.ibm.com>
- <9a27b497-80d7-ec6f-c8f1-69bee340f2e1@gmail.com>
-From:   Karsten Graul <kgraul@linux.ibm.com>
-Organization: IBM Deutschland Research & Development GmbH
-In-Reply-To: <9a27b497-80d7-ec6f-c8f1-69bee340f2e1@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: XlLh24rejcyL6ndLdX-53BXHdS8CP7kw
-X-Proofpoint-GUID: 8DrBZJo71Y4TSMRvil0BF1oLr35lD110
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-02-08_06,2022-02-07_02,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- lowpriorityscore=0 malwarescore=0 impostorscore=0 adultscore=0
- mlxlogscore=999 suspectscore=0 spamscore=0 bulkscore=0 mlxscore=0
- phishscore=0 priorityscore=1501 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2201110000 definitions=main-2202080103
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 06/02/2022 16:09, Jia-Ju Bai wrote:
-> 
-> 
-> On 2022/2/2 1:06, Karsten Graul wrote:
->> On 01/02/2022 08:51, Jia-Ju Bai wrote:
->>> Hello,
->>>
->>> My static analysis tool reports a possible deadlock in the smc module in Linux 5.16:
->>>
->>> smc_lgr_free()
->>>    mutex_lock(&lgr->llc_conf_mutex); --> Line 1289 (Lock A)
->>>    smcr_link_clear()
->>>      smc_wr_free_link()
->>>        wait_event(lnk->wr_tx_wait, ...); --> Line 648 (Wait X)
->>>
->>> smc_link_down_work()
->>>    mutex_lock(&lgr->llc_conf_mutex); --> Line 1683 (Lock A)
->>>    smcr_link_down()
->>>      smcr_link_clear()
->>>        smc_wr_free_link()
->>>          smc_wr_wakeup_tx_wait()
->>>            wake_up_all(&lnk->wr_tx_wait); --> Line 78 (Wake X)
->>>
->>> When smc_lgr_free() is executed, "Wait X" is performed by holding "Lock A". If smc_link_down_work() is executed at this time, "Wake X" cannot be performed to wake up "Wait X" in smc_lgr_free(), because "Lock A" has been already hold by smc_lgr_free(), causing a possible deadlock.
->>>
->>> I am not quite sure whether this possible problem is real and how to fix it if it is real.
->>> Any feedback would be appreciated, thanks :)
-> 
-> Hi Karsten,
-> 
-> Thanks for the reply and explanation :)
-> 
->> A deeper analysis showed up that this reported possible deadlock is actually not a problem.
->>
->> The wait on line 648 in smc_wr.c
->>     wait_event(lnk->wr_tx_wait, (!atomic_read(&lnk->wr_tx_refcnt)));
->> waits as long as the refcount wr_tx_refcnt is not zero.
->>
->> Every time when a caller stops using a link wr_tx_refcnt is decreased, and when it reaches
->> zero the wr_tx_wait is woken up in smc_wr_tx_link_put() in smc_wr.h, line 70:
->>         if (atomic_dec_and_test(&link->wr_tx_refcnt))
->>             wake_up_all(&link->wr_tx_wait);
-> 
-> Okay, you mean that wake_up_all(&link->wr_tx_wait) in smc_wr_tx_link_put() is used to wake up wait_event() in smc_wr_free_link().
-> But I wonder whether wake_up_all(&lnk->wr_tx_wait) in smc_wr_wakeup_tx_wait() can wake up this wait_event()?
-> If so, my report is in this case.
-> 
+On Fri,  4 Feb 2022 16:15:30 -0500
+Matthew Rosato <mjrosato@linux.ibm.com> wrote:
 
-Nope, due to the link state handling there is no current caller of smc_wr_wakeup_tx_wait() when 
-smc_wr_free_link() starts to wait for the link to become free. First the link state is set to DOWN, 
-then all waiters are woken up (and no one will start a new wait) and finally smc_wr_free_link()
-"re-uses" the wait queue entry to wait for the link to become free.
+> KVM zPCI passthrough device logic will need a reference to the associated
+> kvm guest that has access to the device.  Let's register a group notifier
+> for VFIO_GROUP_NOTIFY_SET_KVM to catch this information in order to create
+> an association between a kvm guest and the host zdev.
+> 
+> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> ---
+>  arch/s390/include/asm/kvm_pci.h  |  2 ++
+>  drivers/vfio/pci/vfio_pci_core.c |  2 ++
+>  drivers/vfio/pci/vfio_pci_zdev.c | 46 ++++++++++++++++++++++++++++++++
+>  include/linux/vfio_pci_core.h    | 10 +++++++
+>  4 files changed, 60 insertions(+)
+> 
+> diff --git a/arch/s390/include/asm/kvm_pci.h b/arch/s390/include/asm/kvm_pci.h
+> index e4696f5592e1..16290b4cf2a6 100644
+> --- a/arch/s390/include/asm/kvm_pci.h
+> +++ b/arch/s390/include/asm/kvm_pci.h
+> @@ -16,6 +16,7 @@
+>  #include <linux/kvm.h>
+>  #include <linux/pci.h>
+>  #include <linux/mutex.h>
+> +#include <linux/notifier.h>
+>  #include <asm/pci_insn.h>
+>  #include <asm/pci_dma.h>
+>  
+> @@ -32,6 +33,7 @@ struct kvm_zdev {
+>  	u64 rpcit_count;
+>  	struct kvm_zdev_ioat ioat;
+>  	struct zpci_fib fib;
+> +	struct notifier_block nb;
+>  };
+>  
+>  int kvm_s390_pci_dev_open(struct zpci_dev *zdev);
+> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
+> index f948e6cd2993..fc57d4d0abbe 100644
+> --- a/drivers/vfio/pci/vfio_pci_core.c
+> +++ b/drivers/vfio/pci/vfio_pci_core.c
+> @@ -452,6 +452,7 @@ void vfio_pci_core_close_device(struct vfio_device *core_vdev)
+>  
+>  	vfio_pci_vf_token_user_add(vdev, -1);
+>  	vfio_spapr_pci_eeh_release(vdev->pdev);
+> +	vfio_pci_zdev_release(vdev);
+>  	vfio_pci_core_disable(vdev);
+>  
+>  	mutex_lock(&vdev->igate);
+> @@ -470,6 +471,7 @@ EXPORT_SYMBOL_GPL(vfio_pci_core_close_device);
+>  void vfio_pci_core_finish_enable(struct vfio_pci_core_device *vdev)
+>  {
+>  	vfio_pci_probe_mmaps(vdev);
+> +	vfio_pci_zdev_open(vdev);
+>  	vfio_spapr_pci_eeh_open(vdev->pdev);
+>  	vfio_pci_vf_token_user_add(vdev, 1);
+>  }
 
-I think its that reusing of the wait queue entry that confuses the tool.
+If this handling were for a specific device, I think we'd be suggesting
+this is the point at which we cross over to a vendor variant making use
+of vfio-pci-core rather than hooking directly into the core code.  But
+this is meant to extend vfio-pci proper for the whole arch.  Is there a
+compromise in using #ifdefs in vfio_pci_ops to call into zpci specific
+code that implements these arch specific hooks and the core for
+everything else?  SPAPR code could probably converted similarly, it
+exists here for legacy reasons. [Cc Jason]
 
->> Multiple callers of smc_wr_tx_link_put() do not run under the llc_conf_mutex lock, and those
->> who run under this mutex are saved against the wait_event() in smc_wr_free_link().
-> 
-> In fact, my tool also reports some other possible deadlocks invovling smc_wr_tx_link_put(), which can be called by holding llc_conf_mutex.
-> There are three examples:
-> 
-> #BUG 1
-> smc_lgr_free()
->   mutex_lock(&lgr->llc_conf_mutex); --> Line 1289 (Lock A)
->   smcr_link_clear()
->     smc_wr_free_link()
->       wait_event(lnk->wr_tx_wait, ...); --> Line 648 (Wait X)
-> 
-> smcr_buf_unuse()
->   mutex_lock(&lgr->llc_conf_mutex); --> Line 1087 (Lock A)
->   smc_llc_do_delete_rkey()
->     smc_llc_send_delete_rkey()
->       smc_wr_tx_link_put()
->         wake_up_all(&link->wr_tx_wait); --> Line 73 (Wake X)
-> 
-> #BUG 2
-> smc_lgr_free()
->   mutex_lock(&lgr->llc_conf_mutex); --> Line 1289 (Lock A)
->   smcr_link_clear()
->     smc_wr_free_link()
->       wait_event(lnk->wr_tx_wait, ...); --> Line 648 (Wait X)
-> 
-> smc_link_down_work()
->   mutex_lock(&lgr->llc_conf_mutex); --> Line 1683 (Lock A)
->   smcr_link_down()
->     smc_llc_send_delete_link()
->       smc_wr_tx_link_put()
->         wake_up_all(&link->wr_tx_wait); --> Line 73 (Wake X)
-> 
-> #BUG 3
-> smc_llc_process_cli_delete_link()
->   mutex_lock(&lgr->llc_conf_mutex); --> Line 1578 (Lock A)
->   smc_llc_send_message()
->     smc_llc_add_pending_send()
->       smc_wr_tx_get_free_slot()
->         wait_event_interruptible_timeout(link->wr_tx_wait, ...); --> Line 219 (Wake X)
-> 
-> smc_llc_process_cli_add_link()
->   mutex_lock(&lgr->llc_conf_mutex); --> Line 1198 (Lock A)
->   smc_llc_cli_add_link_invite()
->     smc_llc_send_add_link()
->       smc_wr_tx_link_put()
->         wake_up_all(&link->wr_tx_wait); --> Line 73 (Wake X)
-> 
-> I am not quite sure whether these possible problems are real.
-> Any feedback would be appreciated, thanks :)
+Also, please note the DEVICE_FEATURE generalizations in the latest
+series from NVIDIA for mlx5 migration support:
 
-Same here, because the wait queue entry is used in two scenarios and some processing separates
-those scenarios, the code checker finds problems that 'should' never happen.
+https://lore.kernel.org/all/20220207172216.206415-8-yishaih@nvidia.com/
 
-I wonder if it would be acceptable to introduce an extra wait queue entry only for the processing in
-smc_wr_free_link(), I reused an existing one to save some memory... but a cleaner code also counts.
-Not sure what to prefer.
+If this series were to go in via the s390 tree, I'd request a branch so
+that we can continue to work on this in vfio code as well.  Thanks,
 
-> 
->>
->> Thank you for reporting this finding! Which tool did you use for this analysis?
-> 
-> Thanks for your interest :)
-> I have implemented a static analysis tool based on LLVM, to detect deadlocks caused by locking cycles and improper waiting/waking operations.
-> However, this tool still reports some false positives, and thus I am still improving the accuracy of this tool.
-> Suggestions on deadlock detection (especially new/infrequent patterns causing deadlocks) or the tool are welcome ;)
-> 
-> 
-> Best wishes,
-> Jia-Ju Bai
-> 
+Alex
 
--- 
-Karsten
+> diff --git a/drivers/vfio/pci/vfio_pci_zdev.c b/drivers/vfio/pci/vfio_pci_zdev.c
+> index ea4c0d2b0663..9f8284499111 100644
+> --- a/drivers/vfio/pci/vfio_pci_zdev.c
+> +++ b/drivers/vfio/pci/vfio_pci_zdev.c
+> @@ -13,6 +13,7 @@
+>  #include <linux/vfio_zdev.h>
+>  #include <asm/pci_clp.h>
+>  #include <asm/pci_io.h>
+> +#include <asm/kvm_pci.h>
+>  
+>  #include <linux/vfio_pci_core.h>
+>  
+> @@ -136,3 +137,48 @@ int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
+>  
+>  	return ret;
+>  }
+> +
+> +static int vfio_pci_zdev_group_notifier(struct notifier_block *nb,
+> +					unsigned long action, void *data)
+> +{
+> +	struct kvm_zdev *kzdev = container_of(nb, struct kvm_zdev, nb);
+> +
+> +	if (action == VFIO_GROUP_NOTIFY_SET_KVM) {
+> +		if (!data || !kzdev->zdev)
+> +			return NOTIFY_DONE;
+> +		kzdev->kvm = data;
+> +	}
+> +
+> +	return NOTIFY_OK;
+> +}
+> +
+> +void vfio_pci_zdev_open(struct vfio_pci_core_device *vdev)
+> +{
+> +	unsigned long events = VFIO_GROUP_NOTIFY_SET_KVM;
+> +	struct zpci_dev *zdev = to_zpci(vdev->pdev);
+> +
+> +	if (!zdev)
+> +		return;
+> +
+> +	if (kvm_s390_pci_dev_open(zdev))
+> +		return;
+> +
+> +	zdev->kzdev->nb.notifier_call = vfio_pci_zdev_group_notifier;
+> +
+> +	if (vfio_register_notifier(vdev->vdev.dev, VFIO_GROUP_NOTIFY,
+> +				   &events, &zdev->kzdev->nb))
+> +		kvm_s390_pci_dev_release(zdev);
+> +}
+> +
+> +void vfio_pci_zdev_release(struct vfio_pci_core_device *vdev)
+> +{
+> +	struct zpci_dev *zdev = to_zpci(vdev->pdev);
+> +
+> +	if (!zdev || !zdev->kzdev)
+> +		return;
+> +
+> +	vfio_unregister_notifier(vdev->vdev.dev, VFIO_GROUP_NOTIFY,
+> +				 &zdev->kzdev->nb);
+> +
+> +	kvm_s390_pci_dev_release(zdev);
+> +}
+> diff --git a/include/linux/vfio_pci_core.h b/include/linux/vfio_pci_core.h
+> index 5e2bca3b89db..05287f8ac855 100644
+> --- a/include/linux/vfio_pci_core.h
+> +++ b/include/linux/vfio_pci_core.h
+> @@ -198,12 +198,22 @@ static inline int vfio_pci_igd_init(struct vfio_pci_core_device *vdev)
+>  #ifdef CONFIG_VFIO_PCI_ZDEV
+>  extern int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
+>  				       struct vfio_info_cap *caps);
+> +void vfio_pci_zdev_open(struct vfio_pci_core_device *vdev);
+> +void vfio_pci_zdev_release(struct vfio_pci_core_device *vdev);
+>  #else
+>  static inline int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
+>  					      struct vfio_info_cap *caps)
+>  {
+>  	return -ENODEV;
+>  }
+> +
+> +static inline void vfio_pci_zdev_open(struct vfio_pci_core_device *vdev)
+> +{
+> +}
+> +
+> +static inline void vfio_pci_zdev_release(struct vfio_pci_core_device *vdev)
+> +{
+> +}
+>  #endif
+>  
+>  /* Will be exported for vfio pci drivers usage */
+
