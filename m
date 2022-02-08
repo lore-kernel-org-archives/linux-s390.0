@@ -2,244 +2,225 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF447C433EF
-	for <linux-s390@archiver.kernel.org>; Tue,  8 Feb 2022 17:43:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D4F64C433FE
+	for <linux-s390@archiver.kernel.org>; Tue,  8 Feb 2022 18:51:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384372AbiBHRn2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 8 Feb 2022 12:43:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35482 "EHLO
+        id S1385412AbiBHSvq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 8 Feb 2022 13:51:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384360AbiBHRn1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Feb 2022 12:43:27 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8B247C06157A
-        for <linux-s390@vger.kernel.org>; Tue,  8 Feb 2022 09:43:26 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1644342205;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=fTAtQQtX8ynRTOTjJerCkOOYhkWBiy04WDPWHFPH1vo=;
-        b=aPl86JgzO6XXTb5h7sUe0LlxzbCDYZ7sMK5BZbuWkiQoaUi6Mx6WaddB+hDKXe26p5iHiH
-        Vba/r9NNrkyfb+OK6NEhVSnAGvAetOip9cSI723PWq6biWU1tVkNhHM2oI7t743bCeAT7d
-        cA13QH1sjogH/o0hXjo9XwEdnRZzvhg=
-Received: from mail-oo1-f69.google.com (mail-oo1-f69.google.com
- [209.85.161.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-119-OFNwAsHbMD66lvMDL4b6OA-1; Tue, 08 Feb 2022 12:43:24 -0500
-X-MC-Unique: OFNwAsHbMD66lvMDL4b6OA-1
-Received: by mail-oo1-f69.google.com with SMTP id n8-20020a4abd08000000b002eabaaab571so11828319oop.11
-        for <linux-s390@vger.kernel.org>; Tue, 08 Feb 2022 09:43:24 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
-         :references:organization:mime-version:content-transfer-encoding;
-        bh=fTAtQQtX8ynRTOTjJerCkOOYhkWBiy04WDPWHFPH1vo=;
-        b=khOmnqtsLjbs0KcHiiFo9vbbv6vvLFSrjrOH8se8RSwnS3f3nCDlqhPm3U980/gtnR
-         Aq1AtKQSDAeQYAXOVzSh8/Z3mbbg4DD2akIWVeEM/T2iBmfhnpo1e04BQLxWdHI9iGyH
-         BU81/CR+mA+fp+9U9qf/zjhX1DDT24Z6P93c9ULjfJ6Y/Nd9D1vhQHYCz4gqMv4qZMq0
-         3howvnVqDAhszm6SGqsM3fDd4f0XQjDATlQz9Iuuo0eTywsrdt0SK+NE5KPsGuFGSL9m
-         h3BpXwjCNoSi8vbLTAw45OcfjMID7gXMQLg34mD4SBicXJFeVRIjLEXWI6lPj1qC92q7
-         h6cA==
-X-Gm-Message-State: AOAM533sqDIVams0SJhwSgTeqv+95WpgHG0efZXFL6sHkfy140nboW6X
-        V8c85UeHu0RVMvzQ3+NJDZwHaGxcK8RMaecuoQX3fM5vUOucAEE/Ri7IyGN/xK557HDXED3BxeI
-        j6dv52JmdrsyeSLqenWLIFQ==
-X-Received: by 2002:a9d:7745:: with SMTP id t5mr2336031otl.254.1644342201839;
-        Tue, 08 Feb 2022 09:43:21 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwO9ltSzIoG91Af/O1KWvnxNeiLqj6JxqFTQKli+Ed+9vVShlH1mHu2H9ZNDPJSfzOIE9vpMQ==
-X-Received: by 2002:a9d:7745:: with SMTP id t5mr2336007otl.254.1644342201559;
-        Tue, 08 Feb 2022 09:43:21 -0800 (PST)
-Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id 12sm6101166oaj.31.2022.02.08.09.43.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Feb 2022 09:43:21 -0800 (PST)
-Date:   Tue, 8 Feb 2022 10:43:19 -0700
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, cohuck@redhat.com,
+        with ESMTP id S1385388AbiBHSvp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Feb 2022 13:51:45 -0500
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2057.outbound.protection.outlook.com [40.107.223.57])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77F14C0612C1;
+        Tue,  8 Feb 2022 10:51:44 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=FGXNzfN/NTiWmxzB4Fe+8M+hDW9QjH+Pk0z+mIRNLLVFTzFPxI+usVdD9rQoFWQnEBAvxKwwmSzRSM9zQB8RKWI+UI4grCMr+GGtXGBL+JzkMSOXTSbaBo6/o1z5Lijnkna/YUg0T7anhraQz2U6aIw03fsKqWILmV1U3uz49BqHI3iX8rNYHsxP/4Kxx1MRA6Fto7YoRSucPCedcZnlO274RUCtTg/c0sKR514qr8PnqyU0rJ08f9Aw+q+F0j+M9ccOdR0CxiL3OOvfLBHwZN5Bh3EI1YW+zNY5AKXOy7GDyya9W2UzcG/GSPpG6GvqzwEYzP2UfyoGCFW+dZzQQQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Qt6VL/53xRCwC+Ij0Phq1k8ruOTxcZn6SGaeWuGkmV0=;
+ b=leaAzgOS5ds3y/rFlTtrQ+R8wFxiUW2Kh3+SO9t8r19Tyi9Jp2L7s0nU43yq/6bg/AoRLIOIKg/i/BKCjV0excbZtaUQRIuxTQCSBl+WvJX2VxJnsYZdJxgZ22Rc7L3GMpbpZwaMCshXiDLTHK35xvdh+tHtgRq0NmDGmNxCq/qz5OrpdI4Ds3tSCPZiGUZgqOkf5/0UJHLsLRVNhEymXx8eAM33R7gIJ680VZFobX8HqJDuUN6SMgi56BPWo6VxtuozYsT1KXHbRVeKVFKoZ5KCjmOAh0kKPjak+pK7t2uPmIO6+2rI+aNLktdJ9a2NRyK6p/ezWW2VcR266nHoZg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Qt6VL/53xRCwC+Ij0Phq1k8ruOTxcZn6SGaeWuGkmV0=;
+ b=HW694PkckygpSGOmnYuWnBg/Bib51mPTRbJYwV6Ulnobiz/m95Re8z1UW91Snohe5hbRjjZ4FaOEPStXm9AX6GYOfzA5JBIfWb2c0YZMAfOqdPw8JJ6UPX4W7QB+JtKw/gzS/Q+Vv44lsXRYd+Q8dBkQ/fupv2yyaWAXgzEO79zZRhuNg7FCPFr1MOpvCtMpeYaT9QVdXlFD0tjU4drJ4QGiaT2XLesXPoUbEmgdupFbjIPXAWTNqyHy9myjNb8/minuEJdNir4lgdpnqwvQShitdGQQVqtFZF4+SmGXnxPs6FT1nO/uPkEXuXwrCEN19Rk0+Z3PPUcZcPPGrTNRiA==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
+ by SA0PR12MB4495.namprd12.prod.outlook.com (2603:10b6:806:70::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4951.12; Tue, 8 Feb
+ 2022 18:51:43 +0000
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::e8f4:9793:da37:1bd3]) by MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::e8f4:9793:da37:1bd3%4]) with mapi id 15.20.4975.011; Tue, 8 Feb 2022
+ 18:51:43 +0000
+Date:   Tue, 8 Feb 2022 14:51:41 -0400
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Alex Williamson <alex.williamson@redhat.com>
+Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
+        linux-s390@vger.kernel.org, cohuck@redhat.com,
         schnelle@linux.ibm.com, farman@linux.ibm.com, pmorel@linux.ibm.com,
         borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
         gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
         frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
         vneethv@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com,
         thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Jason Gunthorpe <jgg@nvidia.com>
+        linux-kernel@vger.kernel.org
 Subject: Re: [PATCH v3 24/30] vfio-pci/zdev: wire up group notifier
-Message-ID: <20220208104319.4861fb22.alex.williamson@redhat.com>
-In-Reply-To: <20220204211536.321475-25-mjrosato@linux.ibm.com>
+Message-ID: <20220208185141.GH4160@nvidia.com>
 References: <20220204211536.321475-1-mjrosato@linux.ibm.com>
-        <20220204211536.321475-25-mjrosato@linux.ibm.com>
-Organization: Red Hat
+ <20220204211536.321475-25-mjrosato@linux.ibm.com>
+ <20220208104319.4861fb22.alex.williamson@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220208104319.4861fb22.alex.williamson@redhat.com>
+X-ClientProxiedBy: MN2PR10CA0018.namprd10.prod.outlook.com
+ (2603:10b6:208:120::31) To MN2PR12MB4192.namprd12.prod.outlook.com
+ (2603:10b6:208:1d5::15)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 8d814342-e9b8-4685-c692-08d9eb340c4a
+X-MS-TrafficTypeDiagnostic: SA0PR12MB4495:EE_
+X-Microsoft-Antispam-PRVS: <SA0PR12MB449540EAE3CE62DE2C9BE027C22D9@SA0PR12MB4495.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:6790;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 3ibOuPte++CMaSGBb9aCbpQU1H/ojJKMV+0QmeBlfMomWXZRNvg+Odml7T3S8+mZCyZmM85oFmucXjiD+g5+ufgHo26auzOGiLww93T0API6NUKl68xqyD7QpgBziahysQg125U+0CIErwD6WwVkO9YO5/DvDnYza5UDnqXmDZeRCGuehaS1W9SPyJcxY5JVasAXuLSEkkJUxTrp+xq9bohHLADgPTrMDhd5w2+GQXGOkGimxstIjsjIJTitUUsFKFTQhCwV2xH1GpU7IzHbRDqP/BoqZKSUNuv86sLEg1nIIyTVhTSw3vJ/MYtM2CTyQ7SVDiL6HYFPm4AhumEi2syC4c9BQcpGiWHdSWcTJAWHq4KcPYNwiTLGgkE0PqChBH9Op81J4cJ5U+0VzFnTO7i3knsJcWd2dfB/NJRM7YpMKmOdTbRoEtFo2RpAKl1aesZu4b8AGimdXzbNhl1Tx7eNxCl51KQk3+ylylQ3vv4htaxpXktJMY29oO3MKA+0G2nAmGLR/e/HSPnm0WVXOckD8kjjTED84B2DX967SqPjWY+dMrYPMKejBKFacj9+AjZGAex1RoVBr7zVHtgMbJJq69cfMGZTisKfSAtOOVGarUOcs6aHVsXSi9OdlxUjnb4EYAs3tyvWZN7ntsoxxaSIpX1YBdCvvte+D7IaovYRDpkqzRJdz6WS8m1gXJpjGWUXFv+4UDN2UPoUWtx8HK+AhMvShLLJyQfl6r9NE4g=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(38100700002)(186003)(26005)(6486002)(966005)(508600001)(6512007)(2616005)(83380400001)(7416002)(5660300002)(36756003)(33656002)(6916009)(66476007)(66946007)(6506007)(66556008)(86362001)(2906002)(8676002)(4326008)(8936002)(1076003)(316002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?y/XwfOuGXHPhbHmsEiRvwaazJ6UbxMYsqRMusDgJC6kJ0yfR7cnau5AUYF5X?=
+ =?us-ascii?Q?SdgmY0f5CslqRhrem8sEmbieuMRxNAi1UT4CVe5dKkCbKYf04npnJ5Eeyl/A?=
+ =?us-ascii?Q?nq3tv7h8vNpmuVgqqGq8Zq1oSsjL4YhDj6E615mpCDZRwxpRCAFTHPoEU0Fu?=
+ =?us-ascii?Q?Dfet3w1i5L+qgmgMvmueMXTQu5s16xKIazP2J8RyYF5b7E94bykdxCt2m1z2?=
+ =?us-ascii?Q?aRNWSkOSs43Yq6M+3cxsO+Tl5W8JTx9/OYUMIYc45Vm+9VHGiPiaj8LNBDlI?=
+ =?us-ascii?Q?8qqAoqZFxt+XevbMV/dD16ljcUB23AHs7ZWnhmLo/UBjrKzKV/9luFuTpcY+?=
+ =?us-ascii?Q?rvIo+Tu+ivvlYNsppxtvGJfFcrFsTy2O3gzTEAlhuQZ+wgF1UDIzQc+hXeJ1?=
+ =?us-ascii?Q?QBB0WqAFHakUlunpycfBXhKL7J3RU36m1JpOEr4ENYSl1UvK4pQCi1K7oBIB?=
+ =?us-ascii?Q?FLu21OOOSvRRHTEr10UZLLBPBKmrWI3zOrExWUQXuju4HqLrIU3OjYKOAilO?=
+ =?us-ascii?Q?greoI9gAzKpIq4Qijz/5je8pr7EJ0qeX21/z7gV5U+8LSgDUEw98u6LtCZV1?=
+ =?us-ascii?Q?bpvgylLu07TnzgW5MZlnTAir2qiyfGqyV43eQMXNC1RsPUeP8W5Hm4JaPKUZ?=
+ =?us-ascii?Q?z4zio0HfOdTDaZwXFr1lD/07cBL+GsB5L5kfs0tjvjIbYeBoY3cyM6/cbUaN?=
+ =?us-ascii?Q?qZ4xMsXGShtfxEAzqm3hVEAYd6ROTjZXaSJq5SmCmg/r0WX8ojYrOvMIcM+p?=
+ =?us-ascii?Q?j5LTFQANOyAsf38luzowAjFAPgzc2cucbKKqej4c0iKQd9tEaTjhiZjtQTPu?=
+ =?us-ascii?Q?X8Mk7w876AuZ7rh7JRNOuRw+EI+W/BtGqg2MiFN2Tmp4WloG9pha9KhxZBbk?=
+ =?us-ascii?Q?Y0f6eI8KRNlVjLT1Sy2jquzmSCJfSO65GQZPEwF/a3XefevUZ+qHLEq1vONZ?=
+ =?us-ascii?Q?HbyEdXT9Lg/CP90qb3RdPetIPKF0KJmUrbm5jeX8XUKkzOXm3ufA7qKk8EDo?=
+ =?us-ascii?Q?QV+KnQQK8rDq/qRUPDmOyQTrTPhjCJBgC1q70JgviAbn43vh8YeCDByp1+mp?=
+ =?us-ascii?Q?SoGKITcOBg4eklLdjzb3Qu8kYPMxd/fkLDL9qyrE+vkdg9ecvc8JLnP/h+t/?=
+ =?us-ascii?Q?RheXKwipLBi4daoNJYL/DRegx1kDA3+D34207Vza5sqW2/rvUK4HdhdOqIOc?=
+ =?us-ascii?Q?7MOsFRJCdyXolyDGrQtyxLcHV440jK9XK1Tuz92Q8pKgq/dQz45kbGJ9HVDN?=
+ =?us-ascii?Q?fI0WCwJH5dY5EHHQFptFFc4Nd7NDhshVfsyeUlNmgBwlj7f9wXXBOedehubf?=
+ =?us-ascii?Q?5kWw5ohYXHxbhSTsQ2igkl3VzPphxHhAv9RhTHVzpyCgf2CfPoTYPDTFOF3r?=
+ =?us-ascii?Q?TEP0Lj/RB4WXeVklpEwk2HIVF1OGJ9cdGn65fnSxR4Wjmz4juryydCiOl6ks?=
+ =?us-ascii?Q?y9F/tFBg9effcHaoZxTSCq+gppXfYCgT32tE0DFrPPaCIOrn0esuwIYRHcEF?=
+ =?us-ascii?Q?ofeB8SaVN+fjvI/YKdMch7RZ7zyf5hbNY2CIdlUBsuqS47m8Ptcr27XklEGV?=
+ =?us-ascii?Q?92dOrr5VCDmKzmWYUaM=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8d814342-e9b8-4685-c692-08d9eb340c4a
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Feb 2022 18:51:42.8876
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: RcYLXCpTU3DqEpdPpzS9j8kcyJ+3tT6JzuzEbDwWxcNH+iJcEj9cxZtAshCmQNFF
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA0PR12MB4495
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri,  4 Feb 2022 16:15:30 -0500
-Matthew Rosato <mjrosato@linux.ibm.com> wrote:
-
-> KVM zPCI passthrough device logic will need a reference to the associated
-> kvm guest that has access to the device.  Let's register a group notifier
-> for VFIO_GROUP_NOTIFY_SET_KVM to catch this information in order to create
-> an association between a kvm guest and the host zdev.
+On Tue, Feb 08, 2022 at 10:43:19AM -0700, Alex Williamson wrote:
+> On Fri,  4 Feb 2022 16:15:30 -0500
+> Matthew Rosato <mjrosato@linux.ibm.com> wrote:
 > 
-> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> ---
->  arch/s390/include/asm/kvm_pci.h  |  2 ++
->  drivers/vfio/pci/vfio_pci_core.c |  2 ++
->  drivers/vfio/pci/vfio_pci_zdev.c | 46 ++++++++++++++++++++++++++++++++
->  include/linux/vfio_pci_core.h    | 10 +++++++
->  4 files changed, 60 insertions(+)
+> > KVM zPCI passthrough device logic will need a reference to the associated
+> > kvm guest that has access to the device.  Let's register a group notifier
+> > for VFIO_GROUP_NOTIFY_SET_KVM to catch this information in order to create
+> > an association between a kvm guest and the host zdev.
+> > 
+> > Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> >  arch/s390/include/asm/kvm_pci.h  |  2 ++
+> >  drivers/vfio/pci/vfio_pci_core.c |  2 ++
+> >  drivers/vfio/pci/vfio_pci_zdev.c | 46 ++++++++++++++++++++++++++++++++
+> >  include/linux/vfio_pci_core.h    | 10 +++++++
+> >  4 files changed, 60 insertions(+)
+> > 
+> > diff --git a/arch/s390/include/asm/kvm_pci.h b/arch/s390/include/asm/kvm_pci.h
+> > index e4696f5592e1..16290b4cf2a6 100644
+> > +++ b/arch/s390/include/asm/kvm_pci.h
+> > @@ -16,6 +16,7 @@
+> >  #include <linux/kvm.h>
+> >  #include <linux/pci.h>
+> >  #include <linux/mutex.h>
+> > +#include <linux/notifier.h>
+> >  #include <asm/pci_insn.h>
+> >  #include <asm/pci_dma.h>
+> >  
+> > @@ -32,6 +33,7 @@ struct kvm_zdev {
+> >  	u64 rpcit_count;
+> >  	struct kvm_zdev_ioat ioat;
+> >  	struct zpci_fib fib;
+> > +	struct notifier_block nb;
+> >  };
+> >  
+> >  int kvm_s390_pci_dev_open(struct zpci_dev *zdev);
+> > diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
+> > index f948e6cd2993..fc57d4d0abbe 100644
+> > +++ b/drivers/vfio/pci/vfio_pci_core.c
+> > @@ -452,6 +452,7 @@ void vfio_pci_core_close_device(struct vfio_device *core_vdev)
+> >  
+> >  	vfio_pci_vf_token_user_add(vdev, -1);
+> >  	vfio_spapr_pci_eeh_release(vdev->pdev);
+> > +	vfio_pci_zdev_release(vdev);
+> >  	vfio_pci_core_disable(vdev);
+> >  
+> >  	mutex_lock(&vdev->igate);
+> > @@ -470,6 +471,7 @@ EXPORT_SYMBOL_GPL(vfio_pci_core_close_device);
+> >  void vfio_pci_core_finish_enable(struct vfio_pci_core_device *vdev)
+> >  {
+> >  	vfio_pci_probe_mmaps(vdev);
+> > +	vfio_pci_zdev_open(vdev);
+> >  	vfio_spapr_pci_eeh_open(vdev->pdev);
+> >  	vfio_pci_vf_token_user_add(vdev, 1);
+> >  }
 > 
-> diff --git a/arch/s390/include/asm/kvm_pci.h b/arch/s390/include/asm/kvm_pci.h
-> index e4696f5592e1..16290b4cf2a6 100644
-> --- a/arch/s390/include/asm/kvm_pci.h
-> +++ b/arch/s390/include/asm/kvm_pci.h
-> @@ -16,6 +16,7 @@
->  #include <linux/kvm.h>
->  #include <linux/pci.h>
->  #include <linux/mutex.h>
-> +#include <linux/notifier.h>
->  #include <asm/pci_insn.h>
->  #include <asm/pci_dma.h>
->  
-> @@ -32,6 +33,7 @@ struct kvm_zdev {
->  	u64 rpcit_count;
->  	struct kvm_zdev_ioat ioat;
->  	struct zpci_fib fib;
-> +	struct notifier_block nb;
->  };
->  
->  int kvm_s390_pci_dev_open(struct zpci_dev *zdev);
-> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
-> index f948e6cd2993..fc57d4d0abbe 100644
-> --- a/drivers/vfio/pci/vfio_pci_core.c
-> +++ b/drivers/vfio/pci/vfio_pci_core.c
-> @@ -452,6 +452,7 @@ void vfio_pci_core_close_device(struct vfio_device *core_vdev)
->  
->  	vfio_pci_vf_token_user_add(vdev, -1);
->  	vfio_spapr_pci_eeh_release(vdev->pdev);
-> +	vfio_pci_zdev_release(vdev);
->  	vfio_pci_core_disable(vdev);
->  
->  	mutex_lock(&vdev->igate);
-> @@ -470,6 +471,7 @@ EXPORT_SYMBOL_GPL(vfio_pci_core_close_device);
->  void vfio_pci_core_finish_enable(struct vfio_pci_core_device *vdev)
->  {
->  	vfio_pci_probe_mmaps(vdev);
-> +	vfio_pci_zdev_open(vdev);
->  	vfio_spapr_pci_eeh_open(vdev->pdev);
->  	vfio_pci_vf_token_user_add(vdev, 1);
->  }
+> If this handling were for a specific device, I think we'd be suggesting
+> this is the point at which we cross over to a vendor variant making use
+> of vfio-pci-core rather than hooking directly into the core code. 
 
-If this handling were for a specific device, I think we'd be suggesting
-this is the point at which we cross over to a vendor variant making use
-of vfio-pci-core rather than hooking directly into the core code.  But
-this is meant to extend vfio-pci proper for the whole arch.  Is there a
-compromise in using #ifdefs in vfio_pci_ops to call into zpci specific
-code that implements these arch specific hooks and the core for
-everything else?  SPAPR code could probably converted similarly, it
-exists here for legacy reasons. [Cc Jason]
+Personally, I think it is wrong layering for VFIO to be aware of KVM
+like this. This marks the first time that VFIO core code itself is
+being made aware of the KVM linkage.
 
-Also, please note the DEVICE_FEATURE generalizations in the latest
-series from NVIDIA for mlx5 migration support:
+It copies the same kind of design the s390 specific mdev use of
+putting VFIO in charge of KVM functionality. If we are doing this we
+should just give up and admit that KVM is a first-class part of struct
+vfio_device and get rid of the notifier stuff too, at least for s390.
 
-https://lore.kernel.org/all/20220207172216.206415-8-yishaih@nvidia.com/
+Reading the patches and descriptions pretty much everything is boiling
+down to 'use vfio to tell the kvm architecture code to do something' -
+which I think needs to be handled through a KVM side ioctl.
 
-If this series were to go in via the s390 tree, I'd request a branch so
-that we can continue to work on this in vfio code as well.  Thanks,
+Or, at the very least, everything needs to be described in some way
+that makes it clear what is happening to userspace, without kvm,
+through these ioctls.
 
-Alex
+This seems especially true now that it seems s390 PCI support is
+almost truely functional, with actual new userspace instructions to
+issue MMIO operations that work outside of KVM. 
 
-> diff --git a/drivers/vfio/pci/vfio_pci_zdev.c b/drivers/vfio/pci/vfio_pci_zdev.c
-> index ea4c0d2b0663..9f8284499111 100644
-> --- a/drivers/vfio/pci/vfio_pci_zdev.c
-> +++ b/drivers/vfio/pci/vfio_pci_zdev.c
-> @@ -13,6 +13,7 @@
->  #include <linux/vfio_zdev.h>
->  #include <asm/pci_clp.h>
->  #include <asm/pci_io.h>
-> +#include <asm/kvm_pci.h>
->  
->  #include <linux/vfio_pci_core.h>
->  
-> @@ -136,3 +137,48 @@ int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
->  
->  	return ret;
->  }
-> +
-> +static int vfio_pci_zdev_group_notifier(struct notifier_block *nb,
-> +					unsigned long action, void *data)
-> +{
-> +	struct kvm_zdev *kzdev = container_of(nb, struct kvm_zdev, nb);
-> +
-> +	if (action == VFIO_GROUP_NOTIFY_SET_KVM) {
-> +		if (!data || !kzdev->zdev)
-> +			return NOTIFY_DONE;
-> +		kzdev->kvm = data;
-> +	}
-> +
-> +	return NOTIFY_OK;
-> +}
-> +
-> +void vfio_pci_zdev_open(struct vfio_pci_core_device *vdev)
-> +{
-> +	unsigned long events = VFIO_GROUP_NOTIFY_SET_KVM;
-> +	struct zpci_dev *zdev = to_zpci(vdev->pdev);
-> +
-> +	if (!zdev)
-> +		return;
-> +
-> +	if (kvm_s390_pci_dev_open(zdev))
-> +		return;
-> +
-> +	zdev->kzdev->nb.notifier_call = vfio_pci_zdev_group_notifier;
-> +
-> +	if (vfio_register_notifier(vdev->vdev.dev, VFIO_GROUP_NOTIFY,
-> +				   &events, &zdev->kzdev->nb))
-> +		kvm_s390_pci_dev_release(zdev);
-> +}
-> +
-> +void vfio_pci_zdev_release(struct vfio_pci_core_device *vdev)
-> +{
-> +	struct zpci_dev *zdev = to_zpci(vdev->pdev);
-> +
-> +	if (!zdev || !zdev->kzdev)
-> +		return;
-> +
-> +	vfio_unregister_notifier(vdev->vdev.dev, VFIO_GROUP_NOTIFY,
-> +				 &zdev->kzdev->nb);
-> +
-> +	kvm_s390_pci_dev_release(zdev);
-> +}
-> diff --git a/include/linux/vfio_pci_core.h b/include/linux/vfio_pci_core.h
-> index 5e2bca3b89db..05287f8ac855 100644
-> --- a/include/linux/vfio_pci_core.h
-> +++ b/include/linux/vfio_pci_core.h
-> @@ -198,12 +198,22 @@ static inline int vfio_pci_igd_init(struct vfio_pci_core_device *vdev)
->  #ifdef CONFIG_VFIO_PCI_ZDEV
->  extern int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
->  				       struct vfio_info_cap *caps);
-> +void vfio_pci_zdev_open(struct vfio_pci_core_device *vdev);
-> +void vfio_pci_zdev_release(struct vfio_pci_core_device *vdev);
->  #else
->  static inline int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
->  					      struct vfio_info_cap *caps)
->  {
->  	return -ENODEV;
->  }
-> +
-> +static inline void vfio_pci_zdev_open(struct vfio_pci_core_device *vdev)
-> +{
-> +}
-> +
-> +static inline void vfio_pci_zdev_release(struct vfio_pci_core_device *vdev)
-> +{
-> +}
->  #endif
->  
->  /* Will be exported for vfio pci drivers usage */
+I'm not sure how this all fits together, but I would expect an outcome
+where DPDK could run on these new systems and not have to know
+anything more about s390 beyond using the proper MMIO instructions via
+some compilation time enablement.
 
+(I've been reviewing s390 patches updating rdma for a parallel set of
+stuff)
+
+> this is meant to extend vfio-pci proper for the whole arch.  Is there a
+> compromise in using #ifdefs in vfio_pci_ops to call into zpci specific
+> code that implements these arch specific hooks and the core for
+> everything else?  SPAPR code could probably converted similarly, it
+> exists here for legacy reasons. [Cc Jason]
+
+I'm not sure I get what you are suggesting? Where would these ifdefs
+be?
+
+> Also, please note the DEVICE_FEATURE generalizations in the latest
+> series from NVIDIA for mlx5 migration support:
+ 
+> https://lore.kernel.org/all/20220207172216.206415-8-yishaih@nvidia.com/
+
+Yes, please don't implement a bunch of new FEATURE code without taking
+the cleanup patches for feature support from that series too.
+
+I can put them on a branch for you if you needed.
+
+Jason
