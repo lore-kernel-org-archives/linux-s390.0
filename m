@@ -2,108 +2,129 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 58405C433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Feb 2022 12:03:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 05A10C4332F
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Feb 2022 12:03:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231801AbiBIMDa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 9 Feb 2022 07:03:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39794 "EHLO
+        id S232106AbiBIMDb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 9 Feb 2022 07:03:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231806AbiBIMDM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Feb 2022 07:03:12 -0500
-Received: from out199-10.us.a.mail.aliyun.com (out199-10.us.a.mail.aliyun.com [47.90.199.10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF00AC050CD8;
-        Wed,  9 Feb 2022 03:37:41 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0V4.4WIx_1644406657;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0V4.4WIx_1644406657)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 09 Feb 2022 19:37:38 +0800
-Date:   Wed, 9 Feb 2022 19:37:37 +0800
-From:   Tony Lu <tonylu@linux.alibaba.com>
-To:     "D. Wythe" <alibuda@linux.alibaba.com>
-Cc:     kgraul@linux.ibm.com, kuba@kernel.org, davem@davemloft.net,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-rdma@vger.kernel.org
-Subject: Re: [PATCH net-next v5 5/5] net/smc: Add global configure for auto
- fallback by netlink
-Message-ID: <YgOngV93e8IYr8bv@TonyMac-Alibaba>
-Reply-To: Tony Lu <tonylu@linux.alibaba.com>
-References: <cover.1644323503.git.alibuda@linux.alibaba.com>
- <f54ee9f30898b998edf8f07dabccc84efaa2ab8b.1644323503.git.alibuda@linux.alibaba.com>
- <YgOGg9Ud5N7LOOV6@TonyMac-Alibaba>
- <df2fa023-833d-e4a7-23b4-4f6427223ff5@linux.alibaba.com>
+        with ESMTP id S231854AbiBIMDN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Feb 2022 07:03:13 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B79E7C0302F1;
+        Wed,  9 Feb 2022 03:37:57 -0800 (PST)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 2199fxLh008943;
+        Wed, 9 Feb 2022 11:37:57 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=lMtqS1y77MDWxMqm5wSHFN+IduCnzkp9L8uft2wB14o=;
+ b=Dj7rNkvzHpgKL+E91BM8bo0Nkd486BcmZCozQ45eJf2t8O8OTDSlEunIJCYnIfXCE/Q6
+ JOeATadCDRfnBSZj2+U9z1XGiTgKD0+0SLeWSSkGHAWji3QnozMoK5LqGYfe/5dEzOcw
+ T8dJF95IbvT+rM2/DPuFXptFzUhzPIlLNN9+fnflPureA2R31en6UjnAgixrVxMqmr1Q
+ Y8snmdZd3Lwhybd+70eSu+QNiNjtBBh4PQnq203nionLordCPk0MYiRcyymvZuWpdvix
+ CyAxzPLGSxMqITRpv3iQajdG0N0gW9hX7R9ef2apLlg4J2883jLtg+4E4OTppjuSPHpO /Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e48c16a2x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 09 Feb 2022 11:37:57 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 219AH30K032693;
+        Wed, 9 Feb 2022 11:37:56 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e48c16a2b-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 09 Feb 2022 11:37:56 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 219BWfpK008693;
+        Wed, 9 Feb 2022 11:37:54 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma05fra.de.ibm.com with ESMTP id 3e1gvacvt1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 09 Feb 2022 11:37:54 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 219BboAb38535578
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 9 Feb 2022 11:37:50 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D85D911C050;
+        Wed,  9 Feb 2022 11:37:50 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8534E11C052;
+        Wed,  9 Feb 2022 11:37:50 +0000 (GMT)
+Received: from li-ca45c2cc-336f-11b2-a85c-c6e71de567f1.ibm.com (unknown [9.171.14.49])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed,  9 Feb 2022 11:37:50 +0000 (GMT)
+Message-ID: <8dd704d23f8a14907ed2a7f28ec3ac52685ab96c.camel@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v4 3/4] s390x: topology: Check the
+ Perform Topology Function
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
+        cohuck@redhat.com, imbrenda@linux.ibm.com, david@redhat.com
+Date:   Wed, 09 Feb 2022 12:37:50 +0100
+In-Reply-To: <20220208132709.48291-4-pmorel@linux.ibm.com>
+References: <20220208132709.48291-1-pmorel@linux.ibm.com>
+         <20220208132709.48291-4-pmorel@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.3 (3.42.3-1.fc35) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=gb2312
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <df2fa023-833d-e4a7-23b4-4f6427223ff5@linux.alibaba.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: NieLZsO-TM8IBOkpof1MGK83JaIbUh5r
+X-Proofpoint-ORIG-GUID: XDOEdq5U99fUgLzxz4Q8aF0LYSqyH81c
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-02-09_06,2022-02-09_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=910
+ malwarescore=0 spamscore=0 bulkscore=0 clxscore=1015 adultscore=0
+ phishscore=0 mlxscore=0 suspectscore=0 priorityscore=1501
+ lowpriorityscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2201110000 definitions=main-2202090071
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Feb 09, 2022 at 05:53:18PM +0800, D. Wythe wrote:
-> 
-> 
-> �� 2022/2/9 ����5:16, Tony Lu д��:
-> > On Tue, Feb 08, 2022 at 08:53:13PM +0800, D. Wythe wrote:
-> > > From: "D. Wythe" <alibuda@linux.alibaba.com>
-> > > 
-> > > @@ -248,6 +248,8 @@ int smc_nl_get_sys_info(struct sk_buff *skb, struct netlink_callback *cb)
-> > >   		goto errattr;
-> > >   	if (nla_put_u8(skb, SMC_NLA_SYS_IS_SMCR_V2, true))
-> > >   		goto errattr;
-> > > +	if (nla_put_u8(skb, SMC_NLA_SYS_AUTO_FALLBACK, smc_auto_fallback))
-> > 
-> > READ_ONCE(smc_auto_fallback) ?
-> 
-> 
-> No READ_ONCE() will cause ?
+On Tue, 2022-02-08 at 14:27 +0100, Pierre Morel wrote:
+> We check the PTF instruction.
 
-Make sure that we read the current value.
- 
-> 
-> > > +		goto errattr;
-> > >   	smc_clc_get_hostname(&host);
-> > >   	if (host) {
-> > >   		memcpy(hostname, host, SMC_MAX_HOSTNAME_LEN);
-> > > diff --git a/net/smc/smc_netlink.c b/net/smc/smc_netlink.c
-> > > index f13ab06..a7de517 100644
-> > > --- a/net/smc/smc_netlink.c
-> > > +++ b/net/smc/smc_netlink.c
-> > > @@ -111,6 +111,16 @@
-> > >   		.flags = GENL_ADMIN_PERM,
-> > >   		.doit = smc_nl_disable_seid,
-> > >   	},
-> > > +	{
-> > > +		.cmd = SMC_NETLINK_ENABLE_AUTO_FALLBACK,
-> > > +		.flags = GENL_ADMIN_PERM,
-> > > +		.doit = smc_enable_auto_fallback,
-> > > +	},
-> > > +	{
-> > > +		.cmd = SMC_NETLINK_DISABLE_AUTO_FALLBACK,
-> > > +		.flags = GENL_ADMIN_PERM,
-> > > +		.doit = smc_disable_auto_fallback,
-> > > +	},
-> > >   };
-> > 
-> > Consider adding the separated cmd to query the status of this config,
-> > just as SEID does?
-> > 
-> > It is common to check this value after user-space setted. Combined with
-> > sys_info maybe a little heavy in this scene.
-> 
-> 
-> Add a independent dumpit is quite okay, but is there have really scenarios
-> that access this value frequently? With more and more such switches in the
-> future, is is necessary for us to repeat on each switch ? I do have a plan
-> to put them unified within a NLA attributes, but I don't have much time yet.
+You could test some very basic things as well:
 
-Yes, I think spreading them make code clean, and we can keep ABI
-compatibility if we have more than one interface. If we want to change
-one knob, we can change itself functions and data structures. Also, it
-makes userspace tools easy to maintainer. TCP's procfs, like /proc/net/netstat,
-is a summary knob, but not easy to parse and extend. Given that we
-choose modern netlink, we can avoid it from the beginning.
+- you get a privileged pgm int in problem state,
+- reserved bits in first operand cause specification pgm int,
+- reserved FC values result in a specification pgm int,
+- second operand is ignored.
 
-Thanks,
-Tony Lu
+> 
+> - We do not expect to support vertical polarization.
+> 
+> - We do not expect the Modified Topology Change Report to be
+[...]
+
+Forgive me if I'm missing something, but why _Modified_ Topology Change
+Report?
+
+> diff --git a/s390x/topology.c b/s390x/topology.c
+> new file mode 100644
+> index 00000000..a1f9ce51
+> --- /dev/null
+> +++ b/s390x/topology.c
+
+[...]
+
+> +static int ptf(unsigned long fc, unsigned long *rc)
+> +{
+> +       int cc;
+> +
+> +       asm volatile(
+> +               "       .insn   rre,0xb9a20000,%1,0\n"
+> +               "       ipm     %0\n"
+> +               "       srl     %0,28\n"
+> +               : "=d" (cc), "+d" (fc)
+> +               : "d" (fc)
+
+Why list fc here again?
+
+
