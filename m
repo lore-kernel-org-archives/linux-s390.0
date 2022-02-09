@@ -2,196 +2,71 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F5B8C433FE
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Feb 2022 06:44:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EE6F5C433F5
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Feb 2022 07:11:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234250AbiBIGod (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 9 Feb 2022 01:44:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35182 "EHLO
+        id S236223AbiBIHLS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 9 Feb 2022 02:11:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234367AbiBIGoT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Feb 2022 01:44:19 -0500
-Received: from mx1.molgen.mpg.de (mx3.molgen.mpg.de [141.14.17.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6409EC0401C7;
-        Tue,  8 Feb 2022 22:44:18 -0800 (PST)
-Received: from [192.168.0.2] (ip5f5aee30.dynamic.kabel-deutschland.de [95.90.238.48])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        (Authenticated sender: pmenzel)
-        by mx.molgen.mpg.de (Postfix) with ESMTPSA id 441A661E64846;
-        Wed,  9 Feb 2022 07:44:16 +0100 (CET)
-Message-ID: <b56fe3a2-b145-9d4e-acf2-4991204b3102@molgen.mpg.de>
-Date:   Wed, 9 Feb 2022 07:44:15 +0100
+        with ESMTP id S236165AbiBIHLN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Feb 2022 02:11:13 -0500
+Received: from out30-43.freemail.mail.aliyun.com (out30-43.freemail.mail.aliyun.com [115.124.30.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9A0CC05CB81;
+        Tue,  8 Feb 2022 23:11:15 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R931e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0V4-87Jr_1644390672;
+Received: from 30.225.28.54(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0V4-87Jr_1644390672)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Wed, 09 Feb 2022 15:11:13 +0800
+Message-ID: <7f35f47b-af31-a07e-752a-11bb15aa0db9@linux.alibaba.com>
+Date:   Wed, 9 Feb 2022 15:11:12 +0800
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.1
-Subject: Re: [PATCH v5 2/6] powerpc/kexec_file: Add KEXEC_SIG support.
-Content-Language: en-US
-To:     Michal Suchanek <msuchanek@suse.de>, keyrings@vger.kernel.org,
-        linux-crypto@vger.kernel.org, linux-integrity@vger.kernel.org
-Cc:     kexec@lists.infradead.org, Philipp Rudo <prudo@redhat.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Nayna <nayna@linux.vnet.ibm.com>, Rob Herring <robh@kernel.org>,
-        linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Jessica Yu <jeyu@kernel.org>, linux-kernel@vger.kernel.org,
-        David Howells <dhowells@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Hari Bathini <hbathini@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linuxppc-dev@lists.ozlabs.org,
-        Frank van der Linden <fllinden@amazon.com>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Daniel Axtens <dja@axtens.net>, buendgen@de.ibm.com,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Baoquan He <bhe@redhat.com>,
-        linux-security-module@vger.kernel.org
-References: <cover.1641900831.git.msuchanek@suse.de>
- <d95f7c6865bcad5ee37dcbec240e79aa742f5e1d.1641900831.git.msuchanek@suse.de>
-From:   Paul Menzel <pmenzel@molgen.mpg.de>
-In-Reply-To: <d95f7c6865bcad5ee37dcbec240e79aa742f5e1d.1641900831.git.msuchanek@suse.de>
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.5.1
+Subject: Re: [PATCH net-next v5 2/5] net/smc: Limit backlog connections
+To:     Karsten Graul <kgraul@linux.ibm.com>
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <cover.1644323503.git.alibuda@linux.alibaba.com>
+ <c597e6c6d004e5b2a26a9535c8099d389214f273.1644323503.git.alibuda@linux.alibaba.com>
+ <c28365d5-72e3-335b-372e-2a9069898df1@linux.ibm.com>
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+In-Reply-To: <c28365d5-72e3-335b-372e-2a9069898df1@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Dear Michal,
+
+There are indirectly limits on smc accept queue with following code.
+
++	if (sk_acceptq_is_full(&smc->sk)) {
++		NET_INC_STATS(sock_net(sk), LINUX_MIB_LISTENOVERFLOWS);
++		goto drop;
++	}
 
 
-Thank you for the patch.
+In fact, we treat the connections in smc accept queue as Full 
+establisted connection. As I wrote in patch commits, there are 
+trade-offs to this implemets.
 
+Thanks.
 
-Am 11.01.22 um 12:37 schrieb Michal Suchanek:
-
-Could you please remove the dot/period at the end of the git commit 
-message summary?
-
-> Copy the code from s390x
+在 2022/2/9 上午1:13, Karsten Graul 写道:
+> On 08/02/2022 13:53, D. Wythe wrote:
+>> From: "D. Wythe" <alibuda@linux.alibaba.com>
+>>
+>> Current implementation does not handling backlog semantics, one
+>> potential risk is that server will be flooded by infinite amount
+>> connections, even if client was SMC-incapable.
 > 
-> Both powerpc and s390x use appended signature format (as opposed to EFI
-> based patforms using PE format).
-
-patforms → platforms
-
-How can this be tested?
-
-> Signed-off-by: Michal Suchanek <msuchanek@suse.de>
-> ---
-> v3: - Philipp Rudo <prudo@redhat.com>: Update the comit message with
->        explanation why the s390 code is usable on powerpc.
->      - Include correct header for mod_check_sig
->      - Nayna <nayna@linux.vnet.ibm.com>: Mention additional IMA features
->        in kconfig text
-> ---
->   arch/powerpc/Kconfig        | 16 ++++++++++++++++
->   arch/powerpc/kexec/elf_64.c | 36 ++++++++++++++++++++++++++++++++++++
->   2 files changed, 52 insertions(+)
+> In this patch you count the number of inflight SMC handshakes as pending and
+> check them against the defined max_backlog. I really like this improvement.
 > 
-> diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-> index dea74d7717c0..1cde9b6c5987 100644
-> --- a/arch/powerpc/Kconfig
-> +++ b/arch/powerpc/Kconfig
-> @@ -560,6 +560,22 @@ config KEXEC_FILE
->   config ARCH_HAS_KEXEC_PURGATORY
->   	def_bool KEXEC_FILE
->   
-> +config KEXEC_SIG
-> +	bool "Verify kernel signature during kexec_file_load() syscall"
-> +	depends on KEXEC_FILE && MODULE_SIG_FORMAT
-> +	help
-> +	  This option makes kernel signature verification mandatory for
-> +	  the kexec_file_load() syscall.
-> +
-> +	  In addition to that option, you need to enable signature
-> +	  verification for the corresponding kernel image type being
-> +	  loaded in order for this to work.
-> +
-> +	  Note: on powerpc IMA_ARCH_POLICY also implements kexec'ed kernel
-> +	  verification. In addition IMA adds kernel hashes to the measurement
-> +	  list, extends IMA PCR in the TPM, and implements kernel image
-> +	  blacklist by hash.
-
-So, what is the takeaway for the user? IMA_ARCH_POLICY is preferred? 
-What is the disadvantage, and two implementations(?) needed then? More 
-overhead?
-
-> +
->   config RELOCATABLE
->   	bool "Build a relocatable kernel"
->   	depends on PPC64 || (FLATMEM && (44x || FSL_BOOKE))
-> diff --git a/arch/powerpc/kexec/elf_64.c b/arch/powerpc/kexec/elf_64.c
-> index eeb258002d1e..98d1cb5135b4 100644
-> --- a/arch/powerpc/kexec/elf_64.c
-> +++ b/arch/powerpc/kexec/elf_64.c
-> @@ -23,6 +23,7 @@
->   #include <linux/of_fdt.h>
->   #include <linux/slab.h>
->   #include <linux/types.h>
-> +#include <linux/module_signature.h>
->   
->   static void *elf64_load(struct kimage *image, char *kernel_buf,
->   			unsigned long kernel_len, char *initrd,
-> @@ -151,7 +152,42 @@ static void *elf64_load(struct kimage *image, char *kernel_buf,
->   	return ret ? ERR_PTR(ret) : NULL;
->   }
->   
-> +#ifdef CONFIG_KEXEC_SIG
-> +int elf64_verify_sig(const char *kernel, unsigned long kernel_len)
-> +{
-> +	const unsigned long marker_len = sizeof(MODULE_SIG_STRING) - 1;
-> +	struct module_signature *ms;
-> +	unsigned long sig_len;
-
-Use size_t to match the signature of `verify_pkcs7_signature()`?
-
-> +	int ret;
-> +
-> +	if (marker_len > kernel_len)
-> +		return -EKEYREJECTED;
-> +
-> +	if (memcmp(kernel + kernel_len - marker_len, MODULE_SIG_STRING,
-> +		   marker_len))
-> +		return -EKEYREJECTED;
-> +	kernel_len -= marker_len;
-> +
-> +	ms = (void *)kernel + kernel_len - sizeof(*ms);
-> +	ret = mod_check_sig(ms, kernel_len, "kexec");
-> +	if (ret)
-> +		return ret;
-> +
-> +	sig_len = be32_to_cpu(ms->sig_len);
-> +	kernel_len -= sizeof(*ms) + sig_len;
-> +
-> +	return verify_pkcs7_signature(kernel, kernel_len,
-> +				      kernel + kernel_len, sig_len,
-> +				      VERIFY_USE_PLATFORM_KEYRING,
-> +				      VERIFYING_MODULE_SIGNATURE,
-> +				      NULL, NULL);
-> +}
-> +#endif /* CONFIG_KEXEC_SIG */
-> +
->   const struct kexec_file_ops kexec_elf64_ops = {
->   	.probe = kexec_elf_probe,
->   	.load = elf64_load,
-> +#ifdef CONFIG_KEXEC_SIG
-> +	.verify_sig = elf64_verify_sig,
-> +#endif
->   };
-
-
-Kind regards,
-
-Paul
+> There is another queue in af_smc.c, the smc accept queue and any new client
+> socket that completed the handshake process is enqueued there (in smc_accept_enqueue() )
+> and is waiting to get accepted by the user space application. To apply the correct
+> semantics here, I think the number of sockets waiting in the smc accept queue
+> should also be counted as backlog connections, right? I see no limit for this queue
+> now. What do you think?
