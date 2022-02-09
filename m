@@ -2,195 +2,112 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B092CC4167D
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Feb 2022 14:11:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CAA86C433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Feb 2022 15:22:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234844AbiBIOLe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 9 Feb 2022 09:11:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46496 "EHLO
+        id S235613AbiBIPWm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 9 Feb 2022 10:22:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234837AbiBIOLb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Feb 2022 09:11:31 -0500
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15421C05CBA4;
-        Wed,  9 Feb 2022 06:11:28 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R901e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0V4.ipev_1644415884;
-Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0V4.ipev_1644415884)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 09 Feb 2022 22:11:24 +0800
-From:   "D. Wythe" <alibuda@linux.alibaba.com>
-To:     kgraul@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        "D. Wythe" <alibuda@linux.alibaba.com>
-Subject: [PATCH net-next v6 4/5] net/smc: Dynamic control auto fallback by socket options
-Date:   Wed,  9 Feb 2022 22:11:14 +0800
-Message-Id: <47e067deb658407bc68899ee9e6827f8159f11b4.1644413637.git.alibuda@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <cover.1644413637.git.alibuda@linux.alibaba.com>
-References: <cover.1644413637.git.alibuda@linux.alibaba.com>
+        with ESMTP id S229900AbiBIPWl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Feb 2022 10:22:41 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A059C0613C9;
+        Wed,  9 Feb 2022 07:22:45 -0800 (PST)
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 219EMANK010887;
+        Wed, 9 Feb 2022 15:22:45 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=PDPgdRq5kmBOP+iD3Nr/K8GbRWCQaVotmuHtKHIMnrQ=;
+ b=W9mdVvOQJbN6I3OE4GFKIVC2gK7D+EcZJYodLEOyh1gh6ZG8Q+iLdZLJK5fmAVNEOVLV
+ 789Nx9y+VbUhzi2mhGW9/xrKbdEtKQJEs/0PxjmRq5LJFOBimU5IXsd6hnsgeuNYzutv
+ TmkoY/FbpWtW0z0P1fGnOWAYDzvWbAY6KAL+TwyaVhHNe0eZ9QRm5Qm7IHhsx129Qdm0
+ fEh5+YkMXwvEi8Xz7/RR/W5IBttNSwA/ZrLpWICbEbQyQ7xfMUBybuFxHVEzbvBeIMVb
+ W1u7QYnj7vSF7682XGgWUpfMmjwP4BfOwJDutMAsqVVOEWW2hmCOzNblxmZyu4qOzX3B fQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e418347cg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 09 Feb 2022 15:22:44 +0000
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 219FMinc003471;
+        Wed, 9 Feb 2022 15:22:44 GMT
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e418347b2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 09 Feb 2022 15:22:44 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 219FJIZC002903;
+        Wed, 9 Feb 2022 15:22:41 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma01fra.de.ibm.com with ESMTP id 3e1gv9phfj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 09 Feb 2022 15:22:41 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 219FMceC42139992
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 9 Feb 2022 15:22:38 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 39F7A11C058;
+        Wed,  9 Feb 2022 15:22:38 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D82D411C050;
+        Wed,  9 Feb 2022 15:22:37 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed,  9 Feb 2022 15:22:37 +0000 (GMT)
+From:   Michael Mueller <mimu@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     cohuck@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com,
+        thuth@redhat.com, pasic@linux.ibm.com, david@redhat.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Michael Mueller <mimu@linux.ibm.com>
+Subject: [PATCH v3 0/1] KVM: s390: pv: make use of ultravisor AIV support
+Date:   Wed,  9 Feb 2022 16:22:16 +0100
+Message-Id: <20220209152217.1793281-1-mimu@linux.ibm.com>
+X-Mailer: git-send-email 2.32.0
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: VC6tczq0g_i8IE5PuqVrtiVZNHE01DWQ
+X-Proofpoint-GUID: p5AAFkbSYKFKfD1xQ7XD3MSdDaBl6atE
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-02-09_08,2022-02-09_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
+ malwarescore=0 lowpriorityscore=0 mlxlogscore=402 priorityscore=1501
+ clxscore=1015 impostorscore=0 bulkscore=0 spamscore=0 adultscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2202090085
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: "D. Wythe" <alibuda@linux.alibaba.com>
+This patch enables the ultravisor adapter interruption vitualization
+support.
 
-This patch aims to add dynamic control for SMC auto fallback, since we
-don't have socket option level for SMC yet, which requires we need to
-implement it at the same time.
+Changes in v3:
+- cache and test GISA descriptor only once in kvm_s390_gisa_enable()
+- modified some comments
+- removed some whitespace issues
 
-This patch does the following:
+Changes in v2:
+- moved GISA disable into "put CPUs in PV mode" routine
+- moved GISA enable into "pull CPUs out of PV mode" routine 
 
-- add new socket option level: SOL_SMC.
-- add new SMC socket option: SMC_AUTO_FALLBACK.
-- provide getter/setter for SMC socket options.
+[1] https://lore.kernel.org/lkml/ae7c65d8-f632-a7f4-926a-50b9660673a1@linux.ibm.com/T/#mcb67699bf458ba7482f6b7529afe589d1dbb5930
+[2] https://lore.kernel.org/kvm/20220208165310.3905815-1-mimu@linux.ibm.com/T/#e0ecf74ad7fdccc5ed22007e783106d4ef7b849df 
 
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
----
- include/linux/socket.h   |  1 +
- include/uapi/linux/smc.h |  4 +++
- net/smc/af_smc.c         | 69 +++++++++++++++++++++++++++++++++++++++++++++++-
- net/smc/smc.h            |  1 +
- 4 files changed, 74 insertions(+), 1 deletion(-)
+Michael Mueller (1):
+  KVM: s390: pv: make use of ultravisor AIV support
 
-diff --git a/include/linux/socket.h b/include/linux/socket.h
-index 8ef26d8..6f85f5d 100644
---- a/include/linux/socket.h
-+++ b/include/linux/socket.h
-@@ -366,6 +366,7 @@ struct ucred {
- #define SOL_XDP		283
- #define SOL_MPTCP	284
- #define SOL_MCTP	285
-+#define SOL_SMC		286
- 
- /* IPX options */
- #define IPX_TYPE	1
-diff --git a/include/uapi/linux/smc.h b/include/uapi/linux/smc.h
-index 6c2874f..9f2cbf8 100644
---- a/include/uapi/linux/smc.h
-+++ b/include/uapi/linux/smc.h
-@@ -284,4 +284,8 @@ enum {
- 	__SMC_NLA_SEID_TABLE_MAX,
- 	SMC_NLA_SEID_TABLE_MAX = __SMC_NLA_SEID_TABLE_MAX - 1
- };
-+
-+/* SMC socket options */
-+#define SMC_AUTO_FALLBACK 1	/* allow auto fallback to TCP */
-+
- #endif /* _UAPI_LINUX_SMC_H */
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 8175f60..c313561 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -2325,7 +2325,8 @@ static int smc_listen(struct socket *sock, int backlog)
- 
- 	inet_csk(smc->clcsock->sk)->icsk_af_ops = &smc->af_ops;
- 
--	tcp_sk(smc->clcsock->sk)->smc_in_limited = smc_is_in_limited;
-+	if (smc->auto_fallback)
-+		tcp_sk(smc->clcsock->sk)->smc_in_limited = smc_is_in_limited;
- 
- 	rc = kernel_listen(smc->clcsock, backlog);
- 	if (rc) {
-@@ -2620,6 +2621,67 @@ static int smc_shutdown(struct socket *sock, int how)
- 	return rc ? rc : rc1;
- }
- 
-+static int __smc_getsockopt(struct socket *sock, int level, int optname,
-+			    char __user *optval, int __user *optlen)
-+{
-+	struct smc_sock *smc;
-+	int val, len;
-+
-+	smc = smc_sk(sock->sk);
-+
-+	if (get_user(len, optlen))
-+		return -EFAULT;
-+
-+	len = min_t(int, len, sizeof(int));
-+
-+	if (len < 0)
-+		return -EINVAL;
-+
-+	switch (optname) {
-+	case SMC_AUTO_FALLBACK:
-+		val = smc->auto_fallback;
-+		break;
-+	default:
-+		return -EOPNOTSUPP;
-+	}
-+
-+	if (put_user(len, optlen))
-+		return -EFAULT;
-+	if (copy_to_user(optval, &val, len))
-+		return -EFAULT;
-+
-+	return 0;
-+}
-+
-+static int __smc_setsockopt(struct socket *sock, int level, int optname,
-+			    sockptr_t optval, unsigned int optlen)
-+{
-+	struct sock *sk = sock->sk;
-+	struct smc_sock *smc;
-+	int val, rc;
-+
-+	smc = smc_sk(sk);
-+
-+	lock_sock(sk);
-+	switch (optname) {
-+	case SMC_AUTO_FALLBACK:
-+		if (optlen < sizeof(int))
-+			return -EINVAL;
-+		if (copy_from_sockptr(&val, optval, sizeof(int)))
-+			return -EFAULT;
-+
-+		smc->auto_fallback = !!val;
-+		rc = 0;
-+		break;
-+	default:
-+		rc = -EOPNOTSUPP;
-+		break;
-+	}
-+	release_sock(sk);
-+
-+	return rc;
-+}
-+
- static int smc_setsockopt(struct socket *sock, int level, int optname,
- 			  sockptr_t optval, unsigned int optlen)
- {
-@@ -2629,6 +2691,8 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
- 
- 	if (level == SOL_TCP && optname == TCP_ULP)
- 		return -EOPNOTSUPP;
-+	else if (level == SOL_SMC)
-+		return __smc_setsockopt(sock, level, optname, optval, optlen);
- 
- 	smc = smc_sk(sk);
- 
-@@ -2711,6 +2775,9 @@ static int smc_getsockopt(struct socket *sock, int level, int optname,
- 	struct smc_sock *smc;
- 	int rc;
- 
-+	if (level == SOL_SMC)
-+		return __smc_getsockopt(sock, level, optname, optval, optlen);
-+
- 	smc = smc_sk(sock->sk);
- 	mutex_lock(&smc->clcsock_release_lock);
- 	if (!smc->clcsock) {
-diff --git a/net/smc/smc.h b/net/smc/smc.h
-index 5e5e38d..a0bdf75 100644
---- a/net/smc/smc.h
-+++ b/net/smc/smc.h
-@@ -249,6 +249,7 @@ struct smc_sock {				/* smc sock container */
- 	struct work_struct	smc_listen_work;/* prepare new accept socket */
- 	struct list_head	accept_q;	/* sockets to be accepted */
- 	spinlock_t		accept_q_lock;	/* protects accept_q */
-+	bool			auto_fallback;	/* auto fallabck to tcp */
- 	bool			use_fallback;	/* fallback to tcp */
- 	int			fallback_rsn;	/* reason for fallback */
- 	u32			peer_diagnosis; /* decline reason from peer */
+ arch/s390/include/asm/uv.h |  1 +
+ arch/s390/kvm/interrupt.c  | 56 ++++++++++++++++++++++++++++++++++----
+ arch/s390/kvm/kvm-s390.c   | 11 ++++++--
+ arch/s390/kvm/kvm-s390.h   | 11 ++++++++
+ 4 files changed, 70 insertions(+), 9 deletions(-)
+
 -- 
-1.8.3.1
+2.32.0
 
