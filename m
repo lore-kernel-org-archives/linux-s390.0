@@ -2,115 +2,67 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CCD8EC433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Feb 2022 05:18:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 37821C433F5
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Feb 2022 06:28:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229822AbiBIFQs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 9 Feb 2022 00:16:48 -0500
-Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:43416 "EHLO
+        id S230183AbiBIG2G (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 9 Feb 2022 01:28:06 -0500
+Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:47292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230197AbiBIEqF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Feb 2022 23:46:05 -0500
-Received: from gandalf.ozlabs.org (mail.ozlabs.org [IPv6:2404:9400:2221:ea00::3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DBB3C061578;
-        Tue,  8 Feb 2022 20:46:09 -0800 (PST)
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4JtnQ60Fbjz4xNq;
-        Wed,  9 Feb 2022 15:46:06 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
-        s=201909; t=1644381966;
-        bh=4LBu3b4sqV42JJCmT2RvLfUf47/jOabbpGeO17DWNxg=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=VpsRKjTOAuTL4YVFAXqLwlQNTVN2PnFaRNMaDdmekioS+Axih9wqxwuuZXvgF38GV
-         BtlQrTRz2IAQ9QmpujmvPxeEPJBOCKQODVTttnlXUqTA3LNbZRxgAs7FMDYFW7UAzp
-         hNZMjJnJRRBuEQsm/scDVGFl3F1CnxD/UQBFK7HXqfl2FNQM9xzVfhzm6vaSQz1Oui
-         eoQoylhJFl+fMdpPBEWkx0gW9z1nkkfG9Ee4wjyAlpTXz2FASBp3lrsVq34UIp87iV
-         WiyxUBkfMXtIWN/O5RXzGc5uFFcCQQWtagfWwXYs+Xzz/Ci/ixvZSY69tgrW3wLzm6
-         VxO4WOGIITJUw==
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     Luis Chamberlain <mcgrof@kernel.org>,
-        Michal Suchanek <msuchanek@suse.de>,
-        David Howells <dhowells@redhat.com>,
-        Aaron Tomlin <atomlin@redhat.com>
-Cc:     keyrings@vger.kernel.org, linux-crypto@vger.kernel.org,
-        linux-integrity@vger.kernel.org, kexec@lists.infradead.org,
-        Philipp Rudo <prudo@redhat.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Nayna <nayna@linux.vnet.ibm.com>, Rob Herring <robh@kernel.org>,
-        linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Jessica Yu <jeyu@kernel.org>, linux-kernel@vger.kernel.org,
-        David Howells <dhowells@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Hari Bathini <hbathini@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linuxppc-dev@lists.ozlabs.org,
-        Frank van der Linden <fllinden@amazon.com>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Daniel Axtens <dja@axtens.net>, buendgen@de.ibm.com,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Baoquan He <bhe@redhat.com>,
-        linux-security-module@vger.kernel.org
-Subject: Re: [PATCH v5 0/6] KEXEC_SIG with appended signature
-In-Reply-To: <YfBd/EDGUx9UIHcb@bombadil.infradead.org>
-References: <cover.1641900831.git.msuchanek@suse.de>
- <YfBd/EDGUx9UIHcb@bombadil.infradead.org>
-Date:   Wed, 09 Feb 2022 15:46:05 +1100
-Message-ID: <87pmnwlkaa.fsf@mpe.ellerman.id.au>
+        with ESMTP id S234932AbiBIGYW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Feb 2022 01:24:22 -0500
+Received: from out30-44.freemail.mail.aliyun.com (out30-44.freemail.mail.aliyun.com [115.124.30.44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F672C00875D;
+        Tue,  8 Feb 2022 22:24:25 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R431e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0V3zg98L_1644387858;
+Received: from 30.225.28.54(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0V3zg98L_1644387858)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Wed, 09 Feb 2022 14:24:23 +0800
+Message-ID: <e8764a6e-7542-3048-fb30-cdb7fd4dcde2@linux.alibaba.com>
+Date:   Wed, 9 Feb 2022 14:24:15 +0800
 MIME-Version: 1.0
-Content-Type: text/plain
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.5.1
+Subject: Re: [PATCH net-next v5 1/5] net/smc: Make smc_tcp_listen_work()
+ independent
+To:     Karsten Graul <kgraul@linux.ibm.com>
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <cover.1644323503.git.alibuda@linux.alibaba.com>
+ <58c544cb206d94b759ff0546bcffe693c3cbfb98.1644323503.git.alibuda@linux.alibaba.com>
+ <0d1363b7-6080-5fb3-1dcb-cdedf82303fa@linux.ibm.com>
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+In-Reply-To: <0d1363b7-6080-5fb3-1dcb-cdedf82303fa@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Luis Chamberlain <mcgrof@kernel.org> writes:
-> On Tue, Jan 11, 2022 at 12:37:42PM +0100, Michal Suchanek wrote:
->> Hello,
->> 
->> This is a refresh of the KEXEC_SIG series.
->> 
->> This adds KEXEC_SIG support on powerpc and deduplicates the code dealing
->> with appended signatures in the kernel.
->> 
->> powerpc supports IMA_KEXEC but that's an exception rather than the norm.
->> On the other hand, KEXEC_SIG is portable across platforms.
->> 
->> For distributions to have uniform security features across platforms one
->> option should be used on all platforms.
->> 
->> Thanks
->> 
->> Michal
->> 
->> Previous revision: https://lore.kernel.org/linuxppc-dev/cover.1637862358.git.msuchanek@suse.de/
->> Patched kernel tree: https://github.com/hramrach/kernel/tree/kexec_sig
->> 
->> Michal Suchanek (6):
->>   s390/kexec_file: Don't opencode appended signature check.
->>   powerpc/kexec_file: Add KEXEC_SIG support.
->>   kexec_file: Don't opencode appended signature verification.
->>   module: strip the signature marker in the verification function.
->>   module: Use key_being_used_for for log messages in
->>     verify_appended_signature
->>   module: Move duplicate mod_check_sig users code to mod_parse_sig
->
-> What tree should this go through? I'd prefer if over through modules
-> tree as it can give a chance for Aaron Tomlin to work with this for his
-> code refactoring of kernel/module*.c to kernel/module/
+It is indeed okay to use system_wq at present. Dues to the load 
+balancing issues we found, queue_work() always submits tasks to the 
+worker on the current CPU. tcp_listen_work() execution once may submit a 
+large number of tasks to the worker of the current CPU, causing 
+unnecessary pending, even though worker on other CPU are totaly free. I 
+was plan to make tcp_listen_work() blocked wait on worker of every CPU, 
+so I create a new workqueue, and that's the only reason for it. But this 
+problem is not very urgent, and I don't have strong opinion too...
 
-Yeah that's fine by me, the arch changes are pretty minimal and unlikely
-to conflict much.
 
-cheers
+在 2022/2/9 上午1:06, Karsten Graul 写道:
+> On 08/02/2022 13:53, D. Wythe wrote:
+>> +static struct workqueue_struct	*smc_tcp_ls_wq;	/* wq for tcp listen work */
+>>   struct workqueue_struct	*smc_hs_wq;	/* wq for handshake work */
+>>   struct workqueue_struct	*smc_close_wq;	/* wq for close work */
+>>   
+>> @@ -2227,7 +2228,7 @@ static void smc_clcsock_data_ready(struct sock *listen_clcsock)
+>>   	lsmc->clcsk_data_ready(listen_clcsock);
+>>   	if (lsmc->sk.sk_state == SMC_LISTEN) {
+>>   		sock_hold(&lsmc->sk); /* sock_put in smc_tcp_listen_work() */
+>> -		if (!queue_work(smc_hs_wq, &lsmc->tcp_listen_work))
+>> +		if (!queue_work(smc_tcp_ls_wq, &lsmc->tcp_listen_work))
+>>   			sock_put(&lsmc->sk);
+> 
+> It works well this way, but given the fact that there is one tcp_listen worker per
+> listen socket and these workers finish relatively quickly, wouldn't it be okay to
+> use the system_wq instead of using an own queue? But I have no strong opinion about that...
