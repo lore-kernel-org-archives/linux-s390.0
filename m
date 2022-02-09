@@ -2,271 +2,186 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 338A7C4332F
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Feb 2022 15:22:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E028CC433F5
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Feb 2022 16:02:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235727AbiBIPWn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 9 Feb 2022 10:22:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38920 "EHLO
+        id S231620AbiBIQCh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 9 Feb 2022 11:02:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235668AbiBIPWm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Feb 2022 10:22:42 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A29FC0613CA;
-        Wed,  9 Feb 2022 07:22:45 -0800 (PST)
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 219EM8wm012480;
-        Wed, 9 Feb 2022 15:22:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=V/Rjljb5E94yXSUjSpO+bIJqFbJNKeUzMERhvfjdsOI=;
- b=Sl2IeEG/4l4BstvChMPf6u2nXG2qgOomk2yG1z92kHMFDVJ8IFJPlzzp6J9Te4QnWVtN
- Os+dCcSedWdRhl07St0dgELHLmIRPcZCQiyrysC/sNF8QxuKECIDghdnEqWP8LMNpO5A
- Pe7KT90bOsrlAyce9pibRJn48zFYkGJDxPhWMwqHQdWlnoN4A1w8TDdBXG/JivJpDbdA
- JZEvyzyCDkpMPswQtwedfjscS5DJhfsDxyADsfpvQ82i2c5XVv2s1mMUzDYDf7rKjr9f
- p3A5BQ2UQ/zCsCMtbEQh/zLo1WqGZ0XMaqxWImhqYIWa5zDlBPEWlDExAcUdNwYX+4z0 Dw== 
+        with ESMTP id S231135AbiBIQCg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Feb 2022 11:02:36 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5868C0613C9;
+        Wed,  9 Feb 2022 08:02:39 -0800 (PST)
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 219EM8aB015595;
+        Wed, 9 Feb 2022 16:02:37 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=GfcpnRbDd1SuVigiQfI/wod0FStopRogiADx+8bl1wg=;
+ b=HVApvjyBaUSWqUlxMGX17AkNK+Mv2IXlvRbQvIj6mGrvrTZsgwiDmUXLqlh69Y7Ch3Mr
+ fK+Kh4sWxEiyHiZCyk337sN1M6wfGEf+MzXzoXlvrb37gqLL+N8vIkgnV0HKhIWLbFQb
+ ZYjOMJeuJKgXVfojt6dWBwRMWsvutyoCbeM+n3fmK0cqoeRqwPhUI7eUgf546EqSRf4T
+ hgLLu4HIE2RX4yGjIYbQXAPyr81lxrKOSngcoFterSPPrkz+VlQWK3pQypyTQaJsUqyB
+ Q+yNv8k5K+tpN3T21k5nNBRAEpq1U/gtknv2rMMNGrLKQ4i+AWhu8eMuMUVV2TdEP2xc vA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3e47g5vm21-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e4b0x0af1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 09 Feb 2022 15:22:44 +0000
-Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 219F72rP011752;
-        Wed, 9 Feb 2022 15:22:44 GMT
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3e47g5vm18-1
+        Wed, 09 Feb 2022 16:02:37 +0000
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 219FeWCo017581;
+        Wed, 9 Feb 2022 16:02:36 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e4b0x0adv-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 09 Feb 2022 15:22:43 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 219FJKYe021874;
-        Wed, 9 Feb 2022 15:22:42 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma05fra.de.ibm.com with ESMTP id 3e1gvaen7e-1
+        Wed, 09 Feb 2022 16:02:36 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 219FvT14002502;
+        Wed, 9 Feb 2022 16:02:33 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma02fra.de.ibm.com with ESMTP id 3e1gv9pvgh-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 09 Feb 2022 15:22:42 +0000
+        Wed, 09 Feb 2022 16:02:33 +0000
 Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 219FMcPp40305110
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 219G2V3T42271074
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 9 Feb 2022 15:22:38 GMT
+        Wed, 9 Feb 2022 16:02:31 GMT
 Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9152911C050;
-        Wed,  9 Feb 2022 15:22:38 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 387DA11C058;
+        Wed,  9 Feb 2022 16:02:31 +0000 (GMT)
 Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4542B11C05C;
-        Wed,  9 Feb 2022 15:22:38 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by IMSVA (Postfix) with ESMTP id DA5BC11C05E;
+        Wed,  9 Feb 2022 16:02:30 +0000 (GMT)
+Received: from [9.145.0.171] (unknown [9.145.0.171])
         by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed,  9 Feb 2022 15:22:38 +0000 (GMT)
-From:   Michael Mueller <mimu@linux.ibm.com>
-To:     kvm@vger.kernel.org
-Cc:     cohuck@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com,
-        thuth@redhat.com, pasic@linux.ibm.com, david@redhat.com,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Michael Mueller <mimu@linux.ibm.com>
-Subject: [PATCH v3 1/1] KVM: s390: pv: make use of ultravisor AIV support
-Date:   Wed,  9 Feb 2022 16:22:17 +0100
-Message-Id: <20220209152217.1793281-2-mimu@linux.ibm.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220209152217.1793281-1-mimu@linux.ibm.com>
-References: <20220209152217.1793281-1-mimu@linux.ibm.com>
+        Wed,  9 Feb 2022 16:02:30 +0000 (GMT)
+Message-ID: <ed4c056d-03ee-d825-845d-a9e5b4d58c26@linux.ibm.com>
+Date:   Wed, 9 Feb 2022 17:02:32 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH net-next v6 2/5] net/smc: Limit backlog connections
+Content-Language: en-US
+To:     "D. Wythe" <alibuda@linux.alibaba.com>
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <cover.1644413637.git.alibuda@linux.alibaba.com>
+ <412a5ddd496c5966a8910435a33552c78868d86d.1644413637.git.alibuda@linux.alibaba.com>
+From:   Karsten Graul <kgraul@linux.ibm.com>
+Organization: IBM Deutschland Research & Development GmbH
+In-Reply-To: <412a5ddd496c5966a8910435a33552c78868d86d.1644413637.git.alibuda@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: STdtUf1t6Jk50Zd9aJn-V5vazazntKrx
-X-Proofpoint-ORIG-GUID: hUhR8wByuNuzlS3hwX2_SBVzsgJUtGMP
+X-Proofpoint-GUID: hKaDT6e0kzOSZmWwVi8NcWcLA5ZkupAz
+X-Proofpoint-ORIG-GUID: jA1SBz_Uf0PA_hDVDyC9qsV2hnSpvlJ0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2022-02-09_08,2022-02-09_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=691 spamscore=0
- clxscore=1015 adultscore=0 mlxscore=0 bulkscore=0 impostorscore=0
- phishscore=0 priorityscore=1501 suspectscore=0 lowpriorityscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2202090085
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 clxscore=1015
+ mlxscore=0 suspectscore=0 adultscore=0 priorityscore=1501 impostorscore=0
+ phishscore=0 bulkscore=0 mlxlogscore=999 spamscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2201110000
+ definitions=main-2202090090
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This patch enables the ultravisor adapter interruption vitualization
-support indicated by UV feature BIT_UV_FEAT_AIV. This allows ISC
-interruption injection directly into the GISA IPM for PV kvm guests.
+On 09/02/2022 15:11, D. Wythe wrote:
+> +static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk, struct sk_buff *skb,
+> +					  struct request_sock *req,
+> +					  struct dst_entry *dst,
+> +					  struct request_sock *req_unhash,
+> +					  bool *own_req)
+> +{
+> +	struct smc_sock *smc;
+> +
+> +	smc = (struct smc_sock *)((uintptr_t)sk->sk_user_data & ~SK_USER_DATA_NOCOPY);
 
-Hardware that does not support this feature will continue to use the
-UV interruption interception method to deliver ISC interruptions to
-PV kvm guests. For this purpose, the ECA_AIV bit for all guest cpus
-will be cleared and the GISA will be disabled during PV CPU setup.
+Did you run checkpatch.pl for these patches, for me this and other lines look longer 
+than 80 characters.
 
-In addition a check in __inject_io() has been removed. That reduces the
-required instructions for interruption handling for PV and traditional
-kvm guests.
+> +
+> +	if (READ_ONCE(sk->sk_ack_backlog) + atomic_read(&smc->smc_pendings) >
+> +				sk->sk_max_ack_backlog)
+> +		goto drop;
+> +
+> +	if (sk_acceptq_is_full(&smc->sk)) {
+> +		NET_INC_STATS(sock_net(sk), LINUX_MIB_LISTENOVERFLOWS);
+> +		goto drop;
+> +	}
+> +
+> +	/* passthrough to origin syn recv sock fct */
+> +	return smc->ori_af_ops->syn_recv_sock(sk, skb, req, dst, req_unhash, own_req);
+> +
+> +drop:
+> +	dst_release(dst);
+> +	tcp_listendrop(sk);
+> +	return NULL;
+> +}
+> +
+>  static struct smc_hashinfo smc_v4_hashinfo = {
+>  	.lock = __RW_LOCK_UNLOCKED(smc_v4_hashinfo.lock),
+>  };
+> @@ -1595,6 +1623,9 @@ static void smc_listen_out(struct smc_sock *new_smc)
+>  	struct smc_sock *lsmc = new_smc->listen_smc;
+>  	struct sock *newsmcsk = &new_smc->sk;
+>  
+> +	if (tcp_sk(new_smc->clcsock->sk)->syn_smc)
+> +		atomic_dec(&lsmc->smc_pendings);
+> +
+>  	if (lsmc->sk.sk_state == SMC_LISTEN) {
+>  		lock_sock_nested(&lsmc->sk, SINGLE_DEPTH_NESTING);
+>  		smc_accept_enqueue(&lsmc->sk, newsmcsk);
+> @@ -2200,6 +2231,9 @@ static void smc_tcp_listen_work(struct work_struct *work)
+>  		if (!new_smc)
+>  			continue;
+>  
+> +		if (tcp_sk(new_smc->clcsock->sk)->syn_smc)
+> +			atomic_inc(&lsmc->smc_pendings);
+> +
+>  		new_smc->listen_smc = lsmc;
+>  		new_smc->use_fallback = lsmc->use_fallback;
+>  		new_smc->fallback_rsn = lsmc->fallback_rsn;
+> @@ -2266,6 +2300,15 @@ static int smc_listen(struct socket *sock, int backlog)
+>  	smc->clcsock->sk->sk_data_ready = smc_clcsock_data_ready;
+>  	smc->clcsock->sk->sk_user_data =
+>  		(void *)((uintptr_t)smc | SK_USER_DATA_NOCOPY);
+> +
+> +	/* save origin ops */
+> +	smc->ori_af_ops = inet_csk(smc->clcsock->sk)->icsk_af_ops;
+> +
+> +	smc->af_ops = *smc->ori_af_ops;
+> +	smc->af_ops.syn_recv_sock = smc_tcp_syn_recv_sock;
+> +
+> +	inet_csk(smc->clcsock->sk)->icsk_af_ops = &smc->af_ops;
+> +
+>  	rc = kernel_listen(smc->clcsock, backlog);
+>  	if (rc) {
+>  		smc->clcsock->sk->sk_data_ready = smc->clcsk_data_ready;
+> diff --git a/net/smc/smc.h b/net/smc/smc.h
+> index 37b2001..5e5e38d 100644
+> --- a/net/smc/smc.h
+> +++ b/net/smc/smc.h
+> @@ -252,6 +252,10 @@ struct smc_sock {				/* smc sock container */
+>  	bool			use_fallback;	/* fallback to tcp */
+>  	int			fallback_rsn;	/* reason for fallback */
+>  	u32			peer_diagnosis; /* decline reason from peer */
+> +	atomic_t                smc_pendings;   /* pending smc connections */
 
-Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
----
- arch/s390/include/asm/uv.h |  1 +
- arch/s390/kvm/interrupt.c  | 54 +++++++++++++++++++++++++++++++++-----
- arch/s390/kvm/kvm-s390.c   | 11 +++++---
- arch/s390/kvm/kvm-s390.h   | 11 ++++++++
- 4 files changed, 68 insertions(+), 9 deletions(-)
+I don't like the name smc_pendings, its not very specific. 
+What about queued_smc_hs?
+And for the comment: queued smc handshakes
 
-diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-index 86218382d29c..a2d376b8bce3 100644
---- a/arch/s390/include/asm/uv.h
-+++ b/arch/s390/include/asm/uv.h
-@@ -80,6 +80,7 @@ enum uv_cmds_inst {
- 
- enum uv_feat_ind {
- 	BIT_UV_FEAT_MISC = 0,
-+	BIT_UV_FEAT_AIV = 1,
- };
- 
- struct uv_cb_header {
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index db933c252dbc..9b30beac904d 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -1901,13 +1901,12 @@ static int __inject_io(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
- 	isc = int_word_to_isc(inti->io.io_int_word);
- 
- 	/*
--	 * Do not make use of gisa in protected mode. We do not use the lock
--	 * checking variant as this is just a performance optimization and we
--	 * do not hold the lock here. This is ok as the code will pick
--	 * interrupts from both "lists" for delivery.
-+	 * We do not use the lock checking variant as this is just a
-+	 * performance optimization and we do not hold the lock here.
-+	 * This is ok as the code will pick interrupts from both "lists"
-+	 * for delivery.
- 	 */
--	if (!kvm_s390_pv_get_handle(kvm) &&
--	    gi->origin && inti->type & KVM_S390_INT_IO_AI_MASK) {
-+	if (gi->origin && inti->type & KVM_S390_INT_IO_AI_MASK) {
- 		VM_EVENT(kvm, 4, "%s isc %1u", "inject: I/O (AI/gisa)", isc);
- 		gisa_set_ipm_gisc(gi->origin, isc);
- 		kfree(inti);
-@@ -3171,9 +3170,33 @@ void kvm_s390_gisa_init(struct kvm *kvm)
- 	VM_EVENT(kvm, 3, "gisa 0x%pK initialized", gi->origin);
- }
- 
-+void kvm_s390_gisa_enable(struct kvm *kvm)
-+{
-+	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
-+	struct kvm_vcpu *vcpu;
-+	unsigned long i;
-+	u32 gisa_desc;
-+
-+	if (gi->origin)
-+		return;
-+	kvm_s390_gisa_init(kvm);
-+	gisa_desc = kvm_s390_get_gisa_desc(kvm);
-+	if (!gisa_desc)
-+		return;
-+	kvm_for_each_vcpu(i, vcpu, kvm) {
-+		mutex_lock(&vcpu->mutex);
-+		vcpu->arch.sie_block->gd = gisa_desc;
-+		vcpu->arch.sie_block->eca |= ECA_AIV;
-+		VCPU_EVENT(vcpu, 3, "AIV gisa format-%u enabled for cpu %03u",
-+			   vcpu->arch.sie_block->gd & 0x3, vcpu->vcpu_id);
-+		mutex_unlock(&vcpu->mutex);
-+	}
-+}
-+
- void kvm_s390_gisa_destroy(struct kvm *kvm)
- {
- 	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
-+	struct kvm_s390_gisa *gisa = gi->origin;
- 
- 	if (!gi->origin)
- 		return;
-@@ -3184,6 +3207,25 @@ void kvm_s390_gisa_destroy(struct kvm *kvm)
- 		cpu_relax();
- 	hrtimer_cancel(&gi->timer);
- 	gi->origin = NULL;
-+	VM_EVENT(kvm, 3, "gisa 0x%pK destroyed", gisa);
-+}
-+
-+void kvm_s390_gisa_disable(struct kvm *kvm)
-+{
-+	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
-+	struct kvm_vcpu *vcpu;
-+	unsigned long i;
-+
-+	if (!gi->origin)
-+		return;
-+	kvm_for_each_vcpu(i, vcpu, kvm) {
-+		mutex_lock(&vcpu->mutex);
-+		vcpu->arch.sie_block->eca &= ~ECA_AIV;
-+		vcpu->arch.sie_block->gd = 0U;
-+		mutex_unlock(&vcpu->mutex);
-+		VCPU_EVENT(vcpu, 3, "AIV disabled for cpu %03u", vcpu->vcpu_id);
-+	}
-+	kvm_s390_gisa_destroy(kvm);
- }
- 
- /**
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 577f1ead6a51..c83330f98ff0 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2194,6 +2194,9 @@ static int kvm_s390_cpus_from_pv(struct kvm *kvm, u16 *rcp, u16 *rrcp)
- 		}
- 		mutex_unlock(&vcpu->mutex);
- 	}
-+	/* Ensure that we re-enable gisa if the non-PV guest used it but the PV guest did not. */
-+	if (use_gisa)
-+		kvm_s390_gisa_enable(kvm);
- 	return ret;
- }
- 
-@@ -2205,6 +2208,10 @@ static int kvm_s390_cpus_to_pv(struct kvm *kvm, u16 *rc, u16 *rrc)
- 
- 	struct kvm_vcpu *vcpu;
- 
-+	/* Disable the GISA if the ultravisor does not support AIV. */
-+	if (!test_bit_inv(BIT_UV_FEAT_AIV, &uv_info.uv_feature_indications))
-+		kvm_s390_gisa_disable(kvm);
-+
- 	kvm_for_each_vcpu(i, vcpu, kvm) {
- 		mutex_lock(&vcpu->mutex);
- 		r = kvm_s390_pv_create_cpu(vcpu, rc, rrc);
-@@ -3263,9 +3270,7 @@ int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu)
- 
- 	vcpu->arch.sie_block->icpua = vcpu->vcpu_id;
- 	spin_lock_init(&vcpu->arch.local_int.lock);
--	vcpu->arch.sie_block->gd = (u32)(u64)vcpu->kvm->arch.gisa_int.origin;
--	if (vcpu->arch.sie_block->gd && sclp.has_gisaf)
--		vcpu->arch.sie_block->gd |= GISA_FORMAT1;
-+	vcpu->arch.sie_block->gd = kvm_s390_get_gisa_desc(vcpu->kvm);
- 	seqcount_init(&vcpu->arch.cputm_seqcount);
- 
- 	vcpu->arch.pfault_token = KVM_S390_PFAULT_TOKEN_INVALID;
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 098831e815e6..4ba8fc30d87a 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -231,6 +231,15 @@ static inline unsigned long kvm_s390_get_gfn_end(struct kvm_memslots *slots)
- 	return ms->base_gfn + ms->npages;
- }
- 
-+static inline u32 kvm_s390_get_gisa_desc(struct kvm *kvm)
-+{
-+	u32 gd = (u32)(u64)kvm->arch.gisa_int.origin;
-+
-+	if (gd && sclp.has_gisaf)
-+		gd |= GISA_FORMAT1;
-+	return gd;
-+}
-+
- /* implemented in pv.c */
- int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc);
- int kvm_s390_pv_create_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc);
-@@ -450,6 +459,8 @@ int kvm_s390_get_irq_state(struct kvm_vcpu *vcpu,
- void kvm_s390_gisa_init(struct kvm *kvm);
- void kvm_s390_gisa_clear(struct kvm *kvm);
- void kvm_s390_gisa_destroy(struct kvm *kvm);
-+void kvm_s390_gisa_disable(struct kvm *kvm);
-+void kvm_s390_gisa_enable(struct kvm *kvm);
- int kvm_s390_gib_init(u8 nisc);
- void kvm_s390_gib_destroy(void);
- 
+> +	struct inet_connection_sock_af_ops		af_ops;
+> +	const struct inet_connection_sock_af_ops	*ori_af_ops;
+> +						/* origin af ops */
+origin -> original
+>  	int			sockopt_defer_accept;
+>  						/* sockopt TCP_DEFER_ACCEPT
+>  						 * value
+
 -- 
-2.32.0
-
+Karsten
