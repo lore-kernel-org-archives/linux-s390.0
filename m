@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A604DC43219
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Feb 2022 17:05:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC019C4332F
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Feb 2022 17:05:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237869AbiBIRFD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 9 Feb 2022 12:05:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38068 "EHLO
+        id S238085AbiBIRFE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 9 Feb 2022 12:05:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237871AbiBIREj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Feb 2022 12:04:39 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25721C050CCD;
-        Wed,  9 Feb 2022 09:04:33 -0800 (PST)
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 219F3a4O027616;
+        with ESMTP id S237861AbiBIREd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Feb 2022 12:04:33 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A19E8C05CBBA;
+        Wed,  9 Feb 2022 09:04:32 -0800 (PST)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 219FRhPZ014734;
         Wed, 9 Feb 2022 17:04:32 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=OiuAH7C13RosG5m5BaiojgfE/FWaUD5nb7GxdoFhOB8=;
- b=GBxWwotuVnL+ZqlTkKA3kCSxLQoKK6q5/KQMaV0uAZOlHFCbBUnrrTFmQv3U9yqFUO+x
- e0ZzTAZZ2TZ79+mmOqsPWhB5vrDTf++HP9JgREA/EenS9N4HnuPgfcUJmf/B4O63NjDq
- Lmk2dTkvT8oq0aAwRVwOpE5haBby9y2esXPhOn4SIWm6F0+tnUs2LRQtm5XbOw51qDdz
- eVI2gCRjYk1m+EECbMC78T607WIpOuT8AxgkPhw8nkw0mfGTzsNTyD6l2lGpI8q5C8MS
- DseVQtlpTXNfrNUYPkrcA+mvgGSDxA378atzOppdh1zYPz4WHc8Mx6E81ABWFuWxRrTT 4g== 
+ bh=2o2UZ0ZdzvYVh487Vo5zB5Y9E5/+0N6KuU9B4oTnd4o=;
+ b=mI6+9lqRUS+7wwYzBpLwBjUhI3EZem1aKezJybmx2LP0X3iLdXmAOPuYSomdo8ZRUjdz
+ Q1UHqMgdfRZiadEkGgpStuLsKXATda7UWpd0CGs4BnzLOJ4IVeefsjDqL+PyXC/bdmWa
+ 0SV1KlbU4ZCbRj0MQuhNfUzFuESiTkca7+mfL759dPvQSobpVWDkbwLQBIVN9Gog54Am
+ vOdKqoMjxzYP/9RRcDtXfFdpijqT4jPfjdGD08O5bALhdDA6kJ6NZlUMs1pqrI/tASrM
+ IT6v2D1XUN+WWAhUSiVeB4LrbNTIg/HNYb9YuLk0H3jQjOS1ZSp6l3zCZGEKMWbieyqP aw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3e4fww2vae-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e4g9aa6vq-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 09 Feb 2022 17:04:31 +0000
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 219GAJGt000877;
+        Wed, 09 Feb 2022 17:04:32 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 219Gn1ON002674;
         Wed, 9 Feb 2022 17:04:31 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3e4fww2v9v-1
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e4g9aa6v3-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Wed, 09 Feb 2022 17:04:31 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 219H25up011944;
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 219H3YvE019440;
         Wed, 9 Feb 2022 17:04:29 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03ams.nl.ibm.com with ESMTP id 3e1gv9rxw1-1
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma06ams.nl.ibm.com with ESMTP id 3e1ggk912h-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Wed, 09 Feb 2022 17:04:29 +0000
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 219H4QIY41025918
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 219H4OMC24838582
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 9 Feb 2022 17:04:26 GMT
+        Wed, 9 Feb 2022 17:04:24 GMT
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3F75DA405B;
-        Wed,  9 Feb 2022 17:04:26 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 89B2CA405B;
+        Wed,  9 Feb 2022 17:04:24 +0000 (GMT)
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B9FB2A4060;
-        Wed,  9 Feb 2022 17:04:25 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 0B780A4054;
+        Wed,  9 Feb 2022 17:04:24 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
         by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed,  9 Feb 2022 17:04:25 +0000 (GMT)
+        Wed,  9 Feb 2022 17:04:23 +0000 (GMT)
 From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
 To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
@@ -70,300 +70,262 @@ Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
         linux-s390@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
         Sven Schnelle <svens@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH v3 04/10] KVM: s390: selftests: Test TEST PROTECTION emulation
-Date:   Wed,  9 Feb 2022 18:04:16 +0100
-Message-Id: <20220209170422.1910690-5-scgl@linux.ibm.com>
+Subject: [PATCH v3 01/10] s390/uaccess: Add copy_from/to_user_key functions
+Date:   Wed,  9 Feb 2022 18:04:13 +0100
+Message-Id: <20220209170422.1910690-2-scgl@linux.ibm.com>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20220209170422.1910690-1-scgl@linux.ibm.com>
 References: <20220209170422.1910690-1-scgl@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 0ea236Lf88n0R78SUYLInU-4GUVUEn9x
-X-Proofpoint-GUID: chIgOkzcqjCxvP7W-pqQalBKtKekPgqz
+X-Proofpoint-GUID: pBxN7Y-nR0_9h3vXijUgX_i0Tv7il0uA
+X-Proofpoint-ORIG-GUID: 89TV1CgBisQ_dkSuIqBHJFSxbhvyYZ7B
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2022-02-09_09,2022-02-09_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
- malwarescore=0 lowpriorityscore=0 suspectscore=0 mlxlogscore=999
- clxscore=1015 spamscore=0 bulkscore=0 mlxscore=0 adultscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2202090094
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ malwarescore=0 bulkscore=0 phishscore=0 adultscore=0 lowpriorityscore=0
+ spamscore=0 priorityscore=1501 mlxscore=0 mlxlogscore=999 suspectscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2202090091
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Test the emulation of TEST PROTECTION in the presence of storage keys.
-Emulation only occurs under certain conditions, one of which is the host
-page being protected.
-Trigger this by protecting the test pages via mprotect.
+Add copy_from/to_user_key functions, which perform storage key checking.
+These functions can be used by KVM for emulating instructions that need
+to be key checked.
+These functions differ from their non _key counterparts in
+include/linux/uaccess.h only in the additional key argument and must be
+kept in sync with those.
+
+Since the existing uaccess implementation on s390 makes use of move
+instructions that support having an additional access key supplied,
+we can implement raw_copy_from/to_user_key by enhancing the
+existing implementation.
 
 Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Acked-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- tools/testing/selftests/kvm/.gitignore    |   1 +
- tools/testing/selftests/kvm/Makefile      |   1 +
- tools/testing/selftests/kvm/s390x/tprot.c | 227 ++++++++++++++++++++++
- 3 files changed, 229 insertions(+)
- create mode 100644 tools/testing/selftests/kvm/s390x/tprot.c
+ arch/s390/include/asm/uaccess.h | 22 +++++++++
+ arch/s390/lib/uaccess.c         | 81 +++++++++++++++++++++++++--------
+ 2 files changed, 85 insertions(+), 18 deletions(-)
 
-diff --git a/tools/testing/selftests/kvm/.gitignore b/tools/testing/selftests/kvm/.gitignore
-index dce7de7755e6..7903580a48ac 100644
---- a/tools/testing/selftests/kvm/.gitignore
-+++ b/tools/testing/selftests/kvm/.gitignore
-@@ -8,6 +8,7 @@
- /s390x/memop
- /s390x/resets
- /s390x/sync_regs_test
-+/s390x/tprot
- /x86_64/amx_test
- /x86_64/cpuid_test
- /x86_64/cr4_cpuid_sync_test
-diff --git a/tools/testing/selftests/kvm/Makefile b/tools/testing/selftests/kvm/Makefile
-index 0e4926bc9a58..086f490e808d 100644
---- a/tools/testing/selftests/kvm/Makefile
-+++ b/tools/testing/selftests/kvm/Makefile
-@@ -121,6 +121,7 @@ TEST_GEN_PROGS_aarch64 += kvm_binary_stats_test
- TEST_GEN_PROGS_s390x = s390x/memop
- TEST_GEN_PROGS_s390x += s390x/resets
- TEST_GEN_PROGS_s390x += s390x/sync_regs_test
-+TEST_GEN_PROGS_s390x += s390x/tprot
- TEST_GEN_PROGS_s390x += demand_paging_test
- TEST_GEN_PROGS_s390x += dirty_log_test
- TEST_GEN_PROGS_s390x += kvm_create_max_vcpus
-diff --git a/tools/testing/selftests/kvm/s390x/tprot.c b/tools/testing/selftests/kvm/s390x/tprot.c
-new file mode 100644
-index 000000000000..c097b9db495e
---- /dev/null
-+++ b/tools/testing/selftests/kvm/s390x/tprot.c
-@@ -0,0 +1,227 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * Test TEST PROTECTION emulation.
-+ *
-+ * Copyright IBM Corp. 2021
-+ */
+diff --git a/arch/s390/include/asm/uaccess.h b/arch/s390/include/asm/uaccess.h
+index d74e26b48604..ba1bcb91af95 100644
+--- a/arch/s390/include/asm/uaccess.h
++++ b/arch/s390/include/asm/uaccess.h
+@@ -44,6 +44,28 @@ raw_copy_to_user(void __user *to, const void *from, unsigned long n);
+ #define INLINE_COPY_TO_USER
+ #endif
+ 
++unsigned long __must_check
++_copy_from_user_key(void *to, const void __user *from, unsigned long n, unsigned long key);
 +
-+#include <sys/mman.h>
-+#include "test_util.h"
-+#include "kvm_util.h"
-+
-+#define PAGE_SHIFT 12
-+#define PAGE_SIZE (1 << PAGE_SHIFT)
-+#define CR0_FETCH_PROTECTION_OVERRIDE	(1UL << (63 - 38))
-+#define CR0_STORAGE_PROTECTION_OVERRIDE	(1UL << (63 - 39))
-+
-+#define VCPU_ID 1
-+
-+static __aligned(PAGE_SIZE) uint8_t pages[2][PAGE_SIZE];
-+static uint8_t *const page_store_prot = pages[0];
-+static uint8_t *const page_fetch_prot = pages[1];
-+
-+/* Nonzero return value indicates that address not mapped */
-+static int set_storage_key(void *addr, uint8_t key)
++static __always_inline unsigned long __must_check
++copy_from_user_key(void *to, const void __user *from, unsigned long n, unsigned long key)
 +{
-+	int not_mapped = 0;
-+
-+	asm volatile (
-+		       "lra	%[addr], 0(0,%[addr])\n"
-+		"	jz	0f\n"
-+		"	llill	%[not_mapped],1\n"
-+		"	j	1f\n"
-+		"0:	sske	%[key], %[addr]\n"
-+		"1:"
-+		: [addr] "+&a" (addr), [not_mapped] "+r" (not_mapped)
-+		: [key] "r" (key)
-+		: "cc"
-+	);
-+	return -not_mapped;
++	if (likely(check_copy_size(to, n, false)))
++		n = _copy_from_user_key(to, from, n, key);
++	return n;
 +}
 +
-+enum permission {
-+	READ_WRITE = 0,
-+	READ = 1,
-+	RW_PROTECTED = 2,
-+	TRANSL_UNAVAIL = 3,
-+};
++unsigned long __must_check
++_copy_to_user_key(void __user *to, const void *from, unsigned long n, unsigned long key);
 +
-+static enum permission test_protection(void *addr, uint8_t key)
++static __always_inline unsigned long __must_check
++copy_to_user_key(void __user *to, const void *from, unsigned long n, unsigned long key)
 +{
-+	uint64_t mask;
-+
-+	asm volatile (
-+		       "tprot	%[addr], 0(%[key])\n"
-+		"	ipm	%[mask]\n"
-+		: [mask] "=r" (mask)
-+		: [addr] "Q" (*(char *)addr),
-+		  [key] "a" (key)
-+		: "cc"
-+	);
-+
-+	return (enum permission)(mask >> 28);
++	if (likely(check_copy_size(from, n, true)))
++		n = _copy_to_user_key(to, from, n, key);
++	return n;
 +}
 +
-+enum stage {
-+	STAGE_END,
-+	STAGE_INIT_SIMPLE,
-+	TEST_SIMPLE,
-+	STAGE_INIT_FETCH_PROT_OVERRIDE,
-+	TEST_FETCH_PROT_OVERRIDE,
-+	TEST_STORAGE_PROT_OVERRIDE,
-+};
+ int __put_user_bad(void) __attribute__((noreturn));
+ int __get_user_bad(void) __attribute__((noreturn));
+ 
+diff --git a/arch/s390/lib/uaccess.c b/arch/s390/lib/uaccess.c
+index 8a5d21461889..b709239feb5d 100644
+--- a/arch/s390/lib/uaccess.c
++++ b/arch/s390/lib/uaccess.c
+@@ -59,11 +59,13 @@ static inline int copy_with_mvcos(void)
+ #endif
+ 
+ static inline unsigned long copy_from_user_mvcos(void *x, const void __user *ptr,
+-						 unsigned long size)
++						 unsigned long size, unsigned long key)
+ {
+ 	unsigned long tmp1, tmp2;
+ 	union oac spec = {
++		.oac2.key = key,
+ 		.oac2.as = PSW_BITS_AS_SECONDARY,
++		.oac2.k = 1,
+ 		.oac2.a = 1,
+ 	};
+ 
+@@ -94,19 +96,19 @@ static inline unsigned long copy_from_user_mvcos(void *x, const void __user *ptr
+ }
+ 
+ static inline unsigned long copy_from_user_mvcp(void *x, const void __user *ptr,
+-						unsigned long size)
++						unsigned long size, unsigned long key)
+ {
+ 	unsigned long tmp1, tmp2;
+ 
+ 	tmp1 = -256UL;
+ 	asm volatile(
+ 		"   sacf  0\n"
+-		"0: mvcp  0(%0,%2),0(%1),%3\n"
++		"0: mvcp  0(%0,%2),0(%1),%[key]\n"
+ 		"7: jz    5f\n"
+ 		"1: algr  %0,%3\n"
+ 		"   la    %1,256(%1)\n"
+ 		"   la    %2,256(%2)\n"
+-		"2: mvcp  0(%0,%2),0(%1),%3\n"
++		"2: mvcp  0(%0,%2),0(%1),%[key]\n"
+ 		"8: jnz   1b\n"
+ 		"   j     5f\n"
+ 		"3: la    %4,255(%1)\n"	/* %4 = ptr + 255 */
+@@ -115,7 +117,7 @@ static inline unsigned long copy_from_user_mvcp(void *x, const void __user *ptr,
+ 		"   slgr  %4,%1\n"
+ 		"   clgr  %0,%4\n"	/* copy crosses next page boundary? */
+ 		"   jnh   6f\n"
+-		"4: mvcp  0(%4,%2),0(%1),%3\n"
++		"4: mvcp  0(%4,%2),0(%1),%[key]\n"
+ 		"9: slgr  %0,%4\n"
+ 		"   j     6f\n"
+ 		"5: slgr  %0,%0\n"
+@@ -123,24 +125,49 @@ static inline unsigned long copy_from_user_mvcp(void *x, const void __user *ptr,
+ 		EX_TABLE(0b,3b) EX_TABLE(2b,3b) EX_TABLE(4b,6b)
+ 		EX_TABLE(7b,3b) EX_TABLE(8b,3b) EX_TABLE(9b,6b)
+ 		: "+a" (size), "+a" (ptr), "+a" (x), "+a" (tmp1), "=a" (tmp2)
+-		: : "cc", "memory");
++		: [key] "d" (key << 4)
++		: "cc", "memory");
+ 	return size;
+ }
+ 
+-unsigned long raw_copy_from_user(void *to, const void __user *from, unsigned long n)
++static unsigned long raw_copy_from_user_key(void *to, const void __user *from,
++					    unsigned long n, unsigned long key)
+ {
+ 	if (copy_with_mvcos())
+-		return copy_from_user_mvcos(to, from, n);
+-	return copy_from_user_mvcp(to, from, n);
++		return copy_from_user_mvcos(to, from, n, key);
++	return copy_from_user_mvcp(to, from, n, key);
++}
 +
-+struct test {
-+	enum stage stage;
-+	void *addr;
-+	uint8_t key;
-+	enum permission expected;
-+} tests[] = {
-+	/*
-+	 * We perform each test in the array by executing TEST PROTECTION on
-+	 * the specified addr with the specified key and checking if the returned
-+	 * permissions match the expected value.
-+	 * Both guest and host cooperate to set up the required test conditions.
-+	 * A central condition is that the page targeted by addr has to be DAT
-+	 * protected in the host mappings, in order for KVM to emulate the
-+	 * TEST PROTECTION instruction.
-+	 * Since the page tables are shared, the host uses mprotect to achieve
-+	 * this.
-+	 *
-+	 * Test resulting in RW_PROTECTED/TRANSL_UNAVAIL will be interpreted
-+	 * by SIE, not KVM, but there is no harm in testing them also.
-+	 * See Enhanced Suppression-on-Protection Facilities in the
-+	 * Interpretive-Execution Mode
-+	 */
-+	/*
-+	 * guest: set storage key of page_store_prot to 1
-+	 *        storage key of page_fetch_prot to 9 and enable
-+	 *        protection for it
-+	 * STAGE_INIT_SIMPLE
-+	 * host: write protect both via mprotect
-+	 */
-+	/* access key 0 matches any storage key -> RW */
-+	{ TEST_SIMPLE, page_store_prot, 0x00, READ_WRITE },
-+	/* access key matches storage key -> RW */
-+	{ TEST_SIMPLE, page_store_prot, 0x10, READ_WRITE },
-+	/* mismatched keys, but no fetch protection -> RO */
-+	{ TEST_SIMPLE, page_store_prot, 0x20, READ },
-+	/* access key 0 matches any storage key -> RW */
-+	{ TEST_SIMPLE, page_fetch_prot, 0x00, READ_WRITE },
-+	/* access key matches storage key -> RW */
-+	{ TEST_SIMPLE, page_fetch_prot, 0x90, READ_WRITE },
-+	/* mismatched keys, fetch protection -> inaccessible */
-+	{ TEST_SIMPLE, page_fetch_prot, 0x10, RW_PROTECTED },
-+	/* page 0 not mapped yet -> translation not available */
-+	{ TEST_SIMPLE, (void *)0x00, 0x10, TRANSL_UNAVAIL },
-+	/*
-+	 * host: try to map page 0
-+	 * guest: set storage key of page 0 to 9 and enable fetch protection
-+	 * STAGE_INIT_FETCH_PROT_OVERRIDE
-+	 * host: write protect page 0
-+	 *       enable fetch protection override
-+	 */
-+	/* mismatched keys, fetch protection, but override applies -> RO */
-+	{ TEST_FETCH_PROT_OVERRIDE, (void *)0x00, 0x10, READ },
-+	/* mismatched keys, fetch protection, override applies to 0-2048 only -> inaccessible */
-+	{ TEST_FETCH_PROT_OVERRIDE, (void *)2049, 0x10, RW_PROTECTED },
-+	/*
-+	 * host: enable storage protection override
-+	 */
-+	/* mismatched keys, but override applies (storage key 9) -> RW */
-+	{ TEST_STORAGE_PROT_OVERRIDE, page_fetch_prot, 0x10, READ_WRITE },
-+	/* mismatched keys, no fetch protection, override doesn't apply -> RO */
-+	{ TEST_STORAGE_PROT_OVERRIDE, page_store_prot, 0x20, READ },
-+	/* mismatched keys, but override applies (storage key 9) -> RW */
-+	{ TEST_STORAGE_PROT_OVERRIDE, (void *)2049, 0x10, READ_WRITE },
-+	/* end marker */
-+	{ STAGE_END, 0, 0, 0 },
-+};
-+
-+static enum stage perform_next_stage(int *i, bool mapped_0)
++unsigned long raw_copy_from_user(void *to, const void __user *from, unsigned long n)
 +{
-+	enum stage stage = tests[*i].stage;
-+	enum permission result;
-+	bool skip;
++	return raw_copy_from_user_key(to, from, n, 0);
+ }
+ EXPORT_SYMBOL(raw_copy_from_user);
+ 
++unsigned long _copy_from_user_key(void *to, const void __user *from,
++				  unsigned long n, unsigned long key)
++{
++	unsigned long res = n;
 +
-+	for (; tests[*i].stage == stage; (*i)++) {
-+		/*
-+		 * Some fetch protection override tests require that page 0
-+		 * be mapped, however, when the hosts tries to map that page via
-+		 * vm_vaddr_alloc, it may happen that some other page gets mapped
-+		 * instead.
-+		 * In order to skip these tests we detect this inside the guest
-+		 */
-+		skip = tests[*i].addr < (void *)4096 &&
-+		       tests[*i].expected != TRANSL_UNAVAIL &&
-+		       !mapped_0;
-+		if (!skip) {
-+			result = test_protection(tests[*i].addr, tests[*i].key);
-+			GUEST_ASSERT_2(result == tests[*i].expected, *i, result);
-+		}
++	might_fault();
++	if (!should_fail_usercopy()) {
++		instrument_copy_from_user(to, from, n);
++		res = raw_copy_from_user_key(to, from, n, key);
 +	}
-+	return stage;
++	if (unlikely(res))
++		memset(to + (n - res), 0, res);
++	return res;
++}
++EXPORT_SYMBOL(_copy_from_user_key);
++
+ static inline unsigned long copy_to_user_mvcos(void __user *ptr, const void *x,
+-					       unsigned long size)
++					       unsigned long size, unsigned long key)
+ {
+ 	unsigned long tmp1, tmp2;
+ 	union oac spec = {
++		.oac1.key = key,
+ 		.oac1.as = PSW_BITS_AS_SECONDARY,
++		.oac1.k = 1,
+ 		.oac1.a = 1,
+ 	};
+ 
+@@ -171,19 +198,19 @@ static inline unsigned long copy_to_user_mvcos(void __user *ptr, const void *x,
+ }
+ 
+ static inline unsigned long copy_to_user_mvcs(void __user *ptr, const void *x,
+-					      unsigned long size)
++					      unsigned long size, unsigned long key)
+ {
+ 	unsigned long tmp1, tmp2;
+ 
+ 	tmp1 = -256UL;
+ 	asm volatile(
+ 		"   sacf  0\n"
+-		"0: mvcs  0(%0,%1),0(%2),%3\n"
++		"0: mvcs  0(%0,%1),0(%2),%[key]\n"
+ 		"7: jz    5f\n"
+ 		"1: algr  %0,%3\n"
+ 		"   la    %1,256(%1)\n"
+ 		"   la    %2,256(%2)\n"
+-		"2: mvcs  0(%0,%1),0(%2),%3\n"
++		"2: mvcs  0(%0,%1),0(%2),%[key]\n"
+ 		"8: jnz   1b\n"
+ 		"   j     5f\n"
+ 		"3: la    %4,255(%1)\n" /* %4 = ptr + 255 */
+@@ -192,7 +219,7 @@ static inline unsigned long copy_to_user_mvcs(void __user *ptr, const void *x,
+ 		"   slgr  %4,%1\n"
+ 		"   clgr  %0,%4\n"	/* copy crosses next page boundary? */
+ 		"   jnh   6f\n"
+-		"4: mvcs  0(%4,%1),0(%2),%3\n"
++		"4: mvcs  0(%4,%1),0(%2),%[key]\n"
+ 		"9: slgr  %0,%4\n"
+ 		"   j     6f\n"
+ 		"5: slgr  %0,%0\n"
+@@ -200,18 +227,36 @@ static inline unsigned long copy_to_user_mvcs(void __user *ptr, const void *x,
+ 		EX_TABLE(0b,3b) EX_TABLE(2b,3b) EX_TABLE(4b,6b)
+ 		EX_TABLE(7b,3b) EX_TABLE(8b,3b) EX_TABLE(9b,6b)
+ 		: "+a" (size), "+a" (ptr), "+a" (x), "+a" (tmp1), "=a" (tmp2)
+-		: : "cc", "memory");
++		: [key] "d" (key << 4)
++		: "cc", "memory");
+ 	return size;
+ }
+ 
+-unsigned long raw_copy_to_user(void __user *to, const void *from, unsigned long n)
++static unsigned long raw_copy_to_user_key(void __user *to, const void *from,
++					  unsigned long n, unsigned long key)
+ {
+ 	if (copy_with_mvcos())
+-		return copy_to_user_mvcos(to, from, n);
+-	return copy_to_user_mvcs(to, from, n);
++		return copy_to_user_mvcos(to, from, n, key);
++	return copy_to_user_mvcs(to, from, n, key);
 +}
 +
-+static void guest_code(void)
++unsigned long raw_copy_to_user(void __user *to, const void *from, unsigned long n)
 +{
-+	bool mapped_0;
-+	int i = 0;
-+
-+	GUEST_ASSERT_EQ(set_storage_key(page_store_prot, 0x10), 0);
-+	GUEST_ASSERT_EQ(set_storage_key(page_fetch_prot, 0x98), 0);
-+	GUEST_SYNC(STAGE_INIT_SIMPLE);
-+	GUEST_SYNC(perform_next_stage(&i, false));
-+
-+	/* Fetch-protection override */
-+	mapped_0 = !set_storage_key((void *)0, 0x98);
-+	GUEST_SYNC(STAGE_INIT_FETCH_PROT_OVERRIDE);
-+	GUEST_SYNC(perform_next_stage(&i, mapped_0));
-+
-+	/* Storage-protection override */
-+	GUEST_SYNC(perform_next_stage(&i, mapped_0));
-+}
-+
-+#define HOST_SYNC(vmp, stage)							\
-+({										\
-+	struct kvm_vm *__vm = (vmp);						\
-+	struct ucall uc;							\
-+	int __stage = (stage);							\
-+										\
-+	vcpu_run(__vm, VCPU_ID);						\
-+	get_ucall(__vm, VCPU_ID, &uc);						\
-+	if (uc.cmd == UCALL_ABORT) {						\
-+		TEST_FAIL("line %lu: %s, hints: %lu, %lu", uc.args[1],		\
-+			  (const char *)uc.args[0], uc.args[2], uc.args[3]);	\
-+	}									\
-+	ASSERT_EQ(uc.cmd, UCALL_SYNC);						\
-+	ASSERT_EQ(uc.args[1], __stage);						\
-+})
-+
-+int main(int argc, char *argv[])
++	return raw_copy_to_user_key(to, from, n, 0);
+ }
+ EXPORT_SYMBOL(raw_copy_to_user);
+ 
++unsigned long _copy_to_user_key(void __user *to, const void *from,
++				unsigned long n, unsigned long key)
 +{
-+	struct kvm_vm *vm;
-+	struct kvm_run *run;
-+	vm_vaddr_t guest_0_page;
-+
-+	vm = vm_create_default(VCPU_ID, 0, guest_code);
-+	run = vcpu_state(vm, VCPU_ID);
-+
-+	HOST_SYNC(vm, STAGE_INIT_SIMPLE);
-+	mprotect(addr_gva2hva(vm, (vm_vaddr_t)pages), PAGE_SIZE * 2, PROT_READ);
-+	HOST_SYNC(vm, TEST_SIMPLE);
-+
-+	guest_0_page = vm_vaddr_alloc(vm, PAGE_SIZE, 0);
-+	if (guest_0_page != 0)
-+		print_skip("Did not allocate page at 0 for fetch protection override tests");
-+	HOST_SYNC(vm, STAGE_INIT_FETCH_PROT_OVERRIDE);
-+	if (guest_0_page == 0)
-+		mprotect(addr_gva2hva(vm, (vm_vaddr_t)0), PAGE_SIZE, PROT_READ);
-+	run->s.regs.crs[0] |= CR0_FETCH_PROTECTION_OVERRIDE;
-+	run->kvm_dirty_regs = KVM_SYNC_CRS;
-+	HOST_SYNC(vm, TEST_FETCH_PROT_OVERRIDE);
-+
-+	run->s.regs.crs[0] |= CR0_STORAGE_PROTECTION_OVERRIDE;
-+	run->kvm_dirty_regs = KVM_SYNC_CRS;
-+	HOST_SYNC(vm, TEST_STORAGE_PROT_OVERRIDE);
++	might_fault();
++	if (should_fail_usercopy())
++		return n;
++	instrument_copy_to_user(to, from, n);
++	return raw_copy_to_user_key(to, from, n, key);
 +}
++EXPORT_SYMBOL(_copy_to_user_key);
++
+ static inline unsigned long clear_user_mvcos(void __user *to, unsigned long size)
+ {
+ 	unsigned long tmp1, tmp2;
 -- 
 2.32.0
 
