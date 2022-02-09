@@ -2,97 +2,215 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 491EFC35271
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Feb 2022 09:41:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 45DBAC433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Feb 2022 09:41:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233856AbiBIJlf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 9 Feb 2022 04:41:35 -0500
-Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:48280 "EHLO
+        id S233769AbiBIJlg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 9 Feb 2022 04:41:36 -0500
+Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:50136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239370AbiBIJeB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Feb 2022 04:34:01 -0500
-Received: from out30-43.freemail.mail.aliyun.com (out30-43.freemail.mail.aliyun.com [115.124.30.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D99FE05BA50;
-        Wed,  9 Feb 2022 01:33:57 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04357;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0V4-Z-Uv_1644399222;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0V4-Z-Uv_1644399222)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 09 Feb 2022 17:33:43 +0800
-Date:   Wed, 9 Feb 2022 17:33:40 +0800
-From:   Tony Lu <tonylu@linux.alibaba.com>
-To:     "D. Wythe" <alibuda@linux.alibaba.com>
-Cc:     kgraul@linux.ibm.com, kuba@kernel.org, davem@davemloft.net,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-rdma@vger.kernel.org
-Subject: Re: [PATCH net-next v5 5/5] net/smc: Add global configure for auto
- fallback by netlink
-Message-ID: <YgOKc5FW/JRmW1U6@TonyMac-Alibaba>
-Reply-To: Tony Lu <tonylu@linux.alibaba.com>
-References: <cover.1644323503.git.alibuda@linux.alibaba.com>
- <f54ee9f30898b998edf8f07dabccc84efaa2ab8b.1644323503.git.alibuda@linux.alibaba.com>
+        with ESMTP id S240356AbiBIJec (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Feb 2022 04:34:32 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B3D1E05BA6F;
+        Wed,  9 Feb 2022 01:34:31 -0800 (PST)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 2198vqhf012063;
+        Wed, 9 Feb 2022 09:34:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : from : to : cc : references : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=HH9xhkFjQ1nugdMdCXQbfnAWk9nKi8h0ee0AeB6zGyA=;
+ b=QquuRP7lHwiEdtO5XBL769aWD+oG3iEJ3M9EImyATu/lxpWyVVYe3fQdrQq1EfJs5ElI
+ nEne5DAjdDjtFOdkQypeL6OCDKJ2h7FAPc2qMRK6c4lPBHTilbb1iw6m6gmMcWTtAzfs
+ hn/c0ocUY1UPqJD6xi5RrtpMtxrySqCBWvgdqg4pkI5Hgq83C2Qu79MXQvXCkOLAsZQV
+ lsFTTgn86750Zr68MbnZ1/oZxnzvEBCYnbdi6PhXpUm3L+iZWk+LbUDvwfhWBJ2vhc5T
+ l0NiS4XmaRK4S3jVPMpum+74YYBlWmI6p9qJBWMJrPBZ+pIvP22LfOvCO9cr8NqB42Rt DA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e4ajk8nj3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 09 Feb 2022 09:34:30 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 2199QDBs024667;
+        Wed, 9 Feb 2022 09:34:29 GMT
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e4ajk8nhk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 09 Feb 2022 09:34:29 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2199H0Z1025227;
+        Wed, 9 Feb 2022 09:34:27 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma01fra.de.ibm.com with ESMTP id 3e1gv9kqjg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 09 Feb 2022 09:34:26 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2199YLcu44237234
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 9 Feb 2022 09:34:21 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 01E5AA4053;
+        Wed,  9 Feb 2022 09:34:21 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0E05EA4051;
+        Wed,  9 Feb 2022 09:34:20 +0000 (GMT)
+Received: from [9.171.87.52] (unknown [9.171.87.52])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed,  9 Feb 2022 09:34:19 +0000 (GMT)
+Message-ID: <29ac0e5c-f77b-04b2-bbf5-cf5a5ca78921@linux.ibm.com>
+Date:   Wed, 9 Feb 2022 10:34:19 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <f54ee9f30898b998edf8f07dabccc84efaa2ab8b.1644323503.git.alibuda@linux.alibaba.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH v2 05/11] KVM: s390: Add optional storage key checking to
+ MEMOP IOCTL
+Content-Language: en-US
+From:   Christian Borntraeger <borntraeger@linux.ibm.com>
+To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Konstantin Ryabitsev <konstantin@linuxfoundation.org>
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+References: <20220207165930.1608621-1-scgl@linux.ibm.com>
+ <20220207165930.1608621-6-scgl@linux.ibm.com>
+ <48d1678f-746c-dab6-5ec3-56397277f752@linux.ibm.com>
+ <71f07914-d0b2-e98b-22b2-bc05f04df2da@linux.ibm.com>
+ <6ea27647-fbbe-3962-03a0-8ca5340fc7fd@linux.ibm.com>
+In-Reply-To: <6ea27647-fbbe-3962-03a0-8ca5340fc7fd@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: JGM9Zf2mFAzgHbvz4-cjin-y2c5Ym3v7
+X-Proofpoint-GUID: k8icOF-FvUBNOatk0Xme2-sWOtUNd3uB
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-02-09_05,2022-02-09_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1011
+ priorityscore=1501 phishscore=0 mlxlogscore=999 adultscore=0 bulkscore=0
+ malwarescore=0 lowpriorityscore=0 spamscore=0 mlxscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2201110000
+ definitions=main-2202090062
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Feb 08, 2022 at 08:53:13PM +0800, D. Wythe wrote:
-> From: "D. Wythe" <alibuda@linux.alibaba.com>
-> 
-> Although we can control SMC auto fallback through socket options, which
-> means that applications who need it must modify their code. It's quite
-> troublesome for many existing applications. This patch modifies the
-> global default value of auto fallback through netlink, providing a way
-> to auto fallback without modifying any code for applications.
-> 
-> Suggested-by: Tony Lu <tonylu@linux.alibaba.com>
-> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-> ---
->  include/uapi/linux/smc.h |  3 +++
->  net/smc/af_smc.c         | 17 +++++++++++++++++
->  net/smc/smc.h            |  7 +++++++
->  net/smc/smc_core.c       |  2 ++
->  net/smc/smc_netlink.c    | 10 ++++++++++
->  5 files changed, 39 insertions(+)
-> 
-> diff --git a/include/uapi/linux/smc.h b/include/uapi/linux/smc.h
-> index 9f2cbf8..33f7fb8 100644
-> --- a/include/uapi/linux/smc.h
-> +++ b/include/uapi/linux/smc.h
-> @@ -59,6 +59,8 @@ enum {
->  	SMC_NETLINK_DUMP_SEID,
->  	SMC_NETLINK_ENABLE_SEID,
->  	SMC_NETLINK_DISABLE_SEID,
-> +	SMC_NETLINK_ENABLE_AUTO_FALLBACK,
-> +	SMC_NETLINK_DISABLE_AUTO_FALLBACK,
->  };
->  
->  /* SMC_GENL_FAMILY top level attributes */
-> @@ -85,6 +87,7 @@ enum {
->  	SMC_NLA_SYS_LOCAL_HOST,		/* string */
->  	SMC_NLA_SYS_SEID,		/* string */
->  	SMC_NLA_SYS_IS_SMCR_V2,		/* u8 */
-> +	SMC_NLA_SYS_AUTO_FALLBACK,	/* u8 */
->  	__SMC_NLA_SYS_MAX,
->  	SMC_NLA_SYS_MAX = __SMC_NLA_SYS_MAX - 1
->  };
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index c313561..4a25ce7 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -59,6 +59,8 @@
->  						 * creation on client
->  						 */
->  
-> +bool smc_auto_fallback;	/* default behavior for auto fallback, disable by default */
+CC Konstantin,
 
-SMC supports net namespace, it would be better to provide a per
-net-namespace switch. Generally, one container has one application, runs
-different workload that is different from others. So the behavior could
-be different, such as high-performance (don't fallback for limit) or TCP
-transparent replacement (limit if needed).
+I hope you can find the right people. Looks that my (and Janis) emaildid not make it to linux-s390 and kvm at vger lists.
+Message-ID: <6ea27647-fbbe-3962-03a0-8ca5340fc7fd@linux.ibm.com>
 
-Thank you,
-Tony Lu
+
+Am 09.02.22 um 10:08 schrieb Christian Borntraeger:
+> 
+> 
+> Am 09.02.22 um 09:49 schrieb Janis Schoetterl-Glausch:
+>> On 2/9/22 08:34, Christian Borntraeger wrote:
+>>> Am 07.02.22 um 17:59 schrieb Janis Schoetterl-Glausch:
+>>>> User space needs a mechanism to perform key checked accesses when
+>>>> emulating instructions.
+>>>>
+>>>> The key can be passed as an additional argument.
+>>>> Having an additional argument is flexible, as user space can
+>>>> pass the guest PSW's key, in order to make an access the same way the
+>>>> CPU would, or pass another key if necessary.
+>>>>
+>>>> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+>>>> Acked-by: Janosch Frank <frankja@linux.ibm.com>
+>>>> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+>>>> ---
+>>>>    arch/s390/kvm/kvm-s390.c | 49 +++++++++++++++++++++++++++++++---------
+>>>>    include/uapi/linux/kvm.h |  8 +++++--
+>>>>    2 files changed, 44 insertions(+), 13 deletions(-)
+>>>>
+>>>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>>>> index cf347e1a4f17..71e61fb3f0d9 100644
+>>>> --- a/arch/s390/kvm/kvm-s390.c
+>>>> +++ b/arch/s390/kvm/kvm-s390.c
+>>>> @@ -32,6 +32,7 @@
+>>>>    #include <linux/sched/signal.h>
+>>>>    #include <linux/string.h>
+>>>>    #include <linux/pgtable.h>
+>>>> +#include <linux/bitfield.h>
+>>>>      #include <asm/asm-offsets.h>
+>>>>    #include <asm/lowcore.h>
+>>>> @@ -2359,6 +2360,11 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
+>>>>        return r;
+>>>>    }
+>>>>    +static bool access_key_invalid(u8 access_key)
+>>>> +{
+>>>> +    return access_key > 0xf;
+>>>> +}
+>>>> +
+>>>>    long kvm_arch_vm_ioctl(struct file *filp,
+>>>>                   unsigned int ioctl, unsigned long arg)
+>>>>    {
+>>>> @@ -4687,34 +4693,54 @@ static long kvm_s390_guest_mem_op(struct kvm_vcpu *vcpu,
+>>>>                      struct kvm_s390_mem_op *mop)
+>>>>    {
+>>>>        void __user *uaddr = (void __user *)mop->buf;
+>>>> +    u8 access_key = 0, ar = 0;
+>>>>        void *tmpbuf = NULL;
+>>>> +    bool check_reserved;
+>>>>        int r = 0;
+>>>>        const u64 supported_flags = KVM_S390_MEMOP_F_INJECT_EXCEPTION
+>>>> -                    | KVM_S390_MEMOP_F_CHECK_ONLY;
+>>>> +                    | KVM_S390_MEMOP_F_CHECK_ONLY
+>>>> +                    | KVM_S390_MEMOP_F_SKEY_PROTECTION;
+>>>>    -    if (mop->flags & ~supported_flags || mop->ar >= NUM_ACRS || !mop->size)
+>>>> +    if (mop->flags & ~supported_flags || !mop->size)
+>>>>            return -EINVAL;
+>>>> -
+>>>>        if (mop->size > MEM_OP_MAX_SIZE)
+>>>>            return -E2BIG;
+>>>> -
+>>>>        if (kvm_s390_pv_cpu_is_protected(vcpu))
+>>>>            return -EINVAL;
+>>>> -
+>>>>        if (!(mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY)) {
+>>>>            tmpbuf = vmalloc(mop->size);
+>>>>            if (!tmpbuf)
+>>>>                return -ENOMEM;
+>>>>        }
+>>>> +    ar = mop->ar;
+>>>> +    mop->ar = 0;
+>>>
+>>> Why this assignment to 0?
+>>
+>> It's so the check of reserved below works like that, they're all part of the anonymous union.
+> 
+> Ah, I see. This is ugly :-)
+> 
+>>>
+>>>> +    if (ar >= NUM_ACRS)
+>>>> +        return -EINVAL;
+>>>> +    if (mop->flags & KVM_S390_MEMOP_F_SKEY_PROTECTION) {
+>>>> +        access_key = mop->key;
+>>>> +        mop->key = 0;
+>>>
+>>> and this? I think we can leave mop unchanged.
+>>>
+>>> In fact, why do we add the ar and access_key variable?
+>>> This breaks the check from above (if (mop->flags & ~supported_flags || mop->ar >= NUM_ACRS || !mop->size))  into two checks
+>>> and it will create a memleak for tmpbuf.
+>>
+>> I can move the allocation down, goto out or get rid of the reserved check and keep everything as before.
+>> First is simpler, but second makes handling that case more explicit and might help in the future.
+> 
+> Maybe add a reserved_02 field in the anon struct and check this for being zero and get rid of the local variables?
+> 
+>> Patch 6 has the same issue in the vm ioctl handler.
+>>>
+>>> Simply use mop->key and mop->ar below and get rid of the local variables.
+>>> The structure has no concurrency and gcc will handle that just as the local variable.
+>>>
+>>> Other than that this looks good.
+>>
+>> [...]
+>>
