@@ -2,240 +2,181 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 48306C433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 10 Feb 2022 09:43:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DB762C433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 10 Feb 2022 10:07:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238926AbiBJJne (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 10 Feb 2022 04:43:34 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33376 "EHLO
+        id S239386AbiBJKHv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 10 Feb 2022 05:07:51 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:54444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237813AbiBJJne (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Feb 2022 04:43:34 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87FD5198;
-        Thu, 10 Feb 2022 01:43:35 -0800 (PST)
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21A8e2lS017544;
-        Thu, 10 Feb 2022 09:43:33 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=c+MoOO0p48rgFA4we5XmAZ1Bj7IJq9T09FokDjoZ/Xc=;
- b=VosqYpcJd8gZ+blgKJc2p2ZhLEADSmWerpbHfI/Tu+ffXwBCI4XEm7pkXYKvkinwNkC0
- 4mKx2/bKG/PrTGrUxNUsjXj5zF92j27kuE0ja3HgMOsBMd/3GpdL9W4gvpcLrgLi3t/p
- 97B45rxws7j2/MKp/8/wr6S0eQjblkkiXar0n8kdedeSQnEf8ZEMsSWCJcTaj57saf/Q
- /pIVsXINiNLz7ILfT8FNF1WcpVcaKxxsJTwob4Yav161n6ltVeBAZyPjxdmHud+iXrEr
- GAiu2Qo0jirlkeAeaQwXA3t0vD8V2fvN/pNF91o0mRIKaW7ueFst0K3hhK9a1AcYLhRA mw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3e4kt2ep3a-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 10 Feb 2022 09:43:33 +0000
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21A8imcl013862;
-        Thu, 10 Feb 2022 09:43:33 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3e4kt2ep2r-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 10 Feb 2022 09:43:33 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21A9bwRx029214;
-        Thu, 10 Feb 2022 09:43:31 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma04fra.de.ibm.com with ESMTP id 3e2ygqkh16-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 10 Feb 2022 09:43:31 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21A9hRCo44499210
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 10 Feb 2022 09:43:27 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A0F8652050;
-        Thu, 10 Feb 2022 09:43:27 +0000 (GMT)
-Received: from [9.171.15.77] (unknown [9.171.15.77])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id B64B052052;
-        Thu, 10 Feb 2022 09:43:26 +0000 (GMT)
-Message-ID: <003e0e46-1dd5-7806-cab6-0d730ff923b9@linux.ibm.com>
-Date:   Thu, 10 Feb 2022 10:43:26 +0100
+        with ESMTP id S231329AbiBJKHu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Feb 2022 05:07:50 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8B146BB1
+        for <linux-s390@vger.kernel.org>; Thu, 10 Feb 2022 02:07:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1644487669;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=GU7j/+KvnThw2swAY7RzjP0UdrzJ8EHT8G8D2BUR3Oc=;
+        b=h5QDoa/6e+KjPEmfn7EJ2+XIQi7MT3VicBjveFP6XCg4ZKfIkSqlwBgOZee3/nALznlpVf
+        R+TDcn74Powfdo+CrKa5Wjo6pPeBtFIzo9MxbanqVTl3THHRX/JfHg0B/yGT4ycdYKf0Tm
+        55h3cHkEbGufNU0f5eylBzK6G22NGEE=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-259-LxExiLg2NlmQE-n1Jz19Eg-1; Thu, 10 Feb 2022 05:07:44 -0500
+X-MC-Unique: LxExiLg2NlmQE-n1Jz19Eg-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D27CA83DD20;
+        Thu, 10 Feb 2022 10:07:41 +0000 (UTC)
+Received: from localhost (unknown [10.39.193.206])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 904C260C29;
+        Thu, 10 Feb 2022 10:07:08 +0000 (UTC)
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     alex.williamson@redhat.com, schnelle@linux.ibm.com,
+        farman@linux.ibm.com, pmorel@linux.ibm.com,
+        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
+        vneethv@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com,
+        thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 14/30] vfio/pci: re-introduce CONFIG_VFIO_PCI_ZDEV
+In-Reply-To: <68c2e4f0-1375-cd17-c056-3fa58dcbd72f@linux.ibm.com>
+Organization: Red Hat GmbH
+References: <20220204211536.321475-1-mjrosato@linux.ibm.com>
+ <20220204211536.321475-15-mjrosato@linux.ibm.com>
+ <87czjzvztw.fsf@redhat.com>
+ <1ff6e06c-e563-2b9c-3196-542fed7df0f9@linux.ibm.com>
+ <87sfsuv9qg.fsf@redhat.com>
+ <68c2e4f0-1375-cd17-c056-3fa58dcbd72f@linux.ibm.com>
+User-Agent: Notmuch/0.34 (https://notmuchmail.org)
+Date:   Thu, 10 Feb 2022 11:07:06 +0100
+Message-ID: <87czjvt4qd.fsf@redhat.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH v3 05/10] KVM: s390: Add optional storage key checking to
- MEMOP IOCTL
-Content-Language: en-US
-To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-References: <20220209170422.1910690-1-scgl@linux.ibm.com>
- <20220209170422.1910690-6-scgl@linux.ibm.com>
- <c5d8e633-c0cd-91d4-723b-abf26c01fd6d@linux.ibm.com>
- <a384835f-e8f8-7940-af3b-2a7018fa7353@linux.ibm.com>
-From:   Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <a384835f-e8f8-7940-af3b-2a7018fa7353@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: x86TmFy9WNU1K6Vynjnb-4A_Ba7OX5vD
-X-Proofpoint-ORIG-GUID: XzVe-eT19huoGUkVH-3-sbJSxkmc9t5E
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-02-10_03,2022-02-09_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- mlxlogscore=999 malwarescore=0 lowpriorityscore=0 adultscore=0
- impostorscore=0 mlxscore=0 clxscore=1015 phishscore=0 bulkscore=0
- suspectscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2202100051
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Mon, Feb 07 2022, Matthew Rosato <mjrosato@linux.ibm.com> wrote:
 
-
-Am 10.02.22 um 10:40 schrieb Janis Schoetterl-Glausch:
-> On 2/10/22 10:29, Christian Borntraeger wrote:
->> Am 09.02.22 um 18:04 schrieb Janis Schoetterl-Glausch:
->>> User space needs a mechanism to perform key checked accesses when
->>> emulating instructions.
+> On 2/7/22 12:59 PM, Cornelia Huck wrote:
+>> On Mon, Feb 07 2022, Matthew Rosato <mjrosato@linux.ibm.com> wrote:
+>> 
+>>> On 2/7/22 3:35 AM, Cornelia Huck wrote:
+>>>> On Fri, Feb 04 2022, Matthew Rosato <mjrosato@linux.ibm.com> wrote:
+>>>>
+>>>>> This was previously removed as unnecessary; while that was true, subsequent
+>>>>> changes will make KVM an additional required component for vfio-pci-zdev.
+>>>>> Let's re-introduce CONFIG_VFIO_PCI_ZDEV as now there is actually a reason
+>>>>> to say 'n' for it (when not planning to CONFIG_KVM).
+>>>>
+>>>> Hm... can the file be split into parts that depend on KVM and parts that
+>>>> don't? Does anybody ever use vfio-pci on a non-kvm s390 system?
+>>>>
 >>>
->>> The key can be passed as an additional argument.
->>> Having an additional argument is flexible, as user space can
->>> pass the guest PSW's key, in order to make an access the same way the
->>> CPU would, or pass another key if necessary.
->>>
->>> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
->>> Acked-by: Janosch Frank <frankja@linux.ibm.com>
->>> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
->>
->> Claudio, Janosch, can you confirm that this is still valid?
->>
->>
->> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> 
-> Not @linux.ibm.com?
+>>> It is possible to split out most of the prior CLP/ vfio capability work
+>>> (but it would not be a totally clean split, zpci_group_cap for example
+>>> would need to have an inline ifdef since it references a KVM structure)
+>>> -- I suspect we'll see more of that in the future.
+>>> I'm not totally sure if there's value in the information being provided
+>>> today -- this CLP information was all added specifically with
+>>> userspace->guest delivery in mind.  And to answer your other question,
+>>> I'm not directly aware of non-kvm vfio-pci usage on s390 today; but that
+>>> doesn't mean there isn't any or won't be in the future of course.  With
+>>> this series, you could CONFIG_KVM=n + CONFIG_VFIO_PCI=y|m and you'll get
+>>> the standard vfio-pci support but never any vfio-pci-zdev extension.
+>> 
+>> Yes. Remind me again: if you do standard vfio-pci without the extensions
+>> grabbing some card-specific information and making them available to the
+>> guest, you get a working setup, it just always looks like a specific
+>> card, right?
+>> 
+>
+> That's how QEMU treats it anyway, yes.  Standard PCI aspects (e.g. 
+> config space) are fine, but for the s390-specific bits we end up making 
+> generalizations / using hard-coded values that are subsequently shared 
+> with the guest when it issues a CLP -- these bits are used to identify 
+> various s390-specific capabilities of the device (an example: based upon 
+> the function type, the guest could derive what format of the function 
+> measurement block can be used.  The hard-coded value is otherwise 
+> effectively 'generic device' so use the basic format for this block).
+>
+> Basically, we are using vfio to transmit information owned by the host 
+> s390 PCI layer to, ultimately, the guest s390 PCI layer (modified to 
+> reflect what kvm+QEMU supports), so that the guest can treat the device 
+> the same way that the host does.  Anything else in between isn't going 
+> to be interested in that information unless it wants to do something 
+> very s390-specific.
 
-Yes, of course. Old habits...
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Thanks, now I remember the details here :)
 
->>
->> minor thing below
->>> ---
->>>    arch/s390/kvm/kvm-s390.c | 30 ++++++++++++++++++++----------
->>>    include/uapi/linux/kvm.h |  6 +++++-
->>>    2 files changed, 25 insertions(+), 11 deletions(-)
+>
 >>>
->>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->>> index cf347e1a4f17..85763ec7bc60 100644
->>> --- a/arch/s390/kvm/kvm-s390.c
->>> +++ b/arch/s390/kvm/kvm-s390.c
->>> @@ -32,6 +32,7 @@
->>>    #include <linux/sched/signal.h>
->>>    #include <linux/string.h>
->>>    #include <linux/pgtable.h>
->>> +#include <linux/bitfield.h>
->>
->> do we still need that after the changes?
-> 
-> No, not since we moved the key out of the flags.
->>
->>>      #include <asm/asm-offsets.h>
->>>    #include <asm/lowcore.h>
->>> @@ -2359,6 +2360,11 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
->>>        return r;
->>>    }
->>>    +static bool access_key_invalid(u8 access_key)
->>> +{
->>> +    return access_key > 0xf;
->>> +}
->>> +
->>>    long kvm_arch_vm_ioctl(struct file *filp,
->>>                   unsigned int ioctl, unsigned long arg)
->>>    {
->>> @@ -4690,17 +4696,19 @@ static long kvm_s390_guest_mem_op(struct kvm_vcpu *vcpu,
->>>        void *tmpbuf = NULL;
->>>        int r = 0;
->>>        const u64 supported_flags = KVM_S390_MEMOP_F_INJECT_EXCEPTION
->>> -                    | KVM_S390_MEMOP_F_CHECK_ONLY;
->>> +                    | KVM_S390_MEMOP_F_CHECK_ONLY
->>> +                    | KVM_S390_MEMOP_F_SKEY_PROTECTION;
->>>          if (mop->flags & ~supported_flags || mop->ar >= NUM_ACRS || !mop->size)
->>>            return -EINVAL;
->>> -
->>>        if (mop->size > MEM_OP_MAX_SIZE)
->>>            return -E2BIG;
->>> -
->>>        if (kvm_s390_pv_cpu_is_protected(vcpu))
->>>            return -EINVAL;
->>> -
->>> +    if (mop->flags & KVM_S390_MEMOP_F_SKEY_PROTECTION) {
->>> +        if (access_key_invalid(mop->key))
->>> +            return -EINVAL;
->>> +    }
->>>        if (!(mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY)) {
->>>            tmpbuf = vmalloc(mop->size);
->>>            if (!tmpbuf)
->>> @@ -4710,11 +4718,12 @@ static long kvm_s390_guest_mem_op(struct kvm_vcpu *vcpu,
->>>        switch (mop->op) {
->>>        case KVM_S390_MEMOP_LOGICAL_READ:
->>>            if (mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY) {
->>> -            r = check_gva_range(vcpu, mop->gaddr, mop->ar,
->>> -                        mop->size, GACC_FETCH, 0);
->>> +            r = check_gva_range(vcpu, mop->gaddr, mop->ar, mop->size,
->>> +                        GACC_FETCH, mop->key);
->>>                break;
->>>            }
->>> -        r = read_guest(vcpu, mop->gaddr, mop->ar, tmpbuf, mop->size);
->>> +        r = read_guest_with_key(vcpu, mop->gaddr, mop->ar, tmpbuf,
->>> +                    mop->size, mop->key);
->>>            if (r == 0) {
->>>                if (copy_to_user(uaddr, tmpbuf, mop->size))
->>>                    r = -EFAULT;
->>> @@ -4722,15 +4731,16 @@ static long kvm_s390_guest_mem_op(struct kvm_vcpu *vcpu,
->>>            break;
->>>        case KVM_S390_MEMOP_LOGICAL_WRITE:
->>>            if (mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY) {
->>> -            r = check_gva_range(vcpu, mop->gaddr, mop->ar,
->>> -                        mop->size, GACC_STORE, 0);
->>> +            r = check_gva_range(vcpu, mop->gaddr, mop->ar, mop->size,
->>> +                        GACC_STORE, mop->key);
->>>                break;
->>>            }
->>>            if (copy_from_user(tmpbuf, uaddr, mop->size)) {
->>>                r = -EFAULT;
->>>                break;
->>>            }
->>> -        r = write_guest(vcpu, mop->gaddr, mop->ar, tmpbuf, mop->size);
->>> +        r = write_guest_with_key(vcpu, mop->gaddr, mop->ar, tmpbuf,
->>> +                     mop->size, mop->key);
->>>            break;
->>>        }
->>>    diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
->>> index b46bcdb0cab1..44558cf4c52e 100644
->>> --- a/include/uapi/linux/kvm.h
->>> +++ b/include/uapi/linux/kvm.h
->>> @@ -562,7 +562,10 @@ struct kvm_s390_mem_op {
->>>        __u32 op;        /* type of operation */
->>>        __u64 buf;        /* buffer in userspace */
->>>        union {
->>> -        __u8 ar;    /* the access register number */
->>> +        struct {
->>> +            __u8 ar;    /* the access register number */
->>> +            __u8 key;    /* access key, ignored if flag unset */
->>> +        };
->>>            __u32 sida_offset; /* offset into the sida */
->>>            __u8 reserved[32]; /* should be set to 0 */
->>>        };
->>> @@ -575,6 +578,7 @@ struct kvm_s390_mem_op {
->>>    /* flags for kvm_s390_mem_op->flags */
->>>    #define KVM_S390_MEMOP_F_CHECK_ONLY        (1ULL << 0)
->>>    #define KVM_S390_MEMOP_F_INJECT_EXCEPTION    (1ULL << 1)
->>> +#define KVM_S390_MEMOP_F_SKEY_PROTECTION    (1ULL << 2)
->>>      /* for KVM_INTERRUPT */
->>>    struct kvm_interrupt {
-> 
+>>> If we wanted to provide everything we can where KVM isn't strictly
+>>> required, then let's look at what a split would look like:
+>>>
+>>> With or without KVM:
+>>> zcpi_base_cap
+>>> zpci_group_cap (with an inline ifdef for KVM [1])
+>>> zpci_util_cap
+>>> zpci_pfip_cap
+>>> vfio_pci_info_zdev_add_caps	
+>>> vfio_pci_zdev_open (ifdef, just return when !KVM  [1])
+>>> vfio_pci_zdev_release (ifdef, just return when !KVM [1])
+>>>
+>>> KVM only:
+>>> vfio_pci_zdev_feat_interp
+>>> vfio_pci_zdev_feat_aif
+>>> vfio_pci_zdev_feat_ioat
+>>> vfio_pci_zdev_group_notifier
+>>>
+>>> I suppose such a split has the benefit of flexibility /
+>>> future-proofing...  should a non-kvm use case arrive in the future for
+>>> s390 and we find we need some s390-specific handling, we're still
+>>> building vfio-pci-zdev into vfio-pci by default and can just extend that.
+>>>
+>>> [1] In this case I would propose renaming CONFIG_VFIO_PCI_ZDEV as we
+>>> would once again always be building some part of vfio-pci-zdev with
+>>> vfio-pci on s390 -- maybe something like CONFIG_VFIO_PCI_ZDEV_KVM (wow
+>>> that's a mouthful) and then use this setting to check "KVM" in my above
+>>> split.  Since this setting will imply PCI, VFIO_PCI and KVM, we can then
+>>> s/CONFIG_VFIO_PCI_ZDEV/CONFIG_VFIO_PCI_ZDEV_KVM/ for the rest of the
+>>> series (to continue covering cases like we build KVM but not pci, or not
+>>> vfio-pci)
+>>>
+>>> How does that sound?
+>> 
+>> Complex :)
+>> 
+>> I'm not really sure whether it's worth the hassle on an odd chance that
+>> we may want it for a !KVM usecase in the future (that goes beyond the
+>> "base" vfio-pci support.) OTOH, it would be cleaner. I'm a bit torn on
+>> this one.
+>> 
+>
+> Well, another option would be to move ahead with this patch as-is, 
+> except to rename s/CONFIG_VFIO_PCI_ZDEV/CONFIG_VFIO_PCI_ZDEV_KVM/ or 
+> something like that (and naturally tweak the title and commit message a 
+> bit).  Basically, don't have the name imply a 1:1 relationship with all 
+> of vfio-pci-zdev, even if it will have that effect in practice for now.
+>
+> Net result with this series would be we stop building vfio-pci-zdev 
+> without KVM, which means we remove the zdev CLP capabilities when !KVM. 
+> And then if we have a !KVM usecase in the future that needs something 
+> non-standard for s390 (either this CLP info or more likely some other 
+> s390-specific tweak) we can then perform the split, perhaps just as I 
+> describe above.  In this way we punt the need for complexity until a 
+> point when (if) we need it, without backing ourselves into a weird case 
+> where we must rename the config parameter (or live with the fact that we 
+> always build some part of vfio-pci-zdev even when CONFIG_VFIO_PCI_ZDEV=n)
+
+Ok, I think I like this option the best.
+
