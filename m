@@ -2,220 +2,241 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CD78C433FE
-	for <linux-s390@archiver.kernel.org>; Fri, 11 Feb 2022 15:31:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E08EC433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 11 Feb 2022 18:22:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351382AbiBKPbJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 11 Feb 2022 10:31:09 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:50242 "EHLO
+        id S1350803AbiBKSW2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 11 Feb 2022 13:22:28 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235355AbiBKPbI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Feb 2022 10:31:08 -0500
-Received: from mx1.molgen.mpg.de (mx3.molgen.mpg.de [141.14.17.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 583951A1;
-        Fri, 11 Feb 2022 07:31:03 -0800 (PST)
-Received: from [192.168.0.2] (ip5f5aebe1.dynamic.kabel-deutschland.de [95.90.235.225])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        (Authenticated sender: pmenzel)
-        by mx.molgen.mpg.de (Postfix) with ESMTPSA id 20C7A61EA1927;
-        Fri, 11 Feb 2022 16:31:01 +0100 (CET)
-Message-ID: <53069280-73e6-4502-d366-4990b74cf059@molgen.mpg.de>
-Date:   Fri, 11 Feb 2022 16:31:00 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.1
-Subject: Re: [PATCH v5 2/6] powerpc/kexec_file: Add KEXEC_SIG support.
-Content-Language: en-US
-To:     =?UTF-8?Q?Michal_Such=c3=a1nek?= <msuchanek@suse.de>
-Cc:     keyrings@vger.kernel.org, linux-crypto@vger.kernel.org,
-        linux-integrity@vger.kernel.org, kexec@lists.infradead.org,
-        Philipp Rudo <prudo@redhat.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Nayna <nayna@linux.vnet.ibm.com>, Rob Herring <robh@kernel.org>,
-        linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
+        with ESMTP id S1347765AbiBKSW1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Feb 2022 13:22:27 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0AC0CFF;
+        Fri, 11 Feb 2022 10:22:25 -0800 (PST)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21BGD8TH000393;
+        Fri, 11 Feb 2022 18:22:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=YkaDjfN6fpTsxhXUZebdfTLf6Q+ECbzky4ml3wC9PFQ=;
+ b=bSB1ayWGBeCgDybB97MtQTsm3ITL9ae7GSHR1kYJudYFVo0bEC8Sm8sCoE75GphlxSey
+ P41McrjYrprPxTLwI+2qfbMb+fBBRuBjUp9Ho2+T1CppDYPmD0N5FCjTbK0JYZa0me0P
+ RjUaR6Jdo7zL/mX/ls8rX2vCVYcpZclKHFaWdLXWAVGQsq1wzzOX2Dr7ryYVz/uNTcu4
+ QdLUERDVIJ4gAgWLDepTZzvETjAK8ikzQdXRsDsRYk3GdtaONZPHbqZ3dv2yhVR5LHJZ
+ VvW8M6jfu0NkSE86ecYeR1CYgvSfcXKU6WBd5/X5Vaiqbbq1NuPe4ZSeGhPKLRfiOsWZ 9w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e5rq56fy0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 11 Feb 2022 18:22:24 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21BIL8jx003692;
+        Fri, 11 Feb 2022 18:22:24 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e5rq56fxa-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 11 Feb 2022 18:22:24 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21BICAMe028899;
+        Fri, 11 Feb 2022 18:22:22 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma06ams.nl.ibm.com with ESMTP id 3e1ggkv5rw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 11 Feb 2022 18:22:22 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21BIMI3M19726760
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 11 Feb 2022 18:22:18 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C87AE5204F;
+        Fri, 11 Feb 2022 18:22:18 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 5F61452050;
+        Fri, 11 Feb 2022 18:22:18 +0000 (GMT)
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Jessica Yu <jeyu@kernel.org>, linux-kernel@vger.kernel.org,
-        David Howells <dhowells@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Hari Bathini <hbathini@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>
+Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        linuxppc-dev@lists.ozlabs.org,
-        Frank van der Linden <fllinden@amazon.com>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Daniel Axtens <dja@axtens.net>, buendgen@de.ibm.com,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Baoquan He <bhe@redhat.com>,
-        linux-security-module@vger.kernel.org
-References: <cover.1641900831.git.msuchanek@suse.de>
- <d95f7c6865bcad5ee37dcbec240e79aa742f5e1d.1641900831.git.msuchanek@suse.de>
- <b56fe3a2-b145-9d4e-acf2-4991204b3102@molgen.mpg.de>
- <20220209120154.GC3113@kunlun.suse.cz>
-From:   Paul Menzel <pmenzel@molgen.mpg.de>
-In-Reply-To: <20220209120154.GC3113@kunlun.suse.cz>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH v4 03/10] KVM: s390: handle_tprot: Honor storage keys
+Date:   Fri, 11 Feb 2022 19:22:08 +0100
+Message-Id: <20220211182215.2730017-4-scgl@linux.ibm.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220211182215.2730017-1-scgl@linux.ibm.com>
+References: <20220211182215.2730017-1-scgl@linux.ibm.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: IX4xPgTYb4S58olRHNcAkkwlLJzsRKHK
+X-Proofpoint-GUID: OvZgHfuuJqS-j26Ss0niFWKjIjJKNHGP
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-02-11_05,2022-02-11_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ suspectscore=0 bulkscore=0 malwarescore=0 adultscore=0 priorityscore=1501
+ phishscore=0 spamscore=0 clxscore=1015 lowpriorityscore=0 mlxscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2202110098
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Dear Michal,
+Use the access key operand to check for key protection when
+translating guest addresses.
+Since the translation code checks for accessing exceptions/error hvas,
+we can remove the check here and simplify the control flow.
+Keep checking if the memory is read-only even if such memslots are
+currently not supported.
 
+handle_tprot was the last user of guest_translate_address,
+so remove it.
 
-Am 09.02.22 um 13:01 schrieb Michal Suchánek:
+Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+---
+ arch/s390/kvm/gaccess.c |  9 ------
+ arch/s390/kvm/gaccess.h |  3 --
+ arch/s390/kvm/priv.c    | 66 ++++++++++++++++++++++-------------------
+ 3 files changed, 35 insertions(+), 43 deletions(-)
 
-> On Wed, Feb 09, 2022 at 07:44:15AM +0100, Paul Menzel wrote:
+diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+index 7fca0cff4c12..37838f637707 100644
+--- a/arch/s390/kvm/gaccess.c
++++ b/arch/s390/kvm/gaccess.c
+@@ -1118,15 +1118,6 @@ int guest_translate_address_with_key(struct kvm_vcpu *vcpu, unsigned long gva, u
+ 				   access_key);
+ }
+ 
+-int guest_translate_address(struct kvm_vcpu *vcpu, unsigned long gva, u8 ar,
+-			    unsigned long *gpa, enum gacc_mode mode)
+-{
+-	u8 access_key = psw_bits(vcpu->arch.sie_block->gpsw).key;
+-
+-	return guest_translate_address_with_key(vcpu, gva, ar, gpa, mode,
+-						access_key);
+-}
+-
+ /**
+  * check_gva_range - test a range of guest virtual addresses for accessibility
+  * @vcpu: virtual cpu
+diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
+index e5b2f56e7962..c5f2e7311b17 100644
+--- a/arch/s390/kvm/gaccess.h
++++ b/arch/s390/kvm/gaccess.h
+@@ -190,9 +190,6 @@ int guest_translate_address_with_key(struct kvm_vcpu *vcpu, unsigned long gva, u
+ 				     unsigned long *gpa, enum gacc_mode mode,
+ 				     u8 access_key);
+ 
+-int guest_translate_address(struct kvm_vcpu *vcpu, unsigned long gva,
+-			    u8 ar, unsigned long *gpa, enum gacc_mode mode);
+-
+ int check_gva_range(struct kvm_vcpu *vcpu, unsigned long gva, u8 ar,
+ 		    unsigned long length, enum gacc_mode mode, u8 access_key);
+ 
+diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+index 417154b314a6..30b24c42ef99 100644
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -1443,10 +1443,11 @@ int kvm_s390_handle_eb(struct kvm_vcpu *vcpu)
+ 
+ static int handle_tprot(struct kvm_vcpu *vcpu)
+ {
+-	u64 address1, address2;
+-	unsigned long hva, gpa;
+-	int ret = 0, cc = 0;
++	u64 address, operand2;
++	unsigned long gpa;
++	u8 access_key;
+ 	bool writable;
++	int ret, cc;
+ 	u8 ar;
+ 
+ 	vcpu->stat.instruction_tprot++;
+@@ -1454,43 +1455,46 @@ static int handle_tprot(struct kvm_vcpu *vcpu)
+ 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
+ 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+ 
+-	kvm_s390_get_base_disp_sse(vcpu, &address1, &address2, &ar, NULL);
++	kvm_s390_get_base_disp_sse(vcpu, &address, &operand2, &ar, NULL);
++	access_key = (operand2 & 0xf0) >> 4;
+ 
+-	/* we only handle the Linux memory detection case:
+-	 * access key == 0
+-	 * everything else goes to userspace. */
+-	if (address2 & 0xf0)
+-		return -EOPNOTSUPP;
+ 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_DAT)
+ 		ipte_lock(vcpu);
+-	ret = guest_translate_address(vcpu, address1, ar, &gpa, GACC_STORE);
+-	if (ret == PGM_PROTECTION) {
++
++	ret = guest_translate_address_with_key(vcpu, address, ar, &gpa,
++					       GACC_STORE, access_key);
++	if (ret == 0) {
++		gfn_to_hva_prot(vcpu->kvm, gpa_to_gfn(gpa), &writable);
++	} else if (ret == PGM_PROTECTION) {
++		writable = false;
+ 		/* Write protected? Try again with read-only... */
+-		cc = 1;
+-		ret = guest_translate_address(vcpu, address1, ar, &gpa,
+-					      GACC_FETCH);
++		ret = guest_translate_address_with_key(vcpu, address, ar, &gpa,
++						       GACC_FETCH, access_key);
+ 	}
+-	if (ret) {
+-		if (ret == PGM_ADDRESSING || ret == PGM_TRANSLATION_SPEC) {
+-			ret = kvm_s390_inject_program_int(vcpu, ret);
+-		} else if (ret > 0) {
+-			/* Translation not available */
+-			kvm_s390_set_psw_cc(vcpu, 3);
++	if (ret >= 0) {
++		cc = -1;
++
++		/* Fetching permitted; storing permitted */
++		if (ret == 0 && writable)
++			cc = 0;
++		/* Fetching permitted; storing not permitted */
++		else if (ret == 0 && !writable)
++			cc = 1;
++		/* Fetching not permitted; storing not permitted */
++		else if (ret == PGM_PROTECTION)
++			cc = 2;
++		/* Translation not available */
++		else if (ret != PGM_ADDRESSING && ret != PGM_TRANSLATION_SPEC)
++			cc = 3;
++
++		if (cc != -1) {
++			kvm_s390_set_psw_cc(vcpu, cc);
+ 			ret = 0;
++		} else {
++			ret = kvm_s390_inject_program_int(vcpu, ret);
+ 		}
+-		goto out_unlock;
+ 	}
+ 
+-	hva = gfn_to_hva_prot(vcpu->kvm, gpa_to_gfn(gpa), &writable);
+-	if (kvm_is_error_hva(hva)) {
+-		ret = kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
+-	} else {
+-		if (!writable)
+-			cc = 1;		/* Write not permitted ==> read-only */
+-		kvm_s390_set_psw_cc(vcpu, cc);
+-		/* Note: CC2 only occurs for storage keys (not supported yet) */
+-	}
+-out_unlock:
+ 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_DAT)
+ 		ipte_unlock(vcpu);
+ 	return ret;
+-- 
+2.32.0
 
->> Am 11.01.22 um 12:37 schrieb Michal Suchanek:
-
-[…]
-
->> How can this be tested?
-> 
-> Apparently KEXEC_SIG_FORCE is x86 only although the use of the option is
-> arch neutral:
-> 
-> arch/x86/Kconfig:config KEXEC_SIG_FORCE
-> kernel/kexec_file.c:            if (IS_ENABLED(CONFIG_KEXEC_SIG_FORCE))
-> {
-> 
-> Maybe it should be moved?
-
-Sounds good.
-
-> I used a patched kernel that enables lockdown in secure boot, and then
-> verified that signed kernel can be loaded by kexec and unsigned not,
-> with KEXEC_SIG enabled and IMA_KEXEC disabled.
-> 
-> The lockdown support can be enabled on any platform, and although I
-> can't find it documented anywhere there appears to be code in kexec_file
-> to take it into account:
-> kernel/kexec.c: result = security_locked_down(LOCKDOWN_KEXEC);
-> kernel/kexec_file.c:                security_locked_down(LOCKDOWN_KEXEC))
-> kernel/module.c:        return security_locked_down(LOCKDOWN_MODULE_SIGNATURE);
-> kernel/params.c:            security_locked_down(LOCKDOWN_MODULE_PARAMETERS))
-> and lockdown can be enabled with a buildtime option, a kernel parameter, or a
-> debugfs file.
-> 
-> Still for testing lifting KEXEC_SIG_FORCE to some arch-neutral Kconfig file is
-> probably the simplest option.
-> 
-> kexec -s option should be used to select kexec_file rather than the old
-> style kexec which would either fail always or succeed always regardelss
-> of signature.
-
-Thank you.
-
->>> Signed-off-by: Michal Suchanek <msuchanek@suse.de>
->>> ---
->>> v3: - Philipp Rudo <prudo@redhat.com>: Update the comit message with
->>>         explanation why the s390 code is usable on powerpc.
->>>       - Include correct header for mod_check_sig
->>>       - Nayna <nayna@linux.vnet.ibm.com>: Mention additional IMA features
->>>         in kconfig text
->>> ---
->>>    arch/powerpc/Kconfig        | 16 ++++++++++++++++
->>>    arch/powerpc/kexec/elf_64.c | 36 ++++++++++++++++++++++++++++++++++++
->>>    2 files changed, 52 insertions(+)
->>>
->>> diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
->>> index dea74d7717c0..1cde9b6c5987 100644
->>> --- a/arch/powerpc/Kconfig
->>> +++ b/arch/powerpc/Kconfig
->>> @@ -560,6 +560,22 @@ config KEXEC_FILE
->>>    config ARCH_HAS_KEXEC_PURGATORY
->>>    	def_bool KEXEC_FILE
->>> +config KEXEC_SIG
->>> +	bool "Verify kernel signature during kexec_file_load() syscall"
->>> +	depends on KEXEC_FILE && MODULE_SIG_FORMAT
->>> +	help
->>> +	  This option makes kernel signature verification mandatory for
->>> +	  the kexec_file_load() syscall.
->>> +
->>> +	  In addition to that option, you need to enable signature
->>> +	  verification for the corresponding kernel image type being
->>> +	  loaded in order for this to work.
->>> +
->>> +	  Note: on powerpc IMA_ARCH_POLICY also implements kexec'ed kernel
->>> +	  verification. In addition IMA adds kernel hashes to the measurement
->>> +	  list, extends IMA PCR in the TPM, and implements kernel image
->>> +	  blacklist by hash.
->>
->> So, what is the takeaway for the user? IMA_ARCH_POLICY is preferred? What is
->> the disadvantage, and two implementations(?) needed then? More overhead?
-> 
-> IMA_KEXEC does more than KEXEC_SIG. The overhead is probably not big
-> unless you are trying to really minimize the kernel code size.
-> 
-> Arguably the simpler implementation has less potential for bugs, too.
-> Both in code and in user configuration required to enable the feature.
-> 
-> Interestingly IMA_ARCH_POLICY depends on KEXEC_SIG rather than
-> IMA_KEXEC. Just mind-boggling.
-
-I have not looked into that.
-
-> The main problem with IMA_KEXEC from my point of view is it is not portable.
-> To record the measurements TPM support is requireed which is not available on
-> all platforms. It does not support PE so it cannot be used on platforms
-> that use PE kernel signature format.
-
-Could you add that to the comment please?
-
->>> +
->>>    config RELOCATABLE
->>>    	bool "Build a relocatable kernel"
->>>    	depends on PPC64 || (FLATMEM && (44x || FSL_BOOKE))
->>> diff --git a/arch/powerpc/kexec/elf_64.c b/arch/powerpc/kexec/elf_64.c
->>> index eeb258002d1e..98d1cb5135b4 100644
->>> --- a/arch/powerpc/kexec/elf_64.c
->>> +++ b/arch/powerpc/kexec/elf_64.c
->>> @@ -23,6 +23,7 @@
->>>    #include <linux/of_fdt.h>
->>>    #include <linux/slab.h>
->>>    #include <linux/types.h>
->>> +#include <linux/module_signature.h>
->>>    static void *elf64_load(struct kimage *image, char *kernel_buf,
->>>    			unsigned long kernel_len, char *initrd,
->>> @@ -151,7 +152,42 @@ static void *elf64_load(struct kimage *image, char *kernel_buf,
->>>    	return ret ? ERR_PTR(ret) : NULL;
->>>    }
->>> +#ifdef CONFIG_KEXEC_SIG
->>> +int elf64_verify_sig(const char *kernel, unsigned long kernel_len)
->>> +{
->>> +	const unsigned long marker_len = sizeof(MODULE_SIG_STRING) - 1;
->>> +	struct module_signature *ms;
->>> +	unsigned long sig_len;
->>
->> Use size_t to match the signature of `verify_pkcs7_signature()`?
-> 
-> Nope. struct module_signature uses unsigned long, and this needs to be
-> matched to avoid type errors on 32bit.
-
-I meant for `sig_len`.
-
-> Technically using size_t for in-memory buffers is misguided because
-> AFAICT no memory buffer can be bigger than ULONG_MAX, and size_t is
-> non-native type on 32bit.
-> 
-> Sure, the situation with ssize_t/int is different but that's not what we
-> are dealing with here.
-True. In my experience it prevents compiler warnings when building for 
-32 bit or 64 bit. Anyway, not that important.
-
-
-Kind regards,
-
-Paul
