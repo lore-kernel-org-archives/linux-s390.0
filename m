@@ -2,57 +2,58 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90800C433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 11 Feb 2022 18:22:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5761C433FE
+	for <linux-s390@archiver.kernel.org>; Fri, 11 Feb 2022 18:22:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344468AbiBKSWl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 11 Feb 2022 13:22:41 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33094 "EHLO
+        id S1352678AbiBKSWs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 11 Feb 2022 13:22:48 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343586AbiBKSWa (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Feb 2022 13:22:30 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16606196;
+        with ESMTP id S1352664AbiBKSWk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Feb 2022 13:22:40 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83A6713A;
         Fri, 11 Feb 2022 10:22:29 -0800 (PST)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21BGRJ7l004788;
-        Fri, 11 Feb 2022 18:22:27 GMT
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21BG9Euh000420;
+        Fri, 11 Feb 2022 18:22:29 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : content-transfer-encoding : mime-version; s=pp1;
- bh=pINOevvoQ/9f0NFUrCoqY0W/We+zzYj735erAO3/O9A=;
- b=m3QmE8x+h8DmOlNT3znGXT6ZvN09BdW09el5CwVA52QBzLs8qgoOrNgr7APS03HbjemD
- 6GZHUDnYh6UNiqf88k9tB+pDo0HZKFTW84V7G9Or0slEhyxJj7p+uA3Pd8NTrSBJT4/y
- mKi/uTWhME6PpPbups5lPmJ21bGc9zH+p0/vqrpVSuIfgkyw0EQfk23gkFsOlNdQfZoW
- SXpugymiSADtFEkRowc4AVwFcbome67F3tEteaoWl8oze0xkKc2ls4uC9Br0dVxU2KL/
- RgZezKkwBikC7IeMBXXj3s1GUyNI+fwSt+LvzM8Tpw4+7sAI8Dj6+K+TrPufg0wmmJL0 yQ== 
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=mqGItTU/1dyFNrzrvn2cBlGISzWXV56J/m32nPA2Dao=;
+ b=PXAU+SOVkozCCgi/NEUwDCULJdchPlTEbn9JMeSkMc3wf6LyT1g/5WqUAWdSTjOcgAv3
+ Ac1yajYLXN/T8hNWVHB8Oel3qAKGSnWE9/RIIKPReE4SxsKi11gJMflkxpdHdpir8jQN
+ 6cBSWn1kmJRCyoa4sjB4nE8VdmPgEjEi9x+SOFJopTRBTu7nBrTlwOQHtOPWgY+1a3mp
+ EtgasIAoDt9uloyNTisGSKNunY8xfsDyzDByGKL2r9EdSgJoFIhdTCB9GQvAD6v+Pns2
+ ugww/51M9heIks8fDEnlphl7Q7BrFvfa9BVErnS6eGNn4uZuaSjOhTlNHmYyE2LqFLHs Ug== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3e5ub9aenn-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e5rq56g0e-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 11 Feb 2022 18:22:26 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21BI9pKe023922;
-        Fri, 11 Feb 2022 18:22:26 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3e5ub9aem8-1
+        Fri, 11 Feb 2022 18:22:28 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21BI6S6D018384;
+        Fri, 11 Feb 2022 18:22:28 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e5rq56fyg-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 11 Feb 2022 18:22:26 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21BICYXH030099;
-        Fri, 11 Feb 2022 18:22:21 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03fra.de.ibm.com with ESMTP id 3e1gva9nk1-1
+        Fri, 11 Feb 2022 18:22:27 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21BICLAo015218;
+        Fri, 11 Feb 2022 18:22:25 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma02fra.de.ibm.com with ESMTP id 3e1gva9kfc-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 11 Feb 2022 18:22:20 +0000
+        Fri, 11 Feb 2022 18:22:25 +0000
 Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21BIMHOj46072072
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21BIMMSA34013686
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 11 Feb 2022 18:22:17 GMT
+        Fri, 11 Feb 2022 18:22:22 GMT
 Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7BC7C52051;
-        Fri, 11 Feb 2022 18:22:17 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id E2DBA5204E;
+        Fri, 11 Feb 2022 18:22:21 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 0F2B752052;
-        Fri, 11 Feb 2022 18:22:17 +0000 (GMT)
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 79B1C52059;
+        Fri, 11 Feb 2022 18:22:21 +0000 (GMT)
 From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
 To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
@@ -66,209 +67,672 @@ Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
         linux-s390@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
         Sven Schnelle <svens@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH v4 00/10] KVM: s390: Do storage key checking
-Date:   Fri, 11 Feb 2022 19:22:05 +0100
-Message-Id: <20220211182215.2730017-1-scgl@linux.ibm.com>
+Subject: [PATCH v4 10/10] KVM: s390: selftests: Test memops with storage keys
+Date:   Fri, 11 Feb 2022 19:22:15 +0100
+Message-Id: <20220211182215.2730017-11-scgl@linux.ibm.com>
 X-Mailer: git-send-email 2.32.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: kWciM2TJOqsHy__HsM7xTKN8g_xunFjN
-X-Proofpoint-ORIG-GUID: 3elo-BIlQFIHQ7domBC1VyLRMKotQ9aG
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+In-Reply-To: <20220211182215.2730017-1-scgl@linux.ibm.com>
+References: <20220211182215.2730017-1-scgl@linux.ibm.com>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: mK7rSgjPVm3hb5Qg05GMKS322IUZLvsB
+X-Proofpoint-GUID: Akr1e2BPYxamAwKBhC4E4msiiyzVAsos
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2022-02-11_05,2022-02-11_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
- malwarescore=0 lowpriorityscore=0 suspectscore=0 adultscore=0
- priorityscore=1501 spamscore=0 clxscore=1015 bulkscore=0 mlxlogscore=999
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ suspectscore=0 bulkscore=0 malwarescore=0 adultscore=0 priorityscore=1501
+ phishscore=0 spamscore=0 clxscore=1015 lowpriorityscore=0 mlxscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2201110000 definitions=main-2202110098
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Check keys when emulating instructions and let user space do key checked
-accesses.
-User space can do so via an extension of the MEMOP IOCTL:
-* allow optional key checking
-* allow MEMOP on vm fd, so key checked accesses on absolute memory
-  become possible
+Test vm and vcpu memops with storage keys, both successful accesses
+as well as various exception conditions.
 
-I haven't finished the memop selftest rewrite, but decided to send out a
-new version anyway, since the functional patches are (hopefully) final
-and the memop selftest patch works. I'll reply to it with the
-rewritten version.
-
-v3: https://lore.kernel.org/kvm/20220209170422.1910690-1-scgl@linux.ibm.com/
-v2: https://lore.kernel.org/kvm/20220207165930.1608621-1-scgl@linux.ibm.com/
-
-v3 -> v4
- * rebase
- * ignore key in memop if skey flag not specified
- * fix nits in documentation
- * pick up tags
-
-v2 -> v3
- * get rid of reserved bytes check in vm,vcpu memop
- * minor documentation changes
- * moved memop selftest patches to end of series and squashed them,
-   currently working on making the test pretty
-
-v1 -> v2
- * rebase
- * storage key variants of _?copy_from/to_user instead of
-   __copy_from/to_user_key, with long key arg instead of char
- * refactor protection override checks
- * u8 instead of char for key argument in s390 KVM code
- * add comments
- * pass ar (access register) to trans_exec in access_guest_with_key
- * check reserved/unused fields (backwards compatible)
- * move key arg of MEMOP out of flags
- * rename new MEMOP capability to KVM_CAP_S390_MEM_OP_EXTENSION
- * minor changes
-
-Janis Schoetterl-Glausch (10):
-  s390/uaccess: Add copy_from/to_user_key functions
-  KVM: s390: Honor storage keys when accessing guest memory
-  KVM: s390: handle_tprot: Honor storage keys
-  KVM: s390: selftests: Test TEST PROTECTION emulation
-  KVM: s390: Add optional storage key checking to MEMOP IOCTL
-  KVM: s390: Add vm IOCTL for key checked guest absolute memory access
-  KVM: s390: Rename existing vcpu memop functions
-  KVM: s390: Add capability for storage key extension of MEM_OP IOCTL
-  KVM: s390: Update api documentation for memop ioctl
-  KVM: s390: selftests: Test memops with storage keys
-
- Documentation/virt/kvm/api.rst            | 112 ++++-
- arch/s390/include/asm/ctl_reg.h           |   2 +
- arch/s390/include/asm/page.h              |   2 +
- arch/s390/include/asm/uaccess.h           |  22 +
- arch/s390/kvm/gaccess.c                   | 250 +++++++++-
- arch/s390/kvm/gaccess.h                   |  84 +++-
- arch/s390/kvm/intercept.c                 |  12 +-
- arch/s390/kvm/kvm-s390.c                  | 132 ++++-
- arch/s390/kvm/priv.c                      |  66 +--
- arch/s390/lib/uaccess.c                   |  81 +++-
- include/uapi/linux/kvm.h                  |  11 +-
- tools/testing/selftests/kvm/.gitignore    |   1 +
- tools/testing/selftests/kvm/Makefile      |   1 +
+Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+---
  tools/testing/selftests/kvm/s390x/memop.c | 558 +++++++++++++++++++---
- tools/testing/selftests/kvm/s390x/tprot.c | 227 +++++++++
- 15 files changed, 1375 insertions(+), 186 deletions(-)
- create mode 100644 tools/testing/selftests/kvm/s390x/tprot.c
+ 1 file changed, 495 insertions(+), 63 deletions(-)
 
-Range-diff against v3:
- 1:  0049c4412978 =  1:  313eb689b715 s390/uaccess: Add copy_from/to_user_key functions
- 2:  296096b9a7b9 =  2:  192fe30b1863 KVM: s390: Honor storage keys when accessing guest memory
- 3:  a5976cb3a147 =  3:  19bd017ae5a4 KVM: s390: handle_tprot: Honor storage keys
- 4:  5f5e056e66df =  4:  d20fad8d501b KVM: s390: selftests: Test TEST PROTECTION emulation
- 5:  64fa17a83b26 !  5:  bdee09b4a15e KVM: s390: Add optional storage key checking to MEMOP IOCTL
-    @@ Commit message
-         CPU would, or pass another key if necessary.
-     
-         Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-    -    Acked-by: Janosch Frank <frankja@linux.ibm.com>
-         Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-    +    Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-    +    Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-     
-      ## arch/s390/kvm/kvm-s390.c ##
-    -@@
-    - #include <linux/sched/signal.h>
-    - #include <linux/string.h>
-    - #include <linux/pgtable.h>
-    -+#include <linux/bitfield.h>
-    - 
-    - #include <asm/asm-offsets.h>
-    - #include <asm/lowcore.h>
-     @@ arch/s390/kvm/kvm-s390.c: static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
-      	return r;
-      }
-    @@ arch/s390/kvm/kvm-s390.c: static long kvm_s390_guest_mem_op(struct kvm_vcpu *vcp
-     +	if (mop->flags & KVM_S390_MEMOP_F_SKEY_PROTECTION) {
-     +		if (access_key_invalid(mop->key))
-     +			return -EINVAL;
-    ++	} else {
-    ++		mop->key = 0;
-     +	}
-      	if (!(mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY)) {
-      		tmpbuf = vmalloc(mop->size);
- 6:  57e3ad332677 !  6:  e207a2f9af8a KVM: s390: Add vm IOCTL for key checked guest absolute memory access
-    @@ Commit message
-         accesses and so are not applied as they are when using the vcpu memop.
-     
-         Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-    -    Acked-by: Janosch Frank <frankja@linux.ibm.com>
-    +    Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-     
-      ## arch/s390/kvm/gaccess.c ##
-     @@ arch/s390/kvm/gaccess.c: static int low_address_protection_enabled(struct kvm_vcpu *vcpu,
-    @@ arch/s390/kvm/kvm-s390.c: static bool access_key_invalid(u8 access_key)
-     +	if (mop->flags & KVM_S390_MEMOP_F_SKEY_PROTECTION) {
-     +		if (access_key_invalid(mop->key))
-     +			return -EINVAL;
-    ++	} else {
-    ++		mop->key = 0;
-     +	}
-     +	if (!(mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY)) {
-     +		tmpbuf = vmalloc(mop->size);
- 7:  1615f5ab6e30 =  7:  52adbceebe41 KVM: s390: Rename existing vcpu memop functions
- 8:  a8420e0f1b7f =  8:  43280a2db282 KVM: s390: Add capability for storage key extension of MEM_OP IOCTL
- 9:  c59952ee362b !  9:  9389cd2f4d23 KVM: s390: Update api documentation for memop ioctl
-    @@ Commit message
-         as well as the existing SIDA operations.
-     
-         Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-    +    Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-     
-      ## Documentation/virt/kvm/api.rst ##
-     @@ Documentation/virt/kvm/api.rst: The fields in each entry are defined as follows:
-    @@ Documentation/virt/kvm/api.rst: Parameters are specified via the following struc
-     +the access. "ar" designates the access register number to be used; the valid
-     +range is 0..15.
-     +Logical accesses are permitted for the VCPU ioctl only.
-    -+Logical accesses are permitted for non secure guests only.
-    ++Logical accesses are permitted for non-protected guests only.
-     +
-     +Supported flags:
-     +  * ``KVM_S390_MEMOP_F_CHECK_ONLY``
-    @@ Documentation/virt/kvm/api.rst: Parameters are specified via the following struc
-     +  * ``KVM_S390_MEMOP_F_SKEY_PROTECTION``
-     +
-     +The KVM_S390_MEMOP_F_CHECK_ONLY flag can be set to check whether the
-    -+corresponding memory access would cause an access exception, without touching
-    -+the data in memory at the destination.
-    ++corresponding memory access would cause an access exception; however,
-    ++no actual access to the data in memory at the destination is performed.
-     +In this case, "buf" is unused and can be NULL.
-     +
-     +In case an access exception occurred during the access (or would occur
-    @@ Documentation/virt/kvm/api.rst: Parameters are specified via the following struc
-     +Absolute accesses are permitted for the VM ioctl if KVM_CAP_S390_MEM_OP_EXTENSION
-     +is > 0.
-     +Currently absolute accesses are not permitted for VCPU ioctls.
-    -+Absolute accesses are permitted for non secure guests only.
-    ++Absolute accesses are permitted for non-protected guests only.
-     +
-     +Supported flags:
-     +  * ``KVM_S390_MEMOP_F_CHECK_ONLY``
-    @@ Documentation/virt/kvm/api.rst: Parameters are specified via the following struc
-     +^^^^^^^^^^^^^^^^
-     +
-     +Access the secure instruction data area which contains memory operands necessary
-    -+for instruction emulation for secure guests.
-    ++for instruction emulation for protected guests.
-     +SIDA accesses are available if the KVM_CAP_S390_PROTECTED capability is available.
-     +SIDA accesses are permitted for the VCPU ioctl only.
-    -+SIDA accesses are permitted for secure guests only.
-    ++SIDA accesses are permitted for protected guests only.
-      
-     -The "reserved" field is meant for future extensions. It is not used by
-     -KVM with the currently defined set of flags.
-10:  68752e1eca95 = 10:  af33593d63a4 KVM: s390: selftests: Test memops with storage keys
-
-base-commit: f1baf68e1383f6ed93eb9cff2866d46562607a43
+diff --git a/tools/testing/selftests/kvm/s390x/memop.c b/tools/testing/selftests/kvm/s390x/memop.c
+index 9f49ead380ab..ac08fd5aa746 100644
+--- a/tools/testing/selftests/kvm/s390x/memop.c
++++ b/tools/testing/selftests/kvm/s390x/memop.c
+@@ -13,28 +13,304 @@
+ #include "test_util.h"
+ #include "kvm_util.h"
+ 
++#define PAGE_SHIFT 12
++#define PAGE_SIZE (1 << PAGE_SHIFT)
++#define PAGE_MASK (~(PAGE_SIZE - 1))
++#define CR0_FETCH_PROTECTION_OVERRIDE	(1UL << (63 - 38))
++#define CR0_STORAGE_PROTECTION_OVERRIDE	(1UL << (63 - 39))
++
+ #define VCPU_ID 1
+ 
++const uint64_t last_page_addr = UINT64_MAX - PAGE_SIZE + 1;
++
+ static uint8_t mem1[65536];
+ static uint8_t mem2[65536];
+ 
++static void set_storage_key_range(void *addr, size_t len, u8 key)
++{
++	uintptr_t _addr, abs, i;
++
++	_addr = (uintptr_t)addr;
++	for (i = _addr & PAGE_MASK; i < _addr + len; i += PAGE_SIZE) {
++		abs = i;
++		asm volatile (
++			       "lra	%[abs], 0(0,%[abs])\n"
++			"	sske	%[key], %[abs]\n"
++			: [abs] "+&a" (abs)
++			: [key] "r" (key)
++			: "cc"
++		);
++	}
++}
++
+ static void guest_code(void)
++{
++	/* Set storage key */
++	set_storage_key_range(mem1, sizeof(mem1), 0x90);
++	set_storage_key_range(mem2, sizeof(mem2), 0x90);
++	GUEST_SYNC(0);
++
++	/* Write, read back, without keys */
++	memcpy(mem2, mem1, sizeof(mem2));
++	GUEST_SYNC(10);
++
++	/* Write, read back, key 0 */
++	memcpy(mem2, mem1, sizeof(mem2));
++	GUEST_SYNC(20);
++
++	/* Write, read back, matching key, 1 page */
++	memcpy(mem2, mem1, sizeof(mem2));
++	GUEST_SYNC(30);
++
++	/* Write, read back, matching key, all pages */
++	memcpy(mem2, mem1, sizeof(mem2));
++	GUEST_SYNC(40);
++
++	/* Set fetch protection */
++	set_storage_key_range(0, 1, 0x18);
++	GUEST_SYNC(50);
++
++	/* Enable fetch protection override */
++	GUEST_SYNC(60);
++
++	/* Enable storage protection override, set fetch protection*/
++	set_storage_key_range(mem1, sizeof(mem1), 0x98);
++	set_storage_key_range(mem2, sizeof(mem2), 0x98);
++	GUEST_SYNC(70);
++
++	/* Write, read back, mismatching key,
++	 * storage protection override, all pages
++	 */
++	memcpy(mem2, mem1, sizeof(mem2));
++	GUEST_SYNC(80);
++
++	/* VM memop, write, read back, matching key */
++	memcpy(mem2, mem1, sizeof(mem2));
++	GUEST_SYNC(90);
++
++	/* VM memop, write, read back, key 0 */
++	memcpy(mem2, mem1, sizeof(mem2));
++	/* VM memop, fail to read from 0 absolute/virtual, mismatching key,
++	 * fetch protection override does not apply to VM memops
++	 */
++	asm volatile ("sske %1,%0\n"
++		: : "r"(0), "r"(0x18) : "cc"
++	);
++	GUEST_SYNC(100);
++
++	/* Enable AR mode */
++	GUEST_SYNC(110);
++
++	/* Disable AR mode */
++	GUEST_SYNC(120);
++}
++
++static void reroll_mem1(void)
+ {
+ 	int i;
+ 
+-	for (;;) {
+-		for (i = 0; i < sizeof(mem2); i++)
+-			mem2[i] = mem1[i];
+-		GUEST_SYNC(0);
+-	}
++	for (i = 0; i < sizeof(mem1); i++)
++		mem1[i] = rand();
++}
++
++static int _vcpu_read_guest(struct kvm_vm *vm, void *host_addr,
++			    uintptr_t guest_addr, size_t len)
++{
++	struct kvm_s390_mem_op ksmo = {
++		.gaddr = guest_addr,
++		.flags = 0,
++		.size = len,
++		.op = KVM_S390_MEMOP_LOGICAL_READ,
++		.buf = (uintptr_t)host_addr,
++		.ar = 0,
++	};
++
++	return _vcpu_ioctl(vm, VCPU_ID, KVM_S390_MEM_OP, &ksmo);
++}
++
++static void vcpu_read_guest(struct kvm_vm *vm, void *host_addr,
++			    uintptr_t guest_addr, size_t len)
++{
++	int rv;
++
++	rv = _vcpu_read_guest(vm, host_addr, guest_addr, len);
++	TEST_ASSERT(rv == 0, "vcpu memop read failed: reason = %d\n", rv);
++}
++
++static int _vcpu_read_guest_key(struct kvm_vm *vm, void *host_addr,
++				uintptr_t guest_addr, size_t len, u8 access_key)
++{
++	struct kvm_s390_mem_op ksmo = {0};
++
++	ksmo.gaddr = guest_addr;
++	ksmo.flags = KVM_S390_MEMOP_F_SKEY_PROTECTION;
++	ksmo.size = len;
++	ksmo.op = KVM_S390_MEMOP_LOGICAL_READ;
++	ksmo.buf = (uintptr_t)host_addr;
++	ksmo.ar = 0;
++	ksmo.key = access_key;
++
++	return _vcpu_ioctl(vm, VCPU_ID, KVM_S390_MEM_OP, &ksmo);
++}
++
++static void vcpu_read_guest_key(struct kvm_vm *vm, void *host_addr,
++				uintptr_t guest_addr, size_t len, u8 access_key)
++{
++	int rv;
++
++	rv = _vcpu_read_guest_key(vm, host_addr, guest_addr, len, access_key);
++	TEST_ASSERT(rv == 0, "vcpu memop read failed: reason = %d\n", rv);
++}
++
++static int _vcpu_write_guest(struct kvm_vm *vm, uintptr_t guest_addr,
++			     void *host_addr, size_t len)
++{
++	struct kvm_s390_mem_op ksmo = {
++		.gaddr = guest_addr,
++		.flags = 0,
++		.size = len,
++		.op = KVM_S390_MEMOP_LOGICAL_WRITE,
++		.buf = (uintptr_t)host_addr,
++		.ar = 0,
++	};
++	return _vcpu_ioctl(vm, VCPU_ID, KVM_S390_MEM_OP, &ksmo);
++}
++
++static void vcpu_write_guest(struct kvm_vm *vm, uintptr_t guest_addr,
++			     void *host_addr, size_t len)
++{
++	int rv;
++
++	rv = _vcpu_write_guest(vm, guest_addr, host_addr, len);
++	TEST_ASSERT(rv == 0, "vcpu memop write failed: reason = %d\n", rv);
++}
++
++static int _vcpu_write_guest_key(struct kvm_vm *vm, uintptr_t guest_addr,
++				 void *host_addr, size_t len, u8 access_key)
++{
++	struct kvm_s390_mem_op ksmo = {0};
++
++	ksmo.gaddr = guest_addr;
++	ksmo.flags = KVM_S390_MEMOP_F_SKEY_PROTECTION;
++	ksmo.size = len;
++	ksmo.op = KVM_S390_MEMOP_LOGICAL_WRITE;
++	ksmo.buf = (uintptr_t)host_addr;
++	ksmo.ar = 0;
++	ksmo.key = access_key;
++
++	return _vcpu_ioctl(vm, VCPU_ID, KVM_S390_MEM_OP, &ksmo);
++}
++
++static void vcpu_write_guest_key(struct kvm_vm *vm, uintptr_t guest_addr,
++				 void *host_addr, size_t len, u8 access_key)
++{
++	int rv;
++
++	rv = _vcpu_write_guest_key(vm, guest_addr, host_addr, len, access_key);
++	TEST_ASSERT(rv == 0, "vcpu memop write failed: reason = %d\n", rv);
++}
++
++static int _vm_read_guest_key(struct kvm_vm *vm, void *host_addr,
++			      uintptr_t guest_addr, size_t len, u8 access_key)
++{
++	struct kvm_s390_mem_op ksmo = {0};
++
++	ksmo.gaddr = guest_addr;
++	ksmo.flags = KVM_S390_MEMOP_F_SKEY_PROTECTION;
++	ksmo.size = len;
++	ksmo.op = KVM_S390_MEMOP_ABSOLUTE_READ;
++	ksmo.buf = (uintptr_t)host_addr;
++	ksmo.key = access_key;
++
++	return _vm_ioctl(vm, KVM_S390_MEM_OP, &ksmo);
++}
++
++static void vm_read_guest_key(struct kvm_vm *vm, void *host_addr,
++			      uintptr_t guest_addr, size_t len, u8 access_key)
++{
++	int rv;
++
++	rv = _vm_read_guest_key(vm, host_addr, guest_addr, len, access_key);
++	TEST_ASSERT(rv == 0, "vm memop read failed: reason = %d\n", rv);
++}
++
++static int _vm_write_guest_key(struct kvm_vm *vm, uintptr_t guest_addr,
++			       void *host_addr, size_t len, u8 access_key)
++{
++	struct kvm_s390_mem_op ksmo = {0};
++
++	ksmo.gaddr = guest_addr;
++	ksmo.flags = KVM_S390_MEMOP_F_SKEY_PROTECTION;
++	ksmo.size = len;
++	ksmo.op = KVM_S390_MEMOP_ABSOLUTE_WRITE;
++	ksmo.buf = (uintptr_t)host_addr;
++	ksmo.key = access_key;
++
++	return _vm_ioctl(vm, KVM_S390_MEM_OP, &ksmo);
++}
++
++static void vm_write_guest_key(struct kvm_vm *vm, uintptr_t guest_addr,
++			       void *host_addr, size_t len, u8 access_key)
++{
++	int rv;
++
++	rv = _vm_write_guest_key(vm, guest_addr, host_addr, len, access_key);
++	TEST_ASSERT(rv == 0, "vm memop write failed: reason = %d\n", rv);
+ }
+ 
++enum access_mode {
++	ACCESS_READ,
++	ACCESS_WRITE
++};
++
++static int _vm_check_guest_key(struct kvm_vm *vm, enum access_mode mode,
++			       uintptr_t guest_addr, size_t len, u8 access_key)
++{
++	struct kvm_s390_mem_op ksmo = {0};
++
++	ksmo.gaddr = guest_addr;
++	ksmo.flags = KVM_S390_MEMOP_F_CHECK_ONLY | KVM_S390_MEMOP_F_SKEY_PROTECTION;
++	ksmo.size = len;
++	if (mode == ACCESS_READ)
++		ksmo.op = KVM_S390_MEMOP_ABSOLUTE_READ;
++	else
++		ksmo.op = KVM_S390_MEMOP_ABSOLUTE_WRITE;
++	ksmo.key = access_key;
++
++	return _vm_ioctl(vm, KVM_S390_MEM_OP, &ksmo);
++}
++
++static void vm_check_guest_key(struct kvm_vm *vm, enum access_mode mode,
++			       uintptr_t guest_addr, size_t len, u8 access_key)
++{
++	int rv;
++
++	rv = _vm_check_guest_key(vm, mode, guest_addr, len, access_key);
++	TEST_ASSERT(rv == 0, "vm memop write failed: reason = %d\n", rv);
++}
++
++#define HOST_SYNC(vmp, stage)						\
++({									\
++	struct kvm_vm *__vm = (vmp);					\
++	struct ucall uc;						\
++	int __stage = (stage);						\
++									\
++	vcpu_run(__vm, VCPU_ID);					\
++	get_ucall(__vm, VCPU_ID, &uc);					\
++	ASSERT_EQ(uc.cmd, UCALL_SYNC);					\
++	ASSERT_EQ(uc.args[1], __stage);					\
++})									\
++
+ int main(int argc, char *argv[])
+ {
+ 	struct kvm_vm *vm;
+ 	struct kvm_run *run;
+ 	struct kvm_s390_mem_op ksmo;
+-	int rv, i, maxsize;
++	bool has_skey_ext;
++	vm_vaddr_t guest_mem1;
++	vm_vaddr_t guest_mem2;
++	vm_paddr_t guest_mem1_abs;
++	int rv, maxsize;
+ 
+ 	setbuf(stdout, NULL);	/* Tell stdout not to buffer its content */
+ 
+@@ -45,67 +321,225 @@ int main(int argc, char *argv[])
+ 	}
+ 	if (maxsize > sizeof(mem1))
+ 		maxsize = sizeof(mem1);
++	has_skey_ext = kvm_check_cap(KVM_CAP_S390_MEM_OP_EXTENSION);
++	if (!has_skey_ext)
++		print_skip("Storage key extension not supported");
+ 
+ 	/* Create VM */
+ 	vm = vm_create_default(VCPU_ID, 0, guest_code);
+ 	run = vcpu_state(vm, VCPU_ID);
++	guest_mem1 = (uintptr_t)mem1;
++	guest_mem2 = (uintptr_t)mem2;
++	guest_mem1_abs = addr_gva2gpa(vm, guest_mem1);
+ 
+-	for (i = 0; i < sizeof(mem1); i++)
+-		mem1[i] = i * i + i;
++	/* Set storage key */
++	HOST_SYNC(vm, 0);
+ 
+-	/* Set the first array */
+-	ksmo.gaddr = addr_gva2gpa(vm, (uintptr_t)mem1);
+-	ksmo.flags = 0;
+-	ksmo.size = maxsize;
+-	ksmo.op = KVM_S390_MEMOP_LOGICAL_WRITE;
+-	ksmo.buf = (uintptr_t)mem1;
+-	ksmo.ar = 0;
+-	vcpu_ioctl(vm, VCPU_ID, KVM_S390_MEM_OP, &ksmo);
++	/* Write, read back, without keys */
++	reroll_mem1();
++	vcpu_write_guest(vm, guest_mem1, mem1, maxsize);
++	HOST_SYNC(vm, 10); // Copy in vm
++	memset(mem2, 0xaa, sizeof(mem2));
++	vcpu_read_guest(vm, mem2, guest_mem2, maxsize);
++	TEST_ASSERT(!memcmp(mem1, mem2, maxsize),
++		    "Memory contents do not match!");
+ 
+-	/* Let the guest code copy the first array to the second */
+-	vcpu_run(vm, VCPU_ID);
+-	TEST_ASSERT(run->exit_reason == KVM_EXIT_S390_SIEIC,
+-		    "Unexpected exit reason: %u (%s)\n",
+-		    run->exit_reason,
+-		    exit_reason_str(run->exit_reason));
++	if (has_skey_ext) {
++		vm_vaddr_t guest_0_page = vm_vaddr_alloc(vm, PAGE_SIZE, 0);
++		vm_vaddr_t guest_last_page = vm_vaddr_alloc(vm, PAGE_SIZE, last_page_addr);
++		vm_paddr_t guest_mem2_abs = addr_gva2gpa(vm, guest_mem2);
+ 
+-	memset(mem2, 0xaa, sizeof(mem2));
++		/* Write, read back, key 0 */
++		reroll_mem1();
++		vcpu_write_guest_key(vm, guest_mem1, mem1, maxsize, 0);
++		HOST_SYNC(vm, 20); // Copy in vm
++		memset(mem2, 0xaa, sizeof(mem2));
++		vcpu_read_guest_key(vm, mem2, guest_mem2, maxsize, 0);
++		TEST_ASSERT(!memcmp(mem1, mem2, maxsize),
++			    "Memory contents do not match!");
+ 
+-	/* Get the second array */
+-	ksmo.gaddr = (uintptr_t)mem2;
+-	ksmo.flags = 0;
+-	ksmo.size = maxsize;
+-	ksmo.op = KVM_S390_MEMOP_LOGICAL_READ;
+-	ksmo.buf = (uintptr_t)mem2;
+-	ksmo.ar = 0;
+-	vcpu_ioctl(vm, VCPU_ID, KVM_S390_MEM_OP, &ksmo);
++		/* Write, read back, matching key, 1 page */
++		reroll_mem1();
++		vcpu_write_guest_key(vm, guest_mem1, mem1, PAGE_SIZE, 9);
++		HOST_SYNC(vm, 30); // Copy in vm
++		memset(mem2, 0xaa, sizeof(mem2));
++		vcpu_read_guest_key(vm, mem2, guest_mem2, PAGE_SIZE, 9);
++		TEST_ASSERT(!memcmp(mem1, mem2, PAGE_SIZE),
++			    "Memory contents do not match!");
+ 
+-	TEST_ASSERT(!memcmp(mem1, mem2, maxsize),
+-		    "Memory contents do not match!");
++		/* Write, read back, matching key, all pages */
++		reroll_mem1();
++		vcpu_write_guest_key(vm, guest_mem1, mem1, maxsize, 9);
++		HOST_SYNC(vm, 40); // Copy in vm
++		memset(mem2, 0xaa, sizeof(mem2));
++		vcpu_read_guest_key(vm, mem2, guest_mem2, maxsize, 9);
++		TEST_ASSERT(!memcmp(mem1, mem2, maxsize),
++			    "Memory contents do not match!");
+ 
+-	/* Check error conditions - first bad size: */
+-	ksmo.gaddr = (uintptr_t)mem1;
+-	ksmo.flags = 0;
+-	ksmo.size = -1;
+-	ksmo.op = KVM_S390_MEMOP_LOGICAL_WRITE;
+-	ksmo.buf = (uintptr_t)mem1;
+-	ksmo.ar = 0;
+-	rv = _vcpu_ioctl(vm, VCPU_ID, KVM_S390_MEM_OP, &ksmo);
++		/* Fail to write, read back old value, mismatching key */
++		rv = _vcpu_write_guest_key(vm, guest_mem1, mem1, maxsize, 2);
++		TEST_ASSERT(rv == 4, "Store should result in protection exception");
++		memset(mem2, 0xaa, sizeof(mem2));
++		vcpu_read_guest_key(vm, mem2, guest_mem2, maxsize, 2);
++		TEST_ASSERT(!memcmp(mem1, mem2, maxsize),
++			    "Memory contents do not match!");
++
++		/* Set fetch protection */
++		HOST_SYNC(vm, 50);
++
++		/* Write without key, read back, matching key, fetch protection */
++		reroll_mem1();
++		vcpu_write_guest(vm, guest_0_page, mem1, PAGE_SIZE);
++		memset(mem2, 0xaa, sizeof(mem2));
++		/* Lets not copy in the guest, in case guest_0_page != 0 */
++		vcpu_read_guest_key(vm, mem2, guest_0_page, PAGE_SIZE, 1);
++		TEST_ASSERT(!memcmp(mem1, mem2, PAGE_SIZE),
++			    "Memory contents do not match!");
++
++		/* Fail to read,  mismatching key, fetch protection */
++		rv = _vcpu_read_guest_key(vm, mem2, guest_0_page, PAGE_SIZE, 2);
++		TEST_ASSERT(rv == 4, "Fetch should result in protection exception");
++
++		/* Enable fetch protection override */
++		run->s.regs.crs[0] |= CR0_FETCH_PROTECTION_OVERRIDE;
++		run->kvm_dirty_regs = KVM_SYNC_CRS;
++		HOST_SYNC(vm, 60);
++
++		if (guest_0_page != 0)
++			print_skip("Did not allocate page at 0 for fetch protection override test");
++
++		/* Write without key, read back, mismatching key,
++		 * fetch protection override, 1 page
++		 */
++		if (guest_0_page == 0) {
++			reroll_mem1();
++			vcpu_write_guest(vm, guest_0_page, mem1, PAGE_SIZE);
++			memset(mem2, 0xaa, sizeof(mem2));
++			/* Lets not copy in the guest, in case guest_0_page != 0 */
++			vcpu_read_guest_key(vm, mem2, guest_0_page, 2048, 2);
++			TEST_ASSERT(!memcmp(mem1, mem2, 2048),
++				    "Memory contents do not match!");
++		}
++
++		/* Fail to read, mismatching key,
++		 * fetch protection override address exceeded, 1 page
++		 */
++		if (guest_0_page == 0) {
++			rv = _vcpu_read_guest_key(vm, mem2, 0, 2048 + 1, 2);
++			TEST_ASSERT(rv == 4,
++				    "Fetch should result in protection exception");
++		}
++
++		if (guest_last_page != last_page_addr)
++			print_skip("Did not allocate last page for fetch protection override test");
++
++		/* Write without key, read back, mismatching key,
++		 * fetch protection override, 2 pages, last page not fetch protected
++		 */
++		reroll_mem1();
++		vcpu_write_guest(vm, guest_last_page, mem1, PAGE_SIZE);
++		vcpu_write_guest(vm, guest_0_page, mem1 + PAGE_SIZE, PAGE_SIZE);
++		if (guest_0_page == 0 && guest_last_page == last_page_addr) {
++			memset(mem2, 0xaa, sizeof(mem2));
++			/* Lets not copy in the guest, in case guest_0_page != 0 */
++			vcpu_read_guest_key(vm, mem2, last_page_addr,
++					    PAGE_SIZE + 2048, 2);
++			TEST_ASSERT(!memcmp(mem1, mem2, PAGE_SIZE + 2048),
++				    "Memory contents do not match!");
++		}
++
++		/* Fail to read, mismatching key, fetch protection override address
++		 * exceeded, 2 pages, last page not fetch protected
++		 */
++		if (guest_0_page == 0 && guest_last_page == last_page_addr) {
++			rv = _vcpu_read_guest_key(vm, mem2, last_page_addr,
++						  PAGE_SIZE + 2048 + 1, 2);
++			TEST_ASSERT(rv == 4,
++				    "Fetch should result in protection exception");
++		}
++
++		/* Enable storage protection override, set fetch protection*/
++		run->s.regs.crs[0] |= CR0_STORAGE_PROTECTION_OVERRIDE;
++		run->kvm_dirty_regs = KVM_SYNC_CRS;
++		HOST_SYNC(vm, 70);
++
++		/* Write, read back, mismatching key,
++		 * storage protection override, all pages
++		 */
++		reroll_mem1();
++		vcpu_write_guest_key(vm, guest_mem1, mem1, maxsize, 2);
++		HOST_SYNC(vm, 80); // Copy in vm
++		memset(mem2, 0xaa, sizeof(mem2));
++		vcpu_read_guest_key(vm, mem2, guest_mem2, maxsize, 2);
++		TEST_ASSERT(!memcmp(mem1, mem2, maxsize),
++			    "Memory contents do not match!");
++
++		/* VM memop, write, read back, matching key */
++		reroll_mem1();
++		vm_write_guest_key(vm, guest_mem1_abs, mem1, maxsize, 9);
++		HOST_SYNC(vm, 90); // Copy in vm
++		memset(mem2, 0xaa, sizeof(mem2));
++		vm_read_guest_key(vm, mem2, guest_mem2_abs, maxsize, 9);
++		TEST_ASSERT(!memcmp(mem1, mem2, maxsize),
++			    "Memory contents do not match!");
++		vm_check_guest_key(vm, ACCESS_WRITE, guest_mem1_abs, maxsize, 9);
++		vm_check_guest_key(vm, ACCESS_READ, guest_mem2_abs, maxsize, 9);
++
++		/* VM memop, write, read back, key 0 */
++		reroll_mem1();
++		vm_write_guest_key(vm, guest_mem1_abs, mem1, maxsize, 0);
++		HOST_SYNC(vm, 100); // Copy in vm
++		memset(mem2, 0xaa, sizeof(mem2));
++		vm_read_guest_key(vm, mem2, guest_mem2_abs, maxsize, 0);
++		TEST_ASSERT(!memcmp(mem1, mem2, maxsize),
++			    "Memory contents do not match!");
++		rv = _vm_check_guest_key(vm, ACCESS_READ, guest_mem1_abs, maxsize, 9);
++		TEST_ASSERT(rv == 0, "Check should succeed");
++		vm_check_guest_key(vm, ACCESS_WRITE, guest_mem1_abs, maxsize, 0);
++		vm_check_guest_key(vm, ACCESS_READ, guest_mem2_abs, maxsize, 0);
++
++		/* VM memop, fail to write, fail to read, mismatching key,
++		 * storage protection override does not apply to VM memops
++		 */
++		rv = _vm_write_guest_key(vm, guest_mem1_abs, mem1, maxsize, 2);
++		TEST_ASSERT(rv == 4, "Store should result in protection exception");
++		rv = _vm_read_guest_key(vm, mem2, guest_mem2_abs, maxsize, 2);
++		TEST_ASSERT(rv == 4, "Fetch should result in protection exception");
++		rv = _vm_check_guest_key(vm, ACCESS_WRITE, guest_mem1_abs, maxsize, 2);
++		TEST_ASSERT(rv == 4, "Check should indicate protection exception");
++		rv = _vm_check_guest_key(vm, ACCESS_READ, guest_mem2_abs, maxsize, 2);
++		TEST_ASSERT(rv == 4, "Check should indicate protection exception");
++
++		/* VM memop, fail to read from 0 absolute/virtual, mismatching key,
++		 * fetch protection override does not apply to VM memops
++		 */
++		rv = _vm_read_guest_key(vm, mem2, 0, 2048, 2);
++		TEST_ASSERT(rv != 0, "Fetch should result in exception");
++		rv = _vm_read_guest_key(vm, mem2, addr_gva2gpa(vm, 0), 2048, 2);
++		TEST_ASSERT(rv == 4, "Fetch should result in protection exception");
++	} else {
++		struct ucall uc;
++
++		do {
++			vcpu_run(vm, VCPU_ID);
++			get_ucall(vm, VCPU_ID, &uc);
++			ASSERT_EQ(uc.cmd, UCALL_SYNC);
++		} while (uc.args[1] < 100);
++	}
++
++	/* Check error conditions */
++
++	/* Bad size: */
++	rv = _vcpu_write_guest(vm, (uintptr_t)mem1, mem1, -1);
+ 	TEST_ASSERT(rv == -1 && errno == E2BIG, "ioctl allows insane sizes");
+ 
+ 	/* Zero size: */
+-	ksmo.gaddr = (uintptr_t)mem1;
+-	ksmo.flags = 0;
+-	ksmo.size = 0;
+-	ksmo.op = KVM_S390_MEMOP_LOGICAL_WRITE;
+-	ksmo.buf = (uintptr_t)mem1;
+-	ksmo.ar = 0;
+-	rv = _vcpu_ioctl(vm, VCPU_ID, KVM_S390_MEM_OP, &ksmo);
++	rv = _vcpu_write_guest(vm, (uintptr_t)mem1, mem1, 0);
+ 	TEST_ASSERT(rv == -1 && (errno == EINVAL || errno == ENOMEM),
+ 		    "ioctl allows 0 as size");
+ 
+ 	/* Bad flags: */
+-	ksmo.gaddr = (uintptr_t)mem1;
++	ksmo.gaddr = guest_mem1;
+ 	ksmo.flags = -1;
+ 	ksmo.size = maxsize;
+ 	ksmo.op = KVM_S390_MEMOP_LOGICAL_WRITE;
+@@ -115,7 +549,7 @@ int main(int argc, char *argv[])
+ 	TEST_ASSERT(rv == -1 && errno == EINVAL, "ioctl allows all flags");
+ 
+ 	/* Bad operation: */
+-	ksmo.gaddr = (uintptr_t)mem1;
++	ksmo.gaddr = guest_mem1;
+ 	ksmo.flags = 0;
+ 	ksmo.size = maxsize;
+ 	ksmo.op = -1;
+@@ -135,21 +569,17 @@ int main(int argc, char *argv[])
+ 	TEST_ASSERT(rv > 0, "ioctl does not report bad guest memory access");
+ 
+ 	/* Bad host address: */
+-	ksmo.gaddr = (uintptr_t)mem1;
+-	ksmo.flags = 0;
+-	ksmo.size = maxsize;
+-	ksmo.op = KVM_S390_MEMOP_LOGICAL_WRITE;
+-	ksmo.buf = 0;
+-	ksmo.ar = 0;
+-	rv = _vcpu_ioctl(vm, VCPU_ID, KVM_S390_MEM_OP, &ksmo);
++	rv = _vcpu_write_guest(vm, guest_mem1, 0, maxsize);
+ 	TEST_ASSERT(rv == -1 && errno == EFAULT,
+ 		    "ioctl does not report bad host memory address");
+ 
+-	/* Bad access register: */
++	/* Enable AR mode */
+ 	run->psw_mask &= ~(3UL << (63 - 17));
+-	run->psw_mask |= 1UL << (63 - 17);  /* Enable AR mode */
+-	vcpu_run(vm, VCPU_ID);              /* To sync new state to SIE block */
+-	ksmo.gaddr = (uintptr_t)mem1;
++	run->psw_mask |= 1UL << (63 - 17);
++	HOST_SYNC(vm, 110);
++
++	/* Bad access register: */
++	ksmo.gaddr = guest_mem1;
+ 	ksmo.flags = 0;
+ 	ksmo.size = maxsize;
+ 	ksmo.op = KVM_S390_MEMOP_LOGICAL_WRITE;
+@@ -157,8 +587,10 @@ int main(int argc, char *argv[])
+ 	ksmo.ar = 17;
+ 	rv = _vcpu_ioctl(vm, VCPU_ID, KVM_S390_MEM_OP, &ksmo);
+ 	TEST_ASSERT(rv == -1 && errno == EINVAL, "ioctl allows ARs > 15");
+-	run->psw_mask &= ~(3UL << (63 - 17));   /* Disable AR mode */
+-	vcpu_run(vm, VCPU_ID);                  /* Run to sync new state */
++
++	/* Disable AR mode */
++	run->psw_mask &= ~(3UL << (63 - 17));
++	HOST_SYNC(vm, 120);
+ 
+ 	kvm_vm_free(vm);
+ 
 -- 
 2.32.0
 
