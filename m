@@ -2,184 +2,70 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6568FC433F5
-	for <linux-s390@archiver.kernel.org>; Sat, 12 Feb 2022 11:44:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 58366C433EF
+	for <linux-s390@archiver.kernel.org>; Sat, 12 Feb 2022 17:17:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234702AbiBLLon (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 12 Feb 2022 06:44:43 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:47844 "EHLO
+        id S237614AbiBLRRU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 12 Feb 2022 12:17:20 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232024AbiBLLom (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 12 Feb 2022 06:44:42 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8048626AD4;
-        Sat, 12 Feb 2022 03:44:39 -0800 (PST)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21C9vf1G032620;
-        Sat, 12 Feb 2022 11:44:38 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : content-type : mime-version; s=pp1;
- bh=/0i+ZkumCuw7l750dUX0MCbyV6L+zIkPOoRsbv3am4s=;
- b=V6QM05LQWxdJCm1yrGrvE72c52zBwVlsQY+zLjJOpjmr0s3Sy9yxGsgil5GJPevUo4Ei
- 0lmlAnPSe0sqGTVDbA4UN9AxiFQGrEoCDInfuTDBeRqG7+QpMw93xXK98umEGow5h6ul
- KghPEFw5SNrWDQz/4mO/hrxo/USES/OXUNHAvPN3MF4Q4f5t4+MzXNxUdAEtOU4JS04t
- 2NMci02CtgcaxjUhDYMgNzZUCaNgRVid9JSxFFu7J6EaM9DJlG24BDKybh2AxoxXAFYh
- k6BOljnbVyYKG5iExnMtHGGaIB9Ty2chsyPa0qKX8ZhcZC6s803+DcZPgvBHWk/v0zJD vw== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3e6a9h9v2a-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sat, 12 Feb 2022 11:44:37 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21CBh8n0001790;
-        Sat, 12 Feb 2022 11:44:35 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3e64h99yc1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sat, 12 Feb 2022 11:44:35 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21CBiWtO45875544
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 12 Feb 2022 11:44:32 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5BB384C046;
-        Sat, 12 Feb 2022 11:44:32 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 15DEC4C040;
-        Sat, 12 Feb 2022 11:44:32 +0000 (GMT)
-Received: from localhost (unknown [9.171.57.218])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Sat, 12 Feb 2022 11:44:32 +0000 (GMT)
-Date:   Sat, 12 Feb 2022 12:44:30 +0100
-From:   Vasily Gorbik <gor@linux.ibm.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        with ESMTP id S237673AbiBLRRT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 12 Feb 2022 12:17:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C8AF240A6;
+        Sat, 12 Feb 2022 09:17:15 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EBA28B807EE;
+        Sat, 12 Feb 2022 17:17:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id B386FC340F0;
+        Sat, 12 Feb 2022 17:17:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1644686232;
+        bh=J5/JpM/NQb9KMRfHLQ9g4TAPQaNxjNzihCsBurKxGLM=;
+        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+        b=Ws0SWi/0zoP8yuBSKgkm976NX9qX4UdWxJpaw5z9AMX7Vit+kqQnIRVLjDPdfAqDl
+         EIsKZKKkG6bFJ76JuWcvIPxwMf6In36obJmVjOvhs1jEXcOwJgbvtYIYXSUKFWkh3N
+         6UG7XrpFqluWoFp6T1Py9sFNqKZCw77gjGaj0hojwKsQ3RT1FzB16oo66S4p4teB1e
+         pgTS7QAxvgf1+QqEh+1uf69XKXMrCbA1q8B/EwNS0R1i827JGz75qB4pq2XQgkewV1
+         MmLvy/Yrtv+NOc5bTeD5swAu/lb6ePjg3rk3qK+lTE1uMaOUnOQzcwpwQDh9DrCVSJ
+         I6v3hPW0BZpSA==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id A2F55E5CF96;
+        Sat, 12 Feb 2022 17:17:12 +0000 (UTC)
+Subject: Re: [GIT PULL] s390 updates for 5.17-rc4
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <your-ad-here.call-01644666270-ext-6500@work.hours>
+References: <your-ad-here.call-01644666270-ext-6500@work.hours>
+X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
+X-PR-Tracked-Message-Id: <your-ad-here.call-01644666270-ext-6500@work.hours>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.17-4
+X-PR-Tracked-Commit-Id: dd9cb842fa9d90653a9b48aba52f89c069f3bc50
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: a4fd49cdb5495f36a35bd27b69b3806e383c719b
+Message-Id: <164468623266.20961.16254516549608570348.pr-tracker-bot@kernel.org>
+Date:   Sat, 12 Feb 2022 17:17:12 +0000
+To:     Vasily Gorbik <gor@linux.ibm.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [GIT PULL] s390 updates for 5.17-rc4
-Message-ID: <your-ad-here.call-01644666270-ext-6500@work.hours>
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: f_Z4JoK9AtEUm-VtL3kWyC66hvSYRVMt
-X-Proofpoint-ORIG-GUID: f_Z4JoK9AtEUm-VtL3kWyC66hvSYRVMt
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
-MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-02-12_04,2022-02-11_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- impostorscore=0 mlxscore=0 priorityscore=1501 suspectscore=0
- lowpriorityscore=0 clxscore=1015 bulkscore=0 mlxlogscore=999 adultscore=0
- spamscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2202120069
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello Linus,
+The pull request you sent on Sat, 12 Feb 2022 12:44:30 +0100:
 
-please pull s390 changes for 5.17-rc4.
+> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.17-4
 
-Thank you,
-Vasily
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/a4fd49cdb5495f36a35bd27b69b3806e383c719b
 
-The following changes since commit dfd42facf1e4ada021b939b4e19c935dcdd55566:
+Thank you!
 
-  Linux 5.17-rc3 (2022-02-06 12:20:50 -0800)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.17-4
-
-for you to fetch changes up to dd9cb842fa9d90653a9b48aba52f89c069f3bc50:
-
-  s390/cio: verify the driver availability for path_event call (2022-02-09 22:55:01 +0100)
-
-----------------------------------------------------------------
-s390 updates for 5.17-rc4
-
-- Maintainers and reviewers changes:
-  - Add Alexander Gordeev as maintainer for s390.
-  - Christian Borntraeger will focus on s390 KVM maintainership and
-    stays as s390 reviewer.
-
-- Fix clang build of modules loader KUnit test.
-
-- Fix kernel panic in CIO code on FCES path-event when no driver is
-  attached to a device or the driver does not provide the path_event
-  function.
-
-----------------------------------------------------------------
-Christian Borntraeger (1):
-      MAINTAINERS: downgrade myself to Reviewer for s390
-
-Heiko Carstens (1):
-      MAINTAINERS: add Alexander Gordeev as maintainer for s390
-
-Ilya Leoshkevich (1):
-      s390/module: fix building test_modules_helpers.o with clang
-
-Vineeth Vijayan (1):
-      s390/cio: verify the driver availability for path_event call
-
- MAINTAINERS                  | 4 ++--
- arch/s390/lib/test_modules.c | 3 ---
- arch/s390/lib/test_modules.h | 3 +++
- drivers/s390/cio/device.c    | 2 +-
- 4 files changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 69a2935daf6c..5c56a172ce11 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -16817,8 +16817,8 @@ F:	drivers/video/fbdev/savage/
- S390
- M:	Heiko Carstens <hca@linux.ibm.com>
- M:	Vasily Gorbik <gor@linux.ibm.com>
--M:	Christian Borntraeger <borntraeger@linux.ibm.com>
--R:	Alexander Gordeev <agordeev@linux.ibm.com>
-+M:	Alexander Gordeev <agordeev@linux.ibm.com>
-+R:	Christian Borntraeger <borntraeger@linux.ibm.com>
- R:	Sven Schnelle <svens@linux.ibm.com>
- L:	linux-s390@vger.kernel.org
- S:	Supported
-diff --git a/arch/s390/lib/test_modules.c b/arch/s390/lib/test_modules.c
-index d056baa8fbb0..9894009fc1f2 100644
---- a/arch/s390/lib/test_modules.c
-+++ b/arch/s390/lib/test_modules.c
-@@ -5,9 +5,6 @@
- 
- #include "test_modules.h"
- 
--#define DECLARE_RETURN(i) int test_modules_return_ ## i(void)
--REPEAT_10000(DECLARE_RETURN);
--
- /*
-  * Test that modules with many relocations are loaded properly.
-  */
-diff --git a/arch/s390/lib/test_modules.h b/arch/s390/lib/test_modules.h
-index 43b5e4b4af3e..6371fcf17684 100644
---- a/arch/s390/lib/test_modules.h
-+++ b/arch/s390/lib/test_modules.h
-@@ -47,4 +47,7 @@
- 	__REPEAT_10000_1(f, 8); \
- 	__REPEAT_10000_1(f, 9)
- 
-+#define DECLARE_RETURN(i) int test_modules_return_ ## i(void)
-+REPEAT_10000(DECLARE_RETURN);
-+
- #endif
-diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
-index cd938a26b76c..3b1cd0c96a74 100644
---- a/drivers/s390/cio/device.c
-+++ b/drivers/s390/cio/device.c
-@@ -1180,7 +1180,7 @@ static int io_subchannel_chp_event(struct subchannel *sch,
- 			else
- 				path_event[chpid] = PE_NONE;
- 		}
--		if (cdev)
-+		if (cdev && cdev->drv && cdev->drv->path_event)
- 			cdev->drv->path_event(cdev, path_event);
- 		break;
- 	}
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
