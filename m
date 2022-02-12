@@ -2,130 +2,184 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F8AAC433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 11 Feb 2022 23:42:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6568FC433F5
+	for <linux-s390@archiver.kernel.org>; Sat, 12 Feb 2022 11:44:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354275AbiBKXm4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 11 Feb 2022 18:42:56 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42800 "EHLO
+        id S234702AbiBLLon (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 12 Feb 2022 06:44:43 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:47844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354281AbiBKXmv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Feb 2022 18:42:51 -0500
-Received: from mail-il1-x12e.google.com (mail-il1-x12e.google.com [IPv6:2607:f8b0:4864:20::12e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67105D6C;
-        Fri, 11 Feb 2022 15:42:48 -0800 (PST)
-Received: by mail-il1-x12e.google.com with SMTP id k18so1570222ils.11;
-        Fri, 11 Feb 2022 15:42:48 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=EJieVrYw7bGsS/GbDwdyCqkJlHD+DNLeYNU+G9HF0Kw=;
-        b=aJyCdrt6mtHVARW18KLBIZip5IXDQg3a50Kp8xN8UESpGu5Hg8vkgiS7JCTti43+MI
-         YHzD/b+jZuTBWbpTbtgFWzZzikCdZT94HGe2M2cnWMzri3xBEX7c7vaxgRBFerE0rxuM
-         bvcMe9NGtEpqZac2QheDaLEp3CjfrPoYKXTwSLVZ0IWpwd40PEHkzn2/ogEh5iAOw4TL
-         S2Pq8mZCCyop5a3yYxrSOkPKb3vF/s/PW0xtrEEOEqI1qdyA3WmmIZrlfgd4c1rwuzMK
-         kxWYhiAKGA5y8ueqQ8VWfZcTi5r/Z4k3SuxubyaLXnOcnXpxWWN0aL9Wywn91URR+8L1
-         4Oaw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=EJieVrYw7bGsS/GbDwdyCqkJlHD+DNLeYNU+G9HF0Kw=;
-        b=eTgeOrulndOIdVAyKHHsZBrIv0odvSeXs3hnU9O1iqLB3KvU6B0x4+W3OSxHxiksMn
-         fgyX434kziLJ43eio06YCT4sfLlWzoJzLX/PZ9QqsVIgfbFX8D15/lfbq1peouVKvEId
-         bSZygV2bsRud0W/SPJreuhsIUs1moMKp0fxMB0FHPEhCQr3GH3MT0OZkFi3w9W4uMSbJ
-         6YNGqgg8zd1tlJGjI2b+rV/dRWA+LYraUDZWi9fnPaEJWgHZ5nc9X4OxA7wXkgV/5Fht
-         aIhtXWbTmkHQl47Lz7kjWVXIX3YL/ncRDO3JZrbpldC1T275zNsBMKsY9jA9lx3p/nnd
-         afGw==
-X-Gm-Message-State: AOAM533UgaxCDJN5hr8jXn/ioDB+wuTKRTbKWrxHftQwF9zCBICeAMN3
-        dAyYdvoEPJcSMOcH2N2pQrw=
-X-Google-Smtp-Source: ABdhPJx2/HGyOBckGTxMpiRreSEAJEsNJebRTbV0IbocBugJaSb4aBKID1N0GneyP9liEw2Hu3L3lw==
-X-Received: by 2002:a92:d648:: with SMTP id x8mr2031228ilp.142.1644622967680;
-        Fri, 11 Feb 2022 15:42:47 -0800 (PST)
-Received: from localhost ([12.28.44.171])
-        by smtp.gmail.com with ESMTPSA id h19sm12766856ila.4.2022.02.11.15.42.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Feb 2022 15:42:47 -0800 (PST)
-Date:   Fri, 11 Feb 2022 15:40:36 -0800
-From:   Yury Norov <yury.norov@gmail.com>
-To:     Sven Schnelle <svens@linux.ibm.com>
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        =?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        David Laight <David.Laight@aculab.com>,
-        Joe Perches <joe@perches.com>, Dennis Zhou <dennis@kernel.org>,
-        Emil Renner Berthing <kernel@esmil.dk>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
-        Alexey Klimov <aklimov@redhat.com>,
-        linux-kernel@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        with ESMTP id S232024AbiBLLom (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 12 Feb 2022 06:44:42 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8048626AD4;
+        Sat, 12 Feb 2022 03:44:39 -0800 (PST)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21C9vf1G032620;
+        Sat, 12 Feb 2022 11:44:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : content-type : mime-version; s=pp1;
+ bh=/0i+ZkumCuw7l750dUX0MCbyV6L+zIkPOoRsbv3am4s=;
+ b=V6QM05LQWxdJCm1yrGrvE72c52zBwVlsQY+zLjJOpjmr0s3Sy9yxGsgil5GJPevUo4Ei
+ 0lmlAnPSe0sqGTVDbA4UN9AxiFQGrEoCDInfuTDBeRqG7+QpMw93xXK98umEGow5h6ul
+ KghPEFw5SNrWDQz/4mO/hrxo/USES/OXUNHAvPN3MF4Q4f5t4+MzXNxUdAEtOU4JS04t
+ 2NMci02CtgcaxjUhDYMgNzZUCaNgRVid9JSxFFu7J6EaM9DJlG24BDKybh2AxoxXAFYh
+ k6BOljnbVyYKG5iExnMtHGGaIB9Ty2chsyPa0qKX8ZhcZC6s803+DcZPgvBHWk/v0zJD vw== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e6a9h9v2a-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 12 Feb 2022 11:44:37 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21CBh8n0001790;
+        Sat, 12 Feb 2022 11:44:35 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 3e64h99yc1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sat, 12 Feb 2022 11:44:35 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21CBiWtO45875544
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sat, 12 Feb 2022 11:44:32 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5BB384C046;
+        Sat, 12 Feb 2022 11:44:32 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 15DEC4C040;
+        Sat, 12 Feb 2022 11:44:32 +0000 (GMT)
+Received: from localhost (unknown [9.171.57.218])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Sat, 12 Feb 2022 11:44:32 +0000 (GMT)
+Date:   Sat, 12 Feb 2022 12:44:30 +0100
+From:   Vasily Gorbik <gor@linux.ibm.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        Thomas Richter <tmricht@linux.ibm.com>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        kernel test robot <lkp@intel.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 39/49] arch/s390: replace cpumask_weight with
- cpumask_weight_eq where appropriate
-Message-ID: <Ygbz9G3DlPZYQ7Y7@yury-laptop>
-References: <20220210224933.379149-1-yury.norov@gmail.com>
- <20220210224933.379149-40-yury.norov@gmail.com>
- <yt9dwni17v19.fsf@linux.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [GIT PULL] s390 updates for 5.17-rc4
+Message-ID: <your-ad-here.call-01644666270-ext-6500@work.hours>
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <yt9dwni17v19.fsf@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: f_Z4JoK9AtEUm-VtL3kWyC66hvSYRVMt
+X-Proofpoint-ORIG-GUID: f_Z4JoK9AtEUm-VtL3kWyC66hvSYRVMt
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-02-12_04,2022-02-11_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ impostorscore=0 mlxscore=0 priorityscore=1501 suspectscore=0
+ lowpriorityscore=0 clxscore=1015 bulkscore=0 mlxlogscore=999 adultscore=0
+ spamscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2202120069
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Feb 11, 2022 at 07:54:26AM +0100, Sven Schnelle wrote:
-> Hi Yury,
-> 
-> Yury Norov <yury.norov@gmail.com> writes:
-> 
-> > cfset_all_start() calls cpumask_weight() to compare the weight of cpumask
-> > with a given number. We can do it more efficiently with
-> > cpumask_weight_{eq, ...} because conditional cpumask_weight may stop
-> > traversing the cpumask earlier, as soon as condition is (or can't be) met.
-> >
-> > Signed-off-by: Yury Norov <yury.norov@gmail.com>
-> > ---
-> >  arch/s390/kernel/perf_cpum_cf.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/arch/s390/kernel/perf_cpum_cf.c b/arch/s390/kernel/perf_cpum_cf.c
-> > index ee8707abdb6a..4d217f7f5ccf 100644
-> > --- a/arch/s390/kernel/perf_cpum_cf.c
-> > +++ b/arch/s390/kernel/perf_cpum_cf.c
-> > @@ -975,7 +975,7 @@ static int cfset_all_start(struct cfset_request *req)
-> >  		return -ENOMEM;
-> >  	cpumask_and(mask, &req->mask, cpu_online_mask);
-> >  	on_each_cpu_mask(mask, cfset_ioctl_on, &p, 1);
-> > -	if (atomic_read(&p.cpus_ack) != cpumask_weight(mask)) {
-> > +	if (!cpumask_weight_eq(mask, atomic_read(&p.cpus_ack))) {
-> >  		on_each_cpu_mask(mask, cfset_ioctl_off, &p, 1);
-> >  		rc = -EIO;
-> >  		debug_sprintf_event(cf_dbg, 4, "%s CPUs missing", __func__);
-> 
-> given that you're adding a bunch of these functions - gt,lt,eq and
-> others, i wonder whether it makes sense to also add cpumask_weight_ne(),
-> so one could just write:
-> 
-> if (cpumask_weight_ne(mask, atomic_read(&p.cpus_ack))) {
-> 	...
-> }
-> 
-> ?
+Hello Linus,
 
-It will have 3 users in cpumask + 1 in nodemask. I have no strong opinion
-whether we need it or not. Let's see what people say.
+please pull s390 changes for 5.17-rc4.
 
-Thanks,
-Yury
+Thank you,
+Vasily
+
+The following changes since commit dfd42facf1e4ada021b939b4e19c935dcdd55566:
+
+  Linux 5.17-rc3 (2022-02-06 12:20:50 -0800)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.17-4
+
+for you to fetch changes up to dd9cb842fa9d90653a9b48aba52f89c069f3bc50:
+
+  s390/cio: verify the driver availability for path_event call (2022-02-09 22:55:01 +0100)
+
+----------------------------------------------------------------
+s390 updates for 5.17-rc4
+
+- Maintainers and reviewers changes:
+  - Add Alexander Gordeev as maintainer for s390.
+  - Christian Borntraeger will focus on s390 KVM maintainership and
+    stays as s390 reviewer.
+
+- Fix clang build of modules loader KUnit test.
+
+- Fix kernel panic in CIO code on FCES path-event when no driver is
+  attached to a device or the driver does not provide the path_event
+  function.
+
+----------------------------------------------------------------
+Christian Borntraeger (1):
+      MAINTAINERS: downgrade myself to Reviewer for s390
+
+Heiko Carstens (1):
+      MAINTAINERS: add Alexander Gordeev as maintainer for s390
+
+Ilya Leoshkevich (1):
+      s390/module: fix building test_modules_helpers.o with clang
+
+Vineeth Vijayan (1):
+      s390/cio: verify the driver availability for path_event call
+
+ MAINTAINERS                  | 4 ++--
+ arch/s390/lib/test_modules.c | 3 ---
+ arch/s390/lib/test_modules.h | 3 +++
+ drivers/s390/cio/device.c    | 2 +-
+ 4 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 69a2935daf6c..5c56a172ce11 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -16817,8 +16817,8 @@ F:	drivers/video/fbdev/savage/
+ S390
+ M:	Heiko Carstens <hca@linux.ibm.com>
+ M:	Vasily Gorbik <gor@linux.ibm.com>
+-M:	Christian Borntraeger <borntraeger@linux.ibm.com>
+-R:	Alexander Gordeev <agordeev@linux.ibm.com>
++M:	Alexander Gordeev <agordeev@linux.ibm.com>
++R:	Christian Borntraeger <borntraeger@linux.ibm.com>
+ R:	Sven Schnelle <svens@linux.ibm.com>
+ L:	linux-s390@vger.kernel.org
+ S:	Supported
+diff --git a/arch/s390/lib/test_modules.c b/arch/s390/lib/test_modules.c
+index d056baa8fbb0..9894009fc1f2 100644
+--- a/arch/s390/lib/test_modules.c
++++ b/arch/s390/lib/test_modules.c
+@@ -5,9 +5,6 @@
+ 
+ #include "test_modules.h"
+ 
+-#define DECLARE_RETURN(i) int test_modules_return_ ## i(void)
+-REPEAT_10000(DECLARE_RETURN);
+-
+ /*
+  * Test that modules with many relocations are loaded properly.
+  */
+diff --git a/arch/s390/lib/test_modules.h b/arch/s390/lib/test_modules.h
+index 43b5e4b4af3e..6371fcf17684 100644
+--- a/arch/s390/lib/test_modules.h
++++ b/arch/s390/lib/test_modules.h
+@@ -47,4 +47,7 @@
+ 	__REPEAT_10000_1(f, 8); \
+ 	__REPEAT_10000_1(f, 9)
+ 
++#define DECLARE_RETURN(i) int test_modules_return_ ## i(void)
++REPEAT_10000(DECLARE_RETURN);
++
+ #endif
+diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
+index cd938a26b76c..3b1cd0c96a74 100644
+--- a/drivers/s390/cio/device.c
++++ b/drivers/s390/cio/device.c
+@@ -1180,7 +1180,7 @@ static int io_subchannel_chp_event(struct subchannel *sch,
+ 			else
+ 				path_event[chpid] = PE_NONE;
+ 		}
+-		if (cdev)
++		if (cdev && cdev->drv && cdev->drv->path_event)
+ 			cdev->drv->path_event(cdev, path_event);
+ 		break;
+ 	}
