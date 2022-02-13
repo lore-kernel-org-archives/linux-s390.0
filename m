@@ -2,201 +2,187 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68135C4332F
-	for <linux-s390@archiver.kernel.org>; Sun, 13 Feb 2022 12:52:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F3160C433EF
+	for <linux-s390@archiver.kernel.org>; Sun, 13 Feb 2022 17:51:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236070AbiBMMwR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 13 Feb 2022 07:52:17 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58612 "EHLO
+        id S237530AbiBMRvq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 13 Feb 2022 12:51:46 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:50670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236049AbiBMMwO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 13 Feb 2022 07:52:14 -0500
-X-Greylist: delayed 414 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 13 Feb 2022 04:52:09 PST
-Received: from angie.orcam.me.uk (angie.orcam.me.uk [IPv6:2001:4190:8020::34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3631F5B3E3;
-        Sun, 13 Feb 2022 04:52:09 -0800 (PST)
-Received: by angie.orcam.me.uk (Postfix, from userid 500)
-        id AA29492009C; Sun, 13 Feb 2022 13:45:09 +0100 (CET)
-Received: from localhost (localhost [127.0.0.1])
-        by angie.orcam.me.uk (Postfix) with ESMTP id 9BEB192009B;
-        Sun, 13 Feb 2022 12:45:09 +0000 (GMT)
-Date:   Sun, 13 Feb 2022 12:45:09 +0000 (GMT)
-From:   "Maciej W. Rozycki" <macro@orcam.me.uk>
-To:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-cc:     Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
+        with ESMTP id S231580AbiBMRvp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 13 Feb 2022 12:51:45 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58BC15A0B8;
+        Sun, 13 Feb 2022 09:51:39 -0800 (PST)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21DEvUKg032201;
+        Sun, 13 Feb 2022 17:50:45 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=ljGnu5uOYQaHl1nPo2n2pEFc0He+WiMjy0EB3bb4xVY=;
+ b=CYAeo3soE6RuStkIaHmKMpNiai5cihSKV2bk3EVB+NYbRnDfew2ymWWXc204VTaFIHP5
+ kofuTuaqbxmTTFucnK/su1TFMXWXkxERF6JcpmBCsm5d+76cVn7ZjuNM+zwYJ7XXq67E
+ GnPERhytl/LMYAJLK6L37O4rXgKGWCcNca70huxJxH8BVyVmoEoURN4z0RH+wpEKXNSM
+ syZTBzKMgA9JV1R/hmN5KV+KuOVSv1WQI0+mHivArh1+7cwsfMaLC5AfV74RWltOyEQH
+ kyTHhsEm24UMi59Q9uXSLnm47Gp2gEwdJNt6v2vu3tcSUKYmvrciW/IXzlLbAPk92fUN zg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e7475t1x2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 13 Feb 2022 17:50:45 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21DHoi2i029058;
+        Sun, 13 Feb 2022 17:50:44 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e7475t1wg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 13 Feb 2022 17:50:44 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21DHlebI015751;
+        Sun, 13 Feb 2022 17:50:42 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03fra.de.ibm.com with ESMTP id 3e64h9et2m-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 13 Feb 2022 17:50:42 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21DHoaW147317488
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sun, 13 Feb 2022 17:50:36 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9D00B4C04E;
+        Sun, 13 Feb 2022 17:50:36 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D52074C044;
+        Sun, 13 Feb 2022 17:50:31 +0000 (GMT)
+Received: from sig-9-65-82-84.ibm.com (unknown [9.65.82.84])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Sun, 13 Feb 2022 17:50:31 +0000 (GMT)
+Message-ID: <b49cb41873655f4fc1269faab5729111d55ce9da.camel@linux.ibm.com>
+Subject: Re: [PATCH v5 2/6] powerpc/kexec_file: Add KEXEC_SIG support.
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Michal =?ISO-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>,
+        Paul Menzel <pmenzel@molgen.mpg.de>
+Cc:     keyrings@vger.kernel.org, linux-crypto@vger.kernel.org,
+        linux-integrity@vger.kernel.org, kexec@lists.infradead.org,
+        Philipp Rudo <prudo@redhat.com>,
+        Nayna <nayna@linux.vnet.ibm.com>, Rob Herring <robh@kernel.org>,
+        linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Jessica Yu <jeyu@kernel.org>, linux-kernel@vger.kernel.org,
+        David Howells <dhowells@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Hari Bathini <hbathini@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
+        linuxppc-dev@lists.ozlabs.org,
+        Frank van der Linden <fllinden@amazon.com>,
+        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
+        Daniel Axtens <dja@axtens.net>, buendgen@de.ibm.com,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Jeff Dike <jdike@addtoit.com>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] parport_pc: Also enable driver for PCI systems
-Message-ID: <alpine.DEB.2.21.2202122313460.34636@angie.orcam.me.uk>
-User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+        Baoquan He <bhe@redhat.com>,
+        linux-security-module@vger.kernel.org
+Date:   Sun, 13 Feb 2022 12:50:31 -0500
+In-Reply-To: <20220209120154.GC3113@kunlun.suse.cz>
+References: <cover.1641900831.git.msuchanek@suse.de>
+         <d95f7c6865bcad5ee37dcbec240e79aa742f5e1d.1641900831.git.msuchanek@suse.de>
+         <b56fe3a2-b145-9d4e-acf2-4991204b3102@molgen.mpg.de>
+         <20220209120154.GC3113@kunlun.suse.cz>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Fz9cM9T58h_IIyXjwjjaFhI_FECO2xCo
+X-Proofpoint-ORIG-GUID: Pc1fQeK8JagJOLRcr98_--QyPz-FtBn0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-02-13_07,2022-02-11_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011
+ lowpriorityscore=0 impostorscore=0 phishscore=0 mlxscore=0 malwarescore=0
+ priorityscore=1501 mlxlogscore=999 bulkscore=0 adultscore=0 spamscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2202130120
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Nowadays PC-style parallel ports come in the form of PCI and PCIe option 
-cards and there are some combined parallel/serial option cards as well 
-that we handle in the parport subsystem.  There is nothing in particular 
-that would prevent them from being used in any system equipped with PCI 
-or PCIe connectivity, except that we do not permit the PARPORT_PC config 
-option to be selected for platforms for which ARCH_MIGHT_HAVE_PC_PARPORT 
-has not been set for.
+Hi Michal,
 
-The only PCI platforms that actually can't make use of PC-style parallel 
-port hardware are those newer PCIe systems that have no support for I/O 
-cycles in the host bridge, required by such parallel ports.  An example 
-of such a host bridge is the POWER9 PHB4 device, but it is an exception 
-rather than the norm.  Also it is not clear whether the serial port side 
-of devices enabled by the PARPORT_SERIAL option uses port I/O or MMIO. 
-Therefore for PCI platforms PARPORT_PC should generally be available, 
-except for Super I/O solutions, which are either ISA or platform 
-devices.
+On Wed, 2022-02-09 at 13:01 +0100, Michal Suchánek wrote:
+> > > diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+> > > index dea74d7717c0..1cde9b6c5987 100644
+> > > --- a/arch/powerpc/Kconfig
+> > > +++ b/arch/powerpc/Kconfig
+> > > @@ -560,6 +560,22 @@ config KEXEC_FILE
+> > >   config ARCH_HAS_KEXEC_PURGATORY
+> > >     def_bool KEXEC_FILE
+> > > +config KEXEC_SIG
+> > > +   bool "Verify kernel signature during kexec_file_load() syscall"
+> > > +   depends on KEXEC_FILE && MODULE_SIG_FORMAT
+> > > +   help
+> > > +     This option makes kernel signature verification mandatory for
+> > > +     the kexec_file_load() syscall.
+> > > +
+> > > +     In addition to that option, you need to enable signature
+> > > +     verification for the corresponding kernel image type being
+> > > +     loaded in order for this to work.
+> > > +
+> > > +     Note: on powerpc IMA_ARCH_POLICY also implements kexec'ed kernel
+> > > +     verification. In addition IMA adds kernel hashes to the measurement
+> > > +     list, extends IMA PCR in the TPM, and implements kernel image
+> > > +     blacklist by hash.
+> > 
+> > So, what is the takeaway for the user? IMA_ARCH_POLICY is preferred? What is
+> > the disadvantage, and two implementations(?) needed then? More overhead?
+> 
+> IMA_KEXEC does more than KEXEC_SIG. The overhead is probably not big
+> unless you are trying to really minimize the kernel code size.
+> 
+> Arguably the simpler implementation hass less potential for bugs, too.
+> Both in code and in user configuration required to enable the feature.
+> 
+> Interestingly IMA_ARCH_POLICY depends on KEXEC_SIG rather than
+> IMA_KEXEC. Just mind-boggling.
 
-Make the PARPORT_PC option selectable also for PCI systems then, however 
-limit the availability of PARPORT_PC_SUPERIO to platforms that have 
-ARCH_MIGHT_HAVE_PC_PARPORT enabled.  Update platforms accordingly for 
-the required <asm/parport.h> header.
+FYI, a soft boot doesn't clear the TPM PCRs.  To be able to verify the
+IMA measurement list after a kexec against a TPM quote, requires
+carrying the measurement list across kexec.
 
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
----
-Hi,
+The "IMA_KEXEC" config enables carrying the IMA measurement list across
+kexec.  It has nothing to do with verifying the appended signature. 
+That is based on kernel module appended signature code.
 
- I have verified this lightly by booting a kernel with PARPORT_PC and 
-PARPORT_SERIAL enabled on a RISC-V HiFive Unmatched system.  While I do 
-have a PCIe parallel port option available that I could use with my RISC-V 
-machine (based on the OxSemi OXPCIe952 chip) it is currently plugged in 
-the wrong system, and both machines are in my remote lab I have currently 
-no visit scheduled to in the near future.  For the record the device 
-reports as:
+> 
+> The main problem with IMA_KEXEC from my point of view is it is not portable.
+> To record the measurements TPM support is requireed which is not available on
+> all platforms.
 
-PCI parallel port detected: 1415:c118, I/O at 0x1000(0x1008), IRQ 18
-parport1: PC-style at 0x1000 (0x1008), irq 18, using FIFO [PCSPP,TRISTATE,COMPAT,EPP,ECP]
+Measuring the kexec kernel image and extending the TPM with the
+measurement is required for trusted boot.  Boot loaders extend the
+TPM's BIOS measurements. Similarly, IMA does not require a TPM, but if
+one is available the kexec kernel image measurement is extended into
+the IMA measurement list.  Otherwise, IMA goes into "TPM by-pass" mode.
 
-in the other system.  I'll see if I can verify it with the Unmatched at 
-the next opportunity, though it seems like an overkill to me given that a 
-PC-style parallel port is a generic PCIe device.  The OXPCIe952 implements 
-a multifunction device, so it doesn't rely on PARPORT_SERIAL.
+> It does not support PE so it cannot be used on platforms
+> that use PE kernel signature format.
 
- NB platforms to be updated for <asm/parport.h> generation were chosen by 
-the presence of the HAVE_PCI or FORCE_PCI option from ones that do not 
-already have or generate that header.  Let me know if I got anything wrong 
-here.
+True.  However, a kernel image with an appended signature may be
+kexec'ed, regardless of the architecture.  Because some boot loaders
+don't support appended signatures, from my point of view does not make
+IMA kexec support not portable.
 
-  Maciej
----
- arch/arm64/include/asm/Kbuild  |    1 +
- arch/csky/include/asm/Kbuild   |    1 +
- arch/riscv/include/asm/Kbuild  |    1 +
- arch/s390/include/asm/Kbuild   |    1 +
- arch/um/include/asm/Kbuild     |    1 +
- arch/xtensa/include/asm/Kbuild |    1 +
- drivers/parport/Kconfig        |    4 ++--
- 7 files changed, 8 insertions(+), 2 deletions(-)
+-- 
+thanks,
 
-linux-parport-pc-pci.diff
-Index: linux-macro/arch/arm64/include/asm/Kbuild
-===================================================================
---- linux-macro.orig/arch/arm64/include/asm/Kbuild
-+++ linux-macro/arch/arm64/include/asm/Kbuild
-@@ -3,6 +3,7 @@ generic-y += early_ioremap.h
- generic-y += mcs_spinlock.h
- generic-y += qrwlock.h
- generic-y += qspinlock.h
-+generic-y += parport.h
- generic-y += user.h
- 
- generated-y += cpucaps.h
-Index: linux-macro/arch/csky/include/asm/Kbuild
-===================================================================
---- linux-macro.orig/arch/csky/include/asm/Kbuild
-+++ linux-macro/arch/csky/include/asm/Kbuild
-@@ -4,5 +4,6 @@ generic-y += extable.h
- generic-y += gpio.h
- generic-y += kvm_para.h
- generic-y += qrwlock.h
-+generic-y += parport.h
- generic-y += user.h
- generic-y += vmlinux.lds.h
-Index: linux-macro/arch/riscv/include/asm/Kbuild
-===================================================================
---- linux-macro.orig/arch/riscv/include/asm/Kbuild
-+++ linux-macro/arch/riscv/include/asm/Kbuild
-@@ -2,5 +2,6 @@
- generic-y += early_ioremap.h
- generic-y += flat.h
- generic-y += kvm_para.h
-+generic-y += parport.h
- generic-y += user.h
- generic-y += vmlinux.lds.h
-Index: linux-macro/arch/s390/include/asm/Kbuild
-===================================================================
---- linux-macro.orig/arch/s390/include/asm/Kbuild
-+++ linux-macro/arch/s390/include/asm/Kbuild
-@@ -8,3 +8,4 @@ generic-y += asm-offsets.h
- generic-y += export.h
- generic-y += kvm_types.h
- generic-y += mcs_spinlock.h
-+generic-y += parport.h
-Index: linux-macro/arch/um/include/asm/Kbuild
-===================================================================
---- linux-macro.orig/arch/um/include/asm/Kbuild
-+++ linux-macro/arch/um/include/asm/Kbuild
-@@ -17,6 +17,7 @@ generic-y += mcs_spinlock.h
- generic-y += mmiowb.h
- generic-y += module.lds.h
- generic-y += param.h
-+generic-y += parport.h
- generic-y += percpu.h
- generic-y += preempt.h
- generic-y += softirq_stack.h
-Index: linux-macro/arch/xtensa/include/asm/Kbuild
-===================================================================
---- linux-macro.orig/arch/xtensa/include/asm/Kbuild
-+++ linux-macro/arch/xtensa/include/asm/Kbuild
-@@ -4,6 +4,7 @@ generic-y += extable.h
- generic-y += kvm_para.h
- generic-y += mcs_spinlock.h
- generic-y += param.h
-+generic-y += parport.h
- generic-y += qrwlock.h
- generic-y += qspinlock.h
- generic-y += user.h
-Index: linux-macro/drivers/parport/Kconfig
-===================================================================
---- linux-macro.orig/drivers/parport/Kconfig
-+++ linux-macro/drivers/parport/Kconfig
-@@ -42,7 +42,7 @@ if PARPORT
- 
- config PARPORT_PC
- 	tristate "PC-style hardware"
--	depends on ARCH_MIGHT_HAVE_PC_PARPORT
-+	depends on ARCH_MIGHT_HAVE_PC_PARPORT || PCI
- 	help
- 	  You should say Y here if you have a PC-style parallel port. All
- 	  IBM PC compatible computers and some Alphas have PC-style
-@@ -77,7 +77,7 @@ config PARPORT_PC_FIFO
- 
- config PARPORT_PC_SUPERIO
- 	bool "SuperIO chipset support"
--	depends on PARPORT_PC && !PARISC
-+	depends on ARCH_MIGHT_HAVE_PC_PARPORT && PARPORT_PC && !PARISC
- 	help
- 	  Saying Y here enables some probes for Super-IO chipsets in order to
- 	  find out things like base addresses, IRQ lines and DMA channels.  It
+Mimi
+
