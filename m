@@ -2,180 +2,342 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3037AC433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Feb 2022 09:16:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 49863C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 14 Feb 2022 09:16:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230345AbiBNJQx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 14 Feb 2022 04:16:53 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34380 "EHLO
+        id S229808AbiBNJRA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 14 Feb 2022 04:17:00 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229808AbiBNJQx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Feb 2022 04:16:53 -0500
-X-Greylist: delayed 73892 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 14 Feb 2022 01:16:44 PST
-Received: from angie.orcam.me.uk (angie.orcam.me.uk [78.133.224.34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E30E2606CE;
-        Mon, 14 Feb 2022 01:16:44 -0800 (PST)
-Received: by angie.orcam.me.uk (Postfix, from userid 500)
-        id 7C62292009C; Mon, 14 Feb 2022 10:16:43 +0100 (CET)
-Received: from localhost (localhost [127.0.0.1])
-        by angie.orcam.me.uk (Postfix) with ESMTP id 7972092009B;
-        Mon, 14 Feb 2022 09:16:43 +0000 (GMT)
-Date:   Mon, 14 Feb 2022 09:16:43 +0000 (GMT)
-From:   "Maciej W. Rozycki" <macro@orcam.me.uk>
-To:     Geert Uytterhoeven <geert@linux-m68k.org>,
-        Niklas Schnelle <schnelle@linux.ibm.com>
-cc:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Jeff Dike <jdike@addtoit.com>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] parport_pc: Also enable driver for PCI systems
-In-Reply-To: <CAMuHMdW-utcFzCZTgqONjxs=U662nF0=aBQu7Zi7FBQouwiA3g@mail.gmail.com>
-Message-ID: <alpine.DEB.2.21.2202140833290.34636@angie.orcam.me.uk>
-References: <alpine.DEB.2.21.2202122313460.34636@angie.orcam.me.uk> <CAMuHMdW-utcFzCZTgqONjxs=U662nF0=aBQu7Zi7FBQouwiA3g@mail.gmail.com>
-User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
+        with ESMTP id S242747AbiBNJQ7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Feb 2022 04:16:59 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 003C2606DD;
+        Mon, 14 Feb 2022 01:16:51 -0800 (PST)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21E7oh0i021749;
+        Mon, 14 Feb 2022 09:16:51 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=8S/TKRvHLHYRVao+09wzWljYArgxaVQUX2AXtagLq9Q=;
+ b=ZLQ577zc6CFJ8UAqjBySbJRP09ef1/3Ii77mejGKV5YmYEEyeK14RHJQbgtLXFXRoqtX
+ SpVbwcLeNYiPZJ2uGP7Yccz3Eptuz3bPso2btxqu97kx2juJ4XtwNetWYrjaenZL3Owy
+ 05QJScZ19Wa35miAFxXWMy6X9hEcqH37HvCztWyyCQ9yaQugcaBiDGQChl2lHTCUi8w3
+ lP2dUPgzgB5ciZUbjaBLiLHPrwD0enTU7hbWwYAO0Y7aiIXPg9l+nxBfZ05O2aXIW0Z2
+ mwT8oO4M0C/bwsahy2qBmNubLEIMs+C6o7RG6YvWy2H9zZgCzfoG+D2vPRm0cO56v35I 1A== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e785svw4a-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 14 Feb 2022 09:16:51 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21E8xOI3031851;
+        Mon, 14 Feb 2022 09:16:51 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e785svw3j-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 14 Feb 2022 09:16:50 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21E9DcID032756;
+        Mon, 14 Feb 2022 09:16:48 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma04fra.de.ibm.com with ESMTP id 3e64h9jjg7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 14 Feb 2022 09:16:48 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21E9Gi5f44695844
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 14 Feb 2022 09:16:44 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8134AA4065;
+        Mon, 14 Feb 2022 09:16:44 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1AAE3A4054;
+        Mon, 14 Feb 2022 09:16:44 +0000 (GMT)
+Received: from [9.171.42.254] (unknown [9.171.42.254])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 14 Feb 2022 09:16:44 +0000 (GMT)
+Message-ID: <009ae65a-1400-f155-0d59-1c6d8c0521d3@linux.ibm.com>
+Date:   Mon, 14 Feb 2022 10:18:57 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [kvm-unit-tests PATCH v4 2/4] s390x: stsi: Define vm_is_kvm to be
+ used in different tests
+Content-Language: en-US
+To:     Janosch Frank <frankja@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     thuth@redhat.com, kvm@vger.kernel.org, cohuck@redhat.com,
+        imbrenda@linux.ibm.com, david@redhat.com, nrb@linux.ibm.com
+References: <20220208132709.48291-1-pmorel@linux.ibm.com>
+ <20220208132709.48291-3-pmorel@linux.ibm.com>
+ <62c23e3a-8cc9-2072-6022-cb23dfa08ce7@linux.ibm.com>
+From:   Pierre Morel <pmorel@linux.ibm.com>
+In-Reply-To: <62c23e3a-8cc9-2072-6022-cb23dfa08ce7@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 7hmMGj8H_3xafs1IbNQ08MKktzj5JDuc
+X-Proofpoint-ORIG-GUID: 2zvqRwWhLYI4I2X-O7OUFKyVoXuXcJz0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-02-14_01,2022-02-14_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=999
+ malwarescore=0 adultscore=0 lowpriorityscore=0 clxscore=1015
+ impostorscore=0 priorityscore=1501 bulkscore=0 suspectscore=0 spamscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2202140055
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 14 Feb 2022, Geert Uytterhoeven wrote:
 
-> > The only PCI platforms that actually can't make use of PC-style parallel
-> > port hardware are those newer PCIe systems that have no support for I/O
-> > cycles in the host bridge, required by such parallel ports.  An example
-> > of such a host bridge is the POWER9 PHB4 device, but it is an exception
-> > rather than the norm.  Also it is not clear whether the serial port side
+
+On 2/8/22 16:31, Janosch Frank wrote:
+> On 2/8/22 14:27, Pierre Morel wrote:
+>> We need in several tests to check if the VM we are running in
+>> is KVM.
+>> Let's add the test.
 > 
-> Note that this hardware dependency is being addressed in
-> "[RFC 00/32] Kconfig: Introduce HAS_IOPORT and LEGACY_PCI options"
-> https://lore.kernel.org/all/20211227164317.4146918-1-schnelle@linux.ibm.com/
+> Several tests are in need of a way to check on which hypervisor and 
+> virtualization level they are running on to be able to fence certain 
+> tests. This patch adds functions that return true if a vm is running 
+> under KVM, LPAR or generally as a level 2 guest.
+> 
+>>
+>> To check the VM type we use the STSI 3.2.2 instruction, let's
+> 
+> To check if we're running under KVM we...
 
- Thanks for the pointer, I have missed the series in the LKML flood!
+OK
 
- The idea sounds good, although it's not clear to me if a config option is 
-enough to get it properly covered as I don't know offhand if a single say 
-ppc64le kernel can't run on systems that do and do not have support for 
-port I/O over PCIe.  I got hit with that the hard way with a distribution 
-kernel where a driver tried to do port I/O and poked at a random location 
-in the address space causing weird errors to be reported by the system 
-firmware.
+> 
+>> define it's response structure in a central header.
+> 
+> Since we already have a stsi test that defines the 3.2.2 structure let's 
+> move the struct from the test into a new library header.
 
- Also I have skimmed over the series and there appears to be confusion 
-between legacy PCI and conventional PCI, which are obviously not the same.  
-For example this piece:
+OK
 
-diff --git a/drivers/net/fddi/Kconfig b/drivers/net/fddi/Kconfig
-index 846bf41c2717..1753c08d6423 100644
---- a/drivers/net/fddi/Kconfig
-+++ b/drivers/net/fddi/Kconfig
-@@ -5,7 +5,7 @@
- 
- config FDDI
- 	tristate "FDDI driver support"
--	depends on PCI || EISA || TC
-+	depends on LEGACY_PCI || EISA || TC
- 	help
- 	  Fiber Distributed Data Interface is a high speed local area network
- 	  design; essentially a replacement for high speed Ethernet. FDDI can
-@@ -29,7 +29,7 @@ config DEFZA
- 
- config DEFXX
- 	tristate "Digital DEFTA/DEFEA/DEFPA adapter support"
--	depends on FDDI && (PCI || EISA || TC)
-+	depends on FDDI && (LEGACY_PCI || EISA || TC)
- 	help
- 	  This is support for the DIGITAL series of TURBOchannel (DEFTA),
- 	  EISA (DEFEA) and PCI (DEFPA) controllers which can connect you
+> 
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> ---
+>>   lib/s390x/stsi.h | 32 +++++++++++++++++++++++++++
+>>   lib/s390x/vm.c   | 56 ++++++++++++++++++++++++++++++++++++++++++++++--
+>>   lib/s390x/vm.h   |  3 +++
+>>   s390x/stsi.c     | 23 ++------------------
+>>   4 files changed, 91 insertions(+), 23 deletions(-)
+>>   create mode 100644 lib/s390x/stsi.h
+>>
+>> diff --git a/lib/s390x/stsi.h b/lib/s390x/stsi.h
+>> new file mode 100644
+>> index 00000000..9b40664f
+>> --- /dev/null
+>> +++ b/lib/s390x/stsi.h
+>> @@ -0,0 +1,32 @@
+>> +/* SPDX-License-Identifier: GPL-2.0-or-later */
+>> +/*
+>> + * Structures used to Store System Information
+>> + *
+>> + * Copyright IBM Corp. 2022
+>> + */
+>> +
+>> +#ifndef _S390X_STSI_H_
+>> +#define _S390X_STSI_H_
+>> +
+>> +struct sysinfo_3_2_2 {
+> 
+> Any particular reason why you renamed this?
 
-is clearly wrong.  While the DEFPA card is a conventional PCI option it 
-does support MMIO and does run with my legacy-free POWER9 system just 
-fine (with a suitable PCIe-to-PCI bridge installed at 0031:01:00.0):
+In addition to what I answered to Nico:
+I found stsi_3_2_2 better to describe a function calling STSI(3,2,2) 
+than the result of the STSI(3,2,2) instruction, the SYStem Information 
+Block.
 
-# lspci
-0000:00:00.0 PCI bridge: IBM POWER9 Host Bridge (PHB4)
-0001:00:00.0 PCI bridge: IBM POWER9 Host Bridge (PHB4)
-0001:01:00.0 Serial controller: Oxford Semiconductor Ltd OXPCIe952 Dual Native 950 UART
-0002:00:00.0 PCI bridge: IBM POWER9 Host Bridge (PHB4)
-0002:01:00.0 Serial Attached SCSI controller: Adaptec Series 8 12G SAS/PCIe 3 (rev 01)
-0003:00:00.0 PCI bridge: IBM POWER9 Host Bridge (PHB4)
-0003:01:00.0 USB controller: Texas Instruments TUSB73x0 SuperSpeed USB 3.0 xHCI Host Controller (rev 02)
-0004:00:00.0 PCI bridge: IBM POWER9 Host Bridge (PHB4)
-0004:01:00.0 Ethernet controller: Broadcom Inc. and subsidiaries NetXtreme BCM5719 Gigabit Ethernet PCIe (rev 01)
-0004:01:00.1 Ethernet controller: Broadcom Inc. and subsidiaries NetXtreme BCM5719 Gigabit Ethernet PCIe (rev 01)
-0005:00:00.0 PCI bridge: IBM POWER9 Host Bridge (PHB4)
-0005:01:00.0 PCI bridge: ASPEED Technology, Inc. AST1150 PCI-to-PCI Bridge (rev 04)
-0005:02:00.0 VGA compatible controller: ASPEED Technology, Inc. ASPEED Graphics Family (rev 41)
-0030:00:00.0 PCI bridge: IBM POWER9 Host Bridge (PHB4)
-0030:01:00.0 PCI bridge: PMC-Sierra Inc. PM8562 Switchtec PFX-L 32xG3 Fanout-Lite PCIe Gen3 Switch
-0030:02:00.0 PCI bridge: PMC-Sierra Inc. PM8562 Switchtec PFX-L 32xG3 Fanout-Lite PCIe Gen3 Switch
-0030:02:01.0 PCI bridge: PMC-Sierra Inc. PM8562 Switchtec PFX-L 32xG3 Fanout-Lite PCIe Gen3 Switch
-0030:02:02.0 PCI bridge: PMC-Sierra Inc. PM8562 Switchtec PFX-L 32xG3 Fanout-Lite PCIe Gen3 Switch
-0030:02:03.0 PCI bridge: PMC-Sierra Inc. PM8562 Switchtec PFX-L 32xG3 Fanout-Lite PCIe Gen3 Switch
-0030:03:00.0 Non-Volatile memory controller: Samsung Electronics Co Ltd NVMe SSD Controller SM981/PM981/PM983
-0030:04:00.0 Non-Volatile memory controller: Samsung Electronics Co Ltd NVMe SSD Controller SM981/PM981/PM983
-0030:05:00.0 Non-Volatile memory controller: Samsung Electronics Co Ltd NVMe SSD Controller SM981/PM981/PM983
-0030:06:00.0 Non-Volatile memory controller: Samsung Electronics Co Ltd NVMe SSD Controller SM981/PM981/PM983
-0031:00:00.0 PCI bridge: IBM POWER9 Host Bridge (PHB4)
-0031:01:00.0 PCI bridge: Texas Instruments XIO2000(A)/XIO2200A PCI Express-to-PCI Bridge (rev 03)
-0031:02:04.0 FDDI network controller: Digital Equipment Corporation PCI-to-PDQ Interface Chip [PFI] FDDI (DEFPA) (rev 02)
-0031:02:05.0 ATM network controller: Microsemi / PMC / IDT IDT77201/77211 155Mbps ATM SAR Controller [NICStAR] (rev 03)
-0032:00:00.0 PCI bridge: IBM POWER9 Host Bridge (PHB4)
-0033:00:00.0 PCI bridge: IBM POWER9 Host Bridge (PHB4)
-# dmesg | grep 0031:02:04.0 | cut -c16-
-pci 0031:02:04.0: [1011:000f] type 00 class 0x020200
-pci 0031:02:04.0: reg 0x10: [mem 0x620c080020000-0x620c08002007f]
-pci 0031:02:04.0: reg 0x14: [io  0x0000-0x007f]
-pci 0031:02:04.0: reg 0x18: [mem 0x620c080030000-0x620c08003ffff]
-pci 0031:02:04.0: BAR0 [mem size 0x00000080]: requesting alignment to 0x10000
-pci 0031:02:04.0: BAR 0: assigned [mem 0x620c080020000-0x620c08002007f]
-pci 0031:02:04.0: BAR 2: assigned [mem 0x620c080030000-0x620c08003ffff]
-pci 0031:02:04.0: BAR 1: no space for [io  size 0x0080]
-pci 0031:02:04.0: BAR 1: failed to assign [io  size 0x0080]
-pci 0031:02:04.0: Configured PE#fc
-pci 0031:02:04.0: Adding to iommu group 9
-defxx 0031:02:04.0: enabling device (0140 -> 0142)
-0031:02:04.0: DEFPA at MMIO addr = 0x620c080020000, IRQ = 57, Hardware addr = 00-60-6d-93-91-98
-0031:02:04.0: registered as fddi0
-$ ip link show dev fddi0
-4: fddi0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 4470 qdisc pfifo_fast 
-state UNKNOWN mode DEFAULT group default qlen 100
-    link/fddi 00:60:6d:93:91:98 brd ff:ff:ff:ff:ff:ff
-$
 
-While older versions of the driver did have to be explicitly configured 
-for MMIO rather than port I/O, a feature added with commit e89a2cfb7d7b 
-("[TC] defxx: TURBOchannel support"), the driver has been improved with 
-commit 795e272e5474 ("FDDI: defxx: Implement dynamic CSR I/O address space 
-selection") and the selection of the I/O space to use now fully automatic.
+> 
+>> +    uint8_t reserved[31];
+>> +    uint8_t count;
+>> +    struct {
+>> +        uint8_t reserved2[4];
+>> +        uint16_t total_cpus;
+>> +        uint16_t conf_cpus;
+>> +        uint16_t standby_cpus;
+>> +        uint16_t reserved_cpus;
+>> +        uint8_t name[8];
+>> +        uint32_t caf;
+>> +        uint8_t cpi[16];
+>> +        uint8_t reserved5[3];
+>> +        uint8_t ext_name_encoding;
+>> +        uint32_t reserved3;
+>> +        uint8_t uuid[16];
+>> +    } vm[8];
+>> +    uint8_t reserved4[1504];
+>> +    uint8_t ext_names[8][256];
+>> +};
+>> +
+>> +#endif  /* _S390X_STSI_H_ */
+>> diff --git a/lib/s390x/vm.c b/lib/s390x/vm.c
+>> index a5b92863..38886b76 100644
+>> --- a/lib/s390x/vm.c
+>> +++ b/lib/s390x/vm.c
+>> @@ -12,6 +12,7 @@
+>>   #include <alloc_page.h>
+>>   #include <asm/arch_def.h>
+>>   #include "vm.h"
+>> +#include "stsi.h"
+>>   /**
+>>    * Detect whether we are running with TCG (instead of KVM)
+>> @@ -26,9 +27,13 @@ bool vm_is_tcg(void)
+>>       if (initialized)
+>>           return is_tcg;
+>> -    buf = alloc_page();
+>> -    if (!buf)
+>> +    if (!vm_is_vm()) {
+>> +        initialized = true;
+>>           return false;
+>> +    }
+>> +
+>> +    buf = alloc_page();
+>> +    assert(buf);
+>>       if (stsi(buf, 1, 1, 1))
+>>           goto out;
+>> @@ -43,3 +48,50 @@ out:
+>>       free_page(buf);
+>>       return is_tcg;
+>>   }
+>> +
+>> +/**
+>> + * Detect whether we are running with KVM
+>> + */
+>> +
+>> +bool vm_is_kvm(void)
+>> +{
+>> +    /* EBCDIC for "KVM/" */
+>> +    const uint8_t kvm_ebcdic[] = { 0xd2, 0xe5, 0xd4, 0x61 };
+>> +    static bool initialized;
+>> +    static bool is_kvm;
+>> +    struct sysinfo_3_2_2 *stsi_322;
+>> +
+>> +    if (initialized)
+>> +        return is_kvm;
+>> +
+>> +    if (!vm_is_vm() || vm_is_tcg()) {
+>> +        initialized = true;
+>> +        return is_kvm;
+>> +    }
+>> +
+>> +    stsi_322 = alloc_page();
+>> +    assert(stsi_322);
+>> +
+>> +    if (stsi(stsi_322, 3, 2, 2))
+>> +        goto out;
+>> +
+>> +    /*
+>> +     * If the manufacturer string is "KVM/" in EBCDIC, then we
+>> +     * are on KVM.
+>> +     */
+>> +    is_kvm = !memcmp(&stsi_322->vm[0].cpi, kvm_ebcdic, 
+>> sizeof(kvm_ebcdic));
+>> +    initialized = true;
+>> +out:
+>> +    free_page(stsi_322);
+>> +    return is_kvm;
+>> +}
+>> +
+>> +bool vm_is_lpar(void)
+>> +{
+>> +    return stsi_get_fc() == 2;
+>> +}
+>> +
+>> +bool vm_is_vm(void)
+>> +{
+>> +    return stsi_get_fc() == 3;
+> 
+> This would be true when running under z/VM, no?
 
- Then what about the other FDDI driver there, SKFP?  It's not marked as
-LEGACY_PCI, although it's not selectable anyway due to the dependency of 
-FDDI on LEGACY_PCI.
+yes
 
- Niklas, what was the criterion for placing the LEGACY_PCI dependency?  
+> 
+> I.e. what you're testing here is that we're a level 2 guest and hence 
+> the naming could be improved.
 
- Also do you plan to post an updated series anytime soon?  I'm asking 
-because like with the m68k port also the MIPS one needs a more finegrained 
-approach and I suspect there may be other corner cases and I'd rather look 
-at the most recent version of your series.  Otherwise I'll have a look 
-through your original submission, but it may have to wait until the next 
-weekend due to my other commitments.
+STSI(0,x,x) used by stsi_get_fc() returns the current configuration 
+level number which can be one of: basic machine (1), LPAR(2) or VM(3)
 
-  Maciej
+by the way stsi_get_fc() should probably better be named 
+stsi_get_cfglevel() or something like that.
+
+> 
+> Also: what if we're under VSIE where we would be > 3?
+
+No other configuration level is defined in the architecture than (1,2,3)
+
+> 
+>> +}
+>> diff --git a/lib/s390x/vm.h b/lib/s390x/vm.h
+>> index 7abba0cc..3aaf76af 100644
+>> --- a/lib/s390x/vm.h
+>> +++ b/lib/s390x/vm.h
+>> @@ -9,5 +9,8 @@
+>>   #define _S390X_VM_H_
+>>   bool vm_is_tcg(void);
+>> +bool vm_is_kvm(void);
+>> +bool vm_is_vm(void);
+>> +bool vm_is_lpar(void);
+>>   #endif  /* _S390X_VM_H_ */
+>> diff --git a/s390x/stsi.c b/s390x/stsi.c
+>> index 391f8849..1ed045e2 100644
+>> --- a/s390x/stsi.c
+>> +++ b/s390x/stsi.c
+>> @@ -13,27 +13,8 @@
+>>   #include <asm/asm-offsets.h>
+>>   #include <asm/interrupt.h>
+>>   #include <smp.h>
+>> +#include "stsi.h"
+> 
+> #include <stsi.h>
+> 
+> We're not in the lib.
+
+OK
+
+> 
+>> -struct stsi_322 {
+>> -    uint8_t reserved[31];
+>> -    uint8_t count;
+>> -    struct {
+>> -        uint8_t reserved2[4];
+>> -        uint16_t total_cpus;
+>> -        uint16_t conf_cpus;
+>> -        uint16_t standby_cpus;
+>> -        uint16_t reserved_cpus;
+>> -        uint8_t name[8];
+>> -        uint32_t caf;
+>> -        uint8_t cpi[16];
+>> -        uint8_t reserved5[3];
+>> -        uint8_t ext_name_encoding;
+>> -        uint32_t reserved3;
+>> -        uint8_t uuid[16];
+>> -    } vm[8];
+>> -    uint8_t reserved4[1504];
+>> -    uint8_t ext_names[8][256];
+>> -};
+>>   static uint8_t pagebuf[PAGE_SIZE * 2] 
+>> __attribute__((aligned(PAGE_SIZE * 2)));
+>>   static void test_specs(void)
+>> @@ -91,7 +72,7 @@ static void test_3_2_2(void)
+>>       /* EBCDIC for "KVM/" */
+>>       const uint8_t cpi_kvm[] = { 0xd2, 0xe5, 0xd4, 0x61 };
+>>       const char vm_name_ext[] = "kvm-unit-test";
+>> -    struct stsi_322 *data = (void *)pagebuf;
+>> +    struct sysinfo_3_2_2 *data = (void *)pagebuf;
+>>       report_prefix_push("3.2.2");
+> 
+
+Thanks for the review,
+Pierre
+
+-- 
+Pierre Morel
+IBM Lab Boeblingen
