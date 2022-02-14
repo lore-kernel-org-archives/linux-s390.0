@@ -2,119 +2,299 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8684DC433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Feb 2022 12:10:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5158C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 14 Feb 2022 12:57:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352630AbiBNMKc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 14 Feb 2022 07:10:32 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44962 "EHLO
+        id S239676AbiBNM5n (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 14 Feb 2022 07:57:43 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352573AbiBNMK3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Feb 2022 07:10:29 -0500
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 240074925C;
-        Mon, 14 Feb 2022 04:10:20 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0V4RzT.I_1644840618;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0V4RzT.I_1644840618)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Mon, 14 Feb 2022 20:10:18 +0800
-Date:   Mon, 14 Feb 2022 20:10:17 +0800
-From:   Tony Lu <tonylu@linux.alibaba.com>
-To:     Stefan Raspl <raspl@linux.ibm.com>
-Cc:     kgraul@linux.ibm.com, kuba@kernel.org, davem@davemloft.net,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH net-next 2/3] net/smc: Remove corked dealyed work
-Message-ID: <YgpGqV11uW6RfSAt@TonyMac-Alibaba>
-Reply-To: Tony Lu <tonylu@linux.alibaba.com>
-References: <20220130180256.28303-1-tonylu@linux.alibaba.com>
- <20220130180256.28303-3-tonylu@linux.alibaba.com>
- <becbfd54-5a42-9867-f3ac-b347b561985f@linux.ibm.com>
- <YgYn6jA0i3pFXoCS@TonyMac-Alibaba>
- <f4166712-9a1e-51a0-409d-b7df25a66c52@linux.ibm.com>
+        with ESMTP id S236723AbiBNM5n (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Feb 2022 07:57:43 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EDF94B873;
+        Mon, 14 Feb 2022 04:57:35 -0800 (PST)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21EBwJbv012473;
+        Mon, 14 Feb 2022 12:57:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=id2abh3WmQzXvMFNXByz0iFAdS1n1wujjaD/McLnorA=;
+ b=Bl8JTG7aehpY1fmpY2NSpyDugy4MeJevlOUPVfz6cc6UQ/r7p5rFvmnB2GhPrPDZUZcm
+ 0spZtl5N+FNBO5hKwV1m+zCNTU5j8i38ZJvFOq2FCeFb92lV4DjLliFiGuMopsbJT+/J
+ tpElngGtExQUE4yPxVTVjFaU5QjQtAAWBydRpXzJAwcKOhq9/wF01qEGTL7aRLCj72Gy
+ UTB+f76hblHedddp3kCL7ACtfshk2huv5hWBFaX6NCj9pkYXMDVhQSxgoaw59D0pDBF+
+ aOwu6r6UjHCtDJnSt0td9BGSiNwyluyMB8LeKNae2AXpz2oqOsclZo5/EQTWCDud8L+y mQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e7c4dwpnw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 14 Feb 2022 12:57:34 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21ECT2aO035399;
+        Mon, 14 Feb 2022 12:57:33 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e7c4dwpnb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 14 Feb 2022 12:57:33 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21ECu737024641;
+        Mon, 14 Feb 2022 12:57:31 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 3e64h9nd45-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 14 Feb 2022 12:57:31 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21ECvQIB40567072
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 14 Feb 2022 12:57:26 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E5BCAA4054;
+        Mon, 14 Feb 2022 12:57:25 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 07499A405C;
+        Mon, 14 Feb 2022 12:57:25 +0000 (GMT)
+Received: from [9.171.42.254] (unknown [9.171.42.254])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 14 Feb 2022 12:57:24 +0000 (GMT)
+Message-ID: <7ecb4a93-5a41-a9e2-0a01-9eccabfa85ad@linux.ibm.com>
+Date:   Mon, 14 Feb 2022 13:59:37 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <f4166712-9a1e-51a0-409d-b7df25a66c52@linux.ibm.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [PATCH v3 17/30] KVM: s390: pci: enable host forwarding of
+ Adapter Event Notifications
+Content-Language: en-US
+To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
+        schnelle@linux.ibm.com, farman@linux.ibm.com,
+        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com,
+        vneethv@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com,
+        thuth@redhat.com, pasic@linux.ibm.com, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20220204211536.321475-1-mjrosato@linux.ibm.com>
+ <20220204211536.321475-18-mjrosato@linux.ibm.com>
+From:   Pierre Morel <pmorel@linux.ibm.com>
+In-Reply-To: <20220204211536.321475-18-mjrosato@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: uB7gIWlhauDnt5kyHZjhgV0hYTjlvEx0
+X-Proofpoint-ORIG-GUID: Vj0sal7BBnc96eMnWyH2mY3fkc5Wd6qn
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-02-14_05,2022-02-14_03,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 bulkscore=0
+ adultscore=0 clxscore=1015 lowpriorityscore=0 impostorscore=0
+ suspectscore=0 mlxlogscore=999 priorityscore=1501 mlxscore=0 phishscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2202140076
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Feb 14, 2022 at 11:29:10AM +0100, Stefan Raspl wrote:
-> On 2/11/22 10:10, Tony Lu wrote:
-> > On Mon, Jan 31, 2022 at 08:40:47PM +0100, Stefan Raspl wrote:
-> > > On 1/30/22 19:02, Tony Lu wrote:
-> > > > Based on the manual of TCP_CORK [1] and MSG_MORE [2], these two options
-> > > > have the same effect. Applications can set these options and informs the
-> > > > kernel to pend the data, and send them out only when the socket or
-> > > > syscall does not specify this flag. In other words, there's no need to
-> > > > send data out by a delayed work, which will queue a lot of work.
-> > > > 
-> > > > This removes corked delayed work with SMC_TX_CORK_DELAY (250ms), and the
-> > > > applications control how/when to send them out. It improves the
-> > > > performance for sendfile and throughput, and remove unnecessary race of
-> > > > lock_sock(). This also unlocks the limitation of sndbuf, and try to fill
-> > > > it up before sending.
-> > > > 
-> > > > [1] https://linux.die.net/man/7/tcp
-> > > > [2] https://man7.org/linux/man-pages/man2/send.2.html
-> > > > 
-> > > > Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
-> > > > ---
-> > > >    net/smc/smc_tx.c | 15 ++++++---------
-> > > >    1 file changed, 6 insertions(+), 9 deletions(-)
-> > > > 
-> > > > diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-> > > > index 7b0b6e24582f..9cec62cae7cb 100644
-> > > > --- a/net/smc/smc_tx.c
-> > > > +++ b/net/smc/smc_tx.c
-> > > > @@ -31,7 +31,6 @@
-> > > >    #include "smc_tracepoint.h"
-> > > >    #define SMC_TX_WORK_DELAY	0
-> > > > -#define SMC_TX_CORK_DELAY	(HZ >> 2)	/* 250 ms */
-> > > >    /***************************** sndbuf producer *******************************/
-> > > > @@ -237,15 +236,13 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
-> > > >    		if ((msg->msg_flags & MSG_OOB) && !send_remaining)
-> > > >    			conn->urg_tx_pend = true;
-> > > >    		if ((msg->msg_flags & MSG_MORE || smc_tx_is_corked(smc)) &&
-> > > > -		    (atomic_read(&conn->sndbuf_space) >
-> > > > -						(conn->sndbuf_desc->len >> 1)))
-> > > > -			/* for a corked socket defer the RDMA writes if there
-> > > > -			 * is still sufficient sndbuf_space available
-> > > > +		    (atomic_read(&conn->sndbuf_space)))
-> > > > +			/* for a corked socket defer the RDMA writes if
-> > > > +			 * sndbuf_space is still available. The applications
-> > > > +			 * should known how/when to uncork it.
-> > > >    			 */
-> > > > -			queue_delayed_work(conn->lgr->tx_wq, &conn->tx_work,
-> > > > -					   SMC_TX_CORK_DELAY);
-> > > > -		else
-> > > > -			smc_tx_sndbuf_nonempty(conn);
-> > > > +			continue;
-> > > 
-> > > In case we just corked the final bytes in this call, wouldn't this
-> > > 'continue' prevent us from accounting the Bytes that we just staged to be
-> > > sent out later in the trace_smc_tx_sendmsg() call below?
-> > > 
-> > > > +		smc_tx_sndbuf_nonempty(conn);
-> > > >    		trace_smc_tx_sendmsg(smc, copylen);
-> > > 
-> > 
-> > If the application send out the final bytes in this call, the
-> > application should also clear MSG_MORE or TCP_CORK flag, this action is
-> > required based on the manuals [1] and [2]. So it is safe to cork the data
-> > if flag is setted, and continue to the next loop until application
-> > clears the flag.
+
+
+On 2/4/22 22:15, Matthew Rosato wrote:
+> In cases where interrupts are not forwarded to the guest via firmware,
+> KVM is responsible for ensuring delivery.  When an interrupt presents
+> with the forwarding bit, we must process the forwarding tables until
+> all interrupts are delivered.
 > 
-> Yes, I understand. But trace_smc_tx_sendmsg(smc, copylen) should be called
-> for each portion of data that we transmit, i.e. each time we run through
-> this loop. That is because parameter copylen is reset during each iteration.
-> Now your patch adds a 'continue', which prevents that trace_smc_tc... call
-> from being made. Which means the information that 'copylen' Bytes were
-> transferred is lost forever, and the accounting of tx Bytes is off by
-> 'copylen' Bytes, I believe!
+> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> ---
+>   arch/s390/include/asm/kvm_host.h |  1 +
+>   arch/s390/include/asm/tpi.h      | 13 ++++++
+>   arch/s390/kvm/interrupt.c        | 77 +++++++++++++++++++++++++++++++-
+>   arch/s390/kvm/kvm-s390.c         |  3 +-
+>   arch/s390/kvm/pci.h              | 10 +++++
+>   5 files changed, 102 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+> index a22c9266ea05..b468d3a2215e 100644
+> --- a/arch/s390/include/asm/kvm_host.h
+> +++ b/arch/s390/include/asm/kvm_host.h
+> @@ -757,6 +757,7 @@ struct kvm_vm_stat {
+>   	u64 inject_pfault_done;
+>   	u64 inject_service_signal;
+>   	u64 inject_virtio;
+> +	u64 aen_forward;
+>   };
+>   
+>   struct kvm_arch_memory_slot {
+> diff --git a/arch/s390/include/asm/tpi.h b/arch/s390/include/asm/tpi.h
+> index 1ac538b8cbf5..f76e5fdff23a 100644
+> --- a/arch/s390/include/asm/tpi.h
+> +++ b/arch/s390/include/asm/tpi.h
+> @@ -19,6 +19,19 @@ struct tpi_info {
+>   	u32 :12;
+>   } __packed __aligned(4);
+>   
+> +/* I/O-Interruption Code as stored by TPI for an Adapter I/O */
+> +struct tpi_adapter_info {
+> +	u32 aism:8;
+> +	u32 :22;
+> +	u32 error:1;
+> +	u32 forward:1;
+> +	u32 reserved;
+> +	u32 adapter_IO:1;
+> +	u32 directed_irq:1;
+> +	u32 isc:3;
+> +	u32 :27;
+> +} __packed __aligned(4);
+> +
+>   #endif /* __ASSEMBLY__ */
+>   
+>   #endif /* _ASM_S390_TPI_H */
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index 5e638f7c86f8..74a549d3d1e4 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -3271,11 +3271,86 @@ int kvm_s390_gisc_unregister(struct kvm *kvm, u32 gisc)
+>   }
+>   EXPORT_SYMBOL_GPL(kvm_s390_gisc_unregister);
+>   
+> +static void aen_host_forward(unsigned long si)
+> +{
+> +	struct kvm_s390_gisa_interrupt *gi;
+> +	struct zpci_gaite *gaite;
+> +	struct kvm *kvm;
+> +
+> +	gaite = (struct zpci_gaite *)aift->gait +
+> +		(si * sizeof(struct zpci_gaite));
+> +	if (gaite->count == 0)
+> +		return;
+> +	if (gaite->aisb != 0)
+> +		set_bit_inv(gaite->aisbo, (unsigned long *)gaite->aisb);
+> +
+> +	kvm = kvm_s390_pci_si_to_kvm(aift, si);
+> +	if (kvm == 0)
+> +		return;
+> +	gi = &kvm->arch.gisa_int;
+> +
+> +	if (!(gi->origin->g1.simm & AIS_MODE_MASK(gaite->gisc)) ||
+> +	    !(gi->origin->g1.nimm & AIS_MODE_MASK(gaite->gisc))) {
+> +		gisa_set_ipm_gisc(gi->origin, gaite->gisc);
+> +		if (hrtimer_active(&gi->timer))
+> +			hrtimer_cancel(&gi->timer);
+> +		hrtimer_start(&gi->timer, 0, HRTIMER_MODE_REL);
+> +		kvm->stat.aen_forward++;
+> +	}
+> +}
+> +
+> +static void aen_process_gait(u8 isc)
+> +{
+> +	bool found = false, first = true;
+> +	union zpci_sic_iib iib = {{0}};
+> +	unsigned long si, flags;
+> +
+> +	spin_lock_irqsave(&aift->gait_lock, flags);
+> +
+> +	if (!aift->gait) {
+> +		spin_unlock_irqrestore(&aift->gait_lock, flags);
+> +		return;
+> +	}
+> +
+> +	for (si = 0;;) {
+> +		/* Scan adapter summary indicator bit vector */
+> +		si = airq_iv_scan(aift->sbv, si, airq_iv_end(aift->sbv));
+> +		if (si == -1UL) {
+> +			if (first || found) {
+> +				/* Reenable interrupts. */
+> +				if (zpci_set_irq_ctrl(SIC_IRQ_MODE_SINGLE, isc,
+> +						      &iib))
+> +					break;
 
-This makes sense to me. It shouldn't be ignored if data was corked. I
-will fix it in the next patch.
+I thought we agreed that the test is not useful here.
 
-Thank you,
-Tony Lu
+> +				first = found = false;
+> +			} else {
+> +				/* Interrupts on and all bits processed */
+> +				break;
+> +			}
+> +			found = false;
+> +			si = 0;
+
+and about a comment here.
+"rescan after re-enabling interrupts"
+would make things clear
+
+> +			continue;
+> +		}
+> +		found = true;
+> +		aen_host_forward(si);
+> +	}
+> +
+> +	spin_unlock_irqrestore(&aift->gait_lock, flags);
+> +}
+> +
+>   static void gib_alert_irq_handler(struct airq_struct *airq,
+>   				  struct tpi_info *tpi_info)
+>   {
+> +	struct tpi_adapter_info *info = (struct tpi_adapter_info *)tpi_info;
+> +
+>   	inc_irq_stat(IRQIO_GAL);
+> -	process_gib_alert_list();
+> +
+> +	if (IS_ENABLED(CONFIG_VFIO_PCI_ZDEV) &&
+> +	    (info->forward || info->error)) {
+> +		aen_process_gait(info->isc);
+> +		if (info->aism != 0)
+> +			process_gib_alert_list();
+> +	} else
+> +		process_gib_alert_list();
+
+Here we need braces.
+
+>   }
+>   
+>   static struct airq_struct gib_alert_irq = {
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index dd4f4bfb326b..24837d6050dc 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -65,7 +65,8 @@ const struct _kvm_stats_desc kvm_vm_stats_desc[] = {
+>   	STATS_DESC_COUNTER(VM, inject_float_mchk),
+>   	STATS_DESC_COUNTER(VM, inject_pfault_done),
+>   	STATS_DESC_COUNTER(VM, inject_service_signal),
+> -	STATS_DESC_COUNTER(VM, inject_virtio)
+> +	STATS_DESC_COUNTER(VM, inject_virtio),
+> +	STATS_DESC_COUNTER(VM, aen_forward)
+>   };
+>   
+>   const struct kvm_stats_header kvm_vm_stats_header = {
+> diff --git a/arch/s390/kvm/pci.h b/arch/s390/kvm/pci.h
+> index 53e9968707c8..4d3db58beb74 100644
+> --- a/arch/s390/kvm/pci.h
+> +++ b/arch/s390/kvm/pci.h
+> @@ -12,6 +12,7 @@
+>   
+>   #include <linux/pci.h>
+>   #include <linux/mutex.h>
+> +#include <linux/kvm_host.h>
+>   #include <asm/airq.h>
+>   #include <asm/kvm_pci.h>
+>   
+> @@ -34,6 +35,15 @@ struct zpci_aift {
+>   
+>   extern struct zpci_aift *aift;
+>   
+> +static inline struct kvm *kvm_s390_pci_si_to_kvm(struct zpci_aift *aift,
+> +						 unsigned long si)
+> +{
+> +	if (!IS_ENABLED(CONFIG_VFIO_PCI_ZDEV) || aift->kzdev == 0 ||
+> +	    aift->kzdev[si] == 0)
+> +		return 0;
+> +	return aift->kzdev[si]->kvm;
+> +};
+> +
+>   int kvm_s390_pci_aen_init(u8 nisc);
+>   void kvm_s390_pci_aen_exit(void);
+>   
+> 
+
+-- 
+Pierre Morel
+IBM Lab Boeblingen
