@@ -2,119 +2,337 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E90EC4167B
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Feb 2022 22:13:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3BA2AC433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Feb 2022 00:00:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231761AbiBNWNt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 14 Feb 2022 17:13:49 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60718 "EHLO
+        id S232289AbiBOAAb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 14 Feb 2022 19:00:31 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:39928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231742AbiBNWNs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Feb 2022 17:13:48 -0500
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 99E6913D925
-        for <linux-s390@vger.kernel.org>; Mon, 14 Feb 2022 14:13:39 -0800 (PST)
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-3-0IuFZHXpM1-VcUsNfepTpQ-1; Mon, 14 Feb 2022 22:13:36 +0000
-X-MC-Unique: 0IuFZHXpM1-VcUsNfepTpQ-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
- Server (TLS) id 15.0.1497.28; Mon, 14 Feb 2022 22:13:34 +0000
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.028; Mon, 14 Feb 2022 22:13:34 +0000
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Linus Torvalds' <torvalds@linux-foundation.org>,
-        Arnd Bergmann <arnd@kernel.org>
-CC:     Mark Rutland <mark.rutland@arm.com>, Rich Felker <dalias@libc.org>,
-        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
-        Linux-sh list <linux-sh@vger.kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        Will Deacon <will@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        "Brian Cain" <bcain@codeaurora.org>,
-        "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>,
-        Helge Deller <deller@gmx.de>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Russell King - ARM Linux <linux@armlinux.org.uk>,
-        "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
-        Christoph Hellwig <hch@lst.de>,
-        "Christoph Hellwig" <hch@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        "Geert Uytterhoeven" <geert@linux-m68k.org>,
-        "open list:SYNOPSYS ARC ARCHITECTURE" 
-        <linux-snps-arc@lists.infradead.org>,
-        "open list:TENSILICA XTENSA PORT (xtensa)" 
-        <linux-xtensa@linux-xtensa.org>, Arnd Bergmann <arnd@arndb.de>,
+        with ESMTP id S229636AbiBOAA3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Feb 2022 19:00:29 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7B9C403C6;
+        Mon, 14 Feb 2022 16:00:20 -0800 (PST)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21ENX1hJ019774;
+        Tue, 15 Feb 2022 00:00:20 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=J3faY/DanDPihzvBOoFhm5o0uGb8lNbKSjixyKz24a4=;
+ b=L7zjsXdU/behPiYfhjaJAek8StavL1GWqgnWXH0syp0IDMa9Y102WfcykzxTWW/zF/YH
+ C4vdUvAhAOZAy5MXbEJUwaETY7BiSuBp5DLCM3YIWrO7vEXHEQEm6DrorpORCutA+c0T
+ iPKWryhByoEqtVoeQd854InTcEdYYtw/8XGHXy97eEBJWpXazFjH1bxVqAwi47s1qudc
+ 7Kf9TlBdHw/l03N5nhfJ5C+NH9Mk7jN36E5dNpUfKQ/E0gNYWDj96XPHk5cG5B01Ec30
+ 0SIM7QxnI/qAaJdr9sJLNXOr/iypOB8IzOnbybUhnYhb/mjEgC35qerxUjk958kUFgrI BA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e785tg9x7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Feb 2022 00:00:19 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21F00JVI028653;
+        Tue, 15 Feb 2022 00:00:19 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e785tg9wc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Feb 2022 00:00:19 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21ENwH1c005203;
+        Tue, 15 Feb 2022 00:00:17 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 3e645jhxhj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Feb 2022 00:00:16 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21F00D7i27132324
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 15 Feb 2022 00:00:13 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 81E8AA405B;
+        Tue, 15 Feb 2022 00:00:13 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E561EA4059;
+        Tue, 15 Feb 2022 00:00:12 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.145.2.54])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 15 Feb 2022 00:00:12 +0000 (GMT)
+Date:   Mon, 14 Feb 2022 16:30:53 +0100
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
-        linux-um <linux-um@lists.infradead.org>,
-        Richard Weinberger <richard@nod.at>,
-        linux-m68k <linux-m68k@lists.linux-m68k.org>,
-        Openrisc <openrisc@lists.librecores.org>,
-        Greentime Hu <green.hu@gmail.com>,
-        Stafford Horne <shorne@gmail.com>,
-        "Linux ARM" <linux-arm-kernel@lists.infradead.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Nick Hu <nickhu@andestech.com>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        Linux-MM <linux-mm@kvack.org>,
-        Linux API <linux-api@vger.kernel.org>,
-        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        alpha <linux-alpha@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        David Miller <davem@davemloft.net>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Subject: RE: [PATCH 04/14] x86: use more conventional access_ok() definition
-Thread-Topic: [PATCH 04/14] x86: use more conventional access_ok() definition
-Thread-Index: AQHYIeHe9n+22PBgtUWxf89GrdwkK6yTmyQw
-Date:   Mon, 14 Feb 2022 22:13:34 +0000
-Message-ID: <2dda07f893cb4ef9b5ea2265adccb98f@AcuMS.aculab.com>
-References: <20220214163452.1568807-1-arnd@kernel.org>
- <20220214163452.1568807-5-arnd@kernel.org> <YgqLFYqIqkIsNC92@infradead.org>
- <CAK8P3a1F3JaYaJPy9bSCG1+YV6EN05PE0DbwpD_GT1qRwFSJ-w@mail.gmail.com>
- <CAHk-=whq6_Nh3cB3FieP481VcRyCu69X3=wO1yLHGmcZEj69SA@mail.gmail.com>
- <CAHk-=wgYu67OwP4LhcrPdDVxv2mOsx-Xsc2DKoVW6GZwKFtOYQ@mail.gmail.com>
-In-Reply-To: <CAHk-=wgYu67OwP4LhcrPdDVxv2mOsx-Xsc2DKoVW6GZwKFtOYQ@mail.gmail.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        Janosch Frank <frankja@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: Re: [PATCH v4 01/10] s390/uaccess: Add copy_from/to_user_key
+ functions
+Message-ID: <20220214163053.13e71683@p-imbrenda>
+In-Reply-To: <20220211182215.2730017-2-scgl@linux.ibm.com>
+References: <20220211182215.2730017-1-scgl@linux.ibm.com>
+        <20220211182215.2730017-2-scgl@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: BwgqTVATgoIpAz9oIa5f680-uma8_m3g
+X-Proofpoint-ORIG-GUID: B4tDmq-WKFrCwUYYxoj8b0-6O0b6sOi3
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-02-14_07,2022-02-14_03,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=999
+ malwarescore=0 adultscore=0 lowpriorityscore=0 clxscore=1015
+ impostorscore=0 priorityscore=1501 bulkscore=0 suspectscore=0 spamscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2202140134
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-RnJvbTogTGludXMgVG9ydmFsZHMNCj4gU2VudDogMTQgRmVicnVhcnkgMjAyMiAyMDoyNA0KPiA+
-DQo+ID4geDg2LTY0IGhhcyBhbHdheXMoKikgdXNlZCBUQVNLX1NJWkVfTUFYIGZvciBhY2Nlc3Nf
-b2soKSwgYW5kIHRoZQ0KPiA+IGdldF91c2VyKCkgYXNzZW1ibGVyIGltcGxlbWVudGF0aW9uIGRv
-ZXMgdGhlIHNhbWUuDQo+IA0KPiBTaWRlIG5vdGU6IHdlIGNvdWxkIGp1c3QgY2hlY2sgdGhlIHNp
-Z24gYml0IGluc3RlYWQsIGFuZCBhdm9pZCBiaWcNCj4gY29uc3RhbnRzIHRoYXQgd2F5Lg0KDQpU
-aGUgY2hlYXAgdGVzdCBmb3IgbW9zdCA2NGJpdCBpcyAoYWRkciB8IHNpemUpID4+IDYyICE9IDAu
-DQoNCkkgZGlkIHNvbWUgdGVzdHMgbGFzdCB3ZWVrIGFuZCB0aGUgY29tcGlsZXJzIGNvcnJlY3Rs
-eSBvcHRpbWlzZQ0Kb3V0IGNvbnN0YW50IHNpemUuDQoNCkRvZXNuJ3Qgc3BhcmM2NCBzdGlsbCBu
-ZWVkIGEgd3JhcCB0ZXN0Pw0KT3IgaXMgdGhhdCBhc3N1bWVkIGJlY2F1c2UgdGhlcmUgaXMgYWx3
-YXlzIGFuIHVubWFwcGVkIHBhZ2UNCmFuZCB0cmFuc2ZlciBhcmUgJ2FkZXF1YXRlbHknIGRvbmUg
-b24gaW5jcmVhc2luZyBhZGRyZXNzZXM/DQoNCglEYXZpZA0KDQotDQpSZWdpc3RlcmVkIEFkZHJl
-c3MgTGFrZXNpZGUsIEJyYW1sZXkgUm9hZCwgTW91bnQgRmFybSwgTWlsdG9uIEtleW5lcywgTUsx
-IDFQVCwgVUsNClJlZ2lzdHJhdGlvbiBObzogMTM5NzM4NiAoV2FsZXMpDQo=
+On Fri, 11 Feb 2022 19:22:06 +0100
+Janis Schoetterl-Glausch <scgl@linux.ibm.com> wrote:
+
+> Add copy_from/to_user_key functions, which perform storage key checking.
+> These functions can be used by KVM for emulating instructions that need
+> to be key checked.
+> These functions differ from their non _key counterparts in
+> include/linux/uaccess.h only in the additional key argument and must be
+> kept in sync with those.
+> 
+> Since the existing uaccess implementation on s390 makes use of move
+> instructions that support having an additional access key supplied,
+> we can implement raw_copy_from/to_user_key by enhancing the
+> existing implementation.
+> 
+> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+> Acked-by: Heiko Carstens <hca@linux.ibm.com>
+> Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Acked-by: Janosch Frank <frankja@linux.ibm.com>
+
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+
+> ---
+>  arch/s390/include/asm/uaccess.h | 22 +++++++++
+>  arch/s390/lib/uaccess.c         | 81 +++++++++++++++++++++++++--------
+>  2 files changed, 85 insertions(+), 18 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/uaccess.h b/arch/s390/include/asm/uaccess.h
+> index d74e26b48604..ba1bcb91af95 100644
+> --- a/arch/s390/include/asm/uaccess.h
+> +++ b/arch/s390/include/asm/uaccess.h
+> @@ -44,6 +44,28 @@ raw_copy_to_user(void __user *to, const void *from, unsigned long n);
+>  #define INLINE_COPY_TO_USER
+>  #endif
+>  
+> +unsigned long __must_check
+> +_copy_from_user_key(void *to, const void __user *from, unsigned long n, unsigned long key);
+> +
+> +static __always_inline unsigned long __must_check
+> +copy_from_user_key(void *to, const void __user *from, unsigned long n, unsigned long key)
+> +{
+> +	if (likely(check_copy_size(to, n, false)))
+> +		n = _copy_from_user_key(to, from, n, key);
+> +	return n;
+> +}
+> +
+> +unsigned long __must_check
+> +_copy_to_user_key(void __user *to, const void *from, unsigned long n, unsigned long key);
+> +
+> +static __always_inline unsigned long __must_check
+> +copy_to_user_key(void __user *to, const void *from, unsigned long n, unsigned long key)
+> +{
+> +	if (likely(check_copy_size(from, n, true)))
+> +		n = _copy_to_user_key(to, from, n, key);
+> +	return n;
+> +}
+> +
+>  int __put_user_bad(void) __attribute__((noreturn));
+>  int __get_user_bad(void) __attribute__((noreturn));
+>  
+> diff --git a/arch/s390/lib/uaccess.c b/arch/s390/lib/uaccess.c
+> index 8a5d21461889..b709239feb5d 100644
+> --- a/arch/s390/lib/uaccess.c
+> +++ b/arch/s390/lib/uaccess.c
+> @@ -59,11 +59,13 @@ static inline int copy_with_mvcos(void)
+>  #endif
+>  
+>  static inline unsigned long copy_from_user_mvcos(void *x, const void __user *ptr,
+> -						 unsigned long size)
+> +						 unsigned long size, unsigned long key)
+>  {
+>  	unsigned long tmp1, tmp2;
+>  	union oac spec = {
+> +		.oac2.key = key,
+>  		.oac2.as = PSW_BITS_AS_SECONDARY,
+> +		.oac2.k = 1,
+>  		.oac2.a = 1,
+>  	};
+>  
+> @@ -94,19 +96,19 @@ static inline unsigned long copy_from_user_mvcos(void *x, const void __user *ptr
+>  }
+>  
+>  static inline unsigned long copy_from_user_mvcp(void *x, const void __user *ptr,
+> -						unsigned long size)
+> +						unsigned long size, unsigned long key)
+>  {
+>  	unsigned long tmp1, tmp2;
+>  
+>  	tmp1 = -256UL;
+>  	asm volatile(
+>  		"   sacf  0\n"
+> -		"0: mvcp  0(%0,%2),0(%1),%3\n"
+> +		"0: mvcp  0(%0,%2),0(%1),%[key]\n"
+>  		"7: jz    5f\n"
+>  		"1: algr  %0,%3\n"
+>  		"   la    %1,256(%1)\n"
+>  		"   la    %2,256(%2)\n"
+> -		"2: mvcp  0(%0,%2),0(%1),%3\n"
+> +		"2: mvcp  0(%0,%2),0(%1),%[key]\n"
+>  		"8: jnz   1b\n"
+>  		"   j     5f\n"
+>  		"3: la    %4,255(%1)\n"	/* %4 = ptr + 255 */
+> @@ -115,7 +117,7 @@ static inline unsigned long copy_from_user_mvcp(void *x, const void __user *ptr,
+>  		"   slgr  %4,%1\n"
+>  		"   clgr  %0,%4\n"	/* copy crosses next page boundary? */
+>  		"   jnh   6f\n"
+> -		"4: mvcp  0(%4,%2),0(%1),%3\n"
+> +		"4: mvcp  0(%4,%2),0(%1),%[key]\n"
+>  		"9: slgr  %0,%4\n"
+>  		"   j     6f\n"
+>  		"5: slgr  %0,%0\n"
+> @@ -123,24 +125,49 @@ static inline unsigned long copy_from_user_mvcp(void *x, const void __user *ptr,
+>  		EX_TABLE(0b,3b) EX_TABLE(2b,3b) EX_TABLE(4b,6b)
+>  		EX_TABLE(7b,3b) EX_TABLE(8b,3b) EX_TABLE(9b,6b)
+>  		: "+a" (size), "+a" (ptr), "+a" (x), "+a" (tmp1), "=a" (tmp2)
+> -		: : "cc", "memory");
+> +		: [key] "d" (key << 4)
+> +		: "cc", "memory");
+>  	return size;
+>  }
+>  
+> -unsigned long raw_copy_from_user(void *to, const void __user *from, unsigned long n)
+> +static unsigned long raw_copy_from_user_key(void *to, const void __user *from,
+> +					    unsigned long n, unsigned long key)
+>  {
+>  	if (copy_with_mvcos())
+> -		return copy_from_user_mvcos(to, from, n);
+> -	return copy_from_user_mvcp(to, from, n);
+> +		return copy_from_user_mvcos(to, from, n, key);
+> +	return copy_from_user_mvcp(to, from, n, key);
+> +}
+> +
+> +unsigned long raw_copy_from_user(void *to, const void __user *from, unsigned long n)
+> +{
+> +	return raw_copy_from_user_key(to, from, n, 0);
+>  }
+>  EXPORT_SYMBOL(raw_copy_from_user);
+>  
+> +unsigned long _copy_from_user_key(void *to, const void __user *from,
+> +				  unsigned long n, unsigned long key)
+> +{
+> +	unsigned long res = n;
+> +
+> +	might_fault();
+> +	if (!should_fail_usercopy()) {
+> +		instrument_copy_from_user(to, from, n);
+> +		res = raw_copy_from_user_key(to, from, n, key);
+> +	}
+> +	if (unlikely(res))
+> +		memset(to + (n - res), 0, res);
+> +	return res;
+> +}
+> +EXPORT_SYMBOL(_copy_from_user_key);
+> +
+>  static inline unsigned long copy_to_user_mvcos(void __user *ptr, const void *x,
+> -					       unsigned long size)
+> +					       unsigned long size, unsigned long key)
+>  {
+>  	unsigned long tmp1, tmp2;
+>  	union oac spec = {
+> +		.oac1.key = key,
+>  		.oac1.as = PSW_BITS_AS_SECONDARY,
+> +		.oac1.k = 1,
+>  		.oac1.a = 1,
+>  	};
+>  
+> @@ -171,19 +198,19 @@ static inline unsigned long copy_to_user_mvcos(void __user *ptr, const void *x,
+>  }
+>  
+>  static inline unsigned long copy_to_user_mvcs(void __user *ptr, const void *x,
+> -					      unsigned long size)
+> +					      unsigned long size, unsigned long key)
+>  {
+>  	unsigned long tmp1, tmp2;
+>  
+>  	tmp1 = -256UL;
+>  	asm volatile(
+>  		"   sacf  0\n"
+> -		"0: mvcs  0(%0,%1),0(%2),%3\n"
+> +		"0: mvcs  0(%0,%1),0(%2),%[key]\n"
+>  		"7: jz    5f\n"
+>  		"1: algr  %0,%3\n"
+>  		"   la    %1,256(%1)\n"
+>  		"   la    %2,256(%2)\n"
+> -		"2: mvcs  0(%0,%1),0(%2),%3\n"
+> +		"2: mvcs  0(%0,%1),0(%2),%[key]\n"
+>  		"8: jnz   1b\n"
+>  		"   j     5f\n"
+>  		"3: la    %4,255(%1)\n" /* %4 = ptr + 255 */
+> @@ -192,7 +219,7 @@ static inline unsigned long copy_to_user_mvcs(void __user *ptr, const void *x,
+>  		"   slgr  %4,%1\n"
+>  		"   clgr  %0,%4\n"	/* copy crosses next page boundary? */
+>  		"   jnh   6f\n"
+> -		"4: mvcs  0(%4,%1),0(%2),%3\n"
+> +		"4: mvcs  0(%4,%1),0(%2),%[key]\n"
+>  		"9: slgr  %0,%4\n"
+>  		"   j     6f\n"
+>  		"5: slgr  %0,%0\n"
+> @@ -200,18 +227,36 @@ static inline unsigned long copy_to_user_mvcs(void __user *ptr, const void *x,
+>  		EX_TABLE(0b,3b) EX_TABLE(2b,3b) EX_TABLE(4b,6b)
+>  		EX_TABLE(7b,3b) EX_TABLE(8b,3b) EX_TABLE(9b,6b)
+>  		: "+a" (size), "+a" (ptr), "+a" (x), "+a" (tmp1), "=a" (tmp2)
+> -		: : "cc", "memory");
+> +		: [key] "d" (key << 4)
+> +		: "cc", "memory");
+>  	return size;
+>  }
+>  
+> -unsigned long raw_copy_to_user(void __user *to, const void *from, unsigned long n)
+> +static unsigned long raw_copy_to_user_key(void __user *to, const void *from,
+> +					  unsigned long n, unsigned long key)
+>  {
+>  	if (copy_with_mvcos())
+> -		return copy_to_user_mvcos(to, from, n);
+> -	return copy_to_user_mvcs(to, from, n);
+> +		return copy_to_user_mvcos(to, from, n, key);
+> +	return copy_to_user_mvcs(to, from, n, key);
+> +}
+> +
+> +unsigned long raw_copy_to_user(void __user *to, const void *from, unsigned long n)
+> +{
+> +	return raw_copy_to_user_key(to, from, n, 0);
+>  }
+>  EXPORT_SYMBOL(raw_copy_to_user);
+>  
+> +unsigned long _copy_to_user_key(void __user *to, const void *from,
+> +				unsigned long n, unsigned long key)
+> +{
+> +	might_fault();
+> +	if (should_fail_usercopy())
+> +		return n;
+> +	instrument_copy_to_user(to, from, n);
+> +	return raw_copy_to_user_key(to, from, n, key);
+> +}
+> +EXPORT_SYMBOL(_copy_to_user_key);
+> +
+>  static inline unsigned long clear_user_mvcos(void __user *to, unsigned long size)
+>  {
+>  	unsigned long tmp1, tmp2;
 
