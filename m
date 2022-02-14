@@ -2,67 +2,29 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 352CCC433FE
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Feb 2022 08:38:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3037AC433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 14 Feb 2022 09:16:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242130AbiBNIif (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 14 Feb 2022 03:38:35 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:37158 "EHLO
+        id S230345AbiBNJQx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 14 Feb 2022 04:16:53 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235658AbiBNIie (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Feb 2022 03:38:34 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF1A313E01;
-        Mon, 14 Feb 2022 00:38:26 -0800 (PST)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21E5Um39007645;
-        Mon, 14 Feb 2022 08:37:52 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=PV1Ah7wybhb+po6pDcZcuKJuHgirBmZN9KGQ/Ir+Azk=;
- b=kTxeVqkZSLV6hLj5rdW4yAVQvMzbtf0bKECQz34mhLjlSuedbRgAhH/yOpEMxhIfzrab
- OeEf0e0GyAcIdMtNzNW1SdPC/Xvwtlxc+dH6Q+NGRoNF76X5uKbxtGVIdkHrQY9MDMjI
- xGddhjdSpxAlQuFUzn8MQ/aBZaV1sipO7HlB4nkgztyhdX9KOOHA9ghA71k693seA0LK
- W+KuDlWjX4b4odo5i3U2r4NL+htVVOXoZJrTQfsFeP0jlRoCwDcHmp13kuoiHW8xgEfC
- lv7+cERfa2nLnqdMdZsHuSpF7N0CWQsK3BSmEX1dvOisUtCaUZQP2KINFmbDDVyU47g6 bg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3e7dehf242-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 14 Feb 2022 08:37:52 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21E8EV2d021184;
-        Mon, 14 Feb 2022 08:37:51 GMT
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3e7dehf22x-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 14 Feb 2022 08:37:51 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21E8XfoT018557;
-        Mon, 14 Feb 2022 08:37:49 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma06fra.de.ibm.com with ESMTP id 3e645ja9v5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 14 Feb 2022 08:37:48 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21E8bjkX40043002
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 14 Feb 2022 08:37:45 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8D205AE045;
-        Mon, 14 Feb 2022 08:37:45 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4B711AE04D;
-        Mon, 14 Feb 2022 08:37:44 +0000 (GMT)
-Received: from sig-9-145-84-135.uk.ibm.com (unknown [9.145.84.135])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 14 Feb 2022 08:37:44 +0000 (GMT)
-Message-ID: <e5ec2e3be2e70e690bd9112bd23297d05a2993e6.camel@linux.ibm.com>
-Subject: Re: [PATCH] parport_pc: Also enable driver for PCI systems
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
+        with ESMTP id S229808AbiBNJQx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Feb 2022 04:16:53 -0500
+X-Greylist: delayed 73892 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 14 Feb 2022 01:16:44 PST
+Received: from angie.orcam.me.uk (angie.orcam.me.uk [78.133.224.34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E30E2606CE;
+        Mon, 14 Feb 2022 01:16:44 -0800 (PST)
+Received: by angie.orcam.me.uk (Postfix, from userid 500)
+        id 7C62292009C; Mon, 14 Feb 2022 10:16:43 +0100 (CET)
+Received: from localhost (localhost [127.0.0.1])
+        by angie.orcam.me.uk (Postfix) with ESMTP id 7972092009B;
+        Mon, 14 Feb 2022 09:16:43 +0000 (GMT)
+Date:   Mon, 14 Feb 2022 09:16:43 +0000 (GMT)
+From:   "Maciej W. Rozycki" <macro@orcam.me.uk>
 To:     Geert Uytterhoeven <geert@linux-m68k.org>,
-        "Maciej W. Rozycki" <macro@orcam.me.uk>
-Cc:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>
+cc:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
         Catalin Marinas <catalin.marinas@arm.com>,
         Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
         Paul Walmsley <paul.walmsley@sifive.com>,
@@ -82,44 +44,19 @@ Cc:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
         linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
         linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
         linux-kernel@vger.kernel.org
-Date:   Mon, 14 Feb 2022 09:37:43 +0100
+Subject: Re: [PATCH] parport_pc: Also enable driver for PCI systems
 In-Reply-To: <CAMuHMdW-utcFzCZTgqONjxs=U662nF0=aBQu7Zi7FBQouwiA3g@mail.gmail.com>
-References: <alpine.DEB.2.21.2202122313460.34636@angie.orcam.me.uk>
-         <CAMuHMdW-utcFzCZTgqONjxs=U662nF0=aBQu7Zi7FBQouwiA3g@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Cj_hGZEn7CrbAL8bX6nY71tGP9Hf619O
-X-Proofpoint-ORIG-GUID: 7--hie3AmYyMErFK3wRLOvpBa0hqckt4
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+Message-ID: <alpine.DEB.2.21.2202140833290.34636@angie.orcam.me.uk>
+References: <alpine.DEB.2.21.2202122313460.34636@angie.orcam.me.uk> <CAMuHMdW-utcFzCZTgqONjxs=U662nF0=aBQu7Zi7FBQouwiA3g@mail.gmail.com>
+User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-02-14_01,2022-02-14_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
- mlxscore=0 mlxlogscore=941 priorityscore=1501 adultscore=0 malwarescore=0
- spamscore=0 clxscore=1011 suspectscore=0 bulkscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2201110000
- definitions=main-2202140052
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 2022-02-14 at 09:20 +0100, Geert Uytterhoeven wrote:
-> Hi Maciej,
-> 
-> CC Niklas
-> 
-> On Sun, Feb 13, 2022 at 1:45 PM Maciej W. Rozycki <macro@orcam.me.uk> wrote:
-> > Nowadays PC-style parallel ports come in the form of PCI and PCIe option
-> > cards and there are some combined parallel/serial option cards as well
-> > that we handle in the parport subsystem.  There is nothing in particular
-> > that would prevent them from being used in any system equipped with PCI
-> > or PCIe connectivity, except that we do not permit the PARPORT_PC config
-> > option to be selected for platforms for which ARCH_MIGHT_HAVE_PC_PARPORT
-> > has not been set for.
-> > 
+On Mon, 14 Feb 2022, Geert Uytterhoeven wrote:
+
 > > The only PCI platforms that actually can't make use of PC-style parallel
 > > port hardware are those newer PCIe systems that have no support for I/O
 > > cycles in the host bridge, required by such parallel ports.  An example
@@ -130,55 +67,115 @@ On Mon, 2022-02-14 at 09:20 +0100, Geert Uytterhoeven wrote:
 > "[RFC 00/32] Kconfig: Introduce HAS_IOPORT and LEGACY_PCI options"
 > https://lore.kernel.org/all/20211227164317.4146918-1-schnelle@linux.ibm.com/
 
-Thanks, for Cc'ing me. Note that this series is currently in kind of a
-hold as we haven't yet found a clear direction yet. There was some
-clear opposition for the LEGACY_PCI option introduced in that series
-and only little support for HAS_IOPORT.
+ Thanks for the pointer, I have missed the series in the LKML flood!
 
-> 
-> > --- linux-macro.orig/drivers/parport/Kconfig
-> > +++ linux-macro/drivers/parport/Kconfig
-> > @@ -42,7 +42,7 @@ if PARPORT
-> > 
-> >  config PARPORT_PC
-> >         tristate "PC-style hardware"
-> > -       depends on ARCH_MIGHT_HAVE_PC_PARPORT
-> > +       depends on ARCH_MIGHT_HAVE_PC_PARPORT || PCI
+ The idea sounds good, although it's not clear to me if a config option is 
+enough to get it properly covered as I don't know offhand if a single say 
+ppc64le kernel can't run on systems that do and do not have support for 
+port I/O over PCIe.  I got hit with that the hard way with a distribution 
+kernel where a driver tried to do port I/O and poked at a random location 
+in the address space causing weird errors to be reported by the system 
+firmware.
 
-This would allow selecting PARPORT_PC on s390 e.g. for allyesconfig and
-randconfig and like POWER9 we definitely do not support I/O port
-access.
+ Also I have skimmed over the series and there appears to be confusion 
+between legacy PCI and conventional PCI, which are obviously not the same.  
+For example this piece:
 
-We will also get warnings when compiling with clang. A problem my
-series was originally started to address. So I'd really like to see a
-better solution here for such a change. With the HAS_IOPORT option from
-my series this would be simple but we don't currently have that though
-maybe this is also an argument for introducing HAS_IOPORT even if we
-don't add the LEGACY_PCI option.
+diff --git a/drivers/net/fddi/Kconfig b/drivers/net/fddi/Kconfig
+index 846bf41c2717..1753c08d6423 100644
+--- a/drivers/net/fddi/Kconfig
++++ b/drivers/net/fddi/Kconfig
+@@ -5,7 +5,7 @@
+ 
+ config FDDI
+ 	tristate "FDDI driver support"
+-	depends on PCI || EISA || TC
++	depends on LEGACY_PCI || EISA || TC
+ 	help
+ 	  Fiber Distributed Data Interface is a high speed local area network
+ 	  design; essentially a replacement for high speed Ethernet. FDDI can
+@@ -29,7 +29,7 @@ config DEFZA
+ 
+ config DEFXX
+ 	tristate "Digital DEFTA/DEFEA/DEFPA adapter support"
+-	depends on FDDI && (PCI || EISA || TC)
++	depends on FDDI && (LEGACY_PCI || EISA || TC)
+ 	help
+ 	  This is support for the DIGITAL series of TURBOchannel (DEFTA),
+ 	  EISA (DEFEA) and PCI (DEFPA) controllers which can connect you
 
-> >         help
-> >           You should say Y here if you have a PC-style parallel port. All
-> >           IBM PC compatible computers and some Alphas have PC-style
-> > @@ -77,7 +77,7 @@ config PARPORT_PC_FIFO
-> > 
-> >  config PARPORT_PC_SUPERIO
-> >         bool "SuperIO chipset support"
-> > -       depends on PARPORT_PC && !PARISC
-> > +       depends on ARCH_MIGHT_HAVE_PC_PARPORT && PARPORT_PC && !PARISC
-> >         help
-> >           Saying Y here enables some probes for Super-IO chipsets in order to
-> >           find out things like base addresses, IRQ lines and DMA channels.  It
-> > 
-> 
-> Gr{oetje,eeting}s,
-> 
->                         Geert
-> 
-> --
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-> 
-> In personal conversations with technical people, I call myself a hacker. But
-> when I'm talking to journalists I just say "programmer" or something like that.
->                                 -- Linus Torvalds
+is clearly wrong.  While the DEFPA card is a conventional PCI option it 
+does support MMIO and does run with my legacy-free POWER9 system just 
+fine (with a suitable PCIe-to-PCI bridge installed at 0031:01:00.0):
 
+# lspci
+0000:00:00.0 PCI bridge: IBM POWER9 Host Bridge (PHB4)
+0001:00:00.0 PCI bridge: IBM POWER9 Host Bridge (PHB4)
+0001:01:00.0 Serial controller: Oxford Semiconductor Ltd OXPCIe952 Dual Native 950 UART
+0002:00:00.0 PCI bridge: IBM POWER9 Host Bridge (PHB4)
+0002:01:00.0 Serial Attached SCSI controller: Adaptec Series 8 12G SAS/PCIe 3 (rev 01)
+0003:00:00.0 PCI bridge: IBM POWER9 Host Bridge (PHB4)
+0003:01:00.0 USB controller: Texas Instruments TUSB73x0 SuperSpeed USB 3.0 xHCI Host Controller (rev 02)
+0004:00:00.0 PCI bridge: IBM POWER9 Host Bridge (PHB4)
+0004:01:00.0 Ethernet controller: Broadcom Inc. and subsidiaries NetXtreme BCM5719 Gigabit Ethernet PCIe (rev 01)
+0004:01:00.1 Ethernet controller: Broadcom Inc. and subsidiaries NetXtreme BCM5719 Gigabit Ethernet PCIe (rev 01)
+0005:00:00.0 PCI bridge: IBM POWER9 Host Bridge (PHB4)
+0005:01:00.0 PCI bridge: ASPEED Technology, Inc. AST1150 PCI-to-PCI Bridge (rev 04)
+0005:02:00.0 VGA compatible controller: ASPEED Technology, Inc. ASPEED Graphics Family (rev 41)
+0030:00:00.0 PCI bridge: IBM POWER9 Host Bridge (PHB4)
+0030:01:00.0 PCI bridge: PMC-Sierra Inc. PM8562 Switchtec PFX-L 32xG3 Fanout-Lite PCIe Gen3 Switch
+0030:02:00.0 PCI bridge: PMC-Sierra Inc. PM8562 Switchtec PFX-L 32xG3 Fanout-Lite PCIe Gen3 Switch
+0030:02:01.0 PCI bridge: PMC-Sierra Inc. PM8562 Switchtec PFX-L 32xG3 Fanout-Lite PCIe Gen3 Switch
+0030:02:02.0 PCI bridge: PMC-Sierra Inc. PM8562 Switchtec PFX-L 32xG3 Fanout-Lite PCIe Gen3 Switch
+0030:02:03.0 PCI bridge: PMC-Sierra Inc. PM8562 Switchtec PFX-L 32xG3 Fanout-Lite PCIe Gen3 Switch
+0030:03:00.0 Non-Volatile memory controller: Samsung Electronics Co Ltd NVMe SSD Controller SM981/PM981/PM983
+0030:04:00.0 Non-Volatile memory controller: Samsung Electronics Co Ltd NVMe SSD Controller SM981/PM981/PM983
+0030:05:00.0 Non-Volatile memory controller: Samsung Electronics Co Ltd NVMe SSD Controller SM981/PM981/PM983
+0030:06:00.0 Non-Volatile memory controller: Samsung Electronics Co Ltd NVMe SSD Controller SM981/PM981/PM983
+0031:00:00.0 PCI bridge: IBM POWER9 Host Bridge (PHB4)
+0031:01:00.0 PCI bridge: Texas Instruments XIO2000(A)/XIO2200A PCI Express-to-PCI Bridge (rev 03)
+0031:02:04.0 FDDI network controller: Digital Equipment Corporation PCI-to-PDQ Interface Chip [PFI] FDDI (DEFPA) (rev 02)
+0031:02:05.0 ATM network controller: Microsemi / PMC / IDT IDT77201/77211 155Mbps ATM SAR Controller [NICStAR] (rev 03)
+0032:00:00.0 PCI bridge: IBM POWER9 Host Bridge (PHB4)
+0033:00:00.0 PCI bridge: IBM POWER9 Host Bridge (PHB4)
+# dmesg | grep 0031:02:04.0 | cut -c16-
+pci 0031:02:04.0: [1011:000f] type 00 class 0x020200
+pci 0031:02:04.0: reg 0x10: [mem 0x620c080020000-0x620c08002007f]
+pci 0031:02:04.0: reg 0x14: [io  0x0000-0x007f]
+pci 0031:02:04.0: reg 0x18: [mem 0x620c080030000-0x620c08003ffff]
+pci 0031:02:04.0: BAR0 [mem size 0x00000080]: requesting alignment to 0x10000
+pci 0031:02:04.0: BAR 0: assigned [mem 0x620c080020000-0x620c08002007f]
+pci 0031:02:04.0: BAR 2: assigned [mem 0x620c080030000-0x620c08003ffff]
+pci 0031:02:04.0: BAR 1: no space for [io  size 0x0080]
+pci 0031:02:04.0: BAR 1: failed to assign [io  size 0x0080]
+pci 0031:02:04.0: Configured PE#fc
+pci 0031:02:04.0: Adding to iommu group 9
+defxx 0031:02:04.0: enabling device (0140 -> 0142)
+0031:02:04.0: DEFPA at MMIO addr = 0x620c080020000, IRQ = 57, Hardware addr = 00-60-6d-93-91-98
+0031:02:04.0: registered as fddi0
+$ ip link show dev fddi0
+4: fddi0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 4470 qdisc pfifo_fast 
+state UNKNOWN mode DEFAULT group default qlen 100
+    link/fddi 00:60:6d:93:91:98 brd ff:ff:ff:ff:ff:ff
+$
 
+While older versions of the driver did have to be explicitly configured 
+for MMIO rather than port I/O, a feature added with commit e89a2cfb7d7b 
+("[TC] defxx: TURBOchannel support"), the driver has been improved with 
+commit 795e272e5474 ("FDDI: defxx: Implement dynamic CSR I/O address space 
+selection") and the selection of the I/O space to use now fully automatic.
+
+ Then what about the other FDDI driver there, SKFP?  It's not marked as
+LEGACY_PCI, although it's not selectable anyway due to the dependency of 
+FDDI on LEGACY_PCI.
+
+ Niklas, what was the criterion for placing the LEGACY_PCI dependency?  
+
+ Also do you plan to post an updated series anytime soon?  I'm asking 
+because like with the m68k port also the MIPS one needs a more finegrained 
+approach and I suspect there may be other corner cases and I'd rather look 
+at the most recent version of your series.  Otherwise I'll have a look 
+through your original submission, but it may have to wait until the next 
+weekend due to my other commitments.
+
+  Maciej
