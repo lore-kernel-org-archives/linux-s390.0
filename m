@@ -2,186 +2,273 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 738F2C433FE
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Feb 2022 15:55:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C014BC4167D
+	for <linux-s390@archiver.kernel.org>; Mon, 14 Feb 2022 16:35:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356000AbiBNPzk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 14 Feb 2022 10:55:40 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:45430 "EHLO
+        id S1356522AbiBNQgF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 14 Feb 2022 11:36:05 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242711AbiBNPzk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Feb 2022 10:55:40 -0500
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5824F4968F;
-        Mon, 14 Feb 2022 07:55:31 -0800 (PST)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id A75051F38B;
-        Mon, 14 Feb 2022 15:55:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1644854129; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=k9MmC9qkXYRWrTYfRcCJEivsJms60nX4tIrMOUzEtWM=;
-        b=u2FyfK++GVdTzQOjqWcqZGLBUUzrDhYKtU57FNklJOt/e4NK7Ftz0UbOcIPXvf2tiz8yjC
-        lOg4m1lH1HgqVUk5WhL9P0848EpI0TeXdVvzmIRoxnDQUtvmgcKuSfY1LwMOO9hOAfDpie
-        JLjWKG8CZYhVYy8OF3M7nq+jfqPZ6Gw=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1644854129;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=k9MmC9qkXYRWrTYfRcCJEivsJms60nX4tIrMOUzEtWM=;
-        b=DZL+qoheqv/LmFulfWwBj6ooEqSB1jfA3QUYZzmGmg+dkmwxT83ob8JmlxLvtLwJu6Pvpa
-        ANP+ga/h5qpfxHCg==
-Received: from kunlun.suse.cz (unknown [10.100.128.76])
+        with ESMTP id S1356447AbiBNQfv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Feb 2022 11:35:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7460460D88;
+        Mon, 14 Feb 2022 08:35:43 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id E4E27A3B89;
-        Mon, 14 Feb 2022 15:55:25 +0000 (UTC)
-Date:   Mon, 14 Feb 2022 16:55:24 +0100
-From:   Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
-To:     Mimi Zohar <zohar@linux.ibm.com>
-Cc:     keyrings@vger.kernel.org, linux-crypto@vger.kernel.org,
-        linux-integrity@vger.kernel.org, kexec@lists.infradead.org,
-        Philipp Rudo <prudo@redhat.com>,
-        Nayna <nayna@linux.vnet.ibm.com>, Rob Herring <robh@kernel.org>,
-        linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Jessica Yu <jeyu@kernel.org>, linux-kernel@vger.kernel.org,
-        David Howells <dhowells@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Hari Bathini <hbathini@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linuxppc-dev@lists.ozlabs.org,
-        Frank van der Linden <fllinden@amazon.com>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Daniel Axtens <dja@axtens.net>, buendgen@de.ibm.com,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Baoquan He <bhe@redhat.com>,
-        linux-security-module@vger.kernel.org
-Subject: Re: [PATCH v5 2/6] powerpc/kexec_file: Add KEXEC_SIG support.
-Message-ID: <20220214155524.GN3113@kunlun.suse.cz>
-References: <cover.1641900831.git.msuchanek@suse.de>
- <d95f7c6865bcad5ee37dcbec240e79aa742f5e1d.1641900831.git.msuchanek@suse.de>
- <cff97dbe262919ff709a5ad2c4af6a702cc72a95.camel@linux.ibm.com>
- <a8d717a44e5e919676e9b1e197cac781db46da87.camel@linux.ibm.com>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 10E276145A;
+        Mon, 14 Feb 2022 16:35:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95D20C340E9;
+        Mon, 14 Feb 2022 16:35:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1644856542;
+        bh=NCPtyXY6GSVFAxA9xMH/uI0qVAvzui4f6HWShmHq7S4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=AD+OGCC91QW3gC/dZKsZFSSWI0QKTWjyYSyPe3ESJoZsA18Yxd+6C2XmKbO+BufBV
+         pgOTeKAy/H78mpdds/cyxQ3VhN4bBP5a5vjc0WbkFTjxn+hvTh5aHadh4RocZ3TKWZ
+         eb6b0ouxjuiSDysMNzxh//PeMK4OQFXVj3bLmv5B1B7q8Uq/AO4RDRlThvSeYzr3Ly
+         Gc0VXxNLiJ5WO1pIX67udGR/GCDjJQpiIxvmjGV1mzioNZwxT26v6bU0vORAmaN8AJ
+         nAspwe5m/jH1WNhsqM0Qybjj0jz1yeUDm3LP9c3MsBrk2+9J1cYolEm51L9D0B9ZO/
+         R/tiDrFKWPKmA==
+From:   Arnd Bergmann <arnd@kernel.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Christoph Hellwig <hch@lst.de>, linux-arch@vger.kernel.org,
+        linux-mm@kvack.org, linux-api@vger.kernel.org, arnd@arndb.de,
+        linux-kernel@vger.kernel.org
+Cc:     linux@armlinux.org.uk, will@kernel.org, guoren@kernel.org,
+        bcain@codeaurora.org, geert@linux-m68k.org, monstr@monstr.eu,
+        tsbogend@alpha.franken.de, nickhu@andestech.com,
+        green.hu@gmail.com, dinguyen@kernel.org, shorne@gmail.com,
+        deller@gmx.de, mpe@ellerman.id.au, peterz@infradead.org,
+        mingo@redhat.com, mark.rutland@arm.com, hca@linux.ibm.com,
+        dalias@libc.org, davem@davemloft.net, richard@nod.at,
+        x86@kernel.org, jcmvbkbc@gmail.com, ebiederm@xmission.com,
+        akpm@linux-foundation.org, ardb@kernel.org,
+        linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        openrisc@lists.librecores.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+        linux-xtensa@linux-xtensa.org
+Subject: [PATCH 00/14] clean up asm/uaccess.h, kill set_fs for good
+Date:   Mon, 14 Feb 2022 17:34:38 +0100
+Message-Id: <20220214163452.1568807-1-arnd@kernel.org>
+X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a8d717a44e5e919676e9b1e197cac781db46da87.camel@linux.ibm.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello,
+From: Arnd Bergmann <arnd@arndb.de>
 
-On Mon, Feb 14, 2022 at 10:14:16AM -0500, Mimi Zohar wrote:
-> Hi Michal,
-> 
-> On Sun, 2022-02-13 at 21:59 -0500, Mimi Zohar wrote:
-> 
-> > 
-> > On Tue, 2022-01-11 at 12:37 +0100, Michal Suchanek wrote:
-> > > diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-> > > index dea74d7717c0..1cde9b6c5987 100644
-> > > --- a/arch/powerpc/Kconfig
-> > > +++ b/arch/powerpc/Kconfig
-> > > @@ -560,6 +560,22 @@ config KEXEC_FILE
-> > >  config ARCH_HAS_KEXEC_PURGATORY
-> > >         def_bool KEXEC_FILE
-> > >  
-> > > +config KEXEC_SIG
-> > > +       bool "Verify kernel signature during kexec_file_load() syscall"
-> > > +       depends on KEXEC_FILE && MODULE_SIG_FORMAT
-> > > +       help
-> > > +         This option makes kernel signature verification mandatory for
+Christoph Hellwig and a few others spent a huge effort on removing
+set_fs() from most of the important architectures, but about half the
+other architectures were never completed even though most of them don't
+actually use set_fs() at all.
 
-This is actually wrong. KEXEC_SIG makes it mandatory that any signature
-that is appended is valid and made by a key that is part of the platform
-keyiring (which is also wrong, built-in keys should be also accepted).
-KEXEC_SIG_FORCE or an IMA policy makes it mandatory that the signature
-is present.
+I did a patch for microblaze at some point, which turned out to be fairly
+generic, and now ported it to most other architectures, using new generic
+implementations of access_ok() and __{get,put}_kernel_nocheck().
 
-> > > +         the kexec_file_load() syscall.
-> > 
-> > When KEXEC_SIG is enabled on other architectures, IMA does not define a
-> > kexec 'appraise' policy rule.  Refer to the policy rules in
-> > security/ima/ima_efi.c.  Similarly the kexec 'appraise' policy rule in
+Three architectures (sparc64, ia64, and sh) needed some extra work,
+which I also completed.
 
-I suppose you mean security/integrity/ima/ima_efi.c
+The final series contains extra cleanup changes that touch all
+architectures. Please review and test these, so we can merge them
+for v5.18.
 
-I also think it's misguided because KEXEC_SIG in itself does not enforce
-the signature. KEXEC_SIG_FORCE does.
+The series is available at
+https://git.kernel.org/pub/scm/linux/kernel/git/arnd/playground.git/log/?h=set_fs
+for testing.
 
-> > arch/powerpc/kernel/ima_policy.c should not be defined.
+       Arnd
 
-I suppose you mean arch/powerpc/kernel/ima_arch.c - see above.
+Arnd Bergmann (14):
+  uaccess: fix integer overflow on access_ok()
+  sparc64: add __{get,put}_kernel_nocheck()
+  nds32: fix access_ok() checks in get/put_user
+  x86: use more conventional access_ok() definition
+  uaccess: add generic __{get,put}_kernel_nofault
+  mips: use simpler access_ok()
+  uaccess: generalize access_ok()
+  arm64: simplify access_ok()
+  m68k: drop custom __access_ok()
+  uaccess: remove most CONFIG_SET_FS users
+  sparc64: remove CONFIG_SET_FS support
+  sh: remove CONFIG_SET_FS support
+  ia64: remove CONFIG_SET_FS support
+  uaccess: drop set_fs leftovers
 
+ arch/Kconfig                              |   3 -
+ arch/alpha/Kconfig                        |   1 -
+ arch/alpha/include/asm/processor.h        |   4 -
+ arch/alpha/include/asm/thread_info.h      |   2 -
+ arch/alpha/include/asm/uaccess.h          |  53 +--------
+ arch/arc/Kconfig                          |   1 -
+ arch/arc/include/asm/segment.h            |  20 ----
+ arch/arc/include/asm/thread_info.h        |   3 -
+ arch/arc/include/asm/uaccess.h            |  30 -----
+ arch/arm/include/asm/uaccess.h            |  22 +---
+ arch/arm/kernel/swp_emulate.c             |   2 +-
+ arch/arm/kernel/traps.c                   |   2 +-
+ arch/arm/lib/uaccess_with_memcpy.c        |  10 --
+ arch/arm64/include/asm/uaccess.h          |  29 +----
+ arch/csky/Kconfig                         |   1 -
+ arch/csky/include/asm/processor.h         |   2 -
+ arch/csky/include/asm/segment.h           |  10 --
+ arch/csky/include/asm/thread_info.h       |   2 -
+ arch/csky/include/asm/uaccess.h           |  12 --
+ arch/csky/kernel/asm-offsets.c            |   1 -
+ arch/csky/kernel/signal.c                 |   2 +-
+ arch/h8300/Kconfig                        |   1 -
+ arch/h8300/include/asm/processor.h        |   1 -
+ arch/h8300/include/asm/segment.h          |  40 -------
+ arch/h8300/include/asm/thread_info.h      |   3 -
+ arch/h8300/kernel/entry.S                 |   1 -
+ arch/h8300/kernel/head_ram.S              |   1 -
+ arch/h8300/mm/init.c                      |   6 -
+ arch/h8300/mm/memory.c                    |   1 -
+ arch/hexagon/Kconfig                      |   1 -
+ arch/hexagon/include/asm/thread_info.h    |   6 -
+ arch/hexagon/include/asm/uaccess.h        |  25 ----
+ arch/hexagon/kernel/process.c             |   1 -
+ arch/ia64/Kconfig                         |   1 -
+ arch/ia64/include/asm/processor.h         |   4 -
+ arch/ia64/include/asm/thread_info.h       |   2 -
+ arch/ia64/include/asm/uaccess.h           |  26 ++---
+ arch/ia64/kernel/unaligned.c              |  60 ++++++----
+ arch/m68k/include/asm/uaccess.h           |  14 +--
+ arch/microblaze/Kconfig                   |   1 -
+ arch/microblaze/include/asm/thread_info.h |   6 -
+ arch/microblaze/include/asm/uaccess.h     |  43 +------
+ arch/microblaze/kernel/asm-offsets.c      |   1 -
+ arch/microblaze/kernel/process.c          |   1 -
+ arch/mips/include/asm/uaccess.h           |  47 +-------
+ arch/nds32/Kconfig                        |   1 -
+ arch/nds32/include/asm/thread_info.h      |   4 -
+ arch/nds32/include/asm/uaccess.h          |  40 +++----
+ arch/nds32/kernel/process.c               |   5 +-
+ arch/nds32/mm/alignment.c                 |   3 -
+ arch/nios2/Kconfig                        |   1 -
+ arch/nios2/include/asm/thread_info.h      |   9 --
+ arch/nios2/include/asm/uaccess.h          |  23 +---
+ arch/nios2/kernel/signal.c                |  20 ++--
+ arch/openrisc/Kconfig                     |   1 -
+ arch/openrisc/include/asm/thread_info.h   |   7 --
+ arch/openrisc/include/asm/uaccess.h       |  42 +------
+ arch/parisc/include/asm/futex.h           |   2 +-
+ arch/parisc/include/asm/uaccess.h         |  11 +-
+ arch/parisc/lib/memcpy.c                  |   2 +-
+ arch/powerpc/include/asm/uaccess.h        |  13 +--
+ arch/powerpc/lib/sstep.c                  |   4 +-
+ arch/riscv/include/asm/uaccess.h          |  33 +-----
+ arch/riscv/kernel/perf_callchain.c        |   2 +-
+ arch/s390/include/asm/uaccess.h           |  13 +--
+ arch/sh/Kconfig                           |   1 -
+ arch/sh/include/asm/processor.h           |   1 -
+ arch/sh/include/asm/segment.h             |  33 ------
+ arch/sh/include/asm/thread_info.h         |   2 -
+ arch/sh/include/asm/uaccess.h             |  24 +---
+ arch/sh/kernel/io_trapped.c               |   9 +-
+ arch/sh/kernel/process_32.c               |   2 -
+ arch/sh/kernel/traps_32.c                 |  30 +++--
+ arch/sparc/Kconfig                        |   1 -
+ arch/sparc/include/asm/processor_32.h     |   6 -
+ arch/sparc/include/asm/processor_64.h     |   4 -
+ arch/sparc/include/asm/switch_to_64.h     |   4 +-
+ arch/sparc/include/asm/thread_info_64.h   |   4 +-
+ arch/sparc/include/asm/uaccess.h          |   3 -
+ arch/sparc/include/asm/uaccess_32.h       |  31 +----
+ arch/sparc/include/asm/uaccess_64.h       | 135 +++++++++++++---------
+ arch/sparc/kernel/process_32.c            |   2 -
+ arch/sparc/kernel/process_64.c            |  12 --
+ arch/sparc/kernel/signal_32.c             |   2 +-
+ arch/sparc/kernel/traps_64.c              |   2 -
+ arch/sparc/lib/NGmemcpy.S                 |   3 +-
+ arch/sparc/mm/init_64.c                   |   3 -
+ arch/um/include/asm/uaccess.h             |   7 +-
+ arch/x86/include/asm/uaccess.h            |  44 ++-----
+ arch/xtensa/Kconfig                       |   1 -
+ arch/xtensa/include/asm/asm-uaccess.h     |  71 ------------
+ arch/xtensa/include/asm/processor.h       |   7 --
+ arch/xtensa/include/asm/thread_info.h     |   3 -
+ arch/xtensa/include/asm/uaccess.h         |  26 +----
+ arch/xtensa/kernel/asm-offsets.c          |   3 -
+ drivers/hid/uhid.c                        |   2 +-
+ drivers/scsi/sg.c                         |   5 -
+ fs/exec.c                                 |   6 -
+ include/asm-generic/access_ok.h           |  51 ++++++++
+ include/asm-generic/uaccess.h             |  46 +-------
+ include/linux/syscalls.h                  |   4 -
+ include/linux/uaccess.h                   |  59 +++-------
+ include/rdma/ib.h                         |   2 +-
+ kernel/events/callchain.c                 |   4 -
+ kernel/events/core.c                      |   3 -
+ kernel/exit.c                             |  14 ---
+ kernel/kthread.c                          |   5 -
+ kernel/stacktrace.c                       |   3 -
+ kernel/trace/bpf_trace.c                  |   4 -
+ mm/maccess.c                              | 119 -------------------
+ mm/memory.c                               |   8 --
+ net/bpfilter/bpfilter_kern.c              |   2 +-
+ 112 files changed, 315 insertions(+), 1239 deletions(-)
+ delete mode 100644 arch/arc/include/asm/segment.h
+ delete mode 100644 arch/csky/include/asm/segment.h
+ delete mode 100644 arch/h8300/include/asm/segment.h
+ delete mode 100644 arch/sh/include/asm/segment.h
+ create mode 100644 include/asm-generic/access_ok.h
 
-Thanks for taking the time to reseach and summarize the differences.
+-- 
+2.29.2
 
-> The discussion shouldn't only be about IMA vs. KEXEC_SIG kernel image
-> signature verification.  Let's try and reframe the problem a bit.
-> 
-> 1. Unify and simply the existing kexec signature verification so
-> verifying the KEXEC kernel image signature works irrespective of
-> signature type - PE, appended signature.
-> 
-> solution: enable KEXEC_SIG  (This patch set, with the above powerpc IMA
-> policy changes.)
-> 
-> 2. Measure and include the kexec kernel image in a log for attestation,
-> if desired.
-> 
-> solution: enable IMA_ARCH_POLICY 
-> - Powerpc: requires trusted boot to be enabled.
-> - EFI:   requires  secure boot to be enabled.  The IMA efi policy
-> doesn't differentiate between secure and trusted boot.
-> 
-> 3. Carry the kexec kernel image measurement across kexec, if desired
-> and supported on the architecture.
-> 
-> solution: enable IMA_KEXEC
-> 
-> Comparison: 
-> - Are there any differences between IMA vs. KEXEC_SIG measuring the
-> kexec kernel image?
-> 
-> One of the main differences is "what" is included in the measurement
-> list differs.  In both cases, the 'd-ng' field of the IMA measurement
-> list template (e.g. ima-ng, ima-sig, ima-modsig) is the full file hash
-> including the appended signature.  With IMA and the 'ima-modsig'
-> template, an additional hash without the appended signature is defined,
-> as well as including the appended signature in the 'sig' field.
-> 
-> Including the file hash and appended signature in the measurement list
-> allows an attestation server, for example, to verify the appended
-> signature without having to know the file hash without the signature.
-
-I don't understand this part. Isn't the hash *with* signature always
-included, and the distinguishing part about IMA is the hash *without*
-signature which is the same irrespective of signature type (PE, appended
-xattr) and irrespective of the keyt used for signoing?
-
-> Other differences are already included in the Kconfig KEXEC_SIG "Notes"
-> section.
-
-Which besides what is already described above would be blacklisting
-specific binaries, which is much more effective if you have hashes of
-binaries without signature.
-
-Thanks
-
-Michal
+Cc: linux@armlinux.org.uk
+Cc: will@kernel.org
+Cc: guoren@kernel.org
+Cc: bcain@codeaurora.org
+Cc: geert@linux-m68k.org
+Cc: monstr@monstr.eu
+Cc: tsbogend@alpha.franken.de
+Cc: nickhu@andestech.com
+Cc: green.hu@gmail.com
+Cc: dinguyen@kernel.org
+Cc: shorne@gmail.com
+Cc: deller@gmx.de
+Cc: mpe@ellerman.id.au
+Cc: peterz@infradead.org
+Cc: mingo@redhat.com
+Cc: mark.rutland@arm.com
+Cc: hca@linux.ibm.com
+Cc: dalias@libc.org
+Cc: davem@davemloft.net
+Cc: richard@nod.at
+Cc: x86@kernel.org
+Cc: jcmvbkbc@gmail.com
+Cc: ebiederm@xmission.com
+Cc: arnd@arndb.de
+Cc: akpm@linux-foundation.org
+Cc: ardb@kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-alpha@vger.kernel.org
+Cc: linux-snps-arc@lists.infradead.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-csky@vger.kernel.org
+Cc: linux-hexagon@vger.kernel.org
+Cc: linux-ia64@vger.kernel.org
+Cc: linux-m68k@lists.linux-m68k.org
+Cc: linux-mips@vger.kernel.org
+Cc: openrisc@lists.librecores.org
+Cc: linux-parisc@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-riscv@lists.infradead.org
+Cc: linux-s390@vger.kernel.org
+Cc: linux-sh@vger.kernel.org
+Cc: sparclinux@vger.kernel.org
+Cc: linux-um@lists.infradead.org
+Cc: linux-xtensa@linux-xtensa.org
+Cc: linux-arch@vger.kernel.org
+Cc: linux-mm@kvack.org
