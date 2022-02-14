@@ -2,102 +2,129 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46B47C433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Feb 2022 20:17:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D65D1C433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 14 Feb 2022 20:45:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229847AbiBNURy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 14 Feb 2022 15:17:54 -0500
-Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:56444 "EHLO
+        id S229624AbiBNUps (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 14 Feb 2022 15:45:48 -0500
+Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:37990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229823AbiBNURx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Feb 2022 15:17:53 -0500
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20A4A192B2;
-        Mon, 14 Feb 2022 12:17:36 -0800 (PST)
-Received: by verein.lst.de (Postfix, from userid 2407)
-        id 2A25C68AA6; Mon, 14 Feb 2022 21:00:11 +0100 (CET)
-Date:   Mon, 14 Feb 2022 21:00:11 +0100
-From:   Christoph Hellwig <hch@lst.de>
-To:     Arnd Bergmann <arnd@kernel.org>
-Cc:     Christoph Hellwig <hch@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Christoph Hellwig <hch@lst.de>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        Linux-MM <linux-mm@kvack.org>,
-        Linux API <linux-api@vger.kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org,
-        Linux-sh list <linux-sh@vger.kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        Will Deacon <will@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Brian Cain <bcain@codeaurora.org>,
-        Helge Deller <deller@gmx.de>,
-        the arch/x86 maintainers <x86@kernel.org>,
-        Russell King - ARM Linux <linux@armlinux.org.uk>,
-        linux-csky@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        "open list:SYNOPSYS ARC ARCHITECTURE" 
-        <linux-snps-arc@lists.infradead.org>,
-        "open list:TENSILICA XTENSA PORT (xtensa)" 
-        <linux-xtensa@linux-xtensa.org>,
+        with ESMTP id S229639AbiBNUp3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Feb 2022 15:45:29 -0500
+Received: from angie.orcam.me.uk (angie.orcam.me.uk [IPv6:2001:4190:8020::34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2851524287C;
+        Mon, 14 Feb 2022 12:42:47 -0800 (PST)
+Received: by angie.orcam.me.uk (Postfix, from userid 500)
+        id 2C98292009E; Mon, 14 Feb 2022 21:42:05 +0100 (CET)
+Received: from localhost (localhost [127.0.0.1])
+        by angie.orcam.me.uk (Postfix) with ESMTP id 221CC92009D;
+        Mon, 14 Feb 2022 20:42:05 +0000 (GMT)
+Date:   Mon, 14 Feb 2022 20:42:05 +0000 (GMT)
+From:   "Maciej W. Rozycki" <macro@orcam.me.uk>
+To:     Niklas Schnelle <schnelle@linux.ibm.com>
+cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
         Heiko Carstens <hca@linux.ibm.com>,
-        alpha <linux-alpha@vger.kernel.org>,
-        linux-um <linux-um@lists.infradead.org>,
-        linux-m68k <linux-m68k@lists.linux-m68k.org>,
-        Openrisc <openrisc@lists.librecores.org>,
-        Greentime Hu <green.hu@gmail.com>,
-        Stafford Horne <shorne@gmail.com>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        Nick Hu <nickhu@andestech.com>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Jeff Dike <jdike@addtoit.com>,
         Richard Weinberger <richard@nod.at>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        David Miller <davem@davemloft.net>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Subject: Re: [PATCH 04/14] x86: use more conventional access_ok() definition
-Message-ID: <20220214200011.GA3786@lst.de>
-References: <20220214163452.1568807-1-arnd@kernel.org> <20220214163452.1568807-5-arnd@kernel.org> <YgqLFYqIqkIsNC92@infradead.org> <CAK8P3a1F3JaYaJPy9bSCG1+YV6EN05PE0DbwpD_GT1qRwFSJ-w@mail.gmail.com>
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Chris Zankel <chris@zankel.net>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] parport_pc: Also enable driver for PCI systems
+In-Reply-To: <624931c5da90387324a97be57745b13af4738bda.camel@linux.ibm.com>
+Message-ID: <alpine.DEB.2.21.2202142018060.34636@angie.orcam.me.uk>
+References: <alpine.DEB.2.21.2202122313460.34636@angie.orcam.me.uk>  <CAMuHMdW-utcFzCZTgqONjxs=U662nF0=aBQu7Zi7FBQouwiA3g@mail.gmail.com>  <alpine.DEB.2.21.2202140833290.34636@angie.orcam.me.uk>
+ <624931c5da90387324a97be57745b13af4738bda.camel@linux.ibm.com>
+User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAK8P3a1F3JaYaJPy9bSCG1+YV6EN05PE0DbwpD_GT1qRwFSJ-w@mail.gmail.com>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Feb 14, 2022 at 08:45:52PM +0100, Arnd Bergmann wrote:
-> As Al pointed out, they turned out to be necessary on sparc64, but the only
-> definitions are on sparc64 and x86, so it's possible that they serve a similar
-> purpose here, in which case changing the limit from TASK_SIZE to
-> TASK_SIZE_MAX is probably wrong as well.
+On Mon, 14 Feb 2022, Niklas Schnelle wrote:
+
+> > While older versions of the driver did have to be explicitly configured 
+> > for MMIO rather than port I/O, a feature added with commit e89a2cfb7d7b 
+> > ("[TC] defxx: TURBOchannel support"), the driver has been improved with 
+> > commit 795e272e5474 ("FDDI: defxx: Implement dynamic CSR I/O address space 
+> > selection") and the selection of the I/O space to use now fully automatic.
 > 
-> So either I need to revert the original definition as I did on sparc64, or
-> they can be removed completely. Hopefully Al or the x86 maintainers
-> can clarify.
+> Very interesting and thanks for the input! On s390 we really only have
+> very few different PCI devices and I can only test another hand full
+> with my private x86 and ARM systems.
 
-Looking at the x86 users I think:
+ Note that for TURBOchannel support, which is likewise MMIO only, the 
+driver has this:
 
- - valid_user_frame should go away and the caller should use get_user
-   instead of __get_user
- - the one in copy_code can just go away, as there is another check
-   in copy_from_user_nmi
- - copy_stack_frame should just use access_ok
- - as does copy_from_user_nmi
+#if defined(CONFIG_EISA) || defined(CONFIG_PCI)
+#define dfx_use_mmio bp->mmio
+#else
+#define dfx_use_mmio true
+#endif
 
-but yes, having someone who actually knows this code look over it
-would be very helpful.
+so if your proposal to add HAS_IOPORT goes forward it'll be enough if we 
+update the condition to:
+
+#if defined(CONFIG_HAS_IOPORT)
+
+or maybe even rewrite the entire piece as:
+
+#define dfx_use_mmio (!IS_ENABLED(CONFIG_HAS_IOPORT) || bp->mmio)
+
+and all the port I/O stuff will be optimised away by the compiler.  The 
+only part of the driver that actually cannot do without port I/O is EISA 
+support, which uses the EISA slot port I/O space for BAR accesses even 
+if the actual CSR block has been set up to be decoded in the MMIO space.
+
+> >  Then what about the other FDDI driver there, SKFP?  It's not marked as
+> > LEGACY_PCI, although it's not selectable anyway due to the dependency of 
+> > FDDI on LEGACY_PCI.
+> > 
+> >  Niklas, what was the criterion for placing the LEGACY_PCI dependency?
+> 
+> Hmm, honestly I haven't really worked on this recently. There were some
+> open questions from Bjorn towards Arnd and I was waiting for his reply
+> but I guess he missed those. I think what you noticed was the main
+> problem, there wasn't really a clear set of criteria for LEGACY_PCI and
+> even for HAS_IOPORT we missed some uses if they were not compiled on
+> s390's allyesconfig due to other dependencies.
+
+ A dynamic boolean variable might be good having for platforms which may 
+or may not have PCI port I/O available depending on the specific system 
+model in addition to a compile-time constant of HAS_IOPORT.  I looked 
+into it briefly in the context of the POWER9 system when I got it back 
+in 2020, but figured out it wasn't straightforward enough and decided I 
+could not afford the time for a proper investigation.
+
+> >  Also do you plan to post an updated series anytime soon?  I'm asking 
+> > because like with the m68k port also the MIPS one needs a more finegrained 
+> > approach and I suspect there may be other corner cases and I'd rather look 
+> > at the most recent version of your series.  Otherwise I'll have a look 
+> > through your original submission, but it may have to wait until the next 
+> > weekend due to my other commitments.
+> 
+> That sounds like you do see a need for something like HAS_IOPORT too,
+> correct? Maybe with some input what you need and possibly stripping the
+> LEGACY_PCI option it might make sense to do a new version. Rather than
+> possibly getting in your way could directly work in your input.
+
+ Yes, it does seem to me like a good direction, but will surely require 
+some coordination from platform and driver maintainers, as it's not 
+always easy for someone not familiar with a specific piece what the 
+context is (such as with the defxx driver as I noted above).
+
+  Maciej
