@@ -2,305 +2,203 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C892BC433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Feb 2022 11:18:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF540C4167B
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Feb 2022 11:24:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237030AbiBOLSa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Feb 2022 06:18:30 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:39466 "EHLO
+        id S237126AbiBOLYx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Feb 2022 06:24:53 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236988AbiBOLS3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Feb 2022 06:18:29 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03F42107D0A;
-        Tue, 15 Feb 2022 03:18:20 -0800 (PST)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21FArYKp025895;
-        Tue, 15 Feb 2022 11:18:19 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=GGM9upgp0UOt2V4XyedxcgkQATuRzYV+EU7siHZoo3M=;
- b=JtsgrUt5Fay1eDYWA6nrwvo76xCr50B57xcNVUwR1CrWq4HwTbc6C3SKiQaHRMV5xuwY
- +6XCT+7g0BUwLpGOfcBI7EvlNGjxCNOiSxbadEGbPuNWY/Pj9RPZGYOyQMNaodsb4dHs
- G60+c8/e4XKAbwsRzHK+8R1wXHUgS4RrGocNSg3dVhfG5OdpuNxwq+QeWUeVQg0X4zvj
- KfZThwRJ08EsRF5MJu4ifbsy5kJYfzqBYnXPunTYTSjf/CGhWnhNPahhylP5El6uqI6G
- DEP2wY3+YThwgNyxmC84nurCdGeV4k9v0F+iVlFCyWV56fSZEHT+1ZmPtFjKjrldCzKx rg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3e8ats8ghu-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Feb 2022 11:18:19 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21FB62bT006352;
-        Tue, 15 Feb 2022 11:18:19 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3e8ats8ghc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Feb 2022 11:18:19 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21FBBxBS025189;
-        Tue, 15 Feb 2022 11:18:16 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma03fra.de.ibm.com with ESMTP id 3e64h9w66n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Feb 2022 11:18:16 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21FBIDvs48890298
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 15 Feb 2022 11:18:13 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5E8F111C06E;
-        Tue, 15 Feb 2022 11:18:13 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F05D911C05C;
-        Tue, 15 Feb 2022 11:18:12 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.145.2.54])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 15 Feb 2022 11:18:12 +0000 (GMT)
-Date:   Tue, 15 Feb 2022 12:18:10 +0100
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Pierre Morel <pmorel@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, frankja@linux.ibm.com,
-        thuth@redhat.com, kvm@vger.kernel.org, cohuck@redhat.com,
-        david@redhat.com, nrb@linux.ibm.com
-Subject: Re: [kvm-unit-tests PATCH v4 2/4] s390x: stsi: Define vm_is_kvm to
- be used in different tests
-Message-ID: <20220215121810.4e6cc5be@p-imbrenda>
-In-Reply-To: <20220208132709.48291-3-pmorel@linux.ibm.com>
-References: <20220208132709.48291-1-pmorel@linux.ibm.com>
-        <20220208132709.48291-3-pmorel@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        with ESMTP id S237117AbiBOLYv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Feb 2022 06:24:51 -0500
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3865B108766;
+        Tue, 15 Feb 2022 03:24:37 -0800 (PST)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id DF7F21476;
+        Tue, 15 Feb 2022 03:24:36 -0800 (PST)
+Received: from FVFF77S0Q05N (unknown [10.57.89.144])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 160403F718;
+        Tue, 15 Feb 2022 03:24:29 -0800 (PST)
+Date:   Tue, 15 Feb 2022 11:24:26 +0000
+From:   Mark Rutland <mark.rutland@arm.com>
+To:     David Laight <David.Laight@ACULAB.COM>
+Cc:     'Ard Biesheuvel' <ardb@kernel.org>,
+        Arnd Bergmann <arnd@kernel.org>, Rich Felker <dalias@libc.org>,
+        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
+        "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "open list:MIPS" <linux-mips@vger.kernel.org>,
+        Linux Memory Management List <linux-mm@kvack.org>,
+        Guo Ren <guoren@kernel.org>,
+        "open list:SPARC + UltraSPARC (sparc/sparc64)" 
+        <sparclinux@vger.kernel.org>,
+        "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        Will Deacon <will@kernel.org>, Christoph Hellwig <hch@lst.de>,
+        linux-arch <linux-arch@vger.kernel.org>,
+        "open list:S390" <linux-s390@vger.kernel.org>,
+        Brian Cain <bcain@codeaurora.org>,
+        Helge Deller <deller@gmx.de>, X86 ML <x86@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        "linux-snps-arc@lists.infradead.org" 
+        <linux-snps-arc@lists.infradead.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        "open list:TENSILICA XTENSA PORT (xtensa)" 
+        <linux-xtensa@linux-xtensa.org>, Arnd Bergmann <arnd@arndb.de>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        alpha <linux-alpha@vger.kernel.org>,
+        linux-um <linux-um@lists.infradead.org>,
+        "open list:LINUX FOR POWERPC (32-BIT AND 64-BIT)" 
+        <linuxppc-dev@lists.ozlabs.org>,
+        linux-m68k <linux-m68k@lists.linux-m68k.org>,
+        "openrisc@lists.librecores.org" <openrisc@lists.librecores.org>,
+        Greentime Hu <green.hu@gmail.com>,
+        Stafford Horne <shorne@gmail.com>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "monstr@monstr.eu" <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "open list:PARISC ARCHITECTURE" <linux-parisc@vger.kernel.org>,
+        Nick Hu <nickhu@andestech.com>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "dinguyen@kernel.org" <dinguyen@kernel.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Richard Weinberger <richard@nod.at>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH 08/14] arm64: simplify access_ok()
+Message-ID: <YguNamXeOtGVPyJf@FVFF77S0Q05N>
+References: <20220214163452.1568807-1-arnd@kernel.org>
+ <20220214163452.1568807-9-arnd@kernel.org>
+ <CAMj1kXHixUFjV=4m3tzfGz7AiRWc-VczymbKuZq7dyZZNuLKxQ@mail.gmail.com>
+ <153bb1887f484ed79ce8224845a4b2ea@AcuMS.aculab.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: -JEoCzpSxFW5ZOBPnYxA5_gpJkVQwzQ3
-X-Proofpoint-GUID: lLSN7EL-GPcQC_CU7hdYirN8AT8Tnauw
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-02-15_04,2022-02-14_04,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- priorityscore=1501 impostorscore=0 suspectscore=0 mlxlogscore=999
- adultscore=0 mlxscore=0 phishscore=0 spamscore=0 clxscore=1015 bulkscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2202150063
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <153bb1887f484ed79ce8224845a4b2ea@AcuMS.aculab.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue,  8 Feb 2022 14:27:07 +0100
-Pierre Morel <pmorel@linux.ibm.com> wrote:
-
-> We need in several tests to check if the VM we are running in
-> is KVM.
-> Let's add the test.
+On Tue, Feb 15, 2022 at 09:30:41AM +0000, David Laight wrote:
+> From: Ard Biesheuvel
+> > Sent: 15 February 2022 08:18
+> > 
+> > On Mon, 14 Feb 2022 at 17:37, Arnd Bergmann <arnd@kernel.org> wrote:
+> > >
+> > > From: Arnd Bergmann <arnd@arndb.de>
+> > >
+> > > arm64 has an inline asm implementation of access_ok() that is derived from
+> > > the 32-bit arm version and optimized for the case that both the limit and
+> > > the size are variable. With set_fs() gone, the limit is always constant,
+> > > and the size usually is as well, so just using the default implementation
+> > > reduces the check into a comparison against a constant that can be
+> > > scheduled by the compiler.
+> > >
+> > > On a defconfig build, this saves over 28KB of .text.
+> > >
+> > > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> > > ---
+> > >  arch/arm64/include/asm/uaccess.h | 28 +++++-----------------------
+> > >  1 file changed, 5 insertions(+), 23 deletions(-)
+> > >
+> > > diff --git a/arch/arm64/include/asm/uaccess.h b/arch/arm64/include/asm/uaccess.h
+> > > index 357f7bd9c981..e8dce0cc5eaa 100644
+> > > --- a/arch/arm64/include/asm/uaccess.h
+> > > +++ b/arch/arm64/include/asm/uaccess.h
+> > > @@ -26,6 +26,8 @@
+> > >  #include <asm/memory.h>
+> > >  #include <asm/extable.h>
+> > >
+> > > +static inline int __access_ok(const void __user *ptr, unsigned long size);
+> > > +
+> > >  /*
+> > >   * Test whether a block of memory is a valid user space address.
+> > >   * Returns 1 if the range is valid, 0 otherwise.
+> > > @@ -33,10 +35,8 @@
+> > >   * This is equivalent to the following test:
+> > >   * (u65)addr + (u65)size <= (u65)TASK_SIZE_MAX
+> > >   */
+> > > -static inline unsigned long __access_ok(const void __user *addr, unsigned long size)
+> > > +static inline int access_ok(const void __user *addr, unsigned long size)
+> > >  {
+> > > -       unsigned long ret, limit = TASK_SIZE_MAX - 1;
+> > > -
+> > >         /*
+> > >          * Asynchronous I/O running in a kernel thread does not have the
+> > >          * TIF_TAGGED_ADDR flag of the process owning the mm, so always untag
+> > > @@ -46,27 +46,9 @@ static inline unsigned long __access_ok(const void __user *addr, unsigned long s
+> > >             (current->flags & PF_KTHREAD || test_thread_flag(TIF_TAGGED_ADDR)))
+> > >                 addr = untagged_addr(addr);
+> > >
+> > > -       __chk_user_ptr(addr);
+> > > -       asm volatile(
+> > > -       // A + B <= C + 1 for all A,B,C, in four easy steps:
+> > > -       // 1: X = A + B; X' = X % 2^64
+> > > -       "       adds    %0, %3, %2\n"
+> > > -       // 2: Set C = 0 if X > 2^64, to guarantee X' > C in step 4
+> > > -       "       csel    %1, xzr, %1, hi\n"
+> > > -       // 3: Set X' = ~0 if X >= 2^64. For X == 2^64, this decrements X'
+> > > -       //    to compensate for the carry flag being set in step 4. For
+> > > -       //    X > 2^64, X' merely has to remain nonzero, which it does.
+> > > -       "       csinv   %0, %0, xzr, cc\n"
+> > > -       // 4: For X < 2^64, this gives us X' - C - 1 <= 0, where the -1
+> > > -       //    comes from the carry in being clear. Otherwise, we are
+> > > -       //    testing X' - C == 0, subject to the previous adjustments.
+> > > -       "       sbcs    xzr, %0, %1\n"
+> > > -       "       cset    %0, ls\n"
+> > > -       : "=&r" (ret), "+r" (limit) : "Ir" (size), "0" (addr) : "cc");
+> > > -
+> > > -       return ret;
+> > > +       return likely(__access_ok(addr, size));
+> > >  }
+> > > -#define __access_ok __access_ok
+> > > +#define access_ok access_ok
+> > >
+> > >  #include <asm-generic/access_ok.h>
+> > >
+> > > --
+> > > 2.29.2
+> > >
+> > 
+> > With set_fs() out of the picture, wouldn't it be sufficient to check
+> > that bit #55 is clear? (the bit that selects between TTBR0 and TTBR1)
+> > That would also remove the need to strip the tag from the address.
+> > 
+> > Something like
+> > 
+> >     asm goto("tbnz  %0, #55, %2     \n"
+> >              "tbnz  %1, #55, %2     \n"
+> >              :: "r"(addr), "r"(addr + size - 1) :: notok);
+> >     return 1;
+> > notok:
+> >     return 0;
+> > 
+> > with an additional sanity check on the size which the compiler could
+> > eliminate for compile-time constant values.
 > 
-> To check the VM type we use the STSI 3.2.2 instruction, let's
-> define it's response structure in a central header.
-> 
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> ---
->  lib/s390x/stsi.h | 32 +++++++++++++++++++++++++++
->  lib/s390x/vm.c   | 56 ++++++++++++++++++++++++++++++++++++++++++++++--
->  lib/s390x/vm.h   |  3 +++
->  s390x/stsi.c     | 23 ++------------------
->  4 files changed, 91 insertions(+), 23 deletions(-)
->  create mode 100644 lib/s390x/stsi.h
-> 
-> diff --git a/lib/s390x/stsi.h b/lib/s390x/stsi.h
-> new file mode 100644
-> index 00000000..9b40664f
-> --- /dev/null
-> +++ b/lib/s390x/stsi.h
-> @@ -0,0 +1,32 @@
-> +/* SPDX-License-Identifier: GPL-2.0-or-later */
-> +/*
-> + * Structures used to Store System Information
-> + *
-> + * Copyright IBM Corp. 2022
-> + */
-> +
-> +#ifndef _S390X_STSI_H_
-> +#define _S390X_STSI_H_
-> +
-> +struct sysinfo_3_2_2 {
-> +	uint8_t reserved[31];
-> +	uint8_t count;
-> +	struct {
-> +		uint8_t reserved2[4];
-> +		uint16_t total_cpus;
-> +		uint16_t conf_cpus;
-> +		uint16_t standby_cpus;
-> +		uint16_t reserved_cpus;
-> +		uint8_t name[8];
-> +		uint32_t caf;
-> +		uint8_t cpi[16];
-> +		uint8_t reserved5[3];
-> +		uint8_t ext_name_encoding;
-> +		uint32_t reserved3;
-> +		uint8_t uuid[16];
-> +	} vm[8];
-> +	uint8_t reserved4[1504];
-> +	uint8_t ext_names[8][256];
-> +};
-> +
-> +#endif  /* _S390X_STSI_H_ */
-> diff --git a/lib/s390x/vm.c b/lib/s390x/vm.c
-> index a5b92863..38886b76 100644
-> --- a/lib/s390x/vm.c
-> +++ b/lib/s390x/vm.c
-> @@ -12,6 +12,7 @@
->  #include <alloc_page.h>
->  #include <asm/arch_def.h>
->  #include "vm.h"
-> +#include "stsi.h"
->  
->  /**
->   * Detect whether we are running with TCG (instead of KVM)
-> @@ -26,9 +27,13 @@ bool vm_is_tcg(void)
->  	if (initialized)
->  		return is_tcg;
->  
-> -	buf = alloc_page();
-> -	if (!buf)
-> +	if (!vm_is_vm()) {
-> +		initialized = true;
->  		return false;
-> +	}
-> +
-> +	buf = alloc_page();
-> +	assert(buf);
->  
->  	if (stsi(buf, 1, 1, 1))
->  		goto out;
-> @@ -43,3 +48,50 @@ out:
->  	free_page(buf);
->  	return is_tcg;
->  }
-> +
-> +/**
-> + * Detect whether we are running with KVM
-> + */
-> +
-> +bool vm_is_kvm(void)
+> Is there are reason not to just use:
+> 	size < 1u << 48 && !((addr | (addr + size - 1)) & 1u << 55)
 
-I think this is too messy
+That has a few problems, including being an ABI change for tasks not using the
+relaxed tag ABI and not working for 52-bit VAs.
 
-I think a cleaner approach would be to have one "detect_environment"
-function to call stsi and find out which environment we are running on.
+If we really want to relax the tag checking aspect, there are simpler options,
+including variations on Ard's approach above.
 
-then the various vm_is_* would just be something like
+> Ugg, is arm64 addressing as horrid as it looks - with the 'kernel'
+> bit in the middle of the virtual address space?
 
-bool vm_is_kvm(void)
-{
-	return detect_environment() == VM_IS_KVM;
-}
+It's just sign-extension/canonical addressing, except bits [63:56] are
+configurable between a few uses, so the achitecture says bit 55 is the one to
+look at in all configurations to figure out if an address is high/low (in
+addition to checking the remaining bits are canonical).
 
-obviously the detect_environment function would call stsi only once and
-then cache the result.
-
-bonus, we could make that function public too, so e.g. a testcase could
-do a switch, instead of having to do a series of nested ifs
-
-> +{
-> +	/* EBCDIC for "KVM/" */
-> +	const uint8_t kvm_ebcdic[] = { 0xd2, 0xe5, 0xd4, 0x61 };
-> +	static bool initialized;
-> +	static bool is_kvm;
-> +	struct sysinfo_3_2_2 *stsi_322;
-> +
-> +	if (initialized)
-> +		return is_kvm;
-> +
-> +	if (!vm_is_vm() || vm_is_tcg()) {
-> +		initialized = true;
-> +		return is_kvm;
-> +	}
-> +
-> +	stsi_322 = alloc_page();
-> +	assert(stsi_322);
-> +
-> +	if (stsi(stsi_322, 3, 2, 2))
-> +		goto out;
-> +
-> +	/*
-> +	 * If the manufacturer string is "KVM/" in EBCDIC, then we
-> +	 * are on KVM.
-> +	 */
-> +	is_kvm = !memcmp(&stsi_322->vm[0].cpi, kvm_ebcdic, sizeof(kvm_ebcdic));
-> +	initialized = true;
-> +out:
-> +	free_page(stsi_322);
-> +	return is_kvm;
-> +}
-> +
-> +bool vm_is_lpar(void)
-> +{
-> +	return stsi_get_fc() == 2;
-> +}
-> +
-> +bool vm_is_vm(void)
-
-is it enough to call it vm? maybe zvm? I don't have a strong opinion,
-though
-
-> +{
-> +	return stsi_get_fc() == 3;
-> +}
-> diff --git a/lib/s390x/vm.h b/lib/s390x/vm.h
-> index 7abba0cc..3aaf76af 100644
-> --- a/lib/s390x/vm.h
-> +++ b/lib/s390x/vm.h
-> @@ -9,5 +9,8 @@
->  #define _S390X_VM_H_
->  
->  bool vm_is_tcg(void);
-> +bool vm_is_kvm(void);
-> +bool vm_is_vm(void);
-> +bool vm_is_lpar(void);
->  
->  #endif  /* _S390X_VM_H_ */
-> diff --git a/s390x/stsi.c b/s390x/stsi.c
-> index 391f8849..1ed045e2 100644
-> --- a/s390x/stsi.c
-> +++ b/s390x/stsi.c
-> @@ -13,27 +13,8 @@
->  #include <asm/asm-offsets.h>
->  #include <asm/interrupt.h>
->  #include <smp.h>
-> +#include "stsi.h"
->  
-> -struct stsi_322 {
-> -	uint8_t reserved[31];
-> -	uint8_t count;
-> -	struct {
-> -		uint8_t reserved2[4];
-> -		uint16_t total_cpus;
-> -		uint16_t conf_cpus;
-> -		uint16_t standby_cpus;
-> -		uint16_t reserved_cpus;
-> -		uint8_t name[8];
-> -		uint32_t caf;
-> -		uint8_t cpi[16];
-> -		uint8_t reserved5[3];
-> -		uint8_t ext_name_encoding;
-> -		uint32_t reserved3;
-> -		uint8_t uuid[16];
-> -	} vm[8];
-> -	uint8_t reserved4[1504];
-> -	uint8_t ext_names[8][256];
-> -};
->  static uint8_t pagebuf[PAGE_SIZE * 2] __attribute__((aligned(PAGE_SIZE * 2)));
->  
->  static void test_specs(void)
-> @@ -91,7 +72,7 @@ static void test_3_2_2(void)
->  	/* EBCDIC for "KVM/" */
->  	const uint8_t cpi_kvm[] = { 0xd2, 0xe5, 0xd4, 0x61 };
->  	const char vm_name_ext[] = "kvm-unit-test";
-> -	struct stsi_322 *data = (void *)pagebuf;
-> +	struct sysinfo_3_2_2 *data = (void *)pagebuf;
->  
->  	report_prefix_push("3.2.2");
->  
-
+Thanks,
+Mark.
