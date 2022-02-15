@@ -2,114 +2,143 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D66E5C433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Feb 2022 00:52:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 76BF3C43217
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Feb 2022 02:47:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232787AbiBOAwT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 14 Feb 2022 19:52:19 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48994 "EHLO
+        id S233732AbiBOCr0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 14 Feb 2022 21:47:26 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232804AbiBOAvj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Feb 2022 19:51:39 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50047145624;
-        Mon, 14 Feb 2022 16:51:09 -0800 (PST)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21ENG4Kf017282;
-        Tue, 15 Feb 2022 00:51:01 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=RSgTsmlZi+lR1QYv4S4YxGqvAN5AgPHUPs3Bm24XbzE=;
- b=HGgmqS6XjZtEDZGjSKmQw9TdAJJH7JTz3RMw9COVQqaLJxk1tVGY8S6RpEAu76h3OTV9
- qnI+EvEjTrLcV4nMHciNGNnxN7uKkSV/cHePaHuqgf/vq5Xx+RvaAqn2VpO1TjLtU7UM
- yQgmBwOI7kRDcRFIrFz1pZfLgT5IrtPpdDYz01LR461CB2OISXm2pmSy2+zg5sLIUNFC
- 0C8adWvV6og8pci0So7jHDf707971OIZ3NhrFzUxoPO3O57l6c0itpcSnMJ24NqrVZpL
- u5JAJQ8s1hEd7Tq5IMrZHcnZSqF122+nEigk1567SJnho+bUB3MuwdDoZLYyVvgqf/jV EQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3e785th6pf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Feb 2022 00:51:01 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21F0gfvh014155;
-        Tue, 15 Feb 2022 00:51:01 GMT
-Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3e785th6pc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Feb 2022 00:51:01 +0000
-Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
-        by ppma01dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21F0g5Oi021487;
-        Tue, 15 Feb 2022 00:51:00 GMT
-Received: from b01cxnp22033.gho.pok.ibm.com (b01cxnp22033.gho.pok.ibm.com [9.57.198.23])
-        by ppma01dal.us.ibm.com with ESMTP id 3e64hbfhtr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Feb 2022 00:51:00 +0000
-Received: from b01ledav002.gho.pok.ibm.com (b01ledav002.gho.pok.ibm.com [9.57.199.107])
-        by b01cxnp22033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21F0ox2q35520966
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 15 Feb 2022 00:50:59 GMT
-Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 04FBD124053;
-        Tue, 15 Feb 2022 00:50:59 +0000 (GMT)
-Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3460A124052;
-        Tue, 15 Feb 2022 00:50:58 +0000 (GMT)
-Received: from localhost.localdomain.com (unknown [9.160.92.58])
-        by b01ledav002.gho.pok.ibm.com (Postfix) with ESMTP;
-        Tue, 15 Feb 2022 00:50:58 +0000 (GMT)
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc:     jjherne@linux.ibm.com, freude@linux.ibm.com,
-        borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com,
-        pasic@linux.ibm.com, alex.williamson@redhat.com,
-        kwankhede@nvidia.com, fiuczy@linux.ibm.com,
-        Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v18 18/18] MAINTAINERS: pick up all vfio_ap docs for VFIO AP maintainers
-Date:   Mon, 14 Feb 2022 19:50:40 -0500
-Message-Id: <20220215005040.52697-19-akrowiak@linux.ibm.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20220215005040.52697-1-akrowiak@linux.ibm.com>
-References: <20220215005040.52697-1-akrowiak@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: BgnRGc88S4ucZvJFhB5Laz3tufIQSci8
-X-Proofpoint-ORIG-GUID: vo5-CDbKvNgn4uvFZWBgoxjGYeiNT0fb
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S229734AbiBOCrY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Feb 2022 21:47:24 -0500
+Received: from zeniv-ca.linux.org.uk (zeniv-ca.linux.org.uk [IPv6:2607:5300:60:148a::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 501913F89F;
+        Mon, 14 Feb 2022 18:47:15 -0800 (PST)
+Received: from viro by zeniv-ca.linux.org.uk with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1nJnrt-001qwH-NG; Tue, 15 Feb 2022 02:47:05 +0000
+Date:   Tue, 15 Feb 2022 02:47:05 +0000
+From:   Al Viro <viro@zeniv.linux.org.uk>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Arnd Bergmann <arnd@kernel.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Christoph Hellwig <hch@lst.de>,
+        linux-arch <linux-arch@vger.kernel.org>,
+        Linux-MM <linux-mm@kvack.org>,
+        Linux API <linux-api@vger.kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org,
+        Linux-sh list <linux-sh@vger.kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        Will Deacon <will@kernel.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Brian Cain <bcain@codeaurora.org>,
+        Helge Deller <deller@gmx.de>,
+        the arch/x86 maintainers <x86@kernel.org>,
+        Russell King - ARM Linux <linux@armlinux.org.uk>,
+        linux-csky@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        "open list:SYNOPSYS ARC ARCHITECTURE" 
+        <linux-snps-arc@lists.infradead.org>,
+        "open list:TENSILICA XTENSA PORT (xtensa)" 
+        <linux-xtensa@linux-xtensa.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        alpha <linux-alpha@vger.kernel.org>,
+        linux-um <linux-um@lists.infradead.org>,
+        linux-m68k <linux-m68k@lists.linux-m68k.org>,
+        Openrisc <openrisc@lists.librecores.org>,
+        Greentime Hu <green.hu@gmail.com>,
+        Stafford Horne <shorne@gmail.com>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        Nick Hu <nickhu@andestech.com>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        Richard Weinberger <richard@nod.at>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        David Miller <davem@davemloft.net>
+Subject: Re: [PATCH 04/14] x86: use more conventional access_ok() definition
+Message-ID: <YgsUKcXGR7r4nINj@zeniv-ca.linux.org.uk>
+References: <20220214163452.1568807-1-arnd@kernel.org>
+ <20220214163452.1568807-5-arnd@kernel.org>
+ <YgqLFYqIqkIsNC92@infradead.org>
+ <CAK8P3a1F3JaYaJPy9bSCG1+YV6EN05PE0DbwpD_GT1qRwFSJ-w@mail.gmail.com>
+ <CAHk-=whq6_Nh3cB3FieP481VcRyCu69X3=wO1yLHGmcZEj69SA@mail.gmail.com>
+ <Ygq4wy9fikDYmuHU@zeniv-ca.linux.org.uk>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-02-14_07,2022-02-14_03,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=979
- malwarescore=0 adultscore=0 lowpriorityscore=0 clxscore=1015
- impostorscore=0 priorityscore=1501 bulkscore=0 suspectscore=0 spamscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2202150001
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Ygq4wy9fikDYmuHU@zeniv-ca.linux.org.uk>
+Sender: Al Viro <viro@ftp.linux.org.uk>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-A new document, Documentation/s390/vfio-ap-locking.rst was added. Make sure
-the new document is picked up for the VFIO AP maintainers by using a
-wildcard: Documentation/s390/vfio-ap*.
+On Mon, Feb 14, 2022 at 08:17:07PM +0000, Al Viro wrote:
+> On Mon, Feb 14, 2022 at 12:01:05PM -0800, Linus Torvalds wrote:
+> > On Mon, Feb 14, 2022 at 11:46 AM Arnd Bergmann <arnd@kernel.org> wrote:
+> > >
+> > > As Al pointed out, they turned out to be necessary on sparc64, but the only
+> > > definitions are on sparc64 and x86, so it's possible that they serve a similar
+> > > purpose here, in which case changing the limit from TASK_SIZE to
+> > > TASK_SIZE_MAX is probably wrong as well.
+> > 
+> > x86-64 has always(*) used TASK_SIZE_MAX for access_ok(), and the
+> > get_user() assembler implementation does the same.
+> > 
+> > I think any __range_not_ok() users that use TASK_SIZE are entirely
+> > historical, and should be just fixed.
+> 
+> IIRC, that was mostly userland stack trace collection in perf.
+> I'll try to dig in archives and see what shows up - it's been
+> a while ago...
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
----
- MAINTAINERS | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+After some digging:
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index fca970a46e77..ece0968f9fa4 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -16908,7 +16908,7 @@ M:	Jason Herne <jjherne@linux.ibm.com>
- L:	linux-s390@vger.kernel.org
- S:	Supported
- W:	http://www.ibm.com/developerworks/linux/linux390/
--F:	Documentation/s390/vfio-ap.rst
-+F:	Documentation/s390/vfio-ap*
- F:	drivers/s390/crypto/vfio_ap_drv.c
- F:	drivers/s390/crypto/vfio_ap_ops.c
- F:	drivers/s390/crypto/vfio_ap_private.h
--- 
-2.31.1
+	access_ok() needs only to make sure that MMU won't go anywhere near
+the kernel page tables; address limit for 32bit threads is none of its
+concern, so TASK_SIZE_MAX is right for it.
 
+	valid_user_frame() in arch/x86/events/core.c: used while walking
+the userland call chain.  The reason it's not access_ok() is only that
+perf_callchain_user() might've been called from interrupt that came while
+we'd been under KERNEL_DS.
+	That had been back in 2015 and it had been obsoleted since 2017, commit
+88b0193d9418 (perf/callchain: Force USER_DS when invoking perf_callchain_user()).
+We had been guaranteed USER_DS ever since.
+	IOW, it could've reverted to use of access_ok() at any point after that.
+TASK_SIZE vs TASK_SIZE_MAX is pretty much an accident there - might've been
+TASK_SIZE_MAX from the very beginning.
+
+	copy_stack_frame() in arch/x86/kernel/stacktrace.c: similar story,
+except the commit that made sure callers will have USER_DS - cac9b9a4b083
+(stacktrace: Force USER_DS for stack_trace_save_user()) in this case.
+Also could've been using access_ok() just fine.  Amusingly, access_ok()
+used to be there, until it had been replaced with explicit check on
+Jul 22 2019 - 4 days after that had been made useless by fix in the caller...
+
+	copy_from_user_nmi().  That one is a bit more interesting.
+We have a call chain from perf_output_sample_ustack() (covered by
+force_uaccess_begin() these days, not that it mattered for x86 now),
+there's something odd in dumpstack.c:copy_code() (with explicit check
+for TASK_SIZE_MAX in the caller) and there's a couple of callers in
+Intel PMU code.
+	AFAICS, there's no reason whatsoever to use TASK_SIZE
+in that one - the point is to prevent copyin from the kernel
+memory, and in that respect TASK_SIZE_MAX isn't any worse.
+The check in copy_code() probably should go.
+
+	So all of those guys should be simply switched to access_ok().
+Might be worth making that a preliminary patch - it's independent
+from everything else and there's no point folding it into any of the
+patches in the series.
