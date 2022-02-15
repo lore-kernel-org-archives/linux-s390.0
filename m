@@ -2,129 +2,149 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CBEDFC4321E
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Feb 2022 09:18:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55836C433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Feb 2022 09:19:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235769AbiBOJSo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Feb 2022 04:18:44 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:52748 "EHLO
+        id S234445AbiBOJTt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Feb 2022 04:19:49 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:55930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233971AbiBOJSn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Feb 2022 04:18:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F42122BB38;
-        Tue, 15 Feb 2022 01:18:33 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 92A0F60A6B;
-        Tue, 15 Feb 2022 09:18:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04120C340F8;
-        Tue, 15 Feb 2022 09:18:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644916713;
-        bh=auvbexz8OfCE17jezkrwExlxQUSMdLXG0OAD2bmLs8A=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=R1Pf445AMn7iEf0TcHJGtZqUinPVYRIlRYIhUK+pqFhNMydlmGdLOnDcwqdoOpcxv
-         rM+QtlC5MX40dddlY60U1EemOtvK01KeP4rBm30AWnHXp/wG3B2AqNZ0rlunLaOMbW
-         tr7Vs0w/mpIoN0XApZa80K1xHxowMUZXp7dP4/BbBM9W+v5sudL1uLbQT49sSxdXFp
-         TQxXAYDRaUN8F2rMT1u+N/nJuunLdz+VObtLisWpW965HLfjJNrl621lEvA4NBgly+
-         FEKN2xUIJ9o0fBCy3UJA1PmxKT+NsxLFmCAClaf0u/3M6fW1/dPCwNdFwRQIJqLuEw
-         iPMY1EoXY49Bg==
-Received: by mail-wr1-f46.google.com with SMTP id s10so17421685wrb.1;
-        Tue, 15 Feb 2022 01:18:32 -0800 (PST)
-X-Gm-Message-State: AOAM533GmPZgCwmwAponTxUPmfUNvcd9k2G4x9rqSFqZv81DGsq2BSDd
-        EvJ7IlR2rzNgXgHbmDTYe2rPYNGK+wNOWr6l66A=
-X-Google-Smtp-Source: ABdhPJytLoTfipZUwnG73E442/QjIxHnERGjQ2aeR9o7LjnpbatwjsLI+Mk7641j6VpHXtVWtwvDTIufUdUsOw5At+o=
-X-Received: by 2002:a5d:5446:: with SMTP id w6mr2390801wrv.12.1644916711299;
- Tue, 15 Feb 2022 01:18:31 -0800 (PST)
+        with ESMTP id S231371AbiBOJTs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Feb 2022 04:19:48 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 315752CCA7;
+        Tue, 15 Feb 2022 01:19:39 -0800 (PST)
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21F8IX4m022469;
+        Tue, 15 Feb 2022 09:19:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : from : to : cc : references : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=uC5XYw6ejz93NnnrjYQXR31cZYiOKzP4B+EfZHcbpJs=;
+ b=bTSoXD4wlj2+Py+FyKdSqQoiRV/Kt/ba3b23g1qF+Kyb2DlPuA77m2hgpUk+ADVf4uKp
+ fbidkRSANZTj2Kpu4+q/1Gwuy3NWpEQlztXJpf8zhy9F3jIRPUAsKflu8lAmI3I1PgHU
+ DE/6n0S0VOhj3wzReHy3ozpIltFrLK/4fTWzA2bKiPAWZNacVTG2HWS5+SRYGho/sQv9
+ qF9kOSKmt7olEwO+8KrdDekkfSXqg0FPJbzJQzvsP7rUSeItJo4m9vclF8Hz1o4Ot8BD
+ udD0u7egbVdFfOmbyXW8BJPBcZ+ZQDkXv6SBQXuiXlH2znTK7K5w5ST/Dit11SipBaJr KA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3e85y44q21-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Feb 2022 09:19:38 +0000
+Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21F8WXYe020994;
+        Tue, 15 Feb 2022 09:19:37 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3e85y44q1h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Feb 2022 09:19:37 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21F9IHsq010437;
+        Tue, 15 Feb 2022 09:19:36 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma04ams.nl.ibm.com with ESMTP id 3e64h9vwh9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Feb 2022 09:19:36 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21F9JWwE46924126
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 15 Feb 2022 09:19:32 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D2428A405F;
+        Tue, 15 Feb 2022 09:19:32 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6D237A4054;
+        Tue, 15 Feb 2022 09:19:32 +0000 (GMT)
+Received: from [9.171.31.140] (unknown [9.171.31.140])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 15 Feb 2022 09:19:32 +0000 (GMT)
+Message-ID: <72d2bb5a-c0aa-6136-0900-58a0474334d9@linux.ibm.com>
+Date:   Tue, 15 Feb 2022 10:21:45 +0100
 MIME-Version: 1.0
-References: <20220214163452.1568807-1-arnd@kernel.org> <20220214163452.1568807-4-arnd@kernel.org>
- <YgqK1ihlJvRFHJ9h@infradead.org>
-In-Reply-To: <YgqK1ihlJvRFHJ9h@infradead.org>
-From:   Arnd Bergmann <arnd@kernel.org>
-Date:   Tue, 15 Feb 2022 10:18:15 +0100
-X-Gmail-Original-Message-ID: <CAK8P3a1XkWNQcFEhJQ0+qWzih1YRQDS_N8xiosN7FHn3yoTJpQ@mail.gmail.com>
-Message-ID: <CAK8P3a1XkWNQcFEhJQ0+qWzih1YRQDS_N8xiosN7FHn3yoTJpQ@mail.gmail.com>
-Subject: Re: [PATCH 03/14] nds32: fix access_ok() checks in get/put_user
-To:     Christoph Hellwig <hch@infradead.org>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Christoph Hellwig <hch@lst.de>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        Linux-MM <linux-mm@kvack.org>,
-        Linux API <linux-api@vger.kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org,
-        Linux-sh list <linux-sh@vger.kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        Will Deacon <will@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Brian Cain <bcain@codeaurora.org>,
-        Helge Deller <deller@gmx.de>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Russell King - ARM Linux <linux@armlinux.org.uk>,
-        linux-csky@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        "open list:SYNOPSYS ARC ARCHITECTURE" 
-        <linux-snps-arc@lists.infradead.org>,
-        "open list:TENSILICA XTENSA PORT (xtensa)" 
-        <linux-xtensa@linux-xtensa.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        alpha <linux-alpha@vger.kernel.org>,
-        linux-um <linux-um@lists.infradead.org>,
-        linux-m68k <linux-m68k@lists.linux-m68k.org>,
-        Openrisc <openrisc@lists.librecores.org>,
-        Greentime Hu <green.hu@gmail.com>,
-        Stafford Horne <shorne@gmail.com>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        Nick Hu <nickhu@andestech.com>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Richard Weinberger <richard@nod.at>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        David Miller <davem@davemloft.net>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [kvm-unit-tests PATCH v4 3/4] s390x: topology: Check the Perform
+ Topology Function
+Content-Language: en-US
+From:   Pierre Morel <pmorel@linux.ibm.com>
+To:     Nico Boehr <nrb@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
+        cohuck@redhat.com, imbrenda@linux.ibm.com, david@redhat.com
+References: <20220208132709.48291-1-pmorel@linux.ibm.com>
+ <20220208132709.48291-4-pmorel@linux.ibm.com>
+ <8dd704d23f8a14907ed2a7f28ec3ac52685ab96c.camel@linux.ibm.com>
+ <c2dfd5c7-2602-e780-1f2b-402bff3c7c00@linux.ibm.com>
+In-Reply-To: <c2dfd5c7-2602-e780-1f2b-402bff3c7c00@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: ZpGNKDpeLSco7mZuGn266mwc2gEzM2EM
+X-Proofpoint-GUID: GvsfwB1ZsLjqMF3bKhi4WxdYNM3BBYEl
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-02-15_03,2022-02-14_04,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 adultscore=0 suspectscore=0 mlxscore=0
+ priorityscore=1501 mlxlogscore=999 impostorscore=0 clxscore=1015
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2202150052
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Feb 14, 2022 at 6:01 PM Christoph Hellwig <hch@infradead.org> wrote:
->
-> On Mon, Feb 14, 2022 at 05:34:41PM +0100, Arnd Bergmann wrote:
-> > From: Arnd Bergmann <arnd@arndb.de>
-> >
-> > The get_user()/put_user() functions are meant to check for
-> > access_ok(), while the __get_user()/__put_user() functions
-> > don't.
-> >
-> > This broke in 4.19 for nds32, when it gained an extraneous
-> > check in __get_user(), but lost the check it needs in
-> > __put_user().
->
-> Can we follow the lead of MIPS (which this was originally copied
-> from I think) and kill the pointless __get/put_user_check wrapper
-> that just obsfucate the code?
 
-I had another look, but I think that would be a bigger change than
-I want to have in a fix for stable backports, as nds32 also uses
-the _check versions in __{get,put}_user_error.
 
-If we instead clean it up in a separate patch, it should be done for
-all eight architectures that do the same thing, but at that point,
-the time seems better spent at coming up with a new set of
-calling conventions that work with asm-goto.
+On 2/15/22 09:50, Pierre Morel wrote:
+> 
+> 
+> On 2/9/22 12:37, Nico Boehr wrote:
+>> On Tue, 2022-02-08 at 14:27 +0100, Pierre Morel wrote:
+>>> We check the PTF instruction.
+>>
+>> You could test some very basic things as well:
+>>
+>> - you get a privileged pgm int in problem state,
+>> - reserved bits in first operand cause specification pgm int,
+>> - reserved FC values result in a specification pgm int,
+>> - second operand is ignored.
+> 
+> Which second operand?
 
-         Arnd
+Sorry got it
+> 
+>>
+>>>
+>>> - We do not expect to support vertical polarization.
+>>>
+>>> - We do not expect the Modified Topology Change Report to be
+>> [...]
+>>
+>> Forgive me if I'm missing something, but why _Modified_ Topology Change
+>> Report?
+>>
+>>> diff --git a/s390x/topology.c b/s390x/topology.c
+>>> new file mode 100644
+>>> index 00000000..a1f9ce51
+>>> --- /dev/null
+>>> +++ b/s390x/topology.c
+>>
+>> [...]
+>>
+>>> +static int ptf(unsigned long fc, unsigned long *rc)
+>>> +{
+>>> +       int cc;
+>>> +
+>>> +       asm volatile(
+>>> +               "       .insn   rre,0xb9a20000,%1,0\n"
+>>> +               "       ipm     %0\n"
+>>> +               "       srl     %0,28\n"
+>>> +               : "=d" (cc), "+d" (fc)
+>>> +               : "d" (fc)
+>>
+>> Why list fc here again?
+>>
+>>
+> 
+
+-- 
+Pierre Morel
+IBM Lab Boeblingen
