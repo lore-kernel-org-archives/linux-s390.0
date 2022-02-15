@@ -2,276 +2,166 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A3CC0C433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Feb 2022 13:18:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 377A8C433FE
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Feb 2022 13:29:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238205AbiBONSx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Feb 2022 08:18:53 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:56468 "EHLO
+        id S238241AbiBON3Q (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Feb 2022 08:29:16 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:56558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232192AbiBONSw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Feb 2022 08:18:52 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1778D10A8;
-        Tue, 15 Feb 2022 05:18:42 -0800 (PST)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21FD1o3U021874;
-        Tue, 15 Feb 2022 13:18:41 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=Y/mj7jLB8eOdqAaE1qPvldlmkX/RYMfvzjuJ1uwyWlA=;
- b=fUCfl6DDGzHLFp490ckK+1ANlaagkuWe7+aGK+QOow9kY6oK1OJjdG3gTnkesJFWtgn2
- jJjkXRKlSK8AKLXqIOJnjIv9YCgKIYWf2eA7BdvZ7APjr1AwdtdTDk8ieEM2X3aE/6G7
- evwzTUMyzzj7XTpUCx1o0WLW/7skS3SFRQhbKikNLitxS8hoVtfakAWDP9LzE1FR3PDP
- 2+UW5PalvdXN1nQM7fQJTqHiddtM3SHsh5rXurLlPeDkmwgtL0XSN9aBtGBZ1Q2nf9LG
- DaGtKoAoplkc4gEX7heQGjdzdxzMXWGXC2gb33ek0CBLV4BZgygXNV3OWaf2cBbqIhNr tw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3e86tfrxhu-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Feb 2022 13:18:41 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21FCOQkI018121;
-        Tue, 15 Feb 2022 13:18:41 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3e86tfrxha-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Feb 2022 13:18:41 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21FDI0lK000350;
-        Tue, 15 Feb 2022 13:18:39 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03fra.de.ibm.com with ESMTP id 3e64h9x4cr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Feb 2022 13:18:39 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21FDIYZN48562448
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 15 Feb 2022 13:18:34 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5118DA405B;
-        Tue, 15 Feb 2022 13:18:34 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BAE76A4054;
-        Tue, 15 Feb 2022 13:18:33 +0000 (GMT)
-Received: from [9.145.49.62] (unknown [9.145.49.62])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 15 Feb 2022 13:18:33 +0000 (GMT)
-Message-ID: <d6e0af70-9ac3-bdd6-3517-cbf21cf86e2c@linux.ibm.com>
-Date:   Tue, 15 Feb 2022 14:18:33 +0100
+        with ESMTP id S233549AbiBON3P (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Feb 2022 08:29:15 -0500
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id AF7C6106B04
+        for <linux-s390@vger.kernel.org>; Tue, 15 Feb 2022 05:29:04 -0800 (PST)
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-182-H3Rwu_w8NV6V0ZRo-LH3cg-1; Tue, 15 Feb 2022 13:29:01 +0000
+X-MC-Unique: H3Rwu_w8NV6V0ZRo-LH3cg-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
+ Server (TLS) id 15.0.1497.28; Tue, 15 Feb 2022 13:28:59 +0000
+Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
+ AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
+ 15.00.1497.028; Tue, 15 Feb 2022 13:28:59 +0000
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Arnd Bergmann' <arnd@kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>
+CC:     Christoph Hellwig <hch@lst.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-arch <linux-arch@vger.kernel.org>,
+        Linux-MM <linux-mm@kvack.org>,
+        Linux API <linux-api@vger.kernel.org>,
+        "Arnd Bergmann" <arnd@arndb.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Russell King - ARM Linux <linux@armlinux.org.uk>,
+        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
+        Brian Cain <bcain@codeaurora.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Nick Hu <nickhu@andestech.com>,
+        Greentime Hu <green.hu@gmail.com>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Stafford Horne <shorne@gmail.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Rich Felker <dalias@libc.org>,
+        David Miller <davem@davemloft.net>,
+        Richard Weinberger <richard@nod.at>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        alpha <linux-alpha@vger.kernel.org>,
+        "open list:SYNOPSYS ARC ARCHITECTURE" 
+        <linux-snps-arc@lists.infradead.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
+        "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>,
+        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
+        linux-m68k <linux-m68k@lists.linux-m68k.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Openrisc <openrisc@lists.librecores.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Linux-sh list <linux-sh@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linux-um <linux-um@lists.infradead.org>,
+        "open list:TENSILICA XTENSA PORT (xtensa)" 
+        <linux-xtensa@linux-xtensa.org>
+Subject: RE: [PATCH 09/14] m68k: drop custom __access_ok()
+Thread-Topic: [PATCH 09/14] m68k: drop custom __access_ok()
+Thread-Index: AQHYIlMtkSdfU5++r0iADsDmNo4Sd6yUlQ9w
+Date:   Tue, 15 Feb 2022 13:28:59 +0000
+Message-ID: <665a8abfa86f4b5f9a66e294a79bb531@AcuMS.aculab.com>
+References: <20220214163452.1568807-1-arnd@kernel.org>
+ <20220214163452.1568807-10-arnd@kernel.org>
+ <Ygr11RGjj3C9uAUg@zeniv-ca.linux.org.uk> <20220215062942.GA12551@lst.de>
+ <YgtSpk0boDjsyjFK@zeniv-ca.linux.org.uk>
+ <CAK8P3a0t-dnJXvXH0Mx5L-AeVQe1mYzRi0sQjYxzMQw-mVPv0Q@mail.gmail.com>
+In-Reply-To: <CAK8P3a0t-dnJXvXH0Mx5L-AeVQe1mYzRi0sQjYxzMQw-mVPv0Q@mail.gmail.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH v3 1/1] KVM: s390: pv: make use of ultravisor AIV support
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
 Content-Language: en-US
-To:     Michael Mueller <mimu@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     cohuck@redhat.com, borntraeger@de.ibm.com, thuth@redhat.com,
-        pasic@linux.ibm.com, david@redhat.com, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20220209152217.1793281-1-mimu@linux.ibm.com>
- <20220209152217.1793281-2-mimu@linux.ibm.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-In-Reply-To: <20220209152217.1793281-2-mimu@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: l6OVTrbGSjY6SJpltKWa9KY--7DMSqgt
-X-Proofpoint-ORIG-GUID: U7SnPpatJSD4iU8hl3f34cRnry11IQEo
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-02-15_04,2022-02-14_04,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 bulkscore=0
- priorityscore=1501 mlxscore=0 adultscore=0 phishscore=0 lowpriorityscore=0
- impostorscore=0 suspectscore=0 mlxlogscore=999 clxscore=1015 spamscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2201110000
- definitions=main-2202150075
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2/9/22 16:22, Michael Mueller wrote:
-> This patch enables the ultravisor adapter interruption vitualization
-> support indicated by UV feature BIT_UV_FEAT_AIV. This allows ISC
-> interruption injection directly into the GISA IPM for PV kvm guests.
-> 
-> Hardware that does not support this feature will continue to use the
-> UV interruption interception method to deliver ISC interruptions to
-> PV kvm guests. For this purpose, the ECA_AIV bit for all guest cpus
-> will be cleared and the GISA will be disabled during PV CPU setup.
-> 
-> In addition a check in __inject_io() has been removed. That reduces the
-> required instructions for interruption handling for PV and traditional
-> kvm guests.
-> 
-> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
-
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-
-> ---
->   arch/s390/include/asm/uv.h |  1 +
->   arch/s390/kvm/interrupt.c  | 54 +++++++++++++++++++++++++++++++++-----
->   arch/s390/kvm/kvm-s390.c   | 11 +++++---
->   arch/s390/kvm/kvm-s390.h   | 11 ++++++++
->   4 files changed, 68 insertions(+), 9 deletions(-)
-> 
-> diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-> index 86218382d29c..a2d376b8bce3 100644
-> --- a/arch/s390/include/asm/uv.h
-> +++ b/arch/s390/include/asm/uv.h
-> @@ -80,6 +80,7 @@ enum uv_cmds_inst {
->   
->   enum uv_feat_ind {
->   	BIT_UV_FEAT_MISC = 0,
-> +	BIT_UV_FEAT_AIV = 1,
->   };
->   
->   struct uv_cb_header {
-> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> index db933c252dbc..9b30beac904d 100644
-> --- a/arch/s390/kvm/interrupt.c
-> +++ b/arch/s390/kvm/interrupt.c
-> @@ -1901,13 +1901,12 @@ static int __inject_io(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
->   	isc = int_word_to_isc(inti->io.io_int_word);
->   
->   	/*
-> -	 * Do not make use of gisa in protected mode. We do not use the lock
-> -	 * checking variant as this is just a performance optimization and we
-> -	 * do not hold the lock here. This is ok as the code will pick
-> -	 * interrupts from both "lists" for delivery.
-> +	 * We do not use the lock checking variant as this is just a
-> +	 * performance optimization and we do not hold the lock here.
-> +	 * This is ok as the code will pick interrupts from both "lists"
-> +	 * for delivery.
->   	 */
-> -	if (!kvm_s390_pv_get_handle(kvm) &&
-> -	    gi->origin && inti->type & KVM_S390_INT_IO_AI_MASK) {
-> +	if (gi->origin && inti->type & KVM_S390_INT_IO_AI_MASK) {
->   		VM_EVENT(kvm, 4, "%s isc %1u", "inject: I/O (AI/gisa)", isc);
->   		gisa_set_ipm_gisc(gi->origin, isc);
->   		kfree(inti);
-> @@ -3171,9 +3170,33 @@ void kvm_s390_gisa_init(struct kvm *kvm)
->   	VM_EVENT(kvm, 3, "gisa 0x%pK initialized", gi->origin);
->   }
->   
-> +void kvm_s390_gisa_enable(struct kvm *kvm)
-> +{
-> +	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
-> +	struct kvm_vcpu *vcpu;
-> +	unsigned long i;
-> +	u32 gisa_desc;
-> +
-> +	if (gi->origin)
-> +		return;
-> +	kvm_s390_gisa_init(kvm);
-> +	gisa_desc = kvm_s390_get_gisa_desc(kvm);
-> +	if (!gisa_desc)
-> +		return;
-> +	kvm_for_each_vcpu(i, vcpu, kvm) {
-> +		mutex_lock(&vcpu->mutex);
-> +		vcpu->arch.sie_block->gd = gisa_desc;
-> +		vcpu->arch.sie_block->eca |= ECA_AIV;
-> +		VCPU_EVENT(vcpu, 3, "AIV gisa format-%u enabled for cpu %03u",
-> +			   vcpu->arch.sie_block->gd & 0x3, vcpu->vcpu_id);
-> +		mutex_unlock(&vcpu->mutex);
-> +	}
-> +}
-> +
->   void kvm_s390_gisa_destroy(struct kvm *kvm)
->   {
->   	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
-> +	struct kvm_s390_gisa *gisa = gi->origin;
->   
->   	if (!gi->origin)
->   		return;
-> @@ -3184,6 +3207,25 @@ void kvm_s390_gisa_destroy(struct kvm *kvm)
->   		cpu_relax();
->   	hrtimer_cancel(&gi->timer);
->   	gi->origin = NULL;
-> +	VM_EVENT(kvm, 3, "gisa 0x%pK destroyed", gisa);
-> +}
-> +
-> +void kvm_s390_gisa_disable(struct kvm *kvm)
-> +{
-> +	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
-> +	struct kvm_vcpu *vcpu;
-> +	unsigned long i;
-> +
-> +	if (!gi->origin)
-> +		return;
-> +	kvm_for_each_vcpu(i, vcpu, kvm) {
-> +		mutex_lock(&vcpu->mutex);
-> +		vcpu->arch.sie_block->eca &= ~ECA_AIV;
-> +		vcpu->arch.sie_block->gd = 0U;
-> +		mutex_unlock(&vcpu->mutex);
-> +		VCPU_EVENT(vcpu, 3, "AIV disabled for cpu %03u", vcpu->vcpu_id);
-> +	}
-> +	kvm_s390_gisa_destroy(kvm);
->   }
->   
->   /**
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 577f1ead6a51..c83330f98ff0 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -2194,6 +2194,9 @@ static int kvm_s390_cpus_from_pv(struct kvm *kvm, u16 *rcp, u16 *rrcp)
->   		}
->   		mutex_unlock(&vcpu->mutex);
->   	}
-> +	/* Ensure that we re-enable gisa if the non-PV guest used it but the PV guest did not. */
-> +	if (use_gisa)
-> +		kvm_s390_gisa_enable(kvm);
->   	return ret;
->   }
->   
-> @@ -2205,6 +2208,10 @@ static int kvm_s390_cpus_to_pv(struct kvm *kvm, u16 *rc, u16 *rrc)
->   
->   	struct kvm_vcpu *vcpu;
->   
-> +	/* Disable the GISA if the ultravisor does not support AIV. */
-> +	if (!test_bit_inv(BIT_UV_FEAT_AIV, &uv_info.uv_feature_indications))
-> +		kvm_s390_gisa_disable(kvm);
-> +
->   	kvm_for_each_vcpu(i, vcpu, kvm) {
->   		mutex_lock(&vcpu->mutex);
->   		r = kvm_s390_pv_create_cpu(vcpu, rc, rrc);
-> @@ -3263,9 +3270,7 @@ int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu)
->   
->   	vcpu->arch.sie_block->icpua = vcpu->vcpu_id;
->   	spin_lock_init(&vcpu->arch.local_int.lock);
-> -	vcpu->arch.sie_block->gd = (u32)(u64)vcpu->kvm->arch.gisa_int.origin;
-> -	if (vcpu->arch.sie_block->gd && sclp.has_gisaf)
-> -		vcpu->arch.sie_block->gd |= GISA_FORMAT1;
-> +	vcpu->arch.sie_block->gd = kvm_s390_get_gisa_desc(vcpu->kvm);
->   	seqcount_init(&vcpu->arch.cputm_seqcount);
->   
->   	vcpu->arch.pfault_token = KVM_S390_PFAULT_TOKEN_INVALID;
-> diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-> index 098831e815e6..4ba8fc30d87a 100644
-> --- a/arch/s390/kvm/kvm-s390.h
-> +++ b/arch/s390/kvm/kvm-s390.h
-> @@ -231,6 +231,15 @@ static inline unsigned long kvm_s390_get_gfn_end(struct kvm_memslots *slots)
->   	return ms->base_gfn + ms->npages;
->   }
->   
-> +static inline u32 kvm_s390_get_gisa_desc(struct kvm *kvm)
-> +{
-> +	u32 gd = (u32)(u64)kvm->arch.gisa_int.origin;
-> +
-> +	if (gd && sclp.has_gisaf)
-> +		gd |= GISA_FORMAT1;
-> +	return gd;
-> +}
-> +
->   /* implemented in pv.c */
->   int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc);
->   int kvm_s390_pv_create_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc);
-> @@ -450,6 +459,8 @@ int kvm_s390_get_irq_state(struct kvm_vcpu *vcpu,
->   void kvm_s390_gisa_init(struct kvm *kvm);
->   void kvm_s390_gisa_clear(struct kvm *kvm);
->   void kvm_s390_gisa_destroy(struct kvm *kvm);
-> +void kvm_s390_gisa_disable(struct kvm *kvm);
-> +void kvm_s390_gisa_enable(struct kvm *kvm);
->   int kvm_s390_gib_init(u8 nisc);
->   void kvm_s390_gib_destroy(void);
->   
+RnJvbTogQXJuZCBCZXJnbWFubg0KPiBTZW50OiAxNSBGZWJydWFyeSAyMDIyIDEwOjAyDQo+IA0K
+PiBPbiBUdWUsIEZlYiAxNSwgMjAyMiBhdCA4OjEzIEFNIEFsIFZpcm8gPHZpcm9AemVuaXYubGlu
+dXgub3JnLnVrPiB3cm90ZToNCj4gPiBPbiBUdWUsIEZlYiAxNSwgMjAyMiBhdCAwNzoyOTo0MkFN
+ICswMTAwLCBDaHJpc3RvcGggSGVsbHdpZyB3cm90ZToNCj4gPiA+IE9uIFR1ZSwgRmViIDE1LCAy
+MDIyIGF0IDEyOjM3OjQxQU0gKzAwMDAsIEFsIFZpcm8gd3JvdGU6DQo+ID4gPiA+IFBlcmhhcHMg
+c2ltcGx5IHdyYXAgdGhhdCBzdWNrZXIgaW50byAjaWZkZWYgQ09ORklHX0NQVV9IQVNfQUREUkVT
+U19TUEFDRVMNCj4gPiA+ID4gKGFuZCB0cmltIHRoZSBjb21tZW50IGRvd24gdG8gImNvbGRmaXJl
+IGFuZCA2ODAwMCB3aWxsIHBpY2sgZ2VuZXJpYw0KPiA+ID4gPiB2YXJpYW50Iik/DQo+ID4gPg0K
+PiA+ID4gSSB3b25kZXIgaWYgd2Ugc2hvdWxkIGludmVydCBDT05GSUdfQVJDSF9IQVNfTk9OX09W
+RVJMQVBQSU5HX0FERFJFU1NfU1BBQ0UsDQo+ID4gPiBzZWxlY3QgdGhlIHNlcGFyYXRlIGFkZHJl
+c3Mgc3BhY2UgY29uZmlnIGZvciBzMzkwLCBzcGFyYzY0LCBub24tY29sZGZpcmUNCj4gPiA+IG02
+OGsgYW5kIG1pcHMgd2l0aCBFVkEgYW5kIHRoZW4ganVzdCBoYXZlIG9uZSBzaW5nbGUgYWNjZXNz
+X29rIGZvcg0KPiA+ID4gb3ZlcmxhcHBpbmcgYWRkcmVzcyBzcGFjZSAoYXMgYWRkZWQgYnkgQXJu
+ZCkgYW5kIG5vbi1vdmVybGFwcGluZyBvbmVzDQo+ID4gPiAoYWx3YXlzIHJldHVybiB0cnVlKS4N
+Cj4gPg0KPiA+IHBhcmlzYyBpcyBhbHNvIHN1Y2guLi4gIEhvdyBhYm91dA0KPiA+DQo+ID4gICAg
+ICAgICBzZWxlY3QgQUxURVJOQVRFX1NQQUNFX1VTRVJMQU5EDQo+ID4NCj4gPiBmb3IgdGhhdCBi
+dW5jaD8NCj4gDQo+IEVpdGhlciBvZiB0aG9zZSB3b3JrcyBmb3IgbWUuIE15IGN1cnJlbnQgdmVy
+c2lvbiBoYXMgdGhpcyBrZXllZCBvZmYNCj4gVEFTS19TSVpFX01BWD09VUxPTkdfTUFYLCBidXQg
+YSBDT05GSUdfIHN5bWJvbCBkb2VzDQo+IGxvb2sgbW9yZSBkZXNjcmlwdGl2ZS4NCj4gDQo+ID4g
+IFdoaWxlIHdlIGFyZSBhdCBpdCwgaG93IG1hbnkgdW51c3VhbCBhY2Nlc3Nfb2soKSBpbnN0YW5j
+ZXMgYXJlDQo+ID4gbGVmdCBhZnRlciB0aGlzIHNlcmllcz8gIGFybTY0LCBpdGFuaWMsIHVtLCBh
+bnl0aGluZyBlbHNlPw0KPiANCj4geDg2IGFkZHMgYSBXQVJOX09OX0lOX0lSUSgpIGNoZWNrIGlu
+IHRoZXJlLg0KDQpJZiBpcyBhIG5vb3AgdW5sZXNzIENPTkZJR19ERUJVR19BVE9NSUNfU0xFRVAg
+aXMgc2V0Lg0KSSBkb3VidCB0aGF0IGlzIG9mdGVuIGVuYWJsZWQuDQoNCj4gVGhpcyBjb3VsZCBi
+ZQ0KPiBtYWRlIGdlbmVyaWMsIGJ1dCBpdCdzIG5vdCBvYnZpb3VzIHdoYXQgZXhhY3RseSB0aGUg
+ZXhjZXB0aW9ucyBhcmUNCj4gdGhhdCBvdGhlciBhcmNoaXRlY3R1cmVzIG5lZWQuIFRoZSBhcm02
+NCB0YWdnZWQgcG9pbnRlcnMgY291bGQNCj4gcHJvYmFibHkgYWxzbyBnZXQgaW50ZWdyYXRlZCBp
+bnRvIHRoZSBnZW5lcmljIHZlcnNpb24uDQo+IA0KPiA+IEZXSVcsIHNwYXJjMzIgaGFzIGEgc2xp
+Z2h0bHkgdW51c3VhbCBpbnN0YW5jZSAoc2VlIHVhY2Nlc3NfMzIuaCB0aGVyZSk7IGl0J3MNCj4g
+PiBvYnZpb3VzbHkgY2hlYXBlciB0aGFuIGdlbmVyaWMgYW5kIEkgd29uZGVyIGlmIHRoZSB0cmlj
+ayBpcyBsZWdpdGltYXRlIChhbmQNCj4gPiBhcHBsaWNhYmxlIGVsc2V3aGVyZSwgcGVyaGFwcyku
+Li4NCj4gDQo+IFJpZ2h0LCBhIGZldyBvdGhlcnMgaGF2ZSB0aGUgc2FtZSwgYnV0IEkgd2Fzbid0
+IGNvbnZpbmNlZCB0aGF0IHRoaXMNCj4gaXMgYWN0dWFsbHkgc2FmZSBmb3IgY2FsbCBwb3NzaWJs
+ZSBjYXNlczogaXQncyB0cml2aWFsIHRvIGNvbnN0cnVjdCBhIGNhbGxlcg0KPiB0aGF0IHdvcmtz
+IG9uIG90aGVyIGFyY2hpdGVjdHVyZXMgYnV0IG5vdCB0aGlzIG9uZSwgaWYgeW91IHBhc3MgYSBs
+YXJnZQ0KPiBlbm91Z2ggc2l6ZSB2YWx1ZSBhbmQgZG9uJ3QgYWNjZXNzIHRoZSBjb250ZW50cyBp
+biBzZXF1ZW5jZS4NCg0KWW91J2QgbmVlZCBjb2RlIHRoYXQgZGlkIGFuIGFjY2Vzc19vaygpIGNo
+ZWNrIGFuZCB0aGVuIHJlYWQgZnJvbQ0KYSBsYXJnZSBvZmZzZXQgZnJvbSB0aGUgYWRkcmVzcyAt
+IHVubGlrZWx5Lg0KSXQncyBub3QgbGlrZSB0aGUgYWNjZXNzX29rKCkgY2hlY2sgZm9yIHJlYWQv
+d3JpdGUgaXMgZG9uZSBvbiBzeXNjYWxsDQplbnRyeSBhbmQgdGhlbiBldmVyeXRoaW5nIHVuZGVy
+bmVhdGggYXNzdW1lcyBpdCBpcyB2YWxpZC4NCg0KSGFzbid0IChhbG1vc3QpIGV2ZXJ5dGhpbmcg
+YmVlbiBjaGVja2VkIGZvciBmdW5jdGlvbiBjYWxscyBiZXR3ZWVuDQp1c2VyX2FjY2Vzc19iZWdp
+bigpIGFuZCB0aGUgYWN0dWFsIGFjY2Vzc2VzPw0KQW5kIGFjY2Vzc19vaygpIGlzIGRvbmUgYnkv
+YXQgdGhlIHNhbWUgdGltZSBhcyB1c2VyX2FjY2Vzc19iZWdpbigpPw0KDQpZb3UgZG8gbmVlZCBh
+biB1bm1hcHBlZCBwYWdlIGFib3ZlIHRoZSBhZGRyZXNzIHRoYXQgaXMgdGVzdGVkLg0KDQo+IEFs
+c28sIGxpa2UgdGhlICgoYWRkciB8IChhZGRyICsgc2l6ZSkpICYgTUFTSykgY2hlY2sgb24gc29t
+ZSBvdGhlcg0KPiBhcmNoaXRlY3R1cmVzLCBpdCBpcyBsZXNzIHBvcnRhYmxlIGJlY2F1c2UgaXQg
+bWFrZXMgYXNzdW1wdGlvbnMgYWJvdXQNCj4gdGhlIGFjdHVhbCBsYXlvdXQgYmV5b25kIGEgZml4
+ZWQgYWRkcmVzcyBsaW1pdC4NCg0KSXNuJ3QgdGhhdCB0ZXN0IGJyb2tlbiB3aXRob3V0IGEgc2Vw
+YXJhdGUgYm91bmQgY2hlY2sgb24gc2l6ZT8NCg0KSSBhbHNvIHNlZW0gdG8gcmVtZW1iZXIgdGhh
+dCBhY2Nlc3Nfb2soeHh4LCAwKSBpcyBhbHdheXMgJ29rJw0KYW5kIHNvbWUgb2YgdGhlICdmYXN0
+JyB0ZXN0cyBnaXZlIGEgZmFsc2UgbmVnYXRpdmUgaWYgdGhlIHVzZXINCmJ1ZmZlciBlbmRzIHdp
+dGggdGhlIGxhc3QgYnl0ZSBvZiB1c2VyIGFkZHJlc3Mgc3BhY2UuDQoNClNvIHlvdSBtYXkgbmVl
+ZDoNCglzaXplIDwgVEFTS19TSVpFICYmIChhZGRyIDwgKFRBU0tfU0laRSAtIHNpemUgLSAxKSB8
+fCAhc2l6ZSkNCihzcHJpbmtsZWQgd2l0aCBbdW5dbGlrZWx5KCkpDQoNCglEYXZpZA0KDQotDQpS
+ZWdpc3RlcmVkIEFkZHJlc3MgTGFrZXNpZGUsIEJyYW1sZXkgUm9hZCwgTW91bnQgRmFybSwgTWls
+dG9uIEtleW5lcywgTUsxIDFQVCwgVUsNClJlZ2lzdHJhdGlvbiBObzogMTM5NzM4NiAoV2FsZXMp
+DQo=
 
