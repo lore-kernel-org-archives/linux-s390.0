@@ -2,149 +2,147 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 55836C433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Feb 2022 09:19:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A419C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Feb 2022 09:21:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234445AbiBOJTt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Feb 2022 04:19:49 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:55930 "EHLO
+        id S235807AbiBOJVo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Feb 2022 04:21:44 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:57734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231371AbiBOJTs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Feb 2022 04:19:48 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 315752CCA7;
-        Tue, 15 Feb 2022 01:19:39 -0800 (PST)
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21F8IX4m022469;
-        Tue, 15 Feb 2022 09:19:38 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : from : to : cc : references : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=uC5XYw6ejz93NnnrjYQXR31cZYiOKzP4B+EfZHcbpJs=;
- b=bTSoXD4wlj2+Py+FyKdSqQoiRV/Kt/ba3b23g1qF+Kyb2DlPuA77m2hgpUk+ADVf4uKp
- fbidkRSANZTj2Kpu4+q/1Gwuy3NWpEQlztXJpf8zhy9F3jIRPUAsKflu8lAmI3I1PgHU
- DE/6n0S0VOhj3wzReHy3ozpIltFrLK/4fTWzA2bKiPAWZNacVTG2HWS5+SRYGho/sQv9
- qF9kOSKmt7olEwO+8KrdDekkfSXqg0FPJbzJQzvsP7rUSeItJo4m9vclF8Hz1o4Ot8BD
- udD0u7egbVdFfOmbyXW8BJPBcZ+ZQDkXv6SBQXuiXlH2znTK7K5w5ST/Dit11SipBaJr KA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3e85y44q21-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Feb 2022 09:19:38 +0000
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21F8WXYe020994;
-        Tue, 15 Feb 2022 09:19:37 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3e85y44q1h-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Feb 2022 09:19:37 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21F9IHsq010437;
-        Tue, 15 Feb 2022 09:19:36 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 3e64h9vwh9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Feb 2022 09:19:36 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21F9JWwE46924126
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 15 Feb 2022 09:19:32 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D2428A405F;
-        Tue, 15 Feb 2022 09:19:32 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6D237A4054;
-        Tue, 15 Feb 2022 09:19:32 +0000 (GMT)
-Received: from [9.171.31.140] (unknown [9.171.31.140])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 15 Feb 2022 09:19:32 +0000 (GMT)
-Message-ID: <72d2bb5a-c0aa-6136-0900-58a0474334d9@linux.ibm.com>
-Date:   Tue, 15 Feb 2022 10:21:45 +0100
+        with ESMTP id S231371AbiBOJVn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Feb 2022 04:21:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A231F13DFB;
+        Tue, 15 Feb 2022 01:21:33 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 56034B81809;
+        Tue, 15 Feb 2022 09:21:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14939C340F1;
+        Tue, 15 Feb 2022 09:21:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1644916891;
+        bh=RZSvrBa9M+3bZFIsmIZDqZd7d5VDsf+KxZINLGmOa8g=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=RAHiiSoOT+qkGjStonZhYrYy/J3OZkS+nBm5D1plR6odf8spdLFI55sA0GVSG+gX1
+         FmPcCDRzKeNuLVHvCjfGJTHBTxbwgzR030DFU2LsjuGz8pZEhKbeR/hgIeCQIxEcqx
+         HIj4CCTOLKxrGhK2W31aOh+D7o/B8cTcO951Ev77NRvhE6lAtkLsACcoUhM/z6tTLu
+         qhTXBSD0ylFj48SjE2u2QLeEZrRNw+HEiuL8QU8JNZPpShvXVrQypqOZsWhDE9yRc2
+         D5rdiVAwgITkzu5kXiFsxejSLdB78l1bk+Ac3J6FFkDPU8n6d+5fZ9lqTH30MQ3R7+
+         eJDiITKNJvo0Q==
+Received: by mail-wr1-f53.google.com with SMTP id u1so17209940wrg.11;
+        Tue, 15 Feb 2022 01:21:30 -0800 (PST)
+X-Gm-Message-State: AOAM533FzJSsT8a7w1ImWBVvt3HK9GnWvbMGEtf/XTO1+QttXjfyOpGP
+        fFIXt+xpSAJIbkE0u6f2d3wLzhIDWQZ2eryvBuk=
+X-Google-Smtp-Source: ABdhPJxTZ3T3Abm/GIU6+FEpYkuoBAl5nS/ZOniPodztANRfoa0z/A0V8x7uBN46c9isaaDTdlBbvvwdEiVYUyGe5DM=
+X-Received: by 2002:adf:da4c:: with SMTP id r12mr2454185wrl.550.1644916889390;
+ Tue, 15 Feb 2022 01:21:29 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [kvm-unit-tests PATCH v4 3/4] s390x: topology: Check the Perform
- Topology Function
-Content-Language: en-US
-From:   Pierre Morel <pmorel@linux.ibm.com>
-To:     Nico Boehr <nrb@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
-        cohuck@redhat.com, imbrenda@linux.ibm.com, david@redhat.com
-References: <20220208132709.48291-1-pmorel@linux.ibm.com>
- <20220208132709.48291-4-pmorel@linux.ibm.com>
- <8dd704d23f8a14907ed2a7f28ec3ac52685ab96c.camel@linux.ibm.com>
- <c2dfd5c7-2602-e780-1f2b-402bff3c7c00@linux.ibm.com>
-In-Reply-To: <c2dfd5c7-2602-e780-1f2b-402bff3c7c00@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: ZpGNKDpeLSco7mZuGn266mwc2gEzM2EM
-X-Proofpoint-GUID: GvsfwB1ZsLjqMF3bKhi4WxdYNM3BBYEl
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-02-15_03,2022-02-14_04,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 malwarescore=0
- phishscore=0 bulkscore=0 adultscore=0 suspectscore=0 mlxscore=0
- priorityscore=1501 mlxlogscore=999 impostorscore=0 clxscore=1015
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2202150052
+References: <20220214163452.1568807-1-arnd@kernel.org> <20220214163452.1568807-9-arnd@kernel.org>
+ <CAMj1kXHixUFjV=4m3tzfGz7AiRWc-VczymbKuZq7dyZZNuLKxQ@mail.gmail.com> <CAK8P3a2VfvDkueaJNTA9SiB+PFsi_Q17AX+aL46ueooW2ahmQw@mail.gmail.com>
+In-Reply-To: <CAK8P3a2VfvDkueaJNTA9SiB+PFsi_Q17AX+aL46ueooW2ahmQw@mail.gmail.com>
+From:   Ard Biesheuvel <ardb@kernel.org>
+Date:   Tue, 15 Feb 2022 10:21:16 +0100
+X-Gmail-Original-Message-ID: <CAMj1kXGkG0KMD2rnKAJc3V7X9LP1grbcHTNYMnj_q4GiYfG2pQ@mail.gmail.com>
+Message-ID: <CAMj1kXGkG0KMD2rnKAJc3V7X9LP1grbcHTNYMnj_q4GiYfG2pQ@mail.gmail.com>
+Subject: Re: [PATCH 08/14] arm64: simplify access_ok()
+To:     Arnd Bergmann <arnd@kernel.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Christoph Hellwig <hch@lst.de>,
+        linux-arch <linux-arch@vger.kernel.org>,
+        Linux Memory Management List <linux-mm@kvack.org>,
+        Linux API <linux-api@vger.kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
+        Brian Cain <bcain@codeaurora.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Nick Hu <nickhu@andestech.com>,
+        Greentime Hu <green.hu@gmail.com>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Stafford Horne <shorne@gmail.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Rich Felker <dalias@libc.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Richard Weinberger <richard@nod.at>, X86 ML <x86@kernel.org>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        alpha <linux-alpha@vger.kernel.org>,
+        "open list:SYNOPSYS ARC ARCHITECTURE" 
+        <linux-snps-arc@lists.infradead.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        linux-csky@vger.kernel.org,
+        "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>,
+        linux-ia64@vger.kernel.org,
+        linux-m68k <linux-m68k@lists.linux-m68k.org>,
+        "open list:MIPS" <linux-mips@vger.kernel.org>,
+        Openrisc <openrisc@lists.librecores.org>,
+        "open list:PARISC ARCHITECTURE" <linux-parisc@vger.kernel.org>,
+        "open list:LINUX FOR POWERPC (32-BIT AND 64-BIT)" 
+        <linuxppc-dev@lists.ozlabs.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        "open list:S390" <linux-s390@vger.kernel.org>,
+        Linux-sh list <linux-sh@vger.kernel.org>,
+        "open list:SPARC + UltraSPARC (sparc/sparc64)" 
+        <sparclinux@vger.kernel.org>,
+        linux-um <linux-um@lists.infradead.org>,
+        "open list:TENSILICA XTENSA PORT (xtensa)" 
+        <linux-xtensa@linux-xtensa.org>,
+        Robin Murphy <robin.murphy@arm.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Tue, 15 Feb 2022 at 10:13, Arnd Bergmann <arnd@kernel.org> wrote:
+>
+> On Tue, Feb 15, 2022 at 9:17 AM Ard Biesheuvel <ardb@kernel.org> wrote:
+> > On Mon, 14 Feb 2022 at 17:37, Arnd Bergmann <arnd@kernel.org> wrote:
+> > > From: Arnd Bergmann <arnd@arndb.de>
+> > >
+> >
+> > With set_fs() out of the picture, wouldn't it be sufficient to check
+> > that bit #55 is clear? (the bit that selects between TTBR0 and TTBR1)
+> > That would also remove the need to strip the tag from the address.
+> >
+> > Something like
+> >
+> >     asm goto("tbnz  %0, #55, %2     \n"
+> >              "tbnz  %1, #55, %2     \n"
+> >              :: "r"(addr), "r"(addr + size - 1) :: notok);
+> >     return 1;
+> > notok:
+> >     return 0;
+> >
+> > with an additional sanity check on the size which the compiler could
+> > eliminate for compile-time constant values.
+>
+> That should work, but I don't see it as a clear enough advantage to
+> have a custom implementation. For the constant-size case, it probably
+> isn't better than a compiler-scheduled comparison against a
+> constant limit, but it does hurt maintainability when the next person
+> wants to change the behavior of access_ok() globally.
+>
 
+arm64 also has this leading up to the range check, and I think we'd no
+longer need it:
 
-On 2/15/22 09:50, Pierre Morel wrote:
-> 
-> 
-> On 2/9/22 12:37, Nico Boehr wrote:
->> On Tue, 2022-02-08 at 14:27 +0100, Pierre Morel wrote:
->>> We check the PTF instruction.
->>
->> You could test some very basic things as well:
->>
->> - you get a privileged pgm int in problem state,
->> - reserved bits in first operand cause specification pgm int,
->> - reserved FC values result in a specification pgm int,
->> - second operand is ignored.
-> 
-> Which second operand?
+    if (IS_ENABLED(CONFIG_ARM64_TAGGED_ADDR_ABI) &&
+        (current->flags & PF_KTHREAD || test_thread_flag(TIF_TAGGED_ADDR)))
+            addr = untagged_addr(addr);
 
-Sorry got it
-> 
->>
->>>
->>> - We do not expect to support vertical polarization.
->>>
->>> - We do not expect the Modified Topology Change Report to be
->> [...]
->>
->> Forgive me if I'm missing something, but why _Modified_ Topology Change
->> Report?
->>
->>> diff --git a/s390x/topology.c b/s390x/topology.c
->>> new file mode 100644
->>> index 00000000..a1f9ce51
->>> --- /dev/null
->>> +++ b/s390x/topology.c
->>
->> [...]
->>
->>> +static int ptf(unsigned long fc, unsigned long *rc)
->>> +{
->>> +       int cc;
->>> +
->>> +       asm volatile(
->>> +               "       .insn   rre,0xb9a20000,%1,0\n"
->>> +               "       ipm     %0\n"
->>> +               "       srl     %0,28\n"
->>> +               : "=d" (cc), "+d" (fc)
->>> +               : "d" (fc)
->>
->> Why list fc here again?
->>
->>
-> 
-
--- 
-Pierre Morel
-IBM Lab Boeblingen
+> If we want to get into micro-optimizing uaccess, I think a better target
+> would be a CONFIG_CC_HAS_ASM_GOTO_OUTPUT version
+> of __get_user()/__put_user as we have on x86 and powerpc.
+>
+>          Arnd
