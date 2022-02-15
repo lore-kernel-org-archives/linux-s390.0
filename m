@@ -2,166 +2,323 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 377A8C433FE
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Feb 2022 13:29:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29EF8C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Feb 2022 15:08:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238241AbiBON3Q (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Feb 2022 08:29:16 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:56558 "EHLO
+        id S239569AbiBOPIk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Feb 2022 10:08:40 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233549AbiBON3P (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Feb 2022 08:29:15 -0500
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id AF7C6106B04
-        for <linux-s390@vger.kernel.org>; Tue, 15 Feb 2022 05:29:04 -0800 (PST)
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-182-H3Rwu_w8NV6V0ZRo-LH3cg-1; Tue, 15 Feb 2022 13:29:01 +0000
-X-MC-Unique: H3Rwu_w8NV6V0ZRo-LH3cg-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
- Server (TLS) id 15.0.1497.28; Tue, 15 Feb 2022 13:28:59 +0000
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.028; Tue, 15 Feb 2022 13:28:59 +0000
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Arnd Bergmann' <arnd@kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>
-CC:     Christoph Hellwig <hch@lst.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        Linux-MM <linux-mm@kvack.org>,
-        Linux API <linux-api@vger.kernel.org>,
-        "Arnd Bergmann" <arnd@arndb.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Russell King - ARM Linux <linux@armlinux.org.uk>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Brian Cain <bcain@codeaurora.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Nick Hu <nickhu@andestech.com>,
-        Greentime Hu <green.hu@gmail.com>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Stafford Horne <shorne@gmail.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Rich Felker <dalias@libc.org>,
-        David Miller <davem@davemloft.net>,
-        Richard Weinberger <richard@nod.at>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        alpha <linux-alpha@vger.kernel.org>,
-        "open list:SYNOPSYS ARC ARCHITECTURE" 
-        <linux-snps-arc@lists.infradead.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
-        "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>,
-        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
-        linux-m68k <linux-m68k@lists.linux-m68k.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Openrisc <openrisc@lists.librecores.org>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Linux-sh list <linux-sh@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        linux-um <linux-um@lists.infradead.org>,
-        "open list:TENSILICA XTENSA PORT (xtensa)" 
-        <linux-xtensa@linux-xtensa.org>
-Subject: RE: [PATCH 09/14] m68k: drop custom __access_ok()
-Thread-Topic: [PATCH 09/14] m68k: drop custom __access_ok()
-Thread-Index: AQHYIlMtkSdfU5++r0iADsDmNo4Sd6yUlQ9w
-Date:   Tue, 15 Feb 2022 13:28:59 +0000
-Message-ID: <665a8abfa86f4b5f9a66e294a79bb531@AcuMS.aculab.com>
-References: <20220214163452.1568807-1-arnd@kernel.org>
- <20220214163452.1568807-10-arnd@kernel.org>
- <Ygr11RGjj3C9uAUg@zeniv-ca.linux.org.uk> <20220215062942.GA12551@lst.de>
- <YgtSpk0boDjsyjFK@zeniv-ca.linux.org.uk>
- <CAK8P3a0t-dnJXvXH0Mx5L-AeVQe1mYzRi0sQjYxzMQw-mVPv0Q@mail.gmail.com>
-In-Reply-To: <CAK8P3a0t-dnJXvXH0Mx5L-AeVQe1mYzRi0sQjYxzMQw-mVPv0Q@mail.gmail.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        with ESMTP id S239565AbiBOPIf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Feb 2022 10:08:35 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C7D6F7A;
+        Tue, 15 Feb 2022 07:08:24 -0800 (PST)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21FF3q8G010876;
+        Tue, 15 Feb 2022 15:08:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : to : cc : references : from : subject : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=Xdpg0XkmNNMRFN2tVXkWYmXKRS8MwDefDepJ2ee1h6g=;
+ b=hR2d0Nnes1w68++JY1H5SjpbkZF0LEJKE/y4dAwtH71Ak3UlevDasQnAvXwosCmsiPWX
+ OTi75SMXEy/xIGLcqWKbRXiC9gJAPCbR/Ghaet5xVnMaDusEr1VTy/cJdTc1CES1O4Rk
+ c6DDTTm+dWbXTaZ6a6YjRjVoWuXYIgkiGglgvmNLTyF6uwUSYFaM1pL3RtOjhK5yYlEv
+ +N7Q/dgAiiJjoxPl8e5BvFBCDqB2006FeBof2sRq0aoFTzJtT1BZlwkWhc4wxz0U+kBd
+ sSWtKHkxWyp/D8v+S5JPx5tD+dfghcW/ttMVXmRyAPN2i7zNEN3RTr/ZQlij6II/hI8p 4g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e8a71q5gf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Feb 2022 15:08:23 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21FF57Pr022610;
+        Tue, 15 Feb 2022 15:08:23 GMT
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e8a71q5fm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Feb 2022 15:08:22 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21FF82wE020440;
+        Tue, 15 Feb 2022 15:08:21 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma01fra.de.ibm.com with ESMTP id 3e64h9f5rq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Feb 2022 15:08:21 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21FF8H6g41288002
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 15 Feb 2022 15:08:17 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AAD33A4060;
+        Tue, 15 Feb 2022 15:08:17 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4C764A4062;
+        Tue, 15 Feb 2022 15:08:17 +0000 (GMT)
+Received: from [9.145.49.62] (unknown [9.145.49.62])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 15 Feb 2022 15:08:17 +0000 (GMT)
+Message-ID: <f7d7423b-c0fb-4184-6d3a-fa1d855e0f19@linux.ibm.com>
+Date:   Tue, 15 Feb 2022 16:08:16 +0100
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
 Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, thuth@redhat.com, kvm@vger.kernel.org,
+        cohuck@redhat.com, david@redhat.com, nrb@linux.ibm.com
+References: <20220215104632.47796-1-pmorel@linux.ibm.com>
+ <20220215104632.47796-2-pmorel@linux.ibm.com>
+ <20220215130606.2d4f2ebb@p-imbrenda>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH 1/1] s390x: stsi: Define vm_is_kvm to be
+ used in different tests
+In-Reply-To: <20220215130606.2d4f2ebb@p-imbrenda>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: NRoWWtYxrYi-aMi8UI3mJSwze55F85aS
+X-Proofpoint-ORIG-GUID: MAW_lzKA7CszF6DPlMD2018f7fP0RwIE
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-02-15_04,2022-02-14_04,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 spamscore=0
+ phishscore=0 bulkscore=0 mlxscore=0 priorityscore=1501 impostorscore=0
+ suspectscore=0 malwarescore=0 lowpriorityscore=0 clxscore=1015
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2202150088
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-RnJvbTogQXJuZCBCZXJnbWFubg0KPiBTZW50OiAxNSBGZWJydWFyeSAyMDIyIDEwOjAyDQo+IA0K
-PiBPbiBUdWUsIEZlYiAxNSwgMjAyMiBhdCA4OjEzIEFNIEFsIFZpcm8gPHZpcm9AemVuaXYubGlu
-dXgub3JnLnVrPiB3cm90ZToNCj4gPiBPbiBUdWUsIEZlYiAxNSwgMjAyMiBhdCAwNzoyOTo0MkFN
-ICswMTAwLCBDaHJpc3RvcGggSGVsbHdpZyB3cm90ZToNCj4gPiA+IE9uIFR1ZSwgRmViIDE1LCAy
-MDIyIGF0IDEyOjM3OjQxQU0gKzAwMDAsIEFsIFZpcm8gd3JvdGU6DQo+ID4gPiA+IFBlcmhhcHMg
-c2ltcGx5IHdyYXAgdGhhdCBzdWNrZXIgaW50byAjaWZkZWYgQ09ORklHX0NQVV9IQVNfQUREUkVT
-U19TUEFDRVMNCj4gPiA+ID4gKGFuZCB0cmltIHRoZSBjb21tZW50IGRvd24gdG8gImNvbGRmaXJl
-IGFuZCA2ODAwMCB3aWxsIHBpY2sgZ2VuZXJpYw0KPiA+ID4gPiB2YXJpYW50Iik/DQo+ID4gPg0K
-PiA+ID4gSSB3b25kZXIgaWYgd2Ugc2hvdWxkIGludmVydCBDT05GSUdfQVJDSF9IQVNfTk9OX09W
-RVJMQVBQSU5HX0FERFJFU1NfU1BBQ0UsDQo+ID4gPiBzZWxlY3QgdGhlIHNlcGFyYXRlIGFkZHJl
-c3Mgc3BhY2UgY29uZmlnIGZvciBzMzkwLCBzcGFyYzY0LCBub24tY29sZGZpcmUNCj4gPiA+IG02
-OGsgYW5kIG1pcHMgd2l0aCBFVkEgYW5kIHRoZW4ganVzdCBoYXZlIG9uZSBzaW5nbGUgYWNjZXNz
-X29rIGZvcg0KPiA+ID4gb3ZlcmxhcHBpbmcgYWRkcmVzcyBzcGFjZSAoYXMgYWRkZWQgYnkgQXJu
-ZCkgYW5kIG5vbi1vdmVybGFwcGluZyBvbmVzDQo+ID4gPiAoYWx3YXlzIHJldHVybiB0cnVlKS4N
-Cj4gPg0KPiA+IHBhcmlzYyBpcyBhbHNvIHN1Y2guLi4gIEhvdyBhYm91dA0KPiA+DQo+ID4gICAg
-ICAgICBzZWxlY3QgQUxURVJOQVRFX1NQQUNFX1VTRVJMQU5EDQo+ID4NCj4gPiBmb3IgdGhhdCBi
-dW5jaD8NCj4gDQo+IEVpdGhlciBvZiB0aG9zZSB3b3JrcyBmb3IgbWUuIE15IGN1cnJlbnQgdmVy
-c2lvbiBoYXMgdGhpcyBrZXllZCBvZmYNCj4gVEFTS19TSVpFX01BWD09VUxPTkdfTUFYLCBidXQg
-YSBDT05GSUdfIHN5bWJvbCBkb2VzDQo+IGxvb2sgbW9yZSBkZXNjcmlwdGl2ZS4NCj4gDQo+ID4g
-IFdoaWxlIHdlIGFyZSBhdCBpdCwgaG93IG1hbnkgdW51c3VhbCBhY2Nlc3Nfb2soKSBpbnN0YW5j
-ZXMgYXJlDQo+ID4gbGVmdCBhZnRlciB0aGlzIHNlcmllcz8gIGFybTY0LCBpdGFuaWMsIHVtLCBh
-bnl0aGluZyBlbHNlPw0KPiANCj4geDg2IGFkZHMgYSBXQVJOX09OX0lOX0lSUSgpIGNoZWNrIGlu
-IHRoZXJlLg0KDQpJZiBpcyBhIG5vb3AgdW5sZXNzIENPTkZJR19ERUJVR19BVE9NSUNfU0xFRVAg
-aXMgc2V0Lg0KSSBkb3VidCB0aGF0IGlzIG9mdGVuIGVuYWJsZWQuDQoNCj4gVGhpcyBjb3VsZCBi
-ZQ0KPiBtYWRlIGdlbmVyaWMsIGJ1dCBpdCdzIG5vdCBvYnZpb3VzIHdoYXQgZXhhY3RseSB0aGUg
-ZXhjZXB0aW9ucyBhcmUNCj4gdGhhdCBvdGhlciBhcmNoaXRlY3R1cmVzIG5lZWQuIFRoZSBhcm02
-NCB0YWdnZWQgcG9pbnRlcnMgY291bGQNCj4gcHJvYmFibHkgYWxzbyBnZXQgaW50ZWdyYXRlZCBp
-bnRvIHRoZSBnZW5lcmljIHZlcnNpb24uDQo+IA0KPiA+IEZXSVcsIHNwYXJjMzIgaGFzIGEgc2xp
-Z2h0bHkgdW51c3VhbCBpbnN0YW5jZSAoc2VlIHVhY2Nlc3NfMzIuaCB0aGVyZSk7IGl0J3MNCj4g
-PiBvYnZpb3VzbHkgY2hlYXBlciB0aGFuIGdlbmVyaWMgYW5kIEkgd29uZGVyIGlmIHRoZSB0cmlj
-ayBpcyBsZWdpdGltYXRlIChhbmQNCj4gPiBhcHBsaWNhYmxlIGVsc2V3aGVyZSwgcGVyaGFwcyku
-Li4NCj4gDQo+IFJpZ2h0LCBhIGZldyBvdGhlcnMgaGF2ZSB0aGUgc2FtZSwgYnV0IEkgd2Fzbid0
-IGNvbnZpbmNlZCB0aGF0IHRoaXMNCj4gaXMgYWN0dWFsbHkgc2FmZSBmb3IgY2FsbCBwb3NzaWJs
-ZSBjYXNlczogaXQncyB0cml2aWFsIHRvIGNvbnN0cnVjdCBhIGNhbGxlcg0KPiB0aGF0IHdvcmtz
-IG9uIG90aGVyIGFyY2hpdGVjdHVyZXMgYnV0IG5vdCB0aGlzIG9uZSwgaWYgeW91IHBhc3MgYSBs
-YXJnZQ0KPiBlbm91Z2ggc2l6ZSB2YWx1ZSBhbmQgZG9uJ3QgYWNjZXNzIHRoZSBjb250ZW50cyBp
-biBzZXF1ZW5jZS4NCg0KWW91J2QgbmVlZCBjb2RlIHRoYXQgZGlkIGFuIGFjY2Vzc19vaygpIGNo
-ZWNrIGFuZCB0aGVuIHJlYWQgZnJvbQ0KYSBsYXJnZSBvZmZzZXQgZnJvbSB0aGUgYWRkcmVzcyAt
-IHVubGlrZWx5Lg0KSXQncyBub3QgbGlrZSB0aGUgYWNjZXNzX29rKCkgY2hlY2sgZm9yIHJlYWQv
-d3JpdGUgaXMgZG9uZSBvbiBzeXNjYWxsDQplbnRyeSBhbmQgdGhlbiBldmVyeXRoaW5nIHVuZGVy
-bmVhdGggYXNzdW1lcyBpdCBpcyB2YWxpZC4NCg0KSGFzbid0IChhbG1vc3QpIGV2ZXJ5dGhpbmcg
-YmVlbiBjaGVja2VkIGZvciBmdW5jdGlvbiBjYWxscyBiZXR3ZWVuDQp1c2VyX2FjY2Vzc19iZWdp
-bigpIGFuZCB0aGUgYWN0dWFsIGFjY2Vzc2VzPw0KQW5kIGFjY2Vzc19vaygpIGlzIGRvbmUgYnkv
-YXQgdGhlIHNhbWUgdGltZSBhcyB1c2VyX2FjY2Vzc19iZWdpbigpPw0KDQpZb3UgZG8gbmVlZCBh
-biB1bm1hcHBlZCBwYWdlIGFib3ZlIHRoZSBhZGRyZXNzIHRoYXQgaXMgdGVzdGVkLg0KDQo+IEFs
-c28sIGxpa2UgdGhlICgoYWRkciB8IChhZGRyICsgc2l6ZSkpICYgTUFTSykgY2hlY2sgb24gc29t
-ZSBvdGhlcg0KPiBhcmNoaXRlY3R1cmVzLCBpdCBpcyBsZXNzIHBvcnRhYmxlIGJlY2F1c2UgaXQg
-bWFrZXMgYXNzdW1wdGlvbnMgYWJvdXQNCj4gdGhlIGFjdHVhbCBsYXlvdXQgYmV5b25kIGEgZml4
-ZWQgYWRkcmVzcyBsaW1pdC4NCg0KSXNuJ3QgdGhhdCB0ZXN0IGJyb2tlbiB3aXRob3V0IGEgc2Vw
-YXJhdGUgYm91bmQgY2hlY2sgb24gc2l6ZT8NCg0KSSBhbHNvIHNlZW0gdG8gcmVtZW1iZXIgdGhh
-dCBhY2Nlc3Nfb2soeHh4LCAwKSBpcyBhbHdheXMgJ29rJw0KYW5kIHNvbWUgb2YgdGhlICdmYXN0
-JyB0ZXN0cyBnaXZlIGEgZmFsc2UgbmVnYXRpdmUgaWYgdGhlIHVzZXINCmJ1ZmZlciBlbmRzIHdp
-dGggdGhlIGxhc3QgYnl0ZSBvZiB1c2VyIGFkZHJlc3Mgc3BhY2UuDQoNClNvIHlvdSBtYXkgbmVl
-ZDoNCglzaXplIDwgVEFTS19TSVpFICYmIChhZGRyIDwgKFRBU0tfU0laRSAtIHNpemUgLSAxKSB8
-fCAhc2l6ZSkNCihzcHJpbmtsZWQgd2l0aCBbdW5dbGlrZWx5KCkpDQoNCglEYXZpZA0KDQotDQpS
-ZWdpc3RlcmVkIEFkZHJlc3MgTGFrZXNpZGUsIEJyYW1sZXkgUm9hZCwgTW91bnQgRmFybSwgTWls
-dG9uIEtleW5lcywgTUsxIDFQVCwgVUsNClJlZ2lzdHJhdGlvbiBObzogMTM5NzM4NiAoV2FsZXMp
-DQo=
+On 2/15/22 13:06, Claudio Imbrenda wrote:
+> On Tue, 15 Feb 2022 11:46:32 +0100
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
+> 
+>> Several tests are in need of a way to check on which hypervisor
+>> and virtualization level they are running on to be able to fence
+>> certain tests. This patch adds functions that return true if a
+>> vm is running under KVM, LPAR or generally as a level 2 guest.
+>>
+>> To check if we're running under KVM we use the STSI 3.2.2
+>> instruction, let's define it's response structure in a central
+>> header.
+>>
+> 
+> sorry, I had replied to the old series, let me reply here too
+> 
+> 
+> I think it would look cleaner if there was only one
+> "detect_environment" function, that would call stsi once and detect the
+> environment, then the various vm_is_* would become something like
+> 
+> bool vm_is_*(void)
+> {
+> 	return detect_environment() == VM_IS_*;
+> }
+> 
+> of course detect_environment would also cache the result with static
+> variables.
+> 
+> bonus, we could make that function public, so a testcase could just
+> switch over the type of hypervisor it's being run on, instead of having
+> to use a series of ifs.
+> 
+> and then maybe the various vm_is_* could become static inlines to be put
+> in the header.
+> 
+> please note that "detect_environment" is just the first thing that came
+> to my mind, I have no preference regarding the name.
+
+I'd like to keep this patch as simple as possible because there are 
+multiple patch sets which are gated by it.
+
+The vm.h code and the skey.c z/VM 6 check is a thorn in my side anyway 
+and I'd rather have it fixed properly which will likely result in a lot 
+of opinions being voiced.
+
+So I'd propose to rename vm_is_vm() to vm_is_guest2() and pick this patch.
+
+> 
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> ---
+>>   lib/s390x/stsi.h | 32 ++++++++++++++++++++++++++++
+>>   lib/s390x/vm.c   | 55 ++++++++++++++++++++++++++++++++++++++++++++++--
+>>   lib/s390x/vm.h   |  3 +++
+>>   s390x/stsi.c     | 23 ++------------------
+>>   4 files changed, 90 insertions(+), 23 deletions(-)
+>>   create mode 100644 lib/s390x/stsi.h
+>>
+>> diff --git a/lib/s390x/stsi.h b/lib/s390x/stsi.h
+>> new file mode 100644
+>> index 00000000..bebc492d
+>> --- /dev/null
+>> +++ b/lib/s390x/stsi.h
+>> @@ -0,0 +1,32 @@
+>> +/* SPDX-License-Identifier: GPL-2.0-only */
+>> +/*
+>> + * Structures used to Store System Information
+>> + *
+>> + * Copyright IBM Corp. 2022
+>> + */
+>> +
+>> +#ifndef _S390X_STSI_H_
+>> +#define _S390X_STSI_H_
+>> +
+>> +struct sysinfo_3_2_2 {
+>> +	uint8_t reserved[31];
+>> +	uint8_t count;
+>> +	struct {
+>> +		uint8_t reserved2[4];
+>> +		uint16_t total_cpus;
+>> +		uint16_t conf_cpus;
+>> +		uint16_t standby_cpus;
+>> +		uint16_t reserved_cpus;
+>> +		uint8_t name[8];
+>> +		uint32_t caf;
+>> +		uint8_t cpi[16];
+>> +		uint8_t reserved5[3];
+>> +		uint8_t ext_name_encoding;
+>> +		uint32_t reserved3;
+>> +		uint8_t uuid[16];
+>> +	} vm[8];
+>> +	uint8_t reserved4[1504];
+>> +	uint8_t ext_names[8][256];
+>> +};
+>> +
+>> +#endif  /* _S390X_STSI_H_ */
+>> diff --git a/lib/s390x/vm.c b/lib/s390x/vm.c
+>> index a5b92863..91acd05b 100644
+>> --- a/lib/s390x/vm.c
+>> +++ b/lib/s390x/vm.c
+>> @@ -12,6 +12,7 @@
+>>   #include <alloc_page.h>
+>>   #include <asm/arch_def.h>
+>>   #include "vm.h"
+>> +#include "stsi.h"
+>>   
+>>   /**
+>>    * Detect whether we are running with TCG (instead of KVM)
+>> @@ -26,9 +27,13 @@ bool vm_is_tcg(void)
+>>   	if (initialized)
+>>   		return is_tcg;
+>>   
+>> +	if (!vm_is_vm()) {
+>> +		initialized = true;
+>> +		return is_tcg;
+>> +	}
+>> +
+>>   	buf = alloc_page();
+>> -	if (!buf)
+>> -		return false;
+>> +	assert(buf);
+>>   
+>>   	if (stsi(buf, 1, 1, 1))
+>>   		goto out;
+>> @@ -43,3 +48,49 @@ out:
+>>   	free_page(buf);
+>>   	return is_tcg;
+>>   }
+>> +
+>> +/**
+>> + * Detect whether we are running with KVM
+>> + */
+>> +bool vm_is_kvm(void)
+>> +{
+>> +	/* EBCDIC for "KVM/" */
+>> +	const uint8_t kvm_ebcdic[] = { 0xd2, 0xe5, 0xd4, 0x61 };
+>> +	static bool initialized;
+>> +	static bool is_kvm;
+>> +	struct sysinfo_3_2_2 *stsi_322;
+>> +
+>> +	if (initialized)
+>> +		return is_kvm;
+>> +
+>> +	if (!vm_is_vm() || vm_is_tcg()) {
+>> +		initialized = true;
+>> +		return is_kvm;
+>> +	}
+>> +
+>> +	stsi_322 = alloc_page();
+>> +	assert(stsi_322);
+>> +
+>> +	if (stsi(stsi_322, 3, 2, 2))
+>> +		goto out;
+>> +
+>> +	/*
+>> +	 * If the manufacturer string is "KVM/" in EBCDIC, then we
+>> +	 * are on KVM.
+>> +	 */
+>> +	is_kvm = !memcmp(&stsi_322->vm[0].cpi, kvm_ebcdic, sizeof(kvm_ebcdic));
+>> +	initialized = true;
+>> +out:
+>> +	free_page(stsi_322);
+>> +	return is_kvm;
+>> +}
+>> +
+>> +bool vm_is_lpar(void)
+>> +{
+>> +	return stsi_get_fc() == 2;
+>> +}
+>> +
+>> +bool vm_is_vm(void)
+>> +{
+>> +	return stsi_get_fc() == 3;
+>> +}
+>> diff --git a/lib/s390x/vm.h b/lib/s390x/vm.h
+>> index 7abba0cc..3aaf76af 100644
+>> --- a/lib/s390x/vm.h
+>> +++ b/lib/s390x/vm.h
+>> @@ -9,5 +9,8 @@
+>>   #define _S390X_VM_H_
+>>   
+>>   bool vm_is_tcg(void);
+>> +bool vm_is_kvm(void);
+>> +bool vm_is_vm(void);
+>> +bool vm_is_lpar(void);
+>>   
+>>   #endif  /* _S390X_VM_H_ */
+>> diff --git a/s390x/stsi.c b/s390x/stsi.c
+>> index 391f8849..dccc53e7 100644
+>> --- a/s390x/stsi.c
+>> +++ b/s390x/stsi.c
+>> @@ -13,27 +13,8 @@
+>>   #include <asm/asm-offsets.h>
+>>   #include <asm/interrupt.h>
+>>   #include <smp.h>
+>> +#include <stsi.h>
+>>   
+>> -struct stsi_322 {
+>> -	uint8_t reserved[31];
+>> -	uint8_t count;
+>> -	struct {
+>> -		uint8_t reserved2[4];
+>> -		uint16_t total_cpus;
+>> -		uint16_t conf_cpus;
+>> -		uint16_t standby_cpus;
+>> -		uint16_t reserved_cpus;
+>> -		uint8_t name[8];
+>> -		uint32_t caf;
+>> -		uint8_t cpi[16];
+>> -		uint8_t reserved5[3];
+>> -		uint8_t ext_name_encoding;
+>> -		uint32_t reserved3;
+>> -		uint8_t uuid[16];
+>> -	} vm[8];
+>> -	uint8_t reserved4[1504];
+>> -	uint8_t ext_names[8][256];
+>> -};
+>>   static uint8_t pagebuf[PAGE_SIZE * 2] __attribute__((aligned(PAGE_SIZE * 2)));
+>>   
+>>   static void test_specs(void)
+>> @@ -91,7 +72,7 @@ static void test_3_2_2(void)
+>>   	/* EBCDIC for "KVM/" */
+>>   	const uint8_t cpi_kvm[] = { 0xd2, 0xe5, 0xd4, 0x61 };
+>>   	const char vm_name_ext[] = "kvm-unit-test";
+>> -	struct stsi_322 *data = (void *)pagebuf;
+>> +	struct sysinfo_3_2_2 *data = (void *)pagebuf;
+>>   
+>>   	report_prefix_push("3.2.2");
+>>   
+> 
 
