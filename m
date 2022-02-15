@@ -2,113 +2,145 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6C31C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Feb 2022 10:30:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3DA0FC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Feb 2022 10:37:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235194AbiBOKaI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Feb 2022 05:30:08 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:55974 "EHLO
+        id S236601AbiBOKhn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Feb 2022 05:37:43 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232446AbiBOKaI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Feb 2022 05:30:08 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 513DD2B183;
-        Tue, 15 Feb 2022 02:29:58 -0800 (PST)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21FANOGm001983;
-        Tue, 15 Feb 2022 10:29:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=pBs6YC31+ei5SClrpEzkQXtnNHfZPoahZlvs7wXpNoM=;
- b=qNQX37NdAifNkFWtFJEeG5h+rCviCXLmzZg9CnjvdJhL/wgrz6oz1fYbtFcFGngVF3bo
- 3QZ20vtHXObhcnQb41/SLM4fkgjn6hi5LuMS/xkBZZfCyg1k8GaLSDaETdMOkCWZOF2H
- fwrfUpeAduL6cckmngFaKjo+GoDOpSVCIWkkBn1OIPJtnPEqMX2XTV+ekqUmKJYysvmA
- by51uJFXXCnWpRmi1OE0t9yo3O0MHSG+ukKIQ0xCTO2zvZBuHm/Dbg6hEqHs5achajcB
- fWFyeQxClt1pWQJqSX7Kx+C56NZa+0u0HlA2alLJDqlRQCkXKrjj6c0jIdK9xxP472Cx jA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3e8acpg39f-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Feb 2022 10:29:57 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21FASPeR015798;
-        Tue, 15 Feb 2022 10:29:57 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3e8acpg37x-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Feb 2022 10:29:57 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21FATgGx017395;
-        Tue, 15 Feb 2022 10:29:54 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma01fra.de.ibm.com with ESMTP id 3e64h9cpr9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Feb 2022 10:29:54 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21FAINTw39387504
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 15 Feb 2022 10:18:23 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DE93F4C04A;
-        Tue, 15 Feb 2022 10:28:43 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 87F414C058;
-        Tue, 15 Feb 2022 10:28:43 +0000 (GMT)
-Received: from li-ca45c2cc-336f-11b2-a85c-c6e71de567f1.ibm.com (unknown [9.171.27.176])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 15 Feb 2022 10:28:43 +0000 (GMT)
-Message-ID: <cc1d20c1b53631271e51ed85e892fc6a9eee71d0.camel@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v4 3/4] s390x: topology: Check the
- Perform Topology Function
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     frankja@linux.ibm.com, thuth@redhat.com, kvm@vger.kernel.org,
-        cohuck@redhat.com, imbrenda@linux.ibm.com, david@redhat.com
-Date:   Tue, 15 Feb 2022 11:28:43 +0100
-In-Reply-To: <1e9cfea2-c48c-fe2d-3e26-52ff0db1225b@linux.ibm.com>
-References: <20220208132709.48291-1-pmorel@linux.ibm.com>
-         <20220208132709.48291-4-pmorel@linux.ibm.com>
-         <8dd704d23f8a14907ed2a7f28ec3ac52685ab96c.camel@linux.ibm.com>
-         <c2dfd5c7-2602-e780-1f2b-402bff3c7c00@linux.ibm.com>
-         <72d2bb5a-c0aa-6136-0900-58a0474334d9@linux.ibm.com>
-         <1e9cfea2-c48c-fe2d-3e26-52ff0db1225b@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.42.3 (3.42.3-1.fc35) 
+        with ESMTP id S236575AbiBOKhj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Feb 2022 05:37:39 -0500
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id A720C710C4;
+        Tue, 15 Feb 2022 02:37:29 -0800 (PST)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 31BC21063;
+        Tue, 15 Feb 2022 02:37:29 -0800 (PST)
+Received: from FVFF77S0Q05N (unknown [10.57.89.144])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 3CBA53F66F;
+        Tue, 15 Feb 2022 02:37:22 -0800 (PST)
+Date:   Tue, 15 Feb 2022 10:37:15 +0000
+From:   Mark Rutland <mark.rutland@arm.com>
+To:     Ard Biesheuvel <ardb@kernel.org>
+Cc:     Arnd Bergmann <arnd@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Christoph Hellwig <hch@lst.de>,
+        linux-arch <linux-arch@vger.kernel.org>,
+        Linux Memory Management List <linux-mm@kvack.org>,
+        Linux API <linux-api@vger.kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
+        Brian Cain <bcain@codeaurora.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Nick Hu <nickhu@andestech.com>,
+        Greentime Hu <green.hu@gmail.com>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Stafford Horne <shorne@gmail.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Rich Felker <dalias@libc.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Richard Weinberger <richard@nod.at>, X86 ML <x86@kernel.org>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        alpha <linux-alpha@vger.kernel.org>,
+        "open list:SYNOPSYS ARC ARCHITECTURE" 
+        <linux-snps-arc@lists.infradead.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        linux-csky@vger.kernel.org,
+        "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>,
+        linux-ia64@vger.kernel.org,
+        linux-m68k <linux-m68k@lists.linux-m68k.org>,
+        "open list:MIPS" <linux-mips@vger.kernel.org>,
+        Openrisc <openrisc@lists.librecores.org>,
+        "open list:PARISC ARCHITECTURE" <linux-parisc@vger.kernel.org>,
+        "open list:LINUX FOR POWERPC (32-BIT AND 64-BIT)" 
+        <linuxppc-dev@lists.ozlabs.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        "open list:S390" <linux-s390@vger.kernel.org>,
+        Linux-sh list <linux-sh@vger.kernel.org>,
+        "open list:SPARC + UltraSPARC (sparc/sparc64)" 
+        <sparclinux@vger.kernel.org>,
+        linux-um <linux-um@lists.infradead.org>,
+        "open list:TENSILICA XTENSA PORT (xtensa)" 
+        <linux-xtensa@linux-xtensa.org>,
+        Robin Murphy <robin.murphy@arm.com>
+Subject: Re: [PATCH 08/14] arm64: simplify access_ok()
+Message-ID: <YguB5BeLoRc4dL7P@FVFF77S0Q05N>
+References: <20220214163452.1568807-1-arnd@kernel.org>
+ <20220214163452.1568807-9-arnd@kernel.org>
+ <CAMj1kXHixUFjV=4m3tzfGz7AiRWc-VczymbKuZq7dyZZNuLKxQ@mail.gmail.com>
+ <CAK8P3a2VfvDkueaJNTA9SiB+PFsi_Q17AX+aL46ueooW2ahmQw@mail.gmail.com>
+ <CAMj1kXGkG0KMD2rnKAJc3V7X9LP1grbcHTNYMnj_q4GiYfG2pQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: zDMOAZpBpuwbLRjcaz608VRgeTXWNhsN
-X-Proofpoint-GUID: 4dSkHGBGE8Mq_xbuYxfmehMGxwZpFc1J
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-02-15_03,2022-02-14_04,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 bulkscore=0
- priorityscore=1501 mlxlogscore=839 clxscore=1015 spamscore=0 mlxscore=0
- adultscore=0 phishscore=0 lowpriorityscore=0 impostorscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2202150056
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAMj1kXGkG0KMD2rnKAJc3V7X9LP1grbcHTNYMnj_q4GiYfG2pQ@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 2022-02-15 at 10:44 +0100, Pierre Morel wrote:
-> > > > - second operand is ignored.
-> > > 
-> > > Which second operand?
-> > 
-> > Sorry got it
+On Tue, Feb 15, 2022 at 10:21:16AM +0100, Ard Biesheuvel wrote:
+> On Tue, 15 Feb 2022 at 10:13, Arnd Bergmann <arnd@kernel.org> wrote:
+> >
+> > On Tue, Feb 15, 2022 at 9:17 AM Ard Biesheuvel <ardb@kernel.org> wrote:
+> > > On Mon, 14 Feb 2022 at 17:37, Arnd Bergmann <arnd@kernel.org> wrote:
+> > > > From: Arnd Bergmann <arnd@arndb.de>
+> > > >
+> > >
+> > > With set_fs() out of the picture, wouldn't it be sufficient to check
+> > > that bit #55 is clear? (the bit that selects between TTBR0 and TTBR1)
+> > > That would also remove the need to strip the tag from the address.
+> > >
+> > > Something like
+> > >
+> > >     asm goto("tbnz  %0, #55, %2     \n"
+> > >              "tbnz  %1, #55, %2     \n"
+> > >              :: "r"(addr), "r"(addr + size - 1) :: notok);
+> > >     return 1;
+> > > notok:
+> > >     return 0;
+> > >
+> > > with an additional sanity check on the size which the compiler could
+> > > eliminate for compile-time constant values.
+> >
+> > That should work, but I don't see it as a clear enough advantage to
+> > have a custom implementation. For the constant-size case, it probably
+> > isn't better than a compiler-scheduled comparison against a
+> > constant limit, but it does hurt maintainability when the next person
+> > wants to change the behavior of access_ok() globally.
+> >
 > 
-> I was a little fast in my answer, twice.
-> If the second operand is ignored, how would you like to check
-> something 
-> like that?
-> We can check that the result of the instruction is identical for the 
-> known effects the user can check what ever we put in there but how
-> can 
-> we know if it is really ignored?
+> arm64 also has this leading up to the range check, and I think we'd no
+> longer need it:
+> 
+>     if (IS_ENABLED(CONFIG_ARM64_TAGGED_ADDR_ABI) &&
+>         (current->flags & PF_KTHREAD || test_thread_flag(TIF_TAGGED_ADDR)))
+>             addr = untagged_addr(addr);
+> 
 
-Yes, there is no 100% guarantee. If you think there is no value or it's
-too difficult to test for the value it adds, it is fine for me if you
-leave it out.
+ABI-wise, we aim to *reject* tagged pointers unless the task is using the
+tagged addr ABI, so we need to retain both the untagging logic and the full
+pointer check (to actually check the tag bits) unless we relax that ABI
+decision generally (or go context-switch the TCR_EL1.TBI* bits).
 
-Your suggestion sounds fine, though.
+Since that has subtle ABI implications, I don't think we should change that
+within this series.
+
+If we *did* relax things, we could just check bit 55 here, and unconditionally
+clear that in uaccess_mask_ptr(), since LDTR/STTR should fault on kernel memory.
+On parts with meltdown those might not fault until committed, and so we need
+masking to avoid speculative access to a kernel pointer, and that requires the
+prior explciit check.
+
+Thanks,
+Mark.
