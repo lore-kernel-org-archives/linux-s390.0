@@ -2,109 +2,165 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01292C4707E
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Feb 2022 19:06:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9ADC5C433FE
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Feb 2022 19:24:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238014AbiBPTGN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Feb 2022 14:06:13 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:52602 "EHLO
+        id S232115AbiBPTYa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 16 Feb 2022 14:24:30 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:54364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235595AbiBPTGL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Feb 2022 14:06:11 -0500
-Received: from mail-yw1-f176.google.com (mail-yw1-f176.google.com [209.85.128.176])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3523C27019F;
-        Wed, 16 Feb 2022 11:05:59 -0800 (PST)
-Received: by mail-yw1-f176.google.com with SMTP id 00721157ae682-2d641c31776so9255867b3.12;
-        Wed, 16 Feb 2022 11:05:59 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=yLrFIsE9bo3p9BnVIL7Uc7sprqnSKm0YOW7fBIQdERM=;
-        b=RuPu7SzNkaJd1WR9+wnB7RuMLb2/6JyYiKaOmBtWGY+4dQhlRrtGvZ6OCmGpbsWMoE
-         P6HWXArbpHHQ7o31q4rHYkzBeYrTVeQSPrCkdBec5F3RuJYRVM//BwT9telG3bmZAcoB
-         FxtlU7vncA/7M5kWQwcqyBdpk27zG/p5D5rGZq0nsDf1j034j4N9NruAlDbyjIIBOzmu
-         KbHBVnw1SI5P4hqVE2AIEQGFaF2ieMYBNUQvgI02g+e1RAX1uy1xzU6XISp25w56c5dM
-         rQeGODqdry9lEgQwF/Hg6FiJO1SoO7gDJ8o3BoJD78lW8gTuVok5Fl/klWvtUyspycM7
-         AmqA==
-X-Gm-Message-State: AOAM532jcwakILeJ+RRfPI4QyknirUMpZKArmVbmtERBQUf3YEr8M+pB
-        AOGbopeO05mizhBNkS7JDbWQ5dPD2ZUb11wOmK0=
-X-Google-Smtp-Source: ABdhPJyFOmiGOmRDkw8czUhuWEAUWZI3b6hfKAcdDSxdtm3oSTgs7z2noREt7vOvPl7JarLhxJEUxltkCz2WrL99cSU=
-X-Received: by 2002:a0d:c244:0:b0:2d1:1fbb:180d with SMTP id
- e65-20020a0dc244000000b002d11fbb180dmr3902361ywd.196.1645038358332; Wed, 16
- Feb 2022 11:05:58 -0800 (PST)
+        with ESMTP id S229995AbiBPTYa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Feb 2022 14:24:30 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B810928420B;
+        Wed, 16 Feb 2022 11:24:17 -0800 (PST)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21GIjlfw017660;
+        Wed, 16 Feb 2022 19:24:01 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : references : date : in-reply-to : message-id : mime-version :
+ content-type; s=pp1; bh=vHS/1qVhITpyhJrLw/1awm4as1JyoT0qoFCVx2CKCjw=;
+ b=rsCTilMdXBPfDMePNDVOU1ObRGEkB/OIj0gj2mgJ/d+3InFvfdwDy3olE4l1dMjtQWJw
+ 5Y/HMe94yulS02o3gvyLBsTGq49VdtpJkRbAkNBSwiYx/7i8Zu6rPCHKxwKt9d2mvDQR
+ 9d1lVP8I7VN8rmc4aazHrOBTs0w569TBrSwFl0xZ+Qn7TSQl0lQCl0uecRK4/UZm1snn
+ CY2nndy8ZhTxvKnX6EC37dEHTt1QgvH2MhZyY3d7NJgnXLzpnxT1wtCJF1RLc/NXL2Jp
+ CkLRzvLwLqQB2W7SXyn1PVshwojOlkvT9ccOSPebEhltX5nq8WxyNEDaMZts3wnWCJOC FA== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e92178ydu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Feb 2022 19:24:00 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21GJ8j3O017229;
+        Wed, 16 Feb 2022 19:23:58 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma03ams.nl.ibm.com with ESMTP id 3e64habt4k-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Feb 2022 19:23:58 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21GJNu2o39322092
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 16 Feb 2022 19:23:56 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DC7BDA4040;
+        Wed, 16 Feb 2022 19:23:55 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B6F9DA4057;
+        Wed, 16 Feb 2022 19:23:55 +0000 (GMT)
+Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Wed, 16 Feb 2022 19:23:55 +0000 (GMT)
+From:   Sven Schnelle <svens@linux.ibm.com>
+To:     Steven Rostedt <rostedt@goodmis.org>
+Cc:     linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: ftrace startup tests crashing due to missing rcu_synchronize()
+References: <yt9dilte4px4.fsf@linux.ibm.com>
+        <20220216135419.01d96fe1@gandalf.local.home>
+Date:   Wed, 16 Feb 2022 20:23:55 +0100
+In-Reply-To: <20220216135419.01d96fe1@gandalf.local.home> (Steven Rostedt's
+        message of "Wed, 16 Feb 2022 13:54:19 -0500")
+Message-ID: <yt9dee424nuc.fsf@linux.ibm.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.50 (gnu/linux)
 MIME-Version: 1.0
-References: <20220215174743.GA878920@embeddedor> <202202151016.C0471D6E@keescook>
- <20220215192110.GA883653@embeddedor> <Ygv8wY75hNqS7zO6@unreal> <20220215193221.GA884407@embeddedor>
-In-Reply-To: <20220215193221.GA884407@embeddedor>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Wed, 16 Feb 2022 20:05:47 +0100
-Message-ID: <CAJZ5v0jpAnQk+Hub6ue6t712RW+W0YBjb_gAcZZbUeuYMGv7mg@mail.gmail.com>
-Subject: Re: [PATCH][next] treewide: Replace zero-length arrays with
- flexible-array members
-To:     "Gustavo A. R. Silva" <gustavoars@kernel.org>
-Cc:     Leon Romanovsky <leon@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        GR-QLogic-Storage-Upstream@marvell.com,
-        linux-alpha@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org,
-        Linux-sh list <linux-sh@vger.kernel.org>,
-        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-        linux-xtensa@linux-xtensa.org,
-        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
-        intel-gfx <intel-gfx@lists.freedesktop.org>,
-        dri-devel <dri-devel@lists.freedesktop.org>,
-        nouveau <nouveau@lists.freedesktop.org>,
-        coresight@lists.linaro.org,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        bcm-kernel-feedback-list <bcm-kernel-feedback-list@broadcom.com>,
-        netdev <netdev@vger.kernel.org>,
-        Linux OMAP Mailing List <linux-omap@vger.kernel.org>,
-        "open list:TARGET SUBSYSTEM" <linux-scsi@vger.kernel.org>,
-        target-devel@vger.kernel.org, mpi3mr-linuxdrv.pdl@broadcom.com,
-        linux-staging@lists.linux.dev,
-        linux-rpi-kernel@lists.infradead.org, sparmaintainer@unisys.com,
-        linux-cifs@vger.kernel.org, samba-technical@lists.samba.org,
-        Ext4 Developers List <linux-ext4@vger.kernel.org>,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        "open list:ACPI COMPONENT ARCHITECTURE (ACPICA)" <devel@acpica.org>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        Linux Memory Management List <linux-mm@kvack.org>,
-        greybus-dev@lists.linaro.org, linux-i3c@lists.infradead.org,
-        linux-rdma@vger.kernel.org,
-        "open list:BLUETOOTH DRIVERS" <linux-bluetooth@vger.kernel.org>,
-        "moderated list:SOUND - SOC LAYER / DYNAMIC AUDIO POWER MANAGEM..." 
-        <alsa-devel@alsa-project.org>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>, linux-perf-users@vger.kernel.org,
-        linux-hardening@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: x85yT9iD3yuH0QjU7WIMjxYPSi6Lmkrt
+X-Proofpoint-ORIG-GUID: x85yT9iD3yuH0QjU7WIMjxYPSi6Lmkrt
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-02-16_09,2022-02-16_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ mlxlogscore=898 mlxscore=0 bulkscore=0 phishscore=0 lowpriorityscore=0
+ adultscore=0 impostorscore=0 clxscore=1015 suspectscore=0 spamscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2202160107
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Feb 15, 2022 at 8:24 PM Gustavo A. R. Silva
-<gustavoars@kernel.org> wrote:
->
-> On Tue, Feb 15, 2022 at 09:19:29PM +0200, Leon Romanovsky wrote:
-> > On Tue, Feb 15, 2022 at 01:21:10PM -0600, Gustavo A. R. Silva wrote:
-> > > On Tue, Feb 15, 2022 at 10:17:40AM -0800, Kees Cook wrote:
-> > > > On Tue, Feb 15, 2022 at 11:47:43AM -0600, Gustavo A. R. Silva wrote:
-> > > >
-> > > > These all look trivially correct to me. Only two didn't have the end of
-> > > > the struct visible in the patch, and checking those showed them to be
-> > > > trailing members as well, so:
-> > > >
-> > > > Reviewed-by: Kees Cook <keescook@chromium.org>
-> > >
-> > > I'll add this to my -next tree.
-> >
-> > I would like to ask you to send mlx5 patch separately to netdev. We are working
-> > to delete that file completely and prefer to avoid from unnecessary merge conflicts.
->
-> Oh OK. Sure thing; I will do so.
+Steven Rostedt <rostedt@goodmis.org> writes:
 
-Can you also send the ACPI patch separately, please?
+> On Wed, 16 Feb 2022 19:39:03 +0100
+> Sven Schnelle <svens@linux.ibm.com> wrote:
+>> [    4.460091] Unable to handle kernel pointer dereference in virtual kernel address space
+>> [    4.460375] Failing address: 6b6b6b6b6b6b6000 TEID: 6b6b6b6b6b6b6803
+>> [    4.460458] Fault in home space mode while using kernel ASCE.
+>> [    4.460695] AS:000000008561c007 R3:0000000000000024
+>> [    4.461143] Oops: 0038 ilc:3 [#1] PREEMPT SMP
+>> [    4.461162] Modules linked in:
+>> [    4.461175] CPU: 245 PID: 0 Comm: swapper/245 Not tainted 5.17.0-rc4-00051-gc5d9ae265b10-dirty #4
+>> [    4.461183] Hardware name: IBM 8561 T01 701 (KVM/Linux)
+>
+> I this a 390?
 
-We would like to route it through the upstream ACPICA code base.
+Yes.
+
+>> Looking at unregister_ftrace_function(), i noticed that
+>> ftrace_shutdown() is called with 0 as command. Given that the ftrace
+>> function didn't change and ftrace is still enabled, the
+>> rcu_synchronize() functions in ftrace_shutdown() are silently skipped.
+>> So the caller frees ops already before other CPUs have gone through
+>> quiesce, and may therefore use the old (now freed) list entry.
+>> 
+>> To fix this, i wonder whether we should change the code in
+>> unregister_ftrace_function() to:
+>> 
+>> @@ -7827,7 +7837,7 @@ int unregister_ftrace_function(struct ftrace_ops *ops)
+>>         int ret;
+>>  
+>>         mutex_lock(&ftrace_lock);
+>> -       ret = ftrace_shutdown(ops, 0);
+>> +       ret = ftrace_shutdown(ops, FTRACE_UPDATE_TRACE_FUNC);
+>
+> No, the ftrace_shutdown() will add that flag if it is needed.
+>
+>>         mutex_unlock(&ftrace_lock);
+>>  
+>>         return ret;
+>> 
+>> I haven't checked whether other callsites of unregister_ftrace_function()
+>> also need to be adjusted. What do you think about that 'fix'?
+>
+> But what I'm thinking is, the function is being freed but has yet to be
+> removed from the list. Or that a synchronization is missed.
+>
+> That is, shutdown is called, the item is removed from the list and freed,
+> but something got preempted while on the ftrace trampoline, with a
+> reference to the item, and then woke up and executed the item that was
+> freed.
+>
+> I'll look into it. Thanks for the report.
+
+With additional debugging i see:
+
+@@ -2967,14 +2974,17 @@ int ftrace_shutdown(struct ftrace_ops *ops, int command)
+        }
+ 
+        if (!command || !ftrace_enabled) {
++               pr_err("%s: skipping rcu_synchronize(): ops=%pS command=%d ftrace_enabled=%d saved func=%pS ftrace_trace_func=%pS\n",
++                      __func__, ops, command, ftrace_enabled, saved_ftrace_func, ftrace_trace_function);
+                /*
+                 * If these are dynamic or per_cpu ops, they still
+                 * need their data freed. Since, function tracing is
+                 * not currently active, we can just free them
+                 * without synchronizing all CPUs.
+                 */
+
+[  +0.000011] unregister_ftrace_function: 0x2f6792e00
+[  +0.000023] removing ops 00000002f6792e00 trace_selftest_test_dyn_func+0x0/0x18
+[  +0.000661] ftrace_shutdown: skipping rcu_synchronize(): ops=0x2f6792e00 command=0 ftrace_enabled=1 saved func=arch_ftrace_ops_list_func+0x0/0x1b0 ft>
+[  +0.010032] unregister_ftrace_function: test_probe1+0x0/0x1b0
+[  +0.000017] removing ops 000000009d876e40 trace_selftest_test_probe1_func+0x0/0x18
+[  +0.000053] ftrace_shutdown: skipping rcu_synchronize(): ops=test_probe1+0x0/0x1b0 command=0 ftrace_enabled=1 saved func=arch_ftrace_ops_list_func+0x>
+[  +0.000017] unregister_ftrace_function: test_probe2+0x0/0x1b0
+[  +0.000081] removing ops 000000009d876ff0 trace_selftest_test_probe2_func+0x0/0x18
+[  +0.000064] ftrace_shutdown: skipping rcu_synchronize(): ops=test_probe2+0x0/0x1b0 command=0 ftrace_enabled=1 saved func=arch_ftrace_ops_list_func+0x>
+[  +0.000015] unregister_ftrace_function: test_probe3+0x0/0x1b0
+[  +0.000011] removing ops 000000009d8771a0 trace_selftest_test_probe3_func+0x0/0x18
+[  +0.000108] unregister_ftrace_function: global_ops+0x0/0x1b0
+[  +0.000010] removing ops 000000009d9325b8 trace_selftest_test_global_func+0x0/0x18
+[  +0.025759] PASSED
+
+So the rcu_synchronize is definitely skipped. Another thing i was
+wondering was whether we need to reset the next pointer in
+the to-be-removed entry in remove_ftrace_ops(). But i haven't
+investigated that in detail yet.
