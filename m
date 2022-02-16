@@ -2,188 +2,379 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15215C4332F
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Feb 2022 12:09:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 387CEC433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Feb 2022 12:24:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233041AbiBPMJ2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Feb 2022 07:09:28 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:50986 "EHLO
+        id S232660AbiBPMY3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 16 Feb 2022 07:24:29 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:47746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233027AbiBPMJ1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Feb 2022 07:09:27 -0500
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 784AB136EDE;
-        Wed, 16 Feb 2022 04:09:14 -0800 (PST)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 27578210DC;
-        Wed, 16 Feb 2022 12:09:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1645013353; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=CeHM2rPA7yGWrgo9e3Yy3K6CILh7TxZUKuaP8nJT01Q=;
-        b=k+7SjxFM3bADxSsYsfTAP/GKSspQGlou6hSXs4m7Zb6NJ6Il6yXyMF1EbuloccO4VWYvsN
-        iDvCR2U6ivG7pn5O0JfMJrgeejU1cnfB+sbSOX264UhG5DeC8HqvSNze/o08xwOBYr2wgu
-        Z/Q7c+0cjUWdPzQlcAmjyfVjXw2W4a4=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1645013353;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=CeHM2rPA7yGWrgo9e3Yy3K6CILh7TxZUKuaP8nJT01Q=;
-        b=tdKU4boRPoMaF1YZDalaE84G01anU7b/OZTgarygfV4oUaNiqJ2jXEpkl0OmO7bmXO0FDv
-        8ewrHH29OQwqLpDQ==
-Received: from kunlun.suse.cz (unknown [10.100.128.76])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id A31DAA3B8E;
-        Wed, 16 Feb 2022 12:09:12 +0000 (UTC)
-Date:   Wed, 16 Feb 2022 13:09:11 +0100
-From:   Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
-To:     Mimi Zohar <zohar@linux.ibm.com>
-Cc:     Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Philipp Rudo <prudo@redhat.com>, Baoquan He <bhe@redhat.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        AKASHI Takahiro <takahiro.akashi@linaro.org>,
-        James Morse <james.morse@arm.com>,
-        Dave Young <dyoung@redhat.com>,
-        Kairui Song <kasong@redhat.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-modules@vger.kernel.org,
-        keyrings@vger.kernel.org, linux-security-module@vger.kernel.org,
-        stable@kernel.org, Eric Snowberg <eric.snowberg@oracle.com>
-Subject: Re: [PATCH 4/4] module, KEYS: Make use of platform keyring for
- signature verification
-Message-ID: <20220216120911.GT3113@kunlun.suse.cz>
-References: <cover.1644953683.git.msuchanek@suse.de>
- <840433bc93a58d6dfc4d96c34c0c3b158a0e669d.1644953683.git.msuchanek@suse.de>
- <3e39412657a4b0839bcf38544d591959e89877b8.camel@linux.ibm.com>
- <20220215204730.GQ3113@kunlun.suse.cz>
- <c3f6f6c8a9db34cc1cdc1000f9272c2b36445e15.camel@linux.ibm.com>
- <20220216105645.GS3113@kunlun.suse.cz>
- <edb305079c28e49021166423af0378f8d218f269.camel@linux.ibm.com>
+        with ESMTP id S229790AbiBPMY2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Feb 2022 07:24:28 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F31327AA09;
+        Wed, 16 Feb 2022 04:24:16 -0800 (PST)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21GC86OH016188;
+        Wed, 16 Feb 2022 12:24:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=m4GIiWXiVwUF8XsigacXsC+uOgUv0IWluGWuga73530=;
+ b=Utp1V5h1ujTxdlt/EFONhjGCXuh6YgssluV4JF/KucERI68IfcBtiZ2voruDntRBhvX4
+ 9aMHCJSrNSqBly8tP4Ycdnlc75qO9HQVPPMo7SvVSpo+v+tldJFaW1e9pwltmts+lYdg
+ uY/6QNB90MdwJY5QO0YeE/4aKVBCYxldlseve+P8AboW6TZAneD3fFEH9lMCqmyzxHBM
+ pA4TBWzgZgG5uilaMlU6ctYdzLPJ0JIXNCokWzpmfGsD1jmNngT3V7zKHXzUe2iHkBEs
+ dtEkUn68nVW3Ul2mC5Q93P1KpPTbION8l7WIA7JEjjARqpIhtEIhnPL6rz4BuQnBIAdl NQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e8usgy7gd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Feb 2022 12:24:15 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21GCDxqK034013;
+        Wed, 16 Feb 2022 12:24:14 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e8usgy7g0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Feb 2022 12:24:14 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21GCItWi027326;
+        Wed, 16 Feb 2022 12:24:13 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma04ams.nl.ibm.com with ESMTP id 3e64ha834e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Feb 2022 12:24:13 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21GCO7aR44958178
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 16 Feb 2022 12:24:07 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5659111C04A;
+        Wed, 16 Feb 2022 12:24:07 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DC98711C069;
+        Wed, 16 Feb 2022 12:24:06 +0000 (GMT)
+Received: from [9.171.75.169] (unknown [9.171.75.169])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 16 Feb 2022 12:24:06 +0000 (GMT)
+Message-ID: <f5ff2f8a-1cba-d429-ad2b-32ce4ce47465@linux.ibm.com>
+Date:   Wed, 16 Feb 2022 13:26:21 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [kvm-unit-tests PATCH 1/1] s390x: stsi: Define vm_is_kvm to be
+ used in different tests
+Content-Language: en-US
+To:     Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, thuth@redhat.com, kvm@vger.kernel.org,
+        cohuck@redhat.com, david@redhat.com, nrb@linux.ibm.com
+References: <20220215104632.47796-1-pmorel@linux.ibm.com>
+ <20220215104632.47796-2-pmorel@linux.ibm.com>
+ <20220215130606.2d4f2ebb@p-imbrenda>
+ <f7d7423b-c0fb-4184-6d3a-fa1d855e0f19@linux.ibm.com>
+ <20220215162154.6ebd2567@p-imbrenda>
+ <211983e2-5e03-70d6-c5e2-db702ebfb0a4@linux.ibm.com>
+ <73febafb-969b-c5b9-4ad3-292a8cab869f@linux.ibm.com>
+From:   Pierre Morel <pmorel@linux.ibm.com>
+In-Reply-To: <73febafb-969b-c5b9-4ad3-292a8cab869f@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <edb305079c28e49021166423af0378f8d218f269.camel@linux.ibm.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: MQ2kgB0fjMF_nFRmKZDQ8a8MlPHGX3Uy
+X-Proofpoint-GUID: hrCYbmiiQM5aD8aagxI738au_jr4yLCg
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-02-16_05,2022-02-16_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ impostorscore=0 lowpriorityscore=0 suspectscore=0 priorityscore=1501
+ mlxscore=0 spamscore=0 phishscore=0 clxscore=1015 malwarescore=0
+ bulkscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2202160069
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Feb 16, 2022 at 06:58:51AM -0500, Mimi Zohar wrote:
-> On Wed, 2022-02-16 at 11:56 +0100, Michal Such�nek wrote:
-> > On Tue, Feb 15, 2022 at 05:12:32PM -0500, Mimi Zohar wrote:
-> > > On Tue, 2022-02-15 at 21:47 +0100, Michal Such�nek wrote:
-> > > > Hello,
-> > > > 
-> > > > On Tue, Feb 15, 2022 at 03:08:18PM -0500, Mimi Zohar wrote:
-> > > > > [Cc'ing Eric Snowberg]
-> > > > > 
-> > > > > Hi Michal,
-> > > > > 
-> > > > > On Tue, 2022-02-15 at 20:39 +0100, Michal Suchanek wrote:
-> > > > > > Commit 278311e417be ("kexec, KEYS: Make use of platform keyring for signature verify")
-> > > > > > adds support for use of platform keyring in kexec verification but
-> > > > > > support for modules is missing.
-> > > > > > 
-> > > > > > Add support for verification of modules with keys from platform keyring
-> > > > > > as well.
-> > > > > 
-> > > > > Permission for loading the pre-OS keys onto the "platform" keyring and
-> > > > > using them is limited to verifying the kexec kernel image, nothing
-> > > > > else.
-> > > > 
-> > > > Why is the platform keyring limited to kexec, and nothing else?
-> > > > 
-> > > > It should either be used for everything or for nothing. You have the
-> > > > option to compile it in and then it should be used, and the option to
-> > > > not compile it in and then it cannot be used.
-> > > > 
-> > > > There are two basic use cases:
-> > > > 
-> > > > (1) there is a vendor key which is very hard to use so you sign
-> > > > something small and simple like shim with the vendor key, and sign your
-> > > > kernel and modules with your own key that's typically enrolled with shim
-> > > > MOK, and built into the kernel.
-> > > > 
-> > > > (2) you import your key into the firmware, and possibly disable the
-> > > > vendor key. You can load the kernel directly without shim, and then your
-> > > > signing key is typically in the platform keyring and built into the
-> > > > kernel.
-> > > > 
-> > > > In neither case do I see any reason to use some keyrings for kexec and
-> > > > other keyrings for modules.
-> > > 
-> > > When building your own kernel there isn't a problem.  Additional keys
-> > > may be built into the kernel image, which are loaded onto the
-> > > ".builtin_trusted_keys" keyring, and may be stored in MOK.  Normally
-> > > different keys are used for signing the kernel image and kernel
-> > 
-> > That's actually not normal.
-> > 
-> > > modules.  Kernel modules can be signed by the build time ephemeral
-> > > kernel module signing key, which is built into the kernel and
-> > > automatically loaded onto the ".builtin_trusted_keys" keyring.
-> > 
-> > Right, there is this advice to use ephemeral key to sign modules.
-> > 
-> > I don't think that's a sound advice in general. It covers only the
-> > special case when you build the kernel once, only rebuild the whole
-> > kernel and never just one module, don't use any 3rd party module, don't
-> > bother signing firmware (I am not sure that is supported right now but
-> > if you are into integrity and stuff you can see that it makes sense to
-> > sign it, too).
-> > 
-> > And you need to manage the key you use for the kernel signing, anyway.
-> > Sure, you could use the same ephemeral key as for the modules, enroll
-> > it, and shred it but then it is NOT a key different from the one you use
-> > for modules.
-> > 
-> > Or you could maintain a long-lived key for the kernel, but if you do I
-> > do NOT see any reason to not use it also for modules, in-tree and
-> > out-of-tree.
+
+
+On 2/16/22 09:13, Janosch Frank wrote:
+> On 2/15/22 18:30, Pierre Morel wrote:
+>>
+>>
+>> On 2/15/22 16:21, Claudio Imbrenda wrote:
+>>> On Tue, 15 Feb 2022 16:08:16 +0100
+>>> Janosch Frank <frankja@linux.ibm.com> wrote:
+>>>
+>>>> On 2/15/22 13:06, Claudio Imbrenda wrote:
+>>>>> On Tue, 15 Feb 2022 11:46:32 +0100
+>>>>> Pierre Morel <pmorel@linux.ibm.com> wrote:
+>>>>>> Several tests are in need of a way to check on which hypervisor
+>>>>>> and virtualization level they are running on to be able to fence
+>>>>>> certain tests. This patch adds functions that return true if a
+>>>>>> vm is running under KVM, LPAR or generally as a level 2 guest.
+>>>>>>
+>>>>>> To check if we're running under KVM we use the STSI 3.2.2
+>>>>>> instruction, let's define it's response structure in a central
+>>>>>> header.
+>>>>>
+>>>>> sorry, I had replied to the old series, let me reply here too
+>>>>>
+>>>>>
+>>>>> I think it would look cleaner if there was only one
+>>>>> "detect_environment" function, that would call stsi once and detect 
+>>>>> the
+>>>>> environment, then the various vm_is_* would become something like
+>>>>>
+>>>>> bool vm_is_*(void)
+>>>>> {
+>>>>>     return detect_environment() == VM_IS_*;
+>>>>> }
+>>>>>
+>>>>> of course detect_environment would also cache the result with static
+>>>>> variables.
+>>>>>
+>>>>> bonus, we could make that function public, so a testcase could just
+>>>>> switch over the type of hypervisor it's being run on, instead of 
+>>>>> having
+>>>>> to use a series of ifs.
+>>>>>
+>>>>> and then maybe the various vm_is_* could become static inlines to 
+>>>>> be put
+>>>>> in the header.
+>>>>>
+>>>>> please note that "detect_environment" is just the first thing that 
+>>>>> came
+>>>>> to my mind, I have no preference regarding the name.
+>>>>
+>>>> I'd like to keep this patch as simple as possible because there are
+>>>> multiple patch sets which are gated by it.
+>>>>
+>>>> The vm.h code and the skey.c z/VM 6 check is a thorn in my side anyway
+>>>> and I'd rather have it fixed properly which will likely result in a lot
+>>>> of opinions being voiced.
+>>>>
+>>>> So I'd propose to rename vm_is_vm() to vm_is_guest2() and pick this 
+>>>> patch.
+>>>
+>>> ok for me
+>>>
+>>> I'll rename the function and queue the patch
+>>>
+>>
+>> Not OK for me, in the POP PTF do not do any difference between guest 2
+>> and guest 3.
 > 
-> If signing ALL kernel modules, in-tree and out-of-tree, with the same
-> key as the kernel image, is your real intention, then by all means
+> If we're running with HW virtualization then every guest >= 2 is a guest 
+> 2 at the end. And most of the time we don't want to know the HW level 
+> anyway, we want to know who our hypervisor is and vm_is_vm() doesn't 
+> tell you one bit about that.
 
-Why would you sign them with different keys, specifically?
+It tells us that we are running under a VM, the POP defines 1 as the 
+basic machine, 2 as the LPAR and 3 as the Virtual Machine
 
-For out of tree modules, sure. But that's an ADDITIONAL key, not
-REMOVAL of a key.
+I find this definition clear, much more clear than guest 2 that is why I 
+used it.
 
-> write a complete patch description with the motivation for why kernel
-> module signatures need to be verified against this one pre-OS key
-> stored only in the platform keyring.  Such a major change like this
-> shouldn't be buried here.
+> 
+> At this point I would be happier if we remove the function and use 
+> stsi_get_fc() == 3 directly. There's no arguing about what we're 
+> checking when using that.
 
-No, in my book it does not make sense to verify anything against the
-pre-os key at all in the common case.
+Speaking of function name, I do not understand the name of this function 
+stsi_get_fc() : returning the function code ?
 
-However, if you do verify the kernel against the pre-os key it does not
-make sense to not verify modules against the pre-os key. There is no
-sense using different key for kernel and modules. They are both built in
-the same environment with access to same the keys.
+> 
+> We're currently arguing about a function that's only used in this patch, 
+> no?
 
-> Otherwise, I suggest looking at Eric Snowberg's "Enroll kernel keys
-> thru MOK patch set" patch set [1], as previously mentioned, which is
-> queued to be upstreamed by Jarkko.  It loads MOK keys onto the
-> '.machine' keyring, which is linked to the '.secondary_trusted_keys"
-> keyring.  A subsequent patch set will enable IMA support.
+It is absolutely unimportant for me, if you prefer this we do this.
+I send the changes.
 
-I don't really care how many keyrings there are. What I care about is
-that they are used conssitently.
+> 
+>>
+>> Or do you want to implement a VSIE specificity ?
+>>
+>>
+>>>>
+>>>>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>>>>>> ---
+>>>>>>     lib/s390x/stsi.h | 32 ++++++++++++++++++++++++++++
+>>>>>>     lib/s390x/vm.c   | 55 
+>>>>>> ++++++++++++++++++++++++++++++++++++++++++++++--
+>>>>>>     lib/s390x/vm.h   |  3 +++
+>>>>>>     s390x/stsi.c     | 23 ++------------------
+>>>>>>     4 files changed, 90 insertions(+), 23 deletions(-)
+>>>>>>     create mode 100644 lib/s390x/stsi.h
+>>>>>>
+>>>>>> diff --git a/lib/s390x/stsi.h b/lib/s390x/stsi.h
+>>>>>> new file mode 100644
+>>>>>> index 00000000..bebc492d
+>>>>>> --- /dev/null
+>>>>>> +++ b/lib/s390x/stsi.h
+>>>>>> @@ -0,0 +1,32 @@
+>>>>>> +/* SPDX-License-Identifier: GPL-2.0-only */
+>>>>>> +/*
+>>>>>> + * Structures used to Store System Information
+>>>>>> + *
+>>>>>> + * Copyright IBM Corp. 2022
+>>>>>> + */
+>>>>>> +
+>>>>>> +#ifndef _S390X_STSI_H_
+>>>>>> +#define _S390X_STSI_H_
+>>>>>> +
+>>>>>> +struct sysinfo_3_2_2 {
+>>>>>> +    uint8_t reserved[31];
+>>>>>> +    uint8_t count;
+>>>>>> +    struct {
+>>>>>> +        uint8_t reserved2[4];
+>>>>>> +        uint16_t total_cpus;
+>>>>>> +        uint16_t conf_cpus;
+>>>>>> +        uint16_t standby_cpus;
+>>>>>> +        uint16_t reserved_cpus;
+>>>>>> +        uint8_t name[8];
+>>>>>> +        uint32_t caf;
+>>>>>> +        uint8_t cpi[16];
+>>>>>> +        uint8_t reserved5[3];
+>>>>>> +        uint8_t ext_name_encoding;
+>>>>>> +        uint32_t reserved3;
+>>>>>> +        uint8_t uuid[16];
+>>>>>> +    } vm[8];
+>>>>>> +    uint8_t reserved4[1504];
+>>>>>> +    uint8_t ext_names[8][256];
+>>>>>> +};
+>>>>>> +
+>>>>>> +#endif  /* _S390X_STSI_H_ */
+>>>>>> diff --git a/lib/s390x/vm.c b/lib/s390x/vm.c
+>>>>>> index a5b92863..91acd05b 100644
+>>>>>> --- a/lib/s390x/vm.c
+>>>>>> +++ b/lib/s390x/vm.c
+>>>>>> @@ -12,6 +12,7 @@
+>>>>>>     #include <alloc_page.h>
+>>>>>>     #include <asm/arch_def.h>
+>>>>>>     #include "vm.h"
+>>>>>> +#include "stsi.h"
+>>>>>>     /**
+>>>>>>      * Detect whether we are running with TCG (instead of KVM)
+>>>>>> @@ -26,9 +27,13 @@ bool vm_is_tcg(void)
+>>>>>>         if (initialized)
+>>>>>>             return is_tcg;
+>>>>>> +    if (!vm_is_vm()) {
+>>>>>> +        initialized = true;
+>>>>>> +        return is_tcg;
+>>>>>> +    }
+>>>>>> +
+>>>>>>         buf = alloc_page();
+>>>>>> -    if (!buf)
+>>>>>> -        return false;
+>>>>>> +    assert(buf);
+>>>>>>         if (stsi(buf, 1, 1, 1))
+>>>>>>             goto out;
+>>>>>> @@ -43,3 +48,49 @@ out:
+>>>>>>         free_page(buf);
+>>>>>>         return is_tcg;
+>>>>>>     }
+>>>>>> +
+>>>>>> +/**
+>>>>>> + * Detect whether we are running with KVM
+>>>>>> + */
+>>>>>> +bool vm_is_kvm(void)
+>>>>>> +{
+>>>>>> +    /* EBCDIC for "KVM/" */
+>>>>>> +    const uint8_t kvm_ebcdic[] = { 0xd2, 0xe5, 0xd4, 0x61 };
+>>>>>> +    static bool initialized;
+>>>>>> +    static bool is_kvm;
+>>>>>> +    struct sysinfo_3_2_2 *stsi_322;
+>>>>>> +
+>>>>>> +    if (initialized)
+>>>>>> +        return is_kvm;
+>>>>>> +
+>>>>>> +    if (!vm_is_vm() || vm_is_tcg()) {
+>>>>>> +        initialized = true;
+>>>>>> +        return is_kvm;
+>>>>>> +    }
+>>>>>> +
+>>>>>> +    stsi_322 = alloc_page();
+>>>>>> +    assert(stsi_322);
+>>>>>> +
+>>>>>> +    if (stsi(stsi_322, 3, 2, 2))
+>>>>>> +        goto out;
+>>>>>> +
+>>>>>> +    /*
+>>>>>> +     * If the manufacturer string is "KVM/" in EBCDIC, then we
+>>>>>> +     * are on KVM.
+>>>>>> +     */
+>>>>>> +    is_kvm = !memcmp(&stsi_322->vm[0].cpi, kvm_ebcdic, 
+>>>>>> sizeof(kvm_ebcdic));
+>>>>>> +    initialized = true;
+>>>>>> +out:
+>>>>>> +    free_page(stsi_322);
+>>>>>> +    return is_kvm;
+>>>>>> +}
+>>>>>> +
+>>>>>> +bool vm_is_lpar(void)
+>>>>>> +{
+>>>>>> +    return stsi_get_fc() == 2;
+>>>>>> +}
+>>>>>> +
+>>>>>> +bool vm_is_vm(void)
+>>>>>> +{
+>>>>>> +    return stsi_get_fc() == 3;
+>>>>>> +}
+>>>>>> diff --git a/lib/s390x/vm.h b/lib/s390x/vm.h
+>>>>>> index 7abba0cc..3aaf76af 100644
+>>>>>> --- a/lib/s390x/vm.h
+>>>>>> +++ b/lib/s390x/vm.h
+>>>>>> @@ -9,5 +9,8 @@
+>>>>>>     #define _S390X_VM_H_
+>>>>>>     bool vm_is_tcg(void);
+>>>>>> +bool vm_is_kvm(void);
+>>>>>> +bool vm_is_vm(void);
+>>>>>> +bool vm_is_lpar(void);
+>>>>>>     #endif  /* _S390X_VM_H_ */
+>>>>>> diff --git a/s390x/stsi.c b/s390x/stsi.c
+>>>>>> index 391f8849..dccc53e7 100644
+>>>>>> --- a/s390x/stsi.c
+>>>>>> +++ b/s390x/stsi.c
+>>>>>> @@ -13,27 +13,8 @@
+>>>>>>     #include <asm/asm-offsets.h>
+>>>>>>     #include <asm/interrupt.h>
+>>>>>>     #include <smp.h>
+>>>>>> +#include <stsi.h>
+>>>>>> -struct stsi_322 {
+>>>>>> -    uint8_t reserved[31];
+>>>>>> -    uint8_t count;
+>>>>>> -    struct {
+>>>>>> -        uint8_t reserved2[4];
+>>>>>> -        uint16_t total_cpus;
+>>>>>> -        uint16_t conf_cpus;
+>>>>>> -        uint16_t standby_cpus;
+>>>>>> -        uint16_t reserved_cpus;
+>>>>>> -        uint8_t name[8];
+>>>>>> -        uint32_t caf;
+>>>>>> -        uint8_t cpi[16];
+>>>>>> -        uint8_t reserved5[3];
+>>>>>> -        uint8_t ext_name_encoding;
+>>>>>> -        uint32_t reserved3;
+>>>>>> -        uint8_t uuid[16];
+>>>>>> -    } vm[8];
+>>>>>> -    uint8_t reserved4[1504];
+>>>>>> -    uint8_t ext_names[8][256];
+>>>>>> -};
+>>>>>>     static uint8_t pagebuf[PAGE_SIZE * 2] 
+>>>>>> __attribute__((aligned(PAGE_SIZE * 2)));
+>>>>>>     static void test_specs(void)
+>>>>>> @@ -91,7 +72,7 @@ static void test_3_2_2(void)
+>>>>>>         /* EBCDIC for "KVM/" */
+>>>>>>         const uint8_t cpi_kvm[] = { 0xd2, 0xe5, 0xd4, 0x61 };
+>>>>>>         const char vm_name_ext[] = "kvm-unit-test";
+>>>>>> -    struct stsi_322 *data = (void *)pagebuf;
+>>>>>> +    struct sysinfo_3_2_2 *data = (void *)pagebuf;
+>>>>>>         report_prefix_push("3.2.2");
+>>>>
+>>>
+>>
+> 
 
-Thanks
-
-Michal
+-- 
+Pierre Morel
+IBM Lab Boeblingen
