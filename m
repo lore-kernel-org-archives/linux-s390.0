@@ -2,198 +2,340 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 78395C433FE
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Feb 2022 11:59:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B09DFC433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Feb 2022 12:00:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232332AbiBPL7e (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Feb 2022 06:59:34 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36914 "EHLO
+        id S230281AbiBPMA1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 16 Feb 2022 07:00:27 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230378AbiBPL7d (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Feb 2022 06:59:33 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 370BD15A35;
-        Wed, 16 Feb 2022 03:59:21 -0800 (PST)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21GBBoDx023238;
-        Wed, 16 Feb 2022 11:59:05 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=imTy3iAZV/BrTutWiw5e9IZWKaqWO+g/gDhLp/ZA5hE=;
- b=nPQiq8wRb4pA64wajPATltpSwwbZ4dDk9BhMZ/5UU3mpUNShImI0lKgDxHrdAd2eJJw0
- PNIgku1Ak3zmkh/mEF0lYZ6VuYhMDX/+DxVdmE6uzvmv44vB+tt6AH6BPCn1iHZCV+Eo
- PbdOz8ssDquMlFU6H9RCmHUuu7T42iF6SHrH1/fzuV8PrdJ8PNO/f0HBE5dxtCW32Pdf
- ADTUOxt0hR/s1eImm3WQCdo5V8F5unTQDkeHmuNUr1dHDVyicHOO0qoqNc/PtRB2Q5v9
- Rbbj+MfhRANknyVhKLdPHkR8Rmt4Z7T12gUu1TCfsyeR5DJa8k8U6uuBO5obnB4iVTqr Bg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3e9064rwsf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 16 Feb 2022 11:59:04 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21GBLnG1023932;
-        Wed, 16 Feb 2022 11:59:04 GMT
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3e9064rwrp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 16 Feb 2022 11:59:04 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21GBw9Wu004660;
-        Wed, 16 Feb 2022 11:59:01 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma05fra.de.ibm.com with ESMTP id 3e64h9x84t-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 16 Feb 2022 11:59:01 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21GBwtea47120706
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 16 Feb 2022 11:58:55 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BA48852054;
-        Wed, 16 Feb 2022 11:58:55 +0000 (GMT)
-Received: from sig-9-65-92-254.ibm.com (unknown [9.65.92.254])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id EAF9552050;
-        Wed, 16 Feb 2022 11:58:51 +0000 (GMT)
-Message-ID: <edb305079c28e49021166423af0378f8d218f269.camel@linux.ibm.com>
-Subject: Re: [PATCH 4/4] module, KEYS: Make use of platform keyring for
- signature verification
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Michal =?ISO-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
-Cc:     Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Philipp Rudo <prudo@redhat.com>, Baoquan He <bhe@redhat.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        AKASHI Takahiro <takahiro.akashi@linaro.org>,
-        James Morse <james.morse@arm.com>,
-        Dave Young <dyoung@redhat.com>,
-        Kairui Song <kasong@redhat.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-modules@vger.kernel.org,
-        keyrings@vger.kernel.org, linux-security-module@vger.kernel.org,
-        stable@kernel.org, Eric Snowberg <eric.snowberg@oracle.com>
-Date:   Wed, 16 Feb 2022 06:58:51 -0500
-In-Reply-To: <20220216105645.GS3113@kunlun.suse.cz>
-References: <cover.1644953683.git.msuchanek@suse.de>
-         <840433bc93a58d6dfc4d96c34c0c3b158a0e669d.1644953683.git.msuchanek@suse.de>
-         <3e39412657a4b0839bcf38544d591959e89877b8.camel@linux.ibm.com>
-         <20220215204730.GQ3113@kunlun.suse.cz>
-         <c3f6f6c8a9db34cc1cdc1000f9272c2b36445e15.camel@linux.ibm.com>
-         <20220216105645.GS3113@kunlun.suse.cz>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: oxD1ke81_15pnba0xxgXqRWgPmuHVTK0
-X-Proofpoint-ORIG-GUID: sdO0kj556d5oRcvtjN5ziuRg_9LeMzsz
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S232596AbiBPMA0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Feb 2022 07:00:26 -0500
+Received: from out30-54.freemail.mail.aliyun.com (out30-54.freemail.mail.aliyun.com [115.124.30.54])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16B122679C7;
+        Wed, 16 Feb 2022 04:00:12 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0V4dB.Pk_1645012809;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0V4dB.Pk_1645012809)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Wed, 16 Feb 2022 20:00:10 +0800
+From:   Dust Li <dust.li@linux.alibaba.com>
+To:     Karsten Graul <kgraul@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: [PATCH net-next v2] net/smc: Add autocork support
+Date:   Wed, 16 Feb 2022 20:00:09 +0800
+Message-Id: <20220216120009.63747-1-dust.li@linux.alibaba.com>
+X-Mailer: git-send-email 2.19.1.3.ge56e4f7
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-02-16_05,2022-02-16_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- impostorscore=0 adultscore=0 clxscore=1015 spamscore=0 mlxlogscore=999
- bulkscore=0 phishscore=0 lowpriorityscore=0 suspectscore=0 mlxscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2202160065
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 2022-02-16 at 11:56 +0100, Michal Suchánek wrote:
-> On Tue, Feb 15, 2022 at 05:12:32PM -0500, Mimi Zohar wrote:
-> > On Tue, 2022-02-15 at 21:47 +0100, Michal Suchánek wrote:
-> > > Hello,
-> > > 
-> > > On Tue, Feb 15, 2022 at 03:08:18PM -0500, Mimi Zohar wrote:
-> > > > [Cc'ing Eric Snowberg]
-> > > > 
-> > > > Hi Michal,
-> > > > 
-> > > > On Tue, 2022-02-15 at 20:39 +0100, Michal Suchanek wrote:
-> > > > > Commit 278311e417be ("kexec, KEYS: Make use of platform keyring for signature verify")
-> > > > > adds support for use of platform keyring in kexec verification but
-> > > > > support for modules is missing.
-> > > > > 
-> > > > > Add support for verification of modules with keys from platform keyring
-> > > > > as well.
-> > > > 
-> > > > Permission for loading the pre-OS keys onto the "platform" keyring and
-> > > > using them is limited to verifying the kexec kernel image, nothing
-> > > > else.
-> > > 
-> > > Why is the platform keyring limited to kexec, and nothing else?
-> > > 
-> > > It should either be used for everything or for nothing. You have the
-> > > option to compile it in and then it should be used, and the option to
-> > > not compile it in and then it cannot be used.
-> > > 
-> > > There are two basic use cases:
-> > > 
-> > > (1) there is a vendor key which is very hard to use so you sign
-> > > something small and simple like shim with the vendor key, and sign your
-> > > kernel and modules with your own key that's typically enrolled with shim
-> > > MOK, and built into the kernel.
-> > > 
-> > > (2) you import your key into the firmware, and possibly disable the
-> > > vendor key. You can load the kernel directly without shim, and then your
-> > > signing key is typically in the platform keyring and built into the
-> > > kernel.
-> > > 
-> > > In neither case do I see any reason to use some keyrings for kexec and
-> > > other keyrings for modules.
-> > 
-> > When building your own kernel there isn't a problem.  Additional keys
-> > may be built into the kernel image, which are loaded onto the
-> > ".builtin_trusted_keys" keyring, and may be stored in MOK.  Normally
-> > different keys are used for signing the kernel image and kernel
-> 
-> That's actually not normal.
-> 
-> > modules.  Kernel modules can be signed by the build time ephemeral
-> > kernel module signing key, which is built into the kernel and
-> > automatically loaded onto the ".builtin_trusted_keys" keyring.
-> 
-> Right, there is this advice to use ephemeral key to sign modules.
-> 
-> I don't think that's a sound advice in general. It covers only the
-> special case when you build the kernel once, only rebuild the whole
-> kernel and never just one module, don't use any 3rd party module, don't
-> bother signing firmware (I am not sure that is supported right now but
-> if you are into integrity and stuff you can see that it makes sense to
-> sign it, too).
-> 
-> And you need to manage the key you use for the kernel signing, anyway.
-> Sure, you could use the same ephemeral key as for the modules, enroll
-> it, and shred it but then it is NOT a key different from the one you use
-> for modules.
-> 
-> Or you could maintain a long-lived key for the kernel, but if you do I
-> do NOT see any reason to not use it also for modules, in-tree and
-> out-of-tree.
+This patch adds autocork support for SMC which could improve
+throughput for small message by x2 ~ x4.
 
-If signing ALL kernel modules, in-tree and out-of-tree, with the same
-key as the kernel image, is your real intention, then by all means
-write a complete patch description with the motivation for why kernel
-module signatures need to be verified against this one pre-OS key
-stored only in the platform keyring.  Such a major change like this
-shouldn't be buried here.
+The main idea is borrowed from TCP autocork with some RDMA
+specific modification:
+1. The first message should never cork to make sure we won't
+   bring extra latency
+2. If we have posted any Tx WRs to the NIC that have not
+   completed, cork the new messages until:
+   a) Receive CQE for the last Tx WR
+   b) We have corked enough message on the connection
+3. Try to push the corked data out when we receive CQE of
+   the last Tx WR to prevent the corked messages hang in
+   the send queue.
 
-Otherwise, I suggest looking at Eric Snowberg's "Enroll kernel keys
-thru MOK patch set" patch set [1], as previously mentioned, which is
-queued to be upstreamed by Jarkko.  It loads MOK keys onto the
-'.machine' keyring, which is linked to the '.secondary_trusted_keys"
-keyring.  A subsequent patch set will enable IMA support.
+Both SMC autocork and TCP autocork check the TX completion
+to decide whether we should cork or not. The difference is
+when we got a SMC Tx WR completion, the data have been confirmed
+by the RNIC while TCP TX completion just tells us the data
+have been sent out by the local NIC.
 
-[1] 
-https://lore.kernel.org/lkml/20220126025834.255493-1-eric.snowberg@oracle.com/
+Add an atomic variable tx_pushing in smc_connection to make
+sure only one can send to let it cork more and save CDC slot.
+
+SMC autocork should not bring extra latency since the first
+message will always been sent out immediately.
+
+The qperf tcp_bw test shows more than x4 increase under small
+message size with Mellanox connectX4-Lx, same result with other
+throughput benchmarks like sockperf/netperf.
+The qperf tcp_lat test shows SMC autocork has not increase any
+ping-pong latency.
+
+BW test:
+ client: smc_run taskset -c 1 qperf smc-server -oo msg_size:1:64K:*2 \
+			-t 30 -vu tcp_bw
+ server: smc_run taskset -c 1 qperf
+
+MsgSize(Bytes)        TCP         SMC-NoCork           SMC-AutoCork
+      1         2.57 MB/s     698 KB/s(-73.5%)     2.98 MB/s(16.0% )
+      2          5.1 MB/s    1.41 MB/s(-72.4%)     5.82 MB/s(14.1% )
+      4         10.2 MB/s    2.83 MB/s(-72.3%)     11.7 MB/s(14.7% )
+      8         20.8 MB/s    5.62 MB/s(-73.0%)     22.9 MB/s(10.1% )
+     16         42.5 MB/s    11.5 MB/s(-72.9%)     45.5 MB/s(7.1%  )
+     32         80.7 MB/s    22.3 MB/s(-72.4%)     86.7 MB/s(7.4%  )
+     64          155 MB/s    45.6 MB/s(-70.6%)      160 MB/s(3.2%  )
+    128          295 MB/s    90.1 MB/s(-69.5%)      273 MB/s(-7.5% )
+    256          539 MB/s     179 MB/s(-66.8%)      610 MB/s(13.2% )
+    512          943 MB/s     360 MB/s(-61.8%)     1.02 GB/s(10.8% )
+   1024         1.58 GB/s     710 MB/s(-56.1%)     1.91 GB/s(20.9% )
+   2048         2.47 GB/s    1.34 GB/s(-45.7%)     2.92 GB/s(18.2% )
+   4096         2.86 GB/s     2.5 GB/s(-12.6%)      2.4 GB/s(-16.1%)
+   8192         3.89 GB/s    3.14 GB/s(-19.3%)     4.05 GB/s(4.1%  )
+  16384         3.29 GB/s    4.67 GB/s(41.9% )     5.09 GB/s(54.7% )
+  32768         2.73 GB/s    5.48 GB/s(100.7%)     5.49 GB/s(101.1%)
+  65536            3 GB/s    4.85 GB/s(61.7% )     5.24 GB/s(74.7% )
+
+Latency test:
+ client: smc_run taskset -c 1 qperf smc-server -oo msg_size:1:64K:*2 \
+			-t 30 -vu tcp_lat
+ server: smc_run taskset -c 1 qperf
+
+ MsgSize              SMC-NoCork           SMC-AutoCork
+       1               9.7 us               9.6 us( -1.03%)
+       2              9.43 us              9.39 us( -0.42%)
+       4               9.6 us              9.35 us( -2.60%)
+       8              9.42 us               9.2 us( -2.34%)
+      16              9.13 us              9.43 us(  3.29%)
+      32              9.19 us               9.5 us(  3.37%)
+      64              9.38 us               9.5 us(  1.28%)
+     128               9.9 us              9.29 us( -6.16%)
+     256              9.42 us              9.26 us( -1.70%)
+     512                10 us              9.45 us( -5.50%)
+    1024              10.4 us               9.6 us( -7.69%)
+    2048              10.4 us              10.2 us( -1.92%)
+    4096                11 us              10.5 us( -4.55%)
+    8192              11.7 us              11.8 us(  0.85%)
+   16384              14.5 us              14.2 us( -2.07%)
+   32768              19.4 us              19.3 us( -0.52%)
+   65536              28.1 us              28.8 us(  2.49%)
+
+With SMC autocork support, we can archive better throughput than
+TCP in most message sizes without any latency tradeoff.
+
+Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
+---
+v2: 1. Remove empty line in smc_connection
+    2. use Reverse Christmas tree style for local variable.
+    3. remove redundant container_of
+---
+ net/smc/smc.h     |   1 +
+ net/smc/smc_cdc.c |  11 +++--
+ net/smc/smc_tx.c  | 120 +++++++++++++++++++++++++++++++++++++++-------
+ 3 files changed, 113 insertions(+), 19 deletions(-)
+
+diff --git a/net/smc/smc.h b/net/smc/smc.h
+index a096d8af21a0..c979965fcb53 100644
+--- a/net/smc/smc.h
++++ b/net/smc/smc.h
+@@ -192,6 +192,7 @@ struct smc_connection {
+ 						 * - dec on polled tx cqe
+ 						 */
+ 	wait_queue_head_t	cdc_pend_tx_wq; /* wakeup on no cdc_pend_tx_wr*/
++	atomic_t		tx_pushing;     /* nr_threads trying tx push */
+ 	struct delayed_work	tx_work;	/* retry of smc_cdc_msg_send */
+ 	u32			tx_off;		/* base offset in peer rmb */
+ 
+diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+index 9d5a97168969..2b37bec90824 100644
+--- a/net/smc/smc_cdc.c
++++ b/net/smc/smc_cdc.c
+@@ -48,9 +48,14 @@ static void smc_cdc_tx_handler(struct smc_wr_tx_pend_priv *pnd_snd,
+ 		conn->tx_cdc_seq_fin = cdcpend->ctrl_seq;
+ 	}
+ 
+-	if (atomic_dec_and_test(&conn->cdc_pend_tx_wr) &&
+-	    unlikely(wq_has_sleeper(&conn->cdc_pend_tx_wq)))
+-		wake_up(&conn->cdc_pend_tx_wq);
++	if (atomic_dec_and_test(&conn->cdc_pend_tx_wr)) {
++		/* If this is the last pending WR complete, we must push to
++		 * prevent hang when autocork enabled.
++		 */
++		smc_tx_sndbuf_nonempty(conn);
++		if (unlikely(wq_has_sleeper(&conn->cdc_pend_tx_wq)))
++			wake_up(&conn->cdc_pend_tx_wq);
++	}
+ 	WARN_ON(atomic_read(&conn->cdc_pend_tx_wr) < 0);
+ 
+ 	smc_tx_sndbuf_nonfull(smc);
+diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
+index 5df3940d4543..f23f28c51913 100644
+--- a/net/smc/smc_tx.c
++++ b/net/smc/smc_tx.c
+@@ -31,6 +31,7 @@
+ #include "smc_tracepoint.h"
+ 
+ #define SMC_TX_WORK_DELAY	0
++#define SMC_DEFAULT_AUTOCORK_SIZE	(64 * 1024)
+ 
+ /***************************** sndbuf producer *******************************/
+ 
+@@ -127,10 +128,52 @@ static int smc_tx_wait(struct smc_sock *smc, int flags)
+ static bool smc_tx_is_corked(struct smc_sock *smc)
+ {
+ 	struct tcp_sock *tp = tcp_sk(smc->clcsock->sk);
+-
+ 	return (tp->nonagle & TCP_NAGLE_CORK) ? true : false;
+ }
+ 
++/* If we have pending CDC messages, do not send:
++ * Because CQE of this CDC message will happen shortly, it gives
++ * a chance to coalesce future sendmsg() payload in to one RDMA Write,
++ * without need for a timer, and with no latency trade off.
++ * Algorithm here:
++ *  1. First message should never cork
++ *  2. If we have pending CDC messages, wait for the first
++ *     message's completion
++ *  3. Don't cork to much data in a single RDMA Write to prevent burst,
++ *     total corked message should not exceed min(64k, sendbuf/2)
++ */
++static bool smc_should_autocork(struct smc_sock *smc, struct msghdr *msg,
++				int size_goal)
++{
++	struct smc_connection *conn = &smc->conn;
++
++	if (atomic_read(&conn->cdc_pend_tx_wr) == 0 ||
++	    smc_tx_prepared_sends(conn) > min(size_goal,
++					      conn->sndbuf_desc->len >> 1))
++		return false;
++	return true;
++}
++
++static bool smc_tx_should_cork(struct smc_sock *smc, struct msghdr *msg)
++{
++	struct smc_connection *conn = &smc->conn;
++
++	if (smc_should_autocork(smc, msg, SMC_DEFAULT_AUTOCORK_SIZE))
++		return true;
++
++	if ((msg->msg_flags & MSG_MORE ||
++	     smc_tx_is_corked(smc) ||
++	     msg->msg_flags & MSG_SENDPAGE_NOTLAST) &&
++	    (atomic_read(&conn->sndbuf_space)))
++		/* for a corked socket defer the RDMA writes if
++		 * sndbuf_space is still available. The applications
++		 * should known how/when to uncork it.
++		 */
++		return true;
++
++	return false;
++}
++
+ /* sndbuf producer: main API called by socket layer.
+  * called under sock lock.
+  */
+@@ -177,6 +220,13 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
+ 		if (msg->msg_flags & MSG_OOB)
+ 			conn->local_tx_ctrl.prod_flags.urg_data_pending = 1;
+ 
++		/* If our send queue is full but peer have RMBE space,
++		 * we should send them out before wait
++		 */
++		if (!atomic_read(&conn->sndbuf_space) &&
++		    atomic_read(&conn->peer_rmbe_space) > 0)
++			smc_tx_sndbuf_nonempty(conn);
++
+ 		if (!atomic_read(&conn->sndbuf_space) || conn->urg_tx_pend) {
+ 			if (send_done)
+ 				return send_done;
+@@ -235,15 +285,12 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
+ 		 */
+ 		if ((msg->msg_flags & MSG_OOB) && !send_remaining)
+ 			conn->urg_tx_pend = true;
+-		if ((msg->msg_flags & MSG_MORE || smc_tx_is_corked(smc) ||
+-		     msg->msg_flags & MSG_SENDPAGE_NOTLAST) &&
+-		    (atomic_read(&conn->sndbuf_space)))
+-			/* for a corked socket defer the RDMA writes if
+-			 * sndbuf_space is still available. The applications
+-			 * should known how/when to uncork it.
+-			 */
+-			continue;
+-		smc_tx_sndbuf_nonempty(conn);
++
++		/* If we need to cork, do nothing and wait for the next
++		 * sendmsg() call or push on tx completion
++		 */
++		if (!smc_tx_should_cork(smc, msg))
++			smc_tx_sndbuf_nonempty(conn);
+ 
+ 		trace_smc_tx_sendmsg(smc, copylen);
+ 	} /* while (msg_data_left(msg)) */
+@@ -590,13 +637,26 @@ static int smcd_tx_sndbuf_nonempty(struct smc_connection *conn)
+ 	return rc;
+ }
+ 
+-int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
++static int __smc_tx_sndbuf_nonempty(struct smc_connection *conn)
+ {
+-	int rc;
++	struct smc_sock *smc = container_of(conn, struct smc_sock, conn);
++	int rc = 0;
++
++	/* No data in the send queue */
++	if (unlikely(smc_tx_prepared_sends(conn) <= 0))
++		goto out;
++
++	/* Peer don't have RMBE space */
++	if (unlikely(atomic_read(&conn->peer_rmbe_space) <= 0)) {
++		SMC_STAT_RMB_TX_PEER_FULL(smc, !conn->lnk);
++		goto out;
++	}
+ 
+ 	if (conn->killed ||
+-	    conn->local_rx_ctrl.conn_state_flags.peer_conn_abort)
+-		return -EPIPE;	/* connection being aborted */
++	    conn->local_rx_ctrl.conn_state_flags.peer_conn_abort) {
++		rc = -EPIPE;    /* connection being aborted */
++		goto out;
++	}
+ 	if (conn->lgr->is_smcd)
+ 		rc = smcd_tx_sndbuf_nonempty(conn);
+ 	else
+@@ -604,10 +664,38 @@ int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
+ 
+ 	if (!rc) {
+ 		/* trigger socket release if connection is closing */
+-		struct smc_sock *smc = container_of(conn, struct smc_sock,
+-						    conn);
+ 		smc_close_wake_tx_prepared(smc);
+ 	}
++
++out:
++	return rc;
++}
++
++int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
++{
++	int rc;
++
++	/* This make sure only one can send simultaneously to prevent wasting
++	 * of CPU and CDC slot.
++	 * Record whether someone has tried to push while we are pushing.
++	 */
++	if (atomic_inc_return(&conn->tx_pushing) > 1)
++		return 0;
++
++again:
++	atomic_set(&conn->tx_pushing, 1);
++	smp_wmb(); /* Make sure tx_pushing is 1 before real send */
++	rc = __smc_tx_sndbuf_nonempty(conn);
++
++	/* We need to check whether someone else have added some data into
++	 * the send queue and tried to push but failed after the atomic_set()
++	 * when we are pushing.
++	 * If so, we need to push again to prevent those data hang in the send
++	 * queue.
++	 */
++	if (unlikely(!atomic_dec_and_test(&conn->tx_pushing)))
++		goto again;
++
+ 	return rc;
+ }
+ 
 -- 
-thanks,
-
-Mimi
+2.19.1.3.ge56e4f7
 
