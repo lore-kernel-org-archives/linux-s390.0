@@ -2,168 +2,120 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DC40C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Feb 2022 11:04:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD1ABC433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Feb 2022 11:46:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229586AbiBPLEa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Feb 2022 06:04:30 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:56544 "EHLO
+        id S232252AbiBPLqg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 16 Feb 2022 06:46:36 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:38798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230467AbiBPLEa (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Feb 2022 06:04:30 -0500
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 148FA2B2E09;
-        Wed, 16 Feb 2022 03:04:17 -0800 (PST)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id 5C61A1F383;
-        Wed, 16 Feb 2022 11:04:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1645009456; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=2u+k8wbOStfU9WMa0fs0WQ22qQ6lrQwne+gTHF5SZOM=;
-        b=nKWmacVbQ4yDHGyUsBaJ8mwtIcJVi6goI0Fr7Sym7gSHRwdKXERpiqNfThV8Q5wWpgePPb
-        x+InPjmxP3b5bsLg2YN+NEL1PFqOTjoMI0OVozchOwTAdPGnRgdA2bZH+pFPlJ0W6cNl45
-        Pjedrq8ScJKXT3pUrCwk0CS0P+9vQec=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1645009456;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=2u+k8wbOStfU9WMa0fs0WQ22qQ6lrQwne+gTHF5SZOM=;
-        b=H6x2tGl8JBFxLesslWH05Z39g8sE6ZnI0x5bGA8Kk2IAH9+n7vbYZUtWZbdhF2J5+y5ENM
-        z8BKRtH2tU3O55DQ==
-Received: from kunlun.suse.cz (unknown [10.100.128.76])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id D27CDA3B84;
-        Wed, 16 Feb 2022 11:04:15 +0000 (UTC)
-Date:   Wed, 16 Feb 2022 12:04:14 +0100
-From:   Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
-To:     Mimi Zohar <zohar@linux.ibm.com>
-Cc:     Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Philipp Rudo <prudo@redhat.com>, Baoquan He <bhe@redhat.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        AKASHI Takahiro <takahiro.akashi@linaro.org>,
-        James Morse <james.morse@arm.com>,
-        Dave Young <dyoung@redhat.com>,
-        Kairui Song <kasong@redhat.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-modules@vger.kernel.org,
-        keyrings@vger.kernel.org, linux-security-module@vger.kernel.org,
-        stable@kernel.org, Eric Snowberg <eric.snowberg@oracle.com>
-Subject: Re: [PATCH 4/4] module, KEYS: Make use of platform keyring for
- signature verification
-Message-ID: <20220216110414.GA20370@kunlun.suse.cz>
-References: <cover.1644953683.git.msuchanek@suse.de>
- <840433bc93a58d6dfc4d96c34c0c3b158a0e669d.1644953683.git.msuchanek@suse.de>
- <3e39412657a4b0839bcf38544d591959e89877b8.camel@linux.ibm.com>
- <20220215204730.GQ3113@kunlun.suse.cz>
- <c3f6f6c8a9db34cc1cdc1000f9272c2b36445e15.camel@linux.ibm.com>
- <20220216105645.GS3113@kunlun.suse.cz>
+        with ESMTP id S232250AbiBPLqf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Feb 2022 06:46:35 -0500
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C81A27FC1;
+        Wed, 16 Feb 2022 03:46:22 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R621e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0V4cycIW_1645011978;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0V4cycIW_1645011978)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Wed, 16 Feb 2022 19:46:19 +0800
+Date:   Wed, 16 Feb 2022 19:46:18 +0800
+From:   "dust.li" <dust.li@linux.alibaba.com>
+To:     Karsten Graul <kgraul@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Stefan Raspl <raspl@linux.ibm.com>
+Cc:     "D. Wythe" <alibuda@linux.alibaba.com>, kuba@kernel.org,
+        davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: Re: [PATCH net-next v2] net/smc: Reduce overflow of smc clcsock
+ listen queue
+Message-ID: <20220216114618.GA39286@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <1641301961-59331-1-git-send-email-alibuda@linux.alibaba.com>
+ <8a60dabb-1799-316c-80b5-14c920fe98ab@linux.ibm.com>
+ <20220105044049.GA107642@e02h04389.eu6sqa>
+ <20220105085748.GD31579@linux.alibaba.com>
+ <b98aefce-e425-9501-aacc-8e5a4a12953e@linux.ibm.com>
+ <20220105150612.GA75522@e02h04389.eu6sqa>
+ <d35569df-e0e0-5ea7-9aeb-7ffaeef04b14@linux.ibm.com>
+ <YdaUuOq+SkhYTWU8@TonyMac-Alibaba>
+ <5a5ba1b6-93d7-5c1e-aab2-23a52727fbd1@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220216105645.GS3113@kunlun.suse.cz>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <5a5ba1b6-93d7-5c1e-aab2-23a52727fbd1@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Feb 16, 2022 at 11:56:45AM +0100, Michal Suchánek wrote:
-> On Tue, Feb 15, 2022 at 05:12:32PM -0500, Mimi Zohar wrote:
-> > On Tue, 2022-02-15 at 21:47 +0100, Michal Suchánek wrote:
-> > > Hello,
-> > > 
-> > > On Tue, Feb 15, 2022 at 03:08:18PM -0500, Mimi Zohar wrote:
-> > > > [Cc'ing Eric Snowberg]
-> > > > 
-> > > > Hi Michal,
-> > > > 
-> > > > On Tue, 2022-02-15 at 20:39 +0100, Michal Suchanek wrote:
-> > > > > Commit 278311e417be ("kexec, KEYS: Make use of platform keyring for signature verify")
-> > > > > adds support for use of platform keyring in kexec verification but
-> > > > > support for modules is missing.
-> > > > > 
-> > > > > Add support for verification of modules with keys from platform keyring
-> > > > > as well.
-> > > > 
-> > > > Permission for loading the pre-OS keys onto the "platform" keyring and
-> > > > using them is limited to verifying the kexec kernel image, nothing
-> > > > else.
-> > > 
-> > > Why is the platform keyring limited to kexec, and nothing else?
-> > > 
-> > > It should either be used for everything or for nothing. You have the
-> > > option to compile it in and then it should be used, and the option to
-> > > not compile it in and then it cannot be used.
-> > > 
-> > > There are two basic use cases:
-> > > 
-> > > (1) there is a vendor key which is very hard to use so you sign
-> > > something small and simple like shim with the vendor key, and sign your
-> > > kernel and modules with your own key that's typically enrolled with shim
-> > > MOK, and built into the kernel.
-> > > 
-> > > (2) you import your key into the firmware, and possibly disable the
-> > > vendor key. You can load the kernel directly without shim, and then your
-> > > signing key is typically in the platform keyring and built into the
-> > > kernel.
-> > > 
-> > > In neither case do I see any reason to use some keyrings for kexec and
-> > > other keyrings for modules.
-> > 
-> > When building your own kernel there isn't a problem.  Additional keys
-> > may be built into the kernel image, which are loaded onto the
-> > ".builtin_trusted_keys" keyring, and may be stored in MOK.  Normally
-> > different keys are used for signing the kernel image and kernel
-> 
-> That's actually not normal.
-> 
-> > modules.  Kernel modules can be signed by the build time ephemeral
-> > kernel module signing key, which is built into the kernel and
-> > automatically loaded onto the ".builtin_trusted_keys" keyring.
-> 
-> Right, there is this advice to use ephemeral key to sign modules.
-> 
-> I don't think that's a sound advice in general. It covers only the
-> special case when you build the kernel once, only rebuild the whole
-> kernel and never just one module, don't use any 3rd party module, don't
-> bother signing firmware (I am not sure that is supported right now but
-> if you are into integrity and stuff you can see that it makes sense to
-> sign it, too).
-And don't forget signing ramdisk which you typically don't build only
-once at kernel build time.
-> 
-> And you need to manage the key you use for the kernel signing, anyway.
-> Sure, you could use the same ephemeral key as for the modules, enroll
-> it, and shred it but then it is NOT a key different from the one you use
-> for modules.
-> 
-> Or you could maintain a long-lived key for the kernel, but if you do I
-> do NOT see any reason to not use it also for modules, in-tree and
-> out-of-tree.
-> 
-> > Similarly distros build the kernel module signing key into the kernel,
-> > which is built into the kernel and loaded onto the
-> > ".builtin_trusted_keys" keyring.  By loading the pre-OS keys onto the
-> > ".platform" keyring,  kexec may verify the distro or other signed
-> > kernel images.
-> 
-> Which are signed by the same key as the modules so there is no reason to
-> load the platform key at all. I don't think loading shim with kexec is
-> supported.
-> 
-> Thanks
-> 
-> Michal
+On Thu, Jan 13, 2022 at 09:07:51AM +0100, Karsten Graul wrote:
+
+>>> One comment to sysctl: our current approach is to add new switches to the existing 
+>>> netlink interface which can be used with the smc-tools package (or own implementations of course). 
+>>> Is this prereq problematic in your environment? 
+>>> We tried to avoid more sysctls and the netlink interface keeps use more flexible.
+>> 
+>> I agree with you about using netlink is more flexible. There are
+>> something different in our environment to use netlink to control the
+>> behaves of smc.
+>> 
+>> Compared with netlink, sysctl is:
+>> - easy to use on clusters. Applications who want to use smc, don't need
+>>   to deploy additional tools or developing another netlink logic,
+>>   especially for thousands of machines or containers. With smc forward,
+>>   we should make sure the package or logic is compatible with current
+>>   kernel, but sysctl's API compatible is easy to discover.
+>> 
+>> - config template and default maintain. We are using /etc/sysctl.conf to
+>>   make sure the systeml configures update to date, such as pre-tuned smc
+>>   config parameters. So that we can change this default values on boot,
+>>   and generate lots of machines base on this machine template. Userspace
+>>   netlink tools doesn't suit for it, for example ip related config, we
+>>   need additional NetworkManager or netctl to do this.
+>> 
+>> - TCP-like sysctl entries. TCP provides lots of sysctl to configure
+>>   itself, somethings it is hard to use and understand. However, it is
+>>   accepted by most of users and system. Maybe we could use sysctl for
+>>   the item that frequently and easy to change, netlink for the complex
+>>   item.
+>> 
+>> We are gold to contribute to smc-tools. Use netlink and sysctl both
+>> time, I think, is a more suitable choice.
+>
+>Lets decide that when you have a specific control that you want to implement. 
+>I want to have a very good to introduce another interface into the SMC module,
+>making the code more complex and all of that. The decision for the netlink interface 
+>was also done because we have the impression that this is the NEW way to go, and
+>since we had no interface before we started with the most modern way to implement it.
+>
+>TCP et al have a history with sysfs, so thats why it is still there. 
+>But I might be wrong on that...
+
+Sorry to bother on this topic again...
+
+When implementing SMC autocork, I'd like to add a switch to enable or
+disable SMC autocork just like what TCP does. But I encounter some
+problem which I think might be relevant to this topic.
+
+My requirements for the switch is like this:
+1. Can be set dynamically by an userspace tool
+2. Need to be namespacified so different containers can have their own
+value
+3. Should be able to be configured to some default values using a
+configuration file so every time a container started, those values can
+be set properly.
+
+
+I notice we have a patch recently("net/smc: Add global configure for
+handshake limitation by netlink") which did something similar. And I
+tried the same way but found it might not be very elegant:
+1. I need to copy most of the code(enable/disable/dump) for autocork
+   which is quite redundant. Maybe we should add some common wrappers ?
+2. I need to add a new enumeration, and what if years later, we found
+   this function is no longer need ? Deleting this may cause ABI
+   compatibility issues
+3. Finally, How can we implement requirement #3 ? It is really needed
+   in the K8S container environment.
+
+Any suggestions or comments are really welcomed.
+
+Thanks!
