@@ -2,272 +2,333 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36C79C433FE
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Feb 2022 03:26:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00BFBC433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Feb 2022 03:49:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238009AbiBPD0Y (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Feb 2022 22:26:24 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34242 "EHLO
+        id S233765AbiBPDtT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Feb 2022 22:49:19 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:39496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238206AbiBPD0X (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Feb 2022 22:26:23 -0500
-Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD0D0FEB3D
-        for <linux-s390@vger.kernel.org>; Tue, 15 Feb 2022 19:26:10 -0800 (PST)
-Received: by mail-wm1-x333.google.com with SMTP id k41so429082wms.0
-        for <linux-s390@vger.kernel.org>; Tue, 15 Feb 2022 19:26:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=brainfault-org.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=jwhFIm2pjxqH4S1QMmhp69WD0Yx/q3G7DzS41sze+Fs=;
-        b=riYhJ/NFDeUTP+27duj6KaHVTshaiOQWoiNe0wD5HsocnEG4P2zjeu1WJJDyF+7tg8
-         HCeN+YgLtAuAqFdXC5u5r4J1kreE47Ve+t4e9Tzc3e/bR6dW6cfCEx+AULlAjs0UFA7b
-         5iYtqizK/2DbwQ3MdQzFC5ShahlfHXfxfbRTyv3sjEKEHhbO96isAQ/oJlBBafJ4RfO6
-         Ik2sa+YCrQVXyZRleWwPOmZS9xfiQMBjan/DE793V7AulbEAwpf909pO0yRuMLybh51Z
-         HNPSzg49iXmvLcs5NFrZBcGz1w3jwq6ATwFOagq0fPdiZtS5k3qPuXa39lc6+Ewfq3Uz
-         nhCA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=jwhFIm2pjxqH4S1QMmhp69WD0Yx/q3G7DzS41sze+Fs=;
-        b=ux7P7wmT9JmypmuTYSbhWbsulXm4Mi9Pu4IX46hZq88AxGSTfIPs+KHDMqxWQHqN6L
-         w6pRb7HAD0CE4a14OWBMm31l+YQDfXQalEOPBjH+ng7+ou80Ap9UKF70l638hFwQZz68
-         gBkEFKKPQ59J7MHyBG6jvNFUAedYHwHEc6lyjkNOev+1ChyGeOlNT/9k5JCdPwDcvqGf
-         RAtBO8RvH1zxjD1OF75v0XBymvBNjCd/sxNuj8SYVLnAdxDyPEFinpfvI4zy5fBIaWHa
-         pgSK1DgKeyyyIuY6DiE0Q/gsye9VXiB7j2vd0Wz8NRMmJO26JBHmFqeEO61iuoRwQOXY
-         lEeg==
-X-Gm-Message-State: AOAM53227iKf4p2Cwd9iDXO8pSx1e6va8PKG4ZB/Jpe+4Lo5qPo5JaJV
-        Sm0dZMLxToYogeZfYZcgDHEF9bpwQ4CTpx1SGLzrAA==
-X-Google-Smtp-Source: ABdhPJyRrOhHG9NugLem/Yuo2TIr9R5jqud/r7I7SljQVLpVr4bWltjwldVI0/2cSoJTehq0BS93uj6Y8dpcZ9dYSY0=
-X-Received: by 2002:a7b:cf16:0:b0:37b:c4c9:96c6 with SMTP id
- l22-20020a7bcf16000000b0037bc4c996c6mr683144wmg.59.1644981969162; Tue, 15 Feb
- 2022 19:26:09 -0800 (PST)
+        with ESMTP id S230361AbiBPDtS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Feb 2022 22:49:18 -0500
+Received: from out30-44.freemail.mail.aliyun.com (out30-44.freemail.mail.aliyun.com [115.124.30.44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B3C47644;
+        Tue, 15 Feb 2022 19:49:06 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R941e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0V4bIVZU_1644983343;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0V4bIVZU_1644983343)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Wed, 16 Feb 2022 11:49:04 +0800
+From:   Dust Li <dust.li@linux.alibaba.com>
+To:     Karsten Graul <kgraul@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: [PATCH] net/smc: Add autocork support
+Date:   Wed, 16 Feb 2022 11:49:03 +0800
+Message-Id: <20220216034903.20173-1-dust.li@linux.alibaba.com>
+X-Mailer: git-send-email 2.19.1.3.ge56e4f7
 MIME-Version: 1.0
-References: <20220216031528.92558-1-chao.gao@intel.com> <20220216031528.92558-3-chao.gao@intel.com>
-In-Reply-To: <20220216031528.92558-3-chao.gao@intel.com>
-From:   Anup Patel <anup@brainfault.org>
-Date:   Wed, 16 Feb 2022 08:55:55 +0530
-Message-ID: <CAAhSdy0PfCegu9vQY76pD-cLfP_S1xnyWARdinG4jbuJ_eVQkg@mail.gmail.com>
-Subject: Re: [PATCH v4 2/6] Partially revert "KVM: Pass kvm_init()'s opaque
- param to additional arch funcs"
-To:     Chao Gao <chao.gao@intel.com>
-Cc:     Sean Christopherson <seanjc@google.com>,
-        Marc Zyngier <maz@kernel.org>,
-        KVM General <kvm@vger.kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>, kevin.tian@intel.com,
-        Thomas Gleixner <tglx@linutronix.de>,
-        James Morse <james.morse@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Atish Patra <atishp@atishpatra.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Wanpeng Li <wanpengli@tencent.com>,
-        Jim Mattson <jmattson@google.com>,
-        Joerg Roedel <joro@8bytes.org>, Ingo Molnar <mingo@redhat.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "Maciej S. Szmigiero" <maciej.szmigiero@oracle.com>,
-        Bharata B Rao <bharata@linux.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        kvmarm@lists.cs.columbia.edu,
-        "linux-kernel@vger.kernel.org List" <linux-kernel@vger.kernel.org>,
-        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        kvm-riscv@lists.infradead.org,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Feb 16, 2022 at 8:46 AM Chao Gao <chao.gao@intel.com> wrote:
->
-> This partially reverts commit b99040853738 ("KVM: Pass kvm_init()'s opaque
-> param to additional arch funcs") remove opaque from
-> kvm_arch_check_processor_compat because no one uses this opaque now.
-> Address conflicts for ARM (due to file movement) and manually handle RISC-V
-> which comes after the commit.
->
-> And changes about kvm_arch_hardware_setup() in original commit are still
-> needed so they are not reverted.
->
-> Signed-off-by: Chao Gao <chao.gao@intel.com>
-> Reviewed-by: Sean Christopherson <seanjc@google.com>
+This patch adds autocork support for SMC which could improve
+throughput for small message by x2 ~ x4.
 
-For KVM RISC-V:
-Acked-by: Anup Patel <anup@brainfault.org>
+The main idea is borrowed from TCP autocork with some RDMA
+specific modification:
+1. The first message should never cork to make sure we won't
+   bring extra latency
+2. If we have posted any Tx WRs to the NIC that have not
+   completed, cork the new messages until:
+   a) Receive CQE for the last Tx WR
+   b) We have corked enough message on the connection
+3. Try to push the corked data out when we receive CQE of
+   the last Tx WR to prevent the corked messages hang in
+   the send queue.
 
-Regards,
-Anup
+Both SMC autocork and TCP autocork check the TX completion
+to decide whether we should cork or not. The difference is
+when we got a SMC Tx WR completion, the data have been confirmed
+by the RNIC while TCP TX completion just tells us the data
+have been sent out by the local NIC.
 
+Add an atomic variable tx_pushing in smc_connection to make
+sure only one can send to let it cork more and save CDC slot.
 
-> ---
->  arch/arm64/kvm/arm.c       |  2 +-
->  arch/mips/kvm/mips.c       |  2 +-
->  arch/powerpc/kvm/powerpc.c |  2 +-
->  arch/riscv/kvm/main.c      |  2 +-
->  arch/s390/kvm/kvm-s390.c   |  2 +-
->  arch/x86/kvm/x86.c         |  2 +-
->  include/linux/kvm_host.h   |  2 +-
->  virt/kvm/kvm_main.c        | 16 +++-------------
->  8 files changed, 10 insertions(+), 20 deletions(-)
->
-> diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
-> index ecc5958e27fe..0165cf3aac3a 100644
-> --- a/arch/arm64/kvm/arm.c
-> +++ b/arch/arm64/kvm/arm.c
-> @@ -73,7 +73,7 @@ int kvm_arch_hardware_setup(void *opaque)
->         return 0;
->  }
->
-> -int kvm_arch_check_processor_compat(void *opaque)
-> +int kvm_arch_check_processor_compat(void)
->  {
->         return 0;
->  }
-> diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
-> index a25e0b73ee70..092d09fb6a7e 100644
-> --- a/arch/mips/kvm/mips.c
-> +++ b/arch/mips/kvm/mips.c
-> @@ -140,7 +140,7 @@ int kvm_arch_hardware_setup(void *opaque)
->         return 0;
->  }
->
-> -int kvm_arch_check_processor_compat(void *opaque)
-> +int kvm_arch_check_processor_compat(void)
->  {
->         return 0;
->  }
-> diff --git a/arch/powerpc/kvm/powerpc.c b/arch/powerpc/kvm/powerpc.c
-> index 2ad0ccd202d5..30c817f3fa0c 100644
-> --- a/arch/powerpc/kvm/powerpc.c
-> +++ b/arch/powerpc/kvm/powerpc.c
-> @@ -423,7 +423,7 @@ int kvm_arch_hardware_setup(void *opaque)
->         return 0;
->  }
->
-> -int kvm_arch_check_processor_compat(void *opaque)
-> +int kvm_arch_check_processor_compat(void)
->  {
->         return kvmppc_core_check_processor_compat();
->  }
-> diff --git a/arch/riscv/kvm/main.c b/arch/riscv/kvm/main.c
-> index 2e5ca43c8c49..992877e78393 100644
-> --- a/arch/riscv/kvm/main.c
-> +++ b/arch/riscv/kvm/main.c
-> @@ -20,7 +20,7 @@ long kvm_arch_dev_ioctl(struct file *filp,
->         return -EINVAL;
->  }
->
-> -int kvm_arch_check_processor_compat(void *opaque)
-> +int kvm_arch_check_processor_compat(void)
->  {
->         return 0;
->  }
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 577f1ead6a51..0053b81c6b02 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -252,7 +252,7 @@ int kvm_arch_hardware_enable(void)
->         return 0;
->  }
->
-> -int kvm_arch_check_processor_compat(void *opaque)
-> +int kvm_arch_check_processor_compat(void)
->  {
->         return 0;
->  }
-> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-> index 9b484ed61f37..ffb88f0b7265 100644
-> --- a/arch/x86/kvm/x86.c
-> +++ b/arch/x86/kvm/x86.c
-> @@ -11509,7 +11509,7 @@ void kvm_arch_hardware_unsetup(void)
->         static_call(kvm_x86_hardware_unsetup)();
->  }
->
-> -int kvm_arch_check_processor_compat(void *opaque)
-> +int kvm_arch_check_processor_compat(void)
->  {
->         struct cpuinfo_x86 *c = &cpu_data(smp_processor_id());
->
-> diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-> index f11039944c08..2ad78e729bf7 100644
-> --- a/include/linux/kvm_host.h
-> +++ b/include/linux/kvm_host.h
-> @@ -1413,7 +1413,7 @@ int kvm_arch_hardware_enable(void);
->  void kvm_arch_hardware_disable(void);
->  int kvm_arch_hardware_setup(void *opaque);
->  void kvm_arch_hardware_unsetup(void);
-> -int kvm_arch_check_processor_compat(void *opaque);
-> +int kvm_arch_check_processor_compat(void);
->  int kvm_arch_vcpu_runnable(struct kvm_vcpu *vcpu);
->  bool kvm_arch_vcpu_in_kernel(struct kvm_vcpu *vcpu);
->  int kvm_arch_vcpu_should_kick(struct kvm_vcpu *vcpu);
-> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-> index 83c57bcc6eb6..ee47d33d69e1 100644
-> --- a/virt/kvm/kvm_main.c
-> +++ b/virt/kvm/kvm_main.c
-> @@ -5643,22 +5643,14 @@ void kvm_unregister_perf_callbacks(void)
->  }
->  #endif
->
-> -struct kvm_cpu_compat_check {
-> -       void *opaque;
-> -       int *ret;
-> -};
-> -
-> -static void check_processor_compat(void *data)
-> +static void check_processor_compat(void *rtn)
->  {
-> -       struct kvm_cpu_compat_check *c = data;
-> -
-> -       *c->ret = kvm_arch_check_processor_compat(c->opaque);
-> +       *(int *)rtn = kvm_arch_check_processor_compat();
->  }
->
->  int kvm_init(void *opaque, unsigned vcpu_size, unsigned vcpu_align,
->                   struct module *module)
->  {
-> -       struct kvm_cpu_compat_check c;
->         int r;
->         int cpu;
->
-> @@ -5686,10 +5678,8 @@ int kvm_init(void *opaque, unsigned vcpu_size, unsigned vcpu_align,
->         if (r < 0)
->                 goto out_free_1;
->
-> -       c.ret = &r;
-> -       c.opaque = opaque;
->         for_each_online_cpu(cpu) {
-> -               smp_call_function_single(cpu, check_processor_compat, &c, 1);
-> +               smp_call_function_single(cpu, check_processor_compat, &r, 1);
->                 if (r < 0)
->                         goto out_free_2;
->         }
-> --
-> 2.25.1
->
+SMC autocork should not bring extra latency since the first
+message will always been sent out immediately.
+
+The qperf tcp_bw test shows more than x4 increase under small
+message size with Mellanox connectX4-Lx, same result with other
+throughput benchmarks like sockperf/netperf.
+The qperf tcp_lat test shows SMC autocork has not increase any
+ping-pong latency.
+
+BW test:
+ client: smc_run taskset -c 1 qperf smc-server -oo msg_size:1:64K:*2 \
+			-t 30 -vu tcp_bw
+ server: smc_run taskset -c 1 qperf
+
+MsgSize(Bytes)        TCP         SMC-NoCork           SMC-AutoCork
+      1         2.57 MB/s     698 KB/s(-73.5%)     2.98 MB/s(16.0% )
+      2          5.1 MB/s    1.41 MB/s(-72.4%)     5.82 MB/s(14.1% )
+      4         10.2 MB/s    2.83 MB/s(-72.3%)     11.7 MB/s(14.7% )
+      8         20.8 MB/s    5.62 MB/s(-73.0%)     22.9 MB/s(10.1% )
+     16         42.5 MB/s    11.5 MB/s(-72.9%)     45.5 MB/s(7.1%  )
+     32         80.7 MB/s    22.3 MB/s(-72.4%)     86.7 MB/s(7.4%  )
+     64          155 MB/s    45.6 MB/s(-70.6%)      160 MB/s(3.2%  )
+    128          295 MB/s    90.1 MB/s(-69.5%)      273 MB/s(-7.5% )
+    256          539 MB/s     179 MB/s(-66.8%)      610 MB/s(13.2% )
+    512          943 MB/s     360 MB/s(-61.8%)     1.02 GB/s(10.8% )
+   1024         1.58 GB/s     710 MB/s(-56.1%)     1.91 GB/s(20.9% )
+   2048         2.47 GB/s    1.34 GB/s(-45.7%)     2.92 GB/s(18.2% )
+   4096         2.86 GB/s     2.5 GB/s(-12.6%)      2.4 GB/s(-16.1%)
+   8192         3.89 GB/s    3.14 GB/s(-19.3%)     4.05 GB/s(4.1%  )
+  16384         3.29 GB/s    4.67 GB/s(41.9% )     5.09 GB/s(54.7% )
+  32768         2.73 GB/s    5.48 GB/s(100.7%)     5.49 GB/s(101.1%)
+  65536            3 GB/s    4.85 GB/s(61.7% )     5.24 GB/s(74.7% )
+
+Latency test:
+ client: smc_run taskset -c 1 qperf smc-server -oo msg_size:1:64K:*2 \
+			-t 30 -vu tcp_lat
+ server: smc_run taskset -c 1 qperf
+
+ MsgSize              SMC-NoCork           SMC-AutoCork
+       1               9.7 us               9.6 us( -1.03%)
+       2              9.43 us              9.39 us( -0.42%)
+       4               9.6 us              9.35 us( -2.60%)
+       8              9.42 us               9.2 us( -2.34%)
+      16              9.13 us              9.43 us(  3.29%)
+      32              9.19 us               9.5 us(  3.37%)
+      64              9.38 us               9.5 us(  1.28%)
+     128               9.9 us              9.29 us( -6.16%)
+     256              9.42 us              9.26 us( -1.70%)
+     512                10 us              9.45 us( -5.50%)
+    1024              10.4 us               9.6 us( -7.69%)
+    2048              10.4 us              10.2 us( -1.92%)
+    4096                11 us              10.5 us( -4.55%)
+    8192              11.7 us              11.8 us(  0.85%)
+   16384              14.5 us              14.2 us( -2.07%)
+   32768              19.4 us              19.3 us( -0.52%)
+   65536              28.1 us              28.8 us(  2.49%)
+
+With SMC autocork support, we can archive better throughput than
+TCP in most message sizes without any latency tradeoff.
+
+Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
+---
+ net/smc/smc.h     |   2 +
+ net/smc/smc_cdc.c |  11 +++--
+ net/smc/smc_tx.c  | 118 ++++++++++++++++++++++++++++++++++++++++------
+ 3 files changed, 114 insertions(+), 17 deletions(-)
+
+diff --git a/net/smc/smc.h b/net/smc/smc.h
+index a096d8af21a0..bc7df235281c 100644
+--- a/net/smc/smc.h
++++ b/net/smc/smc.h
+@@ -192,6 +192,8 @@ struct smc_connection {
+ 						 * - dec on polled tx cqe
+ 						 */
+ 	wait_queue_head_t	cdc_pend_tx_wq; /* wakeup on no cdc_pend_tx_wr*/
++	atomic_t		tx_pushing;     /* nr_threads trying tx push */
++
+ 	struct delayed_work	tx_work;	/* retry of smc_cdc_msg_send */
+ 	u32			tx_off;		/* base offset in peer rmb */
+ 
+diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+index 9d5a97168969..2b37bec90824 100644
+--- a/net/smc/smc_cdc.c
++++ b/net/smc/smc_cdc.c
+@@ -48,9 +48,14 @@ static void smc_cdc_tx_handler(struct smc_wr_tx_pend_priv *pnd_snd,
+ 		conn->tx_cdc_seq_fin = cdcpend->ctrl_seq;
+ 	}
+ 
+-	if (atomic_dec_and_test(&conn->cdc_pend_tx_wr) &&
+-	    unlikely(wq_has_sleeper(&conn->cdc_pend_tx_wq)))
+-		wake_up(&conn->cdc_pend_tx_wq);
++	if (atomic_dec_and_test(&conn->cdc_pend_tx_wr)) {
++		/* If this is the last pending WR complete, we must push to
++		 * prevent hang when autocork enabled.
++		 */
++		smc_tx_sndbuf_nonempty(conn);
++		if (unlikely(wq_has_sleeper(&conn->cdc_pend_tx_wq)))
++			wake_up(&conn->cdc_pend_tx_wq);
++	}
+ 	WARN_ON(atomic_read(&conn->cdc_pend_tx_wr) < 0);
+ 
+ 	smc_tx_sndbuf_nonfull(smc);
+diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
+index 5df3940d4543..bc737ac79805 100644
+--- a/net/smc/smc_tx.c
++++ b/net/smc/smc_tx.c
+@@ -31,6 +31,7 @@
+ #include "smc_tracepoint.h"
+ 
+ #define SMC_TX_WORK_DELAY	0
++#define SMC_DEFAULT_AUTOCORK_SIZE	(64 * 1024)
+ 
+ /***************************** sndbuf producer *******************************/
+ 
+@@ -127,10 +128,52 @@ static int smc_tx_wait(struct smc_sock *smc, int flags)
+ static bool smc_tx_is_corked(struct smc_sock *smc)
+ {
+ 	struct tcp_sock *tp = tcp_sk(smc->clcsock->sk);
+-
+ 	return (tp->nonagle & TCP_NAGLE_CORK) ? true : false;
+ }
+ 
++/* If we have pending CDC messages, do not send:
++ * Because CQE of this CDC message will happen shortly, it gives
++ * a chance to coalesce future sendmsg() payload in to one RDMA Write,
++ * without need for a timer, and with no latency trade off.
++ * Algorithm here:
++ *  1. First message should never cork
++ *  2. If we have pending CDC messages, wait for the first
++ *     message's completion
++ *  3. Don't cork to much data in a single RDMA Write to prevent burst,
++ *     total corked message should not exceed min(64k, sendbuf/2)
++ */
++static bool smc_should_autocork(struct smc_sock *smc, struct msghdr *msg,
++				int size_goal)
++{
++	struct smc_connection *conn = &smc->conn;
++
++	if (atomic_read(&conn->cdc_pend_tx_wr) == 0 ||
++	    smc_tx_prepared_sends(conn) > min(size_goal,
++					      conn->sndbuf_desc->len >> 1))
++		return false;
++	return true;
++}
++
++static bool smc_tx_should_cork(struct smc_sock *smc, struct msghdr *msg)
++{
++	struct smc_connection *conn = &smc->conn;
++
++	if (smc_should_autocork(smc, msg, SMC_DEFAULT_AUTOCORK_SIZE))
++		return true;
++
++	if ((msg->msg_flags & MSG_MORE ||
++	     smc_tx_is_corked(smc) ||
++	     msg->msg_flags & MSG_SENDPAGE_NOTLAST) &&
++	    (atomic_read(&conn->sndbuf_space)))
++		/* for a corked socket defer the RDMA writes if
++		 * sndbuf_space is still available. The applications
++		 * should known how/when to uncork it.
++		 */
++		return true;
++
++	return false;
++}
++
+ /* sndbuf producer: main API called by socket layer.
+  * called under sock lock.
+  */
+@@ -177,6 +220,13 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
+ 		if (msg->msg_flags & MSG_OOB)
+ 			conn->local_tx_ctrl.prod_flags.urg_data_pending = 1;
+ 
++		/* If our send queue is full but peer have RMBE space,
++		 * we should send them out before wait
++		 */
++		if (!atomic_read(&conn->sndbuf_space) &&
++		    atomic_read(&conn->peer_rmbe_space) > 0)
++			smc_tx_sndbuf_nonempty(conn);
++
+ 		if (!atomic_read(&conn->sndbuf_space) || conn->urg_tx_pend) {
+ 			if (send_done)
+ 				return send_done;
+@@ -235,15 +285,12 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
+ 		 */
+ 		if ((msg->msg_flags & MSG_OOB) && !send_remaining)
+ 			conn->urg_tx_pend = true;
+-		if ((msg->msg_flags & MSG_MORE || smc_tx_is_corked(smc) ||
+-		     msg->msg_flags & MSG_SENDPAGE_NOTLAST) &&
+-		    (atomic_read(&conn->sndbuf_space)))
+-			/* for a corked socket defer the RDMA writes if
+-			 * sndbuf_space is still available. The applications
+-			 * should known how/when to uncork it.
+-			 */
+-			continue;
+-		smc_tx_sndbuf_nonempty(conn);
++
++		/* If we need to cork, do nothing and wait for the next
++		 * sendmsg() call or push on tx completion
++		 */
++		if (!smc_tx_should_cork(smc, msg))
++			smc_tx_sndbuf_nonempty(conn);
+ 
+ 		trace_smc_tx_sendmsg(smc, copylen);
+ 	} /* while (msg_data_left(msg)) */
+@@ -590,13 +637,26 @@ static int smcd_tx_sndbuf_nonempty(struct smc_connection *conn)
+ 	return rc;
+ }
+ 
+-int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
++static int __smc_tx_sndbuf_nonempty(struct smc_connection *conn)
+ {
+-	int rc;
++	int rc = 0;
++	struct smc_sock *smc = container_of(conn, struct smc_sock, conn);
++
++	/* No data in the send queue */
++	if (unlikely(smc_tx_prepared_sends(conn) <= 0))
++		goto out;
++
++	/* Peer don't have RMBE space */
++	if (unlikely(atomic_read(&conn->peer_rmbe_space) <= 0)) {
++		SMC_STAT_RMB_TX_PEER_FULL(smc, !conn->lnk);
++		goto out;
++	}
+ 
+ 	if (conn->killed ||
+-	    conn->local_rx_ctrl.conn_state_flags.peer_conn_abort)
+-		return -EPIPE;	/* connection being aborted */
++	    conn->local_rx_ctrl.conn_state_flags.peer_conn_abort) {
++		rc = -EPIPE;    /* connection being aborted */
++		goto out;
++	}
+ 	if (conn->lgr->is_smcd)
+ 		rc = smcd_tx_sndbuf_nonempty(conn);
+ 	else
+@@ -608,6 +668,36 @@ int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
+ 						    conn);
+ 		smc_close_wake_tx_prepared(smc);
+ 	}
++
++out:
++	return rc;
++}
++
++int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
++{
++	int rc;
++
++	/* This make sure only one can send simultaneously to prevent wasting
++	 * of CPU and CDC slot.
++	 * Record whether someone has tried to push while we are pushing.
++	 */
++	if (atomic_inc_return(&conn->tx_pushing) > 1)
++		return 0;
++
++again:
++	atomic_set(&conn->tx_pushing, 1);
++	smp_wmb(); /* Make sure tx_pushing is 1 before real send */
++	rc = __smc_tx_sndbuf_nonempty(conn);
++
++	/* We need to check whether someone else have added some data into
++	 * the send queue and tried to push but failed after the atomic_set()
++	 * when we are pushing.
++	 * If so, we need to push again to prevent those data hang in the send
++	 * queue.
++	 */
++	if (unlikely(!atomic_dec_and_test(&conn->tx_pushing)))
++		goto again;
++
+ 	return rc;
+ }
+ 
+-- 
+2.19.1.3.ge56e4f7
+
