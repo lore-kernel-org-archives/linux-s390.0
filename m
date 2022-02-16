@@ -2,155 +2,179 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 29884C433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Feb 2022 12:55:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AC89DC433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Feb 2022 13:05:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230204AbiBPMzm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Feb 2022 07:55:42 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41172 "EHLO
+        id S233548AbiBPNFO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 16 Feb 2022 08:05:14 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:47404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229379AbiBPMzl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Feb 2022 07:55:41 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7052C2A64EC
-        for <linux-s390@vger.kernel.org>; Wed, 16 Feb 2022 04:55:29 -0800 (PST)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21GClUWh021770
-        for <linux-s390@vger.kernel.org>; Wed, 16 Feb 2022 12:55:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=40BWUhBvP2KQqOK2G6OEm+1HVlFwI6Iy10Na4nfKXTM=;
- b=sKZKulhRnm+b3JMBLk1rwWCLSNVCz+yJYLb+rjE+tIqRiZyAr+qLiXss0nSoerX3gsu2
- xX6CDFMhkxMFdY511G25W+ApIGQUMfhMhErJ2xWu+ADbKdVZwJdoM+AVHzeaW4NhxHZk
- +EEEBfxlIdIMacoB5LYwLgghsPFxTB6joc9AjTu/Xl43AqGEbLICXmgKY5aCxxXaGndR
- YM7jWgcf6YN/K+VVlwYvVk1QEjDsS4r/4mlmqn+RuvvOfzD09Wyv+aNdb9e3cN0gI/3J
- mRTyl6aSI6HTQ9MTZWJ5D3+rK8ZnowSyq0dsUd86iHcrvcJXVZeWkPxYgNcrRX2TQQxc lg== 
+        with ESMTP id S231666AbiBPNFN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Feb 2022 08:05:13 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CBFE26120D;
+        Wed, 16 Feb 2022 05:05:01 -0800 (PST)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21GC9lss011858;
+        Wed, 16 Feb 2022 13:04:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : content-type : in-reply-to :
+ mime-version; s=pp1; bh=HTeTP7s9CVxgPA/uFLEsh16EKzu/vOHVfs1RR/JoGIU=;
+ b=flFbjfQMIGBjTd1tngp9Bb+OXMoUTEV7r89h9HfWKfk3Mwwa3ICuaO1PHaV8KgdHPBLj
+ 4C6ahX4FrwogrRI353CBZS2103X4JtPYJQ06QkA42yjEe/4pXNMj47D8BnEkNHZzhXU/
+ P0l7nhuUcLxiNwI2t7j2wTef7Ut2j116LnIERIqwL69RG86K8z7GWbnZ7xrpfDgMhvvE
+ qFFERXfOH/rlxJmCEoCjIOPHkJXn2YT92mfQyK/0r94AQLOBTLCGuCgzW2Ki6SJYvZd+
+ o6SQbu9G470mf7nZ5rT+ipysC1CFuvf6CCZaWkPxzBi2VGTjBQpPVCKgO4W6kVy+Ddfw ZA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e90m89yts-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Feb 2022 13:04:28 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21GCNmsu031651;
+        Wed, 16 Feb 2022 13:04:28 GMT
 Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3e91k7r58n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 16 Feb 2022 12:55:28 +0000
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e90m89ys9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Feb 2022 13:04:27 +0000
 Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21GCqhOV013739
-        for <linux-s390@vger.kernel.org>; Wed, 16 Feb 2022 12:55:26 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma03ams.nl.ibm.com with ESMTP id 3e64ha8mb8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 16 Feb 2022 12:55:26 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21GCj0Vr27525452
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK)
-        for <linux-s390@vger.kernel.org>; Wed, 16 Feb 2022 12:45:00 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E65C452054;
-        Wed, 16 Feb 2022 12:55:23 +0000 (GMT)
-Received: from [9.145.84.167] (unknown [9.145.84.167])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 85AEC52057;
-        Wed, 16 Feb 2022 12:55:23 +0000 (GMT)
-Message-ID: <a889bd74-0e4a-8ca7-4f45-34fb4e306d7f@linux.ibm.com>
-Date:   Wed, 16 Feb 2022 13:55:23 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [kvm-unit-tests PATCH 1/1] s390x: stsi: Define vm_is_kvm to be
- used in different tests
-Content-Language: en-US
-To:     Pierre Morel <pmorel@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, thuth@redhat.com, kvm@vger.kernel.org,
-        cohuck@redhat.com, david@redhat.com, nrb@linux.ibm.com
-References: <20220215104632.47796-1-pmorel@linux.ibm.com>
- <20220215104632.47796-2-pmorel@linux.ibm.com>
- <20220215130606.2d4f2ebb@p-imbrenda>
- <f7d7423b-c0fb-4184-6d3a-fa1d855e0f19@linux.ibm.com>
- <20220215162154.6ebd2567@p-imbrenda>
- <211983e2-5e03-70d6-c5e2-db702ebfb0a4@linux.ibm.com>
- <73febafb-969b-c5b9-4ad3-292a8cab869f@linux.ibm.com>
- <f5ff2f8a-1cba-d429-ad2b-32ce4ce47465@linux.ibm.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-In-Reply-To: <f5ff2f8a-1cba-d429-ad2b-32ce4ce47465@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21GCwhg2023855;
+        Wed, 16 Feb 2022 13:04:25 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 3e64ha8rer-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Feb 2022 13:04:25 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21GD4Kaw22544866
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 16 Feb 2022 13:04:20 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BA2B2AE05F;
+        Wed, 16 Feb 2022 13:04:20 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 25A2BAE04D;
+        Wed, 16 Feb 2022 13:04:20 +0000 (GMT)
+Received: from osiris (unknown [9.145.42.237])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Wed, 16 Feb 2022 13:04:20 +0000 (GMT)
+Date:   Wed, 16 Feb 2022 14:04:18 +0100
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>
+Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Ingo Molnar <mingo@redhat.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Petr Mladek <pmladek@suse.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "live-patching@vger.kernel.org" <live-patching@vger.kernel.org>,
+        Sven Schnelle <svens@linux.ibm.com>
+Subject: Re: [PATCH v2 09/13] powerpc/ftrace: Implement
+ CONFIG_DYNAMIC_FTRACE_WITH_ARGS
+Message-ID: <Ygz2Upu+5NiEAsDT@osiris>
+References: <cover.1640017960.git.christophe.leroy@csgroup.eu>
+ <5831f711a778fcd6eb51eb5898f1faae4378b35b.1640017960.git.christophe.leroy@csgroup.eu>
+ <1644852011.qg7ud9elo2.naveen@linux.ibm.com>
+ <1b28f52a-f8b7-6b5c-e726-feac4123517d@csgroup.eu>
+ <875ypgo0f3.fsf@mpe.ellerman.id.au>
+ <1644930705.g64na2kgvd.naveen@linux.ibm.com>
+ <6dc50f09-4d14-afa2-d2a1-34b72b880edf@csgroup.eu>
+ <5c7b5334-6071-f131-a509-9a49ca3d628c@csgroup.eu>
+ <1644941712.lqdstzo09z.naveen@linux.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1644941712.lqdstzo09z.naveen@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: JROdkvQ74HW49oQ4xr3v1PN3i74L_cgT
-X-Proofpoint-ORIG-GUID: JROdkvQ74HW49oQ4xr3v1PN3i74L_cgT
+X-Proofpoint-ORIG-GUID: xPfWe2a9CZ_zddfnzSkHHE_CQIy1muU3
+X-Proofpoint-GUID: WgAt7YbUyY2z7YRGFwu0IoOj3LTfHs3H
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-02-16_05,2022-02-16_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxlogscore=999
- priorityscore=1501 mlxscore=0 lowpriorityscore=0 malwarescore=0
- impostorscore=0 spamscore=0 phishscore=0 bulkscore=0 adultscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2202160072
+ definitions=2022-02-16_06,2022-02-16_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011
+ priorityscore=1501 adultscore=0 phishscore=0 impostorscore=0 mlxscore=0
+ bulkscore=0 spamscore=0 suspectscore=0 malwarescore=0 lowpriorityscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2202160076
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-T24gMi8xNi8yMiAxMzoyNiwgUGllcnJlIE1vcmVsIHdyb3RlOg0KPiANCj4gDQo+IE9uIDIv
-MTYvMjIgMDk6MTMsIEphbm9zY2ggRnJhbmsgd3JvdGU6DQo+PiBPbiAyLzE1LzIyIDE4OjMw
-LCBQaWVycmUgTW9yZWwgd3JvdGU6DQo+Pj4NCj4+Pg0KPj4+IE9uIDIvMTUvMjIgMTY6MjEs
-IENsYXVkaW8gSW1icmVuZGEgd3JvdGU6DQo+Pj4+IE9uIFR1ZSwgMTUgRmViIDIwMjIgMTY6
-MDg6MTYgKzAxMDANCj4+Pj4gSmFub3NjaCBGcmFuayA8ZnJhbmtqYUBsaW51eC5pYm0uY29t
-PiB3cm90ZToNCj4+Pj4NCj4+Pj4+IE9uIDIvMTUvMjIgMTM6MDYsIENsYXVkaW8gSW1icmVu
-ZGEgd3JvdGU6DQo+Pj4+Pj4gT24gVHVlLCAxNSBGZWIgMjAyMiAxMTo0NjozMiArMDEwMA0K
-Pj4+Pj4+IFBpZXJyZSBNb3JlbCA8cG1vcmVsQGxpbnV4LmlibS5jb20+IHdyb3RlOg0KPj4+
-Pj4+PiBTZXZlcmFsIHRlc3RzIGFyZSBpbiBuZWVkIG9mIGEgd2F5IHRvIGNoZWNrIG9uIHdo
-aWNoIGh5cGVydmlzb3INCj4+Pj4+Pj4gYW5kIHZpcnR1YWxpemF0aW9uIGxldmVsIHRoZXkg
-YXJlIHJ1bm5pbmcgb24gdG8gYmUgYWJsZSB0byBmZW5jZQ0KPj4+Pj4+PiBjZXJ0YWluIHRl
-c3RzLiBUaGlzIHBhdGNoIGFkZHMgZnVuY3Rpb25zIHRoYXQgcmV0dXJuIHRydWUgaWYgYQ0K
-Pj4+Pj4+PiB2bSBpcyBydW5uaW5nIHVuZGVyIEtWTSwgTFBBUiBvciBnZW5lcmFsbHkgYXMg
-YSBsZXZlbCAyIGd1ZXN0Lg0KPj4+Pj4+Pg0KPj4+Pj4+PiBUbyBjaGVjayBpZiB3ZSdyZSBy
-dW5uaW5nIHVuZGVyIEtWTSB3ZSB1c2UgdGhlIFNUU0kgMy4yLjINCj4+Pj4+Pj4gaW5zdHJ1
-Y3Rpb24sIGxldCdzIGRlZmluZSBpdCdzIHJlc3BvbnNlIHN0cnVjdHVyZSBpbiBhIGNlbnRy
-YWwNCj4+Pj4+Pj4gaGVhZGVyLg0KPj4+Pj4+DQo+Pj4+Pj4gc29ycnksIEkgaGFkIHJlcGxp
-ZWQgdG8gdGhlIG9sZCBzZXJpZXMsIGxldCBtZSByZXBseSBoZXJlIHRvbw0KPj4+Pj4+DQo+
-Pj4+Pj4NCj4+Pj4+PiBJIHRoaW5rIGl0IHdvdWxkIGxvb2sgY2xlYW5lciBpZiB0aGVyZSB3
-YXMgb25seSBvbmUNCj4+Pj4+PiAiZGV0ZWN0X2Vudmlyb25tZW50IiBmdW5jdGlvbiwgdGhh
-dCB3b3VsZCBjYWxsIHN0c2kgb25jZSBhbmQgZGV0ZWN0DQo+Pj4+Pj4gdGhlDQo+Pj4+Pj4g
-ZW52aXJvbm1lbnQsIHRoZW4gdGhlIHZhcmlvdXMgdm1faXNfKiB3b3VsZCBiZWNvbWUgc29t
-ZXRoaW5nIGxpa2UNCj4+Pj4+Pg0KPj4+Pj4+IGJvb2wgdm1faXNfKih2b2lkKQ0KPj4+Pj4+
-IHsNCj4+Pj4+PiAgwqDCoMKgwqByZXR1cm4gZGV0ZWN0X2Vudmlyb25tZW50KCkgPT0gVk1f
-SVNfKjsNCj4+Pj4+PiB9DQo+Pj4+Pj4NCj4+Pj4+PiBvZiBjb3Vyc2UgZGV0ZWN0X2Vudmly
-b25tZW50IHdvdWxkIGFsc28gY2FjaGUgdGhlIHJlc3VsdCB3aXRoIHN0YXRpYw0KPj4+Pj4+
-IHZhcmlhYmxlcy4NCj4+Pj4+Pg0KPj4+Pj4+IGJvbnVzLCB3ZSBjb3VsZCBtYWtlIHRoYXQg
-ZnVuY3Rpb24gcHVibGljLCBzbyBhIHRlc3RjYXNlIGNvdWxkIGp1c3QNCj4+Pj4+PiBzd2l0
-Y2ggb3ZlciB0aGUgdHlwZSBvZiBoeXBlcnZpc29yIGl0J3MgYmVpbmcgcnVuIG9uLCBpbnN0
-ZWFkIG9mDQo+Pj4+Pj4gaGF2aW5nDQo+Pj4+Pj4gdG8gdXNlIGEgc2VyaWVzIG9mIGlmcy4N
-Cj4+Pj4+Pg0KPj4+Pj4+IGFuZCB0aGVuIG1heWJlIHRoZSB2YXJpb3VzIHZtX2lzXyogY291
-bGQgYmVjb21lIHN0YXRpYyBpbmxpbmVzIHRvDQo+Pj4+Pj4gYmUgcHV0DQo+Pj4+Pj4gaW4g
-dGhlIGhlYWRlci4NCj4+Pj4+Pg0KPj4+Pj4+IHBsZWFzZSBub3RlIHRoYXQgImRldGVjdF9l
-bnZpcm9ubWVudCIgaXMganVzdCB0aGUgZmlyc3QgdGhpbmcgdGhhdA0KPj4+Pj4+IGNhbWUN
-Cj4+Pj4+PiB0byBteSBtaW5kLCBJIGhhdmUgbm8gcHJlZmVyZW5jZSByZWdhcmRpbmcgdGhl
-IG5hbWUuDQo+Pj4+Pg0KPj4+Pj4gSSdkIGxpa2UgdG8ga2VlcCB0aGlzIHBhdGNoIGFzIHNp
-bXBsZSBhcyBwb3NzaWJsZSBiZWNhdXNlIHRoZXJlIGFyZQ0KPj4+Pj4gbXVsdGlwbGUgcGF0
-Y2ggc2V0cyB3aGljaCBhcmUgZ2F0ZWQgYnkgaXQuDQo+Pj4+Pg0KPj4+Pj4gVGhlIHZtLmgg
-Y29kZSBhbmQgdGhlIHNrZXkuYyB6L1ZNIDYgY2hlY2sgaXMgYSB0aG9ybiBpbiBteSBzaWRl
-IGFueXdheQ0KPj4+Pj4gYW5kIEknZCByYXRoZXIgaGF2ZSBpdCBmaXhlZCBwcm9wZXJseSB3
-aGljaCB3aWxsIGxpa2VseSByZXN1bHQgaW4gYSBsb3QNCj4+Pj4+IG9mIG9waW5pb25zIGJl
-aW5nIHZvaWNlZC4NCj4+Pj4+DQo+Pj4+PiBTbyBJJ2QgcHJvcG9zZSB0byByZW5hbWUgdm1f
-aXNfdm0oKSB0byB2bV9pc19ndWVzdDIoKSBhbmQgcGljayB0aGlzDQo+Pj4+PiBwYXRjaC4N
-Cj4+Pj4NCj4+Pj4gb2sgZm9yIG1lDQo+Pj4+DQo+Pj4+IEknbGwgcmVuYW1lIHRoZSBmdW5j
-dGlvbiBhbmQgcXVldWUgdGhlIHBhdGNoDQo+Pj4+DQo+Pj4NCj4+PiBOb3QgT0sgZm9yIG1l
-LCBpbiB0aGUgUE9QIFBURiBkbyBub3QgZG8gYW55IGRpZmZlcmVuY2UgYmV0d2VlbiBndWVz
-dCAyDQo+Pj4gYW5kIGd1ZXN0IDMuDQo+Pg0KPj4gSWYgd2UncmUgcnVubmluZyB3aXRoIEhX
-IHZpcnR1YWxpemF0aW9uIHRoZW4gZXZlcnkgZ3Vlc3QgPj0gMiBpcyBhIGd1ZXN0DQo+PiAy
-IGF0IHRoZSBlbmQuIEFuZCBtb3N0IG9mIHRoZSB0aW1lIHdlIGRvbid0IHdhbnQgdG8ga25v
-dyB0aGUgSFcgbGV2ZWwNCj4+IGFueXdheSwgd2Ugd2FudCB0byBrbm93IHdobyBvdXIgaHlw
-ZXJ2aXNvciBpcyBhbmQgdm1faXNfdm0oKSBkb2Vzbid0DQo+PiB0ZWxsIHlvdSBvbmUgYml0
-IGFib3V0IHRoYXQuDQo+IA0KPiBJdCB0ZWxscyB1cyB0aGF0IHdlIGFyZSBydW5uaW5nIHVu
-ZGVyIGEgVk0sIHRoZSBQT1AgZGVmaW5lcyAxIGFzIHRoZQ0KPiBiYXNpYyBtYWNoaW5lLCAy
-IGFzIHRoZSBMUEFSIGFuZCAzIGFzIHRoZSBWaXJ0dWFsIE1hY2hpbmUNCj4gDQo+IEkgZmlu
-ZCB0aGlzIGRlZmluaXRpb24gY2xlYXIsIG11Y2ggbW9yZSBjbGVhciB0aGFuIGd1ZXN0IDIg
-dGhhdCBpcyB3aHkgSQ0KPiB1c2VkIGl0Lg0KPiANCj4+DQo+PiBBdCB0aGlzIHBvaW50IEkg
-d291bGQgYmUgaGFwcGllciBpZiB3ZSByZW1vdmUgdGhlIGZ1bmN0aW9uIGFuZCB1c2UNCj4+
-IHN0c2lfZ2V0X2ZjKCkgPT0gMyBkaXJlY3RseS4gVGhlcmUncyBubyBhcmd1aW5nIGFib3V0
-IHdoYXQgd2UncmUNCj4+IGNoZWNraW5nIHdoZW4gdXNpbmcgdGhhdC4NCj4gDQo+IFNwZWFr
-aW5nIG9mIGZ1bmN0aW9uIG5hbWUsIEkgZG8gbm90IHVuZGVyc3RhbmQgdGhlIG5hbWUgb2Yg
-dGhpcyBmdW5jdGlvbg0KPiBzdHNpX2dldF9mYygpIDogcmV0dXJuaW5nIHRoZSBmdW5jdGlv
-biBjb2RlID8NCg0KSSBndWVzcyBpdCBzaG91bGQgYmUgc3RzaV9nZXRfY3VycmVudF9sZXZl
-bCgpIG9yIHNvbWV0aGluZyBsaWtlIHRoYXQuDQpMZXQgbWUgYWRkIHRoYXQgdG8gdGhlIGxp
-c3Qgb2Ygdm0uaCByZXdvcmsgaXRlbXMuDQoNCj4gDQo+Pg0KPj4gV2UncmUgY3VycmVudGx5
-IGFyZ3VpbmcgYWJvdXQgYSBmdW5jdGlvbiB0aGF0J3Mgb25seSB1c2VkIGluIHRoaXMgcGF0
-Y2gsDQo+PiBubz8NCj4gDQo+IEl0IGlzIGFic29sdXRlbHkgdW5pbXBvcnRhbnQgZm9yIG1l
-LCBpZiB5b3UgcHJlZmVyIHRoaXMgd2UgZG8gdGhpcy4NCj4gSSBzZW5kIHRoZSBjaGFuZ2Vz
-Lg0K
+On Tue, Feb 15, 2022 at 09:55:52PM +0530, Naveen N. Rao wrote:
+> > > > > > > I think this is wrong. We need to differentiate
+> > > > > > > between ftrace_caller() and ftrace_regs_caller()
+> > > > > > > here, and only return pt_regs if coming in through
+> > > > > > > ftrace_regs_caller() (i.e., FL_SAVE_REGS is set).
+> > > > > > 
+> > > > > > Not sure I follow you.
+> > > > > > 
+> > > > > > This is based on 5740a7c71ab6 ("s390/ftrace: add
+> > > > > > HAVE_DYNAMIC_FTRACE_WITH_ARGS support")
+> > > > > > 
+> > > > > > It's all the point of HAVE_DYNAMIC_FTRACE_WITH_ARGS,
+> > > > > > have the regs also with ftrace_caller().
+> > > > > > 
+> > > > > > Sure you only have the params, but that's the same on
+> > > > > > s390, so what did I miss ?
+> 
+> Steven has explained the rationale for this in his other response:
+> https://lore.kernel.org/all/20220215093849.556d5444@gandalf.local.home/
+
+Thanks for this pointer, this clarifies a couple of things!
+
+> > > > It looks like s390 is special since it apparently saves all
+> > > > registers even for ftrace_caller:
+> > > > https://lore.kernel.org/all/YbipdU5X4HNDWIni@osiris/
+> > > 
+> > > It is not what I understand from their code, see https://elixir.bootlin.com/linux/v5.17-rc3/source/arch/s390/kernel/mcount.S#L37
+> > > 
+> > > 
+> > > They have a common macro called with argument 'allregs' which is set
+> > > to 0 for ftrace_caller() and 1 for ftrace_regs_caller().
+> > > When allregs == 1, the macro seems to save more.
+> > > 
+> > > But ok, I can do like x86, but I need a trick to know whether
+> > > FL_SAVE_REGS is set or not, like they do with fregs->regs.cs
+> > > Any idea what the condition can be for powerpc ?
+> 
+> We'll need to explicitly zero-out something in pt_regs in ftrace_caller().
+> We can probably use regs->msr since we don't expect it to be zero when saved
+> from ftrace_regs_caller().
+> > 
+> > Finally, it looks like this change is done  via commit 894979689d3a
+> > ("s390/ftrace: provide separate ftrace_caller/ftrace_regs_caller
+> > implementations") four hours the same day after the implementation of
+> > arch_ftrace_get_regs()
+> > 
+> > They may have forgotten to change arch_ftrace_get_regs() which was added
+> > in commit 5740a7c71ab6 ("s390/ftrace: add HAVE_DYNAMIC_FTRACE_WITH_ARGS
+> > support") with the assumption that ftrace_caller and ftrace_regs_caller
+> > where identical.
+> 
+> Indeed, good find!
+
+Thank you for bringing this up!
+
+So, the in both variants s390 provides nearly identical data. The only
+difference is that for FL_SAVE_REGS the program status word mask is
+missing; therefore it is not possible to figure out the condition code
+or if interrupts were enabled/disabled.
+
+Vasily, Sven, I think we have two options here:
+
+- don't provide sane psw mask contents at all and say (again) that
+  ptregs contents are identical
+
+- provide (finally) a full psw mask contents using epsw, and indicate
+  validity with a flags bit in pt_regs
+
+I would vote for the second option, even though epsw is slow. But this
+is about the third or fourth time this came up in different
+contexts. So I'd guess we should go for the slow but complete
+solution. Opinions?
