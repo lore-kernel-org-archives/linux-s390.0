@@ -2,214 +2,164 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 612D9C433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Feb 2022 10:55:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C90FAC433FE
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Feb 2022 10:56:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230481AbiBPKzz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Feb 2022 05:55:55 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:59658 "EHLO
+        id S231192AbiBPK5C (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 16 Feb 2022 05:57:02 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229729AbiBPKzy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Feb 2022 05:55:54 -0500
-Received: from out30-45.freemail.mail.aliyun.com (out30-45.freemail.mail.aliyun.com [115.124.30.45])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83F7F2A39DF;
-        Wed, 16 Feb 2022 02:55:41 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0V4d6LsK_1645008938;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0V4d6LsK_1645008938)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 16 Feb 2022 18:55:39 +0800
-Date:   Wed, 16 Feb 2022 18:55:38 +0800
-From:   "dust.li" <dust.li@linux.alibaba.com>
-To:     Karsten Graul <kgraul@linux.ibm.com>,
-        Tony Lu <tonylu@linux.alibaba.com>
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: Re: [PATCH] net/smc: Add autocork support
-Message-ID: <20220216105538.GA54562@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20220216034903.20173-1-dust.li@linux.alibaba.com>
- <6e9c637c-50b0-394c-f405-8b98deafa2ef@linux.ibm.com>
+        with ESMTP id S231208AbiBPK5A (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Feb 2022 05:57:00 -0500
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2B19659E;
+        Wed, 16 Feb 2022 02:56:48 -0800 (PST)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id 87FBA1F394;
+        Wed, 16 Feb 2022 10:56:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1645009007; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=czkTwuPVNY+CGK+iaNWgAo7tiJWsOUPbMC8dAAd2acc=;
+        b=J3Y97nwkpCZ7yBjFC/lwyP8P7M39QAd1xriK7UqEWU1S4SAFOX5hHDTKY6IppSIb7v5pLE
+        YtYkKR7imTavHOTWbDb3xYh6hHquisyVI9D9jWX1PrfmGfAfIFPdBQDWqLFXQi5uUUSWB1
+        DvuPKc5K1aRC0+f/HCsc4auYBCVHABA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1645009007;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=czkTwuPVNY+CGK+iaNWgAo7tiJWsOUPbMC8dAAd2acc=;
+        b=XoXSVg9x0SbI71JVqNQjmgQuHmwkjv1Dt86matdSZvHZIoNH6UqIwN7/vkuQn6Aen4DpRr
+        pd4rSLFRsHDSFxAA==
+Received: from kunlun.suse.cz (unknown [10.100.128.76])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 0BC1BA3B88;
+        Wed, 16 Feb 2022 10:56:47 +0000 (UTC)
+Date:   Wed, 16 Feb 2022 11:56:45 +0100
+From:   Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
+To:     Mimi Zohar <zohar@linux.ibm.com>
+Cc:     Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Philipp Rudo <prudo@redhat.com>, Baoquan He <bhe@redhat.com>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        AKASHI Takahiro <takahiro.akashi@linaro.org>,
+        James Morse <james.morse@arm.com>,
+        Dave Young <dyoung@redhat.com>,
+        Kairui Song <kasong@redhat.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-modules@vger.kernel.org,
+        keyrings@vger.kernel.org, linux-security-module@vger.kernel.org,
+        stable@kernel.org, Eric Snowberg <eric.snowberg@oracle.com>
+Subject: Re: [PATCH 4/4] module, KEYS: Make use of platform keyring for
+ signature verification
+Message-ID: <20220216105645.GS3113@kunlun.suse.cz>
+References: <cover.1644953683.git.msuchanek@suse.de>
+ <840433bc93a58d6dfc4d96c34c0c3b158a0e669d.1644953683.git.msuchanek@suse.de>
+ <3e39412657a4b0839bcf38544d591959e89877b8.camel@linux.ibm.com>
+ <20220215204730.GQ3113@kunlun.suse.cz>
+ <c3f6f6c8a9db34cc1cdc1000f9272c2b36445e15.camel@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <6e9c637c-50b0-394c-f405-8b98deafa2ef@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <c3f6f6c8a9db34cc1cdc1000f9272c2b36445e15.camel@linux.ibm.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Feb 16, 2022 at 11:32:52AM +0100, Karsten Graul wrote:
->On 16/02/2022 04:49, Dust Li wrote:
->> This patch adds autocork support for SMC which could improve
->> throughput for small message by x2 ~ x4.
->> 
->> The main idea is borrowed from TCP autocork with some RDMA
->> specific modification:
->
->Sounds like a valuable improvement, thank you!
->
->> ---
->>  net/smc/smc.h     |   2 +
->>  net/smc/smc_cdc.c |  11 +++--
->>  net/smc/smc_tx.c  | 118 ++++++++++++++++++++++++++++++++++++++++------
->>  3 files changed, 114 insertions(+), 17 deletions(-)
->> 
->> diff --git a/net/smc/smc.h b/net/smc/smc.h
->> index a096d8af21a0..bc7df235281c 100644
->> --- a/net/smc/smc.h
->> +++ b/net/smc/smc.h
->> @@ -192,6 +192,8 @@ struct smc_connection {
->>  						 * - dec on polled tx cqe
->>  						 */
->>  	wait_queue_head_t	cdc_pend_tx_wq; /* wakeup on no cdc_pend_tx_wr*/
->> +	atomic_t		tx_pushing;     /* nr_threads trying tx push */
->> +
->
->Is this extra empty line needed?
+On Tue, Feb 15, 2022 at 05:12:32PM -0500, Mimi Zohar wrote:
+> On Tue, 2022-02-15 at 21:47 +0100, Michal Suchánek wrote:
+> > Hello,
+> > 
+> > On Tue, Feb 15, 2022 at 03:08:18PM -0500, Mimi Zohar wrote:
+> > > [Cc'ing Eric Snowberg]
+> > > 
+> > > Hi Michal,
+> > > 
+> > > On Tue, 2022-02-15 at 20:39 +0100, Michal Suchanek wrote:
+> > > > Commit 278311e417be ("kexec, KEYS: Make use of platform keyring for signature verify")
+> > > > adds support for use of platform keyring in kexec verification but
+> > > > support for modules is missing.
+> > > > 
+> > > > Add support for verification of modules with keys from platform keyring
+> > > > as well.
+> > > 
+> > > Permission for loading the pre-OS keys onto the "platform" keyring and
+> > > using them is limited to verifying the kexec kernel image, nothing
+> > > else.
+> > 
+> > Why is the platform keyring limited to kexec, and nothing else?
+> > 
+> > It should either be used for everything or for nothing. You have the
+> > option to compile it in and then it should be used, and the option to
+> > not compile it in and then it cannot be used.
+> > 
+> > There are two basic use cases:
+> > 
+> > (1) there is a vendor key which is very hard to use so you sign
+> > something small and simple like shim with the vendor key, and sign your
+> > kernel and modules with your own key that's typically enrolled with shim
+> > MOK, and built into the kernel.
+> > 
+> > (2) you import your key into the firmware, and possibly disable the
+> > vendor key. You can load the kernel directly without shim, and then your
+> > signing key is typically in the platform keyring and built into the
+> > kernel.
+> > 
+> > In neither case do I see any reason to use some keyrings for kexec and
+> > other keyrings for modules.
+> 
+> When building your own kernel there isn't a problem.  Additional keys
+> may be built into the kernel image, which are loaded onto the
+> ".builtin_trusted_keys" keyring, and may be stored in MOK.  Normally
+> different keys are used for signing the kernel image and kernel
 
-Will remove this empty line in the next version.
+That's actually not normal.
 
->
->>  	struct delayed_work	tx_work;	/* retry of smc_cdc_msg_send */
->>  	u32			tx_off;		/* base offset in peer rmb */
->>  
->> diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
->> index 9d5a97168969..2b37bec90824 100644
->> --- a/net/smc/smc_cdc.c
->> +++ b/net/smc/smc_cdc.c
->> @@ -48,9 +48,14 @@ static void smc_cdc_tx_handler(struct smc_wr_tx_pend_priv *pnd_snd,
->>  		conn->tx_cdc_seq_fin = cdcpend->ctrl_seq;
->>  	}
->>  
->> -	if (atomic_dec_and_test(&conn->cdc_pend_tx_wr) &&
->> -	    unlikely(wq_has_sleeper(&conn->cdc_pend_tx_wq)))
->> -		wake_up(&conn->cdc_pend_tx_wq);
->> +	if (atomic_dec_and_test(&conn->cdc_pend_tx_wr)) {
->> +		/* If this is the last pending WR complete, we must push to
->> +		 * prevent hang when autocork enabled.
->> +		 */
->> +		smc_tx_sndbuf_nonempty(conn);
->> +		if (unlikely(wq_has_sleeper(&conn->cdc_pend_tx_wq)))
->> +			wake_up(&conn->cdc_pend_tx_wq);
->> +	}
->>  	WARN_ON(atomic_read(&conn->cdc_pend_tx_wr) < 0);
->>  
->>  	smc_tx_sndbuf_nonfull(smc);
->> diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
->> index 5df3940d4543..bc737ac79805 100644
->> --- a/net/smc/smc_tx.c
->> +++ b/net/smc/smc_tx.c
->> @@ -31,6 +31,7 @@
->>  #include "smc_tracepoint.h"
->>  
->>  #define SMC_TX_WORK_DELAY	0
->> +#define SMC_DEFAULT_AUTOCORK_SIZE	(64 * 1024)
->>  
->>  /***************************** sndbuf producer *******************************/
->>  
->> @@ -127,10 +128,52 @@ static int smc_tx_wait(struct smc_sock *smc, int flags)
->>  static bool smc_tx_is_corked(struct smc_sock *smc)
->>  {
->>  	struct tcp_sock *tp = tcp_sk(smc->clcsock->sk);
->> -
->>  	return (tp->nonagle & TCP_NAGLE_CORK) ? true : false;
->>  }
->>  
->> +/* If we have pending CDC messages, do not send:
->> + * Because CQE of this CDC message will happen shortly, it gives
->> + * a chance to coalesce future sendmsg() payload in to one RDMA Write,
->> + * without need for a timer, and with no latency trade off.
->> + * Algorithm here:
->> + *  1. First message should never cork
->> + *  2. If we have pending CDC messages, wait for the first
->> + *     message's completion
->> + *  3. Don't cork to much data in a single RDMA Write to prevent burst,
->> + *     total corked message should not exceed min(64k, sendbuf/2)
->> + */
->> +static bool smc_should_autocork(struct smc_sock *smc, struct msghdr *msg,
->> +				int size_goal)
->> +{
->> +	struct smc_connection *conn = &smc->conn;
->> +
->> +	if (atomic_read(&conn->cdc_pend_tx_wr) == 0 ||
->> +	    smc_tx_prepared_sends(conn) > min(size_goal,
->> +					      conn->sndbuf_desc->len >> 1))
->> +		return false;
->> +	return true;
->> +}
->> +
->> +static bool smc_tx_should_cork(struct smc_sock *smc, struct msghdr *msg)
->> +{
->> +	struct smc_connection *conn = &smc->conn;
->> +
->> +	if (smc_should_autocork(smc, msg, SMC_DEFAULT_AUTOCORK_SIZE))
->> +		return true;
->> +
->> +	if ((msg->msg_flags & MSG_MORE ||
->> +	     smc_tx_is_corked(smc) ||
->> +	     msg->msg_flags & MSG_SENDPAGE_NOTLAST) &&
->> +	    (atomic_read(&conn->sndbuf_space)))
->> +		/* for a corked socket defer the RDMA writes if
->> +		 * sndbuf_space is still available. The applications
->> +		 * should known how/when to uncork it.
->> +		 */
->> +		return true;
->> +
->> +	return false;
->> +}
->> +
->>  /* sndbuf producer: main API called by socket layer.
->>   * called under sock lock.
->>   */
->> @@ -177,6 +220,13 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
->>  		if (msg->msg_flags & MSG_OOB)
->>  			conn->local_tx_ctrl.prod_flags.urg_data_pending = 1;
->>  
->> +		/* If our send queue is full but peer have RMBE space,
->> +		 * we should send them out before wait
->> +		 */
->> +		if (!atomic_read(&conn->sndbuf_space) &&
->> +		    atomic_read(&conn->peer_rmbe_space) > 0)
->> +			smc_tx_sndbuf_nonempty(conn);
->> +
->>  		if (!atomic_read(&conn->sndbuf_space) || conn->urg_tx_pend) {
->>  			if (send_done)
->>  				return send_done;
->> @@ -235,15 +285,12 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
->>  		 */
->>  		if ((msg->msg_flags & MSG_OOB) && !send_remaining)
->>  			conn->urg_tx_pend = true;
->> -		if ((msg->msg_flags & MSG_MORE || smc_tx_is_corked(smc) ||
->> -		     msg->msg_flags & MSG_SENDPAGE_NOTLAST) &&
->> -		    (atomic_read(&conn->sndbuf_space)))
->> -			/* for a corked socket defer the RDMA writes if
->> -			 * sndbuf_space is still available. The applications
->> -			 * should known how/when to uncork it.
->> -			 */
->> -			continue;
->> -		smc_tx_sndbuf_nonempty(conn);
->> +
->> +		/* If we need to cork, do nothing and wait for the next
->> +		 * sendmsg() call or push on tx completion
->> +		 */
->> +		if (!smc_tx_should_cork(smc, msg))
->> +			smc_tx_sndbuf_nonempty(conn);
->>  
->>  		trace_smc_tx_sendmsg(smc, copylen);
->>  	} /* while (msg_data_left(msg)) */
->> @@ -590,13 +637,26 @@ static int smcd_tx_sndbuf_nonempty(struct smc_connection *conn)
->>  	return rc;
->>  }
->>  
->> -int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
->> +static int __smc_tx_sndbuf_nonempty(struct smc_connection *conn)
->>  {
->> -	int rc;
->> +	int rc = 0;
->> +	struct smc_sock *smc = container_of(conn, struct smc_sock, conn);
->
->Reverse Christmas tree style please.
+> modules.  Kernel modules can be signed by the build time ephemeral
+> kernel module signing key, which is built into the kernel and
+> automatically loaded onto the ".builtin_trusted_keys" keyring.
 
-Sure, will do.
+Right, there is this advice to use ephemeral key to sign modules.
 
-Thank you !
+I don't think that's a sound advice in general. It covers only the
+special case when you build the kernel once, only rebuild the whole
+kernel and never just one module, don't use any 3rd party module, don't
+bother signing firmware (I am not sure that is supported right now but
+if you are into integrity and stuff you can see that it makes sense to
+sign it, too).
 
+And you need to manage the key you use for the kernel signing, anyway.
+Sure, you could use the same ephemeral key as for the modules, enroll
+it, and shred it but then it is NOT a key different from the one you use
+for modules.
+
+Or you could maintain a long-lived key for the kernel, but if you do I
+do NOT see any reason to not use it also for modules, in-tree and
+out-of-tree.
+
+> Similarly distros build the kernel module signing key into the kernel,
+> which is built into the kernel and loaded onto the
+> ".builtin_trusted_keys" keyring.  By loading the pre-OS keys onto the
+> ".platform" keyring,  kexec may verify the distro or other signed
+> kernel images.
+
+Which are signed by the same key as the modules so there is no reason to
+load the platform key at all. I don't think loading shim with kexec is
+supported.
+
+Thanks
+
+Michal
