@@ -2,96 +2,109 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EFBEDC433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Feb 2022 18:58:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 01292C4707E
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Feb 2022 19:06:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234953AbiBPS6g (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Feb 2022 13:58:36 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:54136 "EHLO
+        id S238014AbiBPTGN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 16 Feb 2022 14:06:13 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:52602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233352AbiBPS6g (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Feb 2022 13:58:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC39E2AD677;
-        Wed, 16 Feb 2022 10:58:23 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 810E361715;
-        Wed, 16 Feb 2022 18:58:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81F18C340ED;
-        Wed, 16 Feb 2022 18:58:22 +0000 (UTC)
-Date:   Wed, 16 Feb 2022 13:58:21 -0500
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     Sven Schnelle <svens@linux.ibm.com>
-Cc:     linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: ftrace startup tests crashing due to missing rcu_synchronize()
-Message-ID: <20220216135821.67a22c52@gandalf.local.home>
-In-Reply-To: <20220216135419.01d96fe1@gandalf.local.home>
-References: <yt9dilte4px4.fsf@linux.ibm.com>
-        <20220216135419.01d96fe1@gandalf.local.home>
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+        with ESMTP id S235595AbiBPTGL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Feb 2022 14:06:11 -0500
+Received: from mail-yw1-f176.google.com (mail-yw1-f176.google.com [209.85.128.176])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3523C27019F;
+        Wed, 16 Feb 2022 11:05:59 -0800 (PST)
+Received: by mail-yw1-f176.google.com with SMTP id 00721157ae682-2d641c31776so9255867b3.12;
+        Wed, 16 Feb 2022 11:05:59 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=yLrFIsE9bo3p9BnVIL7Uc7sprqnSKm0YOW7fBIQdERM=;
+        b=RuPu7SzNkaJd1WR9+wnB7RuMLb2/6JyYiKaOmBtWGY+4dQhlRrtGvZ6OCmGpbsWMoE
+         P6HWXArbpHHQ7o31q4rHYkzBeYrTVeQSPrCkdBec5F3RuJYRVM//BwT9telG3bmZAcoB
+         FxtlU7vncA/7M5kWQwcqyBdpk27zG/p5D5rGZq0nsDf1j034j4N9NruAlDbyjIIBOzmu
+         KbHBVnw1SI5P4hqVE2AIEQGFaF2ieMYBNUQvgI02g+e1RAX1uy1xzU6XISp25w56c5dM
+         rQeGODqdry9lEgQwF/Hg6FiJO1SoO7gDJ8o3BoJD78lW8gTuVok5Fl/klWvtUyspycM7
+         AmqA==
+X-Gm-Message-State: AOAM532jcwakILeJ+RRfPI4QyknirUMpZKArmVbmtERBQUf3YEr8M+pB
+        AOGbopeO05mizhBNkS7JDbWQ5dPD2ZUb11wOmK0=
+X-Google-Smtp-Source: ABdhPJyFOmiGOmRDkw8czUhuWEAUWZI3b6hfKAcdDSxdtm3oSTgs7z2noREt7vOvPl7JarLhxJEUxltkCz2WrL99cSU=
+X-Received: by 2002:a0d:c244:0:b0:2d1:1fbb:180d with SMTP id
+ e65-20020a0dc244000000b002d11fbb180dmr3902361ywd.196.1645038358332; Wed, 16
+ Feb 2022 11:05:58 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+References: <20220215174743.GA878920@embeddedor> <202202151016.C0471D6E@keescook>
+ <20220215192110.GA883653@embeddedor> <Ygv8wY75hNqS7zO6@unreal> <20220215193221.GA884407@embeddedor>
+In-Reply-To: <20220215193221.GA884407@embeddedor>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Wed, 16 Feb 2022 20:05:47 +0100
+Message-ID: <CAJZ5v0jpAnQk+Hub6ue6t712RW+W0YBjb_gAcZZbUeuYMGv7mg@mail.gmail.com>
+Subject: Re: [PATCH][next] treewide: Replace zero-length arrays with
+ flexible-array members
+To:     "Gustavo A. R. Silva" <gustavoars@kernel.org>
+Cc:     Leon Romanovsky <leon@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        GR-QLogic-Storage-Upstream@marvell.com,
+        linux-alpha@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org,
+        Linux-sh list <linux-sh@vger.kernel.org>,
+        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+        linux-xtensa@linux-xtensa.org,
+        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
+        intel-gfx <intel-gfx@lists.freedesktop.org>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        nouveau <nouveau@lists.freedesktop.org>,
+        coresight@lists.linaro.org,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        bcm-kernel-feedback-list <bcm-kernel-feedback-list@broadcom.com>,
+        netdev <netdev@vger.kernel.org>,
+        Linux OMAP Mailing List <linux-omap@vger.kernel.org>,
+        "open list:TARGET SUBSYSTEM" <linux-scsi@vger.kernel.org>,
+        target-devel@vger.kernel.org, mpi3mr-linuxdrv.pdl@broadcom.com,
+        linux-staging@lists.linux.dev,
+        linux-rpi-kernel@lists.infradead.org, sparmaintainer@unisys.com,
+        linux-cifs@vger.kernel.org, samba-technical@lists.samba.org,
+        Ext4 Developers List <linux-ext4@vger.kernel.org>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        "open list:ACPI COMPONENT ARCHITECTURE (ACPICA)" <devel@acpica.org>,
+        linux-arch <linux-arch@vger.kernel.org>,
+        Linux Memory Management List <linux-mm@kvack.org>,
+        greybus-dev@lists.linaro.org, linux-i3c@lists.infradead.org,
+        linux-rdma@vger.kernel.org,
+        "open list:BLUETOOTH DRIVERS" <linux-bluetooth@vger.kernel.org>,
+        "moderated list:SOUND - SOC LAYER / DYNAMIC AUDIO POWER MANAGEM..." 
+        <alsa-devel@alsa-project.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>, linux-perf-users@vger.kernel.org,
+        linux-hardening@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 16 Feb 2022 13:54:19 -0500
-Steven Rostedt <rostedt@goodmis.org> wrote:
+On Tue, Feb 15, 2022 at 8:24 PM Gustavo A. R. Silva
+<gustavoars@kernel.org> wrote:
+>
+> On Tue, Feb 15, 2022 at 09:19:29PM +0200, Leon Romanovsky wrote:
+> > On Tue, Feb 15, 2022 at 01:21:10PM -0600, Gustavo A. R. Silva wrote:
+> > > On Tue, Feb 15, 2022 at 10:17:40AM -0800, Kees Cook wrote:
+> > > > On Tue, Feb 15, 2022 at 11:47:43AM -0600, Gustavo A. R. Silva wrote:
+> > > >
+> > > > These all look trivially correct to me. Only two didn't have the end of
+> > > > the struct visible in the patch, and checking those showed them to be
+> > > > trailing members as well, so:
+> > > >
+> > > > Reviewed-by: Kees Cook <keescook@chromium.org>
+> > >
+> > > I'll add this to my -next tree.
+> >
+> > I would like to ask you to send mlx5 patch separately to netdev. We are working
+> > to delete that file completely and prefer to avoid from unnecessary merge conflicts.
+>
+> Oh OK. Sure thing; I will do so.
 
-> That is, shutdown is called, the item is removed from the list and freed,
-> but something got preempted while on the ftrace trampoline, with a
-> reference to the item, and then woke up and executed the item that was
-> freed.
-> 
-> I'll look into it. Thanks for the report.
+Can you also send the ACPI patch separately, please?
 
-OK, I wonder if something changed with "is_kernel_core_date()"?
-
-Because on registering, we have:
-
-	if (!is_kernel_core_data((unsigned long)ops))
-		ops->flags |= FTRACE_OPS_FL_DYNAMIC;
-
-
-and in the shutdown, we have:
-
-	/*
-	 * Dynamic ops may be freed, we must make sure that all
-	 * callers are done before leaving this function.
-	 * The same goes for freeing the per_cpu data of the per_cpu
-	 * ops.
-	 */
-	if (ops->flags & FTRACE_OPS_FL_DYNAMIC) {
-		/*
-		 * We need to do a hard force of sched synchronization.
-		 * This is because we use preempt_disable() to do RCU, but
-		 * the function tracers can be called where RCU is not watching
-		 * (like before user_exit()). We can not rely on the RCU
-		 * infrastructure to do the synchronization, thus we must do it
-		 * ourselves.
-		 */
-		synchronize_rcu_tasks_rude();
-
-		/*
-		 * When the kernel is preemptive, tasks can be preempted
-		 * while on a ftrace trampoline. Just scheduling a task on
-		 * a CPU is not good enough to flush them. Calling
-		 * synchronize_rcu_tasks() will wait for those tasks to
-		 * execute and either schedule voluntarily or enter user space.
-		 */
-		if (IS_ENABLED(CONFIG_PREEMPTION))
-			synchronize_rcu_tasks();
-
- free_ops:
-		ftrace_trampoline_free(ops);
-	}
-
-
-If the ops is not flagged as being allocated, or if one of the rcu
-synchronizations has changed and allowed for us to continue, then this
-would cause what you see.
-
--- Steve
+We would like to route it through the upstream ACPICA code base.
