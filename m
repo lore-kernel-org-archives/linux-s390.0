@@ -2,78 +2,116 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 374F5C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Feb 2022 08:28:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42ABCC433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Feb 2022 10:23:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229455AbiBPI2Z (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Feb 2022 03:28:25 -0500
-Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:47496 "EHLO
+        id S232806AbiBPKXd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 16 Feb 2022 05:23:33 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229462AbiBPI2Y (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Feb 2022 03:28:24 -0500
-X-Greylist: delayed 1080 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 16 Feb 2022 00:28:10 PST
-Received: from cstnet.cn (smtp21.cstnet.cn [159.226.251.21])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 4A0022599C1;
-        Wed, 16 Feb 2022 00:28:09 -0800 (PST)
-Received: from localhost.localdomain (unknown [124.16.141.241])
-        by APP-01 (Coremail) with SMTP id qwCowAC3_sYvrQxil5vlAA--.12501S2;
-        Wed, 16 Feb 2022 15:52:16 +0800 (CST)
-From:   Xu Wang <vulab@iscas.ac.cn>
-To:     wintera@linux.ibm.com, wenjia@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com, svens@linux.ibm.com
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH net-next] s390/qeth: Remove redundant 'flush_workqueue()' calls
-Date:   Wed, 16 Feb 2022 07:51:55 +0000
-Message-Id: <20220216075155.940-1-vulab@iscas.ac.cn>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S232740AbiBPKXc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Feb 2022 05:23:32 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83BDF1D21D7;
+        Wed, 16 Feb 2022 02:23:20 -0800 (PST)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21G9GNIp000375;
+        Wed, 16 Feb 2022 10:23:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=9YfNhOKtNKiisXc5EMUwUYdhPrpKikZZOm741Dx/Zq8=;
+ b=bvkKd18IVXatgY+g23wtkdcFWT3Qfj2wNtj7lPeOMKXR0BiI+QMhf7gHM76g1JyKVquM
+ jUFiszfzC2ML2ELza5HnwrufPii7eK2j4GuXo7mCfNubcSS9izxJSAo9lKq5HkU90XhB
+ O9okGJrdH73qGZUR0mvUuUEio6rNvtVjtjdungUvgnLyhEv7mtS9+gCDk2lAtJ25bLaL
+ y3ej/53TGTpoKVWSoKHRwMXPfiVkzm1/jfI4YfWSBRXAxi81HiQZ7nw5zeM6exAiXPHR
+ TCUMlVPcDtLDSIU3jyIYI7aJjuKgBAiVD0vh+jOp+FCOZPexpV6T1YKjNBSUB5Zn7REY Dg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3e8xg9hd7f-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Feb 2022 10:23:16 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21GAELAx028563;
+        Wed, 16 Feb 2022 10:23:16 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3e8xg9hd73-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Feb 2022 10:23:16 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21GADr1G013665;
+        Wed, 16 Feb 2022 10:23:14 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma04fra.de.ibm.com with ESMTP id 3e64ha5gc4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Feb 2022 10:23:14 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21GANBa147644998
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 16 Feb 2022 10:23:12 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D6EE55204F;
+        Wed, 16 Feb 2022 10:23:11 +0000 (GMT)
+Received: from [9.145.68.35] (unknown [9.145.68.35])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 789B952050;
+        Wed, 16 Feb 2022 10:23:11 +0000 (GMT)
+Message-ID: <27b00eba-40a5-19e8-5af6-64d0d8f034fd@linux.ibm.com>
+Date:   Wed, 16 Feb 2022 11:23:12 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: qwCowAC3_sYvrQxil5vlAA--.12501S2
-X-Coremail-Antispam: 1UD129KBjvdXoWrKF1rKw18ZryDWrWkJr15twb_yoWfCFc_K3
-        yxKrWIyr4DGr9I934FyFn5ZFyF9w1jg3WS9a9agrWrJ347G34Yqw1kZr4UW3y7X3yUGFy7
-        ZFy7X3WqvrnrCjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-        9fnUUIcSsGvfJTRUUUb28YjsxI4VWkKwAYFVCjjxCrM7AC8VAFwI0_Gr0_Xr1l1xkIjI8I
-        6I8E6xAIw20EY4v20xvaj40_Wr0E3s1l1IIY67AEw4v_Jr0_Jr4l8cAvFVAK0II2c7xJM2
-        8CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVW5JVW7JwA2z4x0Y4vE2Ix0
-        cI8IcVCY1x0267AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIE14v26F4UJVW0owA2z4x0Y4vEx4
-        A2jsIEc7CjxVAFwI0_Cr1j6rxdM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI
-        64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8Jw
-        Am72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lc2xSY4AK67AK6r4xMxAIw28I
-        cxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2
-        IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI
-        42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCI42
-        IY6xAIw20EY4v20xvaj40_WFyUJVCq3wCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E
-        87Iv6xkF7I0E14v26r1j6r4UYxBIdaVFxhVjvjDU0xZFpf9x07bY1v-UUUUU=
-X-Originating-IP: [124.16.141.241]
-X-CM-SenderInfo: pyxotu46lvutnvoduhdfq/1tbiCwkTA1z4k0ao0gAAsZ
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.0
+Subject: Re: [PATCH net-next] net/smc: return ETIMEDOUT when smc_connect_clc()
+ timeout
+Content-Language: en-US
+To:     "D. Wythe" <alibuda@linux.alibaba.com>
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <1644913490-21594-1-git-send-email-alibuda@linux.alibaba.com>
+ <c85310ed-fd9c-fa8c-88d2-862b5d99dbbe@linux.ibm.com>
+ <20220216031307.GA2243@e02h04389.eu6sqa>
+From:   Karsten Graul <kgraul@linux.ibm.com>
+Organization: IBM Deutschland Research & Development GmbH
+In-Reply-To: <20220216031307.GA2243@e02h04389.eu6sqa>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: IsVXHs7RJ5R0QEAqcdYXnTxI_cE0DgIL
+X-Proofpoint-GUID: zxdqKQ27A_mHsapGvvFA9FnthRgA4OtH
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-02-16_04,2022-02-16_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ mlxlogscore=999 spamscore=0 clxscore=1015 suspectscore=0 impostorscore=0
+ lowpriorityscore=0 phishscore=0 priorityscore=1501 mlxscore=0 adultscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2202160058
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-'destroy_workqueue()' already drains the queue before destroying it, so
-there is no need to flush it explicitly.
+On 16/02/2022 04:13, D. Wythe wrote:
+> On Tue, Feb 15, 2022 at 02:02:37PM +0100, Karsten Graul wrote:
+>> On 15/02/2022 09:24, D. Wythe wrote:
+>>> From: "D. Wythe" <alibuda@linux.alibaba.com>
+>>>
+>>> When smc_connect_clc() times out, it will return -EAGAIN(tcp_recvmsg
+>>> retuns -EAGAIN while timeout), then this value will passed to the
+>>> application, which is quite confusing to the applications, makes
+>>> inconsistency with TCP.
+>>>
+>>> From the manual of connect, ETIMEDOUT is more suitable, and this patch
+>>> try convert EAGAIN to ETIMEDOUT in that case.
+>>
+>> You say that the sock_recvmsg() in smc_clc_wait_msg() returns -EAGAIN?
+>> Is there a reason why you translate it in __smc_connect() and not already in
+>> smc_clc_wait_msg() after the call to sock_recvmsg()?
+> 
+> 
+> Because other code that uses smc_clc_wait_msg() handles EAGAIN allready, 
+> and the only exception is smc_listen_work(), but it doesn't really matter for it. 
+> 
+> The most important thing is that this conversion needs to be determined according to 
+> the calling scene, convert in smc_clc_wait_msg() is not very suitable.
 
-Remove the redundant 'flush_workqueue()' calls.
+Okay I understand, thank you.
 
-Signed-off-by: Xu Wang <vulab@iscas.ac.cn>
-Acked-by: Alexandra Winter <wintera@linux.ibm.com>
----
- drivers/s390/net/qeth_l3_main.c | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 9251ad276ee8..d2f422a9a4f7 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1961,7 +1961,6 @@ static void qeth_l3_remove_device(struct ccwgroup_device *cgdev)
- 	if (card->dev->reg_state == NETREG_REGISTERED)
- 		unregister_netdev(card->dev);
- 
--	flush_workqueue(card->cmd_wq);
- 	destroy_workqueue(card->cmd_wq);
- 	qeth_l3_clear_ip_htable(card, 0);
- 	qeth_l3_clear_ipato_list(card);
--- 
-2.25.1
-
+Reviewed-by: Karsten Graul <kgraul@linux.ibm.com>
