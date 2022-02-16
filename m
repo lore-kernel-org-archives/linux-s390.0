@@ -2,84 +2,151 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A492C433FE
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Feb 2022 15:28:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E9732C433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Feb 2022 15:39:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234028AbiBPP3G (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Feb 2022 10:29:06 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60886 "EHLO
+        id S234776AbiBPPjU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 16 Feb 2022 10:39:20 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:39604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234004AbiBPP3D (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Feb 2022 10:29:03 -0500
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8608219DE8D;
-        Wed, 16 Feb 2022 07:28:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=R6kAipwXMO7TbFMaTolYaEj+jLUzE9dE71Ig4CplYiA=; b=oQJrr7uONSRmx7FuSCPg0hA4l1
-        BLJjdDhri53590/Hgz93mObhi3Vli+4mMqaw+Wp9OcR0wION2EbJObpe0w/BhcrYAxWLQRkFCv7aD
-        wFPU1/O5o8+pqHh0yTnQLngrwIstx+xabfOQagn1pDzITFYaTHQIzk3iVfMHAs/lkSFdnOwagDJ+e
-        RlID2cWv2Q8umUbV77NATcj/iPuZTTeXMLLG0ezi/TKsMogcaN42f7dh6LxotlxE65NUFQ+7UQasw
-        lpJwOmLF4aWjj39H82Qs63j9WbJnmYIdwirt2a1yFFYJni5XaGXDMzUzvrL5oU75n2GpzObz6cGeE
-        83FJyeBA==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nKMEG-007Uuo-K5; Wed, 16 Feb 2022 15:28:28 +0000
-Date:   Wed, 16 Feb 2022 07:28:28 -0800
-From:   Christoph Hellwig <hch@infradead.org>
-To:     "Maciej W. Rozycki" <macro@orcam.me.uk>
-Cc:     Christoph Hellwig <hch@infradead.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Jeff Dike <jdike@addtoit.com>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] parport_pc: Also enable driver for PCI systems
-Message-ID: <Yg0YHHk7NVWjedgn@infradead.org>
-References: <alpine.DEB.2.21.2202141955550.34636@angie.orcam.me.uk>
- <YgtQkjRe7fbXI/lS@infradead.org>
- <alpine.DEB.2.21.2202150901170.34636@angie.orcam.me.uk>
+        with ESMTP id S232984AbiBPPjU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Feb 2022 10:39:20 -0500
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA97C290591;
+        Wed, 16 Feb 2022 07:39:06 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R441e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04357;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0V4e2f3I_1645025943;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0V4e2f3I_1645025943)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Wed, 16 Feb 2022 23:39:03 +0800
+Date:   Wed, 16 Feb 2022 23:39:02 +0800
+From:   "dust.li" <dust.li@linux.alibaba.com>
+To:     Niklas Schnelle <schnelle@linux.ibm.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: Re: [PATCH net-next v2] net/smc: Add autocork support
+Message-ID: <20220216153902.GC39286@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <20220216120009.63747-1-dust.li@linux.alibaba.com>
+ <c113554f9d3cdfbf3e148cc3400e106ba7bdb3c4.camel@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.21.2202150901170.34636@angie.orcam.me.uk>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+In-Reply-To: <c113554f9d3cdfbf3e148cc3400e106ba7bdb3c4.camel@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Feb 15, 2022 at 09:11:45AM +0000, Maciej W. Rozycki wrote:
-> On Mon, 14 Feb 2022, Christoph Hellwig wrote:
-> 
-> > > ===================================================================
-> > > --- linux-macro.orig/arch/arm64/include/asm/Kbuild
-> > > +++ linux-macro/arch/arm64/include/asm/Kbuild
-> > > @@ -3,6 +3,7 @@ generic-y += early_ioremap.h
-> > >  generic-y += mcs_spinlock.h
-> > >  generic-y += qrwlock.h
-> > >  generic-y += qspinlock.h
-> > > +generic-y += parport.h
-> > 
-> > Instead of adding generic-y just ad a mandatory-y in
-> > include/asm-generic/Kbuild.
-> 
->  I'm inconvinced.  Not all archs want it, 5 don't.
+On Wed, Feb 16, 2022 at 04:20:27PM +0100, Niklas Schnelle wrote:
+>On Wed, 2022-02-16 at 20:00 +0800, Dust Li wrote:
+>> This patch adds autocork support for SMC which could improve
+>> throughput for small message by x2 ~ x4.
+>> 
+>> The main idea is borrowed from TCP autocork with some RDMA
+>> specific modification:
+>> 1. The first message should never cork to make sure we won't
+>>    bring extra latency
+>> 2. If we have posted any Tx WRs to the NIC that have not
+>>    completed, cork the new messages until:
+>>    a) Receive CQE for the last Tx WR
+>>    b) We have corked enough message on the connection
+>> 3. Try to push the corked data out when we receive CQE of
+>>    the last Tx WR to prevent the corked messages hang in
+>>    the send queue.
+>> 
+>> Both SMC autocork and TCP autocork check the TX completion
+>> to decide whether we should cork or not. The difference is
+>> when we got a SMC Tx WR completion, the data have been confirmed
+>> by the RNIC while TCP TX completion just tells us the data
+>> have been sent out by the local NIC.
+>> 
+>> Add an atomic variable tx_pushing in smc_connection to make
+>> sure only one can send to let it cork more and save CDC slot.
+>> 
+>> SMC autocork should not bring extra latency since the first
+>> message will always been sent out immediately.
+>> 
+>> The qperf tcp_bw test shows more than x4 increase under small
+>> message size with Mellanox connectX4-Lx, same result with other
+>> throughput benchmarks like sockperf/netperf.
+>> The qperf tcp_lat test shows SMC autocork has not increase any
+>> ping-pong latency.
+>> 
+>> BW test:
+>>  client: smc_run taskset -c 1 qperf smc-server -oo msg_size:1:64K:*2 \
+>> 			-t 30 -vu tcp_bw
+>>  server: smc_run taskset -c 1 qperf
+>> 
+>> MsgSize(Bytes)        TCP         SMC-NoCork           SMC-AutoCork
+>>       1         2.57 MB/s     698 KB/s(-73.5%)     2.98 MB/s(16.0% )
+>>       2          5.1 MB/s    1.41 MB/s(-72.4%)     5.82 MB/s(14.1% )
+>>       4         10.2 MB/s    2.83 MB/s(-72.3%)     11.7 MB/s(14.7% )
+>>       8         20.8 MB/s    5.62 MB/s(-73.0%)     22.9 MB/s(10.1% )
+>>      16         42.5 MB/s    11.5 MB/s(-72.9%)     45.5 MB/s(7.1%  )
+>>      32         80.7 MB/s    22.3 MB/s(-72.4%)     86.7 MB/s(7.4%  )
+>>      64          155 MB/s    45.6 MB/s(-70.6%)      160 MB/s(3.2%  )
+>>     128          295 MB/s    90.1 MB/s(-69.5%)      273 MB/s(-7.5% )
+>>     256          539 MB/s     179 MB/s(-66.8%)      610 MB/s(13.2% )
+>>     512          943 MB/s     360 MB/s(-61.8%)     1.02 GB/s(10.8% )
+>>    1024         1.58 GB/s     710 MB/s(-56.1%)     1.91 GB/s(20.9% )
+>>    2048         2.47 GB/s    1.34 GB/s(-45.7%)     2.92 GB/s(18.2% )
+>>    4096         2.86 GB/s     2.5 GB/s(-12.6%)      2.4 GB/s(-16.1%)
+>>    8192         3.89 GB/s    3.14 GB/s(-19.3%)     4.05 GB/s(4.1%  )
+>>   16384         3.29 GB/s    4.67 GB/s(41.9% )     5.09 GB/s(54.7% )
+>>   32768         2.73 GB/s    5.48 GB/s(100.7%)     5.49 GB/s(101.1%)
+>>   65536            3 GB/s    4.85 GB/s(61.7% )     5.24 GB/s(74.7% )
+>> 
+>> Latency test:
+>>  client: smc_run taskset -c 1 qperf smc-server -oo msg_size:1:64K:*2 \
+>> 			-t 30 -vu tcp_lat
+>>  server: smc_run taskset -c 1 qperf
+>> 
+>>  MsgSize              SMC-NoCork           SMC-AutoCork
+>>        1               9.7 us               9.6 us( -1.03%)
+>>        2              9.43 us              9.39 us( -0.42%)
+>>        4               9.6 us              9.35 us( -2.60%)
+>>        8              9.42 us               9.2 us( -2.34%)
+>>       16              9.13 us              9.43 us(  3.29%)
+>>       32              9.19 us               9.5 us(  3.37%)
+>>       64              9.38 us               9.5 us(  1.28%)
+>>      128               9.9 us              9.29 us( -6.16%)
+>>      256              9.42 us              9.26 us( -1.70%)
+>>      512                10 us              9.45 us( -5.50%)
+>>     1024              10.4 us               9.6 us( -7.69%)
+>>     2048              10.4 us              10.2 us( -1.92%)
+>>     4096                11 us              10.5 us( -4.55%)
+>>     8192              11.7 us              11.8 us(  0.85%)
+>>    16384              14.5 us              14.2 us( -2.07%)
+>>    32768              19.4 us              19.3 us( -0.52%)
+>>    65536              28.1 us              28.8 us(  2.49%)
+>
+>This is quite an impressive improvement! Thanks for your effort!
+>
+>Could you share a bit more about how you performed these tests to give
+>a bit more context and allow us to reproduce them on s390. I'm assuming
+>the ConnectX-4 Lx card you're using is a 50 Gb/s model? Are you doing
+>these tests on two bare metal hosts, one host with client/server
+>namespaces, or between VMs? If it's namespaces or VMs are you using VFs
+>from the same card/port or different cards. If it is two cards/ports do
+>you have a switch or a cross cable between them?
 
-Which is exactly what mandatory-y is for.  Provide the asm-generic
-version by default, but let architectures override it.
+Sure
+
+I did the test in the VM environment. 2 VMs within a single physical host,
+using 2 VFs from the same single ConnectX-4 Lx card, passthrough to each VM.
+the card is dual-25Gbps so the internal chip should support 50Gbps.
+A rough graph of the test setup is like this:
+
+-------------------------------------
+|  ---------           ---------    |
+|  |       |           |       |    |
+|  |  VM1  |           |  VM2  |    |
+|  |       |           |       |    |
+|  ---VF1---           ---VF2---    |
+|      ^                   ^        |
+|      |                   |        |
+|      |----- CX-4 Lx -----|        |
+|                             Host  |
+|------------------------------------
+
