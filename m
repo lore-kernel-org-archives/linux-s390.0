@@ -2,165 +2,130 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26C38C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 17 Feb 2022 11:33:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B2E7C43217
+	for <linux-s390@archiver.kernel.org>; Thu, 17 Feb 2022 11:37:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237503AbiBQLdb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 17 Feb 2022 06:33:31 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58672 "EHLO
+        id S239938AbiBQLho (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 17 Feb 2022 06:37:44 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:45744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239135AbiBQLdb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Feb 2022 06:33:31 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 275DB276D60;
-        Thu, 17 Feb 2022 03:33:14 -0800 (PST)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21HB9NVa003053;
-        Thu, 17 Feb 2022 11:33:13 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=nwLjJVz/Q5MleaH+ZbrjfIPPEx/r11++oHZynpKVNJY=;
- b=Vysf73Vu0TJKJIEgU2LSZBqjtayOi5oqjcX/LpWo1L3M0LW4UyuXB6KUXXff54sY0JFV
- DkdCx8gzWlH6LHCWNr43PXLvftCvPCQWi5z2TwyunmZ31zTQrB5u+0pb12aKZP9TEbZf
- GLsZtMnQiQD+1TP0M97gqjgWmsOEAizzxMUUrjpZPh8vbnNODvMuOxCFyCbvNGgQRvk+
- yhvsqMB+R/UwJG2jyhMndCXl1iQuqiILJKa6fhm0MqrP+BXkifLvC500A96huymysvHY
- CJw90sOEXXIcL3xIO8uuMIYSUIoZGIRBlELd80iv/lYU5s3I4/T7U9eW+Y2sBPiFyHUV Sw== 
+        with ESMTP id S239924AbiBQLhm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Feb 2022 06:37:42 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E83E01B78C;
+        Thu, 17 Feb 2022 03:37:27 -0800 (PST)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21HABvwT000795;
+        Thu, 17 Feb 2022 11:37:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : subject :
+ date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=jgMzF4Ni0eGA4OONPUhvtPkYyU4OFQyeFoXgK5Tg20U=;
+ b=tGE8je2ID/YxryhRGpHw3J7Ym8YUcRI89XA1FEREeC5uRS3ACPd8/zToo1oZvRWKu2/b
+ OstLyWhu7eNCAcn2h458OWLbMHuEtzI6TepslUOb2G8WdrOYLQZcB7rgCXX6+PZdv5dh
+ 8POzQOUyfKFpShblPwbJ9pLzESJ6jCcABL1s2QJJZyz8QLxJfKm+0kLWAJt2yjscfrHe
+ +vkx6EAn8zDooKGLfq3A2LLli7J0Om1ShVqQ43zxXwr/T7nYUei/rdaejVyqTnpnZVmE
+ s1rCUCyPDUamb5s1m2VdzLEZrgaMg209GDJSzs/4xpOoNZBn5E2TtSwcO9yquAyMcxFJ 1g== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3e9hu2chb7-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e9m1ntcv8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 17 Feb 2022 11:33:13 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21HBUwnI014195;
-        Thu, 17 Feb 2022 11:33:13 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3e9hu2chad-1
+        Thu, 17 Feb 2022 11:37:24 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21HBLLjF004332;
+        Thu, 17 Feb 2022 11:37:24 GMT
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e9m1ntcua-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 17 Feb 2022 11:33:13 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21HBCSmO008641;
-        Thu, 17 Feb 2022 11:33:10 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03ams.nl.ibm.com with ESMTP id 3e64hah8dh-1
+        Thu, 17 Feb 2022 11:37:24 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21HBZnDa028358;
+        Thu, 17 Feb 2022 11:37:22 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma01fra.de.ibm.com with ESMTP id 3e64h9y5dp-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 17 Feb 2022 11:33:10 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21HBX7fU46596354
+        Thu, 17 Feb 2022 11:37:22 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21HBbJVp35258876
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 17 Feb 2022 11:33:07 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 641154C050;
-        Thu, 17 Feb 2022 11:33:07 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id ED9064C052;
-        Thu, 17 Feb 2022 11:33:06 +0000 (GMT)
-Received: from sig-9-145-65-211.uk.ibm.com (unknown [9.145.65.211])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 17 Feb 2022 11:33:06 +0000 (GMT)
-Message-ID: <8701fa4557026983a9ec687cfdd7ac5b3b85fd39.camel@linux.ibm.com>
-Subject: Re: [PATCH 0/4] RDMA device net namespace support for SMC
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Tony Lu <tonylu@linux.alibaba.com>
-Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-rdma@vger.kernel.org, kgraul@linux.ibm.com,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Stefan Raspl <raspl@linux.ibm.com>
-Date:   Thu, 17 Feb 2022 12:33:06 +0100
-In-Reply-To: <20211228130611.19124-1-tonylu@linux.alibaba.com>
-References: <20211228130611.19124-1-tonylu@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+        Thu, 17 Feb 2022 11:37:19 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 595775204E;
+        Thu, 17 Feb 2022 11:37:19 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.114.12.92])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 225035207A;
+        Thu, 17 Feb 2022 11:37:18 +0000 (GMT)
+From:   Steffen Eiden <seiden@linux.ibm.com>
+To:     Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Shuah Khan <shuah@kernel.org>, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH 0/3] s390: Ultravisor device
+Date:   Thu, 17 Feb 2022 06:37:14 -0500
+Message-Id: <20220217113717.46624-1-seiden@linux.ibm.com>
+X-Mailer: git-send-email 2.25.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: pxawglC3Kr8JGH5Jan7ufYDzNbjb7mHy
-X-Proofpoint-ORIG-GUID: 6jm5bxHTMgk6avyDmbVBIBypVXWIyP5s
+X-Proofpoint-GUID: Zidn7y2A38B8FfZYnNEis0TV6ue8XLMG
+X-Proofpoint-ORIG-GUID: TwY6zA9qN2bj8on8Z4-ELGKhwyJ5UhIJ
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2022-02-17_04,2022-02-17_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 impostorscore=0
- bulkscore=0 priorityscore=1501 lowpriorityscore=0 phishscore=0
- suspectscore=0 mlxlogscore=999 malwarescore=0 spamscore=0 clxscore=1015
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ priorityscore=1501 lowpriorityscore=0 mlxlogscore=999 impostorscore=0
+ mlxscore=0 suspectscore=0 adultscore=0 bulkscore=0 clxscore=1011
+ spamscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2201110000 definitions=main-2202170051
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 2021-12-28 at 21:06 +0800, Tony Lu wrote:
-> This patch set introduces net namespace support for linkgroups.
-> 
-> Path 1 is the main approach to implement net ns support.
-> 
-> Path 2 - 4 are the additional modifications to let us know the netns.
-> Also, I will submit changes of smc-tools to github later.
-> 
-> Currently, smc doesn't support net namespace isolation. The ibdevs
-> registered to smc are shared for all linkgroups and connections. When
-> running applications in different net namespaces, such as container
-> environment, applications should only use the ibdevs that belongs to the
-> same net namespace.
-> 
-> This adds a new field, net, in smc linkgroup struct. During first
-> contact, it checks and find the linkgroup has same net namespace, if
-> not, it is going to create and initialized the net field with first
-> link's ibdev net namespace. When finding the rdma devices, it also checks
-> the sk net device's and ibdev's net namespaces. After net namespace
-> destroyed, the net device and ibdev move to root net namespace,
-> linkgroups won't be matched, and wait for lgr free.
-> 
-> If rdma net namespace exclusive mode is not enabled, it behaves as
-> before.
-> 
-> Steps to enable and test net namespaces:
-> 
-> 1. enable RDMA device net namespace exclusive support
-> 	rdma system set netns exclusive # default is shared
-> 
-> 2. create new net namespace, move and initialize them
-> 	ip netns add test1 
-> 	rdma dev set mlx5_1 netns test1
-> 	ip link set dev eth2 netns test1
-> 	ip netns exec test1 ip link set eth2 up
-> 	ip netns exec test1 ip addr add ${HOST_IP}/26 dev eth2
-> 
-> 3. setup server and client, connect N <-> M
-> 	ip netns exec test1 smc_run sockperf server --tcp # server
-> 	ip netns exec test1 smc_run sockperf pp --tcp -i ${SERVER_IP} # client
-> 
-> 4. netns isolated linkgroups (2 * 2 mesh) with their own linkgroups
->   - server
+This series adds an Ultravisor(UV) device letting the userspace send some
+Ultravisor calls to the UV. Currently two calls are supported.
+Query Ultravisor Information (QUI) and
+Receive Attestation Measurement (Attest[ation]).
 
-Hi Tony,
+The UV device is implemented as a miscdevice accepting only IOCTLs.
+The IOCTL cmd specifies the UV call and the IOCTL arg the request
+and response data depending on the UV call.
+The device driver writes the UV response in the ioctl argument data.
 
-I'm having a bit of trouble getting this to work for me and was
-wondering if you could test my scenario or help me figure out what's
-wrong.
+The 'uvdevice' does no checks on the request beside faulty userspace
+addresses, if sizes are in a sane range before allocating in kernel space,
+and other tests that prevent the system from corruption.
+Especially, no checks are made, that will be performed by the UV anyway
+(E.g. 'invalid command' in case of attestation on unsupported hardware).
+These errors are reported back to Userspace using the UV return code
+field.
 
-I'm using network namespacing to be able to test traffic between two
-VFs of the same card/port with a single Linux system. By having one VF
-in each of a client and server namespace, traffic doesn't shortcut via
-loopback. This works great for TCP and with "rdma system set netns
-exclusive" I can also verify that RDMA with "qperf -cm1 ... rc_bw" only
-works once the respective RDMA device is also added to each namespace.
+Steffen Eiden (3):
+  drivers/s390/char: Add Ultravisor io device
+  drivers/s390/char: Add Ultravisor attestation to uvdevice
+  selftests: drivers/s390x: Add uvdevice tests
 
-When I try the same with SMC-R I tried:
+ MAINTAINERS                                   |   3 +
+ arch/s390/include/asm/uv.h                    |  23 +-
+ arch/s390/include/uapi/asm/uvdevice.h         |  46 +++
+ drivers/s390/char/Kconfig                     |   9 +
+ drivers/s390/char/Makefile                    |   1 +
+ drivers/s390/char/uvdevice.c                  | 325 ++++++++++++++++++
+ tools/testing/selftests/Makefile              |   1 +
+ tools/testing/selftests/drivers/.gitignore    |   1 +
+ .../selftests/drivers/s390x/uvdevice/Makefile |  22 ++
+ .../selftests/drivers/s390x/uvdevice/config   |   1 +
+ .../drivers/s390x/uvdevice/test_uvdevice.c    | 280 +++++++++++++++
+ 11 files changed, 711 insertions(+), 1 deletion(-)
+ create mode 100644 arch/s390/include/uapi/asm/uvdevice.h
+ create mode 100644 drivers/s390/char/uvdevice.c
+ create mode 100644 tools/testing/selftests/drivers/s390x/uvdevice/Makefile
+ create mode 100644 tools/testing/selftests/drivers/s390x/uvdevice/config
+ create mode 100644 tools/testing/selftests/drivers/s390x/uvdevice/test_uvdevice.c
 
-  ip netns exec server smc_run qperf &
-  ip netns exec client smc_run qperf <ip_server> tcp_bw
-
-With that however I only see fallback TCP connections in "ip netns exec
-client watch smc_dbg". It doesn't seem to be an "smc_dbg" problem
-either since the performance with and without smc_run is the same. I
-also do have the same PNET_ID set on the interfaces.
-
-As an aside do you know how to gracefully put the RDMA devices back
-into the default namespace? For network interfaces I can use "ip -n
-<ns> link set dev <iface> netns 1" but the equivalent "ip netns exec
-<ns> rdma dev set <rdmadev> netns 1" doesn't work because there is no
-PID variant. Deleting the namespace and killing processes using the
-RDMA device does seem to get it back but with some delay.
-
-Thanks,
-Niklas
+-- 
+2.25.1
 
