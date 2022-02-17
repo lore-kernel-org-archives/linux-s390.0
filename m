@@ -2,354 +2,151 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C0CFC4332F
-	for <linux-s390@archiver.kernel.org>; Thu, 17 Feb 2022 14:50:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB90FC433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 17 Feb 2022 17:17:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242179AbiBQOux (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 17 Feb 2022 09:50:53 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44672 "EHLO
+        id S243651AbiBQRRr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 17 Feb 2022 12:17:47 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242126AbiBQOut (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Feb 2022 09:50:49 -0500
-Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 192CB29E957;
-        Thu, 17 Feb 2022 06:50:34 -0800 (PST)
-Received: by mail-ed1-x52e.google.com with SMTP id u18so10074738edt.6;
-        Thu, 17 Feb 2022 06:50:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=8I41jwLvAiCSwd4V/781omnso87v01pI1AY+lB5wImk=;
-        b=Iupq1Tbr6TrNZdw13BJ6EY0qW3jW8QcWqrMnVX0DfbwV9HN8X6F1VFaQ/Vt4JiwKuI
-         PKHeDAsE5jQo2oYFRH3qKrMg7Y7K10m0OisK4CQxgccvztoWVvEOVDbmSPyb1raXFLY6
-         o5nxC5aZSnG5edIofcjlhWKe4xkKLff54dudYJjGhfUtiRMhvaGqVm1r7MGHEDAXKahY
-         1G7DcLlAh6UPp9o/BEWcfQFzwTlY37PC9K7Ys9nIHgd5QmoP2TMvEHAReyoA4+aHzG4q
-         Y5jTggvJqH2wT2nDtKj7XpD5BO7aSbyi7sWvheo/WNRORQls+Wg9QAN+r091a++WqKJr
-         GsTg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=8I41jwLvAiCSwd4V/781omnso87v01pI1AY+lB5wImk=;
-        b=ErvFcyuwCsaPWx3bnJD7oYy3GjZztkdKVGXba/4EFvyj3cVqGax/FTJ4UoorsFQrsQ
-         jLBTOcqnDDs2wfsUxoH7yKOHV/MZkoa8iduo/OLH1MmXtmbTxFOdzXUwC2DDLMW+5H71
-         0GwUvGy0NtWhVhQd5/xzVGXwy7uwO9D98WCTEGVMYMk1FAdrGFZ2ZNdsENK2ZOmnv22E
-         1twA4uPtXa+QtchCxVLAlyAYF7EJtGqKBQdpfkG1RdmFoP1uaONP0zt2/pLzAFUOh15u
-         7AQtsMCT9ONv5Db2zq11PUG/0v1mAZf1cZpn7/8iney9aXwYxwuokcQugTu1uThGTQw+
-         WMAA==
-X-Gm-Message-State: AOAM5311NsIe0WE6YovXlMRa7Wv17gEvvscPAg6iNqv78H8F/1KY8tyU
-        ULJauEKV57mxfgEUEIuGRRNeI7JvJ6QPHg==
-X-Google-Smtp-Source: ABdhPJxHWUoGbeHOtiGY24KhCoWJUu2GzbvuQ9rdb+BqJdqLvOi+M7qBX+pMk1LL7YH8WekmXc7HTw==
-X-Received: by 2002:a05:6402:168e:b0:410:d2a4:b0dd with SMTP id a14-20020a056402168e00b00410d2a4b0ddmr2908446edv.403.1645109432560;
-        Thu, 17 Feb 2022 06:50:32 -0800 (PST)
-Received: from debianHome.localdomain (dynamic-077-001-066-240.77.1.pool.telefonica.de. [77.1.66.240])
-        by smtp.gmail.com with ESMTPSA id c11sm3580270edx.42.2022.02.17.06.50.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Feb 2022 06:50:32 -0800 (PST)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>, Hans Verkuil <hverkuil@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Serge Hallyn <serge@hallyn.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Julia Lawall <Julia.Lawall@inria.fr>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Du Cheng <ducheng2@gmail.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Alexey Gladkov <legion@kernel.org>,
-        David Hildenbrand <david@redhat.com>,
-        Rolf Eike Beer <eb@emlix.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Cyrill Gorcunov <gorcunov@gmail.com>,
-        Peter Collingbourne <pcc@google.com>,
-        Colin Cross <ccross@google.com>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Xiaofeng Cao <cxfcosmos@gmail.com>,
-        Nikolay Aleksandrov <nikolay@nvidia.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        Alexander Aring <aahringo@redhat.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Alistair Delva <adelva@google.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-media@vger.kernel.org, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, bpf@vger.kernel.org
-Subject: [RFC PATCH 2/2] capability: use new capable_or functionality
-Date:   Thu, 17 Feb 2022 15:49:54 +0100
-Message-Id: <20220217145003.78982-1-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.35.1
+        with ESMTP id S243645AbiBQRRq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Feb 2022 12:17:46 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9075178383;
+        Thu, 17 Feb 2022 09:17:30 -0800 (PST)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21HGGrAt003469;
+        Thu, 17 Feb 2022 17:17:29 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=Qxz0J4QCA6eNo6kquHEm8yB4dNzQPLzloNtL2uOeJ5M=;
+ b=AjINcr6khqnQQzCmJrR9kQ6MjTsYIfpAzr8FF245nsqe99WPI50+GniGtiJfi3hYlfmc
+ bz1iXr/rJvpCR/ACtjq68mYIqURxor6wI/CI9xhuPEPoau6bM+XzXwtqblcXZOX6AVeI
+ hXFeEvYyBjMvsXTf0ylz+Y4NUuCqyHfBfoC+oTyMd6a8nh8su5wPVQfnT02XBcfszbhn
+ qN3QDqqIx4WtjqZzRXihkW1Ur0yAkFadBo51DNaG9KKw8iMyqODST4sNSGVzc47bgUEB
+ j8TmIZ50fCUDX8Z6J7ZefI/hfXzXMd1Eb9/Znxu4zsxzIsNSFi8s+OCaYylXSJBpInQx bQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e9srchjy1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 17 Feb 2022 17:17:29 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21HGlOlA023566;
+        Thu, 17 Feb 2022 17:17:28 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3e9srchjxj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 17 Feb 2022 17:17:28 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21HHDUY8017724;
+        Thu, 17 Feb 2022 17:17:26 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma06ams.nl.ibm.com with ESMTP id 3e645kcs6a-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 17 Feb 2022 17:17:26 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21HHHNBV45679074
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 17 Feb 2022 17:17:23 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 800D911C058;
+        Thu, 17 Feb 2022 17:17:23 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 047F411C04C;
+        Thu, 17 Feb 2022 17:17:23 +0000 (GMT)
+Received: from li-ca45c2cc-336f-11b2-a85c-c6e71de567f1.ibm.com (unknown [9.171.39.95])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 17 Feb 2022 17:17:22 +0000 (GMT)
+Message-ID: <f0bf737abf480d6d16af6e5335bb195061f3d076.camel@linux.ibm.com>
+Subject: Re: [PATCH v7 1/1] s390x: KVM: guest support for topology function
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
+        david@redhat.com, thuth@redhat.com, imbrenda@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, wintera@linux.ibm.com,
+        seiden@linux.ibm.com
+Date:   Thu, 17 Feb 2022 18:17:22 +0100
+In-Reply-To: <20220217095923.114489-2-pmorel@linux.ibm.com>
+References: <20220217095923.114489-1-pmorel@linux.ibm.com>
+         <20220217095923.114489-2-pmorel@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.4 (3.42.4-1.fc35) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 9umTdp9cN2hw7OnVg_QrGqtZjtULIZjm
+X-Proofpoint-GUID: 6wb6VG9BZsk6lNyzV_ZBY-1J54bjUaL4
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-02-17_06,2022-02-17_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 spamscore=0
+ priorityscore=1501 impostorscore=0 mlxlogscore=999 suspectscore=0
+ malwarescore=0 clxscore=1011 phishscore=0 lowpriorityscore=0 bulkscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2202170078
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Use the new added capable_or macro in appropriate cases, where a task
-is required to have any of two capabilities.
+On Thu, 2022-02-17 at 10:59 +0100, Pierre Morel wrote:
+[...]
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 2296b1ff1e02..af7ea8488fa2 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+[...]
+>  
+> -void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
+> +/**
+> + * kvm_s390_vcpu_set_mtcr
+> + * @vcp: the virtual CPU
+> + *
+> + * Is only relevant if the topology facility is present.
+> + *
+> + * Updates the Multiprocessor Topology-Change-Report to signal
+> + * the guest with a topology change.
+> + */
+> +static void kvm_s390_vcpu_set_mtcr(struct kvm_vcpu *vcpu)
+>  {
+> +       struct esca_block *esca = vcpu->kvm->arch.sca;
 
-Reorder CAP_SYS_ADMIN last.
+utility is at the same offset for the bsca and the esca, still
+wondering whether it is a good idea to assume esca here... 
 
-TODO: split into subsystem patches.
+[...]
+> diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+> index 098831e815e6..af04ffbfd587 100644
+> --- a/arch/s390/kvm/kvm-s390.h
+> +++ b/arch/s390/kvm/kvm-s390.h
+> @@ -503,4 +503,29 @@ void kvm_s390_vcpu_crypto_reset_all(struct kvm
+> *kvm);
+>   */
+>  extern unsigned int diag9c_forwarding_hz;
+>  
+> +#define S390_KVM_TOPOLOGY_NEW_CPU -1
+> +/**
+> + * kvm_s390_topology_changed
+> + * @vcpu: the virtual CPU
+> + *
+> + * If the topology facility is present, checks if the CPU toplogy
+> + * viewed by the guest changed due to load balancing or CPU hotplug.
+> + */
+> +static inline bool kvm_s390_topology_changed(struct kvm_vcpu *vcpu)
+> +{
+> +       if (!test_kvm_facility(vcpu->kvm, 11))
+> +               return false;
+> +
+> +       /* A new vCPU has been hotplugged */
+> +       if (vcpu->arch.prev_cpu == S390_KVM_TOPOLOGY_NEW_CPU)
+> +               return true;
+> +
+> +       /* The real CPU backing up the vCPU moved to another socket
+> */
+> +       if (topology_physical_package_id(vcpu->cpu) !=
+> +           topology_physical_package_id(vcpu->arch.prev_cpu))
+> +               return true;
 
-Fixes: 94c4b4fd25e6 ("block: Check ADMIN before NICE for IOPRIO_CLASS_RT")
-
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
- block/ioprio.c                                   | 9 +--------
- drivers/media/common/saa7146/saa7146_video.c     | 2 +-
- drivers/media/pci/bt8xx/bttv-driver.c            | 3 +--
- drivers/media/pci/saa7134/saa7134-video.c        | 3 +--
- drivers/media/platform/fsl-viu.c                 | 2 +-
- drivers/media/test-drivers/vivid/vivid-vid-cap.c | 2 +-
- drivers/net/caif/caif_serial.c                   | 2 +-
- drivers/s390/block/dasd_eckd.c                   | 2 +-
- fs/pipe.c                                        | 2 +-
- include/linux/capability.h                       | 4 ++--
- kernel/bpf/syscall.c                             | 2 +-
- kernel/fork.c                                    | 2 +-
- kernel/sys.c                                     | 2 +-
- net/caif/caif_socket.c                           | 2 +-
- net/unix/scm.c                                   | 2 +-
- 15 files changed, 16 insertions(+), 25 deletions(-)
-
-diff --git a/block/ioprio.c b/block/ioprio.c
-index 2fe068fcaad5..52d5da286323 100644
---- a/block/ioprio.c
-+++ b/block/ioprio.c
-@@ -37,14 +37,7 @@ int ioprio_check_cap(int ioprio)
- 
- 	switch (class) {
- 		case IOPRIO_CLASS_RT:
--			/*
--			 * Originally this only checked for CAP_SYS_ADMIN,
--			 * which was implicitly allowed for pid 0 by security
--			 * modules such as SELinux. Make sure we check
--			 * CAP_SYS_ADMIN first to avoid a denial/avc for
--			 * possibly missing CAP_SYS_NICE permission.
--			 */
--			if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_NICE))
-+			if (!capable_or(CAP_SYS_NICE, CAP_SYS_ADMIN))
- 				return -EPERM;
- 			fallthrough;
- 			/* rt has prio field too */
-diff --git a/drivers/media/common/saa7146/saa7146_video.c b/drivers/media/common/saa7146/saa7146_video.c
-index 66215d9106a4..5eabc2e77cc2 100644
---- a/drivers/media/common/saa7146/saa7146_video.c
-+++ b/drivers/media/common/saa7146/saa7146_video.c
-@@ -470,7 +470,7 @@ static int vidioc_s_fbuf(struct file *file, void *fh, const struct v4l2_framebuf
- 
- 	DEB_EE("VIDIOC_S_FBUF\n");
- 
--	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RAWIO))
-+	if (!capable_or(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
- 		return -EPERM;
- 
- 	/* check args */
-diff --git a/drivers/media/pci/bt8xx/bttv-driver.c b/drivers/media/pci/bt8xx/bttv-driver.c
-index 8cc9bec43688..c2437ff07246 100644
---- a/drivers/media/pci/bt8xx/bttv-driver.c
-+++ b/drivers/media/pci/bt8xx/bttv-driver.c
-@@ -2569,8 +2569,7 @@ static int bttv_s_fbuf(struct file *file, void *f,
- 	const struct bttv_format *fmt;
- 	int retval;
- 
--	if (!capable(CAP_SYS_ADMIN) &&
--		!capable(CAP_SYS_RAWIO))
-+	if (!capable_or(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
- 		return -EPERM;
- 
- 	/* check args */
-diff --git a/drivers/media/pci/saa7134/saa7134-video.c b/drivers/media/pci/saa7134/saa7134-video.c
-index 374c8e1087de..356b77c16f87 100644
---- a/drivers/media/pci/saa7134/saa7134-video.c
-+++ b/drivers/media/pci/saa7134/saa7134-video.c
-@@ -1803,8 +1803,7 @@ static int saa7134_s_fbuf(struct file *file, void *f,
- 	struct saa7134_dev *dev = video_drvdata(file);
- 	struct saa7134_format *fmt;
- 
--	if (!capable(CAP_SYS_ADMIN) &&
--	   !capable(CAP_SYS_RAWIO))
-+	if (!capable_or(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
- 		return -EPERM;
- 
- 	/* check args */
-diff --git a/drivers/media/platform/fsl-viu.c b/drivers/media/platform/fsl-viu.c
-index a4bfa70b49b2..925c34c2b1b3 100644
---- a/drivers/media/platform/fsl-viu.c
-+++ b/drivers/media/platform/fsl-viu.c
-@@ -803,7 +803,7 @@ static int vidioc_s_fbuf(struct file *file, void *priv, const struct v4l2_frameb
- 	const struct v4l2_framebuffer *fb = arg;
- 	struct viu_fmt *fmt;
- 
--	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RAWIO))
-+	if (!capable_or(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
- 		return -EPERM;
- 
- 	/* check args */
-diff --git a/drivers/media/test-drivers/vivid/vivid-vid-cap.c b/drivers/media/test-drivers/vivid/vivid-vid-cap.c
-index b9caa4b26209..a0cfcf6c22c4 100644
---- a/drivers/media/test-drivers/vivid/vivid-vid-cap.c
-+++ b/drivers/media/test-drivers/vivid/vivid-vid-cap.c
-@@ -1253,7 +1253,7 @@ int vivid_vid_cap_s_fbuf(struct file *file, void *fh,
- 	if (dev->multiplanar)
- 		return -ENOTTY;
- 
--	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RAWIO))
-+	if (!capable_or(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
- 		return -EPERM;
- 
- 	if (dev->overlay_cap_owner)
-diff --git a/drivers/net/caif/caif_serial.c b/drivers/net/caif/caif_serial.c
-index 2a7af611d43a..245c30c469c2 100644
---- a/drivers/net/caif/caif_serial.c
-+++ b/drivers/net/caif/caif_serial.c
-@@ -326,7 +326,7 @@ static int ldisc_open(struct tty_struct *tty)
- 	/* No write no play */
- 	if (tty->ops->write == NULL)
- 		return -EOPNOTSUPP;
--	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_TTY_CONFIG))
-+	if (!capable_or(CAP_SYS_TTY_CONFIG, CAP_SYS_ADMIN))
- 		return -EPERM;
- 
- 	/* release devices to avoid name collision */
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index 8410a25a65c1..9b5d22dd3e7b 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -5319,7 +5319,7 @@ static int dasd_symm_io(struct dasd_device *device, void __user *argp)
- 	char psf0, psf1;
- 	int rc;
- 
--	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RAWIO))
-+	if (!capable_or(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
- 		return -EACCES;
- 	psf0 = psf1 = 0;
- 
-diff --git a/fs/pipe.c b/fs/pipe.c
-index cc28623a67b6..47dc9b59b7a5 100644
---- a/fs/pipe.c
-+++ b/fs/pipe.c
-@@ -775,7 +775,7 @@ bool too_many_pipe_buffers_hard(unsigned long user_bufs)
- 
- bool pipe_is_unprivileged_user(void)
- {
--	return !capable(CAP_SYS_RESOURCE) && !capable(CAP_SYS_ADMIN);
-+	return !capable_or(CAP_SYS_RESOURCE, CAP_SYS_ADMIN);
- }
- 
- struct pipe_inode_info *alloc_pipe_info(void)
-diff --git a/include/linux/capability.h b/include/linux/capability.h
-index 5c55687a9a05..5ed55b73cb62 100644
---- a/include/linux/capability.h
-+++ b/include/linux/capability.h
-@@ -262,12 +262,12 @@ extern bool file_ns_capable(const struct file *file, struct user_namespace *ns,
- extern bool ptracer_capable(struct task_struct *tsk, struct user_namespace *ns);
- static inline bool perfmon_capable(void)
- {
--	return capable(CAP_PERFMON) || capable(CAP_SYS_ADMIN);
-+	return capable_or(CAP_PERFMON, CAP_SYS_ADMIN);
- }
- 
- static inline bool bpf_capable(void)
- {
--	return capable(CAP_BPF) || capable(CAP_SYS_ADMIN);
-+	return capable_or(CAP_BPF, CAP_SYS_ADMIN);
- }
- 
- static inline bool checkpoint_restore_ns_capable(struct user_namespace *ns)
-diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
-index fa4505f9b611..108dd09f978a 100644
---- a/kernel/bpf/syscall.c
-+++ b/kernel/bpf/syscall.c
-@@ -2243,7 +2243,7 @@ static int bpf_prog_load(union bpf_attr *attr, bpfptr_t uattr)
- 	    !bpf_capable())
- 		return -EPERM;
- 
--	if (is_net_admin_prog_type(type) && !capable(CAP_NET_ADMIN) && !capable(CAP_SYS_ADMIN))
-+	if (is_net_admin_prog_type(type) && !capable_or(CAP_NET_ADMIN, CAP_SYS_ADMIN))
- 		return -EPERM;
- 	if (is_perfmon_prog_type(type) && !perfmon_capable())
- 		return -EPERM;
-diff --git a/kernel/fork.c b/kernel/fork.c
-index d75a528f7b21..067702f2eb15 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -2024,7 +2024,7 @@ static __latent_entropy struct task_struct *copy_process(
- 	retval = -EAGAIN;
- 	if (is_ucounts_overlimit(task_ucounts(p), UCOUNT_RLIMIT_NPROC, rlimit(RLIMIT_NPROC))) {
- 		if (p->real_cred->user != INIT_USER &&
--		    !capable(CAP_SYS_RESOURCE) && !capable(CAP_SYS_ADMIN))
-+		    !capable_or(CAP_SYS_RESOURCE, CAP_SYS_ADMIN))
- 			goto bad_fork_free;
- 	}
- 	current->flags &= ~PF_NPROC_EXCEEDED;
-diff --git a/kernel/sys.c b/kernel/sys.c
-index ecc4cf019242..9df6c5e77620 100644
---- a/kernel/sys.c
-+++ b/kernel/sys.c
-@@ -481,7 +481,7 @@ static int set_user(struct cred *new)
- 	 */
- 	if (is_ucounts_overlimit(new->ucounts, UCOUNT_RLIMIT_NPROC, rlimit(RLIMIT_NPROC)) &&
- 			new_user != INIT_USER &&
--			!capable(CAP_SYS_RESOURCE) && !capable(CAP_SYS_ADMIN))
-+			!capable_or(CAP_SYS_RESOURCE, CAP_SYS_ADMIN))
- 		current->flags |= PF_NPROC_EXCEEDED;
- 	else
- 		current->flags &= ~PF_NPROC_EXCEEDED;
-diff --git a/net/caif/caif_socket.c b/net/caif/caif_socket.c
-index 2b8892d502f7..60498148126c 100644
---- a/net/caif/caif_socket.c
-+++ b/net/caif/caif_socket.c
-@@ -1036,7 +1036,7 @@ static int caif_create(struct net *net, struct socket *sock, int protocol,
- 		.usersize = sizeof_field(struct caifsock, conn_req.param)
- 	};
- 
--	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_NET_ADMIN))
-+	if (!capable_or(CAP_NET_ADMIN, CAP_SYS_ADMIN))
- 		return -EPERM;
- 	/*
- 	 * The sock->type specifies the socket type to use.
-diff --git a/net/unix/scm.c b/net/unix/scm.c
-index aa27a02478dc..821be80e6c85 100644
---- a/net/unix/scm.c
-+++ b/net/unix/scm.c
-@@ -99,7 +99,7 @@ static inline bool too_many_unix_fds(struct task_struct *p)
- 	struct user_struct *user = current_user();
- 
- 	if (unlikely(user->unix_inflight > task_rlimit(p, RLIMIT_NOFILE)))
--		return !capable(CAP_SYS_RESOURCE) && !capable(CAP_SYS_ADMIN);
-+		return !capable_or(CAP_SYS_RESOURCE, CAP_SYS_ADMIN);
- 	return false;
- }
- 
--- 
-2.35.1
-
+Why is it OK to look just at the physical package ID here? What if the
+vcpu for example moves to a different book, which has a core with the
+same physical package ID?
