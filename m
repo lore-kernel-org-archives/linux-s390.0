@@ -2,147 +2,210 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C530C4332F
-	for <linux-s390@archiver.kernel.org>; Fri, 18 Feb 2022 18:07:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 19631C433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 18 Feb 2022 18:22:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238937AbiBRSHj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 18 Feb 2022 13:07:39 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41838 "EHLO
+        id S238989AbiBRSWq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 18 Feb 2022 13:22:46 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238944AbiBRSHi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Feb 2022 13:07:38 -0500
-Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5461F1D6864
-        for <linux-s390@vger.kernel.org>; Fri, 18 Feb 2022 10:07:20 -0800 (PST)
-Received: by mail-ed1-x534.google.com with SMTP id cm8so7199327edb.3
-        for <linux-s390@vger.kernel.org>; Fri, 18 Feb 2022 10:07:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=amacapital-net.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=3DIqXxPmp6dtbTijOx2KTFQ/AdtfYUTWecKVh7q3dDI=;
-        b=5c/qRto3YK3Y6/Rhnnpp4RzKmf8QhiKseObhkqXIpnLfhpnv2ua8Z7YCExbmjSYUCG
-         SbBSycxSpm4FRe5zOaxst92xyRDLRie0B4d4p8x0W6snNr+dG6MghxLfcakTWMQA17Pf
-         gOp7JS9gIpdJumtDaMv9IluyX8dB5LI5eLR/YC2U+D7T5N3aQr9NOYHAOP982E02xanw
-         SC1uTLhbyKEp3+LiMa1bFSquyveVGLxTCPf/eSvmTiEZzxEI+wIe4AMdv5VgRD2GYf6G
-         kO3gnVVxKK1wWuKxjcQ5nhLyDgmj/c1nxTJoqfRQTmuVCBNlEZ4IpVOo74LURbiOVsEg
-         CBWA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=3DIqXxPmp6dtbTijOx2KTFQ/AdtfYUTWecKVh7q3dDI=;
-        b=7GUCijIrBxKimEx+qbVpcRmfsAgRaR4rnftpaLoYNEYGzDuKB8TxlFrmszaCN1Di2f
-         cX4fc0Is1g5H4MngdDsG9MndX/t5RzKWjSjmiGk/+plwRemKNHJaI86peTguJkbUaMPP
-         IHYNp9WufCY9HLajo7J3Cvwmh/8fhf8pA2bWBUSjp4O6UUnkwWOrZyNOD+uNBRW/yGh/
-         HeTQgb3O7iZKpDIh1/NHrPB4uINqtZE+l3vl0r364fCOWHbxhF4doJWtx88rrB1RoVjz
-         KwpWm9u47PR3ifV6eqT5cTscr6z9MFlmes5+rx0Z6/r3M6VVLDY/5yAMrpgD78BbjDcs
-         MB4g==
-X-Gm-Message-State: AOAM533wwRS3A0rA63a7SszvNG4YWlMR2zUS5z/gU5vhbIITxdLd2Sak
-        Ww6sp/ybhtx/KCz9SLPBLpw6RS9TCFGGBBOXKcpLUg==
-X-Google-Smtp-Source: ABdhPJzKi9/dAquBFvy+ZlpESpcVBT1I3X4XtLJClo2SaEqFpqb8kdqwnL9Fphl8e/qcsjqeDfp/tX4JIrAspWajnck=
-X-Received: by 2002:a05:6402:430f:b0:410:a082:c6da with SMTP id
- m15-20020a056402430f00b00410a082c6damr9386454edc.438.1645207638871; Fri, 18
- Feb 2022 10:07:18 -0800 (PST)
+        with ESMTP id S239148AbiBRSWo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Feb 2022 13:22:44 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED1BA40913;
+        Fri, 18 Feb 2022 10:22:26 -0800 (PST)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21IHcG7X015339;
+        Fri, 18 Feb 2022 18:22:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : from : to : cc : references : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=ZxRY0B/GLKI+WQEXdWRioyRd2m5GmW9+c13u4WU9w7o=;
+ b=miYyaBHkWSM57bWSJwCHTAKjr3pHfFBUqzPPJbwy4vXddNUHjhP/Wg1tHVtpSpR7udPn
+ KmlCw59knDFAyX9CoMniGp6QL5OHiLB5Keq1jPBiWjO8PxKPC0sw2hMDmClDLUrETo9u
+ a41FuLwxJEWf4UyD+tXWdV+foov1THsi1R7iEpKQbCbvvIK5LrzPmxYoDHwxwyT+2vX8
+ Q+QsI70VhLcrSqymPJ8rLI3ul29Tr8kAWDt7cIcPq1v7YT4GZ/oCz/vQ5vi1q9iZqg1v
+ bEsrfZAoArpKH/gwsxK6p47+psh/01BxOhCF9+UxlY0t5JY6c/oYKpKhbi9MHBQfXsyD 3Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3eaersu2pq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 18 Feb 2022 18:22:25 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21IIDlel017760;
+        Fri, 18 Feb 2022 18:22:24 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3eaersu2p7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 18 Feb 2022 18:22:24 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21IIHuTE000939;
+        Fri, 18 Feb 2022 18:22:23 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 3e645kkxvk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 18 Feb 2022 18:22:22 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21IIMJuI44630520
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 18 Feb 2022 18:22:19 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CBA3EA405F;
+        Fri, 18 Feb 2022 18:22:19 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2AD5EA405B;
+        Fri, 18 Feb 2022 18:22:19 +0000 (GMT)
+Received: from [9.171.4.84] (unknown [9.171.4.84])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 18 Feb 2022 18:22:19 +0000 (GMT)
+Message-ID: <580e5da7-f731-417f-0cc2-baf2313ac6d6@linux.ibm.com>
+Date:   Fri, 18 Feb 2022 19:24:33 +0100
 MIME-Version: 1.0
-References: <20220216131332.1489939-1-arnd@kernel.org> <20220216131332.1489939-14-arnd@kernel.org>
- <CALCETrVOvYPN4_6hS8wpm2v9bGZupZ5x4=vZAseG57OUgvLGfw@mail.gmail.com> <93a1ee797e9d4f789dff85a3c0f0c232@AcuMS.aculab.com>
-In-Reply-To: <93a1ee797e9d4f789dff85a3c0f0c232@AcuMS.aculab.com>
-From:   Andy Lutomirski <luto@amacapital.net>
-Date:   Fri, 18 Feb 2022 10:07:07 -0800
-Message-ID: <CALCETrWTB65vJXsQTPd_o7BRoSU=uqD0pFzKS+r4YgDuiCCqaQ@mail.gmail.com>
-Subject: Re: [PATCH v2 13/18] uaccess: generalize access_ok()
-To:     David Laight <David.Laight@aculab.com>
-Cc:     Arnd Bergmann <arnd@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Christoph Hellwig <hch@lst.de>,
-        "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>,
-        "arnd@arndb.de" <arnd@arndb.de>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
-        "linux@armlinux.org.uk" <linux@armlinux.org.uk>,
-        "will@kernel.org" <will@kernel.org>,
-        "guoren@kernel.org" <guoren@kernel.org>,
-        "bcain@codeaurora.org" <bcain@codeaurora.org>,
-        "geert@linux-m68k.org" <geert@linux-m68k.org>,
-        "monstr@monstr.eu" <monstr@monstr.eu>,
-        "tsbogend@alpha.franken.de" <tsbogend@alpha.franken.de>,
-        "nickhu@andestech.com" <nickhu@andestech.com>,
-        "green.hu@gmail.com" <green.hu@gmail.com>,
-        "dinguyen@kernel.org" <dinguyen@kernel.org>,
-        "shorne@gmail.com" <shorne@gmail.com>,
-        "deller@gmx.de" <deller@gmx.de>,
-        "mpe@ellerman.id.au" <mpe@ellerman.id.au>,
-        "peterz@infradead.org" <peterz@infradead.org>,
-        "mingo@redhat.com" <mingo@redhat.com>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "hca@linux.ibm.com" <hca@linux.ibm.com>,
-        "dalias@libc.org" <dalias@libc.org>,
-        "davem@davemloft.net" <davem@davemloft.net>,
-        "richard@nod.at" <richard@nod.at>,
-        "x86@kernel.org" <x86@kernel.org>,
-        "jcmvbkbc@gmail.com" <jcmvbkbc@gmail.com>,
-        "ebiederm@xmission.com" <ebiederm@xmission.com>,
-        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        "ardb@kernel.org" <ardb@kernel.org>,
-        "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>,
-        "linux-snps-arc@lists.infradead.org" 
-        <linux-snps-arc@lists.infradead.org>,
-        "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
-        "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>,
-        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
-        "linux-m68k@lists.linux-m68k.org" <linux-m68k@lists.linux-m68k.org>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "openrisc@lists.librecores.org" <openrisc@lists.librecores.org>,
-        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>,
-        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
-        "linux-um@lists.infradead.org" <linux-um@lists.infradead.org>,
-        "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [PATCH v7 1/1] s390x: KVM: guest support for topology function
+Content-Language: en-US
+From:   Pierre Morel <pmorel@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, cohuck@redhat.com, david@redhat.com,
+        thuth@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, wintera@linux.ibm.com, seiden@linux.ibm.com
+References: <20220217095923.114489-1-pmorel@linux.ibm.com>
+ <20220217095923.114489-2-pmorel@linux.ibm.com>
+ <f0bf737abf480d6d16af6e5335bb195061f3d076.camel@linux.ibm.com>
+ <97af6268-ff7a-cfb6-5ea4-217b5162cfe7@linux.ibm.com>
+ <b9828696-f5d4-dd72-9b0e-a27b1480b799@linux.ibm.com>
+ <aecc2b93-3e07-be78-81a2-594d2bc6b64a@linux.ibm.com>
+In-Reply-To: <aecc2b93-3e07-be78-81a2-594d2bc6b64a@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: wBtQQMj0DrEulaK-91_HsNRfwYcRC_bw
+X-Proofpoint-GUID: OPxhDUnk60sPFMSrTooknocCRU3OZUW4
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-02-18_07,2022-02-18_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxscore=0
+ spamscore=0 clxscore=1015 bulkscore=0 lowpriorityscore=0 impostorscore=0
+ suspectscore=0 priorityscore=1501 malwarescore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2202180111
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Feb 18, 2022 at 1:30 AM David Laight <David.Laight@aculab.com> wrote:
->
-> From: Andy Lutomirski
-> > Sent: 17 February 2022 19:15
-> ...
-> > This isn't actually optimal.  On x86, TASK_SIZE_MAX is a bizarre
-> > constant that has a very specific value to work around a bug^Wdesign
-> > error^Wfeature of Intel CPUs.  TASK_SIZE_MAX is the maximum address at
-> > which userspace is permitted to allocate memory, but there is a huge
-> > gap between user and kernel addresses, and any value in the gap would
-> > be adequate for the comparison.  If we wanted to optimize this, simply
-> > checking the high bit (which x86 can do without any immediate
-> > constants at all) would be sufficient and, for an access known to fit
-> > in 32 bits, one could get even fancier and completely ignore the size
-> > of the access.  (For accesses not known to fit in 32 bits, I suspect
-> > some creativity could still come up with a construction that's
-> > substantially faster than the one in your patch.)
-> >
-> > So there's plenty of room for optimization here.
-> >
-> > (This is not in any respect a NAK -- it's just an observation that
-> > this could be even better.)
->
-> For 64bit arch that use the top bit to separate user/kernel
-> you can test '(addr | size) >> 62)'.
-> The compiler optimises out constant sizes.
->
-> This has all been mentioned a lot of times.
-> You do get different fault types.
->
-> OTOH an explicit check for constant size (less than something big)
-> can use the cheaper test of the sign bit.
-> Big constant sizes could be compile time errors.
 
-The different fault type issue may well be a real problem.  Right now
-the core x86 fault code reserves the right to grouch if we get #GP
-instead of #PF.  We could change that.
+
+On 2/18/22 18:27, Pierre Morel wrote:
+> 
+> 
+> On 2/18/22 15:28, Janosch Frank wrote:
+>> On 2/18/22 14:13, Pierre Morel wrote:
+>>>
+>>>
+>>> On 2/17/22 18:17, Nico Boehr wrote:
+>>>> On Thu, 2022-02-17 at 10:59 +0100, Pierre Morel wrote:
+>>>> [...]
+>>>>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>>>>> index 2296b1ff1e02..af7ea8488fa2 100644
+>>>>> --- a/arch/s390/kvm/kvm-s390.c
+>>>>> +++ b/arch/s390/kvm/kvm-s390.c
+>>>> [...]
+>>
+>> Why is there no interface to clear the SCA_UTILITY_MTCR on a subsystem 
+>> reset?
+> 
+> Right, I had one in my first version based on interception but I forgot 
+> to implement an equivalent for KVM as I modified the implementation for 
+> interpretation.
+> I will add this.
+> 
+>>
+>>
+>>>>> -void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
+>>>>> +/**
+>>>>> + * kvm_s390_vcpu_set_mtcr
+>>>>> + * @vcp: the virtual CPU
+>>>>> + *
+>>>>> + * Is only relevant if the topology facility is present.
+>>>>> + *
+>>>>> + * Updates the Multiprocessor Topology-Change-Report to signal
+>>>>> + * the guest with a topology change.
+>>>>> + */
+>>>>> +static void kvm_s390_vcpu_set_mtcr(struct kvm_vcpu *vcpu)
+>>>>>    {
+>>>>> +       struct esca_block *esca = vcpu->kvm->arch.sca;
+>>>>
+>>>> utility is at the same offset for the bsca and the esca, still
+>>>> wondering whether it is a good idea to assume esca here...
+>>>
+>>> We can take bsca to be coherent with the include file where we define
+>>> ESCA_UTILITY_MTCR inside the bsca.
+>>> And we can rename the define to SCA_UTILITY_MTCR as it is common for
+>>> both BSCA and ESCA the (E) is too much.
+>>
+>> Yes and maybe add a comment that it's at the same offset for esca so 
+>> there won't come up further questions in the future.
+> 
+> OK
+> 
+>>
+>>>
+>>>>
+>>>> [...]
+>>>>> diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+>>>>> index 098831e815e6..af04ffbfd587 100644
+>>>>> --- a/arch/s390/kvm/kvm-s390.h
+>>>>> +++ b/arch/s390/kvm/kvm-s390.h
+>>>>> @@ -503,4 +503,29 @@ void kvm_s390_vcpu_crypto_reset_all(struct kvm
+>>>>> *kvm);
+>>>>>     */
+>>>>>    extern unsigned int diag9c_forwarding_hz;
+>>>>> +#define S390_KVM_TOPOLOGY_NEW_CPU -1
+>>>>> +/**
+>>>>> + * kvm_s390_topology_changed
+>>>>> + * @vcpu: the virtual CPU
+>>>>> + *
+>>>>> + * If the topology facility is present, checks if the CPU toplogy
+>>>>> + * viewed by the guest changed due to load balancing or CPU hotplug.
+>>>>> + */
+>>>>> +static inline bool kvm_s390_topology_changed(struct kvm_vcpu *vcpu)
+>>>>> +{
+>>>>> +       if (!test_kvm_facility(vcpu->kvm, 11))
+>>>>> +               return false;
+>>>>> +
+>>>>> +       /* A new vCPU has been hotplugged */
+>>>>> +       if (vcpu->arch.prev_cpu == S390_KVM_TOPOLOGY_NEW_CPU)
+>>>>> +               return true;
+>>>>> +
+>>>>> +       /* The real CPU backing up the vCPU moved to another socket
+>>>>> */
+>>>>> +       if (topology_physical_package_id(vcpu->cpu) !=
+>>>>> +           topology_physical_package_id(vcpu->arch.prev_cpu))
+>>>>> +               return true;
+>>>>
+>>>> Why is it OK to look just at the physical package ID here? What if the
+>>>> vcpu for example moves to a different book, which has a core with the
+>>>> same physical package ID?
+>>
+>> I'll need to look up stsi 15* output to understand this.
+>> But the architecture states that any change to the stsi 15 output sets 
+>> the change bit so I'd guess Nico is correct.
+>>
+> 
+> Yes, Nico is correct, as I already answered, however it is not any 
+> change of stsi(15) but a change of stsi(15.1.2) output which sets the 
+> change bit.
+
+hum, that is what the POP says but in fact you are right a change of 
+topology that changes the output of any STSI(15) sets the topology 
+change report bit as the output of STSI(15.1.2) would be changed too 
+obviously.
+
+Regards,
+Pierre
+
+-- 
+Pierre Morel
+IBM Lab Boeblingen
