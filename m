@@ -2,80 +2,56 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C6630C433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 18 Feb 2022 05:00:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 35C6CC43217
+	for <linux-s390@archiver.kernel.org>; Fri, 18 Feb 2022 06:25:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230085AbiBRFAb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 18 Feb 2022 00:00:31 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46976 "EHLO
+        id S231313AbiBRGZq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 18 Feb 2022 01:25:46 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:51060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229593AbiBRFAa (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Feb 2022 00:00:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70B5B2BAA01;
-        Thu, 17 Feb 2022 21:00:13 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C78E861E71;
-        Fri, 18 Feb 2022 05:00:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 2FFE2C340F5;
-        Fri, 18 Feb 2022 05:00:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645160412;
-        bh=eEb88DaBT3wMJmmi/zyOW+H06j/ERdP2Q8iq14+myTM=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=TJ51cxd5EQ5SkbI1a2qAU0+vTomZIrMnQv9GRMozjRV7rDL1aP+mPlTWBnMeW0YnH
-         5jghwRMYvBTroVx5aMJCAz8l/EwQPHKD5Za3mzfTCqZVUcvcH8MLeUMrUa+KW0eX7l
-         fahuiIoNtpDIlxQ3Bt9x7x0Az8/JzYKc6TIh1jFmWEbb39cPk2bfq8K9GHaYDvh/It
-         ghT2JGonYvZyYByvxfzDBV/uiu5PcCOD5L7dxIcAENjH4ZSo9m/Zgi8aR5JKQ9tM8q
-         AL/gk4+FcS1kMEUE1a+0e/4VcYDpn4CDr4TnuEgP88WenvvRqWOlpZFuk1yDSkpM4n
-         dTHgEwTD9SchQ==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 0D590E7BB18;
-        Fri, 18 Feb 2022 05:00:12 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229993AbiBRGZo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Feb 2022 01:25:44 -0500
+Received: from verein.lst.de (verein.lst.de [213.95.11.211])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D1BA2B5BA9;
+        Thu, 17 Feb 2022 22:25:23 -0800 (PST)
+Received: by verein.lst.de (Postfix, from userid 2407)
+        id C068267373; Fri, 18 Feb 2022 07:25:16 +0100 (CET)
+Date:   Fri, 18 Feb 2022 07:25:16 +0100
+From:   Christoph Hellwig <hch@lst.de>
+To:     Arnd Bergmann <arnd@kernel.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Christoph Hellwig <hch@lst.de>, linux-arch@vger.kernel.org,
+        linux-mm@kvack.org, linux-api@vger.kernel.org, arnd@arndb.de,
+        linux-kernel@vger.kernel.org, viro@zeniv.linux.org.uk,
+        linux@armlinux.org.uk, will@kernel.org, guoren@kernel.org,
+        bcain@codeaurora.org, geert@linux-m68k.org, monstr@monstr.eu,
+        tsbogend@alpha.franken.de, nickhu@andestech.com,
+        green.hu@gmail.com, dinguyen@kernel.org, shorne@gmail.com,
+        deller@gmx.de, mpe@ellerman.id.au, peterz@infradead.org,
+        mingo@redhat.com, mark.rutland@arm.com, hca@linux.ibm.com,
+        dalias@libc.org, davem@davemloft.net, richard@nod.at,
+        x86@kernel.org, jcmvbkbc@gmail.com, ebiederm@xmission.com,
+        akpm@linux-foundation.org, ardb@kernel.org,
+        linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org
+Subject: Re: [PATCH v2 02/18] uaccess: fix nios2 and microblaze get_user_8()
+Message-ID: <20220218062516.GA22576@lst.de>
+References: <20220216131332.1489939-1-arnd@kernel.org> <20220216131332.1489939-3-arnd@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next] s390/qeth: Remove redundant 'flush_workqueue()'
- calls
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <164516041204.28752.11480092833354326315.git-patchwork-notify@kernel.org>
-Date:   Fri, 18 Feb 2022 05:00:12 +0000
-References: <20220216075155.940-1-vulab@iscas.ac.cn>
-In-Reply-To: <20220216075155.940-1-vulab@iscas.ac.cn>
-To:     Xu Wang <vulab@iscas.ac.cn>
-Cc:     wintera@linux.ibm.com, wenjia@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com, svens@linux.ibm.com,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220216131332.1489939-3-arnd@kernel.org>
+User-Agent: Mutt/1.5.17 (2007-11-01)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
+Looks good:
 
-This patch was applied to netdev/net-next.git (master)
-by Jakub Kicinski <kuba@kernel.org>:
-
-On Wed, 16 Feb 2022 07:51:55 +0000 you wrote:
-> 'destroy_workqueue()' already drains the queue before destroying it, so
-> there is no need to flush it explicitly.
-> 
-> Remove the redundant 'flush_workqueue()' calls.
-> 
-> Signed-off-by: Xu Wang <vulab@iscas.ac.cn>
-> Acked-by: Alexandra Winter <wintera@linux.ibm.com>
-> 
-> [...]
-
-Here is the summary with links:
-  - [net-next] s390/qeth: Remove redundant 'flush_workqueue()' calls
-    https://git.kernel.org/netdev/net-next/c/129c77b5692d
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+Reviewed-by: Christoph Hellwig <hch@lst.de>
