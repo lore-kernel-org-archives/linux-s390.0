@@ -2,470 +2,104 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EE856C433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 18 Feb 2022 23:28:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C985C433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 18 Feb 2022 23:42:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234217AbiBRX3G (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 18 Feb 2022 18:29:06 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:47962 "EHLO
+        id S240182AbiBRXmz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 18 Feb 2022 18:42:55 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:56038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232249AbiBRX3F (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Feb 2022 18:29:05 -0500
-Received: from mail-io1-xd36.google.com (mail-io1-xd36.google.com [IPv6:2607:f8b0:4864:20::d36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9023205F1
-        for <linux-s390@vger.kernel.org>; Fri, 18 Feb 2022 15:28:46 -0800 (PST)
-Received: by mail-io1-xd36.google.com with SMTP id c18so6881963ioc.6
-        for <linux-s390@vger.kernel.org>; Fri, 18 Feb 2022 15:28:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=WdyRbSqxjRN1Kn8UJVUm0MbimiQX+217FfELPaU3/mo=;
-        b=So2XH78/2595kAYYKMXPWI9MBLaanBtHaVGj+8tMhL2jAiQtdtMjFgn2Wt6CDsh/u3
-         TR34w2Vl+WqieKRHoe0bR0w2XuiMfdnv3LrzFE+B6Vcs0jGSHaHGs51Oii2MuvHVZrFh
-         I/IZ0LRqi7EEW7qvKWvYWPRgRj8BzKHB4vSDM=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=WdyRbSqxjRN1Kn8UJVUm0MbimiQX+217FfELPaU3/mo=;
-        b=LH6ox4KsQqX1dk5avoMVi9kr1cQJcGDMybS03dBdstXcMSzcopZoAL+VIei72K8H7h
-         Tvc50VdkqD1916GGh4WWswNcyNBcugeP5RPD5J4GAI/JJeCIh5x9I9k51q62t91XYVqu
-         LNunMmQs2rOvk2118zDaxQnS8Rpj63i7FBZT8DU12V77ncylrMH2mnubmGVzGnOaG3Sa
-         XcXDPeiAPkgfUSp2WHqF006Mu1X1rFPtzrqw+m6s1PwDzkh2CF8nAoAwgnFqPyQ27isH
-         /pIbBFYbWA9wXQPKR2pnCzZoNXtvJsu3cMgXDmZ/703vO4whf9P9dgV/p3NvMKOr/5X+
-         4FKQ==
-X-Gm-Message-State: AOAM5333Qr64MDxnKteOWuVWICUhkByqjrZe41nu0pKOdfYx60E7hx6o
-        50dStYAhLgqhgoYk6A6SFlol2bJ9zrcLKw==
-X-Google-Smtp-Source: ABdhPJxmcycqlgoMN58L6oxhcMc4rumhOI+6qqD7jI8B6nrdWJoKhQN+KJXjBlbPEIJq21Mo9AC9CQ==
-X-Received: by 2002:a02:cc55:0:b0:311:bd14:fe74 with SMTP id i21-20020a02cc55000000b00311bd14fe74mr6960161jaq.84.1645226926133;
-        Fri, 18 Feb 2022 15:28:46 -0800 (PST)
-Received: from [192.168.1.128] ([71.205.29.0])
-        by smtp.gmail.com with ESMTPSA id m14sm3821705ioj.34.2022.02.18.15.28.44
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 18 Feb 2022 15:28:45 -0800 (PST)
-Subject: Re: [PATCH 3/3] selftests: drivers/s390x: Add uvdevice tests
-To:     Steffen Eiden <seiden@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Shuah Khan <shuah@kernel.org>, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        linux-kselftest@vger.kernel.org,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20220217113717.46624-1-seiden@linux.ibm.com>
- <20220217113717.46624-4-seiden@linux.ibm.com>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <e624fe39-51e2-cfd0-fcdc-d04080272386@linuxfoundation.org>
-Date:   Fri, 18 Feb 2022 16:28:44 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        with ESMTP id S234987AbiBRXmy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Feb 2022 18:42:54 -0500
+Received: from out30-43.freemail.mail.aliyun.com (out30-43.freemail.mail.aliyun.com [115.124.30.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23D5F54BD7;
+        Fri, 18 Feb 2022 15:42:35 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R791e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0V4r6yr8_1645227752;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0V4r6yr8_1645227752)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Sat, 19 Feb 2022 07:42:33 +0800
+Date:   Sat, 19 Feb 2022 07:42:32 +0800
+From:   "dust.li" <dust.li@linux.alibaba.com>
+To:     Karsten Graul <kgraul@linux.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.ibm.com>
+Cc:     Stefan Raspl <raspl@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>, kuba@kernel.org,
+        davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: Re: [PATCH] net/smc: Add autocork support
+Message-ID: <20220218234232.GC5443@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <20220216034903.20173-1-dust.li@linux.alibaba.com>
+ <68e9534b-7ff5-5a65-9017-124dbae0c74b@linux.ibm.com>
+ <20220216152721.GB39286@linux.alibaba.com>
+ <454b5efd-e611-2dfb-e462-e7ceaee0da4d@linux.ibm.com>
+ <20220217132200.GA5443@linux.alibaba.com>
+ <Yg6Q2kIDJrhvNVz7@linux.ibm.com>
+ <20220218073327.GB5443@linux.alibaba.com>
+ <d4ce4674-3ced-da34-a8a4-30d74cbe24bb@linux.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <20220217113717.46624-4-seiden@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d4ce4674-3ced-da34-a8a4-30d74cbe24bb@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2/17/22 4:37 AM, Steffen Eiden wrote:
-> Adds some selftests to test ioctl error paths of the uv-uapi.
-> 
+On Fri, Feb 18, 2022 at 05:03:56PM +0100, Karsten Graul wrote:
+>On 18/02/2022 08:33, dust.li wrote:
+>> On Thu, Feb 17, 2022 at 07:15:54PM +0100, Hendrik Brueckner wrote:
+>>> On Thu, Feb 17, 2022 at 09:22:00PM +0800, dust.li wrote:
+>>>> On Thu, Feb 17, 2022 at 10:37:28AM +0100, Stefan Raspl wrote:
+>>>>> On 2/16/22 16:27, dust.li wrote:
+>>>>>> On Wed, Feb 16, 2022 at 02:58:32PM +0100, Stefan Raspl wrote:
+>>>>>>> On 2/16/22 04:49, Dust Li wrote:
+>>>>>>>
+>>>>
+>>>>> Now we understand that cloud workloads are a bit different, and the desire to
+>>>>> be able to modify the environment of a container while leaving the container
+>>>>> image unmodified is understandable. But then again, enabling the base image
+>>>>> would be the cloud way to address this. The question to us is: How do other
+>>>>> parts of the kernel address this?
+>>>>
+>>>> I'm not familiar with K8S, but from one of my colleague who has worked
+>>>> in that area tells me for resources like CPU/MEM and configurations
+>>>> like sysctl, can be set using K8S configuration:
+>>>> https://kubernetes.io/docs/tasks/administer-cluster/sysctl-cluster/
+>>>
+>>> For K8s, this involves container engines like cri-o, containerd, podman,
+>>> and others towards the runtimes like runc.  To ensure they operate together,
+>>> specifications by the Open Container Initiative (OCI) at
+>>> https://opencontainers.org/release-notices/overview/
+>>>
+>>> For container/pod deployments, there is especially the Container Runtime
+>>> Interface (CRI) that defines the interface, e.g., of K8s to cri-o etc.
+>>>
+>>> CRI includes support for (namespaced) sysctl's:
+>>> https://github.com/opencontainers/runtime-spec/releases/tag/v1.0.2
+>>>
+>>> In essence, the CRI spec would allow users to specify/control a specific
+>>> runtime for the container in a declarative way w/o modifying the (base)
+>>> container images.
+>> 
+>> Thanks a lot for your kind explanation !
+>> 
+>> After a quick look at the OCI spec, I saw the support for file based
+>> configuration (Including sysfs/procfs etc.). And unfortunately, no
+>> netlink support.
+>> 
+>> 
+>> Hi Karsten & Stefan:
+>> Back to the patch itself, do you think I need to add the control switch
+>> now ? Or just leave the switch and fix other issues first ?
+>
+>Hi, looks like we need more time to evaluate possibilities, so if you have 
+>additional topics on your desk move on and delay this one.
 
-Please add information on how to run this test and example output.
+OK, got it.
 
-> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
-> ---
->   MAINTAINERS                                   |   1 +
->   tools/testing/selftests/Makefile              |   1 +
->   tools/testing/selftests/drivers/.gitignore    |   1 +
->   .../selftests/drivers/s390x/uvdevice/Makefile |  22 ++
->   .../selftests/drivers/s390x/uvdevice/config   |   1 +
->   .../drivers/s390x/uvdevice/test_uvdevice.c    | 280 ++++++++++++++++++
->   6 files changed, 306 insertions(+)
->   create mode 100644 tools/testing/selftests/drivers/s390x/uvdevice/Makefile
->   create mode 100644 tools/testing/selftests/drivers/s390x/uvdevice/config
->   create mode 100644 tools/testing/selftests/drivers/s390x/uvdevice/test_uvdevice.c
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index c7d8d0fe48cf..c6a0311c3fa8 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -10462,6 +10462,7 @@ F:	arch/s390/kernel/uv.c
->   F:	arch/s390/kvm/
->   F:	arch/s390/mm/gmap.c
->   F:	drivers/s390/char/uvdevice.c
-> +F:	tools/testing/selftests/drivers/s390x/uvdevice/
->   F:	tools/testing/selftests/kvm/*/s390x/
->   F:	tools/testing/selftests/kvm/s390x/
->   
-> diff --git a/tools/testing/selftests/Makefile b/tools/testing/selftests/Makefile
-> index c852eb40c4f7..3b8abaee9271 100644
-> --- a/tools/testing/selftests/Makefile
-> +++ b/tools/testing/selftests/Makefile
-> @@ -9,6 +9,7 @@ TARGETS += core
->   TARGETS += cpufreq
->   TARGETS += cpu-hotplug
->   TARGETS += drivers/dma-buf
-> +TARGETS += drivers/s390x/uvdevice
->   TARGETS += efivarfs
->   TARGETS += exec
->   TARGETS += filesystems
-> diff --git a/tools/testing/selftests/drivers/.gitignore b/tools/testing/selftests/drivers/.gitignore
-> index ca74f2e1c719..09e23b5afa96 100644
-> --- a/tools/testing/selftests/drivers/.gitignore
-> +++ b/tools/testing/selftests/drivers/.gitignore
-> @@ -1,2 +1,3 @@
->   # SPDX-License-Identifier: GPL-2.0-only
->   /dma-buf/udmabuf
-> +/s390x/uvdevice/test_uvdevice
-> diff --git a/tools/testing/selftests/drivers/s390x/uvdevice/Makefile b/tools/testing/selftests/drivers/s390x/uvdevice/Makefile
-> new file mode 100644
-> index 000000000000..5e701d2708d4
-> --- /dev/null
-> +++ b/tools/testing/selftests/drivers/s390x/uvdevice/Makefile
-> @@ -0,0 +1,22 @@
-> +include ../../../../../build/Build.include
-> +
-> +UNAME_M := $(shell uname -m)
-> +
-> +ifneq ($(UNAME_M),s390x)
-> +nothing:
-> +.PHONY: all clean run_tests install
-> +.SILENT:
-> +else
-> +
-> +TEST_GEN_PROGS := test_uvdevice
-> +
-> +top_srcdir ?= ../../../../../..
-> +KSFT_KHDR_INSTALL := 1
-> +khdr_dir = $(top_srcdir)/usr/include
-> +LINUX_TOOL_ARCH_INCLUDE = $(top_srcdir)/tools/arch/$(ARCH)/include
-> +
-> +CFLAGS += -Wall -Werror -static -I$(khdr_dir) -I$(LINUX_TOOL_ARCH_INCLUDE)
-> +
-> +include ../../../lib.mk
-> +
-> +endif
-> diff --git a/tools/testing/selftests/drivers/s390x/uvdevice/config b/tools/testing/selftests/drivers/s390x/uvdevice/config
-> new file mode 100644
-> index 000000000000..f28a04b99eff
-> --- /dev/null
-> +++ b/tools/testing/selftests/drivers/s390x/uvdevice/config
-> @@ -0,0 +1 @@
-> +CONFIG_S390_UV_UAPI=y
-> diff --git a/tools/testing/selftests/drivers/s390x/uvdevice/test_uvdevice.c b/tools/testing/selftests/drivers/s390x/uvdevice/test_uvdevice.c
-> new file mode 100644
-> index 000000000000..f23663bcab03
-> --- /dev/null
-> +++ b/tools/testing/selftests/drivers/s390x/uvdevice/test_uvdevice.c
-> @@ -0,0 +1,280 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +/*
-> + *  selftest for the Ultravisor UAPI device
-> + *
-> + *  Copyright IBM Corp. 2022
-> + *  Author(s): Steffen Eiden <seiden@linux.ibm.com>
-> + */
-> +
-> +#include <stdint.h>
-> +#include <fcntl.h>
-> +#include <errno.h>
-> +#include <sys/ioctl.h>
-> +#include <sys/mman.h>
-> +
-> +#include <asm/uvdevice.h>
-> +
-> +#include "../../../kselftest_harness.h"
-> +
-> +#define BUFFER_SIZE 0x200
-> +FIXTURE(uvio_fixture) {
-> +	int uv_fd;
-> +	struct uvio_ioctl_cb uvio_ioctl;
-> +	uint8_t buffer[BUFFER_SIZE];
-> +	__u64 fault_page;
-> +};
-> +
-> +FIXTURE_VARIANT(uvio_fixture) {
-> +	unsigned long ioctl_cmd;
-> +	uint32_t arg_size;
-> +};
-> +
-> +FIXTURE_VARIANT_ADD(uvio_fixture, qui) {
-> +	.ioctl_cmd = UVIO_IOCTL_QUI,
-> +	.arg_size = BUFFER_SIZE,
-> +};
-> +
-> +FIXTURE_VARIANT_ADD(uvio_fixture, att) {
-> +	.ioctl_cmd = UVIO_IOCTL_ATT,
-> +	.arg_size = sizeof(struct uvio_attest),
-> +};
-> +
-> +FIXTURE_SETUP(uvio_fixture)
-> +{
-> +	self->uv_fd = open("/dev/uv", O_RDWR);
-> +
-> +	self->uvio_ioctl.argument_addr = (__u64)self->buffer;
-> +	self->uvio_ioctl.argument_len = variant->arg_size;
-> +	self->fault_page =
-> +		(__u64)mmap(NULL, (size_t)getpagesize(), PROT_NONE, MAP_ANONYMOUS, -1, 0);
-> +}
-> +
-> +FIXTURE_TEARDOWN(uvio_fixture)
-> +{
-> +	if (self->uv_fd)
-> +		close(self->uv_fd);
-> +	munmap((void *)self->fault_page, (size_t)getpagesize());
-> +}
-> +
-> +TEST_F(uvio_fixture, fault_ioctl_arg)
-> +{
-> +	int rc, errno_cache;
-> +
-> +	rc = ioctl(self->uv_fd, variant->ioctl_cmd, NULL);
-> +	errno_cache = errno;
-> +	ASSERT_EQ(rc, -1);
-> +	ASSERT_EQ(errno_cache, EFAULT);
-> +
-> +	rc = ioctl(self->uv_fd, variant->ioctl_cmd, self->fault_page);
-> +	errno_cache = errno;
-> +	ASSERT_EQ(rc, -1);
-> +	ASSERT_EQ(errno_cache, EFAULT);
-> +}
-> +
-> +TEST_F(uvio_fixture, fault_uvio_arg)
-> +{
-> +	int rc, errno_cache;
-> +
-> +	self->uvio_ioctl.argument_addr = 0;
-> +	rc = ioctl(self->uv_fd, variant->ioctl_cmd, &self->uvio_ioctl);
-> +	errno_cache = errno;
-> +	ASSERT_EQ(rc, -1);
-> +	ASSERT_EQ(errno_cache, EFAULT);
-> +
-> +	self->uvio_ioctl.argument_addr = self->fault_page;
-> +	rc = ioctl(self->uv_fd, variant->ioctl_cmd, &self->uvio_ioctl);
-> +	errno_cache = errno;
-> +	ASSERT_EQ(rc, -1);
-> +	ASSERT_EQ(errno_cache, EFAULT);
-> +}
-> +
-> +/*
-> + * Test to verify that IOCTLs with invalid values in the ioctl_control block
-> + * are rejected.
-> + */
-> +TEST_F(uvio_fixture, inval_ioctl_cb)
-> +{
-> +	int rc, errno_cache;
-> +
-> +	self->uvio_ioctl.argument_len = 0;
-> +	rc = ioctl(self->uv_fd, variant->ioctl_cmd, &self->uvio_ioctl);
-> +	errno_cache = errno;
-> +	ASSERT_EQ(rc, -1);
-> +	ASSERT_EQ(errno_cache, EINVAL);
-> +
-> +	self->uvio_ioctl.argument_len = (uint32_t)-1;
-> +	rc = ioctl(self->uv_fd, variant->ioctl_cmd, &self->uvio_ioctl);
-> +	errno_cache = errno;
-> +	ASSERT_EQ(rc, -1);
-> +	ASSERT_EQ(errno_cache, EINVAL);
-> +	self->uvio_ioctl.argument_len = variant->arg_size;
-> +
-> +	self->uvio_ioctl.flags = (uint32_t)-1;
-> +	rc = ioctl(self->uv_fd, variant->ioctl_cmd, &self->uvio_ioctl);
-> +	errno_cache = errno;
-> +	ASSERT_EQ(rc, -1);
-> +	ASSERT_EQ(errno_cache, EINVAL);
-> +	self->uvio_ioctl.flags = 0;
-> +
-> +	memset(self->uvio_ioctl.reserved14, 0xff, sizeof(self->uvio_ioctl.reserved14));
-> +	rc = ioctl(self->uv_fd, variant->ioctl_cmd, &self->uvio_ioctl);
-> +	errno_cache = errno;
-> +	ASSERT_EQ(rc, -1);
-> +	ASSERT_EQ(errno_cache, EINVAL);
-> +
-> +	memset(&self->uvio_ioctl, 0x11, sizeof(self->uvio_ioctl));
-> +	rc = ioctl(self->uv_fd, variant->ioctl_cmd, &self->uvio_ioctl);
-> +	ASSERT_EQ(rc, -1);
-> +}
-> +
-> +TEST_F(uvio_fixture, inval_ioctl_cmd)
-> +{
-> +	int rc, errno_cache;
-> +	uint8_t nr = _IOC_NR(variant->ioctl_cmd);
-> +	unsigned long cmds[] = {
-> +		_IOWR('a', nr, struct uvio_ioctl_cb),
-> +		_IOWR(UVIO_TYPE_UVC, nr, int),
-> +		_IO(UVIO_TYPE_UVC, nr),
-> +		_IOR(UVIO_TYPE_UVC, nr, struct uvio_ioctl_cb),
-> +		_IOW(UVIO_TYPE_UVC, nr, struct uvio_ioctl_cb),
-> +	};
-> +
-> +	for (size_t i = 0; i < ARRAY_SIZE(cmds); i++) {
-> +		rc = ioctl(self->uv_fd, cmds[i], &self->uvio_ioctl);
-> +		errno_cache = errno;
-> +		ASSERT_EQ(rc, -1);
-> +		ASSERT_EQ(errno_cache, EINVAL);
-> +	}
-> +}
-> +
-> +struct test_attest_buffer {
-> +	uint8_t arcb[0x180];
-> +	uint8_t meas[64];
-> +	uint8_t add[32];
-> +};
-> +
-> +FIXTURE(attest_fixture) {
-> +	int uv_fd;
-> +	struct uvio_ioctl_cb uvio_ioctl;
-> +	struct uvio_attest uvio_attest;
-> +	struct test_attest_buffer attest_buffer;
-> +	__u64 fault_page;
-> +};
-> +
-> +FIXTURE_SETUP(attest_fixture)
-> +{
-> +	self->uv_fd = open("/dev/uv", O_RDWR);
+>Right now for me it looks like there is no way to use netlink for container runtime
+>configuration, which is a pity.
+>We continue our discussions about this in the team, and also here on the list.
 
-So each test opne and closes the devuce. Can this file stay open
-for the duraction of the test run and close it in main() after
-test exits?
+Many thanks for your time on this topic !
 
-> +
-> +	self->uvio_ioctl.argument_addr = (__u64)&self->uvio_attest;
-> +	self->uvio_ioctl.argument_len = sizeof(self->uvio_attest);
-> +
-> +	self->uvio_attest.arcb_addr = (__u64)&self->attest_buffer.arcb;
-> +	self->uvio_attest.arcb_len = sizeof(self->attest_buffer.arcb);
-> +
-> +	self->uvio_attest.meas_addr = (__u64)&self->attest_buffer.meas;
-> +	self->uvio_attest.meas_len = sizeof(self->attest_buffer.meas);
-> +
-> +	self->uvio_attest.add_data_addr = (__u64)&self->attest_buffer.add;
-> +	self->uvio_attest.add_data_len = sizeof(self->attest_buffer.add);
-> +	self->fault_page =
-> +		(__u64)mmap(NULL, (size_t)getpagesize(), PROT_NONE, MAP_ANONYMOUS, -1, 0);
-> +}
-> +
-> +FIXTURE_TEARDOWN(attest_fixture)
-> +{
-> +	if (self->uv_fd)
-> +		close(self->uv_fd);
-> +	munmap((void *)self->fault_page, (size_t)getpagesize());
-> +}
-> +
-> +static void att_inval_sizes_test(uint32_t *size, uint32_t max_size, bool test_zero,
-> +				 struct __test_metadata *_metadata,
-> +				 FIXTURE_DATA(attest_fixture) *self)
-> +{
-> +	int rc, errno_cache;
-> +	uint32_t tmp = *size;
-> +
-> +	if (test_zero) {
-> +		*size = 0;
-> +		rc = ioctl(self->uv_fd, UVIO_IOCTL_ATT, &self->uvio_ioctl);
-> +		errno_cache = errno;
-> +		ASSERT_EQ(rc, -1);
-> +		ASSERT_EQ(errno_cache, EINVAL);
-> +	}
-> +	*size = max_size + 1;
-> +	rc = ioctl(self->uv_fd, UVIO_IOCTL_ATT, &self->uvio_ioctl);
-> +	errno_cache = errno;
-> +	ASSERT_EQ(rc, -1);
-> +	ASSERT_EQ(errno_cache, EINVAL);
-> +	*size = tmp;
-> +}
-> +
-> +/*
-> + * Test to verify that attestation IOCTLs with invalid values in the UVIO
-> + * attestation control block are rejected.
-> + */
-> +TEST_F(attest_fixture, att_inval_request)
-> +{
-> +	int rc, errno_cache;
-> +
-> +	att_inval_sizes_test(&self->uvio_attest.add_data_len, UVIO_ATT_ADDITIONAL_MAX_LEN,
-> +			     false, _metadata, self);
-> +	att_inval_sizes_test(&self->uvio_attest.meas_len, UVIO_ATT_MEASUREMENT_MAX_LEN,
-> +			     true, _metadata, self);
-> +	att_inval_sizes_test(&self->uvio_attest.arcb_len, UVIO_ATT_ARCB_MAX_LEN,
-> +			     true, _metadata, self);
-> +
-> +	self->uvio_attest.reserved136 = (uint16_t)-1;
-> +	rc = ioctl(self->uv_fd, UVIO_IOCTL_ATT, &self->uvio_ioctl);
-> +	errno_cache = errno;
-> +	ASSERT_EQ(rc, -1);
-> +	ASSERT_EQ(errno_cache, EINVAL);
-> +
-> +	memset(&self->uvio_attest, 0x11, sizeof(self->uvio_attest));
-> +	rc = ioctl(self->uv_fd, UVIO_IOCTL_ATT, &self->uvio_ioctl);
-> +	ASSERT_EQ(rc, -1);
-> +}
-> +
-> +static void att_inval_addr_test(__u64 *addr, struct __test_metadata *_metadata,
-> +				FIXTURE_DATA(attest_fixture) *self)
-> +{
-> +	int rc, errno_cache;
-> +	__u64 tmp = *addr;
-> +
-> +	*addr = 0;
-> +	rc = ioctl(self->uv_fd, UVIO_IOCTL_ATT, &self->uvio_ioctl);
-> +	errno_cache = errno;
-> +	ASSERT_EQ(rc, -1);
-> +	ASSERT_EQ(errno_cache, EFAULT);
-> +	*addr = self->fault_page;
-> +	rc = ioctl(self->uv_fd, UVIO_IOCTL_ATT, &self->uvio_ioctl);
-> +	errno_cache = errno;
-> +	ASSERT_EQ(rc, -1);
-> +	ASSERT_EQ(errno_cache, EFAULT);
-> +	*addr = tmp;
-> +}
-> +
-> +TEST_F(attest_fixture, att_inval_addr)
-> +{
-> +	att_inval_addr_test(&self->uvio_attest.arcb_addr, _metadata, self);
-> +	att_inval_addr_test(&self->uvio_attest.add_data_addr, _metadata, self);
-> +	att_inval_addr_test(&self->uvio_attest.meas_addr, _metadata, self);
-> +}
-> +
-> +static void __attribute__((constructor)) __constructor_order_last(void)
-> +{
-> +	if (!__constructor_order)
-> +		__constructor_order = _CONSTRUCTOR_ORDER_BACKWARD;
-> +}
-> +
-> +int main(int argc, char **argv)
-> +{
-> +	int fd = open("/dev/uv", O_RDWR);
-> +
-> +	if (fd < 0) {
-> +		ksft_exit_skip("No uv-device.\n");
-
-Please add information on which confg options need to be enabled
-to run this test - CONFIG_S390_UV_UAPI?
-
-Also add a check and skip when run by non-root if this test requires
-root privileges.
-
-> +		ksft_exit(KSFT_SKIP);
-
-You don't need this - ksft_exit_skip() calls exit(KSFT_SKIP)
-
-
-> +	}
-> +	close(fd);
-
-Closing the file before test inocation?
-
-> +	return test_harness_run(argc, argv);
-> +}
-> 
-
-thanks,
--- Shuah
