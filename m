@@ -2,102 +2,80 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CEA9C4167D
-	for <linux-s390@archiver.kernel.org>; Fri, 18 Feb 2022 02:21:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C6630C433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 18 Feb 2022 05:00:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231524AbiBRCVY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 17 Feb 2022 21:21:24 -0500
-Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:53010 "EHLO
+        id S230085AbiBRFAb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 18 Feb 2022 00:00:31 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231465AbiBRCVX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Feb 2022 21:21:23 -0500
-Received: from zeniv-ca.linux.org.uk (zeniv-ca.linux.org.uk [IPv6:2607:5300:60:148a::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AE5985674;
-        Thu, 17 Feb 2022 18:21:08 -0800 (PST)
-Received: from viro by zeniv-ca.linux.org.uk with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nKstJ-002dCt-8P; Fri, 18 Feb 2022 02:21:01 +0000
-Date:   Fri, 18 Feb 2022 02:21:01 +0000
-From:   Al Viro <viro@zeniv.linux.org.uk>
-To:     Arnd Bergmann <arnd@kernel.org>
-Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Christoph Hellwig <hch@lst.de>,
-        "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>,
-        "arnd@arndb.de" <arnd@arndb.de>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "dalias@libc.org" <dalias@libc.org>,
-        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
-        "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>,
-        "peterz@infradead.org" <peterz@infradead.org>,
-        "jcmvbkbc@gmail.com" <jcmvbkbc@gmail.com>,
-        "guoren@kernel.org" <guoren@kernel.org>,
-        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
-        "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>,
-        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
-        "will@kernel.org" <will@kernel.org>,
-        "ardb@kernel.org" <ardb@kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "bcain@codeaurora.org" <bcain@codeaurora.org>,
-        "deller@gmx.de" <deller@gmx.de>, "x86@kernel.org" <x86@kernel.org>,
-        "linux@armlinux.org.uk" <linux@armlinux.org.uk>,
-        "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
-        "mingo@redhat.com" <mingo@redhat.com>,
-        "geert@linux-m68k.org" <geert@linux-m68k.org>,
-        "linux-snps-arc@lists.infradead.org" 
-        <linux-snps-arc@lists.infradead.org>,
-        "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>,
-        "hca@linux.ibm.com" <hca@linux.ibm.com>,
-        "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>,
-        "linux-um@lists.infradead.org" <linux-um@lists.infradead.org>,
-        "linux-m68k@lists.linux-m68k.org" <linux-m68k@lists.linux-m68k.org>,
-        "openrisc@lists.librecores.org" <openrisc@lists.librecores.org>,
-        "green.hu@gmail.com" <green.hu@gmail.com>,
-        "shorne@gmail.com" <shorne@gmail.com>,
-        "monstr@monstr.eu" <monstr@monstr.eu>,
-        "tsbogend@alpha.franken.de" <tsbogend@alpha.franken.de>,
-        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
-        "nickhu@andestech.com" <nickhu@andestech.com>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "dinguyen@kernel.org" <dinguyen@kernel.org>,
-        "ebiederm@xmission.com" <ebiederm@xmission.com>,
-        "richard@nod.at" <richard@nod.at>,
-        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "davem@davemloft.net" <davem@davemloft.net>
-Subject: Re: [PATCH v2 00/18] clean up asm/uaccess.h, kill set_fs for good
-Message-ID: <Yg8CjZwjWYIibrsd@zeniv-ca.linux.org.uk>
-References: <20220216131332.1489939-1-arnd@kernel.org>
- <00496df2-f9f2-2547-3ca3-7989e4713d6b@csgroup.eu>
- <CAK8P3a3_dPbjB23QffnYMtw+5ojfwChrVC8LLMQqNctU7Nh+mQ@mail.gmail.com>
+        with ESMTP id S229593AbiBRFAa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Feb 2022 00:00:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70B5B2BAA01;
+        Thu, 17 Feb 2022 21:00:13 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C78E861E71;
+        Fri, 18 Feb 2022 05:00:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 2FFE2C340F5;
+        Fri, 18 Feb 2022 05:00:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1645160412;
+        bh=eEb88DaBT3wMJmmi/zyOW+H06j/ERdP2Q8iq14+myTM=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=TJ51cxd5EQ5SkbI1a2qAU0+vTomZIrMnQv9GRMozjRV7rDL1aP+mPlTWBnMeW0YnH
+         5jghwRMYvBTroVx5aMJCAz8l/EwQPHKD5Za3mzfTCqZVUcvcH8MLeUMrUa+KW0eX7l
+         fahuiIoNtpDIlxQ3Bt9x7x0Az8/JzYKc6TIh1jFmWEbb39cPk2bfq8K9GHaYDvh/It
+         ghT2JGonYvZyYByvxfzDBV/uiu5PcCOD5L7dxIcAENjH4ZSo9m/Zgi8aR5JKQ9tM8q
+         AL/gk4+FcS1kMEUE1a+0e/4VcYDpn4CDr4TnuEgP88WenvvRqWOlpZFuk1yDSkpM4n
+         dTHgEwTD9SchQ==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 0D590E7BB18;
+        Fri, 18 Feb 2022 05:00:12 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAK8P3a3_dPbjB23QffnYMtw+5ojfwChrVC8LLMQqNctU7Nh+mQ@mail.gmail.com>
-Sender: Al Viro <viro@ftp.linux.org.uk>
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next] s390/qeth: Remove redundant 'flush_workqueue()'
+ calls
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <164516041204.28752.11480092833354326315.git-patchwork-notify@kernel.org>
+Date:   Fri, 18 Feb 2022 05:00:12 +0000
+References: <20220216075155.940-1-vulab@iscas.ac.cn>
+In-Reply-To: <20220216075155.940-1-vulab@iscas.ac.cn>
+To:     Xu Wang <vulab@iscas.ac.cn>
+Cc:     wintera@linux.ibm.com, wenjia@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, svens@linux.ibm.com,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Feb 17, 2022 at 08:49:59AM +0100, Arnd Bergmann wrote:
+Hello:
 
-> Same here: architectures can already provide a __put_user_fn()
-> and __get_user_fn(), to get the generic versions of the interface,
-> but few architectures use that. You can actually get all the interfaces
-> by just providing raw_copy_from_user() and raw_copy_to_user(),
-> but the get_user/put_user versions you get from that are fairly
-> inefficient.
+This patch was applied to netdev/net-next.git (master)
+by Jakub Kicinski <kuba@kernel.org>:
 
-FWIW, __{get,put}_user_{8,16,32,64} would probably make it easier to
-unify.  That's where the really variable part tends to be, anyway.
-IMO __get_user_fn() had been a mistake.
+On Wed, 16 Feb 2022 07:51:55 +0000 you wrote:
+> 'destroy_workqueue()' already drains the queue before destroying it, so
+> there is no need to flush it explicitly.
+> 
+> Remove the redundant 'flush_workqueue()' calls.
+> 
+> Signed-off-by: Xu Wang <vulab@iscas.ac.cn>
+> Acked-by: Alexandra Winter <wintera@linux.ibm.com>
+> 
+> [...]
 
-One thing I somewhat dislike about the series is the boilerplate in
-asm/uaccess.h instances - #include <asm-generic/access-ok.h> in
-a lot of them might make sense as a transitory state, but getting
-stuck with those indefinitely...
+Here is the summary with links:
+  - [net-next] s390/qeth: Remove redundant 'flush_workqueue()' calls
+    https://git.kernel.org/netdev/net-next/c/129c77b5692d
 
-	BTW, do we need user_addr_max() anymore?  The definition in
-asm-generic/access-ok.h is the only one, so ifndef around it is pointless.
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
