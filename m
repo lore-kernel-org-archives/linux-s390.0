@@ -2,142 +2,117 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2521CC433F5
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1BB7C433EF
 	for <linux-s390@archiver.kernel.org>; Mon, 21 Feb 2022 13:08:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358560AbiBUNIW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 21 Feb 2022 08:08:22 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:40000 "EHLO
+        id S1358548AbiBUNIX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 21 Feb 2022 08:08:23 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:40002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358550AbiBUNIU (ORCPT
+        with ESMTP id S1358551AbiBUNIU (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Feb 2022 08:08:20 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 433961EC58;
-        Mon, 21 Feb 2022 05:07:56 -0800 (PST)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21LCCIJj020242;
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A01221EAFB;
+        Mon, 21 Feb 2022 05:07:57 -0800 (PST)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21LAcYdE016042;
         Mon, 21 Feb 2022 13:07:56 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=/AqcVq6wO3aHnWv7O34YabrPeV0tcX8DhvifMiBXhlw=;
- b=g/pYHwKOJndEuigCwTI7J/PlzCbp4X+uUEftLRzuG2fg6FOV/YJakT+dLjOb9+9MAqrp
- aTYqmoDsw/edD4ckgm7gJjXIopTmkn0Fnm/X6dJo0SYsXRbackNIes8HrP7X9jrJUTP7
- 4FK9OYxv+GTEbHbFvrB0nmiyQDYtRTMxj+RMe5HL+7uthZ7/h7K4KkqzdZpBZsk9R+Sp
- 2T+MaSyuEy3aYiYXZ1o4/PcDXt6uoEd0oykksNUAeGegmQ+CsAn2slVrtmRdP0x5zahi
- fKpyAjzdHU+7CgMvAwlMXHeXWncdfGh0YWBNi6rEvKun/ZzdSX3wQpcQ7XVhmpbcZkGA 4g== 
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=EZbL3x6R1FugjcHfkRqvQ0Rqsgvz6qMdmHRUKz2rBmo=;
+ b=MqNi2u+d2MlutErQ0zd7po8R7LwCscdgQMyx8VY8VZ0clwv9yMMcjFcW09E6ojIEJ/+d
+ Vs3uajdk9ICmeNX0sx60wYhcq9JbhIUGbCjoz5kaf4vPICCrgIPMsHnBCJbk/874FWvv
+ crVhquO/ljtfcr1i/eg5rgXgnWCGOwcxCwrJjZHPS3Q54swfHZWzzLIFOxpMyh4aAc3G
+ gvGAdQV/KhBc2oYgnL5+8B+rAaQWEoG1Wew71ez1x6RTcueN4VeKWkj4px4kRalVaG9w
+ gGavjNd8+WdJrCeYzlbBPCQVnP82MgZzTUfc3lfQdZFHBGKIoefS7T+PzpBnb36qvSAP gA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ecahjh3wr-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ec65aq0mt-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Feb 2022 13:07:55 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21LCO6RC031407;
+        Mon, 21 Feb 2022 13:07:56 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21LCxFT4020908;
         Mon, 21 Feb 2022 13:07:55 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ecahjh3vr-1
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ec65aq0m1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Mon, 21 Feb 2022 13:07:55 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21LCwo0V007241;
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21LCuoO7027619;
         Mon, 21 Feb 2022 13:07:53 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma01fra.de.ibm.com with ESMTP id 3ear68std3-1
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma02fra.de.ibm.com with ESMTP id 3ear68stnp-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Mon, 21 Feb 2022 13:07:53 +0000
 Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21LD7lDT54132992
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21LD7nns51315198
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 21 Feb 2022 13:07:48 GMT
+        Mon, 21 Feb 2022 13:07:49 GMT
 Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BE06D4C04E;
-        Mon, 21 Feb 2022 13:07:47 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id AD8764C052;
+        Mon, 21 Feb 2022 13:07:49 +0000 (GMT)
 Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7BE364C05C;
-        Mon, 21 Feb 2022 13:07:47 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 6BAD94C044;
+        Mon, 21 Feb 2022 13:07:49 +0000 (GMT)
 Received: from t46lp57.lnxne.boe (unknown [9.152.108.100])
         by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 21 Feb 2022 13:07:47 +0000 (GMT)
+        Mon, 21 Feb 2022 13:07:49 +0000 (GMT)
 From:   Nico Boehr <nrb@linux.ibm.com>
 To:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
 Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com,
         david@redhat.com
-Subject: [kvm-unit-tests PATCH v2 1/8] s390x: Add more tests for MSCH
-Date:   Mon, 21 Feb 2022 14:07:39 +0100
-Message-Id: <20220221130746.1754410-2-nrb@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v2 7/8] s390x: Add tests for TSCH
+Date:   Mon, 21 Feb 2022 14:07:45 +0100
+Message-Id: <20220221130746.1754410-8-nrb@linux.ibm.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20220221130746.1754410-1-nrb@linux.ibm.com>
 References: <20220221130746.1754410-1-nrb@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 3NDcuLZRSGUJEiBNbBqIWDkmrc2pMFlr
-X-Proofpoint-ORIG-GUID: 1EeY5nKqRZK9-iEjGr4pa0fEQXJlMwBW
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: DNaZpdXN94icLi6Xqs5FQdlpb2aiSrOK
+X-Proofpoint-ORIG-GUID: A0qOd1gTqz8VB1nFyg4WwwY1Q8-D_QXA
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2022-02-21_06,2022-02-21_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- bulkscore=0 impostorscore=0 priorityscore=1501 mlxlogscore=999
- suspectscore=0 mlxscore=0 clxscore=1015 spamscore=0 malwarescore=0
- adultscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=999
+ bulkscore=0 suspectscore=0 impostorscore=0 phishscore=0 clxscore=1015
+ spamscore=0 malwarescore=0 priorityscore=1501 adultscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2201110000 definitions=main-2202210078
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-We already have some coverage for MSCH, but there are more cases to test
-for:
+TSCH has two special cases which need to be tested:
 
-- invalid SCHIB structure. We cover that by setting reserved bits 0, 1,
-  6 and 7 in the flags of the PMCW.
-  This test currently fails because of a QEMU bug, a fix
-  is available (see "[PATCH qemu] s390x/css: fix PMCW invalid mask")
-- a pointer to an unaligned SCHIB. We cover misalignment by 1
-  and 2 bytes. Using pointer to valid memory avoids messing up
-  random memory in case of test failures.
-
-Here's the QEMU PMCW invalid mask fix: https://lists.nongnu.org/archive/html/qemu-s390x/2021-12/msg00100.html
+- unaligned address. We test for misalignment by 1 and 2 bytes.
+- channel not operational
+- bit 47 in SID not set
 
 Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
 ---
- s390x/css.c | 53 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 53 insertions(+)
+ s390x/css.c | 36 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 36 insertions(+)
 
 diff --git a/s390x/css.c b/s390x/css.c
-index 881206ba1cef..932daf69bb36 100644
+index 021eb12573c0..b2e027c99848 100644
 --- a/s390x/css.c
 +++ b/s390x/css.c
-@@ -27,6 +27,8 @@ static int test_device_sid;
- static struct senseid *senseid;
- struct ccw1 *ccw;
- 
-+char alignment_test_page[PAGE_SIZE] __attribute__((aligned(PAGE_SIZE)));
-+
- static void test_enumerate(void)
- {
- 	test_device_sid = css_enumerate();
-@@ -331,6 +333,56 @@ static void test_schm_fmt1(void)
- 	free_io_mem(mb1, sizeof(struct measurement_block_format1));
+@@ -568,6 +568,41 @@ static void test_pmcw_bit5(void)
+ 	report_prefix_pop();
  }
  
-+static void test_msch(void)
++static void test_tsch(void)
 +{
 +	const int align_to = 4;
++	struct irb irb;
 +	int cc;
-+	int invalid_pmcw_flags[] = {0, 1, 6, 7};
-+	int invalid_flag;
-+	uint16_t old_pmcw_flags;
 +
 +	if (!test_device_sid) {
 +		report_skip("No device");
-+		return;
-+	}
-+
-+	cc = stsch(test_device_sid, &schib);
-+	if (cc) {
-+		report_fail("stsch: sch %08x failed with cc=%d", test_device_sid, cc);
 +		return;
 +	}
 +
@@ -146,40 +121,33 @@ index 881206ba1cef..932daf69bb36 100644
 +		report_prefix_pushf("%d", i);
 +
 +		expect_pgm_int();
-+		msch(test_device_sid, (struct schib *)(alignment_test_page + i));
++		tsch(test_device_sid, (struct irb *)(alignment_test_page + i));
 +		check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
 +
 +		report_prefix_pop();
 +	}
 +	report_prefix_pop();
 +
-+	report_prefix_push("Invalid SCHIB");
-+	old_pmcw_flags = schib.pmcw.flags;
-+	for (int i = 0; i < ARRAY_SIZE(invalid_pmcw_flags); i++) {
-+		invalid_flag = invalid_pmcw_flags[i];
-+
-+		report_prefix_pushf("PMCW flag bit %d set", invalid_flag);
-+
-+		schib.pmcw.flags = old_pmcw_flags | BIT(15 - invalid_flag);
-+		expect_pgm_int();
-+		msch(test_device_sid, &schib);
-+		check_pgm_int_code(PGM_INT_CODE_OPERAND);
-+
-+		report_prefix_pop();
-+	}
++	report_prefix_push("Invalid subchannel number");
++	cc = tsch(0x0001ffff, &irb);
++	report(cc == 3, "Channel not operational");
 +	report_prefix_pop();
 +
-+	schib.pmcw.flags = old_pmcw_flags;
++	report_prefix_push("Bit 47 in SID is zero");
++	expect_pgm_int();
++	tsch(0x0000ffff, &irb);
++	check_pgm_int_code(PGM_INT_CODE_OPERAND);
++	report_prefix_pop();
 +}
 +
  static struct {
  	const char *name;
  	void (*func)(void);
-@@ -343,6 +395,7 @@ static struct {
- 	{ "measurement block (schm)", test_schm },
- 	{ "measurement block format0", test_schm_fmt0 },
- 	{ "measurement block format1", test_schm_fmt1 },
-+	{ "msch", test_msch },
+@@ -585,6 +620,7 @@ static struct {
+ 	{ "ssch", test_ssch },
+ 	{ "stsch", test_stsch },
+ 	{ "pmcw bit 5 ignored", test_pmcw_bit5 },
++	{ "tsch", test_tsch },
  	{ NULL, NULL }
  };
  
