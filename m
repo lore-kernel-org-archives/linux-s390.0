@@ -2,145 +2,133 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9915BC433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Feb 2022 15:23:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA17EC433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Feb 2022 15:30:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379024AbiBUPXc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 21 Feb 2022 10:23:32 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41512 "EHLO
+        id S1379144AbiBUPbE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 21 Feb 2022 10:31:04 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:49886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379020AbiBUPXa (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Feb 2022 10:23:30 -0500
-Received: from elvis.franken.de (elvis.franken.de [193.175.24.41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 49D6C1DA7C;
-        Mon, 21 Feb 2022 07:23:07 -0800 (PST)
-Received: from uucp (helo=alpha)
-        by elvis.franken.de with local-bsmtp (Exim 3.36 #1)
-        id 1nMAWk-00025w-00; Mon, 21 Feb 2022 16:23:02 +0100
-Received: by alpha.franken.de (Postfix, from userid 1000)
-        id 22D4EC25F8; Mon, 21 Feb 2022 16:21:30 +0100 (CET)
-Date:   Mon, 21 Feb 2022 16:21:30 +0100
-From:   Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-To:     Arnd Bergmann <arnd@kernel.org>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Christoph Hellwig <hch@lst.de>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        Linux-MM <linux-mm@kvack.org>,
-        Linux API <linux-api@vger.kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Russell King - ARM Linux <linux@armlinux.org.uk>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Brian Cain <bcain@codeaurora.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Nick Hu <nickhu@andestech.com>,
-        Greentime Hu <green.hu@gmail.com>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Stafford Horne <shorne@gmail.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Rich Felker <dalias@libc.org>,
-        David Miller <davem@davemloft.net>,
-        Richard Weinberger <richard@nod.at>,
-        the arch/x86 maintainers <x86@kernel.org>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        alpha <linux-alpha@vger.kernel.org>,
-        "open list:SYNOPSYS ARC ARCHITECTURE" 
-        <linux-snps-arc@lists.infradead.org>, linux-csky@vger.kernel.org,
-        "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>,
-        linux-ia64@vger.kernel.org,
-        linux-m68k <linux-m68k@lists.linux-m68k.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Openrisc <openrisc@lists.librecores.org>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Linux-sh list <linux-sh@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        linux-um <linux-um@lists.infradead.org>,
-        "open list:TENSILICA XTENSA PORT (xtensa)" 
-        <linux-xtensa@linux-xtensa.org>
-Subject: Re: [PATCH v2 09/18] mips: use simpler access_ok()
-Message-ID: <20220221152130.GA17373@alpha.franken.de>
-References: <20220216131332.1489939-1-arnd@kernel.org>
- <20220216131332.1489939-10-arnd@kernel.org>
- <20220221132456.GA7139@alpha.franken.de>
- <CAK8P3a2usZWPDDDUcscwS0aVKsY6aLXFGFPqYNkm4hcDERim9w@mail.gmail.com>
+        with ESMTP id S1379132AbiBUPbC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Feb 2022 10:31:02 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C7CA1EADC;
+        Mon, 21 Feb 2022 07:30:39 -0800 (PST)
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21LEZnot030632;
+        Mon, 21 Feb 2022 15:30:39 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=WgZycox58fsYtKlQQbFRdVXd703jyRfjROOaii2dXxI=;
+ b=oY1ud5+QJ2NI5yQJ7xV/7X0T4gZRsPPozUzGNRAT9MgCFq9Q+RngLcIYEsNaw3I544Fh
+ t4/xDsuKMBc5duVEybtBrbHDd9CN/pQWDDU9IeBiDb3bVlzLUCGBZc3k9/M9DEj2DdLu
+ RsVAYSyXA9qn9uVhLnojhUb3uHcdhAvHsjdd3CuBmBeNJnn2IZK+umYJGdAPHAhJnerE
+ v03JXPpgBmkgCk1Mmrb2vf7/QDcpIoVE7d3hTY23ELU+jobNOBOesqsZfkK8khK/vCwu
+ 2dKoHx2vEWSC9QkgraiEmoB1mEAwautekNAm4o+O+Ao/4bucZWBADICg88G7x3lyp71C fw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ec0eu8aae-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 21 Feb 2022 15:30:39 +0000
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21LEoOOS032474;
+        Mon, 21 Feb 2022 15:30:38 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ec0eu8a9m-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 21 Feb 2022 15:30:38 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21LFCvLX013525;
+        Mon, 21 Feb 2022 15:30:36 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 3ear68up01-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 21 Feb 2022 15:30:36 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21LFUWCd44630520
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 21 Feb 2022 15:30:32 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CF0135204E;
+        Mon, 21 Feb 2022 15:30:32 +0000 (GMT)
+Received: from [9.145.32.243] (unknown [9.145.32.243])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 9285552057;
+        Mon, 21 Feb 2022 15:30:32 +0000 (GMT)
+Message-ID: <0bb8a574-059c-f356-fcd1-74d0bc41fa1a@linux.ibm.com>
+Date:   Mon, 21 Feb 2022 16:30:32 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAK8P3a2usZWPDDDUcscwS0aVKsY6aLXFGFPqYNkm4hcDERim9w@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [kvm-unit-tests PATCH v2 0/8] s390x: Extend instruction
+ interception tests
+Content-Language: en-US
+To:     Nico Boehr <nrb@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Cc:     imbrenda@linux.ibm.com, thuth@redhat.com, david@redhat.com
+References: <20220221130746.1754410-1-nrb@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <20220221130746.1754410-1-nrb@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: iyPC6vc6scEMOF6Q07XiFU7uE01Cgevn
+X-Proofpoint-ORIG-GUID: CgoUOab80u_P-mPiDmO5Siag8ZS7bRjC
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-02-21_07,2022-02-21_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 suspectscore=0
+ priorityscore=1501 phishscore=0 spamscore=0 mlxlogscore=999 clxscore=1015
+ malwarescore=0 bulkscore=0 lowpriorityscore=0 impostorscore=0 mlxscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2201110000
+ definitions=main-2202210089
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Feb 21, 2022 at 03:31:23PM +0100, Arnd Bergmann wrote:
-> On Mon, Feb 21, 2022 at 2:24 PM Thomas Bogendoerfer
-> <tsbogend@alpha.franken.de> wrote:
-> > On Wed, Feb 16, 2022 at 02:13:23PM +0100, Arnd Bergmann wrote:
-> > >
-> > > diff --git a/arch/mips/include/asm/uaccess.h b/arch/mips/include/asm/uaccess.h
-> > > index db9a8e002b62..d7c89dc3426c 100644
-> >
-> > this doesn't work. For every access above maximum implemented virtual address
-> > space of the CPU an address error will be issued, but not a TLB miss.
-> > And address error isn't able to handle this situation.
+On 2/21/22 14:07, Nico Boehr wrote:
+> This series extends the instruction interception tests for s390x.
 > 
-> Ah, so the __ex_table entry only catches TLB misses?
-
-no, but there is no __ex_table handling in address error hanlder (yet).
-
-> Does this mean it also traps for kernel memory accesses, or do those
-> work again?
-
-it will trap for every access.
-
-
-> If the addresses on mips64 are separate like on
-> sparc64 or s390, the entire access_ok() step could be replaced
-> by a fixup code in the exception handler. I suppose this depends on
-> CONFIG_EVA and you still need a limit check at least when EVA is
-> disabled.
-
-only EVA has seperate address spaces for kernel/user.
-
-> > Is there a reason to not also #define TASK_SIZE_MAX   __UA_LIMIT like
-> > for the 32bit case ?
-> >
+> For most instructions, there is already coverage in existing tests, but they are
+> not covering some failure cases, e.g. bad alignment. In this case, the existing
+> tests were extended.
 > 
-> For 32-bit, the __UA_LIMIT is a compile-time constant, so the check
-> ends up being trivial. On all other architectures, the same thing can
-> be done after the set_fs removal, so I was hoping it would work here
-> as well.
+> SCK was not under test anywhere yet, hence a new test file was added.
+> 
+> The EPSW test gets it's own file, too, because it requires a I/O device, more
+> details in the respective commit.
 
-ic
+Could you please push this to devel so we can get CI data?
 
-> I suspect doing the generic (size <= limit) && (addr <= (limit - size))
-> check on mips64 with the runtime limit ends up slightly slower
-> than the current code that checks a bit mask instead. If you like,
-> I'll update it this way, otherwise I'd need help in form of a patch
-> that changes the exception handling so __get_user/__put_user
-> also return -EFAULT for an address error.
+To me it seems like only STSCH needs review so we should be done with 
+this soonish.
 
-that's what the patch does. For aligned accesses the patch should
-do the right thing, but it breaks unaligned get_user/put_user.
-Checking if the trapping vaddr is between end of CPU VM space and
-TASK_MAX_SIZE before exception handling should do the trick. I'll
-send a patch, if this works.
 
-Thomas.
+> 
+> Changelog from v1:
+> ----
+> - Reset pmcw flags at test end
+> - Rebase
+> 
+> Nico Boehr (8):
+>    s390x: Add more tests for MSCH
+>    s390x: Add test for PFMF low-address protection
+>    s390x: Add sck tests
+>    s390x: Add tests for STCRW
+>    s390x: Add more tests for SSCH
+>    s390x: Add more tests for STSCH
+>    s390x: Add tests for TSCH
+>    s390x: Add EPSW test
+> 
+>   lib/s390x/css.h     |  17 +++
+>   lib/s390x/css_lib.c |  60 ++++++++++
+>   s390x/Makefile      |   2 +
+>   s390x/css.c         | 278 ++++++++++++++++++++++++++++++++++++++++++++
+>   s390x/epsw.c        | 113 ++++++++++++++++++
+>   s390x/pfmf.c        |  29 +++++
+>   s390x/sck.c         | 127 ++++++++++++++++++++
+>   s390x/unittests.cfg |   7 ++
+>   8 files changed, 633 insertions(+)
+>   create mode 100644 s390x/epsw.c
+>   create mode 100644 s390x/sck.c
+> 
 
--- 
-Crap can work. Given enough thrust pigs will fly, but it's not necessarily a
-good idea.                                                [ RFC1925, 2.3 ]
