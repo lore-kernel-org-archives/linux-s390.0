@@ -2,183 +2,177 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B6C79C4332F
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Feb 2022 07:09:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 290A8C433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Feb 2022 08:10:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345841AbiBUHKF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 21 Feb 2022 02:10:05 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34062 "EHLO
+        id S234443AbiBUILD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 21 Feb 2022 03:11:03 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345834AbiBUHKE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Feb 2022 02:10:04 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68114B69;
-        Sun, 20 Feb 2022 23:09:42 -0800 (PST)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21L5x3mn032476;
-        Mon, 21 Feb 2022 07:09:32 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : references : date : in-reply-to : message-id : mime-version :
- content-type; s=pp1; bh=MJhpvW5MVCCMBBhzrfgNExQc0IJAxdOdzIWRCu/LHIo=;
- b=kY+b+y1ixGQnAmH1P7pnF4qQw019DYBKOHf5FD5EpNaHrcF7PN3pUsvbZS6xsTLU+62/
- 8TO+FbGfGZgoP+TOOvp2f1+hNfhFBOCBO5WJrZXxWMlKSmiqtzWksLn3Ey5/Nu7OuK2V
- IS21jQoJKO4e4KBmPKv06Td7yb+U8EZ4E7tf4gBitpZt5HETC6Mpth2c+nEZn63SSwS1
- kgTIrPdpNH6qYKS7IhQ/kJ4/AvAfsMOeujVIeg+k87cvMYCBIMFlFVlEON63RXWYcLEQ
- D81j5gfmc0ZKu4LhbV89WaIucAL1z5hPqLxRNfkjDD4mTwXLiFdwCm5WNMi6XjZ0P453 Nw== 
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ec1a3ctws-1
+        with ESMTP id S229954AbiBUILC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Feb 2022 03:11:02 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C40AE1115A;
+        Mon, 21 Feb 2022 00:10:39 -0800 (PST)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21L6HJRb030833;
+        Mon, 21 Feb 2022 08:10:39 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=e9FFJ0KwyjxAG2E12quQan+xn2YJPzNdsd1aNQsCpP8=;
+ b=pZ8PLoBx/IohErESqmAHI/R59znzdnGzwVbuzV7JKGsUL4+6mXdU6aQVOP2cEScmvO8E
+ 5WKBAZQzZnCOxj0MDRfqhiJtOc6zxuyRK0LZyZlw1hevoZrlZk6PX89UAualAi4sWCxw
+ t7gKkYhsYbUCoJweuQW08Z9dz68MO7ZwF1/yOzdhHlUc0NAERJOooy4eapzhg4u92axN
+ V+FN8UG+zhUUZf5F9Y/DOcRm5lOKxvMT3QmfK2K9lRyi2KRq9yD6mEhN9ijYzE/CZnOg
+ Xz1PEl9lwqFmfeRRglcNqtimmdzrbF53WLZMG2vUPG4kb66MlkYFkopy+nKuCVK/SZcS 6g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3ec5bb20wh-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Feb 2022 07:09:31 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21L78nOU018633;
-        Mon, 21 Feb 2022 07:09:30 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma06fra.de.ibm.com with ESMTP id 3eaqtj7m7p-1
+        Mon, 21 Feb 2022 08:10:38 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21L7j9sj013405;
+        Mon, 21 Feb 2022 08:10:38 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3ec5bb20w3-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Feb 2022 07:09:30 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21L79PC447055278
+        Mon, 21 Feb 2022 08:10:37 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21L88g3b012668;
+        Mon, 21 Feb 2022 08:10:36 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma03fra.de.ibm.com with ESMTP id 3ear68qw3p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 21 Feb 2022 08:10:36 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21L8AUfq49611082
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 21 Feb 2022 07:09:25 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 81269A4060;
-        Mon, 21 Feb 2022 07:09:25 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 32A2DA405B;
-        Mon, 21 Feb 2022 07:09:25 +0000 (GMT)
-Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Mon, 21 Feb 2022 07:09:25 +0000 (GMT)
-From:   Sven Schnelle <svens@linux.ibm.com>
-To:     Anshuman Khandual <anshuman.khandual@arm.com>
-Cc:     linux-mm@kvack.org, akpm@linux-foundation.org,
-        linux-kernel@vger.kernel.org,
-        Christoph Hellwig <hch@infradead.org>,
-        linux-arch@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH V2 14/30] s390/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
-References: <1645425519-9034-1-git-send-email-anshuman.khandual@arm.com>
-        <1645425519-9034-15-git-send-email-anshuman.khandual@arm.com>
-Date:   Mon, 21 Feb 2022 08:09:24 +0100
-In-Reply-To: <1645425519-9034-15-git-send-email-anshuman.khandual@arm.com>
-        (Anshuman Khandual's message of "Mon, 21 Feb 2022 12:08:23 +0530")
-Message-ID: <yt9d7d9oy9uj.fsf@linux.ibm.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.50 (gnu/linux)
+        Mon, 21 Feb 2022 08:10:30 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 89E154203F;
+        Mon, 21 Feb 2022 08:10:30 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0831A42047;
+        Mon, 21 Feb 2022 08:10:30 +0000 (GMT)
+Received: from [9.145.32.243] (unknown [9.145.32.243])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 21 Feb 2022 08:10:29 +0000 (GMT)
+Message-ID: <74568777-c09b-b6a5-e6fa-b8a3a2462e92@linux.ibm.com>
+Date:   Mon, 21 Feb 2022 09:10:29 +0100
 MIME-Version: 1.0
-Content-Type: text/plain
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH v7 1/1] s390x: KVM: guest support for topology function
+Content-Language: en-US
+To:     Pierre Morel <pmorel@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, cohuck@redhat.com, david@redhat.com,
+        thuth@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, wintera@linux.ibm.com, seiden@linux.ibm.com
+References: <20220217095923.114489-1-pmorel@linux.ibm.com>
+ <20220217095923.114489-2-pmorel@linux.ibm.com>
+ <f0bf737abf480d6d16af6e5335bb195061f3d076.camel@linux.ibm.com>
+ <97af6268-ff7a-cfb6-5ea4-217b5162cfe7@linux.ibm.com>
+ <b9828696-f5d4-dd72-9b0e-a27b1480b799@linux.ibm.com>
+ <aecc2b93-3e07-be78-81a2-594d2bc6b64a@linux.ibm.com>
+ <580e5da7-f731-417f-0cc2-baf2313ac6d6@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <580e5da7-f731-417f-0cc2-baf2313ac6d6@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 44z3tJRQA9fHVPR-mZnYWCBOdkf3-xMR
-X-Proofpoint-GUID: 44z3tJRQA9fHVPR-mZnYWCBOdkf3-xMR
+X-Proofpoint-ORIG-GUID: l3nWA0ZTOL_mPc6wasjlni4_8uQniTlH
+X-Proofpoint-GUID: QvJaGwjijveFRzthwNt_ahGRKQETnbPD
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-02-21_02,2022-02-18_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- mlxlogscore=724 impostorscore=0 clxscore=1011 adultscore=0 spamscore=0
- bulkscore=0 phishscore=0 priorityscore=1501 suspectscore=0
- lowpriorityscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2201110000 definitions=main-2202210045
+ definitions=2022-02-21_03,2022-02-18_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 spamscore=0
+ phishscore=0 mlxscore=0 adultscore=0 lowpriorityscore=0 mlxlogscore=999
+ suspectscore=0 malwarescore=0 priorityscore=1501 clxscore=1015 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2201110000
+ definitions=main-2202210049
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Anshuman Khandual <anshuman.khandual@arm.com> writes:
+T24gMi8xOC8yMiAxOToyNCwgUGllcnJlIE1vcmVsIHdyb3RlOg0KPiANCj4gDQo+IE9uIDIv
+MTgvMjIgMTg6MjcsIFBpZXJyZSBNb3JlbCB3cm90ZToNCj4+DQo+Pg0KPj4gT24gMi8xOC8y
+MiAxNToyOCwgSmFub3NjaCBGcmFuayB3cm90ZToNCj4+PiBPbiAyLzE4LzIyIDE0OjEzLCBQ
+aWVycmUgTW9yZWwgd3JvdGU6DQo+Pj4+DQo+Pj4+DQo+Pj4+IE9uIDIvMTcvMjIgMTg6MTcs
+IE5pY28gQm9laHIgd3JvdGU6DQo+Pj4+PiBPbiBUaHUsIDIwMjItMDItMTcgYXQgMTA6NTkg
+KzAxMDAsIFBpZXJyZSBNb3JlbCB3cm90ZToNCj4+Pj4+IFsuLi5dDQo+Pj4+Pj4gZGlmZiAt
+LWdpdCBhL2FyY2gvczM5MC9rdm0va3ZtLXMzOTAuYyBiL2FyY2gvczM5MC9rdm0va3ZtLXMz
+OTAuYw0KPj4+Pj4+IGluZGV4IDIyOTZiMWZmMWUwMi4uYWY3ZWE4NDg4ZmEyIDEwMDY0NA0K
+Pj4+Pj4+IC0tLSBhL2FyY2gvczM5MC9rdm0va3ZtLXMzOTAuYw0KPj4+Pj4+ICsrKyBiL2Fy
+Y2gvczM5MC9rdm0va3ZtLXMzOTAuYw0KPj4+Pj4gWy4uLl0NCj4+Pg0KPj4+IFdoeSBpcyB0
+aGVyZSBubyBpbnRlcmZhY2UgdG8gY2xlYXIgdGhlIFNDQV9VVElMSVRZX01UQ1Igb24gYSBz
+dWJzeXN0ZW0NCj4+PiByZXNldD8NCj4+DQo+PiBSaWdodCwgSSBoYWQgb25lIGluIG15IGZp
+cnN0IHZlcnNpb24gYmFzZWQgb24gaW50ZXJjZXB0aW9uIGJ1dCBJIGZvcmdvdA0KPj4gdG8g
+aW1wbGVtZW50IGFuIGVxdWl2YWxlbnQgZm9yIEtWTSBhcyBJIG1vZGlmaWVkIHRoZSBpbXBs
+ZW1lbnRhdGlvbiBmb3INCj4+IGludGVycHJldGF0aW9uLg0KPj4gSSB3aWxsIGFkZCB0aGlz
+Lg0KPj4NCj4+Pg0KPj4+DQo+Pj4+Pj4gLXZvaWQga3ZtX2FyY2hfdmNwdV9sb2FkKHN0cnVj
+dCBrdm1fdmNwdSAqdmNwdSwgaW50IGNwdSkNCj4+Pj4+PiArLyoqDQo+Pj4+Pj4gKyAqIGt2
+bV9zMzkwX3ZjcHVfc2V0X210Y3INCj4+Pj4+PiArICogQHZjcDogdGhlIHZpcnR1YWwgQ1BV
+DQo+Pj4+Pj4gKyAqDQo+Pj4+Pj4gKyAqIElzIG9ubHkgcmVsZXZhbnQgaWYgdGhlIHRvcG9s
+b2d5IGZhY2lsaXR5IGlzIHByZXNlbnQuDQo+Pj4+Pj4gKyAqDQo+Pj4+Pj4gKyAqIFVwZGF0
+ZXMgdGhlIE11bHRpcHJvY2Vzc29yIFRvcG9sb2d5LUNoYW5nZS1SZXBvcnQgdG8gc2lnbmFs
+DQo+Pj4+Pj4gKyAqIHRoZSBndWVzdCB3aXRoIGEgdG9wb2xvZ3kgY2hhbmdlLg0KPj4+Pj4+
+ICsgKi8NCj4+Pj4+PiArc3RhdGljIHZvaWQga3ZtX3MzOTBfdmNwdV9zZXRfbXRjcihzdHJ1
+Y3Qga3ZtX3ZjcHUgKnZjcHUpDQo+Pj4+Pj4gIMKgIMKgew0KPj4+Pj4+ICvCoMKgwqDCoMKg
+wqDCoHN0cnVjdCBlc2NhX2Jsb2NrICplc2NhID0gdmNwdS0+a3ZtLT5hcmNoLnNjYTsNCj4+
+Pj4+DQo+Pj4+PiB1dGlsaXR5IGlzIGF0IHRoZSBzYW1lIG9mZnNldCBmb3IgdGhlIGJzY2Eg
+YW5kIHRoZSBlc2NhLCBzdGlsbA0KPj4+Pj4gd29uZGVyaW5nIHdoZXRoZXIgaXQgaXMgYSBn
+b29kIGlkZWEgdG8gYXNzdW1lIGVzY2EgaGVyZS4uLg0KPj4+Pg0KPj4+PiBXZSBjYW4gdGFr
+ZSBic2NhIHRvIGJlIGNvaGVyZW50IHdpdGggdGhlIGluY2x1ZGUgZmlsZSB3aGVyZSB3ZSBk
+ZWZpbmUNCj4+Pj4gRVNDQV9VVElMSVRZX01UQ1IgaW5zaWRlIHRoZSBic2NhLg0KPj4+PiBB
+bmQgd2UgY2FuIHJlbmFtZSB0aGUgZGVmaW5lIHRvIFNDQV9VVElMSVRZX01UQ1IgYXMgaXQg
+aXMgY29tbW9uIGZvcg0KPj4+PiBib3RoIEJTQ0EgYW5kIEVTQ0EgdGhlIChFKSBpcyB0b28g
+bXVjaC4NCj4+Pg0KPj4+IFllcyBhbmQgbWF5YmUgYWRkIGEgY29tbWVudCB0aGF0IGl0J3Mg
+YXQgdGhlIHNhbWUgb2Zmc2V0IGZvciBlc2NhIHNvDQo+Pj4gdGhlcmUgd29uJ3QgY29tZSB1
+cCBmdXJ0aGVyIHF1ZXN0aW9ucyBpbiB0aGUgZnV0dXJlLg0KPj4NCj4+IE9LDQo+Pg0KPj4+
+DQo+Pj4+DQo+Pj4+Pg0KPj4+Pj4gWy4uLl0NCj4+Pj4+PiBkaWZmIC0tZ2l0IGEvYXJjaC9z
+MzkwL2t2bS9rdm0tczM5MC5oIGIvYXJjaC9zMzkwL2t2bS9rdm0tczM5MC5oDQo+Pj4+Pj4g
+aW5kZXggMDk4ODMxZTgxNWU2Li5hZjA0ZmZiZmQ1ODcgMTAwNjQ0DQo+Pj4+Pj4gLS0tIGEv
+YXJjaC9zMzkwL2t2bS9rdm0tczM5MC5oDQo+Pj4+Pj4gKysrIGIvYXJjaC9zMzkwL2t2bS9r
+dm0tczM5MC5oDQo+Pj4+Pj4gQEAgLTUwMyw0ICs1MDMsMjkgQEAgdm9pZCBrdm1fczM5MF92
+Y3B1X2NyeXB0b19yZXNldF9hbGwoc3RydWN0IGt2bQ0KPj4+Pj4+ICprdm0pOw0KPj4+Pj4+
+ICDCoCDCoCAqLw0KPj4+Pj4+ICDCoCDCoGV4dGVybiB1bnNpZ25lZCBpbnQgZGlhZzljX2Zv
+cndhcmRpbmdfaHo7DQo+Pj4+Pj4gKyNkZWZpbmUgUzM5MF9LVk1fVE9QT0xPR1lfTkVXX0NQ
+VSAtMQ0KPj4+Pj4+ICsvKioNCj4+Pj4+PiArICoga3ZtX3MzOTBfdG9wb2xvZ3lfY2hhbmdl
+ZA0KPj4+Pj4+ICsgKiBAdmNwdTogdGhlIHZpcnR1YWwgQ1BVDQo+Pj4+Pj4gKyAqDQo+Pj4+
+Pj4gKyAqIElmIHRoZSB0b3BvbG9neSBmYWNpbGl0eSBpcyBwcmVzZW50LCBjaGVja3MgaWYg
+dGhlIENQVSB0b3Bsb2d5DQo+Pj4+Pj4gKyAqIHZpZXdlZCBieSB0aGUgZ3Vlc3QgY2hhbmdl
+ZCBkdWUgdG8gbG9hZCBiYWxhbmNpbmcgb3IgQ1BVIGhvdHBsdWcuDQo+Pj4+Pj4gKyAqLw0K
+Pj4+Pj4+ICtzdGF0aWMgaW5saW5lIGJvb2wga3ZtX3MzOTBfdG9wb2xvZ3lfY2hhbmdlZChz
+dHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpDQo+Pj4+Pj4gK3sNCj4+Pj4+PiArwqDCoMKgwqDCoMKg
+wqBpZiAoIXRlc3Rfa3ZtX2ZhY2lsaXR5KHZjcHUtPmt2bSwgMTEpKQ0KPj4+Pj4+ICvCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqByZXR1cm4gZmFsc2U7DQo+Pj4+Pj4gKw0KPj4+
+Pj4+ICvCoMKgwqDCoMKgwqDCoC8qIEEgbmV3IHZDUFUgaGFzIGJlZW4gaG90cGx1Z2dlZCAq
+Lw0KPj4+Pj4+ICvCoMKgwqDCoMKgwqDCoGlmICh2Y3B1LT5hcmNoLnByZXZfY3B1ID09IFMz
+OTBfS1ZNX1RPUE9MT0dZX05FV19DUFUpDQo+Pj4+Pj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoHJldHVybiB0cnVlOw0KPj4+Pj4+ICsNCj4+Pj4+PiArwqDCoMKgwqDCoMKg
+wqAvKiBUaGUgcmVhbCBDUFUgYmFja2luZyB1cCB0aGUgdkNQVSBtb3ZlZCB0byBhbm90aGVy
+IHNvY2tldA0KPj4+Pj4+ICovDQo+Pj4+Pj4gK8KgwqDCoMKgwqDCoMKgaWYgKHRvcG9sb2d5
+X3BoeXNpY2FsX3BhY2thZ2VfaWQodmNwdS0+Y3B1KSAhPQ0KPj4+Pj4+ICvCoMKgwqDCoMKg
+wqDCoMKgwqDCoCB0b3BvbG9neV9waHlzaWNhbF9wYWNrYWdlX2lkKHZjcHUtPmFyY2gucHJl
+dl9jcHUpKQ0KPj4+Pj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqByZXR1cm4g
+dHJ1ZTsNCj4+Pj4+DQo+Pj4+PiBXaHkgaXMgaXQgT0sgdG8gbG9vayBqdXN0IGF0IHRoZSBw
+aHlzaWNhbCBwYWNrYWdlIElEIGhlcmU/IFdoYXQgaWYgdGhlDQo+Pj4+PiB2Y3B1IGZvciBl
+eGFtcGxlIG1vdmVzIHRvIGEgZGlmZmVyZW50IGJvb2ssIHdoaWNoIGhhcyBhIGNvcmUgd2l0
+aCB0aGUNCj4+Pj4+IHNhbWUgcGh5c2ljYWwgcGFja2FnZSBJRD8NCj4+Pg0KPj4+IEknbGwg
+bmVlZCB0byBsb29rIHVwIHN0c2kgMTUqIG91dHB1dCB0byB1bmRlcnN0YW5kIHRoaXMuDQo+
+Pj4gQnV0IHRoZSBhcmNoaXRlY3R1cmUgc3RhdGVzIHRoYXQgYW55IGNoYW5nZSB0byB0aGUg
+c3RzaSAxNSBvdXRwdXQgc2V0cw0KPj4+IHRoZSBjaGFuZ2UgYml0IHNvIEknZCBndWVzcyBO
+aWNvIGlzIGNvcnJlY3QuDQo+Pj4NCj4+DQo+PiBZZXMsIE5pY28gaXMgY29ycmVjdCwgYXMg
+SSBhbHJlYWR5IGFuc3dlcmVkLCBob3dldmVyIGl0IGlzIG5vdCBhbnkNCj4+IGNoYW5nZSBv
+ZiBzdHNpKDE1KSBidXQgYSBjaGFuZ2Ugb2Ygc3RzaSgxNS4xLjIpIG91dHB1dCB3aGljaCBz
+ZXRzIHRoZQ0KPj4gY2hhbmdlIGJpdC4NCj4gDQo+IGh1bSwgdGhhdCBpcyB3aGF0IHRoZSBQ
+T1Agc2F5cyBidXQgaW4gZmFjdCB5b3UgYXJlIHJpZ2h0IGEgY2hhbmdlIG9mDQo+IHRvcG9s
+b2d5IHRoYXQgY2hhbmdlcyB0aGUgb3V0cHV0IG9mIGFueSBTVFNJKDE1KSBzZXRzIHRoZSB0
+b3BvbG9neQ0KPiBjaGFuZ2UgcmVwb3J0IGJpdCBhcyB0aGUgb3V0cHV0IG9mIFNUU0koMTUu
+MS4yKSB3b3VsZCBiZSBjaGFuZ2VkIHRvbw0KPiBvYnZpb3VzbHkuDQoNCkluIHRoaXMgY2Fz
+ZSBJIHdhcyBqdXN0IGJlaW5nIHRvbyBsYXp5IHRvIGxvb2sgdXAgdGhlIGNvcnJlY3QgcXVl
+cnkgY29kZSANCmJ1dCBJIGtuZXcgaXQgc3RhcnRlZCB3aXRoIGZjIDE1LiBJdCB3YXMgRnJp
+ZGF5IGFmdGVyIGFsbCA6LSkNCg0KPiANCj4gUmVnYXJkcywNCj4gUGllcnJlDQo+IA0KDQo=
 
-> This defines and exports a platform specific custom vm_get_page_prot() via
-> subscribing ARCH_HAS_VM_GET_PAGE_PROT. Subsequently all __SXXX and __PXXX
-> macros can be dropped which are no longer needed.
->
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: linux-s390@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-
-Acked-by: Sven Schnelle <svens@linux.ibm.com>
-
-> ---
->  arch/s390/Kconfig               |  1 +
->  arch/s390/include/asm/pgtable.h | 17 -----------------
->  arch/s390/mm/mmap.c             | 33 +++++++++++++++++++++++++++++++++
->  3 files changed, 34 insertions(+), 17 deletions(-)
->
-> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> index be9f39fd06df..cb1b487e8201 100644
-> --- a/arch/s390/Kconfig
-> +++ b/arch/s390/Kconfig
-> @@ -78,6 +78,7 @@ config S390
->  	select ARCH_HAS_SYSCALL_WRAPPER
->  	select ARCH_HAS_UBSAN_SANITIZE_ALL
->  	select ARCH_HAS_VDSO_DATA
-> +	select ARCH_HAS_VM_GET_PAGE_PROT
->  	select ARCH_HAVE_NMI_SAFE_CMPXCHG
->  	select ARCH_INLINE_READ_LOCK
->  	select ARCH_INLINE_READ_LOCK_BH
-> diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-> index 008a6c856fa4..3893ef64b439 100644
-> --- a/arch/s390/include/asm/pgtable.h
-> +++ b/arch/s390/include/asm/pgtable.h
-> @@ -422,23 +422,6 @@ static inline int is_module_addr(void *addr)
->   * implies read permission.
->   */
->           /*xwr*/
-> -#define __P000	PAGE_NONE
-> -#define __P001	PAGE_RO
-> -#define __P010	PAGE_RO
-> -#define __P011	PAGE_RO
-> -#define __P100	PAGE_RX
-> -#define __P101	PAGE_RX
-> -#define __P110	PAGE_RX
-> -#define __P111	PAGE_RX
-> -
-> -#define __S000	PAGE_NONE
-> -#define __S001	PAGE_RO
-> -#define __S010	PAGE_RW
-> -#define __S011	PAGE_RW
-> -#define __S100	PAGE_RX
-> -#define __S101	PAGE_RX
-> -#define __S110	PAGE_RWX
-> -#define __S111	PAGE_RWX
->  
->  /*
->   * Segment entry (large page) protection definitions.
-> diff --git a/arch/s390/mm/mmap.c b/arch/s390/mm/mmap.c
-> index e54f928503c5..e99c198aa5de 100644
-> --- a/arch/s390/mm/mmap.c
-> +++ b/arch/s390/mm/mmap.c
-> @@ -188,3 +188,36 @@ void arch_pick_mmap_layout(struct mm_struct *mm, struct rlimit *rlim_stack)
->  		mm->get_unmapped_area = arch_get_unmapped_area_topdown;
->  	}
->  }
-> +
-> +pgprot_t vm_get_page_prot(unsigned long vm_flags)
-> +{
-> +	switch (vm_flags & (VM_READ | VM_WRITE | VM_EXEC | VM_SHARED)) {
-> +	case VM_NONE:
-> +		return PAGE_NONE;
-> +	case VM_READ:
-> +	case VM_WRITE:
-> +	case VM_WRITE | VM_READ:
-> +		return PAGE_RO;
-> +	case VM_EXEC:
-> +	case VM_EXEC | VM_READ:
-> +	case VM_EXEC | VM_WRITE:
-> +	case VM_EXEC | VM_WRITE | VM_READ:
-> +		return PAGE_RX;
-> +	case VM_SHARED:
-> +		return PAGE_NONE;
-> +	case VM_SHARED | VM_READ:
-> +		return PAGE_RO;
-> +	case VM_SHARED | VM_WRITE:
-> +	case VM_SHARED | VM_WRITE | VM_READ:
-> +		return PAGE_RW;
-> +	case VM_SHARED | VM_EXEC:
-> +	case VM_SHARED | VM_EXEC | VM_READ:
-> +		return PAGE_RX;
-> +	case VM_SHARED | VM_EXEC | VM_WRITE:
-> +	case VM_SHARED | VM_EXEC | VM_WRITE | VM_READ:
-> +		return PAGE_RWX;
-> +	default:
-> +		BUILD_BUG();
-> +	}
-> +}
-> +EXPORT_SYMBOL(vm_get_page_prot);
