@@ -2,150 +2,164 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 25ADAC433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Feb 2022 13:58:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 459B2C43219
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Feb 2022 14:32:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377154AbiBUN6a (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 21 Feb 2022 08:58:30 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58400 "EHLO
+        id S1377947AbiBUOc0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 21 Feb 2022 09:32:26 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:40932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377152AbiBUN63 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Feb 2022 08:58:29 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E06A1A39E;
-        Mon, 21 Feb 2022 05:58:06 -0800 (PST)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21LCGupa011881;
-        Mon, 21 Feb 2022 13:57:47 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=+/Sdd0T0flOre6aAE7sMaRWQ0Fp35SADwUsJ5fcZNfE=;
- b=Dk6XpWhx6EDl25pL078QHKV10PPC/kJvmENS+c+Lmv8981SNaDYzn3j1GB99C5vaQwqY
- j3iUDuyg1yTrMF/VaV5tNh8hheFEqcvxA8weXpjYAmbLewlkxm72jyjgPJSCPp4mj+8v
- ouFDPOrWPSQqAMVvNfdrg0pFWUcnYFiadn3/iBXuAVYfD71bdbjNCKJEm2NaRISETrg7
- iz96N84V7TMFWj0tzYN5GKg0jNNXpdeP7M0uqpb8Aec+T6ZNBLw09Ygp8qA9uwchlPf+
- ICpuP/5/ZlDKEbG6lut3pptBEzxxeaNRKK2ZzadQF6tCVpduayVZVuX7mF3GsIYn4CUU 6w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3eby66xtce-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Feb 2022 13:57:46 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21LDLQ85022605;
-        Mon, 21 Feb 2022 13:57:46 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3eby66xtbr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Feb 2022 13:57:46 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21LDusB5029508;
-        Mon, 21 Feb 2022 13:57:44 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma06ams.nl.ibm.com with ESMTP id 3eaqthu024-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Feb 2022 13:57:44 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21LDvbvC45089050
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 21 Feb 2022 13:57:37 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EC10DAE053;
-        Mon, 21 Feb 2022 13:57:36 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EB904AE051;
-        Mon, 21 Feb 2022 13:57:35 +0000 (GMT)
-Received: from osiris (unknown [9.145.149.197])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Mon, 21 Feb 2022 13:57:35 +0000 (GMT)
-Date:   Mon, 21 Feb 2022 14:57:34 +0100
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Baoquan He <bhe@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        akpm@linux-foundation.org, hch@lst.de, cl@linux.com,
-        42.hyeyoo@gmail.com, penberg@kernel.org, rientjes@google.com,
-        iamjoonsoo.kim@lge.com, vbabka@suse.cz, David.Laight@aculab.com,
-        david@redhat.com, herbert@gondor.apana.org.au, davem@davemloft.net,
-        linux-crypto@vger.kernel.org, steffen.klassert@secunet.com,
-        netdev@vger.kernel.org, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        linux-s390@vger.kernel.org, michael@walle.cc,
-        linux-i2c@vger.kernel.org, wsa@kernel.org,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>
-Subject: Re: [PATCH 00/22] Don't use kmalloc() with GFP_DMA
-Message-ID: <YhOaTsWUKO0SWsh7@osiris>
-References: <20220219005221.634-1-bhe@redhat.com>
+        with ESMTP id S1377965AbiBUOcJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Feb 2022 09:32:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57FED1FA56;
+        Mon, 21 Feb 2022 06:31:42 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 08BA86101C;
+        Mon, 21 Feb 2022 14:31:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C5AAC340FA;
+        Mon, 21 Feb 2022 14:31:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1645453901;
+        bh=12Bbx9GqAhHL6qqDyToeCYzPAWe2m8+m6+gTGV+hFTw=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=dWMiI8z7xtZHkIlGi7baHffVMjwIn0mdLtr8w3vUAA5dDZqhK8ZI+KhxrCTrxvery
+         mRfleZO0SSscQ7KVHRUh2QGlGW5v/gw6LGH9t2vGIJ9GkNRHieJ694s+DQVSh8xG3o
+         1QAKmXJLcJTGwkGYaV1wYGfF51PnInRtSU+fVsx8t4J76oPDgdmMoUbmKLWffZoAAd
+         kmIbWlsuSubrQtmT6agHzwSbb3tqK56Q4BV05Zptd15vS9GZroHUtkz4s+wh3Rty9l
+         7L/rHU3TLbzMVdK84DCafmUJBj3eUYCSTyyb3m9KPwB8ieX+FNQVnZHH0l+/WrTztv
+         U44sZb72pp5dg==
+Received: by mail-wr1-f46.google.com with SMTP id j22so1339154wrb.13;
+        Mon, 21 Feb 2022 06:31:41 -0800 (PST)
+X-Gm-Message-State: AOAM533a2H7ocTlopcm5BzOdjzFDcxstj3/3xk8HgvFTcDOeJ5DLWrNF
+        iLhhNNxBfaVJ3UGE/9RELQXDvR1fj7bALeC5esQ=
+X-Google-Smtp-Source: ABdhPJwkamQNFHYmlXBqgC6u1r1MKNMeB6x6hm57ILAz8yVFLOW/Qf4lv8t2aLUhrb2kSK2FAx/PKmoUpYjfFDbRcw0=
+X-Received: by 2002:adf:90c1:0:b0:1e4:ad27:22b9 with SMTP id
+ i59-20020adf90c1000000b001e4ad2722b9mr16170850wri.219.1645453899581; Mon, 21
+ Feb 2022 06:31:39 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220219005221.634-1-bhe@redhat.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: -8maixwFZeKZ75OrdKXYZsYgiobSGLaQ
-X-Proofpoint-GUID: qIEy-it3kkux3FMToUJumyRqQgXniOfv
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-02-21_07,2022-02-21_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 phishscore=0
- mlxlogscore=999 priorityscore=1501 bulkscore=0 mlxscore=0 adultscore=0
- suspectscore=0 lowpriorityscore=0 malwarescore=0 impostorscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2202210081
+References: <20220216131332.1489939-1-arnd@kernel.org> <20220216131332.1489939-10-arnd@kernel.org>
+ <20220221132456.GA7139@alpha.franken.de>
+In-Reply-To: <20220221132456.GA7139@alpha.franken.de>
+From:   Arnd Bergmann <arnd@kernel.org>
+Date:   Mon, 21 Feb 2022 15:31:23 +0100
+X-Gmail-Original-Message-ID: <CAK8P3a2usZWPDDDUcscwS0aVKsY6aLXFGFPqYNkm4hcDERim9w@mail.gmail.com>
+Message-ID: <CAK8P3a2usZWPDDDUcscwS0aVKsY6aLXFGFPqYNkm4hcDERim9w@mail.gmail.com>
+Subject: Re: [PATCH v2 09/18] mips: use simpler access_ok()
+To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Christoph Hellwig <hch@lst.de>,
+        linux-arch <linux-arch@vger.kernel.org>,
+        Linux-MM <linux-mm@kvack.org>,
+        Linux API <linux-api@vger.kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Russell King - ARM Linux <linux@armlinux.org.uk>,
+        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
+        Brian Cain <bcain@codeaurora.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Michal Simek <monstr@monstr.eu>,
+        Nick Hu <nickhu@andestech.com>,
+        Greentime Hu <green.hu@gmail.com>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Stafford Horne <shorne@gmail.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Rich Felker <dalias@libc.org>,
+        David Miller <davem@davemloft.net>,
+        Richard Weinberger <richard@nod.at>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        alpha <linux-alpha@vger.kernel.org>,
+        "open list:SYNOPSYS ARC ARCHITECTURE" 
+        <linux-snps-arc@lists.infradead.org>, linux-csky@vger.kernel.org,
+        "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>,
+        linux-ia64@vger.kernel.org,
+        linux-m68k <linux-m68k@lists.linux-m68k.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Openrisc <openrisc@lists.librecores.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Linux-sh list <linux-sh@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linux-um <linux-um@lists.infradead.org>,
+        "open list:TENSILICA XTENSA PORT (xtensa)" 
+        <linux-xtensa@linux-xtensa.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sat, Feb 19, 2022 at 08:51:59AM +0800, Baoquan He wrote:
-> Let's replace it with other ways. This is the first step towards
-> removing dma-kmalloc support in kernel (Means that if everyting
-> is going well, we can't use kmalloc(GFP_DMA) to allocate buffer in the
-> future).
-...
-> 
-> Next, plan to investigate how we should handle places as below. We
-> firstly need figure out whether they really need buffer from ZONE_DMA.
-> If yes, how to change them with other ways. This need help from
-> maintainers, experts from sub-components and code contributors or anyone
-> knowing them well. E.g s390 and crypyto, we need guidance and help.
-> 
-> 1) Kmalloc(GFP_DMA) in s390 platform, under arch/s390 and drivers/s390;
+On Mon, Feb 21, 2022 at 2:24 PM Thomas Bogendoerfer
+<tsbogend@alpha.franken.de> wrote:
+> On Wed, Feb 16, 2022 at 02:13:23PM +0100, Arnd Bergmann wrote:
+> >
+> > diff --git a/arch/mips/include/asm/uaccess.h b/arch/mips/include/asm/uaccess.h
+> > index db9a8e002b62..d7c89dc3426c 100644
+>
+> this doesn't work. For every access above maximum implemented virtual address
+> space of the CPU an address error will be issued, but not a TLB miss.
+> And address error isn't able to handle this situation.
 
-So, s390 partially requires GFP_DMA allocations for memory areas which
-are required by the hardware to be below 2GB. There is not necessarily
-a device associated when this is required. E.g. some legacy "diagnose"
-calls require buffers to be below 2GB.
+Ah, so the __ex_table entry only catches TLB misses?
 
-How should something like this be handled? I'd guess that the
-dma_alloc API is not the right thing to use in such cases. Of course
-we could say, let's waste memory and use full pages instead, however
-I'm not sure this is a good idea.
+Does this mean it also traps for kernel memory accesses, or do those
+work again? If the addresses on mips64 are separate like on
+sparc64 or s390, the entire access_ok() step could be replaced
+by a fixup code in the exception handler. I suppose this depends on
+CONFIG_EVA and you still need a limit check at least when EVA is
+disabled.
 
-s390 drivers could probably converted to dma_alloc API, even though
-that would cause quite some code churn.
+> With this patch
+>
+> diff --git a/arch/mips/kernel/unaligned.c b/arch/mips/kernel/unaligned.c
+> index df4b708c04a9..3911f1481f3d 100644
+> --- a/arch/mips/kernel/unaligned.c
+> +++ b/arch/mips/kernel/unaligned.c
+> @@ -1480,6 +1480,13 @@ asmlinkage void do_ade(struct pt_regs *regs)
+>         prev_state = exception_enter();
+>         perf_sw_event(PERF_COUNT_SW_ALIGNMENT_FAULTS,
+>                         1, regs, regs->cp0_badvaddr);
+> +
+> +       /* Are we prepared to handle this kernel fault?  */
+> +       if (fixup_exception(regs)) {
+> +               current->thread.cp0_baduaddr = regs->cp0_badvaddr;
+> +               return;
+> +       }
+> +
+>         /*
+>          * Did we catch a fault trying to load an instruction?
+>          */
+>
+> I at least get my simple test cases fixed, but I'm not sure this is
+> correct.
+>
+> Is there a reason to not also #define TASK_SIZE_MAX   __UA_LIMIT like
+> for the 32bit case ?
+>
 
-> For this first patch series, thanks to Hyeonggon for helping
-> reviewing and great suggestions on patch improving. We will work
-> together to continue the next steps of work.
-> 
-> Any comment, thought, or suggestoin is welcome and appreciated,
-> including but not limited to:
-> 1) whether we should remove dma-kmalloc support in kernel();
+For 32-bit, the __UA_LIMIT is a compile-time constant, so the check
+ends up being trivial. On all other architectures, the same thing can
+be done after the set_fs removal, so I was hoping it would work here
+as well.
 
-The question is: what would this buy us? As stated above I'd assume
-this comes with quite some code churn, so there should be a good
-reason to do this.
+I suspect doing the generic (size <= limit) && (addr <= (limit - size))
+check on mips64 with the runtime limit ends up slightly slower
+than the current code that checks a bit mask instead. If you like,
+I'll update it this way, otherwise I'd need help in form of a patch
+that changes the exception handling so __get_user/__put_user
+also return -EFAULT for an address error.
 
-From this cover letter I only get that there was a problem with kdump
-on x86, and this has been fixed. So why this extra effort?
-
->     3) Drop support for allocating DMA memory from slab allocator
->     (as Christoph Hellwig said) and convert them to use DMA32
->     and see what happens
-
-Can you please clarify what "convert to DMA32" means? I would assume
-this does _not_ mean that passing GFP_DMA32 to slab allocator would
-work then?
-
-btw. there are actually two kmalloc allocations which pass GFP_DMA32;
-I guess this is broken(?):
-
-drivers/hid/intel-ish-hid/ishtp-fw-loader.c:    dma_buf = kmalloc(payload_max_size, GFP_KERNEL | GFP_DMA32);
-drivers/media/test-drivers/vivid/vivid-osd.c:   dev->video_vbase = kzalloc(dev->video_buffer_size, GFP_KERNEL | GFP_DMA32);
+       Arnd
