@@ -2,215 +2,183 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 092ABC433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Feb 2022 06:54:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6C79C4332F
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Feb 2022 07:09:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345712AbiBUGzQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 21 Feb 2022 01:55:16 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:55102 "EHLO
+        id S1345841AbiBUHKF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 21 Feb 2022 02:10:05 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345700AbiBUGzP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Feb 2022 01:55:15 -0500
-Received: from out30-56.freemail.mail.aliyun.com (out30-56.freemail.mail.aliyun.com [115.124.30.56])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08B892AD4;
-        Sun, 20 Feb 2022 22:54:51 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R891e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=tonylu@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0V50drxT_1645426488;
-Received: from localhost(mailfrom:tonylu@linux.alibaba.com fp:SMTPD_---0V50drxT_1645426488)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Mon, 21 Feb 2022 14:54:49 +0800
-Date:   Mon, 21 Feb 2022 14:54:48 +0800
-From:   Tony Lu <tonylu@linux.alibaba.com>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>
-Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-rdma@vger.kernel.org, kgraul@linux.ibm.com,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Stefan Raspl <raspl@linux.ibm.com>
-Subject: Re: [PATCH 0/4] RDMA device net namespace support for SMC
-Message-ID: <YhM3OC3Bz6pVeIwr@TonyMac-Alibaba>
-Reply-To: Tony Lu <tonylu@linux.alibaba.com>
-References: <20211228130611.19124-1-tonylu@linux.alibaba.com>
- <8701fa4557026983a9ec687cfdd7ac5b3b85fd39.camel@linux.ibm.com>
+        with ESMTP id S1345834AbiBUHKE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Feb 2022 02:10:04 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68114B69;
+        Sun, 20 Feb 2022 23:09:42 -0800 (PST)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21L5x3mn032476;
+        Mon, 21 Feb 2022 07:09:32 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : references : date : in-reply-to : message-id : mime-version :
+ content-type; s=pp1; bh=MJhpvW5MVCCMBBhzrfgNExQc0IJAxdOdzIWRCu/LHIo=;
+ b=kY+b+y1ixGQnAmH1P7pnF4qQw019DYBKOHf5FD5EpNaHrcF7PN3pUsvbZS6xsTLU+62/
+ 8TO+FbGfGZgoP+TOOvp2f1+hNfhFBOCBO5WJrZXxWMlKSmiqtzWksLn3Ey5/Nu7OuK2V
+ IS21jQoJKO4e4KBmPKv06Td7yb+U8EZ4E7tf4gBitpZt5HETC6Mpth2c+nEZn63SSwS1
+ kgTIrPdpNH6qYKS7IhQ/kJ4/AvAfsMOeujVIeg+k87cvMYCBIMFlFVlEON63RXWYcLEQ
+ D81j5gfmc0ZKu4LhbV89WaIucAL1z5hPqLxRNfkjDD4mTwXLiFdwCm5WNMi6XjZ0P453 Nw== 
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ec1a3ctws-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 21 Feb 2022 07:09:31 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21L78nOU018633;
+        Mon, 21 Feb 2022 07:09:30 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06fra.de.ibm.com with ESMTP id 3eaqtj7m7p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 21 Feb 2022 07:09:30 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21L79PC447055278
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 21 Feb 2022 07:09:25 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 81269A4060;
+        Mon, 21 Feb 2022 07:09:25 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 32A2DA405B;
+        Mon, 21 Feb 2022 07:09:25 +0000 (GMT)
+Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Mon, 21 Feb 2022 07:09:25 +0000 (GMT)
+From:   Sven Schnelle <svens@linux.ibm.com>
+To:     Anshuman Khandual <anshuman.khandual@arm.com>
+Cc:     linux-mm@kvack.org, akpm@linux-foundation.org,
+        linux-kernel@vger.kernel.org,
+        Christoph Hellwig <hch@infradead.org>,
+        linux-arch@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH V2 14/30] s390/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+References: <1645425519-9034-1-git-send-email-anshuman.khandual@arm.com>
+        <1645425519-9034-15-git-send-email-anshuman.khandual@arm.com>
+Date:   Mon, 21 Feb 2022 08:09:24 +0100
+In-Reply-To: <1645425519-9034-15-git-send-email-anshuman.khandual@arm.com>
+        (Anshuman Khandual's message of "Mon, 21 Feb 2022 12:08:23 +0530")
+Message-ID: <yt9d7d9oy9uj.fsf@linux.ibm.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <8701fa4557026983a9ec687cfdd7ac5b3b85fd39.camel@linux.ibm.com>
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 44z3tJRQA9fHVPR-mZnYWCBOdkf3-xMR
+X-Proofpoint-GUID: 44z3tJRQA9fHVPR-mZnYWCBOdkf3-xMR
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-02-21_02,2022-02-18_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ mlxlogscore=724 impostorscore=0 clxscore=1011 adultscore=0 spamscore=0
+ bulkscore=0 phishscore=0 priorityscore=1501 suspectscore=0
+ lowpriorityscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2201110000 definitions=main-2202210045
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Feb 17, 2022 at 12:33:06PM +0100, Niklas Schnelle wrote:
-> On Tue, 2021-12-28 at 21:06 +0800, Tony Lu wrote:
-> > This patch set introduces net namespace support for linkgroups.
-> > 
-> > Path 1 is the main approach to implement net ns support.
-> > 
-> > Path 2 - 4 are the additional modifications to let us know the netns.
-> > Also, I will submit changes of smc-tools to github later.
-> > 
-> > Currently, smc doesn't support net namespace isolation. The ibdevs
-> > registered to smc are shared for all linkgroups and connections. When
-> > running applications in different net namespaces, such as container
-> > environment, applications should only use the ibdevs that belongs to the
-> > same net namespace.
-> > 
-> > This adds a new field, net, in smc linkgroup struct. During first
-> > contact, it checks and find the linkgroup has same net namespace, if
-> > not, it is going to create and initialized the net field with first
-> > link's ibdev net namespace. When finding the rdma devices, it also checks
-> > the sk net device's and ibdev's net namespaces. After net namespace
-> > destroyed, the net device and ibdev move to root net namespace,
-> > linkgroups won't be matched, and wait for lgr free.
-> > 
-> > If rdma net namespace exclusive mode is not enabled, it behaves as
-> > before.
-> > 
-> > Steps to enable and test net namespaces:
-> > 
-> > 1. enable RDMA device net namespace exclusive support
-> > 	rdma system set netns exclusive # default is shared
-> > 
-> > 2. create new net namespace, move and initialize them
-> > 	ip netns add test1 
-> > 	rdma dev set mlx5_1 netns test1
-> > 	ip link set dev eth2 netns test1
-> > 	ip netns exec test1 ip link set eth2 up
-> > 	ip netns exec test1 ip addr add ${HOST_IP}/26 dev eth2
-> > 
-> > 3. setup server and client, connect N <-> M
-> > 	ip netns exec test1 smc_run sockperf server --tcp # server
-> > 	ip netns exec test1 smc_run sockperf pp --tcp -i ${SERVER_IP} # client
-> > 
-> > 4. netns isolated linkgroups (2 * 2 mesh) with their own linkgroups
-> >   - server
-> 
-> Hi Tony,
-> 
-> I'm having a bit of trouble getting this to work for me and was
-> wondering if you could test my scenario or help me figure out what's
-> wrong.
-> 
-> I'm using network namespacing to be able to test traffic between two
-> VFs of the same card/port with a single Linux system. By having one VF
-> in each of a client and server namespace, traffic doesn't shortcut via
-> loopback. This works great for TCP and with "rdma system set netns
-> exclusive" I can also verify that RDMA with "qperf -cm1 ... rc_bw" only
-> works once the respective RDMA device is also added to each namespace.
-> 
-> When I try the same with SMC-R I tried:
-> 
->   ip netns exec server smc_run qperf &
->   ip netns exec client smc_run qperf <ip_server> tcp_bw
-> 
-> With that however I only see fallback TCP connections in "ip netns exec
-> client watch smc_dbg". It doesn't seem to be an "smc_dbg" problem
-> either since the performance with and without smc_run is the same. I
-> also do have the same PNET_ID set on the interfaces.
+Anshuman Khandual <anshuman.khandual@arm.com> writes:
 
-Hi Niklas,
+> This defines and exports a platform specific custom vm_get_page_prot() via
+> subscribing ARCH_HAS_VM_GET_PAGE_PROT. Subsequently all __SXXX and __PXXX
+> macros can be dropped which are no longer needed.
+>
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: linux-s390@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 
-I understood your problem. This connection falls back to TCP for unknown
-reasons. You can find out the fallback reason of this connection. It can
-help us find out the root cause of fallbacks. For example,
-if SMC_CLC_DECL_MEM (0x01010000) is occurred in this connection, it
-means that there is no enough memory (smc_init_info, sndbuf, RMB,
-proposal buf, clc msg).
+Acked-by: Sven Schnelle <svens@linux.ibm.com>
 
-Before you giving out the fallback reason, based on your environment,
-this are some potential possibilities. You can check this list:
-
-- RDMA device availability in netns. Run "ip netns exec server rdma dev"
-  to check RDMA device in both server/client. If exclusive mode is setted,
-  it should have different devices in different netns.
-- SMC-R device availability in netns. Run "ip netns exec server smcr d"
-  to check SMC device available list. Only if we have eth name in the
-  list, it can access by this netns. smc-tools matches ethernet NIC and
-  RDMA device, it can only find the name of eth nic in this netns, so
-  there is no name if this eth nic doesn't belong to this netns.
-
-  Net-Dev         IB-Dev   IB-P  IB-State  Type          Crit  #Links  PNET-ID
-                  mlx5_0      1    ACTIVE  RoCE_Express2   No       0
-  eth2            mlx5_1      1    ACTIVE  RoCE_Express2   No       0
-
-  This output shows we have ONE available RDMA device in this netns.
-- Misc checks, such as memory usage, loop back connection and so on.
-  Also, you can check dmesg for device operations if you moved netns of
-  RDMA device. Every device's operation will log in dmesg.
-
-  # SMC module init, adds two RDMA device.
-  [  +0.000512] smc: adding ib device mlx5_0 with port count 1
-  [  +0.000534] smc:    ib device mlx5_0 port 1 has pnetid
-  [  +0.000516] smc: adding ib device mlx5_1 with port count 1
-  [  +0.000525] smc:    ib device mlx5_1 port 1 has pnetid
-
-  # Move one RDMA device to another netns.
-  [Feb21 14:16] smc: removing ib device mlx5_1
-  [  +0.015723] smc: adding ib device mlx5_1 with port count 1
-  [  +0.000600] smc:    ib device mlx5_1 port 1 has pnetid
-
-> As an aside do you know how to gracefully put the RDMA devices back
-> into the default namespace? For network interfaces I can use "ip -n
-> <ns> link set dev <iface> netns 1" but the equivalent "ip netns exec
-> <ns> rdma dev set <rdmadev> netns 1" doesn't work because there is no
-> PID variant. Deleting the namespace and killing processes using the
-> RDMA device does seem to get it back but with some delay.
-
-Yes, just remove net namespace, we need to wait for all the connections
-shutdown, because every sock will get refcnt of this netns.
-
-I didn't move back device gracefully before, because life of containers
-is as long as RDMA device. But you reminded me this, after reading the
-implement of iproute2, I believe it's because iproute2 doesn't implement
-this (based on nsid) for RDMA devices.
-
-RDMA core provides RDMA_NLDEV_NET_NS_FD in netlink, iproute2 just
-handles name (string) in this function, which is created by ip command
-before.
-
-// iproute2/rdma/dev.c
-static int dev_set_netns(struct rd *rd)
-{
-	char *netns_path;
-	uint32_t seq;
-	int netns;
-	int ret;
-
-	if (rd_no_arg(rd)) {
-		pr_err("Please provide device name.\n");
-		return -EINVAL;
-	}
-
-	// netns_path is created before by ip command.
-	// File located in /var/run/netns/{NS_NAME}, such as
-	// /var/run/netns/server.
-	if (asprintf(&netns_path, "%s/%s", NETNS_RUN_DIR, rd_argv(rd)) < 0)
-		return -ENOMEM;
-
-	netns = open(netns_path, O_RDONLY | O_CLOEXEC);
-	if (netns < 0) {
-		fprintf(stderr, "Cannot open network namespace \"%s\": %s\n",
-			rd_argv(rd), strerror(errno));
-		ret = -EINVAL;
-		goto done;
-	}
-
-	rd_prepare_msg(rd, RDMA_NLDEV_CMD_SET,
-		       &seq, (NLM_F_REQUEST | NLM_F_ACK));
-	mnl_attr_put_u32(rd->nlh, RDMA_NLDEV_ATTR_DEV_INDEX, rd->dev_idx);
-
-	// based on the fd in this netns.
-	mnl_attr_put_u32(rd->nlh, RDMA_NLDEV_NET_NS_FD, netns);
-	ret = rd_sendrecv_msg(rd, seq);
-	close(netns);
-done:
-	free(netns_path);
-	return ret;
-}
-
-I don't know if there are other tools that can do it with RDMA device.
-But we can do it by calling netlink with RDMA_NLDEV_NET_NS_FD, and set
-this value to the fd of desired netns, such as /proc/1/ns/net.
-
-Hope this information can help you.
-
-Best regards,
-Tony Lu
+> ---
+>  arch/s390/Kconfig               |  1 +
+>  arch/s390/include/asm/pgtable.h | 17 -----------------
+>  arch/s390/mm/mmap.c             | 33 +++++++++++++++++++++++++++++++++
+>  3 files changed, 34 insertions(+), 17 deletions(-)
+>
+> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+> index be9f39fd06df..cb1b487e8201 100644
+> --- a/arch/s390/Kconfig
+> +++ b/arch/s390/Kconfig
+> @@ -78,6 +78,7 @@ config S390
+>  	select ARCH_HAS_SYSCALL_WRAPPER
+>  	select ARCH_HAS_UBSAN_SANITIZE_ALL
+>  	select ARCH_HAS_VDSO_DATA
+> +	select ARCH_HAS_VM_GET_PAGE_PROT
+>  	select ARCH_HAVE_NMI_SAFE_CMPXCHG
+>  	select ARCH_INLINE_READ_LOCK
+>  	select ARCH_INLINE_READ_LOCK_BH
+> diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+> index 008a6c856fa4..3893ef64b439 100644
+> --- a/arch/s390/include/asm/pgtable.h
+> +++ b/arch/s390/include/asm/pgtable.h
+> @@ -422,23 +422,6 @@ static inline int is_module_addr(void *addr)
+>   * implies read permission.
+>   */
+>           /*xwr*/
+> -#define __P000	PAGE_NONE
+> -#define __P001	PAGE_RO
+> -#define __P010	PAGE_RO
+> -#define __P011	PAGE_RO
+> -#define __P100	PAGE_RX
+> -#define __P101	PAGE_RX
+> -#define __P110	PAGE_RX
+> -#define __P111	PAGE_RX
+> -
+> -#define __S000	PAGE_NONE
+> -#define __S001	PAGE_RO
+> -#define __S010	PAGE_RW
+> -#define __S011	PAGE_RW
+> -#define __S100	PAGE_RX
+> -#define __S101	PAGE_RX
+> -#define __S110	PAGE_RWX
+> -#define __S111	PAGE_RWX
+>  
+>  /*
+>   * Segment entry (large page) protection definitions.
+> diff --git a/arch/s390/mm/mmap.c b/arch/s390/mm/mmap.c
+> index e54f928503c5..e99c198aa5de 100644
+> --- a/arch/s390/mm/mmap.c
+> +++ b/arch/s390/mm/mmap.c
+> @@ -188,3 +188,36 @@ void arch_pick_mmap_layout(struct mm_struct *mm, struct rlimit *rlim_stack)
+>  		mm->get_unmapped_area = arch_get_unmapped_area_topdown;
+>  	}
+>  }
+> +
+> +pgprot_t vm_get_page_prot(unsigned long vm_flags)
+> +{
+> +	switch (vm_flags & (VM_READ | VM_WRITE | VM_EXEC | VM_SHARED)) {
+> +	case VM_NONE:
+> +		return PAGE_NONE;
+> +	case VM_READ:
+> +	case VM_WRITE:
+> +	case VM_WRITE | VM_READ:
+> +		return PAGE_RO;
+> +	case VM_EXEC:
+> +	case VM_EXEC | VM_READ:
+> +	case VM_EXEC | VM_WRITE:
+> +	case VM_EXEC | VM_WRITE | VM_READ:
+> +		return PAGE_RX;
+> +	case VM_SHARED:
+> +		return PAGE_NONE;
+> +	case VM_SHARED | VM_READ:
+> +		return PAGE_RO;
+> +	case VM_SHARED | VM_WRITE:
+> +	case VM_SHARED | VM_WRITE | VM_READ:
+> +		return PAGE_RW;
+> +	case VM_SHARED | VM_EXEC:
+> +	case VM_SHARED | VM_EXEC | VM_READ:
+> +		return PAGE_RX;
+> +	case VM_SHARED | VM_EXEC | VM_WRITE:
+> +	case VM_SHARED | VM_EXEC | VM_WRITE | VM_READ:
+> +		return PAGE_RWX;
+> +	default:
+> +		BUILD_BUG();
+> +	}
+> +}
+> +EXPORT_SYMBOL(vm_get_page_prot);
