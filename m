@@ -2,177 +2,416 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 290A8C433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Feb 2022 08:10:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A733C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Feb 2022 11:21:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234443AbiBUILD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 21 Feb 2022 03:11:03 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43020 "EHLO
+        id S1355572AbiBULVh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 21 Feb 2022 06:21:37 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:53710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229954AbiBUILC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Feb 2022 03:11:02 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C40AE1115A;
-        Mon, 21 Feb 2022 00:10:39 -0800 (PST)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21L6HJRb030833;
-        Mon, 21 Feb 2022 08:10:39 GMT
+        with ESMTP id S1356079AbiBULU2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Feb 2022 06:20:28 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CFDDB2B;
+        Mon, 21 Feb 2022 03:08:57 -0800 (PST)
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21LAOtcA028447;
+        Mon, 21 Feb 2022 11:08:52 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=e9FFJ0KwyjxAG2E12quQan+xn2YJPzNdsd1aNQsCpP8=;
- b=pZ8PLoBx/IohErESqmAHI/R59znzdnGzwVbuzV7JKGsUL4+6mXdU6aQVOP2cEScmvO8E
- 5WKBAZQzZnCOxj0MDRfqhiJtOc6zxuyRK0LZyZlw1hevoZrlZk6PX89UAualAi4sWCxw
- t7gKkYhsYbUCoJweuQW08Z9dz68MO7ZwF1/yOzdhHlUc0NAERJOooy4eapzhg4u92axN
- V+FN8UG+zhUUZf5F9Y/DOcRm5lOKxvMT3QmfK2K9lRyi2KRq9yD6mEhN9ijYzE/CZnOg
- Xz1PEl9lwqFmfeRRglcNqtimmdzrbF53WLZMG2vUPG4kb66MlkYFkopy+nKuCVK/SZcS 6g== 
+ bh=94IeD5in872cdo92FlTFCOHNUezXSR8pK53demC6CXw=;
+ b=DTHLxTTNVMjPPJ27N0LSu/a2iuSRIiQiF9+SZ/kp3DNKvA9aXzzc6QDM2k2l3xR4uAey
+ YvncyagZHlDgD6FkywIZ98yMr9/8OatiA8I9xA0zdCx9eo6qv/qD7nSdynBYOjys8UrF
+ 0MOf/QfBHOONXQUW6Y53hTo6q9JmOkJBGOPK9/K+1kGJWsbSu1tx5o1OD+KyhNQVJvjZ
+ xVv+LUyU+oKLt4IS4Zc7IhqyHH25b0Ph4mxKDwlwN2b+bn3ZDC0Y0yvnyvnxkcPPqjm4
+ lxn4QXOV9p8gy/txPlGzb/L4JeMiMyQiE8vkk6KZJlZPjchNEG2jV2pn4BpHwXtjCaCZ Aw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3ec5bb20wh-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ec67wvhcj-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Feb 2022 08:10:38 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21L7j9sj013405;
-        Mon, 21 Feb 2022 08:10:38 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3ec5bb20w3-1
+        Mon, 21 Feb 2022 11:08:51 +0000
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21LAcgi1031935;
+        Mon, 21 Feb 2022 11:08:51 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ec67wvhbv-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Feb 2022 08:10:37 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21L88g3b012668;
-        Mon, 21 Feb 2022 08:10:36 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma03fra.de.ibm.com with ESMTP id 3ear68qw3p-1
+        Mon, 21 Feb 2022 11:08:51 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21LB2ocX003689;
+        Mon, 21 Feb 2022 11:08:48 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma02fra.de.ibm.com with ESMTP id 3ear68s2x0-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Feb 2022 08:10:36 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21L8AUfq49611082
+        Mon, 21 Feb 2022 11:08:48 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21LB8gXg42533308
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 21 Feb 2022 08:10:30 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 89E154203F;
-        Mon, 21 Feb 2022 08:10:30 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0831A42047;
-        Mon, 21 Feb 2022 08:10:30 +0000 (GMT)
-Received: from [9.145.32.243] (unknown [9.145.32.243])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 21 Feb 2022 08:10:29 +0000 (GMT)
-Message-ID: <74568777-c09b-b6a5-e6fa-b8a3a2462e92@linux.ibm.com>
-Date:   Mon, 21 Feb 2022 09:10:29 +0100
+        Mon, 21 Feb 2022 11:08:42 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6E5B2A4067;
+        Mon, 21 Feb 2022 11:08:42 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B5470A4060;
+        Mon, 21 Feb 2022 11:08:41 +0000 (GMT)
+Received: from [9.145.75.252] (unknown [9.145.75.252])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 21 Feb 2022 11:08:41 +0000 (GMT)
+Message-ID: <78aeaefa-495e-25ae-db8a-eae0394beb12@linux.ibm.com>
+Date:   Mon, 21 Feb 2022 12:08:41 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH v7 1/1] s390x: KVM: guest support for topology function
+ Thunderbird/91.3.0
+Subject: Re: [PATCH 1/3] drivers/s390/char: Add Ultravisor io device
 Content-Language: en-US
-To:     Pierre Morel <pmorel@linux.ibm.com>,
-        Nico Boehr <nrb@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        borntraeger@de.ibm.com, cohuck@redhat.com, david@redhat.com,
-        thuth@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, wintera@linux.ibm.com, seiden@linux.ibm.com
-References: <20220217095923.114489-1-pmorel@linux.ibm.com>
- <20220217095923.114489-2-pmorel@linux.ibm.com>
- <f0bf737abf480d6d16af6e5335bb195061f3d076.camel@linux.ibm.com>
- <97af6268-ff7a-cfb6-5ea4-217b5162cfe7@linux.ibm.com>
- <b9828696-f5d4-dd72-9b0e-a27b1480b799@linux.ibm.com>
- <aecc2b93-3e07-be78-81a2-594d2bc6b64a@linux.ibm.com>
- <580e5da7-f731-417f-0cc2-baf2313ac6d6@linux.ibm.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-In-Reply-To: <580e5da7-f731-417f-0cc2-baf2313ac6d6@linux.ibm.com>
+To:     Greg KH <greg@kroah.com>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Shuah Khan <shuah@kernel.org>, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+References: <20220217113717.46624-1-seiden@linux.ibm.com>
+ <20220217113717.46624-2-seiden@linux.ibm.com> <Yg5AiTWYl8y842Nt@kroah.com>
+From:   Steffen Eiden <seiden@linux.ibm.com>
+Organization: IBM
+In-Reply-To: <Yg5AiTWYl8y842Nt@kroah.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: l3nWA0ZTOL_mPc6wasjlni4_8uQniTlH
-X-Proofpoint-GUID: QvJaGwjijveFRzthwNt_ahGRKQETnbPD
+X-Proofpoint-GUID: 3Y6eEM7BgBxWEKf7jl7OYaQ27mXlwFUA
+X-Proofpoint-ORIG-GUID: NqvtkH5npClEHp3MaluI56FpS3y6aLBi
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-02-21_03,2022-02-18_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 spamscore=0
- phishscore=0 mlxscore=0 adultscore=0 lowpriorityscore=0 mlxlogscore=999
- suspectscore=0 malwarescore=0 priorityscore=1501 clxscore=1015 bulkscore=0
+ definitions=2022-02-21_04,2022-02-21_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
+ bulkscore=0 impostorscore=0 mlxlogscore=999 mlxscore=0 lowpriorityscore=0
+ clxscore=1011 suspectscore=0 phishscore=0 priorityscore=1501 adultscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2201110000
- definitions=main-2202210049
+ definitions=main-2202210062
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-T24gMi8xOC8yMiAxOToyNCwgUGllcnJlIE1vcmVsIHdyb3RlOg0KPiANCj4gDQo+IE9uIDIv
-MTgvMjIgMTg6MjcsIFBpZXJyZSBNb3JlbCB3cm90ZToNCj4+DQo+Pg0KPj4gT24gMi8xOC8y
-MiAxNToyOCwgSmFub3NjaCBGcmFuayB3cm90ZToNCj4+PiBPbiAyLzE4LzIyIDE0OjEzLCBQ
-aWVycmUgTW9yZWwgd3JvdGU6DQo+Pj4+DQo+Pj4+DQo+Pj4+IE9uIDIvMTcvMjIgMTg6MTcs
-IE5pY28gQm9laHIgd3JvdGU6DQo+Pj4+PiBPbiBUaHUsIDIwMjItMDItMTcgYXQgMTA6NTkg
-KzAxMDAsIFBpZXJyZSBNb3JlbCB3cm90ZToNCj4+Pj4+IFsuLi5dDQo+Pj4+Pj4gZGlmZiAt
-LWdpdCBhL2FyY2gvczM5MC9rdm0va3ZtLXMzOTAuYyBiL2FyY2gvczM5MC9rdm0va3ZtLXMz
-OTAuYw0KPj4+Pj4+IGluZGV4IDIyOTZiMWZmMWUwMi4uYWY3ZWE4NDg4ZmEyIDEwMDY0NA0K
-Pj4+Pj4+IC0tLSBhL2FyY2gvczM5MC9rdm0va3ZtLXMzOTAuYw0KPj4+Pj4+ICsrKyBiL2Fy
-Y2gvczM5MC9rdm0va3ZtLXMzOTAuYw0KPj4+Pj4gWy4uLl0NCj4+Pg0KPj4+IFdoeSBpcyB0
-aGVyZSBubyBpbnRlcmZhY2UgdG8gY2xlYXIgdGhlIFNDQV9VVElMSVRZX01UQ1Igb24gYSBz
-dWJzeXN0ZW0NCj4+PiByZXNldD8NCj4+DQo+PiBSaWdodCwgSSBoYWQgb25lIGluIG15IGZp
-cnN0IHZlcnNpb24gYmFzZWQgb24gaW50ZXJjZXB0aW9uIGJ1dCBJIGZvcmdvdA0KPj4gdG8g
-aW1wbGVtZW50IGFuIGVxdWl2YWxlbnQgZm9yIEtWTSBhcyBJIG1vZGlmaWVkIHRoZSBpbXBs
-ZW1lbnRhdGlvbiBmb3INCj4+IGludGVycHJldGF0aW9uLg0KPj4gSSB3aWxsIGFkZCB0aGlz
-Lg0KPj4NCj4+Pg0KPj4+DQo+Pj4+Pj4gLXZvaWQga3ZtX2FyY2hfdmNwdV9sb2FkKHN0cnVj
-dCBrdm1fdmNwdSAqdmNwdSwgaW50IGNwdSkNCj4+Pj4+PiArLyoqDQo+Pj4+Pj4gKyAqIGt2
-bV9zMzkwX3ZjcHVfc2V0X210Y3INCj4+Pj4+PiArICogQHZjcDogdGhlIHZpcnR1YWwgQ1BV
-DQo+Pj4+Pj4gKyAqDQo+Pj4+Pj4gKyAqIElzIG9ubHkgcmVsZXZhbnQgaWYgdGhlIHRvcG9s
-b2d5IGZhY2lsaXR5IGlzIHByZXNlbnQuDQo+Pj4+Pj4gKyAqDQo+Pj4+Pj4gKyAqIFVwZGF0
-ZXMgdGhlIE11bHRpcHJvY2Vzc29yIFRvcG9sb2d5LUNoYW5nZS1SZXBvcnQgdG8gc2lnbmFs
-DQo+Pj4+Pj4gKyAqIHRoZSBndWVzdCB3aXRoIGEgdG9wb2xvZ3kgY2hhbmdlLg0KPj4+Pj4+
-ICsgKi8NCj4+Pj4+PiArc3RhdGljIHZvaWQga3ZtX3MzOTBfdmNwdV9zZXRfbXRjcihzdHJ1
-Y3Qga3ZtX3ZjcHUgKnZjcHUpDQo+Pj4+Pj4gIMKgIMKgew0KPj4+Pj4+ICvCoMKgwqDCoMKg
-wqDCoHN0cnVjdCBlc2NhX2Jsb2NrICplc2NhID0gdmNwdS0+a3ZtLT5hcmNoLnNjYTsNCj4+
-Pj4+DQo+Pj4+PiB1dGlsaXR5IGlzIGF0IHRoZSBzYW1lIG9mZnNldCBmb3IgdGhlIGJzY2Eg
-YW5kIHRoZSBlc2NhLCBzdGlsbA0KPj4+Pj4gd29uZGVyaW5nIHdoZXRoZXIgaXQgaXMgYSBn
-b29kIGlkZWEgdG8gYXNzdW1lIGVzY2EgaGVyZS4uLg0KPj4+Pg0KPj4+PiBXZSBjYW4gdGFr
-ZSBic2NhIHRvIGJlIGNvaGVyZW50IHdpdGggdGhlIGluY2x1ZGUgZmlsZSB3aGVyZSB3ZSBk
-ZWZpbmUNCj4+Pj4gRVNDQV9VVElMSVRZX01UQ1IgaW5zaWRlIHRoZSBic2NhLg0KPj4+PiBB
-bmQgd2UgY2FuIHJlbmFtZSB0aGUgZGVmaW5lIHRvIFNDQV9VVElMSVRZX01UQ1IgYXMgaXQg
-aXMgY29tbW9uIGZvcg0KPj4+PiBib3RoIEJTQ0EgYW5kIEVTQ0EgdGhlIChFKSBpcyB0b28g
-bXVjaC4NCj4+Pg0KPj4+IFllcyBhbmQgbWF5YmUgYWRkIGEgY29tbWVudCB0aGF0IGl0J3Mg
-YXQgdGhlIHNhbWUgb2Zmc2V0IGZvciBlc2NhIHNvDQo+Pj4gdGhlcmUgd29uJ3QgY29tZSB1
-cCBmdXJ0aGVyIHF1ZXN0aW9ucyBpbiB0aGUgZnV0dXJlLg0KPj4NCj4+IE9LDQo+Pg0KPj4+
-DQo+Pj4+DQo+Pj4+Pg0KPj4+Pj4gWy4uLl0NCj4+Pj4+PiBkaWZmIC0tZ2l0IGEvYXJjaC9z
-MzkwL2t2bS9rdm0tczM5MC5oIGIvYXJjaC9zMzkwL2t2bS9rdm0tczM5MC5oDQo+Pj4+Pj4g
-aW5kZXggMDk4ODMxZTgxNWU2Li5hZjA0ZmZiZmQ1ODcgMTAwNjQ0DQo+Pj4+Pj4gLS0tIGEv
-YXJjaC9zMzkwL2t2bS9rdm0tczM5MC5oDQo+Pj4+Pj4gKysrIGIvYXJjaC9zMzkwL2t2bS9r
-dm0tczM5MC5oDQo+Pj4+Pj4gQEAgLTUwMyw0ICs1MDMsMjkgQEAgdm9pZCBrdm1fczM5MF92
-Y3B1X2NyeXB0b19yZXNldF9hbGwoc3RydWN0IGt2bQ0KPj4+Pj4+ICprdm0pOw0KPj4+Pj4+
-ICDCoCDCoCAqLw0KPj4+Pj4+ICDCoCDCoGV4dGVybiB1bnNpZ25lZCBpbnQgZGlhZzljX2Zv
-cndhcmRpbmdfaHo7DQo+Pj4+Pj4gKyNkZWZpbmUgUzM5MF9LVk1fVE9QT0xPR1lfTkVXX0NQ
-VSAtMQ0KPj4+Pj4+ICsvKioNCj4+Pj4+PiArICoga3ZtX3MzOTBfdG9wb2xvZ3lfY2hhbmdl
-ZA0KPj4+Pj4+ICsgKiBAdmNwdTogdGhlIHZpcnR1YWwgQ1BVDQo+Pj4+Pj4gKyAqDQo+Pj4+
-Pj4gKyAqIElmIHRoZSB0b3BvbG9neSBmYWNpbGl0eSBpcyBwcmVzZW50LCBjaGVja3MgaWYg
-dGhlIENQVSB0b3Bsb2d5DQo+Pj4+Pj4gKyAqIHZpZXdlZCBieSB0aGUgZ3Vlc3QgY2hhbmdl
-ZCBkdWUgdG8gbG9hZCBiYWxhbmNpbmcgb3IgQ1BVIGhvdHBsdWcuDQo+Pj4+Pj4gKyAqLw0K
-Pj4+Pj4+ICtzdGF0aWMgaW5saW5lIGJvb2wga3ZtX3MzOTBfdG9wb2xvZ3lfY2hhbmdlZChz
-dHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpDQo+Pj4+Pj4gK3sNCj4+Pj4+PiArwqDCoMKgwqDCoMKg
-wqBpZiAoIXRlc3Rfa3ZtX2ZhY2lsaXR5KHZjcHUtPmt2bSwgMTEpKQ0KPj4+Pj4+ICvCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqByZXR1cm4gZmFsc2U7DQo+Pj4+Pj4gKw0KPj4+
-Pj4+ICvCoMKgwqDCoMKgwqDCoC8qIEEgbmV3IHZDUFUgaGFzIGJlZW4gaG90cGx1Z2dlZCAq
-Lw0KPj4+Pj4+ICvCoMKgwqDCoMKgwqDCoGlmICh2Y3B1LT5hcmNoLnByZXZfY3B1ID09IFMz
-OTBfS1ZNX1RPUE9MT0dZX05FV19DUFUpDQo+Pj4+Pj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoHJldHVybiB0cnVlOw0KPj4+Pj4+ICsNCj4+Pj4+PiArwqDCoMKgwqDCoMKg
-wqAvKiBUaGUgcmVhbCBDUFUgYmFja2luZyB1cCB0aGUgdkNQVSBtb3ZlZCB0byBhbm90aGVy
-IHNvY2tldA0KPj4+Pj4+ICovDQo+Pj4+Pj4gK8KgwqDCoMKgwqDCoMKgaWYgKHRvcG9sb2d5
-X3BoeXNpY2FsX3BhY2thZ2VfaWQodmNwdS0+Y3B1KSAhPQ0KPj4+Pj4+ICvCoMKgwqDCoMKg
-wqDCoMKgwqDCoCB0b3BvbG9neV9waHlzaWNhbF9wYWNrYWdlX2lkKHZjcHUtPmFyY2gucHJl
-dl9jcHUpKQ0KPj4+Pj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqByZXR1cm4g
-dHJ1ZTsNCj4+Pj4+DQo+Pj4+PiBXaHkgaXMgaXQgT0sgdG8gbG9vayBqdXN0IGF0IHRoZSBw
-aHlzaWNhbCBwYWNrYWdlIElEIGhlcmU/IFdoYXQgaWYgdGhlDQo+Pj4+PiB2Y3B1IGZvciBl
-eGFtcGxlIG1vdmVzIHRvIGEgZGlmZmVyZW50IGJvb2ssIHdoaWNoIGhhcyBhIGNvcmUgd2l0
-aCB0aGUNCj4+Pj4+IHNhbWUgcGh5c2ljYWwgcGFja2FnZSBJRD8NCj4+Pg0KPj4+IEknbGwg
-bmVlZCB0byBsb29rIHVwIHN0c2kgMTUqIG91dHB1dCB0byB1bmRlcnN0YW5kIHRoaXMuDQo+
-Pj4gQnV0IHRoZSBhcmNoaXRlY3R1cmUgc3RhdGVzIHRoYXQgYW55IGNoYW5nZSB0byB0aGUg
-c3RzaSAxNSBvdXRwdXQgc2V0cw0KPj4+IHRoZSBjaGFuZ2UgYml0IHNvIEknZCBndWVzcyBO
-aWNvIGlzIGNvcnJlY3QuDQo+Pj4NCj4+DQo+PiBZZXMsIE5pY28gaXMgY29ycmVjdCwgYXMg
-SSBhbHJlYWR5IGFuc3dlcmVkLCBob3dldmVyIGl0IGlzIG5vdCBhbnkNCj4+IGNoYW5nZSBv
-ZiBzdHNpKDE1KSBidXQgYSBjaGFuZ2Ugb2Ygc3RzaSgxNS4xLjIpIG91dHB1dCB3aGljaCBz
-ZXRzIHRoZQ0KPj4gY2hhbmdlIGJpdC4NCj4gDQo+IGh1bSwgdGhhdCBpcyB3aGF0IHRoZSBQ
-T1Agc2F5cyBidXQgaW4gZmFjdCB5b3UgYXJlIHJpZ2h0IGEgY2hhbmdlIG9mDQo+IHRvcG9s
-b2d5IHRoYXQgY2hhbmdlcyB0aGUgb3V0cHV0IG9mIGFueSBTVFNJKDE1KSBzZXRzIHRoZSB0
-b3BvbG9neQ0KPiBjaGFuZ2UgcmVwb3J0IGJpdCBhcyB0aGUgb3V0cHV0IG9mIFNUU0koMTUu
-MS4yKSB3b3VsZCBiZSBjaGFuZ2VkIHRvbw0KPiBvYnZpb3VzbHkuDQoNCkluIHRoaXMgY2Fz
-ZSBJIHdhcyBqdXN0IGJlaW5nIHRvbyBsYXp5IHRvIGxvb2sgdXAgdGhlIGNvcnJlY3QgcXVl
-cnkgY29kZSANCmJ1dCBJIGtuZXcgaXQgc3RhcnRlZCB3aXRoIGZjIDE1LiBJdCB3YXMgRnJp
-ZGF5IGFmdGVyIGFsbCA6LSkNCg0KPiANCj4gUmVnYXJkcywNCj4gUGllcnJlDQo+IA0KDQo=
+Hey Greg,
+thanks for your review.
 
+On 2/17/22 13:33, Greg KH wrote:
+> On Thu, Feb 17, 2022 at 06:37:15AM -0500, Steffen Eiden wrote:
+>> This patch adds a new miscdevice to expose some Ultravisor functions
+>> to userspace. Userspace can send IOCTLis to the uvdevice that will then
+>> emit a corresponding Ultravisor Call and hands the result over to
+>> userspace. The uvdevice is available if the Ultravisor Call facility is
+>> present.
+>>
+>> Userspace is now able to call the Query Ultravisor Information
+>> Ultravisor Command through the uvdevice.
+>>
+>> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+>> ---
+>>   MAINTAINERS                           |   2 +
+>>   arch/s390/include/uapi/asm/uvdevice.h |  27 +++++
+>>   drivers/s390/char/Kconfig             |   9 ++
+>>   drivers/s390/char/Makefile            |   1 +
+>>   drivers/s390/char/uvdevice.c          | 162 ++++++++++++++++++++++++++
+>>   5 files changed, 201 insertions(+)
+>>   create mode 100644 arch/s390/include/uapi/asm/uvdevice.h
+>>   create mode 100644 drivers/s390/char/uvdevice.c
+>>
+>> diff --git a/MAINTAINERS b/MAINTAINERS
+>> index 5250298d2817..c7d8d0fe48cf 100644
+>> --- a/MAINTAINERS
+>> +++ b/MAINTAINERS
+>> @@ -10457,9 +10457,11 @@ F:	Documentation/virt/kvm/s390*
+>>   F:	arch/s390/include/asm/gmap.h
+>>   F:	arch/s390/include/asm/kvm*
+>>   F:	arch/s390/include/uapi/asm/kvm*
+>> +F:	arch/s390/include/uapi/asm/uvdevice.h
+>>   F:	arch/s390/kernel/uv.c
+>>   F:	arch/s390/kvm/
+>>   F:	arch/s390/mm/gmap.c
+>> +F:	drivers/s390/char/uvdevice.c
+>>   F:	tools/testing/selftests/kvm/*/s390x/
+>>   F:	tools/testing/selftests/kvm/s390x/
+>>   
+>> diff --git a/arch/s390/include/uapi/asm/uvdevice.h b/arch/s390/include/uapi/asm/uvdevice.h
+>> new file mode 100644
+>> index 000000000000..f2e4984a6e2e
+>> --- /dev/null
+>> +++ b/arch/s390/include/uapi/asm/uvdevice.h
+>> @@ -0,0 +1,27 @@
+>> +/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+>> +/*
+>> + *  Copyright IBM Corp. 2022
+>> + *  Author(s): Steffen Eiden <seiden@linux.ibm.com>
+>> + */
+>> +#ifndef __S390X_ASM_UVDEVICE_H
+>> +#define __S390X_ASM_UVDEVICE_H
+>> +
+>> +#include <linux/types.h>
+>> +
+>> +struct uvio_ioctl_cb {
+>> +	__u32 flags;			/* Currently no flags defined, must be zero */
+>> +	__u16 uv_rc;			/* UV header rc value */
+>> +	__u16 uv_rrc;			/* UV header rrc value */
+>> +	__u64 argument_addr;		/* Userspace address of uvio argument */
+>> +	__u32 argument_len;
+>> +	__u8  reserved14[0x40 - 0x14];	/* must be zero */
+>> +};
+>> +
+>> +#define UVIO_QUI_MAX_LEN		0x8000
+>> +
+>> +#define UVIO_DEVICE_NAME "uv"
+>> +#define UVIO_TYPE_UVC 'u'
+>> +
+>> +#define UVIO_IOCTL_QUI _IOWR(UVIO_TYPE_UVC, 0x01, struct uvio_ioctl_cb)
+>> +
+>> +#endif  /* __S390X_ASM_UVDEVICE_H */
+>> diff --git a/drivers/s390/char/Kconfig b/drivers/s390/char/Kconfig
+>> index 6cc4b19acf85..933c0d0062d6 100644
+>> --- a/drivers/s390/char/Kconfig
+>> +++ b/drivers/s390/char/Kconfig
+>> @@ -184,3 +184,12 @@ config S390_VMUR
+>>   	depends on S390
+>>   	help
+>>   	  Character device driver for z/VM reader, puncher and printer.
+>> +
+>> +config UV_UAPI
+>> +	def_tristate m
+>> +	prompt "Ultravisor userspace API"
+>> +	depends on PROTECTED_VIRTUALIZATION_GUEST
+>> +	help
+>> +	  Selecting exposes parts of the UV interface to userspace
+>> +	  by providing a misc character device. Using IOCTLs one
+>> +	  can interact with the UV.
+>> diff --git a/drivers/s390/char/Makefile b/drivers/s390/char/Makefile
+>> index c6fdb81a068a..b5c83092210e 100644
+>> --- a/drivers/s390/char/Makefile
+>> +++ b/drivers/s390/char/Makefile
+>> @@ -48,6 +48,7 @@ obj-$(CONFIG_MONREADER) += monreader.o
+>>   obj-$(CONFIG_MONWRITER) += monwriter.o
+>>   obj-$(CONFIG_S390_VMUR) += vmur.o
+>>   obj-$(CONFIG_CRASH_DUMP) += sclp_sdias.o zcore.o
+>> +obj-$(CONFIG_UV_UAPI) += uvdevice.o
+>>   
+>>   hmcdrv-objs := hmcdrv_mod.o hmcdrv_dev.o hmcdrv_ftp.o hmcdrv_cache.o diag_ftp.o sclp_ftp.o
+>>   obj-$(CONFIG_HMC_DRV) += hmcdrv.o
+>> diff --git a/drivers/s390/char/uvdevice.c b/drivers/s390/char/uvdevice.c
+>> new file mode 100644
+>> index 000000000000..e8efcbf0e7ab
+>> --- /dev/null
+>> +++ b/drivers/s390/char/uvdevice.c
+>> @@ -0,0 +1,162 @@
+>> +// SPDX-License-Identifier: GPL-2.0
+>> +/*
+>> + *  Copyright IBM Corp. 2022
+>> + *  Author(s): Steffen Eiden <seiden@linux.ibm.com>
+>> + */
+>> +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt ".\n"
+>> +
+>> +#include <linux/module.h>
+>> +#include <linux/kernel.h>
+>> +#include <linux/miscdevice.h>
+>> +#include <linux/types.h>
+>> +#include <linux/stddef.h>
+>> +#include <linux/vmalloc.h>
+>> +#include <linux/slab.h>
+>> +
+>> +#include <asm/uvdevice.h>
+>> +#include <asm/uv.h>
+>> +
+>> +/**
+>> + * uvio_qui() - Perform a Query Ultravisor Information UVC.
+>> + *
+>> + * uv_ioctl: ioctl control block
+>> + *
+>> + * uvio_qui() does a Query Ultravisor Information (QUI) Ultravisor Call.
+>> + * It creates the uvc qui request and sends it to the Ultravisor. After that
+>> + * it copies the response to userspace and fills the rc and rrc of uv_ioctl
+>> + * uv_call with the response values of the Ultravisor.
+>> + *
+>> + * Create the UVC structure, send the UVC to UV and write the response in the ioctl struct.
+>> + *
+>> + * Return: 0 on success or a negative error code on error.
+>> + */
+>> +static int uvio_qui(struct uvio_ioctl_cb *uv_ioctl)
+>> +{
+>> +	u8 __user *user_buf_addr = (__user u8 *)uv_ioctl->argument_addr;
+>> +	size_t user_buf_len = uv_ioctl->argument_len;
+>> +	struct uv_cb_header *uvcb_qui = NULL;
+>> +	int ret;
+>> +
+>> +	/*
+>> +	 * Do not check for a too small buffer. If userspace provides a buffer
+>> +	 * that is too small the Ultravisor will complain.
+>> +	 */
+>> +	ret = -EINVAL;
+>> +	if (!user_buf_len || user_buf_len > UVIO_QUI_MAX_LEN)
+>> +		goto out;
+>> +	ret = -ENOMEM;
+>> +	uvcb_qui = kvzalloc(user_buf_len, GFP_KERNEL);
+>> +	if (!uvcb_qui)
+>> +		goto out;
+>> +	uvcb_qui->len = user_buf_len;
+>> +	uvcb_qui->cmd = UVC_CMD_QUI;
+>> +
+>> +	uv_call(0, (u64)uvcb_qui);
+>> +
+>> +	ret = -EFAULT;
+>> +	if (copy_to_user(user_buf_addr, uvcb_qui, uvcb_qui->len))
+>> +		goto out;
+>> +	uv_ioctl->uv_rc = uvcb_qui->rc;
+>> +	uv_ioctl->uv_rrc = uvcb_qui->rrc;
+>> +
+>> +	ret = 0;
+>> +out:
+>> +	kvfree(uvcb_qui);
+>> +	return ret;
+>> +}
+>> +
+>> +static int uvio_copy_and_check_ioctl(struct uvio_ioctl_cb *ioctl, void __user *argp)
+>> +{
+>> +	u64 sum = 0;
+>> +	u64 i;
+>> +
+>> +	if (copy_from_user(ioctl, argp, sizeof(*ioctl)))
+>> +		return -EFAULT;
+>> +	if (ioctl->flags != 0)
+>> +		return -EINVAL;
+>> +	for (i = 0; i < ARRAY_SIZE(ioctl->reserved14); i++)
+>> +		sum += ioctl->reserved14[i];
+>> +	if (sum)
+>> +		return -EINVAL;
+> 
+> So you can have -1, 1, -1, 1, and so on and cause this to be an
+> incorrect check.  Just test for 0 and bail out early please.
+These ints are unsigned, your szenario cannot happen. However, I changed 
+it to bailout early anyway.
+> 
+> 
+> 
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +static int uvio_dev_open(struct inode *inode, struct file *filp)
+>> +{
+>> +	return 0;
+>> +}
+>> +
+>> +static int uvio_dev_close(struct inode *inodep, struct file *filp)
+>> +{
+>> +	return 0;
+>> +}
+> 
+> If open/close do nothing, no need to provide it at all, just drop them.
+Makes sense.
+> 
+>> +
+>> +/*
+>> + * IOCTL entry point for the Ultravisor device.
+>> + */
+>> +static long uvio_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+>> +{
+>> +	void __user *argp = (void __user *)arg;
+>> +	struct uvio_ioctl_cb *uv_ioctl;
+>> +	long ret;
+>> +
+>> +	ret = -ENOMEM;
+>> +	uv_ioctl = vzalloc(sizeof(*uv_ioctl));
+>> +	if (!uv_ioctl)
+>> +		goto out;
+>> +
+>> +	switch (cmd) {
+>> +	case UVIO_IOCTL_QUI:
+>> +		ret = uvio_copy_and_check_ioctl(uv_ioctl, argp);
+>> +		if (ret)
+>> +			goto out;
+>> +		ret = uvio_qui(uv_ioctl);
+>> +		break;
+>> +	default:
+>> +		ret = -EINVAL;
+> 
+> Wrong error value :(
+changed
+> 
+>> +		break;
+>> +	}
+>> +	if (ret)
+>> +		goto out;
+>> +
+>> +	if (copy_to_user(argp, uv_ioctl, sizeof(*uv_ioctl)))
+>> +		ret = -EFAULT;
+>> +
+>> + out:
+>> +	vfree(uv_ioctl);
+>> +	return ret;
+>> +}
+>> +
+>> +static const struct file_operations uvio_dev_fops = {
+>> +	.owner = THIS_MODULE,
+>> +	.unlocked_ioctl = uvio_ioctl,
+>> +	.open = uvio_dev_open,
+>> +	.release = uvio_dev_close,
+>> +	.llseek = no_llseek,
+>> +};
+>> +
+>> +static struct miscdevice uvio_dev_miscdev = {
+>> +	.minor = MISC_DYNAMIC_MINOR,
+>> +	.name = UVIO_DEVICE_NAME,
+>> +	.fops = &uvio_dev_fops,
+>> +};
+>> +
+>> +static void __exit uvio_dev_exit(void)
+>> +{
+>> +	misc_deregister(&uvio_dev_miscdev);
+>> +}
+>> +
+>> +static int __init uvio_dev_init(void)
+>> +{
+>> +	if (!test_facility(158))
+>> +		return -ENXIO;
+>> +	return misc_register(&uvio_dev_miscdev);
+>> +}
+>> +
+>> +module_init(uvio_dev_init);
+>> +module_exit(uvio_dev_exit);
+>> +
+>> +MODULE_AUTHOR("IBM Corporation");
+>> +MODULE_LICENSE("GPL");
+>> +MODULE_DESCRIPTION("Ultravisor UAPI driver");
+> 
+> Nothing to cause this to automatically be loaded when the "hardware" is
+> present?
+We do not have anything like a s390 facility bus which could trigger 
+such automatic loads. Developing such a bus would be an overkill.
+
+However we could do the approach e.g. kvm-s390 takes. Define 
+MODULE_ALIAS(devname:uv) that will trigger an automatic module load if
+someone calls open on /dev/uv the first time.
+IIRC we need to define a fixed misc minor number with this approach.
+
+something like that:
+--- a/drivers/s390/char/uvdevice.c
++++ b/drivers/s390/char/uvdevice.c
+@@ -309,3 +309,5
+  MODULE_AUTHOR("IBM Corporation");
+  MODULE_LICENSE("GPL");
+  MODULE_DESCRIPTION("Ultravisor UAPI driver");
++MODULE_ALIAS_MISCDEV(SOME_FIXED_MISC_MINOR);
++MODULE_ALIAS("devname:uv");
+
+We then maybe need to discuss if 'uv' is unique enough.
+
+
+> 
+> thanks,
+> 
+> greg k-h
+> 
+
+Steffen
