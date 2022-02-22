@@ -2,291 +2,121 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8F5AC433FE
-	for <linux-s390@archiver.kernel.org>; Tue, 22 Feb 2022 13:42:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4781EC433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 22 Feb 2022 14:55:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230468AbiBVNnO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 22 Feb 2022 08:43:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43814 "EHLO
+        id S232245AbiBVOza (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 22 Feb 2022 09:55:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231982AbiBVNnO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Feb 2022 08:43:14 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id D4050119850
-        for <linux-s390@vger.kernel.org>; Tue, 22 Feb 2022 05:42:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1645537367;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=2uPQ0PrAQ4ziIfXTltU6gJp/EwSDQPeLt7vadw1dPrc=;
-        b=MHH5xlq7eyC5xoX2bHeZTICnGVrpHzKIHPSe2/1QH8hNf4Z0mPUKiLDLd0zrPFozYpPKQw
-        n+zmB3yzxWd2UaVX1I1SnSh12es1RtS2MlnqDQebrrclrcAt/GL57YKC1Dg7tAizCGvUZT
-        Wx38L0JiWSTNVWXLFyNvS1w0P6bd8ns=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-372-_ooy5SJoPIK9TtAFxEoSiw-1; Tue, 22 Feb 2022 08:42:43 -0500
-X-MC-Unique: _ooy5SJoPIK9TtAFxEoSiw-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B56A0FC80;
-        Tue, 22 Feb 2022 13:42:40 +0000 (UTC)
-Received: from localhost (ovpn-12-122.pek2.redhat.com [10.72.12.122])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id E511D106D5B4;
-        Tue, 22 Feb 2022 13:42:24 +0000 (UTC)
-Date:   Tue, 22 Feb 2022 21:42:22 +0800
-From:   Baoquan He <bhe@redhat.com>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        akpm@linux-foundation.org, cl@linux.com, 42.hyeyoo@gmail.com,
-        penberg@kernel.org, rientjes@google.com, iamjoonsoo.kim@lge.com,
-        vbabka@suse.cz, David.Laight@aculab.com, david@redhat.com,
-        herbert@gondor.apana.org.au, davem@davemloft.net,
-        linux-crypto@vger.kernel.org, steffen.klassert@secunet.com,
-        netdev@vger.kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, linux-s390@vger.kernel.org, michael@walle.cc,
-        linux-i2c@vger.kernel.org, wsa@kernel.org
-Subject: [PATCH 2/2] kernel/dma: rename dma_alloc_direct and dma_map_direct
-Message-ID: <YhToPpeuTqdQgC80@MiWiFi-R3L-srv>
-References: <20220219005221.634-1-bhe@redhat.com>
- <20220219005221.634-22-bhe@redhat.com>
- <20220219071730.GG26711@lst.de>
- <20220220084044.GC93179@MiWiFi-R3L-srv>
- <20220222084530.GA6210@lst.de>
- <YhSpaGfiQV8Nmxr+@MiWiFi-R3L-srv>
- <20220222131120.GB10093@lst.de>
+        with ESMTP id S229679AbiBVOz3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Feb 2022 09:55:29 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B2AC10C513;
+        Tue, 22 Feb 2022 06:55:04 -0800 (PST)
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21MDhVXK008641;
+        Tue, 22 Feb 2022 14:55:03 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=WasIFNVspPrrzPbL8xLUvMFJeNc3XqAvekSgehFfi20=;
+ b=Vod4WPSFBbiayYgCy30r2HM15daNcc/JDMXJ/XKpA7jfUUq7/Cw+kigl6qjXqQ8SzTQI
+ CLqAZUsLhXyUBU3pTgM/BFh4U0kXIBAgUgSt9WGgkkGZIMchIe0ezllK3Xj/piEsfHI4
+ CrTis5OSxR5jRkGmlOxiMQqrKfXAwvAiKaWQkhCukNCwFmf6e1iGsfv0S6L7/Ps4NWQJ
+ 5CyGInMQmIL69fmBeyKC+6Db47oCnQ5O7dyzt/xXrdc0PRkakQFVrex78kI31WmiTavJ
+ R8IRooxZaRFyN1v03jae4NL35akyy2NAyUjkiV5P62cUQvA2erZJ+WiviWsCnPwzFhD/ rw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3ed0pwtdr1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 22 Feb 2022 14:55:03 +0000
+Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21MEqx68013445;
+        Tue, 22 Feb 2022 14:55:03 GMT
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3ed0pwtdqe-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 22 Feb 2022 14:55:03 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21MEguC5011763;
+        Tue, 22 Feb 2022 14:55:01 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma01fra.de.ibm.com with ESMTP id 3ear692fuf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 22 Feb 2022 14:55:01 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21MEsw6o45351252
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 22 Feb 2022 14:54:58 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0DF29A4054;
+        Tue, 22 Feb 2022 14:54:58 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C890BA4060;
+        Tue, 22 Feb 2022 14:54:56 +0000 (GMT)
+Received: from linux7.. (unknown [9.114.12.92])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 22 Feb 2022 14:54:56 +0000 (GMT)
+From:   Steffen Eiden <seiden@linux.ibm.com>
+To:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH v3 0/5] s390x: Attestation tests
+Date:   Tue, 22 Feb 2022 14:54:51 +0000
+Message-Id: <20220222145456.9956-1-seiden@linux.ibm.com>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220222131120.GB10093@lst.de>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: TbooUvHV8ilGI7yusbF72c0JjCyzCDkA
+X-Proofpoint-ORIG-GUID: veF9STmdeu7PRvBCs0CT-cquFoIypKbg
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-02-22_03,2022-02-21_02,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ adultscore=0 suspectscore=0 spamscore=0 clxscore=1015 malwarescore=0
+ lowpriorityscore=0 impostorscore=0 mlxlogscore=999 phishscore=0 mlxscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2202220091
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-In the old dma mapping, coherent mapping uses dma_alloc_coherent() to
-allocate DMA buffer and mapping; while streaming mapping can only get
-memory from slab or buddy allocator, then map with dma_map_single().
-In that situation, dma_alloc_direct() checks a direct mapping for
-coherent DMA, dma_map_direct() checks a direct mapping for streaming
-DMA.
+This series adds some test in s390x/uv-guest.c verifying error paths of the
+Request Attestation Measurement UVC.
+Also adds a test in s390x/uv-host.c to verify that the
+Request Attestation Measurement UVC cannot be called in guest1.
 
-However, several new APIs have been added for streaming mapping, e.g
-dma_alloc_pages(). These new APIs take care of DMA buffer allocating
-and mapping which are similar with dma_alloc_coherent(). So we should
-rename both of them to reflect their real intention to avoid confusion.
+Additionally, adds a shared bit test and removes duplicated tests.
 
-       dma_alloc_direct()  ==>  dma_coherent_direct()
-       dma_map_direct()    ==>  dma_streaming_direct()
+v2->v3:
+  * added test for share bits as new PATCH 4/5
+  * added r-b from Claudio in PATCH 1/4
+  * replaced all u* with uint*_t
+  * incorporated misc feedback from Claudio
 
-Signed-off-by: Baoquan He <bhe@redhat.com>
----
- kernel/dma/mapping.c | 44 ++++++++++++++++++++++----------------------
- 1 file changed, 22 insertions(+), 22 deletions(-)
+v1->v2:
+  * renamed 'uv_get_info(void)' to 'uv_get_query_data(void)'
+  * renamed various fields in 'struct uv_arcb_v1'
+  * added a test for invalid additional size
+  * added r-b from Janosch in PATCH 1/4
+  * added r-b from Janosch in PATCH 3/4
 
-diff --git a/kernel/dma/mapping.c b/kernel/dma/mapping.c
-index e66847aeac67..2835b08e96c6 100644
---- a/kernel/dma/mapping.c
-+++ b/kernel/dma/mapping.c
-@@ -127,13 +127,13 @@ static bool dma_go_direct(struct device *dev, dma_addr_t mask,
-  * This allows IOMMU drivers to set a bypass mode if the DMA mask is large
-  * enough.
-  */
--static inline bool dma_alloc_direct(struct device *dev,
-+static inline bool dma_coherent_direct(struct device *dev,
- 		const struct dma_map_ops *ops)
- {
- 	return dma_go_direct(dev, dev->coherent_dma_mask, ops);
- }
- 
--static inline bool dma_map_direct(struct device *dev,
-+static inline bool dma_streaming_direct(struct device *dev,
- 		const struct dma_map_ops *ops)
- {
- 	return dma_go_direct(dev, *dev->dma_mask, ops);
-@@ -151,7 +151,7 @@ dma_addr_t dma_map_page_attrs(struct device *dev, struct page *page,
- 	if (WARN_ON_ONCE(!dev->dma_mask))
- 		return DMA_MAPPING_ERROR;
- 
--	if (dma_map_direct(dev, ops) ||
-+	if (dma_streaming_direct(dev, ops) ||
- 	    arch_dma_map_page_direct(dev, page_to_phys(page) + offset + size))
- 		addr = dma_direct_map_page(dev, page, offset, size, dir, attrs);
- 	else
-@@ -168,7 +168,7 @@ void dma_unmap_page_attrs(struct device *dev, dma_addr_t addr, size_t size,
- 	const struct dma_map_ops *ops = get_dma_ops(dev);
- 
- 	BUG_ON(!valid_dma_direction(dir));
--	if (dma_map_direct(dev, ops) ||
-+	if (dma_streaming_direct(dev, ops) ||
- 	    arch_dma_unmap_page_direct(dev, addr + size))
- 		dma_direct_unmap_page(dev, addr, size, dir, attrs);
- 	else if (ops->unmap_page)
-@@ -188,7 +188,7 @@ static int __dma_map_sg_attrs(struct device *dev, struct scatterlist *sg,
- 	if (WARN_ON_ONCE(!dev->dma_mask))
- 		return 0;
- 
--	if (dma_map_direct(dev, ops) ||
-+	if (dma_streaming_direct(dev, ops) ||
- 	    arch_dma_map_sg_direct(dev, sg, nents))
- 		ents = dma_direct_map_sg(dev, sg, nents, dir, attrs);
- 	else
-@@ -277,7 +277,7 @@ void dma_unmap_sg_attrs(struct device *dev, struct scatterlist *sg,
- 
- 	BUG_ON(!valid_dma_direction(dir));
- 	debug_dma_unmap_sg(dev, sg, nents, dir);
--	if (dma_map_direct(dev, ops) ||
-+	if (dma_streaming_direct(dev, ops) ||
- 	    arch_dma_unmap_sg_direct(dev, sg, nents))
- 		dma_direct_unmap_sg(dev, sg, nents, dir, attrs);
- 	else if (ops->unmap_sg)
-@@ -296,7 +296,7 @@ dma_addr_t dma_map_resource(struct device *dev, phys_addr_t phys_addr,
- 	if (WARN_ON_ONCE(!dev->dma_mask))
- 		return DMA_MAPPING_ERROR;
- 
--	if (dma_map_direct(dev, ops))
-+	if (dma_streaming_direct(dev, ops))
- 		addr = dma_direct_map_resource(dev, phys_addr, size, dir, attrs);
- 	else if (ops->map_resource)
- 		addr = ops->map_resource(dev, phys_addr, size, dir, attrs);
-@@ -312,7 +312,7 @@ void dma_unmap_resource(struct device *dev, dma_addr_t addr, size_t size,
- 	const struct dma_map_ops *ops = get_dma_ops(dev);
- 
- 	BUG_ON(!valid_dma_direction(dir));
--	if (!dma_map_direct(dev, ops) && ops->unmap_resource)
-+	if (!dma_streaming_direct(dev, ops) && ops->unmap_resource)
- 		ops->unmap_resource(dev, addr, size, dir, attrs);
- 	debug_dma_unmap_resource(dev, addr, size, dir);
- }
-@@ -324,7 +324,7 @@ void dma_sync_single_for_cpu(struct device *dev, dma_addr_t addr, size_t size,
- 	const struct dma_map_ops *ops = get_dma_ops(dev);
- 
- 	BUG_ON(!valid_dma_direction(dir));
--	if (dma_map_direct(dev, ops))
-+	if (dma_streaming_direct(dev, ops))
- 		dma_direct_sync_single_for_cpu(dev, addr, size, dir);
- 	else if (ops->sync_single_for_cpu)
- 		ops->sync_single_for_cpu(dev, addr, size, dir);
-@@ -338,7 +338,7 @@ void dma_sync_single_for_device(struct device *dev, dma_addr_t addr,
- 	const struct dma_map_ops *ops = get_dma_ops(dev);
- 
- 	BUG_ON(!valid_dma_direction(dir));
--	if (dma_map_direct(dev, ops))
-+	if (dma_streaming_direct(dev, ops))
- 		dma_direct_sync_single_for_device(dev, addr, size, dir);
- 	else if (ops->sync_single_for_device)
- 		ops->sync_single_for_device(dev, addr, size, dir);
-@@ -352,7 +352,7 @@ void dma_sync_sg_for_cpu(struct device *dev, struct scatterlist *sg,
- 	const struct dma_map_ops *ops = get_dma_ops(dev);
- 
- 	BUG_ON(!valid_dma_direction(dir));
--	if (dma_map_direct(dev, ops))
-+	if (dma_streaming_direct(dev, ops))
- 		dma_direct_sync_sg_for_cpu(dev, sg, nelems, dir);
- 	else if (ops->sync_sg_for_cpu)
- 		ops->sync_sg_for_cpu(dev, sg, nelems, dir);
-@@ -366,7 +366,7 @@ void dma_sync_sg_for_device(struct device *dev, struct scatterlist *sg,
- 	const struct dma_map_ops *ops = get_dma_ops(dev);
- 
- 	BUG_ON(!valid_dma_direction(dir));
--	if (dma_map_direct(dev, ops))
-+	if (dma_streaming_direct(dev, ops))
- 		dma_direct_sync_sg_for_device(dev, sg, nelems, dir);
- 	else if (ops->sync_sg_for_device)
- 		ops->sync_sg_for_device(dev, sg, nelems, dir);
-@@ -391,7 +391,7 @@ int dma_get_sgtable_attrs(struct device *dev, struct sg_table *sgt,
- {
- 	const struct dma_map_ops *ops = get_dma_ops(dev);
- 
--	if (dma_alloc_direct(dev, ops))
-+	if (dma_streaming_direct(dev, ops))
- 		return dma_direct_get_sgtable(dev, sgt, cpu_addr, dma_addr,
- 				size, attrs);
- 	if (!ops->get_sgtable)
-@@ -430,7 +430,7 @@ bool dma_can_mmap(struct device *dev)
- {
- 	const struct dma_map_ops *ops = get_dma_ops(dev);
- 
--	if (dma_alloc_direct(dev, ops))
-+	if (dma_coherent_direct(dev, ops))
- 		return dma_direct_can_mmap(dev);
- 	return ops->mmap != NULL;
- }
-@@ -455,7 +455,7 @@ int dma_mmap_attrs(struct device *dev, struct vm_area_struct *vma,
- {
- 	const struct dma_map_ops *ops = get_dma_ops(dev);
- 
--	if (dma_alloc_direct(dev, ops))
-+	if (dma_coherent_direct(dev, ops))
- 		return dma_direct_mmap(dev, vma, cpu_addr, dma_addr, size,
- 				attrs);
- 	if (!ops->mmap)
-@@ -468,7 +468,7 @@ u64 dma_get_required_mask(struct device *dev)
- {
- 	const struct dma_map_ops *ops = get_dma_ops(dev);
- 
--	if (dma_alloc_direct(dev, ops))
-+	if (dma_streaming_direct(dev, ops))
- 		return dma_direct_get_required_mask(dev);
- 	if (ops->get_required_mask)
- 		return ops->get_required_mask(dev);
-@@ -499,7 +499,7 @@ void *dma_alloc_attrs(struct device *dev, size_t size, dma_addr_t *dma_handle,
- 	/* let the implementation decide on the zone to allocate from: */
- 	flag &= ~(__GFP_DMA | __GFP_DMA32 | __GFP_HIGHMEM);
- 
--	if (dma_alloc_direct(dev, ops))
-+	if (dma_coherent_direct(dev, ops))
- 		cpu_addr = dma_direct_alloc(dev, size, dma_handle, flag, attrs);
- 	else if (ops->alloc)
- 		cpu_addr = ops->alloc(dev, size, dma_handle, flag, attrs);
-@@ -531,7 +531,7 @@ void dma_free_attrs(struct device *dev, size_t size, void *cpu_addr,
- 		return;
- 
- 	debug_dma_free_coherent(dev, size, cpu_addr, dma_handle);
--	if (dma_alloc_direct(dev, ops))
-+	if (dma_coherent_direct(dev, ops))
- 		dma_direct_free(dev, size, cpu_addr, dma_handle, attrs);
- 	else if (ops->free)
- 		ops->free(dev, size, cpu_addr, dma_handle, attrs);
-@@ -550,7 +550,7 @@ static struct page *__dma_alloc_pages(struct device *dev, size_t size,
-         gfp &= ~(__GFP_DMA | __GFP_DMA32 | __GFP_HIGHMEM);
- 
- 	size = PAGE_ALIGN(size);
--	if (dma_alloc_direct(dev, ops))
-+	if (dma_streaming_direct(dev, ops))
- 		return dma_direct_alloc_pages(dev, size, dma_handle, dir, gfp);
- 	if (!ops->alloc_pages)
- 		return NULL;
-@@ -574,7 +574,7 @@ static void __dma_free_pages(struct device *dev, size_t size, struct page *page,
- 	const struct dma_map_ops *ops = get_dma_ops(dev);
- 
- 	size = PAGE_ALIGN(size);
--	if (dma_alloc_direct(dev, ops))
-+	if (dma_streaming_direct(dev, ops))
- 		dma_direct_free_pages(dev, size, page, dma_handle, dir);
- 	else if (ops->free_pages)
- 		ops->free_pages(dev, size, page, dma_handle, dir);
-@@ -769,7 +769,7 @@ size_t dma_max_mapping_size(struct device *dev)
- 	const struct dma_map_ops *ops = get_dma_ops(dev);
- 	size_t size = SIZE_MAX;
- 
--	if (dma_map_direct(dev, ops))
-+	if (dma_streaming_direct(dev, ops))
- 		size = dma_direct_max_mapping_size(dev);
- 	else if (ops && ops->max_mapping_size)
- 		size = ops->max_mapping_size(dev);
-@@ -782,7 +782,7 @@ bool dma_need_sync(struct device *dev, dma_addr_t dma_addr)
- {
- 	const struct dma_map_ops *ops = get_dma_ops(dev);
- 
--	if (dma_map_direct(dev, ops))
-+	if (dma_streaming_direct(dev, ops))
- 		return dma_direct_need_sync(dev, dma_addr);
- 	return ops->sync_single_for_cpu || ops->sync_single_for_device;
- }
+Steffen Eiden (5):
+  s390x: uv-host: Add attestation test
+  s390x: lib: Add QUI getter
+  s390x: uv-guest: remove duplicated checks
+  s390x: uv-guest: add share bit test
+  s390x: uv-guest: Add attestation tests
+
+ lib/s390x/asm/uv.h |  28 +++++-
+ lib/s390x/uv.c     |   8 ++
+ lib/s390x/uv.h     |   1 +
+ s390x/uv-guest.c   | 229 +++++++++++++++++++++++++++++++++++++++++----
+ s390x/uv-host.c    |   1 +
+ 5 files changed, 249 insertions(+), 18 deletions(-)
+
 -- 
-2.31.1
+2.30.2
 
