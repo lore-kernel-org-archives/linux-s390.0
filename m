@@ -2,31 +2,31 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 986D7C4167D
-	for <linux-s390@archiver.kernel.org>; Tue, 22 Feb 2022 15:36:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C45BBC433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 22 Feb 2022 15:36:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233657AbiBVPgs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 22 Feb 2022 10:36:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45096 "EHLO
+        id S233536AbiBVPhH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 22 Feb 2022 10:37:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233541AbiBVPg3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Feb 2022 10:36:29 -0500
+        with ESMTP id S233537AbiBVPgr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Feb 2022 10:36:47 -0500
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 110D8163D4A;
-        Tue, 22 Feb 2022 07:35:50 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C24C0164D04;
+        Tue, 22 Feb 2022 07:36:03 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=0baUdiWGkzyTvEY5+fZBb0HhsV2XDbo//o8EVwPiM1Y=; b=VtTenidmqW4UpX88iEoqOwMYvm
-        x+9MjXNmAo75jNOkt/cwKED1m3dzeUunCcmEKcnPuG6lgGjK7HW9ee5stFdj931ZwWulNdT0wkSWp
-        5dp29pncEFZRSorU+Nxkcg42I/j7R400Ldy3dqpKfN9ZcLAqQjsmPVGoCsaQcpmgXqBhASG6gIqq1
-        z6Yxjxu/nu7YjD7z1AXbqHYa77ijtEm3sixNLzVVL6qBZUhX8N3I/8du4g1Nm6iOYNfdtZPiYX9L1
-        Pla3BFEVSrUBX4+ZWJIV8uiOZ3kU4LlApgXtCYTikl0iwBnD3aCWivJ/iQnjRh9Tlu2yd96M/j25V
-        WwvNuu4Q==;
+        bh=MP133v1kwiW3c87+cPBpFDQUlQtDeX75p5kJbFoXYYs=; b=mQ9qW//6Cxq6fp2v+y0k83BlCl
+        GTdHl2Yi4VXTsa/9OlEJ0bqFePJeG7UTfNRxQx80vp2FE55AN2IXeWPgz50xZ0a897v1bfsI+FoQC
+        j8fFViIssX34Qs2bn4z0LTmuU+eIW6qKSfyZ8G6R77UHR3RNmyp5Py95tYTZ3XX6cnNIiy8Jr+Otv
+        XMvu/dYxbmt96Sb4q38Z2Xg8sDoms9cUzYRFGgkj7hdhl+EwO/G2WQKCF+qfaX6hjmmRiSqkIUpqx
+        bE2ISLDfZeJ57BsLZqwCiTIXh4QZ2KXBPLBjQ74kVwirBtAomdzrqLRCWBQkdjyqzyX/f5KefywDJ
+        e7NcH08w==;
 Received: from [2001:4bb8:198:f8fc:c22a:ebfc:be8d:63c2] (helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nMXCS-00AGyX-Qo; Tue, 22 Feb 2022 15:35:37 +0000
+        id 1nMXCb-00AH4p-Lb; Tue, 22 Feb 2022 15:35:46 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     iommu@lists.linux-foundation.org
 Cc:     x86@kernel.org, Stefano Stabellini <sstabellini@kernel.org>,
@@ -42,9 +42,9 @@ Cc:     x86@kernel.org, Stefano Stabellini <sstabellini@kernel.org>,
         linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
         linux-hyperv@vger.kernel.org, tboot-devel@lists.sourceforge.net,
         linux-pci@vger.kernel.org
-Subject: [PATCH 07/11] x86: remove the IOMMU table infrastructure
-Date:   Tue, 22 Feb 2022 16:35:10 +0100
-Message-Id: <20220222153514.593231-8-hch@lst.de>
+Subject: [PATCH 10/11] swiotlb: merge swiotlb-xen initialization into swiotlb
+Date:   Tue, 22 Feb 2022 16:35:13 +0100
+Message-Id: <20220222153514.593231-11-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220222153514.593231-1-hch@lst.de>
 References: <20220222153514.593231-1-hch@lst.de>
@@ -55,950 +55,547 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The IOMMU table tries to separate the different IOMMUs into different
-backends, but actually requires various cross calls.
-
-Rewrite the code to do the generic swiotlb/swiotlb-xen setup directly
-in pci-dma.c and then just call into the IOMMU drivers.
+Allow to pass a remap argument to the swiotlb initialization functions
+to handle the Xen/x86 remap case.  ARM/ARM64 never did any remapping
+from xen_swiotlb_fixup, so we don't even need that quirk.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/ia64/include/asm/iommu_table.h    |   7 --
- arch/x86/include/asm/dma-mapping.h     |   1 -
- arch/x86/include/asm/gart.h            |   5 +-
- arch/x86/include/asm/iommu.h           |   6 ++
- arch/x86/include/asm/iommu_table.h     | 102 ----------------------
- arch/x86/include/asm/swiotlb.h         |  30 -------
- arch/x86/include/asm/xen/swiotlb-xen.h |   2 -
- arch/x86/kernel/Makefile               |   2 -
- arch/x86/kernel/amd_gart_64.c          |   5 +-
- arch/x86/kernel/aperture_64.c          |  14 ++--
- arch/x86/kernel/pci-dma.c              | 112 ++++++++++++++++++++-----
- arch/x86/kernel/pci-iommu_table.c      |  77 -----------------
- arch/x86/kernel/pci-swiotlb.c          |  77 -----------------
- arch/x86/kernel/tboot.c                |   1 -
- arch/x86/kernel/vmlinux.lds.S          |  12 ---
- arch/x86/xen/Makefile                  |   2 -
- arch/x86/xen/pci-swiotlb-xen.c         |  96 ---------------------
- drivers/iommu/amd/init.c               |   6 --
- drivers/iommu/amd/iommu.c              |   5 +-
- drivers/iommu/intel/dmar.c             |   6 +-
- include/linux/dmar.h                   |   6 +-
- 21 files changed, 115 insertions(+), 459 deletions(-)
- delete mode 100644 arch/ia64/include/asm/iommu_table.h
- delete mode 100644 arch/x86/include/asm/iommu_table.h
- delete mode 100644 arch/x86/include/asm/swiotlb.h
- delete mode 100644 arch/x86/kernel/pci-iommu_table.c
- delete mode 100644 arch/x86/kernel/pci-swiotlb.c
- delete mode 100644 arch/x86/xen/pci-swiotlb-xen.c
+ arch/arm/xen/mm.c               |  23 +++---
+ arch/x86/include/asm/xen/page.h |   5 --
+ arch/x86/kernel/pci-dma.c       |  27 ++++---
+ arch/x86/pci/sta2x11-fixup.c    |   2 +-
+ drivers/xen/swiotlb-xen.c       | 128 +-------------------------------
+ include/linux/swiotlb.h         |   7 +-
+ include/xen/arm/page.h          |   1 -
+ include/xen/swiotlb-xen.h       |   8 +-
+ kernel/dma/swiotlb.c            | 120 +++++++++++++++---------------
+ 9 files changed, 102 insertions(+), 219 deletions(-)
 
-diff --git a/arch/ia64/include/asm/iommu_table.h b/arch/ia64/include/asm/iommu_table.h
-deleted file mode 100644
-index cc96116ac276a..0000000000000
---- a/arch/ia64/include/asm/iommu_table.h
-+++ /dev/null
-@@ -1,7 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 */
--#ifndef _ASM_IA64_IOMMU_TABLE_H
--#define _ASM_IA64_IOMMU_TABLE_H
--
--#define IOMMU_INIT_POST(_detect)
--
--#endif /* _ASM_IA64_IOMMU_TABLE_H */
-diff --git a/arch/x86/include/asm/dma-mapping.h b/arch/x86/include/asm/dma-mapping.h
-index bb1654fe0ce74..256fd8115223d 100644
---- a/arch/x86/include/asm/dma-mapping.h
-+++ b/arch/x86/include/asm/dma-mapping.h
-@@ -9,7 +9,6 @@
+diff --git a/arch/arm/xen/mm.c b/arch/arm/xen/mm.c
+index a7e54a087b802..58b40f87617d3 100644
+--- a/arch/arm/xen/mm.c
++++ b/arch/arm/xen/mm.c
+@@ -23,22 +23,20 @@
+ #include <asm/xen/hypercall.h>
+ #include <asm/xen/interface.h>
  
- #include <linux/scatterlist.h>
- #include <asm/io.h>
--#include <asm/swiotlb.h>
- 
- extern int iommu_merge;
- extern int panic_on_overflow;
-diff --git a/arch/x86/include/asm/gart.h b/arch/x86/include/asm/gart.h
-index 3185565743459..5af8088a10df6 100644
---- a/arch/x86/include/asm/gart.h
-+++ b/arch/x86/include/asm/gart.h
-@@ -38,7 +38,7 @@ extern int gart_iommu_aperture_disabled;
- extern void early_gart_iommu_check(void);
- extern int gart_iommu_init(void);
- extern void __init gart_parse_options(char *);
--extern int gart_iommu_hole_init(void);
-+void gart_iommu_hole_init(void);
- 
- #else
- #define gart_iommu_aperture            0
-@@ -51,9 +51,8 @@ static inline void early_gart_iommu_check(void)
- static inline void gart_parse_options(char *options)
+-unsigned long xen_get_swiotlb_free_pages(unsigned int order)
++static gfp_t xen_swiotlb_gfp(void)
  {
- }
--static inline int gart_iommu_hole_init(void)
-+static inline void gart_iommu_hole_init(void)
- {
--	return -ENODEV;
- }
- #endif
+ 	phys_addr_t base;
+-	gfp_t flags = __GFP_NOWARN|__GFP_KSWAPD_RECLAIM;
+ 	u64 i;
  
-diff --git a/arch/x86/include/asm/iommu.h b/arch/x86/include/asm/iommu.h
-index bf1ed2ddc74bd..dba89ed40d38d 100644
---- a/arch/x86/include/asm/iommu.h
-+++ b/arch/x86/include/asm/iommu.h
-@@ -9,6 +9,12 @@
- extern int force_iommu, no_iommu;
- extern int iommu_detected;
- 
-+#ifdef CONFIG_SWIOTLB
-+extern bool x86_swiotlb_enable;
-+#else
-+#define x86_swiotlb_enable false
-+#endif
+ 	for_each_mem_range(i, &base, NULL) {
+ 		if (base < (phys_addr_t)0xffffffff) {
+ 			if (IS_ENABLED(CONFIG_ZONE_DMA32))
+-				flags |= __GFP_DMA32;
+-			else
+-				flags |= __GFP_DMA;
+-			break;
++				return __GFP_DMA32;
++			return __GFP_DMA;
+ 		}
+ 	}
+-	return __get_free_pages(flags, order);
 +
- /* 10 seconds */
- #define DMAR_OPERATION_TIMEOUT ((cycles_t) tsc_khz*10*1000)
- 
-diff --git a/arch/x86/include/asm/iommu_table.h b/arch/x86/include/asm/iommu_table.h
-deleted file mode 100644
-index 1fb3fd1a83c25..0000000000000
---- a/arch/x86/include/asm/iommu_table.h
-+++ /dev/null
-@@ -1,102 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 */
--#ifndef _ASM_X86_IOMMU_TABLE_H
--#define _ASM_X86_IOMMU_TABLE_H
--
--#include <asm/swiotlb.h>
--
--/*
-- * History lesson:
-- * The execution chain of IOMMUs in 2.6.36 looks as so:
-- *
-- *            [xen-swiotlb]
-- *                 |
-- *         +----[swiotlb *]--+
-- *        /         |         \
-- *       /          |          \
-- *    [GART]     [Calgary]  [Intel VT-d]
-- *     /
-- *    /
-- * [AMD-Vi]
-- *
-- * *: if SWIOTLB detected 'iommu=soft'/'swiotlb=force' it would skip
-- * over the rest of IOMMUs and unconditionally initialize the SWIOTLB.
-- * Also it would surreptitiously initialize set the swiotlb=1 if there were
-- * more than 4GB and if the user did not pass in 'iommu=off'. The swiotlb
-- * flag would be turned off by all IOMMUs except the Calgary one.
-- *
-- * The IOMMU_INIT* macros allow a similar tree (or more complex if desired)
-- * to be built by defining who we depend on.
-- *
-- * And all that needs to be done is to use one of the macros in the IOMMU
-- * and the pci-dma.c will take care of the rest.
-- */
--
--struct iommu_table_entry {
--	initcall_t	detect;
--	initcall_t	depend;
--	void		(*early_init)(void); /* No memory allocate available. */
--	void		(*late_init)(void); /* Yes, can allocate memory. */
--#define IOMMU_FINISH_IF_DETECTED (1<<0)
--#define IOMMU_DETECTED		 (1<<1)
--	int		flags;
--};
--/*
-- * Macro fills out an entry in the .iommu_table that is equivalent
-- * to the fields that 'struct iommu_table_entry' has. The entries
-- * that are put in the .iommu_table section are not put in any order
-- * hence during boot-time we will have to resort them based on
-- * dependency. */
--
--
--#define __IOMMU_INIT(_detect, _depend, _early_init, _late_init, _finish)\
--	static const struct iommu_table_entry				\
--		__iommu_entry_##_detect __used				\
--	__attribute__ ((unused, __section__(".iommu_table"),		\
--			aligned((sizeof(void *)))))	\
--	= {_detect, _depend, _early_init, _late_init,			\
--	   _finish ? IOMMU_FINISH_IF_DETECTED : 0}
--/*
-- * The simplest IOMMU definition. Provide the detection routine
-- * and it will be run after the SWIOTLB and the other IOMMUs
-- * that utilize this macro. If the IOMMU is detected (ie, the
-- * detect routine returns a positive value), the other IOMMUs
-- * are also checked. You can use IOMMU_INIT_POST_FINISH if you prefer
-- * to stop detecting the other IOMMUs after yours has been detected.
-- */
--#define IOMMU_INIT_POST(_detect)					\
--	__IOMMU_INIT(_detect, pci_swiotlb_detect_4gb,  NULL, NULL, 0)
--
--#define IOMMU_INIT_POST_FINISH(detect)					\
--	__IOMMU_INIT(_detect, pci_swiotlb_detect_4gb,  NULL, NULL, 1)
--
--/*
-- * A more sophisticated version of IOMMU_INIT. This variant requires:
-- *  a). A detection routine function.
-- *  b). The name of the detection routine we depend on to get called
-- *      before us.
-- *  c). The init routine which gets called if the detection routine
-- *      returns a positive value from the pci_iommu_alloc. This means
-- *      no presence of a memory allocator.
-- *  d). Similar to the 'init', except that this gets called from pci_iommu_init
-- *      where we do have a memory allocator.
-- *
-- * The standard IOMMU_INIT differs from the IOMMU_INIT_FINISH variant
-- * in that the former will continue detecting other IOMMUs in the call
-- * list after the detection routine returns a positive number, while the
-- * latter will stop the execution chain upon first successful detection.
-- * Both variants will still call the 'init' and 'late_init' functions if
-- * they are set.
-- */
--#define IOMMU_INIT_FINISH(_detect, _depend, _init, _late_init)		\
--	__IOMMU_INIT(_detect, _depend, _init, _late_init, 1)
--
--#define IOMMU_INIT(_detect, _depend, _init, _late_init)			\
--	__IOMMU_INIT(_detect, _depend, _init, _late_init, 0)
--
--void sort_iommu_table(struct iommu_table_entry *start,
--		      struct iommu_table_entry *finish);
--
--void check_iommu_entries(struct iommu_table_entry *start,
--			 struct iommu_table_entry *finish);
--
--#endif /* _ASM_X86_IOMMU_TABLE_H */
-diff --git a/arch/x86/include/asm/swiotlb.h b/arch/x86/include/asm/swiotlb.h
-deleted file mode 100644
-index ff6c92eff035a..0000000000000
---- a/arch/x86/include/asm/swiotlb.h
-+++ /dev/null
-@@ -1,30 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 */
--#ifndef _ASM_X86_SWIOTLB_H
--#define _ASM_X86_SWIOTLB_H
--
--#include <linux/swiotlb.h>
--
--#ifdef CONFIG_SWIOTLB
--extern int swiotlb;
--extern int __init pci_swiotlb_detect_override(void);
--extern int __init pci_swiotlb_detect_4gb(void);
--extern void __init pci_swiotlb_init(void);
--extern void __init pci_swiotlb_late_init(void);
--#else
--#define swiotlb 0
--static inline int pci_swiotlb_detect_override(void)
--{
--	return 0;
--}
--static inline int pci_swiotlb_detect_4gb(void)
--{
--	return 0;
--}
--static inline void pci_swiotlb_init(void)
--{
--}
--static inline void pci_swiotlb_late_init(void)
--{
--}
--#endif
--#endif /* _ASM_X86_SWIOTLB_H */
-diff --git a/arch/x86/include/asm/xen/swiotlb-xen.h b/arch/x86/include/asm/xen/swiotlb-xen.h
-index 66b4ddde77430..e5a90b42e4dde 100644
---- a/arch/x86/include/asm/xen/swiotlb-xen.h
-+++ b/arch/x86/include/asm/xen/swiotlb-xen.h
-@@ -3,10 +3,8 @@
- #define _ASM_X86_SWIOTLB_XEN_H
- 
- #ifdef CONFIG_SWIOTLB_XEN
--extern int __init pci_xen_swiotlb_detect(void);
- extern int pci_xen_swiotlb_init_late(void);
- #else
--#define pci_xen_swiotlb_detect NULL
- static inline int pci_xen_swiotlb_init_late(void) { return -ENXIO; }
- #endif
- 
-diff --git a/arch/x86/kernel/Makefile b/arch/x86/kernel/Makefile
-index 6aef9ee28a394..2851d4f0aa0d2 100644
---- a/arch/x86/kernel/Makefile
-+++ b/arch/x86/kernel/Makefile
-@@ -71,7 +71,6 @@ obj-y			+= bootflag.o e820.o
- obj-y			+= pci-dma.o quirks.o topology.o kdebugfs.o
- obj-y			+= alternative.o i8253.o hw_breakpoint.o
- obj-y			+= tsc.o tsc_msr.o io_delay.o rtc.o
--obj-y			+= pci-iommu_table.o
- obj-y			+= resource.o
- obj-y			+= irqflags.o
- obj-y			+= static_call.o
-@@ -136,7 +135,6 @@ obj-$(CONFIG_PCSPKR_PLATFORM)	+= pcspeaker.o
- 
- obj-$(CONFIG_X86_CHECK_BIOS_CORRUPTION) += check.o
- 
--obj-$(CONFIG_SWIOTLB)			+= pci-swiotlb.o
- obj-$(CONFIG_OF)			+= devicetree.o
- obj-$(CONFIG_UPROBES)			+= uprobes.o
- 
-diff --git a/arch/x86/kernel/amd_gart_64.c b/arch/x86/kernel/amd_gart_64.c
-index ed837383de5c8..194d54eed5376 100644
---- a/arch/x86/kernel/amd_gart_64.c
-+++ b/arch/x86/kernel/amd_gart_64.c
-@@ -38,11 +38,9 @@
- #include <asm/iommu.h>
- #include <asm/gart.h>
- #include <asm/set_memory.h>
--#include <asm/swiotlb.h>
- #include <asm/dma.h>
- #include <asm/amd_nb.h>
- #include <asm/x86_init.h>
--#include <asm/iommu_table.h>
- 
- static unsigned long iommu_bus_base;	/* GART remapping area (physical) */
- static unsigned long iommu_size;	/* size of remapping area bytes */
-@@ -808,7 +806,7 @@ int __init gart_iommu_init(void)
- 	flush_gart();
- 	dma_ops = &gart_dma_ops;
- 	x86_platform.iommu_shutdown = gart_iommu_shutdown;
--	swiotlb = 0;
-+	x86_swiotlb_enable = false;
- 
- 	return 0;
++	return GFP_KERNEL;
  }
-@@ -842,4 +840,3 @@ void __init gart_parse_options(char *p)
- 		}
- 	}
+ 
+ static bool hypercall_cflush = false;
+@@ -143,10 +141,15 @@ static int __init xen_mm_init(void)
+ 	if (!xen_swiotlb_detect())
+ 		return 0;
+ 
+-	rc = xen_swiotlb_init();
+ 	/* we can work with the default swiotlb */
+-	if (rc < 0 && rc != -EEXIST)
+-		return rc;
++	if (!io_tlb_default_mem.nslabs) {
++		if (!xen_initial_domain())
++			return -EINVAL;
++		rc = swiotlb_init_late(swiotlb_size_or_default(),
++				       xen_swiotlb_gfp(), NULL);
++		if (rc < 0)
++			return rc;
++	}
+ 
+ 	cflush.op = 0;
+ 	cflush.a.dev_bus_addr = 0;
+diff --git a/arch/x86/include/asm/xen/page.h b/arch/x86/include/asm/xen/page.h
+index e989bc2269f54..1fc67df500145 100644
+--- a/arch/x86/include/asm/xen/page.h
++++ b/arch/x86/include/asm/xen/page.h
+@@ -357,9 +357,4 @@ static inline bool xen_arch_need_swiotlb(struct device *dev,
+ 	return false;
  }
--IOMMU_INIT_POST(gart_iommu_hole_init);
-diff --git a/arch/x86/kernel/aperture_64.c b/arch/x86/kernel/aperture_64.c
-index af3ba08b684b5..7a5630d904b23 100644
---- a/arch/x86/kernel/aperture_64.c
-+++ b/arch/x86/kernel/aperture_64.c
-@@ -392,7 +392,7 @@ void __init early_gart_iommu_check(void)
  
- static int __initdata printed_gart_size_msg;
- 
--int __init gart_iommu_hole_init(void)
-+void __init gart_iommu_hole_init(void)
- {
- 	u32 agp_aper_base = 0, agp_aper_order = 0;
- 	u32 aper_size, aper_alloc = 0, aper_order = 0, last_aper_order = 0;
-@@ -401,11 +401,11 @@ int __init gart_iommu_hole_init(void)
- 	int i, node;
- 
- 	if (!amd_gart_present())
--		return -ENODEV;
-+		return;
- 
- 	if (gart_iommu_aperture_disabled || !fix_aperture ||
- 	    !early_pci_allowed())
--		return -ENODEV;
-+		return;
- 
- 	pr_info("Checking aperture...\n");
- 
-@@ -491,10 +491,8 @@ int __init gart_iommu_hole_init(void)
- 			 * and fixed up the northbridge
- 			 */
- 			exclude_from_core(last_aper_base, last_aper_order);
+-static inline unsigned long xen_get_swiotlb_free_pages(unsigned int order)
+-{
+-	return __get_free_pages(__GFP_NOWARN, order);
+-}
 -
--			return 1;
- 		}
--		return 0;
-+		return;
- 	}
- 
- 	if (!fallback_aper_force) {
-@@ -527,7 +525,7 @@ int __init gart_iommu_hole_init(void)
- 			panic("Not enough memory for aperture");
- 		}
- 	} else {
--		return 0;
-+		return;
- 	}
- 
- 	/*
-@@ -561,6 +559,4 @@ int __init gart_iommu_hole_init(void)
- 	}
- 
- 	set_up_gart_resume(aper_order, aper_alloc);
--
--	return 1;
- }
+ #endif /* _ASM_X86_XEN_PAGE_H */
 diff --git a/arch/x86/kernel/pci-dma.c b/arch/x86/kernel/pci-dma.c
-index de234e7a8962e..32c9cd9d7c257 100644
+index 9576a02a2590f..b849f11a756d0 100644
 --- a/arch/x86/kernel/pci-dma.c
 +++ b/arch/x86/kernel/pci-dma.c
-@@ -7,13 +7,16 @@
- #include <linux/memblock.h>
- #include <linux/gfp.h>
- #include <linux/pci.h>
-+#include <linux/amd-iommu.h>
- 
- #include <asm/proto.h>
- #include <asm/dma.h>
- #include <asm/iommu.h>
- #include <asm/gart.h>
- #include <asm/x86_init.h>
--#include <asm/iommu_table.h>
-+
-+#include <xen/xen.h>
-+#include <xen/swiotlb-xen.h>
- 
- static bool disable_dac_quirk __read_mostly;
- 
-@@ -34,24 +37,63 @@ int no_iommu __read_mostly;
- /* Set this to 1 if there is a HW IOMMU in the system */
- int iommu_detected __read_mostly = 0;
- 
--extern struct iommu_table_entry __iommu_table[], __iommu_table_end[];
-+#ifdef CONFIG_SWIOTLB
-+bool x86_swiotlb_enable;
-+static bool xen_swiotlb;
- 
--void __init pci_iommu_alloc(void)
-+/*
-+ * If 4GB or more detected (and iommu=off not set) or if SME is active
-+ * then set swiotlb to 1 and return 1.
-+ */
-+static void __init pci_swiotlb_detect_4gb(void)
- {
--	struct iommu_table_entry *p;
--
--	sort_iommu_table(__iommu_table, __iommu_table_end);
--	check_iommu_entries(__iommu_table, __iommu_table_end);
--
--	for (p = __iommu_table; p < __iommu_table_end; p++) {
--		if (p && p->detect && p->detect() > 0) {
--			p->flags |= IOMMU_DETECTED;
--			if (p->early_init)
--				p->early_init();
--			if (p->flags & IOMMU_FINISH_IF_DETECTED)
--				break;
-+#ifdef CONFIG_SWIOTLB_XEN
-+	if (xen_pv_domain()) {
-+		if (xen_initial_domain() || x86_swiotlb_enable ||
-+		    swiotlb_force == SWIOTLB_FORCE) {
-+			xen_swiotlb = true;
-+			xen_swiotlb_init_early();
-+			dma_ops = &xen_swiotlb_dma_ops;
-+
-+#ifdef CONFIG_PCI
-+			/* Make sure ACS will be enabled */
-+			pci_request_acs();
-+#endif
- 		}
-+		x86_swiotlb_enable = false;
-+		return;
- 	}
-+#endif /* CONFIG_SWIOTLB_XEN */
-+
-+	/* don't initialize swiotlb if iommu=off (no_iommu=1) */
-+	if (!no_iommu && max_possible_pfn > MAX_DMA32_PFN)
-+		x86_swiotlb_enable = true;
-+
-+	/*
-+	 * Set swiotlb to 1 so that bounce buffers are allocated and used for
-+	 * devices that can't support DMA to encrypted memory.
-+	 */
-+	if (cc_platform_has(CC_ATTR_HOST_MEM_ENCRYPT))
-+		x86_swiotlb_enable = true;
-+
-+	if (swiotlb_force == SWIOTLB_FORCE)
-+		x86_swiotlb_enable = true;
-+}
-+#else
-+static inline void __init pci_swiotlb_detect_4gb(void)
-+{
-+}
-+#endif /* CONFIG_SWIOTLB */
-+
-+void __init pci_iommu_alloc(void)
-+{
-+	pci_swiotlb_detect_4gb();
-+	gart_iommu_hole_init();
-+	amd_iommu_detect();
-+	detect_intel_iommu();
-+
-+	if (x86_swiotlb_enable)
-+		swiotlb_init(0);
- }
+@@ -40,7 +40,6 @@ int iommu_detected __read_mostly = 0;
+ #ifdef CONFIG_SWIOTLB
+ bool x86_swiotlb_enable;
+ static unsigned int x86_swiotlb_flags;
+-static bool xen_swiotlb;
  
  /*
-@@ -102,7 +144,7 @@ static __init int iommu_setup(char *p)
- 		}
- #ifdef CONFIG_SWIOTLB
- 		if (!strncmp(p, "soft", 4))
--			swiotlb = 1;
-+			x86_swiotlb_enable = 1;
- #endif
- 		if (!strncmp(p, "pt", 2))
- 			iommu_set_default_passthrough(true);
-@@ -121,14 +163,18 @@ early_param("iommu", iommu_setup);
- 
- static int __init pci_iommu_init(void)
+  * If 4GB or more detected (and iommu=off not set) or if SME is active
+@@ -50,17 +49,16 @@ static void __init pci_swiotlb_detect_4gb(void)
  {
--	struct iommu_table_entry *p;
--
- 	x86_init.iommu.iommu_init();
+ #ifdef CONFIG_SWIOTLB_XEN
+ 	if (xen_pv_domain()) {
+-		if (xen_initial_domain() || x86_swiotlb_enable) {
+-			xen_swiotlb = true;
+-			xen_swiotlb_init_early();
+-			dma_ops = &xen_swiotlb_dma_ops;
++		if (xen_initial_domain())
++			x86_swiotlb_enable = true;
  
--	for (p = __iommu_table; p < __iommu_table_end; p++) {
--		if (p && (p->flags & IOMMU_DETECTED) && p->late_init)
--			p->late_init();
-+#ifdef CONFIG_SWIOTLB
-+	/* An IOMMU turned us off. */
-+	if (x86_swiotlb_enable) {
-+		printk(KERN_INFO "PCI-DMA: "
-+		       "Using software bounce buffering for IO (SWIOTLB)\n");
-+		swiotlb_print_info();
-+	} else {
-+		swiotlb_exit();
- 	}
-+#endif
- 
- 	return 0;
- }
-@@ -154,3 +200,27 @@ static void via_no_dac(struct pci_dev *dev)
- DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_VIA, PCI_ANY_ID,
- 				PCI_CLASS_BRIDGE_PCI, 8, via_no_dac);
++		if (x86_swiotlb_enable) {
++			dma_ops = &xen_swiotlb_dma_ops;
+ #ifdef CONFIG_PCI
+ 			/* Make sure ACS will be enabled */
+ 			pci_request_acs();
  #endif
-+
-+#ifdef CONFIG_SWIOTLB_XEN
-+int pci_xen_swiotlb_init_late(void)
-+{
-+	int rc;
-+
-+	if (xen_swiotlb)
-+		return 0;
-+
-+	rc = xen_swiotlb_init();
-+	if (rc)
-+		return rc;
-+
-+	/* XXX: this switches the dma ops under live devices! */
-+	dma_ops = &xen_swiotlb_dma_ops;
-+#ifdef CONFIG_PCI
-+	/* Make sure ACS will be enabled */
-+	pci_request_acs();
-+#endif
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(pci_xen_swiotlb_init_late);
-+#endif /* CONFIG_SWIOTLB_XEN */
-diff --git a/arch/x86/kernel/pci-iommu_table.c b/arch/x86/kernel/pci-iommu_table.c
-deleted file mode 100644
-index 42e92ec62973b..0000000000000
---- a/arch/x86/kernel/pci-iommu_table.c
-+++ /dev/null
-@@ -1,77 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0
--#include <linux/dma-mapping.h>
--#include <asm/iommu_table.h>
--#include <linux/string.h>
--#include <linux/kallsyms.h>
--
--static struct iommu_table_entry * __init
--find_dependents_of(struct iommu_table_entry *start,
--		   struct iommu_table_entry *finish,
--		   struct iommu_table_entry *q)
--{
--	struct iommu_table_entry *p;
--
--	if (!q)
--		return NULL;
--
--	for (p = start; p < finish; p++)
--		if (p->detect == q->depend)
--			return p;
--
--	return NULL;
--}
--
--
--void __init sort_iommu_table(struct iommu_table_entry *start,
--			     struct iommu_table_entry *finish) {
--
--	struct iommu_table_entry *p, *q, tmp;
--
--	for (p = start; p < finish; p++) {
--again:
--		q = find_dependents_of(start, finish, p);
--		/* We are bit sneaky here. We use the memory address to figure
--		 * out if the node we depend on is past our point, if so, swap.
--		 */
--		if (q > p) {
--			tmp = *p;
--			memmove(p, q, sizeof(*p));
--			*q = tmp;
--			goto again;
--		}
--	}
--
--}
--
--#ifdef DEBUG
--void __init check_iommu_entries(struct iommu_table_entry *start,
--				struct iommu_table_entry *finish)
--{
--	struct iommu_table_entry *p, *q, *x;
--
--	/* Simple cyclic dependency checker. */
--	for (p = start; p < finish; p++) {
--		q = find_dependents_of(start, finish, p);
--		x = find_dependents_of(start, finish, q);
--		if (p == x) {
--			printk(KERN_ERR "CYCLIC DEPENDENCY FOUND! %pS depends on %pS and vice-versa. BREAKING IT.\n",
--			       p->detect, q->detect);
--			/* Heavy handed way..*/
--			x->depend = NULL;
--		}
--	}
--
--	for (p = start; p < finish; p++) {
--		q = find_dependents_of(p, finish, p);
--		if (q && q > p) {
--			printk(KERN_ERR "EXECUTION ORDER INVALID! %pS should be called before %pS!\n",
--			       p->detect, q->detect);
--		}
--	}
--}
--#else
--void __init check_iommu_entries(struct iommu_table_entry *start,
--				       struct iommu_table_entry *finish)
--{
--}
--#endif
-diff --git a/arch/x86/kernel/pci-swiotlb.c b/arch/x86/kernel/pci-swiotlb.c
-deleted file mode 100644
-index 814ab46a0dada..0000000000000
---- a/arch/x86/kernel/pci-swiotlb.c
-+++ /dev/null
-@@ -1,77 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0
--
--#include <linux/pci.h>
--#include <linux/cache.h>
--#include <linux/init.h>
--#include <linux/swiotlb.h>
--#include <linux/memblock.h>
--#include <linux/dma-direct.h>
--#include <linux/cc_platform.h>
--
--#include <asm/iommu.h>
--#include <asm/swiotlb.h>
--#include <asm/dma.h>
--#include <asm/xen/swiotlb-xen.h>
--#include <asm/iommu_table.h>
--
--int swiotlb __read_mostly;
--
--/*
-- * pci_swiotlb_detect_override - set swiotlb to 1 if necessary
-- *
-- * This returns non-zero if we are forced to use swiotlb (by the boot
-- * option).
-- */
--int __init pci_swiotlb_detect_override(void)
--{
--	if (swiotlb_force == SWIOTLB_FORCE)
--		swiotlb = 1;
--
--	return swiotlb;
--}
--IOMMU_INIT_FINISH(pci_swiotlb_detect_override,
--		  pci_xen_swiotlb_detect,
--		  pci_swiotlb_init,
--		  pci_swiotlb_late_init);
--
--/*
-- * If 4GB or more detected (and iommu=off not set) or if SME is active
-- * then set swiotlb to 1 and return 1.
-- */
--int __init pci_swiotlb_detect_4gb(void)
--{
--	/* don't initialize swiotlb if iommu=off (no_iommu=1) */
--	if (!no_iommu && max_possible_pfn > MAX_DMA32_PFN)
--		swiotlb = 1;
--
--	/*
--	 * Set swiotlb to 1 so that bounce buffers are allocated and used for
--	 * devices that can't support DMA to encrypted memory.
--	 */
--	if (cc_platform_has(CC_ATTR_HOST_MEM_ENCRYPT))
--		swiotlb = 1;
--
--	return swiotlb;
--}
--IOMMU_INIT(pci_swiotlb_detect_4gb,
--	   pci_swiotlb_detect_override,
--	   pci_swiotlb_init,
--	   pci_swiotlb_late_init);
--
--void __init pci_swiotlb_init(void)
--{
--	if (swiotlb)
--		swiotlb_init(0);
--}
--
--void __init pci_swiotlb_late_init(void)
--{
--	/* An IOMMU turned us off. */
--	if (!swiotlb)
--		swiotlb_exit();
--	else {
--		printk(KERN_INFO "PCI-DMA: "
--		       "Using software bounce buffering for IO (SWIOTLB)\n");
--		swiotlb_print_info();
--	}
--}
-diff --git a/arch/x86/kernel/tboot.c b/arch/x86/kernel/tboot.c
-index f9af561c3cd4f..0c1154a1c4032 100644
---- a/arch/x86/kernel/tboot.c
-+++ b/arch/x86/kernel/tboot.c
-@@ -24,7 +24,6 @@
- #include <asm/processor.h>
- #include <asm/bootparam.h>
- #include <asm/pgalloc.h>
--#include <asm/swiotlb.h>
- #include <asm/fixmap.h>
- #include <asm/proto.h>
- #include <asm/setup.h>
-diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
-index 27f830345b6f0..bbe910c15b293 100644
---- a/arch/x86/kernel/vmlinux.lds.S
-+++ b/arch/x86/kernel/vmlinux.lds.S
-@@ -306,18 +306,6 @@ SECTIONS
- 		*(.altinstr_replacement)
+ 		}
+-		x86_swiotlb_enable = false;
+ 		return;
  	}
+ #endif /* CONFIG_SWIOTLB_XEN */
+@@ -91,7 +89,8 @@ void __init pci_iommu_alloc(void)
+ 	amd_iommu_detect();
+ 	detect_intel_iommu();
+ #ifdef CONFIG_SWIOTLB
+-	swiotlb_init(x86_swiotlb_enable, x86_swiotlb_flags);
++	swiotlb_init_remap(x86_swiotlb_enable, x86_swiotlb_flags,
++			   xen_pv_domain() ? xen_swiotlb_fixup : NULL);
+ #endif
+ }
  
--	/*
--	 * struct iommu_table_entry entries are injected in this section.
--	 * It is an array of IOMMUs which during run time gets sorted depending
--	 * on its dependency order. After rootfs_initcall is complete
--	 * this section can be safely removed.
--	 */
--	.iommu_table : AT(ADDR(.iommu_table) - LOAD_OFFSET) {
--		__iommu_table = .;
--		*(.iommu_table)
--		__iommu_table_end = .;
--	}
--
- 	. = ALIGN(8);
- 	.apicdrivers : AT(ADDR(.apicdrivers) - LOAD_OFFSET) {
- 		__apicdrivers = .;
-diff --git a/arch/x86/xen/Makefile b/arch/x86/xen/Makefile
-index 4953260e281c3..3c5b52fbe4a7f 100644
---- a/arch/x86/xen/Makefile
-+++ b/arch/x86/xen/Makefile
-@@ -47,6 +47,4 @@ obj-$(CONFIG_XEN_DEBUG_FS)	+= debugfs.o
+@@ -205,13 +204,17 @@ int pci_xen_swiotlb_init_late(void)
+ {
+ 	int rc;
  
- obj-$(CONFIG_XEN_PV_DOM0)	+= vga.o
- 
--obj-$(CONFIG_SWIOTLB_XEN)	+= pci-swiotlb-xen.o
--
- obj-$(CONFIG_XEN_EFI)		+= efi.o
-diff --git a/arch/x86/xen/pci-swiotlb-xen.c b/arch/x86/xen/pci-swiotlb-xen.c
-deleted file mode 100644
-index 46df59aeaa06a..0000000000000
---- a/arch/x86/xen/pci-swiotlb-xen.c
-+++ /dev/null
-@@ -1,96 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0
--
--/* Glue code to lib/swiotlb-xen.c */
--
--#include <linux/dma-map-ops.h>
--#include <linux/pci.h>
--#include <xen/swiotlb-xen.h>
--
--#include <asm/xen/hypervisor.h>
--#include <xen/xen.h>
--#include <asm/iommu_table.h>
--
--
--#include <asm/xen/swiotlb-xen.h>
--#ifdef CONFIG_X86_64
--#include <asm/iommu.h>
--#include <asm/dma.h>
--#endif
--#include <linux/export.h>
--
--static int xen_swiotlb __read_mostly;
--
--/*
-- * pci_xen_swiotlb_detect - set xen_swiotlb to 1 if necessary
-- *
-- * This returns non-zero if we are forced to use xen_swiotlb (by the boot
-- * option).
-- */
--int __init pci_xen_swiotlb_detect(void)
--{
--
--	if (!xen_pv_domain())
--		return 0;
--
--	/* If running as PV guest, either iommu=soft, or swiotlb=force will
--	 * activate this IOMMU. If running as PV privileged, activate it
--	 * irregardless.
--	 */
--	if (xen_initial_domain() || swiotlb || swiotlb_force == SWIOTLB_FORCE)
--		xen_swiotlb = 1;
--
--	/* If we are running under Xen, we MUST disable the native SWIOTLB.
--	 * Don't worry about swiotlb_force flag activating the native, as
--	 * the 'swiotlb' flag is the only one turning it on. */
--	swiotlb = 0;
--
--#ifdef CONFIG_X86_64
--	/* pci_swiotlb_detect_4gb turns on native SWIOTLB if no_iommu == 0
--	 * (so no iommu=X command line over-writes).
--	 * Considering that PV guests do not want the *native SWIOTLB* but
--	 * only Xen SWIOTLB it is not useful to us so set no_iommu=1 here.
--	 */
--	if (max_pfn > MAX_DMA32_PFN)
--		no_iommu = 1;
--#endif
--	return xen_swiotlb;
--}
--
--static void __init pci_xen_swiotlb_init(void)
--{
--	if (xen_swiotlb) {
--		xen_swiotlb_init_early();
--		dma_ops = &xen_swiotlb_dma_ops;
--
--#ifdef CONFIG_PCI
--		/* Make sure ACS will be enabled */
--		pci_request_acs();
--#endif
--	}
--}
--
--int pci_xen_swiotlb_init_late(void)
--{
--	int rc;
--
 -	if (xen_swiotlb)
--		return 0;
--
++	if (dma_ops == &xen_swiotlb_dma_ops)
+ 		return 0;
+ 
 -	rc = xen_swiotlb_init();
 -	if (rc)
 -		return rc;
 -
--	dma_ops = &xen_swiotlb_dma_ops;
--#ifdef CONFIG_PCI
--	/* Make sure ACS will be enabled */
--	pci_request_acs();
--#endif
--
--	return 0;
--}
--EXPORT_SYMBOL_GPL(pci_xen_swiotlb_init_late);
--
--IOMMU_INIT_FINISH(pci_xen_swiotlb_detect,
--		  NULL,
--		  pci_xen_swiotlb_init,
--		  NULL);
-diff --git a/drivers/iommu/amd/init.c b/drivers/iommu/amd/init.c
-index b10fb52ea4428..721300cf90207 100644
---- a/drivers/iommu/amd/init.c
-+++ b/drivers/iommu/amd/init.c
-@@ -27,7 +27,6 @@
- #include <asm/apic.h>
- #include <asm/gart.h>
- #include <asm/x86_init.h>
--#include <asm/iommu_table.h>
- #include <asm/io_apic.h>
- #include <asm/irq_remapping.h>
- #include <asm/set_memory.h>
-@@ -3237,11 +3236,6 @@ __setup("ivrs_ioapic",		parse_ivrs_ioapic);
- __setup("ivrs_hpet",		parse_ivrs_hpet);
- __setup("ivrs_acpihid",		parse_ivrs_acpihid);
- 
--IOMMU_INIT_FINISH(amd_iommu_detect,
--		  gart_iommu_hole_init,
--		  NULL,
--		  NULL);
--
- bool amd_iommu_v2_supported(void)
- {
- 	return amd_iommu_v2_present;
-diff --git a/drivers/iommu/amd/iommu.c b/drivers/iommu/amd/iommu.c
-index 461f1844ed1fb..4f9672b18ad1a 100644
---- a/drivers/iommu/amd/iommu.c
-+++ b/drivers/iommu/amd/iommu.c
-@@ -1834,7 +1834,10 @@ void amd_iommu_domain_update(struct protection_domain *domain)
- 
- static void __init amd_iommu_init_dma_ops(void)
- {
--	swiotlb = (iommu_default_passthrough() || sme_me_mask) ? 1 : 0;
-+	if (iommu_default_passthrough() || sme_me_mask) 
-+		x86_swiotlb_enable = true;
-+	else
-+		x86_swiotlb_enable = false;
- }
- 
- int __init amd_iommu_init_api(void)
-diff --git a/drivers/iommu/intel/dmar.c b/drivers/iommu/intel/dmar.c
-index 915bff76fe965..29bee4b210c5b 100644
---- a/drivers/iommu/intel/dmar.c
-+++ b/drivers/iommu/intel/dmar.c
-@@ -30,7 +30,6 @@
- #include <linux/numa.h>
- #include <linux/limits.h>
- #include <asm/irq_remapping.h>
--#include <asm/iommu_table.h>
- #include <trace/events/intel_iommu.h>
- 
- #include "../irq_remapping.h"
-@@ -913,7 +912,7 @@ dmar_validate_one_drhd(struct acpi_dmar_header *entry, void *arg)
++	/* we can work with the default swiotlb */
++	if (!io_tlb_default_mem.nslabs) {
++		rc = swiotlb_init_late(swiotlb_size_or_default(),
++				       GFP_KERNEL, xen_swiotlb_fixup);
++		if (rc < 0)
++			return rc;
++	}
++ 
+ 	/* XXX: this switches the dma ops under live devices! */
+ 	dma_ops = &xen_swiotlb_dma_ops;
+ #ifdef CONFIG_PCI
+diff --git a/arch/x86/pci/sta2x11-fixup.c b/arch/x86/pci/sta2x11-fixup.c
+index c7e6faf59a861..7368afc039987 100644
+--- a/arch/x86/pci/sta2x11-fixup.c
++++ b/arch/x86/pci/sta2x11-fixup.c
+@@ -57,7 +57,7 @@ static void sta2x11_new_instance(struct pci_dev *pdev)
+ 		int size = STA2X11_SWIOTLB_SIZE;
+ 		/* First instance: register your own swiotlb area */
+ 		dev_info(&pdev->dev, "Using SWIOTLB (size %i)\n", size);
+-		if (swiotlb_init_late(size, GFP_DMA))
++		if (swiotlb_init_late(size, GFP_DMA, NULL))
+ 			dev_emerg(&pdev->dev, "init swiotlb failed\n");
+ 	}
+ 	list_add(&instance->list, &sta2x11_instance_list);
+diff --git a/drivers/xen/swiotlb-xen.c b/drivers/xen/swiotlb-xen.c
+index c2da3eb4826e8..df8085b50df10 100644
+--- a/drivers/xen/swiotlb-xen.c
++++ b/drivers/xen/swiotlb-xen.c
+@@ -104,7 +104,7 @@ static int is_xen_swiotlb_buffer(struct device *dev, dma_addr_t dma_addr)
  	return 0;
  }
  
--int __init detect_intel_iommu(void)
-+void __init detect_intel_iommu(void)
+-static int xen_swiotlb_fixup(void *buf, unsigned long nslabs)
++int xen_swiotlb_fixup(void *buf, unsigned long nslabs)
  {
- 	int ret;
- 	struct dmar_res_callback validate_drhd_cb = {
-@@ -946,8 +945,6 @@ int __init detect_intel_iommu(void)
- 		dmar_tbl = NULL;
- 	}
- 	up_write(&dmar_global_lock);
+ 	int rc;
+ 	unsigned int order = get_order(IO_TLB_SEGSIZE << IO_TLB_SHIFT);
+@@ -130,132 +130,6 @@ static int xen_swiotlb_fixup(void *buf, unsigned long nslabs)
+ 	return 0;
+ }
+ 
+-enum xen_swiotlb_err {
+-	XEN_SWIOTLB_UNKNOWN = 0,
+-	XEN_SWIOTLB_ENOMEM,
+-	XEN_SWIOTLB_EFIXUP
+-};
 -
--	return ret ? ret : 1;
+-static const char *xen_swiotlb_error(enum xen_swiotlb_err err)
+-{
+-	switch (err) {
+-	case XEN_SWIOTLB_ENOMEM:
+-		return "Cannot allocate Xen-SWIOTLB buffer\n";
+-	case XEN_SWIOTLB_EFIXUP:
+-		return "Failed to get contiguous memory for DMA from Xen!\n"\
+-		    "You either: don't have the permissions, do not have"\
+-		    " enough free memory under 4GB, or the hypervisor memory"\
+-		    " is too fragmented!";
+-	default:
+-		break;
+-	}
+-	return "";
+-}
+-
+-int xen_swiotlb_init(void)
+-{
+-	enum xen_swiotlb_err m_ret = XEN_SWIOTLB_UNKNOWN;
+-	unsigned long bytes = swiotlb_size_or_default();
+-	unsigned long nslabs = bytes >> IO_TLB_SHIFT;
+-	unsigned int order, repeat = 3;
+-	int rc = -ENOMEM;
+-	char *start;
+-
+-	if (io_tlb_default_mem.nslabs) {
+-		pr_warn("swiotlb buffer already initialized\n");
+-		return -EEXIST;
+-	}
+-
+-retry:
+-	m_ret = XEN_SWIOTLB_ENOMEM;
+-	order = get_order(bytes);
+-
+-	/*
+-	 * Get IO TLB memory from any location.
+-	 */
+-#define SLABS_PER_PAGE (1 << (PAGE_SHIFT - IO_TLB_SHIFT))
+-#define IO_TLB_MIN_SLABS ((1<<20) >> IO_TLB_SHIFT)
+-	while ((SLABS_PER_PAGE << order) > IO_TLB_MIN_SLABS) {
+-		start = (void *)xen_get_swiotlb_free_pages(order);
+-		if (start)
+-			break;
+-		order--;
+-	}
+-	if (!start)
+-		goto exit;
+-	if (order != get_order(bytes)) {
+-		pr_warn("Warning: only able to allocate %ld MB for software IO TLB\n",
+-			(PAGE_SIZE << order) >> 20);
+-		nslabs = SLABS_PER_PAGE << order;
+-		bytes = nslabs << IO_TLB_SHIFT;
+-	}
+-
+-	/*
+-	 * And replace that memory with pages under 4GB.
+-	 */
+-	rc = xen_swiotlb_fixup(start, nslabs);
+-	if (rc) {
+-		free_pages((unsigned long)start, order);
+-		m_ret = XEN_SWIOTLB_EFIXUP;
+-		goto error;
+-	}
+-	rc = swiotlb_late_init_with_tbl(start, nslabs);
+-	if (rc)
+-		return rc;
+-	return 0;
+-error:
+-	if (nslabs > 1024 && repeat--) {
+-		/* Min is 2MB */
+-		nslabs = max(1024UL, ALIGN(nslabs >> 1, IO_TLB_SEGSIZE));
+-		bytes = nslabs << IO_TLB_SHIFT;
+-		pr_info("Lowering to %luMB\n", bytes >> 20);
+-		goto retry;
+-	}
+-exit:
+-	pr_err("%s (rc:%d)\n", xen_swiotlb_error(m_ret), rc);
+-	return rc;
+-}
+-
+-#ifdef CONFIG_X86
+-void __init xen_swiotlb_init_early(void)
+-{
+-	unsigned long bytes = swiotlb_size_or_default();
+-	unsigned long nslabs = bytes >> IO_TLB_SHIFT;
+-	unsigned int repeat = 3;
+-	char *start;
+-	int rc;
+-
+-retry:
+-	/*
+-	 * Get IO TLB memory from any location.
+-	 */
+-	start = memblock_alloc(PAGE_ALIGN(bytes),
+-			       IO_TLB_SEGSIZE << IO_TLB_SHIFT);
+-	if (!start)
+-		panic("%s: Failed to allocate %lu bytes\n",
+-		      __func__, PAGE_ALIGN(bytes));
+-
+-	/*
+-	 * And replace that memory with pages under 4GB.
+-	 */
+-	rc = xen_swiotlb_fixup(start, nslabs);
+-	if (rc) {
+-		memblock_free(start, PAGE_ALIGN(bytes));
+-		if (nslabs > 1024 && repeat--) {
+-			/* Min is 2MB */
+-			nslabs = max(1024UL, ALIGN(nslabs >> 1, IO_TLB_SEGSIZE));
+-			bytes = nslabs << IO_TLB_SHIFT;
+-			pr_info("Lowering to %luMB\n", bytes >> 20);
+-			goto retry;
+-		}
+-		panic("%s (rc:%d)", xen_swiotlb_error(XEN_SWIOTLB_EFIXUP), rc);
+-	}
+-
+-	if (swiotlb_init_with_tbl(start, nslabs, SWIOTLB_VERBOSE))
+-		panic("Cannot allocate SWIOTLB buffer");
+-}
+-#endif /* CONFIG_X86 */
+-
+ static void *
+ xen_swiotlb_alloc_coherent(struct device *hwdev, size_t size,
+ 			   dma_addr_t *dma_handle, gfp_t flags,
+diff --git a/include/linux/swiotlb.h b/include/linux/swiotlb.h
+index ee655f2e4d28b..919cf82ed978e 100644
+--- a/include/linux/swiotlb.h
++++ b/include/linux/swiotlb.h
+@@ -34,10 +34,11 @@ struct scatterlist;
+ /* default to 64MB */
+ #define IO_TLB_DEFAULT_SIZE (64UL<<20)
+ 
+-int swiotlb_init_with_tbl(char *tlb, unsigned long nslabs, unsigned int flags);
+ unsigned long swiotlb_size_or_default(void);
+-extern int swiotlb_late_init_with_tbl(char *tlb, unsigned long nslabs);
+-int swiotlb_init_late(size_t size, gfp_t gfp_mask);
++int swiotlb_init_late(size_t size, gfp_t gfp_mask,
++		int (*remap)(void *tlb, unsigned long nslabs));
++void __init swiotlb_init_remap(bool addressing_limit, unsigned int flags,
++		int (*remap)(void *tlb, unsigned long nslabs));
+ extern void __init swiotlb_update_mem_attributes(void);
+ 
+ phys_addr_t swiotlb_tbl_map_single(struct device *hwdev, phys_addr_t phys,
+diff --git a/include/xen/arm/page.h b/include/xen/arm/page.h
+index ac1b654705631..7e199c6656b90 100644
+--- a/include/xen/arm/page.h
++++ b/include/xen/arm/page.h
+@@ -115,6 +115,5 @@ static inline bool set_phys_to_machine(unsigned long pfn, unsigned long mfn)
+ bool xen_arch_need_swiotlb(struct device *dev,
+ 			   phys_addr_t phys,
+ 			   dma_addr_t dev_addr);
+-unsigned long xen_get_swiotlb_free_pages(unsigned int order);
+ 
+ #endif /* _ASM_ARM_XEN_PAGE_H */
+diff --git a/include/xen/swiotlb-xen.h b/include/xen/swiotlb-xen.h
+index b3e647f86e3e2..590ceb923f0c8 100644
+--- a/include/xen/swiotlb-xen.h
++++ b/include/xen/swiotlb-xen.h
+@@ -10,8 +10,12 @@ void xen_dma_sync_for_cpu(struct device *dev, dma_addr_t handle,
+ void xen_dma_sync_for_device(struct device *dev, dma_addr_t handle,
+ 			     size_t size, enum dma_data_direction dir);
+ 
+-int xen_swiotlb_init(void);
+-void __init xen_swiotlb_init_early(void);
++#ifdef CONFIG_SWIOTLB_XEN
++int xen_swiotlb_fixup(void *buf, unsigned long nslabs);
++#else
++#define xen_swiotlb_fixup NULL
++#endif
++
+ extern const struct dma_map_ops xen_swiotlb_dma_ops;
+ 
+ #endif /* __LINUX_SWIOTLB_XEN_H */
+diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
+index ec200e40fc397..35ee2318ea563 100644
+--- a/kernel/dma/swiotlb.c
++++ b/kernel/dma/swiotlb.c
+@@ -234,40 +234,17 @@ static void swiotlb_init_io_tlb_mem(struct io_tlb_mem *mem, phys_addr_t start,
+ 	return;
  }
  
- static void unmap_iommu(struct intel_iommu *iommu)
-@@ -2165,7 +2162,6 @@ static int __init dmar_free_unused_resources(void)
- }
- 
- late_initcall(dmar_free_unused_resources);
--IOMMU_INIT_POST(detect_intel_iommu);
- 
+-int __init swiotlb_init_with_tbl(char *tlb, unsigned long nslabs,
+-		unsigned int flags)
+-{
+-	struct io_tlb_mem *mem = &io_tlb_default_mem;
+-	size_t alloc_size;
+-
+-	if (swiotlb_force_disable)
+-		return 0;
+-
+-	/* protect against double initialization */
+-	if (WARN_ON_ONCE(mem->nslabs))
+-		return -ENOMEM;
+-
+-	alloc_size = PAGE_ALIGN(array_size(sizeof(*mem->slots), nslabs));
+-	mem->slots = memblock_alloc(alloc_size, PAGE_SIZE);
+-	if (!mem->slots)
+-		panic("%s: Failed to allocate %zu bytes align=0x%lx\n",
+-		      __func__, alloc_size, PAGE_SIZE);
+-
+-	swiotlb_init_io_tlb_mem(mem, __pa(tlb), nslabs, false);
+-	mem->force_bounce = flags & SWIOTLB_FORCE;
+-
+-	if (flags & SWIOTLB_VERBOSE)
+-		swiotlb_print_info();
+-	return 0;
+-}
+-
  /*
-  * DMAR Hotplug Support
-diff --git a/include/linux/dmar.h b/include/linux/dmar.h
-index 45e903d847335..cbd714a198a0a 100644
---- a/include/linux/dmar.h
-+++ b/include/linux/dmar.h
-@@ -121,7 +121,7 @@ extern int dmar_remove_dev_scope(struct dmar_pci_notify_info *info,
- 				 u16 segment, struct dmar_dev_scope *devices,
- 				 int count);
- /* Intel IOMMU detection */
--extern int detect_intel_iommu(void);
-+void detect_intel_iommu(void);
- extern int enable_drhd_fault_handling(void);
- extern int dmar_device_add(acpi_handle handle);
- extern int dmar_device_remove(acpi_handle handle);
-@@ -197,6 +197,10 @@ static inline bool dmar_platform_optin(void)
- 	return false;
- }
+  * Statically reserve bounce buffer space and initialize bounce buffer data
+  * structures for the software IO TLB used to implement the DMA API.
+  */
+-void __init swiotlb_init(bool addressing_limit, unsigned int flags)
++void __init swiotlb_init_remap(bool addressing_limit, unsigned int flags,
++		int (*remap)(void *tlb, unsigned long nslabs))
+ {
+-	size_t bytes = PAGE_ALIGN(default_nslabs << IO_TLB_SHIFT);
++	struct io_tlb_mem *mem = &io_tlb_default_mem;
++	unsigned long nslabs = default_nslabs;
++	size_t alloc_size = PAGE_ALIGN(array_size(sizeof(*mem->slots), nslabs));
++	size_t bytes;
+ 	void *tlb;
  
-+static inline void detect_intel_iommu(void)
-+{
+ 	if (!addressing_limit && !swiotlb_force_bounce)
+@@ -275,23 +252,48 @@ void __init swiotlb_init(bool addressing_limit, unsigned int flags)
+ 	if (swiotlb_force_disable)
+ 		return;
+ 
++	/* protect against double initialization */
++	if (WARN_ON_ONCE(mem->nslabs))
++		return;
++
+ 	/*
+ 	 * By default allocate the bonuce buffer memory from low memory.
+ 	 */
++retry:
++	bytes = PAGE_ALIGN(default_nslabs << IO_TLB_SHIFT);
+ 	if (flags & SWIOTLB_ANY)
+ 		tlb = memblock_alloc(bytes, PAGE_SIZE);
+ 	else
+ 		tlb = memblock_alloc_low(bytes, PAGE_SIZE);
+ 	if (!tlb)
+-		goto fail;
+-	if (swiotlb_init_with_tbl(tlb, default_nslabs, flags))
+-		goto fail_free_mem;
+-	return;
++		panic("%s: failed to allocate tlb structure\n", __func__);
++
++	if (remap && remap(tlb, nslabs) < 0) {
++		memblock_free(tlb, PAGE_ALIGN(bytes));
++
++		/* Min is 2MB */
++		if (nslabs <= 1024)
++			panic("%s: Failed to remap %zu bytes\n",
++			      __func__, bytes);
++		nslabs = max(1024UL, ALIGN(nslabs >> 1, IO_TLB_SEGSIZE));
++		goto retry;
++	}
++
++	mem->slots = memblock_alloc(alloc_size, PAGE_SIZE);
++	if (!mem->slots)
++		panic("%s: Failed to allocate %zu bytes align=0x%lx\n",
++		      __func__, alloc_size, PAGE_SIZE);
+ 
+-fail_free_mem:
+-	memblock_free(tlb, bytes);
+-fail:
+-	pr_warn("Cannot allocate buffer");
++	swiotlb_init_io_tlb_mem(mem, __pa(tlb), default_nslabs, false);
++	mem->force_bounce = flags & SWIOTLB_FORCE;
++
++	if (flags & SWIOTLB_VERBOSE)
++		swiotlb_print_info();
 +}
 +
- #endif /* CONFIG_DMAR_TABLE */
++void __init swiotlb_init(bool addressing_limit, unsigned int flags)
++{
++	return swiotlb_init_remap(addressing_limit, flags, NULL);
+ }
  
- struct irte {
+ /*
+@@ -299,8 +301,10 @@ void __init swiotlb_init(bool addressing_limit, unsigned int flags)
+  * initialize the swiotlb later using the slab allocator if needed.
+  * This should be just like above, but with some error catching.
+  */
+-int swiotlb_init_late(size_t size, gfp_t gfp_mask)
++int swiotlb_init_late(size_t size, gfp_t gfp_mask,
++		int (*remap)(void *tlb, unsigned long nslabs))
+ {
++	struct io_tlb_mem *mem = &io_tlb_default_mem;
+ 	unsigned long nslabs = ALIGN(size >> IO_TLB_SHIFT, IO_TLB_SEGSIZE);
+ 	unsigned long bytes;
+ 	unsigned char *vstart = NULL;
+@@ -310,9 +314,14 @@ int swiotlb_init_late(size_t size, gfp_t gfp_mask)
+ 	if (swiotlb_force_disable)
+ 		return 0;
+ 
++	/* protect against double initialization */
++	if (WARN_ON_ONCE(mem->nslabs))
++		return -ENOMEM;
++
+ 	/*
+ 	 * Get IO TLB memory from the low pages
+ 	 */
++retry:
+ 	order = get_order(nslabs << IO_TLB_SHIFT);
+ 	nslabs = SLABS_PER_PAGE << order;
+ 	bytes = nslabs << IO_TLB_SHIFT;
+@@ -333,33 +342,28 @@ int swiotlb_init_late(size_t size, gfp_t gfp_mask)
+ 			(PAGE_SIZE << order) >> 20);
+ 		nslabs = SLABS_PER_PAGE << order;
+ 	}
+-	rc = swiotlb_late_init_with_tbl(vstart, nslabs);
+-	if (rc)
+-		free_pages((unsigned long)vstart, order);
+-
+-	return rc;
+-}
+-
+-int
+-swiotlb_late_init_with_tbl(char *tlb, unsigned long nslabs)
+-{
+-	struct io_tlb_mem *mem = &io_tlb_default_mem;
+-	unsigned long bytes = nslabs << IO_TLB_SHIFT;
+ 
+-	if (swiotlb_force_disable)
+-		return 0;
++	if (remap)
++		rc = remap(vstart, nslabs);
++	if (rc) {
++		free_pages((unsigned long)vstart, order);
+ 
+-	/* protect against double initialization */
+-	if (WARN_ON_ONCE(mem->nslabs))
+-		return -ENOMEM;
++		/* Min is 2MB */
++		if (nslabs <= 1024)
++			return rc;
++		nslabs = max(1024UL, ALIGN(nslabs >> 1, IO_TLB_SEGSIZE));
++		goto retry;
++	}
+ 
+ 	mem->slots = (void *)__get_free_pages(GFP_KERNEL | __GFP_ZERO,
+ 		get_order(array_size(sizeof(*mem->slots), nslabs)));
+-	if (!mem->slots)
++	if (!mem->slots) {
++		free_pages((unsigned long)vstart, order);
+ 		return -ENOMEM;
++	}
+ 
+-	set_memory_decrypted((unsigned long)tlb, bytes >> PAGE_SHIFT);
+-	swiotlb_init_io_tlb_mem(mem, virt_to_phys(tlb), nslabs, true);
++	set_memory_decrypted((unsigned long)vstart, bytes >> PAGE_SHIFT);
++	swiotlb_init_io_tlb_mem(mem, virt_to_phys(vstart), nslabs, true);
+ 
+ 	swiotlb_print_info();
+ 	return 0;
 -- 
 2.30.2
 
