@@ -2,104 +2,117 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD0C7C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 22 Feb 2022 15:18:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8313C433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 22 Feb 2022 15:35:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233380AbiBVPTS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 22 Feb 2022 10:19:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48674 "EHLO
+        id S233533AbiBVPgP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 22 Feb 2022 10:36:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233430AbiBVPTR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Feb 2022 10:19:17 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1BE614A075;
-        Tue, 22 Feb 2022 07:18:50 -0800 (PST)
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21MEhQ3C027100;
-        Tue, 22 Feb 2022 15:18:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=u0xXSzZNhiW1oVgyljBFkft3q2auVA72n/7sDFP+tmc=;
- b=e+YVlY/jGs82604bEc3OX0qhYouewRGueNBfbRY/dKqFMU9x8Idjk1hqYKNSX1ILfIix
- em3fDxYsR+qsowBCvQ+n8CbK9u7pvkt544NxNHt8d/7LCDOX/OKy5M6EbYupms1CVMmv
- yhLMOx43hg2IRRAp6ABk+xhqqjWzL69YZjxanYOsDjFVRbSxTN/SxsZee1jrGe4pHsir
- ZY0yWQB8Jr24ZUBE4B9iIQ7twrAZ2F3ZYtCBtobe9nv1EwUoOSQmhZWQeit0LoSqCIN3
- IS/H+vZA+wtM5G8eRaa1ljC+BOy1+mDv8STdXAQwEXgJUN+OKHQxrNfBGeg2A/ix3PF5 8g== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ed1uj8xuk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 22 Feb 2022 15:18:50 +0000
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21MEv23F022204;
-        Tue, 22 Feb 2022 15:18:50 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ed1uj8xtg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 22 Feb 2022 15:18:49 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21MFF04P030213;
-        Tue, 22 Feb 2022 15:18:47 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma01fra.de.ibm.com with ESMTP id 3ear692mdf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 22 Feb 2022 15:18:47 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21MFIi1B47317248
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 22 Feb 2022 15:18:44 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 462234C04E;
-        Tue, 22 Feb 2022 15:18:44 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BBF064C04A;
-        Tue, 22 Feb 2022 15:18:43 +0000 (GMT)
-Received: from [9.171.12.252] (unknown [9.171.12.252])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 22 Feb 2022 15:18:43 +0000 (GMT)
-Message-ID: <2a5c5571-3ff3-9c43-1298-39ce5107d318@linux.ibm.com>
-Date:   Tue, 22 Feb 2022 16:18:43 +0100
+        with ESMTP id S233535AbiBVPf7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Feb 2022 10:35:59 -0500
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C83E163D5E;
+        Tue, 22 Feb 2022 07:35:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        MIME-Version:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
+        Content-ID:Content-Description:In-Reply-To:References;
+        bh=16nouNo24ejNp/bHBqFUpHpMmYYgIL88sf6fCnA5oxw=; b=Evl4OhdNJ9vFGI4KBDyMJ2uY4v
+        ahlgofRSzpQsvpw+qbnrer3aKbB3W7rQQSWiEtHPv1GOLM+A33NRlrQJtcbKPQZsq8ZJ0Ur1vnRRo
+        g3p2qbcU3jr70C8mOofs0g3hzUW4uVlAhWSisJaMMZC6wOX8A4tQ90Hk2vLNc+kmD6djArF9T8eoW
+        9u4suY2drGIZP4mp6SqQGG0Ti0UU5XC5RKqrHf1fSU30Q1huprZkGdvFxmCo5kR0DDj/lBC1BQkHm
+        KDzcPMMmVkYt9l5nGrPt5RR+4vvyTE3FSJuO351gMgi78pWHFgl6Edsr7ZHkmjhcz+ut06I1oIQyx
+        rYiE4tRw==;
+Received: from [2001:4bb8:198:f8fc:c22a:ebfc:be8d:63c2] (helo=localhost)
+        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1nMXC9-00AGnS-1u; Tue, 22 Feb 2022 15:35:17 +0000
+From:   Christoph Hellwig <hch@lst.de>
+To:     iommu@lists.linux-foundation.org
+Cc:     x86@kernel.org, Stefano Stabellini <sstabellini@kernel.org>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Juergen Gross <jgross@suse.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        linux-arm-kernel@lists.infradead.org,
+        xen-devel@lists.xenproject.org, linux-ia64@vger.kernel.org,
+        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-hyperv@vger.kernel.org, tboot-devel@lists.sourceforge.net,
+        linux-pci@vger.kernel.org
+Subject: cleanup swiotlb initialization
+Date:   Tue, 22 Feb 2022 16:35:03 +0100
+Message-Id: <20220222153514.593231-1-hch@lst.de>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [GIT PULL 00/13] KVM: s390: Changes for 5.18 part1
-Content-Language: en-US
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>
-References: <20220222094910.18331-1-borntraeger@linux.ibm.com>
-From:   Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20220222094910.18331-1-borntraeger@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: nk29mHJXS1_FC5B2SJmmPTHtqXidPokM
-X-Proofpoint-ORIG-GUID: RQzFCUhZsIwTQDiHONPN9ClvJUr5XKmU
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-02-22_03,2022-02-21_02,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- priorityscore=1501 impostorscore=0 mlxscore=0 malwarescore=0
- suspectscore=0 bulkscore=0 adultscore=0 spamscore=0 lowpriorityscore=0
- mlxlogscore=916 phishscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2201110000 definitions=main-2202220091
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Am 22.02.22 um 10:48 schrieb Christian Borntraeger:
-> ----------------------------------------------------------------
-> Christian Borntraeger (1):
->        KVM: s390: MAINTAINERS: promote Claudio Imbrenda
-> 
-> Janis Schoetterl-Glausch (11):
->        s390/uaccess: Add copy_from/to_user_key functions
+Hi all,
 
-Forgot to mention this: this contains one s390 patch that is acked by the s390 maintainer.
+this series tries to clean up the swiotlb initialization, including
+that of swiotlb-xen.  To get there is also removes the x86 iommu table
+infrastructure that massively obsfucates the initialization path.
+
+Git tree:
+
+    git://git.infradead.org/users/hch/misc.git swiotlb-init-cleanup
+
+Gitweb:
+
+    http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/swiotlb-init-cleanup
+
+Diffstat:
+ arch/ia64/include/asm/iommu_table.h      |    7 -
+ arch/x86/include/asm/iommu_table.h       |  102 -------------------
+ arch/x86/include/asm/swiotlb.h           |   30 -----
+ arch/x86/kernel/pci-iommu_table.c        |   77 --------------
+ arch/x86/kernel/pci-swiotlb.c            |   77 --------------
+ arch/x86/xen/pci-swiotlb-xen.c           |   96 ------------------
+ b/arch/arm/mm/init.c                     |    6 -
+ b/arch/arm/xen/mm.c                      |   23 ++--
+ b/arch/arm64/mm/init.c                   |    6 -
+ b/arch/ia64/mm/init.c                    |    4 
+ b/arch/mips/cavium-octeon/dma-octeon.c   |   15 --
+ b/arch/mips/loongson64/dma.c             |    2 
+ b/arch/mips/pci/pci-octeon.c             |    2 
+ b/arch/mips/sibyte/common/dma.c          |    2 
+ b/arch/powerpc/include/asm/svm.h         |    4 
+ b/arch/powerpc/include/asm/swiotlb.h     |    1 
+ b/arch/powerpc/mm/mem.c                  |    6 -
+ b/arch/powerpc/platforms/pseries/setup.c |    3 
+ b/arch/powerpc/platforms/pseries/svm.c   |   26 ----
+ b/arch/riscv/mm/init.c                   |    8 -
+ b/arch/s390/mm/init.c                    |    3 
+ b/arch/x86/include/asm/dma-mapping.h     |   12 --
+ b/arch/x86/include/asm/gart.h            |    5 
+ b/arch/x86/include/asm/iommu.h           |    8 +
+ b/arch/x86/include/asm/xen/page.h        |    5 
+ b/arch/x86/include/asm/xen/swiotlb-xen.h |    2 
+ b/arch/x86/kernel/Makefile               |    2 
+ b/arch/x86/kernel/amd_gart_64.c          |    5 
+ b/arch/x86/kernel/aperture_64.c          |   14 --
+ b/arch/x86/kernel/cpu/mshyperv.c         |    8 -
+ b/arch/x86/kernel/pci-dma.c              |  114 +++++++++++++++++----
+ b/arch/x86/kernel/tboot.c                |    1 
+ b/arch/x86/kernel/vmlinux.lds.S          |   12 --
+ b/arch/x86/mm/mem_encrypt_amd.c          |    3 
+ b/arch/x86/pci/sta2x11-fixup.c           |    2 
+ b/arch/x86/xen/Makefile                  |    2 
+ b/drivers/iommu/amd/init.c               |    6 -
+ b/drivers/iommu/amd/iommu.c              |    5 
+ b/drivers/iommu/intel/dmar.c             |    6 -
+ b/drivers/xen/swiotlb-xen.c              |  132 -------------------------
+ b/include/linux/dmar.h                   |    6 -
+ b/include/linux/swiotlb.h                |   22 ++--
+ b/include/trace/events/swiotlb.h         |   29 +----
+ b/include/xen/arm/page.h                 |    1 
+ b/include/xen/swiotlb-xen.h              |    8 +
+ b/kernel/dma/direct.h                    |    2 
+ b/kernel/dma/swiotlb.c                   |  163 +++++++++++++++----------------
+ 47 files changed, 258 insertions(+), 817 deletions(-)
