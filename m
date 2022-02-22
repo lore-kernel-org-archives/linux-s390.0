@@ -2,31 +2,31 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CF4DDC433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 22 Feb 2022 15:36:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 433C7C433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 22 Feb 2022 15:36:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233650AbiBVPg3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 22 Feb 2022 10:36:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44970 "EHLO
+        id S233666AbiBVPgg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 22 Feb 2022 10:36:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233575AbiBVPgI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Feb 2022 10:36:08 -0500
+        with ESMTP id S233597AbiBVPgN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Feb 2022 10:36:13 -0500
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 271D7164D04;
-        Tue, 22 Feb 2022 07:35:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC065164D20;
+        Tue, 22 Feb 2022 07:35:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=hwGHho6vVoG5zxL+r+gO/HrLW55gSYiZK1xOFy8bPWY=; b=EXbyg4oElbNBCkXxF5PHE19cjU
-        Fhh8CM69nTRceyzTldor3WTO4HGvmvQXWPAh2WGra1WaTbxlQ5XzvwoMBUILahCpilzLJA96AAAkQ
-        TxbPVjzqLsMLHXjWbfzEQdEzhkxzcS9SI8zzxJt5k4gy+nwhAHszCs3y9seiMTLWuA8wDaiKoiqC5
-        R2eiLkkdWQMz990U+MVaVkdNuIk/Vpp0/S/BdvNauv1e7YcyxIPyfk9ydUE1i1051hAU9G59sMV3x
-        I/UwQdy2sd/TJAeypMn9AZP0W9cKSL4qQ8b8g2Cf7svHpTJvkKFLcjADA+rDauJKsTjC/CcM8rhTP
-        BJ9+5XEA==;
+        bh=9PCjPLhSqZcgfJRctho4koItZMxPltxaP4qWUl/wyyA=; b=JJUHrcNZ1kNN3tSzob4t5R7t3+
+        PCuRgk9xbWb6yWLBGmK+6JZ+jGFCksYQ71JCwFj9uzkGkNY9GP6CZ1wJXzFdC9wpqOz30KMw8BUTe
+        GcY3b6EojVBIUW73wf4VLvrgni1cfsMV+C4o4VPLhWjGDwoXSWonErbuai3Y1J8976p6Bx6tsquww
+        atmJGFG7584Is3iOa9A6/Juz52RncXNayc7j9jWnMF/k1pdXyanbovW4sSjUSpkVN1Xq8e9kpgsCO
+        cohitJNqLLdD2vC4Xax4YFjUr59Q5CoLzU0PbqT5Cs+k9BeWFonUmBnnDxkzQdDt1FwAfxKcQQnQ4
+        jUjHEj0A==;
 Received: from [2001:4bb8:198:f8fc:c22a:ebfc:be8d:63c2] (helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nMXCE-00AGpk-IC; Tue, 22 Feb 2022 15:35:23 +0000
+        id 1nMXCK-00AGsO-44; Tue, 22 Feb 2022 15:35:28 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     iommu@lists.linux-foundation.org
 Cc:     x86@kernel.org, Stefano Stabellini <sstabellini@kernel.org>,
@@ -42,9 +42,9 @@ Cc:     x86@kernel.org, Stefano Stabellini <sstabellini@kernel.org>,
         linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
         linux-hyperv@vger.kernel.org, tboot-devel@lists.sourceforge.net,
         linux-pci@vger.kernel.org
-Subject: [PATCH 02/11] swiotlb: make swiotlb_exit a no-op if SWIOTLB_FORCE is set
-Date:   Tue, 22 Feb 2022 16:35:05 +0100
-Message-Id: <20220222153514.593231-3-hch@lst.de>
+Subject: [PATCH 04/11] swiotlb: rename swiotlb_late_init_with_default_size
+Date:   Tue, 22 Feb 2022 16:35:07 +0100
+Message-Id: <20220222153514.593231-5-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220222153514.593231-1-hch@lst.de>
 References: <20220222153514.593231-1-hch@lst.de>
@@ -55,27 +55,63 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-If force bouncing is enabled we can't release the bufffers.
+swiotlb_late_init_with_default_size is an overly verbose name that
+doesn't even catch what the function is doing, given that the size is
+not just a default but the actual requested size.
+
+Rename it to swiotlb_init_late.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- kernel/dma/swiotlb.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/pci/sta2x11-fixup.c | 2 +-
+ include/linux/swiotlb.h      | 2 +-
+ kernel/dma/swiotlb.c         | 6 ++----
+ 3 files changed, 4 insertions(+), 6 deletions(-)
 
+diff --git a/arch/x86/pci/sta2x11-fixup.c b/arch/x86/pci/sta2x11-fixup.c
+index 101081ad64b6d..e0c039a75b2db 100644
+--- a/arch/x86/pci/sta2x11-fixup.c
++++ b/arch/x86/pci/sta2x11-fixup.c
+@@ -57,7 +57,7 @@ static void sta2x11_new_instance(struct pci_dev *pdev)
+ 		int size = STA2X11_SWIOTLB_SIZE;
+ 		/* First instance: register your own swiotlb area */
+ 		dev_info(&pdev->dev, "Using SWIOTLB (size %i)\n", size);
+-		if (swiotlb_late_init_with_default_size(size))
++		if (swiotlb_init_late(size))
+ 			dev_emerg(&pdev->dev, "init swiotlb failed\n");
+ 	}
+ 	list_add(&instance->list, &sta2x11_instance_list);
+diff --git a/include/linux/swiotlb.h b/include/linux/swiotlb.h
+index 9fb3a568f0c51..b48b26bfa0edb 100644
+--- a/include/linux/swiotlb.h
++++ b/include/linux/swiotlb.h
+@@ -40,7 +40,7 @@ extern void swiotlb_init(int verbose);
+ int swiotlb_init_with_tbl(char *tlb, unsigned long nslabs, int verbose);
+ unsigned long swiotlb_size_or_default(void);
+ extern int swiotlb_late_init_with_tbl(char *tlb, unsigned long nslabs);
+-extern int swiotlb_late_init_with_default_size(size_t default_size);
++int swiotlb_init_late(size_t size);
+ extern void __init swiotlb_update_mem_attributes(void);
+ 
+ phys_addr_t swiotlb_tbl_map_single(struct device *hwdev, phys_addr_t phys,
 diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index f1e7ea160b433..36fbf1181d285 100644
+index 519e363097190..5f64b02fbb732 100644
 --- a/kernel/dma/swiotlb.c
 +++ b/kernel/dma/swiotlb.c
-@@ -378,6 +378,9 @@ void __init swiotlb_exit(void)
- 	unsigned long tbl_vaddr;
- 	size_t tbl_size, slots_size;
- 
-+	if (swiotlb_force == SWIOTLB_FORCE)
-+		return;
-+
- 	if (!mem->nslabs)
- 		return;
- 
+@@ -290,11 +290,9 @@ swiotlb_init(int verbose)
+  * initialize the swiotlb later using the slab allocator if needed.
+  * This should be just like above, but with some error catching.
+  */
+-int
+-swiotlb_late_init_with_default_size(size_t default_size)
++int swiotlb_init_late(size_t size)
+ {
+-	unsigned long nslabs =
+-		ALIGN(default_size >> IO_TLB_SHIFT, IO_TLB_SEGSIZE);
++	unsigned long nslabs = ALIGN(size >> IO_TLB_SHIFT, IO_TLB_SEGSIZE);
+ 	unsigned long bytes;
+ 	unsigned char *vstart = NULL;
+ 	unsigned int order;
 -- 
 2.30.2
 
