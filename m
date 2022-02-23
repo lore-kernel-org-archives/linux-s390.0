@@ -2,301 +2,116 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 614BAC433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 23 Feb 2022 18:14:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D083C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 23 Feb 2022 18:57:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239262AbiBWSPM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 23 Feb 2022 13:15:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45276 "EHLO
+        id S233050AbiBWS55 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 23 Feb 2022 13:57:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234558AbiBWSPM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Feb 2022 13:15:12 -0500
-Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 177274831F;
-        Wed, 23 Feb 2022 10:14:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1645640084; x=1677176084;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=qGchhHI62FqX+CoX0UPienkvvB/ugitn/czN/Or5jls=;
-  b=ZOxVDkALSxwGvfX7FQfVUlfQbZzj7UOOPJoTPcfPlaFZ1triY7HRAQgO
-   YgeqZfF9UmhhoHDZZVg0ksOmrKmduI5XG1wW/YLcsUaH0aluMvmlyS+I5
-   acrRD3C64fGBJADGNzcLCJRxVey3OF+U3UwdgeccOyAxth0DzHMNPZ/IK
-   9RUOGk0yhWW4twyY+pYHp94TLOT2eHf6aeVrpZoUxFJmf5YF/p4NNmtn7
-   DB+0Cqk6cCcfuRUzEasuQ5897ITvIOkn6hUCC6T8EFZkdaUWP5qwE/uB/
-   eB1NAbSQH4Qg7fn7CdYgCsbE4a5lXbQ/b4e2ODl1JRPGDi+kuNLhXvm/5
-   A==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10267"; a="276667616"
-X-IronPort-AV: E=Sophos;i="5.88,391,1635231600"; 
-   d="scan'208";a="276667616"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Feb 2022 10:14:43 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.88,391,1635231600"; 
-   d="scan'208";a="591801844"
-Received: from lkp-server01.sh.intel.com (HELO 788b1cd46f0d) ([10.239.97.150])
-  by fmsmga008.fm.intel.com with ESMTP; 23 Feb 2022 10:14:41 -0800
-Received: from kbuild by 788b1cd46f0d with local (Exim 4.92)
-        (envelope-from <lkp@intel.com>)
-        id 1nMw9x-0001gH-3t; Wed, 23 Feb 2022 18:14:41 +0000
-Date:   Thu, 24 Feb 2022 02:13:54 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     llvm@lists.linux.dev, kbuild-all@lists.01.org,
-        linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        david@redhat.com, borntraeger@linux.ibm.com
-Subject: Re: [PATCH 6/9] kvm: s390: Add configuration dump functionality
-Message-ID: <202202240208.nprfvRMA-lkp@intel.com>
-References: <20220223092007.3163-7-frankja@linux.ibm.com>
+        with ESMTP id S237010AbiBWS54 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Feb 2022 13:57:56 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0849B29837;
+        Wed, 23 Feb 2022 10:57:27 -0800 (PST)
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21NHIZKu026532;
+        Wed, 23 Feb 2022 18:57:24 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=Mkh4dUQ5Ypka5egNRySemcws707R37tGQCEWyl/L/zM=;
+ b=eQXGj3VOoZ15h1E8r+fcln3UCiifoo1uw6GBdVDQBXtV+ZoNvSwgiLQcMFfib/Z8fLAZ
+ 8aogfG3DYchVsFuvoi/tW8e23dtikyzfCZsCBENigP0Zs39FGnNNBrwBo+SvklcyePwf
+ VTBMSropWUSz37zYT/JqWtZMKsg23r8SdaHuhhjv9U3i4U9Y39oe4HvxJ1zdz/CuS96K
+ BDm48If2FyRE+G1Ese/0CT/9pBORlZrV9Eoy5l8axI5s0+0wz1LIhyX8pmuoLhnLBeiv
+ a9To0Zxj9Tt1uDWnGJ7O0DMjUvjucdaJqILeFzSHMibCrBCOjFuJgOCrQsw1p/W4DxR3 GA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ede6t15eh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Feb 2022 18:57:24 +0000
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21NICCkm029389;
+        Wed, 23 Feb 2022 18:57:24 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ede6t15dr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Feb 2022 18:57:23 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21NIul4I026635;
+        Wed, 23 Feb 2022 18:57:21 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma02fra.de.ibm.com with ESMTP id 3ear69ajcq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Feb 2022 18:57:21 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21NIvHbI30998894
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 23 Feb 2022 18:57:17 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CF7B6AE053;
+        Wed, 23 Feb 2022 18:57:17 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 55042AE04D;
+        Wed, 23 Feb 2022 18:57:17 +0000 (GMT)
+Received: from [9.171.51.229] (unknown [9.171.51.229])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 23 Feb 2022 18:57:17 +0000 (GMT)
+Message-ID: <bc3252a3-5a84-63d4-dfc5-009f602a5bec@linux.ibm.com>
+Date:   Wed, 23 Feb 2022 19:57:31 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220223092007.3163-7-frankja@linux.ibm.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.0
+Subject: Re: [PATCH] net/smc: Add autocork support
+Content-Language: en-US
+To:     dust.li@linux.alibaba.com,
+        Hendrik Brueckner <brueckner@linux.ibm.com>
+Cc:     Stefan Raspl <raspl@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>, kuba@kernel.org,
+        davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <20220216034903.20173-1-dust.li@linux.alibaba.com>
+ <68e9534b-7ff5-5a65-9017-124dbae0c74b@linux.ibm.com>
+ <20220216152721.GB39286@linux.alibaba.com>
+ <454b5efd-e611-2dfb-e462-e7ceaee0da4d@linux.ibm.com>
+ <20220217132200.GA5443@linux.alibaba.com> <Yg6Q2kIDJrhvNVz7@linux.ibm.com>
+ <20220218073327.GB5443@linux.alibaba.com>
+ <d4ce4674-3ced-da34-a8a4-30d74cbe24bb@linux.ibm.com>
+ <20220218234232.GC5443@linux.alibaba.com>
+From:   Karsten Graul <kgraul@linux.ibm.com>
+Organization: IBM Deutschland Research & Development GmbH
+In-Reply-To: <20220218234232.GC5443@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Fyp25lHlfm8BvSD9vJu8XFm7wJujfm-B
+X-Proofpoint-ORIG-GUID: LAyXRrWZ9CuE87Jh0JCKLx0hV-ApzYV_
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-02-23_09,2022-02-23_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
+ priorityscore=1501 phishscore=0 impostorscore=0 mlxlogscore=999
+ clxscore=1015 mlxscore=0 malwarescore=0 adultscore=0 suspectscore=0
+ spamscore=0 lowpriorityscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2201110000 definitions=main-2202230106
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Janosch,
+On 19/02/2022 00:42, dust.li wrote:
+> On Fri, Feb 18, 2022 at 05:03:56PM +0100, Karsten Graul wrote:
+>> Right now for me it looks like there is no way to use netlink for container runtime
+>> configuration, which is a pity.
+>> We continue our discussions about this in the team, and also here on the list.
+> 
+> Many thanks for your time on this topic !
 
-I love your patch! Perhaps something to improve:
+We checked more specs (like Container Network Interface (CNI) Specification) 
+but all we found uses sysctl at the end. There is lot of infrastructure 
+to use sysctls in a container environment.
 
-[auto build test WARNING on kvms390/next]
-[also build test WARNING on next-20220222]
-[cannot apply to kvm/master s390/features v5.17-rc5]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch]
+Establishing netlink-like controls for containers is by far out of our scope, and
+would take a long time until it would be available in the popular projects.
 
-url:    https://github.com/0day-ci/linux/commits/Janosch-Frank/kvm-s390-Add-PV-dump-support/20220223-172213
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git next
-config: s390-randconfig-r044-20220223 (https://download.01.org/0day-ci/archive/20220224/202202240208.nprfvRMA-lkp@intel.com/config)
-compiler: clang version 15.0.0 (https://github.com/llvm/llvm-project d271fc04d5b97b12e6b797c6067d3c96a8d7470e)
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # install s390 cross compiling tool for clang build
-        # apt-get install binutils-s390x-linux-gnu
-        # https://github.com/0day-ci/linux/commit/63a2029ece7e8fee92aa5ad277e2cbd8b13b7e6b
-        git remote add linux-review https://github.com/0day-ci/linux
-        git fetch --no-tags linux-review Janosch-Frank/kvm-s390-Add-PV-dump-support/20220223-172213
-        git checkout 63a2029ece7e8fee92aa5ad277e2cbd8b13b7e6b
-        # save the config file to linux build tree
-        mkdir build_dir
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=s390 SHELL=/bin/bash arch/s390/kvm/
-
-If you fix the issue, kindly add following tag as appropriate
-Reported-by: kernel test robot <lkp@intel.com>
-
-All warnings (new ones prefixed by >>):
-
-   In file included from arch/s390/kvm/pv.c:9:
-   In file included from include/linux/kvm_host.h:41:
-   In file included from include/linux/kvm_para.h:5:
-   In file included from include/uapi/linux/kvm_para.h:37:
-   In file included from arch/s390/include/asm/kvm_para.h:25:
-   In file included from arch/s390/include/asm/diag.h:12:
-   In file included from include/linux/if_ether.h:19:
-   In file included from include/linux/skbuff.h:31:
-   In file included from include/linux/dma-mapping.h:10:
-   In file included from include/linux/scatterlist.h:9:
-   In file included from arch/s390/include/asm/io.h:75:
-   include/asm-generic/io.h:464:31: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           val = __raw_readb(PCI_IOBASE + addr);
-                             ~~~~~~~~~~ ^
-   include/asm-generic/io.h:477:61: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           val = __le16_to_cpu((__le16 __force)__raw_readw(PCI_IOBASE + addr));
-                                                           ~~~~~~~~~~ ^
-   include/uapi/linux/byteorder/big_endian.h:37:59: note: expanded from macro '__le16_to_cpu'
-   #define __le16_to_cpu(x) __swab16((__force __u16)(__le16)(x))
-                                                             ^
-   include/uapi/linux/swab.h:102:54: note: expanded from macro '__swab16'
-   #define __swab16(x) (__u16)__builtin_bswap16((__u16)(x))
-                                                        ^
-   In file included from arch/s390/kvm/pv.c:9:
-   In file included from include/linux/kvm_host.h:41:
-   In file included from include/linux/kvm_para.h:5:
-   In file included from include/uapi/linux/kvm_para.h:37:
-   In file included from arch/s390/include/asm/kvm_para.h:25:
-   In file included from arch/s390/include/asm/diag.h:12:
-   In file included from include/linux/if_ether.h:19:
-   In file included from include/linux/skbuff.h:31:
-   In file included from include/linux/dma-mapping.h:10:
-   In file included from include/linux/scatterlist.h:9:
-   In file included from arch/s390/include/asm/io.h:75:
-   include/asm-generic/io.h:490:61: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           val = __le32_to_cpu((__le32 __force)__raw_readl(PCI_IOBASE + addr));
-                                                           ~~~~~~~~~~ ^
-   include/uapi/linux/byteorder/big_endian.h:35:59: note: expanded from macro '__le32_to_cpu'
-   #define __le32_to_cpu(x) __swab32((__force __u32)(__le32)(x))
-                                                             ^
-   include/uapi/linux/swab.h:115:54: note: expanded from macro '__swab32'
-   #define __swab32(x) (__u32)__builtin_bswap32((__u32)(x))
-                                                        ^
-   In file included from arch/s390/kvm/pv.c:9:
-   In file included from include/linux/kvm_host.h:41:
-   In file included from include/linux/kvm_para.h:5:
-   In file included from include/uapi/linux/kvm_para.h:37:
-   In file included from arch/s390/include/asm/kvm_para.h:25:
-   In file included from arch/s390/include/asm/diag.h:12:
-   In file included from include/linux/if_ether.h:19:
-   In file included from include/linux/skbuff.h:31:
-   In file included from include/linux/dma-mapping.h:10:
-   In file included from include/linux/scatterlist.h:9:
-   In file included from arch/s390/include/asm/io.h:75:
-   include/asm-generic/io.h:501:33: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           __raw_writeb(value, PCI_IOBASE + addr);
-                               ~~~~~~~~~~ ^
-   include/asm-generic/io.h:511:59: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           __raw_writew((u16 __force)cpu_to_le16(value), PCI_IOBASE + addr);
-                                                         ~~~~~~~~~~ ^
-   include/asm-generic/io.h:521:59: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           __raw_writel((u32 __force)cpu_to_le32(value), PCI_IOBASE + addr);
-                                                         ~~~~~~~~~~ ^
-   include/asm-generic/io.h:609:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           readsb(PCI_IOBASE + addr, buffer, count);
-                  ~~~~~~~~~~ ^
-   include/asm-generic/io.h:617:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           readsw(PCI_IOBASE + addr, buffer, count);
-                  ~~~~~~~~~~ ^
-   include/asm-generic/io.h:625:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           readsl(PCI_IOBASE + addr, buffer, count);
-                  ~~~~~~~~~~ ^
-   include/asm-generic/io.h:634:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           writesb(PCI_IOBASE + addr, buffer, count);
-                   ~~~~~~~~~~ ^
-   include/asm-generic/io.h:643:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           writesw(PCI_IOBASE + addr, buffer, count);
-                   ~~~~~~~~~~ ^
-   include/asm-generic/io.h:652:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           writesl(PCI_IOBASE + addr, buffer, count);
-                   ~~~~~~~~~~ ^
->> arch/s390/kvm/pv.c:369:2: warning: variable 'cc' is used uninitialized whenever 'if' condition is true [-Wsometimes-uninitialized]
-           if (!buff_kvm)
-           ^~~~~~~~~~~~~~
-   include/linux/compiler.h:56:28: note: expanded from macro 'if'
-   #define if(cond, ...) if ( __trace_if_var( !!(cond , ## __VA_ARGS__) ) )
-                              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/compiler.h:58:30: note: expanded from macro '__trace_if_var'
-   #define __trace_if_var(cond) (__builtin_constant_p(cond) ? (cond) : __trace_if_value(cond))
-                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   arch/s390/kvm/pv.c:419:9: note: uninitialized use occurs here
-           return cc ? -EINVAL : 0;
-                  ^~
-   arch/s390/kvm/pv.c:369:2: note: remove the 'if' if its condition is always false
-           if (!buff_kvm)
-           ^~~~~~~~~~~~~~
-   include/linux/compiler.h:56:23: note: expanded from macro 'if'
-   #define if(cond, ...) if ( __trace_if_var( !!(cond , ## __VA_ARGS__) ) )
-                         ^
-   arch/s390/kvm/pv.c:357:2: warning: variable 'cc' is used uninitialized whenever 'if' condition is true [-Wsometimes-uninitialized]
-           if (!buff_user_len ||
-           ^~~~~~~~~~~~~~~~~~~~~
-   include/linux/compiler.h:56:28: note: expanded from macro 'if'
-   #define if(cond, ...) if ( __trace_if_var( !!(cond , ## __VA_ARGS__) ) )
-                              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/compiler.h:58:30: note: expanded from macro '__trace_if_var'
-   #define __trace_if_var(cond) (__builtin_constant_p(cond) ? (cond) : __trace_if_value(cond))
-                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   arch/s390/kvm/pv.c:419:9: note: uninitialized use occurs here
-           return cc ? -EINVAL : 0;
-                  ^~
-   arch/s390/kvm/pv.c:357:2: note: remove the 'if' if its condition is always false
-           if (!buff_user_len ||
-           ^~~~~~~~~~~~~~~~~~~~~
-   include/linux/compiler.h:56:23: note: expanded from macro 'if'
-   #define if(cond, ...) if ( __trace_if_var( !!(cond , ## __VA_ARGS__) ) )
-                         ^
-   arch/s390/kvm/pv.c:348:2: warning: variable 'cc' is used uninitialized whenever 'if' condition is true [-Wsometimes-uninitialized]
-           if (*gaddr & ~HPAGE_MASK)
-           ^~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/compiler.h:56:28: note: expanded from macro 'if'
-   #define if(cond, ...) if ( __trace_if_var( !!(cond , ## __VA_ARGS__) ) )
-                              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/compiler.h:58:30: note: expanded from macro '__trace_if_var'
-   #define __trace_if_var(cond) (__builtin_constant_p(cond) ? (cond) : __trace_if_value(cond))
-                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   arch/s390/kvm/pv.c:419:9: note: uninitialized use occurs here
-           return cc ? -EINVAL : 0;
-                  ^~
-   arch/s390/kvm/pv.c:348:2: note: remove the 'if' if its condition is always false
-           if (*gaddr & ~HPAGE_MASK)
-           ^~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/compiler.h:56:23: note: expanded from macro 'if'
-   #define if(cond, ...) if ( __trace_if_var( !!(cond , ## __VA_ARGS__) ) )
-                         ^
-   arch/s390/kvm/pv.c:344:8: note: initialize the variable 'cc' to silence this warning
-           int cc, ret;
-                 ^
-                  = 0
-   15 warnings generated.
-
-
-vim +369 arch/s390/kvm/pv.c
-
-   309	
-   310	/*
-   311	 * kvm_s390_pv_dump_stor_state
-   312	 *
-   313	 * @kvm: pointer to the guest's KVM struct
-   314	 * @buff_user: Userspace pointer where we will write the results to
-   315	 * @gaddr: Starting absolute guest address for which the storage state
-   316	 *         is requested. This value will be updated with the last
-   317	 *         address for which data was written when returning to
-   318	 *         userspace.
-   319	 * @buff_user_len: Length of the buff_user buffer
-   320	 * @rc: Pointer to where the uvcb return code is stored
-   321	 * @rrc: Pointer to where the uvcb return reason code is stored
-   322	 *
-   323	 * Return:
-   324	 *  0 on success
-   325	 *  -ENOMEM if allocating the cache fails
-   326	 *  -EINVAL if gaddr is not aligned to 1MB
-   327	 *  -EINVAL if buff_user_len is not aligned to uv_info.conf_dump_storage_state_len
-   328	 *  -EINVAL if the UV call fails, rc and rrc will be set in this case
-   329	 *  -EFAULT if copying the result to buff_user failed
-   330	 */
-   331	int kvm_s390_pv_dump_stor_state(struct kvm *kvm, void __user *buff_user,
-   332					u64 *gaddr, u64 buff_user_len, u16 *rc, u16 *rrc)
-   333	{
-   334		struct uv_cb_dump_stor_state uvcb = {
-   335			.header.cmd = UVC_CMD_DUMP_CONF_STOR_STATE,
-   336			.header.len = sizeof(uvcb),
-   337			.config_handle = kvm->arch.pv.handle,
-   338			.gaddr = *gaddr,
-   339			.dump_area_origin = 0,
-   340		};
-   341		size_t buff_kvm_size;
-   342		size_t size_done = 0;
-   343		u8 *buff_kvm = NULL;
-   344		int cc, ret;
-   345	
-   346		ret = -EINVAL;
-   347		/* UV call processes 1MB guest storage chunks at a time */
-   348		if (*gaddr & ~HPAGE_MASK)
-   349			goto out;
-   350	
-   351		/*
-   352		 * We provide the storage state for 1MB chunks of guest
-   353		 * storage. The buffer will need to be aligned to
-   354		 * conf_dump_storage_state_len so we don't end on a partial
-   355		 * chunk.
-   356		 */
-   357		if (!buff_user_len ||
-   358		    buff_user_len & (uv_info.conf_dump_storage_state_len - 1))
-   359			goto out;
-   360	
-   361		/*
-   362		 * Allocate a buffer from which we will later copy to the user process.
-   363		 *
-   364		 * We don't want userspace to dictate our buffer size so we limit it to DUMP_BUFF_LEN.
-   365		 */
-   366		ret = -ENOMEM;
-   367		buff_kvm_size = buff_user_len <= DUMP_BUFF_LEN ? buff_user_len : DUMP_BUFF_LEN;
-   368		buff_kvm = vzalloc(buff_kvm_size);
- > 369		if (!buff_kvm)
-
----
-0-DAY CI Kernel Test Service, Intel Corporation
-https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+So at the moment I see no alternative to an additional sysctl interface in the 
+SMC module that provides controls which are useful in container environments.
