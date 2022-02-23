@@ -2,69 +2,98 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24019C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 23 Feb 2022 15:58:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B13FC433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 23 Feb 2022 16:08:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242523AbiBWP6a (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 23 Feb 2022 10:58:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50026 "EHLO
+        id S242605AbiBWQIr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 23 Feb 2022 11:08:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242521AbiBWP6a (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Feb 2022 10:58:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 626D0BD2CF;
-        Wed, 23 Feb 2022 07:58:02 -0800 (PST)
+        with ESMTP id S233313AbiBWQIq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Feb 2022 11:08:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5139B7173;
+        Wed, 23 Feb 2022 08:08:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1E302B820CB;
-        Wed, 23 Feb 2022 15:58:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46C37C340E7;
-        Wed, 23 Feb 2022 15:57:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645631879;
-        bh=dSU3WtzpUD98nEOWYdE8NQwT4RAMWaALAJhA92a+OEQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=CV2+iDyXVjcH5VLXkvC0EUjFupUO0+HMmWPkAk5SIaOu+YFuioWg8s1qvuaPFjnaP
-         pDaei6OrXwEw7M/bZrlZsfDqoagpel8f2rb4nTtbmgwRj873OW9ix/P7x6A2uw5F7R
-         3CRzANk/ebwN4DS01fme21lBTAIwXfMqQlQ2OtzM=
-Date:   Wed, 23 Feb 2022 16:57:57 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Steffen Eiden <seiden@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Shuah Khan <shuah@kernel.org>, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, linux-kselftest@vger.kernel.org
-Subject: Re: [PATCH v2 1/3] drivers/s390/char: Add Ultravisor io device
-Message-ID: <YhZZhfokG+kWXSSF@kroah.com>
-References: <20220223144830.44039-1-seiden@linux.ibm.com>
- <20220223144830.44039-2-seiden@linux.ibm.com>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 81A3F61849;
+        Wed, 23 Feb 2022 16:08:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 376CFC340F0;
+        Wed, 23 Feb 2022 16:08:17 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="fp8CajXh"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1645632494;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=KIfU5+oFhsOwMYUUwLOIak3Q1ZR1ObTglPpSCZ1RML0=;
+        b=fp8CajXhg/qqnzjg/+OKoKtXE7i8z7f2ykur7nX/GB/hD+f7/dV1RY9KKe4G1DxwKh6DK5
+        cqo8wAQC1pRcZmVtHctFFglh0DpHTv+MLl3DOX6VZabKMGwj0jD3qeGhHbhyao9/VfbV8E
+        JSbLF/0HVctMQO6V/BCKxqwnWMp9lRQ=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 452aba86 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Wed, 23 Feb 2022 16:08:14 +0000 (UTC)
+Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-2d79394434dso73650937b3.5;
+        Wed, 23 Feb 2022 08:08:14 -0800 (PST)
+X-Gm-Message-State: AOAM531SpwA0aYZJEUwHUWYxsTOW5hsY1M9gRL+/1t914cdpotw5Uk3P
+        0nTsx7t/tb3s8+/6YXu9OyXxEh3IFRbJh000SSU=
+X-Google-Smtp-Source: ABdhPJy33A74qQdK52dpScB33s7jynPhLN4qjTE0dJTavDUA51Mn+CllONCLBg2IducogWoxWZTIJEkJ7l0DRx6DAd8=
+X-Received: by 2002:a81:7d04:0:b0:2d0:d0e2:126f with SMTP id
+ y4-20020a817d04000000b002d0d0e2126fmr288331ywc.485.1645632492376; Wed, 23 Feb
+ 2022 08:08:12 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220223144830.44039-2-seiden@linux.ibm.com>
+References: <20220223131231.403386-1-Jason@zx2c4.com>
+In-Reply-To: <20220223131231.403386-1-Jason@zx2c4.com>
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+Date:   Wed, 23 Feb 2022 17:08:01 +0100
+X-Gmail-Original-Message-ID: <CAHmME9ogH_mx724n_deFfva7-xPCmma1-=2Mv0JdnZ-fC4JCjg@mail.gmail.com>
+Message-ID: <CAHmME9ogH_mx724n_deFfva7-xPCmma1-=2Mv0JdnZ-fC4JCjg@mail.gmail.com>
+Subject: Re: [PATCH RFC v1 0/2] VM fork detection for RNG
+To:     LKML <linux-kernel@vger.kernel.org>,
+        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
+        QEMU Developers <qemu-devel@nongnu.org>,
+        KVM list <kvm@vger.kernel.org>, linux-s390@vger.kernel.org,
+        adrian@parity.io
+Cc:     "Woodhouse, David" <dwmw@amazon.co.uk>,
+        "Catangiu, Adrian Costin" <acatan@amazon.com>, graf@amazon.com,
+        Colm MacCarthaigh <colmmacc@amazon.com>,
+        "Singh, Balbir" <sblbir@amazon.com>,
+        "Weiss, Radu" <raduweis@amazon.com>, Jann Horn <jannh@google.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Theodore Ts'o" <tytso@mit.edu>,
+        Igor Mammedov <imammedo@redhat.com>, ehabkost@redhat.com,
+        ben@skyportsystems.com, "Michael S. Tsirkin" <mst@redhat.com>,
+        lersek@redhat.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Feb 23, 2022 at 09:48:28AM -0500, Steffen Eiden wrote:
-> --- /dev/null
-> +++ b/drivers/s390/char/uvdevice.c
-> @@ -0,0 +1,145 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +/*
-> + *  Copyright IBM Corp. 2022
-> + *  Author(s): Steffen Eiden <seiden@linux.ibm.com>
-> + */
-> +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt ".\n"
+On Wed, Feb 23, 2022 at 2:12 PM Jason A. Donenfeld <Jason@zx2c4.com> wrote:
+> second patch is the reason this is just an RFC: it's a cleanup of the
+> ACPI driver from last year, and I don't really have much experience
+> writing, testing, debugging, or maintaining these types of drivers.
+> Ideally this thread would yield somebody saying, "I see the intent of
+> this; I'm happy to take over ownership of this part." That way, I can
+> focus on the RNG part, and whoever steps up for the paravirt ACPI part
+> can focus on that.
 
-Nit, this isn't needed as you do not have any pr_* calls that use it :)
+I actually managed to test this in QEMU, and it seems to work quite well. Steps:
 
-thanks,
+$ qemu-system-x86_64 ... -device vmgenid,guid=auto -monitor stdio
+(qemu) savevm blah
+(qemu) quit
+$ qemu-system-x86_64 ... -device vmgenid,guid=auto -monitor stdio
+(qemu) loadvm blah
 
-greg k-h
+Doing this successfully triggers the function to reinitialize the RNG
+with the new GUID. (It appears there's a bug in QEMU which prevents
+the GUID from being reinitialized when running `loadvm` without
+quitting first; I suppose this should be discussed with QEMU
+upstream.)
+
+So that's very positive. But I would appreciate hearing from some
+ACPI/Virt/Amazon people about this.
+
+Jason
