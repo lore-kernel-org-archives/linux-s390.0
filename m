@@ -2,184 +2,201 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C268C433FE
-	for <linux-s390@archiver.kernel.org>; Wed, 23 Feb 2022 11:18:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1739AC433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 23 Feb 2022 11:30:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235110AbiBWLTQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 23 Feb 2022 06:19:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56406 "EHLO
+        id S239871AbiBWLbJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 23 Feb 2022 06:31:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239778AbiBWLTO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Feb 2022 06:19:14 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 819458F612;
-        Wed, 23 Feb 2022 03:18:47 -0800 (PST)
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21N8mKpn012722;
-        Wed, 23 Feb 2022 11:18:38 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=2edBr+yA1u4tfCoNZ51i6nGbnULTqu47+hi+OSwmfgE=;
- b=Uobji5yrBW4Xb1Ci8Jdi3aDpr2pFCL1nx9DWol7+wGXvDQN5GzZ0QuDpe25gVGRkKArL
- FO/YhuwTnq2zdFzHY8ZKiOYJp5JXDwlzlXVccVZLLvJ5JqMTOxGLjie0CmlzqIhMkFH9
- s2uFxEOxFec9xBrXP4P50jnJ3ihcbRLiBruaewIAWTTMa4J+tsDN5UF5W5zEdo/zZCWJ
- xaPumw0Ys0Brgi5bhwbFBKq+BZ3ggicyrxEV3SaHtcuFHAdiE+l9+4f8ACQyxtitW71q
- 3r8RDZYf1cxWNC4nKaHXCtdIA6z2cQE+U2zgIv90prghN63R+bHfCe9qFGDUBWEy0opv 8g== 
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3edhqsaqkd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Feb 2022 11:18:38 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21NBGQ4E029180;
-        Wed, 23 Feb 2022 11:18:36 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma04fra.de.ibm.com with ESMTP id 3ear69fugj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Feb 2022 11:18:36 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21NBIU1i59113914
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 23 Feb 2022 11:18:30 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B4FAC42049;
-        Wed, 23 Feb 2022 11:18:30 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3223C4203F;
-        Wed, 23 Feb 2022 11:18:30 +0000 (GMT)
-Received: from li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com (unknown [9.145.72.183])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Wed, 23 Feb 2022 11:18:30 +0000 (GMT)
-Date:   Wed, 23 Feb 2022 12:18:28 +0100
-From:   Alexander Gordeev <agordeev@linux.ibm.com>
-To:     Anshuman Khandual <anshuman.khandual@arm.com>
-Cc:     linux-mm@kvack.org, akpm@linux-foundation.org,
-        linux-kernel@vger.kernel.org,
-        Christoph Hellwig <hch@infradead.org>,
-        linux-arch@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH V2 14/30] s390/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
-Message-ID: <YhYYBMT6HaSviD7X@li-4a3a4a4c-28e5-11b2-a85c-a8d192c6f089.ibm.com>
-References: <1645425519-9034-1-git-send-email-anshuman.khandual@arm.com>
- <1645425519-9034-15-git-send-email-anshuman.khandual@arm.com>
+        with ESMTP id S239868AbiBWLbI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Feb 2022 06:31:08 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 5B7A290266
+        for <linux-s390@vger.kernel.org>; Wed, 23 Feb 2022 03:30:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1645615840;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=gE7c+TJZwdJ+gVzSVPXnxEm5PYurvMoN/2kz7QXDHUQ=;
+        b=PJ3L2ZFl6cYyRqfmfQFcuH7AlEGndm2dCKPcIcipp+DLqTIppouT3CuwYutp8t4AVZxG46
+        M2le/z5HYOI8dxREYvSg8Dcj45HjOtT2o8D5fbjV8En2yagOTcCL32nkG1yjkuOqdp2CfT
+        QAj0Vh1BYAvp1QUkmUW/iFoflfANeyI=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-582-YfTqakG4O4SHrXdrP1elkA-1; Wed, 23 Feb 2022 06:30:39 -0500
+X-MC-Unique: YfTqakG4O4SHrXdrP1elkA-1
+Received: by mail-wr1-f72.google.com with SMTP id o9-20020adfca09000000b001ea79f7edf8so2900242wrh.16
+        for <linux-s390@vger.kernel.org>; Wed, 23 Feb 2022 03:30:38 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=gE7c+TJZwdJ+gVzSVPXnxEm5PYurvMoN/2kz7QXDHUQ=;
+        b=FWZf1iQ+aDZuPiWk1mEJRONmiekBF2xz611LRNKpCiX3HtMquPJMEsQdtnllqrfx5E
+         kXD0Xs/VfjY3kbhmcK3ikG8vxLALvvyq5IvRDqq2YOEGZ0r2D9uuvFx6hkxbsgDim2jH
+         5utzb/cBqfgDW3qZidxT9oNSGOj39xqbhjS19jvOdFlyCQPhFTknIaQCMDqqSmpGCnpD
+         9LNXe8WQKUHf5elGhhwPHI/THnBR3W5kgb23OMTbyoRor8BU8s/hlZ7BBnGu0CYxYB9M
+         w03Knknxopqzqiu7pxjDu7jWQ+/W9HMf9ntuCDvC9Irq72gqOvNRkXDpyTIJQxhu+riS
+         S+NQ==
+X-Gm-Message-State: AOAM533scPdD8rLf7BttNCK2FmvM1PQMig2dRx6Y8FnudFReDJ5f5JI2
+        z+gW16fVQhiaDc+qK6ky2cunGWbnBTCr90shIDcRLNd6Dha8Chl7/QonfN3nTiqCtRtZtN0z3cq
+        wALZIPquUUqzbO35x6QoAYw==
+X-Received: by 2002:a05:6000:1d99:b0:1ed:bc55:34ad with SMTP id bk25-20020a0560001d9900b001edbc5534admr920991wrb.427.1645615837923;
+        Wed, 23 Feb 2022 03:30:37 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyszBOWYlHNQwLxhXHNusl4BU8vLtOvldGHIca7YPyki7EvMfBkXxUePbm2YmXVo7pCzEFZHg==
+X-Received: by 2002:a05:6000:1d99:b0:1ed:bc55:34ad with SMTP id bk25-20020a0560001d9900b001edbc5534admr920975wrb.427.1645615837592;
+        Wed, 23 Feb 2022 03:30:37 -0800 (PST)
+Received: from [10.33.192.232] (nat-pool-str-t.redhat.com. [149.14.88.106])
+        by smtp.gmail.com with ESMTPSA id t1sm67945067wre.45.2022.02.23.03.30.36
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 23 Feb 2022 03:30:37 -0800 (PST)
+Message-ID: <b2fd362a-eefa-8fa7-1016-55bedd3fa6ee@redhat.com>
+Date:   Wed, 23 Feb 2022 12:30:36 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1645425519-9034-15-git-send-email-anshuman.khandual@arm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: UXZJEmT1Y-WzhFohdDob4sQiOuoY1tgv
-X-Proofpoint-ORIG-GUID: UXZJEmT1Y-WzhFohdDob4sQiOuoY1tgv
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-02-23_03,2022-02-23_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
- bulkscore=0 priorityscore=1501 lowpriorityscore=0 suspectscore=0
- adultscore=0 mlxlogscore=767 phishscore=0 impostorscore=0 spamscore=0
- clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2202230062
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH 3/9] KVM: s390: pv: Add query interface
+Content-Language: en-US
+To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        david@redhat.com, borntraeger@linux.ibm.com
+References: <20220223092007.3163-1-frankja@linux.ibm.com>
+ <20220223092007.3163-4-frankja@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+In-Reply-To: <20220223092007.3163-4-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Feb 21, 2022 at 12:08:23PM +0530, Anshuman Khandual wrote:
-> This defines and exports a platform specific custom vm_get_page_prot() via
-> subscribing ARCH_HAS_VM_GET_PAGE_PROT. Subsequently all __SXXX and __PXXX
-> macros can be dropped which are no longer needed.
+On 23/02/2022 10.20, Janosch Frank wrote:
+> Some of the query information is already available via sysfs but
+> having a IOCTL makes the information easier to retrieve.
 > 
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: linux-s390@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-
-Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
-
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 > ---
->  arch/s390/Kconfig               |  1 +
->  arch/s390/include/asm/pgtable.h | 17 -----------------
->  arch/s390/mm/mmap.c             | 33 +++++++++++++++++++++++++++++++++
->  3 files changed, 34 insertions(+), 17 deletions(-)
+>   arch/s390/kvm/kvm-s390.c | 47 ++++++++++++++++++++++++++++++++++++++++
+>   include/uapi/linux/kvm.h | 23 ++++++++++++++++++++
+>   2 files changed, 70 insertions(+)
 > 
-> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> index be9f39fd06df..cb1b487e8201 100644
-> --- a/arch/s390/Kconfig
-> +++ b/arch/s390/Kconfig
-> @@ -78,6 +78,7 @@ config S390
->  	select ARCH_HAS_SYSCALL_WRAPPER
->  	select ARCH_HAS_UBSAN_SANITIZE_ALL
->  	select ARCH_HAS_VDSO_DATA
-> +	select ARCH_HAS_VM_GET_PAGE_PROT
->  	select ARCH_HAVE_NMI_SAFE_CMPXCHG
->  	select ARCH_INLINE_READ_LOCK
->  	select ARCH_INLINE_READ_LOCK_BH
-> diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-> index 008a6c856fa4..3893ef64b439 100644
-> --- a/arch/s390/include/asm/pgtable.h
-> +++ b/arch/s390/include/asm/pgtable.h
-> @@ -422,23 +422,6 @@ static inline int is_module_addr(void *addr)
->   * implies read permission.
->   */
->           /*xwr*/
-> -#define __P000	PAGE_NONE
-> -#define __P001	PAGE_RO
-> -#define __P010	PAGE_RO
-> -#define __P011	PAGE_RO
-> -#define __P100	PAGE_RX
-> -#define __P101	PAGE_RX
-> -#define __P110	PAGE_RX
-> -#define __P111	PAGE_RX
-> -
-> -#define __S000	PAGE_NONE
-> -#define __S001	PAGE_RO
-> -#define __S010	PAGE_RW
-> -#define __S011	PAGE_RW
-> -#define __S100	PAGE_RX
-> -#define __S101	PAGE_RX
-> -#define __S110	PAGE_RWX
-> -#define __S111	PAGE_RWX
->  
->  /*
->   * Segment entry (large page) protection definitions.
-> diff --git a/arch/s390/mm/mmap.c b/arch/s390/mm/mmap.c
-> index e54f928503c5..e99c198aa5de 100644
-> --- a/arch/s390/mm/mmap.c
-> +++ b/arch/s390/mm/mmap.c
-> @@ -188,3 +188,36 @@ void arch_pick_mmap_layout(struct mm_struct *mm, struct rlimit *rlim_stack)
->  		mm->get_unmapped_area = arch_get_unmapped_area_topdown;
->  	}
->  }
-> +
-> +pgprot_t vm_get_page_prot(unsigned long vm_flags)
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index faa85397b6fb..837f898ad2ff 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -2217,6 +2217,34 @@ static int kvm_s390_cpus_to_pv(struct kvm *kvm, u16 *rc, u16 *rrc)
+>   	return r;
+>   }
+>   
+> +static int kvm_s390_handle_pv_info(struct kvm_s390_pv_info *info)
 > +{
-> +	switch (vm_flags & (VM_READ | VM_WRITE | VM_EXEC | VM_SHARED)) {
-> +	case VM_NONE:
-> +		return PAGE_NONE;
-> +	case VM_READ:
-> +	case VM_WRITE:
-> +	case VM_WRITE | VM_READ:
-> +		return PAGE_RO;
-> +	case VM_EXEC:
-> +	case VM_EXEC | VM_READ:
-> +	case VM_EXEC | VM_WRITE:
-> +	case VM_EXEC | VM_WRITE | VM_READ:
-> +		return PAGE_RX;
-> +	case VM_SHARED:
-> +		return PAGE_NONE;
-> +	case VM_SHARED | VM_READ:
-> +		return PAGE_RO;
-> +	case VM_SHARED | VM_WRITE:
-> +	case VM_SHARED | VM_WRITE | VM_READ:
-> +		return PAGE_RW;
-> +	case VM_SHARED | VM_EXEC:
-> +	case VM_SHARED | VM_EXEC | VM_READ:
-> +		return PAGE_RX;
-> +	case VM_SHARED | VM_EXEC | VM_WRITE:
-> +	case VM_SHARED | VM_EXEC | VM_WRITE | VM_READ:
-> +		return PAGE_RWX;
+> +	u32 len;
+> +
+> +	switch (info->header.id) {
+> +	case KVM_PV_INFO_VM: {
+> +		len =  sizeof(info->header) + sizeof(info->vm);
+> +
+> +		if (info->header.len < len)
+> +			return -EINVAL;
+> +
+> +		memcpy(info->vm.inst_calls_list,
+> +		       uv_info.inst_calls_list,
+> +		       sizeof(uv_info.inst_calls_list));
+> +
+> +		/* It's max cpuidm not max cpus so it's off by one */
+> +		info->vm.max_cpus = uv_info.max_guest_cpu_id + 1;
+> +		info->vm.max_guests = uv_info.max_num_sec_conf;
+> +		info->vm.max_guest_addr = uv_info.max_sec_stor_addr;
+> +		info->vm.feature_indication = uv_info.uv_feature_indications;
+> +
+> +		return 0;
+> +	}
 > +	default:
-> +		BUILD_BUG();
+> +		return -EINVAL;
 > +	}
 > +}
-> +EXPORT_SYMBOL(vm_get_page_prot);
-> -- 
-> 2.25.1
-> 
+> +
+>   static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
+>   {
+>   	int r = 0;
+> @@ -2353,6 +2381,25 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
+>   			     cmd->rc, cmd->rrc);
+>   		break;
+>   	}
+> +	case KVM_PV_INFO: {
+> +		struct kvm_s390_pv_info info = {};
+> +
+> +		if (copy_from_user(&info, argp, sizeof(info.header)))
+> +			return -EFAULT;
+> +
+> +		if (info.header.len < sizeof(info.header))
+> +			return -EINVAL;
+> +
+> +		r = kvm_s390_handle_pv_info(&info);
+> +		if (r)
+> +			return r;
+> +
+> +		r = copy_to_user(argp, &info, sizeof(info));
+
+sizeof(info) is currently OK ... but this might break if somebody later 
+extends the kvm_s390_pv_info struct, I guess? ==> Maybe also better use 
+sizeof(info->header) + sizeof(info->vm) here, too? Or let 
+kvm_s390_handle_pv_info() return the amount of bytes that should be copied here?
+
+  Thomas
+
+
+> +		if (r)
+> +			return -EFAULT;
+> +		return 0;
+> +	}
+>   	default:
+>   		r = -ENOTTY;
+>   	}
+> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+> index dbc550bbd9fa..96fceb204a92 100644
+> --- a/include/uapi/linux/kvm.h
+> +++ b/include/uapi/linux/kvm.h
+> @@ -1642,6 +1642,28 @@ struct kvm_s390_pv_unp {
+>   	__u64 tweak;
+>   };
+>   
+> +enum pv_cmd_info_id {
+> +	KVM_PV_INFO_VM,
+> +};
+> +
+> +struct kvm_s390_pv_info_vm {
+> +	__u64 inst_calls_list[4];
+> +	__u64 max_cpus;
+> +	__u64 max_guests;
+> +	__u64 max_guest_addr;
+> +	__u64 feature_indication;
+> +};
+> +
+> +struct kvm_s390_pv_info_header {
+> +	__u32 id;
+> +	__u32 len;
+> +};
+> +
+> +struct kvm_s390_pv_info {
+> +	struct kvm_s390_pv_info_header header;
+> +	struct kvm_s390_pv_info_vm vm;
+> +};
+> +
+>   enum pv_cmd_id {
+>   	KVM_PV_ENABLE,
+>   	KVM_PV_DISABLE,
+> @@ -1650,6 +1672,7 @@ enum pv_cmd_id {
+>   	KVM_PV_VERIFY,
+>   	KVM_PV_PREP_RESET,
+>   	KVM_PV_UNSHARE_ALL,
+> +	KVM_PV_INFO,
+>   };
+>   
+>   struct kvm_pv_cmd {
+
