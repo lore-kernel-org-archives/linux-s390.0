@@ -2,123 +2,151 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 765B7C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 23 Feb 2022 16:49:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8193C433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 23 Feb 2022 17:33:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243004AbiBWQtt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 23 Feb 2022 11:49:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33848 "EHLO
+        id S243063AbiBWRd7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 23 Feb 2022 12:33:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243019AbiBWQtn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Feb 2022 11:49:43 -0500
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB7D549FB4;
-        Wed, 23 Feb 2022 08:49:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1645634955; x=1677170955;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=Bgt30IoON41EDSfpC3I1slWTpq2C/LiEym6tqqerch4=;
-  b=cSw5O91xcWwZ/0nfG6PmkJBXN7lkuOnaFvgKbzrgcog2063DsdUxJp+l
-   8cFYrH2m1vzpXsQmkdnn2RnP8/OuRR7HC3ycy1JlPwbm0rUOocr2vUe0V
-   uBKjm24EwH0eNofOKJXfIjYK9KLiFuNbEg7on2UCh4LHFgp0BBFLUTTSL
-   85QALT8FmVsrO8pX7jgByV7cRvu1tx7NbbqkHLaBhXGG9iALOtGzW4zcu
-   2DgoD5jgLrTU6vGl8Cv2EBLWBaF8x+gmYAHm7liCD/e0yMHufl6kTsFck
-   7Qlg8s1m4Z1yuJCRCKWFz0xsW5MbHKCx0W0/G8m/hg1aP9WmxzlkMTCn4
-   g==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10267"; a="251938959"
-X-IronPort-AV: E=Sophos;i="5.88,391,1635231600"; 
-   d="scan'208";a="251938959"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Feb 2022 08:44:17 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.88,391,1635231600"; 
-   d="scan'208";a="591767550"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga008.fm.intel.com with ESMTP; 23 Feb 2022 08:44:12 -0800
-Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 41D533BC; Wed, 23 Feb 2022 18:44:28 +0200 (EET)
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 1/1] KVM: s390: Don't cast parameter in bit operations
-Date:   Wed, 23 Feb 2022 18:44:20 +0200
-Message-Id: <20220223164420.45344-1-andriy.shevchenko@linux.intel.com>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S242934AbiBWRd6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Feb 2022 12:33:58 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 777EA54FA2;
+        Wed, 23 Feb 2022 09:33:29 -0800 (PST)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21NFJ3mc007703;
+        Wed, 23 Feb 2022 17:33:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=X3U/Tx69BZex1BAIM+2U4fWBQxgbxoGuv6xHDjIFm/Y=;
+ b=rg5TuWqJxBIOkMtFqVVP519VGFwWzWqwc5T1+EKHrhtN2QyRr3AUT1j2QBZnyNp2pBeD
+ ApiwQ2iar2GMc6PF8qCZuwbCy9Xgh7pWVYE1untffjZdMZkbeOn5nLSxE2fwcpg4TThQ
+ stgs/OiluMAUXDjAWwqmIA47UY6l0ap9rMdoaunpMMUci/SRHgXtFILiqtgoVgsarL6o
+ 6FcBxrG2JTzdfxkG3IuCuCZvQ6hdhyb4by0/+4n2rlmjEUmGqOJksM4o+Vj3xprpEswl
+ 3PmVFiTwJps4TcgW5KL+HzF4IPjYGPZ5NoOt3bjOKp1zUDi1rUTP4bued946C6TgCPCH hA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3edqf3k65n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Feb 2022 17:33:28 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21NHJmKt027675;
+        Wed, 23 Feb 2022 17:33:28 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3edqf3k63u-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Feb 2022 17:33:27 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21NHSbtS027137;
+        Wed, 23 Feb 2022 17:33:21 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma02fra.de.ibm.com with ESMTP id 3ear69a6y6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Feb 2022 17:33:21 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21NHXH6A54198638
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 23 Feb 2022 17:33:18 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D1EA04204B;
+        Wed, 23 Feb 2022 17:33:17 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6E3A142047;
+        Wed, 23 Feb 2022 17:33:17 +0000 (GMT)
+Received: from li-ca45c2cc-336f-11b2-a85c-c6e71de567f1.ibm.com (unknown [9.171.74.176])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 23 Feb 2022 17:33:17 +0000 (GMT)
+Message-ID: <99ec1cf03d17b3de2d47c497882f091f922713bf.camel@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v3 6/8] s390x: Add more tests for STSCH
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Cc:     imbrenda@linux.ibm.com, Pierre Morel <pmorel@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>, thuth@redhat.com,
+        david@redhat.com
+Date:   Wed, 23 Feb 2022 18:33:17 +0100
+In-Reply-To: <04daca6a-5863-d205-ea98-096163a2296a@linux.ibm.com>
+References: <20220223132940.2765217-1-nrb@linux.ibm.com>
+         <20220223132940.2765217-7-nrb@linux.ibm.com>
+         <04daca6a-5863-d205-ea98-096163a2296a@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.4 (3.42.4-1.fc35) 
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: YGgnOs_t1BU2zagkI2kXfiwjHNxT01oX
+X-Proofpoint-GUID: 67LIQehrSHAjKCugolYGfPgZq0TF2Vo5
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-02-23_09,2022-02-23_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 suspectscore=0
+ phishscore=0 clxscore=1015 mlxlogscore=999 spamscore=0 mlxscore=0
+ malwarescore=0 adultscore=0 priorityscore=1501 impostorscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2202230100
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-While in this particular case it would not be a (critical) issue,
-the pattern itself is bad and error prone in case somebody blindly
-copies to their code.
+On Wed, 2022-02-23 at 16:39 +0100, Janosch Frank wrote:
+> On 2/23/22 14:29, Nico Boehr wrote:
+> > 
+[...]
+> >   
+> > +static void test_stsch(void)
+> > +{
+> > 
+[...]
+> > +       report_prefix_push("Bit 47 in SID is zero");
+> > +       expect_pgm_int();
+> > +       stsch(0x0000ffff, &schib);
+> > +       check_pgm_int_code(PGM_INT_CODE_OPERAND);
+> > +       report_prefix_pop();
+> 
+> Add a comment:
+> No matter if the multiple-subchannel-set facility is installed or
+> not, 
+> bit 47 always needs to be 1.
 
-Don't cast parameter to unsigned long pointer in the bit operations.
-Instead copy to a local variable on stack of a proper type and use.
+Will do.
 
-Fixes: d77e64141e32 ("KVM: s390: implement GISA IPM related primitives")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- arch/s390/include/asm/kvm_host.h | 5 ++++-
- arch/s390/kvm/interrupt.c        | 6 +++---
- 2 files changed, 7 insertions(+), 4 deletions(-)
+> Do we have the MSS facility?
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index a22c9266ea05..f1c4a1b9b360 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -867,7 +867,10 @@ struct kvm_s390_gisa {
- 			u8  reserved03[11];
- 			u32 airq_count;
- 		} g1;
--		struct {
-+		struct { /* as a 256-bit bitmap */
-+			DECLARE_BITMAP(b, 256);
-+		} bitmap;
-+		struct { /* as a set of 64-bit words */
- 			u64 word[4];
- 		} u64;
- 	};
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index db933c252dbc..04e055cbd080 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -304,7 +304,7 @@ static inline int gisa_in_alert_list(struct kvm_s390_gisa *gisa)
- 
- static inline void gisa_set_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
- {
--	set_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
-+	set_bit_inv(IPM_BIT_OFFSET + gisc, gisa->bitmap.b);
- }
- 
- static inline u8 gisa_get_ipm(struct kvm_s390_gisa *gisa)
-@@ -314,12 +314,12 @@ static inline u8 gisa_get_ipm(struct kvm_s390_gisa *gisa)
- 
- static inline void gisa_clear_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
- {
--	clear_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
-+	clear_bit_inv(IPM_BIT_OFFSET + gisc, gisa->bitmap.b);
- }
- 
- static inline int gisa_tac_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
- {
--	return test_and_clear_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
-+	return test_and_clear_bit_inv(IPM_BIT_OFFSET + gisc, gisa->bitmap.b);
- }
- 
- static inline unsigned long pending_irqs_no_gisa(struct kvm_vcpu *vcpu)
--- 
-2.34.1
+Not an IO expert, but it seems like it's enabled by QEMU in pc-
+bios/s390-ccw/main.c, css_setup(). The comment suggests it's always
+there.
 
+> If yes, could we disable it to test the 32-47 == 0x0001 case?
+
+I see ioinst_handle_chsc_sda() in QEMU to enable it. Disabling only
+works with a full reset of the CSS (see css_reset()) which can be
+triggered from a subsystem_reset(), which basically means we need to
+IPL. I think that's not really viable or do you see any other way?
+
+Halil, Pierre, can you confirm?
+
+> 
+> > +}
+> > +
+> > +static void test_pmcw_bit5(void)
+> > +{
+> > +       int cc;
+> > +       uint16_t old_pmcw_flags;
+> 
+> I need a comment here for further reference since that behavior is 
+> documented at the description of the schib and not where STSCH is
+> described:
+> According to architecture MSCH does ignore bit 5 of the second word
+> but 
+> STSCH will store bit 5 as zero.
+
+Will add the comment above the function, OK?
+
+> We could check if bits 0,1 and 6,7 are also zero but I'm not sure if 
+> that's interesting since MSCH does not ignore those bits and should 
+> result in an operand exception when trying to set them.
+
+I already have a test in MSCH which checks for the operand exception.
+It's simple enough to extend it to do a STSCH after the MSCH and check
+the respective bits is clear. Will be added in v4.
