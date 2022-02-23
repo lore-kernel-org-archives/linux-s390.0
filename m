@@ -2,116 +2,156 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D083C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 23 Feb 2022 18:57:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 18979C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 23 Feb 2022 19:14:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233050AbiBWS55 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 23 Feb 2022 13:57:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44362 "EHLO
+        id S244223AbiBWTOr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 23 Feb 2022 14:14:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237010AbiBWS54 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Feb 2022 13:57:56 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0849B29837;
-        Wed, 23 Feb 2022 10:57:27 -0800 (PST)
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21NHIZKu026532;
-        Wed, 23 Feb 2022 18:57:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=Mkh4dUQ5Ypka5egNRySemcws707R37tGQCEWyl/L/zM=;
- b=eQXGj3VOoZ15h1E8r+fcln3UCiifoo1uw6GBdVDQBXtV+ZoNvSwgiLQcMFfib/Z8fLAZ
- 8aogfG3DYchVsFuvoi/tW8e23dtikyzfCZsCBENigP0Zs39FGnNNBrwBo+SvklcyePwf
- VTBMSropWUSz37zYT/JqWtZMKsg23r8SdaHuhhjv9U3i4U9Y39oe4HvxJ1zdz/CuS96K
- BDm48If2FyRE+G1Ese/0CT/9pBORlZrV9Eoy5l8axI5s0+0wz1LIhyX8pmuoLhnLBeiv
- a9To0Zxj9Tt1uDWnGJ7O0DMjUvjucdaJqILeFzSHMibCrBCOjFuJgOCrQsw1p/W4DxR3 GA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ede6t15eh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Feb 2022 18:57:24 +0000
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21NICCkm029389;
-        Wed, 23 Feb 2022 18:57:24 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ede6t15dr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Feb 2022 18:57:23 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21NIul4I026635;
-        Wed, 23 Feb 2022 18:57:21 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma02fra.de.ibm.com with ESMTP id 3ear69ajcq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Feb 2022 18:57:21 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21NIvHbI30998894
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 23 Feb 2022 18:57:17 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CF7B6AE053;
-        Wed, 23 Feb 2022 18:57:17 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 55042AE04D;
-        Wed, 23 Feb 2022 18:57:17 +0000 (GMT)
-Received: from [9.171.51.229] (unknown [9.171.51.229])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 23 Feb 2022 18:57:17 +0000 (GMT)
-Message-ID: <bc3252a3-5a84-63d4-dfc5-009f602a5bec@linux.ibm.com>
-Date:   Wed, 23 Feb 2022 19:57:31 +0100
+        with ESMTP id S244196AbiBWTOc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Feb 2022 14:14:32 -0500
+Received: from smtp-relay-internal-0.canonical.com (smtp-relay-internal-0.canonical.com [185.125.188.122])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD7693FBD0
+        for <linux-s390@vger.kernel.org>; Wed, 23 Feb 2022 11:14:01 -0800 (PST)
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com [209.85.208.69])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id D166B407CD
+        for <linux-s390@vger.kernel.org>; Wed, 23 Feb 2022 19:13:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1645643637;
+        bh=6kmYalWKPfFv5VRw+oGSxmK6RPimpkHdVtl6uKB49Rw=;
+        h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+         MIME-Version;
+        b=hTTB76Xqe/LTCxaoOfPwknGtmAkyKhW/Ozzy+Aj3bMEV4NhhJrLyNd8uDR7f+42Jy
+         1Fqv7RDgNHSeI2vIM9TzuIPLETcOERERo5UDeaDpQmQHy4iGBZfw6WoQweIGrzHiTh
+         V4P080dW0wQvC6Q2VEyD+68WBBPNVyqx7QBCjxzrIN0plIVYElkOMwS7hiRRwezQP9
+         VtihSFsyu/y0Vsnq9WMUUIAdAGYyp14QKdUJUkMKoJtFUlusiF6dGlZTe5+f+zxpPq
+         y59NVw2pYX1cwhmNcBoqMOCg/YGeNXSU9uek9vxGJCREfhpNtrmZxQQEFVNKldOd4e
+         uQdZW+0jXAU1g==
+Received: by mail-ed1-f69.google.com with SMTP id m11-20020a056402430b00b00410678d119eso14018969edc.21
+        for <linux-s390@vger.kernel.org>; Wed, 23 Feb 2022 11:13:57 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=6kmYalWKPfFv5VRw+oGSxmK6RPimpkHdVtl6uKB49Rw=;
+        b=nwpfsuBB68Y0NiAQZ1G2fCIhKO89LkN9+i+6cz7S8/ocsITLQ1OgUh24n9WmpTmsz3
+         uVFAvjrEuWKr0/HrFQMiR2BfvFmmmxePaANm4GLLljSWs9TjshD4F9/1D12+otc6r10J
+         RzvcT21KAWe3YMc2cIu7VUHXUCFUVAjmkI0+XJfKUbvNt2Ai9rKUNfr3mIAuld0/vap+
+         Nqv1dpvyAgvZu+HMBvcNopm6m/zkxTiAoOJ9Lu82Xr7WNwRZ7RV2+Zmlrn/NSPAa+78+
+         c6b/ig84l+6hdmgUnV5FHyZszSPPRgb68SZNfGSjZ9a2dJ9++LdCvhd73JE/DZ3ztgkN
+         Uw2w==
+X-Gm-Message-State: AOAM533BgF8Zz9zOsgkIaFlIITGJOdx0sTYGgOW5mRxQ6S9l5XYBD9tW
+        QOcmTgdk6OgTGTFAbItIGzoonmXXzkbcmfEHpnfkrosJF6TD0j3RmaTTiPP7BosmoRDT3hd4Mp8
+        qkRJ+0Iz5kDhhJ/fh259SRUBXVquNZj945ZENl6A=
+X-Received: by 2002:a17:906:8517:b0:6d0:1de8:cb6e with SMTP id i23-20020a170906851700b006d01de8cb6emr879381ejx.686.1645643637568;
+        Wed, 23 Feb 2022 11:13:57 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxB+J8rGAXqipxoP9wQ6myB7nB+zWmd6qpvw2I7Sb7Voa93sYSAIKWPaoRnjyaDxxppMxF7NQ==
+X-Received: by 2002:a17:906:8517:b0:6d0:1de8:cb6e with SMTP id i23-20020a170906851700b006d01de8cb6emr879348ejx.686.1645643637394;
+        Wed, 23 Feb 2022 11:13:57 -0800 (PST)
+Received: from localhost.localdomain (xdsl-188-155-181-108.adslplus.ch. [188.155.181.108])
+        by smtp.gmail.com with ESMTPSA id q5sm212611ejc.115.2022.02.23.11.13.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 23 Feb 2022 11:13:56 -0800 (PST)
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Stuart Yoder <stuyoder@gmail.com>,
+        Laurentiu Tudor <laurentiu.tudor@nxp.com>,
+        Abel Vesa <abel.vesa@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Andy Gross <agross@kernel.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-clk@vger.kernel.org, NXP Linux Team <linux-imx@nxp.com>,
+        linux-arm-kernel@lists.infradead.org, linux-hyperv@vger.kernel.org,
+        linux-pci@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        alsa-devel@alsa-project.org, linux-spi@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Subject: [PATCH v2 04/11] hv: vmbus: use helper for safer setting of driver_override
+Date:   Wed, 23 Feb 2022 20:13:03 +0100
+Message-Id: <20220223191310.347669-5-krzysztof.kozlowski@canonical.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220223191310.347669-1-krzysztof.kozlowski@canonical.com>
+References: <20220223191310.347669-1-krzysztof.kozlowski@canonical.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.0
-Subject: Re: [PATCH] net/smc: Add autocork support
-Content-Language: en-US
-To:     dust.li@linux.alibaba.com,
-        Hendrik Brueckner <brueckner@linux.ibm.com>
-Cc:     Stefan Raspl <raspl@linux.ibm.com>,
-        Tony Lu <tonylu@linux.alibaba.com>, kuba@kernel.org,
-        davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <20220216034903.20173-1-dust.li@linux.alibaba.com>
- <68e9534b-7ff5-5a65-9017-124dbae0c74b@linux.ibm.com>
- <20220216152721.GB39286@linux.alibaba.com>
- <454b5efd-e611-2dfb-e462-e7ceaee0da4d@linux.ibm.com>
- <20220217132200.GA5443@linux.alibaba.com> <Yg6Q2kIDJrhvNVz7@linux.ibm.com>
- <20220218073327.GB5443@linux.alibaba.com>
- <d4ce4674-3ced-da34-a8a4-30d74cbe24bb@linux.ibm.com>
- <20220218234232.GC5443@linux.alibaba.com>
-From:   Karsten Graul <kgraul@linux.ibm.com>
-Organization: IBM Deutschland Research & Development GmbH
-In-Reply-To: <20220218234232.GC5443@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Fyp25lHlfm8BvSD9vJu8XFm7wJujfm-B
-X-Proofpoint-ORIG-GUID: LAyXRrWZ9CuE87Jh0JCKLx0hV-ApzYV_
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-02-23_09,2022-02-23_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
- priorityscore=1501 phishscore=0 impostorscore=0 mlxlogscore=999
- clxscore=1015 mlxscore=0 malwarescore=0 adultscore=0 suspectscore=0
- spamscore=0 lowpriorityscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2201110000 definitions=main-2202230106
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 19/02/2022 00:42, dust.li wrote:
-> On Fri, Feb 18, 2022 at 05:03:56PM +0100, Karsten Graul wrote:
->> Right now for me it looks like there is no way to use netlink for container runtime
->> configuration, which is a pity.
->> We continue our discussions about this in the team, and also here on the list.
-> 
-> Many thanks for your time on this topic !
+Use a helper for seting driver_override to reduce amount of duplicated
+code.
 
-We checked more specs (like Container Network Interface (CNI) Specification) 
-but all we found uses sysctl at the end. There is lot of infrastructure 
-to use sysctls in a container environment.
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+---
+ drivers/hv/vmbus_drv.c | 24 ++++--------------------
+ 1 file changed, 4 insertions(+), 20 deletions(-)
 
-Establishing netlink-like controls for containers is by far out of our scope, and
-would take a long time until it would be available in the popular projects.
+diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
+index 12a2b37e87f3..f2435cc8b680 100644
+--- a/drivers/hv/vmbus_drv.c
++++ b/drivers/hv/vmbus_drv.c
+@@ -575,31 +575,15 @@ static ssize_t driver_override_store(struct device *dev,
+ 				     const char *buf, size_t count)
+ {
+ 	struct hv_device *hv_dev = device_to_hv_device(dev);
+-	char *driver_override, *old, *cp;
++	int ret;
+ 
+ 	/* We need to keep extra room for a newline */
+ 	if (count >= (PAGE_SIZE - 1))
+ 		return -EINVAL;
+ 
+-	driver_override = kstrndup(buf, count, GFP_KERNEL);
+-	if (!driver_override)
+-		return -ENOMEM;
+-
+-	cp = strchr(driver_override, '\n');
+-	if (cp)
+-		*cp = '\0';
+-
+-	device_lock(dev);
+-	old = hv_dev->driver_override;
+-	if (strlen(driver_override)) {
+-		hv_dev->driver_override = driver_override;
+-	} else {
+-		kfree(driver_override);
+-		hv_dev->driver_override = NULL;
+-	}
+-	device_unlock(dev);
+-
+-	kfree(old);
++	ret = driver_set_override(dev, &hv_dev->driver_override, buf);
++	if (ret)
++		return ret;
+ 
+ 	return count;
+ }
+-- 
+2.32.0
 
-So at the moment I see no alternative to an additional sysctl interface in the 
-SMC module that provides controls which are useful in container environments.
