@@ -2,59 +2,60 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D0164C41535
-	for <linux-s390@archiver.kernel.org>; Wed, 23 Feb 2022 19:14:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C148C4332F
+	for <linux-s390@archiver.kernel.org>; Wed, 23 Feb 2022 19:14:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244248AbiBWTOs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 23 Feb 2022 14:14:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56314 "EHLO
+        id S244253AbiBWTO6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 23 Feb 2022 14:14:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244197AbiBWTOq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Feb 2022 14:14:46 -0500
+        with ESMTP id S244228AbiBWTOr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Feb 2022 14:14:47 -0500
 Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F784403EE
-        for <linux-s390@vger.kernel.org>; Wed, 23 Feb 2022 11:14:04 -0800 (PST)
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com [209.85.218.69])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1D2241628
+        for <linux-s390@vger.kernel.org>; Wed, 23 Feb 2022 11:14:08 -0800 (PST)
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com [209.85.218.72])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 38FFB3FCA5
-        for <linux-s390@vger.kernel.org>; Wed, 23 Feb 2022 19:13:50 +0000 (UTC)
+        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id C9A2440307
+        for <linux-s390@vger.kernel.org>; Wed, 23 Feb 2022 19:13:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1645643630;
-        bh=7G3yQO1ggdyvs1MDXGTTghLlHGfX3RftlATUX++IZLE=;
-        h=From:To:Cc:Subject:Date:Message-Id:MIME-Version;
-        b=luY9iMPs+zOgPUjc3lGcYqRFqe/kgDKBuG377FSaA9DlxUgwVbV7Yy+XbcK6QQtI0
-         ZFKpIQcXY0dlasZg/pvWgJ3lsZ8LQqjNqmR0hJqJFhVcDeFnsPppA+aF3vo43WPIsQ
-         0/5EWrpyHUF14zyXBFi+OC5pjPvyUR+tBAe+qLgpoHmWcL9Zwx2IdLAdfceRgNLEQS
-         RDG1Y8KyFH7RsEN2nxJfSzykeEmlkKajXwcVplgljJoUwaNBc8wi7sJWxGaag+qAwX
-         c7Px+aVNCLCDGNHDbioyNISpASkWrnUBKYDKOhjAjb/RN2QP0/qmlkudGQvjw/o2vg
-         yGX9bKM6r3HZA==
-Received: by mail-ej1-f69.google.com with SMTP id qa30-20020a170907869e00b006cee5e080easo7439083ejc.3
-        for <linux-s390@vger.kernel.org>; Wed, 23 Feb 2022 11:13:50 -0800 (PST)
+        s=20210705; t=1645643633;
+        bh=HpbyTrdXrFaP+pceEvy/NrkKlPBl1rW1ivTy++yPdQg=;
+        h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+         MIME-Version;
+        b=lF+u9h7M8SaGGj+BVyjX0jOZumxyccm+OdEcAbmYNGxAwerixclXgNWSgohMe+KOS
+         Z47RNhg+hCoxblhOMU9LreR/HJ+Zn5M7ODjqWJeBuBxeaGwb4nBzg30oV6qCkl050l
+         kjQeCvYrlUhxnEXYiywittN0rtgZ2lBKDITs7P/fE/FuRGqlpNonAbQdG7NCymUF3q
+         aA268kbG940a/TIehbDStEeaE1qBXigBvVvH/iGe2FsRlPNoBYPtW+Ixw3Bc6xHQAm
+         +b8mNNvI7bm3D0CsmZQw1uiYxl4beUlCWgnRlhpyv3S/lQKmPqpvnLZXgnQKU4DRkv
+         yd+GYNWHgLfWQ==
+Received: by mail-ej1-f72.google.com with SMTP id d7-20020a1709061f4700b006bbf73a7becso7479343ejk.17
+        for <linux-s390@vger.kernel.org>; Wed, 23 Feb 2022 11:13:53 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=7G3yQO1ggdyvs1MDXGTTghLlHGfX3RftlATUX++IZLE=;
-        b=QrmQ4SVlULmc4MNwdO0ul4qLmEBxfPyUumAq3RhkFzn0JY3RF9sh/yIM4ODTh1mqh+
-         iA+HP5OsnzDNHCpcfGTRzxu/pgAi9qc0BSC1dqKZMKxXyDvTsjaHAgm1AQUeGMXiyQ5c
-         cUAQgmIg10Sp0J9bdsmY+i5kKw2PZPOVUtv+XP3y0NvWQcDsxd1vea3ENuRWsz9csHbo
-         tZaHLB8T0M8qy6OFkwxRzSYRMbquUCbL/3npAbHnpdOdECfcdI7cS3wtWKi0GNsqVabS
-         ep3sk7f9o9Pw2LyMWeE5zDwko9UZGN729F5e5FJTAr/ZABAEyyiYB6e5OEzOeFsPENqD
-         D7bA==
-X-Gm-Message-State: AOAM531DmVjaWCjvjKE5Ts2oCVOrPaWR/eQ/KNbWFexd45MyH1Vt0j5f
-        AmkThoJxuH6jbQywxroUCRnFp3DGT4U20bQistX/Q4wMD9jsHmEFI83P9rp53yajnWMFq6TAsWH
-        K+RJnk/fe6QF1CwgXWCna6TSUSz2fPrrY4dynAek=
-X-Received: by 2002:a17:907:3e1d:b0:6d1:cb2e:a5f7 with SMTP id hp29-20020a1709073e1d00b006d1cb2ea5f7mr912422ejc.34.1645643627838;
-        Wed, 23 Feb 2022 11:13:47 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzGBRIhr5hXOOi9m1HuHlbXHVVNJ7NbK5fFuNrM/4KQXFCcM1cXqPM7bQRPgfLpUUwT4AX8Nw==
-X-Received: by 2002:a17:907:3e1d:b0:6d1:cb2e:a5f7 with SMTP id hp29-20020a1709073e1d00b006d1cb2ea5f7mr912389ejc.34.1645643627533;
-        Wed, 23 Feb 2022 11:13:47 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=HpbyTrdXrFaP+pceEvy/NrkKlPBl1rW1ivTy++yPdQg=;
+        b=SlGEZG7BG1vSUgsaWh++lwGN7K8gcLHW+lJM49InLiofA3PXplhsRyO9sPt2inhYN/
+         7lR/u2NNFi7avOHB+gfLDtdyerc5trzSCAE6+fYthYGJrPsILl1ZFUjzFynAGROydFWR
+         3TZSQmf5afuRYn5XEEjVR6nLYLSSj5VdqidvJl5LCJ/khTJiEk/W9EL8QVagNDgzTxMY
+         CJ0JN9NiMC7heHArvhKncPdjVraNiCKr7kQpTNTJcZHi2fD7mXIehyzokzEn+r68PSaA
+         FtIhQ+JuZbhEodT6f16XzP1BQEg15NeDTnE7go0CWvYhAOsKLWeFd0QoqVSPG9fwoGCa
+         beMQ==
+X-Gm-Message-State: AOAM533NYxE89VRlAPOK0+dcJfktGJUanbIy19DAQRL6SCBTLoe9p/5/
+        XUBm5yQrY0Z373MTHwaIOOdp/iJv64oDMr1j8LCcyl8DaKEBiXdmb+YA1k55CwtU0fFhNBfKFc/
+        YgMUcceT/kjIdbq6PsA4D28mmZVUmhjJqEphtcmY=
+X-Received: by 2002:a05:6402:d05:b0:412:e171:28d9 with SMTP id eb5-20020a0564020d0500b00412e17128d9mr848363edb.169.1645643633266;
+        Wed, 23 Feb 2022 11:13:53 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwYG5EE1VK62qsOOiEHtkeJRCih/epa6U/E9Szqr9uJDRTwmiXA+urJE3qxE0O0qjjabVNPNQ==
+X-Received: by 2002:a05:6402:d05:b0:412:e171:28d9 with SMTP id eb5-20020a0564020d0500b00412e17128d9mr848325edb.169.1645643633058;
+        Wed, 23 Feb 2022 11:13:53 -0800 (PST)
 Received: from localhost.localdomain (xdsl-188-155-181-108.adslplus.ch. [188.155.181.108])
-        by smtp.gmail.com with ESMTPSA id q5sm212611ejc.115.2022.02.23.11.13.45
+        by smtp.gmail.com with ESMTPSA id q5sm212611ejc.115.2022.02.23.11.13.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Feb 2022 11:13:47 -0800 (PST)
+        Wed, 23 Feb 2022 11:13:51 -0800 (PST)
 From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Rafael J. Wysocki" <rafael@kernel.org>,
@@ -91,79 +92,66 @@ To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
 Cc:     Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Subject: [PATCH v2 00/11] Fix broken usage of driver_override (and kfree of static memory)
-Date:   Wed, 23 Feb 2022 20:12:59 +0100
-Message-Id: <20220223191310.347669-1-krzysztof.kozlowski@canonical.com>
+Subject: [PATCH v2 02/11] amba: use helper for safer setting of driver_override
+Date:   Wed, 23 Feb 2022 20:13:01 +0100
+Message-Id: <20220223191310.347669-3-krzysztof.kozlowski@canonical.com>
 X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220223191310.347669-1-krzysztof.kozlowski@canonical.com>
+References: <20220223191310.347669-1-krzysztof.kozlowski@canonical.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi,
+Use a helper for seting driver_override to reduce amount of duplicated
+code.
 
-This is a continuation of my old patchset from 2019. [1]
-Back then, few drivers set driver_override wrong. I fixed Exynos
-in a different way after discussions. QCOM NGD was not fixed
-and a new user appeared - IMX SCU.
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+---
+ drivers/amba/bus.c | 24 ++++--------------------
+ 1 file changed, 4 insertions(+), 20 deletions(-)
 
-It seems "char *" in driver_override looks too consty, so we
-tend to make a mistake of storing there string literals.
-
-Changes of latest since v1 (not the old 2019 solution):
-=======================================================
-https://lore.kernel.org/all/708eabb1-7b35-d525-d4c3-451d4a3de84f@rasmusvillemoes.dk/
-1. Add helper for setting driver_override.
-2. Use the helper.
-
-Dependencies (and stable):
-==========================
-1. All patches, including last three fixes, depend on first patch
-   introducing the helper.
-2. The last three commits - fixes - are probably not backportable
-   directly, because of this dependency. I don't know how to express
-   it here, since stable-kernel-rules.rst mentions only commits as
-   possible dependencies.
-
-[1] https://lore.kernel.org/all/1550484960-2392-3-git-send-email-krzk@kernel.org/
-
-Best regards,
-Krzysztof
-
-Krzysztof Kozlowski (11):
-  driver: platform: add and use helper for safer setting of
-    driver_override
-  amba: use helper for safer setting of driver_override
-  fsl-mc: use helper for safer setting of driver_override
-  hv: vmbus: use helper for safer setting of driver_override
-  pci: use helper for safer setting of driver_override
-  s390: cio: use helper for safer setting of driver_override
-  spi: use helper for safer setting of driver_override
-  vdpa: use helper for safer setting of driver_override
-  clk: imx: scu: fix kfree() of static memory on setting driver_override
-  slimbus: qcom-ngd: fix kfree() of static memory on setting
-    driver_override
-  rpmsg: fix kfree() of static memory on setting driver_override
-
- drivers/amba/bus.c              | 24 +++---------------
- drivers/base/driver.c           | 44 +++++++++++++++++++++++++++++++++
- drivers/base/platform.c         | 24 +++---------------
- drivers/bus/fsl-mc/fsl-mc-bus.c | 22 +++--------------
- drivers/clk/imx/clk-scu.c       |  7 +++++-
- drivers/hv/vmbus_drv.c          | 24 +++---------------
- drivers/pci/pci-sysfs.c         | 24 +++---------------
- drivers/rpmsg/rpmsg_internal.h  | 13 ++++++++--
- drivers/rpmsg/rpmsg_ns.c        | 14 +++++++++--
- drivers/s390/cio/css.c          | 24 +++---------------
- drivers/slimbus/qcom-ngd-ctrl.c | 12 ++++++++-
- drivers/spi/spi.c               | 20 +++------------
- drivers/vdpa/vdpa.c             | 25 +++----------------
- include/linux/device/driver.h   |  1 +
- include/linux/platform_device.h |  6 ++++-
- include/linux/spi/spi.h         |  2 +-
- 16 files changed, 123 insertions(+), 163 deletions(-)
-
+diff --git a/drivers/amba/bus.c b/drivers/amba/bus.c
+index e1a5eca3ae3c..12410c05ec70 100644
+--- a/drivers/amba/bus.c
++++ b/drivers/amba/bus.c
+@@ -94,31 +94,15 @@ static ssize_t driver_override_store(struct device *_dev,
+ 				     const char *buf, size_t count)
+ {
+ 	struct amba_device *dev = to_amba_device(_dev);
+-	char *driver_override, *old, *cp;
++	int ret;
+ 
+ 	/* We need to keep extra room for a newline */
+ 	if (count >= (PAGE_SIZE - 1))
+ 		return -EINVAL;
+ 
+-	driver_override = kstrndup(buf, count, GFP_KERNEL);
+-	if (!driver_override)
+-		return -ENOMEM;
+-
+-	cp = strchr(driver_override, '\n');
+-	if (cp)
+-		*cp = '\0';
+-
+-	device_lock(_dev);
+-	old = dev->driver_override;
+-	if (strlen(driver_override)) {
+-		dev->driver_override = driver_override;
+-	} else {
+-		kfree(driver_override);
+-		dev->driver_override = NULL;
+-	}
+-	device_unlock(_dev);
+-
+-	kfree(old);
++	ret = driver_set_override(_dev, &dev->driver_override, buf);
++	if (ret)
++		return ret;
+ 
+ 	return count;
+ }
 -- 
 2.32.0
 
