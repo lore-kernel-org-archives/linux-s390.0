@@ -2,151 +2,112 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E8193C433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 23 Feb 2022 17:33:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 896F7C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 23 Feb 2022 17:59:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243063AbiBWRd7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 23 Feb 2022 12:33:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50708 "EHLO
+        id S243631AbiBWR7f (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 23 Feb 2022 12:59:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242934AbiBWRd6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Feb 2022 12:33:58 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 777EA54FA2;
-        Wed, 23 Feb 2022 09:33:29 -0800 (PST)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21NFJ3mc007703;
-        Wed, 23 Feb 2022 17:33:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=X3U/Tx69BZex1BAIM+2U4fWBQxgbxoGuv6xHDjIFm/Y=;
- b=rg5TuWqJxBIOkMtFqVVP519VGFwWzWqwc5T1+EKHrhtN2QyRr3AUT1j2QBZnyNp2pBeD
- ApiwQ2iar2GMc6PF8qCZuwbCy9Xgh7pWVYE1untffjZdMZkbeOn5nLSxE2fwcpg4TThQ
- stgs/OiluMAUXDjAWwqmIA47UY6l0ap9rMdoaunpMMUci/SRHgXtFILiqtgoVgsarL6o
- 6FcBxrG2JTzdfxkG3IuCuCZvQ6hdhyb4by0/+4n2rlmjEUmGqOJksM4o+Vj3xprpEswl
- 3PmVFiTwJps4TcgW5KL+HzF4IPjYGPZ5NoOt3bjOKp1zUDi1rUTP4bued946C6TgCPCH hA== 
+        with ESMTP id S233244AbiBWR7f (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Feb 2022 12:59:35 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F8023D4BA;
+        Wed, 23 Feb 2022 09:59:07 -0800 (PST)
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21NHCA9Q009503;
+        Wed, 23 Feb 2022 17:59:02 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=KQgdeyVb6XDj3wVVuf7oj1X39sHmzApFe1ufbT3McI0=;
+ b=JxAtqCZZOF1XGM0Y/gjvrLKzglEvhK4ws5s2WS0BNxVeNbUxbZC+p0k5R0Bt/bJY0GyO
+ 0wNxE1p0krpGWs07Ly4UHvm3JnyogLZbV0D4H2ICKd+tSudhWhs1pVab+vvHGQpa6aLN
+ tshRuDrUxxmh0XU7wG4BSgnW6oMKKuA1BUVvWeRK/ge4Xa8pH7iUTVIeeix5limhZfPQ
+ wC3VI464uyNOU7izNALHdK4GsP7/FcJhLU+Bqh6DinEMVY9ajPKn8cDH65iioLHdoFCu
+ KSO7gP6efTlPqtMi8TJXN7uABi5qT4T6ARf2ht5npkgF46qGhGwsHUb8+PBkkOhReBiI MQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3edqf3k65n-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3eds4210gb-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Feb 2022 17:33:28 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21NHJmKt027675;
-        Wed, 23 Feb 2022 17:33:28 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3edqf3k63u-1
+        Wed, 23 Feb 2022 17:59:02 +0000
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21NHcNku020370;
+        Wed, 23 Feb 2022 17:59:02 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3eds4210fc-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Feb 2022 17:33:27 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21NHSbtS027137;
-        Wed, 23 Feb 2022 17:33:21 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma02fra.de.ibm.com with ESMTP id 3ear69a6y6-1
+        Wed, 23 Feb 2022 17:59:01 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21NHqcf0003232;
+        Wed, 23 Feb 2022 17:58:59 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma06fra.de.ibm.com with ESMTP id 3eaqtjtat2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Feb 2022 17:33:21 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21NHXH6A54198638
+        Wed, 23 Feb 2022 17:58:59 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21NHwvn527459868
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 23 Feb 2022 17:33:18 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D1EA04204B;
-        Wed, 23 Feb 2022 17:33:17 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6E3A142047;
-        Wed, 23 Feb 2022 17:33:17 +0000 (GMT)
-Received: from li-ca45c2cc-336f-11b2-a85c-c6e71de567f1.ibm.com (unknown [9.171.74.176])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 23 Feb 2022 17:33:17 +0000 (GMT)
-Message-ID: <99ec1cf03d17b3de2d47c497882f091f922713bf.camel@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v3 6/8] s390x: Add more tests for STSCH
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Cc:     imbrenda@linux.ibm.com, Pierre Morel <pmorel@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>, thuth@redhat.com,
-        david@redhat.com
-Date:   Wed, 23 Feb 2022 18:33:17 +0100
-In-Reply-To: <04daca6a-5863-d205-ea98-096163a2296a@linux.ibm.com>
-References: <20220223132940.2765217-1-nrb@linux.ibm.com>
-         <20220223132940.2765217-7-nrb@linux.ibm.com>
-         <04daca6a-5863-d205-ea98-096163a2296a@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.42.4 (3.42.4-1.fc35) 
+        Wed, 23 Feb 2022 17:58:57 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 32F28AE055;
+        Wed, 23 Feb 2022 17:58:57 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BA037AE051;
+        Wed, 23 Feb 2022 17:58:56 +0000 (GMT)
+Received: from [9.171.51.229] (unknown [9.171.51.229])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 23 Feb 2022 17:58:56 +0000 (GMT)
+Message-ID: <9725f86f-eabe-6aaf-0ef1-74138d895834@linux.ibm.com>
+Date:   Wed, 23 Feb 2022 18:59:10 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.0
+Subject: Re: [PATCH] net/smc: Use a mutex for locking "struct smc_pnettable"
+Content-Language: en-US
+To:     "Fabio M. De Francesco" <fmdefrancesco@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Tony Lu <tonylu@linux.alibaba.com>
+Cc:     syzbot+4f322a6d84e991c38775@syzkaller.appspotmail.com
+References: <20220223100252.22562-1-fmdefrancesco@gmail.com>
+From:   Karsten Graul <kgraul@linux.ibm.com>
+Organization: IBM Deutschland Research & Development GmbH
+In-Reply-To: <20220223100252.22562-1-fmdefrancesco@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: YGgnOs_t1BU2zagkI2kXfiwjHNxT01oX
-X-Proofpoint-GUID: 67LIQehrSHAjKCugolYGfPgZq0TF2Vo5
+X-Proofpoint-GUID: cBjvvFVE5h4wDlBNvxiEwIdI-1B97C5b
+X-Proofpoint-ORIG-GUID: n377XhP_E8myP0gMgqX0ryRpPzkO7S86
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-02-23_09,2022-02-23_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 suspectscore=0
- phishscore=0 clxscore=1015 mlxlogscore=999 spamscore=0 mlxscore=0
- malwarescore=0 adultscore=0 priorityscore=1501 impostorscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 clxscore=1011
+ mlxscore=0 suspectscore=0 priorityscore=1501 malwarescore=0
+ lowpriorityscore=0 impostorscore=0 phishscore=0 bulkscore=0 spamscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2201110000 definitions=main-2202230100
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 2022-02-23 at 16:39 +0100, Janosch Frank wrote:
-> On 2/23/22 14:29, Nico Boehr wrote:
-> > 
-[...]
-> >   
-> > +static void test_stsch(void)
-> > +{
-> > 
-[...]
-> > +       report_prefix_push("Bit 47 in SID is zero");
-> > +       expect_pgm_int();
-> > +       stsch(0x0000ffff, &schib);
-> > +       check_pgm_int_code(PGM_INT_CODE_OPERAND);
-> > +       report_prefix_pop();
+On 23/02/2022 11:02, Fabio M. De Francesco wrote:
+> smc_pnetid_by_table_ib() uses read_lock() and then it calls smc_pnet_apply_ib()
+> which, in turn, calls mutex_lock(&smc_ib_devices.mutex).
 > 
-> Add a comment:
-> No matter if the multiple-subchannel-set facility is installed or
-> not, 
-> bit 47 always needs to be 1.
-
-Will do.
-
-> Do we have the MSS facility?
-
-Not an IO expert, but it seems like it's enabled by QEMU in pc-
-bios/s390-ccw/main.c, css_setup(). The comment suggests it's always
-there.
-
-> If yes, could we disable it to test the 32-47 == 0x0001 case?
-
-I see ioinst_handle_chsc_sda() in QEMU to enable it. Disabling only
-works with a full reset of the CSS (see css_reset()) which can be
-triggered from a subsystem_reset(), which basically means we need to
-IPL. I think that's not really viable or do you see any other way?
-
-Halil, Pierre, can you confirm?
-
+> read_lock() disables preemption. Therefore, the code acquires a mutex while in
+> atomic context and it leads to a SAC bug.
 > 
-> > +}
-> > +
-> > +static void test_pmcw_bit5(void)
-> > +{
-> > +       int cc;
-> > +       uint16_t old_pmcw_flags;
+> Fix this bug by replacing the rwlock with a mutex.
 > 
-> I need a comment here for further reference since that behavior is 
-> documented at the description of the schib and not where STSCH is
-> described:
-> According to architecture MSCH does ignore bit 5 of the second word
-> but 
-> STSCH will store bit 5 as zero.
+> Reported-and-tested-by: syzbot+4f322a6d84e991c38775@syzkaller.appspotmail.com
+> Fixes: 64e28b52c7a6 ("net/smc: add pnet table namespace support")
+> Confirmed-by: Tony Lu <tonylu@linux.alibaba.com>
+> Signed-off-by: Fabio M. De Francesco <fmdefrancesco@gmail.com>
+> ---
 
-Will add the comment above the function, OK?
+Thank you Fabio!
 
-> We could check if bits 0,1 and 6,7 are also zero but I'm not sure if 
-> that's interesting since MSCH does not ignore those bits and should 
-> result in an operand exception when trying to set them.
+This should go to the net tree...
 
-I already have a test in MSCH which checks for the operand exception.
-It's simple enough to extend it to do a STSCH after the MSCH and check
-the respective bits is clear. Will be added in v4.
+Acked-by: Karsten Graul <kgraul@linux.ibm.com>
