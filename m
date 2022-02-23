@@ -2,78 +2,81 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A52CC433EF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E5827C4332F
 	for <linux-s390@archiver.kernel.org>; Wed, 23 Feb 2022 13:29:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240909AbiBWNaP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 23 Feb 2022 08:30:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54166 "EHLO
+        id S234708AbiBWNaR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 23 Feb 2022 08:30:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234708AbiBWNaP (ORCPT
+        with ESMTP id S240908AbiBWNaP (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Feb 2022 08:30:15 -0500
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A0B2AA2C6;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E034AA2CF;
         Wed, 23 Feb 2022 05:29:47 -0800 (PST)
 Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21NDPY9e018873;
-        Wed, 23 Feb 2022 13:29:46 GMT
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21NAHpJh018219;
+        Wed, 23 Feb 2022 13:29:47 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=SitxeyJ8Yteq62L62kk5e07lQyXO4FAypunUXGWS8OM=;
- b=cefLE5iHcuvnNdZ5kIWN1cMSOH234WiY1rocPmAkSRSdmZQwsFiczSuXo1Ud37Ah5Pk5
- iWZ6pV7v9A1xydJfH/H87N5gmT5DCHop2LaBbDuQoPhZmmCIDmpsPsM1hWlnCOcDXSfD
- 9txtVxzYDx8xwcHMGdsd5Jy1SWwFdf3xvoln+UfEhwSj0Z4TI0g+CS+YOlue1NeBYv6m
- zPtyDsFECszumsj6kyDYeloCipLBY7rwuPKtpjL7ERdUPK8rIua7mv+q03EnaclOJAAe
- 2t6jMsgOhMhOHdUQNnnkTlT1f+6DTrDCCeOO3jKr8Qin9Zx6wrPByjeFoQElargZ168z tA== 
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=KrHgcefxFkJNDSHdEUfFE4b1KWfOLQhgZfB62ZWZEGw=;
+ b=QWmNQjQocNX9Sm+HE2Alwqt3ud1himpUYyaPAPr9lRRoC236OG2WmaePTSIABDt7rfN1
+ 7JIkYtmTWwsLoZxBsW4v5WgGcpM0kNx/QbjVVdRUBwSx3hC6aE8R3NGkAY3/jr0BmytV
+ 7RLzFBFiEtV9kbgjDdSJpJCWWjy6CIaph60Z3v/Gps0zBKywy8D72K20EKyhusA207cH
+ 0iGmilZwAsLRKOGT1MioRfcJW3jATaDKJKNkFGlQjtkHoKqe4ekmhM551Q+wiN2QwBsc
+ dr3qTJM1fUj81LI2wVRV37Fx5vUgNRz2PUFpszrn7S9C8PCP40VzBHfx8SU0CqdTlS0u Hw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3edk21bnre-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3edk21bnrk-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Feb 2022 13:29:46 +0000
+        Wed, 23 Feb 2022 13:29:47 +0000
 Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21NBuOTM012463;
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21NCOvnE026408;
         Wed, 23 Feb 2022 13:29:46 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3edk21bnqq-1
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3edk21bnr1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Wed, 23 Feb 2022 13:29:46 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21NDOYnP025381;
-        Wed, 23 Feb 2022 13:29:44 GMT
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21NDPjZ0022161;
+        Wed, 23 Feb 2022 13:29:45 GMT
 Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma03ams.nl.ibm.com with ESMTP id 3ear69a8t1-1
+        by ppma04ams.nl.ibm.com with ESMTP id 3ear69a7by-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Wed, 23 Feb 2022 13:29:44 +0000
 Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21NDJ1X352494780
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21NDJ2UL52494788
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 23 Feb 2022 13:19:01 GMT
+        Wed, 23 Feb 2022 13:19:02 GMT
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F0C54A4040;
-        Wed, 23 Feb 2022 13:29:40 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 96A7AA4055;
+        Wed, 23 Feb 2022 13:29:41 +0000 (GMT)
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A5B03A405B;
-        Wed, 23 Feb 2022 13:29:40 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 54E81A4051;
+        Wed, 23 Feb 2022 13:29:41 +0000 (GMT)
 Received: from t46lp57.lnxne.boe (unknown [9.152.108.100])
         by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 23 Feb 2022 13:29:40 +0000 (GMT)
+        Wed, 23 Feb 2022 13:29:41 +0000 (GMT)
 From:   Nico Boehr <nrb@linux.ibm.com>
 To:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
 Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com,
         david@redhat.com
-Subject: [kvm-unit-tests PATCH v3 0/8] s390x: Extend instruction interception tests
-Date:   Wed, 23 Feb 2022 14:29:32 +0100
-Message-Id: <20220223132940.2765217-1-nrb@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v3 2/8] s390x: Add test for PFMF low-address protection
+Date:   Wed, 23 Feb 2022 14:29:34 +0100
+Message-Id: <20220223132940.2765217-3-nrb@linux.ibm.com>
 X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20220223132940.2765217-1-nrb@linux.ibm.com>
+References: <20220223132940.2765217-1-nrb@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: WtcPKNvI21QxTKAWfPQCZqtoovFhBNz8
-X-Proofpoint-GUID: ShDvJ62Fr4zDSnXnh4M1ndJL0eGvNMoA
+X-Proofpoint-ORIG-GUID: HtvDW2vtu6W-Kp8OlpFg6zPRR6ATF4Zk
+X-Proofpoint-GUID: DPeZtx6Xm0SEL_jT_9mzNZxvXyxR5_6w
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-02-23_05,2022-02-23_01,2022-02-23_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- malwarescore=0 bulkscore=0 mlxlogscore=966 phishscore=0 adultscore=0
+ malwarescore=0 bulkscore=0 mlxlogscore=728 phishscore=0 adultscore=0
  priorityscore=1501 spamscore=0 lowpriorityscore=0 clxscore=1015
  suspectscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2201110000 definitions=main-2202230075
@@ -81,44 +84,73 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This series extends the instruction interception tests for s390x.
+PFMF should respect the low-address protection when clearing pages, hence
+add some tests for it.
 
-For most instructions, there is already coverage in existing tests, but they are
-not covering some failure cases, e.g. bad alignment. In this case, the existing
-tests were extended.
+When low-address protection fails, clearing frame 0 is a destructive
+operation. It messes up interrupts and thus printing test results won't
+work properly. Hence, we first attempt to clear frame 1 which is not as
+destructive.
 
-SCK was not under test anywhere yet, hence a new test file was added.
+Doing it this way around increases the chances for the user to see a
+proper failure message instead of QEMU randomly quitting in the middle
+of the test run.
 
-The EPSW test gets it's own file, too, because it requires a I/O device, more
-details in the respective commit. 
+Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+---
+ s390x/pfmf.c | 29 +++++++++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
 
-Changelog from v2:
-----
-- Don't run the sck test under PV
-- Include commit of the QEMU PMCW fix in the MSCH and STSCH commit messages
-
-Nico Boehr (8):
-  s390x: Add more tests for MSCH
-  s390x: Add test for PFMF low-address protection
-  s390x: Add sck tests
-  s390x: Add tests for STCRW
-  s390x: Add more tests for SSCH
-  s390x: Add more tests for STSCH
-  s390x: Add tests for TSCH
-  s390x: Add EPSW test
-
- lib/s390x/css.h     |  17 +++
- lib/s390x/css_lib.c |  60 ++++++++++
- s390x/Makefile      |   2 +
- s390x/css.c         | 278 ++++++++++++++++++++++++++++++++++++++++++++
- s390x/epsw.c        | 113 ++++++++++++++++++
- s390x/pfmf.c        |  29 +++++
- s390x/sck.c         | 134 +++++++++++++++++++++
- s390x/unittests.cfg |   7 ++
- 8 files changed, 640 insertions(+)
- create mode 100644 s390x/epsw.c
- create mode 100644 s390x/sck.c
-
+diff --git a/s390x/pfmf.c b/s390x/pfmf.c
+index 2f3cb110dc4c..aa1305292ee8 100644
+--- a/s390x/pfmf.c
++++ b/s390x/pfmf.c
+@@ -113,6 +113,34 @@ static void test_1m_clear(void)
+ 	report_prefix_pop();
+ }
+ 
++static void test_low_addr_prot(void)
++{
++	union pfmf_r1 r1 = {
++		.reg.cf = 1,
++		.reg.fsc = PFMF_FSC_4K
++	};
++
++	report_prefix_push("low-address protection");
++
++	report_prefix_push("0x1000");
++	expect_pgm_int();
++	low_prot_enable();
++	pfmf(r1.val, (void *)0x1000);
++	low_prot_disable();
++	check_pgm_int_code(PGM_INT_CODE_PROTECTION);
++	report_prefix_pop();
++
++	report_prefix_push("0x0");
++	expect_pgm_int();
++	low_prot_enable();
++	pfmf(r1.val, 0);
++	low_prot_disable();
++	check_pgm_int_code(PGM_INT_CODE_PROTECTION);
++	report_prefix_pop();
++
++	report_prefix_pop();
++}
++
+ int main(void)
+ {
+ 	bool has_edat = test_facility(8);
+@@ -124,6 +152,7 @@ int main(void)
+ 	}
+ 
+ 	test_priv();
++	test_low_addr_prot();
+ 	/* Force the buffer pages in */
+ 	memset(pagebuf, 0, PAGE_SIZE * 256);
+ 
 -- 
 2.31.1
 
