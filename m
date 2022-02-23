@@ -2,186 +2,154 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 20A77C433EF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 794BFC433FE
 	for <linux-s390@archiver.kernel.org>; Wed, 23 Feb 2022 09:20:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239251AbiBWJU6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 23 Feb 2022 04:20:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45080 "EHLO
+        id S239256AbiBWJU7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 23 Feb 2022 04:20:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239247AbiBWJU4 (ORCPT
+        with ESMTP id S239246AbiBWJU4 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Feb 2022 04:20:56 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04E8B8303C;
-        Wed, 23 Feb 2022 01:20:26 -0800 (PST)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21N9GlOp022869;
-        Wed, 23 Feb 2022 09:20:26 GMT
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BA548303E;
+        Wed, 23 Feb 2022 01:20:27 -0800 (PST)
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21N8alrP031228;
+        Wed, 23 Feb 2022 09:20:27 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=V2wDBsNkQiBASmPIs7QsWPfp1olr14l8FJloay0DUlE=;
- b=MAASlXFxpcZUq39O+E3byL3GFF2c2olC5ARp6Zf0F1hyAQCQgETQ1zmyPsP/v9WXJO8Q
- FCVx6CZGbk3iV0N/C5sfAwyackNBPf3uy6ehBXp/9YHyfAlJqeXfdZwJT+yROnl6Sfa7
- QGdVd0m4eY6biFDgwovy7m/xRzKeMRfnX6nSBZhZWquDQCDDwWgKK6Ph6RQl+f3ofV3F
- Wr2KPfdIyoXs2mqBDmG95MQYE5nYpspS+ArcVG1K5+Fxmvj6U715BoMu5vrUvya5Xzd2
- fBPKJ7wLNQEZtswHeVJZb2mFXP4jQQ2Fs8AXHPxxG7Y+0Gb+9RCxtFrf/7nLcd8Wrjr3 QQ== 
+ bh=UIWnVQBZ2zpz8KpKSfmcU+hYWjmE4n1Sy0WTE7ASNdg=;
+ b=NBDZwcjiSB6j7+TY0kNmVsGbaBzHtTHNZaFaJKsk8FHSyGtYVzS+pJ7CPSjF3lzCa3P7
+ NyTaARhYXxH6O2LI+nYbB6+nmaK14ur+wyM6qweBV+ySDSL+70zHLZp6i8kmp2+gnPF+
+ RQI9v/ML9fr609hNafBiwFfY79kYPHSer/Dqz2Sk0cCvB8qpZ0EV6R9U8EDOmUaK16Yw
+ I9f/eDUVC0TOZgFRbe6ob6dQS+bvNySX0J4shsVbGPWUePDe/N0w5BMDfbWzqglMSShL
+ O288DXkLH7+APXj3IJxCYTckPzo42V1VbgLcqKkXbgkZ2FuozSkAe7iXCVDjawe4TLJU XA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3edj5dg2f0-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ede6smh36-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Wed, 23 Feb 2022 09:20:26 +0000
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21N9JBT0000389;
-        Wed, 23 Feb 2022 09:20:25 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3edj5dg2e8-1
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21N9IPwL011176;
+        Wed, 23 Feb 2022 09:20:26 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ede6smh27-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Feb 2022 09:20:25 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21N9CPHx022147;
-        Wed, 23 Feb 2022 09:20:23 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma02fra.de.ibm.com with ESMTP id 3ear6974ab-1
+        Wed, 23 Feb 2022 09:20:26 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21N9CNCI017242;
+        Wed, 23 Feb 2022 09:20:24 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma06ams.nl.ibm.com with ESMTP id 3eaqtj8nds-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Wed, 23 Feb 2022 09:20:23 +0000
 Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21N9KJPe56820098
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21N9KK9w55771456
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 23 Feb 2022 09:20:19 GMT
+        Wed, 23 Feb 2022 09:20:20 GMT
 Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 51FC611C04A;
-        Wed, 23 Feb 2022 09:20:19 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id CB52F11C054;
+        Wed, 23 Feb 2022 09:20:20 +0000 (GMT)
 Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B5B2611C05C;
-        Wed, 23 Feb 2022 09:20:18 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 3B1C811C05E;
+        Wed, 23 Feb 2022 09:20:20 +0000 (GMT)
 Received: from linux6.. (unknown [9.114.12.104])
         by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 23 Feb 2022 09:20:18 +0000 (GMT)
+        Wed, 23 Feb 2022 09:20:20 +0000 (GMT)
 From:   Janosch Frank <frankja@linux.ibm.com>
 To:     kvm@vger.kernel.org
 Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
         david@redhat.com, borntraeger@linux.ibm.com
-Subject: [PATCH 2/9] s390: uv: Add dump fields to query
-Date:   Wed, 23 Feb 2022 09:20:00 +0000
-Message-Id: <20220223092007.3163-3-frankja@linux.ibm.com>
+Subject: [PATCH 4/9] KVM: s390: pv: Add dump support definitions
+Date:   Wed, 23 Feb 2022 09:20:02 +0000
+Message-Id: <20220223092007.3163-5-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20220223092007.3163-1-frankja@linux.ibm.com>
 References: <20220223092007.3163-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: rXzMirVhJEd-AnkZA8eL2gTRLHtwtgKC
-X-Proofpoint-GUID: NW6ki8dhb9w1SAZfeuRn678g9BTOF5iQ
+X-Proofpoint-GUID: vXEbWtXciFLIrEXGdQiCDMXqxk1T-URL
+X-Proofpoint-ORIG-GUID: It0ztphCNM-QmWau8eKJzaWH41YLyaOT
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
  definitions=2022-02-23_03,2022-02-21_02,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
- adultscore=0 impostorscore=0 lowpriorityscore=0 malwarescore=0
- priorityscore=1501 bulkscore=0 mlxlogscore=999 mlxscore=0 phishscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2202230049
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
+ priorityscore=1501 phishscore=0 impostorscore=0 mlxlogscore=940
+ clxscore=1015 mlxscore=0 malwarescore=0 adultscore=0 suspectscore=0
+ spamscore=0 lowpriorityscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2201110000 definitions=main-2202230049
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The new dump feature requires us to know how much memory is needed for
-the "dump storage state" and "dump finalize" ultravisor call. These
-values are reported via the UV query call.
+Lets add the constants and structure definitions needed for the dump
+support.
 
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- arch/s390/boot/uv.c        |  2 ++
- arch/s390/include/asm/uv.h |  5 +++++
- arch/s390/kernel/uv.c      | 33 +++++++++++++++++++++++++++++++++
- 3 files changed, 40 insertions(+)
+ arch/s390/include/asm/uv.h | 33 +++++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
 
-diff --git a/arch/s390/boot/uv.c b/arch/s390/boot/uv.c
-index b100b57cf15d..67c737c1e580 100644
---- a/arch/s390/boot/uv.c
-+++ b/arch/s390/boot/uv.c
-@@ -43,6 +43,8 @@ void uv_query_info(void)
- 		uv_info.uv_feature_indications = uvcb.uv_feature_indications;
- 		uv_info.supp_se_hdr_ver = uvcb.supp_se_hdr_versions;
- 		uv_info.supp_se_hdr_pcf = uvcb.supp_se_hdr_pcf;
-+		uv_info.conf_dump_storage_state_len = uvcb.conf_dump_storage_state_len;
-+		uv_info.conf_dump_finalize_len = uvcb.conf_dump_finalize_len;
- 	}
- 
- #ifdef CONFIG_PROTECTED_VIRTUALIZATION_GUEST
 diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-index 7d6c78b61bf2..b79e516d4424 100644
+index b79e516d4424..b593fbcfd448 100644
 --- a/arch/s390/include/asm/uv.h
 +++ b/arch/s390/include/asm/uv.h
-@@ -111,6 +111,9 @@ struct uv_cb_qui {
- 	u64 supp_se_hdr_versions;		/* 0x00b0 */
- 	u64 supp_se_hdr_pcf;			/* 0x00b8 */
- 	u64 reservedc0;				/* 0x00c0 */
-+	u64 conf_dump_storage_state_len;	/* 0x00c8 */
-+	u64 conf_dump_finalize_len;		/* 0x00d0 */
-+	u8  reservedd8[256 - 216];		/* 0x00d8 */
+@@ -50,6 +50,10 @@
+ #define UVC_CMD_SET_UNSHARE_ALL		0x0340
+ #define UVC_CMD_PIN_PAGE_SHARED		0x0341
+ #define UVC_CMD_UNPIN_PAGE_SHARED	0x0342
++#define UVC_CMD_DUMP_INIT		0x0400
++#define UVC_CMD_DUMP_CONF_STOR_STATE	0x0401
++#define UVC_CMD_DUMP_CPU		0x0402
++#define UVC_CMD_DUMP_COMPLETE		0x0403
+ #define UVC_CMD_SET_SHARED_ACCESS	0x1000
+ #define UVC_CMD_REMOVE_SHARED_ACCESS	0x1001
+ 
+@@ -76,6 +80,10 @@ enum uv_cmds_inst {
+ 	BIT_UVC_CMD_UNSHARE_ALL = 20,
+ 	BIT_UVC_CMD_PIN_PAGE_SHARED = 21,
+ 	BIT_UVC_CMD_UNPIN_PAGE_SHARED = 22,
++	BIT_UVC_CMD_DUMP_INIT = 24,
++	BIT_UVC_CMD_DUMP_CONFIG_STOR_STATE = 25,
++	BIT_UVC_CMD_DUMP_CPU = 26,
++	BIT_UVC_CMD_DUMP_COMPLETE = 27,
+ };
+ 
+ enum uv_feat_ind {
+@@ -224,6 +232,31 @@ struct uv_cb_share {
+ 	u64 reserved28;
  } __packed __aligned(8);
  
- /* Initialize Ultravisor */
-@@ -290,6 +293,8 @@ struct uv_info {
- 	unsigned long uv_feature_indications;
- 	unsigned long supp_se_hdr_ver;
- 	unsigned long supp_se_hdr_pcf;
-+	unsigned long conf_dump_storage_state_len;
-+	unsigned long conf_dump_finalize_len;
- };
- 
- extern struct uv_info uv_info;
-diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-index 852840384e75..84fe33b6af4d 100644
---- a/arch/s390/kernel/uv.c
-+++ b/arch/s390/kernel/uv.c
-@@ -410,6 +410,36 @@ static ssize_t uv_query_supp_se_hdr_pcf(struct kobject *kobj,
- static struct kobj_attribute uv_query_supp_se_hdr_pcf_attr =
- 	__ATTR(supp_se_hdr_pcf, 0444, uv_query_supp_se_hdr_pcf, NULL);
- 
-+static ssize_t uv_query_dump_cpu_len(struct kobject *kobj,
-+				     struct kobj_attribute *attr, char *page)
-+{
-+	return scnprintf(page, PAGE_SIZE, "%lx\n",
-+			uv_info.guest_cpu_stor_len);
-+}
++struct uv_cb_dump_cpu {
++	struct uv_cb_header header;
++	u64 reserved08[2];
++	u64 cpu_handle;
++	u64 dump_area_origin;
++	u64 reserved28[5];
++} __packed __aligned(8);
 +
-+static struct kobj_attribute uv_query_dump_cpu_len_attr =
-+	__ATTR(uv_query_dump_cpu_len, 0444, uv_query_dump_cpu_len, NULL);
++struct uv_cb_dump_stor_state {
++	struct uv_cb_header header;
++	u64 reserved08[2];
++	u64 config_handle;
++	u64 dump_area_origin;
++	u64 gaddr;
++	u64 reserved28[4];
++} __packed __aligned(8);
 +
-+static ssize_t uv_query_dump_storage_state_len(struct kobject *kobj,
-+					       struct kobj_attribute *attr, char *page)
-+{
-+	return scnprintf(page, PAGE_SIZE, "%lx\n",
-+			uv_info.conf_dump_storage_state_len);
-+}
++struct uv_cb_dump_complete {
++	struct uv_cb_header header;
++	u64 reserved08[2];
++	u64 config_handle;
++	u64 dump_area_origin;
++	u64 reserved30[5];
++} __packed __aligned(8);
 +
-+static struct kobj_attribute uv_query_dump_storage_state_len_attr =
-+	__ATTR(dump_storage_state_len, 0444, uv_query_dump_storage_state_len, NULL);
-+
-+static ssize_t uv_query_dump_finalize_len(struct kobject *kobj,
-+					  struct kobj_attribute *attr, char *page)
-+{
-+	return scnprintf(page, PAGE_SIZE, "%lx\n",
-+			uv_info.conf_dump_finalize_len);
-+}
-+
-+static struct kobj_attribute uv_query_dump_finalize_len_attr =
-+	__ATTR(dump_finalize_len, 0444, uv_query_dump_finalize_len, NULL);
-+
- static ssize_t uv_query_feature_indications(struct kobject *kobj,
- 					    struct kobj_attribute *attr, char *buf)
+ static inline int __uv_call(unsigned long r1, unsigned long r2)
  {
-@@ -457,6 +487,9 @@ static struct attribute *uv_query_attrs[] = {
- 	&uv_query_max_guest_addr_attr.attr,
- 	&uv_query_supp_se_hdr_ver_attr.attr,
- 	&uv_query_supp_se_hdr_pcf_attr.attr,
-+	&uv_query_dump_storage_state_len_attr.attr,
-+	&uv_query_dump_finalize_len_attr.attr,
-+	&uv_query_dump_cpu_len_attr.attr,
- 	NULL,
- };
- 
+ 	int cc;
 -- 
 2.32.0
 
