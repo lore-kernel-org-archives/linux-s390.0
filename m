@@ -2,128 +2,125 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DCCF8C433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 23 Feb 2022 15:18:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B79EC433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 23 Feb 2022 15:39:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241506AbiBWPSd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 23 Feb 2022 10:18:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56082 "EHLO
+        id S242210AbiBWPj4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 23 Feb 2022 10:39:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241514AbiBWPSb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Feb 2022 10:18:31 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C137139698;
-        Wed, 23 Feb 2022 07:18:03 -0800 (PST)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21NDfkD3023289;
-        Wed, 23 Feb 2022 15:18:03 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : content-type :
+        with ESMTP id S242170AbiBWPjo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Feb 2022 10:39:44 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE0F1BD2C3;
+        Wed, 23 Feb 2022 07:39:15 -0800 (PST)
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21NDlfu3016577;
+        Wed, 23 Feb 2022 15:39:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date : to :
+ cc : references : from : subject : in-reply-to : content-type :
  content-transfer-encoding : mime-version; s=pp1;
- bh=7IfTCdpcvU+J9PLrfTMaQCfqrEbyRNAcKIyqyGmdRbU=;
- b=MGJF3CWh1ui1p39ysCPGUApJ5inxWLSvBXcYTzQS4nunsYGNf9wIMc6pGmvXIDuaT1zv
- 25TnqPCZbJzS91FZ33WDCP8zsAKg3fnQOTm+B+y+aTvIUrT5IXyiukGeO/LBduJj3X0W
- DSnel4R0u6wiLQIccTetbSPfvVxJ1p949jjbjW1wOQEytMMU5XzCbDtLL0S5DeHgSI0D
- fY4C9b3rB7QaM2t+DP6ZXjdj/TzxHfjnSfjCO4gYY9mLFUkdPIwOoNnPI6aSp8PpLhHk
- +TLstXcHfgDY2dcRlIN6zjAXkC/9ClrVVTKKJsD0puUeswAfUtKAJG7f9ekEEiW5+i2o RQ== 
+ bh=PaRikS2lHJXMoCbgRH4ZYKDmlc9yznXSXaa+a9DPKWc=;
+ b=NpWgDiogahYGbiu0VEUT2aEisihmJ1jEsp69PZP9Ddwy6ihu/hl8fwu1SW4FSmEYF0f6
+ U4KRz+edCOkERIc3FVzobU78CKKiOzMOU0fjr9GRnAp8RhUeQaxSmClvx8y3tHFADLoV
+ qPlzA0eoKfAySQ3qXff7//5tC9z3ioDrTFff+X5eoZYcZQtHct0CpejoqXvHWfmgj2UQ
+ bMlI4MAV7Y2jc9xUu4abTWe9hVVYobnCysjDkGezbd8kIZpEk+Tfb1OGPhSoK8c5xJT5
+ fnLcxCHa0idthrBM/Q1V/AKUkUAriseYxAYidd65zNaJHUd80putipwrxKbDS4nCnGQU pQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3edp1jjggf-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3edp4f2vtf-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Feb 2022 15:18:03 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21NEIG8X005022;
-        Wed, 23 Feb 2022 15:18:02 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3edp1jjgex-1
+        Wed, 23 Feb 2022 15:39:14 +0000
+Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21NEvaTl030626;
+        Wed, 23 Feb 2022 15:39:14 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3edp4f2vss-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Feb 2022 15:18:02 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21NFCYw2009807;
-        Wed, 23 Feb 2022 15:16:58 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma02fra.de.ibm.com with ESMTP id 3ear699ft8-1
+        Wed, 23 Feb 2022 15:39:14 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21NFWZIp027391;
+        Wed, 23 Feb 2022 15:39:12 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 3ear69b801-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Feb 2022 15:16:58 +0000
+        Wed, 23 Feb 2022 15:39:12 +0000
 Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21NFGrtw48955870
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21NFd8pi54788514
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 23 Feb 2022 15:16:53 GMT
+        Wed, 23 Feb 2022 15:39:08 GMT
 Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7021A11C052;
-        Wed, 23 Feb 2022 15:16:53 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id E1A2911C052;
+        Wed, 23 Feb 2022 15:39:07 +0000 (GMT)
 Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 193D511C050;
-        Wed, 23 Feb 2022 15:16:53 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.145.2.54])
+        by IMSVA (Postfix) with ESMTP id 83B2811C058;
+        Wed, 23 Feb 2022 15:39:07 +0000 (GMT)
+Received: from [9.145.59.38] (unknown [9.145.59.38])
         by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 23 Feb 2022 15:16:53 +0000 (GMT)
-Date:   Wed, 23 Feb 2022 16:16:50 +0100
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Nico Boehr <nrb@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        frankja@linux.ibm.com, thuth@redhat.com, david@redhat.com
-Subject: Re: [kvm-unit-tests PATCH v3 6/8] s390x: Add more tests for STSCH
-Message-ID: <20220223161650.0e47ca8a@p-imbrenda>
-In-Reply-To: <20220223132940.2765217-7-nrb@linux.ibm.com>
+        Wed, 23 Feb 2022 15:39:07 +0000 (GMT)
+Message-ID: <04daca6a-5863-d205-ea98-096163a2296a@linux.ibm.com>
+Date:   Wed, 23 Feb 2022 16:39:07 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Content-Language: en-US
+To:     Nico Boehr <nrb@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Cc:     imbrenda@linux.ibm.com, Pierre Morel <pmorel@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>, imbrenda@linux.ibm.com,
+        thuth@redhat.com, david@redhat.com
 References: <20220223132940.2765217-1-nrb@linux.ibm.com>
-        <20220223132940.2765217-7-nrb@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
-Content-Type: text/plain; charset=US-ASCII
+ <20220223132940.2765217-7-nrb@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v3 6/8] s390x: Add more tests for STSCH
+In-Reply-To: <20220223132940.2765217-7-nrb@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: z0EkWI7i-Pev9IQBdoitp03KRoyyWSwX
-X-Proofpoint-GUID: EpCE36hrEHMdE_uK_YKYIV0w9_LK6y5B
+X-Proofpoint-GUID: qH7Rnr0O8YUPwtdNISpEcZxOFT6eTXi4
+X-Proofpoint-ORIG-GUID: CfmvwUomLHt-MYPSsksq6nsdxnvXqvAm
 Content-Transfer-Encoding: 7bit
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-02-23_06,2022-02-23_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxlogscore=999
- mlxscore=0 malwarescore=0 impostorscore=0 bulkscore=0 suspectscore=0
- priorityscore=1501 spamscore=0 clxscore=1015 phishscore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 clxscore=1015
+ adultscore=0 phishscore=0 suspectscore=0 priorityscore=1501 spamscore=0
+ mlxscore=0 impostorscore=0 mlxlogscore=999 malwarescore=0
  lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2202230085
+ engine=8.12.0-2201110000 definitions=main-2202230087
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 23 Feb 2022 14:29:38 +0100
-Nico Boehr <nrb@linux.ibm.com> wrote:
-
+On 2/23/22 14:29, Nico Boehr wrote:
 > css_lib extensively uses STSCH, but two more cases deserve their own
 > tests:
 > 
 > - unaligned address for SCHIB. We check for misalignment by 1 and 2
->   bytes.
+>    bytes.
 > - channel not operational
 > - bit 47 in SID not set
 > - bit 5 of PMCW flags.
->   As per the principles of operation, bit 5 of the PMCW flags shall be
->   ignored by msch and always stored as zero by stsch.
+>    As per the principles of operation, bit 5 of the PMCW flags shall be
+>    ignored by msch and always stored as zero by stsch.
 > 
->   Older QEMU versions require this bit to always be zero on msch,
->   which is why this test may fail. A fix is available in QEMU master
->   commit 2df59b73e086 ("s390x/css: fix PMCW invalid mask").
-> 
+>    Older QEMU versions require this bit to always be zero on msch,
+>    which is why this test may fail. A fix is available in QEMU master
+>    commit 2df59b73e086 ("s390x/css: fix PMCW invalid mask"). >
 > Here's the QEMU PMCW invalid mask fix: https://lists.nongnu.org/archive/html/qemu-s390x/2021-12/msg00100.html
 > 
 > Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
 > ---
->  s390x/css.c | 74 +++++++++++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 74 insertions(+)
+>   s390x/css.c | 74 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+>   1 file changed, 74 insertions(+)
 > 
 > diff --git a/s390x/css.c b/s390x/css.c
 > index a90a0cd64e2b..021eb12573c0 100644
 > --- a/s390x/css.c
 > +++ b/s390x/css.c
 > @@ -496,6 +496,78 @@ static void test_ssch(void)
->  	report_prefix_pop();
->  }
->  
+>   	report_prefix_pop();
+>   }
+>   
 > +static void test_stsch(void)
 > +{
 > +	const int align_to = 4;
@@ -157,12 +154,33 @@ Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 > +	stsch(0x0000ffff, &schib);
 > +	check_pgm_int_code(PGM_INT_CODE_OPERAND);
 > +	report_prefix_pop();
+
+Add a comment:
+No matter if the multiple-subchannel-set facility is installed or not, 
+bit 47 always needs to be 1.
+
+Do we have the MSS facility?
+If yes, could we disable it to test the 32-47 == 0x0001 case?
+
 > +}
 > +
 > +static void test_pmcw_bit5(void)
 > +{
 > +	int cc;
 > +	uint16_t old_pmcw_flags;
+
+I need a comment here for further reference since that behavior is 
+documented at the description of the schib and not where STSCH is described:
+According to architecture MSCH does ignore bit 5 of the second word but 
+STSCH will store bit 5 as zero.
+
+
+We could check if bits 0,1 and 6,7 are also zero but I'm not sure if 
+that's interesting since MSCH does not ignore those bits and should 
+result in an operand exception when trying to set them.
+
+@Halil, @Pierre: Any opinions?
+
 > +
 > +	cc = stsch(test_device_sid, &schib);
 > +	if (cc) {
@@ -196,16 +214,16 @@ Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 > +	report_prefix_pop();
 > +}
 > +
->  static struct {
->  	const char *name;
->  	void (*func)(void);
+>   static struct {
+>   	const char *name;
+>   	void (*func)(void);
 > @@ -511,6 +583,8 @@ static struct {
->  	{ "msch", test_msch },
->  	{ "stcrw", test_stcrw },
->  	{ "ssch", test_ssch },
+>   	{ "msch", test_msch },
+>   	{ "stcrw", test_stcrw },
+>   	{ "ssch", test_ssch },
 > +	{ "stsch", test_stsch },
 > +	{ "pmcw bit 5 ignored", test_pmcw_bit5 },
->  	{ NULL, NULL }
->  };
->  
+>   	{ NULL, NULL }
+>   };
+>   
 
