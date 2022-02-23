@@ -2,97 +2,123 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 049EBC433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 23 Feb 2022 13:21:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A52CC433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 23 Feb 2022 13:29:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240870AbiBWNWN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 23 Feb 2022 08:22:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44934 "EHLO
+        id S240909AbiBWNaP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 23 Feb 2022 08:30:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238995AbiBWNWL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Feb 2022 08:22:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A3B74EA34;
-        Wed, 23 Feb 2022 05:21:43 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 38746B81FB3;
-        Wed, 23 Feb 2022 13:21:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B918C340F7;
-        Wed, 23 Feb 2022 13:21:40 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="B1edNqIi"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1645622496;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=jNCqwRVwwnl2Hzkwee6ETCjLUlSGOZ/h+OLPPjOrc0Y=;
-        b=B1edNqIi5b5HctHZNPAaowU88lVryawcFNGYjSp85vHovokqADjt+gCUWQtoL8L26HfDe3
-        nl8aJAMIZYBIy8qi3ZYXwTdRr82nWHV60r4P2Uyim3JETbtJFhkxCHI+ueWTYKGJ0iBXol
-        RuYemuRnCCuF1yTAFE6Dp8d6Oaed8fM=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id a513edf2 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Wed, 23 Feb 2022 13:21:36 +0000 (UTC)
-Received: by mail-yb1-f178.google.com with SMTP id p19so47897896ybc.6;
-        Wed, 23 Feb 2022 05:21:34 -0800 (PST)
-X-Gm-Message-State: AOAM531YdcEAtdHu9cUGecLEDyPn3C8xhmWF158beDmndhHqdGevvuli
-        5wIWEU20p5eqUvigc/UxUAZ4sBdyTB7e+Z+1OLE=
-X-Google-Smtp-Source: ABdhPJyPz4I/fVrE2hAwlxEjASOoJgctbxsl4Sw1b3At1gDlRAwGMq/v/jtx+mRgcRGA5d7YgSWANySbbRg9ZZzPO00=
-X-Received: by 2002:a05:6902:693:b0:613:7f4f:2e63 with SMTP id
- i19-20020a056902069300b006137f4f2e63mr26519604ybt.271.1645622492226; Wed, 23
- Feb 2022 05:21:32 -0800 (PST)
+        with ESMTP id S234708AbiBWNaP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Feb 2022 08:30:15 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A0B2AA2C6;
+        Wed, 23 Feb 2022 05:29:47 -0800 (PST)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21NDPY9e018873;
+        Wed, 23 Feb 2022 13:29:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=SitxeyJ8Yteq62L62kk5e07lQyXO4FAypunUXGWS8OM=;
+ b=cefLE5iHcuvnNdZ5kIWN1cMSOH234WiY1rocPmAkSRSdmZQwsFiczSuXo1Ud37Ah5Pk5
+ iWZ6pV7v9A1xydJfH/H87N5gmT5DCHop2LaBbDuQoPhZmmCIDmpsPsM1hWlnCOcDXSfD
+ 9txtVxzYDx8xwcHMGdsd5Jy1SWwFdf3xvoln+UfEhwSj0Z4TI0g+CS+YOlue1NeBYv6m
+ zPtyDsFECszumsj6kyDYeloCipLBY7rwuPKtpjL7ERdUPK8rIua7mv+q03EnaclOJAAe
+ 2t6jMsgOhMhOHdUQNnnkTlT1f+6DTrDCCeOO3jKr8Qin9Zx6wrPByjeFoQElargZ168z tA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3edk21bnre-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Feb 2022 13:29:46 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21NBuOTM012463;
+        Wed, 23 Feb 2022 13:29:46 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3edk21bnqq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Feb 2022 13:29:46 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21NDOYnP025381;
+        Wed, 23 Feb 2022 13:29:44 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma03ams.nl.ibm.com with ESMTP id 3ear69a8t1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Feb 2022 13:29:44 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21NDJ1X352494780
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 23 Feb 2022 13:19:01 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F0C54A4040;
+        Wed, 23 Feb 2022 13:29:40 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A5B03A405B;
+        Wed, 23 Feb 2022 13:29:40 +0000 (GMT)
+Received: from t46lp57.lnxne.boe (unknown [9.152.108.100])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 23 Feb 2022 13:29:40 +0000 (GMT)
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com,
+        david@redhat.com
+Subject: [kvm-unit-tests PATCH v3 0/8] s390x: Extend instruction interception tests
+Date:   Wed, 23 Feb 2022 14:29:32 +0100
+Message-Id: <20220223132940.2765217-1-nrb@linux.ibm.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-References: <1614156452-17311-1-git-send-email-acatan@amazon.com>
- <1614156452-17311-3-git-send-email-acatan@amazon.com> <CAHmME9o6cjZT1Cj1g5w5WQE83YxJNqB7eUCWn74FA9Pbb3Y6nQ@mail.gmail.com>
- <CAHmME9poYgfoniexZ2dvpEEvnWGLQTOjOvB2bck-Whhy9h+Hjw@mail.gmail.com>
-In-Reply-To: <CAHmME9poYgfoniexZ2dvpEEvnWGLQTOjOvB2bck-Whhy9h+Hjw@mail.gmail.com>
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-Date:   Wed, 23 Feb 2022 14:21:21 +0100
-X-Gmail-Original-Message-ID: <CAHmME9pFZKtBP7R8St03544nHc=7ztFsK1q9fKPGKXZgjHckVw@mail.gmail.com>
-Message-ID: <CAHmME9pFZKtBP7R8St03544nHc=7ztFsK1q9fKPGKXZgjHckVw@mail.gmail.com>
-Subject: Re: [PATCH v7 2/2] drivers/virt: vmgenid: add vm generation id driver
-To:     adrian@parity.io
-Cc:     "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        QEMU Developers <qemu-devel@nongnu.org>,
-        KVM list <kvm@vger.kernel.org>, linux-s390@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        graf@amazon.com, Randy Dunlap <rdunlap@infradead.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Mike Rapoport <rppt@kernel.org>, 0x7f454c46@gmail.com,
-        borntraeger@de.ibm.com, Jann Horn <jannh@google.com>,
-        Willy Tarreau <w@1wt.eu>,
-        Colm MacCarthaigh <colmmacc@amazon.com>,
-        Andrew Lutomirski <luto@kernel.org>,
-        "Theodore Ts'o" <tytso@mit.edu>,
-        Eric Biggers <ebiggers@kernel.org>,
-        "Woodhouse, David" <dwmw@amazon.co.uk>, bonzini@gnu.org,
-        "Singh, Balbir" <sblbir@amazon.com>,
-        "Weiss, Radu" <raduweis@amazon.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Pavel Machek <pavel@ucw.cz>,
-        Michael Ellerman <mpe@ellerman.id.au>, areber@redhat.com,
-        ovzxemul@gmail.com, avagin@gmail.com, ptikhomirov@virtuozzo.com,
-        gil@azul.com, asmehra@redhat.com, dgunigun@redhat.com,
-        vijaysun@ca.ibm.com, oridgar@gmail.com, ghammer@redhat.com,
-        Adrian Catangiu <acatan@amazon.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: WtcPKNvI21QxTKAWfPQCZqtoovFhBNz8
+X-Proofpoint-GUID: ShDvJ62Fr4zDSnXnh4M1ndJL0eGvNMoA
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-02-23_05,2022-02-23_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ malwarescore=0 bulkscore=0 mlxlogscore=966 phishscore=0 adultscore=0
+ priorityscore=1501 spamscore=0 lowpriorityscore=0 clxscore=1015
+ suspectscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2202230075
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Feb 22, 2022 at 11:17 PM Jason A. Donenfeld <Jason@zx2c4.com> wrote:
-> Well I cleaned up this v7 and refactored it into something along the
-> lines of what I'm thinking. I don't yet know enough about this general
-> problem space to propose the patch and I haven't tested it either
+This series extends the instruction interception tests for s390x.
 
-A little further along, there's now this series:
-https://lore.kernel.org/lkml/20220223131231.403386-1-Jason@zx2c4.com/T/
-We can resume discussion there.
+For most instructions, there is already coverage in existing tests, but they are
+not covering some failure cases, e.g. bad alignment. In this case, the existing
+tests were extended.
 
-Jason
+SCK was not under test anywhere yet, hence a new test file was added.
+
+The EPSW test gets it's own file, too, because it requires a I/O device, more
+details in the respective commit. 
+
+Changelog from v2:
+----
+- Don't run the sck test under PV
+- Include commit of the QEMU PMCW fix in the MSCH and STSCH commit messages
+
+Nico Boehr (8):
+  s390x: Add more tests for MSCH
+  s390x: Add test for PFMF low-address protection
+  s390x: Add sck tests
+  s390x: Add tests for STCRW
+  s390x: Add more tests for SSCH
+  s390x: Add more tests for STSCH
+  s390x: Add tests for TSCH
+  s390x: Add EPSW test
+
+ lib/s390x/css.h     |  17 +++
+ lib/s390x/css_lib.c |  60 ++++++++++
+ s390x/Makefile      |   2 +
+ s390x/css.c         | 278 ++++++++++++++++++++++++++++++++++++++++++++
+ s390x/epsw.c        | 113 ++++++++++++++++++
+ s390x/pfmf.c        |  29 +++++
+ s390x/sck.c         | 134 +++++++++++++++++++++
+ s390x/unittests.cfg |   7 ++
+ 8 files changed, 640 insertions(+)
+ create mode 100644 s390x/epsw.c
+ create mode 100644 s390x/sck.c
+
+-- 
+2.31.1
+
