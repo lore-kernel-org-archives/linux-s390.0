@@ -2,104 +2,135 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A2A49C4167B
-	for <linux-s390@archiver.kernel.org>; Wed, 23 Feb 2022 21:53:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 06421C433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 23 Feb 2022 23:16:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242985AbiBWVyQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 23 Feb 2022 16:54:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53756 "EHLO
+        id S244763AbiBWXQp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 23 Feb 2022 18:16:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242158AbiBWVyO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Feb 2022 16:54:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34A385004B;
-        Wed, 23 Feb 2022 13:53:45 -0800 (PST)
+        with ESMTP id S244770AbiBWXQo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Feb 2022 18:16:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70D8858E54;
+        Wed, 23 Feb 2022 15:16:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BE250618F9;
-        Wed, 23 Feb 2022 21:53:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA655C340E7;
-        Wed, 23 Feb 2022 21:53:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 22F6EB82249;
+        Wed, 23 Feb 2022 23:16:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EA67C340E7;
+        Wed, 23 Feb 2022 23:16:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645653224;
-        bh=soOvQYRaOyZB66UMOdZmvj155c4NjxblRTlsoz7NPWM=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:From;
-        b=Rnac7ap99w001yaIWWSDvCcMuzb4R6SAfj0LsDJC9di7qM+crR9k/cY2llxXgAVae
-         QFGtb0ad4PBYVxi75RirP6dccAvb/YLEB2wy3JjHbeXOkaqKgZeRRtd6yVF0yDH2bX
-         pz0IUI0hmSspHhbjKUCgtxSE6nrqvVWHeJgKFJeUrIJjpsFEqe/+RGrkNOuSHPKypb
-         0ZwdJk12cdt9PAP1ZL3LN2+KDUA7YOVUwFJcLv7Qfag5C0QESOZ5SuSUXjDU+v8/sC
-         JSx3uLNr/O0Ox2z2I6BCIY2za2vtgmF4cDPdJ8NlSpe2wOyaPc+YlwVQ6ua50G6jz0
-         auUVVFaAiFa0w==
-Date:   Wed, 23 Feb 2022 15:53:42 -0600
-From:   Bjorn Helgaas <helgaas@kernel.org>
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Stuart Yoder <stuyoder@gmail.com>,
-        Laurentiu Tudor <laurentiu.tudor@nxp.com>,
-        Abel Vesa <abel.vesa@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Andy Gross <agross@kernel.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, NXP Linux Team <linux-imx@nxp.com>,
-        linux-arm-kernel@lists.infradead.org, linux-hyperv@vger.kernel.org,
-        linux-pci@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        alsa-devel@alsa-project.org, linux-spi@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Subject: Re: [PATCH v2 01/11] driver: platform: add and use helper for safer
- setting of driver_override
-Message-ID: <20220223215342.GA155282@bhelgaas>
+        s=k20201202; t=1645658171;
+        bh=dKUEp8Ja5zuNdUtklDNOmkRUIMIrk0tU73atuFZaF1A=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=NZYN4igKqV7hfvfXieNsnoEnfNnyOiaPzX5FHj5YExv/OqHhuVQ1pJdApX/wV/eLM
+         Ps+w12Su2eSEWxTt0pVq8o34Yc7zylU4GZvsj+vL4CiJYxEiUeUXG57/ZS86+tHrzJ
+         wvod45GXJZyAj6CwQTdFqQ71m/SnJTvuHiw3XVHiZV8RXOgKnV7vEp02s2ThNBFCpy
+         p6TMyWu7+jWIi0y/UHwFA92zpUaY9PRazUlBSq3vc7NueUHSEjAueCtP/knNIq+LaW
+         cYK6e6uFDz1qHUEueYgRiv6nfR5qvZMXgpUlqjbWxAuTRltYERxcmAtlJfyTiqqAyk
+         SemuTINnMhS3w==
+Date:   Wed, 23 Feb 2022 15:16:09 -0800
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+        qemu-devel@nongnu.org, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, adrian@parity.io, dwmw@amazon.co.uk,
+        acatan@amazon.com, graf@amazon.com, colmmacc@amazon.com,
+        sblbir@amazon.com, raduweis@amazon.com, jannh@google.com,
+        gregkh@linuxfoundation.org, tytso@mit.edu
+Subject: Re: [PATCH RFC v1 1/2] random: add mechanism for VM forks to
+ reinitialize crng
+Message-ID: <YhbAOW/KbFW1CFkQ@sol.localdomain>
+References: <20220223131231.403386-1-Jason@zx2c4.com>
+ <20220223131231.403386-2-Jason@zx2c4.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220223191310.347669-2-krzysztof.kozlowski@canonical.com>
+In-Reply-To: <20220223131231.403386-2-Jason@zx2c4.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Feb 23, 2022 at 08:13:00PM +0100, Krzysztof Kozlowski wrote:
-> Several core drivers and buses expect that driver_override is a
-> dynamically allocated memory thus later they can kfree() it.
-> ...
-
-> + * set_driver_override() - Helper to set or clear driver override.
-
-Doesn't match actual function name.
-
-> + * @dev: Device to change
-> + * @override: Address of string to change (e.g. &device->driver_override);
-> + *            The contents will be freed and hold newly allocated override.
-> + * @s: NULL terminated string, new driver name to force a match, pass empty
-> + *     string to clear it
-> + *
-> + * Helper to setr or clear driver override in a device, intended for the cases
-> + * when the driver_override field is allocated by driver/bus code.
-
-s/setr/set/
-
-> + * Returns: 0 on success or a negative error code on failure.
+On Wed, Feb 23, 2022 at 02:12:30PM +0100, Jason A. Donenfeld wrote:
+> When a VM forks, we must immediately mix in additional information to
+> the stream of random output so that two forks or a rollback don't
+> produce the same stream of random numbers, which could have catastrophic
+> cryptographic consequences. This commit adds a simple API, add_vmfork_
+> randomness(), for that.
+> 
+> Cc: Theodore Ts'o <tytso@mit.edu>
+> Cc: Jann Horn <jannh@google.com>
+> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> ---
+>  drivers/char/random.c  | 58 ++++++++++++++++++++++++++++++++++++++++++
+>  include/linux/random.h |  1 +
+>  2 files changed, 59 insertions(+)
+> 
+> diff --git a/drivers/char/random.c b/drivers/char/random.c
+> index 536237a0f073..29d6ce484d15 100644
+> --- a/drivers/char/random.c
+> +++ b/drivers/char/random.c
+> @@ -344,6 +344,46 @@ static void crng_reseed(void)
+>  	}
+>  }
+>  
+> +/*
+> + * This mixes unique_vm_id directly into the base_crng key as soon as
+> + * possible, similarly to crng_pre_init_inject(), even if the crng is
+> + * already running, in order to immediately branch streams from prior
+> + * VM instances.
 > + */
-> +int driver_set_override(struct device *dev, char **override, const char *s)
+> +static void crng_vm_fork_inject(const void *unique_vm_id, size_t len)
 > +{
+> +	unsigned long flags, next_gen;
+> +	struct blake2s_state hash;
+> +
+> +	/*
+> +	 * Unlike crng_reseed(), we take the lock as early as possible,
+> +	 * since we don't want the RNG to be used until it's updated.
+> +	 */
+> +	spin_lock_irqsave(&base_crng.lock, flags);
+> +
+> +	/*
+> +	 * Also update the generation, while locked, as early as
+> +	 * possible. This will mean unlocked reads of the generation
+> +	 * will cause a reseeding of per-cpu crngs, and those will
+> +	 * spin on the base_crng lock waiting for the rest of this
+> +	 * operation to complete, which achieves the goal of blocking
+> +	 * the production of new output until this is done.
+> +	 */
+> +	next_gen = base_crng.generation + 1;
+> +	if (next_gen == ULONG_MAX)
+> +		++next_gen;
+> +	WRITE_ONCE(base_crng.generation, next_gen);
+> +	WRITE_ONCE(base_crng.birth, jiffies);
+> +
+> +	/* This is the same formulation used by crng_pre_init_inject(). */
+> +	blake2s_init(&hash, sizeof(base_crng.key));
+> +	blake2s_update(&hash, base_crng.key, sizeof(base_crng.key));
+> +	blake2s_update(&hash, unique_vm_id, len);
+> +	blake2s_final(&hash, base_crng.key);
+> +
+> +	spin_unlock_irqrestore(&base_crng.lock, flags);
+> +}
+[...]
+> +/*
+> + * Handle a new unique VM ID, which is unique, not secret, so we
+> + * don't credit it, but we do mix it into the entropy pool and
+> + * inject it into the crng.
+> + */
+> +void add_vmfork_randomness(const void *unique_vm_id, size_t size)
+> +{
+> +	add_device_randomness(unique_vm_id, size);
+> +	crng_vm_fork_inject(unique_vm_id, size);
+> +}
+> +EXPORT_SYMBOL_GPL(add_vmfork_randomness);
+
+I think we should be removing cases where the base_crng key is changed directly
+besides extraction from the input_pool, not adding new ones.  Why not implement
+this as add_device_randomness() followed by crng_reseed(force=true), where the
+'force' argument forces a reseed to occur even if the entropy_count is too low?
+
+- Eric
