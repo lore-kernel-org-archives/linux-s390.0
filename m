@@ -2,267 +2,131 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 06AB3C4332F
-	for <linux-s390@archiver.kernel.org>; Wed, 23 Feb 2022 10:20:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 92A09C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 23 Feb 2022 11:05:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239580AbiBWKUi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 23 Feb 2022 05:20:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51558 "EHLO
+        id S231893AbiBWLF2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 23 Feb 2022 06:05:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231947AbiBWKUh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Feb 2022 05:20:37 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E22B8BF26;
-        Wed, 23 Feb 2022 02:20:10 -0800 (PST)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21N9CY2S004391;
-        Wed, 23 Feb 2022 10:20:10 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=pIU2ZQzM9XmpYh9hy18AkRmvhqaLER20u7QOn2MozuU=;
- b=Q+fvNrMnbU48oijq4Eeors6wrnjWAqq5re4c0wEpwnVBsDEDzxCjsPh7kH5E52H/wXoa
- 8nZNo5XYsQxWR4Mj7nTBzeIKmaAUFADCpIcGB0rLTM+hfJFDCrrB/BGvMnD9AMrb/kuV
- Zm3+hcTPVb2lj63MknJ/H9zWTEo8ntAXKmyqfxzzdFTrutvyT9sWBb7KZkJq5Ary7u45
- +kyX6T8AKVqjn8QFhb340BsFzMxViElc9le8PTOU9BtFq6LLfMv2N64014Nh0AvyDXHI
- FFm+W5xOLIYbp7eakZR1cAMrbSSl9rJNI3fSoRMYKlVWNCCb9QE1lkIpaiZhR7IrvOHM yQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3edj3fsakt-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Feb 2022 10:20:09 +0000
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21NAGts3016634;
-        Wed, 23 Feb 2022 10:20:09 GMT
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3edj3fsak8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Feb 2022 10:20:09 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21NADkJ7018036;
-        Wed, 23 Feb 2022 10:20:06 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma05fra.de.ibm.com with ESMTP id 3ear69ferf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Feb 2022 10:20:06 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21NAK3Zp51970382
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 23 Feb 2022 10:20:03 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6CB8A52050;
-        Wed, 23 Feb 2022 10:20:03 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 3C97252067;
-        Wed, 23 Feb 2022 10:20:03 +0000 (GMT)
-From:   Michael Mueller <mimu@linux.ibm.com>
-To:     kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        david@redhat.com, borntraeger@linux.ibm.com, pasic@linux.ibm.com,
-        Michael Mueller <mimu@linux.ibm.com>
-Subject: [PATCH v4 2/2] KVM: s390: pv: make use of ultravisor AIV support
-Date:   Wed, 23 Feb 2022 11:20:00 +0100
-Message-Id: <20220223102000.3733712-3-mimu@linux.ibm.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220223102000.3733712-1-mimu@linux.ibm.com>
-References: <20220223102000.3733712-1-mimu@linux.ibm.com>
+        with ESMTP id S230325AbiBWLF1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Feb 2022 06:05:27 -0500
+X-Greylist: delayed 305 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 23 Feb 2022 03:04:59 PST
+Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.126.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD4C678062;
+        Wed, 23 Feb 2022 03:04:59 -0800 (PST)
+Received: from mail-wr1-f52.google.com ([209.85.221.52]) by
+ mrelayeu.kundenserver.de (mreue009 [213.165.67.97]) with ESMTPSA (Nemesis) id
+ 1MlfCk-1o4Ra6312w-00inTg; Wed, 23 Feb 2022 11:59:52 +0100
+Received: by mail-wr1-f52.google.com with SMTP id o4so2135193wrf.3;
+        Wed, 23 Feb 2022 02:59:52 -0800 (PST)
+X-Gm-Message-State: AOAM532w0I/FQasSXoRn7paj/0r708sN7Hcll05a600icEtPzbVFW5nu
+        NA3gFKSoZzvNLofXWNFCuRR21wXtMvkt8QI7GtY=
+X-Google-Smtp-Source: ABdhPJz3tjc3IejYq+UPcpb0b0B/1/NsttPG6/6KnMrBytsQxjHYO0/p2daBPMgz1AgVYfLNcxR3Ydw+Oyz4L5S8GiA=
+X-Received: by 2002:adf:90c1:0:b0:1e4:ad27:22b9 with SMTP id
+ i59-20020adf90c1000000b001e4ad2722b9mr23150986wri.219.1645613992251; Wed, 23
+ Feb 2022 02:59:52 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: hMFAQtkQ3-sB8SNaqjMoREucFXINR5Nz
-X-Proofpoint-ORIG-GUID: TWNgKRp4d1DqQNK26ljqiuE4zJq19QQ9
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-02-23_03,2022-02-23_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
- impostorscore=0 adultscore=0 mlxscore=0 phishscore=0 mlxlogscore=664
- priorityscore=1501 lowpriorityscore=0 suspectscore=0 clxscore=1015
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2202230052
+References: <20220201150545.1512822-1-guoren@kernel.org> <mhng-36783ff3-37c2-454b-9337-8cb124195255@palmer-ri-x1c9>
+In-Reply-To: <mhng-36783ff3-37c2-454b-9337-8cb124195255@palmer-ri-x1c9>
+From:   Arnd Bergmann <arnd@arndb.de>
+Date:   Wed, 23 Feb 2022 11:59:36 +0100
+X-Gmail-Original-Message-ID: <CAK8P3a1W3Ns1WYiSGXb3Qn6-p+SPsx1UGqXdTkk2taPB72OZUA@mail.gmail.com>
+Message-ID: <CAK8P3a1W3Ns1WYiSGXb3Qn6-p+SPsx1UGqXdTkk2taPB72OZUA@mail.gmail.com>
+Subject: Re: [PATCH V5 00/21] riscv: compat: Add COMPAT mode support for rv64
+To:     Palmer Dabbelt <palmer@dabbelt.com>
+Cc:     Guo Ren <guoren@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Anup Patel <anup@brainfault.org>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        liush <liush@allwinnertech.com>, Wei Fu <wefu@redhat.com>,
+        Drew Fustini <drew@beagleboard.org>,
+        Wang Junqiang <wangjunqiang@iscas.ac.cn>,
+        Christoph Hellwig <hch@lst.de>,
+        linux-arch <linux-arch@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-csky@vger.kernel.org,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Guo Ren <guoren@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Provags-ID: V03:K1:fDj8UNVRV8r/eEkDy+HCLSo5oTnkzwOoBxcvqklwcRxXRwi6wUV
+ 6SE5GCBES+rEkqbaFiHz6aGc/CNcIz7j4g51nG2OX1z+qqp19c2xUqQAOlXIpbA/+vI2jCi
+ 66nCed0HrHG8pKuBjTvpQfJ7mhp2uPg7qBZSY37R2iNdBB0GFnk2uzfcY2yijMhTM9tVR5a
+ 82jnAWH9+MAZlTC76Larg==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:Tk21r7KoD1U=:LKedfq+z13QAGf6g3pHobL
+ qNudvffbsCYXzO9EGN1Z5B1rrCdr2Fcbz6+/CANHNZQCAc+E1q/3ZFmzjha7N9VFeqFKP7SsI
+ LK4AIB8K6nFhw6XUH7jVeCxm7bC3VIXBEL1rMOOzVG32xRuqL+K0YB1CDOBm3832bnMFCR0L/
+ DtH3CKvKGY5MFBqNl46CfQyBzP4FlQrHFSEpVs08yBQeKIgKna5fOrUQYq0u7xziCrpvN2SRu
+ C94CNte8/G6nRuKvkQ32hM/+5XgZI9Q6YyXH3Y/DBPD+Q9+3ejD5jvinImkykTTDkQn3fzh7V
+ F1WnCHIHGtdV6lpPwYAyCBNnY70HvTDBa3G4K68TiJWmhFaZlUbX1g4s7FhKRbbEpZbcHvMyN
+ gCe654hGC76pNIoSYZAaSkzGGkjzvuMCpqg8gNhdXIyKgZ8C+5wOgNvFtSwtPz5Eahe53zJH3
+ ht5euN78Jkw8wmAblemYdHG9STbDCMdRe+8CaWkLv0jJbaEOn0EiNidOWMFD5ZnTrtNv9bvr9
+ d5xTBV6gmhzAEsys4XPR1Q+e3qETmcGcI97QNogu9luQcb6Jk+xszux0Uw2wieVQa059o8Iic
+ bb/MkqhLaHFDrpGcFB7sVRg8EiFs/Kd0GZaLuCjnaEivgLqC547T5BJ/Mq7zZD69cbZo57PoQ
+ oj8H55QCEVXhkpyMVG5yeZczW56G5yATMCnGiv0e+pp+M4EwQUlv42AH3xvSDE5VuyJIdjKUq
+ 2RoPonOuTxk/BVf17rGlfzuBHJZNE+J7viLdsXuCB2yVMtIoSHViqBAmQ+NkiB32UA20GZV9v
+ eqkZqppq3SBJTTGEWOTBeq+yVQISfszRwROD8YTaodYTid2AFs=
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This patch enables the ultravisor adapter interruption vitualization
-support indicated by UV feature BIT_UV_FEAT_AIV. This allows ISC
-interruption injection directly into the GISA IPM for PV kvm guests.
+On Wed, Feb 23, 2022 at 2:43 AM Palmer Dabbelt <palmer@dabbelt.com> wrote:
+>
+> On Tue, 01 Feb 2022 07:05:24 PST (-0800), guoren@kernel.org wrote:
+> > From: Guo Ren <guoren@linux.alibaba.com>
+> >
+> > Currently, most 64-bit architectures (x86, parisc, powerpc, arm64,
+> > s390, mips, sparc) have supported COMPAT mode. But they all have
+> > history issues and can't use standard linux unistd.h. RISC-V would
+> > be first standard __SYSCALL_COMPAT user of include/uapi/asm-generic
+> > /unistd.h.
+>
+> TBH, I'd always sort of hoped we wouldn't have to do this: it's a lot of
+> ABI surface to keep around for a use case I'm not really sure is ever
+> going to get any traction (it's not like we have legacy 32-bit
+> userspaces floating around, the 32-bit userspace is newer than the
+> 64-bit userspace).
 
-Hardware that does not support this feature will continue to use the
-UV interruption interception method to deliver ISC interruptions to
-PV kvm guests. For this purpose, the ECA_AIV bit for all guest cpus
-will be cleared and the GISA will be disabled during PV CPU setup.
+The low-end embedded market isn't usually that newsworthy, but the
+machines ship in huge quantities, and they all run 32-bit user
+space for good reasons:
 
-In addition a check in __inject_io() has been removed. That reduces the
-required instructions for interruption handling for PV and traditional
-kvm guests.
+The cheapest Linux systems at the moment use a low-end MIPS or
+Arm core with a single DDR2 (32MB to 128MB) or DDR3 (128MB
+to 512MB) memory chip that for now is a bit cheaper than a larger
+LP-DDR4 (256MB+). The smaller configurations will go away over
+time as they get outpriced by systems with LP-DDR4, but a 32-bit
+system with 256MB will keep beating a 64-bit-only system with
+512MB on price, and will run most workloads better than a 64-bit
+system with the same amount of RAM.
 
-Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
----
- arch/s390/include/asm/uv.h |  1 +
- arch/s390/kvm/interrupt.c  | 54 +++++++++++++++++++++++++++++++++-----
- arch/s390/kvm/kvm-s390.c   | 11 +++++---
- arch/s390/kvm/kvm-s390.h   | 11 ++++++++
- 4 files changed, 68 insertions(+), 9 deletions(-)
+On the Arm side, I hope that these systems will migrate to Armv8
+based designs (Cortex-A53/A35 or newer) running 64-bit kernel
+with 32-bit user space to replace the currently dominant but aging
+32-bit Cortex-A7 cores. As you say, RISC-V is at a disadvantage
+here because there is no existing 32-bit ecosystem, but it may take
+a chunk of that market anyway based on licensing cost. Between
+doing this using pure 32-bit cores or on mixed 32/64-bit cores,
+I found Guo Ren's explanation very sensible, it lets you use the
+same chip both as a low-end embedded version with SiP
+memory, or using an external DDR3/LPDDR4 chip with enough
+capacity to run a generic 64-bit distro.
 
-diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-index 86218382d29c..a2d376b8bce3 100644
---- a/arch/s390/include/asm/uv.h
-+++ b/arch/s390/include/asm/uv.h
-@@ -80,6 +80,7 @@ enum uv_cmds_inst {
- 
- enum uv_feat_ind {
- 	BIT_UV_FEAT_MISC = 0,
-+	BIT_UV_FEAT_AIV = 1,
- };
- 
- struct uv_cb_header {
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index db933c252dbc..c3b2c7650b48 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -1901,13 +1901,12 @@ static int __inject_io(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
- 	isc = int_word_to_isc(inti->io.io_int_word);
- 
- 	/*
--	 * Do not make use of gisa in protected mode. We do not use the lock
--	 * checking variant as this is just a performance optimization and we
--	 * do not hold the lock here. This is ok as the code will pick
--	 * interrupts from both "lists" for delivery.
-+	 * We do not use the lock checking variant as this is just a
-+	 * performance optimization and we do not hold the lock here.
-+	 * This is ok as the code will pick interrupts from both "lists"
-+	 * for delivery.
- 	 */
--	if (!kvm_s390_pv_get_handle(kvm) &&
--	    gi->origin && inti->type & KVM_S390_INT_IO_AI_MASK) {
-+	if (gi->origin && inti->type & KVM_S390_INT_IO_AI_MASK) {
- 		VM_EVENT(kvm, 4, "%s isc %1u", "inject: I/O (AI/gisa)", isc);
- 		gisa_set_ipm_gisc(gi->origin, isc);
- 		kfree(inti);
-@@ -3171,9 +3170,33 @@ void kvm_s390_gisa_init(struct kvm *kvm)
- 	VM_EVENT(kvm, 3, "gisa 0x%pK initialized", gi->origin);
- }
- 
-+void kvm_s390_gisa_enable(struct kvm *kvm)
-+{
-+	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
-+	struct kvm_vcpu *vcpu;
-+	unsigned long i;
-+	u32 gisa_desc;
-+
-+	if (gi->origin)
-+		return;
-+	kvm_s390_gisa_init(kvm);
-+	gisa_desc = kvm_s390_get_gisa_desc(kvm);
-+	if (!gisa_desc)
-+		return;
-+	kvm_s390_vcpu_block_all(kvm);
-+	kvm_for_each_vcpu(i, vcpu, kvm) {
-+		vcpu->arch.sie_block->gd = gisa_desc;
-+		vcpu->arch.sie_block->eca |= ECA_AIV;
-+		VCPU_EVENT(vcpu, 3, "AIV gisa format-%u enabled for cpu %03u",
-+			   vcpu->arch.sie_block->gd & 0x3, vcpu->vcpu_id);
-+	}
-+	kvm_s390_vcpu_unblock_all(kvm);
-+}
-+
- void kvm_s390_gisa_destroy(struct kvm *kvm)
- {
- 	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
-+	struct kvm_s390_gisa *gisa = gi->origin;
- 
- 	if (!gi->origin)
- 		return;
-@@ -3184,6 +3207,25 @@ void kvm_s390_gisa_destroy(struct kvm *kvm)
- 		cpu_relax();
- 	hrtimer_cancel(&gi->timer);
- 	gi->origin = NULL;
-+	VM_EVENT(kvm, 3, "gisa 0x%pK destroyed", gisa);
-+}
-+
-+void kvm_s390_gisa_disable(struct kvm *kvm)
-+{
-+	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
-+	struct kvm_vcpu *vcpu;
-+	unsigned long i;
-+
-+	if (!gi->origin)
-+		return;
-+	kvm_s390_vcpu_block_all(kvm);
-+	kvm_for_each_vcpu(i, vcpu, kvm) {
-+		vcpu->arch.sie_block->eca &= ~ECA_AIV;
-+		vcpu->arch.sie_block->gd = 0U;
-+		VCPU_EVENT(vcpu, 3, "AIV disabled for cpu %03u", vcpu->vcpu_id);
-+	}
-+	kvm_s390_vcpu_unblock_all(kvm);
-+	kvm_s390_gisa_destroy(kvm);
- }
- 
- /**
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index b75ea3e57172..e2827c0ed642 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2194,6 +2194,9 @@ static int kvm_s390_cpus_from_pv(struct kvm *kvm, u16 *rcp, u16 *rrcp)
- 		}
- 	}
- 	kvm_s390_vcpu_unblock_all(kvm);
-+	/* Ensure that we re-enable gisa if the non-PV guest used it but the PV guest did not. */
-+	if (use_gisa)
-+		kvm_s390_gisa_enable(kvm);
- 	return ret;
- }
- 
-@@ -2205,6 +2208,10 @@ static int kvm_s390_cpus_to_pv(struct kvm *kvm, u16 *rc, u16 *rrc)
- 
- 	struct kvm_vcpu *vcpu;
- 
-+	/* Disable the GISA if the ultravisor does not support AIV. */
-+	if (!test_bit_inv(BIT_UV_FEAT_AIV, &uv_info.uv_feature_indications))
-+		kvm_s390_gisa_disable(kvm);
-+
- 	kvm_s390_vcpu_block_all(kvm);
- 	kvm_for_each_vcpu(i, vcpu, kvm) {
- 		r = kvm_s390_pv_create_cpu(vcpu, rc, rrc);
-@@ -3263,9 +3270,7 @@ int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu)
- 
- 	vcpu->arch.sie_block->icpua = vcpu->vcpu_id;
- 	spin_lock_init(&vcpu->arch.local_int.lock);
--	vcpu->arch.sie_block->gd = (u32)(u64)vcpu->kvm->arch.gisa_int.origin;
--	if (vcpu->arch.sie_block->gd && sclp.has_gisaf)
--		vcpu->arch.sie_block->gd |= GISA_FORMAT1;
-+	vcpu->arch.sie_block->gd = kvm_s390_get_gisa_desc(vcpu->kvm);
- 	seqcount_init(&vcpu->arch.cputm_seqcount);
- 
- 	vcpu->arch.pfault_token = KVM_S390_PFAULT_TOKEN_INVALID;
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 098831e815e6..4ba8fc30d87a 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -231,6 +231,15 @@ static inline unsigned long kvm_s390_get_gfn_end(struct kvm_memslots *slots)
- 	return ms->base_gfn + ms->npages;
- }
- 
-+static inline u32 kvm_s390_get_gisa_desc(struct kvm *kvm)
-+{
-+	u32 gd = (u32)(u64)kvm->arch.gisa_int.origin;
-+
-+	if (gd && sclp.has_gisaf)
-+		gd |= GISA_FORMAT1;
-+	return gd;
-+}
-+
- /* implemented in pv.c */
- int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc);
- int kvm_s390_pv_create_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc);
-@@ -450,6 +459,8 @@ int kvm_s390_get_irq_state(struct kvm_vcpu *vcpu,
- void kvm_s390_gisa_init(struct kvm *kvm);
- void kvm_s390_gisa_clear(struct kvm *kvm);
- void kvm_s390_gisa_destroy(struct kvm *kvm);
-+void kvm_s390_gisa_disable(struct kvm *kvm);
-+void kvm_s390_gisa_enable(struct kvm *kvm);
- int kvm_s390_gib_init(u8 nisc);
- void kvm_s390_gib_destroy(void);
- 
--- 
-2.32.0
+> My assumption is that users who actually wanted the
+> memory savings (likely a very small number) would be better served with
+> rv64/ilp32, as that'll allow the larger registers that the hardware
+> supports.  From some earlier discussions it looks like rv64/ilp32 isn't
+> going to be allowed, though, so this seems like the only way to go.
 
+Right, between rv32 user space and a hypothetical rv64-ilp32 target,
+I think it's clear that the former is better because it means introducing
+only one fringe ABI rather than two incompatible ones with minor
+performance differences.
+
+        Arnd
