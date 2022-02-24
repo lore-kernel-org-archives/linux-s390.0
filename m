@@ -2,124 +2,130 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA2B8C4321E
-	for <linux-s390@archiver.kernel.org>; Thu, 24 Feb 2022 08:41:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E45F5C4332F
+	for <linux-s390@archiver.kernel.org>; Thu, 24 Feb 2022 08:43:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231877AbiBXImV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 24 Feb 2022 03:42:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53188 "EHLO
+        id S232062AbiBXIoC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 24 Feb 2022 03:44:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231441AbiBXImT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Feb 2022 03:42:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFC3233E1C;
-        Thu, 24 Feb 2022 00:41:48 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S231659AbiBXIn7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Feb 2022 03:43:59 -0500
+Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78AC954F8C
+        for <linux-s390@vger.kernel.org>; Thu, 24 Feb 2022 00:43:30 -0800 (PST)
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com [209.85.221.72])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 482B461A41;
-        Thu, 24 Feb 2022 08:41:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6261C340F8;
-        Thu, 24 Feb 2022 08:41:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645692107;
-        bh=3OZhY8JjlWpvQtjxNVEtkpMscELhOM136ShyKCOjsEU=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=IUh0x46q8STA6HKAlbLTizD8XGO+kXYr3toRmLVEmVGpouO/H6aYQ8xiLiANw2a+u
-         HCL4KnuaohqNkiXxcP1D+/lRJl3QntwyWsCstJnQVu8ONZ3jI6BlSUPzyejrcAPQZV
-         +nzKG39Q20gmRhX85bUsq4p1JphZ4DTJi1MSq5KJ4gkH6JLtlV5bg4qOHXvgO90+wI
-         G81tJHNMGlOmgb18Uj2i0lzpFYLeKAgba5P0poH7ixneTHE+747gTxVEDOdEreg2CS
-         CWeIv3qxk2GxmOqug9TFXr2ZvmxluPekB2kCL2kCQbjWzVYCFZXOv5nSavxW7y+xxm
-         sJyHKVwF8yVng==
-Received: by mail-wr1-f44.google.com with SMTP id n14so1416445wrq.7;
-        Thu, 24 Feb 2022 00:41:47 -0800 (PST)
-X-Gm-Message-State: AOAM531XagoZx6Uk1zhQX/CE1ErzZlNWKgx1Hb2dIDj7LHTNtB7aMi2j
-        Pa3pYMHS8M7L9M4uxxK91fu5jbudGewpzKfLI0w=
-X-Google-Smtp-Source: ABdhPJzneL/9b5VqISjziF71opYqNdlSHnzAsafkxFgpoEqKa+f7LCyuasR/zxK7OReD5OXFM6yWvfz7KIyaMqF7hrc=
-X-Received: by 2002:a5d:59aa:0:b0:1ed:9f45:c2ff with SMTP id
- p10-20020a5d59aa000000b001ed9f45c2ffmr1312686wrr.192.1645692105823; Thu, 24
- Feb 2022 00:41:45 -0800 (PST)
+        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 630433FCA5
+        for <linux-s390@vger.kernel.org>; Thu, 24 Feb 2022 08:43:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1645692209;
+        bh=Dcj0D0zPsXPEVS1eNhpQqfPztDcGavIHA1/tOM5ybJI=;
+        h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+         In-Reply-To:Content-Type;
+        b=HFh0Y9pMIxRq5ATVBhCxUCMvCBmhEuT2J1x8IA9I1hRcjfUFLJ+cp597KAp3zOUgP
+         vRdOdBgcQGCVReH3DKjSyI1TxGo6mx2HfG8N4sC5HODgarLKzu3Wos/G3VZDtLSPeA
+         FNC5P1gUeGiNC6KLcbXbhCAij1ZHvsIY9yuDV0Ph35VJivEt5nyaSbg16QMVceq8KI
+         0rWfD9Nkq9OZQn266uM2aehGeEXjL8hV6UFTjDEBNUY3lKF3KrKUzeb2hTFUqA5OG6
+         CN3stpeR857YSdEBEByLaqX/uLvw3zx0kYBw+bc7j+24CL+n3xL/n2xmFCnkiETQ3e
+         GJZbmVLuJvbgQ==
+Received: by mail-wr1-f72.google.com with SMTP id x15-20020a5d6b4f000000b001ee6c0aa287so82658wrw.9
+        for <linux-s390@vger.kernel.org>; Thu, 24 Feb 2022 00:43:29 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:from:to:cc:references:in-reply-to
+         :content-transfer-encoding;
+        bh=Dcj0D0zPsXPEVS1eNhpQqfPztDcGavIHA1/tOM5ybJI=;
+        b=E/N+QbEm4iFaFJ+8RxPixyxO0CdGWuldh/qrYqKZtcG7044HC5mxZ8NYQ1JEtzJZ2n
+         9PyJwQepaUzCpppo9jeIGMZJIMmOJV9nBGmSymiZcmmavK5W0ZZhhFjRyZrDJM+o9j/j
+         GpXcL4q8Ywjl/t5OHkhyXzwqXr4Ki1XS+TExxDcyy0ynS0+ZdaoqmmViKTTCEMohI9AB
+         8UwErJjk2fTVkr8gm0+G9jRYc3fZc3Ha1uQHZuYMM9GrOvthlThVlnaK2vqrXnPa9g+e
+         Fg/PnG3xVf2ut6ARsN598WZ5jvHkUiUdEWZed/jdXFqrPazy2B/z4b8t12Rb22xWGlX7
+         hYrA==
+X-Gm-Message-State: AOAM530DIWT76qc37bIQoWNDIF/Lr9fGN2xRKrDXMInXvAcwL18EFUmO
+        r065tculj8vM4bnu8WaITGTsra4gECxTHtKh0pEC5lXvQZqhesmRTEi/9PWvdpLJz+3BoHpsTh4
+        7pzBC6vw1F9FomYGwYztY7J2rV1ZV22RErKDaCew=
+X-Received: by 2002:a05:6402:2744:b0:404:ba60:fec6 with SMTP id z4-20020a056402274400b00404ba60fec6mr1261654edd.235.1645692198574;
+        Thu, 24 Feb 2022 00:43:18 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyR9ltyboSTjtHA8dcoqW8jhNMCdSS02AQooqb5CLRWmWM576orT/UQwLqy77zZSpmBsHCJBQ==
+X-Received: by 2002:a05:6402:2744:b0:404:ba60:fec6 with SMTP id z4-20020a056402274400b00404ba60fec6mr1261610edd.235.1645692198343;
+        Thu, 24 Feb 2022 00:43:18 -0800 (PST)
+Received: from [192.168.0.127] (xdsl-188-155-181-108.adslplus.ch. [188.155.181.108])
+        by smtp.gmail.com with ESMTPSA id 16sm1006988eji.94.2022.02.24.00.43.16
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 24 Feb 2022 00:43:17 -0800 (PST)
+Message-ID: <cd89539b-92b8-0376-03c2-1a9268721b92@canonical.com>
+Date:   Thu, 24 Feb 2022 09:43:16 +0100
 MIME-Version: 1.0
-References: <20220216131332.1489939-1-arnd@kernel.org> <20220216131332.1489939-14-arnd@kernel.org>
- <YhdB7tNDvtsYLUzr@antec>
-In-Reply-To: <YhdB7tNDvtsYLUzr@antec>
-From:   Arnd Bergmann <arnd@kernel.org>
-Date:   Thu, 24 Feb 2022 09:41:29 +0100
-X-Gmail-Original-Message-ID: <CAK8P3a3Q6=yzX5hKX45=U80SoUXLU59sFqz-tN6U=Fr5t1m96Q@mail.gmail.com>
-Message-ID: <CAK8P3a3Q6=yzX5hKX45=U80SoUXLU59sFqz-tN6U=Fr5t1m96Q@mail.gmail.com>
-Subject: Re: [PATCH v2 13/18] uaccess: generalize access_ok()
-To:     Stafford Horne <shorne@gmail.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Christoph Hellwig <hch@lst.de>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        Linux-MM <linux-mm@kvack.org>,
-        Linux API <linux-api@vger.kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Russell King - ARM Linux <linux@armlinux.org.uk>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Brian Cain <bcain@codeaurora.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Nick Hu <nickhu@andestech.com>,
-        Greentime Hu <green.hu@gmail.com>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH v2 01/11] driver: platform: add and use helper for safer
+ setting of driver_override
+Content-Language: en-US
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+To:     Bjorn Helgaas <helgaas@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Stuart Yoder <stuyoder@gmail.com>,
+        Laurentiu Tudor <laurentiu.tudor@nxp.com>,
+        Abel Vesa <abel.vesa@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Rich Felker <dalias@libc.org>,
-        David Miller <davem@davemloft.net>,
-        Richard Weinberger <richard@nod.at>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        alpha <linux-alpha@vger.kernel.org>,
-        "open list:SYNOPSYS ARC ARCHITECTURE" 
-        <linux-snps-arc@lists.infradead.org>, linux-csky@vger.kernel.org,
-        "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>,
-        linux-ia64@vger.kernel.org,
-        linux-m68k <linux-m68k@lists.linux-m68k.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Openrisc <openrisc@lists.librecores.org>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Linux-sh list <linux-sh@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        linux-um <linux-um@lists.infradead.org>,
-        "open list:TENSILICA XTENSA PORT (xtensa)" 
-        <linux-xtensa@linux-xtensa.org>
-Content-Type: text/plain; charset="UTF-8"
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Andy Gross <agross@kernel.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-clk@vger.kernel.org, NXP Linux Team <linux-imx@nxp.com>,
+        linux-arm-kernel@lists.infradead.org, linux-hyperv@vger.kernel.org,
+        linux-pci@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        alsa-devel@alsa-project.org, linux-spi@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>
+References: <20220223215342.GA155282@bhelgaas>
+ <bc4f3314-46f2-72a8-f25c-c9774d987ca1@canonical.com>
+In-Reply-To: <bc4f3314-46f2-72a8-f25c-c9774d987ca1@canonical.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Feb 24, 2022 at 9:29 AM Stafford Horne <shorne@gmail.com> wrote:
+On 24/02/2022 08:47, Krzysztof Kozlowski wrote:
+> On 23/02/2022 22:53, Bjorn Helgaas wrote:
+>> On Wed, Feb 23, 2022 at 08:13:00PM +0100, Krzysztof Kozlowski wrote:
+>>> Several core drivers and buses expect that driver_override is a
+>>> dynamically allocated memory thus later they can kfree() it.
+>>> ...
+>>
+>>> + * set_driver_override() - Helper to set or clear driver override.
+>>
+>> Doesn't match actual function name.
+> 
+> Good point. I wonder why build W=1 did not complain... I need to check.
+> 
 
-> > -
-> > -#define access_ok(addr, size)                                                \
-> > -({                                                                   \
-> > -     __chk_user_ptr(addr);                                           \
-> > -     __range_ok((unsigned long)(addr), (size));                      \
-> > -})
-> > +#include <asm-generic/access_ok.h>
->
-> I was going to ask why we are missing __chk_user_ptr in the generic version.
-> But this is basically now a no-op so I think its OK.
+I see why - I missed kerneldoc /** opener.
 
-Correct, the type checking is implied by making __access_ok() an inline
-function that takes a __user pointer.
 
-> Acked-by: Stafford Horne <shorne@gmail.com> [openrisc, asm-generic]
-
-Thanks!
-
-       Arnd
+Best regards,
+Krzysztof
