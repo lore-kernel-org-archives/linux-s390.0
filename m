@@ -2,22 +2,22 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 20694C43217
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 97D3AC4167B
 	for <linux-s390@archiver.kernel.org>; Thu, 24 Feb 2022 08:12:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231846AbiBXINV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        id S231837AbiBXINV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
         Thu, 24 Feb 2022 03:13:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39960 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231855AbiBXIMx (ORCPT
+        with ESMTP id S231827AbiBXIMx (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Feb 2022 03:12:53 -0500
-Received: from out30-43.freemail.mail.aliyun.com (out30-43.freemail.mail.aliyun.com [115.124.30.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A88316BCCF;
-        Thu, 24 Feb 2022 00:11:57 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R961e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=34;SR=0;TI=SMTPD_---0V5N6CXe_1645690310;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0V5N6CXe_1645690310)
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A10C755BCE;
+        Thu, 24 Feb 2022 00:11:53 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R811e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=34;SR=0;TI=SMTPD_---0V5N6CWo_1645690306;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0V5N6CWo_1645690306)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 24 Feb 2022 16:11:52 +0800
+          Thu, 24 Feb 2022 16:11:47 +0800
 From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To:     virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
 Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
@@ -48,9 +48,9 @@ Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
         linux-um@lists.infradead.org, platform-driver-x86@vger.kernel.org,
         linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, bpf@vger.kernel.org
-Subject: [PATCH v6 23/26] virtio_net: split free_unused_bufs()
-Date:   Thu, 24 Feb 2022 16:10:59 +0800
-Message-Id: <20220224081102.80224-24-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v6 21/26] virtio: add helper virtio_find_vqs_ctx_size()
+Date:   Thu, 24 Feb 2022 16:10:57 +0800
+Message-Id: <20220224081102.80224-22-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220224081102.80224-1-xuanzhuo@linux.alibaba.com>
 References: <20220224081102.80224-1-xuanzhuo@linux.alibaba.com>
@@ -61,89 +61,37 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This patch separates two functions for freeing sq buf and rq buf from
-free_unused_bufs().
-
-When supporting the enable/disable tx/rq queue in the future, it is
-necessary to support separate recovery of a sq buf or a rq buf.
+Introduce helper virtio_find_vqs_ctx_size() to call find_vqs and specify
+the maximum size of each vq ring.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- drivers/net/virtio_net.c | 53 +++++++++++++++++++++++-----------------
- 1 file changed, 31 insertions(+), 22 deletions(-)
+ include/linux/virtio_config.h | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 59b1ea82f5f0..409a8e180918 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -2804,36 +2804,45 @@ static void free_receive_page_frags(struct virtnet_info *vi)
- 			put_page(vi->rq[i].alloc_frag.page);
+diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+index 5157524d8036..921d8610db0c 100644
+--- a/include/linux/virtio_config.h
++++ b/include/linux/virtio_config.h
+@@ -233,6 +233,18 @@ int virtio_find_vqs_ctx(struct virtio_device *vdev, unsigned nvqs,
+ 				      desc, NULL);
  }
  
--static void free_unused_bufs(struct virtnet_info *vi)
-+static void virtnet_sq_free_unused_bufs(struct virtnet_info *vi,
-+					struct send_queue *sq)
- {
- 	void *buf;
--	int i;
- 
--	for (i = 0; i < vi->max_queue_pairs; i++) {
--		struct virtqueue *vq = vi->sq[i].vq;
--		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL) {
--			if (!is_xdp_frame(buf))
--				dev_kfree_skb(buf);
--			else
--				xdp_return_frame(ptr_to_xdp(buf));
--		}
-+	while ((buf = virtqueue_detach_unused_buf(sq->vq)) != NULL) {
-+		if (!is_xdp_frame(buf))
-+			dev_kfree_skb(buf);
-+		else
-+			xdp_return_frame(ptr_to_xdp(buf));
- 	}
-+}
- 
--	for (i = 0; i < vi->max_queue_pairs; i++) {
--		struct virtqueue *vq = vi->rq[i].vq;
--
--		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL) {
--			if (vi->mergeable_rx_bufs) {
--				put_page(virt_to_head_page(buf));
--			} else if (vi->big_packets) {
--				give_pages(&vi->rq[i], buf);
--			} else {
--				put_page(virt_to_head_page(buf));
--			}
--		}
-+static void virtnet_rq_free_unused_bufs(struct virtnet_info *vi,
-+					struct receive_queue *rq)
++static inline
++int virtio_find_vqs_ctx_size(struct virtio_device *vdev, u32 nvqs,
++				 struct virtqueue *vqs[],
++				 vq_callback_t *callbacks[],
++				 const char * const names[],
++				 const bool *ctx, struct irq_affinity *desc,
++				 u32 sizes[])
 +{
-+	void *buf;
-+
-+	while ((buf = virtqueue_detach_unused_buf(rq->vq)) != NULL) {
-+		if (vi->mergeable_rx_bufs)
-+			put_page(virt_to_head_page(buf));
-+		else if (vi->big_packets)
-+			give_pages(rq, buf);
-+		else
-+			put_page(virt_to_head_page(buf));
- 	}
- }
- 
-+static void free_unused_bufs(struct virtnet_info *vi)
-+{
-+	int i;
-+
-+	for (i = 0; i < vi->max_queue_pairs; i++)
-+		virtnet_sq_free_unused_bufs(vi, vi->sq + i);
-+
-+	for (i = 0; i < vi->max_queue_pairs; i++)
-+		virtnet_rq_free_unused_bufs(vi, vi->rq + i);
++	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, ctx,
++				      desc, sizes);
 +}
 +
- static void virtnet_del_vqs(struct virtnet_info *vi)
- {
- 	struct virtio_device *vdev = vi->vdev;
+ /**
+  * virtio_reset_vq - reset a queue individually
+  * @vq: the virtqueue
 -- 
 2.31.0
 
