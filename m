@@ -2,282 +2,211 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EB69C433FE
-	for <linux-s390@archiver.kernel.org>; Thu, 24 Feb 2022 15:43:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 406E5C4167B
+	for <linux-s390@archiver.kernel.org>; Thu, 24 Feb 2022 15:43:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236602AbiBXPoX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 24 Feb 2022 10:44:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48330 "EHLO
+        id S236605AbiBXPoZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 24 Feb 2022 10:44:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236563AbiBXPoP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Feb 2022 10:44:15 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 401D222A2BE;
-        Thu, 24 Feb 2022 07:43:45 -0800 (PST)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21OFF5Fi030342;
-        Thu, 24 Feb 2022 15:43:44 GMT
+        with ESMTP id S236570AbiBXPoS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Feb 2022 10:44:18 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83A9422EDD7;
+        Thu, 24 Feb 2022 07:43:46 -0800 (PST)
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21OFF1t0032488;
+        Thu, 24 Feb 2022 15:43:45 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=JeRdv94NZ2s07jL9NtXo3fszfzcSFRxZHzasfNmNhos=;
- b=GwsYW715ZgAwW87DmpZG5By4sgzqq6JCGOIqMiS8uZU4XK5oHLkfQtezqxP6FBPuYVbu
- 8udvOURbLU3RPgGwRpBkGo3vgMBwNaKy0YP810H47V8VhtnsmmOml/B2xHyZTnr8nv/3
- xXKpDG6+Q3D2cDBh8FgXEJinxq42PzPHQQ/eAI/T222OcaAxMNMSpolsElG40fPXtVY1
- fO4MUpEI7//XIc4RE3tzoFuUX1zwRth82oNZZAQAVaOkPU+afloCXL2hMnx5yhnNG5Ds
- orS1FHWBeVfRWXm478ad018UUX1vfOzkk8OpLsd2OQfG1NcJaBj+PBYwg3JbQBmc7wjd Tg== 
+ : mime-version; s=pp1; bh=qYtgWQcwa8QFGJCi7XF69gpulRYSrqQWOfPruFoLYz8=;
+ b=X0O5noMi9f6iYci9/b3lC3S5tP/tiW4/LWwZuvZrYoMlWKgcH8lcTVOLvSFfDKIidPV6
+ FVITHKEVSu5HSyeJnBNQgspQ59vGKr/r+ww1h9lKqpeFND+cFjGFRQc/do9OddkXFuMN
+ 8pLjB9GHsN1QXfBcYMPfm0Q+W6p0MZYrEc/pukqmTaeUO6Elb+I/gBOkXphcBVUCeuKt
+ Wc42319eWsjqmehSSge/ol2bm0NrkochmJ8/ziJ3HINjgB8G2BZs1GXZ13CsEDY2i4/D
+ V4Anu5ISeZtJEL5jWAHEOpSp4gNOwQJOk4Zz6NBpE7BZgBAccnuVxQtH4OrK/8SO16v5 8A== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3eds79sqs5-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3edwxu2q5v-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Feb 2022 15:43:44 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21OFF7JO030471;
+        Thu, 24 Feb 2022 15:43:45 +0000
+Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21OFaeIv015311;
+        Thu, 24 Feb 2022 15:43:45 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3edwxu2q5f-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 24 Feb 2022 15:43:45 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21OFb0Q6028923;
         Thu, 24 Feb 2022 15:43:43 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3eds79sqrn-1
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma06fra.de.ibm.com with ESMTP id 3eaqtk0um1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Thu, 24 Feb 2022 15:43:43 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21OFbDJd004874;
-        Thu, 24 Feb 2022 15:43:42 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma01fra.de.ibm.com with ESMTP id 3ear69gtfp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Feb 2022 15:43:41 +0000
 Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21OFhb5f28180950
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21OFhckc59245038
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 24 Feb 2022 15:43:37 GMT
+        Thu, 24 Feb 2022 15:43:38 GMT
 Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 93ECE42047;
-        Thu, 24 Feb 2022 15:43:37 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 8207842045;
+        Thu, 24 Feb 2022 15:43:38 +0000 (GMT)
 Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5258842045;
-        Thu, 24 Feb 2022 15:43:37 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 41E3B42052;
+        Thu, 24 Feb 2022 15:43:38 +0000 (GMT)
 Received: from t46lp57.lnxne.boe (unknown [9.152.108.100])
         by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 24 Feb 2022 15:43:37 +0000 (GMT)
+        Thu, 24 Feb 2022 15:43:38 +0000 (GMT)
 From:   Nico Boehr <nrb@linux.ibm.com>
 To:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
 Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com,
         david@redhat.com
-Subject: [kvm-unit-tests PATCH v4 3/8] s390x: Add sck tests
-Date:   Thu, 24 Feb 2022 16:43:31 +0100
-Message-Id: <20220224154336.3459839-4-nrb@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v4 6/8] s390x: Add more tests for STSCH
+Date:   Thu, 24 Feb 2022 16:43:34 +0100
+Message-Id: <20220224154336.3459839-7-nrb@linux.ibm.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20220224154336.3459839-1-nrb@linux.ibm.com>
 References: <20220224154336.3459839-1-nrb@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: AqY-o499_B2PmqxsxXgnz5wkiZaoL_wJ
-X-Proofpoint-ORIG-GUID: 2ivtlUkeyucldbJ9HU9GPSV8XbeVe33K
+X-Proofpoint-ORIG-GUID: cKABAUjr1baXMl0CLSiGNYCr4ml_P3Yn
+X-Proofpoint-GUID: BAlDl4L1e2FCH11wXnUBCVDEr_yybQNN
 Content-Transfer-Encoding: 8bit
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-02-24_03,2022-02-24_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- lowpriorityscore=0 suspectscore=0 malwarescore=0 phishscore=0 adultscore=0
- bulkscore=0 impostorscore=0 spamscore=0 mlxlogscore=999 mlxscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 spamscore=0
+ adultscore=0 bulkscore=0 suspectscore=0 impostorscore=0 clxscore=1015
+ priorityscore=1501 phishscore=0 lowpriorityscore=0 mlxlogscore=999
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2201110000 definitions=main-2202240092
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-SCK updates the guest's TOD clock. It needs to be intercepted, hence we
-should have some tests for it:
+css_lib extensively uses STSCH, but two more cases deserve their own
+tests:
 
-- its operand must be 8-byte aligned. We test for 1, 2 and 4 byte
-  misalignment.
-- it should actually update the clock value. As guests are unable to
-  stop their clock, we can only check the clock value is at least higher
-  than the value we set.
-- it is a privileged call, so expect it to fail when in problem state.
-  We also test the clock value is not changed in this case. We do so by first
-  adjusting it (privileged) to a high value. We then attempt, in
-  nonprivileged mode, to set the clock to a comparatively small value.
-  We can then store the clock value and test its value is strictly higher
-  than the high value we set previously.
+- unaligned address for SCHIB. We check for misalignment by 1 and 2
+  bytes.
+- channel not operational
+- bit 47 in SID not set
+- bit 5 of PMCW flags.
+  As per the principles of operation, bit 5 of the PMCW flags shall be
+  ignored by msch and always stored as zero by stsch.
 
-SCK is currently broken in QEMU TCG. A fix was posted upstream ("s390x: sck:
-load into a temporary not into in1"):
-https://lore.kernel.org/qemu-devel/20220126084201.774457-1-nrb@linux.ibm.com/
+  Older QEMU versions require this bit to always be zero on msch,
+  which is why this test may fail. A fix is available in QEMU master
+  commit 2df59b73e086 ("s390x/css: fix PMCW invalid mask").
+
+Here's the QEMU PMCW invalid mask fix: https://lists.nongnu.org/archive/html/qemu-s390x/2021-12/msg00100.html
 
 Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
 Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
 ---
- s390x/Makefile      |   1 +
- s390x/sck.c         | 136 ++++++++++++++++++++++++++++++++++++++++++++
- s390x/unittests.cfg |   3 +
- 3 files changed, 140 insertions(+)
- create mode 100644 s390x/sck.c
+ s390x/css.c | 82 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 82 insertions(+)
 
-diff --git a/s390x/Makefile b/s390x/Makefile
-index 53b0fe044fe7..a76b78e5a011 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -17,6 +17,7 @@ tests += $(TEST_DIR)/stsi.elf
- tests += $(TEST_DIR)/skrf.elf
- tests += $(TEST_DIR)/smp.elf
- tests += $(TEST_DIR)/sclp.elf
-+tests += $(TEST_DIR)/sck.elf
- tests += $(TEST_DIR)/css.elf
- tests += $(TEST_DIR)/uv-guest.elf
- tests += $(TEST_DIR)/sie.elf
-diff --git a/s390x/sck.c b/s390x/sck.c
-new file mode 100644
-index 000000000000..88d52b74a586
---- /dev/null
-+++ b/s390x/sck.c
-@@ -0,0 +1,136 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Perform Set Clock tests
-+ *
-+ * Copyright IBM Corp. 2022
-+ *
-+ * Authors:
-+ *  Nico Boehr <nrb@linux.ibm.com>
-+ */
-+#include <libcflat.h>
-+#include <uv.h>
-+#include <asm/interrupt.h>
-+#include <asm/time.h>
-+
-+static inline int sck(uint64_t *time)
+diff --git a/s390x/css.c b/s390x/css.c
+index 7fe5283c41d0..dd84e670ce99 100644
+--- a/s390x/css.c
++++ b/s390x/css.c
+@@ -501,6 +501,86 @@ static void test_ssch(void)
+ 	report_prefix_pop();
+ }
+ 
++static void test_stsch(void)
 +{
++	const int align_to = 4;
++	struct schib schib;
 +	int cc;
 +
-+	asm volatile(
-+		"	sck %[time]\n"
-+		"	ipm %[cc]\n"
-+		"	srl %[cc],28\n"
-+		: [cc] "=d"(cc)
-+		: [time] "Q"(*time)
-+		: "cc"
-+	);
++	if (!test_device_sid) {
++		report_skip("No device");
++		return;
++	}
 +
-+	return cc;
-+}
-+
-+static inline int stck(uint64_t *time)
-+{
-+	int cc;
-+
-+	asm volatile(
-+		"	stck %[time]\n"
-+		"	ipm %[cc]\n"
-+		"	srl %[cc],28\n"
-+		: [cc] "=d" (cc), [time] "=Q" (*time)
-+		:
-+		: "cc", "memory"
-+	);
-+
-+	return cc;
-+}
-+
-+static void test_priv(void)
-+{
-+	uint64_t time_to_set_privileged = 0xfacef00dcafe0000,
-+	    time_to_set_nonprivileged = 0xcafe0000,
-+	    time_verify;
-+	int cc;
-+
-+	report_prefix_push("privileged");
-+	cc = sck(&time_to_set_privileged);
-+	report(!cc, "set clock cc=%d", cc);
-+
-+	cc = stck(&time_verify);
-+	report(!cc, "store clock cc=%d", cc);
-+	report(time_verify > time_to_set_privileged,
-+	       "privileged set affected the clock");
-+	report_prefix_pop();
-+
-+	report_prefix_push("unprivileged");
-+	expect_pgm_int();
-+	enter_pstate();
-+	sck(&time_to_set_nonprivileged);
-+	leave_pstate();
-+	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
-+
-+	cc = stck(&time_verify);
-+	report(!cc, "store clock cc=%d", cc);
-+	report(time_verify > time_to_set_privileged,
-+	       "unprivileged set did not affect the clock");
-+	report_prefix_pop();
-+}
-+
-+static void test_align(void)
-+{
-+	const int align_to = 8;
-+	char unalign[sizeof(uint64_t) + align_to] __attribute__((aligned(8)));
-+
-+	report_prefix_push("Unaligned operand");
++	report_prefix_push("Unaligned");
 +	for (int i = 1; i < align_to; i *= 2) {
 +		report_prefix_pushf("%d", i);
++
 +		expect_pgm_int();
-+		sck((uint64_t *)(unalign + i));
++		stsch(test_device_sid, (struct schib *)(alignment_test_page + i));
 +		check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
++
 +		report_prefix_pop();
 +	}
 +	report_prefix_pop();
++
++	report_prefix_push("Invalid subchannel number");
++	cc = stsch(0x0001ffff, &schib);
++	report(cc == 3, "Channel not operational");
++	report_prefix_pop();
++
++	/*
++	 * No matter if multiple-subchannel-set facility is installed, bit 47
++	 * always needs to be 1.
++	 */
++	report_prefix_push("Bit 47 in SID is zero");
++	expect_pgm_int();
++	stsch(0x0000ffff, &schib);
++	check_pgm_int_code(PGM_INT_CODE_OPERAND);
++	report_prefix_pop();
 +}
 +
-+static void test_set(void)
++/*
++ * According to architecture MSCH does ignore bit 5 of the second word
++ * but STSCH will store bit 5 as zero.
++ */
++static void test_pmcw_bit5(void)
 +{
-+	uint64_t start = 0, end = 0, time = 0xcafef00dbeef;
-+	const uint64_t ticks_per_ms = 1000 << 12, ms_to_wait = 5;
 +	int cc;
++	uint16_t old_pmcw_flags;
 +
-+	report_prefix_push("set");
-+
-+	cc = sck(&time);
-+	report(!cc, "set clock cc=%d", cc);
-+
-+	cc = stck(&start);
-+	report(!cc, "store start clock cc=%d", cc);
-+	report(start >= time, "start >= set value");
-+
-+	mdelay(ms_to_wait);
-+
-+	cc = stck(&end);
-+	report(!cc, "store end clock cc=%d", cc);
-+	report(end > time, "end > set value");
-+
-+	report(end - start > (ticks_per_ms * ms_to_wait), "Advances");
-+
-+	report_prefix_pop();
-+}
-+
-+int main(void)
-+{
-+	report_prefix_push("sck");
-+
-+	if (uv_os_is_guest()) {
-+		report_skip("Test unsupported under PV");
-+		goto out;
++	cc = stsch(test_device_sid, &schib);
++	if (cc) {
++		report_fail("stsch: sch %08x failed with cc=%d", test_device_sid, cc);
++		return;
 +	}
++	old_pmcw_flags = schib.pmcw.flags;
 +
-+	test_align();
-+	test_set();
-+	test_priv();
++	report_prefix_push("Bit 5 set");
 +
-+out:
++	schib.pmcw.flags = old_pmcw_flags | BIT(15 - 5);
++	cc = msch(test_device_sid, &schib);
++	report(!cc, "MSCH cc == 0");
++
++	cc = stsch(test_device_sid, &schib);
++	report(!cc, "STSCH cc == 0");
++	report(!(schib.pmcw.flags & BIT(15 - 5)), "STSCH PMCW Bit 5 is clear");
++
 +	report_prefix_pop();
-+	return report_summary();
-+}
-diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-index 1600e714c8b9..8b148fe31ac0 100644
---- a/s390x/unittests.cfg
-+++ b/s390x/unittests.cfg
-@@ -136,3 +136,6 @@ file = firq.elf
- timeout = 20
- extra_params = -smp 1,maxcpus=3 -cpu qemu -device qemu-s390x-cpu,core-id=2 -device qemu-s390x-cpu,core-id=1
- accel = tcg
 +
-+[sck]
-+file = sck.elf
++	report_prefix_push("Bit 5 clear");
++
++	schib.pmcw.flags = old_pmcw_flags & ~BIT(15 - 5);
++	cc = msch(test_device_sid, &schib);
++	report(!cc, "MSCH cc == 0");
++
++	cc = stsch(test_device_sid, &schib);
++	report(!cc, "STSCH cc == 0");
++	report(!(schib.pmcw.flags & BIT(15 - 5)), "STSCH PMCW Bit 5 is clear");
++
++	report_prefix_pop();
++}
++
+ static struct {
+ 	const char *name;
+ 	void (*func)(void);
+@@ -516,6 +596,8 @@ static struct {
+ 	{ "msch", test_msch },
+ 	{ "stcrw", test_stcrw },
+ 	{ "ssch", test_ssch },
++	{ "stsch", test_stsch },
++	{ "pmcw bit 5 ignored", test_pmcw_bit5 },
+ 	{ NULL, NULL }
+ };
+ 
 -- 
 2.31.1
 
