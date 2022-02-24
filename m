@@ -2,186 +2,169 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22412C433FE
-	for <linux-s390@archiver.kernel.org>; Thu, 24 Feb 2022 07:49:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF4A6C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 24 Feb 2022 08:11:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230390AbiBXHtx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 24 Feb 2022 02:49:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36278 "EHLO
+        id S231480AbiBXILl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 24 Feb 2022 03:11:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230442AbiBXHtt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Feb 2022 02:49:49 -0500
-Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 751F917CC66
-        for <linux-s390@vger.kernel.org>; Wed, 23 Feb 2022 23:49:20 -0800 (PST)
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com [209.85.218.69])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 9E2903FCA4
-        for <linux-s390@vger.kernel.org>; Thu, 24 Feb 2022 07:49:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1645688957;
-        bh=tIIHXtnNxTvsUSqBUvFfmiqo64/DEPmMQ0dgIpM1aoU=;
-        h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-         In-Reply-To:Content-Type;
-        b=l5Feig8W/a9EpyEsGmaBuW4/w3EmEkOSouuGl+9XeKDCXv56PZw/PP3KPcsHmesaG
-         ePQK/Ar4/6eX/APXZcD0jRJs8sCubwfH2Xp3r767F65vPMRVm2G9JG0w7vIifE1m6M
-         cVCttXU4nHFGAZQ9Dom03/Qu4QHL1oxxr+u7qxuszJY3iAvgBuByBf+TEiPBWQszKH
-         YxhSlVkHiitxSP3ozHVCfq+NKrG20Mn0PPCYUM9MbUqZSKozlYRTTS3tlUhPVhHrx2
-         CLbHv7BbIe5TRPZTFDlbVXO626e4ScceOy81feTLTNaSNEePT7yP0Qc8cGiJMV/GFr
-         oC3q4ZZ2evxhA==
-Received: by mail-ej1-f69.google.com with SMTP id m4-20020a170906160400b006be3f85906eso803119ejd.23
-        for <linux-s390@vger.kernel.org>; Wed, 23 Feb 2022 23:49:17 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=tIIHXtnNxTvsUSqBUvFfmiqo64/DEPmMQ0dgIpM1aoU=;
-        b=b88X9UkVHdeeQ/wTz2S243+0/hZ91v2Mnjk8ZNK1HYit32tul1ucRArlySER/xI8Gq
-         CfReISw9TdGWz7FT6rUQ0Jb8UxGUSrnOVgEgd9oUdBHYzw3TeiwEHIMTBVm9jjtLcff0
-         jY+B0uJt8fEi6q+5RqIHc+dRIg6O4NUDAw5Od6rSAe1huMWzvT6xvLTAfooEMmbHVr8F
-         2j8KVOHPDgbTXy+nkb2/hl6XkggMvqgMDYnfAN7uNxD7q/wSwpToUVfa1gFBIgR5vOhF
-         ZE5L7kKaEYRgx7jHYhiddAxdkcrscHmBduYv198723EB76wxqDYUclUV0iaoTK0LOmX1
-         k0Yg==
-X-Gm-Message-State: AOAM532tF8Iwv9YckUKhjd87ktfIO6Hj2wNM/5gjJEWmmwdY5ximXCWH
-        5UsSqJ+RCs/2529SnKCdbaHXS9/lyiJ58ui7zKzmwbOy2vQYh7hJlEnb2TOHQoN71O0vXGggmDo
-        Pb2UOLh7/gbgYsXXmPo3M9geJV6L2KAuKvgWQbdU=
-X-Received: by 2002:a05:6402:177b:b0:413:2822:1705 with SMTP id da27-20020a056402177b00b0041328221705mr1116383edb.270.1645688957130;
-        Wed, 23 Feb 2022 23:49:17 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxZ4T6vTJDSRNBttoRjN0CBDIUiJLcd/AByD7b5Uhgs6BBbS824OeS6Yj6e4iHov1EozcksnA==
-X-Received: by 2002:a05:6402:177b:b0:413:2822:1705 with SMTP id da27-20020a056402177b00b0041328221705mr1116367edb.270.1645688956871;
-        Wed, 23 Feb 2022 23:49:16 -0800 (PST)
-Received: from [192.168.0.127] (xdsl-188-155-181-108.adslplus.ch. [188.155.181.108])
-        by smtp.gmail.com with ESMTPSA id s15sm954628ejm.70.2022.02.23.23.49.15
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 23 Feb 2022 23:49:16 -0800 (PST)
-Message-ID: <f7347531-8aa4-c011-d405-dea93e29779f@canonical.com>
-Date:   Thu, 24 Feb 2022 08:49:15 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH v2 05/11] pci: use helper for safer setting of
- driver_override
-Content-Language: en-US
-To:     Bjorn Helgaas <helgaas@kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Stuart Yoder <stuyoder@gmail.com>,
-        Laurentiu Tudor <laurentiu.tudor@nxp.com>,
-        Abel Vesa <abel.vesa@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        with ESMTP id S229485AbiBXILk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Feb 2022 03:11:40 -0500
+Received: from out30-43.freemail.mail.aliyun.com (out30-43.freemail.mail.aliyun.com [115.124.30.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F5F520B387;
+        Thu, 24 Feb 2022 00:11:08 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=34;SR=0;TI=SMTPD_---0V5NDo4w_1645690262;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0V5NDo4w_1645690262)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Thu, 24 Feb 2022 16:11:03 +0800
+From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To:     virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        Vadim Pasternak <vadimp@nvidia.com>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Andy Gross <agross@kernel.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, NXP Linux Team <linux-imx@nxp.com>,
-        linux-arm-kernel@lists.infradead.org, linux-hyperv@vger.kernel.org,
-        linux-pci@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        alsa-devel@alsa-project.org, linux-spi@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>
-References: <20220223215115.GA155125@bhelgaas>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-In-Reply-To: <20220223215115.GA155125@bhelgaas>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        linux-um@lists.infradead.org, platform-driver-x86@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, bpf@vger.kernel.org
+Subject: [PATCH v6 00/26] virtio pci support VIRTIO_F_RING_RESET
+Date:   Thu, 24 Feb 2022 16:10:36 +0800
+Message-Id: <20220224081102.80224-1-xuanzhuo@linux.alibaba.com>
+X-Mailer: git-send-email 2.31.0
+MIME-Version: 1.0
+X-Git-Hash: bd1c915e263f
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 23/02/2022 22:51, Bjorn Helgaas wrote:
-> In subject, to match drivers/pci/ convention, do something like:
-> 
->   PCI: Use driver_set_override() instead of open-coding
-> 
-> On Wed, Feb 23, 2022 at 08:13:04PM +0100, Krzysztof Kozlowski wrote:
->> Use a helper for seting driver_override to reduce amount of duplicated
->> code.
-> 
-> s/seting/setting/
-> 
->> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
->> ---
->>  drivers/pci/pci-sysfs.c | 24 ++++--------------------
->>  1 file changed, 4 insertions(+), 20 deletions(-)
->>
->> diff --git a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
->> index 602f0fb0b007..16a163d4623e 100644
->> --- a/drivers/pci/pci-sysfs.c
->> +++ b/drivers/pci/pci-sysfs.c
->> @@ -567,31 +567,15 @@ static ssize_t driver_override_store(struct device *dev,
->>  				     const char *buf, size_t count)
->>  {
->>  	struct pci_dev *pdev = to_pci_dev(dev);
->> -	char *driver_override, *old, *cp;
->> +	int ret;
->>  
->>  	/* We need to keep extra room for a newline */
->>  	if (count >= (PAGE_SIZE - 1))
->>  		return -EINVAL;
-> 
-> This check makes no sense in the new function.  Michael alluded to
-> this as well.
+The virtio spec already supports the virtio queue reset function. This patch set
+is to add this function to the kernel. The relevant virtio spec information is
+here:
 
-I am not sure if I got your comment properly. You mean here:
-1. Move this check to driver_set_override()?
-2. Remove the check entirely?
+    https://github.com/oasis-tcs/virtio-spec/issues/124
 
-> 
->> -	driver_override = kstrndup(buf, count, GFP_KERNEL);
->> -	if (!driver_override)
->> -		return -ENOMEM;
->> -
->> -	cp = strchr(driver_override, '\n');
->> -	if (cp)
->> -		*cp = '\0';
->> -
->> -	device_lock(dev);
->> -	old = pdev->driver_override;
->> -	if (strlen(driver_override)) {
->> -		pdev->driver_override = driver_override;
->> -	} else {
->> -		kfree(driver_override);
->> -		pdev->driver_override = NULL;
->> -	}
->> -	device_unlock(dev);
->> -
->> -	kfree(old);
->> +	ret = driver_set_override(dev, &pdev->driver_override, buf);
->> +	if (ret)
->> +		return ret;
->>  
->>  	return count;
->>  }
->> -- 
->> 2.32.0
->>
->>
->> _______________________________________________
->> linux-arm-kernel mailing list
->> linux-arm-kernel@lists.infradead.org
->> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+Also regarding MMIO support for queue reset, I plan to support it after this
+patch is passed.
 
+Performing reset on a queue is divided into four steps:
+     1. virtio_reset_vq()              - notify the device to reset the queue
+     2. virtqueue_detach_unused_buf()  - recycle the buffer submitted
+     3. virtqueue_reset_vring()        - reset the vring (may re-alloc)
+     4. virtio_enable_resetq()         - mmap vring to device, and enable the queue
 
-Best regards,
-Krzysztof
+The first part 1-17 of this patch set implements virtio pci's support and API
+for queue reset. The latter part is to make virtio-net support set_ringparam. Do
+these things for this feature:
+
+      1. virtio-net support rx,tx reset
+      2. find_vqs() support to special the max size of each vq
+      3. virtio-net support set_ringparam
+
+#1 -#3 :       prepare
+#4 -#12:       virtio ring support reset vring of the vq
+#13-#14:       add helper
+#15-#17:       virtio pci support reset queue and re-enable
+#18-#21:       find_vqs() support sizes to special the max size of each vq
+#23-#24:       virtio-net support rx, tx reset
+#22, #25, #26: virtio-net support set ringparam
+
+Please review. Thanks.
+
+v6:
+  1. virtio_pci: use synchronize_irq(irq) to sync the irq callbacks
+  2. Introduce virtqueue_reset_vring() to implement the reset of vring during
+     the reset process. May use the old vring if num of the vq not change.
+  3. find_vqs() support sizes to special the max size of each vq
+
+v5:
+  1. add virtio-net support set_ringparam
+
+v4:
+  1. just the code of virtio, without virtio-net
+  2. Performing reset on a queue is divided into these steps:
+    1. reset_vq: reset one vq
+    2. recycle the buffer from vq by virtqueue_detach_unused_buf()
+    3. release the ring of the vq by vring_release_virtqueue()
+    4. enable_reset_vq: re-enable the reset queue
+  3. Simplify the parameters of enable_reset_vq()
+  4. add container structures for virtio_pci_common_cfg
+
+v3:
+  1. keep vq, irq unreleased
+
+Xuan Zhuo (26):
+  virtio_pci: struct virtio_pci_common_cfg add queue_notify_data
+  virtio: queue_reset: add VIRTIO_F_RING_RESET
+  virtio: add helper virtqueue_get_vring_max_size()
+  virtio_ring: split: extract the logic of creating vring
+  virtio_ring: split: extract the logic of init vq and attach vring
+  virtio_ring: packed: extrace the logic of creating vring
+  virtio_ring: packed: extract the logic of init vq and attach vring
+  virtio_ring: extract the logic of freeing vring
+  virtio_ring: split: implement virtqueue_reset_vring_split()
+  virtio_ring: packed: implement virtqueue_reset_vring_packed()
+  virtio_ring: introduce virtqueue_reset_vring()
+  virtio_ring: update the document of the virtqueue_detach_unused_buf
+    for queue reset
+  virtio: queue_reset: struct virtio_config_ops add callbacks for
+    queue_reset
+  virtio: add helper for queue reset
+  virtio_pci: queue_reset: update struct virtio_pci_common_cfg and
+    option functions
+  virtio_pci: queue_reset: extract the logic of active vq for modern pci
+  virtio_pci: queue_reset: support VIRTIO_F_RING_RESET
+  virtio: find_vqs() add arg sizes
+  virtio_pci: support the arg sizes of find_vqs()
+  virtio_mmio: support the arg sizes of find_vqs()
+  virtio: add helper virtio_find_vqs_ctx_size()
+  virtio_net: get ringparam by virtqueue_get_vring_max_size()
+  virtio_net: split free_unused_bufs()
+  virtio_net: support rx/tx queue reset
+  virtio_net: set the default max ring size by find_vqs()
+  virtio_net: support set_ringparam
+
+ arch/um/drivers/virtio_uml.c             |   2 +-
+ drivers/net/virtio_net.c                 | 257 ++++++++--
+ drivers/platform/mellanox/mlxbf-tmfifo.c |   3 +-
+ drivers/remoteproc/remoteproc_virtio.c   |   2 +-
+ drivers/s390/virtio/virtio_ccw.c         |   2 +-
+ drivers/virtio/virtio_mmio.c             |  12 +-
+ drivers/virtio/virtio_pci_common.c       |  28 +-
+ drivers/virtio/virtio_pci_common.h       |   3 +-
+ drivers/virtio/virtio_pci_legacy.c       |   8 +-
+ drivers/virtio/virtio_pci_modern.c       | 146 +++++-
+ drivers/virtio/virtio_pci_modern_dev.c   |  36 ++
+ drivers/virtio/virtio_ring.c             | 584 +++++++++++++++++------
+ drivers/virtio/virtio_vdpa.c             |   2 +-
+ include/linux/virtio.h                   |  12 +
+ include/linux/virtio_config.h            |  74 ++-
+ include/linux/virtio_pci_modern.h        |   2 +
+ include/uapi/linux/virtio_config.h       |   7 +-
+ include/uapi/linux/virtio_pci.h          |  14 +
+ 18 files changed, 979 insertions(+), 215 deletions(-)
+
+--
+2.31.0
+
