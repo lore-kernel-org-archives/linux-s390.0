@@ -2,134 +2,171 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B0155C433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 24 Feb 2022 08:58:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B87C3C3525A
+	for <linux-s390@archiver.kernel.org>; Thu, 24 Feb 2022 08:59:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232387AbiBXI7Q convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 24 Feb 2022 03:59:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51280 "EHLO
+        id S231436AbiBXI7r (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 24 Feb 2022 03:59:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232524AbiBXI7I (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Feb 2022 03:59:08 -0500
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B3C62268345
-        for <linux-s390@vger.kernel.org>; Thu, 24 Feb 2022 00:58:24 -0800 (PST)
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-216-yFNLSyvJPDmN2lh--r6gzg-1; Thu, 24 Feb 2022 08:58:21 +0000
-X-MC-Unique: yFNLSyvJPDmN2lh--r6gzg-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
- Server (TLS) id 15.0.1497.28; Thu, 24 Feb 2022 08:58:20 +0000
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.028; Thu, 24 Feb 2022 08:58:20 +0000
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Kees Cook' <keescook@chromium.org>,
-        Matthew Wilcox <willy@infradead.org>
-CC:     Josh Poimboeuf <jpoimboe@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        Muhammad Usama Anjum <usama.anjum@collabora.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "x86@kernel.org" <x86@kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>,
-        "linux-hardening@vger.kernel.org" <linux-hardening@vger.kernel.org>
-Subject: RE: [PATCH v2] usercopy: Check valid lifetime via stack depth
-Thread-Topic: [PATCH v2] usercopy: Check valid lifetime via stack depth
-Thread-Index: AQHYKUROaYEZJJ15GkKlMpPMpHZgQKyiZK3w
-Date:   Thu, 24 Feb 2022 08:58:20 +0000
-Message-ID: <85d42900efaa4fdb8c20de2147d938c7@AcuMS.aculab.com>
-References: <20220224060342.1855457-1-keescook@chromium.org>
-In-Reply-To: <20220224060342.1855457-1-keescook@chromium.org>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        with ESMTP id S232416AbiBXI51 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Feb 2022 03:57:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4411F1AF0E;
+        Thu, 24 Feb 2022 00:56:41 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EF8E561B0F;
+        Thu, 24 Feb 2022 08:56:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DD34C340F4;
+        Thu, 24 Feb 2022 08:56:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1645693000;
+        bh=gubBLeOVUNo5+99AzAl7peBszEat/rDlyHt7rNu08Ko=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=njppeVKevW46+S0W7484DuVadG4pgrBe6pw58BQY4AxyQWFMRD/iA4qgPjbMpf6f2
+         4eRv9pcKrYNfGlK129MagP1GOEfzAhsdzIvrNqPWc6/XX8jGwRRY+LBUl26cPMWCgX
+         kfcvyygNhnbciNOX8n0C+DFkVY6OMJMW2hogWhe43MSEY6y+baFlFPbxowsti1SyXn
+         JYk/1Knofme6ZoImNfkYqUC8IuCwplnFVmHRhbq3mruX61yV6e5RuMZK/sK6uUrZPf
+         AWN1UiqpzNYcgn32ddx19GkLoKaXz+1UK87w8oFJXcrdb03QJ2OwzySN8MpF2Otzj+
+         kbJVtGSijxO3w==
+From:   guoren@kernel.org
+To:     guoren@kernel.org, palmer@dabbelt.com, arnd@arndb.de,
+        anup@brainfault.org, gregkh@linuxfoundation.org,
+        liush@allwinnertech.com, wefu@redhat.com, drew@beagleboard.org,
+        wangjunqiang@iscas.ac.cn, hch@lst.de
+Cc:     linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-riscv@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-parisc@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        x86@kernel.org, Guo Ren <guoren@linux.alibaba.com>
+Subject: [PATCH V6 14/20] riscv: compat: Add elf.h implementation
+Date:   Thu, 24 Feb 2022 16:54:04 +0800
+Message-Id: <20220224085410.399351-15-guoren@kernel.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20220224085410.399351-1-guoren@kernel.org>
+References: <20220224085410.399351-1-guoren@kernel.org>
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Kees Cook
-> Sent: 24 February 2022 06:04
-> 
-> Under CONFIG_HARDENED_USERCOPY=y, when exact stack frame boundary checking
-> is not available (i.e. everything except x86 with FRAME_POINTER), check
-> a stack object as being at least "current depth valid", in the sense
-> that any object within the stack region but not between start-of-stack
-> and current_stack_pointer should be considered unavailable (i.e. its
-> lifetime is from a call no longer present on the stack).
-> 
-...
-> diff --git a/mm/usercopy.c b/mm/usercopy.c
-> index d0d268135d96..5d28725af95f 100644
-> --- a/mm/usercopy.c
-> +++ b/mm/usercopy.c
-> @@ -22,6 +22,30 @@
->  #include <asm/sections.h>
->  #include "slab.h"
-> 
-> +/*
-> + * Only called if obj is within stack/stackend bounds. Determine if within
-> + * current stack depth.
-> + */
-> +static inline int check_stack_object_depth(const void *obj,
-> +					   unsigned long len)
-> +{
-> +#ifdef CONFIG_ARCH_HAS_CURRENT_STACK_POINTER
-> +#ifndef CONFIG_STACK_GROWSUP
+From: Guo Ren <guoren@linux.alibaba.com>
 
-Pointless negation
+Implement necessary type and macro for compat elf. See the code
+comment for detail.
 
-> +	const void * const high = stackend;
-> +	const void * const low = (void *)current_stack_pointer;
-> +#else
-> +	const void * const high = (void *)current_stack_pointer;
-> +	const void * const low = stack;
-> +#endif
-> +
-> +	/* Reject: object not within current stack depth. */
-> +	if (obj < low || high < obj + len)
-> +		return BAD_STACK;
-> +
-> +#endif
-> +	return GOOD_STACK;
-> +}
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Signed-off-by: Guo Ren <guoren@kernel.org>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+---
+ arch/riscv/include/asm/elf.h | 46 +++++++++++++++++++++++++++++++++++-
+ 1 file changed, 45 insertions(+), 1 deletion(-)
 
-If the comment at the top of the function is correct then
-only a single test for the correct end of the buffer against
-the current stack pointer is needed.
-Something like:
-#ifdef CONFIG_STACK_GROWSUP
-	if ((void *)current_stack_pointer < obj + len)
-		return BAD_STACK;
-#else
-	if (obj < (void *)current_stack_pointer)
-		return BAD_STACK;
-#endif
-	return GOOD_STACK;
-
-Although it may depend on exactly where the stack pointer
-points to - especially for GROWSUP.
-
-	David
-
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
+diff --git a/arch/riscv/include/asm/elf.h b/arch/riscv/include/asm/elf.h
+index f53c40026c7a..aee40040917b 100644
+--- a/arch/riscv/include/asm/elf.h
++++ b/arch/riscv/include/asm/elf.h
+@@ -8,6 +8,8 @@
+ #ifndef _ASM_RISCV_ELF_H
+ #define _ASM_RISCV_ELF_H
+ 
++#include <uapi/linux/elf.h>
++#include <linux/compat.h>
+ #include <uapi/asm/elf.h>
+ #include <asm/auxvec.h>
+ #include <asm/byteorder.h>
+@@ -18,11 +20,13 @@
+  */
+ #define ELF_ARCH	EM_RISCV
+ 
++#ifndef ELF_CLASS
+ #ifdef CONFIG_64BIT
+ #define ELF_CLASS	ELFCLASS64
+ #else
+ #define ELF_CLASS	ELFCLASS32
+ #endif
++#endif
+ 
+ #define ELF_DATA	ELFDATA2LSB
+ 
+@@ -31,6 +35,13 @@
+  */
+ #define elf_check_arch(x) ((x)->e_machine == EM_RISCV)
+ 
++/*
++ * Use the same code with elf_check_arch, because elf32_hdr &
++ * elf64_hdr e_machine's offset are different. The checker is
++ * a little bit simple compare to other architectures.
++ */
++#define compat_elf_check_arch(x) ((x)->e_machine == EM_RISCV)
++
+ #define CORE_DUMP_USE_REGSET
+ #define ELF_EXEC_PAGESIZE	(PAGE_SIZE)
+ 
+@@ -43,8 +54,14 @@
+ #define ELF_ET_DYN_BASE		((TASK_SIZE / 3) * 2)
+ 
+ #ifdef CONFIG_64BIT
++#ifdef CONFIG_COMPAT
++#define STACK_RND_MASK		(test_thread_flag(TIF_32BIT) ? \
++				 0x7ff >> (PAGE_SHIFT - 12) : \
++				 0x3ffff >> (PAGE_SHIFT - 12))
++#else
+ #define STACK_RND_MASK		(0x3ffff >> (PAGE_SHIFT - 12))
+ #endif
++#endif
+ /*
+  * This yields a mask that user programs can use to figure out what
+  * instruction set this CPU supports.  This could be done in user space,
+@@ -60,11 +77,19 @@ extern unsigned long elf_hwcap;
+  */
+ #define ELF_PLATFORM	(NULL)
+ 
++#define COMPAT_ELF_PLATFORM	(NULL)
++
+ #ifdef CONFIG_MMU
+ #define ARCH_DLINFO						\
+ do {								\
++	/*							\
++	 * Note that we add ulong after elf_addr_t because	\
++	 * casting current->mm->context.vdso triggers a cast	\
++	 * warning of cast from pointer to integer for		\
++	 * COMPAT ELFCLASS32.					\
++	 */							\
+ 	NEW_AUX_ENT(AT_SYSINFO_EHDR,				\
+-		(elf_addr_t)current->mm->context.vdso);		\
++		(elf_addr_t)(ulong)current->mm->context.vdso);	\
+ 	NEW_AUX_ENT(AT_L1I_CACHESIZE,				\
+ 		get_cache_size(1, CACHE_TYPE_INST));		\
+ 	NEW_AUX_ENT(AT_L1I_CACHEGEOMETRY,			\
+@@ -90,4 +115,23 @@ do {							\
+ 		*(struct user_regs_struct *)regs;	\
+ } while (0);
+ 
++#ifdef CONFIG_COMPAT
++
++#define SET_PERSONALITY(ex)					\
++do {    if ((ex).e_ident[EI_CLASS] == ELFCLASS32)		\
++		set_thread_flag(TIF_32BIT);			\
++	else							\
++		clear_thread_flag(TIF_32BIT);			\
++	if (personality(current->personality) != PER_LINUX32)	\
++		set_personality(PER_LINUX |			\
++			(current->personality & (~PER_MASK)));	\
++} while (0)
++
++#define COMPAT_ELF_ET_DYN_BASE		((TASK_SIZE_32 / 3) * 2)
++
++/* rv32 registers */
++typedef compat_ulong_t			compat_elf_greg_t;
++typedef compat_elf_greg_t		compat_elf_gregset_t[ELF_NGREG];
++
++#endif /* CONFIG_COMPAT */
+ #endif /* _ASM_RISCV_ELF_H */
+-- 
+2.25.1
 
