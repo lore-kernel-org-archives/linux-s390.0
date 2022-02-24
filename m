@@ -2,99 +2,98 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB98BC433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 24 Feb 2022 22:06:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DB3AFC433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 24 Feb 2022 23:15:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230497AbiBXWHN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 24 Feb 2022 17:07:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47594 "EHLO
+        id S232297AbiBXXPi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 24 Feb 2022 18:15:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232011AbiBXWHM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Feb 2022 17:07:12 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CE4B201A5;
-        Thu, 24 Feb 2022 14:06:42 -0800 (PST)
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21OLhwnA024950;
-        Thu, 24 Feb 2022 22:06:36 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=1VsRgpEKCbxHkiLbBhtBVJFb41p7/UP8dbpAPc9Xgr4=;
- b=hCydhYIpdP4SSfmO6HLkAHQBHGimNRvQO/ydCPnWafhwt1uAGqfv6JyAM9r+kWXsLVkE
- 9XGK2U+grqoDjpKFRfh4jaTpVptTPkOiX4TDgmht93932XoFY+vyXvSfJMR06dY1a5S9
- z38TvY3WTHMoSQZ7TxKwYXbmk/825ira9enCQ5KRHLfScVEQgVw1ROJBVNtLAm/il7Jc
- aQAZUepl6HlHVHVP0UzZf6sT+hlVwPo1fPaDuWsvn1vNNJJvN3x16GhAT9WJ+G/VIpnN
- e8PTPMoCMvnpsGpIwX20/xU0PjKXp6fbxJugSnyfKm2qXBNf6xhjsQM09Pt4WP+w40qt iQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3edq0k4m57-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Feb 2022 22:06:35 +0000
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21OM4YCn032764;
-        Thu, 24 Feb 2022 22:06:35 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3edq0k4m4e-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Feb 2022 22:06:35 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21OM3XQg029360;
-        Thu, 24 Feb 2022 22:06:33 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma03fra.de.ibm.com with ESMTP id 3ear69jjnn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Feb 2022 22:06:32 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21OM6Ugx38207758
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 24 Feb 2022 22:06:30 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 49C18A4055;
-        Thu, 24 Feb 2022 22:06:30 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D6C5FA4053;
-        Thu, 24 Feb 2022 22:06:29 +0000 (GMT)
-Received: from [9.171.91.202] (unknown [9.171.91.202])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 24 Feb 2022 22:06:29 +0000 (GMT)
-Message-ID: <a5a037f9-9b33-a330-02b8-9b157c2addda@linux.ibm.com>
-Date:   Thu, 24 Feb 2022 23:06:45 +0100
+        with ESMTP id S231315AbiBXXPi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Feb 2022 18:15:38 -0500
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3B4DD275796
+        for <linux-s390@vger.kernel.org>; Thu, 24 Feb 2022 15:15:05 -0800 (PST)
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-281-foIGsKlaMWyYIUBl_oNJDQ-1; Thu, 24 Feb 2022 23:15:02 +0000
+X-MC-Unique: foIGsKlaMWyYIUBl_oNJDQ-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
+ Server (TLS) id 15.0.1497.28; Thu, 24 Feb 2022 23:15:01 +0000
+Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
+ AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
+ 15.00.1497.028; Thu, 24 Feb 2022 23:15:01 +0000
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Andy Shevchenko' <andy.shevchenko@gmail.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+CC:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        "open list:VFIO DRIVER" <kvm@vger.kernel.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>
+Subject: RE: [PATCH v1 1/1] KVM: s390: Don't cast parameter in bit operations
+Thread-Topic: [PATCH v1 1/1] KVM: s390: Don't cast parameter in bit operations
+Thread-Index: AQHYKbf4PreGRJIIQ0mXQjRI10uskKyjVBFg
+Date:   Thu, 24 Feb 2022 23:15:01 +0000
+Message-ID: <2a9391a3546d487ca937c4e523690ea9@AcuMS.aculab.com>
+References: <20220223164420.45344-1-andriy.shevchenko@linux.intel.com>
+ <20220224123620.57fd6c8b@p-imbrenda>
+ <CAHp75Vfm-zmzoO0AZTv-3eBjXf0FzHh7tbHRn3DoO7EjukFVig@mail.gmail.com>
+In-Reply-To: <CAHp75Vfm-zmzoO0AZTv-3eBjXf0FzHh7tbHRn3DoO7EjukFVig@mail.gmail.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.0
-Subject: Re: [PATCH net] net/smc: fix connection leak
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
 Content-Language: en-US
-To:     "D. Wythe" <alibuda@linux.alibaba.com>
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <1645716379-30924-1-git-send-email-alibuda@linux.alibaba.com>
-From:   Karsten Graul <kgraul@linux.ibm.com>
-Organization: IBM Deutschland Research & Development GmbH
-In-Reply-To: <1645716379-30924-1-git-send-email-alibuda@linux.alibaba.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: zMFXMy-hY_q12jAvdaf6LgEqL9nmNs9d
-X-Proofpoint-GUID: 44g8YazxQ3BLRlav5KJm_B8lO03nlZZn
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-02-24_06,2022-02-24_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- priorityscore=1501 phishscore=0 adultscore=0 lowpriorityscore=0
- malwarescore=0 bulkscore=0 clxscore=1015 mlxscore=0 impostorscore=0
- spamscore=0 mlxlogscore=924 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2201110000 definitions=main-2202240121
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 24/02/2022 16:26, D. Wythe wrote:
-> From: "D. Wythe" <alibuda@linux.alibaba.com>
-> 
-> There's a potential leak issue under following execution sequence :
-> 
-
-Thank you!
-
-Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+RnJvbTogQW5keSBTaGV2Y2hlbmtvDQo+IFNlbnQ6IDI0IEZlYnJ1YXJ5IDIwMjIgMTk6NTENCj4g
+DQo+IE9uIFRodSwgRmViIDI0LCAyMDIyIGF0IDI6NTEgUE0gQ2xhdWRpbyBJbWJyZW5kYSA8aW1i
+cmVuZGFAbGludXguaWJtLmNvbT4gd3JvdGU6DQo+ID4NCj4gPiBPbiBXZWQsIDIzIEZlYiAyMDIy
+IDE4OjQ0OjIwICswMjAwDQo+ID4gQW5keSBTaGV2Y2hlbmtvIDxhbmRyaXkuc2hldmNoZW5rb0Bs
+aW51eC5pbnRlbC5jb20+IHdyb3RlOg0KPiA+DQo+ID4gPiBXaGlsZSBpbiB0aGlzIHBhcnRpY3Vs
+YXIgY2FzZSBpdCB3b3VsZCBub3QgYmUgYSAoY3JpdGljYWwpIGlzc3VlLA0KPiA+ID4gdGhlIHBh
+dHRlcm4gaXRzZWxmIGlzIGJhZCBhbmQgZXJyb3IgcHJvbmUgaW4gY2FzZSBzb21lYm9keSBibGlu
+ZGx5DQo+ID4gPiBjb3BpZXMgdG8gdGhlaXIgY29kZS4NCj4gPiA+DQo+ID4gPiBEb24ndCBjYXN0
+IHBhcmFtZXRlciB0byB1bnNpZ25lZCBsb25nIHBvaW50ZXIgaW4gdGhlIGJpdCBvcGVyYXRpb25z
+Lg0KPiA+ID4gSW5zdGVhZCBjb3B5IHRvIGEgbG9jYWwgdmFyaWFibGUgb24gc3RhY2sgb2YgYSBw
+cm9wZXIgdHlwZSBhbmQgdXNlLg0KPiANCj4gLi4uDQo+IA0KPiA+ID4gKyAgICAgICAgICAgICBz
+dHJ1Y3QgeyAvKiBhcyBhIDI1Ni1iaXQgYml0bWFwICovDQo+ID4gPiArICAgICAgICAgICAgICAg
+ICAgICAgREVDTEFSRV9CSVRNQVAoYiwgMjU2KTsNCj4gPiA+ICsgICAgICAgICAgICAgfSBiaXRt
+YXA7DQo+ID4gPiArICAgICAgICAgICAgIHN0cnVjdCB7IC8qIGFzIGEgc2V0IG9mIDY0LWJpdCB3
+b3JkcyAqLw0KPiA+ID4gICAgICAgICAgICAgICAgICAgICAgIHU2NCB3b3JkWzRdOw0KPiA+ID4g
+ICAgICAgICAgICAgICB9IHU2NDsNCj4gDQo+ID4gPiAtICAgICBzZXRfYml0X2ludihJUE1fQklU
+X09GRlNFVCArIGdpc2MsICh1bnNpZ25lZCBsb25nICopIGdpc2EpOw0KPiA+ID4gKyAgICAgc2V0
+X2JpdF9pbnYoSVBNX0JJVF9PRkZTRVQgKyBnaXNjLCBnaXNhLT5iaXRtYXAuYik7DQo+ID4NCj4g
+PiB3b3VsZG4ndCBpdCBiZSBlbm91Z2ggdG8gcGFzcyBnaXNhLT51NjQud29yZCBoZXJlPw0KPiA+
+IHRoZW4gbm8gY2FzdCB3b3VsZCBiZSBuZWNlc3NhcnkNCj4gDQo+IE5vLCBpdCB3aWxsIGhhdmUg
+dGhlIHNhbWUgaGlkZGVuIGJ1Z3MuIEFzIEkgc3RhdGVkIGluIHRoZSBjb21taXQNCj4gbWVzc2Fn
+ZSwgdGhlIHBhdHRlcm4gaXMgcXVpdGUgYmFkIGV2ZW4gaWYgaW4gcGFydGljdWxhciBjb2RlIGl0
+IHdvdWxkDQo+IHdvcmsuDQo+IA0KPiBUaGFua3MsIE1pY2hhZWwsIGZvciBwb2ludGluZyBvdXQg
+b3RoZXIgcGxhY2VzLiBUaGV5IGFsbCBuZWVkIHRvIGJlIGZpeGVkLg0KDQpJdCBtYXkgZXZlbiBi
+ZSB3b3J0aCB3cml0aW5nIHNvbWUgYWx0ZXJuYXRlIGJpdG1hcCBmdW5jdGlvbnMNCnRoYXQgdXNl
+IHU2NFtdIGFuZCB1bmxvY2tlZCBvcGVyYXRpb25zPw0KDQpBbHRob3VnaCBJIHRoaW5rIEknZCBz
+dGlsbCB3YW50IHRvIGVuY2Fwc3VsYXRlIHRoZSBhY3R1YWwgYXJyYXkNCihzb21laG93KSBzbyB0
+aGF0IHdoYXQgaXMgZGVmaW5lZCBoYXMgdG8gYmUgdGhlIGJpdG1hcCB0eXBlLg0KDQoJRGF2aWQN
+Cg0KLQ0KUmVnaXN0ZXJlZCBBZGRyZXNzIExha2VzaWRlLCBCcmFtbGV5IFJvYWQsIE1vdW50IEZh
+cm0sIE1pbHRvbiBLZXluZXMsIE1LMSAxUFQsIFVLDQpSZWdpc3RyYXRpb24gTm86IDEzOTczODYg
+KFdhbGVzKQ0K
 
