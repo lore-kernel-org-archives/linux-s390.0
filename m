@@ -2,124 +2,187 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30FF5C433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 24 Feb 2022 11:15:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29D55C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 24 Feb 2022 11:36:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233876AbiBXLQV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 24 Feb 2022 06:16:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54730 "EHLO
+        id S230080AbiBXLg4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 24 Feb 2022 06:36:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233812AbiBXLQU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Feb 2022 06:16:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBAAF294552;
-        Thu, 24 Feb 2022 03:15:50 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D5696177F;
-        Thu, 24 Feb 2022 11:15:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23E0CC340F0;
-        Thu, 24 Feb 2022 11:15:49 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="K0Ba/2BM"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1645701345;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=tSMJNlgM3iQSZttf3O5yP1K/Zb4cUmNelvTABLfdcOs=;
-        b=K0Ba/2BM/9pExBbaS5Oj8SCJvlvp0LQGyiNAiXDyooG/U9BeyX+5o7RLqsETF26O3Q8oLJ
-        fCsXilmRI7pxc/CYm3kU+fXPDMl1Uchh4ynDmuSO5MbVs6Ufz3QiiawdfSIvm5FepEXDsh
-        cYBAB6wdHUlLLl0Wob5vRSfu6n86I28=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 954041ba (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Thu, 24 Feb 2022 11:15:45 +0000 (UTC)
-Received: by mail-yb1-f182.google.com with SMTP id g6so3016428ybe.12;
-        Thu, 24 Feb 2022 03:15:43 -0800 (PST)
-X-Gm-Message-State: AOAM5315RL/lzYI/NtRNh7x5Px9BdD0ydiHXo8b3FpyEVFwamOhtB+0p
-        gx0/jUlkmeQ1PWrF6jia5iAIhGQNRHDmWJyyjDU=
-X-Google-Smtp-Source: ABdhPJwcyLWv29eKkR/4qn6wxUASneof9Mw7kmR85HjE16vurz2uO8LCL0/vq/6Jg597pXgN7D3peAt9nzCkEAyuvVw=
-X-Received: by 2002:a25:d116:0:b0:61d:e8c9:531e with SMTP id
- i22-20020a25d116000000b0061de8c9531emr1860406ybg.637.1645701342951; Thu, 24
- Feb 2022 03:15:42 -0800 (PST)
+        with ESMTP id S229541AbiBXLgw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Feb 2022 06:36:52 -0500
+Received: from smtp-fw-6001.amazon.com (smtp-fw-6001.amazon.com [52.95.48.154])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DA9829A542;
+        Thu, 24 Feb 2022 03:36:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1645702582; x=1677238582;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=C/p2KYGcxZmJ0eyN5UPnDwwVdVBiuLBc+EN/TQCHmIE=;
+  b=n0DeJS4L1QT6eIEEViY3Bx3Hs0UlTXghUdvCAHIbLCF2bMrwgtaNylmF
+   p1P0tUzTeI5L3uYBd1EXPF0+J6QAFR+cPbi6muD1xypvCn1ASMO1ya1KH
+   50bcUDwgiMNqQlVwS/kQslkCkWkULvv6xZ30aC6hvydR9ZoLi4Inn+tRX
+   o=;
+X-IronPort-AV: E=Sophos;i="5.88,393,1635206400"; 
+   d="scan'208";a="180859573"
+Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-iad-1e-b69ea591.us-east-1.amazon.com) ([10.43.8.6])
+  by smtp-border-fw-6001.iad6.amazon.com with ESMTP; 24 Feb 2022 11:36:09 +0000
+Received: from EX13MTAUWC002.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan2.iad.amazon.com [10.40.163.34])
+        by email-inbound-relay-iad-1e-b69ea591.us-east-1.amazon.com (Postfix) with ESMTPS id 37E89C08FB;
+        Thu, 24 Feb 2022 11:36:05 +0000 (UTC)
+Received: from EX13D20UWC001.ant.amazon.com (10.43.162.244) by
+ EX13MTAUWC002.ant.amazon.com (10.43.162.240) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.28; Thu, 24 Feb 2022 11:36:05 +0000
+Received: from [0.0.0.0] (10.43.162.144) by EX13D20UWC001.ant.amazon.com
+ (10.43.162.244) with Microsoft SMTP Server (TLS) id 15.0.1497.28; Thu, 24 Feb
+ 2022 11:36:01 +0000
+Message-ID: <f468b9b2-8c55-5ca6-de75-9ec421fda557@amazon.com>
+Date:   Thu, 24 Feb 2022 12:35:59 +0100
 MIME-Version: 1.0
-References: <20220223131231.403386-1-Jason@zx2c4.com> <20220223131231.403386-2-Jason@zx2c4.com>
- <YhbAOW/KbFW1CFkQ@sol.localdomain> <CAHmME9oa_wE8_n8e5b=iM5v-s5dgyibm4vXMhwzc8zGd6VWZMQ@mail.gmail.com>
- <YhbfDQ2ernjrRNRX@sol.localdomain>
-In-Reply-To: <YhbfDQ2ernjrRNRX@sol.localdomain>
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-Date:   Thu, 24 Feb 2022 12:15:32 +0100
-X-Gmail-Original-Message-ID: <CAHmME9rUD5QrgQMpoOCjv3crWFwn+BXXx9Dm0e2Kv4cJCYS+AQ@mail.gmail.com>
-Message-ID: <CAHmME9rUD5QrgQMpoOCjv3crWFwn+BXXx9Dm0e2Kv4cJCYS+AQ@mail.gmail.com>
-Subject: Re: [PATCH RFC v1 1/2] random: add mechanism for VM forks to
- reinitialize crng
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
-        QEMU Developers <qemu-devel@nongnu.org>,
-        KVM list <kvm@vger.kernel.org>, linux-s390@vger.kernel.org,
-        adrian@parity.io, "Woodhouse, David" <dwmw@amazon.co.uk>,
-        "Catangiu, Adrian Costin" <acatan@amazon.com>, graf@amazon.com,
-        Colm MacCarthaigh <colmmacc@amazon.com>,
-        "Singh, Balbir" <sblbir@amazon.com>,
-        "Weiss, Radu" <raduweis@amazon.com>, Jann Horn <jannh@google.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Theodore Ts'o" <tytso@mit.edu>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.6.1
+Subject: Re: [PATCH RFC v1 0/2] VM fork detection for RNG
+To:     =?UTF-8?Q?Daniel_P=2e_Berrang=c3=a9?= <berrange@redhat.com>
+CC:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        <linux-kernel@vger.kernel.org>, <linux-crypto@vger.kernel.org>,
+        <qemu-devel@nongnu.org>, <kvm@vger.kernel.org>,
+        <linux-s390@vger.kernel.org>, <adrian@parity.io>,
+        <dwmw@amazon.co.uk>, <acatan@amazon.com>, <colmmacc@amazon.com>,
+        <sblbir@amazon.com>, <raduweis@amazon.com>, <jannh@google.com>,
+        <gregkh@linuxfoundation.org>, <tytso@mit.edu>
+References: <20220223131231.403386-1-Jason@zx2c4.com>
+ <234d7952-0379-e3d9-5e02-5eba171024a0@amazon.com>
+ <YhdhTlhnj46gqhk+@redhat.com>
+From:   Alexander Graf <graf@amazon.com>
+In-Reply-To: <YhdhTlhnj46gqhk+@redhat.com>
+X-Originating-IP: [10.43.162.144]
+X-ClientProxiedBy: EX13P01UWB004.ant.amazon.com (10.43.161.213) To
+ EX13D20UWC001.ant.amazon.com (10.43.162.244)
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hey Eric,
+Ck9uIDI0LjAyLjIyIDExOjQzLCBEYW5pZWwgUC4gQmVycmFuZ8OpIHdyb3RlOgo+IE9uIFRodSwg
+RmViIDI0LCAyMDIyIGF0IDA5OjUzOjU5QU0gKzAxMDAsIEFsZXhhbmRlciBHcmFmIHdyb3RlOgo+
+PiBIZXkgSmFzb24sCj4+Cj4+IE9uIDIzLjAyLjIyIDE0OjEyLCBKYXNvbiBBLiBEb25lbmZlbGQg
+d3JvdGU6Cj4+PiBUaGlzIHNtYWxsIHNlcmllcyBwaWNrcyB1cCB3b3JrIGZyb20gQW1hem9uIHRo
+YXQgc2VlbXMgdG8gaGF2ZSBzdGFsbGVkCj4+PiBvdXQgbGF0ZXIgeWVhciBhcm91bmQgdGhpcyB0
+aW1lOiBsaXN0ZW5pbmcgZm9yIHRoZSB2bWdlbmlkIEFDUEkKPj4+IG5vdGlmaWNhdGlvbiwgYW5k
+IHVzaW5nIGl0IHRvICJkbyBzb21ldGhpbmcuIiBMYXN0IHllYXIsIHRoYXQgc29tZXRoaW5nCj4+
+PiBpbnZvbHZlZCBhIGNvbXBsaWNhdGVkIHVzZXJzcGFjZSBtbWFwIGNoYXJkZXYsIHdoaWNoIHNl
+ZW1zIGZyb3VnaHQgd2l0aAo+Pj4gZGlmZmljdWx0eS4gVGhpcyB5ZWFyLCBJIGhhdmUgc29tZXRo
+aW5nIG11Y2ggc2ltcGxlciBpbiBtaW5kOiBzaW1wbHkKPj4+IHVzaW5nIHRob3NlIEFDUEkgbm90
+aWZpY2F0aW9ucyB0byB0ZWxsIHRoZSBSTkcgdG8gcmVpbml0aWFsaXplIHNhZmVseSwKPj4+IHNv
+IHdlIGRvbid0IHJlcGVhdCByYW5kb20gbnVtYmVycyBpbiBjbG9uZWQsIGZvcmtlZCwgb3Igcm9s
+bGVkLWJhY2sgVk0KPj4+IGluc3RhbmNlcy4KPj4+Cj4+PiBUaGlzIHNlcmllcyBjb25zaXN0cyBv
+ZiB0d28gcGF0Y2hlcy4gVGhlIGZpcnN0IGlzIGEgcmF0aGVyCj4+PiBzdHJhaWdodGZvcndhcmQg
+YWRkaXRpb24gdG8gcmFuZG9tLmMsIHdoaWNoIEkgZmVlbCBmaW5lIGFib3V0LiBUaGUKPj4+IHNl
+Y29uZCBwYXRjaCBpcyB0aGUgcmVhc29uIHRoaXMgaXMganVzdCBhbiBSRkM6IGl0J3MgYSBjbGVh
+bnVwIG9mIHRoZQo+Pj4gQUNQSSBkcml2ZXIgZnJvbSBsYXN0IHllYXIsIGFuZCBJIGRvbid0IHJl
+YWxseSBoYXZlIG11Y2ggZXhwZXJpZW5jZQo+Pj4gd3JpdGluZywgdGVzdGluZywgZGVidWdnaW5n
+LCBvciBtYWludGFpbmluZyB0aGVzZSB0eXBlcyBvZiBkcml2ZXJzLgo+Pj4gSWRlYWxseSB0aGlz
+IHRocmVhZCB3b3VsZCB5aWVsZCBzb21lYm9keSBzYXlpbmcsICJJIHNlZSB0aGUgaW50ZW50IG9m
+Cj4+PiB0aGlzOyBJJ20gaGFwcHkgdG8gdGFrZSBvdmVyIG93bmVyc2hpcCBvZiB0aGlzIHBhcnQu
+IiBUaGF0IHdheSwgSSBjYW4KPj4+IGZvY3VzIG9uIHRoZSBSTkcgcGFydCwgYW5kIHdob2V2ZXIg
+c3RlcHMgdXAgZm9yIHRoZSBwYXJhdmlydCBBQ1BJIHBhcnQKPj4+IGNhbiBmb2N1cyBvbiB0aGF0
+Lgo+Pj4KPj4+IEFzIGEgZmluYWwgbm90ZSwgdGhpcyBzZXJpZXMgaW50ZW50aW9uYWxseSBkb2Vz
+IF9ub3RfIGZvY3VzIG9uCj4+PiBub3RpZmljYXRpb24gb2YgdGhlc2UgZXZlbnRzIHRvIHVzZXJz
+cGFjZSBvciB0byBvdGhlciBrZXJuZWwgY29uc3VtZXJzLgo+Pj4gU2luY2UgdGhlc2UgVk0gZm9y
+ayBkZXRlY3Rpb24gZXZlbnRzIGZpcnN0IG5lZWQgdG8gaGl0IHRoZSBSTkcsIHdlIGNhbgo+Pj4g
+bGF0ZXIgdGFsayBhYm91dCB3aGF0IHNvcnRzIG9mIG5vdGlmaWNhdGlvbnMgb3IgbW1hcCdkIGNv
+dW50ZXJzIHRoZSBSTkcKPj4+IHNob3VsZCBiZSBtYWtpbmcgYWNjZXNzaWJsZSB0byBlbHNld2hl
+cmUuIEJ1dCB0aGF0J3MgYSBkaWZmZXJlbnQgc29ydCBvZgo+Pj4gcHJvamVjdCBhbmQgdGllcyBp
+bnRvIGEgbG90IG9mIG1vcmUgY29tcGxpY2F0ZWQgY29uY2VybnMgYmV5b25kIHRoaXMKPj4+IG1v
+cmUgYmFzaWMgcGF0Y2hzZXQuIFNvIGhvcGVmdWxseSB3ZSBjYW4ga2VlcCB0aGUgZGlzY3Vzc2lv
+biByYXRoZXIKPj4+IGZvY3VzZWQgaGVyZSB0byB0aGlzIEFDUEkgYnVzaW5lc3MuCj4+Cj4+IFRo
+ZSBtYWluIHByb2JsZW0gd2l0aCBWTUdlbklEIGlzIHRoYXQgaXQgaXMgaW5oZXJlbnRseSByYWN5
+LiBUaGVyZSB3aWxsCj4+IGFsd2F5cyBiZSBhIChzaG9ydCkgYW1vdW50IG9mIHRpbWUgd2hlcmUg
+dGhlIEFDUEkgbm90aWZpY2F0aW9uIGlzIG5vdAo+PiBwcm9jZXNzZWQsIGJ1dCB0aGUgVk0gY291
+bGQgdXNlIGl0cyBSTkcgdG8gZm9yIGV4YW1wbGUgZXN0YWJsaXNoIFRMUwo+PiBjb25uZWN0aW9u
+cy4KPj4KPj4gSGVuY2Ugd2UgYXMgdGhlIG5leHQgc3RlcCBwcm9wb3NlZCBhIG11bHRpLXN0YWdl
+IHF1aWVzY2UvcmVzdW1lIG1lY2hhbmlzbQo+PiB3aGVyZSB0aGUgc3lzdGVtIGlzIGF3YXJlIHRo
+YXQgaXQgaXMgZ29pbmcgaW50byBzdXNwZW5kIC0gY2FuIGJsb2NrIG5ldHdvcmsKPj4gY29ubmVj
+dGlvbnMgZm9yIGV4YW1wbGUgLSBhbmQgb25seSByZXR1cm5zIHRvIGEgZnVsbHkgZnVuY3Rpb25h
+bCBzdGF0ZSBhZnRlcgo+PiBhbiB1bnF1aWVzY2UgcGhhc2U6Cj4+Cj4+ICAgIGh0dHBzOi8vZ2l0
+aHViLmNvbS9zeXN0ZW1kL3N5c3RlbWQvaXNzdWVzLzIwMjIyCj4gVGhlIGRvd25zaWRlIG9mIGNv
+dXJzZSBpcyBwcmVjaXNlbHkgdGhhdCB0aGUgZ3Vlc3Qgbm93IG5lZWRzIHRvIGJlIGF3YXJlCj4g
+YW5kIGludm9sdmVkIGV2ZXJ5IHNpbmdsZSB0aW1lIGEgc25hcHNob3QgaXMgdGFrZW4uCj4KPiBD
+dXJyZW50bHkgd2l0aCB2aXJ0IHRoZSBhY3Qgb2YgdGFraW5nIGEgc25hcHNob3QgY2FuIG9mdGVu
+IHJlbWFpbiBpbnZpc2libGUKPiB0byB0aGUgVk0gd2l0aCBubyBmdW5jdGlvbmFsIGVmZmVjdCBv
+biB0aGUgZ3Vlc3QgT1Mgb3IgaXRzIHdvcmtsb2FkLCBhbmQKPiB0aGUgaG9zdCBPUyBrbm93cyBp
+dCBjYW4gY29tcGxldGUgYSBzbmFwc2hvdCBpbiBhIHNwZWNpZmljIHRpbWVmcmFtZS4gVGhhdAo+
+IHNhaWQsIHRoaXMgdHJhbnNwYXJlbmN5IHRvIHRoZSBWTSBpcyBwcmVjaXNlbHkgdGhlIGNhdXNl
+IG9mIHRoZSByYWNlCj4gY29uZGl0aW9uIGRlc2NyaWJlZC4KPgo+IFdpdGggZ3Vlc3QgaW52b2x2
+ZW1lbnQgdG8gcXVpZXNjZSB0aGUgYnVsayBvZiBhY3Rpdml0eSBmb3IgdGltZSBwZXJpb2QsCj4g
+dGhlcmUgaXMgbW9yZSBsaWtlbHkgdG8gYmUgYSBuZWdhdGl2ZSBpbXBhY3Qgb24gdGhlIGd1ZXN0
+IHdvcmtsb2FkLiBUaGUKPiBndWVzdCBhZG1pbiBsaWtlbHkgbmVlZHMgdG8gYmUgbW9yZSBleHBs
+aWNpdCBhYm91dCBleGFjdGx5IHdoZW4gaW4gdGltZQo+IGl0IGlzIHJlYXNvbmFibGUgdG8gdGFr
+ZSBhIHNuYXBzaG90IHRvIG1pdGlnYXRlIHRoZSBpbXBhY3QuCj4KPiBUaGUgaG9zdCBPUyBzbmFw
+c2hvdCBvcGVyYXRpb25zIGFyZSBhbHNvIG5vdyBkZXBlbmRhbnQgb24gY28tb3BlcmF0aW9uCj4g
+b2YgYSBndWVzdCBPUyB0aGF0IGhhcyB0byBiZSBjb25zaWRlcmVkIHRvIGJlIHBvdGVudGlhbGx5
+IG1hbGljaW91cywgb3IKPiBhdCBsZWFzdCBjcmFzaGVkL25vbi1yZXNwb25zaXZlLiBUaGUgZ3Vl
+c3QgT1MgYWxzbyBuZWVkcyBhIHdheSB0byByZWNlaXZlCj4gdGhlIHRyaWdnZXJzIGZvciBzbmFw
+c2hvdCBjYXB0dXJlIGFuZCByZXN0b3JlLCBtb3N0IGxpa2VseSB2aWEgYW4gZXh0ZW5zaW9uCj4g
+dG8gc29tZXRoaW5nIGxpa2UgdGhlIFFFTVUgZ3Vlc3QgYWdlbnQgb3IgYW4gZXF1aXZhbGVudCBm
+b3Igb3RodWVyCj4gaHlwZXJ2aXNvcnMuCgoKV2hhdCB5b3UgZGVzY3JpYmUgc291bmRzIGFsbW9z
+dCBleGFjdGx5IGxpa2UgcHJlc3NpbmcgYSBwb3dlciBidXR0b24gb24gCm1vZGVybiBzeXN0ZW1z
+LiBZb3UgZG9uJ3QganVzdCBraWxsIHRoZSBwb3dlciBsaW5lLCB5b3UgcHJlc3MgYSBidXR0b24g
+CmFuZCB3YWl0IGZvciB0aGUgZ3Vlc3QgdG8gYWNrbm93bGVkZ2UgdGhhdCBpdCdzIHJlYWR5LgoK
+TWF5YmUgdGhlIHJlYWwgYW5zd2VyIHRvIGFsbCBvZiB0aGlzIGlzIFMzOiBTdXNwZW5kIHRvIFJB
+TS4gWW91IHByZXNzIAp0aGUgc3VzcGVuZCBidXR0b24sIHRoZSBndWVzdCBjYW4gcHJlcGFyZSBm
+b3Igc2xlZXAgKHF1aWVzY2UhKSBhbmQgdGhlIApuZXh0IHRpbWUgeW91IHJ1biwgaXQgY2FuIGNo
+ZWNrIHdoZXRoZXIgVk1HZW5JRCBjaGFuZ2VkIGFuZCBhY3QgYWNjb3JkaW5nbHkuCgoKPiBEZXNw
+aXRlIHRoZSBhYm92ZSwgSSdtIG5vdCBhZ2FpbnN0IHRoZSBpZGVhIG9mIGNvLW9wZXJhdGl2ZSBp
+bnZvbHZlbWVudAo+IG9mIHRoZSBndWVzdCBPUyBpbiB0aGUgYWN0cyBvZiB0YWtpbmcgJiByZXN0
+b3Jpbmcgc25hcHNob3RzLiBJIGNhbid0Cj4gc2VlIGFueSBvdGhlciBwcm9wb3NhbHMgc28gZmFy
+IHRoYXQgY2FuIHJlbGlhYmx5IGVsaW1pbmF0ZSB0aGUgcmFjZXMKPiBpbiB0aGUgZ2VuZXJhbCBj
+YXNlLCBmcm9tIHRoZSBrZXJuZWwgcmlnaHQgdXB0byB1c2VyIGFwcGxpY2F0aW9ucy4KPiBTbyBJ
+IHRoaW5rIGl0IGlzIG5lY2Nlc3NhcnkgdG8gaGF2ZSBndWVzdCBjb29wZXJhdGl2ZSBzbmFwc2hv
+dHRpbmcuCj4KPj4gV2hhdCBleGFjdCB1c2UgY2FzZSBkbyB5b3UgaGF2ZSBpbiBtaW5kIGZvciB0
+aGUgUk5HL1ZNR2VuSUQgdXBkYXRlPyBDYW4geW91Cj4+IHRoaW5rIG9mIHNpdHVhdGlvbnMgd2hl
+cmUgdGhlIHJhY2UgaXMgbm90IGFuIGFjdHVhbCBjb25jZXJuPwo+IExldHMgYXNzdW1lIHdlIGRv
+IHRha2UgdGhlIGFwcHJvYWNoIGRlc2NyaWJlZCBpbiB0aGF0IHN5c3RlbWQgYnVnIGFuZAo+IGhh
+dmUgYSBjby1vcGVyYXRpdmUgc25hcHNob3QgcHJvY2Vzcy4gSWYgdGhlIGh5cGVydmlzb3IgZG9l
+cyB0aGUgcmlnaHQKPiB0aGluZyBhbmQgZ3Vlc3Qgb3duZXJzIGluc3RhbGwgdGhlIHJpZ2h0IHRo
+aW5ncywgdGhleSdsbCBoYXZlIGEgcmFjZQo+IGZyZWUgc29sdXRpb24gdGhhdCB3b3JrcyB3ZWxs
+IGluIG5vcm1hbCBvcGVyYXRpb24uIFRoYXQncyBnb29kLgo+Cj4KPiBSZWFsaXN0aWNhbGx5IHRo
+b3VnaCwgaXQgaXMgbmV2ZXIgZ29pbmcgdG8gYmUgdW5pdmVyc2FsbHkgYW5kIHJlbGlhYmx5Cj4g
+cHV0IGludG8gcHJhY3RpY2UuIFNvIHdoYXQgaXMgb3VyIGF0dGl0dWRlIHRvIGNhc2VzIHdoZXJl
+IHRoZSBwcmVmZXJyZWQKPiBzb2x1dGlvbiBpc24ndCBhdmFpbGJsZSBhbmQvb3Igb3BlcmF0aXZl
+ID8KPgo+Cj4gVGhlcmUgYXJlIGdvaW5nIHRvIGJlIHVzZXJzIHdobyBjb250aW51ZSB0byBidWls
+ZCB0aGVpciBndWVzdCBkaXNrIGltYWdlcwo+IHdpdGhvdXQgdGhlIFFFTVUgZ3Vlc3QgYWdlbnQg
+KG9yIGVxdWl2YWxlbnQgZm9yIHdoYXRldmVyIGh5cGVydmlzb3IgdGhleQo+IHJ1biBvbikgaW5z
+dGFsbGVkIGJlY2F1c2UgdGhleSBkb24ndCBrbm93IGFueSBiZXR0ZXIuIE9yIHdoZXJlIHRoZSBn
+dWVzdAo+IGFnZW50IGlzIG1pcy1jb25maWd1cmVkIG9yIGZhaWxzIHRvIHN0YXJ0cyBvciBzb21l
+IG90aGVyIHNjZW5hcmlvIHRoYXQKPiBwcmV2ZW50cyB0aGUgcXVpZXNjZSB3b3JraW5nIGFzIGRl
+c2lyZWQuIFRoZSBob3N0IG1nbXQgY291bGQgcmVmdXNlIHRvCj4gdGFrZSBhIHNuYXBzaG90IGlu
+IHRoZXNlIGNhc2VzLiBNb3JlIGxpa2VseSBpcyB0aGF0IHRoZXkgYXJlIGp1c3QKPiBnb2luZyB0
+byBnbyBhaGVhZCBhbmQgZG8gYSBzbmFwc2hvdCBhbnl3YXkgYmVjYXVzZSBsYWNrIG9mIGd1ZXN0
+IGFnZW50Cj4gaXMgYSB2ZXJ5IGNvbW1vbiBzY2VuYXJpbyB0b2RheSBhbmQgdXNlcnMgd2FudCB0
+aGVpciBzbmFwc2hvdHMuCj4KPgo+IFRoZXJlIGFyZSBnb2luZyB0byBiZSB2aXJ0IG1hbmFnZW1l
+bnQgYXBwcyAvIGh5cGVydmlzb3JzIHRoYXQgZG9uJ3QKPiBzdXBwb3J0IHRhbGtpbmcgdG8gYW55
+IGd1ZXN0IGFnZW50IGFjcm9zcyB0aGVpciBzbmFwc2hvdCBvcGVyYXRpb24KPiBpbiB0aGUgZmly
+c3QgcGxhY2UsIHNvIHN5c3RlbWQgZ2V0cyBubyB3YXkgdG8gdHJpZ2dlciB0aGUgcmVxdWlyZWQK
+PiBxdWllc2NlIGRhbmNlIG9uIHNuYXBzaG90LCBidXQgdGhleSBsaWtlbHkgaGF2ZSBWTUdlbklE
+IHN1cHBvcnQKPiBpbXBsZW1lbnRlZCBhbHJlYWR5Lgo+Cj4KPiBJT1csIEkgY291bGQgdmlldyBW
+TUdlbklEIHRyaWdnZXJlZCBmb3JrIGRldGVjdGlvbiBpbnRlZ3JhdGVkIHdpdGgKPiB0aGUga2Vy
+bmVsIFJORyBhcyBwcm92aWRpbmcgYSBiYWNrdXAgbGluZSBvZiBkZWZlbmNlIHRoYXQgaXMgZ29p
+bmcKPiB0byAianVzdCB3b3JrIiwgYWxiZWl0IHdpdGggdGhlIGtub3duIHJhY2UuIEl0IGlzbid0
+IGFzIGdvb2QgYXMgdGhlCj4gZ3Vlc3QgY28tb3BlcmF0aXZlIHNuYXBzaG90IGFwcHJvYWNoLCBi
+ZWNhdXNlIGl0IG9ubHkgdHJpZXMgdG8gc29sdmUKPiB0aGUgb25lIHNwZWNpZmljIHRhcmdldHRl
+ZCBwcm9ibGVtIG9mIHVwZGF0aW5nIHRoZSBrZXJuZWwgUk5HLgo+Cj4gSXMgaXQgc3RpbGwgYmV0
+dGVyIHRoYW4gZG9pbmcgbm90aGluZyBhdCBhbGwgdGhvdWdoLCBmb3IgdGhlIHNjZW5hcmlvCj4g
+d2hlcmUgZ3Vlc3QgY28tb3BlcmF0aXZlIHNuYXBzaG90IGlzIHVuYXZhaWxhYmxlID8KPgo+IElm
+IGl0IGlzIGJldHRlciB0aGFuIG5vdGhpbmcsIGlzIGl0IHRoZW4gY29tcGVsbGluZyBlbm91Z2gg
+dG8ganVzdGlmeQo+IHRoZSBtYWludCBjb3N0IG9mIHRoZSBjb2RlIGFkZGVkIHRvIHRoZSBrZXJu
+ZWwgPwoKCkknbSB0ZW1wdGVkIHRvIHNheSAiSWYgaXQgYWxzbyBleHBvc2VzIHRoZSBWTUdlbklE
+IHZpYSBzeXNmcyBzbyB0aGF0IHlvdSAKY2FuIGFjdHVhbGx5IGNoZWNrIHdoZXRoZXIgeW91IHdl
+cmUgY2xvbmVkLCBwcm9iYWJseSB5ZXMuIgoKCkFsZXgKCgoKCgpBbWF6b24gRGV2ZWxvcG1lbnQg
+Q2VudGVyIEdlcm1hbnkgR21iSApLcmF1c2Vuc3RyLiAzOAoxMDExNyBCZXJsaW4KR2VzY2hhZWZ0
+c2Z1ZWhydW5nOiBDaHJpc3RpYW4gU2NobGFlZ2VyLCBKb25hdGhhbiBXZWlzcwpFaW5nZXRyYWdl
+biBhbSBBbXRzZ2VyaWNodCBDaGFybG90dGVuYnVyZyB1bnRlciBIUkIgMTQ5MTczIEIKU2l0ejog
+QmVybGluClVzdC1JRDogREUgMjg5IDIzNyA4NzkKCgo=
 
-On Thu, Feb 24, 2022 at 2:27 AM Eric Biggers <ebiggers@kernel.org> wrote:
->
-> On Thu, Feb 24, 2022 at 01:54:54AM +0100, Jason A. Donenfeld wrote:
-> > On 2/24/22, Eric Biggers <ebiggers@kernel.org> wrote:
-> > > I think we should be removing cases where the base_crng key is changed
-> > > directly
-> > > besides extraction from the input_pool, not adding new ones.  Why not
-> > > implement
-> > > this as add_device_randomness() followed by crng_reseed(force=true), where
-> > > the
-> > > 'force' argument forces a reseed to occur even if the entropy_count is too
-> > > low?
-> >
-> > Because that induces a "premature next" condition which can let that
-> > entropy, potentially newly acquired by a storm of IRQs at power-on, be
-> > bruteforced by unprivileged userspace. I actually had it exactly the
-> > way you describe at first, but decided that this here is the lesser of
-> > evils and doesn't really complicate things the way an intentional
-> > premature next would. The only thing we care about here is branching
-> > the crng stream, and so this does explicitly that, without having to
-> > interfere with how we collect entropy. Of course we *also* add it as
-> > non-credited "device randomness" so that it's part of the next
-> > reseeding, whenever that might occur.
->
-> Can you make sure to properly explain this in the code?
-
-The carousel keeps turning, and after I wrote to you last night I kept
-thinking about the matter. Here's how it breaks down:
-
-Injection method:
-- Assumes existing pool of entropy is still sacred.
-- Assumes base_crng timestamp is representative of pool age.
-- Result: Mixes directly into base_crng to avoid premature-next of pool.
-
-Input pool method:
-- Assumes existing pool of entropy is old / out of date / used by a
-different fork, so not sacred.
-- Assumes base_crng timestamp is tied to irrelevant entropy pool.
-- Result: Force-drains input pool, causing intentional premature-next.
-
-Which of these assumptions better models the situation? I started in
-the input pool method camp, then by the time I posted v1, was
-concerned about power-on IRQs, but now I think relying at all on
-snapshotted entropy represents the biggest issue. And judging from
-your email, it appears that you do too. So v3 of this patchset will
-switch back to the input pool method, per your suggestion.
-
-As a plus, it means we go through the RDSEED'd extraction algorithm
-too, which always helps.
-
-Jason
