@@ -2,111 +2,124 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F6BAC433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 24 Feb 2022 15:26:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A3B10C433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 24 Feb 2022 15:43:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236278AbiBXP1N (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 24 Feb 2022 10:27:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47098 "EHLO
+        id S236575AbiBXPoT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 24 Feb 2022 10:44:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236366AbiBXP1G (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Feb 2022 10:27:06 -0500
-Received: from out199-10.us.a.mail.aliyun.com (out199-10.us.a.mail.aliyun.com [47.90.199.10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 556991BE4DD;
-        Thu, 24 Feb 2022 07:26:23 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0V5OWGQA_1645716379;
-Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0V5OWGQA_1645716379)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 24 Feb 2022 23:26:19 +0800
-From:   "D. Wythe" <alibuda@linux.alibaba.com>
-To:     kgraul@linux.ibm.com
-Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: [PATCH net] net/smc: fix connection leak
-Date:   Thu, 24 Feb 2022 23:26:19 +0800
-Message-Id: <1645716379-30924-1-git-send-email-alibuda@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
+        with ESMTP id S234679AbiBXPoO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Feb 2022 10:44:14 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EA1B1C60F8;
+        Thu, 24 Feb 2022 07:43:43 -0800 (PST)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21OFFBev026579;
+        Thu, 24 Feb 2022 15:43:43 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=3xLtkj7897O7rorRmjeKvkI1Au2D4s5q7zglC3gkNn0=;
+ b=YzJ/KotWMoThrOjkSJaQEYvMwU1iN2YzX4h+ot5ooEm7bU14wDgxaDKXLr8QVw8jyR/c
+ MVVQkHjHtd3PYctUGEShFOVhxADbMipcUc6q9cZ7REYyIrTAF2EEwZ14uFNIJ+m16e+/
+ gjVu7HxRZw8pwOXrjxTvITBhTYG7pQlw07IVslsAvN/XHNPSNBd10Cegdy+IJvEPDOPO
+ jH37Gn/l1cS1wmNsq42SicLSq955YRL3fsV057OFkmdW4xSsMBv+q0zxrvl9y+lWfmAm
+ FKnEZ8W81r2UIcATz3FE1YwlJzs9FZQd751fkMUMLvZEC7CEtRMuLufHacOeP8ecQUxV cg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3edwkekpfk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 24 Feb 2022 15:43:42 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21OFGuJo001359;
+        Thu, 24 Feb 2022 15:43:42 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3edwkekpev-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 24 Feb 2022 15:43:42 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21OFcIO4002217;
+        Thu, 24 Feb 2022 15:43:40 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma05fra.de.ibm.com with ESMTP id 3ear69rrhe-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 24 Feb 2022 15:43:40 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21OFhaxi46137630
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 24 Feb 2022 15:43:36 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A448F4204C;
+        Thu, 24 Feb 2022 15:43:36 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 636D04203F;
+        Thu, 24 Feb 2022 15:43:36 +0000 (GMT)
+Received: from t46lp57.lnxne.boe (unknown [9.152.108.100])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 24 Feb 2022 15:43:36 +0000 (GMT)
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com,
+        david@redhat.com
+Subject: [kvm-unit-tests PATCH v4 0/8] s390x: Extend instruction interception tests
+Date:   Thu, 24 Feb 2022 16:43:28 +0100
+Message-Id: <20220224154336.3459839-1-nrb@linux.ibm.com>
+X-Mailer: git-send-email 2.31.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: W-av9WWXMiJl9c82_gSvVIw-98h0a2m4
+X-Proofpoint-ORIG-GUID: oizj-m9Q5FPdHoG1w6pxaqN3l0t_yVS_
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-02-24_03,2022-02-24_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1015
+ mlxscore=0 lowpriorityscore=0 phishscore=0 adultscore=0 suspectscore=0
+ bulkscore=0 mlxlogscore=877 priorityscore=1501 impostorscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2202240092
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: "D. Wythe" <alibuda@linux.alibaba.com>
+This series extends the instruction interception tests for s390x.
 
-There's a potential leak issue under following execution sequence :
+For most instructions, there is already coverage in existing tests, but they are
+not covering some failure cases, e.g. bad alignment. In this case, the existing
+tests were extended.
 
-smc_release  				smc_connect_work
-if (sk->sk_state == SMC_INIT)
-					send_clc_confirim
-	tcp_abort();
-					...
-					sk.sk_state = SMC_ACTIVE
-smc_close_active
-switch(sk->sk_state) {
-...
-case SMC_ACTIVE:
-	smc_close_final()
-	// then wait peer closed
+SCK was not under test anywhere yet, hence a new test file was added.
 
-Unfortunately, tcp_abort() may discard CLC CONFIRM messages that are
-still in the tcp send buffer, in which case our connection token cannot
-be delivered to the server side, which means that we cannot get a
-passive close message at all. Therefore, it is impossible for the to be
-disconnected at all.
+The EPSW test gets it's own file, too, because it requires a I/O device, more
+details in the respective commit. 
 
-This patch tries a very simple way to avoid this issue, once the state
-has changed to SMC_ACTIVE after tcp_abort(), we can actively abort the
-smc connection, considering that the state is SMC_INIT before
-tcp_abort(), abandoning the complete disconnection process should not
-cause too much problem.
+Changelog from v3:
+----
+- make log messages in sck tests unique
+- test pmcw reserved bits are indeed stored as zero
+- add comments as requested by Janosch
 
-In fact, this problem may exist as long as the CLC CONFIRM message is
-not received by the server. Whether a timer should be added after
-smc_close_final() needs to be discussed in the future. But even so, this
-patch provides a faster release for connection in above case, it should
-also be valuable.
+Nico Boehr (8):
+  s390x: Add more tests for MSCH
+  s390x: Add test for PFMF low-address protection
+  s390x: Add sck tests
+  s390x: Add tests for STCRW
+  s390x: Add more tests for SSCH
+  s390x: Add more tests for STSCH
+  s390x: Add tests for TSCH
+  s390x: Add EPSW test
 
-Fixes: 39f41f367b08 ("net/smc: common release code for non-accepted sockets")
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
----
- net/smc/af_smc.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ lib/s390x/css.h     |  17 +++
+ lib/s390x/css_lib.c |  60 +++++++++
+ s390x/Makefile      |   2 +
+ s390x/css.c         | 291 ++++++++++++++++++++++++++++++++++++++++++++
+ s390x/epsw.c        | 113 +++++++++++++++++
+ s390x/pfmf.c        |  29 +++++
+ s390x/sck.c         | 136 +++++++++++++++++++++
+ s390x/unittests.cfg |   7 ++
+ 8 files changed, 655 insertions(+)
+ create mode 100644 s390x/epsw.c
+ create mode 100644 s390x/sck.c
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 0b13bb2..3a590de 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -269,7 +269,7 @@ static int smc_release(struct socket *sock)
- {
- 	struct sock *sk = sock->sk;
- 	struct smc_sock *smc;
--	int rc = 0;
-+	int old_state, rc = 0;
- 
- 	if (!sk)
- 		goto out;
-@@ -277,8 +277,10 @@ static int smc_release(struct socket *sock)
- 	sock_hold(sk); /* sock_put below */
- 	smc = smc_sk(sk);
- 
-+	old_state = sk->sk_state;
-+
- 	/* cleanup for a dangling non-blocking connect */
--	if (smc->connect_nonblock && sk->sk_state == SMC_INIT)
-+	if (smc->connect_nonblock && old_state == SMC_INIT)
- 		tcp_abort(smc->clcsock->sk, ECONNABORTED);
- 
- 	if (cancel_work_sync(&smc->connect_work))
-@@ -292,6 +294,10 @@ static int smc_release(struct socket *sock)
- 	else
- 		lock_sock(sk);
- 
-+	if (old_state == SMC_INIT && sk->sk_state == SMC_ACTIVE &&
-+	    !smc->use_fallback)
-+		smc_close_active_abort(smc);
-+
- 	rc = __smc_release(smc);
- 
- 	/* detach socket */
 -- 
-1.8.3.1
+2.31.1
 
