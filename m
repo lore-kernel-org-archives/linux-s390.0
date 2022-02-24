@@ -2,37 +2,38 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72088C4332F
-	for <linux-s390@archiver.kernel.org>; Thu, 24 Feb 2022 09:04:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D2738C4167B
+	for <linux-s390@archiver.kernel.org>; Thu, 24 Feb 2022 09:38:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232473AbiBXJE4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 24 Feb 2022 04:04:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41148 "EHLO
+        id S232919AbiBXJig (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 24 Feb 2022 04:38:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232169AbiBXJEy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Feb 2022 04:04:54 -0500
-Received: from mout.kundenserver.de (mout.kundenserver.de [217.72.192.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19B7518A7A4;
-        Thu, 24 Feb 2022 01:04:24 -0800 (PST)
-Received: from mail-wm1-f47.google.com ([209.85.128.47]) by
- mrelayeu.kundenserver.de (mreue109 [213.165.67.113]) with ESMTPSA (Nemesis)
- id 1MWiYo-1nlKm71Ofo-00X7zY; Thu, 24 Feb 2022 10:04:23 +0100
-Received: by mail-wm1-f47.google.com with SMTP id l1-20020a7bcf01000000b0037f881182a8so3065539wmg.2;
-        Thu, 24 Feb 2022 01:04:23 -0800 (PST)
-X-Gm-Message-State: AOAM530FCm5GYNTPUNhsxLPZjBSLMZWXuWIg8HSA9REPaezbRWPguvIQ
-        CVrUzD2MVro3CMZbCKcDDdiaMRYotRsx4rldn8w=
-X-Google-Smtp-Source: ABdhPJyjEw35XhDO0nptzAMVKk2Hxde9tm8LwW6lNeB58GkA2TxxKPLSRkO1YZW5ApcDqUwIlDhAXRFgLJ95HKAPDdY=
-X-Received: by 2002:a05:600c:48a:b0:380:3f3a:e08e with SMTP id
- d10-20020a05600c048a00b003803f3ae08emr10577359wme.1.1645693462887; Thu, 24
- Feb 2022 01:04:22 -0800 (PST)
+        with ESMTP id S232911AbiBXJic (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Feb 2022 04:38:32 -0500
+Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.126.135])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C84F27AFEB;
+        Thu, 24 Feb 2022 01:38:01 -0800 (PST)
+Received: from mail-wr1-f41.google.com ([209.85.221.41]) by
+ mrelayeu.kundenserver.de (mreue010 [213.165.67.97]) with ESMTPSA (Nemesis) id
+ 1M5wgF-1nK8Z23HC7-007VzJ; Thu, 24 Feb 2022 10:37:59 +0100
+Received: by mail-wr1-f41.google.com with SMTP id d3so2036952wrf.1;
+        Thu, 24 Feb 2022 01:37:59 -0800 (PST)
+X-Gm-Message-State: AOAM531mren4RcSI9hV+ys6vEYPD16bM3U00jfR/pAxKIYZAZm98re8m
+        sYWDOeFLPebeWg1AsQSNW6vrEAmxCpcYwTo4kUg=
+X-Google-Smtp-Source: ABdhPJxKnbR5fQtLrHkUQmPSDD+xkHkCuZRWZe5PlaQucJaWZYHMl1I+Wr1dE0VfS6g2+fYVY4BPWlfD5Z76idC1Sco=
+X-Received: by 2002:adf:a446:0:b0:1ed:c41b:cf13 with SMTP id
+ e6-20020adfa446000000b001edc41bcf13mr1559929wra.407.1645695092672; Thu, 24
+ Feb 2022 01:31:32 -0800 (PST)
 MIME-Version: 1.0
-References: <20220224085410.399351-1-guoren@kernel.org> <20220224085410.399351-20-guoren@kernel.org>
-In-Reply-To: <20220224085410.399351-20-guoren@kernel.org>
+References: <20220224085410.399351-1-guoren@kernel.org> <20220224085410.399351-12-guoren@kernel.org>
+In-Reply-To: <20220224085410.399351-12-guoren@kernel.org>
 From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Thu, 24 Feb 2022 10:04:07 +0100
-X-Gmail-Original-Message-ID: <CAK8P3a3vmB4Vm9UOHx3qnTY6wUyw_r3R11amYwyHNpEhFiknrw@mail.gmail.com>
-Message-ID: <CAK8P3a3vmB4Vm9UOHx3qnTY6wUyw_r3R11amYwyHNpEhFiknrw@mail.gmail.com>
-Subject: Re: [PATCH V6 19/20] riscv: compat: ptrace: Add compat_arch_ptrace implement
+Date:   Thu, 24 Feb 2022 10:31:16 +0100
+X-Gmail-Original-Message-ID: <CAK8P3a3wg9S_zPad74FiJzYBn0M9bQyunuKzmH3z_QQrags5ng@mail.gmail.com>
+Message-ID: <CAK8P3a3wg9S_zPad74FiJzYBn0M9bQyunuKzmH3z_QQrags5ng@mail.gmail.com>
+Subject: Re: [PATCH V6 11/20] riscv: compat: syscall: Add compat_sys_call_table
+ implementation
 To:     Guo Ren <guoren@kernel.org>
 Cc:     Palmer Dabbelt <palmer@dabbelt.com>, Arnd Bergmann <arnd@arndb.de>,
         Anup Patel <anup@brainfault.org>,
@@ -52,36 +53,55 @@ Cc:     Palmer Dabbelt <palmer@dabbelt.com>, Arnd Bergmann <arnd@arndb.de>,
         "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
         Linux ARM <linux-arm-kernel@lists.infradead.org>,
         "the arch/x86 maintainers" <x86@kernel.org>,
-        Guo Ren <guoren@linux.alibaba.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>
+        Guo Ren <guoren@linux.alibaba.com>
 Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:hqP+0S9onqPXjEc/plYI652niBmPQNsect9n2Zn0kmP9aAUySLJ
- JV5CqZA6ExYvpjHrNwUeqPQndgnaxyn/FMhuE70Nf5JCQqlRFqrnVgM1PdqmazzSogipLXQ
- AiJ2dp2HAGvlKjxOaGDSWWYGDm4zJv2aViLkM/ccCw4F/AlycXVrRlqlU9DTGlpMj8CyH6K
- lPhaqxyPXj3BykKqOWhVg==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:UFZmV5HYQXI=:4zIeOikdnlT7/1M6xfURhe
- yD3y9gKQZW676YNE3EcSPMFEvhfJoGMJbLPO6AXTBmC2uVWRQfE9S/DW7NZwsrjD4oJwT1pMj
- H1lFJ4mQdP6EFpN+6V6ykRYaGbQtZLQGBYwZirAR5wAy3MUfhq0U/Rn3JLSdIkXzyTR09IzId
- PuEh+dt1NJBQl+JaMqzy3hUM09pzLMxhKgH0zCXpQY3TLt3GWuMCfaKxsytADB6S3vMkuL6EB
- gNQXnYjcoXERIOKEPGluqC5EatgbMrn2yz5LxfX+QLoKOkS2xCYuovSHC83/UGdTnUT92BKLQ
- 1TbRFcs+Z+nFgjTWvQFs+6qVMuCuQATvhknEfyWuCiD1BTMX6/fjw4+ApNVgDa7QE13qCdLAq
- bY/d7+REG/kewRLDJ1kdCCFh9117j2gSDy80ZCvo0BC2i4XeSOuAuFrEKY0N+RueYn4E/WJoh
- yX0mdgfNCUAeFVXBSpYaAOC109Ycytki2m6XXKF2YhwPvNWEApv8k4lpbNwvETpELyTbVUaZP
- BzX5doYZN364zRYyh5lzNCv8Z7dRxY0aZW5uN9mR3SOoEQNqsh4LgPM69cWuR5xm00Fv5tklB
- FDPebKiqC72nutCNrZrpxC1d/bL8UU934DukBJDvKzPw2zyOca0x+h8eiNBAr55fgPaLztuZc
- ZqE/uqYeyyjt/YagyqvRkowGe4Bxixe+a+s9Uqwq/8GCELdm9r38J5KXgkppvJgDJaBUNZfBi
- dcg5UZ7ErPULVlamJbkqV0/jgN2YpngkcNVYs0vs5bRIP9hj0y4Kl7/YJZpd/0OQbYqunBXbB
- d8f1tUAd7xxRV42Bl/1aB5an3+SPIq+NqNY+qvvx1J5nCWKiMc=
+X-Provags-ID: V03:K1:bJ949jbvxqRzT8RGzj2QYrApGMZ4GN1YTokJ4Yg5/VzjO8Su2uE
+ ipDUtwaeK0DeWGhdUHDvGS6Sxk+PjnIWHXHqM03B+4KiJMsbfQObb3/g4Rb9ehoxvIs7pAb
+ 3xXOC8l0NvUVW3TdDOlDdrw1fIEzH5Ue8s6u34x3GpIf/5gKusINz0fsj5g7jSQKQJXAUDd
+ y9XhStiamjcfDraOeAP7A==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:dwAfY9Ku57I=:6NKueo92cdx8lj+82OAOD5
+ ulk+zylPDzaUxvVUzhJpGKLU7YiwrMbf7G25DHOirZgFEmfxwc51w1cNxnsmQoii7jX4pKE9a
+ dOWn1HvOs9fUNtoNQWaUf6U5ViEPhWvXToLKi75vietmj9uC2QxIhS9ILo41p/hUYLeohsWLi
+ QW3aBB9AkASEmnIngeLwpWY+LBUdXglk0GELcd0a9C64Z3xmOPX5z49YIhjhE/+ipUePv9/Mq
+ L/wWPiJVTMI+eTWTZnFDha0SQ36pExEHntKrTD8b3P7GrhFFSWpMd8i3aaNiERV4x/dmZc7KA
+ Xajt3CIeWflvcnXlqYtKI6eLK+u2Yg7/sONFg09gKfBZXPPFSyIHk4bk3KJ2aRp3jQ0rF8ZlV
+ de19TTPXXdwa9hU0N+l3/3witYzOHCSzIPDU4lXVHpZZDzJG/jSIbFD2MQlV++ca1+a17mzqc
+ /6UCJicm2Xi17UtwaSrGAeOT59ng+WIj0a49UoTHKszzP1ncpwQ13Nn8mepUQWmL8G9BfJ4X0
+ DWlaIYLO+Pyr27exsf0sJXXIi0X65UtJNwfibrp0k9Ndu9c7gkYfV/8FDPNuGwgJwcK1/2esS
+ YoEFouJd8FgXwxvGs8Wr5xQW2GP7glUv0vaYWhu7E8/Mfn7sZv4npXBf5/RZ0Ra/KvvUkTmuG
+ sm+FpxMPUaxs6Mm/tLff2FLkzRLOsYnhal2ZVxJS3hUWmchiqOL0uooT7u/1Md8xTaUmHnRyh
+ bxASaOLsX+ezzHOQykOOAFFi/5kM2dl9mVM+CEUm4q/Ufr17oj0n8OR9SEB7cw1ZPlIYj2BQT
+ qQFtiThCNHUgBuJwQw+98J/orUmUlwXXAyK6PN24WjEYj81+4s=
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 On Thu, Feb 24, 2022 at 9:54 AM <guoren@kernel.org> wrote:
+>
 > From: Guo Ren <guoren@linux.alibaba.com>
-
+>
+> Implement compat sys_call_table and some system call functions:
+> truncate64, ftruncate64, fallocate, pread64, pwrite64,
+> sync_file_range, readahead, fadvise64_64 which need argument
+> translation.
 >
 > Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 > Signed-off-by: Guo Ren <guoren@kernel.org>
-> Reviewed-by: Palmer Dabbelt <palmer@rivosinc.com>
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Cc: Palmer Dabbelt <palmer@dabbelt.com>
+
+Here, I was hoping you'd convert some of the other architectures to use
+the same code, but the changes you did do look correct.
+
+Please at least add the missing bit for big-endian architectures here:
+
++#if !defined(compat_arg_u64) && !defined(CONFIG_CPU_BIG_ENDIAN)
++#define compat_arg_u64(name)           u32  name##_lo, u32  name##_hi
++#define compat_arg_u64_dual(name)      u32, name##_lo, u32, name##_hi
++#define compat_arg_u64_glue(name)      (((u64)name##_hi << 32) | \
++                                        ((u64)name##_lo & 0xffffffffUL))
++#endif
+
+with the lo/hi words swapped. With that change:
 
 Reviewed-by: Arnd Bergmann <arnd@arndb.de>
