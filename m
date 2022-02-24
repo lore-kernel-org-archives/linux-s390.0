@@ -2,179 +2,106 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DB788C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 24 Feb 2022 12:10:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 085A7C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 24 Feb 2022 14:08:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232698AbiBXMLO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 24 Feb 2022 07:11:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43274 "EHLO
+        id S235225AbiBXOJD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 24 Feb 2022 09:09:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232374AbiBXMLN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Feb 2022 07:11:13 -0500
+        with ESMTP id S232103AbiBXOJD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Feb 2022 09:09:03 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9C6D15F35B;
-        Thu, 24 Feb 2022 04:10:43 -0800 (PST)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21OB4RTP018868;
-        Thu, 24 Feb 2022 12:10:43 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEF9B2221AE;
+        Thu, 24 Feb 2022 06:08:33 -0800 (PST)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21OBaNsT030320;
+        Thu, 24 Feb 2022 14:08:33 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
  content-type : content-transfer-encoding; s=pp1;
- bh=lfNtwr7eb2JuNBAmnns9BNmMkIRRwqI6ayiqTSjdMTE=;
- b=c0cefLeUz3Rhhvm3nDBECapKk0Sr5lvwfeR/jctMMGk6tQhEgU3zn+4D//33jjaARAu7
- DBAv37hI2xIAvJMXlIKl9P/BfqJKXP+QYWbmms/Yc3BGenxBoFztPuzyIVxjAkm/lYGA
- n/XjqCBZSd3egAFB5K7V+TkYF4f0kQpxv8iHSYn0wbRwk8mG9BT7AKOUwOF+5qKXFp89
- CXBWcm0IOBh9P94c8XSJzT2AS0p6VlDM0vuSkmbQpYKI38wfnGsOvJaQXYiEQiNWP81Q
- gi1k6W8Kv5wOdwwFvml0EAFLLfYCVYDmgGw7a+n8Iv1yntM+VtGbs3TsAYYmCIM+lXfH ZQ== 
+ bh=n2kxKD2h+WcGFAGalUUU4NOWH38cFeTHK0pR6BA0IRc=;
+ b=fNopV5Rc3LIeG/dnb4BEavUH5S7FiCZrPPci7hZ6/9MZT1Jovgp//y8DMjeuTZf1qWQx
+ rIw2dz/yt+Y71a5w6vrETuIWjrhvCSVxF+CiWmueqyLVe39YUqnrkNqAueBzG0pxlhvQ
+ D8LHZmhqEbqYoqE+paFMWM4V+UyUaX6Yi+nFDL8JWQde3nzo9rYHZoEnE0pgidfM4FKg
+ JEVg3CVUAA/2nsodyoAnetCvsRtvzWm4K7M+Pfoj3SKyzgLrCOuMn3dYW1dwTWWB0Uwd
+ okoYcmDNleRlbXkdzmZLACms31ICmY/cBXbpXNIDqRUfYXsIgJcYSdJ8h+DfNURbe/SO lA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3edh6xgqa9-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3edpjvbvqj-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Feb 2022 12:10:42 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21OBwW9Q020413;
-        Thu, 24 Feb 2022 12:10:42 GMT
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3edh6xgq9g-1
+        Thu, 24 Feb 2022 14:08:33 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21ODIZj6018691;
+        Thu, 24 Feb 2022 14:08:32 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3edpjvbvpm-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Feb 2022 12:10:42 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21OC2uQN017049;
-        Thu, 24 Feb 2022 12:10:40 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma06fra.de.ibm.com with ESMTP id 3eaqtjy9y0-1
+        Thu, 24 Feb 2022 14:08:32 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21ODx5T9007604;
+        Thu, 24 Feb 2022 14:08:30 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma02fra.de.ibm.com with ESMTP id 3ear69g79v-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Feb 2022 12:10:39 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21OCAZQh44499282
+        Thu, 24 Feb 2022 14:08:29 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21OE8Ne254198558
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 24 Feb 2022 12:10:35 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6E13642047;
-        Thu, 24 Feb 2022 12:10:35 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E223942042;
-        Thu, 24 Feb 2022 12:10:34 +0000 (GMT)
-Received: from [9.145.90.75] (unknown [9.145.90.75])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 24 Feb 2022 12:10:34 +0000 (GMT)
-Message-ID: <3640a910-60fe-0935-4dfc-55bb65a75ce5@linux.ibm.com>
-Date:   Thu, 24 Feb 2022 13:10:34 +0100
+        Thu, 24 Feb 2022 14:08:23 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 939EF11C04A;
+        Thu, 24 Feb 2022 14:08:23 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1B4FB11C05C;
+        Thu, 24 Feb 2022 14:08:23 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.55.52])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Thu, 24 Feb 2022 14:08:23 +0000 (GMT)
+Date:   Thu, 24 Feb 2022 15:08:20 +0100
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>
+Cc:     Nico Boehr <nrb@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        Pierre Morel <pmorel@linux.ibm.com>, thuth@redhat.com,
+        david@redhat.com, Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v3 6/8] s390x: Add more tests for STSCH
+Message-ID: <20220224150820.3c20ff8d.pasic@linux.ibm.com>
+In-Reply-To: <04daca6a-5863-d205-ea98-096163a2296a@linux.ibm.com>
+References: <20220223132940.2765217-1-nrb@linux.ibm.com>
+        <20220223132940.2765217-7-nrb@linux.ibm.com>
+        <04daca6a-5863-d205-ea98-096163a2296a@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.6.1
-Subject: Re: [PATCH v1 1/1] KVM: s390: Don't cast parameter in bit operations
-Content-Language: en-US
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>
-References: <20220223164420.45344-1-andriy.shevchenko@linux.intel.com>
- <20220224123620.57fd6c8b@p-imbrenda>
-From:   Michael Mueller <mimu@linux.ibm.com>
-In-Reply-To: <20220224123620.57fd6c8b@p-imbrenda>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: qZ7sDXfe6HZhKQSr02k2dl-TvwntKCTj
-X-Proofpoint-ORIG-GUID: Gx9qIV04xEish0q8S5keb9iWX4WXSEMy
+X-Proofpoint-ORIG-GUID: V5aD4fVHh9mbg_Fmgc-QSSy7vg2L55DQ
+X-Proofpoint-GUID: bZQJpEGYvt2dz37C00wgWtm9mjm-pu-5
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-02-24_02,2022-02-24_01,2022-02-23_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- spamscore=0 clxscore=1011 bulkscore=0 adultscore=0 mlxscore=0
- suspectscore=0 mlxlogscore=999 phishscore=0 malwarescore=0
- lowpriorityscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2201110000 definitions=main-2202240072
+ lowpriorityscore=0 suspectscore=0 adultscore=0 clxscore=1011 mlxscore=0
+ malwarescore=0 bulkscore=0 spamscore=0 phishscore=0 mlxlogscore=892
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2202240084
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Wed, 23 Feb 2022 16:39:07 +0100
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-
-On 24.02.22 12:36, Claudio Imbrenda wrote:
-> On Wed, 23 Feb 2022 18:44:20 +0200
-> Andy Shevchenko <andriy.shevchenko@linux.intel.com> wrote:
+> We could check if bits 0,1 and 6,7 are also zero but I'm not sure if 
+> that's interesting since MSCH does not ignore those bits and should 
+> result in an operand exception when trying to set them.
 > 
->> While in this particular case it would not be a (critical) issue,
->> the pattern itself is bad and error prone in case somebody blindly
->> copies to their code.
->>
->> Don't cast parameter to unsigned long pointer in the bit operations.
->> Instead copy to a local variable on stack of a proper type and use.
->>
->> Fixes: d77e64141e32 ("KVM: s390: implement GISA IPM related primitives")
->> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
->> ---
->>   arch/s390/include/asm/kvm_host.h | 5 ++++-
->>   arch/s390/kvm/interrupt.c        | 6 +++---
->>   2 files changed, 7 insertions(+), 4 deletions(-)
->>
->> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
->> index a22c9266ea05..f1c4a1b9b360 100644
->> --- a/arch/s390/include/asm/kvm_host.h
->> +++ b/arch/s390/include/asm/kvm_host.h
->> @@ -867,7 +867,10 @@ struct kvm_s390_gisa {
->>   			u8  reserved03[11];
->>   			u32 airq_count;
->>   		} g1;
->> -		struct {
->> +		struct { /* as a 256-bit bitmap */
->> +			DECLARE_BITMAP(b, 256);
->> +		} bitmap;
->> +		struct { /* as a set of 64-bit words */
->>   			u64 word[4];
->>   		} u64;
->>   	};
->> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
->> index db933c252dbc..04e055cbd080 100644
->> --- a/arch/s390/kvm/interrupt.c
->> +++ b/arch/s390/kvm/interrupt.c
->> @@ -304,7 +304,7 @@ static inline int gisa_in_alert_list(struct kvm_s390_gisa *gisa)
->>   
->>   static inline void gisa_set_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
->>   {
->> -	set_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
->> +	set_bit_inv(IPM_BIT_OFFSET + gisc, gisa->bitmap.b);
-> 
-> wouldn't it be enough to pass gisa->u64.word here?
-> then no cast would be necessary
+> @Halil, @Pierre: Any opinions?
 
+IMHO more testing doesn't hurt. But I don't have clarity on some aspect
+of how the architecture is extended. What I'm trying to say is: I'm not
+100% certain these bits must stay 0 and no-semantics-defined forever.
 
-we do that at several places
-
-arch/s390/kernel/processor.c:	for_each_set_bit_inv(bit, (long 
-*)&stfle_fac_list, MAX_FACILITY_BIT)
-arch/s390/kvm/interrupt.c:	set_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned 
-long *) gisa);
-arch/s390/kvm/kvm-s390.c:		set_bit_inv(vcpu->vcpu_id, (unsigned long *) 
-sca->mcn);
-arch/s390/kvm/kvm-s390.c:		set_bit_inv(vcpu->vcpu_id, (unsigned long *) 
-&sca->mcn);
-
-> 
->>   }
->>   
->>   static inline u8 gisa_get_ipm(struct kvm_s390_gisa *gisa)
->> @@ -314,12 +314,12 @@ static inline u8 gisa_get_ipm(struct kvm_s390_gisa *gisa)
->>   
->>   static inline void gisa_clear_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
->>   {
->> -	clear_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
->> +	clear_bit_inv(IPM_BIT_OFFSET + gisc, gisa->bitmap.b);
->>   }
->>   
->>   static inline int gisa_tac_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
->>   {
->> -	return test_and_clear_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
->> +	return test_and_clear_bit_inv(IPM_BIT_OFFSET + gisc, gisa->bitmap.b);
->>   }
->>   
->>   static inline unsigned long pending_irqs_no_gisa(struct kvm_vcpu *vcpu)
-> 
+Regards,
+Halil
