@@ -2,111 +2,252 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0CBEC433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 24 Feb 2022 10:19:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29A5BC433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 24 Feb 2022 10:24:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233444AbiBXKTd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 24 Feb 2022 05:19:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47062 "EHLO
+        id S230522AbiBXKZU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 24 Feb 2022 05:25:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233175AbiBXKTd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Feb 2022 05:19:33 -0500
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8BF9F279902;
-        Thu, 24 Feb 2022 02:19:03 -0800 (PST)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 44D891476;
-        Thu, 24 Feb 2022 02:19:03 -0800 (PST)
-Received: from [10.163.48.178] (unknown [10.163.48.178])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id BAE743F70D;
-        Thu, 24 Feb 2022 02:18:56 -0800 (PST)
-From:   Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: Re: [PATCH 07/11] x86: remove the IOMMU table infrastructure
-To:     Christoph Hellwig <hch@lst.de>, iommu@lists.linux-foundation.org
-Cc:     x86@kernel.org, Stefano Stabellini <sstabellini@kernel.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        xen-devel@lists.xenproject.org, linux-ia64@vger.kernel.org,
-        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-hyperv@vger.kernel.org, tboot-devel@lists.sourceforge.net,
-        linux-pci@vger.kernel.org
-References: <20220222153514.593231-1-hch@lst.de>
- <20220222153514.593231-8-hch@lst.de>
-Message-ID: <ff355270-b389-0f7a-e384-7c8a9ed9c615@arm.com>
-Date:   Thu, 24 Feb 2022 15:48:59 +0530
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-MIME-Version: 1.0
-In-Reply-To: <20220222153514.593231-8-hch@lst.de>
-Content-Type: text/plain; charset=utf-8
+        with ESMTP id S232102AbiBXKZU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Feb 2022 05:25:20 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A73B228B618;
+        Thu, 24 Feb 2022 02:24:49 -0800 (PST)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21O7cFgY006588;
+        Thu, 24 Feb 2022 10:24:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=L5vmLIihPXme0KQYBfRB5I3b8K0cqSrGHbodfbpj7f0=;
+ b=VICTnzwVtYxmCBNNFhLYUzh7ksm729++ThFdVQKCyHlxb9a5cYtoRuaC5OY05E/LE2ux
+ mDAU+NRqhUr6kSiv3/5uIjlHRyMykIyZWOaFFwf6mSLJH5d574MDFg4tv7nLfer8maDJ
+ 3GJkRaH6O1j6iAYzihNMT2IJTwLrTq82YfI9jpXMIUV89ybNhDCbcmvfXlvNKeaJPvP8
+ Fk87Np+FbTgTJOwrku3H+7XRDUdC9bSwqLCaevY2dYwrF6IWKMvoEOLhq+W22QLaWQ6W
+ xgwAeDjJGcv6zKzo+OpU8e9Ui2pbeXXBn6QYghd4nRu79jbbLGnCnDHSGYSWFin9Jk9V 9w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3edy03avbk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 24 Feb 2022 10:24:48 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21OA6LpB021563;
+        Thu, 24 Feb 2022 10:24:48 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3edy03avb8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 24 Feb 2022 10:24:48 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21OAIZpq008396;
+        Thu, 24 Feb 2022 10:24:46 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma06ams.nl.ibm.com with ESMTP id 3eaqtjgjnq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 24 Feb 2022 10:24:46 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21OAOfvQ45482478
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 24 Feb 2022 10:24:42 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CD05DAE055;
+        Thu, 24 Feb 2022 10:24:41 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 79102AE051;
+        Thu, 24 Feb 2022 10:24:41 +0000 (GMT)
+Received: from [9.171.25.98] (unknown [9.171.25.98])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 24 Feb 2022 10:24:41 +0000 (GMT)
+Message-ID: <06404959-0357-e33d-6114-0484d81578c9@linux.ibm.com>
+Date:   Thu, 24 Feb 2022 11:27:02 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [kvm-unit-tests PATCH v3 6/8] s390x: Add more tests for STSCH
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+To:     Janosch Frank <frankja@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Cc:     imbrenda@linux.ibm.com, Halil Pasic <pasic@linux.ibm.com>,
+        thuth@redhat.com, david@redhat.com
+References: <20220223132940.2765217-1-nrb@linux.ibm.com>
+ <20220223132940.2765217-7-nrb@linux.ibm.com>
+ <04daca6a-5863-d205-ea98-096163a2296a@linux.ibm.com>
+From:   Pierre Morel <pmorel@linux.ibm.com>
+In-Reply-To: <04daca6a-5863-d205-ea98-096163a2296a@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 3nr3CqxLNvMzdV53Ivzu5AsHszif5wRn
+X-Proofpoint-ORIG-GUID: S6bhC791n3OdLge2OMvO2GtFYR2ZbMQg
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-02-24_01,2022-02-24_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ lowpriorityscore=0 priorityscore=1501 mlxscore=0 impostorscore=0
+ suspectscore=0 adultscore=0 malwarescore=0 spamscore=0 bulkscore=0
+ mlxlogscore=999 phishscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2201110000 definitions=main-2202240060
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
-On 2/22/22 9:05 PM, Christoph Hellwig wrote:
-> The IOMMU table tries to separate the different IOMMUs into different
-> backends, but actually requires various cross calls.
+
+On 2/23/22 16:39, Janosch Frank wrote:
+> On 2/23/22 14:29, Nico Boehr wrote:
+>> css_lib extensively uses STSCH, but two more cases deserve their own
+>> tests:
+>>
+>> - unaligned address for SCHIB. We check for misalignment by 1 and 2
+>>    bytes.
+>> - channel not operational
+>> - bit 47 in SID not set
+>> - bit 5 of PMCW flags.
+>>    As per the principles of operation, bit 5 of the PMCW flags shall be
+>>    ignored by msch and always stored as zero by stsch.
+>>
+>>    Older QEMU versions require this bit to always be zero on msch,
+>>    which is why this test may fail. A fix is available in QEMU master
+>>    commit 2df59b73e086 ("s390x/css: fix PMCW invalid mask"). >
+>> Here's the QEMU PMCW invalid mask fix: 
+>> https://lists.nongnu.org/archive/html/qemu-s390x/2021-12/msg00100.html
+>>
+>> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+>> ---
+>>   s390x/css.c | 74 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+>>   1 file changed, 74 insertions(+)
+>>
+>> diff --git a/s390x/css.c b/s390x/css.c
+>> index a90a0cd64e2b..021eb12573c0 100644
+>> --- a/s390x/css.c
+>> +++ b/s390x/css.c
+>> @@ -496,6 +496,78 @@ static void test_ssch(void)
+>>       report_prefix_pop();
+>>   }
+>> +static void test_stsch(void)
+>> +{
+>> +    const int align_to = 4;
+>> +    struct schib schib;
+>> +    int cc;
+>> +
+>> +    if (!test_device_sid) {
+>> +        report_skip("No device");
+>> +        return;
+>> +    }
+>> +
+>> +    report_prefix_push("Unaligned");
+>> +    for (int i = 1; i < align_to; i *= 2) {
+>> +        report_prefix_pushf("%d", i);
+>> +
+>> +        expect_pgm_int();
+>> +        stsch(test_device_sid, (struct schib *)(alignment_test_page + 
+>> i));
+>> +        check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
+>> +
+>> +        report_prefix_pop();
+>> +    }
+>> +    report_prefix_pop();
+>> +
+>> +    report_prefix_push("Invalid subchannel number");
+>> +    cc = stsch(0x0001ffff, &schib);
+>> +    report(cc == 3, "Channel not operational");
+>> +    report_prefix_pop();
+>> +
+>> +    report_prefix_push("Bit 47 in SID is zero");
+>> +    expect_pgm_int();
+>> +    stsch(0x0000ffff, &schib);
+>> +    check_pgm_int_code(PGM_INT_CODE_OPERAND);
+>> +    report_prefix_pop();
 > 
-> Rewrite the code to do the generic swiotlb/swiotlb-xen setup directly
-> in pci-dma.c and then just call into the IOMMU drivers.
+> Add a comment:
+> No matter if the multiple-subchannel-set facility is installed or not, 
+> bit 47 always needs to be 1.
 > 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  arch/ia64/include/asm/iommu_table.h    |   7 --
->  arch/x86/include/asm/dma-mapping.h     |   1 -
->  arch/x86/include/asm/gart.h            |   5 +-
->  arch/x86/include/asm/iommu.h           |   6 ++
->  arch/x86/include/asm/iommu_table.h     | 102 ----------------------
->  arch/x86/include/asm/swiotlb.h         |  30 -------
->  arch/x86/include/asm/xen/swiotlb-xen.h |   2 -
->  arch/x86/kernel/Makefile               |   2 -
->  arch/x86/kernel/amd_gart_64.c          |   5 +-
->  arch/x86/kernel/aperture_64.c          |  14 ++--
->  arch/x86/kernel/pci-dma.c              | 112 ++++++++++++++++++++-----
->  arch/x86/kernel/pci-iommu_table.c      |  77 -----------------
->  arch/x86/kernel/pci-swiotlb.c          |  77 -----------------
->  arch/x86/kernel/tboot.c                |   1 -
->  arch/x86/kernel/vmlinux.lds.S          |  12 ---
->  arch/x86/xen/Makefile                  |   2 -
->  arch/x86/xen/pci-swiotlb-xen.c         |  96 ---------------------
->  drivers/iommu/amd/init.c               |   6 --
->  drivers/iommu/amd/iommu.c              |   5 +-
->  drivers/iommu/intel/dmar.c             |   6 +-
->  include/linux/dmar.h                   |   6 +-
->  21 files changed, 115 insertions(+), 459 deletions(-)
->  delete mode 100644 arch/ia64/include/asm/iommu_table.h
->  delete mode 100644 arch/x86/include/asm/iommu_table.h
->  delete mode 100644 arch/x86/include/asm/swiotlb.h
->  delete mode 100644 arch/x86/kernel/pci-iommu_table.c
->  delete mode 100644 arch/x86/kernel/pci-swiotlb.c
->  delete mode 100644 arch/x86/xen/pci-swiotlb-xen.c
+> Do we have the MSS facility?
 
-checkpatch.pl has some warnings here.
+yes
 
-WARNING: added, moved or deleted file(s), does MAINTAINERS need updating?
-#44: 
-deleted file mode 100644
+> If yes, could we disable it to test the 32-47 == 0x0001 case?
 
-WARNING: Prefer [subsystem eg: netdev]_info([subsystem]dev, ... then dev_info(dev, ... then pr_info(...  to printk(KERN_INFO ...
-#496: FILE: arch/x86/kernel/pci-dma.c:171:
-+               printk(KERN_INFO "PCI-DMA: "
+AFAIK it is not enabled in the KVM unit tests
+We are able to enable it, it could be done with CHSC tests.
 
-WARNING: quoted string split across lines
-#497: FILE: arch/x86/kernel/pci-dma.c:172:
-+               printk(KERN_INFO "PCI-DMA: "
-+                      "Using software bounce buffering for IO (SWIOTLB)\n");
+> 
+>> +}
+>> +
+>> +static void test_pmcw_bit5(void)
+>> +{
+>> +    int cc;
+>> +    uint16_t old_pmcw_flags;
+> 
+> I need a comment here for further reference since that behavior is 
+> documented at the description of the schib and not where STSCH is 
+> described:
+> According to architecture MSCH does ignore bit 5 of the second word but 
+> STSCH will store bit 5 as zero.
+> 
+> 
+> We could check if bits 0,1 and 6,7 are also zero but I'm not sure if 
+> that's interesting since MSCH does not ignore those bits and should 
+> result in an operand exception when trying to set them.
+> 
+> @Halil, @Pierre: Any opinions?
 
-ERROR: trailing whitespace
-#881: FILE: drivers/iommu/amd/iommu.c:1837:
-+^Iif (iommu_default_passthrough() || sme_me_mask) $
 
-total: 1 errors, 3 warnings, 389 lines checked
+Yes we should check this.
+We often do STSCH/MSCH in a row so I think it is interesting to check it.
+
+> 
+>> +
+>> +    cc = stsch(test_device_sid, &schib);
+>> +    if (cc) {
+>> +        report_fail("stsch: sch %08x failed with cc=%d", 
+>> test_device_sid, cc);
+>> +        return;
+>> +    }
+>> +    old_pmcw_flags = schib.pmcw.flags;
+>> +
+>> +    report_prefix_push("Bit 5 set");
+>> +
+>> +    schib.pmcw.flags = old_pmcw_flags | BIT(15 - 5);
+>> +    cc = msch(test_device_sid, &schib);
+>> +    report(!cc, "MSCH cc == 0");
+>> +
+>> +    cc = stsch(test_device_sid, &schib);
+>> +    report(!cc, "STSCH cc == 0");
+>> +    report(!(schib.pmcw.flags & BIT(15 - 5)), "STSCH PMCW Bit 5 is 
+>> clear");
+>> +
+>> +    report_prefix_pop();
+>> +
+>> +    report_prefix_push("Bit 5 clear");
+>> +
+>> +    schib.pmcw.flags = old_pmcw_flags & ~BIT(15 - 5);
+>> +    cc = msch(test_device_sid, &schib);
+>> +    report(!cc, "MSCH cc == 0");
+>> +
+>> +    cc = stsch(test_device_sid, &schib);
+>> +    report(!cc, "STSCH cc == 0");
+>> +    report(!(schib.pmcw.flags & BIT(15 - 5)), "STSCH PMCW Bit 5 is 
+>> clear");
+>> +
+>> +    report_prefix_pop();
+>> +}
+>> +
+>>   static struct {
+>>       const char *name;
+>>       void (*func)(void);
+>> @@ -511,6 +583,8 @@ static struct {
+>>       { "msch", test_msch },
+>>       { "stcrw", test_stcrw },
+>>       { "ssch", test_ssch },
+>> +    { "stsch", test_stsch },
+>> +    { "pmcw bit 5 ignored", test_pmcw_bit5 },
+>>       { NULL, NULL }
+>>   };
+> 
+
+-- 
+Pierre Morel
+IBM Lab Boeblingen
