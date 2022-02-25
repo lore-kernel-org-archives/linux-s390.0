@@ -2,128 +2,78 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DBE8FC4332F
-	for <linux-s390@archiver.kernel.org>; Fri, 25 Feb 2022 16:07:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 63875C433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 25 Feb 2022 16:45:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242648AbiBYQIO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 25 Feb 2022 11:08:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40414 "EHLO
+        id S232865AbiBYQpn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 25 Feb 2022 11:45:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242636AbiBYQHv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Feb 2022 11:07:51 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA9EB21131F;
-        Fri, 25 Feb 2022 08:07:18 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8EE9AB83273;
-        Fri, 25 Feb 2022 16:07:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22393C340F2;
-        Fri, 25 Feb 2022 16:07:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645805236;
-        bh=KbJfW32hJ/F19yfN7A1bXil25wuVvtsMCViBmRGt63Q=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=WkbIlFcJhtK50zmM1SUqT+c2BPoPb/PAsS5g6c6LqFS7dLJTZxLAPvig1x6SXi8te
-         l5Cx5rIlFRnbSFqV0Md2Gt99TvNmEAE85nc8zZkW2KAysaFXNYW8weU3KRSI1Joub1
-         XfgGa954+3/CiMxkbGo51ZitZf59ze3/G/mztC6h6fIENRXkrcAjUFFN1d6J+PDcBw
-         gx1uVRfyOgaOR4bZKjVcG7PIz/MCA3RNLoXSnngVfstymXQ0A55zH1r8rE0BbpfyBI
-         53H/HcqUiVVHaCBF70mR9z8l6owgUIz3VOsTGHF1gt/NgeAutWcTYSskkxOKLmnMHx
-         9rb/DOmJIf44g==
-Received: by mail-ua1-f46.google.com with SMTP id 4so2689384uaf.0;
-        Fri, 25 Feb 2022 08:07:16 -0800 (PST)
-X-Gm-Message-State: AOAM532qmB3RCzM2eOyjrm4h1R0Jocb2mLGQ2iLUY34AQqe43FcrxgKL
-        8xYBWINlULGTU8a+TQKYajEleFQ9L6CmhHkvOLQ=
-X-Google-Smtp-Source: ABdhPJzyFkCkLFwk2uiu55UbxfUmfSs3x9iDpfEO2XzZ1mh9E9zaiS00R4pCw1xb9Wsx0R973/NIBGmLnXTfXz/Q4Mk=
-X-Received: by 2002:ab0:1112:0:b0:33e:802f:e335 with SMTP id
- e18-20020ab01112000000b0033e802fe335mr3769822uab.57.1645805235064; Fri, 25
- Feb 2022 08:07:15 -0800 (PST)
+        with ESMTP id S229922AbiBYQpn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Feb 2022 11:45:43 -0500
+Received: from out30-44.freemail.mail.aliyun.com (out30-44.freemail.mail.aliyun.com [115.124.30.44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F1A91F9829;
+        Fri, 25 Feb 2022 08:45:09 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0V5Tsmgd_1645807506;
+Received: from 30.15.226.221(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0V5Tsmgd_1645807506)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Sat, 26 Feb 2022 00:45:07 +0800
+Message-ID: <45837d14-7895-4aff-43a3-a5ad6ef80c2d@linux.alibaba.com>
+Date:   Sat, 26 Feb 2022 00:45:06 +0800
 MIME-Version: 1.0
-References: <20220224085410.399351-1-guoren@kernel.org> <20220224085410.399351-17-guoren@kernel.org>
- <CAK8P3a13_VBpTidoF_pUdV5g0MFqpSe17rgw=XUv69CCFCN0_g@mail.gmail.com>
- <CAJF2gTTu5=XwDUwNq=PfnzVRj-jPHH+0cOGhhLr_dFED1H24_g@mail.gmail.com> <CAK8P3a0MtcB7YMWKZKvpcy4Txi4JTXT61KqFoKZOqhVP530oEA@mail.gmail.com>
-In-Reply-To: <CAK8P3a0MtcB7YMWKZKvpcy4Txi4JTXT61KqFoKZOqhVP530oEA@mail.gmail.com>
-From:   Guo Ren <guoren@kernel.org>
-Date:   Sat, 26 Feb 2022 00:07:04 +0800
-X-Gmail-Original-Message-ID: <CAJF2gTQtUonLQn+aRyf6f1Ei9o6wWCrjHXNkfa2rxKMEGuDw2g@mail.gmail.com>
-Message-ID: <CAJF2gTQtUonLQn+aRyf6f1Ei9o6wWCrjHXNkfa2rxKMEGuDw2g@mail.gmail.com>
-Subject: Re: [PATCH V6 16/20] riscv: compat: vdso: Add rv32 VDSO base code implementation
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Palmer Dabbelt <palmer@dabbelt.com>,
-        Anup Patel <anup@brainfault.org>,
-        gregkh <gregkh@linuxfoundation.org>,
-        liush <liush@allwinnertech.com>, Wei Fu <wefu@redhat.com>,
-        Drew Fustini <drew@beagleboard.org>,
-        Wang Junqiang <wangjunqiang@iscas.ac.cn>,
-        Christoph Hellwig <hch@lst.de>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-csky@vger.kernel.org,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Guo Ren <guoren@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.5.1
+Subject: Re: [PATCH net] net/smc: fix unexpected SMC_CLC_DECL_ERR_REGRMB error
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+To:     kgraul@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <1645776708-66113-1-git-send-email-alibuda@linux.alibaba.com>
+In-Reply-To: <1645776708-66113-1-git-send-email-alibuda@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Feb 25, 2022 at 11:50 PM Arnd Bergmann <arnd@arndb.de> wrote:
->
-> On Fri, Feb 25, 2022 at 4:42 PM Guo Ren <guoren@kernel.org> wrote:
-> >
-> > Hi Arnd & Palmer,
-> >
-> > Here is the new modified compat_vdso/Makefile, please have a look,
-> > first. Then I would update it to v7:
-> > ===========================================
-> > # SPDX-License-Identifier: GPL-2.0-only
-> > #
-> > # Makefile for compat_vdso
-> > #
-> >
-> > # Symbols present in the compat_vdso
-> > compat_vdso-syms  = rt_sigreturn
-> > compat_vdso-syms += getcpu
-> > compat_vdso-syms += flush_icache
-> >
-> > ifdef CROSS_COMPILE_COMPAT
-> >         COMPAT_CC := $(CROSS_COMPILE_COMPAT)gcc
-> >         COMPAT_LD := $(CROSS_COMPILE_COMPAT)ld
-> > else
-> >         COMPAT_CC := $(CC)
-> >         COMPAT_LD := $(LD)
-> > endif
-> >
-> > COMPAT_CC_FLAGS := -march=rv32g -mabi=ilp32
-> > COMPAT_LD_FLAGS := -melf32lriscv
->
-> Have you come across a case in which a separate cross toolchain
-> is required? If not, I would leave this out and just set the flags for the
-> normal toolchain.
-Okay
-
->
-> I also think it would be a nicer split to build the two vdso variants
-> as vdso64/vdso32 rather than vdso/compat_vdso. That way,
-> the build procedure can be kept as close as possible to the
-> native 32-bit build.
-Yes, current native 32-bit vdso & 64-bit vdso use the same
-vdso/Makfile. So, I think it could be another patch for this cleanup.
-
->
->         Arnd
 
 
+在 2022/2/25 下午4:11, D. Wythe 写道:
+> From: "D. Wythe" <alibuda@linux.alibaba.com>
+> 
+> Remove connections from link group is not synchronous with handling
+> SMC_LLC_DELETE_RKEY, which means that even the number of connections is
+> less that SMC_RMBS_PER_LGR_MAX, it does not mean that the connection can
+> register rtoken successfully later, in other words, the rtoken entry may
+> have not been released. This will cause an unexpected
+> SMC_CLC_DECL_ERR_REGRMB to be reported, and then ths smc connection have
+> to fallback to TCP.
+> 
+> Therefore, we need to judge according to the number of idle rtoken
+> entry.
+> 
+> Fixes: cd6851f30386 ("smc: remote memory buffers (RMBs)")
+> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+> ---
+>   net/smc/smc_core.c | 3 ++-
+>   1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+> index 29525d0..24ef0af 100644
+> --- a/net/smc/smc_core.c
+> +++ b/net/smc/smc_core.c
+> @@ -1864,7 +1864,8 @@ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
+>   		    (ini->smcd_version == SMC_V2 ||
+>   		     lgr->vlan_id == ini->vlan_id) &&
+>   		    (role == SMC_CLNT || ini->is_smcd ||
+> -		     lgr->conns_num < SMC_RMBS_PER_LGR_MAX)) {
+> +		     lgr->conns_num < SMC_RMBS_PER_LGR_MAX -
+> +		     bitmap_weight(lgr->rtokens_used_mask, SMC_RMBS_PER_LGR_MAX))) {
+>   			/* link group found */
+>   			ini->first_contact_local = 0;
+>   			conn->lgr = lgr;
 
--- 
-Best Regards
- Guo Ren
 
-ML: https://lore.kernel.org/linux-csky/
+I did a horrible math here, i'll send another fix later.
+
+Best wishes.
