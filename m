@@ -2,186 +2,121 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41CD9C433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 25 Feb 2022 15:26:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BC4BC43217
+	for <linux-s390@archiver.kernel.org>; Fri, 25 Feb 2022 15:39:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242050AbiBYP0v (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 25 Feb 2022 10:26:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51960 "EHLO
+        id S242160AbiBYPkC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 25 Feb 2022 10:40:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240068AbiBYP0u (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Feb 2022 10:26:50 -0500
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D71E1DED7C;
-        Fri, 25 Feb 2022 07:26:18 -0800 (PST)
-Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21PEkTaB013166;
-        Fri, 25 Feb 2022 15:24:16 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2021-07-09;
- bh=xq1KFz/d2s6ddJNFYr6ecFFBNr4eI3OIg1/Km9fVKq0=;
- b=tDVpMsqE2yC3sJv2iRK5aD4VmfqGhiJEzXA/0Re0bMR3k+S8WEkj59tjGUQGeEu3FRGd
- iI+48uMQXCsA7qk4fKtrSbUCCN5qrRSw3anOsyHvYJTMKKfG1rfmnPY+LiZX9Eg2hpdz
- 4XAZhK+w3fKx9sNLj40JKoexwATKJHO+/zxHtKm5uRvrCYQyIGW8k2x0kDJKHHgrht4z
- Qq4PxfASYkb9WThfxhNF9ln7Z/H8Rj6/5hJMo7fXi5ZVr1WNS3ZlW42xVMuOjSjRQZRH
- +JDOnxTaXu96iwSdXtGWWNH8qSJKSE5kMPJYxrEUKzh3ZDngt+I3ac73B0h+qP3rnRVl oQ== 
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
-        by mx0b-00069f02.pphosted.com with ESMTP id 3eexj89840-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 25 Feb 2022 15:24:15 +0000
-Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
-        by aserp3030.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 21PFH13U069533;
-        Fri, 25 Feb 2022 15:24:15 GMT
-Received: from nam10-dm6-obe.outbound.protection.outlook.com (mail-dm6nam10lp2104.outbound.protection.outlook.com [104.47.58.104])
-        by aserp3030.oracle.com with ESMTP id 3eapkmxvhr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 25 Feb 2022 15:24:15 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Cl7NZFMgIcVtetzJPTHeMjtr62l/EaRS7SnWymDf2+tL/PaZDeL3xbbhpRooaegafIvTzJjXQuvINbCSCqx8uwfMSdG/hwacKkbHUpJ3TLsOw5wUtgnYRL4Nq1EMGDr+gBdfA0LwhiDLYIoncXwypAsLKElFgiC9CLm8B1Lcrfoafs5Z5LOS2G8WgjmtN3+btPmNC0hxgVo+++NHeFAVpOO84uRTVinXLFLPMRraiTI6fQ5fjpbJp/NotapffvB8QMJTjIRKmFfAv58wgumo+jueqR71hVZRb+eXJsFG/bllreIKEv9Gi923OCq8K2bS79Pumu5dmeCa9QLzkAUw/Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=xq1KFz/d2s6ddJNFYr6ecFFBNr4eI3OIg1/Km9fVKq0=;
- b=WKTsJvlRt40sKSnZNA0aDyd3I4JOx8LeBvxKIjuHSGhBKO0EXLHE3u/Fb7kfSO5819APhzImSfcZHRBNuuBuSauCAvFRnl0SzTmVWDLz3PUpZjxLrGxV6mxc3Z5HuBs+706PG3OsMpCMUbTTe0BAoXDFIvjXlv20zej6OBO8Z9sPaw/vi83afkqCXKVXFK29qMOWzMKoxjh6vPVF9rkQAmcsXxVbu0QIs8/7NdhiZiV1LcA7anYiLDbyIAy5jtOdlCqpojaUh+8OaCeW3Gf8L5wF3LXdDmEPlp+N+aLvmJ97rVLJ9L/BrUChuyV7QdUJGLYUz2GNNwYZY4BQOgjxAQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=xq1KFz/d2s6ddJNFYr6ecFFBNr4eI3OIg1/Km9fVKq0=;
- b=oNZQ33HyaQLoiri5jTRDmHa4v3wsZ7V8T1tznmJtW3yoCK1H6Ug7mQcqKd79oK3974VG1umZ3misheKhw7qJqfmsOY8/y4hLpt7JJG0szficpJRmcjIb5OVeKJedI0cwjo71UqNNhXwuXWdXzVjlwQSZar6aNbUpzjj4P8WhkDQ=
-Received: from BLAPR10MB5009.namprd10.prod.outlook.com (2603:10b6:208:321::10)
- by MWHPR10MB1726.namprd10.prod.outlook.com (2603:10b6:301:a::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4995.24; Fri, 25 Feb
- 2022 15:24:12 +0000
-Received: from BLAPR10MB5009.namprd10.prod.outlook.com
- ([fe80::6d20:6694:a16:56f7]) by BLAPR10MB5009.namprd10.prod.outlook.com
- ([fe80::6d20:6694:a16:56f7%3]) with mapi id 15.20.5017.026; Fri, 25 Feb 2022
- 15:24:12 +0000
-Message-ID: <49710cd4-17af-7cc6-5f31-1f36afddb51c@oracle.com>
-Date:   Fri, 25 Feb 2022 10:24:06 -0500
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.6.1
-Subject: Re: cleanup swiotlb initialization
-Content-Language: en-US
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     iommu@lists.linux-foundation.org, x86@kernel.org,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Juergen Gross <jgross@suse.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        xen-devel@lists.xenproject.org, linux-ia64@vger.kernel.org,
-        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-hyperv@vger.kernel.org, tboot-devel@lists.sourceforge.net,
-        linux-pci@vger.kernel.org
-References: <20220222153514.593231-1-hch@lst.de>
- <09cb4ad3-88e7-3744-b4b8-a6d745ecea9e@oracle.com>
- <20220224155854.GA30938@lst.de>
- <206ba6a3-770a-70ad-96bc-76c6380da988@oracle.com>
- <20220224163943.GA32088@lst.de>
- <8ffd8587-7eb3-d5b6-eab0-b86df5c0ebbd@oracle.com>
- <20220225084755.GA29630@lst.de>
-From:   Boris Ostrovsky <boris.ostrovsky@oracle.com>
-In-Reply-To: <20220225084755.GA29630@lst.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: SA9P223CA0020.NAMP223.PROD.OUTLOOK.COM
- (2603:10b6:806:26::25) To BLAPR10MB5009.namprd10.prod.outlook.com
- (2603:10b6:208:321::10)
+        with ESMTP id S242243AbiBYPj7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Feb 2022 10:39:59 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 577A21CF0A5
+        for <linux-s390@vger.kernel.org>; Fri, 25 Feb 2022 07:39:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1645803566;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=PKwIaA6vJQ86hsYmx90S5GHPLZ3QnL0/6rDtNGfZPd8=;
+        b=TbGpEsToCmR6NIPZ8S6Rl5aG1GEm6rf6XAVHcQa6Zy4yIuHqmmn6a0Myi3v8ZlxxmdB2v0
+        NzrOaryyK43wQHBhL0mQ54rAIjOS53gKQ++Nv9MF+lJHNO583smCZ3F0TmdpWfTA12RVAk
+        kmlHmtNTpmvzaKjd+wA5mmJeQlV6Atc=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-370-e41bORCJP4O_0wUA4GSfZw-1; Fri, 25 Feb 2022 10:39:23 -0500
+X-MC-Unique: e41bORCJP4O_0wUA4GSfZw-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4391C1091DA0;
+        Fri, 25 Feb 2022 15:39:19 +0000 (UTC)
+Received: from localhost (ovpn-12-89.pek2.redhat.com [10.72.12.89])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 507087F0DB;
+        Fri, 25 Feb 2022 15:39:05 +0000 (UTC)
+Date:   Fri, 25 Feb 2022 23:39:02 +0800
+From:   'Baoquan He' <bhe@redhat.com>
+To:     David Laight <David.Laight@aculab.com>
+Cc:     Christoph Hellwig <hch@lst.de>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+        "cl@linux.com" <cl@linux.com>,
+        "42.hyeyoo@gmail.com" <42.hyeyoo@gmail.com>,
+        "penberg@kernel.org" <penberg@kernel.org>,
+        "rientjes@google.com" <rientjes@google.com>,
+        "iamjoonsoo.kim@lge.com" <iamjoonsoo.kim@lge.com>,
+        "vbabka@suse.cz" <vbabka@suse.cz>,
+        "david@redhat.com" <david@redhat.com>,
+        "herbert@gondor.apana.org.au" <herbert@gondor.apana.org.au>,
+        "davem@davemloft.net" <davem@davemloft.net>,
+        "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>,
+        "steffen.klassert@secunet.com" <steffen.klassert@secunet.com>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "hca@linux.ibm.com" <hca@linux.ibm.com>,
+        "gor@linux.ibm.com" <gor@linux.ibm.com>,
+        "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>,
+        "borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>,
+        "svens@linux.ibm.com" <svens@linux.ibm.com>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "michael@walle.cc" <michael@walle.cc>,
+        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+        "wsa@kernel.org" <wsa@kernel.org>
+Subject: Re: [PATCH 1/2] dma-mapping: check dma_mask for streaming mapping
+ allocs
+Message-ID: <20220225153902.GA148875@MiWiFi-R3L-srv>
+References: <20220220084044.GC93179@MiWiFi-R3L-srv>
+ <20220222084530.GA6210@lst.de>
+ <YhSpaGfiQV8Nmxr+@MiWiFi-R3L-srv>
+ <20220222131120.GB10093@lst.de>
+ <YhToFzlSufrliUsi@MiWiFi-R3L-srv>
+ <20220222155904.GA13323@lst.de>
+ <YhV/nabDa5zdNL/4@MiWiFi-R3L-srv>
+ <20220223142555.GA5986@lst.de>
+ <YheSBTJY216m6izG@MiWiFi-R3L-srv>
+ <1fead34bceda468cbe34077a28c4a4b1@AcuMS.aculab.com>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: edb153b5-ba21-419a-e138-08d9f872e066
-X-MS-TrafficTypeDiagnostic: MWHPR10MB1726:EE_
-X-Microsoft-Antispam-PRVS: <MWHPR10MB172605C5A2B316A6E04A37988A3E9@MWHPR10MB1726.namprd10.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: zRPGz6rTvBJo2Op6AviLkezM3YP/b4Wi73ZHHcYYwArqvRTtApuGAT59Pm3dpk4LBe9jN31J+T5/0j0KJKHUM9jLeU8QCzkU3ve2GQWsaHenQ7aIQNuj67guo5EL+ZKfi38mkQ2co2fQtlhXTCv2QpFfaI5XmSRK7Io09Q6i86f/tPLb65D7l58hWRxrCMPmmpqwuXVoNP+ISGQzJ7rF1a8qGb1uYi6m5O844b1XR8Hkg6RzErsi5N0jPNeZ59RL49J3Vh0kfchqH32VukKMXLXE0wtLo2zc8MYRXD5FoDT4xdmhYe6NGNWe5Ecs+0KS6CcPLBXHBHwv8dP7squ0RLNGsZlgXCfZBuHN00UUhvaasDfJY+BHPVZB5+VMDifpm4Yx2EfN/CdiuJYnZ56/OJrNrFKYJkyzHg0EQJwGOOS4oWgdM95HUpSkHBC/1OE0EQ+CicFXpkUDKXyWH127RZ8lMxg+83yBoFLgYc2rUGhb6kKBgL/nzbmRQCL+U3GMGWI8eR7jy8zAS8TFoiJAvAgQX1xUiP19Xd5+fR8sKAgVuo28VjDxqdUBR4QWt7S3UoauvAypYJnrpagbJb7QWQ51FpdfW2QdB97DqdK08YcGF3dBRPsoSwRRSEC68tXcDMlsay2OY3iMqItcPtM+6zhYpvhqZYYYpTr3f3ns2908zmmGbhOW72ZolCt/lDm7cgSEMqO4U0dFzvYQBdiyU+/WIzjhghcoESkX7XzCnQmjRTprMLNcLQQHIT/ucImS
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BLAPR10MB5009.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(366004)(2906002)(4326008)(8676002)(31696002)(8936002)(66476007)(6916009)(66556008)(66946007)(54906003)(6486002)(4744005)(5660300002)(86362001)(6666004)(186003)(38100700002)(53546011)(3480700007)(316002)(83380400001)(6512007)(36756003)(6506007)(44832011)(7116003)(508600001)(31686004)(2616005)(7416002)(26005)(43740500002)(45980500001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?M0dra25xSE9xU3hhNFMrclhPeEVlWTNTNkphY3JRSVpCYzZCTjAxUFRwQllO?=
- =?utf-8?B?SkFnTFBFWkpHYTd4VldHTVBvT2J1S3YraUpqaVIzWkdkMFB4bUF2WW9OMVpD?=
- =?utf-8?B?QWVHQzdkMTFQNkRuYXR5eVZUdmI4ZmtxdjZIajJpQVkvQ2hZN3VLaldsUytm?=
- =?utf-8?B?MXN3YW8zbkZiMDlPa0FXQnlEOHJsaFE2R3FZejlNVnhFK212Q3U3ZCtCTkNZ?=
- =?utf-8?B?RXFUbkZyQ0pTK1JwNXFyVkJGSmNyc1g0TWpsSGxXOXAvZU1HUHpXcjRENEFZ?=
- =?utf-8?B?bGg4YTJ6V2RuZldZQkcza2dYcDNSUG1QaTQ0bXlKTFpHQkVSUmxsUDRZaE1R?=
- =?utf-8?B?Q05TWkUzUTI0aWwxTTdaNnZTQWV2aVRjbGQwclhYSHFKeTVaVC8xbGFkei9L?=
- =?utf-8?B?UUNMam1PVVBnRmpoTGI4eVhzTnc2ZnRPWE5RZWwvdHM1K2pTVkEwWVA0TUs0?=
- =?utf-8?B?ZWpnb2QzMzJhSEpUbzRVOEtlSWt4SDB0a3ZHVDk3MnVvVVBkd2V3K2hINjRq?=
- =?utf-8?B?N0Q2THZOeUxlcVhLK3pwNTJXb21vTXNWcWRXUDN5K0JCZ0dFazJmYUVxUVd4?=
- =?utf-8?B?UXVFWnU5WFlmRzFSUE90cDliVzhXKzB1bWUrV3RHb2wwYnRDaDBCV0RoM3V2?=
- =?utf-8?B?WjF2cWhHSUhwTDkzeVJleGUyVmJRUmptL1hKU0p1TzRrRm52RTZMdEVhbkpj?=
- =?utf-8?B?dGdZaVFkaW5wcjUwUHpCM1JMQnRBTzJnU29HdmJROTRuQ0Vla203UmJlbWZy?=
- =?utf-8?B?QmNOZ1BYMTVscld3a1VmREdocnkyNmFrU2IrNjRCRFQ3NkhmRnhkRTk0MWRY?=
- =?utf-8?B?OXU3Z1dDZWVHYmd5WU9McXFsUDlXbHlZS3pBcGRDQVQxb05CMlBYblFnQjVw?=
- =?utf-8?B?eHY3TFl4a0Y0RlhGQWp0dGg2cGlKTXZEeEp3bUtYYXRwckN1U2lrd3E3d3NT?=
- =?utf-8?B?TFVZSlY2ODZrY09xc1BBUjVmWGtsV3ZaWjVWRnp5MWoza0JiWmxPUXEzaFZZ?=
- =?utf-8?B?Q1d0UGoxSFFvT1ZGQXB5QXRFSnRMNDBnYnllcDV1T3dwRjlDckRWMVc5bE9r?=
- =?utf-8?B?Q0ttTkFJSlJnUVRoZ3hQQXB0TnRIdWdzaThIdEFYVmdRRUYvZFc5MnVHU0RJ?=
- =?utf-8?B?Z0x2WGoydmw3dlgzVWt2anlrWVN5V3l6dEkvU0d2VmJITTdxMktROTFDWlhT?=
- =?utf-8?B?UU92bXdxKzVvWktGdUtDc1prdUxuVlVYTE0xa2MyU2p0NHlOVXdvV0hqVHBC?=
- =?utf-8?B?S0ZiQndHQ1QxN1FoQWg0Z1VQSFpBN0pqUTNZcGo4YStLRlpQVkJJTzI1THBt?=
- =?utf-8?B?TFlIZ0xEbjhMZG00Vi8rVmhQbXJKZVlyQzNoU3AxYWtGeGNQUzBLeEJ3S2xQ?=
- =?utf-8?B?ZjlidmJJKzRhOGFFNCs0UmdyNmdRKzhuMmFtV2VpL2wzdWN6U2QxUkhPZk8w?=
- =?utf-8?B?ZnZzKzV3L2VDNXRKeWpHZzgwc0dEdFpPekI1Vlp6SmNMWS8rZzBPS25ZYnF4?=
- =?utf-8?B?Y0RwN0o5bkkwWFNDMVQvN0s1dUNyZ3BBOHFaMW9sQTdzNHF2aWQ3KzVaMGZi?=
- =?utf-8?B?T3NUNkxRQ2pvTmZYWHlHSk9mc2V1aHNFVy9TSVAySGNrRXltQ0ZmY2h5Qzg4?=
- =?utf-8?B?MWh1VXYrUloyc3B0dVlYNXBrdDRtcE9EUHlMREp2TnpNMG13OGNEVVNaQWFV?=
- =?utf-8?B?VDVBTWlXVEJyY2VGYmM1TkprSTZnZytyVC9wYUNpWUdpd3dxcjlodGFuYkc1?=
- =?utf-8?B?dkRRRUZUVHJ5Rloyckd4b2NsY0tYWmdnM1NwWi9aS0Vyd0l0SXl5Z1pOQkNu?=
- =?utf-8?B?TDgxTmU4N3phMU12djRHN1NPa1lOR3V6NVFXZlVWdm5EaGpLSEhVMlI1NXpF?=
- =?utf-8?B?WFA4WHBVbTY2OXZzckw3VWxzTStxblJTTjczVmJycGVZV0U0VnhUZEQwWkJl?=
- =?utf-8?B?blBQcXFadE9hVDYxSm03YVJTQjFyem1ITXY0NEsweHVpUnIxR2NoVEE5cWV2?=
- =?utf-8?B?eTV1bE51T056NktwUEh6L3g3VEZZMnN1NVI0cG1uZC9haEozTitQbEV1ODhx?=
- =?utf-8?B?M2Npa3pHVVBIWlNuY1ZTbHhxeGFwSmxYeE0yUXF2cXZMN3YwbWllV3BHWWVh?=
- =?utf-8?B?YXFzQzF1cmwwUE5uYlhqd29MZStLUEozSktXa3hjT2dlVXFFL3FnMmsySFVo?=
- =?utf-8?B?djA4cGdSVWVDQUlWd2YwTXZINnN6UkZzazVGMWVxaHdlVFZyWEpSYmVadGpo?=
- =?utf-8?Q?JWDfW9GfCB9eD12jfk6yd0KOyBRrBMhIMEezy++zL8=3D?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: edb153b5-ba21-419a-e138-08d9f872e066
-X-MS-Exchange-CrossTenant-AuthSource: BLAPR10MB5009.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Feb 2022 15:24:12.6934
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: u8nwtBbhXOmqpOQiJRyAPDa9MWM8HYrPvOB5Db34UpZrEvC1bGaWNKQ6c8kJVfnmrNC8ubes8rm0q/Zkd7zRmtp1ifMsxdEnb90uc96u+/Y=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR10MB1726
-X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10268 signatures=684655
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 suspectscore=0 mlxscore=0
- spamscore=0 mlxlogscore=904 adultscore=0 phishscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2201110000
- definitions=main-2202250090
-X-Proofpoint-GUID: EHKvuJik5zh0LZJL-dHJLMhDOWs_znGx
-X-Proofpoint-ORIG-GUID: EHKvuJik5zh0LZJL-dHJLMhDOWs_znGx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1fead34bceda468cbe34077a28c4a4b1@AcuMS.aculab.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On 02/24/22 at 02:27pm, David Laight wrote:
+> From: Baoquan He
+> > Sent: 24 February 2022 14:11
+> ...
+> > With my understanding, there are two kinds of DMA mapping, coherent
+> > mapping (which is also persistent mapping), and streaming mapping. The
+> > coherent mapping will be handled during driver init, and released during
+> > driver de-init. While streaming mapping will be done when needed at any
+> > time, and released after usage.
+> 
+> The lifetime has absolutely nothing to do with it.
+> 
+> It is all about how the DMA cycles (from the device) interact with
+> (or more don't interact with) the cpu memory cache.
+> 
+> For coherent mapping the cpu and device can write to (different)
+> words in the same cache line at the same time, and both will see
+> both updates.
+> On some systems this can only be achieved by making the memory
+> uncached - which significantly slows down cpu access.
+> 
+> For non-coherent (streaming) mapping the cpu writes back and/or
+> invalidates the data cache so that the dma read cycles from memory
+> read the correct data and the cpu re-reads the cache line after
+> the dma has completed.
+> They are only really suitable for data buffers.
 
-On 2/25/22 3:47 AM, Christoph Hellwig wrote:
-> On Thu, Feb 24, 2022 at 12:07:26PM -0500, Boris Ostrovsky wrote:
->>>> Just to be clear: this crashes only as dom0. Boots fine as baremetal.
->>> Ah.  I can gues what this might be.  On Xen the hypervisor controls the
->>> IOMMU and we should never end up initializing it in Linux, right?
->>
->> Right, we shouldn't be in that code path.
-> Can you try the patch below on top of the series?
->
+Thanks for valuable input, I agree the lifetime is not stuff we can rely
+on to judge. But how do we explain dma_alloc_noncoherent() is not streaming
+mapping? Then which kind of dma mapping is it?
 
-Yes, this makes dom0 boot fine.
-
-
-(It also addresses something I wanted to mention while looking at the patches, which was to remove Xen initialization code from pci_swiotlb_detect_4gb() since it had noting to do with what the routine's name implies.)
-
-
--boris
+I could miss something important to understand this which is obvious to
+other people, I will make time to check.
 
