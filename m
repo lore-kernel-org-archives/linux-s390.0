@@ -2,121 +2,312 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BC4BC43217
-	for <linux-s390@archiver.kernel.org>; Fri, 25 Feb 2022 15:39:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F8D2C4167D
+	for <linux-s390@archiver.kernel.org>; Fri, 25 Feb 2022 15:42:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242160AbiBYPkC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 25 Feb 2022 10:40:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33950 "EHLO
+        id S242291AbiBYPnL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 25 Feb 2022 10:43:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242243AbiBYPj7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Feb 2022 10:39:59 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 577A21CF0A5
-        for <linux-s390@vger.kernel.org>; Fri, 25 Feb 2022 07:39:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1645803566;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=PKwIaA6vJQ86hsYmx90S5GHPLZ3QnL0/6rDtNGfZPd8=;
-        b=TbGpEsToCmR6NIPZ8S6Rl5aG1GEm6rf6XAVHcQa6Zy4yIuHqmmn6a0Myi3v8ZlxxmdB2v0
-        NzrOaryyK43wQHBhL0mQ54rAIjOS53gKQ++Nv9MF+lJHNO583smCZ3F0TmdpWfTA12RVAk
-        kmlHmtNTpmvzaKjd+wA5mmJeQlV6Atc=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-370-e41bORCJP4O_0wUA4GSfZw-1; Fri, 25 Feb 2022 10:39:23 -0500
-X-MC-Unique: e41bORCJP4O_0wUA4GSfZw-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        with ESMTP id S242275AbiBYPmz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Feb 2022 10:42:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7C2021D081;
+        Fri, 25 Feb 2022 07:42:22 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4391C1091DA0;
-        Fri, 25 Feb 2022 15:39:19 +0000 (UTC)
-Received: from localhost (ovpn-12-89.pek2.redhat.com [10.72.12.89])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 507087F0DB;
-        Fri, 25 Feb 2022 15:39:05 +0000 (UTC)
-Date:   Fri, 25 Feb 2022 23:39:02 +0800
-From:   'Baoquan He' <bhe@redhat.com>
-To:     David Laight <David.Laight@aculab.com>
-Cc:     Christoph Hellwig <hch@lst.de>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        "cl@linux.com" <cl@linux.com>,
-        "42.hyeyoo@gmail.com" <42.hyeyoo@gmail.com>,
-        "penberg@kernel.org" <penberg@kernel.org>,
-        "rientjes@google.com" <rientjes@google.com>,
-        "iamjoonsoo.kim@lge.com" <iamjoonsoo.kim@lge.com>,
-        "vbabka@suse.cz" <vbabka@suse.cz>,
-        "david@redhat.com" <david@redhat.com>,
-        "herbert@gondor.apana.org.au" <herbert@gondor.apana.org.au>,
-        "davem@davemloft.net" <davem@davemloft.net>,
-        "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>,
-        "steffen.klassert@secunet.com" <steffen.klassert@secunet.com>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "hca@linux.ibm.com" <hca@linux.ibm.com>,
-        "gor@linux.ibm.com" <gor@linux.ibm.com>,
-        "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>,
-        "borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>,
-        "svens@linux.ibm.com" <svens@linux.ibm.com>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "michael@walle.cc" <michael@walle.cc>,
-        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-        "wsa@kernel.org" <wsa@kernel.org>
-Subject: Re: [PATCH 1/2] dma-mapping: check dma_mask for streaming mapping
- allocs
-Message-ID: <20220225153902.GA148875@MiWiFi-R3L-srv>
-References: <20220220084044.GC93179@MiWiFi-R3L-srv>
- <20220222084530.GA6210@lst.de>
- <YhSpaGfiQV8Nmxr+@MiWiFi-R3L-srv>
- <20220222131120.GB10093@lst.de>
- <YhToFzlSufrliUsi@MiWiFi-R3L-srv>
- <20220222155904.GA13323@lst.de>
- <YhV/nabDa5zdNL/4@MiWiFi-R3L-srv>
- <20220223142555.GA5986@lst.de>
- <YheSBTJY216m6izG@MiWiFi-R3L-srv>
- <1fead34bceda468cbe34077a28c4a4b1@AcuMS.aculab.com>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 34DFC61967;
+        Fri, 25 Feb 2022 15:42:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E9C3C340F8;
+        Fri, 25 Feb 2022 15:42:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1645803741;
+        bh=LTpyZW67H6AqS8NEkTYiulq7m69rWSy25aC9ZjGcrfA=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=KugaL8/34dsoYm1tYvWbo/jnp2V/mihze12aGgHWldgnQcFk7VV5ERWqdLZURe40j
+         6RIpMyNWI68JZ/6NbQTjVrkTVgLkzbeO1f5k06U83kTYvDS4fjqNlHstgtjJnF2Jwc
+         9wLVZtMQwg/0V5AoxEvVGRrAole6BkzW087caapwAXdhEQ/E7MYSv6pBkfwvpLEQZe
+         tKj6lMuGEyxlOg9pwrFRfd7mgvQGb9v3DuOA2TDAwCB3pe34gjxn+XGEbAp8CZvLbE
+         Lfv6OMXNBXdaHYu8VaV5J+/JzmPEIdrEEcy/x8M+U5BszRjA9VvbpDWw9i5in0ZFrS
+         CdpnQ5GePyMbA==
+Received: by mail-vs1-f49.google.com with SMTP id y4so5878988vsd.11;
+        Fri, 25 Feb 2022 07:42:21 -0800 (PST)
+X-Gm-Message-State: AOAM530UPdWhUcBA/8mpZrhslaO3KXEcJc/EJjcKwi46rVuLkQ4xuZAs
+        xNF6gyO33MYGdkYFHqENKHVMfqHKv8AIfAtjpMk=
+X-Google-Smtp-Source: ABdhPJzkkZzRIcTVnaKqfYtdNhKQA/tUKntASaj7B1Yk2uWOXdsLiKYE8wFNLhZCqckzP5h22WOoM706CycXuYVo0dw=
+X-Received: by 2002:a05:6102:806:b0:31e:2206:f1c with SMTP id
+ g6-20020a056102080600b0031e22060f1cmr3498723vsb.59.1645803740502; Fri, 25 Feb
+ 2022 07:42:20 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1fead34bceda468cbe34077a28c4a4b1@AcuMS.aculab.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+References: <20220224085410.399351-1-guoren@kernel.org> <20220224085410.399351-17-guoren@kernel.org>
+ <CAK8P3a13_VBpTidoF_pUdV5g0MFqpSe17rgw=XUv69CCFCN0_g@mail.gmail.com>
+In-Reply-To: <CAK8P3a13_VBpTidoF_pUdV5g0MFqpSe17rgw=XUv69CCFCN0_g@mail.gmail.com>
+From:   Guo Ren <guoren@kernel.org>
+Date:   Fri, 25 Feb 2022 23:42:09 +0800
+X-Gmail-Original-Message-ID: <CAJF2gTTu5=XwDUwNq=PfnzVRj-jPHH+0cOGhhLr_dFED1H24_g@mail.gmail.com>
+Message-ID: <CAJF2gTTu5=XwDUwNq=PfnzVRj-jPHH+0cOGhhLr_dFED1H24_g@mail.gmail.com>
+Subject: Re: [PATCH V6 16/20] riscv: compat: vdso: Add rv32 VDSO base code implementation
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     Palmer Dabbelt <palmer@dabbelt.com>,
+        Anup Patel <anup@brainfault.org>,
+        gregkh <gregkh@linuxfoundation.org>,
+        liush <liush@allwinnertech.com>, Wei Fu <wefu@redhat.com>,
+        Drew Fustini <drew@beagleboard.org>,
+        Wang Junqiang <wangjunqiang@iscas.ac.cn>,
+        Christoph Hellwig <hch@lst.de>,
+        linux-arch <linux-arch@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-csky@vger.kernel.org,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Guo Ren <guoren@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 02/24/22 at 02:27pm, David Laight wrote:
-> From: Baoquan He
-> > Sent: 24 February 2022 14:11
-> ...
-> > With my understanding, there are two kinds of DMA mapping, coherent
-> > mapping (which is also persistent mapping), and streaming mapping. The
-> > coherent mapping will be handled during driver init, and released during
-> > driver de-init. While streaming mapping will be done when needed at any
-> > time, and released after usage.
-> 
-> The lifetime has absolutely nothing to do with it.
-> 
-> It is all about how the DMA cycles (from the device) interact with
-> (or more don't interact with) the cpu memory cache.
-> 
-> For coherent mapping the cpu and device can write to (different)
-> words in the same cache line at the same time, and both will see
-> both updates.
-> On some systems this can only be achieved by making the memory
-> uncached - which significantly slows down cpu access.
-> 
-> For non-coherent (streaming) mapping the cpu writes back and/or
-> invalidates the data cache so that the dma read cycles from memory
-> read the correct data and the cpu re-reads the cache line after
-> the dma has completed.
-> They are only really suitable for data buffers.
+Hi Arnd & Palmer,
 
-Thanks for valuable input, I agree the lifetime is not stuff we can rely
-on to judge. But how do we explain dma_alloc_noncoherent() is not streaming
-mapping? Then which kind of dma mapping is it?
+Here is the new modified compat_vdso/Makefile, please have a look,
+first. Then I would update it to v7:
+===========================================
+# SPDX-License-Identifier: GPL-2.0-only
+#
+# Makefile for compat_vdso
+#
 
-I could miss something important to understand this which is obvious to
-other people, I will make time to check.
+# Symbols present in the compat_vdso
+compat_vdso-syms  = rt_sigreturn
+compat_vdso-syms += getcpu
+compat_vdso-syms += flush_icache
 
+ifdef CROSS_COMPILE_COMPAT
+        COMPAT_CC := $(CROSS_COMPILE_COMPAT)gcc
+        COMPAT_LD := $(CROSS_COMPILE_COMPAT)ld
+else
+        COMPAT_CC := $(CC)
+        COMPAT_LD := $(LD)
+endif
+
+COMPAT_CC_FLAGS := -march=rv32g -mabi=ilp32
+COMPAT_LD_FLAGS := -melf32lriscv
+
+# Files to link into the compat_vdso
+obj-compat_vdso = $(patsubst %, %.o, $(compat_vdso-syms)) note.o
+
+# Build rules
+targets := $(obj-compat_vdso) compat_vdso.so compat_vdso.so.dbg compat_vdso.lds
+obj-compat_vdso := $(addprefix $(obj)/, $(obj-compat_vdso))
+
+obj-y += compat_vdso.o
+CPPFLAGS_compat_vdso.lds += -P -C -U$(ARCH)
+
+# Disable profiling and instrumentation for VDSO code
+GCOV_PROFILE := n
+KCOV_INSTRUMENT := n
+KASAN_SANITIZE := n
+UBSAN_SANITIZE := n
+
+# Force dependency
+$(obj)/compat_vdso.o: $(obj)/compat_vdso.so
+
+# link rule for the .so file, .lds has to be first
+$(obj)/compat_vdso.so.dbg: $(obj)/compat_vdso.lds $(obj-compat_vdso) FORCE
+        $(call if_changed,compat_vdsold)
+LDFLAGS_compat_vdso.so.dbg = -shared -S -soname=linux-compat_vdso.so.1 \
+        --build-id=sha1 --hash-style=both --eh-frame-hdr
+
+$(obj-compat_vdso): %.o: %.S FORCE
+        $(call if_changed_dep,compat_vdsoas)
+
+# strip rule for the .so file
+$(obj)/%.so: OBJCOPYFLAGS := -S
+$(obj)/%.so: $(obj)/%.so.dbg FORCE
+        $(call if_changed,objcopy)
+
+# Generate VDSO offsets using helper script
+gen-compat_vdsosym := $(srctree)/$(src)/gen_compat_vdso_offsets.sh
+quiet_cmd_compat_vdsosym = VDSOSYM $@
+        cmd_compat_vdsosym = $(NM) $< | $(gen-compat_vdsosym) |
+LC_ALL=C sort > $@
+
+include/generated/compat_vdso-offsets.h: $(obj)/compat_vdso.so.dbg FORCE
+        $(call if_changed,compat_vdsosym)
+
+# actual build commands
+# The DSO images are built using a special linker script
+# Make sure only to export the intended __compat_vdso_xxx symbol offsets.
+quiet_cmd_compat_vdsold = VDSOLD  $@
+      cmd_compat_vdsold = $(COMPAT_LD) $(ld_flags) $(COMPAT_LD_FLAGS)
+-T $(filter-out FORCE,$^) -o $@.tmp && \
+                   $(OBJCOPY) $(patsubst %, -G __compat_vdso_%,
+$(compat_vdso-syms)) $@.tmp $@ && \
+                   rm $@.tmp
+
+# actual build commands
+quiet_cmd_compat_vdsoas = VDSOAS $@
+      cmd_compat_vdsoas = $(COMPAT_CC) $(a_flags) $(COMPAT_CC_FLAGS) -c -o $@ $<
+
+# install commands for the unstripped file
+quiet_cmd_compat_vdso_install = INSTALL $@
+      cmd_compat_vdso_install = cp $(obj)/$@.dbg $(MODLIB)/compat_vdso/$@
+
+compat_vdso.so: $(obj)/compat_vdso.so.dbg
+        @mkdir -p $(MODLIB)/compat_vdso
+        $(call cmd,compat_vdso_install)
+
+compat_vdso_install: compat_vdso.so
+===========================================
+
+Here is the make V=1 output:
+
+make -f /home/guoren/source/kernel/riscv-linux/scripts/Makefile.build
+obj=arch/riscv/kernel/vdso include/generated/vdso-offsets.h
+make -f /home/guoren/source/kernel/riscv-linux/scripts/Makefile.build
+obj=arch/riscv/kernel/compat_vdso
+include/generated/compat_vdso-offsets.h
+  riscv64-unknown-linux-gnu-gcc -E
+-Wp,-MMD,arch/riscv/kernel/compat_vdso/.compat_vdso.lds.d  -nostdinc
+-I/home/guoren/source/kernel/riscv-linux/arch/riscv/include
+-I./arch/riscv/include/generated
+-I/home/guoren/source/kernel/riscv-linux/include -I./include
+-I/home/guoren/source/kernel/riscv-linux/arch/riscv/include/uapi
+-I./arch/riscv/include/generated/uapi
+-I/home/guoren/source/kernel/riscv-linux/include/uapi -I./includ
+e/generated/uapi -include
+/home/guoren/source/kernel/riscv-linux/include/linux/compiler-version.h
+-include /home/guoren/source/kernel/riscv-linux/include/linux/kconfig.h
+-D__KERNEL__ -fmacro-prefix-map=/home/guoren/source/kernel/riscv-linux/=
+   -P -C -Uriscv -I
+/home/guoren/source/kernel/riscv-linux/arch/riscv/kernel/compat_vdso
+-I ./arch/riscv/kernel/compat_vdso -P -Uriscv -D__ASSEMBLY__
+-DLINKER_SCRIPT -o arch/riscv/ke
+rnel/compat_vdso/compat_vdso.lds
+/home/guoren/source/kernel/riscv-linux/arch/riscv/kernel/compat_vdso/compat_vdso.lds.S
+  riscv64-unknown-linux-gnu-gcc
+-Wp,-MMD,arch/riscv/kernel/compat_vdso/.rt_sigreturn.o.d  -nostdinc
+-I/home/guoren/source/kernel/riscv-linux/arch/riscv/include
+-I./arch/riscv/include/generated
+-I/home/guoren/source/kernel/riscv-linux/include -I./include
+-I/home/guoren/source/kernel/riscv-linux/arch/riscv/include/uapi
+-I./arch/riscv/include/generated/uapi
+-I/home/guoren/source/kernel/riscv-linux/include/uapi -I./include/ge
+nerated/uapi -include
+/home/guoren/source/kernel/riscv-linux/include/linux/compiler-version.h
+-include /home/guoren/source/kernel/riscv-linux/include/linux/kconfig.h
+-D__KERNEL__ -fmacro-prefix-map=/home/guoren/source/kernel/riscv-linux/=
+-D__ASSEMBLY__ -fno-PIE -mabi=lp64 -march=rv64imafdc -I
+/home/guoren/source/kernel/riscv-linux/arch/riscv/kernel/compat_vdso
+-I ./arch/riscv/kernel/compat_vdso    -march=rv32g -mabi=ilp3
+2 -c -o arch/riscv/kernel/compat_vdso/rt_sigreturn.o
+/home/guoren/source/kernel/riscv-linux/arch/riscv/kernel/compat_vdso/rt_sigreturn.S
+  riscv64-unknown-linux-gnu-gcc
+-Wp,-MMD,arch/riscv/kernel/compat_vdso/.getcpu.o.d  -nostdinc
+-I/home/guoren/source/kernel/riscv-linux/arch/riscv/include
+-I./arch/riscv/include/generated
+-I/home/guoren/source/kernel/riscv-linux/include -I./include
+-I/home/guoren/source/kernel/riscv-linux/arch/riscv/include/uapi
+-I./arch/riscv/include/generated/uapi
+-I/home/guoren/source/kernel/riscv-linux/include/uapi
+-I./include/generate
+d/uapi -include
+/home/guoren/source/kernel/riscv-linux/include/linux/compiler-version.h
+-include /home/guoren/source/kernel/riscv-linux/include/linux/kconfig.h
+-D__KERNEL__ -fmacro-prefix-map=/home/guoren/source/kernel/riscv-linux/=
+-D__ASSEMBLY__ -fno-PIE -mabi=lp64 -march=rv64imafdc -I
+/home/guoren/source/kernel/riscv-linux/arch/riscv/kernel/compat_vdso
+-I ./arch/riscv/kernel/compat_vdso    -march=rv32g -mabi=ilp32 -c -
+o arch/riscv/kernel/compat_vdso/getcpu.o
+/home/guoren/source/kernel/riscv-linux/arch/riscv/kernel/compat_vdso/getcpu.S
+  riscv64-unknown-linux-gnu-gcc
+-Wp,-MMD,arch/riscv/kernel/compat_vdso/.flush_icache.o.d  -nostdinc
+-I/home/guoren/source/kernel/riscv-linux/arch/riscv/include
+-I./arch/riscv/include/generated
+-I/home/guoren/source/kernel/riscv-linux/include -I./include
+-I/home/guoren/source/kernel/riscv-linux/arch/riscv/include/uapi
+-I./arch/riscv/include/generated/uapi
+-I/home/guoren/source/kernel/riscv-linux/include/uapi -I./include/ge
+nerated/uapi -include
+/home/guoren/source/kernel/riscv-linux/include/linux/compiler-version.h
+-include /home/guoren/source/kernel/riscv-linux/include/linux/kconfig.h
+-D__KERNEL__ -fmacro-prefix-map=/home/guoren/source/kernel/riscv-linux/=
+-D__ASSEMBLY__ -fno-PIE -mabi=lp64 -march=rv64imafdc -I
+/home/guoren/source/kernel/riscv-linux/arch/riscv/kernel/compat_vdso
+-I ./arch/riscv/kernel/compat_vdso    -march=rv32g -mabi=ilp3
+2 -c -o arch/riscv/kernel/compat_vdso/flush_icache.o
+/home/guoren/source/kernel/riscv-linux/arch/riscv/kernel/compat_vdso/flush_icache.S
+  riscv64-unknown-linux-gnu-gcc
+-Wp,-MMD,arch/riscv/kernel/compat_vdso/.note.o.d  -nostdinc
+-I/home/guoren/source/kernel/riscv-linux/arch/riscv/include
+-I./arch/riscv/include/generated
+-I/home/guoren/source/kernel/riscv-linux/include -I./include
+-I/home/guoren/source/kernel/riscv-linux/arch/riscv/include/uapi
+-I./arch/riscv/include/generated/uapi
+-I/home/guoren/source/kernel/riscv-linux/include/uapi
+-I./include/generated/
+uapi -include /home/guoren/source/kernel/riscv-linux/include/linux/compiler-version.h
+-include /home/guoren/source/kernel/riscv-linux/include/linux/kconfig.h
+-D__KERNEL__ -fmacro-prefix-map=/home/guoren/source/kernel/riscv-linux/=
+-D__ASSEMBLY__ -fno-PIE -mabi=lp64 -march=rv64imafdc -I
+/home/guoren/source/kernel/riscv-linux/arch/riscv/kernel/compat_vdso
+-I ./arch/riscv/kernel/compat_vdso    -march=rv32g -mabi=ilp32 -c -o
+arch/riscv/kernel/compat_vdso/note.o
+/home/guoren/source/kernel/riscv-linux/arch/riscv/kernel/compat_vdso/note.S
+  riscv64-unknown-linux-gnu-ld  -melf64lriscv   -shared -S
+-soname=linux-compat_vdso.so.1 --build-id=sha1 --hash-style=both
+--eh-frame-hdr -melf32lriscv -T
+arch/riscv/kernel/compat_vdso/compat_vdso.lds
+arch/riscv/kernel/compat_vdso/rt_sigreturn.o
+arch/riscv/kernel/compat_vdso/getcpu.o
+arch/riscv/kernel/compat_vdso/flush_icache.o
+arch/riscv/kernel/compat_vdso/note.o -o
+arch/riscv/kernel/compat_vdso/compat_vdso.so.dbg.tmp &
+& riscv64-unknown-linux-gnu-objcopy  -G __compat_vdso_rt_sigreturn  -G
+__compat_vdso_getcpu  -G __compat_vdso_flush_icache
+arch/riscv/kernel/compat_vdso/compat_vdso.so.dbg.tmp
+arch/riscv/kernel/compat_vdso/compat_vdso.so.dbg && rm
+arch/riscv/kernel/compat_vdso/compat_vdso.so.dbg.tmp
+  riscv64-unknown-linux-gnu-nm
+arch/riscv/kernel/compat_vdso/compat_vdso.so.dbg |
+/home/guoren/source/kernel/riscv-linux/arch/riscv/kernel/compat_vdso/gen_compat_vdso_offsets.sh
+| LC_ALL=C sort > include/generated/compat_vdso-offsets.h
+
+
+On Thu, Feb 24, 2022 at 6:13 PM Arnd Bergmann <arnd@arndb.de> wrote:
+>
+> On Thu, Feb 24, 2022 at 9:54 AM <guoren@kernel.org> wrote:
+> >
+> > From: Guo Ren <guoren@linux.alibaba.com>
+> >
+> > There is no vgettimeofday supported in rv32 that makes simple to
+> > generate rv32 vdso code which only needs riscv64 compiler. Other
+> > architectures need change compiler or -m (machine parameter) to
+> > support vdso32 compiling. If rv32 support vgettimeofday (which
+> > cause C compile) in future, we would add CROSS_COMPILE to support
+> > that makes more requirement on compiler enviornment.
+>
+> I think it's just a bug that rv32 doesn't have the vdso version of the
+> time syscalls. Fixing that is of course independent of the compat support,
+> but I think you need that anyway, and it would be better to start
+> out by building the compat vdso with the correct
+> architecture level.
+>
+> At least this should be a lot easier than on arch/arm64 because you
+> can assume that an rv64 compiler is able to also build rv32 output.
+>
+>         Arnd
+
+
+
+-- 
+Best Regards
+ Guo Ren
+
+ML: https://lore.kernel.org/linux-csky/
