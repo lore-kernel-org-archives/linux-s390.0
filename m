@@ -2,131 +2,154 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E5CBC43217
-	for <linux-s390@archiver.kernel.org>; Fri, 25 Feb 2022 04:33:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C75EBC433FE
+	for <linux-s390@archiver.kernel.org>; Fri, 25 Feb 2022 04:47:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237427AbiBYEe2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 24 Feb 2022 23:34:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43652 "EHLO
+        id S237450AbiBYErh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 24 Feb 2022 23:47:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235373AbiBYEe1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Feb 2022 23:34:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E08511AAA51;
-        Thu, 24 Feb 2022 20:33:55 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D34F61893;
-        Fri, 25 Feb 2022 04:33:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF2F6C340E7;
-        Fri, 25 Feb 2022 04:33:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645763634;
-        bh=uh4UnFdDR53Ujc6m18f6ctjt+AIyhJXv2xufWpNaVhA=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=Uvtrsu50Hf9ISgTqjw2cZIY/fdalMvrStTdfqoQM3mdhWwRTlcM+di3Mlxj2LfRYC
-         sL2lOFI5CCKzGB0MNHSMJUWPqE4dtIOpz2JXIrS4+Xkvjw7ulJEnCWAELTi2BsI79T
-         +YcmqfASppeT6+G8sHwqPvTdqA+0hk873k0laznUkKMLOPw4ZEEscH10+2t1L5fKp+
-         8BfsQshsS4Im5IcgpwMXaxmFYPmHS4QO6tZE5Cu6VT+1C4lCHB7iNpJZvNEdHwtoNJ
-         zTpbMfhiIoucAZFTRmPZuLhWqy/lBlhaelfx8iUJ+lK7d4LQiirbG9AaOIPIgpnmXG
-         aNgH1u0nAoM1w==
-Message-ID: <3927b6f5-c8d0-1421-407d-850ede02dd0f@kernel.org>
-Date:   Thu, 24 Feb 2022 22:33:46 -0600
+        with ESMTP id S237445AbiBYErh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Feb 2022 23:47:37 -0500
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F0305A151
+        for <linux-s390@vger.kernel.org>; Thu, 24 Feb 2022 20:47:04 -0800 (PST)
+Received: by mail-pj1-x1030.google.com with SMTP id q8-20020a17090a178800b001bc299b8de1so3838657pja.1
+        for <linux-s390@vger.kernel.org>; Thu, 24 Feb 2022 20:47:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=SyanVPTDj26hoM0+/34vC3ojlwHE6zX0sye59Y+Rtjs=;
+        b=ez/pn28OrXoTJLAydt7fC3l/1BRKMczx0EuxgJzCsoJxTes/Q7y60tcVMO7wzlZseu
+         9ifY3jRNBn24/NGKwkqqOVQOACDLdGJKM8O1juUN8Vb5C+HPbiKG5WnRq7DsniVf7u8e
+         fw6ieiJnZPOJ/xg6orBYtG5jEZmuIWIwk6hF4=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=SyanVPTDj26hoM0+/34vC3ojlwHE6zX0sye59Y+Rtjs=;
+        b=SsXswIFq82Y6OKlnlLTpxwtmBp5AIg17kDw9AK6/8/ujA0kn90tlCV9MG92NwbCp+W
+         wEOFYrX6YIlYTnKaOViq8kF3kruMyKCl7zs8lrcnnhNMTJeSug/9EvCSXIVHg9HnNyWO
+         c/nEEvAsUFXUUsXv4d43JUgENW+Pyfi9dBPyHAUbpvUimxPV0LmuIiA+uJasgvfI6d2s
+         r5NWZ1XYtPnhLLh5FsNR1l9iE6UwUNjE8DT8nxYMQwwckVgWAOR07tk0IgwYFyCyDU2e
+         XiAYIbET7CjhRCGH4fQJFS1/Q1D2HHHqMMAaAsWUuwlmXCql62Vui1YIypBeQGrUmrtx
+         +dIg==
+X-Gm-Message-State: AOAM531dQCcuqfJCMNNZG1f/5VphAvqS7Sfh3kVFcWcoGH/1Go1gRE57
+        JXcmVq8OSKSjVYuEHqy+KpVzUlqgEfwgGA==
+X-Google-Smtp-Source: ABdhPJzy/9ym4pKvdp7gXGiiTJRBM16FFuwlMDSrJbIDB/E//S1S2eCPnNgmXzRLoOrLqxAOu4UIKw==
+X-Received: by 2002:a17:902:f64e:b0:14d:20db:8478 with SMTP id m14-20020a170902f64e00b0014d20db8478mr5755429plg.158.1645764423449;
+        Thu, 24 Feb 2022 20:47:03 -0800 (PST)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id f16-20020a623810000000b004e1b132bc9esm1254834pfa.149.2022.02.24.20.47.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 24 Feb 2022 20:47:03 -0800 (PST)
+Date:   Thu, 24 Feb 2022 20:47:02 -0800
+From:   Kees Cook <keescook@chromium.org>
+To:     David Laight <David.Laight@aculab.com>
+Cc:     Matthew Wilcox <willy@infradead.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        Muhammad Usama Anjum <usama.anjum@collabora.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>,
+        "linux-hardening@vger.kernel.org" <linux-hardening@vger.kernel.org>
+Subject: Re: [PATCH v2] usercopy: Check valid lifetime via stack depth
+Message-ID: <202202242046.33FF8372@keescook>
+References: <20220224060342.1855457-1-keescook@chromium.org>
+ <85d42900efaa4fdb8c20de2147d938c7@AcuMS.aculab.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH v2 18/18] uaccess: drop maining CONFIG_SET_FS users
-Content-Language: en-US
-To:     Arnd Bergmann <arnd@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Christoph Hellwig <hch@lst.de>, linux-arch@vger.kernel.org,
-        linux-mm@kvack.org, linux-api@vger.kernel.org, arnd@arndb.de,
-        linux-kernel@vger.kernel.org, viro@zeniv.linux.org.uk
-Cc:     linux@armlinux.org.uk, will@kernel.org, guoren@kernel.org,
-        bcain@codeaurora.org, geert@linux-m68k.org, monstr@monstr.eu,
-        tsbogend@alpha.franken.de, nickhu@andestech.com,
-        green.hu@gmail.com, shorne@gmail.com, deller@gmx.de,
-        mpe@ellerman.id.au, peterz@infradead.org, mingo@redhat.com,
-        mark.rutland@arm.com, hca@linux.ibm.com, dalias@libc.org,
-        davem@davemloft.net, richard@nod.at, x86@kernel.org,
-        jcmvbkbc@gmail.com, ebiederm@xmission.com,
-        akpm@linux-foundation.org, ardb@kernel.org,
-        linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org
-References: <20220216131332.1489939-1-arnd@kernel.org>
- <20220216131332.1489939-19-arnd@kernel.org>
-From:   Dinh Nguyen <dinguyen@kernel.org>
-In-Reply-To: <20220216131332.1489939-19-arnd@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <85d42900efaa4fdb8c20de2147d938c7@AcuMS.aculab.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 2/16/22 07:13, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
+On Thu, Feb 24, 2022 at 08:58:20AM +0000, David Laight wrote:
+> From: Kees Cook
+> > Sent: 24 February 2022 06:04
+> > 
+> > Under CONFIG_HARDENED_USERCOPY=y, when exact stack frame boundary checking
+> > is not available (i.e. everything except x86 with FRAME_POINTER), check
+> > a stack object as being at least "current depth valid", in the sense
+> > that any object within the stack region but not between start-of-stack
+> > and current_stack_pointer should be considered unavailable (i.e. its
+> > lifetime is from a call no longer present on the stack).
+> > 
+> ...
+> > diff --git a/mm/usercopy.c b/mm/usercopy.c
+> > index d0d268135d96..5d28725af95f 100644
+> > --- a/mm/usercopy.c
+> > +++ b/mm/usercopy.c
+> > @@ -22,6 +22,30 @@
+> >  #include <asm/sections.h>
+> >  #include "slab.h"
+> > 
+> > +/*
+> > + * Only called if obj is within stack/stackend bounds. Determine if within
+> > + * current stack depth.
+> > + */
+> > +static inline int check_stack_object_depth(const void *obj,
+> > +					   unsigned long len)
+> > +{
+> > +#ifdef CONFIG_ARCH_HAS_CURRENT_STACK_POINTER
+> > +#ifndef CONFIG_STACK_GROWSUP
 > 
-> There are no remaining callers of set_fs(), so CONFIG_SET_FS
-> can be removed globally, along with the thread_info field and
-> any references to it.
+> Pointless negation
 > 
-> This turns access_ok() into a cheaper check against TASK_SIZE_MAX.
+> > +	const void * const high = stackend;
+> > +	const void * const low = (void *)current_stack_pointer;
+> > +#else
+> > +	const void * const high = (void *)current_stack_pointer;
+> > +	const void * const low = stack;
+> > +#endif
+> > +
+> > +	/* Reject: object not within current stack depth. */
+> > +	if (obj < low || high < obj + len)
+> > +		return BAD_STACK;
+> > +
+> > +#endif
+> > +	return GOOD_STACK;
+> > +}
 > 
-> With CONFIG_SET_FS gone, so drop all remaining references to
-> set_fs()/get_fs(), mm_segment_t and uaccess_kernel().
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->   arch/Kconfig                              |  3 -
->   arch/alpha/Kconfig                        |  1 -
->   arch/alpha/include/asm/processor.h        |  4 --
->   arch/alpha/include/asm/thread_info.h      |  2 -
->   arch/alpha/include/asm/uaccess.h          | 19 ------
->   arch/arc/Kconfig                          |  1 -
->   arch/arc/include/asm/segment.h            | 20 -------
->   arch/arc/include/asm/thread_info.h        |  3 -
->   arch/arc/include/asm/uaccess.h            |  1 -
->   arch/arm/lib/uaccess_with_memcpy.c        | 10 ----
->   arch/csky/Kconfig                         |  1 -
->   arch/csky/include/asm/processor.h         |  2 -
->   arch/csky/include/asm/segment.h           | 10 ----
->   arch/csky/include/asm/thread_info.h       |  2 -
->   arch/csky/include/asm/uaccess.h           |  3 -
->   arch/csky/kernel/asm-offsets.c            |  1 -
->   arch/h8300/Kconfig                        |  1 -
->   arch/h8300/include/asm/processor.h        |  1 -
->   arch/h8300/include/asm/segment.h          | 40 -------------
->   arch/h8300/include/asm/thread_info.h      |  3 -
->   arch/h8300/kernel/entry.S                 |  1 -
->   arch/h8300/kernel/head_ram.S              |  1 -
->   arch/h8300/mm/init.c                      |  6 --
->   arch/h8300/mm/memory.c                    |  1 -
->   arch/hexagon/Kconfig                      |  1 -
->   arch/hexagon/include/asm/thread_info.h    |  6 --
->   arch/hexagon/kernel/process.c             |  1 -
->   arch/microblaze/Kconfig                   |  1 -
->   arch/microblaze/include/asm/thread_info.h |  6 --
->   arch/microblaze/include/asm/uaccess.h     | 24 --------
->   arch/microblaze/kernel/asm-offsets.c      |  1 -
->   arch/microblaze/kernel/process.c          |  1 -
->   arch/nds32/Kconfig                        |  1 -
->   arch/nds32/include/asm/thread_info.h      |  4 --
->   arch/nds32/include/asm/uaccess.h          | 15 +----
->   arch/nds32/kernel/process.c               |  5 +-
->   arch/nds32/mm/alignment.c                 |  3 -
->   arch/nios2/Kconfig                        |  1 -
->   arch/nios2/include/asm/thread_info.h      |  9 ---
->   arch/nios2/include/asm/uaccess.h          | 12 ----
+> If the comment at the top of the function is correct then
+> only a single test for the correct end of the buffer against
+> the current stack pointer is needed.
+> Something like:
+> #ifdef CONFIG_STACK_GROWSUP
+> 	if ((void *)current_stack_pointer < obj + len)
+> 		return BAD_STACK;
+> #else
+> 	if (obj < (void *)current_stack_pointer)
+> 		return BAD_STACK;
+> #endif
+> 	return GOOD_STACK;
 
-For NIOS2:
+Oh, yeah, excellent point. I suspect the compiler would probably
+optimize it all away, but yes, this is, in fact, easier to read, and
+short enough I should probably just not bother with a separate function.
 
-Acked-by: Dinh Nguyen <dinguyen@kernel.org>
+Thanks!
+
+-Kees
+
+> 
+> Although it may depend on exactly where the stack pointer
+> points to - especially for GROWSUP.
+> 
+> 	David
+> 
+> -
+> Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+> Registration No: 1397386 (Wales)
+> 
+
+-- 
+Kees Cook
