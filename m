@@ -2,102 +2,182 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EB06C433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 25 Feb 2022 23:42:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D41CFC433F5
+	for <linux-s390@archiver.kernel.org>; Sun, 27 Feb 2022 13:52:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231373AbiBYXmu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 25 Feb 2022 18:42:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37284 "EHLO
+        id S231251AbiB0NxY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 27 Feb 2022 08:53:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230190AbiBYXmt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Feb 2022 18:42:49 -0500
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DABC81F038B;
-        Fri, 25 Feb 2022 15:42:15 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R441e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0V5Uzc0U_1645832532;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0V5Uzc0U_1645832532)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Sat, 26 Feb 2022 07:42:12 +0800
-Date:   Sat, 26 Feb 2022 07:42:11 +0800
-From:   "dust.li" <dust.li@linux.alibaba.com>
-To:     Karsten Graul <kgraul@linux.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>
-Cc:     Stefan Raspl <raspl@linux.ibm.com>,
-        Tony Lu <tonylu@linux.alibaba.com>, kuba@kernel.org,
-        davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: Re: [PATCH] net/smc: Add autocork support
-Message-ID: <20220225234211.GA5282@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20220216152721.GB39286@linux.alibaba.com>
- <454b5efd-e611-2dfb-e462-e7ceaee0da4d@linux.ibm.com>
- <20220217132200.GA5443@linux.alibaba.com>
- <Yg6Q2kIDJrhvNVz7@linux.ibm.com>
- <20220218073327.GB5443@linux.alibaba.com>
- <d4ce4674-3ced-da34-a8a4-30d74cbe24bb@linux.ibm.com>
- <20220218234232.GC5443@linux.alibaba.com>
- <bc3252a3-5a84-63d4-dfc5-009f602a5bec@linux.ibm.com>
- <20220224020253.GF5443@linux.alibaba.com>
- <f2afb775-a156-2c32-a49a-225545dc2bf7@linux.ibm.com>
+        with ESMTP id S231238AbiB0NxW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 27 Feb 2022 08:53:22 -0500
+Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4138E65C4
+        for <linux-s390@vger.kernel.org>; Sun, 27 Feb 2022 05:52:42 -0800 (PST)
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com [209.85.208.71])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 841BD3FCAD
+        for <linux-s390@vger.kernel.org>; Sun, 27 Feb 2022 13:52:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1645969956;
+        bh=lHEHPtP6JAM6zCrRNeDTlRy/WZxSvWGZvNHgREr2xAI=;
+        h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+         MIME-Version;
+        b=YYmIWvVBd8hAFKEneAPLXYvqJ9NoKRtnpMxIJ4oseziHn09PwdtEiJRJyI+P9Yknh
+         W2UrUeff0ISfpOfG29569jJj9VDkChvoelDDft8fYyiE/Qxi66iLAixpG9N04i6OUS
+         cpydPFLqqM3pxbCqHvpbxA+8AVrTTNLEU/mijOBNLynWTL7OxZwkm6O2O810isJSBf
+         Wn/dXwCQXE6MwQVqRhoi/+VVDSaV5FEUYStscR+XXN9UWqwIKLRrJSf8fKWOTiJIap
+         1jKdwB8teRK+RzFlg46MP7VeK/htTvC+N3j/1gQ4CU79Qf/khV8EeJ3sKbWaTI5kqk
+         p2IYti553vjvw==
+Received: by mail-ed1-f71.google.com with SMTP id o20-20020aa7dd54000000b00413bc19ad08so72619edw.7
+        for <linux-s390@vger.kernel.org>; Sun, 27 Feb 2022 05:52:36 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=lHEHPtP6JAM6zCrRNeDTlRy/WZxSvWGZvNHgREr2xAI=;
+        b=tbYyKMZXgAPTxr4aWNOVCcb4BLJMY3ZZU8iNKcpRr+jYuCP8xt8EzI16GP11tyMUlF
+         eAEd8H8Zt/AyxR39nVarG07Br+MCgqlcA3AFgf91riXTpq4G/Y2cn8d4x4ucOUFWrJef
+         4pBiMHzHIiA2Feceb2iqQn8vreU1GCIks9t6L9Dlz2XZfaWeEUQ37L24iNz1jqXxuzRr
+         QBk2WFhz7xyC2Qxmj5yPB5CPSD77ierWReXCE+JQob4hOmIiHIWegNUdAYv2apH0+yUY
+         e9LtOi5LlGAjCBFGVhkxAa8xPnCp4z5L3gneIKBYhN054Mhf7ezS3seHbAkydbVGba2C
+         wm/g==
+X-Gm-Message-State: AOAM5327gXG0FfkdHtuJN98sOM38/2QmAozCenqLeej6rPlWRVoj0n/f
+        k0JTfDEzzeepAFmnwO4cfSc6ws4G5NwgRM7thOfM9xJU+390GQpXWO9jcniniS520y9yK0/gv0W
+        uFEm11G149/cmRdZdJWUeHcDWcPQC78ptI/mh4CE=
+X-Received: by 2002:a17:906:d10c:b0:6cd:4aa2:cd62 with SMTP id b12-20020a170906d10c00b006cd4aa2cd62mr12751217ejz.229.1645969956014;
+        Sun, 27 Feb 2022 05:52:36 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyXq+ZARVgwx9GQqR/xqmr4FidvI0jbXs/SPWVteyhvLCXz3Udlc0TuaU2TzyIf2JoyZYkY6w==
+X-Received: by 2002:a17:906:d10c:b0:6cd:4aa2:cd62 with SMTP id b12-20020a170906d10c00b006cd4aa2cd62mr12751178ejz.229.1645969955744;
+        Sun, 27 Feb 2022 05:52:35 -0800 (PST)
+Received: from localhost.localdomain (xdsl-188-155-181-108.adslplus.ch. [188.155.181.108])
+        by smtp.gmail.com with ESMTPSA id r22-20020a17090638d600b006d584aaa9c9sm3393333ejd.133.2022.02.27.05.52.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 27 Feb 2022 05:52:35 -0800 (PST)
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Stuart Yoder <stuyoder@gmail.com>,
+        Laurentiu Tudor <laurentiu.tudor@nxp.com>,
+        Abel Vesa <abel.vesa@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Andy Gross <agross@kernel.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-clk@vger.kernel.org, NXP Linux Team <linux-imx@nxp.com>,
+        linux-arm-kernel@lists.infradead.org, linux-hyperv@vger.kernel.org,
+        linux-pci@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        alsa-devel@alsa-project.org, linux-spi@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Subject: [PATCH v3 03/11] fsl-mc: Use driver_set_override() instead of open-coding
+Date:   Sun, 27 Feb 2022 14:52:06 +0100
+Message-Id: <20220227135214.145599-4-krzysztof.kozlowski@canonical.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220227135214.145599-1-krzysztof.kozlowski@canonical.com>
+References: <20220227135214.145599-1-krzysztof.kozlowski@canonical.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <f2afb775-a156-2c32-a49a-225545dc2bf7@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Feb 25, 2022 at 07:10:40PM +0100, Karsten Graul wrote:
->On 24/02/2022 03:02, dust.li wrote:
->> On Wed, Feb 23, 2022 at 07:57:31PM +0100, Karsten Graul wrote:
->>> On 19/02/2022 00:42, dust.li wrote:
->>>> On Fri, Feb 18, 2022 at 05:03:56PM +0100, Karsten Graul wrote:
->>>>> Right now for me it looks like there is no way to use netlink for container runtime
->>>>> configuration, which is a pity.
->>>>> We continue our discussions about this in the team, and also here on the list.
->>>>
->>>> Many thanks for your time on this topic !
->>>
->>> We checked more specs (like Container Network Interface (CNI) Specification) 
->>> but all we found uses sysctl at the end. There is lot of infrastructure 
->>> to use sysctls in a container environment.
->>>
->>> Establishing netlink-like controls for containers is by far out of our scope, and
->>> would take a long time until it would be available in the popular projects.
->>>
->>> So at the moment I see no alternative to an additional sysctl interface in the 
->>> SMC module that provides controls which are useful in container environments.
->> 
->> Got it, I will add sysctl interface and a switch with this function.
->> 
->> Thank again !
->
->Can you explain again why this auto_cork needs a switch to disable it?
->My understanding is that this auto_cork makes always sense and is triggered
->when there are not enough resources.
+Use a helper for seting driver_override to reduce amount of duplicated
+code. Make the driver_override field const char, because it is not
+modified by the core and it matches other subsystems.
 
-My initial intention to provide a switch is to be like TCP to let user
-to disable it. For user cases like debug and workaround bugs if it is
-associated with auto cork, or compare performance like I did (But this
-should not be a real world case in production environment).
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+---
+ drivers/bus/fsl-mc/fsl-mc-bus.c | 25 ++++---------------------
+ include/linux/fsl/mc.h          |  6 ++++--
+ 2 files changed, 8 insertions(+), 23 deletions(-)
 
-But after Stefan suggested that we make the auto corked size turnable,
-I realized that we can only need one sysctl switch: which tunes the auto
-corked bytes size. Disable auto cork can be archived by setting this to 0.
+diff --git a/drivers/bus/fsl-mc/fsl-mc-bus.c b/drivers/bus/fsl-mc/fsl-mc-bus.c
+index 8fd4a356a86e..ba01c7f4de92 100644
+--- a/drivers/bus/fsl-mc/fsl-mc-bus.c
++++ b/drivers/bus/fsl-mc/fsl-mc-bus.c
+@@ -166,31 +166,14 @@ static ssize_t driver_override_store(struct device *dev,
+ 				     const char *buf, size_t count)
+ {
+ 	struct fsl_mc_device *mc_dev = to_fsl_mc_device(dev);
+-	char *driver_override, *old = mc_dev->driver_override;
+-	char *cp;
++	int ret;
+ 
+ 	if (WARN_ON(dev->bus != &fsl_mc_bus_type))
+ 		return -EINVAL;
+ 
+-	if (count >= (PAGE_SIZE - 1))
+-		return -EINVAL;
+-
+-	driver_override = kstrndup(buf, count, GFP_KERNEL);
+-	if (!driver_override)
+-		return -ENOMEM;
+-
+-	cp = strchr(driver_override, '\n');
+-	if (cp)
+-		*cp = '\0';
+-
+-	if (strlen(driver_override)) {
+-		mc_dev->driver_override = driver_override;
+-	} else {
+-		kfree(driver_override);
+-		mc_dev->driver_override = NULL;
+-	}
+-
+-	kfree(old);
++	ret = driver_set_override(dev, &mc_dev->driver_override, buf, count);
++	if (ret)
++		return ret;
+ 
+ 	return count;
+ }
+diff --git a/include/linux/fsl/mc.h b/include/linux/fsl/mc.h
+index 7b6c42bfb660..7a87ab9eba99 100644
+--- a/include/linux/fsl/mc.h
++++ b/include/linux/fsl/mc.h
+@@ -170,7 +170,9 @@ struct fsl_mc_obj_desc {
+  * @regions: pointer to array of MMIO region entries
+  * @irqs: pointer to array of pointers to interrupts allocated to this device
+  * @resource: generic resource associated with this MC object device, if any.
+- * @driver_override: driver name to force a match
++ * @driver_override: driver name to force a match; do not set directly,
++ *                   because core frees it; use driver_set_override() to
++ *                   set or clear it.
+  *
+  * Generic device object for MC object devices that are "attached" to a
+  * MC bus.
+@@ -204,7 +206,7 @@ struct fsl_mc_device {
+ 	struct fsl_mc_device_irq **irqs;
+ 	struct fsl_mc_resource *resource;
+ 	struct device_link *consumer_link;
+-	char   *driver_override;
++	const char *driver_override;
+ };
+ 
+ #define to_fsl_mc_device(_dev) \
+-- 
+2.32.0
 
-Something like this bellow:
-static bool smc_should_autocork(struct smc_sock *smc)
-{
-        struct smc_connection *conn = &smc->conn;
-        int corking_size;
-
-        corking_size = min(sock_net(&smc->sk)->smc.sysctl_autocorking_size,
-                           conn->sndbuf_desc->len >> 1);
-
-        if (atomic_read(&conn->cdc_pend_tx_wr) == 0 ||
-            smc_tx_prepared_sends(conn) > corking_size)
-                return false;
-        return true;
-}
-
-Thanks.
