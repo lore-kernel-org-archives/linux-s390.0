@@ -2,31 +2,31 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 087E5C43217
-	for <linux-s390@archiver.kernel.org>; Sun, 27 Feb 2022 14:31:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A54B4C433FE
+	for <linux-s390@archiver.kernel.org>; Sun, 27 Feb 2022 14:31:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230526AbiB0OcC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 27 Feb 2022 09:32:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55988 "EHLO
+        id S231159AbiB0OcN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 27 Feb 2022 09:32:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230447AbiB0OcA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 27 Feb 2022 09:32:00 -0500
+        with ESMTP id S230447AbiB0OcM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 27 Feb 2022 09:32:12 -0500
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55C7256203;
-        Sun, 27 Feb 2022 06:31:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 238A86D39D;
+        Sun, 27 Feb 2022 06:31:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=gVSpX+7KV6wn42digZLX3vAuIC0pBbxisjv1zSfXCt8=; b=xS25Gh/L8q4nvftBwke0WoEuqB
-        WZCQlc4/eO5m3CIrFujWVHy7c1ntMcLiIZovb5nZz1QbJ55VmGrJczPFQsviDKqOjrr8CaJV5tk3t
-        Xot0RwKQgQN3vFaawuH7zO02hfp/gC13NXkUr0HbpiONgwU1icVk750lH1Zezl7LJZ4supXTzjGYV
-        TMOHmImTl28NSLzRp31rAG4SS3rsHr9ROgPrN9gEFW7EiWrxIEL0YuEyz95TNysrz7npSj2Vs9L1+
-        rdZF/5LTPPxZSaq/F/NzTfl4m72hXRFfX1gMSaS9dUN0bCXPJmQyuYcTjJHPklOQ8b6/9HfoxeIwe
-        teC9G4FQ==;
+        bh=2LuLtS1efSBZ06JRKs3rwu/XDIHFFEkeBlwKrISdqYE=; b=B0tNho3So6ibMdJaKnw+MR/zzf
+        auJa86nzZ0hX+C2umlQDX3eiwUc6f5zR1U7xbRSvDrAEntVHQEtfSYtlEIV8BnSDd7gEz2TpAInM6
+        4Ul3cG03Nzvg0ZxHhOFfhNoYZUXMH3JTVN4rUAvOggj2OvD3jthqE7T37aNi+t3rDN9Gk7mw+TSwe
+        DmGa/1VUOy5wE+TwfKa2AvrZ9i3DAKf2GZWvEcD9hWgqdV9keOr/5OWzYo7H2JYw+m/kK1l47rk1Y
+        7XEF46Dp/b24BRonRQEurSPJujQsm1ayykJNknGOKP2ZJui2HzgS1uVDWSyxTVi3iYcGAoh1LnpKT
+        AKxlXENw==;
 Received: from [213.208.157.39] (helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nOKZu-009Nwk-Uw; Sun, 27 Feb 2022 14:31:15 +0000
+        id 1nOKa2-009O0e-Fb; Sun, 27 Feb 2022 14:31:22 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     iommu@lists.linux-foundation.org
 Cc:     x86@kernel.org, Anshuman Khandual <anshuman.khandual@arm.com>,
@@ -44,9 +44,9 @@ Cc:     x86@kernel.org, Anshuman Khandual <anshuman.khandual@arm.com>,
         linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
         linux-hyperv@vger.kernel.org, tboot-devel@lists.sourceforge.net,
         linux-pci@vger.kernel.org
-Subject: [PATCH 04/11] swiotlb: rename swiotlb_late_init_with_default_size
-Date:   Sun, 27 Feb 2022 15:30:48 +0100
-Message-Id: <20220227143055.335596-5-hch@lst.de>
+Subject: [PATCH 06/11] MIPS/octeon: use swiotlb_init instead of open coding it
+Date:   Sun, 27 Feb 2022 15:30:50 +0100
+Message-Id: <20220227143055.335596-7-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220227143055.335596-1-hch@lst.de>
 References: <20220227143055.335596-1-hch@lst.de>
@@ -57,64 +57,65 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-swiotlb_late_init_with_default_size is an overly verbose name that
-doesn't even catch what the function is doing, given that the size is
-not just a default but the actual requested size.
-
-Rename it to swiotlb_init_late.
+Use the generic swiotlb initialization helper instead of open coding it.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
 ---
- arch/x86/pci/sta2x11-fixup.c | 2 +-
- include/linux/swiotlb.h      | 2 +-
- kernel/dma/swiotlb.c         | 6 ++----
- 3 files changed, 4 insertions(+), 6 deletions(-)
+ arch/mips/cavium-octeon/dma-octeon.c | 15 ++-------------
+ arch/mips/pci/pci-octeon.c           |  2 +-
+ 2 files changed, 3 insertions(+), 14 deletions(-)
 
-diff --git a/arch/x86/pci/sta2x11-fixup.c b/arch/x86/pci/sta2x11-fixup.c
-index 101081ad64b6d..e0c039a75b2db 100644
---- a/arch/x86/pci/sta2x11-fixup.c
-+++ b/arch/x86/pci/sta2x11-fixup.c
-@@ -57,7 +57,7 @@ static void sta2x11_new_instance(struct pci_dev *pdev)
- 		int size = STA2X11_SWIOTLB_SIZE;
- 		/* First instance: register your own swiotlb area */
- 		dev_info(&pdev->dev, "Using SWIOTLB (size %i)\n", size);
--		if (swiotlb_late_init_with_default_size(size))
-+		if (swiotlb_init_late(size))
- 			dev_emerg(&pdev->dev, "init swiotlb failed\n");
- 	}
- 	list_add(&instance->list, &sta2x11_instance_list);
-diff --git a/include/linux/swiotlb.h b/include/linux/swiotlb.h
-index 9fb3a568f0c51..b48b26bfa0edb 100644
---- a/include/linux/swiotlb.h
-+++ b/include/linux/swiotlb.h
-@@ -40,7 +40,7 @@ extern void swiotlb_init(int verbose);
- int swiotlb_init_with_tbl(char *tlb, unsigned long nslabs, int verbose);
- unsigned long swiotlb_size_or_default(void);
- extern int swiotlb_late_init_with_tbl(char *tlb, unsigned long nslabs);
--extern int swiotlb_late_init_with_default_size(size_t default_size);
-+int swiotlb_init_late(size_t size);
- extern void __init swiotlb_update_mem_attributes(void);
+diff --git a/arch/mips/cavium-octeon/dma-octeon.c b/arch/mips/cavium-octeon/dma-octeon.c
+index df70308db0e69..fb7547e217263 100644
+--- a/arch/mips/cavium-octeon/dma-octeon.c
++++ b/arch/mips/cavium-octeon/dma-octeon.c
+@@ -186,15 +186,12 @@ phys_addr_t dma_to_phys(struct device *dev, dma_addr_t daddr)
+ 	return daddr;
+ }
  
- phys_addr_t swiotlb_tbl_map_single(struct device *hwdev, phys_addr_t phys,
-diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index 519e363097190..5f64b02fbb732 100644
---- a/kernel/dma/swiotlb.c
-+++ b/kernel/dma/swiotlb.c
-@@ -290,11 +290,9 @@ swiotlb_init(int verbose)
-  * initialize the swiotlb later using the slab allocator if needed.
-  * This should be just like above, but with some error catching.
-  */
--int
--swiotlb_late_init_with_default_size(size_t default_size)
-+int swiotlb_init_late(size_t size)
+-char *octeon_swiotlb;
+-
+ void __init plat_swiotlb_setup(void)
  {
--	unsigned long nslabs =
--		ALIGN(default_size >> IO_TLB_SHIFT, IO_TLB_SEGSIZE);
-+	unsigned long nslabs = ALIGN(size >> IO_TLB_SHIFT, IO_TLB_SEGSIZE);
- 	unsigned long bytes;
- 	unsigned char *vstart = NULL;
- 	unsigned int order;
+ 	phys_addr_t start, end;
+ 	phys_addr_t max_addr;
+ 	phys_addr_t addr_size;
+ 	size_t swiotlbsize;
+-	unsigned long swiotlb_nslabs;
+ 	u64 i;
+ 
+ 	max_addr = 0;
+@@ -236,15 +233,7 @@ void __init plat_swiotlb_setup(void)
+ 	if (OCTEON_IS_OCTEON2() && max_addr >= 0x100000000ul)
+ 		swiotlbsize = 64 * (1<<20);
+ #endif
+-	swiotlb_nslabs = swiotlbsize >> IO_TLB_SHIFT;
+-	swiotlb_nslabs = ALIGN(swiotlb_nslabs, IO_TLB_SEGSIZE);
+-	swiotlbsize = swiotlb_nslabs << IO_TLB_SHIFT;
+-
+-	octeon_swiotlb = memblock_alloc_low(swiotlbsize, PAGE_SIZE);
+-	if (!octeon_swiotlb)
+-		panic("%s: Failed to allocate %zu bytes align=%lx\n",
+-		      __func__, swiotlbsize, PAGE_SIZE);
+ 
+-	if (swiotlb_init_with_tbl(octeon_swiotlb, swiotlb_nslabs, 1) == -ENOMEM)
+-		panic("Cannot allocate SWIOTLB buffer");
++	swiotlb_adjust_size(swiotlbsize);
++	swiotlb_init(1);
+ }
+diff --git a/arch/mips/pci/pci-octeon.c b/arch/mips/pci/pci-octeon.c
+index fc29b85cfa926..e457a18cbdc59 100644
+--- a/arch/mips/pci/pci-octeon.c
++++ b/arch/mips/pci/pci-octeon.c
+@@ -664,7 +664,7 @@ static int __init octeon_pci_setup(void)
+ 
+ 		/* BAR1 movable regions contiguous to cover the swiotlb */
+ 		octeon_bar1_pci_phys =
+-			virt_to_phys(octeon_swiotlb) & ~((1ull << 22) - 1);
++			io_tlb_default_mem.start & ~((1ull << 22) - 1);
+ 
+ 		for (index = 0; index < 32; index++) {
+ 			union cvmx_pci_bar1_indexx bar1_index;
 -- 
 2.30.2
 
