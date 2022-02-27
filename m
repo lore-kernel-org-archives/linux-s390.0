@@ -2,31 +2,31 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74F1DC4321E
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24E68C433FE
 	for <linux-s390@archiver.kernel.org>; Sun, 27 Feb 2022 14:31:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230443AbiB0Ob5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 27 Feb 2022 09:31:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55956 "EHLO
+        id S230426AbiB0Ob4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 27 Feb 2022 09:31:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230379AbiB0Ob4 (ORCPT
+        with ESMTP id S229492AbiB0Ob4 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Sun, 27 Feb 2022 09:31:56 -0500
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73E2E56203;
-        Sun, 27 Feb 2022 06:31:19 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDBC556200;
+        Sun, 27 Feb 2022 06:31:17 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-        MIME-Version:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
-        Content-ID:Content-Description:In-Reply-To:References;
-        bh=A05LVfYU2PEONzsS8Gc05/y0YX3f/s4+nAdtFiYFaPA=; b=MYjz99MEZpXYXZ+u/hPXwH/5VL
-        VfsjwWWbuKCw7zshSoI+auf/yLifEcY/XE1DJRFtz3VxuS31UllEfuuBvuYyI0R62c4l0m9SjGj0a
-        WGByXvlVvb4GlpMZgQZ/bHMpyjRMYTs0vyxZOS1rHRz9lghF2LWQbtukyT+tPh4vCHeGeC/AcmY98
-        WuPu16zN8JjBDp4ZENXRc9jSpBUvW+n6Sq1vNfMv9rubVC7W2JwfnAylwXOQV0dZC32gjZLT10dhi
-        Ws7JHUh8ywEv+8gXM1ulZ+IZIGPfH8AiNbDzJ4upQZLKpO5YOSuave3h2BfqRd4XiSg8EOVVaK+3v
-        hog6QeMw==;
+        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
+        :Reply-To:Content-Type:Content-ID:Content-Description;
+        bh=+WiBOXA0MRDZn1kqTV3ww0Ba1VAfcBaU/VHzqZHaxWQ=; b=UcMvfw8PmtRTqsFC3KR7eGE16Z
+        ScdqwnvCgitmv45Q5ry3OAtO9pAZicvl9XYX8rtjmHIqsoPld+fqpCFXgiJWUTVNQXrtRr5+gJ7G9
+        zNDGvmhjJvotR5KJmi+LerfiLBEJ8+g/DV8hmCvfEcASMbpdUSh3+Ys0hMCj0wzEo22LHDc5AFJm3
+        460k5swhB+imd2zecCUtx/NDpMxrE8s8/T/tQZp56g/hNMchq2zBI1AwK8BJ9KguClDyChdet3gjn
+        MlZpKgk5YExrCKU0+vtPE1aDMIW2Hw5Nk4N8c/3a/rZIJTo3dD7J9ofdhbwHjFQZ6o6APbGFVdnMk
+        lx+LUO+Q==;
 Received: from [213.208.157.39] (helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nOKZe-009NtN-G3; Sun, 27 Feb 2022 14:30:58 +0000
+        id 1nOKZk-009NuE-Cz; Sun, 27 Feb 2022 14:31:04 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     iommu@lists.linux-foundation.org
 Cc:     x86@kernel.org, Anshuman Khandual <anshuman.khandual@arm.com>,
@@ -44,10 +44,12 @@ Cc:     x86@kernel.org, Anshuman Khandual <anshuman.khandual@arm.com>,
         linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
         linux-hyperv@vger.kernel.org, tboot-devel@lists.sourceforge.net,
         linux-pci@vger.kernel.org
-Subject: cleanup swiotlb initialization v2
-Date:   Sun, 27 Feb 2022 15:30:44 +0100
-Message-Id: <20220227143055.335596-1-hch@lst.de>
+Subject: [PATCH 02/11] swiotlb: make swiotlb_exit a no-op if SWIOTLB_FORCE is set
+Date:   Sun, 27 Feb 2022 15:30:46 +0100
+Message-Id: <20220227143055.335596-3-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20220227143055.335596-1-hch@lst.de>
+References: <20220227143055.335596-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
@@ -55,70 +57,28 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi all,
+If force bouncing is enabled we can't release the buffers.
 
-this series tries to clean up the swiotlb initialization, including
-that of swiotlb-xen.  To get there is also removes the x86 iommu table
-infrastructure that massively obsfucates the initialization path.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
+---
+ kernel/dma/swiotlb.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-Git tree:
+diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
+index f1e7ea160b433..36fbf1181d285 100644
+--- a/kernel/dma/swiotlb.c
++++ b/kernel/dma/swiotlb.c
+@@ -378,6 +378,9 @@ void __init swiotlb_exit(void)
+ 	unsigned long tbl_vaddr;
+ 	size_t tbl_size, slots_size;
+ 
++	if (swiotlb_force == SWIOTLB_FORCE)
++		return;
++
+ 	if (!mem->nslabs)
+ 		return;
+ 
+-- 
+2.30.2
 
-    git://git.infradead.org/users/hch/misc.git swiotlb-init-cleanup
-
-Gitweb:
-
-    http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/swiotlb-init-cleanup
-
-Changes since v1:
- - skip IOMMU initialization on Xen PV kernels
- - various small whitespace / typo fixes
-
-Diffstat:
- arch/ia64/include/asm/iommu_table.h      |    7 -
- arch/x86/include/asm/iommu_table.h       |  102 -------------------
- arch/x86/include/asm/swiotlb.h           |   30 -----
- arch/x86/kernel/pci-iommu_table.c        |   77 --------------
- arch/x86/kernel/pci-swiotlb.c            |   77 --------------
- arch/x86/xen/pci-swiotlb-xen.c           |   96 ------------------
- b/arch/arm/mm/init.c                     |    6 -
- b/arch/arm/xen/mm.c                      |   23 ++--
- b/arch/arm64/mm/init.c                   |    6 -
- b/arch/ia64/mm/init.c                    |    4 
- b/arch/mips/cavium-octeon/dma-octeon.c   |   15 --
- b/arch/mips/loongson64/dma.c             |    2 
- b/arch/mips/pci/pci-octeon.c             |    2 
- b/arch/mips/sibyte/common/dma.c          |    2 
- b/arch/powerpc/include/asm/svm.h         |    4 
- b/arch/powerpc/include/asm/swiotlb.h     |    1 
- b/arch/powerpc/mm/mem.c                  |    6 -
- b/arch/powerpc/platforms/pseries/setup.c |    3 
- b/arch/powerpc/platforms/pseries/svm.c   |   26 ----
- b/arch/riscv/mm/init.c                   |    8 -
- b/arch/s390/mm/init.c                    |    3 
- b/arch/x86/include/asm/dma-mapping.h     |   12 --
- b/arch/x86/include/asm/gart.h            |    5 
- b/arch/x86/include/asm/iommu.h           |    8 +
- b/arch/x86/include/asm/xen/page.h        |    5 
- b/arch/x86/include/asm/xen/swiotlb-xen.h |    2 
- b/arch/x86/kernel/Makefile               |    2 
- b/arch/x86/kernel/amd_gart_64.c          |    5 
- b/arch/x86/kernel/aperture_64.c          |   14 --
- b/arch/x86/kernel/cpu/mshyperv.c         |    8 -
- b/arch/x86/kernel/pci-dma.c              |  109 ++++++++++++++++----
- b/arch/x86/kernel/tboot.c                |    1 
- b/arch/x86/kernel/vmlinux.lds.S          |   12 --
- b/arch/x86/mm/mem_encrypt_amd.c          |    3 
- b/arch/x86/pci/sta2x11-fixup.c           |    2 
- b/arch/x86/xen/Makefile                  |    2 
- b/drivers/iommu/amd/init.c               |    6 -
- b/drivers/iommu/amd/iommu.c              |    5 
- b/drivers/iommu/intel/dmar.c             |    6 -
- b/drivers/xen/swiotlb-xen.c              |  132 -------------------------
- b/include/linux/dmar.h                   |    6 -
- b/include/linux/swiotlb.h                |   22 ++--
- b/include/trace/events/swiotlb.h         |   29 +----
- b/include/xen/arm/page.h                 |    1 
- b/include/xen/swiotlb-xen.h              |    8 +
- b/kernel/dma/direct.h                    |    2 
- b/kernel/dma/swiotlb.c                   |  163 +++++++++++++++----------------
- 47 files changed, 253 insertions(+), 817 deletions(-)
