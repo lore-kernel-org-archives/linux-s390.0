@@ -2,72 +2,74 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66915C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 28 Feb 2022 11:40:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 15949C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 28 Feb 2022 11:40:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235924AbiB1Lkv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 28 Feb 2022 06:40:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37936 "EHLO
+        id S235947AbiB1Lkz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 28 Feb 2022 06:40:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233760AbiB1Lku (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Feb 2022 06:40:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 745D471C88;
-        Mon, 28 Feb 2022 03:40:12 -0800 (PST)
+        with ESMTP id S233760AbiB1Lkx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Feb 2022 06:40:53 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E286C71C88;
+        Mon, 28 Feb 2022 03:40:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EFBA860FDA;
-        Mon, 28 Feb 2022 11:40:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 4B048C340F2;
-        Mon, 28 Feb 2022 11:40:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 93FA3B810C2;
+        Mon, 28 Feb 2022 11:40:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 21936C340F8;
+        Mon, 28 Feb 2022 11:40:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646048411;
-        bh=R4l8vCaaNANcTkRuuzGTf3lPNGoX9+TFaa0rG56HN0o=;
+        s=k20201202; t=1646048412;
+        bh=HO5mukOsh1CQY6TQPZOqEsX7jfChMuGFDsi0dNfJMHY=;
         h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=dyT3lCRZBDZZpDdzoajZVkaQYvP+bEgLwRu156X6uo7VhqzIO0ANYzw1hMiPYIaWQ
-         87rKwnP4MPwNTHdZLzd4WuugDO2XeP9OQeTZCxhHb6tfhccjwzkBg5ROs1KDaAb/+K
-         mSe2X11Ga+mPpAiwbzoK3MoNi9em3fcasuTgmGwvQ/2FOWQvD9y03CeUuMLHEQQvzj
-         abaEdKfbwGc7Iww6CpR1EExrMNRoH9TOI0SIFAJcQWo7f2BB5cOCoVr3zPSeq/APpc
-         NJLwS6CgFlwV1Ab9bMG0d/DUdvIxgnxtiehKTn2YtroHt4M+DYCDJCOrQWtkUL2RZS
-         wz2LfK2f2dEDw==
+        b=OUGY+rF5DWnGXspdM2HcFddZfGLrHumzRaKbypy7JLOdT0KB1kFQUwYOQcYtILJrT
+         kHEK0vBBmxUTcPjeJJJ4szqdUIFx75zJ1b9Ni7j3chsFbLyrUBpM2LGiI6EgqlRiZr
+         E+3/3Q23anEOrtjl18CeTghMZyeeb9CKuPlYYac1uvpBcH6/4bgectRIE1pck+8cmF
+         qIliVIOr90damhnxbwjwQIZALZSdQQYvCBQMgSkCoCWWNrvty3qz4Jsny06Uh3Gb9p
+         mnPRURznx6SfhqA63ZobE1gzUEMy5EXGC9BmyFputZIFSruRZreyHA8KwS9u7W2bt3
+         XgLmwGR3Zrpqw==
 Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 30157E6D4BB;
-        Mon, 28 Feb 2022 11:40:11 +0000 (UTC)
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 0546FF0383A;
+        Mon, 28 Feb 2022 11:40:12 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] net/smc: Fix cleanup when register ULP fails
+Subject: Re: [PATCH net-next] net/smc: Call trace_smc_tx_sendmsg when data corked
 From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <164604841119.9255.16751027729230312686.git-patchwork-notify@kernel.org>
-Date:   Mon, 28 Feb 2022 11:40:11 +0000
-References: <20220225065656.60828-1-tonylu@linux.alibaba.com>
-In-Reply-To: <20220225065656.60828-1-tonylu@linux.alibaba.com>
+Message-Id: <164604841201.9255.3198550734243809450.git-patchwork-notify@kernel.org>
+Date:   Mon, 28 Feb 2022 11:40:12 +0000
+References: <20220225073420.84025-1-tonylu@linux.alibaba.com>
+In-Reply-To: <20220225073420.84025-1-tonylu@linux.alibaba.com>
 To:     Tony Lu <tonylu@linux.alibaba.com>
-Cc:     kgraul@linux.ibm.com, kuba@kernel.org, davem@davemloft.net,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org
+Cc:     raspl@linux.ibm.com, kgraul@linux.ibm.com, kuba@kernel.org,
+        davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 Hello:
 
-This patch was applied to netdev/net.git (master)
+This patch was applied to netdev/net-next.git (master)
 by David S. Miller <davem@davemloft.net>:
 
-On Fri, 25 Feb 2022 14:56:57 +0800 you wrote:
-> This patch calls smc_ib_unregister_client() when tcp_register_ulp()
-> fails, and make sure to clean it up.
+On Fri, 25 Feb 2022 15:34:21 +0800 you wrote:
+> This also calls trace_smc_tx_sendmsg() even if data is corked. For ease
+> of understanding, if statements are not expanded here.
 > 
-> Fixes: d7cd421da9da ("net/smc: Introduce TCP ULP support")
+> Link: https://lore.kernel.org/all/f4166712-9a1e-51a0-409d-b7df25a66c52@linux.ibm.com/
+> Fixes: 139653bc6635 ("net/smc: Remove corked dealyed work")
+> Suggested-by: Stefan Raspl <raspl@linux.ibm.com>
 > Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
-> ---
->  net/smc/af_smc.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> [...]
 
 Here is the summary with links:
-  - [net] net/smc: Fix cleanup when register ULP fails
-    https://git.kernel.org/netdev/net/c/4d08b7b57ece
+  - [net-next] net/smc: Call trace_smc_tx_sendmsg when data corked
+    https://git.kernel.org/netdev/net-next/c/6900de507cd4
 
 You are awesome, thank you!
 -- 
