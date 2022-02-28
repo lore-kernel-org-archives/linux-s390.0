@@ -2,78 +2,163 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15949C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 28 Feb 2022 11:40:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AC15C43217
+	for <linux-s390@archiver.kernel.org>; Mon, 28 Feb 2022 11:52:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235947AbiB1Lkz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 28 Feb 2022 06:40:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38198 "EHLO
+        id S236080AbiB1Lwx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 28 Feb 2022 06:52:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233760AbiB1Lkx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Feb 2022 06:40:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E286C71C88;
-        Mon, 28 Feb 2022 03:40:14 -0800 (PST)
+        with ESMTP id S235066AbiB1Lwp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Feb 2022 06:52:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B0C0723FA;
+        Mon, 28 Feb 2022 03:52:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 93FA3B810C2;
-        Mon, 28 Feb 2022 11:40:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 21936C340F8;
-        Mon, 28 Feb 2022 11:40:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FA84610A5;
+        Mon, 28 Feb 2022 11:52:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D047DC340F4;
+        Mon, 28 Feb 2022 11:52:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646048412;
-        bh=HO5mukOsh1CQY6TQPZOqEsX7jfChMuGFDsi0dNfJMHY=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=OUGY+rF5DWnGXspdM2HcFddZfGLrHumzRaKbypy7JLOdT0KB1kFQUwYOQcYtILJrT
-         kHEK0vBBmxUTcPjeJJJ4szqdUIFx75zJ1b9Ni7j3chsFbLyrUBpM2LGiI6EgqlRiZr
-         E+3/3Q23anEOrtjl18CeTghMZyeeb9CKuPlYYac1uvpBcH6/4bgectRIE1pck+8cmF
-         qIliVIOr90damhnxbwjwQIZALZSdQQYvCBQMgSkCoCWWNrvty3qz4Jsny06Uh3Gb9p
-         mnPRURznx6SfhqA63ZobE1gzUEMy5EXGC9BmyFputZIFSruRZreyHA8KwS9u7W2bt3
-         XgLmwGR3Zrpqw==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 0546FF0383A;
-        Mon, 28 Feb 2022 11:40:12 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        s=k20201202; t=1646049124;
+        bh=12lEy+rZsxAbLHQ5lt0XyIX0neTrZHPLb7NInfEDMcc=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=SRUpKzRNM4/KvOrKZXX7WF2i3gFVTE8eW4pQGcpOQY9lp11YUOi3PxFsqPQvayCcd
+         RRo+6AjFr6sHDBYCIzu8qorItwxwkpV7cFz/6ed3WeK85FWLoO8LE0n9BtEWjwLeO7
+         yd+DcrFdwcNtDn6FwQVrJ7BaW3zCEq92ftdj5pmrtHJ813v/tA01YhvNqsz2dEniAl
+         PH5k3aV7bSLqvavFPxscXymknzz0TGMzguJvKQDvpHWq+ZACEGv7AuOLT0qp0VrJEy
+         9TBxwBhu4oGQTJJvVShyBZtx59FEQhySIYwjZqDbIgoeORdOgeWKvtRlJ0da7lM122
+         gBTYswmMcsFBw==
+Received: by mail-vs1-f43.google.com with SMTP id t22so12649269vsa.4;
+        Mon, 28 Feb 2022 03:52:04 -0800 (PST)
+X-Gm-Message-State: AOAM530VDjlDabPibvx6yfj4ZQBcUp3L2Qv3P3oKV8IqN9Efk8Vf3AEK
+        SM9bh9TFh1of601oH8oygNHEdOC6AmkcWGxfycM=
+X-Google-Smtp-Source: ABdhPJyyPh+wlne6x5ff7JCJYWjx6kud3nRui6/1lnG2gpd2T7gIweR6o3nUA+PM6jttzlFNCgpAgO9PQ0gdkcBMjWc=
+X-Received: by 2002:a05:6102:c4a:b0:31a:54e6:edb1 with SMTP id
+ y10-20020a0561020c4a00b0031a54e6edb1mr6626535vss.51.1646049123736; Mon, 28
+ Feb 2022 03:52:03 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next] net/smc: Call trace_smc_tx_sendmsg when data corked
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <164604841201.9255.3198550734243809450.git-patchwork-notify@kernel.org>
-Date:   Mon, 28 Feb 2022 11:40:12 +0000
-References: <20220225073420.84025-1-tonylu@linux.alibaba.com>
-In-Reply-To: <20220225073420.84025-1-tonylu@linux.alibaba.com>
-To:     Tony Lu <tonylu@linux.alibaba.com>
-Cc:     raspl@linux.ibm.com, kgraul@linux.ibm.com, kuba@kernel.org,
-        davem@davemloft.net, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org
+References: <20220227162831.674483-1-guoren@kernel.org> <20220227162831.674483-4-guoren@kernel.org>
+ <b8e765910e274c0fb574ff23f88b881c@AcuMS.aculab.com>
+In-Reply-To: <b8e765910e274c0fb574ff23f88b881c@AcuMS.aculab.com>
+From:   Guo Ren <guoren@kernel.org>
+Date:   Mon, 28 Feb 2022 19:51:52 +0800
+X-Gmail-Original-Message-ID: <CAJF2gTRQ0XWSjoEeREtEGr5PPD-rHrBKFY_i6_9uW3eEN_6muQ@mail.gmail.com>
+Message-ID: <CAJF2gTRQ0XWSjoEeREtEGr5PPD-rHrBKFY_i6_9uW3eEN_6muQ@mail.gmail.com>
+Subject: Re: [PATCH V7 03/20] compat: consolidate the compat_flock{,64} definition
+To:     David Laight <David.Laight@aculab.com>
+Cc:     "palmer@dabbelt.com" <palmer@dabbelt.com>,
+        "arnd@arndb.de" <arnd@arndb.de>,
+        "anup@brainfault.org" <anup@brainfault.org>,
+        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "liush@allwinnertech.com" <liush@allwinnertech.com>,
+        "wefu@redhat.com" <wefu@redhat.com>,
+        "drew@beagleboard.org" <drew@beagleboard.org>,
+        "wangjunqiang@iscas.ac.cn" <wangjunqiang@iscas.ac.cn>,
+        "hch@lst.de" <hch@lst.de>,
+        "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
+        "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "x86@kernel.org" <x86@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
+On Mon, Feb 28, 2022 at 2:40 PM David Laight <David.Laight@aculab.com> wrote:
+>
+> From: guoren@kernel.org
+> > Sent: 27 February 2022 16:28
+> >
+> > From: Christoph Hellwig <hch@lst.de>
+> >
+> > Provide a single common definition for the compat_flock and
+> > compat_flock64 structures using the same tricks as for the native
+> > variants.  Another extra define is added for the packing required on
+> > x86.
+> ...
+> > diff --git a/arch/x86/include/asm/compat.h b/arch/x86/include/asm/compat.h
+> ...
+> >  /*
+> > - * IA32 uses 4 byte alignment for 64 bit quantities,
+> > - * so we need to pack this structure.
+> > + * IA32 uses 4 byte alignment for 64 bit quantities, so we need to pack the
+> > + * compat flock64 structure.
+> >   */
+> ...
+> > +#define __ARCH_NEED_COMPAT_FLOCK64_PACKED
+> >
+> >  struct compat_statfs {
+> >       int             f_type;
+> > diff --git a/include/linux/compat.h b/include/linux/compat.h
+> > index 1c758b0e0359..a0481fe6c5d5 100644
+> > --- a/include/linux/compat.h
+> > +++ b/include/linux/compat.h
+> > @@ -258,6 +258,37 @@ struct compat_rlimit {
+> >       compat_ulong_t  rlim_max;
+> >  };
+> >
+> > +#ifdef __ARCH_NEED_COMPAT_FLOCK64_PACKED
+> > +#define __ARCH_COMPAT_FLOCK64_PACK   __attribute__((packed))
+> > +#else
+> > +#define __ARCH_COMPAT_FLOCK64_PACK
+> > +#endif
+> ...
+> > +struct compat_flock64 {
+> > +     short           l_type;
+> > +     short           l_whence;
+> > +     compat_loff_t   l_start;
+> > +     compat_loff_t   l_len;
+> > +     compat_pid_t    l_pid;
+> > +#ifdef __ARCH_COMPAT_FLOCK64_PAD
+> > +     __ARCH_COMPAT_FLOCK64_PAD
+> > +#endif
+> > +} __ARCH_COMPAT_FLOCK64_PACK;
+> > +
+>
+> Provided compat_loff_t are correctly defined with __aligned__(4)
+See include/asm-generic/compat.h
 
-This patch was applied to netdev/net-next.git (master)
-by David S. Miller <davem@davemloft.net>:
+typedef s64 compat_loff_t;
 
-On Fri, 25 Feb 2022 15:34:21 +0800 you wrote:
-> This also calls trace_smc_tx_sendmsg() even if data is corked. For ease
-> of understanding, if statements are not expanded here.
-> 
-> Link: https://lore.kernel.org/all/f4166712-9a1e-51a0-409d-b7df25a66c52@linux.ibm.com/
-> Fixes: 139653bc6635 ("net/smc: Remove corked dealyed work")
-> Suggested-by: Stefan Raspl <raspl@linux.ibm.com>
-> Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
-> 
-> [...]
+Only:
+#ifdef CONFIG_COMPAT_FOR_U64_ALIGNMENT
+typedef s64 __attribute__((aligned(4))) compat_s64;
 
-Here is the summary with links:
-  - [net-next] net/smc: Call trace_smc_tx_sendmsg when data corked
-    https://git.kernel.org/netdev/net-next/c/6900de507cd4
+So how do you think compat_loff_t could be defined with __aligned__(4)?
 
-You are awesome, thank you!
+> marking the structure packed isn't needed.
+> I believe compat_u64 and compat_s64 both have aligned(4).
+> It is also wrong, consider:
+>
+> struct foo {
+>         char x;
+>         struct compat_flock64 fl64;
+> };
+>
+> There should be 3 bytes of padding after 'x'.
+> But you've removed it.
+>
+>         David
+>
+> -
+> Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+> Registration No: 1397386 (Wales)
+>
+
+
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Best Regards
+ Guo Ren
 
-
+ML: https://lore.kernel.org/linux-csky/
