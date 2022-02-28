@@ -2,24 +2,24 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E431C433FE
-	for <linux-s390@archiver.kernel.org>; Mon, 28 Feb 2022 10:51:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0BEFAC4167B
+	for <linux-s390@archiver.kernel.org>; Mon, 28 Feb 2022 10:51:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235225AbiB1Kv5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 28 Feb 2022 05:51:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49058 "EHLO
+        id S235227AbiB1KwC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 28 Feb 2022 05:52:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235103AbiB1KvS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Feb 2022 05:51:18 -0500
+        with ESMTP id S235157AbiB1Kvl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Feb 2022 05:51:41 -0500
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 92CB263BD3;
-        Mon, 28 Feb 2022 02:50:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3C5F163BF8;
+        Mon, 28 Feb 2022 02:51:02 -0800 (PST)
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 603D31063;
-        Mon, 28 Feb 2022 02:50:36 -0800 (PST)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 0089B1063;
+        Mon, 28 Feb 2022 02:51:02 -0800 (PST)
 Received: from p8cg001049571a15.arm.com (unknown [10.163.47.185])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 2AE5C3F73D;
-        Mon, 28 Feb 2022 02:50:27 -0800 (PST)
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id BD8333F73D;
+        Mon, 28 Feb 2022 02:50:53 -0800 (PST)
 From:   Anshuman Khandual <anshuman.khandual@arm.com>
 To:     linux-mm@kvack.org, akpm@linux-foundation.org
 Cc:     linux-kernel@vger.kernel.org, geert@linux-m68k.org,
@@ -34,10 +34,10 @@ Cc:     linux-kernel@vger.kernel.org, geert@linux-m68k.org,
         linux-xtensa@linux-xtensa.org, linux-parisc@vger.kernel.org,
         openrisc@lists.librecores.org, linux-um@lists.infradead.org,
         linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        linux-arch@vger.kernel.org
-Subject: [PATCH V3 13/30] mm/mmap: Drop arch_vm_get_page_pgprot()
-Date:   Mon, 28 Feb 2022 16:17:36 +0530
-Message-Id: <1646045273-9343-14-git-send-email-anshuman.khandual@arm.com>
+        linux-arch@vger.kernel.org, Richard Henderson <rth@twiddle.net>
+Subject: [PATCH V3 16/30] alpha/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+Date:   Mon, 28 Feb 2022 16:17:39 +0530
+Message-Id: <1646045273-9343-17-git-send-email-anshuman.khandual@arm.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1646045273-9343-1-git-send-email-anshuman.khandual@arm.com>
 References: <1646045273-9343-1-git-send-email-anshuman.khandual@arm.com>
@@ -45,61 +45,105 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-There are no platforms left which use arch_vm_get_page_prot(). Just drop
-arch_vm_get_page_prot() construct and simplify remaining code.
+This defines and exports a platform specific custom vm_get_page_prot() via
+subscribing ARCH_HAS_VM_GET_PAGE_PROT. Subsequently all __SXXX and __PXXX
+macros can be dropped which are no longer needed.
 
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-mm@kvack.org
+Cc: Richard Henderson <rth@twiddle.net>
+Cc: linux-alpha@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 ---
- include/linux/mman.h |  4 ----
- mm/mmap.c            | 10 +---------
- 2 files changed, 1 insertion(+), 13 deletions(-)
+ arch/alpha/Kconfig               |  1 +
+ arch/alpha/include/asm/pgtable.h | 17 ---------------
+ arch/alpha/mm/init.c             | 37 ++++++++++++++++++++++++++++++++
+ 3 files changed, 38 insertions(+), 17 deletions(-)
 
-diff --git a/include/linux/mman.h b/include/linux/mman.h
-index b66e91b8176c..58b3abd457a3 100644
---- a/include/linux/mman.h
-+++ b/include/linux/mman.h
-@@ -93,10 +93,6 @@ static inline void vm_unacct_memory(long pages)
- #define arch_calc_vm_flag_bits(flags) 0
- #endif
- 
--#ifndef arch_vm_get_page_prot
--#define arch_vm_get_page_prot(vm_flags) __pgprot(0)
--#endif
--
- #ifndef arch_validate_prot
- /*
-  * This is called from mprotect().  PROT_GROWSDOWN and PROT_GROWSUP have
-diff --git a/mm/mmap.c b/mm/mmap.c
-index c8fd8f06bf7c..c13dd9c37866 100644
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -102,7 +102,7 @@ static void unmap_region(struct mm_struct *mm,
-  *								w: (no) no
-  *								x: (yes) yes
+diff --git a/arch/alpha/Kconfig b/arch/alpha/Kconfig
+index 4e87783c90ad..73e82fe5c770 100644
+--- a/arch/alpha/Kconfig
++++ b/arch/alpha/Kconfig
+@@ -2,6 +2,7 @@
+ config ALPHA
+ 	bool
+ 	default y
++	select ARCH_HAS_VM_GET_PAGE_PROT
+ 	select ARCH_32BIT_USTAT_F_TINODE
+ 	select ARCH_MIGHT_HAVE_PC_PARPORT
+ 	select ARCH_MIGHT_HAVE_PC_SERIO
+diff --git a/arch/alpha/include/asm/pgtable.h b/arch/alpha/include/asm/pgtable.h
+index 02f0429f1068..9fb5e9d10bb6 100644
+--- a/arch/alpha/include/asm/pgtable.h
++++ b/arch/alpha/include/asm/pgtable.h
+@@ -116,23 +116,6 @@ struct vm_area_struct;
+  * arch/alpha/mm/fault.c)
   */
--static inline pgprot_t __vm_get_page_prot(unsigned long vm_flags)
-+pgprot_t vm_get_page_prot(unsigned long vm_flags)
- {
- 	switch (vm_flags & (VM_READ | VM_WRITE | VM_EXEC | VM_SHARED)) {
- 	case VM_NONE:
-@@ -141,14 +141,6 @@ static inline pgprot_t __vm_get_page_prot(unsigned long vm_flags)
- 		BUILD_BUG();
- 	}
- }
+ 	/* xwr */
+-#define __P000	_PAGE_P(_PAGE_FOE | _PAGE_FOW | _PAGE_FOR)
+-#define __P001	_PAGE_P(_PAGE_FOE | _PAGE_FOW)
+-#define __P010	_PAGE_P(_PAGE_FOE)
+-#define __P011	_PAGE_P(_PAGE_FOE)
+-#define __P100	_PAGE_P(_PAGE_FOW | _PAGE_FOR)
+-#define __P101	_PAGE_P(_PAGE_FOW)
+-#define __P110	_PAGE_P(0)
+-#define __P111	_PAGE_P(0)
 -
--pgprot_t vm_get_page_prot(unsigned long vm_flags)
--{
--	pgprot_t ret = __pgprot(pgprot_val(__vm_get_page_prot(vm_flags)) |
--			pgprot_val(arch_vm_get_page_prot(vm_flags)));
--
--	return ret;
--}
- EXPORT_SYMBOL(vm_get_page_prot);
- #endif	/* CONFIG_ARCH_HAS_VM_GET_PAGE_PROT */
+-#define __S000	_PAGE_S(_PAGE_FOE | _PAGE_FOW | _PAGE_FOR)
+-#define __S001	_PAGE_S(_PAGE_FOE | _PAGE_FOW)
+-#define __S010	_PAGE_S(_PAGE_FOE)
+-#define __S011	_PAGE_S(_PAGE_FOE)
+-#define __S100	_PAGE_S(_PAGE_FOW | _PAGE_FOR)
+-#define __S101	_PAGE_S(_PAGE_FOW)
+-#define __S110	_PAGE_S(0)
+-#define __S111	_PAGE_S(0)
  
+ /*
+  * pgprot_noncached() is only for infiniband pci support, and a real
+diff --git a/arch/alpha/mm/init.c b/arch/alpha/mm/init.c
+index f6114d03357c..2e78008b2553 100644
+--- a/arch/alpha/mm/init.c
++++ b/arch/alpha/mm/init.c
+@@ -280,3 +280,40 @@ mem_init(void)
+ 	high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
+ 	memblock_free_all();
+ }
++
++pgprot_t vm_get_page_prot(unsigned long vm_flags)
++{
++	switch (vm_flags & (VM_READ | VM_WRITE | VM_EXEC | VM_SHARED)) {
++	case VM_NONE:
++		return _PAGE_P(_PAGE_FOE | _PAGE_FOW | _PAGE_FOR);
++	case VM_READ:
++		return _PAGE_P(_PAGE_FOE | _PAGE_FOW);
++	case VM_WRITE:
++	case VM_WRITE | VM_READ:
++		return _PAGE_P(_PAGE_FOE);
++	case VM_EXEC:
++		return _PAGE_P(_PAGE_FOW | _PAGE_FOR);
++	case VM_EXEC | VM_READ:
++		return _PAGE_P(_PAGE_FOW);
++	case VM_EXEC | VM_WRITE:
++	case VM_EXEC | VM_WRITE | VM_READ:
++		return _PAGE_P(0);
++	case VM_SHARED:
++		return _PAGE_S(_PAGE_FOE | _PAGE_FOW | _PAGE_FOR);
++	case VM_SHARED | VM_READ:
++		return _PAGE_S(_PAGE_FOE | _PAGE_FOW);
++	case VM_SHARED | VM_WRITE:
++	case VM_SHARED | VM_WRITE | VM_READ:
++		return _PAGE_S(_PAGE_FOE);
++	case VM_SHARED | VM_EXEC:
++		return _PAGE_S(_PAGE_FOW | _PAGE_FOR);
++	case VM_SHARED | VM_EXEC | VM_READ:
++		return _PAGE_S(_PAGE_FOW);
++	case VM_SHARED | VM_EXEC | VM_WRITE:
++	case VM_SHARED | VM_EXEC | VM_WRITE | VM_READ:
++		return _PAGE_S(0);
++	default:
++		BUILD_BUG();
++	}
++}
++EXPORT_SYMBOL(vm_get_page_prot);
 -- 
 2.25.1
 
