@@ -2,110 +2,174 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D826C4332F
-	for <linux-s390@archiver.kernel.org>; Mon, 28 Feb 2022 13:08:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D2B54C433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 28 Feb 2022 13:27:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234619AbiB1NIo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 28 Feb 2022 08:08:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47606 "EHLO
+        id S235155AbiB1N2Q (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 28 Feb 2022 08:28:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234393AbiB1NIn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Feb 2022 08:08:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A994BCC2;
-        Mon, 28 Feb 2022 05:08:04 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 440AD612D7;
-        Mon, 28 Feb 2022 13:08:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4116C340EE;
-        Mon, 28 Feb 2022 13:07:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646053683;
-        bh=xwpZD4gZhTKAz2WFv6X6JMrNMSyputHa5miIKZ7mnV4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=FDHaYinVMNM6kACb7E2Qy0TXd85azTDlvzFKosdq2q5aXpNxj4+0bCHnUOyq7qvCX
-         SdYowwLghSSD7m9p89L9IHLNURvZvuumE6Vu3Y7iNzNocmQHWUzg83s0qB+weG5HB0
-         +kvmS/aLHNI/6Nqh49ZcJOvFivLCHBHTVfK80/WeRhDxjAD3RPcXkp71y1CkrubPcT
-         TYf9kmUe4enaJ9QLuu5EOG9nUHW7bKk6BlwMqnVjYo83gCrxYJUvbhawoVypGiHk6k
-         f1g5of4zmfYtpdOQJOHVTh9uxD0U5bue4hdKW1TR99VKgbXAKo0qKyQa7hTJW5HG6p
-         WxhALj7z+X8eQ==
-Date:   Mon, 28 Feb 2022 13:07:52 +0000
-From:   Mark Brown <broonie@kernel.org>
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Stuart Yoder <stuyoder@gmail.com>,
-        Laurentiu Tudor <laurentiu.tudor@nxp.com>,
-        Abel Vesa <abel.vesa@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Andy Gross <agross@kernel.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, NXP Linux Team <linux-imx@nxp.com>,
-        linux-arm-kernel@lists.infradead.org, linux-hyperv@vger.kernel.org,
-        linux-pci@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        alsa-devel@alsa-project.org, linux-spi@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Subject: Re: [PATCH v3 07/11] spi: Use helper for safer setting of
- driver_override
-Message-ID: <YhzJKKCxnx9DvliT@sirena.org.uk>
-References: <20220227135214.145599-1-krzysztof.kozlowski@canonical.com>
- <20220227135329.145862-1-krzysztof.kozlowski@canonical.com>
+        with ESMTP id S231598AbiB1N2P (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Feb 2022 08:28:15 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2740D23BDC;
+        Mon, 28 Feb 2022 05:27:37 -0800 (PST)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21SCQH9U025635;
+        Mon, 28 Feb 2022 13:27:36 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=/He3bN6E9kDr8bKzYNahF/LLEQrdHBPWQroZed5tbCY=;
+ b=tjJE85zpygpauzReEhEGD6B6H94bmI4SGlV6b6RYp9RZijcTY/W8j/1uB3agGtvhi92H
+ wei8eOSbwgkpHIHk58QZEpaDJwCtCxb7RjZEL2JJ18idW5H/4+yuDRb7sJfUCnIay4zt
+ ndc4fLdGP1pr3puphCjXgCDQ2r7lxZzihh/5wDVKBKlnyX+jwarnhJsZTUJqkZ7BzD8l
+ f5R1DPtw7n7qj8MEvYquHbDYf4djJpxxy5Ym+ATM8gAUhU+8fj8d7dQBDO+CiJ6b/2Nb
+ 0qcHRxLA+s8KMFknhXLbgd8YvWuuvSzQqCjCk9JNBDMgrTYBfA5HGYrCbEfjqBWjGbQB QA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3egxd9hej8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 28 Feb 2022 13:27:36 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21SDQcCq000410;
+        Mon, 28 Feb 2022 13:27:36 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3egxd9hehj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 28 Feb 2022 13:27:36 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21SDHP64026198;
+        Mon, 28 Feb 2022 13:27:33 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03ams.nl.ibm.com with ESMTP id 3efbu985j7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 28 Feb 2022 13:27:33 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21SDRUvY45678978
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 28 Feb 2022 13:27:30 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 945AAAE045;
+        Mon, 28 Feb 2022 13:27:30 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 391CAAE051;
+        Mon, 28 Feb 2022 13:27:30 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.145.5.37])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 28 Feb 2022 13:27:30 +0000 (GMT)
+Date:   Mon, 28 Feb 2022 14:27:27 +0100
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+Cc:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [kvm-unit-tests PATCH] s390x: Add strict mode to specification
+ exception interpretation test
+Message-ID: <20220228142727.3542b767@p-imbrenda>
+In-Reply-To: <20220225172355.3564546-1-scgl@linux.ibm.com>
+References: <20220225172355.3564546-1-scgl@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="IskqWBy0ijhzVzPO"
-Content-Disposition: inline
-In-Reply-To: <20220227135329.145862-1-krzysztof.kozlowski@canonical.com>
-X-Cookie: Killing turkeys causes winter.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: eSovgeLlqCHIaFkvSuHtcBxRiKzhiAAI
+X-Proofpoint-ORIG-GUID: 9NlXIyShuUcKc-Dc0iZdXgOHgGX5xW7j
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-02-28_05,2022-02-26_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 phishscore=0
+ spamscore=0 suspectscore=0 bulkscore=0 priorityscore=1501 mlxlogscore=999
+ malwarescore=0 adultscore=0 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2201110000
+ definitions=main-2202280070
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Fri, 25 Feb 2022 18:23:55 +0100
+Janis Schoetterl-Glausch <scgl@linux.ibm.com> wrote:
 
---IskqWBy0ijhzVzPO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> While specification exception interpretation is not required to occur,
+> it can be useful for automatic regression testing to fail the test if it
+> does not occur.
+> Add a `--strict` argument to enable this.
+> `--strict` takes a list of machine types (as reported by STIDP)
+> for which to enable strict mode, for example
+> `--strict 8562,8561,3907,3906,2965,2964`
+> will enable it for models z15 - z13.
+> Alternatively, strict mode can be enabled for all but the listed machine
+> types by prefixing the list with a `!`, for example
+> `--strict !1090,1091,2064,2066,2084,2086,2094,2096,2097,2098,2817,2818,2827,2828`
+> will enable it for z/Architecture models except those older than z13.
+> 
+> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+> ---
 
-On Sun, Feb 27, 2022 at 02:53:25PM +0100, Krzysztof Kozlowski wrote:
-> Use a helper for seting driver_override to reduce amount of duplicated
-> code.
+[...]
 
-Reviwed-by: Mark Brown <broonie@kernel.org>
+> +static bool parse_strict(int argc, char **argv)
+> +{
+> +	uint16_t machine_id;
+> +	char *list;
+> +	bool ret;
+> +
+> +	if (argc < 1)
+> +		return false;
+> +	if (strcmp("--strict", argv[0]))
+> +		return false;
+> +
+> +	machine_id = get_machine_id();
+> +	if (argc < 2) {
+> +		printf("No argument to --strict, ignoring\n");
+> +		return false;
+> +	}
+> +	list = argv[1];
+> +	if (list[0] == '!') {
+> +		ret = true;
+> +		list++;
+> +	} else
+> +		ret = false;
+> +	while (true) {
+> +		long input = 0;
+> +
+> +		if (strlen(list) == 0)
+> +			return ret;
+> +		input = strtol(list, &list, 16);
+> +		if (*list == ',')
+> +			list++;
+> +		else if (*list != '\0')
+> +			break;
+> +		if (input == machine_id)
+> +			return !ret;
+> +	}
+> +	printf("Invalid --strict argument \"%s\", ignoring\n", list);
+> +	return ret;
+> +}
 
---IskqWBy0ijhzVzPO
-Content-Type: application/pgp-signature; name="signature.asc"
+probably I should write a few parsing functions for command line
+arguments, so we don't have to re-invent the wheel every time
 
------BEGIN PGP SIGNATURE-----
+> +
+>  int main(int argc, char **argv)
+>  {
+>  	if (!sclp_facilities.has_sief2) {
+> @@ -76,7 +121,7 @@ int main(int argc, char **argv)
+>  		goto out;
+>  	}
+>  
+> -	test_spec_ex_sie();
+> +	test_spec_ex_sie(parse_strict(argc - 1, argv + 1));
 
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmIcyScACgkQJNaLcl1U
-h9Ao0gf+JDpig6VFnyylTAGyA+EFJ7fmHFbvWhVF0t9hjFi5sLRAs8Z3+hLLKVej
-zLVg+PMT7lEK9f1Cya6K7+gCq6ukWeVmmFBvuEA5Mn++s0vTXTuvx7VPQ8I7paXG
-iePQNfdjxSxtdDUM+zinbF3mL8p4PcKUzqKlYEGeYvhxM2KxJx8a01GSsgKU1rNC
-8ynKO/iKprh+dyGZOBcXM/m3OJDmQ0YEQi9uVQFGaznJ/yE4YjoBnCc7gj7uF2gB
-3VAYxVi8Uj4ZMLOq0HPkR6QYxtneVT0Gly46I5Mg5BJZHdJ4yGkOOhaqZ0E4gwXI
-YsZPSj+FAaJ1fM7xBMDL23NN8cHicw==
-=Gb02
------END PGP SIGNATURE-----
+hmmm... maybe it would be more readable and more uniform with the other
+tests to parse the command line during initialization of the unit test,
+and set a global flag.
 
---IskqWBy0ijhzVzPO--
+>  out:
+>  	return report_summary();
+>  }
+> 
+> base-commit: 257c962f3d1b2d0534af59de4ad18764d734903a
+
