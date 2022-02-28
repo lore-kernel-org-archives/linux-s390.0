@@ -2,24 +2,24 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C142EC433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 28 Feb 2022 10:54:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A31EC433FE
+	for <linux-s390@archiver.kernel.org>; Mon, 28 Feb 2022 10:55:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234281AbiB1KzO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 28 Feb 2022 05:55:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50676 "EHLO
+        id S235383AbiB1Kzm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 28 Feb 2022 05:55:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235233AbiB1Kyk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Feb 2022 05:54:40 -0500
+        with ESMTP id S235280AbiB1Kyr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Feb 2022 05:54:47 -0500
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 4344D5E155;
-        Mon, 28 Feb 2022 02:52:18 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 74A712BCA;
+        Mon, 28 Feb 2022 02:52:35 -0800 (PST)
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 10EEE11FB;
-        Mon, 28 Feb 2022 02:52:18 -0800 (PST)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 43542106F;
+        Mon, 28 Feb 2022 02:52:35 -0800 (PST)
 Received: from p8cg001049571a15.arm.com (unknown [10.163.47.185])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 863F03F73D;
-        Mon, 28 Feb 2022 02:52:10 -0800 (PST)
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 28EEB3F73D;
+        Mon, 28 Feb 2022 02:52:26 -0800 (PST)
 From:   Anshuman Khandual <anshuman.khandual@arm.com>
 To:     linux-mm@kvack.org, akpm@linux-foundation.org
 Cc:     linux-kernel@vger.kernel.org, geert@linux-m68k.org,
@@ -34,10 +34,10 @@ Cc:     linux-kernel@vger.kernel.org, geert@linux-m68k.org,
         linux-xtensa@linux-xtensa.org, linux-parisc@vger.kernel.org,
         openrisc@lists.librecores.org, linux-um@lists.infradead.org,
         linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        linux-arch@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>
-Subject: [PATCH V3 25/30] nios2/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
-Date:   Mon, 28 Feb 2022 16:17:48 +0530
-Message-Id: <1646045273-9343-26-git-send-email-anshuman.khandual@arm.com>
+        linux-arch@vger.kernel.org, Nick Hu <nickhu@andestech.com>
+Subject: [PATCH V3 27/30] nds32/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+Date:   Mon, 28 Feb 2022 16:17:50 +0530
+Message-Id: <1646045273-9343-28-git-send-email-anshuman.khandual@arm.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1646045273-9343-1-git-send-email-anshuman.khandual@arm.com>
 References: <1646045273-9343-1-git-send-email-anshuman.khandual@arm.com>
@@ -49,113 +49,95 @@ This defines and exports a platform specific custom vm_get_page_prot() via
 subscribing ARCH_HAS_VM_GET_PAGE_PROT. Subsequently all __SXXX and __PXXX
 macros can be dropped which are no longer needed.
 
-Cc: Dinh Nguyen <dinguyen@kernel.org>
+Cc: Nick Hu <nickhu@andestech.com>
 Cc: linux-kernel@vger.kernel.org
-Acked-by: Dinh Nguyen <dinguyen@kernel.org>
 Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 ---
- arch/nios2/Kconfig               |  1 +
- arch/nios2/include/asm/pgtable.h | 24 ----------------
- arch/nios2/mm/init.c             | 47 ++++++++++++++++++++++++++++++++
- 3 files changed, 48 insertions(+), 24 deletions(-)
+ arch/nds32/Kconfig               |  1 +
+ arch/nds32/include/asm/pgtable.h | 17 ---------------
+ arch/nds32/mm/mmap.c             | 37 ++++++++++++++++++++++++++++++++
+ 3 files changed, 38 insertions(+), 17 deletions(-)
 
-diff --git a/arch/nios2/Kconfig b/arch/nios2/Kconfig
-index 33fd06f5fa41..85a58a357a3b 100644
---- a/arch/nios2/Kconfig
-+++ b/arch/nios2/Kconfig
-@@ -6,6 +6,7 @@ config NIOS2
+diff --git a/arch/nds32/Kconfig b/arch/nds32/Kconfig
+index 4d1421b18734..576e05479925 100644
+--- a/arch/nds32/Kconfig
++++ b/arch/nds32/Kconfig
+@@ -10,6 +10,7 @@ config NDS32
+ 	select ARCH_HAS_DMA_PREP_COHERENT
  	select ARCH_HAS_SYNC_DMA_FOR_CPU
  	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
- 	select ARCH_HAS_DMA_SET_UNCACHED
 +	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_NO_SWAP
- 	select COMMON_CLK
- 	select TIMER_OF
-diff --git a/arch/nios2/include/asm/pgtable.h b/arch/nios2/include/asm/pgtable.h
-index 4a995fa628ee..ba3f9822c0b3 100644
---- a/arch/nios2/include/asm/pgtable.h
-+++ b/arch/nios2/include/asm/pgtable.h
-@@ -34,30 +34,6 @@ struct mm_struct;
- 				((x) ? _PAGE_EXEC : 0) |		\
- 				((r) ? _PAGE_READ : 0) |		\
- 				((w) ? _PAGE_WRITE : 0))
--/*
-- * These are the macros that generic kernel code needs
-- * (to populate protection_map[])
-- */
--
--/* Remove W bit on private pages for COW support */
--#define __P000	MKP(0, 0, 0)
--#define __P001	MKP(0, 0, 1)
--#define __P010	MKP(0, 0, 0)	/* COW */
--#define __P011	MKP(0, 0, 1)	/* COW */
--#define __P100	MKP(1, 0, 0)
--#define __P101	MKP(1, 0, 1)
--#define __P110	MKP(1, 0, 0)	/* COW */
--#define __P111	MKP(1, 0, 1)	/* COW */
--
--/* Shared pages can have exact HW mapping */
--#define __S000	MKP(0, 0, 0)
--#define __S001	MKP(0, 0, 1)
--#define __S010	MKP(0, 1, 0)
--#define __S011	MKP(0, 1, 1)
--#define __S100	MKP(1, 0, 0)
--#define __S101	MKP(1, 0, 1)
--#define __S110	MKP(1, 1, 0)
--#define __S111	MKP(1, 1, 1)
+ 	select ARCH_WANT_FRAME_POINTERS if FTRACE
+ 	select CLKSRC_MMIO
+ 	select CLONE_BACKWARDS
+diff --git a/arch/nds32/include/asm/pgtable.h b/arch/nds32/include/asm/pgtable.h
+index 419f984eef70..79f64ed734cb 100644
+--- a/arch/nds32/include/asm/pgtable.h
++++ b/arch/nds32/include/asm/pgtable.h
+@@ -152,23 +152,6 @@ extern void __pgd_error(const char *file, int line, unsigned long val);
+ #endif /* __ASSEMBLY__ */
  
- /* Used all over the kernel */
- #define PAGE_KERNEL __pgprot(_PAGE_PRESENT | _PAGE_CACHED | _PAGE_READ | \
-diff --git a/arch/nios2/mm/init.c b/arch/nios2/mm/init.c
-index 613fcaa5988a..e867f5d85580 100644
---- a/arch/nios2/mm/init.c
-+++ b/arch/nios2/mm/init.c
-@@ -124,3 +124,50 @@ const char *arch_vma_name(struct vm_area_struct *vma)
- {
- 	return (vma->vm_start == KUSER_BASE) ? "[kuser]" : NULL;
+ /*         xwr */
+-#define __P000  (PAGE_NONE | _PAGE_CACHE_SHRD)
+-#define __P001  (PAGE_READ | _PAGE_CACHE_SHRD)
+-#define __P010  (PAGE_COPY | _PAGE_CACHE_SHRD)
+-#define __P011  (PAGE_COPY | _PAGE_CACHE_SHRD)
+-#define __P100  (PAGE_EXEC | _PAGE_CACHE_SHRD)
+-#define __P101  (PAGE_READ | _PAGE_E | _PAGE_CACHE_SHRD)
+-#define __P110  (PAGE_COPY | _PAGE_E | _PAGE_CACHE_SHRD)
+-#define __P111  (PAGE_COPY | _PAGE_E | _PAGE_CACHE_SHRD)
+-
+-#define __S000  (PAGE_NONE | _PAGE_CACHE_SHRD)
+-#define __S001  (PAGE_READ | _PAGE_CACHE_SHRD)
+-#define __S010  (PAGE_RDWR | _PAGE_CACHE_SHRD)
+-#define __S011  (PAGE_RDWR | _PAGE_CACHE_SHRD)
+-#define __S100  (PAGE_EXEC | _PAGE_CACHE_SHRD)
+-#define __S101  (PAGE_READ | _PAGE_E | _PAGE_CACHE_SHRD)
+-#define __S110  (PAGE_RDWR | _PAGE_E | _PAGE_CACHE_SHRD)
+-#define __S111  (PAGE_RDWR | _PAGE_E | _PAGE_CACHE_SHRD)
+ 
+ #ifndef __ASSEMBLY__
+ /*
+diff --git a/arch/nds32/mm/mmap.c b/arch/nds32/mm/mmap.c
+index 1bdf5e7d1b43..0399b928948d 100644
+--- a/arch/nds32/mm/mmap.c
++++ b/arch/nds32/mm/mmap.c
+@@ -71,3 +71,40 @@ arch_get_unmapped_area(struct file *filp, unsigned long addr,
+ 	info.align_offset = pgoff << PAGE_SHIFT;
+ 	return vm_unmapped_area(&info);
  }
 +
 +pgprot_t vm_get_page_prot(unsigned long vm_flags)
 +{
 +	switch (vm_flags & (VM_READ | VM_WRITE | VM_EXEC | VM_SHARED)) {
-+	/* Remove W bit on private pages for COW support */
 +	case VM_NONE:
-+		return MKP(0, 0, 0);
++		return (PAGE_NONE | _PAGE_CACHE_SHRD);
 +	case VM_READ:
-+		return MKP(0, 0, 1);
-+	/* COW */
++		return (PAGE_READ | _PAGE_CACHE_SHRD);
 +	case VM_WRITE:
-+		return MKP(0, 0, 0);
-+	/* COW */
 +	case VM_WRITE | VM_READ:
-+		return MKP(0, 0, 1);
++		return (PAGE_COPY | _PAGE_CACHE_SHRD);
 +	case VM_EXEC:
-+		return MKP(1, 0, 0);
++		return (PAGE_EXEC | _PAGE_CACHE_SHRD);
 +	case VM_EXEC | VM_READ:
-+		return MKP(1, 0, 1);
-+	/* COW */
++		return (PAGE_READ | _PAGE_E | _PAGE_CACHE_SHRD);
 +	case VM_EXEC | VM_WRITE:
-+		return MKP(1, 0, 0);
-+	/* COW */
 +	case VM_EXEC | VM_WRITE | VM_READ:
-+		return MKP(1, 0, 1);
-+	/* Shared pages can have exact HW mapping */
++		return (PAGE_COPY | _PAGE_E | _PAGE_CACHE_SHRD);
 +	case VM_SHARED:
-+		return MKP(0, 0, 0);
++		return (PAGE_NONE | _PAGE_CACHE_SHRD);
 +	case VM_SHARED | VM_READ:
-+		return MKP(0, 0, 1);
++		return (PAGE_READ | _PAGE_CACHE_SHRD);
 +	case VM_SHARED | VM_WRITE:
-+		return MKP(0, 1, 0);
 +	case VM_SHARED | VM_WRITE | VM_READ:
-+		return MKP(0, 1, 1);
++		return (PAGE_RDWR | _PAGE_CACHE_SHRD);
 +	case VM_SHARED | VM_EXEC:
-+		return MKP(1, 0, 0);
++		return (PAGE_EXEC | _PAGE_CACHE_SHRD);
 +	case VM_SHARED | VM_EXEC | VM_READ:
-+		return MKP(1, 0, 1);
++		return (PAGE_READ | _PAGE_E | _PAGE_CACHE_SHRD);
 +	case VM_SHARED | VM_EXEC | VM_WRITE:
-+		return MKP(1, 1, 0);
 +	case VM_SHARED | VM_EXEC | VM_WRITE | VM_READ:
-+		return MKP(1, 1, 1);
++		return (PAGE_RDWR | _PAGE_E | _PAGE_CACHE_SHRD);
 +	default:
 +		BUILD_BUG();
 +	}
