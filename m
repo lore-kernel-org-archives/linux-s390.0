@@ -2,403 +2,185 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AB943C43217
-	for <linux-s390@archiver.kernel.org>; Mon, 28 Feb 2022 10:55:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1772C4167D
+	for <linux-s390@archiver.kernel.org>; Mon, 28 Feb 2022 10:58:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235437AbiB1K4H (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 28 Feb 2022 05:56:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50976 "EHLO
+        id S235517AbiB1K6o (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 28 Feb 2022 05:58:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232743AbiB1Kyy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Feb 2022 05:54:54 -0500
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E78C014085;
-        Mon, 28 Feb 2022 02:53:00 -0800 (PST)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id B45BD106F;
-        Mon, 28 Feb 2022 02:53:00 -0800 (PST)
-Received: from p8cg001049571a15.arm.com (unknown [10.163.47.185])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 700123F73D;
-        Mon, 28 Feb 2022 02:52:52 -0800 (PST)
-From:   Anshuman Khandual <anshuman.khandual@arm.com>
-To:     linux-mm@kvack.org, akpm@linux-foundation.org
-Cc:     linux-kernel@vger.kernel.org, geert@linux-m68k.org,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        linuxppc-dev@lists.ozlabs.org,
-        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-        linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-alpha@vger.kernel.org, linux-sh@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-xtensa@linux-xtensa.org, linux-parisc@vger.kernel.org,
-        openrisc@lists.librecores.org, linux-um@lists.infradead.org,
-        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        linux-arch@vger.kernel.org
-Subject: [PATCH V3 30/30] mm/mmap: Drop ARCH_HAS_VM_GET_PAGE_PROT
-Date:   Mon, 28 Feb 2022 16:17:53 +0530
-Message-Id: <1646045273-9343-31-git-send-email-anshuman.khandual@arm.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1646045273-9343-1-git-send-email-anshuman.khandual@arm.com>
-References: <1646045273-9343-1-git-send-email-anshuman.khandual@arm.com>
+        with ESMTP id S235459AbiB1K6f (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Feb 2022 05:58:35 -0500
+Received: from EUR04-DB3-obe.outbound.protection.outlook.com (mail-eopbgr60045.outbound.protection.outlook.com [40.107.6.45])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55D65723C4;
+        Mon, 28 Feb 2022 02:55:11 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=V0WQ5P4qvBYPIk+WBMAAQYHxOpnnw9wqbbhlIbRl+J7ueVghufzi5a2drwV3rDgI4dBzqMy/eRRvQUHHsxYWrXR9hwF4KraepLZF3X3lsh74oovz1Sq/bjRp0q0iuDWQo2IcswR/MBuAzA9m7f9qzU8VDHs+gcpHIKZiQeMMgQLumQXQ3gyc0kQ0JryJxPCl3JgHmCR8Rjyluxt1+FmLnHx5sIR7Rlt3rzOsydt29VIstQWn9CTx4WLsbwvVFYsyasrbIjTMnLIuY7SKE4+vHlwQ/+bkhOumocCqaPCdX0sS3layoDNJzL+by87b9TmFgTpUkHQb6jcQUd44XUhVwQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=mjhgbJoZU1wbVA904A6o2qwNTIUSmJkrFK6BerzEVhM=;
+ b=mDM8n9AykqG48dop71JEIdtiVAyzNiAJ6S1VhLksD9xh2Yc5D9Aurjkb95T7ykvy7mzDDGtegcVF7MgRylmaxYNh0cu5jaL0hGQUMBRcI5kgbH+NHdAVuRRtu6iypXeiGrgKGBhpEJhKcIj4qnR3Q3G13p/PfDe/zDNpu9CPv8XMFv/8hZ7zlKwsy+ZA1rxELcL41JOuDnuropbmw3FMh9WL6G8lxfFTTxika2jMAMMQwvtKx3gU2pU3bBRqQRH/YP2gYQGSu3MK29ii0mBgyuWg9nBDUUKHRAETkZnEypeCHpe2CqD1XWvodInnw64M+gh680imPQmHzayNTj5NJg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
+ header.d=nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=mjhgbJoZU1wbVA904A6o2qwNTIUSmJkrFK6BerzEVhM=;
+ b=fxrV9iJMWAUmY9JRsGtKiG75uvhiRAIOK5xDx3ciCsmOxiIMJJ+2TYJ/XhxNHIpm4m4GpmU3B+6ZkyqW1iKmx6GMwMod62MahOafD+SbX5rwp8BX8d/EOEVBGemmB8dnS9sLj2LGPLTNiXeABiWhabkk5VZoWVEHQVoDI/cdRy0=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nxp.com;
+Received: from VI1PR04MB4688.eurprd04.prod.outlook.com (2603:10a6:803:6a::30)
+ by AS1PR04MB9405.eurprd04.prod.outlook.com (2603:10a6:20b:4db::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5017.25; Mon, 28 Feb
+ 2022 10:55:08 +0000
+Received: from VI1PR04MB4688.eurprd04.prod.outlook.com
+ ([fe80::98a7:fbac:5cec:776e]) by VI1PR04MB4688.eurprd04.prod.outlook.com
+ ([fe80::98a7:fbac:5cec:776e%5]) with mapi id 15.20.5017.026; Mon, 28 Feb 2022
+ 10:55:08 +0000
+Date:   Mon, 28 Feb 2022 12:55:05 +0200
+From:   Abel Vesa <abel.vesa@nxp.com>
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Stuart Yoder <stuyoder@gmail.com>,
+        Laurentiu Tudor <laurentiu.tudor@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Andy Gross <agross@kernel.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-clk@vger.kernel.org, NXP Linux Team <linux-imx@nxp.com>,
+        linux-arm-kernel@lists.infradead.org, linux-hyperv@vger.kernel.org,
+        linux-pci@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        alsa-devel@alsa-project.org, linux-spi@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v3 09/11] clk: imx: scu: Fix kfree() of static memory on
+ setting driver_override
+Message-ID: <YhyqCTWOK9lO1dNl@abelvesa>
+References: <20220227135214.145599-1-krzysztof.kozlowski@canonical.com>
+ <20220227135329.145862-3-krzysztof.kozlowski@canonical.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220227135329.145862-3-krzysztof.kozlowski@canonical.com>
+X-ClientProxiedBy: VI1PR07CA0231.eurprd07.prod.outlook.com
+ (2603:10a6:802:58::34) To VI1PR04MB4688.eurprd04.prod.outlook.com
+ (2603:10a6:803:6a::30)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 6e5983fa-d8e2-474b-5771-08d9faa8c881
+X-MS-TrafficTypeDiagnostic: AS1PR04MB9405:EE_
+X-Microsoft-Antispam-PRVS: <AS1PR04MB940525A8489F06ADB6ECB0D5F6019@AS1PR04MB9405.eurprd04.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: HbU9SSRtdxvE6OVoNIOPMfx/uumuCjPMA99GrdY4G2mcL7qcW/PLWDt6qWCI5RDXhzUp4Pf/OcunUuaP8f82JAcaZu3lOo48btj7Cjusa8fpYRi1eHaC9s6q2wjWqKHYPppKMc/IOMO0ZaVjUojc1SkxlIsfqzFAYyabR2wlETC3OA2FKdF8Es4zQiCYQI41YujkzY9+HNuNfzmIjCeI03I9gmegivFnlTR3O6BhPL5vphc41go+ByFRjw5euhSKzrj7nDr/a7/PlCNjZ0ovDeb9CZu/88VAf6ykfO5COa4ovRNluAqGTCrp+MuVveMEiVxPlJnXZo4TLn6RVlp4UBPQziz1aPClbp7lvVQnKHyeB9ZWbtxM5yv9RpCEBvwK6U9hVFgCEwfNfoBF/bx3dCoNTiALbl24r+YYrDcMbf3BOrU2Q6s0FwryHg7xxNArdAa6dOawlZsnTfve5wZbOg/olFqMFYpnZaOYgfVZ8vp2IBu7cN8zVMEM4im8nJZY96ygN6vrzy/GEfKUBD+l3BcNOwPyQnri/QS32tIo6ho4hn79660c436v+SCri2yIHScYdZ90RTBPKN5nf/tJptlcjXO41HxaR/BNhXYvEpujSNOK+jq3nI17ehDcAUfTJ6Tyycubj1HcqN7V1pgbtQdoI1XqbeN1FKiooKlSSr9AA8KlUyg9Fxd9u2f7MzWaAiTP3G908R2exyLTPHr2mw==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI1PR04MB4688.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(7916004)(366004)(8676002)(4326008)(66556008)(66476007)(86362001)(83380400001)(54906003)(7406005)(186003)(5660300002)(8936002)(7416002)(2906002)(66946007)(6916009)(316002)(9686003)(52116002)(6512007)(44832011)(53546011)(33716001)(26005)(6486002)(38350700002)(6666004)(508600001)(38100700002)(6506007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?ouUWPnI+v8HZaLdgLgGbqTouEtQXAU7Yu/I1WwwK2lbVgJ5p7VXALjXmXVHO?=
+ =?us-ascii?Q?YWQjVYWDnLGCScbIMWNv32zVpIQ8JtAsQTWGFDFIwt60YLoTCosDeV2cGiZv?=
+ =?us-ascii?Q?bY6esMxfOi4qLIWPL4b6ktTT8/uVO5NF8v8gC095ELWPsqvYVAQ4bPqM5FIY?=
+ =?us-ascii?Q?WaQduwx02CYtoRM3VxlAo/G1sWBPWVWEjAuUrez0Xl6rVj0XFRELlC0qPwmz?=
+ =?us-ascii?Q?q1VUHmD/BPNwP/o3feJEPCLdzO9fuyluCV4r3fRtjDKYCbGNFtxElGE5QwVx?=
+ =?us-ascii?Q?vwk2KLJfIINiH24g7CoKZj+nRraqCIkDbj2nooFYa+BLBBQUGvZYUJHo4Vzs?=
+ =?us-ascii?Q?1YwGvNBfKkWoRh/8DtLc3Tg2Ke36xyF5iNa4hFdjTMJCADC/Tdejfn8Mq3rO?=
+ =?us-ascii?Q?+KmpEIP5ULL6k6TdfWb+rd0GlFQU3HpXJcBfBHx5H1Egp+n0KkQOsUSq+3QI?=
+ =?us-ascii?Q?3aH3B/X/N5TXiRIbIIqe0IanKe3Ci3B89Z2onOunNkN76nMoyGt57ULXmzTS?=
+ =?us-ascii?Q?OxzgEEbV2hhNp0bcKPfeuyWkGlsD/LhHUoyvrkCVjRnnqDcYRCJU/OOm2lon?=
+ =?us-ascii?Q?2sWeOqqN9hJ6IsiG7pSavfPxF7lfrm2lx7ayP8E4m+juhknN5PFEy/TENxOi?=
+ =?us-ascii?Q?z+17bNeRbm/UGVlLEEupPPLH7mp5vECXOmQLuYKa8EbBrcvTgDW6Eh30SVE3?=
+ =?us-ascii?Q?cnsLxR56M54KBzEz/w0TR7OnB8APZiORnQJatzmQUd8FG1V8y8jXAiOZM55p?=
+ =?us-ascii?Q?L0nnqIL2pbjaxM9YyTMa19w8TtypQMqLr2ZL7md10NwJ55TR6x1BFkOBsk5E?=
+ =?us-ascii?Q?p/rJPl72Pah32eJLllTA/Y28y4WOI6R2t6G+JBUm3SKnPPtzj17UDr86amwr?=
+ =?us-ascii?Q?a3r5OQtJXtXs48ic9zPVZgMX1VtYR3qmJEkG9TP/fIlt/uNieExcF5HFvXvR?=
+ =?us-ascii?Q?1Q398ysvn8SWMz//ER7DfpYV3EqCG57NQi/bz5f/jH5Zx4C5dGlEdnVqQoxb?=
+ =?us-ascii?Q?kQVZHlM2xr9g6a4jFCZE22QM97oAOWcdomsUvhQ73Ll6Zqto3bdUyj5t+cTX?=
+ =?us-ascii?Q?VBVD9Dr+fg9tk66xKojeLPGci6JlUZJlnVDNKmSBOpsbECzH91sEnQprOpF/?=
+ =?us-ascii?Q?okEFpql4l33nT3ZMvnUU4NxUV5zrHV5wzoKD35M1z13c+NAF45L8lMFZLio3?=
+ =?us-ascii?Q?N6KicfhYMGIzRFajff9yjb8W98tA+UJj0WU5CznIYobtBGVNuE8jkcRc+VYN?=
+ =?us-ascii?Q?j003T6ta9XrMsjAi1ERWtOth7C7mcmiGOxKTLgxh9lBD/OprEt4oeskGdPwD?=
+ =?us-ascii?Q?QG3d9y+D8Jb/Y4718U/lVwTuFuEF2SSg5Ay71oFAXBJ/tgP8zx0NB7UlQQym?=
+ =?us-ascii?Q?4Z1MuPgFJitm+YlDWC8K5fheq/P/p27/VaXvrv/6rRW1QW1VPeQowlKXGf08?=
+ =?us-ascii?Q?8t7Gt8zszUgD1kfH1lmMUyjdYosH0Sz6TL0RU6aEvLfODgkBryDH76TAiUMr?=
+ =?us-ascii?Q?ZOcDZy43KWieXHgVyQFa4O4MRZKpalLe4dcokVJR1yfD64Q2R2BpqYJeBv3B?=
+ =?us-ascii?Q?KMW9T5Dw1+eNv3FkvhVBuqSmIa/ZLMNA70xabfn2fLprViQ1ENAtCg/uGzeW?=
+ =?us-ascii?Q?IgGW7szYLkb4+Sijn9Zkrz4=3D?=
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6e5983fa-d8e2-474b-5771-08d9faa8c881
+X-MS-Exchange-CrossTenant-AuthSource: VI1PR04MB4688.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Feb 2022 10:55:07.7973
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: W3cPZht+XpagTvOJJjtOs7w9BYjlHq1B3LDVAfA92nCOZIm8/blfoFFoZ9nkHYjUf8lrbYZCVh/yjq9+PkKLVQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS1PR04MB9405
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-All platforms now define their own vm_get_page_prot() and also there is no
-generic version left to fallback on. Hence drop ARCH_HAS_GET_PAGE_PROT.
+On 22-02-27 14:53:27, Krzysztof Kozlowski wrote:
+> The driver_override field from platform driver should not be initialized
+> from static memory (string literal) because the core later kfree() it,
+> for example when driver_override is set via sysfs.
+> 
+> Use dedicated helper to set driver_override properly.
+> 
+> Fixes: 77d8f3068c63 ("clk: imx: scu: add two cells binding support")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+> ---
+>  drivers/clk/imx/clk-scu.c | 7 ++++++-
+>  1 file changed, 6 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/clk/imx/clk-scu.c b/drivers/clk/imx/clk-scu.c
+> index 083da31dc3ea..4b2268b7d0d0 100644
+> --- a/drivers/clk/imx/clk-scu.c
+> +++ b/drivers/clk/imx/clk-scu.c
+> @@ -683,7 +683,12 @@ struct clk_hw *imx_clk_scu_alloc_dev(const char *name,
+>  		return ERR_PTR(ret);
+>  	}
+>  
+> -	pdev->driver_override = "imx-scu-clk";
+> +	ret = driver_set_override(&pdev->dev, &pdev->driver_override,
+> +				  "imx-scu-clk", strlen("imx-scu-clk"));
 
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-mm@kvack.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
----
- arch/alpha/Kconfig      |  1 -
- arch/arc/Kconfig        |  1 -
- arch/arm/Kconfig        |  1 -
- arch/arm64/Kconfig      |  1 -
- arch/csky/Kconfig       |  1 -
- arch/hexagon/Kconfig    |  1 -
- arch/ia64/Kconfig       |  1 -
- arch/m68k/Kconfig       |  1 -
- arch/microblaze/Kconfig |  1 -
- arch/mips/Kconfig       |  1 -
- arch/nds32/Kconfig      |  1 -
- arch/nios2/Kconfig      |  1 -
- arch/openrisc/Kconfig   |  1 -
- arch/parisc/Kconfig     |  1 -
- arch/powerpc/Kconfig    |  1 -
- arch/riscv/Kconfig      |  1 -
- arch/s390/Kconfig       |  1 -
- arch/sh/Kconfig         |  1 -
- arch/sparc/Kconfig      |  2 --
- arch/um/Kconfig         |  1 -
- arch/x86/Kconfig        |  1 -
- arch/xtensa/Kconfig     |  1 -
- mm/Kconfig              |  3 ---
- mm/mmap.c               | 23 -----------------------
- 24 files changed, 49 deletions(-)
+See my comment to patch 01/11.
 
-diff --git a/arch/alpha/Kconfig b/arch/alpha/Kconfig
-index 73e82fe5c770..4e87783c90ad 100644
---- a/arch/alpha/Kconfig
-+++ b/arch/alpha/Kconfig
-@@ -2,7 +2,6 @@
- config ALPHA
- 	bool
- 	default y
--	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_32BIT_USTAT_F_TINODE
- 	select ARCH_MIGHT_HAVE_PC_PARPORT
- 	select ARCH_MIGHT_HAVE_PC_SERIO
-diff --git a/arch/arc/Kconfig b/arch/arc/Kconfig
-index 78ff0644b343..3c2a4753d09b 100644
---- a/arch/arc/Kconfig
-+++ b/arch/arc/Kconfig
-@@ -13,7 +13,6 @@ config ARC
- 	select ARCH_HAS_SETUP_DMA_OPS
- 	select ARCH_HAS_SYNC_DMA_FOR_CPU
- 	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
--	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_SUPPORTS_ATOMIC_RMW if ARC_HAS_LLSC
- 	select ARCH_32BIT_OFF_T
- 	select BUILDTIME_TABLE_SORT
-diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index 87b2e89ef3d6..4c97cb40eebb 100644
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -23,7 +23,6 @@ config ARM
- 	select ARCH_HAS_SYNC_DMA_FOR_CPU if SWIOTLB || !MMU
- 	select ARCH_HAS_TEARDOWN_DMA_OPS if MMU
- 	select ARCH_HAS_TICK_BROADCAST if GENERIC_CLOCKEVENTS_BROADCAST
--	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_HAVE_CUSTOM_GPIO_H
- 	select ARCH_HAVE_NMI_SAFE_CMPXCHG if CPU_V7 || CPU_V7M || CPU_V6K
- 	select ARCH_HAS_GCOV_PROFILE_ALL
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 7153d5fff603..bfb92b98d5aa 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -43,7 +43,6 @@ config ARM64
- 	select ARCH_HAS_SYSCALL_WRAPPER
- 	select ARCH_HAS_TEARDOWN_DMA_OPS if IOMMU_SUPPORT
- 	select ARCH_HAS_TICK_BROADCAST if GENERIC_CLOCKEVENTS_BROADCAST
--	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_HAS_ZONE_DMA_SET if EXPERT
- 	select ARCH_HAVE_ELF_PROT
- 	select ARCH_HAVE_NMI_SAFE_CMPXCHG
-diff --git a/arch/csky/Kconfig b/arch/csky/Kconfig
-index 209dac5686dd..132f43f12dd8 100644
---- a/arch/csky/Kconfig
-+++ b/arch/csky/Kconfig
-@@ -6,7 +6,6 @@ config CSKY
- 	select ARCH_HAS_GCOV_PROFILE_ALL
- 	select ARCH_HAS_SYNC_DMA_FOR_CPU
- 	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
--	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_USE_BUILTIN_BSWAP
- 	select ARCH_USE_QUEUED_RWLOCKS
- 	select ARCH_WANT_FRAME_POINTERS if !CPU_CK610 && $(cc-option,-mbacktrace)
-diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
-index cdc5df32a1e3..15dd8f38b698 100644
---- a/arch/hexagon/Kconfig
-+++ b/arch/hexagon/Kconfig
-@@ -6,7 +6,6 @@ config HEXAGON
- 	def_bool y
- 	select ARCH_32BIT_OFF_T
- 	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
--	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_NO_PREEMPT
- 	select DMA_GLOBAL_POOL
- 	# Other pending projects/to-do items.
-diff --git a/arch/ia64/Kconfig b/arch/ia64/Kconfig
-index 0ab15e8d5783..a7e01573abd8 100644
---- a/arch/ia64/Kconfig
-+++ b/arch/ia64/Kconfig
-@@ -11,7 +11,6 @@ config IA64
- 	select ARCH_HAS_DMA_MARK_CLEAN
- 	select ARCH_HAS_STRNCPY_FROM_USER
- 	select ARCH_HAS_STRNLEN_USER
--	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_MIGHT_HAVE_PC_PARPORT
- 	select ARCH_MIGHT_HAVE_PC_SERIO
- 	select ACPI
-diff --git a/arch/m68k/Kconfig b/arch/m68k/Kconfig
-index 114e65164692..936e1803c7c7 100644
---- a/arch/m68k/Kconfig
-+++ b/arch/m68k/Kconfig
-@@ -11,7 +11,6 @@ config M68K
- 	select ARCH_NO_PREEMPT if !COLDFIRE
- 	select ARCH_USE_MEMTEST if MMU_MOTOROLA
- 	select ARCH_WANT_IPC_PARSE_VERSION
--	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select BINFMT_FLAT_ARGVP_ENVP_ON_STACK
- 	select DMA_DIRECT_REMAP if HAS_DMA && MMU && !COLDFIRE
- 	select GENERIC_ATOMIC64
-diff --git a/arch/microblaze/Kconfig b/arch/microblaze/Kconfig
-index f2c25ba8621e..59798e43cdb0 100644
---- a/arch/microblaze/Kconfig
-+++ b/arch/microblaze/Kconfig
-@@ -7,7 +7,6 @@ config MICROBLAZE
- 	select ARCH_HAS_GCOV_PROFILE_ALL
- 	select ARCH_HAS_SYNC_DMA_FOR_CPU
- 	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
--	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_MIGHT_HAVE_PC_PARPORT
- 	select ARCH_WANT_IPC_PARSE_VERSION
- 	select BUILDTIME_TABLE_SORT
-diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
-index fcbfc52a1567..058446f01487 100644
---- a/arch/mips/Kconfig
-+++ b/arch/mips/Kconfig
-@@ -13,7 +13,6 @@ config MIPS
- 	select ARCH_HAS_STRNLEN_USER
- 	select ARCH_HAS_TICK_BROADCAST if GENERIC_CLOCKEVENTS_BROADCAST
- 	select ARCH_HAS_UBSAN_SANITIZE_ALL
--	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_HAS_GCOV_PROFILE_ALL
- 	select ARCH_KEEP_MEMBLOCK
- 	select ARCH_SUPPORTS_UPROBES
-diff --git a/arch/nds32/Kconfig b/arch/nds32/Kconfig
-index 576e05479925..4d1421b18734 100644
---- a/arch/nds32/Kconfig
-+++ b/arch/nds32/Kconfig
-@@ -10,7 +10,6 @@ config NDS32
- 	select ARCH_HAS_DMA_PREP_COHERENT
- 	select ARCH_HAS_SYNC_DMA_FOR_CPU
- 	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
--	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_WANT_FRAME_POINTERS if FTRACE
- 	select CLKSRC_MMIO
- 	select CLONE_BACKWARDS
-diff --git a/arch/nios2/Kconfig b/arch/nios2/Kconfig
-index 85a58a357a3b..33fd06f5fa41 100644
---- a/arch/nios2/Kconfig
-+++ b/arch/nios2/Kconfig
-@@ -6,7 +6,6 @@ config NIOS2
- 	select ARCH_HAS_SYNC_DMA_FOR_CPU
- 	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
- 	select ARCH_HAS_DMA_SET_UNCACHED
--	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_NO_SWAP
- 	select COMMON_CLK
- 	select TIMER_OF
-diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
-index 842a61426816..f724b3f1aeed 100644
---- a/arch/openrisc/Kconfig
-+++ b/arch/openrisc/Kconfig
-@@ -10,7 +10,6 @@ config OPENRISC
- 	select ARCH_HAS_DMA_SET_UNCACHED
- 	select ARCH_HAS_DMA_CLEAR_UNCACHED
- 	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
--	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select COMMON_CLK
- 	select OF
- 	select OF_EARLY_FLATTREE
-diff --git a/arch/parisc/Kconfig b/arch/parisc/Kconfig
-index de512f120b50..43c1c880def6 100644
---- a/arch/parisc/Kconfig
-+++ b/arch/parisc/Kconfig
-@@ -10,7 +10,6 @@ config PARISC
- 	select ARCH_HAS_ELF_RANDOMIZE
- 	select ARCH_HAS_STRICT_KERNEL_RWX
- 	select ARCH_HAS_UBSAN_SANITIZE_ALL
--	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_NO_SG_CHAIN
- 	select ARCH_SUPPORTS_HUGETLBFS if PA20
- 	select ARCH_SUPPORTS_MEMORY_FAILURE
-diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index ddb4a3687c05..b779603978e1 100644
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -135,7 +135,6 @@ config PPC
- 	select ARCH_HAS_TICK_BROADCAST		if GENERIC_CLOCKEVENTS_BROADCAST
- 	select ARCH_HAS_UACCESS_FLUSHCACHE
- 	select ARCH_HAS_UBSAN_SANITIZE_ALL
--	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_HAVE_NMI_SAFE_CMPXCHG
- 	select ARCH_KEEP_MEMBLOCK
- 	select ARCH_MIGHT_HAVE_PC_PARPORT
-diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-index 9391742f9286..5adcbd9b5e88 100644
---- a/arch/riscv/Kconfig
-+++ b/arch/riscv/Kconfig
-@@ -31,7 +31,6 @@ config RISCV
- 	select ARCH_HAS_STRICT_MODULE_RWX if MMU && !XIP_KERNEL
- 	select ARCH_HAS_TICK_BROADCAST if GENERIC_CLOCKEVENTS_BROADCAST
- 	select ARCH_HAS_UBSAN_SANITIZE_ALL
--	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_OPTIONAL_KERNEL_RWX if ARCH_HAS_STRICT_KERNEL_RWX
- 	select ARCH_OPTIONAL_KERNEL_RWX_DEFAULT
- 	select ARCH_STACKWALK
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index cb1b487e8201..be9f39fd06df 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -78,7 +78,6 @@ config S390
- 	select ARCH_HAS_SYSCALL_WRAPPER
- 	select ARCH_HAS_UBSAN_SANITIZE_ALL
- 	select ARCH_HAS_VDSO_DATA
--	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_HAVE_NMI_SAFE_CMPXCHG
- 	select ARCH_INLINE_READ_LOCK
- 	select ARCH_INLINE_READ_LOCK_BH
-diff --git a/arch/sh/Kconfig b/arch/sh/Kconfig
-index f3fcd1c5e002..2474a04ceac4 100644
---- a/arch/sh/Kconfig
-+++ b/arch/sh/Kconfig
-@@ -11,7 +11,6 @@ config SUPERH
- 	select ARCH_HAS_GCOV_PROFILE_ALL
- 	select ARCH_HAS_PTE_SPECIAL
- 	select ARCH_HAS_TICK_BROADCAST if GENERIC_CLOCKEVENTS_BROADCAST
--	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_HIBERNATION_POSSIBLE if MMU
- 	select ARCH_MIGHT_HAVE_PC_PARPORT
- 	select ARCH_WANT_IPC_PARSE_VERSION
-diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
-index ff29156f2380..1cab1b284f1a 100644
---- a/arch/sparc/Kconfig
-+++ b/arch/sparc/Kconfig
-@@ -59,7 +59,6 @@ config SPARC32
- 	select HAVE_UID16
- 	select OLD_SIGACTION
- 	select ZONE_DMA
--	select ARCH_HAS_VM_GET_PAGE_PROT
- 
- config SPARC64
- 	def_bool 64BIT
-@@ -85,7 +84,6 @@ config SPARC64
- 	select PERF_USE_VMALLOC
- 	select ARCH_HAVE_NMI_SAFE_CMPXCHG
- 	select HAVE_C_RECORDMCOUNT
--	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select HAVE_ARCH_AUDITSYSCALL
- 	select ARCH_SUPPORTS_ATOMIC_RMW
- 	select ARCH_SUPPORTS_DEBUG_PAGEALLOC
-diff --git a/arch/um/Kconfig b/arch/um/Kconfig
-index 5836296868a8..4d398b80aea8 100644
---- a/arch/um/Kconfig
-+++ b/arch/um/Kconfig
-@@ -9,7 +9,6 @@ config UML
- 	select ARCH_HAS_KCOV
- 	select ARCH_HAS_STRNCPY_FROM_USER
- 	select ARCH_HAS_STRNLEN_USER
--	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_NO_PREEMPT
- 	select HAVE_ARCH_AUDITSYSCALL
- 	select HAVE_ARCH_SECCOMP_FILTER
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index b2ea06c87708..013d8d6179e5 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -93,7 +93,6 @@ config X86
- 	select ARCH_HAS_SYNC_CORE_BEFORE_USERMODE
- 	select ARCH_HAS_SYSCALL_WRAPPER
- 	select ARCH_HAS_UBSAN_SANITIZE_ALL
--	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_HAS_DEBUG_WX
- 	select ARCH_HAS_ZONE_DMA_SET if EXPERT
- 	select ARCH_HAVE_NMI_SAFE_CMPXCHG
-diff --git a/arch/xtensa/Kconfig b/arch/xtensa/Kconfig
-index 1608f7517546..8ac599aa6d99 100644
---- a/arch/xtensa/Kconfig
-+++ b/arch/xtensa/Kconfig
-@@ -9,7 +9,6 @@ config XTENSA
- 	select ARCH_HAS_DMA_SET_UNCACHED if MMU
- 	select ARCH_HAS_STRNCPY_FROM_USER if !KASAN
- 	select ARCH_HAS_STRNLEN_USER
--	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_USE_MEMTEST
- 	select ARCH_USE_QUEUED_RWLOCKS
- 	select ARCH_USE_QUEUED_SPINLOCKS
-diff --git a/mm/Kconfig b/mm/Kconfig
-index 212fb6e1ddaa..3326ee3903f3 100644
---- a/mm/Kconfig
-+++ b/mm/Kconfig
-@@ -744,9 +744,6 @@ config IDLE_PAGE_TRACKING
- config ARCH_HAS_CACHE_LINE_SIZE
- 	bool
- 
--config ARCH_HAS_VM_GET_PAGE_PROT
--	bool
--
- config ARCH_HAS_PTE_DEVMAP
- 	bool
- 
-diff --git a/mm/mmap.c b/mm/mmap.c
-index ff343f76a825..07d952793315 100644
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -81,29 +81,6 @@ static void unmap_region(struct mm_struct *mm,
- 		struct vm_area_struct *vma, struct vm_area_struct *prev,
- 		unsigned long start, unsigned long end);
- 
--#ifndef CONFIG_ARCH_HAS_VM_GET_PAGE_PROT
--/* description of effects of mapping type and prot in current implementation.
-- * this is due to the limited x86 page protection hardware.  The expected
-- * behavior is in parens:
-- *
-- * map_type	prot
-- *		PROT_NONE	PROT_READ	PROT_WRITE	PROT_EXEC
-- * MAP_SHARED	r: (no) no	r: (yes) yes	r: (no) yes	r: (no) yes
-- *		w: (no) no	w: (no) no	w: (yes) yes	w: (no) no
-- *		x: (no) no	x: (no) yes	x: (no) yes	x: (yes) yes
-- *
-- * MAP_PRIVATE	r: (no) no	r: (yes) yes	r: (no) yes	r: (no) yes
-- *		w: (no) no	w: (no) no	w: (copy) copy	w: (no) no
-- *		x: (no) no	x: (no) yes	x: (no) yes	x: (yes) yes
-- *
-- * On arm64, PROT_EXEC has the following behaviour for both MAP_SHARED and
-- * MAP_PRIVATE (with Enhanced PAN supported):
-- *								r: (no) no
-- *								w: (no) no
-- *								x: (yes) yes
-- */
--#endif	/* CONFIG_ARCH_HAS_VM_GET_PAGE_PROT */
--
- static pgprot_t vm_pgprot_modify(pgprot_t oldprot, unsigned long vm_flags)
- {
- 	return pgprot_modify(oldprot, vm_get_page_prot(vm_flags));
--- 
-2.25.1
+I would like this to look like the following:
 
+	ret = driver_set_override(&pdev->dev, "imx-scu-clk");
+
+> +	if (ret) {
+> +		platform_device_put(pdev);
+> +		return ERR_PTR(ret);
+> +	}
+>  
+>  	ret = imx_clk_scu_attach_pd(&pdev->dev, rsrc_id);
+>  	if (ret)
+> -- 
+> 2.32.0
+>
