@@ -2,24 +2,24 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E945C433FE
-	for <linux-s390@archiver.kernel.org>; Mon, 28 Feb 2022 10:54:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 53D1EC4332F
+	for <linux-s390@archiver.kernel.org>; Mon, 28 Feb 2022 10:54:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233345AbiB1KzD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 28 Feb 2022 05:55:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51080 "EHLO
+        id S235363AbiB1KzH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 28 Feb 2022 05:55:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235216AbiB1Kyk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Feb 2022 05:54:40 -0500
+        with ESMTP id S235265AbiB1Kyq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Feb 2022 05:54:46 -0500
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 438646E7A7;
-        Mon, 28 Feb 2022 02:52:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id BC01AF19;
+        Mon, 28 Feb 2022 02:52:26 -0800 (PST)
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 00A8411FB;
-        Mon, 28 Feb 2022 02:52:10 -0800 (PST)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 8AD69106F;
+        Mon, 28 Feb 2022 02:52:26 -0800 (PST)
 Received: from p8cg001049571a15.arm.com (unknown [10.163.47.185])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 1303C3F73D;
-        Mon, 28 Feb 2022 02:52:01 -0800 (PST)
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id A4B533F73D;
+        Mon, 28 Feb 2022 02:52:18 -0800 (PST)
 From:   Anshuman Khandual <anshuman.khandual@arm.com>
 To:     linux-mm@kvack.org, akpm@linux-foundation.org
 Cc:     linux-kernel@vger.kernel.org, geert@linux-m68k.org,
@@ -34,10 +34,10 @@ Cc:     linux-kernel@vger.kernel.org, geert@linux-m68k.org,
         linux-xtensa@linux-xtensa.org, linux-parisc@vger.kernel.org,
         openrisc@lists.librecores.org, linux-um@lists.infradead.org,
         linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        linux-arch@vger.kernel.org, Michal Simek <monstr@monstr.eu>
-Subject: [PATCH V3 24/30] microblaze/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
-Date:   Mon, 28 Feb 2022 16:17:47 +0530
-Message-Id: <1646045273-9343-25-git-send-email-anshuman.khandual@arm.com>
+        linux-arch@vger.kernel.org, Brian Cain <bcain@codeaurora.org>
+Subject: [PATCH V3 26/30] hexagon/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+Date:   Mon, 28 Feb 2022 16:17:49 +0530
+Message-Id: <1646045273-9343-27-git-send-email-anshuman.khandual@arm.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1646045273-9343-1-git-send-email-anshuman.khandual@arm.com>
 References: <1646045273-9343-1-git-send-email-anshuman.khandual@arm.com>
@@ -49,99 +49,134 @@ This defines and exports a platform specific custom vm_get_page_prot() via
 subscribing ARCH_HAS_VM_GET_PAGE_PROT. Subsequently all __SXXX and __PXXX
 macros can be dropped which are no longer needed.
 
-Cc: Michal Simek <monstr@monstr.eu>
+Cc: Brian Cain <bcain@codeaurora.org>
+Cc: linux-hexagon@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 ---
- arch/microblaze/Kconfig               |  1 +
- arch/microblaze/include/asm/pgtable.h | 17 -----------
- arch/microblaze/mm/init.c             | 41 +++++++++++++++++++++++++++
- 3 files changed, 42 insertions(+), 17 deletions(-)
+ arch/hexagon/Kconfig               |  1 +
+ arch/hexagon/include/asm/pgtable.h | 24 -----------
+ arch/hexagon/mm/init.c             | 67 ++++++++++++++++++++++++++++++
+ 3 files changed, 68 insertions(+), 24 deletions(-)
 
-diff --git a/arch/microblaze/Kconfig b/arch/microblaze/Kconfig
-index 59798e43cdb0..f2c25ba8621e 100644
---- a/arch/microblaze/Kconfig
-+++ b/arch/microblaze/Kconfig
-@@ -7,6 +7,7 @@ config MICROBLAZE
- 	select ARCH_HAS_GCOV_PROFILE_ALL
- 	select ARCH_HAS_SYNC_DMA_FOR_CPU
+diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
+index 15dd8f38b698..cdc5df32a1e3 100644
+--- a/arch/hexagon/Kconfig
++++ b/arch/hexagon/Kconfig
+@@ -6,6 +6,7 @@ config HEXAGON
+ 	def_bool y
+ 	select ARCH_32BIT_OFF_T
  	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
 +	select ARCH_HAS_VM_GET_PAGE_PROT
- 	select ARCH_MIGHT_HAVE_PC_PARPORT
- 	select ARCH_WANT_IPC_PARSE_VERSION
- 	select BUILDTIME_TABLE_SORT
-diff --git a/arch/microblaze/include/asm/pgtable.h b/arch/microblaze/include/asm/pgtable.h
-index c136a01e467e..6df373077ff2 100644
---- a/arch/microblaze/include/asm/pgtable.h
-+++ b/arch/microblaze/include/asm/pgtable.h
-@@ -204,23 +204,6 @@ extern pte_t *va_to_pte(unsigned long address);
-  * We consider execute permission the same as read.
-  * Also, write permissions imply read permissions.
-  */
--#define __P000	PAGE_NONE
--#define __P001	PAGE_READONLY_X
--#define __P010	PAGE_COPY
--#define __P011	PAGE_COPY_X
--#define __P100	PAGE_READONLY
--#define __P101	PAGE_READONLY_X
--#define __P110	PAGE_COPY
--#define __P111	PAGE_COPY_X
+ 	select ARCH_NO_PREEMPT
+ 	select DMA_GLOBAL_POOL
+ 	# Other pending projects/to-do items.
+diff --git a/arch/hexagon/include/asm/pgtable.h b/arch/hexagon/include/asm/pgtable.h
+index 18cd6ea9ab23..5eceddfe013d 100644
+--- a/arch/hexagon/include/asm/pgtable.h
++++ b/arch/hexagon/include/asm/pgtable.h
+@@ -127,31 +127,7 @@ extern unsigned long _dflt_cache_att;
+ #define CACHEDEF	(CACHE_DEFAULT << 6)
+ 
+ /* Private (copy-on-write) page protections. */
+-#define __P000 __pgprot(_PAGE_PRESENT | _PAGE_USER | CACHEDEF)
+-#define __P001 __pgprot(_PAGE_PRESENT | _PAGE_USER | _PAGE_READ | CACHEDEF)
+-#define __P010 __P000	/* Write-only copy-on-write */
+-#define __P011 __P001	/* Read/Write copy-on-write */
+-#define __P100 __pgprot(_PAGE_PRESENT | _PAGE_USER | \
+-			_PAGE_EXECUTE | CACHEDEF)
+-#define __P101 __pgprot(_PAGE_PRESENT | _PAGE_USER | _PAGE_EXECUTE | \
+-			_PAGE_READ | CACHEDEF)
+-#define __P110 __P100	/* Write/execute copy-on-write */
+-#define __P111 __P101	/* Read/Write/Execute, copy-on-write */
 -
--#define __S000	PAGE_NONE
--#define __S001	PAGE_READONLY_X
--#define __S010	PAGE_SHARED
--#define __S011	PAGE_SHARED_X
--#define __S100	PAGE_READONLY
--#define __S101	PAGE_READONLY_X
--#define __S110	PAGE_SHARED
--#define __S111	PAGE_SHARED_X
+ /* Shared page protections. */
+-#define __S000 __P000
+-#define __S001 __P001
+-#define __S010 __pgprot(_PAGE_PRESENT | _PAGE_USER | \
+-			_PAGE_WRITE | CACHEDEF)
+-#define __S011 __pgprot(_PAGE_PRESENT | _PAGE_USER | _PAGE_READ | \
+-			_PAGE_WRITE | CACHEDEF)
+-#define __S100 __pgprot(_PAGE_PRESENT | _PAGE_USER | \
+-			_PAGE_EXECUTE | CACHEDEF)
+-#define __S101 __P101
+-#define __S110 __pgprot(_PAGE_PRESENT | _PAGE_USER | \
+-			_PAGE_EXECUTE | _PAGE_WRITE | CACHEDEF)
+-#define __S111 __pgprot(_PAGE_PRESENT | _PAGE_USER | _PAGE_READ | \
+-			_PAGE_EXECUTE | _PAGE_WRITE | CACHEDEF)
  
- #ifndef __ASSEMBLY__
- /*
-diff --git a/arch/microblaze/mm/init.c b/arch/microblaze/mm/init.c
-index 952f35b335b2..68faf7d04faf 100644
---- a/arch/microblaze/mm/init.c
-+++ b/arch/microblaze/mm/init.c
-@@ -280,3 +280,44 @@ void * __ref zalloc_maybe_bootmem(size_t size, gfp_t mask)
+ extern pgd_t swapper_pg_dir[PTRS_PER_PGD];  /* located in head.S */
  
- 	return p;
+diff --git a/arch/hexagon/mm/init.c b/arch/hexagon/mm/init.c
+index f01e91e10d95..b53595fc4103 100644
+--- a/arch/hexagon/mm/init.c
++++ b/arch/hexagon/mm/init.c
+@@ -236,3 +236,70 @@ void __init setup_arch_memory(void)
+ 	 *  which is called by start_kernel() later on in the process
+ 	 */
  }
 +
 +pgprot_t vm_get_page_prot(unsigned long vm_flags)
 +{
 +	switch (vm_flags & (VM_READ | VM_WRITE | VM_EXEC | VM_SHARED)) {
 +	case VM_NONE:
-+		return PAGE_NONE;
++		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
++				CACHEDEF);
 +	case VM_READ:
-+		return PAGE_READONLY_X;
++		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
++				_PAGE_READ | CACHEDEF);
++	/* Write-only copy-on-write */
 +	case VM_WRITE:
-+		return PAGE_COPY;
++		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
++				CACHEDEF);
++	/* Read/Write copy-on-write */
 +	case VM_WRITE | VM_READ:
-+		return PAGE_COPY_X;
++		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
++				_PAGE_READ | CACHEDEF);
 +	case VM_EXEC:
-+		return PAGE_READONLY;
++		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
++				_PAGE_EXECUTE | CACHEDEF);
 +	case VM_EXEC | VM_READ:
-+		return PAGE_READONLY_X;
++		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
++				_PAGE_EXECUTE | _PAGE_READ |
++				CACHEDEF);
++	/* Write/execute copy-on-write */
 +	case VM_EXEC | VM_WRITE:
-+		return PAGE_COPY;
++		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
++				_PAGE_EXECUTE | CACHEDEF);
++	/* Read/Write/Execute, copy-on-write */
 +	case VM_EXEC | VM_WRITE | VM_READ:
-+		return PAGE_COPY_X;
++		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
++				_PAGE_EXECUTE | _PAGE_READ |
++				CACHEDEF);
 +	case VM_SHARED:
-+		return PAGE_NONE;
++		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
++				CACHEDEF);
 +	case VM_SHARED | VM_READ:
-+		return PAGE_READONLY_X;
++		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
++				_PAGE_READ | CACHEDEF);
 +	case VM_SHARED | VM_WRITE:
-+		return PAGE_SHARED;
++		return  __pgprot(_PAGE_PRESENT | _PAGE_USER |
++				_PAGE_WRITE | CACHEDEF);
 +	case VM_SHARED | VM_WRITE | VM_READ:
-+		return PAGE_SHARED_X;
++		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
++				_PAGE_READ | _PAGE_WRITE |
++				CACHEDEF);
 +	case VM_SHARED | VM_EXEC:
-+		return PAGE_READONLY;
++		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
++				_PAGE_EXECUTE | CACHEDEF);
 +	case VM_SHARED | VM_EXEC | VM_READ:
-+		return PAGE_READONLY_X;
++		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
++				_PAGE_EXECUTE | _PAGE_READ |
++				CACHEDEF);
 +	case VM_SHARED | VM_EXEC | VM_WRITE:
-+		return PAGE_SHARED;
++		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
++				_PAGE_EXECUTE | _PAGE_WRITE |
++				CACHEDEF);
 +	case VM_SHARED | VM_EXEC | VM_WRITE | VM_READ:
-+		return PAGE_SHARED_X;
++		return __pgprot(_PAGE_PRESENT | _PAGE_USER |
++				_PAGE_READ | _PAGE_EXECUTE |
++				_PAGE_WRITE | CACHEDEF);
 +	default:
 +		BUILD_BUG();
 +	}
