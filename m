@@ -2,269 +2,223 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98C0AC433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 28 Feb 2022 15:53:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7C67C433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 28 Feb 2022 17:21:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235382AbiB1PyW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 28 Feb 2022 10:54:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57072 "EHLO
+        id S233391AbiB1RWB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 28 Feb 2022 12:22:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233380AbiB1PyW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Feb 2022 10:54:22 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9D4BDF94;
-        Mon, 28 Feb 2022 07:53:42 -0800 (PST)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21SFQZ3p009976;
-        Mon, 28 Feb 2022 15:53:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=u5kXL/gUMaQRQYBSlAjtd51S97PjMfsyCUBqNf0ezxY=;
- b=ArCI8pD/R+9hkRk+kfCVyXKa5lIKCH1vnbj4pMs9dGoQyQU9ujWHMwKE2JLLFA6Wfk6P
- z1Gy2e9XmR6XdXIkQd2brdehoRiWtFZ5stnMErIr0P8WQbnfbRHW1UVYb+pgew9do9Ce
- O6FN+C5W1fPZW/8dGuSTctwdCWoiQpANwtziulN2rpGSJ1qMsPrPKUHFID5RDH1a/nhn
- uw9Ijzr0eAhOgoIMqKn4jQCh+Dw4AzPa8uTM1uEj4tndXZF51pWBoptIbjIsZ7hIhCk7
- fdq/TfARcfkn7buozsPc8nkiVkQ99GGCvfyGv3hwsgEpwjA2AZVAjpg5mRjUvs/ggF9Q BA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3eh11rgr1q-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 28 Feb 2022 15:53:40 +0000
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21SFpDI4004768;
-        Mon, 28 Feb 2022 15:53:40 GMT
-Received: from ppma01wdc.us.ibm.com (fd.55.37a9.ip4.static.sl-reverse.com [169.55.85.253])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3eh11rgr19-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 28 Feb 2022 15:53:40 +0000
-Received: from pps.filterd (ppma01wdc.us.ibm.com [127.0.0.1])
-        by ppma01wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21SFrVlM026606;
-        Mon, 28 Feb 2022 15:53:39 GMT
-Received: from b03cxnp08027.gho.boulder.ibm.com (b03cxnp08027.gho.boulder.ibm.com [9.17.130.19])
-        by ppma01wdc.us.ibm.com with ESMTP id 3efbu9dcfx-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 28 Feb 2022 15:53:39 +0000
-Received: from b03ledav001.gho.boulder.ibm.com (b03ledav001.gho.boulder.ibm.com [9.17.130.232])
-        by b03cxnp08027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21SFrcn113697782
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 28 Feb 2022 15:53:38 GMT
-Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 496F06E058;
-        Mon, 28 Feb 2022 15:53:38 +0000 (GMT)
-Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4120A6E056;
-        Mon, 28 Feb 2022 15:53:37 +0000 (GMT)
-Received: from [9.160.116.147] (unknown [9.160.116.147])
-        by b03ledav001.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Mon, 28 Feb 2022 15:53:37 +0000 (GMT)
-Message-ID: <97f95ab8-3613-1552-51fa-74f69a431bcc@linux.ibm.com>
-Date:   Mon, 28 Feb 2022 10:53:36 -0500
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH v18 00/17] s390/vfio-ap: dynamic configuration support
+        with ESMTP id S233202AbiB1RWB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Feb 2022 12:22:01 -0500
+Received: from NAM02-BN1-obe.outbound.protection.outlook.com (mail-bn1nam07on2124.outbound.protection.outlook.com [40.107.212.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFD377F6CD;
+        Mon, 28 Feb 2022 09:21:21 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=WGROcgBaEOXb7LR3FSSNEbts4Yq/gvHTx+QKUuXbAAY5UqWvNzfG7p7f8KZ/E4oIY2Rg3W/6thQHYo5rve1gDrELKt8iS2YFLRoH9fR/9AjQ2lsrgmn9iDX80UAjlSXOSPjssDUT8bTtfta610/KrIXF2KrxowYbVA72b+NZKjemn6I3Q8qTA8pRTtF8REV/JBSss17jNVGtO1VcQKJc/r0HVJUDodOMK67YsY8jVlw4hKBUGKXamkEqnLxEDesq1hYllQrmCfk3QY6HyBfqf6cbFPKkF3CKIzRlGdswgVbTtwwpkjOaxMQW3IwFnOYSnAGrVG3h0f1J30AqcmDstw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=RpdUqKZ7g1q/KewkZ6ChsRglmfEx00uxvbcobvCdGfU=;
+ b=LJMs1KTZ7v/9xPQzWqwE99HpshKHrcrSRvv/ORlRAYjEQ4QMFbz9SSuQz569NU3uSyxbw7qgL8vThmNVrmL+iOoOZ5Q05OOgLdlnVnuyY6rt8CO3+nJ7pO6RhgJs5YRQ6hsBnmgzIr9q4dr/DnKFZ7cId8sNR8mK1kPz+NjJsYmsHCLHbZjW/S2w4xeNV0MBOZwP1OY9w/Pm5csoksYWBXZLx9aLCD2H2wSEQ/aNiJomsEF0PFRWEmgnxrcWHd9g/6DyV5ZH6ZfvKyrunrSO9n+PYyWpqMNlu9SlmdfaxECG9OT8XX/tiZEog93mBNempxlHZOzdJ/YJEFwMvv/XAw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=microsoft.com; dmarc=pass action=none
+ header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=RpdUqKZ7g1q/KewkZ6ChsRglmfEx00uxvbcobvCdGfU=;
+ b=g9nhUzwY7Vv8E+CpoSKp6JTM3px3JlWNs6F2X8reB07guIM/x41SwxKlqSwheS10FFvB/Fkeq7/rfh8dcoeOfoUnWfG+L0jxfKfrdqdCGm4VlN8iNabrsfcnlk6IAdWKRQX46VsBv09YurvywJ/Jr7kAhgjG5GLHzKCGlZRnNLY=
+Received: from MN0PR21MB3098.namprd21.prod.outlook.com (2603:10b6:208:376::14)
+ by MW4PR21MB1969.namprd21.prod.outlook.com (2603:10b6:303:7c::5) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5061.0; Mon, 28 Feb
+ 2022 17:21:09 +0000
+Received: from MN0PR21MB3098.namprd21.prod.outlook.com
+ ([fe80::69f8:51be:b573:e70c]) by MN0PR21MB3098.namprd21.prod.outlook.com
+ ([fe80::69f8:51be:b573:e70c%5]) with mapi id 15.20.5038.006; Mon, 28 Feb 2022
+ 17:21:08 +0000
+From:   "Michael Kelley (LINUX)" <mikelley@microsoft.com>
+To:     Christoph Hellwig <hch@lst.de>
+CC:     "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>,
+        "x86@kernel.org" <x86@kernel.org>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Juergen Gross <jgross@suse.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>,
+        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
+        "tboot-devel@lists.sourceforge.net" 
+        <tboot-devel@lists.sourceforge.net>,
+        "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>
+Subject: RE: [PATCH 08/11] swiotlb: make the swiotlb_init interface more
+ useful
+Thread-Topic: [PATCH 08/11] swiotlb: make the swiotlb_init interface more
+ useful
+Thread-Index: AQHYK+bNn5GdGBwbMEGdpROKeAVKTayoQv4AgACScQCAAGA5YA==
+Date:   Mon, 28 Feb 2022 17:21:08 +0000
+Message-ID: <MN0PR21MB3098608AE81E444CC3C25B3ED7019@MN0PR21MB3098.namprd21.prod.outlook.com>
+References: <20220227143055.335596-1-hch@lst.de>
+ <20220227143055.335596-9-hch@lst.de>
+ <MN0PR21MB309816A344171B46735CA29CD7019@MN0PR21MB3098.namprd21.prod.outlook.com>
+ <20220228113042.GA10570@lst.de>
+In-Reply-To: <20220228113042.GA10570@lst.de>
+Accept-Language: en-US
 Content-Language: en-US
-To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc:     jjherne@linux.ibm.com, freude@linux.ibm.com,
-        borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com,
-        pasic@linux.ibm.com, alex.williamson@redhat.com,
-        kwankhede@nvidia.com, fiuczy@linux.ibm.com
-References: <20220215005040.52697-1-akrowiak@linux.ibm.com>
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <20220215005040.52697-1-akrowiak@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: DkLNOE1nzRnsFbiwJFunF5VP3S7LOzq2
-X-Proofpoint-GUID: 0-OwK9gMBBiBaAr2VrDAzm_YWZBMjiFy
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-02-28_07,2022-02-26_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- priorityscore=1501 mlxlogscore=999 suspectscore=0 mlxscore=0 adultscore=0
- malwarescore=0 impostorscore=0 clxscore=1015 spamscore=0 phishscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2202280083
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=09ca4065-c6d1-484e-9620-c278d7ad8315;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2022-02-28T17:15:06Z;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=microsoft.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: cddbc668-5c1a-4f83-a223-08d9fadeb5d5
+x-ms-traffictypediagnostic: MW4PR21MB1969:EE_
+x-ms-exchange-atpmessageproperties: SA|SL
+x-microsoft-antispam-prvs: <MW4PR21MB196937E190D2B2302E542BC1D7019@MW4PR21MB1969.namprd21.prod.outlook.com>
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: cWMWzCjniKzqFntSWVtxFr6flL5hbkfMuMWEOfWBvp+rRvG3wx0D3BFme7Yx0KkfWddAX+K0TAjZSoBLG/dbCYqG3J4kOuPfduhdVzscxUWeqlC9sCMkCqC0xiejdz/6IT7f6bapZMAliRvF/vblVA6B2YlRczt5t0sEpaYdr5dazTyWOvIE0KVPw6YW5F/PgZj0YMXKWHad3ywMAD+hHR365wls4O+zcl6VWG7NacfeMBxfTB8Nr+2PhySwoukGk4rzlf6C0OODAj+PoceUmzz6B7ak2FDpI7Hs5qR06yzJdm5EDKWHL9m1v4FwEXi2xJ/kA+nFuVK2YrDBsI0KqQMtV8rp674JXYCFZU3QkL+HedGlbfTYi6d23jn2awU57YHtSy2fQoFZ82WoWOwjEKbhX+lbrpEX9ApOdwVw3S9RUm8hmMDB7RemARCNdIBOnPMRt0n+s1AlgosPl75ZvR59aChrKGJeUPiNSc+5cIffAEKtK70UsCmch8KzNHauzAEuGBCVhe0ad4OAnA/wrjzHa1QNqWU9BBO4zAHWz8/RUx4OtzPqv/q5jZnEDIkvcnrTA1e7sVhEtlDrhAaLXEi9iT5mOAdUaZ+CVshr3g3WBcOUxb8jf1BuTEQoYZCCQEhQLQl2I2x/lcQA04gwYJi3joTUh36T1bkrZdCas1OWQuHFQaDuBk6Tz/A4k+zU15fg6Dh8oVWnyCzEwn1IPkzGbyQPt6KEI4s9I4Vmx0F5qReR6C3txeazzxnncn3L
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN0PR21MB3098.namprd21.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(6916009)(10290500003)(55016003)(33656002)(2906002)(508600001)(54906003)(316002)(82950400001)(86362001)(82960400001)(38070700005)(122000001)(38100700002)(52536014)(76116006)(66946007)(66476007)(66556008)(4326008)(8676002)(66446008)(7696005)(71200400001)(6506007)(64756008)(7416002)(186003)(26005)(5660300002)(9686003)(8936002)(83380400001)(8990500004);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?29qyXTMF81O5S1nx5r+Osp6BQ3ZTLcxu2nBcQagislDsBPG7/Ek1jr6Fh3OJ?=
+ =?us-ascii?Q?opz233MPZ2LLUS/xrAR5i+eVc/zjCgiVy/ZZuf3InciYY0kMjj7+5VaO5h5F?=
+ =?us-ascii?Q?oRKXGdgstHJssPfSfK2WsKYRNeeviAEFXbmxNfv8bknITEhFH5B4d6jwze4c?=
+ =?us-ascii?Q?RWXCGfZNF2gKSkuPcpodmLO0n7bQLJyVr8jAXN+XgCdkV91EVzAAYIUz0Uq2?=
+ =?us-ascii?Q?yditzag1mxkeDvx+u3/cN7VJT5I5A5f3wl1WsBcvf6OqUpeRsXsL6w5wps06?=
+ =?us-ascii?Q?OeyG5v7grFT6+P+mzpPMYT8SNHnzVUa38NYQWN0X4cFU8K6DyNlWpfpn6zUs?=
+ =?us-ascii?Q?MXl9+qxlaYoLCV/Gu/olCdfTvRPkm7Eodi56SkhrywkJLBm2oajaleIuYWgZ?=
+ =?us-ascii?Q?8WKC+RGUtlMJg5ivA9cB9olJOCkKlh0E+ruPUFdqZO7Wie3Blz9B5aS4egQk?=
+ =?us-ascii?Q?ScpyHViNGJli/C8ys0QP2FW8viCgMAzumWEv4zYc2T7kAwrHxo/a/4w8BCUI?=
+ =?us-ascii?Q?S9oSQ8iyUaIrjgFXvC/u/FYkaC+gUt2VBaD38jQfKSKwzADe4iDFJUul2VKU?=
+ =?us-ascii?Q?XPLpG/26A6X9zUSa3f2pelG03Q52x2t1kHF6BdmAa6JwPo+bCpqzos58Cdnt?=
+ =?us-ascii?Q?126Bg+eFBH6hjPcb3bLc8a4jpbrDeMqMk24DcSPLXYQAe2FrIsduyuGRILDq?=
+ =?us-ascii?Q?csTj3oIiSQBfTDJnZll226+FPShkzEpQO1d9rZoxX6n5EpKXblNnTktM+xNN?=
+ =?us-ascii?Q?17jXiNYZvs95XMpBYvwqVO6k2OnWdtynypvighqRkDlYRiVWEtcBFdmh1B+8?=
+ =?us-ascii?Q?DateI3ggNJxMadDyoNzi/IPwpllwUb7Z381uWK5pgamFLgNUq/0jkKwO0/Wx?=
+ =?us-ascii?Q?4mvc5QLQIYLHk7w5Z0Ol56+UsMsGe2eYhrmQ26YoCie5TsFOgvuZYIR/HGqH?=
+ =?us-ascii?Q?uDNRa+N9vvPIFo9AZJ7Kp172LlVuDohqcCLzE4HokxuVqpG+6qsemCNBOc/S?=
+ =?us-ascii?Q?I5HfA3HwA4LUdCpal4akyxUQz4U//cM6fGRRxFdD66OqmWagCtftMRQV6mkP?=
+ =?us-ascii?Q?CMbTal9ZvFOLnTE4bdkS1Y3QgAu7h/tEOq/8pWCANPRmkC/nqavd5Yd6J/MA?=
+ =?us-ascii?Q?R5R1P67ITW3DpSXyMGg3AA1wzK5psIK3gkl32DnEjiXmj1WkSEHvNYX6ht5K?=
+ =?us-ascii?Q?GPB75YGdMVG7gmxMyCTereGHRheCMA4L0Tsuzz0FkN5brsFZXMNcqQB+h0Jd?=
+ =?us-ascii?Q?EFzYZm7uPyaqVuh5aH5HtujJZvEMFrXRhSlYRHvK33rdvCM8j2gqMtVcEbB7?=
+ =?us-ascii?Q?W1XkihGMneb+CyMh/KOmYFkqY0Srp/mX97+xBeFPHuMTveuzO7Sg540IMVwp?=
+ =?us-ascii?Q?hO/qc1LYfKsSvK1g829RchZje/CiVbp7/4/gEZIYVsOwba0W7dYzYwLPhANY?=
+ =?us-ascii?Q?UGF1iEfHAQVHD03WfHcq/MLTHnpj0HHw1yEp6mPS7avfnTkrVuX5dg=3D=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-OriginatorOrg: microsoft.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: MN0PR21MB3098.namprd21.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: cddbc668-5c1a-4f83-a223-08d9fadeb5d5
+X-MS-Exchange-CrossTenant-originalarrivaltime: 28 Feb 2022 17:21:08.7946
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: vzOn32YAvsUYVAMMexjkwRxJ/GCrUPaTSyZyITipNC05D/kQ57R5+nXhVEq9s2CnE36lzOIxTlRer+N0f7Wm6ohAO+aiDJeeTp61TqSz2jo=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR21MB1969
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-PING!! Any takers?
+From: Christoph Hellwig <hch@lst.de> Sent: Monday, February 28, 2022 3:31 A=
+M
+>=20
+> On Mon, Feb 28, 2022 at 02:53:39AM +0000, Michael Kelley (LINUX) wrote:
+> > From: Christoph Hellwig <hch@lst.de> Sent: Sunday, February 27, 2022 6:=
+31 AM
+> > >
+> > > Pass a bool to pass if swiotlb needs to be enabled based on the
+> > > addressing needs and replace the verbose argument with a set of
+> > > flags, including one to force enable bounce buffering.
+> > >
+> > > Note that this patch removes the possibility to force xen-swiotlb
+> > > use using swiotlb=3Dforce on the command line on x86 (arm and arm64
+> > > never supported that), but this interface will be restored shortly.
+> > >
+> > > Signed-off-by: Christoph Hellwig <hch@lst.de>
+> > > ---
+> > >  arch/arm/mm/init.c                     |  6 +----
+> > >  arch/arm64/mm/init.c                   |  6 +----
+> > >  arch/ia64/mm/init.c                    |  4 +--
+> > >  arch/mips/cavium-octeon/dma-octeon.c   |  2 +-
+> > >  arch/mips/loongson64/dma.c             |  2 +-
+> > >  arch/mips/sibyte/common/dma.c          |  2 +-
+> > >  arch/powerpc/include/asm/swiotlb.h     |  1 +
+> > >  arch/powerpc/mm/mem.c                  |  3 ++-
+> > >  arch/powerpc/platforms/pseries/setup.c |  3 ---
+> > >  arch/riscv/mm/init.c                   |  8 +-----
+> > >  arch/s390/mm/init.c                    |  3 +--
+> > >  arch/x86/kernel/cpu/mshyperv.c         |  8 ------
+> > >  arch/x86/kernel/pci-dma.c              | 15 ++++++-----
+> > >  arch/x86/mm/mem_encrypt_amd.c          |  3 ---
+> > >  drivers/xen/swiotlb-xen.c              |  4 +--
+> > >  include/linux/swiotlb.h                | 15 ++++++-----
+> > >  include/trace/events/swiotlb.h         | 29 ++++++++-------------
+> > >  kernel/dma/swiotlb.c                   | 35 ++++++++++++++----------=
+--
+> > >  18 files changed, 56 insertions(+), 93 deletions(-)
+> >
+> > [snip]
+> >
+> > >
+> > > diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/msh=
+yperv.c
+> > > index 5a99f993e6392..568274917f1cd 100644
+> > > --- a/arch/x86/kernel/cpu/mshyperv.c
+> > > +++ b/arch/x86/kernel/cpu/mshyperv.c
+> > > @@ -336,14 +336,6 @@ static void __init ms_hyperv_init_platform(void)
+> > >  			swiotlb_unencrypted_base =3D
+> ms_hyperv.shared_gpa_boundary;
+> > >  #endif
+> > >  		}
+> > > -
+> > > -#ifdef CONFIG_SWIOTLB
+> > > -		/*
+> > > -		 * Enable swiotlb force mode in Isolation VM to
+> > > -		 * use swiotlb bounce buffer for dma transaction.
+> > > -		 */
+> > > -		swiotlb_force =3D SWIOTLB_FORCE;
+> > > -#endif
+> >
+> > With this code removed, it's not clear to me what forces the use of the
+> > swiotlb in a Hyper-V isolated VM.  The code in pci_swiotlb_detect_4g() =
+doesn't
+> > catch this case because cc_platform_has(CC_ATTR_HOST_MEM_ENCRYPT)
+> > returns "false" in a Hyper-V guest.  In the Hyper-V guest, it's only
+> > cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT) that returns "true".  I'm
+> > looking more closely at the meaning of the CC_ATTR_* values, and it may
+> > be that Hyper-V should also return "true" for CC_ATTR_MEM_ENCRYPT,
+> > but I don't think CC_ATTR_HOST_MEM_ENCRYPT should return "true".
+>=20
+> Ok, I assumed that CC_ATTR_HOST_MEM_ENCRYPT returned true in this case.
+> I guess we just need to check for CC_ATTR_GUEST_MEM_ENCRYPT as well
+> there?
 
-On 2/14/22 19:50, Tony Krowiak wrote:
-> The current design for AP pass-through does not support making dynamic
-> changes to the AP matrix of a running guest resulting in a few
-> deficiencies this patch series is intended to mitigate:
->
-> 1. Adapters, domains and control domains can not be added to or removed
->      from a running guest. In order to modify a guest's AP configuration,
->      the guest must be terminated; only then can AP resources be assigned
->      to or unassigned from the guest's matrix mdev. The new AP
->      configuration becomes available to the guest when it is subsequently
->      restarted.
->
-> 2. The AP bus's /sys/bus/ap/apmask and /sys/bus/ap/aqmask interfaces can
->      be modified by a root user without any restrictions. A change to
->      either mask can result in AP queue devices being unbound from the
->      vfio_ap device driver and bound to a zcrypt device driver even if a
->      guest is using the queues, thus giving the host access to the guest's
->      private crypto data and vice versa.
->
-> 3. The APQNs derived from the Cartesian product of the APIDs of the
->      adapters and APQIs of the domains assigned to a matrix mdev must
->      reference an AP queue device bound to the vfio_ap device driver. The
->      AP architecture allows assignment of AP resources that are not
->      available to the system, so this artificial restriction is not
->      compliant with the architecture.
->
-> 4. The AP configuration profile can be dynamically changed for the linux
->      host after a KVM guest is started. For example, a new domain can be
->      dynamically added to the configuration profile via the SE or an HMC
->      connected to a DPM enabled lpar. Likewise, AP adapters can be
->      dynamically configured (online state) and deconfigured (standby state)
->      using the SE, an SCLP command or an HMC connected to a DPM enabled
->      lpar. This can result in inadvertent sharing of AP queues between the
->      guest and host.
->
-> 5. A root user can manually unbind an AP queue device representing a
->      queue in use by a KVM guest via the vfio_ap device driver's sysfs
->      unbind attribute. In this case, the guest will be using a queue that
->      is not bound to the driver which violates the device model.
->
-> This patch series introduces the following changes to the current design
-> to alleviate the shortcomings described above as well as to implement
-> more of the AP architecture:
->
-> 1. A root user will be prevented from making edits to the AP bus's
->      /sys/bus/ap/apmask or /sys/bus/ap/aqmask if the change would transfer
->      ownership of an APQN from the vfio_ap device driver to a zcrypt driver
->      while the APQN is assigned to a matrix mdev.
->
-> 2. Allow a root user to hot plug/unplug AP adapters, domains and control
->      domains for a KVM guest using the matrix mdev via its sysfs
->      assign/unassign attributes.
->
-> 4. Allow assignment of an AP adapter or domain to a matrix mdev even if
->      it results in assignment of an APQN that does not reference an AP
->      queue device bound to the vfio_ap device driver, as long as the APQN
->      is not reserved for use by the default zcrypt drivers (also known as
->      over-provisioning of AP resources). Allowing over-provisioning of AP
->      resources better models the architecture which does not preclude
->      assigning AP resources that are not yet available in the system. Such
->      APQNs, however, will not be assigned to the guest using the matrix
->      mdev; only APQNs referencing AP queue devices bound to the vfio_ap
->      device driver will actually get assigned to the guest.
->
-> 5. Handle dynamic changes to the AP device model.
->
-> 1. Rationale for changes to AP bus's apmask/aqmask interfaces:
-> ----------------------------------------------------------
-> Due to the extremely sensitive nature of cryptographic data, it is
-> imperative that great care be taken to ensure that such data is secured.
-> Allowing a root user, either inadvertently or maliciously, to configure
-> these masks such that a queue is shared between the host and a guest is
-> not only avoidable, it is advisable. It was suggested that this scenario
-> is better handled in user space with management software, but that does
-> not preclude a malicious administrator from using the sysfs interfaces
-> to gain access to a guest's crypto data. It was also suggested that this
-> scenario could be avoided by taking access to the adapter away from the
-> guest and zeroing out the queues prior to the vfio_ap driver releasing the
-> device; however, stealing an adapter in use from a guest as a by-product
-> of an operation is bad and will likely cause problems for the guest
-> unnecessarily. It was decided that the most effective solution with the
-> least number of negative side effects is to prevent the situation at the
-> source.
->
-> 2. Rationale for hot plug/unplug using matrix mdev sysfs interfaces:
-> ----------------------------------------------------------------
-> Allowing a user to hot plug/unplug AP resources using the matrix mdev
-> sysfs interfaces circumvents the need to terminate the guest in order to
-> modify its AP configuration. Allowing dynamic configuration makes
-> reconfiguring a guest's AP matrix much less disruptive.
->
-> 3. Rationale for allowing over-provisioning of AP resources:
-> -----------------------------------------------------------
-> Allowing assignment of AP resources to a matrix mdev and ultimately to a
-> guest better models the AP architecture. The architecture does not
-> preclude assignment of unavailable AP resources. If a queue subsequently
-> becomes available while a guest using the matrix mdev to which its APQN
-> is assigned, the guest will be given access to it. If an APQN
-> is dynamically unassigned from the underlying host system, it will
-> automatically become unavailable to the guest.
->
-> Change log v17-v18:
-> ------------------
-> * Added a new document, Documentation/s390/vfio-ap-locking.rst to describe
->    the locking design for this series. This included a patch for adding the
->    new doc to the MAITAINERS file for the VFIO AP maintainers.
->    
->
-> * Added Reviewed-by for Halil in patch 6
->
-> * Restore filtering in the queue remove callback. (Halil)
->
-> * Added patch s390/vfio-ap: hot unplug of AP devices when mdev removed to
->    unplug all AP devices from the guest when the mdev is removed.
->
-> * Split patch 9 (s390/vfio-ap: allow hot plug/unplug of AP resources using
->    mdev device) into xx patches:
->    - allow hot plug/unplug of AP devices when assigned/unassigned
->
-> * Replaced v17 patch 08/15, s390/vfio-ap: keep track of active guests with
->    s390/vfio-ap: introduce new mutex to control access to the KVM pointer.
->    No longer tracking guests with a list of struct ap_guest objects. Added a
->    global mutex called kvm_lock which must be held whenever the kvm->lock is
->    taken. (Halil)
->
-> * Changed signature of the filtering function to limit the APQNs
->    examined. This change resulted in a cascade of changes to patches 5, 8
->    and 12. (Halil)
->
-> * Removed v17 patch 01/15 (s390/vfio-ap: Set pqap hook when vfio_ap module
->    is loaded). (Halil, Jason).
->
-> * Split patch 14 (notify drivers on config changed and scan complete
->    callbacks) into two patches: One to make the AP bus changes and the other
->    to implement the callbacks in the vfio_ap device driver. This was done
->    to facilitate merging the AP bus changes separately from the vfio_ap
->    driver changes. (Harald)
->
-> * Removed check of driver flags in the __verify_card_reservations and
->    __verify_queue_reservations functions in ap_bus.c to balance the
->    weighting between the default and vfio_ap drivers. (Harald)
->
->
-> Tony Krowiak (17):
->    s390/ap: driver callback to indicate resource in use
->    s390/ap: notify drivers on config changed and scan complete callbacks
->    s390/vfio-ap: use new AP bus interface to search for queue devices
->    s390/vfio-ap: move probe and remove callbacks to vfio_ap_ops.c
->    s390/vfio-ap: manage link between queue struct and matrix mdev
->    s390/vfio-ap: introduce shadow APCB
->    s390/vfio-ap: refresh guest's APCB by filtering APQNs assigned to mdev
->    s390/vfio-ap: allow assignment of unavailable AP queues to mdev device
->    s390/vfio-ap: introduce new mutex to control access to the KVM pointer
->    s390/vfio-ap: allow hot plug/unplug of AP devices when
->      assigned/unassigned
->    s390/vfio-ap: hot plug/unplug of AP devices when probed/removed
->    s390/vfio-ap: reset queues after adapter/domain unassignment
->    s390/vfio-ap: implement in-use callback for vfio_ap driver
->    s390/vfio-ap: sysfs attribute to display the guest's matrix
->    s390/vfio-ap: handle config changed and scan complete notification
->    s390/vfio-ap: update docs to include dynamic config support
->    s390/Docs: new doc describing lock usage by the vfio_ap device driver
->    MAINTAINERS: pick up all vfio_ap docs for VFIO AP maintainers
->
->   Documentation/s390/vfio-ap-locking.rst |  389 +++++++
->   Documentation/s390/vfio-ap.rst         |  492 ++++++---
->   MAINTAINERS                            |    2 +-
->   drivers/s390/crypto/ap_bus.c           |  226 +++-
->   drivers/s390/crypto/ap_bus.h           |   16 +
->   drivers/s390/crypto/vfio_ap_drv.c      |   71 +-
->   drivers/s390/crypto/vfio_ap_ops.c      | 1347 ++++++++++++++++++------
->   drivers/s390/crypto/vfio_ap_private.h  |   57 +-
->   8 files changed, 2058 insertions(+), 542 deletions(-)
->   create mode 100644 Documentation/s390/vfio-ap-locking.rst
->
+I'm unsure.
 
+The comments for CC_ATTR_HOST_MEM_ENCRYPT indicates that it is for
+SME.   The comments for both CC_ATTR_MEM_ENCRYPT and
+CC_ATTR_GUEST_MEM_ENCRYPT mention SEV and SEV-ES (and presumably
+SEV-SNP).   But I haven't looked at the details of the core SNP patches fro=
+m
+the AMD folks.   I'd say that they need to weigh in on the right approach
+here that will work for both SME and the various SEV flavors, and then
+hopefully the Hyper-V case will fit in.
+
+Michael
