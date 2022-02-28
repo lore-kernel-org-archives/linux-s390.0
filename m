@@ -2,174 +2,117 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D2B54C433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 28 Feb 2022 13:27:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A516C4321E
+	for <linux-s390@archiver.kernel.org>; Mon, 28 Feb 2022 13:49:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235155AbiB1N2Q (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 28 Feb 2022 08:28:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48262 "EHLO
+        id S236785AbiB1NuF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 28 Feb 2022 08:50:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231598AbiB1N2P (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Feb 2022 08:28:15 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2740D23BDC;
-        Mon, 28 Feb 2022 05:27:37 -0800 (PST)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21SCQH9U025635;
-        Mon, 28 Feb 2022 13:27:36 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=/He3bN6E9kDr8bKzYNahF/LLEQrdHBPWQroZed5tbCY=;
- b=tjJE85zpygpauzReEhEGD6B6H94bmI4SGlV6b6RYp9RZijcTY/W8j/1uB3agGtvhi92H
- wei8eOSbwgkpHIHk58QZEpaDJwCtCxb7RjZEL2JJ18idW5H/4+yuDRb7sJfUCnIay4zt
- ndc4fLdGP1pr3puphCjXgCDQ2r7lxZzihh/5wDVKBKlnyX+jwarnhJsZTUJqkZ7BzD8l
- f5R1DPtw7n7qj8MEvYquHbDYf4djJpxxy5Ym+ATM8gAUhU+8fj8d7dQBDO+CiJ6b/2Nb
- 0qcHRxLA+s8KMFknhXLbgd8YvWuuvSzQqCjCk9JNBDMgrTYBfA5HGYrCbEfjqBWjGbQB QA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3egxd9hej8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 28 Feb 2022 13:27:36 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21SDQcCq000410;
-        Mon, 28 Feb 2022 13:27:36 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3egxd9hehj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 28 Feb 2022 13:27:36 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21SDHP64026198;
-        Mon, 28 Feb 2022 13:27:33 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma03ams.nl.ibm.com with ESMTP id 3efbu985j7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 28 Feb 2022 13:27:33 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21SDRUvY45678978
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 28 Feb 2022 13:27:30 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 945AAAE045;
-        Mon, 28 Feb 2022 13:27:30 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 391CAAE051;
-        Mon, 28 Feb 2022 13:27:30 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.145.5.37])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 28 Feb 2022 13:27:30 +0000 (GMT)
-Date:   Mon, 28 Feb 2022 14:27:27 +0100
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-Cc:     Thomas Huth <thuth@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [kvm-unit-tests PATCH] s390x: Add strict mode to specification
- exception interpretation test
-Message-ID: <20220228142727.3542b767@p-imbrenda>
-In-Reply-To: <20220225172355.3564546-1-scgl@linux.ibm.com>
-References: <20220225172355.3564546-1-scgl@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        with ESMTP id S236740AbiB1NuA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Feb 2022 08:50:00 -0500
+Received: from mail-vs1-f41.google.com (mail-vs1-f41.google.com [209.85.217.41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BEC84A3E7;
+        Mon, 28 Feb 2022 05:49:20 -0800 (PST)
+Received: by mail-vs1-f41.google.com with SMTP id u10so12962347vsu.13;
+        Mon, 28 Feb 2022 05:49:20 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=9ZlhBssXvwBUH+DmkM+uVIB26RD/VtgYSa5UcFW0OSE=;
+        b=ME1GTl9CGgA+A8M1UU52UG/Gtlss9C0iIg4sxO0WmL4Cd8Ic6L3kRYcInardep7fO7
+         qCrM852oJ1TUbDt5C5/9eOi4SuXkd/rwskANIZGpJDToD8R9dARY5tBW0fT61hKnyvS8
+         V6ernEVfyJKnqMblapwQU3+kAx85skIcTcyM40Clr6SHq6FWsr+/lVGspn1VThtwt2IM
+         KNN0SXnrDy7atslQ8/Wufx+7gG6GzbfEVKhzJX9a5xneNo0k3odS+C7zKTflZMcmkY2d
+         A7qASNElSJOigQl2zBS47az4uhgWQZqoeH6E/pnc9WStivpg3+AxFFsysiEgHqZu+8WT
+         wIlQ==
+X-Gm-Message-State: AOAM5314yER7xvTQWX8RbYr0BQ7tT9BHwmA/PGgumRZYcGuzBDeBHZfj
+        ASk+J2wwVgLMec50WYnFg0DlluAiuMbjyQ==
+X-Google-Smtp-Source: ABdhPJweMf/Et4YuLWxLus2oWw/go9t2rgdokcne6lJ/T6d4SmO528QF5G51ga8DIXgqHdlR6bqNMw==
+X-Received: by 2002:a67:d804:0:b0:31b:a7fd:2d9 with SMTP id e4-20020a67d804000000b0031ba7fd02d9mr7354987vsj.3.1646056159463;
+        Mon, 28 Feb 2022 05:49:19 -0800 (PST)
+Received: from mail-vs1-f44.google.com (mail-vs1-f44.google.com. [209.85.217.44])
+        by smtp.gmail.com with ESMTPSA id q131-20020a1f2a89000000b003209a39cc60sm1668859vkq.5.2022.02.28.05.49.18
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 28 Feb 2022 05:49:18 -0800 (PST)
+Received: by mail-vs1-f44.google.com with SMTP id j3so12992566vsi.7;
+        Mon, 28 Feb 2022 05:49:18 -0800 (PST)
+X-Received: by 2002:a67:af08:0:b0:31b:9451:bc39 with SMTP id
+ v8-20020a67af08000000b0031b9451bc39mr7516436vsl.68.1646056157983; Mon, 28 Feb
+ 2022 05:49:17 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: eSovgeLlqCHIaFkvSuHtcBxRiKzhiAAI
-X-Proofpoint-ORIG-GUID: 9NlXIyShuUcKc-Dc0iZdXgOHgGX5xW7j
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-02-28_05,2022-02-26_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 phishscore=0
- spamscore=0 suspectscore=0 bulkscore=0 priorityscore=1501 mlxlogscore=999
- malwarescore=0 adultscore=0 lowpriorityscore=0 mlxscore=0 impostorscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2201110000
- definitions=main-2202280070
+References: <1646045273-9343-1-git-send-email-anshuman.khandual@arm.com>
+ <1646045273-9343-10-git-send-email-anshuman.khandual@arm.com> <Yhyqjo/4bozJB6j5@shell.armlinux.org.uk>
+In-Reply-To: <Yhyqjo/4bozJB6j5@shell.armlinux.org.uk>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Mon, 28 Feb 2022 14:49:06 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdWve8XkqtMJCTB_BH9JRZ8C4f7ynF60D1fvx3hxaK4YzA@mail.gmail.com>
+Message-ID: <CAMuHMdWve8XkqtMJCTB_BH9JRZ8C4f7ynF60D1fvx3hxaK4YzA@mail.gmail.com>
+Subject: Re: [PATCH V3 09/30] arm/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+To:     "Russell King (Oracle)" <linux@armlinux.org.uk>
+Cc:     Anshuman Khandual <anshuman.khandual@arm.com>,
+        Linux MM <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        linux-m68k <linux-m68k@lists.linux-m68k.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        alpha <linux-alpha@vger.kernel.org>,
+        Linux-sh list <linux-sh@vger.kernel.org>,
+        arcml <linux-snps-arc@lists.infradead.org>,
+        linux-csky@vger.kernel.org,
+        "open list:TENSILICA XTENSA PORT (xtensa)" 
+        <linux-xtensa@linux-xtensa.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        Openrisc <openrisc@lists.librecores.org>,
+        linux-um <linux-um@lists.infradead.org>,
+        "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>,
+        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
+        Linux-Arch <linux-arch@vger.kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 25 Feb 2022 18:23:55 +0100
-Janis Schoetterl-Glausch <scgl@linux.ibm.com> wrote:
+Hi Russell,
 
-> While specification exception interpretation is not required to occur,
-> it can be useful for automatic regression testing to fail the test if it
-> does not occur.
-> Add a `--strict` argument to enable this.
-> `--strict` takes a list of machine types (as reported by STIDP)
-> for which to enable strict mode, for example
-> `--strict 8562,8561,3907,3906,2965,2964`
-> will enable it for models z15 - z13.
-> Alternatively, strict mode can be enabled for all but the listed machine
-> types by prefixing the list with a `!`, for example
-> `--strict !1090,1091,2064,2066,2084,2086,2094,2096,2097,2098,2817,2818,2827,2828`
-> will enable it for z/Architecture models except those older than z13.
-> 
-> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-> ---
+On Mon, Feb 28, 2022 at 11:57 AM Russell King (Oracle)
+<linux@armlinux.org.uk> wrote:
+> On Mon, Feb 28, 2022 at 04:17:32PM +0530, Anshuman Khandual wrote:
+> > This defines and exports a platform specific custom vm_get_page_prot() via
+> > subscribing ARCH_HAS_VM_GET_PAGE_PROT. Subsequently all __SXXX and __PXXX
+> > macros can be dropped which are no longer needed.
+>
+> What I would really like to know is why having to run _code_ to work out
+> what the page protections need to be is better than looking it up in a
+> table.
+>
+> Not only is this more expensive in terms of CPU cycles, it also brings
+> additional code size with it.
+>
+> I'm struggling to see what the benefit is.
 
-[...]
+I was wondering about that as well. But at least for code size on
+m68k, this didn't have much impact.  Looking at the generated code,
+the increase due to using code for the (few different) cases is offset
+by a 16-bit jump table (which is to be credited to the compiler).
 
-> +static bool parse_strict(int argc, char **argv)
-> +{
-> +	uint16_t machine_id;
-> +	char *list;
-> +	bool ret;
-> +
-> +	if (argc < 1)
-> +		return false;
-> +	if (strcmp("--strict", argv[0]))
-> +		return false;
-> +
-> +	machine_id = get_machine_id();
-> +	if (argc < 2) {
-> +		printf("No argument to --strict, ignoring\n");
-> +		return false;
-> +	}
-> +	list = argv[1];
-> +	if (list[0] == '!') {
-> +		ret = true;
-> +		list++;
-> +	} else
-> +		ret = false;
-> +	while (true) {
-> +		long input = 0;
-> +
-> +		if (strlen(list) == 0)
-> +			return ret;
-> +		input = strtol(list, &list, 16);
-> +		if (*list == ',')
-> +			list++;
-> +		else if (*list != '\0')
-> +			break;
-> +		if (input == machine_id)
-> +			return !ret;
-> +	}
-> +	printf("Invalid --strict argument \"%s\", ignoring\n", list);
-> +	return ret;
-> +}
+In terms of CPU cycles, it's indeed worse than before.
 
-probably I should write a few parsing functions for command line
-arguments, so we don't have to re-invent the wheel every time
+Gr{oetje,eeting}s,
 
-> +
->  int main(int argc, char **argv)
->  {
->  	if (!sclp_facilities.has_sief2) {
-> @@ -76,7 +121,7 @@ int main(int argc, char **argv)
->  		goto out;
->  	}
->  
-> -	test_spec_ex_sie();
-> +	test_spec_ex_sie(parse_strict(argc - 1, argv + 1));
+                        Geert
 
-hmmm... maybe it would be more readable and more uniform with the other
-tests to parse the command line during initialization of the unit test,
-and set a global flag.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
->  out:
->  	return report_summary();
->  }
-> 
-> base-commit: 257c962f3d1b2d0534af59de4ad18764d734903a
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
