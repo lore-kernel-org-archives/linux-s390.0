@@ -2,68 +2,91 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 294A4C433EF
-	for <linux-s390@archiver.kernel.org>; Tue,  1 Mar 2022 20:44:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4205CC433EF
+	for <linux-s390@archiver.kernel.org>; Tue,  1 Mar 2022 22:20:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238355AbiCAUol (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 1 Mar 2022 15:44:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43026 "EHLO
+        id S231880AbiCAWVD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 1 Mar 2022 17:21:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237672AbiCAUok (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Mar 2022 15:44:40 -0500
-Received: from angie.orcam.me.uk (angie.orcam.me.uk [IPv6:2001:4190:8020::34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6ACEC522D7;
-        Tue,  1 Mar 2022 12:43:59 -0800 (PST)
-Received: by angie.orcam.me.uk (Postfix, from userid 500)
-        id 8EF2392009D; Tue,  1 Mar 2022 21:43:58 +0100 (CET)
-Received: from localhost (localhost [127.0.0.1])
-        by angie.orcam.me.uk (Postfix) with ESMTP id 88C9F92009B;
-        Tue,  1 Mar 2022 20:43:58 +0000 (GMT)
-Date:   Tue, 1 Mar 2022 20:43:58 +0000 (GMT)
-From:   "Maciej W. Rozycki" <macro@orcam.me.uk>
-To:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-cc:     Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Jeff Dike <jdike@addtoit.com>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
-        linux-kernel@vger.kernel.org
-Subject: [PING][PATCH v2] parport_pc: Also enable driver for PCI systems
-In-Reply-To: <alpine.DEB.2.21.2202141955550.34636@angie.orcam.me.uk>
-Message-ID: <alpine.DEB.2.21.2203011751030.11354@angie.orcam.me.uk>
-References: <alpine.DEB.2.21.2202141955550.34636@angie.orcam.me.uk>
-User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
+        with ESMTP id S229663AbiCAWVD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Mar 2022 17:21:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BF0F7087E;
+        Tue,  1 Mar 2022 14:20:21 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3452B612B9;
+        Tue,  1 Mar 2022 22:20:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44BD3C340EE;
+        Tue,  1 Mar 2022 22:20:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1646173220;
+        bh=QWtzGgPDT3UAoP9LthHH+ovHAX/WgDZXos0E+c/beN8=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=ook6XhJCwYQxt5EHRzFY6KzAA4H9e8Fh1ZquS/3LD0lnphsosnlU9toXv7F5Wpt0l
+         FSYWCUfL5+7SkDYpfauaTNu83/Lhmf8w7drvbjyj0JHulGGrXcgJj0DZyAr5nBB3cE
+         x0RvU8GXpslDiXBpUyROcRvzOk3SD9wkTAX6vSfOjt2pTXg1c0IJIQu863xr6pST4A
+         0af6RjSjVNcq6YavfFY7extgY61HDqZr1ZAtaXiLDm5s8dDtcAigJvNDUPt3Qg08Qg
+         DYYN+O/xQf6XJoZcNUwurW1mPmhZMqdqtyVF1GjBpoxsa7+DNFuwqW1ZRwF5StxidP
+         XJDBkLLfTd2RQ==
+Date:   Tue, 1 Mar 2022 14:20:19 -0800
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Dust Li <dust.li@linux.alibaba.com>
+Cc:     Karsten Graul <kgraul@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Guangguan Wang <guangguan.wang@linux.alibaba.com>,
+        davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: Re: [PATCH net-next 3/7] net/smc: add sysctl for autocorking
+Message-ID: <20220301142019.7ecae6c9@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
+In-Reply-To: <20220301094402.14992-4-dust.li@linux.alibaba.com>
+References: <20220301094402.14992-1-dust.li@linux.alibaba.com>
+        <20220301094402.14992-4-dust.li@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 14 Feb 2022, Maciej W. Rozycki wrote:
+On Tue,  1 Mar 2022 17:43:58 +0800 Dust Li wrote:
+> --- a/net/smc/smc_tx.c
+> +++ b/net/smc/smc_tx.c
+> @@ -147,7 +147,7 @@ static bool smc_should_autocork(struct smc_sock *smc)
+>  	struct smc_connection *conn =3D &smc->conn;
+>  	int corking_size;
+> =20
+> -	corking_size =3D min(SMC_AUTOCORKING_DEFAULT_SIZE,
+> +	corking_size =3D min(sock_net(&smc->sk)->smc.sysctl_autocorking_size,
+>  			   conn->sndbuf_desc->len >> 1);
 
-> Nowadays PC-style parallel ports come in the form of PCI and PCIe option 
-> cards and there are some combined parallel/serial option cards as well 
-> that we handle in the parport subsystem.  There is nothing in particular 
-> that would prevent them from being used in any system equipped with PCI 
-> or PCIe connectivity, except that we do not permit the PARPORT_PC config 
-> option to be selected for platforms for which ARCH_MIGHT_HAVE_PC_PARPORT 
-> has not been set for.
+I think this broke the build:
 
- Ping for:
-
-<https://lore.kernel.org/lkml/alpine.DEB.2.21.2202141955550.34636@angie.orcam.me.uk/>
-
-  Maciej
+In file included from ../include/linux/kernel.h:26,
+                 from ../include/linux/random.h:11,
+                 from ../include/linux/net.h:18,
+                 from ../net/smc/smc_tx.c:16:
+../net/smc/smc_tx.c: In function =E2=80=98smc_should_autocork=E2=80=99:
+../include/linux/minmax.h:20:35: error: comparison of distinct pointer type=
+s lacks a cast [-Werror]
+   20 |         (!!(sizeof((typeof(x) *)1 =3D=3D (typeof(y) *)1)))
+      |                                   ^~
+../include/linux/minmax.h:26:18: note: in expansion of macro =E2=80=98__typ=
+echeck=E2=80=99
+   26 |                 (__typecheck(x, y) && __no_side_effects(x, y))
+      |                  ^~~~~~~~~~~
+../include/linux/minmax.h:36:31: note: in expansion of macro =E2=80=98__saf=
+e_cmp=E2=80=99
+   36 |         __builtin_choose_expr(__safe_cmp(x, y), \
+      |                               ^~~~~~~~~~
+../include/linux/minmax.h:45:25: note: in expansion of macro =E2=80=98__car=
+eful_cmp=E2=80=99
+   45 | #define min(x, y)       __careful_cmp(x, y, <)
+      |                         ^~~~~~~~~~~~~
+../net/smc/smc_tx.c:150:24: note: in expansion of macro =E2=80=98min=E2=80=
+=99
+  150 |         corking_size =3D min(sock_net(&smc->sk)->smc.sysctl_autocor=
+king_size,
+      |                        ^~~
