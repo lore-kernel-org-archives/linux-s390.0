@@ -2,108 +2,143 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C28E4C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 28 Feb 2022 20:06:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 75551C43217
+	for <linux-s390@archiver.kernel.org>; Tue,  1 Mar 2022 00:00:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229932AbiB1UGv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 28 Feb 2022 15:06:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33028 "EHLO
+        id S230013AbiCAABb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 28 Feb 2022 19:01:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229823AbiB1UGt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Feb 2022 15:06:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67D33DEDE;
-        Mon, 28 Feb 2022 12:06:10 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 27383B81642;
-        Mon, 28 Feb 2022 20:06:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85E29C340F1;
-        Mon, 28 Feb 2022 20:06:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646078767;
-        bh=uSavGpk0ExFlsWEKDVZVzJWcPdfAeGmRGCCGsNDGZJI=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:From;
-        b=Qb3B2kQ3+f9XzXe4nmDRsU8fezmZ+/v8PAEwfxslUlmRBgDPXTSFx61nrA8w3HnnB
-         jiO48/wBjY9ATJ1CiCs8pQbzqi+CPyMUD7VJzynEdGC7iEhWqi2wiMxXsSWYiUDIQt
-         A3kKL2pQXkopi7jn30+fSIP85KMOScBqm+z9JZHWR2G9Pnhp71ylIv9Hk7UHqh5TFW
-         vROrJiyF+MkB5CSUYjMTwfvPtGA4K1mbCgJkjG4HhaTUDUqd2aSATsYWThH1CNVAP/
-         Q0tdc6VQmrdT+I+jgvtFLagljNriJV7jZByMhdj/HNW8K7kIBTiLovJvYIp5rkp81v
-         RPoj3hmNJbrCA==
-Date:   Mon, 28 Feb 2022 14:06:06 -0600
-From:   Bjorn Helgaas <helgaas@kernel.org>
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Stuart Yoder <stuyoder@gmail.com>,
-        Laurentiu Tudor <laurentiu.tudor@nxp.com>,
-        Abel Vesa <abel.vesa@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Andy Gross <agross@kernel.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, NXP Linux Team <linux-imx@nxp.com>,
-        linux-arm-kernel@lists.infradead.org, linux-hyperv@vger.kernel.org,
-        linux-pci@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        alsa-devel@alsa-project.org, linux-spi@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Subject: Re: [PATCH v3 05/11] PCI: Use driver_set_override() instead of
- open-coding
-Message-ID: <20220228200606.GA516338@bhelgaas>
+        with ESMTP id S229634AbiCAABa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Feb 2022 19:01:30 -0500
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id EA30638798;
+        Mon, 28 Feb 2022 16:00:50 -0800 (PST)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 7F9BAD6E;
+        Mon, 28 Feb 2022 16:00:50 -0800 (PST)
+Received: from [10.163.50.231] (unknown [10.163.50.231])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id D52833F66F;
+        Mon, 28 Feb 2022 16:00:43 -0800 (PST)
+Subject: Re: [PATCH V3 09/30] arm/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+To:     "Russell King (Oracle)" <linux@armlinux.org.uk>
+Cc:     linux-mm@kvack.org, akpm@linux-foundation.org,
+        linux-kernel@vger.kernel.org, geert@linux-m68k.org,
+        Christoph Hellwig <hch@infradead.org>,
+        linuxppc-dev@lists.ozlabs.org,
+        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+        linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-alpha@vger.kernel.org, linux-sh@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-xtensa@linux-xtensa.org, linux-parisc@vger.kernel.org,
+        openrisc@lists.librecores.org, linux-um@lists.infradead.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        linux-arch@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
+References: <1646045273-9343-1-git-send-email-anshuman.khandual@arm.com>
+ <1646045273-9343-10-git-send-email-anshuman.khandual@arm.com>
+ <Yhyqjo/4bozJB6j5@shell.armlinux.org.uk>
+From:   Anshuman Khandual <anshuman.khandual@arm.com>
+Message-ID: <542fa048-131e-240b-cc3a-fd4fff7ce4ba@arm.com>
+Date:   Tue, 1 Mar 2022 05:30:41 +0530
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220227135214.145599-6-krzysztof.kozlowski@canonical.com>
+In-Reply-To: <Yhyqjo/4bozJB6j5@shell.armlinux.org.uk>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sun, Feb 27, 2022 at 02:52:08PM +0100, Krzysztof Kozlowski wrote:
-> Use a helper for seting driver_override to reduce amount of duplicated
-> code. Make the driver_override field const char, because it is not
-> modified by the core and it matches other subsystems.
 
-s/seting/setting/
-or even better, s/for seting/to set/
 
-> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-
-> -	char		*driver_override; /* Driver name to force a match */
-> +	/*
-> +	 * Driver name to force a match.
-> +	 * Do not set directly, because core frees it.
-> +	 * Use driver_set_override() to set or clear it.
-
-Wrap this comment to fill 78 columns or so.
-
-> +	 */
-> +	const char	*driver_override;
->  
->  	unsigned long	priv_flags;	/* Private flags for the PCI driver */
->  
-> -- 
-> 2.32.0
+On 2/28/22 4:27 PM, Russell King (Oracle) wrote:
+> On Mon, Feb 28, 2022 at 04:17:32PM +0530, Anshuman Khandual wrote:
+>> This defines and exports a platform specific custom vm_get_page_prot() via
+>> subscribing ARCH_HAS_VM_GET_PAGE_PROT. Subsequently all __SXXX and __PXXX
+>> macros can be dropped which are no longer needed.
 > 
+> What I would really like to know is why having to run _code_ to work out
+> what the page protections need to be is better than looking it up in a
+> table.
+> 
+> Not only is this more expensive in terms of CPU cycles, it also brings
+> additional code size with it.
+> 
+> I'm struggling to see what the benefit is.
+> 
+
+Currently vm_get_page_prot() is also being _run_ to fetch required page
+protection values. Although that is being run in the core MM and from a
+platform perspective __SXXX, __PXXX are just being exported for a table.
+Looking it up in a table (and applying more constructs there after) is
+not much different than a clean switch case statement in terms of CPU
+usage. So this is not more expensive in terms of CPU cycles.
+
+--------------------------
+pgprot_t protection_map[16] __ro_after_init = {
+        __P000, __P001, __P010, __P011, __P100, __P101, __P110, __P111,
+        __S000, __S001, __S010, __S011, __S100, __S101, __S110, __S111
+};
+
+#ifndef CONFIG_ARCH_HAS_FILTER_PGPROT
+static inline pgprot_t arch_filter_pgprot(pgprot_t prot)
+{
+        return prot;
+}
+#endif
+
+pgprot_t vm_get_page_prot(unsigned long vm_flags)
+{
+        pgprot_t ret = __pgprot(pgprot_val(protection_map[vm_flags &
+                                (VM_READ|VM_WRITE|VM_EXEC|VM_SHARED)]) |
+                        pgprot_val(arch_vm_get_page_prot(vm_flags)));
+
+        return arch_filter_pgprot(ret);
+}
+EXPORT_SYMBOL(vm_get_page_prot)
+----------------------------
+
+There will be a single vm_get_page_prot() instance on a given platform
+just like before. So this also does not bring any additional code size
+with it.
+
+As mentioned earlier on a previous version.
+
+Remove multiple 'core MM <--> platform' abstraction layers to map
+vm_flags access permission combination into page protection.
+
+From the cover letter ......
+
+----------
+Currently there are multiple layers of abstraction i.e __SXXX/__PXXX macros
+, protection_map[], arch_vm_get_page_prot() and arch_filter_pgprot() built
+between the platform and generic MM, finally defining vm_get_page_prot().
+
+Hence this series proposes to drop all these abstraction levels and instead
+just move the responsibility of defining vm_get_page_prot() to the platform
+itself making it clean and simple.
+----------
+
+Benefits
+
+1. For platforms using arch_vm_get_page_prot() and/or arch_filter_pgprot()
+
+	- A simplified vm_get_page_prot()
+	- Dropped arch_vm_get_page_prot() and arch_filter_pgprot()
+	- Dropped __SXXX, __PXXX macros
+
+2. For platforms which just exported __SXXX, __PXXX
+
+	- A simplified vm_get_page_prot()
+	- Dropped __SXXX, __PXXX macros
+
+3. For core MM
+
+	- Dropped a complex vm_get_page_prot() with multiple layers
+ 	  of abstraction i.e __SXXX/__PXXX macros, protection_map[],
+	  arch_vm_get_page_prot(), arch_filter_pgprot() etc.
+
+- Anshuman
