@@ -2,183 +2,198 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 87151C43217
-	for <linux-s390@archiver.kernel.org>; Tue,  1 Mar 2022 14:00:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FB01C433EF
+	for <linux-s390@archiver.kernel.org>; Tue,  1 Mar 2022 14:33:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233185AbiCAOB0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 1 Mar 2022 09:01:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56762 "EHLO
+        id S235306AbiCAOec (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 1 Mar 2022 09:34:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229607AbiCAOBY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Mar 2022 09:01:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D928290CD0;
-        Tue,  1 Mar 2022 06:00:43 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 74A126152D;
-        Tue,  1 Mar 2022 14:00:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8EF5C340F7;
-        Tue,  1 Mar 2022 14:00:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646143242;
-        bh=OCDdNe18bifA05pJN6Z3cL5GH76Vx+vSN/tAl+9N2NY=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=BXoUaM8AeIN8f71PC8fIcrdCRd3XA5bTRsNaI55YrB3n8AdYcHHNQ5PfFONmNJdx9
-         3/CPcWQI6xI4q3njZfKJ//7qUb0OLv2P2whtuS8vVnMjqGPoCVcBgHyuiPi2wNTcJ+
-         KSByydI8JzRxlo4gWWoVzIU41cydpMN+5Nu46TbYtJPRxdtzH4yMR64LlBcFEmPqIp
-         3wzu1lY8fiIAXNFPydAfWfshcQxjaRgRJyXZ322mrYl9USFIgjN6ICC0+WR+CyrjeE
-         Jxihmtaod4/dKtcpNMu61/NIh4k/DY+2ax2xbrEVmUuihjdGPL4LSD/jeHzVTjPcDD
-         a2kZEW+hgrGpQ==
-Received: by mail-vk1-f179.google.com with SMTP id k15so6861271vkn.13;
-        Tue, 01 Mar 2022 06:00:42 -0800 (PST)
-X-Gm-Message-State: AOAM532svOJnKNVCpOs0IlDGjZXcO4evCD1SPI7pm5Nj7EyslyoRbkPD
-        vJdwhXeldF8Otfh+pRp8enOgJ/Ks45erGexiw6s=
-X-Google-Smtp-Source: ABdhPJwoZPlQG03sWsMv2LaiAVeC86gQ0+wyv+RzPw7RH1ttQNeeKqagstcZB00XUabb5ygCz6Zjo4KWbVCaIqQUo1I=
-X-Received: by 2002:a05:6122:887:b0:332:699e:7e67 with SMTP id
- 7-20020a056122088700b00332699e7e67mr10404475vkf.35.1646143241667; Tue, 01 Mar
- 2022 06:00:41 -0800 (PST)
+        with ESMTP id S235236AbiCAOeb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Mar 2022 09:34:31 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A2C18E1B3;
+        Tue,  1 Mar 2022 06:33:49 -0800 (PST)
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 221DOZCY026860;
+        Tue, 1 Mar 2022 14:33:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=zFbKwtQiRTL7LAokkdxNQUb9ty5v5CJsxKc746Fjvb0=;
+ b=NtUihf+gihAXaGYWM2fU9qeUZ7nXMOxyX8p/MoJKnvAb7tAYi/r711XS224l0A03goss
+ qs2Qt+byj/XBJGoAydSoxVh09X/uk7GPC0c+NnR+MHZclXWdKZs63uv5Y2bUZVyNC+HW
+ 7HEJhQz1NhUPq7eqpMyiBdNrpj4qfpJU9qB8pl+AnQ8AZNYRQi/qd/sj1rDEVxgZU1wL
+ CsCXM3bqQC+uelhjrcyVRJjFW962Ef7GPJvFySUVqX2rCV68FOMilNxH4ySG3ZhERGKr
+ OqMSaQYKk0QPJ/iCq3R0UCvH19hRKQ6l0TFFI2pdd1khMH7TeRfR/vS8Q1s8bD/PFJKe Vw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3ehjedmmar-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 01 Mar 2022 14:33:48 +0000
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 221DKUJn022213;
+        Tue, 1 Mar 2022 14:33:48 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3ehjedmm9x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 01 Mar 2022 14:33:47 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 221EJWCm011246;
+        Tue, 1 Mar 2022 14:33:46 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma04ams.nl.ibm.com with ESMTP id 3egbj172hm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 01 Mar 2022 14:33:45 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 221EXfjO34668814
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 1 Mar 2022 14:33:41 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EED9C52050;
+        Tue,  1 Mar 2022 14:33:40 +0000 (GMT)
+Received: from p-imbrenda.ibmuc.com (unknown [9.145.5.37])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 9B86A5204F;
+        Tue,  1 Mar 2022 14:33:40 +0000 (GMT)
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, frankja@linux.ibm.com,
+        thuth@redhat.com, borntraeger@de.ibm.com, mimu@linux.ibm.com
+Subject: [PATCH v1 1/1] KVM: s390x: fix SCK locking
+Date:   Tue,  1 Mar 2022 15:33:40 +0100
+Message-Id: <20220301143340.111129-1-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-References: <1646045273-9343-1-git-send-email-anshuman.khandual@arm.com> <1646045273-9343-20-git-send-email-anshuman.khandual@arm.com>
-In-Reply-To: <1646045273-9343-20-git-send-email-anshuman.khandual@arm.com>
-From:   Guo Ren <guoren@kernel.org>
-Date:   Tue, 1 Mar 2022 22:00:30 +0800
-X-Gmail-Original-Message-ID: <CAJF2gTRSE-=-rDkMTD8D-bNw5inb4Yb_8S-AzXAuAthn9PCJmA@mail.gmail.com>
-Message-ID: <CAJF2gTRSE-=-rDkMTD8D-bNw5inb4Yb_8S-AzXAuAthn9PCJmA@mail.gmail.com>
-Subject: Re: [PATCH V3 19/30] csky/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
-To:     Anshuman Khandual <anshuman.khandual@arm.com>
-Cc:     Linux-MM <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        linux-m68k@lists.linux-m68k.org,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-alpha@vger.kernel.org, linux-sh@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-xtensa@linux-xtensa.org,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        openrisc@lists.librecores.org, linux-um@lists.infradead.org,
-        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        linux-arch <linux-arch@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Vs3FFXLnSSkIzlRegdDxRgpsPZG01JSU
+X-Proofpoint-ORIG-GUID: 27NXEU6_LlLT7X0uYTJELz8BXITd65ei
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-03-01_07,2022-02-26_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 lowpriorityscore=0
+ suspectscore=0 bulkscore=0 phishscore=0 mlxlogscore=999 clxscore=1015
+ impostorscore=0 spamscore=0 priorityscore=1501 adultscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2201110000
+ definitions=main-2203010079
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Acked-by: Guo Ren <guoren@kernel.org>
+When handling the SCK instruction, the kvm lock is taken, even though
+the vcpu lock is already being held. The normal locking order is kvm
+lock first and then vcpu lock. This is can (and in some circumstances
+does) lead to deadlocks.
 
-On Mon, Feb 28, 2022 at 7:10 PM Anshuman Khandual
-<anshuman.khandual@arm.com> wrote:
->
-> This defines and exports a platform specific custom vm_get_page_prot() via
-> subscribing ARCH_HAS_VM_GET_PAGE_PROT. Subsequently all __SXXX and __PXXX
-> macros can be dropped which are no longer needed.
->
-> Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-> Cc: linux-csky@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-> ---
->  arch/csky/Kconfig               |  1 +
->  arch/csky/include/asm/pgtable.h | 18 ------------------
->  arch/csky/mm/init.c             | 32 ++++++++++++++++++++++++++++++++
->  3 files changed, 33 insertions(+), 18 deletions(-)
->
-> diff --git a/arch/csky/Kconfig b/arch/csky/Kconfig
-> index 132f43f12dd8..209dac5686dd 100644
-> --- a/arch/csky/Kconfig
-> +++ b/arch/csky/Kconfig
-> @@ -6,6 +6,7 @@ config CSKY
->         select ARCH_HAS_GCOV_PROFILE_ALL
->         select ARCH_HAS_SYNC_DMA_FOR_CPU
->         select ARCH_HAS_SYNC_DMA_FOR_DEVICE
-> +       select ARCH_HAS_VM_GET_PAGE_PROT
->         select ARCH_USE_BUILTIN_BSWAP
->         select ARCH_USE_QUEUED_RWLOCKS
->         select ARCH_WANT_FRAME_POINTERS if !CPU_CK610 && $(cc-option,-mbacktrace)
-> diff --git a/arch/csky/include/asm/pgtable.h b/arch/csky/include/asm/pgtable.h
-> index 151607ed5158..2c6b1cfb1cce 100644
-> --- a/arch/csky/include/asm/pgtable.h
-> +++ b/arch/csky/include/asm/pgtable.h
-> @@ -76,24 +76,6 @@
->  #define MAX_SWAPFILES_CHECK() \
->                 BUILD_BUG_ON(MAX_SWAPFILES_SHIFT != 5)
->
-> -#define __P000 PAGE_NONE
-> -#define __P001 PAGE_READ
-> -#define __P010 PAGE_READ
-> -#define __P011 PAGE_READ
-> -#define __P100 PAGE_READ
-> -#define __P101 PAGE_READ
-> -#define __P110 PAGE_READ
-> -#define __P111 PAGE_READ
-> -
-> -#define __S000 PAGE_NONE
-> -#define __S001 PAGE_READ
-> -#define __S010 PAGE_WRITE
-> -#define __S011 PAGE_WRITE
-> -#define __S100 PAGE_READ
-> -#define __S101 PAGE_READ
-> -#define __S110 PAGE_WRITE
-> -#define __S111 PAGE_WRITE
-> -
->  extern unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)];
->  #define ZERO_PAGE(vaddr)       (virt_to_page(empty_zero_page))
->
-> diff --git a/arch/csky/mm/init.c b/arch/csky/mm/init.c
-> index bf2004aa811a..f9babbed17d4 100644
-> --- a/arch/csky/mm/init.c
-> +++ b/arch/csky/mm/init.c
-> @@ -197,3 +197,35 @@ void __init fixaddr_init(void)
->         vaddr = __fix_to_virt(__end_of_fixed_addresses - 1) & PMD_MASK;
->         fixrange_init(vaddr, vaddr + PMD_SIZE, swapper_pg_dir);
->  }
-> +
-> +pgprot_t vm_get_page_prot(unsigned long vm_flags)
-> +{
-> +       switch (vm_flags & (VM_READ | VM_WRITE | VM_EXEC | VM_SHARED)) {
-> +       case VM_NONE:
-> +               return PAGE_NONE;
-> +       case VM_READ:
-> +       case VM_WRITE:
-> +       case VM_WRITE | VM_READ:
-> +       case VM_EXEC:
-> +       case VM_EXEC | VM_READ:
-> +       case VM_EXEC | VM_WRITE:
-> +       case VM_EXEC | VM_WRITE | VM_READ:
-> +               return PAGE_READ;
-> +       case VM_SHARED:
-> +               return PAGE_NONE;
-> +       case VM_SHARED | VM_READ:
-> +               return PAGE_READ;
-> +       case VM_SHARED | VM_WRITE:
-> +       case VM_SHARED | VM_WRITE | VM_READ:
-> +               return PAGE_WRITE;
-> +       case VM_SHARED | VM_EXEC:
-> +       case VM_SHARED | VM_EXEC | VM_READ:
-> +               return PAGE_READ;
-> +       case VM_SHARED | VM_EXEC | VM_WRITE:
-> +       case VM_SHARED | VM_EXEC | VM_WRITE | VM_READ:
-> +               return PAGE_WRITE;
-> +       default:
-> +               BUILD_BUG();
-> +       }
-> +}
-> +EXPORT_SYMBOL(vm_get_page_prot);
-> --
-> 2.25.1
->
+The function kvm_s390_set_tod_clock is called both by the SCK handler
+and by some IOCTLs to set the clock. The IOCTLs will not hold the vcpu
+lock, so they can safely take the kvm lock. The SCK handler holds the
+vcpu lock, but will also somehow need to acquire the kvm lock without
+relinquishing the vcpu lock.
 
+The solution is to factor out the code to set the clock, and provide
+two wrappers. One is called like the original function and does the
+locking, the other is called kvm_s390_try_set_tod_clock and uses
+trylock to try to acquire the kvm lock. This new wrapper is then used
+in the SCK handler. If locking fails, -EAGAIN is returned, which is
+eventually propagated to userspace, thus also freeing the vcpu lock and
+allowing for forward progress.
 
+This is not the most efficient or elegant way to solve this issue, but
+the SCK instruction is deprecated and its performance is not critical.
+
+The goal of this patch is just to provide a simple but correct way to
+fix the bug.
+
+Fixes: 6a3f95a6b04c ("KVM: s390: Intercept SCK instruction")
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+---
+ arch/s390/kvm/kvm-s390.c | 19 ++++++++++++++++---
+ arch/s390/kvm/kvm-s390.h |  4 ++--
+ arch/s390/kvm/priv.c     | 14 +++++++++++++-
+ 3 files changed, 31 insertions(+), 6 deletions(-)
+
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 2296b1ff1e02..4e3db4004bfd 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -3869,14 +3869,12 @@ static int kvm_s390_handle_requests(struct kvm_vcpu *vcpu)
+ 	return 0;
+ }
+ 
+-void kvm_s390_set_tod_clock(struct kvm *kvm,
+-			    const struct kvm_s390_vm_tod_clock *gtod)
++static void __kvm_s390_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod)
+ {
+ 	struct kvm_vcpu *vcpu;
+ 	union tod_clock clk;
+ 	unsigned long i;
+ 
+-	mutex_lock(&kvm->lock);
+ 	preempt_disable();
+ 
+ 	store_tod_clock_ext(&clk);
+@@ -3897,7 +3895,22 @@ void kvm_s390_set_tod_clock(struct kvm *kvm,
+ 
+ 	kvm_s390_vcpu_unblock_all(kvm);
+ 	preempt_enable();
++}
++
++void kvm_s390_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod)
++{
++	mutex_lock(&kvm->lock);
++	__kvm_s390_set_tod_clock(kvm, gtod);
++	mutex_unlock(&kvm->lock);
++}
++
++int kvm_s390_try_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod)
++{
++	if (!mutex_trylock(&kvm->lock))
++		return 0;
++	__kvm_s390_set_tod_clock(kvm, gtod);
+ 	mutex_unlock(&kvm->lock);
++	return 1;
+ }
+ 
+ /**
+diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+index 098831e815e6..f2c910763d7f 100644
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -349,8 +349,8 @@ int kvm_s390_handle_sigp(struct kvm_vcpu *vcpu);
+ int kvm_s390_handle_sigp_pei(struct kvm_vcpu *vcpu);
+ 
+ /* implemented in kvm-s390.c */
+-void kvm_s390_set_tod_clock(struct kvm *kvm,
+-			    const struct kvm_s390_vm_tod_clock *gtod);
++void kvm_s390_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod);
++int kvm_s390_try_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod);
+ long kvm_arch_fault_in_page(struct kvm_vcpu *vcpu, gpa_t gpa, int writable);
+ int kvm_s390_store_status_unloaded(struct kvm_vcpu *vcpu, unsigned long addr);
+ int kvm_s390_vcpu_store_status(struct kvm_vcpu *vcpu, unsigned long addr);
+diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+index 417154b314a6..7f3e7990ef82 100644
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -102,7 +102,19 @@ static int handle_set_clock(struct kvm_vcpu *vcpu)
+ 		return kvm_s390_inject_prog_cond(vcpu, rc);
+ 
+ 	VCPU_EVENT(vcpu, 3, "SCK: setting guest TOD to 0x%llx", gtod.tod);
+-	kvm_s390_set_tod_clock(vcpu->kvm, &gtod);
++	/*
++	 * To set the TOD clock we need to take the kvm lock, but we are
++	 * already holding the vcpu lock, and the usual lock order is the
++	 * opposite. Therefore we use trylock instead of lock, and if the
++	 * kvm lock cannot be taken, we retry the instruction and return
++	 * -EAGAIN to userspace, thus freeing the vcpu lock.
++	 * The SCK instruction is considered legacy and at this point it's
++	 * not worth the effort to find a nicer solution.
++	 */
++	if (!kvm_s390_try_set_tod_clock(vcpu->kvm, &gtod)) {
++		kvm_s390_retry_instr(vcpu);
++		return -EAGAIN;
++	}
+ 
+ 	kvm_s390_set_psw_cc(vcpu, 0);
+ 	return 0;
 -- 
-Best Regards
- Guo Ren
+2.34.1
 
-ML: https://lore.kernel.org/linux-csky/
