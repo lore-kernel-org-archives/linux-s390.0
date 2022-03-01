@@ -2,181 +2,226 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74BBAC433EF
-	for <linux-s390@archiver.kernel.org>; Tue,  1 Mar 2022 18:38:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E30CCC433F5
+	for <linux-s390@archiver.kernel.org>; Tue,  1 Mar 2022 18:38:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235775AbiCASi4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 1 Mar 2022 13:38:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40584 "EHLO
+        id S235652AbiCASjA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 1 Mar 2022 13:39:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235652AbiCASiz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Mar 2022 13:38:55 -0500
+        with ESMTP id S237000AbiCASi6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Mar 2022 13:38:58 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E7CA36E07;
-        Tue,  1 Mar 2022 10:38:14 -0800 (PST)
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 221IDaoF032078;
-        Tue, 1 Mar 2022 18:38:14 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49B8A36E07;
+        Tue,  1 Mar 2022 10:38:16 -0800 (PST)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 221Hg2I0022688;
+        Tue, 1 Mar 2022 18:38:16 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
  subject : message-id : in-reply-to : references : mime-version :
  content-type : content-transfer-encoding; s=pp1;
- bh=5Z2rrVnuxaOz3qT8BxmyfNFjABtM0f2TCtxs4nFec0E=;
- b=J+PJ/9ePSerHMTbPle4VLtFXHG0msQj56s4sEtqlLavvynfU/4Bi51ieh59sLXvUN32N
- NhDvpYBbFPLYLvRb9p3rNSKuc39Fj5N4jQVvLTrVHd4LPDsuvH0yOnrMNNIEuVkdQGcg
- Yi8nwbupGvTgDuTRhYCMIQGPry/2elD3gXBWtH3ecqVzDk2iS8TBLAcXMIDAYLzgdeXG
- Ld8PYqgvmmV2f8qhATy90VfJuv0WpnhGP00A7wLhcZSux7PaUIMqrcSwFS55tW3F1oc8
- 2Lve82G5tkg5VpS5fCwfIe1UQW/X7VpRdN1BsMaX9ocMJCpXcNbneWzzfGzrPlsp7Q9n VQ== 
+ bh=vv//N4II9hD10oM0jtbVJL3G0F/p5Xd+VTz9zzm9cJM=;
+ b=SRQzJvP6NLa7N1X0g5Rwgr1dOzkZ60HWi89YH1YspyqJqbrSoNDscn2jw2DtA7RzhUA7
+ NTrxXhaFXuYgbdxwsVxjEHeRvU/AUCQWNUIt0dGV66enivqQsCQnHH/GdGjfe0poC+Ji
+ d0lENnHYBuS4/CUuASydPrIVaZgjq/8VniFvxFs0A6cstCEoueuxKHp/BMghb7af8WUN
+ kATuZCF9ykqsQGr/HiCYdXbKE+VdQV0pcihiqQip5XeWHD2nFJ9M8c5ABxmaq8ijX6xO
+ x/T2c6JziUeQkfn+kZrggeJkk5ZbKqJ/4UAiiTliQqsHkALAszcdPEfRCCiMx2jcChs6 GQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ehrk38gqx-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ehr421ab5-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 01 Mar 2022 18:38:13 +0000
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 221Iaw1d005262;
+        Tue, 01 Mar 2022 18:38:15 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 221IRGjb018860;
+        Tue, 1 Mar 2022 18:38:15 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ehr421aae-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 01 Mar 2022 18:38:15 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 221IRkiA004362;
         Tue, 1 Mar 2022 18:38:13 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ehrk38gpw-1
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma03ams.nl.ibm.com with ESMTP id 3efbu9cgfm-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Tue, 01 Mar 2022 18:38:13 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 221IRTql000992;
-        Tue, 1 Mar 2022 18:38:11 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma04ams.nl.ibm.com with ESMTP id 3egbj17kr3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 01 Mar 2022 18:38:11 +0000
 Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 221Ic2xi51184054
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 221Ic4Ao53805564
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 1 Mar 2022 18:38:02 GMT
+        Tue, 1 Mar 2022 18:38:04 GMT
 Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 989894C050;
-        Tue,  1 Mar 2022 18:38:02 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id B05B64C040;
+        Tue,  1 Mar 2022 18:38:04 +0000 (GMT)
 Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4EDB34C044;
-        Tue,  1 Mar 2022 18:38:02 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 5F2404C044;
+        Tue,  1 Mar 2022 18:38:04 +0000 (GMT)
 Received: from p-imbrenda (unknown [9.145.5.37])
         by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue,  1 Mar 2022 18:38:02 +0000 (GMT)
-Date:   Tue, 1 Mar 2022 18:22:05 +0100
+        Tue,  1 Mar 2022 18:38:04 +0000 (GMT)
+Date:   Tue, 1 Mar 2022 18:32:36 +0100
 From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com,
+To:     Thomas Huth <thuth@redhat.com>
+Cc:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, david@redhat.com,
         borntraeger@linux.ibm.com
-Subject: Re: [PATCH 1/9] s390x: Add SE hdr query information
-Message-ID: <20220301182205.345e001a@p-imbrenda>
-In-Reply-To: <20220223092007.3163-2-frankja@linux.ibm.com>
+Subject: Re: [PATCH 3/9] KVM: s390: pv: Add query interface
+Message-ID: <20220301183236.742e749b@p-imbrenda>
+In-Reply-To: <b2fd362a-eefa-8fa7-1016-55bedd3fa6ee@redhat.com>
 References: <20220223092007.3163-1-frankja@linux.ibm.com>
-        <20220223092007.3163-2-frankja@linux.ibm.com>
+        <20220223092007.3163-4-frankja@linux.ibm.com>
+        <b2fd362a-eefa-8fa7-1016-55bedd3fa6ee@redhat.com>
 Organization: IBM
 X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: sxzzM-kYxYDdA0CtV1w8TRjGdmb1wIqW
-X-Proofpoint-GUID: wFI3_G6_EPkRvbdqV3TsQ2065Oc9FCiF
+X-Proofpoint-ORIG-GUID: C7NAi_3PHdS0D7PnWkce9ylhNr3ZzBfM
+X-Proofpoint-GUID: 7JjnqGIsTkbVlPMLhrAr-YJHdkCxrtDK
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-03-01_07,2022-02-26_01,2022-02-23_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- impostorscore=0 malwarescore=0 phishscore=0 lowpriorityscore=0 bulkscore=0
- clxscore=1015 suspectscore=0 mlxlogscore=999 mlxscore=0 spamscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ malwarescore=0 suspectscore=0 bulkscore=0 spamscore=0 mlxlogscore=999
+ clxscore=1015 adultscore=0 phishscore=0 lowpriorityscore=0 mlxscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2201110000 definitions=main-2203010093
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 23 Feb 2022 09:19:59 +0000
-Janosch Frank <frankja@linux.ibm.com> wrote:
+On Wed, 23 Feb 2022 12:30:36 +0100
+Thomas Huth <thuth@redhat.com> wrote:
 
-> We have information about the supported se header version and pcf bits
-> so let's expose it via the sysfs files.
+> On 23/02/2022 10.20, Janosch Frank wrote:
+> > Some of the query information is already available via sysfs but
+> > having a IOCTL makes the information easier to retrieve.
+
+why not exporting this via sysfs too?
+
+something like a sysfs file called "query_ultravisor_information_raw"
+
+that way you don't even have a problem with sizes
+
+> > 
+> > Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> > ---
+> >   arch/s390/kvm/kvm-s390.c | 47 ++++++++++++++++++++++++++++++++++++++++
+> >   include/uapi/linux/kvm.h | 23 ++++++++++++++++++++
+> >   2 files changed, 70 insertions(+)
+> > 
+> > diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> > index faa85397b6fb..837f898ad2ff 100644
+> > --- a/arch/s390/kvm/kvm-s390.c
+> > +++ b/arch/s390/kvm/kvm-s390.c
+> > @@ -2217,6 +2217,34 @@ static int kvm_s390_cpus_to_pv(struct kvm *kvm, u16 *rc, u16 *rrc)
+> >   	return r;
+> >   }
+> >   
+> > +static int kvm_s390_handle_pv_info(struct kvm_s390_pv_info *info)
+> > +{
+> > +	u32 len;
+> > +
+> > +	switch (info->header.id) {
+> > +	case KVM_PV_INFO_VM: {
+> > +		len =  sizeof(info->header) + sizeof(info->vm);
+> > +
+> > +		if (info->header.len < len)
+> > +			return -EINVAL;
+> > +
+> > +		memcpy(info->vm.inst_calls_list,
+> > +		       uv_info.inst_calls_list,
+> > +		       sizeof(uv_info.inst_calls_list));
+> > +
+> > +		/* It's max cpuidm not max cpus so it's off by one */
+> > +		info->vm.max_cpus = uv_info.max_guest_cpu_id + 1;
+> > +		info->vm.max_guests = uv_info.max_num_sec_conf;
+> > +		info->vm.max_guest_addr = uv_info.max_sec_stor_addr;
+> > +		info->vm.feature_indication = uv_info.uv_feature_indications;
+> > +
+> > +		return 0;
+> > +	}
+> > +	default:
+> > +		return -EINVAL;
+> > +	}
+> > +}
+> > +
+> >   static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
+> >   {
+> >   	int r = 0;
+> > @@ -2353,6 +2381,25 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
+> >   			     cmd->rc, cmd->rrc);
+> >   		break;
+> >   	}
+> > +	case KVM_PV_INFO: {
+> > +		struct kvm_s390_pv_info info = {};
+> > +
+> > +		if (copy_from_user(&info, argp, sizeof(info.header)))
+> > +			return -EFAULT;
+> > +
+> > +		if (info.header.len < sizeof(info.header))
+> > +			return -EINVAL;
+> > +
+> > +		r = kvm_s390_handle_pv_info(&info);
+> > +		if (r)
+> > +			return r;
+> > +
+> > +		r = copy_to_user(argp, &info, sizeof(info));  
 > 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
-> ---
->  arch/s390/boot/uv.c        |  2 ++
->  arch/s390/include/asm/uv.h |  7 ++++++-
->  arch/s390/kernel/uv.c      | 20 ++++++++++++++++++++
->  3 files changed, 28 insertions(+), 1 deletion(-)
+> sizeof(info) is currently OK ... but this might break if somebody later 
+> extends the kvm_s390_pv_info struct, I guess? ==> Maybe also better use 
+> sizeof(info->header) + sizeof(info->vm) here, too? Or let 
+> kvm_s390_handle_pv_info() return the amount of bytes that should be copied here?
 > 
-> diff --git a/arch/s390/boot/uv.c b/arch/s390/boot/uv.c
-> index e6be155ab2e5..b100b57cf15d 100644
-> --- a/arch/s390/boot/uv.c
-> +++ b/arch/s390/boot/uv.c
-> @@ -41,6 +41,8 @@ void uv_query_info(void)
->  		uv_info.max_num_sec_conf = uvcb.max_num_sec_conf;
->  		uv_info.max_guest_cpu_id = uvcb.max_guest_cpu_id;
->  		uv_info.uv_feature_indications = uvcb.uv_feature_indications;
-> +		uv_info.supp_se_hdr_ver = uvcb.supp_se_hdr_versions;
-> +		uv_info.supp_se_hdr_pcf = uvcb.supp_se_hdr_pcf;
->  	}
->  
->  #ifdef CONFIG_PROTECTED_VIRTUALIZATION_GUEST
-> diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-> index 86218382d29c..7d6c78b61bf2 100644
-> --- a/arch/s390/include/asm/uv.h
-> +++ b/arch/s390/include/asm/uv.h
-> @@ -107,7 +107,10 @@ struct uv_cb_qui {
->  	u8  reserved88[158 - 136];		/* 0x0088 */
->  	u16 max_guest_cpu_id;			/* 0x009e */
->  	u64 uv_feature_indications;		/* 0x00a0 */
-> -	u8  reserveda8[200 - 168];		/* 0x00a8 */
-> +	u64 reserveda8;				/* 0x00a8 */
-> +	u64 supp_se_hdr_versions;		/* 0x00b0 */
-> +	u64 supp_se_hdr_pcf;			/* 0x00b8 */
-> +	u64 reservedc0;				/* 0x00c0 */
->  } __packed __aligned(8);
->  
->  /* Initialize Ultravisor */
-> @@ -285,6 +288,8 @@ struct uv_info {
->  	unsigned int max_num_sec_conf;
->  	unsigned short max_guest_cpu_id;
->  	unsigned long uv_feature_indications;
-> +	unsigned long supp_se_hdr_ver;
-> +	unsigned long supp_se_hdr_pcf;
->  };
->  
->  extern struct uv_info uv_info;
-> diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-> index a5425075dd25..852840384e75 100644
-> --- a/arch/s390/kernel/uv.c
-> +++ b/arch/s390/kernel/uv.c
-> @@ -392,6 +392,24 @@ static ssize_t uv_query_facilities(struct kobject *kobj,
->  static struct kobj_attribute uv_query_facilities_attr =
->  	__ATTR(facilities, 0444, uv_query_facilities, NULL);
->  
-> +static ssize_t uv_query_supp_se_hdr_ver(struct kobject *kobj,
-> +					struct kobj_attribute *attr, char *buf)
-> +{
-> +	return sysfs_emit(buf, "%lx\n", uv_info.supp_se_hdr_ver);
-> +}
-> +
-> +static struct kobj_attribute uv_query_supp_se_hdr_ver_attr =
-> +	__ATTR(supp_se_hdr_ver, 0444, uv_query_supp_se_hdr_ver, NULL);
-> +
-> +static ssize_t uv_query_supp_se_hdr_pcf(struct kobject *kobj,
-> +					struct kobj_attribute *attr, char *buf)
-> +{
-> +	return sysfs_emit(buf, "%lx\n", uv_info.supp_se_hdr_pcf);
-> +}
-> +
-> +static struct kobj_attribute uv_query_supp_se_hdr_pcf_attr =
-> +	__ATTR(supp_se_hdr_pcf, 0444, uv_query_supp_se_hdr_pcf, NULL);
-> +
->  static ssize_t uv_query_feature_indications(struct kobject *kobj,
->  					    struct kobj_attribute *attr, char *buf)
->  {
-> @@ -437,6 +455,8 @@ static struct attribute *uv_query_attrs[] = {
->  	&uv_query_max_guest_cpus_attr.attr,
->  	&uv_query_max_guest_vms_attr.attr,
->  	&uv_query_max_guest_addr_attr.attr,
-> +	&uv_query_supp_se_hdr_ver_attr.attr,
-> +	&uv_query_supp_se_hdr_pcf_attr.attr,
->  	NULL,
->  };
->  
+>   Thomas
+> 
+> 
+> > +		if (r)
+> > +			return -EFAULT;
+> > +		return 0;
+> > +	}
+> >   	default:
+> >   		r = -ENOTTY;
+> >   	}
+> > diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+> > index dbc550bbd9fa..96fceb204a92 100644
+> > --- a/include/uapi/linux/kvm.h
+> > +++ b/include/uapi/linux/kvm.h
+> > @@ -1642,6 +1642,28 @@ struct kvm_s390_pv_unp {
+> >   	__u64 tweak;
+> >   };
+> >   
+> > +enum pv_cmd_info_id {
+> > +	KVM_PV_INFO_VM,
+> > +};
+> > +
+> > +struct kvm_s390_pv_info_vm {
+> > +	__u64 inst_calls_list[4];
+> > +	__u64 max_cpus;
+> > +	__u64 max_guests;
+> > +	__u64 max_guest_addr;
+> > +	__u64 feature_indication;
+> > +};
+> > +
+> > +struct kvm_s390_pv_info_header {
+> > +	__u32 id;
+> > +	__u32 len;
+> > +};
+> > +
+> > +struct kvm_s390_pv_info {
+> > +	struct kvm_s390_pv_info_header header;
+> > +	struct kvm_s390_pv_info_vm vm;
+> > +};
+> > +
+> >   enum pv_cmd_id {
+> >   	KVM_PV_ENABLE,
+> >   	KVM_PV_DISABLE,
+> > @@ -1650,6 +1672,7 @@ enum pv_cmd_id {
+> >   	KVM_PV_VERIFY,
+> >   	KVM_PV_PREP_RESET,
+> >   	KVM_PV_UNSHARE_ALL,
+> > +	KVM_PV_INFO,
+> >   };
+> >   
+> >   struct kvm_pv_cmd {  
+> 
 
