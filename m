@@ -2,157 +2,195 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 76806C433F5
-	for <linux-s390@archiver.kernel.org>; Tue,  1 Mar 2022 18:38:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CC8DC433EF
+	for <linux-s390@archiver.kernel.org>; Tue,  1 Mar 2022 18:38:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237000AbiCASjE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        id S237011AbiCASjE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
         Tue, 1 Mar 2022 13:39:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40806 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237005AbiCASjB (ORCPT
+        with ESMTP id S237010AbiCASjB (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Mar 2022 13:39:01 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2892A140E9;
-        Tue,  1 Mar 2022 10:38:18 -0800 (PST)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 221Hg2LV022700;
-        Tue, 1 Mar 2022 18:38:18 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51BCC41631;
+        Tue,  1 Mar 2022 10:38:20 -0800 (PST)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 221HDjsj022291;
+        Tue, 1 Mar 2022 18:38:20 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
  subject : message-id : in-reply-to : references : mime-version :
  content-type : content-transfer-encoding; s=pp1;
- bh=KRIwFg5h2/6kEuj9nH6J71XfFCdbOn9+OrwCcsCsPy8=;
- b=pejjt+GeEcODUwvahaglrCKG2m5jA1VURs3WZXsEzeoxKgCDwhr1iv855RxhMeq0bn4Q
- joFxjYTaaWdhVh8lX+5wpYDhKIvxRiPQ/Kl+xL3F/htwM8hdKN2u5ZLt2kNCGGLSiToy
- 5nu7wbiLiCEDxSBL5zKw1eb7u4ea1kKPTzqYZx5mI35tM2Mi+LxNOySCg8xyRyQDKrjg
- GTHWtwK2KJvY4tTZUuSGVTCkzFokUXayYcZu8/i8449yRf1A+UqIi7D+Bs9rQaZP6EuG
- 20eePGFzHAsPR+NblDIIPM9mOu1Utoz+JvnjlU62FsHcn3w9h+/3cqB2bCPRjIExDN8s bw== 
+ bh=pUCwGuFG1s5Pr5FDmSuka0uiRwifxsO1RWySdcEUhoo=;
+ b=Uaee6Zmlg6iP8CDziWwpZpMs5BOljhVdf8+giyOaJDdteAP65U/MzxaKHSstQ19UgrxS
+ v3vX3xVE3W8gIbARLKVzcJAePndaE0io5F/hBk+q5faTa7Rim2StKLzLJZpyHeNwEApT
+ DAKrg0gZOlBPwtNvZDUmNdym740JDGTcBt0Vs4XRhCe04RLdycPm0mQMzagYHoX/DAQv
+ PzSX69lmEs11b28oJYB8jUXy+opq0XkQRSEMDvxwh5JGpupSIEw1wwYqw79wYu4F+8vF
+ wRKFjsNufU0okaybkDanHlZtMc7j3bFqIyjzn4VASEJwKFIkd1T/n1xI8GScS7cSF8+7 CQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ehr421ac7-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ehqq1hyvk-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 01 Mar 2022 18:38:18 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 221I6npa011252;
-        Tue, 1 Mar 2022 18:38:17 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ehr421aba-1
+        Tue, 01 Mar 2022 18:38:19 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 221HdShK016974;
+        Tue, 1 Mar 2022 18:38:19 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ehqq1hyu4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 01 Mar 2022 18:38:17 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 221IS0Km017592;
-        Tue, 1 Mar 2022 18:38:15 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma04fra.de.ibm.com with ESMTP id 3efbu8u9n3-1
+        Tue, 01 Mar 2022 18:38:19 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 221IRjfn001034;
+        Tue, 1 Mar 2022 18:38:16 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma04ams.nl.ibm.com with ESMTP id 3egbj17kr7-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 01 Mar 2022 18:38:15 +0000
+        Tue, 01 Mar 2022 18:38:16 +0000
 Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 221Ic9Zh52035890
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 221Ic7ki13631882
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 1 Mar 2022 18:38:09 GMT
+        Tue, 1 Mar 2022 18:38:07 GMT
 Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7119B4C046;
-        Tue,  1 Mar 2022 18:38:09 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 73C904C044;
+        Tue,  1 Mar 2022 18:38:07 +0000 (GMT)
 Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 165DD4C044;
-        Tue,  1 Mar 2022 18:38:09 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 273744C04A;
+        Tue,  1 Mar 2022 18:38:07 +0000 (GMT)
 Received: from p-imbrenda (unknown [9.145.5.37])
         by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue,  1 Mar 2022 18:38:09 +0000 (GMT)
-Date:   Tue, 1 Mar 2022 18:34:42 +0100
+        Tue,  1 Mar 2022 18:38:07 +0000 (GMT)
+Date:   Tue, 1 Mar 2022 18:24:05 +0100
 From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
 To:     Janosch Frank <frankja@linux.ibm.com>
 Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com,
         borntraeger@linux.ibm.com
-Subject: Re: [PATCH 5/9] KVM: s390: pv: Add query dump information
-Message-ID: <20220301183442.323fb7c3@p-imbrenda>
-In-Reply-To: <20220223092007.3163-6-frankja@linux.ibm.com>
+Subject: Re: [PATCH 2/9] s390: uv: Add dump fields to query
+Message-ID: <20220301182405.31932135@p-imbrenda>
+In-Reply-To: <20220223092007.3163-3-frankja@linux.ibm.com>
 References: <20220223092007.3163-1-frankja@linux.ibm.com>
-        <20220223092007.3163-6-frankja@linux.ibm.com>
+        <20220223092007.3163-3-frankja@linux.ibm.com>
 Organization: IBM
 X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: oGknhqPtBteCGRCwKTEFvRYUnhe2zPif
-X-Proofpoint-GUID: 7yaYlF955nfkkAGPOFtICNBwdvnoNlp6
+X-Proofpoint-GUID: dgxFm9DAp79-3ldwM9E4ct525rEQoM-H
+X-Proofpoint-ORIG-GUID: H6u6Rbe7gl8mJb_xUX93Z2hIUksjObcL
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-03-01_07,2022-02-26_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 suspectscore=0 bulkscore=0 spamscore=0 mlxlogscore=999
- clxscore=1015 adultscore=0 phishscore=0 lowpriorityscore=0 mlxscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 adultscore=0
+ priorityscore=1501 lowpriorityscore=0 clxscore=1015 phishscore=0
+ impostorscore=0 suspectscore=0 mlxscore=0 spamscore=0 mlxlogscore=999
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2201110000 definitions=main-2203010093
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 23 Feb 2022 09:20:03 +0000
+On Wed, 23 Feb 2022 09:20:00 +0000
 Janosch Frank <frankja@linux.ibm.com> wrote:
 
-> The dump API requires userspace to provide buffers into which we will
-> store data. The dump information added in this patch tells userspace
-> how big those buffers need to be.
-
-isn't this information already exported in sysfs?
-
+> The new dump feature requires us to know how much memory is needed for
+> the "dump storage state" and "dump finalize" ultravisor call. These
+> values are reported via the UV query call.
 > 
 > Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+
+I would squash this into the previous patch, though
+
 > ---
->  arch/s390/kvm/kvm-s390.c | 11 +++++++++++
->  include/uapi/linux/kvm.h | 12 +++++++++++-
->  2 files changed, 22 insertions(+), 1 deletion(-)
+>  arch/s390/boot/uv.c        |  2 ++
+>  arch/s390/include/asm/uv.h |  5 +++++
+>  arch/s390/kernel/uv.c      | 33 +++++++++++++++++++++++++++++++++
+>  3 files changed, 40 insertions(+)
 > 
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 837f898ad2ff..8de53803c1ca 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -2240,6 +2240,17 @@ static int kvm_s390_handle_pv_info(struct kvm_s390_pv_info *info)
->  
->  		return 0;
+> diff --git a/arch/s390/boot/uv.c b/arch/s390/boot/uv.c
+> index b100b57cf15d..67c737c1e580 100644
+> --- a/arch/s390/boot/uv.c
+> +++ b/arch/s390/boot/uv.c
+> @@ -43,6 +43,8 @@ void uv_query_info(void)
+>  		uv_info.uv_feature_indications = uvcb.uv_feature_indications;
+>  		uv_info.supp_se_hdr_ver = uvcb.supp_se_hdr_versions;
+>  		uv_info.supp_se_hdr_pcf = uvcb.supp_se_hdr_pcf;
+> +		uv_info.conf_dump_storage_state_len = uvcb.conf_dump_storage_state_len;
+> +		uv_info.conf_dump_finalize_len = uvcb.conf_dump_finalize_len;
 >  	}
-> +	case KVM_PV_INFO_DUMP: {
-> +		len =  sizeof(info->header) + sizeof(info->dump);
-> +
-> +		if (info->header.len < len)
-> +			return -EINVAL;
-> +
-> +		info->dump.dump_cpu_buffer_len = uv_info.guest_cpu_stor_len;
-> +		info->dump.dump_config_mem_buffer_per_1m = uv_info.conf_dump_storage_state_len;
-> +		info->dump.dump_config_finalize_len = uv_info.conf_dump_finalize_len;
-> +		return 0;
-> +	}
->  	default:
->  		return -EINVAL;
->  	}
-> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-> index 96fceb204a92..d58cd5a40e62 100644
-> --- a/include/uapi/linux/kvm.h
-> +++ b/include/uapi/linux/kvm.h
-> @@ -1644,6 +1644,13 @@ struct kvm_s390_pv_unp {
 >  
->  enum pv_cmd_info_id {
->  	KVM_PV_INFO_VM,
-> +	KVM_PV_INFO_DUMP,
-> +};
-> +
-> +struct kvm_s390_pv_info_dump {
-> +	__u64 dump_cpu_buffer_len;
-> +	__u64 dump_config_mem_buffer_per_1m;
-> +	__u64 dump_config_finalize_len;
+>  #ifdef CONFIG_PROTECTED_VIRTUALIZATION_GUEST
+> diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
+> index 7d6c78b61bf2..b79e516d4424 100644
+> --- a/arch/s390/include/asm/uv.h
+> +++ b/arch/s390/include/asm/uv.h
+> @@ -111,6 +111,9 @@ struct uv_cb_qui {
+>  	u64 supp_se_hdr_versions;		/* 0x00b0 */
+>  	u64 supp_se_hdr_pcf;			/* 0x00b8 */
+>  	u64 reservedc0;				/* 0x00c0 */
+> +	u64 conf_dump_storage_state_len;	/* 0x00c8 */
+> +	u64 conf_dump_finalize_len;		/* 0x00d0 */
+> +	u8  reservedd8[256 - 216];		/* 0x00d8 */
+>  } __packed __aligned(8);
+>  
+>  /* Initialize Ultravisor */
+> @@ -290,6 +293,8 @@ struct uv_info {
+>  	unsigned long uv_feature_indications;
+>  	unsigned long supp_se_hdr_ver;
+>  	unsigned long supp_se_hdr_pcf;
+> +	unsigned long conf_dump_storage_state_len;
+> +	unsigned long conf_dump_finalize_len;
 >  };
 >  
->  struct kvm_s390_pv_info_vm {
-> @@ -1661,7 +1668,10 @@ struct kvm_s390_pv_info_header {
+>  extern struct uv_info uv_info;
+> diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+> index 852840384e75..84fe33b6af4d 100644
+> --- a/arch/s390/kernel/uv.c
+> +++ b/arch/s390/kernel/uv.c
+> @@ -410,6 +410,36 @@ static ssize_t uv_query_supp_se_hdr_pcf(struct kobject *kobj,
+>  static struct kobj_attribute uv_query_supp_se_hdr_pcf_attr =
+>  	__ATTR(supp_se_hdr_pcf, 0444, uv_query_supp_se_hdr_pcf, NULL);
 >  
->  struct kvm_s390_pv_info {
->  	struct kvm_s390_pv_info_header header;
-> -	struct kvm_s390_pv_info_vm vm;
-> +	union {
-> +		struct kvm_s390_pv_info_dump dump;
-> +		struct kvm_s390_pv_info_vm vm;
-> +	};
+> +static ssize_t uv_query_dump_cpu_len(struct kobject *kobj,
+> +				     struct kobj_attribute *attr, char *page)
+> +{
+> +	return scnprintf(page, PAGE_SIZE, "%lx\n",
+> +			uv_info.guest_cpu_stor_len);
+> +}
+> +
+> +static struct kobj_attribute uv_query_dump_cpu_len_attr =
+> +	__ATTR(uv_query_dump_cpu_len, 0444, uv_query_dump_cpu_len, NULL);
+> +
+> +static ssize_t uv_query_dump_storage_state_len(struct kobject *kobj,
+> +					       struct kobj_attribute *attr, char *page)
+> +{
+> +	return scnprintf(page, PAGE_SIZE, "%lx\n",
+> +			uv_info.conf_dump_storage_state_len);
+> +}
+> +
+> +static struct kobj_attribute uv_query_dump_storage_state_len_attr =
+> +	__ATTR(dump_storage_state_len, 0444, uv_query_dump_storage_state_len, NULL);
+> +
+> +static ssize_t uv_query_dump_finalize_len(struct kobject *kobj,
+> +					  struct kobj_attribute *attr, char *page)
+> +{
+> +	return scnprintf(page, PAGE_SIZE, "%lx\n",
+> +			uv_info.conf_dump_finalize_len);
+> +}
+> +
+> +static struct kobj_attribute uv_query_dump_finalize_len_attr =
+> +	__ATTR(dump_finalize_len, 0444, uv_query_dump_finalize_len, NULL);
+> +
+>  static ssize_t uv_query_feature_indications(struct kobject *kobj,
+>  					    struct kobj_attribute *attr, char *buf)
+>  {
+> @@ -457,6 +487,9 @@ static struct attribute *uv_query_attrs[] = {
+>  	&uv_query_max_guest_addr_attr.attr,
+>  	&uv_query_supp_se_hdr_ver_attr.attr,
+>  	&uv_query_supp_se_hdr_pcf_attr.attr,
+> +	&uv_query_dump_storage_state_len_attr.attr,
+> +	&uv_query_dump_finalize_len_attr.attr,
+> +	&uv_query_dump_cpu_len_attr.attr,
+>  	NULL,
 >  };
 >  
->  enum pv_cmd_id {
 
