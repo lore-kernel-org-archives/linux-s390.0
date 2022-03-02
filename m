@@ -2,102 +2,81 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 79DC9C433F5
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Mar 2022 03:43:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E740C43217
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Mar 2022 05:23:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234806AbiCBDoA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 1 Mar 2022 22:44:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57568 "EHLO
+        id S236403AbiCBFXy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Mar 2022 00:23:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239407AbiCBDn7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Mar 2022 22:43:59 -0500
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17BB44BB92;
-        Tue,  1 Mar 2022 19:43:15 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R391e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0V60kBLn_1646192592;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0V60kBLn_1646192592)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 02 Mar 2022 11:43:13 +0800
-From:   Dust Li <dust.li@linux.alibaba.com>
-To:     Karsten Graul <kgraul@linux.ibm.com>,
-        Tony Lu <tonylu@linux.alibaba.com>, davem@davemloft.net,
-        kuba@kernel.org
-Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-rdma@vger.kernel.org
-Subject: [PATCH net-next] net/smc: fix compile warning for smc_sysctl
-Date:   Wed,  2 Mar 2022 11:43:12 +0800
-Message-Id: <20220302034312.31168-1-dust.li@linux.alibaba.com>
-X-Mailer: git-send-email 2.19.1.3.ge56e4f7
+        with ESMTP id S235176AbiCBFXw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Mar 2022 00:23:52 -0500
+Received: from gandalf.ozlabs.org (mail.ozlabs.org [IPv6:2404:9400:2221:ea00::3])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 666BD5F4C0;
+        Tue,  1 Mar 2022 21:23:10 -0800 (PST)
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4K7jF46rSmz4xRC;
+        Wed,  2 Mar 2022 16:23:04 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
+        s=201909; t=1646198587;
+        bh=EW7h6GpdaDNbwZGHiZAaI3MdXFwBu2xEgtf+Ok1PZlA=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=lWhC32dAUg9E3iB13asSEl3IGZdK/c28/Ypzl2ddkzEYQ3djbYgWlSP3RyJhpm5Na
+         6qopH8SJWhUAcDxKZHVagvJoSIHYAL4wLxhu95pHGQSKM9mi+uqCLIDS48jN2SCDr8
+         3hW1xyBgxsMtocUFA6uizbi9419Ant/1MjMx8tlYLZfUCZ6xeurWURO+6ZM4F85NEb
+         XIbzne9+sy6yQbCkbNp0yFSeKJEoh6kBSZkPqvm9y4RngtUzavUWU8gPBqd3K3fTkW
+         Seaz2Wd9JXTkWB5MzPd1wTj1GT7JiQk11vWz+fU7pXT7m04tdpff9zfHDEBHGpyTac
+         +s8dkQbww3zeg==
+From:   Michael Ellerman <mpe@ellerman.id.au>
+To:     Anshuman Khandual <anshuman.khandual@arm.com>, linux-mm@kvack.org,
+        akpm@linux-foundation.org
+Cc:     linux-kernel@vger.kernel.org, geert@linux-m68k.org,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        linuxppc-dev@lists.ozlabs.org,
+        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+        linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-alpha@vger.kernel.org, linux-sh@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-xtensa@linux-xtensa.org, linux-parisc@vger.kernel.org,
+        openrisc@lists.librecores.org, linux-um@lists.infradead.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        linux-arch@vger.kernel.org, Paul Mackerras <paulus@samba.org>
+Subject: Re: [PATCH V3 04/30] powerpc/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+In-Reply-To: <1646045273-9343-5-git-send-email-anshuman.khandual@arm.com>
+References: <1646045273-9343-1-git-send-email-anshuman.khandual@arm.com>
+ <1646045273-9343-5-git-send-email-anshuman.khandual@arm.com>
+Date:   Wed, 02 Mar 2022 16:23:02 +1100
+Message-ID: <87k0ddnd1l.fsf@mpe.ellerman.id.au>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Fix build:
+Anshuman Khandual <anshuman.khandual@arm.com> writes:
+> This defines and exports a platform specific custom vm_get_page_prot() via
+> subscribing ARCH_HAS_VM_GET_PAGE_PROT. Subsequently all __SXXX and __PXXX
+> macros can be dropped which are no longer needed. While here, this also
+> localizes arch_vm_get_page_prot() as powerpc_vm_get_page_prot() and moves
+> it near vm_get_page_prot().
+>
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Paul Mackerras <paulus@samba.org>
+> Cc: linuxppc-dev@lists.ozlabs.org
+> Cc: linux-kernel@vger.kernel.org
+> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+> ---
+>  arch/powerpc/Kconfig               |  1 +
+>  arch/powerpc/include/asm/mman.h    | 12 ------
+>  arch/powerpc/include/asm/pgtable.h | 19 ----------
+>  arch/powerpc/mm/mmap.c             | 59 ++++++++++++++++++++++++++++++
+>  4 files changed, 60 insertions(+), 31 deletions(-)
 
-   In file included from net/smc/smc_sysctl.c:17:
->> net/smc/smc_sysctl.h:23:5: warning: no previous prototype \
-	for function 'smc_sysctl_init' [-Wmissing-prototypes]
-   int smc_sysctl_init(void)
-       ^
+Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
 
-and
-
->> WARNING: modpost: vmlinux.o(.text+0x12ced2d): Section mismatch \
-in reference from the function smc_sysctl_exit() to the variable
-.init.data:smc_sysctl_ops
-The function smc_sysctl_exit() references
-the variable __initdata smc_sysctl_ops.
-This is often because smc_sysctl_exit lacks a __initdata
-annotation or the annotation of smc_sysctl_ops is wrong.
-
-Fixes: 462791bbfa35 ("net/smc: add sysctl interface for SMC")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
----
- net/smc/smc_sysctl.c | 4 ++--
- net/smc/smc_sysctl.h | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/net/smc/smc_sysctl.c b/net/smc/smc_sysctl.c
-index 3b59876aaac9..e6f926757ecb 100644
---- a/net/smc/smc_sysctl.c
-+++ b/net/smc/smc_sysctl.c
-@@ -69,12 +69,12 @@ static struct pernet_operations smc_sysctl_ops __net_initdata = {
- 	.exit = smc_sysctl_exit_net,
- };
- 
--int __init smc_sysctl_init(void)
-+int __net_init smc_sysctl_init(void)
- {
- 	return register_pernet_subsys(&smc_sysctl_ops);
- }
- 
--void smc_sysctl_exit(void)
-+void __net_exit smc_sysctl_exit(void)
- {
- 	unregister_pernet_subsys(&smc_sysctl_ops);
- }
-diff --git a/net/smc/smc_sysctl.h b/net/smc/smc_sysctl.h
-index 49553ac236b6..8914278ac870 100644
---- a/net/smc/smc_sysctl.h
-+++ b/net/smc/smc_sysctl.h
-@@ -20,12 +20,12 @@ void smc_sysctl_exit(void);
- 
- #else
- 
--int smc_sysctl_init(void)
-+static inline int smc_sysctl_init(void)
- {
- 	return 0;
- }
- 
--void smc_sysctl_exit(void) { }
-+static inline void smc_sysctl_exit(void) { }
- 
- #endif /* CONFIG_SYSCTL */
- 
--- 
-2.19.1.3.ge56e4f7
-
+cheers
