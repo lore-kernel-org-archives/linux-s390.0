@@ -2,241 +2,167 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 03AE4C4167D
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Mar 2022 10:05:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3326DC433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Mar 2022 10:15:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240881AbiCBKG1 convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Mar 2022 05:06:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46960 "EHLO
+        id S239003AbiCBKQO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Mar 2022 05:16:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240869AbiCBKGZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Mar 2022 05:06:25 -0500
-Received: from mail-vk1-f182.google.com (mail-vk1-f182.google.com [209.85.221.182])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10053BB0BB;
-        Wed,  2 Mar 2022 02:05:42 -0800 (PST)
-Received: by mail-vk1-f182.google.com with SMTP id n10so582188vkm.10;
-        Wed, 02 Mar 2022 02:05:42 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=EYfrVL/3Fk55o7PeesHa/rcefVwDuQvh3Zqyw9HxNck=;
-        b=rfWplJha9OKbeEVMLVHvc8rfeL+90OqRyjDeiEL/ZoPX2hQ5gdKG3ZdtG+no/w4F+p
-         OnguJezzxM2tDIkfu1wvm2DfJRPrDRQr+9dIj348wHFbVdfWsWq4UEHhIsbJ8M5qq+rY
-         T0+IVcjW+3EY7tfnpDp4D8s2pJtgN0TqTF4RBrGDR0FtCm8VG7XU0yQin/3Om5lUrUzb
-         N3djNJdP97HV32MoCk0IhuR4hvvrWy+ywGypsp4+ciBVA8CDr+JgpSQqTDgdtHt3muXg
-         cgleyiUIrB0N5oy34xDlLF4+68k0iZ4dE07rk7frYjfclPZxWRUnZBvLEMgX/58zOUey
-         m+NQ==
-X-Gm-Message-State: AOAM531o0G2Djd/8Zgphb7GQSW/tsaoMuU8BSPxT1dw0D9lCU7dl1/B+
-        lsoWCluAgjxYpAv9CEX7JSW9C+gaczEH1Q==
-X-Google-Smtp-Source: ABdhPJx8+0YbfUdGRM/EUcSE7UvnFBBDPOp01Ea6jnM2+VzIJfhR/ksKn/oJ3xxsMx6XoqeDOUdR7g==
-X-Received: by 2002:a05:6122:549:b0:319:88bd:bd17 with SMTP id y9-20020a056122054900b0031988bdbd17mr13555360vko.37.1646215540836;
-        Wed, 02 Mar 2022 02:05:40 -0800 (PST)
-Received: from mail-vs1-f51.google.com (mail-vs1-f51.google.com. [209.85.217.51])
-        by smtp.gmail.com with ESMTPSA id q23-20020a056102127700b0031c108bb5b6sm2161432vsg.23.2022.03.02.02.05.39
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 02 Mar 2022 02:05:40 -0800 (PST)
-Received: by mail-vs1-f51.google.com with SMTP id j3so1248743vsi.7;
-        Wed, 02 Mar 2022 02:05:39 -0800 (PST)
-X-Received: by 2002:a67:c499:0:b0:320:2cd8:9e1a with SMTP id
- d25-20020a67c499000000b003202cd89e1amr266158vsk.38.1646215539723; Wed, 02 Mar
- 2022 02:05:39 -0800 (PST)
+        with ESMTP id S232069AbiCBKQN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Mar 2022 05:16:13 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC0D06004A;
+        Wed,  2 Mar 2022 02:15:30 -0800 (PST)
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 2229n7sR004798;
+        Wed, 2 Mar 2022 10:15:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=Ae8AEdg8mPohiJAzc7/4KhBywCdg6nyh2bn5vfGTY08=;
+ b=MyIOgvgp2AXDecrBdNSkKjxzjrdmR4IYpNkfXCkillv4dp2CBVwr/dDP9X4KsvYwo9Ny
+ Us9z+/d5Ufv9l0khY6anLHVGFUa66hnV7RwDaBh+DsV4PpDHaLlfCtR1Cb//ZWv1RnC9
+ qCNdyXHH5kBbMccRDnr8bAPh8GcJB5ZFz8vujTPJpreitGDrRFCKVuNAbE7wv8HK7cwx
+ NxR4g4Q6QEIthhp5Qq37SWlw15Hbv9nriCXYWU9Xnms9jMt9yoWoNcpqIElc/1ZJQNJx
+ WexwiLkeb3TwU38yhLeGlfA1I9BAuK4CkmNaD19I2VuQYdw9jRqMK87n6CCzb6DdwiTP nw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3ej69g8ghy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 02 Mar 2022 10:15:29 +0000
+Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 222A5lmw005941;
+        Wed, 2 Mar 2022 10:15:29 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3ej69g8ghe-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 02 Mar 2022 10:15:29 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 222A8aVL023311;
+        Wed, 2 Mar 2022 10:15:27 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma06ams.nl.ibm.com with ESMTP id 3efbfjpb38-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 02 Mar 2022 10:15:27 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 222AFOqO45351412
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 2 Mar 2022 10:15:24 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6F10F5204E;
+        Wed,  2 Mar 2022 10:15:24 +0000 (GMT)
+Received: from [9.171.87.51] (unknown [9.171.87.51])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 19B8D52052;
+        Wed,  2 Mar 2022 10:15:24 +0000 (GMT)
+Message-ID: <d4c185b3-a788-8416-2f1b-4d7394d157e3@linux.ibm.com>
+Date:   Wed, 2 Mar 2022 11:15:23 +0100
 MIME-Version: 1.0
-References: <1646045273-9343-1-git-send-email-anshuman.khandual@arm.com>
- <1646045273-9343-10-git-send-email-anshuman.khandual@arm.com>
- <Yhyqjo/4bozJB6j5@shell.armlinux.org.uk> <542fa048-131e-240b-cc3a-fd4fff7ce4ba@arm.com>
- <Yh1pYAOiskEQes3p@shell.armlinux.org.uk> <dc3c95a4-de06-9889-ce1e-f660fc9fbb95@csgroup.eu>
- <c3b60de0-38cd-160a-aa15-831349e07e23@arm.com> <52866c88-59f9-2d1c-6f5a-5afcaf23f2bb@csgroup.eu>
- <9caa90f5-c10d-75dd-b403-1388b7a3d296@arm.com>
-In-Reply-To: <9caa90f5-c10d-75dd-b403-1388b7a3d296@arm.com>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Wed, 2 Mar 2022 11:05:28 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdU11kaOzanhHZRH+mLTJzaz-i=PnKdK7NF9V-qx6kp8wg@mail.gmail.com>
-Message-ID: <CAMuHMdU11kaOzanhHZRH+mLTJzaz-i=PnKdK7NF9V-qx6kp8wg@mail.gmail.com>
-Subject: Re: [PATCH V3 09/30] arm/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
-To:     Anshuman Khandual <anshuman.khandual@arm.com>
-Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        "Russell King (Oracle)" <linux@armlinux.org.uk>,
-        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
-        "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
-        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
-        "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>,
-        "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        "linux-snps-arc@lists.infradead.org" 
-        <linux-snps-arc@lists.infradead.org>,
-        "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "linux-um@lists.infradead.org" <linux-um@lists.infradead.org>,
-        "linux-m68k@lists.linux-m68k.org" <linux-m68k@lists.linux-m68k.org>,
-        "openrisc@lists.librecores.org" <openrisc@lists.librecores.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>,
-        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH v1 1/1] KVM: s390x: fix SCK locking
+Content-Language: en-US
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, frankja@linux.ibm.com,
+        thuth@redhat.com, borntraeger@de.ibm.com, mimu@linux.ibm.com
+References: <20220301143340.111129-1-imbrenda@linux.ibm.com>
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+In-Reply-To: <20220301143340.111129-1-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: sIaGCk2vM-fvglB8XdGvHMhpAiFvHG-Y
+X-Proofpoint-ORIG-GUID: 4vhofLyOyoRjdRYc74pTYEQKrFqfJbHC
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-03-02_01,2022-02-26_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 clxscore=1015
+ suspectscore=0 phishscore=0 adultscore=0 priorityscore=1501 spamscore=0
+ malwarescore=0 lowpriorityscore=0 mlxscore=0 mlxlogscore=999
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2203020039
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Anshuman,
+On 3/1/22 15:33, Claudio Imbrenda wrote:
+> When handling the SCK instruction, the kvm lock is taken, even though
+> the vcpu lock is already being held. The normal locking order is kvm
+> lock first and then vcpu lock. This is can (and in some circumstances
+> does) lead to deadlocks.
+> 
+> The function kvm_s390_set_tod_clock is called both by the SCK handler
+> and by some IOCTLs to set the clock. The IOCTLs will not hold the vcpu
+> lock, so they can safely take the kvm lock. The SCK handler holds the
+> vcpu lock, but will also somehow need to acquire the kvm lock without
+> relinquishing the vcpu lock.
+> 
+> The solution is to factor out the code to set the clock, and provide
+> two wrappers. One is called like the original function and does the
+> locking, the other is called kvm_s390_try_set_tod_clock and uses
+> trylock to try to acquire the kvm lock. This new wrapper is then used
+> in the SCK handler. If locking fails, -EAGAIN is returned, which is
+> eventually propagated to userspace, thus also freeing the vcpu lock and
+> allowing for forward progress.
+> 
+> This is not the most efficient or elegant way to solve this issue, but
+> the SCK instruction is deprecated and its performance is not critical.
+> 
+> The goal of this patch is just to provide a simple but correct way to
+> fix the bug.
+> 
+> Fixes: 6a3f95a6b04c ("KVM: s390: Intercept SCK instruction")
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-On Wed, Mar 2, 2022 at 10:51 AM Anshuman Khandual
-<anshuman.khandual@arm.com> wrote:
-> On 3/2/22 12:35 PM, Christophe Leroy wrote:
-> > Le 02/03/2022 à 04:22, Anshuman Khandual a écrit :
-> >> On 3/1/22 1:46 PM, Christophe Leroy wrote:
-> >>> Le 01/03/2022 à 01:31, Russell King (Oracle) a écrit :
-> >>>> On Tue, Mar 01, 2022 at 05:30:41AM +0530, Anshuman Khandual wrote:
-> >>>>> On 2/28/22 4:27 PM, Russell King (Oracle) wrote:
-> >>>>>> On Mon, Feb 28, 2022 at 04:17:32PM +0530, Anshuman Khandual wrote:
-> >>>>>>> This defines and exports a platform specific custom vm_get_page_prot() via
-> >>>>>>> subscribing ARCH_HAS_VM_GET_PAGE_PROT. Subsequently all __SXXX and __PXXX
-> >>>>>>> macros can be dropped which are no longer needed.
-> >>>>>>
-> >>>>>> What I would really like to know is why having to run _code_ to work out
-> >>>>>> what the page protections need to be is better than looking it up in a
-> >>>>>> table.
-> >>>>>>
-> >>>>>> Not only is this more expensive in terms of CPU cycles, it also brings
-> >>>>>> additional code size with it.
-> >>>>>>
-> >>>>>> I'm struggling to see what the benefit is.
-> >>>>>
-> >>>>> Currently vm_get_page_prot() is also being _run_ to fetch required page
-> >>>>> protection values. Although that is being run in the core MM and from a
-> >>>>> platform perspective __SXXX, __PXXX are just being exported for a table.
-> >>>>> Looking it up in a table (and applying more constructs there after) is
-> >>>>> not much different than a clean switch case statement in terms of CPU
-> >>>>> usage. So this is not more expensive in terms of CPU cycles.
-> >>>>
-> >>>> I disagree.
-> >>>
-> >>> So do I.
-> >>>
-> >>>>
-> >>>> However, let's base this disagreement on some evidence. Here is the
-> >>>> present 32-bit ARM implementation:
-> >>>>
-> >>>> 00000048 <vm_get_page_prot>:
-> >>>>         48:       e200000f        and     r0, r0, #15
-> >>>>         4c:       e3003000        movw    r3, #0
-> >>>>                           4c: R_ARM_MOVW_ABS_NC   .LANCHOR1
-> >>>>         50:       e3403000        movt    r3, #0
-> >>>>                           50: R_ARM_MOVT_ABS      .LANCHOR1
-> >>>>         54:       e7930100        ldr     r0, [r3, r0, lsl #2]
-> >>>>         58:       e12fff1e        bx      lr
-> >>>>
-> >>>> That is five instructions long.
-> >>>
-> >>> On ppc32 I get:
-> >>>
-> >>> 00000094 <vm_get_page_prot>:
-> >>>         94: 3d 20 00 00     lis     r9,0
-> >>>                     96: R_PPC_ADDR16_HA     .data..ro_after_init
-> >>>         98: 54 84 16 ba     rlwinm  r4,r4,2,26,29
-> >>>         9c: 39 29 00 00     addi    r9,r9,0
-> >>>                     9e: R_PPC_ADDR16_LO     .data..ro_after_init
-> >>>         a0: 7d 29 20 2e     lwzx    r9,r9,r4
-> >>>         a4: 91 23 00 00     stw     r9,0(r3)
-> >>>         a8: 4e 80 00 20     blr
-> >>>
-> >>>
-> >>>>
-> >>>> Please show that your new implementation is not more expensive on
-> >>>> 32-bit ARM. Please do so by building a 32-bit kernel, and providing
-> >>>> the disassembly.
-> >>>
-> >>> With your series I get:
-> >>>
-> >>> 00000000 <vm_get_page_prot>:
-> >>>      0:     3d 20 00 00     lis     r9,0
-> >>>                     2: R_PPC_ADDR16_HA      .rodata
-> >>>      4:     39 29 00 00     addi    r9,r9,0
-> >>>                     6: R_PPC_ADDR16_LO      .rodata
-> >>>      8:     54 84 16 ba     rlwinm  r4,r4,2,26,29
-> >>>      c:     7d 49 20 2e     lwzx    r10,r9,r4
-> >>>     10:     7d 4a 4a 14     add     r10,r10,r9
-> >>>     14:     7d 49 03 a6     mtctr   r10
-> >>>     18:     4e 80 04 20     bctr
-> >>>     1c:     39 20 03 15     li      r9,789
-> >>>     20:     91 23 00 00     stw     r9,0(r3)
-> >>>     24:     4e 80 00 20     blr
-> >>>     28:     39 20 01 15     li      r9,277
-> >>>     2c:     91 23 00 00     stw     r9,0(r3)
-> >>>     30:     4e 80 00 20     blr
-> >>>     34:     39 20 07 15     li      r9,1813
-> >>>     38:     91 23 00 00     stw     r9,0(r3)
-> >>>     3c:     4e 80 00 20     blr
-> >>>     40:     39 20 05 15     li      r9,1301
-> >>>     44:     91 23 00 00     stw     r9,0(r3)
-> >>>     48:     4e 80 00 20     blr
-> >>>     4c:     39 20 01 11     li      r9,273
-> >>>     50:     4b ff ff d0     b       20 <vm_get_page_prot+0x20>
-> >>>
-> >>>
-> >>> That is definitely more expensive, it implements a table of branches.
-> >>
-> >> Okay, will split out the PPC32 implementation that retains existing
-> >> table look up method. Also planning to keep that inside same file
-> >> (arch/powerpc/mm/mmap.c), unless you have a difference preference.
-> >
-> > My point was not to get something specific for PPC32, but to amplify on
-> > Russell's objection.
-> >
-> > As this is bad for ARM and bad for PPC32, do we have any evidence that
-> > your change is good for any other architecture ?
-> >
-> > I checked PPC64 and there is exactly the same drawback. With the current
-> > implementation it is a small function performing table read then a few
-> > adjustment. After your change it is a bigger function implementing a
-> > table of branches.
->
-> I am wondering if this would not be the case for any other switch case
-> statement on the platform ? Is there something specific/different just
-> on vm_get_page_prot() implementation ? Are you suggesting that switch
-> case statements should just be avoided instead ?
->
-> >
-> > So, as requested by Russell, could you look at the disassembly for other
-> > architectures and show us that ARM and POWERPC are the only ones for
-> > which your change is not optimal ?
->
-> But the primary purpose of this series is not to guarantee optimized
-> code on platform by platform basis, while migrating from a table based
-> look up method into a switch case statement.
->
-> But instead, the purposes is to remove current levels of unnecessary
-> abstraction while converting a vm_flags access combination into page
-> protection. The switch case statement for platform implementation of
-> vm_get_page_prot() just seemed logical enough. Christoph's original
-> suggestion patch for x86 had the same implementation as well.
->
-> But if the table look up is still better/preferred method on certain
-> platforms like arm or ppc32, will be happy to preserve that.
+Reviewed-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+> ---
+>  arch/s390/kvm/kvm-s390.c | 19 ++++++++++++++++---
+>  arch/s390/kvm/kvm-s390.h |  4 ++--
+>  arch/s390/kvm/priv.c     | 14 +++++++++++++-
+>  3 files changed, 31 insertions(+), 6 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 2296b1ff1e02..4e3db4004bfd 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -3869,14 +3869,12 @@ static int kvm_s390_handle_requests(struct kvm_vcpu *vcpu)
+>  	return 0;
+>  }
+> 
+> -void kvm_s390_set_tod_clock(struct kvm *kvm,
+> -			    const struct kvm_s390_vm_tod_clock *gtod)
+> +static void __kvm_s390_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod)
+>  {
+>  	struct kvm_vcpu *vcpu;
+>  	union tod_clock clk;
+>  	unsigned long i;
+> 
+> -	mutex_lock(&kvm->lock);
+>  	preempt_disable();
+> 
+>  	store_tod_clock_ext(&clk);
+> @@ -3897,7 +3895,22 @@ void kvm_s390_set_tod_clock(struct kvm *kvm,
+> 
+>  	kvm_s390_vcpu_unblock_all(kvm);
+>  	preempt_enable();
+> +}
+> +
+> +void kvm_s390_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod)
+> +{
+> +	mutex_lock(&kvm->lock);
+> +	__kvm_s390_set_tod_clock(kvm, gtod);
+> +	mutex_unlock(&kvm->lock);
+> +}
+> +
+> +int kvm_s390_try_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod)
 
-I doubt the switch() variant would give better code on any platform.
+Why int instead of bool?
 
-What about using tables everywhere, using designated initializers
-to improve readability?
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+> +{
+> +	if (!mutex_trylock(&kvm->lock))
+> +		return 0;
+> +	__kvm_s390_set_tod_clock(kvm, gtod);
+>  	mutex_unlock(&kvm->lock);
+> +	return 1;
+>  }
+> 
+[...]
