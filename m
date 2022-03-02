@@ -2,226 +2,74 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 364A9C433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Mar 2022 12:42:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B33C3C433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Mar 2022 13:16:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240996AbiCBMml (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Mar 2022 07:42:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46186 "EHLO
+        id S242089AbiCBNQ6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Mar 2022 08:16:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238642AbiCBMmk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Mar 2022 07:42:40 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CEAA73045;
-        Wed,  2 Mar 2022 04:41:57 -0800 (PST)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 222AIHUg003459;
-        Wed, 2 Mar 2022 12:41:57 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : to : cc : references : from : subject : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=j11LOEfAbvM6kmd46EEE+Z62P+2rjl6afIvhldeQHgo=;
- b=tHF3WVmNB/1XnYJfrkeqYVP1YcpJPZudzXmmBBy/zxJLuEZtnHK8PxsJHsTfJ8rneDFL
- Vbv74DXlG8oO8PFMtZLQ8fXaKif6l/qRmbu5pee+DHfmjgBXtFavO7HFuaVejHMopXpu
- WgwyRgCyN2WuXD4k/do1T/NCeJdg/IZTqvlqM7rszddso/F91s7lsqUWSmRoXR82f8uo
- 18R9cEaA3MFAhSljXw7bJnIpIkw+q9OMV8W+H8e6GIcao9uaYt0cFlms0zJOHxsWXr/0
- uKH6qL4Zcl6vTNv1yXjEHnlICFzfPI+XRgQGELEeI6KvpJDlcRsv2yE8EkIoVZK9IeHK ew== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ej6q9m0xt-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Mar 2022 12:41:56 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 222CdE69024003;
-        Wed, 2 Mar 2022 12:41:56 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ej6q9m0x6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Mar 2022 12:41:56 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 222CWn2M010610;
-        Wed, 2 Mar 2022 12:41:54 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma03ams.nl.ibm.com with ESMTP id 3efbu9eq78-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Mar 2022 12:41:54 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 222CfnTX50397692
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 2 Mar 2022 12:41:49 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A016952052;
-        Wed,  2 Mar 2022 12:41:49 +0000 (GMT)
-Received: from [9.145.51.38] (unknown [9.145.51.38])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 5AA6E52050;
-        Wed,  2 Mar 2022 12:41:49 +0000 (GMT)
-Message-ID: <97e0d095-d839-ff74-dbc7-a10c84ded071@linux.ibm.com>
-Date:   Wed, 2 Mar 2022 13:41:48 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Content-Language: en-US
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com,
-        borntraeger@linux.ibm.com
-References: <20220223092007.3163-1-frankja@linux.ibm.com>
- <20220223092007.3163-4-frankja@linux.ibm.com>
- <20220302130425.0bfa0c2e@p-imbrenda>
-From:   Janosch Frank <frankja@linux.ibm.com>
-Subject: Re: [PATCH 3/9] KVM: s390: pv: Add query interface
-In-Reply-To: <20220302130425.0bfa0c2e@p-imbrenda>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: S5-oYgZtSOSnNxTojNUFIqUnUPT3Nhbo
-X-Proofpoint-GUID: EwSkhF_Hv5M66iZmGfnyqOwLkyQw64Yv
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-02_06,2022-02-26_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
- priorityscore=1501 phishscore=0 clxscore=1015 bulkscore=0 spamscore=0
- adultscore=0 malwarescore=0 mlxscore=0 lowpriorityscore=0 impostorscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2203020054
+        with ESMTP id S236694AbiCBNQ5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Mar 2022 08:16:57 -0500
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A36DC3C13;
+        Wed,  2 Mar 2022 05:16:12 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0V635yRY_1646226968;
+Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0V635yRY_1646226968)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Wed, 02 Mar 2022 21:16:09 +0800
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+To:     kgraul@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: [PATCH net v2 0/2] fix unexpected SMC_CLC_DECL_ERR_REGRMB error 
+Date:   Wed,  2 Mar 2022 21:16:06 +0800
+Message-Id: <1646226968-2315-1-git-send-email-alibuda@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 3/2/22 13:04, Claudio Imbrenda wrote:
-> On Wed, 23 Feb 2022 09:20:01 +0000
-> Janosch Frank <frankja@linux.ibm.com> wrote:
-> 
->> Some of the query information is already available via sysfs but
->> having a IOCTL makes the information easier to retrieve.
->>
->> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
->> ---
->>   arch/s390/kvm/kvm-s390.c | 47 ++++++++++++++++++++++++++++++++++++++++
->>   include/uapi/linux/kvm.h | 23 ++++++++++++++++++++
->>   2 files changed, 70 insertions(+)
->>
->> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->> index faa85397b6fb..837f898ad2ff 100644
->> --- a/arch/s390/kvm/kvm-s390.c
->> +++ b/arch/s390/kvm/kvm-s390.c
->> @@ -2217,6 +2217,34 @@ static int kvm_s390_cpus_to_pv(struct kvm *kvm, u16 *rc, u16 *rrc)
->>   	return r;
->>   }
->>   
->> +static int kvm_s390_handle_pv_info(struct kvm_s390_pv_info *info)
->> +{
->> +	u32 len;
->> +
->> +	switch (info->header.id) {
->> +	case KVM_PV_INFO_VM: {
->> +		len =  sizeof(info->header) + sizeof(info->vm);
->> +
->> +		if (info->header.len < len)
->> +			return -EINVAL;
-> 
-> so if userspace gives a smaller buffer, we fail?
-> this means that if the struct grows in the future, existing software
-> will break?
+From: "D. Wythe" <alibuda@linux.alibaba.com>
 
-I've already answered this.
-If we extend the struct, we can make this the lower bound and store a 
-maximum of info->header.len or the length of the extended struct.
+We can easily trigger the SMC_CLC_DECL_ERR_REGRMB exception within
+following script:
 
-I.e. it would work like the QUI 0x100 rc.
-Or we can add a new IOCTL which gives the KVM_PV_INFO_VM + new values.
+server: smc_run nginx
+client: smc_run  ./wrk -c 2000 -t 8 -d 20 http://smc-server
 
+And we can clearly see that this error is also divided into two types:
 
-The more interesting question is how we indicate more data and new IOCTL 
-commands. Do we always bind them to a capability? Should we add a query 
-in front of the KVM_PV_INFO_VM call which tells us the available calls?
+1. 0x09990003
+2. 0x05000000/0x09990003
 
-> 
->> +
->> +		memcpy(info->vm.inst_calls_list,
->> +		       uv_info.inst_calls_list,
->> +		       sizeof(uv_info.inst_calls_list));
->> +
->> +		/* It's max cpuidm not max cpus so it's off by one */
->> +		info->vm.max_cpus = uv_info.max_guest_cpu_id + 1;
->> +		info->vm.max_guests = uv_info.max_num_sec_conf;
->> +		info->vm.max_guest_addr = uv_info.max_sec_stor_addr;
->> +		info->vm.feature_indication = uv_info.uv_feature_indications;
->> +
->> +		return 0;
->> +	}
->> +	default:
->> +		return -EINVAL;
->> +	}
->> +}
->> +
->>   static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
->>   {
->>   	int r = 0;
->> @@ -2353,6 +2381,25 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
->>   			     cmd->rc, cmd->rrc);
->>   		break;
->>   	}
->> +	case KVM_PV_INFO: {
->> +		struct kvm_s390_pv_info info = {};
->> +
->> +		if (copy_from_user(&info, argp, sizeof(info.header)))
->> +			return -EFAULT;
->> +
->> +		if (info.header.len < sizeof(info.header))
->> +			return -EINVAL;
->> +
->> +		r = kvm_s390_handle_pv_info(&info);
->> +		if (r)
->> +			return r;
->> +
->> +		r = copy_to_user(argp, &info, sizeof(info));
->> +
->> +		if (r)
->> +			return -EFAULT;
->> +		return 0;
->> +	}
->>   	default:
->>   		r = -ENOTTY;
->>   	}
->> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
->> index dbc550bbd9fa..96fceb204a92 100644
->> --- a/include/uapi/linux/kvm.h
->> +++ b/include/uapi/linux/kvm.h
->> @@ -1642,6 +1642,28 @@ struct kvm_s390_pv_unp {
->>   	__u64 tweak;
->>   };
->>   
->> +enum pv_cmd_info_id {
->> +	KVM_PV_INFO_VM,
->> +};
->> +
->> +struct kvm_s390_pv_info_vm {
->> +	__u64 inst_calls_list[4];
->> +	__u64 max_cpus;
->> +	__u64 max_guests;
->> +	__u64 max_guest_addr;
->> +	__u64 feature_indication;
->> +};
->> +
->> +struct kvm_s390_pv_info_header {
->> +	__u32 id;
->> +	__u32 len;
->> +};
->> +
->> +struct kvm_s390_pv_info {
->> +	struct kvm_s390_pv_info_header header;
->> +	struct kvm_s390_pv_info_vm vm;
->> +};
->> +
->>   enum pv_cmd_id {
->>   	KVM_PV_ENABLE,
->>   	KVM_PV_DISABLE,
->> @@ -1650,6 +1672,7 @@ enum pv_cmd_id {
->>   	KVM_PV_VERIFY,
->>   	KVM_PV_PREP_RESET,
->>   	KVM_PV_UNSHARE_ALL,
->> +	KVM_PV_INFO,
->>   };
->>   
->>   struct kvm_pv_cmd {
-> 
+Which has the same root causes, but the immediate causes vary.
+
+The root cause of this issues is that remove connections from link group
+is not synchronous with add/delete rtoken entry,  which means that even
+the number of connections is less that SMC_RMBS_PER_LGR_MAX, it does not
+mean that the connection can register rtoken successfully later. In
+other words, the rtoken entry may released, This will cause an
+unexpected SMC_CLC_DECL_ERR_REGRMB to be reported, and then this SMC 
+connections have to fallback to TCP.
+
+This patch set handles two types of SMC_CLC_DECL_ERR_REGRMB exceptions
+from different perspectives.
+
+Patch 1: fix the 0x05000000/0x09990003 error.
+Patch 2: fix the 0x09990003 error.
+
+After those patches, there is no SMC_CLC_DECL_ERR_REGRMB exceptions in my
+test case any more.
+
+D. Wythe (2):
+  net/smc: fix unexpected SMC_CLC_DECL_ERR_REGRMB error generated by
+    client
+  net/smc: fix unexpected SMC_CLC_DECL_ERR_REGRMB error cause by server
+
+ net/smc/smc_core.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+-- 
+1.8.3.1
 
