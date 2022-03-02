@@ -2,84 +2,116 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81B5EC433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Mar 2022 15:46:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AF403C433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Mar 2022 17:18:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236394AbiCBPrG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Mar 2022 10:47:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48136 "EHLO
+        id S243738AbiCBRTX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Mar 2022 12:19:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240275AbiCBPq4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Mar 2022 10:46:56 -0500
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF816CB650;
-        Wed,  2 Mar 2022 07:46:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1646235972; x=1677771972;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=uDEmAHta6/0fV9EWeWY03MnT0yAmLB5e+vpiDUmduww=;
-  b=IfsD9ZSYC9ARSYlKrsSzT47UFFEcPu3/m73ZfFhI1jVc1pc+bea0NI9E
-   DKcBs0D70UQvmXxAtgwO2mU+Ba0KMDyuE/SXBzbqOBtO3H//dvgFjCiPo
-   7BYEUFbvnhffvWM03Z/7j29Tw12RyW6SqDr6wWeXE8A3i4cxrX6kaUM6d
-   FyBoAsd/BLc/rD6EW6jsJnwMZ/KMG/w65dO/NRxUD1jAq7b04VyrNYr9F
-   zkMQF45kYZpsaozlpDhXs1JwwO4y5jKy4w3H5Z2xkZOOCFHBWFHk8RQij
-   d82Sr+uL5HiJqsdbsTW49lK9SmuuOu4lD4mfWnYLlciRatGz8NBd+Z1CA
-   Q==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10274"; a="234047279"
-X-IronPort-AV: E=Sophos;i="5.90,149,1643702400"; 
-   d="scan'208";a="234047279"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Mar 2022 07:46:12 -0800
-X-IronPort-AV: E=Sophos;i="5.90,149,1643702400"; 
-   d="scan'208";a="551299872"
-Received: from smile.fi.intel.com ([10.237.72.59])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Mar 2022 07:46:08 -0800
-Received: from andy by smile.fi.intel.com with local (Exim 4.95)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1nPRAG-00AMkQ-Ql;
-        Wed, 02 Mar 2022 17:45:20 +0200
-Date:   Wed, 2 Mar 2022 17:45:20 +0200
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     Janosch Frank <frankja@linux.ibm.com>,
+        with ESMTP id S243740AbiCBRTW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Mar 2022 12:19:22 -0500
+Received: from mail-oo1-xc2e.google.com (mail-oo1-xc2e.google.com [IPv6:2607:f8b0:4864:20::c2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EA4AC7E9D;
+        Wed,  2 Mar 2022 09:18:38 -0800 (PST)
+Received: by mail-oo1-xc2e.google.com with SMTP id y15-20020a4a650f000000b0031c19e9fe9dso2628486ooc.12;
+        Wed, 02 Mar 2022 09:18:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=cwLG9kTnhX2GqkeQf8KU8q/jw+pGFKDaUnw1ajiL6WA=;
+        b=Ph+RbvL6FanSOSwQxZUf26lIJLD1mcS3h0APBOTmjL0rL8sL58KJLFAGiWptkhBp5f
+         z5ZgRL+10UyFNfksj//XcL9pJCGCD6qYN9UCdiS8SIRssuw3151XtoQsw11ASk+hEEQs
+         7UWDCkB2pqpxxqJssBKAq8izDqfQt3z4hlBl78kUt3xIc/snzVPeNxjkge/VZOSWHaLR
+         40GJ26I2rx8DmUJSGIItZ1LqEOGI32dpoM2HZZb4qQv4d7UgQ4MF7I8MHghj3+jwXqm8
+         sv+M1n5AKMMjPdnNP0hgHgFXQ8GowrimHS7zngUz0tPwpAWrZaH9Fx1B11OQPzUNAcML
+         C9vA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=cwLG9kTnhX2GqkeQf8KU8q/jw+pGFKDaUnw1ajiL6WA=;
+        b=LNvUgFBFAZzAONYCafiqBWiLhv+0lmjkf3GptQLDrnFHQsCRQ+yln6WR4wYH10xY15
+         8z/imfVYtVk+3+woCjA84ao9eqfzlM/+9oRiEzqgNcZK9FCA9kqoA8I1eoM/qIIt4RKW
+         AqxCCBt74+G3p4w9EZAQcqARZUf0rJrN2GanX8N19VjNTCOb/4AmneuE7tACvd6m49/U
+         OHwY2aHcnPkEyAFWa0+zWMRHyJMRO2jATngrdPb3vWd2FPdpiDeK3tlRjGVX9WZ9iI7H
+         RXb3auryrvuiAA/FHYquK9JSZaRk70hVYwdcAFcLOanPj0aC+sCXilLskJAl5/IuMOEX
+         4IDA==
+X-Gm-Message-State: AOAM533xeKufT9EOljbSplasytugfV5W+3mBj1iYIWtAnoI/qu5f+5uv
+        YVg1qi9UMwEqKgxD/SCS8uqTenpnSso=
+X-Google-Smtp-Source: ABdhPJzaTl0H10yq5ZoNdnQwMSeiQ6SyTqU2PuD1HxWe6SG7t/bXRnCfIG9yWUnPnd3RZp+WwWGEPA==
+X-Received: by 2002:a05:6870:c987:b0:d7:3d45:6692 with SMTP id hi7-20020a056870c98700b000d73d456692mr683349oab.34.1646241517676;
+        Wed, 02 Mar 2022 09:18:37 -0800 (PST)
+Received: from localhost ([98.200.8.69])
+        by smtp.gmail.com with ESMTPSA id m7-20020a9d6447000000b005acf7e4c507sm7983689otl.20.2022.03.02.09.18.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 02 Mar 2022 09:18:37 -0800 (PST)
+Date:   Wed, 2 Mar 2022 09:18:35 -0800
+From:   Yury Norov <yury.norov@gmail.com>
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     Michael Mueller <mimu@linux.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Janosch Frank <frankja@linux.ibm.com>,
         David Hildenbrand <david@redhat.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>
 Subject: Re: [PATCH v1 1/1] KVM: s390: Don't cast parameter in bit operations
-Message-ID: <Yh+REPSQd1zX8KlQ@smile.fi.intel.com>
+Message-ID: <Yh+m65BSfQgaDFwi@yury-laptop>
 References: <20220223164420.45344-1-andriy.shevchenko@linux.intel.com>
+ <20220224123620.57fd6c8b@p-imbrenda>
+ <3640a910-60fe-0935-4dfc-55bb65a75ce5@linux.ibm.com>
+ <Yh+Qw6Pb+Cd9JDNa@smile.fi.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220223164420.45344-1-andriy.shevchenko@linux.intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+In-Reply-To: <Yh+Qw6Pb+Cd9JDNa@smile.fi.intel.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Feb 23, 2022 at 06:44:20PM +0200, Andy Shevchenko wrote:
-> While in this particular case it would not be a (critical) issue,
-> the pattern itself is bad and error prone in case somebody blindly
-> copies to their code.
+On Wed, Mar 02, 2022 at 05:44:03PM +0200, Andy Shevchenko wrote:
+> On Thu, Feb 24, 2022 at 01:10:34PM +0100, Michael Mueller wrote:
+> > On 24.02.22 12:36, Claudio Imbrenda wrote:
 > 
-> Don't cast parameter to unsigned long pointer in the bit operations.
-> Instead copy to a local variable on stack of a proper type and use.
+> ...
+> 
+> > we do that at several places
+> 
+> Thanks for pointing out.
+> 
+> > arch/s390/kernel/processor.c:	for_each_set_bit_inv(bit, (long
+> > *)&stfle_fac_list, MAX_FACILITY_BIT)
+> 
+> This one requires a separate change, not related to this patch.
+> 
+> > arch/s390/kvm/interrupt.c:	set_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long
+> > *) gisa);
+> 
+> This is done in the patch. Not sure how it appears in your list.
+> 
+> > arch/s390/kvm/kvm-s390.c:		set_bit_inv(vcpu->vcpu_id, (unsigned long *)
+> > sca->mcn);
+> > arch/s390/kvm/kvm-s390.c:		set_bit_inv(vcpu->vcpu_id, (unsigned long *)
+> > &sca->mcn);
+> 
+> These two should be fixed in a separate change.
+> 
+> Also this kind of stuff:
+> 
+> 	bitmap_copy(kvm->arch.cpu_feat, (unsigned long *) data.feat,
+> 	            KVM_S390_VM_CPU_FEAT_NR_BITS);
+> 
+> might require a new API like
+> 
+> bitmap_from_u64_array()
+> bitmap_to_u64_array()
+> 
+> Yury?
 
-After looking into other similar cases I may conclude they
-- need to be fixed
-- out of scope of this change
-
-Hence, can this fix be applied?
-
--- 
-With Best Regards,
-Andy Shevchenko
-
-
+If BE32 is still the case then yes.
