@@ -2,89 +2,100 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2E69C433FE
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Mar 2022 13:45:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EEE9C433F5
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Mar 2022 14:11:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242329AbiCBNqH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Mar 2022 08:46:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51016 "EHLO
+        id S235330AbiCBOLz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Mar 2022 09:11:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236210AbiCBNqH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Mar 2022 08:46:07 -0500
-Received: from angie.orcam.me.uk (angie.orcam.me.uk [78.133.224.34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E6D625C84A;
-        Wed,  2 Mar 2022 05:45:23 -0800 (PST)
-Received: by angie.orcam.me.uk (Postfix, from userid 500)
-        id 6DD9192009C; Wed,  2 Mar 2022 14:45:22 +0100 (CET)
-Received: from localhost (localhost [127.0.0.1])
-        by angie.orcam.me.uk (Postfix) with ESMTP id 6929692009B;
-        Wed,  2 Mar 2022 13:45:22 +0000 (GMT)
-Date:   Wed, 2 Mar 2022 13:45:22 +0000 (GMT)
-From:   "Maciej W. Rozycki" <macro@orcam.me.uk>
-To:     Icenowy Zheng <icenowy@aosc.io>
-cc:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Jeff Dike <jdike@addtoit.com>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] parport_pc: Also enable driver for PCI systems
-In-Reply-To: <8e799cadb1104714f998fe74e40b3cb052c9c1ed.camel@aosc.io>
-Message-ID: <alpine.DEB.2.21.2203021337430.58475@angie.orcam.me.uk>
-References: <alpine.DEB.2.21.2202141955550.34636@angie.orcam.me.uk> <8e799cadb1104714f998fe74e40b3cb052c9c1ed.camel@aosc.io>
-User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
+        with ESMTP id S241670AbiCBOLz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Mar 2022 09:11:55 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 464DC89CC2;
+        Wed,  2 Mar 2022 06:11:00 -0800 (PST)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 222CO7u4010978;
+        Wed, 2 Mar 2022 14:10:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : reply-to : subject : to : cc : references : from :
+ in-reply-to : content-type : content-transfer-encoding; s=pp1;
+ bh=8nwZjKbGsA01hndn3erwFvpVFCQkET2EruMAUiO8drk=;
+ b=QoliAwyYG5VNgmPd98Ph8MjHIlKjsEbd+Tv0Y3FUdqRaQDLTEcSg6tmG5LBtB96na9lZ
+ SkrNXh+GDGqYmj4amq3wpDIYTm7y30b3GTd0Z7byeKBB1xJWkpY7Kj6bDO/AVHxQvacN
+ 7cLW0IktgXxy67EPYEutnVS/+xxY7WB2MY1YXrUQs+Wi8AR3YUO0zCUbkDVQNKHCIJ5m
+ I8k1gRTlj5l0iCbfqNoJ37jPEf2sKZf309i+h0X/Hy580jMHQICgc0KJ1zI/y4QbaS2x
+ 7eAZwl64I7Hxmj/Bx0810XsbTQTdBgC4B8hAs4D/uuWWUvUERG1MnOaXDq7lvLe9c9pz 1Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ej8hxt7vx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 02 Mar 2022 14:10:34 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 222D0Gca005590;
+        Wed, 2 Mar 2022 14:10:34 GMT
+Received: from ppma01wdc.us.ibm.com (fd.55.37a9.ip4.static.sl-reverse.com [169.55.85.253])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ej8hxt7vb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 02 Mar 2022 14:10:33 +0000
+Received: from pps.filterd (ppma01wdc.us.ibm.com [127.0.0.1])
+        by ppma01wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 222E2X8x003331;
+        Wed, 2 Mar 2022 14:10:32 GMT
+Received: from b01cxnp23034.gho.pok.ibm.com (b01cxnp23034.gho.pok.ibm.com [9.57.198.29])
+        by ppma01wdc.us.ibm.com with ESMTP id 3efbu9vy4y-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 02 Mar 2022 14:10:32 +0000
+Received: from b01ledav002.gho.pok.ibm.com (b01ledav002.gho.pok.ibm.com [9.57.199.107])
+        by b01cxnp23034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 222EAVrJ52494808
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 2 Mar 2022 14:10:31 GMT
+Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 474F312405E;
+        Wed,  2 Mar 2022 14:10:31 +0000 (GMT)
+Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E946A124066;
+        Wed,  2 Mar 2022 14:10:29 +0000 (GMT)
+Received: from [9.65.246.177] (unknown [9.65.246.177])
+        by b01ledav002.gho.pok.ibm.com (Postfix) with ESMTP;
+        Wed,  2 Mar 2022 14:10:29 +0000 (GMT)
+Message-ID: <bc46e89f-c446-d4a5-e067-8b280d16d09a@linux.ibm.com>
+Date:   Wed, 2 Mar 2022 09:10:29 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.0
+Reply-To: jjherne@linux.ibm.com
+Subject: Re: [PATCH v18 00/17] s390/vfio-ap: dynamic configuration support
+Content-Language: en-US
+To:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc:     freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
+        mjrosato@linux.ibm.com, pasic@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        fiuczy@linux.ibm.com
+References: <20220215005040.52697-1-akrowiak@linux.ibm.com>
+ <97f95ab8-3613-1552-51fa-74f69a431bcc@linux.ibm.com>
+From:   "Jason J. Herne" <jjherne@linux.ibm.com>
+Organization: IBM
+In-Reply-To: <97f95ab8-3613-1552-51fa-74f69a431bcc@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: zVD4B5dxHADiv8INipgNUs4AiXkoP5i1
+X-Proofpoint-GUID: WbeNtJrKJqITS5L3jOiNEAZRHxCpq-WH
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-03-02_06,2022-02-26_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ adultscore=0 clxscore=1011 mlxscore=0 bulkscore=0 spamscore=0
+ impostorscore=0 mlxlogscore=976 suspectscore=0 phishscore=0 malwarescore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2203020061
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 2 Mar 2022, Icenowy Zheng wrote:
+On 2/28/22 10:53, Tony Krowiak wrote:
+> PING!! Any takers?
+I'm taking a look, starting where I left off on v17, patch #7.
 
-> > The only PCI platforms that actually can't make use of PC-style
-> > parallel 
-> > port hardware are those newer PCIe systems that have no support for
-> > I/O 
-> > cycles in the host bridge, required by such parallel ports.  Notably,
-> > this includes the s390 arch, which has port I/O accessors that cause 
-> > compilation warnings (promoted to errors with `-Werror'), and there
-> > are 
-> > other cases such as the POWER9 PHB4 device, though this one has
-> > variable 
-> > port I/O accessors that depend on the particular system.  Also it is
-> > not 
-> > clear whether the serial port side of devices enabled by
-> > PARPORT_SERIAL 
-> > uses port I/O or MMIO.  Finally Super I/O solutions are always either
-> > ISA or platform devices.
-> 
-> Just spot this patch in linux-riscv mailing list, I think there's a
-> pending patchset that tries to add a HAS_IOPORT Kconfig option, which
-> can be used in this situation.
-
- Thanks for your input.
-
- That has been actually discussed already with a conclusion that more work 
-is required to have HAS_IOPORT supported, see the thread starting from: 
-<https://lore.kernel.org/lkml/CAMuHMdW-utcFzCZTgqONjxs=U662nF0=aBQu7Zi7FBQouwiA3g@mail.gmail.com/>. 
-(there's a reference to the HAS_IOPORT patchset there as well).  Once that 
-has been sorted configuration conditions for the parport driver can be 
-updated accordingly.  For the time being the !S390 qualification should 
-do.
-
-  Maciej
+-- 
+-- Jason J. Herne (jjherne@linux.ibm.com)
