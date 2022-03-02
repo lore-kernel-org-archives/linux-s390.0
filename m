@@ -2,106 +2,91 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 21ED3C4321E
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Mar 2022 11:20:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98990C433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Mar 2022 11:44:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241502AbiCBLUw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Mar 2022 06:20:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42220 "EHLO
+        id S233852AbiCBLpH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Mar 2022 06:45:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241529AbiCBLUm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Mar 2022 06:20:42 -0500
-Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E146645F;
-        Wed,  2 Mar 2022 03:19:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=I1/BTw8u15H3AVnQDepPulkDIkTQG/EDO8JslQ2y518=; b=yzUOmQTC9SehCgZYgd4h+Ey12C
-        IF3SwMxqhKSw9mftTnudCgM/6vhgVjqN1K54lqRScHZdWomhMSw8gc4Q17z82/t4ePZPTadPDNBW0
-        RAYoi7RTG5lEPYnuj/W83EiMnjCPrblb+04/X34ls5AXk4/1qSt0tzJPYiQCOWZ8wtXGi6o/0W54C
-        JYouMTieLlNBty6aTd82+iHFYVBl998jCqSMezXTJKHViIkOZV4L90kAOBr7Bjp+j1Cc20Fo3g2xF
-        ZHXM5LboaCYqutYgpLpdk+j1UVvj2hjc2fYOc6snFpF3IOhlr7vydYbVzzsl941esiWGhbWsi5Amp
-        qfJLh3Qg==;
-Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:57592)
-        by pandora.armlinux.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <linux@armlinux.org.uk>)
-        id 1nPN0v-0002K5-5r; Wed, 02 Mar 2022 11:19:25 +0000
-Received: from linux by shell.armlinux.org.uk with local (Exim 4.94.2)
-        (envelope-from <linux@shell.armlinux.org.uk>)
-        id 1nPN0s-00085f-7p; Wed, 02 Mar 2022 11:19:22 +0000
-Date:   Wed, 2 Mar 2022 11:19:22 +0000
-From:   "Russell King (Oracle)" <linux@armlinux.org.uk>
-To:     Anshuman Khandual <anshuman.khandual@arm.com>
-Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
-        "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
-        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
-        "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>,
-        "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        "linux-snps-arc@lists.infradead.org" 
-        <linux-snps-arc@lists.infradead.org>,
-        "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "linux-um@lists.infradead.org" <linux-um@lists.infradead.org>,
-        "linux-m68k@lists.linux-m68k.org" <linux-m68k@lists.linux-m68k.org>,
-        "openrisc@lists.librecores.org" <openrisc@lists.librecores.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>,
-        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>
-Subject: Re: [PATCH V3 09/30] arm/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
-Message-ID: <Yh9SuiayqcDdIB3B@shell.armlinux.org.uk>
-References: <1646045273-9343-10-git-send-email-anshuman.khandual@arm.com>
- <Yhyqjo/4bozJB6j5@shell.armlinux.org.uk>
- <542fa048-131e-240b-cc3a-fd4fff7ce4ba@arm.com>
- <Yh1pYAOiskEQes3p@shell.armlinux.org.uk>
- <dc3c95a4-de06-9889-ce1e-f660fc9fbb95@csgroup.eu>
- <c3b60de0-38cd-160a-aa15-831349e07e23@arm.com>
- <52866c88-59f9-2d1c-6f5a-5afcaf23f2bb@csgroup.eu>
- <9caa90f5-c10d-75dd-b403-1388b7a3d296@arm.com>
- <CAMuHMdU11kaOzanhHZRH+mLTJzaz-i=PnKdK7NF9V-qx6kp8wg@mail.gmail.com>
- <b1eca2cd-36e6-3a9a-9fe7-70fc0caed7a9@arm.com>
+        with ESMTP id S235218AbiCBLpE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Mar 2022 06:45:04 -0500
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 611DA6551;
+        Wed,  2 Mar 2022 03:44:19 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04357;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0V62Zmsp_1646221456;
+Received: from 30.225.28.138(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0V62Zmsp_1646221456)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Wed, 02 Mar 2022 19:44:17 +0800
+Message-ID: <cc0678b3-304c-0841-db15-ffb2117b63f6@linux.alibaba.com>
+Date:   Wed, 2 Mar 2022 19:44:15 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b1eca2cd-36e6-3a9a-9fe7-70fc0caed7a9@arm.com>
-Sender: Russell King (Oracle) <linux@armlinux.org.uk>
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.5.1
+Subject: Re: [PATCH net] net/smc: fix unexpected SMC_CLC_DECL_ERR_REGRMB error
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+To:     kgraul@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <1646140644-121649-1-git-send-email-alibuda@linux.alibaba.com>
+In-Reply-To: <1646140644-121649-1-git-send-email-alibuda@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Mar 02, 2022 at 04:36:52PM +0530, Anshuman Khandual wrote:
-> On 3/2/22 3:35 PM, Geert Uytterhoeven wrote:
-> > I doubt the switch() variant would give better code on any platform.
-> > 
-> > What about using tables everywhere, using designated initializers
-> > to improve readability?
+
+
+在 2022/3/1 下午9:17, D. Wythe 写道:
+> From: "D. Wythe" <alibuda@linux.alibaba.com>
 > 
-> Designated initializers ? Could you please be more specific. A table look
-> up on arm platform would be something like this and arm_protection_map[]
-> needs to be updated with user_pgprot like before.
+> Remove connections from link group is not synchronous with handling
+> SMC_LLC_DELETE_RKEY, which means that even the number of connections is
+> less that SMC_RMBS_PER_LGR_MAX, it does not mean that the connection can
+> register rtoken successfully later, in other words, the rtoken entry may
+> have not been released. This will cause an unexpected
+> SMC_CLC_DECL_ERR_REGRMB to be reported, and then ths smc connection have
+> to fallback to TCP.
+> 
+> We found that the main reason for the problem dues to following execution
+> sequence:
+> 
+> Server Conn A:           Server Conn B:			Client Conn B:
+> 
+> smc_lgr_unregister_conn
+>                          smc_lgr_register_conn
+>                          smc_clc_send_accept     ->
+>                                                          smc_rtoken_add
+> smcr_buf_unuse
+> 		->		Client Conn A:
+> 				smc_rtoken_delete
+> 
+> smc_lgr_unregister_conn() makes current link available to assigned to new
+> incoming connection, while smcr_buf_unuse() has not executed yet, which
+> means that smc_rtoken_add may fail because of insufficient rtoken_entry,
+> reversing their execution order will avoid this problem.
+> 
+> Fixes: 3e034725c0d8 ("net/smc: common functions for RMBs and send buffers")
+> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+> ---
+>   net/smc/smc_core.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+> index 2f321d2..c9c3a68 100644
+> --- a/net/smc/smc_core.c
+> +++ b/net/smc/smc_core.c
+> @@ -1161,8 +1161,8 @@ void smc_conn_free(struct smc_connection *conn)
+>   			cancel_work_sync(&conn->abort_work);
+>   	}
+>   	if (!list_empty(&lgr->list)) {
+> -		smc_lgr_unregister_conn(conn);
+>   		smc_buf_unuse(conn, lgr); /* allow buffer reuse */
+> +		smc_lgr_unregister_conn(conn);
+>   	}
+>   
+>   	if (!lgr->conns_num)
 
-There is *absolutely* nothing wrong with that. Updating it once during
-boot is way more efficient than having to compute the value each time
-vm_get_page_prot() gets called.
-
-Thanks.
-
--- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
+I have two patch for this issue, and i missed one, I'll post it in v2 
+series.
