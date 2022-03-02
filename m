@@ -2,109 +2,129 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C80B6C433FE
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Mar 2022 18:12:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E7217C433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Mar 2022 18:43:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244464AbiCBSNa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Mar 2022 13:13:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34536 "EHLO
+        id S244672AbiCBSol (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Mar 2022 13:44:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244511AbiCBSMu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Mar 2022 13:12:50 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F3A8D225B;
-        Wed,  2 Mar 2022 10:12:00 -0800 (PST)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 222HO6rI020113;
-        Wed, 2 Mar 2022 18:12:00 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=2oWzQ/SNcNYt0kngd9Dogpe/jWJDppi3iZBxylArBcE=;
- b=OnWscXbstlX5XKe4bHw5NTN9SoUkbl0yJr5qlt5VoNTinmRYB5z9YQOXbvzf7PDUIeni
- hU2Mx8iH1iadodDyqs5zwRvphyNdbkcQfjknoe5XqfA+jy/Sg1Izn8gRPYQqoHMkhsAb
- /m8kdFzAV39wtlPxB12P7x9jowtgCmadvmxs75YWNsutjoWjwP2ci4OJOg4WDAYQcFCz
- E9V0nht8CaCopfDDKXS/BcfhQeEHsWNKZrZcE/VZeIwOVZj4QqnsuwBUQ8+8H+XnF+BI
- Dx7uxTtR8XvhVZ3oAxFj3fFOQQdrpFkVABtKoGdpMh/SNuy/DlfFADbzWfJp9Fo9qp1u Pg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ejcxk0xdr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Mar 2022 18:11:59 +0000
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 222I8tL3014674;
-        Wed, 2 Mar 2022 18:11:59 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ejcxk0xcy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Mar 2022 18:11:59 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 222I93FF022211;
-        Wed, 2 Mar 2022 18:11:56 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 3efbfjqm30-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Mar 2022 18:11:56 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 222IBsIL45744416
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 2 Mar 2022 18:11:54 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E833A5204E;
-        Wed,  2 Mar 2022 18:11:53 +0000 (GMT)
-Received: from p-imbrenda.ibmuc.com (unknown [9.145.5.37])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 6320052051;
-        Wed,  2 Mar 2022 18:11:53 +0000 (GMT)
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     kvm@vger.kernel.org
-Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, thuth@redhat.com,
-        pasic@linux.ibm.com, david@redhat.com, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, scgl@linux.ibm.com,
-        mimu@linux.ibm.com, nrb@linux.ibm.com
-Subject: [PATCH v8 17/17] KVM: s390: pv: avoid export before import if possible
-Date:   Wed,  2 Mar 2022 19:11:43 +0100
-Message-Id: <20220302181143.188283-18-imbrenda@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220302181143.188283-1-imbrenda@linux.ibm.com>
-References: <20220302181143.188283-1-imbrenda@linux.ibm.com>
+        with ESMTP id S244671AbiCBSok (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Mar 2022 13:44:40 -0500
+Received: from mail-oo1-xc29.google.com (mail-oo1-xc29.google.com [IPv6:2607:f8b0:4864:20::c29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27ADBCA32D;
+        Wed,  2 Mar 2022 10:43:57 -0800 (PST)
+Received: by mail-oo1-xc29.google.com with SMTP id h16-20020a4a6f10000000b00320507b9ccfso2933907ooc.7;
+        Wed, 02 Mar 2022 10:43:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=j+vTUnqa/aRGGzxIeIJpG4vQ+aqSIVjVhl8/XU2n+jM=;
+        b=OexBrWql6KhyoHbRnx1JJYuKhZooJGTYyKVe9d05H5ttAdABxcVqk+FAhysK4OtxBQ
+         BorE52DogDAk892/I8uPzm7ZB9MZ+4hcvfieKqkIQAh9P1fbfg4y9dDoR0c+ZdOuR3l6
+         2YHEcUlUTNtIJj1x0Inplt63WqfK+Bqb5NdTAl8l8noyMnzolx3YhyjX0e5fcAUTeWka
+         S4hlMQl9qfS31CjHvtDJzFbDk3kn6NaPQodr5m+EAT3YlxhE/dPURFbUCBkx58NOgVXU
+         rdf/L//dY83bpmVw5UMaBtMYiS5qIu4Dxcq0nOqiAEatvQofbZsjtDxqUOZrcRzAwjxA
+         N0bg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=j+vTUnqa/aRGGzxIeIJpG4vQ+aqSIVjVhl8/XU2n+jM=;
+        b=RWoU4YKfatB+YHNnEVtqDuSLG7ip1mvCR1rWm/WEInaPG1lM/hk/WnuYrqt8rpsEK2
+         Qwp9jqtOmcBeqXb6CeH2hY58nTXg/gFaEd1DvGC5mVs9eTMdiD+HyBG99KWCS4Ma11Im
+         3+1XdwXrVras9TqSM9J8L25PyjEDfR/fsD3a1CGv+uKV28obm1pvDXtVd8MvgGYCPn0n
+         9cE7qMdelDQJeW2xxu61P0ZjxizgKuX71no+DtI0AdntVyEnKAfm2RIko0LWzlVUnZML
+         p5iVZShLKLN06BgQygAHItH5zHeQ598rutY6kZCdUARCibTZN9J64Vu05WN+n0oTMb9G
+         H9Ew==
+X-Gm-Message-State: AOAM533zXK2OatK93BxQmSjqf2rWEXaHEIS7cSPvNZI+AB6eJOxTpi98
+        XR8vzjGkBg67er294FNhBtbrd1Jhw+E=
+X-Google-Smtp-Source: ABdhPJxiCFyZpaoI0/WSk3IJBfoGPt4Z1fSH5s8EhHar/UtvfabhTR7cBRrQfqDn+Jqe0iOOwX6eQw==
+X-Received: by 2002:a05:6870:a919:b0:d5:7a09:1e88 with SMTP id eq25-20020a056870a91900b000d57a091e88mr948969oab.112.1646246636422;
+        Wed, 02 Mar 2022 10:43:56 -0800 (PST)
+Received: from localhost ([98.200.8.69])
+        by smtp.gmail.com with ESMTPSA id fo25-20020a0568709a1900b000d441d5fdc5sm7846884oab.9.2022.03.02.10.43.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 02 Mar 2022 10:43:55 -0800 (PST)
+Date:   Wed, 2 Mar 2022 10:43:54 -0800
+From:   Yury Norov <yury.norov@gmail.com>
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     Michael Mueller <mimu@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>
+Subject: Re: [PATCH v1 1/1] KVM: s390: Don't cast parameter in bit operations
+Message-ID: <Yh+66v3OJZanfBLb@yury-laptop>
+References: <20220223164420.45344-1-andriy.shevchenko@linux.intel.com>
+ <20220224123620.57fd6c8b@p-imbrenda>
+ <3640a910-60fe-0935-4dfc-55bb65a75ce5@linux.ibm.com>
+ <Yh+Qw6Pb+Cd9JDNa@smile.fi.intel.com>
+ <Yh+m65BSfQgaDFwi@yury-laptop>
+ <Yh+qDhd6FL9nlQdD@smile.fi.intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: buCHCtvf1vPpKGfDQEQC_lUJEPcqKI88
-X-Proofpoint-GUID: KPTqv4hWi-EGYWVeDa1rvvCxZGZkwFK0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-02_12,2022-02-26_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 bulkscore=0
- mlxlogscore=999 suspectscore=0 clxscore=1015 priorityscore=1501
- phishscore=0 adultscore=0 malwarescore=0 lowpriorityscore=0 mlxscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2203020078
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Yh+qDhd6FL9nlQdD@smile.fi.intel.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-If the appropriate UV feature bit is set, there is no need to perform
-an export before import.
+On Wed, Mar 02, 2022 at 07:31:58PM +0200, Andy Shevchenko wrote:
+> On Wed, Mar 02, 2022 at 09:18:35AM -0800, Yury Norov wrote:
+> > On Wed, Mar 02, 2022 at 05:44:03PM +0200, Andy Shevchenko wrote:
+> > > On Thu, Feb 24, 2022 at 01:10:34PM +0100, Michael Mueller wrote:
+> > > > On 24.02.22 12:36, Claudio Imbrenda wrote:
+> > > 
+> > > ...
+> > > 
+> > > > we do that at several places
+> > > 
+> > > Thanks for pointing out.
+> > > 
+> > > > arch/s390/kernel/processor.c:	for_each_set_bit_inv(bit, (long
+> > > > *)&stfle_fac_list, MAX_FACILITY_BIT)
+> > > 
+> > > This one requires a separate change, not related to this patch.
+> > > 
+> > > > arch/s390/kvm/interrupt.c:	set_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long
+> > > > *) gisa);
+> > > 
+> > > This is done in the patch. Not sure how it appears in your list.
+> > > 
+> > > > arch/s390/kvm/kvm-s390.c:		set_bit_inv(vcpu->vcpu_id, (unsigned long *)
+> > > > sca->mcn);
+> > > > arch/s390/kvm/kvm-s390.c:		set_bit_inv(vcpu->vcpu_id, (unsigned long *)
+> > > > &sca->mcn);
+> > > 
+> > > These two should be fixed in a separate change.
+> > > 
+> > > Also this kind of stuff:
+> > > 
+> > > 	bitmap_copy(kvm->arch.cpu_feat, (unsigned long *) data.feat,
+> > > 	            KVM_S390_VM_CPU_FEAT_NR_BITS);
+> > > 
+> > > might require a new API like
+> > > 
+> > > bitmap_from_u64_array()
+> > > bitmap_to_u64_array()
+> > > 
+> > > Yury?
+> > 
+> > If BE32 is still the case then yes.
+> 
+> The whole point is to get rid of the bad pattern, while it may still work
+> in the particular case.
 
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
----
- arch/s390/kernel/uv.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Then yes unconditionally. Is it already on table of s390 folks? If no,
+I can do it myself.
 
-diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-index e358b8bd864b..43393568f844 100644
---- a/arch/s390/kernel/uv.c
-+++ b/arch/s390/kernel/uv.c
-@@ -236,7 +236,8 @@ static int make_secure_pte(pte_t *ptep, unsigned long addr,
- 
- static bool should_export_before_import(struct uv_cb_header *uvcb, struct mm_struct *mm)
- {
--	return uvcb->cmd != UVC_CMD_UNPIN_PAGE_SHARED &&
-+	return !test_bit_inv(BIT_UV_FEAT_MISC, &uv_info.uv_feature_indications) &&
-+		uvcb->cmd != UVC_CMD_UNPIN_PAGE_SHARED &&
- 		atomic_read(&mm->context.protected_count) > 1;
- }
- 
--- 
-2.34.1
-
+We have bitmap_from_arr32 and bitmap_to_arr32, so for 64-bit versions,
+we'd start from that.
