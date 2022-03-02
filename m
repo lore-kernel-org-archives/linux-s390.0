@@ -2,129 +2,128 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C32B2C433FE
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Mar 2022 10:46:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 13155C433F5
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Mar 2022 11:01:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234061AbiCBKrd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Mar 2022 05:47:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43512 "EHLO
+        id S241191AbiCBLCR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Mar 2022 06:02:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235248AbiCBKrc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Mar 2022 05:47:32 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DC9CBECD9;
-        Wed,  2 Mar 2022 02:46:49 -0800 (PST)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 2229rrsd007841;
-        Wed, 2 Mar 2022 10:46:47 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=R/c1L+XnDZeU+pqemOA1d/0xhmMdRl79pBFJwINA7Ug=;
- b=hp8phhNnrxPiX6zTkoOec+aEfuIurokLmT02O2qMiPl8Ziu70z6GyFKJNmZlJmV3v3X6
- WAQOssFql09Ou9V5BTsxzq6AsmqvXVgoqCKmSyNAzisWlYoK3vhWCOkRM6TxRFbraywm
- HibgvDw66vO8hsnf0p22TeXVyuai3nn1AIm8lDOnoasCAUs7N4Bx7X8T89MccLsV9TRG
- d6/phmHO0J5KkSGClzIHyCjn/HG3K91BJeJnPx/bEN8rg9Y3Kx3Wj58FTur1LTpYjYR5
- 5yACrPGG/BMqkhchcIJGYT3RH4ryFOyJrY05sMgVKn21UyimNOAXr7D2G2iPEyK1OTlz UQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ej6bt0yf4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Mar 2022 10:46:47 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 222AQI9M035647;
-        Wed, 2 Mar 2022 10:46:46 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ej6bt0yeg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Mar 2022 10:46:46 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 222AgdBD001503;
-        Wed, 2 Mar 2022 10:46:44 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03ams.nl.ibm.com with ESMTP id 3efbu9edbv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Mar 2022 10:46:44 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 222Akc7M52429234
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 2 Mar 2022 10:46:38 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BB2C9A404D;
-        Wed,  2 Mar 2022 10:46:38 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 56A92A4040;
-        Wed,  2 Mar 2022 10:46:38 +0000 (GMT)
-Received: from [9.145.41.193] (unknown [9.145.41.193])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed,  2 Mar 2022 10:46:38 +0000 (GMT)
-Message-ID: <3bf9c7c4-4475-ad12-d146-a97b33d1e4ba@linux.ibm.com>
-Date:   Wed, 2 Mar 2022 11:46:38 +0100
+        with ESMTP id S241178AbiCBLCL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Mar 2022 06:02:11 -0500
+Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F7316E554
+        for <linux-s390@vger.kernel.org>; Wed,  2 Mar 2022 03:01:28 -0800 (PST)
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com [209.85.208.70])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 384D93F5FB
+        for <linux-s390@vger.kernel.org>; Wed,  2 Mar 2022 11:01:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1646218884;
+        bh=Si9sQ7yLz6JK6Nen6lACTBVX2ecHMiwS0ByLXYRxjJA=;
+        h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+         In-Reply-To:Content-Type;
+        b=UvQfb4Fc7UYN94ZRM3XmGkSl3meiRwHAnbQ6471vmkzOb21aZAcYzRFJHEgJn4WMe
+         UxU5q2/8i+5BewU9zGyVvGK7dSOHbheBltQD8XwyiwL6svN2/LD082FEKdjvOwnqCA
+         mNqS+Ja4ioMcO0hKZCXfo8jA4yLipDL7X6hgVFx5KUs689vjWkTAX48CcfiOgL0z1w
+         6oNf+TWa5mb0h4dkc1V+mLUgItZWn6sW6cZXz5hD2fyAjV2qF1EFVvphatlWtPVTvo
+         1HpC+cN0z/vZjg3mofA96hWSelTnsj4l0+rwds6ZM11RuGLGJSMalz+QXodI1fc6GG
+         m9NNhO4IZAFTw==
+Received: by mail-ed1-f70.google.com with SMTP id j10-20020a05640211ca00b004090fd8a936so761780edw.23
+        for <linux-s390@vger.kernel.org>; Wed, 02 Mar 2022 03:01:24 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=Si9sQ7yLz6JK6Nen6lACTBVX2ecHMiwS0ByLXYRxjJA=;
+        b=GoUSBWRzLA0o1EBqWGPR7Cc9up6VLj3frbuYlj6U6CPahjFJ9JeZQnrU+D6Qm79ZH9
+         wJDSrYMQ1P7XTj6KFNZX5tR4z5LIH2i3+hqsZ2rG0/36kgglVHUeu0qxINPwlSduV/Bq
+         bCN1f99VSo90b907wXCfXPKT6kKF/GYlFLKeNZaAg5KqTMSVgdrhOI8p6qdWHJNN9lDY
+         t0k8Ev8PTfSqb9ljSfM46jFjm4ideoTTHHnmHDrvICtbLOsbbcf8zICopogyNY/ibR7b
+         QHsc0iWiEJpt+BCAHGMXOdX2YjTZEZVG6zs0B6huJJYg412ZMDZKqkmtkj/OvOKhabUk
+         9URQ==
+X-Gm-Message-State: AOAM531/U2/S/QH82ffTDyksei5WCxkd5Uz3yPeo7O7JmcO2S9k3FTvx
+        H/mt20ApnigmrdZ8Dfv522A+qkkBrzIB+poXn43Vi78Fnt+DjO+E3XbW4LbgNbZgxyrIGwWAbsI
+        OSA98TT5v6E9q9WI6KxTlk+tHEQduc4P4Pqxk168=
+X-Received: by 2002:a05:6402:369a:b0:413:81b5:7b64 with SMTP id ej26-20020a056402369a00b0041381b57b64mr22935769edb.163.1646218881639;
+        Wed, 02 Mar 2022 03:01:21 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwaXIpVKlG8abGyix74I9rTqmFoJz7zygw3QnLROE8hwqkRWj9/wBCxZT5ACGsypW51MBpi7Q==
+X-Received: by 2002:a05:6402:369a:b0:413:81b5:7b64 with SMTP id ej26-20020a056402369a00b0041381b57b64mr22935729edb.163.1646218881424;
+        Wed, 02 Mar 2022 03:01:21 -0800 (PST)
+Received: from [192.168.0.136] (xdsl-188-155-181-108.adslplus.ch. [188.155.181.108])
+        by smtp.gmail.com with ESMTPSA id et3-20020a170907294300b006d6534ef273sm5617821ejc.156.2022.03.02.03.01.19
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 02 Mar 2022 03:01:20 -0800 (PST)
+Message-ID: <22099da9-fad0-a5fb-f45a-484635ca485f@canonical.com>
+Date:   Wed, 2 Mar 2022 12:01:19 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH v2 1/3] drivers/s390/char: Add Ultravisor io device
+ Thunderbird/91.5.0
+Subject: Re: [PATCH v3 06/11] s390: cio: Use driver_set_override() instead of
+ open-coding
 Content-Language: en-US
-To:     Janosch Frank <frankja@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
+To:     Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Stuart Yoder <stuyoder@gmail.com>,
+        Laurentiu Tudor <laurentiu.tudor@nxp.com>,
+        Abel Vesa <abel.vesa@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Shuah Khan <shuah@kernel.org>, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, linux-kselftest@vger.kernel.org
-References: <20220223144830.44039-1-seiden@linux.ibm.com>
- <20220223144830.44039-2-seiden@linux.ibm.com>
- <7058948f-5514-4f8f-c974-f1ac624d67c3@linux.ibm.com>
-From:   Steffen Eiden <seiden@linux.ibm.com>
-Organization: IBM
-In-Reply-To: <7058948f-5514-4f8f-c974-f1ac624d67c3@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: R4lSi8PuL08S3V5pOrTWqVLz_RM67ugJ
-X-Proofpoint-ORIG-GUID: W8UryUt5yXhPz5sBjhTtd8XoOKiTBPNf
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-02_01,2022-02-26_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 malwarescore=0
- priorityscore=1501 lowpriorityscore=0 bulkscore=0 phishscore=0
- mlxlogscore=999 impostorscore=0 spamscore=0 mlxscore=0 adultscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2203020043
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Andy Gross <agross@kernel.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-clk@vger.kernel.org, NXP Linux Team <linux-imx@nxp.com>,
+        linux-arm-kernel@lists.infradead.org, linux-hyperv@vger.kernel.org,
+        linux-pci@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        alsa-devel@alsa-project.org, linux-spi@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Rasmus Villemoes <linux@rasmusvillemoes.dk>
+References: <20220227135214.145599-1-krzysztof.kozlowski@canonical.com>
+ <20220227135214.145599-7-krzysztof.kozlowski@canonical.com>
+ <b2295eba-722a-67e2-baae-20dac9d72625@linux.ibm.com>
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+In-Reply-To: <b2295eba-722a-67e2-baae-20dac9d72625@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 3/2/22 11:34, Janosch Frank wrote:
-> On 2/23/22 15:48, Steffen Eiden wrote:
->> This patch adds a new miscdevice to expose some Ultravisor functions
->> to userspace. Userspace can send IOCTLs to the uvdevice that will then
->> emit a corresponding Ultravisor Call and hands the result over to
->> userspace. The uvdevice is available if the Ultravisor Call facility is
->> present.
->>
->> Userspace is now able to call the Query Ultravisor Information
->> Ultravisor Command through the uvdevice.
->>
->> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
->> ---
-[...]
->> +
->> +config S390_UV_UAPI
->> +    def_tristate y
->> +    prompt "Ultravisor userspace API"
->> +    depends on PROTECTED_VIRTUALIZATION_GUEST
+On 01/03/2022 17:01, Vineeth Vijayan wrote:
 > 
-> Please drop the dependency.
-> We want this to be available to both guest and host as QUI is available 
-> in both environments and more calls like this could follow.
+> On 2/27/22 14:52, Krzysztof Kozlowski wrote:
+>> Use a helper for seting driver_override to reduce amount of duplicated
+>> code. Make the driver_override field const char, because it is not
+>> modified by the core and it matches other subsystems.
+> s/seting/setting/
 > 
-> We could put an option around the attestation but the savings are not 
-> worth the effort.
+> Also could you please change the title to start with "s390/cio:"
+> instead of "s390 : cio"
+> 
 
-Makes sense. I will drop the dependency in v3.
+Sure, thanks for review!
 
-Steffen
+
+Best regards,
+Krzysztof
