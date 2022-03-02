@@ -2,65 +2,113 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C833DC433F5
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Mar 2022 19:45:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C0C8C433F5
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Mar 2022 20:45:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235535AbiCBTpu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Mar 2022 14:45:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54390 "EHLO
+        id S239977AbiCBUqR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Mar 2022 15:46:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230189AbiCBTpt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Mar 2022 14:45:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA457CD334;
-        Wed,  2 Mar 2022 11:45:05 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 662C8616C6;
-        Wed,  2 Mar 2022 19:45:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 714A1C004E1;
-        Wed,  2 Mar 2022 19:45:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646250304;
-        bh=1W/G4/AiFxRCl9GMpz3PEUfvGAV1r8A7+I72k72aDdU=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=LOrsfp1lINN8sGYqwTHS57Iq/BOYxs/XVd2zbP7LBOSfsU1mJNtFAA9n6qlTYEG0y
-         oGWTkH0b2qhuIV8TwOkxmaoDgrdm6/6AkmRLjptS3ozzQ2P6sDQ21tVh2TB8XLZC2Y
-         wyMVl11P/V3IYIDiGpfqE0c8lxakFHzNiv9xNfRsxUb4dLf3vdhA2jcBuE77YrPjZZ
-         OjE/Qn6+Zzjfg+sy5cy3CIQBH31sjOjEm45Q1cx6AYf+uoup+A0jRjE1Junjtzsciw
-         X47z10hzkDGXDMzz+2r1KYyiDS0a6dVksYcBph7iC+qxuAM+aCQevhY5/ZJkcrLFlD
-         QOcSZzAtgjISw==
-Date:   Wed, 2 Mar 2022 11:45:03 -0800
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     kernel test robot <lkp@intel.com>
-Cc:     Dust Li <dust.li@linux.alibaba.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Tony Lu <tonylu@linux.alibaba.com>, davem@davemloft.net,
-        kbuild-all@lists.01.org, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: Re: [PATCH net-next] net/smc: fix compile warning for smc_sysctl
-Message-ID: <20220302114503.47d64a55@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
-In-Reply-To: <202203022234.AMB3WcyJ-lkp@intel.com>
-References: <20220302034312.31168-1-dust.li@linux.alibaba.com>
-        <202203022234.AMB3WcyJ-lkp@intel.com>
+        with ESMTP id S231127AbiCBUqQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Mar 2022 15:46:16 -0500
+Received: from mail-yb1-xb29.google.com (mail-yb1-xb29.google.com [IPv6:2607:f8b0:4864:20::b29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0780B38789;
+        Wed,  2 Mar 2022 12:45:33 -0800 (PST)
+Received: by mail-yb1-xb29.google.com with SMTP id f5so5861601ybg.9;
+        Wed, 02 Mar 2022 12:45:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Y6qqvHc/+bg7logl0Wqx5hN0gsT9pLtg+9GuBdEyV/s=;
+        b=N6mzMrvWJ3NnD3ZyiJjMdVcsCSd17WTZeB6K7pfo5O4CTlaCF/zVdybZv+jhlTrmxe
+         uPhSjCcemXAPPjSrv6Mt5HWt3iMD5ymv09MAlL+oTjIdHYCdg/0ssExCUuNBW85SJtyL
+         6OeZi79DSlqdlABdL8kngO2BoTutu+xJFXugejEjTOelpI2a+1M4P6YxOlDkDUJyF29p
+         PgdD7Ic+/VgjKaC6I7tmOHYd0tLr5EfPZX9OcETMEavgE8GzKwipHdx6ClJQBP2rXN9f
+         EGUY3EVA/3aCTBVmeMF2lzsoXWVLoxju/7BmHfIIowzLDvJ2L+u3IWbGBpTNizOgCwuq
+         xi8Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Y6qqvHc/+bg7logl0Wqx5hN0gsT9pLtg+9GuBdEyV/s=;
+        b=MqTU/7efOxboHWpzNtbPuUYy5P3UtEZkdXGobys3I+yE4NONEoIYDh2OMaAtgEXsto
+         0etjCrSBMc0cfPzYeUmqZVIFiPWatz6xYCBLAMVlSurHao+yl7p0kFLVCoG5iQuPz7Ir
+         oNnA7Jl4Odo0KYnHkXYXUVNC7AeamPH9BaJstB3x4ZJZ3tcikMFUvlkzcMIPFKzs7zYi
+         iax6xJPG9IgJCb1METWlCUbtyk8Cb0JQSKPm8+rcnPrPRx9pVMmMExlSCORysR5mmncl
+         evi/IKZurk3WxnGJCtChu8jqCRaIyPl30DgrD1wALp5wtH/LODB1QhepuGYVwPufVb8S
+         cs+g==
+X-Gm-Message-State: AOAM5302zMnxAGgWroUQhPc5HYFLcZAvoLm4RBOH7/RakyzxosXy/4eG
+        3uDEi+NsIXfD/Mx4CCUJfsXYgvL7wr8BtVJvGcg=
+X-Google-Smtp-Source: ABdhPJzRUMWLpsd+tQeqMe+lON1YrQZx9JkRO/Ga9/nynwkkheUILhBEVszCKkAbAE9UfTyjpoKk7tOUpMQSERi2HWM=
+X-Received: by 2002:a25:23d2:0:b0:628:771a:9d3 with SMTP id
+ j201-20020a2523d2000000b00628771a09d3mr10191498ybj.215.1646253932161; Wed, 02
+ Mar 2022 12:45:32 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+References: <alpine.DEB.2.21.2202141955550.34636@angie.orcam.me.uk>
+In-Reply-To: <alpine.DEB.2.21.2202141955550.34636@angie.orcam.me.uk>
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Date:   Wed, 2 Mar 2022 20:44:56 +0000
+Message-ID: <CADVatmP4sPwyqi6vKPm3QOFD=47w1LwXtsUynhecY4wMYGhXmw@mail.gmail.com>
+Subject: Re: [PATCH v2] parport_pc: Also enable driver for PCI systems
+To:     "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Jeff Dike <jdike@addtoit.com>,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Chris Zankel <chris@zankel.net>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 2 Mar 2022 23:02:23 +0800 kernel test robot wrote:
->    In file included from net/smc/smc_sysctl.c:18:
->    net/smc/smc_sysctl.h:23:19: note: previous definition of 'smc_sysctl_init' with type 'int(void)'
->       23 | static inline int smc_sysctl_init(void)
->          |                   ^~~~~~~~~~~~~~~
-> >> net/smc/smc_sysctl.c:78:1: warning: ignoring attribute 'noinline' because it conflicts with attribute 'gnu_inline' [-Wattributes]  
->       78 | {
->          | ^
+On Mon, Feb 14, 2022 at 8:16 PM Maciej W. Rozycki <macro@orcam.me.uk> wrote:
+>
+> Nowadays PC-style parallel ports come in the form of PCI and PCIe option
+> cards and there are some combined parallel/serial option cards as well
+> that we handle in the parport subsystem.  There is nothing in particular
+> that would prevent them from being used in any system equipped with PCI
+> or PCIe connectivity, except that we do not permit the PARPORT_PC config
+> option to be selected for platforms for which ARCH_MIGHT_HAVE_PC_PARPORT
+> has not been set for.
+>
+> The only PCI platforms that actually can't make use of PC-style parallel
+> port hardware are those newer PCIe systems that have no support for I/O
+> cycles in the host bridge, required by such parallel ports.  Notably,
+> this includes the s390 arch, which has port I/O accessors that cause
+> compilation warnings (promoted to errors with `-Werror'), and there are
+> other cases such as the POWER9 PHB4 device, though this one has variable
+> port I/O accessors that depend on the particular system.  Also it is not
+> clear whether the serial port side of devices enabled by PARPORT_SERIAL
+> uses port I/O or MMIO.  Finally Super I/O solutions are always either
+> ISA or platform devices.
+>
+> Make the PARPORT_PC option selectable also for PCI systems then, except
+> for the s390 arch, however limit the availability of PARPORT_PC_SUPERIO
+> to platforms that enable ARCH_MIGHT_HAVE_PC_PARPORT.  Update platforms
+> accordingly for the required <asm/parport.h> header.
+>
+> Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
 
-The __net_init / __net_exit attr has to go on the prototype as well.
+Acked-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 
-This doesn't look right, tho, why __net_* attrs?  You call those
-functions from the module init/exit. __net_ is for namespace code.
+Usually parport patches goes via Greg's tree. Adding Greg.
+
+-- 
+Regards
+Sudip
