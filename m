@@ -2,131 +2,127 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DB77BC43219
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Mar 2022 18:11:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 01F3CC433F5
+	for <linux-s390@archiver.kernel.org>; Wed,  2 Mar 2022 18:12:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231247AbiCBSMk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Mar 2022 13:12:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34220 "EHLO
+        id S244487AbiCBSMm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Mar 2022 13:12:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244461AbiCBSMj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Mar 2022 13:12:39 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D99ECEA3D;
-        Wed,  2 Mar 2022 10:11:54 -0800 (PST)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 222FnMZM003212;
+        with ESMTP id S244464AbiCBSMk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Mar 2022 13:12:40 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F210D2244;
+        Wed,  2 Mar 2022 10:11:55 -0800 (PST)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 222Hlcax031865;
         Wed, 2 Mar 2022 18:11:54 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=lagUF/hPFWZEQhSlZcnZFa4GuKJdxTR/1fBbKvob8I4=;
- b=SGnKnT4Hxkn4ue+x+dVvkR0weL9gd4SLHSEb3hMMl4St4NxsXHU1u+F9BR0O9m+iAGdR
- aztbjpod6dUvo0dGQIHGCJAbfGxY7S8v1vJBSdOcd4IEpDPtqho199gKyIQ8IJonYLo1
- fN8EKfhg5vg+1d94HUakAMi+qsjPXE621AjYzT2MY1rAZ9xnJYpDCHgZJDpKRRKY53TX
- vBxYak3E+CePPziBrQoFRlcYCtWfToHhwwSxBgKgALiBOT3w7afJcyzxmcxqKNDWIsOQ
- icOgeTQsQaS81uU8vzISEd3+EBJUCJkHNx1lxb7rJOQfJKowL02xfzUeSxwnzRRqaG5R Sw== 
+ bh=L+8PjHPMiq4AQHcRLajykYL0EPB3iNidhaOlepmKopc=;
+ b=VJuJ1bg+JaekwoSNMhMqqIa7m/0Tag8jYtELxtX8ZwBzEP1LmhES6JNHGSjWJ1q1x2on
+ VvXxKH4SXT+smTE9RdQ8DaDKYwOrHLlSonNWwreeCS0y+LTIg95+jmehwTZUIVk9im+n
+ 4hb5B6AcXwnCajwNPNU/1f6EZtMD1SlswJoleb3rzrbOrCt8f7ePdJB4I5Y+QVxTKx6Z
+ jS93cMyh1VUi/swSPHXS1IWiBSRU+bQLDF/M4m3L+Rz2smnV6ldlIfDJms3LtSJVeT38
+ lcSgFOWk2WnotjJXfH+O7aRvDWOnfZ+KQTp+BbxHKXht/WqVmY293GQ3Iv+t98DsldQt EQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ejbj4u0bp-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3ejd9wgg6x-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Mar 2022 18:11:53 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 222HwHhU006009;
-        Wed, 2 Mar 2022 18:11:53 GMT
+        Wed, 02 Mar 2022 18:11:54 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 222HvYiU009402;
+        Wed, 2 Mar 2022 18:11:54 GMT
 Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ejbj4u0as-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3ejd9wgg6a-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Wed, 02 Mar 2022 18:11:53 +0000
 Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 222I8qDb022892;
-        Wed, 2 Mar 2022 18:11:51 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma03fra.de.ibm.com with ESMTP id 3efbu9e1m9-1
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 222I8qDd022892;
+        Wed, 2 Mar 2022 18:11:52 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03fra.de.ibm.com with ESMTP id 3efbu9e1mc-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Mar 2022 18:11:50 +0000
+        Wed, 02 Mar 2022 18:11:52 +0000
 Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 222IBlYK46399772
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 222IBnV657213208
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 2 Mar 2022 18:11:47 GMT
+        Wed, 2 Mar 2022 18:11:49 GMT
 Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C867852054;
-        Wed,  2 Mar 2022 18:11:47 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id E8E945204E;
+        Wed,  2 Mar 2022 18:11:48 +0000 (GMT)
 Received: from p-imbrenda.ibmuc.com (unknown [9.145.5.37])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 4772652052;
-        Wed,  2 Mar 2022 18:11:47 +0000 (GMT)
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 6D66852054;
+        Wed,  2 Mar 2022 18:11:48 +0000 (GMT)
 From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
 To:     kvm@vger.kernel.org
 Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, thuth@redhat.com,
         pasic@linux.ibm.com, david@redhat.com, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, scgl@linux.ibm.com,
         mimu@linux.ibm.com, nrb@linux.ibm.com
-Subject: [PATCH v8 06/17] KVM: s390: pv: add export before import
-Date:   Wed,  2 Mar 2022 19:11:32 +0100
-Message-Id: <20220302181143.188283-7-imbrenda@linux.ibm.com>
+Subject: [PATCH v8 08/17] KVM: s390: pv: clear the state without memset
+Date:   Wed,  2 Mar 2022 19:11:34 +0100
+Message-Id: <20220302181143.188283-9-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220302181143.188283-1-imbrenda@linux.ibm.com>
 References: <20220302181143.188283-1-imbrenda@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: B3qqMftZfcT6-0t8alg4QwsT2zGL1zKE
-X-Proofpoint-GUID: xhNEDQNsRqs026-c7LO-nL97T060SG2v
+X-Proofpoint-ORIG-GUID: h73KnlUUAp0MTOLbmmSyWapsHUCHJp6T
+X-Proofpoint-GUID: 7H-NlKJhJwctHms70wtoVTwBEbDfijay
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-03-02_12,2022-02-26_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- priorityscore=1501 lowpriorityscore=0 spamscore=0 phishscore=0
- clxscore=1015 impostorscore=0 adultscore=0 mlxscore=0 malwarescore=0
- bulkscore=0 mlxlogscore=999 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2201110000 definitions=main-2203020078
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
+ priorityscore=1501 lowpriorityscore=0 spamscore=0 clxscore=1015
+ bulkscore=0 malwarescore=0 suspectscore=0 impostorscore=0 adultscore=0
+ mlxlogscore=810 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2203020078
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Due to upcoming changes, it will be possible to temporarily have
-multiple protected VMs in the same address space, although only one
-will be actually active.
+Do not use memset to clean the whole struct kvm_s390_pv; instead,
+explicitly clear the fields that need to be cleared.
 
-In that scenario, it is necessary to perform an export of every page
-that is to be imported, since the hardware does not allow a page
-belonging to a protected guest to be imported into a different
-protected guest.
-
-This also applies to pages that are shared, and thus accessible by the
-host.
+Upcoming patches will introduce new fields in the struct kvm_s390_pv
+that will not need to be cleared.
 
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- arch/s390/kernel/uv.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/s390/kvm/pv.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-index 2754471cc789..e358b8bd864b 100644
---- a/arch/s390/kernel/uv.c
-+++ b/arch/s390/kernel/uv.c
-@@ -234,6 +234,12 @@ static int make_secure_pte(pte_t *ptep, unsigned long addr,
- 	return uvcb->rc == 0x10a ? -ENXIO : -EINVAL;
- }
+diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+index 9e900ce7387d..76ef33a277d3 100644
+--- a/arch/s390/kvm/pv.c
++++ b/arch/s390/kvm/pv.c
+@@ -16,6 +16,14 @@
+ #include <linux/sched/mm.h>
+ #include "kvm-s390.h"
  
-+static bool should_export_before_import(struct uv_cb_header *uvcb, struct mm_struct *mm)
++static void kvm_s390_clear_pv_state(struct kvm *kvm)
 +{
-+	return uvcb->cmd != UVC_CMD_UNPIN_PAGE_SHARED &&
-+		atomic_read(&mm->context.protected_count) > 1;
++	kvm->arch.pv.handle = 0;
++	kvm->arch.pv.guest_len = 0;
++	kvm->arch.pv.stor_base = 0;
++	kvm->arch.pv.stor_var = NULL;
 +}
 +
- /*
-  * Requests the Ultravisor to make a page accessible to a guest.
-  * If it's brought in the first time, it will be cleared. If
-@@ -277,6 +283,8 @@ int gmap_make_secure(struct gmap *gmap, unsigned long gaddr, void *uvcb)
+ int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc)
+ {
+ 	int cc;
+@@ -110,7 +118,7 @@ static void kvm_s390_pv_dealloc_vm(struct kvm *kvm)
+ 	vfree(kvm->arch.pv.stor_var);
+ 	free_pages(kvm->arch.pv.stor_base,
+ 		   get_order(uv_info.guest_base_stor_len));
+-	memset(&kvm->arch.pv, 0, sizeof(kvm->arch.pv));
++	kvm_s390_clear_pv_state(kvm);
+ }
  
- 	lock_page(page);
- 	ptep = get_locked_pte(gmap->mm, uaddr, &ptelock);
-+	if (should_export_before_import(uvcb, gmap->mm))
-+		uv_convert_from_secure(page_to_phys(page));
- 	rc = make_secure_pte(ptep, uaddr, page, uvcb);
- 	pte_unmap_unlock(ptep, ptelock);
- 	unlock_page(page);
+ static int kvm_s390_pv_alloc_vm(struct kvm *kvm)
 -- 
 2.34.1
 
