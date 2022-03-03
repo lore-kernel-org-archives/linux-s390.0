@@ -2,183 +2,191 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E59ECC433EF
-	for <linux-s390@archiver.kernel.org>; Thu,  3 Mar 2022 15:06:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CD71C43219
+	for <linux-s390@archiver.kernel.org>; Thu,  3 Mar 2022 15:29:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233095AbiCCPGq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 3 Mar 2022 10:06:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47678 "EHLO
+        id S234406AbiCCP3t (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 3 Mar 2022 10:29:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232659AbiCCPGp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Mar 2022 10:06:45 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AFFF1903E8;
-        Thu,  3 Mar 2022 07:05:59 -0800 (PST)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 223DraAF023446;
-        Thu, 3 Mar 2022 15:05:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=2lJB5IciALVLGT3XMIlnYZtf1pXTz5WbRx1MT3ce5yc=;
- b=BGvzShiW6XK454YunH6FAn/mduYRS0GKAkdWyRlb6rKcuGtwK31CbTiOXi/8oQRfR1iL
- qUvgPryZLe1UCeiZBTMddxV30S83lwJKLM9Dm9r2xsBrfRTR7J2kCpSmpGsbfHOcUeAM
- 3uaeb1qQT4EQeB9a3kaNvRbWtKSmlZh3xAvmBV49oK9vQaLniM9USj3756wxkNTnZlrZ
- aWDEDLkgC2vIx3PczFOcs6zF4jhv1sk+Ye/FCO3OOMpxFHOxXH9ec7Y6P2dlNZIesY9+
- Nq76ZVRmzSh8eFSUBC6yQ9O82sTWDwaxq7qmSDbN6qXfz1ZyFHFsMVqn2BFjHxdAV8/w bw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3ejvpqmmx5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 03 Mar 2022 15:05:58 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 223DwEYr021826;
-        Thu, 3 Mar 2022 15:05:57 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3ejvpqmmw9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 03 Mar 2022 15:05:57 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 223Evh8k027060;
-        Thu, 3 Mar 2022 15:05:55 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 3egbj1dfg9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 03 Mar 2022 15:05:55 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 223F5pB350069972
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 3 Mar 2022 15:05:51 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2E39811C04C;
-        Thu,  3 Mar 2022 15:05:51 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9E1BF11C04A;
-        Thu,  3 Mar 2022 15:05:50 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.145.6.81])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu,  3 Mar 2022 15:05:50 +0000 (GMT)
-Date:   Thu, 3 Mar 2022 16:05:47 +0100
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com,
-        thuth@redhat.com, pasic@linux.ibm.com, david@redhat.com,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        mimu@linux.ibm.com, nrb@linux.ibm.com
-Subject: Re: [PATCH v8 01/17] KVM: s390: pv: leak the topmost page table
- when destroy fails
-Message-ID: <20220303160547.391db6d9@p-imbrenda>
-In-Reply-To: <ff7291c0-e762-9fe9-4181-e62125bf2f59@linux.ibm.com>
-References: <20220302181143.188283-1-imbrenda@linux.ibm.com>
-        <20220302181143.188283-2-imbrenda@linux.ibm.com>
-        <ff7291c0-e762-9fe9-4181-e62125bf2f59@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        with ESMTP id S233331AbiCCP3r (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Mar 2022 10:29:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6C8D3FBC5;
+        Thu,  3 Mar 2022 07:29:01 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 30F47B8260E;
+        Thu,  3 Mar 2022 15:29:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 335A5C340F0;
+        Thu,  3 Mar 2022 15:28:54 +0000 (UTC)
+Date:   Thu, 3 Mar 2022 15:28:50 +0000
+From:   Catalin Marinas <catalin.marinas@arm.com>
+To:     Anshuman Khandual <anshuman.khandual@arm.com>
+Cc:     linux-mm@kvack.org, akpm@linux-foundation.org,
+        linux-kernel@vger.kernel.org, geert@linux-m68k.org,
+        Christoph Hellwig <hch@infradead.org>,
+        linuxppc-dev@lists.ozlabs.org,
+        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+        linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-alpha@vger.kernel.org, linux-sh@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-xtensa@linux-xtensa.org, linux-parisc@vger.kernel.org,
+        openrisc@lists.librecores.org, linux-um@lists.infradead.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        linux-arch@vger.kernel.org, Will Deacon <will@kernel.org>
+Subject: Re: [PATCH V3 05/30] arm64/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+Message-ID: <YiDessYDSt060Euc@arm.com>
+References: <1646045273-9343-1-git-send-email-anshuman.khandual@arm.com>
+ <1646045273-9343-6-git-send-email-anshuman.khandual@arm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: sFN4_W4LgkV8GNZaO4aQs0YyFJA0qJPV
-X-Proofpoint-GUID: kvIefrS_K3CzF7hfp9E-GxV3THs2qyQA
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-03_07,2022-02-26_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 phishscore=0
- mlxscore=0 priorityscore=1501 malwarescore=0 impostorscore=0 adultscore=0
- clxscore=1015 mlxlogscore=999 bulkscore=0 suspectscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2203030072
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1646045273-9343-6-git-send-email-anshuman.khandual@arm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 3 Mar 2022 15:40:42 +0100
-Janis Schoetterl-Glausch <scgl@linux.ibm.com> wrote:
+Hi Anshuman,
 
-> On 3/2/22 19:11, Claudio Imbrenda wrote:
-> > Each secure guest must have a unique ASCE (address space control
-> > element); we must avoid that new guests use the same page for their
-> > ASCE, to avoid errors.
-> > 
-> > Since the ASCE mostly consists of the address of the topmost page table
-> > (plus some flags), we must not return that memory to the pool unless
-> > the ASCE is no longer in use.
-> > 
-> > Only a successful Destroy Secure Configuration UVC will make the ASCE
-> > reusable again.
-> > 
-> > If the Destroy Configuration UVC fails, the ASCE cannot be reused for a
-> > secure guest (either for the ASCE or for other memory areas). To avoid
-> > a collision, it must not be used again. This is a permanent error and
-> > the page becomes in practice unusable, so we set it aside and leak it.
-> > On failure we already leak other memory that belongs to the ultravisor
-> > (i.e. the variable and base storage for a guest) and not leaking the
-> > topmost page table was an oversight.
-> > 
-> > This error (and thus the leakage) should not happen unless the hardware
-> > is broken or KVM has some unknown serious bug.
-> > 
-> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> > Fixes: 29b40f105ec8d55 ("KVM: s390: protvirt: Add initial vm and cpu lifecycle handling")
-> > ---
-> >  arch/s390/include/asm/gmap.h |  2 +
-> >  arch/s390/kvm/pv.c           |  9 +++--
-> >  arch/s390/mm/gmap.c          | 71 ++++++++++++++++++++++++++++++++++++
-> >  3 files changed, 79 insertions(+), 3 deletions(-)
-> >   
-> [...]
-> 
-> > +/**
-> > + * s390_replace_asce - Try to replace the current ASCE of a gmap with
-> > + * another equivalent one.
-> > + * @gmap the gmap
-> > + *
-> > + * If the allocation of the new top level page table fails, the ASCE is not
-> > + * replaced.
-> > + * In any case, the old ASCE is always removed from the list. Therefore the
-> > + * caller has to make sure to save a pointer to it beforehands, unless an
-> > + * intentional leak is intended.
-> > + */
-> > +int s390_replace_asce(struct gmap *gmap)
-> > +{
-> > +	unsigned long asce;
-> > +	struct page *page;
-> > +	void *table;
-> > +
-> > +	s390_remove_old_asce(gmap);
-> > +
-> > +	page = alloc_pages(GFP_KERNEL_ACCOUNT, CRST_ALLOC_ORDER);
-> > +	if (!page)
-> > +		return -ENOMEM;
-> > +	table = page_to_virt(page);
-> > +	memcpy(table, gmap->table, 1UL << (CRST_ALLOC_ORDER + PAGE_SHIFT));  
-> 
-> Is concurrent modification of *gmap->table possible during the copy?
+On Mon, Feb 28, 2022 at 04:17:28PM +0530, Anshuman Khandual wrote:
+> +static inline pgprot_t __vm_get_page_prot(unsigned long vm_flags)
+> +{
+> +	switch (vm_flags & (VM_READ | VM_WRITE | VM_EXEC | VM_SHARED)) {
+> +	case VM_NONE:
+> +		return PAGE_NONE;
+> +	case VM_READ:
+> +	case VM_WRITE:
+> +	case VM_WRITE | VM_READ:
+> +		return PAGE_READONLY;
+> +	case VM_EXEC:
+> +		return PAGE_EXECONLY;
+> +	case VM_EXEC | VM_READ:
+> +	case VM_EXEC | VM_WRITE:
+> +	case VM_EXEC | VM_WRITE | VM_READ:
+> +		return PAGE_READONLY_EXEC;
+> +	case VM_SHARED:
+> +		return PAGE_NONE;
+> +	case VM_SHARED | VM_READ:
+> +		return PAGE_READONLY;
+> +	case VM_SHARED | VM_WRITE:
+> +	case VM_SHARED | VM_WRITE | VM_READ:
+> +		return PAGE_SHARED;
+> +	case VM_SHARED | VM_EXEC:
+> +		return PAGE_EXECONLY;
+> +	case VM_SHARED | VM_EXEC | VM_READ:
+> +		return PAGE_READONLY_EXEC;
+> +	case VM_SHARED | VM_EXEC | VM_WRITE:
+> +	case VM_SHARED | VM_EXEC | VM_WRITE | VM_READ:
+> +		return PAGE_SHARED_EXEC;
+> +	default:
+> +		BUILD_BUG();
+> +	}
+> +}
 
-that would only be possible if the guest touches memory in such way
-that the table needs to be changed.
+I'd say ack for trying to get of the extra arch_vm_get_page_prot() and
+arch_filter_pgprot() but, TBH, I'm not so keen on the outcome. I haven't
+built the code to see what's generated but I suspect it's no significant
+improvement. As for the code readability, the arm64 parts don't look
+much better either. The only advantage with this patch is that all
+functions have been moved under arch/arm64.
 
-this function is only called when the guest is not running (e.g. during
-reboot), so nobody should touch the table
+I'd keep most architectures that don't have own arch_vm_get_page_prot()
+or arch_filter_pgprot() unchanged and with a generic protection_map[]
+array. For architectures that need fancier stuff, add a
+CONFIG_ARCH_HAS_VM_GET_PAGE_PROT (as you do) and allow them to define
+vm_get_page_prot() while getting rid of arch_vm_get_page_prot() and
+arch_filter_pgprot(). I think you could also duplicate protection_map[]
+for architectures with own vm_get_page_prot() (make it static) and
+#ifdef it out in mm/mmap.c.
 
-> 
-> > +
-> > +	/*
-> > +	 * The caller has to deal with the old ASCE, but here we make sure
-> > +	 * the new one is properly added to the list of page tables, so that
-> > +	 * it will be freed when the VM is torn down.
-> > +	 */
-> > +	spin_lock(&gmap->guest_table_lock);
-> > +	list_add(&page->lru, &gmap->crst_list);
-> > +	spin_unlock(&gmap->guest_table_lock);
-> > +
-> > +	/* Set new table origin while preserving existing ASCE control bits */
-> > +	asce = (gmap->asce & _ASCE_ORIGIN) | __pa(table);
-> > +	WRITE_ONCE(gmap->asce, asce);
-> > +	WRITE_ONCE(gmap->mm->context.gmap_asce, asce);
-> > +	WRITE_ONCE(gmap->table, table);
-> > +
-> > +	return 0;
-> > +}
-> > +EXPORT_SYMBOL_GPL(s390_replace_asce);  
-> 
+If later you have more complex needs or a switch statement generates
+better code, go for it, but for this series I'd keep things simple, only
+focus on getting rid of arch_vm_get_page_prot() and
+arch_filter_pgprot().
 
+If I grep'ed correctly, there are only 4 architectures that have own
+arch_vm_get_page_prot() (arm64, powerpc, sparc, x86) and 2 that have own
+arch_filter_pgprot() (arm64, x86). Try to only change these for the time
+being, together with the other generic mm cleanups you have in this
+series. I think there are a couple more that touch protection_map[]
+(arm, m68k). You can leave the generic protection_map[] global if the
+arch does not select ARCH_HAS_VM_GET_PAGE_PROT.
+
+> +static pgprot_t arm64_arch_filter_pgprot(pgprot_t prot)
+> +{
+> +	if (cpus_have_const_cap(ARM64_HAS_EPAN))
+> +		return prot;
+> +
+> +	if (pgprot_val(prot) != pgprot_val(PAGE_EXECONLY))
+> +		return prot;
+> +
+> +	return PAGE_READONLY_EXEC;
+> +}
+> +
+> +static pgprot_t arm64_arch_vm_get_page_prot(unsigned long vm_flags)
+> +{
+> +	pteval_t prot = 0;
+> +
+> +	if (vm_flags & VM_ARM64_BTI)
+> +		prot |= PTE_GP;
+> +
+> +	/*
+> +	 * There are two conditions required for returning a Normal Tagged
+> +	 * memory type: (1) the user requested it via PROT_MTE passed to
+> +	 * mmap() or mprotect() and (2) the corresponding vma supports MTE. We
+> +	 * register (1) as VM_MTE in the vma->vm_flags and (2) as
+> +	 * VM_MTE_ALLOWED. Note that the latter can only be set during the
+> +	 * mmap() call since mprotect() does not accept MAP_* flags.
+> +	 * Checking for VM_MTE only is sufficient since arch_validate_flags()
+> +	 * does not permit (VM_MTE & !VM_MTE_ALLOWED).
+> +	 */
+> +	if (vm_flags & VM_MTE)
+> +		prot |= PTE_ATTRINDX(MT_NORMAL_TAGGED);
+> +
+> +	return __pgprot(prot);
+> +}
+> +
+> +pgprot_t vm_get_page_prot(unsigned long vm_flags)
+> +{
+> +	pgprot_t ret = __pgprot(pgprot_val(__vm_get_page_prot(vm_flags)) |
+> +			pgprot_val(arm64_arch_vm_get_page_prot(vm_flags)));
+> +
+> +	return arm64_arch_filter_pgprot(ret);
+> +}
+
+If we kept the array, we can have everything in a single function
+(untested and with my own comments for future changes):
+
+pgprot_t vm_get_page_prot(unsigned long vm_flags)
+{
+	pgprot_t prot = __pgprot(pgprot_val(protection_map[vm_flags &
+				(VM_READ|VM_WRITE|VM_EXEC|VM_SHARED)]));
+
+	/*
+	 * We could get rid of this test if we updated protection_map[]
+	 * to turn exec-only into read-exec during boot.
+	 */
+	if (!cpus_have_const_cap(ARM64_HAS_EPAN) &&
+	    pgprot_val(prot) == pgprot_val(PAGE_EXECONLY))
+		prot = PAGE_READONLY_EXEC;
+
+	if (vm_flags & VM_ARM64_BTI)
+		prot != PTE_GP;
+
+	/*
+	 * We can get rid of the requirement for PROT_NORMAL to be 0
+	 * since here we can mask out PTE_ATTRINDX_MASK.
+	 */
+	if (vm_flags & VM_MTE) {
+		prot &= ~PTE_ATTRINDX_MASK;
+		prot |= PTE_ATTRINDX(MT_NORMAL_TAGGED);
+	}
+
+	return prot;
+}
+
+-- 
+Catalin
