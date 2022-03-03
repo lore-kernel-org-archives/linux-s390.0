@@ -2,191 +2,147 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CD71C43219
-	for <linux-s390@archiver.kernel.org>; Thu,  3 Mar 2022 15:29:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C5561C433EF
+	for <linux-s390@archiver.kernel.org>; Thu,  3 Mar 2022 15:40:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234406AbiCCP3t (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 3 Mar 2022 10:29:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46888 "EHLO
+        id S232763AbiCCPkv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 3 Mar 2022 10:40:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233331AbiCCP3r (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Mar 2022 10:29:47 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6C8D3FBC5;
-        Thu,  3 Mar 2022 07:29:01 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 30F47B8260E;
-        Thu,  3 Mar 2022 15:29:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 335A5C340F0;
-        Thu,  3 Mar 2022 15:28:54 +0000 (UTC)
-Date:   Thu, 3 Mar 2022 15:28:50 +0000
-From:   Catalin Marinas <catalin.marinas@arm.com>
-To:     Anshuman Khandual <anshuman.khandual@arm.com>
-Cc:     linux-mm@kvack.org, akpm@linux-foundation.org,
-        linux-kernel@vger.kernel.org, geert@linux-m68k.org,
-        Christoph Hellwig <hch@infradead.org>,
-        linuxppc-dev@lists.ozlabs.org,
-        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-        linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-alpha@vger.kernel.org, linux-sh@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-xtensa@linux-xtensa.org, linux-parisc@vger.kernel.org,
-        openrisc@lists.librecores.org, linux-um@lists.infradead.org,
-        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
-        linux-arch@vger.kernel.org, Will Deacon <will@kernel.org>
-Subject: Re: [PATCH V3 05/30] arm64/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
-Message-ID: <YiDessYDSt060Euc@arm.com>
-References: <1646045273-9343-1-git-send-email-anshuman.khandual@arm.com>
- <1646045273-9343-6-git-send-email-anshuman.khandual@arm.com>
+        with ESMTP id S229621AbiCCPku (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Mar 2022 10:40:50 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9862D195313;
+        Thu,  3 Mar 2022 07:40:04 -0800 (PST)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 223DXjUG016756;
+        Thu, 3 Mar 2022 15:40:02 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : reply-to : subject : to : cc : references : from :
+ in-reply-to : content-type : content-transfer-encoding; s=pp1;
+ bh=7MaOOpnZQEaMhi0BzwCt3BeviEZg6vV7D0hFaJSE9K8=;
+ b=gj988ogzbAU3NxpQm+sRQW+WSVzzV4Qj2pF+RAckX0WAjHYAzk0fZ8ov0o3/yAVp0NFl
+ LiJ+S7DfZ4H6mGZdJmG0YmK5fjSOJeTfgurFhYFPHcVeMON3uT0G3A1E/co1FCnVFIK+
+ nHsugf4jvYJsoKSgTGFngGqgW5c2l/lmT5cmFl3EzkBlX+11vNUsj3n+kf5BdXps7iBq
+ oh4WY6VT7bbUUDjmRzM/+SxA6rlVsjN2tgA1Kizrvk8nhTXCBfIHA1q0JB2jT9rKUdQQ
+ vzE24dLRa1ufahkRb3YDJ4gMad7d6QEgY8BuTS36kIE7PWgaAucoM5PwVN1ERvUBbBNz 2g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ejvbbwxmu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 03 Mar 2022 15:40:02 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 223Fcj9D008757;
+        Thu, 3 Mar 2022 15:40:02 GMT
+Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ejvbbwxmb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 03 Mar 2022 15:40:02 +0000
+Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
+        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 223FcdP8001032;
+        Thu, 3 Mar 2022 15:40:01 GMT
+Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
+        by ppma04dal.us.ibm.com with ESMTP id 3efbuah7wy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 03 Mar 2022 15:40:01 +0000
+Received: from b03ledav002.gho.boulder.ibm.com (b03ledav002.gho.boulder.ibm.com [9.17.130.233])
+        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 223Fdxug15860010
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 3 Mar 2022 15:39:59 GMT
+Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A0EBC136059;
+        Thu,  3 Mar 2022 15:39:59 +0000 (GMT)
+Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 84FBB13604F;
+        Thu,  3 Mar 2022 15:39:58 +0000 (GMT)
+Received: from [9.160.181.120] (unknown [9.160.181.120])
+        by b03ledav002.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Thu,  3 Mar 2022 15:39:58 +0000 (GMT)
+Message-ID: <97681738-50a1-976d-9f0f-be326eab7202@linux.ibm.com>
+Date:   Thu, 3 Mar 2022 10:39:58 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1646045273-9343-6-git-send-email-anshuman.khandual@arm.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.0
+Reply-To: jjherne@linux.ibm.com
+Subject: Re: [PATCH v18 08/18] s390/vfio-ap: allow assignment of unavailable
+ AP queues to mdev device
+Content-Language: en-US
+To:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc:     freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
+        mjrosato@linux.ibm.com, pasic@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        fiuczy@linux.ibm.com
+References: <20220215005040.52697-1-akrowiak@linux.ibm.com>
+ <20220215005040.52697-9-akrowiak@linux.ibm.com>
+From:   "Jason J. Herne" <jjherne@linux.ibm.com>
+Organization: IBM
+In-Reply-To: <20220215005040.52697-9-akrowiak@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: J5vuu5TCFkzHfujRo4s6-Lf7CLdK5UDM
+X-Proofpoint-ORIG-GUID: _UFSj0DwNP2H2JU_hmLEnh9wBbzgjhIT
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-03-03_07,2022-02-26_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 malwarescore=0
+ impostorscore=0 lowpriorityscore=0 mlxlogscore=999 phishscore=0
+ suspectscore=0 priorityscore=1501 mlxscore=0 adultscore=0 spamscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2203030074
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Anshuman,
+On 2/14/22 19:50, Tony Krowiak wrote:
+>   /**
+> - * vfio_ap_mdev_verify_no_sharing - verifies that the AP matrix is not configured
+> + * vfio_ap_mdev_verify_no_sharing - verify APQNs are not shared by matrix mdevs
+>    *
+> - * @matrix_mdev: the mediated matrix device
+> + * @mdev_apm: mask indicating the APIDs of the APQNs to be verified
+> + * @mdev_aqm: mask indicating the APQIs of the APQNs to be verified
+>    *
+> - * Verifies that the APQNs derived from the cross product of the AP adapter IDs
+> - * and AP queue indexes comprising the AP matrix are not configured for another
+> + * Verifies that each APQN derived from the Cartesian product of a bitmap of
+> + * AP adapter IDs and AP queue indexes is not configured for any matrix
+>    * mediated device. AP queue sharing is not allowed.
+>    *
+> - * Return: 0 if the APQNs are not shared; otherwise returns -EADDRINUSE.
+> + * Return: 0 if the APQNs are not shared; otherwise return -EADDRINUSE.
+>    */
+> -static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
+> +static int vfio_ap_mdev_verify_no_sharing(unsigned long *mdev_apm,
+> +					  unsigned long *mdev_aqm)
+>   {
+> -	struct ap_matrix_mdev *lstdev;
+> +	struct ap_matrix_mdev *matrix_mdev;
+>   	DECLARE_BITMAP(apm, AP_DEVICES);
+>   	DECLARE_BITMAP(aqm, AP_DOMAINS);
+>   
+> -	list_for_each_entry(lstdev, &matrix_dev->mdev_list, node) {
+> -		if (matrix_mdev == lstdev)
+> +	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
+> +		/*
+> +		 * If the input apm and aqm belong to the matrix_mdev's matrix,
+> +		 * then move on to the next.
+> +		 */
+> +		if (mdev_apm == matrix_mdev->matrix.apm &&
+> +		    mdev_aqm == matrix_mdev->matrix.aqm)
+>   			continue;
 
-On Mon, Feb 28, 2022 at 04:17:28PM +0530, Anshuman Khandual wrote:
-> +static inline pgprot_t __vm_get_page_prot(unsigned long vm_flags)
-> +{
-> +	switch (vm_flags & (VM_READ | VM_WRITE | VM_EXEC | VM_SHARED)) {
-> +	case VM_NONE:
-> +		return PAGE_NONE;
-> +	case VM_READ:
-> +	case VM_WRITE:
-> +	case VM_WRITE | VM_READ:
-> +		return PAGE_READONLY;
-> +	case VM_EXEC:
-> +		return PAGE_EXECONLY;
-> +	case VM_EXEC | VM_READ:
-> +	case VM_EXEC | VM_WRITE:
-> +	case VM_EXEC | VM_WRITE | VM_READ:
-> +		return PAGE_READONLY_EXEC;
-> +	case VM_SHARED:
-> +		return PAGE_NONE;
-> +	case VM_SHARED | VM_READ:
-> +		return PAGE_READONLY;
-> +	case VM_SHARED | VM_WRITE:
-> +	case VM_SHARED | VM_WRITE | VM_READ:
-> +		return PAGE_SHARED;
-> +	case VM_SHARED | VM_EXEC:
-> +		return PAGE_EXECONLY;
-> +	case VM_SHARED | VM_EXEC | VM_READ:
-> +		return PAGE_READONLY_EXEC;
-> +	case VM_SHARED | VM_EXEC | VM_WRITE:
-> +	case VM_SHARED | VM_EXEC | VM_WRITE | VM_READ:
-> +		return PAGE_SHARED_EXEC;
-> +	default:
-> +		BUILD_BUG();
-> +	}
-> +}
+We may have a problem here. This check seems like it exists to stop you from
+comparing an mdev's apm/aqm with itself. Obviously comparing an mdev's newly
+updated apm/aqm with itself would cause a false positive sharing check, right?
+If this is the case, I think the comment should be changed to reflect that.
 
-I'd say ack for trying to get of the extra arch_vm_get_page_prot() and
-arch_filter_pgprot() but, TBH, I'm not so keen on the outcome. I haven't
-built the code to see what's generated but I suspect it's no significant
-improvement. As for the code readability, the arm64 parts don't look
-much better either. The only advantage with this patch is that all
-functions have been moved under arch/arm64.
+Aside from the comment, what stops this particular series of if statements from
+allowing us to configure a second mdev with the exact same apm/aqm values as an
+existing mdev? If we do, then this check's continue will short circuit the rest
+of the function thereby allowing that 2nd mdev even though it should be a
+sharing violation.
 
-I'd keep most architectures that don't have own arch_vm_get_page_prot()
-or arch_filter_pgprot() unchanged and with a generic protection_map[]
-array. For architectures that need fancier stuff, add a
-CONFIG_ARCH_HAS_VM_GET_PAGE_PROT (as you do) and allow them to define
-vm_get_page_prot() while getting rid of arch_vm_get_page_prot() and
-arch_filter_pgprot(). I think you could also duplicate protection_map[]
-for architectures with own vm_get_page_prot() (make it static) and
-#ifdef it out in mm/mmap.c.
-
-If later you have more complex needs or a switch statement generates
-better code, go for it, but for this series I'd keep things simple, only
-focus on getting rid of arch_vm_get_page_prot() and
-arch_filter_pgprot().
-
-If I grep'ed correctly, there are only 4 architectures that have own
-arch_vm_get_page_prot() (arm64, powerpc, sparc, x86) and 2 that have own
-arch_filter_pgprot() (arm64, x86). Try to only change these for the time
-being, together with the other generic mm cleanups you have in this
-series. I think there are a couple more that touch protection_map[]
-(arm, m68k). You can leave the generic protection_map[] global if the
-arch does not select ARCH_HAS_VM_GET_PAGE_PROT.
-
-> +static pgprot_t arm64_arch_filter_pgprot(pgprot_t prot)
-> +{
-> +	if (cpus_have_const_cap(ARM64_HAS_EPAN))
-> +		return prot;
-> +
-> +	if (pgprot_val(prot) != pgprot_val(PAGE_EXECONLY))
-> +		return prot;
-> +
-> +	return PAGE_READONLY_EXEC;
-> +}
-> +
-> +static pgprot_t arm64_arch_vm_get_page_prot(unsigned long vm_flags)
-> +{
-> +	pteval_t prot = 0;
-> +
-> +	if (vm_flags & VM_ARM64_BTI)
-> +		prot |= PTE_GP;
-> +
-> +	/*
-> +	 * There are two conditions required for returning a Normal Tagged
-> +	 * memory type: (1) the user requested it via PROT_MTE passed to
-> +	 * mmap() or mprotect() and (2) the corresponding vma supports MTE. We
-> +	 * register (1) as VM_MTE in the vma->vm_flags and (2) as
-> +	 * VM_MTE_ALLOWED. Note that the latter can only be set during the
-> +	 * mmap() call since mprotect() does not accept MAP_* flags.
-> +	 * Checking for VM_MTE only is sufficient since arch_validate_flags()
-> +	 * does not permit (VM_MTE & !VM_MTE_ALLOWED).
-> +	 */
-> +	if (vm_flags & VM_MTE)
-> +		prot |= PTE_ATTRINDX(MT_NORMAL_TAGGED);
-> +
-> +	return __pgprot(prot);
-> +}
-> +
-> +pgprot_t vm_get_page_prot(unsigned long vm_flags)
-> +{
-> +	pgprot_t ret = __pgprot(pgprot_val(__vm_get_page_prot(vm_flags)) |
-> +			pgprot_val(arm64_arch_vm_get_page_prot(vm_flags)));
-> +
-> +	return arm64_arch_filter_pgprot(ret);
-> +}
-
-If we kept the array, we can have everything in a single function
-(untested and with my own comments for future changes):
-
-pgprot_t vm_get_page_prot(unsigned long vm_flags)
-{
-	pgprot_t prot = __pgprot(pgprot_val(protection_map[vm_flags &
-				(VM_READ|VM_WRITE|VM_EXEC|VM_SHARED)]));
-
-	/*
-	 * We could get rid of this test if we updated protection_map[]
-	 * to turn exec-only into read-exec during boot.
-	 */
-	if (!cpus_have_const_cap(ARM64_HAS_EPAN) &&
-	    pgprot_val(prot) == pgprot_val(PAGE_EXECONLY))
-		prot = PAGE_READONLY_EXEC;
-
-	if (vm_flags & VM_ARM64_BTI)
-		prot != PTE_GP;
-
-	/*
-	 * We can get rid of the requirement for PROT_NORMAL to be 0
-	 * since here we can mask out PTE_ATTRINDX_MASK.
-	 */
-	if (vm_flags & VM_MTE) {
-		prot &= ~PTE_ATTRINDX_MASK;
-		prot |= PTE_ATTRINDX(MT_NORMAL_TAGGED);
-	}
-
-	return prot;
-}
 
 -- 
-Catalin
+-- Jason J. Herne (jjherne@linux.ibm.com)
