@@ -2,138 +2,195 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB67BC4321E
-	for <linux-s390@archiver.kernel.org>; Thu,  3 Mar 2022 21:04:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FE57C4167E
+	for <linux-s390@archiver.kernel.org>; Thu,  3 Mar 2022 21:04:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236420AbiCCVFW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 3 Mar 2022 16:05:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45082 "EHLO
+        id S236425AbiCCVFY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 3 Mar 2022 16:05:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236410AbiCCVFU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Mar 2022 16:05:20 -0500
+        with ESMTP id S236424AbiCCVFX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Mar 2022 16:05:23 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D40533E0B;
-        Thu,  3 Mar 2022 13:04:33 -0800 (PST)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 223KVbQs002043;
-        Thu, 3 Mar 2022 21:04:33 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED4E21E3C9;
+        Thu,  3 Mar 2022 13:04:36 -0800 (PST)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 223KVeZI007486;
+        Thu, 3 Mar 2022 21:04:36 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=Lc48QTlYLHqbrHJF44l5RCli08mGGu069fZ+31k/Ibo=;
- b=NUeYY/HXhUFRGhDbv6uBABzQPth15PmKlCOoKnovbyMglROPxeO3DcAePCTw7G1LYHoM
- mxykrRZqMOP034cTuPg82NZkgk3YSesTdRLH93NPngibaK3khWUgY12t2eGwW1TEEn2Y
- 2u/ZSMXyrwbc25XvjyJ02gTqIt7jEKO0QHAv+A11yX0L4AanlM+vB46c2iWp2iH0A/en
- Wb2BgVYgr3sjHvhNoIb/EJc9xuDRbweGj1hMAVz6JF/LXKtIdkx1otV4vaABhj5K2UE3
- B24g0DK8Bp5TwFqI08jDSAZAtegmcQfMAZAqP9RlRIkjlzs7wtltL8XnQTMSeFOqAaf1 SA== 
+ content-transfer-encoding; s=pp1;
+ bh=8Qnp+7u/RoRqnZq6DkTcz52CR0pJ0rkXttTIoufRqBw=;
+ b=QHtLbtC+J27oLDc0Uf6VsFa++81nuHa9T+QneNeP5AN7kBjiJ8Lbsh4+kjapK+wBxlz5
+ cGceklWD84rzN/V43dyqTRnHQUJJLYxIGvyeJijva2oI2qF6t2Is7YNp0UTFv8OLEVfh
+ GvWoSFa16TDfWmQ7J3jyQ9yUDlKfvaq2HyQP6Hus4DFyKEC2EhOXPeQfMrx5ppSjJLZk
+ AUCVX9O2jf/Lo5gU3/jZQRgaWerFmBfkPd/D7OOaLY0csy4XJZInHgvZkV3eadsHCfAW
+ weTg6+DxKRWgIDg++08yLxHQbJl9hF4rJwEmqMM9JJplciXzHxCaEHpRoYsjr7/ukboA Cg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ek4ss8h5n-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ek4ssrhvr-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 03 Mar 2022 21:04:33 +0000
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 223KcSUf003677;
-        Thu, 3 Mar 2022 21:04:32 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ek4ss8h53-1
+        Thu, 03 Mar 2022 21:04:36 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 223Kh30X023192;
+        Thu, 3 Mar 2022 21:04:35 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ek4ssrhv8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 03 Mar 2022 21:04:35 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 223L3OE2011629;
+        Thu, 3 Mar 2022 21:04:33 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma05fra.de.ibm.com with ESMTP id 3ek4ka8248-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Thu, 03 Mar 2022 21:04:32 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 223L2wJA011800;
-        Thu, 3 Mar 2022 21:04:30 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma02fra.de.ibm.com with ESMTP id 3ek4k4g235-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 03 Mar 2022 21:04:30 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 223L4Qsh56426780
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 223L4RZF42598812
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 3 Mar 2022 21:04:26 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CEFCA5204F;
-        Thu,  3 Mar 2022 21:04:26 +0000 (GMT)
+        Thu, 3 Mar 2022 21:04:27 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 258AB11C064;
+        Thu,  3 Mar 2022 21:04:27 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1418311C054;
+        Thu,  3 Mar 2022 21:04:27 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id BCBAC52051;
-        Thu,  3 Mar 2022 21:04:26 +0000 (GMT)
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Thu,  3 Mar 2022 21:04:27 +0000 (GMT)
 Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
-        id 82A38E03FA; Thu,  3 Mar 2022 22:04:26 +0100 (CET)
+        id 87785E041D; Thu,  3 Mar 2022 22:04:26 +0100 (CET)
 From:   Eric Farman <farman@linux.ibm.com>
 To:     Thomas Huth <thuth@redhat.com>,
         Janosch Frank <frankja@linux.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>
 Cc:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
         linux-s390@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH kvm-unit-tests v1 3/6] s390x: smp: Fix checks for SIGP STOP STORE STATUS
-Date:   Thu,  3 Mar 2022 22:04:22 +0100
-Message-Id: <20220303210425.1693486-4-farman@linux.ibm.com>
+Subject: [PATCH kvm-unit-tests v1 5/6] s390x: smp: Create and use a non-waiting CPU restart
+Date:   Thu,  3 Mar 2022 22:04:24 +0100
+Message-Id: <20220303210425.1693486-6-farman@linux.ibm.com>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20220303210425.1693486-1-farman@linux.ibm.com>
 References: <20220303210425.1693486-1-farman@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: CMWIsP4mvnqSK9tU4tSpEc-kkXLKS139
-X-Proofpoint-GUID: RGeEnErDVsyHAwP8dGIb-_PLvM9Ahepv
+X-Proofpoint-ORIG-GUID: giwdTDTW5Pz5lGtP_RhZU28Vb-NATvni
+X-Proofpoint-GUID: LPowO8qmZTxO18F2a8lB8DoJbZRvIoG_
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-03-03_09,2022-02-26_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=785 phishscore=0
- spamscore=0 priorityscore=1501 adultscore=0 impostorscore=0 mlxscore=0
- malwarescore=0 lowpriorityscore=0 clxscore=1015 suspectscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2203030095
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 bulkscore=0
+ mlxlogscore=999 mlxscore=0 suspectscore=0 phishscore=0 spamscore=0
+ impostorscore=0 priorityscore=1501 clxscore=1015 adultscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2203030095
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-In the routine test_stop_store_status(), the "running" part of
-the test checks a few of the fields in lowcore (to verify the
-"STORE STATUS" part of the SIGP order), and then ensures that
-the CPU has stopped. But this is backwards, and leads to false
-errors.
+The kvm-unit-tests infrastructure for a CPU restart waits for the
+SIGP RESTART to complete. In order to test the restart itself,
+create a variation that does not wait, and test the state of the
+CPU directly.
 
-According to the Principles of Operation:
-  The addressed CPU performs the stop function, fol-
-  lowed by the store-status operation (see “Store Sta-
-  tus” on page 4-82).
+While here, add some better report prefixes/messages, to clarify
+which condition is being examined (similar to test_stop_store_status()).
 
-By checking the results how they are today, the contents of
-the lowcore fields are unreliable until the CPU is stopped.
-Thus, check that the CPU is stopped first, before ensuring
-that the STORE STATUS was performed correctly.
-
-While here, add the same check to the second part of the test,
-even though the CPU is explicitly stopped prior to the SIGP.
-
-Fixes: fc67b07a4 ("s390x: smp: Test stop and store status on a running and stopped cpu")
 Signed-off-by: Eric Farman <farman@linux.ibm.com>
 ---
- s390x/smp.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ lib/s390x/smp.c | 22 ++++++++++++++++++++++
+ lib/s390x/smp.h |  1 +
+ s390x/smp.c     | 18 +++++++++++++++---
+ 3 files changed, 38 insertions(+), 3 deletions(-)
 
+diff --git a/lib/s390x/smp.c b/lib/s390x/smp.c
+index 84e536e8..85b046a5 100644
+--- a/lib/s390x/smp.c
++++ b/lib/s390x/smp.c
+@@ -192,6 +192,28 @@ int smp_cpu_restart(uint16_t idx)
+ 	return rc;
+ }
+ 
++/*
++ * Functionally equivalent to smp_cpu_restart(), but without the
++ * elements that wait/serialize matters here in the test.
++ * Used to see if KVM itself is serialized correctly.
++ */
++int smp_cpu_restart_nowait(uint16_t idx)
++{
++	spin_lock(&lock);
++
++	/* Don't suppress a CC2 with sigp_retry() */
++	if (smp_sigp(idx, SIGP_RESTART, 0, NULL)) {
++		spin_unlock(&lock);
++		return -1;
++	}
++
++	cpus[idx].active = true;
++
++	spin_unlock(&lock);
++
++	return 0;
++}
++
+ int smp_cpu_start(uint16_t idx, struct psw psw)
+ {
+ 	int rc;
+diff --git a/lib/s390x/smp.h b/lib/s390x/smp.h
+index bae03dfd..24a0e2e0 100644
+--- a/lib/s390x/smp.h
++++ b/lib/s390x/smp.h
+@@ -42,6 +42,7 @@ uint16_t smp_cpu_addr(uint16_t idx);
+ bool smp_cpu_stopped(uint16_t idx);
+ bool smp_sense_running_status(uint16_t idx);
+ int smp_cpu_restart(uint16_t idx);
++int smp_cpu_restart_nowait(uint16_t idx);
+ int smp_cpu_start(uint16_t idx, struct psw psw);
+ int smp_cpu_stop(uint16_t idx);
+ int smp_cpu_stop_nowait(uint16_t idx);
 diff --git a/s390x/smp.c b/s390x/smp.c
-index 2f4af820..50811bd0 100644
+index 11c2c673..03160b80 100644
 --- a/s390x/smp.c
 +++ b/s390x/smp.c
-@@ -98,9 +98,9 @@ static void test_stop_store_status(void)
- 	lc->grs_sa[15] = 0;
- 	smp_cpu_stop_store_status(1);
- 	mb();
-+	report(smp_cpu_stopped(1), "cpu stopped");
- 	report(lc->prefix_sa == (uint32_t)(uintptr_t)cpu->lowcore, "prefix");
- 	report(lc->grs_sa[15], "stack");
--	report(smp_cpu_stopped(1), "cpu stopped");
- 	report_prefix_pop();
+@@ -55,23 +55,35 @@ static void test_restart(void)
+ 	struct cpu *cpu = smp_cpu_from_idx(1);
+ 	struct lowcore *lc = cpu->lowcore;
  
- 	report_prefix_push("stopped");
-@@ -108,6 +108,7 @@ static void test_stop_store_status(void)
- 	lc->grs_sa[15] = 0;
- 	smp_cpu_stop_store_status(1);
- 	mb();
-+	report(smp_cpu_stopped(1), "cpu stopped");
- 	report(lc->prefix_sa == (uint32_t)(uintptr_t)cpu->lowcore, "prefix");
- 	report(lc->grs_sa[15], "stack");
- 	report_prefix_pop();
++	report_prefix_push("restart");
++	report_prefix_push("stopped");
++
+ 	lc->restart_new_psw.mask = extract_psw_mask();
+ 	lc->restart_new_psw.addr = (unsigned long)test_func;
+ 
+ 	/* Make sure cpu is stopped */
+ 	smp_cpu_stop(1);
+ 	set_flag(0);
+-	smp_cpu_restart(1);
++	smp_cpu_restart_nowait(1);
++	report(!smp_cpu_stopped(1), "cpu started");
+ 	wait_for_flag();
++	report_pass("test flag");
++
++	report_prefix_pop();
++	report_prefix_push("running");
+ 
+ 	/*
+ 	 * Wait until cpu 1 has set the flag because it executed the
+ 	 * restart function.
+ 	 */
+ 	set_flag(0);
+-	smp_cpu_restart(1);
++	smp_cpu_restart_nowait(1);
++	report(!smp_cpu_stopped(1), "cpu started");
+ 	wait_for_flag();
+-	report_pass("restart while running");
++	report_pass("test flag");
++
++	report_prefix_pop();
++	report_prefix_pop();
+ }
+ 
+ static void test_stop(void)
 -- 
 2.32.0
 
