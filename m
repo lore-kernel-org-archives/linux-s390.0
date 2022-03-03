@@ -2,364 +2,171 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E52DC433EF
-	for <linux-s390@archiver.kernel.org>; Thu,  3 Mar 2022 14:17:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DCD5EC433EF
+	for <linux-s390@archiver.kernel.org>; Thu,  3 Mar 2022 14:40:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233997AbiCCOSg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 3 Mar 2022 09:18:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42408 "EHLO
+        id S234099AbiCCOli (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 3 Mar 2022 09:41:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233891AbiCCOSf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Mar 2022 09:18:35 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53C12BC39;
-        Thu,  3 Mar 2022 06:17:49 -0800 (PST)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 223E1SGw003886;
-        Thu, 3 Mar 2022 14:17:41 GMT
+        with ESMTP id S232750AbiCCOlh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Mar 2022 09:41:37 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12DC518E411;
+        Thu,  3 Mar 2022 06:40:51 -0800 (PST)
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 223EQ6LN017263;
+        Thu, 3 Mar 2022 14:40:50 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : to : cc : references : from : subject : in-reply-to :
+ mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=YTuFF+UBrk6PBDSO+jmdcZ3dwPjSOO76Bjsog+jX0WQ=;
- b=dKPgh8uiQj1RRREqDHArapE5buM1+ZbC1vGFAT+N4qYs0v0WeJbhLM8+WVxZtY3vqcnK
- ZebbIvgKGUMUf3zMkYRuNZD7QXto2WlfIUP2leiWPMR68gx1ggDgfeFN0Ijfu/pxNYzc
- xhf8ZwTipzPXmKsbMFcGSnx88TZCahj9gkmgnpMpXRWqV37Pr/13Q8qzpPKZLw73/R4f
- gvbnit8i9vGgL/Cc61z3iLXb7QaMx0hayl8Tp9/kShJ0jeHbsd+SRPBwEVXcZQtPF0+T
- +Ddd4q4ZhIizgdj/yHhFSThoQ8iEDRA9pjv8+akvKYeJWiPwJsw7KVCwYaG1DuZAvvc5 UQ== 
+ bh=tWzvjHowkM9ZLalk3vU5BpCzhINWPPar8gHBBGkQiSY=;
+ b=bz5eCy69ILwayf5gsLna1mOmSTB3aVwZvrXsAP16Eai6q9XW/fZdLkXMnkALPS+imhlI
+ bVsXC2loQdM2somOUf/MVqNaUEBhE322umaNb+edSJFRC0P64hkNEymtv9w9tFC/QEBJ
+ 4R6jsNMJX/F2O3wUA4InC2aXCUGf8zIjbereBjWfCtN8f4bQzrHeiC+abNMEKXwCsXWh
+ S5gdSzod+oYcs1zOEu//CPxMwqXjYSmlRrvOyqQY/irRdBxQIs2MOt8nW6p7ZNrAMfSM
+ hEdwdiF9GFcxHRr6xVCQ5843STuIgqcdWC/B7UKrnFW6oOahdXZvfUEwy8fvIX0493cK rg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ejuc7nh6k-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3ejyee89kt-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 03 Mar 2022 14:17:41 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 223Dr231012197;
-        Thu, 3 Mar 2022 14:17:40 GMT
+        Thu, 03 Mar 2022 14:40:49 +0000
+Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 223ETgHF028763;
+        Thu, 3 Mar 2022 14:40:48 GMT
 Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ejuc7nh5r-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3ejyee89k8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 03 Mar 2022 14:17:40 +0000
+        Thu, 03 Mar 2022 14:40:48 +0000
 Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 223EHXTH023408;
-        Thu, 3 Mar 2022 14:17:38 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma05fra.de.ibm.com with ESMTP id 3efbu9gb2u-1
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 223EbOSD012167;
+        Thu, 3 Mar 2022 14:40:47 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma05fra.de.ibm.com with ESMTP id 3efbu9gcmj-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 03 Mar 2022 14:17:38 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 223EHYeG21561726
+        Thu, 03 Mar 2022 14:40:46 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 223EehjT32178534
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 3 Mar 2022 14:17:34 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D103852052;
-        Thu,  3 Mar 2022 14:17:34 +0000 (GMT)
-Received: from [9.145.163.13] (unknown [9.145.163.13])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 51EBA52054;
-        Thu,  3 Mar 2022 14:17:34 +0000 (GMT)
-Message-ID: <9fd2dde2-c080-855b-03ea-b24c5e18b181@linux.ibm.com>
-Date:   Thu, 3 Mar 2022 15:17:33 +0100
+        Thu, 3 Mar 2022 14:40:43 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A6476A404D;
+        Thu,  3 Mar 2022 14:40:43 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3328BA4055;
+        Thu,  3 Mar 2022 14:40:43 +0000 (GMT)
+Received: from [9.171.88.22] (unknown [9.171.88.22])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu,  3 Mar 2022 14:40:43 +0000 (GMT)
+Message-ID: <ff7291c0-e762-9fe9-4181-e62125bf2f59@linux.ibm.com>
+Date:   Thu, 3 Mar 2022 15:40:42 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.5.0
+Subject: Re: [PATCH v8 01/17] KVM: s390: pv: leak the topmost page table when
+ destroy fails
 Content-Language: en-US
-To:     Steffen Eiden <seiden@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Shuah Khan <shuah@kernel.org>, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, linux-kselftest@vger.kernel.org
-References: <20220223144830.44039-1-seiden@linux.ibm.com>
- <20220223144830.44039-2-seiden@linux.ibm.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-Subject: Re: [PATCH v2 1/3] drivers/s390/char: Add Ultravisor io device
-In-Reply-To: <20220223144830.44039-2-seiden@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, david@redhat.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, mimu@linux.ibm.com, nrb@linux.ibm.com
+References: <20220302181143.188283-1-imbrenda@linux.ibm.com>
+ <20220302181143.188283-2-imbrenda@linux.ibm.com>
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+In-Reply-To: <20220302181143.188283-2-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: LesxFc463VVRvYMGGTz_QhtMxPqN4S6c
-X-Proofpoint-GUID: h21wSP3WrpmPH9c2h5jUgijHqyCZ8xE7
+X-Proofpoint-GUID: jjLJm-JJJzjaQphRJB-X2Tv_HlEpXB00
+X-Proofpoint-ORIG-GUID: _RZzT-NDxqHr4wj7P21quRCt1O7s5pFE
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-03-03_07,2022-02-26_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
- priorityscore=1501 bulkscore=0 suspectscore=0 mlxlogscore=999
- malwarescore=0 adultscore=0 lowpriorityscore=0 clxscore=1015 mlxscore=0
- phishscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2201110000 definitions=main-2203030067
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ priorityscore=1501 spamscore=0 impostorscore=0 malwarescore=0 mlxscore=0
+ clxscore=1015 mlxlogscore=999 lowpriorityscore=0 adultscore=0 phishscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2203030069
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2/23/22 15:48, Steffen Eiden wrote:
-> This patch adds a new miscdevice to expose some Ultravisor functions
-> to userspace. Userspace can send IOCTLs to the uvdevice that will then
-> emit a corresponding Ultravisor Call and hands the result over to
-> userspace. The uvdevice is available if the Ultravisor Call facility is
-> present.
+On 3/2/22 19:11, Claudio Imbrenda wrote:
+> Each secure guest must have a unique ASCE (address space control
+> element); we must avoid that new guests use the same page for their
+> ASCE, to avoid errors.
 > 
-> Userspace is now able to call the Query Ultravisor Information
-> Ultravisor Command through the uvdevice.
+> Since the ASCE mostly consists of the address of the topmost page table
+> (plus some flags), we must not return that memory to the pool unless
+> the ASCE is no longer in use.
 > 
-> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+> Only a successful Destroy Secure Configuration UVC will make the ASCE
+> reusable again.
+> 
+> If the Destroy Configuration UVC fails, the ASCE cannot be reused for a
+> secure guest (either for the ASCE or for other memory areas). To avoid
+> a collision, it must not be used again. This is a permanent error and
+> the page becomes in practice unusable, so we set it aside and leak it.
+> On failure we already leak other memory that belongs to the ultravisor
+> (i.e. the variable and base storage for a guest) and not leaking the
+> topmost page table was an oversight.
+> 
+> This error (and thus the leakage) should not happen unless the hardware
+> is broken or KVM has some unknown serious bug.
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Fixes: 29b40f105ec8d55 ("KVM: s390: protvirt: Add initial vm and cpu lifecycle handling")
 > ---
->   MAINTAINERS                           |   2 +
->   arch/s390/include/uapi/asm/uvdevice.h |  27 +++++
->   drivers/s390/char/Kconfig             |  11 ++
->   drivers/s390/char/Makefile            |   1 +
->   drivers/s390/char/uvdevice.c          | 145 ++++++++++++++++++++++++++
->   5 files changed, 186 insertions(+)
->   create mode 100644 arch/s390/include/uapi/asm/uvdevice.h
->   create mode 100644 drivers/s390/char/uvdevice.c
+>  arch/s390/include/asm/gmap.h |  2 +
+>  arch/s390/kvm/pv.c           |  9 +++--
+>  arch/s390/mm/gmap.c          | 71 ++++++++++++++++++++++++++++++++++++
+>  3 files changed, 79 insertions(+), 3 deletions(-)
 > 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 777cd6fa2b3d..f32e876f45c2 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -10577,9 +10577,11 @@ F:	Documentation/virt/kvm/s390*
->   F:	arch/s390/include/asm/gmap.h
->   F:	arch/s390/include/asm/kvm*
->   F:	arch/s390/include/uapi/asm/kvm*
-> +F:	arch/s390/include/uapi/asm/uvdevice.h
->   F:	arch/s390/kernel/uv.c
->   F:	arch/s390/kvm/
->   F:	arch/s390/mm/gmap.c
-> +F:	drivers/s390/char/uvdevice.c
->   F:	tools/testing/selftests/kvm/*/s390x/
->   F:	tools/testing/selftests/kvm/s390x/
->   
-> diff --git a/arch/s390/include/uapi/asm/uvdevice.h b/arch/s390/include/uapi/asm/uvdevice.h
-> new file mode 100644
-> index 000000000000..60956f8d2dc0
-> --- /dev/null
-> +++ b/arch/s390/include/uapi/asm/uvdevice.h
-> @@ -0,0 +1,27 @@
-> +/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
-> +/*
-> + *  Copyright IBM Corp. 2022
-> + *  Author(s): Steffen Eiden <seiden@linux.ibm.com>
-> + */
-> +#ifndef __S390X_ASM_UVDEVICE_H
-> +#define __S390X_ASM_UVDEVICE_H
-> +
-> +#include <linux/types.h>
-> +
-> +struct uvio_ioctl_cb {
-> +	__u32 flags;
-> +	__u16 uv_rc;			/* UV header rc value */
-> +	__u16 uv_rrc;			/* UV header rrc value */
-> +	__u64 argument_addr;		/* Userspace address of uvio argument */
-> +	__u32 argument_len;
-> +	__u8  reserved14[0x40 - 0x14];	/* must be zero */
-> +};
-> +
+[...]
 
-Add comment like this:
-These max length constants define an upper length limit for UV control 
-blocks but they do not represent the actual maximum enforced by the 
-Ultravisor which is often way lower. By allowing these larger lengths we 
-hopefully won't need to update the code as often when a new machine 
-extends the control block length.
-
-Userspace can therefore request more data than the kernel is usually 
-requesting for its own purposes.
-
-
-> +#define UVIO_QUI_MAX_LEN		0x8000
-> +
-> +#define UVIO_DEVICE_NAME "uv"
-> +#define UVIO_TYPE_UVC 'u'
-> +
-> +#define UVIO_IOCTL_QUI _IOWR(UVIO_TYPE_UVC, 0x01, struct uvio_ioctl_cb)
-> +
-> +#endif  /* __S390X_ASM_UVDEVICE_H */
-> diff --git a/drivers/s390/char/Kconfig b/drivers/s390/char/Kconfig
-> index 6cc4b19acf85..2a828274257a 100644
-> --- a/drivers/s390/char/Kconfig
-> +++ b/drivers/s390/char/Kconfig
-> @@ -184,3 +184,14 @@ config S390_VMUR
->   	depends on S390
->   	help
->   	  Character device driver for z/VM reader, puncher and printer.
-> +
-> +config S390_UV_UAPI
-> +	def_tristate y
-> +	prompt "Ultravisor userspace API"
-> +	depends on PROTECTED_VIRTUALIZATION_GUEST
-> +	help
-> +	  Selecting exposes parts of the UV interface to userspace
-> +	  by providing a misc character device at /dev/uv.
-> +	  Using IOCTLs one can interact with the UV.
-> +	  The device is available if the Ultravisor
-> +	  Facility (158) is present.
-> diff --git a/drivers/s390/char/Makefile b/drivers/s390/char/Makefile
-> index c6fdb81a068a..ce32270082f5 100644
-> --- a/drivers/s390/char/Makefile
-> +++ b/drivers/s390/char/Makefile
-> @@ -48,6 +48,7 @@ obj-$(CONFIG_MONREADER) += monreader.o
->   obj-$(CONFIG_MONWRITER) += monwriter.o
->   obj-$(CONFIG_S390_VMUR) += vmur.o
->   obj-$(CONFIG_CRASH_DUMP) += sclp_sdias.o zcore.o
-> +obj-$(CONFIG_S390_UV_UAPI) += uvdevice.o
->   
->   hmcdrv-objs := hmcdrv_mod.o hmcdrv_dev.o hmcdrv_ftp.o hmcdrv_cache.o diag_ftp.o sclp_ftp.o
->   obj-$(CONFIG_HMC_DRV) += hmcdrv.o
-> diff --git a/drivers/s390/char/uvdevice.c b/drivers/s390/char/uvdevice.c
-> new file mode 100644
-> index 000000000000..1d90e129b570
-> --- /dev/null
-> +++ b/drivers/s390/char/uvdevice.c
-> @@ -0,0 +1,145 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +/*
-> + *  Copyright IBM Corp. 2022
-> + *  Author(s): Steffen Eiden <seiden@linux.ibm.com>
-> + */
-
-You'll need to add a few words here to explain what the device does and 
-why we only do cursory checks.
-
-Apart from these two comments and the line below I'm pretty happy with 
-the patch.
-
-> +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt ".\n"
-> +
-> +#include <linux/module.h>
-> +#include <linux/kernel.h>
-> +#include <linux/miscdevice.h>
-> +#include <linux/types.h>
-> +#include <linux/stddef.h>
-> +#include <linux/vmalloc.h>
-> +#include <linux/slab.h>
-> +
-> +#include <asm/uvdevice.h>
-> +#include <asm/uv.h>
-> +
 > +/**
-> + * uvio_qui() - Perform a Query Ultravisor Information UVC.
+> + * s390_replace_asce - Try to replace the current ASCE of a gmap with
+> + * another equivalent one.
+> + * @gmap the gmap
 > + *
-> + * uv_ioctl: ioctl control block
-> + *
-> + * uvio_qui() does a Query Ultravisor Information (QUI) Ultravisor Call.
-> + * It creates the uvc qui request and sends it to the Ultravisor. After that
-> + * it copies the response to userspace and fills the rc and rrc of uv_ioctl
-> + * uv_call with the response values of the Ultravisor.
-> + *
-> + * Create the UVC structure, send the UVC to UV and write the response in the ioctl struct.
-> + *
-> + * Return: 0 on success or a negative error code on error.
+> + * If the allocation of the new top level page table fails, the ASCE is not
+> + * replaced.
+> + * In any case, the old ASCE is always removed from the list. Therefore the
+> + * caller has to make sure to save a pointer to it beforehands, unless an
+> + * intentional leak is intended.
 > + */
-> +static int uvio_qui(struct uvio_ioctl_cb *uv_ioctl)
+> +int s390_replace_asce(struct gmap *gmap)
 > +{
-> +	u8 __user *user_buf_addr = (__user u8 *)uv_ioctl->argument_addr;
-> +	size_t user_buf_len = uv_ioctl->argument_len;
-> +	struct uv_cb_header *uvcb_qui = NULL;
-> +	int ret;
+> +	unsigned long asce;
+> +	struct page *page;
+> +	void *table;
+> +
+> +	s390_remove_old_asce(gmap);
+> +
+> +	page = alloc_pages(GFP_KERNEL_ACCOUNT, CRST_ALLOC_ORDER);
+> +	if (!page)
+> +		return -ENOMEM;
+> +	table = page_to_virt(page);
+> +	memcpy(table, gmap->table, 1UL << (CRST_ALLOC_ORDER + PAGE_SHIFT));
+
+Is concurrent modification of *gmap->table possible during the copy?
+
 > +
 > +	/*
-> +	 * Do not check for a too small buffer. If userspace provides a buffer
-> +	 * that is too small the Ultravisor will complain.
+> +	 * The caller has to deal with the old ASCE, but here we make sure
+> +	 * the new one is properly added to the list of page tables, so that
+> +	 * it will be freed when the VM is torn down.
 > +	 */
-> +	ret = -EINVAL;
-> +	if (!user_buf_len || user_buf_len > UVIO_QUI_MAX_LEN)
-> +		goto out;
-> +	ret = -ENOMEM;
-> +	uvcb_qui = kvzalloc(user_buf_len, GFP_KERNEL);
-> +	if (!uvcb_qui)
-> +		goto out;
-> +	uvcb_qui->len = user_buf_len;
-> +	uvcb_qui->cmd = UVC_CMD_QUI;
+> +	spin_lock(&gmap->guest_table_lock);
+> +	list_add(&page->lru, &gmap->crst_list);
+> +	spin_unlock(&gmap->guest_table_lock);
 > +
-> +	uv_call(0, (u64)uvcb_qui);
-> +
-> +	ret = -EFAULT;
-> +	if (copy_to_user(user_buf_addr, uvcb_qui, uvcb_qui->len))
-> +		goto out;
-> +	uv_ioctl->uv_rc = uvcb_qui->rc;
-> +	uv_ioctl->uv_rrc = uvcb_qui->rrc;
-> +
-> +	ret = 0;
-> +out:
-> +	kvfree(uvcb_qui);
-> +	return ret;
-> +}
-> +
-> +static int uvio_copy_and_check_ioctl(struct uvio_ioctl_cb *ioctl, void __user *argp)
-> +{
-> +	if (copy_from_user(ioctl, argp, sizeof(*ioctl)))
-> +		return -EFAULT;
-> +	if (ioctl->flags != 0)
-> +		return -EINVAL;
-> +	if (memchr_inv(ioctl->reserved14, 0, sizeof(ioctl->reserved14)))
-> +		return -EINVAL;
+> +	/* Set new table origin while preserving existing ASCE control bits */
+> +	asce = (gmap->asce & _ASCE_ORIGIN) | __pa(table);
+> +	WRITE_ONCE(gmap->asce, asce);
+> +	WRITE_ONCE(gmap->mm->context.gmap_asce, asce);
+> +	WRITE_ONCE(gmap->table, table);
 > +
 > +	return 0;
 > +}
-> +
-> +/*
-> + * IOCTL entry point for the Ultravisor device.
-> + */
-> +static long uvio_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
-> +{
-> +	void __user *argp = (void __user *)arg;
-> +	struct uvio_ioctl_cb *uv_ioctl;
-> +	long ret;
-> +
-> +	ret = -ENOMEM;
-> +	uv_ioctl = vzalloc(sizeof(*uv_ioctl));
-> +	if (!uv_ioctl)
-> +		goto out;
-> +
-> +	switch (cmd) {
-> +	case UVIO_IOCTL_QUI:
-> +		ret = uvio_copy_and_check_ioctl(uv_ioctl, argp);
-> +		if (ret)
-> +			goto out;
-> +		ret = uvio_qui(uv_ioctl);
-> +		break;
-> +	default:
-> +		ret = -ENOIOCTLCMD;
-> +		break;
-> +	}
-> +	if (ret)
-> +		goto out;
-> +
-> +	if (copy_to_user(argp, uv_ioctl, sizeof(*uv_ioctl)))
-> +		ret = -EFAULT;
-> +
-> + out:
-> +	vfree(uv_ioctl);
-> +	return ret;
-> +}
-> +
-> +static const struct file_operations uvio_dev_fops = {
-> +	.owner = THIS_MODULE,
-> +	.unlocked_ioctl = uvio_ioctl,
-> +	.llseek = no_llseek,
-> +};
-> +
-> +static struct miscdevice uvio_dev_miscdev = {
-> +	.minor = MISC_DYNAMIC_MINOR,
-> +	.name = UVIO_DEVICE_NAME,
-> +	.fops = &uvio_dev_fops,
-> +};
-> +
-> +static void __exit uvio_dev_exit(void)
-> +{
-> +	misc_deregister(&uvio_dev_miscdev);
-> +}
-> +
-> +static int __init uvio_dev_init(void)
-> +{
-> +	if (!test_facility(158))
-> +		return -ENXIO;
-> +	return misc_register(&uvio_dev_miscdev);
-> +}
-> +
-> +module_init(uvio_dev_init);
-> +module_exit(uvio_dev_exit);
-> +
-> +MODULE_AUTHOR("IBM Corporation");
-> +MODULE_LICENSE("GPL");
-> +MODULE_DESCRIPTION("Ultravisor UAPI driver");
+> +EXPORT_SYMBOL_GPL(s390_replace_asce);
 
