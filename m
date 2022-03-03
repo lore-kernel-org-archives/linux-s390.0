@@ -2,189 +2,146 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E4C3FC433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  2 Mar 2022 23:45:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CA542C4332F
+	for <linux-s390@archiver.kernel.org>; Thu,  3 Mar 2022 01:25:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229454AbiCBXps (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 2 Mar 2022 18:45:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51566 "EHLO
+        id S231324AbiCCBZ6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 2 Mar 2022 20:25:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229450AbiCBXpr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Mar 2022 18:45:47 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD8A73E5C5;
-        Wed,  2 Mar 2022 15:43:33 -0800 (PST)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 222Mnb7N008466;
-        Wed, 2 Mar 2022 23:43:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=i5BWb3tqsZ4eoh82ODgmPwJgY+o4LlIyFrdu6rEg8Ak=;
- b=pJtwsLeTgC1Ub+ayC8j8aUk3FRTc3evGdqJgL6RzT6j8vs5Gk7vvIFTpli27VUngJ23w
- eZ5Qg/Z8wY5bRs0zhXtJ7PB8k3dSaByBOe6VYH/aMIWSyIZ4mzhljrZggZdiGnD08ksZ
- SHkJJXclmN4W9woqvwtNK4E0P+Ddpoe4PmysCr5475b+ziDDt/QiPP9SEHrQas7YqJk9
- AoK0lRQdVGPpgDHLzj+MWLB3uFIyoqWYjirNTi8pAdADBoNe8AzQjMmPNtsWfzQI0FDQ
- v5haQDeFLs8gv0fKVJqSr2lBaMQEEdpR885+NPUrEjHlDHJu6blQfvZtBHo+b+XRRaQv Ag== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ejc03g1pr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Mar 2022 23:43:08 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 222NWN4R024561;
-        Wed, 2 Mar 2022 23:43:08 GMT
-Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3ejc03g1ph-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Mar 2022 23:43:08 +0000
-Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
-        by ppma05wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 222Nb81Y025228;
-        Wed, 2 Mar 2022 23:43:06 GMT
-Received: from b01cxnp22034.gho.pok.ibm.com (b01cxnp22034.gho.pok.ibm.com [9.57.198.24])
-        by ppma05wdc.us.ibm.com with ESMTP id 3ej75rmnmf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 02 Mar 2022 23:43:06 +0000
-Received: from b01ledav005.gho.pok.ibm.com (b01ledav005.gho.pok.ibm.com [9.57.199.110])
-        by b01cxnp22034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 222Nh5tf34603432
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 2 Mar 2022 23:43:05 GMT
-Received: from b01ledav005.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 85205AE066;
-        Wed,  2 Mar 2022 23:43:05 +0000 (GMT)
-Received: from b01ledav005.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3AD3DAE05F;
-        Wed,  2 Mar 2022 23:43:04 +0000 (GMT)
-Received: from [9.160.116.147] (unknown [9.160.116.147])
-        by b01ledav005.gho.pok.ibm.com (Postfix) with ESMTP;
-        Wed,  2 Mar 2022 23:43:04 +0000 (GMT)
-Message-ID: <11ab9dfa-494b-5103-5f26-aa6c29567f52@linux.ibm.com>
-Date:   Wed, 2 Mar 2022 18:43:03 -0500
+        with ESMTP id S231249AbiCCBZ5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Mar 2022 20:25:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33A921DA7B;
+        Wed,  2 Mar 2022 17:25:13 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C31C661150;
+        Thu,  3 Mar 2022 01:25:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2074AC340F2;
+        Thu,  3 Mar 2022 01:25:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1646270712;
+        bh=OIWkR7Zp9BS5KcWgPGvH+7lGxsauASKPDzT5dWHRzcg=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=fyTcnY079RGVSWj1/bqnWf9UBPrXZmiZ32cJHGCuHKFrvhhlGSoeO8XnjyAULGbxy
+         xuEeYIRqhVQfty7l070VwdiiUBm+vhQMOyp1/UPCRCwJW1H8chwVFdTWSqF8JxQ7i6
+         pmngu4i/qw99iSRs7nF8V/KUQPfZMnX0OhdBfoyB3K0uXmVGkSCue1VhFC37hRyoHl
+         lqT9JrJPLf0sbQoGpagSmC+bBJdDfAOOQZXY1qQ2kFojarLkPJJigndyp3UGVx/CEp
+         1XnqlJ8dDyOAxVpGwUR+l8DwgqcaHVrJmCy/f+O96VijhpAG5o/2FbsTqBKQIZTLrT
+         qEo+TADXZ7B8A==
+Date:   Wed, 2 Mar 2022 17:25:10 -0800 (PST)
+From:   Stefano Stabellini <sstabellini@kernel.org>
+X-X-Sender: sstabellini@ubuntu-linux-20-04-desktop
+To:     Christoph Hellwig <hch@lst.de>
+cc:     Stefano Stabellini <sstabellini@kernel.org>,
+        iommu@lists.linux-foundation.org, x86@kernel.org,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Juergen Gross <jgross@suse.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        linux-arm-kernel@lists.infradead.org,
+        xen-devel@lists.xenproject.org, linux-ia64@vger.kernel.org,
+        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-hyperv@vger.kernel.org, tboot-devel@lists.sourceforge.net,
+        linux-pci@vger.kernel.org
+Subject: Re: [PATCH 11/12] swiotlb: merge swiotlb-xen initialization into
+ swiotlb
+In-Reply-To: <20220302081500.GB23075@lst.de>
+Message-ID: <alpine.DEB.2.22.394.2203021709470.3261@ubuntu-linux-20-04-desktop>
+References: <20220301105311.885699-1-hch@lst.de> <20220301105311.885699-12-hch@lst.de> <alpine.DEB.2.22.394.2203011720150.3261@ubuntu-linux-20-04-desktop> <20220302081500.GB23075@lst.de>
+User-Agent: Alpine 2.22 (DEB 394 2020-01-19)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH v18 07/18] s390/vfio-ap: refresh guest's APCB by filtering
- APQNs assigned to mdev
-Content-Language: en-US
-To:     jjherne@linux.ibm.com, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
-        mjrosato@linux.ibm.com, pasic@linux.ibm.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        fiuczy@linux.ibm.com
-References: <20220215005040.52697-1-akrowiak@linux.ibm.com>
- <20220215005040.52697-8-akrowiak@linux.ibm.com>
- <2b1f788b-5197-f5e8-52cf-58995d758ef7@linux.ibm.com>
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <2b1f788b-5197-f5e8-52cf-58995d758ef7@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: qwP7h1CS1yQLyuuEgo_Weg01A1yRzyDt
-X-Proofpoint-ORIG-GUID: zPYtVih04kZnTT8H_SA9_2e3W9lyBqk4
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-02_12,2022-02-26_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- mlxlogscore=999 phishscore=0 adultscore=0 malwarescore=0 mlxscore=0
- suspectscore=0 impostorscore=0 spamscore=0 clxscore=1011 bulkscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2203020098
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 3/2/22 14:35, Jason J. Herne wrote:
-> On 2/14/22 19:50, Tony Krowiak wrote:
->> Refresh the guest's APCB by filtering the APQNs assigned to the 
->> matrix mdev
->> that do not reference an AP queue device bound to the vfio_ap device
->> driver. The mdev's APQNs will be filtered according to the following 
->> rules:
->>
->> * The APID of each adapter and the APQI of each domain that is not in 
->> the
->> host's AP configuration is filtered out.
->>
->> * The APID of each adapter comprising an APQN that does not reference a
->> queue device bound to the vfio_ap device driver is filtered. The APQNs
->> are derived from the Cartesian product of the APID of each adapter and
->> APQI of each domain assigned to the mdev.
->>
->> The control domains that are not assigned to the host's AP configuration
->> will also be filtered before assigning them to the guest's APCB.
->>
->> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
->> ---
->>   drivers/s390/crypto/vfio_ap_ops.c | 96 ++++++++++++++++++++++++++++++-
->>   1 file changed, 93 insertions(+), 3 deletions(-)
->>
->> diff --git a/drivers/s390/crypto/vfio_ap_ops.c 
->> b/drivers/s390/crypto/vfio_ap_ops.c
->> index 4b676a55f203..b67b2f0faeea 100644
->> --- a/drivers/s390/crypto/vfio_ap_ops.c
->> +++ b/drivers/s390/crypto/vfio_ap_ops.c
->> @@ -317,6 +317,63 @@ static void vfio_ap_matrix_init(struct 
->> ap_config_info *info,
->>       matrix->adm_max = info->apxa ? info->Nd : 15;
->>   }
->>   +static void vfio_ap_mdev_filter_cdoms(struct ap_matrix_mdev 
->> *matrix_mdev)
->> +{
->> +    bitmap_and(matrix_mdev->shadow_apcb.adm, matrix_mdev->matrix.adm,
->> +           (unsigned long *)matrix_dev->info.adm, AP_DOMAINS);
->> +}
->> +
->> +/*
->> + * vfio_ap_mdev_filter_matrix - copy the mdev's AP configuration to 
->> the KVM
->> + *                guest's APCB then filter the APIDs that do not
->> + *                comprise at least one APQN that references a
->> + *                queue device bound to the vfio_ap device driver.
->> + *
->> + * @matrix_mdev: the mdev whose AP configuration is to be filtered.
->> + */
->> +static void vfio_ap_mdev_filter_matrix(unsigned long *apm, unsigned 
->> long *aqm,
->> +                       struct ap_matrix_mdev *matrix_mdev)
->> +{
->> +    int ret;
->> +    unsigned long apid, apqi, apqn;
->> +
->> +    ret = ap_qci(&matrix_dev->info);
->> +    if (ret)
->> +        return;
->> +
->> +    vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->shadow_apcb);
->
-> Do you need to call vfio_ap_matrix_init here? It seems to me like this 
-> would
-> only be necesarry if apxa could be dynamically added or removed. Here 
-> is a
-> copy of vfio_ap_matrix_init, for reference:
->
-> static void vfio_ap_matrix_init(struct ap_config_info *info,
->                 struct ap_matrix *matrix)
+On Wed, 2 Mar 2022, Christoph Hellwig wrote:
+> On Tue, Mar 01, 2022 at 06:55:47PM -0800, Stefano Stabellini wrote:
+> > Unrelated to this specific patch series: now that I think about it, if
+> > io_tlb_default_mem.nslabs is already allocated by the time xen_mm_init
+> > is called, wouldn't we potentially have an issue with the GFP flags used
+> > for the earlier allocation (e.g. GFP_DMA32 not used)? Maybe something
+> > for another day.
+> 
+> swiotlb_init allocates low memory from meblock, which is roughly
+> equivalent to GFP_DMA allocations, so we'll be fine.
+> 
+> > > @@ -143,10 +141,15 @@ static int __init xen_mm_init(void)
+> > >  	if (!xen_swiotlb_detect())
+> > >  		return 0;
+> > >  
+> > > -	rc = xen_swiotlb_init();
+> > >  	/* we can work with the default swiotlb */
+> > > -	if (rc < 0 && rc != -EEXIST)
+> > > -		return rc;
+> > > +	if (!io_tlb_default_mem.nslabs) {
+> > > +		if (!xen_initial_domain())
+> > > +			return -EINVAL;
+> > 
+> > I don't think we need this xen_initial_domain() check. It is all
+> > already sorted out by the xen_swiotlb_detect() check above.
+> 
+> Is it?
+> 
+> static inline int xen_swiotlb_detect(void)
 > {
->     matrix->apm_max = info->apxa ? info->Na : 63;
->     matrix->aqm_max = info->apxa ? info->Nd : 15;
->     matrix->adm_max = info->apxa ? info->Nd : 15;
+> 	if (!xen_domain())
+> 		return 0;
+> 	if (xen_feature(XENFEAT_direct_mapped))
+> 		return 1;
+> 	/* legacy case */
+> 	if (!xen_feature(XENFEAT_not_direct_mapped) && xen_initial_domain())
+> 		return 1;
+> 	return 0;
 > }
->
-> It seems like this should be figured out once and stored when the
-> ap_matrix_mdev struct is first created. Unless I'm wrong, and the 
-> status of
-> apxa can change dynamically, in which case the maximums would need to be
-> updated somewhere.
 
-It's an interesting question to which I don't have a definitive answer. 
-I'll run it
-by our architects. On the other hand, making this call here is not entirely
-unreasonable and merely superfluous at worst, but I'll look into it.
+It used to be that we had a
 
-Tony K
+  if (!xen_initial_domain())
+      return -EINVAL;
 
->
->
+check in the initialization of swiotlb-xen on ARM. Then we replaced it
+with the more sophisticated xen_swiotlb_detect().
 
+The reason is that swiotlb-xen on ARM relies on Dom0 being 1:1 mapped
+(guest physical addresses == physical addresses). Recent changes in Xen
+allowed also DomUs to be 1:1 mapped. Changes still under discussion will
+allow Dom0 not to be 1:1 mapped.
+
+So, before all the Xen-side changes, knowing what was going to happen, I
+introduced a clearer interface: XENFEAT_direct_mapped and
+XENFEAT_not_direct_mapped tell us whether the guest (Linux) is 1:1
+mapped or not. If it is 1:1 mapped then Linux can take advantage of
+swiotlb-xen. Now xen_swiotlb_detect() returns true if Linux is 1:1
+mapped.
+
+Then of course there is the legacy case. That's taken care of by:
+
+ 	if (!xen_feature(XENFEAT_not_direct_mapped) && xen_initial_domain())
+ 		return 1;
+
+The intention is to say that if
+XENFEAT_direct_mapped/XENFEAT_not_direct_mapped are not present, then
+use xen_initial_domain() like we did before.
+
+So if xen_swiotlb_detect() returns true we know that Linux is either
+dom0 (xen_initial_domain() == true) or we have very good reasons to
+think we should initialize swiotlb-xen anyway
+(xen_feature(XENFEAT_direct_mapped) == true).
+
+
+> I think I'd keep it as-is for now, as my planned next step would be to
+> fold xen-swiotlb into swiotlb entirely.
+
+Thinking more about it we actually need to drop the xen_initial_domain()
+check otherwise some cases won't be functional (Dom0 not 1:1 mapped, or
+DomU 1:1 mapped).
