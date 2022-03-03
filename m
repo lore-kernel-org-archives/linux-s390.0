@@ -2,205 +2,184 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D3371C433EF
-	for <linux-s390@archiver.kernel.org>; Thu,  3 Mar 2022 08:40:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D414FC433EF
+	for <linux-s390@archiver.kernel.org>; Thu,  3 Mar 2022 09:43:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229625AbiCCIk4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 3 Mar 2022 03:40:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57014 "EHLO
+        id S231172AbiCCJoD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 3 Mar 2022 04:44:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229773AbiCCIk4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Mar 2022 03:40:56 -0500
-Received: from out30-57.freemail.mail.aliyun.com (out30-57.freemail.mail.aliyun.com [115.124.30.57])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29542175830;
-        Thu,  3 Mar 2022 00:40:09 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0V66rH41_1646296807;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0V66rH41_1646296807)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 03 Mar 2022 16:40:07 +0800
-From:   Dust Li <dust.li@linux.alibaba.com>
-To:     Karsten Graul <kgraul@linux.ibm.com>,
-        Tony Lu <tonylu@linux.alibaba.com>, davem@davemloft.net,
-        kuba@kernel.org
-Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-rdma@vger.kernel.org
-Subject: [PATCH net-next v2] net/smc: fix compile warning for smc_sysctl
-Date:   Thu,  3 Mar 2022 16:40:06 +0800
-Message-Id: <20220303084006.54313-1-dust.li@linux.alibaba.com>
-X-Mailer: git-send-email 2.19.1.3.ge56e4f7
+        with ESMTP id S232076AbiCCJoB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Mar 2022 04:44:01 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53414BD2CC;
+        Thu,  3 Mar 2022 01:43:12 -0800 (PST)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 2238s8po025287;
+        Thu, 3 Mar 2022 09:43:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=t7rA9v4DZYDLzxJsqjcTKKSN1Ami6KPsKX0/vnvXfJI=;
+ b=jO7yQorlNetRAkFl4AXWuWiZY+0RszMC79dz9z2T6b5l6iBHIEPsPpDGufMeX9EnMYRR
+ mMI0KszXaOJLhabLttAFoGwV7s727D9xbJJpM1PQDblVph+K9K9uAdId3HtOXh7+cNLJ
+ aPGOW8OnOWYlRzBOfS/Q22PHU2k6Chu+OmW0ouaB1ZSNBrWdpsIp5zOhKxUpZYpxvPYW
+ FFejE0lw5wvy+TOqpPQ1eWV4KxlwKyQkcxiCYArW+EgFNb4EX2ZZOW5xv2o1X1b90VRl
+ ZM38yUSWdyR7HgO19xAo1cRSw3ZTFlrOrT1A2Db1eMNnazw1Iv3o2yGyxAfR2goZasEa ag== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3ejtjery2j-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 03 Mar 2022 09:43:11 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 2238wGHg002023;
+        Thu, 3 Mar 2022 09:43:10 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3ejtjery20-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 03 Mar 2022 09:43:10 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2239arKg006158;
+        Thu, 3 Mar 2022 09:43:09 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 3efbu9hctj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 03 Mar 2022 09:43:09 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2239h68N48628070
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 3 Mar 2022 09:43:06 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CE618A404D;
+        Thu,  3 Mar 2022 09:43:05 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4A256A4053;
+        Thu,  3 Mar 2022 09:43:05 +0000 (GMT)
+Received: from [9.171.78.253] (unknown [9.171.78.253])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu,  3 Mar 2022 09:43:05 +0000 (GMT)
+Message-ID: <7dc2517d-c276-3a3b-bdec-b67bb5b5fd26@linux.ibm.com>
+Date:   Thu, 3 Mar 2022 10:43:05 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [kvm-unit-tests PATCH] s390x: Add strict mode to specification
+ exception interpretation test
+Content-Language: en-US
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+References: <20220225172355.3564546-1-scgl@linux.ibm.com>
+ <20220228142727.3542b767@p-imbrenda>
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+In-Reply-To: <20220228142727.3542b767@p-imbrenda>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: KLaSW5fkQoKuCaG-AgI2_ozh8nEfjLUX
+X-Proofpoint-ORIG-GUID: 2hx29klymdm1TxPvPa02oyHq7awmt3RH
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-03-03_06,2022-02-26_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=999
+ bulkscore=0 impostorscore=0 spamscore=0 adultscore=0 clxscore=1015
+ priorityscore=1501 malwarescore=0 phishscore=0 lowpriorityscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2203030044
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-kernel test robot reports multiple warning for smc_sysctl:
+On 2/28/22 14:27, Claudio Imbrenda wrote:
+> On Fri, 25 Feb 2022 18:23:55 +0100
+> Janis Schoetterl-Glausch <scgl@linux.ibm.com> wrote:
+> 
+>> While specification exception interpretation is not required to occur,
+>> it can be useful for automatic regression testing to fail the test if it
+>> does not occur.
+>> Add a `--strict` argument to enable this.
+>> `--strict` takes a list of machine types (as reported by STIDP)
+>> for which to enable strict mode, for example
+>> `--strict 8562,8561,3907,3906,2965,2964`
+>> will enable it for models z15 - z13.
+>> Alternatively, strict mode can be enabled for all but the listed machine
+>> types by prefixing the list with a `!`, for example
+>> `--strict !1090,1091,2064,2066,2084,2086,2094,2096,2097,2098,2817,2818,2827,2828`
+>> will enable it for z/Architecture models except those older than z13.
+>>
+>> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+>> ---
+> 
+> [...]
+> 
+>> +static bool parse_strict(int argc, char **argv)
+>> +{
+>> +	uint16_t machine_id;
+>> +	char *list;
+>> +	bool ret;
+>> +
+>> +	if (argc < 1)
+>> +		return false;
+>> +	if (strcmp("--strict", argv[0]))
+>> +		return false;
+>> +
+>> +	machine_id = get_machine_id();
+>> +	if (argc < 2) {
+>> +		printf("No argument to --strict, ignoring\n");
+>> +		return false;
+>> +	}
+>> +	list = argv[1];
+>> +	if (list[0] == '!') {
+>> +		ret = true;
+>> +		list++;
+>> +	} else
+>> +		ret = false;
+>> +	while (true) {
+>> +		long input = 0;
+>> +
+>> +		if (strlen(list) == 0)
+>> +			return ret;
+>> +		input = strtol(list, &list, 16);
+>> +		if (*list == ',')
+>> +			list++;
+>> +		else if (*list != '\0')
+>> +			break;
+>> +		if (input == machine_id)
+>> +			return !ret;
+>> +	}
+>> +	printf("Invalid --strict argument \"%s\", ignoring\n", list);
+>> +	return ret;
+>> +}
+> 
+> probably I should write a few parsing functions for command line
+> arguments, so we don't have to re-invent the wheel every time
 
-  In file included from net/smc/smc_sysctl.c:17:
->> net/smc/smc_sysctl.h:23:5: warning: no previous prototype \
-	for function 'smc_sysctl_init' [-Wmissing-prototypes]
-  int smc_sysctl_init(void)
-       ^
-and
-  >> WARNING: modpost: vmlinux.o(.text+0x12ced2d): Section mismatch \
-  in reference from the function smc_sysctl_exit() to the variable
-  .init.data:smc_sysctl_ops
-  The function smc_sysctl_exit() references
-  the variable __initdata smc_sysctl_ops.
-  This is often because smc_sysctl_exit lacks a __initdata
-  annotation or the annotation of smc_sysctl_ops is wrong.
+Maybe, would depend on what you have in mind, I'm not sure most
+use cases can be covered by a reasonable set of abstractions.
+> 
+>> +
+>>  int main(int argc, char **argv)
+>>  {
+>>  	if (!sclp_facilities.has_sief2) {
+>> @@ -76,7 +121,7 @@ int main(int argc, char **argv)
+>>  		goto out;
+>>  	}
+>>  
+>> -	test_spec_ex_sie();
+>> +	test_spec_ex_sie(parse_strict(argc - 1, argv + 1));
+> 
+> hmmm... maybe it would be more readable and more uniform with the other
+> tests to parse the command line during initialization of the unit test,
+> and set a global flag.
 
-and
-  net/smc/smc_sysctl.c: In function 'smc_sysctl_init_net':
-  net/smc/smc_sysctl.c:47:17: error: 'struct netns_smc' has no member named 'smc_hdr'
-     47 |         net->smc.smc_hdr = register_net_sysctl(net, "net/smc", table);
-
-Since we don't need global sysctl initialization. To make things
-clean and simple, remove the global pernet_operations and
-smc_sysctl_{init|exit}. Call smc_sysctl_net_{init|exit} directly
-from smc_net_{init|exit}.
-
-Also initialized sysctl_autocorking_size if CONFIG_SYSCTL it not
-set, this makes sure SMC autocorking is enabled by default if
-CONFIG_SYSCTL is not set.
-
-Fixes: 462791bbfa35 ("net/smc: add sysctl interface for SMC")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
-
----
-v2: 1. Removes pernet_operations and smc_sysctl_{init|exit}
-    2. Initialize sysctl_autocorking_size if CONFIG_SYSCTL not set
----
- net/smc/Makefile     |  3 ++-
- net/smc/af_smc.c     | 15 ++++++---------
- net/smc/smc_sysctl.c | 19 ++-----------------
- net/smc/smc_sysctl.h |  9 +++++----
- 4 files changed, 15 insertions(+), 31 deletions(-)
-
-diff --git a/net/smc/Makefile b/net/smc/Makefile
-index 640af9a39f9c..875efcd126a2 100644
---- a/net/smc/Makefile
-+++ b/net/smc/Makefile
-@@ -4,4 +4,5 @@ obj-$(CONFIG_SMC)	+= smc.o
- obj-$(CONFIG_SMC_DIAG)	+= smc_diag.o
- smc-y := af_smc.o smc_pnet.o smc_ib.o smc_clc.o smc_core.o smc_wr.o smc_llc.o
- smc-y += smc_cdc.o smc_tx.o smc_rx.o smc_close.o smc_ism.o smc_netlink.o smc_stats.o
--smc-y += smc_tracepoint.o smc_sysctl.o
-+smc-y += smc_tracepoint.o
-+smc-$(CONFIG_SYSCTL) += smc_sysctl.o
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 6447607675fa..4ab17d35ca80 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -3173,11 +3173,17 @@ unsigned int smc_net_id;
- 
- static __net_init int smc_net_init(struct net *net)
- {
-+	int rc;
-+
-+	rc = smc_sysctl_net_init(net);
-+	if (rc)
-+		return rc;
- 	return smc_pnet_net_init(net);
- }
- 
- static void __net_exit smc_net_exit(struct net *net)
- {
-+	smc_sysctl_net_exit(net);
- 	smc_pnet_net_exit(net);
- }
- 
-@@ -3290,17 +3296,9 @@ static int __init smc_init(void)
- 		goto out_sock;
- 	}
- 
--	rc = smc_sysctl_init();
--	if (rc) {
--		pr_err("%s: sysctl_init fails with %d\n", __func__, rc);
--		goto out_ulp;
--	}
--
- 	static_branch_enable(&tcp_have_smc);
- 	return 0;
- 
--out_ulp:
--	tcp_unregister_ulp(&smc_ulp_ops);
- out_sock:
- 	sock_unregister(PF_SMC);
- out_proto6:
-@@ -3328,7 +3326,6 @@ static int __init smc_init(void)
- static void __exit smc_exit(void)
- {
- 	static_branch_disable(&tcp_have_smc);
--	smc_sysctl_exit();
- 	tcp_unregister_ulp(&smc_ulp_ops);
- 	sock_unregister(PF_SMC);
- 	smc_core_exit();
-diff --git a/net/smc/smc_sysctl.c b/net/smc/smc_sysctl.c
-index 3b59876aaac9..c4a2ffb6deee 100644
---- a/net/smc/smc_sysctl.c
-+++ b/net/smc/smc_sysctl.c
-@@ -28,7 +28,7 @@ static struct ctl_table smc_table[] = {
- 	{  }
- };
- 
--static __net_init int smc_sysctl_init_net(struct net *net)
-+int smc_sysctl_net_init(struct net *net)
- {
- 	struct ctl_table *table;
- 
-@@ -59,22 +59,7 @@ static __net_init int smc_sysctl_init_net(struct net *net)
- 	return -ENOMEM;
- }
- 
--static __net_exit void smc_sysctl_exit_net(struct net *net)
-+void smc_sysctl_net_exit(struct net *net)
- {
- 	unregister_net_sysctl_table(net->smc.smc_hdr);
- }
--
--static struct pernet_operations smc_sysctl_ops __net_initdata = {
--	.init = smc_sysctl_init_net,
--	.exit = smc_sysctl_exit_net,
--};
--
--int __init smc_sysctl_init(void)
--{
--	return register_pernet_subsys(&smc_sysctl_ops);
--}
--
--void smc_sysctl_exit(void)
--{
--	unregister_pernet_subsys(&smc_sysctl_ops);
--}
-diff --git a/net/smc/smc_sysctl.h b/net/smc/smc_sysctl.h
-index 49553ac236b6..66bd617e26ad 100644
---- a/net/smc/smc_sysctl.h
-+++ b/net/smc/smc_sysctl.h
-@@ -15,17 +15,18 @@
- 
- #ifdef CONFIG_SYSCTL
- 
--int smc_sysctl_init(void);
--void smc_sysctl_exit(void);
-+int smc_sysctl_net_init(struct net *net);
-+void smc_sysctl_net_exit(struct net *net);
- 
- #else
- 
--int smc_sysctl_init(void)
-+static inline int smc_sysctl_net_init(struct net *net)
- {
-+	net->smc.sysctl_autocorking_size = SMC_AUTOCORKING_DEFAULT_SIZE;
- 	return 0;
- }
- 
--void smc_sysctl_exit(void) { }
-+static inline void smc_sysctl_net_exit(struct net *net) { }
- 
- #endif /* CONFIG_SYSCTL */
- 
--- 
-2.19.1.3.ge56e4f7
+More uniform maybe, but I tend to dislike globals from a readability point
+of view. I'm inclined to keep it as is.
+> 
+>>  out:
+>>  	return report_summary();
+>>  }
+>>
+>> base-commit: 257c962f3d1b2d0534af59de4ad18764d734903a
+> 
 
