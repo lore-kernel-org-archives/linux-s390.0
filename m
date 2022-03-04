@@ -2,78 +2,110 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1421DC433F5
-	for <linux-s390@archiver.kernel.org>; Fri,  4 Mar 2022 05:30:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 095FEC433F5
+	for <linux-s390@archiver.kernel.org>; Fri,  4 Mar 2022 08:19:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238090AbiCDFbB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 4 Mar 2022 00:31:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42400 "EHLO
+        id S229886AbiCDIUK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 4 Mar 2022 03:20:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231272AbiCDFa7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Mar 2022 00:30:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55E3912D220;
-        Thu,  3 Mar 2022 21:30:11 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E57E461C41;
-        Fri,  4 Mar 2022 05:30:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 4108DC340F1;
-        Fri,  4 Mar 2022 05:30:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646371810;
-        bh=5LEVjy1YmkdJcCb4Zn5rpRGX1NqKvW+i31QIMXhspnQ=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=bpZK2GqMOPl5OSERZLs3Oaysgwz2PF3qs3kjzyx3t/bg+c/SWSGWeWZAjqfMDiBks
-         BsKF0bF3mM1koD0S5YEkZelsQ7C51w4tjh5hHSizQBOPmn4sClE61ylOrQfDCJPC2P
-         Sma0xW+n5/aYc9yOa3eASJ0pE9rnEGVlorG3QzrU8jyDMVQpcq/l6OzOo5AccchHNV
-         wnDS6sl3+cGk1P0Ry6Xa68sWJVl1bw1n+ZuSdykPYtuSsovzfQLQvvBtouBVNFFnme
-         M/pEhWI+95UCwIDa75V0HcOYD7spoTOIseXQpoQTAy71GNTi9DwfWSKXlEpUaE/zrS
-         HeWyvoZzNAAhA==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 25DF2E7BB18;
-        Fri,  4 Mar 2022 05:30:10 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229862AbiCDIUK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Mar 2022 03:20:10 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3B5E195335;
+        Fri,  4 Mar 2022 00:19:22 -0800 (PST)
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 2246ngvs017681;
+        Fri, 4 Mar 2022 08:19:17 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=jHJpfKXos8yxpcLzhydCzMHLSLVTL2iZSGKJQwvnrKI=;
+ b=mbRxKDKM0L1ZYtdErnihnKLV1zX0UMDk5rm6IeAJxo2mh6Jq8em9EIjiPaYfGfmT/a3F
+ e81iEnsfeYaUY32vo2oMv3eawxw+qEA3aSahNNMni7Jil5Z+iMR0w7ZrLXZC9li3nSAa
+ fN16Mi3mbvc7liuxwB/HT1Q+1f9bwcsCXDIaA9tC1nNguThjb4JaRDJJ3uXW7QZBQTMv
+ ctvX98ciQIjsThA5dfZZ06UzFhjp1f8039bjfLqc1UAB3Dm+3oEV45MuXjejMLLn7a0Z
+ aldVTxogbY2tClhQ+7SElMNSicZ98Bae/rqUXx0++L+G7wZDlyeAny+z7fc0W0YkmZQN 4Q== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3ekdugsdjx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 04 Mar 2022 08:19:17 +0000
+Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 224832dK018346;
+        Fri, 4 Mar 2022 08:19:16 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3ekdugsdjf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 04 Mar 2022 08:19:16 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2248F6tf029193;
+        Fri, 4 Mar 2022 08:19:15 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma03ams.nl.ibm.com with ESMTP id 3ek4k416c7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 04 Mar 2022 08:19:14 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2248JCLA55771442
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 4 Mar 2022 08:19:12 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A1CF14C046;
+        Fri,  4 Mar 2022 08:19:12 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 25E834C040;
+        Fri,  4 Mar 2022 08:19:12 +0000 (GMT)
+Received: from [9.171.45.180] (unknown [9.171.45.180])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri,  4 Mar 2022 08:19:12 +0000 (GMT)
+Message-ID: <2a950f5a-d3be-0790-2487-9a3c37894b5b@linux.ibm.com>
+Date:   Fri, 4 Mar 2022 09:19:27 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next] net/smc: fix document build WARNING from
- smc-sysctl.rst
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <164637181015.17739.5111216644872044455.git-patchwork-notify@kernel.org>
-Date:   Fri, 04 Mar 2022 05:30:10 +0000
-References: <20220303113527.62047-1-dust.li@linux.alibaba.com>
-In-Reply-To: <20220303113527.62047-1-dust.li@linux.alibaba.com>
-To:     Dust Li <dust.li@linux.alibaba.com>
-Cc:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org,
-        sfr@canb.auug.org.au, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.1
+Subject: Re: [PATCH net-next 6/7] net/smc: don't req_notify until all CQEs
+ drained
+Content-Language: en-US
+To:     dust.li@linux.alibaba.com
+Cc:     Tony Lu <tonylu@linux.alibaba.com>,
+        Guangguan Wang <guangguan.wang@linux.alibaba.com>,
+        davem@davemloft.net, kuba@kernel.org, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+        Leon Romanovsky <leon@kernel.org>
+References: <20220301094402.14992-1-dust.li@linux.alibaba.com>
+ <20220301094402.14992-7-dust.li@linux.alibaba.com> <Yh3x93sPCS+w/Eth@unreal>
+ <20220301105332.GA9417@linux.alibaba.com>
+From:   Karsten Graul <kgraul@linux.ibm.com>
+Organization: IBM Deutschland Research & Development GmbH
+In-Reply-To: <20220301105332.GA9417@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: P4CLBJSQkCY3EQiJOegY8KgiLmAA0veH
+X-Proofpoint-GUID: eAgYhKH6nIIghlvYBjd8eCH-hcOxkym-
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-03-04_02,2022-02-26_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 bulkscore=0
+ mlxlogscore=806 malwarescore=0 lowpriorityscore=0 adultscore=0
+ clxscore=1015 mlxscore=0 priorityscore=1501 impostorscore=0 suspectscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2203040041
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
-
-This patch was applied to netdev/net-next.git (master)
-by Jakub Kicinski <kuba@kernel.org>:
-
-On Thu,  3 Mar 2022 19:35:27 +0800 you wrote:
-> Stephen reported the following warning messages from smc-sysctl.rst
+On 01/03/2022 11:53, dust.li wrote:
+> On Tue, Mar 01, 2022 at 12:14:15PM +0200, Leon Romanovsky wrote:
+>> On Tue, Mar 01, 2022 at 05:44:01PM +0800, Dust Li wrote:
+>> 1. Please remove "--Guangguan Wang".
+>> 2. We already discussed that. SMC should be changed to use RDMA CQ pool API
+>> drivers/infiniband/core/cq.c.
+>> ib_poll_handler() has much better implementation (tracing, IRQ rescheduling,
+>> proper error handling) than this SMC variant.
 > 
-> Documentation/networking/smc-sysctl.rst:3: WARNING: Title overline
-> too short.
-> Documentation/networking/smc-sysctl.rst: WARNING: document isn't
-> included in any toctree
-> 
-> [...]
+> OK, I'll remove this patch in the next version.
 
-Here is the summary with links:
-  - [net-next] net/smc: fix document build WARNING from smc-sysctl.rst
-    https://git.kernel.org/netdev/net-next/c/f9f52c347428
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Looks like this one was accepted already, but per discussion (and I agree with that) -
+please revert this patch. Thank you.
 
 
