@@ -2,94 +2,141 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 95646C433F5
-	for <linux-s390@archiver.kernel.org>; Fri,  4 Mar 2022 09:10:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DE849C433F5
+	for <linux-s390@archiver.kernel.org>; Fri,  4 Mar 2022 09:17:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235631AbiCDJLk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 4 Mar 2022 04:11:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48132 "EHLO
+        id S236078AbiCDJSN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 4 Mar 2022 04:18:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233583AbiCDJLj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Mar 2022 04:11:39 -0500
-X-Greylist: delayed 549 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 04 Mar 2022 01:10:52 PST
-Received: from wout1-smtp.messagingengine.com (wout1-smtp.messagingengine.com [64.147.123.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97FEA154D35
-        for <linux-s390@vger.kernel.org>; Fri,  4 Mar 2022 01:10:52 -0800 (PST)
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 3B04C3200F81;
-        Fri,  4 Mar 2022 04:01:41 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Fri, 04 Mar 2022 04:01:41 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=russell.cc; h=cc
-        :cc:content-transfer-encoding:date:date:from:from:in-reply-to
-        :message-id:mime-version:reply-to:sender:subject:subject:to:to;
-         s=fm1; bh=czeIJA+xHkaPMWCkdr5P2DiGZn8PO/7uB8ivo1GrJ8I=; b=yLMVm
-        DvfLWjfFlMgBgwGnor5CQfc6BdLBxNSYrhpLBG8jN4RIgKcP0AsElJXX9slO/6KK
-        Pau9mGDCgjOyj9/rTLsSKWoE8ZbZNCOEo19ZqqexeF7XCoW+QB3vB1LxATN0idN/
-        xWWOaH4tZ0N0CTSMTaoOkb71q34IIurUxaal7R3F5U+pRmsP/e0bcikMTJlWuizD
-        723l/257ElCJMzXFnL6uybWvCsoYcSJ+RhNh/FaDE/ml5kEDtStFXfv86f0lliit
-        4cuwqnzEsTb3rxQoE1stPiPSzADpESkOYGc0y6YuDUrLjPyT0MuESTT1G1mpR3JD
-        hRa1rFe0Q2tjMFDfA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-transfer-encoding:date:date
-        :from:from:in-reply-to:message-id:mime-version:reply-to:sender
-        :subject:subject:to:to:x-me-proxy:x-me-proxy:x-me-sender
-        :x-me-sender:x-sasl-enc; s=fm2; bh=czeIJA+xHkaPMWCkdr5P2DiGZn8PO
-        /7uB8ivo1GrJ8I=; b=m8ZWyrjmHF5WjiXTQvl+USm9OxbVyvwg6MkUHNUH4XwEP
-        hzOx99Vnj8oC51TdhkKsWmEgcdqGavKwuCnE5CD77Arb46sqPr7rgigQvMakssOc
-        h3LSjCmZW6u826SsRAh2SHmfXHDqTallPztG/RL8H8Ph/fekFU5X4CSMo4uTuug+
-        rPo5+qJrATZxGEJf87VDBAYQW9Jsg17W/QZ8K9pYmI94qxz98jwRQBsdYgDt5Yfh
-        1Aa6cjXP4EJ3TdEknS/e4/OTpftsnUFgvJHuqRh8i+i1kahyLBPdVDZTkXgwZDV9
-        X+zSZRO1oDMAJbSGoQSWZYY4ItNaS7vUSRcI4d9YA==
-X-ME-Sender: <xms:dNUhYm_4YT67k-g0HdZacVoFYx04D40JuTSD_l7EJnYzkpwyegkzQg>
-    <xme:dNUhYmudNCV-2LLYwGxI7DgFUiC13Z10H_65zPy3oBxpMGpCne0oJ6XFBEKWcJ4RH
-    08C-ymTQRbyRCcrsA>
-X-ME-Received: <xmr:dNUhYsCA2fwfCOPmrjPPv26z0Wma5tEVprz8sr1bvmQ5tubC5zh7cgvKwyfs5RA7-iMrD5N3Liq8SJhwSEqZVR2sjBK5LMxB4kEjOdK-26ARWBNYjJ7tZLPY1Q>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddruddtjedguddvkecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecufghrlhcuvffnffculdeftddmnecujfgurhephf
-    fvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftuhhsshgvlhhlucevuhhrrhgv
-    hicuoehruhhstghurhesrhhushhsvghllhdrtggtqeenucggtffrrghtthgvrhhnpeelge
-    elfedvffekgeevfeelveeftdeilefgudegkeeuhefhvefgffekuefgffekfeenucevlhhu
-    shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehruhhstghurhesrh
-    hushhsvghllhdrtggt
-X-ME-Proxy: <xmx:dNUhYue9K4i2G25cdZDGftYbfrUDYF87fvjJrTAA9UMILMN1_rHlKw>
-    <xmx:dNUhYrMpdebmpdDqaLPv6akUTY9oCN7yPG1Lr3fq8Q_9aI-D88m1hQ>
-    <xmx:dNUhYokvRI8dDV0Zivu33OqnUOF77AL39W_ihhYqliLHfRstVNMm3A>
-    <xmx:dNUhYh3_T780qNP_DalRA49MGkIoFqygSRTyUTcBzsV2XyC_va8zcA>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 4 Mar 2022 04:01:39 -0500 (EST)
-From:   Russell Currey <ruscur@russell.cc>
-To:     linux-s390@vger.kernel.org
-Cc:     svens@linux.ibm.com, Russell Currey <ruscur@russell.cc>
-Subject: [PATCH] s390: Fix typo in syscall_wrapper.h
-Date:   Fri,  4 Mar 2022 19:01:09 +1000
-Message-Id: <20220304090109.29386-1-ruscur@russell.cc>
-X-Mailer: git-send-email 2.35.1
+        with ESMTP id S237169AbiCDJSL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Mar 2022 04:18:11 -0500
+Received: from out30-54.freemail.mail.aliyun.com (out30-54.freemail.mail.aliyun.com [115.124.30.54])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97A951A6141;
+        Fri,  4 Mar 2022 01:17:23 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04357;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0V6BiGIw_1646385440;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0V6BiGIw_1646385440)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Fri, 04 Mar 2022 17:17:21 +0800
+From:   Dust Li <dust.li@linux.alibaba.com>
+To:     Karsten Graul <kgraul@linux.ibm.com>, davem@davemloft.net,
+        kuba@kernel.org
+Cc:     Guangguan Wang <guangguan.wang@linux.alibaba.com>,
+        Leon Romanovsky <leon@kernel.org>, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: [PATCH net-next] Revert "net/smc: don't req_notify until all CQEs drained"
+Date:   Fri,  4 Mar 2022 17:17:19 +0800
+Message-Id: <20220304091719.48340-1-dust.li@linux.alibaba.com>
+X-Mailer: git-send-email 2.19.1.3.ge56e4f7
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Looks like this endif comment was erroneously unchanged when copied over
-from the x86 version.
+This reverts commit a505cce6f7cfaf2aa2385aab7286063c96444526.
 
-Signed-off-by: Russell Currey <ruscur@russell.cc>
+Leon says:
+  We already discussed that. SMC should be changed to use
+  RDMA CQ pool API
+  drivers/infiniband/core/cq.c.
+  ib_poll_handler() has much better implementation (tracing,
+  IRQ rescheduling, proper error handling) than this SMC variant.
+
+Since we will switch to ib_poll_handler() in the future,
+revert this patch.
+
+Link: https://lore.kernel.org/netdev/20220301105332.GA9417@linux.alibaba.com/
+Suggested-by: Leon Romanovsky <leon@kernel.org>
+Suggested-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
 ---
- arch/s390/include/asm/syscall_wrapper.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/smc/smc_wr.c | 49 +++++++++++++++++++++---------------------------
+ 1 file changed, 21 insertions(+), 28 deletions(-)
 
-diff --git a/arch/s390/include/asm/syscall_wrapper.h b/arch/s390/include/asm/syscall_wrapper.h
-index ad2c996e7e93..fde7e6b1df48 100644
---- a/arch/s390/include/asm/syscall_wrapper.h
-+++ b/arch/s390/include/asm/syscall_wrapper.h
-@@ -162,4 +162,4 @@
- 	__diag_pop();									\
- 	static inline long __do_sys##name(__MAP(x,__SC_DECL,__VA_ARGS__))
+diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
+index 34d616406d51..24be1d03fef9 100644
+--- a/net/smc/smc_wr.c
++++ b/net/smc/smc_wr.c
+@@ -137,28 +137,25 @@ static void smc_wr_tx_tasklet_fn(struct tasklet_struct *t)
+ {
+ 	struct smc_ib_device *dev = from_tasklet(dev, t, send_tasklet);
+ 	struct ib_wc wc[SMC_WR_MAX_POLL_CQE];
+-	int i, rc;
++	int i = 0, rc;
++	int polled = 0;
  
--#endif /* _ASM_X86_SYSCALL_WRAPPER_H */
-+#endif /* _ASM_S390_SYSCALL_WRAPPER_H */
+ again:
++	polled++;
+ 	do {
+ 		memset(&wc, 0, sizeof(wc));
+ 		rc = ib_poll_cq(dev->roce_cq_send, SMC_WR_MAX_POLL_CQE, wc);
++		if (polled == 1) {
++			ib_req_notify_cq(dev->roce_cq_send,
++					 IB_CQ_NEXT_COMP |
++					 IB_CQ_REPORT_MISSED_EVENTS);
++		}
++		if (!rc)
++			break;
+ 		for (i = 0; i < rc; i++)
+ 			smc_wr_tx_process_cqe(&wc[i]);
+-		if (rc < SMC_WR_MAX_POLL_CQE)
+-			/* If < SMC_WR_MAX_POLL_CQE, the CQ should have been
+-			 * drained, no need to poll again. --Guangguan Wang
+-			 */
+-			break;
+ 	} while (rc > 0);
+-
+-	/* IB_CQ_REPORT_MISSED_EVENTS make sure if ib_req_notify_cq() returns
+-	 * 0, it is safe to wait for the next event.
+-	 * Else we must poll the CQ again to make sure we won't miss any event
+-	 */
+-	if (ib_req_notify_cq(dev->roce_cq_send,
+-			     IB_CQ_NEXT_COMP |
+-			     IB_CQ_REPORT_MISSED_EVENTS))
++	if (polled == 1)
+ 		goto again;
+ }
+ 
+@@ -481,28 +478,24 @@ static void smc_wr_rx_tasklet_fn(struct tasklet_struct *t)
+ {
+ 	struct smc_ib_device *dev = from_tasklet(dev, t, recv_tasklet);
+ 	struct ib_wc wc[SMC_WR_MAX_POLL_CQE];
++	int polled = 0;
+ 	int rc;
+ 
+ again:
++	polled++;
+ 	do {
+ 		memset(&wc, 0, sizeof(wc));
+ 		rc = ib_poll_cq(dev->roce_cq_recv, SMC_WR_MAX_POLL_CQE, wc);
+-		if (rc > 0)
+-			smc_wr_rx_process_cqes(&wc[0], rc);
+-		if (rc < SMC_WR_MAX_POLL_CQE)
+-			/* If < SMC_WR_MAX_POLL_CQE, the CQ should have been
+-			 * drained, no need to poll again. --Guangguan Wang
+-			 */
++		if (polled == 1) {
++			ib_req_notify_cq(dev->roce_cq_recv,
++					 IB_CQ_SOLICITED_MASK
++					 | IB_CQ_REPORT_MISSED_EVENTS);
++		}
++		if (!rc)
+ 			break;
++		smc_wr_rx_process_cqes(&wc[0], rc);
+ 	} while (rc > 0);
+-
+-	/* IB_CQ_REPORT_MISSED_EVENTS make sure if ib_req_notify_cq() returns
+-	 * 0, it is safe to wait for the next event.
+-	 * Else we must poll the CQ again to make sure we won't miss any event
+-	 */
+-	if (ib_req_notify_cq(dev->roce_cq_recv,
+-			     IB_CQ_SOLICITED_MASK |
+-			     IB_CQ_REPORT_MISSED_EVENTS))
++	if (polled == 1)
+ 		goto again;
+ }
+ 
 -- 
-2.35.1
+2.19.1.3.ge56e4f7
 
