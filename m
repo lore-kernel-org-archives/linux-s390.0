@@ -2,189 +2,118 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C615C4332F
-	for <linux-s390@archiver.kernel.org>; Sun,  6 Mar 2022 17:01:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69FEBC433FE
+	for <linux-s390@archiver.kernel.org>; Sun,  6 Mar 2022 21:58:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233013AbiCFRCY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 6 Mar 2022 12:02:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44992 "EHLO
+        id S234310AbiCFV66 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 6 Mar 2022 16:58:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231218AbiCFRCX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 6 Mar 2022 12:02:23 -0500
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2095.outbound.protection.outlook.com [40.107.243.95])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECE0D5C35A;
-        Sun,  6 Mar 2022 09:01:30 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=aYMnlDLnCoTlQ0m0bfddJAdHUnc0KWQe1gNc/5nZKL+bOXXO4x7IJ1Lzo+J6+5g8yJ/7f/khf5gDmSHC3r6uVNI6yUbP+r7KIRg+vmQCwXSaUy/kzR0sBUqFktRUy5XozVHzpsBMSv+xL6L3QYy5Ez1WZbfMeyhauU7+GRQtQrlr1hZ3s4kXtehlcDyyAN9+DNVjZOeGZtUEJF6rmp+0wXOUZ+TpIHh+trpkGXUyavel/aFtOLAnYnUqvPBl+BTYXLagteOJRdfOWFjhMQBV9jXmIZXLSU/NH1otendfS4WhEhUsrNn2bE/Ff24dUXkK4zTQeQF/m6gxbd6HJV83Uw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=uOLUEoNUTj3NHP00m/Xck2wpfIX+AoQV3lb6Af/zENw=;
- b=i3leWI6ml4/sGDaUguV3EF6vrimkBHk+Ntf1hC6+tgEKdh9FfyKFDUXdJt6Mc6gGp62eSHewYa7JVjUk8SvDwVHpEDEJ02+GCEZ0HYUchH0KRQWbJx0Rj+6UtmjU0eOkQy+UfMkJGpb9m7Q1cOLruPHt5WO+i5+vSmGpqXXlcjVkhXbQ881cgusbgrdC7/f5hsjoipWeLbR2EaFHv6bhOEvnODmaYKNpPvPw+30cFQ286SWDNabAI/gh+D0Ph11kloM9/mYb13PuKVkrwBYIShD4Yz+kYX74dJZnPRPzARS6GhaYcti+twRFwS5MRjz00Vkm0SiRhgJK/Us9iJ27zw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=microsoft.com; dmarc=pass action=none
- header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=uOLUEoNUTj3NHP00m/Xck2wpfIX+AoQV3lb6Af/zENw=;
- b=iJCGNxdF3Fo0JwCRGxSWD8hV5azsE8sqYRXKmv+oOMtnpDVDrsqx6f3tT+jCO/MhFWdWUjGKeM4YxMCgxFi4ZNUAwkizBqYblPXhhdgSVxh6YazT1NVkCNrv8hdTV6XMVczk0C5pVdjD2fmIsOE0uwX/CRXIZjW/1ZFY12LBio8=
-Received: from MN0PR21MB3098.namprd21.prod.outlook.com (2603:10b6:208:376::14)
- by BYAPR21MB1365.namprd21.prod.outlook.com (2603:10b6:a03:10c::33) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5081.4; Sun, 6 Mar
- 2022 17:01:28 +0000
-Received: from MN0PR21MB3098.namprd21.prod.outlook.com
- ([fe80::a0b3:c840:b085:5d7b]) by MN0PR21MB3098.namprd21.prod.outlook.com
- ([fe80::a0b3:c840:b085:5d7b%8]) with mapi id 15.20.5061.008; Sun, 6 Mar 2022
- 17:01:27 +0000
-From:   "Michael Kelley (LINUX)" <mikelley@microsoft.com>
-To:     Dongli Zhang <dongli.zhang@oracle.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>
-CC:     "x86@kernel.org" <x86@kernel.org>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>,
-        "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
-        "tboot-devel@lists.sourceforge.net" 
-        <tboot-devel@lists.sourceforge.net>,
-        "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>
-Subject: RE: [PATCH 10/12] swiotlb: add a SWIOTLB_ANY flag to lift the low
- memory restriction
-Thread-Topic: [PATCH 10/12] swiotlb: add a SWIOTLB_ANY flag to lift the low
- memory restriction
-Thread-Index: AQHYLVq0uSlYkDWbKUeZ67gbcRgpDayviVjwgAAHDgCAAwkZ0A==
-Date:   Sun, 6 Mar 2022 17:01:27 +0000
-Message-ID: <MN0PR21MB3098558B83B5A520FFCCE6D1D7079@MN0PR21MB3098.namprd21.prod.outlook.com>
-References: <20220301105311.885699-1-hch@lst.de>
- <20220301105311.885699-11-hch@lst.de>
- <MN0PR21MB3098F7AFC85BE5D83B0E64E5D7059@MN0PR21MB3098.namprd21.prod.outlook.com>
- <556312e4-da86-b980-475c-1cfd7818ffdc@oracle.com>
-In-Reply-To: <556312e4-da86-b980-475c-1cfd7818ffdc@oracle.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=433969a6-4cde-4cdd-a529-34a7717de2f8;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2022-03-06T16:49:10Z;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=microsoft.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 7d1051ce-a5a5-44e0-5274-08d9ff92f44c
-x-ms-traffictypediagnostic: BYAPR21MB1365:EE_
-x-ms-exchange-atpmessageproperties: SA|SL
-x-microsoft-antispam-prvs: <BYAPR21MB13659872C94F06366112C6F1D7079@BYAPR21MB1365.namprd21.prod.outlook.com>
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: sKKeFCLNvMjnyHGD9VaKYbwd5Pg9weElV4ETq1Pqmqqn32mZiekTXGmrD/vwB/odF3nTejr2LIYwdMHnQecOFII8b3qUpO2cBVumdJCLy5ngI66nhqP55bgBzK6QgqSSTt93iceFbEkbcuG+asHps2xQeJDpL6taKFhFHfB2DBmjELCWMGSlOhqgRPXv67/d6rkkNSL2/ggsmbdBvEbbH0tgF0kNJ/ctZy8onH62M/KB8qv8FIQmk4+dgUJ2T936HgwGihBH6mUhop0z+Hf9zeFasO7mEkJcV5CNxOTmhER+vVzVE1GFkmiz6gqZctQp8nXHkLjPSuWwB3UNzdOddSXlb7gNxaW8zzc/mGdgWJBErOr7tVA4NEEcveqXJ/UKRP6OvcGON9var2DtSXuZkxQG7cpAv0hxWKfHJ3kj/GBpubxjKySlYu6DkwwiuyJekUyEajpyjC4XBVRcoqRNK3V+GxNeagAlTAkeTMDLa3EMVDs+gxrg8itYEIXzlvByy6E/82xoV5cWC1EN7BZIpiLu5MoBXt0Gouy1z9OzWwTcJo6hX+15tRw83DQ0UrqNt5PVBorphcJ9+2EeL8kCMw1RNXfzw5hMeu11i1GKnbO0I4sdrCvlEXLMCSGum0oSXeYpoNmG6IuURedIR+YjwCIibQMGVELKWEc8bH4Oumfnxw1DwjTr/kJkp0YfcnCg8JSGRzgqrHxjVe/97258itAcqQMemqR8Gm24NZ7adN95x9aBW8eb8KxIR0aOGb//MUtUbLbJQHr3mheMTFV5uTMLfCgqJ/UlUe+EX+r8WS+5uWnoRR08ItokhtRpcZPL4UM9+1xcnW2jgzA5MlPO4A==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN0PR21MB3098.namprd21.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(6506007)(8936002)(71200400001)(508600001)(7696005)(5660300002)(26005)(53546011)(83380400001)(7416002)(55016003)(52536014)(86362001)(8990500004)(186003)(66556008)(64756008)(66946007)(76116006)(110136005)(4326008)(66446008)(33656002)(38070700005)(9686003)(316002)(2906002)(10290500003)(66476007)(82960400001)(82950400001)(122000001)(966005)(8676002)(54906003)(38100700002);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?xwcnoc49++k/XhQTp+2xSDHA9y6nJz1z6k0O1G26LmO5odDj/mcyDy67UKpQ?=
- =?us-ascii?Q?atsCmhOUT1CNoCRvsRb8FJ15c9CcTSJjscmwn5zBVkuYykgc5hTEkO5ubS5Q?=
- =?us-ascii?Q?G538yKWNDx5PH93yx3TryuzdyH5nS43Ye0o0AEufYshObFIybN8nC+m68cH5?=
- =?us-ascii?Q?C2slQIIBhjp2nUMG6wFxsLo1bskfI4bPX3H+PCHw6O4X2XbmnIiap7/GBTS+?=
- =?us-ascii?Q?/DOAOc3fS/Ydm1bbmXFypF4miLfReMO5WJ9mqWN39GuQo7nF2QCCA9B56pjh?=
- =?us-ascii?Q?N9iV2ducIHefTDbAC/Ylt5O1k/mwFoLRlSsk0BXY5vx94mzelBOmrV2f5gEH?=
- =?us-ascii?Q?QpxJ50Xz3f9v/GLa6QuIJBDyU6Z5w+1mWtASBeZakgsenBrHs6vpLc+nAuWs?=
- =?us-ascii?Q?zD8WOsuZveyljsCkxzUdhaw4FOWu/e83hI+Jn0/iY4lUL6/9IvoGqrBCsNbM?=
- =?us-ascii?Q?2IiH4PRXYfUiiNcjiaAqjEZZuMLapJ/Xl0RFMLOdNX0xlfI4AGE0qQd87A0Q?=
- =?us-ascii?Q?/FG/my6ddA8Rld9tKAMbMZrmWHNp67KoM15gYAdYVHDUdkFG3HRBh70ySdqJ?=
- =?us-ascii?Q?E345gse/QkZqtt90wGCVdGQZTsmqC682iQlOeNdd03LiEsobH1KrAi9GShyz?=
- =?us-ascii?Q?BNag8SVzmr+RcOJ+przr77WaIgb/OHw89MiITVdJZ6l2XAPb7ffb31/9kjsc?=
- =?us-ascii?Q?PLI/ebYE69W0zxOhyTK6A+zKj004ROzHjd7avlxfjlFN3w+1o+/uTpT8sChW?=
- =?us-ascii?Q?SLHRjLsTq2Vtld8UDs7E12yswQyfbSTv4qZFrFEKXR88gqZnvcM/5+UULPiQ?=
- =?us-ascii?Q?dbYUkCFtQ0Hzf/7Qr7eAQTXBDqNLfZyYcvR0B94CO+y9RhOD5LltrpwI+er8?=
- =?us-ascii?Q?6QE07Qi0W5gizDqrWeAl+dfOUgqo/YerLnvRffG/DEvo0P4pSuD4xtFyqyP0?=
- =?us-ascii?Q?9rC1GvF/aky2xcQhqdJZ5gTIvcDEvY//3x+zyfvX7OoNBQx/BAVHd43tE2ZJ?=
- =?us-ascii?Q?dwUyBphT15DI8gmCDgHtX5lDMsdkgaNQDZantDHFJzs1sgV3eqQ4vC1rcjKb?=
- =?us-ascii?Q?qx18JiDUikv/LWeabdhyicg83Uhx0/TfItI6XW9uy8dfCHCnkpbibYA3Cn2X?=
- =?us-ascii?Q?6ulK98fJukbpLv7k3CuiwCnBe7xZIF5gIIyS2z0QlWrfxUbQqZ3N/zjsJ3VH?=
- =?us-ascii?Q?o1mF4oWflEKfjAgZ7DV6d/irZ4u9qVNSQ6ovp5EYG4ivC3Zala8A8OSNadOR?=
- =?us-ascii?Q?70KPAhcVq/HShpqT2avpnIdshnYUio277Oscxj5eHYDwXwCSZ0dfEzHfQkU8?=
- =?us-ascii?Q?QDSuuvI1DzoXS055cIJI6z1QUuXBlB2s1v2PxaxikB2CS1vYlAs5pSjpE+uP?=
- =?us-ascii?Q?H/hpqt+CxLOBq3GA/bAjCLWUFW7xufRy1i2eDyLv6Y6tl5/MG0snzjjR0EgH?=
- =?us-ascii?Q?/tz+aVekbQq8cN/mYRDSOSTFpMha6iN7LO3GwYE9oLufTZm6Xmnt/A=3D=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S232146AbiCFV65 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 6 Mar 2022 16:58:57 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A3011C10B;
+        Sun,  6 Mar 2022 13:58:03 -0800 (PST)
+From:   Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1646603881;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=D5mJtRIowvgYZCiSTq+NtxJb9H6gCqcNXdX+dpkXf+g=;
+        b=cqZBGB7x5Qf0QYHo+lrfj9zTEh35gmXe4IkRFTr2FwoK2Z+iCLNL2qFOF9AIPb4DOq7Syo
+        KEfmnSmGFyZImPECArA2blbT+kOUqQK59ZZ/j3uBIIt1znHhRB/JmA3Ped/7LMsS0nyeiJ
+        fb4WL8jPeInCtkmc6zDyfTlob4YFJmf0s4YS1vD+68NjiTY3jGcxYzR5M188zxw5T/BU2l
+        HSb/F2r+LkO89MBxyZrbdglxLJo35vKaNYITYIgsjP6nNw6nyhbdJblkLmrJblF0ZvZvbz
+        i5Uj0vP/Mp3dRBnyua7snpkFXoGNGgFuRhaXB58sRpSK+TKOVBnMSIlz6Zyk0A==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1646603881;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=D5mJtRIowvgYZCiSTq+NtxJb9H6gCqcNXdX+dpkXf+g=;
+        b=HBtNd4/Tyx6e/nI6Vj+ACCCp8y6y2dvib57iQ0IhcmSk4+J0KPZZxJ/NgdMfe9pxAEe9bQ
+        Y7XCwMu1K4SkqxCw==
+To:     netdev@vger.kernel.org
+Cc:     "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: [PATCH net-next 01/10] s390: net: Use netif_rx().
+Date:   Sun,  6 Mar 2022 22:57:44 +0100
+Message-Id: <20220306215753.3156276-2-bigeasy@linutronix.de>
+In-Reply-To: <20220306215753.3156276-1-bigeasy@linutronix.de>
+References: <20220306215753.3156276-1-bigeasy@linutronix.de>
 MIME-Version: 1.0
-X-OriginatorOrg: microsoft.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: MN0PR21MB3098.namprd21.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7d1051ce-a5a5-44e0-5274-08d9ff92f44c
-X-MS-Exchange-CrossTenant-originalarrivaltime: 06 Mar 2022 17:01:27.7736
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 2Q0P5BfbqyMvCZd1dvCYqFGw3KLmQ/5chX9kG4KyKK7Eoffm0WWVL9/U+9PkReHFRC8UhPbPgRfmtnQ6VwnAaX7dxPg1zbseOeLON1XtiHI=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR21MB1365
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Dongli Zhang <dongli.zhang@oracle.com> Sent: Friday, March 4, 2022 10=
-:28 AM
->=20
-> Hi Michael,
->=20
-> On 3/4/22 10:12 AM, Michael Kelley (LINUX) wrote:
-> > From: Christoph Hellwig <hch@lst.de> Sent: Tuesday, March 1, 2022 2:53 =
-AM
-> >>
-> >> Power SVM wants to allocate a swiotlb buffer that is not restricted to=
- low memory for
-> >> the trusted hypervisor scheme.  Consolidate the support for this into =
-the swiotlb_init
-> >> interface by adding a new flag.
-> >
-> > Hyper-V Isolated VMs want to do the same thing of not restricting the s=
-wiotlb
-> > buffer to low memory.  That's what Tianyu Lan's patch set[1] is proposi=
-ng.
-> > Hyper-V synthetic devices have no DMA addressing limitations, and the
-> > likelihood of using a PCI pass-thru device with addressing limitations =
-in an
-> > Isolated VM seems vanishingly small.
-> >
-> > So could use of the SWIOTLB_ANY flag be generalized?  Let Hyper-V init
-> > code set the flag before swiotlb_init() is called.  Or provide a CONFIG
-> > variable that Hyper-V Isolated VMs could set.
->=20
-> I used to send 64-bit swiotlb, while at that time people thought it was t=
-he same
-> as Restricted DMA patchset.
->=20
-> https://lore.kernel.org/all/20210203233709.19819-1-dongli.zhang@oracle.co=
-m/
->=20
-> However, I do not think Restricted DMA patchset is going to supports 64-b=
-it (or
-> high memory) DMA. Is this what you are looking for?
+Since commit
+   baebdf48c3600 ("net: dev: Makes sure netif_rx() can be invoked in any co=
+ntext.")
 
-Yes, it looks like your patchset would do what we want for Hyper-V Isolated
-VMs, but it is a more complex solution than is needed.  My assertion is tha=
-t
-in some environments, such as Hyper-V Isolated VMs, we're willing to assume
-all devices are 64-bit DMA capable, and to stop carrying the legacy baggage=
-.
-Bounce buffering is used for a different scenario (memory encryption), and
-the bounce buffers can be allocated in high memory.   There's no need for a
-2nd swiotlb buffer.
+the function netif_rx() can be used in preemptible/thread context as
+well as in interrupt context.
 
-Michael
+Use netif_rx().
+
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Alexandra Winter <wintera@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Wenjia Zhang <wenjia@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+---
+ drivers/s390/net/ctcm_main.c | 2 +-
+ drivers/s390/net/netiucv.c   | 6 +-----
+ 2 files changed, 2 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
+index 5ea7eeb07002b..e0fdd54bfeb70 100644
+--- a/drivers/s390/net/ctcm_main.c
++++ b/drivers/s390/net/ctcm_main.c
+@@ -166,7 +166,7 @@ void ctcm_unpack_skb(struct channel *ch, struct sk_buff=
+ *pskb)
+ 		ch->logflags =3D 0;
+ 		priv->stats.rx_packets++;
+ 		priv->stats.rx_bytes +=3D skblen;
+-		netif_rx_ni(skb);
++		netif_rx(skb);
+ 		if (len > 0) {
+ 			skb_pull(pskb, header->length);
+ 			if (skb_tailroom(pskb) < LL_HEADER_LENGTH) {
+diff --git a/drivers/s390/net/netiucv.c b/drivers/s390/net/netiucv.c
+index 981e7b1c6b962..65aa0a96c21de 100644
+--- a/drivers/s390/net/netiucv.c
++++ b/drivers/s390/net/netiucv.c
+@@ -620,11 +620,7 @@ static void netiucv_unpack_skb(struct iucv_connection =
+*conn,
+ 		pskb->ip_summed =3D CHECKSUM_UNNECESSARY;
+ 		privptr->stats.rx_packets++;
+ 		privptr->stats.rx_bytes +=3D skb->len;
+-		/*
+-		 * Since receiving is always initiated from a tasklet (in iucv.c),
+-		 * we must use netif_rx_ni() instead of netif_rx()
+-		 */
+-		netif_rx_ni(skb);
++		netif_rx(skb);
+ 		skb_pull(pskb, header->next);
+ 		skb_put(pskb, NETIUCV_HDRLEN);
+ 	}
+--=20
+2.35.1
+
