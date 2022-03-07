@@ -2,107 +2,193 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BFDC2C433EF
-	for <linux-s390@archiver.kernel.org>; Mon,  7 Mar 2022 12:00:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 28568C433FE
+	for <linux-s390@archiver.kernel.org>; Mon,  7 Mar 2022 12:32:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236608AbiCGMBY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 7 Mar 2022 07:01:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50438 "EHLO
+        id S242303AbiCGMc7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 7 Mar 2022 07:32:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234615AbiCGMBT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Mar 2022 07:01:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75FB278912;
-        Mon,  7 Mar 2022 04:00:14 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DA70160ED9;
-        Mon,  7 Mar 2022 12:00:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 41496C340F8;
-        Mon,  7 Mar 2022 12:00:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646654413;
-        bh=uoA/yLVU/b+oLbGKfCPcOcNL/NpocL53c2UhSxUM5X0=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=n7lbew84IjCUDVuL0t2kMi5mLKdOSr79LSw2Ss5xBTXI24X0W5PZovs4iVr67fqKe
-         ENER3ae6dBsUhCt7gr3Fgm3Sj2/h08Y0B0qCjREhpVjNkqrI0M3YnQ6DZqhZKM5EMM
-         5klvwvQs/fZhtCAiQk07dTA5HlyC8yOMBLjkCK8uswJ8KnItHOTK9AcUfuGfb4Rn4B
-         QhKGYDHHpkBPec7j92J9gB3YLzrFTfZkwCuIANFdcqZbMNKhJ+6ZfIQsaBUpIkUSgo
-         8QAVqy+QVrmIr7FIHZq+qIZlZ4He+HnxW4UmMdNVhY9QQpSlBa9WyWM6KkWLjC8pkH
-         5Yok8HKf71u1w==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 1993BEAC081;
-        Mon,  7 Mar 2022 12:00:13 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S242341AbiCGMcz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Mar 2022 07:32:55 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5216285BF5;
+        Mon,  7 Mar 2022 04:32:01 -0800 (PST)
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 227CKeLG010351;
+        Mon, 7 Mar 2022 12:31:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=5QDCvWRzyM1ZpoqqsIXfChJDJUzfAOecksfaNhe/CA4=;
+ b=VytOMf9rIHW1EMWZb6RPhCzlseFGZSb23gSrgw/XcWo+7++6VbKXMukAt7hKU0KpqlXh
+ /z6Pulz+YQZteFf1MIhB6k66kRynLKGWLpPHANBRHLOKEpxT5z1gCLgpY+Czv4vKXlEX
+ cAhsFUqQeQTt4eY9gfHUbK7QuILhmJxij8vwN9OtcUdqU1k7DpjJFlK0PHuDJcMgs7yW
+ 7jPrrnhr4VdCWtcaz5c28T7m+aaq91JbSKT1y6SbD9PyVoRJ/OFHkqAGQaRPwPogDdgX
+ QMzrrfhjpAzzB01xHizW59DNw6YV4xpQUhHXXElVr5+6OXBkeyntXvI539qVgdQmZ+Et ng== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3enhymr76u-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 07 Mar 2022 12:31:58 +0000
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 227CULIv014396;
+        Mon, 7 Mar 2022 12:31:57 GMT
+Received: from ppma01wdc.us.ibm.com (fd.55.37a9.ip4.static.sl-reverse.com [169.55.85.253])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3enhymr76f-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 07 Mar 2022 12:31:57 +0000
+Received: from pps.filterd (ppma01wdc.us.ibm.com [127.0.0.1])
+        by ppma01wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 227CBijb013043;
+        Mon, 7 Mar 2022 12:31:56 GMT
+Received: from b01cxnp23033.gho.pok.ibm.com (b01cxnp23033.gho.pok.ibm.com [9.57.198.28])
+        by ppma01wdc.us.ibm.com with ESMTP id 3ekyg8wmdy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 07 Mar 2022 12:31:56 +0000
+Received: from b01ledav002.gho.pok.ibm.com (b01ledav002.gho.pok.ibm.com [9.57.199.107])
+        by b01cxnp23033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 227CVtOf22544884
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 7 Mar 2022 12:31:55 GMT
+Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 05CAA124062;
+        Mon,  7 Mar 2022 12:31:55 +0000 (GMT)
+Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C1D48124054;
+        Mon,  7 Mar 2022 12:31:53 +0000 (GMT)
+Received: from [9.160.116.147] (unknown [9.160.116.147])
+        by b01ledav002.gho.pok.ibm.com (Postfix) with ESMTP;
+        Mon,  7 Mar 2022 12:31:53 +0000 (GMT)
+Message-ID: <9ac3908e-06da-6276-d1df-94898918fc5b@linux.ibm.com>
+Date:   Mon, 7 Mar 2022 07:31:21 -0500
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [PATCH v18 08/18] s390/vfio-ap: allow assignment of unavailable
+ AP queues to mdev device
+Content-Language: en-US
+To:     jjherne@linux.ibm.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc:     freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
+        mjrosato@linux.ibm.com, pasic@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        fiuczy@linux.ibm.com
+References: <20220215005040.52697-1-akrowiak@linux.ibm.com>
+ <20220215005040.52697-9-akrowiak@linux.ibm.com>
+ <97681738-50a1-976d-9f0f-be326eab7202@linux.ibm.com>
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+In-Reply-To: <97681738-50a1-976d-9f0f-be326eab7202@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next 00/10] net: Convert user to netif_rx(), part 3.
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <164665441309.23552.3596500663864763691.git-patchwork-notify@kernel.org>
-Date:   Mon, 07 Mar 2022 12:00:13 +0000
-References: <20220306215753.3156276-1-bigeasy@linutronix.de>
-In-Reply-To: <20220306215753.3156276-1-bigeasy@linutronix.de>
-To:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc:     netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
-        tglx@linutronix.de, agordeev@linux.ibm.com, wintera@linux.ibm.com,
-        andrew@lunn.ch, a@unstable.cc, b.a.t.m.a.n@lists.open-mesh.org,
-        borntraeger@linux.ibm.com, Divya.Koppera@microchip.com,
-        gregkh@linuxfoundation.org, hca@linux.ibm.com,
-        hkallweit1@gmail.com, johan.hedberg@gmail.com, jmaloy@redhat.com,
-        linux-bluetooth@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-staging@lists.linux.dev, luiz.dentz@gmail.com,
-        marcel@holtmann.org, mareklindner@neomailbox.ch,
-        courmisch@gmail.com, linux@armlinux.org.uk, sw@simonwunderlich.de,
-        sven@narfation.org, svens@linux.ibm.com,
-        tipc-discussion@lists.sourceforge.net, gor@linux.ibm.com,
-        wenjia@linux.ibm.com, ying.xue@windriver.com
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: BsmAaZzMI6qGUcOWra1oRR8Eekeea3p5
+X-Proofpoint-ORIG-GUID: iR41C7Q0-ISCWd3p_Hk2Vf6sFcc47eBm
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-03-07_04,2022-03-04_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
+ lowpriorityscore=0 mlxlogscore=999 malwarescore=0 priorityscore=1501
+ phishscore=0 spamscore=0 impostorscore=0 clxscore=1015 adultscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2203070072
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello:
 
-This series was applied to netdev/net-next.git (master)
-by David S. Miller <davem@davemloft.net>:
 
-On Sun,  6 Mar 2022 22:57:43 +0100 you wrote:
-> This is the third and last batch of converting netif_rx_ni() caller to
-> netif_rx(). The change making this possible is net-next and
-> netif_rx_ni() is a wrapper around netif_rx(). This is a clean up in
-> order to remove netif_rx_ni().
-> 
-> The micrel phy driver is patched twice within this series: the first is
-> is to replace netif_rx_ni() and second to move netif_rx() outside of the
-> IRQ-off section. It is probably simpler to keep it within this series.
-> 
-> [...]
+On 3/3/22 10:39, Jason J. Herne wrote:
+> On 2/14/22 19:50, Tony Krowiak wrote:
+>>   /**
+>> - * vfio_ap_mdev_verify_no_sharing - verifies that the AP matrix is 
+>> not configured
+>> + * vfio_ap_mdev_verify_no_sharing - verify APQNs are not shared by 
+>> matrix mdevs
+>>    *
+>> - * @matrix_mdev: the mediated matrix device
+>> + * @mdev_apm: mask indicating the APIDs of the APQNs to be verified
+>> + * @mdev_aqm: mask indicating the APQIs of the APQNs to be verified
+>>    *
+>> - * Verifies that the APQNs derived from the cross product of the AP 
+>> adapter IDs
+>> - * and AP queue indexes comprising the AP matrix are not configured 
+>> for another
+>> + * Verifies that each APQN derived from the Cartesian product of a 
+>> bitmap of
+>> + * AP adapter IDs and AP queue indexes is not configured for any matrix
+>>    * mediated device. AP queue sharing is not allowed.
+>>    *
+>> - * Return: 0 if the APQNs are not shared; otherwise returns 
+>> -EADDRINUSE.
+>> + * Return: 0 if the APQNs are not shared; otherwise return -EADDRINUSE.
+>>    */
+>> -static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev 
+>> *matrix_mdev)
+>> +static int vfio_ap_mdev_verify_no_sharing(unsigned long *mdev_apm,
+>> +                      unsigned long *mdev_aqm)
+>>   {
+>> -    struct ap_matrix_mdev *lstdev;
+>> +    struct ap_matrix_mdev *matrix_mdev;
+>>       DECLARE_BITMAP(apm, AP_DEVICES);
+>>       DECLARE_BITMAP(aqm, AP_DOMAINS);
+>>   -    list_for_each_entry(lstdev, &matrix_dev->mdev_list, node) {
+>> -        if (matrix_mdev == lstdev)
+>> +    list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
+>> +        /*
+>> +         * If the input apm and aqm belong to the matrix_mdev's matrix,
+>> +         * then move on to the next.
+>> +         */
+>> +        if (mdev_apm == matrix_mdev->matrix.apm &&
+>> +            mdev_aqm == matrix_mdev->matrix.aqm)
+>>               continue;
+>
+> We may have a problem here. This check seems like it exists to stop 
+> you from
+> comparing an mdev's apm/aqm with itself. Obviously comparing an mdev's 
+> newly
+> updated apm/aqm with itself would cause a false positive sharing 
+> check, right?
+> If this is the case, I think the comment should be changed to reflect 
+> that.
 
-Here is the summary with links:
-  - [net-next,01/10] s390: net: Use netif_rx().
-    https://git.kernel.org/netdev/net-next/c/a70d20704ad5
-  - [net-next,02/10] staging: Use netif_rx().
-    https://git.kernel.org/netdev/net-next/c/4bcc4249b4cf
-  - [net-next,03/10] tun: vxlan: Use netif_rx().
-    https://git.kernel.org/netdev/net-next/c/3d391f6518fd
-  - [net-next,04/10] tipc: Use netif_rx().
-    https://git.kernel.org/netdev/net-next/c/a0f0db8292e6
-  - [net-next,05/10] batman-adv: Use netif_rx().
-    https://git.kernel.org/netdev/net-next/c/94da81e2fc42
-  - [net-next,06/10] bluetooth: Use netif_rx().
-    https://git.kernel.org/netdev/net-next/c/d33d0dc9275d
-  - [net-next,07/10] phonet: Use netif_rx().
-    https://git.kernel.org/netdev/net-next/c/63d57cd67454
-  - [net-next,08/10] net: phy: micrel: Use netif_rx().
-    https://git.kernel.org/netdev/net-next/c/e1f9e434617f
-  - [net-next,09/10] net: Remove netif_rx_any_context() and netif_rx_ni().
-    https://git.kernel.org/netdev/net-next/c/2655926aea9b
-  - [net-next,10/10] net: phy: micrel: Move netif_rx() outside of IRQ-off section.
-    https://git.kernel.org/netdev/net-next/c/67dbd6c0a2c4
+You are correct, this check is performed to prevent comparing an mdev to
+itself, I'll improve the comment.
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+>
+> Aside from the comment, what stops this particular series of if 
+> statements from
+> allowing us to configure a second mdev with the exact same apm/aqm 
+> values as an
+> existing mdev? If we do, then this check's continue will short circuit 
+> the rest
+> of the function thereby allowing that 2nd mdev even though it should be a
+> sharing violation.
 
+I don't see how this is possible.
+
+The function above is called from two places: the 
+vfio_ap_mdev_validate_masks()
+function which is invoked when an adapter or domain is assigned to the 
+mdev; and the
+vfio_ap_mdev_resource_in_use() function which is a callback registered 
+with the
+AP bus and is called by the bus when the apmask/aqmask are changed.
+
+In the former case, the addresses passed in are from the apm/aqm fields 
+within
+the ap_matrix structure. Each ap_matrix structure is a field contained 
+within an
+ap_matrix_mdev structure, it is not a pointer to storage allocated 
+external to
+the matrix_mdev, so the apm/aqm addresses passed in from the
+vfio_ap_mdev_validate_masks() function will be unique to each 
+ap_matrix_mdev
+structure.
+
+In the latter case, the addresses are passed in by the AP bus and are 
+allocated by the
+bus and would definitely not be contained within an ap_matrix_mdev since 
+the AP bus
+doesn't even have access to that structure.
+
+>
+>
 
