@@ -2,113 +2,209 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05C2FC433F5
-	for <linux-s390@archiver.kernel.org>; Sun,  6 Mar 2022 21:58:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 19580C433EF
+	for <linux-s390@archiver.kernel.org>; Mon,  7 Mar 2022 01:54:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234306AbiCFV66 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 6 Mar 2022 16:58:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50450 "EHLO
+        id S231799AbiCGBzW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 6 Mar 2022 20:55:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234302AbiCFV65 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 6 Mar 2022 16:58:57 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A6BC1C11B;
-        Sun,  6 Mar 2022 13:58:03 -0800 (PST)
-From:   Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1646603881;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=OLij3hLq/ByEiIvsKO2mUqNMbWd2cFRiFv/iL/CpBCk=;
-        b=tUne71KCZTwV5KHN/PA2BeuDU0Ui2RmzmR06wo5VCgSnXvcNJ6gUdlowRejfyJNqosczI0
-        XyIRewLv9JIHiQHH8tPt2M+F4beDGD/0Yt9G+nD/DvgMbBI64JFULurNIZzsA0PINVVvbJ
-        1QmKMsvsr8OT4Dt1Kql7HOdKoTP+eJN1PnsOPhvPeyuU0o0fqW5DVr/vBOLYy2td0FE4iD
-        mI6Bh7LRqEVP0JG44lJL9GazmWDjSATwFYGnODpUEoEwH3i8Qxyw9zG+Pj3ogW8w9lOUAq
-        htbT4393p5kH+q1pUt6hS94uyx81KNWM5UWwCA2zec7l3KTSzI3/u1bWwA9cSw==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1646603881;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=OLij3hLq/ByEiIvsKO2mUqNMbWd2cFRiFv/iL/CpBCk=;
-        b=rkxcvxvK79CfwpOoWAKzxP921+aI4UP2669w0fns34DkINPs693vfhMMINY9U6iEsbZWfw
-        PeHf6FpY2DQ8tJBQ==
-To:     netdev@vger.kernel.org
-Cc:     "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Antonio Quartulli <a@unstable.cc>,
-        b.a.t.m.a.n@lists.open-mesh.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Divya Koppera <Divya.Koppera@microchip.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Johan Hedberg <johan.hedberg@gmail.com>,
-        Jon Maloy <jmaloy@redhat.com>, linux-bluetooth@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-staging@lists.linux.dev,
-        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Marek Lindner <mareklindner@neomailbox.ch>,
-        Remi Denis-Courmont <courmisch@gmail.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Simon Wunderlich <sw@simonwunderlich.de>,
-        Sven Eckelmann <sven@narfation.org>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        tipc-discussion@lists.sourceforge.net,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Ying Xue <ying.xue@windriver.com>
-Subject: [PATCH net-next 00/10] net: Convert user to netif_rx(), part 3.
-Date:   Sun,  6 Mar 2022 22:57:43 +0100
-Message-Id: <20220306215753.3156276-1-bigeasy@linutronix.de>
+        with ESMTP id S230334AbiCGBzW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 6 Mar 2022 20:55:22 -0500
+Received: from out30-54.freemail.mail.aliyun.com (out30-54.freemail.mail.aliyun.com [115.124.30.54])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E782813F0D;
+        Sun,  6 Mar 2022 17:54:27 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R951e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0V6OZE6y_1646618064;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0V6OZE6y_1646618064)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Mon, 07 Mar 2022 09:54:25 +0800
+From:   Dust Li <dust.li@linux.alibaba.com>
+To:     Karsten Graul <kgraul@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>, davem@davemloft.net,
+        kuba@kernel.org
+Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-rdma@vger.kernel.org
+Subject: [PATCH net-next v3] net/smc: fix compile warning for smc_sysctl
+Date:   Mon,  7 Mar 2022 09:54:24 +0800
+Message-Id: <20220307015424.59154-1-dust.li@linux.alibaba.com>
+X-Mailer: git-send-email 2.19.1.3.ge56e4f7
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This is the third and last batch of converting netif_rx_ni() caller to
-netif_rx(). The change making this possible is net-next and
-netif_rx_ni() is a wrapper around netif_rx(). This is a clean up in
-order to remove netif_rx_ni().
+kernel test robot reports multiple warning for smc_sysctl:
 
-The micrel phy driver is patched twice within this series: the first is
-is to replace netif_rx_ni() and second to move netif_rx() outside of the
-IRQ-off section. It is probably simpler to keep it within this series.
+  In file included from net/smc/smc_sysctl.c:17:
+>> net/smc/smc_sysctl.h:23:5: warning: no previous prototype \
+	for function 'smc_sysctl_init' [-Wmissing-prototypes]
+  int smc_sysctl_init(void)
+       ^
+and
+  >> WARNING: modpost: vmlinux.o(.text+0x12ced2d): Section mismatch \
+  in reference from the function smc_sysctl_exit() to the variable
+  .init.data:smc_sysctl_ops
+  The function smc_sysctl_exit() references
+  the variable __initdata smc_sysctl_ops.
+  This is often because smc_sysctl_exit lacks a __initdata
+  annotation or the annotation of smc_sysctl_ops is wrong.
 
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Alexandra Winter <wintera@linux.ibm.com>
-Cc: Andrew Lunn <andrew@lunn.ch>
-Cc: Antonio Quartulli <a@unstable.cc>
-Cc: b.a.t.m.a.n@lists.open-mesh.org
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: Divya Koppera <Divya.Koppera@microchip.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: Johan Hedberg <johan.hedberg@gmail.com>
-Cc: Jon Maloy <jmaloy@redhat.com>
-Cc: linux-bluetooth@vger.kernel.org
-Cc: linux-s390@vger.kernel.org
-Cc: linux-staging@lists.linux.dev
-Cc: Luiz Augusto von Dentz <luiz.dentz@gmail.com>
-Cc: Marcel Holtmann <marcel@holtmann.org>
-Cc: Marek Lindner <mareklindner@neomailbox.ch>
-Cc: Remi Denis-Courmont <courmisch@gmail.com>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Simon Wunderlich <sw@simonwunderlich.de>
-Cc: Sven Eckelmann <sven@narfation.org>
-Cc: Sven Schnelle <svens@linux.ibm.com>
-Cc: tipc-discussion@lists.sourceforge.net
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Wenjia Zhang <wenjia@linux.ibm.com>
-Cc: Ying Xue <ying.xue@windriver.com>
+and
+  net/smc/smc_sysctl.c: In function 'smc_sysctl_init_net':
+  net/smc/smc_sysctl.c:47:17: error: 'struct netns_smc' has no member named 'smc_hdr'
+     47 |         net->smc.smc_hdr = register_net_sysctl(net, "net/smc", table);
 
-Sebastian
+Since we don't need global sysctl initialization. To make things
+clean and simple, remove the global pernet_operations and
+smc_sysctl_{init|exit}. Call smc_sysctl_net_{init|exit} directly
+from smc_net_{init|exit}.
 
+Also initialized sysctl_autocorking_size if CONFIG_SYSCTL it not
+set, this make sure SMC autocorking is enabled by default if
+CONFIG_SYSCTL is not set.
+
+Fixes: 462791bbfa35 ("net/smc: add sysctl interface for SMC")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
+
+---
+v3: 1. add __net_{init|exit} annotation for smc_sysctl_net_{init|exit}
+       sugguested by Jakub Kicinski
+    2. Remove static inline for smc_sysctl_net_{init|exit} if
+       CONFIG_SYSCTL not defined
+v2: 1. Removes pernet_operations and smc_sysctl_{init|exit}
+    2. Initialize sysctl_autocorking_size if CONFIG_SYSCTL not set
+---
+ net/smc/Makefile     |  3 ++-
+ net/smc/af_smc.c     | 15 ++++++---------
+ net/smc/smc_sysctl.c | 19 ++-----------------
+ net/smc/smc_sysctl.h |  9 +++++----
+ 4 files changed, 15 insertions(+), 31 deletions(-)
+
+diff --git a/net/smc/Makefile b/net/smc/Makefile
+index 640af9a39f9c..875efcd126a2 100644
+--- a/net/smc/Makefile
++++ b/net/smc/Makefile
+@@ -4,4 +4,5 @@ obj-$(CONFIG_SMC)	+= smc.o
+ obj-$(CONFIG_SMC_DIAG)	+= smc_diag.o
+ smc-y := af_smc.o smc_pnet.o smc_ib.o smc_clc.o smc_core.o smc_wr.o smc_llc.o
+ smc-y += smc_cdc.o smc_tx.o smc_rx.o smc_close.o smc_ism.o smc_netlink.o smc_stats.o
+-smc-y += smc_tracepoint.o smc_sysctl.o
++smc-y += smc_tracepoint.o
++smc-$(CONFIG_SYSCTL) += smc_sysctl.o
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index e508e4f3a073..f0d118e9f155 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -3179,11 +3179,17 @@ unsigned int smc_net_id;
+ 
+ static __net_init int smc_net_init(struct net *net)
+ {
++	int rc;
++
++	rc = smc_sysctl_net_init(net);
++	if (rc)
++		return rc;
+ 	return smc_pnet_net_init(net);
+ }
+ 
+ static void __net_exit smc_net_exit(struct net *net)
+ {
++	smc_sysctl_net_exit(net);
+ 	smc_pnet_net_exit(net);
+ }
+ 
+@@ -3296,17 +3302,9 @@ static int __init smc_init(void)
+ 		goto out_ib;
+ 	}
+ 
+-	rc = smc_sysctl_init();
+-	if (rc) {
+-		pr_err("%s: sysctl_init fails with %d\n", __func__, rc);
+-		goto out_ulp;
+-	}
+-
+ 	static_branch_enable(&tcp_have_smc);
+ 	return 0;
+ 
+-out_ulp:
+-	tcp_unregister_ulp(&smc_ulp_ops);
+ out_ib:
+ 	smc_ib_unregister_client();
+ out_sock:
+@@ -3336,7 +3334,6 @@ static int __init smc_init(void)
+ static void __exit smc_exit(void)
+ {
+ 	static_branch_disable(&tcp_have_smc);
+-	smc_sysctl_exit();
+ 	tcp_unregister_ulp(&smc_ulp_ops);
+ 	sock_unregister(PF_SMC);
+ 	smc_core_exit();
+diff --git a/net/smc/smc_sysctl.c b/net/smc/smc_sysctl.c
+index 3b59876aaac9..bae19419e755 100644
+--- a/net/smc/smc_sysctl.c
++++ b/net/smc/smc_sysctl.c
+@@ -28,7 +28,7 @@ static struct ctl_table smc_table[] = {
+ 	{  }
+ };
+ 
+-static __net_init int smc_sysctl_init_net(struct net *net)
++int __net_init smc_sysctl_net_init(struct net *net)
+ {
+ 	struct ctl_table *table;
+ 
+@@ -59,22 +59,7 @@ static __net_init int smc_sysctl_init_net(struct net *net)
+ 	return -ENOMEM;
+ }
+ 
+-static __net_exit void smc_sysctl_exit_net(struct net *net)
++void __net_exit smc_sysctl_net_exit(struct net *net)
+ {
+ 	unregister_net_sysctl_table(net->smc.smc_hdr);
+ }
+-
+-static struct pernet_operations smc_sysctl_ops __net_initdata = {
+-	.init = smc_sysctl_init_net,
+-	.exit = smc_sysctl_exit_net,
+-};
+-
+-int __init smc_sysctl_init(void)
+-{
+-	return register_pernet_subsys(&smc_sysctl_ops);
+-}
+-
+-void smc_sysctl_exit(void)
+-{
+-	unregister_pernet_subsys(&smc_sysctl_ops);
+-}
+diff --git a/net/smc/smc_sysctl.h b/net/smc/smc_sysctl.h
+index 49553ac236b6..1d554300604d 100644
+--- a/net/smc/smc_sysctl.h
++++ b/net/smc/smc_sysctl.h
+@@ -15,17 +15,18 @@
+ 
+ #ifdef CONFIG_SYSCTL
+ 
+-int smc_sysctl_init(void);
+-void smc_sysctl_exit(void);
++int __net_init smc_sysctl_net_init(struct net *net);
++void __net_exit smc_sysctl_net_exit(struct net *net);
+ 
+ #else
+ 
+-int smc_sysctl_init(void)
++int __net_init smc_sysctl_net_init(struct net *net)
+ {
++	net->smc.sysctl_autocorking_size = SMC_AUTOCORKING_DEFAULT_SIZE;
+ 	return 0;
+ }
+ 
+-void smc_sysctl_exit(void) { }
++void __net_exit smc_sysctl_net_exit(struct net *net) { }
+ 
+ #endif /* CONFIG_SYSCTL */
+ 
+-- 
+2.19.1.3.ge56e4f7
 
