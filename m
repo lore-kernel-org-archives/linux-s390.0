@@ -2,205 +2,134 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B015C433F5
-	for <linux-s390@archiver.kernel.org>; Mon,  7 Mar 2022 19:03:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B42C4C433EF
+	for <linux-s390@archiver.kernel.org>; Mon,  7 Mar 2022 20:15:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240501AbiCGTEr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 7 Mar 2022 14:04:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36190 "EHLO
+        id S236986AbiCGUQQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 7 Mar 2022 15:16:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237523AbiCGTEq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Mar 2022 14:04:46 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D4DB6E4FD;
-        Mon,  7 Mar 2022 11:03:51 -0800 (PST)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 227J1eRt030622;
-        Mon, 7 Mar 2022 19:03:51 GMT
+        with ESMTP id S229651AbiCGUQQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Mar 2022 15:16:16 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45BBF66ACB;
+        Mon,  7 Mar 2022 12:15:21 -0800 (PST)
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 227J1jxa017595;
+        Mon, 7 Mar 2022 20:15:20 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
  from : to : cc : date : in-reply-to : references : content-type :
  mime-version : content-transfer-encoding; s=pp1;
- bh=sPfKpKHEyLW2jMgLS8m3sRhl6qac+M+l40gOhC4dmtA=;
- b=YgR30NpJHj53gVzcLVOz4xkTdQn5Lach52EAGdidf4XJ6vQROySqTtgxqwzb7nT8Y1yH
- M/d2/AcwmugAm0YOpKm6tCgjC6JHrWTxCz9DfVvPSXulEstCx/S4Zg/5FwWu94XE84Ow
- IJSVpAVus/LbwalodrnFsAi+qAqW0M19ZdCuKIhBytwcyZBVHe3i6XwZcNkclvFq2S1e
- tt4Ptvun26+1223cDfL0Bdc4tQyGvq9VcWXwE5Ieq/vOtaN/tOTbKDsISNcnbBPX0fwW
- Ax8xObPYuI1avxYXNW8xRwS9ziq81RhboHZ7jn/R+0lPGfXbdTqUln+3twnaytqonP2c LQ== 
+ bh=SBthRdwRxl3kNCG7QVUJ/J9iVXVrxSBN3Lzfo/pFSn0=;
+ b=pYIPssCfMeeZd3TKB5u/qB6ODJIGS27/8bQhZG2vHARU8SEQgxNrubCm2TMZzuI7Xos0
+ O6CpuV+wFqsP3F6lBFxEqERTe12DGqZ5cNFsZoqgEvAFq0vVySqfYYmkl13A6g23/Yce
+ JDrGdhCYcQUl34ICzvJ6vnBnvnF4kEYuBcmqoynUQrKIrnKOqTOH9HiX1fVXX4HIYFoQ
+ chG0WO3oq3sWUurPg783O3Szo+mp+9EySF37NscX6a8EWmLsSANYoI2sMqooWlYkaBKp
+ QcGi18Zg9MBnXJOeY1SCkF1FgQPIbeSMVEBnpVmBTiFWu0/T6/9JXQcWPuWB8YSFweWr qw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3end6g65dg-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3ennxykuu5-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Mar 2022 19:03:50 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 227J32Qt009699;
-        Mon, 7 Mar 2022 19:03:50 GMT
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3end6g65da-1
+        Mon, 07 Mar 2022 20:15:20 +0000
+Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 227JTJNr013794;
+        Mon, 7 Mar 2022 20:15:19 GMT
+Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3ennxykuu3-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Mar 2022 19:03:50 +0000
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 227J2APj000866;
-        Mon, 7 Mar 2022 19:03:49 GMT
-Received: from b01cxnp23034.gho.pok.ibm.com (b01cxnp23034.gho.pok.ibm.com [9.57.198.29])
-        by ppma03dal.us.ibm.com with ESMTP id 3emy8gsgfa-1
+        Mon, 07 Mar 2022 20:15:19 +0000
+Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
+        by ppma02wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 227Jqare000913;
+        Mon, 7 Mar 2022 20:15:19 GMT
+Received: from b03cxnp08027.gho.boulder.ibm.com (b03cxnp08027.gho.boulder.ibm.com [9.17.130.19])
+        by ppma02wdc.us.ibm.com with ESMTP id 3ekyg9875n-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Mar 2022 19:03:49 +0000
-Received: from b01ledav004.gho.pok.ibm.com (b01ledav004.gho.pok.ibm.com [9.57.199.109])
-        by b01cxnp23034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 227J3mIQ56754476
+        Mon, 07 Mar 2022 20:15:19 +0000
+Received: from b03ledav003.gho.boulder.ibm.com (b03ledav003.gho.boulder.ibm.com [9.17.130.234])
+        by b03cxnp08027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 227KFHMg12452478
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 7 Mar 2022 19:03:48 GMT
-Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0D2A6112063;
-        Mon,  7 Mar 2022 19:03:48 +0000 (GMT)
-Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A6CCE112062;
-        Mon,  7 Mar 2022 19:03:46 +0000 (GMT)
+        Mon, 7 Mar 2022 20:15:17 GMT
+Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A47916A04D;
+        Mon,  7 Mar 2022 20:15:17 +0000 (GMT)
+Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E00316A047;
+        Mon,  7 Mar 2022 20:15:16 +0000 (GMT)
 Received: from farman-thinkpad-t470p (unknown [9.211.148.123])
-        by b01ledav004.gho.pok.ibm.com (Postfix) with ESMTP;
-        Mon,  7 Mar 2022 19:03:46 +0000 (GMT)
-Message-ID: <2066eb382d42a27db9417ea47d79f2fbee0a2af0.camel@linux.ibm.com>
-Subject: Re: [PATCH kvm-unit-tests v1 4/6] s390x: smp: Create and use a
- non-waiting CPU stop
+        by b03ledav003.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Mon,  7 Mar 2022 20:15:16 +0000 (GMT)
+Message-ID: <500af9df424ebe51e513e167b6ae39dabb4b1378.camel@linux.ibm.com>
+Subject: Re: [PATCH kvm-unit-tests v1 6/6] lib: s390x: smp: Convert
+ remaining smp_sigp to _retry
 From:   Eric Farman <farman@linux.ibm.com>
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     Thomas Huth <thuth@redhat.com>,
+To:     Nico Boehr <nrb@linux.ibm.com>,
         Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        Thomas Huth <thuth@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
         linux-s390@vger.kernel.org
-Date:   Mon, 07 Mar 2022 14:03:45 -0500
-In-Reply-To: <20220307163007.0213714e@p-imbrenda>
+Date:   Mon, 07 Mar 2022 15:15:16 -0500
+In-Reply-To: <4d7026348507cd51188f0fc6300e7052d99b3747.camel@linux.ibm.com>
 References: <20220303210425.1693486-1-farman@linux.ibm.com>
-         <20220303210425.1693486-5-farman@linux.ibm.com>
-         <20220307163007.0213714e@p-imbrenda>
+         <20220303210425.1693486-7-farman@linux.ibm.com>
+         <1aa3b683-061d-465a-89fa-2c748719564d@linux.ibm.com>
+         <4d7026348507cd51188f0fc6300e7052d99b3747.camel@linux.ibm.com>
 Content-Type: text/plain; charset="UTF-8"
 X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: FCoKtFZVAh4-Fm90u0522DlLz_shSL9Q
-X-Proofpoint-GUID: OtmzEOp1bCTROyZFjLSkCh6McJgU-ENc
+X-Proofpoint-GUID: HWjhUmLLSE8iF5MaO-3wVPvQHOIcxVUa
+X-Proofpoint-ORIG-GUID: 2blM-Pe8_2HWPUNVSsC3Y-nj5Ff0rM1t
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-03-07_10,2022-03-04_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 adultscore=0
- priorityscore=1501 impostorscore=0 bulkscore=0 lowpriorityscore=0
- spamscore=0 suspectscore=0 clxscore=1015 malwarescore=0 mlxscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2203070106
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 suspectscore=0
+ mlxlogscore=999 bulkscore=0 malwarescore=0 clxscore=1015 impostorscore=0
+ mlxscore=0 lowpriorityscore=0 priorityscore=1501 spamscore=0 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2203070108
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 2022-03-07 at 16:30 +0100, Claudio Imbrenda wrote:
-> On Thu,  3 Mar 2022 22:04:23 +0100
-> Eric Farman <farman@linux.ibm.com> wrote:
-> 
-> > When stopping a CPU, kvm-unit-tests serializes/waits for everything
-> > to finish, in order to get a consistent result whenever those
-> > functions are used.
+On Mon, 2022-03-07 at 15:42 +0100, Nico Boehr wrote:
+> On Fri, 2022-03-04 at 11:56 +0100, Janosch Frank wrote:
+> > On 3/3/22 22:04, Eric Farman wrote:
+> > > A SIGP SENSE is used to determine if a CPU is stopped or
+> > > operating,
+> > > and thus has a vested interest in ensuring it received a CC0 or
+> > > CC1,
+> > > instead of a CC2 (BUSY). But, any order could receive a CC2
+> > > response,
+> > > and is probably ill-equipped to respond to it.
 > > 
-> > But to test the SIGP STOP itself, these additional measures could
-> > mask other problems. For example, did the STOP work, or is the CPU
-> > still operating?
-> > 
-> > Let's create a non-waiting SIGP STOP and use it here, to ensure
-> > that
-> > the CPU is correctly stopped. A smp_cpu_stopped() call will still
-> > be used to see that the SIGP STOP has been processed, and the state
-> > of the CPU can be used to determine whether the test passes/fails.
-> > 
-> > Signed-off-by: Eric Farman <farman@linux.ibm.com>
-> > ---
-> >  lib/s390x/smp.c | 25 +++++++++++++++++++++++++
-> >  lib/s390x/smp.h |  1 +
-> >  s390x/smp.c     | 10 ++--------
-> >  3 files changed, 28 insertions(+), 8 deletions(-)
-> > 
-> > diff --git a/lib/s390x/smp.c b/lib/s390x/smp.c
-> > index 368d6add..84e536e8 100644
-> > --- a/lib/s390x/smp.c
-> > +++ b/lib/s390x/smp.c
-> > @@ -119,6 +119,31 @@ int smp_cpu_stop(uint16_t idx)
-> >  	return rc;
-> >  }
-> >  
-> > +/*
-> > + * Functionally equivalent to smp_cpu_stop(), but without the
-> > + * elements that wait/serialize matters itself.
-> > + * Used to see if KVM itself is serialized correctly.
-> > + */
-> > +int smp_cpu_stop_nowait(uint16_t idx)
-> > +{
-> > +	/* refuse to work on the boot CPU */
-> > +	if (idx == 0)
-> > +		return -1;
-> > +
-> > +	spin_lock(&lock);
-> > +
-> > +	/* Don't suppress a CC2 with sigp_retry() */
-> > +	if (smp_sigp(idx, SIGP_STOP, 0, NULL)) {
-> > +		spin_unlock(&lock);
-> > +		return -1;
-> > +	}
-> > +
-> > +	cpus[idx].active = false;
-> > +	spin_unlock(&lock);
-> > +
-> > +	return 0;
-> > +}
-> > +
-> >  int smp_cpu_stop_store_status(uint16_t idx)
-> >  {
-> >  	int rc;
-> > diff --git a/lib/s390x/smp.h b/lib/s390x/smp.h
-> > index 1e69a7de..bae03dfd 100644
-> > --- a/lib/s390x/smp.h
-> > +++ b/lib/s390x/smp.h
-> > @@ -44,6 +44,7 @@ bool smp_sense_running_status(uint16_t idx);
-> >  int smp_cpu_restart(uint16_t idx);
-> >  int smp_cpu_start(uint16_t idx, struct psw psw);
-> >  int smp_cpu_stop(uint16_t idx);
-> > +int smp_cpu_stop_nowait(uint16_t idx);
-> >  int smp_cpu_stop_store_status(uint16_t idx);
-> >  int smp_cpu_destroy(uint16_t idx);
-> >  int smp_cpu_setup(uint16_t idx, struct psw psw);
-> > diff --git a/s390x/smp.c b/s390x/smp.c
-> > index 50811bd0..11c2c673 100644
-> > --- a/s390x/smp.c
-> > +++ b/s390x/smp.c
-> > @@ -76,14 +76,8 @@ static void test_restart(void)
-> >  
-> >  static void test_stop(void)
-> >  {
-> > -	smp_cpu_stop(1);
-> > -	/*
-> > -	 * The smp library waits for the CPU to shut down, but let's
-> > -	 * also do it here, so we don't rely on the library
-> > -	 * implementation
-> > -	 */
-> > -	while (!smp_cpu_stopped(1)) {}
-> > -	report_pass("stop");
-> > +	smp_cpu_stop_nowait(1);
+> > sigp sense running status doesn't return a cc2, only sigp sense
+> > does
+> > afaik.
+> > Looking at the KVM implementation tells me that it's not doing more
+> > than 
+> > looking at the R bit in the sblk.
 > 
-> can it happen that the SIGP STOP order is accepted, but the target
-> CPU
-> is still running (and not even busy)?
-
-Of course. A SIGP that's processed by userspace (which is many of them)
-injects a STOP IRQ back to the kernel, which means the CPU might not be
-stopped for some time. But...
-
+> From the POP I read _all_ orders may indeed return CC=2: case 1 under
+> "Conditions precluding Interpretation of the Order Code".
 > 
-> > +	report(smp_cpu_stopped(1), "stop");
+> That being said, there are a few more users of smp_sigp (no retry) in
+> smp.c (the test, not the lib). 
 > 
-> e.g. can this ^ check race with the actual stopping of the CPU?
+> Does it make sense to fix them aswell?
 
-...the smp_cpu_stopped() routine now loops on the CC2 that SIGP SENSE
-returns because of that pending IRQ. If SIGP SENSE returns CC0/1, then
-the CPU can correctly be identified stopped/operating, and the test can
-correctly pass/fail.
+I thought it made sense to do the lib, since other places expect those
+things to "just work."
 
-> 
-> >  }
-> >  
-> >  static void test_stop_store_status(void)
+But for the tests themselves, I struggle to convince myself with one
+path over another. The only way KVM returns a CC2 is because of a
+concurrent STOP/RESTART, which isn't a possibility because of the
+waiting the lib itself does when invoking the STOP/RESTART. So should
+the tests be looking for an unexpected CC2? Or just loop when they
+occur? If the latter, shouldn't the lib itself do that?
+
+I'm happy to make changes, I just can't decide which it should be. Any
+opinions?
+
+Eric
 
