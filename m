@@ -2,134 +2,305 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B42C4C433EF
-	for <linux-s390@archiver.kernel.org>; Mon,  7 Mar 2022 20:15:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD778C433F5
+	for <linux-s390@archiver.kernel.org>; Mon,  7 Mar 2022 22:18:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236986AbiCGUQQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 7 Mar 2022 15:16:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42144 "EHLO
+        id S1343708AbiCGWS7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 7 Mar 2022 17:18:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229651AbiCGUQQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Mar 2022 15:16:16 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45BBF66ACB;
-        Mon,  7 Mar 2022 12:15:21 -0800 (PST)
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 227J1jxa017595;
-        Mon, 7 Mar 2022 20:15:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=SBthRdwRxl3kNCG7QVUJ/J9iVXVrxSBN3Lzfo/pFSn0=;
- b=pYIPssCfMeeZd3TKB5u/qB6ODJIGS27/8bQhZG2vHARU8SEQgxNrubCm2TMZzuI7Xos0
- O6CpuV+wFqsP3F6lBFxEqERTe12DGqZ5cNFsZoqgEvAFq0vVySqfYYmkl13A6g23/Yce
- JDrGdhCYcQUl34ICzvJ6vnBnvnF4kEYuBcmqoynUQrKIrnKOqTOH9HiX1fVXX4HIYFoQ
- chG0WO3oq3sWUurPg783O3Szo+mp+9EySF37NscX6a8EWmLsSANYoI2sMqooWlYkaBKp
- QcGi18Zg9MBnXJOeY1SCkF1FgQPIbeSMVEBnpVmBTiFWu0/T6/9JXQcWPuWB8YSFweWr qw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3ennxykuu5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Mar 2022 20:15:20 +0000
-Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 227JTJNr013794;
-        Mon, 7 Mar 2022 20:15:19 GMT
-Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3ennxykuu3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Mar 2022 20:15:19 +0000
-Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
-        by ppma02wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 227Jqare000913;
-        Mon, 7 Mar 2022 20:15:19 GMT
-Received: from b03cxnp08027.gho.boulder.ibm.com (b03cxnp08027.gho.boulder.ibm.com [9.17.130.19])
-        by ppma02wdc.us.ibm.com with ESMTP id 3ekyg9875n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Mar 2022 20:15:19 +0000
-Received: from b03ledav003.gho.boulder.ibm.com (b03ledav003.gho.boulder.ibm.com [9.17.130.234])
-        by b03cxnp08027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 227KFHMg12452478
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 7 Mar 2022 20:15:17 GMT
-Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A47916A04D;
-        Mon,  7 Mar 2022 20:15:17 +0000 (GMT)
-Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E00316A047;
-        Mon,  7 Mar 2022 20:15:16 +0000 (GMT)
-Received: from farman-thinkpad-t470p (unknown [9.211.148.123])
-        by b03ledav003.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Mon,  7 Mar 2022 20:15:16 +0000 (GMT)
-Message-ID: <500af9df424ebe51e513e167b6ae39dabb4b1378.camel@linux.ibm.com>
-Subject: Re: [PATCH kvm-unit-tests v1 6/6] lib: s390x: smp: Convert
- remaining smp_sigp to _retry
-From:   Eric Farman <farman@linux.ibm.com>
-To:     Nico Boehr <nrb@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Date:   Mon, 07 Mar 2022 15:15:16 -0500
-In-Reply-To: <4d7026348507cd51188f0fc6300e7052d99b3747.camel@linux.ibm.com>
-References: <20220303210425.1693486-1-farman@linux.ibm.com>
-         <20220303210425.1693486-7-farman@linux.ibm.com>
-         <1aa3b683-061d-465a-89fa-2c748719564d@linux.ibm.com>
-         <4d7026348507cd51188f0fc6300e7052d99b3747.camel@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: HWjhUmLLSE8iF5MaO-3wVPvQHOIcxVUa
-X-Proofpoint-ORIG-GUID: 2blM-Pe8_2HWPUNVSsC3Y-nj5Ff0rM1t
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-07_10,2022-03-04_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 suspectscore=0
- mlxlogscore=999 bulkscore=0 malwarescore=0 clxscore=1015 impostorscore=0
- mlxscore=0 lowpriorityscore=0 priorityscore=1501 spamscore=0 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2203070108
+        with ESMTP id S1343707AbiCGWS6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Mar 2022 17:18:58 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3591745528
+        for <linux-s390@vger.kernel.org>; Mon,  7 Mar 2022 14:18:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1646691482;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=iFnTaI43lavXr0zuCkHA2ZcyUcWqspn6tFseaLpKUCE=;
+        b=jI8rsE0dVuztYUBZAiGb5jX/970D2Suda8Kbc61nYw0E1b0x48ZU1qNALumJsnUs6lsZXI
+        1lyu4wncOQX0ONy1nyD7MWdBJ5beNoSXcU0HZ130PuGdyDbaJqp+CUh8rGqb7kNS2xVkK9
+        hXiTluGMcZSEILW+S3qMFuz1mvE1zsk=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-153-X3aPmpnDNvSjyLpTUKFD4A-1; Mon, 07 Mar 2022 17:18:01 -0500
+X-MC-Unique: X3aPmpnDNvSjyLpTUKFD4A-1
+Received: by mail-ed1-f71.google.com with SMTP id l14-20020aa7cace000000b003f7f8e1cbbdso9401294edt.20
+        for <linux-s390@vger.kernel.org>; Mon, 07 Mar 2022 14:18:00 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=iFnTaI43lavXr0zuCkHA2ZcyUcWqspn6tFseaLpKUCE=;
+        b=JD8nBJGenQchqoyJniBwncOBa76T2ND5ihVr3Gr4yTe0AELLT4zkAH8zniSo6qf3oO
+         KWQFGXf4DMdOkRav3bEmPWcnfk5QN511P22/FXxe/wJbPRSoQKaHUzIVJ1vSMrpP+2Kp
+         8nI22RIMaPbD77yYNph5R+GOtqzuvdR+V3bqETlXel3S1tPlthAuFP5C0vjNUwjbasM7
+         Sk7Z4G1TyhC/uu6OgX5CSgrxO7ggSIyL71Lk+CKiWc4utPyI/+g2BAAPh8QL0O/cyev0
+         tikGUUnCIEoNmYlSWA/G+LJzwFFEMW2dTFMHEduL4G6NmfFo9wdkNPEY55llkS62QJS3
+         kyfA==
+X-Gm-Message-State: AOAM532Bz3Rk5IUxWuq9h2J06C5t8IqfGWPzvvJpnW3N/OVjj3EcuNaD
+        IvEREZbPAPQNJD3ptwABhuRZzUxmPOEmYFO3wSvhb0CiuVRuC4bHoZ3vg2HuDV98ZSKO166SODO
+        9BSrz6xjvDWPgXhVszCb4Wg==
+X-Received: by 2002:a17:907:3e9a:b0:6db:b5e:676c with SMTP id hs26-20020a1709073e9a00b006db0b5e676cmr8489747ejc.314.1646691479817;
+        Mon, 07 Mar 2022 14:17:59 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwDeGEIDmtuFmkZLr82drLK9sutEnJoYFwl22WhDCUdWElmN9EcTUW1/sSRnLfyl48w2KixZw==
+X-Received: by 2002:a17:907:3e9a:b0:6db:b5e:676c with SMTP id hs26-20020a1709073e9a00b006db0b5e676cmr8489720ejc.314.1646691479562;
+        Mon, 07 Mar 2022 14:17:59 -0800 (PST)
+Received: from redhat.com ([2.55.138.228])
+        by smtp.gmail.com with ESMTPSA id s14-20020aa7cb0e000000b00410bf015567sm6554353edt.92.2022.03.07.14.17.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 07 Mar 2022 14:17:58 -0800 (PST)
+Date:   Mon, 7 Mar 2022 17:17:51 -0500
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc:     virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+        Jeff Dike <jdike@addtoit.com>,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        Vadim Pasternak <vadimp@nvidia.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        linux-um@lists.infradead.org, platform-driver-x86@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, bpf@vger.kernel.org
+Subject: Re: [PATCH v6 06/26] virtio_ring: packed: extrace the logic of
+ creating vring
+Message-ID: <20220307171629-mutt-send-email-mst@kernel.org>
+References: <20220224081102.80224-1-xuanzhuo@linux.alibaba.com>
+ <20220224081102.80224-7-xuanzhuo@linux.alibaba.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220224081102.80224-7-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 2022-03-07 at 15:42 +0100, Nico Boehr wrote:
-> On Fri, 2022-03-04 at 11:56 +0100, Janosch Frank wrote:
-> > On 3/3/22 22:04, Eric Farman wrote:
-> > > A SIGP SENSE is used to determine if a CPU is stopped or
-> > > operating,
-> > > and thus has a vested interest in ensuring it received a CC0 or
-> > > CC1,
-> > > instead of a CC2 (BUSY). But, any order could receive a CC2
-> > > response,
-> > > and is probably ill-equipped to respond to it.
-> > 
-> > sigp sense running status doesn't return a cc2, only sigp sense
-> > does
-> > afaik.
-> > Looking at the KVM implementation tells me that it's not doing more
-> > than 
-> > looking at the R bit in the sblk.
+On Thu, Feb 24, 2022 at 04:10:42PM +0800, Xuan Zhuo wrote:
+> Separate the logic of packed to create vring queue.
 > 
-> From the POP I read _all_ orders may indeed return CC=2: case 1 under
-> "Conditions precluding Interpretation of the Order Code".
+> For the convenience of passing parameters, add a structure
+> vring_packed.
 > 
-> That being said, there are a few more users of smp_sigp (no retry) in
-> smp.c (the test, not the lib). 
+> This feature is required for subsequent virtuqueue reset vring.
 > 
-> Does it make sense to fix them aswell?
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-I thought it made sense to do the lib, since other places expect those
-things to "just work."
+Subject has a typo.
+Besides:
 
-But for the tests themselves, I struggle to convince myself with one
-path over another. The only way KVM returns a CC2 is because of a
-concurrent STOP/RESTART, which isn't a possibility because of the
-waiting the lib itself does when invoking the STOP/RESTART. So should
-the tests be looking for an unexpected CC2? Or just loop when they
-occur? If the latter, shouldn't the lib itself do that?
+> ---
+>  drivers/virtio/virtio_ring.c | 121 ++++++++++++++++++++++++++---------
+>  1 file changed, 92 insertions(+), 29 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index dc6313b79305..41864c5e665f 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -92,6 +92,18 @@ struct vring_split {
+>  	struct vring vring;
+>  };
+>  
+> +struct vring_packed {
+> +	u32 num;
+> +	struct vring_packed_desc *ring;
+> +	struct vring_packed_desc_event *driver;
+> +	struct vring_packed_desc_event *device;
+> +	dma_addr_t ring_dma_addr;
+> +	dma_addr_t driver_event_dma_addr;
+> +	dma_addr_t device_event_dma_addr;
+> +	size_t ring_size_in_bytes;
+> +	size_t event_size_in_bytes;
+> +};
+> +
+>  struct vring_virtqueue {
+>  	struct virtqueue vq;
+>  
+> @@ -1683,45 +1695,101 @@ static struct vring_desc_extra *vring_alloc_desc_extra(struct vring_virtqueue *v
+>  	return desc_extra;
+>  }
+>  
+> -static struct virtqueue *vring_create_virtqueue_packed(
+> -	unsigned int index,
+> -	unsigned int num,
+> -	unsigned int vring_align,
+> -	struct virtio_device *vdev,
+> -	bool weak_barriers,
+> -	bool may_reduce_num,
+> -	bool context,
+> -	bool (*notify)(struct virtqueue *),
+> -	void (*callback)(struct virtqueue *),
+> -	const char *name)
+> +static void vring_free_vring_packed(struct vring_packed *vring,
+> +				    struct virtio_device *vdev)
+> +{
+> +	dma_addr_t ring_dma_addr, driver_event_dma_addr, device_event_dma_addr;
+> +	struct vring_packed_desc_event *driver, *device;
+> +	size_t ring_size_in_bytes, event_size_in_bytes;
+> +	struct vring_packed_desc *ring;
+> +
+> +	ring                  = vring->ring;
+> +	driver                = vring->driver;
+> +	device                = vring->device;
+> +	ring_dma_addr         = vring->ring_size_in_bytes;
+> +	event_size_in_bytes   = vring->event_size_in_bytes;
+> +	ring_dma_addr         = vring->ring_dma_addr;
+> +	driver_event_dma_addr = vring->driver_event_dma_addr;
+> +	device_event_dma_addr = vring->device_event_dma_addr;
+> +
+> +	if (device)
+> +		vring_free_queue(vdev, event_size_in_bytes, device, device_event_dma_addr);
+> +
+> +	if (driver)
+> +		vring_free_queue(vdev, event_size_in_bytes, driver, driver_event_dma_addr);
+> +
+> +	if (ring)
+> +		vring_free_queue(vdev, ring_size_in_bytes, ring, ring_dma_addr);
 
-I'm happy to make changes, I just can't decide which it should be. Any
-opinions?
+ring_size_in_bytes is uninitialized here.
 
-Eric
+Which begs the question how was this tested patchset generally and
+this patch in particular.
+Please add note on tested configurations and tests run to the patchset.
+
+> +}
+> +
+> +static int vring_create_vring_packed(struct vring_packed *vring,
+> +				    struct virtio_device *vdev,
+> +				    u32 num)
+>  {
+> -	struct vring_virtqueue *vq;
+>  	struct vring_packed_desc *ring;
+>  	struct vring_packed_desc_event *driver, *device;
+>  	dma_addr_t ring_dma_addr, driver_event_dma_addr, device_event_dma_addr;
+>  	size_t ring_size_in_bytes, event_size_in_bytes;
+>  
+> +	memset(vring, 0, sizeof(*vring));
+> +
+>  	ring_size_in_bytes = num * sizeof(struct vring_packed_desc);
+>  
+>  	ring = vring_alloc_queue(vdev, ring_size_in_bytes,
+>  				 &ring_dma_addr,
+>  				 GFP_KERNEL|__GFP_NOWARN|__GFP_ZERO);
+>  	if (!ring)
+> -		goto err_ring;
+> +		goto err;
+> +
+> +	vring->num = num;
+> +	vring->ring = ring;
+> +	vring->ring_size_in_bytes = ring_size_in_bytes;
+> +	vring->ring_dma_addr = ring_dma_addr;
+>  
+>  	event_size_in_bytes = sizeof(struct vring_packed_desc_event);
+> +	vring->event_size_in_bytes = event_size_in_bytes;
+>  
+>  	driver = vring_alloc_queue(vdev, event_size_in_bytes,
+>  				   &driver_event_dma_addr,
+>  				   GFP_KERNEL|__GFP_NOWARN|__GFP_ZERO);
+>  	if (!driver)
+> -		goto err_driver;
+> +		goto err;
+> +
+> +	vring->driver = driver;
+> +	vring->driver_event_dma_addr = driver_event_dma_addr;
+>  
+>  	device = vring_alloc_queue(vdev, event_size_in_bytes,
+>  				   &device_event_dma_addr,
+>  				   GFP_KERNEL|__GFP_NOWARN|__GFP_ZERO);
+>  	if (!device)
+> -		goto err_device;
+> +		goto err;
+> +
+> +	vring->device = device;
+> +	vring->device_event_dma_addr = device_event_dma_addr;
+> +	return 0;
+> +
+> +err:
+> +	vring_free_vring_packed(vring, vdev);
+> +	return -ENOMEM;
+> +}
+> +
+> +static struct virtqueue *vring_create_virtqueue_packed(
+> +	unsigned int index,
+> +	unsigned int num,
+> +	unsigned int vring_align,
+> +	struct virtio_device *vdev,
+> +	bool weak_barriers,
+> +	bool may_reduce_num,
+> +	bool context,
+> +	bool (*notify)(struct virtqueue *),
+> +	void (*callback)(struct virtqueue *),
+> +	const char *name)
+> +{
+> +	struct vring_virtqueue *vq;
+> +	struct vring_packed vring;
+> +
+> +	if (vring_create_vring_packed(&vring, vdev, num))
+> +		goto err_vq;
+>  
+>  	vq = kmalloc(sizeof(*vq), GFP_KERNEL);
+>  	if (!vq)
+> @@ -1753,17 +1821,17 @@ static struct virtqueue *vring_create_virtqueue_packed(
+>  	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
+>  		vq->weak_barriers = false;
+>  
+> -	vq->packed.ring_dma_addr = ring_dma_addr;
+> -	vq->packed.driver_event_dma_addr = driver_event_dma_addr;
+> -	vq->packed.device_event_dma_addr = device_event_dma_addr;
+> +	vq->packed.ring_dma_addr = vring.ring_dma_addr;
+> +	vq->packed.driver_event_dma_addr = vring.driver_event_dma_addr;
+> +	vq->packed.device_event_dma_addr = vring.device_event_dma_addr;
+>  
+> -	vq->packed.ring_size_in_bytes = ring_size_in_bytes;
+> -	vq->packed.event_size_in_bytes = event_size_in_bytes;
+> +	vq->packed.ring_size_in_bytes = vring.ring_size_in_bytes;
+> +	vq->packed.event_size_in_bytes = vring.event_size_in_bytes;
+>  
+>  	vq->packed.vring.num = num;
+> -	vq->packed.vring.desc = ring;
+> -	vq->packed.vring.driver = driver;
+> -	vq->packed.vring.device = device;
+> +	vq->packed.vring.desc = vring.ring;
+> +	vq->packed.vring.driver = vring.driver;
+> +	vq->packed.vring.device = vring.device;
+>  
+>  	vq->packed.next_avail_idx = 0;
+>  	vq->packed.avail_wrap_counter = 1;
+> @@ -1804,12 +1872,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
+>  err_desc_state:
+>  	kfree(vq);
+>  err_vq:
+> -	vring_free_queue(vdev, event_size_in_bytes, device, device_event_dma_addr);
+> -err_device:
+> -	vring_free_queue(vdev, event_size_in_bytes, driver, driver_event_dma_addr);
+> -err_driver:
+> -	vring_free_queue(vdev, ring_size_in_bytes, ring, ring_dma_addr);
+> -err_ring:
+> +	vring_free_vring_packed(&vring, vdev);
+>  	return NULL;
+>  }
+>  
+> -- 
+> 2.31.0
 
