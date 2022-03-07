@@ -2,177 +2,186 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CF4D3C433EF
-	for <linux-s390@archiver.kernel.org>; Mon,  7 Mar 2022 17:10:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 37706C433EF
+	for <linux-s390@archiver.kernel.org>; Mon,  7 Mar 2022 18:30:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238000AbiCGRLf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 7 Mar 2022 12:11:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36942 "EHLO
+        id S244746AbiCGSbh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 7 Mar 2022 13:31:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235574AbiCGRLe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Mar 2022 12:11:34 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD2C48301E;
-        Mon,  7 Mar 2022 09:10:39 -0800 (PST)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 227FIcK1006300;
-        Mon, 7 Mar 2022 17:10:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=nPp+FBrbOyhOFp4k8E3F3lZ4Ca6JUG3oR4oBk3awDZw=;
- b=EGoWmJK5IFUI05HF97e/PHdWkRw9oPCfRNVC0DiF83UHObYk/hmWr4csMz4albrY9U++
- gdEDYgEq94s0ZQ6h64IaC9z3b2OMd97Lji4hP8mD+2IJ8qausl5t8A3SAFyarNkyB/7u
- zQS+PYqVAFpUIoOJdxQrxn19wlWTz6OhFNILPI59FUWRdZLs7Bz7W1xDLCjrCm461RuX
- /Ugw8dXC+Q1B5hj8rZ5lUyKzHSkceFBMT7rgnTmURn2gLOFsdOkU+Guyul7BGoI6WIxx
- gRgAT21cRoSVMm6TWoy4D6NC5Cr9RWPI+cHd5QB3mxdzfXaC6wjXI+ovXoeKp5MEcp/d oA== 
+        with ESMTP id S239158AbiCGSbg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Mar 2022 13:31:36 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81A842FFD8;
+        Mon,  7 Mar 2022 10:30:41 -0800 (PST)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 227G35x1026898;
+        Mon, 7 Mar 2022 18:30:40 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=dHtt2npJI8jGDz0vgaBmY7h0uvgfivtpDa98PhpF8To=;
+ b=QABcr9DDxwbkZ9HSCXn9uJW1tM2rPPfrOyKn6F9rdcw+J4meAC5XuQ1eJLjndNty2cIy
+ KKpljlTvv/VLaz1be5GP29hrma5F619w9HkJssUX+9CF3ZCJ6JAL4HRHwX5lX4uOfy6C
+ dykERUo9+Jq7l3lj7NLhgz0yAz3B9HjCFeP2vhndE1ABFrVSD9Pj5qx5TXgon8ojQBIS
+ S2Klxhs7Tob691hx6AVZ5a5YSZqPhPtZ2jMo2bR0swNYIIGaOVZ0xzWPuSdD4V8IgOpK
+ Q5KsVkPCoQgGHyJ8YWDiQWmAv0uKtw2Hlmpf8gXmoKNvqjVy8Lk+05UhvTCU/GYYyc6e LA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3end6g43rd-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3enfje2tsu-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Mar 2022 17:10:37 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 227GVUGU001674;
-        Mon, 7 Mar 2022 17:10:37 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3end6g43qq-1
+        Mon, 07 Mar 2022 18:30:40 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 227IUeCP026531;
+        Mon, 7 Mar 2022 18:30:40 GMT
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3enfje2tsh-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Mar 2022 17:10:36 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 227H35JE017003;
-        Mon, 7 Mar 2022 17:10:34 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma04fra.de.ibm.com with ESMTP id 3ekyg94gt0-1
+        Mon, 07 Mar 2022 18:30:40 +0000
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 227I8EeZ032014;
+        Mon, 7 Mar 2022 18:30:39 GMT
+Received: from b01cxnp22035.gho.pok.ibm.com (b01cxnp22035.gho.pok.ibm.com [9.57.198.25])
+        by ppma03dal.us.ibm.com with ESMTP id 3emy8gs8uj-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Mar 2022 17:10:34 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 227HAVrV43647318
+        Mon, 07 Mar 2022 18:30:39 +0000
+Received: from b01ledav006.gho.pok.ibm.com (b01ledav006.gho.pok.ibm.com [9.57.199.111])
+        by b01cxnp22035.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 227IUc9O16056612
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 7 Mar 2022 17:10:31 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 062564C040;
-        Mon,  7 Mar 2022 17:10:31 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5E58F4C044;
-        Mon,  7 Mar 2022 17:10:30 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.73.209])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Mon,  7 Mar 2022 17:10:30 +0000 (GMT)
-Date:   Mon, 7 Mar 2022 18:10:27 +0100
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Tony Krowiak <akrowiak@linux.ibm.com>
-Cc:     jjherne@linux.ibm.com, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
-        mjrosato@linux.ibm.com, alex.williamson@redhat.com,
-        kwankhede@nvidia.com, fiuczy@linux.ibm.com,
-        Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH v18 08/18] s390/vfio-ap: allow assignment of unavailable
- AP queues to mdev device
-Message-ID: <20220307181027.29c821b6.pasic@linux.ibm.com>
-In-Reply-To: <151241e6-3099-4be2-da54-1f0e5cb3a705@linux.ibm.com>
-References: <20220215005040.52697-1-akrowiak@linux.ibm.com>
-        <20220215005040.52697-9-akrowiak@linux.ibm.com>
-        <97681738-50a1-976d-9f0f-be326eab7202@linux.ibm.com>
-        <9ac3908e-06da-6276-d1df-94898918fc5b@linux.ibm.com>
-        <20220307142711.5af33ece.pasic@linux.ibm.com>
-        <151241e6-3099-4be2-da54-1f0e5cb3a705@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+        Mon, 7 Mar 2022 18:30:38 GMT
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2DA5FAC064;
+        Mon,  7 Mar 2022 18:30:38 +0000 (GMT)
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 27612AC05F;
+        Mon,  7 Mar 2022 18:30:36 +0000 (GMT)
+Received: from farman-thinkpad-t470p (unknown [9.211.148.123])
+        by b01ledav006.gho.pok.ibm.com (Postfix) with ESMTP;
+        Mon,  7 Mar 2022 18:30:35 +0000 (GMT)
+Message-ID: <16062049c05e4e38ef5fdf42961c306c8c706ea1.camel@linux.ibm.com>
+Subject: Re: [PATCH kvm-unit-tests v1 3/6] s390x: smp: Fix checks for SIGP
+ STOP STORE STATUS
+From:   Eric Farman <farman@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Date:   Mon, 07 Mar 2022 13:30:34 -0500
+In-Reply-To: <911551ce6154655dc3257aec307ccbd3a3843d0b.camel@linux.ibm.com>
+References: <20220303210425.1693486-1-farman@linux.ibm.com>
+         <20220303210425.1693486-4-farman@linux.ibm.com>
+         <fcacf11f-6469-8c70-9db5-0bb55e77fcdf@linux.ibm.com>
+         <911551ce6154655dc3257aec307ccbd3a3843d0b.camel@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 8ESeYzpXOab-qYbc1klVDE9pxrJgcCK7
-X-Proofpoint-GUID: q3QEZXEdGxdwolAbq1CXYupZ3dbEbiBr
+X-Proofpoint-GUID: 2ZI6wb7WkPziFeL_zUCVEz1OREtZvwT_
+X-Proofpoint-ORIG-GUID: oKRM9udPGcUU_5wY2x07_8ehC-ca8XyA
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-07_08,2022-03-04_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 adultscore=0
- priorityscore=1501 impostorscore=0 bulkscore=0 lowpriorityscore=0
- spamscore=0 suspectscore=0 clxscore=1015 malwarescore=0 mlxscore=0
+ definitions=2022-03-07_09,2022-03-04_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 adultscore=0
+ spamscore=0 clxscore=1015 impostorscore=0 bulkscore=0 suspectscore=0
+ mlxscore=0 priorityscore=1501 mlxlogscore=999 lowpriorityscore=0
  phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2203070093
+ engine=8.12.0-2202240000 definitions=main-2203070102
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 7 Mar 2022 09:10:29 -0500
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
-
-> On 3/7/22 08:27, Halil Pasic wrote:
-> > On Mon, 7 Mar 2022 07:31:21 -0500
-> > Tony Krowiak <akrowiak@linux.ibm.com> wrote:
-> >  
-> >> On 3/3/22 10:39, Jason J. Herne wrote:  
-> >>> On 2/14/22 19:50, Tony Krowiak wrote:  
-> >>>>    /**
-> >>>> - * vfio_ap_mdev_verify_no_sharing - verifies that the AP matrix is
-> >>>> not configured
-> >>>> + * vfio_ap_mdev_verify_no_sharing - verify APQNs are not shared by
-> >>>> matrix mdevs
-> >>>>     *
-> >>>> - * @matrix_mdev: the mediated matrix device
-> >>>> + * @mdev_apm: mask indicating the APIDs of the APQNs to be verified
-> >>>> + * @mdev_aqm: mask indicating the APQIs of the APQNs to be verified
-> >>>>     *
-> >>>> - * Verifies that the APQNs derived from the cross product of the AP
-> >>>> adapter IDs
-> >>>> - * and AP queue indexes comprising the AP matrix are not configured
-> >>>> for another
-> >>>> + * Verifies that each APQN derived from the Cartesian product of a
-> >>>> bitmap of
-> >>>> + * AP adapter IDs and AP queue indexes is not configured for any matrix
-> >>>>     * mediated device. AP queue sharing is not allowed.
-> >>>>     *
-> >>>> - * Return: 0 if the APQNs are not shared; otherwise returns
-> >>>> -EADDRINUSE.
-> >>>> + * Return: 0 if the APQNs are not shared; otherwise return -EADDRINUSE.
-> >>>>     */
-> >>>> -static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev
-> >>>> *matrix_mdev)
-> >>>> +static int vfio_ap_mdev_verify_no_sharing(unsigned long *mdev_apm,
-> >>>> +                      unsigned long *mdev_aqm)
-> >>>>    {
-> >>>> -    struct ap_matrix_mdev *lstdev;
-> >>>> +    struct ap_matrix_mdev *matrix_mdev;
-> >>>>        DECLARE_BITMAP(apm, AP_DEVICES);
-> >>>>        DECLARE_BITMAP(aqm, AP_DOMAINS);
-> >>>>    -    list_for_each_entry(lstdev, &matrix_dev->mdev_list, node) {
-> >>>> -        if (matrix_mdev == lstdev)
-> >>>> +    list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
-> >>>> +        /*
-> >>>> +         * If the input apm and aqm belong to the matrix_mdev's matrix,  
-> > How about:
-> >
-> > s/belong to the matrix_mdev's matrix/are fields of the matrix_mdev
-> > object/  
+On Fri, 2022-03-04 at 09:38 -0500, Eric Farman wrote:
+> On Fri, 2022-03-04 at 11:40 +0100, Janosch Frank wrote:
+> > On 3/3/22 22:04, Eric Farman wrote:
+> > > In the routine test_stop_store_status(), the "running" part of
+> > > the test checks a few of the fields in lowcore (to verify the
+> > > "STORE STATUS" part of the SIGP order), and then ensures that
+> > > the CPU has stopped. But this is backwards, and leads to false
+> > > errors.
+> > > 
+> > > According to the Principles of Operation:
+> > >    The addressed CPU performs the stop function, fol-
+> > >    lowed by the store-status operation (see “Store Sta-
+> > >    tus” on page 4-82).
+> > > 
+> > > By checking the results how they are today, the contents of
+> > > the lowcore fields are unreliable until the CPU is stopped.
+> > > Thus, check that the CPU is stopped first, before ensuring
+> > > that the STORE STATUS was performed correctly.
+> > 
+> > The results are undefined until the cpu is not busy via SIGP sense,
+> > no?
+> > You cover that via doing the smp_cpu_stopped() check since that
+> > does
+> > a 
+> > sigp sense.
+> > 
+> > Where the stop check is located doesn't really matter since the
+> > library 
+> > waits until the cpu is stopped and it does that via
+> > smp_cpu_stopped()
+> > 
+> > 
+> > So:
+> > Are we really fixing something here?
 > 
-> This is the comment I wrote:
+> Hrm, I thought so, but I got focused on the order of these checks and
+> overlooked the point that the library already does this looping. I do
+> trip up on these checks; let me revisit them.
+
+Ah, my turn to fool myself. To test all the different combinations, I
+had both old/new SIGP behavior in otherwise identical kernels and QEMU
+binaries. But I appear to have mislabeled QEMU, so the failures I was
+seeing was due to running the old QEMU, and not anything in kvm-unit-
+tests itself. My apologies.
+
+So, per your next paragraph, I'll keep this patch but tidy up the
+commit message accordingly.
+
 > 
->          /*
->           * Comparing an mdev's newly updated apm/aqm with itself would
->           * result in a false positive when verifying whether any APQNs
->           * are shared; so, if the input apm and aqm belong to the
->           * matrix_mdev's matrix, then move on to the next one.
->           */
-> 
-> However, I'd be happy to change it to whatever either of you want.
-
-What ain't obvious for the comment is that "belong to" actually means
-composition and not association. In other words, there there is no
-pointer/indirection involved, a pointer that would tell us what matrix
-does belong to what matrix_mdev, but rather the matrix is just a part
-of the matrix_mdev object.
-
-I don't like 'false positive' either, and whether the apm/aqm is
-newly updated or not is also redundant and confusing in my opinion. When
-we check because of inuse there is not updated whatever. IMHO the old
-message was better than this one.
-
-Just my opinion, if you two agree, that this is the way to go, I'm fine
-with that.
-
-Regards,
-Halil
-
+> > Please improve the commit description.
+> > For me this looks more like making checks more explicit and
+> > symmetrical 
+> > which I'm generally ok with. We just need to specify correctly why
+> > we're 
+> > doing that.
+> > 
+> > > While here, add the same check to the second part of the test,
+> > > even though the CPU is explicitly stopped prior to the SIGP.
+> > > 
+> > > Fixes: fc67b07a4 ("s390x: smp: Test stop and store status on a
+> > > running and stopped cpu")
+> > > Signed-off-by: Eric Farman <farman@linux.ibm.com>
+> > > ---
+> > >   s390x/smp.c | 3 ++-
+> > >   1 file changed, 2 insertions(+), 1 deletion(-)
+> > > 
+> > > diff --git a/s390x/smp.c b/s390x/smp.c
+> > > index 2f4af820..50811bd0 100644
+> > > --- a/s390x/smp.c
+> > > +++ b/s390x/smp.c
+> > > @@ -98,9 +98,9 @@ static void test_stop_store_status(void)
+> > >   	lc->grs_sa[15] = 0;
+> > >   	smp_cpu_stop_store_status(1);
+> > >   	mb();
+> > > +	report(smp_cpu_stopped(1), "cpu stopped");
+> > >   	report(lc->prefix_sa == (uint32_t)(uintptr_t)cpu-
+> > > >lowcore,
+> > > "prefix");
+> > >   	report(lc->grs_sa[15], "stack");
+> > > -	report(smp_cpu_stopped(1), "cpu stopped");
+> > >   	report_prefix_pop();
+> > >   
+> > >   	report_prefix_push("stopped");
+> > > @@ -108,6 +108,7 @@ static void test_stop_store_status(void)
+> > >   	lc->grs_sa[15] = 0;
+> > >   	smp_cpu_stop_store_status(1);
+> > >   	mb();
+> > > +	report(smp_cpu_stopped(1), "cpu stopped");
+> > >   	report(lc->prefix_sa == (uint32_t)(uintptr_t)cpu-
+> > > >lowcore,
+> > > "prefix");
+> > >   	report(lc->grs_sa[15], "stack");
+> > >   	report_prefix_pop();
 
