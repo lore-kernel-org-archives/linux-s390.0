@@ -2,157 +2,267 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ADBF0C433F5
-	for <linux-s390@archiver.kernel.org>; Tue,  8 Mar 2022 20:03:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1A3FC433EF
+	for <linux-s390@archiver.kernel.org>; Tue,  8 Mar 2022 21:18:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235269AbiCHUE1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 8 Mar 2022 15:04:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42546 "EHLO
+        id S1350108AbiCHVTV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 8 Mar 2022 16:19:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350096AbiCHUE1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Mar 2022 15:04:27 -0500
-Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8CA33D1F6
-        for <linux-s390@vger.kernel.org>; Tue,  8 Mar 2022 12:03:29 -0800 (PST)
-Received: by mail-lf1-x12b.google.com with SMTP id n19so13114218lfh.8
-        for <linux-s390@vger.kernel.org>; Tue, 08 Mar 2022 12:03:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=czsRGOkOn3Lgpr63tuiW4SCDSW01owb7EuPhkTzECmM=;
-        b=bOcSUSaffQIuHF2CSU04hVbpPCejg/SdphJ6c1+LuWKBJjlLZbbCI4HeWDmKQqotw6
-         Z+FhPUs0dHXmbekhhf5T8yXt+lsbxU+tYj01K3m3MHIYZXN4QXKRxMhMJnW0d8+S2sd3
-         3/4ljensKECXT+zaZ2BHQJbn0bZRqLGy0/n0Y=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=czsRGOkOn3Lgpr63tuiW4SCDSW01owb7EuPhkTzECmM=;
-        b=KTeJ4hJPmp+AMQC58FMsRX5rs8tQVjleLqOSvMOuZBZSCkY5ql4SGaYAo4eCW89NNm
-         ZSEHw2dzO6BWb2DLa1BeByK1U78jlMn1ZRIpkrf5ewANJwPPRNAjn20lnzGM65b7lUnP
-         zRp6ia+8dhpalvIWb4w0lkUpIg8UtgD2xhIippGTCbTWaSrepV1aku47ZP+siSwM1WHI
-         S5q4xZtYItSbux2FoRsBdAPylxxXFmr6m8LAz9+EllljTgKVCDpSVr5VIKFE4bfQj4n6
-         Qtp6mkXKbUQ+nTr71TYJ8MOv0fzlJFXbP0wUIqAeZ0AFdliSOlmoUZ1F4isTIJ+6/tM5
-         3U+Q==
-X-Gm-Message-State: AOAM533BURKUdAUkHaDq9sjMGmutgvqJTfAVu1me4MQwQzZX4I4bdmSp
-        CTXhtylx5Mvr5KsYBnUPlkeil87Gf7kyoV+Atn0=
-X-Google-Smtp-Source: ABdhPJzGBRHbLe/v/xwUAqS7DqCtpA3pKX0HJstV/Pb8kmtSObcAzLLwaiQCx8t/ZZnL6xZFwAu22Q==
-X-Received: by 2002:a05:6512:3248:b0:448:3231:2800 with SMTP id c8-20020a056512324800b0044832312800mr6408684lfr.24.1646769807782;
-        Tue, 08 Mar 2022 12:03:27 -0800 (PST)
-Received: from mail-lf1-f45.google.com (mail-lf1-f45.google.com. [209.85.167.45])
-        by smtp.gmail.com with ESMTPSA id a19-20020a2e88d3000000b00246585ccd51sm4059459ljk.14.2022.03.08.12.03.25
-        for <linux-s390@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 08 Mar 2022 12:03:25 -0800 (PST)
-Received: by mail-lf1-f45.google.com with SMTP id z11so18843537lfh.13
-        for <linux-s390@vger.kernel.org>; Tue, 08 Mar 2022 12:03:25 -0800 (PST)
-X-Received: by 2002:ac2:44a4:0:b0:445:8fc5:a12a with SMTP id
- c4-20020ac244a4000000b004458fc5a12amr11949016lfm.27.1646769804575; Tue, 08
- Mar 2022 12:03:24 -0800 (PST)
-MIME-Version: 1.0
-References: <CAHc6FU5nP+nziNGG0JAF1FUx-GV7kKFvM7aZuU_XD2_1v4vnvg@mail.gmail.com>
- <CAHk-=wgmCuuJdf96WiT6WXzQQTEeSK=cgBy24J4U9V2AvK4KdQ@mail.gmail.com>
- <bcafacea-7e67-405c-a969-e5a58a3c727e@redhat.com> <CAHk-=wh1WJ-s9Gj15yFciq6TOd9OOsE7H=R7rRskdRP6npDktQ@mail.gmail.com>
- <CAHk-=wjHsQywXgNe9D+MQCiMhpyB2Gs5M78CGCpTr9BSeP71bw@mail.gmail.com> <CAHk-=wjs2Jf3LzqCPmfkXd=ULPyCrrGEF7rR6TYzz1RPF+qh3Q@mail.gmail.com>
-In-Reply-To: <CAHk-=wjs2Jf3LzqCPmfkXd=ULPyCrrGEF7rR6TYzz1RPF+qh3Q@mail.gmail.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Tue, 8 Mar 2022 12:03:08 -0800
-X-Gmail-Original-Message-ID: <CAHk-=wi1jrn=sds1doASepf55-wiBEiQ_z6OatOojXj6Gtntyg@mail.gmail.com>
-Message-ID: <CAHk-=wi1jrn=sds1doASepf55-wiBEiQ_z6OatOojXj6Gtntyg@mail.gmail.com>
-Subject: Re: Buffered I/O broken on s390x with page faults disabled (gfs2)
-To:     David Hildenbrand <david@redhat.com>
-Cc:     Andreas Gruenbacher <agruenba@redhat.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Linux-MM <linux-mm@kvack.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        linux-btrfs <linux-btrfs@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="0000000000003abc5505d9ba794e"
+        with ESMTP id S234950AbiCHVTU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Mar 2022 16:19:20 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78DF547576;
+        Tue,  8 Mar 2022 13:18:22 -0800 (PST)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 228KeF43017861;
+        Tue, 8 Mar 2022 21:18:22 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=0otWy61A4HHa5Gm40+RSCj99Ylge/sVe9ZMO6TK24zc=;
+ b=aG8z5s3tndto8o2VfqnnOmYgA/XHEElzwNJH4o5bo/MzB494SPh4k3qF5LSmRtH2+GAK
+ VNGo5NFB9FF4TMY9igz1G1AgvLhEOjo0QUczSImv0spJ3jMh0rOXHJTSc4gKERsgn0Kg
+ 9DVeWHxKCZTOR0rXkiSPl+xnIMsTUjMZZl0GlaOdwSQOcjCVgYmtCqvZEaBepTAuVsGz
+ HtPlnT+O2wCN/gJxR0yrZv0zfMVPDjJg4cNGeclj1TjogOc5voBtuFXTWcU6voe++wd8
+ +ddsNxo0ppYQaGZQyrF6EQXF8d3N7RMZfYhSr6e6aYd/0oeEM+IVyMJvk6DxeIrWlnbM Pg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3entt8gqt6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 08 Mar 2022 21:18:21 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 228L1LGX029780;
+        Tue, 8 Mar 2022 21:18:21 GMT
+Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3entt8gqsn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 08 Mar 2022 21:18:21 +0000
+Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
+        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 228LH1nE018020;
+        Tue, 8 Mar 2022 21:18:20 GMT
+Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
+        by ppma03wdc.us.ibm.com with ESMTP id 3ekyg9qr5s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 08 Mar 2022 21:18:20 +0000
+Received: from b03ledav001.gho.boulder.ibm.com (b03ledav001.gho.boulder.ibm.com [9.17.130.232])
+        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 228LII5f36897146
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 8 Mar 2022 21:18:18 GMT
+Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1E6AC6E04E;
+        Tue,  8 Mar 2022 21:18:18 +0000 (GMT)
+Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 56AFC6E053;
+        Tue,  8 Mar 2022 21:18:17 +0000 (GMT)
+Received: from farman-thinkpad-t470p (unknown [9.211.148.123])
+        by b03ledav001.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Tue,  8 Mar 2022 21:18:17 +0000 (GMT)
+Message-ID: <555b6644b4a1003991f778a6b3e2ba12962d1571.camel@linux.ibm.com>
+Subject: Re: [PATCH kvm-unit-tests v1 4/6] s390x: smp: Create and use a
+ non-waiting CPU stop
+From:   Eric Farman <farman@linux.ibm.com>
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Date:   Tue, 08 Mar 2022 16:18:16 -0500
+In-Reply-To: <20220308113155.24c7a5f4@p-imbrenda>
+References: <20220303210425.1693486-1-farman@linux.ibm.com>
+         <20220303210425.1693486-5-farman@linux.ibm.com>
+         <20220307163007.0213714e@p-imbrenda>
+         <2066eb382d42a27db9417ea47d79f2fbee0a2af0.camel@linux.ibm.com>
+         <20220308113155.24c7a5f4@p-imbrenda>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: w5CvsnnMmCmXMeffLbNA_-LqZSaGDNlQ
+X-Proofpoint-ORIG-GUID: cPqcVLE3CB09NF14tpwCJXFFbPey7hWt
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-03-08_08,2022-03-04_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 suspectscore=0 priorityscore=1501
+ mlxlogscore=999 bulkscore=0 adultscore=0 impostorscore=0 malwarescore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2203080107
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
---0000000000003abc5505d9ba794e
-Content-Type: text/plain; charset="UTF-8"
+On Tue, 2022-03-08 at 11:31 +0100, Claudio Imbrenda wrote:
+> On Mon, 07 Mar 2022 14:03:45 -0500
+> Eric Farman <farman@linux.ibm.com> wrote:
+> 
+> > On Mon, 2022-03-07 at 16:30 +0100, Claudio Imbrenda wrote:
+> > > On Thu,  3 Mar 2022 22:04:23 +0100
+> > > Eric Farman <farman@linux.ibm.com> wrote:
+> > >   
+> > > > When stopping a CPU, kvm-unit-tests serializes/waits for
+> > > > everything
+> > > > to finish, in order to get a consistent result whenever those
+> > > > functions are used.
+> > > > 
+> > > > But to test the SIGP STOP itself, these additional measures
+> > > > could
+> > > > mask other problems. For example, did the STOP work, or is the
+> > > > CPU
+> > > > still operating?
+> > > > 
+> > > > Let's create a non-waiting SIGP STOP and use it here, to ensure
+> > > > that
+> > > > the CPU is correctly stopped. A smp_cpu_stopped() call will
+> > > > still
+> > > > be used to see that the SIGP STOP has been processed, and the
+> > > > state
+> > > > of the CPU can be used to determine whether the test
+> > > > passes/fails.
+> > > > 
+> > > > Signed-off-by: Eric Farman <farman@linux.ibm.com>
+> > > > ---
+> > > >  lib/s390x/smp.c | 25 +++++++++++++++++++++++++
+> > > >  lib/s390x/smp.h |  1 +
+> > > >  s390x/smp.c     | 10 ++--------
+> > > >  3 files changed, 28 insertions(+), 8 deletions(-)
+> > > > 
+> > > > diff --git a/lib/s390x/smp.c b/lib/s390x/smp.c
+> > > > index 368d6add..84e536e8 100644
+> > > > --- a/lib/s390x/smp.c
+> > > > +++ b/lib/s390x/smp.c
+> > > > @@ -119,6 +119,31 @@ int smp_cpu_stop(uint16_t idx)
+> > > >  	return rc;
+> > > >  }
+> > > >  
+> > > > +/*
+> > > > + * Functionally equivalent to smp_cpu_stop(), but without the
+> > > > + * elements that wait/serialize matters itself.
+> > > > + * Used to see if KVM itself is serialized correctly.
+> > > > + */
+> > > > +int smp_cpu_stop_nowait(uint16_t idx)
+> > > > +{
+> > > > +	/* refuse to work on the boot CPU */
+> > > > +	if (idx == 0)
+> > > > +		return -1;
+> > > > +
+> > > > +	spin_lock(&lock);
+> > > > +
+> > > > +	/* Don't suppress a CC2 with sigp_retry() */
+> > > > +	if (smp_sigp(idx, SIGP_STOP, 0, NULL)) {
+> > > > +		spin_unlock(&lock);
+> > > > +		return -1;
+> > > > +	}
+> > > > +
+> > > > +	cpus[idx].active = false;
+> > > > +	spin_unlock(&lock);
+> > > > +
+> > > > +	return 0;
+> > > > +}
+> > > > +
+> > > >  int smp_cpu_stop_store_status(uint16_t idx)
+> > > >  {
+> > > >  	int rc;
+> > > > diff --git a/lib/s390x/smp.h b/lib/s390x/smp.h
+> > > > index 1e69a7de..bae03dfd 100644
+> > > > --- a/lib/s390x/smp.h
+> > > > +++ b/lib/s390x/smp.h
+> > > > @@ -44,6 +44,7 @@ bool smp_sense_running_status(uint16_t idx);
+> > > >  int smp_cpu_restart(uint16_t idx);
+> > > >  int smp_cpu_start(uint16_t idx, struct psw psw);
+> > > >  int smp_cpu_stop(uint16_t idx);
+> > > > +int smp_cpu_stop_nowait(uint16_t idx);
+> > > >  int smp_cpu_stop_store_status(uint16_t idx);
+> > > >  int smp_cpu_destroy(uint16_t idx);
+> > > >  int smp_cpu_setup(uint16_t idx, struct psw psw);
+> > > > diff --git a/s390x/smp.c b/s390x/smp.c
+> > > > index 50811bd0..11c2c673 100644
+> > > > --- a/s390x/smp.c
+> > > > +++ b/s390x/smp.c
+> > > > @@ -76,14 +76,8 @@ static void test_restart(void)
+> > > >  
+> > > >  static void test_stop(void)
+> > > >  {
+> > > > -	smp_cpu_stop(1);
+> > > > -	/*
+> > > > -	 * The smp library waits for the CPU to shut down, but
+> > > > let's
+> > > > -	 * also do it here, so we don't rely on the library
+> > > > -	 * implementation
+> > > > -	 */
+> > > > -	while (!smp_cpu_stopped(1)) {}
+> > > > -	report_pass("stop");
+> > > > +	smp_cpu_stop_nowait(1);  
+> > > 
+> > > can it happen that the SIGP STOP order is accepted, but the
+> > > target
+> > > CPU
+> > > is still running (and not even busy)?  
+> > 
+> > Of course. A SIGP that's processed by userspace (which is many of
+> > them)
+> > injects a STOP IRQ back to the kernel, which means the CPU might
+> > not be
+> > stopped for some time. But...
+> > 
+> > >   
+> > > > +	report(smp_cpu_stopped(1), "stop");  
+> > > 
+> > > e.g. can this ^ check race with the actual stopping of the CPU?  
+> > 
+> > ...the smp_cpu_stopped() routine now loops on the CC2 that SIGP
+> > SENSE
+> > returns because of that pending IRQ. If SIGP SENSE returns CC0/1,
+> > then
+> > the CPU can correctly be identified stopped/operating, and the test
+> > can
+> > correctly pass/fail.
+> 
+> my question was: is it possible architecturally that there is a
+> window
+> where the STOP order is accepted, but a SENSE on the target CPU still
+> successfully returns that the CPU is running?
 
-On Tue, Mar 8, 2022 at 11:27 AM Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
->
-> So I think the fix for this all might be something like the attached
-> (TOTALLY UNTESTED)!
+Not to my knowledge. The "Conditions Determining Response" section of
+POPS (v12, page 4-95; also below) specifically states that the SIGP
+SENSE will return CC2 when a SIGP STOP order is outstanding.
 
-Still entirely untested, but I wrote a commit message for it in the
-hopes that this actually works and Andreas can verify that it fixes
-the issue.
+In our implementation, the stop IRQ will be injected before the STOP
+order gets accepted, such that a SIGP SENSE would see it immediately.
 
-Same exact patch, it's just now in my local experimental tree as a commit.
+"""
+A previously issued start, stop, restart, stop-
+and-store-status, set-prefix, store-status-at-
+address order, or store-additional-status-at-
+address has been accepted by the
+addressed CPU, and execution of the func-
+tion requested by the order has not yet been
+completed.
+...
+If the currently specified order is sense, external
+call, emergency signal, start, stop, restart, stop
+and store status, set prefix, store status at
+address, set architecture, set multithreading, or
+store additional status at address, then the order
+is rejected, and condition code 2 is set.
+"""
 
-                  Linus
+> 
+> in other words: is it specified architecturally that, once an order
+> is
+> accepted for a target CPU, that CPU can't accept any other order (and
+> will return CC2), including SENSE, until the order has been completed
+> successfully?
 
---0000000000003abc5505d9ba794e
-Content-Type: text/x-patch; charset="US-ASCII"; 
-	name="0001-mm-gup-make-fault_in_safe_writeable-use-fixup_user_f.patch"
-Content-Disposition: attachment; 
-	filename="0001-mm-gup-make-fault_in_safe_writeable-use-fixup_user_f.patch"
-Content-Transfer-Encoding: base64
-Content-ID: <f_l0ik6w7o0>
-X-Attachment-Id: f_l0ik6w7o0
+The POPS quote I placed above excludes store-extended-status-address,
+conditional-emergency-signal, and sense-running-status orders as
+returning a CC2. That's something Janosch and I have chatted about
+offline, but don't have an answer to at this time. Besides that, any
+other order would get a CC2 until the STOP has been completed.
 
-RnJvbSBkOGMyZTBhODEyNzRkNjdlZGZmZjM3NjljNGMzN2UzNjRiYThkNmY4IE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBMaW51cyBUb3J2YWxkcyA8dG9ydmFsZHNAbGludXgtZm91bmRh
-dGlvbi5vcmc+CkRhdGU6IFR1ZSwgOCBNYXIgMjAyMiAxMTo1NTo0OCAtMDgwMApTdWJqZWN0OiBb
-UEFUQ0hdIG1tOiBndXA6IG1ha2UgZmF1bHRfaW5fc2FmZV93cml0ZWFibGUoKSB1c2UKIGZpeHVw
-X3VzZXJfZmF1bHQoKQoKSW5zdGVkYWQgb2YgdXNpbmcgR1VQLCBtYWtlIGZhdWx0X2luX3NhZmVf
-d3JpdGVhYmxlKCkgYWN0dWFsbHkgZm9yY2UgYQonaGFuZGxlX21tX2ZhdWx0KCknIHVzaW5nIHRo
-ZSBzYW1lIGZpeHVwX3VzZXJfZmF1bHQoKSBtYWNoaW5lcnkgdGhhdApmdXRleGVzIGFscmVhZHkg
-dXNlLgoKVXNpbmcgdGhlIEdVUCBtYWNoaW5lcnkgbWVhbnQgdGhhdCBmYXVsdF9pbl9zYWZlX3dy
-aXRlYWJsZSgpIGRpZCBub3QgZG8KZXZlcnl0aGluZyB0aGF0IGEgcmVhbCBmYXVsdCB3b3VsZCBk
-bywgcmFuZ2luZyBmcm9tIG5vdCBhdXRvLWV4cGFuZGluZwp0aGUgc3RhY2sgc2VnbWVudCwgdG8g
-bm90IHVwZGF0aW5nIGFjY2Vzc2VkIG9yIGRpcnR5IGZsYWdzIGluIHRoZSBwYWdlCnRhYmxlcyAo
-R1VQIHNldHMgdGhvc2UgZmxhZ3Mgb24gdGhlIHBhZ2VzIHRoZW1zZWx2ZXMpLgoKVGhlIGxhdHRl
-ciBjYXVzZXMgcHJvYmxlbXMgb24gYXJjaGl0ZWN0dXJlcyAobGlrZSBzMzkwKSB0aGF0IGRvIGFj
-Y2Vzc2VkCmJpdCBoYW5kbGluZyBpbiBzb2Z0d2FyZSwgd2hpY2ggbWVhbnQgdGhhdCBmYXVsdF9p
-bl9zYWZlX3dyaXRlYWJsZSgpCmRpZG4ndCBhY3R1YWxseSBkbyBhbGwgdGhlIGZhdWx0IGhhbmRs
-aW5nIGl0IG5lZWRlZCB0by4KClJlcG9ydGVkLWJ5OiBBbmRyZWFzIEdydWVuYmFjaGVyIDxhZ3J1
-ZW5iYUByZWRoYXQuY29tPgpMaW5rOiBodHRwczovL2xvcmUua2VybmVsLm9yZy9hbGwvQ0FIYzZG
-VTVuUCtuemlOR0cwSkFGMUZVeC1HVjdrS0Z2TTdhWnVVX1hEMl8xdjR2bnZnQG1haWwuZ21haWwu
-Y29tLwpDYzogRGF2aWQgSGlsZGVuYnJhbmQgPGRhdmlkQHJlZGhhdC5jb20+ClNpZ25lZC1vZmYt
-Ynk6IGludXMgVG9ydmFsZHMgPHRvcnZhbGRzQGxpbnV4LWZvdW5kYXRpb24ub3JnPgotLS0KIG1t
-L2d1cC5jIHwgNDAgKysrKysrKysrKysrLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQogMSBm
-aWxlIGNoYW5nZWQsIDEyIGluc2VydGlvbnMoKyksIDI4IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdp
-dCBhL21tL2d1cC5jIGIvbW0vZ3VwLmMKaW5kZXggYTlkNGQ3MjRhZWY3Li45ZTA4NWU3YjljMjgg
-MTAwNjQ0Ci0tLSBhL21tL2d1cC5jCisrKyBiL21tL2d1cC5jCkBAIC0xNzQ1LDQ0ICsxNzQ1LDI4
-IEBAIEVYUE9SVF9TWU1CT0woZmF1bHRfaW5fd3JpdGVhYmxlKTsKIHNpemVfdCBmYXVsdF9pbl9z
-YWZlX3dyaXRlYWJsZShjb25zdCBjaGFyIF9fdXNlciAqdWFkZHIsIHNpemVfdCBzaXplKQogewog
-CXVuc2lnbmVkIGxvbmcgc3RhcnQgPSAodW5zaWduZWQgbG9uZyl1bnRhZ2dlZF9hZGRyKHVhZGRy
-KTsKLQl1bnNpZ25lZCBsb25nIGVuZCwgbnN0YXJ0LCBuZW5kOworCXVuc2lnbmVkIGxvbmcgZW5k
-LCBuc3RhcnQ7CiAJc3RydWN0IG1tX3N0cnVjdCAqbW0gPSBjdXJyZW50LT5tbTsKLQlzdHJ1Y3Qg
-dm1fYXJlYV9zdHJ1Y3QgKnZtYSA9IE5VTEw7Ci0JaW50IGxvY2tlZCA9IDA7CisJY29uc3QgdW5z
-aWduZWQgaW50IGZhdWx0X2ZsYWdzID0gRkFVTFRfRkxBR19XUklURSB8IEZBVUxUX0ZMQUdfS0lM
-TEFCTEU7CisJY29uc3Qgc2l6ZV90IG1heF9zaXplID0gNCAqIFBBR0VfU0laRTsKIAogCW5zdGFy
-dCA9IHN0YXJ0ICYgUEFHRV9NQVNLOwotCWVuZCA9IFBBR0VfQUxJR04oc3RhcnQgKyBzaXplKTsK
-KwllbmQgPSBQQUdFX0FMSUdOKHN0YXJ0ICsgbWluKHNpemUsIG1heF9zaXplKSk7CiAJaWYgKGVu
-ZCA8IG5zdGFydCkKIAkJZW5kID0gMDsKLQlmb3IgKDsgbnN0YXJ0ICE9IGVuZDsgbnN0YXJ0ID0g
-bmVuZCkgewotCQl1bnNpZ25lZCBsb25nIG5yX3BhZ2VzOwotCQlsb25nIHJldDsKIAotCQlpZiAo
-IWxvY2tlZCkgewotCQkJbG9ja2VkID0gMTsKLQkJCW1tYXBfcmVhZF9sb2NrKG1tKTsKLQkJCXZt
-YSA9IGZpbmRfdm1hKG1tLCBuc3RhcnQpOwotCQl9IGVsc2UgaWYgKG5zdGFydCA+PSB2bWEtPnZt
-X2VuZCkKLQkJCXZtYSA9IHZtYS0+dm1fbmV4dDsKLQkJaWYgKCF2bWEgfHwgdm1hLT52bV9zdGFy
-dCA+PSBlbmQpCi0JCQlicmVhazsKLQkJbmVuZCA9IGVuZCA/IG1pbihlbmQsIHZtYS0+dm1fZW5k
-KSA6IHZtYS0+dm1fZW5kOwotCQlpZiAodm1hLT52bV9mbGFncyAmIChWTV9JTyB8IFZNX1BGTk1B
-UCkpCi0JCQljb250aW51ZTsKLQkJaWYgKG5zdGFydCA8IHZtYS0+dm1fc3RhcnQpCi0JCQluc3Rh
-cnQgPSB2bWEtPnZtX3N0YXJ0OwotCQlucl9wYWdlcyA9IChuZW5kIC0gbnN0YXJ0KSAvIFBBR0Vf
-U0laRTsKLQkJcmV0ID0gX19nZXRfdXNlcl9wYWdlc19sb2NrZWQobW0sIG5zdGFydCwgbnJfcGFn
-ZXMsCi0JCQkJCSAgICAgIE5VTEwsIE5VTEwsICZsb2NrZWQsCi0JCQkJCSAgICAgIEZPTExfVE9V
-Q0ggfCBGT0xMX1dSSVRFKTsKLQkJaWYgKHJldCA8PSAwKQorCW1tYXBfcmVhZF9sb2NrKG1tKTsK
-Kwlmb3IgKDsgbnN0YXJ0ICE9IGVuZDsgbnN0YXJ0ICs9IFBBR0VfU0laRSkgeworCQlpZiAoZml4
-dXBfdXNlcl9mYXVsdChtbSwgbnN0YXJ0LCBmYXVsdF9mbGFncywgTlVMTCkpCiAJCQlicmVhazsK
-LQkJbmVuZCA9IG5zdGFydCArIHJldCAqIFBBR0VfU0laRTsKIAl9Ci0JaWYgKGxvY2tlZCkKLQkJ
-bW1hcF9yZWFkX3VubG9jayhtbSk7CisJbW1hcF9yZWFkX3VubG9jayhtbSk7CisKKwkvKiBJZiB3
-ZSBnb3QgYWxsIG9mIG91ciAodHJ1bmNhdGVkKSBmYXVsdC1pbiwgd2UgY2xhaW0gd2UgZ290IGl0
-IGFsbCAqLwogCWlmIChuc3RhcnQgPT0gZW5kKQogCQlyZXR1cm4gMDsKKworCS8qIC4uIG90aGVy
-d2lzZSB3ZSdsbCB1c2UgdGhlIG9yaWdpbmFsIHVudHJ1bmNhdGVkIHNpemUgKi8KIAlyZXR1cm4g
-c2l6ZSAtIG1pbl90KHNpemVfdCwgbnN0YXJ0IC0gc3RhcnQsIHNpemUpOwogfQogRVhQT1JUX1NZ
-TUJPTChmYXVsdF9pbl9zYWZlX3dyaXRlYWJsZSk7Ci0tIAoyLjM1LjEuMzU2LmdlNjYzMGY1N2Nm
-LmRpcnR5Cgo=
---0000000000003abc5505d9ba794e--
+> 
+> > >   
+> > > >  }
+> > > >  
+> > > >  static void test_stop_store_status(void)  
+
