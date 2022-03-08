@@ -2,267 +2,194 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B1A3FC433EF
-	for <linux-s390@archiver.kernel.org>; Tue,  8 Mar 2022 21:18:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 158CCC433F5
+	for <linux-s390@archiver.kernel.org>; Tue,  8 Mar 2022 21:39:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350108AbiCHVTV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 8 Mar 2022 16:19:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54792 "EHLO
+        id S1346399AbiCHVk2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 8 Mar 2022 16:40:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234950AbiCHVTU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Mar 2022 16:19:20 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78DF547576;
-        Tue,  8 Mar 2022 13:18:22 -0800 (PST)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 228KeF43017861;
-        Tue, 8 Mar 2022 21:18:22 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=0otWy61A4HHa5Gm40+RSCj99Ylge/sVe9ZMO6TK24zc=;
- b=aG8z5s3tndto8o2VfqnnOmYgA/XHEElzwNJH4o5bo/MzB494SPh4k3qF5LSmRtH2+GAK
- VNGo5NFB9FF4TMY9igz1G1AgvLhEOjo0QUczSImv0spJ3jMh0rOXHJTSc4gKERsgn0Kg
- 9DVeWHxKCZTOR0rXkiSPl+xnIMsTUjMZZl0GlaOdwSQOcjCVgYmtCqvZEaBepTAuVsGz
- HtPlnT+O2wCN/gJxR0yrZv0zfMVPDjJg4cNGeclj1TjogOc5voBtuFXTWcU6voe++wd8
- +ddsNxo0ppYQaGZQyrF6EQXF8d3N7RMZfYhSr6e6aYd/0oeEM+IVyMJvk6DxeIrWlnbM Pg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3entt8gqt6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Mar 2022 21:18:21 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 228L1LGX029780;
-        Tue, 8 Mar 2022 21:18:21 GMT
-Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3entt8gqsn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Mar 2022 21:18:21 +0000
-Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
-        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 228LH1nE018020;
-        Tue, 8 Mar 2022 21:18:20 GMT
-Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
-        by ppma03wdc.us.ibm.com with ESMTP id 3ekyg9qr5s-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Mar 2022 21:18:20 +0000
-Received: from b03ledav001.gho.boulder.ibm.com (b03ledav001.gho.boulder.ibm.com [9.17.130.232])
-        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 228LII5f36897146
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 8 Mar 2022 21:18:18 GMT
-Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1E6AC6E04E;
-        Tue,  8 Mar 2022 21:18:18 +0000 (GMT)
-Received: from b03ledav001.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 56AFC6E053;
-        Tue,  8 Mar 2022 21:18:17 +0000 (GMT)
-Received: from farman-thinkpad-t470p (unknown [9.211.148.123])
-        by b03ledav001.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Tue,  8 Mar 2022 21:18:17 +0000 (GMT)
-Message-ID: <555b6644b4a1003991f778a6b3e2ba12962d1571.camel@linux.ibm.com>
-Subject: Re: [PATCH kvm-unit-tests v1 4/6] s390x: smp: Create and use a
- non-waiting CPU stop
-From:   Eric Farman <farman@linux.ibm.com>
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     Thomas Huth <thuth@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Date:   Tue, 08 Mar 2022 16:18:16 -0500
-In-Reply-To: <20220308113155.24c7a5f4@p-imbrenda>
-References: <20220303210425.1693486-1-farman@linux.ibm.com>
-         <20220303210425.1693486-5-farman@linux.ibm.com>
-         <20220307163007.0213714e@p-imbrenda>
-         <2066eb382d42a27db9417ea47d79f2fbee0a2af0.camel@linux.ibm.com>
-         <20220308113155.24c7a5f4@p-imbrenda>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-Mime-Version: 1.0
+        with ESMTP id S245516AbiCHVk2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Mar 2022 16:40:28 -0500
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2F894CD4D;
+        Tue,  8 Mar 2022 13:39:30 -0800 (PST)
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 228LDuVo027923;
+        Tue, 8 Mar 2022 21:38:36 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=corp-2021-07-09;
+ bh=DhFtv67WuVLsRFNLT222tZVmBbgE3btJpR6JDsNZ8QI=;
+ b=F7g+Ykh4y2SAP+9SwGCDIwemS8we9hH5tG+VkEC9K3yRz2WB9SfQ6ZzmfDJ+SQ6pt35p
+ 7PTEbFF8xivElUrKRDWDlmc6AamyVC8WJNyu3qzb1epAV96jHU0ZpzwX5SqUzlALettP
+ K3vStBpQTfZfODZzReCRi/G9SpNT5MQUkiBork64AIOBBPKOQuj47TrbpZv+T/nKeeEK
+ fbnsrRovHQLjS/3Vlu0F61lJcCncYN+SzsKStVmZaRJTfLVbDjbEJ/R5uUUZhf6c16af
+ b34sWpT5W0aZzdfX5Dg+wJYA/4nX5zN2mircGRKSOsfeMX/V6o0G6f5FY1kAhhQRKLQR Cg== 
+Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
+        by mx0b-00069f02.pphosted.com with ESMTP id 3ekxn2gc2b-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 08 Mar 2022 21:38:36 +0000
+Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
+        by userp3030.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 228LaPoO120217;
+        Tue, 8 Mar 2022 21:38:35 GMT
+Received: from nam11-bn8-obe.outbound.protection.outlook.com (mail-bn8nam11lp2177.outbound.protection.outlook.com [104.47.58.177])
+        by userp3030.oracle.com with ESMTP id 3ekvyv9uh4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 08 Mar 2022 21:38:35 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=B4eUYEiuVLxfAIFoLTUKkT6HBej2c7szDrRteYJhwqZG7ul4gy2G8IWCtOgy5wYYJTSPsdwiW52UIjvk7Y/Vww7s0fEicgrl/S27DIWHzrTUEf8fhL6tBbG54R4zmozFWb3UPdQKpo/Y25/1tV5l1aahmaGw2MgsjU9RtFlI9MZiXpQuPjsalG1ykwa67flbHKLtBfXFkIozcVAeki6Q6cvBZRuqoC7ntJJMvjqhd/1YvCqyOE2Qe3SQpi/3jFb9e5v1SHObU4K7q8fQEvA5SDuz/Uuo108jEkYwkntjVN0P3s66aFE464dNVSbwDlZvNLwUiRVMTK0hLvlYHcUhVw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=DhFtv67WuVLsRFNLT222tZVmBbgE3btJpR6JDsNZ8QI=;
+ b=ORl8TmJJ5gQ34Fw4sklC1lmnScrYpHAAZGpfhSKsUme+lYH6isd7FKfBi8j/iDnlZHGc/HqX071HUBS04NUPYITMVo9JlwyV/CEvc3KJFPc/oOpJrPUeWQMlPxFp/AsEaH8F642DgkgLSXNdmBtS8/d66iUwyFU8KqFnhiz6j6W8A6HrFocvjmbyzKFPT8rzhAc9GmaYQp5yt4316miKX+/kZebFtbYj85vHMVCrtVyg2ypSH3HWoETHqZkw2UntUQKmLFWfCmFjYAE6vusjKy96mjajBLFOyxEppW2o30pXDP81983MjvtCrbwln1yezuGpgBHeveEVKa6zplp7cg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=DhFtv67WuVLsRFNLT222tZVmBbgE3btJpR6JDsNZ8QI=;
+ b=dweFUTWPrTn8YHb6QoS3/Czf8M9GYhX8dEH8+GYE7n/9g4TDEDKfJS08X6Ki8oBC7iDsxStZtBpeKd1O1fwcBGgTsB4fPbh3q4nGJ7FtV/WJj0fVhTd/KVNoxw6PEE/Kea6MwCrf/dlzZJy9EwuP5SBuJ8IZSmup7uZaIA3HybA=
+Received: from BLAPR10MB5009.namprd10.prod.outlook.com (2603:10b6:208:321::10)
+ by BYAPR10MB2710.namprd10.prod.outlook.com (2603:10b6:a02:b5::27) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5038.19; Tue, 8 Mar
+ 2022 21:38:31 +0000
+Received: from BLAPR10MB5009.namprd10.prod.outlook.com
+ ([fe80::6d20:6694:a16:56f7]) by BLAPR10MB5009.namprd10.prod.outlook.com
+ ([fe80::6d20:6694:a16:56f7%3]) with mapi id 15.20.5038.027; Tue, 8 Mar 2022
+ 21:38:31 +0000
+Message-ID: <6a22ea1e-4823-5c3b-97ee-a29155404a0d@oracle.com>
+Date:   Tue, 8 Mar 2022 16:38:21 -0500
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.6.1
+Subject: Re: [PATCH 11/12] swiotlb: merge swiotlb-xen initialization into
+ swiotlb
+Content-Language: en-US
+To:     Christoph Hellwig <hch@lst.de>, iommu@lists.linux-foundation.org
+Cc:     x86@kernel.org, Anshuman Khandual <anshuman.khandual@arm.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Juergen Gross <jgross@suse.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        linux-arm-kernel@lists.infradead.org,
+        xen-devel@lists.xenproject.org, linux-ia64@vger.kernel.org,
+        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-hyperv@vger.kernel.org, tboot-devel@lists.sourceforge.net,
+        linux-pci@vger.kernel.org
+References: <20220301105311.885699-1-hch@lst.de>
+ <20220301105311.885699-12-hch@lst.de>
+From:   Boris Ostrovsky <boris.ostrovsky@oracle.com>
+In-Reply-To: <20220301105311.885699-12-hch@lst.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: w5CvsnnMmCmXMeffLbNA_-LqZSaGDNlQ
-X-Proofpoint-ORIG-GUID: cPqcVLE3CB09NF14tpwCJXFFbPey7hWt
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-08_08,2022-03-04_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 spamscore=0
- clxscore=1015 lowpriorityscore=0 suspectscore=0 priorityscore=1501
- mlxlogscore=999 bulkscore=0 adultscore=0 impostorscore=0 malwarescore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2203080107
+X-ClientProxiedBy: BYAPR01CA0036.prod.exchangelabs.com (2603:10b6:a02:80::49)
+ To BLAPR10MB5009.namprd10.prod.outlook.com (2603:10b6:208:321::10)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: a5497499-5231-4669-a72e-08da014bfd50
+X-MS-TrafficTypeDiagnostic: BYAPR10MB2710:EE_
+X-Microsoft-Antispam-PRVS: <BYAPR10MB2710B19FF89408863850F5508A099@BYAPR10MB2710.namprd10.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: zpm3AbzfYsLIS6+hWgb7lSGWLoUo1jjusiM9Dxdnt2alpTe5MIqdooOVzcypscvRXFXYT5XvkVs3wjlfX8hhxILJMcSS8pm5Kbi1R5FemDfmpAN6Xt+QJ//J/vl0uDqPkDJ8kQ1IkxkRJFDlYaeluUj5V/uFX1LHh1OpF1iyPyuShjZAbF9H1sbjPb5uls0L0On2QoC6iygNOMQCxjrPzUrnXJ2O5NLibqo6pfYfLyEtDfaWHjFof6mL9pbkromai8bcBVKXMEAneJh1KbrD45unTbaU2sWJFHe4S+lZZzEeWT2Mrd72MbqQW8moZNh2r60f2RUMSHiBJJ+ic7vwOrexl46la5NDWu7D40kVJBpIPJyIMznXbaqx3HvnPqQlAIkLM8okwfc+TY8X7KsgyJNtqIDpLL3Ku0sqY8P6qJ0ijhwpMIeStG7rNqvMvXAN01s9BDB49ewXQzvzDsl9IOE832NuBxHz13uyjrUnSomOats+erEGFDSwalj/49/X0IbdfNFWlGUE1EkjL8nAQMhTjSiY1Lt94AJ35ARg+hrImBVFWSZhgFRdm5t5Kae8uZM7mMWxqP6AJ/XqhBCPOjzBpza2eNtz1qhgB/KwGU2RUCQkECiJjeBG9YAQo0N76fJJ03npK3D1ZvUhOlyDU/yTxjIwfr5SgdLoqjpS3+zpGsvepOBGT6HA29aYoGHPeU1Z/WZvlbtVsyW4ZsdOKnqtFG5kQxcVOxyz8ETljFU=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BLAPR10MB5009.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(366004)(53546011)(54906003)(31696002)(6666004)(86362001)(8676002)(66946007)(66476007)(66556008)(5660300002)(508600001)(7416002)(4326008)(6512007)(44832011)(316002)(8936002)(6506007)(6486002)(38100700002)(2616005)(26005)(31686004)(186003)(36756003)(83380400001)(2906002)(45980500001)(43740500002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?ZEs5MDBsbXY4eU9GSCtNNmRhaFNsK05lM1BCVEpNMmI2KzkyUUdKY2RWRWUv?=
+ =?utf-8?B?Z01DaVc5UG4vWWNiSzBXK2VEVnZvU2k2OEZjOCsrRFJUL2g3NkFKdjFGcVdC?=
+ =?utf-8?B?ZFd5Q3VNWUxaMHlyenVkNk1oU0Nrb3RqVUlwaGpTYlZOd2wwR1liYW5abmlz?=
+ =?utf-8?B?cHlKYUxzNFNteVFjZkl2OG1sVXl2VlpuZmplRDYyTWZ2V1dZNmkvNVlsWDBa?=
+ =?utf-8?B?SE5qSnNzZTFRMFdpajdTWUtGSk9RNzJPOTdOcitQQzc4dzNVelNJY000RW15?=
+ =?utf-8?B?ZndjdmJ5Z2l4RjhzemVwRWM0RHNkY0o5c0FXRnJhS25jVlJZbzhVNUxPT2E4?=
+ =?utf-8?B?ZjFyTkxLN21mTTJESFBLWnA3UzA4MnZMdjBhdEpIMUxNLy90WDZ2ZUNja3VW?=
+ =?utf-8?B?M1h0eWNpbnU0bXBaNGVFK2Z0TUNnSklUZXRER2huLzZWb0ZqelZrVFBGZHVo?=
+ =?utf-8?B?T1kxWjNmZ3V1SUIzUmptNmZXVDFBeG9hNzlvUW9VdXZzV2oxcy9Nck1UZElL?=
+ =?utf-8?B?aVh5VTlhVHJLUGtYUVhoQVpMRVV4NmpDaHp3dktXRlRZcUxISnY0eEFiQUl1?=
+ =?utf-8?B?QlBFSWN5VGg1ZUhxVEtwNEhtSGNtOUlSaVhNakZjNDYwRGpMSkRVMXlKSTZH?=
+ =?utf-8?B?YVk1MHVmRHhZSWZDSTdLcXdRdDkxNklWTUlQeURkQWRReDRuNERCTGh2ejVp?=
+ =?utf-8?B?RUcwckQvdTdsZXdaTDJJanExMFZCaWRHcVh1bjVVcCs3VVFzZitablpBQ1RM?=
+ =?utf-8?B?WFRKN01EcWtEK3dHWklROU85OWJjcEhTMUNnejJ4U2JMRXJPUnJjUFJnL2Ju?=
+ =?utf-8?B?aEw1ekhvbHJpYy9kckVHbTBITHQ1RFFzQTczM1JFTFluSlpEeHBRa1l6emJ5?=
+ =?utf-8?B?MHFJYVVKYUEyODVVZEFmTHRjZCtOVkxWRUNoRUdldGF6ZXVRL1dJODVEcVpq?=
+ =?utf-8?B?cklUK3R4K2w2U24vd04vVEJlVlplblhYZHNRL1FwRm9aaXpGR09mT1FnSUZ3?=
+ =?utf-8?B?SENxZVZkRWw2bFJMbHFEYVJzSTBLbkZGTU9KOWdPbU4xc0o1dUxkOHgrcXpw?=
+ =?utf-8?B?bEFLRm8vRk81SFMyem1USkZUUERoaGVodldicXl1VHc2UG9ISUNtMUJSRDBE?=
+ =?utf-8?B?UnBiWjZjWU1qeXJyYmZiZHdieGQvZktCOFc2Sko5ZWtra1U0cWZwQUYwQUd0?=
+ =?utf-8?B?eHZtaWJmbUdyRFR4c2FuZmt5NTN3TkVNcnM4SG53OXFQOHZSQWxKWjRGZFdZ?=
+ =?utf-8?B?bE9RbXdnUEJXZWM3RkMvQU9RWDRXaTFDeWlKaFE5TTVDc0dIU05UTHN3YnNX?=
+ =?utf-8?B?NmQ2NExrL0swUTlsWDZPbWFPbEROREZ2ekk3cGt6T1RWakl0K0NSejYvQlJq?=
+ =?utf-8?B?THBCU0s3VXgvOW1QR1kzTzVIN29NTGZjWERaKzV5dGJ2SHE4VDk0VzBrS1d0?=
+ =?utf-8?B?SWVFYmhHblVvdys5OGM1dkhETTdBOHJOVzZrSFgxREQ5b0V3NFJBb1Z4dnIy?=
+ =?utf-8?B?dlFBTHZYZ0JaS0xQbE1IT0l1OTVDUlM2Z3NDRkJ4QmROTjEvcDdrNlk5UC8r?=
+ =?utf-8?B?MGFLWmthOHJrR21BVnRWTTJqclR6eUFXMjh5Q3d1NG40d2FyZmFwOFRMYkYz?=
+ =?utf-8?B?NS81ZHgxNkU4bEFjWHlPZzZhbnFNNUZuV1pzL09RQm5mbG9mZzdXUXVSL3ZI?=
+ =?utf-8?B?bDVWRkZJQWVsMXM3NVNUd0lGbzQzc1RtaXZXUlpCZmhRRGd6VCtCMVZNR3Vk?=
+ =?utf-8?B?SHl3WmRUbjM2ZVNndlB4MnQyelJMRVpwL0tQY1pPa0VqTTFWdStNdXQ2UTh0?=
+ =?utf-8?B?RE9KMVlHVGJqWkpSTjkxbmdYS1o1bmJHbnU1TUg5bnBMbWVuek5MMWlXOUQ2?=
+ =?utf-8?B?aFcycHpoYmNaQ0dQdllwb05YM3c5QTNsZy9YcmRpdlZDanZNMCswUUV3dFJM?=
+ =?utf-8?B?a1BDZXdSRE1DY25IR0ZLb0xyRTJRQmVTNHBRSkphalU1KzJIei8reUxMZVM2?=
+ =?utf-8?B?bGszTVpxY2xsMXVmcURFdWxUdENCUHlxSEVucGh3V1JxbFNBak56QmVQbkJI?=
+ =?utf-8?B?Z1hQKzRhNGJkdmR2eGErQzBWZGpFYUkzYU81RHlhZFhmWnByanIvbkRoTU9p?=
+ =?utf-8?B?dnE2SWFldGdRYkJVNStmR2pFMys2cllGQytMRkd5NTZpQUxHZnVUaXdINkhU?=
+ =?utf-8?B?V0R4ajlSMW5tMUZjeEdpdklGb1ZXWi82dXFYSDUwcytUdUpHcS9MRnpwRzd1?=
+ =?utf-8?B?T242c2tIcmZ5WkNkNXpNUitWNS9RPT0=?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a5497499-5231-4669-a72e-08da014bfd50
+X-MS-Exchange-CrossTenant-AuthSource: BLAPR10MB5009.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Mar 2022 21:38:31.2786
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: vb92VElZb1vD5AEwKvnEjGDwvHfwNocegSuRX2xflLeDODXD1huAuFsmO0Pa3qhKq4HDCzfnKvJCrt0pwrw1AeQHidhPaPQDQ0TN3abVtA8=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR10MB2710
+X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10280 signatures=690848
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 mlxscore=0
+ suspectscore=0 bulkscore=0 mlxlogscore=769 adultscore=0 spamscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2203080110
+X-Proofpoint-ORIG-GUID: IPRsMW4fSjoQvfjcYGaso-sG-LdxRZL7
+X-Proofpoint-GUID: IPRsMW4fSjoQvfjcYGaso-sG-LdxRZL7
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 2022-03-08 at 11:31 +0100, Claudio Imbrenda wrote:
-> On Mon, 07 Mar 2022 14:03:45 -0500
-> Eric Farman <farman@linux.ibm.com> wrote:
-> 
-> > On Mon, 2022-03-07 at 16:30 +0100, Claudio Imbrenda wrote:
-> > > On Thu,  3 Mar 2022 22:04:23 +0100
-> > > Eric Farman <farman@linux.ibm.com> wrote:
-> > >   
-> > > > When stopping a CPU, kvm-unit-tests serializes/waits for
-> > > > everything
-> > > > to finish, in order to get a consistent result whenever those
-> > > > functions are used.
-> > > > 
-> > > > But to test the SIGP STOP itself, these additional measures
-> > > > could
-> > > > mask other problems. For example, did the STOP work, or is the
-> > > > CPU
-> > > > still operating?
-> > > > 
-> > > > Let's create a non-waiting SIGP STOP and use it here, to ensure
-> > > > that
-> > > > the CPU is correctly stopped. A smp_cpu_stopped() call will
-> > > > still
-> > > > be used to see that the SIGP STOP has been processed, and the
-> > > > state
-> > > > of the CPU can be used to determine whether the test
-> > > > passes/fails.
-> > > > 
-> > > > Signed-off-by: Eric Farman <farman@linux.ibm.com>
-> > > > ---
-> > > >  lib/s390x/smp.c | 25 +++++++++++++++++++++++++
-> > > >  lib/s390x/smp.h |  1 +
-> > > >  s390x/smp.c     | 10 ++--------
-> > > >  3 files changed, 28 insertions(+), 8 deletions(-)
-> > > > 
-> > > > diff --git a/lib/s390x/smp.c b/lib/s390x/smp.c
-> > > > index 368d6add..84e536e8 100644
-> > > > --- a/lib/s390x/smp.c
-> > > > +++ b/lib/s390x/smp.c
-> > > > @@ -119,6 +119,31 @@ int smp_cpu_stop(uint16_t idx)
-> > > >  	return rc;
-> > > >  }
-> > > >  
-> > > > +/*
-> > > > + * Functionally equivalent to smp_cpu_stop(), but without the
-> > > > + * elements that wait/serialize matters itself.
-> > > > + * Used to see if KVM itself is serialized correctly.
-> > > > + */
-> > > > +int smp_cpu_stop_nowait(uint16_t idx)
-> > > > +{
-> > > > +	/* refuse to work on the boot CPU */
-> > > > +	if (idx == 0)
-> > > > +		return -1;
-> > > > +
-> > > > +	spin_lock(&lock);
-> > > > +
-> > > > +	/* Don't suppress a CC2 with sigp_retry() */
-> > > > +	if (smp_sigp(idx, SIGP_STOP, 0, NULL)) {
-> > > > +		spin_unlock(&lock);
-> > > > +		return -1;
-> > > > +	}
-> > > > +
-> > > > +	cpus[idx].active = false;
-> > > > +	spin_unlock(&lock);
-> > > > +
-> > > > +	return 0;
-> > > > +}
-> > > > +
-> > > >  int smp_cpu_stop_store_status(uint16_t idx)
-> > > >  {
-> > > >  	int rc;
-> > > > diff --git a/lib/s390x/smp.h b/lib/s390x/smp.h
-> > > > index 1e69a7de..bae03dfd 100644
-> > > > --- a/lib/s390x/smp.h
-> > > > +++ b/lib/s390x/smp.h
-> > > > @@ -44,6 +44,7 @@ bool smp_sense_running_status(uint16_t idx);
-> > > >  int smp_cpu_restart(uint16_t idx);
-> > > >  int smp_cpu_start(uint16_t idx, struct psw psw);
-> > > >  int smp_cpu_stop(uint16_t idx);
-> > > > +int smp_cpu_stop_nowait(uint16_t idx);
-> > > >  int smp_cpu_stop_store_status(uint16_t idx);
-> > > >  int smp_cpu_destroy(uint16_t idx);
-> > > >  int smp_cpu_setup(uint16_t idx, struct psw psw);
-> > > > diff --git a/s390x/smp.c b/s390x/smp.c
-> > > > index 50811bd0..11c2c673 100644
-> > > > --- a/s390x/smp.c
-> > > > +++ b/s390x/smp.c
-> > > > @@ -76,14 +76,8 @@ static void test_restart(void)
-> > > >  
-> > > >  static void test_stop(void)
-> > > >  {
-> > > > -	smp_cpu_stop(1);
-> > > > -	/*
-> > > > -	 * The smp library waits for the CPU to shut down, but
-> > > > let's
-> > > > -	 * also do it here, so we don't rely on the library
-> > > > -	 * implementation
-> > > > -	 */
-> > > > -	while (!smp_cpu_stopped(1)) {}
-> > > > -	report_pass("stop");
-> > > > +	smp_cpu_stop_nowait(1);  
-> > > 
-> > > can it happen that the SIGP STOP order is accepted, but the
-> > > target
-> > > CPU
-> > > is still running (and not even busy)?  
-> > 
-> > Of course. A SIGP that's processed by userspace (which is many of
-> > them)
-> > injects a STOP IRQ back to the kernel, which means the CPU might
-> > not be
-> > stopped for some time. But...
-> > 
-> > >   
-> > > > +	report(smp_cpu_stopped(1), "stop");  
-> > > 
-> > > e.g. can this ^ check race with the actual stopping of the CPU?  
-> > 
-> > ...the smp_cpu_stopped() routine now loops on the CC2 that SIGP
-> > SENSE
-> > returns because of that pending IRQ. If SIGP SENSE returns CC0/1,
-> > then
-> > the CPU can correctly be identified stopped/operating, and the test
-> > can
-> > correctly pass/fail.
-> 
-> my question was: is it possible architecturally that there is a
-> window
-> where the STOP order is accepted, but a SENSE on the target CPU still
-> successfully returns that the CPU is running?
 
-Not to my knowledge. The "Conditions Determining Response" section of
-POPS (v12, page 4-95; also below) specifically states that the SIGP
-SENSE will return CC2 when a SIGP STOP order is outstanding.
+On 3/1/22 5:53 AM, Christoph Hellwig wrote:
+> Allow to pass a remap argument to the swiotlb initialization functions
+> to handle the Xen/x86 remap case.  ARM/ARM64 never did any remapping
+> from xen_swiotlb_fixup, so we don't even need that quirk.
 
-In our implementation, the stop IRQ will be injected before the STOP
-order gets accepted, such that a SIGP SENSE would see it immediately.
 
-"""
-A previously issued start, stop, restart, stop-
-and-store-status, set-prefix, store-status-at-
-address order, or store-additional-status-at-
-address has been accepted by the
-addressed CPU, and execution of the func-
-tion requested by the order has not yet been
-completed.
-...
-If the currently specified order is sense, external
-call, emergency signal, start, stop, restart, stop
-and store status, set prefix, store status at
-address, set architecture, set multithreading, or
-store additional status at address, then the order
-is rejected, and condition code 2 is set.
-"""
+Any chance this patch could be split? Lots of things are happening here and it's somewhat hard to review. (Patch 7 too BTW but I think I managed to get through it)
 
-> 
-> in other words: is it specified architecturally that, once an order
-> is
-> accepted for a target CPU, that CPU can't accept any other order (and
-> will return CC2), including SENSE, until the order has been completed
-> successfully?
 
-The POPS quote I placed above excludes store-extended-status-address,
-conditional-emergency-signal, and sense-running-status orders as
-returning a CC2. That's something Janosch and I have chatted about
-offline, but don't have an answer to at this time. Besides that, any
-other order would get a CC2 until the STOP has been completed.
+> diff --git a/arch/x86/kernel/pci-dma.c b/arch/x86/kernel/pci-dma.c
+> index e0def4b1c3181..2f2c468acb955 100644
+> --- a/arch/x86/kernel/pci-dma.c
+> +++ b/arch/x86/kernel/pci-dma.c
+> @@ -71,15 +71,12 @@ static inline void __init pci_swiotlb_detect(void)
+>   #endif /* CONFIG_SWIOTLB */
+>   
+>   #ifdef CONFIG_SWIOTLB_XEN
+> -static bool xen_swiotlb;
+> -
+>   static void __init pci_xen_swiotlb_init(void)
+>   {
+>   	if (!xen_initial_domain() && !x86_swiotlb_enable)
+>   		return;
 
-> 
-> > >   
-> > > >  }
-> > > >  
-> > > >  static void test_stop_store_status(void)  
 
+Now that there is a single call site for this routine I think this check can be dropped. We are only called here for xen_initial_domain()==true.
+
+
+-boris
