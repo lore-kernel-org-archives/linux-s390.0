@@ -2,118 +2,152 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F0E5C433EF
-	for <linux-s390@archiver.kernel.org>; Tue,  8 Mar 2022 14:14:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 89838C433EF
+	for <linux-s390@archiver.kernel.org>; Tue,  8 Mar 2022 15:37:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347390AbiCHOPy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 8 Mar 2022 09:15:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36326 "EHLO
+        id S1347866AbiCHPia (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 8 Mar 2022 10:38:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347382AbiCHOPx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Mar 2022 09:15:53 -0500
+        with ESMTP id S1347867AbiCHPhv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Mar 2022 10:37:51 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD7AE4AE18;
-        Tue,  8 Mar 2022 06:14:56 -0800 (PST)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 228DWw14004089;
-        Tue, 8 Mar 2022 14:14:52 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CEC84EA0E;
+        Tue,  8 Mar 2022 07:36:55 -0800 (PST)
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 228F79fM020896;
+        Tue, 8 Mar 2022 15:36:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=viaTZqcwt4wv6G40EPgXAMur6u3Bz8/qVAALzpo4eC8=;
- b=ET7JGWy7Vn/IyTMgsSJtx+sfcxpe7iGKkfzwN1yHZGTh6BOxzGBz/m3j5/T4kkgU7/X4
- MJnrDP8GPuSqNcPBFdiLu5ZoFPrN17e5XzVCjRVjXJIRiYL+PpRmBvKjKX46LGVAshLX
- oQXtXtICkzkkV9HOZGdS8PbtJyw9BWa7+FLCvWwmNrBQaZc8puRzLZD0JqGBnP8vzBNh
- HBXYSwHvAvfTGV71d7bIxrlrK/w1tO38mrJkVeNCfckWt6ZwlUUN8m6Li9RqEeK4VPQe
- pt4nWix2kVSB11Dxn0GjVsTOxM1wIBN0cS22Mev3Ek/yDA8/4rS4YMqSFZwcWEjp4UMS lg== 
+ bh=gMr0TNEsEf4o8OCGCZhLnRNEH7GjXcuzCkk0iumKG9s=;
+ b=QSoCD5l+mytYtmCnJLMCysKhjP1PuwlqsmFaPMX708d+NTAJcHGgJuFo9bE/YWwVgY83
+ 2+RUByqUDPlWwcCM8Z67ABxYxYR5ojZKoh5sBYxlDQDJTp2Wy3gJo3reOc7EZSs9q9Xr
+ Fzm7ERMlOPvBLaN8uaYOsuVu/eP1uvPwVcTSn0Vj83KrMJ+FMDfkx7Nx99PXciPx8Mxg
+ SE5l95qoi8Mx5r+yo67YAMJaHFfOuJnX5HWqDzym/4SipkBOrLFNP8DCvM9jjUA3Xcde
+ pWenAqfp8a/dMzFzzBSSmaV2WTLwzln0Et0bM/r0XqgD/usk2pgOaDudqix1RSQUro7y qQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3enxs04a3r-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3enww7f843-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Mar 2022 14:14:52 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 228DYvBx031620;
-        Tue, 8 Mar 2022 14:14:51 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3enxs04a32-1
+        Tue, 08 Mar 2022 15:36:54 +0000
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 228DrQID006838;
+        Tue, 8 Mar 2022 15:36:53 GMT
+Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3enww7f83g-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Mar 2022 14:14:51 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 228E7nNU016918;
-        Tue, 8 Mar 2022 14:14:49 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma04ams.nl.ibm.com with ESMTP id 3enqgnj9nb-1
+        Tue, 08 Mar 2022 15:36:53 +0000
+Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
+        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 228F7QGW021001;
+        Tue, 8 Mar 2022 15:36:52 GMT
+Received: from b03cxnp07027.gho.boulder.ibm.com (b03cxnp07027.gho.boulder.ibm.com [9.17.130.14])
+        by ppma04dal.us.ibm.com with ESMTP id 3ekyg9u91y-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Mar 2022 14:14:48 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 228EEjfq51642872
+        Tue, 08 Mar 2022 15:36:52 +0000
+Received: from b03ledav004.gho.boulder.ibm.com (b03ledav004.gho.boulder.ibm.com [9.17.130.235])
+        by b03cxnp07027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 228FaoY530605810
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 8 Mar 2022 14:14:45 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9FF7652052;
-        Tue,  8 Mar 2022 14:14:45 +0000 (GMT)
-Received: from thinkpad (unknown [9.171.70.239])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with SMTP id 071FB5204E;
-        Tue,  8 Mar 2022 14:14:44 +0000 (GMT)
-Date:   Tue, 8 Mar 2022 15:14:43 +0100
-From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Linux-MM <linux-mm@kvack.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        linux-btrfs <linux-btrfs@vger.kernel.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: Re: Buffered I/O broken on s390x with page faults disabled (gfs2)
-Message-ID: <20220308151443.6be164cf@thinkpad>
-In-Reply-To: <da799fa7-b6c6-eb70-27e4-0c5d8592bd34@redhat.com>
-References: <CAHc6FU5nP+nziNGG0JAF1FUx-GV7kKFvM7aZuU_XD2_1v4vnvg@mail.gmail.com>
-        <CAHk-=wgmCuuJdf96WiT6WXzQQTEeSK=cgBy24J4U9V2AvK4KdQ@mail.gmail.com>
-        <bcafacea-7e67-405c-a969-e5a58a3c727e@redhat.com>
-        <2266e1a8-ac79-94a1-b6e2-47475e5986c5@redhat.com>
-        <81f2f76d-24ef-c23b-449e-0b8fdec506e1@redhat.com>
-        <1bdb0184-696c-0f1a-3054-d88391c32e64@redhat.com>
-        <20220308142047.7a725518@thinkpad>
-        <da799fa7-b6c6-eb70-27e4-0c5d8592bd34@redhat.com>
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        Tue, 8 Mar 2022 15:36:50 GMT
+Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7BAEE78063;
+        Tue,  8 Mar 2022 15:36:50 +0000 (GMT)
+Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D06797805C;
+        Tue,  8 Mar 2022 15:36:48 +0000 (GMT)
+Received: from [9.160.116.147] (unknown [9.160.116.147])
+        by b03ledav004.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Tue,  8 Mar 2022 15:36:48 +0000 (GMT)
+Message-ID: <069b28e7-4ab2-47c8-cce3-186cd987834d@linux.ibm.com>
+Date:   Tue, 8 Mar 2022 10:36:48 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [PATCH v18 08/18] s390/vfio-ap: allow assignment of unavailable
+ AP queues to mdev device
+Content-Language: en-US
+To:     Halil Pasic <pasic@linux.ibm.com>
+Cc:     jjherne@linux.ibm.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
+        mjrosato@linux.ibm.com, alex.williamson@redhat.com,
+        kwankhede@nvidia.com, fiuczy@linux.ibm.com
+References: <20220215005040.52697-1-akrowiak@linux.ibm.com>
+ <20220215005040.52697-9-akrowiak@linux.ibm.com>
+ <97681738-50a1-976d-9f0f-be326eab7202@linux.ibm.com>
+ <9ac3908e-06da-6276-d1df-94898918fc5b@linux.ibm.com>
+ <20220307142711.5af33ece.pasic@linux.ibm.com>
+ <151241e6-3099-4be2-da54-1f0e5cb3a705@linux.ibm.com>
+ <20220307181027.29c821b6.pasic@linux.ibm.com>
+ <eb30a519-5707-717a-ff22-cc3a8e65dc7e@linux.ibm.com>
+ <20220308110637.2e839732.pasic@linux.ibm.com>
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+In-Reply-To: <20220308110637.2e839732.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: PbigOjr5pp5L_Zu3UJEghMW8Gkem5y8F
-X-Proofpoint-ORIG-GUID: n6lkj0XilohaZ_7e0P0wxPmZl-C_yvSt
+X-Proofpoint-ORIG-GUID: 014tZ3LzC9Rq0mG_H_poaoTOzh4g8lz3
+X-Proofpoint-GUID: KIM0uyOdsx2x71QiI9cPgnnZIsxrFejj
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-08_03,2022-03-04_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 impostorscore=0
- bulkscore=0 mlxlogscore=999 clxscore=1015 adultscore=0 spamscore=0
- suspectscore=0 malwarescore=0 mlxscore=0 lowpriorityscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2203080075
+ definitions=2022-03-08_06,2022-03-04_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ lowpriorityscore=0 bulkscore=0 adultscore=0 clxscore=1015
+ priorityscore=1501 malwarescore=0 impostorscore=0 spamscore=0
+ mlxlogscore=964 phishscore=0 mlxscore=0 classifier=spam adjust=0
+ reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2203080081
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 8 Mar 2022 14:32:25 +0100
-David Hildenbrand <david@redhat.com> wrote:
 
-[...]
-> 
-> > - using set_pte_at() here seems a bit dangerous, as I'm not sure if this will
-> >   always only operate on invalid PTEs. Using it on active valid PTEs could
-> >   result in TLB issues because of missing flush. Also not sure about kvm impact.
-> >   Using ptep_set_access_flags() seems safer, again similar to touch_pmd() and
-> >   also cow_user_page().
-> 
-> Yeah, I sticked to what follow_pfn_pte() does for simplicity for now.
 
-Uh oh, that set_pte_at() in follow_pfn_pte() also looks dangerous, at least
-I do not spontaneously see that it would only be used for invalid / pte_none()
-PTEs. But that is a totally different story, and maybe (hopefully) not
-affecting s390 until we have proper DAX support...
+On 3/8/22 05:06, Halil Pasic wrote:
+> On Mon, 7 Mar 2022 18:45:45 -0500
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>
+> [..]
+>>>>> s/belong to the matrix_mdev's matrix/are fields of the matrix_mdev
+>>>>> object/
+>>>> This is the comment I wrote:
+>>>>
+>>>>            /*
+>>>>             * Comparing an mdev's newly updated apm/aqm with itself would
+>>>>             * result in a false positive when verifying whether any APQNs
+>>>>             * are shared; so, if the input apm and aqm belong to the
+>>>>             * matrix_mdev's matrix, then move on to the next one.
+>>>>             */
+>>>>
+>>>> However, I'd be happy to change it to whatever either of you want.
+>>> What ain't obvious for the comment is that "belong to" actually means
+>>> composition and not association. In other words, there there is no
+>>> pointer/indirection involved, a pointer that would tell us what matrix
+>>> does belong to what matrix_mdev, but rather the matrix is just a part
+>>> of the matrix_mdev object.
+>>>
+>>> I don't like 'false positive' either, and whether the apm/aqm is
+>>> newly updated or not is also redundant and confusing in my opinion. When
+>>> we check because of inuse there is not updated whatever. IMHO the old
+>>> message was better than this one.
+>>>
+>>> Just my opinion, if you two agree, that this is the way to go, I'm fine
+>>> with that.
+>>>
+>>> Regards,
+>>> Halil
+>> Feel free to recommend the verbiage for this comment. I'm not married
+>> to my comments and am open to anything that helps others to
+>> understand what is going on here. It seems obvious to me, but I wrote
+>> the code. Obviously, it is not so obvious based on Jason's comments,
+>> so maybe someone else can compose a better comment.
+> /*
+> * If the input apm and aqm are fields of the matrix_mdev object,
+> * then move on to the next matrix_mdev.
+> */
+
+Perfect, you write better English than me!
+
+>
+> Regards,
+> Halil
+
