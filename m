@@ -2,22 +2,22 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 686D6C43219
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BBA29C4321E
 	for <linux-s390@archiver.kernel.org>; Tue,  8 Mar 2022 12:35:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346885AbiCHMgs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 8 Mar 2022 07:36:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34010 "EHLO
+        id S1346908AbiCHMgt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 8 Mar 2022 07:36:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346892AbiCHMgq (ORCPT
+        with ESMTP id S1344801AbiCHMgq (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Mar 2022 07:36:46 -0500
-Received: from out199-6.us.a.mail.aliyun.com (out199-6.us.a.mail.aliyun.com [47.90.199.6])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ACC74552B;
-        Tue,  8 Mar 2022 04:35:42 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04407;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=34;SR=0;TI=SMTPD_---0V6ebqTT_1646742933;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0V6ebqTT_1646742933)
+Received: from out30-54.freemail.mail.aliyun.com (out30-54.freemail.mail.aliyun.com [115.124.30.54])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3A8947074;
+        Tue,  8 Mar 2022 04:35:44 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=34;SR=0;TI=SMTPD_---0V6eTXaY_1646742937;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0V6eTXaY_1646742937)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Tue, 08 Mar 2022 20:35:34 +0800
+          Tue, 08 Mar 2022 20:35:39 +0800
 From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To:     virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
 Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
@@ -48,9 +48,9 @@ Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
         linux-um@lists.infradead.org, platform-driver-x86@vger.kernel.org,
         linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, bpf@vger.kernel.org
-Subject: [PATCH v7 07/26] virtio_ring: packed: extract the logic of init vq and attach vring
-Date:   Tue,  8 Mar 2022 20:34:59 +0800
-Message-Id: <20220308123518.33800-8-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v7 09/26] virtio_ring: split: implement virtqueue_reset_vring_split()
+Date:   Tue,  8 Mar 2022 20:35:01 +0800
+Message-Id: <20220308123518.33800-10-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220308123518.33800-1-xuanzhuo@linux.alibaba.com>
 References: <20220308123518.33800-1-xuanzhuo@linux.alibaba.com>
@@ -61,206 +61,140 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Split the logic of packed assignment vq into three parts.
+virtio ring supports reset.
 
-1. The assignment passed from the function parameter
-2. The part that attaches vring to vq. -- vring_virtqueue_attach_packed()
-3. The part that initializes vq to a fixed value --
-vring_virtqueue_init_packed()
+Queue reset is divided into several stages.
 
-This feature is required for subsequent virtuqueue reset vring
+1. notify device queue reset
+2. vring release
+3. attach new vring
+4. notify device queue re-enable
+
+After the first step is completed, the vring reset operation can be
+performed. If the newly set vring num does not change, then just reset
+the vq related value.
+
+Otherwise, the vring will be released and the vring will be reallocated.
+And the vring will be attached to the vq. If this process fails, the
+function will exit, and the state of the vq will be the vring release
+state. You can call this function again to reallocate the vring.
+
+In addition, vring_align, may_reduce_num are necessary for reallocating
+vring, so they are retained when creating vq.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- drivers/virtio/virtio_ring.c | 138 +++++++++++++++++++++--------------
- 1 file changed, 82 insertions(+), 56 deletions(-)
+ drivers/virtio/virtio_ring.c | 69 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 69 insertions(+)
 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 1af98b112996..b5a9bf4f45b3 100644
+index e0422c04c903..148fb1fd3d5a 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -1773,36 +1773,53 @@ static int vring_create_vring_packed(struct vring_packed *vring,
- 	return -ENOMEM;
+@@ -158,6 +158,12 @@ struct vring_virtqueue {
+ 			/* DMA address and size information */
+ 			dma_addr_t queue_dma_addr;
+ 			size_t queue_size_in_bytes;
++
++			/* The parameters for creating vrings are reserved for
++			 * creating new vrings when enabling reset queue.
++			 */
++			u32 vring_align;
++			bool may_reduce_num;
+ 		} split;
+ 
+ 		/* Available for packed ring */
+@@ -217,6 +223,12 @@ struct vring_virtqueue {
+ #endif
+ };
+ 
++static void vring_free(struct virtqueue *vq);
++static void __vring_virtqueue_init_split(struct vring_virtqueue *vq,
++					 struct virtio_device *vdev);
++static int __vring_virtqueue_attach_split(struct vring_virtqueue *vq,
++					  struct virtio_device *vdev,
++					  struct vring vring);
+ 
+ /*
+  * Helpers.
+@@ -1012,6 +1024,8 @@ static struct virtqueue *vring_create_virtqueue_split(
+ 		return NULL;
+ 	}
+ 
++	to_vvq(vq)->split.vring_align = vring_align;
++	to_vvq(vq)->split.may_reduce_num = may_reduce_num;
+ 	to_vvq(vq)->split.queue_dma_addr = vring.dma_addr;
+ 	to_vvq(vq)->split.queue_size_in_bytes = vring.queue_size_in_bytes;
+ 	to_vvq(vq)->we_own_ring = true;
+@@ -1019,6 +1033,59 @@ static struct virtqueue *vring_create_virtqueue_split(
+ 	return vq;
  }
  
--static struct virtqueue *vring_create_virtqueue_packed(
--	unsigned int index,
--	unsigned int num,
--	unsigned int vring_align,
--	struct virtio_device *vdev,
--	bool weak_barriers,
--	bool may_reduce_num,
--	bool context,
--	bool (*notify)(struct virtqueue *),
--	void (*callback)(struct virtqueue *),
--	const char *name)
-+static int vring_virtqueue_attach_packed(struct vring_virtqueue *vq,
-+					 struct vring_packed *vring,
-+					 struct virtio_device *vdev)
- {
--	struct vring_virtqueue *vq;
--	struct vring_packed vring;
--
--	if (vring_create_vring_packed(&vring, vdev, num))
--		goto err_vq;
-+	u32 num;
- 
--	vq = kmalloc(sizeof(*vq), GFP_KERNEL);
--	if (!vq)
--		goto err_vq;
-+	num = vring->num;
- 
--	vq->vq.callback = callback;
--	vq->vq.vdev = vdev;
--	vq->vq.name = name;
- 	vq->vq.num_free = num;
--	vq->vq.index = index;
++static int virtqueue_reset_vring_split(struct virtqueue *_vq, u32 num)
++{
++	struct vring_virtqueue *vq = to_vvq(_vq);
++	struct virtio_device *vdev = _vq->vdev;
++	struct vring_split vring;
++	int err;
 +
-+	vq->packed.ring_dma_addr = vring->ring_dma_addr;
-+	vq->packed.driver_event_dma_addr = vring->driver_event_dma_addr;
-+	vq->packed.device_event_dma_addr = vring->device_event_dma_addr;
++	if (num > _vq->num_max)
++		return -E2BIG;
 +
-+	vq->packed.ring_size_in_bytes = vring->ring_size_in_bytes;
-+	vq->packed.event_size_in_bytes = vring->event_size_in_bytes;
++	switch (vq->vq.reset) {
++	case VIRTIO_VQ_RESET_STEP_NONE:
++		return -ENOENT;
 +
-+	vq->packed.vring.num = num;
-+	vq->packed.vring.desc = vring->ring;
-+	vq->packed.vring.driver = vring->driver;
-+	vq->packed.vring.device = vring->device;
++	case VIRTIO_VQ_RESET_STEP_VRING_ATTACH:
++	case VIRTIO_VQ_RESET_STEP_DEVICE:
++		if (vq->split.vring.num == num || !num)
++			break;
 +
-+	vq->packed.desc_state = kmalloc_array(num,
-+			sizeof(struct vring_desc_state_packed),
-+			GFP_KERNEL);
-+	if (!vq->packed.desc_state)
-+		goto err_desc_state;
++		vring_free(_vq);
 +
-+	memset(vq->packed.desc_state, 0,
-+		num * sizeof(struct vring_desc_state_packed));
++		fallthrough;
 +
-+	vq->packed.desc_extra = vring_alloc_desc_extra(vq, num);
-+	if (!vq->packed.desc_extra)
-+		goto err_desc_extra;
++	case VIRTIO_VQ_RESET_STEP_VRING_RELEASE:
++		if (!num)
++			num = vq->split.vring.num;
++
++		err = vring_create_vring_split(&vring, vdev,
++					       vq->split.vring_align,
++					       vq->weak_barriers,
++					       vq->split.may_reduce_num, num);
++		if (err)
++			return -ENOMEM;
++
++		err = __vring_virtqueue_attach_split(vq, vdev, vring.vring);
++		if (err) {
++			vring_free_queue(vdev, vring.queue_size_in_bytes,
++					 vring.queue,
++					 vring.dma_addr);
++			return -ENOMEM;
++		}
++
++		vq->split.queue_dma_addr = vring.dma_addr;
++		vq->split.queue_size_in_bytes = vring.queue_size_in_bytes;
++	}
++
++	__vring_virtqueue_init_split(vq, vdev);
++	vq->we_own_ring = true;
++	vq->vq.reset = VIRTIO_VQ_RESET_STEP_VRING_ATTACH;
 +
 +	return 0;
-+
-+err_desc_extra:
-+	kfree(vq->packed.desc_state);
-+err_desc_state:
-+	return -ENOMEM;
 +}
 +
-+static void vring_virtqueue_init_packed(struct vring_virtqueue *vq,
-+					struct virtio_device *vdev)
-+{
- 	vq->we_own_ring = true;
--	vq->notify = notify;
--	vq->weak_barriers = weak_barriers;
+ 
+ /*
+  * Packed ring specific functions - *_packed().
+@@ -2317,6 +2384,8 @@ static int __vring_virtqueue_attach_split(struct vring_virtqueue *vq,
+ static void __vring_virtqueue_init_split(struct vring_virtqueue *vq,
+ 					 struct virtio_device *vdev)
+ {
++	vq->vq.reset = VIRTIO_VQ_RESET_STEP_NONE;
++
+ 	vq->packed_ring = false;
+ 	vq->we_own_ring = false;
  	vq->broken = false;
- 	vq->last_used_idx = 0;
- 	vq->event_triggered = false;
-@@ -1814,62 +1831,71 @@ static struct virtqueue *vring_create_virtqueue_packed(
- 	vq->last_add_time_valid = false;
- #endif
- 
--	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
--		!context;
- 	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
- 
- 	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
- 		vq->weak_barriers = false;
- 
--	vq->packed.ring_dma_addr = vring.ring_dma_addr;
--	vq->packed.driver_event_dma_addr = vring.driver_event_dma_addr;
--	vq->packed.device_event_dma_addr = vring.device_event_dma_addr;
--
--	vq->packed.ring_size_in_bytes = vring.ring_size_in_bytes;
--	vq->packed.event_size_in_bytes = vring.event_size_in_bytes;
--
--	vq->packed.vring.num = num;
--	vq->packed.vring.desc = vring.ring;
--	vq->packed.vring.driver = vring.driver;
--	vq->packed.vring.device = vring.device;
--
- 	vq->packed.next_avail_idx = 0;
- 	vq->packed.avail_wrap_counter = 1;
- 	vq->packed.used_wrap_counter = 1;
- 	vq->packed.event_flags_shadow = 0;
- 	vq->packed.avail_used_flags = 1 << VRING_PACKED_DESC_F_AVAIL;
- 
--	vq->packed.desc_state = kmalloc_array(num,
--			sizeof(struct vring_desc_state_packed),
--			GFP_KERNEL);
--	if (!vq->packed.desc_state)
--		goto err_desc_state;
--
--	memset(vq->packed.desc_state, 0,
--		num * sizeof(struct vring_desc_state_packed));
--
- 	/* Put everything in free lists. */
- 	vq->free_head = 0;
- 
--	vq->packed.desc_extra = vring_alloc_desc_extra(vq, num);
--	if (!vq->packed.desc_extra)
--		goto err_desc_extra;
--
- 	/* No callback?  Tell other side not to bother us. */
--	if (!callback) {
-+	if (!vq->vq.callback) {
- 		vq->packed.event_flags_shadow = VRING_PACKED_EVENT_FLAG_DISABLE;
- 		vq->packed.vring.driver->flags =
- 			cpu_to_le16(vq->packed.event_flags_shadow);
- 	}
-+}
-+
-+static struct virtqueue *vring_create_virtqueue_packed(
-+	unsigned int index,
-+	unsigned int num,
-+	unsigned int vring_align,
-+	struct virtio_device *vdev,
-+	bool weak_barriers,
-+	bool may_reduce_num,
-+	bool context,
-+	bool (*notify)(struct virtqueue *),
-+	void (*callback)(struct virtqueue *),
-+	const char *name)
-+{
-+	struct vring_virtqueue *vq;
-+	struct vring_packed vring;
-+
-+	if (vring_create_vring_packed(&vring, vdev, num))
-+		goto err_vq;
-+
-+	vq = kmalloc(sizeof(*vq), GFP_KERNEL);
-+	if (!vq)
-+		goto err_vq;
-+
-+	vq->vq.callback = callback;
-+	vq->vq.vdev = vdev;
-+	vq->vq.name = name;
-+	vq->vq.index = index;
-+	vq->notify = notify;
-+	vq->weak_barriers = weak_barriers;
-+	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
-+		!context;
-+
-+	if (vring_virtqueue_attach_packed(vq, &vring, vdev))
-+		goto err;
-+
-+	vring_virtqueue_init_packed(vq, vdev);
- 
- 	spin_lock(&vdev->vqs_list_lock);
- 	list_add_tail(&vq->vq.list, &vdev->vqs);
- 	spin_unlock(&vdev->vqs_list_lock);
-+
- 	return &vq->vq;
- 
--err_desc_extra:
--	kfree(vq->packed.desc_state);
--err_desc_state:
-+err:
- 	kfree(vq);
- err_vq:
- 	vring_free_vring_packed(&vring, vdev);
 -- 
 2.31.0
 
