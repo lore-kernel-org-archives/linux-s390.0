@@ -2,187 +2,283 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FB26C433F5
-	for <linux-s390@archiver.kernel.org>; Mon,  7 Mar 2022 23:45:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42FA0C433EF
+	for <linux-s390@archiver.kernel.org>; Tue,  8 Mar 2022 07:05:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234760AbiCGXqr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 7 Mar 2022 18:46:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55010 "EHLO
+        id S1344448AbiCHHGk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 8 Mar 2022 02:06:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243084AbiCGXqq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Mar 2022 18:46:46 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72E42294;
-        Mon,  7 Mar 2022 15:45:51 -0800 (PST)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 227MxUpk017724;
-        Mon, 7 Mar 2022 23:45:49 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=uyIxG5y1JBocl+WfqDrffowhHyfi3AUk9e3P3tvDBO8=;
- b=LDwB9axiQ+eDZ9zf8v2DQbjEI8JBnsfJordlyh7t8PcZAQWmZlpjbVbBcABBWg5Q7F5P
- +AGbNUo+LwrEzFyC32o5cxN+csBb5iYSacva0mc4In9gHow9vodw7MJvU8FRu2pQiQHJ
- zPZ3RCZ9s0vkNPxKzHNo13gc1GKSN/k6LXklKkkpY4QDTN1uQv4TBtZ/1UWFaahPSvHy
- 4TQqK7l610vf4hqMtk+1YLWk6JboD2TaER29Q4fMxNk+PgRUqCCmWOU/ceEeuHjqJXSK
- hijjKk1ZDakj+HgMVGCbKuiI+Mko+SUsNFrzg+HZdxsMHFc98wHRxE1KPEnScKWCOTBY NA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3enndrqxah-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Mar 2022 23:45:49 +0000
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 227Ne90A032589;
-        Mon, 7 Mar 2022 23:45:49 GMT
-Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3enndrqxaa-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Mar 2022 23:45:49 +0000
-Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
-        by ppma02dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 227NT2iM003994;
-        Mon, 7 Mar 2022 23:45:48 GMT
-Received: from b01cxnp23034.gho.pok.ibm.com (b01cxnp23034.gho.pok.ibm.com [9.57.198.29])
-        by ppma02dal.us.ibm.com with ESMTP id 3ekyg9wfjk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 07 Mar 2022 23:45:48 +0000
-Received: from b01ledav002.gho.pok.ibm.com (b01ledav002.gho.pok.ibm.com [9.57.199.107])
-        by b01cxnp23034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 227NjloW55902506
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 7 Mar 2022 23:45:47 GMT
-Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0A009124053;
-        Mon,  7 Mar 2022 23:45:47 +0000 (GMT)
-Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5800612405A;
-        Mon,  7 Mar 2022 23:45:46 +0000 (GMT)
-Received: from [9.160.116.147] (unknown [9.160.116.147])
-        by b01ledav002.gho.pok.ibm.com (Postfix) with ESMTP;
-        Mon,  7 Mar 2022 23:45:46 +0000 (GMT)
-Message-ID: <eb30a519-5707-717a-ff22-cc3a8e65dc7e@linux.ibm.com>
-Date:   Mon, 7 Mar 2022 18:45:45 -0500
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH v18 08/18] s390/vfio-ap: allow assignment of unavailable
- AP queues to mdev device
-Content-Language: en-US
-To:     Halil Pasic <pasic@linux.ibm.com>
-Cc:     jjherne@linux.ibm.com, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
-        mjrosato@linux.ibm.com, alex.williamson@redhat.com,
-        kwankhede@nvidia.com, fiuczy@linux.ibm.com
-References: <20220215005040.52697-1-akrowiak@linux.ibm.com>
- <20220215005040.52697-9-akrowiak@linux.ibm.com>
- <97681738-50a1-976d-9f0f-be326eab7202@linux.ibm.com>
- <9ac3908e-06da-6276-d1df-94898918fc5b@linux.ibm.com>
- <20220307142711.5af33ece.pasic@linux.ibm.com>
- <151241e6-3099-4be2-da54-1f0e5cb3a705@linux.ibm.com>
- <20220307181027.29c821b6.pasic@linux.ibm.com>
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <20220307181027.29c821b6.pasic@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: JM6_2fVlWDg6C5D_slv-iLlRmtVzKvjk
-X-Proofpoint-GUID: zLOsl1U_XwxSOis-IU6ZNJdSREpIfF1h
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-07_12,2022-03-04_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
- clxscore=1015 priorityscore=1501 bulkscore=0 impostorscore=0
- suspectscore=0 mlxlogscore=999 spamscore=0 malwarescore=0 adultscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2203070119
+        with ESMTP id S232755AbiCHHGj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Mar 2022 02:06:39 -0500
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 112B93D4AE;
+        Mon,  7 Mar 2022 23:05:41 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R491e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=33;SR=0;TI=SMTPD_---0V6cqqVc_1646723135;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0V6cqqVc_1646723135)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Tue, 08 Mar 2022 15:05:36 +0800
+Message-ID: <1646722885.3801584-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH v6 06/26] virtio_ring: packed: extrace the logic of creating vring
+Date:   Tue, 8 Mar 2022 15:01:25 +0800
+From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To:     "Michael S. Tsirkin" <mst@redhat.com>
+Cc:     virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+        Jeff Dike <jdike@addtoit.com>,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        Vadim Pasternak <vadimp@nvidia.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        linux-um@lists.infradead.org, platform-driver-x86@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, bpf@vger.kernel.org
+References: <20220224081102.80224-1-xuanzhuo@linux.alibaba.com>
+ <20220224081102.80224-7-xuanzhuo@linux.alibaba.com>
+ <20220307171629-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20220307171629-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Mon, 7 Mar 2022 17:17:51 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Thu, Feb 24, 2022 at 04:10:42PM +0800, Xuan Zhuo wrote:
+> > Separate the logic of packed to create vring queue.
+> >
+> > For the convenience of passing parameters, add a structure
+> > vring_packed.
+> >
+> > This feature is required for subsequent virtuqueue reset vring.
+> >
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+>
+> Subject has a typo.
+
+I will fix it.
+
+> Besides:
+>
+> > ---
+> >  drivers/virtio/virtio_ring.c | 121 ++++++++++++++++++++++++++---------
+> >  1 file changed, 92 insertions(+), 29 deletions(-)
+> >
+> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> > index dc6313b79305..41864c5e665f 100644
+> > --- a/drivers/virtio/virtio_ring.c
+> > +++ b/drivers/virtio/virtio_ring.c
+> > @@ -92,6 +92,18 @@ struct vring_split {
+> >  	struct vring vring;
+> >  };
+> >
+> > +struct vring_packed {
+> > +	u32 num;
+> > +	struct vring_packed_desc *ring;
+> > +	struct vring_packed_desc_event *driver;
+> > +	struct vring_packed_desc_event *device;
+> > +	dma_addr_t ring_dma_addr;
+> > +	dma_addr_t driver_event_dma_addr;
+> > +	dma_addr_t device_event_dma_addr;
+> > +	size_t ring_size_in_bytes;
+> > +	size_t event_size_in_bytes;
+> > +};
+> > +
+> >  struct vring_virtqueue {
+> >  	struct virtqueue vq;
+> >
+> > @@ -1683,45 +1695,101 @@ static struct vring_desc_extra *vring_alloc_desc_extra(struct vring_virtqueue *v
+> >  	return desc_extra;
+> >  }
+> >
+> > -static struct virtqueue *vring_create_virtqueue_packed(
+> > -	unsigned int index,
+> > -	unsigned int num,
+> > -	unsigned int vring_align,
+> > -	struct virtio_device *vdev,
+> > -	bool weak_barriers,
+> > -	bool may_reduce_num,
+> > -	bool context,
+> > -	bool (*notify)(struct virtqueue *),
+> > -	void (*callback)(struct virtqueue *),
+> > -	const char *name)
+> > +static void vring_free_vring_packed(struct vring_packed *vring,
+> > +				    struct virtio_device *vdev)
+> > +{
+> > +	dma_addr_t ring_dma_addr, driver_event_dma_addr, device_event_dma_addr;
+> > +	struct vring_packed_desc_event *driver, *device;
+> > +	size_t ring_size_in_bytes, event_size_in_bytes;
+> > +	struct vring_packed_desc *ring;
+> > +
+> > +	ring                  = vring->ring;
+> > +	driver                = vring->driver;
+> > +	device                = vring->device;
+> > +	ring_dma_addr         = vring->ring_size_in_bytes;
+> > +	event_size_in_bytes   = vring->event_size_in_bytes;
+> > +	ring_dma_addr         = vring->ring_dma_addr;
+> > +	driver_event_dma_addr = vring->driver_event_dma_addr;
+> > +	device_event_dma_addr = vring->device_event_dma_addr;
+> > +
+> > +	if (device)
+> > +		vring_free_queue(vdev, event_size_in_bytes, device, device_event_dma_addr);
+> > +
+> > +	if (driver)
+> > +		vring_free_queue(vdev, event_size_in_bytes, driver, driver_event_dma_addr);
+> > +
+> > +	if (ring)
+> > +		vring_free_queue(vdev, ring_size_in_bytes, ring, ring_dma_addr);
+>
+> ring_size_in_bytes is uninitialized here.
+>
+> Which begs the question how was this tested patchset generally and
+> this patch in particular.
+> Please add note on tested configurations and tests run to the patchset.
+
+Sorry, my environment is running in split mode. I did not retest the packed mode
+before sending patches. Because my dpdk vhost-user is not easy to use, I
+need to change the kernel of the host.
+
+I would like to ask if there are other lightweight environments that can be used
+to test packed mode.
 
 
-On 3/7/22 12:10, Halil Pasic wrote:
-> On Mon, 7 Mar 2022 09:10:29 -0500
-> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
->
->> On 3/7/22 08:27, Halil Pasic wrote:
->>> On Mon, 7 Mar 2022 07:31:21 -0500
->>> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
->>>   
->>>> On 3/3/22 10:39, Jason J. Herne wrote:
->>>>> On 2/14/22 19:50, Tony Krowiak wrote:
->>>>>>     /**
->>>>>> - * vfio_ap_mdev_verify_no_sharing - verifies that the AP matrix is
->>>>>> not configured
->>>>>> + * vfio_ap_mdev_verify_no_sharing - verify APQNs are not shared by
->>>>>> matrix mdevs
->>>>>>      *
->>>>>> - * @matrix_mdev: the mediated matrix device
->>>>>> + * @mdev_apm: mask indicating the APIDs of the APQNs to be verified
->>>>>> + * @mdev_aqm: mask indicating the APQIs of the APQNs to be verified
->>>>>>      *
->>>>>> - * Verifies that the APQNs derived from the cross product of the AP
->>>>>> adapter IDs
->>>>>> - * and AP queue indexes comprising the AP matrix are not configured
->>>>>> for another
->>>>>> + * Verifies that each APQN derived from the Cartesian product of a
->>>>>> bitmap of
->>>>>> + * AP adapter IDs and AP queue indexes is not configured for any matrix
->>>>>>      * mediated device. AP queue sharing is not allowed.
->>>>>>      *
->>>>>> - * Return: 0 if the APQNs are not shared; otherwise returns
->>>>>> -EADDRINUSE.
->>>>>> + * Return: 0 if the APQNs are not shared; otherwise return -EADDRINUSE.
->>>>>>      */
->>>>>> -static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev
->>>>>> *matrix_mdev)
->>>>>> +static int vfio_ap_mdev_verify_no_sharing(unsigned long *mdev_apm,
->>>>>> +                      unsigned long *mdev_aqm)
->>>>>>     {
->>>>>> -    struct ap_matrix_mdev *lstdev;
->>>>>> +    struct ap_matrix_mdev *matrix_mdev;
->>>>>>         DECLARE_BITMAP(apm, AP_DEVICES);
->>>>>>         DECLARE_BITMAP(aqm, AP_DOMAINS);
->>>>>>     -    list_for_each_entry(lstdev, &matrix_dev->mdev_list, node) {
->>>>>> -        if (matrix_mdev == lstdev)
->>>>>> +    list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
->>>>>> +        /*
->>>>>> +         * If the input apm and aqm belong to the matrix_mdev's matrix,
->>> How about:
->>>
->>> s/belong to the matrix_mdev's matrix/are fields of the matrix_mdev
->>> object/
->> This is the comment I wrote:
->>
->>           /*
->>            * Comparing an mdev's newly updated apm/aqm with itself would
->>            * result in a false positive when verifying whether any APQNs
->>            * are shared; so, if the input apm and aqm belong to the
->>            * matrix_mdev's matrix, then move on to the next one.
->>            */
->>
->> However, I'd be happy to change it to whatever either of you want.
-> What ain't obvious for the comment is that "belong to" actually means
-> composition and not association. In other words, there there is no
-> pointer/indirection involved, a pointer that would tell us what matrix
-> does belong to what matrix_mdev, but rather the matrix is just a part
-> of the matrix_mdev object.
->
-> I don't like 'false positive' either, and whether the apm/aqm is
-> newly updated or not is also redundant and confusing in my opinion. When
-> we check because of inuse there is not updated whatever. IMHO the old
-> message was better than this one.
->
-> Just my opinion, if you two agree, that this is the way to go, I'm fine
-> with that.
->
-> Regards,
-> Halil
+Thanks.
 
-Feel free to recommend the verbiage for this comment. I'm not married
-to my comments and am open to anything that helps others to
-understand what is going on here. It seems obvious to me, but I wrote
-the code. Obviously, it is not so obvious based on Jason's comments,
-so maybe someone else can compose a better comment.
 
 >
+> > +}
+> > +
+> > +static int vring_create_vring_packed(struct vring_packed *vring,
+> > +				    struct virtio_device *vdev,
+> > +				    u32 num)
+> >  {
+> > -	struct vring_virtqueue *vq;
+> >  	struct vring_packed_desc *ring;
+> >  	struct vring_packed_desc_event *driver, *device;
+> >  	dma_addr_t ring_dma_addr, driver_event_dma_addr, device_event_dma_addr;
+> >  	size_t ring_size_in_bytes, event_size_in_bytes;
+> >
+> > +	memset(vring, 0, sizeof(*vring));
+> > +
+> >  	ring_size_in_bytes = num * sizeof(struct vring_packed_desc);
+> >
+> >  	ring = vring_alloc_queue(vdev, ring_size_in_bytes,
+> >  				 &ring_dma_addr,
+> >  				 GFP_KERNEL|__GFP_NOWARN|__GFP_ZERO);
+> >  	if (!ring)
+> > -		goto err_ring;
+> > +		goto err;
+> > +
+> > +	vring->num = num;
+> > +	vring->ring = ring;
+> > +	vring->ring_size_in_bytes = ring_size_in_bytes;
+> > +	vring->ring_dma_addr = ring_dma_addr;
+> >
+> >  	event_size_in_bytes = sizeof(struct vring_packed_desc_event);
+> > +	vring->event_size_in_bytes = event_size_in_bytes;
+> >
+> >  	driver = vring_alloc_queue(vdev, event_size_in_bytes,
+> >  				   &driver_event_dma_addr,
+> >  				   GFP_KERNEL|__GFP_NOWARN|__GFP_ZERO);
+> >  	if (!driver)
+> > -		goto err_driver;
+> > +		goto err;
+> > +
+> > +	vring->driver = driver;
+> > +	vring->driver_event_dma_addr = driver_event_dma_addr;
+> >
+> >  	device = vring_alloc_queue(vdev, event_size_in_bytes,
+> >  				   &device_event_dma_addr,
+> >  				   GFP_KERNEL|__GFP_NOWARN|__GFP_ZERO);
+> >  	if (!device)
+> > -		goto err_device;
+> > +		goto err;
+> > +
+> > +	vring->device = device;
+> > +	vring->device_event_dma_addr = device_event_dma_addr;
+> > +	return 0;
+> > +
+> > +err:
+> > +	vring_free_vring_packed(vring, vdev);
+> > +	return -ENOMEM;
+> > +}
+> > +
+> > +static struct virtqueue *vring_create_virtqueue_packed(
+> > +	unsigned int index,
+> > +	unsigned int num,
+> > +	unsigned int vring_align,
+> > +	struct virtio_device *vdev,
+> > +	bool weak_barriers,
+> > +	bool may_reduce_num,
+> > +	bool context,
+> > +	bool (*notify)(struct virtqueue *),
+> > +	void (*callback)(struct virtqueue *),
+> > +	const char *name)
+> > +{
+> > +	struct vring_virtqueue *vq;
+> > +	struct vring_packed vring;
+> > +
+> > +	if (vring_create_vring_packed(&vring, vdev, num))
+> > +		goto err_vq;
+> >
+> >  	vq = kmalloc(sizeof(*vq), GFP_KERNEL);
+> >  	if (!vq)
+> > @@ -1753,17 +1821,17 @@ static struct virtqueue *vring_create_virtqueue_packed(
+> >  	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
+> >  		vq->weak_barriers = false;
+> >
+> > -	vq->packed.ring_dma_addr = ring_dma_addr;
+> > -	vq->packed.driver_event_dma_addr = driver_event_dma_addr;
+> > -	vq->packed.device_event_dma_addr = device_event_dma_addr;
+> > +	vq->packed.ring_dma_addr = vring.ring_dma_addr;
+> > +	vq->packed.driver_event_dma_addr = vring.driver_event_dma_addr;
+> > +	vq->packed.device_event_dma_addr = vring.device_event_dma_addr;
+> >
+> > -	vq->packed.ring_size_in_bytes = ring_size_in_bytes;
+> > -	vq->packed.event_size_in_bytes = event_size_in_bytes;
+> > +	vq->packed.ring_size_in_bytes = vring.ring_size_in_bytes;
+> > +	vq->packed.event_size_in_bytes = vring.event_size_in_bytes;
+> >
+> >  	vq->packed.vring.num = num;
+> > -	vq->packed.vring.desc = ring;
+> > -	vq->packed.vring.driver = driver;
+> > -	vq->packed.vring.device = device;
+> > +	vq->packed.vring.desc = vring.ring;
+> > +	vq->packed.vring.driver = vring.driver;
+> > +	vq->packed.vring.device = vring.device;
+> >
+> >  	vq->packed.next_avail_idx = 0;
+> >  	vq->packed.avail_wrap_counter = 1;
+> > @@ -1804,12 +1872,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
+> >  err_desc_state:
+> >  	kfree(vq);
+> >  err_vq:
+> > -	vring_free_queue(vdev, event_size_in_bytes, device, device_event_dma_addr);
+> > -err_device:
+> > -	vring_free_queue(vdev, event_size_in_bytes, driver, driver_event_dma_addr);
+> > -err_driver:
+> > -	vring_free_queue(vdev, ring_size_in_bytes, ring, ring_dma_addr);
+> > -err_ring:
+> > +	vring_free_vring_packed(&vring, vdev);
+> >  	return NULL;
+> >  }
+> >
+> > --
+> > 2.31.0
 >
-
