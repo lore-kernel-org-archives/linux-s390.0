@@ -2,22 +2,22 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BBA29C4321E
-	for <linux-s390@archiver.kernel.org>; Tue,  8 Mar 2022 12:35:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 93316C3527C
+	for <linux-s390@archiver.kernel.org>; Tue,  8 Mar 2022 12:35:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346908AbiCHMgt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 8 Mar 2022 07:36:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34016 "EHLO
+        id S1346941AbiCHMgx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 8 Mar 2022 07:36:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344801AbiCHMgq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Mar 2022 07:36:46 -0500
-Received: from out30-54.freemail.mail.aliyun.com (out30-54.freemail.mail.aliyun.com [115.124.30.54])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3A8947074;
-        Tue,  8 Mar 2022 04:35:44 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=34;SR=0;TI=SMTPD_---0V6eTXaY_1646742937;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0V6eTXaY_1646742937)
+        with ESMTP id S1346913AbiCHMgs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Mar 2022 07:36:48 -0500
+Received: from out30-42.freemail.mail.aliyun.com (out30-42.freemail.mail.aliyun.com [115.124.30.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA12C45527;
+        Tue,  8 Mar 2022 04:35:50 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=34;SR=0;TI=SMTPD_---0V6eTXbt_1646742944;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0V6eTXbt_1646742944)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Tue, 08 Mar 2022 20:35:39 +0800
+          Tue, 08 Mar 2022 20:35:45 +0800
 From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To:     virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
 Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
@@ -48,9 +48,9 @@ Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
         linux-um@lists.infradead.org, platform-driver-x86@vger.kernel.org,
         linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, bpf@vger.kernel.org
-Subject: [PATCH v7 09/26] virtio_ring: split: implement virtqueue_reset_vring_split()
-Date:   Tue,  8 Mar 2022 20:35:01 +0800
-Message-Id: <20220308123518.33800-10-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v7 12/26] virtio_ring: update the document of the virtqueue_detach_unused_buf for queue reset
+Date:   Tue,  8 Mar 2022 20:35:04 +0800
+Message-Id: <20220308123518.33800-13-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220308123518.33800-1-xuanzhuo@linux.alibaba.com>
 References: <20220308123518.33800-1-xuanzhuo@linux.alibaba.com>
@@ -61,140 +61,29 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-virtio ring supports reset.
-
-Queue reset is divided into several stages.
-
-1. notify device queue reset
-2. vring release
-3. attach new vring
-4. notify device queue re-enable
-
-After the first step is completed, the vring reset operation can be
-performed. If the newly set vring num does not change, then just reset
-the vq related value.
-
-Otherwise, the vring will be released and the vring will be reallocated.
-And the vring will be attached to the vq. If this process fails, the
-function will exit, and the state of the vq will be the vring release
-state. You can call this function again to reallocate the vring.
-
-In addition, vring_align, may_reduce_num are necessary for reallocating
-vring, so they are retained when creating vq.
+Added documentation for virtqueue_detach_unused_buf, allowing it to be
+called on queue reset.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- drivers/virtio/virtio_ring.c | 69 ++++++++++++++++++++++++++++++++++++
- 1 file changed, 69 insertions(+)
+ drivers/virtio/virtio_ring.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index e0422c04c903..148fb1fd3d5a 100644
+index bbff9ba53f80..f388be7562cd 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -158,6 +158,12 @@ struct vring_virtqueue {
- 			/* DMA address and size information */
- 			dma_addr_t queue_dma_addr;
- 			size_t queue_size_in_bytes;
-+
-+			/* The parameters for creating vrings are reserved for
-+			 * creating new vrings when enabling reset queue.
-+			 */
-+			u32 vring_align;
-+			bool may_reduce_num;
- 		} split;
- 
- 		/* Available for packed ring */
-@@ -217,6 +223,12 @@ struct vring_virtqueue {
- #endif
- };
- 
-+static void vring_free(struct virtqueue *vq);
-+static void __vring_virtqueue_init_split(struct vring_virtqueue *vq,
-+					 struct virtio_device *vdev);
-+static int __vring_virtqueue_attach_split(struct vring_virtqueue *vq,
-+					  struct virtio_device *vdev,
-+					  struct vring vring);
- 
- /*
-  * Helpers.
-@@ -1012,6 +1024,8 @@ static struct virtqueue *vring_create_virtqueue_split(
- 		return NULL;
- 	}
- 
-+	to_vvq(vq)->split.vring_align = vring_align;
-+	to_vvq(vq)->split.may_reduce_num = may_reduce_num;
- 	to_vvq(vq)->split.queue_dma_addr = vring.dma_addr;
- 	to_vvq(vq)->split.queue_size_in_bytes = vring.queue_size_in_bytes;
- 	to_vvq(vq)->we_own_ring = true;
-@@ -1019,6 +1033,59 @@ static struct virtqueue *vring_create_virtqueue_split(
- 	return vq;
- }
- 
-+static int virtqueue_reset_vring_split(struct virtqueue *_vq, u32 num)
-+{
-+	struct vring_virtqueue *vq = to_vvq(_vq);
-+	struct virtio_device *vdev = _vq->vdev;
-+	struct vring_split vring;
-+	int err;
-+
-+	if (num > _vq->num_max)
-+		return -E2BIG;
-+
-+	switch (vq->vq.reset) {
-+	case VIRTIO_VQ_RESET_STEP_NONE:
-+		return -ENOENT;
-+
-+	case VIRTIO_VQ_RESET_STEP_VRING_ATTACH:
-+	case VIRTIO_VQ_RESET_STEP_DEVICE:
-+		if (vq->split.vring.num == num || !num)
-+			break;
-+
-+		vring_free(_vq);
-+
-+		fallthrough;
-+
-+	case VIRTIO_VQ_RESET_STEP_VRING_RELEASE:
-+		if (!num)
-+			num = vq->split.vring.num;
-+
-+		err = vring_create_vring_split(&vring, vdev,
-+					       vq->split.vring_align,
-+					       vq->weak_barriers,
-+					       vq->split.may_reduce_num, num);
-+		if (err)
-+			return -ENOMEM;
-+
-+		err = __vring_virtqueue_attach_split(vq, vdev, vring.vring);
-+		if (err) {
-+			vring_free_queue(vdev, vring.queue_size_in_bytes,
-+					 vring.queue,
-+					 vring.dma_addr);
-+			return -ENOMEM;
-+		}
-+
-+		vq->split.queue_dma_addr = vring.dma_addr;
-+		vq->split.queue_size_in_bytes = vring.queue_size_in_bytes;
-+	}
-+
-+	__vring_virtqueue_init_split(vq, vdev);
-+	vq->we_own_ring = true;
-+	vq->vq.reset = VIRTIO_VQ_RESET_STEP_VRING_ATTACH;
-+
-+	return 0;
-+}
-+
- 
- /*
-  * Packed ring specific functions - *_packed().
-@@ -2317,6 +2384,8 @@ static int __vring_virtqueue_attach_split(struct vring_virtqueue *vq,
- static void __vring_virtqueue_init_split(struct vring_virtqueue *vq,
- 					 struct virtio_device *vdev)
+@@ -2357,8 +2357,8 @@ EXPORT_SYMBOL_GPL(virtqueue_enable_cb_delayed);
+  * @_vq: the struct virtqueue we're talking about.
+  *
+  * Returns NULL or the "data" token handed to virtqueue_add_*().
+- * This is not valid on an active queue; it is useful only for device
+- * shutdown.
++ * This is not valid on an active queue; it is useful for device
++ * shutdown or the reset queue.
+  */
+ void *virtqueue_detach_unused_buf(struct virtqueue *_vq)
  {
-+	vq->vq.reset = VIRTIO_VQ_RESET_STEP_NONE;
-+
- 	vq->packed_ring = false;
- 	vq->we_own_ring = false;
- 	vq->broken = false;
 -- 
 2.31.0
 
