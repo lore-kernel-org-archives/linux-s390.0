@@ -2,314 +2,201 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D1BE3C4332F
-	for <linux-s390@archiver.kernel.org>; Tue,  8 Mar 2022 13:13:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 10C76C433EF
+	for <linux-s390@archiver.kernel.org>; Tue,  8 Mar 2022 13:22:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241975AbiCHNO0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 8 Mar 2022 08:14:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58142 "EHLO
+        id S233629AbiCHNXM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 8 Mar 2022 08:23:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239630AbiCHNOZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Mar 2022 08:14:25 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C93A031511
-        for <linux-s390@vger.kernel.org>; Tue,  8 Mar 2022 05:13:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1646745206;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=TFIIsV6xf+S0UEWrtwaMoEgM3YQfdJSczMHcKL/I9IM=;
-        b=Rs0qd956hsvjYA6qc11ZMAfvLqmPhkIgBY8d1WtDuMaGYxQ47EFqO0IANznl82dReKmIFN
-        a5CV/LcaKBJkcNo2SlyQOwFl4eRYszsXaBNHNFY6w4LDqCwF3x5fmEbUoSunknh61aU6I5
-        07+sXLdNllvBgHFXAZoG+k/xGxQiyhg=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-454-AkQKPxc1NOulipfcEl2dGA-1; Tue, 08 Mar 2022 08:13:25 -0500
-X-MC-Unique: AkQKPxc1NOulipfcEl2dGA-1
-Received: by mail-ed1-f70.google.com with SMTP id cm27-20020a0564020c9b00b004137effc24bso10595554edb.10
-        for <linux-s390@vger.kernel.org>; Tue, 08 Mar 2022 05:13:25 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=TFIIsV6xf+S0UEWrtwaMoEgM3YQfdJSczMHcKL/I9IM=;
-        b=7xI47i3GvVoQanOokWMuLoHoMLEtG6/Di0oF13HvzmUUI0Z+UriuGiYs63v+yFz65E
-         yq/7aNjLT2AANTbNHDBkfoaxXHbVOaMAl+ptrvjFJHeOYJTgtCYHM7XdxFmunfWC0Lvt
-         3B+OEDoRgHXmj5YVpHW5NBbVQ7ypFg1OJ59cK3h1F3h8YAih73usl3iUgt+857ZH8sln
-         BrHEwIJxvsMku5k1m5srlL5ixR9NhSOzOSbV3OnhZHxCLeUPFrzMF7Zji/fxnHZ5eXj7
-         97AQY283T7aw59mrl0CEvbWtpB6XIrqui08GETgc7321yV4qj5b3kZxEk0zkDkIet2Lo
-         bpKw==
-X-Gm-Message-State: AOAM5302c3DicPyhuC1fmfE7oq2J11lWeM3qew0Ynym7QD+q+l4xhbVj
-        tDnujWi2GWNWil77jwzr0N3XuijV4sK6hIx1WdW1aHH4DUrnnm1BwIBvse0lOOxGyb2GwupadN4
-        xVQaLI5YUSfobG1EF2upSrA==
-X-Received: by 2002:a50:fd8e:0:b0:415:fe34:f03 with SMTP id o14-20020a50fd8e000000b00415fe340f03mr16011181edt.310.1646745204336;
-        Tue, 08 Mar 2022 05:13:24 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzSKnu6K/NfFAzTqzK33mk/s1Pj3nnEXeXgvcjdorQuXqCcPMBlODVSeHgfeXrL76lGr2ehtQ==
-X-Received: by 2002:a50:fd8e:0:b0:415:fe34:f03 with SMTP id o14-20020a50fd8e000000b00415fe340f03mr16011160edt.310.1646745204085;
-        Tue, 08 Mar 2022 05:13:24 -0800 (PST)
-Received: from ?IPV6:2001:1c00:c1e:bf00:1db8:22d3:1bc9:8ca1? (2001-1c00-0c1e-bf00-1db8-22d3-1bc9-8ca1.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:1db8:22d3:1bc9:8ca1])
-        by smtp.gmail.com with ESMTPSA id z23-20020a170906435700b006b0e62bee84sm5807047ejm.115.2022.03.08.05.13.22
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 08 Mar 2022 05:13:23 -0800 (PST)
-Message-ID: <c5da5e77-2ea8-6721-365b-bf2248951dce@redhat.com>
-Date:   Tue, 8 Mar 2022 14:13:22 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.0
-Subject: Re: [PATCH v7 18/26] virtio: find_vqs() add arg sizes
-Content-Language: en-US
-To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
-Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Mark Gross <markgross@kernel.org>,
-        Vadim Pasternak <vadimp@nvidia.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
+        with ESMTP id S233002AbiCHNXL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Mar 2022 08:23:11 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25AC449691;
+        Tue,  8 Mar 2022 05:22:15 -0800 (PST)
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 228BQ0rg007740;
+        Tue, 8 Mar 2022 13:22:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=eO4h0TI+iWr46j4SVj3ufQz+54GScqE667mEsGEh9+Y=;
+ b=oUu2C5xgrkqBRt3bneXLbsKVodtuTp3zql7tD/q9GGeZu9QvBjct1NggWmxQSl/AbF6W
+ wSru3yrmp6WNQdIhbiHVLNJTFEaswEuDtTB3LGOBnNL2DG1FTQtF6G3Fn+gwgITt+uUu
+ pN+Mchs6nDoie9zGXSbWsW+WFJ+8jQ5MxKaHws2IZqj6wdrwnYjyPyKzOZTFgVBlnwjk
+ FFOK7BUlAw4nzSKHKEnjb5v1Z9CqcDQtgs8Algrq+nHi4SdS7KvLptmmNyqR3wP/R5j/
+ YmlS8f5i/FQ+uaGsC59Ds5q2+rYw2KyqO97DzzVafF2nGFctU3YVTlI/EnU/pTl6tHPH +w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3ep0hfh6eg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 08 Mar 2022 13:22:11 +0000
+Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 228DHPOj015724;
+        Tue, 8 Mar 2022 13:22:10 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3ep0hfh6e2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 08 Mar 2022 13:22:10 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 228DHRRl019343;
+        Tue, 8 Mar 2022 13:22:08 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma05fra.de.ibm.com with ESMTP id 3ekyg96g2k-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 08 Mar 2022 13:22:08 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 228D9fhf39321948
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 8 Mar 2022 13:09:41 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8FF3642041;
+        Tue,  8 Mar 2022 13:20:50 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E77BD42042;
+        Tue,  8 Mar 2022 13:20:49 +0000 (GMT)
+Received: from thinkpad (unknown [9.171.70.239])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Tue,  8 Mar 2022 13:20:49 +0000 (GMT)
+Date:   Tue, 8 Mar 2022 14:20:47 +0100
+From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Linux-MM <linux-mm@kvack.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        linux-btrfs <linux-btrfs@vger.kernel.org>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jesper Dangaard Brouer <hawk@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        linux-um@lists.infradead.org, platform-driver-x86@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, bpf@vger.kernel.org
-References: <20220308123518.33800-1-xuanzhuo@linux.alibaba.com>
- <20220308123518.33800-19-xuanzhuo@linux.alibaba.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-In-Reply-To: <20220308123518.33800-19-xuanzhuo@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Subject: Re: Buffered I/O broken on s390x with page faults disabled (gfs2)
+Message-ID: <20220308142047.7a725518@thinkpad>
+In-Reply-To: <1bdb0184-696c-0f1a-3054-d88391c32e64@redhat.com>
+References: <CAHc6FU5nP+nziNGG0JAF1FUx-GV7kKFvM7aZuU_XD2_1v4vnvg@mail.gmail.com>
+        <CAHk-=wgmCuuJdf96WiT6WXzQQTEeSK=cgBy24J4U9V2AvK4KdQ@mail.gmail.com>
+        <bcafacea-7e67-405c-a969-e5a58a3c727e@redhat.com>
+        <2266e1a8-ac79-94a1-b6e2-47475e5986c5@redhat.com>
+        <81f2f76d-24ef-c23b-449e-0b8fdec506e1@redhat.com>
+        <1bdb0184-696c-0f1a-3054-d88391c32e64@redhat.com>
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: bjXztZi9rjQpeJ9qVMe1cbBsMgt6zfXu
+X-Proofpoint-ORIG-GUID: W3zlxDiE9TlFw4xptdJc9LTAkRAOlFnC
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-03-08_03,2022-03-04_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 clxscore=1011
+ impostorscore=0 spamscore=0 bulkscore=0 adultscore=0 suspectscore=0
+ lowpriorityscore=0 malwarescore=0 mlxscore=0 mlxlogscore=999
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2203080069
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi,
+On Tue, 8 Mar 2022 13:24:19 +0100
+David Hildenbrand <david@redhat.com> wrote:
 
-On 3/8/22 13:35, Xuan Zhuo wrote:
-> find_vqs() adds a new parameter sizes to specify the size of each vq
-> vring.
+[...]
 > 
-> 0 means use the maximum size supported by the backend.
+> From 1e51e8a93894f87c0a4d0e908391e0628ae56afe Mon Sep 17 00:00:00 2001
+> From: David Hildenbrand <david@redhat.com>
+> Date: Tue, 8 Mar 2022 12:51:26 +0100
+> Subject: [PATCH] mm/gup: fix buffered I/O on s390x with pagefaults disabled
 > 
-> In the split scenario, the meaning of size is the largest size, because
-> it may be limited by memory, the virtio core will try a smaller size.
-> And the size is power of 2.
+> On s390x, we actually need a pte_mkyoung() / pte_mkdirty() instead of
+> going via the page and leaving the PTE unmodified. E.g., if we only
+> mark the page accessed via mark_page_accessed() when doing a FOLL_TOUCH,
+> we'll miss to clear the HW invalid bit in the pte and subsequent accesses
+> via the MMU would still require a pagefault.
 > 
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> Otherwise, buffered I/O will loop forever because it will keep stumling
+> over the set HW invalid bit, requiring a page fault.
+> 
+> Reported-by: Andreas Gruenbacher <agruenba@redhat.com>
+> Signed-off-by: David Hildenbrand <david@redhat.com>
 > ---
->  arch/um/drivers/virtio_uml.c             |  2 +-
->  drivers/platform/mellanox/mlxbf-tmfifo.c |  3 ++-
->  drivers/remoteproc/remoteproc_virtio.c   |  2 +-
->  drivers/s390/virtio/virtio_ccw.c         |  2 +-
->  drivers/virtio/virtio_mmio.c             |  2 +-
->  drivers/virtio/virtio_pci_common.c       |  2 +-
->  drivers/virtio/virtio_pci_common.h       |  2 +-
->  drivers/virtio/virtio_pci_modern.c       |  5 +++--
->  drivers/virtio/virtio_vdpa.c             |  2 +-
->  include/linux/virtio_config.h            | 11 +++++++----
->  10 files changed, 19 insertions(+), 14 deletions(-)
-
-I assume this will be merged through the virtio tree, here
-is my ack for merging the drivers/platform/mellanox/ part
-through the virtio tree:
-
-Acked-by: Hans de Goede <hdegoede@redhat.com>
-
-Regards,
-
-Hans
-
-
+>  mm/gup.c | 32 +++++++++++++++++++++++++-------
+>  1 file changed, 25 insertions(+), 7 deletions(-)
 > 
-> diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
-> index ba562d68dc04..055b91ccbe8a 100644
-> --- a/arch/um/drivers/virtio_uml.c
-> +++ b/arch/um/drivers/virtio_uml.c
-> @@ -998,7 +998,7 @@ static struct virtqueue *vu_setup_vq(struct virtio_device *vdev,
->  static int vu_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  		       struct virtqueue *vqs[], vq_callback_t *callbacks[],
->  		       const char * const names[], const bool *ctx,
-> -		       struct irq_affinity *desc)
-> +		       struct irq_affinity *desc, u32 sizes[])
->  {
->  	struct virtio_uml_device *vu_dev = to_virtio_uml_device(vdev);
->  	int i, queue_idx = 0, rc;
-> diff --git a/drivers/platform/mellanox/mlxbf-tmfifo.c b/drivers/platform/mellanox/mlxbf-tmfifo.c
-> index 38800e86ed8a..aea7aa218b22 100644
-> --- a/drivers/platform/mellanox/mlxbf-tmfifo.c
-> +++ b/drivers/platform/mellanox/mlxbf-tmfifo.c
-> @@ -929,7 +929,8 @@ static int mlxbf_tmfifo_virtio_find_vqs(struct virtio_device *vdev,
->  					vq_callback_t *callbacks[],
->  					const char * const names[],
->  					const bool *ctx,
-> -					struct irq_affinity *desc)
-> +					struct irq_affinity *desc,
-> +					u32 sizes[])
->  {
->  	struct mlxbf_tmfifo_vdev *tm_vdev = mlxbf_vdev_to_tmfifo(vdev);
->  	struct mlxbf_tmfifo_vring *vring;
-> diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
-> index 70ab496d0431..3a167bec5b09 100644
-> --- a/drivers/remoteproc/remoteproc_virtio.c
-> +++ b/drivers/remoteproc/remoteproc_virtio.c
-> @@ -157,7 +157,7 @@ static int rproc_virtio_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
->  				 vq_callback_t *callbacks[],
->  				 const char * const names[],
->  				 const bool * ctx,
-> -				 struct irq_affinity *desc)
-> +				 struct irq_affinity *desc, u32 sizes[])
->  {
->  	int i, ret, queue_idx = 0;
->  
-> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> index d35e7a3f7067..b74e08c71534 100644
-> --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -632,7 +632,7 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  			       vq_callback_t *callbacks[],
->  			       const char * const names[],
->  			       const bool *ctx,
-> -			       struct irq_affinity *desc)
-> +			       struct irq_affinity *desc, u32 sizes[])
->  {
->  	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
->  	unsigned long *indicatorp = NULL;
-> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> index a41abc8051b9..55d575f6ef2d 100644
-> --- a/drivers/virtio/virtio_mmio.c
-> +++ b/drivers/virtio/virtio_mmio.c
-> @@ -462,7 +462,7 @@ static int vm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  		       vq_callback_t *callbacks[],
->  		       const char * const names[],
->  		       const bool *ctx,
-> -		       struct irq_affinity *desc)
-> +		       struct irq_affinity *desc, u32 sizes[])
->  {
->  	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
->  	int irq = platform_get_irq(vm_dev->pdev, 0);
-> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-> index 863d3a8a0956..8e8fa7e5ad80 100644
-> --- a/drivers/virtio/virtio_pci_common.c
-> +++ b/drivers/virtio/virtio_pci_common.c
-> @@ -428,7 +428,7 @@ static int vp_find_vqs_intx(struct virtio_device *vdev, unsigned nvqs,
->  int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  		struct virtqueue *vqs[], vq_callback_t *callbacks[],
->  		const char * const names[], const bool *ctx,
-> -		struct irq_affinity *desc)
-> +		struct irq_affinity *desc, u32 sizes[])
->  {
->  	int err;
->  
-> diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
-> index 23f6c5c678d5..9dbf1d555dff 100644
-> --- a/drivers/virtio/virtio_pci_common.h
-> +++ b/drivers/virtio/virtio_pci_common.h
-> @@ -114,7 +114,7 @@ void vp_del_vqs(struct virtio_device *vdev);
->  int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  		struct virtqueue *vqs[], vq_callback_t *callbacks[],
->  		const char * const names[], const bool *ctx,
-> -		struct irq_affinity *desc);
-> +		struct irq_affinity *desc, u32 sizes[]);
->  const char *vp_bus_name(struct virtio_device *vdev);
->  
->  /* Setup the affinity for a virtqueue:
-> diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-> index 3c67d3607802..342795175c29 100644
-> --- a/drivers/virtio/virtio_pci_modern.c
-> +++ b/drivers/virtio/virtio_pci_modern.c
-> @@ -343,11 +343,12 @@ static int vp_modern_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  			      struct virtqueue *vqs[],
->  			      vq_callback_t *callbacks[],
->  			      const char * const names[], const bool *ctx,
-> -			      struct irq_affinity *desc)
-> +			      struct irq_affinity *desc, u32 sizes[])
->  {
->  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
->  	struct virtqueue *vq;
-> -	int rc = vp_find_vqs(vdev, nvqs, vqs, callbacks, names, ctx, desc);
-> +	int rc = vp_find_vqs(vdev, nvqs, vqs, callbacks, names, ctx, desc,
-> +			     sizes);
->  
->  	if (rc)
->  		return rc;
-> diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
-> index 7767a7f0119b..ee08d01ee8b1 100644
-> --- a/drivers/virtio/virtio_vdpa.c
-> +++ b/drivers/virtio/virtio_vdpa.c
-> @@ -268,7 +268,7 @@ static int virtio_vdpa_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  				vq_callback_t *callbacks[],
->  				const char * const names[],
->  				const bool *ctx,
-> -				struct irq_affinity *desc)
-> +				struct irq_affinity *desc, u32 sizes[])
->  {
->  	struct virtio_vdpa_device *vd_dev = to_virtio_vdpa_device(vdev);
->  	struct vdpa_device *vdpa = vd_get_vdpa(vdev);
-> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> index 0b81fbe17c85..5157524d8036 100644
-> --- a/include/linux/virtio_config.h
-> +++ b/include/linux/virtio_config.h
-> @@ -57,6 +57,7 @@ struct virtio_shm_region {
->   *		include a NULL entry for vqs that do not need a callback
->   *	names: array of virtqueue names (mainly for debugging)
->   *		include a NULL entry for vqs unused by driver
-> + *	sizes: array of virtqueue sizes
->   *	Returns 0 on success or error status
->   * @del_vqs: free virtqueues found by find_vqs().
->   * @get_features: get the array of feature bits for this device.
-> @@ -98,7 +99,8 @@ struct virtio_config_ops {
->  	int (*find_vqs)(struct virtio_device *, unsigned nvqs,
->  			struct virtqueue *vqs[], vq_callback_t *callbacks[],
->  			const char * const names[], const bool *ctx,
-> -			struct irq_affinity *desc);
-> +			struct irq_affinity *desc,
-> +			u32 sizes[]);
->  	void (*del_vqs)(struct virtio_device *);
->  	u64 (*get_features)(struct virtio_device *vdev);
->  	int (*finalize_features)(struct virtio_device *vdev);
-> @@ -205,7 +207,7 @@ struct virtqueue *virtio_find_single_vq(struct virtio_device *vdev,
->  	const char *names[] = { n };
->  	struct virtqueue *vq;
->  	int err = vdev->config->find_vqs(vdev, 1, &vq, callbacks, names, NULL,
-> -					 NULL);
-> +					 NULL, NULL);
->  	if (err < 0)
->  		return ERR_PTR(err);
->  	return vq;
-> @@ -217,7 +219,8 @@ int virtio_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  			const char * const names[],
->  			struct irq_affinity *desc)
->  {
-> -	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, NULL, desc);
-> +	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, NULL,
-> +				      desc, NULL);
->  }
->  
->  static inline
-> @@ -227,7 +230,7 @@ int virtio_find_vqs_ctx(struct virtio_device *vdev, unsigned nvqs,
->  			struct irq_affinity *desc)
->  {
->  	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, ctx,
-> -				      desc);
-> +				      desc, NULL);
->  }
->  
->  /**
+> diff --git a/mm/gup.c b/mm/gup.c
+> index a9d4d724aef7..de3311feb377 100644
+> --- a/mm/gup.c
+> +++ b/mm/gup.c
+> @@ -587,15 +587,33 @@ static struct page *follow_page_pte(struct vm_area_struct *vma,
+>  		}
+>  	}
+>  	if (flags & FOLL_TOUCH) {
+> -		if ((flags & FOLL_WRITE) &&
+> -		    !pte_dirty(pte) && !PageDirty(page))
+> -			set_page_dirty(page);
+>  		/*
+> -		 * pte_mkyoung() would be more correct here, but atomic care
+> -		 * is needed to avoid losing the dirty bit: it is easier to use
+> -		 * mark_page_accessed().
+> +		 * We have to be careful with updating the PTE on architectures
+> +		 * that have a HW dirty bit: while updating the PTE we might
+> +		 * lose that bit again and we'd need an atomic update: it is
+> +		 * easier to leave the PTE untouched for these architectures.
+> +		 *
+> +		 * s390x doesn't have a hw referenced / dirty bit and e.g., sets
+> +		 * the hw invalid bit in pte_mkold(), to catch further
+> +		 * references. We have to update the PTE here to e.g., clear the
+> +		 * invalid bit; otherwise, callers that rely on not requiring
+> +		 * an MMU fault once GUP(FOLL_TOUCH) succeeded will loop forever
+> +		 * because the page won't actually be accessible via the MMU.
+>  		 */
+> -		mark_page_accessed(page);
+> +		if (IS_ENABLED(CONFIG_S390)) {
+> +			pte = pte_mkyoung(pte);
+> +			if (flags & FOLL_WRITE)
+> +				pte = pte_mkdirty(pte);
+> +			if (!pte_same(pte, *ptep)) {
+> +				set_pte_at(vma->vm_mm, address, ptep, pte);
+> +				update_mmu_cache(vma, address, ptep);
+> +			}
+> +		} else {
+> +			if ((flags & FOLL_WRITE) &&
+> +			    !pte_dirty(pte) && !PageDirty(page))
+> +				set_page_dirty(page);
+> +			mark_page_accessed(page);
+> +		}
+>  	}
+>  	if ((flags & FOLL_MLOCK) && (vma->vm_flags & VM_LOCKED)) {
+>  		/* Do not mlock pte-mapped THP */
 
+Thanks David, your analysis looks valid, at least it seems that you found
+a scenario where we would have HW invalid bit set due to pte_mkold() in
+ptep_clear_flush_young(), and still GUP would find and return that page, IIUC.
+
+I think pte handling should be similar to pmd handling in follow_trans_huge_pmd()
+-> touch_pmd(), or cow_user_page() (see comment on software "accessed" bits),
+which is more or less what your patch does.
+
+Some possible concerns:
+- set_page_dirty() would not be done any more for s390, is that intended and ok?
+- using set_pte_at() here seems a bit dangerous, as I'm not sure if this will
+  always only operate on invalid PTEs. Using it on active valid PTEs could
+  result in TLB issues because of missing flush. Also not sure about kvm impact.
+  Using ptep_set_access_flags() seems safer, again similar to touch_pmd() and
+  also cow_user_page().
+
+Looking at cow_user_page(), I also wonder if the arch_faults_on_old_pte()
+logic could be used here. I must admit that I did not really understand the
+"losing the dirty bit" part of the comment, but it seems that we might need
+to not only check for arch_faults_on_old_pte(), but also for something like
+"arch_faults_for_dirty_pte".
+
+Last but not least, IIUC, this issue should affect all archs that return
+true on arch_faults_on_old_pte(). After all, the basic problem seems to be
+that a pagefault is required for PTEs marked as old, in combination with
+GUP still returning a valid page. So maybe this should not be restricted
+to IS_ENABLED(CONFIG_S390).
