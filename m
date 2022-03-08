@@ -2,22 +2,22 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A7BAC4332F
-	for <linux-s390@archiver.kernel.org>; Tue,  8 Mar 2022 12:36:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BCC9FC4332F
+	for <linux-s390@archiver.kernel.org>; Tue,  8 Mar 2022 12:38:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347009AbiCHMhl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 8 Mar 2022 07:37:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35106 "EHLO
+        id S235388AbiCHMjC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 8 Mar 2022 07:39:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346973AbiCHMhO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Mar 2022 07:37:14 -0500
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE44F4831B;
-        Tue,  8 Mar 2022 04:36:04 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=34;SR=0;TI=SMTPD_---0V6eC9UV_1646742957;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0V6eC9UV_1646742957)
+        with ESMTP id S1347004AbiCHMhk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Mar 2022 07:37:40 -0500
+Received: from out30-42.freemail.mail.aliyun.com (out30-42.freemail.mail.aliyun.com [115.124.30.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4A0F47057;
+        Tue,  8 Mar 2022 04:36:17 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=34;SR=0;TI=SMTPD_---0V6eSqDW_1646742970;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0V6eSqDW_1646742970)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Tue, 08 Mar 2022 20:35:58 +0800
+          Tue, 08 Mar 2022 20:36:12 +0800
 From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To:     virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
 Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
@@ -48,9 +48,9 @@ Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
         linux-um@lists.infradead.org, platform-driver-x86@vger.kernel.org,
         linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, bpf@vger.kernel.org
-Subject: [PATCH v7 18/26] virtio: find_vqs() add arg sizes
-Date:   Tue,  8 Mar 2022 20:35:10 +0800
-Message-Id: <20220308123518.33800-19-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v7 24/26] virtio_net: support rx/tx queue reset
+Date:   Tue,  8 Mar 2022 20:35:16 +0800
+Message-Id: <20220308123518.33800-25-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220308123518.33800-1-xuanzhuo@linux.alibaba.com>
 References: <20220308123518.33800-1-xuanzhuo@linux.alibaba.com>
@@ -61,203 +61,170 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-find_vqs() adds a new parameter sizes to specify the size of each vq
-vring.
+This patch implements the reset function of the rx, tx queues.
 
-0 means use the maximum size supported by the backend.
+Based on this function, it is possible to modify the ring num of the
+queue. And quickly recycle the buffer in the queue.
 
-In the split scenario, the meaning of size is the largest size, because
-it may be limited by memory, the virtio core will try a smaller size.
-And the size is power of 2.
+In the process of the queue disable, in theory, as long as virtio
+supports queue reset, there will be no exceptions.
+
+However, in the process of the queue enable, there may be exceptions due to
+memory allocation.  In this case, vq is not available, but we still have
+to execute napi_enable(). Because napi_disable is similar to a lock,
+napi_enable must be called after calling napi_disable.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- arch/um/drivers/virtio_uml.c             |  2 +-
- drivers/platform/mellanox/mlxbf-tmfifo.c |  3 ++-
- drivers/remoteproc/remoteproc_virtio.c   |  2 +-
- drivers/s390/virtio/virtio_ccw.c         |  2 +-
- drivers/virtio/virtio_mmio.c             |  2 +-
- drivers/virtio/virtio_pci_common.c       |  2 +-
- drivers/virtio/virtio_pci_common.h       |  2 +-
- drivers/virtio/virtio_pci_modern.c       |  5 +++--
- drivers/virtio/virtio_vdpa.c             |  2 +-
- include/linux/virtio_config.h            | 11 +++++++----
- 10 files changed, 19 insertions(+), 14 deletions(-)
+ drivers/net/virtio_net.c | 107 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 107 insertions(+)
 
-diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
-index ba562d68dc04..055b91ccbe8a 100644
---- a/arch/um/drivers/virtio_uml.c
-+++ b/arch/um/drivers/virtio_uml.c
-@@ -998,7 +998,7 @@ static struct virtqueue *vu_setup_vq(struct virtio_device *vdev,
- static int vu_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 		       struct virtqueue *vqs[], vq_callback_t *callbacks[],
- 		       const char * const names[], const bool *ctx,
--		       struct irq_affinity *desc)
-+		       struct irq_affinity *desc, u32 sizes[])
- {
- 	struct virtio_uml_device *vu_dev = to_virtio_uml_device(vdev);
- 	int i, queue_idx = 0, rc;
-diff --git a/drivers/platform/mellanox/mlxbf-tmfifo.c b/drivers/platform/mellanox/mlxbf-tmfifo.c
-index 38800e86ed8a..aea7aa218b22 100644
---- a/drivers/platform/mellanox/mlxbf-tmfifo.c
-+++ b/drivers/platform/mellanox/mlxbf-tmfifo.c
-@@ -929,7 +929,8 @@ static int mlxbf_tmfifo_virtio_find_vqs(struct virtio_device *vdev,
- 					vq_callback_t *callbacks[],
- 					const char * const names[],
- 					const bool *ctx,
--					struct irq_affinity *desc)
-+					struct irq_affinity *desc,
-+					u32 sizes[])
- {
- 	struct mlxbf_tmfifo_vdev *tm_vdev = mlxbf_vdev_to_tmfifo(vdev);
- 	struct mlxbf_tmfifo_vring *vring;
-diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
-index 70ab496d0431..3a167bec5b09 100644
---- a/drivers/remoteproc/remoteproc_virtio.c
-+++ b/drivers/remoteproc/remoteproc_virtio.c
-@@ -157,7 +157,7 @@ static int rproc_virtio_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
- 				 vq_callback_t *callbacks[],
- 				 const char * const names[],
- 				 const bool * ctx,
--				 struct irq_affinity *desc)
-+				 struct irq_affinity *desc, u32 sizes[])
- {
- 	int i, ret, queue_idx = 0;
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 409a8e180918..ffff323dcef0 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -251,6 +251,11 @@ struct padded_vnet_hdr {
+ 	char padding[4];
+ };
  
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index d35e7a3f7067..b74e08c71534 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -632,7 +632,7 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 			       vq_callback_t *callbacks[],
- 			       const char * const names[],
- 			       const bool *ctx,
--			       struct irq_affinity *desc)
-+			       struct irq_affinity *desc, u32 sizes[])
++static void virtnet_sq_free_unused_bufs(struct virtnet_info *vi,
++					struct send_queue *sq);
++static void virtnet_rq_free_unused_bufs(struct virtnet_info *vi,
++					struct receive_queue *rq);
++
+ static bool is_xdp_frame(void *ptr)
  {
- 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
- 	unsigned long *indicatorp = NULL;
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index a41abc8051b9..55d575f6ef2d 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -462,7 +462,7 @@ static int vm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 		       vq_callback_t *callbacks[],
- 		       const char * const names[],
- 		       const bool *ctx,
--		       struct irq_affinity *desc)
-+		       struct irq_affinity *desc, u32 sizes[])
+ 	return (unsigned long)ptr & VIRTIO_XDP_FLAG;
+@@ -1369,6 +1374,9 @@ static void virtnet_napi_enable(struct virtqueue *vq, struct napi_struct *napi)
  {
- 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
- 	int irq = platform_get_irq(vm_dev->pdev, 0);
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index 863d3a8a0956..8e8fa7e5ad80 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -428,7 +428,7 @@ static int vp_find_vqs_intx(struct virtio_device *vdev, unsigned nvqs,
- int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 		struct virtqueue *vqs[], vq_callback_t *callbacks[],
- 		const char * const names[], const bool *ctx,
--		struct irq_affinity *desc)
-+		struct irq_affinity *desc, u32 sizes[])
- {
- 	int err;
+ 	napi_enable(napi);
  
-diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
-index 23f6c5c678d5..9dbf1d555dff 100644
---- a/drivers/virtio/virtio_pci_common.h
-+++ b/drivers/virtio/virtio_pci_common.h
-@@ -114,7 +114,7 @@ void vp_del_vqs(struct virtio_device *vdev);
- int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 		struct virtqueue *vqs[], vq_callback_t *callbacks[],
- 		const char * const names[], const bool *ctx,
--		struct irq_affinity *desc);
-+		struct irq_affinity *desc, u32 sizes[]);
- const char *vp_bus_name(struct virtio_device *vdev);
++	if (vq->reset)
++		return;
++
+ 	/* If all buffers were filled by other side before we napi_enabled, we
+ 	 * won't get another interrupt, so process any outstanding packets now.
+ 	 * Call local_bh_enable after to trigger softIRQ processing.
+@@ -1413,6 +1421,10 @@ static void refill_work(struct work_struct *work)
+ 		struct receive_queue *rq = &vi->rq[i];
  
- /* Setup the affinity for a virtqueue:
-diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-index 3c67d3607802..342795175c29 100644
---- a/drivers/virtio/virtio_pci_modern.c
-+++ b/drivers/virtio/virtio_pci_modern.c
-@@ -343,11 +343,12 @@ static int vp_modern_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 			      struct virtqueue *vqs[],
- 			      vq_callback_t *callbacks[],
- 			      const char * const names[], const bool *ctx,
--			      struct irq_affinity *desc)
-+			      struct irq_affinity *desc, u32 sizes[])
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 	struct virtqueue *vq;
--	int rc = vp_find_vqs(vdev, nvqs, vqs, callbacks, names, ctx, desc);
-+	int rc = vp_find_vqs(vdev, nvqs, vqs, callbacks, names, ctx, desc,
-+			     sizes);
+ 		napi_disable(&rq->napi);
++		if (rq->vq->reset) {
++			virtnet_napi_enable(rq->vq, &rq->napi);
++			continue;
++		}
+ 		still_empty = !try_fill_recv(vi, rq, GFP_KERNEL);
+ 		virtnet_napi_enable(rq->vq, &rq->napi);
  
- 	if (rc)
- 		return rc;
-diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
-index 7767a7f0119b..ee08d01ee8b1 100644
---- a/drivers/virtio/virtio_vdpa.c
-+++ b/drivers/virtio/virtio_vdpa.c
-@@ -268,7 +268,7 @@ static int virtio_vdpa_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 				vq_callback_t *callbacks[],
- 				const char * const names[],
- 				const bool *ctx,
--				struct irq_affinity *desc)
-+				struct irq_affinity *desc, u32 sizes[])
- {
- 	struct virtio_vdpa_device *vd_dev = to_virtio_vdpa_device(vdev);
- 	struct vdpa_device *vdpa = vd_get_vdpa(vdev);
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index 0b81fbe17c85..5157524d8036 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -57,6 +57,7 @@ struct virtio_shm_region {
-  *		include a NULL entry for vqs that do not need a callback
-  *	names: array of virtqueue names (mainly for debugging)
-  *		include a NULL entry for vqs unused by driver
-+ *	sizes: array of virtqueue sizes
-  *	Returns 0 on success or error status
-  * @del_vqs: free virtqueues found by find_vqs().
-  * @get_features: get the array of feature bits for this device.
-@@ -98,7 +99,8 @@ struct virtio_config_ops {
- 	int (*find_vqs)(struct virtio_device *, unsigned nvqs,
- 			struct virtqueue *vqs[], vq_callback_t *callbacks[],
- 			const char * const names[], const bool *ctx,
--			struct irq_affinity *desc);
-+			struct irq_affinity *desc,
-+			u32 sizes[]);
- 	void (*del_vqs)(struct virtio_device *);
- 	u64 (*get_features)(struct virtio_device *vdev);
- 	int (*finalize_features)(struct virtio_device *vdev);
-@@ -205,7 +207,7 @@ struct virtqueue *virtio_find_single_vq(struct virtio_device *vdev,
- 	const char *names[] = { n };
- 	struct virtqueue *vq;
- 	int err = vdev->config->find_vqs(vdev, 1, &vq, callbacks, names, NULL,
--					 NULL);
-+					 NULL, NULL);
- 	if (err < 0)
- 		return ERR_PTR(err);
- 	return vq;
-@@ -217,7 +219,8 @@ int virtio_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 			const char * const names[],
- 			struct irq_affinity *desc)
- {
--	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, NULL, desc);
-+	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, NULL,
-+				      desc, NULL);
+@@ -1523,6 +1535,9 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
+ 	if (!sq->napi.weight || is_xdp_raw_buffer_queue(vi, index))
+ 		return;
+ 
++	if (sq->vq->reset)
++		return;
++
+ 	if (__netif_tx_trylock(txq)) {
+ 		do {
+ 			virtqueue_disable_cb(sq->vq);
+@@ -1769,6 +1784,98 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	return NETDEV_TX_OK;
  }
  
- static inline
-@@ -227,7 +230,7 @@ int virtio_find_vqs_ctx(struct virtio_device *vdev, unsigned nvqs,
- 			struct irq_affinity *desc)
- {
- 	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, ctx,
--				      desc);
-+				      desc, NULL);
- }
- 
- /**
++static int virtnet_rx_vq_reset(struct virtnet_info *vi,
++			       struct receive_queue *rq, u32 ring_num)
++{
++	int err;
++
++	/* stop napi */
++	napi_disable(&rq->napi);
++
++	/* reset the queue */
++	err = virtio_reset_vq(rq->vq);
++	if (err)
++		goto err;
++
++	/* free bufs */
++	virtnet_rq_free_unused_bufs(vi, rq);
++
++	/* reset vring. */
++	err = virtqueue_reset_vring(rq->vq, ring_num);
++	if (err)
++		goto err;
++
++	/* enable reset queue */
++	err = virtio_enable_resetq(rq->vq);
++	if (err)
++		goto err;
++
++	/* fill recv */
++	if (!try_fill_recv(vi, rq, GFP_KERNEL))
++		schedule_delayed_work(&vi->refill, 0);
++
++	/* enable napi */
++	virtnet_napi_enable(rq->vq, &rq->napi);
++	return 0;
++
++err:
++	netdev_err(vi->dev,
++		   "reset rx reset vq fail: rx queue index: %ld err: %d\n",
++		   rq - vi->rq, err);
++	virtnet_napi_enable(rq->vq, &rq->napi);
++	return err;
++}
++
++static int virtnet_tx_vq_reset(struct virtnet_info *vi,
++			       struct send_queue *sq, u32 ring_num)
++{
++	struct netdev_queue *txq;
++	int err, qindex;
++
++	qindex = sq - vi->sq;
++
++	txq = netdev_get_tx_queue(vi->dev, qindex);
++	__netif_tx_lock_bh(txq);
++
++	/* stop tx queue and napi */
++	netif_stop_subqueue(vi->dev, qindex);
++	virtnet_napi_tx_disable(&sq->napi);
++
++	__netif_tx_unlock_bh(txq);
++
++	/* reset the queue */
++	err = virtio_reset_vq(sq->vq);
++	if (err) {
++		netif_start_subqueue(vi->dev, qindex);
++		goto err;
++	}
++
++	/* free bufs */
++	virtnet_sq_free_unused_bufs(vi, sq);
++
++	/* reset vring. */
++	err = virtqueue_reset_vring(sq->vq, ring_num);
++	if (err)
++		goto err;
++
++	/* enable reset queue */
++	err = virtio_enable_resetq(sq->vq);
++	if (err)
++		goto err;
++
++	/* start tx queue and napi */
++	netif_start_subqueue(vi->dev, qindex);
++	virtnet_napi_tx_enable(vi, sq->vq, &sq->napi);
++	return 0;
++
++err:
++	netdev_err(vi->dev,
++		   "reset tx reset vq fail: tx queue index: %ld err: %d\n",
++		   sq - vi->sq, err);
++	virtnet_napi_tx_enable(vi, sq->vq, &sq->napi);
++	return err;
++}
++
+ /*
+  * Send command via the control virtqueue and check status.  Commands
+  * supported by the hypervisor, as indicated by feature bits, should
 -- 
 2.31.0
 
