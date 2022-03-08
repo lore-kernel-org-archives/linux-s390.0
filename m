@@ -2,212 +2,218 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 929FFC433F5
-	for <linux-s390@archiver.kernel.org>; Tue,  8 Mar 2022 10:06:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 14559C433F5
+	for <linux-s390@archiver.kernel.org>; Tue,  8 Mar 2022 10:32:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345656AbiCHKHu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 8 Mar 2022 05:07:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35652 "EHLO
+        id S1345900AbiCHKdI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 8 Mar 2022 05:33:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345633AbiCHKHq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Mar 2022 05:07:46 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1EA642A03;
-        Tue,  8 Mar 2022 02:06:49 -0800 (PST)
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 228920Td003295;
-        Tue, 8 Mar 2022 10:06:49 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
+        with ESMTP id S1345901AbiCHKdA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Mar 2022 05:33:00 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D422A42EF5;
+        Tue,  8 Mar 2022 02:32:04 -0800 (PST)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 2287Q4pV013390;
+        Tue, 8 Mar 2022 10:32:04 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
  content-type : content-transfer-encoding; s=pp1;
- bh=j/N/vhfOg+pIg3L0C07BIR5bJy+MUQ0Q1LwgTkzwZx4=;
- b=ED9gu6UFRdq+Mn1zOMSh0qFO8MJYo4CSQd/AXeQE4eLTJQEy1zg8BBvKGwE6/3/x4IcB
- BnqPyi0KkFTgqsbrIjiNCdvaHTYsoyT7NCfQxiuTuYqcWSxFHSi0uvKhkRAbXRh0q1+S
- DgM3P0/umi9wIbbNuWvSyvfh/42xqel3Lmvme3D0hq2RMfR1ccsG4d5yFbBaxCs8qtpV
- FNQ8XitNzqTpq8or3e44EZm2w+Ay1kCuz1D74DCqX4Y7Ma0BAyT6yOL4fllg6jhucKDE
- XftQBOy26AHQ5ZrY/MuHXvrpjyPMcMsOxUuPgMMtbrye47i64vaAlZYzENfujyUMcp6h 6g== 
+ bh=+Rkqa/FeIGw5LwvCZhlrJeoyRXSJ+gn4GGc1oqUoRQ4=;
+ b=JcYT+DCIS4pjxDiBQ4BtXA+4d7dXp8ki8fKTtY98dK6k0b/7eSDuWrklyk/EI8wWcoU3
+ 2vMDWJ1IufNLUnUxKGR+BIPuidIpqJvwR/QOZGUAslgjzvQ3xJy0R5GunGANx7QOo5km
+ lDsaJ60q7A9F6uE0EJej9x9IZzxNYTUPv5HqIvr7NuLMfwTPJMWyIC3RwDmLtw2fZ0Qr
+ UZvdMEHLisqN32CrldeaP0q/m7/4vlbrg4GAWbj1I0N+8o4Dy476LD3mLV63b2fI45FW
+ glleZvUYFqGJ8kjjf3yR3CM943Kzc2qK1BsV5DCc8M6J6tKWgijGSztewOxQntAl39Vq mQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3enww78g2d-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3envcut5fw-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Mar 2022 10:06:49 +0000
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 2289G9V4032710;
-        Tue, 8 Mar 2022 10:06:49 GMT
+        Tue, 08 Mar 2022 10:32:03 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 228AFa3h015136;
+        Tue, 8 Mar 2022 10:32:03 GMT
 Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3enww78g1p-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3envcut5fm-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Mar 2022 10:06:48 +0000
+        Tue, 08 Mar 2022 10:32:03 +0000
 Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 228A3vDM031785;
-        Tue, 8 Mar 2022 10:06:46 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma03ams.nl.ibm.com with ESMTP id 3ekyg8y3wa-1
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 228ABxZf007690;
+        Tue, 8 Mar 2022 10:32:01 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 3ekyg8y5rb-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Mar 2022 10:06:46 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 228A6hBD51511590
+        Tue, 08 Mar 2022 10:32:01 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 228AVwZO31523092
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 8 Mar 2022 10:06:43 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 519B011C04A;
-        Tue,  8 Mar 2022 10:06:43 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E650D11C052;
-        Tue,  8 Mar 2022 10:06:42 +0000 (GMT)
-Received: from [9.171.93.186] (unknown [9.171.93.186])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue,  8 Mar 2022 10:06:42 +0000 (GMT)
-Message-ID: <e8b39f16-211b-dc1c-0970-019b8375178c@de.ibm.com>
-Date:   Tue, 8 Mar 2022 11:06:42 +0100
+        Tue, 8 Mar 2022 10:31:58 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 80E4F5206D;
+        Tue,  8 Mar 2022 10:31:58 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.145.10.106])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 2964C52074;
+        Tue,  8 Mar 2022 10:31:58 +0000 (GMT)
+Date:   Tue, 8 Mar 2022 11:31:55 +0100
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Eric Farman <farman@linux.ibm.com>
+Cc:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH kvm-unit-tests v1 4/6] s390x: smp: Create and use a
+ non-waiting CPU stop
+Message-ID: <20220308113155.24c7a5f4@p-imbrenda>
+In-Reply-To: <2066eb382d42a27db9417ea47d79f2fbee0a2af0.camel@linux.ibm.com>
+References: <20220303210425.1693486-1-farman@linux.ibm.com>
+        <20220303210425.1693486-5-farman@linux.ibm.com>
+        <20220307163007.0213714e@p-imbrenda>
+        <2066eb382d42a27db9417ea47d79f2fbee0a2af0.camel@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH v1 1/1] KVM: s390x: fix SCK locking
-Content-Language: en-US
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, frankja@linux.ibm.com,
-        thuth@redhat.com, mimu@linux.ibm.com
-References: <20220301143340.111129-1-imbrenda@linux.ibm.com>
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-In-Reply-To: <20220301143340.111129-1-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: r59TqA4nLSseMfnDsUXh8w_FaPexOtOV
-X-Proofpoint-GUID: fGjyXgU483M8V2sF_jUcp2oQjl5nwGeq
+X-Proofpoint-GUID: SR-FzUN75TiuDLJNii78-Con3oAxkCzT
+X-Proofpoint-ORIG-GUID: yGmHTdDCHf02sDw26lOYjcUrGa_bbUe5
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-03-08_03,2022-03-04_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- lowpriorityscore=0 bulkscore=0 adultscore=0 clxscore=1015
- priorityscore=1501 malwarescore=0 impostorscore=0 spamscore=0
- mlxlogscore=999 phishscore=0 mlxscore=0 classifier=spam adjust=0
- reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2203080053
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 mlxscore=0
+ malwarescore=0 clxscore=1015 phishscore=0 impostorscore=0 mlxlogscore=999
+ priorityscore=1501 lowpriorityscore=0 bulkscore=0 spamscore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2203080055
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Mon, 07 Mar 2022 14:03:45 -0500
+Eric Farman <farman@linux.ibm.com> wrote:
 
+> On Mon, 2022-03-07 at 16:30 +0100, Claudio Imbrenda wrote:
+> > On Thu,  3 Mar 2022 22:04:23 +0100
+> > Eric Farman <farman@linux.ibm.com> wrote:
+> >   
+> > > When stopping a CPU, kvm-unit-tests serializes/waits for everything
+> > > to finish, in order to get a consistent result whenever those
+> > > functions are used.
+> > > 
+> > > But to test the SIGP STOP itself, these additional measures could
+> > > mask other problems. For example, did the STOP work, or is the CPU
+> > > still operating?
+> > > 
+> > > Let's create a non-waiting SIGP STOP and use it here, to ensure
+> > > that
+> > > the CPU is correctly stopped. A smp_cpu_stopped() call will still
+> > > be used to see that the SIGP STOP has been processed, and the state
+> > > of the CPU can be used to determine whether the test passes/fails.
+> > > 
+> > > Signed-off-by: Eric Farman <farman@linux.ibm.com>
+> > > ---
+> > >  lib/s390x/smp.c | 25 +++++++++++++++++++++++++
+> > >  lib/s390x/smp.h |  1 +
+> > >  s390x/smp.c     | 10 ++--------
+> > >  3 files changed, 28 insertions(+), 8 deletions(-)
+> > > 
+> > > diff --git a/lib/s390x/smp.c b/lib/s390x/smp.c
+> > > index 368d6add..84e536e8 100644
+> > > --- a/lib/s390x/smp.c
+> > > +++ b/lib/s390x/smp.c
+> > > @@ -119,6 +119,31 @@ int smp_cpu_stop(uint16_t idx)
+> > >  	return rc;
+> > >  }
+> > >  
+> > > +/*
+> > > + * Functionally equivalent to smp_cpu_stop(), but without the
+> > > + * elements that wait/serialize matters itself.
+> > > + * Used to see if KVM itself is serialized correctly.
+> > > + */
+> > > +int smp_cpu_stop_nowait(uint16_t idx)
+> > > +{
+> > > +	/* refuse to work on the boot CPU */
+> > > +	if (idx == 0)
+> > > +		return -1;
+> > > +
+> > > +	spin_lock(&lock);
+> > > +
+> > > +	/* Don't suppress a CC2 with sigp_retry() */
+> > > +	if (smp_sigp(idx, SIGP_STOP, 0, NULL)) {
+> > > +		spin_unlock(&lock);
+> > > +		return -1;
+> > > +	}
+> > > +
+> > > +	cpus[idx].active = false;
+> > > +	spin_unlock(&lock);
+> > > +
+> > > +	return 0;
+> > > +}
+> > > +
+> > >  int smp_cpu_stop_store_status(uint16_t idx)
+> > >  {
+> > >  	int rc;
+> > > diff --git a/lib/s390x/smp.h b/lib/s390x/smp.h
+> > > index 1e69a7de..bae03dfd 100644
+> > > --- a/lib/s390x/smp.h
+> > > +++ b/lib/s390x/smp.h
+> > > @@ -44,6 +44,7 @@ bool smp_sense_running_status(uint16_t idx);
+> > >  int smp_cpu_restart(uint16_t idx);
+> > >  int smp_cpu_start(uint16_t idx, struct psw psw);
+> > >  int smp_cpu_stop(uint16_t idx);
+> > > +int smp_cpu_stop_nowait(uint16_t idx);
+> > >  int smp_cpu_stop_store_status(uint16_t idx);
+> > >  int smp_cpu_destroy(uint16_t idx);
+> > >  int smp_cpu_setup(uint16_t idx, struct psw psw);
+> > > diff --git a/s390x/smp.c b/s390x/smp.c
+> > > index 50811bd0..11c2c673 100644
+> > > --- a/s390x/smp.c
+> > > +++ b/s390x/smp.c
+> > > @@ -76,14 +76,8 @@ static void test_restart(void)
+> > >  
+> > >  static void test_stop(void)
+> > >  {
+> > > -	smp_cpu_stop(1);
+> > > -	/*
+> > > -	 * The smp library waits for the CPU to shut down, but let's
+> > > -	 * also do it here, so we don't rely on the library
+> > > -	 * implementation
+> > > -	 */
+> > > -	while (!smp_cpu_stopped(1)) {}
+> > > -	report_pass("stop");
+> > > +	smp_cpu_stop_nowait(1);  
+> > 
+> > can it happen that the SIGP STOP order is accepted, but the target
+> > CPU
+> > is still running (and not even busy)?  
+> 
+> Of course. A SIGP that's processed by userspace (which is many of them)
+> injects a STOP IRQ back to the kernel, which means the CPU might not be
+> stopped for some time. But...
+> 
+> >   
+> > > +	report(smp_cpu_stopped(1), "stop");  
+> > 
+> > e.g. can this ^ check race with the actual stopping of the CPU?  
+> 
+> ...the smp_cpu_stopped() routine now loops on the CC2 that SIGP SENSE
+> returns because of that pending IRQ. If SIGP SENSE returns CC0/1, then
+> the CPU can correctly be identified stopped/operating, and the test can
+> correctly pass/fail.
 
-Am 01.03.22 um 15:33 schrieb Claudio Imbrenda:
-> When handling the SCK instruction, the kvm lock is taken, even though
-> the vcpu lock is already being held. The normal locking order is kvm
-> lock first and then vcpu lock. This is can (and in some circumstances
-> does) lead to deadlocks.
-> 
-> The function kvm_s390_set_tod_clock is called both by the SCK handler
-> and by some IOCTLs to set the clock. The IOCTLs will not hold the vcpu
-> lock, so they can safely take the kvm lock. The SCK handler holds the
-> vcpu lock, but will also somehow need to acquire the kvm lock without
-> relinquishing the vcpu lock.
-> 
-> The solution is to factor out the code to set the clock, and provide
-> two wrappers. One is called like the original function and does the
-> locking, the other is called kvm_s390_try_set_tod_clock and uses
-> trylock to try to acquire the kvm lock. This new wrapper is then used
-> in the SCK handler. If locking fails, -EAGAIN is returned, which is
-> eventually propagated to userspace, thus also freeing the vcpu lock and
-> allowing for forward progress.
-> 
-> This is not the most efficient or elegant way to solve this issue, but
-> the SCK instruction is deprecated and its performance is not critical.
-> 
-> The goal of this patch is just to provide a simple but correct way to
-> fix the bug.
-> 
-> Fixes: 6a3f95a6b04c ("KVM: s390: Intercept SCK instruction")
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+my question was: is it possible architecturally that there is a window
+where the STOP order is accepted, but a SENSE on the target CPU still
+successfully returns that the CPU is running?
 
-Thanks applied. I will also add cc stable when queueing.
+in other words: is it specified architecturally that, once an order is
+accepted for a target CPU, that CPU can't accept any other order (and
+will return CC2), including SENSE, until the order has been completed
+successfully?
 
-
-> ---
->   arch/s390/kvm/kvm-s390.c | 19 ++++++++++++++++---
->   arch/s390/kvm/kvm-s390.h |  4 ++--
->   arch/s390/kvm/priv.c     | 14 +++++++++++++-
->   3 files changed, 31 insertions(+), 6 deletions(-)
 > 
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 2296b1ff1e02..4e3db4004bfd 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -3869,14 +3869,12 @@ static int kvm_s390_handle_requests(struct kvm_vcpu *vcpu)
->   	return 0;
->   }
->   
-> -void kvm_s390_set_tod_clock(struct kvm *kvm,
-> -			    const struct kvm_s390_vm_tod_clock *gtod)
-> +static void __kvm_s390_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod)
->   {
->   	struct kvm_vcpu *vcpu;
->   	union tod_clock clk;
->   	unsigned long i;
->   
-> -	mutex_lock(&kvm->lock);
->   	preempt_disable();
->   
->   	store_tod_clock_ext(&clk);
-> @@ -3897,7 +3895,22 @@ void kvm_s390_set_tod_clock(struct kvm *kvm,
->   
->   	kvm_s390_vcpu_unblock_all(kvm);
->   	preempt_enable();
-> +}
-> +
-> +void kvm_s390_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod)
-> +{
-> +	mutex_lock(&kvm->lock);
-> +	__kvm_s390_set_tod_clock(kvm, gtod);
-> +	mutex_unlock(&kvm->lock);
-> +}
-> +
-> +int kvm_s390_try_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod)
-> +{
-> +	if (!mutex_trylock(&kvm->lock))
-> +		return 0;
-> +	__kvm_s390_set_tod_clock(kvm, gtod);
->   	mutex_unlock(&kvm->lock);
-> +	return 1;
->   }
->   
->   /**
-> diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-> index 098831e815e6..f2c910763d7f 100644
-> --- a/arch/s390/kvm/kvm-s390.h
-> +++ b/arch/s390/kvm/kvm-s390.h
-> @@ -349,8 +349,8 @@ int kvm_s390_handle_sigp(struct kvm_vcpu *vcpu);
->   int kvm_s390_handle_sigp_pei(struct kvm_vcpu *vcpu);
->   
->   /* implemented in kvm-s390.c */
-> -void kvm_s390_set_tod_clock(struct kvm *kvm,
-> -			    const struct kvm_s390_vm_tod_clock *gtod);
-> +void kvm_s390_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod);
-> +int kvm_s390_try_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod);
->   long kvm_arch_fault_in_page(struct kvm_vcpu *vcpu, gpa_t gpa, int writable);
->   int kvm_s390_store_status_unloaded(struct kvm_vcpu *vcpu, unsigned long addr);
->   int kvm_s390_vcpu_store_status(struct kvm_vcpu *vcpu, unsigned long addr);
-> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-> index 417154b314a6..7f3e7990ef82 100644
-> --- a/arch/s390/kvm/priv.c
-> +++ b/arch/s390/kvm/priv.c
-> @@ -102,7 +102,19 @@ static int handle_set_clock(struct kvm_vcpu *vcpu)
->   		return kvm_s390_inject_prog_cond(vcpu, rc);
->   
->   	VCPU_EVENT(vcpu, 3, "SCK: setting guest TOD to 0x%llx", gtod.tod);
-> -	kvm_s390_set_tod_clock(vcpu->kvm, &gtod);
-> +	/*
-> +	 * To set the TOD clock we need to take the kvm lock, but we are
-> +	 * already holding the vcpu lock, and the usual lock order is the
-> +	 * opposite. Therefore we use trylock instead of lock, and if the
-> +	 * kvm lock cannot be taken, we retry the instruction and return
-> +	 * -EAGAIN to userspace, thus freeing the vcpu lock.
-> +	 * The SCK instruction is considered legacy and at this point it's
-> +	 * not worth the effort to find a nicer solution.
-> +	 */
-> +	if (!kvm_s390_try_set_tod_clock(vcpu->kvm, &gtod)) {
-> +		kvm_s390_retry_instr(vcpu);
-> +		return -EAGAIN;
-> +	}
->   
->   	kvm_s390_set_psw_cc(vcpu, 0);
->   	return 0;
+> >   
+> > >  }
+> > >  
+> > >  static void test_stop_store_status(void)  
+> 
+
