@@ -2,326 +2,185 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D1C2C433EF
-	for <linux-s390@archiver.kernel.org>; Tue,  8 Mar 2022 08:05:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 46664C433EF
+	for <linux-s390@archiver.kernel.org>; Tue,  8 Mar 2022 08:21:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242076AbiCHIGX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 8 Mar 2022 03:06:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54140 "EHLO
+        id S1345019AbiCHIWo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 8 Mar 2022 03:22:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236704AbiCHIGW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Mar 2022 03:06:22 -0500
-Received: from out30-54.freemail.mail.aliyun.com (out30-54.freemail.mail.aliyun.com [115.124.30.54])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D95CF3E5E4;
-        Tue,  8 Mar 2022 00:05:24 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R531e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=33;SR=0;TI=SMTPD_---0V6dDcfX_1646726717;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0V6dDcfX_1646726717)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Tue, 08 Mar 2022 16:05:18 +0800
-Message-ID: <1646726461.091596-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH v6 06/26] virtio_ring: packed: extrace the logic of creating vring
-Date:   Tue, 8 Mar 2022 16:01:01 +0800
-From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To:     Jason Wang <jasowang@redhat.com>
-Cc:     virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
-        Jeff Dike <jdike@addtoit.com>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mark Gross <markgross@kernel.org>,
-        Vadim Pasternak <vadimp@nvidia.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jesper Dangaard Brouer <hawk@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        linux-um@lists.infradead.org, platform-driver-x86@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, bpf@vger.kernel.org,
-        "Michael S. Tsirkin" <mst@redhat.com>
-References: <20220224081102.80224-1-xuanzhuo@linux.alibaba.com>
- <20220224081102.80224-7-xuanzhuo@linux.alibaba.com>
- <20220307171629-mutt-send-email-mst@kernel.org>
- <1646722885.3801584-1-xuanzhuo@linux.alibaba.com>
- <91910574-d3f7-6a75-57cf-06a5fcb29be8@redhat.com>
-In-Reply-To: <91910574-d3f7-6a75-57cf-06a5fcb29be8@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S1344955AbiCHIWn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Mar 2022 03:22:43 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B56C93F33C
+        for <linux-s390@vger.kernel.org>; Tue,  8 Mar 2022 00:21:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1646727687;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=TPGV7ehpSQqx+IAZ6Q4UMs4eKXTc5SZkrFf2pOnvCvw=;
+        b=HpCUppJ0sDI2jQPxyzc7qaJveZAnXXbDtl2CoGkcLPW0dmiohWBfivP2J5JxT8fHzJwGUM
+        aeLDp9Rx9HLIuQF3w01hChEy1Yxy+AHApwA8IG1nk8rSmEkcFYV6wnrbwbHU/3NYBzsHDA
+        KetB3/WwHh3m6Su9DDzqgEv9MtnB2zY=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-480-PmHqg8SvNG2WU983oebhTQ-1; Tue, 08 Mar 2022 03:21:26 -0500
+X-MC-Unique: PmHqg8SvNG2WU983oebhTQ-1
+Received: by mail-wr1-f70.google.com with SMTP id f9-20020a5d58e9000000b001f0247e5e96so5203519wrd.15
+        for <linux-s390@vger.kernel.org>; Tue, 08 Mar 2022 00:21:26 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent
+         :content-language:to:cc:references:from:organization:subject
+         :in-reply-to:content-transfer-encoding;
+        bh=TPGV7ehpSQqx+IAZ6Q4UMs4eKXTc5SZkrFf2pOnvCvw=;
+        b=uraiuzQqVkHl3ZnxR2uDmAm5In8OfRD8cQf2w21VFHKFl/1FMP8FbxdaYyAVwcVV+A
+         IRgktEo1WFjzc7drkVkoCPSm8Id8Mb1lkGyYXMz7k31JFUokQEki/Fvxv1oy9S3JTEHY
+         z8acgW0CPLS2gOWVo+bnsOnyJwz0xx1zTzMSZv2sn9zClkAc0VXJ2SMECmJNboLfYQ2Q
+         uC+aT+InJZttPqdX88sDl+XfW87U/pWgWkh/QSWnaUVZ9mA1ohDPR1QCrswMPgNi0dMJ
+         dxFjyEin9ZEBtkWZkpnsu0KYgPgJKf72WL8L4Tb9VYPiAXLmD8vEwDj6rsMsXykghgA/
+         A69A==
+X-Gm-Message-State: AOAM532iN+i7tq03Ak/uXegc1JoyUtiRzFOTcjkg0r1wKOOnkZTfQfgH
+        MKB8RBbEiogfynba6hTPxHFilSA6PMio2ffbrecXX03bcaj+ts5GUbCivKET95WtiMpWkAteX4f
+        sBhtXWxYMLV2ZXzm68ImawQ==
+X-Received: by 2002:adf:ea4a:0:b0:1f0:6501:80f7 with SMTP id j10-20020adfea4a000000b001f0650180f7mr11022650wrn.306.1646727685400;
+        Tue, 08 Mar 2022 00:21:25 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxIWBX20hLFQ6w9ka0x2WIFzYL3vL9HpkUa3WrvCMfxe9qTqYpiU8oGrTjavXY5gqT7TALjPw==
+X-Received: by 2002:adf:ea4a:0:b0:1f0:6501:80f7 with SMTP id j10-20020adfea4a000000b001f0650180f7mr11022617wrn.306.1646727684938;
+        Tue, 08 Mar 2022 00:21:24 -0800 (PST)
+Received: from ?IPV6:2003:cb:c708:b000:acda:b420:16aa:6b67? (p200300cbc708b000acdab42016aa6b67.dip0.t-ipconnect.de. [2003:cb:c708:b000:acda:b420:16aa:6b67])
+        by smtp.gmail.com with ESMTPSA id r20-20020adfa154000000b001f0326a23e1sm13310899wrr.88.2022.03.08.00.21.24
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 08 Mar 2022 00:21:24 -0800 (PST)
+Message-ID: <bcafacea-7e67-405c-a969-e5a58a3c727e@redhat.com>
+Date:   Tue, 8 Mar 2022 09:21:23 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Content-Language: en-US
+To:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Andreas Gruenbacher <agruenba@redhat.com>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Linux-MM <linux-mm@kvack.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        linux-btrfs <linux-btrfs@vger.kernel.org>
+References: <CAHc6FU5nP+nziNGG0JAF1FUx-GV7kKFvM7aZuU_XD2_1v4vnvg@mail.gmail.com>
+ <CAHk-=wgmCuuJdf96WiT6WXzQQTEeSK=cgBy24J4U9V2AvK4KdQ@mail.gmail.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Subject: Re: Buffered I/O broken on s390x with page faults disabled (gfs2)
+In-Reply-To: <CAHk-=wgmCuuJdf96WiT6WXzQQTEeSK=cgBy24J4U9V2AvK4KdQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 8 Mar 2022 15:28:22 +0800, Jason Wang <jasowang@redhat.com> wrote:
->
-> =E5=9C=A8 2022/3/8 =E4=B8=8B=E5=8D=883:01, Xuan Zhuo =E5=86=99=E9=81=93:
-> > On Mon, 7 Mar 2022 17:17:51 -0500, "Michael S. Tsirkin" <mst@redhat.com=
-> wrote:
-> >> On Thu, Feb 24, 2022 at 04:10:42PM +0800, Xuan Zhuo wrote:
-> >>> Separate the logic of packed to create vring queue.
-> >>>
-> >>> For the convenience of passing parameters, add a structure
-> >>> vring_packed.
-> >>>
-> >>> This feature is required for subsequent virtuqueue reset vring.
-> >>>
-> >>> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> >> Subject has a typo.
-> > I will fix it.
-> >
-> >> Besides:
-> >>
-> >>> ---
-> >>>   drivers/virtio/virtio_ring.c | 121 ++++++++++++++++++++++++++------=
----
-> >>>   1 file changed, 92 insertions(+), 29 deletions(-)
-> >>>
-> >>> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_rin=
-g.c
-> >>> index dc6313b79305..41864c5e665f 100644
-> >>> --- a/drivers/virtio/virtio_ring.c
-> >>> +++ b/drivers/virtio/virtio_ring.c
-> >>> @@ -92,6 +92,18 @@ struct vring_split {
-> >>>   	struct vring vring;
-> >>>   };
-> >>>
-> >>> +struct vring_packed {
-> >>> +	u32 num;
-> >>> +	struct vring_packed_desc *ring;
-> >>> +	struct vring_packed_desc_event *driver;
-> >>> +	struct vring_packed_desc_event *device;
-> >>> +	dma_addr_t ring_dma_addr;
-> >>> +	dma_addr_t driver_event_dma_addr;
-> >>> +	dma_addr_t device_event_dma_addr;
-> >>> +	size_t ring_size_in_bytes;
-> >>> +	size_t event_size_in_bytes;
-> >>> +};
-> >>> +
-> >>>   struct vring_virtqueue {
-> >>>   	struct virtqueue vq;
-> >>>
-> >>> @@ -1683,45 +1695,101 @@ static struct vring_desc_extra *vring_alloc_=
-desc_extra(struct vring_virtqueue *v
-> >>>   	return desc_extra;
-> >>>   }
-> >>>
-> >>> -static struct virtqueue *vring_create_virtqueue_packed(
-> >>> -	unsigned int index,
-> >>> -	unsigned int num,
-> >>> -	unsigned int vring_align,
-> >>> -	struct virtio_device *vdev,
-> >>> -	bool weak_barriers,
-> >>> -	bool may_reduce_num,
-> >>> -	bool context,
-> >>> -	bool (*notify)(struct virtqueue *),
-> >>> -	void (*callback)(struct virtqueue *),
-> >>> -	const char *name)
-> >>> +static void vring_free_vring_packed(struct vring_packed *vring,
-> >>> +				    struct virtio_device *vdev)
-> >>> +{
-> >>> +	dma_addr_t ring_dma_addr, driver_event_dma_addr, device_event_dma_a=
-ddr;
-> >>> +	struct vring_packed_desc_event *driver, *device;
-> >>> +	size_t ring_size_in_bytes, event_size_in_bytes;
-> >>> +	struct vring_packed_desc *ring;
-> >>> +
-> >>> +	ring                  =3D vring->ring;
-> >>> +	driver                =3D vring->driver;
-> >>> +	device                =3D vring->device;
-> >>> +	ring_dma_addr         =3D vring->ring_size_in_bytes;
-> >>> +	event_size_in_bytes   =3D vring->event_size_in_bytes;
-> >>> +	ring_dma_addr         =3D vring->ring_dma_addr;
-> >>> +	driver_event_dma_addr =3D vring->driver_event_dma_addr;
-> >>> +	device_event_dma_addr =3D vring->device_event_dma_addr;
-> >>> +
-> >>> +	if (device)
-> >>> +		vring_free_queue(vdev, event_size_in_bytes, device, device_event_d=
-ma_addr);
-> >>> +
-> >>> +	if (driver)
-> >>> +		vring_free_queue(vdev, event_size_in_bytes, driver, driver_event_d=
-ma_addr);
-> >>> +
-> >>> +	if (ring)
-> >>> +		vring_free_queue(vdev, ring_size_in_bytes, ring, ring_dma_addr);
-> >> ring_size_in_bytes is uninitialized here.
-> >>
-> >> Which begs the question how was this tested patchset generally and
-> >> this patch in particular.
-> >> Please add note on tested configurations and tests run to the patchset.
-> > Sorry, my environment is running in split mode. I did not retest the pa=
-cked mode
-> > before sending patches. Because my dpdk vhost-user is not easy to use, I
-> > need to change the kernel of the host.
-> >
-> > I would like to ask if there are other lightweight environments that ca=
-n be used
-> > to test packed mode.
->
->
-> You can use Qemu's dataplane. It has support for packed virtqueue.
+On 08.03.22 00:18, Linus Torvalds wrote:
+> On Mon, Mar 7, 2022 at 2:52 PM Andreas Gruenbacher <agruenba@redhat.com> wrote:
+>>
+>> After generic_file_read_iter() returns a short or empty read, we fault
+>> in some pages with fault_in_iov_iter_writeable(). This succeeds, but
+>> the next call to generic_file_read_iter() returns -EFAULT and we're
+>> not making any progress.
+> 
+> Since this is s390-specific, I get the very strong feeling that the
+> 
+>   fault_in_iov_iter_writeable ->
+>     fault_in_safe_writeable ->
+>       __get_user_pages_locked ->
+>         __get_user_pages
+> 
+> path somehow successfully finds the page, despite it not being
+> properly accessible in the page tables.
+
+As raised offline already, I suspect
+
+shrink_active_list()
+->page_referenced()
+ ->page_referenced_one()
+  ->ptep_clear_flush_young_notify()
+   ->ptep_clear_flush_young()
+
+which results on s390x in:
+
+static inline pte_t pte_mkold(pte_t pte)
+{
+	pte_val(pte) &= ~_PAGE_YOUNG;
+	pte_val(pte) |= _PAGE_INVALID;
+	return pte;
+}
+
+static inline int ptep_test_and_clear_young(struct vm_area_struct *vma,
+					    unsigned long addr, pte_t *ptep)
+{
+	pte_t pte = *ptep;
+
+	pte = ptep_xchg_direct(vma->vm_mm, addr, ptep, pte_mkold(pte));
+	return pte_young(pte);
+}
 
 
-I thought about it, I feel that the current Qemu's virtio-net seems to have=
- no
-problem if it adds a PACKED feature, so I tried it. I manually added the PA=
-CKED
-feature to Qemu's virtio-net. After I start the vm, run OK. PACKED also
-negotiated successfully. After the test, it is also OK.
+_PAGE_INVALID is the actual HW bit, _PAGE_PRESENT is a
+pure SW bit. AFAIU, pte_present() still holds:
 
-I think virtio-net in Qemu just does not open PACKED, but the implementatio=
-n of
-PACKED is in virtio core, so as long as virtio-net opens PACKED, it will be
-fine. If there is any problem, I hope someone will approve it.
+static inline int pte_present(pte_t pte)
+{
+	/* Bit pattern: (pte & 0x001) == 0x001 */
+	return (pte_val(pte) & _PAGE_PRESENT) != 0;
+}
 
-If my idea is correct, then virtio-net can add a parameter to open PACKED, =
-which
-will be very convenient when testing the packed mode of virtio.
 
-Thanks.
+pte_mkyoung() will revert that action:
 
->
-> Thanks
->
->
-> >
-> >
-> > Thanks.
-> >
-> >
-> >>> +}
-> >>> +
-> >>> +static int vring_create_vring_packed(struct vring_packed *vring,
-> >>> +				    struct virtio_device *vdev,
-> >>> +				    u32 num)
-> >>>   {
-> >>> -	struct vring_virtqueue *vq;
-> >>>   	struct vring_packed_desc *ring;
-> >>>   	struct vring_packed_desc_event *driver, *device;
-> >>>   	dma_addr_t ring_dma_addr, driver_event_dma_addr, device_event_dma_=
-addr;
-> >>>   	size_t ring_size_in_bytes, event_size_in_bytes;
-> >>>
-> >>> +	memset(vring, 0, sizeof(*vring));
-> >>> +
-> >>>   	ring_size_in_bytes =3D num * sizeof(struct vring_packed_desc);
-> >>>
-> >>>   	ring =3D vring_alloc_queue(vdev, ring_size_in_bytes,
-> >>>   				 &ring_dma_addr,
-> >>>   				 GFP_KERNEL|__GFP_NOWARN|__GFP_ZERO);
-> >>>   	if (!ring)
-> >>> -		goto err_ring;
-> >>> +		goto err;
-> >>> +
-> >>> +	vring->num =3D num;
-> >>> +	vring->ring =3D ring;
-> >>> +	vring->ring_size_in_bytes =3D ring_size_in_bytes;
-> >>> +	vring->ring_dma_addr =3D ring_dma_addr;
-> >>>
-> >>>   	event_size_in_bytes =3D sizeof(struct vring_packed_desc_event);
-> >>> +	vring->event_size_in_bytes =3D event_size_in_bytes;
-> >>>
-> >>>   	driver =3D vring_alloc_queue(vdev, event_size_in_bytes,
-> >>>   				   &driver_event_dma_addr,
-> >>>   				   GFP_KERNEL|__GFP_NOWARN|__GFP_ZERO);
-> >>>   	if (!driver)
-> >>> -		goto err_driver;
-> >>> +		goto err;
-> >>> +
-> >>> +	vring->driver =3D driver;
-> >>> +	vring->driver_event_dma_addr =3D driver_event_dma_addr;
-> >>>
-> >>>   	device =3D vring_alloc_queue(vdev, event_size_in_bytes,
-> >>>   				   &device_event_dma_addr,
-> >>>   				   GFP_KERNEL|__GFP_NOWARN|__GFP_ZERO);
-> >>>   	if (!device)
-> >>> -		goto err_device;
-> >>> +		goto err;
-> >>> +
-> >>> +	vring->device =3D device;
-> >>> +	vring->device_event_dma_addr =3D device_event_dma_addr;
-> >>> +	return 0;
-> >>> +
-> >>> +err:
-> >>> +	vring_free_vring_packed(vring, vdev);
-> >>> +	return -ENOMEM;
-> >>> +}
-> >>> +
-> >>> +static struct virtqueue *vring_create_virtqueue_packed(
-> >>> +	unsigned int index,
-> >>> +	unsigned int num,
-> >>> +	unsigned int vring_align,
-> >>> +	struct virtio_device *vdev,
-> >>> +	bool weak_barriers,
-> >>> +	bool may_reduce_num,
-> >>> +	bool context,
-> >>> +	bool (*notify)(struct virtqueue *),
-> >>> +	void (*callback)(struct virtqueue *),
-> >>> +	const char *name)
-> >>> +{
-> >>> +	struct vring_virtqueue *vq;
-> >>> +	struct vring_packed vring;
-> >>> +
-> >>> +	if (vring_create_vring_packed(&vring, vdev, num))
-> >>> +		goto err_vq;
-> >>>
-> >>>   	vq =3D kmalloc(sizeof(*vq), GFP_KERNEL);
-> >>>   	if (!vq)
-> >>> @@ -1753,17 +1821,17 @@ static struct virtqueue *vring_create_virtque=
-ue_packed(
-> >>>   	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
-> >>>   		vq->weak_barriers =3D false;
-> >>>
-> >>> -	vq->packed.ring_dma_addr =3D ring_dma_addr;
-> >>> -	vq->packed.driver_event_dma_addr =3D driver_event_dma_addr;
-> >>> -	vq->packed.device_event_dma_addr =3D device_event_dma_addr;
-> >>> +	vq->packed.ring_dma_addr =3D vring.ring_dma_addr;
-> >>> +	vq->packed.driver_event_dma_addr =3D vring.driver_event_dma_addr;
-> >>> +	vq->packed.device_event_dma_addr =3D vring.device_event_dma_addr;
-> >>>
-> >>> -	vq->packed.ring_size_in_bytes =3D ring_size_in_bytes;
-> >>> -	vq->packed.event_size_in_bytes =3D event_size_in_bytes;
-> >>> +	vq->packed.ring_size_in_bytes =3D vring.ring_size_in_bytes;
-> >>> +	vq->packed.event_size_in_bytes =3D vring.event_size_in_bytes;
-> >>>
-> >>>   	vq->packed.vring.num =3D num;
-> >>> -	vq->packed.vring.desc =3D ring;
-> >>> -	vq->packed.vring.driver =3D driver;
-> >>> -	vq->packed.vring.device =3D device;
-> >>> +	vq->packed.vring.desc =3D vring.ring;
-> >>> +	vq->packed.vring.driver =3D vring.driver;
-> >>> +	vq->packed.vring.device =3D vring.device;
-> >>>
-> >>>   	vq->packed.next_avail_idx =3D 0;
-> >>>   	vq->packed.avail_wrap_counter =3D 1;
-> >>> @@ -1804,12 +1872,7 @@ static struct virtqueue *vring_create_virtqueu=
-e_packed(
-> >>>   err_desc_state:
-> >>>   	kfree(vq);
-> >>>   err_vq:
-> >>> -	vring_free_queue(vdev, event_size_in_bytes, device, device_event_dm=
-a_addr);
-> >>> -err_device:
-> >>> -	vring_free_queue(vdev, event_size_in_bytes, driver, driver_event_dm=
-a_addr);
-> >>> -err_driver:
-> >>> -	vring_free_queue(vdev, ring_size_in_bytes, ring, ring_dma_addr);
-> >>> -err_ring:
-> >>> +	vring_free_vring_packed(&vring, vdev);
-> >>>   	return NULL;
-> >>>   }
-> >>>
-> >>> --
-> >>> 2.31.0
->
+static inline pte_t pte_mkyoung(pte_t pte)
+{
+	pte_val(pte) |= _PAGE_YOUNG;
+	if (pte_val(pte) & _PAGE_READ)
+		pte_val(pte) &= ~_PAGE_INVALID;
+	return pte;
+}
+
+
+and pte_modify() will adjust it properly again:
+
+/*
+ * The following pte modification functions only work if
+ * pte_present() is true. Undefined behaviour if not..
+ */
+static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
+{
+	pte_val(pte) &= _PAGE_CHG_MASK;
+	pte_val(pte) |= pgprot_val(newprot);
+	/*
+	 * newprot for PAGE_NONE, PAGE_RO, PAGE_RX, PAGE_RW and PAGE_RWX
+	 * has the invalid bit set, clear it again for readable, young pages
+	 */
+	if ((pte_val(pte) & _PAGE_YOUNG) && (pte_val(pte) & _PAGE_READ))
+		pte_val(pte) &= ~_PAGE_INVALID;
+	/*
+	 * newprot for PAGE_RO, PAGE_RX, PAGE_RW and PAGE_RWX has the page
+	 * protection bit set, clear it again for writable, dirty pages
+	 */
+	if ((pte_val(pte) & _PAGE_DIRTY) && (pte_val(pte) & _PAGE_WRITE))
+		pte_val(pte) &= ~_PAGE_PROTECT;
+	return pte;
+}
+
+
+
+Which leaves me wondering if there is a way in GUP whereby
+we would lookup that page and not clear _PAGE_INVALID,
+resulting in GUP succeeding but faults via the MMU still
+faulting on _PAGE_INVALID.
+
+
+-- 
+Thanks,
+
+David / dhildenb
+
