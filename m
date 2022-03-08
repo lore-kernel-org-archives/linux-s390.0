@@ -2,137 +2,209 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F884C433EF
-	for <linux-s390@archiver.kernel.org>; Tue,  8 Mar 2022 09:03:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 05196C433EF
+	for <linux-s390@archiver.kernel.org>; Tue,  8 Mar 2022 09:53:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344448AbiCHJEI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 8 Mar 2022 04:04:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56918 "EHLO
+        id S241479AbiCHJyr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 8 Mar 2022 04:54:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237612AbiCHJEH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Mar 2022 04:04:07 -0500
+        with ESMTP id S235300AbiCHJyq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Mar 2022 04:54:46 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA1563CA4F;
-        Tue,  8 Mar 2022 01:03:11 -0800 (PST)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 2286o7NU031477;
-        Tue, 8 Mar 2022 09:03:11 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 096E436691;
+        Tue,  8 Mar 2022 01:53:50 -0800 (PST)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 2289igdF023114;
+        Tue, 8 Mar 2022 09:53:49 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : to : cc : references : from : subject : in-reply-to :
+ mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=jhzbD9JsghYPcWyAD0qVKklr8/WA9pytd1XN5c2eruQ=;
- b=TVXtyA5WWXNgyLbr7Z7r1pjlPrbH31L8UEHeOb/IWIXoA+6A+aG/SDl+56MBt2fPgNps
- M7CPq3WmLTZzen00X7QRStUK9WeHWjhvpBVDAP/hHGWdkJMvUI2bcGHDkAfZVXalHfYf
- mvZaqDj4C+2tNsX8s80YmpKKHyEQcCpGqU2S10Qzm/Ee7370G1uCxTyFtC030pSum0hg
- r2OFdVEzXGp0K39SHDK64iSNKYxdXkJS71c/NoBrsDp1paK8SOPScZ8wKoJtGm68tz6K
- I+GCHE1w94vHpnNnhWz8wDdUlP2+oSs5yikikpkZu4BKuoGHD7dcgHmSupdMVtguiAnA 2g== 
+ bh=vQVV7PfNsJzK58f284nM7Fiw51dcMsHARivNMjKwCOU=;
+ b=MeMbm+Fu3Sy23eAKuHdZjbqQKUMK7vyY/1EAEN6cUlcwJKzKl2NQX79B1hyNKlfL/PHO
+ 7EsTMVEHKT+ca2JaEDj7nloa5nX9J5pPgsN7Vo1w9ai6EcM99/LbT2TdO9Ufp6YHWXI3
+ ySsYCaR3qMUw/7KPgcDgWfRRSTa/c04GVUAgQSm6rOMRdBlSHBv3E+ORY7W98vOgK94Q
+ MEjpxI48/aNMwmPYUFV5h6uveu0RAsTBLtvl65p4fGdiM7yqxUTS1S0LzpGfTFBICjJ3
+ tuQfzxZo4oXSTh0J02K8NKUPeYp/VKzT7f4jmBmRbWCt4HikdR/FQl0ro9LvekMsRkWa fw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3eny1863cp-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3enx3kyy0p-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Mar 2022 09:03:11 +0000
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 2288jUuw015727;
-        Tue, 8 Mar 2022 09:03:10 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3eny1863bw-1
+        Tue, 08 Mar 2022 09:53:49 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 2288mZIg012993;
+        Tue, 8 Mar 2022 09:53:49 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3enx3kyy09-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Mar 2022 09:03:10 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2288voRs005794;
-        Tue, 8 Mar 2022 09:03:08 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma04ams.nl.ibm.com with ESMTP id 3enqgnhjnv-1
+        Tue, 08 Mar 2022 09:53:49 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2289rOQ0017827;
+        Tue, 8 Mar 2022 09:53:46 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma04fra.de.ibm.com with ESMTP id 3ekyg962cn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 08 Mar 2022 09:03:08 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 228935ni53084562
+        Tue, 08 Mar 2022 09:53:46 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2289gYrB23986648
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 8 Mar 2022 09:03:05 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4A405A405B;
-        Tue,  8 Mar 2022 09:03:05 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E4E6FA405F;
-        Tue,  8 Mar 2022 09:03:04 +0000 (GMT)
-Received: from [9.145.44.47] (unknown [9.145.44.47])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue,  8 Mar 2022 09:03:04 +0000 (GMT)
-Message-ID: <c3d36f1b-ed45-a188-15b6-83626355bf24@linux.ibm.com>
-Date:   Tue, 8 Mar 2022 10:03:04 +0100
+        Tue, 8 Mar 2022 09:42:34 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 33D1A11C05B;
+        Tue,  8 Mar 2022 09:53:43 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D630E11C054;
+        Tue,  8 Mar 2022 09:53:42 +0000 (GMT)
+Received: from [9.171.93.186] (unknown [9.171.93.186])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue,  8 Mar 2022 09:53:42 +0000 (GMT)
+Message-ID: <c97d5abe-99d8-971f-eb04-ae86b25dd1f4@de.ibm.com>
+Date:   Tue, 8 Mar 2022 10:53:42 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.5.0
+Subject: Re: [PATCH v1 1/1] KVM: s390x: fix SCK locking
 Content-Language: en-US
-To:     Eric Farman <farman@linux.ibm.com>, Nico Boehr <nrb@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20220303210425.1693486-1-farman@linux.ibm.com>
- <20220303210425.1693486-7-farman@linux.ibm.com>
- <1aa3b683-061d-465a-89fa-2c748719564d@linux.ibm.com>
- <4d7026348507cd51188f0fc6300e7052d99b3747.camel@linux.ibm.com>
- <500af9df424ebe51e513e167b6ae39dabb4b1378.camel@linux.ibm.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-Subject: Re: [PATCH kvm-unit-tests v1 6/6] lib: s390x: smp: Convert remaining
- smp_sigp to _retry
-In-Reply-To: <500af9df424ebe51e513e167b6ae39dabb4b1378.camel@linux.ibm.com>
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, frankja@linux.ibm.com,
+        thuth@redhat.com, mimu@linux.ibm.com
+References: <20220301143340.111129-1-imbrenda@linux.ibm.com>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+In-Reply-To: <20220301143340.111129-1-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 1FeCI2W3qjqPwt7iT3Xsr1vOpWhXS303
-X-Proofpoint-ORIG-GUID: mzz8j3mYWOE2kLESNXi-L7P0SQ-9noEN
+X-Proofpoint-ORIG-GUID: 7U4BUtOMbmqVgD2FuU7gf7sFo5Lx0vnH
+X-Proofpoint-GUID: H6wkK5_miDJOgshZ4FdTx1IpMH3yAQeM
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-03-08_03,2022-03-04_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- adultscore=0 mlxlogscore=999 phishscore=0 mlxscore=0 spamscore=0
- clxscore=1015 priorityscore=1501 impostorscore=0 malwarescore=0
- suspectscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2203080047
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 clxscore=1015
+ impostorscore=0 mlxscore=0 lowpriorityscore=0 phishscore=0 suspectscore=0
+ mlxlogscore=999 priorityscore=1501 spamscore=0 bulkscore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2203080049
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 3/7/22 21:15, Eric Farman wrote:
-> On Mon, 2022-03-07 at 15:42 +0100, Nico Boehr wrote:
->> On Fri, 2022-03-04 at 11:56 +0100, Janosch Frank wrote:
->>> On 3/3/22 22:04, Eric Farman wrote:
->>>> A SIGP SENSE is used to determine if a CPU is stopped or
->>>> operating,
->>>> and thus has a vested interest in ensuring it received a CC0 or
->>>> CC1,
->>>> instead of a CC2 (BUSY). But, any order could receive a CC2
->>>> response,
->>>> and is probably ill-equipped to respond to it.
->>>
->>> sigp sense running status doesn't return a cc2, only sigp sense
->>> does
->>> afaik.
->>> Looking at the KVM implementation tells me that it's not doing more
->>> than
->>> looking at the R bit in the sblk.
->>
->>  From the POP I read _all_ orders may indeed return CC=2: case 1 under
->> "Conditions precluding Interpretation of the Order Code".
->>
->> That being said, there are a few more users of smp_sigp (no retry) in
->> smp.c (the test, not the lib).
->>
->> Does it make sense to fix them aswell?
+Am 01.03.22 um 15:33 schrieb Claudio Imbrenda:
+> When handling the SCK instruction, the kvm lock is taken, even though
+> the vcpu lock is already being held. The normal locking order is kvm
+> lock first and then vcpu lock. This is can (and in some circumstances
+> does) lead to deadlocks.
 > 
-> I thought it made sense to do the lib, since other places expect those
-> things to "just work."
+> The function kvm_s390_set_tod_clock is called both by the SCK handler
+> and by some IOCTLs to set the clock. The IOCTLs will not hold the vcpu
+> lock, so they can safely take the kvm lock. The SCK handler holds the
+> vcpu lock, but will also somehow need to acquire the kvm lock without
+> relinquishing the vcpu lock.
 > 
-> But for the tests themselves, I struggle to convince myself with one
-> path over another. The only way KVM returns a CC2 is because of a
-> concurrent STOP/RESTART, which isn't a possibility because of the
-> waiting the lib itself does when invoking the STOP/RESTART. So should
-> the tests be looking for an unexpected CC2? Or just loop when they
-> occur? If the latter, shouldn't the lib itself do that?
+> The solution is to factor out the code to set the clock, and provide
+> two wrappers. One is called like the original function and does the
+> locking, the other is called kvm_s390_try_set_tod_clock and uses
+> trylock to try to acquire the kvm lock. This new wrapper is then used
+> in the SCK handler. If locking fails, -EAGAIN is returned, which is
+> eventually propagated to userspace, thus also freeing the vcpu lock and
+> allowing for forward progress.
 > 
-> I'm happy to make changes, I just can't decide which it should be. Any
-> opinions?
+> This is not the most efficient or elegant way to solve this issue, but
+> the SCK instruction is deprecated and its performance is not critical.
+> 
+> The goal of this patch is just to provide a simple but correct way to
+> fix the bug.
+> 
+> Fixes: 6a3f95a6b04c ("KVM: s390: Intercept SCK instruction")
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-Before we continue bikeshedding, let's add the cc2 retry. If it never 
-returns cc2 we'll never loop on it but the dead code won't kill us either.
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+
+
+> ---
+>   arch/s390/kvm/kvm-s390.c | 19 ++++++++++++++++---
+>   arch/s390/kvm/kvm-s390.h |  4 ++--
+>   arch/s390/kvm/priv.c     | 14 +++++++++++++-
+>   3 files changed, 31 insertions(+), 6 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 2296b1ff1e02..4e3db4004bfd 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -3869,14 +3869,12 @@ static int kvm_s390_handle_requests(struct kvm_vcpu *vcpu)
+>   	return 0;
+>   }
+>   
+> -void kvm_s390_set_tod_clock(struct kvm *kvm,
+> -			    const struct kvm_s390_vm_tod_clock *gtod)
+> +static void __kvm_s390_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod)
+>   {
+>   	struct kvm_vcpu *vcpu;
+>   	union tod_clock clk;
+>   	unsigned long i;
+>   
+> -	mutex_lock(&kvm->lock);
+>   	preempt_disable();
+>   
+>   	store_tod_clock_ext(&clk);
+> @@ -3897,7 +3895,22 @@ void kvm_s390_set_tod_clock(struct kvm *kvm,
+>   
+>   	kvm_s390_vcpu_unblock_all(kvm);
+>   	preempt_enable();
+> +}
+> +
+> +void kvm_s390_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod)
+> +{
+> +	mutex_lock(&kvm->lock);
+> +	__kvm_s390_set_tod_clock(kvm, gtod);
+> +	mutex_unlock(&kvm->lock);
+> +}
+> +
+> +int kvm_s390_try_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod)
+> +{
+> +	if (!mutex_trylock(&kvm->lock))
+> +		return 0;
+> +	__kvm_s390_set_tod_clock(kvm, gtod);
+>   	mutex_unlock(&kvm->lock);
+> +	return 1;
+>   }
+>   
+>   /**
+> diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+> index 098831e815e6..f2c910763d7f 100644
+> --- a/arch/s390/kvm/kvm-s390.h
+> +++ b/arch/s390/kvm/kvm-s390.h
+> @@ -349,8 +349,8 @@ int kvm_s390_handle_sigp(struct kvm_vcpu *vcpu);
+>   int kvm_s390_handle_sigp_pei(struct kvm_vcpu *vcpu);
+>   
+>   /* implemented in kvm-s390.c */
+> -void kvm_s390_set_tod_clock(struct kvm *kvm,
+> -			    const struct kvm_s390_vm_tod_clock *gtod);
+> +void kvm_s390_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod);
+> +int kvm_s390_try_set_tod_clock(struct kvm *kvm, const struct kvm_s390_vm_tod_clock *gtod);
+>   long kvm_arch_fault_in_page(struct kvm_vcpu *vcpu, gpa_t gpa, int writable);
+>   int kvm_s390_store_status_unloaded(struct kvm_vcpu *vcpu, unsigned long addr);
+>   int kvm_s390_vcpu_store_status(struct kvm_vcpu *vcpu, unsigned long addr);
+> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+> index 417154b314a6..7f3e7990ef82 100644
+> --- a/arch/s390/kvm/priv.c
+> +++ b/arch/s390/kvm/priv.c
+> @@ -102,7 +102,19 @@ static int handle_set_clock(struct kvm_vcpu *vcpu)
+>   		return kvm_s390_inject_prog_cond(vcpu, rc);
+>   
+>   	VCPU_EVENT(vcpu, 3, "SCK: setting guest TOD to 0x%llx", gtod.tod);
+> -	kvm_s390_set_tod_clock(vcpu->kvm, &gtod);
+> +	/*
+> +	 * To set the TOD clock we need to take the kvm lock, but we are
+> +	 * already holding the vcpu lock, and the usual lock order is the
+> +	 * opposite. Therefore we use trylock instead of lock, and if the
+> +	 * kvm lock cannot be taken, we retry the instruction and return
+> +	 * -EAGAIN to userspace, thus freeing the vcpu lock.
+> +	 * The SCK instruction is considered legacy and at this point it's
+> +	 * not worth the effort to find a nicer solution.
+> +	 */
+> +	if (!kvm_s390_try_set_tod_clock(vcpu->kvm, &gtod)) {
+> +		kvm_s390_retry_instr(vcpu);
+> +		return -EAGAIN;
+> +	}
+>   
+>   	kvm_s390_set_psw_cc(vcpu, 0);
+>   	return 0;
