@@ -2,22 +2,22 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9AF39C4332F
-	for <linux-s390@archiver.kernel.org>; Tue,  8 Mar 2022 12:38:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F10A8C4167E
+	for <linux-s390@archiver.kernel.org>; Tue,  8 Mar 2022 12:38:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237088AbiCHMjG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 8 Mar 2022 07:39:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35766 "EHLO
+        id S1346951AbiCHMjJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 8 Mar 2022 07:39:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244331AbiCHMhj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Mar 2022 07:37:39 -0500
-Received: from out199-13.us.a.mail.aliyun.com (out199-13.us.a.mail.aliyun.com [47.90.199.13])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37B1D48395;
-        Tue,  8 Mar 2022 04:36:11 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R451e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=34;SR=0;TI=SMTPD_---0V6eC9VZ_1646742964;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0V6eC9VZ_1646742964)
+        with ESMTP id S1347015AbiCHMhl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Mar 2022 07:37:41 -0500
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A06844754D;
+        Tue,  8 Mar 2022 04:36:19 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04407;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=34;SR=0;TI=SMTPD_---0V6eSqDv_1646742973;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0V6eSqDv_1646742973)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Tue, 08 Mar 2022 20:36:05 +0800
+          Tue, 08 Mar 2022 20:36:14 +0800
 From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To:     virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
 Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
@@ -48,9 +48,9 @@ Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
         linux-um@lists.infradead.org, platform-driver-x86@vger.kernel.org,
         linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, bpf@vger.kernel.org
-Subject: [PATCH v7 21/26] virtio: add helper virtio_find_vqs_ctx_size()
-Date:   Tue,  8 Mar 2022 20:35:13 +0800
-Message-Id: <20220308123518.33800-22-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v7 25/26] virtio_net: set the default max ring size by find_vqs()
+Date:   Tue,  8 Mar 2022 20:35:17 +0800
+Message-Id: <20220308123518.33800-26-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220308123518.33800-1-xuanzhuo@linux.alibaba.com>
 References: <20220308123518.33800-1-xuanzhuo@linux.alibaba.com>
@@ -61,37 +61,122 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Introduce helper virtio_find_vqs_ctx_size() to call find_vqs and specify
-the maximum size of each vq ring.
+Use virtio_find_vqs_ctx_size() to specify the maximum ring size of tx,
+rx at the same time.
+
+                         | rx/tx ring size
+-------------------------------------------
+speed == UNKNOWN or < 10G| 1024
+speed < 40G              | 4096
+speed >= 40G             | 8192
+
+Call virtnet_update_settings() once before calling init_vqs() to update
+speed.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- include/linux/virtio_config.h | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/net/virtio_net.c | 42 ++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 38 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index 5157524d8036..921d8610db0c 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -233,6 +233,18 @@ int virtio_find_vqs_ctx(struct virtio_device *vdev, unsigned nvqs,
- 				      desc, NULL);
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index ffff323dcef0..f1bdc6ce21c3 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -2977,6 +2977,29 @@ static unsigned int mergeable_min_buf_len(struct virtnet_info *vi, struct virtqu
+ 		   (unsigned int)GOOD_PACKET_LEN);
  }
  
-+static inline
-+int virtio_find_vqs_ctx_size(struct virtio_device *vdev, u32 nvqs,
-+				 struct virtqueue *vqs[],
-+				 vq_callback_t *callbacks[],
-+				 const char * const names[],
-+				 const bool *ctx, struct irq_affinity *desc,
-+				 u32 sizes[])
++static void virtnet_config_sizes(struct virtnet_info *vi, u32 *sizes)
 +{
-+	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, ctx,
-+				      desc, sizes);
++	u32 i, rx_size, tx_size;
++
++	if (vi->speed == SPEED_UNKNOWN || vi->speed < SPEED_10000) {
++		rx_size = 1024;
++		tx_size = 1024;
++
++	} else if (vi->speed < SPEED_40000) {
++		rx_size = 1024 * 4;
++		tx_size = 1024 * 4;
++
++	} else {
++		rx_size = 1024 * 8;
++		tx_size = 1024 * 8;
++	}
++
++	for (i = 0; i < vi->max_queue_pairs; i++) {
++		sizes[rxq2vq(i)] = rx_size;
++		sizes[txq2vq(i)] = tx_size;
++	}
 +}
 +
- /**
-  * virtio_reset_vq - reset a queue individually
-  * @vq: the virtqueue
+ static int virtnet_find_vqs(struct virtnet_info *vi)
+ {
+ 	vq_callback_t **callbacks;
+@@ -2984,6 +3007,7 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+ 	int ret = -ENOMEM;
+ 	int i, total_vqs;
+ 	const char **names;
++	u32 *sizes;
+ 	bool *ctx;
+ 
+ 	/* We expect 1 RX virtqueue followed by 1 TX virtqueue, followed by
+@@ -3011,10 +3035,15 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+ 		ctx = NULL;
+ 	}
+ 
++	sizes = kmalloc_array(total_vqs, sizeof(*sizes), GFP_KERNEL);
++	if (!sizes)
++		goto err_sizes;
++
+ 	/* Parameters for control virtqueue, if any */
+ 	if (vi->has_cvq) {
+ 		callbacks[total_vqs - 1] = NULL;
+ 		names[total_vqs - 1] = "control";
++		sizes[total_vqs - 1] = 0;
+ 	}
+ 
+ 	/* Allocate/initialize parameters for send/receive virtqueues */
+@@ -3029,8 +3058,10 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+ 			ctx[rxq2vq(i)] = true;
+ 	}
+ 
+-	ret = virtio_find_vqs_ctx(vi->vdev, total_vqs, vqs, callbacks,
+-				  names, ctx, NULL);
++	virtnet_config_sizes(vi, sizes);
++
++	ret = virtio_find_vqs_ctx_size(vi->vdev, total_vqs, vqs, callbacks,
++				       names, ctx, NULL, sizes);
+ 	if (ret)
+ 		goto err_find;
+ 
+@@ -3050,6 +3081,8 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+ 
+ 
+ err_find:
++	kfree(sizes);
++err_sizes:
+ 	kfree(ctx);
+ err_ctx:
+ 	kfree(names);
+@@ -3368,6 +3401,9 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 		vi->curr_queue_pairs = num_online_cpus();
+ 	vi->max_queue_pairs = max_queue_pairs;
+ 
++	virtnet_init_settings(dev);
++	virtnet_update_settings(vi);
++
+ 	/* Allocate/initialize the rx/tx queues, and invoke find_vqs */
+ 	err = init_vqs(vi);
+ 	if (err)
+@@ -3380,8 +3416,6 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	netif_set_real_num_tx_queues(dev, vi->curr_queue_pairs);
+ 	netif_set_real_num_rx_queues(dev, vi->curr_queue_pairs);
+ 
+-	virtnet_init_settings(dev);
+-
+ 	if (virtio_has_feature(vdev, VIRTIO_NET_F_STANDBY)) {
+ 		vi->failover = net_failover_create(vi->dev);
+ 		if (IS_ERR(vi->failover)) {
 -- 
 2.31.0
 
