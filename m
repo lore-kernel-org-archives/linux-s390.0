@@ -2,54 +2,54 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82367C433F5
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Mar 2022 20:48:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F286FC433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Mar 2022 20:55:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235812AbiCIUt0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 9 Mar 2022 15:49:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51342 "EHLO
+        id S237623AbiCIU4S (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 9 Mar 2022 15:56:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234841AbiCIUtX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Mar 2022 15:49:23 -0500
-Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D867436301
-        for <linux-s390@vger.kernel.org>; Wed,  9 Mar 2022 12:48:23 -0800 (PST)
-Received: by mail-lf1-x12f.google.com with SMTP id bu29so6009165lfb.0
-        for <linux-s390@vger.kernel.org>; Wed, 09 Mar 2022 12:48:23 -0800 (PST)
+        with ESMTP id S235497AbiCIU4S (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Mar 2022 15:56:18 -0500
+Received: from mail-lj1-x236.google.com (mail-lj1-x236.google.com [IPv6:2a00:1450:4864:20::236])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59D37218C
+        for <linux-s390@vger.kernel.org>; Wed,  9 Mar 2022 12:55:18 -0800 (PST)
+Received: by mail-lj1-x236.google.com with SMTP id 25so4961580ljv.10
+        for <linux-s390@vger.kernel.org>; Wed, 09 Mar 2022 12:55:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linux-foundation.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=zGqeo2LtdIlvNqnd6R2s5eetiuT+hRt9mmDkO0Tckbg=;
-        b=PWCsZlVycSx5+VU2FvKPokNaZvFARLZhdR+NloChOOsE5FG1pZlOARqcts3qtbEfiV
-         Jac1mG8KWnbOw9MoSqlVRYlGu7wFIW/+vbmcBNGZj0T73vPlbfb4IVtymATFS/oyXcfM
-         wPhJl5v4zoMSVNsy37CGUm/kJgR6HBdYc0ick=
+        bh=1bcy1f96gz5DOfDjysAb1zu3cyQLaBT/MRqS63v2E8I=;
+        b=HuhGkeK5Ax0l2g8f3/ZOEcuWQLabru0yBo4ttRCDmj0RcqKtz3ZUVaVLY1qklVIkSb
+         sJXJZE4lYyo8vwtAh7nXgTRKAmiM62TiA9y3Vgm4oVeD96UK4y4pIDYlBeHKKACnV0uD
+         rg4f7RRavY66vPc2Rk++aFQ/GGv88Akm6CMX8=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=zGqeo2LtdIlvNqnd6R2s5eetiuT+hRt9mmDkO0Tckbg=;
-        b=v3Ih3N0v44WYdAH/+9NN0I2VxO2ZRjrpsHdcEhH7o6+OcjSjBZEo8XisYALyAPd+WJ
-         UbyvoPdr60R7KcZ7qHPC5BXAsw6D/HCndUrDzBEs4nGVwKvMtMoS3v2Vb9PUOAw+8RTl
-         max8YFt0M+//+kQXoYG6XR62zODQDirtho779Xe80q5qZfSNv5OE5sMAMmdM44HUbdf3
-         FREIBcY2c1kjOKijsJ2WGzYd+AnjMTcKh6WBKB+wIMuxxnVKEQ+kwHAaSurip33Q3IOl
-         G2OTw2NnzBR8DiAtSr1ih+VZtropi1HzgDiLWlN+n7woWq34zi/nsHMoQCH8/K6MfwuZ
-         MVvA==
-X-Gm-Message-State: AOAM531LnrbJQKG7Z6TkYvAnGApa49XWmc0MndkptHRbmbYUR0b9cc5X
-        lB64JbuBZBz5Akd8edNdhNM2yt7WCL4vWWbGAeE=
-X-Google-Smtp-Source: ABdhPJzWgzQkhua/snJWZ7FY2M8x7NgVL7ONFuKzswnF2OAVdkIrQlceKgSIHmAui7QNQrzpMgJSJg==
-X-Received: by 2002:a19:4941:0:b0:445:8fd5:5cea with SMTP id l1-20020a194941000000b004458fd55ceamr884791lfj.179.1646858901600;
-        Wed, 09 Mar 2022 12:48:21 -0800 (PST)
-Received: from mail-lf1-f53.google.com (mail-lf1-f53.google.com. [209.85.167.53])
-        by smtp.gmail.com with ESMTPSA id bt23-20020a056512261700b0044400161095sm578065lfb.168.2022.03.09.12.48.19
+        bh=1bcy1f96gz5DOfDjysAb1zu3cyQLaBT/MRqS63v2E8I=;
+        b=MmiW22+2w2xCj1m5oq+TzdxBU0UEhO3Q4xCl5R5w0JeaqhQibRbsBlbqdrZz2a9lD8
+         VgZDxd+snaTzU/hXKLGAiQynAqfXm39ENxOsxTkLZyGs8eIxpZ8aH0BNcNMV9te1q4BC
+         oynZKX/X+th3G508J74lm3otq+pwG8a1j482+6PUy9CDuj89J2enMP0I45kHySBoCkv5
+         tBOXN+iSHyj/l2epgwOJmR9d5KNPNxlD82/TModjveKMKBRG6ATN5zsygfAG6ahPGGJj
+         ARc0Odhuhh066yEJFlryarW6VCIq1VtAP9Mqfnuzvkev9mdzFQLZf3KBaq0U1+Rdsb3E
+         22qA==
+X-Gm-Message-State: AOAM530EL7xKTrEcYduUL1xQtcJUjv6TanoqHh9xQrcpznK+kcdQcRXn
+        Osf9SCpzCDDsxEU8WPQQK6x0NOPNcr2W9MZxi5M=
+X-Google-Smtp-Source: ABdhPJy9Q1gsXKa0PpJBXngowrqOfrjk68QhqPxvNMaditDKYeQBeybPEmbzJtelDHcHaV+zs6ML+Q==
+X-Received: by 2002:a2e:a547:0:b0:247:e1ba:1fd with SMTP id e7-20020a2ea547000000b00247e1ba01fdmr866025ljn.440.1646859316465;
+        Wed, 09 Mar 2022 12:55:16 -0800 (PST)
+Received: from mail-lj1-f177.google.com (mail-lj1-f177.google.com. [209.85.208.177])
+        by smtp.gmail.com with ESMTPSA id b15-20020ac2562f000000b004437f2667bfsm576676lff.308.2022.03.09.12.55.12
         for <linux-s390@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 09 Mar 2022 12:48:19 -0800 (PST)
-Received: by mail-lf1-f53.google.com with SMTP id r7so5917954lfc.4
-        for <linux-s390@vger.kernel.org>; Wed, 09 Mar 2022 12:48:19 -0800 (PST)
-X-Received: by 2002:ac2:41cf:0:b0:448:1eaa:296c with SMTP id
- d15-20020ac241cf000000b004481eaa296cmr917150lfi.52.1646858899041; Wed, 09 Mar
- 2022 12:48:19 -0800 (PST)
+        Wed, 09 Mar 2022 12:55:12 -0800 (PST)
+Received: by mail-lj1-f177.google.com with SMTP id v28so4948806ljv.9
+        for <linux-s390@vger.kernel.org>; Wed, 09 Mar 2022 12:55:12 -0800 (PST)
+X-Received: by 2002:a05:651c:19a9:b0:247:e199:4364 with SMTP id
+ bx41-20020a05651c19a900b00247e1994364mr896569ljb.164.1646859312017; Wed, 09
+ Mar 2022 12:55:12 -0800 (PST)
 MIME-Version: 1.0
 References: <CAHc6FU5nP+nziNGG0JAF1FUx-GV7kKFvM7aZuU_XD2_1v4vnvg@mail.gmail.com>
  <CAHk-=wgmCuuJdf96WiT6WXzQQTEeSK=cgBy24J4U9V2AvK4KdQ@mail.gmail.com>
@@ -61,12 +61,13 @@ References: <CAHc6FU5nP+nziNGG0JAF1FUx-GV7kKFvM7aZuU_XD2_1v4vnvg@mail.gmail.com>
  <CAHk-=whaoxuCPg4foD_4VBVr+LVgmW7qScjYFRppvHqnni0EMA@mail.gmail.com>
  <20220309184238.1583093-1-agruenba@redhat.com> <CAHk-=wixOLK1Xp-LKhqEWEh3SxGak_ziwR0_fi8uMzY5ZYBzbg@mail.gmail.com>
  <CAHc6FU6aqqYO4d5x3=73bxr+9yfL6CLJeGGzFwCZCy9wzApgwQ@mail.gmail.com>
- <CAHk-=wj4Av2gecvTfExCq-d2cXx0m7fdO0sG6JC1DxdCCDT7ig@mail.gmail.com> <CAHc6FU4uzG+HR1doK5p+6kVW9GS0JGbCrbZnAvBhWuLZe8DGUw@mail.gmail.com>
-In-Reply-To: <CAHc6FU4uzG+HR1doK5p+6kVW9GS0JGbCrbZnAvBhWuLZe8DGUw@mail.gmail.com>
+ <CAHk-=wj4Av2gecvTfExCq-d2cXx0m7fdO0sG6JC1DxdCCDT7ig@mail.gmail.com>
+ <CAHc6FU4uzG+HR1doK5p+6kVW9GS0JGbCrbZnAvBhWuLZe8DGUw@mail.gmail.com> <CAHk-=whycC7kUa=_CiDr9pPpPp8g+9u7kKe1ssSsgGGkhBTvVg@mail.gmail.com>
+In-Reply-To: <CAHk-=whycC7kUa=_CiDr9pPpPp8g+9u7kKe1ssSsgGGkhBTvVg@mail.gmail.com>
 From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Wed, 9 Mar 2022 12:48:02 -0800
-X-Gmail-Original-Message-ID: <CAHk-=whycC7kUa=_CiDr9pPpPp8g+9u7kKe1ssSsgGGkhBTvVg@mail.gmail.com>
-Message-ID: <CAHk-=whycC7kUa=_CiDr9pPpPp8g+9u7kKe1ssSsgGGkhBTvVg@mail.gmail.com>
+Date:   Wed, 9 Mar 2022 12:54:55 -0800
+X-Gmail-Original-Message-ID: <CAHk-=wh+U6SkJtNeWCJBaKv31dQALfXn_jCSo9=o5p-_==bBrA@mail.gmail.com>
+Message-ID: <CAHk-=wh+U6SkJtNeWCJBaKv31dQALfXn_jCSo9=o5p-_==bBrA@mail.gmail.com>
 Subject: Re: Buffered I/O broken on s390x with page faults disabled (gfs2)
 To:     Andreas Gruenbacher <agruenba@redhat.com>
 Cc:     Catalin Marinas <catalin.marinas@arm.com>,
@@ -81,32 +82,36 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Mar 9, 2022 at 12:37 PM Andreas Gruenbacher <agruenba@redhat.com> wrote:
+On Wed, Mar 9, 2022 at 12:48 PM Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
 >
-> It's a moot point now, but I don't think handle_mm_fault would have
-> returned VM_FAULT_RETRY without FAULT_FLAG_ALLOW_RETRY, so there
-> wouldn't have been any NULL pointer accesses.
+> Basically FAULT_FLAG_KILLABLE implies a kind of "half-way ALLOW_RETRY"
+> - allow aborting, but only for the fatal signal case.
 
-No, it really does - FAULT_FLAG_KILLABLE will trigger the code in
-page_lock_or_retry() (->__folio_lock_or_retry) even without
-FAULT_FLAG_ALLOW_RETRY.
+Side note: I'm not saying this is a *good* thing - it is very
+confusing - but it's due to historical reasons where architectures
+ended up getting these features incrementally.
 
-So lock_page_or_retry() will drop the mmap_sem and return false, and
-then you have
+So FAULT_FLAG_KILLABLE was one such half-way step, where you could
+abort things without actually retrying them, because a fatal signal
+could be handled without then repeating things.
 
-        locked = lock_page_or_retry(page, vma->vm_mm, vmf->flags);
+These days, I think all architectures have converted their actual
+fault handling to the full "retry/abort/error/success" spectrum, but
+then you still have other uses of handle_mm_fault() that may not be
+willing to have mmap_sem be dropped in the middle of operations
+because they keep a 'vma' list around or something like that.
 
-        if (!locked) {
-                ret |= VM_FAULT_RETRY;
-                goto out_release;
-        }
+And then FAULT_FLAG_KILLABLE can still be a good way to say "ok, I'm
+willing to _abort_ things entirely, but you can't drop the mmap sem
+and ask me to recover if it's not fatal".
 
-for the swapin case.
+And this is all entirely due to historical behavior, since
+_originally_ handle_mm_fault() wouldn't ever drop mmap_sem at all.
+These days it would probably be simpler to *not* have all these
+complicated special cases, and just say that FAULT_FLAG_ALLOW_RETRY is
+always true.
 
-And mm/filemap.c has essentially the same logic in
-lock_folio_maybe_drop_mmap(), although the syntax is quite different.
+But then somebody would have to walk through every user to make sure it's ok...
 
-Basically FAULT_FLAG_KILLABLE implies a kind of "half-way ALLOW_RETRY"
-- allow aborting, but only for the fatal signal case.
-
-                  Linus
+           Linus
