@@ -2,297 +2,253 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24280C43219
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Mar 2022 18:19:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E716C433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Mar 2022 18:43:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234859AbiCISUC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 9 Mar 2022 13:20:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52890 "EHLO
+        id S231269AbiCISn5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 9 Mar 2022 13:43:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235852AbiCISUB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Mar 2022 13:20:01 -0500
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CE2751E5D
-        for <linux-s390@vger.kernel.org>; Wed,  9 Mar 2022 10:19:01 -0800 (PST)
-Received: by mail-pl1-x629.google.com with SMTP id q11so2661262pln.11
-        for <linux-s390@vger.kernel.org>; Wed, 09 Mar 2022 10:19:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=b+36kVZ1eH5PrAKCZPHq/6t1l0kSLjZrSsqHo52p/gc=;
-        b=YaAM0kKpKNyog0nOM4LpTWfxvQm7eBvZSmTf372GHlXkpbn5Wfh+vAnoVJ64RDuxqO
-         o3ji8HtjLIPYxZyh3iPoWAi0ZHCiIjgaPKxSHS7e4+aFV8bm7fY6XfzGY1MsxTOLlDn4
-         d6oLZtBuRYyC/QaCRgw0VjP9vbMFblCt0ZTeIOs11T5PCRs/XH01lfT32h+Fg5MsJACT
-         IVWqu+V/cnikT6a6J8wgg6wRbL5MS5wmbwxKOt/BgJpiCfHFG5RFrvZ+ELO253RguktB
-         VEaIeuorazetYhtnji7l/TL16TYMuuy2og4r3ur66Guy6lMh40xCGZDTR/54bXtRjWWv
-         60Og==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=b+36kVZ1eH5PrAKCZPHq/6t1l0kSLjZrSsqHo52p/gc=;
-        b=XZQ3M6qPhuGs0KqX2FKavbDySgd3gvvJmirIs4LZ0j9FhnKNZMtQmoFmjSsZJ6vIcz
-         geVwWZIX7HcnRHHcts/utX8NYAS82vw5KIPdoQdlTnKOrfUV7oPy3t+Mk7t9UbouCo2l
-         jUzuEOBI6d/UydFjhBvsZzmhOtC8R+p0Ai5rQYtycheyIETdt/2MR92c+ao2h6tX/wtD
-         ib55o91v2Rx5eVMEHwcRabLDpks735AVDNo3L6vT/FqFotnFQmhDXrxCkHgrDv9dk7YN
-         1LK9d0jvyAbqtysfK2zGB1w8XqfBGnbNUYtesq/A9cnpByqEV8reK6zzh5iA7QiTe0Qc
-         J4Aw==
-X-Gm-Message-State: AOAM532n8VAfNfh0phjFaQ1W7+tSbgmADrRbpWdNkWcrabge+kj8Wm+S
-        Nq8XbJnVgC2r5HXi86m7/kfuIg==
-X-Google-Smtp-Source: ABdhPJxUJ6DmW4ZhilNw+HZY2kVwYjGWFeIawYHJDlOcnrsGSJmPBnG2yQNz2rWEiRM35qcfGa3+yQ==
-X-Received: by 2002:a17:90a:c68c:b0:1bf:a7c9:957a with SMTP id n12-20020a17090ac68c00b001bfa7c9957amr738367pjt.177.1646849940523;
-        Wed, 09 Mar 2022 10:19:00 -0800 (PST)
-Received: from p14s (S0106889e681aac74.cg.shawcable.net. [68.147.0.187])
-        by smtp.gmail.com with ESMTPSA id d2-20020a056a0010c200b004f102a13040sm3834120pfu.19.2022.03.09.10.18.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Mar 2022 10:18:58 -0800 (PST)
-Date:   Wed, 9 Mar 2022 11:18:55 -0700
-From:   Mathieu Poirier <mathieu.poirier@linaro.org>
-To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc:     virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
-        Jeff Dike <jdike@addtoit.com>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mark Gross <markgross@kernel.org>,
-        Vadim Pasternak <vadimp@nvidia.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jesper Dangaard Brouer <hawk@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        linux-um@lists.infradead.org, platform-driver-x86@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, bpf@vger.kernel.org
-Subject: Re: [PATCH v7 18/26] virtio: find_vqs() add arg sizes
-Message-ID: <20220309181855.GA1983245@p14s>
-References: <20220308123518.33800-1-xuanzhuo@linux.alibaba.com>
- <20220308123518.33800-19-xuanzhuo@linux.alibaba.com>
+        with ESMTP id S236739AbiCISnw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Mar 2022 13:43:52 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3B4E31903C0
+        for <linux-s390@vger.kernel.org>; Wed,  9 Mar 2022 10:42:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1646851372;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=EiYo1sQ+iyTxNxBo5i2JTVVNprtfKtFAyovPZOOp01o=;
+        b=fVvjRLiWLLYG9x8a5q6OnaW2Pc/+auIgx1ztYmd82PcIcxIQWdMW7/ANolIRPXeCj06oxA
+        CcjdxxcSJJlPzHgOBTD15hMa5m8kERvD+cBC2IgWgSp9/kaAG45aSkd0ful/zeEnbU0Ohj
+        RGh37s5yCLurYgIpqv/MtMQax+0XfTA=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-622-R6LYSyqyP3ineM-H9bcLww-1; Wed, 09 Mar 2022 13:42:47 -0500
+X-MC-Unique: R6LYSyqyP3ineM-H9bcLww-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E72C02F27;
+        Wed,  9 Mar 2022 18:42:45 +0000 (UTC)
+Received: from max.com (unknown [10.40.192.17])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 524F28EEB7;
+        Wed,  9 Mar 2022 18:42:40 +0000 (UTC)
+From:   Andreas Gruenbacher <agruenba@redhat.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Andreas Gruenbacher <agruenba@redhat.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Linux-MM <linux-mm@kvack.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        linux-btrfs <linux-btrfs@vger.kernel.org>
+Subject: Re: Buffered I/O broken on s390x with page faults disabled (gfs2)
+Date:   Wed,  9 Mar 2022 19:42:38 +0100
+Message-Id: <20220309184238.1583093-1-agruenba@redhat.com>
+In-Reply-To: <CAHk-=whaoxuCPg4foD_4VBVr+LVgmW7qScjYFRppvHqnni0EMA@mail.gmail.com>
+References: <CAHc6FU5nP+nziNGG0JAF1FUx-GV7kKFvM7aZuU_XD2_1v4vnvg@mail.gmail.com> <CAHk-=wgmCuuJdf96WiT6WXzQQTEeSK=cgBy24J4U9V2AvK4KdQ@mail.gmail.com> <bcafacea-7e67-405c-a969-e5a58a3c727e@redhat.com> <CAHk-=wh1WJ-s9Gj15yFciq6TOd9OOsE7H=R7rRskdRP6npDktQ@mail.gmail.com> <CAHk-=wjHsQywXgNe9D+MQCiMhpyB2Gs5M78CGCpTr9BSeP71bw@mail.gmail.com> <CAHk-=wjs2Jf3LzqCPmfkXd=ULPyCrrGEF7rR6TYzz1RPF+qh3Q@mail.gmail.com> <CAHk-=wi1jrn=sds1doASepf55-wiBEiQ_z6OatOojXj6Gtntyg@mail.gmail.com> <CAHc6FU6L8c9UCJF_qcqY=USK_CqyKnpDSJvrAGput=62h0djDw@mail.gmail.com> <CAHk-=whaoxuCPg4foD_4VBVr+LVgmW7qScjYFRppvHqnni0EMA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220308123518.33800-19-xuanzhuo@linux.alibaba.com>
+Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Mar 08, 2022 at 08:35:10PM +0800, Xuan Zhuo wrote:
-> find_vqs() adds a new parameter sizes to specify the size of each vq
-> vring.
-> 
-> 0 means use the maximum size supported by the backend.
-> 
-> In the split scenario, the meaning of size is the largest size, because
-> it may be limited by memory, the virtio core will try a smaller size.
-> And the size is power of 2.
-> 
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> ---
->  arch/um/drivers/virtio_uml.c             |  2 +-
->  drivers/platform/mellanox/mlxbf-tmfifo.c |  3 ++-
->  drivers/remoteproc/remoteproc_virtio.c   |  2 +-
+On Wed, Mar 9, 2022 at 1:22 AM Linus Torvalds <torvalds@linux-foundation.or=
+g> wrote:=0D
+> On Tue, Mar 8, 2022 at 3:25 PM Andreas Gruenbacher <agruenba@redhat.com> =
+wrote:=0D
+> >=0D
+> > Seems to be working on s390x for this test case at least; the kind of=0D
+> > trace I'm getting is:=0D
+>=0D
+> Good.=0D
+>=0D
+> > This shows bursts of successful fault-ins in gfs2_file_read_iter=0D
+> > (read_fault). The pauses in between might be caused by the storage;=0D
+> > I'm not sure.=0D
+>=0D
+> Don't know about the pauses, but the burst size might be impacted by that=
+=0D
+>=0D
+> + =C2=A0 =C2=A0 =C2=A0 const size_t max_size =3D 4 * PAGE_SIZE;=0D
+>=0D
+> thing that limits how many calls to fixup_user_fault() we do per=0D
+> fault_in_safe_writeable().=0D
+>=0D
+> So it might be worth checking if that value seems to make any difference.=
+=0D
+>=0D
+> > I'd still let the caller of fault_in_safe_writeable() decide how much=0D
+> > memory to fault in; the tight cap in fault_in_safe_writeable() doesn't=
+=0D
+> > seem useful.=0D
+>=0D
+> Well, there are real latency concerns there - fixup_user_fault() is=0D
+> not necessarily all that low-cost.=0D
+=0D
+I just don't know if making the GUP based approach work instead of=0D
+switching to fixup_user_fault(), or introducing something else, would=0D
+make enough of a performance difference to be worth it.=0D
+=0D
+> And it's actually going to be worse when we have the sub-page coloring=0D
+> issues happening, and will need to probe at a 128-byte granularity=0D
+> (not on s390, but on arm64).=0D
+>=0D
+> At that point, we almost certainly will need to have a "probe user=0D
+> space non-destructibly for writability" instruction (possibly=0D
+> extending on our current arch_futex_atomic_op_inuser()=0D
+> infrastructure).=0D
+=0D
+Let me add Catalin Marinas to the CC.=0D
+=0D
+From what I took from the previous discussion, probing at a sub-page=0D
+granularity won't be necessary for bytewise copying: when the address=0D
+we're trying to access is poisoned, fault_in_*() will fail; when we get=0D
+a short result, that will take us to the poisoned address in the next=0D
+iteration.=0D
+=0D
+The problematic case was copying objects that cross fault domains, when=0D
+we're getting an all-or-nothing result back from the copying and the=0D
+address we're trying to fault_in_*() isn't the address of the actual=0D
+fault.  The fix for those cases is to pass back the address of the=0D
+actual fault in one way or another.=0D
+=0D
+> So honestly, if you do IO on areas that will get page faults on them,=0D
+> to some degree it's a "you are doing something stupid, you get what=0D
+> you deserve". This code should _work_, it should not have to worry=0D
+> about users having bad patterns (where "read data into huge cold=0D
+> mappings under enough memory pressure that it causes access bit faults=0D
+> in the middle of the read" very much counts as such a bad pattern).=0D
+=0D
+With a large enough buffer, a simple malloc() will return unmapped=0D
+pages, and reading into such a buffer will result in fault-in.  So page=0D
+faults during read() are actually pretty normal, and it's not the user's=0D
+fault.=0D
+=0D
+In my test case, the buffer was pre-initialized with memset() to avoid=0D
+those kinds of page faults, which meant that the page faults in=0D
+gfs2_file_read_iter() only started to happen when we were out of memory.=0D
+But that's not the common case.=0D
+=0D
+> > Also, you want to put in an extra L here:=0D
+> > > Signed-off-by: linus Torvalds <torvalds@linux-foundation.org>=0D
+>=0D
+> Heh. Fixed locally.=0D
+=0D
+Attached is a revised patch; only lightly tested so far.  Changes:=0D
+=0D
+* Fix the function description.=0D
+=0D
+* No need for untagged_addr() as that is handled in fixup_user_fault().=0D
+=0D
+* Get rid of max_size: it really makes no sense to second-guess what the=0D
+  caller needs.  In cases where fault_in_safe_writeable() is used for=0D
+  buffers larger than a handful of pages, it is entirely the caller's=0D
+  responsibility to scale back the fault-in size in anticipation of or=0D
+  in reaction to page-out.=0D
+=0D
+* Use the same control flow as in fault_in_readable(); there is no=0D
+  need for anything more complicated anymore.=0D
+=0D
+* The same patch description still applies.=0D
+=0D
+Thanks,=0D
+Andreas=0D
+=0D
+diff --git a/mm/gup.c b/mm/gup.c=0D
+index f1bf3a1f6d109..5e777049bdf41 100644=0D
+--- a/mm/gup.c=0D
++++ b/mm/gup.c=0D
+@@ -1841,9 +1841,9 @@ EXPORT_SYMBOL(fault_in_writeable);=0D
+  * @uaddr: start of address range=0D
+  * @size: length of address range=0D
+  *=0D
+- * Faults in an address range using get_user_pages, i.e., without triggeri=
+ng=0D
+- * hardware page faults.  This is primarily useful when we already know th=
+at=0D
+- * some or all of the pages in the address range aren't in memory.=0D
++ * Faults in an address range for writing.  This is primarily useful when =
+we=0D
++ * already know that some or all of the pages in the address range aren't =
+in=0D
++ * memory.=0D
+  *=0D
+  * Other than fault_in_writeable(), this function is non-destructive.=0D
+  *=0D
+@@ -1856,46 +1856,33 @@ EXPORT_SYMBOL(fault_in_writeable);=0D
+  */=0D
+ size_t fault_in_safe_writeable(const char __user *uaddr, size_t size)=0D
+ {=0D
+-	unsigned long start =3D (unsigned long)untagged_addr(uaddr);=0D
+-	unsigned long end, nstart, nend;=0D
++	const unsigned int fault_flags =3D FAULT_FLAG_WRITE | FAULT_FLAG_KILLABLE=
+;=0D
++	unsigned long start =3D (unsigned long)uaddr, end;=0D
+ 	struct mm_struct *mm =3D current->mm;=0D
+-	struct vm_area_struct *vma =3D NULL;=0D
+-	int locked =3D 0;=0D
+ =0D
+-	nstart =3D start & PAGE_MASK;=0D
++	if (unlikely(size =3D=3D 0))=0D
++		return 0;=0D
+ 	end =3D PAGE_ALIGN(start + size);=0D
+-	if (end < nstart)=0D
++	if (end < start)=0D
+ 		end =3D 0;=0D
+-	for (; nstart !=3D end; nstart =3D nend) {=0D
+-		unsigned long nr_pages;=0D
+-		long ret;=0D
+ =0D
+-		if (!locked) {=0D
+-			locked =3D 1;=0D
+-			mmap_read_lock(mm);=0D
+-			vma =3D find_vma(mm, nstart);=0D
+-		} else if (nstart >=3D vma->vm_end)=0D
+-			vma =3D vma->vm_next;=0D
+-		if (!vma || vma->vm_start >=3D end)=0D
+-			break;=0D
+-		nend =3D end ? min(end, vma->vm_end) : vma->vm_end;=0D
+-		if (vma->vm_flags & (VM_IO | VM_PFNMAP))=0D
+-			continue;=0D
+-		if (nstart < vma->vm_start)=0D
+-			nstart =3D vma->vm_start;=0D
+-		nr_pages =3D (nend - nstart) / PAGE_SIZE;=0D
+-		ret =3D __get_user_pages_locked(mm, nstart, nr_pages,=0D
+-					      NULL, NULL, &locked,=0D
+-					      FOLL_TOUCH | FOLL_WRITE);=0D
+-		if (ret <=3D 0)=0D
+-			break;=0D
+-		nend =3D nstart + ret * PAGE_SIZE;=0D
++	mmap_read_lock(mm);=0D
++	if (!PAGE_ALIGNED(start)) {=0D
++		if (fixup_user_fault(mm, start, fault_flags, NULL))=0D
++			return size;=0D
++		start =3D PAGE_ALIGN(start);=0D
+ 	}=0D
+-	if (locked)=0D
+-		mmap_read_unlock(mm);=0D
+-	if (nstart =3D=3D end)=0D
+-		return 0;=0D
+-	return size - min_t(size_t, nstart - start, size);=0D
++	while (start !=3D end) {=0D
++		if (fixup_user_fault(mm, start, fault_flags, NULL))=0D
++			goto out;=0D
++		start +=3D PAGE_SIZE;=0D
++	}=0D
++	mmap_read_unlock(mm);=0D
++=0D
++out:=0D
++	if (size > (unsigned long)uaddr - start)=0D
++		return size - ((unsigned long)uaddr - start);=0D
++	return 0;=0D
+ }=0D
+ EXPORT_SYMBOL(fault_in_safe_writeable);=0D
+ =0D
 
-For the remoteproc changes:
-
-Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-
->  drivers/s390/virtio/virtio_ccw.c         |  2 +-
->  drivers/virtio/virtio_mmio.c             |  2 +-
->  drivers/virtio/virtio_pci_common.c       |  2 +-
->  drivers/virtio/virtio_pci_common.h       |  2 +-
->  drivers/virtio/virtio_pci_modern.c       |  5 +++--
->  drivers/virtio/virtio_vdpa.c             |  2 +-
->  include/linux/virtio_config.h            | 11 +++++++----
->  10 files changed, 19 insertions(+), 14 deletions(-)
-> 
-> diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
-> index ba562d68dc04..055b91ccbe8a 100644
-> --- a/arch/um/drivers/virtio_uml.c
-> +++ b/arch/um/drivers/virtio_uml.c
-> @@ -998,7 +998,7 @@ static struct virtqueue *vu_setup_vq(struct virtio_device *vdev,
->  static int vu_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  		       struct virtqueue *vqs[], vq_callback_t *callbacks[],
->  		       const char * const names[], const bool *ctx,
-> -		       struct irq_affinity *desc)
-> +		       struct irq_affinity *desc, u32 sizes[])
->  {
->  	struct virtio_uml_device *vu_dev = to_virtio_uml_device(vdev);
->  	int i, queue_idx = 0, rc;
-> diff --git a/drivers/platform/mellanox/mlxbf-tmfifo.c b/drivers/platform/mellanox/mlxbf-tmfifo.c
-> index 38800e86ed8a..aea7aa218b22 100644
-> --- a/drivers/platform/mellanox/mlxbf-tmfifo.c
-> +++ b/drivers/platform/mellanox/mlxbf-tmfifo.c
-> @@ -929,7 +929,8 @@ static int mlxbf_tmfifo_virtio_find_vqs(struct virtio_device *vdev,
->  					vq_callback_t *callbacks[],
->  					const char * const names[],
->  					const bool *ctx,
-> -					struct irq_affinity *desc)
-> +					struct irq_affinity *desc,
-> +					u32 sizes[])
->  {
->  	struct mlxbf_tmfifo_vdev *tm_vdev = mlxbf_vdev_to_tmfifo(vdev);
->  	struct mlxbf_tmfifo_vring *vring;
-> diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
-> index 70ab496d0431..3a167bec5b09 100644
-> --- a/drivers/remoteproc/remoteproc_virtio.c
-> +++ b/drivers/remoteproc/remoteproc_virtio.c
-> @@ -157,7 +157,7 @@ static int rproc_virtio_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
->  				 vq_callback_t *callbacks[],
->  				 const char * const names[],
->  				 const bool * ctx,
-> -				 struct irq_affinity *desc)
-> +				 struct irq_affinity *desc, u32 sizes[])
->  {
->  	int i, ret, queue_idx = 0;
->  
-> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> index d35e7a3f7067..b74e08c71534 100644
-> --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -632,7 +632,7 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  			       vq_callback_t *callbacks[],
->  			       const char * const names[],
->  			       const bool *ctx,
-> -			       struct irq_affinity *desc)
-> +			       struct irq_affinity *desc, u32 sizes[])
->  {
->  	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
->  	unsigned long *indicatorp = NULL;
-> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> index a41abc8051b9..55d575f6ef2d 100644
-> --- a/drivers/virtio/virtio_mmio.c
-> +++ b/drivers/virtio/virtio_mmio.c
-> @@ -462,7 +462,7 @@ static int vm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  		       vq_callback_t *callbacks[],
->  		       const char * const names[],
->  		       const bool *ctx,
-> -		       struct irq_affinity *desc)
-> +		       struct irq_affinity *desc, u32 sizes[])
->  {
->  	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
->  	int irq = platform_get_irq(vm_dev->pdev, 0);
-> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-> index 863d3a8a0956..8e8fa7e5ad80 100644
-> --- a/drivers/virtio/virtio_pci_common.c
-> +++ b/drivers/virtio/virtio_pci_common.c
-> @@ -428,7 +428,7 @@ static int vp_find_vqs_intx(struct virtio_device *vdev, unsigned nvqs,
->  int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  		struct virtqueue *vqs[], vq_callback_t *callbacks[],
->  		const char * const names[], const bool *ctx,
-> -		struct irq_affinity *desc)
-> +		struct irq_affinity *desc, u32 sizes[])
->  {
->  	int err;
->  
-> diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
-> index 23f6c5c678d5..9dbf1d555dff 100644
-> --- a/drivers/virtio/virtio_pci_common.h
-> +++ b/drivers/virtio/virtio_pci_common.h
-> @@ -114,7 +114,7 @@ void vp_del_vqs(struct virtio_device *vdev);
->  int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  		struct virtqueue *vqs[], vq_callback_t *callbacks[],
->  		const char * const names[], const bool *ctx,
-> -		struct irq_affinity *desc);
-> +		struct irq_affinity *desc, u32 sizes[]);
->  const char *vp_bus_name(struct virtio_device *vdev);
->  
->  /* Setup the affinity for a virtqueue:
-> diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-> index 3c67d3607802..342795175c29 100644
-> --- a/drivers/virtio/virtio_pci_modern.c
-> +++ b/drivers/virtio/virtio_pci_modern.c
-> @@ -343,11 +343,12 @@ static int vp_modern_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  			      struct virtqueue *vqs[],
->  			      vq_callback_t *callbacks[],
->  			      const char * const names[], const bool *ctx,
-> -			      struct irq_affinity *desc)
-> +			      struct irq_affinity *desc, u32 sizes[])
->  {
->  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
->  	struct virtqueue *vq;
-> -	int rc = vp_find_vqs(vdev, nvqs, vqs, callbacks, names, ctx, desc);
-> +	int rc = vp_find_vqs(vdev, nvqs, vqs, callbacks, names, ctx, desc,
-> +			     sizes);
->  
->  	if (rc)
->  		return rc;
-> diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
-> index 7767a7f0119b..ee08d01ee8b1 100644
-> --- a/drivers/virtio/virtio_vdpa.c
-> +++ b/drivers/virtio/virtio_vdpa.c
-> @@ -268,7 +268,7 @@ static int virtio_vdpa_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  				vq_callback_t *callbacks[],
->  				const char * const names[],
->  				const bool *ctx,
-> -				struct irq_affinity *desc)
-> +				struct irq_affinity *desc, u32 sizes[])
->  {
->  	struct virtio_vdpa_device *vd_dev = to_virtio_vdpa_device(vdev);
->  	struct vdpa_device *vdpa = vd_get_vdpa(vdev);
-> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> index 0b81fbe17c85..5157524d8036 100644
-> --- a/include/linux/virtio_config.h
-> +++ b/include/linux/virtio_config.h
-> @@ -57,6 +57,7 @@ struct virtio_shm_region {
->   *		include a NULL entry for vqs that do not need a callback
->   *	names: array of virtqueue names (mainly for debugging)
->   *		include a NULL entry for vqs unused by driver
-> + *	sizes: array of virtqueue sizes
->   *	Returns 0 on success or error status
->   * @del_vqs: free virtqueues found by find_vqs().
->   * @get_features: get the array of feature bits for this device.
-> @@ -98,7 +99,8 @@ struct virtio_config_ops {
->  	int (*find_vqs)(struct virtio_device *, unsigned nvqs,
->  			struct virtqueue *vqs[], vq_callback_t *callbacks[],
->  			const char * const names[], const bool *ctx,
-> -			struct irq_affinity *desc);
-> +			struct irq_affinity *desc,
-> +			u32 sizes[]);
->  	void (*del_vqs)(struct virtio_device *);
->  	u64 (*get_features)(struct virtio_device *vdev);
->  	int (*finalize_features)(struct virtio_device *vdev);
-> @@ -205,7 +207,7 @@ struct virtqueue *virtio_find_single_vq(struct virtio_device *vdev,
->  	const char *names[] = { n };
->  	struct virtqueue *vq;
->  	int err = vdev->config->find_vqs(vdev, 1, &vq, callbacks, names, NULL,
-> -					 NULL);
-> +					 NULL, NULL);
->  	if (err < 0)
->  		return ERR_PTR(err);
->  	return vq;
-> @@ -217,7 +219,8 @@ int virtio_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->  			const char * const names[],
->  			struct irq_affinity *desc)
->  {
-> -	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, NULL, desc);
-> +	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, NULL,
-> +				      desc, NULL);
->  }
->  
->  static inline
-> @@ -227,7 +230,7 @@ int virtio_find_vqs_ctx(struct virtio_device *vdev, unsigned nvqs,
->  			struct irq_affinity *desc)
->  {
->  	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, ctx,
-> -				      desc);
-> +				      desc, NULL);
->  }
->  
->  /**
-> -- 
-> 2.31.0
-> 
