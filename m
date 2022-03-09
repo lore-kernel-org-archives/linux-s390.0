@@ -2,253 +2,133 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E716C433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Mar 2022 18:43:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BC31C433F5
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Mar 2022 19:08:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231269AbiCISn5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 9 Mar 2022 13:43:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60254 "EHLO
+        id S237300AbiCITJ0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 9 Mar 2022 14:09:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236739AbiCISnw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Mar 2022 13:43:52 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3B4E31903C0
-        for <linux-s390@vger.kernel.org>; Wed,  9 Mar 2022 10:42:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1646851372;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=EiYo1sQ+iyTxNxBo5i2JTVVNprtfKtFAyovPZOOp01o=;
-        b=fVvjRLiWLLYG9x8a5q6OnaW2Pc/+auIgx1ztYmd82PcIcxIQWdMW7/ANolIRPXeCj06oxA
-        CcjdxxcSJJlPzHgOBTD15hMa5m8kERvD+cBC2IgWgSp9/kaAG45aSkd0ful/zeEnbU0Ohj
-        RGh37s5yCLurYgIpqv/MtMQax+0XfTA=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-622-R6LYSyqyP3ineM-H9bcLww-1; Wed, 09 Mar 2022 13:42:47 -0500
-X-MC-Unique: R6LYSyqyP3ineM-H9bcLww-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E72C02F27;
-        Wed,  9 Mar 2022 18:42:45 +0000 (UTC)
-Received: from max.com (unknown [10.40.192.17])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 524F28EEB7;
-        Wed,  9 Mar 2022 18:42:40 +0000 (UTC)
-From:   Andreas Gruenbacher <agruenba@redhat.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Andreas Gruenbacher <agruenba@redhat.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        with ESMTP id S237313AbiCITJY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Mar 2022 14:09:24 -0500
+Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C73EF463C
+        for <linux-s390@vger.kernel.org>; Wed,  9 Mar 2022 11:08:24 -0800 (PST)
+Received: by mail-lf1-x12b.google.com with SMTP id s25so5458620lfs.10
+        for <linux-s390@vger.kernel.org>; Wed, 09 Mar 2022 11:08:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=XXR1y9mWPI79aJN86zN1Xw4k1kIrgJW/qF3J3mr8s/o=;
+        b=f2HKjN7pnq1Yx0IZQSDYsv3QQKsG+2d6SyKPs8kRV0DJINmCv0zY8YggZgmbRh8s9G
+         5W1TTtOlOHELiVloxzikMZjMiZj3rLso6o3JgLPBQDjrwKLUkGQeH0vZpt7UqvmOkcfZ
+         TYZh0tYA7JeXfR6IRR0cTQnv83g6YC9SeVOuE=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=XXR1y9mWPI79aJN86zN1Xw4k1kIrgJW/qF3J3mr8s/o=;
+        b=fYErojTsvGQHJB/RuUumI5DdWjyDz824uBYUMVFMAy+oliP+pCx3UI1+C/O+rrKuu7
+         4Qy5rsonaflE4e+sp7FjJHRKKtwNTZSFcNtQ71WtALLGZKvw7ZVqlyWmImAgLQSJnzJ6
+         pi8xxX5sfzfZF4Fw+f3Sd1k70+q1iFwNfOZSmulnJvvWdTPzS7S+eOsoV0BadRW0daEz
+         8HesNHprp/vL2LQ1xdGwb8scOPTcS7o4nceIk4YAf718Jf7TseCKe29MeLPURP9+t034
+         /2J0ne3mjNMn55DCZCT5mdXOZYX+CTB0qGzSRLhO6DXKS/AHyZUa2Jb8BLGGFXIjYa9a
+         xnAw==
+X-Gm-Message-State: AOAM530IrUcZnK/e3WpHWdsr+gvMlKFPbxLNa2ZZgR8Ll2+0VHToOsLv
+        T9SGHCq+jGAQfOest/1HI0w8OL1u+bemKo/oUYc=
+X-Google-Smtp-Source: ABdhPJzcEbp26WzXpA/g/uE7h+Z5tAKRJVdzeNM1O7YpehKCRmEqpjngPGVA7V0PRzBw82WM1CXVIA==
+X-Received: by 2002:ac2:559c:0:b0:448:294e:f97e with SMTP id v28-20020ac2559c000000b00448294ef97emr637350lfg.381.1646852902160;
+        Wed, 09 Mar 2022 11:08:22 -0800 (PST)
+Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com. [209.85.167.50])
+        by smtp.gmail.com with ESMTPSA id q26-20020ac24a7a000000b004437f641a32sm539337lfp.15.2022.03.09.11.08.19
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 09 Mar 2022 11:08:20 -0800 (PST)
+Received: by mail-lf1-f50.google.com with SMTP id 3so5491308lfr.7
+        for <linux-s390@vger.kernel.org>; Wed, 09 Mar 2022 11:08:19 -0800 (PST)
+X-Received: by 2002:ac2:41cf:0:b0:448:1eaa:296c with SMTP id
+ d15-20020ac241cf000000b004481eaa296cmr679738lfi.52.1646852899217; Wed, 09 Mar
+ 2022 11:08:19 -0800 (PST)
+MIME-Version: 1.0
+References: <CAHc6FU5nP+nziNGG0JAF1FUx-GV7kKFvM7aZuU_XD2_1v4vnvg@mail.gmail.com>
+ <CAHk-=wgmCuuJdf96WiT6WXzQQTEeSK=cgBy24J4U9V2AvK4KdQ@mail.gmail.com>
+ <bcafacea-7e67-405c-a969-e5a58a3c727e@redhat.com> <CAHk-=wh1WJ-s9Gj15yFciq6TOd9OOsE7H=R7rRskdRP6npDktQ@mail.gmail.com>
+ <CAHk-=wjHsQywXgNe9D+MQCiMhpyB2Gs5M78CGCpTr9BSeP71bw@mail.gmail.com>
+ <CAHk-=wjs2Jf3LzqCPmfkXd=ULPyCrrGEF7rR6TYzz1RPF+qh3Q@mail.gmail.com>
+ <CAHk-=wi1jrn=sds1doASepf55-wiBEiQ_z6OatOojXj6Gtntyg@mail.gmail.com>
+ <CAHc6FU6L8c9UCJF_qcqY=USK_CqyKnpDSJvrAGput=62h0djDw@mail.gmail.com>
+ <CAHk-=whaoxuCPg4foD_4VBVr+LVgmW7qScjYFRppvHqnni0EMA@mail.gmail.com> <20220309184238.1583093-1-agruenba@redhat.com>
+In-Reply-To: <20220309184238.1583093-1-agruenba@redhat.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Wed, 9 Mar 2022 11:08:02 -0800
+X-Gmail-Original-Message-ID: <CAHk-=wgBOFg3brJbo-gcaPM+fxjzHwC4efhcM8tCKK3YUhYUug@mail.gmail.com>
+Message-ID: <CAHk-=wgBOFg3brJbo-gcaPM+fxjzHwC4efhcM8tCKK3YUhYUug@mail.gmail.com>
+Subject: Re: Buffered I/O broken on s390x with page faults disabled (gfs2)
+To:     Andreas Gruenbacher <agruenba@redhat.com>
+Cc:     Catalin Marinas <catalin.marinas@arm.com>,
         David Hildenbrand <david@redhat.com>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
         linux-s390 <linux-s390@vger.kernel.org>,
         Linux-MM <linux-mm@kvack.org>,
         linux-fsdevel <linux-fsdevel@vger.kernel.org>,
         linux-btrfs <linux-btrfs@vger.kernel.org>
-Subject: Re: Buffered I/O broken on s390x with page faults disabled (gfs2)
-Date:   Wed,  9 Mar 2022 19:42:38 +0100
-Message-Id: <20220309184238.1583093-1-agruenba@redhat.com>
-In-Reply-To: <CAHk-=whaoxuCPg4foD_4VBVr+LVgmW7qScjYFRppvHqnni0EMA@mail.gmail.com>
-References: <CAHc6FU5nP+nziNGG0JAF1FUx-GV7kKFvM7aZuU_XD2_1v4vnvg@mail.gmail.com> <CAHk-=wgmCuuJdf96WiT6WXzQQTEeSK=cgBy24J4U9V2AvK4KdQ@mail.gmail.com> <bcafacea-7e67-405c-a969-e5a58a3c727e@redhat.com> <CAHk-=wh1WJ-s9Gj15yFciq6TOd9OOsE7H=R7rRskdRP6npDktQ@mail.gmail.com> <CAHk-=wjHsQywXgNe9D+MQCiMhpyB2Gs5M78CGCpTr9BSeP71bw@mail.gmail.com> <CAHk-=wjs2Jf3LzqCPmfkXd=ULPyCrrGEF7rR6TYzz1RPF+qh3Q@mail.gmail.com> <CAHk-=wi1jrn=sds1doASepf55-wiBEiQ_z6OatOojXj6Gtntyg@mail.gmail.com> <CAHc6FU6L8c9UCJF_qcqY=USK_CqyKnpDSJvrAGput=62h0djDw@mail.gmail.com> <CAHk-=whaoxuCPg4foD_4VBVr+LVgmW7qScjYFRppvHqnni0EMA@mail.gmail.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Mar 9, 2022 at 1:22 AM Linus Torvalds <torvalds@linux-foundation.or=
-g> wrote:=0D
-> On Tue, Mar 8, 2022 at 3:25 PM Andreas Gruenbacher <agruenba@redhat.com> =
-wrote:=0D
-> >=0D
-> > Seems to be working on s390x for this test case at least; the kind of=0D
-> > trace I'm getting is:=0D
->=0D
-> Good.=0D
->=0D
-> > This shows bursts of successful fault-ins in gfs2_file_read_iter=0D
-> > (read_fault). The pauses in between might be caused by the storage;=0D
-> > I'm not sure.=0D
->=0D
-> Don't know about the pauses, but the burst size might be impacted by that=
-=0D
->=0D
-> + =C2=A0 =C2=A0 =C2=A0 const size_t max_size =3D 4 * PAGE_SIZE;=0D
->=0D
-> thing that limits how many calls to fixup_user_fault() we do per=0D
-> fault_in_safe_writeable().=0D
->=0D
-> So it might be worth checking if that value seems to make any difference.=
-=0D
->=0D
-> > I'd still let the caller of fault_in_safe_writeable() decide how much=0D
-> > memory to fault in; the tight cap in fault_in_safe_writeable() doesn't=
-=0D
-> > seem useful.=0D
->=0D
-> Well, there are real latency concerns there - fixup_user_fault() is=0D
-> not necessarily all that low-cost.=0D
-=0D
-I just don't know if making the GUP based approach work instead of=0D
-switching to fixup_user_fault(), or introducing something else, would=0D
-make enough of a performance difference to be worth it.=0D
-=0D
-> And it's actually going to be worse when we have the sub-page coloring=0D
-> issues happening, and will need to probe at a 128-byte granularity=0D
-> (not on s390, but on arm64).=0D
->=0D
-> At that point, we almost certainly will need to have a "probe user=0D
-> space non-destructibly for writability" instruction (possibly=0D
-> extending on our current arch_futex_atomic_op_inuser()=0D
-> infrastructure).=0D
-=0D
-Let me add Catalin Marinas to the CC.=0D
-=0D
-From what I took from the previous discussion, probing at a sub-page=0D
-granularity won't be necessary for bytewise copying: when the address=0D
-we're trying to access is poisoned, fault_in_*() will fail; when we get=0D
-a short result, that will take us to the poisoned address in the next=0D
-iteration.=0D
-=0D
-The problematic case was copying objects that cross fault domains, when=0D
-we're getting an all-or-nothing result back from the copying and the=0D
-address we're trying to fault_in_*() isn't the address of the actual=0D
-fault.  The fix for those cases is to pass back the address of the=0D
-actual fault in one way or another.=0D
-=0D
-> So honestly, if you do IO on areas that will get page faults on them,=0D
-> to some degree it's a "you are doing something stupid, you get what=0D
-> you deserve". This code should _work_, it should not have to worry=0D
-> about users having bad patterns (where "read data into huge cold=0D
-> mappings under enough memory pressure that it causes access bit faults=0D
-> in the middle of the read" very much counts as such a bad pattern).=0D
-=0D
-With a large enough buffer, a simple malloc() will return unmapped=0D
-pages, and reading into such a buffer will result in fault-in.  So page=0D
-faults during read() are actually pretty normal, and it's not the user's=0D
-fault.=0D
-=0D
-In my test case, the buffer was pre-initialized with memset() to avoid=0D
-those kinds of page faults, which meant that the page faults in=0D
-gfs2_file_read_iter() only started to happen when we were out of memory.=0D
-But that's not the common case.=0D
-=0D
-> > Also, you want to put in an extra L here:=0D
-> > > Signed-off-by: linus Torvalds <torvalds@linux-foundation.org>=0D
->=0D
-> Heh. Fixed locally.=0D
-=0D
-Attached is a revised patch; only lightly tested so far.  Changes:=0D
-=0D
-* Fix the function description.=0D
-=0D
-* No need for untagged_addr() as that is handled in fixup_user_fault().=0D
-=0D
-* Get rid of max_size: it really makes no sense to second-guess what the=0D
-  caller needs.  In cases where fault_in_safe_writeable() is used for=0D
-  buffers larger than a handful of pages, it is entirely the caller's=0D
-  responsibility to scale back the fault-in size in anticipation of or=0D
-  in reaction to page-out.=0D
-=0D
-* Use the same control flow as in fault_in_readable(); there is no=0D
-  need for anything more complicated anymore.=0D
-=0D
-* The same patch description still applies.=0D
-=0D
-Thanks,=0D
-Andreas=0D
-=0D
-diff --git a/mm/gup.c b/mm/gup.c=0D
-index f1bf3a1f6d109..5e777049bdf41 100644=0D
---- a/mm/gup.c=0D
-+++ b/mm/gup.c=0D
-@@ -1841,9 +1841,9 @@ EXPORT_SYMBOL(fault_in_writeable);=0D
-  * @uaddr: start of address range=0D
-  * @size: length of address range=0D
-  *=0D
-- * Faults in an address range using get_user_pages, i.e., without triggeri=
-ng=0D
-- * hardware page faults.  This is primarily useful when we already know th=
-at=0D
-- * some or all of the pages in the address range aren't in memory.=0D
-+ * Faults in an address range for writing.  This is primarily useful when =
-we=0D
-+ * already know that some or all of the pages in the address range aren't =
-in=0D
-+ * memory.=0D
-  *=0D
-  * Other than fault_in_writeable(), this function is non-destructive.=0D
-  *=0D
-@@ -1856,46 +1856,33 @@ EXPORT_SYMBOL(fault_in_writeable);=0D
-  */=0D
- size_t fault_in_safe_writeable(const char __user *uaddr, size_t size)=0D
- {=0D
--	unsigned long start =3D (unsigned long)untagged_addr(uaddr);=0D
--	unsigned long end, nstart, nend;=0D
-+	const unsigned int fault_flags =3D FAULT_FLAG_WRITE | FAULT_FLAG_KILLABLE=
-;=0D
-+	unsigned long start =3D (unsigned long)uaddr, end;=0D
- 	struct mm_struct *mm =3D current->mm;=0D
--	struct vm_area_struct *vma =3D NULL;=0D
--	int locked =3D 0;=0D
- =0D
--	nstart =3D start & PAGE_MASK;=0D
-+	if (unlikely(size =3D=3D 0))=0D
-+		return 0;=0D
- 	end =3D PAGE_ALIGN(start + size);=0D
--	if (end < nstart)=0D
-+	if (end < start)=0D
- 		end =3D 0;=0D
--	for (; nstart !=3D end; nstart =3D nend) {=0D
--		unsigned long nr_pages;=0D
--		long ret;=0D
- =0D
--		if (!locked) {=0D
--			locked =3D 1;=0D
--			mmap_read_lock(mm);=0D
--			vma =3D find_vma(mm, nstart);=0D
--		} else if (nstart >=3D vma->vm_end)=0D
--			vma =3D vma->vm_next;=0D
--		if (!vma || vma->vm_start >=3D end)=0D
--			break;=0D
--		nend =3D end ? min(end, vma->vm_end) : vma->vm_end;=0D
--		if (vma->vm_flags & (VM_IO | VM_PFNMAP))=0D
--			continue;=0D
--		if (nstart < vma->vm_start)=0D
--			nstart =3D vma->vm_start;=0D
--		nr_pages =3D (nend - nstart) / PAGE_SIZE;=0D
--		ret =3D __get_user_pages_locked(mm, nstart, nr_pages,=0D
--					      NULL, NULL, &locked,=0D
--					      FOLL_TOUCH | FOLL_WRITE);=0D
--		if (ret <=3D 0)=0D
--			break;=0D
--		nend =3D nstart + ret * PAGE_SIZE;=0D
-+	mmap_read_lock(mm);=0D
-+	if (!PAGE_ALIGNED(start)) {=0D
-+		if (fixup_user_fault(mm, start, fault_flags, NULL))=0D
-+			return size;=0D
-+		start =3D PAGE_ALIGN(start);=0D
- 	}=0D
--	if (locked)=0D
--		mmap_read_unlock(mm);=0D
--	if (nstart =3D=3D end)=0D
--		return 0;=0D
--	return size - min_t(size_t, nstart - start, size);=0D
-+	while (start !=3D end) {=0D
-+		if (fixup_user_fault(mm, start, fault_flags, NULL))=0D
-+			goto out;=0D
-+		start +=3D PAGE_SIZE;=0D
-+	}=0D
-+	mmap_read_unlock(mm);=0D
-+=0D
-+out:=0D
-+	if (size > (unsigned long)uaddr - start)=0D
-+		return size - ((unsigned long)uaddr - start);=0D
-+	return 0;=0D
- }=0D
- EXPORT_SYMBOL(fault_in_safe_writeable);=0D
- =0D
+On Wed, Mar 9, 2022 at 10:42 AM Andreas Gruenbacher <agruenba@redhat.com> wrote:
+>
+> From what I took from the previous discussion, probing at a sub-page
+> granularity won't be necessary for bytewise copying: when the address
+> we're trying to access is poisoned, fault_in_*() will fail; when we get
+> a short result, that will take us to the poisoned address in the next
+> iteration.
 
+Sadly, that isn't actually the case.
+
+It's not the case for GUP (that page aligns things), and it's not the
+case for fault_in_writeable() itself (that also page aligns things).
+
+But more importantly, it's not actually the case for the *users*
+either. Not all of the users are byte-stream oriented, and I think it
+was btrfs that had a case of "copy a struct at the beginning of the
+stream". And if that copy failed, it wouldn't advance by as many bytes
+as it got - it would require that struct to be all fetched, and start
+from the beginning.
+
+So we do need to probe at least a minimum set of bytes. Probably a
+fairly small minimum, but still...
+
+
+> With a large enough buffer, a simple malloc() will return unmapped
+> pages, and reading into such a buffer will result in fault-in.  So page
+> faults during read() are actually pretty normal, and it's not the user's
+> fault.
+
+Agreed. But that wasn't the case here:
+
+> In my test case, the buffer was pre-initialized with memset() to avoid
+> those kinds of page faults, which meant that the page faults in
+> gfs2_file_read_iter() only started to happen when we were out of memory.
+> But that's not the common case.
+
+Exactly. I do not think this is a case that we should - or need to -
+optimize for.
+
+And doing too much pre-faulting is actually counter-productive.
+
+> * Get rid of max_size: it really makes no sense to second-guess what the
+>   caller needs.
+
+It's not about "what caller needs". It's literally about latency
+issues. If you can force a busy loop in kernel space by having one
+unmapped page and then do a 2GB read(), that's a *PROBLEM*.
+
+Now, we can try this thing, because I think we end up having other
+size limitations in the IO subsystem that means that the filesystem
+won't actually do that, but the moment I hear somebody talk about
+latencies, that max_size goes back.
+
+                Linus
