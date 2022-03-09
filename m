@@ -2,25 +2,25 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 622C0C433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Mar 2022 10:15:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 02C5DC433FE
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Mar 2022 10:20:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229593AbiCIKQV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 9 Mar 2022 05:16:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48644 "EHLO
+        id S229550AbiCIKVl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 9 Mar 2022 05:21:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229455AbiCIKQU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Mar 2022 05:16:20 -0500
-Received: from out30-54.freemail.mail.aliyun.com (out30-54.freemail.mail.aliyun.com [115.124.30.54])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFEFF16A59F;
-        Wed,  9 Mar 2022 02:15:19 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=33;SR=0;TI=SMTPD_---0V6jAw-c_1646820913;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0V6jAw-c_1646820913)
+        with ESMTP id S229492AbiCIKVk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Mar 2022 05:21:40 -0500
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03F881688FD;
+        Wed,  9 Mar 2022 02:20:40 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=33;SR=0;TI=SMTPD_---0V6jFsoZ_1646821234;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0V6jFsoZ_1646821234)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 09 Mar 2022 18:15:14 +0800
-Message-ID: <1646820327.1766295-14-xuanzhuo@linux.alibaba.com>
+          Wed, 09 Mar 2022 18:20:35 +0800
+Message-ID: <1646821007.3534708-15-xuanzhuo@linux.alibaba.com>
 Subject: Re: [PATCH v7 24/26] virtio_net: support rx/tx queue reset
-Date:   Wed, 9 Mar 2022 18:05:27 +0800
+Date:   Wed, 9 Mar 2022 18:16:47 +0800
 From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To:     Jason Wang <jasowang@redhat.com>
 Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
@@ -59,6 +59,10 @@ Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
+
+Sorry, the last reply email was too fast, with some Chinese mixed in. So se=
+nd
+another email.
 
 On Wed, 9 Mar 2022 17:14:34 +0800, Jason Wang <jasowang@redhat.com> wrote:
 >
@@ -149,7 +153,6 @@ ueue *rq)
 >
 > It looks to me we'd better either WARN or just remove this. Since it
 > looks like a workaround for the un-synchronized NAPI somehow.
->
 
 During the reset process, both ring reset and enable may fail. In the case =
 of
@@ -166,9 +169,7 @@ And the third case is to deal with tx in reset, and rx is in working state,=
  then
 here will access the vq of sq.
 
-
-
-
+>
 >
 > > +
 > >   	if (__netif_tx_trylock(txq)) {
@@ -185,13 +186,13 @@ b, struct net_device *dev)
 >
 > It's better to rename this as virtnet_rx_resize().
 
-
 I don't think resize is good enough, because I think resize is an effect of
 reset. Inside af_xdp, we will call it just to reset to free the buffer with=
 out
 resize with ring_num =3D=3D 0.
 
 So virtnet_rx_reset() might be better.
+
 
 >
 >
@@ -214,10 +215,10 @@ So virtnet_rx_reset() might be better.
 >
 > Btw, most comment of this function seems useless since code already
 > explain themselves.
+>
 
 OK, I will remove these.
 
->
 >
 > > +
 > > +	/* free bufs */
@@ -271,10 +272,6 @@ OK, I will remove these.
 >
 >
 > There's no need to hold tx lock for napi disable.
-
-tx lock =E7=9A=84=E4=B8=BB=E8=A6=81=E7=9B=AE=E7=9A=84=E6=98=AF=E7=AD=89=E5=
-=BE=85=E5=85=B6=E5=AE=83=E7=9A=84 xmit =E8=B0=83=E7=94=A8=E7=BB=93=E6=9D=9F.
-=E5=B9=B6=E8=AE=BE=E7=BD=AE netif_stop_subqueue()
 
 The main purpose of tx lock is to wait for other xmit calls to end. And set
 netif_stop_subqueue()
