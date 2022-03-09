@@ -2,54 +2,54 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72B49C43217
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Mar 2022 20:19:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 79AB8C433F5
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Mar 2022 20:37:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238131AbiCIUUK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 9 Mar 2022 15:20:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54188 "EHLO
+        id S235160AbiCIUiC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 9 Mar 2022 15:38:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238125AbiCIUUK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Mar 2022 15:20:10 -0500
-Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D59512E9D2
-        for <linux-s390@vger.kernel.org>; Wed,  9 Mar 2022 12:19:10 -0800 (PST)
-Received: by mail-lf1-x132.google.com with SMTP id n19so5773253lfh.8
-        for <linux-s390@vger.kernel.org>; Wed, 09 Mar 2022 12:19:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ixsSzJyccfkLXZEYbJBe+Tg8HEZFA+58dxzkI0TlXwk=;
-        b=Jij/llasGfimGoHd1XLy6zXbl5NbdV8ZlM1SFcbh7CybVLtODagLJPVQAVfLvID+KE
-         Zqnwm85uO+wAG5FQAOg57bA2CGhLAkOVhShQcX0Oh8rBW43G7B8fBiY2jnYl0e1Y0tvw
-         ZVhDsJOMuq1fNk3t5pSFJeWiorsDuxMlEfvAY=
+        with ESMTP id S231630AbiCIUiB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Mar 2022 15:38:01 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id AF09912604
+        for <linux-s390@vger.kernel.org>; Wed,  9 Mar 2022 12:37:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1646858220;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=tfvPp8T6sBDgCD/bU6cj7d0QWkoleA0xgC26OnRlcVg=;
+        b=KFfzsgCbNlLH0ViE0M+FW3IU+TSp7nXLrTKNW1SfzoZUPC9hLj4Yudo3FZLzqb2pPmpmYA
+        bnw8IVghWI73LXc9Lq292wr7xIEJWayBhoulgPfJg9yZpcxuDPjNSSMgmBdLCzN1ObBAgI
+        krKSFUjNtXY8d2x8Fwr3nuEfyUY6VvM=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-623-vRcIjY02MKK92VNBQUqv-Q-1; Wed, 09 Mar 2022 15:36:59 -0500
+X-MC-Unique: vRcIjY02MKK92VNBQUqv-Q-1
+Received: by mail-wr1-f72.google.com with SMTP id y13-20020adfee0d000000b001f1fa450a3dso1111983wrn.11
+        for <linux-s390@vger.kernel.org>; Wed, 09 Mar 2022 12:36:57 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=ixsSzJyccfkLXZEYbJBe+Tg8HEZFA+58dxzkI0TlXwk=;
-        b=mGLTsi5vxTexlVNAEVKKCqr23bng5N8SMzco7i2rVR8Xi9Kjqw6fq1B07wDmQ0TW/g
-         glcsO0QxzsvaMW2M6hvCTnR6nBxvFPErrsMXzHDVQVv7Q+TBANl0eX8P/2NXd52SK0Ur
-         FcSNSlB+0bHviw61cFuPbRAQIOhiHroPAFih9Jag//0mDf0ryzEQUXHKu1G2sUy6Id2l
-         HwooE9jF7wpmEK8P6bbptfRFWr9WCK/66ZCXLYYnz7v9ol6tDzCN4WywUqIg+lYymsrE
-         2+p2Ze7B0eBd/z2sTj15TRZzOGsDnURjYq6huTIHyjo17Fszfj0tF+RruR2x/MwuhISe
-         3YaQ==
-X-Gm-Message-State: AOAM531V4vU+lzbBHPf1QrMLaat9dWe3HeS35SFPKShR7IKjxqJohkmN
-        FXwsQy4nndLCPow1OBtQLBDquuxJCObLOezL6h4=
-X-Google-Smtp-Source: ABdhPJya0a764vDbhE/aN8+h6Qq5Qv3SFNExdX1p4iFmq7zczZaA+uzaVRQ9joQ6t2O8rPsWCv+Wpg==
-X-Received: by 2002:a05:6512:2284:b0:448:6095:526d with SMTP id f4-20020a056512228400b004486095526dmr224989lfu.37.1646857148391;
-        Wed, 09 Mar 2022 12:19:08 -0800 (PST)
-Received: from mail-lj1-f175.google.com (mail-lj1-f175.google.com. [209.85.208.175])
-        by smtp.gmail.com with ESMTPSA id l4-20020a194944000000b00448275e51d8sm562557lfj.194.2022.03.09.12.19.04
-        for <linux-s390@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 09 Mar 2022 12:19:05 -0800 (PST)
-Received: by mail-lj1-f175.google.com with SMTP id h11so4873566ljb.2
-        for <linux-s390@vger.kernel.org>; Wed, 09 Mar 2022 12:19:04 -0800 (PST)
-X-Received: by 2002:a2e:804b:0:b0:247:e81f:87e9 with SMTP id
- p11-20020a2e804b000000b00247e81f87e9mr831138ljg.176.1646857144051; Wed, 09
- Mar 2022 12:19:04 -0800 (PST)
+        bh=tfvPp8T6sBDgCD/bU6cj7d0QWkoleA0xgC26OnRlcVg=;
+        b=XNjCa5jLDRc98CUjil5BKQflXxLIZfvfp2Wd9lHM4AnYOk1yMZo0Lx3wdp/npYLtLb
+         TbyWLBD7z3KMuEPJMxmCZibCrItv4Br+e4zqh36k/xxnlbYQL5idhZz37SA++FBURfjq
+         izSEEp2orF7jaLjnhljbMrzaCy/Ct1CzbLF8X2YNm4ffwkYU7od8bZlOOVS5iY/yNuMz
+         KZ1jEWxvZ4pKJrur7MP3tLEuovSGfcTvH0NdAlUcYGmKvzTY4hgPgG0SfATnN50nw42e
+         nIYmZVu9kqAXaM+A890gYhVWotjq85nTjsv05LgBK14SmA4rmA6u3pU4UpM3HOkf9cSa
+         HLOg==
+X-Gm-Message-State: AOAM5305r7MS/3ilx/IPSFPplnfANswfXyN9q7PG5Ax/EwG6Vlx6Lael
+        2p2p0pmSBd08jWi4yz8j8ykl6G8EvZQghu5EfZTuKW0izobDre7xse/smOmq8AXughRzmeXQd+k
+        9WEb4rDJExPwqEo6K8Qy7t0WVrDbyUnzx1uDmLA==
+X-Received: by 2002:a1c:e90a:0:b0:381:504e:b57d with SMTP id q10-20020a1ce90a000000b00381504eb57dmr8983122wmc.177.1646858215117;
+        Wed, 09 Mar 2022 12:36:55 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxslNgqul7CsdHPFzrY6nugLgNmi6JeFFMtWCGzEmkIP6sbUIPjlerK4tjyTPW31RtVNkdst4BOmhD7u76G54o=
+X-Received: by 2002:a1c:e90a:0:b0:381:504e:b57d with SMTP id
+ q10-20020a1ce90a000000b00381504eb57dmr8983106wmc.177.1646858214930; Wed, 09
+ Mar 2022 12:36:54 -0800 (PST)
 MIME-Version: 1.0
 References: <CAHc6FU5nP+nziNGG0JAF1FUx-GV7kKFvM7aZuU_XD2_1v4vnvg@mail.gmail.com>
  <CAHk-=wgmCuuJdf96WiT6WXzQQTEeSK=cgBy24J4U9V2AvK4KdQ@mail.gmail.com>
@@ -60,14 +60,13 @@ References: <CAHc6FU5nP+nziNGG0JAF1FUx-GV7kKFvM7aZuU_XD2_1v4vnvg@mail.gmail.com>
  <CAHc6FU6L8c9UCJF_qcqY=USK_CqyKnpDSJvrAGput=62h0djDw@mail.gmail.com>
  <CAHk-=whaoxuCPg4foD_4VBVr+LVgmW7qScjYFRppvHqnni0EMA@mail.gmail.com>
  <20220309184238.1583093-1-agruenba@redhat.com> <CAHk-=wixOLK1Xp-LKhqEWEh3SxGak_ziwR0_fi8uMzY5ZYBzbg@mail.gmail.com>
- <CAHc6FU6aqqYO4d5x3=73bxr+9yfL6CLJeGGzFwCZCy9wzApgwQ@mail.gmail.com>
-In-Reply-To: <CAHc6FU6aqqYO4d5x3=73bxr+9yfL6CLJeGGzFwCZCy9wzApgwQ@mail.gmail.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Wed, 9 Mar 2022 12:18:47 -0800
-X-Gmail-Original-Message-ID: <CAHk-=wj4Av2gecvTfExCq-d2cXx0m7fdO0sG6JC1DxdCCDT7ig@mail.gmail.com>
-Message-ID: <CAHk-=wj4Av2gecvTfExCq-d2cXx0m7fdO0sG6JC1DxdCCDT7ig@mail.gmail.com>
+ <CAHc6FU6aqqYO4d5x3=73bxr+9yfL6CLJeGGzFwCZCy9wzApgwQ@mail.gmail.com> <CAHk-=wj4Av2gecvTfExCq-d2cXx0m7fdO0sG6JC1DxdCCDT7ig@mail.gmail.com>
+In-Reply-To: <CAHk-=wj4Av2gecvTfExCq-d2cXx0m7fdO0sG6JC1DxdCCDT7ig@mail.gmail.com>
+From:   Andreas Gruenbacher <agruenba@redhat.com>
+Date:   Wed, 9 Mar 2022 21:36:43 +0100
+Message-ID: <CAHc6FU4uzG+HR1doK5p+6kVW9GS0JGbCrbZnAvBhWuLZe8DGUw@mail.gmail.com>
 Subject: Re: Buffered I/O broken on s390x with page faults disabled (gfs2)
-To:     Andreas Gruenbacher <agruenba@redhat.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
 Cc:     Catalin Marinas <catalin.marinas@arm.com>,
         David Hildenbrand <david@redhat.com>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
@@ -75,121 +74,49 @@ Cc:     Catalin Marinas <catalin.marinas@arm.com>,
         Linux-MM <linux-mm@kvack.org>,
         linux-fsdevel <linux-fsdevel@vger.kernel.org>,
         linux-btrfs <linux-btrfs@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="00000000000011bc1705d9cecf39"
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
---00000000000011bc1705d9cecf39
-Content-Type: text/plain; charset="UTF-8"
-
-On Wed, Mar 9, 2022 at 11:35 AM Andreas Gruenbacher <agruenba@redhat.com> wrote:
+On Wed, Mar 9, 2022 at 9:19 PM Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
+> On Wed, Mar 9, 2022 at 11:35 AM Andreas Gruenbacher <agruenba@redhat.com> wrote:
+> >
+> > That's better, thanks.
 >
-> That's better, thanks.
+> Ok, can you give this one more test?
+>
+> It has that simplified loop, but it also replaced the
+> FAULT_FLAG_KILLABLE with just passing in 'unlocked'.
+>
+> I thought I didn't need to do that, but the "retry" loop inside
+> fixup_user_fault() will actually set that 'unlocked' thing even if the
+> caller doesn't care whether the mmap_sem was unlocked during the call,
+> so we have to pass in that pointer just to get that to work.
+>
+> And we don't care if mmap_sem was dropped, because this loop doesn't
+> cache any vma information or anything like that, but we don't want to
+> get a NULL pointer oops just because fixup_user_fault() tries to
+> inform us about something we don't care about ;)
 
-Ok, can you give this one more test?
+It's a moot point now, but I don't think handle_mm_fault would have
+returned VM_FAULT_RETRY without FAULT_FLAG_ALLOW_RETRY, so there
+wouldn't have been any NULL pointer accesses.
 
-It has that simplified loop, but it also replaced the
-FAULT_FLAG_KILLABLE with just passing in 'unlocked'.
+> That incidentally gets us FAULT_FLAG_ALLOW_RETRY too, which is
+> probably a good thing anyway - it means that the mmap_sem will be
+> dropped if we wait for IO. Not likely a huge deal, but it's the
+> RightThing(tm) to do.
 
-I thought I didn't need to do that, but the "retry" loop inside
-fixup_user_fault() will actually set that 'unlocked' thing even if the
-caller doesn't care whether the mmap_sem was unlocked during the call,
-so we have to pass in that pointer just to get that to work.
+Looking good.
 
-And we don't care if mmap_sem was dropped, because this loop doesn't
-cache any vma information or anything like that, but we don't want to
-get a NULL pointer oops just because fixup_user_fault() tries to
-inform us about something we don't care about ;)
+> So this has some other changes there too, but on the whole the
+> function is now really quite simple. But it would be good to have one
+> final round of testing considering how many small details changed..
 
-That incidentally gets us FAULT_FLAG_ALLOW_RETRY too, which is
-probably a good thing anyway - it means that the mmap_sem will be
-dropped if we wait for IO. Not likely a huge deal, but it's the
-RightThing(tm) to do.
+Sure, we'll put it through all our tests.
 
-So this has some other changes there too, but on the whole the
-function is now really quite simple. But it would be good to have one
-final round of testing considering how many small details changed..
+Thanks,
+Andreas
 
-                      Linus
-
---00000000000011bc1705d9cecf39
-Content-Type: text/x-patch; charset="US-ASCII"; 
-	name="0001-mm-gup-make-fault_in_safe_writeable-use-fixup_user_f.patch"
-Content-Disposition: attachment; 
-	filename="0001-mm-gup-make-fault_in_safe_writeable-use-fixup_user_f.patch"
-Content-Transfer-Encoding: base64
-Content-ID: <f_l0k07iyo0>
-X-Attachment-Id: f_l0k07iyo0
-
-RnJvbSAyYTQzN2EwNWM0YzA2ZTIwODlmYTFhNzg5ZTk2MTAwZWEyMTM1ZjZhIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBMaW51cyBUb3J2YWxkcyA8dG9ydmFsZHNAbGludXgtZm91bmRh
-dGlvbi5vcmc+CkRhdGU6IFR1ZSwgOCBNYXIgMjAyMiAxMTo1NTo0OCAtMDgwMApTdWJqZWN0OiBb
-UEFUQ0hdIG1tOiBndXA6IG1ha2UgZmF1bHRfaW5fc2FmZV93cml0ZWFibGUoKSB1c2UKIGZpeHVw
-X3VzZXJfZmF1bHQoKQoKSW5zdGVkYWQgb2YgdXNpbmcgR1VQLCBtYWtlIGZhdWx0X2luX3NhZmVf
-d3JpdGVhYmxlKCkgYWN0dWFsbHkgZm9yY2UgYQonaGFuZGxlX21tX2ZhdWx0KCknIHVzaW5nIHRo
-ZSBzYW1lIGZpeHVwX3VzZXJfZmF1bHQoKSBtYWNoaW5lcnkgdGhhdApmdXRleGVzIGFscmVhZHkg
-dXNlLgoKVXNpbmcgdGhlIEdVUCBtYWNoaW5lcnkgbWVhbnQgdGhhdCBmYXVsdF9pbl9zYWZlX3dy
-aXRlYWJsZSgpIGRpZCBub3QgZG8KZXZlcnl0aGluZyB0aGF0IGEgcmVhbCBmYXVsdCB3b3VsZCBk
-bywgcmFuZ2luZyBmcm9tIG5vdCBhdXRvLWV4cGFuZGluZwp0aGUgc3RhY2sgc2VnbWVudCwgdG8g
-bm90IHVwZGF0aW5nIGFjY2Vzc2VkIG9yIGRpcnR5IGZsYWdzIGluIHRoZSBwYWdlCnRhYmxlcyAo
-R1VQIHNldHMgdGhvc2UgZmxhZ3Mgb24gdGhlIHBhZ2VzIHRoZW1zZWx2ZXMpLgoKVGhlIGxhdHRl
-ciBjYXVzZXMgcHJvYmxlbXMgb24gYXJjaGl0ZWN0dXJlcyAobGlrZSBzMzkwKSB0aGF0IGRvIGFj
-Y2Vzc2VkCmJpdCBoYW5kbGluZyBpbiBzb2Z0d2FyZSwgd2hpY2ggbWVhbnQgdGhhdCBmYXVsdF9p
-bl9zYWZlX3dyaXRlYWJsZSgpCmRpZG4ndCBhY3R1YWxseSBkbyBhbGwgdGhlIGZhdWx0IGhhbmRs
-aW5nIGl0IG5lZWRlZCB0by4KClJlcG9ydGVkLWFuZC10ZXN0ZWQtYnk6IEFuZHJlYXMgR3J1ZW5i
-YWNoZXIgPGFncnVlbmJhQHJlZGhhdC5jb20+Ckxpbms6IGh0dHBzOi8vbG9yZS5rZXJuZWwub3Jn
-L2FsbC9DQUhjNkZVNW5QK256aU5HRzBKQUYxRlV4LUdWN2tLRnZNN2FadVVfWEQyXzF2NHZudmdA
-bWFpbC5nbWFpbC5jb20vCkNjOiBEYXZpZCBIaWxkZW5icmFuZCA8ZGF2aWRAcmVkaGF0LmNvbT4K
-U2lnbmVkLW9mZi1ieTogTGludXMgVG9ydmFsZHMgPHRvcnZhbGRzQGxpbnV4LWZvdW5kYXRpb24u
-b3JnPgotLS0KIG1tL2d1cC5jIHwgNTcgKysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KIDEgZmlsZSBjaGFuZ2VkLCAxOSBpbnNlcnRpb25zKCsp
-LCAzOCBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9tbS9ndXAuYyBiL21tL2d1cC5jCmluZGV4
-IGE5ZDRkNzI0YWVmNy4uN2JjMWJhOWNlNDQwIDEwMDY0NAotLS0gYS9tbS9ndXAuYworKysgYi9t
-bS9ndXAuYwpAQCAtMTcyOSwxMSArMTcyOSwxMSBAQCBFWFBPUlRfU1lNQk9MKGZhdWx0X2luX3dy
-aXRlYWJsZSk7CiAgKiBAdWFkZHI6IHN0YXJ0IG9mIGFkZHJlc3MgcmFuZ2UKICAqIEBzaXplOiBs
-ZW5ndGggb2YgYWRkcmVzcyByYW5nZQogICoKLSAqIEZhdWx0cyBpbiBhbiBhZGRyZXNzIHJhbmdl
-IHVzaW5nIGdldF91c2VyX3BhZ2VzLCBpLmUuLCB3aXRob3V0IHRyaWdnZXJpbmcKLSAqIGhhcmR3
-YXJlIHBhZ2UgZmF1bHRzLiAgVGhpcyBpcyBwcmltYXJpbHkgdXNlZnVsIHdoZW4gd2UgYWxyZWFk
-eSBrbm93IHRoYXQKLSAqIHNvbWUgb3IgYWxsIG9mIHRoZSBwYWdlcyBpbiB0aGUgYWRkcmVzcyBy
-YW5nZSBhcmVuJ3QgaW4gbWVtb3J5LgorICogRmF1bHRzIGluIGFuIGFkZHJlc3MgcmFuZ2UgZm9y
-IHdyaXRpbmcuICBUaGlzIGlzIHByaW1hcmlseSB1c2VmdWwgd2hlbiB3ZQorICogYWxyZWFkeSBr
-bm93IHRoYXQgc29tZSBvciBhbGwgb2YgdGhlIHBhZ2VzIGluIHRoZSBhZGRyZXNzIHJhbmdlIGFy
-ZW4ndCBpbgorICogbWVtb3J5LgogICoKLSAqIE90aGVyIHRoYW4gZmF1bHRfaW5fd3JpdGVhYmxl
-KCksIHRoaXMgZnVuY3Rpb24gaXMgbm9uLWRlc3RydWN0aXZlLgorICogVW5saWtlIGZhdWx0X2lu
-X3dyaXRlYWJsZSgpLCB0aGlzIGZ1bmN0aW9uIGlzIG5vbi1kZXN0cnVjdGl2ZS4KICAqCiAgKiBO
-b3RlIHRoYXQgd2UgZG9uJ3QgcGluIG9yIG90aGVyd2lzZSBob2xkIHRoZSBwYWdlcyByZWZlcmVu
-Y2VkIHRoYXQgd2UgZmF1bHQKICAqIGluLiAgVGhlcmUncyBubyBndWFyYW50ZWUgdGhhdCB0aGV5
-J2xsIHN0YXkgaW4gbWVtb3J5IGZvciBhbnkgZHVyYXRpb24gb2YKQEAgLTE3NDQsNDYgKzE3NDQs
-MjcgQEAgRVhQT1JUX1NZTUJPTChmYXVsdF9pbl93cml0ZWFibGUpOwogICovCiBzaXplX3QgZmF1
-bHRfaW5fc2FmZV93cml0ZWFibGUoY29uc3QgY2hhciBfX3VzZXIgKnVhZGRyLCBzaXplX3Qgc2l6
-ZSkKIHsKLQl1bnNpZ25lZCBsb25nIHN0YXJ0ID0gKHVuc2lnbmVkIGxvbmcpdW50YWdnZWRfYWRk
-cih1YWRkcik7Ci0JdW5zaWduZWQgbG9uZyBlbmQsIG5zdGFydCwgbmVuZDsKKwl1bnNpZ25lZCBs
-b25nIHN0YXJ0ID0gKHVuc2lnbmVkIGxvbmcpdWFkZHIsIGVuZDsKIAlzdHJ1Y3QgbW1fc3RydWN0
-ICptbSA9IGN1cnJlbnQtPm1tOwotCXN0cnVjdCB2bV9hcmVhX3N0cnVjdCAqdm1hID0gTlVMTDsK
-LQlpbnQgbG9ja2VkID0gMDsKKwlib29sIHVubG9ja2VkID0gZmFsc2U7CiAKLQluc3RhcnQgPSBz
-dGFydCAmIFBBR0VfTUFTSzsKKwlpZiAodW5saWtlbHkoc2l6ZSA9PSAwKSkKKwkJcmV0dXJuIDA7
-CiAJZW5kID0gUEFHRV9BTElHTihzdGFydCArIHNpemUpOwotCWlmIChlbmQgPCBuc3RhcnQpCisJ
-aWYgKGVuZCA8IHN0YXJ0KQogCQllbmQgPSAwOwotCWZvciAoOyBuc3RhcnQgIT0gZW5kOyBuc3Rh
-cnQgPSBuZW5kKSB7Ci0JCXVuc2lnbmVkIGxvbmcgbnJfcGFnZXM7Ci0JCWxvbmcgcmV0OwogCi0J
-CWlmICghbG9ja2VkKSB7Ci0JCQlsb2NrZWQgPSAxOwotCQkJbW1hcF9yZWFkX2xvY2sobW0pOwot
-CQkJdm1hID0gZmluZF92bWEobW0sIG5zdGFydCk7Ci0JCX0gZWxzZSBpZiAobnN0YXJ0ID49IHZt
-YS0+dm1fZW5kKQotCQkJdm1hID0gdm1hLT52bV9uZXh0OwotCQlpZiAoIXZtYSB8fCB2bWEtPnZt
-X3N0YXJ0ID49IGVuZCkKLQkJCWJyZWFrOwotCQluZW5kID0gZW5kID8gbWluKGVuZCwgdm1hLT52
-bV9lbmQpIDogdm1hLT52bV9lbmQ7Ci0JCWlmICh2bWEtPnZtX2ZsYWdzICYgKFZNX0lPIHwgVk1f
-UEZOTUFQKSkKLQkJCWNvbnRpbnVlOwotCQlpZiAobnN0YXJ0IDwgdm1hLT52bV9zdGFydCkKLQkJ
-CW5zdGFydCA9IHZtYS0+dm1fc3RhcnQ7Ci0JCW5yX3BhZ2VzID0gKG5lbmQgLSBuc3RhcnQpIC8g
-UEFHRV9TSVpFOwotCQlyZXQgPSBfX2dldF91c2VyX3BhZ2VzX2xvY2tlZChtbSwgbnN0YXJ0LCBu
-cl9wYWdlcywKLQkJCQkJICAgICAgTlVMTCwgTlVMTCwgJmxvY2tlZCwKLQkJCQkJICAgICAgRk9M
-TF9UT1VDSCB8IEZPTExfV1JJVEUpOwotCQlpZiAocmV0IDw9IDApCisJbW1hcF9yZWFkX2xvY2so
-bW0pOworCWRvIHsKKwkJaWYgKGZpeHVwX3VzZXJfZmF1bHQobW0sIHN0YXJ0LCBGQVVMVF9GTEFH
-X1dSSVRFLCAmdW5sb2NrZWQpKQogCQkJYnJlYWs7Ci0JCW5lbmQgPSBuc3RhcnQgKyByZXQgKiBQ
-QUdFX1NJWkU7Ci0JfQotCWlmIChsb2NrZWQpCi0JCW1tYXBfcmVhZF91bmxvY2sobW0pOwotCWlm
-IChuc3RhcnQgPT0gZW5kKQotCQlyZXR1cm4gMDsKLQlyZXR1cm4gc2l6ZSAtIG1pbl90KHNpemVf
-dCwgbnN0YXJ0IC0gc3RhcnQsIHNpemUpOworCQlzdGFydCA9IChzdGFydCArIFBBR0VfU0laRSkg
-JiBQQUdFX01BU0s7CisJfSB3aGlsZSAoc3RhcnQgIT0gZW5kKTsKKwltbWFwX3JlYWRfdW5sb2Nr
-KG1tKTsKKworCWlmIChzaXplID4gKHVuc2lnbmVkIGxvbmcpdWFkZHIgLSBzdGFydCkKKwkJcmV0
-dXJuIHNpemUgLSAoKHVuc2lnbmVkIGxvbmcpdWFkZHIgLSBzdGFydCk7CisJcmV0dXJuIDA7CiB9
-CiBFWFBPUlRfU1lNQk9MKGZhdWx0X2luX3NhZmVfd3JpdGVhYmxlKTsKIAotLSAKMi4zNS4xLjM1
-Ni5nZTY2MzBmNTdjZi5kaXJ0eQoK
---00000000000011bc1705d9cecf39--
