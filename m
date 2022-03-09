@@ -2,323 +2,220 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02C5DC433FE
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Mar 2022 10:20:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D2B53C4321E
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Mar 2022 11:31:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229550AbiCIKVl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 9 Mar 2022 05:21:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36932 "EHLO
+        id S232183AbiCILcP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 9 Mar 2022 06:32:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229492AbiCIKVk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Mar 2022 05:21:40 -0500
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03F881688FD;
-        Wed,  9 Mar 2022 02:20:40 -0800 (PST)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=33;SR=0;TI=SMTPD_---0V6jFsoZ_1646821234;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0V6jFsoZ_1646821234)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 09 Mar 2022 18:20:35 +0800
-Message-ID: <1646821007.3534708-15-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH v7 24/26] virtio_net: support rx/tx queue reset
-Date:   Wed, 9 Mar 2022 18:16:47 +0800
-From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To:     Jason Wang <jasowang@redhat.com>
-Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mark Gross <markgross@kernel.org>,
-        Vadim Pasternak <vadimp@nvidia.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jesper Dangaard Brouer <hawk@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        linux-um@lists.infradead.org, platform-driver-x86@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, bpf@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
-References: <20220308123518.33800-1-xuanzhuo@linux.alibaba.com>
- <20220308123518.33800-25-xuanzhuo@linux.alibaba.com>
- <7ff78ff8-bdd0-bb5e-1cea-cf1126226feb@redhat.com>
-In-Reply-To: <7ff78ff8-bdd0-bb5e-1cea-cf1126226feb@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S230468AbiCILcO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Mar 2022 06:32:14 -0500
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6A83F14FFD4;
+        Wed,  9 Mar 2022 03:31:15 -0800 (PST)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 233BF1655;
+        Wed,  9 Mar 2022 03:31:15 -0800 (PST)
+Received: from [10.163.33.203] (unknown [10.163.33.203])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id EFA443FA4D;
+        Wed,  9 Mar 2022 03:31:03 -0800 (PST)
+Message-ID: <f1b4dbb5-7cd4-7513-4b18-169b97745a0a@arm.com>
+Date:   Wed, 9 Mar 2022 17:01:02 +0530
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH V3 05/30] arm64/mm: Enable ARCH_HAS_VM_GET_PAGE_PROT
+Content-Language: en-US
+To:     Catalin Marinas <catalin.marinas@arm.com>
+Cc:     linux-mm@kvack.org, akpm@linux-foundation.org,
+        linux-kernel@vger.kernel.org, geert@linux-m68k.org,
+        Christoph Hellwig <hch@infradead.org>,
+        linuxppc-dev@lists.ozlabs.org,
+        linux-arm-kernel@lists.infradead.org, sparclinux@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+        linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-alpha@vger.kernel.org, linux-sh@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-xtensa@linux-xtensa.org, linux-parisc@vger.kernel.org,
+        openrisc@lists.librecores.org, linux-um@lists.infradead.org,
+        linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
+        linux-arch@vger.kernel.org, Will Deacon <will@kernel.org>
+References: <1646045273-9343-1-git-send-email-anshuman.khandual@arm.com>
+ <1646045273-9343-6-git-send-email-anshuman.khandual@arm.com>
+ <YiDessYDSt060Euc@arm.com>
+From:   Anshuman Khandual <anshuman.khandual@arm.com>
+In-Reply-To: <YiDessYDSt060Euc@arm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Sorry, the last reply email was too fast, with some Chinese mixed in. So se=
-nd
-another email.
-
-On Wed, 9 Mar 2022 17:14:34 +0800, Jason Wang <jasowang@redhat.com> wrote:
->
-> =E5=9C=A8 2022/3/8 =E4=B8=8B=E5=8D=888:35, Xuan Zhuo =E5=86=99=E9=81=93:
-> > This patch implements the reset function of the rx, tx queues.
-> >
-> > Based on this function, it is possible to modify the ring num of the
-> > queue. And quickly recycle the buffer in the queue.
-> >
-> > In the process of the queue disable, in theory, as long as virtio
-> > supports queue reset, there will be no exceptions.
-> >
-> > However, in the process of the queue enable, there may be exceptions du=
-e to
-> > memory allocation.  In this case, vq is not available, but we still have
-> > to execute napi_enable(). Because napi_disable is similar to a lock,
-> > napi_enable must be called after calling napi_disable.
-> >
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > ---
-> >   drivers/net/virtio_net.c | 107 +++++++++++++++++++++++++++++++++++++++
-> >   1 file changed, 107 insertions(+)
-> >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index 409a8e180918..ffff323dcef0 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -251,6 +251,11 @@ struct padded_vnet_hdr {
-> >   	char padding[4];
-> >   };
-> >
-> > +static void virtnet_sq_free_unused_bufs(struct virtnet_info *vi,
-> > +					struct send_queue *sq);
-> > +static void virtnet_rq_free_unused_bufs(struct virtnet_info *vi,
-> > +					struct receive_queue *rq);
-> > +
-> >   static bool is_xdp_frame(void *ptr)
-> >   {
-> >   	return (unsigned long)ptr & VIRTIO_XDP_FLAG;
-> > @@ -1369,6 +1374,9 @@ static void virtnet_napi_enable(struct virtqueue =
-*vq, struct napi_struct *napi)
-> >   {
-> >   	napi_enable(napi);
-> >
-> > +	if (vq->reset)
-> > +		return;
-> > +
->
->
-> Let's WARN_ONCE() here?
->
->
-> >   	/* If all buffers were filled by other side before we napi_enabled, =
-we
-> >   	 * won't get another interrupt, so process any outstanding packets n=
-ow.
-> >   	 * Call local_bh_enable after to trigger softIRQ processing.
-> > @@ -1413,6 +1421,10 @@ static void refill_work(struct work_struct *work)
-> >   		struct receive_queue *rq =3D &vi->rq[i];
-> >
-> >   		napi_disable(&rq->napi);
-> > +		if (rq->vq->reset) {
-> > +			virtnet_napi_enable(rq->vq, &rq->napi);
-> > +			continue;
-> > +		}
->
->
-> This seems racy and it's a hint that we need sync with the refill work
-> during reset like what we did in virtnet_close():
->
->  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 /* Make sure refill_work does=
-n't re-enable napi! */
->  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 cancel_delayed_work_sync(&vi-=
->refill);
->
->
-> >   		still_empty =3D !try_fill_recv(vi, rq, GFP_KERNEL);
-> >   		virtnet_napi_enable(rq->vq, &rq->napi);
-> >
-> > @@ -1523,6 +1535,9 @@ static void virtnet_poll_cleantx(struct receive_q=
-ueue *rq)
-> >   	if (!sq->napi.weight || is_xdp_raw_buffer_queue(vi, index))
-> >   		return;
-> >
-> > +	if (sq->vq->reset)
-> > +		return;
->
->
-> It looks to me we'd better either WARN or just remove this. Since it
-> looks like a workaround for the un-synchronized NAPI somehow.
-
-During the reset process, both ring reset and enable may fail. In the case =
-of
-failure, vq will be unavailable. All three cases prevent this situation.
-
-Even if it fails, napi still needs to be enabled. This is to prevent
-napi_disable from being stuck when the network card is closed.
 
 
-So the first and second cases above are that napi is enabled, but vq has not
-been reset successfully or is still in reset.
+On 3/3/22 20:58, Catalin Marinas wrote:
+> Hi Anshuman,
+> 
+> On Mon, Feb 28, 2022 at 04:17:28PM +0530, Anshuman Khandual wrote:
+>> +static inline pgprot_t __vm_get_page_prot(unsigned long vm_flags)
+>> +{
+>> +	switch (vm_flags & (VM_READ | VM_WRITE | VM_EXEC | VM_SHARED)) {
+>> +	case VM_NONE:
+>> +		return PAGE_NONE;
+>> +	case VM_READ:
+>> +	case VM_WRITE:
+>> +	case VM_WRITE | VM_READ:
+>> +		return PAGE_READONLY;
+>> +	case VM_EXEC:
+>> +		return PAGE_EXECONLY;
+>> +	case VM_EXEC | VM_READ:
+>> +	case VM_EXEC | VM_WRITE:
+>> +	case VM_EXEC | VM_WRITE | VM_READ:
+>> +		return PAGE_READONLY_EXEC;
+>> +	case VM_SHARED:
+>> +		return PAGE_NONE;
+>> +	case VM_SHARED | VM_READ:
+>> +		return PAGE_READONLY;
+>> +	case VM_SHARED | VM_WRITE:
+>> +	case VM_SHARED | VM_WRITE | VM_READ:
+>> +		return PAGE_SHARED;
+>> +	case VM_SHARED | VM_EXEC:
+>> +		return PAGE_EXECONLY;
+>> +	case VM_SHARED | VM_EXEC | VM_READ:
+>> +		return PAGE_READONLY_EXEC;
+>> +	case VM_SHARED | VM_EXEC | VM_WRITE:
+>> +	case VM_SHARED | VM_EXEC | VM_WRITE | VM_READ:
+>> +		return PAGE_SHARED_EXEC;
+>> +	default:
+>> +		BUILD_BUG();
+>> +	}
+>> +}
+> 
+> I'd say ack for trying to get of the extra arch_vm_get_page_prot() and
+> arch_filter_pgprot() but, TBH, I'm not so keen on the outcome. I haven't
+> built the code to see what's generated but I suspect it's no significant
+> improvement. As for the code readability, the arm64 parts don't look
+> much better either. The only advantage with this patch is that all
+> functions have been moved under arch/arm64.
 
-And the third case is to deal with tx in reset, and rx is in working state,=
- then
-here will access the vq of sq.
+Got it.
 
->
->
-> > +
-> >   	if (__netif_tx_trylock(txq)) {
-> >   		do {
-> >   			virtqueue_disable_cb(sq->vq);
-> > @@ -1769,6 +1784,98 @@ static netdev_tx_t start_xmit(struct sk_buff *sk=
-b, struct net_device *dev)
-> >   	return NETDEV_TX_OK;
-> >   }
-> >
-> > +static int virtnet_rx_vq_reset(struct virtnet_info *vi,
-> > +			       struct receive_queue *rq, u32 ring_num)
->
->
-> It's better to rename this as virtnet_rx_resize().
+> 
+> I'd keep most architectures that don't have own arch_vm_get_page_prot()
+> or arch_filter_pgprot() unchanged and with a generic protection_map[]
+> array. For architectures that need fancier stuff, add a
+> CONFIG_ARCH_HAS_VM_GET_PAGE_PROT (as you do) and allow them to define
+> vm_get_page_prot() while getting rid of arch_vm_get_page_prot() and
+> arch_filter_pgprot(). I think you could also duplicate protection_map[]
+> for architectures with own vm_get_page_prot() (make it static) and
+> #ifdef it out in mm/mmap.c.
+> 
+> If later you have more complex needs or a switch statement generates
+> better code, go for it, but for this series I'd keep things simple, only
+> focus on getting rid of arch_vm_get_page_prot() and
+> arch_filter_pgprot().
 
-I don't think resize is good enough, because I think resize is an effect of
-reset. Inside af_xdp, we will call it just to reset to free the buffer with=
-out
-resize with ring_num =3D=3D 0.
+Got it.
 
-So virtnet_rx_reset() might be better.
+> 
+> If I grep'ed correctly, there are only 4 architectures that have own
+> arch_vm_get_page_prot() (arm64, powerpc, sparc, x86) and 2 that have own
+> arch_filter_pgprot() (arm64, x86). Try to only change these for the time
+> being, together with the other generic mm cleanups you have in this
+> series. I think there are a couple more that touch protection_map[]
+> (arm, m68k). You can leave the generic protection_map[] global if the
+> arch does not select ARCH_HAS_VM_GET_PAGE_PROT.
 
+Okay, I will probably split the series into two parts.
 
->
->
-> > +{
-> > +	int err;
-> > +
-> > +	/* stop napi */
-> > +	napi_disable(&rq->napi);
-> > +
->
->
-> Here, as discussed above, we need synchronize with the refill work.
->
->
-> > +	/* reset the queue */
-> > +	err =3D virtio_reset_vq(rq->vq);
-> > +	if (err)
-> > +		goto err;
->
->
-> Btw, most comment of this function seems useless since code already
-> explain themselves.
->
+-  Drop arch_vm_get_page_prot() and arch_filter_pgprot() on relevant
+   platforms i.e arm64, powerpc, sparc and x86 via this new config
+   ARCH_HAS_VM_GET_PAGE_PROT, keeping the generic protection_map[]
+   since platform __SXXX/__PXX macros would be still around.
 
-OK, I will remove these.
+-  Drop __SXXX/__PXXX across all platforms via just initializing
+   protection_map[] early during boot in the platform OR moving
+   both vm_get_page_prot() via ARCH_HAS_VM_GET_PAGE_PROT and the
+   generic protection_map[] inside the platform.
 
->
-> > +
-> > +	/* free bufs */
-> > +	virtnet_rq_free_unused_bufs(vi, rq);
-> > +
-> > +	/* reset vring. */
-> > +	err =3D virtqueue_reset_vring(rq->vq, ring_num);
-> > +	if (err)
-> > +		goto err;
-> > +
-> > +	/* enable reset queue */
-> > +	err =3D virtio_enable_resetq(rq->vq);
-> > +	if (err)
-> > +		goto err;
-> > +
-> > +	/* fill recv */
-> > +	if (!try_fill_recv(vi, rq, GFP_KERNEL))
-> > +		schedule_delayed_work(&vi->refill, 0);
-> > +
-> > +	/* enable napi */
-> > +	virtnet_napi_enable(rq->vq, &rq->napi);
-> > +	return 0;
-> > +
-> > +err:
-> > +	netdev_err(vi->dev,
-> > +		   "reset rx reset vq fail: rx queue index: %ld err: %d\n",
-> > +		   rq - vi->rq, err);
-> > +	virtnet_napi_enable(rq->vq, &rq->napi);
-> > +	return err;
-> > +}
-> > +
-> > +static int virtnet_tx_vq_reset(struct virtnet_info *vi,
-> > +			       struct send_queue *sq, u32 ring_num)
-> > +{
->
->
-> It looks to me it's better to rename this as "virtnet_rx_resize()"
->
->
-> > +	struct netdev_queue *txq;
-> > +	int err, qindex;
-> > +
-> > +	qindex =3D sq - vi->sq;
-> > +
-> > +	txq =3D netdev_get_tx_queue(vi->dev, qindex);
-> > +	__netif_tx_lock_bh(txq);
-> > +
-> > +	/* stop tx queue and napi */
-> > +	netif_stop_subqueue(vi->dev, qindex);
-> > +	virtnet_napi_tx_disable(&sq->napi);
->
->
-> There's no need to hold tx lock for napi disable.
+   There were some objections with respect to switch case code in
+   comparison to the array based table look up.
 
-The main purpose of tx lock is to wait for other xmit calls to end. And set
-netif_stop_subqueue()
+> 
+>> +static pgprot_t arm64_arch_filter_pgprot(pgprot_t prot)
+>> +{
+>> +	if (cpus_have_const_cap(ARM64_HAS_EPAN))
+>> +		return prot;
+>> +
+>> +	if (pgprot_val(prot) != pgprot_val(PAGE_EXECONLY))
+>> +		return prot;
+>> +
+>> +	return PAGE_READONLY_EXEC;
+>> +}
+>> +
+>> +static pgprot_t arm64_arch_vm_get_page_prot(unsigned long vm_flags)
+>> +{
+>> +	pteval_t prot = 0;
+>> +
+>> +	if (vm_flags & VM_ARM64_BTI)
+>> +		prot |= PTE_GP;
+>> +
+>> +	/*
+>> +	 * There are two conditions required for returning a Normal Tagged
+>> +	 * memory type: (1) the user requested it via PROT_MTE passed to
+>> +	 * mmap() or mprotect() and (2) the corresponding vma supports MTE. We
+>> +	 * register (1) as VM_MTE in the vma->vm_flags and (2) as
+>> +	 * VM_MTE_ALLOWED. Note that the latter can only be set during the
+>> +	 * mmap() call since mprotect() does not accept MAP_* flags.
+>> +	 * Checking for VM_MTE only is sufficient since arch_validate_flags()
+>> +	 * does not permit (VM_MTE & !VM_MTE_ALLOWED).
+>> +	 */
+>> +	if (vm_flags & VM_MTE)
+>> +		prot |= PTE_ATTRINDX(MT_NORMAL_TAGGED);
+>> +
+>> +	return __pgprot(prot);
+>> +}
+>> +
+>> +pgprot_t vm_get_page_prot(unsigned long vm_flags)
+>> +{
+>> +	pgprot_t ret = __pgprot(pgprot_val(__vm_get_page_prot(vm_flags)) |
+>> +			pgprot_val(arm64_arch_vm_get_page_prot(vm_flags)));
+>> +
+>> +	return arm64_arch_filter_pgprot(ret);
+>> +}
+> 
+> If we kept the array, we can have everything in a single function
+> (untested and with my own comments for future changes):
 
-Thanks.
+Got it.
 
->
-> Thanks
->
->
-> > +
-> > +	__netif_tx_unlock_bh(txq);
-> > +
-> > +	/* reset the queue */
-> > +	err =3D virtio_reset_vq(sq->vq);
-> > +	if (err) {
-> > +		netif_start_subqueue(vi->dev, qindex);
-> > +		goto err;
-> > +	}
-> > +
-> > +	/* free bufs */
-> > +	virtnet_sq_free_unused_bufs(vi, sq);
-> > +
-> > +	/* reset vring. */
-> > +	err =3D virtqueue_reset_vring(sq->vq, ring_num);
-> > +	if (err)
-> > +		goto err;
-> > +
-> > +	/* enable reset queue */
-> > +	err =3D virtio_enable_resetq(sq->vq);
-> > +	if (err)
-> > +		goto err;
-> > +
-> > +	/* start tx queue and napi */
-> > +	netif_start_subqueue(vi->dev, qindex);
-> > +	virtnet_napi_tx_enable(vi, sq->vq, &sq->napi);
-> > +	return 0;
-> > +
-> > +err:
-> > +	netdev_err(vi->dev,
-> > +		   "reset tx reset vq fail: tx queue index: %ld err: %d\n",
-> > +		   sq - vi->sq, err);
-> > +	virtnet_napi_tx_enable(vi, sq->vq, &sq->napi);
-> > +	return err;
-> > +}
-> > +
-> >   /*
-> >    * Send command via the control virtqueue and check status.  Commands
-> >    * supported by the hypervisor, as indicated by feature bits, should
->
+> 
+> pgprot_t vm_get_page_prot(unsigned long vm_flags)
+> {
+> 	pgprot_t prot = __pgprot(pgprot_val(protection_map[vm_flags &
+> 				(VM_READ|VM_WRITE|VM_EXEC|VM_SHARED)]));
+> 
+> 	/*
+> 	 * We could get rid of this test if we updated protection_map[]
+> 	 * to turn exec-only into read-exec during boot.
+> 	 */
+> 	if (!cpus_have_const_cap(ARM64_HAS_EPAN) &&
+> 	    pgprot_val(prot) == pgprot_val(PAGE_EXECONLY))
+> 		prot = PAGE_READONLY_EXEC;
+> 
+> 	if (vm_flags & VM_ARM64_BTI)
+> 		prot != PTE_GP;
+> 
+> 	/*
+> 	 * We can get rid of the requirement for PROT_NORMAL to be 0
+> 	 * since here we can mask out PTE_ATTRINDX_MASK.
+> 	 */
+> 	if (vm_flags & VM_MTE) {
+> 		prot &= ~PTE_ATTRINDX_MASK;
+> 		prot |= PTE_ATTRINDX(MT_NORMAL_TAGGED);
+> 	}
+> 
+> 	return prot;
+> }
+> 
