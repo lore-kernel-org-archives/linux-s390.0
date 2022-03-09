@@ -2,54 +2,54 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BC31C433F5
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Mar 2022 19:08:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6063C433F5
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Mar 2022 19:22:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237300AbiCITJ0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 9 Mar 2022 14:09:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52820 "EHLO
+        id S237759AbiCITXx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 9 Mar 2022 14:23:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237313AbiCITJY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Mar 2022 14:09:24 -0500
-Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C73EF463C
-        for <linux-s390@vger.kernel.org>; Wed,  9 Mar 2022 11:08:24 -0800 (PST)
-Received: by mail-lf1-x12b.google.com with SMTP id s25so5458620lfs.10
-        for <linux-s390@vger.kernel.org>; Wed, 09 Mar 2022 11:08:23 -0800 (PST)
+        with ESMTP id S238178AbiCITXG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Mar 2022 14:23:06 -0500
+Received: from mail-ot1-x32d.google.com (mail-ot1-x32d.google.com [IPv6:2607:f8b0:4864:20::32d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0B56111DE6
+        for <linux-s390@vger.kernel.org>; Wed,  9 Mar 2022 11:22:05 -0800 (PST)
+Received: by mail-ot1-x32d.google.com with SMTP id z9-20020a05683020c900b005b22bf41872so2446798otq.13
+        for <linux-s390@vger.kernel.org>; Wed, 09 Mar 2022 11:22:05 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linux-foundation.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=XXR1y9mWPI79aJN86zN1Xw4k1kIrgJW/qF3J3mr8s/o=;
-        b=f2HKjN7pnq1Yx0IZQSDYsv3QQKsG+2d6SyKPs8kRV0DJINmCv0zY8YggZgmbRh8s9G
-         5W1TTtOlOHELiVloxzikMZjMiZj3rLso6o3JgLPBQDjrwKLUkGQeH0vZpt7UqvmOkcfZ
-         TYZh0tYA7JeXfR6IRR0cTQnv83g6YC9SeVOuE=
+        bh=ajLEFScnY86/X/EB8VAWpPjqAUDRsUx1SOK3GF+S0iU=;
+        b=Cuk6Sng0QFnBDMPD4pR668XwH3FXBI3EMDZfCqt6dtxF/NuSWNh3h1+I3HfiI2pGYQ
+         c/SsCOHPaJEvqcjKMav3VmIw6hIsfBUZ4mCARDwrbjXf+7pyS5TGRdG2tVkLYWv5OqXN
+         shhUSQZ5Gtzf+yFxJCIsagC3oPy0PNljar1IA=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=XXR1y9mWPI79aJN86zN1Xw4k1kIrgJW/qF3J3mr8s/o=;
-        b=fYErojTsvGQHJB/RuUumI5DdWjyDz824uBYUMVFMAy+oliP+pCx3UI1+C/O+rrKuu7
-         4Qy5rsonaflE4e+sp7FjJHRKKtwNTZSFcNtQ71WtALLGZKvw7ZVqlyWmImAgLQSJnzJ6
-         pi8xxX5sfzfZF4Fw+f3Sd1k70+q1iFwNfOZSmulnJvvWdTPzS7S+eOsoV0BadRW0daEz
-         8HesNHprp/vL2LQ1xdGwb8scOPTcS7o4nceIk4YAf718Jf7TseCKe29MeLPURP9+t034
-         /2J0ne3mjNMn55DCZCT5mdXOZYX+CTB0qGzSRLhO6DXKS/AHyZUa2Jb8BLGGFXIjYa9a
-         xnAw==
-X-Gm-Message-State: AOAM530IrUcZnK/e3WpHWdsr+gvMlKFPbxLNa2ZZgR8Ll2+0VHToOsLv
-        T9SGHCq+jGAQfOest/1HI0w8OL1u+bemKo/oUYc=
-X-Google-Smtp-Source: ABdhPJzcEbp26WzXpA/g/uE7h+Z5tAKRJVdzeNM1O7YpehKCRmEqpjngPGVA7V0PRzBw82WM1CXVIA==
-X-Received: by 2002:ac2:559c:0:b0:448:294e:f97e with SMTP id v28-20020ac2559c000000b00448294ef97emr637350lfg.381.1646852902160;
-        Wed, 09 Mar 2022 11:08:22 -0800 (PST)
-Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com. [209.85.167.50])
-        by smtp.gmail.com with ESMTPSA id q26-20020ac24a7a000000b004437f641a32sm539337lfp.15.2022.03.09.11.08.19
+        bh=ajLEFScnY86/X/EB8VAWpPjqAUDRsUx1SOK3GF+S0iU=;
+        b=jF1c1uxphm5gy0QWggXZjb13vQXpLdOx7XyQlAK7msnjdFcaHP5p1R6USVHa9C8Q/4
+         MPeqnwp467CVtplzy7Q1hn3HLzpaUQFBDmEv+ZyFqdSCVvVgai5pGFhtM4al2I3Mq8Gt
+         QjkjX11gmwLOsW9pXwLf+DvUGoB3lXqI0HwJdZO3lAEd1kwV2oO2gYncsgbKZ2HqY8c5
+         yYJG+49ZfMun1LDHx2f21ABfWBBK0i0DX4hgg4sl15qFzYomeCCe3EsoqHXBkJUIJJUa
+         NNnl7BfGF53jgLq91maDiFwPkNJM1bEHsraAg3sOmwjuIHIZ7nE629+TISNKL8Ir/wSl
+         kvGQ==
+X-Gm-Message-State: AOAM530MtdqHBl7ryCpXTB9Rk2WNOMRX8mGCxQXd/X+y9pEb4N4PXdIQ
+        Gr1tg4U8FiCjy/RZNPouqyTNSCPsEPLC+jrEpX0=
+X-Google-Smtp-Source: ABdhPJy31KYUK87dC9H333xDyTAQQjDYUz+w++8aD5L8VFhx4Q1bzqOjqr4Xvo3xxaYLEFsYqmbc/Q==
+X-Received: by 2002:a9d:6285:0:b0:5b2:5993:a180 with SMTP id x5-20020a9d6285000000b005b25993a180mr704075otk.168.1646853724848;
+        Wed, 09 Mar 2022 11:22:04 -0800 (PST)
+Received: from mail-oi1-f180.google.com (mail-oi1-f180.google.com. [209.85.167.180])
+        by smtp.gmail.com with ESMTPSA id e17-20020a9d7311000000b005b23b11fed3sm1281178otk.70.2022.03.09.11.22.02
         for <linux-s390@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 09 Mar 2022 11:08:20 -0800 (PST)
-Received: by mail-lf1-f50.google.com with SMTP id 3so5491308lfr.7
-        for <linux-s390@vger.kernel.org>; Wed, 09 Mar 2022 11:08:19 -0800 (PST)
-X-Received: by 2002:ac2:41cf:0:b0:448:1eaa:296c with SMTP id
- d15-20020ac241cf000000b004481eaa296cmr679738lfi.52.1646852899217; Wed, 09 Mar
- 2022 11:08:19 -0800 (PST)
+        Wed, 09 Mar 2022 11:22:03 -0800 (PST)
+Received: by mail-oi1-f180.google.com with SMTP id 12so3651160oix.12
+        for <linux-s390@vger.kernel.org>; Wed, 09 Mar 2022 11:22:02 -0800 (PST)
+X-Received: by 2002:a05:6808:2209:b0:2d5:1bb4:bb37 with SMTP id
+ bd9-20020a056808220900b002d51bb4bb37mr702760oib.53.1646853722554; Wed, 09 Mar
+ 2022 11:22:02 -0800 (PST)
 MIME-Version: 1.0
 References: <CAHc6FU5nP+nziNGG0JAF1FUx-GV7kKFvM7aZuU_XD2_1v4vnvg@mail.gmail.com>
  <CAHk-=wgmCuuJdf96WiT6WXzQQTEeSK=cgBy24J4U9V2AvK4KdQ@mail.gmail.com>
@@ -61,9 +61,9 @@ References: <CAHc6FU5nP+nziNGG0JAF1FUx-GV7kKFvM7aZuU_XD2_1v4vnvg@mail.gmail.com>
  <CAHk-=whaoxuCPg4foD_4VBVr+LVgmW7qScjYFRppvHqnni0EMA@mail.gmail.com> <20220309184238.1583093-1-agruenba@redhat.com>
 In-Reply-To: <20220309184238.1583093-1-agruenba@redhat.com>
 From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Wed, 9 Mar 2022 11:08:02 -0800
-X-Gmail-Original-Message-ID: <CAHk-=wgBOFg3brJbo-gcaPM+fxjzHwC4efhcM8tCKK3YUhYUug@mail.gmail.com>
-Message-ID: <CAHk-=wgBOFg3brJbo-gcaPM+fxjzHwC4efhcM8tCKK3YUhYUug@mail.gmail.com>
+Date:   Wed, 9 Mar 2022 11:21:43 -0800
+X-Gmail-Original-Message-ID: <CAHk-=wixOLK1Xp-LKhqEWEh3SxGak_ziwR0_fi8uMzY5ZYBzbg@mail.gmail.com>
+Message-ID: <CAHk-=wixOLK1Xp-LKhqEWEh3SxGak_ziwR0_fi8uMzY5ZYBzbg@mail.gmail.com>
 Subject: Re: Buffered I/O broken on s390x with page faults disabled (gfs2)
 To:     Andreas Gruenbacher <agruenba@redhat.com>
 Cc:     Catalin Marinas <catalin.marinas@arm.com>,
@@ -80,55 +80,41 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 On Wed, Mar 9, 2022 at 10:42 AM Andreas Gruenbacher <agruenba@redhat.com> wrote:
 >
-> From what I took from the previous discussion, probing at a sub-page
-> granularity won't be necessary for bytewise copying: when the address
-> we're trying to access is poisoned, fault_in_*() will fail; when we get
-> a short result, that will take us to the poisoned address in the next
-> iteration.
+> +       while (start != end) {
+> +               if (fixup_user_fault(mm, start, fault_flags, NULL))
+> +                       goto out;
+> +               start += PAGE_SIZE;
+> +       }
+> +       mmap_read_unlock(mm);
+> +
+> +out:
+> +       if (size > (unsigned long)uaddr - start)
+> +               return size - ((unsigned long)uaddr - start);
+> +       return 0;
+>  }
 
-Sadly, that isn't actually the case.
+What?
 
-It's not the case for GUP (that page aligns things), and it's not the
-case for fault_in_writeable() itself (that also page aligns things).
+That "goto out" is completely broken. It explicitly avoids the
+"mmap_read_unlock()" for some reason I can't for the life of me
+understand.
 
-But more importantly, it's not actually the case for the *users*
-either. Not all of the users are byte-stream oriented, and I think it
-was btrfs that had a case of "copy a struct at the beginning of the
-stream". And if that copy failed, it wouldn't advance by as many bytes
-as it got - it would require that struct to be all fetched, and start
-from the beginning.
+You must have done that on purpose, since a simple "break" would have
+been the sane and simple thing to do, but it looks *entirely* wrong to
+me.
 
-So we do need to probe at least a minimum set of bytes. Probably a
-fairly small minimum, but still...
+I think the whole loop should just be
 
+        mmap_read_lock(mm);
+        do {
+                if (fixup_user_fault(mm, start, fault_flags, NULL))
+                        break;
+                start = (start + PAGE_SIZE) & PAGE_MASK;
+        } while (start != end);
+        mmap_read_unlock(mm);
 
-> With a large enough buffer, a simple malloc() will return unmapped
-> pages, and reading into such a buffer will result in fault-in.  So page
-> faults during read() are actually pretty normal, and it's not the user's
-> fault.
+which also doesn't need that first unlooped iteration (not that I
+think that passing in the non-masked starting address for the first
+case actually helps, but that's a different thing).
 
-Agreed. But that wasn't the case here:
-
-> In my test case, the buffer was pre-initialized with memset() to avoid
-> those kinds of page faults, which meant that the page faults in
-> gfs2_file_read_iter() only started to happen when we were out of memory.
-> But that's not the common case.
-
-Exactly. I do not think this is a case that we should - or need to -
-optimize for.
-
-And doing too much pre-faulting is actually counter-productive.
-
-> * Get rid of max_size: it really makes no sense to second-guess what the
->   caller needs.
-
-It's not about "what caller needs". It's literally about latency
-issues. If you can force a busy loop in kernel space by having one
-unmapped page and then do a 2GB read(), that's a *PROBLEM*.
-
-Now, we can try this thing, because I think we end up having other
-size limitations in the IO subsystem that means that the filesystem
-won't actually do that, but the moment I hear somebody talk about
-latencies, that max_size goes back.
-
-                Linus
+                 Linus
