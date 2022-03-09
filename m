@@ -2,208 +2,297 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07F98C433FE
-	for <linux-s390@archiver.kernel.org>; Wed,  9 Mar 2022 15:20:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24280C43219
+	for <linux-s390@archiver.kernel.org>; Wed,  9 Mar 2022 18:19:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233807AbiCIPVF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 9 Mar 2022 10:21:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36682 "EHLO
+        id S234859AbiCISUC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 9 Mar 2022 13:20:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230054AbiCIPVE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Mar 2022 10:21:04 -0500
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C27DEA2F28;
-        Wed,  9 Mar 2022 07:20:04 -0800 (PST)
-Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 229EcPTq016927;
-        Wed, 9 Mar 2022 15:19:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2021-07-09;
- bh=Dx641JSVlBiQrD+zJH2H/HezAIOHGVb03Y0nL/kDJBw=;
- b=PABVro5jJvRfd7cJQOORPeuJQTAk5yGtVHq1Ikm/p3PCK3Pl1meH5CZiCA5YsmDnbFYv
- 4+1IqW+8ImIAUAcQ7wS+P/ipv6p1YRaeCmeIE8BpefbFml6gWnlll9fyJNIu5hPGNslO
- F5HA/XpWAt+HAWDxzMP+kS1C/KExNtaVyyo8EsMQ2kT6algAbYmpglcV8g7V0yvPnPRz
- XJVzEFS3wTK206fGz/AcvpufD+jE6o99RjUZMpyApp54GsliBzBy6EBlBlUh8ELPk4lK
- Q6aNx4CiUW7a6XmwEBpQg5FM/8Tfd9FdScxwerUUBY/vqiaOoG95QLfJysI1SVq+7h1m 9w== 
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
-        by mx0b-00069f02.pphosted.com with ESMTP id 3ekx9cj9sb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 09 Mar 2022 15:19:08 +0000
-Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
-        by aserp3030.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 229FBk5O159973;
-        Wed, 9 Mar 2022 15:19:07 GMT
-Received: from nam12-dm6-obe.outbound.protection.outlook.com (mail-dm6nam12lp2174.outbound.protection.outlook.com [104.47.59.174])
-        by aserp3030.oracle.com with ESMTP id 3ekwwcv4df-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 09 Mar 2022 15:19:07 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=HEHPyjSwOBD3pR0mcIfAdUxRXe3UhUKlabQ0+C2C7Ob0ptn01/CPHsVmGZD9VZrZuAx0pPEQqyvlT6b3wCz/yvqRm4s2VL9ed76YO5PMMOW2+NBS9+t1bALedcJr/69K6yqGyiTI0bbAY/h5D3ZbMf9Jma1oIa1iTT3zqSjZflju37nhnixOQ8J2PARJTggDNYEvM+40WCkntw70diTB4mNw7tSBoYULHav2GoLJqsPx3d6TRjTkJ0f6fTjxGF7Pj8QJiB3f0KmntsqyZob8IRg8+9tj+BC5N4iHafcjpVTuZCMotCHkBDmmrwP8c4IvRsYzvlB2Rk794L72FKFgoA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Dx641JSVlBiQrD+zJH2H/HezAIOHGVb03Y0nL/kDJBw=;
- b=IIEjjqZ6k0gmWray/FUYEshYIpfu54ofKRN/JTPTJsUylaVanCTekZ0wY/FZZb5LZmMO3H25LLwyGsrdMO4ymwf8/e7avW04kKQryaBx3lNTKRBuS0BIm6/DGB+fSgoipAVNlpAopKMUgAJfu8YpyWAsoEKhHW4b/yzIcV8hUrIj1LjAbBsmwqp9LtVUPGjj+2QYrIaX8BX2zOOZZdHPnnk4UyNOBwoMk+F8VzSHwWfKb3gFKeOg21IgJ+IjcB2pHL5vuWdEGan5NXh12xRz+GMBvu75aeZaD1J8yqSOk2g3dXT2XlCAaQrc/R3PI+NBJMbEU11TkijJZ5hQxWPwQQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
+        with ESMTP id S235852AbiCISUB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Mar 2022 13:20:01 -0500
+Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CE2751E5D
+        for <linux-s390@vger.kernel.org>; Wed,  9 Mar 2022 10:19:01 -0800 (PST)
+Received: by mail-pl1-x629.google.com with SMTP id q11so2661262pln.11
+        for <linux-s390@vger.kernel.org>; Wed, 09 Mar 2022 10:19:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Dx641JSVlBiQrD+zJH2H/HezAIOHGVb03Y0nL/kDJBw=;
- b=0Kqty1EG5d/PfM9n7JZzkSJpKBgadK3l78TdLjrx7xB+Q26Cta1VcTum7/JDuIzqDbCABLzQUDHGbr2Qhwa6OQuA9CiXHU9XqMVY5Al2kydKbzTL7GYLFcLHzvDyak17ubJmtmhuxN7V1fTxo+K4b4jJfrDeN9uNS2QfhFViDNM=
-Received: from BLAPR10MB5009.namprd10.prod.outlook.com (2603:10b6:208:321::10)
- by BN8PR10MB3393.namprd10.prod.outlook.com (2603:10b6:408:ca::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5038.15; Wed, 9 Mar
- 2022 15:19:05 +0000
-Received: from BLAPR10MB5009.namprd10.prod.outlook.com
- ([fe80::1b2:b41c:b2f0:c755]) by BLAPR10MB5009.namprd10.prod.outlook.com
- ([fe80::1b2:b41c:b2f0:c755%7]) with mapi id 15.20.5061.021; Wed, 9 Mar 2022
- 15:19:05 +0000
-Message-ID: <9fd239df-b066-36da-f27a-5d3231de82ee@oracle.com>
-Date:   Wed, 9 Mar 2022 10:18:57 -0500
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.6.2
-Subject: Re: [PATCH 11/12] swiotlb: merge swiotlb-xen initialization into
- swiotlb
-Content-Language: en-US
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     iommu@lists.linux-foundation.org, x86@kernel.org,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Juergen Gross <jgross@suse.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        xen-devel@lists.xenproject.org, linux-ia64@vger.kernel.org,
-        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-hyperv@vger.kernel.org, tboot-devel@lists.sourceforge.net,
-        linux-pci@vger.kernel.org
-References: <20220301105311.885699-1-hch@lst.de>
- <20220301105311.885699-12-hch@lst.de>
- <6a22ea1e-4823-5c3b-97ee-a29155404a0d@oracle.com>
- <20220309061840.GA31435@lst.de>
-From:   Boris Ostrovsky <boris.ostrovsky@oracle.com>
-In-Reply-To: <20220309061840.GA31435@lst.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: SJ0PR03CA0212.namprd03.prod.outlook.com
- (2603:10b6:a03:39f::7) To BLAPR10MB5009.namprd10.prod.outlook.com
- (2603:10b6:208:321::10)
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=b+36kVZ1eH5PrAKCZPHq/6t1l0kSLjZrSsqHo52p/gc=;
+        b=YaAM0kKpKNyog0nOM4LpTWfxvQm7eBvZSmTf372GHlXkpbn5Wfh+vAnoVJ64RDuxqO
+         o3ji8HtjLIPYxZyh3iPoWAi0ZHCiIjgaPKxSHS7e4+aFV8bm7fY6XfzGY1MsxTOLlDn4
+         d6oLZtBuRYyC/QaCRgw0VjP9vbMFblCt0ZTeIOs11T5PCRs/XH01lfT32h+Fg5MsJACT
+         IVWqu+V/cnikT6a6J8wgg6wRbL5MS5wmbwxKOt/BgJpiCfHFG5RFrvZ+ELO253RguktB
+         VEaIeuorazetYhtnji7l/TL16TYMuuy2og4r3ur66Guy6lMh40xCGZDTR/54bXtRjWWv
+         60Og==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=b+36kVZ1eH5PrAKCZPHq/6t1l0kSLjZrSsqHo52p/gc=;
+        b=XZQ3M6qPhuGs0KqX2FKavbDySgd3gvvJmirIs4LZ0j9FhnKNZMtQmoFmjSsZJ6vIcz
+         geVwWZIX7HcnRHHcts/utX8NYAS82vw5KIPdoQdlTnKOrfUV7oPy3t+Mk7t9UbouCo2l
+         jUzuEOBI6d/UydFjhBvsZzmhOtC8R+p0Ai5rQYtycheyIETdt/2MR92c+ao2h6tX/wtD
+         ib55o91v2Rx5eVMEHwcRabLDpks735AVDNo3L6vT/FqFotnFQmhDXrxCkHgrDv9dk7YN
+         1LK9d0jvyAbqtysfK2zGB1w8XqfBGnbNUYtesq/A9cnpByqEV8reK6zzh5iA7QiTe0Qc
+         J4Aw==
+X-Gm-Message-State: AOAM532n8VAfNfh0phjFaQ1W7+tSbgmADrRbpWdNkWcrabge+kj8Wm+S
+        Nq8XbJnVgC2r5HXi86m7/kfuIg==
+X-Google-Smtp-Source: ABdhPJxUJ6DmW4ZhilNw+HZY2kVwYjGWFeIawYHJDlOcnrsGSJmPBnG2yQNz2rWEiRM35qcfGa3+yQ==
+X-Received: by 2002:a17:90a:c68c:b0:1bf:a7c9:957a with SMTP id n12-20020a17090ac68c00b001bfa7c9957amr738367pjt.177.1646849940523;
+        Wed, 09 Mar 2022 10:19:00 -0800 (PST)
+Received: from p14s (S0106889e681aac74.cg.shawcable.net. [68.147.0.187])
+        by smtp.gmail.com with ESMTPSA id d2-20020a056a0010c200b004f102a13040sm3834120pfu.19.2022.03.09.10.18.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 09 Mar 2022 10:18:58 -0800 (PST)
+Date:   Wed, 9 Mar 2022 11:18:55 -0700
+From:   Mathieu Poirier <mathieu.poirier@linaro.org>
+To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc:     virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+        Jeff Dike <jdike@addtoit.com>,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        Vadim Pasternak <vadimp@nvidia.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        linux-um@lists.infradead.org, platform-driver-x86@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, bpf@vger.kernel.org
+Subject: Re: [PATCH v7 18/26] virtio: find_vqs() add arg sizes
+Message-ID: <20220309181855.GA1983245@p14s>
+References: <20220308123518.33800-1-xuanzhuo@linux.alibaba.com>
+ <20220308123518.33800-19-xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: fb6a8038-0539-4d83-b05f-08da01e025e6
-X-MS-TrafficTypeDiagnostic: BN8PR10MB3393:EE_
-X-Microsoft-Antispam-PRVS: <BN8PR10MB3393E2CBCCE5ABC49F18CFAD8A0A9@BN8PR10MB3393.namprd10.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 1QNkRX/p+GG8mKkn8Q1NVDgS5QikrhZ7/BtpBtCwMk3hMRq+eMVn15qyq6tjn2phAWHBw64SMmlo66fMV2+4i6+KfGMtJIG8i4MTHPQzYOpAVrszRojK0l5Py2NZwg1gwWN7lFX5k8+zJ25kXP6dozz86HngLcvWeK2wdiMhkvh2ucKlYxwzgr3HDt5FjLT+xu7Z+ckaT9YeS4CZb980XBDIsfwVdDFnD0NH9PMufTGCb7EOqdI/jg6RrfBlt0VcopKD4sYTRtU83/HezczZrHK7/VKPVyvKsrrr6DoUHgxOSDyortYfOJ4TNcBzgD+orZ8o9Vo/oSL6ZJ6cDD3F5Ywjj8+2RytHzroj5ABqhWOmb9AiK2zS0nKalQPuuOzx+7CAqoAfjlpdidwJOsrssB9Scmh8ViIadgnOm7QUD18EZzwAkGXGXwDHEM2gXW9qEwRd9UWDgVpU+mYzbxPBDdX4XuzorZInUFmMZjNzRbsvH7hedSMGDtgtObRXEQ5kS6X11JtFI2Ew2IEDLs36mfq/8qegstfwbGBLKDni7JDqq/i7un54GBfLqR5TcvEzdUhVrOy8NHHp/qwQhjtzPDJGecHPF1zNZrNoA15eKjwBrVICWTUEuIy1irzNzKxdSVGm9EqzgALTeAw4GXtKPoqjBYc/TF2PD+Nd8+ewko95XnkHmq+QcMFR5sl5lEB1XJzthUc2wiEhbJq4qWRqA67EdAwO1xMeZDsgkAsiqV85kpQA/SGrG1W0DLcQvNVh
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BLAPR10MB5009.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(366004)(26005)(36756003)(53546011)(6486002)(31696002)(38100700002)(83380400001)(508600001)(6666004)(2906002)(2616005)(6506007)(6512007)(31686004)(186003)(6916009)(86362001)(316002)(66946007)(66476007)(66556008)(54906003)(7416002)(5660300002)(8936002)(4326008)(8676002)(44832011)(43740500002)(45980500001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?b0s5cGhaWkl6Sk5LZDhqS1RBK3Y0YWtzREh0bUY4cXJCeVBkcUo3K0pSNzZi?=
- =?utf-8?B?dVd5QVJsTXhRYWpGamtMbXRCNnN4czFmQmlpZDArUHpaNHdWdEJ5dDlDVTdw?=
- =?utf-8?B?c2tGbjBTemZ6NFh4ZDJlR3orODZicllhdmx3Mk5XaXFtTkNmVmlDTkJaVVN3?=
- =?utf-8?B?UmVlUU4veEt0dWRoS1UvZjQrazN5Q0dzbFlUSUV1b2Y1bFQ4VFVMNmVIL2wx?=
- =?utf-8?B?NVZwVExFTnpRbVBpeDJCcjFJdDZZNFZaVFJ6NGJrKzlkWlN3THNDQ0dnU25o?=
- =?utf-8?B?aDh2dUE5ZTltMlM5WDBiZld3K1FiT01iUUxROS83UDNad2YyU0Z5QVlOOEl0?=
- =?utf-8?B?bTNqTDVxTTBpczlYR0RGRW4vTmlqWmpFbTQwZ2t6SUdpS0ZrRnZ1aEwyalBn?=
- =?utf-8?B?S1l1ZUhhZUNINTV0ekQwL2s4aFVucVRBb2JmaHRlZzlpcS9mUGM3dG9zZFo3?=
- =?utf-8?B?NEUyUVFXdnFLZmhET2d4b056WHhUWHRmeVptVWt1U0RxaTBvNGFmTDVWUzR1?=
- =?utf-8?B?NnpKbTBVTHpjRS9LNVJ5dVFTR0l1K1JaTFN0VWhudTFHMkRhRU1oVmtrQ1pz?=
- =?utf-8?B?OGplak5QZ2F2Y0FyVS9NcDRxaHR1M3hPU3UzRWZRLzZPczhvd3FxcWNXdXJa?=
- =?utf-8?B?V0dwcVl3cXZPdThmcG5nRGxqZy82MGF6M1dPZTVDdjFXdG5XZjNaU3VDd0tS?=
- =?utf-8?B?aGVMOFBmZEVQdVFydCtBVk52YmpYenpnVFRhRkxPSWZjY1NJYVIwNHNSeGlR?=
- =?utf-8?B?OGlhS1BNODBTL1NWTzd1MnBlc2lpVEFGSWR5STFTbHlVNHcwZkhhWXNvaTdx?=
- =?utf-8?B?SzBMRkprZEx2RXF3c3psSHZKOGxSN0pxbk9hMmFsWUxmUlFLczRMVytKcXM4?=
- =?utf-8?B?ejc2VFRLZkRoUDZqSlR4M1hLMk1MZzVqeFpJU0FpeUUxRlJ0dVA3enJ5T2xM?=
- =?utf-8?B?RjZUOE5MelNpVDg4TlFjQ3QxSzVBNStmVGVRQndDLzkrVWVNa3J4SFFRcWlS?=
- =?utf-8?B?cUtGKzl5eUMwcG5wQ0hIeExsT245eEVaZzg4UDBCRHFLQTlwZkJNQTFDVUtX?=
- =?utf-8?B?OERQc3h1K0Q0M3p4Y1ZUUHdpcDAybGpnVWJhZDJDNm9yeGs3bUxvaFNFRUZJ?=
- =?utf-8?B?eVB5bW9BaEx4OFNtM2JMN3lTd0k3S2tYakUxL1lrMTFlY0xpRGg4QnZLUHRO?=
- =?utf-8?B?cThBS2F5SnVRVHROM09sYnFDUWgyVzFTNkNVZWFtRnMzdkRkdDB2ZUFPeUUv?=
- =?utf-8?B?MHN6cXUrQUUxQWlrZG05U0RTRlI5NUtjK1FodUxDU0tYbzQ2VEkvWEhiQWRP?=
- =?utf-8?B?bU9SM05CL3VLZjVlZTRMZUJTUHl0c3VRbzZ0WFZOT3h6SXNndzh6cUF5c3Zu?=
- =?utf-8?B?dUxtU21meXV6ZmswVmx3VDkwOWk5Y2VKWHpabzJsdGdTcjJYeFFlaWo2SWFI?=
- =?utf-8?B?eUgzVkp3TEl3d1BtbldyalNwVytIdUg1blJWbndEL1l2cDUzTUROSTFlVWlB?=
- =?utf-8?B?OTFvYU50bUc4c3BpZTVpcXhNVWdTS1g1N2VZOWR4SmJIWU8xWU00dXBSYVdO?=
- =?utf-8?B?NHl5ZUZ6UnBRcTFkK0tkVkxzN0J6SWRqMDBjMUNkTWJJSjVFSXZiRnYxUEg5?=
- =?utf-8?B?RjlMam9Vb3E1T2tFMmJZaUdWL0ZkaEFHWWQxcVVCSHQvNjBLeWUra24xOWpi?=
- =?utf-8?B?VFVCKzUxY0haU1RYbFJPa2hxZkg2cUhxRjBKekdGWDRLUlR1Mzh1WkVSV0tR?=
- =?utf-8?B?M2U5WEp2N3RtZ2tVc3VEeU1oT3ZDR3VhbERSWE5vUExqZXBZdlVob1F5VENJ?=
- =?utf-8?B?ekRaV2hSU3ljN0Nhd1h2MHJVUXJ5RjhhczlRYWJEUnYyM1cwdjNxdWRPTzZ1?=
- =?utf-8?B?ZVBLS2gycVVLOGEya0M2V1gvVnJUL3JMdDVuV0N5OHpvUTRvdVMzOUdtOEIw?=
- =?utf-8?B?UU9Ud2M3bWRwVlR5ejVwSXRCSHdqOEh1dmMrOTJ0QkY1UllsQkxYMEFMT2hV?=
- =?utf-8?B?eTViWTdzWmZNd2FmTnF4QTdhR3NLQnJneEhiaUNGWE9WQkJ1aFN5MXN6cHcx?=
- =?utf-8?B?S1N5R2JrWWU3Sk1COFhCNCsrUHFsaHFIZWpoV3I0SWcwWWRRWUE4ZzR6K1BX?=
- =?utf-8?B?V0luYnZZVTBlVys1YytxRjVKQXlwR1gxRWdKVllZVWtVZzlzendBUDZxOTlD?=
- =?utf-8?B?VGFNa1BadDZMR2xLeTZ0ejJOanlackc5UXFqcUxWNWtOK3NLZzJqdWVQRUV3?=
- =?utf-8?Q?TugvA2MvwI39/l2rQ9CjmMwL0j3PMNKFcFquqwWvcM=3D?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: fb6a8038-0539-4d83-b05f-08da01e025e6
-X-MS-Exchange-CrossTenant-AuthSource: BLAPR10MB5009.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Mar 2022 15:19:04.9325
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: C+DD9S6tdroI373tssDi2EgvnipQGchDK8a5RzpziOozDroVU4+ycD29E1J8y8PmXwyoU0Aj37uOG+9iOO2DZ/AizdjyTMty/uj3n+/YBJU=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN8PR10MB3393
-X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10281 signatures=692062
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=670 spamscore=0
- phishscore=0 bulkscore=0 adultscore=0 malwarescore=0 suspectscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2203090085
-X-Proofpoint-ORIG-GUID: WIi58lydhaEBuwimINUF8pWYN2lXAfqV
-X-Proofpoint-GUID: WIi58lydhaEBuwimINUF8pWYN2lXAfqV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220308123518.33800-19-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Tue, Mar 08, 2022 at 08:35:10PM +0800, Xuan Zhuo wrote:
+> find_vqs() adds a new parameter sizes to specify the size of each vq
+> vring.
+> 
+> 0 means use the maximum size supported by the backend.
+> 
+> In the split scenario, the meaning of size is the largest size, because
+> it may be limited by memory, the virtio core will try a smaller size.
+> And the size is power of 2.
+> 
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> ---
+>  arch/um/drivers/virtio_uml.c             |  2 +-
+>  drivers/platform/mellanox/mlxbf-tmfifo.c |  3 ++-
+>  drivers/remoteproc/remoteproc_virtio.c   |  2 +-
 
-On 3/9/22 1:18 AM, Christoph Hellwig wrote:
-> On Tue, Mar 08, 2022 at 04:38:21PM -0500, Boris Ostrovsky wrote:
->> On 3/1/22 5:53 AM, Christoph Hellwig wrote:
->>> Allow to pass a remap argument to the swiotlb initialization functions
->>> to handle the Xen/x86 remap case.  ARM/ARM64 never did any remapping
->>> from xen_swiotlb_fixup, so we don't even need that quirk.
->>
->> Any chance this patch could be split? Lots of things are happening here and it's somewhat hard to review. (Patch 7 too BTW but I think I managed to get through it)
-> What would be your preferred split?
+For the remoteproc changes:
 
+Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 
-swiotlb_init() rework to be done separately?
-
-
->
->>> diff --git a/arch/x86/kernel/pci-dma.c b/arch/x86/kernel/pci-dma.c
->>> index e0def4b1c3181..2f2c468acb955 100644
->>> --- a/arch/x86/kernel/pci-dma.c
->>> +++ b/arch/x86/kernel/pci-dma.c
->>> @@ -71,15 +71,12 @@ static inline void __init pci_swiotlb_detect(void)
->>>    #endif /* CONFIG_SWIOTLB */
->>>      #ifdef CONFIG_SWIOTLB_XEN
->>> -static bool xen_swiotlb;
->>> -
->>>    static void __init pci_xen_swiotlb_init(void)
->>>    {
->>>    	if (!xen_initial_domain() && !x86_swiotlb_enable)
->>>    		return;
->>
->> Now that there is a single call site for this routine I think this check can be dropped. We are only called here for xen_initial_domain()==true.
-> The callsite just checks xen_pv_domain() and itself is called
-> unconditionally during initialization.
-
-
-Oh, right, nevermind. *pv* domain.
-
-
--boris
-
+>  drivers/s390/virtio/virtio_ccw.c         |  2 +-
+>  drivers/virtio/virtio_mmio.c             |  2 +-
+>  drivers/virtio/virtio_pci_common.c       |  2 +-
+>  drivers/virtio/virtio_pci_common.h       |  2 +-
+>  drivers/virtio/virtio_pci_modern.c       |  5 +++--
+>  drivers/virtio/virtio_vdpa.c             |  2 +-
+>  include/linux/virtio_config.h            | 11 +++++++----
+>  10 files changed, 19 insertions(+), 14 deletions(-)
+> 
+> diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
+> index ba562d68dc04..055b91ccbe8a 100644
+> --- a/arch/um/drivers/virtio_uml.c
+> +++ b/arch/um/drivers/virtio_uml.c
+> @@ -998,7 +998,7 @@ static struct virtqueue *vu_setup_vq(struct virtio_device *vdev,
+>  static int vu_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+>  		       struct virtqueue *vqs[], vq_callback_t *callbacks[],
+>  		       const char * const names[], const bool *ctx,
+> -		       struct irq_affinity *desc)
+> +		       struct irq_affinity *desc, u32 sizes[])
+>  {
+>  	struct virtio_uml_device *vu_dev = to_virtio_uml_device(vdev);
+>  	int i, queue_idx = 0, rc;
+> diff --git a/drivers/platform/mellanox/mlxbf-tmfifo.c b/drivers/platform/mellanox/mlxbf-tmfifo.c
+> index 38800e86ed8a..aea7aa218b22 100644
+> --- a/drivers/platform/mellanox/mlxbf-tmfifo.c
+> +++ b/drivers/platform/mellanox/mlxbf-tmfifo.c
+> @@ -929,7 +929,8 @@ static int mlxbf_tmfifo_virtio_find_vqs(struct virtio_device *vdev,
+>  					vq_callback_t *callbacks[],
+>  					const char * const names[],
+>  					const bool *ctx,
+> -					struct irq_affinity *desc)
+> +					struct irq_affinity *desc,
+> +					u32 sizes[])
+>  {
+>  	struct mlxbf_tmfifo_vdev *tm_vdev = mlxbf_vdev_to_tmfifo(vdev);
+>  	struct mlxbf_tmfifo_vring *vring;
+> diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
+> index 70ab496d0431..3a167bec5b09 100644
+> --- a/drivers/remoteproc/remoteproc_virtio.c
+> +++ b/drivers/remoteproc/remoteproc_virtio.c
+> @@ -157,7 +157,7 @@ static int rproc_virtio_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+>  				 vq_callback_t *callbacks[],
+>  				 const char * const names[],
+>  				 const bool * ctx,
+> -				 struct irq_affinity *desc)
+> +				 struct irq_affinity *desc, u32 sizes[])
+>  {
+>  	int i, ret, queue_idx = 0;
+>  
+> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+> index d35e7a3f7067..b74e08c71534 100644
+> --- a/drivers/s390/virtio/virtio_ccw.c
+> +++ b/drivers/s390/virtio/virtio_ccw.c
+> @@ -632,7 +632,7 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+>  			       vq_callback_t *callbacks[],
+>  			       const char * const names[],
+>  			       const bool *ctx,
+> -			       struct irq_affinity *desc)
+> +			       struct irq_affinity *desc, u32 sizes[])
+>  {
+>  	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
+>  	unsigned long *indicatorp = NULL;
+> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+> index a41abc8051b9..55d575f6ef2d 100644
+> --- a/drivers/virtio/virtio_mmio.c
+> +++ b/drivers/virtio/virtio_mmio.c
+> @@ -462,7 +462,7 @@ static int vm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+>  		       vq_callback_t *callbacks[],
+>  		       const char * const names[],
+>  		       const bool *ctx,
+> -		       struct irq_affinity *desc)
+> +		       struct irq_affinity *desc, u32 sizes[])
+>  {
+>  	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
+>  	int irq = platform_get_irq(vm_dev->pdev, 0);
+> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+> index 863d3a8a0956..8e8fa7e5ad80 100644
+> --- a/drivers/virtio/virtio_pci_common.c
+> +++ b/drivers/virtio/virtio_pci_common.c
+> @@ -428,7 +428,7 @@ static int vp_find_vqs_intx(struct virtio_device *vdev, unsigned nvqs,
+>  int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+>  		struct virtqueue *vqs[], vq_callback_t *callbacks[],
+>  		const char * const names[], const bool *ctx,
+> -		struct irq_affinity *desc)
+> +		struct irq_affinity *desc, u32 sizes[])
+>  {
+>  	int err;
+>  
+> diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
+> index 23f6c5c678d5..9dbf1d555dff 100644
+> --- a/drivers/virtio/virtio_pci_common.h
+> +++ b/drivers/virtio/virtio_pci_common.h
+> @@ -114,7 +114,7 @@ void vp_del_vqs(struct virtio_device *vdev);
+>  int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+>  		struct virtqueue *vqs[], vq_callback_t *callbacks[],
+>  		const char * const names[], const bool *ctx,
+> -		struct irq_affinity *desc);
+> +		struct irq_affinity *desc, u32 sizes[]);
+>  const char *vp_bus_name(struct virtio_device *vdev);
+>  
+>  /* Setup the affinity for a virtqueue:
+> diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+> index 3c67d3607802..342795175c29 100644
+> --- a/drivers/virtio/virtio_pci_modern.c
+> +++ b/drivers/virtio/virtio_pci_modern.c
+> @@ -343,11 +343,12 @@ static int vp_modern_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+>  			      struct virtqueue *vqs[],
+>  			      vq_callback_t *callbacks[],
+>  			      const char * const names[], const bool *ctx,
+> -			      struct irq_affinity *desc)
+> +			      struct irq_affinity *desc, u32 sizes[])
+>  {
+>  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+>  	struct virtqueue *vq;
+> -	int rc = vp_find_vqs(vdev, nvqs, vqs, callbacks, names, ctx, desc);
+> +	int rc = vp_find_vqs(vdev, nvqs, vqs, callbacks, names, ctx, desc,
+> +			     sizes);
+>  
+>  	if (rc)
+>  		return rc;
+> diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
+> index 7767a7f0119b..ee08d01ee8b1 100644
+> --- a/drivers/virtio/virtio_vdpa.c
+> +++ b/drivers/virtio/virtio_vdpa.c
+> @@ -268,7 +268,7 @@ static int virtio_vdpa_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+>  				vq_callback_t *callbacks[],
+>  				const char * const names[],
+>  				const bool *ctx,
+> -				struct irq_affinity *desc)
+> +				struct irq_affinity *desc, u32 sizes[])
+>  {
+>  	struct virtio_vdpa_device *vd_dev = to_virtio_vdpa_device(vdev);
+>  	struct vdpa_device *vdpa = vd_get_vdpa(vdev);
+> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+> index 0b81fbe17c85..5157524d8036 100644
+> --- a/include/linux/virtio_config.h
+> +++ b/include/linux/virtio_config.h
+> @@ -57,6 +57,7 @@ struct virtio_shm_region {
+>   *		include a NULL entry for vqs that do not need a callback
+>   *	names: array of virtqueue names (mainly for debugging)
+>   *		include a NULL entry for vqs unused by driver
+> + *	sizes: array of virtqueue sizes
+>   *	Returns 0 on success or error status
+>   * @del_vqs: free virtqueues found by find_vqs().
+>   * @get_features: get the array of feature bits for this device.
+> @@ -98,7 +99,8 @@ struct virtio_config_ops {
+>  	int (*find_vqs)(struct virtio_device *, unsigned nvqs,
+>  			struct virtqueue *vqs[], vq_callback_t *callbacks[],
+>  			const char * const names[], const bool *ctx,
+> -			struct irq_affinity *desc);
+> +			struct irq_affinity *desc,
+> +			u32 sizes[]);
+>  	void (*del_vqs)(struct virtio_device *);
+>  	u64 (*get_features)(struct virtio_device *vdev);
+>  	int (*finalize_features)(struct virtio_device *vdev);
+> @@ -205,7 +207,7 @@ struct virtqueue *virtio_find_single_vq(struct virtio_device *vdev,
+>  	const char *names[] = { n };
+>  	struct virtqueue *vq;
+>  	int err = vdev->config->find_vqs(vdev, 1, &vq, callbacks, names, NULL,
+> -					 NULL);
+> +					 NULL, NULL);
+>  	if (err < 0)
+>  		return ERR_PTR(err);
+>  	return vq;
+> @@ -217,7 +219,8 @@ int virtio_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+>  			const char * const names[],
+>  			struct irq_affinity *desc)
+>  {
+> -	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, NULL, desc);
+> +	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, NULL,
+> +				      desc, NULL);
+>  }
+>  
+>  static inline
+> @@ -227,7 +230,7 @@ int virtio_find_vqs_ctx(struct virtio_device *vdev, unsigned nvqs,
+>  			struct irq_affinity *desc)
+>  {
+>  	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, ctx,
+> -				      desc);
+> +				      desc, NULL);
+>  }
+>  
+>  /**
+> -- 
+> 2.31.0
+> 
