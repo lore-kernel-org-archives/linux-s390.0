@@ -2,466 +2,123 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 51811C433FE
-	for <linux-s390@archiver.kernel.org>; Thu, 10 Mar 2022 10:32:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 029E2C433FE
+	for <linux-s390@archiver.kernel.org>; Thu, 10 Mar 2022 12:13:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241308AbiCJKdr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 10 Mar 2022 05:33:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58022 "EHLO
+        id S241886AbiCJMOb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 10 Mar 2022 07:14:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241371AbiCJKdP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Mar 2022 05:33:15 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A95C13DE3C;
-        Thu, 10 Mar 2022 02:32:14 -0800 (PST)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22A9AGTv004374;
-        Thu, 10 Mar 2022 10:32:14 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=x1zxKniol+32rGUbL9OrKGaz2FS4hxG4KT5y0ZdoadU=;
- b=FXVNoDHrSB7TqSdiDk4yKDD6/fodQVYsrjSMQp1RiVXiOL0yyCeXwUrzjhihWGM8a7y/
- vkPdlxB4XQl4AutZbGT+4KoDx/P3rW3FJ9IilVZY7i/OOZM+6AhTgtKC4L9b6rl7AAws
- DtCxPBW2Mf6Bjw9qdXQh0c58Qoe2LvISK209BNiCFDG11K5vELqHwik2T+TABYidybWu
- kyY4aGTezAuSbGBEDiUE4ROeZo4jeVvC/UwQWUpGAntgD9coKierBCGdkZZi+8vxtaxU
- B5rgjF5EiOxtb5E4fTDN2fX2QO65wlWM7/RxeNsl0oV4/nBt/1U1BrsQWKoga9VTto13 Ew== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3entt9qhmu-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 10 Mar 2022 10:32:13 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22AAS4tF031851;
-        Thu, 10 Mar 2022 10:32:12 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3entt9qhed-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 10 Mar 2022 10:32:12 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22AAMO36013625;
-        Thu, 10 Mar 2022 10:31:51 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma04fra.de.ibm.com with ESMTP id 3ep8c3v2x6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 10 Mar 2022 10:31:51 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22AAVmVR58786248
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 10 Mar 2022 10:31:48 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5F0D55204E;
-        Thu, 10 Mar 2022 10:31:48 +0000 (GMT)
-Received: from linux6.. (unknown [9.114.12.104])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id C336652050;
-        Thu, 10 Mar 2022 10:31:47 +0000 (GMT)
-From:   Janosch Frank <frankja@linux.ibm.com>
-To:     kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        david@redhat.com, borntraeger@linux.ibm.com
-Subject: [PATCH v2 6/9] kvm: s390: Add configuration dump functionality
-Date:   Thu, 10 Mar 2022 10:31:09 +0000
-Message-Id: <20220310103112.2156-7-frankja@linux.ibm.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220310103112.2156-1-frankja@linux.ibm.com>
-References: <20220310103112.2156-1-frankja@linux.ibm.com>
+        with ESMTP id S241867AbiCJMOa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Mar 2022 07:14:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 827EAA76FB;
+        Thu, 10 Mar 2022 04:13:29 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 13F35618C5;
+        Thu, 10 Mar 2022 12:13:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F128C340F4;
+        Thu, 10 Mar 2022 12:13:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1646914408;
+        bh=UKbNBOgnndbhaHzuo5wICJa7XmlyUEtQGp8bX6HrNe0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=H4qbh3FrxVI2JPSZ4Jd44z+OtU7akB1h2LiFq2xkFqCAZ9WR6Fu9thwdicFr+iALm
+         2X1CVvi/RBVtCvcgUYqS44gWR5u2uh2x8m7DoYIV6wjcSVE8rL+dHBwsSWetnLdjRu
+         rpCyQLe48rFAkT/QWj7+3c3ES4J88a68XH+zIkl+s/WUaqWuRJ3utHxR8VtcWcshDH
+         jgGItDtiMD774HBYbB/QQHEYcPNi0GGkpPov1Oz/HKyT+8gOVvaFSSo7/ThRLQe6UQ
+         aWSM3TXF6ezSTVYC91gDfyOqpe6mj2HZK9Ug6tKWItJHf/x/VUGJRceZ7hBEUGO3jl
+         N1Ht4/fONRSdA==
+Date:   Thu, 10 Mar 2022 12:13:25 +0000
+From:   Filipe Manana <fdmanana@kernel.org>
+To:     Andreas Gruenbacher <agruenba@redhat.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Filipe Manana <fdmanana@suse.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Linux-MM <linux-mm@kvack.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        linux-btrfs <linux-btrfs@vger.kernel.org>
+Subject: Re: Buffered I/O broken on s390x with page faults disabled (gfs2)
+Message-ID: <YinrZVoAnEU8/wpa@debian9.Home>
+References: <bcafacea-7e67-405c-a969-e5a58a3c727e@redhat.com>
+ <CAHk-=wh1WJ-s9Gj15yFciq6TOd9OOsE7H=R7rRskdRP6npDktQ@mail.gmail.com>
+ <CAHk-=wjHsQywXgNe9D+MQCiMhpyB2Gs5M78CGCpTr9BSeP71bw@mail.gmail.com>
+ <CAHk-=wjs2Jf3LzqCPmfkXd=ULPyCrrGEF7rR6TYzz1RPF+qh3Q@mail.gmail.com>
+ <CAHk-=wi1jrn=sds1doASepf55-wiBEiQ_z6OatOojXj6Gtntyg@mail.gmail.com>
+ <CAHc6FU6L8c9UCJF_qcqY=USK_CqyKnpDSJvrAGput=62h0djDw@mail.gmail.com>
+ <CAHk-=whaoxuCPg4foD_4VBVr+LVgmW7qScjYFRppvHqnni0EMA@mail.gmail.com>
+ <20220309184238.1583093-1-agruenba@redhat.com>
+ <CAHk-=wgBOFg3brJbo-gcaPM+fxjzHwC4efhcM8tCKK3YUhYUug@mail.gmail.com>
+ <CAHc6FU5+AgDcoXE4Qfh_9hpn9d_it4aFyhoS=TKpqrBPe4GP+w@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: aGTXiLHDXQ6UYOZ7GK-RrYaJPR7OGnc8
-X-Proofpoint-ORIG-GUID: v7AdFXCB_O_hvrUN2qHEzifb1OaZTuLK
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-10_03,2022-03-09_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 spamscore=0
- clxscore=1015 lowpriorityscore=0 suspectscore=0 priorityscore=1501
- mlxlogscore=999 bulkscore=0 adultscore=0 impostorscore=0 malwarescore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2203100056
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHc6FU5+AgDcoXE4Qfh_9hpn9d_it4aFyhoS=TKpqrBPe4GP+w@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Sometimes dumping inside of a VM fails, is unavailable or doesn't
-yield the required data. For these occasions we dump the VM from the
-outside, writing memory and cpu data to a file.
+On Wed, Mar 09, 2022 at 10:08:32PM +0100, Andreas Gruenbacher wrote:
+> On Wed, Mar 9, 2022 at 8:08 PM Linus Torvalds
+> <torvalds@linux-foundation.org> wrote:
+> > On Wed, Mar 9, 2022 at 10:42 AM Andreas Gruenbacher <agruenba@redhat.com> wrote:
+> > > With a large enough buffer, a simple malloc() will return unmapped
+> > > pages, and reading into such a buffer will result in fault-in.  So page
+> > > faults during read() are actually pretty normal, and it's not the user's
+> > > fault.
+> >
+> > Agreed. But that wasn't the case here:
+> >
+> > > In my test case, the buffer was pre-initialized with memset() to avoid
+> > > those kinds of page faults, which meant that the page faults in
+> > > gfs2_file_read_iter() only started to happen when we were out of memory.
+> > > But that's not the common case.
+> >
+> > Exactly. I do not think this is a case that we should - or need to -
+> > optimize for.
+> >
+> > And doing too much pre-faulting is actually counter-productive.
+> >
+> > > * Get rid of max_size: it really makes no sense to second-guess what the
+> > >   caller needs.
+> >
+> > It's not about "what caller needs". It's literally about latency
+> > issues. If you can force a busy loop in kernel space by having one
+> > unmapped page and then do a 2GB read(), that's a *PROBLEM*.
+> >
+> > Now, we can try this thing, because I think we end up having other
+> > size limitations in the IO subsystem that means that the filesystem
+> > won't actually do that, but the moment I hear somebody talk about
+> > latencies, that max_size goes back.
+> 
+> Thanks, this puts fault_in_safe_writeable() in line with
+> fault_in_readable() and fault_in_writeable().
+> 
+> There currently are two users of
+> fault_in_safe_writeable()/fault_in_iov_iter_writeable(): gfs2 and
+> btrfs.
+> In gfs2, we cap the size at BIO_MAX_VECS pages (256). I don't see an
+> explicit cap in btrfs; adding Filipe.
 
-Up to now PV guests only supported dumping from the inside of the
-guest through dumpers like KDUMP. A PV guest can be dumped from the
-hypervisor but the data will be stale and / or encrypted.
+On btrfs, for buffered writes, we have some cap (done at btrfs_buffered_write()),
+for buffered reads we don't have any control on that as we use filemap_read().
 
-To get the actual state of the PV VM we need the help of the
-Ultravisor who safeguards the VM state. New UV calls have been added
-to initialize the dump, dump storage state data, dump cpu data and
-complete the dump process. We expose these calls in this patch via a
-new UV ioctl command.
+For direct IO we don't have any cap, we try to fault in everything that's left.
+However we keep track if we are doing any progress, and if we aren't making any
+progress we just fall back to the buffered IO path. So that prevents infinite
+or long loops.
 
-The sensitive parts of the dump data are encrypted, the dump key is
-derived from the Customer Communication Key (CCK). This ensures that
-only the owner of the VM who has the CCK can decrypt the dump data.
+There's really no good reason to not cap how much we try to fault in in the
+direct IO paths. We should do it, as it probably has a negative performance
+impact for very large direct IO reads/writes.
 
-The memory is dumped / read via a normal export call and a re-import
-after the dump initialization is not needed (no re-encryption with a
-dump key).
+Thanks.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- arch/s390/include/asm/kvm_host.h |   1 +
- arch/s390/kvm/kvm-s390.c         | 137 +++++++++++++++++++++++++++++++
- arch/s390/kvm/kvm-s390.h         |   2 +
- arch/s390/kvm/pv.c               | 115 ++++++++++++++++++++++++++
- include/uapi/linux/kvm.h         |  15 ++++
- 5 files changed, 270 insertions(+)
-
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index a22c9266ea05..659bf4be6f04 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -921,6 +921,7 @@ struct kvm_s390_pv {
- 	u64 guest_len;
- 	unsigned long stor_base;
- 	void *stor_var;
-+	bool dumping;
- };
- 
- struct kvm_arch{
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index c388d08b9626..817e18c4244d 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -606,6 +606,26 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
- 	case KVM_CAP_S390_PROTECTED:
- 		r = is_prot_virt_host();
- 		break;
-+	case KVM_CAP_S390_PROTECTED_DUMP: {
-+		u64 pv_cmds_dump[] = {
-+			BIT_UVC_CMD_DUMP_INIT,
-+			BIT_UVC_CMD_DUMP_CONFIG_STOR_STATE,
-+			BIT_UVC_CMD_DUMP_CONFIG_STOR_STATE,
-+			BIT_UVC_CMD_DUMP_CPU,
-+		};
-+		int i;
-+
-+		if (!is_prot_virt_host())
-+			return 0;
-+
-+		r = 1;
-+		for (i = 0; i < ARRAY_SIZE(pv_cmds_dump); i++) {
-+			if (!test_bit_inv(pv_cmds_dump[i],
-+					  (unsigned long *)&uv_info.inst_calls_list))
-+				return 0;
-+		}
-+		break;
-+	}
- 	default:
- 		r = 0;
- 	}
-@@ -2271,6 +2291,92 @@ static ssize_t kvm_s390_handle_pv_info(struct kvm_s390_pv_info *info)
- 	}
- }
- 
-+static int kvm_s390_pv_dmp(struct kvm *kvm, struct kvm_pv_cmd *cmd,
-+			   struct kvm_s390_pv_dmp dmp)
-+{
-+	int r = -EINVAL;
-+	void __user *result_buff = (void __user *)dmp.buff_addr;
-+
-+	switch (dmp.subcmd) {
-+	case KVM_PV_DUMP_INIT: {
-+		if (kvm->arch.pv.dumping)
-+			break;
-+
-+		r = uv_cmd_nodata(kvm_s390_pv_get_handle(kvm),
-+				  UVC_CMD_DUMP_INIT, &cmd->rc, &cmd->rrc);
-+		KVM_UV_EVENT(kvm, 3, "PROTVIRT DUMP INIT: rc %x rrc %x",
-+			     cmd->rc, cmd->rrc);
-+		if (!r)
-+			kvm->arch.pv.dumping = true;
-+		else
-+			r = -EINVAL;
-+		break;
-+	}
-+	case KVM_PV_DUMP_CONFIG_STOR_STATE: {
-+		if (!kvm->arch.pv.dumping)
-+			break;
-+
-+		/*
-+		 * GADDR is an output parameter since we might stop
-+		 * early. As dmp will be copied back in our caller, we
-+		 * don't need to do it ourselves.
-+		 */
-+		r = kvm_s390_pv_dump_stor_state(kvm, result_buff, &dmp.gaddr, dmp.buff_len,
-+						&cmd->rc, &cmd->rrc);
-+		break;
-+	}
-+	case KVM_PV_DUMP_COMPLETE: {
-+		struct uv_cb_dump_complete complete = {
-+			.header.len = sizeof(complete),
-+			.header.cmd = UVC_CMD_DUMP_COMPLETE,
-+			.config_handle = kvm_s390_pv_get_handle(kvm),
-+		};
-+		u64 *compl_data;
-+
-+		r = -EINVAL;
-+		if (!kvm->arch.pv.dumping)
-+			break;
-+
-+		if (dmp.buff_len < uv_info.conf_dump_finalize_len)
-+			break;
-+
-+		/* Allocate dump area */
-+		r = -ENOMEM;
-+		compl_data = vzalloc(uv_info.conf_dump_finalize_len);
-+		if (!compl_data)
-+			break;
-+		complete.dump_area_origin = (u64)compl_data;
-+
-+		r = uv_call(0, (u64)&complete);
-+		cmd->rc = complete.header.rc;
-+		cmd->rrc = complete.header.rrc;
-+		KVM_UV_EVENT(kvm, 3, "PROTVIRT DUMP COMPLETE: rc %x rrc %x",
-+			     complete.header.rc, complete.header.rrc);
-+
-+		if (!r) {
-+			/*
-+			 * kvm_s390_pv_dealloc_vm() will also (mem)set
-+			 * this to false on a reboot or other destroy
-+			 * operation for this vm.
-+			 */
-+			kvm->arch.pv.dumping = false;
-+			r = copy_to_user(result_buff, compl_data, uv_info.conf_dump_finalize_len);
-+			if (r)
-+				r = -EFAULT;
-+		}
-+		vfree(compl_data);
-+		if (r > 0)
-+			r = -EINVAL;
-+		break;
-+	}
-+	default:
-+		r = -ENOTTY;
-+		break;
-+	}
-+
-+	return r;
-+}
-+
- static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
- {
- 	int r = 0;
-@@ -2447,6 +2553,28 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
- 		r = 0;
- 		break;
- 	}
-+	case KVM_PV_DUMP: {
-+		struct kvm_s390_pv_dmp dmp;
-+
-+		r = -EINVAL;
-+		if (!kvm_s390_pv_is_protected(kvm))
-+			break;
-+
-+		r = -EFAULT;
-+		if (copy_from_user(&dmp, argp, sizeof(dmp)))
-+			break;
-+
-+		r = kvm_s390_pv_dmp(kvm, cmd, dmp);
-+		if (r)
-+			break;
-+
-+		if (copy_to_user(argp, &dmp, sizeof(dmp))) {
-+			r = -EFAULT;
-+			break;
-+		}
-+
-+		break;
-+	}
- 	default:
- 		r = -ENOTTY;
- 	}
-@@ -4542,6 +4670,15 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
- 	struct kvm_run *kvm_run = vcpu->run;
- 	int rc;
- 
-+	/*
-+	 * Running a VM while dumping always has the potential to
-+	 * produce inconsistent dump data. But for PV vcpus a SIE
-+	 * entry while dumping could also lead to a validity which we
-+	 * absolutely want to avoid.
-+	 */
-+	if (vcpu->kvm->arch.pv.dumping)
-+		return -EINVAL;
-+
- 	if (kvm_run->immediate_exit)
- 		return -EINTR;
- 
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 4ba8fc30d87a..324a23bf0678 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -250,6 +250,8 @@ int kvm_s390_pv_set_sec_parms(struct kvm *kvm, void *hdr, u64 length, u16 *rc,
- int kvm_s390_pv_unpack(struct kvm *kvm, unsigned long addr, unsigned long size,
- 		       unsigned long tweak, u16 *rc, u16 *rrc);
- int kvm_s390_pv_set_cpu_state(struct kvm_vcpu *vcpu, u8 state);
-+int kvm_s390_pv_dump_stor_state(struct kvm *kvm, void __user *buff_user,
-+				u64 *gaddr, u64 buff_user_len, u16 *rc, u16 *rrc);
- 
- static inline u64 kvm_s390_pv_get_handle(struct kvm *kvm)
- {
-diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-index 7f7c0d6af2ce..2d42ec53a52e 100644
---- a/arch/s390/kvm/pv.c
-+++ b/arch/s390/kvm/pv.c
-@@ -303,3 +303,118 @@ int kvm_s390_pv_set_cpu_state(struct kvm_vcpu *vcpu, u8 state)
- 		return -EINVAL;
- 	return 0;
- }
-+
-+/* Size of the cache for the storage state dump data. 1MB for now */
-+#define DUMP_BUFF_LEN HPAGE_SIZE
-+
-+/*
-+ * kvm_s390_pv_dump_stor_state
-+ *
-+ * @kvm: pointer to the guest's KVM struct
-+ * @buff_user: Userspace pointer where we will write the results to
-+ * @gaddr: Starting absolute guest address for which the storage state
-+ *         is requested. This value will be updated with the last
-+ *         address for which data was written when returning to
-+ *         userspace.
-+ * @buff_user_len: Length of the buff_user buffer
-+ * @rc: Pointer to where the uvcb return code is stored
-+ * @rrc: Pointer to where the uvcb return reason code is stored
-+ *
-+ * Return:
-+ *  0 on success
-+ *  -ENOMEM if allocating the cache fails
-+ *  -EINVAL if gaddr is not aligned to 1MB
-+ *  -EINVAL if buff_user_len is not aligned to uv_info.conf_dump_storage_state_len
-+ *  -EINVAL if the UV call fails, rc and rrc will be set in this case
-+ *  -EFAULT if copying the result to buff_user failed
-+ */
-+int kvm_s390_pv_dump_stor_state(struct kvm *kvm, void __user *buff_user,
-+				u64 *gaddr, u64 buff_user_len, u16 *rc, u16 *rrc)
-+{
-+	struct uv_cb_dump_stor_state uvcb = {
-+		.header.cmd = UVC_CMD_DUMP_CONF_STOR_STATE,
-+		.header.len = sizeof(uvcb),
-+		.config_handle = kvm->arch.pv.handle,
-+		.gaddr = *gaddr,
-+		.dump_area_origin = 0,
-+	};
-+	size_t buff_kvm_size;
-+	size_t size_done = 0;
-+	u8 *buff_kvm = NULL;
-+	int cc, ret;
-+
-+	ret = -EINVAL;
-+	/* UV call processes 1MB guest storage chunks at a time */
-+	if (*gaddr & ~HPAGE_MASK)
-+		goto out;
-+
-+	/*
-+	 * We provide the storage state for 1MB chunks of guest
-+	 * storage. The buffer will need to be aligned to
-+	 * conf_dump_storage_state_len so we don't end on a partial
-+	 * chunk.
-+	 */
-+	if (!buff_user_len ||
-+	    buff_user_len & (uv_info.conf_dump_storage_state_len - 1))
-+		goto out;
-+
-+	/*
-+	 * Allocate a buffer from which we will later copy to the user process.
-+	 *
-+	 * We don't want userspace to dictate our buffer size so we limit it to DUMP_BUFF_LEN.
-+	 */
-+	ret = -ENOMEM;
-+	buff_kvm_size = buff_user_len <= DUMP_BUFF_LEN ? buff_user_len : DUMP_BUFF_LEN;
-+	buff_kvm = vzalloc(buff_kvm_size);
-+	if (!buff_kvm)
-+		goto out;
-+
-+	ret = 0;
-+	uvcb.dump_area_origin = (u64)buff_kvm;
-+	/* We will loop until the user buffer is filled or an error occurs */
-+	do {
-+		/* Get a page of data */
-+		cc = uv_call_sched(0, (u64)&uvcb);
-+
-+		/* All or nothing */
-+		if (cc) {
-+			ret = -EINVAL;
-+			break;
-+		}
-+
-+		size_done += uv_info.conf_dump_storage_state_len;
-+		uvcb.dump_area_origin += uv_info.conf_dump_storage_state_len;
-+		uvcb.gaddr += HPAGE_SIZE;
-+		buff_user_len -= PAGE_SIZE;
-+
-+		/* KVM Buffer full, time to copy to the process */
-+		if (!buff_user_len ||
-+		    uvcb.dump_area_origin == (uintptr_t)buff_kvm + buff_kvm_size) {
-+
-+			if (copy_to_user(buff_user, buff_kvm,
-+					 uvcb.dump_area_origin - (uintptr_t)buff_kvm)) {
-+				ret = -EFAULT;
-+				break;
-+			}
-+
-+			buff_user += size_done;
-+			size_done = 0;
-+			uvcb.dump_area_origin = (u64)buff_kvm;
-+		}
-+	} while (buff_user_len);
-+
-+	/* Report back where we ended dumping */
-+	*gaddr = uvcb.gaddr;
-+
-+	/* Lets only log errors, we don't want to spam */
-+out:
-+	if (ret)
-+		KVM_UV_EVENT(kvm, 3,
-+			     "PROTVIRT DUMP STORAGE STATE: addr %llx ret %d, uvcb rc %x rrc %x",
-+			     uvcb.gaddr, ret, uvcb.header.rc, uvcb.header.rrc);
-+	*rc = uvcb.header.rc;
-+	*rrc = uvcb.header.rrc;
-+	vfree(buff_kvm);
-+
-+	return ret;
-+}
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index eed2ae8397ae..6808ea0be648 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -1643,6 +1643,20 @@ struct kvm_s390_pv_unp {
- 	__u64 tweak;
- };
- 
-+enum pv_cmd_dmp_id {
-+	KVM_PV_DUMP_INIT,
-+	KVM_PV_DUMP_CONFIG_STOR_STATE,
-+	KVM_PV_DUMP_COMPLETE,
-+};
-+
-+struct kvm_s390_pv_dmp {
-+	__u64 subcmd;
-+	__u64 buff_addr;
-+	__u64 buff_len;
-+	__u64 gaddr;		/* For dump storage state */
-+	__u64 reserved[4];
-+};
-+
- enum pv_cmd_info_id {
- 	KVM_PV_INFO_VM,
- 	KVM_PV_INFO_DUMP,
-@@ -1686,6 +1700,7 @@ enum pv_cmd_id {
- 	KVM_PV_PREP_RESET,
- 	KVM_PV_UNSHARE_ALL,
- 	KVM_PV_INFO,
-+	KVM_PV_DUMP,
- };
- 
- struct kvm_pv_cmd {
--- 
-2.32.0
-
+> 
+> Andreas
+> 
