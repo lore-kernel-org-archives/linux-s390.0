@@ -2,175 +2,231 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 317FFC4332F
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82A86C4321E
 	for <linux-s390@archiver.kernel.org>; Thu, 10 Mar 2022 10:32:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241360AbiCJKdm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 10 Mar 2022 05:33:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57904 "EHLO
+        id S240982AbiCJKdn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 10 Mar 2022 05:33:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241308AbiCJKdD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Mar 2022 05:33:03 -0500
+        with ESMTP id S241327AbiCJKdI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Mar 2022 05:33:08 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 604E513DE3C;
-        Thu, 10 Mar 2022 02:32:03 -0800 (PST)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22A93Ves026162;
-        Thu, 10 Mar 2022 10:32:03 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2155E13EF82;
+        Thu, 10 Mar 2022 02:32:06 -0800 (PST)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22AAFo48027764;
+        Thu, 10 Mar 2022 10:32:06 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=pyu4O5lMMU/BUfHgswvm5ffmgsd3h8dI5XjfpWkeku4=;
- b=FlsoposKHRO1GPiOe4W2W+p3w/iYQppz1nZIPRSzGt0Vmo1bLWdL8Sd4yUAaKjo3cErm
- m0x8E+nJNrjGIiSZG34IIHcOv6eFp7eUg/7bxVuaJxabQDjTKr8FfiSu5OrONorHBVTs
- YWr+IoYQX47c8k+17imCRblHlT2NUCmwPKQvzJ0W5s5xQB5DkeRMELzHOVpw3E4dg1cH
- YR7hkK2/Uuxc/ggUWShK1WwOWtOJ6YEYaDY+VVEjgqyCOzpj7DJlybdqcCCVzbAqfsxe
- liA+pICC09tdtFd0Zku1M86wRl2pUrdUDNGWd5ktiNNzhFtPWrSLsJsc5E21vlYc9e7y JQ== 
+ bh=ndP7BE+G5S6W7gq+skUJFLobUXMuZSupQc2bmfKz+9o=;
+ b=INwp4PaGI4xEsuVCP0MnjWAZuAC11xfEyxrRjwBfqCSOiloWbenKj9ep9kQ4qv+3E8tA
+ GY9loo//y69QAIfXmadiiCWbtFI+681vTdkgqcliz2qkb04Z9h7dNB34EMsHWUJ8ogHc
+ 73QxVyonMx/4KNeZMT+hqt7nYPV+xy95xgPieEA+hz2EdQmG2l5a2lE/HogfXZTo60VJ
+ nIkKGmsWIsog9s96HghfhyNZhfg3/2ytCh3pgcQWGa7k5kSL0rPUu8xovjFejbGmfchs
+ TT/z3JygVxoKM6oidCPSkN3fG14BK4r2ll4AcQdOV/k6ksOjsB+uM6vtbAwtc6tbNaW8 rg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3eq7xm0ugc-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3epwy3mm0u-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 10 Mar 2022 10:32:02 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22AAS7Le011763;
-        Thu, 10 Mar 2022 10:32:02 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3eq7xm0ue0-1
+        Thu, 10 Mar 2022 10:32:05 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22AAD7Dt009992;
+        Thu, 10 Mar 2022 10:32:05 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3epwy3mkvv-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 10 Mar 2022 10:32:02 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22AAL1D9030518;
-        Thu, 10 Mar 2022 10:31:53 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03ams.nl.ibm.com with ESMTP id 3ekyg94aba-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 10 Mar 2022 10:31:52 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22AAVn0X41615840
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 10 Mar 2022 10:32:05 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22AAJQZW021592;
         Thu, 10 Mar 2022 10:31:49 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 3eky4j4edv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 10 Mar 2022 10:31:49 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22AAVklm39977242
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 10 Mar 2022 10:31:46 GMT
 Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C242E52050;
-        Thu, 10 Mar 2022 10:31:49 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 424D75204F;
+        Thu, 10 Mar 2022 10:31:46 +0000 (GMT)
 Received: from linux6.. (unknown [9.114.12.104])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 32C4C5204F;
-        Thu, 10 Mar 2022 10:31:49 +0000 (GMT)
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id A60A95204E;
+        Thu, 10 Mar 2022 10:31:45 +0000 (GMT)
 From:   Janosch Frank <frankja@linux.ibm.com>
 To:     kvm@vger.kernel.org
 Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
         david@redhat.com, borntraeger@linux.ibm.com
-Subject: [PATCH v2 8/9] Documentation: virt: Protected virtual machine dumps
-Date:   Thu, 10 Mar 2022 10:31:11 +0000
-Message-Id: <20220310103112.2156-9-frankja@linux.ibm.com>
+Subject: [PATCH v2 3/9] KVM: s390: pv: Add query interface
+Date:   Thu, 10 Mar 2022 10:31:06 +0000
+Message-Id: <20220310103112.2156-4-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20220310103112.2156-1-frankja@linux.ibm.com>
 References: <20220310103112.2156-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: X7XVqWv63MnU_xN-HiMG5xNFAuPhx6c-
-X-Proofpoint-ORIG-GUID: TuUaY5mJtKud26_1olcj_PFt8gvQIS6p
+X-Proofpoint-GUID: gAxIAhfjPPJyueZ1M2hjm5eCBBukE4zc
+X-Proofpoint-ORIG-GUID: PJFyVDL_E-_au-W9MhJbSD_u0oSdkADR
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-03-10_03,2022-03-09_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 bulkscore=0
- spamscore=0 phishscore=0 malwarescore=0 adultscore=0 clxscore=1015
- priorityscore=1501 impostorscore=0 mlxscore=0 suspectscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
+ clxscore=1015 malwarescore=0 spamscore=0 suspectscore=0 phishscore=0
+ mlxlogscore=999 lowpriorityscore=0 adultscore=0 impostorscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2202240000 definitions=main-2203100056
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Let's add a documentation file which describes the dump process. Since
-we only copy the UV dump data from the UV to userspace we'll not go
-into detail here and let the party which processes the data describe
-its structure.
+Some of the query information is already available via sysfs but
+having a IOCTL makes the information easier to retrieve.
 
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- Documentation/virt/kvm/index.rst        |  1 +
- Documentation/virt/kvm/s390-pv-dump.rst | 60 +++++++++++++++++++++++++
- 2 files changed, 61 insertions(+)
- create mode 100644 Documentation/virt/kvm/s390-pv-dump.rst
+ arch/s390/kvm/kvm-s390.c | 76 ++++++++++++++++++++++++++++++++++++++++
+ include/uapi/linux/kvm.h | 25 +++++++++++++
+ 2 files changed, 101 insertions(+)
 
-diff --git a/Documentation/virt/kvm/index.rst b/Documentation/virt/kvm/index.rst
-index b6833c7bb474..32f3eed5fadb 100644
---- a/Documentation/virt/kvm/index.rst
-+++ b/Documentation/virt/kvm/index.rst
-@@ -20,6 +20,7 @@ KVM
-    s390-diag
-    s390-pv
-    s390-pv-boot
-+   s390-pv-dump
-    timekeeping
-    vcpu-requests
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 020356653d1a..67e1e445681f 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -2224,6 +2224,42 @@ static int kvm_s390_cpus_to_pv(struct kvm *kvm, u16 *rc, u16 *rrc)
+ 	return r;
+ }
  
-diff --git a/Documentation/virt/kvm/s390-pv-dump.rst b/Documentation/virt/kvm/s390-pv-dump.rst
-new file mode 100644
-index 000000000000..6fe7560e10b1
---- /dev/null
-+++ b/Documentation/virt/kvm/s390-pv-dump.rst
-@@ -0,0 +1,60 @@
-+.. SPDX-License-Identifier: GPL-2.0
++/*
++ * Here we provide user space with a direct interface to query UV
++ * related data like UV maxima and available features as well as
++ * feature specific data.
++ *
++ * To facilitate future extension of the data structures we'll try to
++ * write data up to the maximum requested length.
++ */
++static ssize_t kvm_s390_handle_pv_info(struct kvm_s390_pv_info *info)
++{
++	ssize_t len;
 +
-+===========================================
-+s390 (IBM Z) Protected Virtualization dumps
-+===========================================
++	switch (info->header.id) {
++	case KVM_PV_INFO_VM: {
++		len =  sizeof(info->header) + sizeof(info->vm);
 +
-+Summary
-+-------
++		if (info->header.len_max < len)
++			return -EINVAL;
 +
-+Dumping a VM is an essential tool for debugging problems inside
-+it. This is especially true when a protected VM runs into trouble as
-+there's no way to access its memory and registers from the outside
-+while it's running.
++		memcpy(info->vm.inst_calls_list,
++		       uv_info.inst_calls_list,
++		       sizeof(uv_info.inst_calls_list));
 +
-+However when dumping a protected VM we need to maintain its
-+confidentiality until the dump is in the hands of the VM owner who
-+should be the only one capable of analysing it.
++		/* It's max cpuidm not max cpus so it's off by one */
++		info->vm.max_cpus = uv_info.max_guest_cpu_id + 1;
++		info->vm.max_guests = uv_info.max_num_sec_conf;
++		info->vm.max_guest_addr = uv_info.max_sec_stor_addr;
++		info->vm.feature_indication = uv_info.uv_feature_indications;
 +
-+The confidentiality of the VM dump is ensured by the Ultravisor who
-+provides an interface to KVM over which encrypted CPU and memory data
-+can be requested. The encryption is based on the Customer
-+Communication Key which is the key that's used to encrypt VM data in a
-+way that the customer is able to decrypt.
++		return len;
++	}
++	default:
++		return -EINVAL;
++	}
++}
 +
+ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
+ {
+ 	int r = 0;
+@@ -2360,6 +2396,46 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
+ 			     cmd->rc, cmd->rrc);
+ 		break;
+ 	}
++	case KVM_PV_INFO: {
++		struct kvm_s390_pv_info info = {};
++		ssize_t data_len;
 +
-+Dump process
-+------------
++		/*
++		 * No need to check the VM protection here.
++		 *
++		 * Maybe user space wants to query some of the data
++		 * when the VM is still unprotected. If we see the
++		 * need to fence a new data command we can still
++		 * return an error in the info handler.
++		 */
 +
-+A dump is done in 3 steps:
++		r = -EFAULT;
++		if (copy_from_user(&info, argp, sizeof(info.header)))
++			break;
 +
-+Initiation
-+This step initializes the dump process, generates cryptographic seeds
-+and extracts dump keys with which the VM dump data will be encrypted.
++		r = -EINVAL;
++		if (info.header.len_max < sizeof(info.header))
++			break;
 +
-+Data gathering
-+Currently there are two types of data that can be gathered from a VM:
-+the memory and the vcpu state.
++		data_len = kvm_s390_handle_pv_info(&info);
++		if (data_len < 0) {
++			r = data_len;
++			break;
++		}
++		/*
++		 * If a data command struct is extended (multiple
++		 * times) this can be used to determine how much of it
++		 * is valid.
++		 */
++		info.header.len_written = data_len;
 +
-+The vcpu state contains all the important registers, general, floating
-+point, vector, control and tod/timers of a vcpu. The vcpu dump can
-+contain incomplete data if a vcpu is dumped while an instruction is
-+emulated with help of the hypervisor. This is indicated by a flag bit
-+in the dump data. For the same reason it is very important to not only
-+write out the encrypted vcpu state, but also the unencrypted state
-+from the hypervisor.
++		r = -EFAULT;
++		if (copy_to_user(argp, &info, data_len))
++			break;
 +
-+The memory state is further divided into the encrypted memory and its
-+encryption tweaks / status flags. The encrypted memory can simply be
-+read once it has been exported. The time of the export does not matter
-+as no re-encryption is needed. Memory that has been swapped out and
-+hence was exported can be read from the swap and written to the dump
-+target without need for any special actions.
++		r = 0;
++		break;
++	}
+ 	default:
+ 		r = -ENOTTY;
+ 	}
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index a02bbf8fd0f6..21f19863c417 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -1643,6 +1643,30 @@ struct kvm_s390_pv_unp {
+ 	__u64 tweak;
+ };
+ 
++enum pv_cmd_info_id {
++	KVM_PV_INFO_VM,
++};
 +
-+The tweaks / status flags for the exported pages need to be requested
-+from the Ultravisor.
++struct kvm_s390_pv_info_vm {
++	__u64 inst_calls_list[4];
++	__u64 max_cpus;
++	__u64 max_guests;
++	__u64 max_guest_addr;
++	__u64 feature_indication;
++};
 +
-+Finalization
-+The finalization step will provide the data needed to be able to
-+decrypt the vcpu and memory data and end the dump process. When this
-+step completes successfully a new dump initiation can be started.
++struct kvm_s390_pv_info_header {
++	__u32 id;
++	__u32 len_max;
++	__u32 len_written;
++	__u32 reserved;
++};
++
++struct kvm_s390_pv_info {
++	struct kvm_s390_pv_info_header header;
++	struct kvm_s390_pv_info_vm vm;
++};
++
+ enum pv_cmd_id {
+ 	KVM_PV_ENABLE,
+ 	KVM_PV_DISABLE,
+@@ -1651,6 +1675,7 @@ enum pv_cmd_id {
+ 	KVM_PV_VERIFY,
+ 	KVM_PV_PREP_RESET,
+ 	KVM_PV_UNSHARE_ALL,
++	KVM_PV_INFO,
+ };
+ 
+ struct kvm_pv_cmd {
 -- 
 2.32.0
 
