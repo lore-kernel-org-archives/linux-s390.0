@@ -2,133 +2,132 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED29FC433FE
-	for <linux-s390@archiver.kernel.org>; Thu, 10 Mar 2022 17:13:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 01C02C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 10 Mar 2022 18:00:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241261AbiCJROP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 10 Mar 2022 12:14:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43888 "EHLO
+        id S245305AbiCJSBt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 10 Mar 2022 13:01:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234954AbiCJROP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Mar 2022 12:14:15 -0500
+        with ESMTP id S245296AbiCJSBs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Mar 2022 13:01:48 -0500
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id EFC0517E35D
-        for <linux-s390@vger.kernel.org>; Thu, 10 Mar 2022 09:13:13 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0C4DB197B72
+        for <linux-s390@vger.kernel.org>; Thu, 10 Mar 2022 10:00:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1646932392;
+        s=mimecast20190719; t=1646935246;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=K0g7kEPpgKBPzdK7oqMjhrzrQPzP1oj31vajQi/QH0g=;
-        b=dlpHnE/4VqpQfLD0xbXP+TWM67zGWfxPibSvjDKrAdzm3wDf2VrKPTmemLnIy74ktXaFYC
-        dqGAkVszIY7L4ZwH4lxTdH1l3KNSkUqrkWH6D4cIL1/5xjzFtodmQ5gUX+JgY3cImA1ZwW
-        IySKhkmk+APR/MKyZdsTXQF1bg22frI=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=TDJX0xDz3mzKMSilMItog0LpILbVyzwdCnzO5jpxac8=;
+        b=IZUgXCVX4OVc2TP27mnf4bHGTs9q9vaqXRhsRPz3AJPcvR/4i4dZcVEYPvio8rZ8F0vTED
+        C50h/ITUc/W2fg2+cMJGXPBFk0T/Bk7pB246S7t68X3TbuuKuxAWuvq6fOn1O2crdHk1yb
+        cPxraiTTnNOJbMQCBv4C4mDaENbYnRk=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-135-68wFkrn4OJOcBPClBKb8Jg-1; Thu, 10 Mar 2022 12:13:11 -0500
-X-MC-Unique: 68wFkrn4OJOcBPClBKb8Jg-1
-Received: by mail-wm1-f70.google.com with SMTP id 10-20020a1c020a000000b0037fae68fcc2so4312285wmc.8
-        for <linux-s390@vger.kernel.org>; Thu, 10 Mar 2022 09:13:11 -0800 (PST)
+ us-mta-625-OBT6p56wM12j_aHdV4040w-1; Thu, 10 Mar 2022 13:00:44 -0500
+X-MC-Unique: OBT6p56wM12j_aHdV4040w-1
+Received: by mail-wm1-f69.google.com with SMTP id 14-20020a05600c104e00b003897a167353so2567380wmx.8
+        for <linux-s390@vger.kernel.org>; Thu, 10 Mar 2022 10:00:44 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent
-         :content-language:to:cc:references:from:organization:subject
-         :in-reply-to:content-transfer-encoding;
-        bh=K0g7kEPpgKBPzdK7oqMjhrzrQPzP1oj31vajQi/QH0g=;
-        b=TpDGs2U9nnBWkPPbFmkJeud5yrpfTVagYqQixQQxWoYBGp3oxOnbEncKlyOE8un06L
-         Gai2Ylabw+C42YZyrqkCXUXWpXOhAlEyY5wgeZORoW2fFM6RM8FyP4lO2xpr3pj3+CmR
-         tN3spc8HbB6kaGIrFgWGbKTk8fMh3j95ypj+ypaPtTydhzkLSuYCKMjcskiQOrrNb1ii
-         QH4MLAT7F9gXNIqXcwu3W+RfJ+eTpxiN2pb/BkGRx1NfYenA/aR16ag7rOeST/ciApJt
-         tOpAilvwvHQ7yhC/0wuvIUwlYA89G4D4nWqbQ3zC4fOBDVUdAYmAzWkxZSbhL6r67cUV
-         KVJw==
-X-Gm-Message-State: AOAM530m02JAsJyqlPYfXBIs3sZUs++5lPpzYpX1aC+O1cscRCrl9ogi
-        H3GN1I1zjgeDoNQxqGPyNVhi9PEZLqfPr6SgjHlNAMrJ0TL+hxQ9vkCuATC5sdXIjD0/RJp2MhG
-        gXiEwBWcltcG4EkQkRKB/UQ==
-X-Received: by 2002:a05:6000:1683:b0:1f1:eb7c:be70 with SMTP id y3-20020a056000168300b001f1eb7cbe70mr4261148wrd.129.1646932390256;
-        Thu, 10 Mar 2022 09:13:10 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJw3SkTi3yW7UBBeX1DEMnFy33opyiuGAlZsjFfPFWjJgPjyUpAftbHJ/wJhhj/ZTUEnc+Lavw==
-X-Received: by 2002:a05:6000:1683:b0:1f1:eb7c:be70 with SMTP id y3-20020a056000168300b001f1eb7cbe70mr4261126wrd.129.1646932389931;
-        Thu, 10 Mar 2022 09:13:09 -0800 (PST)
-Received: from ?IPV6:2003:cb:c708:6100:d527:e3ca:6293:8440? (p200300cbc7086100d527e3ca62938440.dip0.t-ipconnect.de. [2003:cb:c708:6100:d527:e3ca:6293:8440])
-        by smtp.gmail.com with ESMTPSA id j15-20020a5d564f000000b0020371faf04fsm4545238wrw.67.2022.03.10.09.13.09
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 10 Mar 2022 09:13:09 -0800 (PST)
-Message-ID: <02b20949-82aa-665a-71ea-5a67c1766785@redhat.com>
-Date:   Thu, 10 Mar 2022 18:13:08 +0100
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=TDJX0xDz3mzKMSilMItog0LpILbVyzwdCnzO5jpxac8=;
+        b=lujd9eBHOmkTfTTNi69VIHHScWiXI7eBgEDSda3NOa1S83izlnNDOSK6suAwzWncyQ
+         AGTWmmgzt0G5so9moXwnREvvXNyNye0oj7ecQ3YBRZiNm8I9hiR0soLMIS4+GV3aQL+K
+         FedxSUOCjHeVUwWCZVqTj7beTUPGFsjK+w9LxUwDOx6n92kKN27jOLCA4d/cJklET8Xr
+         uIqv1ebykKwbXICZHre9tsg6RivaUVKscIKge+SbMF4pD4CcbuBA59YT6GRUvGEY01ml
+         zaCnwNdsD9BHGXL9V/dphR28UVxt0CCv7elCnMbnIHNCJf0eNHvQC3oMMW1SoGnf0Iyc
+         qvwA==
+X-Gm-Message-State: AOAM533MYpETcdWAYAY4lSol/dXc4Zvu7KJQPviNieN16ZhlbieN3OQG
+        4Agie9rVigXoXGnSDIPsSTrXMtJ9Id27718iJ+A4Cj687jgDFVr/sUPPIWAphvzZz4LwnuPQJ6A
+        Vk/2SvL/HBkL4FpdXWtKUMwY5fCjQlEEN+Tg6YA==
+X-Received: by 2002:a05:6000:10c6:b0:1f1:e562:bee2 with SMTP id b6-20020a05600010c600b001f1e562bee2mr4462487wrx.654.1646935243571;
+        Thu, 10 Mar 2022 10:00:43 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJw6h+yWNd0DE//pCGjzqYuSv/FVk6BVA6aiZwKiI0R6R6JjBtjKjPJy8mCZVuV3axvW4bM3405mckF+LKcT5DI=
+X-Received: by 2002:a05:6000:10c6:b0:1f1:e562:bee2 with SMTP id
+ b6-20020a05600010c600b001f1e562bee2mr4462478wrx.654.1646935243378; Thu, 10
+ Mar 2022 10:00:43 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.2
-Content-Language: en-US
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Andreas Gruenbacher <agruenba@redhat.com>,
+References: <CAHc6FU5nP+nziNGG0JAF1FUx-GV7kKFvM7aZuU_XD2_1v4vnvg@mail.gmail.com>
+ <CAHk-=wgmCuuJdf96WiT6WXzQQTEeSK=cgBy24J4U9V2AvK4KdQ@mail.gmail.com>
+ <bcafacea-7e67-405c-a969-e5a58a3c727e@redhat.com> <CAHk-=wh1WJ-s9Gj15yFciq6TOd9OOsE7H=R7rRskdRP6npDktQ@mail.gmail.com>
+ <CAHk-=wjHsQywXgNe9D+MQCiMhpyB2Gs5M78CGCpTr9BSeP71bw@mail.gmail.com>
+ <CAHk-=wjs2Jf3LzqCPmfkXd=ULPyCrrGEF7rR6TYzz1RPF+qh3Q@mail.gmail.com> <02b20949-82aa-665a-71ea-5a67c1766785@redhat.com>
+In-Reply-To: <02b20949-82aa-665a-71ea-5a67c1766785@redhat.com>
+From:   Andreas Gruenbacher <agruenba@redhat.com>
+Date:   Thu, 10 Mar 2022 19:00:31 +0100
+Message-ID: <CAHc6FU4ZXh+Co=__KkRzbSEJCiQnKdRayopgib26KQGbS_bbNA@mail.gmail.com>
+Subject: Re: Buffered I/O broken on s390x with page faults disabled (gfs2)
+To:     David Hildenbrand <david@redhat.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
         linux-s390 <linux-s390@vger.kernel.org>,
         Linux-MM <linux-mm@kvack.org>,
         linux-fsdevel <linux-fsdevel@vger.kernel.org>,
         linux-btrfs <linux-btrfs@vger.kernel.org>
-References: <CAHc6FU5nP+nziNGG0JAF1FUx-GV7kKFvM7aZuU_XD2_1v4vnvg@mail.gmail.com>
- <CAHk-=wgmCuuJdf96WiT6WXzQQTEeSK=cgBy24J4U9V2AvK4KdQ@mail.gmail.com>
- <bcafacea-7e67-405c-a969-e5a58a3c727e@redhat.com>
- <CAHk-=wh1WJ-s9Gj15yFciq6TOd9OOsE7H=R7rRskdRP6npDktQ@mail.gmail.com>
- <CAHk-=wjHsQywXgNe9D+MQCiMhpyB2Gs5M78CGCpTr9BSeP71bw@mail.gmail.com>
- <CAHk-=wjs2Jf3LzqCPmfkXd=ULPyCrrGEF7rR6TYzz1RPF+qh3Q@mail.gmail.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-Subject: Re: Buffered I/O broken on s390x with page faults disabled (gfs2)
-In-Reply-To: <CAHk-=wjs2Jf3LzqCPmfkXd=ULPyCrrGEF7rR6TYzz1RPF+qh3Q@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 08.03.22 20:27, Linus Torvalds wrote:
-> On Tue, Mar 8, 2022 at 9:40 AM Linus Torvalds
-> <torvalds@linux-foundation.org> wrote:
->>
->> Hmm. The futex code actually uses "fixup_user_fault()" for this case.
->> Maybe fault_in_safe_writeable() should do that?
-> 
-> .. paging all the bits back in, I'm reminded that one of the worries
-> was "what about large areas".
-> 
-> But I really think that the solution should be that we limit the size
-> of fault_in_safe_writeable() to just a couple of pages.
-> 
-> Even if you were to fault in gigabytes, page-out can undo it anyway,
-> so there is no semantic reason why that function should ever do more
-> than a few pages to make sure. There's already even a comment about
-> how there's no guarantee that the pages will stay.
-> 
-> Side note: the current GUP-based fault_in_safe_writeable() is buggy in
-> another way anyway: it doesn't work right for stack extending
-> accesses.
-> 
-> So I think the fix for this all might be something like the attached
-> (TOTALLY UNTESTED)!
-> 
-> Comments? Andreas, mind (carefully - maybe it is totally broken and
-> does unspeakable acts to your pets) testing this?
+On Thu, Mar 10, 2022 at 6:13 PM David Hildenbrand <david@redhat.com> wrote:
+>
+> On 08.03.22 20:27, Linus Torvalds wrote:
+> > On Tue, Mar 8, 2022 at 9:40 AM Linus Torvalds
+> > <torvalds@linux-foundation.org> wrote:
+> >>
+> >> Hmm. The futex code actually uses "fixup_user_fault()" for this case.
+> >> Maybe fault_in_safe_writeable() should do that?
+> >
+> > .. paging all the bits back in, I'm reminded that one of the worries
+> > was "what about large areas".
+> >
+> > But I really think that the solution should be that we limit the size
+> > of fault_in_safe_writeable() to just a couple of pages.
+> >
+> > Even if you were to fault in gigabytes, page-out can undo it anyway,
+> > so there is no semantic reason why that function should ever do more
+> > than a few pages to make sure. There's already even a comment about
+> > how there's no guarantee that the pages will stay.
+> >
+> > Side note: the current GUP-based fault_in_safe_writeable() is buggy in
+> > another way anyway: it doesn't work right for stack extending
+> > accesses.
+> >
+> > So I think the fix for this all might be something like the attached
+> > (TOTALLY UNTESTED)!
+> >
+> > Comments? Andreas, mind (carefully - maybe it is totally broken and
+> > does unspeakable acts to your pets) testing this?
+>
+> I'm late to the party, I agree with the "stack extending accesses" issue
+> and that using fixup_user_fault() looks "cleaner" than FOLL_TOUCH.
+>
+>
+> I'm just going to point out that fixup_user_fault() on a per-page basis
+> is sub-optimal, especially when dealing with something that's PMD- or
+> PUD-mapped (THP, hugetlb, ...). In contrast, GUP is optimized for that.
+>
+> So that might be something interesting to look into optimizing in the
+> future, if relevant in practice. Not sure how we could return that
+> information the best way to the caller ("the currently faulted
+> in/present page ends at address X").
 
-I'm late to the party, I agree with the "stack extending accesses" issue
-and that using fixup_user_fault() looks "cleaner" than FOLL_TOUCH.
+Yes, this applies to fault_in_iov_iter_readable() as well, as it is
+based on fault_in_readable(). It's probably not a super urgent
+optimization as the buffers faulted in are immediately accessed.
 
-
-I'm just going to point out that fixup_user_fault() on a per-page basis
-is sub-optimal, especially when dealing with something that's PMD- or
-PUD-mapped (THP, hugetlb, ...). In contrast, GUP is optimized for that.
-
-So that might be something interesting to look into optimizing in the
-future, if relevant in pactice. Not sure how we could return that
-information the best way to the caller ("the currently faulted
-in/present page ends at address X").
-
-For the time being, the idea LGTM.
-
--- 
 Thanks,
+Andreas
 
-David / dhildenb
+> For the time being, the idea LGTM.
+>
+> --
+> Thanks,
+>
+> David / dhildenb
+>
 
