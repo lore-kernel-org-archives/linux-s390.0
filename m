@@ -2,99 +2,104 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E51FAC433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 10 Mar 2022 18:36:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E0D9C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 10 Mar 2022 18:38:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245488AbiCJShN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 10 Mar 2022 13:37:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54578 "EHLO
+        id S242722AbiCJSjm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 10 Mar 2022 13:39:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239592AbiCJShK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Mar 2022 13:37:10 -0500
-Received: from mail-lf1-x130.google.com (mail-lf1-x130.google.com [IPv6:2a00:1450:4864:20::130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D49619D62E
-        for <linux-s390@vger.kernel.org>; Thu, 10 Mar 2022 10:36:04 -0800 (PST)
-Received: by mail-lf1-x130.google.com with SMTP id s25so10949970lfs.10
-        for <linux-s390@vger.kernel.org>; Thu, 10 Mar 2022 10:36:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=HpDrnPsAS8jhlqYsqpbk9Izj3698daXGmE+RS1//HxY=;
-        b=UHy+dCOsa7FxiysvXGca8RRowRTsb+f9K8Y3q8uZRNidfKjZtYAUOhcwjei9ga9XcG
-         +wtfxkazx1v2io2rfqD4ScGtNVv/JKMBAdplcBAzMMDJY/vbaSujZBBOR2CO/SDZU84T
-         fnXVL4ZsOedT/Slbwc+d3/f0+tdUx2v0gDo5w=
+        with ESMTP id S232657AbiCJSjl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Mar 2022 13:39:41 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2977018CC20
+        for <linux-s390@vger.kernel.org>; Thu, 10 Mar 2022 10:38:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1646937519;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=4IYeQmfhXlzTaLdPSgWyci5vP6ISAQPbyhuQUoHxht8=;
+        b=dtcjy6LG+SB6OQGB/jCzApBGGQYCftQAn0ISF0qZZ+SdMKInD5hUcGiMTYmLKo52z2O/st
+        YnvsDMQQjrKdVylu2Z/rOfAZnaFxRyHMms/IWZOmLyuHr2FBLQFXgKvzJNG/FGqe2ua/8n
+        bKV857r7kaXJuCBG7xaILIjeldyecGY=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-574-3vFs7SUsMUSiqysosVoePg-1; Thu, 10 Mar 2022 13:38:38 -0500
+X-MC-Unique: 3vFs7SUsMUSiqysosVoePg-1
+Received: by mail-wm1-f69.google.com with SMTP id x5-20020a1c7c05000000b00389bcc8df46so2642210wmc.0
+        for <linux-s390@vger.kernel.org>; Thu, 10 Mar 2022 10:38:36 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=HpDrnPsAS8jhlqYsqpbk9Izj3698daXGmE+RS1//HxY=;
-        b=6JwAyfIuVJEys0qrzeP7U6jFBlUDdtd6B/T3KkvEIXLAGhxguKNiE4qqYVlCt05np2
-         HQahI+DpNhCrbzGet0NQMOYVCIl2YfCFrGlCMlvoijSIILjbm1gBFGlUgHB0L2ZOPOSk
-         xrLTlxoAe3lj1VaUFd2ZPVswvwJSPSH7nrkyKUb7DEQt3Z6vj7eXfY9cuuQVpua0HGOK
-         HUH5847Ycrc31BIZvsAt3J6V0asx/6oDhn3pafgEvCoDwbS7VF2QH6HXsw4XwCLoOcaB
-         vXw/vYE9Q4gExxIIGKrkkHTR8UA52r6uinM8ccnxigC0UM7xNXcQ/jtNLWbKLz/yPf8H
-         m4Bg==
-X-Gm-Message-State: AOAM530mRkfxMI6ZwYQRM8SEqtmBUXYHEgheZH9eNfz/Iv5gnhnpoGwn
-        UHuupZVf2Y4RHvNurptOIic3n39ghnitbcbU/pk=
-X-Google-Smtp-Source: ABdhPJya2DWXsMNK38FfalPpOdN6VW2jyf7TD4Uuq3WPWD5zHYX8qeloaeb4y+IZRNZSHT9fqX1ORA==
-X-Received: by 2002:a05:6512:1698:b0:445:bc1d:3835 with SMTP id bu24-20020a056512169800b00445bc1d3835mr3647991lfb.122.1646937362578;
-        Thu, 10 Mar 2022 10:36:02 -0800 (PST)
-Received: from mail-lf1-f54.google.com (mail-lf1-f54.google.com. [209.85.167.54])
-        by smtp.gmail.com with ESMTPSA id 194-20020a2e05cb000000b00247eb0e1b15sm1222575ljf.97.2022.03.10.10.36.01
-        for <linux-s390@vger.kernel.org>
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:organization:in-reply-to
+         :content-transfer-encoding;
+        bh=4IYeQmfhXlzTaLdPSgWyci5vP6ISAQPbyhuQUoHxht8=;
+        b=JKwIv6UxzEudit4pMJq4QTtNkTStmOf34SeTrmUA79VreJRa5r0kC6Nr8p8Bdc3leC
+         zvWSd4oqpChyAr/2+34lMd8dOq3mg+eOdEGkmL2iQkpmC9NCpfEK8Vi5cLezOUiVwlMq
+         kCh7+nntNQnYFGj758bYTHDw5IKgGLNyncpRKA7lB93p9iXMo5FYtpfLGQPiKEQPoZ/x
+         PbxWNyXg8LSdJBtCjSQ+fMbxYwF/mf2oCahPtXfz5CJWZQo9QhuKroi6UMrRurbKVjKg
+         cIQCq/1PFyZ/7vuobQWsm7ucnlJQ4YriVqe8TmEoSol9jtC+rYp41Ja1Xk9fQKeNghNV
+         l+1g==
+X-Gm-Message-State: AOAM532tdzxuGyBZ3cIdcisJFzAbCMi85ceEFarFTdbD5AQgpnB/hDPT
+        zMsJ4gMMG/bO6G/IGFwe6JlTo5vIYT+Q9JXVC7Kdb5a92+np6yqJdm45NhK35KNc5e/7uFGW21X
+        bsBOAab0egGEZR3+mI4rVLQ==
+X-Received: by 2002:a05:6000:1ac8:b0:1f1:f808:fb5b with SMTP id i8-20020a0560001ac800b001f1f808fb5bmr4551074wry.560.1646937515854;
+        Thu, 10 Mar 2022 10:38:35 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzXZyD+ehnyUpidu3fxX0sNDsEqUN5QklJrVAvPYsYfbLCPxQY05Xccfzw8I0/BKy59GOHe2Q==
+X-Received: by 2002:a05:6000:1ac8:b0:1f1:f808:fb5b with SMTP id i8-20020a0560001ac800b001f1f808fb5bmr4551053wry.560.1646937515605;
+        Thu, 10 Mar 2022 10:38:35 -0800 (PST)
+Received: from ?IPV6:2003:cb:c708:6100:d527:e3ca:6293:8440? (p200300cbc7086100d527e3ca62938440.dip0.t-ipconnect.de. [2003:cb:c708:6100:d527:e3ca:6293:8440])
+        by smtp.gmail.com with ESMTPSA id v12-20020a5d4a4c000000b001e68ba61747sm4756329wrs.16.2022.03.10.10.38.34
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 10 Mar 2022 10:36:01 -0800 (PST)
-Received: by mail-lf1-f54.google.com with SMTP id r7so10998035lfc.4
-        for <linux-s390@vger.kernel.org>; Thu, 10 Mar 2022 10:36:01 -0800 (PST)
-X-Received: by 2002:a05:6512:e8a:b0:443:7b8c:579a with SMTP id
- bi10-20020a0565120e8a00b004437b8c579amr3725894lfb.687.1646937361137; Thu, 10
- Mar 2022 10:36:01 -0800 (PST)
+        Thu, 10 Mar 2022 10:38:35 -0800 (PST)
+Message-ID: <efe7b6f5-4266-5a80-837a-7ee2253d3185@redhat.com>
+Date:   Thu, 10 Mar 2022 19:38:34 +0100
 MIME-Version: 1.0
-References: <CAHc6FU5nP+nziNGG0JAF1FUx-GV7kKFvM7aZuU_XD2_1v4vnvg@mail.gmail.com>
- <CAHk-=wgmCuuJdf96WiT6WXzQQTEeSK=cgBy24J4U9V2AvK4KdQ@mail.gmail.com>
- <bcafacea-7e67-405c-a969-e5a58a3c727e@redhat.com> <CAHk-=wh1WJ-s9Gj15yFciq6TOd9OOsE7H=R7rRskdRP6npDktQ@mail.gmail.com>
- <CAHk-=wjHsQywXgNe9D+MQCiMhpyB2Gs5M78CGCpTr9BSeP71bw@mail.gmail.com>
- <CAHk-=wjs2Jf3LzqCPmfkXd=ULPyCrrGEF7rR6TYzz1RPF+qh3Q@mail.gmail.com> <02b20949-82aa-665a-71ea-5a67c1766785@redhat.com>
-In-Reply-To: <02b20949-82aa-665a-71ea-5a67c1766785@redhat.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Thu, 10 Mar 2022 10:35:44 -0800
-X-Gmail-Original-Message-ID: <CAHk-=wiX1PspWAJ-4Jqk7GHig4B4pJFzPXU7eH2AYtN+iNVAeQ@mail.gmail.com>
-Message-ID: <CAHk-=wiX1PspWAJ-4Jqk7GHig4B4pJFzPXU7eH2AYtN+iNVAeQ@mail.gmail.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.2
 Subject: Re: Buffered I/O broken on s390x with page faults disabled (gfs2)
-To:     David Hildenbrand <david@redhat.com>
+Content-Language: en-US
+To:     Linus Torvalds <torvalds@linux-foundation.org>
 Cc:     Andreas Gruenbacher <agruenba@redhat.com>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
         linux-s390 <linux-s390@vger.kernel.org>,
         Linux-MM <linux-mm@kvack.org>,
         linux-fsdevel <linux-fsdevel@vger.kernel.org>,
         linux-btrfs <linux-btrfs@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+References: <CAHc6FU5nP+nziNGG0JAF1FUx-GV7kKFvM7aZuU_XD2_1v4vnvg@mail.gmail.com>
+ <CAHk-=wgmCuuJdf96WiT6WXzQQTEeSK=cgBy24J4U9V2AvK4KdQ@mail.gmail.com>
+ <bcafacea-7e67-405c-a969-e5a58a3c727e@redhat.com>
+ <CAHk-=wh1WJ-s9Gj15yFciq6TOd9OOsE7H=R7rRskdRP6npDktQ@mail.gmail.com>
+ <CAHk-=wjHsQywXgNe9D+MQCiMhpyB2Gs5M78CGCpTr9BSeP71bw@mail.gmail.com>
+ <CAHk-=wjs2Jf3LzqCPmfkXd=ULPyCrrGEF7rR6TYzz1RPF+qh3Q@mail.gmail.com>
+ <02b20949-82aa-665a-71ea-5a67c1766785@redhat.com>
+ <CAHk-=wiX1PspWAJ-4Jqk7GHig4B4pJFzPXU7eH2AYtN+iNVAeQ@mail.gmail.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+In-Reply-To: <CAHk-=wiX1PspWAJ-4Jqk7GHig4B4pJFzPXU7eH2AYtN+iNVAeQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Mar 10, 2022 at 9:13 AM David Hildenbrand <david@redhat.com> wrote:
->
-> For the time being, the idea LGTM.
+On 10.03.22 19:35, Linus Torvalds wrote:
+> On Thu, Mar 10, 2022 at 9:13 AM David Hildenbrand <david@redhat.com> wrote:
+>>
+>> For the time being, the idea LGTM.
+> 
+> I'll take that as an acked-by, and I think I'll just commit it to my
+> real tree rather than delay this fix for the next merge window (only
+> to have it then be marked as stable and applied that wat).
 
-I'll take that as an acked-by, and I think I'll just commit it to my
-real tree rather than delay this fix for the next merge window (only
-to have it then be marked as stable and applied that wat).
+Yes, ACK and makes sense.
 
-I do agree that we should look at future changes in this area, ranging
-from limiting the number of pages to the (I think already pending)
-work for arm64 to use an instruction to probe every 128 bytes instead
-of on a page basis.
 
-It might even be reasonable to have some hybrid approach that walks
-the page tables and faults things in - not quite GUP, not quite
-'handle_mm_fault()'.
+-- 
+Thanks,
 
-That said, this is hopefully always going to be the rare case. Yes,
-people do IO on "cold" virtual memory, but people doing any
-performance work hopefully know that locality (temporal and spatial)
-matters not just for the regular CPU data caches, but for pretty much
-everything.
+David / dhildenb
 
-                    Linus
