@@ -2,86 +2,125 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D52AFC433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 10 Mar 2022 20:23:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 97C3FC43219
+	for <linux-s390@archiver.kernel.org>; Fri, 11 Mar 2022 02:38:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243421AbiCJUYd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 10 Mar 2022 15:24:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37312 "EHLO
+        id S1345668AbiCKCj0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 10 Mar 2022 21:39:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236792AbiCJUYc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Mar 2022 15:24:32 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id A390AECB34
-        for <linux-s390@vger.kernel.org>; Thu, 10 Mar 2022 12:23:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1646943809;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=bH4/6OdCxrtunb44tPOYHwdgjcfhX0Qz09OdOxJro7A=;
-        b=ZQvbwiz7SvhOr6l1qQUOy+XpVWV7lwS2CjhhfmLNj/riHgVEfFVmGPzy1WlF9HTR/Wgxkh
-        BV7IgCXbWtDZOZ9PpJgLjjmUwJnc3V8kIBOcKVl7m48f9GDlyVisjsm7aLNjLpctjzkOjO
-        DUDZlzUhkN4kBba99xbyG3vOSd8l6kc=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-264-FZA8n2X3PmC3IArPDR3B5g-1; Thu, 10 Mar 2022 15:23:28 -0500
-X-MC-Unique: FZA8n2X3PmC3IArPDR3B5g-1
-Received: by mail-wr1-f72.google.com with SMTP id q14-20020adfea0e000000b002036c16c6daso2077615wrm.8
-        for <linux-s390@vger.kernel.org>; Thu, 10 Mar 2022 12:23:27 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=bH4/6OdCxrtunb44tPOYHwdgjcfhX0Qz09OdOxJro7A=;
-        b=pIWrfNGaIg2uuQxQ6JdXd+SROe9i6BIJiFaBe4hU2JHgAGRXE45zPBeqf+xGgbNT1v
-         zAEpE5SU/FNiaiGm/WxZsXtsR0Bdq3gDzFNHru+gWSl25yOrbS2InTN160Q6F7Tp5j84
-         ItICIw1BpOXeNGEi8C36ciA5gcJ1HPCcuwLRHfxkyvJzt3x1WCMWx7YsnhnyW4BmPDZn
-         zOet1XrolUSlsPDmd5lLHq9/ZZJOxRjLzlksF4q+nyjyEKTIMGX14nR5+Asg3/JMM9XR
-         cpZHKqwKBmFv4+JbzRSAs6c/Y/mAJW7Ghx2YXGn97Fppe4XWZIhMbsZhO7QuxxKBfTgZ
-         e9xQ==
-X-Gm-Message-State: AOAM532pToi71NeCNq3VMLLsJo9Xzqbnf//Te2q5NvReivcKudJ1zpK4
-        xafWZVKXYG/pFg7bmS/QwLTpXZJCZaSms51IJkiiL46Ok5jx58Em4TKovuqpO8B1qKa1sZGINmZ
-        l/nb7loew4Dq7vZxyuoZDRuiXM7VTFeuHGnAfpQ==
-X-Received: by 2002:a1c:e90a:0:b0:381:504e:b57d with SMTP id q10-20020a1ce90a000000b00381504eb57dmr13019515wmc.177.1646943806970;
-        Thu, 10 Mar 2022 12:23:26 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJw16FQLbDeS9B5CsJlBEVWqDdzz2Nkgq70FzZQX/iF5ZEZCXMvb6pDLIp/taw7qbW1c3cqimkE7lh0EQM6JeRk=
-X-Received: by 2002:a1c:e90a:0:b0:381:504e:b57d with SMTP id
- q10-20020a1ce90a000000b00381504eb57dmr13019507wmc.177.1646943806851; Thu, 10
- Mar 2022 12:23:26 -0800 (PST)
+        with ESMTP id S235051AbiCKCjY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Mar 2022 21:39:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D24EA108763;
+        Thu, 10 Mar 2022 18:38:22 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D373600BE;
+        Fri, 11 Mar 2022 02:38:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAC43C340FC;
+        Fri, 11 Mar 2022 02:38:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1646966301;
+        bh=Jl8zmUlue4qqSpvupSe770nwEDFbxuYU+7Bv15ArLNk=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=lSDH6JbZLjCrBKwhP5l06T0OkCO9oN/A8aEEjauCFSKrSGqZSLjhPkfyba8lYXT8b
+         qYNbLTfBYoaFYS9/EdstBjbcmkW1UfcrGbXKAA3XzivX2N/X7M8/MG2dJGhgzUj1xe
+         JwIgADZuHHJQV+vkPugE9tLJ05ZgR4K+s7Tqg3OYy0S0d/gkDWxZGRTQdcVyEyVTta
+         XcdW+bJU/6F0zGvwFWhD4c7+eaOFthHqbXVWvY103F1BoVPLPmpdBFX9VrRB9dX0cQ
+         RFdNXU0aoXtMTFwXmsyOd8jEdA/NcC/+rOGDrpxxb7LrGBkBTS5gvraGhc0yhF8ir3
+         59IUblFQhb99Q==
+Received: by mail-vs1-f48.google.com with SMTP id u124so8098304vsb.10;
+        Thu, 10 Mar 2022 18:38:21 -0800 (PST)
+X-Gm-Message-State: AOAM531r+0RCSa1uP+4DxvpwfnmVIeolCIthRU6hs16y0vps/+RpTX7N
+        HjMThTmSp9v4Mq//k9W35qDGb7jrYRzugH1eYPA=
+X-Google-Smtp-Source: ABdhPJzYUvUjuAFq8XvtZ71Qsvionf8y5EprAZIyEokbvQbCG5RE3xULelpIsGE/d8q0ktAquLt4SKjjcxqaZOgU8Ls=
+X-Received: by 2002:a05:6102:806:b0:31e:2206:f1c with SMTP id
+ g6-20020a056102080600b0031e22060f1cmr3912870vsb.59.1646966300562; Thu, 10 Mar
+ 2022 18:38:20 -0800 (PST)
 MIME-Version: 1.0
-References: <CAHc6FU5nP+nziNGG0JAF1FUx-GV7kKFvM7aZuU_XD2_1v4vnvg@mail.gmail.com>
- <CAHk-=wgmCuuJdf96WiT6WXzQQTEeSK=cgBy24J4U9V2AvK4KdQ@mail.gmail.com>
- <bcafacea-7e67-405c-a969-e5a58a3c727e@redhat.com> <CAHk-=wh1WJ-s9Gj15yFciq6TOd9OOsE7H=R7rRskdRP6npDktQ@mail.gmail.com>
- <CAHk-=wjHsQywXgNe9D+MQCiMhpyB2Gs5M78CGCpTr9BSeP71bw@mail.gmail.com>
- <CAHk-=wjs2Jf3LzqCPmfkXd=ULPyCrrGEF7rR6TYzz1RPF+qh3Q@mail.gmail.com>
- <02b20949-82aa-665a-71ea-5a67c1766785@redhat.com> <CAHk-=wiX1PspWAJ-4Jqk7GHig4B4pJFzPXU7eH2AYtN+iNVAeQ@mail.gmail.com>
- <CAHc6FU6+y2ZGg3QnW9NLsj43vvDpAFu-pVBK-xTPfsDcKa39Mg@mail.gmail.com>
- <CAHk-=wiXEQ9+NedP6LRbAXGTHrT4MZSPRvbJAFmgrDh75GpE2Q@mail.gmail.com> <CAHk-=wi0hBrR3QqYejZ-aJmfAaPWYUEFVaET6UgfCJOky9qOgg@mail.gmail.com>
-In-Reply-To: <CAHk-=wi0hBrR3QqYejZ-aJmfAaPWYUEFVaET6UgfCJOky9qOgg@mail.gmail.com>
-From:   Andreas Gruenbacher <agruenba@redhat.com>
-Date:   Thu, 10 Mar 2022 21:23:15 +0100
-Message-ID: <CAHc6FU4pH_OKppo0n772JoDtXy=pmhApSSjN7emv4D=sdCSzWQ@mail.gmail.com>
-Subject: Re: Buffered I/O broken on s390x with page faults disabled (gfs2)
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     David Hildenbrand <david@redhat.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
+References: <20220227162831.674483-1-guoren@kernel.org> <20220227162831.674483-14-guoren@kernel.org>
+In-Reply-To: <20220227162831.674483-14-guoren@kernel.org>
+From:   Guo Ren <guoren@kernel.org>
+Date:   Fri, 11 Mar 2022 10:38:09 +0800
+X-Gmail-Original-Message-ID: <CAJF2gTSJFMg1YJ=dbaNyemNV4sc_3P=+_PrS=RD_Y2_xz3TzPA@mail.gmail.com>
+Message-ID: <CAJF2gTSJFMg1YJ=dbaNyemNV4sc_3P=+_PrS=RD_Y2_xz3TzPA@mail.gmail.com>
+Subject: Re: [PATCH V7 13/20] riscv: compat: process: Add UXL_32 support in start_thread
+To:     Guo Ren <guoren@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Anup Patel <anup@brainfault.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        liush <liush@allwinnertech.com>, Wei Fu <wefu@redhat.com>,
+        Drew Fustini <drew@beagleboard.org>,
+        Wang Junqiang <wangjunqiang@iscas.ac.cn>,
+        Christoph Hellwig <hch@lst.de>
+Cc:     linux-arch <linux-arch@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-csky@vger.kernel.org,
         linux-s390 <linux-s390@vger.kernel.org>,
-        Linux-MM <linux-mm@kvack.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        linux-btrfs <linux-btrfs@vger.kernel.org>
+        sparclinux <sparclinux@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Guo Ren <guoren@linux.alibaba.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Mar 10, 2022 at 8:56 PM Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
-> It's out as commit fe673d3f5bf1 ("mm: gup: make
-> fault_in_safe_writeable() use fixup_user_fault()") now.
+Hi Arnd,
 
-Thanks!
+On Mon, Feb 28, 2022 at 12:30 AM <guoren@kernel.org> wrote:
+>
+> From: Guo Ren <guoren@linux.alibaba.com>
+>
+> If the current task is in COMPAT mode, set SR_UXL_32 in status for
+> returning userspace. We need CONFIG _COMPAT to prevent compiling
+> errors with rv32 defconfig.
+>
+> Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+> Signed-off-by: Guo Ren <guoren@kernel.org>
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Cc: Palmer Dabbelt <palmer@dabbelt.com>
+> ---
+>  arch/riscv/kernel/process.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+>
+> diff --git a/arch/riscv/kernel/process.c b/arch/riscv/kernel/process.c
+> index 03ac3aa611f5..54787ca9806a 100644
+> --- a/arch/riscv/kernel/process.c
+> +++ b/arch/riscv/kernel/process.c
+> @@ -97,6 +97,11 @@ void start_thread(struct pt_regs *regs, unsigned long pc,
+>         }
+>         regs->epc = pc;
+>         regs->sp = sp;
+> +
+FIxup:
 
-Andreas
++ #ifdef CONFIG_COMPAT
+> +       if (is_compat_task())
+> +               regs->status = (regs->status & ~SR_UXL) | SR_UXL_32;
+> +       else
+> +               regs->status = (regs->status & ~SR_UXL) | SR_UXL_64;
++ #endif
 
+We still need "#ifdef CONFIG_COMPAT" here, because for rv32 we can't
+set SR_UXL at all. SR_UXL is BIT[32, 33].
+
+>  }
+>
+>  void flush_thread(void)
+> --
+> 2.25.1
+>
+
+
+-- 
+Best Regards
+ Guo Ren
+
+ML: https://lore.kernel.org/linux-csky/
