@@ -2,125 +2,286 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97C3FC43219
-	for <linux-s390@archiver.kernel.org>; Fri, 11 Mar 2022 02:38:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8820C433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 11 Mar 2022 05:01:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345668AbiCKCj0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 10 Mar 2022 21:39:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47340 "EHLO
+        id S236467AbiCKFCo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 11 Mar 2022 00:02:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235051AbiCKCjY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Mar 2022 21:39:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D24EA108763;
-        Thu, 10 Mar 2022 18:38:22 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D373600BE;
-        Fri, 11 Mar 2022 02:38:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAC43C340FC;
-        Fri, 11 Mar 2022 02:38:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646966301;
-        bh=Jl8zmUlue4qqSpvupSe770nwEDFbxuYU+7Bv15ArLNk=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=lSDH6JbZLjCrBKwhP5l06T0OkCO9oN/A8aEEjauCFSKrSGqZSLjhPkfyba8lYXT8b
-         qYNbLTfBYoaFYS9/EdstBjbcmkW1UfcrGbXKAA3XzivX2N/X7M8/MG2dJGhgzUj1xe
-         JwIgADZuHHJQV+vkPugE9tLJ05ZgR4K+s7Tqg3OYy0S0d/gkDWxZGRTQdcVyEyVTta
-         XcdW+bJU/6F0zGvwFWhD4c7+eaOFthHqbXVWvY103F1BoVPLPmpdBFX9VrRB9dX0cQ
-         RFdNXU0aoXtMTFwXmsyOd8jEdA/NcC/+rOGDrpxxb7LrGBkBTS5gvraGhc0yhF8ir3
-         59IUblFQhb99Q==
-Received: by mail-vs1-f48.google.com with SMTP id u124so8098304vsb.10;
-        Thu, 10 Mar 2022 18:38:21 -0800 (PST)
-X-Gm-Message-State: AOAM531r+0RCSa1uP+4DxvpwfnmVIeolCIthRU6hs16y0vps/+RpTX7N
-        HjMThTmSp9v4Mq//k9W35qDGb7jrYRzugH1eYPA=
-X-Google-Smtp-Source: ABdhPJzYUvUjuAFq8XvtZ71Qsvionf8y5EprAZIyEokbvQbCG5RE3xULelpIsGE/d8q0ktAquLt4SKjjcxqaZOgU8Ls=
-X-Received: by 2002:a05:6102:806:b0:31e:2206:f1c with SMTP id
- g6-20020a056102080600b0031e22060f1cmr3912870vsb.59.1646966300562; Thu, 10 Mar
- 2022 18:38:20 -0800 (PST)
+        with ESMTP id S229910AbiCKFCl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Mar 2022 00:02:41 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 4F6E31AC28D
+        for <linux-s390@vger.kernel.org>; Thu, 10 Mar 2022 21:01:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1646974897;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ClxhKYkVRI4wjgf/neqah0SebFq73Qnvze+JfcOkoWE=;
+        b=IQq9HaLTepJW2VIKqYDuNySk2pG46XpUS+Fz8bU1QjaegPbnoMbBBH9RPVo4ux2iD5iH/8
+        zOcj8/aZzTUwJCszU+oKR37vn3mbkdRmdc2uFuuPWk3gLgnP61PfedPZDAjzgsI3TrPzVv
+        UT+y9Syhkl7KHJdth20CtDw1mNRasu8=
+Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com
+ [209.85.215.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-168-rbx8iZETPtOOuAObxZwFvA-1; Fri, 11 Mar 2022 00:01:35 -0500
+X-MC-Unique: rbx8iZETPtOOuAObxZwFvA-1
+Received: by mail-pg1-f197.google.com with SMTP id s5-20020a637705000000b00380cf1d3eb0so2983618pgc.5
+        for <linux-s390@vger.kernel.org>; Thu, 10 Mar 2022 21:01:35 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=ClxhKYkVRI4wjgf/neqah0SebFq73Qnvze+JfcOkoWE=;
+        b=WOi8bBj6B/VUYoWt98GH+7fTN+qGimqIWS8nHdXpigoX9VMlXTmqrLj9/+6WUKaSEk
+         4xHB9+lUA6WftS92tpD0tCHHeJOkJdtGPryF6/nyW5nTz7avU8vsujIOExdOyBsj4Qw4
+         UZ8E8e24sn7heYl5wIlxRF5n79puhcW2GDrJUTWZeHvCgnDs2wgRm069aF96lEhrvmqq
+         2AojDxJkqyR7u0PaLB0VDRcNOGGiVSQ0fsfwWbXV8VEvX8cXYcFiarQnKHraA60Gza9u
+         PBXh8WT1C9fycJpdCuLqKEJWi92LumwV45tHT3wvv44Q9WtztNoGNGZ9FTzsGvrA2qxv
+         97Mw==
+X-Gm-Message-State: AOAM530Zn69JycKaTFXo7Es+zMdsyEQCyoikYNIyoKMsnOfvCPMy2JmP
+        tWBkYoUJosr1HghaAOGxqA6GJefX0+o/jr+16/vbIbk+AA49WltStNv7g0wpMx8zNISUed/tWvz
+        smbz0zK00OtstUwuCe4tnew==
+X-Received: by 2002:a17:903:2287:b0:151:dab2:aacc with SMTP id b7-20020a170903228700b00151dab2aaccmr8931066plh.64.1646974894630;
+        Thu, 10 Mar 2022 21:01:34 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyjhAHibdrN+PAZOgUOITJB4K7Do8Ys0otdg7SyrCfQr2FG1PKdSe+p69caWpelZLkCRgx01w==
+X-Received: by 2002:a17:903:2287:b0:151:dab2:aacc with SMTP id b7-20020a170903228700b00151dab2aaccmr8931038plh.64.1646974894266;
+        Thu, 10 Mar 2022 21:01:34 -0800 (PST)
+Received: from [10.72.13.226] ([209.132.188.80])
+        by smtp.gmail.com with ESMTPSA id x6-20020a17090aa38600b001bce781ce03sm7437875pjp.18.2022.03.10.21.01.25
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 10 Mar 2022 21:01:33 -0800 (PST)
+Message-ID: <cd774778-6cdc-9ebe-141c-1f47ad1c3109@redhat.com>
+Date:   Fri, 11 Mar 2022 13:01:23 +0800
 MIME-Version: 1.0
-References: <20220227162831.674483-1-guoren@kernel.org> <20220227162831.674483-14-guoren@kernel.org>
-In-Reply-To: <20220227162831.674483-14-guoren@kernel.org>
-From:   Guo Ren <guoren@kernel.org>
-Date:   Fri, 11 Mar 2022 10:38:09 +0800
-X-Gmail-Original-Message-ID: <CAJF2gTSJFMg1YJ=dbaNyemNV4sc_3P=+_PrS=RD_Y2_xz3TzPA@mail.gmail.com>
-Message-ID: <CAJF2gTSJFMg1YJ=dbaNyemNV4sc_3P=+_PrS=RD_Y2_xz3TzPA@mail.gmail.com>
-Subject: Re: [PATCH V7 13/20] riscv: compat: process: Add UXL_32 support in start_thread
-To:     Guo Ren <guoren@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Anup Patel <anup@brainfault.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        liush <liush@allwinnertech.com>, Wei Fu <wefu@redhat.com>,
-        Drew Fustini <drew@beagleboard.org>,
-        Wang Junqiang <wangjunqiang@iscas.ac.cn>,
-        Christoph Hellwig <hch@lst.de>
-Cc:     linux-arch <linux-arch@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-csky@vger.kernel.org,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Guo Ren <guoren@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.6.2
+Subject: Re: [PATCH v7 09/26] virtio_ring: split: implement
+ virtqueue_reset_vring_split()
+Content-Language: en-US
+To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        Vadim Pasternak <vadimp@nvidia.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        linux-um@lists.infradead.org, platform-driver-x86@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, bpf@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+References: <20220308123518.33800-1-xuanzhuo@linux.alibaba.com>
+ <20220308123518.33800-10-xuanzhuo@linux.alibaba.com>
+ <512de020-b36e-8473-69c8-8b3925fbb6c1@redhat.com>
+ <1646887597.810321-1-xuanzhuo@linux.alibaba.com>
+From:   Jason Wang <jasowang@redhat.com>
+In-Reply-To: <1646887597.810321-1-xuanzhuo@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Arnd,
 
-On Mon, Feb 28, 2022 at 12:30 AM <guoren@kernel.org> wrote:
+在 2022/3/10 下午12:46, Xuan Zhuo 写道:
+> On Wed, 9 Mar 2022 15:55:44 +0800, Jason Wang <jasowang@redhat.com> wrote:
+>> 在 2022/3/8 下午8:35, Xuan Zhuo 写道:
+>>> virtio ring supports reset.
+>>>
+>>> Queue reset is divided into several stages.
+>>>
+>>> 1. notify device queue reset
+>>> 2. vring release
+>>> 3. attach new vring
+>>> 4. notify device queue re-enable
+>>>
+>>> After the first step is completed, the vring reset operation can be
+>>> performed. If the newly set vring num does not change, then just reset
+>>> the vq related value.
+>>>
+>>> Otherwise, the vring will be released and the vring will be reallocated.
+>>> And the vring will be attached to the vq. If this process fails, the
+>>> function will exit, and the state of the vq will be the vring release
+>>> state. You can call this function again to reallocate the vring.
+>>>
+>>> In addition, vring_align, may_reduce_num are necessary for reallocating
+>>> vring, so they are retained when creating vq.
+>>>
+>>> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+>>> ---
+>>>    drivers/virtio/virtio_ring.c | 69 ++++++++++++++++++++++++++++++++++++
+>>>    1 file changed, 69 insertions(+)
+>>>
+>>> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+>>> index e0422c04c903..148fb1fd3d5a 100644
+>>> --- a/drivers/virtio/virtio_ring.c
+>>> +++ b/drivers/virtio/virtio_ring.c
+>>> @@ -158,6 +158,12 @@ struct vring_virtqueue {
+>>>    			/* DMA address and size information */
+>>>    			dma_addr_t queue_dma_addr;
+>>>    			size_t queue_size_in_bytes;
+>>> +
+>>> +			/* The parameters for creating vrings are reserved for
+>>> +			 * creating new vrings when enabling reset queue.
+>>> +			 */
+>>> +			u32 vring_align;
+>>> +			bool may_reduce_num;
+>>>    		} split;
+>>>
+>>>    		/* Available for packed ring */
+>>> @@ -217,6 +223,12 @@ struct vring_virtqueue {
+>>>    #endif
+>>>    };
+>>>
+>>> +static void vring_free(struct virtqueue *vq);
+>>> +static void __vring_virtqueue_init_split(struct vring_virtqueue *vq,
+>>> +					 struct virtio_device *vdev);
+>>> +static int __vring_virtqueue_attach_split(struct vring_virtqueue *vq,
+>>> +					  struct virtio_device *vdev,
+>>> +					  struct vring vring);
+>>>
+>>>    /*
+>>>     * Helpers.
+>>> @@ -1012,6 +1024,8 @@ static struct virtqueue *vring_create_virtqueue_split(
+>>>    		return NULL;
+>>>    	}
+>>>
+>>> +	to_vvq(vq)->split.vring_align = vring_align;
+>>> +	to_vvq(vq)->split.may_reduce_num = may_reduce_num;
+>>>    	to_vvq(vq)->split.queue_dma_addr = vring.dma_addr;
+>>>    	to_vvq(vq)->split.queue_size_in_bytes = vring.queue_size_in_bytes;
+>>>    	to_vvq(vq)->we_own_ring = true;
+>>> @@ -1019,6 +1033,59 @@ static struct virtqueue *vring_create_virtqueue_split(
+>>>    	return vq;
+>>>    }
+>>>
+>>> +static int virtqueue_reset_vring_split(struct virtqueue *_vq, u32 num)
+>>> +{
+>>
+>> So what this function does is to resize the virtqueue actually, I
+>> suggest to rename it as virtqueue_resize_split().
+> In addition to resize, when num is 0, the function is to reinitialize vq ring
+> related variables. For example avail_idx_shadow.
+
+
+We need to move those logic to virtio_reset_vq() (I think we agree to 
+have a better name of it).
+
+
+> So I think 'reset' is more appropriate.
+
+
+The name is confusing at least to me, since we've already had 
+virtio_reset_vq() and most of the logic is to do the resize.
+
+Thanks
+
+
 >
-> From: Guo Ren <guoren@linux.alibaba.com>
+> Thanks.
 >
-> If the current task is in COMPAT mode, set SR_UXL_32 in status for
-> returning userspace. We need CONFIG _COMPAT to prevent compiling
-> errors with rv32 defconfig.
->
-> Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-> Signed-off-by: Guo Ren <guoren@kernel.org>
-> Cc: Arnd Bergmann <arnd@arndb.de>
-> Cc: Palmer Dabbelt <palmer@dabbelt.com>
-> ---
->  arch/riscv/kernel/process.c | 5 +++++
->  1 file changed, 5 insertions(+)
->
-> diff --git a/arch/riscv/kernel/process.c b/arch/riscv/kernel/process.c
-> index 03ac3aa611f5..54787ca9806a 100644
-> --- a/arch/riscv/kernel/process.c
-> +++ b/arch/riscv/kernel/process.c
-> @@ -97,6 +97,11 @@ void start_thread(struct pt_regs *regs, unsigned long pc,
->         }
->         regs->epc = pc;
->         regs->sp = sp;
-> +
-FIxup:
+>>
+>>> +	struct vring_virtqueue *vq = to_vvq(_vq);
+>>> +	struct virtio_device *vdev = _vq->vdev;
+>>> +	struct vring_split vring;
+>>> +	int err;
+>>> +
+>>> +	if (num > _vq->num_max)
+>>> +		return -E2BIG;
+>>> +
+>>> +	switch (vq->vq.reset) {
+>>> +	case VIRTIO_VQ_RESET_STEP_NONE:
+>>> +		return -ENOENT;
+>>> +
+>>> +	case VIRTIO_VQ_RESET_STEP_VRING_ATTACH:
+>>> +	case VIRTIO_VQ_RESET_STEP_DEVICE:
+>>> +		if (vq->split.vring.num == num || !num)
+>>> +			break;
+>>> +
+>>> +		vring_free(_vq);
+>>> +
+>>> +		fallthrough;
+>>> +
+>>> +	case VIRTIO_VQ_RESET_STEP_VRING_RELEASE:
+>>> +		if (!num)
+>>> +			num = vq->split.vring.num;
+>>> +
+>>> +		err = vring_create_vring_split(&vring, vdev,
+>>> +					       vq->split.vring_align,
+>>> +					       vq->weak_barriers,
+>>> +					       vq->split.may_reduce_num, num);
+>>> +		if (err)
+>>> +			return -ENOMEM;
+>>
+>> We'd better need a safe fallback here like:
+>>
+>> If we can't allocate new memory, we can keep using the current one.
+>> Otherwise an ethtool -G fail may make the device not usable.
+>>
+>> This could be done by not freeing the old vring and virtqueue states
+>> until new is allocated.
+>>
+>>
+>>> +
+>>> +		err = __vring_virtqueue_attach_split(vq, vdev, vring.vring);
+>>> +		if (err) {
+>>> +			vring_free_queue(vdev, vring.queue_size_in_bytes,
+>>> +					 vring.queue,
+>>> +					 vring.dma_addr);
+>>> +			return -ENOMEM;
+>>> +		}
+>>> +
+>>> +		vq->split.queue_dma_addr = vring.dma_addr;
+>>> +		vq->split.queue_size_in_bytes = vring.queue_size_in_bytes;
+>>> +	}
+>>> +
+>>> +	__vring_virtqueue_init_split(vq, vdev);
+>>> +	vq->we_own_ring = true;
+>>
+>> This seems wrong, we have the transport (rproc/mlxtbf) that allocate the
+>> vring by themselves. I think we need to fail the resize for we_own_ring
+>> == false.
+>>
+>> Thanks
+>>
+>>
+>>
+>>> +	vq->vq.reset = VIRTIO_VQ_RESET_STEP_VRING_ATTACH;
+>>> +
+>>> +	return 0;
+>>> +}
+>>> +
+>>>
+>>>    /*
+>>>     * Packed ring specific functions - *_packed().
+>>> @@ -2317,6 +2384,8 @@ static int __vring_virtqueue_attach_split(struct vring_virtqueue *vq,
+>>>    static void __vring_virtqueue_init_split(struct vring_virtqueue *vq,
+>>>    					 struct virtio_device *vdev)
+>>>    {
+>>> +	vq->vq.reset = VIRTIO_VQ_RESET_STEP_NONE;
+>>> +
+>>>    	vq->packed_ring = false;
+>>>    	vq->we_own_ring = false;
+>>>    	vq->broken = false;
 
-+ #ifdef CONFIG_COMPAT
-> +       if (is_compat_task())
-> +               regs->status = (regs->status & ~SR_UXL) | SR_UXL_32;
-> +       else
-> +               regs->status = (regs->status & ~SR_UXL) | SR_UXL_64;
-+ #endif
-
-We still need "#ifdef CONFIG_COMPAT" here, because for rv32 we can't
-set SR_UXL at all. SR_UXL is BIT[32, 33].
-
->  }
->
->  void flush_thread(void)
-> --
-> 2.25.1
->
-
-
--- 
-Best Regards
- Guo Ren
-
-ML: https://lore.kernel.org/linux-csky/
