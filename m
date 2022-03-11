@@ -2,328 +2,198 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 89132C433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 11 Mar 2022 16:07:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E692C433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 11 Mar 2022 17:38:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350169AbiCKQJA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 11 Mar 2022 11:09:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51328 "EHLO
+        id S1350797AbiCKRjk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 11 Mar 2022 12:39:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349896AbiCKQI7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Mar 2022 11:08:59 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08F396C97E;
-        Fri, 11 Mar 2022 08:07:56 -0800 (PST)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22BG1ugq026895;
-        Fri, 11 Mar 2022 16:07:53 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=ecUC02vi9L5mXSks5iNggXwcCtt0tIzpxV2IQJfr/oc=;
- b=rtF4GM7dHwKC7NsoxsJpc4Qi0KZDl7wIuE63OD/Z76G7ZgwcF1NxCvq6tp8azqQGkqkZ
- OxMiYSEpcJeHX+zOh7LYoJyPcRnChiOMsr1U6jWArygZ52Gu405VRln83EGI1xracLKZ
- u/NUoG8ZQ1mE1o+QjLW4SLc0lERKsRl5szD3e06jsx+gNObxX2Gxal44g5JulUaCIkrO
- gf3OSySlbhZlTYdB0Mmzj3sLn/YNCFut1QB/o/xxDvt/ih76ljefg3kQ2SpXC92I6Vk+
- qUQ3hOUkSkSF2SF0oiYHkurqu0sUxWW0/kkGVW4tWRUIdZd+zXsenevP8XWY3OYS7nMV 6g== 
+        with ESMTP id S1349966AbiCKRjj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Mar 2022 12:39:39 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AAF31AEED6;
+        Fri, 11 Mar 2022 09:38:32 -0800 (PST)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22BGsGfL036707;
+        Fri, 11 Mar 2022 17:38:32 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=RmvsHlrSbWmMzkAo4uoT0ON7Vo7tU5zQpftq26s97GI=;
+ b=IvLhHs166oq9QtDngECNkn05NKZb9fSEkf6AhIqnrVBlvJtHtetizgvQ9gJKVKKGBTVe
+ X0QzsEQAuzCy3UB26hmoziK32Ly6PtYO0PFLppnROMaMCjqkES7ht83fc7N7tEK9wxJV
+ Dk+dO5TOBD14dUWtZa+5wCzw0oqrBaiuCHRsp4N5Easbrz/2NmI9TTpme42crzdQduUS
+ Dqr6zFikhQZnphl79JbPWgfxFWikZYZWIdxrV7Izw3cc+YdbUl6cPqbho8+D9A2S69mb
+ AxBlw8Ezs1Snmlzkjbigpnoy5Asi6dvLro2yI+VlciunvyAlo29w3+wQ6FMxad2pZfiK eQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3eqtfgh5pr-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3eqg9ssk5c-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 11 Mar 2022 16:07:53 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22BG5ZF5025259;
-        Fri, 11 Mar 2022 16:07:52 GMT
-Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3eqtfgh5pa-1
+        Fri, 11 Mar 2022 17:38:31 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22BFtOs4032208;
+        Fri, 11 Mar 2022 17:38:31 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3eqg9ssk4q-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 11 Mar 2022 16:07:52 +0000
-Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
-        by ppma01dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22BG3EpS030717;
-        Fri, 11 Mar 2022 16:07:51 GMT
-Received: from b01cxnp23032.gho.pok.ibm.com (b01cxnp23032.gho.pok.ibm.com [9.57.198.27])
-        by ppma01dal.us.ibm.com with ESMTP id 3emgamh5mh-1
+        Fri, 11 Mar 2022 17:38:31 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22BHY6lb027261;
+        Fri, 11 Mar 2022 17:38:29 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma06ams.nl.ibm.com with ESMTP id 3eqqf0a5h4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 11 Mar 2022 16:07:51 +0000
-Received: from b01ledav002.gho.pok.ibm.com (b01ledav002.gho.pok.ibm.com [9.57.199.107])
-        by b01cxnp23032.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22BG7oKa20906410
+        Fri, 11 Mar 2022 17:38:29 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22BHcQM434669026
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 11 Mar 2022 16:07:50 GMT
-Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 32561124053;
-        Fri, 11 Mar 2022 16:07:50 +0000 (GMT)
-Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id EA80812405E;
-        Fri, 11 Mar 2022 16:07:48 +0000 (GMT)
-Received: from [9.65.234.56] (unknown [9.65.234.56])
-        by b01ledav002.gho.pok.ibm.com (Postfix) with ESMTP;
-        Fri, 11 Mar 2022 16:07:48 +0000 (GMT)
-Message-ID: <016b3ffe-8aaa-f29e-2a8e-217c6b97f3a1@linux.ibm.com>
-Date:   Fri, 11 Mar 2022 11:07:48 -0500
+        Fri, 11 Mar 2022 17:38:26 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6F48EAE053;
+        Fri, 11 Mar 2022 17:38:26 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5D8CBAE051;
+        Fri, 11 Mar 2022 17:38:26 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Fri, 11 Mar 2022 17:38:26 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 4958)
+        id CFAA6E13C1; Fri, 11 Mar 2022 18:38:25 +0100 (CET)
+From:   Eric Farman <farman@linux.ibm.com>
+To:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
+Subject: [PATCH kvm-unit-tests v2 6/6] lib: s390x: smp: Remove smp_sigp_retry
+Date:   Fri, 11 Mar 2022 18:38:22 +0100
+Message-Id: <20220311173822.1234617-7-farman@linux.ibm.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220311173822.1234617-1-farman@linux.ibm.com>
+References: <20220311173822.1234617-1-farman@linux.ibm.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH v18 10/18] s390/vfio-ap: allow hot plug/unplug of AP
- devices when assigned/unassigned
-Content-Language: en-US
-To:     jjherne@linux.ibm.com, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
-        mjrosato@linux.ibm.com, pasic@linux.ibm.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        fiuczy@linux.ibm.com
-References: <20220215005040.52697-1-akrowiak@linux.ibm.com>
- <20220215005040.52697-11-akrowiak@linux.ibm.com>
- <fcce28f2-64f7-0946-3f33-3158b7909d6b@linux.ibm.com>
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <fcce28f2-64f7-0946-3f33-3158b7909d6b@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: w8YxNFM7MKCmi8sIsEAv9qJbOBAG3CDI
-X-Proofpoint-GUID: O7kD1eVd2C_Ixg7-xuKuf_d8k2i_L3zt
+X-Proofpoint-GUID: CXtSemz4c5W0LCTtez_OhpIUF9j9KE3G
+X-Proofpoint-ORIG-GUID: 2-kW8utXVlUgeF2XE7dAMnkIcMdnbM5H
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-11_06,2022-03-11_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
- bulkscore=0 impostorscore=0 lowpriorityscore=0 suspectscore=0
- priorityscore=1501 malwarescore=0 adultscore=0 clxscore=1015 spamscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2203110080
+ definitions=2022-03-11_07,2022-03-11_02,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 malwarescore=0
+ mlxlogscore=999 bulkscore=0 spamscore=0 clxscore=1015 impostorscore=0
+ suspectscore=0 mlxscore=0 priorityscore=1501 lowpriorityscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2203110085
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+The SIGP instruction presents a CC0 when an order is accepted,
+though the work for the order may be performed asynchronously.
+While any such work is outstanding, nearly any other SIGP order
+sent to the same CPU will be returned with a CC2.
 
+Currently, there are two library functions that perform a SIGP,
+one which retries a SIGP that gets a CC2, and one which doesn't.
+In practice, the users of this functionality want the CC2 to be
+handled by the library itself, rather than determine whether it
+needs to retry the request or not.
 
-On 3/11/22 09:26, Jason J. Herne wrote:
-> On 2/14/22 19:50, Tony Krowiak wrote:
->> Let's allow adapters, domains and control domains to be hot plugged
->> into and hot unplugged from a KVM guest using a matrix mdev when an
->> adapter, domain or control domain is assigned to or unassigned from
->> the matrix mdev.
->>
->> Whenever an assignment or unassignment of an adapter, domain or control
->> domain is performed, the AP configuration assigned to the matrix
->> mediated device will be filtered and assigned to the AP control block
->> (APCB) that supplies the AP configuration to the guest so that no
->> adapter, domain or control domain that is not in the host's AP
->> configuration nor any APQN that does not reference a queue device bound
->> to the vfio_ap device driver is assigned.
->>
->> After updating the APCB, if the mdev is in use by a KVM guest, it is
->> hot plugged into the guest to dynamically provide access to the 
->> adapters,
->> domains and control domains provided via the newly refreshed APCB.
->>
->> Keep in mind that the matrix_dev->guests_lock must be taken outside 
->> of the
->> matrix_mdev->kvm->lock which in turn must be taken outside of the
->> matrix_dev->mdevs_lock in order to avoid circular lock dependencies 
->> (i.e.,
->> a lockdep splat).Consequently, the locking order for hot plugging the
->> guest's APCB must be:
->>
->> matrix_dev->guests_lock => matrix_mdev->kvm->lock => 
->> matrix_dev->mdevs_lock
->>
->> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
->> ---
->>   drivers/s390/crypto/vfio_ap_ops.c | 198 +++++++++++++++++++-----------
->>   1 file changed, 125 insertions(+), 73 deletions(-)
->>
->> diff --git a/drivers/s390/crypto/vfio_ap_ops.c 
->> b/drivers/s390/crypto/vfio_ap_ops.c
->> index 623a4b38676d..4c382cd3afc7 100644
->> --- a/drivers/s390/crypto/vfio_ap_ops.c
->> +++ b/drivers/s390/crypto/vfio_ap_ops.c
->> @@ -317,10 +317,25 @@ static void vfio_ap_matrix_init(struct 
->> ap_config_info *info,
->>       matrix->adm_max = info->apxa ? info->Nd : 15;
->>   }
->>   -static void vfio_ap_mdev_filter_cdoms(struct ap_matrix_mdev 
->> *matrix_mdev)
->> +static void vfio_ap_mdev_hotplug_apcb(struct ap_matrix_mdev 
->> *matrix_mdev)
->>   {
->> +    if (matrix_mdev->kvm)
->> +        kvm_arch_crypto_set_masks(matrix_mdev->kvm,
->> +                      matrix_mdev->shadow_apcb.apm,
->> +                      matrix_mdev->shadow_apcb.aqm,
->> +                      matrix_mdev->shadow_apcb.adm);
->> +}
->
-> This function updates a kvm guest's apcb. So let's rename it to
-> vfio_ap_update_apcb(). 
+To avoid confusion, let's convert the smp_sigp() routine to
+perform the sigp_retry() logic, and then convert any users of
+smp_sigp_retry() to smp_sigp(). This of course means that the
+external _retry() interface can be removed for simplicity.
 
-The idea was to indicate that the AP adapters, domains and control
-domains configured in the shadow APCB are being hot plugged into
-a running guest. Having said that, I can see your point. I'm not married to
-the function name, but I would prefer to go with
-'vfio_ap_update_guest_apcb()' to distinguish between the shadow and
-the real apcb.
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+---
+ lib/s390x/smp.c | 14 ++++----------
+ lib/s390x/smp.h |  1 -
+ s390x/smp.c     |  4 ++--
+ 3 files changed, 6 insertions(+), 13 deletions(-)
 
-> You can also call this function in vfio_ap_mdev_set_kvm,
-> instead of duplicating the code to call kvm_arch_crypto_set_masks().
-
-The reason I didn't do that is because we've already verified the
-matrix_mdev->kvm in kvm_arch_crypto_set_masks(). I'm not sure what
-it buys us, but I'm not adverse to making the change.
-
->
->
->
->
->> +static bool vfio_ap_mdev_filter_cdoms(struct ap_matrix_mdev 
->> *matrix_mdev)
->> +{
->> +    DECLARE_BITMAP(shadow_adm, AP_DOMAINS);
->> +
->> +    bitmap_copy(shadow_adm, matrix_mdev->shadow_apcb.adm, AP_DOMAINS);
->>       bitmap_and(matrix_mdev->shadow_apcb.adm, matrix_mdev->matrix.adm,
->>              (unsigned long *)matrix_dev->info.adm, AP_DOMAINS);
->> +
->> +    return !bitmap_equal(shadow_adm, matrix_mdev->shadow_apcb.adm,
->> +                 AP_DOMAINS);
->>   }
->
-> your variable, shadow_adm, should be named original_adm. Since it 
-> represents
-> the original value before filtering. This makes the intent much more 
-> clear.
-> Same goes for the vars in vfio_ap_mdev_filter_matrix().
-
-Makes sense, but I think I'll go with prev_shadow_apm, prev_shadow_aqm and
-prev_shadow_adm. That seems more accurate since these are not the original
-copies of the bitmaps, but copies of the previous versions prior to 
-filtering.
-
->
-> ...
->> +/**
->> + * vfio_ap_mdev_get_locks - acquire the locks required to 
->> assign/unassign AP
->> + *                adapters, domains and control domains for an mdev in
->> + *                the proper locking order.
->> + *
->> + * @matrix_mdev: the matrix mediated device object
->> + */
->> +static void vfio_ap_mdev_get_locks(struct ap_matrix_mdev *matrix_mdev)
->> +{
->> +    /* Lock the mutex required to access the KVM guest's state */
->> +    mutex_lock(&matrix_dev->guests_lock);
->> +
->> +    /* If a KVM guest is running, lock the mutex required to 
->> plug/unplug the
->> +     * AP devices passed through to the guest
->> +     */
->> +    if (matrix_mdev->kvm)
->> +        mutex_lock(&matrix_mdev->kvm->lock);
->> +
->> +    /* The lock required to access the mdev's state */
->> +    mutex_lock(&matrix_dev->mdevs_lock);
->> +}
->
-> Simplifying the cdoe, and removing duplication by moving the locking 
-> code to a
-> function is probably a good thing. But I don't feel like this belongs 
-> to this
-> particular patch. In general, a patch should only do one thing, and 
-> ideally that
-> one thing should be as small as reasonably possible. This makes the 
-> patch easier
-> to read and to review.
->
-> I feel like, as much as possible, you should refactor the locking in a 
-> series
-> of patches that are all kept together. Ideally, they would be a patch 
-> series
-> completely separate from dynamic ap. After all, this series is already 
-> at 18
-> patches. :)
-
-I'm going to have to disagree, this locking scheme makes no sense outside of
-this series. It is only necessary because we now update a guest's APCB
-whenever an adapter, domain or control domain is assigned or unassigned,
-when a queue device is probed or removed and when the vfio_ap driver is
-notified that the host's AP configuration has changed.
-
-Prior to this series, a guest's APCB was updated only when the vfio_ap
-driver was notified that the KVM pointer was set or cleared, so it was
-only necessary to ensure the kvm->lock is taken before the matrix_dev->lock
-in the functions that handle the VFIO_GROUP_NOTIFY_SET_KVM group
-notification event. Prior to this, a patch series to introduce the 
-matrix_dev->guests lock
-would make no sense because it is not needed to enforce the locking 
-order in those
-functions listed in the previous paragraph because we didn't update the 
-guest's
-APCB in those functions.
-
->
-> ...
->>   /**
->>    * assign_adapter_store - parses the APID from @buf and sets the
->>    * corresponding bit in the mediated matrix device's APM
->> @@ -649,17 +723,9 @@ static ssize_t assign_adapter_store(struct 
->> device *dev,
->>       int ret;
->>       unsigned long apid;
->>       DECLARE_BITMAP(apm, AP_DEVICES);
->> -
->>       struct ap_matrix_mdev *matrix_mdev = dev_get_drvdata(dev);
->>   -    mutex_lock(&matrix_dev->guests_lock);
->> -    mutex_lock(&matrix_dev->mdevs_lock);
->> -
->> -    /* If the KVM guest is running, disallow assignment of adapter */
->> -    if (matrix_mdev->kvm) {
->> -        ret = -EBUSY;
->> -        goto done;
->> -    }
->> +    vfio_ap_mdev_get_locks(matrix_mdev);
->>         ret = kstrtoul(buf, 0, &apid);
->>       if (ret)
->> @@ -671,8 +737,6 @@ static ssize_t assign_adapter_store(struct device 
->> *dev,
->>       }
->>         set_bit_inv(apid, matrix_mdev->matrix.apm);
->> -    memset(apm, 0, sizeof(apm));
->> -    set_bit_inv(apid, apm);
->>         ret = vfio_ap_mdev_validate_masks(matrix_mdev);
->
-> It looks like you moved the memset() and set_bit_inv() to be closer to 
-> where
-> "apm" is used, namely, the call to vfio_ap_mdev_filter_matrix(). Any 
-> reason you
-> cannot move it down under the call to vfio_ap_mdev_link_adapter()? 
-> That would
-> get it even closer to where it is used.
-
-I didn't move it to be closer to where it is used, I moved it because it 
-was not
-necessary to do the memset/set_bit_inv when not necessary to do so. Having
-said that, it can definitely be moved after the vfio_ap_mdev_link_adapter().
-
->
-> Also, I think renaming apm to apm_delta or apm_diff makes sense here. 
-> After all,
-> it is the difference between the original apm, and the new apm. The 
-> new apm
-> has an extra bit for the newly added adapter. Do I have that right? If 
-> so, I
-> think renaming the variable will make the code clearer.
-
-The purpose of this bitmap is to limit the filtering to the new APID 
-being assigned
-because there is no need to do filtering of adapters already assigned; 
-so, it is not
-really a new apm per se. It might be more accurate to call it new_apid 
-or new_apids,
-although there will only be one bit set in the bitmap.
-
->
->
-> Both of the above comments also apply to assign_domain_store().
-
-Ditto on the responses.
-
+diff --git a/lib/s390x/smp.c b/lib/s390x/smp.c
+index 5be29d36..a0495cd9 100644
+--- a/lib/s390x/smp.c
++++ b/lib/s390x/smp.c
+@@ -40,12 +40,6 @@ int smp_query_num_cpus(void)
+ }
+ 
+ int smp_sigp(uint16_t idx, uint8_t order, unsigned long parm, uint32_t *status)
+-{
+-	check_idx(idx);
+-	return sigp(cpus[idx].addr, order, parm, status);
+-}
+-
+-int smp_sigp_retry(uint16_t idx, uint8_t order, unsigned long parm, uint32_t *status)
+ {
+ 	check_idx(idx);
+ 	return sigp_retry(cpus[idx].addr, order, parm, status);
+@@ -78,7 +72,7 @@ bool smp_cpu_stopped(uint16_t idx)
+ {
+ 	uint32_t status;
+ 
+-	if (smp_sigp_retry(idx, SIGP_SENSE, 0, &status) != SIGP_CC_STATUS_STORED)
++	if (smp_sigp(idx, SIGP_SENSE, 0, &status) != SIGP_CC_STATUS_STORED)
+ 		return false;
+ 	return !!(status & (SIGP_STATUS_CHECK_STOP|SIGP_STATUS_STOPPED));
+ }
+@@ -99,7 +93,7 @@ static int smp_cpu_stop_nolock(uint16_t idx, bool store)
+ 	if (idx == 0)
+ 		return -1;
+ 
+-	if (smp_sigp_retry(idx, order, 0, NULL))
++	if (smp_sigp(idx, order, 0, NULL))
+ 		return -1;
+ 
+ 	while (!smp_cpu_stopped(idx))
+@@ -251,11 +245,11 @@ static int smp_cpu_setup_nolock(uint16_t idx, struct psw psw)
+ 	if (cpus[idx].active)
+ 		return -1;
+ 
+-	smp_sigp_retry(idx, SIGP_INITIAL_CPU_RESET, 0, NULL);
++	smp_sigp(idx, SIGP_INITIAL_CPU_RESET, 0, NULL);
+ 
+ 	lc = alloc_pages_flags(1, AREA_DMA31);
+ 	cpus[idx].lowcore = lc;
+-	smp_sigp_retry(idx, SIGP_SET_PREFIX, (unsigned long )lc, NULL);
++	smp_sigp(idx, SIGP_SET_PREFIX, (unsigned long )lc, NULL);
+ 
+ 	/* Copy all exception psws. */
+ 	memcpy(lc, cpus[0].lowcore, 512);
+diff --git a/lib/s390x/smp.h b/lib/s390x/smp.h
+index 24a0e2e0..df184cb8 100644
+--- a/lib/s390x/smp.h
++++ b/lib/s390x/smp.h
+@@ -52,6 +52,5 @@ int smp_cpu_setup(uint16_t idx, struct psw psw);
+ void smp_teardown(void);
+ void smp_setup(void);
+ int smp_sigp(uint16_t idx, uint8_t order, unsigned long parm, uint32_t *status);
+-int smp_sigp_retry(uint16_t idx, uint8_t order, unsigned long parm, uint32_t *status);
+ 
+ #endif
+diff --git a/s390x/smp.c b/s390x/smp.c
+index 913da155..81e02195 100644
+--- a/s390x/smp.c
++++ b/s390x/smp.c
+@@ -266,7 +266,7 @@ static void test_reset_initial(void)
+ 	smp_cpu_start(1, psw);
+ 	wait_for_flag();
+ 
+-	smp_sigp_retry(1, SIGP_INITIAL_CPU_RESET, 0, NULL);
++	smp_sigp(1, SIGP_INITIAL_CPU_RESET, 0, NULL);
+ 	smp_sigp(1, SIGP_STORE_STATUS_AT_ADDRESS, (uintptr_t)status, NULL);
+ 
+ 	report_prefix_push("clear");
+@@ -316,7 +316,7 @@ static void test_reset(void)
+ 	smp_sigp(1, SIGP_EXTERNAL_CALL, 0, NULL);
+ 	smp_cpu_start(1, psw);
+ 
+-	smp_sigp_retry(1, SIGP_CPU_RESET, 0, NULL);
++	smp_sigp(1, SIGP_CPU_RESET, 0, NULL);
+ 	report(smp_cpu_stopped(1), "cpu stopped");
+ 
+ 	set_flag(0);
+-- 
+2.32.0
 
