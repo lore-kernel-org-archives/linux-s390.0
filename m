@@ -2,327 +2,117 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2EDEC433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 11 Mar 2022 05:09:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2894CC433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 11 Mar 2022 14:01:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344030AbiCKFKy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 11 Mar 2022 00:10:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55254 "EHLO
+        id S1349007AbiCKOCM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 11 Mar 2022 09:02:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241284AbiCKFKx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Mar 2022 00:10:53 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id DB78E1AC28D
-        for <linux-s390@vger.kernel.org>; Thu, 10 Mar 2022 21:09:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1646975390;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=9nBenv8s0AYm2+pJMUm/jGEPBjH6r3BWfbAB/qp2ZZE=;
-        b=NWVQDmdOIHj3vLiw+Bp5Ehb5JIh06xg0j0yI7sVx0gU6MTKZ05CEj42gQgnv84aqLuiByn
-        YoGrE76Ojge8fxc9L0V7heGAuy6RlE39h7OZ1WmWy9ob17who6TbE+e1DmmgW8ZRc11JyT
-        avlFQpWlX+IFE8KhE9kVNtgcU8d/syM=
-Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
- [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-308-SgrOSPcSPLqv7onzwyecTQ-1; Fri, 11 Mar 2022 00:09:49 -0500
-X-MC-Unique: SgrOSPcSPLqv7onzwyecTQ-1
-Received: by mail-pf1-f198.google.com with SMTP id 64-20020a621743000000b004f778ce34eeso2003676pfx.20
-        for <linux-s390@vger.kernel.org>; Thu, 10 Mar 2022 21:09:48 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=9nBenv8s0AYm2+pJMUm/jGEPBjH6r3BWfbAB/qp2ZZE=;
-        b=jy2dJIZn279Bx5TLLiqXFyQE8+8eIU+aMRduuu/LjZ9k7IHL6u61/KuXsZ7K+LKrtl
-         XPb9NkFRPz7owMYDpfHwCTOouJPfNvcB2C71fXhaE1AFwFcV+wgW4A3F3Fco6NvK9dCr
-         JQHx8dgEmIoUhnxc4qQ9hs+SB4HWHGRtJPnepdy3Do1uUFvkMAmsx3oZsmGD/izOQPKL
-         GhIMFcbbHhX+MHj4Kzjt/rRios1gHGDKGWRcgx9XR2tP377pygMRan/ASR84yE65yaNW
-         olqodDLy8wCVuMDQJKzVV8VzP6eV5yHZlD6t+43ft2c1im9X12vFNiQVbKtXRcpt5Tu3
-         VzzQ==
-X-Gm-Message-State: AOAM531QhdsIRu3SGavfrXq5OFUjIXhDdUos440IoskZA7tArDHgNntX
-        PdKOZ9WLnyE6Cgx8kKp1wHaKcGc/7h04IHvXd6MQKkYFzJVUXuGno5rxxV9u+e+apvOVAFBoUy0
-        I6lKnuunYpFQ9cFJQQuo0hg==
-X-Received: by 2002:a17:90a:d3d0:b0:1bb:f5b3:2fbf with SMTP id d16-20020a17090ad3d000b001bbf5b32fbfmr8820725pjw.87.1646975387532;
-        Thu, 10 Mar 2022 21:09:47 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJx8JKZXffEodSfmEHpMRgYWBvpIlhcshqGZgVYLA+ugGNosDsbJfihtdbxn5vtUMGsfzlzXdw==
-X-Received: by 2002:a17:90a:d3d0:b0:1bb:f5b3:2fbf with SMTP id d16-20020a17090ad3d000b001bbf5b32fbfmr8820693pjw.87.1646975387226;
-        Thu, 10 Mar 2022 21:09:47 -0800 (PST)
-Received: from [10.72.13.226] ([209.132.188.80])
-        by smtp.gmail.com with ESMTPSA id z7-20020a056a00240700b004e1cde37bc1sm8792099pfh.84.2022.03.10.21.09.37
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 10 Mar 2022 21:09:46 -0800 (PST)
-Message-ID: <06b3adbb-6777-7022-00d2-beca2b166e10@redhat.com>
-Date:   Fri, 11 Mar 2022 13:09:36 +0800
+        with ESMTP id S238102AbiCKOCL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Mar 2022 09:02:11 -0500
+X-Greylist: delayed 1376 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 11 Mar 2022 06:01:08 PST
+Received: from imap2.colo.codethink.co.uk (imap2.colo.codethink.co.uk [78.40.148.184])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E12B1C57D0;
+        Fri, 11 Mar 2022 06:01:08 -0800 (PST)
+Received: from [167.98.27.226] (helo=[172.16.103.108])
+        by imap2.colo.codethink.co.uk with esmtpsa  (Exim 4.92 #3 (Debian))
+        id 1nSfSn-0000Di-Kl; Fri, 11 Mar 2022 13:37:49 +0000
+Message-ID: <509d2b62-7d52-bf5c-7a6c-213a740a5c00@codethink.co.uk>
+Date:   Fri, 11 Mar 2022 13:37:48 +0000
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.6.2
-Subject: Re: [PATCH v7 17/26] virtio_pci: queue_reset: support
- VIRTIO_F_RING_RESET
-Content-Language: en-US
-To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mark Gross <markgross@kernel.org>,
-        Vadim Pasternak <vadimp@nvidia.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jesper Dangaard Brouer <hawk@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        linux-um@lists.infradead.org, platform-driver-x86@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, bpf@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
-References: <20220308123518.33800-1-xuanzhuo@linux.alibaba.com>
- <20220308123518.33800-18-xuanzhuo@linux.alibaba.com>
- <8b9d337d-71c2-07b4-8e65-6f83cf09bf7a@redhat.com>
- <1646900411.6481435-2-xuanzhuo@linux.alibaba.com>
-From:   Jason Wang <jasowang@redhat.com>
-In-Reply-To: <1646900411.6481435-2-xuanzhuo@linux.alibaba.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.1
+Subject: Re: [PATCH V7 13/20] riscv: compat: process: Add UXL_32 support in
+ start_thread
+Content-Language: en-GB
+To:     Guo Ren <guoren@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Anup Patel <anup@brainfault.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        liush <liush@allwinnertech.com>, Wei Fu <wefu@redhat.com>,
+        Drew Fustini <drew@beagleboard.org>,
+        Wang Junqiang <wangjunqiang@iscas.ac.cn>,
+        Christoph Hellwig <hch@lst.de>
+Cc:     linux-arch <linux-arch@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-csky@vger.kernel.org,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        the arch/x86 maintainers <x86@kernel.org>,
+        Guo Ren <guoren@linux.alibaba.com>
+References: <20220227162831.674483-1-guoren@kernel.org>
+ <20220227162831.674483-14-guoren@kernel.org>
+ <CAJF2gTSJFMg1YJ=dbaNyemNV4sc_3P=+_PrS=RD_Y2_xz3TzPA@mail.gmail.com>
+From:   Ben Dooks <ben.dooks@codethink.co.uk>
+Organization: Codethink Limited.
+In-Reply-To: <CAJF2gTSJFMg1YJ=dbaNyemNV4sc_3P=+_PrS=RD_Y2_xz3TzPA@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-在 2022/3/10 下午4:20, Xuan Zhuo 写道:
-> On Wed, 9 Mar 2022 16:54:10 +0800, Jason Wang <jasowang@redhat.com> wrote:
->> 在 2022/3/8 下午8:35, Xuan Zhuo 写道:
->>> This patch implements virtio pci support for QUEUE RESET.
->>>
->>> Performing reset on a queue is divided into these steps:
->>>
->>>    1. virtio_reset_vq()              - notify the device to reset the queue
->>>    2. virtqueue_detach_unused_buf()  - recycle the buffer submitted
->>>    3. virtqueue_reset_vring()        - reset the vring (may re-alloc)
->>>    4. virtio_enable_resetq()         - mmap vring to device, and enable the queue
->>>
->>> This patch implements virtio_reset_vq(), virtio_enable_resetq() in the
->>> pci scenario.
->>>
->>> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
->>> ---
->>>    drivers/virtio/virtio_pci_common.c |  8 +--
->>>    drivers/virtio/virtio_pci_modern.c | 83 ++++++++++++++++++++++++++++++
->>>    2 files changed, 88 insertions(+), 3 deletions(-)
->>>
->>> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
->>> index fdbde1db5ec5..863d3a8a0956 100644
->>> --- a/drivers/virtio/virtio_pci_common.c
->>> +++ b/drivers/virtio/virtio_pci_common.c
->>> @@ -248,9 +248,11 @@ static void vp_del_vq(struct virtqueue *vq)
->>>    	struct virtio_pci_vq_info *info = vp_dev->vqs[vq->index];
->>>    	unsigned long flags;
->>>
->>> -	spin_lock_irqsave(&vp_dev->lock, flags);
->>> -	list_del(&info->node);
->>> -	spin_unlock_irqrestore(&vp_dev->lock, flags);
->>> +	if (!vq->reset) {
->>> +		spin_lock_irqsave(&vp_dev->lock, flags);
->>> +		list_del(&info->node);
->>> +		spin_unlock_irqrestore(&vp_dev->lock, flags);
->>> +	}
->>>
->>>    	vp_dev->del_vq(info);
->>>    	kfree(info);
->>> diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
->>> index 49a4493732cf..3c67d3607802 100644
->>> --- a/drivers/virtio/virtio_pci_modern.c
->>> +++ b/drivers/virtio/virtio_pci_modern.c
->>> @@ -34,6 +34,9 @@ static void vp_transport_features(struct virtio_device *vdev, u64 features)
->>>    	if ((features & BIT_ULL(VIRTIO_F_SR_IOV)) &&
->>>    			pci_find_ext_capability(pci_dev, PCI_EXT_CAP_ID_SRIOV))
->>>    		__virtio_set_bit(vdev, VIRTIO_F_SR_IOV);
->>> +
->>> +	if (features & BIT_ULL(VIRTIO_F_RING_RESET))
->>> +		__virtio_set_bit(vdev, VIRTIO_F_RING_RESET);
->>>    }
->>>
->>>    /* virtio config->finalize_features() implementation */
->>> @@ -199,6 +202,82 @@ static int vp_active_vq(struct virtqueue *vq, u16 msix_vec)
->>>    	return 0;
->>>    }
->>>
->>> +static int vp_modern_reset_vq(struct virtqueue *vq)
->>> +{
->>> +	struct virtio_pci_device *vp_dev = to_vp_device(vq->vdev);
->>> +	struct virtio_pci_modern_device *mdev = &vp_dev->mdev;
->>> +	struct virtio_pci_vq_info *info;
->>> +	unsigned long flags;
->>> +	unsigned int irq;
->>> +
->>> +	if (!virtio_has_feature(vq->vdev, VIRTIO_F_RING_RESET))
->>> +		return -ENOENT;
->>> +
->>> +	vp_modern_set_queue_reset(mdev, vq->index);
->>> +
->>> +	info = vp_dev->vqs[vq->index];
->>> +
->>> +	/* delete vq from irq handler */
->>> +	spin_lock_irqsave(&vp_dev->lock, flags);
->>> +	list_del(&info->node);
->>> +	spin_unlock_irqrestore(&vp_dev->lock, flags);
->>> +
->>> +	INIT_LIST_HEAD(&info->node);
->>> +
->>> +	vq->reset = VIRTIO_VQ_RESET_STEP_DEVICE;
->>> +
->>> +	/* sync irq callback. */
->>> +	if (vp_dev->intx_enabled) {
->>> +		irq = vp_dev->pci_dev->irq;
->>> +
->>> +	} else {
->>> +		if (info->msix_vector == VIRTIO_MSI_NO_VECTOR)
->>> +			return 0;
->>> +
->>> +		irq = pci_irq_vector(vp_dev->pci_dev, info->msix_vector);
->>> +	}
->>> +
->>> +	synchronize_irq(irq);
+On 11/03/2022 02:38, Guo Ren wrote:
+> Hi Arnd,
+> 
+> On Mon, Feb 28, 2022 at 12:30 AM <guoren@kernel.org> wrote:
 >>
->> Synchronize_irq() is not sufficient here since it breaks the effort of
->> the interrupt hardening which is done by commits:
+>> From: Guo Ren <guoren@linux.alibaba.com>
 >>
->> 080cd7c3ac87 virtio-pci: harden INTX interrupts
->> 9e35276a5344 virtio_pci: harden MSI-X interrupts
+>> If the current task is in COMPAT mode, set SR_UXL_32 in status for
+>> returning userspace. We need CONFIG _COMPAT to prevent compiling
+>> errors with rv32 defconfig.
 >>
->> Unfortunately  080cd7c3ac87 introduces an issue that disable_irq() were
->> used for the affinity managed irq but we're discussing a fix.
+>> Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+>> Signed-off-by: Guo Ren <guoren@kernel.org>
+>> Cc: Arnd Bergmann <arnd@arndb.de>
+>> Cc: Palmer Dabbelt <palmer@dabbelt.com>
+>> ---
+>>   arch/riscv/kernel/process.c | 5 +++++
+>>   1 file changed, 5 insertions(+)
 >>
->
-> ok, I think disable_irq() is still used here.
->
-> I want to determine the solution for this detail first. So I posted the code, I
-> hope Jason can help confirm this point first.
->
-> There are three situations in which vq corresponds to an interrupt
->
-> 1. intx
-> 2. msix: per vq vectors
-> 2. msix: share irq
->
-> Essentially can be divided into two categories: per vq vectors and share irq.
->
-> For share irq is based on virtqueues to find vq, so I think it is safe as long
-> as list_del() is executed under the protection of the lock.
->
-> In the case of per vq vectors, disable_irq() is used.
+>> diff --git a/arch/riscv/kernel/process.c b/arch/riscv/kernel/process.c
+>> index 03ac3aa611f5..54787ca9806a 100644
+>> --- a/arch/riscv/kernel/process.c
+>> +++ b/arch/riscv/kernel/process.c
+>> @@ -97,6 +97,11 @@ void start_thread(struct pt_regs *regs, unsigned long pc,
+>>          }
+>>          regs->epc = pc;
+>>          regs->sp = sp;
+>> +
+> FIxup:
+> 
+> + #ifdef CONFIG_COMPAT
+>> +       if (is_compat_task())
+>> +               regs->status = (regs->status & ~SR_UXL) | SR_UXL_32;
+>> +       else
+>> +               regs->status = (regs->status & ~SR_UXL) | SR_UXL_64;
+> + #endif
+> 
+> We still need "#ifdef CONFIG_COMPAT" here, because for rv32 we can't
+> set SR_UXL at all. SR_UXL is BIT[32, 33].
+
+would an if (IS_ENABLED(CONFIG_COMPAT)) { } around the lot be better
+than an #ifdef here?
+
+>>   }
+>>
+>>   void flush_thread(void)
+>> --
+>> 2.25.1
+>>
+> 
+> 
 
 
-See the discussion here[1], disable_irq() could be problematic for the 
-block and scsi device that using affinity managed irq. We're waiting for 
-the IRQ maintainer to comment on a solution. Other looks sane.
+-- 
+Ben Dooks				http://www.codethink.co.uk/
+Senior Engineer				Codethink - Providing Genius
 
-Thanks
-
-[1] https://lkml.org/lkml/2022/3/8/743
-
-
->
-> Thanks.
->
-> +static int vp_modern_reset_vq(struct virtqueue *vq)
-> +{
-> +       struct virtio_pci_device *vp_dev = to_vp_device(vq->vdev);
-> +       struct virtio_pci_modern_device *mdev = &vp_dev->mdev;
-> +       struct virtio_pci_vq_info *info;
-> +       unsigned long flags;
-> +       unsigned int irq;
-> +
-> +       if (!virtio_has_feature(vq->vdev, VIRTIO_F_RING_RESET))
-> +               return -ENOENT;
-> +
-> +       vp_modern_set_queue_reset(mdev, vq->index);
-> +
-> +       info = vp_dev->vqs[vq->index];
-> +
-> +       /* delete vq from irq handler */
-> +       spin_lock_irqsave(&vp_dev->lock, flags);
-> +       list_del(&info->node);
-> +       vp_modern_set_queue_reset(mdev, vq->index);
-> +
-> +       info = vp_dev->vqs[vq->index];
-> +
-> +       /* delete vq from irq handler */
-> +       spin_lock_irqsave(&vp_dev->lock, flags);
-> +       list_del(&info->node);
-> +       spin_unlock_irqrestore(&vp_dev->lock, flags);
-> +
-> +       INIT_LIST_HEAD(&info->node);
-> +
-> +       /* For the case where vq has an exclusive irq, to prevent the irq from
-> +        * being received again and the pending irq, call disable_irq().
-> +        *
-> +        * In the scenario based on shared interrupts, vq will be searched from
-> +        * the queue virtqueues. Since the previous list_del() has been deleted
-> +        * from the queue, it is impossible for vq to be called in this case.
-> +        * There is no need to close the corresponding interrupt.
-> +        */
-> +       if (vp_dev->per_vq_vectors && msix_vec != VIRTIO_MSI_NO_VECTOR)
-> +               disable_irq(pci_irq_vector(vp_dev->pci_dev, info->msix_vector));
-> +
-> +       vq->reset = true;
-> +
-> +       return 0;
-> +}
-> +
-> +static int vp_modern_enable_reset_vq(struct virtqueue *vq)
-> +{
-> +       struct virtio_pci_device *vp_dev = to_vp_device(vq->vdev);
-> +       struct virtio_pci_modern_device *mdev = &vp_dev->mdev;
-> +       struct virtio_pci_vq_info *info;
-> +       unsigned long flags, index;
-> +       int err;
-> +
-> +       if (!vq->reset)
-> +               return -EBUSY;
-> +
-> +       index = vq->index;
-> +       info = vp_dev->vqs[index];
-> +
-> +       /* check queue reset status */
-> +       if (vp_modern_get_queue_reset(mdev, index) != 1)
-> +               return -EBUSY;
-> +
-> +       err = vp_active_vq(vq, info->msix_vector);
-> +       if (err)
-> +               return err;
-> +
-> +       if (vq->callback) {
-> +               spin_lock_irqsave(&vp_dev->lock, flags);
-> +               list_add(&info->node, &vp_dev->virtqueues);
-> +               spin_unlock_irqrestore(&vp_dev->lock, flags);
-> +       } else {
-> +               INIT_LIST_HEAD(&info->node);
-> +       }
-> +
-> +       vp_modern_set_queue_enable(&vp_dev->mdev, index, true);
-> +       vq->reset = false;
-> +
-> +       if (vp_dev->per_vq_vectors && msix_vec != VIRTIO_MSI_NO_VECTOR)
-> +               enable_irq(pci_irq_vector(vp_dev->pci_dev, info->msix_vector));
-> +
-> +       return 0;
-> +}
->
->
-
+https://www.codethink.co.uk/privacy.html
