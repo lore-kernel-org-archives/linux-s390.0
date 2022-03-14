@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E9F0BC433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Mar 2022 19:48:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3353CC433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 14 Mar 2022 19:48:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244426AbiCNTtG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 14 Mar 2022 15:49:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50502 "EHLO
+        id S244469AbiCNTtZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 14 Mar 2022 15:49:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244494AbiCNTtC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Mar 2022 15:49:02 -0400
+        with ESMTP id S244521AbiCNTtV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Mar 2022 15:49:21 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6EEF3EAA2;
-        Mon, 14 Mar 2022 12:47:42 -0700 (PDT)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22EJlYt7025603;
-        Mon, 14 Mar 2022 19:47:35 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58AD36278;
+        Mon, 14 Mar 2022 12:47:50 -0700 (PDT)
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22EJlZ1Z003111;
+        Mon, 14 Mar 2022 19:47:43 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=jmXiDoamZ6A/nz+QAIB6MB8dJ9r4Q11uaUeMfJF8JPU=;
- b=IldFFzQgbT6fNkUKutnp3O9KlS2hiTV+3TR6ERfR7Mdb7oJnGc+Z5xW66dxQI1TKX/aH
- Kr9J7DuSeD1py3KWkxFmgoj+TgvrXazHl46WayDQRZPa544kdztx9NFxk4d2vaFvP3/4
- TpuWiGynvoaffuTP4uOJWKmDwPV08hGiBwciPr1WmioviN1qGWgMRsi6nNo9aMQ9T8vw
- u785gyA8/6FXabXKYht7n9aOnN1u2wprpc5dTyZfKPPdWi9AcWH+JSDDqvHln7jsae2t
- 4fgJolmcGlGHWLBOw+IH9EloCfIVm9RijaX7MQwdHYjKdkKFeouRTrW6X46W2sK2hp2o 1g== 
+ bh=Ksdd7DxxFNWLmGfhTqCE0VD/MuNwQK40IksBUvYPClc=;
+ b=FsSSWuPyJKfa3pS0YrJs70nLtpBAklNZOOyRR5XVoHn63lsHKLozgqBd4EbvFlEJ/ehr
+ TQs6lldnw5UD5stp2sUMusgYL7+0gDNxelY0UHVlcsuNTYr3WU/i7QzVCq65ihpxuZbi
+ xSQNcKDEBpxvD4Y333dmQqeuyiQvNIQPSeiiFbKyTbG/mnMPy2+S06Lf8kFApjc0sTWI
+ dgiHxMIv5/WuFUH4OBKAwBx3iuENP2TKjAhTFN13z59sBcXKXQnhnGWc8yOo9eIJo4DB
+ uP+McpFWJBMkOBV4m4QrBl0CWVzyKWMOPgS0/ctW/lSp5quDRoWAJQOVZuXkzLA+DaGD vQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3et6ag0xhs-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3et6ah91a4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 14 Mar 2022 19:47:35 +0000
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22EJlY8E025676;
-        Mon, 14 Mar 2022 19:47:34 GMT
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3et6ag0xdu-1
+        Mon, 14 Mar 2022 19:47:42 +0000
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22EJlVqK002755;
+        Mon, 14 Mar 2022 19:47:42 GMT
+Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3et6ah919m-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 14 Mar 2022 19:47:34 +0000
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22EJNuuX001686;
-        Mon, 14 Mar 2022 19:47:18 GMT
-Received: from b01cxnp22036.gho.pok.ibm.com (b01cxnp22036.gho.pok.ibm.com [9.57.198.26])
-        by ppma03dal.us.ibm.com with ESMTP id 3erk594csc-1
+        Mon, 14 Mar 2022 19:47:42 +0000
+Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
+        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22EJO3lJ028424;
+        Mon, 14 Mar 2022 19:47:40 GMT
+Received: from b01cxnp23033.gho.pok.ibm.com (b01cxnp23033.gho.pok.ibm.com [9.57.198.28])
+        by ppma03wdc.us.ibm.com with ESMTP id 3erk58r8y1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 14 Mar 2022 19:47:18 +0000
+        Mon, 14 Mar 2022 19:47:40 +0000
 Received: from b01ledav004.gho.pok.ibm.com (b01ledav004.gho.pok.ibm.com [9.57.199.109])
-        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22EJlGEo6292066
+        by b01cxnp23033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22EJld8V13500796
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 14 Mar 2022 19:47:16 GMT
+        Mon, 14 Mar 2022 19:47:39 GMT
 Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 47A11112061;
-        Mon, 14 Mar 2022 19:47:16 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 3238D112062;
+        Mon, 14 Mar 2022 19:47:39 +0000 (GMT)
 Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 76E3B112063;
-        Mon, 14 Mar 2022 19:47:06 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 29328112061;
+        Mon, 14 Mar 2022 19:47:28 +0000 (GMT)
 Received: from li-c92d2ccc-254b-11b2-a85c-a700b5bfb098.ibm.com.com (unknown [9.211.32.184])
         by b01ledav004.gho.pok.ibm.com (Postfix) with ESMTP;
-        Mon, 14 Mar 2022 19:47:06 +0000 (GMT)
+        Mon, 14 Mar 2022 19:47:27 +0000 (GMT)
 From:   Matthew Rosato <mjrosato@linux.ibm.com>
 To:     linux-s390@vger.kernel.org
 Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
@@ -70,143 +70,101 @@ Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
         pbonzini@redhat.com, corbet@lwn.net, jgg@nvidia.com,
         kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
         iommu@lists.linux-foundation.org, linux-doc@vger.kernel.org
-Subject: [PATCH v4 13/32] s390/pci: return status from zpci_refresh_trans
-Date:   Mon, 14 Mar 2022 15:44:32 -0400
-Message-Id: <20220314194451.58266-14-mjrosato@linux.ibm.com>
+Subject: [PATCH v4 15/32] vfio: introduce KVM-owned IOMMU type
+Date:   Mon, 14 Mar 2022 15:44:34 -0400
+Message-Id: <20220314194451.58266-16-mjrosato@linux.ibm.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220314194451.58266-1-mjrosato@linux.ibm.com>
 References: <20220314194451.58266-1-mjrosato@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 0-tL8yOiMEZcG7wASO7AAaz0xhmgkZFl
-X-Proofpoint-GUID: IpE5ClWXoe_7Hq2DlizJsNA3x50FpKyP
+X-Proofpoint-GUID: 5awA5dt3n-nXJaPMJqYw98jQ7rszlsYh
+X-Proofpoint-ORIG-GUID: Fz_6isyi-Wa9_NcqlAPSCxnLH21O5kC2
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-03-14_13,2022-03-14_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- lowpriorityscore=0 priorityscore=1501 bulkscore=0 malwarescore=0
- adultscore=0 phishscore=0 impostorscore=0 mlxscore=0 mlxlogscore=850
- suspectscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
+ suspectscore=0 bulkscore=0 mlxlogscore=748 phishscore=0 spamscore=0
+ malwarescore=0 impostorscore=0 adultscore=0 priorityscore=1501
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2202240000 definitions=main-2203140116
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Current callers of zpci_refresh_trans don't need to interrogate the status
-returned from the underlying instructions.  However, a subsequent patch
-will add a KVM caller that needs this information.  Add a new argument to
-zpci_refresh_trans to pass the address of a status byte and update
-existing call sites to provide it.
+s390x will introduce a new IOMMU domain type where the mappings are
+managed by KVM rather than in response to userspace mapping ioctls.  Allow
+for specifying this type on the VFIO_SET_IOMMU ioctl and triggering the
+appropriate iommu interface for overriding the default domain.
 
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
 Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
 ---
- arch/s390/include/asm/pci_insn.h |  2 +-
- arch/s390/pci/pci_dma.c          |  6 ++++--
- arch/s390/pci/pci_insn.c         | 10 +++++-----
- drivers/iommu/s390-iommu.c       |  4 +++-
- 4 files changed, 13 insertions(+), 9 deletions(-)
+ drivers/vfio/vfio_iommu_type1.c | 12 +++++++++++-
+ include/uapi/linux/vfio.h       |  6 ++++++
+ 2 files changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/include/asm/pci_insn.h b/arch/s390/include/asm/pci_insn.h
-index 5331082fa516..32759c407b8f 100644
---- a/arch/s390/include/asm/pci_insn.h
-+++ b/arch/s390/include/asm/pci_insn.h
-@@ -135,7 +135,7 @@ union zpci_sic_iib {
- DECLARE_STATIC_KEY_FALSE(have_mio);
+diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
+index 9394aa9444c1..0bec97077d61 100644
+--- a/drivers/vfio/vfio_iommu_type1.c
++++ b/drivers/vfio/vfio_iommu_type1.c
+@@ -77,6 +77,7 @@ struct vfio_iommu {
+ 	bool			nesting;
+ 	bool			dirty_page_tracking;
+ 	bool			container_open;
++	bool			kvm;
+ 	struct list_head	emulated_iommu_groups;
+ };
  
- u8 zpci_mod_fc(u64 req, struct zpci_fib *fib, u8 *status);
--int zpci_refresh_trans(u64 fn, u64 addr, u64 range);
-+int zpci_refresh_trans(u64 fn, u64 addr, u64 range, u8 *status);
- int __zpci_load(u64 *data, u64 req, u64 offset);
- int zpci_load(u64 *data, const volatile void __iomem *addr, unsigned long len);
- int __zpci_store(u64 data, u64 req, u64 offset);
-diff --git a/arch/s390/pci/pci_dma.c b/arch/s390/pci/pci_dma.c
-index a81de48d5ea7..b0a2380bcad8 100644
---- a/arch/s390/pci/pci_dma.c
-+++ b/arch/s390/pci/pci_dma.c
-@@ -23,8 +23,9 @@ static u32 s390_iommu_aperture_factor = 1;
+@@ -2203,7 +2204,12 @@ static int vfio_iommu_type1_attach_group(void *iommu_data,
+ 		goto out_free_group;
  
- static int zpci_refresh_global(struct zpci_dev *zdev)
- {
-+	u8 status;
- 	return zpci_refresh_trans((u64) zdev->fh << 32, zdev->start_dma,
--				  zdev->iommu_pages * PAGE_SIZE);
-+				  zdev->iommu_pages * PAGE_SIZE, &status);
- }
+ 	ret = -EIO;
+-	domain->domain = iommu_domain_alloc(bus);
++
++	if (iommu->kvm)
++		domain->domain = iommu_domain_alloc_type(bus, IOMMU_DOMAIN_KVM);
++	else
++		domain->domain = iommu_domain_alloc(bus);
++
+ 	if (!domain->domain)
+ 		goto out_free_domain;
  
- unsigned long *dma_alloc_cpu_table(void)
-@@ -183,6 +184,7 @@ static int __dma_purge_tlb(struct zpci_dev *zdev, dma_addr_t dma_addr,
- 			   size_t size, int flags)
- {
- 	unsigned long irqflags;
-+	u8 status;
- 	int ret;
+@@ -2552,6 +2558,9 @@ static void *vfio_iommu_type1_open(unsigned long arg)
+ 	case VFIO_TYPE1v2_IOMMU:
+ 		iommu->v2 = true;
+ 		break;
++	case VFIO_KVM_IOMMU:
++		iommu->kvm = true;
++		break;
+ 	default:
+ 		kfree(iommu);
+ 		return ERR_PTR(-EINVAL);
+@@ -2637,6 +2646,7 @@ static int vfio_iommu_type1_check_extension(struct vfio_iommu *iommu,
+ 	case VFIO_TYPE1_NESTING_IOMMU:
+ 	case VFIO_UNMAP_ALL:
+ 	case VFIO_UPDATE_VADDR:
++	case VFIO_KVM_IOMMU:
+ 		return 1;
+ 	case VFIO_DMA_CC_IOMMU:
+ 		if (!iommu)
+diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
+index ef33ea002b0b..666edb6957ac 100644
+--- a/include/uapi/linux/vfio.h
++++ b/include/uapi/linux/vfio.h
+@@ -52,6 +52,12 @@
+ /* Supports the vaddr flag for DMA map and unmap */
+ #define VFIO_UPDATE_VADDR		10
  
- 	/*
-@@ -201,7 +203,7 @@ static int __dma_purge_tlb(struct zpci_dev *zdev, dma_addr_t dma_addr,
- 	}
- 
- 	ret = zpci_refresh_trans((u64) zdev->fh << 32, dma_addr,
--				 PAGE_ALIGN(size));
-+				 PAGE_ALIGN(size), &status);
- 	if (ret == -ENOMEM && !s390_iommu_strict) {
- 		/* enable the hypervisor to free some resources */
- 		if (zpci_refresh_global(zdev))
-diff --git a/arch/s390/pci/pci_insn.c b/arch/s390/pci/pci_insn.c
-index 0509554301c7..ca6399d52767 100644
---- a/arch/s390/pci/pci_insn.c
-+++ b/arch/s390/pci/pci_insn.c
-@@ -77,20 +77,20 @@ static inline u8 __rpcit(u64 fn, u64 addr, u64 range, u8 *status)
- 	return cc;
- }
- 
--int zpci_refresh_trans(u64 fn, u64 addr, u64 range)
-+int zpci_refresh_trans(u64 fn, u64 addr, u64 range, u8 *status)
- {
--	u8 cc, status;
-+	u8 cc;
- 
- 	do {
--		cc = __rpcit(fn, addr, range, &status);
-+		cc = __rpcit(fn, addr, range, status);
- 		if (cc == 2)
- 			udelay(ZPCI_INSN_BUSY_DELAY);
- 	} while (cc == 2);
- 
- 	if (cc)
--		zpci_err_insn(cc, status, addr, range);
-+		zpci_err_insn(cc, *status, addr, range);
- 
--	if (cc == 1 && (status == 4 || status == 16))
-+	if (cc == 1 && (*status == 4 || *status == 16))
- 		return -ENOMEM;
- 
- 	return (cc) ? -EIO : 0;
-diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-index 3833e86c6e7b..73a85c599dc2 100644
---- a/drivers/iommu/s390-iommu.c
-+++ b/drivers/iommu/s390-iommu.c
-@@ -214,6 +214,7 @@ static int s390_iommu_update_trans(struct s390_domain *s390_domain,
- 	unsigned long irq_flags, nr_pages, i;
- 	unsigned long *entry;
- 	int rc = 0;
-+	u8 status;
- 
- 	if (dma_addr < s390_domain->domain.geometry.aperture_start ||
- 	    dma_addr + size > s390_domain->domain.geometry.aperture_end)
-@@ -238,7 +239,8 @@ static int s390_iommu_update_trans(struct s390_domain *s390_domain,
- 	spin_lock(&s390_domain->list_lock);
- 	list_for_each_entry(domain_device, &s390_domain->devices, list) {
- 		rc = zpci_refresh_trans((u64) domain_device->zdev->fh << 32,
--					start_dma_addr, nr_pages * PAGE_SIZE);
-+					start_dma_addr, nr_pages * PAGE_SIZE,
-+					&status);
- 		if (rc)
- 			break;
- 	}
++/*
++ * The KVM_IOMMU type implies that the hypervisor will control the mappings
++ * rather than userspace
++ */
++#define VFIO_KVM_IOMMU			11
++
+ /*
+  * The IOCTL interface is designed for extensibility by embedding the
+  * structure length (argsz) and flags into structures passed between
 -- 
 2.27.0
 
