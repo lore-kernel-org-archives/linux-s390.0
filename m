@@ -2,61 +2,60 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 40C0BC433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Mar 2022 19:51:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA4FDC433FE
+	for <linux-s390@archiver.kernel.org>; Mon, 14 Mar 2022 19:52:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244742AbiCNTw2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 14 Mar 2022 15:52:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36172 "EHLO
+        id S244643AbiCNTxo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 14 Mar 2022 15:53:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244688AbiCNTwR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Mar 2022 15:52:17 -0400
+        with ESMTP id S244778AbiCNTwq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Mar 2022 15:52:46 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07A283EBBA;
-        Mon, 14 Mar 2022 12:50:45 -0700 (PDT)
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22EJlWhx002808;
-        Mon, 14 Mar 2022 19:50:03 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B609403E6;
+        Mon, 14 Mar 2022 12:51:06 -0700 (PDT)
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22EJlYtp025603;
+        Mon, 14 Mar 2022 19:50:23 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=NtvaafqQawGeW536gL8Hl+D6uOSeQNQSIU3t8O8kAGo=;
- b=U+Q8AXbREqKtoBSy1OfYbPcKMqlf/LZ5J8MN4imLZOcjfcZpfO2i6d803VjHFvAW1OQ6
- IZoRL/DBhS+yQYPffMj0jGXkqzGYKKTj3MJyK7WgVdmo9lsoJPKr9TtFI9cnnCAeoHiE
- TzLaPd9m8x6lYhXhA3HdmxRO2TmW9j4+zPHdQCZckN8LeuRAlWCHokD1oXGqGX8qQSuV
- VyVqIXwvJIwwHWEP2zHo35hyPi0zNZ/ZYLiJUNMsnyTTW0wSeYafLB6qhjQ7eByMyX/1
- FyT1EvRdDjdj3VJqaX1dJg/HtUm/pwlS2kIpxFuNOCdPZOotj/XIKRWYTjiRz+CFl56Y Ng== 
+ : date : message-id : in-reply-to : references : content-transfer-encoding
+ : mime-version; s=pp1; bh=EIN5YKNShvtpefl6wXDR1mrno0orRYnzj0xkq2tV9tY=;
+ b=IuUXQ4g6nE6s+CbTewHR0HBK37VysywtedFxJHDgFICWNQzV7p/4IZFO1RU+QR1pIw3/
+ 7nK49OonFLPkFQreR8DASVesWL3DQF8oP6URCY9fQSb2cwD8IKRnVohFEToNRCRkeEip
+ 30BJPEMJW5HVV3+OVIao2fGpm+Pq/GhyWYnUr5g+KErgO8KtgyVOasjqucCQFq3aITWR
+ DBEEJX2WFxtHUunstvBvuGfnOSf3cShnvvuHJ6ylR5jbJUeHox1BAhWKCFS7A9T5UpZK
+ 12oK519Uw6GsMJvF81y1o+2JkcpKJE0w1jT2jlz5sHuf/UC5ID0QnqJ7tdn3iaVBC/jU xw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3et6ah92hd-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3et6ag101c-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 14 Mar 2022 19:50:03 +0000
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22EJlXF3002902;
-        Mon, 14 Mar 2022 19:50:03 GMT
-Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3et6ah92gr-1
+        Mon, 14 Mar 2022 19:50:23 +0000
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22EJlklL026151;
+        Mon, 14 Mar 2022 19:50:22 GMT
+Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3et6ag100w-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 14 Mar 2022 19:50:02 +0000
-Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
-        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22EJm5XG002536;
-        Mon, 14 Mar 2022 19:50:01 GMT
-Received: from b01cxnp23034.gho.pok.ibm.com (b01cxnp23034.gho.pok.ibm.com [9.57.198.29])
-        by ppma03wdc.us.ibm.com with ESMTP id 3erk58r9an-1
+        Mon, 14 Mar 2022 19:50:22 +0000
+Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
+        by ppma02dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22EJlqUq003136;
+        Mon, 14 Mar 2022 19:50:21 GMT
+Received: from b01cxnp23032.gho.pok.ibm.com (b01cxnp23032.gho.pok.ibm.com [9.57.198.27])
+        by ppma02dal.us.ibm.com with ESMTP id 3etaj6gpse-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 14 Mar 2022 19:50:01 +0000
+        Mon, 14 Mar 2022 19:50:21 +0000
 Received: from b01ledav004.gho.pok.ibm.com (b01ledav004.gho.pok.ibm.com [9.57.199.109])
-        by b01cxnp23034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22EJo0lT52232548
+        by b01cxnp23032.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22EJoJMH22020566
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 14 Mar 2022 19:50:00 GMT
+        Mon, 14 Mar 2022 19:50:19 GMT
 Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 25108112062;
-        Mon, 14 Mar 2022 19:50:00 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 622A9112069;
+        Mon, 14 Mar 2022 19:50:19 +0000 (GMT)
 Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3195D11206D;
-        Mon, 14 Mar 2022 19:49:51 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id A3F57112065;
+        Mon, 14 Mar 2022 19:50:10 +0000 (GMT)
 Received: from li-c92d2ccc-254b-11b2-a85c-a700b5bfb098.ibm.com.com (unknown [9.211.32.184])
         by b01ledav004.gho.pok.ibm.com (Postfix) with ESMTP;
-        Mon, 14 Mar 2022 19:49:50 +0000 (GMT)
+        Mon, 14 Mar 2022 19:50:10 +0000 (GMT)
 From:   Matthew Rosato <mjrosato@linux.ibm.com>
 To:     linux-s390@vger.kernel.org
 Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
@@ -70,67 +69,50 @@ Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
         pbonzini@redhat.com, corbet@lwn.net, jgg@nvidia.com,
         kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
         iommu@lists.linux-foundation.org, linux-doc@vger.kernel.org
-Subject: [PATCH v4 30/32] KVM: s390: introduce CPU feature for zPCI Interpretation
-Date:   Mon, 14 Mar 2022 15:44:49 -0400
-Message-Id: <20220314194451.58266-31-mjrosato@linux.ibm.com>
+Subject: [PATCH v4 32/32] MAINTAINERS: update s390 IOMMU entry
+Date:   Mon, 14 Mar 2022 15:44:51 -0400
+Message-Id: <20220314194451.58266-33-mjrosato@linux.ibm.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220314194451.58266-1-mjrosato@linux.ibm.com>
 References: <20220314194451.58266-1-mjrosato@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Qe627T8D3VOl9Qp75zzIwElIOid11C8C
-X-Proofpoint-ORIG-GUID: irMXp6E0xak-vS7Ir70D8fq3nQLZJrBd
+X-Proofpoint-ORIG-GUID: M3EoNyUKbnbOabH4Rxt-JZJHmpcH11J5
+X-Proofpoint-GUID: gSFlrQQ5rUK4xe3pNmkYLRLcmVNL5p4l
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-03-14_13,2022-03-14_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
- suspectscore=0 bulkscore=0 mlxlogscore=972 phishscore=0 spamscore=0
- malwarescore=0 impostorscore=0 adultscore=0 priorityscore=1501
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ lowpriorityscore=0 priorityscore=1501 bulkscore=0 malwarescore=0
+ adultscore=0 phishscore=0 impostorscore=0 mlxscore=0 mlxlogscore=865
+ suspectscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2202240000 definitions=main-2203140116
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-KVM_S390_VM_CPU_FEAT_ZPCI_INTERP relays whether zPCI interpretive
-execution is possible based on the available hardware facilities.
+Use wildcard to pick up new parts added by KVM domain support.
 
 Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
 ---
- arch/s390/include/uapi/asm/kvm.h | 1 +
- arch/s390/kvm/kvm-s390.c         | 6 ++++++
- 2 files changed, 7 insertions(+)
+ MAINTAINERS | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
-index 7a6b14874d65..ed06458a871f 100644
---- a/arch/s390/include/uapi/asm/kvm.h
-+++ b/arch/s390/include/uapi/asm/kvm.h
-@@ -130,6 +130,7 @@ struct kvm_s390_vm_cpu_machine {
- #define KVM_S390_VM_CPU_FEAT_PFMFI	11
- #define KVM_S390_VM_CPU_FEAT_SIGPIF	12
- #define KVM_S390_VM_CPU_FEAT_KSS	13
-+#define KVM_S390_VM_CPU_FEAT_ZPCI_INTERP 14
- struct kvm_s390_vm_cpu_feat {
- 	__u64 feat[16];
- };
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 613101ba29be..137ab8c09b82 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -434,6 +434,12 @@ static void kvm_s390_cpu_feat_init(void)
- 	if (test_facility(151)) /* DFLTCC */
- 		__insn32_query(INSN_DFLTCC, kvm_s390_available_subfunc.dfltcc);
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 6c76eb66b10a..d803f490eafb 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -16867,7 +16867,7 @@ M:	Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+ L:	linux-s390@vger.kernel.org
+ S:	Supported
+ W:	http://www.ibm.com/developerworks/linux/linux390/
+-F:	drivers/iommu/s390-iommu.c
++F:	drivers/iommu/s390*
  
-+	/* zPCI Interpretation */
-+	if (IS_ENABLED(CONFIG_VFIO_PCI) && IS_ENABLED(CONFIG_S390_KVM_IOMMU) &&
-+	    test_facility(69) && test_facility(70) && test_facility(71) &&
-+	    test_facility(72))
-+		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_ZPCI_INTERP);
-+
- 	if (MACHINE_HAS_ESOP)
- 		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_ESOP);
- 	/*
+ S390 IUCV NETWORK LAYER
+ M:	Alexandra Winter <wintera@linux.ibm.com>
 -- 
 2.27.0
 
