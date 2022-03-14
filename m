@@ -2,219 +2,143 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BD47C4332F
-	for <linux-s390@archiver.kernel.org>; Sun, 13 Mar 2022 16:35:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 30B96C3526E
+	for <linux-s390@archiver.kernel.org>; Mon, 14 Mar 2022 07:32:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235022AbiCMQgW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 13 Mar 2022 12:36:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44688 "EHLO
+        id S236659AbiCNHdJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 14 Mar 2022 03:33:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232283AbiCMQgV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 13 Mar 2022 12:36:21 -0400
-Received: from mail-oi1-x22e.google.com (mail-oi1-x22e.google.com [IPv6:2607:f8b0:4864:20::22e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B67F2CCA1
-        for <linux-s390@vger.kernel.org>; Sun, 13 Mar 2022 09:35:13 -0700 (PDT)
-Received: by mail-oi1-x22e.google.com with SMTP id 12so14961183oix.12
-        for <linux-s390@vger.kernel.org>; Sun, 13 Mar 2022 09:35:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=ob4h2d72COnkU3FY3eI+a2UFXuCW1/ScRGHi/UryDqA=;
-        b=TushXGzzRAzyI9MGE9XPNO4vBoxXifNjIKjCnoUkI+mEzZl6CZhW5uEBUDRGoJGHaD
-         yQBQqhTD3jqe3Itl2ih/VYfS2AVqG46q374zGDDL6gBW9JTc2T4zamHj1VeOliVF2mVe
-         Mqmi1px5JxbR15ozq99jBei8hZ++gA42ZIUv22DaY3YHKN7MSH1i0dMTim51IysvPyWn
-         +Gq7wMLMPYLJus5ZwQeaEpMbCZ2JUARUML+mTdMXf95/FsrZn42VmhERTaicPLLP/owq
-         ciqGfh1nxr0ORhDiIRQdbTxVCt0nq6AhVdIEdvPLp0OXeiH7hklifcXG8UdDVkB7o7r7
-         6HBg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=ob4h2d72COnkU3FY3eI+a2UFXuCW1/ScRGHi/UryDqA=;
-        b=DWRSuR0HDK6v0GivoPzUTwnQNNzClBnb9Ki3+fDCE+8daMKsgprmzEb3Y+mo0pcxKL
-         Q3Z1FXZL1UUh+qaodo88uTVB58PESvHfMbMZjZ7G/D1LismR0CwFmcRsvYsWYqtMS8dN
-         iEzhtaCbwB1m5YZTFvUiO10NhjdyGnF4tJ1XEd6hgDF+ZP4Gg8sdfErOxATHumuSps1S
-         gOAirjmnaph1E0Sb0oDZPaozRJsyHRhB6bdv3aYjJ+2OQaDOacFQpdJ6seHs7LbYoESV
-         jYYxcYtyg0AedwMKldZcYZulQCUWgw+qroXLx6n7Yv8+c1rkRhWgEIP0ojuw0VUE8pin
-         GOPg==
-X-Gm-Message-State: AOAM533Uh0D6FvEjxAPfnyJyy5wm0rwg1KQqqtZuvopk/56tw+oodD77
-        T3u0doSC3UhvaknI+QFnqM1KFw==
-X-Google-Smtp-Source: ABdhPJyf3k5XJ/dltTqtkT8q4cm/xQn+rQVTI2+AHnpPI0GfXenHJMCY3JJm9uRIMdQCmtTZS4KxuA==
-X-Received: by 2002:a54:4e81:0:b0:2ec:ae99:e02d with SMTP id c1-20020a544e81000000b002ecae99e02dmr5435442oiy.261.1647189311060;
-        Sun, 13 Mar 2022 09:35:11 -0700 (PDT)
-Received: from builder.lan ([2600:1700:a0:3dc8:3697:f6ff:fe85:aac9])
-        by smtp.gmail.com with ESMTPSA id e3-20020a056870450300b000da5424e4b0sm5514643oao.50.2022.03.13.09.35.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 13 Mar 2022 09:35:10 -0700 (PDT)
-Date:   Sun, 13 Mar 2022 11:35:07 -0500
-From:   Bjorn Andersson <bjorn.andersson@linaro.org>
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Stuart Yoder <stuyoder@gmail.com>,
-        Laurentiu Tudor <laurentiu.tudor@nxp.com>,
-        Abel Vesa <abel.vesa@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Andy Gross <agross@kernel.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, NXP Linux Team <linux-imx@nxp.com>,
-        linux-arm-kernel@lists.infradead.org, linux-hyperv@vger.kernel.org,
-        linux-pci@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        alsa-devel@alsa-project.org, linux-spi@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v4 11/11] rpmsg: Fix kfree() of static memory on setting
- driver_override
-Message-ID: <Yi4dOxArKLNyMFZy@builder.lan>
-References: <20220312132856.65163-1-krzysztof.kozlowski@canonical.com>
- <20220312132856.65163-12-krzysztof.kozlowski@canonical.com>
+        with ESMTP id S236668AbiCNHc6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Mar 2022 03:32:58 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FB1E40A2D;
+        Mon, 14 Mar 2022 00:31:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        MIME-Version:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
+        Content-ID:Content-Description:In-Reply-To:References;
+        bh=HhGavQ6qvlf8H5F/ZlRZDjP5Hg4YmQaPJkbgnrtpMJI=; b=x1HmPcRq+EIQAGkkRG5r3Q2ccQ
+        wnlPc6HT3VpJAMMRF1p4SFikzmXOQYomeT6ykxwmWCxoebP1bN2ceE+8XNvoM8N5VllZnT75DHXGC
+        h4wekLHOCpTAFXijUS4GI7cBuhiIwxysA4rgf8RJTlGS2pKLIVQjT1AeGrirHMuQmzJkixPdmUiaw
+        cmRW8o6cqr3klWE3JQHi+2CDOTmN7yN+qKBICbgnWeDRcK/2hY0uiepsrGceY5FvPtk+56Vn9gD0m
+        a70FwFmi8fEZWw8s5/U6tP9pIaV7UquRjOae803zd4ky95pR5AVFQCHxkh5K/hYSfr0VZAdOqR1aQ
+        rxPZmEfQ==;
+Received: from [46.140.54.162] (helo=localhost)
+        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1nTfAx-0044RD-TW; Mon, 14 Mar 2022 07:31:32 +0000
+From:   Christoph Hellwig <hch@lst.de>
+To:     iommu@lists.linux-foundation.org
+Cc:     x86@kernel.org, Anshuman Khandual <anshuman.khandual@arm.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Juergen Gross <jgross@suse.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        linux-arm-kernel@lists.infradead.org,
+        xen-devel@lists.xenproject.org, linux-ia64@vger.kernel.org,
+        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-hyperv@vger.kernel.org, tboot-devel@lists.sourceforge.net,
+        linux-pci@vger.kernel.org
+Subject: cleanup swiotlb initialization v5
+Date:   Mon, 14 Mar 2022 08:31:14 +0100
+Message-Id: <20220314073129.1862284-1-hch@lst.de>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220312132856.65163-12-krzysztof.kozlowski@canonical.com>
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sat 12 Mar 07:28 CST 2022, Krzysztof Kozlowski wrote:
+Hi all,
 
-> The driver_override field from platform driver should not be initialized
-> from static memory (string literal) because the core later kfree() it,
-> for example when driver_override is set via sysfs.
-> 
-> Use dedicated helper to set driver_override properly.
-> 
-> Fixes: 950a7388f02b ("rpmsg: Turn name service into a stand alone driver")
-> Fixes: c0cdc19f84a4 ("rpmsg: Driver for user space endpoint interface")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+this series tries to clean up the swiotlb initialization, including
+that of swiotlb-xen.  To get there is also removes the x86 iommu table
+infrastructure that massively obsfucates the initialization path.
 
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Git tree:
 
-Regards,
-Bjorn
+    git://git.infradead.org/users/hch/misc.git swiotlb-init-cleanup
 
-> ---
->  drivers/rpmsg/rpmsg_core.c     |  3 ++-
->  drivers/rpmsg/rpmsg_internal.h | 13 +++++++++++--
->  drivers/rpmsg/rpmsg_ns.c       | 14 ++++++++++++--
->  include/linux/rpmsg.h          |  6 ++++--
->  4 files changed, 29 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/rpmsg/rpmsg_core.c b/drivers/rpmsg/rpmsg_core.c
-> index d9e612f4f0f2..6e2bf2742973 100644
-> --- a/drivers/rpmsg/rpmsg_core.c
-> +++ b/drivers/rpmsg/rpmsg_core.c
-> @@ -397,7 +397,8 @@ field##_store(struct device *dev, struct device_attribute *attr,	\
->  	      const char *buf, size_t sz)				\
->  {									\
->  	struct rpmsg_device *rpdev = to_rpmsg_device(dev);		\
-> -	char *new, *old;						\
-> +	const char *old;						\
-> +	char *new;							\
->  									\
->  	new = kstrndup(buf, sz, GFP_KERNEL);				\
->  	if (!new)							\
-> diff --git a/drivers/rpmsg/rpmsg_internal.h b/drivers/rpmsg/rpmsg_internal.h
-> index b1245d3ed7c6..31345d6e9a7e 100644
-> --- a/drivers/rpmsg/rpmsg_internal.h
-> +++ b/drivers/rpmsg/rpmsg_internal.h
-> @@ -92,10 +92,19 @@ int rpmsg_release_channel(struct rpmsg_device *rpdev,
->   */
->  static inline int rpmsg_chrdev_register_device(struct rpmsg_device *rpdev)
->  {
-> +	int ret;
-> +
->  	strcpy(rpdev->id.name, "rpmsg_chrdev");
-> -	rpdev->driver_override = "rpmsg_chrdev";
-> +	ret = driver_set_override(&rpdev->dev, &rpdev->driver_override,
-> +				  "rpmsg_chrdev", strlen("rpmsg_chrdev"));
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret = rpmsg_register_device(rpdev);
-> +	if (ret)
-> +		kfree(rpdev->driver_override);
->  
-> -	return rpmsg_register_device(rpdev);
-> +	return ret;
->  }
->  
->  #endif
-> diff --git a/drivers/rpmsg/rpmsg_ns.c b/drivers/rpmsg/rpmsg_ns.c
-> index 762ff1ae279f..95a51543f5ad 100644
-> --- a/drivers/rpmsg/rpmsg_ns.c
-> +++ b/drivers/rpmsg/rpmsg_ns.c
-> @@ -20,12 +20,22 @@
->   */
->  int rpmsg_ns_register_device(struct rpmsg_device *rpdev)
->  {
-> +	int ret;
-> +
->  	strcpy(rpdev->id.name, "rpmsg_ns");
-> -	rpdev->driver_override = "rpmsg_ns";
-> +	ret = driver_set_override(&rpdev->dev, &rpdev->driver_override,
-> +				  "rpmsg_ns", strlen("rpmsg_ns"));
-> +	if (ret)
-> +		return ret;
-> +
->  	rpdev->src = RPMSG_NS_ADDR;
->  	rpdev->dst = RPMSG_NS_ADDR;
->  
-> -	return rpmsg_register_device(rpdev);
-> +	ret = rpmsg_register_device(rpdev);
-> +	if (ret)
-> +		kfree(rpdev->driver_override);
-> +
-> +	return ret;
->  }
->  EXPORT_SYMBOL(rpmsg_ns_register_device);
->  
-> diff --git a/include/linux/rpmsg.h b/include/linux/rpmsg.h
-> index 02fa9116cd60..20c8cd1cde21 100644
-> --- a/include/linux/rpmsg.h
-> +++ b/include/linux/rpmsg.h
-> @@ -41,7 +41,9 @@ struct rpmsg_channel_info {
->   * rpmsg_device - device that belong to the rpmsg bus
->   * @dev: the device struct
->   * @id: device id (used to match between rpmsg drivers and devices)
-> - * @driver_override: driver name to force a match
-> + * @driver_override: driver name to force a match; do not set directly,
-> + *                   because core frees it; use driver_set_override() to
-> + *                   set or clear it.
->   * @src: local address
->   * @dst: destination address
->   * @ept: the rpmsg endpoint of this channel
-> @@ -51,7 +53,7 @@ struct rpmsg_channel_info {
->  struct rpmsg_device {
->  	struct device dev;
->  	struct rpmsg_device_id id;
-> -	char *driver_override;
-> +	const char *driver_override;
->  	u32 src;
->  	u32 dst;
->  	struct rpmsg_endpoint *ept;
-> -- 
-> 2.32.0
-> 
+Gitweb:
+
+    http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/swiotlb-init-cleanup
+
+Changes since v5:
+ - split a patch into three
+ - fix setting x86_swiotlb_enable for Xen
+ - fix a comment about forced bounce buffering for guest memory
+   encryption
+ - remove the xen_initial_domain check from
+   xen_create_contiguous_region
+
+Changes since v3:
+ - fix a compilation issue on some powerpc configfs
+ - fix and cleanup how forced bounce buffering is enabled for
+   guest memory encryption
+
+Changes since v2:
+ - make ppc_swiotlb_flags actually work again
+ - also force enable swiotlb for guest encrypted memory to cater
+   to hyperv which doesn't set the host encrypted memory flag
+
+Changes since v1:
+ - skip IOMMU initialization on Xen PV kernels
+ - various small whitespace / typo fixes
+
+Diffstat:
+ arch/ia64/include/asm/iommu_table.h      |    7 -
+ arch/x86/include/asm/iommu_table.h       |  102 ------------------
+ arch/x86/include/asm/swiotlb.h           |   30 -----
+ arch/x86/kernel/pci-iommu_table.c        |   77 -------------
+ arch/x86/kernel/pci-swiotlb.c            |   77 -------------
+ arch/x86/xen/pci-swiotlb-xen.c           |   96 -----------------
+ b/arch/arm/mm/init.c                     |    6 -
+ b/arch/arm/xen/mm.c                      |   26 ++--
+ b/arch/arm64/mm/init.c                   |    6 -
+ b/arch/ia64/mm/init.c                    |    4 
+ b/arch/mips/cavium-octeon/dma-octeon.c   |   15 --
+ b/arch/mips/loongson64/dma.c             |    2 
+ b/arch/mips/pci/pci-octeon.c             |    2 
+ b/arch/mips/sibyte/common/dma.c          |    2 
+ b/arch/powerpc/include/asm/svm.h         |    4 
+ b/arch/powerpc/include/asm/swiotlb.h     |    1 
+ b/arch/powerpc/kernel/dma-swiotlb.c      |    1 
+ b/arch/powerpc/mm/mem.c                  |    6 -
+ b/arch/powerpc/platforms/pseries/setup.c |    3 
+ b/arch/powerpc/platforms/pseries/svm.c   |   26 ----
+ b/arch/riscv/mm/init.c                   |    8 -
+ b/arch/s390/mm/init.c                    |    3 
+ b/arch/x86/include/asm/dma-mapping.h     |   12 --
+ b/arch/x86/include/asm/gart.h            |    5 
+ b/arch/x86/include/asm/iommu.h           |    8 +
+ b/arch/x86/include/asm/xen/page.h        |    5 
+ b/arch/x86/include/asm/xen/swiotlb-xen.h |    2 
+ b/arch/x86/kernel/Makefile               |    2 
+ b/arch/x86/kernel/amd_gart_64.c          |    5 
+ b/arch/x86/kernel/aperture_64.c          |   14 --
+ b/arch/x86/kernel/cpu/mshyperv.c         |    8 -
+ b/arch/x86/kernel/pci-dma.c              |  113 ++++++++++++++++----
+ b/arch/x86/kernel/tboot.c                |    1 
+ b/arch/x86/kernel/vmlinux.lds.S          |   12 --
+ b/arch/x86/mm/mem_encrypt_amd.c          |    3 
+ b/arch/x86/pci/sta2x11-fixup.c           |    2 
+ b/arch/x86/xen/Makefile                  |    2 
+ b/drivers/iommu/amd/init.c               |    6 -
+ b/drivers/iommu/amd/iommu.c              |    5 
+ b/drivers/iommu/intel/dmar.c             |    6 -
+ b/drivers/xen/swiotlb-xen.c              |  132 -----------------------
+ b/include/linux/dmar.h                   |    6 -
+ b/include/linux/swiotlb.h                |   22 +--
+ b/include/trace/events/swiotlb.h         |   29 +----
+ b/include/xen/arm/page.h                 |    1 
+ b/include/xen/swiotlb-xen.h              |    8 +
+ b/kernel/dma/direct.h                    |    2 
+ b/kernel/dma/swiotlb.c                   |  175 +++++++++++++++----------------
+ 48 files changed, 264 insertions(+), 826 deletions(-)
