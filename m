@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C26A1C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Mar 2022 19:45:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 12728C433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 14 Mar 2022 19:45:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244187AbiCNTqn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 14 Mar 2022 15:46:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45950 "EHLO
+        id S244227AbiCNTrA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 14 Mar 2022 15:47:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244173AbiCNTqm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Mar 2022 15:46:42 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B8113DA67;
-        Mon, 14 Mar 2022 12:45:31 -0700 (PDT)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22EHZLl3007314;
-        Mon, 14 Mar 2022 19:45:21 GMT
+        with ESMTP id S244173AbiCNTq7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Mar 2022 15:46:59 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0DA13DDDE;
+        Mon, 14 Mar 2022 12:45:48 -0700 (PDT)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22EHmNLG006419;
+        Mon, 14 Mar 2022 19:45:43 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=qqsVARwzBqesyBcvt5ohDoAR+P6eIXDxd+fKBlAfoag=;
- b=h3jpcSW2K6ChSGjycFGfaFprQTl763YJmIKdZpEJ1dpZZ4sGp1mn5/iRuMPdOND5N0AK
- MUMd4Rus1gr2cmclqqGmSRRs2OKzNlMkh/+rLl0R7a6Z+HUCbT05OgaPoxj6PMvzc3bc
- A2nSjrvFxXNpJOZNoGV5t0i2YyuUUzd5hgBSHK+eclcb0kqbMxArpBGl/HMcv+zS3E0u
- kWWQrfX7uv+wpw9vOrXIor+/PNwcV93fK8uFnLW+LWS2cBW20jKMXMYtA/PCP0j/Wfly
- ocfKYgupLqfpUb5HI0JIo3TpQWEUf1bR8KblFO8HTpWD/7B2YnkwdKpyeh6NMyZ4Sur/ qQ== 
+ bh=n1nLl74XPlYJotGlgTzMIMN6FGGU2TFWaA4eTx5Ggx8=;
+ b=gwU9uGyrCn74Cb1ZjYX3PvmT4vwoD/gH4rpJOmXqg5rcBCD3lmeBMp3B6/IHboQu5Ao1
+ vgF1r+QQ6ydGK7tKGRPfUW7CT5A3PcHLNu6EkmdqN6x0hbFZT6vyYI2EeZB+upCTkF+1
+ a5uXO1U+6IFv+1PYVhbic26TtFYRAjTZU29wwWgM6lWLbiqi/9dFPaO+UuyTm3p0Nz+k
+ PzUv7wUInNZipJmFH99c20skwGL25/BbWvTdTSJdhfdP5ePhKAbp7z+f8+ad1MfPyTYj
+ 3s1wefJ8IlPM4UxUmrH4QudEl7M9E6nrb/BBaaOV0bcWHbXh9bzjtQfAaASvdg7GPOrE Kw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3et6dcrjk4-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3et6aj0tav-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 14 Mar 2022 19:45:21 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22EJN7GH020194;
-        Mon, 14 Mar 2022 19:45:20 GMT
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3et6dcrjju-1
+        Mon, 14 Mar 2022 19:45:43 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22EJGHlI021486;
+        Mon, 14 Mar 2022 19:45:42 GMT
+Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3et6aj0tah-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 14 Mar 2022 19:45:20 +0000
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22EJNui4001669;
-        Mon, 14 Mar 2022 19:45:19 GMT
-Received: from b01cxnp22036.gho.pok.ibm.com (b01cxnp22036.gho.pok.ibm.com [9.57.198.26])
-        by ppma03dal.us.ibm.com with ESMTP id 3erk594cc5-1
+        Mon, 14 Mar 2022 19:45:42 +0000
+Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
+        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22EJO3tB028362;
+        Mon, 14 Mar 2022 19:45:40 GMT
+Received: from b01cxnp23032.gho.pok.ibm.com (b01cxnp23032.gho.pok.ibm.com [9.57.198.27])
+        by ppma03wdc.us.ibm.com with ESMTP id 3erk58r8n3-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 14 Mar 2022 19:45:19 +0000
+        Mon, 14 Mar 2022 19:45:40 +0000
 Received: from b01ledav004.gho.pok.ibm.com (b01ledav004.gho.pok.ibm.com [9.57.199.109])
-        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22EJjHNB4850502
+        by b01cxnp23032.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22EJjdAr16318800
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 14 Mar 2022 19:45:18 GMT
+        Mon, 14 Mar 2022 19:45:39 GMT
 Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E0EE3112064;
-        Mon, 14 Mar 2022 19:45:17 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 6C86C11206E;
+        Mon, 14 Mar 2022 19:45:39 +0000 (GMT)
 Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id ECBDC112065;
-        Mon, 14 Mar 2022 19:45:06 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id F393D112061;
+        Mon, 14 Mar 2022 19:45:28 +0000 (GMT)
 Received: from li-c92d2ccc-254b-11b2-a85c-a700b5bfb098.ibm.com.com (unknown [9.211.32.184])
         by b01ledav004.gho.pok.ibm.com (Postfix) with ESMTP;
-        Mon, 14 Mar 2022 19:45:06 +0000 (GMT)
+        Mon, 14 Mar 2022 19:45:28 +0000 (GMT)
 From:   Matthew Rosato <mjrosato@linux.ibm.com>
 To:     linux-s390@vger.kernel.org
 Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
@@ -70,30 +70,30 @@ Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
         pbonzini@redhat.com, corbet@lwn.net, jgg@nvidia.com,
         kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
         iommu@lists.linux-foundation.org, linux-doc@vger.kernel.org
-Subject: [PATCH v4 01/32] s390/sclp: detect the zPCI load/store interpretation facility
-Date:   Mon, 14 Mar 2022 15:44:20 -0400
-Message-Id: <20220314194451.58266-2-mjrosato@linux.ibm.com>
+Subject: [PATCH v4 03/32] s390/sclp: detect the AENI facility
+Date:   Mon, 14 Mar 2022 15:44:22 -0400
+Message-Id: <20220314194451.58266-4-mjrosato@linux.ibm.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220314194451.58266-1-mjrosato@linux.ibm.com>
 References: <20220314194451.58266-1-mjrosato@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 2b_-oI8xNQ957O9IbPMfrOju-z-Hyxs2
-X-Proofpoint-ORIG-GUID: 0x0Kcd1IhJE5wF4B58wHQYHS4Z1YmQcQ
+X-Proofpoint-GUID: Cmk3sA4GKDyMcixm3xV6a1ySDUU5g2xh
+X-Proofpoint-ORIG-GUID: E4tX06Iskk2eooW954w98t6p5ygtYTIc
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-03-14_13,2022-03-14_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- mlxlogscore=899 impostorscore=0 adultscore=0 clxscore=1015 suspectscore=0
- mlxscore=0 priorityscore=1501 bulkscore=0 spamscore=0 phishscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ malwarescore=0 impostorscore=0 suspectscore=0 priorityscore=1501
+ clxscore=1015 mlxlogscore=842 spamscore=0 adultscore=0 bulkscore=0
+ phishscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2202240000 definitions=main-2203140116
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Detect the zPCI Load/Store Interpretation facility.
+Detect the Adapter Event Notification Interpretation facility.
 
 Reviewed-by: Eric Farman <farman@linux.ibm.com>
 Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
@@ -105,29 +105,29 @@ Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
  2 files changed, 2 insertions(+)
 
 diff --git a/arch/s390/include/asm/sclp.h b/arch/s390/include/asm/sclp.h
-index c68ea35de498..58a4d3d354b7 100644
+index 8b56ac5ae496..8c2e142000d4 100644
 --- a/arch/s390/include/asm/sclp.h
 +++ b/arch/s390/include/asm/sclp.h
-@@ -88,6 +88,7 @@ struct sclp_info {
- 	unsigned char has_diag318 : 1;
- 	unsigned char has_sipl : 1;
+@@ -90,6 +90,7 @@ struct sclp_info {
  	unsigned char has_dirq : 1;
-+	unsigned char has_zpci_lsi : 1;
+ 	unsigned char has_zpci_lsi : 1;
+ 	unsigned char has_aisii : 1;
++	unsigned char has_aeni : 1;
  	unsigned int ibc;
  	unsigned int mtid;
  	unsigned int mtid_cp;
 diff --git a/drivers/s390/char/sclp_early.c b/drivers/s390/char/sclp_early.c
-index e9943a86c361..b88dd0da1231 100644
+index 29fee179e197..e9af01b4c97a 100644
 --- a/drivers/s390/char/sclp_early.c
 +++ b/drivers/s390/char/sclp_early.c
-@@ -45,6 +45,7 @@ static void __init sclp_early_facilities_detect(void)
- 	sclp.has_gisaf = !!(sccb->fac118 & 0x08);
+@@ -46,6 +46,7 @@ static void __init sclp_early_facilities_detect(void)
  	sclp.has_hvs = !!(sccb->fac119 & 0x80);
  	sclp.has_kss = !!(sccb->fac98 & 0x01);
-+	sclp.has_zpci_lsi = !!(sccb->fac118 & 0x01);
+ 	sclp.has_aisii = !!(sccb->fac118 & 0x40);
++	sclp.has_aeni = !!(sccb->fac118 & 0x20);
+ 	sclp.has_zpci_lsi = !!(sccb->fac118 & 0x01);
  	if (sccb->fac85 & 0x02)
  		S390_lowcore.machine_flags |= MACHINE_FLAG_ESOP;
- 	if (sccb->fac91 & 0x40)
 -- 
 2.27.0
 
