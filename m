@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0965C433FE
-	for <linux-s390@archiver.kernel.org>; Mon, 14 Mar 2022 19:47:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 693CDC433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 14 Mar 2022 19:47:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234808AbiCNTso (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 14 Mar 2022 15:48:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49680 "EHLO
+        id S244449AbiCNTtF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 14 Mar 2022 15:49:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244465AbiCNTsn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Mar 2022 15:48:43 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B03053E5E6;
-        Mon, 14 Mar 2022 12:47:20 -0700 (PDT)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22EHeGtL004107;
-        Mon, 14 Mar 2022 19:47:10 GMT
+        with ESMTP id S244477AbiCNTtC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Mar 2022 15:49:02 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6E5E3EA9F;
+        Mon, 14 Mar 2022 12:47:42 -0700 (PDT)
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22EJlWCU009785;
+        Mon, 14 Mar 2022 19:47:34 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=ebvnXc/LVkIRCFIJy5fYs9U35v9NkWwTGRod9yTfngc=;
- b=Jka0VNOiNOfWFg9jweTFmWzjYVKxOVXzzn4nqs9loLmJG7E/HHQ5d9i98ezgkcnWI/Xg
- oroHJA1xN9/uqA/hJQrzPPaoNKsj8/2FN6h7QbPhukPTuCFQANEGm8J1tRe9G5otKPaV
- merOPFwLZs+EXjo+TWVATFnljYCL+JmitNlBx6dBpMFOTqVaHoAHLvTzSzC/hpGTf1sX
- zYuzJ9hI6QW1Xs9bAiq2PIIJBZaonN2TTj9lr3LG0fD2JjGaf4A5EUGevLUlzcFKCg7P
- 75WInwVoArnRpizBnLACj+Sl5vw1jE6AceYMP5jgLcUjiR6kuvUoWeafSlqo+oF0qNAA ig== 
+ bh=I0aFeQ+bOQQ3vSF+hKPDIWFA3lgu6qmCi0ERuCFsuc8=;
+ b=f9wE74Avi6g9YvETJSE77/a3LlAIN/x8O0YZWa6WJgyy1S8G3r46gEoJtlfQWWohTYUg
+ 5qfk3iqR0d1O4KH/MBvnNfsyCZLURgvKpPKOW18+uBDjc3y4FZ3OTr8NvuH94h69W0gN
+ pO1Tg7+KHjGxQ+ZfAJl/KOVfPzZSr6NTi7rL2GHdkMJyCrlk5BPecw+gVhlUFMb6TRPj
+ 7kE39nO0nYFlk64OTrLJt8sspNoCxmFk/7zgvyjtyMGVQAkYzqv+HR8y2wxRCHAbTpo+
+ rp5D0MGKFobdfZdm3elMIr822OQuXxm210kTqpWCbg+Mlof7EW8kheTIq8+3F/bt9H/E Yg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3et6a714hb-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3et6cw8ngg-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 14 Mar 2022 19:47:09 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22EJRoqm002548;
-        Mon, 14 Mar 2022 19:47:09 GMT
-Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3et6a714gr-1
+        Mon, 14 Mar 2022 19:47:34 +0000
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22EJlYCl010111;
+        Mon, 14 Mar 2022 19:47:34 GMT
+Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3et6cw8nes-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 14 Mar 2022 19:47:09 +0000
-Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
-        by ppma02wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22EJl7O4014273;
-        Mon, 14 Mar 2022 19:47:07 GMT
+        Mon, 14 Mar 2022 19:47:34 +0000
+Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
+        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22EJO3lB028424;
+        Mon, 14 Mar 2022 19:47:28 GMT
 Received: from b01cxnp22034.gho.pok.ibm.com (b01cxnp22034.gho.pok.ibm.com [9.57.198.24])
-        by ppma02wdc.us.ibm.com with ESMTP id 3erk59g7vn-1
+        by ppma03wdc.us.ibm.com with ESMTP id 3erk58r8vy-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 14 Mar 2022 19:47:07 +0000
+        Mon, 14 Mar 2022 19:47:28 +0000
 Received: from b01ledav004.gho.pok.ibm.com (b01ledav004.gho.pok.ibm.com [9.57.199.109])
-        by b01cxnp22034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22EJl6Sq48562486
+        by b01cxnp22034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22EJlRFD46137750
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 14 Mar 2022 19:47:06 GMT
+        Mon, 14 Mar 2022 19:47:27 GMT
 Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0BE7E112063;
-        Mon, 14 Mar 2022 19:47:06 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 81443112061;
+        Mon, 14 Mar 2022 19:47:27 +0000 (GMT)
 Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9679E112064;
-        Mon, 14 Mar 2022 19:46:56 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id B0EB4112064;
+        Mon, 14 Mar 2022 19:47:16 +0000 (GMT)
 Received: from li-c92d2ccc-254b-11b2-a85c-a700b5bfb098.ibm.com.com (unknown [9.211.32.184])
         by b01ledav004.gho.pok.ibm.com (Postfix) with ESMTP;
-        Mon, 14 Mar 2022 19:46:56 +0000 (GMT)
+        Mon, 14 Mar 2022 19:47:16 +0000 (GMT)
 From:   Matthew Rosato <mjrosato@linux.ibm.com>
 To:     linux-s390@vger.kernel.org
 Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
@@ -70,132 +70,108 @@ Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
         pbonzini@redhat.com, corbet@lwn.net, jgg@nvidia.com,
         kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
         iommu@lists.linux-foundation.org, linux-doc@vger.kernel.org
-Subject: [PATCH v4 12/32] s390/pci: get SHM information from list pci
-Date:   Mon, 14 Mar 2022 15:44:31 -0400
-Message-Id: <20220314194451.58266-13-mjrosato@linux.ibm.com>
+Subject: [PATCH v4 14/32] iommu: introduce iommu_domain_alloc_type and the KVM type
+Date:   Mon, 14 Mar 2022 15:44:33 -0400
+Message-Id: <20220314194451.58266-15-mjrosato@linux.ibm.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220314194451.58266-1-mjrosato@linux.ibm.com>
 References: <20220314194451.58266-1-mjrosato@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Lf5BTqB_yYxhwqdCekbHBxZNYS04n_Y0
-X-Proofpoint-ORIG-GUID: _lRlT4AF9cB3zz3nwpaB73t-ubUS3D9l
+X-Proofpoint-ORIG-GUID: FqbgoB_dreqMwLEsGhivRnr6l1Gyrrt2
+X-Proofpoint-GUID: kAKn5innbR7pNSbCzAeZTnM1Zcc8DNGG
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-03-14_13,2022-03-14_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 spamscore=0
- malwarescore=0 phishscore=0 bulkscore=0 mlxscore=0 adultscore=0
- clxscore=1015 suspectscore=0 priorityscore=1501 mlxlogscore=999
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 malwarescore=0
+ suspectscore=0 mlxscore=0 spamscore=0 phishscore=0 priorityscore=1501
+ adultscore=0 lowpriorityscore=0 impostorscore=0 bulkscore=0
+ mlxlogscore=893 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2202240000 definitions=main-2203140116
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-KVM will need information on the special handle mask used to indicate
-emulated devices.  In order to obtain this, a new type of list pci call
-must be made to gather the information.  Extend clp_list_pci_req to
-also fetch the model-dependent-data field that holds this mask.
+s390x will introduce an additional domain type that is used for
+managing IOMMU owned by KVM.  Define the type here and add an
+interface for allocating a specified type vs the default type.
 
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Acked-by: Pierre Morel <pmorel@linux.ibm.com>
 Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
 ---
- arch/s390/include/asm/pci.h     |  1 +
- arch/s390/include/asm/pci_clp.h |  2 +-
- arch/s390/pci/pci_clp.c         | 25 ++++++++++++++++++++++---
- 3 files changed, 24 insertions(+), 4 deletions(-)
+ drivers/iommu/iommu.c |  7 +++++++
+ include/linux/iommu.h | 12 ++++++++++++
+ 2 files changed, 19 insertions(+)
 
-diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-index 3c0b9986dcdc..e8a3fd5bc169 100644
---- a/arch/s390/include/asm/pci.h
-+++ b/arch/s390/include/asm/pci.h
-@@ -227,6 +227,7 @@ int clp_enable_fh(struct zpci_dev *zdev, u32 *fh, u8 nr_dma_as);
- int clp_disable_fh(struct zpci_dev *zdev, u32 *fh);
- int clp_get_state(u32 fid, enum zpci_state *state);
- int clp_refresh_fh(u32 fid, u32 *fh);
-+int zpci_get_mdd(u32 *mdd);
- 
- /* UID */
- void update_uid_checking(bool new);
-diff --git a/arch/s390/include/asm/pci_clp.h b/arch/s390/include/asm/pci_clp.h
-index d6189ed14f84..dc2041e97de4 100644
---- a/arch/s390/include/asm/pci_clp.h
-+++ b/arch/s390/include/asm/pci_clp.h
-@@ -76,7 +76,7 @@ struct clp_req_list_pci {
- struct clp_rsp_list_pci {
- 	struct clp_rsp_hdr hdr;
- 	u64 resume_token;
--	u32 reserved2;
-+	u32 mdd;
- 	u16 max_fn;
- 	u8			: 7;
- 	u8 uid_checking		: 1;
-diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
-index dc733b58e74f..7477956be632 100644
---- a/arch/s390/pci/pci_clp.c
-+++ b/arch/s390/pci/pci_clp.c
-@@ -328,7 +328,7 @@ int clp_disable_fh(struct zpci_dev *zdev, u32 *fh)
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index f2c45b85b9fc..8bb57e0e3945 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -1976,6 +1976,13 @@ void iommu_domain_free(struct iommu_domain *domain)
  }
+ EXPORT_SYMBOL_GPL(iommu_domain_free);
  
- static int clp_list_pci_req(struct clp_req_rsp_list_pci *rrb,
--			    u64 *resume_token, int *nentries)
-+			    u64 *resume_token, int *nentries, u32 *mdd)
- {
- 	int rc;
- 
-@@ -354,6 +354,8 @@ static int clp_list_pci_req(struct clp_req_rsp_list_pci *rrb,
- 	*nentries = (rrb->response.hdr.len - LIST_PCI_HDR_LEN) /
- 		rrb->response.entry_size;
- 	*resume_token = rrb->response.resume_token;
-+	if (mdd)
-+		*mdd = rrb->response.mdd;
- 
- 	return rc;
- }
-@@ -365,7 +367,7 @@ static int clp_list_pci(struct clp_req_rsp_list_pci *rrb, void *data,
- 	int nentries, i, rc;
- 
- 	do {
--		rc = clp_list_pci_req(rrb, &resume_token, &nentries);
-+		rc = clp_list_pci_req(rrb, &resume_token, &nentries, NULL);
- 		if (rc)
- 			return rc;
- 		for (i = 0; i < nentries; i++)
-@@ -383,7 +385,7 @@ static int clp_find_pci(struct clp_req_rsp_list_pci *rrb, u32 fid,
- 	int nentries, i, rc;
- 
- 	do {
--		rc = clp_list_pci_req(rrb, &resume_token, &nentries);
-+		rc = clp_list_pci_req(rrb, &resume_token, &nentries, NULL);
- 		if (rc)
- 			return rc;
- 		fh_list = rrb->response.fh_list;
-@@ -468,6 +470,23 @@ int clp_get_state(u32 fid, enum zpci_state *state)
- 	return rc;
- }
- 
-+int zpci_get_mdd(u32 *mdd)
++struct iommu_domain *iommu_domain_alloc_type(struct bus_type *bus,
++					     unsigned int t)
 +{
-+	struct clp_req_rsp_list_pci *rrb;
-+	u64 resume_token = 0;
-+	int nentries, rc;
-+
-+	rrb = clp_alloc_block(GFP_KERNEL);
-+	if (!rrb)
-+		return -ENOMEM;
-+
-+	rc = clp_list_pci_req(rrb, &resume_token, &nentries, mdd);
-+
-+	clp_free_block(rrb);
-+	return rc;
++	return __iommu_domain_alloc(bus, t);
 +}
-+EXPORT_SYMBOL_GPL(zpci_get_mdd);
++EXPORT_SYMBOL_GPL(iommu_domain_alloc_type);
 +
- static int clp_base_slpc(struct clp_req *req, struct clp_req_rsp_slpc *lpcb)
+ static int __iommu_attach_device(struct iommu_domain *domain,
+ 				 struct device *dev)
  {
- 	unsigned long limit = PAGE_SIZE - sizeof(lpcb->request);
+diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+index 9208eca4b0d1..b427bbb9f387 100644
+--- a/include/linux/iommu.h
++++ b/include/linux/iommu.h
+@@ -63,6 +63,7 @@ struct iommu_domain_geometry {
+ 					      implementation              */
+ #define __IOMMU_DOMAIN_PT	(1U << 2)  /* Domain is identity mapped   */
+ #define __IOMMU_DOMAIN_DMA_FQ	(1U << 3)  /* DMA-API uses flush queue    */
++#define __IOMMU_DOMAIN_KVM	(1U << 4)  /* Domain is controlled by KVM */
+ 
+ /*
+  * This are the possible domain-types
+@@ -77,6 +78,7 @@ struct iommu_domain_geometry {
+  *				  certain optimizations for these domains
+  *	IOMMU_DOMAIN_DMA_FQ	- As above, but definitely using batched TLB
+  *				  invalidation.
++ *	IOMMU_DOMAIN_KVM	- DMA mappings managed by KVM, used for VMs
+  */
+ #define IOMMU_DOMAIN_BLOCKED	(0U)
+ #define IOMMU_DOMAIN_IDENTITY	(__IOMMU_DOMAIN_PT)
+@@ -86,6 +88,8 @@ struct iommu_domain_geometry {
+ #define IOMMU_DOMAIN_DMA_FQ	(__IOMMU_DOMAIN_PAGING |	\
+ 				 __IOMMU_DOMAIN_DMA_API |	\
+ 				 __IOMMU_DOMAIN_DMA_FQ)
++#define IOMMU_DOMAIN_KVM	(__IOMMU_DOMAIN_PAGING |	\
++				 __IOMMU_DOMAIN_KVM)
+ 
+ struct iommu_domain {
+ 	unsigned type;
+@@ -421,6 +425,8 @@ extern bool iommu_capable(struct bus_type *bus, enum iommu_cap cap);
+ extern struct iommu_domain *iommu_domain_alloc(struct bus_type *bus);
+ extern struct iommu_group *iommu_group_get_by_id(int id);
+ extern void iommu_domain_free(struct iommu_domain *domain);
++extern struct iommu_domain *iommu_domain_alloc_type(struct bus_type *bus,
++						    unsigned int t);
+ extern int iommu_attach_device(struct iommu_domain *domain,
+ 			       struct device *dev);
+ extern void iommu_detach_device(struct iommu_domain *domain,
+@@ -708,6 +714,12 @@ static inline void iommu_domain_free(struct iommu_domain *domain)
+ {
+ }
+ 
++static inline struct iommu_domain *iommu_domain_alloc_type(struct bus_type *bus,
++							   unsigned int t)
++{
++	return NULL;
++}
++
+ static inline int iommu_attach_device(struct iommu_domain *domain,
+ 				      struct device *dev)
+ {
 -- 
 2.27.0
 
