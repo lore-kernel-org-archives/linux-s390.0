@@ -2,177 +2,164 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A0B2DC433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Mar 2022 17:14:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B598AC433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Mar 2022 17:18:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350487AbiCORPZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Mar 2022 13:15:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55470 "EHLO
+        id S1350355AbiCORTk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Mar 2022 13:19:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237673AbiCORPX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Mar 2022 13:15:23 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E173F1E3EB
-        for <linux-s390@vger.kernel.org>; Tue, 15 Mar 2022 10:14:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1647364450;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=FsVY1kXB4ioI1J1uyDxz0dDFxgjXb4CnXzGjz5blmOc=;
-        b=jK7qNJyNLNLvNedzZc1p/IIn2ASX2Np0ylSOvwTtkUL0P6w+bH/VoJiZ8TM/asARHXEgGM
-        BfNoEHF+YiWYMvmlnrFWrjj8H4Wi9pxbZbYnJMpZJ95GmMjscs0DfiENLcb9n+OrcbLpyg
-        aXSH9f7y4JNtuX47qzfk1EqUG+fAbus=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-617-titbskfoNAC-ZOMKbS1kgA-1; Tue, 15 Mar 2022 13:14:08 -0400
-X-MC-Unique: titbskfoNAC-ZOMKbS1kgA-1
-Received: by mail-wr1-f70.google.com with SMTP id 71-20020adf82cd000000b00203dc43d216so163134wrc.22
-        for <linux-s390@vger.kernel.org>; Tue, 15 Mar 2022 10:14:08 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:from:to:cc:references:organization:in-reply-to
-         :content-transfer-encoding;
-        bh=FsVY1kXB4ioI1J1uyDxz0dDFxgjXb4CnXzGjz5blmOc=;
-        b=MVRzWdXWGwfWxPNUMcbKrOZwG64v8cWjEhB/nGQHatKHb/GhHHO8QhLnmRGC2o5x5X
-         3xnfNQ0j/XnbWn+QzHODuGPwQlzL5c/ZBrE7/6SV2oV5fUPLdQX0BbqYsExHogQRbgWl
-         gW90ClVLdI3HpRDUV8e5js4dEBjH5T3lBN6fDCBrZunaLQivQ+kdG6U4VeFhRhLa1g9z
-         ZP7sahIpnczTxxHEN+halRbzxDSq2Dni/Cqpm149ShSCxubJHWzgGnfDHOs4uGkKzuzo
-         msL3oEbAzVLaduM7P4zgy+2dnzWutpqxsHqK+b0nvgXQPTwNJ7mYL2auIKhW8Lr9v0zw
-         OIRA==
-X-Gm-Message-State: AOAM530P8kMK4VzvFnw8K/McUSJhAUtSJ92bZ4awNUnsHxHT1Z62Lj7A
-        68OspoFDOATh7SLhYeBFiUn0DHelw3mna7A/psnYm9YDHfz8uw2n5HSLPFlIvj3TBFYWwOkBU8t
-        l7+dZKajk6yYLBL7/hYidzA==
-X-Received: by 2002:adf:db01:0:b0:1f1:dcea:2b7f with SMTP id s1-20020adfdb01000000b001f1dcea2b7fmr21378174wri.598.1647364447497;
-        Tue, 15 Mar 2022 10:14:07 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxdS8qTqdqR219JFpZK+GPZ5bYAnnLa33KsM4wjU9HkrplJGzUCifrTI55X5XaluCKbirwW1w==
-X-Received: by 2002:adf:db01:0:b0:1f1:dcea:2b7f with SMTP id s1-20020adfdb01000000b001f1dcea2b7fmr21378152wri.598.1647364447236;
-        Tue, 15 Mar 2022 10:14:07 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c708:1800:42bd:3cac:d22a:3c62? (p200300cbc708180042bd3cacd22a3c62.dip0.t-ipconnect.de. [2003:cb:c708:1800:42bd:3cac:d22a:3c62])
-        by smtp.gmail.com with ESMTPSA id c7-20020a5d4f07000000b00203db8f13c6sm466545wru.75.2022.03.15.10.14.04
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 15 Mar 2022 10:14:06 -0700 (PDT)
-Message-ID: <51afa7a7-15c5-8769-78db-ed2d134792f4@redhat.com>
-Date:   Tue, 15 Mar 2022 18:14:04 +0100
+        with ESMTP id S241714AbiCORTj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Mar 2022 13:19:39 -0400
+Received: from NAM04-BN8-obe.outbound.protection.outlook.com (mail-bn8nam08on2088.outbound.protection.outlook.com [40.107.100.88])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65F1F19C10;
+        Tue, 15 Mar 2022 10:18:25 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=OCqsVcI02p7qJ+6q6w6KPv3XfVcrsBFmMD333YDe/F6hjMQ1foZ0+eCnY8GYodm129ZntC1f2UIL/a5c/flocLG4uOOr2vkQB+avFVRPa9jHSGMdfMP/NVjpYR8AcsI80Yyl3LapZfPRNsJWe2RWo43/Fxrc2lOz6gF2H8QdrcnWdelgdTDdxD4X1yb7zT0eY49aUvhGHK2Ksw4/6KO+6yXbpR4IxjuQUUJYqewG9atphiPqhJ+SHIHI0wqijuAShHeCyqfyahKZubKu3DuOudcgvqMAh3dlufRmgG6otVQpEV1JHK4o1U+/kC7To6tt2/kLwpHMvXaev8zkGcVAlQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=3pq5nJdt4gz96ip1zgPsWwzOzM7+/w1K8LCUv8bpVp4=;
+ b=hLL+trxn5MpvdefL5Er644idf4aoqCTHkteFX1R+1bGTlmYLolu6+35YqctqiOA3alkYbcz6w3PzCv3EPaGKmNjdai/pI4BCLI9T/I0V/h8h6/iBDRkLaWKPQRfKEbf9Cfm7ToeOIEP/sRyOcFVwRFhr/NgE5JOnWZWQd4sPRW97n13lJFaE6P1UVQWZjgOHumgAdENdeXqA/dncaogNFmMKuQSRXhLE7umjv789sbKkNZ33/pANGPSaGrAaPx7AycjASVXDmaB1DwxsD2lFsiwbo7kljUOdbPajNIBvECcJHIekRDIvBM1e7SYLHQ15pjgHf0t0/WrMFaGSaKFvdg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=3pq5nJdt4gz96ip1zgPsWwzOzM7+/w1K8LCUv8bpVp4=;
+ b=NGr4+quGQOmvT+u3ENDlNGL5UKfhBeUvYxKowREI3R6PcrIDYItzruYNLsUBtXxy3dzPVXOql67u/Hc5kQFH9g7BPkz7RhDt9kUsm+pd5oAVapnFQo1kZa/ySPjUd5MJlkvqqKcePsq7B3+XBBU86iY+PQHgoRS6obhBmCSEcRFkOB76yhI4Drhd7UR5y/7YOza0uMnVyZUMU2xzoK6T3zhPB4TqkRFq3VcI/cFkmDkQhghemcHjSKFdPt4ymC08HaKHbap/rLGeayv3Oy1NvVgKBXJv1cPTvzInm4aFVOw6iNX5nsu+DqUIxbhkrzIhqIJFXDhaKWINO/6HtI7waA==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
+ by BN8PR12MB4594.namprd12.prod.outlook.com (2603:10b6:408:a2::30) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5061.21; Tue, 15 Mar
+ 2022 17:18:23 +0000
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::51a0:4aee:2b4c:ca28]) by MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::51a0:4aee:2b4c:ca28%4]) with mapi id 15.20.5061.029; Tue, 15 Mar 2022
+ 17:18:23 +0000
+Date:   Tue, 15 Mar 2022 14:18:22 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Matthew Rosato <mjrosato@linux.ibm.com>
+Cc:     borntraeger@linux.ibm.com,
+        Alex Williamson <alex.williamson@redhat.com>,
+        linux-s390@vger.kernel.org, cohuck@redhat.com,
+        schnelle@linux.ibm.com, farman@linux.ibm.com, pmorel@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
+        imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
+        oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, joro@8bytes.org, will@kernel.org,
+        pbonzini@redhat.com, corbet@lwn.net, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org,
+        linux-doc@vger.kernel.org
+Subject: Re: [PATCH v4 15/32] vfio: introduce KVM-owned IOMMU type
+Message-ID: <20220315171822.GI11336@nvidia.com>
+References: <20220314194451.58266-1-mjrosato@linux.ibm.com>
+ <20220314194451.58266-16-mjrosato@linux.ibm.com>
+ <20220314165033.6d2291a5.alex.williamson@redhat.com>
+ <20220314231801.GN11336@nvidia.com>
+ <9618afae-2a91-6e4e-e8c3-cb83e2f5c3d9@linux.ibm.com>
+ <20220315145520.GZ11336@nvidia.com>
+ <dbe8488f-2539-f81a-b730-26e58b78856a@linux.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <dbe8488f-2539-f81a-b730-26e58b78856a@linux.ibm.com>
+X-ClientProxiedBy: MN2PR01CA0053.prod.exchangelabs.com (2603:10b6:208:23f::22)
+ To MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.2
-Subject: Re: [PATCH v1 5/7] s390/pgtable: support
- __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-Content-Language: en-US
-From:   David Hildenbrand <david@redhat.com>
-To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Cc:     linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Hugh Dickins <hughd@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        David Rientjes <rientjes@google.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Yang Shi <shy828301@gmail.com>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Vlastimil Babka <vbabka@suse.cz>, Jann Horn <jannh@google.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Nadav Amit <namit@vmware.com>, Rik van Riel <riel@surriel.com>,
-        Roman Gushchin <guro@fb.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Peter Xu <peterx@redhat.com>,
-        Donald Dutile <ddutile@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Oleg Nesterov <oleg@redhat.com>, Jan Kara <jack@suse.cz>,
-        Liang Zhang <zhangliang5@huawei.com>,
-        Pedro Gomes <pedrodemargomes@gmail.com>,
-        Oded Gabbay <oded.gabbay@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, linux-mm@kvack.org,
-        x86@kernel.org, linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
-References: <20220315141837.137118-1-david@redhat.com>
- <20220315141837.137118-6-david@redhat.com> <20220315172102.771bd2cf@thinkpad>
- <c8229082-e8f1-e605-25c2-0ec9d23efd9e@redhat.com>
- <8b13b6c0-78d4-48e3-06f0-ec0680d013a9@redhat.com>
- <55b6b582-51ca-b869-2055-674fe4c563e6@redhat.com>
-Organization: Red Hat
-In-Reply-To: <55b6b582-51ca-b869-2055-674fe4c563e6@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 90d913ff-eb78-48a1-ccff-08da06a7cf44
+X-MS-TrafficTypeDiagnostic: BN8PR12MB4594:EE_
+X-Microsoft-Antispam-PRVS: <BN8PR12MB4594438186EAB4041359A3E0C2109@BN8PR12MB4594.namprd12.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: wL4tQYnk7OE7jg7vHGFSZF+kDV3goB5Ft2QbIo9UANpoPfks3L6vQwdyoWPoGf589E896qmvz/Z3k3JrsuMR9V3d0S9vw7D1t+s4ifHwyojlIQ+MguMq1eSgvLAhUHLMEbnQuwUR7qg0s6faEiqlmhwcYVYddrbdlIw+x+8KcAZ9nGM0ORci7zDi6pibzZsCud8/If71QPwtXbvIOHDEk2zSXhHbaPPMcWTDJDkKf7lnuFJqB5wNRatWB6LZ0bs3FkADsGvpHiyeTqYlZVSPxmGIXJIK/JnnWKrCjRD0aTlApnk8sIcNgXsesGKxvcvxXKTwG+C3Qkg3pOmFIoT3f6IVSIwcg6uPRDxW/INRk3WoABoQKtrrHB0TFssatU0s0318fO+tXgFbpaK3L+iBqfO+w2q1/2bOlV+8crVEMVlruZ6R2gPf0BzLdSoGyPX1qugCLnimB7Iq55ANeCGDp9CdFmxkSYKY61Ndtrf0YitoROSEPrlUZHUocBcFwJDcc9j7xOWOGM5OwfBn0nrbJ7chIY6hIe21Qceb0n8opUANdqshLFDof1c4MBrWhW645zJW/cvcvcTzj3ew3hu3nXKcgdxR4f1jKicaRWOjfLAdLCgywy339nRxe3rewm8gTyqrE0x32zePVqWtC8+C4Q==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(186003)(26005)(83380400001)(1076003)(8676002)(36756003)(508600001)(4326008)(66946007)(66476007)(6916009)(316002)(66556008)(6486002)(38100700002)(7416002)(5660300002)(8936002)(33656002)(2906002)(2616005)(6506007)(86362001)(6512007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?zQ/9OOKFbh6Wuu6cYj1YJRjaMZmacasLdTK0Dg9+cFiXTR96QtTwH6yhdUGG?=
+ =?us-ascii?Q?AeIzQBmjujTFC//iQ1JyXhRlEegAayLX5LPR9fKhnZXaimZAXDcGT0fBlN8b?=
+ =?us-ascii?Q?Fdvl4pwFjvaqF8BGhDmdiCMkl+kiPv7CM2R1MEmD346wuW+RzdA3QLauk8zO?=
+ =?us-ascii?Q?xPO2Ky1eQqRv2MYB+tt9Sd3TAxX5WCGGgGf8mj7+0TGReqD2gkKOZajIKjE0?=
+ =?us-ascii?Q?K6FNKozoafMAlR31RlEBfnAGY4zVvIb5vt4s+mpBR/3+Ghrs77VnjS4Rz0Gz?=
+ =?us-ascii?Q?++EjQvqbeyv5yrDDQzWORztkEacVMgn2QGRA6GUaX1+Fj7MZyPpMvaXDFlcS?=
+ =?us-ascii?Q?wgSG2eKbMR+zSEn4+bzKmveiejnAUiFbocjBhCe4t9CJNdZNfdc1XbWer0wG?=
+ =?us-ascii?Q?QoslGy2P49cuY/PWnQE/4Sx42qd1u2ieF5vmDkS53ejt+U7/nwE9naOaU9Dn?=
+ =?us-ascii?Q?+ffkH7uPFKfvduzCcjAadfL+INh8OsplYcosWd5VqFV5KCyQta0FW2mxYMMC?=
+ =?us-ascii?Q?R3IQjUbJ9Hbo6SAwGOQjMI6y/bk3txVd2rubI/hGJlUF110MxBpFngp2IPwH?=
+ =?us-ascii?Q?Cs1rfdXp3/+Hsf+dcvFfybrDZdVPf18WrEHQqq2u0mMWa2qMNUqon/YrG1bk?=
+ =?us-ascii?Q?LWZ7MBe2NsIEz9nfT7UwJfODjzxxamfhm1TU1L9ci5pGFPXOu/mmIjWmRdr3?=
+ =?us-ascii?Q?mQ5GS/vcCvOSFIaiG80q5EDgyWh6B5xjt5bM0nszg3xC7ZdXE9bg9LHjC5Sq?=
+ =?us-ascii?Q?hIrSGgf6181xTWMzUgxXAacXfNFfixsjzsC4ZhPo9AaPIiL3sRD1s7uwE8wv?=
+ =?us-ascii?Q?/s54WRC8VI20fgtb4MzVwfSTzRXwMKMIcxp9QYnst3UwUyYobvIoDbPYwTQW?=
+ =?us-ascii?Q?jRQ6xMchjox+nuGm38sZoYsca2jPY0daOFWwM4izsOTQVvO3POJzU4Mu40rv?=
+ =?us-ascii?Q?ZGHOtlht6LR+sMy20zgWOPbA08Q3TGckOotQ2SfhLm8pJnWwEO8xrao6t1Ea?=
+ =?us-ascii?Q?Q+GO2LJ8p9RHOhIAK+AE+A2oWDnElDYdS9JYSTDu0geZGK++SDvbTlwj0Fzf?=
+ =?us-ascii?Q?qjC6UhyTfg3jYJzQNHAKM9M/LdwUIFvXViruaaJR04pltJcVvgl9g5E1xPDg?=
+ =?us-ascii?Q?uMflloO7Nt4ok8wNWF1g+9SqR1mpBpKy4iCqm8snUOmNFSItxnEaeMMqtZnW?=
+ =?us-ascii?Q?4SIc0R8ugKHXSxg9e5bApaucA0XetjOjRsOwj4FAIqxuxdf3+l4jMGjAll8Y?=
+ =?us-ascii?Q?uu/UPLlpG8ZxNRM+o68ea1QqkrWxZbx3+OzBUk+U1+Qy3J1mXqVoKZpxKLUc?=
+ =?us-ascii?Q?BIH6ivujIxIfv3XRqsNfI6kbyCfNFLcKS88bLZ88uwxSHe09D9h2JTq8BnHh?=
+ =?us-ascii?Q?Vgg/tfrsXJxefdEsBmfQkVGT0G8l2hR89l+0neVIvY/p+fUaBTHRAwKFQJVW?=
+ =?us-ascii?Q?LMpwAMawlJm4OWac4KXdUSXn7Iwmwd5e?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 90d913ff-eb78-48a1-ccff-08da06a7cf44
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Mar 2022 17:18:23.4918
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: Ma2Kx6CAsnrOiG1evmPh7/t1bTrv50q1RZuhQCfV6YSu9T+pS4yodg3ZOgPall2l
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN8PR12MB4594
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 15.03.22 18:12, David Hildenbrand wrote:
-> On 15.03.22 17:58, David Hildenbrand wrote:
->>
->>>> This would mean that it is not OK to have bit 52 not zero for swap PTEs.
->>>> But if I read the POP correctly, all bits except for the DAT-protection
->>>> would be ignored for invalid PTEs, so maybe this comment needs some update
->>>> (for both bits 52 and also 55).
->>>>
->>>> Heiko might also have some more insight.
->>>
->>> Indeed, I wonder why we should get a specification exception when the
->>> PTE is invalid. I'll dig a bit into the PoP.
->>
->> SA22-7832-12 6-46 ("Translation-Specification Exception") is clearer
->>
->> "The page-table entry used for the translation is
->> valid, and bit position 52 does not contain zero."
->>
->> "The page-table entry used for the translation is
->> valid, EDAT-1 does not apply, the instruction-exe-
->> cution-protection facility is not installed, and bit
->> position 55 does not contain zero. It is model
->> dependent whether this condition is recognized."
->>
+On Tue, Mar 15, 2022 at 12:04:35PM -0400, Matthew Rosato wrote:
+
+> > You can't pin/unpin in this path, there is no real way to handle error
+> > and ulimit stuff here, plus it is really slow. I didn't notice any of
+> > this in your patches, so what do you mean by 'pin' above?
 > 
-> I wonder if the following matches reality:
-> 
-> diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-> index 008a6c856fa4..6a227a8c3712 100644
-> --- a/arch/s390/include/asm/pgtable.h
-> +++ b/arch/s390/include/asm/pgtable.h
-> @@ -1669,18 +1669,16 @@ static inline int has_transparent_hugepage(void)
->  /*
->   * 64 bit swap entry format:
->   * A page-table entry has some bits we have to treat in a special way.
-> - * Bits 52 and bit 55 have to be zero, otherwise a specification
-> - * exception will occur instead of a page translation exception. The
-> - * specification exception has the bad habit not to store necessary
-> - * information in the lowcore.
->   * Bits 54 and 63 are used to indicate the page type.
->   * A swap pte is indicated by bit pattern (pte & 0x201) == 0x200
-> - * This leaves the bits 0-51 and bits 56-62 to store type and offset.
-> - * We use the 5 bits from 57-61 for the type and the 52 bits from 0-51
-> - * for the offset.
-> - * |                     offset                        |01100|type |00|
-> + * |                     offset                        |XX1XX|type |S0|
->   * |0000000000111111111122222222223333333333444444444455|55555|55566|66|
->   * |0123456789012345678901234567890123456789012345678901|23456|78901|23|
-> + *
-> + * Bits 0-51 store the offset.
-> + * Bits 57-62 store the type.
+> patch 18 does some symbol_get for gfn_to_page (which will drive hva_to_pfn
+> under the covers) and kvm_release_pfn_dirty and uses those symbols for
+> pin/unpin.
 
-^ 57-61, I should stop working for today :)
+To be very clear, this is quite wrong.
 
+It does not account for the memory pinned by the guest and a hostile
+VM could pin more memory than the KVM process is allowed to - which is
+a security hole.
 
--- 
-Thanks,
+It also uses the wrong kind of pin, DMA pinned pages must be
+pin_user_page'd not get_page'd and undone with unpin_user_page() and
+not put_page(). This allows the guest to pin ZONE_MOVABALE memory and
+other things which cannot be DMA'd to which will break the hypervisor
+kernel. See David Hildenbrand's various series on COW bugs for an
+overview why this is really security bad.
 
-David / dhildenb
+If you want to do dynamic pinning that is a different thing and
+requires more CPU work in the shadowing operations. The modeling would
+be similar except that the 1st stage iommu_domain would be this
+'shared with KVM' domain people have been talking about - ie the page
+table is not set with type 1 map/unmap but follows the KVM page table and
+here it would be appropriate to use gfn_to_page/etc to access it.
 
+However, if you do that then you do still have to take care of the
+ulimit checks and you must teach kvm to use unpin_user_page/_dirty()
+and related to be correct. This looks like a pretty big deal.
+
+My advice is to start with the fully pinned case I described and
+consider a KVM approach down the road.
+
+[Also, I'm quite excited by this series you have, I think it shows
+exactly how to fix POWER to work within the modern iommu framework,
+they have the same basic problem]
+
+Jason
