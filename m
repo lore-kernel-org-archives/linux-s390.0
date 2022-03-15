@@ -2,204 +2,278 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8974C433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Mar 2022 14:12:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 39CA9C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Mar 2022 14:14:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349042AbiCOONq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Mar 2022 10:13:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56182 "EHLO
+        id S238623AbiCOOPQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Mar 2022 10:15:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349038AbiCOOM7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Mar 2022 10:12:59 -0400
+        with ESMTP id S237401AbiCOOPP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Mar 2022 10:15:15 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4654D54BCD;
-        Tue, 15 Mar 2022 07:11:46 -0700 (PDT)
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22FDt0Pl002090;
-        Tue, 15 Mar 2022 14:11:45 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=Cky0JAwB0FgiuTE1ZIray99YAgYqwPDLl4P5F6cVtEI=;
- b=NtIsWLuZexB+2tDxLwDtBuMzNa6cEkgw2Ew5nSIFihOAV+2ZH3/QH5W3cd1RmOxRMN24
- c5r5cb5PmOCY9JNlV0vU09aoBhhEajYjwToh67aVvC8ZDFq8uBv4rrk6no4rs/73zWXZ
- k0fVrD3TheCdidw2GATnG5dQUd9mAcxXISYPsEbYWKMyLu34L8lFAgqiN4+6bBp4NwF5
- Zgtvmt6wslNorX151QjMR8/NoXr2Xv9idq/YG/2hNqQPDfxYu2SNQXWKqdl/v6YYBMCW
- PiGVtzntb6T061Mbx2vi08hgBAM8J+m71gopqTWAh9HRAC4dgS+jZsgF3WouFmlg5G+0 nA== 
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A4693969F;
+        Tue, 15 Mar 2022 07:14:01 -0700 (PDT)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22FCioGi010949;
+        Tue, 15 Mar 2022 14:13:57 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : reply-to : subject : to : cc : references : from :
+ in-reply-to : content-type : content-transfer-encoding; s=pp1;
+ bh=I2JuQw69rLIE7kBwkJ7s/EF353rQBCuLMnu9w8fyeRw=;
+ b=fKdr7PDtN3dyppTuMt+LQkUVfrGKTo2hUQ46Zd7S31pcautckL1OWPElwkVbEn6Hfizw
+ 4XfvGb/sqGsvkddHM36LV/277hJd00fL3LhuGPKoqyn8ZJBJIwIz2CMnfmNnaqRUC2ff
+ O4thYZ8B5YAO23FJUsafSRVBNRj2/mC0HimLISJxvvDUjc/eYmCKl0UBLzH2YNCXKj40
+ 0kmd0LuCjb2FbGZW8Jo63pqsSQHouq/4pgp1Sl43GXBm2N2V2PV/fq1wB9sk/uxyGzya
+ +BKZWCakkDW1un4HzRrtaQ8XPWumYnpqO3bPdeDNkUcDc6iviVANCyebkRcPeECIBi7Y FQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3etv3vgdyv-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3etu2st29r-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Mar 2022 14:11:45 +0000
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22FDv1kD011216;
-        Tue, 15 Mar 2022 14:11:44 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3etv3vgdy3-1
+        Tue, 15 Mar 2022 14:13:56 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22FDtcWX017886;
+        Tue, 15 Mar 2022 14:13:56 GMT
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3etu2st29g-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Mar 2022 14:11:44 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22FE99CR008054;
-        Tue, 15 Mar 2022 14:11:43 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma03ams.nl.ibm.com with ESMTP id 3et95wt42h-1
+        Tue, 15 Mar 2022 14:13:56 +0000
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22FE7vlx016712;
+        Tue, 15 Mar 2022 14:13:55 GMT
+Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
+        by ppma03dal.us.ibm.com with ESMTP id 3erk59b5fx-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Mar 2022 14:11:43 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22FEBeau51839320
+        Tue, 15 Mar 2022 14:13:55 +0000
+Received: from b03ledav002.gho.boulder.ibm.com (b03ledav002.gho.boulder.ibm.com [9.17.130.233])
+        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22FEDrVH32834012
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 15 Mar 2022 14:11:40 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 08D20A4051;
-        Tue, 15 Mar 2022 14:11:40 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E7F60A4040;
-        Tue, 15 Mar 2022 14:11:39 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Tue, 15 Mar 2022 14:11:39 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 25651)
-        id A45D8E11F3; Tue, 15 Mar 2022 15:11:39 +0100 (CET)
-From:   Christian Borntraeger <borntraeger@linux.ibm.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>
-Subject: [GIT PULL 5/7] KVM: s390: selftests: Add named stages for memop test
-Date:   Tue, 15 Mar 2022 15:11:35 +0100
-Message-Id: <20220315141137.357923-6-borntraeger@linux.ibm.com>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220315141137.357923-1-borntraeger@linux.ibm.com>
-References: <20220315141137.357923-1-borntraeger@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: r-8Q2hpkvyMQ8djxIU3CRnXE2OfCSrmW
-X-Proofpoint-ORIG-GUID: lRMS3UHQJrqefBg2XevS771abHSjfS07
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Tue, 15 Mar 2022 14:13:53 GMT
+Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5234E136059;
+        Tue, 15 Mar 2022 14:13:53 +0000 (GMT)
+Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B8382136055;
+        Tue, 15 Mar 2022 14:13:51 +0000 (GMT)
+Received: from [9.65.71.91] (unknown [9.65.71.91])
+        by b03ledav002.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Tue, 15 Mar 2022 14:13:51 +0000 (GMT)
+Message-ID: <6083d83b-6867-2525-fdd8-baccde1a599f@linux.ibm.com>
+Date:   Tue, 15 Mar 2022 10:13:51 -0400
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.0
+Reply-To: jjherne@linux.ibm.com
+Subject: Re: [PATCH v18 12/18] s390/vfio-ap: reset queues after adapter/domain
+ unassignment
+Content-Language: en-US
+To:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc:     freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
+        mjrosato@linux.ibm.com, pasic@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        fiuczy@linux.ibm.com
+References: <20220215005040.52697-1-akrowiak@linux.ibm.com>
+ <20220215005040.52697-13-akrowiak@linux.ibm.com>
+From:   "Jason J. Herne" <jjherne@linux.ibm.com>
+Organization: IBM
+In-Reply-To: <20220215005040.52697-13-akrowiak@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: sLeAlYw04pAVXCBoN5geiJEdTqGmQQS3
+X-Proofpoint-ORIG-GUID: Es-q2duvSwtNFNcQX_wjahEZqQ5rDups
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-03-15_03,2022-03-15_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- clxscore=1015 suspectscore=0 mlxlogscore=999 phishscore=0 adultscore=0
- malwarescore=0 mlxscore=0 spamscore=0 impostorscore=0 bulkscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ suspectscore=0 bulkscore=0 phishscore=0 priorityscore=1501 spamscore=0
+ lowpriorityscore=0 malwarescore=0 mlxlogscore=999 adultscore=0 mlxscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2202240000 definitions=main-2203150092
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+On 2/14/22 19:50, Tony Krowiak wrote:
+> When an adapter or domain is unassigned from an mdev providing the AP
+> configuration to a running KVM guest, one or more of the guest's queues may
+> get dynamically removed. Since the removed queues could get re-assigned to
+> another mdev, they need to be reset. So, when an adapter or domain is
+> unassigned from the mdev, the queues that are removed from the guest's
+> AP configuration will be reset.
+> 
+> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> ---
+...
+>   
+> +static void vfio_ap_unlink_apqn_fr_mdev(struct ap_matrix_mdev *matrix_mdev,
+> +					unsigned long apid, unsigned long apqi,
+> +					struct ap_queue_table *qtable)
+> +{
+> +	struct vfio_ap_queue *q;
+> +
+> +	q = vfio_ap_mdev_get_queue(matrix_mdev, AP_MKQID(apid, apqi));
+> +	/* If the queue is assigned to the matrix mdev, unlink it. */
+> +	if (q)
+> +		vfio_ap_unlink_queue_fr_mdev(q);
+> +
+> +	/* If the queue is assigned to the APCB, store it in @qtable. */
+> +	if (test_bit_inv(apid, matrix_mdev->shadow_apcb.apm) &&
+> +	    test_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm))
+> +		hash_add(qtable->queues, &q->mdev_qnode, q->apqn);
+> +}
+> +
+> +/**
+> + * vfio_ap_mdev_unlink_adapter - unlink all queues associated with unassigned
+> + *				 adapter from the matrix mdev to which the
+> + *				 adapter was assigned.
+> + * @matrix_mdev: the matrix mediated device to which the adapter was assigned.
+> + * @apid: the APID of the unassigned adapter.
+> + * @qtable: table for storing queues associated with unassigned adapter.
+> + */
+>   static void vfio_ap_mdev_unlink_adapter(struct ap_matrix_mdev *matrix_mdev,
+> -					unsigned long apid)
+> +					unsigned long apid,
+> +					struct ap_queue_table *qtable)
+>   {
+>   	unsigned long apqi;
+> +
+> +	for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm, AP_DOMAINS)
+> +		vfio_ap_unlink_apqn_fr_mdev(matrix_mdev, apid, apqi, qtable);
+> +}
 
-The stages synchronize guest and host execution.
-This helps the reader and constraits the execution of the test -- if the
-observed staging differs from the expected the test fails.
+Here is an alternate version of the above two functions that stops the
+profileration of the qtables variable into vfio_ap_unlink_apqn_fr_mdev.
+It may seem like a change with no benefit, but it simplifies things a
+bit and avoids the reader from having to sink three functions deep to
+find out where qtables is used. This is 100% untested.
 
-Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220308125841.3271721-4-scgl@linux.ibm.com
-Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
----
- tools/testing/selftests/kvm/s390x/memop.c | 44 +++++++++++++++++------
- 1 file changed, 33 insertions(+), 11 deletions(-)
 
-diff --git a/tools/testing/selftests/kvm/s390x/memop.c b/tools/testing/selftests/kvm/s390x/memop.c
-index e2ad3d70bae4..88ce2d670ed5 100644
---- a/tools/testing/selftests/kvm/s390x/memop.c
-+++ b/tools/testing/selftests/kvm/s390x/memop.c
-@@ -218,10 +218,32 @@ static struct test_default test_default_init(void *guest_code)
- 	return t;
- }
- 
-+enum stage {
-+	/* Synced state set by host, e.g. DAT */
-+	STAGE_INITED,
-+	/* Guest did nothing */
-+	STAGE_IDLED,
-+	/* Guest copied memory (locations up to test case) */
-+	STAGE_COPIED,
-+};
-+
-+#define HOST_SYNC(vcpu_p, stage)					\
-+({									\
-+	struct test_vcpu __vcpu = (vcpu_p);				\
-+	struct ucall uc;						\
-+	int __stage = (stage);						\
-+									\
-+	vcpu_run(__vcpu.vm, __vcpu.id);					\
-+	get_ucall(__vcpu.vm, __vcpu.id, &uc);				\
-+	ASSERT_EQ(uc.cmd, UCALL_SYNC);					\
-+	ASSERT_EQ(uc.args[1], __stage);					\
-+})									\
-+
- static void guest_copy(void)
- {
-+	GUEST_SYNC(STAGE_INITED);
- 	memcpy(&mem2, &mem1, sizeof(mem2));
--	GUEST_SYNC(0);
-+	GUEST_SYNC(STAGE_COPIED);
- }
- 
- static void test_copy(void)
-@@ -232,16 +254,13 @@ static void test_copy(void)
- 	for (i = 0; i < sizeof(mem1); i++)
- 		mem1[i] = i * i + i;
- 
-+	HOST_SYNC(t.vcpu, STAGE_INITED);
-+
- 	/* Set the first array */
--	MOP(t.vcpu, LOGICAL, WRITE, mem1, t.size,
--	    GADDR(addr_gva2gpa(t.kvm_vm, (uintptr_t)mem1)));
-+	MOP(t.vcpu, LOGICAL, WRITE, mem1, t.size, GADDR_V(mem1));
- 
- 	/* Let the guest code copy the first array to the second */
--	vcpu_run(t.kvm_vm, VCPU_ID);
--	TEST_ASSERT(t.run->exit_reason == KVM_EXIT_S390_SIEIC,
--		    "Unexpected exit reason: %u (%s)\n",
--		    t.run->exit_reason,
--		    exit_reason_str(t.run->exit_reason));
-+	HOST_SYNC(t.vcpu, STAGE_COPIED);
- 
- 	memset(mem2, 0xaa, sizeof(mem2));
- 
-@@ -256,8 +275,9 @@ static void test_copy(void)
- 
- static void guest_idle(void)
- {
-+	GUEST_SYNC(STAGE_INITED); /* for consistency's sake */
- 	for (;;)
--		GUEST_SYNC(0);
-+		GUEST_SYNC(STAGE_IDLED);
- }
- 
- static void test_errors(void)
-@@ -265,6 +285,8 @@ static void test_errors(void)
- 	struct test_default t = test_default_init(guest_idle);
- 	int rv;
- 
-+	HOST_SYNC(t.vcpu, STAGE_INITED);
-+
- 	/* Bad size: */
- 	rv = ERR_MOP(t.vcpu, LOGICAL, WRITE, mem1, -1, GADDR_V(mem1));
- 	TEST_ASSERT(rv == -1 && errno == E2BIG, "ioctl allows insane sizes");
-@@ -294,11 +316,11 @@ static void test_errors(void)
- 	/* Bad access register: */
- 	t.run->psw_mask &= ~(3UL << (63 - 17));
- 	t.run->psw_mask |= 1UL << (63 - 17);  /* Enable AR mode */
--	vcpu_run(t.kvm_vm, VCPU_ID);              /* To sync new state to SIE block */
-+	HOST_SYNC(t.vcpu, STAGE_IDLED); /* To sync new state to SIE block */
- 	rv = ERR_MOP(t.vcpu, LOGICAL, WRITE, mem1, t.size, GADDR_V(mem1), AR(17));
- 	TEST_ASSERT(rv == -1 && errno == EINVAL, "ioctl allows ARs > 15");
- 	t.run->psw_mask &= ~(3UL << (63 - 17));   /* Disable AR mode */
--	vcpu_run(t.kvm_vm, VCPU_ID);                  /* Run to sync new state */
-+	HOST_SYNC(t.vcpu, STAGE_IDLED); /* Run to sync new state */
- 
- 	/* Check that the SIDA calls are rejected for non-protected guests */
- 	rv = ERR_MOP(t.vcpu, SIDA, READ, mem1, 8, GADDR(0), SIDA_OFFSET(0x1c0));
+static bool vfio_ap_unlink_apqn_fr_mdev(struct ap_matrix_mdev *matrix_mdev,
+					unsigned long apid, unsigned long apqi)
+{
+	struct vfio_ap_queue *q;
+
+	q = vfio_ap_mdev_get_queue(matrix_mdev, AP_MKQID(apid, apqi));
+	/* If the queue is assigned to the matrix mdev, unlink it. */
+	if (q) {
+		vfio_ap_unlink_queue_fr_mdev(q);
+		return true;
+	}
+	return false;
+}
+
+static void vfio_ap_mdev_unlink_adapter(struct ap_matrix_mdev *matrix_mdev,
+					unsigned long apid,
+					struct ap_queue_table *qtable)
+{
+	unsigned long apqi;
+	bool unlinked;
+
+	for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm, AP_DOMAINS) {
+		unlinked = vfio_ap_unlink_apqn_fr_mdev(matrix_mdev, apid, apqi, qtable);
+
+		if (unlinked && qtable) {
+			if (test_bit_inv(apid, matrix_mdev->shadow_apcb.apm) &&
+			    test_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm))
+				hash_add(qtable->queues, &q->mdev_qnode,
+					 q->apqn);
+		}
+	}
+}
+
+
+> +static void vfio_ap_mdev_hot_unplug_adapter(struct ap_matrix_mdev *matrix_mdev,
+> +					    unsigned long apid)
+> +{
+> +	int bkt;
+>   	struct vfio_ap_queue *q;
+> +	struct ap_queue_table qtable;
+> +	hash_init(qtable.queues);
+> +	vfio_ap_mdev_unlink_adapter(matrix_mdev, apid, &qtable);
+> +
+> +	if (test_bit_inv(apid, matrix_mdev->shadow_apcb.apm)) {
+> +		clear_bit_inv(apid, matrix_mdev->shadow_apcb.apm);
+> +		vfio_ap_mdev_hotplug_apcb(matrix_mdev);
+> +	}
+>   
+> -	for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm, AP_DOMAINS) {
+> -		q = vfio_ap_mdev_get_queue(matrix_mdev, AP_MKQID(apid, apqi));
+> +	vfio_ap_mdev_reset_queues(&qtable);
+>   
+> -		if (q)
+> -			vfio_ap_mdev_unlink_queue(q);
+> +	hash_for_each(qtable.queues, bkt, q, mdev_qnode) {
+
+This comment applies to all instances of btk: What is btk? Can we come
+up with a more descriptive name?
+
+> +		vfio_ap_unlink_mdev_fr_queue(q);
+> +		hash_del(&q->mdev_qnode);
+>   	}
+>   }
+...
+> @@ -1273,9 +1320,9 @@ static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev,
+>   		mutex_lock(&kvm->lock);
+>   		mutex_lock(&matrix_dev->mdevs_lock);
+>   
+> -		kvm_arch_crypto_clear_masks(kvm);
+> -		vfio_ap_mdev_reset_queues(matrix_mdev);
+> -		kvm_put_kvm(kvm);
+> +		kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
+> +		vfio_ap_mdev_reset_queues(&matrix_mdev->qtable);
+> +		kvm_put_kvm(matrix_mdev->kvm);
+>   		matrix_mdev->kvm = NULL;
+
+I understand changing the call to vfio_ap_mdev_reset_queues, but why are we changing the
+kvm pointer on the surrounding lines?
+
+>   
+>   		mutex_unlock(&matrix_dev->mdevs_lock);
+> @@ -1328,14 +1375,17 @@ static int vfio_ap_mdev_reset_queue(struct vfio_ap_queue *q, unsigned int retry)
+>   
+>   	if (!q)
+>   		return 0;
+> +	q->reset_rc = 0;
+
+This line seems unnecessary. You set q->reset_rc in every single case below, so this 0
+will always get overwritten.
+
+>   retry_zapq:
+>   	status = ap_zapq(q->apqn);
+>   	switch (status.response_code) {
+>   	case AP_RESPONSE_NORMAL:
+>   		ret = 0;
+> +		q->reset_rc = status.response_code;
+>   		break;
+>   	case AP_RESPONSE_RESET_IN_PROGRESS:
+> +		q->reset_rc = status.response_code;
+>   		if (retry--) {
+>   			msleep(20);
+>   			goto retry_zapq;
+> @@ -1345,13 +1395,20 @@ static int vfio_ap_mdev_reset_queue(struct vfio_ap_queue *q, unsigned int retry)
+>   	case AP_RESPONSE_Q_NOT_AVAIL:
+>   	case AP_RESPONSE_DECONFIGURED:
+>   	case AP_RESPONSE_CHECKSTOPPED:
+> -		WARN_ON_ONCE(status.irq_enabled);
+> +		WARN_ONCE(status.irq_enabled,
+> +			  "PQAP/ZAPQ for %02x.%04x failed with rc=%u while IRQ enabled",
+> +			  AP_QID_CARD(q->apqn), AP_QID_QUEUE(q->apqn),
+> +			  status.response_code);
+> +		q->reset_rc = status.response_code;
+>   		ret = -EBUSY;
+>   		goto free_resources;
+>   	default:
+>   		/* things are really broken, give up */
+> -		WARN(true, "PQAP/ZAPQ completed with invalid rc (%x)\n",
+> +		WARN(true,
+> +		     "PQAP/ZAPQ for %02x.%04x failed with invalid rc=%u\n",
+> +		     AP_QID_CARD(q->apqn), AP_QID_QUEUE(q->apqn),
+>   		     status.response_code);
+> +		q->reset_rc = status.response_code;
+>   		return -EIO;
+>   	}
+...
+
 -- 
-2.35.1
-
+-- Jason J. Herne (jjherne@linux.ibm.com)
