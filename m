@@ -2,157 +2,130 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6024EC433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Mar 2022 14:20:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C3D0CC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Mar 2022 14:39:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349209AbiCOOV0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Mar 2022 10:21:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48172 "EHLO
+        id S244091AbiCOOkQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Mar 2022 10:40:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237890AbiCOOVM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Mar 2022 10:21:12 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id AE1DB5520D
-        for <linux-s390@vger.kernel.org>; Tue, 15 Mar 2022 07:19:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1647353990;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=TwO5MaKuynUSMbsOinBzVosboPLVHwPyacLiL1/kyJE=;
-        b=RMlBOySd+wz03K2pN8MU7RRxYg+GORP20Euw5hpYHrGZw/3v3w1vwT6VfAU/nNlMx6+Tyz
-        yPXGKl+EfNactWxDDlyDf/da0ahkw6W762cEXBHnVayP6ck1+yAC4LjC5hItqUZ6D/nPS8
-        QHz5Y4C3Wu/XkTMN/Fv+GZAItP8cMLU=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-426-sV7tP6v_O4-0bsDr6XavzQ-1; Tue, 15 Mar 2022 10:19:49 -0400
-X-MC-Unique: sV7tP6v_O4-0bsDr6XavzQ-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 0754B811E84;
-        Tue, 15 Mar 2022 14:19:47 +0000 (UTC)
-Received: from t480s.redhat.com (unknown [10.39.194.72])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id E600A40F9D53;
-        Tue, 15 Mar 2022 14:19:38 +0000 (UTC)
-From:   David Hildenbrand <david@redhat.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Hugh Dickins <hughd@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        David Rientjes <rientjes@google.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Yang Shi <shy828301@gmail.com>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Vlastimil Babka <vbabka@suse.cz>, Jann Horn <jannh@google.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Nadav Amit <namit@vmware.com>, Rik van Riel <riel@surriel.com>,
-        Roman Gushchin <guro@fb.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Peter Xu <peterx@redhat.com>,
-        Donald Dutile <ddutile@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Oleg Nesterov <oleg@redhat.com>, Jan Kara <jack@suse.cz>,
-        Liang Zhang <zhangliang5@huawei.com>,
-        Pedro Gomes <pedrodemargomes@gmail.com>,
-        Oded Gabbay <oded.gabbay@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, linux-mm@kvack.org,
-        x86@kernel.org, linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        David Hildenbrand <david@redhat.com>
-Subject: [PATCH v1 7/7] powerpc/pgtable: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE for book3s
-Date:   Tue, 15 Mar 2022 15:18:37 +0100
-Message-Id: <20220315141837.137118-8-david@redhat.com>
-In-Reply-To: <20220315141837.137118-1-david@redhat.com>
-References: <20220315141837.137118-1-david@redhat.com>
+        with ESMTP id S244030AbiCOOkM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Mar 2022 10:40:12 -0400
+Received: from NAM02-DM3-obe.outbound.protection.outlook.com (mail-dm3nam07on2057.outbound.protection.outlook.com [40.107.95.57])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBF6E554BB;
+        Tue, 15 Mar 2022 07:39:00 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=j727ywfAqCNe2f9v8cM48dHpwZXzhnyQZAoeZm/VVaX/cqB9CVojx8+QKU42ooi5laFrqCgHMFNG01o/VFq/J9lFBbj40Fjrhb1wjqX6uKMynC1CtZ78/1Qde8e4BcAAu1lTHTPCegl+mKftXOKWVo79nxS7iUIXjsHz5PFMyh0iMqhnlKv2yxSLd9Fv6IkI3tS6t6cO+4XXyxqEMwyOEssPrgkQQgjlGOCV8oOVW6xf2iezzlhjh5HPN/QAYphtTyFEXFE6X6oR5WmvS8ZDCYLL6+mhbiCdCaUfpeKaZzBzWYvb7K0M677SVcv4YkT2wpvz5IXpaqXKu20BFdIrCA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=T53ifrrZ3TFU3o249ofbbE57hDCzS9ZqiBVJjyGdBWI=;
+ b=FiORkkhcrlcx8GZN2quRJ+27+FPz+LALHS3qS7qDvfcx/lzXWZKDG43V7Fg1LOqowSW5CLztPVNmJFb8qaU6tqdnF9YZilSvnfndZkMd+SREQ1FkADLnHsUe3oZe+YPiq94h63Ik7eTxMfxlfgY2ZqS6pOINl7vJRvP6b+6U5/PJ3VGnmd2Ac+vfrVAsMVPM4MyqX7T3/duOKuxMNmCRuolCsmA6cXhj0sEX+y5Y26ZolM7thcHHanZzwkhfyoQbESDOkTfqroqo0mrtuc6lAJYWfNtspBwKJyNeReEylg5TCdOHP2lu6ff9nn6m45CfCynkTe/bhoTnGwWVB/XMwA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=T53ifrrZ3TFU3o249ofbbE57hDCzS9ZqiBVJjyGdBWI=;
+ b=YXdlGje2IWIClWqzZpjJpdCxqx7wgTZTqDEoLYBo3YKBm+HrWkk6iOqEQAVz/sfR6dNmThrh9JjXOJ4RpYDt6MECP8zy7PDcWJ46/BNMgGUxoEW6vOFQTgeOJShm5qdcJzrQ6Yw2XhTNLKKjTIGZQSmg1aNbuKJ1X4jxxZ7Ptw4uN76uIduKwpUwg2IOMOf/Ni8ChCVWlcBX1Tvp41/VZAS2z6RHye11Jaz0yLmZH7/v/H7lvYGrpCVaeoCsQMETe/chuuggsxgElJ8wgNj/yAq7L5VWVG3BxAKAUd9KmVYbExzKJ87nXwJhXPbUxmLKfOqZAByQNVmy2A0MgvICLw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
+ by MN2PR12MB2957.namprd12.prod.outlook.com (2603:10b6:208:100::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5061.22; Tue, 15 Mar
+ 2022 14:38:59 +0000
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::51a0:4aee:2b4c:ca28]) by MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::51a0:4aee:2b4c:ca28%4]) with mapi id 15.20.5061.029; Tue, 15 Mar 2022
+ 14:38:59 +0000
+Date:   Tue, 15 Mar 2022 11:38:58 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Matthew Rosato <mjrosato@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, alex.williamson@redhat.com,
+        cohuck@redhat.com, schnelle@linux.ibm.com, farman@linux.ibm.com,
+        pmorel@linux.ibm.com, borntraeger@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, gerald.schaefer@linux.ibm.com,
+        agordeev@linux.ibm.com, svens@linux.ibm.com, frankja@linux.ibm.com,
+        david@redhat.com, imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
+        oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, joro@8bytes.org, will@kernel.org,
+        pbonzini@redhat.com, corbet@lwn.net, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org,
+        linux-doc@vger.kernel.org
+Subject: Re: [PATCH v4 15/32] vfio: introduce KVM-owned IOMMU type
+Message-ID: <20220315143858.GY11336@nvidia.com>
+References: <20220314194451.58266-1-mjrosato@linux.ibm.com>
+ <20220314194451.58266-16-mjrosato@linux.ibm.com>
+ <20220314213808.GI11336@nvidia.com>
+ <decc5320-eb3e-af25-fd2b-77fabe56a897@linux.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <decc5320-eb3e-af25-fd2b-77fabe56a897@linux.ibm.com>
+X-ClientProxiedBy: BLAPR03CA0085.namprd03.prod.outlook.com
+ (2603:10b6:208:329::30) To MN2PR12MB4192.namprd12.prod.outlook.com
+ (2603:10b6:208:1d5::15)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.11.54.1
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 4d9ae89f-bf99-4c95-6f1b-08da06918aa4
+X-MS-TrafficTypeDiagnostic: MN2PR12MB2957:EE_
+X-Microsoft-Antispam-PRVS: <MN2PR12MB2957EBB87771B0A46C678711C2109@MN2PR12MB2957.namprd12.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: dsvxlG5REqDVisZLyOU2pW+XMWEaL7h/V5lrpfrm7LQjZKFPNYEbDB47izNqkjfT96BfhhsH9fOlj8E4YsRlrR0F50uAgpL9dUkq24oZJeu9WmmbJWasQQ2k99Oe5N+v2sY+G0P2QVKLUpBY9UuRpfRjVo3XbTTNEc9hUQekUWFkrDxpIpAUwQmtGvDmQRrbz+w44S7MDJ+AevcXrf2OyH0DJyVzNRQb9s9BBU6QE84BvQjBjdA3XcUQd4hjdCLP9S7zxbSbmtPqb9W3RXH1aAehsJQKtVRWmTXIugBvartvqu8SqECjZKWKSrfKdNELTE3DVdYZRJr1w8Tlieazwwl10esKJuzJNnCTV5dbx3SrWqXtzQCZTpjgp17jmN3tozqWFYhGRdv/1l/dQk14zgXDw1PiXZq9tDTlQ4XomgB+SX9dyALZ1Ob0ATZU9NMdOLHObMedLPN0gN0BEwSSIHnZPvVtjp7W0FkKwKhG55zUxi6tu/Kt6KE+n92u+PTnMg0RKCKKMd+9Paha+15ilsRpOwpJhLZ6AtI6lFVi8lBZFh60fYM3uh6f0dSTXwXTNHgMCa8ed3KxY+AUe6XdyEsnjpxJLkRFOcjMfVn47yRYVLuGbYRPj28mLJqQZ8GTVGrbVm9gEeiunUBQzqj9tw==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(4326008)(8676002)(66556008)(38100700002)(186003)(26005)(86362001)(6512007)(2616005)(1076003)(6506007)(66946007)(508600001)(36756003)(316002)(6916009)(33656002)(2906002)(6486002)(7416002)(4744005)(66476007)(5660300002)(8936002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?ZNLFrO4VZZiZnzRqMEriaQCQIwFsShbrrMr2FQ+QwC42avm2YXWCLmMnvLO4?=
+ =?us-ascii?Q?I4YV/MapRxCqE2OfD00jSNTt8Y8FdlTsvU2G0xbiEw+s3gOF2Ewvd0nnG8tk?=
+ =?us-ascii?Q?P/iAt2z6Go9shug1/nZUI9mEWJH3U9e0y7rjHuCzOu3eu7QLDdv/p+cmVeDu?=
+ =?us-ascii?Q?pSqqd0kMjLwTiazLft7Zx74H/54fMj/NEIN14mmwB7GRnXLvshDH6m0vQB5D?=
+ =?us-ascii?Q?hy6gRmCxTBafwyivABwp2E+PMAg5qmvd6g83g5wd/iWWFswOHB9uJ5vRNRgb?=
+ =?us-ascii?Q?7LaaXDv6x0qMyYHly3kyKzkOBX8tkbIH3b92cz9mA+ZtXO+NBVkSANfstXi6?=
+ =?us-ascii?Q?z81kh9VRUx3UcZ2T+Rf5f6CZrQMA+MOpLH9zTCCieUPgPYlKGFCpz6uFwACu?=
+ =?us-ascii?Q?dTBjRRb5Aa9RybzR/JCUeXwF6eKtD6+SJx2dDG089BpQJNNITkTmxVfX7rY3?=
+ =?us-ascii?Q?Q4IU6Od5WDFMGg5RIkyMUeSwW/AZ1NX4M+TGiwP2rsyvuXWdTeCosWfWpIxd?=
+ =?us-ascii?Q?XJjr8g63aXFsmt9vzq6if8Ojp3xjmHRVsoEQAwNtMps+6zWfDBxL1RHWwreC?=
+ =?us-ascii?Q?+PN798LV5Eq85gB4kL/ER2Z4Zz0k228ygx6HJVNoqYmYSbNGVvXwvLX2+IIz?=
+ =?us-ascii?Q?x9pkDkLzqrswuW29jGnL6MweTHqeRJ0yIRhyy4NO4Pu/BGcWfO32QazkPcWe?=
+ =?us-ascii?Q?U317Y/bETESCXxEEWPCI1ADZiFSWFXBtOWLTgbz36hGX7NI7c3WxqdC51jeh?=
+ =?us-ascii?Q?mTEOd5AFDM0R3F2KicfSdvwJ180LyYDHCSaVZ/DlWAf4A5wiu0TEfV1tnQPk?=
+ =?us-ascii?Q?K/wMMp29ba5oGDN1wWV/i19Tmb2IO5AyXdXDJZIT/kVOnwkpLDutjrLCkz7j?=
+ =?us-ascii?Q?aiS3dRe9rrxNXS4Q3I3GudnyjvxNM/2SD8gZzjh7RldtxJuf+id1nsqQ2nG1?=
+ =?us-ascii?Q?fPX/LMq3Y8DVx6VQQDtMRdLj/txs82DYmMkHujc5PwxpCDmP9aCtI8YZ5m7I?=
+ =?us-ascii?Q?yzafZYh0YWCg9D1r2++XxWoeN55aNOs3d2N+FKmYoCo4LnQO8VvHOfsRa+tO?=
+ =?us-ascii?Q?iyOFnZevIYhPXSnElbbUDMDOpb8qeq9ZRjbxIZ6NqOJ1ydLrWN+NXTodxga3?=
+ =?us-ascii?Q?bKJIm4+/Ubdv3k84Ss5E/1CAdujC2IOqj4xnhJzp4EKj6UqWRzn50F8BsT60?=
+ =?us-ascii?Q?CkyhaxSujF7yPhcqtnHVXlQeDnw0hi+qvRtyYFaieLPwPSu9MGgrUXDsZYLJ?=
+ =?us-ascii?Q?ER3bk6RFWHpexqQ2QFuuwQvCBVE/3bQEy/F2AMJL3X/jG2GW9dN8GsoaF6Yp?=
+ =?us-ascii?Q?C1YIN4YPF9EvCK94de2QeqyGNJBpQDasRWcl7S5axUum+geLY3FWq8GkMuMX?=
+ =?us-ascii?Q?dYldXJzSZvIBeFT6UlhCTuWSYqDalQS83wFWX0+plmuJuPYTmAB2x5pSdZ/I?=
+ =?us-ascii?Q?7keL4A8AXrtsADF9keOO811Th2D43+IB?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4d9ae89f-bf99-4c95-6f1b-08da06918aa4
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Mar 2022 14:38:59.4747
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 6kFSrRY+UxUMTcejoABIPYTfYn6CpAIysUNDgs2aEqjfpi949C4Yn8YboPDxVSrC
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB2957
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Right now, the last 5 bits (0x1f) of the swap entry are used for the
-type and the bit before that (0x20) is used for _PAGE_SWP_SOFT_DIRTY. We
-cannot use 0x40, as that collides with _RPAGE_RSV1 -- contained in
-_PAGE_HPTEFLAGS. The next candidate would be _RPAGE_SW3 (0x200) -- which is
-used for _PAGE_SOFT_DIRTY for !swp ptes.
+On Tue, Mar 15, 2022 at 09:49:01AM -0400, Matthew Rosato wrote:
 
-So let's just use _PAGE_SOFT_DIRTY for _PAGE_SWP_SOFT_DIRTY (to make it
-easier to grasp) and use 0x20 now for _PAGE_SWP_EXCLUSIVE.
+> The rationale for splitting steps 1 and 2 are that VFIO_SET_IOMMU doesn't
+> have a mechanism for specifying more than the type as an arg, no?  Otherwise
+> yes, you could specify a kvm fd at this point and it would have some other
+> advantages (e.g. skip notifier).  But we still can't use the IOMMU for
+> mapping until step 3.
 
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- arch/powerpc/include/asm/book3s/64/pgtable.h | 21 +++++++++++++++++++-
- 1 file changed, 20 insertions(+), 1 deletion(-)
+Stuff like this is why I'd be much happier if this could join our
+iommfd project so we can have clean modeling of the multiple iommu_domains.
 
-diff --git a/arch/powerpc/include/asm/book3s/64/pgtable.h b/arch/powerpc/include/asm/book3s/64/pgtable.h
-index 8e98375d5c4a..eecff2036869 100644
---- a/arch/powerpc/include/asm/book3s/64/pgtable.h
-+++ b/arch/powerpc/include/asm/book3s/64/pgtable.h
-@@ -752,6 +752,7 @@ static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
- 	 */							\
- 	BUILD_BUG_ON(_PAGE_HPTEFLAGS & SWP_TYPE_MASK); \
- 	BUILD_BUG_ON(_PAGE_HPTEFLAGS & _PAGE_SWP_SOFT_DIRTY);	\
-+	BUILD_BUG_ON(_PAGE_HPTEFLAGS & _PAGE_SWP_EXCLUSIVE);	\
- 	} while (0)
- 
- #define SWP_TYPE_BITS 5
-@@ -772,11 +773,13 @@ static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
- #define __swp_entry_to_pmd(x)	(pte_pmd(__swp_entry_to_pte(x)))
- 
- #ifdef CONFIG_MEM_SOFT_DIRTY
--#define _PAGE_SWP_SOFT_DIRTY	_PAGE_NON_IDEMPOTENT
-+#define _PAGE_SWP_SOFT_DIRTY	_PAGE_SOFT_DIRTY
- #else
- #define _PAGE_SWP_SOFT_DIRTY	0UL
- #endif /* CONFIG_MEM_SOFT_DIRTY */
- 
-+#define _PAGE_SWP_EXCLUSIVE	_PAGE_NON_IDEMPOTENT
-+
- #ifdef CONFIG_HAVE_ARCH_SOFT_DIRTY
- static inline pte_t pte_swp_mksoft_dirty(pte_t pte)
- {
-@@ -794,6 +797,22 @@ static inline pte_t pte_swp_clear_soft_dirty(pte_t pte)
- }
- #endif /* CONFIG_HAVE_ARCH_SOFT_DIRTY */
- 
-+#define __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-+static inline pte_t pte_swp_mkexclusive(pte_t pte)
-+{
-+	return __pte_raw(pte_raw(pte) | cpu_to_be64(_PAGE_SWP_EXCLUSIVE));
-+}
-+
-+static inline int pte_swp_exclusive(pte_t pte)
-+{
-+	return !!(pte_raw(pte) & cpu_to_be64(_PAGE_SWP_EXCLUSIVE));
-+}
-+
-+static inline pte_t pte_swp_clear_exclusive(pte_t pte)
-+{
-+	return __pte_raw(pte_raw(pte) & cpu_to_be64(~_PAGE_SWP_EXCLUSIVE));
-+}
-+
- static inline bool check_pte_access(unsigned long access, unsigned long ptev)
- {
- 	/*
--- 
-2.35.1
-
+Jason
