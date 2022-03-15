@@ -2,255 +2,171 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D550C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Mar 2022 16:38:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB6BDC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Mar 2022 16:39:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350119AbiCOQjR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Mar 2022 12:39:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33592 "EHLO
+        id S1348521AbiCOQku (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Mar 2022 12:40:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344943AbiCOQjP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Mar 2022 12:39:15 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 5DF2B12AF9
-        for <linux-s390@vger.kernel.org>; Tue, 15 Mar 2022 09:38:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1647362279;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=k2ipbFlk5lqInrlinVKs+tHw6wDzJglC4+x65Q557sM=;
-        b=MBpdFG36vqZFwQffgC4hdG4VMXqnnrRe8kG/CNZe+kNnLP4oqGY8LrZZaZBLrlL3lLE2wW
-        tJ72cZrFmAOPXAt0AS7C/6jdr6y8D6Cm2IYI+9FLOHZKSOK3u9LohMzquzey6ftXq27wAC
-        lqVEN3CUMRd0BtUdJaVqlh/Fgo37zsA=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-582-MbPoyxb-PPa4tHQfb9p0Fg-1; Tue, 15 Mar 2022 12:37:58 -0400
-X-MC-Unique: MbPoyxb-PPa4tHQfb9p0Fg-1
-Received: by mail-wm1-f70.google.com with SMTP id p8-20020a1c5448000000b0038a12987e1eso2201344wmi.6
-        for <linux-s390@vger.kernel.org>; Tue, 15 Mar 2022 09:37:58 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent
-         :content-language:to:cc:references:from:organization:subject
-         :in-reply-to:content-transfer-encoding;
-        bh=k2ipbFlk5lqInrlinVKs+tHw6wDzJglC4+x65Q557sM=;
-        b=C5cE/rQ3uQLH9RS5ILqvv+FTyNrz60OVJDBOrOTjvKPm5QyC/MXnDR+TGF/0wI27Sr
-         SvFzA4sfbBTwU+QO0dku+u0pvCP1qpTkvi2ELtAtqGfDB3i5bTEPk6t1fmHQg7Is4Nnh
-         aBIHHXr6XTgONCav8FM/7MkhjVvCmm3Bfjw49jgQWweu48kphLLtRPXOm1hP56Va5Lua
-         CIv9MOiYVCyOwVLJDd1D/4jHHFihAGmVHMRXdcBiE9bnmQiE7muD03LsNCXm5ir46FfG
-         BxSSc8zmoPY4x10DOJ+IBtnV3JBM41FGKljcZkmMZdN9tiX7py76UAIK64ZBuJBVFqtE
-         maQA==
-X-Gm-Message-State: AOAM533V7R2tvp1wHJxVu0fjZ2W1qZaK/uMwhFfb2wYjaoz6qoICzKHz
-        iGmpgOVmTlUfFtwHJdnGqOqKDSCZ8w84OyipLaauzunKjaev0FMt+d+hMZbosEtUd6XIYkuy+so
-        /oQzH66m8SWNSCwiI53fcrw==
-X-Received: by 2002:adf:d1e5:0:b0:203:d609:38da with SMTP id g5-20020adfd1e5000000b00203d60938damr2900203wrd.675.1647362277267;
-        Tue, 15 Mar 2022 09:37:57 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwqktz7igkc2jhfj9HwK0wpaZBKo1SRBQEWLN2nVdKLP+WSku1/PyNMTjD1G0jtbc54uPZgJw==
-X-Received: by 2002:adf:d1e5:0:b0:203:d609:38da with SMTP id g5-20020adfd1e5000000b00203d60938damr2900167wrd.675.1647362276942;
-        Tue, 15 Mar 2022 09:37:56 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c708:1800:42bd:3cac:d22a:3c62? (p200300cbc708180042bd3cacd22a3c62.dip0.t-ipconnect.de. [2003:cb:c708:1800:42bd:3cac:d22a:3c62])
-        by smtp.gmail.com with ESMTPSA id u4-20020adfdb84000000b001e8d8ac5394sm17229217wri.110.2022.03.15.09.37.55
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 15 Mar 2022 09:37:56 -0700 (PDT)
-Message-ID: <c8229082-e8f1-e605-25c2-0ec9d23efd9e@redhat.com>
-Date:   Tue, 15 Mar 2022 17:37:54 +0100
+        with ESMTP id S236164AbiCOQkt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Mar 2022 12:40:49 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FF6257155;
+        Tue, 15 Mar 2022 09:39:37 -0700 (PDT)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22FGPEvF029511;
+        Tue, 15 Mar 2022 16:39:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=86aL+xbwdE1jgnOidVY4JgtAIE9bJ2Wd34ptqVKlogo=;
+ b=BCG0f1Q12c1R85DRkjPGeZ+FTiyyDAir1dVi/qiNF20mpbbwYXkPm+FoE9bq3aRUaMUf
+ X2wuJzcvd8sLNKIQipm6kCwdndDWV4LzAXEuCqU67xkSAVa5oIBsUHQezvuY+zBd9nmh
+ eRGvbjq3uKQgVdz/8J768mZCyWGH3fNr0CJwoLFBiU5yi3BdkWzZ5xN+GnzI4+xOf5vB
+ I25fZlFE+04vYoec8Q3Sg7LohQTgUp8RcTE5i+4IshU5oDe5ukmHVevOpbA9IVuGxvtX
+ stYv2pGXXB3lA9N5TtCBZCYK+VgEHr+klT4UkoSpngstJNyqPEcPTPj5yO3AYV14KOrk SQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3etxa28dbk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Mar 2022 16:39:30 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22FGPjNs012271;
+        Tue, 15 Mar 2022 16:39:29 GMT
+Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3etxa28dax-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Mar 2022 16:39:28 +0000
+Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
+        by ppma02wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22FGR9Mo019322;
+        Tue, 15 Mar 2022 16:39:27 GMT
+Received: from b01cxnp23033.gho.pok.ibm.com (b01cxnp23033.gho.pok.ibm.com [9.57.198.28])
+        by ppma02wdc.us.ibm.com with ESMTP id 3erk59ps5e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Mar 2022 16:39:27 +0000
+Received: from b01ledav006.gho.pok.ibm.com (b01ledav006.gho.pok.ibm.com [9.57.199.111])
+        by b01cxnp23033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22FGdP3Q27853244
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 15 Mar 2022 16:39:25 GMT
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B5F6DAC06A;
+        Tue, 15 Mar 2022 16:39:25 +0000 (GMT)
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E478AAC066;
+        Tue, 15 Mar 2022 16:39:14 +0000 (GMT)
+Received: from [9.211.32.184] (unknown [9.211.32.184])
+        by b01ledav006.gho.pok.ibm.com (Postfix) with ESMTP;
+        Tue, 15 Mar 2022 16:39:14 +0000 (GMT)
+Message-ID: <3cc6dff9-0346-c449-249f-5812b3df379c@linux.ibm.com>
+Date:   Tue, 15 Mar 2022 12:39:13 -0400
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.2
+ Thunderbird/91.6.0
+Subject: Re: [PATCH v4 22/32] KVM: s390: pci: routines for (dis)associating
+ zPCI devices with a KVM
 Content-Language: en-US
-To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Cc:     linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Hugh Dickins <hughd@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        David Rientjes <rientjes@google.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Yang Shi <shy828301@gmail.com>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Vlastimil Babka <vbabka@suse.cz>, Jann Horn <jannh@google.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Nadav Amit <namit@vmware.com>, Rik van Riel <riel@surriel.com>,
-        Roman Gushchin <guro@fb.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Peter Xu <peterx@redhat.com>,
-        Donald Dutile <ddutile@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Oleg Nesterov <oleg@redhat.com>, Jan Kara <jack@suse.cz>,
-        Liang Zhang <zhangliang5@huawei.com>,
-        Pedro Gomes <pedrodemargomes@gmail.com>,
-        Oded Gabbay <oded.gabbay@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, linux-mm@kvack.org,
-        x86@kernel.org, linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
-References: <20220315141837.137118-1-david@redhat.com>
- <20220315141837.137118-6-david@redhat.com> <20220315172102.771bd2cf@thinkpad>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-Subject: Re: [PATCH v1 5/7] s390/pgtable: support
- __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-In-Reply-To: <20220315172102.771bd2cf@thinkpad>
-Content-Type: text/plain; charset=UTF-8
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     linux-s390@vger.kernel.org, alex.williamson@redhat.com,
+        cohuck@redhat.com, schnelle@linux.ibm.com, farman@linux.ibm.com,
+        pmorel@linux.ibm.com, borntraeger@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, gerald.schaefer@linux.ibm.com,
+        agordeev@linux.ibm.com, svens@linux.ibm.com, frankja@linux.ibm.com,
+        david@redhat.com, imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
+        oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, joro@8bytes.org, will@kernel.org,
+        pbonzini@redhat.com, corbet@lwn.net, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org,
+        linux-doc@vger.kernel.org
+References: <20220314194451.58266-1-mjrosato@linux.ibm.com>
+ <20220314194451.58266-23-mjrosato@linux.ibm.com>
+ <20220314214633.GJ11336@nvidia.com>
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <20220314214633.GJ11336@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: iSDqed2p1r28JmWsOMYySAiM5fB1UvOT
+X-Proofpoint-ORIG-GUID: xNu_0DWt1lKw2zQUPUBiiledYjR3anGK
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-03-15_07,2022-03-15_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
+ mlxscore=0 clxscore=1015 lowpriorityscore=0 adultscore=0 bulkscore=0
+ mlxlogscore=999 priorityscore=1501 phishscore=0 spamscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2203150103
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 15.03.22 17:21, Gerald Schaefer wrote:
-> On Tue, 15 Mar 2022 15:18:35 +0100
-> David Hildenbrand <david@redhat.com> wrote:
-> 
->> Let's steal one bit from the offset. While at it, document the meaning
->> of bit 62 for swap ptes.
-> 
-> You define _PAGE_SWP_EXCLUSIVE as _PAGE_LARGE, which is bit 52, and
-> this is not part of the swap pte offset IIUC. So stealing any bit might
-> actually not be necessary, see below.
-
-Indeed, thanks for catching that. I actually intended to use bit 51 ...
-
-> 
-> Also, bit 62 should be the soft dirty bit for normal PTEs, and this
-> doesn't seem to be used for swap PTEs at all. But I might be missing
-> some use case where softdirty also needs to be preserved in swap PTEs.
-> 
-
-It is, see below.
-
->>
->> Signed-off-by: David Hildenbrand <david@redhat.com>
->> ---
->>  arch/s390/include/asm/pgtable.h | 37 ++++++++++++++++++++++++++-------
->>  1 file changed, 30 insertions(+), 7 deletions(-)
->>
->> diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
->> index 008a6c856fa4..c182212a2b44 100644
->> --- a/arch/s390/include/asm/pgtable.h
->> +++ b/arch/s390/include/asm/pgtable.h
->> @@ -181,6 +181,8 @@ static inline int is_module_addr(void *addr)
->>  #define _PAGE_SOFT_DIRTY 0x000
->>  #endif
->>  
->> +#define _PAGE_SWP_EXCLUSIVE _PAGE_LARGE	/* SW pte exclusive swap bit */
->> +
->>  /* Set of bits not changed in pte_modify */
->>  #define _PAGE_CHG_MASK		(PAGE_MASK | _PAGE_SPECIAL | _PAGE_DIRTY | \
->>  				 _PAGE_YOUNG | _PAGE_SOFT_DIRTY)
->> @@ -796,6 +798,24 @@ static inline int pmd_protnone(pmd_t pmd)
->>  }
->>  #endif
->>  
->> +#define __HAVE_ARCH_PTE_SWP_EXCLUSIVE
->> +static inline pte_t pte_swp_mkexclusive(pte_t pte)
+On 3/14/22 5:46 PM, Jason Gunthorpe wrote:
+> On Mon, Mar 14, 2022 at 03:44:41PM -0400, Matthew Rosato wrote:
+>> +int kvm_s390_pci_zpci_start(struct kvm *kvm, struct zpci_dev *zdev)
 >> +{
->> +	pte_val(pte) |= _PAGE_SWP_EXCLUSIVE;
->> +	return pte;
->> +}
+>> +	struct vfio_device *vdev;
+>> +	struct pci_dev *pdev;
+>> +	int rc;
 >> +
->> +static inline int pte_swp_exclusive(pte_t pte)
->> +{
->> +	return pte_val(pte) & _PAGE_SWP_EXCLUSIVE;
->> +}
+>> +	rc = kvm_s390_pci_dev_open(zdev);
+>> +	if (rc)
+>> +		return rc;
 >> +
->> +static inline pte_t pte_swp_clear_exclusive(pte_t pte)
->> +{
->> +	pte_val(pte) &= ~_PAGE_SWP_EXCLUSIVE;
->> +	return pte;
->> +}
+>> +	pdev = pci_get_slot(zdev->zbus->bus, zdev->devfn);
+>> +	if (!pdev) {
+>> +		rc = -ENODEV;
+>> +		goto exit_err;
+>> +	}
 >> +
->>  static inline int pte_soft_dirty(pte_t pte)
->>  {
->>  	return pte_val(pte) & _PAGE_SOFT_DIRTY;
->> @@ -1675,16 +1695,19 @@ static inline int has_transparent_hugepage(void)
->>   * information in the lowcore.
->>   * Bits 54 and 63 are used to indicate the page type.
->>   * A swap pte is indicated by bit pattern (pte & 0x201) == 0x200
->> - * This leaves the bits 0-51 and bits 56-62 to store type and offset.
->> - * We use the 5 bits from 57-61 for the type and the 52 bits from 0-51
->> + * This leaves the bits 0-50 and bits 56-61 to store type and offset.
->> + * We use the 5 bits from 57-61 for the type and the 51 bits from 0-50
->>   * for the offset.
->> - * |			  offset			|01100|type |00|
->> - * |0000000000111111111122222222223333333333444444444455|55555|55566|66|
->> - * |0123456789012345678901234567890123456789012345678901|23456|78901|23|
->> + * |			  offset		       |E|01100|type |S0|
->> + * |000000000011111111112222222222333333333344444444445|5|55555|55566|66|
->> + * |012345678901234567890123456789012345678901234567890|1|23456|78901|23|
->> + *
->> + * S (bit 62) is used for softdirty tracking.
+>> +	vdev = get_vdev(&pdev->dev);
+>> +	if (!vdev) {
+>> +		pci_dev_put(pdev);
+>> +		rc = -ENODEV;
+>> +		goto exit_err;
+>> +	}
+>> +
+>> +	zdev->kzdev->nb.notifier_call = kvm_s390_pci_group_notifier;
+>> +
+>> +	/*
+>> +	 * At this point, a KVM should already be associated with this device,
+>> +	 * so registering the notifier now should immediately trigger the
+>> +	 * event.  We also want to know if the KVM association is later removed
+>> +	 * to ensure proper cleanup happens.
+>> +	 */
+>> +	rc = register_notifier(vdev->dev, &zdev->kzdev->nb);
+>> +
+>> +	put_vdev(vdev);
+>> +	pci_dev_put(pdev);
+>> +
+>> +	/* Make sure the registered KVM matches the KVM issuing the ioctl */
+>> +	if (rc || zdev->kzdev->kvm != kvm) {
+>> +		rc = -ENODEV;
+>> +		goto exit_err;
+>> +	}
+>> +
+>> +	/* Must support KVM-managed IOMMU to proceed */
+>> +	if (IS_ENABLED(CONFIG_S390_KVM_IOMMU))
+>> +		rc = zpci_iommu_attach_kvm(zdev, kvm);
+>> +	else
+>> +		rc = -EINVAL;
 > 
-> Unless there is some use for softdirty tracking in swap PTEs, I think
-> this description does not belong here, to the swap PTE layout.
-
-See pte_swp_soft_dirty and friends. E.g., do_swap_page() has to restore
-it for the ordinary PTE from the swp pte.
-
-if (pte_swp_soft_dirty(vmf->orig_pte))
-	pte = pte_mksoft_dirty(pte);
-
+> This seems like kind of a strange API, shouldn't kvm be getting a
+> reference on the underlying iommu_domain and then calling into it to
+> get the mapping table instead of pushing KVM specific logic into the
+> iommu driver?
 > 
->> + * E (bit 51) is used to remember PG_anon_exclusive.
+> I would be nice if all the special kvm stuff could more isolated in
+> kvm code.
 > 
-> It is bit 52, at least with this patch, so I guess this could all be
-> done w/o stealing anything. That is, of course, only if it is allowed
-> to use bit 52 in this case. The POP says bit 52 has to be 0, or else
-> a "translation-specification exception" is recognized. However, I think
-> it could be OK for PTEs marked as invalid, like it is the case for swap
-> PTEs.
+> I'm still a little unclear about why this is so complicated - can't
+> you get the iommu_domain from the group FD directly in KVM code as
+> power does?
 
-My tests with this patch worked, BUT it was under z/VM on a fairly old z
-machine. At least 2MiB huge pages are supported there. I did not run
-into specification exception in that setup, but that doesn't mean that
-that's the case under LPAR/KVM/newer systems.
+Yeah, I think I could do something like that using the vfio group fd 
+like power does.
 
-> 
-> The comment here says at the beginning:
-> /*
->  * 64 bit swap entry format:
->  * A page-table entry has some bits we have to treat in a special way.
->  * Bits 52 and bit 55 have to be zero, otherwise a specification
->  * exception will occur instead of a page translation exception. The
->  * specification exception has the bad habit not to store necessary
->  * information in the lowcore.
-> 
-> This would mean that it is not OK to have bit 52 not zero for swap PTEs.
-> But if I read the POP correctly, all bits except for the DAT-protection
-> would be ignored for invalid PTEs, so maybe this comment needs some update
-> (for both bits 52 and also 55).
-> 
-> Heiko might also have some more insight.
+Providing a reference to the kvm itself inside iommu was being used for 
+the pin/unpin operations, which would not be necessary if we switched to 
+the 1st layer iommu pinning all of guest memory.
 
-Indeed, I wonder why we should get a specification exception when the
-PTE is invalid. I'll dig a bit into the PoP.
 
-> 
-> Anyway, stealing bit 51 might still be an option, but then
-> _PAGE_SWP_EXCLUSIVE would need to be defined appropriately.
-> 
-
-Indeed.
-
-Thanks for the very-fast review!
-
--- 
-Thanks,
-
-David / dhildenb
 
