@@ -2,75 +2,68 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C139FC433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Mar 2022 00:00:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 56DF2C433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Mar 2022 02:26:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245474AbiCOABU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 14 Mar 2022 20:01:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50462 "EHLO
+        id S239969AbiCOC1L (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 14 Mar 2022 22:27:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244433AbiCOABS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Mar 2022 20:01:18 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32D0F23BE4;
-        Mon, 14 Mar 2022 17:00:08 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 67599CE17D7;
-        Tue, 15 Mar 2022 00:00:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82170C340E9;
-        Tue, 15 Mar 2022 00:00:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1647302404;
-        bh=qF2Kiv1yBWM6zFZu7vu4vkmgVsDPPK9bUwo+CMzG77s=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=CxQznLVvPAMHVLObot/GbKAGNBs3wp/Zo7J//e5fa5RGl/JAcrYpHk7dFYXJ+dCyc
-         yFp/t/ucQtYgdUQQRIyugjt0bw6neR65fWz4Mw2wQpqjjnNDOhxJr7SqJvB+dScWOI
-         FWaPNn7YRGzQ0CCDI4WX3HGCjk3WcedTK4ZKrUhQL/ZjI62kK/fSKVT6fnNg8LwsV7
-         O+N86nVOy9ALX/s25HJpQGYpv30ak+B6D/CFn8xWL4gwGSW9Q/HStnRPdXpxBq2xEr
-         XfmlQm0hAt72Py8IAnH8MpwztAqekJ4fXRmnodDkCqvESbpDzlwteZaCwLl1CvtOpX
-         4SrZDmHAzylBg==
-Date:   Mon, 14 Mar 2022 17:00:02 -0700 (PDT)
-From:   Stefano Stabellini <sstabellini@kernel.org>
-X-X-Sender: sstabellini@ubuntu-linux-20-04-desktop
-To:     Christoph Hellwig <hch@lst.de>
-cc:     iommu@lists.linux-foundation.org, x86@kernel.org,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        xen-devel@lists.xenproject.org, linux-ia64@vger.kernel.org,
-        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-hyperv@vger.kernel.org, tboot-devel@lists.sourceforge.net,
-        linux-pci@vger.kernel.org
-Subject: Re: [PATCH 13/15] swiotlb: merge swiotlb-xen initialization into
- swiotlb
-In-Reply-To: <20220314073129.1862284-14-hch@lst.de>
-Message-ID: <alpine.DEB.2.22.394.2203141659210.3497@ubuntu-linux-20-04-desktop>
-References: <20220314073129.1862284-1-hch@lst.de> <20220314073129.1862284-14-hch@lst.de>
-User-Agent: Alpine 2.22 (DEB 394 2020-01-19)
+        with ESMTP id S236325AbiCOC1L (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 14 Mar 2022 22:27:11 -0400
+X-Greylist: delayed 65 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 14 Mar 2022 19:25:59 PDT
+Received: from mail.meizu.com (edge07.meizu.com [112.91.151.210])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D361E3A1B1
+        for <linux-s390@vger.kernel.org>; Mon, 14 Mar 2022 19:25:59 -0700 (PDT)
+Received: from IT-EXMB-1-125.meizu.com (172.16.1.125) by mz-mail11.meizu.com
+ (172.16.1.15) with Microsoft SMTP Server (TLS) id 14.3.487.0; Tue, 15 Mar
+ 2022 10:24:48 +0800
+Received: from meizu.meizu.com (172.16.137.70) by IT-EXMB-1-125.meizu.com
+ (172.16.1.125) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.14; Tue, 15 Mar
+ 2022 10:24:45 +0800
+From:   Haowen Bai <baihaowen@meizu.com>
+To:     <hca@linux.ibm.com>, <gor@linux.ibm.com>, <agordeev@linux.ibm.com>
+CC:     <linux-s390@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        Haowen Bai <baihaowen@meizu.com>
+Subject: [PATCH] s390/tape: Use bitwise instead of arithmetic operator for flags
+Date:   Tue, 15 Mar 2022 10:24:43 +0800
+Message-ID: <1647311083-25388-1-git-send-email-baihaowen@meizu.com>
+X-Mailer: git-send-email 2.7.4
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain
+X-Originating-IP: [172.16.137.70]
+X-ClientProxiedBy: IT-EXMB-1-126.meizu.com (172.16.1.126) To
+ IT-EXMB-1-125.meizu.com (172.16.1.125)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 14 Mar 2022, Christoph Hellwig wrote:
-> Reuse the generic swiotlb initialization for xen-swiotlb.  For ARM/ARM64
-> this works trivially, while for x86 xen_swiotlb_fixup needs to be passed
-> as the remap argument to swiotlb_init_remap/swiotlb_init_late.
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
+This silences the following coccinelle warning:
+drivers/s390/char/tape_34xx.c:360:38-39: WARNING: sum of probable bitmasks, consider |
 
-For arch/arm/xen and drivers/xen/swiotlb-xen.c
+Signed-off-by: Haowen Bai <baihaowen@meizu.com>
+---
+ drivers/s390/char/tape_34xx.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
+diff --git a/drivers/s390/char/tape_34xx.c b/drivers/s390/char/tape_34xx.c
+index 7ada994..487ad2d 100644
+--- a/drivers/s390/char/tape_34xx.c
++++ b/drivers/s390/char/tape_34xx.c
+@@ -354,10 +354,10 @@ tape_34xx_unit_check(struct tape_device *device, struct tape_request *request,
+ 	if ((
+ 		sense[0] == SENSE_DATA_CHECK      ||
+ 		sense[0] == SENSE_EQUIPMENT_CHECK ||
+-		sense[0] == SENSE_EQUIPMENT_CHECK + SENSE_DEFERRED_UNIT_CHECK
++		sense[0] == SENSE_EQUIPMENT_CHECK | SENSE_DEFERRED_UNIT_CHECK
+ 	) && (
+ 		sense[1] == SENSE_DRIVE_ONLINE ||
+-		sense[1] == SENSE_BEGINNING_OF_TAPE + SENSE_WRITE_MODE
++		sense[1] == SENSE_BEGINNING_OF_TAPE | SENSE_WRITE_MODE
+ 	)) {
+ 		switch (request->op) {
+ 		/*
+-- 
+2.7.4
+
