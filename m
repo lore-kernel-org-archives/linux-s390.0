@@ -2,99 +2,145 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0DBDC433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Mar 2022 10:05:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22756C4332F
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Mar 2022 10:50:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346911AbiCOKGm convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Mar 2022 06:06:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59876 "EHLO
+        id S1347294AbiCOKwC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Mar 2022 06:52:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346907AbiCOKGl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Mar 2022 06:06:41 -0400
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6D22A6176
-        for <linux-s390@vger.kernel.org>; Tue, 15 Mar 2022 03:05:28 -0700 (PDT)
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-304-uWX6q3UgNeCPTFM2ROAnlw-1; Tue, 15 Mar 2022 10:05:25 +0000
-X-MC-Unique: uWX6q3UgNeCPTFM2ROAnlw-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
- Server (TLS) id 15.0.1497.32; Tue, 15 Mar 2022 10:05:24 +0000
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.033; Tue, 15 Mar 2022 10:05:24 +0000
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Haowen Bai' <baihaowen@meizu.com>,
-        "freude@linux.ibm.com" <freude@linux.ibm.com>,
-        "hca@linux.ibm.com" <hca@linux.ibm.com>,
-        "gor@linux.ibm.com" <gor@linux.ibm.com>,
-        "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>
-CC:     "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH v2] s390: crypto: Use min() instead of doing it manually
-Thread-Topic: [PATCH v2] s390: crypto: Use min() instead of doing it manually
-Thread-Index: AQHYOELYjbjSeN2P+kqBKqCPXkmb6KzANxKg
-Date:   Tue, 15 Mar 2022 10:05:24 +0000
-Message-ID: <cc26b079f808420592cfea19580e34f5@AcuMS.aculab.com>
-References: <1647331264-13853-1-git-send-email-baihaowen@meizu.com>
-In-Reply-To: <1647331264-13853-1-git-send-email-baihaowen@meizu.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        with ESMTP id S1347643AbiCOKvz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Mar 2022 06:51:55 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id EEDDC3BA4A;
+        Tue, 15 Mar 2022 03:49:11 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 945BE1474;
+        Tue, 15 Mar 2022 03:49:11 -0700 (PDT)
+Received: from [10.57.42.204] (unknown [10.57.42.204])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 1B3C03F66F;
+        Tue, 15 Mar 2022 03:49:06 -0700 (PDT)
+Message-ID: <a9637631-c23b-4158-d2cb-597a36b09a6b@arm.com>
+Date:   Tue, 15 Mar 2022 10:49:02 +0000
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.2
+Subject: Re: [PATCH v4 14/32] iommu: introduce iommu_domain_alloc_type and the
+ KVM type
+Content-Language: en-GB
+To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     kvm@vger.kernel.org, david@redhat.com, thuth@redhat.com,
+        linux-kernel@vger.kernel.org, vneethv@linux.ibm.com,
+        agordeev@linux.ibm.com, imbrenda@linux.ibm.com, will@kernel.org,
+        frankja@linux.ibm.com, corbet@lwn.net, linux-doc@vger.kernel.org,
+        pasic@linux.ibm.com, jgg@nvidia.com, gerald.schaefer@linux.ibm.com,
+        borntraeger@linux.ibm.com, farman@linux.ibm.com, gor@linux.ibm.com,
+        schnelle@linux.ibm.com, hca@linux.ibm.com,
+        alex.williamson@redhat.com, freude@linux.ibm.com,
+        pmorel@linux.ibm.com, cohuck@redhat.com, oberpar@linux.ibm.com,
+        iommu@lists.linux-foundation.org, svens@linux.ibm.com,
+        pbonzini@redhat.com,
+        Jean-Philippe Brucker <jean-philippe@linaro.org>
+References: <20220314194451.58266-1-mjrosato@linux.ibm.com>
+ <20220314194451.58266-15-mjrosato@linux.ibm.com>
+From:   Robin Murphy <robin.murphy@arm.com>
+In-Reply-To: <20220314194451.58266-15-mjrosato@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Haowen Bai
-> Sent: 15 March 2022 08:01
-> 
-> Fix following coccicheck warning:
-> drivers/s390/crypto/zcrypt_ep11misc.c:1112:25-26: WARNING opportunity for min()
-> 
-> Signed-off-by: Haowen Bai <baihaowen@meizu.com>
+On 2022-03-14 19:44, Matthew Rosato wrote:
+> s390x will introduce an additional domain type that is used for
+> managing IOMMU owned by KVM.  Define the type here and add an
+> interface for allocating a specified type vs the default type.
+
+I'm also not a huge fan of adding a new domain_alloc interface like 
+this, however if it is justifiable, then please make it take struct 
+device rather than struct bus_type as an argument.
+
+It also sounds like there may be a degree of conceptual overlap here 
+with what Jean-Philippe is working on for sharing pagetables between KVM 
+and SMMU for Android pKVM, so it's probably worth some thought over 
+whether there's any scope for common interfaces in terms of actual 
+implementation.
+
+Thanks,
+Robin.
+
+> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
 > ---
->  drivers/s390/crypto/zcrypt_ep11misc.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>   drivers/iommu/iommu.c |  7 +++++++
+>   include/linux/iommu.h | 12 ++++++++++++
+>   2 files changed, 19 insertions(+)
 > 
-> diff --git a/drivers/s390/crypto/zcrypt_ep11misc.c b/drivers/s390/crypto/zcrypt_ep11misc.c
-> index 9ce5a71..bb2a527 100644
-> --- a/drivers/s390/crypto/zcrypt_ep11misc.c
-> +++ b/drivers/s390/crypto/zcrypt_ep11misc.c
-> @@ -1109,7 +1109,7 @@ static int ep11_wrapkey(u16 card, u16 domain,
->  	if (kb->head.type == TOKTYPE_NON_CCA &&
->  	    kb->head.version == TOKVER_EP11_AES) {
->  		has_header = true;
-> -		keysize = kb->head.len < keysize ? kb->head.len : keysize;
-> +		keysize = min((size_t)kb->head.len, keysize);
-
-I'm sure that would look better as:
-		if (keysize > kb->head.len)
-			keysize = kb->head.len;
-which makes it much more obvious that the existing value
-is being limited by a new bound.
-
-	David
-
->  	}
-> 
->  	/* request cprb and payload */
-> --
-> 2.7.4
-
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
-
+> diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+> index f2c45b85b9fc..8bb57e0e3945 100644
+> --- a/drivers/iommu/iommu.c
+> +++ b/drivers/iommu/iommu.c
+> @@ -1976,6 +1976,13 @@ void iommu_domain_free(struct iommu_domain *domain)
+>   }
+>   EXPORT_SYMBOL_GPL(iommu_domain_free);
+>   
+> +struct iommu_domain *iommu_domain_alloc_type(struct bus_type *bus,
+> +					     unsigned int t)
+> +{
+> +	return __iommu_domain_alloc(bus, t);
+> +}
+> +EXPORT_SYMBOL_GPL(iommu_domain_alloc_type);
+> +
+>   static int __iommu_attach_device(struct iommu_domain *domain,
+>   				 struct device *dev)
+>   {
+> diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+> index 9208eca4b0d1..b427bbb9f387 100644
+> --- a/include/linux/iommu.h
+> +++ b/include/linux/iommu.h
+> @@ -63,6 +63,7 @@ struct iommu_domain_geometry {
+>   					      implementation              */
+>   #define __IOMMU_DOMAIN_PT	(1U << 2)  /* Domain is identity mapped   */
+>   #define __IOMMU_DOMAIN_DMA_FQ	(1U << 3)  /* DMA-API uses flush queue    */
+> +#define __IOMMU_DOMAIN_KVM	(1U << 4)  /* Domain is controlled by KVM */
+>   
+>   /*
+>    * This are the possible domain-types
+> @@ -77,6 +78,7 @@ struct iommu_domain_geometry {
+>    *				  certain optimizations for these domains
+>    *	IOMMU_DOMAIN_DMA_FQ	- As above, but definitely using batched TLB
+>    *				  invalidation.
+> + *	IOMMU_DOMAIN_KVM	- DMA mappings managed by KVM, used for VMs
+>    */
+>   #define IOMMU_DOMAIN_BLOCKED	(0U)
+>   #define IOMMU_DOMAIN_IDENTITY	(__IOMMU_DOMAIN_PT)
+> @@ -86,6 +88,8 @@ struct iommu_domain_geometry {
+>   #define IOMMU_DOMAIN_DMA_FQ	(__IOMMU_DOMAIN_PAGING |	\
+>   				 __IOMMU_DOMAIN_DMA_API |	\
+>   				 __IOMMU_DOMAIN_DMA_FQ)
+> +#define IOMMU_DOMAIN_KVM	(__IOMMU_DOMAIN_PAGING |	\
+> +				 __IOMMU_DOMAIN_KVM)
+>   
+>   struct iommu_domain {
+>   	unsigned type;
+> @@ -421,6 +425,8 @@ extern bool iommu_capable(struct bus_type *bus, enum iommu_cap cap);
+>   extern struct iommu_domain *iommu_domain_alloc(struct bus_type *bus);
+>   extern struct iommu_group *iommu_group_get_by_id(int id);
+>   extern void iommu_domain_free(struct iommu_domain *domain);
+> +extern struct iommu_domain *iommu_domain_alloc_type(struct bus_type *bus,
+> +						    unsigned int t);
+>   extern int iommu_attach_device(struct iommu_domain *domain,
+>   			       struct device *dev);
+>   extern void iommu_detach_device(struct iommu_domain *domain,
+> @@ -708,6 +714,12 @@ static inline void iommu_domain_free(struct iommu_domain *domain)
+>   {
+>   }
+>   
+> +static inline struct iommu_domain *iommu_domain_alloc_type(struct bus_type *bus,
+> +							   unsigned int t)
+> +{
+> +	return NULL;
+> +}
+> +
+>   static inline int iommu_attach_device(struct iommu_domain *domain,
+>   				      struct device *dev)
+>   {
