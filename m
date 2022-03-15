@@ -2,195 +2,111 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C1DF0C433FE
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Mar 2022 06:36:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F484C433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Mar 2022 06:40:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343580AbiCOGhg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Mar 2022 02:37:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47702 "EHLO
+        id S242039AbiCOGlS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Mar 2022 02:41:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235433AbiCOGhf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Mar 2022 02:37:35 -0400
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E9AD4A3F9;
-        Mon, 14 Mar 2022 23:36:24 -0700 (PDT)
-Received: by verein.lst.de (Postfix, from userid 2407)
-        id 2BC5468AFE; Tue, 15 Mar 2022 07:36:18 +0100 (CET)
-Date:   Tue, 15 Mar 2022 07:36:18 +0100
-From:   Christoph Hellwig <hch@lst.de>
-To:     Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc:     Christoph Hellwig <hch@lst.de>, iommu@lists.linux-foundation.org,
-        x86@kernel.org, Anshuman Khandual <anshuman.khandual@arm.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Juergen Gross <jgross@suse.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        xen-devel@lists.xenproject.org, linux-ia64@vger.kernel.org,
-        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-hyperv@vger.kernel.org, tboot-devel@lists.sourceforge.net,
-        linux-pci@vger.kernel.org
-Subject: Re: [PATCH 12/15] swiotlb: provide swiotlb_init variants that
- remap the buffer
-Message-ID: <20220315063618.GA1244@lst.de>
-References: <20220314073129.1862284-1-hch@lst.de> <20220314073129.1862284-13-hch@lst.de> <4d800aa8-5e38-1ad9-284f-1754c83d0f8a@oracle.com>
+        with ESMTP id S235433AbiCOGlR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Mar 2022 02:41:17 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51B8C13D04;
+        Mon, 14 Mar 2022 23:40:05 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22F517to018472;
+        Tue, 15 Mar 2022 06:40:04 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=AzXvJw8bHzilviU0/zaDU8CJxWIqagVr4FdHJeYIq/g=;
+ b=ImtlLRF9ao2+gmlQq2un4kMoh4jY3ga2xXRwDoquDujF07EScPTh+VqKSGoT67w+XNm9
+ uWDKk6fV6CprUI7mlbI+9/bssTYDU3Iqxoz1Upfm7mjNGDvuF8D0Q+Xvpx/7iir2i/sh
+ qPyN1sBT1TOpuU5q6cX/Pg1mD1bUyv8QjWUHUBVkuj5u1OxRHwThZw2sThXuVajlctLR
+ pyV6+6ujL8VPPBfNT3jUoCWmXtf/+tq8qXHnZfDo1ceF8dw5D3C3mXxeUTEFcmSUo0dE
+ I5JAoj6jZNVukyHWVnJujNO7wwfhr2EwA290KLnFF43v0mX9DRiC+ENfawgWwbxKR/45 6A== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3etgx0mw6x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Mar 2022 06:40:04 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22F6blga027721;
+        Tue, 15 Mar 2022 06:40:04 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3etgx0mw6f-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Mar 2022 06:40:03 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22F6XDgY000707;
+        Tue, 15 Mar 2022 06:40:02 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma04ams.nl.ibm.com with ESMTP id 3erk58wusb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Mar 2022 06:40:02 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22F6dx0B21627242
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 15 Mar 2022 06:39:59 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1111752453;
+        Tue, 15 Mar 2022 06:39:59 +0000 (GMT)
+Received: from li-ca45c2cc-336f-11b2-a85c-c6e71de567f1.ibm.com (unknown [9.171.5.92])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id C2BAF52477;
+        Tue, 15 Mar 2022 06:39:58 +0000 (GMT)
+Message-ID: <a244b0c5193b22da1cf968dc7ad2e6fb64d82e67.camel@linux.ibm.com>
+Subject: Re: [PATCH kvm-unit-tests v2 3/6] s390x: smp: Fix checks for SIGP
+ STOP STORE STATUS
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     Eric Farman <farman@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Date:   Tue, 15 Mar 2022 07:39:58 +0100
+In-Reply-To: <20220311173822.1234617-4-farman@linux.ibm.com>
+References: <20220311173822.1234617-1-farman@linux.ibm.com>
+         <20220311173822.1234617-4-farman@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.4 (3.42.4-1.fc35) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4d800aa8-5e38-1ad9-284f-1754c83d0f8a@oracle.com>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Xm1rQm54ItOAgQTrU5zD3o7IJh734nfS
+X-Proofpoint-GUID: dRyP850cBn6elPjtf3qnRNWZJpFZZwgw
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-03-14_14,2022-03-14_02,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxlogscore=547
+ mlxscore=0 malwarescore=0 impostorscore=0 spamscore=0 adultscore=0
+ priorityscore=1501 suspectscore=0 lowpriorityscore=0 phishscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2203150042
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Mar 14, 2022 at 06:39:21PM -0400, Boris Ostrovsky wrote:
-> This is IO_TLB_MIN_SLABS, isn't it? (Xen code didn't say so but that's what it meant to say I believe)
+On Fri, 2022-03-11 at 18:38 +0100, Eric Farman wrote:
+> In the routine test_stop_store_status(), the "running" part of
+> the test checks a few of the fields in lowcore (to verify the
+> "STORE STATUS" part of the SIGP order), and then ensures that
+> the CPU has stopped. But this is backwards, according to the
+> Principles of Operation:
+>   The addressed CPU performs the stop function, fol-
+>   lowed by the store-status operation (see “Store Sta-
+>   tus” on page 4-82).
+> 
+> If the CPU were not yet stopped, the contents of the lowcore
+> fields would be unpredictable. It works today because the
+> library functions wait on the stop function, so the CPU is
+> stopped by the time it comes back. Let's first check that the
+> CPU is stopped first, just to be clear.
+> 
+> While here, add the same check to the second part of the test,
+> even though the CPU is explicitly stopped prior to the SIGP.
+> 
+> Fixes: fc67b07a4 ("s390x: smp: Test stop and store status on a
+> running and stopped cpu")
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
 
-Yes, that makes much more sense.  I've switched the patch to use
-IO_TLB_MIN_SLABS and drop the 2MB comment in both places.
-
-Can I get a review with that fixed up?
-
----
-From 153085bf3e6e69d676bef0fb96395a86fb8122f5 Mon Sep 17 00:00:00 2001
-From: Christoph Hellwig <hch@lst.de>
-Date: Mon, 14 Mar 2022 08:02:57 +0100
-Subject: swiotlb: provide swiotlb_init variants that remap the buffer
-
-To shared more code between swiotlb and xen-swiotlb, offer a
-swiotlb_init_remap interface and add a remap callback to
-swiotlb_init_late that will allow Xen to remap the buffer the
-buffer without duplicating much of the logic.
-
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- arch/x86/pci/sta2x11-fixup.c |  2 +-
- include/linux/swiotlb.h      |  5 ++++-
- kernel/dma/swiotlb.c         | 36 +++++++++++++++++++++++++++++++++---
- 3 files changed, 38 insertions(+), 5 deletions(-)
-
-diff --git a/arch/x86/pci/sta2x11-fixup.c b/arch/x86/pci/sta2x11-fixup.c
-index c7e6faf59a861..7368afc039987 100644
---- a/arch/x86/pci/sta2x11-fixup.c
-+++ b/arch/x86/pci/sta2x11-fixup.c
-@@ -57,7 +57,7 @@ static void sta2x11_new_instance(struct pci_dev *pdev)
- 		int size = STA2X11_SWIOTLB_SIZE;
- 		/* First instance: register your own swiotlb area */
- 		dev_info(&pdev->dev, "Using SWIOTLB (size %i)\n", size);
--		if (swiotlb_init_late(size, GFP_DMA))
-+		if (swiotlb_init_late(size, GFP_DMA, NULL))
- 			dev_emerg(&pdev->dev, "init swiotlb failed\n");
- 	}
- 	list_add(&instance->list, &sta2x11_instance_list);
-diff --git a/include/linux/swiotlb.h b/include/linux/swiotlb.h
-index ee655f2e4d28b..7b50c82f84ce9 100644
---- a/include/linux/swiotlb.h
-+++ b/include/linux/swiotlb.h
-@@ -36,8 +36,11 @@ struct scatterlist;
- 
- int swiotlb_init_with_tbl(char *tlb, unsigned long nslabs, unsigned int flags);
- unsigned long swiotlb_size_or_default(void);
-+void __init swiotlb_init_remap(bool addressing_limit, unsigned int flags,
-+	int (*remap)(void *tlb, unsigned long nslabs));
-+int swiotlb_init_late(size_t size, gfp_t gfp_mask,
-+	int (*remap)(void *tlb, unsigned long nslabs));
- extern int swiotlb_late_init_with_tbl(char *tlb, unsigned long nslabs);
--int swiotlb_init_late(size_t size, gfp_t gfp_mask);
- extern void __init swiotlb_update_mem_attributes(void);
- 
- phys_addr_t swiotlb_tbl_map_single(struct device *hwdev, phys_addr_t phys,
-diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index 79641c446d284..b3d4f24fb5f5e 100644
---- a/kernel/dma/swiotlb.c
-+++ b/kernel/dma/swiotlb.c
-@@ -256,9 +256,11 @@ int __init swiotlb_init_with_tbl(char *tlb, unsigned long nslabs,
-  * Statically reserve bounce buffer space and initialize bounce buffer data
-  * structures for the software IO TLB used to implement the DMA API.
-  */
--void __init swiotlb_init(bool addressing_limit, unsigned int flags)
-+void __init swiotlb_init_remap(bool addressing_limit, unsigned int flags,
-+		int (*remap)(void *tlb, unsigned long nslabs))
- {
--	size_t bytes = PAGE_ALIGN(default_nslabs << IO_TLB_SHIFT);
-+	unsigned long nslabs = default_nslabs;
-+	size_t bytes;
- 	void *tlb;
- 
- 	if (!addressing_limit && !swiotlb_force_bounce)
-@@ -271,12 +273,23 @@ void __init swiotlb_init(bool addressing_limit, unsigned int flags)
- 	 * allow to pick a location everywhere for hypervisors with guest
- 	 * memory encryption.
- 	 */
-+retry:
-+	bytes = PAGE_ALIGN(default_nslabs << IO_TLB_SHIFT);
- 	if (flags & SWIOTLB_ANY)
- 		tlb = memblock_alloc(bytes, PAGE_SIZE);
- 	else
- 		tlb = memblock_alloc_low(bytes, PAGE_SIZE);
- 	if (!tlb)
- 		goto fail;
-+	if (remap && remap(tlb, nslabs) < 0) {
-+		memblock_free(tlb, PAGE_ALIGN(bytes));
-+
-+		if (nslabs <= IO_TLB_MIN_SLABS)
-+			panic("%s: Failed to remap %zu bytes\n",
-+			      __func__, bytes);
-+		nslabs = max(1024UL, ALIGN(nslabs >> 1, IO_TLB_SEGSIZE));
-+		goto retry;
-+	}
- 	if (swiotlb_init_with_tbl(tlb, default_nslabs, flags))
- 		goto fail_free_mem;
- 	return;
-@@ -287,12 +300,18 @@ void __init swiotlb_init(bool addressing_limit, unsigned int flags)
- 	pr_warn("Cannot allocate buffer");
- }
- 
-+void __init swiotlb_init(bool addressing_limit, unsigned int flags)
-+{
-+	return swiotlb_init_remap(addressing_limit, flags, NULL);
-+}
-+
- /*
-  * Systems with larger DMA zones (those that don't support ISA) can
-  * initialize the swiotlb later using the slab allocator if needed.
-  * This should be just like above, but with some error catching.
-  */
--int swiotlb_init_late(size_t size, gfp_t gfp_mask)
-+int swiotlb_init_late(size_t size, gfp_t gfp_mask,
-+		int (*remap)(void *tlb, unsigned long nslabs))
- {
- 	unsigned long nslabs = ALIGN(size >> IO_TLB_SHIFT, IO_TLB_SEGSIZE);
- 	unsigned long bytes;
-@@ -303,6 +322,7 @@ int swiotlb_init_late(size_t size, gfp_t gfp_mask)
- 	if (swiotlb_force_disable)
- 		return 0;
- 
-+retry:
- 	order = get_order(nslabs << IO_TLB_SHIFT);
- 	nslabs = SLABS_PER_PAGE << order;
- 	bytes = nslabs << IO_TLB_SHIFT;
-@@ -317,6 +337,16 @@ int swiotlb_init_late(size_t size, gfp_t gfp_mask)
- 
- 	if (!vstart)
- 		return -ENOMEM;
-+	if (remap)
-+		rc = remap(vstart, nslabs);
-+	if (rc) {
-+		free_pages((unsigned long)vstart, order);
-+ 
-+		if (IO_TLB_MIN_SLABS <= 1024)
-+			return rc;
-+		nslabs = max(1024UL, ALIGN(nslabs >> 1, IO_TLB_SEGSIZE));
-+		goto retry;
-+	}
- 
- 	if (order != get_order(bytes)) {
- 		pr_warn("only able to allocate %ld MB\n",
--- 
-2.30.2
-
+Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
