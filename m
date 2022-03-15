@@ -2,62 +2,62 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1496FC4321E
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Mar 2022 14:11:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 752D7C4332F
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Mar 2022 14:11:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349012AbiCOONI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Mar 2022 10:13:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56178 "EHLO
+        id S1349001AbiCOONH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Mar 2022 10:13:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349035AbiCOOM7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Mar 2022 10:12:59 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0692E546B8;
-        Tue, 15 Mar 2022 07:11:45 -0700 (PDT)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22FCiUqt010657;
-        Tue, 15 Mar 2022 14:11:44 GMT
+        with ESMTP id S1349044AbiCOONA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Mar 2022 10:13:00 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55B5C54BD1;
+        Tue, 15 Mar 2022 07:11:47 -0700 (PDT)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22FDTXfn001163;
+        Tue, 15 Mar 2022 14:11:46 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=8f22+OALsNAkpqF/krJV+8RdsVd0gmS6s4o79r5zrlc=;
- b=r1amNqqOiumAseXHpR9RRCNuhWrpCffRabzqm+mX84kfe9S9hcUTJ4PH7lZc9d9YXuU1
- W12+f4B95xqF4qtNXXhYP7O5VOkSjVU/O+3YYqaFQr982eB9HjprndZ2T4quoVgIzgKa
- BhBo+ZZBQwh+DgqLeQmclaWmJ9lxOIkXhRaHUWdJa7JX1PWDHi8g8eRhUZUaQcDnMlB4
- a78FjHAVjjZ8C7QwC8/9iTDAE4wAe4fQGgoKxtPlCcZz5Q1ikmDmuddLZf6QsShKsxJW
- zVjBiuZVkEmIf5GZEICDDnvnhwv1GqspNG/oX7coeImYxppyoNqxpPfLmo1Ba6H23FD/ Zg== 
+ : mime-version; s=pp1; bh=lgUcleidPgeSbZdOb4sTvjU1fm+T1hemCinHIHwKwXU=;
+ b=BIyzRLoxCEgFrpnQuWKJGbqJk5BzqrjN+3TXys0jnrMGIhzFbzhnRR9sCxLRWnkdk7tj
+ zz+xFW1iVM9unsBNJvsi1QIAtoV8Nwr0orjtucciGMLLhMACKK5r62T4rlppGdCl9TQv
+ LUIZHAZdb8HqpbZhkvfXDPRM4/dWliMRBDOR+NFNH0atx/Qf7HTppuF/y4LusF83gdn/
+ lFSenAx4gYbDhD4YVc1JwRXp3dtfYnxEUiUkQYu8Nx0scWhc5b6VMnoY3Q0zw8rfmUMA
+ nxCiJHQ3lE2RZurJbcogyrB7P5NjcJIksJ9rIblK31RONgFtF4mggCkLsqzZYNeOywAK jA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3etu2st0s8-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3etuqvs1pg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Mar 2022 14:11:46 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22FDpkpH022474;
+        Tue, 15 Mar 2022 14:11:46 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3etuqvs1p0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Mar 2022 14:11:45 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22FE9JJF013277;
+        Tue, 15 Mar 2022 14:11:44 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma04ams.nl.ibm.com with ESMTP id 3erk58xsw2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Tue, 15 Mar 2022 14:11:43 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22FDtr8u018282;
-        Tue, 15 Mar 2022 14:11:43 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3etu2st0rc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Mar 2022 14:11:43 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22FE9Msw013300;
-        Tue, 15 Mar 2022 14:11:41 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma06ams.nl.ibm.com with ESMTP id 3erjshptbj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Mar 2022 14:11:41 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22FEBcXE51511706
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22FEBe8156295826
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 15 Mar 2022 14:11:38 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9C95D42047;
-        Tue, 15 Mar 2022 14:11:38 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8537042042;
-        Tue, 15 Mar 2022 14:11:38 +0000 (GMT)
+        Tue, 15 Mar 2022 14:11:40 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A8F994C044;
+        Tue, 15 Mar 2022 14:11:40 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 875884C040;
+        Tue, 15 Mar 2022 14:11:40 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Tue, 15 Mar 2022 14:11:38 +0000 (GMT)
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Tue, 15 Mar 2022 14:11:40 +0000 (GMT)
 Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 25651)
-        id 43ABFE127A; Tue, 15 Mar 2022 15:11:38 +0100 (CET)
+        id 42584E11F3; Tue, 15 Mar 2022 15:11:40 +0100 (CET)
 From:   Christian Borntraeger <borntraeger@linux.ibm.com>
 To:     Paolo Bonzini <pbonzini@redhat.com>
 Cc:     KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
@@ -70,217 +70,240 @@ Cc:     KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
         Thomas Huth <thuth@redhat.com>
-Subject: [GIT PULL 1/7] KVM: s390: pv: make use of ultravisor AIV support
-Date:   Tue, 15 Mar 2022 15:11:31 +0100
-Message-Id: <20220315141137.357923-2-borntraeger@linux.ibm.com>
+Subject: [GIT PULL 7/7] KVM: s390: selftests: Add error memop tests
+Date:   Tue, 15 Mar 2022 15:11:37 +0100
+Message-Id: <20220315141137.357923-8-borntraeger@linux.ibm.com>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220315141137.357923-1-borntraeger@linux.ibm.com>
 References: <20220315141137.357923-1-borntraeger@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: gKjHUStmX51uPySKu5FI7UMFefG6NDXT
-X-Proofpoint-ORIG-GUID: JaFRnC_p-jiPViZWJaAooyhfCOB37AdB
+X-Proofpoint-GUID: LwtSvwYXdTKwdnKmmwyekFDbq0lzS9HH
+X-Proofpoint-ORIG-GUID: 7Jot3k7dfHkPD_S3HnthXZp2ipbTmDPW
 Content-Transfer-Encoding: 8bit
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-03-15_03,2022-03-15_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- suspectscore=0 bulkscore=0 phishscore=0 priorityscore=1501 spamscore=0
- lowpriorityscore=0 malwarescore=0 mlxlogscore=885 adultscore=0 mlxscore=0
- clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2203150092
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 bulkscore=0
+ phishscore=0 malwarescore=0 mlxlogscore=999 impostorscore=0
+ lowpriorityscore=0 clxscore=1015 priorityscore=1501 mlxscore=0
+ suspectscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2202240000 definitions=main-2203150092
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Michael Mueller <mimu@linux.ibm.com>
+From: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
 
-This patch enables the ultravisor adapter interruption vitualization
-support indicated by UV feature BIT_UV_FEAT_AIV. This allows ISC
-interruption injection directly into the GISA IPM for PV kvm guests.
+Test that errors occur if key protection disallows access, including
+tests for storage and fetch protection override. Perform tests for both
+logical vcpu and absolute vm ioctls.
+Also extend the existing tests to the vm ioctl.
 
-Hardware that does not support this feature will continue to use the
-UV interruption interception method to deliver ISC interruptions to
-PV kvm guests. For this purpose, the ECA_AIV bit for all guest cpus
-will be cleared and the GISA will be disabled during PV CPU setup.
-
-In addition a check in __inject_io() has been removed. That reduces the
-required instructions for interruption handling for PV and traditional
-kvm guests.
-
-Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220209152217.1793281-2-mimu@linux.ibm.com
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220308125841.3271721-6-scgl@linux.ibm.com
 Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
 ---
- arch/s390/include/asm/uv.h |  1 +
- arch/s390/kvm/interrupt.c  | 54 +++++++++++++++++++++++++++++++++-----
- arch/s390/kvm/kvm-s390.c   | 11 +++++---
- arch/s390/kvm/kvm-s390.h   | 11 ++++++++
- 4 files changed, 68 insertions(+), 9 deletions(-)
+ tools/testing/selftests/kvm/s390x/memop.c | 153 +++++++++++++++++++---
+ 1 file changed, 132 insertions(+), 21 deletions(-)
 
-diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-index 86218382d29c..a2d376b8bce3 100644
---- a/arch/s390/include/asm/uv.h
-+++ b/arch/s390/include/asm/uv.h
-@@ -80,6 +80,7 @@ enum uv_cmds_inst {
- 
- enum uv_feat_ind {
- 	BIT_UV_FEAT_MISC = 0,
-+	BIT_UV_FEAT_AIV = 1,
- };
- 
- struct uv_cb_header {
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index db933c252dbc..9b30beac904d 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -1901,13 +1901,12 @@ static int __inject_io(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
- 	isc = int_word_to_isc(inti->io.io_int_word);
- 
- 	/*
--	 * Do not make use of gisa in protected mode. We do not use the lock
--	 * checking variant as this is just a performance optimization and we
--	 * do not hold the lock here. This is ok as the code will pick
--	 * interrupts from both "lists" for delivery.
-+	 * We do not use the lock checking variant as this is just a
-+	 * performance optimization and we do not hold the lock here.
-+	 * This is ok as the code will pick interrupts from both "lists"
-+	 * for delivery.
- 	 */
--	if (!kvm_s390_pv_get_handle(kvm) &&
--	    gi->origin && inti->type & KVM_S390_INT_IO_AI_MASK) {
-+	if (gi->origin && inti->type & KVM_S390_INT_IO_AI_MASK) {
- 		VM_EVENT(kvm, 4, "%s isc %1u", "inject: I/O (AI/gisa)", isc);
- 		gisa_set_ipm_gisc(gi->origin, isc);
- 		kfree(inti);
-@@ -3171,9 +3170,33 @@ void kvm_s390_gisa_init(struct kvm *kvm)
- 	VM_EVENT(kvm, 3, "gisa 0x%pK initialized", gi->origin);
+diff --git a/tools/testing/selftests/kvm/s390x/memop.c b/tools/testing/selftests/kvm/s390x/memop.c
+index 42282663b38b..b04c2c1b3c30 100644
+--- a/tools/testing/selftests/kvm/s390x/memop.c
++++ b/tools/testing/selftests/kvm/s390x/memop.c
+@@ -422,6 +422,46 @@ static void test_copy_key_fetch_prot(void)
+ 	kvm_vm_free(t.kvm_vm);
  }
  
-+void kvm_s390_gisa_enable(struct kvm *kvm)
-+{
-+	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
-+	struct kvm_vcpu *vcpu;
-+	unsigned long i;
-+	u32 gisa_desc;
++#define ERR_PROT_MOP(...)							\
++({										\
++	int rv;									\
++										\
++	rv = ERR_MOP(__VA_ARGS__);						\
++	TEST_ASSERT(rv == 4, "Should result in protection exception");		\
++})
 +
-+	if (gi->origin)
-+		return;
-+	kvm_s390_gisa_init(kvm);
-+	gisa_desc = kvm_s390_get_gisa_desc(kvm);
-+	if (!gisa_desc)
-+		return;
-+	kvm_for_each_vcpu(i, vcpu, kvm) {
-+		mutex_lock(&vcpu->mutex);
-+		vcpu->arch.sie_block->gd = gisa_desc;
-+		vcpu->arch.sie_block->eca |= ECA_AIV;
-+		VCPU_EVENT(vcpu, 3, "AIV gisa format-%u enabled for cpu %03u",
-+			   vcpu->arch.sie_block->gd & 0x3, vcpu->vcpu_id);
-+		mutex_unlock(&vcpu->mutex);
-+	}
++static void test_errors_key(void)
++{
++	struct test_default t = test_default_init(guest_copy_key_fetch_prot);
++
++	HOST_SYNC(t.vcpu, STAGE_INITED);
++	HOST_SYNC(t.vcpu, STAGE_SKEYS_SET);
++
++	/* vm/vcpu, mismatching keys, fetch protection in effect */
++	CHECK_N_DO(ERR_PROT_MOP, t.vcpu, LOGICAL, WRITE, mem1, t.size, GADDR_V(mem1), KEY(2));
++	CHECK_N_DO(ERR_PROT_MOP, t.vcpu, LOGICAL, READ, mem2, t.size, GADDR_V(mem2), KEY(2));
++	CHECK_N_DO(ERR_PROT_MOP, t.vm, ABSOLUTE, WRITE, mem1, t.size, GADDR_V(mem1), KEY(2));
++	CHECK_N_DO(ERR_PROT_MOP, t.vm, ABSOLUTE, READ, mem2, t.size, GADDR_V(mem2), KEY(2));
++
++	kvm_vm_free(t.kvm_vm);
 +}
 +
- void kvm_s390_gisa_destroy(struct kvm *kvm)
++static void test_errors_key_storage_prot_override(void)
++{
++	struct test_default t = test_default_init(guest_copy_key_fetch_prot);
++
++	HOST_SYNC(t.vcpu, STAGE_INITED);
++	t.run->s.regs.crs[0] |= CR0_STORAGE_PROTECTION_OVERRIDE;
++	t.run->kvm_dirty_regs = KVM_SYNC_CRS;
++	HOST_SYNC(t.vcpu, STAGE_SKEYS_SET);
++
++	/* vm, mismatching keys, storage protection override not applicable to vm */
++	CHECK_N_DO(ERR_PROT_MOP, t.vm, ABSOLUTE, WRITE, mem1, t.size, GADDR_V(mem1), KEY(2));
++	CHECK_N_DO(ERR_PROT_MOP, t.vm, ABSOLUTE, READ, mem2, t.size, GADDR_V(mem2), KEY(2));
++
++	kvm_vm_free(t.kvm_vm);
++}
++
+ const uint64_t last_page_addr = -PAGE_SIZE;
+ 
+ static void guest_copy_key_fetch_prot_override(void)
+@@ -481,6 +521,58 @@ static void test_copy_key_fetch_prot_override(void)
+ 	kvm_vm_free(t.kvm_vm);
+ }
+ 
++static void test_errors_key_fetch_prot_override_not_enabled(void)
++{
++	struct test_default t = test_default_init(guest_copy_key_fetch_prot_override);
++	vm_vaddr_t guest_0_page, guest_last_page;
++
++	guest_0_page = vm_vaddr_alloc(t.kvm_vm, PAGE_SIZE, 0);
++	guest_last_page = vm_vaddr_alloc(t.kvm_vm, PAGE_SIZE, last_page_addr);
++	if (guest_0_page != 0 || guest_last_page != last_page_addr) {
++		print_skip("did not allocate guest pages at required positions");
++		goto out;
++	}
++	HOST_SYNC(t.vcpu, STAGE_INITED);
++	HOST_SYNC(t.vcpu, STAGE_SKEYS_SET);
++
++	/* vcpu, mismatching keys on fetch, fetch protection override not enabled */
++	CHECK_N_DO(ERR_PROT_MOP, t.vcpu, LOGICAL, READ, mem2, 2048, GADDR_V(0), KEY(2));
++
++out:
++	kvm_vm_free(t.kvm_vm);
++}
++
++static void test_errors_key_fetch_prot_override_enabled(void)
++{
++	struct test_default t = test_default_init(guest_copy_key_fetch_prot_override);
++	vm_vaddr_t guest_0_page, guest_last_page;
++
++	guest_0_page = vm_vaddr_alloc(t.kvm_vm, PAGE_SIZE, 0);
++	guest_last_page = vm_vaddr_alloc(t.kvm_vm, PAGE_SIZE, last_page_addr);
++	if (guest_0_page != 0 || guest_last_page != last_page_addr) {
++		print_skip("did not allocate guest pages at required positions");
++		goto out;
++	}
++	HOST_SYNC(t.vcpu, STAGE_INITED);
++	t.run->s.regs.crs[0] |= CR0_FETCH_PROTECTION_OVERRIDE;
++	t.run->kvm_dirty_regs = KVM_SYNC_CRS;
++	HOST_SYNC(t.vcpu, STAGE_SKEYS_SET);
++
++	/*
++	 * vcpu, mismatching keys on fetch,
++	 * fetch protection override does not apply because memory range acceeded
++	 */
++	CHECK_N_DO(ERR_PROT_MOP, t.vcpu, LOGICAL, READ, mem2, 2048 + 1, GADDR_V(0), KEY(2));
++	CHECK_N_DO(ERR_PROT_MOP, t.vcpu, LOGICAL, READ, mem2, PAGE_SIZE + 2048 + 1,
++		   GADDR_V(guest_last_page), KEY(2));
++	/* vm, fetch protected override does not apply */
++	CHECK_N_DO(ERR_PROT_MOP, t.vm, ABSOLUTE, READ, mem2, 2048, GADDR(0), KEY(2));
++	CHECK_N_DO(ERR_PROT_MOP, t.vm, ABSOLUTE, READ, mem2, 2048, GADDR_V(guest_0_page), KEY(2));
++
++out:
++	kvm_vm_free(t.kvm_vm);
++}
++
+ static void guest_idle(void)
  {
- 	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
-+	struct kvm_s390_gisa *gisa = gi->origin;
- 
- 	if (!gi->origin)
- 		return;
-@@ -3184,6 +3207,25 @@ void kvm_s390_gisa_destroy(struct kvm *kvm)
- 		cpu_relax();
- 	hrtimer_cancel(&gi->timer);
- 	gi->origin = NULL;
-+	VM_EVENT(kvm, 3, "gisa 0x%pK destroyed", gisa);
-+}
-+
-+void kvm_s390_gisa_disable(struct kvm *kvm)
-+{
-+	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
-+	struct kvm_vcpu *vcpu;
-+	unsigned long i;
-+
-+	if (!gi->origin)
-+		return;
-+	kvm_for_each_vcpu(i, vcpu, kvm) {
-+		mutex_lock(&vcpu->mutex);
-+		vcpu->arch.sie_block->eca &= ~ECA_AIV;
-+		vcpu->arch.sie_block->gd = 0U;
-+		mutex_unlock(&vcpu->mutex);
-+		VCPU_EVENT(vcpu, 3, "AIV disabled for cpu %03u", vcpu->vcpu_id);
-+	}
-+	kvm_s390_gisa_destroy(kvm);
+ 	GUEST_SYNC(STAGE_INITED); /* for consistency's sake */
+@@ -488,6 +580,37 @@ static void guest_idle(void)
+ 		GUEST_SYNC(STAGE_IDLED);
  }
  
- /**
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index e056ad86ccd2..b5ea95cf8686 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2195,6 +2195,9 @@ static int kvm_s390_cpus_from_pv(struct kvm *kvm, u16 *rcp, u16 *rrcp)
- 		}
- 		mutex_unlock(&vcpu->mutex);
++static void _test_errors_common(struct test_vcpu vcpu, enum mop_target target, int size)
++{
++	int rv;
++
++	/* Bad size: */
++	rv = ERR_MOP(vcpu, target, WRITE, mem1, -1, GADDR_V(mem1));
++	TEST_ASSERT(rv == -1 && errno == E2BIG, "ioctl allows insane sizes");
++
++	/* Zero size: */
++	rv = ERR_MOP(vcpu, target, WRITE, mem1, 0, GADDR_V(mem1));
++	TEST_ASSERT(rv == -1 && (errno == EINVAL || errno == ENOMEM),
++		    "ioctl allows 0 as size");
++
++	/* Bad flags: */
++	rv = ERR_MOP(vcpu, target, WRITE, mem1, size, GADDR_V(mem1), SET_FLAGS(-1));
++	TEST_ASSERT(rv == -1 && errno == EINVAL, "ioctl allows all flags");
++
++	/* Bad guest address: */
++	rv = ERR_MOP(vcpu, target, WRITE, mem1, size, GADDR((void *)~0xfffUL), CHECK_ONLY);
++	TEST_ASSERT(rv > 0, "ioctl does not report bad guest memory access");
++
++	/* Bad host address: */
++	rv = ERR_MOP(vcpu, target, WRITE, 0, size, GADDR_V(mem1));
++	TEST_ASSERT(rv == -1 && errno == EFAULT,
++		    "ioctl does not report bad host memory address");
++
++	/* Bad key: */
++	rv = ERR_MOP(vcpu, target, WRITE, mem1, size, GADDR_V(mem1), KEY(17));
++	TEST_ASSERT(rv == -1 && errno == EINVAL, "ioctl allows invalid key");
++}
++
+ static void test_errors(void)
+ {
+ 	struct test_default t = test_default_init(guest_idle);
+@@ -495,31 +618,15 @@ static void test_errors(void)
+ 
+ 	HOST_SYNC(t.vcpu, STAGE_INITED);
+ 
+-	/* Bad size: */
+-	rv = ERR_MOP(t.vcpu, LOGICAL, WRITE, mem1, -1, GADDR_V(mem1));
+-	TEST_ASSERT(rv == -1 && errno == E2BIG, "ioctl allows insane sizes");
+-
+-	/* Zero size: */
+-	rv = ERR_MOP(t.vcpu, LOGICAL, WRITE, mem1, 0, GADDR_V(mem1));
+-	TEST_ASSERT(rv == -1 && (errno == EINVAL || errno == ENOMEM),
+-		    "ioctl allows 0 as size");
+-
+-	/* Bad flags: */
+-	rv = ERR_MOP(t.vcpu, LOGICAL, WRITE, mem1, t.size, GADDR_V(mem1), SET_FLAGS(-1));
+-	TEST_ASSERT(rv == -1 && errno == EINVAL, "ioctl allows all flags");
++	_test_errors_common(t.vcpu, LOGICAL, t.size);
++	_test_errors_common(t.vm, ABSOLUTE, t.size);
+ 
+ 	/* Bad operation: */
+ 	rv = ERR_MOP(t.vcpu, INVALID, WRITE, mem1, t.size, GADDR_V(mem1));
+ 	TEST_ASSERT(rv == -1 && errno == EINVAL, "ioctl allows bad operations");
+-
+-	/* Bad guest address: */
+-	rv = ERR_MOP(t.vcpu, LOGICAL, WRITE, mem1, t.size, GADDR((void *)~0xfffUL), CHECK_ONLY);
+-	TEST_ASSERT(rv > 0, "ioctl does not report bad guest memory access");
+-
+-	/* Bad host address: */
+-	rv = ERR_MOP(t.vcpu, LOGICAL, WRITE, 0, t.size, GADDR_V(mem1));
+-	TEST_ASSERT(rv == -1 && errno == EFAULT,
+-		    "ioctl does not report bad host memory address");
++	/* virtual addresses are not translated when passing INVALID */
++	rv = ERR_MOP(t.vm, INVALID, WRITE, mem1, PAGE_SIZE, GADDR(0));
++	TEST_ASSERT(rv == -1 && errno == EINVAL, "ioctl allows bad operations");
+ 
+ 	/* Bad access register: */
+ 	t.run->psw_mask &= ~(3UL << (63 - 17));
+@@ -560,6 +667,10 @@ int main(int argc, char *argv[])
+ 		test_copy_key_storage_prot_override();
+ 		test_copy_key_fetch_prot();
+ 		test_copy_key_fetch_prot_override();
++		test_errors_key();
++		test_errors_key_storage_prot_override();
++		test_errors_key_fetch_prot_override_not_enabled();
++		test_errors_key_fetch_prot_override_enabled();
+ 	} else {
+ 		print_skip("storage key memop extension not supported");
  	}
-+	/* Ensure that we re-enable gisa if the non-PV guest used it but the PV guest did not. */
-+	if (use_gisa)
-+		kvm_s390_gisa_enable(kvm);
- 	return ret;
- }
- 
-@@ -2206,6 +2209,10 @@ static int kvm_s390_cpus_to_pv(struct kvm *kvm, u16 *rc, u16 *rrc)
- 
- 	struct kvm_vcpu *vcpu;
- 
-+	/* Disable the GISA if the ultravisor does not support AIV. */
-+	if (!test_bit_inv(BIT_UV_FEAT_AIV, &uv_info.uv_feature_indications))
-+		kvm_s390_gisa_disable(kvm);
-+
- 	kvm_for_each_vcpu(i, vcpu, kvm) {
- 		mutex_lock(&vcpu->mutex);
- 		r = kvm_s390_pv_create_cpu(vcpu, rc, rrc);
-@@ -3350,9 +3357,7 @@ int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu)
- 
- 	vcpu->arch.sie_block->icpua = vcpu->vcpu_id;
- 	spin_lock_init(&vcpu->arch.local_int.lock);
--	vcpu->arch.sie_block->gd = (u32)(u64)vcpu->kvm->arch.gisa_int.origin;
--	if (vcpu->arch.sie_block->gd && sclp.has_gisaf)
--		vcpu->arch.sie_block->gd |= GISA_FORMAT1;
-+	vcpu->arch.sie_block->gd = kvm_s390_get_gisa_desc(vcpu->kvm);
- 	seqcount_init(&vcpu->arch.cputm_seqcount);
- 
- 	vcpu->arch.pfault_token = KVM_S390_PFAULT_TOKEN_INVALID;
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 098831e815e6..4ba8fc30d87a 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -231,6 +231,15 @@ static inline unsigned long kvm_s390_get_gfn_end(struct kvm_memslots *slots)
- 	return ms->base_gfn + ms->npages;
- }
- 
-+static inline u32 kvm_s390_get_gisa_desc(struct kvm *kvm)
-+{
-+	u32 gd = (u32)(u64)kvm->arch.gisa_int.origin;
-+
-+	if (gd && sclp.has_gisaf)
-+		gd |= GISA_FORMAT1;
-+	return gd;
-+}
-+
- /* implemented in pv.c */
- int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc);
- int kvm_s390_pv_create_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc);
-@@ -450,6 +459,8 @@ int kvm_s390_get_irq_state(struct kvm_vcpu *vcpu,
- void kvm_s390_gisa_init(struct kvm *kvm);
- void kvm_s390_gisa_clear(struct kvm *kvm);
- void kvm_s390_gisa_destroy(struct kvm *kvm);
-+void kvm_s390_gisa_disable(struct kvm *kvm);
-+void kvm_s390_gisa_enable(struct kvm *kvm);
- int kvm_s390_gib_init(u8 nisc);
- void kvm_s390_gib_destroy(void);
- 
 -- 
 2.35.1
 
