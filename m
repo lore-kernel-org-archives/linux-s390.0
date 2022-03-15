@@ -2,78 +2,99 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 183CEC4332F
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Mar 2022 09:25:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0DBDC433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Mar 2022 10:05:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346580AbiCOJ0b (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Mar 2022 05:26:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35094 "EHLO
+        id S1346911AbiCOKGm convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Mar 2022 06:06:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346576AbiCOJ0b (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Mar 2022 05:26:31 -0400
-Received: from mail.meizu.com (edge05.meizu.com [157.122.146.251])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6921D369C4;
-        Tue, 15 Mar 2022 02:25:19 -0700 (PDT)
-Received: from IT-EXMB-1-125.meizu.com (172.16.1.125) by mz-mail12.meizu.com
- (172.16.1.108) with Microsoft SMTP Server (TLS) id 14.3.487.0; Tue, 15 Mar
- 2022 17:25:17 +0800
-Received: from IT-EXMB-1-125.meizu.com (172.16.1.125) by
- IT-EXMB-1-125.meizu.com (172.16.1.125) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.14; Tue, 15 Mar 2022 17:25:17 +0800
-Received: from IT-EXMB-1-125.meizu.com ([fe80::7481:7d92:3801:4575]) by
- IT-EXMB-1-125.meizu.com ([fe80::7481:7d92:3801:4575%3]) with mapi id
- 15.01.2308.014; Tue, 15 Mar 2022 17:25:17 +0800
-From:   =?gb2312?B?sNe6xs7E?= <baihaowen@meizu.com>
-To:     Heiko Carstens <hca@linux.ibm.com>
-CC:     "freude@linux.ibm.com" <freude@linux.ibm.com>,
+        with ESMTP id S1346907AbiCOKGl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Mar 2022 06:06:41 -0400
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6D22A6176
+        for <linux-s390@vger.kernel.org>; Tue, 15 Mar 2022 03:05:28 -0700 (PDT)
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-304-uWX6q3UgNeCPTFM2ROAnlw-1; Tue, 15 Mar 2022 10:05:25 +0000
+X-MC-Unique: uWX6q3UgNeCPTFM2ROAnlw-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
+ Server (TLS) id 15.0.1497.32; Tue, 15 Mar 2022 10:05:24 +0000
+Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
+ AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
+ 15.00.1497.033; Tue, 15 Mar 2022 10:05:24 +0000
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Haowen Bai' <baihaowen@meizu.com>,
+        "freude@linux.ibm.com" <freude@linux.ibm.com>,
+        "hca@linux.ibm.com" <hca@linux.ibm.com>,
         "gor@linux.ibm.com" <gor@linux.ibm.com>,
-        "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>
+CC:     "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: =?gb2312?B?tPC4tDogW1BBVENIIHYyXSBzMzkwOiBjcnlwdG86IFVzZSBtaW4oKSBpbnN0?=
- =?gb2312?Q?ead_of_doing_it_manually?=
+Subject: RE: [PATCH v2] s390: crypto: Use min() instead of doing it manually
 Thread-Topic: [PATCH v2] s390: crypto: Use min() instead of doing it manually
-Thread-Index: AQHYOELSbEbPEn7rqU+2mKCQuuOLcqy/o+WAgACIhJI=
-Date:   Tue, 15 Mar 2022 09:25:17 +0000
-Message-ID: <7842a724b1df489abf4b19ea61604d07@meizu.com>
-References: <1647331264-13853-1-git-send-email-baihaowen@meizu.com>,<YjBZR6WoHYj6fvzm@osiris>
-In-Reply-To: <YjBZR6WoHYj6fvzm@osiris>
-Accept-Language: zh-CN, en-US
-Content-Language: zh-CN
+Thread-Index: AQHYOELYjbjSeN2P+kqBKqCPXkmb6KzANxKg
+Date:   Tue, 15 Mar 2022 10:05:24 +0000
+Message-ID: <cc26b079f808420592cfea19580e34f5@AcuMS.aculab.com>
+References: <1647331264-13853-1-git-send-email-baihaowen@meizu.com>
+In-Reply-To: <1647331264-13853-1-git-send-email-baihaowen@meizu.com>
+Accept-Language: en-GB, en-US
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
-x-originating-ip: [172.16.137.70]
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-aGksIEhlaWtvDQoNClRoYW5rIHlvdSBmb3IgeW91ciByZXBseSBhbmQgc3VnZ2VzdGlvbi4NCl9f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18NCreivP7IyzogSGVpa28gQ2Fy
-c3RlbnMgPGhjYUBsaW51eC5pYm0uY29tPg0Kt6LLzcqxvOQ6IDIwMjLE6jPUwjE1yNUgMTc6MTU6
-NTENCsrVvP7IyzogsNe6xs7EDQqzrcvNOiBmcmV1ZGVAbGludXguaWJtLmNvbTsgZ29yQGxpbnV4
-LmlibS5jb207IGFnb3JkZWV2QGxpbnV4LmlibS5jb207IGxpbnV4LXMzOTBAdmdlci5rZXJuZWwu
-b3JnOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnDQrW98ziOiBSZTogW1BBVENIIHYyXSBz
-MzkwOiBjcnlwdG86IFVzZSBtaW4oKSBpbnN0ZWFkIG9mIGRvaW5nIGl0IG1hbnVhbGx5DQoNCk9u
-IFR1ZSwgTWFyIDE1LCAyMDIyIGF0IDA0OjAxOjA0UE0gKzA4MDAsIEhhb3dlbiBCYWkgd3JvdGU6
-DQo+IEZpeCBmb2xsb3dpbmcgY29jY2ljaGVjayB3YXJuaW5nOg0KPiBkcml2ZXJzL3MzOTAvY3J5
-cHRvL3pjcnlwdF9lcDExbWlzYy5jOjExMTI6MjUtMjY6IFdBUk5JTkcgb3Bwb3J0dW5pdHkgZm9y
-IG1pbigpDQo+DQo+IFNpZ25lZC1vZmYtYnk6IEhhb3dlbiBCYWkgPGJhaWhhb3dlbkBtZWl6dS5j
-b20+DQo+IC0tLQ0KPiAgZHJpdmVycy9zMzkwL2NyeXB0by96Y3J5cHRfZXAxMW1pc2MuYyB8IDIg
-Ky0NCj4gIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKSwgMSBkZWxldGlvbigtKQ0KPg0K
-PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9zMzkwL2NyeXB0by96Y3J5cHRfZXAxMW1pc2MuYyBiL2Ry
-aXZlcnMvczM5MC9jcnlwdG8vemNyeXB0X2VwMTFtaXNjLmMNCj4gaW5kZXggOWNlNWE3MS4uYmIy
-YTUyNyAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9zMzkwL2NyeXB0by96Y3J5cHRfZXAxMW1pc2Mu
-Yw0KPiArKysgYi9kcml2ZXJzL3MzOTAvY3J5cHRvL3pjcnlwdF9lcDExbWlzYy5jDQo+IEBAIC0x
-MTA5LDcgKzExMDksNyBAQCBzdGF0aWMgaW50IGVwMTFfd3JhcGtleSh1MTYgY2FyZCwgdTE2IGRv
-bWFpbiwNCj4gICAgICAgaWYgKGtiLT5oZWFkLnR5cGUgPT0gVE9LVFlQRV9OT05fQ0NBICYmDQo+
-ICAgICAgICAgICBrYi0+aGVhZC52ZXJzaW9uID09IFRPS1ZFUl9FUDExX0FFUykgew0KPiAgICAg
-ICAgICAgICAgIGhhc19oZWFkZXIgPSB0cnVlOw0KPiAtICAgICAgICAgICAgIGtleXNpemUgPSBr
-Yi0+aGVhZC5sZW4gPCBrZXlzaXplID8ga2ItPmhlYWQubGVuIDoga2V5c2l6ZTsNCj4gKyAgICAg
-ICAgICAgICBrZXlzaXplID0gbWluKChzaXplX3Qpa2ItPmhlYWQubGVuLCBrZXlzaXplKTsNCg0K
-SSB3b3VsZCBhc3N1bWUgdGhhdCBjaGVja3BhdGNoIHdpbGwgbm93IHdhcm4gdGhhdCB0aGlzIGlz
-IGFuDQpvcHBvcnR1bml0eSB0byB1c2UgbWluX3QoKS4uLg0KQW55d2F5LCBpdCBpcyB1cCB0byBI
-YXJhbGQgdG8gZGVjaWRlIHdoYXQgZG8gd2l0aCB0aGlzLg0K
+From: Haowen Bai
+> Sent: 15 March 2022 08:01
+> 
+> Fix following coccicheck warning:
+> drivers/s390/crypto/zcrypt_ep11misc.c:1112:25-26: WARNING opportunity for min()
+> 
+> Signed-off-by: Haowen Bai <baihaowen@meizu.com>
+> ---
+>  drivers/s390/crypto/zcrypt_ep11misc.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/s390/crypto/zcrypt_ep11misc.c b/drivers/s390/crypto/zcrypt_ep11misc.c
+> index 9ce5a71..bb2a527 100644
+> --- a/drivers/s390/crypto/zcrypt_ep11misc.c
+> +++ b/drivers/s390/crypto/zcrypt_ep11misc.c
+> @@ -1109,7 +1109,7 @@ static int ep11_wrapkey(u16 card, u16 domain,
+>  	if (kb->head.type == TOKTYPE_NON_CCA &&
+>  	    kb->head.version == TOKVER_EP11_AES) {
+>  		has_header = true;
+> -		keysize = kb->head.len < keysize ? kb->head.len : keysize;
+> +		keysize = min((size_t)kb->head.len, keysize);
+
+I'm sure that would look better as:
+		if (keysize > kb->head.len)
+			keysize = kb->head.len;
+which makes it much more obvious that the existing value
+is being limited by a new bound.
+
+	David
+
+>  	}
+> 
+>  	/* request cprb and payload */
+> --
+> 2.7.4
+
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
+
