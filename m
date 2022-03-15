@@ -2,68 +2,100 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C5CBC433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Mar 2022 08:54:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D2CCAC433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Mar 2022 09:16:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233493AbiCOI4E (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Mar 2022 04:56:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49796 "EHLO
+        id S1346464AbiCOJRT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Mar 2022 05:17:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346243AbiCOI4D (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Mar 2022 04:56:03 -0400
-X-Greylist: delayed 66 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 15 Mar 2022 01:54:51 PDT
-Received: from mail.meizu.com (edge05.meizu.com [157.122.146.251])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85314615D
-        for <linux-s390@vger.kernel.org>; Tue, 15 Mar 2022 01:54:51 -0700 (PDT)
-Received: from IT-EXMB-1-125.meizu.com (172.16.1.125) by mz-mail12.meizu.com
- (172.16.1.108) with Microsoft SMTP Server (TLS) id 14.3.487.0; Tue, 15 Mar
- 2022 16:53:43 +0800
-Received: from meizu.meizu.com (172.16.137.70) by IT-EXMB-1-125.meizu.com
- (172.16.1.125) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.14; Tue, 15 Mar
- 2022 16:53:43 +0800
-From:   Haowen Bai <baihaowen@meizu.com>
-To:     <hca@linux.ibm.com>, <gor@linux.ibm.com>, <agordeev@linux.ibm.com>
-CC:     <linux-s390@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        Haowen Bai <baihaowen@meizu.com>
-Subject: [PATCH v2] s390/tape: Use bitwise instead of arithmetic operator for flags
-Date:   Tue, 15 Mar 2022 16:53:41 +0800
-Message-ID: <1647334421-29989-1-git-send-email-baihaowen@meizu.com>
-X-Mailer: git-send-email 2.7.4
+        with ESMTP id S238051AbiCOJRS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Mar 2022 05:17:18 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 165DC4E396;
+        Tue, 15 Mar 2022 02:16:02 -0700 (PDT)
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22F8b9Kq020661;
+        Tue, 15 Mar 2022 09:15:58 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=CUQJIGhA6jTCd3463PpT2X++aO6WPZ0JbiIs1TWx4ms=;
+ b=mkM6Dym40IUtJZfxk10lacp8UPkCCsZ18JhYsWjGhq+ehC33gLNEAqjfgDNnf4gEIt3m
+ jWWPugcYXmRsiU2rk9DNWrkwplrMNFU87ThtojjLOa2LRkPpE8BgUa4fbQ5WkFyeKmT+
+ +HydXab4GtCJRwVtCBY4sYi6+ENCjinfSl+1TW6+6zn2/zJeOzmPA6EO8gieJp6zKg94
+ ofyYxXHk/3D1YD9XDnx7/Y31q2Boqk3qc6xWrmeElJi0DnDGir628xgOrAbKIehYFt9C
+ ZADjJYljAgBKf/9GwulFipby7QN3jhy2Dwpgcqx13MqMaUSPviblDzp9Y+dhUNy5wlXd jA== 
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3etmvfbncd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Mar 2022 09:15:58 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22F97NDY028741;
+        Tue, 15 Mar 2022 09:15:56 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma04ams.nl.ibm.com with ESMTP id 3erk58x5a6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Mar 2022 09:15:56 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22F9Frq840698328
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 15 Mar 2022 09:15:53 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3F27911C052;
+        Tue, 15 Mar 2022 09:15:53 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EBD4611C050;
+        Tue, 15 Mar 2022 09:15:52 +0000 (GMT)
+Received: from osiris (unknown [9.145.19.59])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Tue, 15 Mar 2022 09:15:52 +0000 (GMT)
+Date:   Tue, 15 Mar 2022 10:15:51 +0100
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Haowen Bai <baihaowen@meizu.com>
+Cc:     freude@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] s390: crypto: Use min() instead of doing it manually
+Message-ID: <YjBZR6WoHYj6fvzm@osiris>
+References: <1647331264-13853-1-git-send-email-baihaowen@meizu.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [172.16.137.70]
-X-ClientProxiedBy: IT-EXMB-1-126.meizu.com (172.16.1.126) To
- IT-EXMB-1-125.meizu.com (172.16.1.125)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1647331264-13853-1-git-send-email-baihaowen@meizu.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: WXtEqCEocwJY-LL0wEXdsyqrvIEngjTd
+X-Proofpoint-ORIG-GUID: WXtEqCEocwJY-LL0wEXdsyqrvIEngjTd
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-03-14_14,2022-03-14_02,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
+ priorityscore=1501 malwarescore=0 adultscore=0 spamscore=0 suspectscore=0
+ mlxlogscore=903 bulkscore=0 lowpriorityscore=0 clxscore=1011 mlxscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2203150059
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This silences the following coccinelle warning:
-drivers/s390/char/tape_34xx.c:360:38-39: WARNING: sum of probable bitmasks, consider |
+On Tue, Mar 15, 2022 at 04:01:04PM +0800, Haowen Bai wrote:
+> Fix following coccicheck warning:
+> drivers/s390/crypto/zcrypt_ep11misc.c:1112:25-26: WARNING opportunity for min()
+> 
+> Signed-off-by: Haowen Bai <baihaowen@meizu.com>
+> ---
+>  drivers/s390/crypto/zcrypt_ep11misc.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/s390/crypto/zcrypt_ep11misc.c b/drivers/s390/crypto/zcrypt_ep11misc.c
+> index 9ce5a71..bb2a527 100644
+> --- a/drivers/s390/crypto/zcrypt_ep11misc.c
+> +++ b/drivers/s390/crypto/zcrypt_ep11misc.c
+> @@ -1109,7 +1109,7 @@ static int ep11_wrapkey(u16 card, u16 domain,
+>  	if (kb->head.type == TOKTYPE_NON_CCA &&
+>  	    kb->head.version == TOKVER_EP11_AES) {
+>  		has_header = true;
+> -		keysize = kb->head.len < keysize ? kb->head.len : keysize;
+> +		keysize = min((size_t)kb->head.len, keysize);
 
-Signed-off-by: Haowen Bai <baihaowen@meizu.com>
----
- drivers/s390/char/tape_34xx.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/s390/char/tape_34xx.c b/drivers/s390/char/tape_34xx.c
-index 7ada994..487ad2d 100644
---- a/drivers/s390/char/tape_34xx.c
-+++ b/drivers/s390/char/tape_34xx.c
-@@ -354,10 +354,10 @@ tape_34xx_unit_check(struct tape_device *device, struct tape_request *request,
- 	if ((
- 		sense[0] == SENSE_DATA_CHECK      ||
- 		sense[0] == SENSE_EQUIPMENT_CHECK ||
--		sense[0] == SENSE_EQUIPMENT_CHECK + SENSE_DEFERRED_UNIT_CHECK
-+		sense[0] == (SENSE_EQUIPMENT_CHECK | SENSE_DEFERRED_UNIT_CHECK)
- 	) && (
- 		sense[1] == SENSE_DRIVE_ONLINE ||
--		sense[1] == SENSE_BEGINNING_OF_TAPE + SENSE_WRITE_MODE
-+		sense[1] == (SENSE_BEGINNING_OF_TAPE | SENSE_WRITE_MODE)
- 	)) {
- 		switch (request->op) {
- 		/*
--- 
-2.7.4
-
+I would assume that checkpatch will now warn that this is an
+opportunity to use min_t()...
+Anyway, it is up to Harald to decide what do with this.
