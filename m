@@ -2,132 +2,236 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A674BC4332F
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Mar 2022 14:57:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C48F7C433FE
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Mar 2022 16:05:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349487AbiCOO6M (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Mar 2022 10:58:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43138 "EHLO
+        id S242578AbiCOQGP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Mar 2022 12:06:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349498AbiCOO5z (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Mar 2022 10:57:55 -0400
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2054.outbound.protection.outlook.com [40.107.94.54])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A22D4B858;
-        Tue, 15 Mar 2022 07:56:43 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=A5JEYTHotDHJP2Tic8zZ5Kdy8BKlQow8zrgI27p7MdFevSMgekikVLs6Plmp3jTCUoA1PUsAO2nxCf6oKal722S16tOU8fwEvP5PophgRxULudAHZjw83yW0De5W2L4QMjn6tLR4bhPWnbGddgI4liMWtt1lxO8iarhvVqvF6ykg4n7Ouupcc9sbbosyujWU4HKVQsTddegpKF33jnsoSqq45p5uiwIi/Tj2kU1xr5nkHUekT45Cb8JgQ7JVQ+uGcnXn4CBVArofKow3iJIv+Q1eyStU1/TbRmh+dfsKZSbcSGJ91tC+RwYEcLBWnVYm1+h+MN+hGvg0LFamcl4N4A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=3SJ4mH9DwrY4yHAwOXrM0haROJ+ZgL9ib3Z2Rxr7Bz8=;
- b=PWBWghjhYWAX5r2Bwxrm46APeQVxXDECGP1beabOLchvlY/gCoP/X+diOcJzy8el9gqz0+jVc4Ay//8z8GQ+q/aRpOimzQDCNB5Z5rdXdbuDJ0XXGr1p8RZLZgACHqOkTb7ImlLqAJprAwJCv5dNnZfi6eD/DRldUbbN1EcBWDyDiCC7Y2nFJbNbArwRHiTKH+pfWgP7oamN5LBu5arPNR9RNxGOu9rojo+e7mM0dip0Au96MFCfpslWWEcIKCoYdHmGHDiJiDUAHu2B/e3CgsTv6hc3xxx+WM0XomOb7dgABPq/FcWy7bjVBfMVxYWUJZtRWX4PkayMd6Gsns30xA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=3SJ4mH9DwrY4yHAwOXrM0haROJ+ZgL9ib3Z2Rxr7Bz8=;
- b=sH5QRjI8AO6onOVqxAe9G0IYF+AMRaPcl+W6ypPxAGkTdd2L5sjJ+hsPRDtIuTJNMNlV29gF2jhZ68Zyn8h64L9MEuoUEucD7lfRmHIK+Pl2vAjImi2g7qX3ZguamJ52G3ZL1MmZkU9NUNXbukAHz6zdPWrkQ2Xv6P9A9UxKKWLS0uSU2iDi5DKBTF4bIK5vlflQM6k4FMr42GtnZfDhDvELva9RRko7vYgkWLf8MHdvJjq6IAhijSKZlFPlNQddTRJlEHWdHARyk2wts2A4D6RlE95jBN4ftr51fqtONR56+oyy12yF2omR5LaAlFWb8YTBZAMJ/J8LBI4FhA+Ymg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
- by SA0PR12MB4400.namprd12.prod.outlook.com (2603:10b6:806:95::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5081.14; Tue, 15 Mar
- 2022 14:56:41 +0000
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::51a0:4aee:2b4c:ca28]) by MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::51a0:4aee:2b4c:ca28%4]) with mapi id 15.20.5061.029; Tue, 15 Mar 2022
- 14:56:41 +0000
-Date:   Tue, 15 Mar 2022 11:56:40 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, alex.williamson@redhat.com,
-        cohuck@redhat.com, schnelle@linux.ibm.com, farman@linux.ibm.com,
-        pmorel@linux.ibm.com, borntraeger@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, gerald.schaefer@linux.ibm.com,
-        agordeev@linux.ibm.com, svens@linux.ibm.com, frankja@linux.ibm.com,
-        david@redhat.com, imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
+        with ESMTP id S1349837AbiCOQGL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Mar 2022 12:06:11 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 526A72AE2E;
+        Tue, 15 Mar 2022 09:04:59 -0700 (PDT)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22FEoi77012311;
+        Tue, 15 Mar 2022 16:04:52 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=tdEYLDx1G8bzKxisHf7Abo3qouFpdoa7ZzkGJTm29gw=;
+ b=tUTvlYrCkbrSz9VorIEtZFp+W7P4gTPyEdEHyZUGQz293eSXrybnSZsptki9aa8/OPew
+ w6CyKpL2s0GC2jipsBUUJBViBBa8wzKPtQyjElbQUGayNvjR0puS5Q9pjhLABsWCIFqz
+ SwF7b8wN8LW0eIXQjEEjEXXyhwmqDtAq6P2f8l/9k8wHZjgGLhJyDc9Fmre76BCe/mek
+ K/iA3fnV13LuOFT9P27E4qCpykHtMnmqVXxdbpEisv6iAdWtKD2Zctg/YHJeGn5vYmOW
+ mRDDt/hiI1igFRsGGzCWTVrKzxb9yEoLp1/IJn7HtG+cEqFiVF6Nzu0ifCYNx8rJS92F Ag== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3etvx09vsx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Mar 2022 16:04:52 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22FFoSrE031868;
+        Tue, 15 Mar 2022 16:04:51 GMT
+Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3etvx09vry-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Mar 2022 16:04:51 +0000
+Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
+        by ppma02dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22FFxtjY005384;
+        Tue, 15 Mar 2022 16:04:50 GMT
+Received: from b01cxnp22033.gho.pok.ibm.com (b01cxnp22033.gho.pok.ibm.com [9.57.198.23])
+        by ppma02dal.us.ibm.com with ESMTP id 3etaj6r9ut-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Mar 2022 16:04:50 +0000
+Received: from b01ledav006.gho.pok.ibm.com (b01ledav006.gho.pok.ibm.com [9.57.199.111])
+        by b01cxnp22033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22FG4mXB33948066
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 15 Mar 2022 16:04:48 GMT
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A8426AC05E;
+        Tue, 15 Mar 2022 16:04:48 +0000 (GMT)
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 34488AC05F;
+        Tue, 15 Mar 2022 16:04:37 +0000 (GMT)
+Received: from [9.211.32.184] (unknown [9.211.32.184])
+        by b01ledav006.gho.pok.ibm.com (Postfix) with ESMTP;
+        Tue, 15 Mar 2022 16:04:36 +0000 (GMT)
+Message-ID: <dbe8488f-2539-f81a-b730-26e58b78856a@linux.ibm.com>
+Date:   Tue, 15 Mar 2022 12:04:35 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.0
+Subject: Re: [PATCH v4 15/32] vfio: introduce KVM-owned IOMMU type
+Content-Language: en-US
+To:     Jason Gunthorpe <jgg@nvidia.com>, borntraeger@linux.ibm.com
+Cc:     Alex Williamson <alex.williamson@redhat.com>,
+        linux-s390@vger.kernel.org, cohuck@redhat.com,
+        schnelle@linux.ibm.com, farman@linux.ibm.com, pmorel@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
+        imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
         oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
         pasic@linux.ibm.com, joro@8bytes.org, will@kernel.org,
         pbonzini@redhat.com, corbet@lwn.net, kvm@vger.kernel.org,
         linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org,
         linux-doc@vger.kernel.org
-Subject: Re: [PATCH v4 29/32] vfio-pci/zdev: add DTSM to clp group capability
-Message-ID: <20220315145640.GA11336@nvidia.com>
 References: <20220314194451.58266-1-mjrosato@linux.ibm.com>
- <20220314194451.58266-30-mjrosato@linux.ibm.com>
- <20220314214928.GK11336@nvidia.com>
- <35ccdbb0-eb21-0c25-638e-4d46fb12e7a9@linux.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <35ccdbb0-eb21-0c25-638e-4d46fb12e7a9@linux.ibm.com>
-X-ClientProxiedBy: MN2PR01CA0060.prod.exchangelabs.com (2603:10b6:208:23f::29)
- To MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
+ <20220314194451.58266-16-mjrosato@linux.ibm.com>
+ <20220314165033.6d2291a5.alex.williamson@redhat.com>
+ <20220314231801.GN11336@nvidia.com>
+ <9618afae-2a91-6e4e-e8c3-cb83e2f5c3d9@linux.ibm.com>
+ <20220315145520.GZ11336@nvidia.com>
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <20220315145520.GZ11336@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: -w36gmF1H8rJjnaDs5OGV7pUR03jgs89
+X-Proofpoint-ORIG-GUID: OH7K6C4R5v45F-_abHJQ5ckSN6hzhDCe
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 88c92194-096f-4439-fbaa-08da069403d9
-X-MS-TrafficTypeDiagnostic: SA0PR12MB4400:EE_
-X-Microsoft-Antispam-PRVS: <SA0PR12MB4400DF4FCD8215CAFCB87241C2109@SA0PR12MB4400.namprd12.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 7GJ/85r7u5HF0ovSr+VkQSgg8u7ubOFWZVd/+PVCOuCKwtJpulSeWVmiqncDBLLe6D75YkTph0J2zGFgDIzkVLVA53Td3bMCShhagHNGjsc0f4WtvMd2I3xlaj7J18B5QkNkGl3VCyEOMazlKxfx5EH1Kw9URdKkTI4nXfXncvB4SLOmnxwLXSHarq/Y6/wB8AOyo+2MPw+rcPlWnk2ZlahswOR+VBbI1JQn1rRnKLpb248ct5Z1WxbppeKHQS4nkFNxbekSngPppcfRcMmXsrtT/PPGLHfpt6E/rTJGTjiTojlOnCJR0YZTRAkfFcBYbbhqfHQ+D5ZUPPgVILDdSIxAehC/b39lOWG3O+BoequHrr8zshjBh5R0fBcRxnHPpv9Y9SNgEeSqERYudgseYoOLLURVP5TcrroONS0vsITbFOmo77e49ZNo2EYmOvvz/wvDelKEkCw507r/UJJDgqaYj/yJ3YhIbMWjIzvdAYq5/IhH0ongRH6QVcZZvQWO9uzmaTJovK1ifk8iNg5j3HG0e/s29Fd5Q5A4OPRi/yF1oZzU83qoL9pc3RU9LlDzStkfWdfpHZct4BGHwukO+pDaw3Ua5w07OxRf+lXK/3ShSIWQDOkCly47W76L+vl5dfmnOwXnmIxpT3cZ8XvM6w==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(2906002)(4744005)(6486002)(186003)(26005)(5660300002)(8936002)(36756003)(1076003)(7416002)(508600001)(2616005)(4326008)(86362001)(33656002)(6506007)(316002)(6512007)(66946007)(66476007)(66556008)(8676002)(38100700002)(6916009);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?biYG/CU5kAl9tmZnZQXY/JE2m6tv7e147gCAx4j9MnCNwZop5Vzqm8h+H1Rb?=
- =?us-ascii?Q?C1vUjvgXK9FO7y1bS7V0dPKPX47eJuYAx+Z7sNJ6YkY3bHN7EkKbuVmzX9V7?=
- =?us-ascii?Q?VwPk6ucRyjG3Ce5ykLyk6ShBBcup947O8CiNKHj9fktDO3OymRw446ySAVc8?=
- =?us-ascii?Q?rbcd+GgdYCNONJN2w1dzLHliVU2QTJs+OSqJ6l8+qQ5kKhS0qJowiay4tdQ6?=
- =?us-ascii?Q?O5u7nYRKNcQyERg+bmLU4sXqj7P6qvSw++8EEG+Tt7uEr5aDiPApoIVsbb1X?=
- =?us-ascii?Q?15aiOLUilf7JtmSQWDxAT99r5A8M/qE8YwNWXl5meIqUx5z49TGIrP7+8SKp?=
- =?us-ascii?Q?rgp4DyzBSDzhCW4B2HFWLqqm9XdcA9sBqeDJeV/ACMM1yUQUGV6hG2Zq1IEa?=
- =?us-ascii?Q?tBtpN5efRPE4Er9mUHnfwLjDNA+ExKrGyv7vuQrsUh9kcYg3iNqRn3LbzkgQ?=
- =?us-ascii?Q?V7ImamegV91C0RDP0kk6keLUSnZnf9JGCGBdhi8d6hSt4V5DhTdYdx+Vm4Qm?=
- =?us-ascii?Q?iOM4ewCTwW1BI4//YC3UaY4K8kHNkR8gS/fuhmyE5UOA75qdvjdrYxo2/Kbe?=
- =?us-ascii?Q?7mSxhm6afpmGzVNQuHlWDEMByildd55uPoRP8YAH6sdFMPEFZmdkJHnFgRAs?=
- =?us-ascii?Q?+L2KorGQ4o121ilEDYOttJOTYfHHpWonOMKrJkKmVYLNB2hbkTzIMA89JYgh?=
- =?us-ascii?Q?8FHmRo1nGScFvrBhMTzcwG6pGhee+PjH3Srqddbdlq6+3Wf8PnkWY0fIH5Ba?=
- =?us-ascii?Q?HGyw4MrBi1p9rwK5qMtbhMqUCFhNyG8r0l/i7kvEkHlFGeCgNOVZd4duQBT+?=
- =?us-ascii?Q?1NpnkXeDmbY7mfV6uHd83F5CFmzzWWayxQpUQUZ9JtQFAz+nY4CnVBFRKtVg?=
- =?us-ascii?Q?xYPaMm6MZKMlRc74x8jj4eVSc1wbZPlrsd2Cu/oqD01O7t96yVfsziZUwgY2?=
- =?us-ascii?Q?+YAQx1m2QIgkSWpy2VqkUYduRTgVeGrhL+ayz8yPYRu++58HyM84V1mnT4sB?=
- =?us-ascii?Q?VjYGyzwbSOmRo5HNsgZKsQeZafc1CvSwXBttCCktSPVAMFynriSvFEExq3Pz?=
- =?us-ascii?Q?FLNWcazpGdgbiRB9ovOdvDhiTaj+OF2QxWs+HKd6TjPWOBFl3sTlpRO7U7+n?=
- =?us-ascii?Q?HsOSMpe1AOtjeOEuCFD54cB4Xjnx//YpYqVNlKh3TkAplQEN02tSQDUGbto5?=
- =?us-ascii?Q?4iM7wgCxJUP8sMgYZ6iDnqH6FEcMlPOodyWy2LIgqUBT4QSlhRYrI9Yli89L?=
- =?us-ascii?Q?5PGaYWdvlCec8iAPffCIaF5zHULHbhKNIwPe6qJOFn7RVgmkZucsYFwKM4+v?=
- =?us-ascii?Q?VTO5qd96ss+quP7QLICckS1Bq6GDOa6z8ls33eLb3Wz+E8Jd4IBj+xLJ3bJ0?=
- =?us-ascii?Q?FC6vr+cB+1WdWXtMrhkaghxkIADYj1AZv22zQ6VqPvd6pcb2xqX2dkEGH6j9?=
- =?us-ascii?Q?I6uiZDlkdXU1s48it/CX3qWys1ShDukk?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 88c92194-096f-4439-fbaa-08da069403d9
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Mar 2022 14:56:41.8077
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: zP7oA6p4S7xd/O4HgujK/48bJw5Y0yrUtnZ9a5s+/Y1AGNgm94dFtUMYh83QwU1F
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA0PR12MB4400
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-03-15_03,2022-03-15_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ clxscore=1015 mlxscore=0 malwarescore=0 phishscore=0 suspectscore=0
+ bulkscore=0 spamscore=0 mlxlogscore=999 adultscore=0 impostorscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2203150102
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Mar 15, 2022 at 10:39:18AM -0400, Matthew Rosato wrote:
-> > That is something that should be modeled as a nested iommu domain.
-> > 
-> > Querying the formats and any control logic for this should be on the
-> > iommu side not built into VFIO.
+On 3/15/22 10:55 AM, Jason Gunthorpe wrote:
+> On Tue, Mar 15, 2022 at 09:36:08AM -0400, Matthew Rosato wrote:
+>>> If we do try to stick this into VFIO it should probably use the
+>>> VFIO_TYPE1_NESTING_IOMMU instead - however, we would like to delete
+>>> that flag entirely as it was never fully implemented, was never used,
+>>> and isn't part of what we are proposing for IOMMU nesting on ARM
+>>> anyhow. (So far I've found nobody to explain what the plan here was..)
+>>>
+>>
+>> I'm open to suggestions on how better to tie this into vfio.  The scenario
+>> basically plays out that:
 > 
-> I agree that the DTSM is really controlled by what the IOMMU domain can
-> support (e.g. what guest table formats it can actually operate on) and so
-> the DTSM value should come from there vs out of KVM; but is there harm in
-> including the query response data here along with the rest of the response
-> information for 'query this zPCI group'?
+> Ideally I would like it to follow the same 'user space page table'
+> design that Eric and Kevin are working on for HW iommu.
 
-'Harm'? No, but I think it is wrong encapsulation and layering.
+'[RFC v16 0/9] SMMUv3 Nested Stage Setup (IOMMU part)' ??
 
-Jason
+https://lore.kernel.org/linux-iommu/20211027104428.1059740-1-eric.auger@redhat.com/
+
+> 
+> You have an 1st iommu_domain that maps and pins the entire guest physical
+> address space.
+
+Ahh, I see.
+
+@Christian would it be OK to pursue a model that pins all of guest 
+memory upfront?
+
+> 
+> You have an nested iommu_domain that represents the user page table
+> (the ioat in your language I think)
+
+Yes
+
+> 
+> When the guest says it wants to set a user page table then you create
+> the nested iommu_domain representing that user page table and pass in
+> the anchor (guest address of the root IOPTE) to the kernel to do the
+> work. >
+> The rule for all other HW's is that the user space page table is
+> translated by the top level kernel page table. So when you traverse it
+> you fetch the CPU page storing the guest's IOPTE by doing an IOVA
+> translation through the first level page table - not through KVM.
+> 
+> Since the first level page table an the KVM GPA should be 1:1 this is
+> an equivalent operation.
+> 
+>> 1) the iommu will be domain_alloc'd once VFIO_SET_IOMMU is issued -- so at
+>> that time (or earlier) we have to make the decision on whether to use the
+>> standard IOMMU or this alternate KVM/nested IOMMU.
+> 
+> So in terms of iommufd I would see it this would be an iommufd 'create
+> a device specific iomm_domain' IOCTL and you can pass in a S390
+> specific data blob to make it into this special mode.
+> 
+>>> This is why I said the second level should be an explicit iommu_domain
+>>> all on its own that is explicitly coupled to the KVM to read the page
+>>> tables, if necessary.
+>>
+>> Maybe I misunderstood this.  Are you proposing 2 layers of IOMMU that
+>> interact with each other within host kernel space?
+>>
+>> A second level runs the guest tables, pins the appropriate pieces from the
+>> guest to get the resulting phys_addr(s) which are then passed via iommu to a
+>> first level via map (or unmap)?
+> 
+> 
+> The first level iommu_domain has the 'type1' map and unmap and pins
+> the pages. This is the 1:1 map with the GPA and ends up pinning all
+> guest memory because the point is you don't want to take a memory pin
+> on your performance path
+> 
+> The second level iommu_domain points to a single IO page table in GPA
+> and is created/destroyed whenever the guest traps to the hypervisor to
+> manipulate the anchor (ie the GPA of the guest IO page table).
+> 
+
+That makes sense, thanks for clarifying.
+
+>>> But I'm not sure that reading the userspace io page tables with KVM is
+>>> even the best thing to do - the iommu driver already has the pinned
+>>> memory, it would be faster and more modular to traverse the io page
+>>> tables through the pfns in the root iommu_domain than by having KVM do
+>>> the translations. Lets see what Matthew says..
+>>
+>> OK, you lost me a bit here.  And this may be associated with the above.
+>>
+>> So, what the current implementation is doing is reading the guest DMA tables
+>> (which we must pin the first time we access them) and then map the PTEs of
+>> the associated guest DMA entries into the associated host DMA table (so,
+>> again pin and place the address, or unpin and invalidate).  Basically we are
+>> shadowing the first level DMA table as a copy of the second level DMA table
+>> with the host address(es) of the pinned guest page(s).
+> 
+> You can't pin/unpin in this path, there is no real way to handle error
+> and ulimit stuff here, plus it is really slow. I didn't notice any of
+> this in your patches, so what do you mean by 'pin' above?
+
+patch 18 does some symbol_get for gfn_to_page (which will drive 
+hva_to_pfn under the covers) and kvm_release_pfn_dirty and uses those 
+symbols for pin/unpin.
+
+pin/unpin errors in this series are reliant on the fact that RPCIT is 
+architected to include a panic response to the guest of 'mappings failed 
+for the specified range, go refresh your tables and make room', thus 
+allowing this to work for pageable guests.
+
+Agreed this would be unnecessary if we've already mapped all of guest 
+memory via a 1st iommu domain.
+
+> 
+> To be like other IOMMU nesting drivers the pages should already be
+> pinned and stored in the 1st iommu_domain, lets say in an xarray. This
+> xarray is populated by type1 map/unmap sytem calls like any
+> iommu_domain.
+> 
+> A nested iommu_domain should create the real HW IO page table and
+> associate it with the real HW IOMMU and record the parent 1st level iommu_domain.
+> 
+> When you do the shadowing you use the xarray of the 1st level
+> iommu_domain to translate from GPA to host physical and there is no
+> pinning/etc involved. After walking the guest table and learning the
+> final vIOVA it is translated through the xarray to a CPU physical and
+> then programmed into the real HW IO page table.
+> 
+> There is no reason to use KVM to do any of this, and is actively wrong
+> to place CPU pages from KVM into an IOPTE that did not come through
+> the type1 map/unmap calls that do all the proper validation and
+> accounting.
+> 
+> Jason
+
