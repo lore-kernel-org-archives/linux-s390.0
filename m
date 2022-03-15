@@ -2,185 +2,149 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F27AC4167B
-	for <linux-s390@archiver.kernel.org>; Tue, 15 Mar 2022 18:02:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9654EC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 15 Mar 2022 18:22:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350892AbiCOSDr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 15 Mar 2022 14:03:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41920 "EHLO
+        id S245395AbiCOSYK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 15 Mar 2022 14:24:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350834AbiCOSDp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Mar 2022 14:03:45 -0400
-Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40235593B8;
-        Tue, 15 Mar 2022 11:02:33 -0700 (PDT)
-Received: by mail-ej1-x631.google.com with SMTP id bi12so43283565ejb.3;
-        Tue, 15 Mar 2022 11:02:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=lEC/nkhZWgafnlNYWqRvQ8T9pwDdv1X4bS+vmmN1SPI=;
-        b=TlfZFBpL4ZxfH1h0A4azfOpuLuqRtduCM9W127vgQdbSX84AaRxquI24AZvaA/0Mhu
-         W5o4xZkQR752Hf126heU6U/BBocdrE6/a2Ihx8NnsX9drwO5lACiezAZxvUZP3XJP8CY
-         RgL/YsUwucofJYAR5HTDtSgiXc/8GSxvQKtINLDlNNpQhcJWsrikOyezbu8mRlY3gTlv
-         rEOGgvjWGrYlDAjMi05/fTIC1jrV0GVsW+UEpEd1os1ZbL3wwjfaDDRl0voUi4hHNHYk
-         rJABGDMHxUmjB3eeAevsUeKUu16sJWDZhY2h8sMc8S1ej06qZ5FAgZCqYTXYxZQxhKT7
-         g/Lg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=lEC/nkhZWgafnlNYWqRvQ8T9pwDdv1X4bS+vmmN1SPI=;
-        b=VPQYYS9KNUCyH1mUYRqrjpmKhQuRjkVTzpakjmzslZbInPw+bval+CVvfkbHSX7VRE
-         H5+VS3PO8ppfBwYH3uLBVITN9+5K2xggz7Sg0esvMtt6j6SRwYnLSGjnzmQE106WcPIN
-         J9X7G0tiTwlRzyjh8HBctbVqbXl/EFrT7kH18uqRMqhoKMN2jE5tX4BUgJB0j878W2W8
-         Jl+bMY8G1sBbUF3mTwt8MHkZhLhAJpjNNtmls2CRKv06hDYY41JACeBcl5W+6tBoV3jM
-         xTvwm7BBjiKjKPe7bFcRrBMdIpdWiuuJonrjePRRl1NUWFwlXuqIyBgWnARSjWjyYge9
-         zEmA==
-X-Gm-Message-State: AOAM532nDQGhrvCtU3GBL2tRwBuNrfXyq6F2ka4cS2W3fRfA7UeTfboH
-        P+R7RuXE6CBbonfso3uOGvVb19KiaMR3cj0BXHE=
-X-Google-Smtp-Source: ABdhPJwQNXcLkTGaCJKCgGEQ39fH/f9rG+zOEFi6wUHEyZIylN9K230wh3LynYxeoxVpwJTKYSVD3SjkIYeMUl1wmGU=
-X-Received: by 2002:a17:907:6e01:b0:6d0:562c:e389 with SMTP id
- sd1-20020a1709076e0100b006d0562ce389mr23976723ejc.497.1647367351540; Tue, 15
- Mar 2022 11:02:31 -0700 (PDT)
+        with ESMTP id S235913AbiCOSYJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Mar 2022 14:24:09 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E210D5F7F;
+        Tue, 15 Mar 2022 11:22:55 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22FIIinO006273;
+        Tue, 15 Mar 2022 18:22:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=djvJQtE04iNr+/E7XxRYsv6HnSSYEbt+avD/41Uo+Es=;
+ b=A+SEXkuaYWNiU7zJvbjv4gk8XGWDP6zJtt7nbAbnCH6Z0EbUzCCDhLiJLcPJ27CX1n/N
+ 66mN8Ogs+67NBDJJRPq2JSzHtLM1m3jNJAqe85PrC69iqrEAdPKHAviacHBouw6+N45K
+ 5tf1bFArIHZ8rgmbBcPcsjCoIt4vSv29nlQvQIAbkwntDEV4qzKzib7kOdG/WQoKPiZo
+ 9zF0aOxHLm22u6GXSZryua+Iu4qZKaplID8FHDM2/m7joID7PTbbFnU9nklaED16kL2a
+ Lqz34ebhB2yuPCtwY7IOFJDV9blpFKuWdrKXR9vDjtnky6l61yJiTShgAxt5x716RaRz oA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3etywcg5cf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Mar 2022 18:22:54 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22FIJQMs009017;
+        Tue, 15 Mar 2022 18:22:54 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3etywcg5bw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Mar 2022 18:22:54 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22FIDVnf000884;
+        Tue, 15 Mar 2022 18:22:52 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma05fra.de.ibm.com with ESMTP id 3erk58p5ta-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Mar 2022 18:22:52 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22FIMnqm28836098
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 15 Mar 2022 18:22:49 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1B5C3AE051;
+        Tue, 15 Mar 2022 18:22:49 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A5181AE045;
+        Tue, 15 Mar 2022 18:22:48 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.145.12.100])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 15 Mar 2022 18:22:48 +0000 (GMT)
+Date:   Tue, 15 Mar 2022 18:39:22 +0100
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Eric Farman <farman@linux.ibm.com>
+Cc:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH kvm-unit-tests v2 3/6] s390x: smp: Fix checks for SIGP
+ STOP STORE STATUS
+Message-ID: <20220315183922.0444e8d2@p-imbrenda>
+In-Reply-To: <20220311173822.1234617-4-farman@linux.ibm.com>
+References: <20220311173822.1234617-1-farman@linux.ibm.com>
+        <20220311173822.1234617-4-farman@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-References: <20220312132856.65163-1-krzysztof.kozlowski@canonical.com> <20220312132856.65163-6-krzysztof.kozlowski@canonical.com>
-In-Reply-To: <20220312132856.65163-6-krzysztof.kozlowski@canonical.com>
-From:   Andy Shevchenko <andy.shevchenko@gmail.com>
-Date:   Tue, 15 Mar 2022 20:01:18 +0200
-Message-ID: <CAHp75VfLtjfrB4Zj9ncOg3VYQrX58chEL+6g31_5fwuMUuURPg@mail.gmail.com>
-Subject: Re: [PATCH v4 05/11] PCI: Use driver_set_override() instead of open-coding
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Stuart Yoder <stuyoder@gmail.com>,
-        Laurentiu Tudor <laurentiu.tudor@nxp.com>,
-        Abel Vesa <abel.vesa@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Andy Gross <agross@kernel.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-clk <linux-clk@vger.kernel.org>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>,
-        Linux on Hyper-V List <linux-hyperv@vger.kernel.org>,
-        linux-pci <linux-pci@vger.kernel.org>,
-        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org,
-        ALSA Development Mailing List <alsa-devel@alsa-project.org>,
-        linux-spi <linux-spi@vger.kernel.org>,
-        virtualization@lists.linux-foundation.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 3tzuyMJJKfl4T8OJyJzSD4hcBFY3mLHe
+X-Proofpoint-GUID: LPbhcidT7r9yn7P83bAAWql77_9601c_
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-03-15_09,2022-03-15_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
+ mlxscore=0 phishscore=0 impostorscore=0 clxscore=1015 mlxlogscore=982
+ suspectscore=0 lowpriorityscore=0 priorityscore=1501 malwarescore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2203150108
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sat, Mar 12, 2022 at 4:09 PM Krzysztof Kozlowski
-<krzysztof.kozlowski@canonical.com> wrote:
->
-> Use a helper to set driver_override to reduce amount of duplicated code.
+On Fri, 11 Mar 2022 18:38:19 +0100
+Eric Farman <farman@linux.ibm.com> wrote:
 
-the amount
+> In the routine test_stop_store_status(), the "running" part of
+> the test checks a few of the fields in lowcore (to verify the
+> "STORE STATUS" part of the SIGP order), and then ensures that
+> the CPU has stopped. But this is backwards, according to the
+> Principles of Operation:
+>   The addressed CPU performs the stop function, fol-
+>   lowed by the store-status operation (see =E2=80=9CStore Sta-
+>   tus=E2=80=9D on page 4-82).
+>=20
+> If the CPU were not yet stopped, the contents of the lowcore
+> fields would be unpredictable. It works today because the
+> library functions wait on the stop function, so the CPU is
+> stopped by the time it comes back. Let's first check that the
+> CPU is stopped first, just to be clear.
+>=20
+> While here, add the same check to the second part of the test,
+> even though the CPU is explicitly stopped prior to the SIGP.
+>=20
+> Fixes: fc67b07a4 ("s390x: smp: Test stop and store status on a running an=
+d stopped cpu")
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
 
-> Make the driver_override field const char, because it is not modified by
-> the core and it matches other subsystems.
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-
-Seems like mine #4 here
-https://gist.github.com/andy-shev/a2cb1ee4767d6d2f5d20db53ecb9aabc :-)
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Thanks!
-
-> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-> Acked-by: Bjorn Helgaas <bhelgaas@google.com>
 > ---
->  drivers/pci/pci-sysfs.c | 28 ++++------------------------
->  include/linux/pci.h     |  6 +++++-
->  2 files changed, 9 insertions(+), 25 deletions(-)
->
-> diff --git a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
-> index 602f0fb0b007..5c42965c32c2 100644
-> --- a/drivers/pci/pci-sysfs.c
-> +++ b/drivers/pci/pci-sysfs.c
-> @@ -567,31 +567,11 @@ static ssize_t driver_override_store(struct device *dev,
->                                      const char *buf, size_t count)
->  {
->         struct pci_dev *pdev = to_pci_dev(dev);
-> -       char *driver_override, *old, *cp;
-> -
-> -       /* We need to keep extra room for a newline */
-> -       if (count >= (PAGE_SIZE - 1))
-> -               return -EINVAL;
-> -
-> -       driver_override = kstrndup(buf, count, GFP_KERNEL);
-> -       if (!driver_override)
-> -               return -ENOMEM;
-> -
-> -       cp = strchr(driver_override, '\n');
-> -       if (cp)
-> -               *cp = '\0';
-> -
-> -       device_lock(dev);
-> -       old = pdev->driver_override;
-> -       if (strlen(driver_override)) {
-> -               pdev->driver_override = driver_override;
-> -       } else {
-> -               kfree(driver_override);
-> -               pdev->driver_override = NULL;
-> -       }
-> -       device_unlock(dev);
-> +       int ret;
->
-> -       kfree(old);
-> +       ret = driver_set_override(dev, &pdev->driver_override, buf, count);
-> +       if (ret)
-> +               return ret;
->
->         return count;
->  }
-> diff --git a/include/linux/pci.h b/include/linux/pci.h
-> index 60d423d8f0c4..415491fb85f4 100644
-> --- a/include/linux/pci.h
-> +++ b/include/linux/pci.h
-> @@ -516,7 +516,11 @@ struct pci_dev {
->         u16             acs_cap;        /* ACS Capability offset */
->         phys_addr_t     rom;            /* Physical address if not from BAR */
->         size_t          romlen;         /* Length if not from BAR */
-> -       char            *driver_override; /* Driver name to force a match */
-> +       /*
-> +        * Driver name to force a match.  Do not set directly, because core
-> +        * frees it.  Use driver_set_override() to set or clear it.
-> +        */
-> +       const char      *driver_override;
->
->         unsigned long   priv_flags;     /* Private flags for the PCI driver */
->
-> --
-> 2.32.0
->
+>  s390x/smp.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/s390x/smp.c b/s390x/smp.c
+> index 2f4af820..50811bd0 100644
+> --- a/s390x/smp.c
+> +++ b/s390x/smp.c
+> @@ -98,9 +98,9 @@ static void test_stop_store_status(void)
+>  	lc->grs_sa[15] =3D 0;
+>  	smp_cpu_stop_store_status(1);
+>  	mb();
+> +	report(smp_cpu_stopped(1), "cpu stopped");
+>  	report(lc->prefix_sa =3D=3D (uint32_t)(uintptr_t)cpu->lowcore, "prefix"=
+);
+>  	report(lc->grs_sa[15], "stack");
+> -	report(smp_cpu_stopped(1), "cpu stopped");
+>  	report_prefix_pop();
+> =20
+>  	report_prefix_push("stopped");
+> @@ -108,6 +108,7 @@ static void test_stop_store_status(void)
+>  	lc->grs_sa[15] =3D 0;
+>  	smp_cpu_stop_store_status(1);
+>  	mb();
+> +	report(smp_cpu_stopped(1), "cpu stopped");
+>  	report(lc->prefix_sa =3D=3D (uint32_t)(uintptr_t)cpu->lowcore, "prefix"=
+);
+>  	report(lc->grs_sa[15], "stack");
+>  	report_prefix_pop();
 
-
--- 
-With Best Regards,
-Andy Shevchenko
