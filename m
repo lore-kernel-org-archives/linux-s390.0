@@ -2,60 +2,60 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DAC7C43219
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Mar 2022 15:09:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 693F3C433FE
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Mar 2022 15:10:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357017AbiCPPK3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Mar 2022 11:10:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44538 "EHLO
+        id S1357124AbiCPPLO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 16 Mar 2022 11:11:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357026AbiCPPKZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Mar 2022 11:10:25 -0400
-Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A12236583F
-        for <linux-s390@vger.kernel.org>; Wed, 16 Mar 2022 08:09:10 -0700 (PDT)
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com [209.85.128.69])
+        with ESMTP id S1357063AbiCPPLD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Mar 2022 11:11:03 -0400
+Received: from smtp-relay-internal-0.canonical.com (smtp-relay-internal-0.canonical.com [185.125.188.122])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B51D674CC
+        for <linux-s390@vger.kernel.org>; Wed, 16 Mar 2022 08:09:19 -0700 (PDT)
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com [209.85.208.72])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 7249A3F203
-        for <linux-s390@vger.kernel.org>; Wed, 16 Mar 2022 15:09:08 +0000 (UTC)
+        by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id 72E743F60E
+        for <linux-s390@vger.kernel.org>; Wed, 16 Mar 2022 15:09:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1647443348;
-        bh=pKuO1Pnb8DTWNu323Li1Km8nI1auNgT3IB1hncz5HlI=;
+        s=20210705; t=1647443354;
+        bh=0TkaUHsdiaalOGmdOdYbrrLuoBcQ76N1kyxAw52pHyQ=;
         h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
          MIME-Version;
-        b=p72fYGXGER+bSUwgR/xmNgPEGfFXE8avM62ZXb0E7syzySxOwslp3dzKtglyqC9iK
-         w9joGLA2AkoN3Q0rB1H6+ONS1d8+UzQTwN+SZlwmf17+n260ATm42lOoR+tSBm6F7G
-         tNCn7b8hKnMyHGuzXGpQnVPLuTxjO9h0lbbNOnhtZD0CAAJntj76dEPjonNFfX03hn
-         oPQiO6e/N4iQikPlVv8J1zHp7iyvfG94TxKj0dqOmZlFImH3S6MJXyGN6HIhmVDxUU
-         NFTGYIv2nFcS/r7bY9/+EdhAaWVqxywzGdCAgTfPuloh1E+TmPXjsUDdvY2qJjxm2v
-         N6+zLE8iDBRHQ==
-Received: by mail-wm1-f69.google.com with SMTP id v184-20020a1cacc1000000b0038a12dbc23bso2882685wme.5
-        for <linux-s390@vger.kernel.org>; Wed, 16 Mar 2022 08:09:08 -0700 (PDT)
+        b=uaNX+6lTP9qmxnJ3NdTtYdL8r61fnXk6rEhWx3i5Nq/P7UvKmc2GmDDHSknp4zMN0
+         DN6k0q4scQs4JWJsuungU52CfPVZ4TRJk9mp+AESmoJJ76uieOKBLMk+pdMDhUZYHX
+         cFgvu7dsdECRwcu8FgNJAYV0vSG+d45rU7jDKp3cngCEXnF7vmmPS45ZhtSDmDcxmC
+         YvSxLl1Fr5wbUwbOg0Z3lMdxzzDGbZCdEOtADBsnKAyiYZhb9JDAfc4P/SrKkMHWSP
+         oGlSIVfOsPgZMkUUV0JxH6xFOjvhhMTRbF/cAwFAOm4ToXtyrrGKXGm+1MRDt+QuhB
+         w+ZpzABl1lHHQ==
+Received: by mail-ed1-f72.google.com with SMTP id k25-20020a50ce59000000b00418b9066e47so1461493edj.22
+        for <linux-s390@vger.kernel.org>; Wed, 16 Mar 2022 08:09:14 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=pKuO1Pnb8DTWNu323Li1Km8nI1auNgT3IB1hncz5HlI=;
-        b=L0wLJy2LMOrja3V63UY7k+6xL1RiWWohhert9FuKV35yfC8x1JAP6XbAd7EodxqBBe
-         oq7cWXw5piB1qxat3Kt1Rl1j7s5c/gpvrp/+N9f1Zw/oHZNSBNr5dF3j2vkBh7hAvq9u
-         yUP+xC5QhY6/0PtSSgU67KjXg+IJpQICpz3mv95WvmD14U3e+5VJoYuASdej18kJiV0q
-         1QUbdO+gKHtsPMswp0toOb18gMFWWlVn9PnbFvVBEVAnsJC5z4P64lk8+N9TiVJTWq5k
-         4W+9VCrKZiK4S035oQOaO7F3Z5DJkB92Il5afPwlMx5Z5TCCHlrgrcK4YAY3ygw0SBV+
-         Bzng==
-X-Gm-Message-State: AOAM532YGX2KtyOesOcNDetKJ0sTMhSNCvv8uDh9gejaaNv82+6lU4MU
-        CbeS7IaQrZqwIDWyHHUvExoen65bDfwhATAemIbGgax/S0m2RjdDJnHsT5WSmp//rFzboYanbzv
-        G9MjP42DsupAecC1i8imNjjKTU2vswxzfmDzN2+8=
-X-Received: by 2002:a05:600c:3508:b0:38b:cc1f:a99b with SMTP id h8-20020a05600c350800b0038bcc1fa99bmr6311337wmq.197.1647443348137;
-        Wed, 16 Mar 2022 08:09:08 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwvsOYZ+nBmu9loCTPKjgh/9mwESfnIbe8Inxn1yryPkv1+wBIJxw3Cp/IL2PJnd3eHgVih9w==
-X-Received: by 2002:a05:600c:3508:b0:38b:cc1f:a99b with SMTP id h8-20020a05600c350800b0038bcc1fa99bmr6311319wmq.197.1647443347937;
-        Wed, 16 Mar 2022 08:09:07 -0700 (PDT)
+        bh=0TkaUHsdiaalOGmdOdYbrrLuoBcQ76N1kyxAw52pHyQ=;
+        b=1/8zVmCiImTyCPDncXuxkj0BaI3orlBYb5QxZHZKhon+xZ2oPl+UnfmVvA36TpXBF1
+         KZYTbkMazNgP13wpspAM3AYg6uXjJjaP+DhyngFTCgCMzaPAAUlJzn1C1623kHpovXLl
+         q3ObI9EXbbbLLC6LLZLPPoGMMW1DzpoMy3G02/rbRgJEhwAAd6f9XpUXBRcjQ9BwI+Xo
+         OXKO2IxGy8dUf+IuvT+jntHI3Po84d8q4qrlSJpsetA/GzohXsXqOfhdlbl+g1h82ZE5
+         WAEIiHUU7v/ElOFnW28Dr8/V7IjtY/w1PUQdfYT/NA2P8Rifzt1o5H2wP7o7MEJZ4+0l
+         f1IQ==
+X-Gm-Message-State: AOAM531NwedUtu2QX27+IJvKg5r1EazZ927plrsBE3pkkm5lG7K6kNRI
+        Z/aPVmbdzjMZggC4igwJJx1PaUxJ2V5oWtGQfHxudrSSZNAJzCVmKhxqQeJJUrIphjzag97TCIP
+        jXx4dPpN+doPQijzz5RXfaVpQmXxBhkWkF35fu3E=
+X-Received: by 2002:a5d:6442:0:b0:203:dff2:866c with SMTP id d2-20020a5d6442000000b00203dff2866cmr272586wrw.465.1647443340521;
+        Wed, 16 Mar 2022 08:09:00 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwnOg2aSuuzk/AN13SVnFGjUvC/KtTXL980cTeRfOeIj0D4M/X0M0ZN717fC4+xLvcCtZ4GNg==
+X-Received: by 2002:a5d:6442:0:b0:203:dff2:866c with SMTP id d2-20020a5d6442000000b00203dff2866cmr272574wrw.465.1647443340291;
+        Wed, 16 Mar 2022 08:09:00 -0700 (PDT)
 Received: from localhost.localdomain (78-11-189-27.static.ip.netia.com.pl. [78.11.189.27])
-        by smtp.gmail.com with ESMTPSA id u18-20020adfdd52000000b001f04e9f215fsm1895105wrm.53.2022.03.16.08.09.04
+        by smtp.gmail.com with ESMTPSA id u18-20020adfdd52000000b001f04e9f215fsm1895105wrm.53.2022.03.16.08.08.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Mar 2022 08:09:05 -0700 (PDT)
+        Wed, 16 Mar 2022 08:08:59 -0700 (PDT)
 From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Rafael J. Wysocki" <rafael@kernel.org>
@@ -85,10 +85,10 @@ Cc:     Stuart Yoder <stuyoder@gmail.com>,
         Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
         Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v5 11/11] rpmsg: Fix kfree() of static memory on setting driver_override
-Date:   Wed, 16 Mar 2022 16:08:03 +0100
-Message-Id: <20220316150803.421897-5-krzysztof.kozlowski@canonical.com>
+        stable@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH v5 09/11] clk: imx: scu: Fix kfree() of static memory on setting driver_override
+Date:   Wed, 16 Mar 2022 16:08:01 +0100
+Message-Id: <20220316150803.421897-3-krzysztof.kozlowski@canonical.com>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20220316150533.421349-1-krzysztof.kozlowski@canonical.com>
 References: <20220316150533.421349-1-krzysztof.kozlowski@canonical.com>
@@ -104,108 +104,32 @@ for example when driver_override is set via sysfs.
 
 Use dedicated helper to set driver_override properly.
 
-Fixes: 950a7388f02b ("rpmsg: Turn name service into a stand alone driver")
-Fixes: c0cdc19f84a4 ("rpmsg: Driver for user space endpoint interface")
+Fixes: 77d8f3068c63 ("clk: imx: scu: add two cells binding support")
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Acked-by: Stephen Boyd <sboyd@kernel.org>
 ---
- drivers/rpmsg/rpmsg_core.c     |  3 ++-
- drivers/rpmsg/rpmsg_internal.h | 11 +++++++++--
- drivers/rpmsg/rpmsg_ns.c       | 14 ++++++++++++--
- include/linux/rpmsg.h          |  6 ++++--
- 4 files changed, 27 insertions(+), 7 deletions(-)
+ drivers/clk/imx/clk-scu.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rpmsg/rpmsg_core.c b/drivers/rpmsg/rpmsg_core.c
-index 79368a957d89..95fc283f6af7 100644
---- a/drivers/rpmsg/rpmsg_core.c
-+++ b/drivers/rpmsg/rpmsg_core.c
-@@ -400,7 +400,8 @@ field##_store(struct device *dev, struct device_attribute *attr,	\
- 	      const char *buf, size_t sz)				\
- {									\
- 	struct rpmsg_device *rpdev = to_rpmsg_device(dev);		\
--	char *new, *old;						\
-+	const char *old;						\
-+	char *new;							\
- 									\
- 	new = kstrndup(buf, sz, GFP_KERNEL);				\
- 	if (!new)							\
-diff --git a/drivers/rpmsg/rpmsg_internal.h b/drivers/rpmsg/rpmsg_internal.h
-index d4b23fd019a8..dd1f4ed616b6 100644
---- a/drivers/rpmsg/rpmsg_internal.h
-+++ b/drivers/rpmsg/rpmsg_internal.h
-@@ -95,9 +95,16 @@ int rpmsg_release_channel(struct rpmsg_device *rpdev,
- static inline int rpmsg_ctrldev_register_device(struct rpmsg_device *rpdev)
- {
- 	strcpy(rpdev->id.name, "rpmsg_ctrl");
--	rpdev->driver_override = "rpmsg_ctrl";
-+	ret = driver_set_override(&rpdev->dev, &rpdev->driver_override,
-+				  "rpmsg_ctrl", strlen("rpmsg_ctrl"));
-+	if (ret)
-+		return ret;
+diff --git a/drivers/clk/imx/clk-scu.c b/drivers/clk/imx/clk-scu.c
+index 083da31dc3ea..4b2268b7d0d0 100644
+--- a/drivers/clk/imx/clk-scu.c
++++ b/drivers/clk/imx/clk-scu.c
+@@ -683,7 +683,12 @@ struct clk_hw *imx_clk_scu_alloc_dev(const char *name,
+ 		return ERR_PTR(ret);
+ 	}
  
--	return rpmsg_register_device(rpdev);
-+	ret = rpmsg_register_device(rpdev);
-+	if (ret)
-+		kfree(rpdev->driver_override);
-+
-+	return ret;
- }
+-	pdev->driver_override = "imx-scu-clk";
++	ret = driver_set_override(&pdev->dev, &pdev->driver_override,
++				  "imx-scu-clk", strlen("imx-scu-clk"));
++	if (ret) {
++		platform_device_put(pdev);
++		return ERR_PTR(ret);
++	}
  
- #endif
-diff --git a/drivers/rpmsg/rpmsg_ns.c b/drivers/rpmsg/rpmsg_ns.c
-index 762ff1ae279f..95a51543f5ad 100644
---- a/drivers/rpmsg/rpmsg_ns.c
-+++ b/drivers/rpmsg/rpmsg_ns.c
-@@ -20,12 +20,22 @@
-  */
- int rpmsg_ns_register_device(struct rpmsg_device *rpdev)
- {
-+	int ret;
-+
- 	strcpy(rpdev->id.name, "rpmsg_ns");
--	rpdev->driver_override = "rpmsg_ns";
-+	ret = driver_set_override(&rpdev->dev, &rpdev->driver_override,
-+				  "rpmsg_ns", strlen("rpmsg_ns"));
-+	if (ret)
-+		return ret;
-+
- 	rpdev->src = RPMSG_NS_ADDR;
- 	rpdev->dst = RPMSG_NS_ADDR;
- 
--	return rpmsg_register_device(rpdev);
-+	ret = rpmsg_register_device(rpdev);
-+	if (ret)
-+		kfree(rpdev->driver_override);
-+
-+	return ret;
- }
- EXPORT_SYMBOL(rpmsg_ns_register_device);
- 
-diff --git a/include/linux/rpmsg.h b/include/linux/rpmsg.h
-index 02fa9116cd60..20c8cd1cde21 100644
---- a/include/linux/rpmsg.h
-+++ b/include/linux/rpmsg.h
-@@ -41,7 +41,9 @@ struct rpmsg_channel_info {
-  * rpmsg_device - device that belong to the rpmsg bus
-  * @dev: the device struct
-  * @id: device id (used to match between rpmsg drivers and devices)
-- * @driver_override: driver name to force a match
-+ * @driver_override: driver name to force a match; do not set directly,
-+ *                   because core frees it; use driver_set_override() to
-+ *                   set or clear it.
-  * @src: local address
-  * @dst: destination address
-  * @ept: the rpmsg endpoint of this channel
-@@ -51,7 +53,7 @@ struct rpmsg_channel_info {
- struct rpmsg_device {
- 	struct device dev;
- 	struct rpmsg_device_id id;
--	char *driver_override;
-+	const char *driver_override;
- 	u32 src;
- 	u32 dst;
- 	struct rpmsg_endpoint *ept;
+ 	ret = imx_clk_scu_attach_pd(&pdev->dev, rsrc_id);
+ 	if (ret)
 -- 
 2.32.0
 
