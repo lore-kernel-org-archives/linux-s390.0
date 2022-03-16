@@ -2,171 +2,207 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DC67C433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Mar 2022 09:04:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E44DBC433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Mar 2022 10:58:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354758AbiCPJGF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Mar 2022 05:06:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52150 "EHLO
+        id S1352712AbiCPK7Y (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 16 Mar 2022 06:59:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346698AbiCPJGF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Mar 2022 05:06:05 -0400
+        with ESMTP id S1347406AbiCPK7W (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Mar 2022 06:59:22 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62FC351E7D;
-        Wed, 16 Mar 2022 02:04:51 -0700 (PDT)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22G774WW012244;
-        Wed, 16 Mar 2022 09:04:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D6BEDE81;
+        Wed, 16 Mar 2022 03:58:09 -0700 (PDT)
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22GAkNhe029949;
+        Wed, 16 Mar 2022 10:57:05 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
  content-type : content-transfer-encoding; s=pp1;
- bh=l4atlXBsPk5jC8TrLGKRcWK9QDytu1hrauGyvjMYFyU=;
- b=T0uuoNMihXT8dahO/pp1JbEqE/trRwDWNePmAg7vwXziHtmMCfn2v2Vg58Umk/5pDa3D
- SyGfdn/oCSHaAvS71oy2INBFpM9SPLcmyHGYV0u1ME0eXH7P+6KgFkbtf4cnHcmJ1uVw
- WocUA+vKThuwlcG6lPgbKaw8cgHx5PrFwKDaOpFXD0LUSg+Qj8bqgJCwhub4ARQLmYSx
- vprGJY8JdcuPln22ESbcYvuWbdng6iguudUDX69Hoka5gY21dsw5I7IbJJgvP2FBPImu
- 0KZHvk8twLWM2CHBsU1jVr1EwGZW0VrLBPKacIKHFdjZ8c8S9vRBA+JLxsDtgzY18FBS 6Q== 
+ bh=pqEtRRluTdcqyicuZ3uViocrXZh7WOAHX11wx61Vhzs=;
+ b=qyq/3FcT7lW08wy86AfF5YcyJ4M2Xfa8xUImtiANcjURw+I5Kli3Vy30gDfzTvslBbnY
+ xRG9tc6FV2PFw9acgFVZqCXmWejAgM0pN33TYrJhxDf7H5hJS6v9+qkMJB9dlUCJg1na
+ CaxdnWteUBEUWmCFeObXJQV/KgLRbH+NQ5Ysu2w3tEadW75kJt+7AbFi98npqwi2VqIg
+ Di68f/hoJ62wecZiNlKTatqsuW90kjmz2OhBCrBS5b3e6bq/CAOP4mOYVvALDIWUFmTJ
+ RQtgwdTPl+Cng7e3BzSmbUg20zE/eBhNNUYJwATKzu+/S4YYEnYcthpc9azC75ErC3FB ZA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3euaysahre-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3eueef8656-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 16 Mar 2022 09:04:49 +0000
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22G8uB5q024366;
-        Wed, 16 Mar 2022 09:04:49 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3euaysahqh-1
+        Wed, 16 Mar 2022 10:57:04 +0000
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22GAqaOw021546;
+        Wed, 16 Mar 2022 10:57:04 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3eueef864b-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 16 Mar 2022 09:04:49 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22G93PFJ020227;
-        Wed, 16 Mar 2022 09:04:46 GMT
+        Wed, 16 Mar 2022 10:57:03 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22GAqwHQ004747;
+        Wed, 16 Mar 2022 10:57:01 GMT
 Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma04fra.de.ibm.com with ESMTP id 3erk58qa5w-1
+        by ppma03ams.nl.ibm.com with ESMTP id 3et95wv4d8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 16 Mar 2022 09:04:46 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22G94gmM17433036
+        Wed, 16 Mar 2022 10:57:01 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22GAuwnT23789856
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 16 Mar 2022 09:04:43 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E4051A4054;
-        Wed, 16 Mar 2022 09:04:42 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 568F3A405C;
-        Wed, 16 Mar 2022 09:04:42 +0000 (GMT)
-Received: from [9.145.38.138] (unknown [9.145.38.138])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 16 Mar 2022 09:04:42 +0000 (GMT)
-Message-ID: <7268565b-bb34-43fa-463e-8b9bf732b721@linux.ibm.com>
-Date:   Wed, 16 Mar 2022 10:04:41 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.2
-Subject: Re: [PATCH v3 0/4] s390: Ultravisor device
-Content-Language: en-US
-To:     Steffen Eiden <seiden@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Wed, 16 Mar 2022 10:56:58 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 071CDA404D;
+        Wed, 16 Mar 2022 10:56:58 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2C6D9A4053;
+        Wed, 16 Mar 2022 10:56:56 +0000 (GMT)
+Received: from thinkpad (unknown [9.171.18.20])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Wed, 16 Mar 2022 10:56:56 +0000 (GMT)
+Date:   Wed, 16 Mar 2022 11:56:54 +0100
+From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Hugh Dickins <hughd@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        David Rientjes <rientjes@google.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Yang Shi <shy828301@gmail.com>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Vlastimil Babka <vbabka@suse.cz>, Jann Horn <jannh@google.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Nadav Amit <namit@vmware.com>, Rik van Riel <riel@surriel.com>,
+        Roman Gushchin <guro@fb.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Peter Xu <peterx@redhat.com>,
+        Donald Dutile <ddutile@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Oleg Nesterov <oleg@redhat.com>, Jan Kara <jack@suse.cz>,
+        Liang Zhang <zhangliang5@huawei.com>,
+        Pedro Gomes <pedrodemargomes@gmail.com>,
+        Oded Gabbay <oded.gabbay@gmail.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Shuah Khan <shuah@kernel.org>, Nico Boehr <nrb@linux.ibm.com>,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        linux-kselftest@vger.kernel.org
-References: <20220304141141.32767-1-seiden@linux.ibm.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-In-Reply-To: <20220304141141.32767-1-seiden@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, linux-mm@kvack.org,
+        x86@kernel.org, linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        Christian Borntraeger <borntraeger@linux.ibm.com>
+Subject: Re: [PATCH v1 5/7] s390/pgtable: support
+ __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+Message-ID: <20220316115654.12823b78@thinkpad>
+In-Reply-To: <55b6b582-51ca-b869-2055-674fe4c563e6@redhat.com>
+References: <20220315141837.137118-1-david@redhat.com>
+        <20220315141837.137118-6-david@redhat.com>
+        <20220315172102.771bd2cf@thinkpad>
+        <c8229082-e8f1-e605-25c2-0ec9d23efd9e@redhat.com>
+        <8b13b6c0-78d4-48e3-06f0-ec0680d013a9@redhat.com>
+        <55b6b582-51ca-b869-2055-674fe4c563e6@redhat.com>
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: NqU6Q_uW8C5XA7LJogYLD2n77H-hTHOc
-X-Proofpoint-ORIG-GUID: ZLQSiHcW-dkhd_asy_MjgUUZh1hb0ouw
+X-Proofpoint-GUID: LNrEZRUbiCjvuMs3vypCO_bwoZe7D75W
+X-Proofpoint-ORIG-GUID: L41oykoEMXECEBvnbt61pfruSn_s2QSZ
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-16_02,2022-03-15_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxscore=0
- lowpriorityscore=0 impostorscore=0 clxscore=1015 phishscore=0 bulkscore=0
- mlxlogscore=999 suspectscore=0 malwarescore=0 spamscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2203160056
+ definitions=2022-03-16_03,2022-03-15_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 malwarescore=0
+ bulkscore=0 lowpriorityscore=0 clxscore=1015 suspectscore=0 spamscore=0
+ mlxscore=0 impostorscore=0 priorityscore=1501 phishscore=0 mlxlogscore=999
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2203160064
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 3/4/22 15:11, Steffen Eiden wrote:
-> This series adds an Ultravisor(UV) device letting the userspace send some
-> Ultravisor calls to the UV. Currently two calls are supported.
-> Query Ultravisor Information (QUI) and
-> Receive Attestation Measurement (Attest[ation]).
-> 
-> The UV device is implemented as a miscdevice accepting only IOCTLs.
-> The IOCTL cmd specifies the UV call and the IOCTL arg the request
-> and response data depending on the UV call.
-> The device driver writes the UV response in the ioctl argument data.
-> 
-> The 'uvdevice' does no checks on the request beside faulty userspace
-> addresses, if sizes are in a sane range before allocating in kernel space,
-> and other tests that prevent the system from corruption.
-> Especially, no checks are made, that will be performed by the UV anyway
-> (E.g. 'invalid command' in case of attestation on unsupported hardware).
-> These errors are reported back to Userspace using the UV return code
-> field.
-> 
-> The first two patches introduce the new device as a module configured to be
-> compiled directly into the kernel (y) similar to the s390 SCLP and CHSH
-> miscdevice modules. Patch 3&4 introduce Kselftests which verify error
-> paths of the ioctl.
+On Tue, 15 Mar 2022 18:12:16 +0100
+David Hildenbrand <david@redhat.com> wrote:
 
-Please fixup the commit message in the first patch and then push patches 
-#1 and #3 to devel so we get CI coverage.
+> On 15.03.22 17:58, David Hildenbrand wrote:
+> > 
+> >>> This would mean that it is not OK to have bit 52 not zero for swap PTEs.
+> >>> But if I read the POP correctly, all bits except for the DAT-protection
+> >>> would be ignored for invalid PTEs, so maybe this comment needs some update
+> >>> (for both bits 52 and also 55).
+> >>>
+> >>> Heiko might also have some more insight.
+> >>
+> >> Indeed, I wonder why we should get a specification exception when the
+> >> PTE is invalid. I'll dig a bit into the PoP.
+> > 
+> > SA22-7832-12 6-46 ("Translation-Specification Exception") is clearer
+> > 
+> > "The page-table entry used for the translation is
+> > valid, and bit position 52 does not contain zero."
+> > 
+> > "The page-table entry used for the translation is
+> > valid, EDAT-1 does not apply, the instruction-exe-
+> > cution-protection facility is not installed, and bit
+> > position 55 does not contain zero. It is model
+> > dependent whether this condition is recognized."
+> > 
+> 
+> I wonder if the following matches reality:
+> 
+> diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+> index 008a6c856fa4..6a227a8c3712 100644
+> --- a/arch/s390/include/asm/pgtable.h
+> +++ b/arch/s390/include/asm/pgtable.h
+> @@ -1669,18 +1669,16 @@ static inline int has_transparent_hugepage(void)
+>  /*
+>   * 64 bit swap entry format:
+>   * A page-table entry has some bits we have to treat in a special way.
+> - * Bits 52 and bit 55 have to be zero, otherwise a specification
+> - * exception will occur instead of a page translation exception. The
+> - * specification exception has the bad habit not to store necessary
+> - * information in the lowcore.
+>   * Bits 54 and 63 are used to indicate the page type.
+>   * A swap pte is indicated by bit pattern (pte & 0x201) == 0x200
+> - * This leaves the bits 0-51 and bits 56-62 to store type and offset.
+> - * We use the 5 bits from 57-61 for the type and the 52 bits from 0-51
+> - * for the offset.
+> - * |                     offset                        |01100|type |00|
+> + * |                     offset                        |XX1XX|type |S0|
+>   * |0000000000111111111122222222223333333333444444444455|55555|55566|66|
+>   * |0123456789012345678901234567890123456789012345678901|23456|78901|23|
+> + *
+> + * Bits 0-51 store the offset.
+> + * Bits 57-62 store the type.
+> + * Bit 62 (S) is used for softdirty tracking.
+> + * Bits 52, 53, 55 and 56 (X) are unused.
+>   */
+>  
+>  #define __SWP_OFFSET_MASK      ((1UL << 52) - 1)
+> 
+> 
+> I'm not sure why bit 53 was indicated as "1" and bit 55 was indicated as
+> "0". At least for 52 and 55 there was a clear description.
 
-For now I'd opt to not include the qui patches but please put them on a 
-branch. They might prove to be useful at a later time.
+Bit 53 is the invalid bit, and that is always 1 for swap ptes, in addition
+to protection bit 54. Bit 55, along with bit 52, has to be zero according
+to the (potentially deprecated) comment.
 
-> 
-> v2->v3:
->     The main change is that QUI is now introduced after Attestation as we
->     might not want pick it. Also the Kselftest patch is splitted into
->     Attestation and QUI so that they can be picked without requiring
->     QUI support of the uvdevice.
-> 
->    * dropped the Kconfig dependency
->    * reorganized the series:
->      - Patch 1 now covers the introduction of the uvdevice and Attestation
->      - Patch 2 adds QUI to uvdevice
->      - Patch 3/4 add Kselftests for Attestation and QUI
->    * fixed some nits
->    * added some comments
-> 
-> v1->v2:
->    * ioctl returns -ENOIOCTLCMD in case of a invalid ioctl command
->    * streamlined reserved field test
->    * default Kconfig is y instead of m
->    * improved selftest documentation
-> 
-> Steffen Eiden (4):
->    drivers/s390/char: Add Ultravisor io device
->    drivers/s390/char: Add Query Ultravisor Information to uvdevice
->    selftests: drivers/s390x: Add uvdevice tests
->    selftests: drivers/s390x: Add uvdevice  QUI tests
-> 
->   MAINTAINERS                                   |   3 +
->   arch/s390/include/asm/uv.h                    |  23 +-
->   arch/s390/include/uapi/asm/uvdevice.h         |  53 +++
->   drivers/s390/char/Kconfig                     |  10 +
->   drivers/s390/char/Makefile                    |   1 +
->   drivers/s390/char/uvdevice.c                  | 320 ++++++++++++++++++
->   tools/testing/selftests/Makefile              |   1 +
->   tools/testing/selftests/drivers/.gitignore    |   1 +
->   .../selftests/drivers/s390x/uvdevice/Makefile |  22 ++
->   .../selftests/drivers/s390x/uvdevice/config   |   1 +
->   .../drivers/s390x/uvdevice/test_uvdevice.c    | 281 +++++++++++++++
->   11 files changed, 715 insertions(+), 1 deletion(-)
->   create mode 100644 arch/s390/include/uapi/asm/uvdevice.h
->   create mode 100644 drivers/s390/char/uvdevice.c
->   create mode 100644 tools/testing/selftests/drivers/s390x/uvdevice/Makefile
->   create mode 100644 tools/testing/selftests/drivers/s390x/uvdevice/config
->   create mode 100644 tools/testing/selftests/drivers/s390x/uvdevice/test_uvdevice.c
-> 
+It is interesting that bit 56 seems to be unused, at least according
+to the comment, but that would also mention bit 62 as unused, so that
+clearly needs some update.
 
+If bit 56 could be used for _PAGE_SWP_EXCLUSIVE, that would be better
+than stealing a bit from the offset, or using potentially dangerous
+bit 52. It is defined as _PAGE_UNUSED and only used for kvm, not sure
+if this is also relevant for swap ptes, similar to bit 62.
+
+Adding Christian on cc, maybe he has some insight on _PAGE_UNUSED
+bit 56 and swap ptes.
