@@ -2,253 +2,189 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF5CBC433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Mar 2022 14:01:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5B47C433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Mar 2022 15:06:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237542AbiCPOCT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Mar 2022 10:02:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59078 "EHLO
+        id S1355077AbiCPPHz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 16 Mar 2022 11:07:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235832AbiCPOCT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Mar 2022 10:02:19 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9E48366628
-        for <linux-s390@vger.kernel.org>; Wed, 16 Mar 2022 07:01:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1647439263;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=rMpVeSfbG0vYOwXEGda9QD6+H/leXcAIfJEoqpZjB6U=;
-        b=B24tq8rjrBQW2xUixAs9ExWUXedqWqA2JQk6CjgfxoYJ9V5AePO9YAanEJJkfRTL4YpGhc
-        j2Msi1iYdNpeSKg4gXulGfxEAygt0N6An+/ZkBQg1d700YLz8hCymG4m/JR3sOURy8pnwB
-        b1eGaiNm2KTxsOq+aJ3WbkgYHk9pqgM=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-206-52ZUfChIMhCYkyRYEfGCgg-1; Wed, 16 Mar 2022 10:01:02 -0400
-X-MC-Unique: 52ZUfChIMhCYkyRYEfGCgg-1
-Received: by mail-wm1-f70.google.com with SMTP id i6-20020a05600c354600b0038be262d9d9so1653338wmq.8
-        for <linux-s390@vger.kernel.org>; Wed, 16 Mar 2022 07:01:01 -0700 (PDT)
+        with ESMTP id S1347402AbiCPPHr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Mar 2022 11:07:47 -0400
+Received: from smtp-relay-internal-0.canonical.com (smtp-relay-internal-0.canonical.com [185.125.188.122])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88554245B6
+        for <linux-s390@vger.kernel.org>; Wed, 16 Mar 2022 08:06:33 -0700 (PDT)
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com [209.85.221.72])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id B72C83F618
+        for <linux-s390@vger.kernel.org>; Wed, 16 Mar 2022 15:06:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1647443188;
+        bh=YN/pEmxY5lmFXd8VsSTx/x5950RRmwZUldBJe65d5RE=;
+        h=From:To:Cc:Subject:Date:Message-Id:MIME-Version;
+        b=OJ6zhCcA3bygcEG+18xSTTYl7kXNkIzbYmQwfETZMYJa2CrRB7AGUTrMv8arVs25N
+         NNLvQllxEQeEPVOgDQOkHi+RFu7gGqNfpmZivE9JQYJ4IJYR3Ub113/UtT2jKj4Lid
+         Sz/uwD0HI3PTPo7LVVVLD7n/XliXVbN3l14h22eu14v4oudijSOIKA1KzxxNpbpJTw
+         tjoODE/3qjfumlsN+rCLkb0JE2P/GmysM5Yc5IQTnXKAzzyRTO9r3CZPXxveQX82pi
+         qVvXgwVJvrLNyMO2YhH5S8PF4+uLbcAkRikofXOtZ6MAOUixBVwlVRwHxDHntVLBcU
+         Wtkj8Itx430iw==
+Received: by mail-wr1-f72.google.com with SMTP id j44-20020adf912f000000b00203a5a55817so657698wrj.13
+        for <linux-s390@vger.kernel.org>; Wed, 16 Mar 2022 08:06:28 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:organization:in-reply-to
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=rMpVeSfbG0vYOwXEGda9QD6+H/leXcAIfJEoqpZjB6U=;
-        b=v5Dwqzp5nz1kQnHmqgncYKPY4y6YozH7qOfUiUN7xUAhIWtwvHcPKKq4M7s94WLbic
-         nYPxO+kJFbLF+TRCP4sIh5nLIzDS2anXnWUpFessFnZHPQFeMe+Y4sCtU1+eXIhBjHvE
-         bvkBwrRrZt+qb78+covr8x3QY4w6Hy+6B+AhlK4Hx2VftgjSbfCNmz1PVxg8JeTSbF1M
-         BidPFvKD1V3Macf1fxPRZ/6fQRkJtT4kwkSTyQWXQWUnj1h1/5UvSme7J8Q9g/qee4Nc
-         4uy8MO4eYB5t1/JZmuctBXfYXLLUYjat13Ktdf7HkbVtJ3noD+oRVR90eMFJqfLeiz/s
-         uEqw==
-X-Gm-Message-State: AOAM532NGH807G/U6DK0CrUpKVKE946fQLPHBpgb69SE48M/JgQl1je4
-        T+f+kkEqQvzViwQa+ayByhu0cD/HhQ8cH8SpU1klH7+9PnY9RJYvyNn1Zep9ALlc7eDzo21okHF
-        tME5KikMrTBIVY+JeD+ZhoQ==
-X-Received: by 2002:a1c:7303:0:b0:37c:9270:2ff4 with SMTP id d3-20020a1c7303000000b0037c92702ff4mr7476470wmb.99.1647439260666;
-        Wed, 16 Mar 2022 07:01:00 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxO6Wob+Yz/s8DwlWw/pZDGixGE+kjeQrFpxYz95br1U4eXTeFc9jYH4XUYuhLvMOMgIv537Q==
-X-Received: by 2002:a1c:7303:0:b0:37c:9270:2ff4 with SMTP id d3-20020a1c7303000000b0037c92702ff4mr7476436wmb.99.1647439260364;
-        Wed, 16 Mar 2022 07:01:00 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c706:f900:aa79:cd25:e0:32d1? (p200300cbc706f900aa79cd2500e032d1.dip0.t-ipconnect.de. [2003:cb:c706:f900:aa79:cd25:e0:32d1])
-        by smtp.gmail.com with ESMTPSA id u8-20020a5d4348000000b00203dbfa4ff2sm1758365wrr.34.2022.03.16.07.00.58
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 16 Mar 2022 07:00:59 -0700 (PDT)
-Message-ID: <75d6cccd-ce22-bdf9-68d5-0792cec39ab7@redhat.com>
-Date:   Wed, 16 Mar 2022 15:00:56 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.2
-Subject: Re: [PATCH v1 5/7] s390/pgtable: support
- __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-Content-Language: en-US
-To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc:     linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Hugh Dickins <hughd@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        David Rientjes <rientjes@google.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Yang Shi <shy828301@gmail.com>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Vlastimil Babka <vbabka@suse.cz>, Jann Horn <jannh@google.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Nadav Amit <namit@vmware.com>, Rik van Riel <riel@surriel.com>,
-        Roman Gushchin <guro@fb.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Peter Xu <peterx@redhat.com>,
-        Donald Dutile <ddutile@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Oleg Nesterov <oleg@redhat.com>, Jan Kara <jack@suse.cz>,
-        Liang Zhang <zhangliang5@huawei.com>,
-        Pedro Gomes <pedrodemargomes@gmail.com>,
-        Oded Gabbay <oded.gabbay@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
+        bh=YN/pEmxY5lmFXd8VsSTx/x5950RRmwZUldBJe65d5RE=;
+        b=45M6GUgKO+dIX4TE8Lw/OYQYP8zJCBvyAcMt/OL0quCMsx0woJfyA2RG11BPlX52o4
+         81IT8ydc+jz2VGmgW60bnKGIHqOYOpbAdeiDVwhoCXEs5S/hN2N4AexoiLgQGmSgsCd3
+         OubeDYKnChvyJi1wueieSf5yxcoGcwle8EaE4I7pHo3H/iLwYGm31B+DoZAt4jwjq45b
+         xeJlZX11F3dmgvh4zAFBaD3M1hSr2DEO8rPSQgFUwunNAzx8EMzv213+q7LriOEKqoK2
+         ZLQ9YD2QfCumzVAx5vFOw968mG3hUt+NYcIJO18yJRY+EuXoLn43sbVD7P2W1Ld9kJUA
+         QAjQ==
+X-Gm-Message-State: AOAM532JGdTmhXsdg76Xvwf5maHXyYCInZgzAMMxHFtAAXeZpGnDdEq9
+        J5YXMDkeBKesdJIMuP0rSmstANj6eoukJKs7lBnft2TjKpNVV58+RDNqxhbw4zOD1k9zfLNEE6r
+        AKnVkEBrKcVL19Fkj3IBfLFqFJp3rAftEHaHOWWI=
+X-Received: by 2002:adf:d1e3:0:b0:1f1:f268:aea1 with SMTP id g3-20020adfd1e3000000b001f1f268aea1mr286257wrd.463.1647443184105;
+        Wed, 16 Mar 2022 08:06:24 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwK/0iXUCy7W2hGO6fQCeqBcBjEbHGvRHvC+ntVQfT1EKGUSf6rpLBWwFreMjWSWRs9UQG0wA==
+X-Received: by 2002:adf:d1e3:0:b0:1f1:f268:aea1 with SMTP id g3-20020adfd1e3000000b001f1f268aea1mr286217wrd.463.1647443183806;
+        Wed, 16 Mar 2022 08:06:23 -0700 (PDT)
+Received: from localhost.localdomain (78-11-189-27.static.ip.netia.com.pl. [78.11.189.27])
+        by smtp.gmail.com with ESMTPSA id p14-20020a5d59ae000000b00203dcc87d39sm3130155wrr.54.2022.03.16.08.06.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 16 Mar 2022 08:06:21 -0700 (PDT)
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>
+Cc:     Stuart Yoder <stuyoder@gmail.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, linux-mm@kvack.org,
-        x86@kernel.org, linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
-References: <20220315141837.137118-1-david@redhat.com>
- <20220315141837.137118-6-david@redhat.com> <20220315172102.771bd2cf@thinkpad>
- <c8229082-e8f1-e605-25c2-0ec9d23efd9e@redhat.com>
- <8b13b6c0-78d4-48e3-06f0-ec0680d013a9@redhat.com>
- <55b6b582-51ca-b869-2055-674fe4c563e6@redhat.com>
- <20220316115654.12823b78@thinkpad>
- <6f7b208b-ec38-571d-cd24-b9bfa79d1f40@linux.ibm.com>
- <20220316142722.76c691d2@thinkpad>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <20220316142722.76c691d2@thinkpad>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Andy Gross <agross@kernel.org>, linux-kernel@vger.kernel.org,
+        linux-clk@vger.kernel.org, NXP Linux Team <linux-imx@nxp.com>,
+        linux-arm-kernel@lists.infradead.org, linux-hyperv@vger.kernel.org,
+        linux-pci@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        alsa-devel@alsa-project.org, linux-spi@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Subject: [PATCH v5 00/11] Fix broken usage of driver_override (and kfree of static memory)
+Date:   Wed, 16 Mar 2022 16:05:22 +0100
+Message-Id: <20220316150533.421349-1-krzysztof.kozlowski@canonical.com>
+X-Mailer: git-send-email 2.32.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 16.03.22 14:27, Gerald Schaefer wrote:
-> On Wed, 16 Mar 2022 14:01:07 +0100
-> Christian Borntraeger <borntraeger@linux.ibm.com> wrote:
-> 
->>
->>
->> Am 16.03.22 um 11:56 schrieb Gerald Schaefer:
->>> On Tue, 15 Mar 2022 18:12:16 +0100
->>> David Hildenbrand <david@redhat.com> wrote:
->>>
->>>> On 15.03.22 17:58, David Hildenbrand wrote:
->>>>>
->>>>>>> This would mean that it is not OK to have bit 52 not zero for swap PTEs.
->>>>>>> But if I read the POP correctly, all bits except for the DAT-protection
->>>>>>> would be ignored for invalid PTEs, so maybe this comment needs some update
->>>>>>> (for both bits 52 and also 55).
->>>>>>>
->>>>>>> Heiko might also have some more insight.
->>>>>>
->>>>>> Indeed, I wonder why we should get a specification exception when the
->>>>>> PTE is invalid. I'll dig a bit into the PoP.
->>>>>
->>>>> SA22-7832-12 6-46 ("Translation-Specification Exception") is clearer
->>>>>
->>>>> "The page-table entry used for the translation is
->>>>> valid, and bit position 52 does not contain zero."
->>>>>
->>>>> "The page-table entry used for the translation is
->>>>> valid, EDAT-1 does not apply, the instruction-exe-
->>>>> cution-protection facility is not installed, and bit
->>>>> position 55 does not contain zero. It is model
->>>>> dependent whether this condition is recognized."
->>>>>
->>>>
->>>> I wonder if the following matches reality:
->>>>
->>>> diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
->>>> index 008a6c856fa4..6a227a8c3712 100644
->>>> --- a/arch/s390/include/asm/pgtable.h
->>>> +++ b/arch/s390/include/asm/pgtable.h
->>>> @@ -1669,18 +1669,16 @@ static inline int has_transparent_hugepage(void)
->>>>   /*
->>>>    * 64 bit swap entry format:
->>>>    * A page-table entry has some bits we have to treat in a special way.
->>>> - * Bits 52 and bit 55 have to be zero, otherwise a specification
->>>> - * exception will occur instead of a page translation exception. The
->>>> - * specification exception has the bad habit not to store necessary
->>>> - * information in the lowcore.
->>>>    * Bits 54 and 63 are used to indicate the page type.
->>>>    * A swap pte is indicated by bit pattern (pte & 0x201) == 0x200
->>>> - * This leaves the bits 0-51 and bits 56-62 to store type and offset.
->>>> - * We use the 5 bits from 57-61 for the type and the 52 bits from 0-51
->>>> - * for the offset.
->>>> - * |                     offset                        |01100|type |00|
->>>> + * |                     offset                        |XX1XX|type |S0|
->>>>    * |0000000000111111111122222222223333333333444444444455|55555|55566|66|
->>>>    * |0123456789012345678901234567890123456789012345678901|23456|78901|23|
->>>> + *
->>>> + * Bits 0-51 store the offset.
->>>> + * Bits 57-62 store the type.
->>>> + * Bit 62 (S) is used for softdirty tracking.
->>>> + * Bits 52, 53, 55 and 56 (X) are unused.
->>>>    */
->>>>   
->>>>   #define __SWP_OFFSET_MASK      ((1UL << 52) - 1)
->>>>
->>>>
->>>> I'm not sure why bit 53 was indicated as "1" and bit 55 was indicated as
->>>> "0". At least for 52 and 55 there was a clear description.
->>>
->>> Bit 53 is the invalid bit, and that is always 1 for swap ptes, in addition
->>> to protection bit 54. Bit 55, along with bit 52, has to be zero according
->>> to the (potentially deprecated) comment.
->>>
->>> It is interesting that bit 56 seems to be unused, at least according
->>> to the comment, but that would also mention bit 62 as unused, so that
->>> clearly needs some update.
->>>
->>> If bit 56 could be used for _PAGE_SWP_EXCLUSIVE, that would be better
->>> than stealing a bit from the offset, or using potentially dangerous
->>> bit 52. It is defined as _PAGE_UNUSED and only used for kvm, not sure
->>> if this is also relevant for swap ptes, similar to bit 62.
->>>
->>> Adding Christian on cc, maybe he has some insight on _PAGE_UNUSED
->>> bit 56 and swap ptes.
->>
->> I think _PAGE_UNUSED is not used for swap ptes. It is used _before_ swapping
->> to decide whether we swap or discard the page.
->>
->> Regarding bit 52, the POP says in chapter 3 for the page table entry
->>
->> [..]
->> Page-Invalid Bit (I): Bit 53 controls whether the
->> page associated with the page-table entry is avail-
->> able. When the bit is zero, address translation pro-
->> ceeds by using the page-table entry. When the bit is
->> one, the page-table entry cannot be used for transla-
->> tion.
->>
->>
->> -->When the page-invalid bit is one, all other bits in the
->> -->page-table entry are available for use by program-
->> -->ming.
->>
->> this was added with the z14 POP, but I guess it was just a clarification
->> and should be valid for older machines as well.
->> So 52 and 56 should be ok, with 52 probably the better choice.
-> 
-> Ok, bit 55 would then also be an option IIUC, since execution protection
-> should not be relevant for swap ptes. And Davids clean-up removing the
-> restriction for bit 52 and 55 in the comment would make sense.
-> 
-> I would also favor bit 52 though (PAGE_LARGE), as in Davids initial patch
-> version, since this is never used for any real ptes. The PAGE_LARGE flag
-> is only set in the "virtual" large ptes that the hugetlb code is seeing
-> from huge_ptep_get(). But it will (and must) never be written as a valid
-> pte, or else it will generate an exception. IIRC, we only set it to detect
-> such possible bugs, e.g. hugetlb code writing a pte (which really is a
-> pmd/pud) directly, instead of using set_huge_pte_at().
-> 
+Hi,
 
-Agreed. I'll include the doc cleanup patch and a fixed-up version of
-this patch (still using bit 52, not messing with the offset bits) in the
-next version.
+This is a continuation of my old patchset from 2019. [1]
+Back then, few drivers set driver_override wrong. I fixed Exynos
+in a different way after discussions. QCOM NGD was not fixed
+and a new user appeared - IMX SCU.
 
-Thanks all!
+It seems "char *" in driver_override looks too consty, so we
+tend to make a mistake of storing there string literals.
+
+Changes since latest v4
+=======================
+1. Correct commit msgs and comments after Andy's review.
+2. Re-order code in new helper (patch #1) (Andy).
+3. Add tags.
+
+Changes since latest v3
+=======================
+1. Wrap comments, extend comment in driver_set_override() about newline.
+2. Minor commit msg fixes.
+3. Add tags.
+
+Changes since latest v2
+=======================
+1. Make all driver_override fields as "const char *", just like SPI
+   and VDPA. (Mark)
+2. Move "count" check to the new helper and add "count" argument. (Michael)
+3. Fix typos in docs, patch subject. Extend doc. (Michael, Bjorn)
+4. Compare pointers to reduce number of string readings in the helper.
+5. Fix clk-imx return value.
+
+Changes since latest v1 (not the old 2019 solution):
+====================================================
+https://lore.kernel.org/all/708eabb1-7b35-d525-d4c3-451d4a3de84f@rasmusvillemoes.dk/
+1. Add helper for setting driver_override.
+2. Use the helper.
+
+Dependencies (and stable):
+==========================
+1. All patches, including last three fixes, depend on the first patch
+   introducing the helper.
+2. The last three commits - fixes - are probably not backportable
+   directly, because of this dependency. I don't know how to express
+   this dependency here, since stable-kernel-rules.rst mentions only commits as
+   possible dependencies.
+
+[1] https://lore.kernel.org/all/1550484960-2392-3-git-send-email-krzk@kernel.org/
+
+Best regards,
+Krzysztof
+
+Krzysztof Kozlowski (11):
+  driver: platform: Add helper for safer setting of driver_override
+  amba: Use driver_set_override() instead of open-coding
+  fsl-mc: Use driver_set_override() instead of open-coding
+  hv: Use driver_set_override() instead of open-coding
+  PCI: Use driver_set_override() instead of open-coding
+  s390/cio: Use driver_set_override() instead of open-coding
+  spi: Use helper for safer setting of driver_override
+  vdpa: Use helper for safer setting of driver_override
+  clk: imx: scu: Fix kfree() of static memory on setting driver_override
+  slimbus: qcom-ngd: Fix kfree() of static memory on setting
+    driver_override
+  rpmsg: Fix kfree() of static memory on setting driver_override
+
+ drivers/amba/bus.c              | 28 +++--------------
+ drivers/base/driver.c           | 56 +++++++++++++++++++++++++++++++++
+ drivers/base/platform.c         | 28 +++--------------
+ drivers/bus/fsl-mc/fsl-mc-bus.c | 25 +++------------
+ drivers/clk/imx/clk-scu.c       |  7 ++++-
+ drivers/hv/vmbus_drv.c          | 28 +++--------------
+ drivers/pci/pci-sysfs.c         | 28 +++--------------
+ drivers/rpmsg/rpmsg_core.c      |  3 +-
+ drivers/rpmsg/rpmsg_internal.h  | 11 +++++--
+ drivers/rpmsg/rpmsg_ns.c        | 14 +++++++--
+ drivers/s390/cio/cio.h          |  6 +++-
+ drivers/s390/cio/css.c          | 28 +++--------------
+ drivers/slimbus/qcom-ngd-ctrl.c | 13 +++++++-
+ drivers/spi/spi.c               | 26 +++------------
+ drivers/vdpa/vdpa.c             | 29 +++--------------
+ include/linux/amba/bus.h        |  6 +++-
+ include/linux/device/driver.h   |  2 ++
+ include/linux/fsl/mc.h          |  6 ++--
+ include/linux/hyperv.h          |  6 +++-
+ include/linux/pci.h             |  6 +++-
+ include/linux/platform_device.h |  6 +++-
+ include/linux/rpmsg.h           |  6 ++--
+ include/linux/spi/spi.h         |  2 ++
+ include/linux/vdpa.h            |  4 ++-
+ 24 files changed, 169 insertions(+), 205 deletions(-)
 
 -- 
-Thanks,
-
-David / dhildenb
+2.32.0
 
