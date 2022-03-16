@@ -2,35 +2,35 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CD19C433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Mar 2022 07:05:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1701C4167B
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Mar 2022 07:05:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354204AbiCPHGT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Mar 2022 03:06:19 -0400
+        id S1354192AbiCPHGW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 16 Mar 2022 03:06:22 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354133AbiCPHGL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Mar 2022 03:06:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 741512251D;
-        Wed, 16 Mar 2022 00:04:55 -0700 (PDT)
+        with ESMTP id S1354188AbiCPHGB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Mar 2022 03:06:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BA593AA66;
+        Wed, 16 Mar 2022 00:04:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C4AED60F4F;
-        Wed, 16 Mar 2022 07:04:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9FEDC340FC;
-        Wed, 16 Mar 2022 07:04:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 332B2B81A49;
+        Wed, 16 Mar 2022 07:04:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79607C340F3;
+        Wed, 16 Mar 2022 07:04:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1647414294;
-        bh=0gzQGGxdHWRt9A+64eem+dLQzBOPjB9Pfn9kxqzAZaI=;
+        s=k20201202; t=1647414278;
+        bh=iy3SBmMhwucwplDFre+Ge8ybjPqHy1S7cUUZYt5wOvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D0OvAwMY93TynIMwpLj/ivJXX0dulyN7QlESR+jrj/K7jbosZAzWbPfQVfqt4y8t1
-         HXbWLl+s+4E1MVsKAUiI1Lo+vTpmJj7zxOKbgKGYJk9HgoCzQwIRjSAJvUcFxwdHYo
-         dvPIR4/ZOxAMUCdI6qXKSTdaU7zNFKqSp3m4ekyfExj6ia/Eqlczp4P4ASfQa1B6y+
-         FN3SIUZBEdr/8mZY+Q5kQZi8gp6KG2mXqGlcROXI/3FwALZs7E3pxjyYNP9FpDAjTD
-         gTSyJONfVTk+QgjT26c0f9LYp6kBm0Oqieyxp+fEruFNpbT8q+Oh062+pinviG7hbR
-         oMN9MnWYokj9A==
+        b=RFFilA4QCWTWZNBiQN1w0sMmJ7+F9d4zwWj0brP0C4DSsPNOtEmS90LW/+tej91he
+         /flPJrT75N9vz6vHXFNdw47fpC18TntIHSL4VC//VnEb/4J597NOimEfr9yXvqqtIE
+         yxk7kvaTUL4qQNyH6zElFYGAov6YKaUOERr6aIC7Tf8jSBjLbnJtMUU4WOP7eYahLE
+         5dldB1IdaCHs6pZKe7wTja3R1T39uFee8uTBebczBeK5ulO4c45iIkNjrbFYKzr6YU
+         eK+1PfjlLZtNctzggg1n0E8bJ2xH9BBexnD8V8gIQF0hEa3Cx+L4vPTi4XaDfZJlQd
+         SpwkOcXHOzFkA==
 From:   guoren@kernel.org
 To:     guoren@kernel.org, palmer@dabbelt.com, arnd@arndb.de,
         anup@brainfault.org, gregkh@linuxfoundation.org, hch@lst.de
@@ -40,9 +40,9 @@ Cc:     linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, linux-parisc@vger.kernel.org,
         linux-mips@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         x86@kernel.org, heiko@sntech.de, Guo Ren <guoren@linux.alibaba.com>
-Subject: [PATCH V8 14/20] riscv: compat: Add elf.h implementation
-Date:   Wed, 16 Mar 2022 15:03:11 +0800
-Message-Id: <20220316070317.1864279-15-guoren@kernel.org>
+Subject: [PATCH V8 11/20] riscv: compat: syscall: Add compat_sys_call_table implementation
+Date:   Wed, 16 Mar 2022 15:03:08 +0800
+Message-Id: <20220316070317.1864279-12-guoren@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220316070317.1864279-1-guoren@kernel.org>
 References: <20220316070317.1864279-1-guoren@kernel.org>
@@ -54,113 +54,339 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Guo Ren <guoren@linux.alibaba.com>
 
-Implement necessary type and macro for compat elf. See the code
-comment for detail.
+Implement compat sys_call_table and some system call functions:
+truncate64, ftruncate64, fallocate, pread64, pwrite64,
+sync_file_range, readahead, fadvise64_64 which need argument
+translation.
 
 Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 Signed-off-by: Guo Ren <guoren@kernel.org>
 Reviewed-by: Arnd Bergmann <arnd@arndb.de>
 Tested-by: Heiko Stuebner <heiko@sntech.de>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
 ---
- arch/riscv/include/asm/elf.h | 41 +++++++++++++++++++++++++++++++++++-
- 1 file changed, 40 insertions(+), 1 deletion(-)
+ arch/riscv/include/asm/syscall.h         |  1 +
+ arch/riscv/include/asm/unistd.h          | 11 +++++++
+ arch/riscv/include/uapi/asm/unistd.h     |  2 +-
+ arch/riscv/kernel/Makefile               |  1 +
+ arch/riscv/kernel/compat_syscall_table.c | 19 ++++++++++++
+ arch/riscv/kernel/sys_riscv.c            |  6 ++--
+ fs/open.c                                | 24 +++++++++++++++
+ fs/read_write.c                          | 16 ++++++++++
+ fs/sync.c                                |  9 ++++++
+ include/asm-generic/compat.h             |  7 +++++
+ include/linux/compat.h                   | 37 ++++++++++++++++++++++++
+ mm/fadvise.c                             | 11 +++++++
+ mm/readahead.c                           |  7 +++++
+ 13 files changed, 148 insertions(+), 3 deletions(-)
+ create mode 100644 arch/riscv/kernel/compat_syscall_table.c
 
-diff --git a/arch/riscv/include/asm/elf.h b/arch/riscv/include/asm/elf.h
-index f53c40026c7a..a234656cfb5d 100644
---- a/arch/riscv/include/asm/elf.h
-+++ b/arch/riscv/include/asm/elf.h
-@@ -8,6 +8,8 @@
- #ifndef _ASM_RISCV_ELF_H
- #define _ASM_RISCV_ELF_H
+diff --git a/arch/riscv/include/asm/syscall.h b/arch/riscv/include/asm/syscall.h
+index 7ac6a0e275f2..384a63b86420 100644
+--- a/arch/riscv/include/asm/syscall.h
++++ b/arch/riscv/include/asm/syscall.h
+@@ -16,6 +16,7 @@
  
-+#include <uapi/linux/elf.h>
-+#include <linux/compat.h>
- #include <uapi/asm/elf.h>
- #include <asm/auxvec.h>
- #include <asm/byteorder.h>
-@@ -18,11 +20,13 @@
-  */
- #define ELF_ARCH	EM_RISCV
+ /* The array of function pointers for syscalls. */
+ extern void * const sys_call_table[];
++extern void * const compat_sys_call_table[];
  
-+#ifndef ELF_CLASS
- #ifdef CONFIG_64BIT
- #define ELF_CLASS	ELFCLASS64
- #else
- #define ELF_CLASS	ELFCLASS32
- #endif
-+#endif
- 
- #define ELF_DATA	ELFDATA2LSB
- 
-@@ -31,6 +35,8 @@
-  */
- #define elf_check_arch(x) ((x)->e_machine == EM_RISCV)
- 
-+#define compat_elf_check_arch(x) ((x)->e_machine == EM_RISCV)
-+
- #define CORE_DUMP_USE_REGSET
- #define ELF_EXEC_PAGESIZE	(PAGE_SIZE)
- 
-@@ -43,8 +49,14 @@
- #define ELF_ET_DYN_BASE		((TASK_SIZE / 3) * 2)
- 
- #ifdef CONFIG_64BIT
-+#ifdef CONFIG_COMPAT
-+#define STACK_RND_MASK		(test_thread_flag(TIF_32BIT) ? \
-+				 0x7ff >> (PAGE_SHIFT - 12) : \
-+				 0x3ffff >> (PAGE_SHIFT - 12))
-+#else
- #define STACK_RND_MASK		(0x3ffff >> (PAGE_SHIFT - 12))
- #endif
-+#endif
  /*
-  * This yields a mask that user programs can use to figure out what
-  * instruction set this CPU supports.  This could be done in user space,
-@@ -60,11 +72,19 @@ extern unsigned long elf_hwcap;
-  */
- #define ELF_PLATFORM	(NULL)
- 
-+#define COMPAT_ELF_PLATFORM	(NULL)
-+
- #ifdef CONFIG_MMU
- #define ARCH_DLINFO						\
- do {								\
-+	/*							\
-+	 * Note that we add ulong after elf_addr_t because	\
-+	 * casting current->mm->context.vdso triggers a cast	\
-+	 * warning of cast from pointer to integer for		\
-+	 * COMPAT ELFCLASS32.					\
-+	 */							\
- 	NEW_AUX_ENT(AT_SYSINFO_EHDR,				\
--		(elf_addr_t)current->mm->context.vdso);		\
-+		(elf_addr_t)(ulong)current->mm->context.vdso);	\
- 	NEW_AUX_ENT(AT_L1I_CACHESIZE,				\
- 		get_cache_size(1, CACHE_TYPE_INST));		\
- 	NEW_AUX_ENT(AT_L1I_CACHEGEOMETRY,			\
-@@ -90,4 +110,23 @@ do {							\
- 		*(struct user_regs_struct *)regs;	\
- } while (0);
+  * Only the low 32 bits of orig_r0 are meaningful, so we return int.
+diff --git a/arch/riscv/include/asm/unistd.h b/arch/riscv/include/asm/unistd.h
+index 6c316093a1e5..5ddac412b578 100644
+--- a/arch/riscv/include/asm/unistd.h
++++ b/arch/riscv/include/asm/unistd.h
+@@ -11,6 +11,17 @@
+ #define __ARCH_WANT_SYS_CLONE
+ #define __ARCH_WANT_MEMFD_SECRET
  
 +#ifdef CONFIG_COMPAT
++#define __ARCH_WANT_COMPAT_TRUNCATE64
++#define __ARCH_WANT_COMPAT_FTRUNCATE64
++#define __ARCH_WANT_COMPAT_FALLOCATE
++#define __ARCH_WANT_COMPAT_PREAD64
++#define __ARCH_WANT_COMPAT_PWRITE64
++#define __ARCH_WANT_COMPAT_SYNC_FILE_RANGE
++#define __ARCH_WANT_COMPAT_READAHEAD
++#define __ARCH_WANT_COMPAT_FADVISE64_64
++#endif
 +
-+#define SET_PERSONALITY(ex)					\
-+do {    if ((ex).e_ident[EI_CLASS] == ELFCLASS32)		\
-+		set_thread_flag(TIF_32BIT);			\
-+	else							\
-+		clear_thread_flag(TIF_32BIT);			\
-+	if (personality(current->personality) != PER_LINUX32)	\
-+		set_personality(PER_LINUX |			\
-+			(current->personality & (~PER_MASK)));	\
-+} while (0)
+ #include <uapi/asm/unistd.h>
+ 
+ #define NR_syscalls (__NR_syscalls)
+diff --git a/arch/riscv/include/uapi/asm/unistd.h b/arch/riscv/include/uapi/asm/unistd.h
+index 8062996c2dfd..c9e50eed14aa 100644
+--- a/arch/riscv/include/uapi/asm/unistd.h
++++ b/arch/riscv/include/uapi/asm/unistd.h
+@@ -15,7 +15,7 @@
+  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  */
+ 
+-#ifdef __LP64__
++#if defined(__LP64__) && !defined(__SYSCALL_COMPAT)
+ #define __ARCH_WANT_NEW_STAT
+ #define __ARCH_WANT_SET_GET_RLIMIT
+ #endif /* __LP64__ */
+diff --git a/arch/riscv/kernel/Makefile b/arch/riscv/kernel/Makefile
+index ffc87e76b1dd..3b3e425aadd2 100644
+--- a/arch/riscv/kernel/Makefile
++++ b/arch/riscv/kernel/Makefile
+@@ -68,3 +68,4 @@ obj-$(CONFIG_CRASH_DUMP)	+= crash_dump.o
+ obj-$(CONFIG_JUMP_LABEL)	+= jump_label.o
+ 
+ obj-$(CONFIG_EFI)		+= efi.o
++obj-$(CONFIG_COMPAT)		+= compat_syscall_table.o
+diff --git a/arch/riscv/kernel/compat_syscall_table.c b/arch/riscv/kernel/compat_syscall_table.c
+new file mode 100644
+index 000000000000..651f2b009c28
+--- /dev/null
++++ b/arch/riscv/kernel/compat_syscall_table.c
+@@ -0,0 +1,19 @@
++// SPDX-License-Identifier: GPL-2.0-only
 +
-+#define COMPAT_ELF_ET_DYN_BASE		((TASK_SIZE_32 / 3) * 2)
++#define __SYSCALL_COMPAT
 +
-+/* rv32 registers */
-+typedef compat_ulong_t			compat_elf_greg_t;
-+typedef compat_elf_greg_t		compat_elf_gregset_t[ELF_NGREG];
++#include <linux/compat.h>
++#include <linux/syscalls.h>
++#include <asm-generic/mman-common.h>
++#include <asm-generic/syscalls.h>
++#include <asm/syscall.h>
 +
-+#endif /* CONFIG_COMPAT */
- #endif /* _ASM_RISCV_ELF_H */
++#undef __SYSCALL
++#define __SYSCALL(nr, call)      [nr] = (call),
++
++asmlinkage long compat_sys_rt_sigreturn(void);
++
++void * const compat_sys_call_table[__NR_syscalls] = {
++	[0 ... __NR_syscalls - 1] = sys_ni_syscall,
++#include <asm/unistd.h>
++};
+diff --git a/arch/riscv/kernel/sys_riscv.c b/arch/riscv/kernel/sys_riscv.c
+index 12f8a7fce78b..9c0194f176fc 100644
+--- a/arch/riscv/kernel/sys_riscv.c
++++ b/arch/riscv/kernel/sys_riscv.c
+@@ -33,7 +33,9 @@ SYSCALL_DEFINE6(mmap, unsigned long, addr, unsigned long, len,
+ {
+ 	return riscv_sys_mmap(addr, len, prot, flags, fd, offset, 0);
+ }
+-#else
++#endif
++
++#if defined(CONFIG_32BIT) || defined(CONFIG_COMPAT)
+ SYSCALL_DEFINE6(mmap2, unsigned long, addr, unsigned long, len,
+ 	unsigned long, prot, unsigned long, flags,
+ 	unsigned long, fd, off_t, offset)
+@@ -44,7 +46,7 @@ SYSCALL_DEFINE6(mmap2, unsigned long, addr, unsigned long, len,
+ 	 */
+ 	return riscv_sys_mmap(addr, len, prot, flags, fd, offset, 12);
+ }
+-#endif /* !CONFIG_64BIT */
++#endif
+ 
+ /*
+  * Allows the instruction cache to be flushed from userspace.  Despite RISC-V
+diff --git a/fs/open.c b/fs/open.c
+index 9ff2f621b760..b25613f7c0a7 100644
+--- a/fs/open.c
++++ b/fs/open.c
+@@ -224,6 +224,21 @@ SYSCALL_DEFINE2(ftruncate64, unsigned int, fd, loff_t, length)
+ }
+ #endif /* BITS_PER_LONG == 32 */
+ 
++#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_TRUNCATE64)
++COMPAT_SYSCALL_DEFINE3(truncate64, const char __user *, pathname,
++		       compat_arg_u64_dual(length))
++{
++	return ksys_truncate(pathname, compat_arg_u64_glue(length));
++}
++#endif
++
++#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_FTRUNCATE64)
++COMPAT_SYSCALL_DEFINE3(ftruncate64, unsigned int, fd,
++		       compat_arg_u64_dual(length))
++{
++	return ksys_ftruncate(fd, compat_arg_u64_glue(length));
++}
++#endif
+ 
+ int vfs_fallocate(struct file *file, int mode, loff_t offset, loff_t len)
+ {
+@@ -339,6 +354,15 @@ SYSCALL_DEFINE4(fallocate, int, fd, int, mode, loff_t, offset, loff_t, len)
+ 	return ksys_fallocate(fd, mode, offset, len);
+ }
+ 
++#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_FALLOCATE)
++COMPAT_SYSCALL_DEFINE6(fallocate, int, fd, int, mode, compat_arg_u64_dual(offset),
++		       compat_arg_u64_dual(len))
++{
++	return ksys_fallocate(fd, mode, compat_arg_u64_glue(offset),
++			      compat_arg_u64_glue(len));
++}
++#endif
++
+ /*
+  * access() needs to use the real uid/gid, not the effective uid/gid.
+  * We do this by temporarily clearing all FS-related capabilities and
+diff --git a/fs/read_write.c b/fs/read_write.c
+index 0074afa7ecb3..548657c462e8 100644
+--- a/fs/read_write.c
++++ b/fs/read_write.c
+@@ -681,6 +681,14 @@ SYSCALL_DEFINE4(pread64, unsigned int, fd, char __user *, buf,
+ 	return ksys_pread64(fd, buf, count, pos);
+ }
+ 
++#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_PREAD64)
++COMPAT_SYSCALL_DEFINE5(pread64, unsigned int, fd, char __user *, buf,
++		       size_t, count, compat_arg_u64_dual(pos))
++{
++	return ksys_pread64(fd, buf, count, compat_arg_u64_glue(pos));
++}
++#endif
++
+ ssize_t ksys_pwrite64(unsigned int fd, const char __user *buf,
+ 		      size_t count, loff_t pos)
+ {
+@@ -707,6 +715,14 @@ SYSCALL_DEFINE4(pwrite64, unsigned int, fd, const char __user *, buf,
+ 	return ksys_pwrite64(fd, buf, count, pos);
+ }
+ 
++#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_PWRITE64)
++COMPAT_SYSCALL_DEFINE5(pwrite64, unsigned int, fd, const char __user *, buf,
++		       size_t, count, compat_arg_u64_dual(pos))
++{
++	return ksys_pwrite64(fd, buf, count, compat_arg_u64_glue(pos));
++}
++#endif
++
+ static ssize_t do_iter_readv_writev(struct file *filp, struct iov_iter *iter,
+ 		loff_t *ppos, int type, rwf_t flags)
+ {
+diff --git a/fs/sync.c b/fs/sync.c
+index c7690016453e..dc725914e1ed 100644
+--- a/fs/sync.c
++++ b/fs/sync.c
+@@ -373,6 +373,15 @@ SYSCALL_DEFINE4(sync_file_range, int, fd, loff_t, offset, loff_t, nbytes,
+ 	return ksys_sync_file_range(fd, offset, nbytes, flags);
+ }
+ 
++#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_SYNC_FILE_RANGE)
++COMPAT_SYSCALL_DEFINE6(sync_file_range, int, fd, compat_arg_u64_dual(offset),
++		       compat_arg_u64_dual(nbytes), unsigned int, flags)
++{
++	return ksys_sync_file_range(fd, compat_arg_u64_glue(offset),
++				    compat_arg_u64_glue(nbytes), flags);
++}
++#endif
++
+ /* It would be nice if people remember that not all the world's an i386
+    when they introduce new system calls */
+ SYSCALL_DEFINE4(sync_file_range2, int, fd, unsigned int, flags,
+diff --git a/include/asm-generic/compat.h b/include/asm-generic/compat.h
+index 11653d6846cc..d06308a2a7a8 100644
+--- a/include/asm-generic/compat.h
++++ b/include/asm-generic/compat.h
+@@ -14,6 +14,13 @@
+ #define COMPAT_OFF_T_MAX	0x7fffffff
+ #endif
+ 
++#if !defined(compat_arg_u64) && !defined(CONFIG_CPU_BIG_ENDIAN)
++#define compat_arg_u64(name)		u32  name##_lo, u32  name##_hi
++#define compat_arg_u64_dual(name)	u32, name##_lo, u32, name##_hi
++#define compat_arg_u64_glue(name)	(((u64)name##_lo & 0xffffffffUL) | \
++					 ((u64)name##_hi << 32))
++#endif
++
+ /* These types are common across all compat ABIs */
+ typedef u32 compat_size_t;
+ typedef s32 compat_ssize_t;
+diff --git a/include/linux/compat.h b/include/linux/compat.h
+index a0481fe6c5d5..8779e283a1e9 100644
+--- a/include/linux/compat.h
++++ b/include/linux/compat.h
+@@ -926,6 +926,43 @@ asmlinkage long compat_sys_sigaction(int sig,
+ /* obsolete: net/socket.c */
+ asmlinkage long compat_sys_socketcall(int call, u32 __user *args);
+ 
++#ifdef __ARCH_WANT_COMPAT_TRUNCATE64
++asmlinkage long compat_sys_truncate64(const char __user *pathname, compat_arg_u64(len));
++#endif
++
++#ifdef __ARCH_WANT_COMPAT_FTRUNCATE64
++asmlinkage long compat_sys_ftruncate64(unsigned int fd, compat_arg_u64(len));
++#endif
++
++#ifdef __ARCH_WANT_COMPAT_FALLOCATE
++asmlinkage long compat_sys_fallocate(int fd, int mode, compat_arg_u64(offset),
++				     compat_arg_u64(len));
++#endif
++
++#ifdef __ARCH_WANT_COMPAT_PREAD64
++asmlinkage long compat_sys_pread64(unsigned int fd, char __user *buf, size_t count,
++				   compat_arg_u64(pos));
++#endif
++
++#ifdef __ARCH_WANT_COMPAT_PWRITE64
++asmlinkage long compat_sys_pwrite64(unsigned int fd, const char __user *buf, size_t count,
++				    compat_arg_u64(pos));
++#endif
++
++#ifdef __ARCH_WANT_COMPAT_SYNC_FILE_RANGE
++asmlinkage long compat_sys_sync_file_range(int fd, compat_arg_u64(pos),
++					   compat_arg_u64(nbytes), unsigned int flags);
++#endif
++
++#ifdef __ARCH_WANT_COMPAT_FADVISE64_64
++asmlinkage long compat_sys_fadvise64_64(int fd, int advice, compat_arg_u64(pos),
++					compat_arg_u64(len));
++#endif
++
++#ifdef __ARCH_WANT_COMPAT_READAHEAD
++asmlinkage long compat_sys_readahead(int fd, compat_arg_u64(offset), size_t count);
++#endif
++
+ #endif /* CONFIG_ARCH_HAS_SYSCALL_WRAPPER */
+ 
+ /**
+diff --git a/mm/fadvise.c b/mm/fadvise.c
+index d6baa4f451c5..8950f7c05d20 100644
+--- a/mm/fadvise.c
++++ b/mm/fadvise.c
+@@ -215,5 +215,16 @@ SYSCALL_DEFINE4(fadvise64, int, fd, loff_t, offset, size_t, len, int, advice)
+ 	return ksys_fadvise64_64(fd, offset, len, advice);
+ }
+ 
++#endif
++
++#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_FADVISE64_64)
++
++COMPAT_SYSCALL_DEFINE6(fadvise64_64, int, fd, int, advice, compat_arg_u64_dual(offset),
++		       compat_arg_u64_dual(len))
++{
++	return ksys_fadvise64_64(fd, compat_arg_u64_glue(offset),
++				 compat_arg_u64_glue(len), advice);
++}
++
+ #endif
+ #endif
+diff --git a/mm/readahead.c b/mm/readahead.c
+index cf0dcf89eb69..9adf57044299 100644
+--- a/mm/readahead.c
++++ b/mm/readahead.c
+@@ -640,6 +640,13 @@ SYSCALL_DEFINE3(readahead, int, fd, loff_t, offset, size_t, count)
+ 	return ksys_readahead(fd, offset, count);
+ }
+ 
++#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_READAHEAD)
++COMPAT_SYSCALL_DEFINE4(readahead, int, fd, compat_arg_u64_dual(offset), size_t, count)
++{
++	return ksys_readahead(fd, compat_arg_u64_glue(offset), count);
++}
++#endif
++
+ /**
+  * readahead_expand - Expand a readahead request
+  * @ractl: The request to be expanded
 -- 
 2.25.1
 
