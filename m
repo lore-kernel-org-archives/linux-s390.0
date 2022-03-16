@@ -2,129 +2,83 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 03A4BC433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Mar 2022 18:49:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9414DC433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Mar 2022 19:01:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348602AbiCPSux (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Mar 2022 14:50:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42416 "EHLO
+        id S232577AbiCPTCm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 16 Mar 2022 15:02:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232577AbiCPSuw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Mar 2022 14:50:52 -0400
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 285556B08B
-        for <linux-s390@vger.kernel.org>; Wed, 16 Mar 2022 11:49:38 -0700 (PDT)
-Received: by mail-pj1-x1031.google.com with SMTP id o6-20020a17090a9f8600b001c6562049d9so3322139pjp.3
-        for <linux-s390@vger.kernel.org>; Wed, 16 Mar 2022 11:49:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=y7ERAKcifRzxT6vcVSjDSozSgypW/KEW+vG0ASHCMHY=;
-        b=EzwZe3ti/2sTFi0gzWAE+otHNwPAgMXQlTrdW5phcUmxKkHY/mhUFb2IyXF9KVVy/D
-         ZZScNEQ30YzZhGoDBcDZwia4z6A8qPXdZYDXWIe1+P7k6dicin06qMrNjt3UBPEGg0xg
-         hXRUdafsQ4hecOzsNY8upgcQF/oTX1S+MFQdBAm5vGiFsmlgOef5nXj5Lih8CZJjNAC1
-         8z2v38eH+liqupz+geO+Jhdb8o970vpMhLS4UkfDjB26oOyfng2nrCBZgaQQoVM80Uak
-         B+d+V2FIZiDq0KBGNEgpnXziZu8VfjqhxX/NJyQgCCDiqwRrqIkL9BtI8MgIhQfcEk6b
-         CmPg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=y7ERAKcifRzxT6vcVSjDSozSgypW/KEW+vG0ASHCMHY=;
-        b=xoyDKadrM4jNEE7Ywp4TngiH8aja5rfcs8NWGKlSAVYfyufUaH83OA/VIky4OnZJGO
-         J4dZvKii7OmPTX+KKOL95nLqDVUD5/ytluDFt5cX7UN6zmtAyvBvwbCcUEmGoPt1XjmG
-         DUKM/ZqJdsSj3z2F27g23afEFC0m9cdNX6wVCC62kI/a8xSCeWkqyzJyVx3HMA7Sq2Xh
-         YyUwfTbSJ2c27B017rnpmMlVGKX01yzqIQmdAwtDJRlYRc2zm7ieaZBL4Z3YQNYP9Oi4
-         VGtbfnB5+hWObcCaaabc3CYbQ8b7gjE1EEuy6VyE4QeBiEJ58v0AF3f9BXONqUBpIBjV
-         vR/w==
-X-Gm-Message-State: AOAM5329r67EOFSEiHMvGebdG2ZH7tx81yq/iFcWswphyHBSFFPyQrDy
-        7iyFjKCwKiGxNLh7m/2FdAmtG5rGk6qA3rNCmECW
-X-Google-Smtp-Source: ABdhPJxwp/pkpCQtHo7tVh5Dg1xcTc9fNxHdNL+EZXfY9wfYvIVklmRmDUPiJum14n0p7tN0MasdTRHMWSpkdNRp57Q=
-X-Received: by 2002:a17:903:32c8:b0:150:1189:c862 with SMTP id
- i8-20020a17090332c800b001501189c862mr878311plr.134.1647456577401; Wed, 16 Mar
- 2022 11:49:37 -0700 (PDT)
+        with ESMTP id S1356983AbiCPTCm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Mar 2022 15:02:42 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53CC26E4D2
+        for <linux-s390@vger.kernel.org>; Wed, 16 Mar 2022 12:01:27 -0700 (PDT)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22GIhcXA013047;
+        Wed, 16 Mar 2022 19:01:24 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=jhdO4SfBUO/WxBeowfzG5hfDWEnRGw4o/DxcGGUtckg=;
+ b=sShL1x2gastXEvL0NPCNjZkfECbwzDLDHIp3c9d8uqp1I4WZ5Fq9K9fmyf2lnnjTfbzM
+ 4faZr6sVDL36KBFRcTQZM/xiNNWDfFb0g2eLpcTerxzOFCmcibyvJvrc4af5PlOt2QJN
+ j/80SmIXxUHdFfmVBN66ctEer0XFmuUnh9vS8ha5cQvz1GWBLm9svR+JeNu2BnSo9ze2
+ 4Eg4SBmXIsnCGuaRWj7owI++OKN1UuROZ4v2tigQnfs+wCZGuLMymXk5gpf+3lLZnrNW
+ Ry11E5IeCvvIW+1lLOuIZ1O76/V9NewQKI2eLO9DRwDsedKL7Cg8rxBb/NSIO3HzqaAU 5w== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3eune5rayp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Mar 2022 19:01:23 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22GIxY7P003946;
+        Wed, 16 Mar 2022 19:01:10 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03ams.nl.ibm.com with ESMTP id 3et95ww01r-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Mar 2022 19:01:10 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22GJ178l53346800
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 16 Mar 2022 19:01:07 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8A3C65204E;
+        Wed, 16 Mar 2022 19:01:07 +0000 (GMT)
+Received: from osiris (unknown [9.145.69.99])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id 581F752051;
+        Wed, 16 Mar 2022 19:01:07 +0000 (GMT)
+Date:   Wed, 16 Mar 2022 20:01:05 +0100
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Russell Currey <ruscur@russell.cc>
+Cc:     linux-s390@vger.kernel.org, svens@linux.ibm.com
+Subject: Re: [PATCH] s390: Fix typo in syscall_wrapper.h
+Message-ID: <YjIz8ViNjEnbwdxg@osiris>
+References: <20220304090109.29386-1-ruscur@russell.cc>
 MIME-Version: 1.0
-References: <20220316060214.2200695-1-morbo@google.com> <20220316074356.n7e5lzrmnal2dcgu@gator>
- <334cc93e-9843-daa9-5846-394c199e294f@redhat.com>
-In-Reply-To: <334cc93e-9843-daa9-5846-394c199e294f@redhat.com>
-From:   Bill Wendling <morbo@google.com>
-Date:   Wed, 16 Mar 2022 11:49:26 -0700
-Message-ID: <CAGG=3QWOZVtXfyR4Lu8qBS-ASBFeMaLGo1ANXTxi7gPoLbA2Ag@mail.gmail.com>
-Subject: Re: [kvm-unit-tests PATCH] libfdt: use logical "or" instead of
- bitwise "or" with boolean operands
-To:     Thomas Huth <thuth@redhat.com>
-Cc:     Andrew Jones <drjones@redhat.com>, kvm list <kvm@vger.kernel.org>,
-        Nikos Nikoleris <nikos.nikoleris@arm.com>,
-        Laurent Vivier <lvivier@redhat.com>, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, David Hildenbrand <david@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        kvmarm@lists.cs.columbia.edu, kvm-ppc@vger.kernel.org,
-        linux-s390 <linux-s390@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220304090109.29386-1-ruscur@russell.cc>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: NphSfWkFX4Zyt13JyMe4Bd8oOgawuQrM
+X-Proofpoint-ORIG-GUID: NphSfWkFX4Zyt13JyMe4Bd8oOgawuQrM
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-03-16_09,2022-03-15_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 bulkscore=0
+ mlxscore=0 spamscore=0 lowpriorityscore=0 phishscore=0 impostorscore=0
+ malwarescore=0 suspectscore=0 mlxlogscore=729 priorityscore=1501
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2203160114
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Mar 16, 2022 at 12:53 AM Thomas Huth <thuth@redhat.com> wrote:
->
-> On 16/03/2022 08.43, Andrew Jones wrote:
-> > On Tue, Mar 15, 2022 at 11:02:14PM -0700, Bill Wendling wrote:
-> >> Clang warns about using a bitwise '|' with boolean operands. This seems
-> >> to be due to a small typo.
-> >>
-> >>    lib/libfdt/fdt_rw.c:438:6: warning: use of bitwise '|' with boolean operands [-Werror,-Wbitwise-instead-of-logical]
-> >>            if (can_assume(LIBFDT_ORDER) |
-> >>
-> >> Using '||' removes this warnings.
-> >>
-> >> Signed-off-by: Bill Wendling <morbo@google.com>
-> >> ---
-> >>   lib/libfdt/fdt_rw.c | 2 +-
-> >>   1 file changed, 1 insertion(+), 1 deletion(-)
-> >>
-> >> diff --git a/lib/libfdt/fdt_rw.c b/lib/libfdt/fdt_rw.c
-> >> index 13854253ff86..3320e5559cac 100644
-> >> --- a/lib/libfdt/fdt_rw.c
-> >> +++ b/lib/libfdt/fdt_rw.c
-> >> @@ -435,7 +435,7 @@ int fdt_open_into(const void *fdt, void *buf, int bufsize)
-> >>                      return struct_size;
-> >>      }
-> >>
-> >> -    if (can_assume(LIBFDT_ORDER) |
-> >> +    if (can_assume(LIBFDT_ORDER) ||
-> >>          !fdt_blocks_misordered_(fdt, mem_rsv_size, struct_size)) {
-> >>              /* no further work necessary */
-> >>              err = fdt_move(fdt, buf, bufsize);
-> >> --
-> >> 2.35.1.723.g4982287a31-goog
-> >>
-> >
-> > This is fixed in libfdt upstream with commit 7be250b4 ("libfdt:
-> > Correct condition for reordering blocks"), which is in v1.6.1.
-> > We can either take this patch as a backport of 7be250b4 or we
-> > can rebase all of our libfdt to v1.6.1. Based on the number of
-> > fixes in v1.6.1, which appear to be mostly for compiling with
-> > later compilers, I'm in favor of rebasing.
->
-> +1 for updating to v1.6.1 completely.
->
-Also +1. :-) Thank you!
+On Fri, Mar 04, 2022 at 07:01:09PM +1000, Russell Currey wrote:
+> Looks like this endif comment was erroneously unchanged when copied over
+> from the x86 version.
+> 
+> Signed-off-by: Russell Currey <ruscur@russell.cc>
+> ---
+>  arch/s390/include/asm/syscall_wrapper.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
--bw
-
-> > Actually, we can also use this opportunity to [re]visit the
-> > idea of changing libfdt to a git submodule. I'd like to hear
-> > opinions on that.
->
-> I'm always a little bit torn when it comes to this question. Sure, git
-> submodules maybe make the update easier ... but they are a real pita when
-> you're working with remote machines that might not have direct connection to
-> the internet. For example, I'm used to rsync my sources to the non-x86
-> machines, and if you forget to update the submodule to the right state
-> before the sync, you've just lost. So from my side, it's a preference for
-> continuing without submodules (but I won't insist if everybody else wants to
-> have them instead).
->
->   Thomas
->
+Applied, thanks!
