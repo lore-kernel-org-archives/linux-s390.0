@@ -2,857 +2,465 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A2A5C43217
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Mar 2022 05:10:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A98AC43219
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Mar 2022 07:03:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353612AbiCPFLi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Mar 2022 01:11:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33912 "EHLO
+        id S1354000AbiCPHFB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 16 Mar 2022 03:05:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353591AbiCPFLg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Mar 2022 01:11:36 -0400
-Received: from mga06.intel.com (mga06.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C75449CB7;
-        Tue, 15 Mar 2022 22:10:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1647407419; x=1678943419;
-  h=date:from:to:cc:subject:message-id:mime-version:
-   content-transfer-encoding;
-  bh=akUzU4SSsfmk1H/LqX5DhhMgoti8j786JnJosdMDf2g=;
-  b=GaMjhNpw7C0V/EQ21syLF0UruYPgvhDuOpDQqnTT8ZiJfzPlLkim/eK+
-   Y55DPzqRlSy7vhiuc299ApvdlAxS0lK26HrW1P7xm+x+Kn0Sl1fJYFpH3
-   IkBWhVzb8fWu+jbzPP0qd2ozhRMxm6Di46ZbXmwoX187ddTNgCO1tOajQ
-   5SUSBiI5YeavX0W9H9ASCoTTs+0xERq0tiEAriBx95OxRFKLIXbU0NWlA
-   EHD+Qm7bNM0hQpRysk+kOBcw/aP/R/XXZChg4fcMdpiUDU73jZg1iOlns
-   oz4wlMtEBbu+vNSepubGiOu5tANc4c4uY1l8R8f1bxPiOFdACKKeGjqkc
-   Q==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10286"; a="317216012"
-X-IronPort-AV: E=Sophos;i="5.90,185,1643702400"; 
-   d="scan'208";a="317216012"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Mar 2022 22:10:18 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.90,185,1643702400"; 
-   d="scan'208";a="690451711"
-Received: from lkp-server02.sh.intel.com (HELO 89b41b6ae01c) ([10.239.97.151])
-  by fmsmga001.fm.intel.com with ESMTP; 15 Mar 2022 22:10:14 -0700
-Received: from kbuild by 89b41b6ae01c with local (Exim 4.92)
-        (envelope-from <lkp@intel.com>)
-        id 1nULvK-000C0k-9c; Wed, 16 Mar 2022 05:10:14 +0000
-Date:   Wed, 16 Mar 2022 13:09:56 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     netdev@vger.kernel.org, linux-sh@vger.kernel.org,
-        linux-serial@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-rdma@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-iio@vger.kernel.org, linux-hardening@vger.kernel.org,
-        linux-btrfs@vger.kernel.org, linux-alpha@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, amd-gfx@lists.freedesktop.org,
-        Linux Memory Management List <linux-mm@kvack.org>
-Subject: [linux-next:master] BUILD REGRESSION
- a32cd981a6da2373c093d471ee4405a915e217d5
-Message-ID: <62317124.YBQFU33+s/wdvWGj%lkp@intel.com>
-User-Agent: Heirloom mailx 12.5 6/20/10
+        with ESMTP id S233835AbiCPHFA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Mar 2022 03:05:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10A4025FE;
+        Wed, 16 Mar 2022 00:03:45 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 71E5561012;
+        Wed, 16 Mar 2022 07:03:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16EDCC340E9;
+        Wed, 16 Mar 2022 07:03:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1647414224;
+        bh=+k/babIJRZscjpNyERaQs9Hy2rDfdrXM1ZjnahdBFPE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=WpBsTZh4LTygbivG4A6pI2TMzfMfeO5utqoK+oTtANqq3HWkdMZ6JJHkKh9IFDK1V
+         cmC5ByQaTZQj+9LA8Sm+UMsED/Io7ZeMkftgf4z+RCWFZaeu5Sy2PkjqSNToALvojA
+         a9uK5cMPIz1UaZsWXjmssb2sK7Cg4+XHD42iAOAzmhGGI0/UwgrRUUrzqbquhwqmTc
+         lii/bKyXhcAZar3phUvr6vgCITrXD9suWCeBH30AA3rOC/Kcs6aZFxR3twnv3atq4C
+         DcWJpJjUp/GFdoFzTsimGPMFgoXiuJ8e8Mr1QmezdWE2qmL1tgIJvPRAVK0nlqsukc
+         saIzlTB7IiMkw==
+From:   guoren@kernel.org
+To:     guoren@kernel.org, palmer@dabbelt.com, arnd@arndb.de,
+        anup@brainfault.org, gregkh@linuxfoundation.org, hch@lst.de
+Cc:     linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-riscv@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-parisc@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        x86@kernel.org, heiko@sntech.de, Guo Ren <guoren@linux.alibaba.com>
+Subject: [PATCH V8 00/20] riscv: compat: Add COMPAT Kbuild skeletal support
+Date:   Wed, 16 Mar 2022 15:02:57 +0800
+Message-Id: <20220316070317.1864279-1-guoren@kernel.org>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git master
-branch HEAD: a32cd981a6da2373c093d471ee4405a915e217d5  Add linux-next specific files for 20220315
+From: Guo Ren <guoren@linux.alibaba.com>
 
-Error/Warning reports:
+Currently, most 64-bit architectures (x86, parisc, powerpc, arm64,
+s390, mips, sparc) have supported COMPAT mode. But they all have
+history issues and can't use standard linux unistd.h. RISC-V would
+be first standard __SYSCALL_COMPAT user of include/uapi/asm-generic
+/unistd.h.
 
-https://lore.kernel.org/linux-doc/202202240704.pQD40A9L-lkp@intel.com
-https://lore.kernel.org/linux-doc/202202240705.t3QbMnlt-lkp@intel.com
-https://lore.kernel.org/linux-media/202203160306.SfWO9QWV-lkp@intel.com
-https://lore.kernel.org/linux-mm/202203160358.yulPl6b4-lkp@intel.com
-https://lore.kernel.org/llvm/202202241039.g8GKEE4O-lkp@intel.com
-https://lore.kernel.org/llvm/202203032008.iQvFvs6z-lkp@intel.com
+The patchset are based on v5.17-rc8, you can compare rv64-compat
+v.s. rv32-native in qemu with following steps:
 
-Error/Warning:
+ - Prepare rv32 rootfs & fw_jump.bin by buildroot.org
+   $ git clone git://git.busybox.net/buildroot
+   $ cd buildroot
+   $ make qemu_riscv32_virt_defconfig O=qemu_riscv32_virt_defconfig
+   $ make -C qemu_riscv32_virt_defconfig
+   $ make qemu_riscv64_virt_defconfig O=qemu_riscv64_virt_defconfig
+   $ make -C qemu_riscv64_virt_defconfig
+   (Got fw_jump.bin & rootfs.ext2 in qemu_riscvXX_virt_defconfig/images)
 
-ERROR: dtschema minimum version is v2022.3
-ERROR: modpost: "perf_pmu_migrate_context" [drivers/nvdimm/libnvdimm.ko] undefined!
-ERROR: modpost: "perf_pmu_register" [drivers/nvdimm/libnvdimm.ko] undefined!
-ERROR: modpost: "perf_pmu_unregister" [drivers/nvdimm/libnvdimm.ko] undefined!
-clk-imx93.c:(.text+0x72): undefined reference to `imx_obtain_fixed_clk_hw'
-csky-linux-ld: clk-imx93.c:(.text+0x1c2): undefined reference to `imx_clk_fracn_gppll'
-csky-linux-ld: clk-imx93.c:(.text+0x234): undefined reference to `imx93_clk_composite_flags'
-csky-linux-ld: clk-imx93.c:(.text+0x2b8): undefined reference to `imx_fracn_gppll'
-csky-linux-ld: clk-imx93.c:(.text+0x2e8): undefined reference to `imx_ccm_lock'
-csky-linux-ld: clk-imx93.c:(.text+0x326): undefined reference to `clk_hw_register_gate2'
-csky-linux-ld: clk-imx93.c:(.text+0x348): undefined reference to `imx_check_clk_hws'
-csky-linux-ld: clk-imx93.c:(.text+0x368): undefined reference to `imx_unregister_hw_clocks'
-csky-linux-ld: clk-imx93.c:(.text+0x84): undefined reference to `imx_obtain_fixed_clk_hw'
-drivers/gpu/drm/amd/amdgpu/amdgpu_mmhub.c:27:6: warning: no previous prototype for function 'amdgpu_mmhub_ras_fini' [-Wmissing-prototypes]
-drivers/media/platform/samsung/exynos4-is/fimc-isp-video.h:35:6: warning: no previous prototype for 'fimc_isp_video_device_unregister' [-Wmissing-prototypes]
-drivers/spi/spi-amd.c:296:21: warning: cast to smaller integer type 'enum amd_spi_versions' from 'const void *' [-Wvoid-pointer-to-enum-cast]
-fs/btrfs/ordered-data.c:168: warning: expecting prototype for Add an ordered extent to the per(). Prototype was for btrfs_add_ordered_extent() instead
-fs/btrfs/tree-log.c:6934: warning: This comment starts with '/**', but isn't a kernel-doc comment. Refer Documentation/doc-guide/kernel-doc.rst
-kernel/trace/trace_events_synth.c:65:9: warning: 'strncpy' specified bound depends on the length of the source argument [-Wstringop-truncation]
+ - Prepare Linux rv32 & rv64 Image
+   $ git clone git@github.com:c-sky/csky-linux.git -b riscv_compat_v8 linux
+   $ cd linux
+   $ echo "CONFIG_STRICT_KERNEL_RWX=n" >> arch/riscv/configs/defconfig
+   $ echo "CONFIG_STRICT_MODULE_RWX=n" >> arch/riscv/configs/defconfig
+   $ make ARCH=riscv CROSS_COMPILE=riscv32-buildroot-linux-gnu- O=../build-rv32/ rv32_defconfig
+   $ make ARCH=riscv CROSS_COMPILE=riscv32-buildroot-linux-gnu- O=../build-rv32/ Image
+   $ make ARCH=riscv CROSS_COMPILE=riscv64-buildroot-linux-gnu- O=../build-rv64/ defconfig
+   $ make ARCH=riscv CROSS_COMPILE=riscv64-buildroot-linux-gnu- O=../build-rv64/ Image
 
-Unverified Error/Warning (likely false positive, please contact us if interested):
+ - Prepare Qemu:
+   $ git clone https://gitlab.com/qemu-project/qemu.git -b master linux
+   $ cd qemu
+   $ ./configure --target-list="riscv64-softmmu riscv32-softmmu"
+   $ make
 
-Makefile:662: arch/nds32/Makefile: No such file or directory
-WARNING: modpost: vmlinux.o(.text+0x144e892): Section mismatch in reference from the function tcp4_proc_exit() to the function .init.text:set_reset_devices()
-WARNING: modpost: vmlinux.o(__ex_table+0x2034): Section mismatch in reference from the (unknown reference) (unknown) to the (unknown reference) .debug_str:(unknown)
-arch/Kconfig:10: can't open file "arch/nds32/Kconfig"
-arch/alpha/include/asm/string.h:22:16: warning: '__builtin_memcpy' forming offset [40, 2051] is out of the bounds [0, 40] of object 'tag_buf' with type 'unsigned char[40]' [-Warray-bounds]
-arch/s390/kernel/machine_kexec.c:57:9: warning: 'memcpy' offset [0, 511] is out of the bounds [0, 0] [-Warray-bounds]
-arch/sh/kernel/machvec.c:105:33: warning: array subscript 'struct sh_machine_vector[0]' is partly outside array bounds of 'long int[1]' [-Warray-bounds]
-drivers/clk/imx/clk-pll14xx.c:166:2: warning: Value stored to 'pll_div_ctl1' is never read [clang-analyzer-deadcode.DeadStores]
-drivers/firmware/turris-mox-rwtm.c:146:1: warning: Call to function 'sprintf' is insecure as it does not provide bounding of the memory buffer or security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'sprintf_s' in case of C11 [clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling]
-drivers/gpu/drm/amd/amdgpu/../display/dc/core/dc_resource.c:1633:6: warning: no previous prototype for 'is_timing_changed' [-Wmissing-prototypes]
-drivers/gpu/drm/amd/amdgpu/../display/dc/core/dc_resource.c:1633:6: warning: no previous prototype for function 'is_timing_changed' [-Wmissing-prototypes]
-drivers/gpu/drm/amd/amdgpu/../display/dc/dml/calcs/dce_calcs.c:77:13: warning: stack frame size (4824) exceeds limit (2048) in 'calculate_bandwidth' [-Wframe-larger-than]
-drivers/gpu/drm/amd/amdgpu/../display/dc/dml/calcs/dce_calcs.c:77:13: warning: stack frame size (5280) exceeds limit (2048) in 'calculate_bandwidth' [-Wframe-larger-than]
-drivers/gpu/drm/amd/amdgpu/amdgpu_discovery.c:718:4: warning: Value stored to 'res' is never read [clang-analyzer-deadcode.DeadStores]
-drivers/gpu/drm/amd/amdgpu/amdgpu_hdp.c:27:6: warning: no previous prototype for 'amdgpu_hdp_ras_fini' [-Wmissing-prototypes]
-drivers/gpu/drm/amd/amdgpu/amdgpu_hdp.c:27:6: warning: no previous prototype for function 'amdgpu_hdp_ras_fini' [-Wmissing-prototypes]
-drivers/gpu/drm/amd/amdgpu/amdgpu_mmhub.c:27:6: warning: no previous prototype for 'amdgpu_mmhub_ras_fini' [-Wmissing-prototypes]
-drivers/hid/hid-core.c:1665:30: warning: Although the value stored to 'field' is used in the enclosing expression, the value is never actually read from 'field' [clang-analyzer-deadcode.DeadStores]
-drivers/hwmon/nsa320-hwmon.c:114:9: warning: Call to function 'sprintf' is insecure as it does not provide bounding of the memory buffer or security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'sprintf_s' in case of C11 [clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling]
-drivers/iio/frequency/admv1014.c:703:22: sparse: sparse: dubious: x & !y
-drivers/infiniband/core/user_mad.c:564:50: warning: array subscript 'struct ib_rmpp_mad[0]' is partly outside array bounds of 'unsigned char[124]' [-Warray-bounds]
-drivers/input/serio/ps2-gpio.c:223:4: warning: Value stored to 'rxflags' is never read [clang-analyzer-deadcode.DeadStores]
-drivers/leds/trigger/ledtrig-tty.c:33:9: warning: Call to function 'sprintf' is insecure as it does not provide bounding of the memory buffer or security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'sprintf_s' in case of C11 [clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling]
-drivers/memory/brcmstb_dpfe.c:707:10: warning: Call to function 'sprintf' is insecure as it does not provide bounding of the memory buffer or security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'sprintf_s' in case of C11 [clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling]
-drivers/memory/tegra/tegra30-emc.c:1164:3: warning: Value stored to 'dram_type_str' is never read [clang-analyzer-deadcode.DeadStores]
-drivers/mmc/host/omap_hsmmc.c:747:9: warning: Call to function 'sprintf' is insecure as it does not provide bounding of the memory buffer or security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'sprintf_s' in case of C11 [clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling]
-drivers/net/ethernet/broadcom/bnxt/bnxt_ptp.c:400:22: warning: array subscript 255 is above array bounds of 'struct pps_pin[4]' [-Warray-bounds]
-drivers/net/vxlan/vxlan_core.c:440:34: sparse: sparse: incorrect type in argument 2 (different base types)
-drivers/nvmem/sunplus-ocotp.c:74:29: sparse: sparse: symbol 'sp_otp_v0' was not declared. Should it be static?
-drivers/pci/vgaarb.c:235:17: warning: Value stored to 'dev' during its initialization is never read [clang-analyzer-deadcode.DeadStores]
-drivers/phy/broadcom/phy-brcm-usb.c:233:9: warning: Call to function 'sprintf' is insecure as it does not provide bounding of the memory buffer or security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'sprintf_s' in case of C11 [clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling]
-drivers/staging/greybus/arche-apb-ctrl.c:302:10: warning: Call to function 'sprintf' is insecure as it does not provide bounding of the memory buffer or security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'sprintf_s' in case of C11 [clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling]
-drivers/tty/serial/sunplus-uart.c:501:26: sparse: sparse: symbol 'sunplus_console_ports' was not declared. Should it be static?
-drm_gem_shmem_helper.c:(.text+0x1dc): undefined reference to `vmf_insert_pfn'
-fs/reiserfs/lbalance.o: warning: objtool: leaf_copy_boundary_item()+0x30ae: stack state mismatch: cfa1=4+232 cfa2=4+224
-fs/reiserfs/lbalance.o: warning: objtool: leaf_copy_boundary_item()+0x30e6: stack state mismatch: cfa1=4+232 cfa2=4+224
-fs/reiserfs/lbalance.o: warning: objtool: leaf_copy_boundary_item()+0x30eb: stack state mismatch: cfa1=4+232 cfa2=4+224
-include/linux/fortify-string.h:336:4: warning: call to __read_overflow2_field declared with 'warning' attribute: detected read beyond size of field (2nd parameter); maybe use struct_group()? [-Wattribute-warning]
-include/linux/fortify-string.h:45:33: warning: '__builtin_memcpy' offset [0, 1023] is out of the bounds [0, 0] [-Warray-bounds]
-include/linux/fortify-string.h:45:33: warning: '__builtin_memcpy' offset [0, 127] is out of the bounds [0, 0] [-Warray-bounds]
-include/linux/fortify-string.h:45:33: warning: '__builtin_memcpy' offset [0, 511] is out of the bounds [0, 0] [-Warray-bounds]
-make[1]: *** No rule to make target 'arch/nds32/Makefile'.
-nd_perf.c:(.text+0x21e): undefined reference to `perf_pmu_migrate_context'
-nd_perf.c:(.text+0x434): undefined reference to `perf_pmu_register'
-nd_perf.c:(.text+0x57c): undefined reference to `perf_pmu_unregister'
-net.c:(.text+0xe2): undefined reference to `ieee80211_hdrlen'
-net/core/pktgen.c:1312:4: warning: Call to function 'sprintf' is insecure as it does not provide bounding of the memory buffer or security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'sprintf_s' in case of C11 [clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling]
-net/ipv4/tcp_input.c:5012:2: warning: Value stored to 'reason' is never read [clang-analyzer-deadcode.DeadStores]
-net/smc/smc_llc.c:787:9: warning: 'memcpy' forming offset [49, 59] is out of the bounds [0, 49] of object 'delllc' with type 'struct smc_llc_msg_del_link' [-Warray-bounds]
-{standard input}:1989: Error: unknown pseudo-op: `.sec'
+Now let's compare rv64-compat with rv32-native memory footprint with almost the same
+defconfig, rootfs, opensbi in one qemu.
 
-Error/Warning ids grouped by kconfigs:
+ - Run rv64 with rv32 rootfs in compat mode:
+   $ ./build/qemu-system-riscv64 -cpu rv64 -M virt -m 64m -nographic -bios qemu_riscv64_virt_defconfig/images/fw_jump.bin -kernel build-rv64/Image -drive file qemu_riscv32_virt_defconfig/images/rootfs.ext2,format=raw,id=hd0 -device virtio-blk-device,drive=hd0 -append "rootwait root=/dev/vda ro console=ttyS0 earlycon=sbi" -netdev user,id=net0 -device virtio-net-device,netdev=net0
 
-gcc_recent_errors
-|-- alpha-allmodconfig
-|   |-- arch-alpha-include-asm-string.h:warning:__builtin_memcpy-forming-offset-is-out-of-the-bounds-of-object-tag_buf-with-type-unsigned-char
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- drivers-iio-frequency-admv1014.c:sparse:sparse:dubious:x-y
-|   |-- drivers-net-vxlan-vxlan_core.c:sparse:sparse:incorrect-type-in-argument-(different-base-types)-expected-unsigned-int-usertype-b-got-restricted-__be32-usertype-vni
-|   |-- drivers-nvmem-sunplus-ocotp.c:sparse:sparse:symbol-sp_otp_v0-was-not-declared.-Should-it-be-static
-|   |-- drivers-tty-serial-sunplus-uart.c:sparse:sparse:symbol-sunplus_console_ports-was-not-declared.-Should-it-be-static
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- alpha-allyesconfig
-|   |-- arch-alpha-include-asm-string.h:warning:__builtin_memcpy-forming-offset-is-out-of-the-bounds-of-object-tag_buf-with-type-unsigned-char
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- drivers-iio-frequency-admv1014.c:sparse:sparse:dubious:x-y
-|   |-- drivers-net-vxlan-vxlan_core.c:sparse:sparse:incorrect-type-in-argument-(different-base-types)-expected-unsigned-int-usertype-b-got-restricted-__be32-usertype-vni
-|   |-- drivers-nvmem-sunplus-ocotp.c:sparse:sparse:symbol-sp_otp_v0-was-not-declared.-Should-it-be-static
-|   |-- drivers-tty-serial-sunplus-uart.c:sparse:sparse:symbol-sunplus_console_ports-was-not-declared.-Should-it-be-static
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- alpha-buildonly-randconfig-r003-20220314
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- arc-allmodconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- drivers-net-vxlan-vxlan_core.c:sparse:sparse:incorrect-type-in-argument-(different-base-types)-expected-unsigned-int-usertype-b-got-restricted-__be32-usertype-vni
-|   |-- drivers-nvmem-sunplus-ocotp.c:sparse:sparse:symbol-sp_otp_v0-was-not-declared.-Should-it-be-static
-|   |-- drivers-tty-serial-sunplus-uart.c:sparse:sparse:symbol-sunplus_console_ports-was-not-declared.-Should-it-be-static
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- arc-allyesconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- drivers-net-vxlan-vxlan_core.c:sparse:sparse:incorrect-type-in-argument-(different-base-types)-expected-unsigned-int-usertype-b-got-restricted-__be32-usertype-vni
-|   |-- drivers-nvmem-sunplus-ocotp.c:sparse:sparse:symbol-sp_otp_v0-was-not-declared.-Should-it-be-static
-|   |-- drivers-tty-serial-sunplus-uart.c:sparse:sparse:symbol-sunplus_console_ports-was-not-declared.-Should-it-be-static
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- arc-randconfig-c023-20220314
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- arc-randconfig-r021-20220314
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- arc-randconfig-r036-20220313
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- arc-randconfig-r043-20220313
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- arm-allmodconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- arm-allyesconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- arm-buildonly-randconfig-r002-20220314
-|   `-- include-linux-fortify-string.h:warning:__builtin_memcpy-offset-is-out-of-the-bounds
-|-- arm-defconfig
-|   `-- ERROR:dtschema-minimum-version-is-v2022.
-|-- arm-randconfig-c002-20220314
-|   |-- drm_gem_shmem_helper.c:(.text):undefined-reference-to-vmf_insert_pfn
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   |-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|   `-- kernel-trace-trace_events_synth.c:warning:strncpy-specified-bound-depends-on-the-length-of-the-source-argument
-|-- arm-randconfig-r026-20220314
-|   |-- drivers-infiniband-core-user_mad.c:warning:array-subscript-struct-ib_rmpp_mad-is-partly-outside-array-bounds-of-unsigned-char
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   |-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|   `-- net-smc-smc_llc.c:warning:memcpy-forming-offset-is-out-of-the-bounds-of-object-delllc-with-type-struct-smc_llc_msg_del_link
-|-- arm64-allyesconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- arm64-defconfig
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- arm64-randconfig-r032-20220314
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- csky-allmodconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- drivers-net-vxlan-vxlan_core.c:sparse:sparse:incorrect-type-in-argument-(different-base-types)-expected-unsigned-int-usertype-b-got-restricted-__be32-usertype-vni
-|   |-- drivers-nvmem-sunplus-ocotp.c:sparse:sparse:symbol-sp_otp_v0-was-not-declared.-Should-it-be-static
-|   |-- drivers-tty-serial-sunplus-uart.c:sparse:sparse:symbol-sunplus_console_ports-was-not-declared.-Should-it-be-static
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- csky-allyesconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- drivers-net-vxlan-vxlan_core.c:sparse:sparse:incorrect-type-in-argument-(different-base-types)-expected-unsigned-int-usertype-b-got-restricted-__be32-usertype-vni
-|   |-- drivers-nvmem-sunplus-ocotp.c:sparse:sparse:symbol-sp_otp_v0-was-not-declared.-Should-it-be-static
-|   |-- drivers-tty-serial-sunplus-uart.c:sparse:sparse:symbol-sunplus_console_ports-was-not-declared.-Should-it-be-static
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- csky-buildonly-randconfig-r006-20220314
-|   |-- clk-imx93.c:(.text):undefined-reference-to-imx_obtain_fixed_clk_hw
-|   |-- csky-linux-ld:clk-imx93.c:(.text):undefined-reference-to-clk_hw_register_gate2
-|   |-- csky-linux-ld:clk-imx93.c:(.text):undefined-reference-to-imx93_clk_composite_flags
-|   |-- csky-linux-ld:clk-imx93.c:(.text):undefined-reference-to-imx_ccm_lock
-|   |-- csky-linux-ld:clk-imx93.c:(.text):undefined-reference-to-imx_check_clk_hws
-|   |-- csky-linux-ld:clk-imx93.c:(.text):undefined-reference-to-imx_clk_fracn_gppll
-|   |-- csky-linux-ld:clk-imx93.c:(.text):undefined-reference-to-imx_fracn_gppll
-|   |-- csky-linux-ld:clk-imx93.c:(.text):undefined-reference-to-imx_obtain_fixed_clk_hw
-|   `-- csky-linux-ld:clk-imx93.c:(.text):undefined-reference-to-imx_unregister_hw_clocks
-|-- csky-randconfig-c023-20220313
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- h8300-allmodconfig
-|   |-- drivers-net-vxlan-vxlan_core.c:sparse:sparse:incorrect-type-in-argument-(different-base-types)-expected-unsigned-int-usertype-b-got-restricted-__be32-usertype-vni
-|   |-- drivers-nvmem-sunplus-ocotp.c:sparse:sparse:symbol-sp_otp_v0-was-not-declared.-Should-it-be-static
-|   |-- drivers-tty-serial-sunplus-uart.c:sparse:sparse:symbol-sunplus_console_ports-was-not-declared.-Should-it-be-static
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- h8300-allyesconfig
-|   |-- drivers-net-vxlan-vxlan_core.c:sparse:sparse:incorrect-type-in-argument-(different-base-types)-expected-unsigned-int-usertype-b-got-restricted-__be32-usertype-vni
-|   |-- drivers-nvmem-sunplus-ocotp.c:sparse:sparse:symbol-sp_otp_v0-was-not-declared.-Should-it-be-static
-|   |-- drivers-tty-serial-sunplus-uart.c:sparse:sparse:symbol-sunplus_console_ports-was-not-declared.-Should-it-be-static
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- i386-allyesconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- i386-debian-10.3
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- i386-debian-10.3-kselftests
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- i386-randconfig-a001-20220314
-|   |-- drivers-net-ethernet-broadcom-bnxt-bnxt_ptp.c:warning:array-subscript-is-above-array-bounds-of-struct-pps_pin
-|   `-- net.c:(.text):undefined-reference-to-ieee80211_hdrlen
-|-- i386-randconfig-a002-20220314
-|   |-- drivers-net-ethernet-broadcom-bnxt-bnxt_ptp.c:warning:array-subscript-is-above-array-bounds-of-struct-pps_pin
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- i386-randconfig-a004-20220314
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- i386-randconfig-c021-20220314
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- i386-randconfig-s001
-|   |-- drivers-gpu-drm-gma500-intel_bios.c:sparse:sparse:incorrect-type-in-argument-(different-address-spaces)-expected-void-const-const-p-got-unsigned-char-noderef-usertype-__iomem
-|   `-- drivers-gpu-drm-gma500-opregion.c:sparse:sparse:incorrect-type-in-argument-(different-address-spaces)-expected-void-const-const-p-got-void-noderef-__iomem-assigned-base
-|-- i386-randconfig-s002
-|   |-- drivers-gpu-drm-gma500-intel_bios.c:sparse:sparse:incorrect-type-in-argument-(different-address-spaces)-expected-void-const-const-p-got-unsigned-char-noderef-usertype-__iomem
-|   |-- drivers-gpu-drm-gma500-opregion.c:sparse:sparse:incorrect-type-in-argument-(different-address-spaces)-expected-void-const-const-p-got-void-noderef-__iomem-assigned-base
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- ia64-allmodconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- ia64-allyesconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- ia64-randconfig-r001-20220313
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   `-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|-- ia64-randconfig-r001-20220314
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- m68k-allmodconfig
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- m68k-allyesconfig
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- m68k-defconfig
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- m68k-randconfig-r031-20220314
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- microblaze-randconfig-p002-20220314
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- microblaze-randconfig-r022-20220314
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   `-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|-- mips-allmodconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- mips-allyesconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- mips-buildonly-randconfig-r004-20220313
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   `-- include-linux-fortify-string.h:warning:__builtin_memcpy-offset-is-out-of-the-bounds
-|-- nds32-allmodconfig
-|   |-- Makefile:arch-nds32-Makefile:No-such-file-or-directory
-|   |-- arch-Kconfig:can-t-open-file-arch-nds32-Kconfig
-|   `-- make:No-rule-to-make-target-arch-nds32-Makefile-.
-|-- nds32-allnoconfig
-|   |-- Makefile:arch-nds32-Makefile:No-such-file-or-directory
-|   |-- arch-Kconfig:can-t-open-file-arch-nds32-Kconfig
-|   `-- make:No-rule-to-make-target-arch-nds32-Makefile-.
-|-- nds32-allyesconfig
-|   |-- Makefile:arch-nds32-Makefile:No-such-file-or-directory
-|   |-- arch-Kconfig:can-t-open-file-arch-nds32-Kconfig
-|   `-- make:No-rule-to-make-target-arch-nds32-Makefile-.
-|-- nds32-defconfig
-|   |-- Makefile:arch-nds32-Makefile:No-such-file-or-directory
-|   `-- make:No-rule-to-make-target-arch-nds32-Makefile-.
-|-- nds32-randconfig-c004-20220313
-|   |-- Makefile:arch-nds32-Makefile:No-such-file-or-directory
-|   |-- arch-Kconfig:can-t-open-file-arch-nds32-Kconfig
-|   `-- make:No-rule-to-make-target-arch-nds32-Makefile-.
-|-- nds32-randconfig-c024-20220313
-|   |-- Makefile:arch-nds32-Makefile:No-such-file-or-directory
-|   |-- arch-Kconfig:can-t-open-file-arch-nds32-Kconfig
-|   `-- make:No-rule-to-make-target-arch-nds32-Makefile-.
-|-- nds32-randconfig-r011-20220313
-|   |-- Makefile:arch-nds32-Makefile:No-such-file-or-directory
-|   |-- arch-Kconfig:can-t-open-file-arch-nds32-Kconfig
-|   `-- make:No-rule-to-make-target-arch-nds32-Makefile-.
-|-- nds32-randconfig-r013-20220314
-|   |-- Makefile:arch-nds32-Makefile:No-such-file-or-directory
-|   |-- arch-Kconfig:can-t-open-file-arch-nds32-Kconfig
-|   `-- make:No-rule-to-make-target-arch-nds32-Makefile-.
-|-- nios2-allmodconfig
-|   |-- arch-nios2-kernel-misaligned.c:sparse:sparse:incorrect-type-in-argument-(different-address-spaces)-expected-void-noderef-__user-to-got-unsigned-char-usertype-__pu_ptr
-|   |-- drivers-net-vxlan-vxlan_core.c:sparse:sparse:incorrect-type-in-argument-(different-base-types)-expected-unsigned-int-usertype-b-got-restricted-__be32-usertype-vni
-|   |-- drivers-nvmem-sunplus-ocotp.c:sparse:sparse:symbol-sp_otp_v0-was-not-declared.-Should-it-be-static
-|   |-- drivers-tty-serial-sunplus-uart.c:sparse:sparse:symbol-sunplus_console_ports-was-not-declared.-Should-it-be-static
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- nios2-allyesconfig
-|   |-- arch-nios2-kernel-misaligned.c:sparse:sparse:incorrect-type-in-argument-(different-address-spaces)-expected-void-noderef-__user-to-got-unsigned-char-usertype-__pu_ptr
-|   |-- drivers-net-vxlan-vxlan_core.c:sparse:sparse:incorrect-type-in-argument-(different-base-types)-expected-unsigned-int-usertype-b-got-restricted-__be32-usertype-vni
-|   |-- drivers-nvmem-sunplus-ocotp.c:sparse:sparse:symbol-sp_otp_v0-was-not-declared.-Should-it-be-static
-|   |-- drivers-tty-serial-sunplus-uart.c:sparse:sparse:symbol-sunplus_console_ports-was-not-declared.-Should-it-be-static
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- nios2-randconfig-r004-20220314
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- nios2-randconfig-r006-20220314
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- parisc-allmodconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- drivers-net-vxlan-vxlan_core.c:sparse:sparse:incorrect-type-in-argument-(different-base-types)-expected-unsigned-int-usertype-b-got-restricted-__be32-usertype-vni
-|   |-- drivers-nvmem-sunplus-ocotp.c:sparse:sparse:symbol-sp_otp_v0-was-not-declared.-Should-it-be-static
-|   |-- drivers-tty-serial-sunplus-uart.c:sparse:sparse:symbol-sunplus_console_ports-was-not-declared.-Should-it-be-static
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- parisc-allyesconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- drivers-net-vxlan-vxlan_core.c:sparse:sparse:incorrect-type-in-argument-(different-base-types)-expected-unsigned-int-usertype-b-got-restricted-__be32-usertype-vni
-|   |-- drivers-nvmem-sunplus-ocotp.c:sparse:sparse:symbol-sp_otp_v0-was-not-declared.-Should-it-be-static
-|   |-- drivers-tty-serial-sunplus-uart.c:sparse:sparse:symbol-sunplus_console_ports-was-not-declared.-Should-it-be-static
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- parisc-randconfig-r012-20220314
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- parisc64-defconfig
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- powerpc-allmodconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- powerpc-allyesconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- powerpc64-randconfig-m031-20220313
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- powerpc64-randconfig-r021-20220313
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- powerpc64-randconfig-r035-20220314
-|   `-- drivers-media-platform-samsung-exynos4-is-fimc-isp-video.h:warning:no-previous-prototype-for-fimc_isp_video_device_unregister
-|-- powerpc64-randconfig-r036-20220314
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- powerpc64-randconfig-s032-20220313
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   `-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|-- riscv-allmodconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- riscv-allyesconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- riscv-randconfig-r042-20220313
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- s390-allmodconfig
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- s390-allyesconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- s390-defconfig
-|   |-- arch-s390-kernel-machine_kexec.c:warning:memcpy-offset-is-out-of-the-bounds
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- s390-randconfig-r002-20220314
-|   |-- ERROR:perf_pmu_migrate_context-drivers-nvdimm-libnvdimm.ko-undefined
-|   |-- ERROR:perf_pmu_register-drivers-nvdimm-libnvdimm.ko-undefined
-|   |-- ERROR:perf_pmu_unregister-drivers-nvdimm-libnvdimm.ko-undefined
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- s390-randconfig-r044-20220313
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- include-linux-fortify-string.h:warning:__builtin_memcpy-offset-is-out-of-the-bounds
-|   |-- nd_perf.c:(.text):undefined-reference-to-perf_pmu_migrate_context
-|   |-- nd_perf.c:(.text):undefined-reference-to-perf_pmu_register
-|   `-- nd_perf.c:(.text):undefined-reference-to-perf_pmu_unregister
-|-- sh-allmodconfig
-|   |-- arch-sh-kernel-machvec.c:warning:array-subscript-struct-sh_machine_vector-is-partly-outside-array-bounds-of-long-int
-|   |-- drivers-net-vxlan-vxlan_core.c:sparse:sparse:incorrect-type-in-argument-(different-base-types)-expected-unsigned-int-usertype-b-got-restricted-__be32-usertype-vni
-|   |-- drivers-nvmem-sunplus-ocotp.c:sparse:sparse:symbol-sp_otp_v0-was-not-declared.-Should-it-be-static
-|   |-- drivers-tty-serial-sunplus-uart.c:sparse:sparse:symbol-sunplus_console_ports-was-not-declared.-Should-it-be-static
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   |-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|   `-- standard-input:Error:unknown-pseudo-op:sec
-|-- sh-allnoconfig
-|   `-- arch-sh-kernel-machvec.c:warning:array-subscript-struct-sh_machine_vector-is-partly-outside-array-bounds-of-long-int
-|-- sh-allyesconfig
-|   |-- arch-sh-kernel-machvec.c:warning:array-subscript-struct-sh_machine_vector-is-partly-outside-array-bounds-of-long-int
-|   |-- drivers-net-vxlan-vxlan_core.c:sparse:sparse:incorrect-type-in-argument-(different-base-types)-expected-unsigned-int-usertype-b-got-restricted-__be32-usertype-vni
-|   |-- drivers-nvmem-sunplus-ocotp.c:sparse:sparse:symbol-sp_otp_v0-was-not-declared.-Should-it-be-static
-|   |-- drivers-tty-serial-sunplus-uart.c:sparse:sparse:symbol-sunplus_console_ports-was-not-declared.-Should-it-be-static
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   |-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|   `-- standard-input:Error:unknown-pseudo-op:sec
-|-- sparc-allyesconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- sparc64-randconfig-m031-20220314
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- x86_64-allyesconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- drivers-iio-frequency-admv1014.c:sparse:sparse:dubious:x-y
-|   |-- drivers-net-vxlan-vxlan_core.c:sparse:sparse:incorrect-type-in-argument-(different-base-types)-expected-unsigned-int-usertype-b-got-restricted-__be32-usertype-vni
-|   |-- drivers-tty-serial-sunplus-uart.c:sparse:sparse:symbol-sunplus_console_ports-was-not-declared.-Should-it-be-static
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- x86_64-kexec
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- x86_64-randconfig-a006
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- x86_64-randconfig-m001-20220314
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- x86_64-rhel-8.3
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- x86_64-rhel-8.3-func
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- x86_64-rhel-8.3-kselftests
-|   |-- drivers-net-vxlan-vxlan_core.c:sparse:sparse:incorrect-type-in-argument-(different-base-types)-expected-unsigned-int-usertype-b-got-restricted-__be32-usertype-vni
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- x86_64-rhel-8.3-kunit
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- xtensa-allmodconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- xtensa-allyesconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- xtensa-randconfig-r005-20220314
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-amdgpu_mmhub_ras_fini
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-`-- xtensa-randconfig-r014-20220314
-    |-- drivers-infiniband-core-user_mad.c:warning:array-subscript-struct-ib_rmpp_mad-is-partly-outside-array-bounds-of-unsigned-char
-    |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-    `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
+QEMU emulator version 6.2.50 (v6.2.0-29-g196d7182c8)
+OpenSBI v0.9
+[    0.000000] Linux version 5.16.0-rc6-00017-g750f87086bdd-dirty (guoren@guoren-Z87-HD3) (riscv64-unknown-linux-gnu-gcc (GCC) 10.2.0, GNU ld (GNU Binutils) 2.37) #96 SMP Tue Dec 28 21:01:55 CST 2021
+[    0.000000] OF: fdt: Ignoring memory range 0x80000000 - 0x80200000
+[    0.000000] Machine model: riscv-virtio,qemu
+[    0.000000] earlycon: sbi0 at I/O port 0x0 (options '')
+[    0.000000] printk: bootconsole [sbi0] enabled
+[    0.000000] efi: UEFI not found.
+[    0.000000] Zone ranges:
+[    0.000000]   DMA32    [mem 0x0000000080200000-0x0000000083ffffff]
+[    0.000000]   Normal   empty
+[    0.000000] Movable zone start for each node
+[    0.000000] Early memory node ranges
+[    0.000000]   node   0: [mem 0x0000000080200000-0x0000000083ffffff]
+[    0.000000] Initmem setup node 0 [mem 0x0000000080200000-0x0000000083ffffff]
+[    0.000000] SBI specification v0.2 detected
+[    0.000000] SBI implementation ID=0x1 Version=0x9
+[    0.000000] SBI TIME extension detected
+[    0.000000] SBI IPI extension detected
+[    0.000000] SBI RFENCE extension detected
+[    0.000000] SBI v0.2 HSM extension detected
+[    0.000000] riscv: ISA extensions acdfhimsu
+[    0.000000] riscv: ELF capabilities acdfim
+[    0.000000] percpu: Embedded 17 pages/cpu s30696 r8192 d30744 u69632
+[    0.000000] Built 1 zonelists, mobility grouping on.  Total pages: 15655
+[    0.000000] Kernel command line: rootwait root=/dev/vda ro console=ttyS0 earlycon=sbi
+[    0.000000] Dentry cache hash table entries: 8192 (order: 4, 65536 bytes, linear)
+[    0.000000] Inode-cache hash table entries: 4096 (order: 3, 32768 bytes, linear)
+[    0.000000] mem auto-init: stack:off, heap alloc:off, heap free:off
+[    0.000000] Virtual kernel memory layout:
+[    0.000000]       fixmap : 0xffffffcefee00000 - 0xffffffceff000000   (2048 kB)
+[    0.000000]       pci io : 0xffffffceff000000 - 0xffffffcf00000000   (  16 MB)
+[    0.000000]      vmemmap : 0xffffffcf00000000 - 0xffffffcfffffffff   (4095 MB)
+[    0.000000]      vmalloc : 0xffffffd000000000 - 0xffffffdfffffffff   (65535 MB)
+[    0.000000]       lowmem : 0xffffffe000000000 - 0xffffffe003e00000   (  62 MB)
+[    0.000000]       kernel : 0xffffffff80000000 - 0xffffffffffffffff   (2047 MB)
+[    0.000000] Memory: 52788K/63488K available (6184K kernel code, 888K rwdata, 1917K rodata, 294K init, 297K bss, 10700K reserved, 0K cma-reserved)
+[    0.000000] SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=1, Nodes=1
+[    0.000000] rcu: Hierarchical RCU implementation.
+[    0.000000] rcu:     RCU restricting CPUs from NR_CPUS=8 to nr_cpu_ids=1.
+[    0.000000] rcu:     RCU debug extended QS entry/exit.
+[    0.000000]  Tracing variant of Tasks RCU enabled.
+[    0.000000] rcu: RCU calculated value of scheduler-enlistment delay is 25 jiffies.
+[    0.000000] rcu: Adjusting geometry for rcu_fanout_leaf=16, nr_cpu_ids=1
+[    0.000000] NR_IRQS: 64, nr_irqs: 64, preallocated irqs: 0
+[    0.000000] riscv-intc: 64 local interrupts mapped
+[    0.000000] plic: plic@c000000: mapped 53 interrupts with 1 handlers for 2 contexts.
+...
+Welcome to Buildroot
+buildroot login: root
+# cat /proc/cpuinfo
+processor       : 0
+hart            : 0
+isa             : rv64imafdcsuh
+mmu             : sv48
 
-clang_recent_errors
-|-- arm-randconfig-c002-20220313
-|   |-- drivers-clk-imx-clk-pll14xx.c:warning:Value-stored-to-pll_div_ctl1-is-never-read-clang-analyzer-deadcode.DeadStores
-|   |-- drivers-firmware-turris-mox-rwtm.c:warning:Call-to-function-sprintf-is-insecure-as-it-does-not-provide-bounding-of-the-memory-buffer-or-security-checks-introduced-in-the-C11-standard.-Replace-with-ana
-|   |-- drivers-hid-hid-core.c:warning:Although-the-value-stored-to-field-is-used-in-the-enclosing-expression-the-value-is-never-actually-read-from-field-clang-analyzer-deadcode.DeadStores
-|   |-- drivers-hwmon-nsa320-hwmon.c:warning:Call-to-function-sprintf-is-insecure-as-it-does-not-provide-bounding-of-the-memory-buffer-or-security-checks-introduced-in-the-C11-standard.-Replace-with-analogous
-|   |-- drivers-input-serio-ps2-gpio.c:warning:Value-stored-to-rxflags-is-never-read-clang-analyzer-deadcode.DeadStores
-|   |-- drivers-leds-trigger-ledtrig-tty.c:warning:Call-to-function-sprintf-is-insecure-as-it-does-not-provide-bounding-of-the-memory-buffer-or-security-checks-introduced-in-the-C11-standard.-Replace-with-ana
-|   |-- drivers-memory-brcmstb_dpfe.c:warning:Call-to-function-sprintf-is-insecure-as-it-does-not-provide-bounding-of-the-memory-buffer-or-security-checks-introduced-in-the-C11-standard.-Replace-with-analogou
-|   |-- drivers-memory-tegra-tegra30-emc.c:warning:Value-stored-to-dram_type_str-is-never-read-clang-analyzer-deadcode.DeadStores
-|   |-- drivers-mmc-host-omap_hsmmc.c:warning:Call-to-function-sprintf-is-insecure-as-it-does-not-provide-bounding-of-the-memory-buffer-or-security-checks-introduced-in-the-C11-standard.-Replace-with-analogou
-|   |-- drivers-phy-broadcom-phy-brcm-usb.c:warning:Call-to-function-sprintf-is-insecure-as-it-does-not-provide-bounding-of-the-memory-buffer-or-security-checks-introduced-in-the-C11-standard.-Replace-with-an
-|   |-- drivers-staging-greybus-arche-apb-ctrl.c:warning:Call-to-function-sprintf-is-insecure-as-it-does-not-provide-bounding-of-the-memory-buffer-or-security-checks-introduced-in-the-C11-standard.-Replace-wi
-|   |-- include-linux-fortify-string.h:warning:call-to-__read_overflow2_field-declared-with-warning-attribute:detected-read-beyond-size-of-field-(2nd-parameter)-maybe-use-struct_group()
-|   |-- net-core-pktgen.c:warning:Call-to-function-sprintf-is-insecure-as-it-does-not-provide-bounding-of-the-memory-buffer-or-security-checks-introduced-in-the-C11-standard.-Replace-with-analogous-functions-
-|   `-- net-ipv4-tcp_input.c:warning:Value-stored-to-reason-is-never-read-clang-analyzer-deadcode.DeadStores
-|-- arm-randconfig-r025-20220313
-|   `-- include-linux-fortify-string.h:warning:call-to-__read_overflow2_field-declared-with-warning-attribute:detected-read-beyond-size-of-field-(2nd-parameter)-maybe-use-struct_group()
-|-- arm64-randconfig-r005-20220313
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-function-amdgpu_hdp_ras_fini
-|   `-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-function-amdgpu_mmhub_ras_fini
-|-- hexagon-randconfig-r041-20220313
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- hexagon-randconfig-r045-20220313
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- i386-randconfig-a011-20220314
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- i386-randconfig-a012-20220314
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- i386-randconfig-a013-20220314
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- i386-randconfig-a014-20220314
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- i386-randconfig-a015-20220314
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- i386-randconfig-a016-20220314
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- i386-randconfig-c001
-|   |-- drivers-hid-hid-core.c:warning:Although-the-value-stored-to-field-is-used-in-the-enclosing-expression-the-value-is-never-actually-read-from-field-clang-analyzer-deadcode.DeadStores
-|   `-- net-ipv4-tcp_input.c:warning:Value-stored-to-reason-is-never-read-clang-analyzer-deadcode.DeadStores
-|-- riscv-randconfig-c006-20220310
-|   `-- drivers-gpu-drm-amd-amdgpu-amdgpu_discovery.c:warning:Value-stored-to-res-is-never-read-clang-analyzer-deadcode.DeadStores
-|-- riscv-randconfig-c006-20220313
-|   |-- drivers-clk-imx-clk-pll14xx.c:warning:Value-stored-to-pll_div_ctl1-is-never-read-clang-analyzer-deadcode.DeadStores
-|   |-- drivers-hid-hid-core.c:warning:Although-the-value-stored-to-field-is-used-in-the-enclosing-expression-the-value-is-never-actually-read-from-field-clang-analyzer-deadcode.DeadStores
-|   |-- drivers-phy-broadcom-phy-brcm-usb.c:warning:Call-to-function-sprintf-is-insecure-as-it-does-not-provide-bounding-of-the-memory-buffer-or-security-checks-introduced-in-the-C11-standard.-Replace-with-an
-|   |-- drivers-staging-greybus-arche-apb-ctrl.c:warning:Call-to-function-sprintf-is-insecure-as-it-does-not-provide-bounding-of-the-memory-buffer-or-security-checks-introduced-in-the-C11-standard.-Replace-wi
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- riscv-randconfig-r042-20220314
-|   |-- Section-mismatch-in-reference-from-the-(unknown-reference)-(unknown)-to-the-(unknown-reference)-.debug_str:(unknown)
-|   |-- Section-mismatch-in-reference-from-the-function-tcp4_proc_exit()-to-the-function-.init.text:set_reset_devices()
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- s390-randconfig-c005-20220313
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-function-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-dml-calcs-dce_calcs.c:warning:stack-frame-size-()-exceeds-limit-()-in-calculate_bandwidth
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-function-amdgpu_hdp_ras_fini
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-function-amdgpu_mmhub_ras_fini
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   `-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|-- s390-randconfig-r033-20220313
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-function-amdgpu_hdp_ras_fini
-|   `-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-function-amdgpu_mmhub_ras_fini
-|-- s390-randconfig-r044-20220314
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_resource.c:warning:no-previous-prototype-for-function-is_timing_changed
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-dml-calcs-dce_calcs.c:warning:stack-frame-size-()-exceeds-limit-()-in-calculate_bandwidth
-|   |-- drivers-gpu-drm-amd-amdgpu-amdgpu_hdp.c:warning:no-previous-prototype-for-function-amdgpu_hdp_ras_fini
-|   `-- drivers-gpu-drm-amd-amdgpu-amdgpu_mmhub.c:warning:no-previous-prototype-for-function-amdgpu_mmhub_ras_fini
-|-- x86_64-randconfig-a001
-|   |-- drivers-spi-spi-amd.c:warning:cast-to-smaller-integer-type-enum-amd_spi_versions-from-const-void
-|   `-- include-linux-fortify-string.h:warning:call-to-__read_overflow2_field-declared-with-warning-attribute:detected-read-beyond-size-of-field-(2nd-parameter)-maybe-use-struct_group()
-|-- x86_64-randconfig-a003
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   |-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|   `-- include-linux-fortify-string.h:warning:call-to-__read_overflow2_field-declared-with-warning-attribute:detected-read-beyond-size-of-field-(2nd-parameter)-maybe-use-struct_group()
-|-- x86_64-randconfig-a005
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   |-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|   `-- include-linux-fortify-string.h:warning:call-to-__read_overflow2_field-declared-with-warning-attribute:detected-read-beyond-size-of-field-(2nd-parameter)-maybe-use-struct_group()
-|-- x86_64-randconfig-a011-20220314
-|   |-- drivers-spi-spi-amd.c:warning:cast-to-smaller-integer-type-enum-amd_spi_versions-from-const-void
-|   `-- include-linux-fortify-string.h:warning:call-to-__read_overflow2_field-declared-with-warning-attribute:detected-read-beyond-size-of-field-(2nd-parameter)-maybe-use-struct_group()
-|-- x86_64-randconfig-a012-20220314
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   |-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|   `-- include-linux-fortify-string.h:warning:call-to-__read_overflow2_field-declared-with-warning-attribute:detected-read-beyond-size-of-field-(2nd-parameter)-maybe-use-struct_group()
-|-- x86_64-randconfig-a013-20220314
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   |-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|   |-- fs-reiserfs-lbalance.o:warning:objtool:leaf_copy_boundary_item():stack-state-mismatch:cfa1-cfa2
-|   `-- include-linux-fortify-string.h:warning:call-to-__read_overflow2_field-declared-with-warning-attribute:detected-read-beyond-size-of-field-(2nd-parameter)-maybe-use-struct_group()
-|-- x86_64-randconfig-a014-20220314
-|   |-- drivers-spi-spi-amd.c:warning:cast-to-smaller-integer-type-enum-amd_spi_versions-from-const-void
-|   |-- fs-reiserfs-lbalance.o:warning:objtool:leaf_copy_boundary_item():stack-state-mismatch:cfa1-cfa2
-|   `-- include-linux-fortify-string.h:warning:call-to-__read_overflow2_field-declared-with-warning-attribute:detected-read-beyond-size-of-field-(2nd-parameter)-maybe-use-struct_group()
-|-- x86_64-randconfig-a015-20220314
-|   |-- fs-btrfs-ordered-data.c:warning:expecting-prototype-for-Add-an-ordered-extent-to-the-per().-Prototype-was-for-btrfs_add_ordered_extent()-instead
-|   |-- fs-btrfs-tree-log.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
-|   `-- include-linux-fortify-string.h:warning:call-to-__read_overflow2_field-declared-with-warning-attribute:detected-read-beyond-size-of-field-(2nd-parameter)-maybe-use-struct_group()
-|-- x86_64-randconfig-a016-20220314
-|   |-- drivers-spi-spi-amd.c:warning:cast-to-smaller-integer-type-enum-amd_spi_versions-from-const-void
-|   `-- include-linux-fortify-string.h:warning:call-to-__read_overflow2_field-declared-with-warning-attribute:detected-read-beyond-size-of-field-(2nd-parameter)-maybe-use-struct_group()
-|-- x86_64-randconfig-c007
-|   |-- drivers-hid-hid-core.c:warning:Although-the-value-stored-to-field-is-used-in-the-enclosing-expression-the-value-is-never-actually-read-from-field-clang-analyzer-deadcode.DeadStores
-|   |-- drivers-pci-vgaarb.c:warning:Value-stored-to-dev-during-its-initialization-is-never-read-clang-analyzer-deadcode.DeadStores
-|   `-- net-ipv4-tcp_input.c:warning:Value-stored-to-reason-is-never-read-clang-analyzer-deadcode.DeadStores
-`-- x86_64-randconfig-r023-20220314
-    |-- fs-reiserfs-lbalance.o:warning:objtool:leaf_copy_boundary_item():stack-state-mismatch:cfa1-cfa2
-    `-- include-linux-fortify-string.h:warning:call-to-__read_overflow2_field-declared-with-warning-attribute:detected-read-beyond-size-of-field-(2nd-parameter)-maybe-use-struct_group()
+# file /bin/busybox
+/bin/busybox: setuid ELF 32-bit LSB shared object, UCB RISC-V, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-riscv32-ilp32d.so.1, for GNU/Linux 5.15.0, stripped
+# ca[   78.386630] random: fast init done
+# cat /proc/meminfo
+MemTotal:          53076 kB
+MemFree:           40264 kB
+MemAvailable:      40244 kB
+Buffers:             236 kB
+Cached:             1560 kB
+SwapCached:            0 kB
+Active:             1700 kB
+Inactive:            516 kB
+Active(anon):         40 kB
+Inactive(anon):      424 kB
+Active(file):       1660 kB
+Inactive(file):       92 kB
+Unevictable:           0 kB
+Mlocked:               0 kB
+SwapTotal:             0 kB
+SwapFree:              0 kB
+Dirty:                 0 kB
+Writeback:             0 kB
+AnonPages:           444 kB
+Mapped:             1188 kB
+Shmem:                44 kB
+KReclaimable:        952 kB
+Slab:               5744 kB
+SReclaimable:        952 kB
+SUnreclaim:         4792 kB
+KernelStack:         624 kB
+PageTables:          156 kB
+NFS_Unstable:          0 kB
+Bounce:                0 kB
+WritebackTmp:          0 kB
+CommitLimit:       26536 kB
+Committed_AS:       1748 kB
+VmallocTotal:   67108863 kB
+VmallocUsed:         652 kB
+VmallocChunk:          0 kB
+Percpu:               80 kB
+#
 
-elapsed time: 730m
+ - Run rv32 with rv32 rootfs:
+   $ ./build/qemu-system-riscv32 -cpu rv32 -M virt -m 64m -nographic -bios qemu_riscv32_virt_defconfig/images/fw_jump.bin -kernel build-rv32/Image -drive file qemu_riscv32_virt_defconfig/images/rootfs.ext2,format=raw,id=hd0 -device virtio-blk-device,drive=hd0 -append "rootwait root=/dev/vda ro console=ttyS0 earlycon=sbi" -netdev user,id=net0 -device virtio-net-device,netdev=net0
 
-configs tested: 115
-configs skipped: 3
+QEMU emulator version 6.2.50 (v6.2.0-29-g196d7182c8)
+OpenSBI v0.9
+[    0.000000] Linux version 5.16.0-rc6-00017-g750f87086bdd-dirty (guoren@guoren-Z87-HD3) (riscv32-buildroot-linux-gnu-gcc.br_real (Buildroot 2021.11-201-g7600ca7960-dirty) 10.3.0, GNU ld (GNU Binutils) 2.36.1) #7 SMP Tue Dec 28 21:02:21 CST 2021
+[    0.000000] OF: fdt: Ignoring memory range 0x80000000 - 0x80400000
+[    0.000000] Machine model: riscv-virtio,qemu
+[    0.000000] earlycon: sbi0 at I/O port 0x0 (options '')
+[    0.000000] printk: bootconsole [sbi0] enabled
+[    0.000000] efi: UEFI not found.
+[    0.000000] Zone ranges:
+[    0.000000]   Normal   [mem 0x0000000080400000-0x0000000083ffffff]
+[    0.000000] Movable zone start for each node
+[    0.000000] Early memory node ranges
+[    0.000000]   node   0: [mem 0x0000000080400000-0x0000000083ffffff]
+[    0.000000] Initmem setup node 0 [mem 0x0000000080400000-0x0000000083ffffff]
+[    0.000000] SBI specification v0.2 detected
+[    0.000000] SBI implementation ID=0x1 Version=0x9
+[    0.000000] SBI TIME extension detected
+[    0.000000] SBI IPI extension detected
+[    0.000000] SBI RFENCE extension detected
+[    0.000000] SBI v0.2 HSM extension detected
+[    0.000000] riscv: ISA extensions acdfhimsu
+[    0.000000] riscv: ELF capabilities acdfim
+[    0.000000] percpu: Embedded 12 pages/cpu s16600 r8192 d24360 u49152
+[    0.000000] Built 1 zonelists, mobility grouping on.  Total pages: 15240
+[    0.000000] Kernel command line: rootwait root=/dev/vda ro console=ttyS0 earlycon=sbi
+[    0.000000] Dentry cache hash table entries: 8192 (order: 3, 32768 bytes, linear)
+[    0.000000] Inode-cache hash table entries: 4096 (order: 2, 16384 bytes, linear)
+[    0.000000] mem auto-init: stack:off, heap alloc:off, heap free:off
+[    0.000000] Virtual kernel memory layout:
+[    0.000000]       fixmap : 0x9dc00000 - 0x9e000000   (4096 kB)
+[    0.000000]       pci io : 0x9e000000 - 0x9f000000   (  16 MB)
+[    0.000000]      vmemmap : 0x9f000000 - 0x9fffffff   (  15 MB)
+[    0.000000]      vmalloc : 0xa0000000 - 0xbfffffff   ( 511 MB)
+[    0.000000]       lowmem : 0xc0000000 - 0xc3c00000   (  60 MB)
+[    0.000000] Memory: 51924K/61440K available (6117K kernel code, 695K rwdata, 1594K rodata, 255K init, 241K bss, 9516K reserved, 0K cma-reserved)
+[    0.000000] SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=1, Nodes=1
+[    0.000000] rcu: Hierarchical RCU implementation.
+[    0.000000] rcu:     RCU restricting CPUs from NR_CPUS=8 to nr_cpu_ids=1.
+[    0.000000] rcu:     RCU debug extended QS entry/exit.
+[    0.000000]  Tracing variant of Tasks RCU enabled.
+[    0.000000] rcu: RCU calculated value of scheduler-enlistment delay is 25 jiffies.
+[    0.000000] rcu: Adjusting geometry for rcu_fanout_leaf=16, nr_cpu_ids=1
+[    0.000000] NR_IRQS: 64, nr_irqs: 64, preallocated irqs: 0
+[    0.000000] riscv-intc: 32 local interrupts mapped
+[    0.000000] plic: plic@c000000: mapped 53 interrupts with 1 handlers for 2 contexts.
+...
+Welcome to Buildroot
+buildroot login: root
+# cat /proc/cpuinfo
+processor       : 0
+hart            : 0
+isa             : rv32imafdcsuh
+mmu             : sv32
 
-gcc tested configs:
-arm                                 defconfig
-arm                              allmodconfig
-arm                              allyesconfig
-arm64                               defconfig
-arm64                            allyesconfig
-um                             i386_defconfig
-mips                             allmodconfig
-riscv                            allmodconfig
-um                           x86_64_defconfig
-mips                             allyesconfig
-riscv                            allyesconfig
-sh                               allmodconfig
-xtensa                           allyesconfig
-h8300                            allyesconfig
-parisc                           allyesconfig
-i386                          randconfig-c001
-alpha                            allyesconfig
-arc                              allyesconfig
-nios2                            allyesconfig
-arm                      footbridge_defconfig
-mips                        vocore2_defconfig
-arm                     eseries_pxa_defconfig
-powerpc                 mpc834x_itx_defconfig
-ia64                         bigsur_defconfig
-xtensa                              defconfig
-arm                          exynos_defconfig
-x86_64                           alldefconfig
-arm                           sama5_defconfig
-ia64                            zx1_defconfig
-arm                  randconfig-c002-20220314
-ia64                                defconfig
-ia64                             allmodconfig
-ia64                             allyesconfig
-m68k                             allyesconfig
-m68k                             allmodconfig
-m68k                                defconfig
-nds32                             allnoconfig
-nios2                               defconfig
-csky                                defconfig
-alpha                               defconfig
-nds32                               defconfig
-arc                                 defconfig
-parisc                              defconfig
-parisc64                            defconfig
-s390                             allmodconfig
-s390                             allyesconfig
-s390                                defconfig
-i386                             allyesconfig
-i386                              debian-10.3
-i386                   debian-10.3-kselftests
-i386                                defconfig
-sparc                            allyesconfig
-sparc                               defconfig
-powerpc                           allnoconfig
-powerpc                          allmodconfig
-powerpc                          allyesconfig
-x86_64                        randconfig-a006
-x86_64                        randconfig-a002
-x86_64                        randconfig-a004
-i386                 randconfig-a001-20220314
-i386                 randconfig-a002-20220314
-i386                 randconfig-a004-20220314
-i386                 randconfig-a003-20220314
-s390                 randconfig-r044-20220313
-arc                  randconfig-r043-20220313
-riscv                randconfig-r042-20220313
-arc                  randconfig-r043-20220314
-riscv                             allnoconfig
-riscv                               defconfig
-riscv                    nommu_k210_defconfig
-riscv                    nommu_virt_defconfig
-riscv                          rv32_defconfig
-x86_64                    rhel-8.3-kselftests
-x86_64                           allyesconfig
-x86_64                              defconfig
-x86_64                                  kexec
-x86_64                               rhel-8.3
-x86_64                          rhel-8.3-func
-x86_64                         rhel-8.3-kunit
+# file /bin/busybox
+/bin/busybox: setuid ELF 32-bit LSB shared object, UCB RISC-V, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-riscv32-ilp32d.so.1, for GNU/Linux 5.15.0, stripped
+[   79.320589] random: fast init done
+# cat /proc/meminfo
+MemTotal:          52176 kB
+MemFree:           41012 kB
+MemAvailable:      42176 kB
+Buffers:             644 kB
+Cached:             2724 kB
+SwapCached:            0 kB
+Active:             3128 kB
+Inactive:            752 kB
+Active(anon):         40 kB
+Inactive(anon):      516 kB
+Active(file):       3088 kB
+Inactive(file):      236 kB
+Unevictable:           0 kB
+Mlocked:               0 kB
+SwapTotal:             0 kB
+SwapFree:              0 kB
+Dirty:                 4 kB
+Writeback:             0 kB
+AnonPages:           556 kB
+Mapped:             2172 kB
+Shmem:                44 kB
+KReclaimable:        656 kB
+Slab:               3684 kB
+SReclaimable:        656 kB
+SUnreclaim:         3028 kB
+KernelStack:         312 kB
+PageTables:           88 kB
+NFS_Unstable:          0 kB
+Bounce:                0 kB
+WritebackTmp:          0 kB
+CommitLimit:       26088 kB
+Committed_AS:       2088 kB
+VmallocTotal:     524287 kB
+VmallocUsed:          12 kB
+VmallocChunk:          0 kB
+Percpu:               60 kB
+#
 
-clang tested configs:
-x86_64                        randconfig-c007
-mips                 randconfig-c004-20220313
-arm                  randconfig-c002-20220313
-i386                          randconfig-c001
-powerpc              randconfig-c003-20220313
-s390                 randconfig-c005-20220313
-riscv                randconfig-c006-20220313
-arm                       cns3420vb_defconfig
-mips                           ip28_defconfig
-arm                            mmp2_defconfig
-mips                          ath79_defconfig
-arm                           sama7_defconfig
-mips                     loongson2k_defconfig
-powerpc                 mpc836x_rdk_defconfig
-powerpc                     ppa8548_defconfig
-arm                      pxa255-idp_defconfig
-x86_64                        randconfig-a001
-x86_64                        randconfig-a003
-x86_64                        randconfig-a005
-x86_64               randconfig-a011-20220314
-x86_64               randconfig-a014-20220314
-x86_64               randconfig-a013-20220314
-x86_64               randconfig-a012-20220314
-x86_64               randconfig-a015-20220314
-x86_64               randconfig-a016-20220314
-i386                 randconfig-a012-20220314
-i386                 randconfig-a011-20220314
-i386                 randconfig-a013-20220314
-i386                 randconfig-a014-20220314
-i386                 randconfig-a015-20220314
-i386                 randconfig-a016-20220314
-hexagon              randconfig-r045-20220313
-hexagon              randconfig-r045-20220314
-hexagon              randconfig-r041-20220313
-s390                 randconfig-r044-20220314
-hexagon              randconfig-r041-20220314
-riscv                randconfig-r042-20220314
+ Some conclusions:
+ - kernel statics:
+   64: Memory: 52788K/63488K available (6184K kernel code, 888K rwdata, 1917K rodata, 294K init, 297K bss, 10700K reserved)
+   32: Memory: 51924K/61440K available (6117K kernel code, 695K rwdata, 1594K rodata, 255K init, 241K bss,  9516K reserved)
+   rv32 better than rv64:                  1%               22%           17%          13%        19%         11%
+   The code size is very similar, but data size rv32 would be better.
 
----
-0-DAY CI Kernel Test Service
-https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+ - rv32 kernel runtime KernelStack, Slab... are smaller,
+   rv64: MemTotal: 53076 kB,        MemFree: 40264 kB
+   rv32: MemTotal: 52176 + 2048 kB, MemFree: 41012  + 2048 kB
+   rv32 better than rv64:       2%                         6%
+
+   (Because opensbi problem, we could add another 2MB for rv32.)
+   Overall in 64MB memory situation, rv64-compat is 6% worse than rv32-native
+   at memory footprint. If the userspace memory usage increases, I think
+   the gap will be further reduced.
+
+Changes in v8:
+ - Enhanced elf_check_arch with EI_CLASS
+ - Fixup SR_UXL doesn't exist in CONFIG_32BIT
+ - Add Tested-by with Heiko
+ - Update qemu compile tips with upstream repo
+
+Changes in v7:
+ - Re-construct compat_vdso/Makefile
+ - Fixup disable COMPAT compile error by csr.h's macro.
+ - Optimize coding convention for lo/hi in compat.h
+
+Changes in v6:
+ - Rebase on linux-5.17-rc5
+ - Optimize hw capability check for elf
+ - Optimize comment in thread_info.h
+ - Optimize start_thread with SR_UXL setting
+ - Optimize vdso.c with direct panic
+
+Changes in v5:
+ - Rebase on linux-5.17-rc2
+ - Include consolidate the fcntl patches by Christoph Hellwig
+ - Remove F_GETLK64/F_SETLK64/F_SETLKW64 from asm/compat.h
+ - Change COMPAT_RLIM_INFINITY from 0x7fffffff to 0xffffffff
+ - Bring back "Add hw-cap detect in setup_arch patch" in v1
+
+Changes in v4:
+ - Rebase on linux-5.17-rc1
+ - Optimize compat_sys_call_table implementation with Arnd's advice
+ - Add reviewed-by for Arnd. Thx :)
+ - Remove FIXME comment in elf.h
+ - Optimize Cleanup duplicate definitions in compat.h with Arnd's advice
+
+Changes in v3:
+ - Rebase on newest master (pre linux-5.17-rc1)
+ - Using newest qemu version v7 for test
+ - Remove fcntl common modification
+ - Fixup SET_PERSONALITY in elf.h by Arnd
+ - Fixup KVM Kconfig
+ - Update Acked-by & Reviewed-by
+
+Changes in v2:
+ - Add __ARCH_WANT_COMPAT_STAT suggested
+ - Cleanup fcntl compatduplicate definitions
+ - Cleanup compat.h
+ - Move rv32_defconfig into Makefile
+ - Fixup rv64 rootfs boot failed, remove hw_compat_mode_detect
+ - Move SYSVIPC_COMPAT into init/Kconfig
+ - Simplify compat_elf_check
+
+Christoph Hellwig (3):
+  uapi: simplify __ARCH_FLOCK{,64}_PAD a little
+  uapi: always define F_GETLK64/F_SETLK64/F_SETLKW64 in fcntl.h
+  compat: consolidate the compat_flock{,64} definition
+
+Guo Ren (17):
+  kconfig: Add SYSVIPC_COMPAT for all architectures
+  fs: stat: compat: Add __ARCH_WANT_COMPAT_STAT
+  asm-generic: compat: Cleanup duplicate definitions
+  syscalls: compat: Fix the missing part for __SYSCALL_COMPAT
+  riscv: Fixup difference with defconfig
+  riscv: compat: Add basic compat data type implementation
+  riscv: compat: Re-implement TASK_SIZE for COMPAT_32BIT
+  riscv: compat: syscall: Add compat_sys_call_table implementation
+  riscv: compat: syscall: Add entry.S implementation
+  riscv: compat: process: Add UXL_32 support in start_thread
+  riscv: compat: Add elf.h implementation
+  riscv: compat: Add hw capability check for elf
+  riscv: compat: vdso: Add COMPAT_VDSO base code implementation
+  riscv: compat: vdso: Add setup additional pages implementation
+  riscv: compat: signal: Add rt_frame implementation
+  riscv: compat: ptrace: Add compat_arch_ptrace implement
+  riscv: compat: Add COMPAT Kbuild skeletal support
+
+ arch/arm64/Kconfig                            |   4 -
+ arch/arm64/include/asm/compat.h               |  91 +------
+ arch/arm64/include/asm/unistd.h               |   1 +
+ arch/mips/Kconfig                             |   5 -
+ arch/mips/include/asm/compat.h                |  41 +--
+ arch/mips/include/asm/unistd.h                |   2 +
+ arch/mips/include/uapi/asm/fcntl.h            |  30 +--
+ arch/parisc/Kconfig                           |   4 -
+ arch/parisc/include/asm/compat.h              |  45 +---
+ arch/parisc/include/asm/unistd.h              |   1 +
+ arch/powerpc/Kconfig                          |   5 -
+ arch/powerpc/include/asm/compat.h             |  50 +---
+ arch/powerpc/include/asm/unistd.h             |   1 +
+ arch/riscv/Kconfig                            |  19 ++
+ arch/riscv/Makefile                           |   9 +
+ arch/riscv/configs/rv32_defconfig             | 135 ----------
+ arch/riscv/include/asm/compat.h               | 129 ++++++++++
+ arch/riscv/include/asm/csr.h                  |   7 +
+ arch/riscv/include/asm/elf.h                  |  50 +++-
+ arch/riscv/include/asm/mmu.h                  |   1 +
+ arch/riscv/include/asm/pgtable.h              |  13 +-
+ arch/riscv/include/asm/syscall.h              |   1 +
+ arch/riscv/include/asm/thread_info.h          |   1 +
+ arch/riscv/include/asm/unistd.h               |  11 +
+ arch/riscv/include/asm/vdso.h                 |   9 +
+ arch/riscv/include/uapi/asm/unistd.h          |   2 +-
+ arch/riscv/kernel/Makefile                    |   3 +
+ arch/riscv/kernel/compat_signal.c             | 243 ++++++++++++++++++
+ arch/riscv/kernel/compat_syscall_table.c      |  19 ++
+ arch/riscv/kernel/compat_vdso/.gitignore      |   2 +
+ arch/riscv/kernel/compat_vdso/Makefile        |  78 ++++++
+ arch/riscv/kernel/compat_vdso/compat_vdso.S   |   8 +
+ .../kernel/compat_vdso/compat_vdso.lds.S      |   3 +
+ arch/riscv/kernel/compat_vdso/flush_icache.S  |   3 +
+ .../compat_vdso/gen_compat_vdso_offsets.sh    |   5 +
+ arch/riscv/kernel/compat_vdso/getcpu.S        |   3 +
+ arch/riscv/kernel/compat_vdso/note.S          |   3 +
+ arch/riscv/kernel/compat_vdso/rt_sigreturn.S  |   3 +
+ arch/riscv/kernel/entry.S                     |  18 +-
+ arch/riscv/kernel/process.c                   |  37 +++
+ arch/riscv/kernel/ptrace.c                    |  87 ++++++-
+ arch/riscv/kernel/signal.c                    |  13 +-
+ arch/riscv/kernel/sys_riscv.c                 |   6 +-
+ arch/riscv/kernel/vdso.c                      | 105 +++++---
+ arch/riscv/kernel/vdso/vdso.S                 |   6 +-
+ arch/s390/Kconfig                             |   3 -
+ arch/s390/include/asm/compat.h                |  99 +------
+ arch/s390/include/asm/unistd.h                |   1 +
+ arch/sparc/Kconfig                            |   5 -
+ arch/sparc/include/asm/compat.h               |  61 ++---
+ arch/sparc/include/asm/unistd.h               |   1 +
+ arch/x86/Kconfig                              |   4 -
+ arch/x86/include/asm/compat.h                 | 104 ++------
+ arch/x86/include/asm/unistd.h                 |   1 +
+ fs/open.c                                     |  24 ++
+ fs/read_write.c                               |  16 ++
+ fs/stat.c                                     |   2 +-
+ fs/sync.c                                     |   9 +
+ include/asm-generic/compat.h                  | 113 ++++++++
+ include/linux/compat.h                        |  68 +++++
+ include/uapi/asm-generic/fcntl.h              |  23 +-
+ include/uapi/asm-generic/unistd.h             |   4 +-
+ init/Kconfig                                  |   4 +
+ mm/fadvise.c                                  |  11 +
+ mm/readahead.c                                |   7 +
+ tools/include/uapi/asm-generic/fcntl.h        |  21 +-
+ tools/include/uapi/asm-generic/unistd.h       |   4 +-
+ 67 files changed, 1200 insertions(+), 697 deletions(-)
+ delete mode 100644 arch/riscv/configs/rv32_defconfig
+ create mode 100644 arch/riscv/include/asm/compat.h
+ create mode 100644 arch/riscv/kernel/compat_signal.c
+ create mode 100644 arch/riscv/kernel/compat_syscall_table.c
+ create mode 100644 arch/riscv/kernel/compat_vdso/.gitignore
+ create mode 100644 arch/riscv/kernel/compat_vdso/Makefile
+ create mode 100644 arch/riscv/kernel/compat_vdso/compat_vdso.S
+ create mode 100644 arch/riscv/kernel/compat_vdso/compat_vdso.lds.S
+ create mode 100644 arch/riscv/kernel/compat_vdso/flush_icache.S
+ create mode 100755 arch/riscv/kernel/compat_vdso/gen_compat_vdso_offsets.sh
+ create mode 100644 arch/riscv/kernel/compat_vdso/getcpu.S
+ create mode 100644 arch/riscv/kernel/compat_vdso/note.S
+ create mode 100644 arch/riscv/kernel/compat_vdso/rt_sigreturn.S
+
+-- 
+2.25.1
+
