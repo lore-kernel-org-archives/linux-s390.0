@@ -2,255 +2,119 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D654C433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Mar 2022 07:07:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 871A7C433FE
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Mar 2022 07:44:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354279AbiCPHHq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Mar 2022 03:07:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56174 "EHLO
+        id S1354269AbiCPHpR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 16 Mar 2022 03:45:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354218AbiCPHHU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Mar 2022 03:07:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 588713BF83;
-        Wed, 16 Mar 2022 00:05:21 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DB520611EE;
-        Wed, 16 Mar 2022 07:05:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97686C340E9;
-        Wed, 16 Mar 2022 07:05:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1647414320;
-        bh=5ucjX4VG+LqJh2oWQ1pBBRlKhrNudWlPTr2cJhdCZBs=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BVqcX2gEqNwwJO3sJMQrneH0+bRFYNit8DnYtsr1Wck4QkrkzxDIHUqxPYyj1IjZN
-         rafv926SrVZF+UdJonVcebIXM+noHJdy2nU3YxLWWpteabjlLe36QnX6s7YJnw5FLA
-         ow5azEKvyRgCcJl5zwbqs1C868GhftvzS34f4zZgOvAl7/gSDrbrStBljw7LPwE3gQ
-         thj+Zx/rFv86+p7Kroxa7+s02I2uXF0aJfOZde1MgnitLD1BI4/mhk3bum31+mL1EB
-         8NXuPMXBbxgp4dtiUMCUFCpzxuSeldDS2n/a2mOg5ZBlEQ45uAcy9zYzRggi2EU5aW
-         8pic2iBnFKCpQ==
-From:   guoren@kernel.org
-To:     guoren@kernel.org, palmer@dabbelt.com, arnd@arndb.de,
-        anup@brainfault.org, gregkh@linuxfoundation.org, hch@lst.de
-Cc:     linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-riscv@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-parisc@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        x86@kernel.org, heiko@sntech.de,
-        Guo Ren <guoren@linux.alibaba.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH V8 19/20] riscv: compat: ptrace: Add compat_arch_ptrace implement
-Date:   Wed, 16 Mar 2022 15:03:16 +0800
-Message-Id: <20220316070317.1864279-20-guoren@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220316070317.1864279-1-guoren@kernel.org>
-References: <20220316070317.1864279-1-guoren@kernel.org>
+        with ESMTP id S1354280AbiCPHpQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Mar 2022 03:45:16 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id ADB0A5F8E8
+        for <linux-s390@vger.kernel.org>; Wed, 16 Mar 2022 00:44:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1647416641;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=mam8w85mLQbLuV3GPQ8EDdLw0BD02xApA60diEvmkn4=;
+        b=TVRIhh2BszB8A6+/L+ObBJwK1gTU3gx61zmRpVLnpgBpS+R809QXKdX1A4xj5vZpVmVzDK
+        RNXrwRC0VobicZqeoL20IIKopCq2gHltjlJ4ljuJgKTtpmnMK/AMoLjH0Ka8uBn0SK6se2
+        tJG9M1YmBa3MhmEvBhnuhVVoi/b92gE=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-358-4PSA8FDgNXeG4IN1GItXBA-1; Wed, 16 Mar 2022 03:43:59 -0400
+X-MC-Unique: 4PSA8FDgNXeG4IN1GItXBA-1
+Received: by mail-wr1-f69.google.com with SMTP id 9-20020adf8009000000b00203d6cb4c60so262234wrk.3
+        for <linux-s390@vger.kernel.org>; Wed, 16 Mar 2022 00:43:59 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=mam8w85mLQbLuV3GPQ8EDdLw0BD02xApA60diEvmkn4=;
+        b=aWEhdnCh/kECeuOJoYJkNNPUQ0Zch4wbPWGwEO5tUhZGJx00q1nRfRIKhdqUzVLPD9
+         dTGBAlW1zZw8mpkYsd09hBlhwDlkHy9E2zP0/yVU3GuHBaDpbbboHK6Yz+dpo23waTeN
+         /rMCdW6WJLRMMsAueH9b+5dstPbGcbCtpcYszKgZYhB5ZhUA/myXRrfpUD4b0NvXC/ES
+         CTcr+quM3b+MreRrQoLk0gQy8ewrBy1Cnyt5gyRkQmRIBlUf1+/4pEMlSJrLqrAwQjL9
+         v21t/VKhKB96VygotnW4pNaeGJkF71/oy3Kw+6VukqxtWPuHbQQUZBKBAsZqmtIHJxWz
+         XTaA==
+X-Gm-Message-State: AOAM5310xZmzD+SwPS/FoQkVArpUgr+aI5RLuohlUkLXUXbNWXlQxr+S
+        tAiFHzVm1XZmmOCPM8Gi41vHilWa69U141tOyAsD6ghZptzxkTdGOfjPp1Kkivam+OkHXEhl0zI
+        V4a823fE2LNsv6wZD0VC94w==
+X-Received: by 2002:a05:6000:3c3:b0:203:6976:6942 with SMTP id b3-20020a05600003c300b0020369766942mr22674969wrg.584.1647416638727;
+        Wed, 16 Mar 2022 00:43:58 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwiO62Yr0EsUOjjzC1evZxOKsDkUVAOuXWop4OtVqEPPMKVE+73MXHoDL8nCf5FamNh4qQ6+g==
+X-Received: by 2002:a05:6000:3c3:b0:203:6976:6942 with SMTP id b3-20020a05600003c300b0020369766942mr22674955wrg.584.1647416638514;
+        Wed, 16 Mar 2022 00:43:58 -0700 (PDT)
+Received: from gator (cst2-173-70.cust.vodafone.cz. [31.30.173.70])
+        by smtp.gmail.com with ESMTPSA id u7-20020a5d6da7000000b00203d9d1875bsm984282wrs.73.2022.03.16.00.43.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 16 Mar 2022 00:43:58 -0700 (PDT)
+Date:   Wed, 16 Mar 2022 08:43:56 +0100
+From:   Andrew Jones <drjones@redhat.com>
+To:     Bill Wendling <morbo@google.com>
+Cc:     kvm@vger.kernel.org, Nikos Nikoleris <nikos.nikoleris@arm.com>,
+        lvivier@redhat.com, thuth@redhat.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, david@redhat.com, pbonzini@redhat.com,
+        kvmarm@lists.cs.columbia.edu, kvm-ppc@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [kvm-unit-tests PATCH] libfdt: use logical "or" instead of
+ bitwise "or" with boolean operands
+Message-ID: <20220316074356.n7e5lzrmnal2dcgu@gator>
+References: <20220316060214.2200695-1-morbo@google.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220316060214.2200695-1-morbo@google.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Guo Ren <guoren@linux.alibaba.com>
+On Tue, Mar 15, 2022 at 11:02:14PM -0700, Bill Wendling wrote:
+> Clang warns about using a bitwise '|' with boolean operands. This seems
+> to be due to a small typo.
+> 
+>   lib/libfdt/fdt_rw.c:438:6: warning: use of bitwise '|' with boolean operands [-Werror,-Wbitwise-instead-of-logical]
+>           if (can_assume(LIBFDT_ORDER) |
+> 
+> Using '||' removes this warnings.
+> 
+> Signed-off-by: Bill Wendling <morbo@google.com>
+> ---
+>  lib/libfdt/fdt_rw.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/lib/libfdt/fdt_rw.c b/lib/libfdt/fdt_rw.c
+> index 13854253ff86..3320e5559cac 100644
+> --- a/lib/libfdt/fdt_rw.c
+> +++ b/lib/libfdt/fdt_rw.c
+> @@ -435,7 +435,7 @@ int fdt_open_into(const void *fdt, void *buf, int bufsize)
+>  			return struct_size;
+>  	}
+>  
+> -	if (can_assume(LIBFDT_ORDER) |
+> +	if (can_assume(LIBFDT_ORDER) ||
+>  	    !fdt_blocks_misordered_(fdt, mem_rsv_size, struct_size)) {
+>  		/* no further work necessary */
+>  		err = fdt_move(fdt, buf, bufsize);
+> -- 
+> 2.35.1.723.g4982287a31-goog
+>
 
-Now, you can use native gdb on riscv64 for rv32 app debugging.
+This is fixed in libfdt upstream with commit 7be250b4 ("libfdt:
+Correct condition for reordering blocks"), which is in v1.6.1.
+We can either take this patch as a backport of 7be250b4 or we
+can rebase all of our libfdt to v1.6.1. Based on the number of
+fixes in v1.6.1, which appear to be mostly for compiling with
+later compilers, I'm in favor of rebasing.
 
-$ uname -a
-Linux buildroot 5.16.0-rc4-00036-gbef6b82fdf23-dirty #53 SMP Mon Dec 20 23:06:53 CST 2021 riscv64 GNU/Linux
-$ cat /proc/cpuinfo
-processor       : 0
-hart            : 0
-isa             : rv64imafdcsuh
-mmu             : sv48
+Actually, we can also use this opportunity to [re]visit the
+idea of changing libfdt to a git submodule. I'd like to hear
+opinions on that.
 
-$ file /bin/busybox
-/bin/busybox: setuid ELF 32-bit LSB shared object, UCB RISC-V, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-riscv32-ilp32d.so.1, for GNU/Linux 5.15.0, stripped
-$ file /usr/bin/gdb
-/usr/bin/gdb: ELF 32-bit LSB shared object, UCB RISC-V, version 1 (GNU/Linux), dynamically linked, interpreter /lib/ld-linux-riscv32-ilp32d.so.1, for GNU/Linux 5.15.0, stripped
-$ /usr/bin/gdb /bin/busybox
-GNU gdb (GDB) 10.2
-Copyright (C) 2021 Free Software Foundation, Inc.
-License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
-...
-Reading symbols from /bin/busybox...
-(No debugging symbols found in /bin/busybox)
-(gdb) b main
-Breakpoint 1 at 0x8ddc
-(gdb) r
-Starting program: /bin/busybox
-Failed to read a valid object file image from memory.
-
-Breakpoint 1, 0x555a8ddc in main ()
-(gdb) i r
-ra             0x77df0b74       0x77df0b74
-sp             0x7fdd3d10       0x7fdd3d10
-gp             0x5567e800       0x5567e800 <bb_common_bufsiz1+160>
-tp             0x77f64280       0x77f64280
-t0             0x0      0
-t1             0x555a6fac       1431990188
-t2             0x77dd8db4       2011008436
-fp             0x7fdd3e34       0x7fdd3e34
-s1             0x7fdd3e34       2145205812
-a0             0xffffffff       -1
-a1             0x2000   8192
-a2             0x7fdd3e3c       2145205820
-a3             0x0      0
-a4             0x7fdd3d30       2145205552
-a5             0x555a8dc0       1431997888
-a6             0x77f2c170       2012397936
-a7             0x6a7c7a2f       1786542639
-s2             0x0      0
-s3             0x0      0
-s4             0x555a8dc0       1431997888
-s5             0x77f8a3a8       2012783528
-s6             0x7fdd3e3c       2145205820
-s7             0x5567cecc       1432866508
---Type <RET> for more, q to quit, c to continue without paging--
-s8             0x1      1
-s9             0x0      0
-s10            0x55634448       1432568904
-s11            0x0      0
-t3             0x77df0bb8       2011106232
-t4             0x42fc   17148
-t5             0x0      0
-t6             0x40     64
-pc             0x555a8ddc       0x555a8ddc <main+28>
-(gdb) si
-0x555a78f0 in mallopt@plt ()
-(gdb) c
-Continuing.
-BusyBox v1.34.1 (2021-12-19 22:39:48 CST) multi-call binary.
-BusyBox is copyrighted by many authors between 1998-2015.
-Licensed under GPLv2. See source distribution for detailed
-copyright notices.
-
-Usage: busybox [function [arguments]...]
-   or: busybox --list[-full]
-...
-[Inferior 1 (process 107) exited normally]
-(gdb) q
-
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-Signed-off-by: Guo Ren <guoren@kernel.org>
-Reviewed-by: Palmer Dabbelt <palmer@rivosinc.com>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Tested-by: Heiko Stuebner <heiko@sntech.de>
----
- arch/riscv/kernel/ptrace.c | 87 +++++++++++++++++++++++++++++++++++---
- 1 file changed, 82 insertions(+), 5 deletions(-)
-
-diff --git a/arch/riscv/kernel/ptrace.c b/arch/riscv/kernel/ptrace.c
-index a89243730153..bb387593a121 100644
---- a/arch/riscv/kernel/ptrace.c
-+++ b/arch/riscv/kernel/ptrace.c
-@@ -12,6 +12,7 @@
- #include <asm/thread_info.h>
- #include <asm/switch_to.h>
- #include <linux/audit.h>
-+#include <linux/compat.h>
- #include <linux/ptrace.h>
- #include <linux/elf.h>
- #include <linux/regset.h>
-@@ -111,11 +112,6 @@ static const struct user_regset_view riscv_user_native_view = {
- 	.n = ARRAY_SIZE(riscv_user_regset),
- };
- 
--const struct user_regset_view *task_user_regset_view(struct task_struct *task)
--{
--	return &riscv_user_native_view;
--}
--
- struct pt_regs_offset {
- 	const char *name;
- 	int offset;
-@@ -273,3 +269,84 @@ __visible void do_syscall_trace_exit(struct pt_regs *regs)
- 		trace_sys_exit(regs, regs_return_value(regs));
- #endif
- }
-+
-+#ifdef CONFIG_COMPAT
-+static int compat_riscv_gpr_get(struct task_struct *target,
-+				const struct user_regset *regset,
-+				struct membuf to)
-+{
-+	struct compat_user_regs_struct cregs;
-+
-+	regs_to_cregs(&cregs, task_pt_regs(target));
-+
-+	return membuf_write(&to, &cregs,
-+			    sizeof(struct compat_user_regs_struct));
-+}
-+
-+static int compat_riscv_gpr_set(struct task_struct *target,
-+				const struct user_regset *regset,
-+				unsigned int pos, unsigned int count,
-+				const void *kbuf, const void __user *ubuf)
-+{
-+	int ret;
-+	struct compat_user_regs_struct cregs;
-+
-+	ret = user_regset_copyin(&pos, &count, &kbuf, &ubuf, &cregs, 0, -1);
-+
-+	cregs_to_regs(&cregs, task_pt_regs(target));
-+
-+	return ret;
-+}
-+
-+static const struct user_regset compat_riscv_user_regset[] = {
-+	[REGSET_X] = {
-+		.core_note_type = NT_PRSTATUS,
-+		.n = ELF_NGREG,
-+		.size = sizeof(compat_elf_greg_t),
-+		.align = sizeof(compat_elf_greg_t),
-+		.regset_get = compat_riscv_gpr_get,
-+		.set = compat_riscv_gpr_set,
-+	},
-+#ifdef CONFIG_FPU
-+	[REGSET_F] = {
-+		.core_note_type = NT_PRFPREG,
-+		.n = ELF_NFPREG,
-+		.size = sizeof(elf_fpreg_t),
-+		.align = sizeof(elf_fpreg_t),
-+		.regset_get = riscv_fpr_get,
-+		.set = riscv_fpr_set,
-+	},
-+#endif
-+};
-+
-+static const struct user_regset_view compat_riscv_user_native_view = {
-+	.name = "riscv",
-+	.e_machine = EM_RISCV,
-+	.regsets = compat_riscv_user_regset,
-+	.n = ARRAY_SIZE(compat_riscv_user_regset),
-+};
-+
-+long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
-+			compat_ulong_t caddr, compat_ulong_t cdata)
-+{
-+	long ret = -EIO;
-+
-+	switch (request) {
-+	default:
-+		ret = compat_ptrace_request(child, request, caddr, cdata);
-+		break;
-+	}
-+
-+	return ret;
-+}
-+#endif /* CONFIG_COMPAT */
-+
-+const struct user_regset_view *task_user_regset_view(struct task_struct *task)
-+{
-+#ifdef CONFIG_COMPAT
-+	if (test_tsk_thread_flag(task, TIF_32BIT))
-+		return &compat_riscv_user_native_view;
-+	else
-+#endif
-+		return &riscv_user_native_view;
-+}
--- 
-2.25.1
+Thanks,
+drew
 
