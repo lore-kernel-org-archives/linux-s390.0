@@ -2,35 +2,35 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 253FEC433FE
-	for <linux-s390@archiver.kernel.org>; Wed, 16 Mar 2022 07:05:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CA398C433FE
+	for <linux-s390@archiver.kernel.org>; Wed, 16 Mar 2022 07:05:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354119AbiCPHGK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 16 Mar 2022 03:06:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51334 "EHLO
+        id S1347568AbiCPHGQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 16 Mar 2022 03:06:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354163AbiCPHGA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Mar 2022 03:06:00 -0400
+        with ESMTP id S1354078AbiCPHGD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Mar 2022 03:06:03 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9282387AD;
-        Wed, 16 Mar 2022 00:04:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23D651C10C;
+        Wed, 16 Mar 2022 00:04:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 81C0A61048;
-        Wed, 16 Mar 2022 07:04:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87B14C340F4;
-        Wed, 16 Mar 2022 07:04:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B404161040;
+        Wed, 16 Mar 2022 07:04:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B164EC36AE3;
+        Wed, 16 Mar 2022 07:04:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1647414274;
-        bh=bFt7di4PvlxVjrJZVDyoXBaKxGZBq5akn6kE87u+9zs=;
+        s=k20201202; t=1647414289;
+        bh=a1P2DNQDu+Nr0wIsMe45GFTAoBbxFKExa639SNMT8Ac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u17zWj7RNqur9jWK+tOZxBvHE3jVgUCMQanxMcq2dyUg7Ky1HEvZEghPoZSo70jLi
-         91MgwyD5cbF70/LHbFQ8Ue6XOx9QCzThI3YchpOu7jZSO/eVARvHzcR4ersN2rFfeP
-         N41YsNvg8mkMWuPHsAY2XtSOBObX8Ay95whVQOxDW7ZTyKQzlRKpzGmThACKqk2o/0
-         1vq3jQxb2xtPMs4fBpyIZJTraemldu1u1MKR6yvasZQFHxGNW/yM3nZAx05uaQ379j
-         i12OXvYkjTVAqyqXL5E646J/kKX3GsXWeizq/BE8IM0XRAXagLNeNLAcTBBl3ZvgfV
-         AAl1BFvdbciFQ==
+        b=LgPd0H/CgAWrDa1r6V53xbwnOApkexZkCZrfY+9Anm67m/JBXCD8lcjanyRL64Ppd
+         QXZc6ovx7MD/aWmVbdzsO48tXypXLMMK2cWjpIib1cT/GXwnNK8Nn/rnCmSw3amNbr
+         DP0j/M/jjdTvKABOKUP2KgiSx66XlMucJT9wrMq/3alMD0BgFxBh31R4rA1MCeGqdZ
+         maMic0O5dv/tk2cHByy5DPEDsBclItk+BQfdNUc0GirxZygxc8yjkVCSTPC45KeWlX
+         TLiOzBX03oPft9KwUSlV2n/RkiN+X5oWXw0RlQ++mkE2319ChO/7TBx2F/pgXGdWUL
+         ioVnB7G2ibpbw==
 From:   guoren@kernel.org
 To:     guoren@kernel.org, palmer@dabbelt.com, arnd@arndb.de,
         anup@brainfault.org, gregkh@linuxfoundation.org, hch@lst.de
@@ -40,14 +40,13 @@ Cc:     linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, linux-parisc@vger.kernel.org,
         linux-mips@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         x86@kernel.org, heiko@sntech.de, Guo Ren <guoren@linux.alibaba.com>
-Subject: [PATCH V8 10/20] riscv: compat: Re-implement TASK_SIZE for COMPAT_32BIT
-Date:   Wed, 16 Mar 2022 15:03:07 +0800
-Message-Id: <20220316070317.1864279-11-guoren@kernel.org>
+Subject: [PATCH V8 13/20] riscv: compat: process: Add UXL_32 support in start_thread
+Date:   Wed, 16 Mar 2022 15:03:10 +0800
+Message-Id: <20220316070317.1864279-14-guoren@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220316070317.1864279-1-guoren@kernel.org>
 References: <20220316070317.1864279-1-guoren@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
@@ -55,51 +54,39 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Guo Ren <guoren@linux.alibaba.com>
 
-Make TASK_SIZE from const to dynamic detect TIF_32BIT flag
-function. Refer to arm64 to implement DEFAULT_MAP_WINDOW_64 for
-efi-stub.
-
-Limit 32-bit compatible process in 0-2GB virtual address range
-(which is enough for real scenarios), because it could avoid
-address sign extend problem when 32-bit enter 64-bit and ease
-software design.
-
-The standard 32-bit TASK_SIZE is 0x9dc00000:FIXADDR_START, and
-compared to a compatible 32-bit, it increases 476MB for the
-application's virtual address.
+If the current task is in COMPAT mode, set SR_UXL_32 in status for
+returning userspace. We need CONFIG _COMPAT to prevent compiling
+errors with rv32 defconfig.
 
 Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 Signed-off-by: Guo Ren <guoren@kernel.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
 Tested-by: Heiko Stuebner <heiko@sntech.de>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
 ---
- arch/riscv/include/asm/pgtable.h | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ arch/riscv/kernel/process.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
-index e3549e50de95..afdc9ece2ba4 100644
---- a/arch/riscv/include/asm/pgtable.h
-+++ b/arch/riscv/include/asm/pgtable.h
-@@ -705,8 +705,17 @@ static inline pmd_t pmdp_establish(struct vm_area_struct *vma,
-  * 63–48 all equal to bit 47, or else a page-fault exception will occur."
-  */
- #ifdef CONFIG_64BIT
--#define TASK_SIZE      (PGDIR_SIZE * PTRS_PER_PGD / 2)
--#define TASK_SIZE_MIN  (PGDIR_SIZE_L3 * PTRS_PER_PGD / 2)
-+#define TASK_SIZE_64	(PGDIR_SIZE * PTRS_PER_PGD / 2)
-+#define TASK_SIZE_MIN	(PGDIR_SIZE_L3 * PTRS_PER_PGD / 2)
+diff --git a/arch/riscv/kernel/process.c b/arch/riscv/kernel/process.c
+index 03ac3aa611f5..8c7665481a9f 100644
+--- a/arch/riscv/kernel/process.c
++++ b/arch/riscv/kernel/process.c
+@@ -97,6 +97,15 @@ void start_thread(struct pt_regs *regs, unsigned long pc,
+ 	}
+ 	regs->epc = pc;
+ 	regs->sp = sp;
 +
-+#ifdef CONFIG_COMPAT
-+#define TASK_SIZE_32	(_AC(0x80000000, UL) - PAGE_SIZE)
-+#define TASK_SIZE	(test_thread_flag(TIF_32BIT) ? \
-+			 TASK_SIZE_32 : TASK_SIZE_64)
-+#else
-+#define TASK_SIZE	TASK_SIZE_64
++#ifdef CONFIG_64BIT
++	regs->status &= ~SR_UXL;
++
++	if (is_compat_task())
++		regs->status |= SR_UXL_32;
++	else
++		regs->status |= SR_UXL_64;
 +#endif
-+
- #else
- #define TASK_SIZE	FIXADDR_START
- #define TASK_SIZE_MIN	TASK_SIZE
+ }
+ 
+ void flush_thread(void)
 -- 
 2.25.1
 
