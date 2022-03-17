@@ -2,115 +2,120 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF18EC433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 17 Mar 2022 11:59:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D4FFC433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 17 Mar 2022 13:24:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233224AbiCQMAp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 17 Mar 2022 08:00:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43312 "EHLO
+        id S234021AbiCQN0G (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 17 Mar 2022 09:26:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233240AbiCQMAo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Mar 2022 08:00:44 -0400
-Received: from new3-smtp.messagingengine.com (new3-smtp.messagingengine.com [66.111.4.229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3C55173374;
-        Thu, 17 Mar 2022 04:59:10 -0700 (PDT)
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailnew.nyi.internal (Postfix) with ESMTP id DA0B9580275;
-        Thu, 17 Mar 2022 07:59:09 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Thu, 17 Mar 2022 07:59:09 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm1; bh=NfFJnkbS3KtilmlXQThAwkw4X4l3eg9znnE/jO
-        g1d5E=; b=N7X5g0pEnkMstgHhqa5+3+0BxTuLz3jVhklrKWMqTOsjegxrvnn1QH
-        Fkdqg24A/ZPO41OAHum1syefQta0Tpi3oVmP5kV8Py12EHR0up9gRD2xvTI7uoa9
-        7D/+0PzOTRErTWQd+XprZVizUqWWf3YjC82AHS8ni1cN4R/C73z1BBPE2rw523xq
-        CkhzuIOPZwqLTjDVqY+Tl5L4gurrdZTgGPc5tTx67ncRL66cXwhB27hSqx4gNDAO
-        RZ7HOop1Tei6M11w1rk7aFAfewV/qSDpIngB2tqbdV695Du2NuMCHf483Fc56lRu
-        XpAZErArtRSnJmaNcUU9QC+MM2mW82AQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=NfFJnkbS3KtilmlXQ
-        ThAwkw4X4l3eg9znnE/jOg1d5E=; b=hD1Gz/uapIf/sWB9JNGq2bqENk7Jvi4hN
-        Y0UvF1yhANVZFON0lDUCzuGbeJQLMNYy8rMbUNaasWYetsyeI8RvU3uVYj4G/XzV
-        hUd5Xt4VKRDcFc61ktuXCtuBjJjZRG7JBly0e/6dGp3yI1SGxLcaOZjwaHxIlDA4
-        MCQZ17wR7waqIx3n6yPT7Nkq4wHiSw7ryxi53joG27ELAZYgNQNHr9WTnxaBm8dx
-        G1hOwLABojoLiGHCZDlz8jcI4sY7YOOflgS19LdWg/S5JeIDA48MBIyHi0W/fcC4
-        HbFAqAW2y+HIOkoX0myj6dIWm3OjHtc5/MmzRn8d7UKlPO/eVgCZg==
-X-ME-Sender: <xms:jSIzYsskDvWb7X-Jb8vYizwxdLJTYB-dmk1uznYkPEODEfYfQnkZYw>
-    <xme:jSIzYpcoLkl4N6S17qTcUmXINKE6tpxzQO6jjGbGBwXHIJC_7FMfbliFXCinLRNuI
-    UT7xcVmTZTeLw>
-X-ME-Received: <xmr:jSIzYnxKs_WExetxBzF948L5tleHabZroB3pjVjlPYRhp66oUEX2ah-YdrjkHhFEwGlSko8hf4yjos0nKpkl559k--gF8oCU>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrudefgedgfeegucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:jSIzYvOKdSmNOe5q9nzBP4i0bVe4Vifx9yNFfzDzTyDsTENkwnuHNw>
-    <xmx:jSIzYs8_KlCfxHsGGGD8EZd0FyGIPhWGPa85ixPflkJawBatUCzIrw>
-    <xmx:jSIzYnXBC-3TXQI5QCnD61cP629Zi7Co6Gh6K05b4WbMvEziWXPURw>
-    <xmx:jSIzYgS3WKweICGsPYsF1o0_VVIE8DYgbqLe2Dx-KvuzLG6AZPYmCA>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 17 Mar 2022 07:59:09 -0400 (EDT)
-Date:   Thu, 17 Mar 2022 12:59:06 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Steffen Eiden <seiden@linux.ibm.com>
-Cc:     agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        david@redhat.com, frankja@linux.ibm.com, gor@linux.ibm.com,
-        hca@linux.ibm.com, imbrenda@linux.ibm.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org,
-        linux-s390@vger.kernel.org, nrb@linux.ibm.com, shuah@kernel.org
-Subject: Re: [PATCH v3 1/4] drivers/s390/char: Add Ultravisor io device
-Message-ID: <YjMiiom+zRfkhe6F@kroah.com>
-References: <20220304141141.32767-2-seiden@linux.ibm.com>
- <20220317094706.4921-1-seiden@linux.ibm.com>
- <YjMGgSstSCZAmcVa@kroah.com>
- <6175e7fa-070e-8ab2-843a-8019d0dc0c83@linux.ibm.com>
+        with ESMTP id S234529AbiCQN0G (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Mar 2022 09:26:06 -0400
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 4B54716F6FC;
+        Thu, 17 Mar 2022 06:24:49 -0700 (PDT)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id C303B1515;
+        Thu, 17 Mar 2022 06:24:48 -0700 (PDT)
+Received: from [10.1.197.1] (ewhatever.cambridge.arm.com [10.1.197.1])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id DD8113F766;
+        Thu, 17 Mar 2022 06:24:42 -0700 (PDT)
+Message-ID: <0d9d605e-4f92-3947-f99d-91faf9dbc2d7@arm.com>
+Date:   Thu, 17 Mar 2022 13:24:41 +0000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6175e7fa-070e-8ab2-843a-8019d0dc0c83@linux.ibm.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH v4 2/6] Partially revert "KVM: Pass kvm_init()'s opaque
+ param to additional arch funcs"
+Content-Language: en-US
+To:     Chao Gao <chao.gao@intel.com>, seanjc@google.com, maz@kernel.org,
+        kvm@vger.kernel.org, pbonzini@redhat.com, kevin.tian@intel.com,
+        tglx@linutronix.de
+Cc:     James Morse <james.morse@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Anup Patel <anup@brainfault.org>,
+        Atish Patra <atishp@atishpatra.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Jim Mattson <jmattson@google.com>,
+        Joerg Roedel <joro@8bytes.org>, Ingo Molnar <mingo@redhat.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "Maciej S. Szmigiero" <maciej.szmigiero@oracle.com>,
+        Bharata B Rao <bharata@linux.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu,
+        linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, kvm-riscv@lists.infradead.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org
+References: <20220216031528.92558-1-chao.gao@intel.com>
+ <20220216031528.92558-3-chao.gao@intel.com>
+From:   Suzuki Kuruppassery Poulose <suzuki.poulose@arm.com>
+In-Reply-To: <20220216031528.92558-3-chao.gao@intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Mar 17, 2022 at 12:07:58PM +0100, Steffen Eiden wrote:
-> Hi greg,
+On 16/02/2022 03:15, Chao Gao wrote:
+> This partially reverts commit b99040853738 ("KVM: Pass kvm_init()'s opaque
+> param to additional arch funcs") remove opaque from
+> kvm_arch_check_processor_compat because no one uses this opaque now.
+> Address conflicts for ARM (due to file movement) and manually handle RISC-V
+> which comes after the commit.
 > 
-> On 3/17/22 10:59, Greg KH wrote:
-> > On Thu, Mar 17, 2022 at 09:47:06AM +0000, Steffen Eiden wrote:
-> > > This patch adds a new miscdevice to expose some Ultravisor functions
-> > > to userspace. Userspace can send IOCTLs to the uvdevice that will then
-> > > emit a corresponding Ultravisor Call and hands the result over to
-> > > userspace. The uvdevice is available if the Ultravisor Call facility is
-> > > present.
-> > > Userspace can call the Retrieve Attestation Measurement
-> > > Ultravisor Call using IOCTLs on the uvdevice.
-> > > 
-> > > The uvdevice will do some sanity checks first.
-> > > Then, copy the request data to kernel space, build the UVCB,
-> > > perform the UV call, and copy the result back to userspace.
-> > > 
-> > > Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
-> > > Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-> > 
-> > Do you have a pointer to the userspace code that interacts with this
-> > kernel driver?  That would be good to have to verify that the api here
-> > is sane.
-> > 
-> There is a userspace tool currently under development, however, not yet
-> ready to be published.
+> And changes about kvm_arch_hardware_setup() in original commit are still
+> needed so they are not reverted.
+> 
+> Signed-off-by: Chao Gao <chao.gao@intel.com>
+> Reviewed-by: Sean Christopherson <seanjc@google.com>
+> ---
+>   arch/arm64/kvm/arm.c       |  2 +-
+>   arch/mips/kvm/mips.c       |  2 +-
+>   arch/powerpc/kvm/powerpc.c |  2 +-
+>   arch/riscv/kvm/main.c      |  2 +-
+>   arch/s390/kvm/kvm-s390.c   |  2 +-
+>   arch/x86/kvm/x86.c         |  2 +-
+>   include/linux/kvm_host.h   |  2 +-
+>   virt/kvm/kvm_main.c        | 16 +++-------------
+>   8 files changed, 10 insertions(+), 20 deletions(-)
+> 
+> diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
+> index ecc5958e27fe..0165cf3aac3a 100644
+> --- a/arch/arm64/kvm/arm.c
+> +++ b/arch/arm64/kvm/arm.c
+> @@ -73,7 +73,7 @@ int kvm_arch_hardware_setup(void *opaque)
+>   	return 0;
+>   }
+>   
+> -int kvm_arch_check_processor_compat(void *opaque)
+> +int kvm_arch_check_processor_compat(void)
+>   {
+>   	return 0;
+>   }
 
-Then really, this driver should not be merged until the user/kernel api
-is determined to work properly, right?  Why submit this now if userspace
-isn't working?
+For arm64 :
 
-thanks,
-
-greg k-h
+Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
