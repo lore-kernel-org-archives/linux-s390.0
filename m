@@ -2,103 +2,130 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EB12C433FE
-	for <linux-s390@archiver.kernel.org>; Thu, 17 Mar 2022 10:05:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5680AC433FE
+	for <linux-s390@archiver.kernel.org>; Thu, 17 Mar 2022 11:08:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232341AbiCQKHE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 17 Mar 2022 06:07:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46838 "EHLO
+        id S231273AbiCQLJb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 17 Mar 2022 07:09:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232317AbiCQKHD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Mar 2022 06:07:03 -0400
-X-Greylist: delayed 371 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 17 Mar 2022 03:05:47 PDT
-Received: from new4-smtp.messagingengine.com (new4-smtp.messagingengine.com [66.111.4.230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 520B9C12CE;
-        Thu, 17 Mar 2022 03:05:47 -0700 (PDT)
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailnew.nyi.internal (Postfix) with ESMTP id DD634580245;
-        Thu, 17 Mar 2022 05:59:32 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Thu, 17 Mar 2022 05:59:32 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm1; bh=0MGy6HvebexiCC2YhyoJoldMNm9d/DgjaE5btR
-        Ao9JA=; b=EOLrAJUUzyotS3KHHDV+ihh1yuFc9PbARfH+aTTFPicj1CjJnnxoVl
-        A94s0L2WRtoSveTeJf7cD+0BzjZOMOGa9Jy9F3BgLx/XMJsCvn3yB00ZDoKlDG84
-        0N+wGEysgM54AfFc1gJR+jYt4Ek5UZfQ5qMLRneiUsgXOfVzt2eOtFKTrvp9e/ho
-        XkKoQfycI5UOe82vIEbGaQFwJUsw1Tn3nsBw/uKVHS/t6fb8cmscMVQO24GOfMu1
-        W6LYWO466c+xPcFWp1uSPOesLS0HaVTCzVd3U5eWRdyfd/3xv92zRPh+J+Xhhu8X
-        UrVRrF/OB+ps+Daw3BNVo+cFG+mXzfYA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=0MGy6HvebexiCC2Yh
-        yoJoldMNm9d/DgjaE5btRAo9JA=; b=IdmHbXsFPCgorP+QgDyJ+U4JRWjTFeBv0
-        fcM/UxJuD1njO4W+uqXq7Ho8ccx9FdEwVMJXzhpg8lBKKy803iDeoaMTrvgOwVFs
-        MyX/cjMtGKRLhndlrBJWcY/2GQztVOZD05l0ltf41xLg4mkUrt9unMFtAAY0w6T+
-        cmeVT6RhX/kevcwduh9wQKQMzdw8ln9AnPpS7GbFmFw9duOD0p2BQN+OQOOB/DvO
-        e/dqDvOr7ovJ61SD0ZGqfVYXrmb1rUIuIAFULFsSXPwFX0QE8BAa3HAXhJjG+xT3
-        eZY2nJQ7Pt0ALAH0gWpuBENa1uYym+8Ls4ouMMDOJmv3mKJtiT/Qw==
-X-ME-Sender: <xms:hAYzYtCwoCMGDOxC7QdIq37YR-Hm09c1MA5hEvckZqoiwHOmWhcauw>
-    <xme:hAYzYrhE_DF9BNPvAHO1FwPjQ5ekHDBd6lhTb4J57yYwGaIyMupT99Cp45LEZtmjS
-    10IumvYyipdkg>
-X-ME-Received: <xmr:hAYzYonqJs8kFPretBhZv3kXOvR8BaR1dukXjcVq2M9i4qsXVvARWHO7yCps679SDAXDJn2OIrS_PsTUW2of-g5do0fHBs_g>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrudefgedgtdelucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdortddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevhefgje
-    eitdfffefhvdegleeigeejgeeiffekieffjeeflefhieegtefhudejueenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:hAYzYnxeeHNmCg8ezmN-l5lIY8xPlVjSbmwi7NjZ56vQHp4BsGjPww>
-    <xmx:hAYzYiRnty3dyHuvRkK_lCgje6qaEYUKZE401jUBLPjemCOhrEzhpA>
-    <xmx:hAYzYqbe1wudRx339mg046LRHONIquLBrz7UKaDY5w89yZwPGhf_XA>
-    <xmx:hAYzYtksPdP_VEtxd0PizzKDWR_tDCcTQRlz0UjtjUEOjycC9jLJuw>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 17 Mar 2022 05:59:31 -0400 (EDT)
-Date:   Thu, 17 Mar 2022 10:59:29 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Steffen Eiden <seiden@linux.ibm.com>
+        with ESMTP id S230330AbiCQLJa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Mar 2022 07:09:30 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 379E913EB1;
+        Thu, 17 Mar 2022 04:08:14 -0700 (PDT)
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22HAuDsa021666;
+        Thu, 17 Mar 2022 11:08:04 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=2a6NX32i0fjMUVzjufDPdk9mpLpUddUjkJfO+NmQZGk=;
+ b=QNGUeXmjv/Oo5bHcyRrUnYNUD2w1cBq5g/0E9gKBJi9gNUzMr7OStqvUCcQX0xYDGG7Z
+ s6eGbKhVvrdSybuKHSY04TO3Ii+9C9eedAF3tSCK6oCVvAF2F8ZGxPmtvYloBo0S7R0p
+ OhY23ICeqd+j13nehSBek6AHFK+kh+ekjoFWjwEEW0YaUYZxOBAc8fi28U1TSWj96eoa
+ qjuFbv4IAmmYiHz3w5WWCaEx8CAwrqisocoCs30wwp3GJLc1Km/3DF2tRt2p/DT6oVUk
+ wxB9xftuOJKPfs515zdjZStUUf1vwPy0Rz/goRp9wlClLOR1kTlj9Bg7g94C6HSYW5F8 Aw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3euvh1g14v-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 17 Mar 2022 11:08:04 +0000
+Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22HAXjr3019309;
+        Thu, 17 Mar 2022 11:08:03 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3euvh1g148-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 17 Mar 2022 11:08:03 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22HB2vWC001979;
+        Thu, 17 Mar 2022 11:08:02 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma04ams.nl.ibm.com with ESMTP id 3erk5935dp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 17 Mar 2022 11:08:01 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22HB7xwY55378208
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 17 Mar 2022 11:07:59 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F149BA4055;
+        Thu, 17 Mar 2022 11:07:58 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6CCD3A4053;
+        Thu, 17 Mar 2022 11:07:58 +0000 (GMT)
+Received: from [9.145.148.38] (unknown [9.145.148.38])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 17 Mar 2022 11:07:58 +0000 (GMT)
+Message-ID: <6175e7fa-070e-8ab2-843a-8019d0dc0c83@linux.ibm.com>
+Date:   Thu, 17 Mar 2022 12:07:58 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [PATCH v3 1/4] drivers/s390/char: Add Ultravisor io device
+Content-Language: en-US
+To:     Greg KH <greg@kroah.com>
 Cc:     agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
         david@redhat.com, frankja@linux.ibm.com, gor@linux.ibm.com,
         hca@linux.ibm.com, imbrenda@linux.ibm.com, kvm@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org,
         linux-s390@vger.kernel.org, nrb@linux.ibm.com, shuah@kernel.org
-Subject: Re: [PATCH v3 1/4] drivers/s390/char: Add Ultravisor io device'
-Message-ID: <YjMGgSstSCZAmcVa@kroah.com>
 References: <20220304141141.32767-2-seiden@linux.ibm.com>
- <20220317094706.4921-1-seiden@linux.ibm.com>
+ <20220317094706.4921-1-seiden@linux.ibm.com> <YjMGgSstSCZAmcVa@kroah.com>
+From:   Steffen Eiden <seiden@linux.ibm.com>
+Organization: IBM
+In-Reply-To: <YjMGgSstSCZAmcVa@kroah.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 9L-eVfnvB6BgwtUNkaFb8gjLp_Zrnv4g
+X-Proofpoint-ORIG-GUID: rPEBkZtDaCUvipmQ3TmbMvKLBgmPoqvG
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220317094706.4921-1-seiden@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-03-17_04,2022-03-15_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ mlxlogscore=641 lowpriorityscore=0 clxscore=1011 priorityscore=1501
+ suspectscore=0 mlxscore=0 adultscore=0 bulkscore=0 phishscore=0
+ impostorscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2202240000 definitions=main-2203170066
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Mar 17, 2022 at 09:47:06AM +0000, Steffen Eiden wrote:
-> This patch adds a new miscdevice to expose some Ultravisor functions
-> to userspace. Userspace can send IOCTLs to the uvdevice that will then
-> emit a corresponding Ultravisor Call and hands the result over to
-> userspace. The uvdevice is available if the Ultravisor Call facility is
-> present.
-> Userspace can call the Retrieve Attestation Measurement
-> Ultravisor Call using IOCTLs on the uvdevice.
+Hi greg,
+
+On 3/17/22 10:59, Greg KH wrote:
+> On Thu, Mar 17, 2022 at 09:47:06AM +0000, Steffen Eiden wrote:
+>> This patch adds a new miscdevice to expose some Ultravisor functions
+>> to userspace. Userspace can send IOCTLs to the uvdevice that will then
+>> emit a corresponding Ultravisor Call and hands the result over to
+>> userspace. The uvdevice is available if the Ultravisor Call facility is
+>> present.
+>> Userspace can call the Retrieve Attestation Measurement
+>> Ultravisor Call using IOCTLs on the uvdevice.
+>>
+>> The uvdevice will do some sanity checks first.
+>> Then, copy the request data to kernel space, build the UVCB,
+>> perform the UV call, and copy the result back to userspace.
+>>
+>> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+>> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 > 
-> The uvdevice will do some sanity checks first.
-> Then, copy the request data to kernel space, build the UVCB,
-> perform the UV call, and copy the result back to userspace.
+> Do you have a pointer to the userspace code that interacts with this
+> kernel driver?  That would be good to have to verify that the api here
+> is sane.
 > 
-> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
-> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+There is a userspace tool currently under development, however, not yet 
+ready to be published.
+Currently, I can only point to the Kselftest in this series and the 
+kvm-unit-tests at 
+https://lore.kernel.org/linux-s390/20220203091935.2716-1-seiden@linux.ibm.com/
 
-Do you have a pointer to the userspace code that interacts with this
-kernel driver?  That would be good to have to verify that the api here
-is sane.
 
-thanks,
+> thanks,
+> 
+> greg k-h
+> 
 
-greg k-h
+steffen
