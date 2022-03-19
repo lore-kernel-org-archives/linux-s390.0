@@ -2,200 +2,99 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88705C433FE
-	for <linux-s390@archiver.kernel.org>; Sat, 19 Mar 2022 11:17:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D53BC433F5
+	for <linux-s390@archiver.kernel.org>; Sat, 19 Mar 2022 20:35:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236984AbiCSLSo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 19 Mar 2022 07:18:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58960 "EHLO
+        id S240379AbiCSUhO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 19 Mar 2022 16:37:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242769AbiCSLSn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 19 Mar 2022 07:18:43 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 5657F2C3DDD
-        for <linux-s390@vger.kernel.org>; Sat, 19 Mar 2022 04:17:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1647688642;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=h01om2OJNg7UN6xR5wRvwatJof/v6Qj0aJDQ8nw06cE=;
-        b=EqQK3mjvMALifaDE4O5hPUmLxr5k7qOqzDeogrbUnf6ytlzB+PGAU9eyybDXrayzFZx4Fm
-        O8hQbl8mtQhw4j/Mcmv5pGVYcARJtyrN/4DfDxKIRWVyU0Hynk9IZC1xkl+JyMgMefny/s
-        AMPLgzBBAhMD0d0sy+6Dc46SpbeZSFY=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-608-LHmq5N2oOBiU_yb3oaMjVw-1; Sat, 19 Mar 2022 07:17:20 -0400
-X-MC-Unique: LHmq5N2oOBiU_yb3oaMjVw-1
-Received: by mail-wm1-f70.google.com with SMTP id c126-20020a1c3584000000b00380dee8a62cso4035305wma.8
-        for <linux-s390@vger.kernel.org>; Sat, 19 Mar 2022 04:17:20 -0700 (PDT)
+        with ESMTP id S235693AbiCSUhO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 19 Mar 2022 16:37:14 -0400
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85A9018F236;
+        Sat, 19 Mar 2022 13:35:52 -0700 (PDT)
+Received: by mail-ed1-x530.google.com with SMTP id w25so13862646edi.11;
+        Sat, 19 Mar 2022 13:35:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=eOMRj1XVqYhfRtL+8zbvkj9G0h1ouLrO0mIz9DEaP/E=;
+        b=TvlksU+FJkEucyu3UgBU4m6nfRwZuyAMLjIXpohgdKCofMKVS5LvjF+bIXTrJPsLOc
+         y8WCJxgDdmHw042HSGqEjFEqFTfZSIpJg4L5KqLEbsz9vEWSQxkTP+HvIRYiw1E6j2aq
+         FbApQMa9hSO0zP9vyO+wxG+9Zmmsve/z+y771TUIaqj8tgxEQ3mmRRFdOAhGLtvwkpjQ
+         /56SP3xmKbhVSOr0RnviOc7WYySYYxcAfnZt/fW8LDu0Ex7ROsb3tt/zDYAkAKq8HHus
+         tuFd7/Sd/Ia2cX1CPA9c4c7rhIHKU4R4hgccO177OPNN9+dCDmLfEBt06H1WHQk44rQt
+         TE6Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent
-         :content-language:to:cc:references:from:organization:subject
-         :in-reply-to:content-transfer-encoding;
-        bh=h01om2OJNg7UN6xR5wRvwatJof/v6Qj0aJDQ8nw06cE=;
-        b=rUGEmhXOnGRBLFa1S4EvCWC/kCAEaBbVqvLolq5zljHJhf3RPPBw3uEsd+mbR7R1sS
-         +i38HZ6KTvkszYv1TUa43tEpkoEY0tL0T9Ps6bpjP1xL5xC0z5W66nlR8IClI7sI1B/o
-         lCp93Sb4mVfW8nQu5ex2B9VBAvVvgLtPuGiCI7Yy61HpfNICPpbK24jobrKm8xPP7t3Y
-         GNK0EkgaGkcYr5Jc4W7LJnEuS2aIu9Z1JiMsrtZBigS5DuGnHI6crJ6zxwMe2PISG2Jg
-         gFwNxSxkQLr8hye0y+LKB4eR48Iw5eojPFTbUPSFbWHi0ebk0zAmKdrvuHwjC0ilK51v
-         1e5w==
-X-Gm-Message-State: AOAM5330LVuwCINUDb+2oblePDp2w8Nx8VI2erkRrPUWkcLWXAwZP99k
-        FQMwWwULAebc4O+A0wH+3kcxgxN0lXLCxdZOUVAk1HQC0JnvWI9dJe8w2m8kzijK+7nDB98WW6+
-        lLS3rSDSmi+duxQvg56Q5+Q==
-X-Received: by 2002:a05:600c:3785:b0:38c:9b55:a477 with SMTP id o5-20020a05600c378500b0038c9b55a477mr214091wmr.164.1647688639515;
-        Sat, 19 Mar 2022 04:17:19 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwXQYHzmUknpl8dPLzijazZTS08+rGUI4YNRhcnL/au2TdAywuFEvKBekLN0RmMcXEBv9O0Qg==
-X-Received: by 2002:a05:600c:3785:b0:38c:9b55:a477 with SMTP id o5-20020a05600c378500b0038c9b55a477mr214049wmr.164.1647688639186;
-        Sat, 19 Mar 2022 04:17:19 -0700 (PDT)
-Received: from ?IPV6:2003:d8:2f24:9200:124e:f0bf:6f8c:cbd8? (p200300d82f249200124ef0bf6f8ccbd8.dip0.t-ipconnect.de. [2003:d8:2f24:9200:124e:f0bf:6f8c:cbd8])
-        by smtp.gmail.com with ESMTPSA id n15-20020a05600c4f8f00b003842f011bc5sm12433837wmq.2.2022.03.19.04.17.16
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 19 Mar 2022 04:17:18 -0700 (PDT)
-Message-ID: <74fdfa8c-abaa-ea48-4b82-6f0023548ead@redhat.com>
-Date:   Sat, 19 Mar 2022 12:17:16 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.2
-Content-Language: en-US
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Hugh Dickins <hughd@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        David Rientjes <rientjes@google.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Yang Shi <shy828301@gmail.com>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Vlastimil Babka <vbabka@suse.cz>, Jann Horn <jannh@google.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Nadav Amit <namit@vmware.com>, Rik van Riel <riel@surriel.com>,
-        Roman Gushchin <guro@fb.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Peter Xu <peterx@redhat.com>,
-        Donald Dutile <ddutile@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Oleg Nesterov <oleg@redhat.com>, Jan Kara <jack@suse.cz>,
-        Liang Zhang <zhangliang5@huawei.com>,
-        Pedro Gomes <pedrodemargomes@gmail.com>,
-        Oded Gabbay <oded.gabbay@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=eOMRj1XVqYhfRtL+8zbvkj9G0h1ouLrO0mIz9DEaP/E=;
+        b=d08IVXJ+QUxKe2QVFIXPdEtNugsHjrrP+fdckCfD5V07SjqqjsRdILjst/wthMX8/U
+         SWO31/mov5NkeQsukys1EEFa/WOnx1lsMKpX3WiCMfM/Ale4oqbnHZwjUFTxgJX3S1QW
+         cWos9NrH6M+yUDZI9FUm09hjM4KY64mcjxviBzgJNq+ZfCE8eseF9nv/d19Dx5m88LEE
+         Lwjdt7vgE6l/0PrN2MkBxWRY/Xy/y6kyBHISMiidcLD+ZJGVo2Brb4pX6cv0jOAmCdSj
+         U9kHXeOvPtb9Fk/t9ZUJ9+btetJoAlwsu9iQDdCLIR1Xvd8212JmCYdyRAzF2DHe241L
+         bsHA==
+X-Gm-Message-State: AOAM533lt9QUJhu2yvaH8gxLh5JU+SUx4ehIeARik7UnisNSKanGm0H/
+        zUr96WTyA3avL7kpGuCsloY=
+X-Google-Smtp-Source: ABdhPJxEpg9Gmkt07PqFpEehx1FIoR0dX7G45r78ie8gajWqaZ8/PF49pd6BwbUiE9b82V1TUIChfg==
+X-Received: by 2002:a05:6402:2794:b0:419:2ed8:f36e with SMTP id b20-20020a056402279400b004192ed8f36emr856674ede.44.1647722151064;
+        Sat, 19 Mar 2022 13:35:51 -0700 (PDT)
+Received: from localhost.localdomain (i130160.upc-i.chello.nl. [62.195.130.160])
+        by smtp.googlemail.com with ESMTPSA id m24-20020a170906161800b006d420027b63sm5181902ejd.18.2022.03.19.13.35.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 19 Mar 2022 13:35:50 -0700 (PDT)
+From:   Jakob Koschel <jakobkoschel@gmail.com>
+To:     Harald Freudenberger <freude@linux.ibm.com>
+Cc:     Jakob Koschel <jakobkoschel@gmail.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, linux-mm@kvack.org,
-        x86@kernel.org, linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
-References: <20220315141837.137118-1-david@redhat.com>
- <20220318234850.GD11336@nvidia.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-Subject: Re: [PATCH v1 0/7] mm: COW fixes part 3: reliable GUP R/W FOLL_GET of
- anonymous pages
-In-Reply-To: <20220318234850.GD11336@nvidia.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Brian Johannesmeyer" <bjohannesmeyer@gmail.com>,
+        Cristiano Giuffrida <c.giuffrida@vu.nl>,
+        "Bos, H.J." <h.j.bos@vu.nl>
+Subject: [PATCH] s390/zcrypt: fix using the correct variable for sizeof()
+Date:   Sat, 19 Mar 2022 21:35:28 +0100
+Message-Id: <20220319203528.2552869-1-jakobkoschel@gmail.com>
+X-Mailer: git-send-email 2.25.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 19.03.22 00:48, Jason Gunthorpe wrote:
-> On Tue, Mar 15, 2022 at 03:18:30PM +0100, David Hildenbrand wrote:
->> This is just the natural follow-up of part 2, that will also further
->> reduce "wrong COW" on the swapin path, for example, when we cannot remove
->> a page from the swapcache due to concurrent writeback, or if we have two
->> threads faulting on the same swapped-out page. Fixing O_DIRECT is just a
->> nice side-product :)
+While the original code is valid, it is not the obvious choice for the
+sizeof() call and in preparation to limit the scope of the list iterator
+variable the sizeof should be changed to the size of the variable
+being allocated.
 
-Hi Jason,
+Signed-off-by: Jakob Koschel <jakobkoschel@gmail.com>
+---
+ drivers/s390/crypto/zcrypt_card.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-thanks or the review!
+diff --git a/drivers/s390/crypto/zcrypt_card.c b/drivers/s390/crypto/zcrypt_card.c
+index 3e259befd30a..fcbd537530e8 100644
+--- a/drivers/s390/crypto/zcrypt_card.c
++++ b/drivers/s390/crypto/zcrypt_card.c
+@@ -90,7 +90,7 @@ static ssize_t online_store(struct device *dev,
+ 	list_for_each_entry(zq, &zc->zqueues, list)
+ 		maxzqs++;
+ 	if (maxzqs > 0)
+-		zq_uelist = kcalloc(maxzqs + 1, sizeof(zq), GFP_ATOMIC);
++		zq_uelist = kcalloc(maxzqs + 1, sizeof(*zq_uelist), GFP_ATOMIC);
+ 	list_for_each_entry(zq, &zc->zqueues, list)
+ 		if (zcrypt_queue_force_online(zq, online))
+ 			if (zq_uelist) {
 
-> 
-> I know I would benefit alot from a description of the swap specific
-> issue a bit more. Most of this message talks about clear_refs which I
-> do understand a bit better.
-
-Patch #1 contains some additional information. In general, it's the same
-issue as with any other mechanism that could get the page mapped R/O
-while there is a FOLL_GET | FOLL_WRITE reference to it --  for example,
-DMA to that page as happens with our O_DIRECT reproducer.
-
-Part 2 essentially fixed the other cases (i.e., clear_refs), but the
-remaining swapout+refault from swapcache case is handled in this series.
-
-> 
-> Is this talking about what happens after a page gets swapped back in?
-> eg the exclusive bit is missing when the page is recreated?
-
-Right, try_to_unmap() was the last remaining case where we'd have lost
-the exclusivity information -- it wasn't required for reliable GUP pins
-in part 2.
-
-Here is what happens without PG_anon_exclusive:
-
-1. The application uses parts of an anonymous base page for direct I/O,
-let's assume the first 512 bytes of page.
-
-fd = open(filename, O_DIRECT| ...);
-pread(fd, page, 512, 0);
-
-O_DIRECT will take a FOLL_GET|FOLL_WRITE reference on the page
-
-2. Reclaim kicks in and wants to swapout the page -- mm/vmscan.c
-
-shrink_page_list() first adds the page to the swapcache and then unmaps
-it via try_to_unmap().
-
-After the page was successfully unmapped, pageout() will start
-triggering writeback but will realize that there are additional
-references on the page (via is_page_cache_freeable()) and fail.
-
-3. The application uses unrelated parts of the page for other purposes
-while the DMA is not completed, e.g., doing a a simple
-
-page[4095]++;
-
-The read access will fault in the page readable from the swap cache in
-do_swap_page(). The write access will trigger our COW fault handler. As
-we have an additional reference on the page, we will create a copy and
-map it into out page table. At this point, the page table and the GUP
-reference are out of sync.
-
-4. O_DIRECT completes
-
-The read targets the page that is no longer referenced in the page
-tables. For the application, it looks like the read() never happened, as
-we lost our DMA read to our page.
-
-
-With PG_anon_exclusive from series part 2, we don't remember exclusivity
-information in try_to_unmap() yet. do_swap_page() cannot restore it as
-it has to assume the page is possibly shared.
-
-With this series, we remember exclusivity information in try_to_unmap()
-in the SWP PTE. do_swap_page() can restore it. Consequently, our COW
-fault handler won't create a wrong copy and we won't go out of sync
-between GUP and the page mapped into the page table.
-
-
-Hope that helps!
-
--- 
-Thanks,
-
-David / dhildenb
+base-commit: 34e047aa16c0123bbae8e2f6df33e5ecc1f56601
+--
+2.25.1
 
