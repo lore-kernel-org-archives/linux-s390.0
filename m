@@ -2,136 +2,170 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC238C433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Mar 2022 15:01:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 81EBFC433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Mar 2022 15:08:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349750AbiCUPDI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 21 Mar 2022 11:03:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38778 "EHLO
+        id S1348385AbiCUPJX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 21 Mar 2022 11:09:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234542AbiCUPCt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Mar 2022 11:02:49 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC16F48E6F;
-        Mon, 21 Mar 2022 08:01:22 -0700 (PDT)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22LDPq4n030972;
-        Mon, 21 Mar 2022 15:01:22 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=eWGFjfM04lUHhpEjyIx0WC1TO8A1LYQm5YMjm3YKlKg=;
- b=Zm0rPRzQn9HLdxXz57xSukn8TXdkOh0J2lhjkrH4+B9p2X5EAYOpK0GN9juc8ITV8Cdv
- sKD+E8sAFlSPxeuyuYOilEhZqHH7q5w4laAvVV3HTqPJHll3zXUxiYau/p8EAGjCLbMY
- nLH9vCr3ja0/dFfb3CH47EfMScrDrOW5kuYHuJKX3hY6z1d+2vml0OSn2+9XkYpqzIn0
- LoOgoDw3MFbnOlA0hSG9f1q1IXP8q2+jVwrtHWKDK9fz48FOMnVkdVBREuWab+1FcokR
- VyOtL161TkE7yk/2bbOAcpf8+LqeELpj7eQSc0UT7P+NSH9xGififEiH828Yd0QPv0rr Tw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3exr0dw6gg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Mar 2022 15:01:22 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22LE1RwK012687;
-        Mon, 21 Mar 2022 15:01:21 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3exr0dw6fp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Mar 2022 15:01:21 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22LErHrh009086;
-        Mon, 21 Mar 2022 15:01:19 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma03fra.de.ibm.com with ESMTP id 3ew6t93m9c-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Mar 2022 15:01:19 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22LEnbud44564788
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 21 Mar 2022 14:49:37 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 62662AE045;
-        Mon, 21 Mar 2022 15:01:16 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E9B91AE051;
-        Mon, 21 Mar 2022 15:01:15 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.145.2.232])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 21 Mar 2022 15:01:15 +0000 (GMT)
-Date:   Mon, 21 Mar 2022 16:01:13 +0100
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Nico Boehr <nrb@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        frankja@linux.ibm.com, thuth@redhat.com, david@redhat.com,
-        farman@linux.ibm.com
-Subject: Re: [kvm-unit-tests PATCH v1 0/9] s390x: Further extend instruction
- interception tests
-Message-ID: <20220321160113.142a7f02@p-imbrenda>
-In-Reply-To: <20220321101904.387640-1-nrb@linux.ibm.com>
-References: <20220321101904.387640-1-nrb@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        with ESMTP id S244657AbiCUPJW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Mar 2022 11:09:22 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 56B3658807
+        for <linux-s390@vger.kernel.org>; Mon, 21 Mar 2022 08:07:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1647875274;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ZFVfxmzhaFPMubA718aiLUSwyIk5+iMjz6qfYM1xb4A=;
+        b=DVHm0uKT7xW0U1TaTtwIelzGlG8+HOjJTYj57VSeAVa9JDpeDHtZKxZJknxcu2ll5vKOOH
+        RsmxiSdjGUtilg+QiU+7KYpE0P6gLkYjp9zKP0+L3Uj+JliK08fcTV9sCXyvyxWQXTYXqV
+        4W2al2u3raZ6uUaux/D7egF7SpnNPUs=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-198-b4nwOaAPM3GDrkjliRRaHA-1; Mon, 21 Mar 2022 11:07:52 -0400
+X-MC-Unique: b4nwOaAPM3GDrkjliRRaHA-1
+Received: by mail-wm1-f69.google.com with SMTP id n62-20020a1ca441000000b0038124c99ebcso5834362wme.9
+        for <linux-s390@vger.kernel.org>; Mon, 21 Mar 2022 08:07:52 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:organization:in-reply-to
+         :content-transfer-encoding;
+        bh=ZFVfxmzhaFPMubA718aiLUSwyIk5+iMjz6qfYM1xb4A=;
+        b=18NQYoBd7ZphZmfzjhbXJL+V8ycAGcnvUWeldai3pK6nRsr8tN8VJKvtZcCmeOzQhW
+         7oSOJIX//EXynqQnINdZrlBNsvVDz2YgX/iJiWuiR/QZz4D5glxLUsXLUdHHHva/cGSs
+         oLL29mE54ygPmwK/Tqpv13oQ9dkALeLemTvEQgzEADXUpULIt65P+IlKj60YHGGDAU3D
+         s5jBA7Pb1lemNat9laLPuHAOZKn21NBRMKBDu+Js0ZJ3FZgyNuI+d3yiKUnke70JQUEM
+         b5eV9bggWY6tOHHD+j05GPcrrqh5OC9+hL4T5LkjF594pu48rHfB0fLEnw72kyOkYja5
+         SfdQ==
+X-Gm-Message-State: AOAM530vio6vAr/QDn2XoxzsPBNoFmMy1+0XWSUPFqErBQbEquU7ZQcf
+        wsVDdBXov7fuKAT9vH4D1yjhBXrb5iTOkw4UFGr+Nu9enRM2VS8WaFgHso7uzSY4+jQNjOAT35i
+        /1aVBsmAxtmccetA/aPh13A==
+X-Received: by 2002:a05:600c:4ed2:b0:38c:93ad:4825 with SMTP id g18-20020a05600c4ed200b0038c93ad4825mr11133403wmq.181.1647875271729;
+        Mon, 21 Mar 2022 08:07:51 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyKoU0nGg0p5jibfOm4Ew1arWHbW+SRBIfaAS1QHWKwXAqgZDqMtY1m9j1jU9wOkm317ZDDsQ==
+X-Received: by 2002:a05:600c:4ed2:b0:38c:93ad:4825 with SMTP id g18-20020a05600c4ed200b0038c93ad4825mr11133335wmq.181.1647875271332;
+        Mon, 21 Mar 2022 08:07:51 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c704:4900:849b:f76e:5e1f:ff95? (p200300cbc7044900849bf76e5e1fff95.dip0.t-ipconnect.de. [2003:cb:c704:4900:849b:f76e:5e1f:ff95])
+        by smtp.gmail.com with ESMTPSA id g10-20020a5d46ca000000b00203fd86e198sm7209759wrs.96.2022.03.21.08.07.49
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 21 Mar 2022 08:07:50 -0700 (PDT)
+Message-ID: <ea570f92-f896-7f9b-91c4-ad0a025bb340@redhat.com>
+Date:   Mon, 21 Mar 2022 16:07:48 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.2
+Subject: Re: [PATCH v1 4/7] arm64/pgtable: support
+ __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+Content-Language: en-US
+To:     Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Cc:     linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Hugh Dickins <hughd@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        David Rientjes <rientjes@google.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Yang Shi <shy828301@gmail.com>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Vlastimil Babka <vbabka@suse.cz>, Jann Horn <jannh@google.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Nadav Amit <namit@vmware.com>, Rik van Riel <riel@surriel.com>,
+        Roman Gushchin <guro@fb.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Peter Xu <peterx@redhat.com>,
+        Donald Dutile <ddutile@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Oleg Nesterov <oleg@redhat.com>, Jan Kara <jack@suse.cz>,
+        Liang Zhang <zhangliang5@huawei.com>,
+        Pedro Gomes <pedrodemargomes@gmail.com>,
+        Oded Gabbay <oded.gabbay@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, linux-mm@kvack.org,
+        x86@kernel.org, linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
+References: <20220315141837.137118-1-david@redhat.com>
+ <20220315141837.137118-5-david@redhat.com> <YjIr9f9qaz4xITVd@arm.com>
+ <20220321143802.GC11145@willie-the-truck>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+In-Reply-To: <20220321143802.GC11145@willie-the-truck>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: NNz5xOd83qxuMG2dyGCHNSOmHdS80p_-
-X-Proofpoint-ORIG-GUID: ii9px1RspyuymPUs0BpjnLrwx_W7Aja0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-21_06,2022-03-21_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- impostorscore=0 mlxscore=0 spamscore=0 adultscore=0 priorityscore=1501
- lowpriorityscore=0 bulkscore=0 suspectscore=0 clxscore=1015
- mlxlogscore=904 phishscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2202240000 definitions=main-2203210093
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 21 Mar 2022 11:18:55 +0100
-Nico Boehr <nrb@linux.ibm.com> wrote:
+On 21.03.22 15:38, Will Deacon wrote:
+> On Wed, Mar 16, 2022 at 06:27:01PM +0000, Catalin Marinas wrote:
+>> On Tue, Mar 15, 2022 at 03:18:34PM +0100, David Hildenbrand wrote:
+>>> diff --git a/arch/arm64/include/asm/pgtable-prot.h b/arch/arm64/include/asm/pgtable-prot.h
+>>> index b1e1b74d993c..62e0ebeed720 100644
+>>> --- a/arch/arm64/include/asm/pgtable-prot.h
+>>> +++ b/arch/arm64/include/asm/pgtable-prot.h
+>>> @@ -14,6 +14,7 @@
+>>>   * Software defined PTE bits definition.
+>>>   */
+>>>  #define PTE_WRITE		(PTE_DBM)		 /* same as DBM (51) */
+>>> +#define PTE_SWP_EXCLUSIVE	(_AT(pteval_t, 1) << 2)	 /* only for swp ptes */
+>>
+>> I think we can use bit 1 here.
+>>
+>>> @@ -909,12 +925,13 @@ static inline pmd_t pmdp_establish(struct vm_area_struct *vma,
+>>>  /*
+>>>   * Encode and decode a swap entry:
+>>>   *	bits 0-1:	present (must be zero)
+>>> - *	bits 2-7:	swap type
+>>> + *	bits 2:		remember PG_anon_exclusive
+>>> + *	bits 3-7:	swap type
+>>>   *	bits 8-57:	swap offset
+>>>   *	bit  58:	PTE_PROT_NONE (must be zero)
+>>
+>> I don't remember exactly why we reserved bits 0 and 1 when, from the
+>> hardware perspective, it's sufficient for bit 0 to be 0 and the whole
+>> pte becomes invalid. We use bit 1 as the 'table' bit (when 0 at pmd
+>> level, it's a huge page) but we shouldn't check for this on a swap
+>> entry.
+> 
+> I'm a little worried that when we're dealing with huge mappings at the
+> PMD level we might lose the ability to distinguish them from a pte-level
+> mapping with this new flag set if we use bit 1. A similar issue to this
+> was fixed a long time ago by 59911ca4325d ("ARM64: mm: Move PTE_PROT_NONE
+> bit") when we used to use bit 1 for PTE_PROT_NONE.
+> 
+> Is something like:
+> 
+> 	pmd_to_swp_entry(swp_entry_to_pmd(pmd));
 
-> Further extend the instruction interception tests for s390x. This series focuses
-> on SIGP, STSI and TPROT instructions.
-> 
-> Some instructions such as STSI already had some coverage and the existing tests
-> were extended to increase coverage.
-> 
-> The SIGP instruction has coverage, but not for all orders. Orders
-> STORE_ADTL_STATUS, SET_PREFIX and CONDITIONAL_EMERGENCY didn't
-> have coverage before and new tests are added. For EMERGENCY_SIGNAL, the existing
-> test is extended to cover an invalid CPU address. Additionally, new tests are
-> added for quite a few invalid arguments to SIGP.
-> 
-> TPROT was used in skrf tests, but only for storage keys, so add tests for the
-> other uses as well.
+Note that __HAVE_ARCH_PTE_SWP_EXCLUSIVE currently only applies to actual
+swap entries, not non-swap entries (migration, hwpoison, ...). So it
+really only applies to PTEs -- PMDs are not applicable.
 
-I like how this series turned out.
+So the example you gave cannot possibly have that bit set. From what I
+understand, it should be fine. But I have no real preference: I can also
+just stick to the original patch, whatever you prefer.
 
-once the fourth patch is ironed out, I think this would be ready for
-queuing
+Thanks!
 
-> 
-> Nico Boehr (9):
->   s390x: smp: add tests for several invalid SIGP orders
->   s390x: smp: stop already stopped CPU
->   s390x: gs: move to new header file
->   s390x: smp: add test for SIGP_STORE_ADTL_STATUS order
->   s390x: smp: add tests for SET_PREFIX
->   s390x: smp: add test for EMERGENCY_SIGNAL with invalid CPU address
->   s390x: smp: add tests for CONDITIONAL EMERGENCY
->   s390x: add TPROT tests
->   s390x: stsi: check zero and ignored bits in r0 and r1
-> 
->  lib/s390x/gs.h      |  80 ++++++++
->  s390x/Makefile      |   1 +
->  s390x/gs.c          |  65 +------
->  s390x/smp.c         | 437 ++++++++++++++++++++++++++++++++++++++++++++
->  s390x/stsi.c        |  42 ++++-
->  s390x/tprot.c       | 108 +++++++++++
->  s390x/unittests.cfg |   9 +
->  7 files changed, 668 insertions(+), 74 deletions(-)
->  create mode 100644 lib/s390x/gs.h
->  create mode 100644 s390x/tprot.c
-> 
+-- 
+Thanks,
+
+David / dhildenb
 
