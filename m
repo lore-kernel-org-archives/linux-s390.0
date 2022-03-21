@@ -2,269 +2,199 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BFF32C433FE
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Mar 2022 10:19:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 098E3C43219
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Mar 2022 10:19:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346265AbiCUKUm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 21 Mar 2022 06:20:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34266 "EHLO
+        id S1346269AbiCUKUo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 21 Mar 2022 06:20:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346253AbiCUKUh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Mar 2022 06:20:37 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB9D52AE1F;
-        Mon, 21 Mar 2022 03:19:12 -0700 (PDT)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22L9qcta026557;
-        Mon, 21 Mar 2022 10:19:12 GMT
+        with ESMTP id S1346259AbiCUKUi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Mar 2022 06:20:38 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EE142A240;
+        Mon, 21 Mar 2022 03:19:13 -0700 (PDT)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22L9LhVL016181;
+        Mon, 21 Mar 2022 10:19:13 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=+UxZVigsFqkvCffLxp5O+cgTvGmXU+WkFPd8+oWtZf8=;
- b=c4ZNEmmrHlAv1Va7/ohEVzOkHZbKqkwGtrld+Tffr8HYVyckPbibpAKq7Ee4Dx4rzoIe
- OD7UeTx5YFOUY6GgLtnBlxFFn36Q3asDE2yBejDm9Onh3Rf09vn6nYkt5U9SfLL2eWRS
- jdNHgsJFZ7g7haylJIiRwcmWZuNH7mo4EWppjFumPWO+DixRM6eWReT/Eo57ps0ymJ9g
- bL59fnR8g1DLBtviiQJcKVuN5K7R77v7OWAwg6pHXnHYGC67/fzyPlNA8Jt44n6DJwoa
- J7TZN3E220GeJF8a5+9B275iof/0BZ2LVoeHWJuvJNFuw/jNpb/3PZ+lRNWkaYQWeFpA qQ== 
+ bh=1y+iVhxfboa/6GiahI0C6GZ/jZeoElApDbL4Z8vlqaI=;
+ b=lyp6T2jnrqZnGlwCHJ7pNAhVtJvScD6oNq1+J/Y2WmdVyNUBC8j/gPlXJiicQ1Ah9w4P
+ huPUEeO1KUDGQENoX+PcBppWDGmR6+DK5asbeUF5EQ4bGZF5Dr75sJ/krOlCsZz8+gUX
+ FXNKIZVLpEqvLK38WGGGvu0OVJFUrciXNi8gQVL9OH+wtmCiOTGnEwciyibTLY5y4DrA
+ TTT8i1SIabuPgv8Bg8dJMfEYJsBF4pxx4oHww9Mbm8K4znecy3c6Gw3W99+fbKLtUE6/
+ rBSfhCSMZdJQZKT32K+AM3we1+EEhesqdYaWLwj6tIVMMJMrOw6fu4tdNHtnt3DQSjtm iA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3exq48ggkf-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3exkk3w1wc-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Mar 2022 10:19:11 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22L9xWMj020034;
-        Mon, 21 Mar 2022 10:19:11 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3exq48ggk3-1
+        Mon, 21 Mar 2022 10:19:12 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22LAIWue027914;
+        Mon, 21 Mar 2022 10:19:12 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3exkk3w1vr-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Mar 2022 10:19:11 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22LADkxU013522;
-        Mon, 21 Mar 2022 10:19:09 GMT
+        Mon, 21 Mar 2022 10:19:12 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22LAEb0O029756;
+        Mon, 21 Mar 2022 10:19:10 GMT
 Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma04fra.de.ibm.com with ESMTP id 3ew6t8k40j-1
+        by ppma04ams.nl.ibm.com with ESMTP id 3ew6t8uju4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Mar 2022 10:19:09 +0000
+        Mon, 21 Mar 2022 10:19:10 +0000
 Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22LAJ67G23527750
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22LAJ66d15466948
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
         Mon, 21 Mar 2022 10:19:06 GMT
 Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 221CD11C04A;
+        by IMSVA (Postfix) with ESMTP id C8DBA11C04A;
         Mon, 21 Mar 2022 10:19:06 +0000 (GMT)
 Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CF7C011C050;
-        Mon, 21 Mar 2022 10:19:05 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 83B6F11C04C;
+        Mon, 21 Mar 2022 10:19:06 +0000 (GMT)
 Received: from t46lp57.lnxne.boe (unknown [9.152.108.100])
         by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 21 Mar 2022 10:19:05 +0000 (GMT)
+        Mon, 21 Mar 2022 10:19:06 +0000 (GMT)
 From:   Nico Boehr <nrb@linux.ibm.com>
 To:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
 Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com,
         david@redhat.com, farman@linux.ibm.com
-Subject: [kvm-unit-tests PATCH v1 3/9] s390x: gs: move to new header file
-Date:   Mon, 21 Mar 2022 11:18:58 +0100
-Message-Id: <20220321101904.387640-4-nrb@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v1 5/9] s390x: smp: add tests for SET_PREFIX
+Date:   Mon, 21 Mar 2022 11:19:00 +0100
+Message-Id: <20220321101904.387640-6-nrb@linux.ibm.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20220321101904.387640-1-nrb@linux.ibm.com>
 References: <20220321101904.387640-1-nrb@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: R7WxHfv2ZSXLgOKHUKHR_9JxSHvkHZww
-X-Proofpoint-GUID: 4vseju_kIAY2XTztoEhmupbiG2XZJPvF
+X-Proofpoint-GUID: luZzkLrqSev72xYLRGvX5kbqNicmYky0
+X-Proofpoint-ORIG-GUID: HNhAEBmNnwHCxvbjyZRwpIQZIexp6tmt
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-03-21_04,2022-03-21_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 phishscore=0
- priorityscore=1501 malwarescore=0 mlxscore=0 mlxlogscore=810 clxscore=1015
- lowpriorityscore=0 suspectscore=0 bulkscore=0 impostorscore=0 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2203210066
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ lowpriorityscore=0 mlxscore=0 malwarescore=0 phishscore=0 mlxlogscore=999
+ bulkscore=0 adultscore=0 clxscore=1015 spamscore=0 suspectscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2203210066
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Move the guarded-storage related structs and instructions to a new
-header file because we will also need them for the SIGP store additional
-status tests in smp.c.
+We cover the following cases:
+
+- running CPU
+- illegal CPU id
+
+The order should be rejected in both cases.
 
 Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
 Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 ---
- lib/s390x/gs.h | 80 ++++++++++++++++++++++++++++++++++++++++++++++++++
- s390x/gs.c     | 65 +---------------------------------------
- 2 files changed, 81 insertions(+), 64 deletions(-)
- create mode 100644 lib/s390x/gs.h
+ s390x/smp.c | 73 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 73 insertions(+)
 
-diff --git a/lib/s390x/gs.h b/lib/s390x/gs.h
-new file mode 100644
-index 000000000000..e28fa4e1b893
---- /dev/null
-+++ b/lib/s390x/gs.h
-@@ -0,0 +1,80 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Guarded storage related definitions
-+ *
-+ * Copyright 2018 IBM Corp.
-+ *
-+ * Authors:
-+ *    Martin Schwidefsky <schwidefsky@de.ibm.com>
-+ *    Janosch Frank <frankja@linux.ibm.com>
-+ */
-+#include <stdint.h>
-+
-+#ifndef _S390X_GS_H_
-+#define _S390X_GS_H_
-+
-+struct gs_cb {
-+	uint64_t reserved;
-+	uint64_t gsd;
-+	uint64_t gssm;
-+	uint64_t gs_epl_a;
-+};
-+
-+struct gs_epl {
-+	uint8_t pad1;
-+	union {
-+		uint8_t gs_eam;
-+		struct {
-+			uint8_t		: 6;
-+			uint8_t e	: 1;
-+			uint8_t b	: 1;
-+		};
-+	};
-+	union {
-+		uint8_t gs_eci;
-+		struct {
-+			uint8_t tx	: 1;
-+			uint8_t cx	: 1;
-+			uint8_t		: 5;
-+			uint8_t in	: 1;
-+		};
-+	};
-+	union {
-+		uint8_t gs_eai;
-+		struct {
-+			uint8_t		: 1;
-+			uint8_t t	: 1;
-+			uint8_t as	: 2;
-+			uint8_t ar	: 4;
-+		};
-+	};
-+	uint32_t pad2;
-+	uint64_t gs_eha;
-+	uint64_t gs_eia;
-+	uint64_t gs_eoa;
-+	uint64_t gs_eir;
-+	uint64_t gs_era;
-+};
-+
-+static inline void load_gs_cb(struct gs_cb *gs_cb)
-+{
-+	asm volatile(".insn rxy,0xe3000000004d,0,%0" : : "Q" (*gs_cb));
-+}
-+
-+static inline void store_gs_cb(struct gs_cb *gs_cb)
-+{
-+	asm volatile(".insn rxy,0xe30000000049,0,%0" : : "Q" (*gs_cb));
-+}
-+
-+static inline unsigned long load_guarded(unsigned long *p)
-+{
-+	unsigned long v;
-+
-+	asm(".insn rxy,0xe3000000004c, %0,%1"
-+	    : "=d" (v)
-+	    : "m" (*p)
-+	    : "r14", "memory");
-+	return v;
-+}
-+
-+#endif
-diff --git a/s390x/gs.c b/s390x/gs.c
-index 7567bb78fecb..248f387abf1b 100644
---- a/s390x/gs.c
-+++ b/s390x/gs.c
-@@ -13,49 +13,7 @@
- #include <asm/facility.h>
- #include <asm/interrupt.h>
- #include <asm-generic/barrier.h>
--
--struct gs_cb {
--	uint64_t reserved;
--	uint64_t gsd;
--	uint64_t gssm;
--	uint64_t gs_epl_a;
--};
--
--struct gs_epl {
--	uint8_t pad1;
--	union {
--		uint8_t gs_eam;
--		struct {
--			uint8_t		: 6;
--			uint8_t e	: 1;
--			uint8_t b	: 1;
--		};
--	};
--	union {
--		uint8_t gs_eci;
--		struct {
--			uint8_t tx	: 1;
--			uint8_t cx	: 1;
--			uint8_t		: 5;
--			uint8_t in	: 1;
--		};
--	};
--	union {
--		uint8_t gs_eai;
--		struct {
--			uint8_t		: 1;
--			uint8_t t	: 1;
--			uint8_t as	: 2;
--			uint8_t ar	: 4;
--		};
--	};
--	uint32_t pad2;
--	uint64_t gs_eha;
--	uint64_t gs_eia;
--	uint64_t gs_eoa;
--	uint64_t gs_eir;
--	uint64_t gs_era;
--};
-+#include <gs.h>
- 
- static volatile int guarded = 0;
+diff --git a/s390x/smp.c b/s390x/smp.c
+index 5d3265f6be64..f22520b4f4fc 100644
+--- a/s390x/smp.c
++++ b/s390x/smp.c
+@@ -51,6 +51,8 @@ static uint8_t expected_vec_contents[NUM_VEC_REGISTERS][VEC_REGISTER_SIZE];
  static struct gs_cb gs_cb;
-@@ -64,27 +22,6 @@ static unsigned long gs_area = 0x2000000;
+ static struct gs_epl gs_epl;
  
- void gs_handler(struct gs_cb *this_cb);
++static uint32_t cpu1_prefix;
++
+ static void test_invalid(void)
+ {
+ 	const struct sigp_invalid_cases *c;
+@@ -455,6 +457,76 @@ out:
+ 	report_prefix_pop();
+ }
  
--static inline void load_gs_cb(struct gs_cb *gs_cb)
--{
--	asm volatile(".insn rxy,0xe3000000004d,0,%0" : : "Q" (*gs_cb));
--}
--
--static inline void store_gs_cb(struct gs_cb *gs_cb)
--{
--	asm volatile(".insn rxy,0xe30000000049,0,%0" : : "Q" (*gs_cb));
--}
--
--static inline unsigned long load_guarded(unsigned long *p)
--{
--	unsigned long v;
--
--	asm(".insn rxy,0xe3000000004c, %0,%1"
--	    : "=d" (v)
--	    : "m" (*p)
--	    : "r14", "memory");
--	return v;
--}
--
- /* guarded-storage event handler and finally it calls gs_handler */
- extern void gs_handler_asm(void);
- 	asm(".globl gs_handler_asm\n"
++static void loop(void)
++{
++	while (1)
++		;
++}
++
++static void stpx_and_set_flag(void)
++{
++	asm volatile (
++		"	stpx %[prefix]\n"
++		: [prefix] "=Q" (cpu1_prefix)
++		:
++		:
++	);
++
++	set_flag(1);
++}
++
++static void test_set_prefix(void)
++{
++	struct lowcore *new_lc = alloc_pages_flags(1, AREA_DMA31);
++	struct cpu *cpu1 = smp_cpu_from_idx(1);
++	uint32_t status = 0;
++	struct psw new_psw;
++	int cc;
++
++	report_prefix_push("set prefix");
++
++	assert(new_lc);
++
++	memcpy(new_lc, cpu1->lowcore, sizeof(struct lowcore));
++	new_lc->restart_new_psw.addr = (unsigned long)loop;
++
++	report_prefix_push("running");
++	set_flag(0);
++	new_psw.addr = (unsigned long)stpx_and_set_flag;
++	new_psw.mask = extract_psw_mask();
++	smp_cpu_start(1, new_psw);
++	wait_for_flag();
++	cpu1_prefix = 0xFFFFFFFF;
++
++	cc = smp_sigp(1, SIGP_SET_PREFIX, (unsigned long)new_lc, &status);
++	report(cc == 1, "CC = 1");
++	report(status == SIGP_STATUS_INCORRECT_STATE, "status = INCORRECT_STATE");
++
++	/*
++	 * If the prefix of the other CPU was changed it will enter an endless
++	 * loop. Otherwise, it should eventually set the flag.
++	 */
++	smp_cpu_stop(1);
++	set_flag(0);
++	smp_cpu_restart(1);
++	wait_for_flag();
++	report(cpu1_prefix == (uint64_t)cpu1->lowcore, "prefix unchanged");
++
++	report_prefix_pop();
++
++	report_prefix_push("invalid CPU address");
++
++	cc = sigp(INVALID_CPU_ADDRESS, SIGP_SET_PREFIX, (unsigned long)new_lc, &status);
++	report(cc == 3, "CC = 3");
++
++	report_prefix_pop();
++
++	free_pages(new_lc);
++
++	report_prefix_pop();
++
++}
++
+ static void ecall(void)
+ {
+ 	unsigned long mask;
+@@ -647,6 +719,7 @@ int main(void)
+ 	test_store_adtl_status_vector();
+ 	test_store_adtl_status_gs();
+ 	test_store_adtl_status();
++	test_set_prefix();
+ 	test_ecall();
+ 	test_emcall();
+ 	test_sense_running();
 -- 
 2.31.1
 
