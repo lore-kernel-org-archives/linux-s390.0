@@ -2,122 +2,206 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 83091C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Mar 2022 07:18:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E279C433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Mar 2022 07:44:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344807AbiCUHT7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 21 Mar 2022 03:19:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39620 "EHLO
+        id S1345004AbiCUHp1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 21 Mar 2022 03:45:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344822AbiCUHTu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Mar 2022 03:19:50 -0400
-Received: from mail-oi1-x231.google.com (mail-oi1-x231.google.com [IPv6:2607:f8b0:4864:20::231])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4AA817AAC;
-        Mon, 21 Mar 2022 00:18:24 -0700 (PDT)
-Received: by mail-oi1-x231.google.com with SMTP id q129so13353503oif.4;
-        Mon, 21 Mar 2022 00:18:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=1er9hXh4NM0xsL2Lew/SNJXsAYeQMvEWCUztMVmluyk=;
-        b=XYAKx54NQ+daDqIfWnhcUav0VWfdZ+I2J8snROMkZXkOhO9TMqSItRPxvLMTwsSYra
-         SAAlo7hM+naa1ZoMKhgjW+VQsYJuAXfBfHKPm9038/yPNccG55Oi24uAZmgu9DHXq9WV
-         tmjHrXswJBdIV+I/guhkhoSJ+p+Y8ywN0ySEiFe4F+5Lx9yPM/uJjUQjDWofeo8J90h6
-         /6egQBOmK0rK/mnm36s/izktSnMQhSk1/HDrSD6xvMsHgtW4iFWtMg4rScFh1X3gfriq
-         DQ2ECDR75RgVhssFnpXku8VyLiG7cim+Lto+RumSfZyt97OAZPkTlWrESQdREF9nYCRK
-         /vhA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=1er9hXh4NM0xsL2Lew/SNJXsAYeQMvEWCUztMVmluyk=;
-        b=iDpVdv+9IhEE27XIe0HXNWruJEUu+9otSBVFy9EfEbI8YOmFmg2SdQi8rilWl9VRO+
-         3dH2krNbldYZQrKPd4g9/RGWwVZHcXmK6qtSPvNE9ueNStHkQArw9nNtBSoAbgcDBr85
-         FCs8DOF9IZmBaRup8NOEWMWIqY0KP5dQjHAC7/sflDA7OCJsnLVkScXVbXyQsQsziZ00
-         EIcIGdHvI2WwphwfKxsyUpc9AYKo+kwgncySixCZfz/NprCTnQ9tJ8r6b1wqp6UwEhns
-         w3is43st+NFQpwt2oaPp8L92W6ldgT5DYcW5SQDEU9W4Gkn0gCO/fwXdorWKT3lWjNDF
-         ABxw==
-X-Gm-Message-State: AOAM531K51sLpeKWAZzMpvk+Zv8IhPLwPjZtmJ0uOm+bmnF+LbFEg/Jw
-        ssNuh7URHxr8P+h+xg3Ej4Y=
-X-Google-Smtp-Source: ABdhPJxK9Kxfiyb/zcjUdeBgIeDMM8oM/8rMJ/d6+Gmg42H7x8nwE7dSl++JVvmDeKDgBX3SeVk0Bg==
-X-Received: by 2002:a05:6808:3022:b0:2d5:bd2c:3154 with SMTP id ay34-20020a056808302200b002d5bd2c3154mr12984640oib.102.1647847104124;
-        Mon, 21 Mar 2022 00:18:24 -0700 (PDT)
-Received: from tong-desktop.local ([2600:1700:3ec7:421f:a425:dbce:b9cb:7c6f])
-        by smtp.googlemail.com with ESMTPSA id r21-20020a05683002f500b005b249ffa43fsm7178537ote.22.2022.03.21.00.18.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Mar 2022 00:18:23 -0700 (PDT)
-From:   Tong Zhang <ztong0001@gmail.com>
-To:     Karsten Keil <isdn@linux-pingi.de>, Sam Creasey <sammy@sammy.net>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Pontus Fuchs <pontus.fuchs@gmail.com>,
-        Kalle Valo <kvalo@kernel.org>,
-        Alexandra Winter <wintera@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Tong Zhang <ztong0001@gmail.com>, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-wireless@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [PATCH 4/4] mISDN: fix typo "frame to short" -> "frame too short"
-Date:   Mon, 21 Mar 2022 00:18:18 -0700
-Message-Id: <20220321071819.3477438-1-ztong0001@gmail.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220321071350.3476185-1-ztong0001@gmail.com>
-References: <20220321071350.3476185-1-ztong0001@gmail.com>
+        with ESMTP id S1344992AbiCUHp0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Mar 2022 03:45:26 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20CA343398;
+        Mon, 21 Mar 2022 00:44:02 -0700 (PDT)
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22L6fm2Z012413;
+        Mon, 21 Mar 2022 07:44:01 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=V5bm0JNVJs0ckvi/rt9pA8J84CPffrZEwfkMCgr1BSk=;
+ b=Md5dgVwCbCvPjxQIhJ781Szu+aAExug149rgCUdvIhX8TNiu8WFxh8Q+ssjhG5k4cTce
+ mS2Ef08dR+5T5UEip5yAZApJMin0UPJcvJO9dlVapiX/WaaL1qhDLVr5ySjP74FsztS8
+ ycXE9hWfg1Q0rrUUoTQ3P7Qf+nLrtCJ+diJnw8iBqo4qx6RnYvtJ1SJfbuZ3FFGGYtNG
+ 78/mdEPXZuastyCb4nFUNUyF2hdQumxrnLI5v9onwhB2nyHCyX5q/b2xk7n4LuB5VvLs
+ +SvBhKplrepP/IDWC8d1dGWC2ozJr+6Dfa4kF1sLjMKRvWbS4yugli/JkaB8TwXImef3 Zw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3exmaq1gj7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 21 Mar 2022 07:44:01 +0000
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22L7ePcp016332;
+        Mon, 21 Mar 2022 07:44:01 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3exmaq1ghn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 21 Mar 2022 07:44:01 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22L7h0Ob007020;
+        Mon, 21 Mar 2022 07:43:58 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma05fra.de.ibm.com with ESMTP id 3ew6t9aueu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 21 Mar 2022 07:43:58 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22L7WHWS30278098
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 21 Mar 2022 07:32:17 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9E4DF11C04A;
+        Mon, 21 Mar 2022 07:43:55 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5899211C054;
+        Mon, 21 Mar 2022 07:43:55 +0000 (GMT)
+Received: from [9.145.46.50] (unknown [9.145.46.50])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 21 Mar 2022 07:43:55 +0000 (GMT)
+Message-ID: <13970909-52c2-bb3d-3cfd-0c97100edb04@linux.ibm.com>
+Date:   Mon, 21 Mar 2022 08:43:54 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.2
+Subject: Re: [PATCH kvm-unit-tests v2 5/6] s390x: smp: Create and use a
+ non-waiting CPU restart
+Content-Language: en-US
+To:     Eric Farman <farman@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+References: <20220311173822.1234617-1-farman@linux.ibm.com>
+ <20220311173822.1234617-6-farman@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <20220311173822.1234617-6-farman@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: -GntR27Xi8LvyyGLZRL_qlxel9dubeX2
+X-Proofpoint-GUID: XupxjxxLT4rqZ5J6ty1nVZb0D_7SVdu9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-03-21_02,2022-03-15_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 malwarescore=0
+ spamscore=0 priorityscore=1501 impostorscore=0 adultscore=0 clxscore=1015
+ mlxlogscore=999 lowpriorityscore=0 mlxscore=0 phishscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2203210049
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-"frame to short" -> "frame too short"
+On 3/11/22 18:38, Eric Farman wrote:
+> The kvm-unit-tests infrastructure for a CPU restart waits for the
+> SIGP RESTART to complete. In order to test the restart itself,
+> create a variation that does not wait, and test the state of the
+> CPU directly.
+> 
+> While here, add some better report prefixes/messages, to clarify
+> which condition is being examined (similar to test_stop_store_status()).
+> 
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
 
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
----
- drivers/isdn/hardware/mISDN/mISDNipac.c | 2 +-
- drivers/isdn/hardware/mISDN/mISDNisar.c | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 
-diff --git a/drivers/isdn/hardware/mISDN/mISDNipac.c b/drivers/isdn/hardware/mISDN/mISDNipac.c
-index 39f841b42488..4f8d85bb3ce1 100644
---- a/drivers/isdn/hardware/mISDN/mISDNipac.c
-+++ b/drivers/isdn/hardware/mISDN/mISDNipac.c
-@@ -1062,7 +1062,7 @@ ipac_rme(struct hscx_hw *hx)
- 	if (!hx->bch.rx_skb)
- 		return;
- 	if (hx->bch.rx_skb->len < 2) {
--		pr_debug("%s: B%1d frame to short %d\n",
-+		pr_debug("%s: B%1d frame too short %d\n",
- 			 hx->ip->name, hx->bch.nr, hx->bch.rx_skb->len);
- 		skb_trim(hx->bch.rx_skb, 0);
- 	} else {
-diff --git a/drivers/isdn/hardware/mISDN/mISDNisar.c b/drivers/isdn/hardware/mISDN/mISDNisar.c
-index 56943409b60d..48b3d43e2502 100644
---- a/drivers/isdn/hardware/mISDN/mISDNisar.c
-+++ b/drivers/isdn/hardware/mISDN/mISDNisar.c
-@@ -466,7 +466,7 @@ isar_rcv_frame(struct isar_ch *ch)
- 		rcv_mbox(ch->is, ptr);
- 		if (ch->is->cmsb & HDLC_FED) {
- 			if (ch->bch.rx_skb->len < 3) { /* last 2 are the FCS */
--				pr_debug("%s: ISAR frame to short %d\n",
-+				pr_debug("%s: ISAR frame too short %d\n",
- 					 ch->is->name, ch->bch.rx_skb->len);
- 				skb_trim(ch->bch.rx_skb, 0);
- 				break;
-@@ -542,7 +542,7 @@ isar_rcv_frame(struct isar_ch *ch)
- 		rcv_mbox(ch->is, ptr);
- 		if (ch->is->cmsb & HDLC_FED) {
- 			if (ch->bch.rx_skb->len < 3) { /* last 2 are the FCS */
--				pr_info("%s: ISAR frame to short %d\n",
-+				pr_info("%s: ISAR frame too short %d\n",
- 					ch->is->name, ch->bch.rx_skb->len);
- 				skb_trim(ch->bch.rx_skb, 0);
- 				break;
--- 
-2.25.1
+> ---
+>   lib/s390x/smp.c | 24 ++++++++++++++++++++++++
+>   lib/s390x/smp.h |  1 +
+>   s390x/smp.c     | 21 ++++++++++++++++++---
+>   3 files changed, 43 insertions(+), 3 deletions(-)
+> 
+> diff --git a/lib/s390x/smp.c b/lib/s390x/smp.c
+> index b69c0e09..5be29d36 100644
+> --- a/lib/s390x/smp.c
+> +++ b/lib/s390x/smp.c
+> @@ -194,6 +194,30 @@ int smp_cpu_restart(uint16_t idx)
+>   	return rc;
+>   }
+>   
+> +/*
+> + * Functionally equivalent to smp_cpu_restart(), but without the
+> + * elements that wait/serialize matters here in the test.
+> + * Used to see if KVM itself is serialized correctly.
+> + */
+> +int smp_cpu_restart_nowait(uint16_t idx)
+> +{
+> +	check_idx(idx);
+> +
+> +	spin_lock(&lock);
+> +
+> +	/* Don't suppress a CC2 with sigp_retry() */
+> +	if (sigp(cpus[idx].addr, SIGP_RESTART, 0, NULL)) {
+> +		spin_unlock(&lock);
+> +		return -1;
+> +	}
+> +
+> +	cpus[idx].active = true;
+> +
+> +	spin_unlock(&lock);
+> +
+> +	return 0;
+> +}
+> +
+>   int smp_cpu_start(uint16_t idx, struct psw psw)
+>   {
+>   	int rc;
+> diff --git a/lib/s390x/smp.h b/lib/s390x/smp.h
+> index bae03dfd..24a0e2e0 100644
+> --- a/lib/s390x/smp.h
+> +++ b/lib/s390x/smp.h
+> @@ -42,6 +42,7 @@ uint16_t smp_cpu_addr(uint16_t idx);
+>   bool smp_cpu_stopped(uint16_t idx);
+>   bool smp_sense_running_status(uint16_t idx);
+>   int smp_cpu_restart(uint16_t idx);
+> +int smp_cpu_restart_nowait(uint16_t idx);
+>   int smp_cpu_start(uint16_t idx, struct psw psw);
+>   int smp_cpu_stop(uint16_t idx);
+>   int smp_cpu_stop_nowait(uint16_t idx);
+> diff --git a/s390x/smp.c b/s390x/smp.c
+> index f70a9c54..913da155 100644
+> --- a/s390x/smp.c
+> +++ b/s390x/smp.c
+> @@ -54,6 +54,10 @@ static void test_restart(void)
+>   {
+>   	struct cpu *cpu = smp_cpu_from_idx(1);
+>   	struct lowcore *lc = cpu->lowcore;
+> +	int rc;
+> +
+> +	report_prefix_push("restart");
+> +	report_prefix_push("stopped");
+>   
+>   	lc->restart_new_psw.mask = extract_psw_mask();
+>   	lc->restart_new_psw.addr = (unsigned long)test_func;
+> @@ -61,17 +65,28 @@ static void test_restart(void)
+>   	/* Make sure cpu is stopped */
+>   	smp_cpu_stop(1);
+>   	set_flag(0);
+> -	smp_cpu_restart(1);
+> +	rc = smp_cpu_restart_nowait(1);
+> +	report(!rc, "return code");
+> +	report(!smp_cpu_stopped(1), "cpu started");
+>   	wait_for_flag();
+> +	report_pass("test flag");
+> +
+> +	report_prefix_pop();
+> +	report_prefix_push("running");
+>   
+>   	/*
+>   	 * Wait until cpu 1 has set the flag because it executed the
+>   	 * restart function.
+>   	 */
+>   	set_flag(0);
+> -	smp_cpu_restart(1);
+> +	rc = smp_cpu_restart_nowait(1);
+> +	report(!rc, "return code");
+> +	report(!smp_cpu_stopped(1), "cpu started");
+>   	wait_for_flag();
+> -	report_pass("restart while running");
+> +	report_pass("test flag");
+> +
+> +	report_prefix_pop();
+> +	report_prefix_pop();
+>   }
+>   
+>   static void test_stop(void)
 
