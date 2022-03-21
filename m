@@ -2,144 +2,133 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 59E82C433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Mar 2022 10:25:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A92AC433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Mar 2022 12:16:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346304AbiCUK0p (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 21 Mar 2022 06:26:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56572 "EHLO
+        id S1347267AbiCUMSU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 21 Mar 2022 08:18:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346301AbiCUK0o (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Mar 2022 06:26:44 -0400
-Received: from mail-il1-f200.google.com (mail-il1-f200.google.com [209.85.166.200])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38AE5ADD54
-        for <linux-s390@vger.kernel.org>; Mon, 21 Mar 2022 03:25:19 -0700 (PDT)
-Received: by mail-il1-f200.google.com with SMTP id y19-20020a056e02119300b002c2d3ef05bfso7117811ili.18
-        for <linux-s390@vger.kernel.org>; Mon, 21 Mar 2022 03:25:19 -0700 (PDT)
+        with ESMTP id S1347266AbiCUMSU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Mar 2022 08:18:20 -0400
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EE6F1621A7;
+        Mon, 21 Mar 2022 05:16:55 -0700 (PDT)
+Received: by mail-ed1-x52f.google.com with SMTP id k10so3848557edj.2;
+        Mon, 21 Mar 2022 05:16:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:subject:from:in-reply-to:date:cc
+         :content-transfer-encoding:message-id:references:to;
+        bh=FVmsk2siuOBeOD45Au0+vzJrkI7Itr+i7upwdVIByJQ=;
+        b=WwQ1ogylZaigKDW4t6TbDN0rj4h4oWvvwMMsovz/1wATgsJFnpra/z/+U1LZ2byB6V
+         siU8AqilmhxfxnPSHvlTRbwqEpqppTLedVa+xbXe4OUFhVmENi60UbKfuHZ+24oui/Qa
+         QbY01zkOQDPM85bZnX5oy+orqmP2ziK+U7pmmy1AaKtqo1v0qjrVUJvfgPS7xAHZCYXG
+         Xr0BT9LwNmCSHPQ1hv+hfW2PnQ8VHdyfZG8VUFnNEL3mwQteN0br/2AN4MMzYrzxTeHn
+         3fE9M9nAJD1nd+hssGlnN2BSW+Lhd2Ddrpf01gR0s43zOg7tV88mi01ehrpXklpKqXi3
+         KOxg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:date:message-id:subject:from:to;
-        bh=dfW60HFiHGAShL8WQ035qSGxvkVFI45Rn0aZ23BkU28=;
-        b=4uer0qF39097RVeIBLaAcCR8llXDS35P23ETaVBrMfWsiag62OJUEMw5B+6+Wk9uDe
-         ZawYetBfjailNWdlkvg6s4v6ihWetNfZF1xVTIjSaZWGrzPQN+hjk5VKYX5ZhbCCE/mJ
-         sIVpzbdFXHNVWQ38tRxc+8YH0amG+JgP1cEU/DI9ewV+acpUz7IJRXD6v+3KAebzxmV6
-         63OSQXX9+FdmZdD03AGGWyvV1dyZ02+Fef8xmOmBNLEGA9lLyphd4EICw+gKstdsNBXW
-         9Lw42qTErF6YYqaRsX6RTU9z8xvj6wlh2rp9zidXHQwLaC0K8yKpvmMPSZsBv7l1taBN
-         630A==
-X-Gm-Message-State: AOAM533IdNBB5mWUjct8GMP/XKfvvotWuu7sijBNSMl87gLSGuW+0nsM
-        i1cRaPeOCl1CIwIsrJDEAo0ie9PeBdgiG2qXZA23beuUNg9/
-X-Google-Smtp-Source: ABdhPJzTTfOJKl5sHEqG/aH+fRC99gL8AQSHgsFCfD+Y3/oMzeqUJ5gW/d/Cnhwf0JiDWw7bg0Os01JLLPMauK0QHoCaDBrPR/j2
-MIME-Version: 1.0
-X-Received: by 2002:a5d:8796:0:b0:645:bd36:3833 with SMTP id
- f22-20020a5d8796000000b00645bd363833mr9579909ion.158.1647858318498; Mon, 21
- Mar 2022 03:25:18 -0700 (PDT)
-Date:   Mon, 21 Mar 2022 03:25:18 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <000000000000b6df0f05dab7e92c@google.com>
-Subject: [syzbot] WARNING in kvm_mmu_notifier_invalidate_range_start (2)
-From:   syzbot <syzbot+6bde52d89cfdf9f61425@syzkaller.appspotmail.com>
-To:     agordeev@linux.ibm.com, aleksandar.qemu.devel@gmail.com,
-        alexandru.elisei@arm.com, benh@kernel.crashing.org,
-        borntraeger@linux.ibm.com, bp@alien8.de, catalin.marinas@arm.com,
-        chenhuacai@kernel.org, dave.hansen@linux.intel.com,
-        david@redhat.com, dja@axtens.net, frankja@linux.ibm.com,
-        gor@linux.ibm.com, hca@linux.ibm.com, hpa@zytor.com,
-        imbrenda@linux.ibm.com, james.morse@arm.com, jmattson@google.com,
-        joro@8bytes.org, kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-s390@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, lukas.bulwahn@gmail.com,
-        maciej.szmigiero@oracle.com, maz@kernel.org, mingo@redhat.com,
-        mpe@ellerman.id.au, paulus@samba.org, pbonzini@redhat.com,
-        seanjc@google.com, suzuki.poulose@arm.com,
-        syzkaller-bugs@googlegroups.com, tglx@linutronix.de,
-        tsbogend@alpha.franken.de, vkuznets@redhat.com,
-        wanpengli@tencent.com, will@kernel.org, x86@kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:mime-version:subject:from:in-reply-to:date:cc
+         :content-transfer-encoding:message-id:references:to;
+        bh=FVmsk2siuOBeOD45Au0+vzJrkI7Itr+i7upwdVIByJQ=;
+        b=hHvnMup9K9o0VvlLm4HXeAteXtFnlOJrezq0btO0c/a8UAyiZZP2KwqCXHBO9I9Py2
+         vwaMMiqcIecsqhrIipOxNuzPYxLpOl2CyVC+O7xGzcWb6b6qsXZy7vBJKuYKDnJT5CR7
+         DheiaYBNLj6zU9A4/zSic8O48QCHVgACKy8ZBb2DhvbAAZ+PwYYGRHwQ3vk3acINxyR/
+         xZ6UiRvdWMKauEm+9rGgxhDQ0BQXqDajyEGdZ0ftEEz4K503mPTym1AoSKHK95LU21E1
+         2XJWkoCBnayp+oKPFrKGFcy8MCiui0hBAmIVS5VZG7VbCtimbEPAFMCnaieVHx3mvOas
+         idpQ==
+X-Gm-Message-State: AOAM530w6pBgpJ0/B8fB+j8ZCl4iygWdPtCJeG8X5uGFMFKdYM/9IMoY
+        6RmzFRjGarJAMpNXJL5vCAc=
+X-Google-Smtp-Source: ABdhPJzdMYVz2a4hQoNPr65/LccPzyWENQRCLL1oTZT1KgzUmbSQSl59isPNud3yV3OE3XHXmQhXXQ==
+X-Received: by 2002:a50:d711:0:b0:410:a51a:77c5 with SMTP id t17-20020a50d711000000b00410a51a77c5mr22487737edi.154.1647865013691;
+        Mon, 21 Mar 2022 05:16:53 -0700 (PDT)
+Received: from smtpclient.apple (i130160.upc-i.chello.nl. [62.195.130.160])
+        by smtp.gmail.com with ESMTPSA id j18-20020a170906535200b006e007fa9d0fsm1371849ejo.149.2022.03.21.05.16.52
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 21 Mar 2022 05:16:53 -0700 (PDT)
+Content-Type: text/plain;
+        charset=us-ascii
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3696.80.82.1.1\))
+Subject: Re: [PATCH] s390/zcrypt: fix using the correct variable for sizeof()
+From:   Jakob Koschel <jakobkoschel@gmail.com>
+In-Reply-To: <63552021dab7bcf6385526c6dd715e4f@imap.linux.ibm.com>
+Date:   Mon, 21 Mar 2022 13:16:52 +0100
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-s390@vger.kernel.org,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        Brian Johannesmeyer <bjohannesmeyer@gmail.com>,
+        Cristiano Giuffrida <c.giuffrida@vu.nl>,
+        "Bos, H.J." <h.j.bos@vu.nl>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <1A255D0D-F9E4-4155-933E-574442F3652E@gmail.com>
+References: <20220319203528.2552869-1-jakobkoschel@gmail.com>
+ <63552021dab7bcf6385526c6dd715e4f@imap.linux.ibm.com>
+To:     hfreude <hfreude@imap.linux.ibm.com>
+X-Mailer: Apple Mail (2.3696.80.82.1.1)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello,
 
-syzbot found the following issue on:
+> On 21. Mar 2022, at 10:26, hfreude <hfreude@imap.linux.ibm.com> wrote:
+>=20
+> On 2022-03-19 21:35, Jakob Koschel wrote:
+>> While the original code is valid, it is not the obvious choice for =
+the
+>> sizeof() call and in preparation to limit the scope of the list =
+iterator
+>> variable the sizeof should be changed to the size of the variable
+>> being allocated.
+>> Signed-off-by: Jakob Koschel <jakobkoschel@gmail.com>
+>> ---
+>> drivers/s390/crypto/zcrypt_card.c | 2 +-
+>> 1 file changed, 1 insertion(+), 1 deletion(-)
+>> diff --git a/drivers/s390/crypto/zcrypt_card.c
+>> b/drivers/s390/crypto/zcrypt_card.c
+>> index 3e259befd30a..fcbd537530e8 100644
+>> --- a/drivers/s390/crypto/zcrypt_card.c
+>> +++ b/drivers/s390/crypto/zcrypt_card.c
+>> @@ -90,7 +90,7 @@ static ssize_t online_store(struct device *dev,
+>> 	list_for_each_entry(zq, &zc->zqueues, list)
+>> 		maxzqs++;
+>> 	if (maxzqs > 0)
+>> -		zq_uelist =3D kcalloc(maxzqs + 1, sizeof(zq), =
+GFP_ATOMIC);
+>> +		zq_uelist =3D kcalloc(maxzqs + 1, sizeof(*zq_uelist), =
+GFP_ATOMIC);
+>> 	list_for_each_entry(zq, &zc->zqueues, list)
+>> 		if (zcrypt_queue_force_online(zq, online))
+>> 			if (zq_uelist) {
+>> base-commit: 34e047aa16c0123bbae8e2f6df33e5ecc1f56601
+>> --
+>> 2.25.1
+> Thanks Jakob, add my Reviewed-by: Harald Freudenberger =
+<freude@linux.ibm.com>
+> Which way is this patch going to be integrated into the kernel ?
+> Usually I pick this and push it into s390 and on the next merge window =
+it will
+> get merged into Linus Torvalds kernel tree.
+> However, sounds like you are about to clean up the kernel in =
+preparation for the
+> changes related to the double linked list api. So maybe you have a =
+patch series
+> which will go into the kernel by another way ?
+> Waiting for an answer, Thanks
+>=20
 
-HEAD commit:    56e337f2cf13 Revert "gpio: Revert regression in sysfs-gpio..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=13821b8d700000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=d35f9bc6884af6c9
-dashboard link: https://syzkaller.appspot.com/bug?extid=6bde52d89cfdf9f61425
-compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=12a2d0a9700000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=13d34fd9700000
+CC'd Greg KH (in case he has some input) but my assumption is that this =
+just goes
+the normal way through your s390 tree. Most of this cleanup is not in a =
+hurry so
+getting it into the next merge window should be fine.
 
-The issue was bisected to:
+	Jakob
 
-commit ed922739c9199bf515a3e7fec3e319ce1edeef2a
-Author: Maciej S. Szmigiero <maciej.szmigiero@oracle.com>
-Date:   Mon Dec 6 19:54:28 2021 +0000
-
-    KVM: Use interval tree to do fast hva lookup in memslots
-
-bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=142aa59d700000
-final oops:     https://syzkaller.appspot.com/x/report.txt?x=162aa59d700000
-console output: https://syzkaller.appspot.com/x/log.txt?x=122aa59d700000
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+6bde52d89cfdf9f61425@syzkaller.appspotmail.com
-Fixes: ed922739c919 ("KVM: Use interval tree to do fast hva lookup in memslots")
-
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 3599 at arch/x86/kvm/../../../virt/kvm/kvm_main.c:529 __kvm_handle_hva_range arch/x86/kvm/../../../virt/kvm/kvm_main.c:529 [inline]
-WARNING: CPU: 0 PID: 3599 at arch/x86/kvm/../../../virt/kvm/kvm_main.c:529 kvm_mmu_notifier_invalidate_range_start+0x97a/0xb20 arch/x86/kvm/../../../virt/kvm/kvm_main.c:714
-Modules linked in:
-CPU: 0 PID: 3599 Comm: syz-executor221 Not tainted 5.17.0-rc8-syzkaller-00003-g56e337f2cf13 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:__kvm_handle_hva_range arch/x86/kvm/../../../virt/kvm/kvm_main.c:529 [inline]
-RIP: 0010:kvm_mmu_notifier_invalidate_range_start+0x97a/0xb20 arch/x86/kvm/../../../virt/kvm/kvm_main.c:714
-Code: 00 48 c7 c2 60 0c a2 89 be b9 01 00 00 48 c7 c7 c0 10 a2 89 c6 05 ed 71 76 0c 01 e8 79 84 ff 07 e9 73 ff ff ff e8 b6 cd 6f 00 <0f> 0b e9 88 fc ff ff e8 aa cd 6f 00 0f 0b e9 58 fc ff ff e8 9e cd
-RSP: 0018:ffffc90001caf948 EFLAGS: 00010293
-RAX: 0000000000000000 RBX: 000000002000d000 RCX: 0000000000000000
-RDX: ffff888020d83a00 RSI: ffffffff8108f27a RDI: 0000000000000003
-RBP: ffffc90002b76290 R08: 000000002000d000 R09: ffffc90002b762e3
-R10: ffffffff8108eb1c R11: 0000000000000001 R12: ffffc90002b7f240
-R13: ffffc90002b75000 R14: ffffc90001cafc18 R15: 000000002000d000
-FS:  0000555555a55300(0000) GS:ffff8880b9c00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000020000088 CR3: 0000000074ce9000 CR4: 00000000003526f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- mn_hlist_invalidate_range_start mm/mmu_notifier.c:493 [inline]
- __mmu_notifier_invalidate_range_start+0x2ff/0x800 mm/mmu_notifier.c:548
- mmu_notifier_invalidate_range_start include/linux/mmu_notifier.h:459 [inline]
- move_page_tables+0x2642/0x2d20 mm/mremap.c:498
- move_vma+0x48c/0xf40 mm/mremap.c:629
- mremap_to mm/mremap.c:862 [inline]
- __do_sys_mremap+0xf01/0x1560 mm/mremap.c:972
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7f11faab5089
-Code: 28 c3 e8 2a 14 00 00 66 2e 0f 1f 84 00 00 00 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 c0 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007ffc17608428 EFLAGS: 00000246 ORIG_RAX: 0000000000000019
-RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f11faab5089
-RDX: 0000000000001000 RSI: fffffffffffffe74 RDI: 000000002000d000
-RBP: 00007f11faa79070 R08: 0000000020007000 R09: 0000000000000000
-R10: 0000000000000003 R11: 0000000000000246 R12: 00007f11faa79100
-R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
- </TASK>
-
-
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-For information about bisection process see: https://goo.gl/tpsmEJ#bisection
-syzbot can test patches for this issue, for details see:
-https://goo.gl/tpsmEJ#testing-patches
