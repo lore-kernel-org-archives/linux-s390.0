@@ -2,70 +2,40 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81EBFC433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Mar 2022 15:08:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B423C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Mar 2022 17:44:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348385AbiCUPJX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 21 Mar 2022 11:09:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33960 "EHLO
+        id S241492AbiCURps (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 21 Mar 2022 13:45:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244657AbiCUPJW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Mar 2022 11:09:22 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 56B3658807
-        for <linux-s390@vger.kernel.org>; Mon, 21 Mar 2022 08:07:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1647875274;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ZFVfxmzhaFPMubA718aiLUSwyIk5+iMjz6qfYM1xb4A=;
-        b=DVHm0uKT7xW0U1TaTtwIelzGlG8+HOjJTYj57VSeAVa9JDpeDHtZKxZJknxcu2ll5vKOOH
-        RsmxiSdjGUtilg+QiU+7KYpE0P6gLkYjp9zKP0+L3Uj+JliK08fcTV9sCXyvyxWQXTYXqV
-        4W2al2u3raZ6uUaux/D7egF7SpnNPUs=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-198-b4nwOaAPM3GDrkjliRRaHA-1; Mon, 21 Mar 2022 11:07:52 -0400
-X-MC-Unique: b4nwOaAPM3GDrkjliRRaHA-1
-Received: by mail-wm1-f69.google.com with SMTP id n62-20020a1ca441000000b0038124c99ebcso5834362wme.9
-        for <linux-s390@vger.kernel.org>; Mon, 21 Mar 2022 08:07:52 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:organization:in-reply-to
-         :content-transfer-encoding;
-        bh=ZFVfxmzhaFPMubA718aiLUSwyIk5+iMjz6qfYM1xb4A=;
-        b=18NQYoBd7ZphZmfzjhbXJL+V8ycAGcnvUWeldai3pK6nRsr8tN8VJKvtZcCmeOzQhW
-         7oSOJIX//EXynqQnINdZrlBNsvVDz2YgX/iJiWuiR/QZz4D5glxLUsXLUdHHHva/cGSs
-         oLL29mE54ygPmwK/Tqpv13oQ9dkALeLemTvEQgzEADXUpULIt65P+IlKj60YHGGDAU3D
-         s5jBA7Pb1lemNat9laLPuHAOZKn21NBRMKBDu+Js0ZJ3FZgyNuI+d3yiKUnke70JQUEM
-         b5eV9bggWY6tOHHD+j05GPcrrqh5OC9+hL4T5LkjF594pu48rHfB0fLEnw72kyOkYja5
-         SfdQ==
-X-Gm-Message-State: AOAM530vio6vAr/QDn2XoxzsPBNoFmMy1+0XWSUPFqErBQbEquU7ZQcf
-        wsVDdBXov7fuKAT9vH4D1yjhBXrb5iTOkw4UFGr+Nu9enRM2VS8WaFgHso7uzSY4+jQNjOAT35i
-        /1aVBsmAxtmccetA/aPh13A==
-X-Received: by 2002:a05:600c:4ed2:b0:38c:93ad:4825 with SMTP id g18-20020a05600c4ed200b0038c93ad4825mr11133403wmq.181.1647875271729;
-        Mon, 21 Mar 2022 08:07:51 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyKoU0nGg0p5jibfOm4Ew1arWHbW+SRBIfaAS1QHWKwXAqgZDqMtY1m9j1jU9wOkm317ZDDsQ==
-X-Received: by 2002:a05:600c:4ed2:b0:38c:93ad:4825 with SMTP id g18-20020a05600c4ed200b0038c93ad4825mr11133335wmq.181.1647875271332;
-        Mon, 21 Mar 2022 08:07:51 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c704:4900:849b:f76e:5e1f:ff95? (p200300cbc7044900849bf76e5e1fff95.dip0.t-ipconnect.de. [2003:cb:c704:4900:849b:f76e:5e1f:ff95])
-        by smtp.gmail.com with ESMTPSA id g10-20020a5d46ca000000b00203fd86e198sm7209759wrs.96.2022.03.21.08.07.49
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 21 Mar 2022 08:07:50 -0700 (PDT)
-Message-ID: <ea570f92-f896-7f9b-91c4-ad0a025bb340@redhat.com>
-Date:   Mon, 21 Mar 2022 16:07:48 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.2
-Subject: Re: [PATCH v1 4/7] arm64/pgtable: support
- __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-Content-Language: en-US
-To:     Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Cc:     linux-kernel@vger.kernel.org,
+        with ESMTP id S238056AbiCURpr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Mar 2022 13:45:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 012493AA5B;
+        Mon, 21 Mar 2022 10:44:19 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 142D4B818D2;
+        Mon, 21 Mar 2022 17:44:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48FE8C340E8;
+        Mon, 21 Mar 2022 17:44:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1647884656;
+        bh=Cc93Sj0aRgEOWTPpRj8NNqcOtJCr+4R/IS5e+PnVDpI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=U3fE9mvncxRxT9MkMJyY0wRxVjZfmImW2AWeVMS26K1N5AtfUrZ1VUSp/QbiO/uIR
+         BFbccvvfaSmWp/4TrOWv/MhNpySrnD3IQq3wzid7KyDktnTbLdSYaFOJLcRZtN4o7N
+         aDSP6nZ92OrCdbiQk8QH4DJ9LgjlQ5L1sJF3iyIWFCD3ZQtx29z+angBTrsQGIj6Kn
+         DdRfhByEDboFK2Cl786MKfWBivB0FL5zKRy23ALcA8DH4ljl0HYRhoHyjFQ4aXHahG
+         qSstj/taGkUf/aMOjalkyn48fWLmLB6kIOwvf2k/g0exuPW+jZpFfMOn1uJibIorNR
+         UkF9q9okXpjRg==
+Date:   Mon, 21 Mar 2022 17:44:05 +0000
+From:   Will Deacon <will@kernel.org>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     Catalin Marinas <catalin.marinas@arm.com>,
+        linux-kernel@vger.kernel.org,
         Andrew Morton <akpm@linux-foundation.org>,
         Hugh Dickins <hughd@google.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
@@ -101,71 +71,79 @@ Cc:     linux-kernel@vger.kernel.org,
         Dave Hansen <dave.hansen@linux.intel.com>, linux-mm@kvack.org,
         x86@kernel.org, linux-arm-kernel@lists.infradead.org,
         linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v1 4/7] arm64/pgtable: support
+ __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+Message-ID: <20220321174404.GA11389@willie-the-truck>
 References: <20220315141837.137118-1-david@redhat.com>
- <20220315141837.137118-5-david@redhat.com> <YjIr9f9qaz4xITVd@arm.com>
+ <20220315141837.137118-5-david@redhat.com>
+ <YjIr9f9qaz4xITVd@arm.com>
  <20220321143802.GC11145@willie-the-truck>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <20220321143802.GC11145@willie-the-truck>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+ <ea570f92-f896-7f9b-91c4-ad0a025bb340@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ea570f92-f896-7f9b-91c4-ad0a025bb340@redhat.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 21.03.22 15:38, Will Deacon wrote:
-> On Wed, Mar 16, 2022 at 06:27:01PM +0000, Catalin Marinas wrote:
->> On Tue, Mar 15, 2022 at 03:18:34PM +0100, David Hildenbrand wrote:
->>> diff --git a/arch/arm64/include/asm/pgtable-prot.h b/arch/arm64/include/asm/pgtable-prot.h
->>> index b1e1b74d993c..62e0ebeed720 100644
->>> --- a/arch/arm64/include/asm/pgtable-prot.h
->>> +++ b/arch/arm64/include/asm/pgtable-prot.h
->>> @@ -14,6 +14,7 @@
->>>   * Software defined PTE bits definition.
->>>   */
->>>  #define PTE_WRITE		(PTE_DBM)		 /* same as DBM (51) */
->>> +#define PTE_SWP_EXCLUSIVE	(_AT(pteval_t, 1) << 2)	 /* only for swp ptes */
->>
->> I think we can use bit 1 here.
->>
->>> @@ -909,12 +925,13 @@ static inline pmd_t pmdp_establish(struct vm_area_struct *vma,
->>>  /*
->>>   * Encode and decode a swap entry:
->>>   *	bits 0-1:	present (must be zero)
->>> - *	bits 2-7:	swap type
->>> + *	bits 2:		remember PG_anon_exclusive
->>> + *	bits 3-7:	swap type
->>>   *	bits 8-57:	swap offset
->>>   *	bit  58:	PTE_PROT_NONE (must be zero)
->>
->> I don't remember exactly why we reserved bits 0 and 1 when, from the
->> hardware perspective, it's sufficient for bit 0 to be 0 and the whole
->> pte becomes invalid. We use bit 1 as the 'table' bit (when 0 at pmd
->> level, it's a huge page) but we shouldn't check for this on a swap
->> entry.
+On Mon, Mar 21, 2022 at 04:07:48PM +0100, David Hildenbrand wrote:
+> On 21.03.22 15:38, Will Deacon wrote:
+> > On Wed, Mar 16, 2022 at 06:27:01PM +0000, Catalin Marinas wrote:
+> >> On Tue, Mar 15, 2022 at 03:18:34PM +0100, David Hildenbrand wrote:
+> >>> diff --git a/arch/arm64/include/asm/pgtable-prot.h b/arch/arm64/include/asm/pgtable-prot.h
+> >>> index b1e1b74d993c..62e0ebeed720 100644
+> >>> --- a/arch/arm64/include/asm/pgtable-prot.h
+> >>> +++ b/arch/arm64/include/asm/pgtable-prot.h
+> >>> @@ -14,6 +14,7 @@
+> >>>   * Software defined PTE bits definition.
+> >>>   */
+> >>>  #define PTE_WRITE		(PTE_DBM)		 /* same as DBM (51) */
+> >>> +#define PTE_SWP_EXCLUSIVE	(_AT(pteval_t, 1) << 2)	 /* only for swp ptes */
+> >>
+> >> I think we can use bit 1 here.
+> >>
+> >>> @@ -909,12 +925,13 @@ static inline pmd_t pmdp_establish(struct vm_area_struct *vma,
+> >>>  /*
+> >>>   * Encode and decode a swap entry:
+> >>>   *	bits 0-1:	present (must be zero)
+> >>> - *	bits 2-7:	swap type
+> >>> + *	bits 2:		remember PG_anon_exclusive
+> >>> + *	bits 3-7:	swap type
+> >>>   *	bits 8-57:	swap offset
+> >>>   *	bit  58:	PTE_PROT_NONE (must be zero)
+> >>
+> >> I don't remember exactly why we reserved bits 0 and 1 when, from the
+> >> hardware perspective, it's sufficient for bit 0 to be 0 and the whole
+> >> pte becomes invalid. We use bit 1 as the 'table' bit (when 0 at pmd
+> >> level, it's a huge page) but we shouldn't check for this on a swap
+> >> entry.
+> > 
+> > I'm a little worried that when we're dealing with huge mappings at the
+> > PMD level we might lose the ability to distinguish them from a pte-level
+> > mapping with this new flag set if we use bit 1. A similar issue to this
+> > was fixed a long time ago by 59911ca4325d ("ARM64: mm: Move PTE_PROT_NONE
+> > bit") when we used to use bit 1 for PTE_PROT_NONE.
+> > 
+> > Is something like:
+> > 
+> > 	pmd_to_swp_entry(swp_entry_to_pmd(pmd));
 > 
-> I'm a little worried that when we're dealing with huge mappings at the
-> PMD level we might lose the ability to distinguish them from a pte-level
-> mapping with this new flag set if we use bit 1. A similar issue to this
-> was fixed a long time ago by 59911ca4325d ("ARM64: mm: Move PTE_PROT_NONE
-> bit") when we used to use bit 1 for PTE_PROT_NONE.
-> 
-> Is something like:
-> 
-> 	pmd_to_swp_entry(swp_entry_to_pmd(pmd));
+> Note that __HAVE_ARCH_PTE_SWP_EXCLUSIVE currently only applies to actual
+> swap entries, not non-swap entries (migration, hwpoison, ...). So it
+> really only applies to PTEs -- PMDs are not applicable.
 
-Note that __HAVE_ARCH_PTE_SWP_EXCLUSIVE currently only applies to actual
-swap entries, not non-swap entries (migration, hwpoison, ...). So it
-really only applies to PTEs -- PMDs are not applicable.
+Right, thanks for the clarification.
 
-So the example you gave cannot possibly have that bit set. From what I
-understand, it should be fine. But I have no real preference: I can also
-just stick to the original patch, whatever you prefer.
+> So the example you gave cannot possibly have that bit set. From what I
+> understand, it should be fine. But I have no real preference: I can also
+> just stick to the original patch, whatever you prefer.
 
-Thanks!
+I think I'd prefer to stay on the safe side and stick with bit 2 as you
+originally proposed. If we need to support crazy numbers of swapfiles
+in future then we can revisit the idea of allocating bit 1.
 
--- 
-Thanks,
+Thanks, and sorry for the trouble.
 
-David / dhildenb
-
+Will
