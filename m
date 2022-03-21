@@ -2,118 +2,122 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 19832C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 21 Mar 2022 10:19:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E116C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 21 Mar 2022 10:19:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346256AbiCUKUi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 21 Mar 2022 06:20:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34138 "EHLO
+        id S241246AbiCUKUk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 21 Mar 2022 06:20:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233638AbiCUKUg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Mar 2022 06:20:36 -0400
+        with ESMTP id S1346219AbiCUKUh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Mar 2022 06:20:37 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0C882A240;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3AC32A249;
         Mon, 21 Mar 2022 03:19:11 -0700 (PDT)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22L9MuKD010588;
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22L9fxaE002656;
         Mon, 21 Mar 2022 10:19:11 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=3qw3e7BuEn1pPymt4arsvOWmgm2yE8s6QV6FNjb7NoU=;
- b=Kb+tL3NKe1TuOeCUUy+gynhG5YAIQOtuEOW2v6p8qmB+RMEALmQYqDwVnn/VREEQNoa0
- D79fnz1sLcbYpv0JsGxJ84VhroE0AIZEOKdSbHMUNoGtSIKFTO4g8Ult5sQM/CvfPPTW
- Il5Z39eH3n2f8pX5i6q6SezbhSsKCorle5IHfwFq2u8HPbDKWYDPqMYNuIMBS67GyUoC
- cbxtK8d7+rIEo2l9T4bjgG2B3ff9l9lxQ8zu89/+NbrndsfPP7R9KPv85ZJDbyTOJF3W
- t0J1J5KD9KglVemhgOehH3ksePhtOvP2769KYoe8prX0FytDxfd6P4nZE75zYdRwdhP5 dw== 
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=aAgt471lXsfSn4erfRqj/lNsapYn8Umi6CYHvKKEo8Q=;
+ b=IEJW6+rSNL4PlU372bdSnArsq/08CRIo1cd/UQAhLduwJU+1q0d13rWvoQv51+9n+w47
+ IGG2R1JsoKMJvarF5k4XCtjFXFaIfwQvY0njtOe+1sqdz65zrIFLoq5Od3RcHlHwQo0l
+ BLYYmK9bcairEFHTROmJ12cJ8C9dvpWbscPlFZwdoLS700ECSAtRU0GriPPGGYTQVoRq
+ mvbPq71xCNNc6dh4jTNFd9zqQ6ylipcKbqhoJRLGpkTdH9XSKrX5hgZ5ngjhXCiXY32g
+ eYAKfrnGJu1lj4Cip5N9UPZ2sCAhaohg3JqjXM83yVjoWWCuUKXI6vH0yaRztpbwbWPY 6g== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3exppbh10d-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Mar 2022 10:19:11 +0000
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22LAGIfx016049;
-        Mon, 21 Mar 2022 10:19:10 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3exppbh104-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3expy08pcx-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Mon, 21 Mar 2022 10:19:10 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22LAEb0N029756;
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22LA3vvK016974;
+        Mon, 21 Mar 2022 10:19:10 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3expy08pcc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 21 Mar 2022 10:19:10 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22LACXSN012490;
         Mon, 21 Mar 2022 10:19:08 GMT
 Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma04ams.nl.ibm.com with ESMTP id 3ew6t8uju2-1
+        by ppma02fra.de.ibm.com with ESMTP id 3ew6t8k3ax-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Mon, 21 Mar 2022 10:19:08 +0000
 Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22LA7RL75964174
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22LA7Q2S5964170
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 21 Mar 2022 10:07:27 GMT
+        Mon, 21 Mar 2022 10:07:26 GMT
 Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C3D9A11C04C;
+        by IMSVA (Postfix) with ESMTP id 179B411C04A;
         Mon, 21 Mar 2022 10:19:05 +0000 (GMT)
 Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 74C9811C052;
-        Mon, 21 Mar 2022 10:19:05 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id C43DC11C04C;
+        Mon, 21 Mar 2022 10:19:04 +0000 (GMT)
 Received: from t46lp57.lnxne.boe (unknown [9.152.108.100])
         by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 21 Mar 2022 10:19:05 +0000 (GMT)
+        Mon, 21 Mar 2022 10:19:04 +0000 (GMT)
 From:   Nico Boehr <nrb@linux.ibm.com>
 To:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
 Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com,
         david@redhat.com, farman@linux.ibm.com
-Subject: [kvm-unit-tests PATCH v1 2/9] s390x: smp: stop already stopped CPU
-Date:   Mon, 21 Mar 2022 11:18:57 +0100
-Message-Id: <20220321101904.387640-3-nrb@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v1 0/9] s390x: Further extend instruction interception tests
+Date:   Mon, 21 Mar 2022 11:18:55 +0100
+Message-Id: <20220321101904.387640-1-nrb@linux.ibm.com>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20220321101904.387640-1-nrb@linux.ibm.com>
-References: <20220321101904.387640-1-nrb@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: ibFRI82f-WaC8xZVUlqgQau0AzA0NeFC
-X-Proofpoint-GUID: GDyDvV5o9ONzXqAG9gyHjlx-WpGnks0y
+X-Proofpoint-ORIG-GUID: ytmcmc_XhfJCYmIKP6-XgKyaKmk4g4e5
+X-Proofpoint-GUID: hWZflxI5KmCZXxv8ZXriL3NGQrEYV_-Z
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-03-21_04,2022-03-21_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
- bulkscore=0 phishscore=0 adultscore=0 malwarescore=0 lowpriorityscore=0
- impostorscore=0 priorityscore=1501 mlxlogscore=999 suspectscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ spamscore=0 mlxscore=0 mlxlogscore=636 phishscore=0 impostorscore=0
+ malwarescore=0 clxscore=1015 priorityscore=1501 suspectscore=0 bulkscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2202240000 definitions=main-2203210066
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-As per the PoP, the SIGP STOP order is only effective when the CPU is in
-the operating state. Hence, we should have a test which tries to stop an
-already stopped CPU.
+Further extend the instruction interception tests for s390x. This series focuses
+on SIGP, STSI and TPROT instructions.
 
-Even though the SIGP order might be processed asynchronously, we assert
-the CPU stays stopped.
+Some instructions such as STSI already had some coverage and the existing tests
+were extended to increase coverage.
 
-Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
----
- s390x/smp.c | 5 +++++
- 1 file changed, 5 insertions(+)
+The SIGP instruction has coverage, but not for all orders. Orders
+STORE_ADTL_STATUS, SET_PREFIX and CONDITIONAL_EMERGENCY didn't
+have coverage before and new tests are added. For EMERGENCY_SIGNAL, the existing
+test is extended to cover an invalid CPU address. Additionally, new tests are
+added for quite a few invalid arguments to SIGP.
 
-diff --git a/s390x/smp.c b/s390x/smp.c
-index 911a26c51b10..e5a16eb5a46a 100644
---- a/s390x/smp.c
-+++ b/s390x/smp.c
-@@ -129,6 +129,11 @@ static void test_stop(void)
- 	 */
- 	while (!smp_cpu_stopped(1)) {}
- 	report_pass("stop");
-+
-+	report_prefix_push("stop stopped CPU");
-+	report(!smp_cpu_stop(1), "STOP succeeds");
-+	report(smp_cpu_stopped(1), "CPU is stopped");
-+	report_prefix_pop();
- }
- 
- static void test_stop_store_status(void)
+TPROT was used in skrf tests, but only for storage keys, so add tests for the
+other uses as well.
+
+Nico Boehr (9):
+  s390x: smp: add tests for several invalid SIGP orders
+  s390x: smp: stop already stopped CPU
+  s390x: gs: move to new header file
+  s390x: smp: add test for SIGP_STORE_ADTL_STATUS order
+  s390x: smp: add tests for SET_PREFIX
+  s390x: smp: add test for EMERGENCY_SIGNAL with invalid CPU address
+  s390x: smp: add tests for CONDITIONAL EMERGENCY
+  s390x: add TPROT tests
+  s390x: stsi: check zero and ignored bits in r0 and r1
+
+ lib/s390x/gs.h      |  80 ++++++++
+ s390x/Makefile      |   1 +
+ s390x/gs.c          |  65 +------
+ s390x/smp.c         | 437 ++++++++++++++++++++++++++++++++++++++++++++
+ s390x/stsi.c        |  42 ++++-
+ s390x/tprot.c       | 108 +++++++++++
+ s390x/unittests.cfg |   9 +
+ 7 files changed, 668 insertions(+), 74 deletions(-)
+ create mode 100644 lib/s390x/gs.h
+ create mode 100644 s390x/tprot.c
+
 -- 
 2.31.1
 
