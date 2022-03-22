@@ -2,35 +2,35 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D8DF1C3527B
-	for <linux-s390@archiver.kernel.org>; Tue, 22 Mar 2022 14:41:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C4F05C3527C
+	for <linux-s390@archiver.kernel.org>; Tue, 22 Mar 2022 14:42:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238123AbiCVOmn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 22 Mar 2022 10:42:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40794 "EHLO
+        id S238114AbiCVOnm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 22 Mar 2022 10:43:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238064AbiCVOml (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Mar 2022 10:42:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62F2285BF1;
-        Tue, 22 Mar 2022 07:41:03 -0700 (PDT)
+        with ESMTP id S238218AbiCVOnI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Mar 2022 10:43:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DB536AA48;
+        Tue, 22 Mar 2022 07:41:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 742C5616D9;
-        Tue, 22 Mar 2022 14:41:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2468C340EC;
-        Tue, 22 Mar 2022 14:40:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DFC1D616D7;
+        Tue, 22 Mar 2022 14:41:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BC11C340F5;
+        Tue, 22 Mar 2022 14:41:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1647960062;
-        bh=WR+ViwuRqnCNHeWZRXz67/g9MyXNDCz9XQM2h/2HeVE=;
+        s=k20201202; t=1647960099;
+        bh=a1P2DNQDu+Nr0wIsMe45GFTAoBbxFKExa639SNMT8Ac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S/VIFryMNJMFV/I8i+eo0QdCeg4pc+VG0av2aVlxvC18mXiiD9qOREEiJV748aNaL
-         TmSgxyUXSsLgJTh+wOrNdLsLwFih7pOk83KfL85gUyRxjh7pbVBpkulERfsEE38dnS
-         CZeIHv8+xVv19GlvjvkdxvZGBpmtKwXTvsBWUPt3Z5tyeUCzYdBvSHbpoAFeUb0uyU
-         OLeY76e7zfN9c4Et9ClcQvVhwCIXx4jN1ScUL6XDLLKCsheoQcQ/Ai/gPbqXk3mHFR
-         qdZQ8bJbLG+bj39L4sn2aeA/p2UIJ+49ZJ4D/qXg0lHDTZgvkMvVltV0Lta6S3VF10
-         +nwDiWD10hL+g==
+        b=WSUKIo4uz8F6v3kwDldgpdzakw9QYzSDpCf1vKY8kHyGGW12dHTbHWHRNo+muqiog
+         oZl8cMAldYFIPgQjoBfSXYrnRM2Izb2leRb9j9KDZb9TTv9LTPFMf9VU6GXHMCwmel
+         kwq/0a2qRV1PFG4XleTzMGDve7A081QNGbvoI7E4Um2JGZW+/nbmTmvB+ZOVmif8VI
+         83zhr4yZvBiGZa8VpkltGgjdHdvAYRiXU35fYY+My0OdW8V56NTwa9YQmpGi+l2fQ1
+         8UgtwBXOa0Ps/8dBEPn73WU1ztxWffutVlciz1jujJxf6ncVbqGsgjsopmkVYst8WV
+         M1I959eBGkygQ==
 From:   guoren@kernel.org
 To:     guoren@kernel.org, palmer@dabbelt.com, arnd@arndb.de,
         gregkh@linuxfoundation.org, hch@lst.de
@@ -40,9 +40,9 @@ Cc:     linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, linux-parisc@vger.kernel.org,
         linux-mips@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         x86@kernel.org, heiko@sntech.de, Guo Ren <guoren@linux.alibaba.com>
-Subject: [PATCH V9 07/20] syscalls: compat: Fix the missing part for __SYSCALL_COMPAT
-Date:   Tue, 22 Mar 2022 22:39:50 +0800
-Message-Id: <20220322144003.2357128-8-guoren@kernel.org>
+Subject: [PATCH V9 13/20] riscv: compat: process: Add UXL_32 support in start_thread
+Date:   Tue, 22 Mar 2022 22:39:56 +0800
+Message-Id: <20220322144003.2357128-14-guoren@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220322144003.2357128-1-guoren@kernel.org>
 References: <20220322144003.2357128-1-guoren@kernel.org>
@@ -54,63 +54,39 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Guo Ren <guoren@linux.alibaba.com>
 
-Make "uapi asm unistd.h" could be used for architectures' COMPAT
-mode. The __SYSCALL_COMPAT is first used in riscv.
+If the current task is in COMPAT mode, set SR_UXL_32 in status for
+returning userspace. We need CONFIG _COMPAT to prevent compiling
+errors with rv32 defconfig.
 
 Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 Signed-off-by: Guo Ren <guoren@kernel.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
 Tested-by: Heiko Stuebner <heiko@sntech.de>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
 ---
- include/uapi/asm-generic/unistd.h       | 4 ++--
- tools/include/uapi/asm-generic/unistd.h | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ arch/riscv/kernel/process.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/include/uapi/asm-generic/unistd.h b/include/uapi/asm-generic/unistd.h
-index 1c48b0ae3ba3..45fa180cc56a 100644
---- a/include/uapi/asm-generic/unistd.h
-+++ b/include/uapi/asm-generic/unistd.h
-@@ -383,7 +383,7 @@ __SYSCALL(__NR_syslog, sys_syslog)
+diff --git a/arch/riscv/kernel/process.c b/arch/riscv/kernel/process.c
+index 03ac3aa611f5..8c7665481a9f 100644
+--- a/arch/riscv/kernel/process.c
++++ b/arch/riscv/kernel/process.c
+@@ -97,6 +97,15 @@ void start_thread(struct pt_regs *regs, unsigned long pc,
+ 	}
+ 	regs->epc = pc;
+ 	regs->sp = sp;
++
++#ifdef CONFIG_64BIT
++	regs->status &= ~SR_UXL;
++
++	if (is_compat_task())
++		regs->status |= SR_UXL_32;
++	else
++		regs->status |= SR_UXL_64;
++#endif
+ }
  
- /* kernel/ptrace.c */
- #define __NR_ptrace 117
--__SYSCALL(__NR_ptrace, sys_ptrace)
-+__SC_COMP(__NR_ptrace, sys_ptrace, compat_sys_ptrace)
- 
- /* kernel/sched/core.c */
- #define __NR_sched_setparam 118
-@@ -779,7 +779,7 @@ __SYSCALL(__NR_rseq, sys_rseq)
- #define __NR_kexec_file_load 294
- __SYSCALL(__NR_kexec_file_load,     sys_kexec_file_load)
- /* 295 through 402 are unassigned to sync up with generic numbers, don't use */
--#if __BITS_PER_LONG == 32
-+#if defined(__SYSCALL_COMPAT) || __BITS_PER_LONG == 32
- #define __NR_clock_gettime64 403
- __SYSCALL(__NR_clock_gettime64, sys_clock_gettime)
- #define __NR_clock_settime64 404
-diff --git a/tools/include/uapi/asm-generic/unistd.h b/tools/include/uapi/asm-generic/unistd.h
-index 1c48b0ae3ba3..45fa180cc56a 100644
---- a/tools/include/uapi/asm-generic/unistd.h
-+++ b/tools/include/uapi/asm-generic/unistd.h
-@@ -383,7 +383,7 @@ __SYSCALL(__NR_syslog, sys_syslog)
- 
- /* kernel/ptrace.c */
- #define __NR_ptrace 117
--__SYSCALL(__NR_ptrace, sys_ptrace)
-+__SC_COMP(__NR_ptrace, sys_ptrace, compat_sys_ptrace)
- 
- /* kernel/sched/core.c */
- #define __NR_sched_setparam 118
-@@ -779,7 +779,7 @@ __SYSCALL(__NR_rseq, sys_rseq)
- #define __NR_kexec_file_load 294
- __SYSCALL(__NR_kexec_file_load,     sys_kexec_file_load)
- /* 295 through 402 are unassigned to sync up with generic numbers, don't use */
--#if __BITS_PER_LONG == 32
-+#if defined(__SYSCALL_COMPAT) || __BITS_PER_LONG == 32
- #define __NR_clock_gettime64 403
- __SYSCALL(__NR_clock_gettime64, sys_clock_gettime)
- #define __NR_clock_settime64 404
+ void flush_thread(void)
 -- 
 2.25.1
 
