@@ -2,35 +2,35 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A691AC433FE
-	for <linux-s390@archiver.kernel.org>; Tue, 22 Mar 2022 14:42:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0CAB8C352A1
+	for <linux-s390@archiver.kernel.org>; Tue, 22 Mar 2022 14:42:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238345AbiCVOns (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 22 Mar 2022 10:43:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42060 "EHLO
+        id S238366AbiCVOnt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 22 Mar 2022 10:43:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238107AbiCVOmm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Mar 2022 10:42:42 -0400
+        with ESMTP id S234838AbiCVOnd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Mar 2022 10:43:33 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B17A288B05;
-        Tue, 22 Mar 2022 07:41:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46E4680201;
+        Tue, 22 Mar 2022 07:42:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 782D0B81CFB;
-        Tue, 22 Mar 2022 14:41:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE259C340F0;
-        Tue, 22 Mar 2022 14:41:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BEB85B81CFB;
+        Tue, 22 Mar 2022 14:42:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA574C340F2;
+        Tue, 22 Mar 2022 14:41:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1647960069;
-        bh=MNkJYdoYJVD0cgTwHsZRdZ7qoGS1rN9vx70tcmJUxuM=;
+        s=k20201202; t=1647960122;
+        bh=eCC4+U4U/ci3tY5teY5dpBY9tw/1fY0xwkgGYQqbXuQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Te6ueS9SYDabPmx1YA6EVMd2g7IM2kKy7w7o6FrMIcETQS413FPcqWMXps87PpPxv
-         /xgcJ6QIqWhm+qVKit9ArSyIa7nGa40sojzzSRNT4wVsdMtZCg3O/4gOoeLPtEvQ09
-         RVg5tJoMvTh5mEXOnSwDbW6yaGOLQcyW7FenrFYdsjjBTMNVbXZmmHETRGLWP5afmm
-         xaDDB7vODSCKSsqhD5tzpKKGEGrMREf3DMBGzYvvUQGTqFb4ZTIroAqNzI8Oa1fO9x
-         U08o0Peo3iVkeSd9uBqhULJ4XgSczdo9hExoerWay8oG5C9bEAOAxdTo/fe5jbp8/0
-         jdzRCRAWv5ZsA==
+        b=ax3BrvN8vao2XlKfSMG+fER+GoY/KdHrIOXLv26fcIZxoqDpjPeTqXxo+QtpIBCSr
+         eE7aqOWe/zsLiauPhslINBMx04dhVAciA/1AucTwxt/1xzESQLw2QWnVlMEBEpz8mE
+         pUfCPiMn46dPtDelIPKH8qVNFIlv3AcFQrMtfORb1epju+fzQ31aZleUDZfSo8Efml
+         gMTxDbHeIqnpMPMZcfj6MOLLrBCf35IBb0PNnoU7XXp+g4jSm+u0KFRKQnFhsFNaFp
+         9hBZh2MPT9x2Rsy8dPKyo7Wvag6Kj6aw5BCg5aLs8iv+S6ZsRSPjJrvVMd5SgGi6ub
+         Uu2nurnY8baIA==
 From:   guoren@kernel.org
 To:     guoren@kernel.org, palmer@dabbelt.com, arnd@arndb.de,
         gregkh@linuxfoundation.org, hch@lst.de
@@ -39,10 +39,12 @@ Cc:     linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, linux-parisc@vger.kernel.org,
         linux-mips@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        x86@kernel.org, heiko@sntech.de, Guo Ren <guoren@linux.alibaba.com>
-Subject: [PATCH V9 08/20] riscv: Fixup difference with defconfig
-Date:   Tue, 22 Mar 2022 22:39:51 +0800
-Message-Id: <20220322144003.2357128-9-guoren@kernel.org>
+        x86@kernel.org, heiko@sntech.de,
+        Guo Ren <guoren@linux.alibaba.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH V9 17/20] riscv: compat: vdso: Add setup additional pages implementation
+Date:   Tue, 22 Mar 2022 22:40:00 +0800
+Message-Id: <20220322144003.2357128-18-guoren@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220322144003.2357128-1-guoren@kernel.org>
 References: <20220322144003.2357128-1-guoren@kernel.org>
@@ -54,178 +56,271 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Guo Ren <guoren@linux.alibaba.com>
 
-Let's follow the origin patch's spirit:
+Reconstruct __setup_additional_pages() by appending vdso info
+pointer argument to meet compat_vdso_info requirement. And change
+vm_special_mapping *dm, *cm initialization into static.
 
-The only difference between rv32_defconfig and defconfig is that
-rv32_defconfig has  CONFIG_ARCH_RV32I=y.
-
-This is helpful to compare rv64-compat-rv32 v.s. rv32-linux.
-
-Fixes: 1b937e8faa87ccfb ("RISC-V: Add separate defconfig for 32bit systems")
 Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 Signed-off-by: Guo Ren <guoren@kernel.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Palmer Dabbelt <palmer@rivosinc.com>
 Tested-by: Heiko Stuebner <heiko@sntech.de>
-Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
 ---
- arch/riscv/Makefile               |   4 +
- arch/riscv/configs/rv32_defconfig | 135 ------------------------------
- 2 files changed, 4 insertions(+), 135 deletions(-)
- delete mode 100644 arch/riscv/configs/rv32_defconfig
+ arch/riscv/include/asm/elf.h |   5 ++
+ arch/riscv/include/asm/mmu.h |   1 +
+ arch/riscv/kernel/vdso.c     | 105 +++++++++++++++++++++++------------
+ 3 files changed, 76 insertions(+), 35 deletions(-)
 
-diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
-index 7d81102cffd4..c6ca1b9cbf71 100644
---- a/arch/riscv/Makefile
-+++ b/arch/riscv/Makefile
-@@ -154,3 +154,7 @@ PHONY += rv64_randconfig
- rv64_randconfig:
- 	$(Q)$(MAKE) KCONFIG_ALLCONFIG=$(srctree)/arch/riscv/configs/64-bit.config \
- 		-f $(srctree)/Makefile randconfig
+diff --git a/arch/riscv/include/asm/elf.h b/arch/riscv/include/asm/elf.h
+index 754fdb8cee96..14fc7342490b 100644
+--- a/arch/riscv/include/asm/elf.h
++++ b/arch/riscv/include/asm/elf.h
+@@ -130,5 +130,10 @@ do {    if ((ex).e_ident[EI_CLASS] == ELFCLASS32)		\
+ typedef compat_ulong_t			compat_elf_greg_t;
+ typedef compat_elf_greg_t		compat_elf_gregset_t[ELF_NGREG];
+ 
++extern int compat_arch_setup_additional_pages(struct linux_binprm *bprm,
++					      int uses_interp);
++#define compat_arch_setup_additional_pages \
++				compat_arch_setup_additional_pages
 +
-+PHONY += rv32_defconfig
-+rv32_defconfig:
-+	$(Q)$(MAKE) -f $(srctree)/Makefile defconfig 32-bit.config
-diff --git a/arch/riscv/configs/rv32_defconfig b/arch/riscv/configs/rv32_defconfig
-deleted file mode 100644
-index 8b56a7f1eb06..000000000000
---- a/arch/riscv/configs/rv32_defconfig
-+++ /dev/null
-@@ -1,135 +0,0 @@
--CONFIG_SYSVIPC=y
--CONFIG_POSIX_MQUEUE=y
--CONFIG_NO_HZ_IDLE=y
--CONFIG_HIGH_RES_TIMERS=y
--CONFIG_BPF_SYSCALL=y
--CONFIG_IKCONFIG=y
--CONFIG_IKCONFIG_PROC=y
--CONFIG_CGROUPS=y
--CONFIG_CGROUP_SCHED=y
--CONFIG_CFS_BANDWIDTH=y
--CONFIG_CGROUP_BPF=y
--CONFIG_NAMESPACES=y
--CONFIG_USER_NS=y
--CONFIG_CHECKPOINT_RESTORE=y
--CONFIG_BLK_DEV_INITRD=y
--CONFIG_EXPERT=y
--# CONFIG_SYSFS_SYSCALL is not set
--CONFIG_SOC_SIFIVE=y
--CONFIG_SOC_VIRT=y
--CONFIG_ARCH_RV32I=y
--CONFIG_SMP=y
--CONFIG_HOTPLUG_CPU=y
--CONFIG_VIRTUALIZATION=y
--CONFIG_KVM=m
--CONFIG_JUMP_LABEL=y
--CONFIG_MODULES=y
--CONFIG_MODULE_UNLOAD=y
--CONFIG_NET=y
--CONFIG_PACKET=y
--CONFIG_UNIX=y
--CONFIG_INET=y
--CONFIG_IP_MULTICAST=y
--CONFIG_IP_ADVANCED_ROUTER=y
--CONFIG_IP_PNP=y
--CONFIG_IP_PNP_DHCP=y
--CONFIG_IP_PNP_BOOTP=y
--CONFIG_IP_PNP_RARP=y
--CONFIG_NETLINK_DIAG=y
--CONFIG_NET_9P=y
--CONFIG_NET_9P_VIRTIO=y
--CONFIG_PCI=y
--CONFIG_PCIEPORTBUS=y
--CONFIG_PCI_HOST_GENERIC=y
--CONFIG_PCIE_XILINX=y
--CONFIG_DEVTMPFS=y
--CONFIG_DEVTMPFS_MOUNT=y
--CONFIG_BLK_DEV_LOOP=y
--CONFIG_VIRTIO_BLK=y
--CONFIG_BLK_DEV_SD=y
--CONFIG_BLK_DEV_SR=y
--CONFIG_SCSI_VIRTIO=y
--CONFIG_ATA=y
--CONFIG_SATA_AHCI=y
--CONFIG_SATA_AHCI_PLATFORM=y
--CONFIG_NETDEVICES=y
--CONFIG_VIRTIO_NET=y
--CONFIG_MACB=y
--CONFIG_E1000E=y
--CONFIG_R8169=y
--CONFIG_MICROSEMI_PHY=y
--CONFIG_INPUT_MOUSEDEV=y
--CONFIG_SERIAL_8250=y
--CONFIG_SERIAL_8250_CONSOLE=y
--CONFIG_SERIAL_OF_PLATFORM=y
--CONFIG_SERIAL_EARLYCON_RISCV_SBI=y
--CONFIG_HVC_RISCV_SBI=y
--CONFIG_VIRTIO_CONSOLE=y
--CONFIG_HW_RANDOM=y
--CONFIG_HW_RANDOM_VIRTIO=y
--CONFIG_SPI=y
--CONFIG_SPI_SIFIVE=y
--# CONFIG_PTP_1588_CLOCK is not set
--CONFIG_DRM=y
--CONFIG_DRM_RADEON=y
--CONFIG_DRM_VIRTIO_GPU=y
--CONFIG_FB=y
--CONFIG_FRAMEBUFFER_CONSOLE=y
--CONFIG_USB=y
--CONFIG_USB_XHCI_HCD=y
--CONFIG_USB_XHCI_PLATFORM=y
--CONFIG_USB_EHCI_HCD=y
--CONFIG_USB_EHCI_HCD_PLATFORM=y
--CONFIG_USB_OHCI_HCD=y
--CONFIG_USB_OHCI_HCD_PLATFORM=y
--CONFIG_USB_STORAGE=y
--CONFIG_USB_UAS=y
--CONFIG_MMC=y
--CONFIG_MMC_SPI=y
--CONFIG_RTC_CLASS=y
--CONFIG_VIRTIO_PCI=y
--CONFIG_VIRTIO_BALLOON=y
--CONFIG_VIRTIO_INPUT=y
--CONFIG_VIRTIO_MMIO=y
--CONFIG_RPMSG_CHAR=y
--CONFIG_RPMSG_VIRTIO=y
--CONFIG_EXT4_FS=y
--CONFIG_EXT4_FS_POSIX_ACL=y
--CONFIG_AUTOFS4_FS=y
--CONFIG_MSDOS_FS=y
--CONFIG_VFAT_FS=y
--CONFIG_TMPFS=y
--CONFIG_TMPFS_POSIX_ACL=y
--CONFIG_NFS_FS=y
--CONFIG_NFS_V4=y
--CONFIG_NFS_V4_1=y
--CONFIG_NFS_V4_2=y
--CONFIG_ROOT_NFS=y
--CONFIG_9P_FS=y
--CONFIG_CRYPTO_USER_API_HASH=y
--CONFIG_CRYPTO_DEV_VIRTIO=y
--CONFIG_PRINTK_TIME=y
--CONFIG_DEBUG_FS=y
--CONFIG_DEBUG_PAGEALLOC=y
--CONFIG_SCHED_STACK_END_CHECK=y
--CONFIG_DEBUG_VM=y
--CONFIG_DEBUG_VM_PGFLAGS=y
--CONFIG_DEBUG_MEMORY_INIT=y
--CONFIG_DEBUG_PER_CPU_MAPS=y
--CONFIG_SOFTLOCKUP_DETECTOR=y
--CONFIG_WQ_WATCHDOG=y
--CONFIG_DEBUG_TIMEKEEPING=y
--CONFIG_DEBUG_RT_MUTEXES=y
--CONFIG_DEBUG_SPINLOCK=y
--CONFIG_DEBUG_MUTEXES=y
--CONFIG_DEBUG_RWSEMS=y
--CONFIG_DEBUG_ATOMIC_SLEEP=y
--CONFIG_STACKTRACE=y
--CONFIG_DEBUG_LIST=y
--CONFIG_DEBUG_PLIST=y
--CONFIG_DEBUG_SG=y
--# CONFIG_RCU_TRACE is not set
--CONFIG_RCU_EQS_DEBUG=y
--# CONFIG_FTRACE is not set
--# CONFIG_RUNTIME_TESTING_MENU is not set
--CONFIG_MEMTEST=y
+ #endif /* CONFIG_COMPAT */
+ #endif /* _ASM_RISCV_ELF_H */
+diff --git a/arch/riscv/include/asm/mmu.h b/arch/riscv/include/asm/mmu.h
+index 0099dc116168..cedcf8ea3c76 100644
+--- a/arch/riscv/include/asm/mmu.h
++++ b/arch/riscv/include/asm/mmu.h
+@@ -16,6 +16,7 @@ typedef struct {
+ 	atomic_long_t id;
+ #endif
+ 	void *vdso;
++	void *vdso_info;
+ #ifdef CONFIG_SMP
+ 	/* A local icache flush is needed before user execution can resume. */
+ 	cpumask_t icache_stale_mask;
+diff --git a/arch/riscv/kernel/vdso.c b/arch/riscv/kernel/vdso.c
+index a9436a65161a..50fe4c877603 100644
+--- a/arch/riscv/kernel/vdso.c
++++ b/arch/riscv/kernel/vdso.c
+@@ -23,6 +23,9 @@ struct vdso_data {
+ #endif
+ 
+ extern char vdso_start[], vdso_end[];
++#ifdef CONFIG_COMPAT
++extern char compat_vdso_start[], compat_vdso_end[];
++#endif
+ 
+ enum vvar_pages {
+ 	VVAR_DATA_PAGE_OFFSET,
+@@ -30,6 +33,11 @@ enum vvar_pages {
+ 	VVAR_NR_PAGES,
+ };
+ 
++enum rv_vdso_map {
++	RV_VDSO_MAP_VVAR,
++	RV_VDSO_MAP_VDSO,
++};
++
+ #define VVAR_SIZE  (VVAR_NR_PAGES << PAGE_SHIFT)
+ 
+ /*
+@@ -52,12 +60,6 @@ struct __vdso_info {
+ 	struct vm_special_mapping *cm;
+ };
+ 
+-static struct __vdso_info vdso_info __ro_after_init = {
+-	.name = "vdso",
+-	.vdso_code_start = vdso_start,
+-	.vdso_code_end = vdso_end,
+-};
+-
+ static int vdso_mremap(const struct vm_special_mapping *sm,
+ 		       struct vm_area_struct *new_vma)
+ {
+@@ -66,37 +68,33 @@ static int vdso_mremap(const struct vm_special_mapping *sm,
+ 	return 0;
+ }
+ 
+-static int __init __vdso_init(void)
++static void __init __vdso_init(struct __vdso_info *vdso_info)
+ {
+ 	unsigned int i;
+ 	struct page **vdso_pagelist;
+ 	unsigned long pfn;
+ 
+-	if (memcmp(vdso_info.vdso_code_start, "\177ELF", 4)) {
+-		pr_err("vDSO is not a valid ELF object!\n");
+-		return -EINVAL;
+-	}
++	if (memcmp(vdso_info->vdso_code_start, "\177ELF", 4))
++		panic("vDSO is not a valid ELF object!\n");
+ 
+-	vdso_info.vdso_pages = (
+-		vdso_info.vdso_code_end -
+-		vdso_info.vdso_code_start) >>
++	vdso_info->vdso_pages = (
++		vdso_info->vdso_code_end -
++		vdso_info->vdso_code_start) >>
+ 		PAGE_SHIFT;
+ 
+-	vdso_pagelist = kcalloc(vdso_info.vdso_pages,
++	vdso_pagelist = kcalloc(vdso_info->vdso_pages,
+ 				sizeof(struct page *),
+ 				GFP_KERNEL);
+ 	if (vdso_pagelist == NULL)
+-		return -ENOMEM;
++		panic("vDSO kcalloc failed!\n");
+ 
+ 	/* Grab the vDSO code pages. */
+-	pfn = sym_to_pfn(vdso_info.vdso_code_start);
++	pfn = sym_to_pfn(vdso_info->vdso_code_start);
+ 
+-	for (i = 0; i < vdso_info.vdso_pages; i++)
++	for (i = 0; i < vdso_info->vdso_pages; i++)
+ 		vdso_pagelist[i] = pfn_to_page(pfn + i);
+ 
+-	vdso_info.cm->pages = vdso_pagelist;
+-
+-	return 0;
++	vdso_info->cm->pages = vdso_pagelist;
+ }
+ 
+ #ifdef CONFIG_TIME_NS
+@@ -116,13 +114,14 @@ int vdso_join_timens(struct task_struct *task, struct time_namespace *ns)
+ {
+ 	struct mm_struct *mm = task->mm;
+ 	struct vm_area_struct *vma;
++	struct __vdso_info *vdso_info = mm->context.vdso_info;
+ 
+ 	mmap_read_lock(mm);
+ 
+ 	for (vma = mm->mmap; vma; vma = vma->vm_next) {
+ 		unsigned long size = vma->vm_end - vma->vm_start;
+ 
+-		if (vma_is_special_mapping(vma, vdso_info.dm))
++		if (vma_is_special_mapping(vma, vdso_info->dm))
+ 			zap_page_range(vma, vma->vm_start, size);
+ 	}
+ 
+@@ -187,11 +186,6 @@ static vm_fault_t vvar_fault(const struct vm_special_mapping *sm,
+ 	return vmf_insert_pfn(vma, vmf->address, pfn);
+ }
+ 
+-enum rv_vdso_map {
+-	RV_VDSO_MAP_VVAR,
+-	RV_VDSO_MAP_VDSO,
+-};
+-
+ static struct vm_special_mapping rv_vdso_maps[] __ro_after_init = {
+ 	[RV_VDSO_MAP_VVAR] = {
+ 		.name   = "[vvar]",
+@@ -203,25 +197,46 @@ static struct vm_special_mapping rv_vdso_maps[] __ro_after_init = {
+ 	},
+ };
+ 
++static struct __vdso_info vdso_info __ro_after_init = {
++	.name = "vdso",
++	.vdso_code_start = vdso_start,
++	.vdso_code_end = vdso_end,
++	.dm = &rv_vdso_maps[RV_VDSO_MAP_VVAR],
++	.cm = &rv_vdso_maps[RV_VDSO_MAP_VDSO],
++};
++
++#ifdef CONFIG_COMPAT
++static struct __vdso_info compat_vdso_info __ro_after_init = {
++	.name = "compat_vdso",
++	.vdso_code_start = compat_vdso_start,
++	.vdso_code_end = compat_vdso_end,
++	.dm = &rv_vdso_maps[RV_VDSO_MAP_VVAR],
++	.cm = &rv_vdso_maps[RV_VDSO_MAP_VDSO],
++};
++#endif
++
+ static int __init vdso_init(void)
+ {
+-	vdso_info.dm = &rv_vdso_maps[RV_VDSO_MAP_VVAR];
+-	vdso_info.cm = &rv_vdso_maps[RV_VDSO_MAP_VDSO];
++	__vdso_init(&vdso_info);
++#ifdef CONFIG_COMPAT
++	__vdso_init(&compat_vdso_info);
++#endif
+ 
+-	return __vdso_init();
++	return 0;
+ }
+ arch_initcall(vdso_init);
+ 
+ static int __setup_additional_pages(struct mm_struct *mm,
+ 				    struct linux_binprm *bprm,
+-				    int uses_interp)
++				    int uses_interp,
++				    struct __vdso_info *vdso_info)
+ {
+ 	unsigned long vdso_base, vdso_text_len, vdso_mapping_len;
+ 	void *ret;
+ 
+ 	BUILD_BUG_ON(VVAR_NR_PAGES != __VVAR_PAGES);
+ 
+-	vdso_text_len = vdso_info.vdso_pages << PAGE_SHIFT;
++	vdso_text_len = vdso_info->vdso_pages << PAGE_SHIFT;
+ 	/* Be sure to map the data page */
+ 	vdso_mapping_len = vdso_text_len + VVAR_SIZE;
+ 
+@@ -232,16 +247,18 @@ static int __setup_additional_pages(struct mm_struct *mm,
+ 	}
+ 
+ 	ret = _install_special_mapping(mm, vdso_base, VVAR_SIZE,
+-		(VM_READ | VM_MAYREAD | VM_PFNMAP), vdso_info.dm);
++		(VM_READ | VM_MAYREAD | VM_PFNMAP), vdso_info->dm);
+ 	if (IS_ERR(ret))
+ 		goto up_fail;
+ 
+ 	vdso_base += VVAR_SIZE;
+ 	mm->context.vdso = (void *)vdso_base;
++	mm->context.vdso_info = (void *)vdso_info;
++
+ 	ret =
+ 	   _install_special_mapping(mm, vdso_base, vdso_text_len,
+ 		(VM_READ | VM_EXEC | VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC),
+-		vdso_info.cm);
++		vdso_info->cm);
+ 
+ 	if (IS_ERR(ret))
+ 		goto up_fail;
+@@ -253,6 +270,24 @@ static int __setup_additional_pages(struct mm_struct *mm,
+ 	return PTR_ERR(ret);
+ }
+ 
++#ifdef CONFIG_COMPAT
++int compat_arch_setup_additional_pages(struct linux_binprm *bprm,
++				       int uses_interp)
++{
++	struct mm_struct *mm = current->mm;
++	int ret;
++
++	if (mmap_write_lock_killable(mm))
++		return -EINTR;
++
++	ret = __setup_additional_pages(mm, bprm, uses_interp,
++							&compat_vdso_info);
++	mmap_write_unlock(mm);
++
++	return ret;
++}
++#endif
++
+ int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
+ {
+ 	struct mm_struct *mm = current->mm;
+@@ -261,7 +296,7 @@ int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
+ 	if (mmap_write_lock_killable(mm))
+ 		return -EINTR;
+ 
+-	ret = __setup_additional_pages(mm, bprm, uses_interp);
++	ret = __setup_additional_pages(mm, bprm, uses_interp, &vdso_info);
+ 	mmap_write_unlock(mm);
+ 
+ 	return ret;
 -- 
 2.25.1
 
