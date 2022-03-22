@@ -2,35 +2,35 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED316C3527B
-	for <linux-s390@archiver.kernel.org>; Tue, 22 Mar 2022 14:40:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2EC2BC4321E
+	for <linux-s390@archiver.kernel.org>; Tue, 22 Mar 2022 14:40:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237997AbiCVOmS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 22 Mar 2022 10:42:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38480 "EHLO
+        id S238013AbiCVOmV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 22 Mar 2022 10:42:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237940AbiCVOmA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Mar 2022 10:42:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 838C933E09;
-        Tue, 22 Mar 2022 07:40:32 -0700 (PDT)
+        with ESMTP id S232597AbiCVOmO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Mar 2022 10:42:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C8C7694BF;
+        Tue, 22 Mar 2022 07:40:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 396B8B81D08;
-        Tue, 22 Mar 2022 14:40:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 719D8C340F2;
-        Tue, 22 Mar 2022 14:40:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B995C616B5;
+        Tue, 22 Mar 2022 14:40:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA568C36AE5;
+        Tue, 22 Mar 2022 14:40:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1647960029;
-        bh=x++Mq2RxURkLMg1JsydDN/FlbWbJrQ+uoj7qljhzM7U=;
+        s=k20201202; t=1647960046;
+        bh=tnIBlbMSR1q6oqpRl/YAQ4ihjUMlqVK0g5yo1FXnzGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=faxKNsk97ypovZQxUGNVF94Yu6sPv5m2gE3guRFkCALwbMx8vugMaoSkjLl/TsdK8
-         pX1lLYdy+jyYR6LX+fX/cjX4yXaJ4BoL8ctpotI1M3KtvdiCPEeHt2NgotM/c26FeH
-         efKRXaqJ9KIsnH92f3aO6an4ECs9P3fuqsrXK6CAlCuK+UoAu8+ZsfsS+Xq6dmWeZg
-         q4mX7o4lDvd2L+XLx3IqpgpFH3m3eVvBNcPHPnE75Z7c7wlgzd7GoD3XNlBrXsyTQ/
-         8v2Fwa3qMJ6fbxBtMr0m45dA175SLelya88rg6h54frbubgcpUNgr9vWLJaxfaM3IG
-         jpu9jS8pQZOCA==
+        b=tonNjYEA3hAdQyAYCq8laXlJI6y1Li/ioTDXbrXKiZoM26n9t8VyGXm+uRGPozRea
+         3NrcQevemIFg6+99iOlAwcgr01CXZYq2DAxD5F5nzEip0IPHJQ9rEDfdNdgZC+ixxX
+         ksbQVosv8897Hjg61nuMoS2j9pquIQbqGhLjo5xIT1Z4N1rP9D7tZzVDu8PIU6FYWb
+         4fT4QOAn2irtW7TybypMP7g+w2ZS0bv7OnupT0dJ24slMoI98oUOxoWgODhzNFKzQy
+         48sDyKf2IQ69ggGqeHY/waKiKDIEcrdk6reT3STdqu/CduSWGLEtz4eHGHr/CFBVU+
+         TGI1WZbqMdTvQ==
 From:   guoren@kernel.org
 To:     guoren@kernel.org, palmer@dabbelt.com, arnd@arndb.de,
         gregkh@linuxfoundation.org, hch@lst.de
@@ -39,10 +39,10 @@ Cc:     linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, linux-parisc@vger.kernel.org,
         linux-mips@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        x86@kernel.org, heiko@sntech.de
-Subject: [PATCH V9 01/20] uapi: simplify __ARCH_FLOCK{,64}_PAD a little
-Date:   Tue, 22 Mar 2022 22:39:44 +0800
-Message-Id: <20220322144003.2357128-2-guoren@kernel.org>
+        x86@kernel.org, heiko@sntech.de, Guo Ren <guoren@linux.alibaba.com>
+Subject: [PATCH V9 04/20] kconfig: Add SYSVIPC_COMPAT for all architectures
+Date:   Tue, 22 Mar 2022 22:39:47 +0800
+Message-Id: <20220322144003.2357128-5-guoren@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220322144003.2357128-1-guoren@kernel.org>
 References: <20220322144003.2357128-1-guoren@kernel.org>
@@ -52,158 +52,161 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Guo Ren <guoren@linux.alibaba.com>
 
-Don't bother to define the symbols empty, just don't use them.
-That makes the intent a little more clear.
+The existing per-arch definitions are pretty much historic cruft.
+Move SYSVIPC_COMPAT into init/Kconfig.
 
-Remove the unused HAVE_ARCH_STRUCT_FLOCK64 define and merge the
-32-bit mips struct flock into the generic one.
-
-Add a new __ARCH_FLOCK_EXTRA_SYSID macro following the style of
-__ARCH_FLOCK_PAD to avoid having a separate definition just for
-one architecture.
-
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 Signed-off-by: Guo Ren <guoren@kernel.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Tested-by: Heiko Stuebner <heiko@sntech.de>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
 ---
- arch/mips/include/uapi/asm/fcntl.h     | 26 +++-----------------------
- include/uapi/asm-generic/fcntl.h       | 19 +++++++------------
- tools/include/uapi/asm-generic/fcntl.h | 19 +++++++------------
- 3 files changed, 17 insertions(+), 47 deletions(-)
+ arch/arm64/Kconfig   | 4 ----
+ arch/mips/Kconfig    | 5 -----
+ arch/parisc/Kconfig  | 4 ----
+ arch/powerpc/Kconfig | 5 -----
+ arch/s390/Kconfig    | 3 ---
+ arch/sparc/Kconfig   | 5 -----
+ arch/x86/Kconfig     | 4 ----
+ init/Kconfig         | 4 ++++
+ 8 files changed, 4 insertions(+), 30 deletions(-)
 
-diff --git a/arch/mips/include/uapi/asm/fcntl.h b/arch/mips/include/uapi/asm/fcntl.h
-index 42e13dead543..9e44ac810db9 100644
---- a/arch/mips/include/uapi/asm/fcntl.h
-+++ b/arch/mips/include/uapi/asm/fcntl.h
-@@ -50,30 +50,10 @@
- #define F_SETLKW64	35
- #endif
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index c842878f8133..03b14ac18214 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -2114,10 +2114,6 @@ config DMI
  
--/*
-- * The flavours of struct flock.  "struct flock" is the ABI compliant
-- * variant.  Finally struct flock64 is the LFS variant of struct flock.	 As
-- * a historic accident and inconsistence with the ABI definition it doesn't
-- * contain all the same fields as struct flock.
-- */
+ endmenu
+ 
+-config SYSVIPC_COMPAT
+-	def_bool y
+-	depends on COMPAT && SYSVIPC
 -
- #if _MIPS_SIM != _MIPS_SIM_ABI64
+ menu "Power management options"
+ 
+ source "kernel/power/Kconfig"
+diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
+index 058446f01487..91a17ad380c9 100644
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -3170,16 +3170,12 @@ config MIPS32_COMPAT
+ config COMPAT
+ 	bool
+ 
+-config SYSVIPC_COMPAT
+-	bool
 -
--#include <linux/types.h>
+ config MIPS32_O32
+ 	bool "Kernel support for o32 binaries"
+ 	depends on 64BIT
+ 	select ARCH_WANT_OLD_COMPAT_IPC
+ 	select COMPAT
+ 	select MIPS32_COMPAT
+-	select SYSVIPC_COMPAT if SYSVIPC
+ 	help
+ 	  Select this option if you want to run o32 binaries.  These are pure
+ 	  32-bit binaries as used by the 32-bit Linux/MIPS port.  Most of
+@@ -3193,7 +3189,6 @@ config MIPS32_N32
+ 	select ARCH_WANT_COMPAT_IPC_PARSE_VERSION
+ 	select COMPAT
+ 	select MIPS32_COMPAT
+-	select SYSVIPC_COMPAT if SYSVIPC
+ 	help
+ 	  Select this option if you want to run n32 binaries.  These are
+ 	  64-bit binaries using 32-bit quantities for addressing and certain
+diff --git a/arch/parisc/Kconfig b/arch/parisc/Kconfig
+index 43c1c880def6..bc56759d44a2 100644
+--- a/arch/parisc/Kconfig
++++ b/arch/parisc/Kconfig
+@@ -345,10 +345,6 @@ config COMPAT
+ 	def_bool y
+ 	depends on 64BIT
+ 
+-config SYSVIPC_COMPAT
+-	def_bool y
+-	depends on COMPAT && SYSVIPC
 -
--struct flock {
--	short	l_type;
--	short	l_whence;
--	__kernel_off_t	l_start;
--	__kernel_off_t	l_len;
--	long	l_sysid;
--	__kernel_pid_t l_pid;
--	long	pad[4];
--};
+ config AUDIT_ARCH
+ 	def_bool y
+ 
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index b779603978e1..5a32b7f21af2 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -291,11 +291,6 @@ config COMPAT
+ 	select ARCH_WANT_OLD_COMPAT_IPC
+ 	select COMPAT_OLD_SIGACTION
+ 
+-config SYSVIPC_COMPAT
+-	bool
+-	depends on COMPAT && SYSVIPC
+-	default y
 -
--#define HAVE_ARCH_STRUCT_FLOCK
+ config SCHED_OMIT_FRAME_POINTER
+ 	bool
+ 	default y
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index be9f39fd06df..80f69cafbb87 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -459,9 +459,6 @@ config COMPAT
+ 	  (and some other stuff like libraries and such) is needed for
+ 	  executing 31 bit applications.  It is safe to say "Y".
+ 
+-config SYSVIPC_COMPAT
+-	def_bool y if COMPAT && SYSVIPC
 -
--#endif /* _MIPS_SIM == _MIPS_SIM_ABI32 */
-+#define __ARCH_FLOCK_EXTRA_SYSID	long l_sysid;
-+#define __ARCH_FLOCK_PAD		long pad[4];
-+#endif
+ config SMP
+ 	def_bool y
  
- #include <asm-generic/fcntl.h>
+diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
+index 1cab1b284f1a..15d5725bd623 100644
+--- a/arch/sparc/Kconfig
++++ b/arch/sparc/Kconfig
+@@ -488,9 +488,4 @@ config COMPAT
+ 	select ARCH_WANT_OLD_COMPAT_IPC
+ 	select COMPAT_OLD_SIGACTION
  
-diff --git a/include/uapi/asm-generic/fcntl.h b/include/uapi/asm-generic/fcntl.h
-index ecd0f5bdfc1d..77aa9f2ff98d 100644
---- a/include/uapi/asm-generic/fcntl.h
-+++ b/include/uapi/asm-generic/fcntl.h
-@@ -192,25 +192,19 @@ struct f_owner_ex {
- 
- #define F_LINUX_SPECIFIC_BASE	1024
- 
--#ifndef HAVE_ARCH_STRUCT_FLOCK
--#ifndef __ARCH_FLOCK_PAD
--#define __ARCH_FLOCK_PAD
--#endif
+-config SYSVIPC_COMPAT
+-	bool
+-	depends on COMPAT && SYSVIPC
+-	default y
 -
- struct flock {
- 	short	l_type;
- 	short	l_whence;
- 	__kernel_off_t	l_start;
- 	__kernel_off_t	l_len;
- 	__kernel_pid_t	l_pid;
--	__ARCH_FLOCK_PAD
--};
-+#ifdef	__ARCH_FLOCK_EXTRA_SYSID
-+	__ARCH_FLOCK_EXTRA_SYSID
- #endif
+ source "drivers/sbus/char/Kconfig"
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 9f5bd41bf660..7d0487189f6e 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -2860,10 +2860,6 @@ config COMPAT
+ if COMPAT
+ config COMPAT_FOR_U64_ALIGNMENT
+ 	def_bool y
 -
--#ifndef HAVE_ARCH_STRUCT_FLOCK64
--#ifndef __ARCH_FLOCK64_PAD
--#define __ARCH_FLOCK64_PAD
-+#ifdef	__ARCH_FLOCK_PAD
-+	__ARCH_FLOCK_PAD
- #endif
-+};
+-config SYSVIPC_COMPAT
+-	def_bool y
+-	depends on SYSVIPC
+ endif
  
- struct flock64 {
- 	short  l_type;
-@@ -218,8 +212,9 @@ struct flock64 {
- 	__kernel_loff_t l_start;
- 	__kernel_loff_t l_len;
- 	__kernel_pid_t  l_pid;
-+#ifdef	__ARCH_FLOCK64_PAD
- 	__ARCH_FLOCK64_PAD
--};
- #endif
-+};
+ endmenu
+diff --git a/init/Kconfig b/init/Kconfig
+index e9119bf54b1f..589ccec56571 100644
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -386,6 +386,10 @@ config SYSVIPC_SYSCTL
+ 	depends on SYSCTL
+ 	default y
  
- #endif /* _ASM_GENERIC_FCNTL_H */
-diff --git a/tools/include/uapi/asm-generic/fcntl.h b/tools/include/uapi/asm-generic/fcntl.h
-index ac190958c981..99bc9b15ce2b 100644
---- a/tools/include/uapi/asm-generic/fcntl.h
-+++ b/tools/include/uapi/asm-generic/fcntl.h
-@@ -187,25 +187,19 @@ struct f_owner_ex {
- 
- #define F_LINUX_SPECIFIC_BASE	1024
- 
--#ifndef HAVE_ARCH_STRUCT_FLOCK
--#ifndef __ARCH_FLOCK_PAD
--#define __ARCH_FLOCK_PAD
--#endif
--
- struct flock {
- 	short	l_type;
- 	short	l_whence;
- 	__kernel_off_t	l_start;
- 	__kernel_off_t	l_len;
- 	__kernel_pid_t	l_pid;
--	__ARCH_FLOCK_PAD
--};
-+#ifdef	__ARCH_FLOCK_EXTRA_SYSID
-+	__ARCH_FLOCK_EXTRA_SYSID
- #endif
--
--#ifndef HAVE_ARCH_STRUCT_FLOCK64
--#ifndef __ARCH_FLOCK64_PAD
--#define __ARCH_FLOCK64_PAD
-+#ifdef	__ARCH_FLOCK_PAD
-+	__ARCH_FLOCK_PAD
- #endif
-+};
- 
- struct flock64 {
- 	short  l_type;
-@@ -213,8 +207,9 @@ struct flock64 {
- 	__kernel_loff_t l_start;
- 	__kernel_loff_t l_len;
- 	__kernel_pid_t  l_pid;
-+#ifdef	__ARCH_FLOCK64_PAD
- 	__ARCH_FLOCK64_PAD
--};
- #endif
-+};
- 
- #endif /* _ASM_GENERIC_FCNTL_H */
++config SYSVIPC_COMPAT
++	def_bool y
++	depends on COMPAT && SYSVIPC
++
+ config POSIX_MQUEUE
+ 	bool "POSIX Message Queues"
+ 	depends on NET
 -- 
 2.25.1
 
