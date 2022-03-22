@@ -2,143 +2,142 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F057AC433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 22 Mar 2022 09:46:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6AADC433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 22 Mar 2022 13:14:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230441AbiCVJsN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 22 Mar 2022 05:48:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36206 "EHLO
+        id S234396AbiCVNPb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 22 Mar 2022 09:15:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229486AbiCVJsM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Mar 2022 05:48:12 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 5A76E6A415
-        for <linux-s390@vger.kernel.org>; Tue, 22 Mar 2022 02:46:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1647942403;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=gj16fIvhMGn60A3rgtQAZDpb6AlAuaEkvfPmTyLtwTQ=;
-        b=R1ySavt5osXkTuXusBrsfDurTnhoXlt4uT+0GKNuUGJ9iJQFVKW/D27bmhvoaTOpLsl2Yx
-        wBHyAg6ZDceUl/QJdDququxS7RLzqQ6FCECBehsK/W3QrRLVFgXPqPtVnoACMgSmC1N1lZ
-        Yo7NqyIgJ8waF0F97F/ATgW2CLj2t1w=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-650-KQBtuRdCOqykBDl1_FZYrg-1; Tue, 22 Mar 2022 05:46:42 -0400
-X-MC-Unique: KQBtuRdCOqykBDl1_FZYrg-1
-Received: by mail-wm1-f71.google.com with SMTP id r9-20020a1c4409000000b0038c15a1ed8cso823976wma.7
-        for <linux-s390@vger.kernel.org>; Tue, 22 Mar 2022 02:46:42 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:organization:in-reply-to
-         :content-transfer-encoding;
-        bh=gj16fIvhMGn60A3rgtQAZDpb6AlAuaEkvfPmTyLtwTQ=;
-        b=5LZ6MG3yfoHV49LujTh2s4WmyWlm2ODM3VYQPyV0fxZBuvksV73vfMQQ7rnUnD6dzx
-         C10yMGwoyx5OcF7irKnSY/GsdxppuIs1mv2RhEG9BZFAhPACg7qyIgA170C40wOdqZ1C
-         V8f7QEWWE4hzSqdmSCDS1/ZhpFFM0P17j5k9QfCFSQzvRQd4/8tpZogZX022Fo7bA8pc
-         jf1S/yWLPkwdOhfBxff4zAviECmhj9crdVGRjT7DDW8dTSP2tXyPAuwulyYOLOC7gOLH
-         PPA6IMQpWj+OFSOqbcpZuYSrXZV4VxAQroMkZmoU96l3rNe5TMTzYVCP5P8JnYfdGII5
-         /dhQ==
-X-Gm-Message-State: AOAM533+W4zMrd8LBbssLT2adq6THQRLRzwlQtawpD4sASaa8nk+8v0/
-        7aV3REoRjkYtYr/1whPrKwm41LCu44OKlPIeyL+b7au6w2+mCww+QqXDj+X6YmYdXIABWDa6CiD
-        fX83hiz2k3+Ewt2NFu2NK5Q==
-X-Received: by 2002:adf:f34e:0:b0:203:fa2f:73e with SMTP id e14-20020adff34e000000b00203fa2f073emr14961309wrp.351.1647942401009;
-        Tue, 22 Mar 2022 02:46:41 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyZd8Uvoix5JtZIw5NnbrgIf9I7tI3M1eMO959R1yIf5jk559l3XNPulFYZR9OqDfvtCDALew==
-X-Received: by 2002:adf:f34e:0:b0:203:fa2f:73e with SMTP id e14-20020adff34e000000b00203fa2f073emr14961247wrp.351.1647942400705;
-        Tue, 22 Mar 2022 02:46:40 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c708:de00:549e:e4e4:98df:ff72? (p200300cbc708de00549ee4e498dfff72.dip0.t-ipconnect.de. [2003:cb:c708:de00:549e:e4e4:98df:ff72])
-        by smtp.gmail.com with ESMTPSA id v188-20020a1cacc5000000b00384b71a50d5sm1507806wme.24.2022.03.22.02.46.38
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 22 Mar 2022 02:46:40 -0700 (PDT)
-Message-ID: <10851f31-632c-5fb4-a941-3dccc46e5156@redhat.com>
-Date:   Tue, 22 Mar 2022 10:46:38 +0100
+        with ESMTP id S232654AbiCVNPa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Mar 2022 09:15:30 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA2607658;
+        Tue, 22 Mar 2022 06:13:59 -0700 (PDT)
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22MCj6TS004482;
+        Tue, 22 Mar 2022 13:13:56 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : reply-to : subject : to : cc : references : from :
+ in-reply-to : content-type : content-transfer-encoding; s=pp1;
+ bh=xjxaDX+U9M+staFNkzAVXPnKdxOrbMAiXb/+c8xLBUY=;
+ b=r66eQHtNoHa+1U1j8Wvf9eg+Ob3XEf514e6Y7xKzjf+5Hn/raiwmRqKvRiN5mW4DW9Vz
+ HVk5R2MMXxPkc3IQrZf1ERnfVwrf2WR3/j50dmiwtMQw7I7decAKEEw74XjABYaeZLPq
+ /E5Bwf/Lj5eRGfFrr1bZzDl18wrWR8AIQwquLogHoZLqoe+Atws/f/LgA3G9gsn2H9c9
+ Lq/hMbgXyTpgTrLh/YrFwMC/wRuKvlO4bsb6Njlk4B9Qgq9fr+UEeZw83q7izO2snBTb
+ LZ8u7vc1pmotuUmFCYOG5g/3I9TT1FClNqmNAIY1we4r3sAYzQvEOqd8RR9oqUmztWDS uw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ey86ushdf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 22 Mar 2022 13:13:56 +0000
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22MCiTR0008046;
+        Tue, 22 Mar 2022 13:13:55 GMT
+Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3ey86ushcu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 22 Mar 2022 13:13:55 +0000
+Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
+        by ppma05wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22MD9NvA004655;
+        Tue, 22 Mar 2022 13:13:54 GMT
+Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
+        by ppma05wdc.us.ibm.com with ESMTP id 3ew6t9m77n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 22 Mar 2022 13:13:54 +0000
+Received: from b03ledav006.gho.boulder.ibm.com (b03ledav006.gho.boulder.ibm.com [9.17.130.237])
+        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22MDDrpa29295032
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 22 Mar 2022 13:13:53 GMT
+Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0849AC6065;
+        Tue, 22 Mar 2022 13:13:53 +0000 (GMT)
+Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 045AEC605F;
+        Tue, 22 Mar 2022 13:13:52 +0000 (GMT)
+Received: from [9.160.96.60] (unknown [9.160.96.60])
+        by b03ledav006.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Tue, 22 Mar 2022 13:13:51 +0000 (GMT)
+Message-ID: <37e98e6e-35a7-a77a-b057-e19b307c631a@linux.ibm.com>
+Date:   Tue, 22 Mar 2022 09:13:46 -0400
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.2
-Subject: Re: [PATCH v1 4/7] arm64/pgtable: support
- __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+ Thunderbird/91.2.0
+Reply-To: jjherne@linux.ibm.com
+Subject: Re: [PATCH v18 13/18] s390/vfio-ap: implement in-use callback for
+ vfio_ap driver
 Content-Language: en-US
-To:     Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>
-Cc:     linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Hugh Dickins <hughd@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        David Rientjes <rientjes@google.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Yang Shi <shy828301@gmail.com>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Vlastimil Babka <vbabka@suse.cz>, Jann Horn <jannh@google.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Nadav Amit <namit@vmware.com>, Rik van Riel <riel@surriel.com>,
-        Roman Gushchin <guro@fb.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Peter Xu <peterx@redhat.com>,
-        Donald Dutile <ddutile@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Oleg Nesterov <oleg@redhat.com>, Jan Kara <jack@suse.cz>,
-        Liang Zhang <zhangliang5@huawei.com>,
-        Pedro Gomes <pedrodemargomes@gmail.com>,
-        Oded Gabbay <oded.gabbay@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, linux-mm@kvack.org,
-        x86@kernel.org, linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
-References: <20220315141837.137118-1-david@redhat.com>
- <20220315141837.137118-5-david@redhat.com> <YjIr9f9qaz4xITVd@arm.com>
- <20220321143802.GC11145@willie-the-truck>
- <ea570f92-f896-7f9b-91c4-ad0a025bb340@redhat.com>
- <20220321174404.GA11389@willie-the-truck> <YjjDlajNUdHgOOWM@arm.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <YjjDlajNUdHgOOWM@arm.com>
-Content-Type: text/plain; charset=UTF-8
+To:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc:     freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
+        mjrosato@linux.ibm.com, pasic@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        fiuczy@linux.ibm.com
+References: <20220215005040.52697-1-akrowiak@linux.ibm.com>
+ <20220215005040.52697-14-akrowiak@linux.ibm.com>
+From:   "Jason J. Herne" <jjherne@linux.ibm.com>
+Organization: IBM
+In-Reply-To: <20220215005040.52697-14-akrowiak@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 2jjexNIGoZjr50NhdxyhNQkPkukiXnTw
+X-Proofpoint-ORIG-GUID: B99ljwQB9kIPamZP-hl53GU3KH4BDYWr
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-03-22_04,2022-03-22_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxlogscore=999
+ impostorscore=0 bulkscore=0 adultscore=0 suspectscore=0 malwarescore=0
+ priorityscore=1501 lowpriorityscore=0 mlxscore=0 spamscore=0 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2203220076
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 21.03.22 19:27, Catalin Marinas wrote:
-> On Mon, Mar 21, 2022 at 05:44:05PM +0000, Will Deacon wrote:
->> On Mon, Mar 21, 2022 at 04:07:48PM +0100, David Hildenbrand wrote:
->>> So the example you gave cannot possibly have that bit set. From what I
->>> understand, it should be fine. But I have no real preference: I can also
->>> just stick to the original patch, whatever you prefer.
->>
->> I think I'd prefer to stay on the safe side and stick with bit 2 as you
->> originally proposed. If we need to support crazy numbers of swapfiles
->> in future then we can revisit the idea of allocating bit 1.
-> 
-> Sounds fine to me. David, feel free to keep my reviewed-by on the
-> original patch.
-> 
+On 2/14/22 19:50, Tony Krowiak wrote:
+...
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+> index e9f7ec6fc6a5..63dfb9b89581 100644
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -617,10 +617,32 @@ static int vfio_ap_mdev_verify_no_sharing(unsigned long *mdev_apm,
+>   	return 0;
+>   }
+>   
+> +/**
+> + * vfio_ap_mdev_validate_masks - verify that the APQNs assigned to the mdev are
+> + *				 not reserved for the default zcrypt driver and
+> + *				 are not assigned to another mdev.
+> + *
+> + * @matrix_mdev: the mdev to which the APQNs being validated are assigned.
+> + *
+> + * Return: One of the following values:
+> + * o the error returned from the ap_apqn_in_matrix_owned_by_def_drv() function,
+> + *   most likely -EBUSY indicating the ap_perms_mutex lock is already held.
+> + * o EADDRNOTAVAIL if an APQN assigned to @matrix_mdev is reserved for the
+> + *		   zcrypt default driver.
+> + * o EADDRINUSE if an APQN assigned to @matrix_mdev is assigned to another mdev
+> + * o A zero indicating validation succeeded.
+> + */
+>   static int vfio_ap_mdev_validate_masks(struct ap_matrix_mdev *matrix_mdev)
+>   {
+> -	if (ap_apqn_in_matrix_owned_by_def_drv(matrix_mdev->matrix.apm,
+> -					       matrix_mdev->matrix.aqm))
+> +	int ret;
+> +
+> +	ret = ap_apqn_in_matrix_owned_by_def_drv(matrix_mdev->matrix.apm,
+> +						 matrix_mdev->matrix.aqm);
+> +
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	if (ret == 1)
+>   		return -EADDRNOTAVAIL;
 
-Thanks both, I'll add the following comment to the patch:
-
-"Note that we might be able to reuse bit 1, but reusing bit 1 turned out
- problematic in the past for PROT_NONE handling; so let's play safe and
- use another bit."
+I took a look at ap_apqn_in_matrix_owned_by_def_drv(). It appears that this function
+can only ever return 0 or 1. This patch is changed to watch for a negative return
+value from ap_apqn_in_matrix_owned_by_def_drv(). Am I missing something?
 
 
 -- 
-Thanks,
-
-David / dhildenb
-
+-- Jason J. Herne (jjherne@linux.ibm.com)
