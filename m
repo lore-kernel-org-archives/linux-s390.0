@@ -2,429 +2,290 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A333FC43219
-	for <linux-s390@archiver.kernel.org>; Wed, 23 Mar 2022 13:40:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8BF02C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 23 Mar 2022 14:19:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244386AbiCWNmC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 23 Mar 2022 09:42:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53110 "EHLO
+        id S244696AbiCWOVR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 23 Mar 2022 10:21:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236660AbiCWNmB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Mar 2022 09:42:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34F4174849;
-        Wed, 23 Mar 2022 06:40:30 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A061BB81F53;
-        Wed, 23 Mar 2022 13:40:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B68BC340F3;
-        Wed, 23 Mar 2022 13:40:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648042827;
-        bh=tfAJdIq2+RYdVHZ38GzSMwiGmA3mYSLGoPCsYK/Ay0o=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=uURvrSQYWoBDbOJ1HJhmy4zq35Wx1u92YfhAJjselJu+G8KZl4y/4epaPOKQFhp86
-         e8VZNnOBbO/ktj6k+JKr407It53apzOQA52t2ZaWuP2k6XTZ52oSFeFqKqdKrBnI79
-         e+h+GlWqbJCvNW/dJFFTun/pfdlihLnlSfevvfRe8Od2DiA5PPC58S/Sw2CT7LaGgx
-         vRPmWwBDcfmb6lBwS6yGFY5dtq/AtP+pJPVEtbuDPfgiy7V7e/BvAXEOBbDuxjBTSy
-         WeSKZsuamgmFXT84rsRMyZYU/5UL1M8XpQPabdxZhi+QVjhbD0odc//B58wz5CV33+
-         tsFxE8jN2V55Q==
-Received: by mail-vk1-f172.google.com with SMTP id m84so849605vke.1;
-        Wed, 23 Mar 2022 06:40:27 -0700 (PDT)
-X-Gm-Message-State: AOAM531XDgSrObUaMkqOe7bmQgfDa6GHUkn9strsPvCtMBpugmNVhdRk
-        8OqqiBavGsRt+Km5ciAOc5+MaQVHQKLxitzdItc=
-X-Google-Smtp-Source: ABdhPJwacFP88rQle1BS8Fl0WkwH/yl7QzXYYyv8GMnk2rx9FSXhwtYXtlbmIrv2UbeMrdZOjlC8mGra51uCgccxAVo=
-X-Received: by 2002:a05:6122:c85:b0:33f:ab27:5f5d with SMTP id
- ba5-20020a0561220c8500b0033fab275f5dmr626464vkb.2.1648042826087; Wed, 23 Mar
- 2022 06:40:26 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220322144003.2357128-1-guoren@kernel.org> <20220322144003.2357128-12-guoren@kernel.org>
-In-Reply-To: <20220322144003.2357128-12-guoren@kernel.org>
-From:   Guo Ren <guoren@kernel.org>
-Date:   Wed, 23 Mar 2022 21:40:14 +0800
-X-Gmail-Original-Message-ID: <CAJF2gTQnnEDbXCe142tbVzNENS+HTRDNkKy5qDzNMOdTdoDBJg@mail.gmail.com>
-Message-ID: <CAJF2gTQnnEDbXCe142tbVzNENS+HTRDNkKy5qDzNMOdTdoDBJg@mail.gmail.com>
-Subject: Re: [PATCH V9 11/20] riscv: compat: syscall: Add compat_sys_call_table
- implementation
-To:     Palmer Dabbelt <palmer@dabbelt.com>, Arnd Bergmann <arnd@arndb.de>,
-        Christoph Hellwig <hch@lst.de>
-Cc:     linux-arch <linux-arch@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-csky@vger.kernel.org,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>,
-        Guo Ren <guoren@linux.alibaba.com>
+        with ESMTP id S244802AbiCWOVM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Mar 2022 10:21:12 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12A767C79B;
+        Wed, 23 Mar 2022 07:19:40 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22NCfmKx006820;
+        Wed, 23 Mar 2022 14:19:39 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=e9XJnMzlIjuTViPwa8QXuPGVzck1MXJXYNkUQTLUhZc=;
+ b=akNjDXLGPS2XHBOAMDWneRWLyUJxIwMog1Wf/0PspWiO3ruJmaloKi7gl4/Q14Rn5TKr
+ GDE62GyFAhHeVEKq+uVjH+CDSCOc1KR50rIuVNM0q2VIgtuWa/jbUOfhYfuluTEcAHKq
+ CK5mcd3L6ZapDQCKx2hpTFQ8lA/u/L2Z77yNC3TmkuPD7XmaPB3U2VUtGl1SzymeCuBl
+ twS1vV2KtAuF8/jBApOgKKFGY+4hHKl/F6xMylG7R2/YP/VztVXTAeIzLIoKbvYFWZaT
+ ADu0Elj30FqHeeDqaXzVNxh3Cb9THCV9HHcA/5yTI7DIt4hUfA6Gkx0SynH/sRhtHX18 tw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3f03sb2bbj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Mar 2022 14:19:39 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22NE7X3G005593;
+        Wed, 23 Mar 2022 14:19:39 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3f03sb2bav-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Mar 2022 14:19:39 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22NEHPGR030008;
+        Wed, 23 Mar 2022 14:19:37 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 3ew6t90r35-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Mar 2022 14:19:36 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22NEJXEX40173862
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 23 Mar 2022 14:19:33 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BB57D52050;
+        Wed, 23 Mar 2022 14:19:33 +0000 (GMT)
+Received: from li-ca45c2cc-336f-11b2-a85c-c6e71de567f1.ibm.com (unknown [9.171.5.47])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 6E8125204F;
+        Wed, 23 Mar 2022 14:19:33 +0000 (GMT)
+Message-ID: <1d1fa70ec01e7a3284d997dc05272fe144288fa0.camel@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v1 4/9] s390x: smp: add test for
+ SIGP_STORE_ADTL_STATUS order
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        frankja@linux.ibm.com, thuth@redhat.com, david@redhat.com,
+        farman@linux.ibm.com
+Date:   Wed, 23 Mar 2022 15:19:33 +0100
+In-Reply-To: <20220321155900.77bd89d8@p-imbrenda>
+References: <20220321101904.387640-1-nrb@linux.ibm.com>
+         <20220321101904.387640-5-nrb@linux.ibm.com>
+         <20220321155900.77bd89d8@p-imbrenda>
 Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.4 (3.42.4-1.fc35) 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: axSXhAzJG3Mw9XDNXmQg9C7OtyonTYAj
+X-Proofpoint-ORIG-GUID: r4kvGlm-KQLPZMuecUSThv78_Nwp-0wb
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-03-23_07,2022-03-22_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 phishscore=0
+ impostorscore=0 malwarescore=0 clxscore=1015 mlxscore=0 adultscore=0
+ suspectscore=0 lowpriorityscore=0 mlxlogscore=999 priorityscore=1501
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2203230081
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Palmer & Arnd,
+On Mon, 2022-03-21 at 15:59 +0100, Claudio Imbrenda wrote:
+> On Mon, 21 Mar 2022 11:18:59 +0100
+> Nico Boehr <nrb@linux.ibm.com> wrote:
+> > diff --git a/s390x/smp.c b/s390x/smp.c
+> > index e5a16eb5a46a..5d3265f6be64 100644
+> > --- a/s390x/smp.c
+[...]
+> > +/*
+> > + * We keep two structs, one for comparing when we want to assert
+> > it's not
+> > + * touched.
+> > + */
+> > +static uint8_t adtl_status[2][4096]
+> > __attribute__((aligned(4096)));
+> 
+> it's a little bit ugly. maybe define a struct, with small buffers
+> inside
+> for the vector and gs areas? that way we would not need ugly magic
+> numbers below (see below)
 
-Fixup fadvise64_64 arguments problem.
+OK, will do.
 
-On Tue, Mar 22, 2022 at 10:41 PM <guoren@kernel.org> wrote:
->
-> From: Guo Ren <guoren@linux.alibaba.com>
->
-> Implement compat sys_call_table and some system call functions:
-> truncate64, ftruncate64, fallocate, pread64, pwrite64,
-> sync_file_range, readahead, fadvise64_64 which need argument
-> translation.
->
-> Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-> Signed-off-by: Guo Ren <guoren@kernel.org>
-> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-> Tested-by: Heiko Stuebner <heiko@sntech.de>
-> Cc: Palmer Dabbelt <palmer@dabbelt.com>
-> ---
->  arch/riscv/include/asm/syscall.h         |  1 +
->  arch/riscv/include/asm/unistd.h          | 11 +++++++
->  arch/riscv/include/uapi/asm/unistd.h     |  2 +-
->  arch/riscv/kernel/Makefile               |  1 +
->  arch/riscv/kernel/compat_syscall_table.c | 19 ++++++++++++
->  arch/riscv/kernel/sys_riscv.c            |  6 ++--
->  fs/open.c                                | 24 +++++++++++++++
->  fs/read_write.c                          | 16 ++++++++++
->  fs/sync.c                                |  9 ++++++
->  include/asm-generic/compat.h             |  7 +++++
->  include/linux/compat.h                   | 37 ++++++++++++++++++++++++
->  mm/fadvise.c                             | 11 +++++++
->  mm/readahead.c                           |  7 +++++
->  13 files changed, 148 insertions(+), 3 deletions(-)
->  create mode 100644 arch/riscv/kernel/compat_syscall_table.c
->
-> diff --git a/arch/riscv/include/asm/syscall.h b/arch/riscv/include/asm/syscall.h
-> index 7ac6a0e275f2..384a63b86420 100644
-> --- a/arch/riscv/include/asm/syscall.h
-> +++ b/arch/riscv/include/asm/syscall.h
-> @@ -16,6 +16,7 @@
->
->  /* The array of function pointers for syscalls. */
->  extern void * const sys_call_table[];
-> +extern void * const compat_sys_call_table[];
->
->  /*
->   * Only the low 32 bits of orig_r0 are meaningful, so we return int.
-> diff --git a/arch/riscv/include/asm/unistd.h b/arch/riscv/include/asm/unistd.h
-> index 6c316093a1e5..5ddac412b578 100644
-> --- a/arch/riscv/include/asm/unistd.h
-> +++ b/arch/riscv/include/asm/unistd.h
-> @@ -11,6 +11,17 @@
->  #define __ARCH_WANT_SYS_CLONE
->  #define __ARCH_WANT_MEMFD_SECRET
->
-> +#ifdef CONFIG_COMPAT
-> +#define __ARCH_WANT_COMPAT_TRUNCATE64
-> +#define __ARCH_WANT_COMPAT_FTRUNCATE64
-> +#define __ARCH_WANT_COMPAT_FALLOCATE
-> +#define __ARCH_WANT_COMPAT_PREAD64
-> +#define __ARCH_WANT_COMPAT_PWRITE64
-> +#define __ARCH_WANT_COMPAT_SYNC_FILE_RANGE
-> +#define __ARCH_WANT_COMPAT_READAHEAD
-> +#define __ARCH_WANT_COMPAT_FADVISE64_64
-> +#endif
-> +
->  #include <uapi/asm/unistd.h>
->
->  #define NR_syscalls (__NR_syscalls)
-> diff --git a/arch/riscv/include/uapi/asm/unistd.h b/arch/riscv/include/uapi/asm/unistd.h
-> index 8062996c2dfd..c9e50eed14aa 100644
-> --- a/arch/riscv/include/uapi/asm/unistd.h
-> +++ b/arch/riscv/include/uapi/asm/unistd.h
-> @@ -15,7 +15,7 @@
->   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
->   */
->
-> -#ifdef __LP64__
-> +#if defined(__LP64__) && !defined(__SYSCALL_COMPAT)
->  #define __ARCH_WANT_NEW_STAT
->  #define __ARCH_WANT_SET_GET_RLIMIT
->  #endif /* __LP64__ */
-> diff --git a/arch/riscv/kernel/Makefile b/arch/riscv/kernel/Makefile
-> index ffc87e76b1dd..3b3e425aadd2 100644
-> --- a/arch/riscv/kernel/Makefile
-> +++ b/arch/riscv/kernel/Makefile
-> @@ -68,3 +68,4 @@ obj-$(CONFIG_CRASH_DUMP)      += crash_dump.o
->  obj-$(CONFIG_JUMP_LABEL)       += jump_label.o
->
->  obj-$(CONFIG_EFI)              += efi.o
-> +obj-$(CONFIG_COMPAT)           += compat_syscall_table.o
-> diff --git a/arch/riscv/kernel/compat_syscall_table.c b/arch/riscv/kernel/compat_syscall_table.c
-> new file mode 100644
-> index 000000000000..651f2b009c28
-> --- /dev/null
-> +++ b/arch/riscv/kernel/compat_syscall_table.c
-> @@ -0,0 +1,19 @@
-> +// SPDX-License-Identifier: GPL-2.0-only
-> +
-> +#define __SYSCALL_COMPAT
-> +
-> +#include <linux/compat.h>
-> +#include <linux/syscalls.h>
-> +#include <asm-generic/mman-common.h>
-> +#include <asm-generic/syscalls.h>
-> +#include <asm/syscall.h>
-> +
-> +#undef __SYSCALL
-> +#define __SYSCALL(nr, call)      [nr] = (call),
-> +
-> +asmlinkage long compat_sys_rt_sigreturn(void);
-> +
-> +void * const compat_sys_call_table[__NR_syscalls] = {
-> +       [0 ... __NR_syscalls - 1] = sys_ni_syscall,
-> +#include <asm/unistd.h>
-> +};
-> diff --git a/arch/riscv/kernel/sys_riscv.c b/arch/riscv/kernel/sys_riscv.c
-> index 12f8a7fce78b..9c0194f176fc 100644
-> --- a/arch/riscv/kernel/sys_riscv.c
-> +++ b/arch/riscv/kernel/sys_riscv.c
-> @@ -33,7 +33,9 @@ SYSCALL_DEFINE6(mmap, unsigned long, addr, unsigned long, len,
->  {
->         return riscv_sys_mmap(addr, len, prot, flags, fd, offset, 0);
->  }
-> -#else
-> +#endif
-> +
-> +#if defined(CONFIG_32BIT) || defined(CONFIG_COMPAT)
->  SYSCALL_DEFINE6(mmap2, unsigned long, addr, unsigned long, len,
->         unsigned long, prot, unsigned long, flags,
->         unsigned long, fd, off_t, offset)
-> @@ -44,7 +46,7 @@ SYSCALL_DEFINE6(mmap2, unsigned long, addr, unsigned long, len,
->          */
->         return riscv_sys_mmap(addr, len, prot, flags, fd, offset, 12);
->  }
-> -#endif /* !CONFIG_64BIT */
-> +#endif
->
->  /*
->   * Allows the instruction cache to be flushed from userspace.  Despite RISC-V
-> diff --git a/fs/open.c b/fs/open.c
-> index 9ff2f621b760..b25613f7c0a7 100644
-> --- a/fs/open.c
-> +++ b/fs/open.c
-> @@ -224,6 +224,21 @@ SYSCALL_DEFINE2(ftruncate64, unsigned int, fd, loff_t, length)
->  }
->  #endif /* BITS_PER_LONG == 32 */
->
-> +#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_TRUNCATE64)
-> +COMPAT_SYSCALL_DEFINE3(truncate64, const char __user *, pathname,
-> +                      compat_arg_u64_dual(length))
-> +{
-> +       return ksys_truncate(pathname, compat_arg_u64_glue(length));
-> +}
-> +#endif
-> +
-> +#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_FTRUNCATE64)
-> +COMPAT_SYSCALL_DEFINE3(ftruncate64, unsigned int, fd,
-> +                      compat_arg_u64_dual(length))
-> +{
-> +       return ksys_ftruncate(fd, compat_arg_u64_glue(length));
-> +}
-> +#endif
->
->  int vfs_fallocate(struct file *file, int mode, loff_t offset, loff_t len)
->  {
-> @@ -339,6 +354,15 @@ SYSCALL_DEFINE4(fallocate, int, fd, int, mode, loff_t, offset, loff_t, len)
->         return ksys_fallocate(fd, mode, offset, len);
->  }
->
-> +#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_FALLOCATE)
-> +COMPAT_SYSCALL_DEFINE6(fallocate, int, fd, int, mode, compat_arg_u64_dual(offset),
-> +                      compat_arg_u64_dual(len))
-> +{
-> +       return ksys_fallocate(fd, mode, compat_arg_u64_glue(offset),
-> +                             compat_arg_u64_glue(len));
-> +}
-> +#endif
-> +
->  /*
->   * access() needs to use the real uid/gid, not the effective uid/gid.
->   * We do this by temporarily clearing all FS-related capabilities and
-> diff --git a/fs/read_write.c b/fs/read_write.c
-> index 0074afa7ecb3..548657c462e8 100644
-> --- a/fs/read_write.c
-> +++ b/fs/read_write.c
-> @@ -681,6 +681,14 @@ SYSCALL_DEFINE4(pread64, unsigned int, fd, char __user *, buf,
->         return ksys_pread64(fd, buf, count, pos);
->  }
->
-> +#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_PREAD64)
-> +COMPAT_SYSCALL_DEFINE5(pread64, unsigned int, fd, char __user *, buf,
-> +                      size_t, count, compat_arg_u64_dual(pos))
-> +{
-> +       return ksys_pread64(fd, buf, count, compat_arg_u64_glue(pos));
-> +}
-> +#endif
-> +
->  ssize_t ksys_pwrite64(unsigned int fd, const char __user *buf,
->                       size_t count, loff_t pos)
->  {
-> @@ -707,6 +715,14 @@ SYSCALL_DEFINE4(pwrite64, unsigned int, fd, const char __user *, buf,
->         return ksys_pwrite64(fd, buf, count, pos);
->  }
->
-> +#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_PWRITE64)
-> +COMPAT_SYSCALL_DEFINE5(pwrite64, unsigned int, fd, const char __user *, buf,
-> +                      size_t, count, compat_arg_u64_dual(pos))
-> +{
-> +       return ksys_pwrite64(fd, buf, count, compat_arg_u64_glue(pos));
-> +}
-> +#endif
-> +
->  static ssize_t do_iter_readv_writev(struct file *filp, struct iov_iter *iter,
->                 loff_t *ppos, int type, rwf_t flags)
->  {
-> diff --git a/fs/sync.c b/fs/sync.c
-> index c7690016453e..dc725914e1ed 100644
-> --- a/fs/sync.c
-> +++ b/fs/sync.c
-> @@ -373,6 +373,15 @@ SYSCALL_DEFINE4(sync_file_range, int, fd, loff_t, offset, loff_t, nbytes,
->         return ksys_sync_file_range(fd, offset, nbytes, flags);
->  }
->
-> +#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_SYNC_FILE_RANGE)
-> +COMPAT_SYSCALL_DEFINE6(sync_file_range, int, fd, compat_arg_u64_dual(offset),
-> +                      compat_arg_u64_dual(nbytes), unsigned int, flags)
-> +{
-> +       return ksys_sync_file_range(fd, compat_arg_u64_glue(offset),
-> +                                   compat_arg_u64_glue(nbytes), flags);
-> +}
-> +#endif
-> +
->  /* It would be nice if people remember that not all the world's an i386
->     when they introduce new system calls */
->  SYSCALL_DEFINE4(sync_file_range2, int, fd, unsigned int, flags,
-> diff --git a/include/asm-generic/compat.h b/include/asm-generic/compat.h
-> index 11653d6846cc..d06308a2a7a8 100644
-> --- a/include/asm-generic/compat.h
-> +++ b/include/asm-generic/compat.h
-> @@ -14,6 +14,13 @@
->  #define COMPAT_OFF_T_MAX       0x7fffffff
->  #endif
->
-> +#if !defined(compat_arg_u64) && !defined(CONFIG_CPU_BIG_ENDIAN)
-> +#define compat_arg_u64(name)           u32  name##_lo, u32  name##_hi
-> +#define compat_arg_u64_dual(name)      u32, name##_lo, u32, name##_hi
-> +#define compat_arg_u64_glue(name)      (((u64)name##_lo & 0xffffffffUL) | \
-> +                                        ((u64)name##_hi << 32))
-> +#endif
-> +
->  /* These types are common across all compat ABIs */
->  typedef u32 compat_size_t;
->  typedef s32 compat_ssize_t;
-> diff --git a/include/linux/compat.h b/include/linux/compat.h
-> index a0481fe6c5d5..8779e283a1e9 100644
-> --- a/include/linux/compat.h
-> +++ b/include/linux/compat.h
-> @@ -926,6 +926,43 @@ asmlinkage long compat_sys_sigaction(int sig,
->  /* obsolete: net/socket.c */
->  asmlinkage long compat_sys_socketcall(int call, u32 __user *args);
->
-> +#ifdef __ARCH_WANT_COMPAT_TRUNCATE64
-> +asmlinkage long compat_sys_truncate64(const char __user *pathname, compat_arg_u64(len));
-> +#endif
-> +
-> +#ifdef __ARCH_WANT_COMPAT_FTRUNCATE64
-> +asmlinkage long compat_sys_ftruncate64(unsigned int fd, compat_arg_u64(len));
-> +#endif
-> +
-> +#ifdef __ARCH_WANT_COMPAT_FALLOCATE
-> +asmlinkage long compat_sys_fallocate(int fd, int mode, compat_arg_u64(offset),
-> +                                    compat_arg_u64(len));
-> +#endif
-> +
-> +#ifdef __ARCH_WANT_COMPAT_PREAD64
-> +asmlinkage long compat_sys_pread64(unsigned int fd, char __user *buf, size_t count,
-> +                                  compat_arg_u64(pos));
-> +#endif
-> +
-> +#ifdef __ARCH_WANT_COMPAT_PWRITE64
-> +asmlinkage long compat_sys_pwrite64(unsigned int fd, const char __user *buf, size_t count,
-> +                                   compat_arg_u64(pos));
-> +#endif
-> +
-> +#ifdef __ARCH_WANT_COMPAT_SYNC_FILE_RANGE
-> +asmlinkage long compat_sys_sync_file_range(int fd, compat_arg_u64(pos),
-> +                                          compat_arg_u64(nbytes), unsigned int flags);
-> +#endif
-> +
-> +#ifdef __ARCH_WANT_COMPAT_FADVISE64_64
-> +asmlinkage long compat_sys_fadvise64_64(int fd, int advice, compat_arg_u64(pos),
-> +                                       compat_arg_u64(len));
-This should be:
-+asmlinkage long compat_sys_fadvise64_64(int fd, compat_arg_u64(pos),
-+                                        compat_arg_u64(len), int advice);
+[...]
+> > +static void restart_write_vector(void)
+> > +{
+> > +       uint8_t *vec_reg;
+> > +       uint8_t *vec_reg_16_31 = &expected_vec_contents[16][0];
+> 
+> add a comment to explain that vlm only handles at most 16 registers
+> at
+> a time
 
-> +#endif
-> +
-> +#ifdef __ARCH_WANT_COMPAT_READAHEAD
-> +asmlinkage long compat_sys_readahead(int fd, compat_arg_u64(offset), size_t count);
-> +#endif
-> +
->  #endif /* CONFIG_ARCH_HAS_SYSCALL_WRAPPER */
->
->  /**
-> diff --git a/mm/fadvise.c b/mm/fadvise.c
-> index d6baa4f451c5..8950f7c05d20 100644
-> --- a/mm/fadvise.c
-> +++ b/mm/fadvise.c
-> @@ -215,5 +215,16 @@ SYSCALL_DEFINE4(fadvise64, int, fd, loff_t, offset, size_t, len, int, advice)
->         return ksys_fadvise64_64(fd, offset, len, advice);
->  }
->
-> +#endif
-> +
-> +#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_FADVISE64_64)
-> +
-> +COMPAT_SYSCALL_DEFINE6(fadvise64_64, int, fd, int, advice, compat_arg_u64_dual(offset),
-> +                      compat_arg_u64_dual(len))
-Ditto, this should be.
+OK will do.
 
-+COMPAT_SYSCALL_DEFINE6(fadvise64_64, int, fd, compat_arg_u64_dual(offset),
-+                      compat_arg_u64_dual(len), int, advice)
+> > +       int i;
+> > +
+> > +       for (i = 0; i < NUM_VEC_REGISTERS; i++) {
+> > +               vec_reg = &expected_vec_contents[i][0];
+> > +               memset(vec_reg, i, VEC_REGISTER_SIZE);
+> > +       }
+> 
+> this way vector register 0 stays 0.
+> either special case it (e.g. 16, or whatever), or put a magic value
+> somewhere in every register
 
-> +{
-> +       return ksys_fadvise64_64(fd, compat_arg_u64_glue(offset),
-> +                                compat_arg_u64_glue(len), advice);
-> +}
-> +
->  #endif
->  #endif
-> diff --git a/mm/readahead.c b/mm/readahead.c
-> index cf0dcf89eb69..9adf57044299 100644
-> --- a/mm/readahead.c
-> +++ b/mm/readahead.c
-> @@ -640,6 +640,13 @@ SYSCALL_DEFINE3(readahead, int, fd, loff_t, offset, size_t, count)
->         return ksys_readahead(fd, offset, count);
->  }
->
-> +#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_READAHEAD)
-> +COMPAT_SYSCALL_DEFINE4(readahead, int, fd, compat_arg_u64_dual(offset), size_t, count)
-> +{
-> +       return ksys_readahead(fd, compat_arg_u64_glue(offset), count);
-> +}
-> +#endif
-> +
->  /**
->   * readahead_expand - Expand a readahead request
->   * @ractl: The request to be expanded
-> --
-> 2.25.1
->
+adtl_status is initalized with 0xff. Are you OK with i + 1 so we avoid
+zero?
 
+[...]
+> > +static void test_store_adtl_status_vector(void)
+> > +{
+> > +       uint32_t status = -1;
+> > +       struct psw psw;
+> > +       int cc;
+> > +
+> > +       report_prefix_push("store additional status vector");
+> > +
+> > +       if (!test_facility(129)) {
+> > +               report_skip("vector facility not installed");
+> > +               goto out;
+> > +       }
+> > +
+> > +       cpu_write_magic_to_vector_regs(1);
+> > +       smp_cpu_stop(1);
+> > +
+> > +       memset(adtl_status, 0xff, sizeof(adtl_status));
+> > +
+> > +       cc = smp_sigp(1, SIGP_STORE_ADDITIONAL_STATUS,
+> > +                 (unsigned long)adtl_status, &status);
+> > +       report(!cc, "CC = 0");
+> > +
+> > +       report(!memcmp(adtl_status, expected_vec_contents,
+> > sizeof(expected_vec_contents)),
+> > +              "additional status contents match");
+> 
+> it would be interesting to check that nothing is stored past the end
+> of
+> the buffer.
 
--- 
-Best Regards
- Guo Ren
+I will add checks to ensure reserved fields are not modified.
 
-ML: https://lore.kernel.org/linux-csky/
+> moreover, I think you should also explicitly test with lc_10, to make
+> sure that works as well (no need to rerun the guest, just add another
+> sigp call)
+
+I will test vector with LC 0, 10, 11, 12 and guarded storage with LC 11
+and 12.
+
+[...]
+> > +static void restart_write_gs_regs(void)
+> > +{
+> > +       const unsigned long gs_area = 0x2000000;
+> > +       const unsigned long gsc = 25; /* align = 32 M, section size
+> > = 512K */
+> > +
+> > +       ctl_set_bit(2, CTL2_GUARDED_STORAGE);
+> > +
+> > +       gs_cb.gsd = gs_area | gsc;
+> > +       gs_cb.gssm = 0xfeedc0ffe;
+> > +       gs_cb.gs_epl_a = (uint64_t) &gs_epl;
+> > +
+> > +       load_gs_cb(&gs_cb);
+> > +
+> > +       set_flag(1);
+> > +
+> > +       ctl_clear_bit(2, CTL2_GUARDED_STORAGE);
+> 
+> what happens when the function returns? is r14 set up properly? (or
+> maybe we just don't care, since we are going to stop the CPU anyway?)
+
+We have an endless loop in smp_cpu_setup_state. So r14 will point there
+(verified with gdb).
+
+In the end, I think we don't care. This is in contrast to the vector
+test, where the epilogue will clean up the floating point regs.
+
+[...]
+> > +static void test_store_adtl_status_gs(void)
+> > +{
+> > +       const unsigned long adtl_status_lc_11 = 11;
+> > +       uint32_t status = 0;
+> > +       int cc;
+> > +
+> > +       report_prefix_push("store additional status guarded-
+> > storage");
+> > +
+> > +       if (!test_facility(133)) {
+> > +               report_skip("guarded-storage facility not
+> > installed");
+> > +               goto out;
+> > +       }
+> > +
+> > +       cpu_write_to_gs_regs(1);
+> > +       smp_cpu_stop(1);
+> > +
+> > +       memset(adtl_status, 0xff, sizeof(adtl_status));
+> > +
+> > +       cc = smp_sigp(1, SIGP_STORE_ADDITIONAL_STATUS,
+> > +                 (unsigned long)adtl_status | adtl_status_lc_11,
+> > &status);
+> > +       report(!cc, "CC = 0");
+> > +
+> > +       report(!memcmp(&adtl_status[0][1024], &gs_cb,
+> > sizeof(gs_cb)),
+> 
+> e.g. the 1024 is one of those "magic number" I mentioned above 
+
+OK, fixed.
+
+> 
+> > +              "additional status contents match");
+> 
+> it would be interesting to test that nothing is stored after the end
+> of
+> the buffer (i.e. everything is still 0xff in the second half of the
+> page)
+
+Yes, done.
+
+[...]
+> > 
+> > diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
+> > index 1600e714c8b9..2d0adc503917 100644
+> > --- a/s390x/unittests.cfg
+> > +++ b/s390x/unittests.cfg
+> > @@ -77,6 +77,12 @@ extra_params=-name kvm-unit-test --uuid
+> > 0fb84a86-727c-11ea-bc55-0242ac130003 -sm
+> >  [smp]
+> >  file = smp.elf
+> >  smp = 2
+> > +extra_params = -cpu host,gs=on,vx=on
+> > +
+> > +[smp-no-vec-no-gs]
+> > +file = smp.elf
+> > +smp = 2
+> > +extra_params = -cpu host,gs=off,vx=off
+> 
+> using "host" will break TCG
+> (and using "qemu" will break secure execution)
+> 
+> there are two possible solutions:
+> 
+> use "max" and deal with the warnings, or split each testcase in two,
+> one using host cpu and "accel = kvm" and the other with "accel = tcg"
+> and qemu cpu.
+
+Uh, thanks for pointing out. I will split in accel = tcg and accel =
+kvm.
+
+> what should happen if only one of the two features is installed?
+> should
+> the buffer for the unavailable feature be stored with 0 or should it
+> be
+> left untouched? is it worth testing those scenarios?
+
+The PoP specifies: "A facility’s registers are only
+stored in the MCESA when the facility is installed."
+
+Maybe I miss something, but it doesn't seem worth it. It would mean
+adding yet another instance to the unittests.cfg. Since once needs to
+provide the memory for the registers even when the facility isn't
+there, there seems little risk for breaking something when we store if
+the facility isn't there.
