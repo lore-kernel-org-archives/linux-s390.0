@@ -2,290 +2,340 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8BF02C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 23 Mar 2022 14:19:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 27F3DC433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 23 Mar 2022 15:47:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244696AbiCWOVR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 23 Mar 2022 10:21:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45170 "EHLO
+        id S230020AbiCWPtN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 23 Mar 2022 11:49:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244802AbiCWOVM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Mar 2022 10:21:12 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12A767C79B;
-        Wed, 23 Mar 2022 07:19:40 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22NCfmKx006820;
-        Wed, 23 Mar 2022 14:19:39 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=e9XJnMzlIjuTViPwa8QXuPGVzck1MXJXYNkUQTLUhZc=;
- b=akNjDXLGPS2XHBOAMDWneRWLyUJxIwMog1Wf/0PspWiO3ruJmaloKi7gl4/Q14Rn5TKr
- GDE62GyFAhHeVEKq+uVjH+CDSCOc1KR50rIuVNM0q2VIgtuWa/jbUOfhYfuluTEcAHKq
- CK5mcd3L6ZapDQCKx2hpTFQ8lA/u/L2Z77yNC3TmkuPD7XmaPB3U2VUtGl1SzymeCuBl
- twS1vV2KtAuF8/jBApOgKKFGY+4hHKl/F6xMylG7R2/YP/VztVXTAeIzLIoKbvYFWZaT
- ADu0Elj30FqHeeDqaXzVNxh3Cb9THCV9HHcA/5yTI7DIt4hUfA6Gkx0SynH/sRhtHX18 tw== 
+        with ESMTP id S229919AbiCWPtN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Mar 2022 11:49:13 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EBAA70F70;
+        Wed, 23 Mar 2022 08:47:43 -0700 (PDT)
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22NFg2EY021676;
+        Wed, 23 Mar 2022 15:47:42 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=UhzFUbcuGI/+y/LiaprpiH5BDe/vR4kN0Z184NRcGZk=;
+ b=f3mM6+E9oW+MpnWjI6F9bZFh5neAY2BbGEAaiRSL7LR7pNdo9ffpsS08kqByM/1vM9LA
+ ogMp6nU6OncqUU0NBBiHZxW6792zVUh3qS7cXWxnxcHNDWvCt971kOy50RLqIpm68Vc7
+ mSojNdiCTKnfjr2alwrhTd+S3WpvUIs4tlXHkKgABpmOKV0gkvs5M2KUuWBZ/qIn0YHo
+ Z03tN7Z6hqDO0aW8R2P9bu0iAFIXTkfTgzNrTmfhWYv/OcAvAzW3rY68BJ8SId0YCfIl
+ dD9YBxjoFP3uWwjC2rqs9QgHjcCJP9OuytFxNCH1iLq622XMLEs089k305tzF2SbLRjx gw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3f03sb2bbj-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3f06drg4gf-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Mar 2022 14:19:39 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22NE7X3G005593;
-        Wed, 23 Mar 2022 14:19:39 GMT
+        Wed, 23 Mar 2022 15:47:42 +0000
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22NFhnQG030012;
+        Wed, 23 Mar 2022 15:47:41 GMT
 Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3f03sb2bav-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3f06drg4fw-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Mar 2022 14:19:39 +0000
+        Wed, 23 Mar 2022 15:47:41 +0000
 Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22NEHPGR030008;
-        Wed, 23 Mar 2022 14:19:37 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3ew6t90r35-1
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22NFN6dj030104;
+        Wed, 23 Mar 2022 15:47:39 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma03ams.nl.ibm.com with ESMTP id 3ew6t90w9d-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Mar 2022 14:19:36 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22NEJXEX40173862
+        Wed, 23 Mar 2022 15:47:39 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22NFlaeN23986546
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 23 Mar 2022 14:19:33 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BB57D52050;
-        Wed, 23 Mar 2022 14:19:33 +0000 (GMT)
-Received: from li-ca45c2cc-336f-11b2-a85c-c6e71de567f1.ibm.com (unknown [9.171.5.47])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 6E8125204F;
-        Wed, 23 Mar 2022 14:19:33 +0000 (GMT)
-Message-ID: <1d1fa70ec01e7a3284d997dc05272fe144288fa0.camel@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v1 4/9] s390x: smp: add test for
- SIGP_STORE_ADTL_STATUS order
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+        Wed, 23 Mar 2022 15:47:36 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A7A68AE056;
+        Wed, 23 Mar 2022 15:47:36 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 469F1AE053;
+        Wed, 23 Mar 2022 15:47:36 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.145.2.232])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 23 Mar 2022 15:47:36 +0000 (GMT)
+Date:   Wed, 23 Mar 2022 16:47:33 +0100
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Nico Boehr <nrb@linux.ibm.com>
 Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
         frankja@linux.ibm.com, thuth@redhat.com, david@redhat.com,
         farman@linux.ibm.com
-Date:   Wed, 23 Mar 2022 15:19:33 +0100
-In-Reply-To: <20220321155900.77bd89d8@p-imbrenda>
+Subject: Re: [kvm-unit-tests PATCH v1 4/9] s390x: smp: add test for
+ SIGP_STORE_ADTL_STATUS order
+Message-ID: <20220323164733.4f36eb20@p-imbrenda>
+In-Reply-To: <1d1fa70ec01e7a3284d997dc05272fe144288fa0.camel@linux.ibm.com>
 References: <20220321101904.387640-1-nrb@linux.ibm.com>
-         <20220321101904.387640-5-nrb@linux.ibm.com>
-         <20220321155900.77bd89d8@p-imbrenda>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.42.4 (3.42.4-1.fc35) 
+        <20220321101904.387640-5-nrb@linux.ibm.com>
+        <20220321155900.77bd89d8@p-imbrenda>
+        <1d1fa70ec01e7a3284d997dc05272fe144288fa0.camel@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: axSXhAzJG3Mw9XDNXmQg9C7OtyonTYAj
-X-Proofpoint-ORIG-GUID: r4kvGlm-KQLPZMuecUSThv78_Nwp-0wb
+X-Proofpoint-GUID: vewUwdP4u_hlzwvZgzulUmYAvnzph37B
+X-Proofpoint-ORIG-GUID: EBdGWF8LemN-B66shHW4IYIuDBgEZp19
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-23_07,2022-03-22_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 phishscore=0
- impostorscore=0 malwarescore=0 clxscore=1015 mlxscore=0 adultscore=0
- suspectscore=0 lowpriorityscore=0 mlxlogscore=999 priorityscore=1501
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2203230081
+ definitions=2022-03-23_07,2022-03-23_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ priorityscore=1501 impostorscore=0 malwarescore=0 bulkscore=0
+ mlxlogscore=999 suspectscore=0 adultscore=0 spamscore=0 phishscore=0
+ mlxscore=0 lowpriorityscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2202240000 definitions=main-2203230084
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 2022-03-21 at 15:59 +0100, Claudio Imbrenda wrote:
-> On Mon, 21 Mar 2022 11:18:59 +0100
-> Nico Boehr <nrb@linux.ibm.com> wrote:
-> > diff --git a/s390x/smp.c b/s390x/smp.c
-> > index e5a16eb5a46a..5d3265f6be64 100644
-> > --- a/s390x/smp.c
-[...]
-> > +/*
-> > + * We keep two structs, one for comparing when we want to assert
-> > it's not
-> > + * touched.
-> > + */
-> > +static uint8_t adtl_status[2][4096]
-> > __attribute__((aligned(4096)));
-> 
-> it's a little bit ugly. maybe define a struct, with small buffers
-> inside
-> for the vector and gs areas? that way we would not need ugly magic
-> numbers below (see below)
+On Wed, 23 Mar 2022 15:19:33 +0100
+Nico Boehr <nrb@linux.ibm.com> wrote:
 
-OK, will do.
+> On Mon, 2022-03-21 at 15:59 +0100, Claudio Imbrenda wrote:
+> > On Mon, 21 Mar 2022 11:18:59 +0100
+> > Nico Boehr <nrb@linux.ibm.com> wrote: =20
+> > > diff --git a/s390x/smp.c b/s390x/smp.c
+> > > index e5a16eb5a46a..5d3265f6be64 100644
+> > > --- a/s390x/smp.c =20
+> [...]
+> > > +/*
+> > > + * We keep two structs, one for comparing when we want to assert
+> > > it's not
+> > > + * touched.
+> > > + */
+> > > +static uint8_t adtl_status[2][4096]
+> > > __attribute__((aligned(4096))); =20
+> >=20
+> > it's a little bit ugly. maybe define a struct, with small buffers
+> > inside
+> > for the vector and gs areas? that way we would not need ugly magic
+> > numbers below (see below) =20
+>=20
+> OK, will do.
+>=20
+> [...]
+> > > +static void restart_write_vector(void)
+> > > +{
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0uint8_t *vec_reg;
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0uint8_t *vec_reg_16_31 =3D=
+ &expected_vec_contents[16][0]; =20
+> >=20
+> > add a comment to explain that vlm only handles at most 16 registers
+> > at
+> > a time =20
+>=20
+> OK will do.
+>=20
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0int i;
+> > > +
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0for (i =3D 0; i < NUM_VEC_=
+REGISTERS; i++) {
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0vec_reg =3D &expected_vec_contents[i][0];
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0memset(vec_reg, i, VEC_REGISTER_SIZE);
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0} =20
+> >=20
+> > this way vector register 0 stays 0.
+> > either special case it (e.g. 16, or whatever), or put a magic value
+> > somewhere in every register =20
+>=20
+> adtl_status is initalized with 0xff. Are you OK with i + 1 so we avoid
+> zero?
 
-[...]
-> > +static void restart_write_vector(void)
-> > +{
-> > +       uint8_t *vec_reg;
-> > +       uint8_t *vec_reg_16_31 = &expected_vec_contents[16][0];
-> 
-> add a comment to explain that vlm only handles at most 16 registers
-> at
-> a time
+that is fine
 
-OK will do.
+>=20
+> [...]
+> > > +static void test_store_adtl_status_vector(void)
+> > > +{
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0uint32_t status =3D -1;
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0struct psw psw;
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0int cc;
+> > > +
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0report_prefix_push("store =
+additional status vector");
+> > > +
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (!test_facility(129)) {
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0report_skip("vector facility not installed");
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0goto out;
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0}
+> > > +
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0cpu_write_magic_to_vector_=
+regs(1);
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0smp_cpu_stop(1);
+> > > +
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0memset(adtl_status, 0xff, =
+sizeof(adtl_status));
+> > > +
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0cc =3D smp_sigp(1, SIGP_ST=
+ORE_ADDITIONAL_STATUS,
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 (unsigned long)adtl_status, &status);
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0report(!cc, "CC =3D 0");
+> > > +
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0report(!memcmp(adtl_status=
+, expected_vec_contents,
+> > > sizeof(expected_vec_contents)),
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0 "additional status contents match"); =20
+> >=20
+> > it would be interesting to check that nothing is stored past the end
+> > of
+> > the buffer. =20
+>=20
+> I will add checks to ensure reserved fields are not modified.
+>=20
+> > moreover, I think you should also explicitly test with lc_10, to make
+> > sure that works as well (no need to rerun the guest, just add another
+> > sigp call) =20
+>=20
+> I will test vector with LC 0, 10, 11, 12 and guarded storage with LC 11
+> and 12.
+>=20
+> [...]
+> > > +static void restart_write_gs_regs(void)
+> > > +{
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0const unsigned long gs_are=
+a =3D 0x2000000;
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0const unsigned long gsc =
+=3D 25; /* align =3D 32 M, section size
+> > > =3D 512K */
+> > > +
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0ctl_set_bit(2, CTL2_GUARDE=
+D_STORAGE);
+> > > +
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0gs_cb.gsd =3D gs_area | gs=
+c;
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0gs_cb.gssm =3D 0xfeedc0ffe;
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0gs_cb.gs_epl_a =3D (uint64=
+_t) &gs_epl;
+> > > +
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0load_gs_cb(&gs_cb);
+> > > +
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0set_flag(1);
+> > > +
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0ctl_clear_bit(2, CTL2_GUAR=
+DED_STORAGE); =20
+> >=20
+> > what happens when the function returns? is r14 set up properly? (or
+> > maybe we just don't care, since we are going to stop the CPU anyway?) =
+=20
+>=20
+> We have an endless loop in smp_cpu_setup_state.=C2=A0So r14 will point th=
+ere
+> (verified with gdb).
+>=20
+> In the end, I think we don't care. This is in contrast to the vector
+> test, where the epilogue will clean up the floating point regs.
 
-> > +       int i;
-> > +
-> > +       for (i = 0; i < NUM_VEC_REGISTERS; i++) {
-> > +               vec_reg = &expected_vec_contents[i][0];
-> > +               memset(vec_reg, i, VEC_REGISTER_SIZE);
-> > +       }
-> 
-> this way vector register 0 stays 0.
-> either special case it (e.g. 16, or whatever), or put a magic value
-> somewhere in every register
+then add a comment explaining that :)
 
-adtl_status is initalized with 0xff. Are you OK with i + 1 so we avoid
-zero?
+>=20
+> [...]
+> > > +static void test_store_adtl_status_gs(void)
+> > > +{
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0const unsigned long adtl_s=
+tatus_lc_11 =3D 11;
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0uint32_t status =3D 0;
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0int cc;
+> > > +
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0report_prefix_push("store =
+additional status guarded-
+> > > storage");
+> > > +
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (!test_facility(133)) {
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0report_skip("guarded-storage facility not
+> > > installed");
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0goto out;
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0}
+> > > +
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0cpu_write_to_gs_regs(1);
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0smp_cpu_stop(1);
+> > > +
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0memset(adtl_status, 0xff, =
+sizeof(adtl_status));
+> > > +
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0cc =3D smp_sigp(1, SIGP_ST=
+ORE_ADDITIONAL_STATUS,
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 (unsigned long)adtl_status | adtl_status_lc_=
+11,
+> > > &status);
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0report(!cc, "CC =3D 0");
+> > > +
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0report(!memcmp(&adtl_statu=
+s[0][1024], &gs_cb,
+> > > sizeof(gs_cb)), =20
+> >=20
+> > e.g. the 1024 is one of those "magic number" I mentioned above  =20
+>=20
+> OK, fixed.
+>=20
+> >  =20
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0 "additional status contents match"); =20
+> >=20
+> > it would be interesting to test that nothing is stored after the end
+> > of
+> > the buffer (i.e. everything is still 0xff in the second half of the
+> > page) =20
+>=20
+> Yes, done.
+>=20
+> [...]
+> > >=20
+> > > diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
+> > > index 1600e714c8b9..2d0adc503917 100644
+> > > --- a/s390x/unittests.cfg
+> > > +++ b/s390x/unittests.cfg
+> > > @@ -77,6 +77,12 @@ extra_params=3D-name kvm-unit-test --uuid
+> > > 0fb84a86-727c-11ea-bc55-0242ac130003 -sm
+> > > =C2=A0[smp]
+> > > =C2=A0file =3D smp.elf
+> > > =C2=A0smp =3D 2
+> > > +extra_params =3D -cpu host,gs=3Don,vx=3Don
+> > > +
+> > > +[smp-no-vec-no-gs]
+> > > +file =3D smp.elf
+> > > +smp =3D 2
+> > > +extra_params =3D -cpu host,gs=3Doff,vx=3Doff =20
+> >=20
+> > using "host" will break TCG
+> > (and using "qemu" will break secure execution)
+> >=20
+> > there are two possible solutions:
+> >=20
+> > use "max" and deal with the warnings, or split each testcase in two,
+> > one using host cpu and "accel =3D kvm" and the other with "accel =3D tc=
+g"
+> > and qemu cpu. =20
+>=20
+> Uh, thanks for pointing out. I will split in accel =3D tcg and accel =3D
+> kvm.
+>=20
+> > what should happen if only one of the two features is installed?
+> > should
+> > the buffer for the unavailable feature be stored with 0 or should it
+> > be
+> > left untouched? is it worth testing those scenarios? =20
+>=20
+> The PoP specifies: "A facility=E2=80=99s registers are only
+> stored in the MCESA when the facility is installed."
+>=20
+> Maybe I miss something, but it doesn't seem worth it. It would mean
+> adding yet another instance to the unittests.cfg. Since once needs to
+> provide the memory for the registers even when the facility isn't
+> there, there seems little risk for breaking something when we store if
+> the facility isn't there.
 
-[...]
-> > +static void test_store_adtl_status_vector(void)
-> > +{
-> > +       uint32_t status = -1;
-> > +       struct psw psw;
-> > +       int cc;
-> > +
-> > +       report_prefix_push("store additional status vector");
-> > +
-> > +       if (!test_facility(129)) {
-> > +               report_skip("vector facility not installed");
-> > +               goto out;
-> > +       }
-> > +
-> > +       cpu_write_magic_to_vector_regs(1);
-> > +       smp_cpu_stop(1);
-> > +
-> > +       memset(adtl_status, 0xff, sizeof(adtl_status));
-> > +
-> > +       cc = smp_sigp(1, SIGP_STORE_ADDITIONAL_STATUS,
-> > +                 (unsigned long)adtl_status, &status);
-> > +       report(!cc, "CC = 0");
-> > +
-> > +       report(!memcmp(adtl_status, expected_vec_contents,
-> > sizeof(expected_vec_contents)),
-> > +              "additional status contents match");
-> 
-> it would be interesting to check that nothing is stored past the end
-> of
-> the buffer.
-
-I will add checks to ensure reserved fields are not modified.
-
-> moreover, I think you should also explicitly test with lc_10, to make
-> sure that works as well (no need to rerun the guest, just add another
-> sigp call)
-
-I will test vector with LC 0, 10, 11, 12 and guarded storage with LC 11
-and 12.
-
-[...]
-> > +static void restart_write_gs_regs(void)
-> > +{
-> > +       const unsigned long gs_area = 0x2000000;
-> > +       const unsigned long gsc = 25; /* align = 32 M, section size
-> > = 512K */
-> > +
-> > +       ctl_set_bit(2, CTL2_GUARDED_STORAGE);
-> > +
-> > +       gs_cb.gsd = gs_area | gsc;
-> > +       gs_cb.gssm = 0xfeedc0ffe;
-> > +       gs_cb.gs_epl_a = (uint64_t) &gs_epl;
-> > +
-> > +       load_gs_cb(&gs_cb);
-> > +
-> > +       set_flag(1);
-> > +
-> > +       ctl_clear_bit(2, CTL2_GUARDED_STORAGE);
-> 
-> what happens when the function returns? is r14 set up properly? (or
-> maybe we just don't care, since we are going to stop the CPU anyway?)
-
-We have an endless loop in smp_cpu_setup_state. So r14 will point there
-(verified with gdb).
-
-In the end, I think we don't care. This is in contrast to the vector
-test, where the epilogue will clean up the floating point regs.
-
-[...]
-> > +static void test_store_adtl_status_gs(void)
-> > +{
-> > +       const unsigned long adtl_status_lc_11 = 11;
-> > +       uint32_t status = 0;
-> > +       int cc;
-> > +
-> > +       report_prefix_push("store additional status guarded-
-> > storage");
-> > +
-> > +       if (!test_facility(133)) {
-> > +               report_skip("guarded-storage facility not
-> > installed");
-> > +               goto out;
-> > +       }
-> > +
-> > +       cpu_write_to_gs_regs(1);
-> > +       smp_cpu_stop(1);
-> > +
-> > +       memset(adtl_status, 0xff, sizeof(adtl_status));
-> > +
-> > +       cc = smp_sigp(1, SIGP_STORE_ADDITIONAL_STATUS,
-> > +                 (unsigned long)adtl_status | adtl_status_lc_11,
-> > &status);
-> > +       report(!cc, "CC = 0");
-> > +
-> > +       report(!memcmp(&adtl_status[0][1024], &gs_cb,
-> > sizeof(gs_cb)),
-> 
-> e.g. the 1024 is one of those "magic number" I mentioned above 
-
-OK, fixed.
-
-> 
-> > +              "additional status contents match");
-> 
-> it would be interesting to test that nothing is stored after the end
-> of
-> the buffer (i.e. everything is still 0xff in the second half of the
-> page)
-
-Yes, done.
-
-[...]
-> > 
-> > diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-> > index 1600e714c8b9..2d0adc503917 100644
-> > --- a/s390x/unittests.cfg
-> > +++ b/s390x/unittests.cfg
-> > @@ -77,6 +77,12 @@ extra_params=-name kvm-unit-test --uuid
-> > 0fb84a86-727c-11ea-bc55-0242ac130003 -sm
-> >  [smp]
-> >  file = smp.elf
-> >  smp = 2
-> > +extra_params = -cpu host,gs=on,vx=on
-> > +
-> > +[smp-no-vec-no-gs]
-> > +file = smp.elf
-> > +smp = 2
-> > +extra_params = -cpu host,gs=off,vx=off
-> 
-> using "host" will break TCG
-> (and using "qemu" will break secure execution)
-> 
-> there are two possible solutions:
-> 
-> use "max" and deal with the warnings, or split each testcase in two,
-> one using host cpu and "accel = kvm" and the other with "accel = tcg"
-> and qemu cpu.
-
-Uh, thanks for pointing out. I will split in accel = tcg and accel =
-kvm.
-
-> what should happen if only one of the two features is installed?
-> should
-> the buffer for the unavailable feature be stored with 0 or should it
-> be
-> left untouched? is it worth testing those scenarios?
-
-The PoP specifies: "A facility’s registers are only
-stored in the MCESA when the facility is installed."
-
-Maybe I miss something, but it doesn't seem worth it. It would mean
-adding yet another instance to the unittests.cfg. Since once needs to
-provide the memory for the registers even when the facility isn't
-there, there seems little risk for breaking something when we store if
-the facility isn't there.
+I mean, technically we should check that nothing is stored for
+facilities that are not present, but I guess it's not worth it=20
+and that would indeed double the number of entries in unittests.cfg
