@@ -2,364 +2,429 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 704BEC433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 23 Mar 2022 10:07:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A333FC43219
+	for <linux-s390@archiver.kernel.org>; Wed, 23 Mar 2022 13:40:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234669AbiCWKJJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 23 Mar 2022 06:09:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40394 "EHLO
+        id S244386AbiCWNmC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 23 Mar 2022 09:42:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232414AbiCWKJH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Mar 2022 06:09:07 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F4307665A;
-        Wed, 23 Mar 2022 03:07:37 -0700 (PDT)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22N8h7r6026346;
-        Wed, 23 Mar 2022 10:07:36 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=GUf6CvudXkJOuNi8sUPB3T5yKZwqLwO5Khik7jSBxP0=;
- b=aCNFrynjZAaqGBaNZ7xqqW/X4GXfftYTiHjCCUjh/LT+O3w52l2u9rGSJ2TvbMX+OTeh
- 7waEY8VbVsydIKzOXsnjoAuc5DGSQONVx/Da5360wTb+bV0WqoOQLclTJdXoFmU8YWuC
- we3qwdKRE2ZLNi6y0ipBwU+zKw2a0vgVjgLZlN86xQ93a4Wr86YXW9ffKLExEWvjYsgF
- Oag8KThAxL2+i+lXIfI/sC5BB8YcwU/9gSuQZokVVK97kkM2QmKWpcd0XyFHXbduw+9p
- 4yqm9kC/kS3zePjIqx3RLMB0ytvUPFhGR5NrtmtmIhqTVFKPYXp0dtQcm5YeNKgiSxpG GQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3eyvx05eyc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Mar 2022 10:07:36 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22NA6Fex004788;
-        Wed, 23 Mar 2022 10:07:36 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3eyvx05exs-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Mar 2022 10:07:36 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22NA2wrK018748;
-        Wed, 23 Mar 2022 10:07:34 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 3ew6ej0a39-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Mar 2022 10:07:34 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22NA7YQi32244002
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 23 Mar 2022 10:07:34 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F10E852051;
-        Wed, 23 Mar 2022 10:07:30 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.145.2.232])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 990A452052;
-        Wed, 23 Mar 2022 10:07:30 +0000 (GMT)
-Date:   Wed, 23 Mar 2022 11:07:28 +0100
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>
-Cc:     Steffen Eiden <seiden@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [kvm-unit-tests PATCH v3 5/5] s390x: uv-guest: Add attestation
- tests
-Message-ID: <20220323110728.355735ab@p-imbrenda>
-In-Reply-To: <4396b134-969e-a2f2-2347-cfe5d33925d5@linux.ibm.com>
-References: <20220222145456.9956-1-seiden@linux.ibm.com>
-        <20220222145456.9956-6-seiden@linux.ibm.com>
-        <4396b134-969e-a2f2-2347-cfe5d33925d5@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        with ESMTP id S236660AbiCWNmB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Mar 2022 09:42:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34F4174849;
+        Wed, 23 Mar 2022 06:40:30 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A061BB81F53;
+        Wed, 23 Mar 2022 13:40:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B68BC340F3;
+        Wed, 23 Mar 2022 13:40:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1648042827;
+        bh=tfAJdIq2+RYdVHZ38GzSMwiGmA3mYSLGoPCsYK/Ay0o=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=uURvrSQYWoBDbOJ1HJhmy4zq35Wx1u92YfhAJjselJu+G8KZl4y/4epaPOKQFhp86
+         e8VZNnOBbO/ktj6k+JKr407It53apzOQA52t2ZaWuP2k6XTZ52oSFeFqKqdKrBnI79
+         e+h+GlWqbJCvNW/dJFFTun/pfdlihLnlSfevvfRe8Od2DiA5PPC58S/Sw2CT7LaGgx
+         vRPmWwBDcfmb6lBwS6yGFY5dtq/AtP+pJPVEtbuDPfgiy7V7e/BvAXEOBbDuxjBTSy
+         WeSKZsuamgmFXT84rsRMyZYU/5UL1M8XpQPabdxZhi+QVjhbD0odc//B58wz5CV33+
+         tsFxE8jN2V55Q==
+Received: by mail-vk1-f172.google.com with SMTP id m84so849605vke.1;
+        Wed, 23 Mar 2022 06:40:27 -0700 (PDT)
+X-Gm-Message-State: AOAM531XDgSrObUaMkqOe7bmQgfDa6GHUkn9strsPvCtMBpugmNVhdRk
+        8OqqiBavGsRt+Km5ciAOc5+MaQVHQKLxitzdItc=
+X-Google-Smtp-Source: ABdhPJwacFP88rQle1BS8Fl0WkwH/yl7QzXYYyv8GMnk2rx9FSXhwtYXtlbmIrv2UbeMrdZOjlC8mGra51uCgccxAVo=
+X-Received: by 2002:a05:6122:c85:b0:33f:ab27:5f5d with SMTP id
+ ba5-20020a0561220c8500b0033fab275f5dmr626464vkb.2.1648042826087; Wed, 23 Mar
+ 2022 06:40:26 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: p0orVVVA0-kIdT-3wgRFTSirKuDPwN5F
-X-Proofpoint-GUID: y74SqcD39_Oah4biG_njSaKdEiSSHrY-
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-23_05,2022-03-22_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
- priorityscore=1501 spamscore=0 malwarescore=0 adultscore=0 phishscore=0
- suspectscore=0 lowpriorityscore=0 bulkscore=0 mlxlogscore=999
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2203230059
+References: <20220322144003.2357128-1-guoren@kernel.org> <20220322144003.2357128-12-guoren@kernel.org>
+In-Reply-To: <20220322144003.2357128-12-guoren@kernel.org>
+From:   Guo Ren <guoren@kernel.org>
+Date:   Wed, 23 Mar 2022 21:40:14 +0800
+X-Gmail-Original-Message-ID: <CAJF2gTQnnEDbXCe142tbVzNENS+HTRDNkKy5qDzNMOdTdoDBJg@mail.gmail.com>
+Message-ID: <CAJF2gTQnnEDbXCe142tbVzNENS+HTRDNkKy5qDzNMOdTdoDBJg@mail.gmail.com>
+Subject: Re: [PATCH V9 11/20] riscv: compat: syscall: Add compat_sys_call_table
+ implementation
+To:     Palmer Dabbelt <palmer@dabbelt.com>, Arnd Bergmann <arnd@arndb.de>,
+        Christoph Hellwig <hch@lst.de>
+Cc:     linux-arch <linux-arch@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-csky@vger.kernel.org,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Parisc List <linux-parisc@vger.kernel.org>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>,
+        Guo Ren <guoren@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 23 Mar 2022 09:39:27 +0100
-Janosch Frank <frankja@linux.ibm.com> wrote:
+Hi Palmer & Arnd,
 
-> On 2/22/22 15:54, Steffen Eiden wrote:
-> > Adds several tests to verify correct error paths of attestation.
-> > 
-> > Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>  
-> 
-> I think this test deserves its own file: pv-attest.c
+Fixup fadvise64_64 arguments problem.
 
-sounds like a good idea
+On Tue, Mar 22, 2022 at 10:41 PM <guoren@kernel.org> wrote:
+>
+> From: Guo Ren <guoren@linux.alibaba.com>
+>
+> Implement compat sys_call_table and some system call functions:
+> truncate64, ftruncate64, fallocate, pread64, pwrite64,
+> sync_file_range, readahead, fadvise64_64 which need argument
+> translation.
+>
+> Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+> Signed-off-by: Guo Ren <guoren@kernel.org>
+> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+> Tested-by: Heiko Stuebner <heiko@sntech.de>
+> Cc: Palmer Dabbelt <palmer@dabbelt.com>
+> ---
+>  arch/riscv/include/asm/syscall.h         |  1 +
+>  arch/riscv/include/asm/unistd.h          | 11 +++++++
+>  arch/riscv/include/uapi/asm/unistd.h     |  2 +-
+>  arch/riscv/kernel/Makefile               |  1 +
+>  arch/riscv/kernel/compat_syscall_table.c | 19 ++++++++++++
+>  arch/riscv/kernel/sys_riscv.c            |  6 ++--
+>  fs/open.c                                | 24 +++++++++++++++
+>  fs/read_write.c                          | 16 ++++++++++
+>  fs/sync.c                                |  9 ++++++
+>  include/asm-generic/compat.h             |  7 +++++
+>  include/linux/compat.h                   | 37 ++++++++++++++++++++++++
+>  mm/fadvise.c                             | 11 +++++++
+>  mm/readahead.c                           |  7 +++++
+>  13 files changed, 148 insertions(+), 3 deletions(-)
+>  create mode 100644 arch/riscv/kernel/compat_syscall_table.c
+>
+> diff --git a/arch/riscv/include/asm/syscall.h b/arch/riscv/include/asm/syscall.h
+> index 7ac6a0e275f2..384a63b86420 100644
+> --- a/arch/riscv/include/asm/syscall.h
+> +++ b/arch/riscv/include/asm/syscall.h
+> @@ -16,6 +16,7 @@
+>
+>  /* The array of function pointers for syscalls. */
+>  extern void * const sys_call_table[];
+> +extern void * const compat_sys_call_table[];
+>
+>  /*
+>   * Only the low 32 bits of orig_r0 are meaningful, so we return int.
+> diff --git a/arch/riscv/include/asm/unistd.h b/arch/riscv/include/asm/unistd.h
+> index 6c316093a1e5..5ddac412b578 100644
+> --- a/arch/riscv/include/asm/unistd.h
+> +++ b/arch/riscv/include/asm/unistd.h
+> @@ -11,6 +11,17 @@
+>  #define __ARCH_WANT_SYS_CLONE
+>  #define __ARCH_WANT_MEMFD_SECRET
+>
+> +#ifdef CONFIG_COMPAT
+> +#define __ARCH_WANT_COMPAT_TRUNCATE64
+> +#define __ARCH_WANT_COMPAT_FTRUNCATE64
+> +#define __ARCH_WANT_COMPAT_FALLOCATE
+> +#define __ARCH_WANT_COMPAT_PREAD64
+> +#define __ARCH_WANT_COMPAT_PWRITE64
+> +#define __ARCH_WANT_COMPAT_SYNC_FILE_RANGE
+> +#define __ARCH_WANT_COMPAT_READAHEAD
+> +#define __ARCH_WANT_COMPAT_FADVISE64_64
+> +#endif
+> +
+>  #include <uapi/asm/unistd.h>
+>
+>  #define NR_syscalls (__NR_syscalls)
+> diff --git a/arch/riscv/include/uapi/asm/unistd.h b/arch/riscv/include/uapi/asm/unistd.h
+> index 8062996c2dfd..c9e50eed14aa 100644
+> --- a/arch/riscv/include/uapi/asm/unistd.h
+> +++ b/arch/riscv/include/uapi/asm/unistd.h
+> @@ -15,7 +15,7 @@
+>   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+>   */
+>
+> -#ifdef __LP64__
+> +#if defined(__LP64__) && !defined(__SYSCALL_COMPAT)
+>  #define __ARCH_WANT_NEW_STAT
+>  #define __ARCH_WANT_SET_GET_RLIMIT
+>  #endif /* __LP64__ */
+> diff --git a/arch/riscv/kernel/Makefile b/arch/riscv/kernel/Makefile
+> index ffc87e76b1dd..3b3e425aadd2 100644
+> --- a/arch/riscv/kernel/Makefile
+> +++ b/arch/riscv/kernel/Makefile
+> @@ -68,3 +68,4 @@ obj-$(CONFIG_CRASH_DUMP)      += crash_dump.o
+>  obj-$(CONFIG_JUMP_LABEL)       += jump_label.o
+>
+>  obj-$(CONFIG_EFI)              += efi.o
+> +obj-$(CONFIG_COMPAT)           += compat_syscall_table.o
+> diff --git a/arch/riscv/kernel/compat_syscall_table.c b/arch/riscv/kernel/compat_syscall_table.c
+> new file mode 100644
+> index 000000000000..651f2b009c28
+> --- /dev/null
+> +++ b/arch/riscv/kernel/compat_syscall_table.c
+> @@ -0,0 +1,19 @@
+> +// SPDX-License-Identifier: GPL-2.0-only
+> +
+> +#define __SYSCALL_COMPAT
+> +
+> +#include <linux/compat.h>
+> +#include <linux/syscalls.h>
+> +#include <asm-generic/mman-common.h>
+> +#include <asm-generic/syscalls.h>
+> +#include <asm/syscall.h>
+> +
+> +#undef __SYSCALL
+> +#define __SYSCALL(nr, call)      [nr] = (call),
+> +
+> +asmlinkage long compat_sys_rt_sigreturn(void);
+> +
+> +void * const compat_sys_call_table[__NR_syscalls] = {
+> +       [0 ... __NR_syscalls - 1] = sys_ni_syscall,
+> +#include <asm/unistd.h>
+> +};
+> diff --git a/arch/riscv/kernel/sys_riscv.c b/arch/riscv/kernel/sys_riscv.c
+> index 12f8a7fce78b..9c0194f176fc 100644
+> --- a/arch/riscv/kernel/sys_riscv.c
+> +++ b/arch/riscv/kernel/sys_riscv.c
+> @@ -33,7 +33,9 @@ SYSCALL_DEFINE6(mmap, unsigned long, addr, unsigned long, len,
+>  {
+>         return riscv_sys_mmap(addr, len, prot, flags, fd, offset, 0);
+>  }
+> -#else
+> +#endif
+> +
+> +#if defined(CONFIG_32BIT) || defined(CONFIG_COMPAT)
+>  SYSCALL_DEFINE6(mmap2, unsigned long, addr, unsigned long, len,
+>         unsigned long, prot, unsigned long, flags,
+>         unsigned long, fd, off_t, offset)
+> @@ -44,7 +46,7 @@ SYSCALL_DEFINE6(mmap2, unsigned long, addr, unsigned long, len,
+>          */
+>         return riscv_sys_mmap(addr, len, prot, flags, fd, offset, 12);
+>  }
+> -#endif /* !CONFIG_64BIT */
+> +#endif
+>
+>  /*
+>   * Allows the instruction cache to be flushed from userspace.  Despite RISC-V
+> diff --git a/fs/open.c b/fs/open.c
+> index 9ff2f621b760..b25613f7c0a7 100644
+> --- a/fs/open.c
+> +++ b/fs/open.c
+> @@ -224,6 +224,21 @@ SYSCALL_DEFINE2(ftruncate64, unsigned int, fd, loff_t, length)
+>  }
+>  #endif /* BITS_PER_LONG == 32 */
+>
+> +#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_TRUNCATE64)
+> +COMPAT_SYSCALL_DEFINE3(truncate64, const char __user *, pathname,
+> +                      compat_arg_u64_dual(length))
+> +{
+> +       return ksys_truncate(pathname, compat_arg_u64_glue(length));
+> +}
+> +#endif
+> +
+> +#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_FTRUNCATE64)
+> +COMPAT_SYSCALL_DEFINE3(ftruncate64, unsigned int, fd,
+> +                      compat_arg_u64_dual(length))
+> +{
+> +       return ksys_ftruncate(fd, compat_arg_u64_glue(length));
+> +}
+> +#endif
+>
+>  int vfs_fallocate(struct file *file, int mode, loff_t offset, loff_t len)
+>  {
+> @@ -339,6 +354,15 @@ SYSCALL_DEFINE4(fallocate, int, fd, int, mode, loff_t, offset, loff_t, len)
+>         return ksys_fallocate(fd, mode, offset, len);
+>  }
+>
+> +#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_FALLOCATE)
+> +COMPAT_SYSCALL_DEFINE6(fallocate, int, fd, int, mode, compat_arg_u64_dual(offset),
+> +                      compat_arg_u64_dual(len))
+> +{
+> +       return ksys_fallocate(fd, mode, compat_arg_u64_glue(offset),
+> +                             compat_arg_u64_glue(len));
+> +}
+> +#endif
+> +
+>  /*
+>   * access() needs to use the real uid/gid, not the effective uid/gid.
+>   * We do this by temporarily clearing all FS-related capabilities and
+> diff --git a/fs/read_write.c b/fs/read_write.c
+> index 0074afa7ecb3..548657c462e8 100644
+> --- a/fs/read_write.c
+> +++ b/fs/read_write.c
+> @@ -681,6 +681,14 @@ SYSCALL_DEFINE4(pread64, unsigned int, fd, char __user *, buf,
+>         return ksys_pread64(fd, buf, count, pos);
+>  }
+>
+> +#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_PREAD64)
+> +COMPAT_SYSCALL_DEFINE5(pread64, unsigned int, fd, char __user *, buf,
+> +                      size_t, count, compat_arg_u64_dual(pos))
+> +{
+> +       return ksys_pread64(fd, buf, count, compat_arg_u64_glue(pos));
+> +}
+> +#endif
+> +
+>  ssize_t ksys_pwrite64(unsigned int fd, const char __user *buf,
+>                       size_t count, loff_t pos)
+>  {
+> @@ -707,6 +715,14 @@ SYSCALL_DEFINE4(pwrite64, unsigned int, fd, const char __user *, buf,
+>         return ksys_pwrite64(fd, buf, count, pos);
+>  }
+>
+> +#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_PWRITE64)
+> +COMPAT_SYSCALL_DEFINE5(pwrite64, unsigned int, fd, const char __user *, buf,
+> +                      size_t, count, compat_arg_u64_dual(pos))
+> +{
+> +       return ksys_pwrite64(fd, buf, count, compat_arg_u64_glue(pos));
+> +}
+> +#endif
+> +
+>  static ssize_t do_iter_readv_writev(struct file *filp, struct iov_iter *iter,
+>                 loff_t *ppos, int type, rwf_t flags)
+>  {
+> diff --git a/fs/sync.c b/fs/sync.c
+> index c7690016453e..dc725914e1ed 100644
+> --- a/fs/sync.c
+> +++ b/fs/sync.c
+> @@ -373,6 +373,15 @@ SYSCALL_DEFINE4(sync_file_range, int, fd, loff_t, offset, loff_t, nbytes,
+>         return ksys_sync_file_range(fd, offset, nbytes, flags);
+>  }
+>
+> +#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_SYNC_FILE_RANGE)
+> +COMPAT_SYSCALL_DEFINE6(sync_file_range, int, fd, compat_arg_u64_dual(offset),
+> +                      compat_arg_u64_dual(nbytes), unsigned int, flags)
+> +{
+> +       return ksys_sync_file_range(fd, compat_arg_u64_glue(offset),
+> +                                   compat_arg_u64_glue(nbytes), flags);
+> +}
+> +#endif
+> +
+>  /* It would be nice if people remember that not all the world's an i386
+>     when they introduce new system calls */
+>  SYSCALL_DEFINE4(sync_file_range2, int, fd, unsigned int, flags,
+> diff --git a/include/asm-generic/compat.h b/include/asm-generic/compat.h
+> index 11653d6846cc..d06308a2a7a8 100644
+> --- a/include/asm-generic/compat.h
+> +++ b/include/asm-generic/compat.h
+> @@ -14,6 +14,13 @@
+>  #define COMPAT_OFF_T_MAX       0x7fffffff
+>  #endif
+>
+> +#if !defined(compat_arg_u64) && !defined(CONFIG_CPU_BIG_ENDIAN)
+> +#define compat_arg_u64(name)           u32  name##_lo, u32  name##_hi
+> +#define compat_arg_u64_dual(name)      u32, name##_lo, u32, name##_hi
+> +#define compat_arg_u64_glue(name)      (((u64)name##_lo & 0xffffffffUL) | \
+> +                                        ((u64)name##_hi << 32))
+> +#endif
+> +
+>  /* These types are common across all compat ABIs */
+>  typedef u32 compat_size_t;
+>  typedef s32 compat_ssize_t;
+> diff --git a/include/linux/compat.h b/include/linux/compat.h
+> index a0481fe6c5d5..8779e283a1e9 100644
+> --- a/include/linux/compat.h
+> +++ b/include/linux/compat.h
+> @@ -926,6 +926,43 @@ asmlinkage long compat_sys_sigaction(int sig,
+>  /* obsolete: net/socket.c */
+>  asmlinkage long compat_sys_socketcall(int call, u32 __user *args);
+>
+> +#ifdef __ARCH_WANT_COMPAT_TRUNCATE64
+> +asmlinkage long compat_sys_truncate64(const char __user *pathname, compat_arg_u64(len));
+> +#endif
+> +
+> +#ifdef __ARCH_WANT_COMPAT_FTRUNCATE64
+> +asmlinkage long compat_sys_ftruncate64(unsigned int fd, compat_arg_u64(len));
+> +#endif
+> +
+> +#ifdef __ARCH_WANT_COMPAT_FALLOCATE
+> +asmlinkage long compat_sys_fallocate(int fd, int mode, compat_arg_u64(offset),
+> +                                    compat_arg_u64(len));
+> +#endif
+> +
+> +#ifdef __ARCH_WANT_COMPAT_PREAD64
+> +asmlinkage long compat_sys_pread64(unsigned int fd, char __user *buf, size_t count,
+> +                                  compat_arg_u64(pos));
+> +#endif
+> +
+> +#ifdef __ARCH_WANT_COMPAT_PWRITE64
+> +asmlinkage long compat_sys_pwrite64(unsigned int fd, const char __user *buf, size_t count,
+> +                                   compat_arg_u64(pos));
+> +#endif
+> +
+> +#ifdef __ARCH_WANT_COMPAT_SYNC_FILE_RANGE
+> +asmlinkage long compat_sys_sync_file_range(int fd, compat_arg_u64(pos),
+> +                                          compat_arg_u64(nbytes), unsigned int flags);
+> +#endif
+> +
+> +#ifdef __ARCH_WANT_COMPAT_FADVISE64_64
+> +asmlinkage long compat_sys_fadvise64_64(int fd, int advice, compat_arg_u64(pos),
+> +                                       compat_arg_u64(len));
+This should be:
++asmlinkage long compat_sys_fadvise64_64(int fd, compat_arg_u64(pos),
++                                        compat_arg_u64(len), int advice);
 
-> 
-> But I'd leave the priv check in uv-guest.c.
-> @Claudio: Any opinion about having all priv checks here and doing the 
-> actual execution tests in pv-*.c files?
+> +#endif
+> +
+> +#ifdef __ARCH_WANT_COMPAT_READAHEAD
+> +asmlinkage long compat_sys_readahead(int fd, compat_arg_u64(offset), size_t count);
+> +#endif
+> +
+>  #endif /* CONFIG_ARCH_HAS_SYSCALL_WRAPPER */
+>
+>  /**
+> diff --git a/mm/fadvise.c b/mm/fadvise.c
+> index d6baa4f451c5..8950f7c05d20 100644
+> --- a/mm/fadvise.c
+> +++ b/mm/fadvise.c
+> @@ -215,5 +215,16 @@ SYSCALL_DEFINE4(fadvise64, int, fd, loff_t, offset, size_t, len, int, advice)
+>         return ksys_fadvise64_64(fd, offset, len, advice);
+>  }
+>
+> +#endif
+> +
+> +#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_FADVISE64_64)
+> +
+> +COMPAT_SYSCALL_DEFINE6(fadvise64_64, int, fd, int, advice, compat_arg_u64_dual(offset),
+> +                      compat_arg_u64_dual(len))
+Ditto, this should be.
 
-fine for me
++COMPAT_SYSCALL_DEFINE6(fadvise64_64, int, fd, compat_arg_u64_dual(offset),
++                      compat_arg_u64_dual(len), int, advice)
 
-maybe put a comment in pv-attest.c to explain that the priv check is
-covered somewhere else already
+> +{
+> +       return ksys_fadvise64_64(fd, compat_arg_u64_glue(offset),
+> +                                compat_arg_u64_glue(len), advice);
+> +}
+> +
+>  #endif
+>  #endif
+> diff --git a/mm/readahead.c b/mm/readahead.c
+> index cf0dcf89eb69..9adf57044299 100644
+> --- a/mm/readahead.c
+> +++ b/mm/readahead.c
+> @@ -640,6 +640,13 @@ SYSCALL_DEFINE3(readahead, int, fd, loff_t, offset, size_t, count)
+>         return ksys_readahead(fd, offset, count);
+>  }
+>
+> +#if defined(CONFIG_COMPAT) && defined(__ARCH_WANT_COMPAT_READAHEAD)
+> +COMPAT_SYSCALL_DEFINE4(readahead, int, fd, compat_arg_u64_dual(offset), size_t, count)
+> +{
+> +       return ksys_readahead(fd, compat_arg_u64_glue(offset), count);
+> +}
+> +#endif
+> +
+>  /**
+>   * readahead_expand - Expand a readahead request
+>   * @ractl: The request to be expanded
+> --
+> 2.25.1
+>
 
-> 
-> > ---
-> >   lib/s390x/asm/uv.h |   5 +-
-> >   s390x/uv-guest.c   | 193 ++++++++++++++++++++++++++++++++++++++++++++-
-> >   2 files changed, 196 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/lib/s390x/asm/uv.h b/lib/s390x/asm/uv.h
-> > index c330c0f8..e5f7aa72 100644
-> > --- a/lib/s390x/asm/uv.h
-> > +++ b/lib/s390x/asm/uv.h
-> > @@ -108,7 +108,10 @@ struct uv_cb_qui {
-> >   	u8  reserved88[158 - 136];	/* 0x0088 */
-> >   	uint16_t max_guest_cpus;	/* 0x009e */
-> >   	u64 uv_feature_indications;	/* 0x00a0 */
-> > -	u8  reserveda8[200 - 168];	/* 0x00a8 */
-> > +	uint8_t  reserveda8[224 - 168];	/* 0x00a8 */
-> > +	uint64_t supp_att_hdr_ver;	/* 0x00e0 */
-> > +	uint64_t supp_paf;		/* 0x00e8 */
-> > +	uint8_t  reservedf0[256 - 240];	/* 0x00f0 */
-> >   }  __attribute__((packed))  __attribute__((aligned(8)));
-> >   
-> >   struct uv_cb_cgc {
-> > diff --git a/s390x/uv-guest.c b/s390x/uv-guest.c
-> > index 77057bd2..77edbba2 100644
-> > --- a/s390x/uv-guest.c
-> > +++ b/s390x/uv-guest.c
-> > @@ -2,10 +2,11 @@
-> >   /*
-> >    * Guest Ultravisor Call tests
-> >    *
-> > - * Copyright (c) 2020 IBM Corp
-> > + * Copyright IBM Corp. 2020, 2022
-> >    *
-> >    * Authors:
-> >    *  Janosch Frank <frankja@linux.ibm.com>
-> > + *  Steffen Eiden <seiden@linux.ibm.com>
-> >    */
-> >   
-> >   #include <libcflat.h>
-> > @@ -53,6 +54,15 @@ static void test_priv(void)
-> >   	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
-> >   	report_prefix_pop();
-> >   
-> > +	report_prefix_push("attest");
-> > +	uvcb.cmd = UVC_CMD_ATTESTATION;
-> > +	uvcb.len = sizeof(struct uv_cb_attest);
-> > +	expect_pgm_int();
-> > +	enter_pstate();
-> > +	uv_call_once(0, (uint64_t)&uvcb);
-> > +	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
-> > +	report_prefix_pop();
-> > +
-> >   	report_prefix_pop();
-> >   }
-> >   
-> > @@ -111,7 +121,187 @@ static void test_sharing(void)
-> >   	cc = uv_call(0, (u64)&uvcb);
-> >   	report(cc == 0 && uvcb.header.rc == UVC_RC_EXECUTED, "unshare");
-> >   	report_prefix_pop();
-> > +}
-> > +
-> > +#define ARCB_VERSION_NONE 0
-> > +#define ARCB_VERSION_1 0x0100
-> > +#define ARCB_MEAS_NONE 0
-> > +#define ARCB_MEAS_HMAC_SHA512 1
-> > +#define MEASUREMENT_SIZE_HMAC_SHA512 64
-> > +#define PAF_PHKH_ATT (1ULL << 61)
-> > +#define ADDITIONAL_SIZE_PAF_PHKH_ATT 32
-> > +/* arcb with one key slot and no nonce */
-> > +struct uv_arcb_v1 {
-> > +	uint64_t reserved0;		/* 0x0000 */
-> > +	uint32_t req_ver;		/* 0x0008 */
-> > +	uint32_t req_len;		/* 0x000c */
-> > +	uint8_t  iv[12];		/* 0x0010 */
-> > +	uint32_t reserved1c;		/* 0x001c */
-> > +	uint8_t  reserved20[7];		/* 0x0020 */
-> > +	uint8_t  nks;			/* 0x0027 */
-> > +	uint32_t reserved28;		/* 0x0028 */
-> > +	uint32_t sea;			/* 0x002c */
-> > +	uint64_t plaint_att_flags;	/* 0x0030 */
-> > +	uint32_t meas_alg_id;		/* 0x0038 */
-> > +	uint32_t reserved3c;		/* 0x003c */
-> > +	uint8_t  cpk[160];		/* 0x0040 */
-> > +	uint8_t  key_slot[80];		/* 0x00e0 */
-> > +	uint8_t  meas_key[64];		/* 0x0130 */
-> > +	uint8_t  tag[16];		/* 0x0170 */
-> > +} __attribute__((packed));
-> > +
-> > +struct attest_request_v1 {
-> > +	struct uv_arcb_v1 arcb;
-> > +	uint8_t measurement[MEASUREMENT_SIZE_HMAC_SHA512];
-> > +	uint8_t additional[ADDITIONAL_SIZE_PAF_PHKH_ATT];
-> > +};
-> > +
-> > +static void test_attest_v1(u64 supported_paf)
-> > +{
-> > +	struct uv_cb_attest uvcb = {
-> > +		.header.cmd = UVC_CMD_ATTESTATION,
-> > +		.header.len = sizeof(uvcb),
-> > +	};
-> > +	struct attest_request_v1 *attest_req = (void *)page;
-> > +	struct uv_arcb_v1 *arcb = &attest_req->arcb;
-> > +	int cc;
-> > +
-> > +	memset((void *)page, 0, PAGE_SIZE);
-> > +
-> > +	/*
-> > +	 * Create a minimal arcb/uvcb such that FW has everything to start
-> > +	 * unsealing the request. However, this unsealing will fail as the
-> > +	 * kvm-unit-test framework provides no cryptography functions that
-> > +	 * would be needed to seal such requests.
-> > +	 */
-> > +	arcb->req_ver = ARCB_VERSION_1;
-> > +	arcb->req_len = sizeof(*arcb);
-> > +	arcb->nks = 1;
-> > +	arcb->sea = sizeof(arcb->meas_key);
-> > +	arcb->plaint_att_flags = PAF_PHKH_ATT;
-> > +	arcb->meas_alg_id = ARCB_MEAS_HMAC_SHA512;
-> > +	uvcb.arcb_addr = (uint64_t)&attest_req->arcb;
-> > +	uvcb.measurement_address = (uint64_t)attest_req->measurement;
-> > +	uvcb.measurement_length = sizeof(attest_req->measurement);
-> > +	uvcb.add_data_address = (uint64_t)attest_req->additional;
-> > +	uvcb.add_data_length = sizeof(attest_req->additional);
-> > +
-> > +	uvcb.continuation_token = 0xff;
-> > +	cc = uv_call(0, (uint64_t)&uvcb);
-> > +	report(cc == 1 && uvcb.header.rc == 0x0101, "invalid continuation token");
-> > +	uvcb.continuation_token = 0;
-> > +
-> > +	uvcb.user_data_length = sizeof(uvcb.user_data) + 1;
-> > +	cc = uv_call(0, (uint64_t)&uvcb);
-> > +	report(cc == 1 && uvcb.header.rc == 0x0102, "invalid user data size");
-> > +	uvcb.user_data_length = 0;
-> > +
-> > +	uvcb.arcb_addr = get_ram_size() + PAGE_SIZE;
-> > +	cc = uv_call(0, (uint64_t)&uvcb);
-> > +	report(cc == 1 && uvcb.header.rc == 0x0103, "invalid address arcb");
-> > +	uvcb.arcb_addr = page;
-> > +
-> > +	/* 0104 - 0105 need an unseal-able request */
-> > +
-> > +	arcb->req_ver = ARCB_VERSION_NONE;
-> > +	cc = uv_call(0, (uint64_t)&uvcb);
-> > +	report(cc == 1 && uvcb.header.rc == 0x0106, "unsupported version");
-> > +	arcb->req_ver = ARCB_VERSION_1;
-> > +
-> > +	arcb->req_len += 1;
-> > +	cc = uv_call(0, (uint64_t)&uvcb);
-> > +	report(cc == 1 && uvcb.header.rc == 0x0107, "invalid arcb size 1");
-> > +	arcb->req_len -= 1;
-> > +
-> > +	/*
-> > +	 * The arcb needs to grow as well if number of key slots (nks)
-> > +	 * is increased. However, this is not the case and there is no explicit
-> > +	 * 'too many/less nks for that arcb size' error code -> expect 0x0107
-> > +	 */
-> > +	arcb->nks = 2;
-> > +	cc = uv_call(0, (uint64_t)&uvcb);
-> > +	report(cc == 1 && uvcb.header.rc == 0x0107, "invalid arcb size 2");
-> > +	arcb->nks = 1;
-> > +
-> > +	arcb->nks = 0;
-> > +	cc = uv_call(0, (uint64_t)&uvcb);
-> > +	report(cc == 1 && uvcb.header.rc == 0x0108, "invalid num key slots");
-> > +	arcb->nks = 1;
-> > +
-> > +	/*
-> > +	 * Possible valid size (when using nonce).
-> > +	 * However, req_len too small to host a nonce
-> > +	 */
-> > +	arcb->sea = 80;
-> > +	cc = uv_call(0, (uint64_t)&uvcb);
-> > +	report(cc == 1 && uvcb.header.rc == 0x0109, "invalid encrypted size 1");
-> > +	arcb->sea = 17;
-> > +	cc = uv_call(0, (uint64_t)&uvcb);
-> > +	report(cc == 1 && uvcb.header.rc == 0x0109, "invalid encrypted size 2");
-> > +	arcb->sea = 64;
-> > +
-> > +	arcb->plaint_att_flags = supported_paf ^ GENMASK_ULL(63, 0);
-> > +	cc = uv_call(0, (uint64_t)&uvcb);
-> > +	report(cc == 1 && uvcb.header.rc == 0x010a, "invalid flag");
-> > +	arcb->plaint_att_flags = PAF_PHKH_ATT;
-> > +
-> > +	arcb->meas_alg_id = ARCB_MEAS_NONE;
-> > +	cc = uv_call(0, (uint64_t)&uvcb);
-> > +	report(cc == 1 && uvcb.header.rc == 0x010b, "invalid measurement algorithm");
-> > +	arcb->meas_alg_id = ARCB_MEAS_HMAC_SHA512;
-> >   
-> > +	cc = uv_call(0, (uint64_t)&uvcb);
-> > +	report(cc == 1 && uvcb.header.rc == 0x010c, "unable unseal");
-> > +
-> > +	uvcb.measurement_length = 0;
-> > +	cc = uv_call(0, (uint64_t)&uvcb);
-> > +	report(cc == 1 && uvcb.header.rc == 0x010d, "invalid measurement size");
-> > +	uvcb.measurement_length = sizeof(attest_req->measurement);
-> > +
-> > +	uvcb.add_data_length = 0;
-> > +	cc = uv_call(0, (uint64_t)&uvcb);
-> > +	report(cc == 1 && uvcb.header.rc == 0x010e, "invalid additional size");
-> > +	uvcb.add_data_length = sizeof(attest_req->additional);
-> > +}
-> > +
-> > +static void test_attest(void)
-> > +{
-> > +	struct uv_cb_attest uvcb = {
-> > +		.header.cmd = UVC_CMD_ATTESTATION,
-> > +		.header.len = sizeof(uvcb),
-> > +	};
-> > +	const struct uv_cb_qui *uvcb_qui = uv_get_query_data();
-> > +	int cc;
-> > +
-> > +	report_prefix_push("attest");
-> > +
-> > +	if (!uv_query_test_call(BIT_UVC_CMD_ATTESTATION)) {
-> > +		report_skip("Attestation not supported.");
-> > +		goto done;
-> > +	}
-> > +
-> > +	/* Verify that the UV supports at least one header version */
-> > +	report(uvcb_qui->supp_att_hdr_ver, "has hdr support");
-> > +
-> > +	memset((void *)page, 0, PAGE_SIZE);
-> > +
-> > +	uvcb.header.len -= 1;
-> > +	cc = uv_call(0, (uint64_t)&uvcb);
-> > +	report(cc && uvcb.header.rc == UVC_RC_INV_LEN, "invalid uvcb size 1");
-> > +	uvcb.header.len += 1;
-> > +
-> > +	uvcb.header.len += 1;
-> > +	cc = uv_call(0, (uint64_t)&uvcb);
-> > +	report(cc && uvcb.header.rc == UVC_RC_INV_LEN, "invalid uvcb size 2");
-> > +	uvcb.header.len -= 1;
-> > +
-> > +	report_prefix_push("v1");
-> > +	if (test_bit_inv(0, &uvcb_qui->supp_att_hdr_ver))
-> > +		test_attest_v1(uvcb_qui->supp_paf);
-> > +	else
-> > +		report_skip("Attestation version 1 not supported");
-> > +	report_prefix_pop();
-> > +done:
-> >   	report_prefix_pop();
-> >   }
-> >   
-> > @@ -193,6 +383,7 @@ int main(void)
-> >   	test_invalid();
-> >   	test_query();
-> >   	test_sharing();
-> > +	test_attest();
-> >   	free_page((void *)page);
-> >   done:
-> >   	report_prefix_pop();  
-> 
 
+-- 
+Best Regards
+ Guo Ren
+
+ML: https://lore.kernel.org/linux-csky/
