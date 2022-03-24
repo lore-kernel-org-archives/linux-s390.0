@@ -2,102 +2,101 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DF41AC433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 24 Mar 2022 17:34:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D54B3C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 24 Mar 2022 17:41:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352311AbiCXRgJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 24 Mar 2022 13:36:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39612 "EHLO
+        id S243164AbiCXRmk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 24 Mar 2022 13:42:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352303AbiCXRgG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Mar 2022 13:36:06 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20162A144B;
-        Thu, 24 Mar 2022 10:34:33 -0700 (PDT)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22OHBIDD019495;
-        Thu, 24 Mar 2022 17:34:25 GMT
+        with ESMTP id S239035AbiCXRmj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Mar 2022 13:42:39 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A488AB2444;
+        Thu, 24 Mar 2022 10:41:07 -0700 (PDT)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22OHNWvo013340;
+        Thu, 24 Mar 2022 17:41:06 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
  subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=1QWAxhtRVc+xqQaz3nDlFCz51cxO+yQIAX8ztjjM6DQ=;
- b=PPGs2BNnQiFA7duY6/9XkfeN7p+CW1pRnnkdiB7N4iBfElfnn7dBbmQBxxHgFuc+eWEV
- X6LgTf+75eX4UBGPn3zLnUMcRrvsS8MNsBt4P/JVA2kEfmAVVrX+ECbnN/roapq8k27D
- gGyeC5iiHCE0h2i21dnmHfuHhP4Nu8SZX7FEbK5CykjXGspzo30dvK5y90xjXYvyLYtc
- ho961KRd/bXX5xfcvC//Vgw9ps5ugH7d21i6gKV+j6EcNvvSAUdDBVWe9QAoJcl5xcKC
- kAFHveQtUqWF8P96I7tNsiLNTqoXZQhA+3mvTNZxoEhO2Iu2rhkIP5/bATP6SBl2PfB0 Lw== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3f0kawe1m2-1
+ in-reply-to; s=pp1; bh=93uZEPHIV2SZO4q0AC6EW0DwGFYFWS7ghnhAGIZJxsI=;
+ b=VDaH/QsssIGr4UqJgh7gpJvKj4oosxIwvI2vO4FK5DSm1ll6Jy2PTEDvuZqD59QsjePI
+ QMCPzP0yEoqTPTlSzzVd/+eqy3YSTKsMjmpnrJy8dTv6KDnbKJ+1eeolBQRjuUscC2ri
+ TZ68amHIW/huBPJsx5RsbagDlRp2poXlM9GeiyiOXR+MUGYR8QjZ7sx7ZQH8jhT0Lr/P
+ SUmfZUE6N7iPHNToK3+lIZzijc4eyim9uZo94ycNQXQxHcnI/Or8SN1EaIKA5F1RcAlQ
+ Y0fY5GaK2klQIzwUPtjoSo4QJceeVGws+4z7o8RoNDIIZI+DagFi1YOOxC0v3Wvi2sh9 fg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3f0sd3wk6j-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Mar 2022 17:34:24 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22OHRERe005992;
-        Thu, 24 Mar 2022 17:34:06 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma06ams.nl.ibm.com with ESMTP id 3ew6ej3eb0-1
+        Thu, 24 Mar 2022 17:41:06 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22OHLHI0009603;
+        Thu, 24 Mar 2022 17:41:06 GMT
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3f0sd3wk63-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Mar 2022 17:34:06 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22OHY33r15270214
+        Thu, 24 Mar 2022 17:41:06 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22OHdQJm029253;
+        Thu, 24 Mar 2022 17:41:04 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma01fra.de.ibm.com with ESMTP id 3ew6t8sr9c-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 24 Mar 2022 17:41:04 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22OHf0iY10813744
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 24 Mar 2022 17:34:03 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2A64A11C05E;
-        Thu, 24 Mar 2022 17:34:03 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D426F11C04A;
-        Thu, 24 Mar 2022 17:34:02 +0000 (GMT)
+        Thu, 24 Mar 2022 17:41:00 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CC5C9AE045;
+        Thu, 24 Mar 2022 17:41:00 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 73904AE04D;
+        Thu, 24 Mar 2022 17:41:00 +0000 (GMT)
 Received: from osiris (unknown [9.145.160.180])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Thu, 24 Mar 2022 17:34:02 +0000 (GMT)
-Date:   Thu, 24 Mar 2022 18:34:01 +0100
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Thu, 24 Mar 2022 17:41:00 +0000 (GMT)
+Date:   Thu, 24 Mar 2022 18:40:59 +0100
 From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Yu Liao <liaoyu15@huawei.com>
-Cc:     gor@linux.ibm.com, agordeev@linux.ibm.com,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        liwei391@huawei.com
-Subject: Re: [PATCH] s390: cleanup timer API use
-Message-ID: <YjyriSRJY1mw04Jt@osiris>
-References: <20220322030057.1243196-1-liaoyu15@huawei.com>
+To:     Nico Boehr <nrb@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com,
+        david@redhat.com, farman@linux.ibm.com
+Subject: Re: [kvm-unit-tests PATCH v2 3/9] s390x: gs: move to new header file
+Message-ID: <YjytK7iW7ucw/Gwj@osiris>
+References: <20220323170325.220848-1-nrb@linux.ibm.com>
+ <20220323170325.220848-4-nrb@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220322030057.1243196-1-liaoyu15@huawei.com>
+In-Reply-To: <20220323170325.220848-4-nrb@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: pt9D8vQT-vnDbWb2ciTWDtyy0syub9I7
-X-Proofpoint-GUID: pt9D8vQT-vnDbWb2ciTWDtyy0syub9I7
+X-Proofpoint-GUID: B5zd9KHDrlc8CLpy3tAXgV-whoXC0NBZ
+X-Proofpoint-ORIG-GUID: GXWUFWsxk3lmYa1BvweaGJ3khnnimVgl
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-03-24_06,2022-03-24_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
- mlxlogscore=619 priorityscore=1501 phishscore=0 lowpriorityscore=0
- impostorscore=0 clxscore=1011 spamscore=0 suspectscore=0 malwarescore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 malwarescore=0
+ suspectscore=0 mlxlogscore=899 bulkscore=0 priorityscore=1501
+ clxscore=1015 impostorscore=0 phishscore=0 mlxscore=0 lowpriorityscore=0
  adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2202240000 definitions=main-2203240097
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Mar 22, 2022 at 11:00:57AM +0800, Yu Liao wrote:
-> cleanup the s390's use of the timer API
-> - del_timer() contains timer_pending() condition
-> - mod_timer(timer, expires) is equivalent to:
-> 
-> 	del_timer(timer);
-> 	timer->expires = expires;
-> 	add_timer(timer);
-> 
-> If the timer is inactive it will be activated, using add_timer() on
-> condition !timer_pending(&private->timer) is redundant.
-> 
-> Just cleanup, no logic change.
-> 
-> Signed-off-by: Yu Liao <liaoyu15@huawei.com>
-> ---
->  drivers/s390/char/sclp.c       |  4 +---
->  drivers/s390/char/sclp_con.c   |  3 +--
->  drivers/s390/char/sclp_vt220.c |  6 ++----
->  drivers/s390/cio/device_fsm.c  | 12 +++---------
->  drivers/s390/cio/eadm_sch.c    | 12 +++---------
->  5 files changed, 10 insertions(+), 27 deletions(-)
+On Wed, Mar 23, 2022 at 06:03:19PM +0100, Nico Boehr wrote:
+...
+> +static inline unsigned long load_guarded(unsigned long *p)
+> +{
+> +	unsigned long v;
+> +
+> +	asm(".insn rxy,0xe3000000004c, %0,%1"
+> +	    : "=d" (v)
+> +	    : "m" (*p)
+> +	    : "r14", "memory");
+> +	return v;
+> +}
 
-Applied, thanks.
+It was like that before, but why is r14 within the clobber list?
+That doesn't make sense.
