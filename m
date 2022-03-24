@@ -2,235 +2,116 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47777C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 24 Mar 2022 07:39:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C3C5AC433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 24 Mar 2022 08:08:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348697AbiCXHlJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 24 Mar 2022 03:41:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57456 "EHLO
+        id S1347272AbiCXIKG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 24 Mar 2022 04:10:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241935AbiCXHlI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Mar 2022 03:41:08 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 020595E766;
-        Thu, 24 Mar 2022 00:39:36 -0700 (PDT)
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22O4pbBm012974;
-        Thu, 24 Mar 2022 07:39:36 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=mRbbFnGWvVlAn/PvdhUWT6XytJ4Hr9/ADHu1SFl1VSQ=;
- b=tVktvGISMrevWHOz/kqKSChzO5Vl4mwVouI+amh9oLDQ4M0Eu6oMUXhQvowVLpYAxMFs
- MFuzkDM7Kg9K59o2lKKzZpNpLa1MOSiCb6jcOSaxvFEscYUVrfkgAWn89m6zcfkdmWCT
- OPk86LsCKTZ8gAXmzNx5TQ2aW0eJBYRyQHN5fbT868O//IxKIqWMkHS1PAiBi7z6byp9
- rcW/Ka037mq5l9qT7Gl/n2h2wzHiCyp21ZHycMnQ6eDFluxNyTLUSzCBC8aER6kF1+J8
- yxYAf8bZAEJrZo0jgU8T3o30pqY6u0ErSqzUlCHvNIrnzjuvVGT3CuF3Zgbq0ImRVIEb Bw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3f0j03jn5h-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Mar 2022 07:39:35 +0000
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22O7IYox001637;
-        Thu, 24 Mar 2022 07:39:35 GMT
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3f0j03jn56-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Mar 2022 07:39:35 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22O7btvi014350;
-        Thu, 24 Mar 2022 07:39:33 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma05fra.de.ibm.com with ESMTP id 3ew6t9gste-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Mar 2022 07:39:33 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22O7dUbL38994424
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 24 Mar 2022 07:39:30 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6F377A4051;
-        Thu, 24 Mar 2022 07:39:30 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1E7FDA4040;
-        Thu, 24 Mar 2022 07:39:30 +0000 (GMT)
-Received: from li-ca45c2cc-336f-11b2-a85c-c6e71de567f1.ibm.com (unknown [9.171.8.199])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 24 Mar 2022 07:39:30 +0000 (GMT)
-Message-ID: <7a624f37d23d8095e56a6ecc6b872b8b933b58bb.camel@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v2 4/9] s390x: smp: add test for
- SIGP_STORE_ADTL_STATUS order
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        frankja@linux.ibm.com, thuth@redhat.com, david@redhat.com,
-        farman@linux.ibm.com
-Date:   Thu, 24 Mar 2022 08:39:29 +0100
-In-Reply-To: <20220323184512.192f878b@p-imbrenda>
-References: <20220323170325.220848-1-nrb@linux.ibm.com>
-         <20220323170325.220848-5-nrb@linux.ibm.com>
-         <20220323184512.192f878b@p-imbrenda>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.42.4 (3.42.4-1.fc35) 
+        with ESMTP id S1347006AbiCXIKG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Mar 2022 04:10:06 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id BB2FE4991B
+        for <linux-s390@vger.kernel.org>; Thu, 24 Mar 2022 01:08:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1648109313;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=SU4E4d+EQ6sdIzJU8wyzsXPKrg3wnnVy1ZJmMoN/oGw=;
+        b=DiHrk+H6PPj1OEZRT6Po60+6VVtz5oYEs+NUFRgUxuTZyLYrml+GkemXpilD9pMdXhAriy
+        tzPA8zajQMdEJKVl5jIvd9/rj4n2cHBFR+aNqBmnL5w66piYmuw0FzoD/KR15om1P9UWGU
+        QL0WpDiYeO5jWLvIr+0vCkhLaoA+Kr4=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-217-W7qWMhPmP86rI0BBx6_iMQ-1; Thu, 24 Mar 2022 04:08:32 -0400
+X-MC-Unique: W7qWMhPmP86rI0BBx6_iMQ-1
+Received: by mail-wm1-f71.google.com with SMTP id r128-20020a1c4486000000b0038c8655c40eso1275753wma.6
+        for <linux-s390@vger.kernel.org>; Thu, 24 Mar 2022 01:08:32 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=SU4E4d+EQ6sdIzJU8wyzsXPKrg3wnnVy1ZJmMoN/oGw=;
+        b=qKLomLzswwwx4x2rLEaZqs1O0qIQ6Qd8WW2Tjde6cAKEYrxXuz/Kk4bjRIGlYS7sMo
+         faHEGrUfMXSCQNsFO6YRtrRjXDvFKNF5iEwZeI45VS9J9hKRMeaIkWUfUbCBQouw3wdR
+         pIT0VXBpqu4U7jBJgARuYRLeZMDNgKIxjNn6pwB2dGFBA06ZQoyTtWG1WtofircSPVEF
+         6z5xWXEbE/Ar4/YTSI+m5D5gSw77gczjuPt0l3ZimC5wUltMBJNI0yx7IqrpFpH18S3y
+         DSvK+14dO+6F6sAAyCqsR76eDHrPoAMmIhjdqRuR6RN4/NUiJsbQLciEpJq9EFDO74Wg
+         koeg==
+X-Gm-Message-State: AOAM531lmsdat8BkvpKy5lDbE2YGhAUICCEuooJZUP26sFIbgM0ffkr6
+        IdWMTF4zyZulP18ooCKDE6WJh/wAEXNvj4lA8aLxlJIMcNAtjmscvz2NFdpoMCpLgKj7VItOF52
+        3dPQ7/yPfcmOOEl2L+SZyUQ==
+X-Received: by 2002:a1c:29c3:0:b0:350:9797:b38f with SMTP id p186-20020a1c29c3000000b003509797b38fmr13060148wmp.22.1648109311322;
+        Thu, 24 Mar 2022 01:08:31 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyHcnWjquihS0Yb64SRxvQtrTJwe4xJa7MDXtanktK95XA2/7IxPTOgHdNxbVyWqH3m6oZ4Mg==
+X-Received: by 2002:a1c:29c3:0:b0:350:9797:b38f with SMTP id p186-20020a1c29c3000000b003509797b38fmr13060126wmp.22.1648109311024;
+        Thu, 24 Mar 2022 01:08:31 -0700 (PDT)
+Received: from [192.168.8.104] (tmo-098-218.customers.d1-online.com. [80.187.98.218])
+        by smtp.gmail.com with ESMTPSA id e12-20020a5d6d0c000000b001a65e479d20sm2190191wrq.83.2022.03.24.01.08.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 24 Mar 2022 01:08:30 -0700 (PDT)
+Message-ID: <6d8edf09-0055-ff7a-22b5-92679f777f5b@redhat.com>
+Date:   Thu, 24 Mar 2022 09:08:28 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 2g8h1qB_cMnbq9pXqEz2t8lzY0zY8FOi
-X-Proofpoint-GUID: mrSRVshWkUp1Ukd9iRNC9Trdylqfa73p
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-23_08,2022-03-23_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxscore=0
- mlxlogscore=999 clxscore=1015 malwarescore=0 spamscore=0
- priorityscore=1501 lowpriorityscore=0 suspectscore=0 bulkscore=0
- phishscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2202240000 definitions=main-2203240043
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.0
+Subject: Re: [PATCH kvm-unit-tests v2 1/6] lib: s390x: smp: Retry SIGP SENSE
+ on CC2
+Content-Language: en-US
+To:     Eric Farman <farman@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+References: <20220311173822.1234617-1-farman@linux.ibm.com>
+ <20220311173822.1234617-2-farman@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+In-Reply-To: <20220311173822.1234617-2-farman@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 2022-03-23 at 18:45 +0100, Claudio Imbrenda wrote:
-> On Wed, 23 Mar 2022 18:03:20 +0100
-> Nico Boehr <nrb@linux.ibm.com> wrote:
+On 11/03/2022 18.38, Eric Farman wrote:
+> The routine smp_cpu_stopped() issues a SIGP SENSE, and returns true
+> if it received a CC1 (STATUS STORED) with the STOPPED or CHECK STOP
+> bits enabled. Otherwise, it returns false.
 > 
-[...]
-> > +
-> > +static int memisset(void *s, int c, size_t n)
+> This is misleading, because a CC2 (BUSY) merely indicates that the
+> order code could not be processed, not that the CPU is operating.
+> It could be operating but in the process of being stopped.
 > 
-> function should return bool..
-
-Sure, changed.
-
-[...]
-> > +static void test_store_adtl_status(void)
-> > +{
-> > 
-[...]
-> > +
-> > +       report_prefix_push("unaligned");
-> > +       smp_cpu_stop(1);
-> > +
-> > +       cc = smp_sigp(1, SIGP_STORE_ADDITIONAL_STATUS,
-> > +                 (unsigned long)&adtl_status + 256, &status);
-> > +       report(cc == 1, "CC = 1");
-> > +       report(status == SIGP_STATUS_INVALID_PARAMETER, "status =
-> > INVALID_PARAMETER");
+> Convert the invocation of the SIGP SENSE to retry when a CC2 is
+> received, so we get a more definitive answer.
 > 
-> and check again that nothing has been written to
-
-Oh, thanks. Fixed.
-
-[...]
-> > +static void test_store_adtl_status_unavail(void)
-> > +{
-> > +       uint32_t status = 0;
-> > +       int cc;
-> > +
-> > +       report_prefix_push("store additional status unvailable");
-> > +
-> > +       if (have_adtl_status()) {
-> > +               report_skip("guarded-storage or vector facility
-> > installed");
-> > +               goto out;
-> > +       }
-> > +
-> > +       report_prefix_push("not accepted");
-> > +       smp_cpu_stop(1);
-> > +
-> > +       cc = smp_sigp(1, SIGP_STORE_ADDITIONAL_STATUS,
-> > +                 (unsigned long)&adtl_status, &status);
-> > +
-> > +       report(cc == 1, "CC = 1");
-> > +       report(status == SIGP_STATUS_INVALID_ORDER,
-> > +              "status = INVALID_ORDER");
-> > +
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+> Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> ---
+>   lib/s390x/smp.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> I would still check that nothing is written even when the order is
-> rejected
+> diff --git a/lib/s390x/smp.c b/lib/s390x/smp.c
+> index 46e1b022..368d6add 100644
+> --- a/lib/s390x/smp.c
+> +++ b/lib/s390x/smp.c
+> @@ -78,7 +78,7 @@ bool smp_cpu_stopped(uint16_t idx)
+>   {
+>   	uint32_t status;
+>   
+> -	if (smp_sigp(idx, SIGP_SENSE, 0, &status) != SIGP_CC_STATUS_STORED)
+> +	if (smp_sigp_retry(idx, SIGP_SENSE, 0, &status) != SIGP_CC_STATUS_STORED)
+>   		return false;
+>   	return !!(status & (SIGP_STATUS_CHECK_STOP|SIGP_STATUS_STOPPED));
+>   }
 
-Won't hurt, added.
-
-[...]
-> > +static void restart_write_vector(void)
-> > +{
-> > +       uint8_t *vec_reg;
-> > +       /*
-> > +        * vlm handles at most 16 registers at a time
-> > +        */
-> 
-> this comment can /* go on a single line */
-
-OK
-
-[...]
-> > +               /*
-> > +                * i+1 to avoid zero content
-> > +                */
-> 
-> same /* here */
-
-OK, changed.
-
-[...]
-> > +static void __store_adtl_status_vector_lc(unsigned long lc)
-> > +{
-> > +       uint32_t status = -1;
-> > +       struct psw psw;
-> > +       int cc;
-> > +
-> > +       report_prefix_pushf("LC %lu", lc);
-> > +
-> > +       if (!test_facility(133) && lc) {
-> > +               report_skip("not supported, no guarded-storage
-> > facility");
-> > +               goto out;
-> > +       }
-> 
-> I think this ^ should not be there at all
-
-It must be. If we don't have guarded-storage only LC 0 is allowed:
-
-"When the guarded-storage facility is not installed, the
-length and alignment of the MCESA is 1024 bytes.
-When the guarded-storage facility is installed, the
-length characteristic (LC) in bits 60-63 of the
-MCESAD specifies the length and alignment of the
-MCESA as a power of two"
-
-See below for the reason why we don't have gs here.
-
-[...]
-> > diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-> > index 1600e714c8b9..843fd323bce9 100644
-> > --- a/s390x/unittests.cfg
-> > +++ b/s390x/unittests.cfg
-> > @@ -74,9 +74,29 @@ extra_params=-device diag288,id=watchdog0 --
-> > watchdog-action inject-nmi
-> >  file = stsi.elf
-> >  extra_params=-name kvm-unit-test --uuid 0fb84a86-727c-11ea-bc55-
-> > 0242ac130003 -smp 1,maxcpus=8
-> >  
-> > -[smp]
-> > +[smp-kvm]
-> >  file = smp.elf
-> >  smp = 2
-> > +accel = kvm
-> > +extra_params = -cpu host,gs=on,vx=on
-> > +
-> > +[smp-no-vec-no-gs-kvm]
-> > +file = smp.elf
-> > +smp = 2
-> > +accel = kvm
-> > +extra_params = -cpu host,gs=off,vx=off
-> > +
-> > +[smp-tcg]
-> > +file = smp.elf
-> > +smp = 2
-> > +accel = tcg
-> > +extra_params = -cpu qemu,vx=on
-> 
-> why not gs=on as well?
-
-I am not an expert in QEMU CPU model, but it seems to me TCG doesn't
-support it.
+Reviewed-by: Thomas Huth <thuth@redhat.com>
 
