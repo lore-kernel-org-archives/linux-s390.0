@@ -2,101 +2,106 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D54B3C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 24 Mar 2022 17:41:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8115C433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 25 Mar 2022 07:29:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243164AbiCXRmk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 24 Mar 2022 13:42:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56998 "EHLO
+        id S242023AbiCYHa4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 25 Mar 2022 03:30:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239035AbiCXRmj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Mar 2022 13:42:39 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A488AB2444;
-        Thu, 24 Mar 2022 10:41:07 -0700 (PDT)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22OHNWvo013340;
-        Thu, 24 Mar 2022 17:41:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=93uZEPHIV2SZO4q0AC6EW0DwGFYFWS7ghnhAGIZJxsI=;
- b=VDaH/QsssIGr4UqJgh7gpJvKj4oosxIwvI2vO4FK5DSm1ll6Jy2PTEDvuZqD59QsjePI
- QMCPzP0yEoqTPTlSzzVd/+eqy3YSTKsMjmpnrJy8dTv6KDnbKJ+1eeolBQRjuUscC2ri
- TZ68amHIW/huBPJsx5RsbagDlRp2poXlM9GeiyiOXR+MUGYR8QjZ7sx7ZQH8jhT0Lr/P
- SUmfZUE6N7iPHNToK3+lIZzijc4eyim9uZo94ycNQXQxHcnI/Or8SN1EaIKA5F1RcAlQ
- Y0fY5GaK2klQIzwUPtjoSo4QJceeVGws+4z7o8RoNDIIZI+DagFi1YOOxC0v3Wvi2sh9 fg== 
+        with ESMTP id S237022AbiCYHa4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Mar 2022 03:30:56 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FC74BF014;
+        Fri, 25 Mar 2022 00:29:19 -0700 (PDT)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22P63hod027680;
+        Fri, 25 Mar 2022 07:29:19 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : to : cc : references : from : subject : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=ZlTk6CiKeOYlqvqKlH67WzGRhtwKqnUYjADP7/iJkFM=;
+ b=AwG868l1hndUz2fhcqSkUO+P6z9iy6SCnUemUWfcf4/w7a0pVdIEMKnT8tJmvkE+GAL3
+ XCN86sYF7MyQ1UgZ8NRvR8vqi9XXMdEKKqT1ce8naAoYNYAkF1UikY7qRqX7Gdd9svCX
+ fHHkAdT2xPWvRPCch8vGaFGX+nUJE02Q3yETXtm7j9ADFlywDNKBc2PSsTQ3dv2LEiHL
+ KomWuBqh6j7hOmTkW6PlY+fh15qrz3n1KrVXTGj3jxxtgfE1+iOAPIlR10F/QiAOK1X7
+ 5JORfn82/c89EF0raAw3yg5UNqUpNnhMq4eehdHCHZMPCfXxgSduVgtLa881SERG0U5G sA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3f0sd3wk6j-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3f0qkmx8ce-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Mar 2022 17:41:06 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22OHLHI0009603;
-        Thu, 24 Mar 2022 17:41:06 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3f0sd3wk63-1
+        Fri, 25 Mar 2022 07:29:18 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22P7ITYp009757;
+        Fri, 25 Mar 2022 07:29:18 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3f0qkmx8bq-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Mar 2022 17:41:06 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22OHdQJm029253;
-        Thu, 24 Mar 2022 17:41:04 GMT
+        Fri, 25 Mar 2022 07:29:18 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22P7TG9H019511;
+        Fri, 25 Mar 2022 07:29:16 GMT
 Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma01fra.de.ibm.com with ESMTP id 3ew6t8sr9c-1
+        by ppma04ams.nl.ibm.com with ESMTP id 3ew6t94m2g-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Mar 2022 17:41:04 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22OHf0iY10813744
+        Fri, 25 Mar 2022 07:29:15 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22P7TCRs44040584
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 24 Mar 2022 17:41:00 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CC5C9AE045;
-        Thu, 24 Mar 2022 17:41:00 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 73904AE04D;
-        Thu, 24 Mar 2022 17:41:00 +0000 (GMT)
-Received: from osiris (unknown [9.145.160.180])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Thu, 24 Mar 2022 17:41:00 +0000 (GMT)
-Date:   Thu, 24 Mar 2022 18:40:59 +0100
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Nico Boehr <nrb@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com,
-        david@redhat.com, farman@linux.ibm.com
-Subject: Re: [kvm-unit-tests PATCH v2 3/9] s390x: gs: move to new header file
-Message-ID: <YjytK7iW7ucw/Gwj@osiris>
-References: <20220323170325.220848-1-nrb@linux.ibm.com>
- <20220323170325.220848-4-nrb@linux.ibm.com>
+        Fri, 25 Mar 2022 07:29:12 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7602152050;
+        Fri, 25 Mar 2022 07:29:12 +0000 (GMT)
+Received: from [9.145.191.115] (unknown [9.145.191.115])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 254A95204F;
+        Fri, 25 Mar 2022 07:29:12 +0000 (GMT)
+Message-ID: <a2870c6b-6b2a-0a81-435e-ec0f472697c6@linux.ibm.com>
+Date:   Fri, 25 Mar 2022 08:29:11 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220323170325.220848-4-nrb@linux.ibm.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Content-Language: en-US
+To:     Heiko Carstens <hca@linux.ibm.com>, Nico Boehr <nrb@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        imbrenda@linux.ibm.com, thuth@redhat.com, david@redhat.com,
+        farman@linux.ibm.com
+References: <20220323170325.220848-1-nrb@linux.ibm.com>
+ <20220323170325.220848-4-nrb@linux.ibm.com> <YjytK7iW7ucw/Gwj@osiris>
+From:   Janosch Frank <frankja@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v2 3/9] s390x: gs: move to new header file
+In-Reply-To: <YjytK7iW7ucw/Gwj@osiris>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: B5zd9KHDrlc8CLpy3tAXgV-whoXC0NBZ
-X-Proofpoint-ORIG-GUID: GXWUFWsxk3lmYa1BvweaGJ3khnnimVgl
+X-Proofpoint-ORIG-GUID: PAJxajxAh3seO4tdgaODitLAVJ0Xuy9y
+X-Proofpoint-GUID: ksqp_VQnn6W1EcrL-YAnpuuyA9TKKC5U
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-24_06,2022-03-24_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 malwarescore=0
- suspectscore=0 mlxlogscore=899 bulkscore=0 priorityscore=1501
- clxscore=1015 impostorscore=0 phishscore=0 mlxscore=0 lowpriorityscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2203240097
+ definitions=2022-03-25_02,2022-03-24_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 clxscore=1015
+ suspectscore=0 bulkscore=0 impostorscore=0 lowpriorityscore=0 spamscore=0
+ adultscore=0 mlxlogscore=983 phishscore=0 priorityscore=1501 mlxscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2203250038
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Mar 23, 2022 at 06:03:19PM +0100, Nico Boehr wrote:
-...
-> +static inline unsigned long load_guarded(unsigned long *p)
-> +{
-> +	unsigned long v;
-> +
-> +	asm(".insn rxy,0xe3000000004c, %0,%1"
-> +	    : "=d" (v)
-> +	    : "m" (*p)
-> +	    : "r14", "memory");
-> +	return v;
-> +}
+On 3/24/22 18:40, Heiko Carstens wrote:
+> On Wed, Mar 23, 2022 at 06:03:19PM +0100, Nico Boehr wrote:
+> ...
+>> +static inline unsigned long load_guarded(unsigned long *p)
+>> +{
+>> +	unsigned long v;
+>> +
+>> +	asm(".insn rxy,0xe3000000004c, %0,%1"
+>> +	    : "=d" (v)
+>> +	    : "m" (*p)
+>> +	    : "r14", "memory");
+>> +	return v;
+>> +}
+> 
+> It was like that before, but why is r14 within the clobber list?
+> That doesn't make sense.
 
-It was like that before, but why is r14 within the clobber list?
-That doesn't make sense.
+r14 is changed in the gs handler of the gs test which is executed if the 
+"guarded" part of the load takes place.
