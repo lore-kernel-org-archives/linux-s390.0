@@ -2,98 +2,97 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D3B02C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 28 Mar 2022 10:24:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 15B69C433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 28 Mar 2022 10:26:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240196AbiC1K0S (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 28 Mar 2022 06:26:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53578 "EHLO
+        id S240235AbiC1K21 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 28 Mar 2022 06:28:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234831AbiC1K0S (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Mar 2022 06:26:18 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 407F833E85;
-        Mon, 28 Mar 2022 03:24:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=cowTe1SqlS2BOdGmzt26WP+/bS7/jiiuXA3bfaFKWco=; b=ike4utfUXfV67i9TA6zdOS8mNs
-        frOWZK9ja5kR0DpwP2JZsKKcNlTXAUWQgTNZ1PxZmZfw0P/YO4O/xLGx4RTU8nsHY++w4ymxFWYD3
-        GjLUJ0y8HErEb9MprHuxSla+Xq+Eb/H7h6PQlsvB1uCdbY73ven3GlV0Voax5vXsvDW0ruCm8WeG0
-        N2LAVDx0zAeehFxBZZ9fniVMQhP1aAkQEjDvKV3usfXWZvIb5zDb8u4euUSKx9RKjnVrbvsyuyfh4
-        6u67ITXkcXlrq/vYwqH/VfRTyejXlP9ltIRIapq5WAxHu76zGm8dr4gqalhJy5Fh9LrVF4zSpbBJh
-        c7ulFH3w==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=worktop.programming.kicks-ass.net)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nYmXI-00GoqY-SQ; Mon, 28 Mar 2022 10:23:45 +0000
-Received: by worktop.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 3D6BC9861F5; Mon, 28 Mar 2022 12:23:42 +0200 (CEST)
-Date:   Mon, 28 Mar 2022 12:23:42 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc:     Josh Poimboeuf <jpoimboe@redhat.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Petr Mladek <pmladek@suse.com>,
-        Joe Lawrence <joe.lawrence@redhat.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
-        live-patching@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, x86@kernel.org,
-        Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [PATCH] livepatch: Remove klp_arch_set_pc() and asm/livepatch.h
-Message-ID: <20220328102342.GW8939@worktop.programming.kicks-ass.net>
-References: <e029c7cfde436f6bbf99148ab14dc2da99add503.1648447981.git.christophe.leroy@csgroup.eu>
+        with ESMTP id S240232AbiC1K20 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Mar 2022 06:28:26 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01DF23B2AE;
+        Mon, 28 Mar 2022 03:26:46 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22SAEEil018693;
+        Mon, 28 Mar 2022 10:26:40 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : references : date : in-reply-to : message-id : mime-version :
+ content-type; s=pp1; bh=NTudMMXM/2VbRKK7tifX00G280bSD7nwhFpzsJUlv9k=;
+ b=qqzl3Excr55CsWnAkZfjVa1W4ETPjU9OGcO0aRFeY7LmyVEpoJXtWS+5aFcN+93vJ076
+ HYJzoE/vs8exnkYiR53kOj6PUj6mpsbGuJtKMmGfLg3x5IxlmZb92gmq4faIizEr/4D5
+ TA1U3rHvPHbRQnGq/Dc76vjx3z2ZmadlLNlVYCKJxrwVv42/w7eSRgt+fRnykxso2hvg
+ 05SVZT4Ea4lwkCAcodQt7j587LHKmoUS9YLmIPBbCHub5c/0UUJ/D+pUJMQuOZ0Cy3So
+ Wd1TUKqKSGyDBrJg/hHzluz2SucX7M+yXUFrSpMg1yMzrg6mA1It3+EwAnwsrxiWKG5j oA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3f3b3c06sa-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 28 Mar 2022 10:26:40 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22SAQdMr031194;
+        Mon, 28 Mar 2022 10:26:39 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3f3b3c06s1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 28 Mar 2022 10:26:39 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22SANj3Q031436;
+        Mon, 28 Mar 2022 10:26:38 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06fra.de.ibm.com with ESMTP id 3f1t3hu60f-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 28 Mar 2022 10:26:38 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22SAQejN41288064
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 28 Mar 2022 10:26:40 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 06DCF52054;
+        Mon, 28 Mar 2022 10:26:35 +0000 (GMT)
+Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id A64FF52051;
+        Mon, 28 Mar 2022 10:26:34 +0000 (GMT)
+From:   Sven Schnelle <svens@linux.ibm.com>
+To:     Jiri Slaby <jirislaby@kernel.org>
+Cc:     Xiaomeng Tong <xiam0nd.tong@gmail.com>, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, gregkh@linuxfoundation.org,
+        jcmvbkbc@gmail.com, elder@linaro.org, dsterba@suse.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v3] char: tty3270: fix a missing check on list iterator
+References: <20220328093505.27902-1-xiam0nd.tong@gmail.com>
+        <47a6e396-3d51-79f5-a544-8942470fa2fd@kernel.org>
+Date:   Mon, 28 Mar 2022 12:26:34 +0200
+In-Reply-To: <47a6e396-3d51-79f5-a544-8942470fa2fd@kernel.org> (Jiri Slaby's
+        message of "Mon, 28 Mar 2022 12:09:59 +0200")
+Message-ID: <yt9d8rsucqzp.fsf@linux.ibm.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e029c7cfde436f6bbf99148ab14dc2da99add503.1648447981.git.christophe.leroy@csgroup.eu>
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: nMTN3N-IOmQFTN2SxoerQHKuNvTLHmyk
+X-Proofpoint-GUID: UccP9BdvNjv2GJAXYw09B8Bjg9uBy4xq
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-03-28_03,2022-03-28_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
+ priorityscore=1501 bulkscore=0 spamscore=0 mlxlogscore=737 malwarescore=0
+ clxscore=1015 impostorscore=0 suspectscore=0 lowpriorityscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2203280059
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Mar 28, 2022 at 08:26:48AM +0200, Christophe Leroy wrote:
-> All three versions of klp_arch_set_pc() do exactly the same: they
-> call ftrace_instruction_pointer_set().
-> 
-> Call ftrace_instruction_pointer_set() directly and remove
-> klp_arch_set_pc().
-> 
-> As klp_arch_set_pc() was the only thing remaining in asm/livepatch.h
-> on x86 and s390, remove asm/livepatch.h
-> 
-> livepatch.h remains on powerpc but its content is exclusively used
-> by powerpc specific code.
+Jiri Slaby <jirislaby@kernel.org> writes:
 
-The only remaining thing seems to be a klp_init_thread_info() for ppc64,
-but yeah..
+>> Cc: stable@vger.kernel.org
+>> Fixes: ^1da177e4c3f4 ("Linux-2.6.12-rc2")
+>
+> That's barely the commit introducing the behavior.
+>
 
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-
-> diff --git a/kernel/livepatch/patch.c b/kernel/livepatch/patch.c
-> index c172bf92b576..4c4f5a776d80 100644
-> --- a/kernel/livepatch/patch.c
-> +++ b/kernel/livepatch/patch.c
-> @@ -118,7 +118,7 @@ static void notrace klp_ftrace_handler(unsigned long ip,
->  	if (func->nop)
->  		goto unlock;
->  
-> -	klp_arch_set_pc(fregs, (unsigned long)func->new_func);
-> +	ftrace_instruction_pointer_set(fregs, (unsigned long)func->new_func);
->  
->  unlock:
->  	ftrace_test_recursion_unlock(bit);
-
-So ptrace has instruction_pointer_set(), I'm not sure why we have yet
-another variant in the ftrace_ namespace. Perhaps also delete that?
+Well, that code was introduced way before linux switch to git - not sure
+whether it makes sense to provide a Fixes: header in that case.
