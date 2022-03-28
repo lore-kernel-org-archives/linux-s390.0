@@ -2,202 +2,151 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D1972C433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 28 Mar 2022 05:38:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EC69C433FE
+	for <linux-s390@archiver.kernel.org>; Mon, 28 Mar 2022 06:01:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238138AbiC1FkM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 28 Mar 2022 01:40:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42466 "EHLO
+        id S238215AbiC1GDH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 28 Mar 2022 02:03:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234075AbiC1FkL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Mar 2022 01:40:11 -0400
-Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B7B713D6E;
-        Sun, 27 Mar 2022 22:38:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1648445910; x=1679981910;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=yNGqs5UQKpnEQwK+7b2EzmfdzXgeEkQtJEt+djm9eTA=;
-  b=TQ9Xom5BNtcpeK3/PUjkQz2ejVVzxz1+PiIbVwl/ReX8BZ418T5VqvDq
-   2v3GgAy0g2IsfLN4ImrGxzj5qcU3LtAFbJFnVe5RdddmEmt79tUrGf6v7
-   Hjz38CUAtijAnuZWHbbZwm0UAjv0btfbcoNRQxHdu3Hk8swbobXu5LVBb
-   Kfod6N+UFV1N9spoeId5f8ZCYaaD7nU9inKEmgrLhQ+O85bvcj6fJ7PYH
-   W3YN4ByFAFd2henmmvdaWi70hY6OkzJ0rzNbaPIE2vbGEcI3EnBi6ItRk
-   wAIJ9zFt0rVqKBJaLB2gdm15WdLUkEguwZ4S9kmRPoGfq6lUKTw4CAZSV
-   g==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10299"; a="322102473"
-X-IronPort-AV: E=Sophos;i="5.90,216,1643702400"; 
-   d="scan'208";a="322102473"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Mar 2022 22:38:28 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.90,216,1643702400"; 
-   d="scan'208";a="520876292"
-Received: from lkp-server02.sh.intel.com (HELO 89b41b6ae01c) ([10.239.97.151])
-  by orsmga006.jf.intel.com with ESMTP; 27 Mar 2022 22:38:26 -0700
-Received: from kbuild by 89b41b6ae01c with local (Exim 4.92)
-        (envelope-from <lkp@intel.com>)
-        id 1nYi5B-0001kg-LY; Mon, 28 Mar 2022 05:38:25 +0000
-Date:   Mon, 28 Mar 2022 13:37:23 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Haowen Bai <baihaowen@meizu.com>, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com
-Cc:     llvm@lists.linux.dev, kbuild-all@lists.01.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Haowen Bai <baihaowen@meizu.com>
-Subject: Re: [PATCH] s390: Simplify the calculation of variables
-Message-ID: <202203281319.E0AKjDcq-lkp@intel.com>
-References: <1648434982-28862-1-git-send-email-baihaowen@meizu.com>
+        with ESMTP id S238209AbiC1GDC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Mar 2022 02:03:02 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC7D651594;
+        Sun, 27 Mar 2022 23:01:21 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22S4ATOo016467;
+        Mon, 28 Mar 2022 06:01:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : references : date : in-reply-to : message-id : mime-version :
+ content-type; s=pp1; bh=V0SVYvGEETiZ+0yrHPLpx3NJIh8DK9EnE0z1apGa36M=;
+ b=PwxEEvum0YlrGqf0izwFR4+KPsUkqva9A/qPpsvTOsK6xfAiIP4E0CTlmekG8jQnEdVa
+ 7lz09MNBNTkhKGKRRkmP1ZiQ3BzhUIi/T+/SbuTugrkggJ13ihxvcTphqCAGDTEeTMy9
+ g465bYguZFBjLTHK+Uf7JLwK73Gv/I3frdDl2ywk84Qn5GC4U26cLUjAYLFjpaRYMcnM
+ EnHZaIJfzXI6S97sCw6k708DUf9EvcPV5e7n+t0Hf5DYjCtXFLTnSnncVL0fppjTle2Q
+ FZcpm/JHYjhUcy6uv8cygwJWtWqW+iX5v1v2egD9rL2l1HMu879SYpQbHWc8ai4OUV23 gA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3f2cm9tp7c-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 28 Mar 2022 06:01:08 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22S5sBQs032219;
+        Mon, 28 Mar 2022 06:01:07 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3f2cm9tp6n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 28 Mar 2022 06:01:07 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22S5vouO003352;
+        Mon, 28 Mar 2022 06:01:05 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma06ams.nl.ibm.com with ESMTP id 3f1t3jb7us-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 28 Mar 2022 06:01:05 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22S612gq55771556
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 28 Mar 2022 06:01:02 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B63AC4C046;
+        Mon, 28 Mar 2022 06:01:02 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5331E4C044;
+        Mon, 28 Mar 2022 06:01:02 +0000 (GMT)
+Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Mon, 28 Mar 2022 06:01:02 +0000 (GMT)
+From:   Sven Schnelle <svens@linux.ibm.com>
+To:     Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Cc:     hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, jirislaby@kernel.org,
+        gregkh@linuxfoundation.org, jcmvbkbc@gmail.com, dsterba@suse.com,
+        elder@linaro.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] char: tty3270: fix a missing check on list iterator
+References: <20220327064931.7775-1-xiam0nd.tong@gmail.com>
+Date:   Mon, 28 Mar 2022 08:01:02 +0200
+In-Reply-To: <20220327064931.7775-1-xiam0nd.tong@gmail.com> (Xiaomeng Tong's
+        message of "Sun, 27 Mar 2022 14:49:31 +0800")
+Message-ID: <yt9dmthad3a9.fsf@linux.ibm.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1648434982-28862-1-git-send-email-baihaowen@meizu.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: KhV1cCcOGY_AtIGUiw2RpzrGl1j1HzSk
+X-Proofpoint-GUID: nJHDEpIR_uGpLMnCAc1RZUrGGFNVtmNZ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-03-28_01,2022-03-24_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ spamscore=0 clxscore=1011 malwarescore=0 bulkscore=0 adultscore=0
+ impostorscore=0 mlxscore=0 mlxlogscore=999 suspectscore=0 phishscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2203280032
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Haowen,
+Xiaomeng Tong <xiam0nd.tong@gmail.com> writes:
 
-Thank you for the patch! Yet something to improve:
+> The bug is here:
+> 	if (s->len != flen) {
+>
+> The list iterator 's' will point to a bogus position containing
+> HEAD if the list is empty or no element is found. This case must
+> be checked before any use of the iterator, otherwise it may bpass
+                                                      bypass? ^^^^^
 
-[auto build test ERROR on s390/features]
-[also build test ERROR on v5.17 next-20220325]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch]
+> the 'if (s->len != flen) {' in theory iif s->len's value is flen.
+                                        ^^^ if?
+>
+> To fix this bug, use a new variable 'iter' as the list iterator,
+> while use the origin variable 's' as a dedicated pointer to
+using?  ^^^
+        
+> point to the found element.
+>
+> Cc: stable@vger.kernel.org
+> Fixes: ^1da177e4c3f4 ("Linux-2.6.12-rc2")
+> Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+> ---
+>  drivers/s390/char/tty3270.c | 10 ++++++----
+>  1 file changed, 6 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/s390/char/tty3270.c b/drivers/s390/char/tty3270.c
+> index 5c83f71c1d0e..030e9a098d11 100644
+> --- a/drivers/s390/char/tty3270.c
+> +++ b/drivers/s390/char/tty3270.c
+> @@ -1111,7 +1111,7 @@ tty3270_convert_line(struct tty3270 *tp, int line_nr)
+>  {
+>  	struct tty3270_line *line;
+>  	struct tty3270_cell *cell;
+> -	struct string *s, *n;
+> +	struct string *s = NULL, *n, *iter;
+>  	unsigned char highlight;
+>  	unsigned char f_color;
+>  	char *cp;
+> @@ -1142,13 +1142,15 @@ tty3270_convert_line(struct tty3270 *tp, int line_nr)
+>  
+>  	/* Find the line in the list. */
+>  	i = tp->view.rows - 2 - line_nr;
+> -	list_for_each_entry_reverse(s, &tp->lines, list)
+> -		if (--i <= 0)
+> +	list_for_each_entry_reverse(iter, &tp->lines, list)
+> +		if (--i <= 0) {
+> +			s = iter;
+>  			break;
+> +		}
+>  	/*
+>  	 * Check if the line needs to get reallocated.
+>  	 */
+> -	if (s->len != flen) {
+> +	if (!s || s->len != flen) {
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Haowen-Bai/s390-Simplify-the-calculation-of-variables/20220328-103807
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
-config: s390-randconfig-r044-20220328 (https://download.01.org/0day-ci/archive/20220328/202203281319.E0AKjDcq-lkp@intel.com/config)
-compiler: clang version 15.0.0 (https://github.com/llvm/llvm-project 0f6d9501cf49ce02937099350d08f20c4af86f3d)
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # install s390 cross compiling tool for clang build
-        # apt-get install binutils-s390x-linux-gnu
-        # https://github.com/intel-lab-lkp/linux/commit/7356660d5a4a5dc70f5e18b63125c43d218885f3
-        git remote add linux-review https://github.com/intel-lab-lkp/linux
-        git fetch --no-tags linux-review Haowen-Bai/s390-Simplify-the-calculation-of-variables/20220328-103807
-        git checkout 7356660d5a4a5dc70f5e18b63125c43d218885f3
-        # save the config file to linux build tree
-        mkdir build_dir
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=s390 SHELL=/bin/bash drivers/
+This doesn't look right. You're checking for s == NULL here
 
-If you fix the issue, kindly add following tag as appropriate
-Reported-by: kernel test robot <lkp@intel.com>
+>  		/* Reallocate string. */
+>  		n = tty3270_alloc_string(tp, flen);
+>  		list_add(&n->list, &s->list);
 
-All errors (new ones prefixed by >>):
-
-   In file included from drivers/nfc/nfcmrvl/main.c:9:
-   In file included from include/linux/gpio.h:62:
-   In file included from include/asm-generic/gpio.h:11:
-   In file included from include/linux/gpio/driver.h:7:
-   In file included from include/linux/irq.h:20:
-   In file included from include/linux/io.h:13:
-   In file included from arch/s390/include/asm/io.h:75:
-   include/asm-generic/io.h:464:31: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           val = __raw_readb(PCI_IOBASE + addr);
-                             ~~~~~~~~~~ ^
-   include/asm-generic/io.h:477:61: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           val = __le16_to_cpu((__le16 __force)__raw_readw(PCI_IOBASE + addr));
-                                                           ~~~~~~~~~~ ^
-   include/uapi/linux/byteorder/big_endian.h:37:59: note: expanded from macro '__le16_to_cpu'
-   #define __le16_to_cpu(x) __swab16((__force __u16)(__le16)(x))
-                                                             ^
-   include/uapi/linux/swab.h:102:54: note: expanded from macro '__swab16'
-   #define __swab16(x) (__u16)__builtin_bswap16((__u16)(x))
-                                                        ^
-   In file included from drivers/nfc/nfcmrvl/main.c:9:
-   In file included from include/linux/gpio.h:62:
-   In file included from include/asm-generic/gpio.h:11:
-   In file included from include/linux/gpio/driver.h:7:
-   In file included from include/linux/irq.h:20:
-   In file included from include/linux/io.h:13:
-   In file included from arch/s390/include/asm/io.h:75:
-   include/asm-generic/io.h:490:61: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           val = __le32_to_cpu((__le32 __force)__raw_readl(PCI_IOBASE + addr));
-                                                           ~~~~~~~~~~ ^
-   include/uapi/linux/byteorder/big_endian.h:35:59: note: expanded from macro '__le32_to_cpu'
-   #define __le32_to_cpu(x) __swab32((__force __u32)(__le32)(x))
-                                                             ^
-   include/uapi/linux/swab.h:115:54: note: expanded from macro '__swab32'
-   #define __swab32(x) (__u32)__builtin_bswap32((__u32)(x))
-                                                        ^
-   In file included from drivers/nfc/nfcmrvl/main.c:9:
-   In file included from include/linux/gpio.h:62:
-   In file included from include/asm-generic/gpio.h:11:
-   In file included from include/linux/gpio/driver.h:7:
-   In file included from include/linux/irq.h:20:
-   In file included from include/linux/io.h:13:
-   In file included from arch/s390/include/asm/io.h:75:
-   include/asm-generic/io.h:501:33: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           __raw_writeb(value, PCI_IOBASE + addr);
-                               ~~~~~~~~~~ ^
-   include/asm-generic/io.h:511:59: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           __raw_writew((u16 __force)cpu_to_le16(value), PCI_IOBASE + addr);
-                                                         ~~~~~~~~~~ ^
-   include/asm-generic/io.h:521:59: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           __raw_writel((u32 __force)cpu_to_le32(value), PCI_IOBASE + addr);
-                                                         ~~~~~~~~~~ ^
-   include/asm-generic/io.h:609:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           readsb(PCI_IOBASE + addr, buffer, count);
-                  ~~~~~~~~~~ ^
-   include/asm-generic/io.h:617:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           readsw(PCI_IOBASE + addr, buffer, count);
-                  ~~~~~~~~~~ ^
-   include/asm-generic/io.h:625:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           readsl(PCI_IOBASE + addr, buffer, count);
-                  ~~~~~~~~~~ ^
-   include/asm-generic/io.h:634:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           writesb(PCI_IOBASE + addr, buffer, count);
-                   ~~~~~~~~~~ ^
-   include/asm-generic/io.h:643:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           writesw(PCI_IOBASE + addr, buffer, count);
-                   ~~~~~~~~~~ ^
-   include/asm-generic/io.h:652:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           writesl(PCI_IOBASE + addr, buffer, count);
-                   ~~~~~~~~~~ ^
-   In file included from drivers/nfc/nfcmrvl/main.c:9:
-   In file included from include/linux/gpio.h:62:
-   In file included from include/asm-generic/gpio.h:11:
-   In file included from include/linux/gpio/driver.h:7:
-   In file included from include/linux/irq.h:592:
-   In file included from arch/s390/include/asm/hw_irq.h:6:
-   In file included from include/linux/pci.h:1901:
-   In file included from arch/s390/include/asm/pci.h:12:
-   In file included from arch/s390/include/asm/sclp.h:20:
-   In file included from arch/s390/include/asm/chpid.h:10:
-   In file included from arch/s390/include/asm/cio.h:18:
->> arch/s390/include/asm/scsw.h:695:47: error: expected ';' after return statement
-                  (scsw->tm.actl & SCSW_ACTL_SUSPENDED))
-                                                        ^
-                                                        ;
-   12 warnings and 1 error generated.
-
-
-vim +695 arch/s390/include/asm/scsw.h
-
-   682	
-   683	/**
-   684	 * scsw_tm_is_valid_pno - check pno field validity
-   685	 * @scsw: pointer to scsw
-   686	 *
-   687	 * Return non-zero if the pno field of the specified transport mode scsw is
-   688	 * valid, zero otherwise.
-   689	 */
-   690	static inline int scsw_tm_is_valid_pno(union scsw *scsw)
-   691	{
-   692		return (scsw->tm.fctl != 0) &&
-   693		       (scsw->tm.stctl & SCSW_STCTL_STATUS_PEND) &&
-   694		       (!(scsw->tm.stctl & SCSW_STCTL_INTER_STATUS) ||
- > 695		       (scsw->tm.actl & SCSW_ACTL_SUSPENDED))
-   696	}
-   697	
-
--- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
+and if it is NULL, list_add() would be called here.
