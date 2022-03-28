@@ -2,127 +2,106 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F33E2C433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 28 Mar 2022 12:10:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A87F9C433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 28 Mar 2022 12:16:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241825AbiC1MMX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 28 Mar 2022 08:12:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42134 "EHLO
+        id S240118AbiC1MSJ convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 28 Mar 2022 08:18:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234315AbiC1MMX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Mar 2022 08:12:23 -0400
-Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD4E94616F;
-        Mon, 28 Mar 2022 05:10:42 -0700 (PDT)
-Received: by mail-pf1-x433.google.com with SMTP id b13so10564674pfv.0;
-        Mon, 28 Mar 2022 05:10:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id;
-        bh=2metHrwiTDvTKdu2SsVynM27Kre3NRcfjJWJDziOK2s=;
-        b=bzLn/vTVd5csLlxLA8U14K6h6AVYNc/RaTCL2SCqxZTGmJhDLexAqiu40rUPlPJZ1+
-         EHWKGGcoIbJahNJfKHYl2GmXvEEh/DG4QQU3qzKFMvpmk8SpWzz8+7o4Bngn6iyBi8Ve
-         danmjzuRezT1r5HfS/9olEugghGy+AeI8c0u0S27K2MSwonGfyIbrT3MokDmYeUpBQvg
-         yukIigRDeqY43PseXtn6zKUJicPkatL5bHwzS/DgzBkOIDTgPBkTZKrljs2upSPCgC7Z
-         +3d8QpUx0l5hx3m7IVcCXLP6I9jH1aHPEQc7l2F00tRVfLFApTyLBA2RQP3GMUfsZVWT
-         BczA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=2metHrwiTDvTKdu2SsVynM27Kre3NRcfjJWJDziOK2s=;
-        b=a4McFD4uiEotbtyuCI+B7NmMjK6KX4Lzn66HRye00zZdDPkF95a0AU2KIJYsojxgCZ
-         PH+sH+NIGIN4i+BZJeFycKIyjJPVFrmHNmL/oSwG+FFN6rM7ni8vZsmnWBUgTbNwDDGS
-         nhOos70RazISFoE7V3Aja7m+rqtB0r/Sgv2rL25p1ELRcShaC8sqnIXmRXuR9wPgovXV
-         9TqpQj3rhGZ1KrKw72+sojyZX9DF85RwtPOtbVEsjsDKjKWsctl0UHoUQYMPSyKNXy5H
-         Rg2drkoS0toBDE4c1V0BCIHFghfjm4QN2/AnfMgiEzNMyl7gsV/bsr0HsLHEsMBPhGTs
-         wswg==
-X-Gm-Message-State: AOAM530VHGQBFYkuF55pTBNw29jxpoaRbYyYuv73mPI20q/gxj756Tc4
-        cpV8Wwt5Ib/nGJ1soL41SnA3VKEC1vC4AA==
-X-Google-Smtp-Source: ABdhPJyNkvB3SXX6Y53tt18jSoLf0RY9GAqt/vx5zeQ2C0Q++J31WoyKZlVWfJrEAe8oSoT2nr33MQ==
-X-Received: by 2002:a63:770c:0:b0:386:361f:ecce with SMTP id s12-20020a63770c000000b00386361feccemr10162135pgc.202.1648469442425;
-        Mon, 28 Mar 2022 05:10:42 -0700 (PDT)
-Received: from ubuntu.huawei.com ([119.3.119.18])
-        by smtp.googlemail.com with ESMTPSA id p10-20020a056a0026ca00b004fb44e0cb17sm5528250pfw.116.2022.03.28.05.10.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 28 Mar 2022 05:10:41 -0700 (PDT)
-From:   Xiaomeng Tong <xiam0nd.tong@gmail.com>
-To:     hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com
-Cc:     borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        gregkh@linuxfoundation.org, jirislaby@kernel.org,
-        jcmvbkbc@gmail.com, elder@linaro.org, dsterba@suse.com,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Xiaomeng Tong <xiam0nd.tong@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH v3] char: tty3270: fix a missing check on list iterator
-Date:   Mon, 28 Mar 2022 20:10:30 +0800
-Message-Id: <20220328121030.32047-1-xiam0nd.tong@gmail.com>
-X-Mailer: git-send-email 2.17.1
+        with ESMTP id S240274AbiC1MRi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Mar 2022 08:17:38 -0400
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3DAE34CD5B
+        for <linux-s390@vger.kernel.org>; Mon, 28 Mar 2022 05:15:56 -0700 (PDT)
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-27-TcnwqCKnMxai5DN2Awq6DQ-1; Mon, 28 Mar 2022 13:15:53 +0100
+X-MC-Unique: TcnwqCKnMxai5DN2Awq6DQ-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
+ Server (TLS) id 15.0.1497.32; Mon, 28 Mar 2022 13:15:49 +0100
+Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
+ AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
+ 15.00.1497.033; Mon, 28 Mar 2022 13:15:49 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Haowen Bai' <baihaowen@meizu.com>,
+        "hca@linux.ibm.com" <hca@linux.ibm.com>,
+        "gor@linux.ibm.com" <gor@linux.ibm.com>,
+        "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>,
+        "borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>,
+        "svens@linux.ibm.com" <svens@linux.ibm.com>
+CC:     "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] s390: Simplify the calculation of variables
+Thread-Topic: [PATCH] s390: Simplify the calculation of variables
+Thread-Index: AQHYQkyh2V0uApXDj0OeQmyHV3vyOqzUtGdw
+Date:   Mon, 28 Mar 2022 12:15:49 +0000
+Message-ID: <9ab80e670fb341ddaba51a9cd78203fe@AcuMS.aculab.com>
+References: <1648434982-28862-1-git-send-email-baihaowen@meizu.com>
+In-Reply-To: <1648434982-28862-1-git-send-email-baihaowen@meizu.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
+MIME-Version: 1.0
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The bug is here:
-	if (s->len != flen) {
+From: Haowen Bai
+> Sent: 28 March 2022 03:36
+> 
+> Fix the following coccicheck warnings:
+> ./arch/s390/include/asm/scsw.h:695:47-49: WARNING
+>  !A || A && B is equivalent to !A || B
+> 
+> Signed-off-by: Haowen Bai <baihaowen@meizu.com>
+> ---
+>  arch/s390/include/asm/scsw.h | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/scsw.h b/arch/s390/include/asm/scsw.h
+> index a7c3ccf..f2baac8 100644
+> --- a/arch/s390/include/asm/scsw.h
+> +++ b/arch/s390/include/asm/scsw.h
+> @@ -692,8 +692,7 @@ static inline int scsw_tm_is_valid_pno(union scsw *scsw)
+>  	return (scsw->tm.fctl != 0) &&
+>  	       (scsw->tm.stctl & SCSW_STCTL_STATUS_PEND) &&
+>  	       (!(scsw->tm.stctl & SCSW_STCTL_INTER_STATUS) ||
+> -		 ((scsw->tm.stctl & SCSW_STCTL_INTER_STATUS) &&
+> -		  (scsw->tm.actl & SCSW_ACTL_SUSPENDED)));
+> +	       (scsw->tm.actl & SCSW_ACTL_SUSPENDED))
+>  }
 
-The list iterator 's' will point to a bogus position containing
-HEAD if the list is empty or no element is found. This case must
-be checked before any use of the iterator, otherwise it may bypass
-the 'if (s->len != flen) {' in theory if s->len's value is flen,
-or/and lead to an invalid memory access lately.
+I'd split that impenetrable boolean expression up.
 
-To fix this bug, use a new variable 'iter' as the list iterator,
-while using the origin variable 's' as a dedicated pointer to
-point to the found element. And if the list is empty or no element
-is found, WARN_ON and return.
+I think this is equivalent:
+	if (!scsw->tm.fctl)
+		return 0;
+	if (!(scsw->tm.stctl & SCSW_STCTL_STATUS_PEND))
+		return 0;
+	if (!(scsw->tm.stctl & SCSW_STCTL_INTER_STATUS))
+		return 1
+	if (scsw->tm.actl & SCSW_ACTL_SUSPENDED)
+		return 1;
+	return 0;
 
-Cc: stable@vger.kernel.org
-Fixes: ^1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
----
-changes since v2:
- - WARN_ON and return (Sven Schnelle)
+The generated code could even be the same.
 
-changes since v1:
- - reallocate s when s == NULL (Sven Schnelle)
+	David
 
-v1:https://lore.kernel.org/lkml/20220327064931.7775-1-xiam0nd.tong@gmail.com/
-v2:https://lore.kernel.org/lkml/20220328070543.24671-1-xiam0nd.tong@gmail.com/
-
----
- drivers/s390/char/tty3270.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/s390/char/tty3270.c b/drivers/s390/char/tty3270.c
-index 5c83f71c1d0e..9d0952178322 100644
---- a/drivers/s390/char/tty3270.c
-+++ b/drivers/s390/char/tty3270.c
-@@ -1109,9 +1109,9 @@ static void tty3270_put_character(struct tty3270 *tp, char ch)
- static void
- tty3270_convert_line(struct tty3270 *tp, int line_nr)
- {
-+	struct string *s = NULL, *n, *iter;
- 	struct tty3270_line *line;
- 	struct tty3270_cell *cell;
--	struct string *s, *n;
- 	unsigned char highlight;
- 	unsigned char f_color;
- 	char *cp;
-@@ -1142,9 +1142,14 @@ tty3270_convert_line(struct tty3270 *tp, int line_nr)
- 
- 	/* Find the line in the list. */
- 	i = tp->view.rows - 2 - line_nr;
--	list_for_each_entry_reverse(s, &tp->lines, list)
--		if (--i <= 0)
-+	list_for_each_entry_reverse(iter, &tp->lines, list)
-+		if (--i <= 0) {
-+			s = iter;
- 			break;
-+		 }
-+
-+	if(WARN_ON(!s))
-+		return;
- 	/*
- 	 * Check if the line needs to get reallocated.
- 	 */
--- 
-2.17.1
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
 
