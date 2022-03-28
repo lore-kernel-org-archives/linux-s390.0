@@ -2,78 +2,54 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9166EC433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 28 Mar 2022 09:38:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DA64C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 28 Mar 2022 09:56:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239887AbiC1Jk1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 28 Mar 2022 05:40:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46252 "EHLO
+        id S237730AbiC1J5o (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 28 Mar 2022 05:57:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233254AbiC1Jk0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Mar 2022 05:40:26 -0400
-Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E726913D47;
-        Mon, 28 Mar 2022 02:38:46 -0700 (PDT)
-Received: by mail-pl1-x636.google.com with SMTP id f10so3968798plr.6;
-        Mon, 28 Mar 2022 02:38:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=kSPMoIuWL9FXjN+mAnYdY25Lo8PRjU76MHfmUpfVXVs=;
-        b=IMdm7fMd88UVnKMkI1wdPkZmSds+d4Fbesv2Y+svsa/iljkTo4Hi0a6KHzYFxgZMTm
-         kib/TKA8jXbtcC/D57pLvWgWyibonGcfANHOR0JLTgFReatfDNer6C3iRIZ9E+w6IwRQ
-         O9O6vC7ZF1mIvkzeEmWPlmBhuDG4T0BH0siMhij+0nBrM3SIvGNE5J6zikfaWdzdEpln
-         PXneyfQIcBLijbiiNCbrkpuRhmZdLlb+/j1BdnJypfSSwXyjUaCcINgZVb/OgKue87/q
-         BPipgM0fjt1GYeuqlrBZ97UG8gxRuf9IC3nEUgIAwiPF5v3W0DVuyqduoxzMEEnKtpZV
-         6bxw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=kSPMoIuWL9FXjN+mAnYdY25Lo8PRjU76MHfmUpfVXVs=;
-        b=KWFji7RYNTzoEUEpxrockicQkc8368IOgL557K+oUkbNYfZP6SEHTBeRBXQM3nAgtl
-         F1PxX1Qyw+wz6YOJCT7eQ+kYgI6YAFntJ/tlN6TW05EyHHB0PbIk/79ZRvUSMWbJkn5R
-         +3fAWB8LZ70MFYpH0HrvqRB1HY9OwI+eqjeuTl3xBkrNmFguJ5VlsZesWSNrnrA2X4cx
-         +FlxlR0WHJbZ1id5O6Pzc6ki2/b+3EybonnwCm7OaX/dxEqkK85/ZlVh5T6CnQeAVaHK
-         6ST2LOYqVa5M3BcqGQg2jJ3P7nM6mrnbaFU2lsJRn8hh1XuhSto2X1DeXyrB98dS6OVr
-         DdoA==
-X-Gm-Message-State: AOAM531fe3Chiq+oAPSAyfqFVLMCpJFnbonxWxEhwtTcvef59XaxI0Ty
-        AKMbq8flAwMSd9W2+Ibb+eQ=
-X-Google-Smtp-Source: ABdhPJwd3Kvd5Gx8C8CWNFbj86fF16CZZwvwxBWlW9+TXd4T/qw23dd8dU5QaNPdwStSu2Yidnsacg==
-X-Received: by 2002:a17:902:f54f:b0:154:5686:7616 with SMTP id h15-20020a170902f54f00b0015456867616mr24668500plf.125.1648460326246;
-        Mon, 28 Mar 2022 02:38:46 -0700 (PDT)
-Received: from ubuntu.huawei.com ([119.3.119.18])
-        by smtp.googlemail.com with ESMTPSA id y12-20020a17090a784c00b001c6bdafc995sm17230900pjl.3.2022.03.28.02.38.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 28 Mar 2022 02:38:45 -0700 (PDT)
-From:   Xiaomeng Tong <xiam0nd.tong@gmail.com>
-To:     svens@linux.ibm.com
-Cc:     agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        dsterba@suse.com, elder@linaro.org, gor@linux.ibm.com,
-        gregkh@linuxfoundation.org, hca@linux.ibm.com, jcmvbkbc@gmail.com,
-        jirislaby@kernel.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, stable@vger.kernel.org,
-        xiam0nd.tong@gmail.com
-Subject: Re: [PATCH v2] char: tty3270: fix a missing check on list iterator
-Date:   Mon, 28 Mar 2022 17:38:31 +0800
-Message-Id: <20220328093831.28087-1-xiam0nd.tong@gmail.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <yt9dczi6cvln.fsf@linux.ibm.com>
-References: <yt9dczi6cvln.fsf@linux.ibm.com>
+        with ESMTP id S235704AbiC1J5n (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Mar 2022 05:57:43 -0400
+Received: from out30-43.freemail.mail.aliyun.com (out30-43.freemail.mail.aliyun.com [115.124.30.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C7304F475;
+        Mon, 28 Mar 2022 02:56:03 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R951e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04407;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0V8R2xSD_1648461360;
+Received: from 30.225.24.58(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0V8R2xSD_1648461360)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Mon, 28 Mar 2022 17:56:01 +0800
+Message-ID: <da663f43-a593-6acc-d4ec-9bd932637bee@linux.alibaba.com>
+Date:   Mon, 28 Mar 2022 17:55:59 +0800
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.5.0
+Subject: Re: [PATCH net] net/smc: Send out the remaining data in sndbuf before
+ close
+To:     dust.li@linux.alibaba.com, kgraul@linux.ibm.com,
+        davem@davemloft.net, kuba@kernel.org
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <1648447836-111521-1-git-send-email-guwen@linux.alibaba.com>
+ <20220328090411.GI35207@linux.alibaba.com>
+From:   Wen Gu <guwen@linux.alibaba.com>
+In-Reply-To: <20220328090411.GI35207@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-> I should have written that in my first reply, but s == NULL means
-> the given line number couldn't be found in the list of lines. This is
-> a serious error and should be warned about. So maybe something like:
-> 
-> if (WARN_ON(!s))
-> 	return;
-> 
-> But allocating a new empty line in that case is certainly wrong.
+Thanks for your comments.
 
-Thank you, i have resend a v3 patch as you suggested.
+On 2022/3/28 5:04 pm, dust.li wrote:
+> 
+> I think this issue should also happen if TCP_CORK is set and
+> autocorking is not enabled ?
 
---
-Xiaomeng Tong
+Yes, setting TCP_CORK also works.
+> 
+> Autocorking and delaying the TX from BH to smc_release_cb() greatly
+> increased the probability of this problem.
+>
+Thanks,
+Wen Gu
