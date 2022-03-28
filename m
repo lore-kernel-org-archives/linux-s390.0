@@ -2,168 +2,109 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DFE2C433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 28 Mar 2022 16:29:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5971EC433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 28 Mar 2022 18:34:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237604AbiC1Qap (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 28 Mar 2022 12:30:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56224 "EHLO
+        id S239114AbiC1SgM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 28 Mar 2022 14:36:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235425AbiC1Qap (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Mar 2022 12:30:45 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34F882C649;
-        Mon, 28 Mar 2022 09:29:04 -0700 (PDT)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id C4AA0210DD;
-        Mon, 28 Mar 2022 16:29:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1648484942; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=S32zs0pa2gEQEVNruGhWyIWEZSFgiNpA/SIR+p8B8Io=;
-        b=T7JP2LZxKvC6S64IAXjGt/3rro2IKKDx5Wwwk+5LDKln1XPFyTO9piyvZvPCoOdzIsESP5
-        tRzkCVOh1rdNSdartBydlZX3FeFTbK6c4ZPtVwpDEfVRrBcQkSU0Qt4gTWAHskJkBGWd1N
-        Jhyrh9fK6tLPCbpDovciiEEeN17G6y8=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1648484942;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=S32zs0pa2gEQEVNruGhWyIWEZSFgiNpA/SIR+p8B8Io=;
-        b=/9UV5RKOAnikidCt+0qBaYGt+ZUtALDd6HKE5cJm/x6k0se36icsNFK8f1zod5h/Z0tphR
-        8NGwZj6tqW5X+iBQ==
-Received: from kunlun.suse.cz (unknown [10.100.128.76])
+        with ESMTP id S237113AbiC1SgL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Mar 2022 14:36:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F8FC4CD6A;
+        Mon, 28 Mar 2022 11:34:30 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 5CCA3A3B89;
-        Mon, 28 Mar 2022 16:29:02 +0000 (UTC)
-Date:   Mon, 28 Mar 2022 18:29:01 +0200
-From:   Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
-To:     Eric Snowberg <eric.snowberg@oracle.com>
-Cc:     joeyli <jlee@suse.com>, Mimi Zohar <zohar@linux.ibm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AF334611D6;
+        Mon, 28 Mar 2022 18:34:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE483C340F0;
+        Mon, 28 Mar 2022 18:34:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1648492469;
+        bh=bBbJyKWaKqZSl867ct1z9j/2rS/3DFocRJvGbOT/w6U=;
+        h=Date:From:To:Cc:Subject:From;
+        b=Q/KglgPgJ0pk2GoUg8dncSjJA8u9jOYjpkxG9q8RC5NG+J5UKiIf/6oG28/azbE0N
+         kgc9jImchiPRIXxpne/on6epcAP1NQnYRIx21vZhu3W1HOGdZ5k+uTP4LIhKOJyRip
+         NjfkAcDHGtL8CHiEUEpzzuTUaWwyh1AvGWIyvMWPskTJLrdF0e78O81iG2FHQRJQo2
+         Ekr425EAcGkwjLr3CW8gfDxOZMCcmikcJiXQlWsn3GmYkD8tkEQrynXXpYy5svEANz
+         aSWIHyAcOY9VBpciThtHTkXxm14BTtbnSr1BBG5w+GgwZnutA5+MA0tXMj0DRoABWk
+         qvMZChIOA/XZA==
+Date:   Mon, 28 Mar 2022 11:34:21 -0700
+From:   Nathan Chancellor <nathan@kernel.org>
+To:     Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Philipp Rudo <prudo@redhat.com>, Baoquan He <bhe@redhat.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        AKASHI Takahiro <takahiro.akashi@linaro.org>,
-        James Morse <james.morse@arm.com>,
-        Dave Young <dyoung@redhat.com>,
-        Kairui Song <kasong@redhat.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-modules@vger.kernel.org" <linux-modules@vger.kernel.org>,
-        "keyrings@vger.kernel.org" <keyrings@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "stable@kernel.org" <stable@kernel.org>
-Subject: Re: [PATCH 4/4] module, KEYS: Make use of platform keyring for
- signature verification
-Message-ID: <20220328162901.GC163591@kunlun.suse.cz>
-References: <cover.1644953683.git.msuchanek@suse.de>
- <840433bc93a58d6dfc4d96c34c0c3b158a0e669d.1644953683.git.msuchanek@suse.de>
- <3e39412657a4b0839bcf38544d591959e89877b8.camel@linux.ibm.com>
- <20220215204730.GQ3113@kunlun.suse.cz>
- <20220328101557.GA11641@linux-l9pv.suse>
- <6A29007F-F1B7-4CDE-B3ED-7BF700B5ED2B@oracle.com>
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-next@vger.kernel.org,
+        llvm@lists.linux.dev
+Subject: s390 defconfig fails to build after
+ 4afeb670710efa5cd5ed8b1d9f2d22d6ce332bcc
+Message-ID: <YkH/rRikE2CilpqU@dev-arch.thelio-3990X>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <6A29007F-F1B7-4CDE-B3ED-7BF700B5ED2B@oracle.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hello,
+Hi all,
 
-On Mon, Mar 28, 2022 at 02:44:30PM +0000, Eric Snowberg wrote:
-> 
-> 
-> > On Mar 28, 2022, at 4:15 AM, joeyli <jlee@suse.com> wrote:
-> > 
-> > Hi Mimi,
-> > 
-> > Sorry for bother you for this old topic.
-> > 
-> > On Tue, Feb 15, 2022 at 09:47:30PM +0100, Michal Suchánek wrote:
-> >> Hello,
-> >> 
-> >> On Tue, Feb 15, 2022 at 03:08:18PM -0500, Mimi Zohar wrote:
-> >>> [Cc'ing Eric Snowberg]
-> >>> 
-> >>> Hi Michal,
-> >>> 
-> >>> On Tue, 2022-02-15 at 20:39 +0100, Michal Suchanek wrote:
-> >>>> Commit 278311e417be ("kexec, KEYS: Make use of platform keyring for signature verify")
-> >>>> adds support for use of platform keyring in kexec verification but
-> >>>> support for modules is missing.
-> >>>> 
-> >>>> Add support for verification of modules with keys from platform keyring
-> >>>> as well.
-> >>> 
-> >>> Permission for loading the pre-OS keys onto the "platform" keyring and
-> >>> using them is limited to verifying the kexec kernel image, nothing
-> >>> else.
-> >> 
-> >> Why is the platform keyring limited to kexec, and nothing else?
-> >> 
-> >> It should either be used for everything or for nothing. You have the
-> >> option to compile it in and then it should be used, and the option to
-> >> not compile it in and then it cannot be used.
-> >> 
-> >> There are two basic use cases:
-> >> 
-> >> (1) there is a vendor key which is very hard to use so you sign
-> >> something small and simple like shim with the vendor key, and sign your
-> >> kernel and modules with your own key that's typically enrolled with shim
-> >> MOK, and built into the kernel.
-> >> 
-> >> (2) you import your key into the firmware, and possibly disable the
-> >> vendor key. You can load the kernel directly without shim, and then your
-> >> signing key is typically in the platform keyring and built into the
-> >> kernel.
-> >> 
-> > 
-> > In the second use case, if user can enroll their own key to db either before
-> > or after hardware shipping. And they don't need shim because they removed
-> > Microsoft or OEM/ODM keys.  Why kernel can not provide a Kconfig option to
-> > them for trusting db keys for verifying kernel module, or for IMA (using CA
-> > in db)?
-> > 
-> > In the above use case for distro, partner doesn't need to re-compiler distro
-> > kernel. They just need to re-sign distro kernel and modules. Which means
-> > that the partner trusted distro. Then the partner's key in db can be used to
-> > verify kernel image and also kernel module without shim involve.
-> 
-> If shim is used, the new machine keyring can be used to solve this problem. 
-> This pull request [1] allows additional certificates to be loaded into the MOKList 
-> without going through MokManager.  Have the end-user/partner create a 
-> shim_certificate.efi containing their key. Then sign it with their DB key.  When 
-> shim boots, it will validate shim_certificate.efi against the DB key and load the 
-> key contained within it into the MOKList.  Now both module and kernel validation 
-> can be performed with this key, since it is contained within the machine keyring.
+Apologies if this has been reported or fixed already, I did not see a
+report when searching lore.kernel.org and it is reproducible as of
+commit 7dcfe50f58d2 ("s390/pci: rename get_zdev_by_bus() to
+zdev_from_bus()") in s390/linux.git.
 
-And why would you go through that when your platform keyring already has
-the key and you don't need shim for anything? This sounds a lot like "I
-have a hammer and all these look like nails" thinking.
+Our continuous integration noticed a build failure on next-20220328 in
+arch/s390/kernel/entry.S, which does not appear to be compiler specific,
+as I can reproduce this with GCC easily:
 
-Sure, there is use for the machine keyring in the case you need it and
-have it regardless of the kernel making any use of it for anything.
-Artifically adding it because the kernel fails to work with the platform
-keyring sounds backwards, though.
+https://builds.tuxbuild.com/2716QwFVG9408TJ43vkEc7trVCI/build.log
 
-Thanks
+$ make -skj"$(nproc)" ARCH=s390 CROSS_COMPILE=s390x-linux-gnu- defconfig arch/s390/kernel/entry.o
+arch/s390/kernel/entry.S: Assembler messages:
+arch/s390/kernel/entry.S:335: Error: Unrecognized opcode: `jgnop'
+arch/s390/kernel/entry.S:493: Error: Unrecognized opcode: `jgnop'
+arch/s390/kernel/entry.S:494: Error: Unrecognized opcode: `jgnop'
 
-Michal
+Bisect converged on commit 4afeb670710e ("s390/alternatives: use
+instructions instead of byte patterns"):
+
+# bad: [7dcfe50f58d28e0e2ba79e9e4333888bcf9442a4] s390/pci: rename get_zdev_by_bus() to zdev_from_bus()
+# good: [895ae58da4a2360d9c2d255cd9fc8de64e265022] s390/zcrypt: Add admask to zcdn
+git bisect start '7dcfe50f58d2' '895ae58da4a2'
+# bad: [09bc20c8fb35cf1afed1612b287e9ddbe6a7d73c] s390/kprobes: enable kretprobes framepointer verification
+git bisect bad 09bc20c8fb35cf1afed1612b287e9ddbe6a7d73c
+# good: [f09354ffd84eef3c88efa8ba6df05efe50cfd16a] s390/traps: improve panic message for translation-specification exception
+git bisect good f09354ffd84eef3c88efa8ba6df05efe50cfd16a
+# bad: [2d6c0008be64bd813008d2a796108e89edec1030] s390/ap: use insn format for new instructions
+git bisect bad 2d6c0008be64bd813008d2a796108e89edec1030
+# bad: [6982dba181deba54c5ccb301aaed6f6ec14c6310] s390/alternatives: use insn format for new instructions
+git bisect bad 6982dba181deba54c5ccb301aaed6f6ec14c6310
+# bad: [4afeb670710efa5cd5ed8b1d9f2d22d6ce332bcc] s390/alternatives: use instructions instead of byte patterns
+git bisect bad 4afeb670710efa5cd5ed8b1d9f2d22d6ce332bcc
+# first bad commit: [4afeb670710efa5cd5ed8b1d9f2d22d6ce332bcc] s390/alternatives: use instructions instead of byte patterns
+
+I can reproduce with TuxMake's [1] gcc-8, gcc-9, and gcc-10 containers,
+but not the gcc-11 one. The version information of GCC and binutils of
+each container is provided below in case it helps with reproducing.
+Given this is out of line assembly, I am sure the compiler has little to
+do with it, but as the compiler is the driver for .S files, I included
+it to be thorough.
+
+s390x-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0
+GNU assembler (GNU Binutils for Debian) 2.31.1
+
+s390x-linux-gnu-gcc (Debian 9.3.0-22) 9.3.0
+GNU assembler (GNU Binutils for Debian) 2.35.2
+
+s390x-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210110
+GNU assembler (GNU Binutils for Debian) 2.35.2
+
+s390x-linux-gnu-gcc (Debian 11.2.0-18) 11.2.0
+GNU assembler (GNU Binutils for Debian) 2.38
+
+[1]: https://tuxmake.org/
+
+Cheers,
+Nathan
