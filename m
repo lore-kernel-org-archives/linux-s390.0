@@ -2,151 +2,193 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EC69C433FE
-	for <linux-s390@archiver.kernel.org>; Mon, 28 Mar 2022 06:01:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7607C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 28 Mar 2022 06:08:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238215AbiC1GDH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 28 Mar 2022 02:03:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50318 "EHLO
+        id S233607AbiC1GKP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 28 Mar 2022 02:10:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238209AbiC1GDC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Mar 2022 02:03:02 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC7D651594;
-        Sun, 27 Mar 2022 23:01:21 -0700 (PDT)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22S4ATOo016467;
-        Mon, 28 Mar 2022 06:01:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : references : date : in-reply-to : message-id : mime-version :
- content-type; s=pp1; bh=V0SVYvGEETiZ+0yrHPLpx3NJIh8DK9EnE0z1apGa36M=;
- b=PwxEEvum0YlrGqf0izwFR4+KPsUkqva9A/qPpsvTOsK6xfAiIP4E0CTlmekG8jQnEdVa
- 7lz09MNBNTkhKGKRRkmP1ZiQ3BzhUIi/T+/SbuTugrkggJ13ihxvcTphqCAGDTEeTMy9
- g465bYguZFBjLTHK+Uf7JLwK73Gv/I3frdDl2ywk84Qn5GC4U26cLUjAYLFjpaRYMcnM
- EnHZaIJfzXI6S97sCw6k708DUf9EvcPV5e7n+t0Hf5DYjCtXFLTnSnncVL0fppjTle2Q
- FZcpm/JHYjhUcy6uv8cygwJWtWqW+iX5v1v2egD9rL2l1HMu879SYpQbHWc8ai4OUV23 gA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3f2cm9tp7c-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 28 Mar 2022 06:01:08 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22S5sBQs032219;
-        Mon, 28 Mar 2022 06:01:07 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3f2cm9tp6n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 28 Mar 2022 06:01:07 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22S5vouO003352;
-        Mon, 28 Mar 2022 06:01:05 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma06ams.nl.ibm.com with ESMTP id 3f1t3jb7us-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 28 Mar 2022 06:01:05 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22S612gq55771556
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 28 Mar 2022 06:01:02 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B63AC4C046;
-        Mon, 28 Mar 2022 06:01:02 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5331E4C044;
-        Mon, 28 Mar 2022 06:01:02 +0000 (GMT)
-Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Mon, 28 Mar 2022 06:01:02 +0000 (GMT)
-From:   Sven Schnelle <svens@linux.ibm.com>
-To:     Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Cc:     hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, jirislaby@kernel.org,
-        gregkh@linuxfoundation.org, jcmvbkbc@gmail.com, dsterba@suse.com,
-        elder@linaro.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] char: tty3270: fix a missing check on list iterator
-References: <20220327064931.7775-1-xiam0nd.tong@gmail.com>
-Date:   Mon, 28 Mar 2022 08:01:02 +0200
-In-Reply-To: <20220327064931.7775-1-xiam0nd.tong@gmail.com> (Xiaomeng Tong's
-        message of "Sun, 27 Mar 2022 14:49:31 +0800")
-Message-ID: <yt9dmthad3a9.fsf@linux.ibm.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.50 (gnu/linux)
+        with ESMTP id S234963AbiC1GKO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Mar 2022 02:10:14 -0400
+Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F0F712A90;
+        Sun, 27 Mar 2022 23:08:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1648447714; x=1679983714;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=WFbDWCNdUy2Ivv0kvBXfSNEZrOxB9nLU2zCZyPEr3nU=;
+  b=Bx4yNQIvvGNerUl7sQdLq9yGZ30BtpluaYlfRfDOZPzilldeWDlM4/fs
+   FeQIYyBJGh9c9PL26nJJZPJKbEiDhNYzWxwl4B1Orv/4mEVzPf5FGK8d6
+   40js2JuAZCwaTatGI11pOgmJtsbfiXsMxx4r0qHO12TR52z3NzE6W2x8b
+   lK+c6PFNfQH+4OWCpFsozs4Fh3lIaqVYpMJykPhOsaLqO9vVZjVA0O5TZ
+   Whkh6R6KXj36PfDJkr7R/JScTgwPP/je0YQNwA8pl+bqPyGsNuYOx9nOv
+   w6Dzb92T1AosgJ4XlwjjGX/4QyOPzVDXsNMXJ0WqHdQ8UXc4KcpoKCM7R
+   Q==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10299"; a="256495907"
+X-IronPort-AV: E=Sophos;i="5.90,216,1643702400"; 
+   d="scan'208";a="256495907"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Mar 2022 23:08:33 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.90,216,1643702400"; 
+   d="scan'208";a="718978739"
+Received: from lkp-server02.sh.intel.com (HELO 89b41b6ae01c) ([10.239.97.151])
+  by orsmga005.jf.intel.com with ESMTP; 27 Mar 2022 23:08:30 -0700
+Received: from kbuild by 89b41b6ae01c with local (Exim 4.92)
+        (envelope-from <lkp@intel.com>)
+        id 1nYiYI-0001lW-4P; Mon, 28 Mar 2022 06:08:30 +0000
+Date:   Mon, 28 Mar 2022 14:08:12 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Haowen Bai <baihaowen@meizu.com>, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com
+Cc:     kbuild-all@lists.01.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Haowen Bai <baihaowen@meizu.com>
+Subject: Re: [PATCH] s390: Simplify the calculation of variables
+Message-ID: <202203281418.KxPHz4Ek-lkp@intel.com>
+References: <1648434982-28862-1-git-send-email-baihaowen@meizu.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: KhV1cCcOGY_AtIGUiw2RpzrGl1j1HzSk
-X-Proofpoint-GUID: nJHDEpIR_uGpLMnCAc1RZUrGGFNVtmNZ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-28_01,2022-03-24_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- spamscore=0 clxscore=1011 malwarescore=0 bulkscore=0 adultscore=0
- impostorscore=0 mlxscore=0 mlxlogscore=999 suspectscore=0 phishscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2203280032
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1648434982-28862-1-git-send-email-baihaowen@meizu.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Xiaomeng Tong <xiam0nd.tong@gmail.com> writes:
+Hi Haowen,
 
-> The bug is here:
-> 	if (s->len != flen) {
->
-> The list iterator 's' will point to a bogus position containing
-> HEAD if the list is empty or no element is found. This case must
-> be checked before any use of the iterator, otherwise it may bpass
-                                                      bypass? ^^^^^
+Thank you for the patch! Yet something to improve:
 
-> the 'if (s->len != flen) {' in theory iif s->len's value is flen.
-                                        ^^^ if?
->
-> To fix this bug, use a new variable 'iter' as the list iterator,
-> while use the origin variable 's' as a dedicated pointer to
-using?  ^^^
-        
-> point to the found element.
->
-> Cc: stable@vger.kernel.org
-> Fixes: ^1da177e4c3f4 ("Linux-2.6.12-rc2")
-> Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-> ---
->  drivers/s390/char/tty3270.c | 10 ++++++----
->  1 file changed, 6 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/s390/char/tty3270.c b/drivers/s390/char/tty3270.c
-> index 5c83f71c1d0e..030e9a098d11 100644
-> --- a/drivers/s390/char/tty3270.c
-> +++ b/drivers/s390/char/tty3270.c
-> @@ -1111,7 +1111,7 @@ tty3270_convert_line(struct tty3270 *tp, int line_nr)
->  {
->  	struct tty3270_line *line;
->  	struct tty3270_cell *cell;
-> -	struct string *s, *n;
-> +	struct string *s = NULL, *n, *iter;
->  	unsigned char highlight;
->  	unsigned char f_color;
->  	char *cp;
-> @@ -1142,13 +1142,15 @@ tty3270_convert_line(struct tty3270 *tp, int line_nr)
->  
->  	/* Find the line in the list. */
->  	i = tp->view.rows - 2 - line_nr;
-> -	list_for_each_entry_reverse(s, &tp->lines, list)
-> -		if (--i <= 0)
-> +	list_for_each_entry_reverse(iter, &tp->lines, list)
-> +		if (--i <= 0) {
-> +			s = iter;
->  			break;
-> +		}
->  	/*
->  	 * Check if the line needs to get reallocated.
->  	 */
-> -	if (s->len != flen) {
-> +	if (!s || s->len != flen) {
+[auto build test ERROR on s390/features]
+[also build test ERROR on v5.17 next-20220325]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch]
 
-This doesn't look right. You're checking for s == NULL here
+url:    https://github.com/intel-lab-lkp/linux/commits/Haowen-Bai/s390-Simplify-the-calculation-of-variables/20220328-103807
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
+config: s390-randconfig-r044-20220327 (https://download.01.org/0day-ci/archive/20220328/202203281418.KxPHz4Ek-lkp@intel.com/config)
+compiler: s390-linux-gcc (GCC) 11.2.0
+reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # https://github.com/intel-lab-lkp/linux/commit/7356660d5a4a5dc70f5e18b63125c43d218885f3
+        git remote add linux-review https://github.com/intel-lab-lkp/linux
+        git fetch --no-tags linux-review Haowen-Bai/s390-Simplify-the-calculation-of-variables/20220328-103807
+        git checkout 7356660d5a4a5dc70f5e18b63125c43d218885f3
+        # save the config file to linux build tree
+        mkdir build_dir
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.2.0 make.cross O=build_dir ARCH=s390 SHELL=/bin/bash drivers/iio/accel/
 
->  		/* Reallocate string. */
->  		n = tty3270_alloc_string(tp, flen);
->  		list_add(&n->list, &s->list);
+If you fix the issue, kindly add following tag as appropriate
+Reported-by: kernel test robot <lkp@intel.com>
 
-and if it is NULL, list_add() would be called here.
+All errors (new ones prefixed by >>):
+
+   In file included from arch/s390/include/asm/cio.h:18,
+                    from arch/s390/include/asm/chpid.h:10,
+                    from arch/s390/include/asm/sclp.h:20,
+                    from arch/s390/include/asm/pci.h:12,
+                    from include/linux/pci.h:1901,
+                    from arch/s390/include/asm/hw_irq.h:6,
+                    from include/linux/irq.h:592,
+                    from include/linux/iio/trigger.h:6,
+                    from drivers/iio/accel/adxl355_core.c:14:
+   arch/s390/include/asm/scsw.h: In function 'scsw_tm_is_valid_pno':
+>> arch/s390/include/asm/scsw.h:695:54: error: expected ';' before '}' token
+     695 |                (scsw->tm.actl & SCSW_ACTL_SUSPENDED))
+         |                                                      ^
+         |                                                      ;
+     696 | }
+         | ~                                                     
+--
+   In file included from arch/s390/include/asm/cio.h:18,
+                    from arch/s390/include/asm/chpid.h:10,
+                    from arch/s390/include/asm/sclp.h:20,
+                    from arch/s390/include/asm/pci.h:12,
+                    from include/linux/pci.h:1901,
+                    from arch/s390/include/asm/hw_irq.h:6,
+                    from include/linux/irq.h:592,
+                    from include/linux/iio/trigger.h:6,
+                    from drivers/iio/accel/kxcjk-1013.c:21:
+   arch/s390/include/asm/scsw.h: In function 'scsw_tm_is_valid_pno':
+>> arch/s390/include/asm/scsw.h:695:54: error: expected ';' before '}' token
+     695 |                (scsw->tm.actl & SCSW_ACTL_SUSPENDED))
+         |                                                      ^
+         |                                                      ;
+     696 | }
+         | ~                                                     
+   At top level:
+   drivers/iio/accel/kxcjk-1013.c:1709:36: warning: 'kx_acpi_match' defined but not used [-Wunused-const-variable=]
+    1709 | static const struct acpi_device_id kx_acpi_match[] = {
+         |                                    ^~~~~~~~~~~~~
+--
+   In file included from arch/s390/include/asm/cio.h:18,
+                    from arch/s390/include/asm/chpid.h:10,
+                    from arch/s390/include/asm/sclp.h:20,
+                    from arch/s390/include/asm/pci.h:12,
+                    from include/linux/pci.h:1901,
+                    from arch/s390/include/asm/hw_irq.h:6,
+                    from include/linux/irq.h:592,
+                    from include/linux/iio/trigger.h:6,
+                    from drivers/iio/accel/mxc4005.c:14:
+   arch/s390/include/asm/scsw.h: In function 'scsw_tm_is_valid_pno':
+>> arch/s390/include/asm/scsw.h:695:54: error: expected ';' before '}' token
+     695 |                (scsw->tm.actl & SCSW_ACTL_SUSPENDED))
+         |                                                      ^
+         |                                                      ;
+     696 | }
+         | ~                                                     
+   At top level:
+   drivers/iio/accel/mxc4005.c:473:36: warning: 'mxc4005_acpi_match' defined but not used [-Wunused-const-variable=]
+     473 | static const struct acpi_device_id mxc4005_acpi_match[] = {
+         |                                    ^~~~~~~~~~~~~~~~~~
+--
+   In file included from arch/s390/include/asm/cio.h:18,
+                    from arch/s390/include/asm/chpid.h:10,
+                    from arch/s390/include/asm/sclp.h:20,
+                    from arch/s390/include/asm/pci.h:12,
+                    from include/linux/pci.h:1901,
+                    from arch/s390/include/asm/hw_irq.h:6,
+                    from include/linux/irq.h:592,
+                    from include/linux/iio/trigger.h:6,
+                    from drivers/iio/accel/stk8ba50.c:18:
+   arch/s390/include/asm/scsw.h: In function 'scsw_tm_is_valid_pno':
+>> arch/s390/include/asm/scsw.h:695:54: error: expected ';' before '}' token
+     695 |                (scsw->tm.actl & SCSW_ACTL_SUSPENDED))
+         |                                                      ^
+         |                                                      ;
+     696 | }
+         | ~                                                     
+   At top level:
+   drivers/iio/accel/stk8ba50.c:539:36: warning: 'stk8ba50_acpi_id' defined but not used [-Wunused-const-variable=]
+     539 | static const struct acpi_device_id stk8ba50_acpi_id[] = {
+         |                                    ^~~~~~~~~~~~~~~~
+
+
+vim +695 arch/s390/include/asm/scsw.h
+
+   682	
+   683	/**
+   684	 * scsw_tm_is_valid_pno - check pno field validity
+   685	 * @scsw: pointer to scsw
+   686	 *
+   687	 * Return non-zero if the pno field of the specified transport mode scsw is
+   688	 * valid, zero otherwise.
+   689	 */
+   690	static inline int scsw_tm_is_valid_pno(union scsw *scsw)
+   691	{
+   692		return (scsw->tm.fctl != 0) &&
+   693		       (scsw->tm.stctl & SCSW_STCTL_STATUS_PEND) &&
+   694		       (!(scsw->tm.stctl & SCSW_STCTL_INTER_STATUS) ||
+ > 695		       (scsw->tm.actl & SCSW_ACTL_SUSPENDED))
+   696	}
+   697	
+
+-- 
+0-DAY CI Kernel Test Service
+https://01.org/lkp
