@@ -2,223 +2,219 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CB30C433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 29 Mar 2022 11:41:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B9BFC433FE
+	for <linux-s390@archiver.kernel.org>; Tue, 29 Mar 2022 16:44:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235979AbiC2LnK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 29 Mar 2022 07:43:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43046 "EHLO
+        id S233961AbiC2QqY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 29 Mar 2022 12:46:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235250AbiC2LnI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Mar 2022 07:43:08 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93011201B5;
-        Tue, 29 Mar 2022 04:41:25 -0700 (PDT)
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22T9Pgxr016715;
-        Tue, 29 Mar 2022 11:41:04 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : content-transfer-encoding : mime-version; s=pp1;
- bh=XU8OAUvZ8rg3WHeRN3yogA5QACdGy7vBETwPzMwDTSM=;
- b=FJKM6F1T0Y3CCrQjTY2EtD1e9KLN59FewBU+TfLZhkdWQ0llRs+6EXTl9kJmuiJYqwyw
- VWfvsva5GnttFyyk2UNnuu68pEdItOS1EjRUf+WfZOACdacAT8xNMnTP8UIvBpF917Uo
- qpw4llIxI3kbR4NDOddv/6jbF6h8fFEY7TdKNOcqnKUfsz7laJ298zKUgsWRSS0L2zH6
- 69LrvA02rDRwDKdllzcjB8jGThWak6nsUqi1g7e+jE8Xu/mIVoTatpZ+WgAFy9p8l8mw
- Sy50jrzrH98l8qSZ2EOBkfjwUCqcmZyWNRnuEwq+ltbt1rFKuNSH3Gyr0l0kRDRMAoyw UQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3f3yfhtn5b-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 29 Mar 2022 11:41:04 +0000
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22TBErTl002850;
-        Tue, 29 Mar 2022 11:41:03 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3f3yfhtn4q-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 29 Mar 2022 11:41:03 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22TBWGFt026102;
-        Tue, 29 Mar 2022 11:41:01 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma04ams.nl.ibm.com with ESMTP id 3f1tf8x2fy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 29 Mar 2022 11:41:01 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22TBewKN15270190
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 29 Mar 2022 11:40:58 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 229B111C052;
-        Tue, 29 Mar 2022 11:40:58 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0FEA311C04C;
-        Tue, 29 Mar 2022 11:40:58 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Tue, 29 Mar 2022 11:40:58 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55271)
-        id C4087E15ED; Tue, 29 Mar 2022 13:40:57 +0200 (CEST)
-From:   Alexandra Winter <wintera@linux.ibm.com>
-To:     "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jesper Dangaard Brouer <hawk@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
-        KP Singh <kpsingh@kernel.org>
-Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        with ESMTP id S237201AbiC2QqV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Mar 2022 12:46:21 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 76C62C6A
+        for <linux-s390@vger.kernel.org>; Tue, 29 Mar 2022 09:44:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1648572277;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=RVY7rMpGFn52vdQ2M3hw/PWs92e8BoddZH/fcoM4f7g=;
+        b=Ym5chToCNoVSymBxsBBrUXO7xCgGUIhLG8zvbK1aneFIdAIA6k+hojjhkjhvaGypzUBuo+
+        u+k9VOhw/J5IS8jvB33PAtTglha/Xgz0CfpqbgBm1ZZ1ZzgByCJLUEY3HPnuJicmCwv2pA
+        OoZg4f6fN1rgLHIPz7WY8ghyhj8yuGM=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-542-JHxNB2iVMtKGFGYz0rnuuA-1; Tue, 29 Mar 2022 12:44:35 -0400
+X-MC-Unique: JHxNB2iVMtKGFGYz0rnuuA-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 9289C803524;
+        Tue, 29 Mar 2022 16:44:33 +0000 (UTC)
+Received: from t480s.redhat.com (unknown [10.39.194.134])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id B31D6112132D;
+        Tue, 29 Mar 2022 16:43:31 +0000 (UTC)
+From:   David Hildenbrand <david@redhat.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Hugh Dickins <hughd@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        David Rientjes <rientjes@google.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Yang Shi <shy828301@gmail.com>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Vlastimil Babka <vbabka@suse.cz>, Jann Horn <jannh@google.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Nadav Amit <namit@vmware.com>, Rik van Riel <riel@surriel.com>,
+        Roman Gushchin <guro@fb.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Peter Xu <peterx@redhat.com>,
+        Donald Dutile <ddutile@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Oleg Nesterov <oleg@redhat.com>, Jan Kara <jack@suse.cz>,
+        Liang Zhang <zhangliang5@huawei.com>,
+        Pedro Gomes <pedrodemargomes@gmail.com>,
+        Oded Gabbay <oded.gabbay@gmail.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>
-Subject: [PATCH net-next v2] veth: Support bonding events
-Date:   Tue, 29 Mar 2022 13:40:52 +0200
-Message-Id: <20220329114052.237572-1-wintera@linux.ibm.com>
-X-Mailer: git-send-email 2.32.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 7n0S1niuAqIpNpsb1YcU5gw84ANA6Wcv
-X-Proofpoint-GUID: ZED8u5b0PmEwSkYMHg8b8UwsN4sKbbsj
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        linux-mm@kvack.org, x86@kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        David Hildenbrand <david@redhat.com>
+Subject: [PATCH v2 0/8] mm: COW fixes part 3: reliable GUP R/W FOLL_GET of anonymous pages
+Date:   Tue, 29 Mar 2022 18:43:21 +0200
+Message-Id: <20220329164329.208407-1-david@redhat.com>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-29_02,2022-03-29_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 spamscore=0
- lowpriorityscore=0 mlxlogscore=999 impostorscore=0 bulkscore=0
- phishscore=0 clxscore=1015 adultscore=0 malwarescore=0 priorityscore=1501
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2203290069
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.78 on 10.11.54.3
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Bonding drivers generate specific events during failover that trigger
-switch updates.  When a veth device is attached to a bridge with a
-bond interface, we want external switches to learn about the veth
-devices as well.
+More information on the general COW issues can be found at [2]. This series
+is based on latest linus/master and [1]:
+	[PATCH v3 00/16] mm: COW fixes part 2: reliable GUP pins of
+	anonymous pages
 
-Example:
+v2 is located at:
+	https://github.com/davidhildenbrand/linux/tree/cow_fixes_part_3_v2
 
-	| veth_a2   |  veth_b2  |  veth_c2 |
-	------o-----------o----------o------
-	       \	  |	    /
-		o	  o	   o
-	      veth_a1  veth_b1  veth_c1
-	      -------------------------
-	      |        bridge         |
-	      -------------------------
-			bond0
-			/  \
-		     eth0  eth1
 
-In case of failover from eth0 to eth1, the netdev_notifier needs to be
-propagated, so e.g. veth_a2 can re-announce its MAC address to the
-external hardware attached to eth1.
+This series fixes memory corruptions when a GUP R/W reference
+(FOLL_WRITE | FOLL_GET) was taken on an anonymous page and COW logic fails
+to detect exclusivity of the page to then replacing the anonymous page by
+a copy in the page table: The GUP reference lost synchronicity with the
+pages mapped into the page tables. This series focuses on x86, arm64,
+s390x and ppc64/book3s -- other architectures are fairly easy to support
+by implementing __HAVE_ARCH_PTE_SWP_EXCLUSIVE.
 
-Without this patch we have seen cases where recovery after bond failover
-took an unacceptable amount of time (depending on timeout settings in the
-network).
+This primarily fixes the O_DIRECT memory corruptions that can happen on
+concurrent swapout, whereby we lose DMA reads to a page (modifying the user
+page by writing to it).
 
-Due to the symmetric nature of veth special care is required to avoid
-endless notification loops. Therefore we only notify from a veth
-bridgeport to a peer that is not a bridgeport.
+O_DIRECT currently uses FOLL_GET for short-term (!FOLL_LONGTERM)
+DMA from/to a user page. In the long run, we want to convert it to properly
+use FOLL_PIN, and John is working on it, but that might take a while and
+might not be easy to backport. In the meantime, let's restore what used to
+work before we started modifying our COW logic: make R/W FOLL_GET
+references reliable as long as there is no fork() after GUP involved.
 
-References:
-Same handling as for macvlan:
-commit 4c9912556867 ("macvlan: Support bonding events")
-and vlan:
-commit 4aa5dee4d999 ("net: convert resend IGMP to notifier event")
+This is just the natural follow-up of part 2, that will also further
+reduce "wrong COW" on the swapin path, for example, when we cannot remove
+a page from the swapcache due to concurrent writeback, or if we have two
+threads faulting on the same swapped-out page. Fixing O_DIRECT is just a
+nice side-product
 
-Alternatives:
-Propagate notifier events to all ports of a bridge. IIUC, this was
-rejected in https://www.spinics.net/lists/netdev/msg717292.html
-It also seems difficult to avoid re-bouncing the notifier.
+This issue, including other related COW issues, has been summarized in [3]
+under 2):
+"
+  2. Intra Process Memory Corruptions due to Wrong COW (FOLL_GET)
 
-Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
----
- drivers/net/veth.c | 53 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 53 insertions(+)
+  It was discovered that we can create a memory corruption by reading a
+  file via O_DIRECT to a part (e.g., first 512 bytes) of a page,
+  concurrently writing to an unrelated part (e.g., last byte) of the same
+  page, and concurrently write-protecting the page via clear_refs
+  SOFTDIRTY tracking [6].
 
-diff --git a/drivers/net/veth.c b/drivers/net/veth.c
-index d29fb9759cc9..74b074453197 100644
---- a/drivers/net/veth.c
-+++ b/drivers/net/veth.c
-@@ -1579,6 +1579,57 @@ static void veth_setup(struct net_device *dev)
- 	dev->mpls_features = NETIF_F_HW_CSUM | NETIF_F_GSO_SOFTWARE;
- }
- 
-+static bool netif_is_veth(const struct net_device *dev)
-+{
-+	return (dev->netdev_ops == &veth_netdev_ops);
-+}
-+
-+static void veth_notify_peer(unsigned long event, const struct net_device *dev)
-+{
-+	struct net_device *peer;
-+	struct veth_priv *priv;
-+
-+	priv = netdev_priv(dev);
-+	peer = rtnl_dereference(priv->peer);
-+	/* avoid re-bounce between 2 bridges */
-+	if (!netif_is_bridge_port(peer))
-+		call_netdevice_notifiers(event, peer);
-+}
-+
-+/* Called under rtnl_lock */
-+static int veth_device_event(struct notifier_block *unused,
-+			     unsigned long event, void *ptr)
-+{
-+	struct net_device *dev, *lower;
-+	struct list_head *iter;
-+
-+	dev = netdev_notifier_info_to_dev(ptr);
-+
-+	switch (event) {
-+	case NETDEV_NOTIFY_PEERS:
-+	case NETDEV_BONDING_FAILOVER:
-+	case NETDEV_RESEND_IGMP:
-+		/* propagate to peer of a bridge attached veth */
-+		if (netif_is_bridge_master(dev)) {
-+			iter = &dev->adj_list.lower;
-+			lower = netdev_next_lower_dev_rcu(dev, &iter);
-+			while (lower) {
-+				if (netif_is_veth(lower))
-+					veth_notify_peer(event, lower);
-+				lower = netdev_next_lower_dev_rcu(dev, &iter);
-+			}
-+		}
-+		break;
-+	default:
-+		break;
-+	}
-+	return NOTIFY_DONE;
-+}
-+
-+static struct notifier_block veth_notifier_block __read_mostly = {
-+		.notifier_call  = veth_device_event,
-+};
-+
- /*
-  * netlink interface
-  */
-@@ -1824,12 +1875,14 @@ static struct rtnl_link_ops veth_link_ops = {
- 
- static __init int veth_init(void)
- {
-+	register_netdevice_notifier(&veth_notifier_block);
- 	return rtnl_link_register(&veth_link_ops);
- }
- 
- static __exit void veth_exit(void)
- {
- 	rtnl_link_unregister(&veth_link_ops);
-+	unregister_netdevice_notifier(&veth_notifier_block);
- }
- 
- module_init(veth_init);
+  For the reproducer, the issue is that O_DIRECT grabs a reference of the
+  target page (via FOLL_GET) and clear_refs write-protects the relevant
+  page table entry. On successive write access to the page from the
+  process itself, we wrongly COW the page when resolving the write fault,
+  resulting in a loss of synchronicity and consequently a memory corruption.
+
+  While some people might think that using clear_refs in this combination
+  is a corner cases, it turns out to be a more generic problem unfortunately.
+
+  For example, it was just recently discovered that we can similarly
+  create a memory corruption without clear_refs, simply by concurrently
+  swapping out the buffer pages [7]. Note that we nowadays even use the
+  swap infrastructure in Linux without an actual swap disk/partition: the
+  prime example is zram which is enabled as default under Fedora [10].
+
+  The root issue is that a write-fault on a page that has additional
+  references results in a COW and thereby a loss of synchronicity
+  and consequently a memory corruption if two parties believe they are
+  referencing the same page.
+"
+
+We don't particularly care about R/O FOLL_GET references: they were never
+reliable and O_DIRECT doesn't expect to observe modifications from a page
+after DMA was started.
+
+Note that:
+* this only fixes the issue on x86, arm64, s390x and ppc64/book3s
+  ("enterprise architectures"). Other architectures have to implement
+  __HAVE_ARCH_PTE_SWP_EXCLUSIVE to achieve the same.
+* this does *not * consider any kind of fork() after taking the reference:
+  fork() after GUP never worked reliably with FOLL_GET.
+* Not losing PG_anon_exclusive during swapout was the last remaining
+  piece. KSM already makes sure that there are no other references on
+  a page before considering it for sharing. Page migration maintains
+  PG_anon_exclusive and simply fails when there are additional references
+  (freezing the refcount fails). Only swapout code dropped the
+  PG_anon_exclusive flag because it requires more work to remember +
+  restore it.
+
+With this series in place, most COW issues of [3] are fixed on said
+architectures. Other architectures can implement
+__HAVE_ARCH_PTE_SWP_EXCLUSIVE fairly easily.
+
+[1] https://lkml.kernel.org/r/20220329160440.193848-1-david@redhat.com
+[2] https://lkml.kernel.org/r/20211217113049.23850-1-david@redhat.com
+[3] https://lore.kernel.org/r/3ae33b08-d9ef-f846-56fb-645e3b9b4c66@redhat.com
+
+v2 -> v3:
+* Rebased and retested
+* "arm64/pgtable: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE"
+  -> Add RB and a comment to the patch description
+* "s390/pgtable: cleanup description of swp pte layout"
+  -> Added
+* "s390/pgtable: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE"
+  -> Use new set_pte_bit()/clear_pte_bit()
+  -> Fixups comments/patch description
+
+David Hildenbrand (8):
+  mm/swap: remember PG_anon_exclusive via a swp pte bit
+  mm/debug_vm_pgtable: add tests for __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+  x86/pgtable: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+  arm64/pgtable: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+  s390/pgtable: cleanup description of swp pte layout
+  s390/pgtable: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+  powerpc/pgtable: remove _PAGE_BIT_SWAP_TYPE for book3s
+  powerpc/pgtable: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE for book3s
+
+ arch/arm64/include/asm/pgtable-prot.h        |  1 +
+ arch/arm64/include/asm/pgtable.h             | 23 ++++++--
+ arch/powerpc/include/asm/book3s/64/pgtable.h | 31 ++++++++---
+ arch/s390/include/asm/pgtable.h              | 36 +++++++++----
+ arch/x86/include/asm/pgtable.h               | 16 ++++++
+ arch/x86/include/asm/pgtable_64.h            |  4 +-
+ arch/x86/include/asm/pgtable_types.h         |  5 ++
+ include/linux/pgtable.h                      | 29 +++++++++++
+ include/linux/swapops.h                      |  2 +
+ mm/debug_vm_pgtable.c                        | 15 ++++++
+ mm/memory.c                                  | 55 ++++++++++++++++++--
+ mm/rmap.c                                    | 19 ++++---
+ mm/swapfile.c                                | 13 ++++-
+ 13 files changed, 216 insertions(+), 33 deletions(-)
+
 -- 
-2.32.0
+2.35.1
 
