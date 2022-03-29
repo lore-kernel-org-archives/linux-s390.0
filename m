@@ -2,156 +2,223 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F875C433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 29 Mar 2022 11:39:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CB30C433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 29 Mar 2022 11:41:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235387AbiC2LlW (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 29 Mar 2022 07:41:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34326 "EHLO
+        id S235979AbiC2LnK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 29 Mar 2022 07:43:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235961AbiC2LlV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Mar 2022 07:41:21 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A624A201B5;
-        Tue, 29 Mar 2022 04:39:38 -0700 (PDT)
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22TAfT4I017954;
-        Tue, 29 Mar 2022 11:39:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : to : cc : references : from : subject : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=xzXNIkmQMH1RNaB8qRsmWczgfceBKd6rW1aL5zPqyw8=;
- b=Jj3SKpsAKfL41C23gHv39u0Lcu1mnBHQHCYnz/z1f5NsUWEqLUvqkznEPoPMJBmSqbDZ
- LY9V9HnyCGqq1+k3RX8OiZsL3NsWSjnO8nfPZS4P2wYeYEMTHsN7qch4nQ6yQw2bkrFm
- lLAAsTe8MffRJLQ08uJE0FqptqNC6diI1F5EbL9mBXlmINh6PSe/oACtzOGucNRqBmNz
- IcaSi3LZetvhlFXZ6UufMkG5iKKyWt2mZJ4IC7cXDYWXjCbm666ouZV2Z/pf9pwfoKRC
- oa69Kn2KtRzU5OppyPsUaTKaSx5ABleLEgIkhF9pDNmxklp75Q+e8THU6EgveKXZEWrE Kw== 
+        with ESMTP id S235250AbiC2LnI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Mar 2022 07:43:08 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93011201B5;
+        Tue, 29 Mar 2022 04:41:25 -0700 (PDT)
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22T9Pgxr016715;
+        Tue, 29 Mar 2022 11:41:04 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=XU8OAUvZ8rg3WHeRN3yogA5QACdGy7vBETwPzMwDTSM=;
+ b=FJKM6F1T0Y3CCrQjTY2EtD1e9KLN59FewBU+TfLZhkdWQ0llRs+6EXTl9kJmuiJYqwyw
+ VWfvsva5GnttFyyk2UNnuu68pEdItOS1EjRUf+WfZOACdacAT8xNMnTP8UIvBpF917Uo
+ qpw4llIxI3kbR4NDOddv/6jbF6h8fFEY7TdKNOcqnKUfsz7laJ298zKUgsWRSS0L2zH6
+ 69LrvA02rDRwDKdllzcjB8jGThWak6nsUqi1g7e+jE8Xu/mIVoTatpZ+WgAFy9p8l8mw
+ Sy50jrzrH98l8qSZ2EOBkfjwUCqcmZyWNRnuEwq+ltbt1rFKuNSH3Gyr0l0kRDRMAoyw UQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3f3y90ttka-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3f3yfhtn5b-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 29 Mar 2022 11:39:37 +0000
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22TB169R021850;
-        Tue, 29 Mar 2022 11:39:37 GMT
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3f3y90ttjx-1
+        Tue, 29 Mar 2022 11:41:04 +0000
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22TBErTl002850;
+        Tue, 29 Mar 2022 11:41:03 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3f3yfhtn4q-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 29 Mar 2022 11:39:37 +0000
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22TBViP9015247;
-        Tue, 29 Mar 2022 11:39:35 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma06fra.de.ibm.com with ESMTP id 3f1t3hw68w-1
+        Tue, 29 Mar 2022 11:41:03 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22TBWGFt026102;
+        Tue, 29 Mar 2022 11:41:01 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma04ams.nl.ibm.com with ESMTP id 3f1tf8x2fy-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 29 Mar 2022 11:39:35 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22TBdWsg55640332
+        Tue, 29 Mar 2022 11:41:01 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22TBewKN15270190
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 29 Mar 2022 11:39:32 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0242552051;
-        Tue, 29 Mar 2022 11:39:32 +0000 (GMT)
-Received: from [9.145.75.22] (unknown [9.145.75.22])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id A9C7D5204F;
-        Tue, 29 Mar 2022 11:39:31 +0000 (GMT)
-Message-ID: <7cca996a-454d-7287-1d91-c7f5908b0f15@linux.ibm.com>
-Date:   Tue, 29 Mar 2022 13:39:31 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Content-Language: en-US
-To:     Nico Boehr <nrb@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Cc:     imbrenda@linux.ibm.com, thuth@redhat.com, david@redhat.com,
-        farman@linux.ibm.com
-References: <20220328093048.869830-1-nrb@linux.ibm.com>
- <20220328093048.869830-3-nrb@linux.ibm.com>
- <2fafa98b-e342-047a-3a94-cf4111bc7198@linux.ibm.com>
- <c1b585cbd42cff9920488a74ee5a40ed0d5b13f8.camel@linux.ibm.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-Subject: Re: [PATCH 2/2] s390x: add test for SIGP STORE_ADTL_STATUS order
-In-Reply-To: <c1b585cbd42cff9920488a74ee5a40ed0d5b13f8.camel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+        Tue, 29 Mar 2022 11:40:58 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 229B111C052;
+        Tue, 29 Mar 2022 11:40:58 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0FEA311C04C;
+        Tue, 29 Mar 2022 11:40:58 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Tue, 29 Mar 2022 11:40:58 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55271)
+        id C4087E15ED; Tue, 29 Mar 2022 13:40:57 +0200 (CEST)
+From:   Alexandra Winter <wintera@linux.ibm.com>
+To:     "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        KP Singh <kpsingh@kernel.org>
+Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Alexandra Winter <wintera@linux.ibm.com>
+Subject: [PATCH net-next v2] veth: Support bonding events
+Date:   Tue, 29 Mar 2022 13:40:52 +0200
+Message-Id: <20220329114052.237572-1-wintera@linux.ibm.com>
+X-Mailer: git-send-email 2.32.0
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: QrUMnCyCurLAu91t0ZLOsFmR0PLW27BP
-X-Proofpoint-GUID: yVQqtpLLoTFocC2BSoK5ziSTnVM2FI7_
+X-Proofpoint-ORIG-GUID: 7n0S1niuAqIpNpsb1YcU5gw84ANA6Wcv
+X-Proofpoint-GUID: ZED8u5b0PmEwSkYMHg8b8UwsN4sKbbsj
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-29_04,2022-03-29_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 spamscore=0
- adultscore=0 malwarescore=0 lowpriorityscore=0 suspectscore=0 phishscore=0
- bulkscore=0 clxscore=1011 mlxscore=0 mlxlogscore=999 priorityscore=1501
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2203290069
+ definitions=2022-03-29_02,2022-03-29_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 spamscore=0
+ lowpriorityscore=0 mlxlogscore=999 impostorscore=0 bulkscore=0
+ phishscore=0 clxscore=1015 adultscore=0 malwarescore=0 priorityscore=1501
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2203290069
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-T24gMy8yOC8yMiAxNzoxMiwgTmljbyBCb2VociB3cm90ZToNCj4gT24gTW9uLCAyMDIyLTAz
-LTI4IGF0IDEzOjU0ICswMjAwLCBKYW5vc2NoIEZyYW5rIHdyb3RlOg0KPj4+IGRpZmYgLS1n
-aXQgYS9zMzkweC9hZHRsX3N0YXR1cy5jIGIvczM5MHgvYWR0bF9zdGF0dXMuYw0KPj4+IG5l
-dyBmaWxlIG1vZGUgMTAwNjQ0DQo+Pj4gaW5kZXggMDAwMDAwMDAwMDAwLi43YTJiZDJiMDc4
-MDQNCj4+PiAtLS0gL2Rldi9udWxsDQo+Pj4gKysrIGIvczM5MHgvYWR0bF9zdGF0dXMuYw0K
-PiBbLi4uXQ0KPj4+ICtzdHJ1Y3QgbWNlc2FfbGMxMiB7DQo+Pj4gK8KgwqDCoMKgwqDCoMKg
-dWludDhfdCB2ZWN0b3JfcmVnWzB4MjAwXTvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIC8qIDB4
-MDAwICovDQo+Pg0KPj4gSHJtIHdlIGNvdWxkIGRvOg0KPj4gX191aW50MTI4X3QgdnJlZ3Nb
-MzJdOw0KPj4NCj4+IG9yOg0KPj4gdWludDY0X3QgdnJlZ3NbMTZdWzJdOw0KPj4NCj4+IG9y
-IGxlYXZlIGl0IGFzIGl0IGlzLg0KPiANCj4gTm8gc3Ryb25nIHByZWZlcmVuY2UgYWJvdXQg
-dGhlIHR5cGUuIHVpbnQ4X3QgbWFrZXMgaXQgZWFzeSB0byBjaGVjayB0aGUNCj4gb2Zmc2V0
-cy4NCj4gDQo+Pg0KPj4+ICvCoMKgwqDCoMKgwqDCoHVpbnQ4X3QgcmVzZXJ2ZWQyMDBbMHg0
-MDAgLSAweDIwMF07wqDCoCAvKiAweDIwMCAqLw0KPj4+ICvCoMKgwqDCoMKgwqDCoHN0cnVj
-dCBnc19jYiBnc19jYjvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgLyog
-MHg0MDAgKi8NCj4+PiArwqDCoMKgwqDCoMKgwqB1aW50OF90IHJlc2VydmVkNDIwWzB4ODAw
-IC0gMHg0MjBdO8KgwqAgLyogMHg0MjAgKi8NCj4+PiArwqDCoMKgwqDCoMKgwqB1aW50OF90
-IHJlc2VydmVkODAwWzB4MTAwMCAtIDB4ODAwXTvCoCAvKiAweDgwMCAqLw0KPj4+ICt9Ow0K
-Pj4NCj4+IERvIHdlIGhhdmUgcGxhbnMgdG8gdXNlIHRoaXMgc3RydWN0IGluIHRoZSBmdXR1
-cmUgZm9yIG90aGVyIHRlc3RzPw0KPiANCj4gTWF5YmUgYXQgc29tZSBwb2ludCBpZiB3ZSBh
-ZGQgY2hlY2tzIGZvciBtYWNoaW5lIGNoZWNrIGhhbmRsaW5nLCBidXQNCj4gcmlnaHQgbm93
-IHdlIGRvbid0IGhhdmUgdGhlIGluZnJhc3RydWN0dXJlIGluIGt2bS11bml0LXRlc3RzIHRv
-IGRvIHRoYXQNCj4gSSB0aGluay4NCg0KQWxyaWdodCwgdGhlbiBsZXQncyBsZWF2ZSB0aGUg
-c3RydWN0IGluIGhlcmUgZm9yIG5vdy4NCg0KWy4uLl0NCg0KPj4+ICtzdGF0aWMgdm9pZCBy
-ZXN0YXJ0X3dyaXRlX3ZlY3Rvcih2b2lkKQ0KPj4+ICt7DQo+Pj4gK8KgwqDCoMKgwqDCoMKg
-dWludDhfdCAqdmVjX3JlZzsNCj4+PiArwqDCoMKgwqDCoMKgwqAvKiB2bG0gaGFuZGxlcyBh
-dCBtb3N0IDE2IHJlZ2lzdGVycyBhdCBhIHRpbWUgKi8NCj4+PiArwqDCoMKgwqDCoMKgwqB1
-aW50OF90ICp2ZWNfcmVnXzE2XzMxID0gJmV4cGVjdGVkX3ZlY19jb250ZW50c1sxNl1bMF07
-DQo+Pj4gK8KgwqDCoMKgwqDCoMKgaW50IGk7DQo+Pj4gKw0KPj4+ICvCoMKgwqDCoMKgwqDC
-oGZvciAoaSA9IDA7IGkgPCBOVU1fVkVDX1JFR0lTVEVSUzsgaSsrKSB7DQo+Pj4gK8KgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHZlY19yZWcgPSAmZXhwZWN0ZWRfdmVjX2NvbnRl
-bnRzW2ldWzBdOw0KPj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAvKiBpKzEg
-dG8gYXZvaWQgemVybyBjb250ZW50ICovDQo+Pj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoG1lbXNldCh2ZWNfcmVnLCBpICsgMSwgVkVDX1JFR0lTVEVSX1NJWkUpOw0KPj4+
-ICvCoMKgwqDCoMKgwqDCoH0NCj4+PiArDQo+Pj4gK8KgwqDCoMKgwqDCoMKgY3RsX3NldF9i
-aXQoMCwgQ1RMMF9WRUNUT1IpOw0KPj4+ICsNCj4+PiArwqDCoMKgwqDCoMKgwqBhc20gdm9s
-YXRpbGUgKA0KPj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAiwqDCoMKgwqDC
-oMKgwqAubWFjaGluZSB6MTNcbiINCj4+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgIsKgwqDCoMKgwqDCoMKgdmxtIDAsMTUsICVbdmVjX3JlZ18wXzE1XVxuIg0KPj4+ICvC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAiwqDCoMKgwqDCoMKgwqB2bG0gMTYsMzEs
-ICVbdmVjX3JlZ18xNl8zMV1cbiINCj4+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgOg0KPj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqA6IFt2ZWNfcmVnXzBf
-MTVdICJRIihleHBlY3RlZF92ZWNfY29udGVudHMpLA0KPj4+ICvCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoCBbdmVjX3JlZ18xNl8zMV0gIlEiKCp2ZWNfcmVnXzE2XzMxKQ0K
-Pj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqA6ICJ2MCIsICJ2MSIsICJ2MiIs
-ICJ2MyIsICJ2NCIsICJ2NSIsICJ2NiIsICJ2NyIsDQo+Pj4gInY4IiwgInY5IiwNCj4+PiAr
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgInYxMCIsICJ2MTEiLCAidjEyIiwg
-InYxMyIsICJ2MTQiLCAidjE1IiwgInYxNiIsDQo+Pj4gInYxNyIsICJ2MTgiLA0KPj4+ICvC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAidjE5IiwgInYyMCIsICJ2MjEiLCAi
-djIyIiwgInYyMyIsICJ2MjQiLCAidjI1IiwNCj4+PiAidjI2IiwgInYyNyIsDQo+Pj4gK8Kg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgICJ2MjgiLCAidjI5IiwgInYzMCIsICJ2
-MzEiLCAibWVtb3J5Ig0KPj4NCj4+IFdlIGNoYW5nZSBtZW1vcnkgb24gYSBsb2FkPw0KPiAN
-Cj4gVG8gbXkgdW5kZXJzdGFuZGluZywgdGhpcyBtaWdodCBiZSBuZWNjZXNhcnkgaWYgZXhw
-ZWN0ZWRfdmVjX2NvbnRlbnRzDQo+IGVuZHMgdXAgaW4gYSByZWdpc3RlciwgYnV0IHRoYXQg
-d29uJ3QgaGFwcGVuLCBzbyBJIGNhbiByZW1vdmUgaXQuDQo+IA0KPj4NCj4+PiArwqDCoMKg
-wqDCoMKgwqApOw0KPj4NCj4+IFdlIGNvdWxkIGFsc28gbW92ZSB2bG0gYXMgYSBmdW5jdGlv
-biB0byB2ZWN0b3IuaCBhbmQgZG8gdHdvIGNhbGxzLg0KPiANCj4gSSB0aGluayB0aGF0IHdv
-bid0IHdvcmsgYmVjYXVzZSB0aGF0IGZ1bmN0aW9uIG1pZ2h0IGNsZWFuIGl0cyBmbG9hdA0K
-PiByZWdpc3RlcnMgaW4gdGhlIGVwaWxvZ3VlIGFuZCBoZW5jZSBkZXN0cm95IHRoZSBjb250
-ZW50cy4gRXhjZXB0IGlmIHlvdQ0KPiBoYXZlIGFuIGlkZWEgb24gaG93IHRvIGF2b2lkIHRo
-YXQ/DQoNCkFib3V0IHRoYXQ6DQoNCldlbGwsIHdobyBndWFyYW50ZWVzIHlvdSB0aGF0IHRo
-ZSBjb21waWxlciB3b24ndCBjaGFuZ2UgYSBmcHIgKGFuZCANCnRoZXJlYnkgdGhlIG92ZXJs
-YXBwZWQgdnJzKSBiZXR3ZWVuIHRoZSB2bG1zIGhlcmUgYW5kIHlvdXIgaW5maW5pdGUgbG9v
-cCANCmF0IHRoZSBlbmQgb2YgdGhlIGZ1bmN0aW9uPyA6LSkgZ2NjIHVzZXMgZnBycyBhbmQg
-YWNycyBpbiB0aGUgbW9zdCANCmludGVyZXN0aW5nIHBsYWNlcyBhbmQgSSd2ZSBqdXN0IGJl
-ZW4gaGl0IGJ5IHRoYXQgYWdhaW4gYSBmZXcgaG91cnMgYWdvLg0KDQpJLmUuIHRvIGJlIHNh
-ZmUgd2UnbGwgbmVlZCB0byBpbXBsZW1lbnQgdGhlIG5leHQgZmV3IGxpbmVzIGluIGFzc2Vt
-Ymx5IA0KYXMgd2VsbCwgbm8/DQo=
+Bonding drivers generate specific events during failover that trigger
+switch updates.  When a veth device is attached to a bridge with a
+bond interface, we want external switches to learn about the veth
+devices as well.
+
+Example:
+
+	| veth_a2   |  veth_b2  |  veth_c2 |
+	------o-----------o----------o------
+	       \	  |	    /
+		o	  o	   o
+	      veth_a1  veth_b1  veth_c1
+	      -------------------------
+	      |        bridge         |
+	      -------------------------
+			bond0
+			/  \
+		     eth0  eth1
+
+In case of failover from eth0 to eth1, the netdev_notifier needs to be
+propagated, so e.g. veth_a2 can re-announce its MAC address to the
+external hardware attached to eth1.
+
+Without this patch we have seen cases where recovery after bond failover
+took an unacceptable amount of time (depending on timeout settings in the
+network).
+
+Due to the symmetric nature of veth special care is required to avoid
+endless notification loops. Therefore we only notify from a veth
+bridgeport to a peer that is not a bridgeport.
+
+References:
+Same handling as for macvlan:
+commit 4c9912556867 ("macvlan: Support bonding events")
+and vlan:
+commit 4aa5dee4d999 ("net: convert resend IGMP to notifier event")
+
+Alternatives:
+Propagate notifier events to all ports of a bridge. IIUC, this was
+rejected in https://www.spinics.net/lists/netdev/msg717292.html
+It also seems difficult to avoid re-bouncing the notifier.
+
+Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+---
+ drivers/net/veth.c | 53 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 53 insertions(+)
+
+diff --git a/drivers/net/veth.c b/drivers/net/veth.c
+index d29fb9759cc9..74b074453197 100644
+--- a/drivers/net/veth.c
++++ b/drivers/net/veth.c
+@@ -1579,6 +1579,57 @@ static void veth_setup(struct net_device *dev)
+ 	dev->mpls_features = NETIF_F_HW_CSUM | NETIF_F_GSO_SOFTWARE;
+ }
+ 
++static bool netif_is_veth(const struct net_device *dev)
++{
++	return (dev->netdev_ops == &veth_netdev_ops);
++}
++
++static void veth_notify_peer(unsigned long event, const struct net_device *dev)
++{
++	struct net_device *peer;
++	struct veth_priv *priv;
++
++	priv = netdev_priv(dev);
++	peer = rtnl_dereference(priv->peer);
++	/* avoid re-bounce between 2 bridges */
++	if (!netif_is_bridge_port(peer))
++		call_netdevice_notifiers(event, peer);
++}
++
++/* Called under rtnl_lock */
++static int veth_device_event(struct notifier_block *unused,
++			     unsigned long event, void *ptr)
++{
++	struct net_device *dev, *lower;
++	struct list_head *iter;
++
++	dev = netdev_notifier_info_to_dev(ptr);
++
++	switch (event) {
++	case NETDEV_NOTIFY_PEERS:
++	case NETDEV_BONDING_FAILOVER:
++	case NETDEV_RESEND_IGMP:
++		/* propagate to peer of a bridge attached veth */
++		if (netif_is_bridge_master(dev)) {
++			iter = &dev->adj_list.lower;
++			lower = netdev_next_lower_dev_rcu(dev, &iter);
++			while (lower) {
++				if (netif_is_veth(lower))
++					veth_notify_peer(event, lower);
++				lower = netdev_next_lower_dev_rcu(dev, &iter);
++			}
++		}
++		break;
++	default:
++		break;
++	}
++	return NOTIFY_DONE;
++}
++
++static struct notifier_block veth_notifier_block __read_mostly = {
++		.notifier_call  = veth_device_event,
++};
++
+ /*
+  * netlink interface
+  */
+@@ -1824,12 +1875,14 @@ static struct rtnl_link_ops veth_link_ops = {
+ 
+ static __init int veth_init(void)
+ {
++	register_netdevice_notifier(&veth_notifier_block);
+ 	return rtnl_link_register(&veth_link_ops);
+ }
+ 
+ static __exit void veth_exit(void)
+ {
+ 	rtnl_link_unregister(&veth_link_ops);
++	unregister_netdevice_notifier(&veth_notifier_block);
+ }
+ 
+ module_init(veth_init);
+-- 
+2.32.0
+
