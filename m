@@ -2,41 +2,41 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 52A8EC433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 29 Mar 2022 16:49:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24DBEC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 29 Mar 2022 16:50:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239909AbiC2QvQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 29 Mar 2022 12:51:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37778 "EHLO
+        id S239928AbiC2Qv5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 29 Mar 2022 12:51:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239906AbiC2QvP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Mar 2022 12:51:15 -0400
+        with ESMTP id S239939AbiC2Qv4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Mar 2022 12:51:56 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id F045E108185
-        for <linux-s390@vger.kernel.org>; Tue, 29 Mar 2022 09:49:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 467FD2571A5
+        for <linux-s390@vger.kernel.org>; Tue, 29 Mar 2022 09:50:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1648572570;
+        s=mimecast20190719; t=1648572611;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=sC+ymRkt7JVDUa+jsWm6tHAksM2n+k+zaIL6QWBa32I=;
-        b=Bm2RHli0iCGxiPAKcT5SdZnhs9TiP+EITXkK49j/50xYIcS3NNAaxY/wTU/73T4IdCG2d0
-        o9XsMKezQkde1BKvwSlg/12ruc1CfBAmPlecpqALMQ4AFQ2oz/OEgKw3dAbUm+3EDccdzc
-        ppMbTrs6mdi12GSy7gFv7VJsaJRHSEg=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=bMfZOVQVS5I2zZPcY9Fdh37ujSfx4fPUK1QRVEaCA5k=;
+        b=euQzpquA6YQIWkMYbNbrJkauIMINeD9XS7ROndw5bbpHMg9Y9SUWKWw5OYw+jikgLhciFm
+        Jk0TlpTMRgfSCASZ2iHkhjsEDTfJi7e/se5q5yT8xduD3qyT70vvu3fYVW/Tr4lgLeCbXF
+        fFAwvIuDaDQ4dvEm58hneaRGBYoRSu0=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-41-roYzQxbCMv-hrUjMfAj--g-1; Tue, 29 Mar 2022 12:49:29 -0400
-X-MC-Unique: roYzQxbCMv-hrUjMfAj--g-1
+ us-mta-57-w3EaO9epNH-b7CkKN7fb2w-1; Tue, 29 Mar 2022 12:50:09 -0400
+X-MC-Unique: w3EaO9epNH-b7CkKN7fb2w-1
 Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 5ED81811E9B;
-        Tue, 29 Mar 2022 16:49:27 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 719C31C1782F;
+        Tue, 29 Mar 2022 16:50:07 +0000 (UTC)
 Received: from t480s.redhat.com (unknown [10.39.194.134])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 3BA641121314;
-        Tue, 29 Mar 2022 16:48:32 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id BC9701121314;
+        Tue, 29 Mar 2022 16:49:27 +0000 (UTC)
 From:   David Hildenbrand <david@redhat.com>
 To:     linux-kernel@vger.kernel.org
 Cc:     Andrew Morton <akpm@linux-foundation.org>,
@@ -79,9 +79,9 @@ Cc:     Andrew Morton <akpm@linux-foundation.org>,
         linux-arm-kernel@lists.infradead.org,
         linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
         David Hildenbrand <david@redhat.com>
-Subject: [PATCH v2 6/8] s390/pgtable: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-Date:   Tue, 29 Mar 2022 18:43:27 +0200
-Message-Id: <20220329164329.208407-7-david@redhat.com>
+Subject: [PATCH v2 7/8] powerpc/pgtable: remove _PAGE_BIT_SWAP_TYPE for book3s
+Date:   Tue, 29 Mar 2022 18:43:28 +0200
+Message-Id: <20220329164329.208407-8-david@redhat.com>
 In-Reply-To: <20220329164329.208407-1-david@redhat.com>
 References: <20220329164329.208407-1-david@redhat.com>
 MIME-Version: 1.0
@@ -91,67 +91,64 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Let's use bit 52, which is unused.
+The swap type is simply stored in bits 0x1f of the swap pte. Let's
+simplify by just getting rid of _PAGE_BIT_SWAP_TYPE. It's not like that
+we can simply change it: _PAGE_SWP_SOFT_DIRTY would suddenly fall into
+_RPAGE_RSV1, which isn't possible and would make the
+BUILD_BUG_ON(_PAGE_HPTEFLAGS & _PAGE_SWP_SOFT_DIRTY) angry.
+
+While at it, make it clearer which bit we're actually using for
+_PAGE_SWP_SOFT_DIRTY by just using the proper define and introduce and
+use SWP_TYPE_MASK.
 
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- arch/s390/include/asm/pgtable.h | 23 +++++++++++++++++++++--
- 1 file changed, 21 insertions(+), 2 deletions(-)
+ arch/powerpc/include/asm/book3s/64/pgtable.h | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index 3982575bb586..a397b072a580 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -181,6 +181,8 @@ static inline int is_module_addr(void *addr)
- #define _PAGE_SOFT_DIRTY 0x000
- #endif
- 
-+#define _PAGE_SWP_EXCLUSIVE _PAGE_LARGE	/* SW pte exclusive swap bit */
-+
- /* Set of bits not changed in pte_modify */
- #define _PAGE_CHG_MASK		(PAGE_MASK | _PAGE_SPECIAL | _PAGE_DIRTY | \
- 				 _PAGE_YOUNG | _PAGE_SOFT_DIRTY)
-@@ -826,6 +828,22 @@ static inline int pmd_protnone(pmd_t pmd)
- }
- #endif
- 
-+#define __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-+static inline int pte_swp_exclusive(pte_t pte)
-+{
-+	return pte_val(pte) & _PAGE_SWP_EXCLUSIVE;
-+}
-+
-+static inline pte_t pte_swp_mkexclusive(pte_t pte)
-+{
-+	return set_pte_bit(pte, __pgprot(_PAGE_SWP_EXCLUSIVE));
-+}
-+
-+static inline pte_t pte_swp_clear_exclusive(pte_t pte)
-+{
-+	return clear_pte_bit(pte, __pgprot(_PAGE_SWP_EXCLUSIVE));
-+}
-+
- static inline int pte_soft_dirty(pte_t pte)
- {
- 	return pte_val(pte) & _PAGE_SOFT_DIRTY;
-@@ -1715,14 +1733,15 @@ static inline int has_transparent_hugepage(void)
-  * Bits 54 and 63 are used to indicate the page type. Bit 53 marks the pte
-  * as invalid.
-  * A swap pte is indicated by bit pattern (pte & 0x201) == 0x200
-- * |			  offset			|X11XX|type |S0|
-+ * |			  offset			|E11XX|type |S0|
-  * |0000000000111111111122222222223333333333444444444455|55555|55566|66|
-  * |0123456789012345678901234567890123456789012345678901|23456|78901|23|
-  *
-  * Bits 0-51 store the offset.
-+ * Bit 52 (E) is used to remember PG_anon_exclusive.
-  * Bits 57-61 store the type.
-  * Bit 62 (S) is used for softdirty tracking.
-- * Bits 52, 55 and 56 (X) are unused.
-+ * Bits 55 and 56 (X) are unused.
+diff --git a/arch/powerpc/include/asm/book3s/64/pgtable.h b/arch/powerpc/include/asm/book3s/64/pgtable.h
+index 875730d5af40..8e98375d5c4a 100644
+--- a/arch/powerpc/include/asm/book3s/64/pgtable.h
++++ b/arch/powerpc/include/asm/book3s/64/pgtable.h
+@@ -13,7 +13,6 @@
+ /*
+  * Common bits between hash and Radix page table
   */
+-#define _PAGE_BIT_SWAP_TYPE	0
  
- #define __SWP_OFFSET_MASK	((1UL << 52) - 1)
+ #define _PAGE_EXEC		0x00001 /* execute permission */
+ #define _PAGE_WRITE		0x00002 /* write access allowed */
+@@ -751,17 +750,16 @@ static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
+ 	 * Don't have overlapping bits with _PAGE_HPTEFLAGS	\
+ 	 * We filter HPTEFLAGS on set_pte.			\
+ 	 */							\
+-	BUILD_BUG_ON(_PAGE_HPTEFLAGS & (0x1f << _PAGE_BIT_SWAP_TYPE)); \
++	BUILD_BUG_ON(_PAGE_HPTEFLAGS & SWP_TYPE_MASK); \
+ 	BUILD_BUG_ON(_PAGE_HPTEFLAGS & _PAGE_SWP_SOFT_DIRTY);	\
+ 	} while (0)
+ 
+ #define SWP_TYPE_BITS 5
+-#define __swp_type(x)		(((x).val >> _PAGE_BIT_SWAP_TYPE) \
+-				& ((1UL << SWP_TYPE_BITS) - 1))
++#define SWP_TYPE_MASK		((1UL << SWP_TYPE_BITS) - 1)
++#define __swp_type(x)		((x).val & SWP_TYPE_MASK)
+ #define __swp_offset(x)		(((x).val & PTE_RPN_MASK) >> PAGE_SHIFT)
+ #define __swp_entry(type, offset)	((swp_entry_t) { \
+-				((type) << _PAGE_BIT_SWAP_TYPE) \
+-				| (((offset) << PAGE_SHIFT) & PTE_RPN_MASK)})
++				(type) | (((offset) << PAGE_SHIFT) & PTE_RPN_MASK)})
+ /*
+  * swp_entry_t must be independent of pte bits. We build a swp_entry_t from
+  * swap type and offset we get from swap and convert that to pte to find a
+@@ -774,7 +772,7 @@ static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
+ #define __swp_entry_to_pmd(x)	(pte_pmd(__swp_entry_to_pte(x)))
+ 
+ #ifdef CONFIG_MEM_SOFT_DIRTY
+-#define _PAGE_SWP_SOFT_DIRTY   (1UL << (SWP_TYPE_BITS + _PAGE_BIT_SWAP_TYPE))
++#define _PAGE_SWP_SOFT_DIRTY	_PAGE_NON_IDEMPOTENT
+ #else
+ #define _PAGE_SWP_SOFT_DIRTY	0UL
+ #endif /* CONFIG_MEM_SOFT_DIRTY */
 -- 
 2.35.1
 
