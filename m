@@ -2,36 +2,36 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DBD7C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 29 Mar 2022 02:14:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FE4CC433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 29 Mar 2022 02:17:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230104AbiC2CQK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 28 Mar 2022 22:16:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55770 "EHLO
+        id S230243AbiC2CTi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 28 Mar 2022 22:19:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229967AbiC2CQJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Mar 2022 22:16:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6550662DE;
-        Mon, 28 Mar 2022 19:14:27 -0700 (PDT)
+        with ESMTP id S229986AbiC2CTi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Mar 2022 22:19:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97FBC1B84FE;
+        Mon, 28 Mar 2022 19:17:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0D058B81607;
-        Tue, 29 Mar 2022 02:14:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17534C340EC;
-        Tue, 29 Mar 2022 02:14:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B878612D8;
+        Tue, 29 Mar 2022 02:17:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C682CC340EC;
+        Tue, 29 Mar 2022 02:17:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648520064;
-        bh=7fW0qiBX6nf6aqmiYTUKl8IZVghKod9oKgapNiJVVvI=;
+        s=k20201202; t=1648520275;
+        bh=x6LGrekP+vzDseqjbaDHBzEuyMampza0o4ZGpkRkiAE=;
         h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=R6ZFmTkoeFLrWXHirerVB3/ekSSKk0h9CqMcFF9I1cpcnFF9Ck0bqt6gBRyIxNiXa
-         7laoaN3FENWYbNJ4tpYm9oCK0KPR3oHQrTNlPF58bHZvuoSp69Oi+vEbmuP9zUzom2
-         yHqf9Iy8E43EYtmi17uKmDgQQtVb0wAcwIyWQ3RZ5Mtt5Uxza7dYZkvSPuBOuxy/NG
-         oqzPFHeZN3XGjbcNKQCgAjXUcYI4fDvsvzv2FC/4FIoYjQyd/6QEa3EHy6ywHRucul
-         jTF7f7DKZ7foVRYAezETdnl/zwzhkdRXvuZ4oHBuOYIYeooac6zrTsT216HSsyPR6x
-         YUDal7RhJ7www==
-Date:   Mon, 28 Mar 2022 19:14:22 -0700
+        b=l36SLPy15kB/fZ1ZD5S9OBSjzyvVgoU266cA1YELubgImIwZKpfhabut5SEqcv7/y
+         Kl9WqbXDFIZxtrts7T5DzMjVOYSRYSqisqXC/Ee4JJmyCsIqUSGx3EE8xPBHeBILIs
+         ENLY1J/d4boH2QLgkUyHWLUVrY7SB6Pk4LmGx6s2QVSqfV8H3vtImGFxSrU5ekEe0S
+         JBp6xbKXYnoOMfYZrXObTxxitNK4CbnPNTudCdbCV71cdPFDp7GjFBqSr33vb6S4Fk
+         1tiqzBvn7Si/ohMO2eRXpIBkcXCUYuXlv/BPcuSNr5h/ubvmXfMa0PHaFy/VxWhEnF
+         t2rF52GXlvBTA==
+Date:   Mon, 28 Mar 2022 19:17:53 -0700
 From:   Jakub Kicinski <kuba@kernel.org>
 To:     Alexandra Winter <wintera@linux.ibm.com>
 Cc:     "David S. Miller" <davem@davemloft.net>,
@@ -45,10 +45,11 @@ Cc:     "David S. Miller" <davem@davemloft.net>,
         Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
         KP Singh <kpsingh@kernel.org>, netdev@vger.kernel.org,
         linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>
-Subject: Re: [PATCH net-next 0/1] veth: Support bonding events
-Message-ID: <20220328191422.2acecf5f@kernel.org>
-In-Reply-To: <20220328081417.1427666-1-wintera@linux.ibm.com>
+Subject: Re: [PATCH net-next 1/1] veth: Support bonding events
+Message-ID: <20220328191753.33b1910e@kernel.org>
+In-Reply-To: <20220328081417.1427666-2-wintera@linux.ibm.com>
 References: <20220328081417.1427666-1-wintera@linux.ibm.com>
+        <20220328081417.1427666-2-wintera@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -56,30 +57,15 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 28 Mar 2022 10:14:16 +0200 Alexandra Winter wrote:
-> In case virtual instances are attached to an external network via veth
-> and a bridge, the interface to the external network can be a bond
-> interface. Bonding drivers generate specific events during failover
-> that trigger switch updates.  When a veth device is attached to a
-> bridge with a bond interface, we want external switches to learn about
-> the veth devices as well.
+On Mon, 28 Mar 2022 10:14:17 +0200 Alexandra Winter wrote:
+> +static bool _is_veth(const struct net_device *dev)
 
-Can you please add an ASCII diagram of a setup your trying to describe?
+netif_is_veth()?
 
-> Without this patch we have seen cases where recovery after bond
-> failover took an unacceptable amount of time (depending on timeout
-> settings in the network).
-> 
-> Due to the symmetric nature of veth special care is required to avoid
-> endless notification loops. Therefore we only notify from a veth
-> bridgeport to a peer that is not a bridgeport.
-> 
-> References:
-> Same handling as for macvlan:
-> 4c9912556867 ("macvlan: Support bonding events"
-> and vlan:
-> 4aa5dee4d999 ("net: convert resend IGMP to notifier event")
+> +{
+> +	return (dev->netdev_ops->ndo_open == veth_open);
 
-When sending a single patch change you can put all the information 
-in the commit message of the patch, the cover letter is only necessary
-for series of multiple patches.
+Why compare ndo_open and not entire netdev_ops or rtnl_link_ops?
+
+> +}
+
