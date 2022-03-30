@@ -2,178 +2,231 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C06B5C433FE
-	for <linux-s390@archiver.kernel.org>; Wed, 30 Mar 2022 12:35:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 21135C433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 30 Mar 2022 12:35:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241552AbiC3Mgp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 30 Mar 2022 08:36:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43440 "EHLO
+        id S244637AbiC3Mhk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 30 Mar 2022 08:37:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344659AbiC3MfV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 30 Mar 2022 08:35:21 -0400
+        with ESMTP id S1343770AbiC3Mh2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 30 Mar 2022 08:37:28 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC7947B554;
-        Wed, 30 Mar 2022 05:21:02 -0700 (PDT)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22UAFswN030947;
-        Wed, 30 Mar 2022 12:20:42 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E22F9025F;
+        Wed, 30 Mar 2022 05:26:18 -0700 (PDT)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22UAt80Q013733;
+        Wed, 30 Mar 2022 12:26:17 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=pyu4O5lMMU/BUfHgswvm5ffmgsd3h8dI5XjfpWkeku4=;
- b=rMzTJlRksFsJe0Ryrk6DwGZgmdDLcKfLqudV/sFG6iRKAmGpMgk/CTJMY/dnz8PVxC+P
- YXzufNHYSwNk7wJkgX/x7nR7fto4fgoqTkBji7i1/VUESTEgjwmaYCiMqG9Z0p913ndN
- XMRK7g0UTLFwnvELlJn1XRyEy+xDx+SpY+TVsEPRhVCh8CP4eRXQ7BTrucHnEVdiVp3B
- hW+WVbURkXSPrOARxVDHg+SRA9xdGppk1hF4whGxkjOXCgt7PBO7T9wUZZIGgeUtiW2d
- XMMjr1BjQgrISwySoKA247//v/UDTNSXMX1pneSXa0E5cVSenouioBDynwL2eHofQvY/ 6A== 
+ bh=4fTO2bZ41YPgob3gvWmfe+nwPdJuKpOfjKm0SQP7Kao=;
+ b=jy4Wt4HpNvd73H5ajrfQpD0wTeOt6cbeK1WP/LL5wDol48H2G1tQwnBmJbPXvvHpW7CR
+ c0e4yyF6G56tYS0WY7Gt9OBUMlLMTg613OFbFoHxzDYmafVbDLkWdxxtmRHyqwCtVfGL
+ JVqS9RsuBhI3+0ZpoB6GH4XYO0XEKldT2QwxDu04WW9qswN6oLWaxrv9h7aIJkWMmB2k
+ fbQkQl2u1MRQbVvGgr/DWdUjgE2rL5ZHsVOdaRNXDJiCSTTXXao/ko/wNn8Dk715NtqI
+ FielWC+KkZUyMr8bAlLF72dwivHoIck2GZgaEJHouVF2LLZovP5o7piQom/FoQqibVCC VA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3f4na5tjj7-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3f4nv91vdv-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 30 Mar 2022 12:20:42 +0000
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22UC3dGi014382;
-        Wed, 30 Mar 2022 12:20:41 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3f4na5tjhm-1
+        Wed, 30 Mar 2022 12:26:17 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22UBLrM4002265;
+        Wed, 30 Mar 2022 12:26:16 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3f4nv91vdc-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 30 Mar 2022 12:20:41 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22UBxAot021925;
-        Wed, 30 Mar 2022 12:20:40 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma04fra.de.ibm.com with ESMTP id 3f1tf8y9am-1
+        Wed, 30 Mar 2022 12:26:16 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22UCNTds027046;
+        Wed, 30 Mar 2022 12:26:14 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma06ams.nl.ibm.com with ESMTP id 3f3rs3khny-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 30 Mar 2022 12:20:39 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22UCKgw545482326
+        Wed, 30 Mar 2022 12:26:14 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22UCQBNO49545674
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 30 Mar 2022 12:20:42 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C413342045;
-        Wed, 30 Mar 2022 12:20:36 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 33EEB42047;
-        Wed, 30 Mar 2022 12:20:36 +0000 (GMT)
-Received: from linux6.. (unknown [9.114.12.104])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 30 Mar 2022 12:20:36 +0000 (GMT)
-From:   Janosch Frank <frankja@linux.ibm.com>
+        Wed, 30 Mar 2022 12:26:11 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7CE9D11C058;
+        Wed, 30 Mar 2022 12:26:11 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EA26111C04A;
+        Wed, 30 Mar 2022 12:26:10 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.145.13.95])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 30 Mar 2022 12:26:10 +0000 (GMT)
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
 To:     kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        david@redhat.com, borntraeger@linux.ibm.com
-Subject: [PATCH v3 8/9] Documentation: virt: Protected virtual machine dumps
-Date:   Wed, 30 Mar 2022 12:19:51 +0000
-Message-Id: <20220330121952.105725-9-frankja@linux.ibm.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220330121952.105725-1-frankja@linux.ibm.com>
-References: <20220330121952.105725-1-frankja@linux.ibm.com>
+Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, david@redhat.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, scgl@linux.ibm.com,
+        mimu@linux.ibm.com, nrb@linux.ibm.com
+Subject: [PATCH v9 01/18] KVM: s390: pv: leak the topmost page table when destroy fails
+Date:   Wed, 30 Mar 2022 14:25:48 +0200
+Message-Id: <20220330122605.247613-2-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220330122605.247613-1-imbrenda@linux.ibm.com>
+References: <20220330122605.247613-1-imbrenda@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: t-pFadYO-60xlBTZlrlHYa7acc4lWyBz
-X-Proofpoint-GUID: ZEOVKLz8KoRAPxqZOYMZxDl0Ai8Ne_mE
+X-Proofpoint-GUID: QEecJR53IVP18Yb1_xtbNzV-QZEJyXuH
+X-Proofpoint-ORIG-GUID: IpjqQKr8B11AF10_r7GFT7YgwK_xzcOX
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-03-30_04,2022-03-30_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
- spamscore=0 malwarescore=0 adultscore=0 priorityscore=1501 suspectscore=0
- lowpriorityscore=0 mlxscore=0 mlxlogscore=999 bulkscore=0 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2203300062
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 adultscore=0
+ priorityscore=1501 lowpriorityscore=0 impostorscore=0 malwarescore=0
+ spamscore=0 clxscore=1011 phishscore=0 suspectscore=0 mlxscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2203300062
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Let's add a documentation file which describes the dump process. Since
-we only copy the UV dump data from the UV to userspace we'll not go
-into detail here and let the party which processes the data describe
-its structure.
+Each secure guest must have a unique ASCE (address space control
+element); we must avoid that new guests use the same page for their
+ASCE, to avoid errors.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Since the ASCE mostly consists of the address of the topmost page table
+(plus some flags), we must not return that memory to the pool unless
+the ASCE is no longer in use.
+
+Only a successful Destroy Secure Configuration UVC will make the ASCE
+reusable again.
+
+If the Destroy Configuration UVC fails, the ASCE cannot be reused for a
+secure guest (either for the ASCE or for other memory areas). To avoid
+a collision, it must not be used again. This is a permanent error and
+the page becomes in practice unusable, so we set it aside and leak it.
+On failure we already leak other memory that belongs to the ultravisor
+(i.e. the variable and base storage for a guest) and not leaking the
+topmost page table was an oversight.
+
+This error (and thus the leakage) should not happen unless the hardware
+is broken or KVM has some unknown serious bug.
+
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Fixes: 29b40f105ec8d55 ("KVM: s390: protvirt: Add initial vm and cpu lifecycle handling")
 ---
- Documentation/virt/kvm/index.rst        |  1 +
- Documentation/virt/kvm/s390-pv-dump.rst | 60 +++++++++++++++++++++++++
- 2 files changed, 61 insertions(+)
- create mode 100644 Documentation/virt/kvm/s390-pv-dump.rst
+ arch/s390/include/asm/gmap.h |  2 +
+ arch/s390/kvm/pv.c           |  9 +++--
+ arch/s390/mm/gmap.c          | 71 ++++++++++++++++++++++++++++++++++++
+ 3 files changed, 79 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/virt/kvm/index.rst b/Documentation/virt/kvm/index.rst
-index b6833c7bb474..32f3eed5fadb 100644
---- a/Documentation/virt/kvm/index.rst
-+++ b/Documentation/virt/kvm/index.rst
-@@ -20,6 +20,7 @@ KVM
-    s390-diag
-    s390-pv
-    s390-pv-boot
-+   s390-pv-dump
-    timekeeping
-    vcpu-requests
+diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
+index 40264f60b0da..746e18bf8984 100644
+--- a/arch/s390/include/asm/gmap.h
++++ b/arch/s390/include/asm/gmap.h
+@@ -148,4 +148,6 @@ void gmap_sync_dirty_log_pmd(struct gmap *gmap, unsigned long dirty_bitmap[4],
+ 			     unsigned long gaddr, unsigned long vmaddr);
+ int gmap_mark_unmergeable(void);
+ void s390_reset_acc(struct mm_struct *mm);
++void s390_remove_old_asce(struct gmap *gmap);
++int s390_replace_asce(struct gmap *gmap);
+ #endif /* _ASM_S390_GMAP_H */
+diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+index 7f7c0d6af2ce..3c59ef763dde 100644
+--- a/arch/s390/kvm/pv.c
++++ b/arch/s390/kvm/pv.c
+@@ -166,10 +166,13 @@ int kvm_s390_pv_deinit_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
+ 	atomic_set(&kvm->mm->context.is_protected, 0);
+ 	KVM_UV_EVENT(kvm, 3, "PROTVIRT DESTROY VM: rc %x rrc %x", *rc, *rrc);
+ 	WARN_ONCE(cc, "protvirt destroy vm failed rc %x rrc %x", *rc, *rrc);
+-	/* Inteded memory leak on "impossible" error */
+-	if (!cc)
++	/* Intended memory leak on "impossible" error */
++	if (!cc) {
+ 		kvm_s390_pv_dealloc_vm(kvm);
+-	return cc ? -EIO : 0;
++		return 0;
++	}
++	s390_replace_asce(kvm->arch.gmap);
++	return -EIO;
+ }
  
-diff --git a/Documentation/virt/kvm/s390-pv-dump.rst b/Documentation/virt/kvm/s390-pv-dump.rst
-new file mode 100644
-index 000000000000..6fe7560e10b1
---- /dev/null
-+++ b/Documentation/virt/kvm/s390-pv-dump.rst
-@@ -0,0 +1,60 @@
-+.. SPDX-License-Identifier: GPL-2.0
+ int kvm_s390_pv_init_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index dfee0ebb2fac..3b42bf7adb77 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -2714,3 +2714,74 @@ void s390_reset_acc(struct mm_struct *mm)
+ 	mmput(mm);
+ }
+ EXPORT_SYMBOL_GPL(s390_reset_acc);
 +
-+===========================================
-+s390 (IBM Z) Protected Virtualization dumps
-+===========================================
++/**
++ * s390_remove_old_asce - Remove the topmost level of page tables from the
++ * list of page tables of the gmap.
++ * @gmap the gmap whose table is to be removed
++ *
++ * This means that it will not be freed when the VM is torn down, and needs
++ * to be handled separately by the caller, unless an intentional leak is
++ * intended. Notice that this function will only remove the page from the
++ * list, the page will still be used as a top level page table (and ASCE).
++ */
++void s390_remove_old_asce(struct gmap *gmap)
++{
++	struct page *old;
 +
-+Summary
-+-------
++	old = virt_to_page(gmap->table);
++	spin_lock(&gmap->guest_table_lock);
++	list_del(&old->lru);
++	/*
++	 * in case the ASCE needs to be "removed" multiple times, for example
++	 * if the VM is rebooted into secure mode several times
++	 * concurrently.
++	 */
++	INIT_LIST_HEAD(&old->lru);
++	spin_unlock(&gmap->guest_table_lock);
++}
++EXPORT_SYMBOL_GPL(s390_remove_old_asce);
 +
-+Dumping a VM is an essential tool for debugging problems inside
-+it. This is especially true when a protected VM runs into trouble as
-+there's no way to access its memory and registers from the outside
-+while it's running.
++/**
++ * s390_replace_asce - Try to replace the current ASCE of a gmap with
++ * another equivalent one.
++ * @gmap the gmap
++ *
++ * If the allocation of the new top level page table fails, the ASCE is not
++ * replaced.
++ * In any case, the old ASCE is always removed from the list. Therefore the
++ * caller has to make sure to save a pointer to it beforehands, unless an
++ * intentional leak is intended.
++ */
++int s390_replace_asce(struct gmap *gmap)
++{
++	unsigned long asce;
++	struct page *page;
++	void *table;
 +
-+However when dumping a protected VM we need to maintain its
-+confidentiality until the dump is in the hands of the VM owner who
-+should be the only one capable of analysing it.
++	s390_remove_old_asce(gmap);
 +
-+The confidentiality of the VM dump is ensured by the Ultravisor who
-+provides an interface to KVM over which encrypted CPU and memory data
-+can be requested. The encryption is based on the Customer
-+Communication Key which is the key that's used to encrypt VM data in a
-+way that the customer is able to decrypt.
++	page = alloc_pages(GFP_KERNEL_ACCOUNT, CRST_ALLOC_ORDER);
++	if (!page)
++		return -ENOMEM;
++	table = page_to_virt(page);
++	memcpy(table, gmap->table, 1UL << (CRST_ALLOC_ORDER + PAGE_SHIFT));
 +
++	/*
++	 * The caller has to deal with the old ASCE, but here we make sure
++	 * the new one is properly added to the list of page tables, so that
++	 * it will be freed when the VM is torn down.
++	 */
++	spin_lock(&gmap->guest_table_lock);
++	list_add(&page->lru, &gmap->crst_list);
++	spin_unlock(&gmap->guest_table_lock);
 +
-+Dump process
-+------------
++	/* Set new table origin while preserving existing ASCE control bits */
++	asce = (gmap->asce & ~_ASCE_ORIGIN) | __pa(table);
++	WRITE_ONCE(gmap->asce, asce);
++	WRITE_ONCE(gmap->mm->context.gmap_asce, asce);
++	WRITE_ONCE(gmap->table, table);
 +
-+A dump is done in 3 steps:
-+
-+Initiation
-+This step initializes the dump process, generates cryptographic seeds
-+and extracts dump keys with which the VM dump data will be encrypted.
-+
-+Data gathering
-+Currently there are two types of data that can be gathered from a VM:
-+the memory and the vcpu state.
-+
-+The vcpu state contains all the important registers, general, floating
-+point, vector, control and tod/timers of a vcpu. The vcpu dump can
-+contain incomplete data if a vcpu is dumped while an instruction is
-+emulated with help of the hypervisor. This is indicated by a flag bit
-+in the dump data. For the same reason it is very important to not only
-+write out the encrypted vcpu state, but also the unencrypted state
-+from the hypervisor.
-+
-+The memory state is further divided into the encrypted memory and its
-+encryption tweaks / status flags. The encrypted memory can simply be
-+read once it has been exported. The time of the export does not matter
-+as no re-encryption is needed. Memory that has been swapped out and
-+hence was exported can be read from the swap and written to the dump
-+target without need for any special actions.
-+
-+The tweaks / status flags for the exported pages need to be requested
-+from the Ultravisor.
-+
-+Finalization
-+The finalization step will provide the data needed to be able to
-+decrypt the vcpu and memory data and end the dump process. When this
-+step completes successfully a new dump initiation can be started.
++	return 0;
++}
++EXPORT_SYMBOL_GPL(s390_replace_asce);
 -- 
-2.32.0
+2.34.1
 
