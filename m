@@ -2,156 +2,267 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F9EAC433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 30 Mar 2022 06:59:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D8DCC433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 30 Mar 2022 10:23:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243570AbiC3HA5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 30 Mar 2022 03:00:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56860 "EHLO
+        id S245314AbiC3KZa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 30 Mar 2022 06:25:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243576AbiC3HAx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 30 Mar 2022 03:00:53 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 51191DFD72
-        for <linux-s390@vger.kernel.org>; Tue, 29 Mar 2022 23:58:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1648623518;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=BF9Fr3Hf2Q3seTfZG5uyvCg9ZVloRlsxZukD5j+fS4A=;
-        b=LILja68p93ujgunKcSzMgpDX3ug346qSFD0y+glc5bTbCCYMTwUZxkPKwSQ21xBsZDcg/0
-        UVJ6edyNVKNbFwOqdDGWq2faDq4mEnY/Lv259GNDI/5bgN9JNPfOM0DtyZUM068QEyx3fn
-        Cyz34CPWzWlJKK/4SOSWh6AKkI7+Zk0=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-18-7XB5Fd_lNTCwxolCN_ZWbg-1; Wed, 30 Mar 2022 02:58:37 -0400
-X-MC-Unique: 7XB5Fd_lNTCwxolCN_ZWbg-1
-Received: by mail-wm1-f72.google.com with SMTP id 2-20020a1c0202000000b0038c71e8c49cso646518wmc.1
-        for <linux-s390@vger.kernel.org>; Tue, 29 Mar 2022 23:58:36 -0700 (PDT)
+        with ESMTP id S238015AbiC3KZ3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 30 Mar 2022 06:25:29 -0400
+Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90C6A22B32
+        for <linux-s390@vger.kernel.org>; Wed, 30 Mar 2022 03:23:40 -0700 (PDT)
+Received: by mail-ej1-x632.google.com with SMTP id pv16so40585505ejb.0
+        for <linux-s390@vger.kernel.org>; Wed, 30 Mar 2022 03:23:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=blackwall-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=KcemAQXGKS/bu1WPq66TUYrATVLlvsGVeMOPMU20wnE=;
+        b=hcm4UeLCkZcBWsN+sqAaYrQ3UM6jSe/BWrZylHfI9zj1/b/B+Q2o3QKiHKheyLAkxb
+         TTTsO73YQralOmuppkB2+AsMeaXa797UpzBV3SO2JiqC/haM2g5W/HHssc5l03WSzMnk
+         wn9F0GM2KrEypygyS4rpwITD73NFnaaSzOZjURKKMUMgGUUN+5AGyKGyGqfFpoPPlZik
+         7bauupYqlkr94v0NX7QgoLE/sPZKeL/LywTTXsDjCU6w3gcCcsnd+yvav04cGF5UCLHw
+         PeZog8tVx2Ix8HE4SHEhnPXCXxqnXGAzNPi+HT5P7b2NoKmCWQXOLX7uyfG4A1L1fcPf
+         la4g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:organization:in-reply-to
+         :content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=BF9Fr3Hf2Q3seTfZG5uyvCg9ZVloRlsxZukD5j+fS4A=;
-        b=X64BhgeIBMjUIy6ho3WIRvdl7uPipMhrJoUBOxd5YDBlfiEZcDf26ZLnn3ePfkwCZ7
-         ayULXLDCfzfXHdKhiyFtt4ZVgPmGMMuEBXAof2oj461LmWtrkNRi80YVWQvuiXwW0Wg4
-         ixVET9UIUS9PALLMt2jZEXsl4PAFFO7E15hRowmTxGZ1/27WQ05NrMCdGA5Ye5P6sXvn
-         W2am+x3ng5XXoVOeGopefrZ5JdOk5rvc8/GjbOXPYwPoCV/zLVBN3L7znrQbcglHA0UY
-         FbBvZonewQuHOI8gJ6lEF5lp0T+CdbPID+1TNCVxkUap0v3pQUHwkLwJBrOm1Rq8L24I
-         MRLw==
-X-Gm-Message-State: AOAM5333bfxnfTBVTLLPuV/n57Ctr0IxYvHDePNDvdNMHBbSKpMLpKYd
-        ssnxapCHMgRgdoYpC/Ov9lwU7i6x6NSP83fyg2ErAdWWkpq/lmcc/TpFe7ne3M349dshpwBS57V
-        2iuK3ksfffnIowzhGD19vMg==
-X-Received: by 2002:adf:f943:0:b0:203:e832:129 with SMTP id q3-20020adff943000000b00203e8320129mr34761286wrr.626.1648623515918;
-        Tue, 29 Mar 2022 23:58:35 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwtto01FveovjFViTUCxDqiAQ+5FDv0R1GlHAedwP32FH88iQTdtwzmDfuXuu4j6BvJ3hJeZg==
-X-Received: by 2002:adf:f943:0:b0:203:e832:129 with SMTP id q3-20020adff943000000b00203e8320129mr34761230wrr.626.1648623515578;
-        Tue, 29 Mar 2022 23:58:35 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c705:2200:178b:7244:2a1f:b5d8? (p200300cbc7052200178b72442a1fb5d8.dip0.t-ipconnect.de. [2003:cb:c705:2200:178b:7244:2a1f:b5d8])
-        by smtp.gmail.com with ESMTPSA id r65-20020a1c4444000000b0038c48dd23b9sm6003935wma.5.2022.03.29.23.58.33
+        bh=KcemAQXGKS/bu1WPq66TUYrATVLlvsGVeMOPMU20wnE=;
+        b=l/FxLNRkJlko/J0jyOSBTobMOxEnG3yGlUOPGgcheuCgPh7OGsTerAQ31Q/gotH7RT
+         tZ08e4JNlb/Vp+btDCm43YQyMecbNQG4X+MgVuvUNIWnOGoVQm7xdU+e2iD4jOnjMU5h
+         iUX3WDABj0sqpf5nalMbOCHI3oaNzVMiNfq1dYUu8dycRTA7jo5008oFlTWBkGSn6MLF
+         NPOOC3j3NoEciZvf+4/yRdRg0YXglW/ooGVWqGKeEE7vr4MFQKElhM3x7BnQK3HqBQSL
+         SxW8yn2FWnx37RP5/UoAx2pQ00OQc0pJJBURmMWDuQ6j+Zc4pOzcroqPGANBmJgn/WCg
+         r2fg==
+X-Gm-Message-State: AOAM532XTrhudwUzVbSOZIIpk5plJO5DbAnt1TlTaW8gGTGyehnxA6ZW
+        jNO5IdD/DPYooS/58ChVkxLo2g==
+X-Google-Smtp-Source: ABdhPJwTgdnDKzDbzvdVTmiTIQ1Q2zMWj4qcPywFywtUZ2N7KTD7V6QRoheYFt356FxSjfWCf/dRmA==
+X-Received: by 2002:a17:907:3d01:b0:6e0:c63b:1992 with SMTP id gm1-20020a1709073d0100b006e0c63b1992mr26541074ejc.422.1648635818836;
+        Wed, 30 Mar 2022 03:23:38 -0700 (PDT)
+Received: from [192.168.0.111] (87-243-81-1.ip.btc-net.bg. [87.243.81.1])
+        by smtp.gmail.com with ESMTPSA id hs12-20020a1709073e8c00b006dfdfdac005sm8141217ejc.174.2022.03.30.03.23.37
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 29 Mar 2022 23:58:35 -0700 (PDT)
-Message-ID: <3272510e-ff5c-8694-c45c-7be9eaed4b42@redhat.com>
-Date:   Wed, 30 Mar 2022 08:58:32 +0200
+        Wed, 30 Mar 2022 03:23:38 -0700 (PDT)
+Message-ID: <d2e45c4a-ed34-10d3-58cd-01b1c19bd004@blackwall.org>
+Date:   Wed, 30 Mar 2022 13:23:36 +0300
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.6.2
-Subject: Re: [PATCH v2 7/8] powerpc/pgtable: remove _PAGE_BIT_SWAP_TYPE for
- book3s
+Subject: Re: [PATCH net-next v2] veth: Support bonding events
 Content-Language: en-US
-To:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc:     "x86@kernel.org" <x86@kernel.org>, Jan Kara <jack@suse.cz>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Peter Xu <peterx@redhat.com>, Michal Hocko <mhocko@kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        Donald Dutile <ddutile@redhat.com>,
-        Liang Zhang <zhangliang5@huawei.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Will Deacon <will@kernel.org>, Christoph Hellwig <hch@lst.de>,
-        Paul Mackerras <paulus@samba.org>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Rik van Riel <riel@surriel.com>,
-        Hugh Dickins <hughd@google.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        David Rientjes <rientjes@google.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Pedro Gomes <pedrodemargomes@gmail.com>,
-        Jann Horn <jannh@google.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Oded Gabbay <oded.gabbay@gmail.com>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        Oleg Nesterov <oleg@redhat.com>, Nadav Amit <namit@vmware.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Roman Gushchin <guro@fb.com>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>
-References: <20220329164329.208407-1-david@redhat.com>
- <20220329164329.208407-8-david@redhat.com>
- <22d3c42d-402f-8aeb-e989-c05d023b2ed3@csgroup.eu>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <22d3c42d-402f-8aeb-e989-c05d023b2ed3@csgroup.eu>
+To:     Jakub Kicinski <kuba@kernel.org>,
+        Alexandra Winter <wintera@linux.ibm.com>
+Cc:     "David S. Miller" <davem@davemloft.net>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Hangbin Liu <liuhangbin@gmail.com>, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Roopa Prabhu <roopa@nvidia.com>,
+        bridge@lists.linux-foundation.org,
+        Ido Schimmel <idosch@nvidia.com>, Jiri Pirko <jiri@nvidia.com>,
+        Jay Vosburgh <j.vosburgh@gmail.com>
+References: <20220329114052.237572-1-wintera@linux.ibm.com>
+ <20220329175421.4a6325d9@kernel.org>
+From:   Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20220329175421.4a6325d9@kernel.org>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 30.03.22 08:07, Christophe Leroy wrote:
+On 30/03/2022 03:54, Jakub Kicinski wrote:
+> Dropping the BPF people from CC and adding Hangbin, bridge and
+> bond/team. Please exercise some judgment when sending patches.
 > 
+> On Tue, 29 Mar 2022 13:40:52 +0200 Alexandra Winter wrote:
+>> Bonding drivers generate specific events during failover that trigger
+>> switch updates.  When a veth device is attached to a bridge with a
+>> bond interface, we want external switches to learn about the veth
+>> devices as well.
+>>
+>> Example:
+>>
+>> 	| veth_a2   |  veth_b2  |  veth_c2 |
+>> 	------o-----------o----------o------
+>> 	       \	  |	    /
+>> 		o	  o	   o
+>> 	      veth_a1  veth_b1  veth_c1
+>> 	      -------------------------
+>> 	      |        bridge         |
+>> 	      -------------------------
+>> 			bond0
+>> 			/  \
+>> 		     eth0  eth1
+>>
+>> In case of failover from eth0 to eth1, the netdev_notifier needs to be
+>> propagated, so e.g. veth_a2 can re-announce its MAC address to the
+>> external hardware attached to eth1.
+>>
+>> Without this patch we have seen cases where recovery after bond failover
+>> took an unacceptable amount of time (depending on timeout settings in the
+>> network).
+>>
+>> Due to the symmetric nature of veth special care is required to avoid
+>> endless notification loops. Therefore we only notify from a veth
+>> bridgeport to a peer that is not a bridgeport.
+>>
+>> References:
+>> Same handling as for macvlan:
+>> commit 4c9912556867 ("macvlan: Support bonding events")
+>> and vlan:
+>> commit 4aa5dee4d999 ("net: convert resend IGMP to notifier event")
+>>
+>> Alternatives:
+>> Propagate notifier events to all ports of a bridge. IIUC, this was
+>> rejected in https://www.spinics.net/lists/netdev/msg717292.html
 > 
-> Le 29/03/2022 à 18:43, David Hildenbrand a écrit :
->> The swap type is simply stored in bits 0x1f of the swap pte. Let's
->> simplify by just getting rid of _PAGE_BIT_SWAP_TYPE. It's not like that
->> we can simply change it: _PAGE_SWP_SOFT_DIRTY would suddenly fall into
->> _RPAGE_RSV1, which isn't possible and would make the
->> BUILD_BUG_ON(_PAGE_HPTEFLAGS & _PAGE_SWP_SOFT_DIRTY) angry.
->>
->> While at it, make it clearer which bit we're actually using for
->> _PAGE_SWP_SOFT_DIRTY by just using the proper define and introduce and
->> use SWP_TYPE_MASK.
->>
->> Signed-off-by: David Hildenbrand <david@redhat.com>
+> My (likely flawed) reading of Nik's argument was that (1) he was
+> concerned about GARP storms; (2) he didn't want the GARP to be
+> broadcast to all ports, just the bond that originated the request.
+> 
+
+Yes, that would be ideal. Trying to avoid unnecessary bcasts, that is
+especially important for large setups with lots of devices.
+
+> I'm not sure I follow (1), as Hangbin said the event is rare, plus 
+> GARP only comes from interfaces that have an IP addr, which IIUC
+> most bridge ports will not have.
+> 
+
+Indeed, such setups are not the most common ones.
+
+> This patch in no way addresses (2). But then, again, if we put 
+> a macvlan on top of a bridge master it will shotgun its GARPS all 
+> the same. So it's not like veth would be special in that regard.
+> 
+> Nik, what am I missing?
+> 
+
+If we're talking about macvlan -> bridge -> bond then the bond flap's
+notify peers shouldn't reach the macvlan. Generally broadcast traffic
+is quite expensive for the bridge, I have patches that improve on the
+technical side (consider ports only for the same bcast domain), but you also
+wouldn't want unnecessary bcast packets being sent around. :)
+There are setups with tens of bond devices and propagating that to all would be
+very expensive, but most of all unnecessary. It would also hurt setups with
+a lot of vlan devices on the bridge. There are setups with hundreds of vlans
+and hundreds of macvlans on top, propagating it up would send it to all of
+them and that wouldn't scale at all, these mostly have IP addresses too.
+
+Perhaps we can enable propagation on a per-port or per-bridge basis, then we
+can avoid these walks. That is, make it opt-in.
+
+>> It also seems difficult to avoid re-bouncing the notifier.
+> 
+> syzbot will make short work of this patch, I think the potential
+> for infinite loops has to be addressed somehow. IIUC this is the 
+> first instance of forwarding those notifiers to a peer rather
+> than within a upper <> lower device hierarchy which is a DAG.
+> 
+>> Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
 >> ---
->>   arch/powerpc/include/asm/book3s/64/pgtable.h | 12 +++++-------
+>>  drivers/net/veth.c | 53 ++++++++++++++++++++++++++++++++++++++++++++++
+>>  1 file changed, 53 insertions(+)
+>>
+>> diff --git a/drivers/net/veth.c b/drivers/net/veth.c
+>> index d29fb9759cc9..74b074453197 100644
+>> --- a/drivers/net/veth.c
+>> +++ b/drivers/net/veth.c
+>> @@ -1579,6 +1579,57 @@ static void veth_setup(struct net_device *dev)
+>>  	dev->mpls_features = NETIF_F_HW_CSUM | NETIF_F_GSO_SOFTWARE;
+>>  }
+>>  
+>> +static bool netif_is_veth(const struct net_device *dev)
+>> +{
+>> +	return (dev->netdev_ops == &veth_netdev_ops);
 > 
-> Why only BOOK3S ? Why not BOOK3E as well ?
-
-Hi Cristophe,
-
-I'm focusing on the most relevant enterprise architectures for now. I
-don't have the capacity to convert each and every architecture at this
-point (especially, I don't to waste my time in case this doesn't get
-merged, and book3e didn't look straight forward to me).
-
-Once this series hits upstream, I can look into other architectures --
-and I'll be happy if other people jump in that have more familiarity
-with the architecture-specific swp pte layouts.
-
-Thanks
-
--- 
-Thanks,
-
-David / dhildenb
+> brackets unnecessary 
+> 
+>> +}
+>> +
+>> +static void veth_notify_peer(unsigned long event, const struct net_device *dev)
+>> +{
+>> +	struct net_device *peer;
+>> +	struct veth_priv *priv;
+>> +
+>> +	priv = netdev_priv(dev);
+>> +	peer = rtnl_dereference(priv->peer);
+>> +	/* avoid re-bounce between 2 bridges */
+>> +	if (!netif_is_bridge_port(peer))
+>> +		call_netdevice_notifiers(event, peer);
+>> +}
+>> +
+>> +/* Called under rtnl_lock */
+>> +static int veth_device_event(struct notifier_block *unused,
+>> +			     unsigned long event, void *ptr)
+>> +{
+>> +	struct net_device *dev, *lower;
+>> +	struct list_head *iter;
+>> +
+>> +	dev = netdev_notifier_info_to_dev(ptr);
+>> +
+>> +	switch (event) {
+>> +	case NETDEV_NOTIFY_PEERS:
+>> +	case NETDEV_BONDING_FAILOVER:
+>> +	case NETDEV_RESEND_IGMP:
+>> +		/* propagate to peer of a bridge attached veth */
+>> +		if (netif_is_bridge_master(dev)) {
+> 
+> Having veth sift thru bridge ports seems strange.
+> In fact it could be beneficial to filter the event based on
+> port state (whether it's forwarding, vlan etc). But looking
+> at details of port state outside the bridge would be even stranger.
+> 
+>> +			iter = &dev->adj_list.lower;
+>> +			lower = netdev_next_lower_dev_rcu(dev, &iter);
+>> +			while (lower) {
+>> +				if (netif_is_veth(lower))
+>> +					veth_notify_peer(event, lower);
+>> +				lower = netdev_next_lower_dev_rcu(dev, &iter);
+> 
+> let's add netdev_for_each_lower_dev_rcu() rather than open-coding
+> 
+>> +			}
+>> +		}
+>> +		break;
+>> +	default:
+>> +		break;
+>> +	}
+>> +	return NOTIFY_DONE;
+>> +}
+>> +
+>> +static struct notifier_block veth_notifier_block __read_mostly = {
+>> +		.notifier_call  = veth_device_event,
+> 
+> extra tab here
+> 
+>> +};
+>> +
+>>  /*
+>>   * netlink interface
+>>   */
+>> @@ -1824,12 +1875,14 @@ static struct rtnl_link_ops veth_link_ops = {
+>>  
+>>  static __init int veth_init(void)
+>>  {
+>> +	register_netdevice_notifier(&veth_notifier_block);
+> 
+> this can fail
+> 
+>>  	return rtnl_link_register(&veth_link_ops);
+>>  }
+>>  
+>>  static __exit void veth_exit(void)
+>>  {
+>>  	rtnl_link_unregister(&veth_link_ops);
+>> +	unregister_netdevice_notifier(&veth_notifier_block);
+>>  }
+>>  
+>>  module_init(veth_init);
+> 
 
