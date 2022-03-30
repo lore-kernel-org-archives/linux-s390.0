@@ -2,159 +2,222 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B4B05C433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 29 Mar 2022 16:50:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AC5FBC433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 30 Mar 2022 00:54:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239913AbiC2QwI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 29 Mar 2022 12:52:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41334 "EHLO
+        id S241512AbiC3A4L (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 29 Mar 2022 20:56:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239939AbiC2QwG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Mar 2022 12:52:06 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 82777258FD3
-        for <linux-s390@vger.kernel.org>; Tue, 29 Mar 2022 09:50:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1648572622;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=TwO5MaKuynUSMbsOinBzVosboPLVHwPyacLiL1/kyJE=;
-        b=I3/oB6TaO+uZJwu2l9DpAaCv6UEC2zpC5QL+nyu0Ay2NpY7qboO9kKZWdDujrZVlr8QX1m
-        MECG1mOIi+VwQYWa6/SZ0op0pCsklr/xi+MECGGLCZZ/8KpWyXOls7UVzEC7jPknP3xWJb
-        3RCdiw+4KW4Ug2hrxlCC+Pd9mY1bZPM=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-344-ZGoj0HAdOw6IJYJ1nLpi-Q-1; Tue, 29 Mar 2022 12:50:17 -0400
-X-MC-Unique: ZGoj0HAdOw6IJYJ1nLpi-Q-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        with ESMTP id S241050AbiC3A4K (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Mar 2022 20:56:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B0D310E048;
+        Tue, 29 Mar 2022 17:54:26 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id AFE7D29AA2F0;
-        Tue, 29 Mar 2022 16:50:15 +0000 (UTC)
-Received: from t480s.redhat.com (unknown [10.39.194.134])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id CA3611121314;
-        Tue, 29 Mar 2022 16:50:07 +0000 (UTC)
-From:   David Hildenbrand <david@redhat.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Hugh Dickins <hughd@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        David Rientjes <rientjes@google.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Yang Shi <shy828301@gmail.com>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Vlastimil Babka <vbabka@suse.cz>, Jann Horn <jannh@google.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Nadav Amit <namit@vmware.com>, Rik van Riel <riel@surriel.com>,
-        Roman Gushchin <guro@fb.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Peter Xu <peterx@redhat.com>,
-        Donald Dutile <ddutile@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Oleg Nesterov <oleg@redhat.com>, Jan Kara <jack@suse.cz>,
-        Liang Zhang <zhangliang5@huawei.com>,
-        Pedro Gomes <pedrodemargomes@gmail.com>,
-        Oded Gabbay <oded.gabbay@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        linux-mm@kvack.org, x86@kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        David Hildenbrand <david@redhat.com>
-Subject: [PATCH v2 8/8] powerpc/pgtable: support __HAVE_ARCH_PTE_SWP_EXCLUSIVE for book3s
-Date:   Tue, 29 Mar 2022 18:43:29 +0200
-Message-Id: <20220329164329.208407-9-david@redhat.com>
-In-Reply-To: <20220329164329.208407-1-david@redhat.com>
-References: <20220329164329.208407-1-david@redhat.com>
+        by ams.source.kernel.org (Postfix) with ESMTPS id 063F8B8197B;
+        Wed, 30 Mar 2022 00:54:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE617C2BBE4;
+        Wed, 30 Mar 2022 00:54:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1648601663;
+        bh=ubFHj+K9Ba1I+teDUAJ4JZ4+3y1MplBuqIus6GiwDiw=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=CBmVsgFhCDd+NEOP2ZOO8xSxJYSrIIdrIXwb0PPG+cVPwXOeRa9wHuJhuD7X0rKua
+         lAfcF+KsgnVj1artMm1qqfYlEOH96q6yGvdVKRY2JmaggOVzX9fhFjtTCVnCuA2ybb
+         v0gzV9pyn3829oLYBnWI0jqN3eB7O64Q/RcXPTvl/GChNzGvLoZEBSBT6dIysui+MD
+         KQ3nJAvXV+Fp4XfUXBfocdC6dRUmOs1dgJ6qqb7nllxWtGO7Q9VEr0SX+GIj7RHSGz
+         8Yx0QDNvFuNo+aVCXfEZ1Hd7keBsarI+Qr/reW1y+7im0i/82dpbHYszks7ICxy5Wo
+         VC/PXLSMeyVrA==
+Date:   Tue, 29 Mar 2022 17:54:21 -0700
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Alexandra Winter <wintera@linux.ibm.com>,
+        Nikolay Aleksandrov <razor@blackwall.org>
+Cc:     "David S. Miller" <davem@davemloft.net>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Hangbin Liu <liuhangbin@gmail.com>, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Roopa Prabhu <roopa@nvidia.com>,
+        bridge@lists.linux-foundation.org,
+        Ido Schimmel <idosch@nvidia.com>, Jiri Pirko <jiri@nvidia.com>,
+        Jay Vosburgh <j.vosburgh@gmail.com>
+Subject: Re: [PATCH net-next v2] veth: Support bonding events
+Message-ID: <20220329175421.4a6325d9@kernel.org>
+In-Reply-To: <20220329114052.237572-1-wintera@linux.ibm.com>
+References: <20220329114052.237572-1-wintera@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.78 on 10.11.54.3
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Right now, the last 5 bits (0x1f) of the swap entry are used for the
-type and the bit before that (0x20) is used for _PAGE_SWP_SOFT_DIRTY. We
-cannot use 0x40, as that collides with _RPAGE_RSV1 -- contained in
-_PAGE_HPTEFLAGS. The next candidate would be _RPAGE_SW3 (0x200) -- which is
-used for _PAGE_SOFT_DIRTY for !swp ptes.
+Dropping the BPF people from CC and adding Hangbin, bridge and
+bond/team. Please exercise some judgment when sending patches.
 
-So let's just use _PAGE_SOFT_DIRTY for _PAGE_SWP_SOFT_DIRTY (to make it
-easier to grasp) and use 0x20 now for _PAGE_SWP_EXCLUSIVE.
+On Tue, 29 Mar 2022 13:40:52 +0200 Alexandra Winter wrote:
+> Bonding drivers generate specific events during failover that trigger
+> switch updates.  When a veth device is attached to a bridge with a
+> bond interface, we want external switches to learn about the veth
+> devices as well.
+> 
+> Example:
+> 
+> 	| veth_a2   |  veth_b2  |  veth_c2 |
+> 	------o-----------o----------o------
+> 	       \	  |	    /
+> 		o	  o	   o
+> 	      veth_a1  veth_b1  veth_c1
+> 	      -------------------------
+> 	      |        bridge         |
+> 	      -------------------------
+> 			bond0
+> 			/  \
+> 		     eth0  eth1
+> 
+> In case of failover from eth0 to eth1, the netdev_notifier needs to be
+> propagated, so e.g. veth_a2 can re-announce its MAC address to the
+> external hardware attached to eth1.
+> 
+> Without this patch we have seen cases where recovery after bond failover
+> took an unacceptable amount of time (depending on timeout settings in the
+> network).
+> 
+> Due to the symmetric nature of veth special care is required to avoid
+> endless notification loops. Therefore we only notify from a veth
+> bridgeport to a peer that is not a bridgeport.
+> 
+> References:
+> Same handling as for macvlan:
+> commit 4c9912556867 ("macvlan: Support bonding events")
+> and vlan:
+> commit 4aa5dee4d999 ("net: convert resend IGMP to notifier event")
+> 
+> Alternatives:
+> Propagate notifier events to all ports of a bridge. IIUC, this was
+> rejected in https://www.spinics.net/lists/netdev/msg717292.html
 
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- arch/powerpc/include/asm/book3s/64/pgtable.h | 21 +++++++++++++++++++-
- 1 file changed, 20 insertions(+), 1 deletion(-)
+My (likely flawed) reading of Nik's argument was that (1) he was
+concerned about GARP storms; (2) he didn't want the GARP to be
+broadcast to all ports, just the bond that originated the request.
 
-diff --git a/arch/powerpc/include/asm/book3s/64/pgtable.h b/arch/powerpc/include/asm/book3s/64/pgtable.h
-index 8e98375d5c4a..eecff2036869 100644
---- a/arch/powerpc/include/asm/book3s/64/pgtable.h
-+++ b/arch/powerpc/include/asm/book3s/64/pgtable.h
-@@ -752,6 +752,7 @@ static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
- 	 */							\
- 	BUILD_BUG_ON(_PAGE_HPTEFLAGS & SWP_TYPE_MASK); \
- 	BUILD_BUG_ON(_PAGE_HPTEFLAGS & _PAGE_SWP_SOFT_DIRTY);	\
-+	BUILD_BUG_ON(_PAGE_HPTEFLAGS & _PAGE_SWP_EXCLUSIVE);	\
- 	} while (0)
- 
- #define SWP_TYPE_BITS 5
-@@ -772,11 +773,13 @@ static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
- #define __swp_entry_to_pmd(x)	(pte_pmd(__swp_entry_to_pte(x)))
- 
- #ifdef CONFIG_MEM_SOFT_DIRTY
--#define _PAGE_SWP_SOFT_DIRTY	_PAGE_NON_IDEMPOTENT
-+#define _PAGE_SWP_SOFT_DIRTY	_PAGE_SOFT_DIRTY
- #else
- #define _PAGE_SWP_SOFT_DIRTY	0UL
- #endif /* CONFIG_MEM_SOFT_DIRTY */
- 
-+#define _PAGE_SWP_EXCLUSIVE	_PAGE_NON_IDEMPOTENT
-+
- #ifdef CONFIG_HAVE_ARCH_SOFT_DIRTY
- static inline pte_t pte_swp_mksoft_dirty(pte_t pte)
- {
-@@ -794,6 +797,22 @@ static inline pte_t pte_swp_clear_soft_dirty(pte_t pte)
- }
- #endif /* CONFIG_HAVE_ARCH_SOFT_DIRTY */
- 
-+#define __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-+static inline pte_t pte_swp_mkexclusive(pte_t pte)
-+{
-+	return __pte_raw(pte_raw(pte) | cpu_to_be64(_PAGE_SWP_EXCLUSIVE));
-+}
-+
-+static inline int pte_swp_exclusive(pte_t pte)
-+{
-+	return !!(pte_raw(pte) & cpu_to_be64(_PAGE_SWP_EXCLUSIVE));
-+}
-+
-+static inline pte_t pte_swp_clear_exclusive(pte_t pte)
-+{
-+	return __pte_raw(pte_raw(pte) & cpu_to_be64(~_PAGE_SWP_EXCLUSIVE));
-+}
-+
- static inline bool check_pte_access(unsigned long access, unsigned long ptev)
- {
- 	/*
--- 
-2.35.1
+I'm not sure I follow (1), as Hangbin said the event is rare, plus 
+GARP only comes from interfaces that have an IP addr, which IIUC
+most bridge ports will not have.
+
+This patch in no way addresses (2). But then, again, if we put 
+a macvlan on top of a bridge master it will shotgun its GARPS all 
+the same. So it's not like veth would be special in that regard.
+
+Nik, what am I missing?
+
+> It also seems difficult to avoid re-bouncing the notifier.
+
+syzbot will make short work of this patch, I think the potential
+for infinite loops has to be addressed somehow. IIUC this is the 
+first instance of forwarding those notifiers to a peer rather
+than within a upper <> lower device hierarchy which is a DAG.
+
+> Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+> ---
+>  drivers/net/veth.c | 53 ++++++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 53 insertions(+)
+> 
+> diff --git a/drivers/net/veth.c b/drivers/net/veth.c
+> index d29fb9759cc9..74b074453197 100644
+> --- a/drivers/net/veth.c
+> +++ b/drivers/net/veth.c
+> @@ -1579,6 +1579,57 @@ static void veth_setup(struct net_device *dev)
+>  	dev->mpls_features = NETIF_F_HW_CSUM | NETIF_F_GSO_SOFTWARE;
+>  }
+>  
+> +static bool netif_is_veth(const struct net_device *dev)
+> +{
+> +	return (dev->netdev_ops == &veth_netdev_ops);
+
+brackets unnecessary 
+
+> +}
+> +
+> +static void veth_notify_peer(unsigned long event, const struct net_device *dev)
+> +{
+> +	struct net_device *peer;
+> +	struct veth_priv *priv;
+> +
+> +	priv = netdev_priv(dev);
+> +	peer = rtnl_dereference(priv->peer);
+> +	/* avoid re-bounce between 2 bridges */
+> +	if (!netif_is_bridge_port(peer))
+> +		call_netdevice_notifiers(event, peer);
+> +}
+> +
+> +/* Called under rtnl_lock */
+> +static int veth_device_event(struct notifier_block *unused,
+> +			     unsigned long event, void *ptr)
+> +{
+> +	struct net_device *dev, *lower;
+> +	struct list_head *iter;
+> +
+> +	dev = netdev_notifier_info_to_dev(ptr);
+> +
+> +	switch (event) {
+> +	case NETDEV_NOTIFY_PEERS:
+> +	case NETDEV_BONDING_FAILOVER:
+> +	case NETDEV_RESEND_IGMP:
+> +		/* propagate to peer of a bridge attached veth */
+> +		if (netif_is_bridge_master(dev)) {
+
+Having veth sift thru bridge ports seems strange.
+In fact it could be beneficial to filter the event based on
+port state (whether it's forwarding, vlan etc). But looking
+at details of port state outside the bridge would be even stranger.
+
+> +			iter = &dev->adj_list.lower;
+> +			lower = netdev_next_lower_dev_rcu(dev, &iter);
+> +			while (lower) {
+> +				if (netif_is_veth(lower))
+> +					veth_notify_peer(event, lower);
+> +				lower = netdev_next_lower_dev_rcu(dev, &iter);
+
+let's add netdev_for_each_lower_dev_rcu() rather than open-coding
+
+> +			}
+> +		}
+> +		break;
+> +	default:
+> +		break;
+> +	}
+> +	return NOTIFY_DONE;
+> +}
+> +
+> +static struct notifier_block veth_notifier_block __read_mostly = {
+> +		.notifier_call  = veth_device_event,
+
+extra tab here
+
+> +};
+> +
+>  /*
+>   * netlink interface
+>   */
+> @@ -1824,12 +1875,14 @@ static struct rtnl_link_ops veth_link_ops = {
+>  
+>  static __init int veth_init(void)
+>  {
+> +	register_netdevice_notifier(&veth_notifier_block);
+
+this can fail
+
+>  	return rtnl_link_register(&veth_link_ops);
+>  }
+>  
+>  static __exit void veth_exit(void)
+>  {
+>  	rtnl_link_unregister(&veth_link_ops);
+> +	unregister_netdevice_notifier(&veth_notifier_block);
+>  }
+>  
+>  module_init(veth_init);
 
