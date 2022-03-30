@@ -2,192 +2,93 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 12F10C433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 30 Mar 2022 16:50:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BBE82C433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 30 Mar 2022 17:13:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345564AbiC3Qvz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 30 Mar 2022 12:51:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60870 "EHLO
+        id S1349188AbiC3ROq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 30 Mar 2022 13:14:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343785AbiC3Qvy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 30 Mar 2022 12:51:54 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A18F2908BA;
-        Wed, 30 Mar 2022 09:50:08 -0700 (PDT)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22UEJLVv000462;
-        Wed, 30 Mar 2022 16:48:56 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=ARroIKBEvmL0KWXtnhmovWMBp2q8g4z6TFYDyygKASk=;
- b=KRzoQsD6PJq2G9kFzeRvUWII/EaOj8gNOezSHce7EUZzHFJYk8L3G7wMnqGHNUaYfBNZ
- tT0FrChzyFQQSOXdgfU4DqvUD21YnmntRVYIC5IoyJg9VaRBFvlEYjukvXmUyzAhVxAn
- eMHsoKuTPyn86zO1kum0w5/jhuBrdbbRmVLBCgTbugi2inIVv+Lh9lveTdlhj2B4rF+G
- vKb0KVbDWuGazpQt07aaINJeZRoiflDfzHQKUKmaAuQy6etr7v7t/qU/rxACRWa/n3oH
- Xn89v9c9Zfb2LM8sl55NZrAtVgRVU1tUgDpdpMqudv2KtvdBHywKKNEcBU38h19oPPbK uA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3f4psu6gut-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 30 Mar 2022 16:48:56 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22UGfnPq005888;
-        Wed, 30 Mar 2022 16:48:55 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3f4psu6gtv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 30 Mar 2022 16:48:55 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22UGhWGn024601;
-        Wed, 30 Mar 2022 16:48:52 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma06ams.nl.ibm.com with ESMTP id 3f3rs3m0ep-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 30 Mar 2022 16:48:52 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22UGmnpC41288138
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 30 Mar 2022 16:48:49 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 095B14C046;
-        Wed, 30 Mar 2022 16:48:49 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3B3654C040;
-        Wed, 30 Mar 2022 16:48:47 +0000 (GMT)
-Received: from thinkpad (unknown [9.171.11.24])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Wed, 30 Mar 2022 16:48:47 +0000 (GMT)
-Date:   Wed, 30 Mar 2022 18:48:45 +0200
-From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Hugh Dickins <hughd@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        David Rientjes <rientjes@google.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Yang Shi <shy828301@gmail.com>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Vlastimil Babka <vbabka@suse.cz>, Jann Horn <jannh@google.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Nadav Amit <namit@vmware.com>, Rik van Riel <riel@surriel.com>,
-        Roman Gushchin <guro@fb.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Peter Xu <peterx@redhat.com>,
-        Donald Dutile <ddutile@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Oleg Nesterov <oleg@redhat.com>, Jan Kara <jack@suse.cz>,
-        Liang Zhang <zhangliang5@huawei.com>,
-        Pedro Gomes <pedrodemargomes@gmail.com>,
-        Oded Gabbay <oded.gabbay@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, linux-mm@kvack.org,
-        x86@kernel.org, linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v2 6/8] s390/pgtable: support
- __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-Message-ID: <20220330184845.737efc45@thinkpad>
-In-Reply-To: <20220329164329.208407-7-david@redhat.com>
-References: <20220329164329.208407-1-david@redhat.com>
-        <20220329164329.208407-7-david@redhat.com>
-X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.31; x86_64-redhat-linux-gnu)
+        with ESMTP id S244733AbiC3ROp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 30 Mar 2022 13:14:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82C8559392;
+        Wed, 30 Mar 2022 10:13:00 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2EF74B81D6E;
+        Wed, 30 Mar 2022 17:12:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EAF6C340EC;
+        Wed, 30 Mar 2022 17:12:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1648660377;
+        bh=NIslaD6hR1K1hA7T5NIGktk7gAw8SD895+5pJcEGgq0=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=dQ1LDkKRmaafeVvWPpJTSn+pFHzwoYqAt2Wmvqu6sDtftkrF2t/MbhU+mN1l6IhP+
+         I+lGp2xSM8UPqHBDfy1fbINTv4SYhA0Jx4hxe+jfFyyD12kKRZ5yC+uLvxzgn72huS
+         znvN6VEsDUHpVMPnPKbfhvOSlatJHmtARI/0AML0g7nWN6RMBQLyckUXqHLP8c3yKX
+         DQ0udvf17rUYDmWiXmPGY+sBAIwB/uwk0lEvyYnNg031j+V8iNEwZtsEVv/JhF5iJv
+         EWAZIhh3h3vTZQYY+vgEI1od2OetFelV0j3RpvZ7ltUc2v7W8aAXV5QZcRZI194YFf
+         j6sQAp2gDdlwg==
+Date:   Wed, 30 Mar 2022 10:12:56 -0700
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Nikolay Aleksandrov <razor@blackwall.org>
+Cc:     Alexandra Winter <wintera@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Hangbin Liu <liuhangbin@gmail.com>, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Roopa Prabhu <roopa@nvidia.com>,
+        bridge@lists.linux-foundation.org,
+        Ido Schimmel <idosch@nvidia.com>, Jiri Pirko <jiri@nvidia.com>,
+        Jay Vosburgh <j.vosburgh@gmail.com>
+Subject: Re: [PATCH net-next v2] veth: Support bonding events
+Message-ID: <20220330101256.53f6ef48@kernel.org>
+In-Reply-To: <c512e765-f411-9305-013b-471a07e7f3ff@blackwall.org>
+References: <20220329114052.237572-1-wintera@linux.ibm.com>
+        <20220329175421.4a6325d9@kernel.org>
+        <d2e45c4a-ed34-10d3-58cd-01b1c19bd004@blackwall.org>
+        <c1ec0612-063b-dbfa-e10a-986786178c93@linux.ibm.com>
+        <20220330085154.34440715@kernel.org>
+        <c512e765-f411-9305-013b-471a07e7f3ff@blackwall.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 1QKLcZzt1jR5dzZvoETLyjNRF1Mo4qOd
-X-Proofpoint-GUID: R2QabvWqUvukurysdgE-o4H0cb3QiG1t
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-30_06,2022-03-30_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
- lowpriorityscore=0 mlxscore=0 adultscore=0 impostorscore=0 mlxlogscore=999
- malwarescore=0 clxscore=1011 suspectscore=0 bulkscore=0 priorityscore=1501
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2203300081
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 29 Mar 2022 18:43:27 +0200
-David Hildenbrand <david@redhat.com> wrote:
-
-> Let's use bit 52, which is unused.
+On Wed, 30 Mar 2022 19:16:42 +0300 Nikolay Aleksandrov wrote:
+> > Maybe opt-out? But assuming the event is only generated on
+> > active/backup switch over - when would it be okay to ignore
+> > the notification?
 > 
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-> ---
->  arch/s390/include/asm/pgtable.h | 23 +++++++++++++++++++++--
->  1 file changed, 21 insertions(+), 2 deletions(-)
+> Let me just clarify, so I'm sure I've not misunderstood you. Do you mean opt-out as in
+> make it default on? IMO that would be a problem, large scale setups would suddenly
+> start propagating it to upper devices which would cause a lot of unnecessary bcast.
+> I meant enable it only if needed, and only on specific ports (second part is not
+> necessary, could be global, I think it's ok either way). I don't think any setup
+> which has many upper vlans/macvlans would ever enable this.
+
+That may be. I don't have a good understanding of scenarios in which
+GARP is required and where it's not :) Goes without saying but the
+default should follow the more common scenario.
+
+> >> My concern was about the Hangbin's alternative proposal to notify all
+> >> bridge ports. I hope in my porposal I was able to avoid infinite loops.  
+> > 
+> > Possibly I'm confused as to where the notification for bridge master
+> > gets sent..  
 > 
-> diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-> index 3982575bb586..a397b072a580 100644
-> --- a/arch/s390/include/asm/pgtable.h
-> +++ b/arch/s390/include/asm/pgtable.h
-> @@ -181,6 +181,8 @@ static inline int is_module_addr(void *addr)
->  #define _PAGE_SOFT_DIRTY 0x000
->  #endif
->  
-> +#define _PAGE_SWP_EXCLUSIVE _PAGE_LARGE	/* SW pte exclusive swap bit */
-> +
->  /* Set of bits not changed in pte_modify */
->  #define _PAGE_CHG_MASK		(PAGE_MASK | _PAGE_SPECIAL | _PAGE_DIRTY | \
->  				 _PAGE_YOUNG | _PAGE_SOFT_DIRTY)
-> @@ -826,6 +828,22 @@ static inline int pmd_protnone(pmd_t pmd)
->  }
->  #endif
->  
-> +#define __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> +static inline int pte_swp_exclusive(pte_t pte)
-> +{
-> +	return pte_val(pte) & _PAGE_SWP_EXCLUSIVE;
-> +}
-> +
-> +static inline pte_t pte_swp_mkexclusive(pte_t pte)
-> +{
-> +	return set_pte_bit(pte, __pgprot(_PAGE_SWP_EXCLUSIVE));
-> +}
-> +
-> +static inline pte_t pte_swp_clear_exclusive(pte_t pte)
-> +{
-> +	return clear_pte_bit(pte, __pgprot(_PAGE_SWP_EXCLUSIVE));
-> +}
-> +
->  static inline int pte_soft_dirty(pte_t pte)
->  {
->  	return pte_val(pte) & _PAGE_SOFT_DIRTY;
-> @@ -1715,14 +1733,15 @@ static inline int has_transparent_hugepage(void)
->   * Bits 54 and 63 are used to indicate the page type. Bit 53 marks the pte
->   * as invalid.
->   * A swap pte is indicated by bit pattern (pte & 0x201) == 0x200
-> - * |			  offset			|X11XX|type |S0|
-> + * |			  offset			|E11XX|type |S0|
->   * |0000000000111111111122222222223333333333444444444455|55555|55566|66|
->   * |0123456789012345678901234567890123456789012345678901|23456|78901|23|
->   *
->   * Bits 0-51 store the offset.
-> + * Bit 52 (E) is used to remember PG_anon_exclusive.
->   * Bits 57-61 store the type.
->   * Bit 62 (S) is used for softdirty tracking.
-> - * Bits 52, 55 and 56 (X) are unused.
-> + * Bits 55 and 56 (X) are unused.
->   */
->  
->  #define __SWP_OFFSET_MASK	((1UL << 52) - 1)
+> IIUC it bypasses the bridge and sends a notify peers for the veth peer so it would
+> generate a grat arp (inetdev_event -> NETDEV_NOTIFY_PEERS).
 
-Thanks David!
+Ack, I was basically repeating the question of where does 
+the notification with dev == br get generated.
 
-Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+There is a protection in this patch to make sure the other 
+end of the veth is not plugged into a bridge (i.e. is not
+a bridge port) but there can be a macvlan on top of that
+veth that is part of a bridge, so IIUC that check is either
+insufficient or unnecessary.
