@@ -2,127 +2,110 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 37FD3C433FE
-	for <linux-s390@archiver.kernel.org>; Wed, 30 Mar 2022 14:44:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C788CC433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 30 Mar 2022 15:52:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347133AbiC3OqG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 30 Mar 2022 10:46:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57098 "EHLO
+        id S1348397AbiC3Pxo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 30 Mar 2022 11:53:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347173AbiC3Opv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 30 Mar 2022 10:45:51 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D97B48908D;
-        Wed, 30 Mar 2022 07:43:58 -0700 (PDT)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22UDfBuF011029;
-        Wed, 30 Mar 2022 14:43:57 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=LTMljJOOPp378oux6hBciPV/9YXm+DR31cW8efnxgyc=;
- b=bVvo72jle6jUqwYhHzKbCmNZJFtqaoXbaezrMqq6EudvH1+BwSVUOcXPnMQIfFE+hcse
- iDxA74yDm7BgrW+ujy4Tnhe8kALJhGERKZz9oe2RN3J7FOIQ8JyhGbUOyfzSX4Ekha4C
- t+q4myfESsgFrOujiLdTRXgmucEi56Xhl6nX9ODjBB1kO1Br9nAZ259xra5l49u8ET1S
- eFwfWCezADLO2Uhvzl00LMkdLMm3MdNBYXYCEjxSVoH4d6/KFB5xy06gddxHefgqFlvH
- oYNUJglSTH8TGopf8/MXLXliUSkBDf8Tu0kJDeJ4lrRvdcFV7sEACOYNlQtOoF0rVsW8 Vg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3f3ydcsmxb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 30 Mar 2022 14:43:57 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22UEDn7R027794;
-        Wed, 30 Mar 2022 14:43:57 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3f3ydcsmvj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 30 Mar 2022 14:43:57 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22UEcmbD015456;
-        Wed, 30 Mar 2022 14:43:51 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma01fra.de.ibm.com with ESMTP id 3f1tf8qgc3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 30 Mar 2022 14:43:51 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22UEhmE143385316
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 30 Mar 2022 14:43:48 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 131F94C044;
-        Wed, 30 Mar 2022 14:43:48 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8962B4C040;
-        Wed, 30 Mar 2022 14:43:47 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.145.13.95])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 30 Mar 2022 14:43:47 +0000 (GMT)
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, frankja@linux.ibm.com,
-        scgl@linux.ibm.com, borntraeger@de.ibm.com, pmorel@linux.ibm.com,
-        pasic@linux.ibm.com, nrb@linux.ibm.com, thuth@redhat.com,
-        david@redhat.com
-Subject: [kvm-unit-tests PATCH v1 0/4] lib: s390x: Refactor and rename vm.[ch]
-Date:   Wed, 30 Mar 2022 16:43:35 +0200
-Message-Id: <20220330144339.261419-1-imbrenda@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S1344935AbiC3Pxo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 30 Mar 2022 11:53:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DCC5DBC;
+        Wed, 30 Mar 2022 08:51:58 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4B0D0B81D7C;
+        Wed, 30 Mar 2022 15:51:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7001EC340EC;
+        Wed, 30 Mar 2022 15:51:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1648655516;
+        bh=1pUS2wJLudc1jkoub3g8WBHIEAC+pseXQcvY3pZfMu0=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=Am+WCxZTX2ITKAVP1o3qsr1gOdGMuaYiyHkH/+EeJjkLJMeHxAGQjWSYSmKc1pcKC
+         4SOCgd+UMk5FsYlLEu+tu3mg47i11olIyeGVD9pvutsC6gjIrFX9olST43xxIAu1qU
+         Hc62eLt3TXXNEagEoDSBjwTjg++wOKoA+wrDBXyK1llsJjD5E+QCCUeySXEov7u4MM
+         s7XONWYwwKb1GwB5ytvtdcT6Q6znOaTj7ERLF2P8m3baOlOi68j0oHOkEvzV5/bNgL
+         CvZWHhZRHwJG9HFnmojGDwQ5DPqx3fbVYne3oKRmKZHLVktVGOTnWqx4b2BLST7h7V
+         jz0t7rEqBEVjg==
+Date:   Wed, 30 Mar 2022 08:51:54 -0700
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Alexandra Winter <wintera@linux.ibm.com>,
+        Nikolay Aleksandrov <razor@blackwall.org>
+Cc:     "David S. Miller" <davem@davemloft.net>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Hangbin Liu <liuhangbin@gmail.com>, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Roopa Prabhu <roopa@nvidia.com>,
+        bridge@lists.linux-foundation.org,
+        Ido Schimmel <idosch@nvidia.com>, Jiri Pirko <jiri@nvidia.com>,
+        Jay Vosburgh <j.vosburgh@gmail.com>
+Subject: Re: [PATCH net-next v2] veth: Support bonding events
+Message-ID: <20220330085154.34440715@kernel.org>
+In-Reply-To: <c1ec0612-063b-dbfa-e10a-986786178c93@linux.ibm.com>
+References: <20220329114052.237572-1-wintera@linux.ibm.com>
+        <20220329175421.4a6325d9@kernel.org>
+        <d2e45c4a-ed34-10d3-58cd-01b1c19bd004@blackwall.org>
+        <c1ec0612-063b-dbfa-e10a-986786178c93@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: ZAfxmmFdDQnVLexoG3uXbFEhelTubXbb
-X-Proofpoint-GUID: xC2soxHcQh25nhUhly4Rwq_akm_GZ2Os
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-30_04,2022-03-30_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 adultscore=0
- clxscore=1015 malwarescore=0 mlxscore=0 mlxlogscore=641 suspectscore=0
- spamscore=0 lowpriorityscore=0 phishscore=0 impostorscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2203300071
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Refactor and rename vm.[ch] to hardware.[ch]
+On Wed, 30 Mar 2022 13:14:12 +0200 Alexandra Winter wrote:
+> >> This patch in no way addresses (2). But then, again, if we put 
+> >> a macvlan on top of a bridge master it will shotgun its GARPS all 
+> >> the same. So it's not like veth would be special in that regard.
+> >>
+> >> Nik, what am I missing?
+> > 
+> > If we're talking about macvlan -> bridge -> bond then the bond flap's
+> > notify peers shouldn't reach the macvlan.
 
-* Remove some uneeded #includes for vm.h
-* Rename vm.[ch] to hardware.[ch]
-* Move host_is_zvm6 to the library (was in a testcase)
-* Consolidate all detection functions into detect_host, which returns
-  what host system the test is running on
-* Rename vm_is_* functions to host_is_*, which are then just wrappers
-  around detect_host
-* Move machine type macros from arch_def.h to hardware.h, add machine
-  types for all known machines
-* Add machine_is_* functions
-* Refactor and rename get_machine_id to be a simple wrapper for stidp
-* Add back get_machine_id using the stidp wrapper
+Hm, right. I'm missing a step in my understanding. As you say bridge
+does not seem to be re-broadcasting the event to its master. So how
+does Alexandra catch this kind of an event? :S
 
-Claudio Imbrenda (4):
-  s390x: remove spurious includes
-  lib: s390: rename and refactor vm.[ch]
-  lib: s390x: functions for machine models
-  lib: s390x: stidp wrapper and move get_machine_id
+	case NETDEV_NOTIFY_PEERS:
+		/* propagate to peer of a bridge attached veth */
+		if (netif_is_bridge_master(dev)) {  
 
- s390x/Makefile           |   2 +-
- lib/s390x/asm/arch_def.h |   7 +-
- lib/s390x/hardware.h     | 134 +++++++++++++++++++++++++++++++++++++++
- lib/s390x/vm.h           |  15 -----
- lib/s390x/hardware.c     |  86 +++++++++++++++++++++++++
- lib/s390x/vm.c           |  92 ---------------------------
- s390x/cpumodel.c         |   4 +-
- s390x/mvpg-sie.c         |   1 -
- s390x/mvpg.c             |   4 +-
- s390x/pv-diags.c         |   1 -
- s390x/skey.c             |  28 +-------
- s390x/spec_ex-sie.c      |   1 -
- s390x/uv-host.c          |   4 +-
- 13 files changed, 230 insertions(+), 149 deletions(-)
- create mode 100644 lib/s390x/hardware.h
- delete mode 100644 lib/s390x/vm.h
- create mode 100644 lib/s390x/hardware.c
- delete mode 100644 lib/s390x/vm.c
+IIUC bond will notify with dev == bond netdev. Where is the event with
+dev == br generated?
 
--- 
-2.34.1
+> > Generally broadcast traffic
+> > is quite expensive for the bridge, I have patches that improve on the
+> > technical side (consider ports only for the same bcast domain), but you also
+> > wouldn't want unnecessary bcast packets being sent around. :)
+> > There are setups with tens of bond devices and propagating that to all would be
+> > very expensive, but most of all unnecessary. It would also hurt setups with
+> > a lot of vlan devices on the bridge. There are setups with hundreds of vlans
+> > and hundreds of macvlans on top, propagating it up would send it to all of
+> > them and that wouldn't scale at all, these mostly have IP addresses too.
 
+Ack.
+
+> > Perhaps we can enable propagation on a per-port or per-bridge basis, then we
+> > can avoid these walks. That is, make it opt-in.
+
+Maybe opt-out? But assuming the event is only generated on
+active/backup switch over - when would it be okay to ignore
+the notification?
+
+> >>> It also seems difficult to avoid re-bouncing the notifier.  
+> >>
+> >> syzbot will make short work of this patch, I think the potential
+> >> for infinite loops has to be addressed somehow. IIUC this is the 
+> >> first instance of forwarding those notifiers to a peer rather
+> >> than within a upper <> lower device hierarchy which is a DAG.  
+> 
+> My concern was about the Hangbin's alternative proposal to notify all
+> bridge ports. I hope in my porposal I was able to avoid infinite loops.
+
+Possibly I'm confused as to where the notification for bridge master
+gets sent..
