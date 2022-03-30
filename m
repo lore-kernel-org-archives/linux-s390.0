@@ -2,222 +2,215 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AC5FBC433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 30 Mar 2022 00:54:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C1DC3C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 30 Mar 2022 06:07:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241512AbiC3A4L (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 29 Mar 2022 20:56:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54982 "EHLO
+        id S237486AbiC3GJL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 30 Mar 2022 02:09:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241050AbiC3A4K (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Mar 2022 20:56:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B0D310E048;
-        Tue, 29 Mar 2022 17:54:26 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 063F8B8197B;
-        Wed, 30 Mar 2022 00:54:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE617C2BBE4;
-        Wed, 30 Mar 2022 00:54:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648601663;
-        bh=ubFHj+K9Ba1I+teDUAJ4JZ4+3y1MplBuqIus6GiwDiw=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=CBmVsgFhCDd+NEOP2ZOO8xSxJYSrIIdrIXwb0PPG+cVPwXOeRa9wHuJhuD7X0rKua
-         lAfcF+KsgnVj1artMm1qqfYlEOH96q6yGvdVKRY2JmaggOVzX9fhFjtTCVnCuA2ybb
-         v0gzV9pyn3829oLYBnWI0jqN3eB7O64Q/RcXPTvl/GChNzGvLoZEBSBT6dIysui+MD
-         KQ3nJAvXV+Fp4XfUXBfocdC6dRUmOs1dgJ6qqb7nllxWtGO7Q9VEr0SX+GIj7RHSGz
-         8Yx0QDNvFuNo+aVCXfEZ1Hd7keBsarI+Qr/reW1y+7im0i/82dpbHYszks7ICxy5Wo
-         VC/PXLSMeyVrA==
-Date:   Tue, 29 Mar 2022 17:54:21 -0700
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     Alexandra Winter <wintera@linux.ibm.com>,
-        Nikolay Aleksandrov <razor@blackwall.org>
-Cc:     "David S. Miller" <davem@davemloft.net>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Hangbin Liu <liuhangbin@gmail.com>, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Roopa Prabhu <roopa@nvidia.com>,
-        bridge@lists.linux-foundation.org,
-        Ido Schimmel <idosch@nvidia.com>, Jiri Pirko <jiri@nvidia.com>,
-        Jay Vosburgh <j.vosburgh@gmail.com>
-Subject: Re: [PATCH net-next v2] veth: Support bonding events
-Message-ID: <20220329175421.4a6325d9@kernel.org>
-In-Reply-To: <20220329114052.237572-1-wintera@linux.ibm.com>
-References: <20220329114052.237572-1-wintera@linux.ibm.com>
+        with ESMTP id S236108AbiC3GJK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 30 Mar 2022 02:09:10 -0400
+Received: from FRA01-PR2-obe.outbound.protection.outlook.com (mail-eopbgr120077.outbound.protection.outlook.com [40.107.12.77])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E88A64E3;
+        Tue, 29 Mar 2022 23:07:25 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=UkKxh/XwCQq52wzTt6fL0CQ0/ASCSlMDkj3yBIf1bAj2GX4fwLynWrVFZtdssMdIGdA0rjn3d9FXVcVJM8kfW8RmJjRO5p3yoZrgGAImH2w4T7og06lkBgWo1OSzFsn7iTWC9kuMC0foSypTL7sbetPWjisYdbEV9P/Ej9k+ocnzsWrkgOj+MdlP+fQR+OLTU0g2guaNCX01RgsXx0YWz7EUw9581Hd3a71yAVylJmD1K2IGAkZ16LKiNuXjrKUe61eoUNqLePtnZVJEwT2ea3rdEe1eJcG8ILFVVgFei/6uVbLDuRRtc6kPIDCvdS+ELUCLfFoght6h0M5RN2d0sw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=haPo96bWSzueoKjiGKb0vSjO+9NBriqWTn0ya8JYeDA=;
+ b=Bau5265bcUAIjnXL6PHN7CYFLfqbQahGCnqZqfUGUdsFC67qMFed0kgLtesPF0TvTxzqkNBPChNSR08LVtQUWIMOcIYsVkr3PKvcIJnkssIOJ6TRMGtQ3UyR7ykGHQ/AFTkRNAlQJHIVm20l5nRrzVoxqeDTXOcemO/fYRlzX0Vu4lKjw9+/LFBcwHKSBa8E7YyglM/31jlTBJAtgozRZdo2dM1mgxZxg2HpXde14qX0Kw9nkceEeXzKeFLOSQHoJL1SArM49nwIiNUhCnyRm6yFK5vco8sISi6Wv5OwX3JRnBOVljrZzkPZwKw5pvQP+mnyEauUitpxoRHfP2JSEA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=csgroup.eu; dmarc=pass action=none header.from=csgroup.eu;
+ dkim=pass header.d=csgroup.eu; arc=none
+Received: from MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM (2603:10a6:501:31::15)
+ by MR1P264MB3684.FRAP264.PROD.OUTLOOK.COM (2603:10a6:501:21::23) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5123.16; Wed, 30 Mar
+ 2022 06:07:22 +0000
+Received: from MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
+ ([fe80::cd2f:d05d:9aa3:400d]) by MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
+ ([fe80::cd2f:d05d:9aa3:400d%6]) with mapi id 15.20.5102.023; Wed, 30 Mar 2022
+ 06:07:22 +0000
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+To:     David Hildenbrand <david@redhat.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC:     "x86@kernel.org" <x86@kernel.org>, Jan Kara <jack@suse.cz>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Peter Xu <peterx@redhat.com>, Michal Hocko <mhocko@kernel.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        Donald Dutile <ddutile@redhat.com>,
+        Liang Zhang <zhangliang5@huawei.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Will Deacon <will@kernel.org>, Christoph Hellwig <hch@lst.de>,
+        Paul Mackerras <paulus@samba.org>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Rik van Riel <riel@surriel.com>,
+        Hugh Dickins <hughd@google.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        David Rientjes <rientjes@google.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Pedro Gomes <pedrodemargomes@gmail.com>,
+        Jann Horn <jannh@google.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Oded Gabbay <oded.gabbay@gmail.com>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        Oleg Nesterov <oleg@redhat.com>, Nadav Amit <namit@vmware.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Roman Gushchin <guro@fb.com>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>
+Subject: Re: [PATCH v2 7/8] powerpc/pgtable: remove _PAGE_BIT_SWAP_TYPE for
+ book3s
+Thread-Topic: [PATCH v2 7/8] powerpc/pgtable: remove _PAGE_BIT_SWAP_TYPE for
+ book3s
+Thread-Index: AQHYQ40wY93tUMDYrEGXxCs8qiA/eKzXcbwA
+Date:   Wed, 30 Mar 2022 06:07:22 +0000
+Message-ID: <22d3c42d-402f-8aeb-e989-c05d023b2ed3@csgroup.eu>
+References: <20220329164329.208407-1-david@redhat.com>
+ <20220329164329.208407-8-david@redhat.com>
+In-Reply-To: <20220329164329.208407-8-david@redhat.com>
+Accept-Language: fr-FR, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+user-agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=csgroup.eu;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 4759bff5-cd0f-45ad-d0f0-08da12138e4d
+x-ms-traffictypediagnostic: MR1P264MB3684:EE_
+x-microsoft-antispam-prvs: <MR1P264MB36847256674C430F247A6201ED1F9@MR1P264MB3684.FRAP264.PROD.OUTLOOK.COM>
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: DJ76by3EzGK5MH6xh+u2tqnbUKGUumze0bX2RIdIhjhtr8cdzUyrHeFpLpkpOVUUrf6LH8ZjU8Lmraxf7pIX+9rK966Cxhf2GMG6XCRK6jb3zW37WtW6ZgdNQqlltaEVLYNo8OUVIi/plap/EohY9Pd9HdGkSt8983pmrdFoUG++uyGVhBzwixaT/nbIIN16EWrmaF/seMNAM3KLBAc0MO+UHVQTnfgve5jRAx1cuq0pfY2ZAMPVnxY5I9Te+2Igv5wh20U3zE90JPr+tkZH/lBd6SGtdnnsGZJdG0rInbjUVo+her19c3YJz4zCyI4lsGbq5pg4jWKfJhhGE+6hIXd14qWwP2qOpHRZ4X63mwVvksiuup00kiYm4i1qpjvo+OTOFB3F3bvwIlKE3RbtPTlhQ+RuyUqPkx8C8PA6PYS9rAXvuqJ2q6i+k7o/XmpeT7P1uNcAhZLwYRypA+T4o/trAqu+wQEjuCc3+JFhOWZpcnuE5Llu8QtQPN9XPSIZTsGCIqxqdPuzWA95txX3AOWR1xDLlWv9a8Qv7gFUJb8NJ96s3C+6oSuFIeCjTawNZwgzQcS3zdm7v9riL4PVgEKIcGeDlvTVl9eV9eKMQiJAkg4ojAnx7K3Lorsi5NBen5uSvV5I7gjlO751eL/7dVSZOwX7vBbzZfBJxZJIymS7BAaJFt9Kt65beIFa1tfuyCeYN+QJCyng1LN9cYq08bFIK8y9GdBACTVm4cyVA5TZR7osxzuwB2SVG9U8JSggM8a9SpF43OjKVD4iDQqJJ0EDkIh/jTkqvIJpx7teJUI=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(110136005)(6512007)(54906003)(31696002)(6506007)(2906002)(86362001)(91956017)(8676002)(4326008)(508600001)(38070700005)(76116006)(64756008)(66446008)(66556008)(66946007)(71200400001)(66476007)(2616005)(5660300002)(36756003)(316002)(6486002)(31686004)(186003)(44832011)(7406005)(26005)(7416002)(66574015)(122000001)(38100700002)(8936002)(83380400001)(32563001)(45980500001)(43740500002);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?UWJHQmhiQXNFM29EYXlXdTh1djUxU3FkeXhLN3BYOHB1WUFVTllncnN3dmlp?=
+ =?utf-8?B?NEloREZEUGozNFRvODYvMW1McmVrTlJuWnVzRUpjLzNzYVM1RE5uZTdRVXRq?=
+ =?utf-8?B?TnArYUpQdkZhNzJ3VE9jNE9MMzR1OVlWNlBPSGR3NW0vMklDS2RyRE5IQmF6?=
+ =?utf-8?B?V3MvZE05QVZlcmwrTDBLTmFyTHdnTzF4d0U1VFlqc2NmVzM5V2VCdlF4MHF5?=
+ =?utf-8?B?dkdMaXdPOEZGdEhNOWJLSUpLNVN4Vlo3UXhqQUZNV3k4dGxkWDZkdGVNR1FG?=
+ =?utf-8?B?cHhxUmdwcHpkOGY3NllpYzBBSG8xQXl3cUtSY1BKY28wSDNWMmNpNnd2MU1a?=
+ =?utf-8?B?S2EzRnhiUWdJelQrNVhMSjBjM3cyV3ZVa3k1RlpjUVMvUkhzcXpJL1lQai9G?=
+ =?utf-8?B?dmIxdXdGWXJVSEJubVQ5dGlrWHhWdUU5ZS94YTlTUG5Qc1U5cDhKSEJGLzZj?=
+ =?utf-8?B?WTlaNU5IdXdMc0VzNHlhSG12V2hSdnZXMVNEejdNMkhkWTkxdDVnQ1BzcTR6?=
+ =?utf-8?B?WDJEdGdwclRORnJPUGhCa0RjNUpsNDFEQkRUbTZXK2NqUDZlcGlGZFV4empo?=
+ =?utf-8?B?VFBRaXJCWnk0eC96UXVBam53VjU2NEdpZ1FIbHMrTkhJZUxONTBjVEFEd2dh?=
+ =?utf-8?B?NkFUVkhUNW1KMkxaWkVILzRTM2RmYjhKamtWUXFPZmtSTllwMi8xdHVHbU5Q?=
+ =?utf-8?B?ZWxjV1EyN1JVRmVGRFkyYmdWSCtQZHA4dG13aDlVYWFrMUNtMUtIUm5Kb1ZT?=
+ =?utf-8?B?WWU5OHNMZE5JMEtNRWZHM0xKUkJxTFZhZlVpSEM5YUlwaVJIcC9zalNmUFJ2?=
+ =?utf-8?B?U2R3N3hpN2ZSMTFsMXhxaFR6SFhXWWtvRDRjTk93Zm40Zjlxc2ZUNGF3bThy?=
+ =?utf-8?B?WFBQVWJRNVBPbmRsUWxCQ2g3aFZxT3M1WGdZenJzRExqNlVCc1B3bTRTNURH?=
+ =?utf-8?B?NEtZWHJUVDIySVlpV1ZhSXAzdXVuWVEycUc0ZFBUcVA2MCtMeFBicFE5V1Ex?=
+ =?utf-8?B?dlBHdXQ4aDEyWXZ1UzdzWlZHeHFEd1VyeFhiNW9PRUdGdHFZdmtNbHJxVzZ1?=
+ =?utf-8?B?MmtrQkt4bUlaZVlGWDE1TE13TGtOcCtLS3AzNlMraW0zS083RGpoUDQzaDRW?=
+ =?utf-8?B?QWNwRnR6K2MxeTB6OVlrQVhnR3pMTXJLT3E1ODJTMUg4eVhNWkFCSWluVkVY?=
+ =?utf-8?B?Tk4xZTV1ZFgzN2p6ekNna2M3NnFUcEFvS0wwU0FxN3NWMm9qZENjek5FMFhp?=
+ =?utf-8?B?VWZsKzdVcGx6TVgxUTR6a29YWUV6K3RrSC9zVzhya3I1emFIdE1LVEN1Undi?=
+ =?utf-8?B?b2tWWVZmZ0k5b0xlTkJUMUpBclpQencxOUFsaHoyRm9wSWhEWGd3NVZyZlRs?=
+ =?utf-8?B?Y3IzNnhndVM2cmRUMnRDRFlRTjV3V2h4YUhWeE4yWWR1TE1ndVNOZUNQWk1t?=
+ =?utf-8?B?c0xTTHBjY0hrSjBHMDc3Q3FEMVp2Qkpqa2ZjZHk3MkJTcnU1ckJOMVRaUWZ1?=
+ =?utf-8?B?Ty9qVm5JUTMzaktDNlNQZkNmSXY5SzFwSFBWMDVZVHJYOVpEMEYvSDcwNzJ0?=
+ =?utf-8?B?QksyNlB0NTBmeEhCL1JCbFlPcUdaVllHZzMxUHB0Z09FdFZxeFh6MTB2d1Jo?=
+ =?utf-8?B?TE84bmFlYi9sOUs3QjI3NnlOM2RGYzEvWWJrME9DcGRyekRWdno3Z2xTcytk?=
+ =?utf-8?B?Lzd5OTdpaWJWWTlPWDA2SGU5NDU2Tmh1R00rYnVEYWMwVFBUOS9Uek5QZnBC?=
+ =?utf-8?B?UEhJczlCWEYxY0xxRlpXb0huTzZPYytSTitzc1BCQm12bXJDS2JET0pkQVR1?=
+ =?utf-8?B?TDdsQlUyem9JaC9OR0k1dEZxL3F5VkIzVnpaVm9PV09TcUNiUmRXYkFBaVdR?=
+ =?utf-8?B?VDV5VHJjUndhcHFhVUlnbXhYUW9uNzBZWVg5U1RYSlFEWThxTHVzVHZxSEFO?=
+ =?utf-8?B?ZWRBM3ArYStLc20xQzQ4UG85bUg4UHY0MzJHQ0pXN2lmRW5aaHdNRmZsT1pq?=
+ =?utf-8?B?eWhaT0RqUUE3citRYVNTSkRZTkZIcUpsSzIzVFN1WExubmR2em1BU0FQTG9I?=
+ =?utf-8?B?OWxLMnVISUNpQkV1ZzZhdEVEeFgzU2ZibTRSYUwvVHR3eFlNaWZyS0p3QVFZ?=
+ =?utf-8?B?QzBHSDhHeERzdGcxZTJxWVMrMU1nUFhYL3RXTDRtN1dLa1czZGJwdDlaOTJM?=
+ =?utf-8?B?S2xFNU9EbHJadUwvMFpVVlczeVFHM0l0TGUvdE5McHJUWVNFa0hobzRVRlJW?=
+ =?utf-8?B?UWszdTBzNE1JR09Sa3dmcVRVNHpUOGozR1NWbDRIL09Ednp4SUk4MGY5RU9F?=
+ =?utf-8?B?bVRmNko4eUgyNEMrbW1ib0hyaE9IY0E3T0xmTGg1aC9KRzUvN0xNRmZGSUpO?=
+ =?utf-8?Q?1OjNwbpUxArB1pbKa4Dgvj5nNHwKzSwmjcuUE?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <8443F8F09D56424C8BA13B9E4746293A@FRAP264.PROD.OUTLOOK.COM>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-OriginatorOrg: csgroup.eu
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4759bff5-cd0f-45ad-d0f0-08da12138e4d
+X-MS-Exchange-CrossTenant-originalarrivaltime: 30 Mar 2022 06:07:22.6708
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 9914def7-b676-4fda-8815-5d49fb3b45c8
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: AGxYcoQKiqY34QN2wVqc35/3shc0skppOrfXgv2f50uvNdiZWcFGvIbdE2y8NO3cwU7UnkuW7ouhMY4sghCtq09MEmKPy+tZNgsPmVPMG5g=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MR1P264MB3684
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Dropping the BPF people from CC and adding Hangbin, bridge and
-bond/team. Please exercise some judgment when sending patches.
-
-On Tue, 29 Mar 2022 13:40:52 +0200 Alexandra Winter wrote:
-> Bonding drivers generate specific events during failover that trigger
-> switch updates.  When a veth device is attached to a bridge with a
-> bond interface, we want external switches to learn about the veth
-> devices as well.
-> 
-> Example:
-> 
-> 	| veth_a2   |  veth_b2  |  veth_c2 |
-> 	------o-----------o----------o------
-> 	       \	  |	    /
-> 		o	  o	   o
-> 	      veth_a1  veth_b1  veth_c1
-> 	      -------------------------
-> 	      |        bridge         |
-> 	      -------------------------
-> 			bond0
-> 			/  \
-> 		     eth0  eth1
-> 
-> In case of failover from eth0 to eth1, the netdev_notifier needs to be
-> propagated, so e.g. veth_a2 can re-announce its MAC address to the
-> external hardware attached to eth1.
-> 
-> Without this patch we have seen cases where recovery after bond failover
-> took an unacceptable amount of time (depending on timeout settings in the
-> network).
-> 
-> Due to the symmetric nature of veth special care is required to avoid
-> endless notification loops. Therefore we only notify from a veth
-> bridgeport to a peer that is not a bridgeport.
-> 
-> References:
-> Same handling as for macvlan:
-> commit 4c9912556867 ("macvlan: Support bonding events")
-> and vlan:
-> commit 4aa5dee4d999 ("net: convert resend IGMP to notifier event")
-> 
-> Alternatives:
-> Propagate notifier events to all ports of a bridge. IIUC, this was
-> rejected in https://www.spinics.net/lists/netdev/msg717292.html
-
-My (likely flawed) reading of Nik's argument was that (1) he was
-concerned about GARP storms; (2) he didn't want the GARP to be
-broadcast to all ports, just the bond that originated the request.
-
-I'm not sure I follow (1), as Hangbin said the event is rare, plus 
-GARP only comes from interfaces that have an IP addr, which IIUC
-most bridge ports will not have.
-
-This patch in no way addresses (2). But then, again, if we put 
-a macvlan on top of a bridge master it will shotgun its GARPS all 
-the same. So it's not like veth would be special in that regard.
-
-Nik, what am I missing?
-
-> It also seems difficult to avoid re-bouncing the notifier.
-
-syzbot will make short work of this patch, I think the potential
-for infinite loops has to be addressed somehow. IIUC this is the 
-first instance of forwarding those notifiers to a peer rather
-than within a upper <> lower device hierarchy which is a DAG.
-
-> Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
-> ---
->  drivers/net/veth.c | 53 ++++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 53 insertions(+)
-> 
-> diff --git a/drivers/net/veth.c b/drivers/net/veth.c
-> index d29fb9759cc9..74b074453197 100644
-> --- a/drivers/net/veth.c
-> +++ b/drivers/net/veth.c
-> @@ -1579,6 +1579,57 @@ static void veth_setup(struct net_device *dev)
->  	dev->mpls_features = NETIF_F_HW_CSUM | NETIF_F_GSO_SOFTWARE;
->  }
->  
-> +static bool netif_is_veth(const struct net_device *dev)
-> +{
-> +	return (dev->netdev_ops == &veth_netdev_ops);
-
-brackets unnecessary 
-
-> +}
-> +
-> +static void veth_notify_peer(unsigned long event, const struct net_device *dev)
-> +{
-> +	struct net_device *peer;
-> +	struct veth_priv *priv;
-> +
-> +	priv = netdev_priv(dev);
-> +	peer = rtnl_dereference(priv->peer);
-> +	/* avoid re-bounce between 2 bridges */
-> +	if (!netif_is_bridge_port(peer))
-> +		call_netdevice_notifiers(event, peer);
-> +}
-> +
-> +/* Called under rtnl_lock */
-> +static int veth_device_event(struct notifier_block *unused,
-> +			     unsigned long event, void *ptr)
-> +{
-> +	struct net_device *dev, *lower;
-> +	struct list_head *iter;
-> +
-> +	dev = netdev_notifier_info_to_dev(ptr);
-> +
-> +	switch (event) {
-> +	case NETDEV_NOTIFY_PEERS:
-> +	case NETDEV_BONDING_FAILOVER:
-> +	case NETDEV_RESEND_IGMP:
-> +		/* propagate to peer of a bridge attached veth */
-> +		if (netif_is_bridge_master(dev)) {
-
-Having veth sift thru bridge ports seems strange.
-In fact it could be beneficial to filter the event based on
-port state (whether it's forwarding, vlan etc). But looking
-at details of port state outside the bridge would be even stranger.
-
-> +			iter = &dev->adj_list.lower;
-> +			lower = netdev_next_lower_dev_rcu(dev, &iter);
-> +			while (lower) {
-> +				if (netif_is_veth(lower))
-> +					veth_notify_peer(event, lower);
-> +				lower = netdev_next_lower_dev_rcu(dev, &iter);
-
-let's add netdev_for_each_lower_dev_rcu() rather than open-coding
-
-> +			}
-> +		}
-> +		break;
-> +	default:
-> +		break;
-> +	}
-> +	return NOTIFY_DONE;
-> +}
-> +
-> +static struct notifier_block veth_notifier_block __read_mostly = {
-> +		.notifier_call  = veth_device_event,
-
-extra tab here
-
-> +};
-> +
->  /*
->   * netlink interface
->   */
-> @@ -1824,12 +1875,14 @@ static struct rtnl_link_ops veth_link_ops = {
->  
->  static __init int veth_init(void)
->  {
-> +	register_netdevice_notifier(&veth_notifier_block);
-
-this can fail
-
->  	return rtnl_link_register(&veth_link_ops);
->  }
->  
->  static __exit void veth_exit(void)
->  {
->  	rtnl_link_unregister(&veth_link_ops);
-> +	unregister_netdevice_notifier(&veth_notifier_block);
->  }
->  
->  module_init(veth_init);
-
+DQoNCkxlIDI5LzAzLzIwMjIgw6AgMTg6NDMsIERhdmlkIEhpbGRlbmJyYW5kIGEgw6ljcml0wqA6
+DQo+IFRoZSBzd2FwIHR5cGUgaXMgc2ltcGx5IHN0b3JlZCBpbiBiaXRzIDB4MWYgb2YgdGhlIHN3
+YXAgcHRlLiBMZXQncw0KPiBzaW1wbGlmeSBieSBqdXN0IGdldHRpbmcgcmlkIG9mIF9QQUdFX0JJ
+VF9TV0FQX1RZUEUuIEl0J3Mgbm90IGxpa2UgdGhhdA0KPiB3ZSBjYW4gc2ltcGx5IGNoYW5nZSBp
+dDogX1BBR0VfU1dQX1NPRlRfRElSVFkgd291bGQgc3VkZGVubHkgZmFsbCBpbnRvDQo+IF9SUEFH
+RV9SU1YxLCB3aGljaCBpc24ndCBwb3NzaWJsZSBhbmQgd291bGQgbWFrZSB0aGUNCj4gQlVJTERf
+QlVHX09OKF9QQUdFX0hQVEVGTEFHUyAmIF9QQUdFX1NXUF9TT0ZUX0RJUlRZKSBhbmdyeS4NCj4g
+DQo+IFdoaWxlIGF0IGl0LCBtYWtlIGl0IGNsZWFyZXIgd2hpY2ggYml0IHdlJ3JlIGFjdHVhbGx5
+IHVzaW5nIGZvcg0KPiBfUEFHRV9TV1BfU09GVF9ESVJUWSBieSBqdXN0IHVzaW5nIHRoZSBwcm9w
+ZXIgZGVmaW5lIGFuZCBpbnRyb2R1Y2UgYW5kDQo+IHVzZSBTV1BfVFlQRV9NQVNLLg0KPiANCj4g
+U2lnbmVkLW9mZi1ieTogRGF2aWQgSGlsZGVuYnJhbmQgPGRhdmlkQHJlZGhhdC5jb20+DQo+IC0t
+LQ0KPiAgIGFyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9ib29rM3MvNjQvcGd0YWJsZS5oIHwgMTIg
+KysrKystLS0tLS0tDQoNCldoeSBvbmx5IEJPT0szUyA/IFdoeSBub3QgQk9PSzNFIGFzIHdlbGwg
+Pw0KDQpDaHJpc3RvcGhlDQoNCj4gICAxIGZpbGUgY2hhbmdlZCwgNSBpbnNlcnRpb25zKCspLCA3
+IGRlbGV0aW9ucygtKQ0KPiANCj4gZGlmZiAtLWdpdCBhL2FyY2gvcG93ZXJwYy9pbmNsdWRlL2Fz
+bS9ib29rM3MvNjQvcGd0YWJsZS5oIGIvYXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNtL2Jvb2szcy82
+NC9wZ3RhYmxlLmgNCj4gaW5kZXggODc1NzMwZDVhZjQwLi44ZTk4Mzc1ZDVjNGEgMTAwNjQ0DQo+
+IC0tLSBhL2FyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9ib29rM3MvNjQvcGd0YWJsZS5oDQo+ICsr
+KyBiL2FyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9ib29rM3MvNjQvcGd0YWJsZS5oDQo+IEBAIC0x
+Myw3ICsxMyw2IEBADQo+ICAgLyoNCj4gICAgKiBDb21tb24gYml0cyBiZXR3ZWVuIGhhc2ggYW5k
+IFJhZGl4IHBhZ2UgdGFibGUNCj4gICAgKi8NCj4gLSNkZWZpbmUgX1BBR0VfQklUX1NXQVBfVFlQ
+RQkwDQo+ICAgDQo+ICAgI2RlZmluZSBfUEFHRV9FWEVDCQkweDAwMDAxIC8qIGV4ZWN1dGUgcGVy
+bWlzc2lvbiAqLw0KPiAgICNkZWZpbmUgX1BBR0VfV1JJVEUJCTB4MDAwMDIgLyogd3JpdGUgYWNj
+ZXNzIGFsbG93ZWQgKi8NCj4gQEAgLTc1MSwxNyArNzUwLDE2IEBAIHN0YXRpYyBpbmxpbmUgcHRl
+X3QgcHRlX21vZGlmeShwdGVfdCBwdGUsIHBncHJvdF90IG5ld3Byb3QpDQo+ICAgCSAqIERvbid0
+IGhhdmUgb3ZlcmxhcHBpbmcgYml0cyB3aXRoIF9QQUdFX0hQVEVGTEFHUwlcDQo+ICAgCSAqIFdl
+IGZpbHRlciBIUFRFRkxBR1Mgb24gc2V0X3B0ZS4JCQlcDQo+ICAgCSAqLwkJCQkJCQlcDQo+IC0J
+QlVJTERfQlVHX09OKF9QQUdFX0hQVEVGTEFHUyAmICgweDFmIDw8IF9QQUdFX0JJVF9TV0FQX1RZ
+UEUpKTsgXA0KPiArCUJVSUxEX0JVR19PTihfUEFHRV9IUFRFRkxBR1MgJiBTV1BfVFlQRV9NQVNL
+KTsgXA0KPiAgIAlCVUlMRF9CVUdfT04oX1BBR0VfSFBURUZMQUdTICYgX1BBR0VfU1dQX1NPRlRf
+RElSVFkpOwlcDQo+ICAgCX0gd2hpbGUgKDApDQo+ICAgDQo+ICAgI2RlZmluZSBTV1BfVFlQRV9C
+SVRTIDUNCj4gLSNkZWZpbmUgX19zd3BfdHlwZSh4KQkJKCgoeCkudmFsID4+IF9QQUdFX0JJVF9T
+V0FQX1RZUEUpIFwNCj4gLQkJCQkmICgoMVVMIDw8IFNXUF9UWVBFX0JJVFMpIC0gMSkpDQo+ICsj
+ZGVmaW5lIFNXUF9UWVBFX01BU0sJCSgoMVVMIDw8IFNXUF9UWVBFX0JJVFMpIC0gMSkNCj4gKyNk
+ZWZpbmUgX19zd3BfdHlwZSh4KQkJKCh4KS52YWwgJiBTV1BfVFlQRV9NQVNLKQ0KPiAgICNkZWZp
+bmUgX19zd3Bfb2Zmc2V0KHgpCQkoKCh4KS52YWwgJiBQVEVfUlBOX01BU0spID4+IFBBR0VfU0hJ
+RlQpDQo+ICAgI2RlZmluZSBfX3N3cF9lbnRyeSh0eXBlLCBvZmZzZXQpCSgoc3dwX2VudHJ5X3Qp
+IHsgXA0KPiAtCQkJCSgodHlwZSkgPDwgX1BBR0VfQklUX1NXQVBfVFlQRSkgXA0KPiAtCQkJCXwg
+KCgob2Zmc2V0KSA8PCBQQUdFX1NISUZUKSAmIFBURV9SUE5fTUFTSyl9KQ0KPiArCQkJCSh0eXBl
+KSB8ICgoKG9mZnNldCkgPDwgUEFHRV9TSElGVCkgJiBQVEVfUlBOX01BU0spfSkNCj4gICAvKg0K
+PiAgICAqIHN3cF9lbnRyeV90IG11c3QgYmUgaW5kZXBlbmRlbnQgb2YgcHRlIGJpdHMuIFdlIGJ1
+aWxkIGEgc3dwX2VudHJ5X3QgZnJvbQ0KPiAgICAqIHN3YXAgdHlwZSBhbmQgb2Zmc2V0IHdlIGdl
+dCBmcm9tIHN3YXAgYW5kIGNvbnZlcnQgdGhhdCB0byBwdGUgdG8gZmluZCBhDQo+IEBAIC03NzQs
+NyArNzcyLDcgQEAgc3RhdGljIGlubGluZSBwdGVfdCBwdGVfbW9kaWZ5KHB0ZV90IHB0ZSwgcGdw
+cm90X3QgbmV3cHJvdCkNCj4gICAjZGVmaW5lIF9fc3dwX2VudHJ5X3RvX3BtZCh4KQkocHRlX3Bt
+ZChfX3N3cF9lbnRyeV90b19wdGUoeCkpKQ0KPiAgIA0KPiAgICNpZmRlZiBDT05GSUdfTUVNX1NP
+RlRfRElSVFkNCj4gLSNkZWZpbmUgX1BBR0VfU1dQX1NPRlRfRElSVFkgICAoMVVMIDw8IChTV1Bf
+VFlQRV9CSVRTICsgX1BBR0VfQklUX1NXQVBfVFlQRSkpDQo+ICsjZGVmaW5lIF9QQUdFX1NXUF9T
+T0ZUX0RJUlRZCV9QQUdFX05PTl9JREVNUE9URU5UDQo+ICAgI2Vsc2UNCj4gICAjZGVmaW5lIF9Q
+QUdFX1NXUF9TT0ZUX0RJUlRZCTBVTA0KPiAgICNlbmRpZiAvKiBDT05GSUdfTUVNX1NPRlRfRElS
+VFkgKi8=
