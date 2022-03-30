@@ -2,117 +2,158 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5FF5CC43217
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C946C43219
 	for <linux-s390@archiver.kernel.org>; Wed, 30 Mar 2022 12:38:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346371AbiC3MjB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 30 Mar 2022 08:39:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51330 "EHLO
+        id S1346394AbiC3MjC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 30 Mar 2022 08:39:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344501AbiC3Mh2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 30 Mar 2022 08:37:28 -0400
+        with ESMTP id S239015AbiC3Mh3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 30 Mar 2022 08:37:29 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEE7290FDF;
-        Wed, 30 Mar 2022 05:26:21 -0700 (PDT)
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22UBjIhr021727;
-        Wed, 30 Mar 2022 12:26:21 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32CD891376;
+        Wed, 30 Mar 2022 05:26:23 -0700 (PDT)
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22UBdKA4029481;
+        Wed, 30 Mar 2022 12:26:22 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=gCvvGsZ5Fbh3DNezZjk0Yd0yRAM4k6rHjjD7LRc0iKU=;
- b=na7ueVXRrsDi46ZB2qeS2A/yXtcQBi95+WEZzy3yxW/HcmeHnGS3TlkI1zqCUKMoiuzh
- tezOdD64iNptTrc48KqQY1Y6C1dXR380lJia2Ir3vZgfaiOsPimlDeMZ7qfjgr6IsGCx
- d/CV2CcaNjK2XD9vh0hGtK5BvNJFRyxp8ts9u116HRU9D301tbiVZT4NAE6Y1Rbj4afk
- OjX1x1XRZZECKReuFyrWXAO4zAH5RksC7bGsQR6/zUR+db8GCp8bZu76HBgzSC8QxPek
- W1F1pHW9eXW4sCKH0JodC6rZ0ebBad/20t1otHZAlWnqwbDUGVUs/tFQsh0mFi9IE34/ Ig== 
+ bh=sXGeJPQZ138O7pfZVDLvBQQyPZdncy8j85OElj4jRo8=;
+ b=sdiGmPzPz7Bo3O77fvfWcqDIlLvabQMKevTfPtJ80puQ2nHTJ5WMcUHi0mHcZetp41oU
+ LIQRIYOupn9GGQBrNiRzZDN5hJZ70HDDoOD1DP7gVXOvXxVsO1jwJ9Rx9TdjcEhFSVrV
+ ZOVaLyoXkrYGhq52rDKYOKJTTkkz0Ar+3IKSMqkuCUsYwIOfonyRNVwLeKnE3tEjejb7
+ UJ5vf8IKNDRGtREwXMQekpNkAF24jz/xfrt8bZzfJdR0mkERt3PBmSVMgLooCzBlAPk9
+ RaPAMBmiblIRcnr5Doz7UjoY8UrJo+qW+nDowXao8QkqDVgVOP1TdhmbE1juVXMVMtOF PQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3f40v833hu-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3f3y91nnyk-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 30 Mar 2022 12:26:20 +0000
-Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22UCFlFI023656;
+        Wed, 30 Mar 2022 12:26:22 +0000
+Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22UCEQmd009286;
+        Wed, 30 Mar 2022 12:26:21 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3f3y91nnxw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 30 Mar 2022 12:26:21 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22UCMrBV013829;
         Wed, 30 Mar 2022 12:26:20 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3f40v833ha-1
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma02fra.de.ibm.com with ESMTP id 3f1tf8y9kn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 30 Mar 2022 12:26:20 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22UCNPSa027038;
-        Wed, 30 Mar 2022 12:26:18 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma06ams.nl.ibm.com with ESMTP id 3f3rs3khp5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 30 Mar 2022 12:26:18 +0000
+        Wed, 30 Mar 2022 12:26:19 +0000
 Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22UCEGVC47513928
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22UCQGiG27525426
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 30 Mar 2022 12:14:16 GMT
+        Wed, 30 Mar 2022 12:26:16 GMT
 Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6179911C050;
-        Wed, 30 Mar 2022 12:26:15 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id AB6FC11C050;
+        Wed, 30 Mar 2022 12:26:16 +0000 (GMT)
 Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CA0C411C054;
-        Wed, 30 Mar 2022 12:26:14 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 20CB311C052;
+        Wed, 30 Mar 2022 12:26:16 +0000 (GMT)
 Received: from localhost.localdomain (unknown [9.145.13.95])
         by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 30 Mar 2022 12:26:14 +0000 (GMT)
+        Wed, 30 Mar 2022 12:26:16 +0000 (GMT)
 From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
 To:     kvm@vger.kernel.org
 Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, thuth@redhat.com,
         pasic@linux.ibm.com, david@redhat.com, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, scgl@linux.ibm.com,
         mimu@linux.ibm.com, nrb@linux.ibm.com
-Subject: [PATCH v9 07/18] KVM: s390: pv: module parameter to fence lazy destroy
-Date:   Wed, 30 Mar 2022 14:25:54 +0200
-Message-Id: <20220330122605.247613-8-imbrenda@linux.ibm.com>
+Subject: [PATCH v9 09/18] KVM: s390: pv: Add kvm_s390_cpus_from_pv to kvm-s390.h and add documentation
+Date:   Wed, 30 Mar 2022 14:25:56 +0200
+Message-Id: <20220330122605.247613-10-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220330122605.247613-1-imbrenda@linux.ibm.com>
 References: <20220330122605.247613-1-imbrenda@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Y-eWCGk4TJshRvqWcBF_yF_8wb4zdOIV
-X-Proofpoint-ORIG-GUID: JJfZTkHieRJU8QcIKLeD_I0OUP7xd5sh
+X-Proofpoint-ORIG-GUID: V8OamtRWOewClrF4UGfeqet5YOUwpJYw
+X-Proofpoint-GUID: 5ztr9EKmMLH9BqfSI4AAEbYcmDmsEEG1
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-30_04,2022-03-30_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- lowpriorityscore=0 malwarescore=0 phishscore=0 mlxscore=0 bulkscore=0
- clxscore=1015 impostorscore=0 priorityscore=1501 mlxlogscore=980
- adultscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2203300062
+ definitions=2022-03-30_03,2022-03-30_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 spamscore=0
+ adultscore=0 malwarescore=0 lowpriorityscore=0 suspectscore=0 phishscore=0
+ bulkscore=0 clxscore=1015 mlxscore=0 mlxlogscore=960 priorityscore=1501
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2203300062
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Add the module parameter "lazy_destroy", to allow the asynchronous destroy
-mechanism to be switched off. This might be useful for debugging purposes.
+Future changes make it necessary to call this function from pv.c.
 
-The parameter is enabled by default.
+While we are at it, let's properly document kvm_s390_cpus_from_pv() and
+kvm_s390_cpus_to_pv().
 
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/s390/kvm/kvm-s390.c | 26 +++++++++++++++++++++++++-
+ arch/s390/kvm/kvm-s390.h |  1 +
+ 2 files changed, 26 insertions(+), 1 deletion(-)
 
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 2296b1ff1e02..702696189505 100644
+index 702696189505..21fcca09e9bf 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -207,6 +207,11 @@ unsigned int diag9c_forwarding_hz;
- module_param(diag9c_forwarding_hz, uint, 0644);
- MODULE_PARM_DESC(diag9c_forwarding_hz, "Maximum diag9c forwarding per second, 0 to turn off");
+@@ -2175,7 +2175,20 @@ static int kvm_s390_set_cmma_bits(struct kvm *kvm,
+ 	return r;
+ }
  
-+/* allow asynchronous deinit for protected guests */
-+static int lazy_destroy = 1;
-+module_param(lazy_destroy, int, 0444);
-+MODULE_PARM_DESC(lazy_destroy, "Asynchronous destroy for protected guests");
-+
- /*
-  * For now we handle at most 16 double words as this is what the s390 base
-  * kernel handles and stores in the prefix page. If we ever need to go beyond
+-static int kvm_s390_cpus_from_pv(struct kvm *kvm, u16 *rcp, u16 *rrcp)
++/**
++ * kvm_s390_cpus_from_pv - Convert all protected vCPUs in a protected VM to
++ * non protected.
++ * @kvm the VM whose protected vCPUs are to be converted
++ * @rcp return value for the RC field of the UVC (in case of error)
++ * @rrcp return value for the RRC field of the UVC (in case of error)
++ *
++ * Does not stop in case of error, tries to convert as many
++ * CPUs as possible. In case of error, the RC and RRC of the last error are
++ * returned.
++ *
++ * Return: 0 in case of success, otherwise -EIO
++ */
++int kvm_s390_cpus_from_pv(struct kvm *kvm, u16 *rcp, u16 *rrcp)
+ {
+ 	struct kvm_vcpu *vcpu;
+ 	u16 rc, rrc;
+@@ -2202,6 +2215,17 @@ static int kvm_s390_cpus_from_pv(struct kvm *kvm, u16 *rcp, u16 *rrcp)
+ 	return ret;
+ }
+ 
++/**
++ * kvm_s390_cpus_to_pv - Convert all non-protected vCPUs in a protected VM
++ * to protected.
++ * @kvm the VM whose protected vCPUs are to be converted
++ * @rcp return value for the RC field of the UVC (in case of error)
++ * @rrcp return value for the RRC field of the UVC (in case of error)
++ *
++ * Tries to undo the conversion in case of error.
++ *
++ * Return: 0 in case of success, otherwise -EIO
++ */
+ static int kvm_s390_cpus_to_pv(struct kvm *kvm, u16 *rc, u16 *rrc)
+ {
+ 	unsigned long i;
+diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+index 098831e815e6..9276d910631b 100644
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -365,6 +365,7 @@ int kvm_s390_vcpu_setup_cmma(struct kvm_vcpu *vcpu);
+ void kvm_s390_vcpu_unsetup_cmma(struct kvm_vcpu *vcpu);
+ void kvm_s390_set_cpu_timer(struct kvm_vcpu *vcpu, __u64 cputm);
+ __u64 kvm_s390_get_cpu_timer(struct kvm_vcpu *vcpu);
++int kvm_s390_cpus_from_pv(struct kvm *kvm, u16 *rcp, u16 *rrcp);
+ 
+ /* implemented in diag.c */
+ int kvm_s390_handle_diag(struct kvm_vcpu *vcpu);
 -- 
 2.34.1
 
