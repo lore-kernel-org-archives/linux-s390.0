@@ -2,68 +2,67 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 500E9C433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 31 Mar 2022 13:13:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FEFDC433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 31 Mar 2022 13:25:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236641AbiCaNPh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 31 Mar 2022 09:15:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46726 "EHLO
+        id S236793AbiCaN11 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 31 Mar 2022 09:27:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234280AbiCaNPg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 31 Mar 2022 09:15:36 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E7443EB8A;
-        Thu, 31 Mar 2022 06:13:48 -0700 (PDT)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22VD2vAT005274;
-        Thu, 31 Mar 2022 13:13:47 GMT
+        with ESMTP id S235041AbiCaN11 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 31 Mar 2022 09:27:27 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 156E221407F;
+        Thu, 31 Mar 2022 06:25:39 -0700 (PDT)
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22VBkbTV029581;
+        Thu, 31 Mar 2022 13:25:38 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=+AbQsRaRazlnugFaIsoIcb22sJOC5wMMnZ13BCbBXaI=;
- b=hFZvxc4kbIruX+nYnb8Zptg/jlMxbu9JsN+Yyjk+vk4gH7vI4wPRXMOXWdvFDdjaLGLA
- 1q1MNFUvYnQIAMm7SI7TkOSp8Yv94RKgxhBkGH6PX2lxpqzefwAljPnKS4Sib+nrUiNI
- 7j+koS1tR1AutFAgw9JJ4pImN2jghfALQHcnXUYRVPgDJkAcMF+mUpyN6fWAJCYKYOLN
- D37Tr4UnhwsJNLNLoF8Bp0f9hi5JxxhHFlZK1Hzb/wxQouNpCrejHa01iEjwGEQS4QMp
- ubyIQm+vSer0HbPGCbsF1r2rD3keQEBznZ8laorXZQP4v0xmwizFqgDyX9X34QzZyg/W Ng== 
+ bh=SHP/oX2gI5uI7a2d9woYTjs3yd9xQwRqpxtXiY/crng=;
+ b=TSRe2A4dC5yj6xBirh1B9s5WztohMJXRcwXoaN9HEZBo6vp6FYJNAcq4gxS0nuBTLole
+ 4xQiN23+/tx9wvXfBbyjPFfxekSfhKg7gEpDprrgoWY5OCyAIZY1fyXBIJF5BAIbC+YH
+ U3rcj9gGx4cQA4sxpOqshENP6/2NdNJ/B7hfuVAODC62tE9F9xJ/VF4bcNii+DPOIaXt
+ wvDw2duPnfsm3YaQWP+5xDgDOOm8/m61LDzEhvfDD33qv/Mjtj2xTUiwGghDsrkG0np0
+ lKMi5HMv1x89u/mwVJFfCTCB4tw/+dBtbewRKXTC7moM/TysRQKwHBUp/YQzYdcN1CQG MA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3f54c2u8n7-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3f556tjktg-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 31 Mar 2022 13:13:47 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22VCw78V015843;
-        Thu, 31 Mar 2022 13:13:47 GMT
+        Thu, 31 Mar 2022 13:25:38 +0000
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22VDKQiR000705;
+        Thu, 31 Mar 2022 13:25:38 GMT
 Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3f54c2u8mh-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3f556tjksh-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 31 Mar 2022 13:13:47 +0000
+        Thu, 31 Mar 2022 13:25:37 +0000
 Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22VD7ft4007522;
-        Thu, 31 Mar 2022 13:13:45 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 3f3rs3nu6k-1
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22VDHVEv017146;
+        Thu, 31 Mar 2022 13:25:35 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma06ams.nl.ibm.com with ESMTP id 3f3rs3nuv6-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 31 Mar 2022 13:13:45 +0000
+        Thu, 31 Mar 2022 13:25:35 +0000
 Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22VDDmTS41550226
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22VDPWxa41943402
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 31 Mar 2022 13:13:48 GMT
+        Thu, 31 Mar 2022 13:25:32 GMT
 Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 073FF11C050;
-        Thu, 31 Mar 2022 13:13:42 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 3CF3111C05C;
+        Thu, 31 Mar 2022 13:25:32 +0000 (GMT)
 Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8563A11C04C;
-        Thu, 31 Mar 2022 13:13:41 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id AA30511C04C;
+        Thu, 31 Mar 2022 13:25:31 +0000 (GMT)
 Received: from [9.145.159.108] (unknown [9.145.159.108])
         by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 31 Mar 2022 13:13:41 +0000 (GMT)
-Message-ID: <6b24e1f6-22ee-c0e4-5bde-9eefdccd3619@linux.ibm.com>
-Date:   Thu, 31 Mar 2022 15:13:41 +0200
+        Thu, 31 Mar 2022 13:25:31 +0000 (GMT)
+Message-ID: <1fe44cd4-4ea9-ad68-2690-54c78dd4f5ad@linux.ibm.com>
+Date:   Thu, 31 Mar 2022 15:25:31 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.7.0
-Subject: Re: [PATCH v9 01/18] KVM: s390: pv: leak the topmost page table when
- destroy fails
+Subject: Re: [PATCH v9 04/18] KVM: s390: pv: refactor s390_reset_acc
 Content-Language: en-US
 To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
 Cc:     borntraeger@de.ibm.com, thuth@redhat.com, pasic@linux.ibm.com,
@@ -71,169 +70,149 @@ Cc:     borntraeger@de.ibm.com, thuth@redhat.com, pasic@linux.ibm.com,
         linux-kernel@vger.kernel.org, scgl@linux.ibm.com,
         mimu@linux.ibm.com, nrb@linux.ibm.com
 References: <20220330122605.247613-1-imbrenda@linux.ibm.com>
- <20220330122605.247613-2-imbrenda@linux.ibm.com>
+ <20220330122605.247613-5-imbrenda@linux.ibm.com>
 From:   Janosch Frank <frankja@linux.ibm.com>
-In-Reply-To: <20220330122605.247613-2-imbrenda@linux.ibm.com>
+In-Reply-To: <20220330122605.247613-5-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: EJAk8FG2Imt_J34wTZkf8j4N0XKp1une
-X-Proofpoint-GUID: IjFYIBVo1L5w1N-Wast02W2OGexB7Wfa
+X-Proofpoint-GUID: DDh0UajLbk5CYeYv973pH3o6D0Goc_wZ
+X-Proofpoint-ORIG-GUID: RWQVbFN5Hy1I99pA25sCrsN9CyK58G-E
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-31_04,2022-03-31_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
- lowpriorityscore=0 impostorscore=0 spamscore=0 adultscore=0
- mlxlogscore=999 malwarescore=0 mlxscore=0 priorityscore=1501 clxscore=1015
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ definitions=2022-03-31_05,2022-03-31_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=999
+ lowpriorityscore=0 impostorscore=0 adultscore=0 spamscore=0
+ priorityscore=1501 malwarescore=0 mlxscore=0 phishscore=0 suspectscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2202240000 definitions=main-2203310073
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 On 3/30/22 14:25, Claudio Imbrenda wrote:
-> Each secure guest must have a unique ASCE (address space control
-> element); we must avoid that new guests use the same page for their
-> ASCE, to avoid errors.
+> Refactor s390_reset_acc so that it can be reused in upcoming patches.
 > 
-> Since the ASCE mostly consists of the address of the topmost page table
-> (plus some flags), we must not return that memory to the pool unless
-> the ASCE is no longer in use.
+> We don't want to hold all the locks used in a walk_page_range for too
+> long, and the destroy page UVC does take some time to complete.
+> Therefore we quickly gather the pages to destroy, and then destroy them
+> without holding all the locks.
 > 
-> Only a successful Destroy Secure Configuration UVC will make the ASCE
-> reusable again.
-> 
-> If the Destroy Configuration UVC fails, the ASCE cannot be reused for a
-> secure guest (either for the ASCE or for other memory areas). To avoid
-> a collision, it must not be used again. This is a permanent error and
-> the page becomes in practice unusable, so we set it aside and leak it.
-> On failure we already leak other memory that belongs to the ultravisor
-> (i.e. the variable and base storage for a guest) and not leaking the
-> topmost page table was an oversight.
-> 
-> This error (and thus the leakage) should not happen unless the hardware
-> is broken or KVM has some unknown serious bug.
+> The new refactored function optionally allows to return early without
+> completing if a fatal signal is pending (and return and appropriate
+> error code). Two wrappers are provided to call the new function.
 > 
 > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Fixes: 29b40f105ec8d55 ("KVM: s390: protvirt: Add initial vm and cpu lifecycle handling")
-> ---
->   arch/s390/include/asm/gmap.h |  2 +
->   arch/s390/kvm/pv.c           |  9 +++--
->   arch/s390/mm/gmap.c          | 71 ++++++++++++++++++++++++++++++++++++
->   3 files changed, 79 insertions(+), 3 deletions(-)
-> 
-> diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
-> index 40264f60b0da..746e18bf8984 100644
-> --- a/arch/s390/include/asm/gmap.h
-> +++ b/arch/s390/include/asm/gmap.h
-> @@ -148,4 +148,6 @@ void gmap_sync_dirty_log_pmd(struct gmap *gmap, unsigned long dirty_bitmap[4],
->   			     unsigned long gaddr, unsigned long vmaddr);
->   int gmap_mark_unmergeable(void);
->   void s390_reset_acc(struct mm_struct *mm);
-> +void s390_remove_old_asce(struct gmap *gmap);
-> +int s390_replace_asce(struct gmap *gmap);
->   #endif /* _ASM_S390_GMAP_H */
-> diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-> index 7f7c0d6af2ce..3c59ef763dde 100644
-> --- a/arch/s390/kvm/pv.c
-> +++ b/arch/s390/kvm/pv.c
-> @@ -166,10 +166,13 @@ int kvm_s390_pv_deinit_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
->   	atomic_set(&kvm->mm->context.is_protected, 0);
->   	KVM_UV_EVENT(kvm, 3, "PROTVIRT DESTROY VM: rc %x rrc %x", *rc, *rrc);
->   	WARN_ONCE(cc, "protvirt destroy vm failed rc %x rrc %x", *rc, *rrc);
-> -	/* Inteded memory leak on "impossible" error */
-> -	if (!cc)
-> +	/* Intended memory leak on "impossible" error */
-> +	if (!cc) {
->   		kvm_s390_pv_dealloc_vm(kvm);
-> -	return cc ? -EIO : 0;
-> +		return 0;
+> (dropping Janosch's Ack because of major changes to the patch)
+
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+
+[...]
+> +#define DESTROY_LOOP_THRESHOLD 32
+
+A question out of curiosity:
+Is there any particular reason for the number?
+Have you tested other numbers and experienced a speedup/slowdown?
+
+> +
+> +struct reset_walk_state {
+> +	unsigned long next;
+> +	unsigned long count;
+> +	unsigned long pfns[DESTROY_LOOP_THRESHOLD];
+> +};
+> +
+> +static int s390_gather_pages(pte_t *ptep, unsigned long addr,
+> +			     unsigned long next, struct mm_walk *walk)
+>   {
+> +	struct reset_walk_state *p = walk->private;
+>   	pte_t pte = READ_ONCE(*ptep);
+>   
+> -	/* There is a reference through the mapping */
+> -	if (pte_present(pte))
+> -		WARN_ON_ONCE(uv_destroy_owned_page(pte_val(pte) & PAGE_MASK));
+> -
+> -	return 0;
+> +	if (pte_present(pte)) {
+> +		/* we have a reference from the mapping, take an extra one */
+> +		get_page(phys_to_page(pte_val(pte)));
+> +		p->pfns[p->count] = phys_to_pfn(pte_val(pte));
+> +		p->next = next;
+> +		p->count++;
 > +	}
-> +	s390_replace_asce(kvm->arch.gmap);
-> +	return -EIO;
+> +	return p->count >= DESTROY_LOOP_THRESHOLD;
 >   }
 >   
->   int kvm_s390_pv_init_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
-> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-> index dfee0ebb2fac..3b42bf7adb77 100644
-> --- a/arch/s390/mm/gmap.c
-> +++ b/arch/s390/mm/gmap.c
-> @@ -2714,3 +2714,74 @@ void s390_reset_acc(struct mm_struct *mm)
->   	mmput(mm);
->   }
->   EXPORT_SYMBOL_GPL(s390_reset_acc);
-> +
-> +/**
-> + * s390_remove_old_asce - Remove the topmost level of page tables from the
-> + * list of page tables of the gmap.
-> + * @gmap the gmap whose table is to be removed
-> + *
-> + * This means that it will not be freed when the VM is torn down, and needs
-> + * to be handled separately by the caller, unless an intentional leak is
-> + * intended. Notice that this function will only remove the page from the
-> + * list, the page will still be used as a top level page table (and ASCE).
+> -static const struct mm_walk_ops reset_acc_walk_ops = {
+> -	.pte_entry		= __s390_reset_acc,
+> +static const struct mm_walk_ops gather_pages_ops = {
+> +	.pte_entry = s390_gather_pages,
+>   };
+>   
+> -#include <linux/sched/mm.h>
+> -void s390_reset_acc(struct mm_struct *mm)
+> +/*
+> + * Call the Destroy secure page UVC on each page in the given array of PFNs.
+> + * Each page needs to have an extra reference, which will be released here.
 > + */
-> +void s390_remove_old_asce(struct gmap *gmap)
-> +{
-> +	struct page *old;
+> +void s390_uv_destroy_pfns(unsigned long count, unsigned long *pfns)
+>   {
+> -	if (!mm_is_protected(mm))
+> -		return;
+> -	/*
+> -	 * we might be called during
+> -	 * reset:                             we walk the pages and clear
+> -	 * close of all kvm file descriptors: we walk the pages and clear
+> -	 * exit of process on fd closure:     vma already gone, do nothing
+> -	 */
+> -	if (!mmget_not_zero(mm))
+> -		return;
+> -	mmap_read_lock(mm);
+> -	walk_page_range(mm, 0, TASK_SIZE, &reset_acc_walk_ops, NULL);
+> -	mmap_read_unlock(mm);
+> -	mmput(mm);
+> +	unsigned long i;
 > +
-> +	old = virt_to_page(gmap->table);
-> +	spin_lock(&gmap->guest_table_lock);
-> +	list_del(&old->lru);
-> +	/*
-> +	 * in case the ASCE needs to be "removed" multiple times, for example
-> +	 * if the VM is rebooted into secure mode several times
-> +	 * concurrently.
-> +	 */
-
-How can that happen, what are we protecting against here?
-
-> +	INIT_LIST_HEAD(&old->lru);
-> +	spin_unlock(&gmap->guest_table_lock);
+> +	for (i = 0; i < count; i++) {
+> +		/* we always have an extra reference */
+> +		uv_destroy_owned_page(pfn_to_phys(pfns[i]));
+> +		/* get rid of the extra reference */
+> +		put_page(pfn_to_page(pfns[i]));
+> +		cond_resched();
+> +	}
 > +}
-> +EXPORT_SYMBOL_GPL(s390_remove_old_asce);
+> +EXPORT_SYMBOL_GPL(s390_uv_destroy_pfns);
 > +
 > +/**
-> + * s390_replace_asce - Try to replace the current ASCE of a gmap with
-> + * another equivalent one.
-> + * @gmap the gmap
-> + *
-> + * If the allocation of the new top level page table fails, the ASCE is not
-> + * replaced.
-> + * In any case, the old ASCE is always removed from the list. Therefore the
-> + * caller has to make sure to save a pointer to it beforehands, unless an
-> + * intentional leak is intended.
+> + * __s390_uv_destroy_range - Walk the given range of the given address
+> + * space, and call the destroy secure page UVC on each page.
+> + * Optionally exit early if a fatal signal is pending.
+> + * @mm the mm to operate on
+> + * @start the start of the range
+> + * @end the end of the range
+> + * @interruptible if not 0, stop when a fatal signal is received
+> + * Return: 0 on success, -EINTR if the function stopped before completing
 > + */
-> +int s390_replace_asce(struct gmap *gmap)
+> +int __s390_uv_destroy_range(struct mm_struct *mm, unsigned long start,
+> +			    unsigned long end, bool interruptible)
 > +{
-> +	unsigned long asce;
-> +	struct page *page;
-> +	void *table;
+> +	struct reset_walk_state state = { .next = start };
+> +	int r = 1;
 > +
-> +	s390_remove_old_asce(gmap);
-> +
-> +	page = alloc_pages(GFP_KERNEL_ACCOUNT, CRST_ALLOC_ORDER);
-> +	if (!page)
-> +		return -ENOMEM;
-> +	table = page_to_virt(page);
-> +	memcpy(table, gmap->table, 1UL << (CRST_ALLOC_ORDER + PAGE_SHIFT));
-> +
-> +	/*
-> +	 * The caller has to deal with the old ASCE, but here we make sure
-> +	 * the new one is properly added to the list of page tables, so that
-> +	 * it will be freed when the VM is torn down.
-> +	 */
-> +	spin_lock(&gmap->guest_table_lock);
-> +	list_add(&page->lru, &gmap->crst_list);
-> +	spin_unlock(&gmap->guest_table_lock);
-> +
-> +	/* Set new table origin while preserving existing ASCE control bits */
-> +	asce = (gmap->asce & ~_ASCE_ORIGIN) | __pa(table);
-> +	WRITE_ONCE(gmap->asce, asce);
-> +	WRITE_ONCE(gmap->mm->context.gmap_asce, asce);
-> +	WRITE_ONCE(gmap->table, table);
-> +
+> +	while (r > 0) {
+> +		state.count = 0;
+> +		mmap_read_lock(mm);
+> +		r = walk_page_range(mm, state.next, end, &gather_pages_ops, &state);
+> +		mmap_read_unlock(mm);
+> +		cond_resched();
+> +		s390_uv_destroy_pfns(state.count, state.pfns);
+> +		if (interruptible && fatal_signal_pending(current))
+> +			return -EINTR;
+> +	}
 > +	return 0;
-> +}
-> +EXPORT_SYMBOL_GPL(s390_replace_asce);
+>   }
+> -EXPORT_SYMBOL_GPL(s390_reset_acc);
+> +EXPORT_SYMBOL_GPL(__s390_uv_destroy_range);
+>   
+>   /**
+>    * s390_remove_old_asce - Remove the topmost level of page tables from the
 
