@@ -2,68 +2,66 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D9D05C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 31 Mar 2022 13:34:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DE52C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 31 Mar 2022 14:03:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236876AbiCaNgh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 31 Mar 2022 09:36:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37272 "EHLO
+        id S237137AbiCaOEw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 31 Mar 2022 10:04:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234284AbiCaNgg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 31 Mar 2022 09:36:36 -0400
+        with ESMTP id S231631AbiCaOEv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 31 Mar 2022 10:04:51 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD8D9F329E;
-        Thu, 31 Mar 2022 06:34:49 -0700 (PDT)
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22VCtOjc000908;
-        Thu, 31 Mar 2022 13:34:48 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9FFF217950;
+        Thu, 31 Mar 2022 07:03:03 -0700 (PDT)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22VDZ7r7017264;
+        Thu, 31 Mar 2022 14:03:02 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
+ mime-version : to : cc : references : from : subject : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=iWmUhd2gzNOKTbvvfXdB5TlWUvlA8kYnUfYO55tAMHs=;
- b=oLSwMn+1v5SEUcvlfSKN4dYvOsBJaj6I62zaz92ilNhV/OvGX69AI2J9E4pbW2jZJt/I
- 2ofwgPoWtgqlegg/MFyRtLl4aQ66jKyfN7uln7nr8elFZDVEOmfU5sCWm8ospKpGJSl+
- 8W0RxrrfsRvANDVt44PQs1eXpjiuTcv/pREVEQJ72QEq6BUivYSyxnuM4plaQijoXcSk
- JuMrI3VSYSCkHDiUMFqfwc0jWUdRltbHbtusYheKpz9PE6/1xZCfoGKYxPkfYGVqBnPJ
- vB1/lFkbYKc13H2LnLqM0Gs50BwxAMURAqJVILZETWSS6Jh2X58OQpFAygdaGf2t6u4n 6g== 
+ bh=jjrVnhD4VqHB6NtRxQfyxqzRvr+639BkMDBfqvAwTfY=;
+ b=clLROwaODRg5yg9nX7q97kxbZH5HR6ae3vQE61RYasREQJa8lPpDabAW8n52NY6immqK
+ gD+Ku7aZawBTj9sicqYMRd26RVm+XPK9hnB7qnPVZUW2d095CcgI6YbbxCEzbueV47d4
+ /M0YyQzsa7MMN5YeoYx+NydHogb8dPod6eNFT96wS1dJVHu5lLMlMC3GGPc3usryaT9k
+ h3c8CAl8ObCz4muCVyyN9CEZR8XTrkkOkB5MvNpp0jUWbBJbgf0HutzdyiDucxXzhcj3
+ Fe9NMeVYzF3b/3tw8lLD4Z+N2w99rlZFupkXM8lDSecaH0wMDPqSh4pgjYM+YkEySH1T UQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3f5a3k4h5n-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3f50aer4t2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 31 Mar 2022 13:34:48 +0000
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22VCgtDk030123;
-        Thu, 31 Mar 2022 13:34:48 GMT
+        Thu, 31 Mar 2022 14:03:02 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22VDF86D022345;
+        Thu, 31 Mar 2022 14:03:02 GMT
 Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3f5a3k4h52-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3f50aer4s5-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 31 Mar 2022 13:34:48 +0000
+        Thu, 31 Mar 2022 14:03:01 +0000
 Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22VDTGwZ022039;
-        Thu, 31 Mar 2022 13:34:46 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma02fra.de.ibm.com with ESMTP id 3f1tf918kr-1
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22VDvO0w017311;
+        Thu, 31 Mar 2022 14:02:59 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma02fra.de.ibm.com with ESMTP id 3f1tf919x8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 31 Mar 2022 13:34:46 +0000
+        Thu, 31 Mar 2022 14:02:59 +0000
 Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22VDMfBu49479964
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22VE32YW40698362
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 31 Mar 2022 13:22:41 GMT
+        Thu, 31 Mar 2022 14:03:02 GMT
 Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F25AD11C04C;
-        Thu, 31 Mar 2022 13:34:42 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 3236B11C050;
+        Thu, 31 Mar 2022 14:02:56 +0000 (GMT)
 Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 84C9B11C058;
-        Thu, 31 Mar 2022 13:34:42 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id B98B811C04A;
+        Thu, 31 Mar 2022 14:02:55 +0000 (GMT)
 Received: from [9.145.159.108] (unknown [9.145.159.108])
         by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 31 Mar 2022 13:34:42 +0000 (GMT)
-Message-ID: <a61d614f-df0a-d0a8-c1f1-45a915e26b23@linux.ibm.com>
-Date:   Thu, 31 Mar 2022 15:34:42 +0200
+        Thu, 31 Mar 2022 14:02:55 +0000 (GMT)
+Message-ID: <827cfa86-bad4-8c31-8038-8db9a011fee9@linux.ibm.com>
+Date:   Thu, 31 Mar 2022 16:02:55 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.7.0
-Subject: Re: [PATCH v9 11/18] s390/mm: KVM: pv: when tearing down, try to
- destroy protected pages
 Content-Language: en-US
 To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
 Cc:     borntraeger@de.ibm.com, thuth@redhat.com, pasic@linux.ibm.com,
@@ -71,71 +69,171 @@ Cc:     borntraeger@de.ibm.com, thuth@redhat.com, pasic@linux.ibm.com,
         linux-kernel@vger.kernel.org, scgl@linux.ibm.com,
         mimu@linux.ibm.com, nrb@linux.ibm.com
 References: <20220330122605.247613-1-imbrenda@linux.ibm.com>
- <20220330122605.247613-12-imbrenda@linux.ibm.com>
+ <20220330122605.247613-14-imbrenda@linux.ibm.com>
 From:   Janosch Frank <frankja@linux.ibm.com>
-In-Reply-To: <20220330122605.247613-12-imbrenda@linux.ibm.com>
+Subject: Re: [PATCH v9 13/18] KVM: s390: pv: cleanup leftover protected VMs if
+ needed
+In-Reply-To: <20220330122605.247613-14-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: d1_FrIPcBG4GJrJvYOIai_D9VtWzJJI2
-X-Proofpoint-ORIG-GUID: w1srTf2AW4TVtdnSQSKQSATQR7L2pL1I
+X-Proofpoint-ORIG-GUID: _JqpWPIbWwpBgGJdN513lKoJGuEZ0Jbj
+X-Proofpoint-GUID: fNDKqZwvMjyBNuhfwmVuPjI7uzVMK6Yx
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-03-31_05,2022-03-31_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 bulkscore=0
- phishscore=0 clxscore=1015 spamscore=0 adultscore=0 mlxscore=0
- priorityscore=1501 mlxlogscore=999 suspectscore=0 lowpriorityscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2203310075
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ priorityscore=1501 suspectscore=0 mlxscore=0 clxscore=1015 impostorscore=0
+ phishscore=0 mlxlogscore=999 spamscore=0 bulkscore=0 adultscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2203310079
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 3/30/22 14:25, Claudio Imbrenda wrote:
-> When ptep_get_and_clear_full is called for a mm teardown, we will now
-> attempt to destroy the secure pages. This will be faster than export.
+On 3/30/22 14:26, Claudio Imbrenda wrote:
+> In upcoming patches it will be possible to start tearing down a
+> protected VM, and finish the teardown concurrently in a different
+> thread.
 > 
-> In case it was not a teardown, or if for some reason the destroy page
-> UVC failed, we try with an export page, like before.
+> Protected VMs that are pending for tear down ("leftover") need to be
+> cleaned properly when the userspace process (e.g. qemu) terminates.
+> 
+> This patch makes sure that all "leftover" protected VMs are always
+> properly torn down.
 > 
 > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Acked-by: Janosch Frank <frankja@linux.ibm.com>
 > ---
->   arch/s390/include/asm/pgtable.h | 18 +++++++++++++++---
->   1 file changed, 15 insertions(+), 3 deletions(-)
+>   arch/s390/include/asm/kvm_host.h |  2 +
+>   arch/s390/kvm/kvm-s390.c         |  1 +
+>   arch/s390/kvm/pv.c               | 69 ++++++++++++++++++++++++++++++++
+>   3 files changed, 72 insertions(+)
 > 
-> diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-> index 23ca0d8e058a..72544a1b4a68 100644
-> --- a/arch/s390/include/asm/pgtable.h
-> +++ b/arch/s390/include/asm/pgtable.h
-> @@ -1118,9 +1118,21 @@ static inline pte_t ptep_get_and_clear_full(struct mm_struct *mm,
->   	} else {
->   		res = ptep_xchg_lazy(mm, addr, ptep, __pte(_PAGE_INVALID));
->   	}
-> -	/* At this point the reference through the mapping is still present */
-> -	if (mm_is_protected(mm) && pte_present(res))
-> -		uv_convert_owned_from_secure(pte_val(res) & PAGE_MASK);
-> +	/* Nothing to do */
-> +	if (!mm_is_protected(mm) || !pte_present(res))
-> +		return res;
+> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+> index 1bccb8561ba9..50e3516cbc03 100644
+> --- a/arch/s390/include/asm/kvm_host.h
+> +++ b/arch/s390/include/asm/kvm_host.h
+> @@ -922,6 +922,8 @@ struct kvm_s390_pv {
+>   	u64 guest_len;
+>   	unsigned long stor_base;
+>   	void *stor_var;
+> +	void *async_deinit;
+> +	struct list_head need_cleanup;
+>   	struct mmu_notifier mmu_notifier;
+>   };
+>   
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 446f89db93a1..3637f556ff33 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -2788,6 +2788,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+>   	kvm_s390_vsie_init(kvm);
+>   	if (use_gisa)
+>   		kvm_s390_gisa_init(kvm);
+> +	INIT_LIST_HEAD(&kvm->arch.pv.need_cleanup);
+
+kvm->arch.pv.sync_deinit = NULL;
+
+>   	KVM_EVENT(3, "vm 0x%pK created by pid %u", kvm, current->pid);
+>   
+>   	return 0;
+> diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+> index be3b467f8feb..56412617dd01 100644
+> --- a/arch/s390/kvm/pv.c
+> +++ b/arch/s390/kvm/pv.c
+> @@ -17,6 +17,19 @@
+>   #include <linux/mmu_notifier.h>
+>   #include "kvm-s390.h"
+>   
+> +/**
+> + * @struct deferred_priv
+> + * Represents a "leftover" protected VM that does not correspond to any
+> + * active KVM VM.
+
+Maybe something like:
+...that is still registered with the Ultravisor but isn't registered 
+with KVM anymore.
+
+> + */
+> +struct deferred_priv {
+> +	struct list_head list;
+> +	unsigned long old_table;
+> +	u64 handle;
+> +	void *stor_var;
+> +	unsigned long stor_base;
+> +};
+> +
+>   static void kvm_s390_clear_pv_state(struct kvm *kvm)
+>   {
+>   	kvm->arch.pv.handle = 0;
+> @@ -163,6 +176,60 @@ static int kvm_s390_pv_alloc_vm(struct kvm *kvm)
+>   	return -ENOMEM;
+>   }
+>   
+> +/**
+> + * kvm_s390_pv_cleanup_deferred - Clean up one leftover protected VM.
+> + * @kvm the KVM that was associated with this leftover protected VM
+> + * @deferred details about the leftover protected VM that needs a clean up
+> + * Return: 0 in case of success, otherwise 1
+> + */
+> +static int kvm_s390_pv_cleanup_deferred(struct kvm *kvm, struct deferred_priv *deferred)
+> +{
+> +	u16 rc, rrc;
+> +	int cc;
+> +
+> +	cc = uv_cmd_nodata(deferred->handle, UVC_CMD_DESTROY_SEC_CONF, &rc, &rrc);
+> +	KVM_UV_EVENT(kvm, 3, "PROTVIRT DESTROY VM: rc %x rrc %x", rc, rrc);
+> +	WARN_ONCE(cc, "protvirt destroy vm failed rc %x rrc %x", rc, rrc);
+> +	if (cc)
+> +		return cc;
 > +	/*
-> +	 * At this point the reference through the mapping is still present.
-
-That's the case because we zap ptes within a mm that's still existing, 
-right? The mm will be deleted after we have unmapped the memory.
-
-
-> +	 * The notifier should have destroyed all protected vCPUs at this
-> +	 * point, so the destroy should be successful.
+> +	 * Intentionally leak unusable memory. If the UVC fails, the memory
+> +	 * used for the VM and its metadata is permanently unusable.
+> +	 * This can only happen in case of a serious KVM or hardware bug; it
+> +	 * is not expected to happen in normal operation.
 > +	 */
-> +	if (full && !uv_destroy_owned_page(pte_val(res) & PAGE_MASK))
-> +		return res;
-> +	/*
-> +	 * But if something went wrong and the pages could not be destroyed,
-> +	 * the slower export is used as fallback instead.
-> +	 */
-> +	uv_convert_owned_from_secure(pte_val(res) & PAGE_MASK);
->   	return res;
+> +	free_pages(deferred->stor_base, get_order(uv_info.guest_base_stor_len));
+> +	free_pages(deferred->old_table, CRST_ALLOC_ORDER);
+> +	vfree(deferred->stor_var);
+> +	return 0;
+> +}
+> +
+> +/**
+> + * kvm_s390_pv_cleanup_leftovers - Clean up all leftover protected VMs.
+> + * @kvm the KVM whose leftover protected VMs are to be cleaned up
+> + * Return: 0 in case of success, otherwise 1
+> + */
+> +static int kvm_s390_pv_cleanup_leftovers(struct kvm *kvm)
+> +{
+> +	struct deferred_priv *deferred;
+> +	int cc = 0;
+> +
+> +	if (kvm->arch.pv.async_deinit)
+> +		list_add(kvm->arch.pv.async_deinit, &kvm->arch.pv.need_cleanup);
+> +
+> +	while (!list_empty(&kvm->arch.pv.need_cleanup)) {
+> +		deferred = list_first_entry(&kvm->arch.pv.need_cleanup, typeof(*deferred), list);
+> +		if (kvm_s390_pv_cleanup_deferred(kvm, deferred))
+> +			cc = 1;
+> +		else
+> +			atomic_dec(&kvm->mm->context.protected_count);
+> +		list_del(&deferred->list);
+> +		kfree(deferred);
+> +	}
+> +	kvm->arch.pv.async_deinit = NULL;
+> +	return cc;
+> +}
+> +
+>   /* this should not fail, but if it does, we must not free the donated memory */
+>   int kvm_s390_pv_deinit_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
+>   {
+> @@ -190,6 +257,8 @@ int kvm_s390_pv_deinit_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
+>   	KVM_UV_EVENT(kvm, 3, "PROTVIRT DESTROY VM: rc %x rrc %x", *rc, *rrc);
+>   	WARN_ONCE(cc, "protvirt destroy vm failed rc %x rrc %x", *rc, *rrc);
+>   
+> +	cc |= kvm_s390_pv_cleanup_leftovers(kvm);
+> +
+>   	return cc ? -EIO : 0;
 >   }
 >   
 
