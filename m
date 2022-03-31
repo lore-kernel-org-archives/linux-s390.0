@@ -2,72 +2,63 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CBC03C433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 31 Mar 2022 10:00:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A87E4C433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 31 Mar 2022 10:33:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234409AbiCaKBu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 31 Mar 2022 06:01:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34918 "EHLO
+        id S234606AbiCaKfY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 31 Mar 2022 06:35:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234429AbiCaKBt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 31 Mar 2022 06:01:49 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47A5C4C7AE;
-        Thu, 31 Mar 2022 03:00:01 -0700 (PDT)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 22V9dAwK017497;
-        Thu, 31 Mar 2022 09:59:53 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=dsx5ldU95Alojy9t4EAoOZs0FEpNz8tK6IzHtjOw/y0=;
- b=Jg6zzfez7uPfHvE2+PhZ43CYodkHOf17Suxa17jeULDaVUmy1JHKTl0kDR4+giGVbrO5
- lUcTV66FQKvyHZBMBkLSA4bSIxp/v3pTLays4R8omqmxZeewcOeRDnPE04/Ono+MoFRH
- 3RiED0PseRU2eHLM3oEkkTxGCU4ZYRiO7ODmmJ8BP2MbTxuXoQ96XI7gWsnsqDhNIH/M
- 2JyTobPsrTh8clNJ3ZE9JC19z8FP10FRZLGgk1SXs1i/4jdWmpoZMqkxG3vcBPCBT2Uq
- YiidMBs6QeAlac8af5N688CoumYA6ds64WrX91b3ElnOg1cLa0wx2/pw9BtDvcu2TwrA bQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3f57tnu0um-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 31 Mar 2022 09:59:53 +0000
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 22V9gRGq028894;
-        Thu, 31 Mar 2022 09:59:52 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3f57tnu0ty-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 31 Mar 2022 09:59:52 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 22V9qqlZ013340;
-        Thu, 31 Mar 2022 09:59:50 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 3f1tf92ene-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 31 Mar 2022 09:59:50 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 22V9xs1u19661252
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 31 Mar 2022 09:59:54 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 152244203F;
-        Thu, 31 Mar 2022 09:59:48 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 76C6A42041;
-        Thu, 31 Mar 2022 09:59:47 +0000 (GMT)
-Received: from [9.145.190.237] (unknown [9.145.190.237])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 31 Mar 2022 09:59:47 +0000 (GMT)
-Message-ID: <fa420a98-fb7b-a56b-7e13-2fa55b6ff6a9@linux.ibm.com>
-Date:   Thu, 31 Mar 2022 11:59:47 +0200
+        with ESMTP id S234612AbiCaKfW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 31 Mar 2022 06:35:22 -0400
+Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5884360AA3
+        for <linux-s390@vger.kernel.org>; Thu, 31 Mar 2022 03:33:32 -0700 (PDT)
+Received: by mail-ej1-x632.google.com with SMTP id bq8so33200262ejb.10
+        for <linux-s390@vger.kernel.org>; Thu, 31 Mar 2022 03:33:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=blackwall-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=SwdrAsctWCHEz+RHJrjPcU6Mo/Sahn+tHHY0em4Qh6U=;
+        b=PoEVk6ljjWDWy4eWyOUgYT+ghierixy1xTZLEKbm/JkrUhAnhyAS+iuRLL+YHb9V/P
+         w9i5lZQiRXCXnbTy7O2EWBYw8aK89WhRNPeJykZGl0eVJIMOKiEVVhB5zLwv4Stq14j7
+         BC65BgLit+Vf4IxPM80BkEqLdSXJFCjmW87U5+aqjE7jR1grcuqPZMHs2CE0Euabklb6
+         E2yeCgaAiraeuhuow5kCLwICjkd3zbULNDP/ftRfYCwfBNO5aF4P/8GzGYAUUMjTbM3F
+         /N2hSinTZWmPFHPb88flfVhQ2T8qRkJvC6xeQfOFhJ3N29RfZLlUJf15gUHMJRafVcmj
+         TBqA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=SwdrAsctWCHEz+RHJrjPcU6Mo/Sahn+tHHY0em4Qh6U=;
+        b=7AYu0iUnDBZ5idhJtVc/OUFhDxmWozk8eyuiLi1+7gYt+03Rdt6BPLcUBEkoXZtFjZ
+         bVQTN3eht7ozEHWQXc+Vs0aJt25ajGeQFfQ3Ol0xwmCu3mLRm3GiZFoDWtL6AhXeGrmp
+         hw8HguAt4MmNauMsBePFuRtV00QaGS2WFCbjmJJk8TJU0AF9i8zNeWPyq5feZyqCh3BF
+         nABpHp7MonX3MNlhHmHDahJANzNtBtsjMnQ3Chb/63lJ+JVQXJUpXyLdJlgzmryJnTI5
+         Muy5ru5+t3Lt/e8uzEO1ZVd8T8nsTCbbpjQzejYzYUuTXm2ttsZ7thsehooH6zV+rQeG
+         Hc6g==
+X-Gm-Message-State: AOAM531gWaGhifO3gegBpPPClAH1kVsUQhuhPz5tdwnmY3wBP212CSbC
+        voTRsKookfXSNCIGF6mFIiTxrQ==
+X-Google-Smtp-Source: ABdhPJxDOxt2l3HNQ2gJmuW8T8ulbPbJh7THegXZQrKSVoEVe7KObzJhpNMxM+H7IDkvhKod0UxL6w==
+X-Received: by 2002:a17:906:6a1e:b0:6e0:5c27:a184 with SMTP id qw30-20020a1709066a1e00b006e05c27a184mr4447360ejc.355.1648722810635;
+        Thu, 31 Mar 2022 03:33:30 -0700 (PDT)
+Received: from [192.168.0.111] (87-243-81-1.ip.btc-net.bg. [87.243.81.1])
+        by smtp.gmail.com with ESMTPSA id bs7-20020a056402304700b004197e5d2350sm10625392edb.54.2022.03.31.03.33.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 31 Mar 2022 03:33:30 -0700 (PDT)
+Message-ID: <cf713c75-718e-6705-fc9d-6844372348d2@blackwall.org>
+Date:   Thu, 31 Mar 2022 13:33:28 +0300
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.7.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.2
 Subject: Re: [PATCH net-next v2] veth: Support bonding events
 Content-Language: en-US
-To:     Jay Vosburgh <jay.vosburgh@canonical.com>,
+To:     Alexandra Winter <wintera@linux.ibm.com>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
         Jakub Kicinski <kuba@kernel.org>
-Cc:     Nikolay Aleksandrov <razor@blackwall.org>,
-        "David S. Miller" <davem@davemloft.net>,
+Cc:     "David S. Miller" <davem@davemloft.net>,
         Paolo Abeni <pabeni@redhat.com>,
         Hangbin Liu <liuhangbin@gmail.com>, netdev@vger.kernel.org,
         linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
@@ -81,149 +72,212 @@ References: <20220329114052.237572-1-wintera@linux.ibm.com>
  <20220330085154.34440715@kernel.org>
  <c512e765-f411-9305-013b-471a07e7f3ff@blackwall.org>
  <20220330101256.53f6ef48@kernel.org> <2600.1648667758@famine>
-From:   Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <2600.1648667758@famine>
+ <fa420a98-fb7b-a56b-7e13-2fa55b6ff6a9@linux.ibm.com>
+From:   Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <fa420a98-fb7b-a56b-7e13-2fa55b6ff6a9@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: dau2ZCCV6d3ROraal4GCny6oevNrfnMT
-X-Proofpoint-ORIG-GUID: LB2Y1xfEtkV2qIozgSeTUdi7a7iJyB2W
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-03-31_03,2022-03-30_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 spamscore=0
- priorityscore=1501 adultscore=0 phishscore=0 lowpriorityscore=0
- mlxlogscore=999 bulkscore=0 suspectscore=0 malwarescore=0 mlxscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2203310052
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 29 Mar 2022 13:40:52 +0200 Alexandra Winter wrote:
-> Bonding drivers generate specific events during failover that trigger
-> switch updates.  When a veth device is attached to a bridge with a
-> bond interface, we want external switches to learn about the veth
-> devices as well.
->
-> Example:
->
-> 	| veth_a2   |  veth_b2  |  veth_c2 |
-> 	------o-----------o----------o------
-> 	       \	  |	    /
-> 		o	  o	   o
-> 	      veth_a1  veth_b1  veth_c1
-> 	      -------------------------
-> 	      |        bridge         |
-> 	      -------------------------
-> 			bond0
-> 			/  \
-> 		     eth0  eth1
->
-> In case of failover from eth0 to eth1, the netdev_notifier needs to be
-> propagated, so e.g. veth_a2 can re-announce its MAC address to the
-> external hardware attached to eth1.
-
-On 30.03.22 21:15, Jay Vosburgh wrote:
-> Jakub Kicinski <kuba@kernel.org> wrote:
-> 
->> On Wed, 30 Mar 2022 19:16:42 +0300 Nikolay Aleksandrov wrote:
->>>> Maybe opt-out? But assuming the event is only generated on
->>>> active/backup switch over - when would it be okay to ignore
->>>> the notification?
->>>
->>> Let me just clarify, so I'm sure I've not misunderstood you. Do you mean opt-out as in
->>> make it default on? IMO that would be a problem, large scale setups would suddenly
->>> start propagating it to upper devices which would cause a lot of unnecessary bcast.
->>> I meant enable it only if needed, and only on specific ports (second part is not
->>> necessary, could be global, I think it's ok either way). I don't think any setup
->>> which has many upper vlans/macvlans would ever enable this.
+On 31/03/2022 12:59, Alexandra Winter wrote:
+> On Tue, 29 Mar 2022 13:40:52 +0200 Alexandra Winter wrote:
+>> Bonding drivers generate specific events during failover that trigger
+>> switch updates.  When a veth device is attached to a bridge with a
+>> bond interface, we want external switches to learn about the veth
+>> devices as well.
 >>
->> That may be. I don't have a good understanding of scenarios in which
->> GARP is required and where it's not :) Goes without saying but the
->> default should follow the more common scenario.
+>> Example:
+>>
+>> 	| veth_a2   |  veth_b2  |  veth_c2 |
+>> 	------o-----------o----------o------
+>> 	       \	  |	    /
+>> 		o	  o	   o
+>> 	      veth_a1  veth_b1  veth_c1
+>> 	      -------------------------
+>> 	      |        bridge         |
+>> 	      -------------------------
+>> 			bond0
+>> 			/  \
+>> 		     eth0  eth1
+>>
+>> In case of failover from eth0 to eth1, the netdev_notifier needs to be
+>> propagated, so e.g. veth_a2 can re-announce its MAC address to the
+>> external hardware attached to eth1.
 > 
-> 	At least from the bonding failover persective, the GARP is
-> needed when there's a visible topology change (so peers learn the new
-> path), a change in MAC address, or both.  I don't think it's possible to
-> determine from bonding which topology changes are visible, so any
-> failover gets a GARP.  The original intent as best I recall was to cover
-> IP addresses configured on the bond itself or on VLANs above the bond.
-> 
-> 	If I understand the original problem description correctly, the
-> bonding failover causes the connectivity issue because the network
-> segments beyond the bond interfaces don't share forwarding information
-> (i.e., they are completely independent).  The peer (end station or
-> switch) at the far end of those network segments (where they converge)
-> is unable to directly see that the "to bond eth0" port went down, and
-> has no way to know that anything is awry, and thus won't find the new
-> path until an ARP or forwarding entry for "veth_a2" (from the original
-> diagram) times out at the peer out in the network.
-> 
->>>>> My concern was about the Hangbin's alternative proposal to notify all
->>>>> bridge ports. I hope in my porposal I was able to avoid infinite loops.  
+> On 30.03.22 21:15, Jay Vosburgh wrote:
+>> Jakub Kicinski <kuba@kernel.org> wrote:
+>>
+>>> On Wed, 30 Mar 2022 19:16:42 +0300 Nikolay Aleksandrov wrote:
+>>>>> Maybe opt-out? But assuming the event is only generated on
+>>>>> active/backup switch over - when would it be okay to ignore
+>>>>> the notification?
 >>>>
->>>> Possibly I'm confused as to where the notification for bridge master
->>>> gets sent..  
+>>>> Let me just clarify, so I'm sure I've not misunderstood you. Do you mean opt-out as in
+>>>> make it default on? IMO that would be a problem, large scale setups would suddenly
+>>>> start propagating it to upper devices which would cause a lot of unnecessary bcast.
+>>>> I meant enable it only if needed, and only on specific ports (second part is not
+>>>> necessary, could be global, I think it's ok either way). I don't think any setup
+>>>> which has many upper vlans/macvlans would ever enable this.
 >>>
->>> IIUC it bypasses the bridge and sends a notify peers for the veth peer so it would
->>> generate a grat arp (inetdev_event -> NETDEV_NOTIFY_PEERS).
+>>> That may be. I don't have a good understanding of scenarios in which
+>>> GARP is required and where it's not :) Goes without saying but the
+>>> default should follow the more common scenario.
 >>
->> Ack, I was basically repeating the question of where does 
->> the notification with dev == br get generated.
+>> 	At least from the bonding failover persective, the GARP is
+>> needed when there's a visible topology change (so peers learn the new
+>> path), a change in MAC address, or both.  I don't think it's possible to
+>> determine from bonding which topology changes are visible, so any
+>> failover gets a GARP.  The original intent as best I recall was to cover
+>> IP addresses configured on the bond itself or on VLANs above the bond.
 >>
->> There is a protection in this patch to make sure the other 
->> end of the veth is not plugged into a bridge (i.e. is not
->> a bridge port) but there can be a macvlan on top of that
->> veth that is part of a bridge, so IIUC that check is either
->> insufficient or unnecessary.
+>> 	If I understand the original problem description correctly, the
+>> bonding failover causes the connectivity issue because the network
+>> segments beyond the bond interfaces don't share forwarding information
+>> (i.e., they are completely independent).  The peer (end station or
+>> switch) at the far end of those network segments (where they converge)
+>> is unable to directly see that the "to bond eth0" port went down, and
+>> has no way to know that anything is awry, and thus won't find the new
+>> path until an ARP or forwarding entry for "veth_a2" (from the original
+>> diagram) times out at the peer out in the network.
+>>
+>>>>>> My concern was about the Hangbin's alternative proposal to notify all
+>>>>>> bridge ports. I hope in my porposal I was able to avoid infinite loops.  
+>>>>>
+>>>>> Possibly I'm confused as to where the notification for bridge master
+>>>>> gets sent..  
+>>>>
+>>>> IIUC it bypasses the bridge and sends a notify peers for the veth peer so it would
+>>>> generate a grat arp (inetdev_event -> NETDEV_NOTIFY_PEERS).
+>>>
+>>> Ack, I was basically repeating the question of where does 
+>>> the notification with dev == br get generated.
+>>>
+>>> There is a protection in this patch to make sure the other 
+>>> end of the veth is not plugged into a bridge (i.e. is not
+>>> a bridge port) but there can be a macvlan on top of that
+>>> veth that is part of a bridge, so IIUC that check is either
+>>> insufficient or unnecessary.
+>>
+>> 	I'm a bit concerned this is becoming a interface plumbing
+>> topology change whack-a-mole.
+>>
+>> 	In the above, what if the veth is plugged into a bridge, and
+>> there's a end station on that bridge?  If it's bridges all the way down,
+>> where does the need for some kind of TCN mechanism stop?
+>>
+>> 	Or instead of a veth it's an physical network hop (perhaps a
+>> tunnel; something through which notifiers do not propagate) to another
+>> host with another bridge, then what?
+>>
+>> 	-J
+>>
+>> ---
+>> 	-Jay Vosburgh, jay.vosburgh@canonical.com
 > 
-> 	I'm a bit concerned this is becoming a interface plumbing
-> topology change whack-a-mole.
+> I see 3 technologies that are used for network virtualization in combination with bond for redundancy
+> (and I may miss some):
+> (1) MACVTAP/MACVLAN over bond:
+> MACVLAN propagates notifiers from bond to endpoints (same as VLAN)
+> (drivers/net/macvlan.c:
+> 	case NETDEV_NOTIFY_PEERS:
+> 	case NETDEV_BONDING_FAILOVER:
+> 	case NETDEV_RESEND_IGMP:
+> 		/* Propagate to all vlans */
+> 		list_for_each_entry(vlan, &port->vlans, list)
+> 			call_netdevice_notifiers(event, vlan->dev);
+> 	})
+> (2) OpenVSwitch:
+> OVS seems to have its own bond implementation, but sends out reverse Arp on active-backup failover
+> (3) User defined bridge over bond:
+> propagates notifiers to the bridge device itself, but not to the devices attached to bridge ports.
+> (net/bridge/br.c:
+> 	case NETDEV_RESEND_IGMP:
+> 		/* Propagate to master device */
+> 		call_netdevice_notifiers(event, br->dev);)
 > 
-> 	In the above, what if the veth is plugged into a bridge, and
-> there's a end station on that bridge?  If it's bridges all the way down,
-> where does the need for some kind of TCN mechanism stop?
-> 
-> 	Or instead of a veth it's an physical network hop (perhaps a
-> tunnel; something through which notifiers do not propagate) to another
-> host with another bridge, then what?
-> 
-> 	-J
-> 
-> ---
-> 	-Jay Vosburgh, jay.vosburgh@canonical.com
+> Active-backup may not be the best bonding mode, but it is a simple way to achieve redundancy and I've seen it being used.
+> I don't see a usecase for MACVLAN over bridge over bond (?)
 
-I see 3 technologies that are used for network virtualization in combination with bond for redundancy
-(and I may miss some):
-(1) MACVTAP/MACVLAN over bond:
-MACVLAN propagates notifiers from bond to endpoints (same as VLAN)
-(drivers/net/macvlan.c:
-	case NETDEV_NOTIFY_PEERS:
-	case NETDEV_BONDING_FAILOVER:
-	case NETDEV_RESEND_IGMP:
-		/* Propagate to all vlans */
-		list_for_each_entry(vlan, &port->vlans, list)
-			call_netdevice_notifiers(event, vlan->dev);
-	})
-(2) OpenVSwitch:
-OVS seems to have its own bond implementation, but sends out reverse Arp on active-backup failover
-(3) User defined bridge over bond:
-propagates notifiers to the bridge device itself, but not to the devices attached to bridge ports.
-(net/bridge/br.c:
-	case NETDEV_RESEND_IGMP:
-		/* Propagate to master device */
-		call_netdevice_notifiers(event, br->dev);)
+If you're talking about this particular case (network virtualization) - sure. But macvlans over bridges
+are heavily used in Cumulus Linux and large scale setups. For example VRRP is implemented using macvlan
+devices. Any notification that propagates to the bridge and reaches these would cause a storm of broadcasts
+being sent down which would not scale and is extremely undesirable in general.
 
-Active-backup may not be the best bonding mode, but it is a simple way to achieve redundancy and I've seen it being used.
-I don't see a usecase for MACVLAN over bridge over bond (?)
-The external HW network does not need to be updated about the instances that are conencted via tunnel,
-so I don't see an issue there.
+> The external HW network does not need to be updated about the instances that are conencted via tunnel,
+> so I don't see an issue there.
+> 
+> I had this idea how to solve the failover issue it for veth pairs attached to the user defined bridge.
+> Does this need to be configurable? How? Per veth pair?
 
-I had this idea how to solve the failover issue it for veth pairs attached to the user defined bridge.
-Does this need to be configurable? How? Per veth pair?
+That is not what I meant (if you were referring to my comment), I meant if it gets implemented in the
+bridge and it starts propagating the notify peers notifier - that _must_ be configurable.
 
-Of course a more general solution how bridge over bond could handle notifications, would be great,
-but I'm running out of ideas. So I thought I'd address veth first.
-Your help and ideas are highly appreciated, thank you.
-Alexandra
+> 
+> Of course a more general solution how bridge over bond could handle notifications, would be great,
+> but I'm running out of ideas. So I thought I'd address veth first.
+> Your help and ideas are highly appreciated, thank you.
+
+I'm curious why it must be done in the kernel altogether? This can obviously be solved in user-space
+by sending grat arps towards flapped por for fdbs on other ports (e.g. veths) based on a netlink notification.
+In fact based on your description propagating NETDEV_NOTIFY_PEERS to bridge ports wouldn't help
+because in that case the remote peer veth will not generate a grat arp. The notification will
+get propagated only to local veth (bridge port), or the bridge itself depending on implementation.
+
+So from bridge perspective, if you decide to pursue a kernel solution, I think you'll need
+a new bridge port option which acts on NOTIFY_PEERS and generates a grat arp for all fdbs
+on the port where it is enabled to the port which generated the NOTIFY_PEERS. Note that is
+also fragile as I'm sure some stacked device config would not work, so I want to re-iterate
+how much easier it is to solve it in user-space which has better visibility and you can
+change much faster to accommodate new use cases.
+
+To illustrate: bond
+                   \ 
+                    bridge
+                   /
+               veth0
+                 |
+               veth1
+
+When bond generates NOTIFY_PEERS, and you have this new option enabled on veth0 then
+the bridge should generate grat arps for all fdbs on veth0 towards bond so the new
+path would learn them. Note that is very dangerous as veth1 can generate thousands
+of fdbs and you can potentially DDoS the whole network, so again I'd advise to do
+this in user-space where you can better control it.
+
+W.r.t to this patch, I think it will also work and will cause a single grat arp which
+is ok. Just need to make sure loops are not possible, for example I think you can loop
+your implementation by the following config (untested theory):
+bond
+    \
+     bridge 
+   \          \
+veth2.10       veth0 - veth1
+      \                \
+       \                veth1.10 (vlan)
+        \                \
+         \                bridge2
+          \              /
+           veth2 - veth3
+
+
+1. bond generates NOTIFY_PEERS
+2. bridge propagates to veth1 (through veth0 port)
+3. veth1 propagates to its vlan (veth1.10)
+4. bridge2 sees veth1.10 NOTIFY_PEERS and propagates to veth2 (through veth3 port)
+5. veth2 propagates to its vlan (veth2.10)
+6. veth2.10 propagates it back to bridge
+<loop>
+
+I'm sure similar setup, and maybe even simpler, can be constructed with other devices
+which can propagate or generate NOTIFY_PEERS.
+
+Cheers,
+ Nik
+
+
+
+
+
+
