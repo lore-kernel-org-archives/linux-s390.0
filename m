@@ -2,159 +2,92 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C0B17C433EF
-	for <linux-s390@archiver.kernel.org>; Fri,  1 Apr 2022 15:52:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CCE11C4332F
+	for <linux-s390@archiver.kernel.org>; Fri,  1 Apr 2022 16:28:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344534AbiDAPyF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 1 Apr 2022 11:54:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51664 "EHLO
+        id S1343770AbiDAQa3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 1 Apr 2022 12:30:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352324AbiDAPWn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 Apr 2022 11:22:43 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC75C3CFC9;
-        Fri,  1 Apr 2022 08:03:33 -0700 (PDT)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 231EDTrd010712;
-        Fri, 1 Apr 2022 15:03:32 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=Wgqc0ZYvnXN4jSICangZboZXwxC+LF/TjMq5lsL1PuM=;
- b=L1ELKdlJOwXZ5ymPrhGvLV8l6im3b+8JHOvhAMETmT+3KOxxSEszs0Deoi7r+rzRPoTZ
- zFTI8oE665+kMYKpb8V9c0wIszx321RKDfRNmYiWj2v+/3DvWah7Ayw3VNXxmSmIGZWI
- uZL6HQNH2yB3VyJhvvi90ZHea/pl5fTHkuXCqkBJUpLxz+og7ePs35RHy3pDx83Hnyzx
- ZDtcgvzURN2FyYyg/BelQF8Rg58fLOBlUQ24U12a/jxCkdouXqp+EIgA9v27hDzAXX+s
- wX0ZOeDol4Q6TssBXp6XBuxi8oqs8sEx288i6+h5RLdRmUBmf9rWnlzKRfGPie+AaZeR QA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3f62y91244-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 01 Apr 2022 15:03:32 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 231EIvss029812;
-        Fri, 1 Apr 2022 15:03:32 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3f62y9122r-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 01 Apr 2022 15:03:32 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 231EwCUS023958;
-        Fri, 1 Apr 2022 15:03:29 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma06ams.nl.ibm.com with ESMTP id 3f3rs3r8k2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 01 Apr 2022 15:03:29 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 231F3QDx31523152
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 1 Apr 2022 15:03:26 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 30AD64203F;
-        Fri,  1 Apr 2022 15:03:26 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9D77E42042;
-        Fri,  1 Apr 2022 15:03:25 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.145.3.73])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri,  1 Apr 2022 15:03:25 +0000 (GMT)
-Date:   Fri, 1 Apr 2022 17:03:20 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, borntraeger@de.ibm.com, thuth@redhat.com,
-        pasic@linux.ibm.com, david@redhat.com, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, scgl@linux.ibm.com,
-        mimu@linux.ibm.com, nrb@linux.ibm.com
-Subject: Re: [PATCH v9 11/18] s390/mm: KVM: pv: when tearing down, try to
- destroy protected pages
-Message-ID: <20220401170320.4b985bc9@p-imbrenda>
-In-Reply-To: <a61d614f-df0a-d0a8-c1f1-45a915e26b23@linux.ibm.com>
-References: <20220330122605.247613-1-imbrenda@linux.ibm.com>
-        <20220330122605.247613-12-imbrenda@linux.ibm.com>
-        <a61d614f-df0a-d0a8-c1f1-45a915e26b23@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        with ESMTP id S1344678AbiDAQaA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 Apr 2022 12:30:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6C32182AF9;
+        Fri,  1 Apr 2022 09:03:10 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 766F761AF8;
+        Fri,  1 Apr 2022 16:03:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83596C2BBE4;
+        Fri,  1 Apr 2022 16:03:07 +0000 (UTC)
+Date:   Fri, 1 Apr 2022 12:03:05 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     Randy Dunlap <rdunlap@infradead.org>
+Cc:     linux-kernel@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        linux-s390@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        sparclinux@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        linux-ia64@vger.kernel.org,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Pavel Machek <pavel@ucw.cz>, Len Brown <lenb@kernel.org>,
+        linux-pm@vger.kernel.org, linux-acpi@vger.kernel.org,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org
+Subject: Re: [PATCH 1/3 v2] Docs: admin/kernel-parameters: edit a few boot
+ options
+Message-ID: <20220401120305.00076d14@gandalf.local.home>
+In-Reply-To: <20220401030927.12023-2-rdunlap@infradead.org>
+References: <20220401030927.12023-1-rdunlap@infradead.org>
+        <20220401030927.12023-2-rdunlap@infradead.org>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: n-Ye25tC6IAgsGzX09Ork2zbvEwOwVBH
-X-Proofpoint-ORIG-GUID: jkkba_k1_of4SFej0kaV6qgkPHpUHSQK
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-04-01_05,2022-03-31_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
- impostorscore=0 mlxscore=0 adultscore=0 bulkscore=0 mlxlogscore=999
- priorityscore=1501 clxscore=1015 phishscore=0 suspectscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2204010072
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 31 Mar 2022 15:34:42 +0200
-Janosch Frank <frankja@linux.ibm.com> wrote:
+On Thu, 31 Mar 2022 20:09:25 -0700
+Randy Dunlap <rdunlap@infradead.org> wrote:
 
-> On 3/30/22 14:25, Claudio Imbrenda wrote:
-> > When ptep_get_and_clear_full is called for a mm teardown, we will now
-> > attempt to destroy the secure pages. This will be faster than export.
-> > 
-> > In case it was not a teardown, or if for some reason the destroy page
-> > UVC failed, we try with an export page, like before.
-> > 
-> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> > Acked-by: Janosch Frank <frankja@linux.ibm.com>
-> > ---
-> >   arch/s390/include/asm/pgtable.h | 18 +++++++++++++++---
-> >   1 file changed, 15 insertions(+), 3 deletions(-)
-> > 
-> > diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-> > index 23ca0d8e058a..72544a1b4a68 100644
-> > --- a/arch/s390/include/asm/pgtable.h
-> > +++ b/arch/s390/include/asm/pgtable.h
-> > @@ -1118,9 +1118,21 @@ static inline pte_t ptep_get_and_clear_full(struct mm_struct *mm,
-> >   	} else {
-> >   		res = ptep_xchg_lazy(mm, addr, ptep, __pte(_PAGE_INVALID));
-> >   	}
-> > -	/* At this point the reference through the mapping is still present */
-> > -	if (mm_is_protected(mm) && pte_present(res))
-> > -		uv_convert_owned_from_secure(pte_val(res) & PAGE_MASK);
-> > +	/* Nothing to do */
-> > +	if (!mm_is_protected(mm) || !pte_present(res))
-> > +		return res;
-> > +	/*
-> > +	 * At this point the reference through the mapping is still present.  
-> 
-> That's the case because we zap ptes within a mm that's still existing, 
-> right? The mm will be deleted after we have unmapped the memory.
+> @@ -5908,6 +5910,8 @@
+>  	trace_buf_size=nn[KMG]
+>  			[FTRACE] will set tracing buffer size on each cpu.
+>  
+> +	trace_clock=	[FTRACE] See Documentation/trace/ftrace.rst
 
-not exactly, the mm can exist without pages.
+	trace_clock=	[FTRACE] Set the clock used for tracing events
+			at boot up.
+			local - Use the per CPU time stamp counter
+				(converted into nanoseconds). Fast, but
+				depending on the architecture, may not be
+				in sync between CPUs.
+			global - Event time stamps are synchronize across
+				CPUs. May be slower than the local clock,
+				but better for some race conditions.
+			counter - Simple counting of events (1, 2, ..)
+				note, some counts may be skipped due to the
+				infrastructure grabbing the clock more than
+				once per event.
+			uptime - Use jiffies as the time stamp.
+			perf - Use the same clock that perf uses.
+			mono - Use ktime_get_mono_fast_ns() for time stamps.
+			mono_raw - Use ktime_get_raw_fast_ns() for time
+				stamps.
+			boot - Use ktime_get_boot_fast_ns() for time stamps.
+			Architectures may add more clocks. See
+			Documentation/trace/ftrace.rst for more details.
 
-the reference is there because when we enter the function,
-there is still a pointer to the page (the PTE itself), the page is still
-reachable, and therefore its reference count cannot be less than 1.
+-- Steve
 
-when we leave the function, there is no more mapping for the page
-(that's the point of the function after all), and only then the counter
-can be decremented.
 
-if you look at zap_pte_range in mm/memory.c, you see that we call
-ptep_get_and_clear_full first, and then a few lines below we call
-__tlb_remove_page which in the end calls put_page on that page.
-
-> 
-> 
-> > +	 * The notifier should have destroyed all protected vCPUs at this
-> > +	 * point, so the destroy should be successful.
-> > +	 */
-> > +	if (full && !uv_destroy_owned_page(pte_val(res) & PAGE_MASK))
-> > +		return res;
-> > +	/*
-> > +	 * But if something went wrong and the pages could not be destroyed,
-> > +	 * the slower export is used as fallback instead.
-> > +	 */
-> > +	uv_convert_owned_from_secure(pte_val(res) & PAGE_MASK);
-> >   	return res;
-> >   }
-> >     
-> 
-
+> +
+>  	trace_event=[event-list]
+>  			[FTRACE] Set and start specified trace events in order
+>  			to facilitate early boot debugging. The event-list is a
