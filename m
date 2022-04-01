@@ -2,99 +2,163 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A5EF8C433F5
-	for <linux-s390@archiver.kernel.org>; Fri,  1 Apr 2022 07:56:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E7CDC433F5
+	for <linux-s390@archiver.kernel.org>; Fri,  1 Apr 2022 08:09:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344072AbiDAH6h (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 1 Apr 2022 03:58:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57454 "EHLO
+        id S229605AbiDAIL2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 1 Apr 2022 04:11:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245108AbiDAH6g (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 Apr 2022 03:58:36 -0400
-Received: from mail-qk1-x734.google.com (mail-qk1-x734.google.com [IPv6:2607:f8b0:4864:20::734])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59283267583;
-        Fri,  1 Apr 2022 00:56:47 -0700 (PDT)
-Received: by mail-qk1-x734.google.com with SMTP id 85so1482474qkm.9;
-        Fri, 01 Apr 2022 00:56:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=9g3A+Aj99vNxItNSwcSuRfYALYB+zaA6rfn+8eFdWC4=;
-        b=dkAtwaPew0tAja8U6bbKfKMn3g99pI9I/Yi/CxDe+marRIj6vCyE10eWZ3TwT4l11V
-         B20Qn8+RLkPMe3jMQ/71G2a+Ie9IL6gj6i4EtRpuGqYbLDimdzyokcuNmfzumtrt0MPz
-         /CklPz4pQOI5dlNxicPVwrcBRWXYqT5SIQlwTF4L8HykQmuG7F7sJRkNyXUAastRC+Ek
-         H4vwbOoc/ugf9OMXJve3PytG9OYREXknfcCsSl78T7IoIuAcHGLDF6m+xR4BlDXWfn/P
-         XWtZJfMeT4wWshP95US/9uPhfT8kiz3SwDOAdcAjGsF9Xi4qqHSHKRmOMnw+YR1ogOmq
-         sc4w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=9g3A+Aj99vNxItNSwcSuRfYALYB+zaA6rfn+8eFdWC4=;
-        b=Me33ggmHnIWqzu/7eYTRSEGwhiQgxXWox54VN2N2mFGT/Eqax0tP0xfJw40ioVyolm
-         wJkJhxqwaHuH1fVtmNsBCzVx3rNpCBnDCBOc3t3DqIAOLi+J/iraHqfuPWkTltsz+TnK
-         5u+IHF0jgVdcy/0DJZ2n6ggycB0nwNk6G40woeqMAlu0+Y9UfZI4vQYa+2YdkyU7csQs
-         oFGK+bfg4+bzLGbBVFj2Su40TTaZdSVTAOlUsz4alT94Q2TIU6p7/wpnA8Bv6rDvTNLL
-         WW2Y5N+tMRod8atO6G/i9c/z/l+sjd4oWS+Eb3ixYiDvq+knwCnEkNHQA5qN6xaIegUF
-         rJ1A==
-X-Gm-Message-State: AOAM530L3EjIOsAYvjSeUVCgThWMQYI7RctCRMNj1FjOqih2aGeMmWhy
-        +K+ebFDiYMuVHbw2U4IENNZmLT4otlM=
-X-Google-Smtp-Source: ABdhPJzTa0VnR6KTAReY57UMiVvyoluIsuDu/7SqwVaVfpsq8RGe9WhaU8NnKE4zm8sd8/1UTyDNXg==
-X-Received: by 2002:a05:620a:792:b0:67d:7fcc:2809 with SMTP id 18-20020a05620a079200b0067d7fcc2809mr5736689qka.126.1648799806503;
-        Fri, 01 Apr 2022 00:56:46 -0700 (PDT)
-Received: from localhost.localdomain ([193.203.214.57])
-        by smtp.gmail.com with ESMTPSA id k73-20020a37a14c000000b0067b316a4161sm919864qke.120.2022.04.01.00.56.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 01 Apr 2022 00:56:46 -0700 (PDT)
-From:   cgel.zte@gmail.com
-X-Google-Original-From: lv.ruyi@zte.com.cn
-To:     hca@linux.ibm.com, gor@linux.ibm.com
-Cc:     agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, lv.ruyi@zte.com.cn, egorenar@linux.ibm.com,
-        oberpar@linux.ibm.com, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>
-Subject: [PATCH] s390: replace zero-length array with flexible-array member
-Date:   Fri,  1 Apr 2022 07:56:39 +0000
-Message-Id: <20220401075639.2407457-1-lv.ruyi@zte.com.cn>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S229437AbiDAIL1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 Apr 2022 04:11:27 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D39E4DF4E;
+        Fri,  1 Apr 2022 01:09:37 -0700 (PDT)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 2315hclp016161;
+        Fri, 1 Apr 2022 08:09:37 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=wqxjiXbqHlGhwh49sbBy18A0WmxSRhtuzYbnJic3B4M=;
+ b=QdbcvTOVE1w5ZMF60pq1oCmyebGBfk1b27xZAr7xdJsPOQ9Hkv+vUTYYejygXNQ3Ap+v
+ z6646k3ikreGC4lHZZTdPAaKzmKl+L1QX2ZVGhZ7NtCplzNrkjkuvciIDjkK7Yd7qXXc
+ /yKd51Nizpuciy+IwHHiJ5g62Aey8lF5uRmLI4l+tFJc/srv8vi166/HWdzAzhQiLoyg
+ hdi38GRVbo6daJeDoK0G1IYTtpMR1k9HyqoYR+VsT5wWrzU9DdWZNe4mJ6AAhBx7vPrZ
+ z6XQuYwO3mNM49Zuet3yUmZxkUerNec/csgIw4sD8en5C32krtOw6JDmNWHzQyiI/DU2 Dw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3f50afax19-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 01 Apr 2022 08:09:37 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 2317vkIu001042;
+        Fri, 1 Apr 2022 08:09:36 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3f50afax09-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 01 Apr 2022 08:09:36 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23188oG6003101;
+        Fri, 1 Apr 2022 08:09:34 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03fra.de.ibm.com with ESMTP id 3f1tf92keq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 01 Apr 2022 08:09:34 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23189VRg38666614
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 1 Apr 2022 08:09:31 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E37514205C;
+        Fri,  1 Apr 2022 08:09:30 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 815FD4204D;
+        Fri,  1 Apr 2022 08:09:30 +0000 (GMT)
+Received: from [9.145.70.97] (unknown [9.145.70.97])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri,  1 Apr 2022 08:09:30 +0000 (GMT)
+Message-ID: <890bd089-8c38-17b5-b5d5-1cf79f9c41d1@linux.ibm.com>
+Date:   Fri, 1 Apr 2022 10:09:30 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [kvm-unit-tests PATCH v2 2/5] s390x: skey: remove check for old
+ z/VM version
+Content-Language: en-US
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, scgl@linux.ibm.com,
+        borntraeger@de.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com,
+        nrb@linux.ibm.com, thuth@redhat.com, david@redhat.com
+References: <20220331160419.333157-1-imbrenda@linux.ibm.com>
+ <20220331160419.333157-3-imbrenda@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <20220331160419.333157-3-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: jDI_bHcWfxthrgs65v214KFl5sx7AYTd
+X-Proofpoint-GUID: jesBVLaKwGCH123gUGTQsg49Z4lXiQNf
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-04-01_02,2022-03-31_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ priorityscore=1501 suspectscore=0 mlxscore=0 clxscore=1015 impostorscore=0
+ phishscore=0 mlxlogscore=999 spamscore=0 bulkscore=0 adultscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2204010037
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Lv Ruyi <lv.ruyi@zte.com.cn>
+On 3/31/22 18:04, Claudio Imbrenda wrote:
+> Remove the check for z/VM 6.x, since it is not needed anymore.
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-There is a regular need in the kernel to provide a way to declare
-having a dynamically sized set of trailing elements in a structure.
-Kernel code should always use “flexible array members”[1] for these
-cases. The older style of one-element or zero-length arrays should
-no longer be used[2].
+Thanks for taking care of this.
 
-[1] https://en.wikipedia.org/wiki/Flexible_array_member
-[2] https://www.kernel.org/doc/html/v5.16/process/deprecated.html#zero-length-and-one-element-arrays
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
----
- drivers/s390/char/sclp_cmd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/s390/char/sclp_cmd.c b/drivers/s390/char/sclp_cmd.c
-index 15971997cfe2..3c87057436d5 100644
---- a/drivers/s390/char/sclp_cmd.c
-+++ b/drivers/s390/char/sclp_cmd.c
-@@ -241,7 +241,7 @@ struct attach_storage_sccb {
- 	u16 :16;
- 	u16 assigned;
- 	u32 :32;
--	u32 entries[0];
-+	u32 entries[];
- } __packed;
- 
- static int sclp_attach_storage(u8 id)
--- 
-2.25.1
+> ---
+>   s390x/skey.c | 37 ++++---------------------------------
+>   1 file changed, 4 insertions(+), 33 deletions(-)
+> 
+> diff --git a/s390x/skey.c b/s390x/skey.c
+> index 58a55436..edad53e9 100644
+> --- a/s390x/skey.c
+> +++ b/s390x/skey.c
+> @@ -65,33 +65,9 @@ static void test_set(void)
+>   	       "set key test");
+>   }
+>   
+> -/* Returns true if we are running under z/VM 6.x */
+> -static bool check_for_zvm6(void)
+> -{
+> -	int dcbt;	/* Descriptor block count */
+> -	int nr;
+> -	static const unsigned char zvm6[] = {
+> -		/* This is "z/VM    6" in EBCDIC */
+> -		0xa9, 0x61, 0xe5, 0xd4, 0x40, 0x40, 0x40, 0x40, 0xf6
+> -	};
+> -
+> -	if (stsi(pagebuf, 3, 2, 2))
+> -		return false;
+> -
+> -	dcbt = pagebuf[31] & 0xf;
+> -
+> -	for (nr = 0; nr < dcbt; nr++) {
+> -		if (!memcmp(&pagebuf[32 + nr * 64 + 24], zvm6, sizeof(zvm6)))
+> -			return true;
+> -	}
+> -
+> -	return false;
+> -}
+> -
+>   static void test_priv(void)
+>   {
+>   	union skey skey;
+> -	bool is_zvm6 = check_for_zvm6();
+>   
+>   	memset(pagebuf, 0, PAGE_SIZE * 2);
+>   	report_prefix_push("privileged");
+> @@ -106,15 +82,10 @@ static void test_priv(void)
+>   	report(skey.str.acc != 3, "skey did not change on exception");
+>   
+>   	report_prefix_push("iske");
+> -	if (is_zvm6) {
+> -		/* There is a known bug with z/VM 6, so skip the test there */
+> -		report_skip("not working on z/VM 6");
+> -	} else {
+> -		expect_pgm_int();
+> -		enter_pstate();
+> -		get_storage_key(pagebuf);
+> -		check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
+> -	}
+> +	expect_pgm_int();
+> +	enter_pstate();
+> +	get_storage_key(pagebuf);
+> +	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
+>   	report_prefix_pop();
+>   
+>   	report_prefix_pop();
 
