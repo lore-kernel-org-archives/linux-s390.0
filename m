@@ -2,35 +2,35 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A745BC35280
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DDEE6C35295
 	for <linux-s390@archiver.kernel.org>; Fri,  1 Apr 2022 14:49:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352694AbiDAOvb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 1 Apr 2022 10:51:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60748 "EHLO
+        id S1345140AbiDAOvc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 1 Apr 2022 10:51:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350050AbiDAOrH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 Apr 2022 10:47:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC9B62A03F0;
-        Fri,  1 Apr 2022 07:37:00 -0700 (PDT)
+        with ESMTP id S1352371AbiDAOuR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 Apr 2022 10:50:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DD172B2B5B;
+        Fri,  1 Apr 2022 07:41:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 85CF6B824D8;
-        Fri,  1 Apr 2022 14:36:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F1BBC340F2;
-        Fri,  1 Apr 2022 14:36:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 14CFD611C4;
+        Fri,  1 Apr 2022 14:40:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 711BEC36AEC;
+        Fri,  1 Apr 2022 14:40:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648823786;
-        bh=fG9MQxUZVJfuo423h37Uy9a7r2z2UmE9/ApwUfDq85M=;
+        s=k20201202; t=1648824049;
+        bh=GtGEHyCq6iT+G8LTa1QP4bDbH2jB17E5HjEoP4Oz/Yw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fR24yzge4htB+kf5fKwd5FS/VYM07RxS+JN96C1ApphqoFUt6AsGWUdD5HKotJe2S
-         Od36PFCFVwLN1TKwrwM+LpB4ENjNzcNkH0oS5/FXVH12CFflh8RfNe5XoMQKNwKdmk
-         UiF6/2Z4WWhoGcpReOrFUPGZxzogcmux5A9grRLPdjOzhufgYurXxt9p3YCeRrZ7qh
-         9GPkVBnR0laGdU9VQRjXJ/RCePBPReV0K6UA3XEVpJggxAyFrNZxWdlj2UgDCpB9Vc
-         7QbMgoeY7xawRo1jJVXV0pLNdcv6hAQa4dVfZlGQELZBzN3NXC60OPhACrZpc0jhLG
-         TtfzN0nyGcNow==
+        b=pAL5Xt3IVR/dGTziiLWHvODdo3rNmOBdW9Xj5UyI3hYEqJDMwTzaGUmog8ig0U2OT
+         pgHKwsidBFgZCbI5th4P7pV6QxLHd7cFCuteRIIqfpsCW2k2mg1EVZ0tVKDmyh4Fw7
+         +1PletNnit09FzIMP4Rjz3Sc9rTwgXIgBqDeJnTIl6YKxL0e6laZiuMOGTKPpVl6SK
+         OsDSQgGiCRzmWY+KsKFhQiYALp+++KPhxlUcFkf8Xiaj+vWCkEnIgszattQRWt90AD
+         Cj/HepzG1FrrgFs0JnG7y9iYBjXqT7c2VD7O3j33p2Jjk+BMG7tT4k1aSnVLCaWilZ
+         d2AY4hFpEktRg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Dust Li <dust.li@linux.alibaba.com>,
@@ -38,12 +38,12 @@ Cc:     Dust Li <dust.li@linux.alibaba.com>,
         Sasha Levin <sashal@kernel.org>, kgraul@linux.ibm.com,
         kuba@kernel.org, pabeni@redhat.com, linux-s390@vger.kernel.org,
         netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 076/109] net/smc: correct settings of RMB window update limit
-Date:   Fri,  1 Apr 2022 10:32:23 -0400
-Message-Id: <20220401143256.1950537-76-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 65/98] net/smc: correct settings of RMB window update limit
+Date:   Fri,  1 Apr 2022 10:37:09 -0400
+Message-Id: <20220401143742.1952163-65-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220401143256.1950537-1-sashal@kernel.org>
-References: <20220401143256.1950537-1-sashal@kernel.org>
+In-Reply-To: <20220401143742.1952163-1-sashal@kernel.org>
+References: <20220401143742.1952163-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -84,10 +84,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index d1cdc891c211..f1dc5b914771 100644
+index dee336eef6d2..7401ec67ebcf 100644
 --- a/net/smc/smc_core.c
 +++ b/net/smc/smc_core.c
-@@ -1904,7 +1904,7 @@ static struct smc_buf_desc *smc_buf_get_slot(int compressed_bufsize,
+@@ -1822,7 +1822,7 @@ static struct smc_buf_desc *smc_buf_get_slot(int compressed_bufsize,
   */
  static inline int smc_rmb_wnd_update_limit(int rmbe_size)
  {
