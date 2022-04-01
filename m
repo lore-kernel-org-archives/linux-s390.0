@@ -2,100 +2,248 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 08C49C433FE
-	for <linux-s390@archiver.kernel.org>; Fri,  1 Apr 2022 15:52:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A25DCC433EF
+	for <linux-s390@archiver.kernel.org>; Fri,  1 Apr 2022 15:52:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235560AbiDAPxn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 1 Apr 2022 11:53:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55860 "EHLO
+        id S242133AbiDAPxv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 1 Apr 2022 11:53:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349961AbiDAO61 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 Apr 2022 10:58:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADCE91753BF;
-        Fri,  1 Apr 2022 07:45:40 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 499D760BC2;
-        Fri,  1 Apr 2022 14:45:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B44B8C34111;
-        Fri,  1 Apr 2022 14:45:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648824339;
-        bh=5ctcsf1H1Wj6BrGtRe9obFjz7c8kVAlzBvY/kcXosyU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N1/2x+11aQGdDc1dOV03TFV0TgECbGqhDTUeIre86k17ea1C4jjjnTa7EcL/3LBxi
-         gNMLSkD8iI98DfS+E5pZJ+Gi3tqDGjTigDKhsJCFmvoqSf3Mz2LSPpXdqXJyyS5O/j
-         XMp2LwEkaeKjYO0Qit5bzEOsjCODFWDev4tPlbY1V0o9m9dsuRQW6NOWeT76y47jrP
-         ksnOFdVr9I6zLaE9VNcD70oCuY0BdJNwkesvnQsgKZ+mzZ2EsTkNGtWG/9ZJPGC0Yk
-         xixLaYTfsJOLePmaNu7uNd8twWEk0TtIK3xtEqDRsHeOheLcK1QkL4yZ+iKPRWvRL5
-         w9h54Ccj10Sgw==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dust Li <dust.li@linux.alibaba.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, kgraul@linux.ibm.com,
-        kuba@kernel.org, pabeni@redhat.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 23/37] net/smc: correct settings of RMB window update limit
-Date:   Fri,  1 Apr 2022 10:44:32 -0400
-Message-Id: <20220401144446.1954694-23-sashal@kernel.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220401144446.1954694-1-sashal@kernel.org>
-References: <20220401144446.1954694-1-sashal@kernel.org>
+        with ESMTP id S1356977AbiDAPiF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 Apr 2022 11:38:05 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3876BEA760;
+        Fri,  1 Apr 2022 08:13:11 -0700 (PDT)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 231DCKDN024630;
+        Fri, 1 Apr 2022 15:13:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=OLeow45T6onKVkerq7bmlAegWan314OMLymZR4dRimo=;
+ b=oy7xxp6mWHirB2L3WLRW00IaHTlncxS7p7wBMzWnKX/HNACs+32RyfEwM9nDWRjwEpij
+ 0ALvTabDvvxePJOOuWY+12HaD3WVWOxWJoFbbGvbHr1HezEB0f7Ll4RfnakxcwcBfD7K
+ UklZEi4mgKtiOcV/quPolFR+dDJVjj7tcq60ZF7vrZKapHv2qRJnfLcpAiWaaaVy88H7
+ a//TBgiH7qJ7MY7k94Ftr31bhMR9HVdkNlwEYtBAx+kCDnedH9H0lDPmuh4/DOE0LBtu
+ EyJ1Gk7W6clQykcPOcriadh0MiU4y0ZpSg+u4bMqWng1DEE81dIoER1LZ7vGnUHOT/13 PA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3f622sak56-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 01 Apr 2022 15:13:10 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 231FBjTV030294;
+        Fri, 1 Apr 2022 15:13:09 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3f622sak4g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 01 Apr 2022 15:13:09 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 231FCZhc025639;
+        Fri, 1 Apr 2022 15:13:07 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma03fra.de.ibm.com with ESMTP id 3f1tf937kn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 01 Apr 2022 15:13:07 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 231FD4hF39321964
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 1 Apr 2022 15:13:04 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4BEE711C04C;
+        Fri,  1 Apr 2022 15:13:04 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C02AD11C050;
+        Fri,  1 Apr 2022 15:13:03 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.145.3.73])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri,  1 Apr 2022 15:13:03 +0000 (GMT)
+Date:   Fri, 1 Apr 2022 17:13:02 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, borntraeger@de.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, david@redhat.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, scgl@linux.ibm.com,
+        mimu@linux.ibm.com, nrb@linux.ibm.com
+Subject: Re: [PATCH v9 13/18] KVM: s390: pv: cleanup leftover protected VMs
+ if needed
+Message-ID: <20220401171302.60415a07@p-imbrenda>
+In-Reply-To: <827cfa86-bad4-8c31-8038-8db9a011fee9@linux.ibm.com>
+References: <20220330122605.247613-1-imbrenda@linux.ibm.com>
+        <20220330122605.247613-14-imbrenda@linux.ibm.com>
+        <827cfa86-bad4-8c31-8038-8db9a011fee9@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: FcJuACXsFvNapsRqhCdp2jBElUXrgXBb
+X-Proofpoint-GUID: v4AIpO-loT_2Hlv1dEP_gxNm0LeWMB1o
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-04-01_05,2022-03-31_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
+ priorityscore=1501 mlxlogscore=999 suspectscore=0 lowpriorityscore=0
+ spamscore=0 malwarescore=0 phishscore=0 mlxscore=0 adultscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2204010072
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Dust Li <dust.li@linux.alibaba.com>
+On Thu, 31 Mar 2022 16:02:55 +0200
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-[ Upstream commit 6bf536eb5c8ca011d1ff57b5c5f7c57ceac06a37 ]
+> On 3/30/22 14:26, Claudio Imbrenda wrote:
+> > In upcoming patches it will be possible to start tearing down a
+> > protected VM, and finish the teardown concurrently in a different
+> > thread.
+> > 
+> > Protected VMs that are pending for tear down ("leftover") need to be
+> > cleaned properly when the userspace process (e.g. qemu) terminates.
+> > 
+> > This patch makes sure that all "leftover" protected VMs are always
+> > properly torn down.
+> > 
+> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> > ---
+> >   arch/s390/include/asm/kvm_host.h |  2 +
+> >   arch/s390/kvm/kvm-s390.c         |  1 +
+> >   arch/s390/kvm/pv.c               | 69 ++++++++++++++++++++++++++++++++
+> >   3 files changed, 72 insertions(+)
+> > 
+> > diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+> > index 1bccb8561ba9..50e3516cbc03 100644
+> > --- a/arch/s390/include/asm/kvm_host.h
+> > +++ b/arch/s390/include/asm/kvm_host.h
+> > @@ -922,6 +922,8 @@ struct kvm_s390_pv {
+> >   	u64 guest_len;
+> >   	unsigned long stor_base;
+> >   	void *stor_var;
+> > +	void *async_deinit;
+> > +	struct list_head need_cleanup;
+> >   	struct mmu_notifier mmu_notifier;
+> >   };
+> >   
+> > diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> > index 446f89db93a1..3637f556ff33 100644
+> > --- a/arch/s390/kvm/kvm-s390.c
+> > +++ b/arch/s390/kvm/kvm-s390.c
+> > @@ -2788,6 +2788,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+> >   	kvm_s390_vsie_init(kvm);
+> >   	if (use_gisa)
+> >   		kvm_s390_gisa_init(kvm);
+> > +	INIT_LIST_HEAD(&kvm->arch.pv.need_cleanup);  
+> 
+> kvm->arch.pv.sync_deinit = NULL;
 
-rmbe_update_limit is used to limit announcing receive
-window updating too frequently. RFC7609 request a minimal
-increase in the window size of 10% of the receive buffer
-space. But current implementation used:
+isn't the struct allocated with __GFP_ZERO ?
 
-  min_t(int, rmbe_size / 10, SOCK_MIN_SNDBUF / 2)
+> 
+> >   	KVM_EVENT(3, "vm 0x%pK created by pid %u", kvm, current->pid);
+> >   
+> >   	return 0;
+> > diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+> > index be3b467f8feb..56412617dd01 100644
+> > --- a/arch/s390/kvm/pv.c
+> > +++ b/arch/s390/kvm/pv.c
+> > @@ -17,6 +17,19 @@
+> >   #include <linux/mmu_notifier.h>
+> >   #include "kvm-s390.h"
+> >   
+> > +/**
+> > + * @struct deferred_priv
+> > + * Represents a "leftover" protected VM that does not correspond to any
+> > + * active KVM VM.  
+> 
+> Maybe something like:
+> ...that is still registered with the Ultravisor but isn't registered 
+> with KVM anymore.
 
-and SOCK_MIN_SNDBUF / 2 == 2304 Bytes, which is almost
-always less then 10% of the receive buffer space.
+will fix
 
-This causes the receiver always sending CDC message to
-update its consumer cursor when it consumes more then 2K
-of data. And as a result, we may encounter something like
-"TCP silly window syndrome" when sending 2.5~8K message.
-
-This patch fixes this using max(rmbe_size / 10, SOCK_MIN_SNDBUF / 2).
-
-With this patch and SMC autocorking enabled, qperf 2K/4K/8K
-tcp_bw test shows 45%/75%/40% increase in throughput respectively.
-
-Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- net/smc/smc_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 12672019f76c..66cdfd5725ac 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -734,7 +734,7 @@ static struct smc_buf_desc *smc_buf_get_slot(int compressed_bufsize,
-  */
- static inline int smc_rmb_wnd_update_limit(int rmbe_size)
- {
--	return min_t(int, rmbe_size / 10, SOCK_MIN_SNDBUF / 2);
-+	return max_t(int, rmbe_size / 10, SOCK_MIN_SNDBUF / 2);
- }
- 
- static struct smc_buf_desc *smcr_new_buf_create(struct smc_link_group *lgr,
--- 
-2.34.1
+> 
+> > + */
+> > +struct deferred_priv {
+> > +	struct list_head list;
+> > +	unsigned long old_table;
+> > +	u64 handle;
+> > +	void *stor_var;
+> > +	unsigned long stor_base;
+> > +};
+> > +
+> >   static void kvm_s390_clear_pv_state(struct kvm *kvm)
+> >   {
+> >   	kvm->arch.pv.handle = 0;
+> > @@ -163,6 +176,60 @@ static int kvm_s390_pv_alloc_vm(struct kvm *kvm)
+> >   	return -ENOMEM;
+> >   }
+> >   
+> > +/**
+> > + * kvm_s390_pv_cleanup_deferred - Clean up one leftover protected VM.
+> > + * @kvm the KVM that was associated with this leftover protected VM
+> > + * @deferred details about the leftover protected VM that needs a clean up
+> > + * Return: 0 in case of success, otherwise 1
+> > + */
+> > +static int kvm_s390_pv_cleanup_deferred(struct kvm *kvm, struct deferred_priv *deferred)
+> > +{
+> > +	u16 rc, rrc;
+> > +	int cc;
+> > +
+> > +	cc = uv_cmd_nodata(deferred->handle, UVC_CMD_DESTROY_SEC_CONF, &rc, &rrc);
+> > +	KVM_UV_EVENT(kvm, 3, "PROTVIRT DESTROY VM: rc %x rrc %x", rc, rrc);
+> > +	WARN_ONCE(cc, "protvirt destroy vm failed rc %x rrc %x", rc, rrc);
+> > +	if (cc)
+> > +		return cc;
+> > +	/*
+> > +	 * Intentionally leak unusable memory. If the UVC fails, the memory
+> > +	 * used for the VM and its metadata is permanently unusable.
+> > +	 * This can only happen in case of a serious KVM or hardware bug; it
+> > +	 * is not expected to happen in normal operation.
+> > +	 */
+> > +	free_pages(deferred->stor_base, get_order(uv_info.guest_base_stor_len));
+> > +	free_pages(deferred->old_table, CRST_ALLOC_ORDER);
+> > +	vfree(deferred->stor_var);
+> > +	return 0;
+> > +}
+> > +
+> > +/**
+> > + * kvm_s390_pv_cleanup_leftovers - Clean up all leftover protected VMs.
+> > + * @kvm the KVM whose leftover protected VMs are to be cleaned up
+> > + * Return: 0 in case of success, otherwise 1
+> > + */
+> > +static int kvm_s390_pv_cleanup_leftovers(struct kvm *kvm)
+> > +{
+> > +	struct deferred_priv *deferred;
+> > +	int cc = 0;
+> > +
+> > +	if (kvm->arch.pv.async_deinit)
+> > +		list_add(kvm->arch.pv.async_deinit, &kvm->arch.pv.need_cleanup);
+> > +
+> > +	while (!list_empty(&kvm->arch.pv.need_cleanup)) {
+> > +		deferred = list_first_entry(&kvm->arch.pv.need_cleanup, typeof(*deferred), list);
+> > +		if (kvm_s390_pv_cleanup_deferred(kvm, deferred))
+> > +			cc = 1;
+> > +		else
+> > +			atomic_dec(&kvm->mm->context.protected_count);
+> > +		list_del(&deferred->list);
+> > +		kfree(deferred);
+> > +	}
+> > +	kvm->arch.pv.async_deinit = NULL;
+> > +	return cc;
+> > +}
+> > +
+> >   /* this should not fail, but if it does, we must not free the donated memory */
+> >   int kvm_s390_pv_deinit_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
+> >   {
+> > @@ -190,6 +257,8 @@ int kvm_s390_pv_deinit_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
+> >   	KVM_UV_EVENT(kvm, 3, "PROTVIRT DESTROY VM: rc %x rrc %x", *rc, *rrc);
+> >   	WARN_ONCE(cc, "protvirt destroy vm failed rc %x rrc %x", *rc, *rrc);
+> >   
+> > +	cc |= kvm_s390_pv_cleanup_leftovers(kvm);
+> > +
+> >   	return cc ? -EIO : 0;
+> >   }
+> >     
+> 
 
