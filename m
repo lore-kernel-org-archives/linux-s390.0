@@ -2,35 +2,35 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A28FC433EF
-	for <linux-s390@archiver.kernel.org>; Sat,  2 Apr 2022 13:38:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2639FC433F5
+	for <linux-s390@archiver.kernel.org>; Sat,  2 Apr 2022 13:38:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355805AbiDBNjz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 2 Apr 2022 09:39:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58614 "EHLO
+        id S1355815AbiDBNj4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 2 Apr 2022 09:39:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355697AbiDBNjO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 2 Apr 2022 09:39:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ABC64477F;
-        Sat,  2 Apr 2022 06:37:11 -0700 (PDT)
+        with ESMTP id S1355649AbiDBNjf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 2 Apr 2022 09:39:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 739E44E3BA;
+        Sat,  2 Apr 2022 06:37:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD701614D4;
-        Sat,  2 Apr 2022 13:37:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DEC5C340EC;
-        Sat,  2 Apr 2022 13:37:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 26BC8B808CE;
+        Sat,  2 Apr 2022 13:37:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47E30C340EC;
+        Sat,  2 Apr 2022 13:37:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648906630;
-        bh=kPBdsSZwAFo7vna7h4jVnZjxy4XlzYkfwZ49VTpvuBU=;
+        s=k20201202; t=1648906640;
+        bh=0gzQGGxdHWRt9A+64eem+dLQzBOPjB9Pfn9kxqzAZaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ez9jgkiEAX8F8VX/Je3YKP1oXgz3877xwMQ14BVKWFzZLuwS/2V8o2OMk70EtvuZt
-         joRZdicOdSeBSIa4PB1CM7KREuqjTLcsgDKJXguho3vpzDx0i8hg53wySRLo60VqE9
-         GFHK8Urj6HDdwxtxK/P5gdGpZCB5foh0ZuIeTX5bN4RXppmpsUYOFMTVbacP4AV4Jq
-         gdnuY4lvlCnT9Z4YZ8a7aD6wxrkKBXFObuwdTwV7rae0HmPwZvdmJXtO7dDhmnxb7Q
-         2K+tr5UNKsnwNS0JgIiWr+FCazFPSnf29LJ4EvxGoDHhhyIlJ5btDFCxT6arqItIlZ
-         YxwJvby6mSK8A==
+        b=ddjKQTYSeX49bwNmPX3hiYeFIo4pbSnYcfU15elFAKn7v7yGv7uZSmMGr3U2nyvhF
+         7xue2GtLlK0KE1v8TxBEM8GrTME1d4UYNeZRryLukkU/A04ebCr9o9o6PGqviVEn/5
+         tLEjzc50VTxWq0F3qMYUgnqxHUC2CQOlX6X36TaBWVM4FpV1JrNzpnCAxs8cn3aGbz
+         647BDSeK3qBLqBDsbbfchtm2VxsLwmkU5S4cwmkYK/KyqEQxnbK3RrzGk0cKWuapu2
+         hztnimqyf6RZmUKRNTYkbmgQqP88u3MXjbhQvYJ4AXar0Li/ZrpGCT+SYD+u0vSfPy
+         U04Qcd210yueQ==
 From:   guoren@kernel.org
 To:     guoren@kernel.org, palmer@dabbelt.com, arnd@arndb.de,
         gregkh@linuxfoundation.org, hch@lst.de
@@ -39,12 +39,10 @@ Cc:     linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, linux-parisc@vger.kernel.org,
         linux-mips@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        x86@kernel.org, heiko@sntech.de,
-        Guo Ren <guoren@linux.alibaba.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH V10 12/20] riscv: compat: syscall: Add entry.S implementation
-Date:   Sat,  2 Apr 2022 21:35:36 +0800
-Message-Id: <20220402133544.2690231-13-guoren@kernel.org>
+        x86@kernel.org, heiko@sntech.de, Guo Ren <guoren@linux.alibaba.com>
+Subject: [PATCH V10 14/20] riscv: compat: Add elf.h implementation
+Date:   Sat,  2 Apr 2022 21:35:38 +0800
+Message-Id: <20220402133544.2690231-15-guoren@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220402133544.2690231-1-guoren@kernel.org>
 References: <20220402133544.2690231-1-guoren@kernel.org>
@@ -56,76 +54,113 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Guo Ren <guoren@linux.alibaba.com>
 
-Implement the entry of compat_sys_call_table[] in asm. Ref to
-riscv-privileged spec 4.1.1 Supervisor Status Register (sstatus):
-
- BIT[32:33] = UXL[1:0]:
- - 1:32
- - 2:64
- - 3:128
+Implement necessary type and macro for compat elf. See the code
+comment for detail.
 
 Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 Signed-off-by: Guo Ren <guoren@kernel.org>
-Reviewed-by: Palmer Dabbelt <palmer@rivosinc.com>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
 Tested-by: Heiko Stuebner <heiko@sntech.de>
-Cc: Arnd Bergmann <arnd@arndb.de>
 ---
- arch/riscv/include/asm/csr.h |  7 +++++++
- arch/riscv/kernel/entry.S    | 18 ++++++++++++++++--
- 2 files changed, 23 insertions(+), 2 deletions(-)
+ arch/riscv/include/asm/elf.h | 41 +++++++++++++++++++++++++++++++++++-
+ 1 file changed, 40 insertions(+), 1 deletion(-)
 
-diff --git a/arch/riscv/include/asm/csr.h b/arch/riscv/include/asm/csr.h
-index ae711692eec9..7f05c65654c8 100644
---- a/arch/riscv/include/asm/csr.h
-+++ b/arch/riscv/include/asm/csr.h
-@@ -36,6 +36,13 @@
- #define SR_SD		_AC(0x8000000000000000, UL) /* FS/XS dirty */
+diff --git a/arch/riscv/include/asm/elf.h b/arch/riscv/include/asm/elf.h
+index f53c40026c7a..a234656cfb5d 100644
+--- a/arch/riscv/include/asm/elf.h
++++ b/arch/riscv/include/asm/elf.h
+@@ -8,6 +8,8 @@
+ #ifndef _ASM_RISCV_ELF_H
+ #define _ASM_RISCV_ELF_H
+ 
++#include <uapi/linux/elf.h>
++#include <linux/compat.h>
+ #include <uapi/asm/elf.h>
+ #include <asm/auxvec.h>
+ #include <asm/byteorder.h>
+@@ -18,11 +20,13 @@
+  */
+ #define ELF_ARCH	EM_RISCV
+ 
++#ifndef ELF_CLASS
+ #ifdef CONFIG_64BIT
+ #define ELF_CLASS	ELFCLASS64
+ #else
+ #define ELF_CLASS	ELFCLASS32
  #endif
- 
-+#ifdef CONFIG_64BIT
-+#define SR_UXL		_AC(0x300000000, UL) /* XLEN mask for U-mode */
-+#define SR_UXL_32	_AC(0x100000000, UL) /* XLEN = 32 for U-mode */
-+#define SR_UXL_64	_AC(0x200000000, UL) /* XLEN = 64 for U-mode */
-+#define SR_UXL_SHIFT	32
 +#endif
+ 
+ #define ELF_DATA	ELFDATA2LSB
+ 
+@@ -31,6 +35,8 @@
+  */
+ #define elf_check_arch(x) ((x)->e_machine == EM_RISCV)
+ 
++#define compat_elf_check_arch(x) ((x)->e_machine == EM_RISCV)
 +
- /* SATP flags */
- #ifndef CONFIG_64BIT
- #define SATP_PPN	_AC(0x003FFFFF, UL)
-diff --git a/arch/riscv/kernel/entry.S b/arch/riscv/kernel/entry.S
-index d6a46ed0bf05..d4a1ad4edbc6 100644
---- a/arch/riscv/kernel/entry.S
-+++ b/arch/riscv/kernel/entry.S
-@@ -207,13 +207,27 @@ check_syscall_nr:
- 	 * Syscall number held in a7.
- 	 * If syscall number is above allowed value, redirect to ni_syscall.
- 	 */
--	bgeu a7, t0, 1f
-+	bgeu a7, t0, 3f
+ #define CORE_DUMP_USE_REGSET
+ #define ELF_EXEC_PAGESIZE	(PAGE_SIZE)
+ 
+@@ -43,8 +49,14 @@
+ #define ELF_ET_DYN_BASE		((TASK_SIZE / 3) * 2)
+ 
+ #ifdef CONFIG_64BIT
 +#ifdef CONFIG_COMPAT
-+	REG_L s0, PT_STATUS(sp)
-+	srli s0, s0, SR_UXL_SHIFT
-+	andi s0, s0, (SR_UXL >> SR_UXL_SHIFT)
-+	li t0, (SR_UXL_32 >> SR_UXL_SHIFT)
-+	sub t0, s0, t0
-+	bnez t0, 1f
-+
-+	/* Call compat_syscall */
-+	la s0, compat_sys_call_table
-+	j 2f
-+1:
++#define STACK_RND_MASK		(test_thread_flag(TIF_32BIT) ? \
++				 0x7ff >> (PAGE_SHIFT - 12) : \
++				 0x3ffff >> (PAGE_SHIFT - 12))
++#else
+ #define STACK_RND_MASK		(0x3ffff >> (PAGE_SHIFT - 12))
+ #endif
 +#endif
- 	/* Call syscall */
- 	la s0, sys_call_table
-+2:
- 	slli t0, a7, RISCV_LGPTR
- 	add s0, s0, t0
- 	REG_L s0, 0(s0)
--1:
-+3:
- 	jalr s0
+ /*
+  * This yields a mask that user programs can use to figure out what
+  * instruction set this CPU supports.  This could be done in user space,
+@@ -60,11 +72,19 @@ extern unsigned long elf_hwcap;
+  */
+ #define ELF_PLATFORM	(NULL)
  
- ret_from_syscall:
++#define COMPAT_ELF_PLATFORM	(NULL)
++
+ #ifdef CONFIG_MMU
+ #define ARCH_DLINFO						\
+ do {								\
++	/*							\
++	 * Note that we add ulong after elf_addr_t because	\
++	 * casting current->mm->context.vdso triggers a cast	\
++	 * warning of cast from pointer to integer for		\
++	 * COMPAT ELFCLASS32.					\
++	 */							\
+ 	NEW_AUX_ENT(AT_SYSINFO_EHDR,				\
+-		(elf_addr_t)current->mm->context.vdso);		\
++		(elf_addr_t)(ulong)current->mm->context.vdso);	\
+ 	NEW_AUX_ENT(AT_L1I_CACHESIZE,				\
+ 		get_cache_size(1, CACHE_TYPE_INST));		\
+ 	NEW_AUX_ENT(AT_L1I_CACHEGEOMETRY,			\
+@@ -90,4 +110,23 @@ do {							\
+ 		*(struct user_regs_struct *)regs;	\
+ } while (0);
+ 
++#ifdef CONFIG_COMPAT
++
++#define SET_PERSONALITY(ex)					\
++do {    if ((ex).e_ident[EI_CLASS] == ELFCLASS32)		\
++		set_thread_flag(TIF_32BIT);			\
++	else							\
++		clear_thread_flag(TIF_32BIT);			\
++	if (personality(current->personality) != PER_LINUX32)	\
++		set_personality(PER_LINUX |			\
++			(current->personality & (~PER_MASK)));	\
++} while (0)
++
++#define COMPAT_ELF_ET_DYN_BASE		((TASK_SIZE_32 / 3) * 2)
++
++/* rv32 registers */
++typedef compat_ulong_t			compat_elf_greg_t;
++typedef compat_elf_greg_t		compat_elf_gregset_t[ELF_NGREG];
++
++#endif /* CONFIG_COMPAT */
+ #endif /* _ASM_RISCV_ELF_H */
 -- 
 2.25.1
 
