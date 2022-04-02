@@ -2,35 +2,35 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A43A6C43217
-	for <linux-s390@archiver.kernel.org>; Sat,  2 Apr 2022 13:54:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D95C8C433F5
+	for <linux-s390@archiver.kernel.org>; Sat,  2 Apr 2022 13:54:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355206AbiDBN40 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 2 Apr 2022 09:56:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36058 "EHLO
+        id S1356010AbiDBN4g (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 2 Apr 2022 09:56:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355956AbiDBNzq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 2 Apr 2022 09:55:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6296B870;
-        Sat,  2 Apr 2022 06:53:51 -0700 (PDT)
+        with ESMTP id S1356013AbiDBN4M (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 2 Apr 2022 09:56:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF96E13E28;
+        Sat,  2 Apr 2022 06:54:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2A3FFB808CF;
-        Sat,  2 Apr 2022 13:53:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FFD1C36AE7;
-        Sat,  2 Apr 2022 13:53:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C93761469;
+        Sat,  2 Apr 2022 13:54:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F4E1C340EE;
+        Sat,  2 Apr 2022 13:53:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648907628;
-        bh=WR+ViwuRqnCNHeWZRXz67/g9MyXNDCz9XQM2h/2HeVE=;
+        s=k20201202; t=1648907643;
+        bh=mPzTkgatSK8CCYcJZRjjnRIhaMHdvygHIPXND8TxesM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cRg1x+0m0Z2I6ckuV37jxwkrn7lRQ+8Hzywt9r60ukQ5qJULk3dOP4QVt17tbNNEV
-         85CPHxQju5BDZs4N8i0/rPDgBrKpm7iRz34RPhextnSOMNW6GY80vvqNvuO9zGqsNT
-         08gstInOd+JMnGZ8bTo81Ghx45knPjZDzykWcg6X2xf9xLok6JS6rFaKyH9j7d5An8
-         7QA1o+GhCgfiaai/emtJruKnTXDC/G6W16vPXH/11lKLZFsk5+bKzTl4ed3v47E9gd
-         1e/RF0/3Xapn0v5w/7Y2OzJai2uDIH5/B6R1tPjYkmJLj78EFP27gIboZqJ5x205ul
-         wRd1VmPMAVixA==
+        b=aqyg1+SuT47jW0l0Z95gDGTCWRx0sbbee6U5vQdylwsfXlX0GVU7N7EANgaKwWAzk
+         PhQu7eBbPpwFQxnsa0h1PWbUrGbIZ9fHVcD6zSC40lS0IS6YhYEgAwc+fRShN4wPIE
+         5SmkcKUvT1m7959oBzosRRky8DCiitQ7pIIlWMx63//7Lk+vzIBiMB7OAxeXFc/3Ce
+         0VkxcGF+lRuIE7BWMnx8LDMzAcc3mDfO/ztazSidmPOWD2v4F6Yn3i5YB5w2kB81bq
+         7mJsZvnVUD5LqDuAexqkWJZq1mKvi9Wg+iHDI0G8MOGOSKxm3V7zYART6SG2yhMLlj
+         5rbrosHcu4URQ==
 From:   guoren@kernel.org
 To:     guoren@kernel.org, palmer@dabbelt.com, arnd@arndb.de,
         gregkh@linuxfoundation.org, hch@lst.de
@@ -40,13 +40,14 @@ Cc:     linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, linux-parisc@vger.kernel.org,
         linux-mips@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         x86@kernel.org, heiko@sntech.de, Guo Ren <guoren@linux.alibaba.com>
-Subject: [PATCH V11 07/20] syscalls: compat: Fix the missing part for __SYSCALL_COMPAT
-Date:   Sat,  2 Apr 2022 21:52:43 +0800
-Message-Id: <20220402135256.2691868-8-guoren@kernel.org>
+Subject: [PATCH V11 10/20] riscv: compat: Support TASK_SIZE for compat mode
+Date:   Sat,  2 Apr 2022 21:52:46 +0800
+Message-Id: <20220402135256.2691868-11-guoren@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220402135256.2691868-1-guoren@kernel.org>
 References: <20220402135256.2691868-1-guoren@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
@@ -54,63 +55,69 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Guo Ren <guoren@linux.alibaba.com>
 
-Make "uapi asm unistd.h" could be used for architectures' COMPAT
-mode. The __SYSCALL_COMPAT is first used in riscv.
+Make TASK_SIZE from const to dynamic detect TIF_32BIT flag
+function. Refer to arm64 to implement DEFAULT_MAP_WINDOW_64 for
+efi-stub.
+
+Limit 32-bit compatible process in 0-2GB virtual address range
+(which is enough for real scenarios), because it could avoid
+address sign extend problem when 32-bit enter 64-bit and ease
+software design.
+
+The standard 32-bit TASK_SIZE is 0x9dc00000:FIXADDR_START, and
+compared to a compatible 32-bit, it increases 476MB for the
+application's virtual address.
 
 Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 Signed-off-by: Guo Ren <guoren@kernel.org>
 Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
 Tested-by: Heiko Stuebner <heiko@sntech.de>
 ---
- include/uapi/asm-generic/unistd.h       | 4 ++--
- tools/include/uapi/asm-generic/unistd.h | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ arch/riscv/include/asm/pgtable.h   | 13 +++++++++++--
+ arch/riscv/include/asm/processor.h |  6 +++++-
+ 2 files changed, 16 insertions(+), 3 deletions(-)
 
-diff --git a/include/uapi/asm-generic/unistd.h b/include/uapi/asm-generic/unistd.h
-index 1c48b0ae3ba3..45fa180cc56a 100644
---- a/include/uapi/asm-generic/unistd.h
-+++ b/include/uapi/asm-generic/unistd.h
-@@ -383,7 +383,7 @@ __SYSCALL(__NR_syslog, sys_syslog)
+diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
+index e3549e50de95..afdc9ece2ba4 100644
+--- a/arch/riscv/include/asm/pgtable.h
++++ b/arch/riscv/include/asm/pgtable.h
+@@ -705,8 +705,17 @@ static inline pmd_t pmdp_establish(struct vm_area_struct *vma,
+  * 63–48 all equal to bit 47, or else a page-fault exception will occur."
+  */
+ #ifdef CONFIG_64BIT
+-#define TASK_SIZE      (PGDIR_SIZE * PTRS_PER_PGD / 2)
+-#define TASK_SIZE_MIN  (PGDIR_SIZE_L3 * PTRS_PER_PGD / 2)
++#define TASK_SIZE_64	(PGDIR_SIZE * PTRS_PER_PGD / 2)
++#define TASK_SIZE_MIN	(PGDIR_SIZE_L3 * PTRS_PER_PGD / 2)
++
++#ifdef CONFIG_COMPAT
++#define TASK_SIZE_32	(_AC(0x80000000, UL) - PAGE_SIZE)
++#define TASK_SIZE	(test_thread_flag(TIF_32BIT) ? \
++			 TASK_SIZE_32 : TASK_SIZE_64)
++#else
++#define TASK_SIZE	TASK_SIZE_64
++#endif
++
+ #else
+ #define TASK_SIZE	FIXADDR_START
+ #define TASK_SIZE_MIN	TASK_SIZE
+diff --git a/arch/riscv/include/asm/processor.h b/arch/riscv/include/asm/processor.h
+index 0749924d9e55..21c8072dce17 100644
+--- a/arch/riscv/include/asm/processor.h
++++ b/arch/riscv/include/asm/processor.h
+@@ -19,7 +19,11 @@
+ #define TASK_UNMAPPED_BASE	PAGE_ALIGN(TASK_SIZE / 3)
  
- /* kernel/ptrace.c */
- #define __NR_ptrace 117
--__SYSCALL(__NR_ptrace, sys_ptrace)
-+__SC_COMP(__NR_ptrace, sys_ptrace, compat_sys_ptrace)
+ #define STACK_TOP		TASK_SIZE
+-#define STACK_TOP_MAX		STACK_TOP
++#ifdef CONFIG_64BIT
++#define STACK_TOP_MAX		TASK_SIZE_64
++#else
++#define STACK_TOP_MAX		TASK_SIZE
++#endif
+ #define STACK_ALIGN		16
  
- /* kernel/sched/core.c */
- #define __NR_sched_setparam 118
-@@ -779,7 +779,7 @@ __SYSCALL(__NR_rseq, sys_rseq)
- #define __NR_kexec_file_load 294
- __SYSCALL(__NR_kexec_file_load,     sys_kexec_file_load)
- /* 295 through 402 are unassigned to sync up with generic numbers, don't use */
--#if __BITS_PER_LONG == 32
-+#if defined(__SYSCALL_COMPAT) || __BITS_PER_LONG == 32
- #define __NR_clock_gettime64 403
- __SYSCALL(__NR_clock_gettime64, sys_clock_gettime)
- #define __NR_clock_settime64 404
-diff --git a/tools/include/uapi/asm-generic/unistd.h b/tools/include/uapi/asm-generic/unistd.h
-index 1c48b0ae3ba3..45fa180cc56a 100644
---- a/tools/include/uapi/asm-generic/unistd.h
-+++ b/tools/include/uapi/asm-generic/unistd.h
-@@ -383,7 +383,7 @@ __SYSCALL(__NR_syslog, sys_syslog)
- 
- /* kernel/ptrace.c */
- #define __NR_ptrace 117
--__SYSCALL(__NR_ptrace, sys_ptrace)
-+__SC_COMP(__NR_ptrace, sys_ptrace, compat_sys_ptrace)
- 
- /* kernel/sched/core.c */
- #define __NR_sched_setparam 118
-@@ -779,7 +779,7 @@ __SYSCALL(__NR_rseq, sys_rseq)
- #define __NR_kexec_file_load 294
- __SYSCALL(__NR_kexec_file_load,     sys_kexec_file_load)
- /* 295 through 402 are unassigned to sync up with generic numbers, don't use */
--#if __BITS_PER_LONG == 32
-+#if defined(__SYSCALL_COMPAT) || __BITS_PER_LONG == 32
- #define __NR_clock_gettime64 403
- __SYSCALL(__NR_clock_gettime64, sys_clock_gettime)
- #define __NR_clock_settime64 404
+ #ifndef __ASSEMBLY__
 -- 
 2.25.1
 
