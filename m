@@ -2,223 +2,178 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3ABCFC433F5
-	for <linux-s390@archiver.kernel.org>; Sun,  3 Apr 2022 05:48:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E734AC433FE
+	for <linux-s390@archiver.kernel.org>; Sun,  3 Apr 2022 18:26:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240986AbiDCFuY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 3 Apr 2022 01:50:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39222 "EHLO
+        id S1359759AbiDCS2w (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 3 Apr 2022 14:28:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240151AbiDCFuW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 3 Apr 2022 01:50:22 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BCF0BCC;
-        Sat,  2 Apr 2022 22:48:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
-        :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=WQNoMJjopelVAEED89ffOV+of291eaLHpcsVbmVHuRQ=; b=0es1+Ejv35t67D4PBnvSGY/rZV
-        sJrcHTVDcmzHeR/+6K+lfakLc/aI1HB5TCGmW2QfOxFshZaHOM9tBYnyq1dKNQVwIh1RbuLidkD/w
-        AKpCI1yVgPrc8TMLHLgaISKIp/FvU0QNPAa/TT8DhzcpnF/Xv18GC6R+sKr0LmPgtSuKJxfrwzXoh
-        95PZe1xZM8K/4VwRIi7niem8fIJVOee8liypxnGE3mA8ppSNpdEkDK9Y/zz1FnmlrXWdqZR5UauPn
-        kKFTLTTBEW3/3kTLqSt8Y949sWFATGlnXJo2RVOYvfrXw6JAwEP0VRLASyk/EDnEiKidW/mwKeGse
-        8CkrguFA==;
-Received: from [2601:1c0:6280:3f0::aa0b] (helo=bombadil.infradead.org)
-        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nat68-00Amnh-OU; Sun, 03 Apr 2022 05:48:24 +0000
-From:   Randy Dunlap <rdunlap@infradead.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Randy Dunlap <rdunlap@infradead.org>,
+        with ESMTP id S1353574AbiDCS2u (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 3 Apr 2022 14:28:50 -0400
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F404F39153
+        for <linux-s390@vger.kernel.org>; Sun,  3 Apr 2022 11:26:54 -0700 (PDT)
+Received: by mail-wr1-x42c.google.com with SMTP id j12so3757465wrb.5
+        for <linux-s390@vger.kernel.org>; Sun, 03 Apr 2022 11:26:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=bdNSHlvxbLgeS5OtknPrJD9scGCCHGJswcOxfjpkj8k=;
+        b=HJPxauClsE0np7DjAvay8A3qNO9yH3dZHFeONBhunsAye2QJjEwG8hC0V131BjTbQw
+         vtyLN7WthuLgwwNhdCY6aF/k7R8txSC/qRMJ8xCwemdVY+KaeRBkvHINcZa7pp8B9n/4
+         psP1HG8tSSfUDJ2zS0n2xwmmwSuh7hDUpNROy3vYRAbyHR3Q57BU0DgYPwekeLzw8ODZ
+         H+QsFAuIO1JiJhRZbkQKkU+MKR7bpvvFeUkaLl+jN0kxpw3dXUqm7FpniWC9vVy3Mtjb
+         RbhlTctNKmMP8B2cuuCA2Qn5LglXfvS2+fDopX/AruCsvwpY0kuwoNM7/EI3sZhhp1GW
+         65HA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=bdNSHlvxbLgeS5OtknPrJD9scGCCHGJswcOxfjpkj8k=;
+        b=Y+8hFHRsbOYhMzCfqArC2lCDZUoMPXSTN0aNPtAZrnxCgdOLKdyd4j37frBIzPfI3w
+         SJlo3/rWPAq2vg/z68993cddP6Z42heK41uB02CNwti9VHAyiwTrpB91smNznQr3Exsh
+         8EecNj/ARda4NIXwKDYSj+qpx+CTjUtWPT37BLd1GUIAVif703mhkqmwn1fuWaiUokpG
+         QZjlFYl3U5kJ301OVRmvqJeCH+3s/J0eQK7A9QuCLDTynh37vBwG7PZFgz8yck3PDU0q
+         0CUGv5/2J9xyffuur1ybNk8OmOhYI/94lYO5Rce3pyL5lnkG8ZwUetxkBhjpcLDIwDWF
+         63/Q==
+X-Gm-Message-State: AOAM532eX1gZ62TVqOkxXpSRPW6iSZx+Vi0qEuOIgQ4YLape9x2WGO6P
+        GCN+VovVEQSdjCJPWv33Wycofw==
+X-Google-Smtp-Source: ABdhPJxZiOGK2egxD/5OYMyK+G/Qvkwdu5zqnF3HM5t2oE8lWspEjCw8qRMqkAP48HNYh0SvcBxiOQ==
+X-Received: by 2002:a05:6000:1547:b0:204:213:ae28 with SMTP id 7-20020a056000154700b002040213ae28mr14429429wry.114.1649010413589;
+        Sun, 03 Apr 2022 11:26:53 -0700 (PDT)
+Received: from [192.168.0.172] (xdsl-188-155-201-27.adslplus.ch. [188.155.201.27])
+        by smtp.gmail.com with ESMTPSA id f1-20020a1c6a01000000b0038c9f6a3634sm14881579wmc.7.2022.04.03.11.26.51
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 03 Apr 2022 11:26:52 -0700 (PDT)
+Message-ID: <fb2b05f0-7609-1fa7-4d69-c64e082e2e2b@linaro.org>
+Date:   Sun, 3 Apr 2022 20:26:51 +0200
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH v5 01/11] driver: platform: Add helper for safer setting
+ of driver_override
+Content-Language: en-US
+To:     Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Stuart Yoder <stuyoder@gmail.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        sparclinux@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
-        linux-ia64@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Pavel Machek <pavel@ucw.cz>, Len Brown <lenb@kernel.org>,
-        linux-pm@vger.kernel.org, linux-acpi@vger.kernel.org,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org
-Subject: [PATCH 1/3 v3] Docs: admin/kernel-parameters: edit a few boot options
-Date:   Sat,  2 Apr 2022 22:48:20 -0700
-Message-Id: <20220403054822.16868-2-rdunlap@infradead.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220403054822.16868-1-rdunlap@infradead.org>
-References: <20220403054822.16868-1-rdunlap@infradead.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Andy Gross <agross@kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-clk <linux-clk@vger.kernel.org>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>,
+        Linux on Hyper-V List <linux-hyperv@vger.kernel.org>,
+        linux-pci <linux-pci@vger.kernel.org>,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org,
+        ALSA Development Mailing List <alsa-devel@alsa-project.org>,
+        linux-spi <linux-spi@vger.kernel.org>,
+        virtualization@lists.linux-foundation.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>
+References: <20220316150533.421349-1-krzysztof.kozlowski@canonical.com>
+ <20220316150533.421349-2-krzysztof.kozlowski@canonical.com>
+ <CAHp75VeaQdzUKJSKzH9FjbmON5asqH799AS8OzHGoDiRnJifNw@mail.gmail.com>
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+In-Reply-To: <CAHp75VeaQdzUKJSKzH9FjbmON5asqH799AS8OzHGoDiRnJifNw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Clean up some of admin-guide/kernel-parameters.txt:
+On 16/03/2022 16:54, Andy Shevchenko wrote:
+> On Wed, Mar 16, 2022 at 5:06 PM Krzysztof Kozlowski
+> <krzysztof.kozlowski@canonical.com> wrote:
+> 
+> ...
+> 
+>> +int driver_set_override(struct device *dev, const char **override,
+>> +                       const char *s, size_t len)
+>> +{
+>> +       const char *new, *old;
+>> +       char *cp;
 
-a. "smt" should be "smt=" (S390)
-b. (dropped)
-c. Sparc supports the vdso= boot option
-d. make the tp_printk options (2) formatting similar to other options
-   by adding spacing
-e. add "trace_clock=" with a reference to Documentation/trace/ftrace.rst
-f. use [IA-64] as documented instead of [ia64]
-g. fix formatting and text for test_suspend=
-h. fix formatting for swapaccount=
-i. fix formatting and grammar for video.brightness_switch_enabled=
+I focused on some other topics, so I did not respond to your questions
+for some time.
 
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: Sven Schnelle <svens@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: sparclinux@vger.kernel.org
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: linux-ia64@vger.kernel.org
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: Len Brown <lenb@kernel.org>
-Cc: linux-pm@vger.kernel.org
-Cc: linux-acpi@vger.kernel.org
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: linux-doc@vger.kernel.org
----
-v3: add trace_clock= specifics (Steven)
-v2: drop "smt-enabled" for arch/powerpc/ (Michael)
+> 
+>> +       if (!dev || !override || !s)
+>> +               return -EINVAL;
+> 
+> Sorry, I didn't pay much attention on this. First of all, I would drop
+> dev checks and simply require that dev should be valid. Do you expect
+> this can be called when dev is invalid?
 
- Documentation/admin-guide/kernel-parameters.txt |   47 ++++++++++----
- 1 file changed, 36 insertions(+), 11 deletions(-)
+No, I can skip the check.
 
---- linux-next-20220331.orig/Documentation/admin-guide/kernel-parameters.txt
-+++ linux-next-20220331/Documentation/admin-guide/kernel-parameters.txt
-@@ -2814,7 +2814,7 @@
- 			different yeeloong laptops.
- 			Example: machtype=lemote-yeeloong-2f-7inch
- 
--	max_addr=nn[KMG]	[KNL,BOOT,ia64] All physical memory greater
-+	max_addr=nn[KMG]	[KNL,BOOT,IA-64] All physical memory greater
- 			than or equal to this physical address is ignored.
- 
- 	maxcpus=	[SMP] Maximum number of processors that	an SMP kernel
-@@ -3057,7 +3057,7 @@
- 
- 	mga=		[HW,DRM]
- 
--	min_addr=nn[KMG]	[KNL,BOOT,ia64] All physical memory below this
-+	min_addr=nn[KMG]	[KNL,BOOT,IA-64] All physical memory below this
- 			physical address is ignored.
- 
- 	mini2440=	[ARM,HW,KNL]
-@@ -5388,7 +5388,7 @@
- 				1: Fast pin select (default)
- 				2: ATC IRMode
- 
--	smt		[KNL,S390] Set the maximum number of threads (logical
-+	smt=		[KNL,S390] Set the maximum number of threads (logical
- 			CPUs) to use per physical CPU on systems capable of
- 			symmetric multithreading (SMT). Will be capped to the
- 			actual hardware limit.
-@@ -5774,8 +5774,9 @@
- 			This parameter controls use of the Protected
- 			Execution Facility on pSeries.
- 
--	swapaccount=[0|1]
--			[KNL] Enable accounting of swap in memory resource
-+	swapaccount=	[KNL]
-+			Format: [0|1]
-+			Enable accounting of swap in memory resource
- 			controller if no parameter or 1 is given or disable
- 			it if 0 is given (See Documentation/admin-guide/cgroup-v1/memory.rst)
- 
-@@ -5821,7 +5822,8 @@
- 
- 	tdfx=		[HW,DRM]
- 
--	test_suspend=	[SUSPEND][,N]
-+	test_suspend=	[SUSPEND]
-+			Format: { "mem" | "standby" | "freeze" }[,N]
- 			Specify "mem" (for Suspend-to-RAM) or "standby" (for
- 			standby suspend) or "freeze" (for suspend type freeze)
- 			as the system sleep state during system startup with
-@@ -5908,6 +5910,28 @@
- 	trace_buf_size=nn[KMG]
- 			[FTRACE] will set tracing buffer size on each cpu.
- 
-+	trace_clock=	[FTRACE] Set the clock used for tracing events
-+			at boot up.
-+			local - Use the per CPU time stamp counter
-+				(converted into nanoseconds). Fast, but
-+				depending on the architecture, may not be
-+				in sync between CPUs.
-+			global - Event time stamps are synchronize across
-+				CPUs. May be slower than the local clock,
-+				but better for some race conditions.
-+			counter - Simple counting of events (1, 2, ..)
-+				note, some counts may be skipped due to the
-+				infrastructure grabbing the clock more than
-+				once per event.
-+			uptime - Use jiffies as the time stamp.
-+			perf - Use the same clock that perf uses.
-+			mono - Use ktime_get_mono_fast_ns() for time stamps.
-+			mono_raw - Use ktime_get_raw_fast_ns() for time
-+				stamps.
-+			boot - Use ktime_get_boot_fast_ns() for time stamps.
-+			Architectures may add more clocks. See
-+			Documentation/trace/ftrace.rst for more details.
-+
- 	trace_event=[event-list]
- 			[FTRACE] Set and start specified trace events in order
- 			to facilitate early boot debugging. The event-list is a
-@@ -5930,7 +5954,7 @@
- 			See also Documentation/trace/ftrace.rst "trace options"
- 			section.
- 
--	tp_printk[FTRACE]
-+	tp_printk	[FTRACE]
- 			Have the tracepoints sent to printk as well as the
- 			tracing ring buffer. This is useful for early boot up
- 			where the system hangs or reboots and does not give the
-@@ -5952,7 +5976,7 @@
- 			frequency tracepoints such as irq or sched, can cause
- 			the system to live lock.
- 
--	tp_printk_stop_on_boot[FTRACE]
-+	tp_printk_stop_on_boot [FTRACE]
- 			When tp_printk (above) is set, it can cause a lot of noise
- 			on the console. It may be useful to only include the
- 			printing of events during boot up, as user space may
-@@ -6301,7 +6325,7 @@
- 					HIGHMEM regardless of setting
- 					of CONFIG_HIGHPTE.
- 
--	vdso=		[X86,SH]
-+	vdso=		[X86,SH,SPARC]
- 			On X86_32, this is an alias for vdso32=.  Otherwise:
- 
- 			vdso=1: enable VDSO (the default)
-@@ -6327,11 +6351,12 @@
- 	video=		[FB] Frame buffer configuration
- 			See Documentation/fb/modedb.rst.
- 
--	video.brightness_switch_enabled= [0,1]
-+	video.brightness_switch_enabled= [ACPI]
-+			Format: [0|1]
- 			If set to 1, on receiving an ACPI notify event
- 			generated by hotkey, video driver will adjust brightness
- 			level and then send out the event to user space through
--			the allocated input device; If set to 0, video driver
-+			the allocated input device. If set to 0, video driver
- 			will only send out the event without touching backlight
- 			brightness level.
- 			default: 1
+> I would like to hear if it's
+> anything but theoretical. Second one, is the !s requirement. Do I
+> understand correctly that the string must be always present? But then
+> how we NULify the override? Is it possible?
+
+I did not change the convention of this sysfs hook, so removing of
+override is passing empty string "". Have in mind that his interface is
+mainly for sysfs, not for other drivers.
+
+> Third one is absence of
+> len check. See below.
+> 
+>> +       /*
+>> +        * The stored value will be used in sysfs show callback (sysfs_emit()),
+>> +        * which has a length limit of PAGE_SIZE and adds a trailing newline.
+>> +        * Thus we can store one character less to avoid truncation during sysfs
+>> +        * show.
+>> +        */
+>> +       if (len >= (PAGE_SIZE - 1))
+>> +               return -EINVAL;
+> 
+> I would relax this to make sure we can use it if \n is within this limit.
+
+Relax in what way? Store more than PAGE_SIZE? This is a user-visible
+string and the name of a driver.
+
+> 
+>> +       cp = strnchr(s, len, '\n');
+>> +       if (cp)
+>> +               len = cp - s;
+>> +
+>> +       new = kstrndup(s, len, GFP_KERNEL);
+> 
+> Here is a word about the len check.
+> 
+>> +       if (!new)
+> 
+> If len == 0, this won't trigger and you have something very
+> interesting as a result.
+
+True, empty string would be set as override. The API says that empty
+string clears the override, so len==0 should be valid (just like "\n" is
+ok).
+
+> 
+> One way is to use ZERO_PTR_OR_NULL() another is explicitly check for 0
+> and issue a (different?) error code.
+
+
+
+Best regards,
+Krzysztof
