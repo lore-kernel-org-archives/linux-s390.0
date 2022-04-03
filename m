@@ -2,51 +2,51 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B906C43217
-	for <linux-s390@archiver.kernel.org>; Sun,  3 Apr 2022 18:39:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 63A20C433FE
+	for <linux-s390@archiver.kernel.org>; Sun,  3 Apr 2022 18:39:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359870AbiDCSlQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 3 Apr 2022 14:41:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46858 "EHLO
+        id S1376268AbiDCSlS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 3 Apr 2022 14:41:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376271AbiDCSkn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 3 Apr 2022 14:40:43 -0400
-Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A25B5DDB
-        for <linux-s390@vger.kernel.org>; Sun,  3 Apr 2022 11:38:28 -0700 (PDT)
-Received: by mail-wr1-x434.google.com with SMTP id b19so11376517wrh.11
-        for <linux-s390@vger.kernel.org>; Sun, 03 Apr 2022 11:38:28 -0700 (PDT)
+        with ESMTP id S1376310AbiDCSlO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 3 Apr 2022 14:41:14 -0400
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DF0413CDB
+        for <linux-s390@vger.kernel.org>; Sun,  3 Apr 2022 11:38:34 -0700 (PDT)
+Received: by mail-wr1-x429.google.com with SMTP id w21so11444767wra.2
+        for <linux-s390@vger.kernel.org>; Sun, 03 Apr 2022 11:38:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=7atrdHIPQWrKPdmTA65creUl3MO148uK4lDHmIisbDg=;
-        b=hVNX9Cidu2X/sm6u9wyAYEGqM/0IBQR2YvOEDgs8X1o5lfX2h1WHmc/4g0P47OrafO
-         F+LHnXVltwQtgcm4vDmUAJxCpS3dj/NvpeYdiV7BjSEw65jnEU9Y2hfnPDeRaCANOHM4
-         mc8xkmvx0E50fhFCSilb4TNIPXVpKBzFK2JWisIgiHGHdMTr3WCheZOmvXNx1ZOPUZnm
-         UyAOB70hUZLLUn089nOrWn/JVQqqGcLUe6BqjthrWDW5YJAZnN1eAsrTvK7/RT421Uvo
-         I7cb77/HfmJZ+FUQFn3z02MoVja74qNVLv49IJwubMkGcSoRfDyhGrwGLUzitdsMPsWH
-         LXpg==
+        bh=MZB4AAiYpghp+j0HlvXqcm6S1oaOh86fqoD06sTrQvg=;
+        b=kQuFtN1ZJ7ZEWNRiYUTzh4L+FIyF2IAzdImkdOzevIE5eiZGdn+q3FmReheaQqVDJw
+         RskYuVoBzzQ6cYTz5auNikNGSNT7g2fh8d8+oViTwXZxppZ5YQYKGht/zN9zBCRcL02E
+         Xm+/QT3ElgFG38vFFRgHTSvJU9bPYGfYW4WgdLmDCkgrhbn69muqQabUVjTEdPkdeV8k
+         opstQvC0WN5quf+I8FeG2fNS4A2gmCh4D1RdmllqzfnGn7vdJZ3yheVSM/EaXuPEj9Vc
+         2fvCQmg7oO6EkJmNRgXmdRFFjq7jHRIoBMc3kPYgrbpi1W67+iVi6RBE3Qwoc0qLLSWK
+         Xisw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=7atrdHIPQWrKPdmTA65creUl3MO148uK4lDHmIisbDg=;
-        b=karqQ3BFDgJSNMcFkCeWos/1D6JbwAlxN4I/znUEmmricimwBX0GPn4359SC1j7BMi
-         QM1nPr8e90lzslR4iUSZMEUO4FobHm6S351M08SIPgXyefmfAm+QmcdCNR4aEtfyI0Ah
-         SBuic0G89cC9ZhZZarhEiI/YgHFPJ1RDGHB7IoLt1wmqHZLAFfJlctQBNaaBqko3fnVh
-         Bt5GP6xieT8nEsuEr+8hx53KdBMtHMW02RqMMA8rHTSy5Timu4P8EbNPvl5dU30kBAOj
-         iOF3rEAm+9SNzKQTssRCWlDUkWnK9nUOZE+g++31WogK2HsJ8KCLxeSU2DK+Yt/Rm656
-         1qfA==
-X-Gm-Message-State: AOAM532WKDYC7X5AGOj3kWAd26F16vJpK4alBccSgCWbMcqJwuOigVUI
-        7aOQv34zDe348j7pNcQQVrA91g==
-X-Google-Smtp-Source: ABdhPJy4yd5YoqphkuK9k4HQTLrBtQPx3QnrGk9JujddMnXXbGWsTVahGCOz4/3Jom2tz+Nx6nWEBw==
-X-Received: by 2002:a5d:4dcd:0:b0:206:6c0:b814 with SMTP id f13-20020a5d4dcd000000b0020606c0b814mr5500047wru.493.1649011107352;
-        Sun, 03 Apr 2022 11:38:27 -0700 (PDT)
+        bh=MZB4AAiYpghp+j0HlvXqcm6S1oaOh86fqoD06sTrQvg=;
+        b=772m7kY5RQrCl/Ir5m3NnF7uT65b5T1GQ3czcY4dUjTJqnd27GPjAY8yNOReEJjcuI
+         4QdGAs319rJQ0aU0/6sENDwj2scaYFur4VQEzBBjwBU29d+q9Gcb8ZEHsxEHoltph59P
+         660qf2JPpBIB3XDut2nE1xtIon+chpwQUTzAy+HminUeTU3oFavuZxdWFQUeWb72wjpR
+         meyZwXg/WXyUlyr+5fXoEfNlzEia6qzBlmV8uu6J1ZSqXt86LJozxHbnyE0iIIMT5GX4
+         qUl2fvCF03m74ZgKoxzz7WjiwSMfS3MZcGAvjcUO9nR+HgCAWwJ2YMYkQSbDXs2T9GYl
+         I1FQ==
+X-Gm-Message-State: AOAM533ojf4TvT2jRo8uCq4GvPmoyIt9UwMk6tI4A+n0jRVNst/76Foo
+        nerqLs+lQSXhIAO0uLRSjs+C7w==
+X-Google-Smtp-Source: ABdhPJyXLIonD8xJ04Ht+ZUS+MlZjOb0BB8xnHg1SPUSIK9rnAYM+w0VRFN1jjXeVcx09AL7w4RlJA==
+X-Received: by 2002:a5d:5953:0:b0:206:b5c:dfe8 with SMTP id e19-20020a5d5953000000b002060b5cdfe8mr4209687wri.35.1649011112553;
+        Sun, 03 Apr 2022 11:38:32 -0700 (PDT)
 Received: from localhost.localdomain (xdsl-188-155-201-27.adslplus.ch. [188.155.201.27])
-        by smtp.gmail.com with ESMTPSA id l28-20020a05600c1d1c00b0038e72a95ec4sm593851wms.13.2022.04.03.11.38.25
+        by smtp.gmail.com with ESMTPSA id l28-20020a05600c1d1c00b0038e72a95ec4sm593851wms.13.2022.04.03.11.38.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 03 Apr 2022 11:38:26 -0700 (PDT)
+        Sun, 03 Apr 2022 11:38:32 -0700 (PDT)
 From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Rafael J. Wysocki" <rafael@kernel.org>
@@ -75,11 +75,10 @@ Cc:     Stuart Yoder <stuyoder@gmail.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        "Michael S . Tsirkin" <mst@redhat.com>
-Subject: [PATCH v6 08/12] vdpa: Use helper for safer setting of driver_override
-Date:   Sun,  3 Apr 2022 20:37:54 +0200
-Message-Id: <20220403183758.192236-9-krzysztof.kozlowski@linaro.org>
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Subject: [PATCH v6 11/12] rpmsg: Constify local variable in field store macro
+Date:   Sun,  3 Apr 2022 20:37:57 +0200
+Message-Id: <20220403183758.192236-12-krzysztof.kozlowski@linaro.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20220403183758.192236-1-krzysztof.kozlowski@linaro.org>
 References: <20220403183758.192236-1-krzysztof.kozlowski@linaro.org>
@@ -89,72 +88,28 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Use a helper to set driver_override to the reduce amount of duplicated
-code.
+Memory pointed by variable 'old' in field store macro is not modified,
+so it can be made a pointer to const.
 
 Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/vdpa/vdpa.c  | 29 ++++-------------------------
- include/linux/vdpa.h |  4 +++-
- 2 files changed, 7 insertions(+), 26 deletions(-)
+ drivers/rpmsg/rpmsg_core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-index 2b75c00b1005..33d1ad60cba7 100644
---- a/drivers/vdpa/vdpa.c
-+++ b/drivers/vdpa/vdpa.c
-@@ -77,32 +77,11 @@ static ssize_t driver_override_store(struct device *dev,
- 				     const char *buf, size_t count)
- {
- 	struct vdpa_device *vdev = dev_to_vdpa(dev);
--	const char *driver_override, *old;
--	char *cp;
-+	int ret;
- 
--	/* We need to keep extra room for a newline */
--	if (count >= (PAGE_SIZE - 1))
--		return -EINVAL;
--
--	driver_override = kstrndup(buf, count, GFP_KERNEL);
--	if (!driver_override)
--		return -ENOMEM;
--
--	cp = strchr(driver_override, '\n');
--	if (cp)
--		*cp = '\0';
--
--	device_lock(dev);
--	old = vdev->driver_override;
--	if (strlen(driver_override)) {
--		vdev->driver_override = driver_override;
--	} else {
--		kfree(driver_override);
--		vdev->driver_override = NULL;
--	}
--	device_unlock(dev);
--
--	kfree(old);
-+	ret = driver_set_override(dev, &vdev->driver_override, buf, count);
-+	if (ret)
-+		return ret;
- 
- 	return count;
- }
-diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
-index 8943a209202e..c0a5083632ab 100644
---- a/include/linux/vdpa.h
-+++ b/include/linux/vdpa.h
-@@ -64,7 +64,9 @@ struct vdpa_mgmt_dev;
-  * struct vdpa_device - representation of a vDPA device
-  * @dev: underlying device
-  * @dma_dev: the actual device that is performing DMA
-- * @driver_override: driver name to force a match
-+ * @driver_override: driver name to force a match; do not set directly,
-+ *                   because core frees it; use driver_set_override() to
-+ *                   set or clear it.
-  * @config: the configuration ops for this device.
-  * @cf_mutex: Protects get and set access to configuration layout.
-  * @index: device index
+diff --git a/drivers/rpmsg/rpmsg_core.c b/drivers/rpmsg/rpmsg_core.c
+index 79368a957d89..95fc283f6af7 100644
+--- a/drivers/rpmsg/rpmsg_core.c
++++ b/drivers/rpmsg/rpmsg_core.c
+@@ -400,7 +400,8 @@ field##_store(struct device *dev, struct device_attribute *attr,	\
+ 	      const char *buf, size_t sz)				\
+ {									\
+ 	struct rpmsg_device *rpdev = to_rpmsg_device(dev);		\
+-	char *new, *old;						\
++	const char *old;						\
++	char *new;							\
+ 									\
+ 	new = kstrndup(buf, sz, GFP_KERNEL);				\
+ 	if (!new)							\
 -- 
 2.32.0
 
