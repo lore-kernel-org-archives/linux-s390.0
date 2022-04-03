@@ -2,51 +2,51 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22E1DC4707A
-	for <linux-s390@archiver.kernel.org>; Sun,  3 Apr 2022 18:38:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BB1FC4332F
+	for <linux-s390@archiver.kernel.org>; Sun,  3 Apr 2022 18:38:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359817AbiDCSkQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 3 Apr 2022 14:40:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46014 "EHLO
+        id S1359833AbiDCSkS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 3 Apr 2022 14:40:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359822AbiDCSkP (ORCPT
+        with ESMTP id S1359815AbiDCSkP (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Sun, 3 Apr 2022 14:40:15 -0400
-Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0261393F4
-        for <linux-s390@vger.kernel.org>; Sun,  3 Apr 2022 11:38:20 -0700 (PDT)
-Received: by mail-wr1-x42c.google.com with SMTP id u16so11427535wru.4
-        for <linux-s390@vger.kernel.org>; Sun, 03 Apr 2022 11:38:20 -0700 (PDT)
+Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 572B239BAA
+        for <linux-s390@vger.kernel.org>; Sun,  3 Apr 2022 11:38:19 -0700 (PDT)
+Received: by mail-wm1-x32f.google.com with SMTP id m67-20020a1ca346000000b0038e6a1b218aso1913781wme.2
+        for <linux-s390@vger.kernel.org>; Sun, 03 Apr 2022 11:38:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=Keg7xeXtq8amo+bPOPiY0urtb62UU+nYY2PydP0Pktc=;
-        b=oMDcsOp89xo7WCGlZaySjQ/SL9h0nzbICnZPF/l1L4/usr5Ql0XDHyOs8k4ehjMSBS
-         wNLyu4xPPW/8LHM2Uedk1hGpH5fictG31y/jaW9+iVnJSqBp/jUgPgpae1FA5DICWkPl
-         YRAMESUeV51a7RHc95N5iNDkYhYQTFttdVTgxIhYSFABzCUtxnFZt5jqPxICNNpdDyHs
-         POzj/+QSYOjZLCMMMqS5ghku+l1wfklLbj2jy/IljcHTXhZXw1iJrrLT+I46o5bsitlo
-         KU065Iswr+ZwwCsrhwgctLc+GzCy0ejsf5qoEOvNZuD0oCpZAaZA1eMhHX76M2B3fl79
-         o24Q==
+        bh=nKruD0hbBUx+nn+GE9l7RUaXsMouYslDmZcMsioEI1Q=;
+        b=tS6lfS5YKhthifQEn7DXFwvlPV+7oDoF/M39bvyQgFcs/MoyTNnJb9dx6njIpfGGBK
+         CGTMM/aa90fSTqbbupl0Kkd5txRKO+dNu1oYNwQpCIEYwMEEoytpf6Fo2yITgpHlDHzb
+         /ZAkXqr5By6C54cUf0uhkgLQcsehyFIUkqD99d5hzscHS8jEcpKwy20kUiNnYq+6Prs9
+         9duAwSyle358ryQI6eWFMjN3flbgO1idl6XqcP/EffkwOPFr6ihiq8sIl9WA50aLSdop
+         pnr1IXNI5mJ1hlMOtVC+0SZKXErVMibKmYMxbLecjg8gDiyCh09pt4y7KPFDMZIEse8N
+         i4eQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=Keg7xeXtq8amo+bPOPiY0urtb62UU+nYY2PydP0Pktc=;
-        b=aAJDNbzbcx0RHpkqrjRFqOO/f3laAOYjh8t2MUpw86U4ApGmz1dYlLoNWXwmhsXBwf
-         o3RSvYuXwG3GcuoaCa/4w4FcIwUvSsL8vngJ7WqCeqyRLw+335zg7HVCwNJkzrdLi8+c
-         VCYGUi1KPEv5Mcb/rksNJGjBV5a8aL+ZO/k86XULCfYuln6jjMPtDk20BB54s2vkIE1L
-         Ek46aeDyypBQnnFnhGIoct2OPA6+Tj7C0Sabdur4KSPP1vHnHf4qdvGR7Pkmi3twdwMd
-         uabgZuJZrIzVZRjZNPux3K9W8PI+FZPourqGqS1n8phK/Bj8a2FBmxcUyn8vOo4dDDM2
-         907Q==
-X-Gm-Message-State: AOAM5311xyg4XxPnZqTb1Y+eK+lkeLhRgxolgwOyFc94kTJWIzbHmym2
-        j4dJt03NMoe/1ZtI5crlSKxcww==
-X-Google-Smtp-Source: ABdhPJwQ3UAwO6FtrIbwy+YxLSghNLDrrLC/+v/7FNzcUG7RmOtZ5npIuu0YxFNm/NCl6vE9djrLbw==
-X-Received: by 2002:a5d:55c7:0:b0:204:5ff7:74e2 with SMTP id i7-20020a5d55c7000000b002045ff774e2mr14445001wrw.50.1649011099197;
-        Sun, 03 Apr 2022 11:38:19 -0700 (PDT)
+        bh=nKruD0hbBUx+nn+GE9l7RUaXsMouYslDmZcMsioEI1Q=;
+        b=nhZubmsCaswKdLA9wbmubYOiPxRDR0JA0ujIsImirAvQdrqwANck+/23Foc3oBmds0
+         tbN3PJtgt3KFlUmdWu5GcOYK2nPI3cKltIWeZl+/XZGw2+VGrMuYzBA3x51sZ2cns/Fn
+         kDsnoRAhO3lFe3RqO1WTygAkjvk1zk9jZHyvg4uG7PCSRtm0zxY4Yxor9E12JnnnE8yw
+         TyENdX3ozNFUtrEkOTiey/GkGXdHJN2oZdlWyjQKK/RuMhmm3POJvE8fHYkbhDXS7u9K
+         5cA2ryxuAt5+wwV3iD5UyqBoS8Tzl2pdA5KrpteS+10OZWJ7aGaxDlTVe7VBRTu4r08H
+         vC/A==
+X-Gm-Message-State: AOAM532KGRWAOH/0nUrcju5HyekaoHqXvuZWwoppp2RwX54YBNHfcMnZ
+        x8uHKOyD23M8vFI60WXAWMjm3g==
+X-Google-Smtp-Source: ABdhPJxoyKUpMhVGLN21dL7NOysUyDEc+IgIdwPtQz9qdiG1G2tF9cygag4LbRBU12x6OuMTMQYxWg==
+X-Received: by 2002:a05:600c:49a9:b0:38e:714d:5f49 with SMTP id h41-20020a05600c49a900b0038e714d5f49mr1115266wmp.201.1649011097633;
+        Sun, 03 Apr 2022 11:38:17 -0700 (PDT)
 Received: from localhost.localdomain (xdsl-188-155-201-27.adslplus.ch. [188.155.201.27])
-        by smtp.gmail.com with ESMTPSA id l28-20020a05600c1d1c00b0038e72a95ec4sm593851wms.13.2022.04.03.11.38.17
+        by smtp.gmail.com with ESMTPSA id l28-20020a05600c1d1c00b0038e72a95ec4sm593851wms.13.2022.04.03.11.38.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 03 Apr 2022 11:38:18 -0700 (PDT)
+        Sun, 03 Apr 2022 11:38:17 -0700 (PDT)
 From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Rafael J. Wysocki" <rafael@kernel.org>
@@ -75,11 +75,10 @@ Cc:     Stuart Yoder <stuyoder@gmail.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Michael Kelley <mikelley@microsoft.com>
-Subject: [PATCH v6 04/12] hv: Use driver_set_override() instead of open-coding
-Date:   Sun,  3 Apr 2022 20:37:50 +0200
-Message-Id: <20220403183758.192236-5-krzysztof.kozlowski@linaro.org>
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Subject: [PATCH v6 03/12] fsl-mc: Use driver_set_override() instead of open-coding
+Date:   Sun,  3 Apr 2022 20:37:49 +0200
+Message-Id: <20220403183758.192236-4-krzysztof.kozlowski@linaro.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20220403183758.192236-1-krzysztof.kozlowski@linaro.org>
 References: <20220403183758.192236-1-krzysztof.kozlowski@linaro.org>
@@ -89,28 +88,31 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Use a helper to set driver_override to the reduce amount of duplicated
+Use a helper to set driver_override to reduce the amount of duplicated
 code.  Make the driver_override field const char, because it is not
 modified by the core and it matches other subsystems.
 
 Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
 ---
- drivers/hv/vmbus_drv.c | 28 ++++------------------------
- include/linux/hyperv.h |  6 +++++-
- 2 files changed, 9 insertions(+), 25 deletions(-)
+ drivers/bus/fsl-mc/fsl-mc-bus.c | 25 ++++---------------------
+ include/linux/fsl/mc.h          |  6 ++++--
+ 2 files changed, 8 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-index 14de17087864..607e40aba18e 100644
---- a/drivers/hv/vmbus_drv.c
-+++ b/drivers/hv/vmbus_drv.c
-@@ -575,31 +575,11 @@ static ssize_t driver_override_store(struct device *dev,
+diff --git a/drivers/bus/fsl-mc/fsl-mc-bus.c b/drivers/bus/fsl-mc/fsl-mc-bus.c
+index 8fd4a356a86e..ba01c7f4de92 100644
+--- a/drivers/bus/fsl-mc/fsl-mc-bus.c
++++ b/drivers/bus/fsl-mc/fsl-mc-bus.c
+@@ -166,31 +166,14 @@ static ssize_t driver_override_store(struct device *dev,
  				     const char *buf, size_t count)
  {
- 	struct hv_device *hv_dev = device_to_hv_device(dev);
--	char *driver_override, *old, *cp;
--
--	/* We need to keep extra room for a newline */
+ 	struct fsl_mc_device *mc_dev = to_fsl_mc_device(dev);
+-	char *driver_override, *old = mc_dev->driver_override;
+-	char *cp;
++	int ret;
+ 
+ 	if (WARN_ON(dev->bus != &fsl_mc_bus_type))
+ 		return -EINVAL;
+ 
 -	if (count >= (PAGE_SIZE - 1))
 -		return -EINVAL;
 -
@@ -122,41 +124,44 @@ index 14de17087864..607e40aba18e 100644
 -	if (cp)
 -		*cp = '\0';
 -
--	device_lock(dev);
--	old = hv_dev->driver_override;
 -	if (strlen(driver_override)) {
--		hv_dev->driver_override = driver_override;
+-		mc_dev->driver_override = driver_override;
 -	} else {
 -		kfree(driver_override);
--		hv_dev->driver_override = NULL;
+-		mc_dev->driver_override = NULL;
 -	}
--	device_unlock(dev);
-+	int ret;
- 
+-
 -	kfree(old);
-+	ret = driver_set_override(dev, &hv_dev->driver_override, buf, count);
++	ret = driver_set_override(dev, &mc_dev->driver_override, buf, count);
 +	if (ret)
 +		return ret;
  
  	return count;
  }
-diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
-index fe2e0179ed51..12e2336b23b7 100644
---- a/include/linux/hyperv.h
-+++ b/include/linux/hyperv.h
-@@ -1257,7 +1257,11 @@ struct hv_device {
- 	u16 device_id;
- 
- 	struct device device;
--	char *driver_override; /* Driver name to force a match */
-+	/*
-+	 * Driver name to force a match.  Do not set directly, because core
-+	 * frees it.  Use driver_set_override() to set or clear it.
-+	 */
+diff --git a/include/linux/fsl/mc.h b/include/linux/fsl/mc.h
+index 7b6c42bfb660..7a87ab9eba99 100644
+--- a/include/linux/fsl/mc.h
++++ b/include/linux/fsl/mc.h
+@@ -170,7 +170,9 @@ struct fsl_mc_obj_desc {
+  * @regions: pointer to array of MMIO region entries
+  * @irqs: pointer to array of pointers to interrupts allocated to this device
+  * @resource: generic resource associated with this MC object device, if any.
+- * @driver_override: driver name to force a match
++ * @driver_override: driver name to force a match; do not set directly,
++ *                   because core frees it; use driver_set_override() to
++ *                   set or clear it.
+  *
+  * Generic device object for MC object devices that are "attached" to a
+  * MC bus.
+@@ -204,7 +206,7 @@ struct fsl_mc_device {
+ 	struct fsl_mc_device_irq **irqs;
+ 	struct fsl_mc_resource *resource;
+ 	struct device_link *consumer_link;
+-	char   *driver_override;
 +	const char *driver_override;
+ };
  
- 	struct vmbus_channel *channel;
- 	struct kset	     *channels_kset;
+ #define to_fsl_mc_device(_dev) \
 -- 
 2.32.0
 
