@@ -2,51 +2,51 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BB1FC4332F
-	for <linux-s390@archiver.kernel.org>; Sun,  3 Apr 2022 18:38:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D6A3CC43219
+	for <linux-s390@archiver.kernel.org>; Sun,  3 Apr 2022 18:38:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359833AbiDCSkS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 3 Apr 2022 14:40:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45998 "EHLO
+        id S1359842AbiDCSk1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 3 Apr 2022 14:40:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359815AbiDCSkP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 3 Apr 2022 14:40:15 -0400
-Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 572B239BAA
-        for <linux-s390@vger.kernel.org>; Sun,  3 Apr 2022 11:38:19 -0700 (PDT)
-Received: by mail-wm1-x32f.google.com with SMTP id m67-20020a1ca346000000b0038e6a1b218aso1913781wme.2
-        for <linux-s390@vger.kernel.org>; Sun, 03 Apr 2022 11:38:19 -0700 (PDT)
+        with ESMTP id S1357579AbiDCSkZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 3 Apr 2022 14:40:25 -0400
+Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AEF339B8B
+        for <linux-s390@vger.kernel.org>; Sun,  3 Apr 2022 11:38:23 -0700 (PDT)
+Received: by mail-wr1-x434.google.com with SMTP id d29so5347855wra.10
+        for <linux-s390@vger.kernel.org>; Sun, 03 Apr 2022 11:38:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=nKruD0hbBUx+nn+GE9l7RUaXsMouYslDmZcMsioEI1Q=;
-        b=tS6lfS5YKhthifQEn7DXFwvlPV+7oDoF/M39bvyQgFcs/MoyTNnJb9dx6njIpfGGBK
-         CGTMM/aa90fSTqbbupl0Kkd5txRKO+dNu1oYNwQpCIEYwMEEoytpf6Fo2yITgpHlDHzb
-         /ZAkXqr5By6C54cUf0uhkgLQcsehyFIUkqD99d5hzscHS8jEcpKwy20kUiNnYq+6Prs9
-         9duAwSyle358ryQI6eWFMjN3flbgO1idl6XqcP/EffkwOPFr6ihiq8sIl9WA50aLSdop
-         pnr1IXNI5mJ1hlMOtVC+0SZKXErVMibKmYMxbLecjg8gDiyCh09pt4y7KPFDMZIEse8N
-         i4eQ==
+        bh=mHITSW/sgmw/Csyhuirx5ijnYnrGvi4Rk0KXIhii9OU=;
+        b=wXR8rp03DHc5wiUfBVAB5Nuh3XfnaYvUKqmtsWXgN+spI327pZeGN4sfFkdlAQO76M
+         2Cq4PgoxUbVzR/c9uRlXxz3+QdKUn/21Wzs/zg2COGsRcw1TRvCt0E5f9P+PkVHqjkIF
+         5Z76p+imRzuTlBLLDQ4l3jK+NlPnSdBryKK85hZDKBO3WnYbq5zwPHKx5DfZjuhQ9frO
+         S3PY5QFr5UDBVY0KyfpgE5rFn2xr2i2goIgkSwFjKbQy5Q6+DDtCUKaI752vs/DB6ull
+         LkXlxwq1hvPpFZCtBRdrxC90gtIPXgjfEPN4yaWbYrGQdjQBBZpMFI1q0uaCqYVzm0pN
+         yxng==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=nKruD0hbBUx+nn+GE9l7RUaXsMouYslDmZcMsioEI1Q=;
-        b=nhZubmsCaswKdLA9wbmubYOiPxRDR0JA0ujIsImirAvQdrqwANck+/23Foc3oBmds0
-         tbN3PJtgt3KFlUmdWu5GcOYK2nPI3cKltIWeZl+/XZGw2+VGrMuYzBA3x51sZ2cns/Fn
-         kDsnoRAhO3lFe3RqO1WTygAkjvk1zk9jZHyvg4uG7PCSRtm0zxY4Yxor9E12JnnnE8yw
-         TyENdX3ozNFUtrEkOTiey/GkGXdHJN2oZdlWyjQKK/RuMhmm3POJvE8fHYkbhDXS7u9K
-         5cA2ryxuAt5+wwV3iD5UyqBoS8Tzl2pdA5KrpteS+10OZWJ7aGaxDlTVe7VBRTu4r08H
-         vC/A==
-X-Gm-Message-State: AOAM532KGRWAOH/0nUrcju5HyekaoHqXvuZWwoppp2RwX54YBNHfcMnZ
-        x8uHKOyD23M8vFI60WXAWMjm3g==
-X-Google-Smtp-Source: ABdhPJxoyKUpMhVGLN21dL7NOysUyDEc+IgIdwPtQz9qdiG1G2tF9cygag4LbRBU12x6OuMTMQYxWg==
-X-Received: by 2002:a05:600c:49a9:b0:38e:714d:5f49 with SMTP id h41-20020a05600c49a900b0038e714d5f49mr1115266wmp.201.1649011097633;
-        Sun, 03 Apr 2022 11:38:17 -0700 (PDT)
+        bh=mHITSW/sgmw/Csyhuirx5ijnYnrGvi4Rk0KXIhii9OU=;
+        b=3U6L5AqkF/Fb18iXh3mpCMdaflV9ahbmCnZ/5K1s3Fmvartcc8hLSPHXMmGo7JaJD6
+         WCXMSAa564j8624TG7OA/09ECeoVrsS9t7OyhN4eswjn5qNiLYl7tzAK2jKa8Jcs9Py4
+         9XQo7MOcsB20+dF+7rv1VUA2sxEdMJwf+LGXy0YPPPv3AhyBEocDtI5U11GVlPA4sOYq
+         eKuaTIDiQda8fxlf+gJ/hYDq1+KpQ8CNo6wL5ZLsYK3Xaw2pyE61vL9NapTiGTO4DloZ
+         GrO+2H7AqD3cUQAZqroNeS2Es1vhiWMGzwE7J0v6S0U1XSvimUEcoxUKKfvJrlyViqJK
+         IPIA==
+X-Gm-Message-State: AOAM531PWEeMKhAcw7+iATPF/jpBx7YxgusmiQ/WiJ/kGtATOBoeaZ6m
+        pndpTdhfgkHNWoB5I1/PnPODFQ==
+X-Google-Smtp-Source: ABdhPJwOqH/2Zj0N+LpYA2eXErN8ibqekikwBYmO9ZTvoOA6luonqgG5M3X9CKaUCELKOTnyoNhzag==
+X-Received: by 2002:adf:90cf:0:b0:205:fdb4:92d1 with SMTP id i73-20020adf90cf000000b00205fdb492d1mr8369733wri.468.1649011102158;
+        Sun, 03 Apr 2022 11:38:22 -0700 (PDT)
 Received: from localhost.localdomain (xdsl-188-155-201-27.adslplus.ch. [188.155.201.27])
-        by smtp.gmail.com with ESMTPSA id l28-20020a05600c1d1c00b0038e72a95ec4sm593851wms.13.2022.04.03.11.38.16
+        by smtp.gmail.com with ESMTPSA id l28-20020a05600c1d1c00b0038e72a95ec4sm593851wms.13.2022.04.03.11.38.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 03 Apr 2022 11:38:17 -0700 (PDT)
+        Sun, 03 Apr 2022 11:38:21 -0700 (PDT)
 From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Rafael J. Wysocki" <rafael@kernel.org>
@@ -76,9 +76,9 @@ Cc:     Stuart Yoder <stuyoder@gmail.com>,
         Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
         Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH v6 03/12] fsl-mc: Use driver_set_override() instead of open-coding
-Date:   Sun,  3 Apr 2022 20:37:49 +0200
-Message-Id: <20220403183758.192236-4-krzysztof.kozlowski@linaro.org>
+Subject: [PATCH v6 05/12] PCI: Use driver_set_override() instead of open-coding
+Date:   Sun,  3 Apr 2022 20:37:51 +0200
+Message-Id: <20220403183758.192236-6-krzysztof.kozlowski@linaro.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20220403183758.192236-1-krzysztof.kozlowski@linaro.org>
 References: <20220403183758.192236-1-krzysztof.kozlowski@linaro.org>
@@ -88,31 +88,29 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Use a helper to set driver_override to reduce the amount of duplicated
+Use a helper to set driver_override to the reduce amount of duplicated
 code.  Make the driver_override field const char, because it is not
 modified by the core and it matches other subsystems.
 
 Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 ---
- drivers/bus/fsl-mc/fsl-mc-bus.c | 25 ++++---------------------
- include/linux/fsl/mc.h          |  6 ++++--
- 2 files changed, 8 insertions(+), 23 deletions(-)
+ drivers/pci/pci-sysfs.c | 28 ++++------------------------
+ include/linux/pci.h     |  6 +++++-
+ 2 files changed, 9 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/bus/fsl-mc/fsl-mc-bus.c b/drivers/bus/fsl-mc/fsl-mc-bus.c
-index 8fd4a356a86e..ba01c7f4de92 100644
---- a/drivers/bus/fsl-mc/fsl-mc-bus.c
-+++ b/drivers/bus/fsl-mc/fsl-mc-bus.c
-@@ -166,31 +166,14 @@ static ssize_t driver_override_store(struct device *dev,
+diff --git a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
+index c263ffc5884a..fc804e08e3cb 100644
+--- a/drivers/pci/pci-sysfs.c
++++ b/drivers/pci/pci-sysfs.c
+@@ -567,31 +567,11 @@ static ssize_t driver_override_store(struct device *dev,
  				     const char *buf, size_t count)
  {
- 	struct fsl_mc_device *mc_dev = to_fsl_mc_device(dev);
--	char *driver_override, *old = mc_dev->driver_override;
--	char *cp;
-+	int ret;
- 
- 	if (WARN_ON(dev->bus != &fsl_mc_bus_type))
- 		return -EINVAL;
- 
+ 	struct pci_dev *pdev = to_pci_dev(dev);
+-	char *driver_override, *old, *cp;
+-
+-	/* We need to keep extra room for a newline */
 -	if (count >= (PAGE_SIZE - 1))
 -		return -EINVAL;
 -
@@ -124,44 +122,41 @@ index 8fd4a356a86e..ba01c7f4de92 100644
 -	if (cp)
 -		*cp = '\0';
 -
+-	device_lock(dev);
+-	old = pdev->driver_override;
 -	if (strlen(driver_override)) {
--		mc_dev->driver_override = driver_override;
+-		pdev->driver_override = driver_override;
 -	} else {
 -		kfree(driver_override);
--		mc_dev->driver_override = NULL;
+-		pdev->driver_override = NULL;
 -	}
--
+-	device_unlock(dev);
++	int ret;
+ 
 -	kfree(old);
-+	ret = driver_set_override(dev, &mc_dev->driver_override, buf, count);
++	ret = driver_set_override(dev, &pdev->driver_override, buf, count);
 +	if (ret)
 +		return ret;
  
  	return count;
  }
-diff --git a/include/linux/fsl/mc.h b/include/linux/fsl/mc.h
-index 7b6c42bfb660..7a87ab9eba99 100644
---- a/include/linux/fsl/mc.h
-+++ b/include/linux/fsl/mc.h
-@@ -170,7 +170,9 @@ struct fsl_mc_obj_desc {
-  * @regions: pointer to array of MMIO region entries
-  * @irqs: pointer to array of pointers to interrupts allocated to this device
-  * @resource: generic resource associated with this MC object device, if any.
-- * @driver_override: driver name to force a match
-+ * @driver_override: driver name to force a match; do not set directly,
-+ *                   because core frees it; use driver_set_override() to
-+ *                   set or clear it.
-  *
-  * Generic device object for MC object devices that are "attached" to a
-  * MC bus.
-@@ -204,7 +206,7 @@ struct fsl_mc_device {
- 	struct fsl_mc_device_irq **irqs;
- 	struct fsl_mc_resource *resource;
- 	struct device_link *consumer_link;
--	char   *driver_override;
-+	const char *driver_override;
- };
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index 60adf42460ab..844d38f589cf 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -516,7 +516,11 @@ struct pci_dev {
+ 	u16		acs_cap;	/* ACS Capability offset */
+ 	phys_addr_t	rom;		/* Physical address if not from BAR */
+ 	size_t		romlen;		/* Length if not from BAR */
+-	char		*driver_override; /* Driver name to force a match */
++	/*
++	 * Driver name to force a match.  Do not set directly, because core
++	 * frees it.  Use driver_set_override() to set or clear it.
++	 */
++	const char	*driver_override;
  
- #define to_fsl_mc_device(_dev) \
+ 	unsigned long	priv_flags;	/* Private flags for the PCI driver */
+ 
 -- 
 2.32.0
 
