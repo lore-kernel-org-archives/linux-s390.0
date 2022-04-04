@@ -2,140 +2,177 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D60EC433F5
-	for <linux-s390@archiver.kernel.org>; Mon,  4 Apr 2022 09:54:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FD29C43219
+	for <linux-s390@archiver.kernel.org>; Mon,  4 Apr 2022 10:15:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244966AbiDDJ4Z (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 4 Apr 2022 05:56:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51522 "EHLO
+        id S239742AbiDDKR0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 4 Apr 2022 06:17:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243336AbiDDJ4Y (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Apr 2022 05:56:24 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A11BBE10;
-        Mon,  4 Apr 2022 02:54:29 -0700 (PDT)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23495Mv5032533;
-        Mon, 4 Apr 2022 09:54:26 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=8ZcdLk5T0IWhIrLNnnTj9Y2OwBlFiYs41brrdkBEdko=;
- b=h4xF5HSELTf/QeqbocYeHYFu+sGba4ItxjGt7n+K7z1ZVt3df+KEx5pjky4dPsYUnXP6
- cSdeyZPK+aEwrFKWiOq3iDMR7PixRWcNe0jW4WdwMAL75ZxR5WMtYZx2VIJpfg5cKZ39
- HyrGzNtmnQViP/8VvlO3UgVAAZvmgtDzc98UI+nuJpZakZGk+DSRIpGroup2mPXZj8Tx
- dwN78RHVZjG5iedBcTXhg+NLwXMxBdvLcUKMkYDWU7IrGedk4AtwyMjeHHWh41YhV7v/
- 11s7d3YLdK7gF+drkWphhb+I/moG4SnuihcAJc4mrusnybv+8uc2ekTTubISC1HMwESE yg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3f704jwua1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Apr 2022 09:54:25 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 2349kxwx013311;
-        Mon, 4 Apr 2022 09:54:25 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3f704jwu9d-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Apr 2022 09:54:25 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2349r8Dx031413;
-        Mon, 4 Apr 2022 09:53:49 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma03fra.de.ibm.com with ESMTP id 3f6e48trx0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Apr 2022 09:53:49 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2349rkwt22675820
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 4 Apr 2022 09:53:46 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7FFF9A4040;
-        Mon,  4 Apr 2022 09:53:46 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 47327A4051;
-        Mon,  4 Apr 2022 09:53:46 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon,  4 Apr 2022 09:53:46 +0000 (GMT)
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Bjorn Helgaas <bhelgaas@google.com>,
-        Jan Kiszka <jan.kiszka@siemens.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-pci@vger.kernel.org
-Subject: [PATCH RESEND 1/2] PCI: Extend isolated function probing to s390
-Date:   Mon,  4 Apr 2022 11:53:45 +0200
-Message-Id: <20220404095346.2324666-1-schnelle@linux.ibm.com>
-X-Mailer: git-send-email 2.32.0
+        with ESMTP id S243260AbiDDKRY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Apr 2022 06:17:24 -0400
+Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30D532F38A;
+        Mon,  4 Apr 2022 03:15:28 -0700 (PDT)
+Received: by mail-ed1-x529.google.com with SMTP id w18so4175901edi.13;
+        Mon, 04 Apr 2022 03:15:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=s/rlqtfSH/+OKtlWbKj/8X8QmPBtgrwTTfh5H/AMmr8=;
+        b=M6UB/xq5U2lez0akpMy5cdYkLpWp5TY7avZOr9EOmD3mOmC7LnKWizhrsWVbS9OYXV
+         WxZR1L3Zip6LzxkB/OPBaxvuvHRQ+I4ccmh7WVg7layXLF9PfwqQYZ+jlB6EvWgmb6tq
+         0lZWCE3uc7LImkbQu2mlfWDe2OdVL/M2gk8b/f83Msuz2BzcI+DWU/n4c03LXmBik2KW
+         KbNMC8korkh/nF0C0QAzLDf4TOGpyF8a6IoEG8l74xBIia5wiIab+cBhjD/6K3P9R06b
+         EK2dkk2s3pESu8s3Lp5ePedMQzZPflgxpC1RgXqt3TXscJmh/VeMBZJdhbyeZhLuCe4J
+         VwFg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=s/rlqtfSH/+OKtlWbKj/8X8QmPBtgrwTTfh5H/AMmr8=;
+        b=kiRMLuFauMnZZ01SYxJ9sfWlLOwmSagcfxoeWjN5ZuDR+SXbbsRmp/TYxTXxOkVIn5
+         Iqhrq8yPTGr+c2dINM2OCjxzfw2xv2EqP0qcIvgiQbXB6CFhupchg7qJS+X0SFW0zi0h
+         10z9rSVGKRM9PyU3/WzwV9S1SorXyBZk8owEoeBF5BvRSX1912zRUBp6h+W2B9/APwbd
+         D1VBLhGr5Lmpbys4MmvMixIj6/oTkawSZx47oYwBvU0AZnh+RMVs6q3g7ZTZ8tokMIJK
+         hXhlcVtD46KCz33aG8ELnbIxXeAfJDYCvDprSuF631kzWu5eMu3BoFQGf+rak9l67Sv2
+         LsgA==
+X-Gm-Message-State: AOAM532mDF0NxFmVYKAjRun0f+rN1TnS8jOMGtuOqGm86aGKsg3CL7QC
+        fBKuXcMCzsvwMkB1Y5qiH18eomqf3gUkvgfkSAFiJObyoq8=
+X-Google-Smtp-Source: ABdhPJxh9T+A1Yt+ILwhaxqoZIRZw7XK7bOr8aWn5QI6DqXoAfRnxar+91mJpxHWbEEB8aKP53yR05gviFAyUrKxBls=
+X-Received: by 2002:a05:6402:b19:b0:41c:d713:5cba with SMTP id
+ bm25-20020a0564020b1900b0041cd7135cbamr2668518edb.270.1649067326747; Mon, 04
+ Apr 2022 03:15:26 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 0sy6VzYdQ98q3R3XIAJdBPwc7WT_GiZk
-X-Proofpoint-ORIG-GUID: M1U8rR-UXnztp8Kf_qelPhwNz1RsOaUl
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-04-04_03,2022-03-31_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 malwarescore=0
- priorityscore=1501 lowpriorityscore=0 phishscore=0 mlxlogscore=816
- mlxscore=0 impostorscore=0 adultscore=0 suspectscore=0 spamscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2204040053
+References: <20220403183758.192236-1-krzysztof.kozlowski@linaro.org>
+ <20220403183758.192236-2-krzysztof.kozlowski@linaro.org> <CAHp75Vczm9f9Bx_w4nW31cnBgwEzPiN-Eqn-7DKZuB+Hew0F=Q@mail.gmail.com>
+ <2976f4f9-4fda-c04f-45cf-351518f88ec0@linaro.org>
+In-Reply-To: <2976f4f9-4fda-c04f-45cf-351518f88ec0@linaro.org>
+From:   Andy Shevchenko <andy.shevchenko@gmail.com>
+Date:   Mon, 4 Apr 2022 13:14:22 +0300
+Message-ID: <CAHp75Vd-=-unRzQPtpfOs80dN=pDSsBaj=10nwOmmyWE8OqDPg@mail.gmail.com>
+Subject: Re: [PATCH v6 01/12] driver: platform: Add helper for safer setting
+ of driver_override
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Stuart Yoder <stuyoder@gmail.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Andy Gross <agross@kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-clk <linux-clk@vger.kernel.org>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>,
+        Linux on Hyper-V List <linux-hyperv@vger.kernel.org>,
+        linux-pci <linux-pci@vger.kernel.org>,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org,
+        ALSA Development Mailing List <alsa-devel@alsa-project.org>,
+        linux-spi <linux-spi@vger.kernel.org>,
+        virtualization@lists.linux-foundation.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Like the jailhouse hypervisor s390's PCI architecture allows passing
-isolated PCI functions to an OS instance. As of now this is was not
-utilized even with multi-function support as the s390 PCI code makes
-sure that only virtual PCI busses including a function with devfn 0 are
-presented to the PCI subsystem. A subsequent change will remove this
-restriction.
+On Mon, Apr 4, 2022 at 12:34 PM Krzysztof Kozlowski
+<krzysztof.kozlowski@linaro.org> wrote:
+> On 04/04/2022 11:16, Andy Shevchenko wrote:
+> > On Sun, Apr 3, 2022 at 9:38 PM Krzysztof Kozlowski
+> > <krzysztof.kozlowski@linaro.org> wrote:
 
-Allow probing such functions by replacing the existing check for
-jailhouse_paravirt() with a new hypervisor_isolated_pci_functions()
-helper.
+...
 
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
----
- drivers/pci/probe.c        | 4 ++--
- include/linux/hypervisor.h | 9 +++++++++
- 2 files changed, 11 insertions(+), 2 deletions(-)
+> >> +int driver_set_override(struct device *dev, const char **override,
+> >> +                       const char *s, size_t len)
+> >> +{
+> >> +       const char *new, *old;
+> >> +       char *cp;
+> >
+> >> +       if (!override || !s)
+> >> +               return -EINVAL;
+> >
+> > Still not sure if we should distinguish (s == NULL && len == 0) from
+> > (s != NULL && len == 0).
+> > Supplying the latter seems confusing (yes, I see that in the old code). Perhaps
+> > !s test, in case you want to leave it, should be also commented.
+>
+> The old semantics were focused on sysfs usage, so clearing is by passing
+> an empty string. In the case of sysfs empty string is actually "\n". I
+> intend to keep the semantics also for the in-kernel usage and in such
+> case empty string can be also "".
+>
+> If I understand your comment correctly, you propose to change it to NULL
+> for in-kernel usage, but that would change the semantics.
 
-diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
-index 17a969942d37..e8fd89a1f984 100644
---- a/drivers/pci/probe.c
-+++ b/drivers/pci/probe.c
-@@ -2869,11 +2869,11 @@ static unsigned int pci_scan_child_bus_extend(struct pci_bus *bus,
- 		nr_devs = pci_scan_slot(bus, devfn);
- 
- 		/*
--		 * The Jailhouse hypervisor may pass individual functions of a
-+		 * Some hypervisors may pass individual functions of a
- 		 * multi-function device to a guest without passing function 0.
- 		 * Look for them as well.
- 		 */
--		if (jailhouse_paravirt() && nr_devs == 0) {
-+		if (hypervisor_isolated_pci_functions() && nr_devs == 0) {
- 			for (fn = 1; fn < 8; fn++) {
- 				dev = pci_scan_single_device(bus, devfn + fn);
- 				if (dev)
-diff --git a/include/linux/hypervisor.h b/include/linux/hypervisor.h
-index fc08b433c856..52abd459f9a3 100644
---- a/include/linux/hypervisor.h
-+++ b/include/linux/hypervisor.h
-@@ -32,4 +32,13 @@ static inline bool jailhouse_paravirt(void)
- 
- #endif /* !CONFIG_X86 */
- 
-+static inline bool hypervisor_isolated_pci_functions(void)
-+{
-+	if (IS_ENABLED(CONFIG_S390))
-+		return true;
-+	else
-+		return jailhouse_paravirt();
-+}
-+
-+
- #endif /* __LINUX_HYPEVISOR_H */
+Yes. It's also possible to have a wrapper for sysfs use.
+
+> > Another approach is to split above to two checks and move !s after !len.
+>
+> I don't follow why... The !override and !s are invalid uses. !len is a
+> valid user for internal callers, just like "\n" is for sysfs.
+
+I understand but always supplying s maybe an overhead for in-kernel usages.
+
+In any case, it's not critical right now, just a remark that it can be modified.
+
+> >> +       /*
+> >> +        * The stored value will be used in sysfs show callback (sysfs_emit()),
+> >> +        * which has a length limit of PAGE_SIZE and adds a trailing newline.
+> >> +        * Thus we can store one character less to avoid truncation during sysfs
+> >> +        * show.
+> >> +        */
+> >> +       if (len >= (PAGE_SIZE - 1))
+> >> +               return -EINVAL;
+> >
+> > Perhaps explain the case in the comment here?
+>
+> You mean the case we discuss here (to clear override with "")? Sure.
+
+Yep. Before the below check.
+
+> >> +       if (!len) {
+> >> +               device_lock(dev);
+> >> +               old = *override;
+> >> +               *override = NULL;
+> >
+> >> +               device_unlock(dev);
+> >> +               goto out_free;
+> >
+> > You may deduplicate this one, by
+> >
+> >                goto out_unlock_free;
+> >
+> > But I understand your intention to keep lock-unlock in one place, so
+> > perhaps dropping that label would be even better in this case and
+> > keeping it
+>
+> Yes, exactly.
+>
+> >        kfree(old);
+> >        return 0;
+> >
+> > here instead of goto.
+>
+> Slightly more code, but indeed maybe easier to follow. I'll do like this.
+
+
 -- 
-2.32.0
-
+With Best Regards,
+Andy Shevchenko
