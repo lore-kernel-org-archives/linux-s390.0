@@ -2,31 +2,31 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E19D4C433FE
-	for <linux-s390@archiver.kernel.org>; Mon,  4 Apr 2022 05:07:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 186C9C43219
+	for <linux-s390@archiver.kernel.org>; Mon,  4 Apr 2022 05:07:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377343AbiDDFJa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 4 Apr 2022 01:09:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48528 "EHLO
+        id S238157AbiDDFJf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 4 Apr 2022 01:09:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377339AbiDDFJC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Apr 2022 01:09:02 -0400
+        with ESMTP id S1377359AbiDDFJc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Apr 2022 01:09:32 -0400
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68F143614A;
-        Sun,  3 Apr 2022 22:07:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 189893AA66;
+        Sun,  3 Apr 2022 22:07:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=aq2ni6Lf0CpK3df5eW6dRpDmxtP8L4VBzIRLdPcEzSo=; b=FBiz0wC3YdrPGDM0rdnH/qoGXA
-        VYkDtbQpvt2fI8ej400Q1jc2XmYfkdsJ5sE/ZOz4pKo2/9MdZM9x9UHa3H5PMeDKeY/LcdX4E+KDO
-        TOzPsd2Euc9j1OdgmqwiGDrKzCCtMxHdYTKsyUCOMAAMqNNycXBgqAHiPNMb4ONOT9i1diZ/+B09o
-        M3/pusVbyC+/w8inru8UWPzaVJOWCq3Q5YnUtzqnCsGkRRX8gHCRyEiI5lE6Ssa64NZBLBEtSPKlD
-        QVo7JR+VeYC5vuM6HijKXTbzEPEucQfhkqCMgL0AlxsrHY7gO/+OUWB8pxQq6WhaYYOWAzLYgtVhj
-        s35TimYQ==;
+        bh=k2GXkvjY5MZ/f56SHxx5411JaZxKsGzZdPpduchxlxM=; b=SyDkm8mDvf+l0PvMChLDKGz+my
+        cZtcRYXV9Hr2G9yPQ0LSgJkQ3zcbApXBDNKf18vvh9ZAvijelLU5NAursY6JK3GaQCBy6v+k3JvkN
+        TL1F+dmc9RkeHdQMAE1/ibXmiYQ439Ex/5+OTvIQrM0odOarx9Qm64zowzpLUlEg7DVwxADtmAkdH
+        /zPoPMsgOTR+RNnR2BfT+4JRRMrP3xk8DME1P+o0RQV1Wn78yYi6eylfhmI+5w7K1bpUeKqiLyuR5
+        vbWxG/u24ODfUGo9BE8yI+4h9MoWDDg7DdRjqeIbJGrEQ7dUs9aEFnlLa/r2N6gwFuhyLxRo/Eu3c
+        mgXzC/pw==;
 Received: from 089144211060.atnat0020.highway.a1.net ([89.144.211.60] helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nbEvW-00D9L3-0A; Mon, 04 Apr 2022 05:06:54 +0000
+        id 1nbEvd-00D9SX-Gu; Mon, 04 Apr 2022 05:07:02 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     iommu@lists.linux-foundation.org
 Cc:     x86@kernel.org, Anshuman Khandual <anshuman.khandual@arm.com>,
@@ -45,9 +45,9 @@ Cc:     x86@kernel.org, Anshuman Khandual <anshuman.khandual@arm.com>,
         linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
         linux-hyperv@vger.kernel.org, tboot-devel@lists.sourceforge.net,
         linux-pci@vger.kernel.org
-Subject: [PATCH 12/15] swiotlb: provide swiotlb_init variants that remap the buffer
-Date:   Mon,  4 Apr 2022 07:05:56 +0200
-Message-Id: <20220404050559.132378-13-hch@lst.de>
+Subject: [PATCH 14/15] swiotlb: remove swiotlb_init_with_tbl and swiotlb_init_late_with_tbl
+Date:   Mon,  4 Apr 2022 07:05:58 +0200
+Message-Id: <20220404050559.132378-15-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220404050559.132378-1-hch@lst.de>
 References: <20220404050559.132378-1-hch@lst.de>
@@ -58,135 +58,162 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-To shared more code between swiotlb and xen-swiotlb, offer a
-swiotlb_init_remap interface and add a remap callback to
-swiotlb_init_late that will allow Xen to remap the buffer the
-buffer without duplicating much of the logic.
+No users left.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/x86/pci/sta2x11-fixup.c |  2 +-
- include/linux/swiotlb.h      |  5 ++++-
- kernel/dma/swiotlb.c         | 36 +++++++++++++++++++++++++++++++++---
- 3 files changed, 38 insertions(+), 5 deletions(-)
+ include/linux/swiotlb.h |  2 --
+ kernel/dma/swiotlb.c    | 77 +++++++++++------------------------------
+ 2 files changed, 20 insertions(+), 59 deletions(-)
 
-diff --git a/arch/x86/pci/sta2x11-fixup.c b/arch/x86/pci/sta2x11-fixup.c
-index c7e6faf59a861..7368afc039987 100644
---- a/arch/x86/pci/sta2x11-fixup.c
-+++ b/arch/x86/pci/sta2x11-fixup.c
-@@ -57,7 +57,7 @@ static void sta2x11_new_instance(struct pci_dev *pdev)
- 		int size = STA2X11_SWIOTLB_SIZE;
- 		/* First instance: register your own swiotlb area */
- 		dev_info(&pdev->dev, "Using SWIOTLB (size %i)\n", size);
--		if (swiotlb_init_late(size, GFP_DMA))
-+		if (swiotlb_init_late(size, GFP_DMA, NULL))
- 			dev_emerg(&pdev->dev, "init swiotlb failed\n");
- 	}
- 	list_add(&instance->list, &sta2x11_instance_list);
 diff --git a/include/linux/swiotlb.h b/include/linux/swiotlb.h
-index ee655f2e4d28b..7b50c82f84ce9 100644
+index 7b50c82f84ce9..7ed35dd3de6e7 100644
 --- a/include/linux/swiotlb.h
 +++ b/include/linux/swiotlb.h
-@@ -36,8 +36,11 @@ struct scatterlist;
+@@ -34,13 +34,11 @@ struct scatterlist;
+ /* default to 64MB */
+ #define IO_TLB_DEFAULT_SIZE (64UL<<20)
  
- int swiotlb_init_with_tbl(char *tlb, unsigned long nslabs, unsigned int flags);
+-int swiotlb_init_with_tbl(char *tlb, unsigned long nslabs, unsigned int flags);
  unsigned long swiotlb_size_or_default(void);
-+void __init swiotlb_init_remap(bool addressing_limit, unsigned int flags,
-+	int (*remap)(void *tlb, unsigned long nslabs));
-+int swiotlb_init_late(size_t size, gfp_t gfp_mask,
-+	int (*remap)(void *tlb, unsigned long nslabs));
- extern int swiotlb_late_init_with_tbl(char *tlb, unsigned long nslabs);
--int swiotlb_init_late(size_t size, gfp_t gfp_mask);
+ void __init swiotlb_init_remap(bool addressing_limit, unsigned int flags,
+ 	int (*remap)(void *tlb, unsigned long nslabs));
+ int swiotlb_init_late(size_t size, gfp_t gfp_mask,
+ 	int (*remap)(void *tlb, unsigned long nslabs));
+-extern int swiotlb_late_init_with_tbl(char *tlb, unsigned long nslabs);
  extern void __init swiotlb_update_mem_attributes(void);
  
  phys_addr_t swiotlb_tbl_map_single(struct device *hwdev, phys_addr_t phys,
 diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index 119187afc65ec..d5fe8f5e08300 100644
+index d5fe8f5e08300..c54fc40ebb493 100644
 --- a/kernel/dma/swiotlb.c
 +++ b/kernel/dma/swiotlb.c
-@@ -256,9 +256,11 @@ int __init swiotlb_init_with_tbl(char *tlb, unsigned long nslabs,
+@@ -225,33 +225,6 @@ static void swiotlb_init_io_tlb_mem(struct io_tlb_mem *mem, phys_addr_t start,
+ 	return;
+ }
+ 
+-int __init swiotlb_init_with_tbl(char *tlb, unsigned long nslabs,
+-		unsigned int flags)
+-{
+-	struct io_tlb_mem *mem = &io_tlb_default_mem;
+-	size_t alloc_size;
+-
+-	if (swiotlb_force_disable)
+-		return 0;
+-
+-	/* protect against double initialization */
+-	if (WARN_ON_ONCE(mem->nslabs))
+-		return -ENOMEM;
+-
+-	alloc_size = PAGE_ALIGN(array_size(sizeof(*mem->slots), nslabs));
+-	mem->slots = memblock_alloc(alloc_size, PAGE_SIZE);
+-	if (!mem->slots)
+-		panic("%s: Failed to allocate %zu bytes align=0x%lx\n",
+-		      __func__, alloc_size, PAGE_SIZE);
+-
+-	swiotlb_init_io_tlb_mem(mem, __pa(tlb), nslabs, false);
+-	mem->force_bounce = flags & SWIOTLB_FORCE;
+-
+-	if (flags & SWIOTLB_VERBOSE)
+-		swiotlb_print_info();
+-	return 0;
+-}
+-
+ /*
   * Statically reserve bounce buffer space and initialize bounce buffer data
   * structures for the software IO TLB used to implement the DMA API.
-  */
--void __init swiotlb_init(bool addressing_limit, unsigned int flags)
-+void __init swiotlb_init_remap(bool addressing_limit, unsigned int flags,
-+		int (*remap)(void *tlb, unsigned long nslabs))
+@@ -259,7 +232,9 @@ int __init swiotlb_init_with_tbl(char *tlb, unsigned long nslabs,
+ void __init swiotlb_init_remap(bool addressing_limit, unsigned int flags,
+ 		int (*remap)(void *tlb, unsigned long nslabs))
  {
--	size_t bytes = PAGE_ALIGN(default_nslabs << IO_TLB_SHIFT);
-+	unsigned long nslabs = default_nslabs;
-+	size_t bytes;
++	struct io_tlb_mem *mem = &io_tlb_default_mem;
+ 	unsigned long nslabs = default_nslabs;
++	size_t alloc_size = PAGE_ALIGN(array_size(sizeof(*mem->slots), nslabs));
+ 	size_t bytes;
  	void *tlb;
  
- 	if (!addressing_limit && !swiotlb_force_bounce)
-@@ -271,12 +273,23 @@ void __init swiotlb_init(bool addressing_limit, unsigned int flags)
- 	 * allow to pick a location everywhere for hypervisors with guest
- 	 * memory encryption.
- 	 */
-+retry:
-+	bytes = PAGE_ALIGN(default_nslabs << IO_TLB_SHIFT);
- 	if (flags & SWIOTLB_ANY)
- 		tlb = memblock_alloc(bytes, PAGE_SIZE);
+@@ -280,7 +255,8 @@ void __init swiotlb_init_remap(bool addressing_limit, unsigned int flags,
  	else
  		tlb = memblock_alloc_low(bytes, PAGE_SIZE);
  	if (!tlb)
- 		goto fail;
-+	if (remap && remap(tlb, nslabs) < 0) {
-+		memblock_free(tlb, PAGE_ALIGN(bytes));
+-		goto fail;
++		panic("%s: failed to allocate tlb structure\n", __func__);
 +
-+		nslabs = ALIGN(nslabs >> 1, IO_TLB_SEGSIZE);
-+		if (nslabs < IO_TLB_MIN_SLABS)
-+			panic("%s: Failed to remap %zu bytes\n",
-+			      __func__, bytes);
-+		goto retry;
-+	}
- 	if (swiotlb_init_with_tbl(tlb, default_nslabs, flags))
- 		goto fail_free_mem;
- 	return;
-@@ -287,12 +300,18 @@ void __init swiotlb_init(bool addressing_limit, unsigned int flags)
- 	pr_warn("Cannot allocate buffer");
+ 	if (remap && remap(tlb, nslabs) < 0) {
+ 		memblock_free(tlb, PAGE_ALIGN(bytes));
+ 
+@@ -290,14 +266,17 @@ void __init swiotlb_init_remap(bool addressing_limit, unsigned int flags,
+ 			      __func__, bytes);
+ 		goto retry;
+ 	}
+-	if (swiotlb_init_with_tbl(tlb, default_nslabs, flags))
+-		goto fail_free_mem;
+-	return;
+ 
+-fail_free_mem:
+-	memblock_free(tlb, bytes);
+-fail:
+-	pr_warn("Cannot allocate buffer");
++	mem->slots = memblock_alloc(alloc_size, PAGE_SIZE);
++	if (!mem->slots)
++		panic("%s: Failed to allocate %zu bytes align=0x%lx\n",
++		      __func__, alloc_size, PAGE_SIZE);
++
++	swiotlb_init_io_tlb_mem(mem, __pa(tlb), default_nslabs, false);
++	mem->force_bounce = flags & SWIOTLB_FORCE;
++
++	if (flags & SWIOTLB_VERBOSE)
++		swiotlb_print_info();
  }
  
-+void __init swiotlb_init(bool addressing_limit, unsigned int flags)
-+{
-+	return swiotlb_init_remap(addressing_limit, flags, NULL);
-+}
-+
- /*
-  * Systems with larger DMA zones (those that don't support ISA) can
-  * initialize the swiotlb later using the slab allocator if needed.
-  * This should be just like above, but with some error catching.
-  */
--int swiotlb_init_late(size_t size, gfp_t gfp_mask)
-+int swiotlb_init_late(size_t size, gfp_t gfp_mask,
-+		int (*remap)(void *tlb, unsigned long nslabs))
+ void __init swiotlb_init(bool addressing_limit, unsigned int flags)
+@@ -313,6 +292,7 @@ void __init swiotlb_init(bool addressing_limit, unsigned int flags)
+ int swiotlb_init_late(size_t size, gfp_t gfp_mask,
+ 		int (*remap)(void *tlb, unsigned long nslabs))
  {
++	struct io_tlb_mem *mem = &io_tlb_default_mem;
  	unsigned long nslabs = ALIGN(size >> IO_TLB_SHIFT, IO_TLB_SEGSIZE);
  	unsigned long bytes;
-@@ -303,6 +322,7 @@ int swiotlb_init_late(size_t size, gfp_t gfp_mask)
- 	if (swiotlb_force_disable)
- 		return 0;
- 
-+retry:
- 	order = get_order(nslabs << IO_TLB_SHIFT);
- 	nslabs = SLABS_PER_PAGE << order;
- 	bytes = nslabs << IO_TLB_SHIFT;
-@@ -323,6 +343,16 @@ int swiotlb_init_late(size_t size, gfp_t gfp_mask)
- 			(PAGE_SIZE << order) >> 20);
- 		nslabs = SLABS_PER_PAGE << order;
+ 	unsigned char *vstart = NULL;
+@@ -353,33 +333,16 @@ int swiotlb_init_late(size_t size, gfp_t gfp_mask,
+ 			return rc;
+ 		goto retry;
  	}
-+	if (remap)
-+		rc = remap(vstart, nslabs);
-+	if (rc) {
+-	rc = swiotlb_late_init_with_tbl(vstart, nslabs);
+-	if (rc)
+-		free_pages((unsigned long)vstart, order);
+-
+-	return rc;
+-}
+-
+-int
+-swiotlb_late_init_with_tbl(char *tlb, unsigned long nslabs)
+-{
+-	struct io_tlb_mem *mem = &io_tlb_default_mem;
+-	unsigned long bytes = nslabs << IO_TLB_SHIFT;
+-
+-	if (swiotlb_force_disable)
+-		return 0;
+-
+-	/* protect against double initialization */
+-	if (WARN_ON_ONCE(mem->nslabs))
+-		return -ENOMEM;
+ 
+ 	mem->slots = (void *)__get_free_pages(GFP_KERNEL | __GFP_ZERO,
+ 		get_order(array_size(sizeof(*mem->slots), nslabs)));
+-	if (!mem->slots)
++	if (!mem->slots) {
 +		free_pages((unsigned long)vstart, order);
-+ 
-+		nslabs = ALIGN(nslabs >> 1, IO_TLB_SEGSIZE);
-+		if (nslabs < IO_TLB_MIN_SLABS)
-+			return rc;
-+		goto retry;
+ 		return -ENOMEM;
 +	}
- 	rc = swiotlb_late_init_with_tbl(vstart, nslabs);
- 	if (rc)
- 		free_pages((unsigned long)vstart, order);
+ 
+-	set_memory_decrypted((unsigned long)tlb, bytes >> PAGE_SHIFT);
+-	swiotlb_init_io_tlb_mem(mem, virt_to_phys(tlb), nslabs, true);
++	set_memory_decrypted((unsigned long)vstart, bytes >> PAGE_SHIFT);
++	swiotlb_init_io_tlb_mem(mem, virt_to_phys(vstart), nslabs, true);
+ 
+ 	swiotlb_print_info();
+ 	return 0;
 -- 
 2.30.2
 
