@@ -2,213 +2,247 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A2D3DC43217
-	for <linux-s390@archiver.kernel.org>; Mon,  4 Apr 2022 09:35:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A8CFC433EF
+	for <linux-s390@archiver.kernel.org>; Mon,  4 Apr 2022 09:54:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354146AbiDDJgy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 4 Apr 2022 05:36:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37566 "EHLO
+        id S1355050AbiDDJzx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 4 Apr 2022 05:55:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354278AbiDDJgy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Apr 2022 05:36:54 -0400
-Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E12092655D
-        for <linux-s390@vger.kernel.org>; Mon,  4 Apr 2022 02:34:55 -0700 (PDT)
-Received: by mail-wm1-x32f.google.com with SMTP id n63-20020a1c2742000000b0038d0c31db6eso5221335wmn.1
-        for <linux-s390@vger.kernel.org>; Mon, 04 Apr 2022 02:34:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=xry0fvSIyDxjB2H9TftOM1VVr7Z84GMJx65XGE7l1g8=;
-        b=QyIkbrvP3PXHYn8SZb3YFGNOU4YEWKwijKbTOMes2v3n/iFjy3E0l83+3PU1OyKdiC
-         28W9oIBBI4K+hraVFUC4rWiUr33rPk2ySKcvsAeR22WUXi4iM2aHnZd8Fn1GeAeirYrD
-         vpYCRqjh9PypWsECcQ9s8YJ0IOwuqrtnIou1JtT8aMLsJeQiP8+/F14BOx45Pzoc5hOs
-         zFVa0z20WuRvfR9IM3W6B7NXFHL5NIRr3q2/9wWYRFFUZeBeGzMux4sUyMGNAuZjF3t0
-         mwwwBGsWFJCRgizWUZXY7qrl7cdc2T3DX58d8hKruK4mcWNDpPeP1QmPVvKj4hi4kGzf
-         uymg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=xry0fvSIyDxjB2H9TftOM1VVr7Z84GMJx65XGE7l1g8=;
-        b=2nnx3bAKWdZBzzooRv5fMHbzGoyt9ek/Gk3fd7XFM8zUriggnhoXE2AVKdtM6MrICh
-         dNkBvdyDXfQMQsGkl2GINJ4Gj1XDOy1O8btxwR0jdfADZAWK4aSHXY6FHAEXQ+0RhZeX
-         RFi90sAVH8aOiz33InFZzT075qfd+GJOQJF9oReQsZkwFvcCkNbrqRkwQ3p2ycJWO8CF
-         9LPgEolfCNIe1n7U2xo+fuLKFt0Sq+5qK0ljVDKl1OYisvkCIzwOvdPeFPk9q15S6s2J
-         /pRz7PJHlk44IqspzNwIzN9loWJ9C2MCgM/ihG8KMccQfCfA81FtzRSoGptgrWJWNqzU
-         K+VQ==
-X-Gm-Message-State: AOAM533UTgxOriRMriNrSjaI5J7Y+TCLw83TU7a516DmrpjYj1g3yWyr
-        8QFotY/7w7uE/JvVKmEel4qAYw==
-X-Google-Smtp-Source: ABdhPJw+vbnPc6vft6RqA6zSnbRtvDlS1NwlZFp269pvENQ083BNJ7dEdI8BO5JpR9Ta6ymEkaX/jQ==
-X-Received: by 2002:a05:600c:3487:b0:38c:9a42:4d49 with SMTP id a7-20020a05600c348700b0038c9a424d49mr18900226wmq.29.1649064894420;
-        Mon, 04 Apr 2022 02:34:54 -0700 (PDT)
-Received: from [192.168.0.173] (xdsl-188-155-201-27.adslplus.ch. [188.155.201.27])
-        by smtp.gmail.com with ESMTPSA id o4-20020a5d6484000000b002057ad822d4sm9143811wri.48.2022.04.04.02.34.53
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 04 Apr 2022 02:34:54 -0700 (PDT)
-Message-ID: <2976f4f9-4fda-c04f-45cf-351518f88ec0@linaro.org>
-Date:   Mon, 4 Apr 2022 11:34:52 +0200
+        with ESMTP id S1355174AbiDDJzw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Apr 2022 05:55:52 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EFA7E5D;
+        Mon,  4 Apr 2022 02:53:55 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23482Zu5007176;
+        Mon, 4 Apr 2022 09:53:52 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=VKd5vFUiEKfuRcGuSWKwzFHHhQa5vtGA/lkq5v9/Zc8=;
+ b=lILOIyfrDrfHkpdC4BzFX3F/WM17+ZEh7UDjeRS1U0sqkkDca9PRXLx8bHqPEN64A9yU
+ DQMnHTvbk83WpEYMFZ8ZV12zUsuRx4+K/fJ5Qy1xYgxCWFV4k22ktxlzoQWvEe7VbUJA
+ /wjIzkrtrFsmxBOqsuMcl5SNwrueb18j4WgqGgbMxZ9hPl8XsWcxPvTcwYav3+NdKOxU
+ 2cdjYRn/bJvzMdVsvQ2nIAQnL3WM7xBCyxq/CYtpPd7Ili4N+P8W0AUB3ocN/t3T1D1R
+ TZteScK+BiV+2Bzi9/11koEukezqY55P2SvctYoqqX0C8bghdQUx0Oef/78qxNEzwAcN yw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3f709bnppp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 04 Apr 2022 09:53:52 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 2349miqK007595;
+        Mon, 4 Apr 2022 09:53:51 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3f709bnpp7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 04 Apr 2022 09:53:51 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2349r4BD007502;
+        Mon, 4 Apr 2022 09:53:50 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma04ams.nl.ibm.com with ESMTP id 3f6e48ucad-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 04 Apr 2022 09:53:49 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2349rkdg34406902
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 4 Apr 2022 09:53:46 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C3E27A4040;
+        Mon,  4 Apr 2022 09:53:46 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8C5C1A4053;
+        Mon,  4 Apr 2022 09:53:46 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon,  4 Apr 2022 09:53:46 +0000 (GMT)
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Bjorn Helgaas <bhelgaas@google.com>,
+        Jan Kiszka <jan.kiszka@siemens.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-pci@vger.kernel.org
+Subject: [PATCH RESEND 2/2] s390/pci: allow zPCI zbus without a function zero
+Date:   Mon,  4 Apr 2022 11:53:46 +0200
+Message-Id: <20220404095346.2324666-2-schnelle@linux.ibm.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220404095346.2324666-1-schnelle@linux.ibm.com>
+References: <20220404095346.2324666-1-schnelle@linux.ibm.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH v6 01/12] driver: platform: Add helper for safer setting
- of driver_override
-Content-Language: en-US
-To:     Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Stuart Yoder <stuyoder@gmail.com>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Andy Gross <agross@kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-clk <linux-clk@vger.kernel.org>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>,
-        Linux on Hyper-V List <linux-hyperv@vger.kernel.org>,
-        linux-pci <linux-pci@vger.kernel.org>,
-        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org,
-        ALSA Development Mailing List <alsa-devel@alsa-project.org>,
-        linux-spi <linux-spi@vger.kernel.org>,
-        virtualization@lists.linux-foundation.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>
-References: <20220403183758.192236-1-krzysztof.kozlowski@linaro.org>
- <20220403183758.192236-2-krzysztof.kozlowski@linaro.org>
- <CAHp75Vczm9f9Bx_w4nW31cnBgwEzPiN-Eqn-7DKZuB+Hew0F=Q@mail.gmail.com>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <CAHp75Vczm9f9Bx_w4nW31cnBgwEzPiN-Eqn-7DKZuB+Hew0F=Q@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 33K2SOCaCFfzGuIdWVeyYVhG-3NR3wbG
+X-Proofpoint-ORIG-GUID: CksVajPsk8chexqASTU5_CPMeH_iwXeC
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-04-04_03,2022-03-31_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
+ adultscore=0 mlxscore=0 phishscore=0 priorityscore=1501 lowpriorityscore=0
+ spamscore=0 impostorscore=0 bulkscore=0 mlxlogscore=933 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2204040053
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 04/04/2022 11:16, Andy Shevchenko wrote:
-> On Sun, Apr 3, 2022 at 9:38 PM Krzysztof Kozlowski
-> <krzysztof.kozlowski@linaro.org> wrote:
->>
->> Several core drivers and buses expect that driver_override is a
->> dynamically allocated memory thus later they can kfree() it.
->>
->> However such assumption is not documented, there were in the past and
->> there are already users setting it to a string literal. This leads to
->> kfree() of static memory during device release (e.g. in error paths or
->> during unbind):
->>
->>     kernel BUG at ../mm/slub.c:3960!
->>     Internal error: Oops - BUG: 0 [#1] PREEMPT SMP ARM
->>     ...
->>     (kfree) from [<c058da50>] (platform_device_release+0x88/0xb4)
->>     (platform_device_release) from [<c0585be0>] (device_release+0x2c/0x90)
->>     (device_release) from [<c0a69050>] (kobject_put+0xec/0x20c)
->>     (kobject_put) from [<c0f2f120>] (exynos5_clk_probe+0x154/0x18c)
->>     (exynos5_clk_probe) from [<c058de70>] (platform_drv_probe+0x6c/0xa4)
->>     (platform_drv_probe) from [<c058b7ac>] (really_probe+0x280/0x414)
->>     (really_probe) from [<c058baf4>] (driver_probe_device+0x78/0x1c4)
->>     (driver_probe_device) from [<c0589854>] (bus_for_each_drv+0x74/0xb8)
->>     (bus_for_each_drv) from [<c058b48c>] (__device_attach+0xd4/0x16c)
->>     (__device_attach) from [<c058a638>] (bus_probe_device+0x88/0x90)
->>     (bus_probe_device) from [<c05871fc>] (device_add+0x3dc/0x62c)
->>     (device_add) from [<c075ff10>] (of_platform_device_create_pdata+0x94/0xbc)
->>     (of_platform_device_create_pdata) from [<c07600ec>] (of_platform_bus_create+0x1a8/0x4fc)
->>     (of_platform_bus_create) from [<c0760150>] (of_platform_bus_create+0x20c/0x4fc)
->>     (of_platform_bus_create) from [<c07605f0>] (of_platform_populate+0x84/0x118)
->>     (of_platform_populate) from [<c0f3c964>] (of_platform_default_populate_init+0xa0/0xb8)
->>     (of_platform_default_populate_init) from [<c01031f8>] (do_one_initcall+0x8c/0x404)
->>
->> Provide a helper which clearly documents the usage of driver_override.
->> This will allow later to reuse the helper and reduce the amount of
->> duplicated code.
->>
->> Convert the platform driver to use a new helper and make the
->> driver_override field const char (it is not modified by the core).
-> 
-> ...
-> 
->> +int driver_set_override(struct device *dev, const char **override,
->> +                       const char *s, size_t len)
->> +{
->> +       const char *new, *old;
->> +       char *cp;
-> 
->> +       if (!override || !s)
->> +               return -EINVAL;
-> 
-> Still not sure if we should distinguish (s == NULL && len == 0) from
-> (s != NULL && len == 0).
-> Supplying the latter seems confusing (yes, I see that in the old code). Perhaps
-> !s test, in case you want to leave it, should be also commented.
+Currently the zPCI code block PCI bus creation and probing of a zPCI
+zbus unless there is a PCI function with devfn 0. This is always the
+case for the PCI functions with hidden RID but may keep PCI functions
+from a multi-function PCI device with RID information invisible until
+the function 0 becomes visible. Worse as a PCI bus is necessary to even
+present a PCI hotplug slot even that remains invisible.
 
-The old semantics were focused on sysfs usage, so clearing is by passing
-an empty string. In the case of sysfs empty string is actually "\n". I
-intend to keep the semantics also for the in-kernel usage and in such
-case empty string can be also "".
+With the probing of these so called isolated PCI functions enabled for
+s390 in common code this restriction is no longer necessary. On network
+cards with multiple ports and a PF per port this also allows using each
+port on its own while still providing the physical PCI topology
+information in the devfn needed to associate VFs with their parent PF.
 
-If I understand your comment correctly, you propose to change it to NULL
-for in-kernel usage, but that would change the semantics.
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+---
+ arch/s390/pci/pci_bus.c | 82 ++++++++++-------------------------------
+ 1 file changed, 20 insertions(+), 62 deletions(-)
 
-> Another approach is to split above to two checks and move !s after !len.
+diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
+index 5d77acbd1c87..6a8da1b742ae 100644
+--- a/arch/s390/pci/pci_bus.c
++++ b/arch/s390/pci/pci_bus.c
+@@ -145,9 +145,6 @@ int zpci_bus_scan_bus(struct zpci_bus *zbus)
+ 	struct zpci_dev *zdev;
+ 	int devfn, rc, ret = 0;
+ 
+-	if (!zbus->function[0])
+-		return 0;
+-
+ 	for (devfn = 0; devfn < ZPCI_FUNCTIONS_PER_BUS; devfn++) {
+ 		zdev = zbus->function[devfn];
+ 		if (zdev && zdev->state == ZPCI_FN_STATE_CONFIGURED) {
+@@ -184,26 +181,26 @@ void zpci_bus_scan_busses(void)
+ 
+ /* zpci_bus_create_pci_bus - Create the PCI bus associated with this zbus
+  * @zbus: the zbus holding the zdevices
+- * @f0: function 0 of the bus
++ * @fr: PCI root function that will determine the bus's domain, and bus speeed
+  * @ops: the pci operations
+  *
+- * Function zero is taken as a parameter as this is used to determine the
+- * domain, multifunction property and maximum bus speed of the entire bus.
++ * The PCI function @fr determines the domain (its UID), multifunction property
++ * and maximum bus speed of the entire bus.
+  *
+  * Return: 0 on success, an error code otherwise
+  */
+-static int zpci_bus_create_pci_bus(struct zpci_bus *zbus, struct zpci_dev *f0, struct pci_ops *ops)
++static int zpci_bus_create_pci_bus(struct zpci_bus *zbus, struct zpci_dev *fr, struct pci_ops *ops)
+ {
+ 	struct pci_bus *bus;
+ 	int domain;
+ 
+-	domain = zpci_alloc_domain((u16)f0->uid);
++	domain = zpci_alloc_domain((u16)fr->uid);
+ 	if (domain < 0)
+ 		return domain;
+ 
+ 	zbus->domain_nr = domain;
+-	zbus->multifunction = f0->rid_available;
+-	zbus->max_bus_speed = f0->max_bus_speed;
++	zbus->multifunction = fr->rid_available;
++	zbus->max_bus_speed = fr->max_bus_speed;
+ 
+ 	/*
+ 	 * Note that the zbus->resources are taken over and zbus->resources
+@@ -303,47 +300,6 @@ void pcibios_bus_add_device(struct pci_dev *pdev)
+ 	}
+ }
+ 
+-/* zpci_bus_create_hotplug_slots - Add hotplug slot(s) for device added to bus
+- * @zdev: the zPCI device that was newly added
+- *
+- * Add the hotplug slot(s) for the newly added PCI function. Normally this is
+- * simply the slot for the function itself. If however we are adding the
+- * function 0 on a zbus, it might be that we already registered functions on
+- * that zbus but could not create their hotplug slots yet so add those now too.
+- *
+- * Return: 0 on success, an error code otherwise
+- */
+-static int zpci_bus_create_hotplug_slots(struct zpci_dev *zdev)
+-{
+-	struct zpci_bus *zbus = zdev->zbus;
+-	int devfn, rc = 0;
+-
+-	rc = zpci_init_slot(zdev);
+-	if (rc)
+-		return rc;
+-	zdev->has_hp_slot = 1;
+-
+-	if (zdev->devfn == 0 && zbus->multifunction) {
+-		/* Now that function 0 is there we can finally create the
+-		 * hotplug slots for those functions with devfn != 0 that have
+-		 * been parked in zbus->function[] waiting for us to be able to
+-		 * create the PCI bus.
+-		 */
+-		for  (devfn = 1; devfn < ZPCI_FUNCTIONS_PER_BUS; devfn++) {
+-			zdev = zbus->function[devfn];
+-			if (zdev && !zdev->has_hp_slot) {
+-				rc = zpci_init_slot(zdev);
+-				if (rc)
+-					return rc;
+-				zdev->has_hp_slot = 1;
+-			}
+-		}
+-
+-	}
+-
+-	return rc;
+-}
+-
+ static int zpci_bus_add_device(struct zpci_bus *zbus, struct zpci_dev *zdev)
+ {
+ 	int rc = -EINVAL;
+@@ -352,21 +308,19 @@ static int zpci_bus_add_device(struct zpci_bus *zbus, struct zpci_dev *zdev)
+ 		pr_err("devfn %04x is already assigned\n", zdev->devfn);
+ 		return rc;
+ 	}
++
+ 	zdev->zbus = zbus;
+ 	zbus->function[zdev->devfn] = zdev;
+ 	zpci_nb_devices++;
+ 
+-	if (zbus->bus) {
+-		if (zbus->multifunction && !zdev->rid_available) {
+-			WARN_ONCE(1, "rid_available not set for multifunction\n");
+-			goto error;
+-		}
+-
+-		zpci_bus_create_hotplug_slots(zdev);
+-	} else {
+-		/* Hotplug slot will be created once function 0 appears */
+-		zbus->multifunction = 1;
++	if (zbus->multifunction && !zdev->rid_available) {
++		WARN_ONCE(1, "rid_available not set for multifunction\n");
++		goto error;
+ 	}
++	rc = zpci_init_slot(zdev);
++	if (rc)
++		goto error;
++	zdev->has_hp_slot = 1;
+ 
+ 	return 0;
+ 
+@@ -400,7 +354,11 @@ int zpci_bus_device_register(struct zpci_dev *zdev, struct pci_ops *ops)
+ 			return -ENOMEM;
+ 	}
+ 
+-	if (zdev->devfn == 0) {
++	if (!zbus->bus) {
++		/* The UID of the first PCI function registered with a zpci_bus
++		 * is used as the domain number for that bus. Currently there
++		 * is exactly one zpci_bus per domain.
++		 */
+ 		rc = zpci_bus_create_pci_bus(zbus, zdev, ops);
+ 		if (rc)
+ 			goto error;
+-- 
+2.32.0
 
-I don't follow why... The !override and !s are invalid uses. !len is a
-valid user for internal callers, just like "\n" is for sysfs.
-
-> 
->> +       /*
->> +        * The stored value will be used in sysfs show callback (sysfs_emit()),
->> +        * which has a length limit of PAGE_SIZE and adds a trailing newline.
->> +        * Thus we can store one character less to avoid truncation during sysfs
->> +        * show.
->> +        */
->> +       if (len >= (PAGE_SIZE - 1))
->> +               return -EINVAL;
-> 
-> Perhaps explain the case in the comment here?
-
-You mean the case we discuss here (to clear override with "")? Sure.
-
-> 
->> +       if (!len) {
->> +               device_lock(dev);
->> +               old = *override;
->> +               *override = NULL;
-> 
->> +               device_unlock(dev);
->> +               goto out_free;
-> 
-> You may deduplicate this one, by
-> 
->                goto out_unlock_free;
-> 
-> But I understand your intention to keep lock-unlock in one place, so
-> perhaps dropping that label would be even better in this case and
-> keeping it
-
-Yes, exactly.
-
-> 
->        kfree(old);
->        return 0;
-> 
-> here instead of goto.
-
-Slightly more code, but indeed maybe easier to follow. I'll do like this.
-
-
-Best regards,
-Krzysztof
