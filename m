@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB928C4332F
-	for <linux-s390@archiver.kernel.org>; Mon,  4 Apr 2022 21:28:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 53686C4321E
+	for <linux-s390@archiver.kernel.org>; Mon,  4 Apr 2022 21:28:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379362AbiDDV3m (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 4 Apr 2022 17:29:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52590 "EHLO
+        id S1380631AbiDDV3p (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 4 Apr 2022 17:29:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379654AbiDDRqT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Apr 2022 13:46:19 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA37217A93;
-        Mon,  4 Apr 2022 10:44:19 -0700 (PDT)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 234Famfj007508;
-        Mon, 4 Apr 2022 17:44:18 GMT
+        with ESMTP id S1379639AbiDDRqL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Apr 2022 13:46:11 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2F3C13D3F;
+        Mon,  4 Apr 2022 10:44:14 -0700 (PDT)
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 234GADcj004393;
+        Mon, 4 Apr 2022 17:44:14 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=JYqmHVIWAw5o9aOl34JHls+mAicB8Hc5RtAv/xB2qSU=;
- b=eP0LOLoprXM9lEIy/U5F1xJ/Y4XJhYD1QA4APQMPWDhg+QaXA/dcAo4SiDIcnQgPmWsF
- 9CowbtnMZbJLiXV6olinVbK47dgv1nqB2LAR6DPu7BadXZGpge6SrKB9Qr/GdIxhrkqZ
- +4XGKKHRXx/nPy8WPnvxEBMcmlgffiQfln7a2gZUGPsBy/KIDjhWbpRyoXvUx2NdhMT4
- X7jfiSkAG9UJVLUjnTCtAOMoSlf/O2IUHYsCgT1gx0wEmfcm7qe0HuP8xIppzBYwNt83
- 3tEml5yBIgyK3EdZr+Zky035F4cqaPZww8YbHb6uOR5MSqaSYnlIAFbkstr9X7ciOxyQ xw== 
+ bh=pQby41vwBaL1FxllKVHYTmdW6085Y5wtX7y6rFFj4vE=;
+ b=rZiWjb8/ujjVFAfsH8hhiH/4RehMSaKmR+R8QRhPL2XNgLHPt/vVT2E9ZIfgSzd6wCYz
+ wI3fd8Qq1yqX66JP98JSGZ0uub6NPXqcozdUC7J9qkGS6MVsQk2VqMglm5kuGsZfksq3
+ O+jfNxAzjGIwYDDoU2RhRxLb8V3bjVpYca4T5EDAsaX831a5oXZL4UoZV6bpM2N05RIJ
+ JnBLIeTFV/6dLO00qCnPhAEKTz9Aq1uf/+TgesFZtrUETZm5E9xXANx1qA20g21Y4G8d
+ BElt9TCe5JoPL27jONgm34DksgBCT7/SA3Oa/eYzXPWoLps7eML9mCSN0nE3zK0j2TqN SA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3f6yupcwt3-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3f7yn9kqu0-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Apr 2022 17:44:18 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 234HMo6i014971;
-        Mon, 4 Apr 2022 17:44:17 GMT
-Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3f6yupcwsr-1
+        Mon, 04 Apr 2022 17:44:14 +0000
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 234HHg9w025405;
+        Mon, 4 Apr 2022 17:44:14 GMT
+Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3f7yn9kqt8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Apr 2022 17:44:17 +0000
-Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
-        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 234Hh3v8002370;
-        Mon, 4 Apr 2022 17:44:17 GMT
-Received: from b03cxnp07027.gho.boulder.ibm.com (b03cxnp07027.gho.boulder.ibm.com [9.17.130.14])
-        by ppma03wdc.us.ibm.com with ESMTP id 3f6e48s68c-1
+        Mon, 04 Apr 2022 17:44:14 +0000
+Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
+        by ppma05wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 234Hh3Rj004094;
+        Mon, 4 Apr 2022 17:44:12 GMT
+Received: from b03cxnp07029.gho.boulder.ibm.com (b03cxnp07029.gho.boulder.ibm.com [9.17.130.16])
+        by ppma05wdc.us.ibm.com with ESMTP id 3f6e48s7d8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Apr 2022 17:44:16 +0000
+        Mon, 04 Apr 2022 17:44:12 +0000
 Received: from b03ledav002.gho.boulder.ibm.com (b03ledav002.gho.boulder.ibm.com [9.17.130.233])
-        by b03cxnp07027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 234HiFax35324396
+        by b03cxnp07029.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 234HiBSY32702902
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 4 Apr 2022 17:44:15 GMT
+        Mon, 4 Apr 2022 17:44:11 GMT
 Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C0036136059;
-        Mon,  4 Apr 2022 17:44:15 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 77242136053;
+        Mon,  4 Apr 2022 17:44:11 +0000 (GMT)
 Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BC0C413604F;
-        Mon,  4 Apr 2022 17:44:13 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 68876136051;
+        Mon,  4 Apr 2022 17:44:09 +0000 (GMT)
 Received: from li-c92d2ccc-254b-11b2-a85c-a700b5bfb098.ibm.com.com (unknown [9.211.32.125])
         by b03ledav002.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Mon,  4 Apr 2022 17:44:13 +0000 (GMT)
+        Mon,  4 Apr 2022 17:44:09 +0000 (GMT)
 From:   Matthew Rosato <mjrosato@linux.ibm.com>
 To:     linux-s390@vger.kernel.org
 Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
@@ -69,175 +69,164 @@ Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
         pasic@linux.ibm.com, pbonzini@redhat.com, corbet@lwn.net,
         kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-doc@vger.kernel.org
-Subject: [PATCH v5 08/21] s390/pci: stash associated GISA designation
-Date:   Mon,  4 Apr 2022 13:43:36 -0400
-Message-Id: <20220404174349.58530-9-mjrosato@linux.ibm.com>
+Subject: [PATCH v5 06/21] s390/airq: allow for airq structure that uses an input vector
+Date:   Mon,  4 Apr 2022 13:43:34 -0400
+Message-Id: <20220404174349.58530-7-mjrosato@linux.ibm.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220404174349.58530-1-mjrosato@linux.ibm.com>
 References: <20220404174349.58530-1-mjrosato@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 2iZKRaYl_8hfnKzRB2JtiBuqppaTMBdc
-X-Proofpoint-ORIG-GUID: JyaXT67d6GHG3QN6ygX_EIJK5_pds70n
+X-Proofpoint-GUID: Jb9al0jeE3UDi-obsLkXyLmMgjF3ZYko
+X-Proofpoint-ORIG-GUID: Vii3wNWjp9en_JvWjK0iOyvNC_2-ss7u
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-04-04_06,2022-03-31_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 malwarescore=0
- phishscore=0 adultscore=0 clxscore=1015 mlxlogscore=859 lowpriorityscore=0
- impostorscore=0 suspectscore=0 priorityscore=1501 spamscore=0 mlxscore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=894 spamscore=0
+ priorityscore=1501 adultscore=0 mlxscore=0 lowpriorityscore=0 phishscore=0
+ impostorscore=0 clxscore=1015 malwarescore=0 bulkscore=0 suspectscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
  definitions=main-2204040099
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-For passthrough devices, we will need to know the GISA designation of the
-guest if interpretation facilities are to be used.  Setup to stash this in
-the zdev and set a default of 0 (no GISA designation) for now; a subsequent
-patch will set a valid GISA designation for passthrough devices.
-Also, extend mpcific routines to specify this stashed designation as part
-of the mpcific command.
+When doing device passthrough where interrupts are being forwarded from
+host to guest, we wish to use a pinned section of guest memory as the
+vector (the same memory used by the guest as the vector). To accomplish
+this, add a new parameter for airq_iv_create which allows passing an
+existing vector to be used instead of allocating a new one. The caller
+is responsible for ensuring the vector is pinned in memory as well as for
+unpinning the memory when the vector is no longer needed.
 
+A subsequent patch will use this new parameter for zPCI interpretation.
+
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Acked-by: Cornelia Huck <cohuck@redhat.com>
 Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
 ---
- arch/s390/include/asm/pci.h     | 1 +
- arch/s390/include/asm/pci_clp.h | 3 ++-
- arch/s390/pci/pci.c             | 6 ++++++
- arch/s390/pci/pci_clp.c         | 5 +++++
- arch/s390/pci/pci_irq.c         | 5 +++++
- 5 files changed, 19 insertions(+), 1 deletion(-)
+ arch/s390/include/asm/airq.h     |  4 +++-
+ arch/s390/pci/pci_irq.c          |  8 ++++----
+ drivers/s390/cio/airq.c          | 10 +++++++---
+ drivers/s390/virtio/virtio_ccw.c |  2 +-
+ 4 files changed, 15 insertions(+), 9 deletions(-)
 
-diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-index fdb9745ee998..42a4a312a6dd 100644
---- a/arch/s390/include/asm/pci.h
-+++ b/arch/s390/include/asm/pci.h
-@@ -123,6 +123,7 @@ struct zpci_dev {
- 	enum zpci_state state;
- 	u32		fid;		/* function ID, used by sclp */
- 	u32		fh;		/* function handle, used by insn's */
-+	u32		gisa;		/* GISA designation for passthrough */
- 	u16		vfn;		/* virtual function number */
- 	u16		pchid;		/* physical channel ID */
- 	u8		pfgid;		/* function group ID */
-diff --git a/arch/s390/include/asm/pci_clp.h b/arch/s390/include/asm/pci_clp.h
-index 1f4b666e85ee..f3286bc5ba6e 100644
---- a/arch/s390/include/asm/pci_clp.h
-+++ b/arch/s390/include/asm/pci_clp.h
-@@ -173,7 +173,8 @@ struct clp_req_set_pci {
- 	u16 reserved2;
- 	u8 oc;				/* operation controls */
- 	u8 ndas;			/* number of dma spaces */
--	u64 reserved3;
-+	u32 reserved3;
-+	u32 gisa;			/* GISA designation */
- } __packed;
+diff --git a/arch/s390/include/asm/airq.h b/arch/s390/include/asm/airq.h
+index 7918a7d09028..e82e5626e139 100644
+--- a/arch/s390/include/asm/airq.h
++++ b/arch/s390/include/asm/airq.h
+@@ -47,8 +47,10 @@ struct airq_iv {
+ #define AIRQ_IV_PTR		4	/* Allocate the ptr array */
+ #define AIRQ_IV_DATA		8	/* Allocate the data array */
+ #define AIRQ_IV_CACHELINE	16	/* Cacheline alignment for the vector */
++#define AIRQ_IV_GUESTVEC	32	/* Vector is a pinned guest page */
  
- /* Set PCI function response */
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index e563cb65c0c4..a86cd1cbb80e 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -120,6 +120,7 @@ int zpci_register_ioat(struct zpci_dev *zdev, u8 dmaas,
- 	fib.pba = base;
- 	fib.pal = limit;
- 	fib.iota = iota | ZPCI_IOTA_RTTO_FLAG;
-+	fib.gd = zdev->gisa;
- 	cc = zpci_mod_fc(req, &fib, &status);
- 	if (cc)
- 		zpci_dbg(3, "reg ioat fid:%x, cc:%d, status:%d\n", zdev->fid, cc, status);
-@@ -133,6 +134,8 @@ int zpci_unregister_ioat(struct zpci_dev *zdev, u8 dmaas)
- 	struct zpci_fib fib = {0};
- 	u8 cc, status;
- 
-+	fib.gd = zdev->gisa;
-+
- 	cc = zpci_mod_fc(req, &fib, &status);
- 	if (cc)
- 		zpci_dbg(3, "unreg ioat fid:%x, cc:%d, status:%d\n", zdev->fid, cc, status);
-@@ -160,6 +163,7 @@ int zpci_fmb_enable_device(struct zpci_dev *zdev)
- 	atomic64_set(&zdev->unmapped_pages, 0);
- 
- 	fib.fmb_addr = virt_to_phys(zdev->fmb);
-+	fib.gd = zdev->gisa;
- 	cc = zpci_mod_fc(req, &fib, &status);
- 	if (cc) {
- 		kmem_cache_free(zdev_fmb_cache, zdev->fmb);
-@@ -178,6 +182,8 @@ int zpci_fmb_disable_device(struct zpci_dev *zdev)
- 	if (!zdev->fmb)
- 		return -EINVAL;
- 
-+	fib.gd = zdev->gisa;
-+
- 	/* Function measurement is disabled if fmb address is zero */
- 	cc = zpci_mod_fc(req, &fib, &status);
- 	if (cc == 3) /* Function already gone. */
-diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
-index 1057d7af4a55..deed35edea14 100644
---- a/arch/s390/pci/pci_clp.c
-+++ b/arch/s390/pci/pci_clp.c
-@@ -229,12 +229,16 @@ static int clp_set_pci_fn(struct zpci_dev *zdev, u32 *fh, u8 nr_dma_as, u8 comma
- {
- 	struct clp_req_rsp_set_pci *rrb;
- 	int rc, retries = 100;
-+	u32 gisa = 0;
- 
- 	*fh = 0;
- 	rrb = clp_alloc_block(GFP_KERNEL);
- 	if (!rrb)
- 		return -ENOMEM;
- 
-+	if (command != CLP_SET_DISABLE_PCI_FN)
-+		gisa = zdev->gisa;
-+
- 	do {
- 		memset(rrb, 0, sizeof(*rrb));
- 		rrb->request.hdr.len = sizeof(rrb->request);
-@@ -243,6 +247,7 @@ static int clp_set_pci_fn(struct zpci_dev *zdev, u32 *fh, u8 nr_dma_as, u8 comma
- 		rrb->request.fh = zdev->fh;
- 		rrb->request.oc = command;
- 		rrb->request.ndas = nr_dma_as;
-+		rrb->request.gisa = gisa;
- 
- 		rc = clp_req(rrb, CLP_LPS_PCI);
- 		if (rrb->response.hdr.rsp == CLP_RC_SETPCIFN_BUSY) {
+-struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags);
++struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags,
++			       unsigned long *vec);
+ void airq_iv_release(struct airq_iv *iv);
+ unsigned long airq_iv_alloc(struct airq_iv *iv, unsigned long num);
+ void airq_iv_free(struct airq_iv *iv, unsigned long bit, unsigned long num);
 diff --git a/arch/s390/pci/pci_irq.c b/arch/s390/pci/pci_irq.c
-index f2b3145b6697..a2b42a63a53b 100644
+index b805c75252ed..87c7d121c255 100644
 --- a/arch/s390/pci/pci_irq.c
 +++ b/arch/s390/pci/pci_irq.c
-@@ -43,6 +43,7 @@ static int zpci_set_airq(struct zpci_dev *zdev)
- 	fib.fmt0.aibvo = 0;	/* each zdev has its own interrupt vector */
- 	fib.fmt0.aisb = virt_to_phys(zpci_sbv->vector) + (zdev->aisb / 64) * 8;
- 	fib.fmt0.aisbo = zdev->aisb & 63;
-+	fib.gd = zdev->gisa;
+@@ -296,7 +296,7 @@ int arch_setup_msi_irqs(struct pci_dev *pdev, int nvec, int type)
+ 		zdev->aisb = bit;
  
- 	return zpci_mod_fc(req, &fib, &status) ? -EIO : 0;
- }
-@@ -54,6 +55,8 @@ static int zpci_clear_airq(struct zpci_dev *zdev)
- 	struct zpci_fib fib = {0};
- 	u8 cc, status;
+ 		/* Create adapter interrupt vector */
+-		zdev->aibv = airq_iv_create(msi_vecs, AIRQ_IV_DATA | AIRQ_IV_BITLOCK);
++		zdev->aibv = airq_iv_create(msi_vecs, AIRQ_IV_DATA | AIRQ_IV_BITLOCK, NULL);
+ 		if (!zdev->aibv)
+ 			return -ENOMEM;
  
-+	fib.gd = zdev->gisa;
-+
- 	cc = zpci_mod_fc(req, &fib, &status);
- 	if (cc == 3 || (cc == 1 && status == 24))
- 		/* Function already gone or IRQs already deregistered. */
-@@ -72,6 +75,7 @@ static int zpci_set_directed_irq(struct zpci_dev *zdev)
- 	fib.fmt = 1;
- 	fib.fmt1.noi = zdev->msi_nr_irqs;
- 	fib.fmt1.dibvo = zdev->msi_first_bit;
-+	fib.gd = zdev->gisa;
+@@ -419,7 +419,7 @@ static int __init zpci_directed_irq_init(void)
+ 	union zpci_sic_iib iib = {{0}};
+ 	unsigned int cpu;
  
- 	return zpci_mod_fc(req, &fib, &status) ? -EIO : 0;
- }
-@@ -84,6 +88,7 @@ static int zpci_clear_directed_irq(struct zpci_dev *zdev)
- 	u8 cc, status;
+-	zpci_sbv = airq_iv_create(num_possible_cpus(), 0);
++	zpci_sbv = airq_iv_create(num_possible_cpus(), 0, NULL);
+ 	if (!zpci_sbv)
+ 		return -ENOMEM;
  
- 	fib.fmt = 1;
-+	fib.gd = zdev->gisa;
- 	cc = zpci_mod_fc(req, &fib, &status);
- 	if (cc == 3 || (cc == 1 && status == 24))
- 		/* Function already gone or IRQs already deregistered. */
+@@ -441,7 +441,7 @@ static int __init zpci_directed_irq_init(void)
+ 		zpci_ibv[cpu] = airq_iv_create(cache_line_size() * BITS_PER_BYTE,
+ 					       AIRQ_IV_DATA |
+ 					       AIRQ_IV_CACHELINE |
+-					       (!cpu ? AIRQ_IV_ALLOC : 0));
++					       (!cpu ? AIRQ_IV_ALLOC : 0), NULL);
+ 		if (!zpci_ibv[cpu])
+ 			return -ENOMEM;
+ 	}
+@@ -458,7 +458,7 @@ static int __init zpci_floating_irq_init(void)
+ 	if (!zpci_ibv)
+ 		return -ENOMEM;
+ 
+-	zpci_sbv = airq_iv_create(ZPCI_NR_DEVICES, AIRQ_IV_ALLOC);
++	zpci_sbv = airq_iv_create(ZPCI_NR_DEVICES, AIRQ_IV_ALLOC, NULL);
+ 	if (!zpci_sbv)
+ 		goto out_free;
+ 
+diff --git a/drivers/s390/cio/airq.c b/drivers/s390/cio/airq.c
+index 230eb5b5b64e..34967e67249e 100644
+--- a/drivers/s390/cio/airq.c
++++ b/drivers/s390/cio/airq.c
+@@ -122,10 +122,12 @@ static inline unsigned long iv_size(unsigned long bits)
+  * airq_iv_create - create an interrupt vector
+  * @bits: number of bits in the interrupt vector
+  * @flags: allocation flags
++ * @vec: pointer to pinned guest memory if AIRQ_IV_GUESTVEC
+  *
+  * Returns a pointer to an interrupt vector structure
+  */
+-struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags)
++struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags,
++			       unsigned long *vec)
+ {
+ 	struct airq_iv *iv;
+ 	unsigned long size;
+@@ -146,6 +148,8 @@ struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags)
+ 					     &iv->vector_dma);
+ 		if (!iv->vector)
+ 			goto out_free;
++	} else if (flags & AIRQ_IV_GUESTVEC) {
++		iv->vector = vec;
+ 	} else {
+ 		iv->vector = cio_dma_zalloc(size);
+ 		if (!iv->vector)
+@@ -185,7 +189,7 @@ struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags)
+ 	kfree(iv->avail);
+ 	if (iv->flags & AIRQ_IV_CACHELINE && iv->vector)
+ 		dma_pool_free(airq_iv_cache, iv->vector, iv->vector_dma);
+-	else
++	else if (!(iv->flags & AIRQ_IV_GUESTVEC))
+ 		cio_dma_free(iv->vector, size);
+ 	kfree(iv);
+ out:
+@@ -204,7 +208,7 @@ void airq_iv_release(struct airq_iv *iv)
+ 	kfree(iv->bitlock);
+ 	if (iv->flags & AIRQ_IV_CACHELINE)
+ 		dma_pool_free(airq_iv_cache, iv->vector, iv->vector_dma);
+-	else
++	else if (!(iv->flags & AIRQ_IV_GUESTVEC))
+ 		cio_dma_free(iv->vector, iv_size(iv->bits));
+ 	kfree(iv->avail);
+ 	kfree(iv);
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index 52c376d15978..410498d693f8 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -241,7 +241,7 @@ static struct airq_info *new_airq_info(int index)
+ 		return NULL;
+ 	rwlock_init(&info->lock);
+ 	info->aiv = airq_iv_create(VIRTIO_IV_BITS, AIRQ_IV_ALLOC | AIRQ_IV_PTR
+-				   | AIRQ_IV_CACHELINE);
++				   | AIRQ_IV_CACHELINE, NULL);
+ 	if (!info->aiv) {
+ 		kfree(info);
+ 		return NULL;
 -- 
 2.27.0
 
