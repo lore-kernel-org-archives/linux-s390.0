@@ -2,138 +2,107 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2C53C433F5
-	for <linux-s390@archiver.kernel.org>; Mon,  4 Apr 2022 09:11:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 19CD6C433F5
+	for <linux-s390@archiver.kernel.org>; Mon,  4 Apr 2022 09:14:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350019AbiDDJNJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 4 Apr 2022 05:13:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45390 "EHLO
+        id S237737AbiDDJQl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 4 Apr 2022 05:16:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240647AbiDDJNI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Apr 2022 05:13:08 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B2A73B29D;
-        Mon,  4 Apr 2022 02:11:09 -0700 (PDT)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 2348LQqK013681;
-        Mon, 4 Apr 2022 09:11:03 GMT
+        with ESMTP id S231165AbiDDJQk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Apr 2022 05:16:40 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEB043B3D6;
+        Mon,  4 Apr 2022 02:14:44 -0700 (PDT)
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 2348jSuK022927;
+        Mon, 4 Apr 2022 09:14:44 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
  subject : message-id : references : content-type : in-reply-to :
- mime-version; s=pp1; bh=2WywcuoGyiLhJ5Ccuo0nWNSC0B6ohCCLlv2NWnfdNDs=;
- b=Sl1BHhXCzs9QpcupNWVM2xteYTW59V+T1zsu5D+pFgjG4Y573ePv3dcGfzTKeULB4k1m
- 7pR8sy79vZTD9NzIYhHFTrBnSDOeJmoWGJT7u1oWWaP4OXvQzlJ9GSCqB/vgzmTGmujL
- CmXkdcf1FfBLm1pV2aXf821U5Mj4H5JecXn21gD9M/WsLeiLNPiczx8gf4uwT7tNNKeY
- 5sfEhNFbiS2PVWAIgbAyvVVgLf6y4WEbJ+mjR58Lf1HOZRC3qofSs3Wng4zuV52x5AnA
- cuKEiPJSe4S9SoMzhDNF+hkjIWPjt2HtImNxz8Ae/iBLabBsP6pdj5Lm5e96cveJ19xv eQ== 
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=GQa4dUqo2VI4GxIa+aRuhSHq4bfQQ7AzPX5fSNIQSkU=;
+ b=XlJ3MGa7JW67J3qreQG26cArrYURWUjJADmmbxJq6t2kqNJySeQxAUwDIgZTNbvSIiR/
+ ZPJnuvfFfAuoqbbQPcsSaAXdFklQy/z+JeuhTyZRQAvUsZ/1q1DTTsqyW/ZyI7ghKDv3
+ MOoicpxeO5A5z1VEm1VR6ftgiRx/7a149yzdcoLRlTZ/FeKIjVO7RPic3hCr8jgmHYDJ
+ zKxLyay9rxaT60RlS++cdCVEsBcnuGgS7VrrypAcPvUTow3VHWtAqcYObGxjT4DcAKfO
+ 91bjzGtVNVY6zL6IrztBcicGoRxeBIujnJdovBuXdFM2xWvStwIDmEDeKu8UxSa3tYq1 JQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3f6ywhmxyx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 04 Apr 2022 09:14:43 +0000
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 2348jKo7031946;
+        Mon, 4 Apr 2022 09:14:43 GMT
 Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3f701rd3u1-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3f6ywhmxye-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Apr 2022 09:11:02 +0000
+        Mon, 04 Apr 2022 09:14:43 +0000
 Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23497Ohh013797;
-        Mon, 4 Apr 2022 09:11:00 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma06ams.nl.ibm.com with ESMTP id 3f6drhk8j2-1
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 234973cj013551;
+        Mon, 4 Apr 2022 09:14:41 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 3f6drhk8s6-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Apr 2022 09:11:00 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2348wkXE48759142
+        Mon, 04 Apr 2022 09:14:41 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2349EcqT32244172
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 4 Apr 2022 08:58:46 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3D860A4054;
-        Mon,  4 Apr 2022 09:10:57 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CFA84A405B;
-        Mon,  4 Apr 2022 09:10:56 +0000 (GMT)
+        Mon, 4 Apr 2022 09:14:38 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4E2975204F;
+        Mon,  4 Apr 2022 09:14:38 +0000 (GMT)
 Received: from osiris (unknown [9.145.2.177])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Mon,  4 Apr 2022 09:10:56 +0000 (GMT)
-Date:   Mon, 4 Apr 2022 11:10:55 +0200
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id D4C4C5204E;
+        Mon,  4 Apr 2022 09:14:37 +0000 (GMT)
+Date:   Mon, 4 Apr 2022 11:14:36 +0200
 From:   Heiko Carstens <hca@linux.ibm.com>
-To:     David Laight <David.Laight@aculab.com>
-Cc:     "'Haowen Bai'" <baihaowen@meizu.com>,
-        "gor@linux.ibm.com" <gor@linux.ibm.com>,
-        "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>,
-        "borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>,
-        "svens@linux.ibm.com" <svens@linux.ibm.com>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>
-Subject: Re: [PATCH] s390: Simplify the calculation of variables
-Message-ID: <Ykq2H+POaGs0GHVU@osiris>
-References: <1648434982-28862-1-git-send-email-baihaowen@meizu.com>
- <9ab80e670fb341ddaba51a9cd78203fe@AcuMS.aculab.com>
-Content-Type: text/plain; charset=us-ascii
+To:     cgel.zte@gmail.com
+Cc:     gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com, lv.ruyi@zte.com.cn,
+        egorenar@linux.ibm.com, oberpar@linux.ibm.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Zeal Robot <zealci@zte.com.cn>
+Subject: Re: [PATCH] s390: replace zero-length array with flexible-array
+ member
+Message-ID: <Ykq2/JEubkdX7GWR@osiris>
+References: <20220401075639.2407457-1-lv.ruyi@zte.com.cn>
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <9ab80e670fb341ddaba51a9cd78203fe@AcuMS.aculab.com>
+In-Reply-To: <20220401075639.2407457-1-lv.ruyi@zte.com.cn>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: pMYbc6J193IrfqjGGtT-XYMO4Sj59dKw
-X-Proofpoint-ORIG-GUID: pMYbc6J193IrfqjGGtT-XYMO4Sj59dKw
+X-Proofpoint-GUID: gRvhvQFwpneu12mUj-Lcyhje4TrFXbcA
+X-Proofpoint-ORIG-GUID: 5Kwx4m1tPBDxh7Wi_SxQMlF2KeVhWCEw
+Content-Transfer-Encoding: 8bit
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-04-04_03,2022-03-31_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- malwarescore=0 phishscore=0 mlxlogscore=927 clxscore=1015 suspectscore=0
- mlxscore=0 spamscore=0 bulkscore=0 adultscore=0 priorityscore=1501
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=1 clxscore=1011 mlxscore=1
+ mlxlogscore=207 suspectscore=0 spamscore=1 adultscore=0 impostorscore=0
+ bulkscore=0 lowpriorityscore=0 phishscore=0 malwarescore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2202240000 definitions=main-2204040050
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Mar 28, 2022 at 12:15:49PM +0000, David Laight wrote:
-> From: Haowen Bai
-> > Sent: 28 March 2022 03:36
-> > 
-> > Fix the following coccicheck warnings:
-> > ./arch/s390/include/asm/scsw.h:695:47-49: WARNING
-> >  !A || A && B is equivalent to !A || B
-> > 
-> > Signed-off-by: Haowen Bai <baihaowen@meizu.com>
-> > ---
-> >  arch/s390/include/asm/scsw.h | 3 +--
-> >  1 file changed, 1 insertion(+), 2 deletions(-)
-> > 
-> > diff --git a/arch/s390/include/asm/scsw.h b/arch/s390/include/asm/scsw.h
-> > index a7c3ccf..f2baac8 100644
-> > --- a/arch/s390/include/asm/scsw.h
-> > +++ b/arch/s390/include/asm/scsw.h
-> > @@ -692,8 +692,7 @@ static inline int scsw_tm_is_valid_pno(union scsw *scsw)
-> >  	return (scsw->tm.fctl != 0) &&
-> >  	       (scsw->tm.stctl & SCSW_STCTL_STATUS_PEND) &&
-> >  	       (!(scsw->tm.stctl & SCSW_STCTL_INTER_STATUS) ||
-> > -		 ((scsw->tm.stctl & SCSW_STCTL_INTER_STATUS) &&
-> > -		  (scsw->tm.actl & SCSW_ACTL_SUSPENDED)));
-> > +	       (scsw->tm.actl & SCSW_ACTL_SUSPENDED))
-> >  }
+On Fri, Apr 01, 2022 at 07:56:39AM +0000, cgel.zte@gmail.com wrote:
+> From: Lv Ruyi <lv.ruyi@zte.com.cn>
 > 
-> I'd split that impenetrable boolean expression up.
+> There is a regular need in the kernel to provide a way to declare
+> having a dynamically sized set of trailing elements in a structure.
+> Kernel code should always use “flexible array members”[1] for these
+> cases. The older style of one-element or zero-length arrays should
+> no longer be used[2].
 > 
-> I think this is equivalent:
-> 	if (!scsw->tm.fctl)
-> 		return 0;
-> 	if (!(scsw->tm.stctl & SCSW_STCTL_STATUS_PEND))
-> 		return 0;
-> 	if (!(scsw->tm.stctl & SCSW_STCTL_INTER_STATUS))
-> 		return 1
-> 	if (scsw->tm.actl & SCSW_ACTL_SUSPENDED)
-> 		return 1;
-> 	return 0;
+> [1] https://en.wikipedia.org/wiki/Flexible_array_member
+> [2] https://www.kernel.org/doc/html/v5.16/process/deprecated.html#zero-length-and-one-element-arrays
 > 
-> The generated code could even be the same.
+> Reported-by: Zeal Robot <zealci@zte.com.cn>
+> Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
+> ---
+>  drivers/s390/char/sclp_cmd.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Yes, we had the very same discussion here:
-https://lore.kernel.org/linux-s390/20210820025159.11914-1-jing.yangyang@zte.com.cn/
-
-Where the outcome also was that it doesn't make sense to replace one
-unreadable version with another unreadable version just to get rid of
-a warning.
-
-Haowen, could you please resend with a proper readable version, or
-alternatively, Vineeth, could you address this please, so this doesn't
-come up again?
-
-Thanks!
+Please resend with a proper sign-off chain. Thanks!
