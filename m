@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 85FDAC433FE
-	for <linux-s390@archiver.kernel.org>; Mon,  4 Apr 2022 22:52:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82384C433F5
+	for <linux-s390@archiver.kernel.org>; Mon,  4 Apr 2022 22:52:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235522AbiDDWxy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        id S239160AbiDDWxy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
         Mon, 4 Apr 2022 18:53:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40818 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237057AbiDDWxc (ORCPT
+        with ESMTP id S232958AbiDDWxc (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Apr 2022 18:53:32 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFAFB4B86A;
-        Mon,  4 Apr 2022 15:11:54 -0700 (PDT)
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 234LFlXT009687;
-        Mon, 4 Apr 2022 22:11:52 GMT
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D46B34B42D;
+        Mon,  4 Apr 2022 15:11:58 -0700 (PDT)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 234IeCJJ025482;
+        Mon, 4 Apr 2022 22:11:57 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=lfbJQcY58k69Mp3iQw/NS3eRTgmVSiGcv4i3p68gb8M=;
- b=HMjSB2W7bSi0fYPIIwekDwCM5udD+DYxVCv6u6sbj98r0M/55v/mtO6pvaTDMfba1Dck
- Kls1Cn7giCEFedZ77EEVqvo4eJeU0hvb/sWEFeyxE5pA0Zl8BKWGMoROVbeFN6SLir7C
- MkZ4NbzT6aY+BcCpINe9wZCLaVIJm1qaEFFG3IQZU+2tFgiyWF9QDVNw9cBN8Dpt9UJa
- uMvaRIArRBEe8pYBXmXTCz79qi5zTvlWCpk4ddSDiABztZfopUF8gztQu0fQ7D0Opq9F
- vMgRRRRXtPcQpQAbhdT7gKr0UPFK0PTcHdFye0WhcPi3JquTNk3B4Ao4vdBrh7JbhjD+ Lg== 
+ bh=ws6CrmWi87N6LqNCzoGXGvdA6PqsLWDTk52hzu/qUJc=;
+ b=eniPLgAHDLLvFrE4wvU8P+1TywJWcGVVBorBBR+P+0RcR3YHZFQeVFSQNVDLWYtqpFTE
+ Mkt6HqfBP6b9nRXYuMHVB3y4/fX1dQ2aKNyLj5OVg0mfbYiuIXfmDaLGW+yZMtqBfLBp
+ jdvFhDU6kCV9ajkuHXiFKisvdXD1JyVUUIP+1lLxIsm/Lv3xNRvN94kX7FwLWToCFpVo
+ v3t73ixISMlIDl/wLusi9JubfW1iY4EUDsGYJbq+tLjJ7u8YyO3wHHqbvMtVrArzdLQa
+ Vrp6PZCtk9qyX0BexF0twDJHNCPAdrQE6lUmBGmnXoV+hsK4+RD3tDN2qQ6pmKifRYow jw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3f88efs8k4-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3f84xcy1d2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Apr 2022 22:11:51 +0000
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 234M8P5f020591;
-        Mon, 4 Apr 2022 22:11:51 GMT
-Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3f88efs8jv-1
+        Mon, 04 Apr 2022 22:11:56 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 234LqjET006636;
+        Mon, 4 Apr 2022 22:11:56 GMT
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3f84xcy1cu-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Apr 2022 22:11:51 +0000
-Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
-        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 234Lr8Hs015048;
-        Mon, 4 Apr 2022 22:11:50 GMT
-Received: from b03cxnp07028.gho.boulder.ibm.com (b03cxnp07028.gho.boulder.ibm.com [9.17.130.15])
-        by ppma03wdc.us.ibm.com with ESMTP id 3f6e48tmtk-1
+        Mon, 04 Apr 2022 22:11:56 +0000
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 234Lqxeg020771;
+        Mon, 4 Apr 2022 22:11:55 GMT
+Received: from b03cxnp08028.gho.boulder.ibm.com (b03cxnp08028.gho.boulder.ibm.com [9.17.130.20])
+        by ppma03dal.us.ibm.com with ESMTP id 3f6e49f92b-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Apr 2022 22:11:50 +0000
+        Mon, 04 Apr 2022 22:11:55 +0000
 Received: from b03ledav004.gho.boulder.ibm.com (b03ledav004.gho.boulder.ibm.com [9.17.130.235])
-        by b03cxnp07028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 234MBnrZ33096164
+        by b03cxnp08028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 234MBsk529819150
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 4 Apr 2022 22:11:49 GMT
+        Mon, 4 Apr 2022 22:11:54 GMT
 Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A88247805F;
-        Mon,  4 Apr 2022 22:11:49 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 6581E7805F;
+        Mon,  4 Apr 2022 22:11:54 +0000 (GMT)
 Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A1E3678069;
-        Mon,  4 Apr 2022 22:11:48 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 5BC937805C;
+        Mon,  4 Apr 2022 22:11:53 +0000 (GMT)
 Received: from localhost.localdomain.com (unknown [9.65.234.56])
         by b03ledav004.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Mon,  4 Apr 2022 22:11:48 +0000 (GMT)
+        Mon,  4 Apr 2022 22:11:53 +0000 (GMT)
 From:   Tony Krowiak <akrowiak@linux.ibm.com>
 To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         kvm@vger.kernel.org
@@ -64,108 +64,111 @@ Cc:     jjherne@linux.ibm.com, freude@linux.ibm.com,
         borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com,
         pasic@linux.ibm.com, alex.williamson@redhat.com,
         kwankhede@nvidia.com, fiuczy@linux.ibm.com
-Subject: [PATCH v19 04/20] s390/vfio-ap: introduce shadow APCB
-Date:   Mon,  4 Apr 2022 18:10:23 -0400
-Message-Id: <20220404221039.1272245-5-akrowiak@linux.ibm.com>
+Subject: [PATCH v19 08/20] s390/vfio-ap: introduce new mutex to control access to the KVM pointer
+Date:   Mon,  4 Apr 2022 18:10:27 -0400
+Message-Id: <20220404221039.1272245-9-akrowiak@linux.ibm.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20220404221039.1272245-1-akrowiak@linux.ibm.com>
 References: <20220404221039.1272245-1-akrowiak@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ip3_mIFgnUaSgcxOsUTcHzVKdvHb6bY8
-X-Proofpoint-ORIG-GUID: _rS2k0EKwtPZx0Zvnm_7jI3KNI2mKMwS
+X-Proofpoint-GUID: fPUp2ST58Xzgew448yH0IYsGTIkNPvyY
+X-Proofpoint-ORIG-GUID: 2iv715rQWlP4nseeEk3iJeQ3w6mf54Cm
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-04-04_09,2022-03-31_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
- impostorscore=0 clxscore=1015 mlxscore=0 lowpriorityscore=0
- mlxlogscore=999 phishscore=0 priorityscore=1501 bulkscore=0 adultscore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ adultscore=0 mlxlogscore=999 malwarescore=0 spamscore=0 impostorscore=0
+ bulkscore=0 phishscore=0 lowpriorityscore=0 clxscore=1015 mlxscore=0
  suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2202240000 definitions=main-2204040123
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The APCB is a field within the CRYCB that provides the AP configuration
-to a KVM guest. Let's introduce a shadow copy of the KVM guest's APCB and
-maintain it for the lifespan of the guest.
+The vfio_ap device driver registers for notification when the pointer to
+the KVM object for a guest is set. Recall that the KVM lock (kvm->lock)
+mutex must be taken outside of the matrix_dev->lock mutex to prevent the
+reporting by lockdep of a circular locking dependency (a.k.a., a lockdep
+splat):
 
-The shadow APCB serves the following purposes:
+* see commit 0cc00c8d4050 ("Fix circular lockdep when setting/clearing
+  crypto masks")
 
-1. The shadow APCB can be maintained even when the mediated device is not
-   currently in use by a KVM guest. Since the mediated device's AP
-   configuration is filtered to ensure that no AP queues are passed through
-   to the KVM guest that are not bound to the vfio_ap device driver or
-   available to the host, the mediated device's AP configuration may differ
-   from the guest's. Having a shadow of a guest's APCB allows us to provide
-   a sysfs interface to view the guest's APCB even if the mediated device
-   is not currently passed through to a KVM guest. This can aid in
-   problem determination when the guest is unexpectedly missing AP
-   resources.
+* see commit 86956e70761b ("replace open coded locks for
+  VFIO_GROUP_NOTIFY_SET_KVM notification")
 
-2. If filtering was done in-place for the real APCB, the guest could pick
-   up a transient state. Doing the filtering on a shadow and transferring
-   the AP configuration to the real APCB after the guest is started or when
-   AP resources are assigned to or unassigned from the mediated device, or
-   when the host configuration changes, the guest's AP configuration will
-   never be in a transient state.
+With the introduction of support for hot plugging/unplugging AP devices
+passed through to a KVM guest, a new guests_lock mutex is introduced to
+ensure the proper locking order is maintained:
+
+struct ap_matrix_dev {
+        ...
+        struct mutex guests_lock;
+       ...
+}
+
+The matrix_dev->guests_lock controls access to the matrix_mdev instances
+that hold the state for AP devices that have been passed through to a
+KVM guest. This lock must be held to control access to the KVM pointer
+(matrix_mdev->kvm) while the vfio_ap device driver is using it to
+plug/unplug AP devices passed through to the KVM guest.
+
+Keep in mind, the proper locking order must be maintained whenever
+dynamically updating a KVM guest's APCB to plug/unplug adapters, domains
+and control domains:
+
+    1. matrix_dev->guests_lock: required to use the KVM pointer - stored in
+       a struct ap_matrix_mdev instance - to update a KVM guest's APCB
+
+    2. matrix_mdev->kvm->lock: required to update a guest's APCB
+
+    3. matrix_dev->mdevs_lock: required to access data stored in a
+       struct ap_matrix_mdev instance.
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_ops.c     | 10 ++++++----
- drivers/s390/crypto/vfio_ap_private.h |  2 ++
- 2 files changed, 8 insertions(+), 4 deletions(-)
+ drivers/s390/crypto/vfio_ap_drv.c     | 1 +
+ drivers/s390/crypto/vfio_ap_private.h | 6 ++++++
+ 2 files changed, 7 insertions(+)
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 9df7ceb50ed1..9c4a3ad5369a 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -463,6 +463,7 @@ static int vfio_ap_mdev_probe(struct mdev_device *mdev)
- 	matrix_mdev->mdev = mdev;
- 	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->matrix);
- 	matrix_mdev->pqap_hook = handle_pqap;
-+	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->shadow_apcb);
- 	hash_init(matrix_mdev->qtable.queues);
- 	mdev_set_drvdata(mdev, matrix_mdev);
- 	mutex_lock(&matrix_dev->lock);
-@@ -1305,10 +1306,11 @@ static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
+diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
+index 0a5acd151a9b..c258e5f7fdfc 100644
+--- a/drivers/s390/crypto/vfio_ap_drv.c
++++ b/drivers/s390/crypto/vfio_ap_drv.c
+@@ -161,6 +161,7 @@ static int vfio_ap_matrix_dev_create(void)
  
- 		kvm_get_kvm(kvm);
- 		matrix_mdev->kvm = kvm;
--		kvm_arch_crypto_set_masks(kvm,
--					  matrix_mdev->matrix.apm,
--					  matrix_mdev->matrix.aqm,
--					  matrix_mdev->matrix.adm);
-+		memcpy(&matrix_mdev->shadow_apcb, &matrix_mdev->matrix,
-+		       sizeof(struct ap_matrix));
-+		kvm_arch_crypto_set_masks(kvm, matrix_mdev->shadow_apcb.apm,
-+					  matrix_mdev->shadow_apcb.aqm,
-+					  matrix_mdev->shadow_apcb.adm);
+ 	mutex_init(&matrix_dev->mdevs_lock);
+ 	INIT_LIST_HEAD(&matrix_dev->mdev_list);
++	mutex_init(&matrix_dev->guests_lock);
  
- 		mutex_unlock(&kvm->lock);
- 		mutex_unlock(&matrix_dev->lock);
+ 	dev_set_name(&matrix_dev->device, "%s", VFIO_AP_DEV_NAME);
+ 	matrix_dev->device.parent = root_device;
 diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index aea6a8b854b3..fa11a7e91e24 100644
+index 5262e02192a4..ec926f2f2930 100644
 --- a/drivers/s390/crypto/vfio_ap_private.h
 +++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -91,6 +91,7 @@ struct ap_queue_table {
-  * @node:	allows the ap_matrix_mdev struct to be added to a list
-  * @matrix:	the adapters, usage domains and control domains assigned to the
-  *		mediated matrix device.
-+ * @shadow_apcb:    the shadow copy of the APCB field of the KVM guest's CRYCB
-  * @group_notifier: notifier block used for specifying callback function for
-  *		    handling the VFIO_GROUP_NOTIFY_SET_KVM event
-  * @iommu_notifier: notifier block used for specifying callback function for
-@@ -105,6 +106,7 @@ struct ap_matrix_mdev {
- 	struct vfio_device vdev;
- 	struct list_head node;
- 	struct ap_matrix matrix;
-+	struct ap_matrix shadow_apcb;
- 	struct notifier_block group_notifier;
- 	struct notifier_block iommu_notifier;
- 	struct kvm *kvm;
+@@ -39,6 +39,11 @@
+  *		single ap_matrix_mdev device. It's quite coarse but we don't
+  *		expect much contention.
+  * @vfio_ap_drv: the vfio_ap device driver
++ * @guests_lock: mutex for controlling access to a guest that is using AP
++ *		 devices passed through by the vfio_ap device driver. This lock
++ *		 will be taken when the AP devices are plugged into or unplugged
++ *		 from a guest, and when an ap_matrix_mdev device is added to or
++ *		 removed from @mdev_list or the list is iterated.
+  */
+ struct ap_matrix_dev {
+ 	struct device device;
+@@ -47,6 +52,7 @@ struct ap_matrix_dev {
+ 	struct list_head mdev_list;
+ 	struct mutex mdevs_lock;
+ 	struct ap_driver  *vfio_ap_drv;
++	struct mutex guests_lock;
+ };
+ 
+ extern struct ap_matrix_dev *matrix_dev;
 -- 
 2.31.1
 
