@@ -2,204 +2,138 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 283A2C433EF
-	for <linux-s390@archiver.kernel.org>; Mon,  4 Apr 2022 08:16:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F2C53C433F5
+	for <linux-s390@archiver.kernel.org>; Mon,  4 Apr 2022 09:11:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238764AbiDDISS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 4 Apr 2022 04:18:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42580 "EHLO
+        id S1350019AbiDDJNJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 4 Apr 2022 05:13:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234720AbiDDISQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Apr 2022 04:18:16 -0400
-Received: from baptiste.telenet-ops.be (baptiste.telenet-ops.be [IPv6:2a02:1800:120:4::f00:13])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2ECB3B3E3
-        for <linux-s390@vger.kernel.org>; Mon,  4 Apr 2022 01:16:19 -0700 (PDT)
-Received: from ramsan.of.borg ([IPv6:2a02:1810:ac12:ed40:6d4d:d9ec:3c70:7c2c])
-        by baptiste.telenet-ops.be with bizsmtp
-        id EYG82700R40M8zK01YG8cT; Mon, 04 Apr 2022 10:16:17 +0200
-Received: from geert (helo=localhost)
-        by ramsan.of.borg with local-esmtp (Exim 4.93)
-        (envelope-from <geert@linux-m68k.org>)
-        id 1nbHse-0089Aj-Eu; Mon, 04 Apr 2022 10:16:08 +0200
-Date:   Mon, 4 Apr 2022 10:16:08 +0200 (CEST)
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-X-X-Sender: geert@ramsan.of.borg
-To:     linux-kernel@vger.kernel.org
-cc:     linux-m68k@lists.linux-m68k.org, linux-parisc@vger.kernel.org,
-        sparclinux@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
-        linux-rdma@vger.kernel.org, linux-um@lists.infradead.org,
-        linux-media@vger.kernel.org, netdev@vger.kernel.org,
-        linux-wireless@vger.kernel.org, linux-scsi@vger.kernel.org,
-        linux-serial@vger.kernel.org, linux-usb@vger.kernel.org,
-        linux-xfs@vger.kernel.org, alsa-devel@alsa-project.org,
-        linux-s390@vger.kernel.org
-Subject: Re: Build regressions/improvements in v5.18-rc1
-In-Reply-To: <20220404074734.1092959-1-geert@linux-m68k.org>
-Message-ID: <alpine.DEB.2.22.394.2204041006230.1941618@ramsan.of.borg>
-References: <CAHk-=wg6FWL1xjVyHx7DdjD2dHZETA5_=FqqW17Z19X-WTfWSg@mail.gmail.com> <20220404074734.1092959-1-geert@linux-m68k.org>
-User-Agent: Alpine 2.22 (DEB 394 2020-01-19)
+        with ESMTP id S240647AbiDDJNI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Apr 2022 05:13:08 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B2A73B29D;
+        Mon,  4 Apr 2022 02:11:09 -0700 (PDT)
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 2348LQqK013681;
+        Mon, 4 Apr 2022 09:11:03 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : content-type : in-reply-to :
+ mime-version; s=pp1; bh=2WywcuoGyiLhJ5Ccuo0nWNSC0B6ohCCLlv2NWnfdNDs=;
+ b=Sl1BHhXCzs9QpcupNWVM2xteYTW59V+T1zsu5D+pFgjG4Y573ePv3dcGfzTKeULB4k1m
+ 7pR8sy79vZTD9NzIYhHFTrBnSDOeJmoWGJT7u1oWWaP4OXvQzlJ9GSCqB/vgzmTGmujL
+ CmXkdcf1FfBLm1pV2aXf821U5Mj4H5JecXn21gD9M/WsLeiLNPiczx8gf4uwT7tNNKeY
+ 5sfEhNFbiS2PVWAIgbAyvVVgLf6y4WEbJ+mjR58Lf1HOZRC3qofSs3Wng4zuV52x5AnA
+ cuKEiPJSe4S9SoMzhDNF+hkjIWPjt2HtImNxz8Ae/iBLabBsP6pdj5Lm5e96cveJ19xv eQ== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3f701rd3u1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 04 Apr 2022 09:11:02 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23497Ohh013797;
+        Mon, 4 Apr 2022 09:11:00 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma06ams.nl.ibm.com with ESMTP id 3f6drhk8j2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 04 Apr 2022 09:11:00 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2348wkXE48759142
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 4 Apr 2022 08:58:46 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3D860A4054;
+        Mon,  4 Apr 2022 09:10:57 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CFA84A405B;
+        Mon,  4 Apr 2022 09:10:56 +0000 (GMT)
+Received: from osiris (unknown [9.145.2.177])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Mon,  4 Apr 2022 09:10:56 +0000 (GMT)
+Date:   Mon, 4 Apr 2022 11:10:55 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     David Laight <David.Laight@aculab.com>
+Cc:     "'Haowen Bai'" <baihaowen@meizu.com>,
+        "gor@linux.ibm.com" <gor@linux.ibm.com>,
+        "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>,
+        "borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>,
+        "svens@linux.ibm.com" <svens@linux.ibm.com>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>
+Subject: Re: [PATCH] s390: Simplify the calculation of variables
+Message-ID: <Ykq2H+POaGs0GHVU@osiris>
+References: <1648434982-28862-1-git-send-email-baihaowen@meizu.com>
+ <9ab80e670fb341ddaba51a9cd78203fe@AcuMS.aculab.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9ab80e670fb341ddaba51a9cd78203fe@AcuMS.aculab.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: pMYbc6J193IrfqjGGtT-XYMO4Sj59dKw
+X-Proofpoint-ORIG-GUID: pMYbc6J193IrfqjGGtT-XYMO4Sj59dKw
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-04-04_03,2022-03-31_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ malwarescore=0 phishscore=0 mlxlogscore=927 clxscore=1015 suspectscore=0
+ mlxscore=0 spamscore=0 bulkscore=0 adultscore=0 priorityscore=1501
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2204040050
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 4 Apr 2022, Geert Uytterhoeven wrote:
-> Below is the list of build error/warning regressions/improvements in
-> v5.18-rc1[1] compared to v5.17[2].
->
-> Summarized:
->  - build errors: +36/-15
->  - build warnings: +5/-38
->
-> Happy fixing! ;-)
->
-> Thanks to the linux-next team for providing the build service.
->
-> [1] http://kisskb.ellerman.id.au/kisskb/branch/linus/head/3123109284176b1532874591f7c81f3837bbdc17/ (all 96 configs)
-> [2] http://kisskb.ellerman.id.au/kisskb/branch/linus/head/f443e374ae131c168a065ea1748feac6b2e76613/ (all 96 configs)
->
->
-> *** ERRORS ***
->
-> 36 error regressions:
->  + /kisskb/src/arch/m68k/include/asm/bitops.h: error: array subscript 2 is above array bounds of 'long unsigned int[1]' [-Werror=array-bounds]:  => 329:20
+On Mon, Mar 28, 2022 at 12:15:49PM +0000, David Laight wrote:
+> From: Haowen Bai
+> > Sent: 28 March 2022 03:36
+> > 
+> > Fix the following coccicheck warnings:
+> > ./arch/s390/include/asm/scsw.h:695:47-49: WARNING
+> >  !A || A && B is equivalent to !A || B
+> > 
+> > Signed-off-by: Haowen Bai <baihaowen@meizu.com>
+> > ---
+> >  arch/s390/include/asm/scsw.h | 3 +--
+> >  1 file changed, 1 insertion(+), 2 deletions(-)
+> > 
+> > diff --git a/arch/s390/include/asm/scsw.h b/arch/s390/include/asm/scsw.h
+> > index a7c3ccf..f2baac8 100644
+> > --- a/arch/s390/include/asm/scsw.h
+> > +++ b/arch/s390/include/asm/scsw.h
+> > @@ -692,8 +692,7 @@ static inline int scsw_tm_is_valid_pno(union scsw *scsw)
+> >  	return (scsw->tm.fctl != 0) &&
+> >  	       (scsw->tm.stctl & SCSW_STCTL_STATUS_PEND) &&
+> >  	       (!(scsw->tm.stctl & SCSW_STCTL_INTER_STATUS) ||
+> > -		 ((scsw->tm.stctl & SCSW_STCTL_INTER_STATUS) &&
+> > -		  (scsw->tm.actl & SCSW_ACTL_SUSPENDED)));
+> > +	       (scsw->tm.actl & SCSW_ACTL_SUSPENDED))
+> >  }
+> 
+> I'd split that impenetrable boolean expression up.
+> 
+> I think this is equivalent:
+> 	if (!scsw->tm.fctl)
+> 		return 0;
+> 	if (!(scsw->tm.stctl & SCSW_STCTL_STATUS_PEND))
+> 		return 0;
+> 	if (!(scsw->tm.stctl & SCSW_STCTL_INTER_STATUS))
+> 		return 1
+> 	if (scsw->tm.actl & SCSW_ACTL_SUSPENDED)
+> 		return 1;
+> 	return 0;
+> 
+> The generated code could even be the same.
 
-m68k-gcc8/m68k-allmodconfig (assumed gcc8 bug)
+Yes, we had the very same discussion here:
+https://lore.kernel.org/linux-s390/20210820025159.11914-1-jing.yangyang@zte.com.cn/
 
->  + /kisskb/src/arch/parisc/kernel/vdso32/restart_syscall.S: Error: .cfi_endproc without corresponding .cfi_startproc:  => 32
->  + /kisskb/src/arch/parisc/kernel/vdso32/restart_syscall.S: Error: bad or irreducible absolute expression:  => 16
->  + /kisskb/src/arch/parisc/kernel/vdso32/restart_syscall.S: Error: junk at end of line, first unrecognized character is `:':  => 16
->  + /kisskb/src/arch/parisc/kernel/vdso32/restart_syscall.S: Error: no such instruction: `be 0x100(%sr2,%r0)':  => 29
->  + /kisskb/src/arch/parisc/kernel/vdso32/restart_syscall.S: Error: no such instruction: `ldi 0,%r20':  => 30
->  + /kisskb/src/arch/parisc/kernel/vdso32/restart_syscall.S: Error: no such instruction: `ldw 0(%sp),%r31':  => 26
->  + /kisskb/src/arch/parisc/kernel/vdso32/sigtramp.S: Error: no such instruction: `ble 0x100(%sr2,%r0)':  => 51, 46
->  + /kisskb/src/arch/parisc/kernel/vdso32/sigtramp.S: Error: no such instruction: `ldi 0,%r25':  => 44
->  + /kisskb/src/arch/parisc/kernel/vdso32/sigtramp.S: Error: no such instruction: `ldi 1,%r25':  => 49
->  + /kisskb/src/arch/parisc/kernel/vdso32/sigtramp.S: Error: no such instruction: `ldi 173,%r20':  => 45, 50
->  + /kisskb/src/arch/parisc/kernel/vdso32/sigtramp.S: Error: unknown pseudo-op: `.callinfo':  => 40
->  + /kisskb/src/arch/parisc/kernel/vdso32/sigtramp.S: Error: unknown pseudo-op: `.entry':  => 41
->  + /kisskb/src/arch/parisc/kernel/vdso32/sigtramp.S: Error: unknown pseudo-op: `.exit':  => 54
->  + /kisskb/src/arch/parisc/kernel/vdso32/sigtramp.S: Error: unknown pseudo-op: `.proc':  => 39
->  + /kisskb/src/arch/parisc/kernel/vdso32/sigtramp.S: Error: unknown pseudo-op: `.procend':  => 55
->  + /kisskb/src/arch/parisc/kernel/vdso32/sigtramp.S: Error: unknown pseudo-op: `.stringz':  => 76
+Where the outcome also was that it doesn't make sense to replace one
+unreadable version with another unreadable version just to get rid of
+a warning.
 
-parisc64-gcc8/generic-64bit_defconfig
-parisc-gcc8/generic-32bit_defconfig
-parisc-gcc8/parisc-allmodconfig
-parisc-gcc8/parisc-allnoconfig
+Haowen, could you please resend with a proper readable version, or
+alternatively, Vineeth, could you address this please, so this doesn't
+come up again?
 
->  + /kisskb/src/arch/sparc/kernel/irq_32.c: error: array subscript [16, 79] is outside array bounds of 'struct tt_entry[1]' [-Werror=array-bounds]:  => 262:14, 261:46, 259:14, 258:14, 263:14
-
-sparc64-gcc11/sparc-allmodconfig
-
->  + /kisskb/src/drivers/gpu/drm/r128/r128_cce.c: error: case label does not reduce to an integer constant:  => 417:2, 418:2
-
-arm64-gcc5.4/arm64-allmodconfig
-mipsel/mips-allmodconfig
-powerpc-gcc5/powerpc-allmodconfig
-powerpc-gcc5/powerpc-allyesconfig
-powerpc-gcc5/ppc32_allmodconfig
-powerpc-gcc5/ppc64_book3e_allmodconfig
-powerpc-gcc5/ppc64le_allmodconfig
-
->  + /kisskb/src/drivers/infiniband/hw/qib/qib_wc_x86_64.c: error: 'X86_VENDOR_AMD' undeclared (first use in this function):  => 149:37
->  + /kisskb/src/drivers/infiniband/hw/qib/qib_wc_x86_64.c: error: 'struct cpuinfo_um' has no member named 'x86_vendor':  => 149:22
->  + /kisskb/src/drivers/infiniband/hw/qib/qib_wc_x86_64.c: error: control reaches end of non-void function [-Werror=return-type]:  => 150:1
->  + /kisskb/src/drivers/infiniband/sw/rdmavt/qp.c: error: 'struct cpuinfo_um' has no member named 'x86_cache_size':  => 88:22
->  + /kisskb/src/drivers/infiniband/sw/rdmavt/qp.c: error: control reaches end of non-void function [-Werror=return-type]:  => 89:1
->  + /kisskb/src/drivers/infiniband/sw/rdmavt/qp.c: error: implicit declaration of function '__copy_user_nocache' [-Werror=implicit-function-declaration]:  => 100:2
-
-um-x86_64/um-allmodconfig
-um-x86_64/um-allyesconfig
-
->  + /kisskb/src/drivers/media/platform/nxp/imx-pxp.h: error: initializer element is not constant:  => 582:38
-
-arm64-gcc5.4/arm64-allmodconfig
-powerpc-gcc5/powerpc-allmodconfig
-
->  + /kisskb/src/drivers/misc/habanalabs/common/memory.c: error: cast from pointer to integer of different size [-Werror=pointer-to-int-cast]:  => 153:49, 153:7
-
-mipsel/mips-allmodconfig
-mips-gcc8/mips-allmodconfig
-sparc64/sparc-allmodconfig
-xtensa-gcc11/xtensa-allmodconfig
-
->  + /kisskb/src/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c: error: case label does not reduce to an integer constant:  => 4917:4
->  + /kisskb/src/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c: error: case label does not reduce to an integer constant:  => 3798:2, 3809:2
-
-arm64-gcc5.4/arm64-allmodconfig
-powerpc-gcc5/powerpc-allmodconfig
-powerpc-gcc5/ppc64_book3e_allmodconfig
-
->  + /kisskb/src/drivers/scsi/aacraid/commsup.c: error: case label does not reduce to an integer constant:  => 1983:2
-
-arm64-gcc5.4/arm64-allmodconfig
-powerpc-gcc5/powerpc-allmodconfig
-powerpc-gcc5/ppc64_book3e_allmodconfig
-powerpc-gcc5/ppc64le_allmodconfig
-
->  + /kisskb/src/drivers/tty/serial/mpc52xx_uart.c: error: initialization from incompatible pointer type [-Werror=incompatible-pointer-types]:  => 1004:12, 1005:12, 1006:14, 970:12, 968:16, 971:14, 969:12, 1002:16, 1003:16, 967:16
-
-powerpc-gcc5/ppc32_allmodconfig
-
->  + /kisskb/src/drivers/usb/typec/tcpm/tcpm.c: error: case label does not reduce to an integer constant:  => 4724:3
-
-arm64-gcc5.4/arm64-allmodconfig
-powerpc-gcc5/powerpc-allmodconfig
-powerpc-gcc5/ppc64_book3e_allmodconfig
-
->  + /kisskb/src/fs/xfs/xfs_buf.h: error: initializer element is not constant:  => 46:23
->  + /kisskb/src/sound/usb/midi.c: error: case label does not reduce to an integer constant:  => 1389:2
-
-arm64-gcc5.4/arm64-allmodconfig
-mipsel/mips-allmodconfig
-powerpc-gcc5/powerpc-allmodconfig
-powerpc-gcc5/powerpc-allyesconfig
-powerpc-gcc5/ppc32_allmodconfig
-powerpc-gcc5/ppc64_book3e_allmodconfig
-powerpc-gcc5/ppc64le_allmodconfig
-
->  + /kisskb/src/include/linux/compiler_types.h: error: call to '__compiletime_assert_402' declared with attribute error: FIELD_PREP: mask is not constant:  => 352:38
->  + /kisskb/src/include/linux/compiler_types.h: error: call to '__compiletime_assert_404' declared with attribute error: FIELD_PREP: mask is not constant:  => 352:38
-
-powerpc-gcc5/powerpc-allmodconfig
-
-
-> *** WARNINGS ***
->
-> 5 warning regressions:
->  + /kisskb/src/arch/m68k/include/asm/string.h: warning: '__builtin_memset' offset [0, 11] is out of the bounds [0, 0] [-Warray-bounds]:  => 68:25
-
-m68k-gcc11/sun3_defconfig
-
->  + /kisskb/src/arch/s390/kernel/machine_kexec.c: warning: 'memcpy' offset [0, 511] is out of the bounds [0, 0] [-Warray-bounds]:  => 57:9
-
-s390x-gcc11/s390-defconfig
-
->  + /kisskb/src/drivers/net/ethernet/i825xx/sun3_82586.c: warning: array subscript 1 is above array bounds of 'volatile struct transmit_cmd_struct *[1]' [-Warray-bounds]:  => 989:108, 989:122
-
-m68k-gcc11/sun3_defconfig
-m68k-gcc8/sun3_defconfig
-
->  + /kisskb/src/drivers/scsi/mpt3sas/mpt3sas_base.c: warning: array subscript 'Mpi2SasIOUnitPage1_t {aka struct _MPI2_CONFIG_PAGE_SASIOUNIT_1}[0]' is partly outside array bounds of 'unsigned char[20]' [-Warray-bounds]:  => 5400:40, 5403:43, 5396:40
-
-powerpc-gcc11/skiroot_defconfig
-
->  + modpost: WARNING: modpost: EXPORT symbol "_mcount" [vmlinux] version generation failed, symbol will not be versioned.:  => N/A
-
-sparc64-gcc11/sparc64-defconfig
-sparc64/sparc64-defconfig
-
-Gr{oetje,eeting}s,
-
- 						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
- 							    -- Linus Torvalds
+Thanks!
