@@ -2,150 +2,144 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7ABA4C433F5
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1297C433EF
 	for <linux-s390@archiver.kernel.org>; Tue,  5 Apr 2022 22:39:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231991AbiDEWdy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Apr 2022 18:33:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48960 "EHLO
+        id S232606AbiDEWd4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Apr 2022 18:33:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1442334AbiDEPhb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Apr 2022 11:37:31 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2884710E043;
-        Tue,  5 Apr 2022 06:51:43 -0700 (PDT)
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 235DWRjZ003272;
-        Tue, 5 Apr 2022 13:51:42 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=70f3++uodWHlr/PXmHHWDTclVF91IG0xsbEDXHos37A=;
- b=DMdIq0bl6/8VKmrHbW7wM6dIBwQofXy30Ekze1jv+W36eX+v5tx38d0A7JrvYQIWAqWs
- PytJ8x1Um5W6COeLdTOTjrKrvx55uz+eFvaEmAwmTcd3hsmZ+l/KPIR1c6LSkyNDf9GG
- NHU1IOLwoMwSjbRn1mU4/qaf7Tnb94wzU2LaJ2XMEM7MCj9QX3J39+MEYLPptgBhkdxV
- NYlBZOvKhCZoCk5sUf8f7Tp66XBW2ziCgb5x6cFJcM3MzCqiypsVEiUERf4IMM/ogsud
- 0MIhodjCZiOrsQVZeJSa4SMZ2pVoGjNzCL6nBDDxwXpqKad4yjGzQMfGGoJ+syPKayTX 0A== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3f8ph20rn4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 05 Apr 2022 13:51:42 +0000
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 235DWvRX004595;
-        Tue, 5 Apr 2022 13:51:42 GMT
-Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3f8ph20rmn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 05 Apr 2022 13:51:41 +0000
-Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
-        by ppma02wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 235DmwQM029536;
-        Tue, 5 Apr 2022 13:51:40 GMT
-Received: from b01cxnp23033.gho.pok.ibm.com (b01cxnp23033.gho.pok.ibm.com [9.57.198.28])
-        by ppma02wdc.us.ibm.com with ESMTP id 3f6e49fny5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 05 Apr 2022 13:51:40 +0000
-Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
-        by b01cxnp23033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 235DpdFA46072108
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 5 Apr 2022 13:51:39 GMT
-Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CA3D728065;
-        Tue,  5 Apr 2022 13:51:39 +0000 (GMT)
-Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E77E428074;
-        Tue,  5 Apr 2022 13:51:34 +0000 (GMT)
-Received: from [9.211.32.125] (unknown [9.211.32.125])
-        by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTP;
-        Tue,  5 Apr 2022 13:51:34 +0000 (GMT)
-Message-ID: <26fa1eef-8c89-8819-b12c-3b8caaf40bb2@linux.ibm.com>
-Date:   Tue, 5 Apr 2022 09:51:34 -0400
+        with ESMTP id S1573496AbiDETMt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Apr 2022 15:12:49 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E8C7DE885A
+        for <linux-s390@vger.kernel.org>; Tue,  5 Apr 2022 12:10:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1649185848;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ufYYfNJ31ZxJiptHxZVI0cJDY245GxkfqBFvOLAxMek=;
+        b=Z9xUuWIFR1s5Ev4w2nyOD2v0z3fHci6g13TOV980JOAop8ZJh1B/KGPbUnOLPzwiod2D5n
+        zR9KVBTDx3Z1Fn096cuMlF3ritv9wL0sh6HY7KAWGny3m03LjZYEBUy5itgGqEsLKTFi79
+        JEkrQ5Axjt92XOV3XQSYNJdJKHT4Qkg=
+Received: from mail-io1-f71.google.com (mail-io1-f71.google.com
+ [209.85.166.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-492-vESckv_5M1CyrRh24ZfuJw-1; Tue, 05 Apr 2022 15:10:47 -0400
+X-MC-Unique: vESckv_5M1CyrRh24ZfuJw-1
+Received: by mail-io1-f71.google.com with SMTP id w28-20020a05660205dc00b00645d3cdb0f7so131230iox.10
+        for <linux-s390@vger.kernel.org>; Tue, 05 Apr 2022 12:10:47 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
+         :references:organization:mime-version:content-transfer-encoding;
+        bh=ufYYfNJ31ZxJiptHxZVI0cJDY245GxkfqBFvOLAxMek=;
+        b=HJtDYbCUYf1IUDh+ho2ERHKYoNaPdV4Y2kPfvxthrJM+MED0jtY8BGPXHsXUmX7TxN
+         DB0MntywVX8sp46RHdyYC2OJxY2D7EOdQOIl31kvcE+778hoitftHRkMX9uv7OmncCRj
+         1Q7/xFIj9kyQqmjwU0i0JimWdX8kfiLo77E7iGaLNmqbnkCz7TjsSQBwj0rpNhL8N/sm
+         PstCZg9bAhoo6kin6XdHEHpjZx48KUCfPNCK/sd7gq10ORbN7azXddXYJIpZBAf8pN85
+         nmleRoTqdTkhWHkVqFNWUSncsg6K3w3BQT+18Asl9bSOyqjyvItQRne1zzNYzlBEHGEO
+         jAbQ==
+X-Gm-Message-State: AOAM530f22rj+eiZGERQHMItug2mM3Lkbx6hVkhQhu5PtuyCRvV1S6A3
+        8JMfXH99lNYqC51BITwevJE92Mch5XDb7IaGJ2RKJxfdIKskChFO79/PdBRSCq33cEhlt+l5+NU
+        B1Ur6dg5jEAu/ygPPiX65gw==
+X-Received: by 2002:a92:cdad:0:b0:2c6:7b76:a086 with SMTP id g13-20020a92cdad000000b002c67b76a086mr2568135ild.5.1649185846542;
+        Tue, 05 Apr 2022 12:10:46 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxocs2ZVaXF5YVJwjGBcLRqnK5UBIr3mQlWSQgNmkFdgGBC2rjlpWZLrLl9AI2wrgBUaUJw1w==
+X-Received: by 2002:a92:cdad:0:b0:2c6:7b76:a086 with SMTP id g13-20020a92cdad000000b002c67b76a086mr2568112ild.5.1649185846282;
+        Tue, 05 Apr 2022 12:10:46 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id x2-20020a056602160200b006463c1977f9sm9314961iow.22.2022.04.05.12.10.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 05 Apr 2022 12:10:45 -0700 (PDT)
+Date:   Tue, 5 Apr 2022 13:10:44 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
+        Christian Benvenuti <benve@cisco.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        iommu@lists.linux-foundation.org, Jason Wang <jasowang@redhat.com>,
+        Joerg Roedel <joro@8bytes.org>, kvm@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Nelson Escobar <neescoba@cisco.com>, netdev@vger.kernel.org,
+        Rob Clark <robdclark@gmail.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        virtualization@lists.linux-foundation.org,
+        Will Deacon <will@kernel.org>, Christoph Hellwig <hch@lst.de>,
+        "Tian, Kevin" <kevin.tian@intel.com>
+Subject: Re: [PATCH 2/5] vfio: Require that devices support DMA cache
+ coherence
+Message-ID: <20220405131044.23910b77.alex.williamson@redhat.com>
+In-Reply-To: <2-v1-ef02c60ddb76+12ca2-intel_no_snoop_jgg@nvidia.com>
+References: <0-v1-ef02c60ddb76+12ca2-intel_no_snoop_jgg@nvidia.com>
+        <2-v1-ef02c60ddb76+12ca2-intel_no_snoop_jgg@nvidia.com>
+Organization: Red Hat
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH v5 10/21] KVM: s390: pci: add basic kvm_zdev structure
-Content-Language: en-US
-To:     Niklas Schnelle <schnelle@linux.ibm.com>,
-        linux-s390@vger.kernel.org
-Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
-        farman@linux.ibm.com, pmorel@linux.ibm.com,
-        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
-        imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
-        oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
-        pasic@linux.ibm.com, pbonzini@redhat.com, corbet@lwn.net,
-        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-doc@vger.kernel.org
-References: <20220404174349.58530-1-mjrosato@linux.ibm.com>
- <20220404174349.58530-11-mjrosato@linux.ibm.com>
- <8fc611271c6156dee5c5f5b5c2f583d2d7774843.camel@linux.ibm.com>
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <8fc611271c6156dee5c5f5b5c2f583d2d7774843.camel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Qt5-YCCO2ZAkFtw-CyjLutRvAHpvHu4x
-X-Proofpoint-ORIG-GUID: abzCw4HVKfcXKNf_D465BhRHBCQe8tNw
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-04-05_02,2022-04-05_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 spamscore=0
- clxscore=1015 priorityscore=1501 adultscore=0 mlxlogscore=898 phishscore=0
- suspectscore=0 lowpriorityscore=0 impostorscore=0 bulkscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2204050079
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 4/5/22 4:20 AM, Niklas Schnelle wrote:
-> On Mon, 2022-04-04 at 13:43 -0400, Matthew Rosato wrote:
->> This structure will be used to carry kvm passthrough information related to
->> zPCI devices.
->>
->> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
->> ---
->>   arch/s390/include/asm/pci.h |  3 +++
->>   arch/s390/kvm/Makefile      |  1 +
->>   arch/s390/kvm/pci.c         | 38 +++++++++++++++++++++++++++++++++++++
->>   arch/s390/kvm/pci.h         | 21 ++++++++++++++++++++
->>   4 files changed, 63 insertions(+)
->>   create mode 100644 arch/s390/kvm/pci.c
->>   create mode 100644 arch/s390/kvm/pci.h
->>
->> diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
->> index 4c5b8fbc2079..9eb20cebaa18 100644
->> --- a/arch/s390/include/asm/pci.h
->> +++ b/arch/s390/include/asm/pci.h
->> @@ -97,6 +97,7 @@ struct zpci_bar_struct {
->>   };
->>   
->>   struct s390_domain;
->> +struct kvm_zdev;
->>   
->>   #define ZPCI_FUNCTIONS_PER_BUS 256
->>   struct zpci_bus {
->> @@ -190,6 +191,8 @@ struct zpci_dev {
->>   	struct dentry	*debugfs_dev;
->>   
->>   	struct s390_domain *s390_domain; /* s390 IOMMU domain data */
->> +
->> +	struct kvm_zdev *kzdev; /* passthrough data */
->>   };
-> 
-> The struct zpci_dev tries to use semantic groups in its formatting.
-> It's not perfect and we probably need to clean this up to remove some
-> holes in the future. For now let's put the new kzdev without a blank
-> line together with s390_domain and add a "section comment" like
-> "IOMMU and passthrough".
-> Also I'd drop the "... data" part of the line end comment or even drop
-> it entirely, the name is pretty clear already when combined with the
-> section comment.
+On Tue,  5 Apr 2022 13:16:01 -0300
+Jason Gunthorpe <jgg@nvidia.com> wrote:
 
-Sure, will do
-
+> dev_is_dma_coherent() is the control to determine if IOMMU_CACHE can be
+> supported.
 > 
-> With that Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> IOMMU_CACHE means that normal DMAs do not require any additional coherency
+> mechanism and is the basic uAPI that VFIO exposes to userspace. For
+> instance VFIO applications like DPDK will not work if additional coherency
+> operations are required.
 > 
+> Therefore check dev_is_dma_coherent() before allowing a device to join a
+> domain. This will block device/platform/iommu combinations from using VFIO
+> that do not support cache coherent DMA.
+> 
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>  drivers/vfio/vfio.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
+> 
+> diff --git a/drivers/vfio/vfio.c b/drivers/vfio/vfio.c
+> index a4555014bd1e72..2a3aa3e742d943 100644
+> --- a/drivers/vfio/vfio.c
+> +++ b/drivers/vfio/vfio.c
+> @@ -32,6 +32,7 @@
+>  #include <linux/vfio.h>
+>  #include <linux/wait.h>
+>  #include <linux/sched/signal.h>
+> +#include <linux/dma-map-ops.h>
+>  #include "vfio.h"
+>  
+>  #define DRIVER_VERSION	"0.3"
+> @@ -1348,6 +1349,11 @@ static int vfio_group_get_device_fd(struct vfio_group *group, char *buf)
+>  	if (IS_ERR(device))
+>  		return PTR_ERR(device);
+>  
+> +	if (group->type == VFIO_IOMMU && !dev_is_dma_coherent(device->dev)) {
+> +		ret = -ENODEV;
+> +		goto err_device_put;
+> +	}
+> +
 
-Thanks!
+Failing at the point where the user is trying to gain access to the
+device seems a little late in the process and opaque, wouldn't we
+rather have vfio bus drivers fail to probe such devices?  I'd expect
+this to occur in the vfio_register_group_dev() path.  Thanks,
+
+Alex
+
+>  	if (!try_module_get(device->dev->driver->owner)) {
+>  		ret = -ENODEV;
+>  		goto err_device_put;
+
