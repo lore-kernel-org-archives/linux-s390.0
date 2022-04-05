@@ -2,199 +2,237 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A19BC433EF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1398C43217
 	for <linux-s390@archiver.kernel.org>; Tue,  5 Apr 2022 22:40:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236328AbiDEWeC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Apr 2022 18:34:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36960 "EHLO
+        id S237542AbiDEWeH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Apr 2022 18:34:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1573650AbiDETbU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Apr 2022 15:31:20 -0400
-Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2074.outbound.protection.outlook.com [40.107.237.74])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DE6C245BD;
-        Tue,  5 Apr 2022 12:29:21 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=TfaIhWcwnPq/4JTJPsSub5k4g8JRdBV2vLxi7wwHyEmVrPhAdKj10enU4mc8HKvArAVUNT9u4Q5fxKyXtpbIN6MRKmQRTJVYMbNT0e5uWij3n+gB/YszLufMSiPUn93EJds7JNfvBaK5WYvMNTn2ATF7mBRGPSm1dyphA1y6aTAUl7wU3oIj2xnqd7Kb6e+3Hx0GKu1s4EiGx5s8KSjK6mLHdknwQ77VxLneXSYZHJAZ7LK9ch7mAF1OHy7Fs1gZ8wSkzxnNYFM023psfzQ2Yqc/jZVlFn5rhx/bWiIrhGtiVWBKDHjuRfKByUGSEou+i6zjiNI4CYMLVsDoSmtuYA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Qg6cJbFDDHBVDK6LJ29Lrd9XaBMpMXJJByseVnaz2fA=;
- b=XBAjDL2Avy+ctecu+GZfotGwApk/2OZrp6e0MddoBYQQ3tsnHpDbBgK5iZC7QKYJGbY/Ww++lfImrNTdIqdjMBaDD+/2R3L6pRZgvbIPsGyWuo5VCgyvqXNQcr/8iLQ1AWvBc8k11Ajrc6kcD9Tz9jqdzTJ26qxKqQKC52DK/rLNy9X+f2LcumQUp/iSR2aWbOs7rag6SLxppqZo9FgLvfcCauWuU6/9H/L66LlR4gtkJfUzyX12aHflCcI5kzRFtzCH2z1cTWpioYRUgp2XkUzLIeWsmKltr6RERJLnDW7T7taFR6uro24iS1wid2+WYlUd1R19zc2Hhs++gdCdVw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Qg6cJbFDDHBVDK6LJ29Lrd9XaBMpMXJJByseVnaz2fA=;
- b=eDv0gLdYTQoJUb4lP+EnKya2cRgdxHCYiZj537g/9wWkRmaGGfVGzOW/l1h5N40/wP3VVE9wI3KRR6u37j4AD1M1Gcg/pEhsmrqhrvgEgHq3iu8wTwlskl53CwgtMlrdpcLXvcqDzMIftB2PYZBZhPXkaFFozwbedOCOvP0JGDsoGBSZI+cio66caUOzCagKYTPq8MO0nJuom85uv2Qy1Sif9BmK8nW2s2WkzOkdPjmCB5mPR6Bga0sSPXrrz0SJBqPuQaxlIzk3IoQC9gW9f8iowYY0S3UJblylrY3szJlT7gruFw6nZ7mBYXysWIgtKf/0YI4ndeVbbQHmam8uPg==
-Received: from BYAPR12MB2597.namprd12.prod.outlook.com (2603:10b6:a03:6e::20)
- by DM6PR12MB2892.namprd12.prod.outlook.com (2603:10b6:5:182::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5123.31; Tue, 5 Apr
- 2022 19:29:19 +0000
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
- by BYAPR12MB2597.namprd12.prod.outlook.com (2603:10b6:a03:6e::20) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5123.31; Tue, 5 Apr
- 2022 19:29:18 +0000
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::cdfb:f88e:410b:9374]) by MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::cdfb:f88e:410b:9374%5]) with mapi id 15.20.5123.031; Tue, 5 Apr 2022
- 19:29:18 +0000
-Date:   Tue, 5 Apr 2022 16:29:16 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Alex Williamson <alex.williamson@redhat.com>
-Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
-        Christian Benvenuti <benve@cisco.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        iommu@lists.linux-foundation.org, Jason Wang <jasowang@redhat.com>,
-        Joerg Roedel <joro@8bytes.org>, kvm@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-rdma@vger.kernel.org,
-        linux-s390@vger.kernel.org,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Nelson Escobar <neescoba@cisco.com>, netdev@vger.kernel.org,
-        Rob Clark <robdclark@gmail.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        virtualization@lists.linux-foundation.org,
-        Will Deacon <will@kernel.org>, Christoph Hellwig <hch@lst.de>,
-        "Tian, Kevin" <kevin.tian@intel.com>
-Subject: Re: [PATCH 2/5] vfio: Require that devices support DMA cache
- coherence
-Message-ID: <20220405192916.GT2120790@nvidia.com>
-References: <0-v1-ef02c60ddb76+12ca2-intel_no_snoop_jgg@nvidia.com>
- <2-v1-ef02c60ddb76+12ca2-intel_no_snoop_jgg@nvidia.com>
- <20220405131044.23910b77.alex.williamson@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220405131044.23910b77.alex.williamson@redhat.com>
-X-ClientProxiedBy: BLAP220CA0007.NAMP220.PROD.OUTLOOK.COM
- (2603:10b6:208:32c::12) To MN2PR12MB4192.namprd12.prod.outlook.com
- (2603:10b6:208:1d5::15)
+        with ESMTP id S1446274AbiDEPoY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Apr 2022 11:44:24 -0400
+Received: from mail-yw1-f174.google.com (mail-yw1-f174.google.com [209.85.128.174])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34A92E6C78;
+        Tue,  5 Apr 2022 07:13:10 -0700 (PDT)
+Received: by mail-yw1-f174.google.com with SMTP id 00721157ae682-2eb43ad7909so85992257b3.2;
+        Tue, 05 Apr 2022 07:13:10 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=0m0X8qD7jgaOpFhSCX1pI9/lBF4aFgFkK0POJ3FtM5M=;
+        b=oop02PYzQjf4I81Lgk4YHXpzi42n6WQveIpvF1+LxhlRXlBzom659lzoHZVZW8RA4f
+         i9VrfhAx+htfKK6+HHav6cGsfp4pSaozu8Y6va4FPwBKBNMvEfW+HIzvD+s/5zv6kcAW
+         VScgyYuKNHatNNWNwYAwo6vDB7QMJuXlQTtcVWaNAvf6kQ8oldpg8FL6M4jmKQigbaMn
+         ef4nPOFy981kzrUeawhcNAkHuyoSdOROd6truwdQ7qTV638O5j5Cy3JEpNKaudeHfSxw
+         yZyz733yGUe1tlEMIjAQ2fw6FmB5P7yGvYAP4M9tiFmwZcQlN/RSGjWE5DSu/pPna7AN
+         D3tA==
+X-Gm-Message-State: AOAM533eKEhvmfbZ+W3FKVOMlBuGOh9pe6H4UDEObRCxRmXaINPnLL0u
+        s0AWfQ4CEYNywmH6p/kDPe/lNr1oHF8ud6O3NpwSivjT
+X-Google-Smtp-Source: ABdhPJxwMh75H+q2lMm7lfhlZkhQSxK3Xl3vxLiAsuHwCOepfUfgE7YhAm+UQ8tjNWYOfmUWiErC4e6KhAn6L+k5ZXk=
+X-Received: by 2002:a81:1257:0:b0:2eb:97cf:a4a2 with SMTP id
+ 84-20020a811257000000b002eb97cfa4a2mr2865951yws.149.1649167989258; Tue, 05
+ Apr 2022 07:13:09 -0700 (PDT)
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: de0d5aed-0eb0-4cc9-893f-08da173a9383
-X-MS-TrafficTypeDiagnostic: BYAPR12MB2597:EE_|DM6PR12MB2892:EE_
-X-Microsoft-Antispam-PRVS: <BYAPR12MB2597C9C0C76536D375BF2144C2E49@BYAPR12MB2597.namprd12.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: PlsJsXkHgHvdVpKujO/POeGTX1NhUxxRszuSP/9yDSZz68FPTXqvQplKDYaqL24UHIkt97dCIM3dKSVfwZKenhazwz6PvPP7ikjvUqZJo3ry/LzsAgHYQyIlNLFWs/j51YZ0J4dTPr+y02psBSBfkNK+4KvGzmtItc6d0FzwaAG8TK2251i8VfWSIzIG8Th6DCpHljkSquOc6STxt2YXqKhw/4iGWvYPWGz/yGyk1LX4l+yq4Gmebplv8So/cNMyhXZ3iE82DGvBsC+EueyabfRQyaxlfPihcE8wggg2SOuSD8q/IhQQGnKq5Pk0abMadGtgqlKLi8sgU0qRerrpuEf6OWbB2899ejuHMxSGY6E640Dd/B/gcvOe3EM4hysFCWP97Q5xoPGSMDQvM+eNZvMbNrwXdVqoYm9rkNzp61RapbgpOaD4uMS3Ynt6z2A/OallIOZa0He8bjvzMILIySLXiRETYr1Ne9YGboJF5NgAuKeOzOtDa9XlzDY6zrrxLD6Pvayh7h/BF/jpObzNOrtZjEP43TtbWYUzvHjXZmgEXRIZElFhBUQuv16BBMf48bUXFNDU1QTbOS533U2w9VewVn+e6viqv7GMEyZg2dRFLEMvnqDBqO7rg2z91ZiPdSOZVdEe0U2DVZb4mEZlOw==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR12MB2597.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(36756003)(186003)(5660300002)(83380400001)(26005)(4326008)(8676002)(1076003)(66476007)(66556008)(7416002)(8936002)(66946007)(2906002)(316002)(33656002)(2616005)(86362001)(6916009)(54906003)(6512007)(6486002)(508600001)(38100700002)(6506007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?RxFrqoJlLcTB/DuvQ1jtN3YwbrnDVaRrrkjn2bjwzQcR+OIQ13Mm5MD3ac4c?=
- =?us-ascii?Q?ol1IuO1O99VmX0aGmBBgimYtgLHDSc99bvA0+acB1GHwctE0Xpu7YpA9Ibjf?=
- =?us-ascii?Q?ivGCmtV7ol3lj//PIZBavtKkqFR209M7ibtD9OaKVfHMYoDci8+6jmd8obou?=
- =?us-ascii?Q?DmupuFPyUNbFB1ZxIWynuLvhbyDoG7zOrS2/WxaEf3W+E5hj369dgN2+E3Ve?=
- =?us-ascii?Q?/O5UMwo0L+9zRnyRA1dMY+e3mZxIXNq5BMRe5gNB0r2NEz70w/kEdb5Pi0EZ?=
- =?us-ascii?Q?awV4AYJDUJPOQlYi9apdMZH24ZuwSC0PY4E4m9zy2UkieC+3fYqQaXhf4UxX?=
- =?us-ascii?Q?c1czOc1KUlsaZvpPdRc4TJ2tD7DcD5iUqDVIb2YdPxrWGrNGnCC9Lpu1Tf5N?=
- =?us-ascii?Q?o3ve2sSq8Y+8tmErJhYUReFPePEcx1+OViWGSYbj9uQGM3Cef3Bsw5u20nwL?=
- =?us-ascii?Q?UwWuJ7nKQSQP3OkRtlY4iljVV7XLy4N8O1pMR2+vi4M8xzkMfzlkR8rw6X18?=
- =?us-ascii?Q?yo+d3ndQy+9IIDWopaAwcOK9FK+4IT/A2NFd1HYe2mgY3ifOy1SxCsjFXS/5?=
- =?us-ascii?Q?G5N4nk7iJ9vR1YIFlDq/vIeE/TQZo7TLNcrkq0RaMFKhg2MQAnk9ZBN7llfm?=
- =?us-ascii?Q?m2crwEQJhIy8qC2IECwdmlryzj0HFz3yLOJbbWF4osGzt85q+/Qp59VsCbwf?=
- =?us-ascii?Q?1Ld8b0GXNMfp8ITKCwQ8m6rwb99+hKftA4a0x0/HRXqLu0NL1aPyR1WpGZjn?=
- =?us-ascii?Q?6LnvByMllMVwjt79OFnAHmc7mZBkLvObuD0Oc4V4zQkc4S7dEDwSk49fQIDJ?=
- =?us-ascii?Q?Q2nTLVUm4x04xSvqviIM8w9hD8PWR4iWI7fdu+Zlsy6nMbKYEm95hrT8dVLC?=
- =?us-ascii?Q?DCROT45Uk9ug+7mya8whtLfeeS39tMNbwxLfmf0DSNbZvkm10+NbJYSNQ8Yt?=
- =?us-ascii?Q?o2npyDL2mVPCy2iLUQIJ2wUEaz1dzBvLfIcuaj0Y8pRTVu44rsKx3rIXsqpO?=
- =?us-ascii?Q?tCV5ilIPrA5DeIJJtQd+Vrfmrxayfr4Z3JtXZjUAM5rTgUOejQMrlrq/bNwC?=
- =?us-ascii?Q?pu2D9ETCVlv7CkiGUCYZq19Tse4jQWBWZvCMIC5DFLCQyAIWWsxcBDlw734+?=
- =?us-ascii?Q?PhvblmZwwBqI1WZVPQ2Ax2deCYZBF6GHnhMOhXXDjfNQpJBydPwNDqvcOnTh?=
- =?us-ascii?Q?taIQACDy4a5BUdNphewOKc2cRTn5F4/EFgHKvbhUAKYi5tVOnMdfMLHpwE4b?=
- =?us-ascii?Q?UlCL7bGYYnB0sOPnrai+1Fwr0LON5LMTlGDnK0Spw5aLIgqkmVTSExcwTPpa?=
- =?us-ascii?Q?1zuNJPB3D6ZRSXrRVOWzrkrRZSOb/RTAOq1J/Sm7zde7fkA3t8uTjNtzyG37?=
- =?us-ascii?Q?Ocg3Saeo7gdCoPcryRKLcHhMZj0g0UpX4oIOWUjSouX0Sgvbx9OAv2PLnJ3k?=
- =?us-ascii?Q?uUfwiRMz3tTrRwbT7ixQy0zNq8OZY9BaxI+s45anWXTBIpDDmiJajsp1UtXz?=
- =?us-ascii?Q?xDYtgDYw5IGpK4F2sHkFcKpQlSod+JfBV1JdEe+faLet3zSOByGd4A2XdlbG?=
- =?us-ascii?Q?72E+rg1b2gq6VmJeXmGR3hc3btZPc6c5L9ozJExmzfaH2DYEtQOW/RnosCsd?=
- =?us-ascii?Q?cSmCtkEXwjk/A1AtMigOVNhelmmPBBS6IPmZT1X8A6u2MlvQn3E1tT5Ncaaz?=
- =?us-ascii?Q?UILf+xAcZ1UBBV3KiBBj1dnCBl+D936JKQh2oUU+tK9ImOXBEiKzWZcaTOAH?=
- =?us-ascii?Q?pXAjM+i5YQ=3D=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: de0d5aed-0eb0-4cc9-893f-08da173a9383
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Apr 2022 19:29:17.9727
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: OYE63IqYgr6FSrTCutXdc+jcwEo4vL90Ko0ZJFI6MJTaBKi0lq5nNjMnTW/gTtl6
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB2892
+References: <20220403054822.16868-1-rdunlap@infradead.org> <20220403054822.16868-2-rdunlap@infradead.org>
+In-Reply-To: <20220403054822.16868-2-rdunlap@infradead.org>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Tue, 5 Apr 2022 16:12:58 +0200
+Message-ID: <CAJZ5v0gZvd_Uw02_K7fWGYFtTncSTxdeoR6z=PQ5e0DM255k8A@mail.gmail.com>
+Subject: Re: [PATCH 1/3 v3] Docs: admin/kernel-parameters: edit a few boot options
+To:     Randy Dunlap <rdunlap@infradead.org>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        linux-s390@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        sparclinux@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        linux-ia64@vger.kernel.org,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Pavel Machek <pavel@ucw.cz>, Len Brown <lenb@kernel.org>,
+        Linux PM <linux-pm@vger.kernel.org>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Apr 05, 2022 at 01:10:44PM -0600, Alex Williamson wrote:
-> On Tue,  5 Apr 2022 13:16:01 -0300
-> Jason Gunthorpe <jgg@nvidia.com> wrote:
-> 
-> > dev_is_dma_coherent() is the control to determine if IOMMU_CACHE can be
-> > supported.
-> > 
-> > IOMMU_CACHE means that normal DMAs do not require any additional coherency
-> > mechanism and is the basic uAPI that VFIO exposes to userspace. For
-> > instance VFIO applications like DPDK will not work if additional coherency
-> > operations are required.
-> > 
-> > Therefore check dev_is_dma_coherent() before allowing a device to join a
-> > domain. This will block device/platform/iommu combinations from using VFIO
-> > that do not support cache coherent DMA.
-> > 
-> > Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> >  drivers/vfio/vfio.c | 6 ++++++
-> >  1 file changed, 6 insertions(+)
-> > 
-> > diff --git a/drivers/vfio/vfio.c b/drivers/vfio/vfio.c
-> > index a4555014bd1e72..2a3aa3e742d943 100644
-> > +++ b/drivers/vfio/vfio.c
-> > @@ -32,6 +32,7 @@
-> >  #include <linux/vfio.h>
-> >  #include <linux/wait.h>
-> >  #include <linux/sched/signal.h>
-> > +#include <linux/dma-map-ops.h>
-> >  #include "vfio.h"
-> >  
-> >  #define DRIVER_VERSION	"0.3"
-> > @@ -1348,6 +1349,11 @@ static int vfio_group_get_device_fd(struct vfio_group *group, char *buf)
-> >  	if (IS_ERR(device))
-> >  		return PTR_ERR(device);
-> >  
-> > +	if (group->type == VFIO_IOMMU && !dev_is_dma_coherent(device->dev)) {
-> > +		ret = -ENODEV;
-> > +		goto err_device_put;
-> > +	}
-> > +
-> 
-> Failing at the point where the user is trying to gain access to the
-> device seems a little late in the process and opaque, wouldn't we
-> rather have vfio bus drivers fail to probe such devices?  I'd expect
-> this to occur in the vfio_register_group_dev() path.  Thanks,
+On Sun, Apr 3, 2022 at 7:48 AM Randy Dunlap <rdunlap@infradead.org> wrote:
+>
+> Clean up some of admin-guide/kernel-parameters.txt:
+>
+> a. "smt" should be "smt=" (S390)
+> b. (dropped)
+> c. Sparc supports the vdso= boot option
+> d. make the tp_printk options (2) formatting similar to other options
+>    by adding spacing
+> e. add "trace_clock=" with a reference to Documentation/trace/ftrace.rst
+> f. use [IA-64] as documented instead of [ia64]
+> g. fix formatting and text for test_suspend=
+> h. fix formatting for swapaccount=
+> i. fix formatting and grammar for video.brightness_switch_enabled=
+>
+> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Cc: Sven Schnelle <svens@linux.ibm.com>
+> Cc: linux-s390@vger.kernel.org
+> Cc: Steven Rostedt <rostedt@goodmis.org>
+> Cc: Ingo Molnar <mingo@redhat.com>
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: sparclinux@vger.kernel.org
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: linux-ia64@vger.kernel.org
+> Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+> Cc: Pavel Machek <pavel@ucw.cz>
+> Cc: Len Brown <lenb@kernel.org>
+> Cc: linux-pm@vger.kernel.org
+> Cc: linux-acpi@vger.kernel.org
+> Cc: Johannes Weiner <hannes@cmpxchg.org>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Jonathan Corbet <corbet@lwn.net>
+> Cc: linux-doc@vger.kernel.org
 
-Yes, that is a good point.
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-So like this:
+for the test_suspend and ACPI video pieces.
 
- int vfio_register_group_dev(struct vfio_device *device)
- {
-+       if (!dev_is_dma_coherent(device->dev))
-+               return -EINVAL;
-+
-        return __vfio_register_dev(device,
-                vfio_group_find_or_alloc(device->dev));
- }
-
-I fixed it up.
-
-Thanks,
-Jason
+> ---
+> v3: add trace_clock= specifics (Steven)
+> v2: drop "smt-enabled" for arch/powerpc/ (Michael)
+>
+>  Documentation/admin-guide/kernel-parameters.txt |   47 ++++++++++----
+>  1 file changed, 36 insertions(+), 11 deletions(-)
+>
+> --- linux-next-20220331.orig/Documentation/admin-guide/kernel-parameters.txt
+> +++ linux-next-20220331/Documentation/admin-guide/kernel-parameters.txt
+> @@ -2814,7 +2814,7 @@
+>                         different yeeloong laptops.
+>                         Example: machtype=lemote-yeeloong-2f-7inch
+>
+> -       max_addr=nn[KMG]        [KNL,BOOT,ia64] All physical memory greater
+> +       max_addr=nn[KMG]        [KNL,BOOT,IA-64] All physical memory greater
+>                         than or equal to this physical address is ignored.
+>
+>         maxcpus=        [SMP] Maximum number of processors that an SMP kernel
+> @@ -3057,7 +3057,7 @@
+>
+>         mga=            [HW,DRM]
+>
+> -       min_addr=nn[KMG]        [KNL,BOOT,ia64] All physical memory below this
+> +       min_addr=nn[KMG]        [KNL,BOOT,IA-64] All physical memory below this
+>                         physical address is ignored.
+>
+>         mini2440=       [ARM,HW,KNL]
+> @@ -5388,7 +5388,7 @@
+>                                 1: Fast pin select (default)
+>                                 2: ATC IRMode
+>
+> -       smt             [KNL,S390] Set the maximum number of threads (logical
+> +       smt=            [KNL,S390] Set the maximum number of threads (logical
+>                         CPUs) to use per physical CPU on systems capable of
+>                         symmetric multithreading (SMT). Will be capped to the
+>                         actual hardware limit.
+> @@ -5774,8 +5774,9 @@
+>                         This parameter controls use of the Protected
+>                         Execution Facility on pSeries.
+>
+> -       swapaccount=[0|1]
+> -                       [KNL] Enable accounting of swap in memory resource
+> +       swapaccount=    [KNL]
+> +                       Format: [0|1]
+> +                       Enable accounting of swap in memory resource
+>                         controller if no parameter or 1 is given or disable
+>                         it if 0 is given (See Documentation/admin-guide/cgroup-v1/memory.rst)
+>
+> @@ -5821,7 +5822,8 @@
+>
+>         tdfx=           [HW,DRM]
+>
+> -       test_suspend=   [SUSPEND][,N]
+> +       test_suspend=   [SUSPEND]
+> +                       Format: { "mem" | "standby" | "freeze" }[,N]
+>                         Specify "mem" (for Suspend-to-RAM) or "standby" (for
+>                         standby suspend) or "freeze" (for suspend type freeze)
+>                         as the system sleep state during system startup with
+> @@ -5908,6 +5910,28 @@
+>         trace_buf_size=nn[KMG]
+>                         [FTRACE] will set tracing buffer size on each cpu.
+>
+> +       trace_clock=    [FTRACE] Set the clock used for tracing events
+> +                       at boot up.
+> +                       local - Use the per CPU time stamp counter
+> +                               (converted into nanoseconds). Fast, but
+> +                               depending on the architecture, may not be
+> +                               in sync between CPUs.
+> +                       global - Event time stamps are synchronize across
+> +                               CPUs. May be slower than the local clock,
+> +                               but better for some race conditions.
+> +                       counter - Simple counting of events (1, 2, ..)
+> +                               note, some counts may be skipped due to the
+> +                               infrastructure grabbing the clock more than
+> +                               once per event.
+> +                       uptime - Use jiffies as the time stamp.
+> +                       perf - Use the same clock that perf uses.
+> +                       mono - Use ktime_get_mono_fast_ns() for time stamps.
+> +                       mono_raw - Use ktime_get_raw_fast_ns() for time
+> +                               stamps.
+> +                       boot - Use ktime_get_boot_fast_ns() for time stamps.
+> +                       Architectures may add more clocks. See
+> +                       Documentation/trace/ftrace.rst for more details.
+> +
+>         trace_event=[event-list]
+>                         [FTRACE] Set and start specified trace events in order
+>                         to facilitate early boot debugging. The event-list is a
+> @@ -5930,7 +5954,7 @@
+>                         See also Documentation/trace/ftrace.rst "trace options"
+>                         section.
+>
+> -       tp_printk[FTRACE]
+> +       tp_printk       [FTRACE]
+>                         Have the tracepoints sent to printk as well as the
+>                         tracing ring buffer. This is useful for early boot up
+>                         where the system hangs or reboots and does not give the
+> @@ -5952,7 +5976,7 @@
+>                         frequency tracepoints such as irq or sched, can cause
+>                         the system to live lock.
+>
+> -       tp_printk_stop_on_boot[FTRACE]
+> +       tp_printk_stop_on_boot [FTRACE]
+>                         When tp_printk (above) is set, it can cause a lot of noise
+>                         on the console. It may be useful to only include the
+>                         printing of events during boot up, as user space may
+> @@ -6301,7 +6325,7 @@
+>                                         HIGHMEM regardless of setting
+>                                         of CONFIG_HIGHPTE.
+>
+> -       vdso=           [X86,SH]
+> +       vdso=           [X86,SH,SPARC]
+>                         On X86_32, this is an alias for vdso32=.  Otherwise:
+>
+>                         vdso=1: enable VDSO (the default)
+> @@ -6327,11 +6351,12 @@
+>         video=          [FB] Frame buffer configuration
+>                         See Documentation/fb/modedb.rst.
+>
+> -       video.brightness_switch_enabled= [0,1]
+> +       video.brightness_switch_enabled= [ACPI]
+> +                       Format: [0|1]
+>                         If set to 1, on receiving an ACPI notify event
+>                         generated by hotkey, video driver will adjust brightness
+>                         level and then send out the event to user space through
+> -                       the allocated input device; If set to 0, video driver
+> +                       the allocated input device. If set to 0, video driver
+>                         will only send out the event without touching backlight
+>                         brightness level.
+>                         default: 1
