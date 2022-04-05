@@ -2,35 +2,35 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EE52C433F5
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Apr 2022 07:15:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C634C433FE
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Apr 2022 07:15:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231458AbiDEHRA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Apr 2022 03:17:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57868 "EHLO
+        id S231463AbiDEHRB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Apr 2022 03:17:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231623AbiDEHQj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Apr 2022 03:16:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8BFFC39;
-        Tue,  5 Apr 2022 00:14:41 -0700 (PDT)
+        with ESMTP id S231493AbiDEHQT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Apr 2022 03:16:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEB8CDFD8;
+        Tue,  5 Apr 2022 00:13:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 65AF361601;
-        Tue,  5 Apr 2022 07:14:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF36BC34113;
-        Tue,  5 Apr 2022 07:14:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C2828615F2;
+        Tue,  5 Apr 2022 07:13:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C693C34110;
+        Tue,  5 Apr 2022 07:13:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649142880;
-        bh=gOXLC6DbRyujFkrzeUs4smkFmQGScsEUJfldX3jEonk=;
+        s=k20201202; t=1649142836;
+        bh=hq9Ro/6wNi6Bjr9TXkTjcr4R5bOTWBzCrcnIPIywIr0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L5wXYg3GrUWMbNCmRoYeCmF/qxoGIJJLXKeE6Mbw0wrW+1WnyDyYv9H19aTHIyLFC
-         TYRgGIy44MY0Ly/e5K0YqWVWRe1UIkcdyxBz4J7RIRoRGnVRdWD1BgCONaEfKaw9xq
-         7Scm89/NM18hD5vvjRv0crakwm208oNyFhBr6QNMFO179BmhXzoGBHHtlmCS1rrghE
-         3SCMRU7BjuTmA93/ZG55i4MVEH4fHl9fQCV84fCAWP5c2I51TWbekmZkfwE1vTybiB
-         LYOcB0ZFGBbMcYUHgXBh1+cqzxx2qVHB2fZylhBX2RQswt945mA4TvQACv4y1mbz/m
-         8q9KOJCELlNPQ==
+        b=kLLifNES58YAya08PsQCLUQ7pqPzfzz9WtyBHjwuWWLImu27zg/rZ2BjQgpW9zeoT
+         q50zE/PJKFrU5ABhVUnlWatCs+NZ0IUf91CKYP9AxDuY/tG5tO8CZjPEH6AVLf+xXm
+         E3741Qn+xWrHdc8T31lrgNUzkTF2PZjlGqwH0bbweHv/bfMSfmB2uxsXitKbxHzICN
+         LFG66MH1akvM+4N62lLUJpc5RRQPNiaficg9zP4Y8GdnV2LkCNJVdFkUN2CnzweA1k
+         8ofpFOnAbn42fDesJ16PmeHGa4WR3ze0qpavoV8lyd3aTkeRa0BB7ZAyVgY4yej0mx
+         csOMzAS+1N77Q==
 From:   guoren@kernel.org
 To:     guoren@kernel.org, palmer@dabbelt.com, arnd@arndb.de,
         gregkh@linuxfoundation.org, hch@lst.de, nathan@kernel.org,
@@ -41,10 +41,10 @@ Cc:     linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-parisc@vger.kernel.org, linux-mips@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, x86@kernel.org,
         heiko@sntech.de, Guo Ren <guoren@linux.alibaba.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH V12 12/20] riscv: compat: syscall: Add entry.S implementation
-Date:   Tue,  5 Apr 2022 15:13:06 +0800
-Message-Id: <20220405071314.3225832-13-guoren@kernel.org>
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH V12 04/20] arch: Add SYSVIPC_COMPAT for all architectures
+Date:   Tue,  5 Apr 2022 15:12:58 +0800
+Message-Id: <20220405071314.3225832-5-guoren@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220405071314.3225832-1-guoren@kernel.org>
 References: <20220405071314.3225832-1-guoren@kernel.org>
@@ -56,76 +56,160 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Guo Ren <guoren@linux.alibaba.com>
 
-Implement the entry of compat_sys_call_table[] in asm. Ref to
-riscv-privileged spec 4.1.1 Supervisor Status Register (sstatus):
-
- BIT[32:33] = UXL[1:0]:
- - 1:32
- - 2:64
- - 3:128
+The existing per-arch definitions are pretty much historic cruft.
+Move SYSVIPC_COMPAT into init/Kconfig.
 
 Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 Signed-off-by: Guo Ren <guoren@kernel.org>
-Reviewed-by: Palmer Dabbelt <palmer@rivosinc.com>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Tested-by: Heiko Stuebner <heiko@sntech.de>
-Cc: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Helge Deller <deller@gmx.de>  # parisc
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
 ---
- arch/riscv/include/asm/csr.h |  7 +++++++
- arch/riscv/kernel/entry.S    | 18 ++++++++++++++++--
- 2 files changed, 23 insertions(+), 2 deletions(-)
+ arch/arm64/Kconfig   | 4 ----
+ arch/mips/Kconfig    | 5 -----
+ arch/parisc/Kconfig  | 4 ----
+ arch/powerpc/Kconfig | 5 -----
+ arch/s390/Kconfig    | 3 ---
+ arch/sparc/Kconfig   | 5 -----
+ arch/x86/Kconfig     | 4 ----
+ init/Kconfig         | 4 ++++
+ 8 files changed, 4 insertions(+), 30 deletions(-)
 
-diff --git a/arch/riscv/include/asm/csr.h b/arch/riscv/include/asm/csr.h
-index e935f27b10fd..f5d1251fd6c7 100644
---- a/arch/riscv/include/asm/csr.h
-+++ b/arch/riscv/include/asm/csr.h
-@@ -36,6 +36,13 @@
- #define SR_SD		_AC(0x8000000000000000, UL) /* FS/XS dirty */
- #endif
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index 57c4c995965f..ff674808681a 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -2122,10 +2122,6 @@ config DMI
  
-+#ifdef CONFIG_64BIT
-+#define SR_UXL		_AC(0x300000000, UL) /* XLEN mask for U-mode */
-+#define SR_UXL_32	_AC(0x100000000, UL) /* XLEN = 32 for U-mode */
-+#define SR_UXL_64	_AC(0x200000000, UL) /* XLEN = 64 for U-mode */
-+#define SR_UXL_SHIFT	32
-+#endif
-+
- /* SATP flags */
- #ifndef CONFIG_64BIT
- #define SATP_PPN	_AC(0x003FFFFF, UL)
-diff --git a/arch/riscv/kernel/entry.S b/arch/riscv/kernel/entry.S
-index c8b9ce274b9a..2e5b88ca11ce 100644
---- a/arch/riscv/kernel/entry.S
-+++ b/arch/riscv/kernel/entry.S
-@@ -207,13 +207,27 @@ check_syscall_nr:
- 	 * Syscall number held in a7.
- 	 * If syscall number is above allowed value, redirect to ni_syscall.
- 	 */
--	bgeu a7, t0, 1f
-+	bgeu a7, t0, 3f
-+#ifdef CONFIG_COMPAT
-+	REG_L s0, PT_STATUS(sp)
-+	srli s0, s0, SR_UXL_SHIFT
-+	andi s0, s0, (SR_UXL >> SR_UXL_SHIFT)
-+	li t0, (SR_UXL_32 >> SR_UXL_SHIFT)
-+	sub t0, s0, t0
-+	bnez t0, 1f
-+
-+	/* Call compat_syscall */
-+	la s0, compat_sys_call_table
-+	j 2f
-+1:
-+#endif
- 	/* Call syscall */
- 	la s0, sys_call_table
-+2:
- 	slli t0, a7, RISCV_LGPTR
- 	add s0, s0, t0
- 	REG_L s0, 0(s0)
--1:
-+3:
- 	jalr s0
+ endmenu
  
- ret_from_syscall:
+-config SYSVIPC_COMPAT
+-	def_bool y
+-	depends on COMPAT && SYSVIPC
+-
+ menu "Power management options"
+ 
+ source "kernel/power/Kconfig"
+diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
+index de3b32a507d2..0055482cd20f 100644
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -3198,16 +3198,12 @@ config MIPS32_COMPAT
+ config COMPAT
+ 	bool
+ 
+-config SYSVIPC_COMPAT
+-	bool
+-
+ config MIPS32_O32
+ 	bool "Kernel support for o32 binaries"
+ 	depends on 64BIT
+ 	select ARCH_WANT_OLD_COMPAT_IPC
+ 	select COMPAT
+ 	select MIPS32_COMPAT
+-	select SYSVIPC_COMPAT if SYSVIPC
+ 	help
+ 	  Select this option if you want to run o32 binaries.  These are pure
+ 	  32-bit binaries as used by the 32-bit Linux/MIPS port.  Most of
+@@ -3221,7 +3217,6 @@ config MIPS32_N32
+ 	select ARCH_WANT_COMPAT_IPC_PARSE_VERSION
+ 	select COMPAT
+ 	select MIPS32_COMPAT
+-	select SYSVIPC_COMPAT if SYSVIPC
+ 	help
+ 	  Select this option if you want to run n32 binaries.  These are
+ 	  64-bit binaries using 32-bit quantities for addressing and certain
+diff --git a/arch/parisc/Kconfig b/arch/parisc/Kconfig
+index 52e550b45692..93cb07a4446f 100644
+--- a/arch/parisc/Kconfig
++++ b/arch/parisc/Kconfig
+@@ -331,10 +331,6 @@ config COMPAT
+ 	def_bool y
+ 	depends on 64BIT
+ 
+-config SYSVIPC_COMPAT
+-	def_bool y
+-	depends on COMPAT && SYSVIPC
+-
+ config AUDIT_ARCH
+ 	def_bool y
+ 
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index 174edabb74fa..6edb294a34ef 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -298,11 +298,6 @@ config COMPAT
+ 	select ARCH_WANT_OLD_COMPAT_IPC
+ 	select COMPAT_OLD_SIGACTION
+ 
+-config SYSVIPC_COMPAT
+-	bool
+-	depends on COMPAT && SYSVIPC
+-	default y
+-
+ config SCHED_OMIT_FRAME_POINTER
+ 	bool
+ 	default y
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 77b5a03de13a..555b7ea5ecf5 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -399,9 +399,6 @@ config COMPAT
+ 	  (and some other stuff like libraries and such) is needed for
+ 	  executing 31 bit applications.  It is safe to say "Y".
+ 
+-config SYSVIPC_COMPAT
+-	def_bool y if COMPAT && SYSVIPC
+-
+ config SMP
+ 	def_bool y
+ 
+diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
+index 9200bc04701c..9c1cce74953a 100644
+--- a/arch/sparc/Kconfig
++++ b/arch/sparc/Kconfig
+@@ -488,9 +488,4 @@ config COMPAT
+ 	select ARCH_WANT_OLD_COMPAT_IPC
+ 	select COMPAT_OLD_SIGACTION
+ 
+-config SYSVIPC_COMPAT
+-	bool
+-	depends on COMPAT && SYSVIPC
+-	default y
+-
+ source "drivers/sbus/char/Kconfig"
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index b0142e01002e..65690b950f5f 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -2872,10 +2872,6 @@ config COMPAT
+ if COMPAT
+ config COMPAT_FOR_U64_ALIGNMENT
+ 	def_bool y
+-
+-config SYSVIPC_COMPAT
+-	def_bool y
+-	depends on SYSVIPC
+ endif
+ 
+ endmenu
+diff --git a/init/Kconfig b/init/Kconfig
+index ddcbefe535e9..9fa3ee6bf12a 100644
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -390,6 +390,10 @@ config SYSVIPC_SYSCTL
+ 	depends on SYSCTL
+ 	default y
+ 
++config SYSVIPC_COMPAT
++	def_bool y
++	depends on COMPAT && SYSVIPC
++
+ config POSIX_MQUEUE
+ 	bool "POSIX Message Queues"
+ 	depends on NET
 -- 
 2.25.1
 
