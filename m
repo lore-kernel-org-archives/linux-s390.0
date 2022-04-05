@@ -2,49 +2,49 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D1E84C4321E
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB5E0C4167E
 	for <linux-s390@archiver.kernel.org>; Tue,  5 Apr 2022 22:39:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229651AbiDEWdi (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Apr 2022 18:33:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35178 "EHLO
+        id S230049AbiDEWdp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Apr 2022 18:33:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1457613AbiDEQSJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Apr 2022 12:18:09 -0400
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2069.outbound.protection.outlook.com [40.107.220.69])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C58D9193D3;
-        Tue,  5 Apr 2022 09:16:09 -0700 (PDT)
+        with ESMTP id S1457617AbiDEQSK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Apr 2022 12:18:10 -0400
+Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2087.outbound.protection.outlook.com [40.107.93.87])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B443919C18;
+        Tue,  5 Apr 2022 09:16:11 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=l5vFLQeWCPDLZaphTX68k7+w2FWGuRcly5nNE3fl459R7ByHQAn2g4xgirJA9V+2IP7Ss8UMSXSdECQ9hS/9xtXDKBxXPsa4Sn2UGIEagzl8ZVtY1i9BOe7cZWnMtp/m74W8KG9vt5w1bR/OL9jcpOoPR0O4RFwyQPNDB7HER4juX1eIL5awq5dRTZGe8dlbx5bt/KGeVT8Yx0elg2na7Q3I7ZOmhYWMY2ok5GUggAAtiVHeIpiCJ97afxgr0Yyzg+wZkf6An+L9WZLuyfNxR8Ly0TfEp14LT9YIOQgy8DduA/shFxawzgRceSorA6J+LruvevTDmCzWZ+XEujY6ww==
+ b=envp/g5Ogbq/mr4VcVqqfInc8+Pv8V0JCaE/rPG3UFUnUgPH9f0B+aksaPOYC43zIvYYFKdCcTMNLSQeKhN54MNtKOX5P7aFl5yngIY8zsXvFWYOuCp0AN6O0pusWkwRWar3u0bPGNlhDb5HTi30kqHo9g3Ox+u2RflMZNKlesJsPt3BXMpORKuSdWofPz6jfwRNjguTYZaifxvuJvPKtPwV7As1rSuENhjEKbN8jpp7YhBMkpzoRRSc1j907sDUJDruc7jlknLV+S9daA+OR6SVPsHXNIS1KqxKuUOtJGR28X7O8JY7eBZI6guWoljF1kwdQvIRSfofwJZGxm7HlQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=jYZhLuKsv21uOIiI2RWBbXWyksWwON+fpEvEMAl+B7E=;
- b=m2a+fCU0q6gUy25CzTu6/Ukh/AYWPi4A8fX+7BRBR29x1T3l9CD0Pg988hMwNODjuC0DvcM0xvw6FYyDgnW4llGaAnrFE9c1N/1Fq60srWxY6M8hpAtObodeLNQNuRqmAX3XYhNJeC0hJy9MHU8Bbb1m9RVcATK076Qpp0hyIFWsZ2IsYZi5l5+GXlsHirlHoWjuJGW5RnL1gBN/soBzAZ7kl/PtX0bDup35V4tNnwfpjPLwHbZXM3GC3w7cBaVd1FwFD+i2V+LBobOqqAh27QTM65q9w83qrfbYz4MT8F7CgYG+/wmqN4Fqo9R/VEpfwnp4f63yEGObU/VkYYeFGg==
+ bh=caLncysSLkUFjIJU7XS5btAFcz/iwrDZ/0nbwg2upIQ=;
+ b=nYR3RY8fVvGI3txxwBzsPNAnKpEyU4AMXygnu1x8loyASbz8+XrR2iUjt1H7zp2P1IRVd6g6PPrftljLNegip1ckDg4jQYjawhlXfvNnn95I9ECVoR4F6v88POuZ2zteACwavxSAYdCQKX1+IAqGZRDgjYogBmrepvhk6jSWs40YGk0ba4hZOcouMgaomrbrKp8l9wiFGSURNWNWCNOILi844ciXc0eVafXLedOUb22O3PJdVYLT1f9SnKjcSUjGyiFuMDez3YqVDInPw5e4sZ/wl9E8h1AW5FFmLYyHvWgm1mAM6hKKyMCPCcXKzBdn0tUp1apDAhx6cW4reSKIRg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
  dkim=pass header.d=nvidia.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=jYZhLuKsv21uOIiI2RWBbXWyksWwON+fpEvEMAl+B7E=;
- b=tjACv2ggBZFnFg6xE5GiSeSGFl8p+La9h8kgVLjn85MlW+/yasqQ4tgqG8Y2wj8SvrwvVRYgn+UYXuXBPlHeCTcwSc4VQL3zDa5QYHPRXl3faLh92uGwPuZ/8JsfPXnruNSQ1UTHaq4OvzG44+0iKCA+7xbyh+jPo1mGa/NNg6ZMFvLmdAeR1v90bUh0Nul2P4AUd5Zo407KERuMhjd8Mfnf+fNa4QzuBBBiK4NSDYynLBjsNUO5ZxPPTn6o8BxxsrvNoxryMj3k0jOZ9Dm8Uui/L90n0g9g4MNPB96cptnNaROipx83YaATH+KhU84XHI6Ks40UQ82MkYnjTRgWCA==
+ bh=caLncysSLkUFjIJU7XS5btAFcz/iwrDZ/0nbwg2upIQ=;
+ b=A45fB/t5GjLmlYsrLjz57WQ2wSdJdfzModwbu5+4o5VbLOY3zQ8cb749U0+Y4zoud8l0DudNLofE25DA8JZt0WnHdpNejCKI8h6kkfpKO+kT7VitSjt0cT0xtEM3+wMDTD2lbohfFXgCaJCkKEZxBUSX/rgjJs1xZaZ3ZprYdj6LWSvLGF5RWL7wjpdiD6+JiM42qNiSMbntnVjfHmOgB8iWAZMOp1fsYl6mrmrhMxazCAswzIOir6/a5l1bMP8YT/sgCMchqEOHlPT/9dRic3AFWDMILQ3eRUVw2LGDxZzC9TtlRELrk51RkP2aiz3nZDTxsT7c8UHMI+dyaGoVhQ==
 Received: from BN6PR12MB1153.namprd12.prod.outlook.com (2603:10b6:404:19::17)
- by BN6PR12MB1363.namprd12.prod.outlook.com (2603:10b6:404:1f::15) with
+ by BYAPR12MB2727.namprd12.prod.outlook.com (2603:10b6:a03:71::22) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5123.31; Tue, 5 Apr
- 2022 16:16:06 +0000
+ 2022 16:16:08 +0000
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=nvidia.com;
 Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
  by BN6PR12MB1153.namprd12.prod.outlook.com (2603:10b6:404:19::17) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5123.31; Tue, 5 Apr
- 2022 16:16:05 +0000
+ 2022 16:16:07 +0000
 Received: from MN2PR12MB4192.namprd12.prod.outlook.com
  ([fe80::cdfb:f88e:410b:9374]) by MN2PR12MB4192.namprd12.prod.outlook.com
  ([fe80::cdfb:f88e:410b:9374%5]) with mapi id 15.20.5123.031; Tue, 5 Apr 2022
- 16:16:05 +0000
+ 16:16:07 +0000
 From:   Jason Gunthorpe <jgg@nvidia.com>
 To:     Alex Williamson <alex.williamson@redhat.com>,
         Lu Baolu <baolu.lu@linux.intel.com>,
@@ -67,159 +67,209 @@ To:     Alex Williamson <alex.williamson@redhat.com>,
         Will Deacon <will@kernel.org>
 Cc:     Christoph Hellwig <hch@lst.de>,
         "Tian, Kevin" <kevin.tian@intel.com>
-Subject: [PATCH 0/5] Make the iommu driver no-snoop block feature consistent
-Date:   Tue,  5 Apr 2022 13:15:59 -0300
-Message-Id: <0-v1-ef02c60ddb76+12ca2-intel_no_snoop_jgg@nvidia.com>
+Subject: [PATCH 5/5] iommu: Delete IOMMU_CAP_CACHE_COHERENCY
+Date:   Tue,  5 Apr 2022 13:16:04 -0300
+Message-Id: <5-v1-ef02c60ddb76+12ca2-intel_no_snoop_jgg@nvidia.com>
+In-Reply-To: <0-v1-ef02c60ddb76+12ca2-intel_no_snoop_jgg@nvidia.com>
+References: 
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: BL1PR13CA0310.namprd13.prod.outlook.com
- (2603:10b6:208:2c1::15) To MN2PR12MB4192.namprd12.prod.outlook.com
+X-ClientProxiedBy: BL1PR13CA0351.namprd13.prod.outlook.com
+ (2603:10b6:208:2c6::26) To MN2PR12MB4192.namprd12.prod.outlook.com
  (2603:10b6:208:1d5::15)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 84cf4138-ea12-44ad-8335-08da171f95c7
-X-MS-TrafficTypeDiagnostic: BN6PR12MB1153:EE_|BN6PR12MB1363:EE_
-X-Microsoft-Antispam-PRVS: <BN6PR12MB11539ECDAAD27D4BC8665AE2C2E49@BN6PR12MB1153.namprd12.prod.outlook.com>
+X-MS-Office365-Filtering-Correlation-Id: a809535d-a68f-4eaa-ecd1-08da171f96ae
+X-MS-TrafficTypeDiagnostic: BN6PR12MB1153:EE_|BYAPR12MB2727:EE_
+X-Microsoft-Antispam-PRVS: <BN6PR12MB1153559F21C4254FD89E7DC7C2E49@BN6PR12MB1153.namprd12.prod.outlook.com>
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: or1dTHaHW64TiENqmTfAtr6nlAxbL5aM0W04pOOpXkN2hNPJIbOoKUPND4N73qjyEqU7KhmQioeOfUuxFbvy7mSRtDvI/QYvO+kZvboPj9OxI95RaphSHDqz/qA/XFvSm4m6kM0wohJRfdO34X1CpuddACekObp1MPC4i4p/NFkDtWEDwHczbKbe1J82v3Zz4iHZ29XKhK7VQZ/GpYBFo/8N2/oBBEK6uuAfos1Ls3KXV8XnTiTNLoR9QOInt3m11pW6ULs2J8WjLwZmqL9n7fiA30au5PMUkJS/rt4M6/uWqsts99wMN52rjoXFmskgvaq2PdCue9ho02GQo9WP8N23NzTHGLC0d150pOAALDnc9eqmPflaj297ls2EINMXB4w99PrrGsW4Ql5T3GniJJ9NEVboZDXDfoYE/oklZngwhu9JyM5azFxlX3aKmrwUc90SziCoCAjl6z8ExKILyjXrdAi9Tl2A5w8+qI1JrQhhGwosxQT9KsrvgB+QjLFWFidGx/pIbR2W31HRnaqvNjUW+ZFyMOVhggNLcmXR3v9BrnBjjEI+44WraD9auLdmeQvhcysHmC8dvBZkqsxzxy54KGYB3oLUeKX6nsjHVLT9YcPg+ZBhbK3/1sh4rGaz1JMprPXN0kCQ3jxKOKDNyx8e+64GsnxAVtJmL3Oq0Itde6SUaDnrLA8kYqByVZyRoSVPl0ATNSc8jL5bAB3zvDsrKVi8bVCrNR0V7/1ldnzosIX4Rq5eIp3pH3vhOR4nYnmevWGDDZoyLqAzwZ/eWTyBH54Lm3qvDDHEnXlbu30=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN6PR12MB1153.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(6666004)(6512007)(6506007)(2616005)(66946007)(110136005)(316002)(26005)(66556008)(66476007)(966005)(86362001)(186003)(54906003)(8676002)(36756003)(83380400001)(2906002)(6486002)(4326008)(921005)(5660300002)(8936002)(508600001)(38100700002)(7416002)(4216001);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: 73GC5SU+34uDNFbsj0cNzn0J1Qv2CYmv/xx9zoDEn5M32hM/0CIX//1QNIX2EOcoxXOuwQK5ey79NLDBF+nIBpCqey5b9Cnh7y3hD+VPcehA64i9VVz7lyWq0sjZekSsvH/4j5osN0m7sQnWopatLgAy9UX57c/SUu2iFrE9/IaDpa2zR7w3eCHBDlm8vveStMYkEEd9R+UIsfQeG7MvA/FEJv2YgfUtok23DDLfQxi5b3CkRLabB0x05oXR/A0HketTRo4D5WiyCBdYX/bwazloxET0/0ObFZ572q58wSl0VAH0PCoEx74v452Fkwt6V/la7l4bP1Mf3whTm7QX5d0sG93KAYLI/8GZp0If5BhA9Ja4L5kpVBasR3z1dvrIUKH60fpBxrr/vW8mbs25TGiluHE2bmyQRZBJm8ioCsRbrENBOmZPd2WfhqegeBFjwRpofk1H/zFHLJ8a++v4ooYbLhytc9s0fSRu/5Vq7qj6bICplSVk1WVzi7sGsnt/C/jWTdT24nBQIkYKMO4qiHqr2fyR0sOstumL4vLuJ0w/WcC75i1fXf70s4ZTDqUX2BxrfcRVxQad722ds0wsCGwZrtKLTdBEZleht8+iDP/8vEbWI4v5e/0vR4q7WN4EULsZCkaZr4HkJtZ0G7qGFj4NmsMQE5/+gzj6T6yQ3LVW4AryTmyfsaIc4nJNd0h97k+ayWFXZ5vxOXtwdwcFQg==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN6PR12MB1153.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(2906002)(6512007)(2616005)(508600001)(86362001)(66946007)(5660300002)(186003)(66556008)(6506007)(26005)(66476007)(8676002)(6486002)(6666004)(7416002)(4326008)(8936002)(83380400001)(36756003)(921005)(54906003)(316002)(38100700002)(110136005)(4216001);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?m6IYsW4BXkK32AaEFuBZsxepIiHZ120BX7bxOhTRduvlwTg3u79jCE9t9rOk?=
- =?us-ascii?Q?RChsVIPbzEQJEd9sx8vg2MLsWD0OHQHadDbeqCTnuqdkGBtC/qK3Gp30OmGd?=
- =?us-ascii?Q?7c90SQLjHoaY4DV//flt2XeTk7TtaJF7eKjd+ROeb/hFj2uHsdYkjEhq2tqb?=
- =?us-ascii?Q?9LnMI6VswFZ7v+P2PLAd8gCO5YfIqK3t7eE4Ox2DQenWTlrVu+IfpvKI3NF+?=
- =?us-ascii?Q?C8Ytp+5M7iyBZaeWNTx9wP8SH7o9RLd3m9DewaTZzfrqnramVCHSt49eD+IW?=
- =?us-ascii?Q?qmaDH55RFb2blAiWY/Lwrsb65VTrb0iEftLHTGjTN5KZDaVbYwn+IWogcYc8?=
- =?us-ascii?Q?Bvi3hHnj3/aYPW1pCXGGs+Fe+MXz9aodxnJ0Oh49ZE+1ycEOCOCqLNgd02Hk?=
- =?us-ascii?Q?2pnSZUlVhPPal1EfmUq3fibVkIWWpuAMTWAHFPO0ldygYAvKTDEVTGnw07I+?=
- =?us-ascii?Q?vS7kcN1Y4vxsrKybQbsFcQdFJi/ZHSqYGzFt9MoWb2QTrLDCBi+A/fWk7FXy?=
- =?us-ascii?Q?deO9JSvLLdXHfPjw4TaUCoP/A8gz0lBmGAkT2fgkYbeAz4yJeuFyaYwEW0Df?=
- =?us-ascii?Q?RzFRzxzqV2d+Ri1EG2wC8Pu8PsiakL8CdtYHjt695wEf6Ew0GzbYSjDAbT9o?=
- =?us-ascii?Q?ajs+EpmvVobq+NcCiFl+33iDXSnj4AwHz6UbGtsNE66fIetD+oWV3YVGpMYI?=
- =?us-ascii?Q?FL0efjmI169v5q3K4Cg94i9p+8NupS2B/p3Q14k/I2NTi4SPzkM0+rJwryBM?=
- =?us-ascii?Q?osYQ29GEgcBi+hnn+59pOCIQRrisC3xwjfdX3xCoj/n/v1YdKYH03b1/siC6?=
- =?us-ascii?Q?wuRWtIfBThOXF8rJuhEauTrd/9xFqq9EQGQp0xDbgTIXT7QMSaKqZmrf4wLe?=
- =?us-ascii?Q?frMZRnNjkhDWnaSmDn5UFre7oDWFZGpHUgGK8MCcUDlblEaTPPm+8uiM2TnL?=
- =?us-ascii?Q?Dzi7VWBylvym9j5ZnJUdVLMtZsWBwDDXVmmwTGHCbKP54xIZs97MfiP//+W7?=
- =?us-ascii?Q?6wsrE1afAZ6REsK/ssHzhI7q5lPZxCC8Htc6NEF0vqFV6tU1Qcqlr/vI54gA?=
- =?us-ascii?Q?2znxGHbjUluQFjHD+fkvai0zfT505YalfhD9B8kFqKdYA4YoRy0sVhEDXha/?=
- =?us-ascii?Q?pFEvHJ5xXFFDtZhri6uPtiR1/Uxv0Jc+Y3Q7DqlIBMFZiN84buqC7llcK13x?=
- =?us-ascii?Q?MtfJ0cEKxVjjFgiMNoCYVPb6msltZ0+2E49XG/xw4skjJJjdo+PMuv89DM0r?=
- =?us-ascii?Q?A5hobxS1pQHiDaxC0+k3GfUUCK+7RZm6ZOF/sqZYab6uBGn9vCYzFP2l5OsD?=
- =?us-ascii?Q?UwZrT/OmC35rlyf2BbMP8XE2biB2JdtEGCcsjtph0nlkoSTKr83oJzptDjXP?=
- =?us-ascii?Q?f8WzIKBfWLvRr9YOt3WDmBcq8zl2SCtHf9HxX2uzO5NOxRVtmIFprsruXDu0?=
- =?us-ascii?Q?OIKQ3F8cHW3fxwUXfwBWLzDcUKOeHOcDB6DJaCu3L+zFYf0qK/4jm3nfh71a?=
- =?us-ascii?Q?93MRUG3vVB/YVIahQWs5P4HeAOdPQa5oQXtQkEpKuqWJFTBzkuG6uaY2geYz?=
- =?us-ascii?Q?0/rxZEiLt04VkM4DhzGIHuIGDt05SG4zrLQaRtX8yIaHfh+jd3/eRTR84Udl?=
- =?us-ascii?Q?HAMmAKGdPiixrgw9/NF5mXX2tHADyJun4k8zCIErPnqv8XoQud6XW/SpmDRX?=
- =?us-ascii?Q?+bXWMQmYB9MAAc7mBxicue5rwftAV3V6PHN1gfukp6cqliT3rEVVq/O5ha96?=
- =?us-ascii?Q?ve+z6lBiPw=3D=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?toC+hrreXAVOBw/rTbl8HU4Y9qddWRR3yCneKVXSIl0i9DWrYqt5lroRpmD/?=
+ =?us-ascii?Q?meBfzXat73hOrfhrBwMbtmymZX1iJ4IWqb+RowtMD8043uLZMprnkIGhgHC4?=
+ =?us-ascii?Q?BxQ6+b2P2IIB/auAx1ggd1i7CQGK0MyfJvl7KsihAah3L61J0ZTw5GQYM79V?=
+ =?us-ascii?Q?bdj/AxKYjWDkVIROOd4PZlzmqkHJBMBLuNGa45mX2cEUNl94wucVunpFXjYT?=
+ =?us-ascii?Q?hIWfcHKE1M8sl099uD43yYnsgn/xlocfb0aPCC/fI1h3ilaZKrH3U+qZI7vE?=
+ =?us-ascii?Q?mwGCM/BMrlaXaH81OKsuDNtTmn2K+CuzY4SSmqwAxlodFZMIXxJmyD1/lEow?=
+ =?us-ascii?Q?7XjPR3MSjTmVT3zkYBAabhyEK8gM6RE/U8yXQugO0Cufj6bq7Xw8JGHQppy9?=
+ =?us-ascii?Q?A2nrfpkzQRxKHt2KVYzjqMiW1GC7rVJEoXrLQbHttxIp/Cec+JjtReMPNMWz?=
+ =?us-ascii?Q?0/4MnTt23Mbgl3TaKt69XQkyhNXEgV1r29PlhBP0zv5FPmpH1fVkIPr2Ln4m?=
+ =?us-ascii?Q?VVKL6Z7AR+1SDCwOV4sdpZNgo1jHCfsYtC2FvCVTos+YuHMqyrpZrKVsf+F5?=
+ =?us-ascii?Q?AOu33rb0HV6sCV7EzEEBXKpNL5La5zdD/neLkhLiQwR2zmNf95AANf6SGghb?=
+ =?us-ascii?Q?76ZRxVWsyLx9Sg3o5KiPVGwrkP8RGIbVsYPqlE/L3tV0vLfQXf5UQl7nvA19?=
+ =?us-ascii?Q?pb5p5mQIbMqNGaaUNS6rM0nKdgNKcNy2V6quT5AD69lYphqTg4A/849h0VYU?=
+ =?us-ascii?Q?Hehx5ZSuNSmKgPk7bMEaFEwn0Cjt7oR43eg9xqEP9iVGxu+0ZjbYfQIVqZqr?=
+ =?us-ascii?Q?DkTSYKxY8soQOn7fnhxtBelkt82temjnYuQfO3DWjxpdyy5dye9poalk69K8?=
+ =?us-ascii?Q?4ZutXphFnGUQfM+3++LzLr+ps81YKb/XCMca0xzrOJK0lvBEc+Mx8k6GnsMi?=
+ =?us-ascii?Q?87MkhdntASYUznUpoKQuUidwMrgpPmsAUlyqwiQvfTvciJCSeaem+79GPKmV?=
+ =?us-ascii?Q?n+ZsU885rJKY8ScK/xT40zIJ+E6M7OOHPWiiIJ6l38W5t7gEWIAyWPJ6mIST?=
+ =?us-ascii?Q?EmXRIRxoR9YAVZekerHCakOP1ANiV3WXzSjeNoLZmHk6C+x7Eo7d2CULm6f4?=
+ =?us-ascii?Q?RG87t28usW62ibYgD+dK+ldWtx+xaTrUEtQom6tF8f7Q9iEe5vHnsb/Ji+kg?=
+ =?us-ascii?Q?GSdx8PdctHGAbloHFXf50LQ5wOlrJZkHMk+Y6QPzRzxrPUFFzny4SAvehsr+?=
+ =?us-ascii?Q?7BGbMAG4lfmALDeZCekt6jUV2vIjzUFGbsjkoxDo4LRJrsrEk+KlCokZ/c3R?=
+ =?us-ascii?Q?iRmlIHR5oeo/K+gymzmcY5+zzYH1W5NkoGJOdOU42cyOnrwjefd2ohEJQ8oV?=
+ =?us-ascii?Q?siqKtBL++H6ohRuYxxVFeRb3OHfO0ANx2GYww0Fmz1hpd2FuYGnhD7ogdS1n?=
+ =?us-ascii?Q?ekkJxM/uA3SM6Xt25cQlY0hx7DZVb+oxuSQpYkmVYhUz/KgVZGYn9RvBSTkB?=
+ =?us-ascii?Q?BOadYdTyHy7nyTg5I2yXjs/yDFdscgpt5SMMjEEdQQnnFVMlz0XOPlZaqV/h?=
+ =?us-ascii?Q?5Pgyl43S/UdpUYfhiZogm3vgaIXuV6IRAgw9un593db1PGbbfbs07rl3NWmV?=
+ =?us-ascii?Q?CcL61Me4UXcS5bFDCikEUaVtCRvcuEA7MUAJozSZIegV+d+zIFuxtWGwVJfj?=
+ =?us-ascii?Q?tFSeDUAjB/Aa2My7XsEa9c+LnQqb6CTdKKCDw/AS2e1jKxv7z2WEWKVCeEY7?=
+ =?us-ascii?Q?7bUkhe7jOg=3D=3D?=
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 84cf4138-ea12-44ad-8335-08da171f95c7
+X-MS-Exchange-CrossTenant-Network-Message-Id: a809535d-a68f-4eaa-ecd1-08da171f96ae
 X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Apr 2022 16:16:05.7381
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Apr 2022 16:16:06.8161
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: SU+AlptkcxEgXuWR0q7VTrZsre3m2Q16m2XXNgeDiVVG+aQV8h0Mnx6SM3ikRLTJ
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN6PR12MB1363
+X-MS-Exchange-CrossTenant-UserPrincipalName: +EMg1eWYRJopFedeVUcnCjBip0u//HMgB4uTRppN6ngcTCAmTI94Ste7nnyZub8G
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR12MB2727
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-PCIe defines a 'no-snoop' bit in each the TLP which is usually implemented
-by a platform as bypassing elements in the DMA coherent CPU cache
-hierarchy. A driver can command a device to set this bit on some of its
-transactions as a micro-optimization.
+Nothing reads this value anymore, remove it.
 
-However, the driver is now responsible to synchronize the CPU cache with
-the DMA that bypassed it. On x86 this is done through the wbinvd
-instruction, and the i915 GPU driver is the only Linux DMA driver that
-calls it.
-
-The problem comes that KVM on x86 will normally disable the wbinvd
-instruction in the guest and render it a NOP. As the driver running in the
-guest is not aware the wbinvd doesn't work it may still cause the device
-to set the no-snoop bit and the platform will bypass the CPU cache.
-Without a working wbinvd there is no way to re-synchronize the CPU cache
-and the driver in the VM has data corruption.
-
-Thus, we see a general direction on x86 that the IOMMU HW is able to block
-the no-snoop bit in the TLP. This NOP's the optimization and allows KVM to
-to NOP the wbinvd without causing any data corruption.
-
-This control for Intel IOMMU was exposed by using IOMMU_CACHE and
-IOMMU_CAP_CACHE_COHERENCY, however these two values now have multiple
-meanings and usages beyond blocking no-snoop and the whole thing has
-become confused.
-
-Change it so that:
- - IOMMU_CACHE is only about the DMA coherence of normal DMAs from a
-   device. It is used by the DMA API and set when the DMA API will not be
-   doing manual cache coherency operations.
-
- - dev_is_dma_coherent() indicates if IOMMU_CACHE can be used with the
-   device
-
- - The new optional domain op enforce_cache_coherency() will cause the
-   entire domain to block no-snoop requests - ie there is no way for any
-   device attached to the domain to opt out of the IOMMU_CACHE behavior.
-
-An iommu driver should implement enforce_cache_coherency() so that by
-default domains allow the no-snoop optimization. This leaves it available
-to kernel drivers like i915. VFIO will call enforce_cache_coherency()
-before establishing any mappings and the domain should then permanently
-block no-snoop.
-
-If enforce_cache_coherency() fails VFIO will communicate back through to
-KVM into the arch code via kvm_arch_register_noncoherent_dma()
-(only implemented by x86) which triggers a working wbinvd to be made
-available to the VM.
-
-While other arches are certainly welcome to implement
-enforce_cache_coherency(), it is not clear there is any benefit in doing
-so.
-
-After this series there are only two calls left to iommu_capable() with a
-bus argument which should help Robin's work here.
-
-This is on github: https://github.com/jgunthorpe/linux/commits/intel_no_snoop
-
-Cc: "Tian, Kevin" <kevin.tian@intel.com>
-Cc: Robin Murphy <robin.murphy@arm.com>
-Cc: Alex Williamson <alex.williamson@redhat.com>
-Cc: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+---
+ drivers/iommu/amd/iommu.c                   | 2 --
+ drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c | 2 --
+ drivers/iommu/arm/arm-smmu/arm-smmu.c       | 6 ------
+ drivers/iommu/arm/arm-smmu/qcom_iommu.c     | 6 ------
+ drivers/iommu/fsl_pamu_domain.c             | 6 ------
+ drivers/iommu/intel/iommu.c                 | 2 --
+ drivers/iommu/s390-iommu.c                  | 2 --
+ include/linux/iommu.h                       | 2 --
+ 8 files changed, 28 deletions(-)
 
-Jason Gunthorpe (5):
-  iommu: Replace uses of IOMMU_CAP_CACHE_COHERENCY with
-    dev_is_dma_coherent()
-  vfio: Require that devices support DMA cache coherence
-  iommu: Introduce the domain op enforce_cache_coherency()
-  vfio: Move the Intel no-snoop control off of IOMMU_CACHE
-  iommu: Delete IOMMU_CAP_CACHE_COHERENCY
-
- drivers/infiniband/hw/usnic/usnic_uiom.c    | 16 +++++------
- drivers/iommu/amd/iommu.c                   |  9 +++++--
- drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c |  2 --
- drivers/iommu/arm/arm-smmu/arm-smmu.c       |  6 -----
- drivers/iommu/arm/arm-smmu/qcom_iommu.c     |  6 -----
- drivers/iommu/fsl_pamu_domain.c             |  6 -----
- drivers/iommu/intel/iommu.c                 | 15 ++++++++---
- drivers/iommu/s390-iommu.c                  |  2 --
- drivers/vfio/vfio.c                         |  6 +++++
- drivers/vfio/vfio_iommu_type1.c             | 30 +++++++++++++--------
- drivers/vhost/vdpa.c                        |  3 ++-
- include/linux/intel-iommu.h                 |  1 +
- include/linux/iommu.h                       |  6 +++--
- 13 files changed, 58 insertions(+), 50 deletions(-)
-
-
-base-commit: 3123109284176b1532874591f7c81f3837bbdc17
+diff --git a/drivers/iommu/amd/iommu.c b/drivers/iommu/amd/iommu.c
+index e500b487eb3429..f144eb9fea8e31 100644
+--- a/drivers/iommu/amd/iommu.c
++++ b/drivers/iommu/amd/iommu.c
+@@ -2156,8 +2156,6 @@ static phys_addr_t amd_iommu_iova_to_phys(struct iommu_domain *dom,
+ static bool amd_iommu_capable(enum iommu_cap cap)
+ {
+ 	switch (cap) {
+-	case IOMMU_CAP_CACHE_COHERENCY:
+-		return true;
+ 	case IOMMU_CAP_INTR_REMAP:
+ 		return (irq_remapping_enabled == 1);
+ 	case IOMMU_CAP_NOEXEC:
+diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
+index 627a3ed5ee8fd1..c4115015a633a7 100644
+--- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
++++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
+@@ -1986,8 +1986,6 @@ static const struct iommu_flush_ops arm_smmu_flush_ops = {
+ static bool arm_smmu_capable(enum iommu_cap cap)
+ {
+ 	switch (cap) {
+-	case IOMMU_CAP_CACHE_COHERENCY:
+-		return true;
+ 	case IOMMU_CAP_NOEXEC:
+ 		return true;
+ 	default:
+diff --git a/drivers/iommu/arm/arm-smmu/arm-smmu.c b/drivers/iommu/arm/arm-smmu/arm-smmu.c
+index 568cce590ccc13..166bf45ac3d444 100644
+--- a/drivers/iommu/arm/arm-smmu/arm-smmu.c
++++ b/drivers/iommu/arm/arm-smmu/arm-smmu.c
+@@ -1333,12 +1333,6 @@ static phys_addr_t arm_smmu_iova_to_phys(struct iommu_domain *domain,
+ static bool arm_smmu_capable(enum iommu_cap cap)
+ {
+ 	switch (cap) {
+-	case IOMMU_CAP_CACHE_COHERENCY:
+-		/*
+-		 * Return true here as the SMMU can always send out coherent
+-		 * requests.
+-		 */
+-		return true;
+ 	case IOMMU_CAP_NOEXEC:
+ 		return true;
+ 	default:
+diff --git a/drivers/iommu/arm/arm-smmu/qcom_iommu.c b/drivers/iommu/arm/arm-smmu/qcom_iommu.c
+index 4c077c38fbd64f..fc72465fc63d50 100644
+--- a/drivers/iommu/arm/arm-smmu/qcom_iommu.c
++++ b/drivers/iommu/arm/arm-smmu/qcom_iommu.c
+@@ -496,12 +496,6 @@ static phys_addr_t qcom_iommu_iova_to_phys(struct iommu_domain *domain,
+ static bool qcom_iommu_capable(enum iommu_cap cap)
+ {
+ 	switch (cap) {
+-	case IOMMU_CAP_CACHE_COHERENCY:
+-		/*
+-		 * Return true here as the SMMU can always send out coherent
+-		 * requests.
+-		 */
+-		return true;
+ 	case IOMMU_CAP_NOEXEC:
+ 		return true;
+ 	default:
+diff --git a/drivers/iommu/fsl_pamu_domain.c b/drivers/iommu/fsl_pamu_domain.c
+index 69a4a62dc3b9c7..9f80285dab2951 100644
+--- a/drivers/iommu/fsl_pamu_domain.c
++++ b/drivers/iommu/fsl_pamu_domain.c
+@@ -177,11 +177,6 @@ static phys_addr_t fsl_pamu_iova_to_phys(struct iommu_domain *domain,
+ 	return iova;
+ }
+ 
+-static bool fsl_pamu_capable(enum iommu_cap cap)
+-{
+-	return cap == IOMMU_CAP_CACHE_COHERENCY;
+-}
+-
+ static void fsl_pamu_domain_free(struct iommu_domain *domain)
+ {
+ 	struct fsl_dma_domain *dma_domain = to_fsl_dma_domain(domain);
+@@ -451,7 +446,6 @@ static void fsl_pamu_release_device(struct device *dev)
+ }
+ 
+ static const struct iommu_ops fsl_pamu_ops = {
+-	.capable	= fsl_pamu_capable,
+ 	.domain_alloc	= fsl_pamu_domain_alloc,
+ 	.probe_device	= fsl_pamu_probe_device,
+ 	.release_device	= fsl_pamu_release_device,
+diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
+index 0ca43671d934e9..e5062461ab0640 100644
+--- a/drivers/iommu/intel/iommu.c
++++ b/drivers/iommu/intel/iommu.c
+@@ -4557,8 +4557,6 @@ static bool intel_iommu_enforce_cache_coherency(struct iommu_domain *domain)
+ 
+ static bool intel_iommu_capable(enum iommu_cap cap)
+ {
+-	if (cap == IOMMU_CAP_CACHE_COHERENCY)
+-		return domain_update_iommu_snooping(NULL);
+ 	if (cap == IOMMU_CAP_INTR_REMAP)
+ 		return irq_remapping_enabled == 1;
+ 
+diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
+index 3833e86c6e7b8a..3dbf9663246552 100644
+--- a/drivers/iommu/s390-iommu.c
++++ b/drivers/iommu/s390-iommu.c
+@@ -42,8 +42,6 @@ static struct s390_domain *to_s390_domain(struct iommu_domain *dom)
+ static bool s390_iommu_capable(enum iommu_cap cap)
+ {
+ 	switch (cap) {
+-	case IOMMU_CAP_CACHE_COHERENCY:
+-		return true;
+ 	case IOMMU_CAP_INTR_REMAP:
+ 		return true;
+ 	default:
+diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+index fe4f24c469c373..aebb73bda19797 100644
+--- a/include/linux/iommu.h
++++ b/include/linux/iommu.h
+@@ -103,8 +103,6 @@ static inline bool iommu_is_dma_domain(struct iommu_domain *domain)
+ }
+ 
+ enum iommu_cap {
+-	IOMMU_CAP_CACHE_COHERENCY,	/* IOMMU can enforce cache coherent DMA
+-					   transactions */
+ 	IOMMU_CAP_INTR_REMAP,		/* IOMMU supports interrupt isolation */
+ 	IOMMU_CAP_NOEXEC,		/* IOMMU_NOEXEC flag */
+ };
 -- 
 2.35.1
 
