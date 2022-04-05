@@ -2,148 +2,245 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C7A0C433EF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AC17AC433FE
 	for <linux-s390@archiver.kernel.org>; Tue,  5 Apr 2022 22:39:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233453AbiDEWd5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Apr 2022 18:33:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41512 "EHLO
+        id S235481AbiDEWeA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Apr 2022 18:34:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1392323AbiDEPgD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Apr 2022 11:36:03 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B89013D15;
-        Tue,  5 Apr 2022 06:48:39 -0700 (PDT)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 235DWShG013950;
-        Tue, 5 Apr 2022 13:48:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=+btC4gU4s+nPb97YMonz7mX3kcm1fmY4AwI+1gHG20g=;
- b=bTphuem0PUznD8kg2rs+NuV0+FB3nebmNyXgnAM9OsljMjy3s3h2lRLhcHxo0qugHbiy
- kA5QLqUjwW6S8rEJmLh3Kqqh5D+AuHpCY0gnFVYDu7f3AHFch5GvGouQ0OTBK9vBFroA
- 2R8394cXhj8YWnq5pfS0B1H2xY7SHGjAjHBIFar2Gt1YlNmtmm6o96fnMBzJJc2higNO
- X0BRYdCCxBeCPBY9j70QrYn/fSNyHjWR909d0jWzJpUAS82Qs/t2FKcb6sGPUdDa4Cqe
- ojVTJ6P/en/C8WPiE90i1osoRr07UcVA+9M4MYdAwf1KPoHrpOCOpdosYE1injkmvIgM EA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3f85tcpbw6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 05 Apr 2022 13:48:37 +0000
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 235DXZMf018785;
-        Tue, 5 Apr 2022 13:48:37 GMT
-Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3f85tcpbvw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 05 Apr 2022 13:48:37 +0000
-Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
-        by ppma05wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 235Dl5Je012330;
-        Tue, 5 Apr 2022 13:48:36 GMT
-Received: from b01cxnp22036.gho.pok.ibm.com (b01cxnp22036.gho.pok.ibm.com [9.57.198.26])
-        by ppma05wdc.us.ibm.com with ESMTP id 3f6e48ykm6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 05 Apr 2022 13:48:36 +0000
-Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
-        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 235DmZg24260488
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 5 Apr 2022 13:48:35 GMT
-Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C44BC2805C;
-        Tue,  5 Apr 2022 13:48:35 +0000 (GMT)
-Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 74D662805A;
-        Tue,  5 Apr 2022 13:48:30 +0000 (GMT)
-Received: from [9.211.32.125] (unknown [9.211.32.125])
-        by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTP;
-        Tue,  5 Apr 2022 13:48:30 +0000 (GMT)
-Message-ID: <7196af99-fcfa-c9a6-a245-c15268c6851b@linux.ibm.com>
-Date:   Tue, 5 Apr 2022 09:48:29 -0400
+        with ESMTP id S1573721AbiDETwl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Apr 2022 15:52:41 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id CCC1D1B7B3
+        for <linux-s390@vger.kernel.org>; Tue,  5 Apr 2022 12:50:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1649188240;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=BMvE598geYS7AsLGKolv801H0ecrutTt3W25tuDKPtk=;
+        b=VNcgCIl5LJHJawXZznG2tNgYk2irfqbxlQBZFdqRpFDA0H59shSI7qoj5qlC1RD5j/+uKZ
+        D3BlDj7mxDRTH53j23FhvdfUUkBsMgHnia9kco3Uf/i430/R0QzUsUhUSyIbjI+uuSHyip
+        uUWkEjX2aqjQcoZTWb5gU9H3Iq11Bho=
+Received: from mail-io1-f69.google.com (mail-io1-f69.google.com
+ [209.85.166.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-210-WKpS8ntePP-oFTZSeELJEQ-1; Tue, 05 Apr 2022 15:50:39 -0400
+X-MC-Unique: WKpS8ntePP-oFTZSeELJEQ-1
+Received: by mail-io1-f69.google.com with SMTP id a9-20020a5d89c9000000b0064cb68a9ba6so200059iot.11
+        for <linux-s390@vger.kernel.org>; Tue, 05 Apr 2022 12:50:39 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
+         :references:organization:mime-version:content-transfer-encoding;
+        bh=BMvE598geYS7AsLGKolv801H0ecrutTt3W25tuDKPtk=;
+        b=xsSSR5FqHMEhXH1pk0+7sixd73/xT/okpoI33PYJRR+j2wh004AiTW9cnAJIBQ/zNM
+         J1Ukojrh9GN3YhKoZnqta6dk4eZOZhJgABPgV+asyL1w63KoDC6aucBlS6otXW9q5Y5J
+         pjHL+l8g9a4uQJnZgAzUzDzQLgJbRoBQHlBtBy9D/PEBj4B6ahrBKKLO0rJUxzQFKOK8
+         shOJr1KbJ4GbF2kwYpACWWDNgmNAL8CBjHsXOwCCZvFjCeeyIs7Dyj0ueiW7QmKqhB2C
+         3zrBAD1JypUxXCgH0ny+8sN/AOcoDAY34dP/0kHWGJctf7oLvb8lPXkzbb0fl428iIbt
+         PkNg==
+X-Gm-Message-State: AOAM533KtN3s+C8bPjg9B4ut4YOXc1JmIuOXxUvX+gyFHm0mHRWN+OJe
+        P4KIdxzPrNOrRgIMlHvgUqoKgaibopl9pJ1cxEZFqak2Pf6xoPTJyjAxubtzCMC/iCqqkubFe7c
+        B0QZGApphxEF/Aj2xD0d+5Q==
+X-Received: by 2002:a02:29c2:0:b0:323:a234:9df7 with SMTP id p185-20020a0229c2000000b00323a2349df7mr2968414jap.43.1649188238739;
+        Tue, 05 Apr 2022 12:50:38 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyCZgg4vIZs3ezp1ecKFvBApBInnRyJCHzNn5JkctUv/g96VC+Jzbb1H1znHS07OnzGhGeLgw==
+X-Received: by 2002:a02:29c2:0:b0:323:a234:9df7 with SMTP id p185-20020a0229c2000000b00323a2349df7mr2968392jap.43.1649188238422;
+        Tue, 05 Apr 2022 12:50:38 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id 13-20020a056e0211ad00b002ca32cb7a18sm5029165ilj.49.2022.04.05.12.50.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 05 Apr 2022 12:50:37 -0700 (PDT)
+Date:   Tue, 5 Apr 2022 13:50:36 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
+        Christian Benvenuti <benve@cisco.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        iommu@lists.linux-foundation.org, Jason Wang <jasowang@redhat.com>,
+        Joerg Roedel <joro@8bytes.org>, kvm@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Nelson Escobar <neescoba@cisco.com>, netdev@vger.kernel.org,
+        Rob Clark <robdclark@gmail.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        virtualization@lists.linux-foundation.org,
+        Will Deacon <will@kernel.org>, Christoph Hellwig <hch@lst.de>,
+        "Tian, Kevin" <kevin.tian@intel.com>
+Subject: Re: [PATCH 3/5] iommu: Introduce the domain op
+ enforce_cache_coherency()
+Message-ID: <20220405135036.4812c51e.alex.williamson@redhat.com>
+In-Reply-To: <3-v1-ef02c60ddb76+12ca2-intel_no_snoop_jgg@nvidia.com>
+References: <0-v1-ef02c60ddb76+12ca2-intel_no_snoop_jgg@nvidia.com>
+        <3-v1-ef02c60ddb76+12ca2-intel_no_snoop_jgg@nvidia.com>
+Organization: Red Hat
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH v5 14/21] KVM: s390: pci: provide routines for
- enabling/disabling interrupt forwarding
-Content-Language: en-US
-To:     Niklas Schnelle <schnelle@linux.ibm.com>,
-        linux-s390@vger.kernel.org
-Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
-        farman@linux.ibm.com, pmorel@linux.ibm.com,
-        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
-        imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
-        oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
-        pasic@linux.ibm.com, pbonzini@redhat.com, corbet@lwn.net,
-        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-doc@vger.kernel.org
-References: <20220404174349.58530-1-mjrosato@linux.ibm.com>
- <20220404174349.58530-15-mjrosato@linux.ibm.com>
- <9a551f04c3878ecb3a26fed6aff2834fbfe41f18.camel@linux.ibm.com>
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <9a551f04c3878ecb3a26fed6aff2834fbfe41f18.camel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: hT11Spx2r5AaBwzNTO_ciEBQkLoA00Hz
-X-Proofpoint-ORIG-GUID: Mn_KHom0Nmle7NXb8B0QGQ9sRPbMTF4a
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-04-05_02,2022-04-05_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 phishscore=0 suspectscore=0 lowpriorityscore=0 mlxscore=0
- impostorscore=0 mlxlogscore=999 bulkscore=0 adultscore=0 clxscore=1015
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2204050079
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 4/5/22 9:39 AM, Niklas Schnelle wrote:
-> On Mon, 2022-04-04 at 13:43 -0400, Matthew Rosato wrote:
->> These routines will be wired into a kvm ioctl in order to respond to
->> requests to enable / disable a device for Adapter Event Notifications /
->> Adapter Interuption Forwarding.
->>
->> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
->> ---
->>   arch/s390/kvm/pci.c      | 247 +++++++++++++++++++++++++++++++++++++++
->>   arch/s390/kvm/pci.h      |   1 +
->>   arch/s390/pci/pci_insn.c |   1 +
->>   3 files changed, 249 insertions(+)
->>
->> diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
->> index 01bd8a2f503b..f0fd68569a9d 100644
->> --- a/arch/s390/kvm/pci.c
->> +++ b/arch/s390/kvm/pci.c
->> @@ -11,6 +11,7 @@
->>   #include <linux/pci.h>
->>   #include <asm/pci.h>
->>   #include <asm/pci_insn.h>
->> +#include <asm/pci_io.h>
->>   #include "pci.h"
->>   
->>   struct zpci_aift *aift;
->> @@ -152,6 +153,252 @@ int kvm_s390_pci_aen_init(u8 nisc)
->>   	return rc;
->>   }
->>   
->> +/* Modify PCI: Register floating adapter interruption forwarding */
->> +static int kvm_zpci_set_airq(struct zpci_dev *zdev)
->> +{
->> +	u64 req = ZPCI_CREATE_REQ(zdev->fh, 0, ZPCI_MOD_FC_REG_INT);
->> +	struct zpci_fib fib = {};
-> 
-> Hmm this one uses '{}' as initializer while all current callers of
-> zpci_mod_fc() use '{0}'. As far as I know the empty braces are a GNU
-> extension so should work for the kernel but for consistency I'd go with
-> '{0}' or possibly '{.foo = bar, ...}' where that is more readable.
-> There too uninitialized fields will be set to 0. Unless of course there
-> is a conflicting KVM convention that I don't know about.
+On Tue,  5 Apr 2022 13:16:02 -0300
+Jason Gunthorpe <jgg@nvidia.com> wrote:
 
-No convention that I'm aware of, I previously had fib = {0} based on the 
-same rationale you describe and changed to fib = {} per review request 
-from Pierre a few versions back.  I don't have a strong preference, but 
-I did not note any functional difference between the two and see a bunch 
-of examples of both methods throughout the kernel.
+> This new mechanism will replace using IOMMU_CAP_CACHE_COHERENCY and
+> IOMMU_CACHE to control the no-snoop blocking behavior of the IOMMU.
+> 
+> Currently only Intel and AMD IOMMUs are known to support this
+> feature. They both implement it as an IOPTE bit, that when set, will cause
+> PCIe TLPs to that IOVA with the no-snoop bit set to be treated as though
+> the no-snoop bit was clear.
+> 
+> The new API is triggered by calling enforce_cache_coherency() before
+> mapping any IOVA to the domain which globally switches on no-snoop
+> blocking. This allows other implementations that might block no-snoop
+> globally and outside the IOPTE - AMD also documents such an HW capability.
+> 
+> Leave AMD out of sync with Intel and have it block no-snoop even for
+> in-kernel users. This can be trivially resolved in a follow up patch.
+> 
+> Only VFIO will call this new API.
+> 
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>  drivers/iommu/amd/iommu.c   |  7 +++++++
+>  drivers/iommu/intel/iommu.c | 14 +++++++++++++-
+>  include/linux/intel-iommu.h |  1 +
+>  include/linux/iommu.h       |  4 ++++
+>  4 files changed, 25 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/iommu/amd/iommu.c b/drivers/iommu/amd/iommu.c
+> index a1ada7bff44e61..e500b487eb3429 100644
+> --- a/drivers/iommu/amd/iommu.c
+> +++ b/drivers/iommu/amd/iommu.c
+> @@ -2271,6 +2271,12 @@ static int amd_iommu_def_domain_type(struct device *dev)
+>  	return 0;
+>  }
+>  
+> +static bool amd_iommu_enforce_cache_coherency(struct iommu_domain *domain)
+> +{
+> +	/* IOMMU_PTE_FC is always set */
+> +	return true;
+> +}
+> +
+>  const struct iommu_ops amd_iommu_ops = {
+>  	.capable = amd_iommu_capable,
+>  	.domain_alloc = amd_iommu_domain_alloc,
+> @@ -2293,6 +2299,7 @@ const struct iommu_ops amd_iommu_ops = {
+>  		.flush_iotlb_all = amd_iommu_flush_iotlb_all,
+>  		.iotlb_sync	= amd_iommu_iotlb_sync,
+>  		.free		= amd_iommu_domain_free,
+> +		.enforce_cache_coherency = amd_iommu_enforce_cache_coherency,
+>  	}
+>  };
+>  
+> diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
+> index df5c62ecf942b8..f08611a6cc4799 100644
+> --- a/drivers/iommu/intel/iommu.c
+> +++ b/drivers/iommu/intel/iommu.c
+> @@ -4422,7 +4422,8 @@ static int intel_iommu_map(struct iommu_domain *domain,
+>  		prot |= DMA_PTE_READ;
+>  	if (iommu_prot & IOMMU_WRITE)
+>  		prot |= DMA_PTE_WRITE;
+> -	if ((iommu_prot & IOMMU_CACHE) && dmar_domain->iommu_snooping)
+> +	if (((iommu_prot & IOMMU_CACHE) && dmar_domain->iommu_snooping) ||
+> +	    dmar_domain->enforce_no_snoop)
+>  		prot |= DMA_PTE_SNP;
+>  
+>  	max_addr = iova + size;
+> @@ -4545,6 +4546,16 @@ static phys_addr_t intel_iommu_iova_to_phys(struct iommu_domain *domain,
+>  	return phys;
+>  }
+>  
+> +static bool intel_iommu_enforce_cache_coherency(struct iommu_domain *domain)
+> +{
+> +	struct dmar_domain *dmar_domain = to_dmar_domain(domain);
+> +
+> +	if (!dmar_domain->iommu_snooping)
+> +		return false;
+> +	dmar_domain->enforce_no_snoop = true;
+> +	return true;
+> +}
+
+Don't we have issues if we try to set DMA_PTE_SNP on DMARs that don't
+support it, ie. reserved register bit set in pte faults?  It seems
+really inconsistent here that I could make a domain that supports
+iommu_snooping, set enforce_no_snoop = true, then add another DMAR to
+the domain that may not support iommu_snooping, I'd get false on the
+subsequent enforcement test, but the dmar_domain is still trying to use
+DMA_PTE_SNP.
+
+There's also a disconnect, maybe just in the naming or documentation,
+but if I call enforce_cache_coherency for a domain, that seems like the
+domain should retain those semantics regardless of how it's modified,
+ie. "enforced".  For example, if I tried to perform the above operation,
+I should get a failure attaching the device that brings in the less
+capable DMAR because the domain has been set to enforce this feature.
+
+If the API is that I need to re-enforce_cache_coherency on every
+modification of the domain, shouldn't dmar_domain->enforce_no_snoop
+also return to a default value on domain changes?
+
+Maybe this should be something like set_no_snoop_squashing with the
+above semantics, it needs to be re-applied whenever the domain:device
+composition changes?  Thanks,
+
+Alex
+
+> +
+>  static bool intel_iommu_capable(enum iommu_cap cap)
+>  {
+>  	if (cap == IOMMU_CAP_CACHE_COHERENCY)
+> @@ -4898,6 +4909,7 @@ const struct iommu_ops intel_iommu_ops = {
+>  		.iotlb_sync		= intel_iommu_tlb_sync,
+>  		.iova_to_phys		= intel_iommu_iova_to_phys,
+>  		.free			= intel_iommu_domain_free,
+> +		.enforce_cache_coherency = intel_iommu_enforce_cache_coherency,
+>  	}
+>  };
+>  
+> diff --git a/include/linux/intel-iommu.h b/include/linux/intel-iommu.h
+> index 2f9891cb3d0014..1f930c0c225d94 100644
+> --- a/include/linux/intel-iommu.h
+> +++ b/include/linux/intel-iommu.h
+> @@ -540,6 +540,7 @@ struct dmar_domain {
+>  	u8 has_iotlb_device: 1;
+>  	u8 iommu_coherency: 1;		/* indicate coherency of iommu access */
+>  	u8 iommu_snooping: 1;		/* indicate snooping control feature */
+> +	u8 enforce_no_snoop : 1;        /* Create IOPTEs with snoop control */
+>  
+>  	struct list_head devices;	/* all devices' list */
+>  	struct iova_domain iovad;	/* iova's that belong to this domain */
+> diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+> index 9208eca4b0d1ac..fe4f24c469c373 100644
+> --- a/include/linux/iommu.h
+> +++ b/include/linux/iommu.h
+> @@ -272,6 +272,9 @@ struct iommu_ops {
+>   * @iotlb_sync: Flush all queued ranges from the hardware TLBs and empty flush
+>   *            queue
+>   * @iova_to_phys: translate iova to physical address
+> + * @enforce_cache_coherency: Prevent any kind of DMA from bypassing IOMMU_CACHE,
+> + *                           including no-snoop TLPs on PCIe or other platform
+> + *                           specific mechanisms.
+>   * @enable_nesting: Enable nesting
+>   * @set_pgtable_quirks: Set io page table quirks (IO_PGTABLE_QUIRK_*)
+>   * @free: Release the domain after use.
+> @@ -300,6 +303,7 @@ struct iommu_domain_ops {
+>  	phys_addr_t (*iova_to_phys)(struct iommu_domain *domain,
+>  				    dma_addr_t iova);
+>  
+> +	bool (*enforce_cache_coherency)(struct iommu_domain *domain);
+>  	int (*enable_nesting)(struct iommu_domain *domain);
+>  	int (*set_pgtable_quirks)(struct iommu_domain *domain,
+>  				  unsigned long quirks);
 
