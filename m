@@ -2,274 +2,150 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB5E0C4167E
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Apr 2022 22:39:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7ABA4C433F5
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Apr 2022 22:39:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230049AbiDEWdp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Apr 2022 18:33:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35222 "EHLO
+        id S231991AbiDEWdy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Apr 2022 18:33:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1457617AbiDEQSK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Apr 2022 12:18:10 -0400
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2087.outbound.protection.outlook.com [40.107.93.87])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B443919C18;
-        Tue,  5 Apr 2022 09:16:11 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=envp/g5Ogbq/mr4VcVqqfInc8+Pv8V0JCaE/rPG3UFUnUgPH9f0B+aksaPOYC43zIvYYFKdCcTMNLSQeKhN54MNtKOX5P7aFl5yngIY8zsXvFWYOuCp0AN6O0pusWkwRWar3u0bPGNlhDb5HTi30kqHo9g3Ox+u2RflMZNKlesJsPt3BXMpORKuSdWofPz6jfwRNjguTYZaifxvuJvPKtPwV7As1rSuENhjEKbN8jpp7YhBMkpzoRRSc1j907sDUJDruc7jlknLV+S9daA+OR6SVPsHXNIS1KqxKuUOtJGR28X7O8JY7eBZI6guWoljF1kwdQvIRSfofwJZGxm7HlQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=caLncysSLkUFjIJU7XS5btAFcz/iwrDZ/0nbwg2upIQ=;
- b=nYR3RY8fVvGI3txxwBzsPNAnKpEyU4AMXygnu1x8loyASbz8+XrR2iUjt1H7zp2P1IRVd6g6PPrftljLNegip1ckDg4jQYjawhlXfvNnn95I9ECVoR4F6v88POuZ2zteACwavxSAYdCQKX1+IAqGZRDgjYogBmrepvhk6jSWs40YGk0ba4hZOcouMgaomrbrKp8l9wiFGSURNWNWCNOILi844ciXc0eVafXLedOUb22O3PJdVYLT1f9SnKjcSUjGyiFuMDez3YqVDInPw5e4sZ/wl9E8h1AW5FFmLYyHvWgm1mAM6hKKyMCPCcXKzBdn0tUp1apDAhx6cW4reSKIRg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=caLncysSLkUFjIJU7XS5btAFcz/iwrDZ/0nbwg2upIQ=;
- b=A45fB/t5GjLmlYsrLjz57WQ2wSdJdfzModwbu5+4o5VbLOY3zQ8cb749U0+Y4zoud8l0DudNLofE25DA8JZt0WnHdpNejCKI8h6kkfpKO+kT7VitSjt0cT0xtEM3+wMDTD2lbohfFXgCaJCkKEZxBUSX/rgjJs1xZaZ3ZprYdj6LWSvLGF5RWL7wjpdiD6+JiM42qNiSMbntnVjfHmOgB8iWAZMOp1fsYl6mrmrhMxazCAswzIOir6/a5l1bMP8YT/sgCMchqEOHlPT/9dRic3AFWDMILQ3eRUVw2LGDxZzC9TtlRELrk51RkP2aiz3nZDTxsT7c8UHMI+dyaGoVhQ==
-Received: from BN6PR12MB1153.namprd12.prod.outlook.com (2603:10b6:404:19::17)
- by BYAPR12MB2727.namprd12.prod.outlook.com (2603:10b6:a03:71::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5123.31; Tue, 5 Apr
- 2022 16:16:08 +0000
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
- by BN6PR12MB1153.namprd12.prod.outlook.com (2603:10b6:404:19::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5123.31; Tue, 5 Apr
- 2022 16:16:07 +0000
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::cdfb:f88e:410b:9374]) by MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::cdfb:f88e:410b:9374%5]) with mapi id 15.20.5123.031; Tue, 5 Apr 2022
- 16:16:07 +0000
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Alex Williamson <alex.williamson@redhat.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Christian Benvenuti <benve@cisco.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        iommu@lists.linux-foundation.org, Jason Wang <jasowang@redhat.com>,
-        Joerg Roedel <joro@8bytes.org>, kvm@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-rdma@vger.kernel.org,
-        linux-s390@vger.kernel.org,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Nelson Escobar <neescoba@cisco.com>, netdev@vger.kernel.org,
-        Rob Clark <robdclark@gmail.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        virtualization@lists.linux-foundation.org,
-        Will Deacon <will@kernel.org>
-Cc:     Christoph Hellwig <hch@lst.de>,
-        "Tian, Kevin" <kevin.tian@intel.com>
-Subject: [PATCH 5/5] iommu: Delete IOMMU_CAP_CACHE_COHERENCY
-Date:   Tue,  5 Apr 2022 13:16:04 -0300
-Message-Id: <5-v1-ef02c60ddb76+12ca2-intel_no_snoop_jgg@nvidia.com>
-In-Reply-To: <0-v1-ef02c60ddb76+12ca2-intel_no_snoop_jgg@nvidia.com>
-References: 
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: BL1PR13CA0351.namprd13.prod.outlook.com
- (2603:10b6:208:2c6::26) To MN2PR12MB4192.namprd12.prod.outlook.com
- (2603:10b6:208:1d5::15)
+        with ESMTP id S1442334AbiDEPhb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Apr 2022 11:37:31 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2884710E043;
+        Tue,  5 Apr 2022 06:51:43 -0700 (PDT)
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 235DWRjZ003272;
+        Tue, 5 Apr 2022 13:51:42 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=70f3++uodWHlr/PXmHHWDTclVF91IG0xsbEDXHos37A=;
+ b=DMdIq0bl6/8VKmrHbW7wM6dIBwQofXy30Ekze1jv+W36eX+v5tx38d0A7JrvYQIWAqWs
+ PytJ8x1Um5W6COeLdTOTjrKrvx55uz+eFvaEmAwmTcd3hsmZ+l/KPIR1c6LSkyNDf9GG
+ NHU1IOLwoMwSjbRn1mU4/qaf7Tnb94wzU2LaJ2XMEM7MCj9QX3J39+MEYLPptgBhkdxV
+ NYlBZOvKhCZoCk5sUf8f7Tp66XBW2ziCgb5x6cFJcM3MzCqiypsVEiUERf4IMM/ogsud
+ 0MIhodjCZiOrsQVZeJSa4SMZ2pVoGjNzCL6nBDDxwXpqKad4yjGzQMfGGoJ+syPKayTX 0A== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3f8ph20rn4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 05 Apr 2022 13:51:42 +0000
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 235DWvRX004595;
+        Tue, 5 Apr 2022 13:51:42 GMT
+Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3f8ph20rmn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 05 Apr 2022 13:51:41 +0000
+Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
+        by ppma02wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 235DmwQM029536;
+        Tue, 5 Apr 2022 13:51:40 GMT
+Received: from b01cxnp23033.gho.pok.ibm.com (b01cxnp23033.gho.pok.ibm.com [9.57.198.28])
+        by ppma02wdc.us.ibm.com with ESMTP id 3f6e49fny5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 05 Apr 2022 13:51:40 +0000
+Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
+        by b01cxnp23033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 235DpdFA46072108
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 5 Apr 2022 13:51:39 GMT
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CA3D728065;
+        Tue,  5 Apr 2022 13:51:39 +0000 (GMT)
+Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E77E428074;
+        Tue,  5 Apr 2022 13:51:34 +0000 (GMT)
+Received: from [9.211.32.125] (unknown [9.211.32.125])
+        by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTP;
+        Tue,  5 Apr 2022 13:51:34 +0000 (GMT)
+Message-ID: <26fa1eef-8c89-8819-b12c-3b8caaf40bb2@linux.ibm.com>
+Date:   Tue, 5 Apr 2022 09:51:34 -0400
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: a809535d-a68f-4eaa-ecd1-08da171f96ae
-X-MS-TrafficTypeDiagnostic: BN6PR12MB1153:EE_|BYAPR12MB2727:EE_
-X-Microsoft-Antispam-PRVS: <BN6PR12MB1153559F21C4254FD89E7DC7C2E49@BN6PR12MB1153.namprd12.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 73GC5SU+34uDNFbsj0cNzn0J1Qv2CYmv/xx9zoDEn5M32hM/0CIX//1QNIX2EOcoxXOuwQK5ey79NLDBF+nIBpCqey5b9Cnh7y3hD+VPcehA64i9VVz7lyWq0sjZekSsvH/4j5osN0m7sQnWopatLgAy9UX57c/SUu2iFrE9/IaDpa2zR7w3eCHBDlm8vveStMYkEEd9R+UIsfQeG7MvA/FEJv2YgfUtok23DDLfQxi5b3CkRLabB0x05oXR/A0HketTRo4D5WiyCBdYX/bwazloxET0/0ObFZ572q58wSl0VAH0PCoEx74v452Fkwt6V/la7l4bP1Mf3whTm7QX5d0sG93KAYLI/8GZp0If5BhA9Ja4L5kpVBasR3z1dvrIUKH60fpBxrr/vW8mbs25TGiluHE2bmyQRZBJm8ioCsRbrENBOmZPd2WfhqegeBFjwRpofk1H/zFHLJ8a++v4ooYbLhytc9s0fSRu/5Vq7qj6bICplSVk1WVzi7sGsnt/C/jWTdT24nBQIkYKMO4qiHqr2fyR0sOstumL4vLuJ0w/WcC75i1fXf70s4ZTDqUX2BxrfcRVxQad722ds0wsCGwZrtKLTdBEZleht8+iDP/8vEbWI4v5e/0vR4q7WN4EULsZCkaZr4HkJtZ0G7qGFj4NmsMQE5/+gzj6T6yQ3LVW4AryTmyfsaIc4nJNd0h97k+ayWFXZ5vxOXtwdwcFQg==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN6PR12MB1153.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(2906002)(6512007)(2616005)(508600001)(86362001)(66946007)(5660300002)(186003)(66556008)(6506007)(26005)(66476007)(8676002)(6486002)(6666004)(7416002)(4326008)(8936002)(83380400001)(36756003)(921005)(54906003)(316002)(38100700002)(110136005)(4216001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?toC+hrreXAVOBw/rTbl8HU4Y9qddWRR3yCneKVXSIl0i9DWrYqt5lroRpmD/?=
- =?us-ascii?Q?meBfzXat73hOrfhrBwMbtmymZX1iJ4IWqb+RowtMD8043uLZMprnkIGhgHC4?=
- =?us-ascii?Q?BxQ6+b2P2IIB/auAx1ggd1i7CQGK0MyfJvl7KsihAah3L61J0ZTw5GQYM79V?=
- =?us-ascii?Q?bdj/AxKYjWDkVIROOd4PZlzmqkHJBMBLuNGa45mX2cEUNl94wucVunpFXjYT?=
- =?us-ascii?Q?hIWfcHKE1M8sl099uD43yYnsgn/xlocfb0aPCC/fI1h3ilaZKrH3U+qZI7vE?=
- =?us-ascii?Q?mwGCM/BMrlaXaH81OKsuDNtTmn2K+CuzY4SSmqwAxlodFZMIXxJmyD1/lEow?=
- =?us-ascii?Q?7XjPR3MSjTmVT3zkYBAabhyEK8gM6RE/U8yXQugO0Cufj6bq7Xw8JGHQppy9?=
- =?us-ascii?Q?A2nrfpkzQRxKHt2KVYzjqMiW1GC7rVJEoXrLQbHttxIp/Cec+JjtReMPNMWz?=
- =?us-ascii?Q?0/4MnTt23Mbgl3TaKt69XQkyhNXEgV1r29PlhBP0zv5FPmpH1fVkIPr2Ln4m?=
- =?us-ascii?Q?VVKL6Z7AR+1SDCwOV4sdpZNgo1jHCfsYtC2FvCVTos+YuHMqyrpZrKVsf+F5?=
- =?us-ascii?Q?AOu33rb0HV6sCV7EzEEBXKpNL5La5zdD/neLkhLiQwR2zmNf95AANf6SGghb?=
- =?us-ascii?Q?76ZRxVWsyLx9Sg3o5KiPVGwrkP8RGIbVsYPqlE/L3tV0vLfQXf5UQl7nvA19?=
- =?us-ascii?Q?pb5p5mQIbMqNGaaUNS6rM0nKdgNKcNy2V6quT5AD69lYphqTg4A/849h0VYU?=
- =?us-ascii?Q?Hehx5ZSuNSmKgPk7bMEaFEwn0Cjt7oR43eg9xqEP9iVGxu+0ZjbYfQIVqZqr?=
- =?us-ascii?Q?DkTSYKxY8soQOn7fnhxtBelkt82temjnYuQfO3DWjxpdyy5dye9poalk69K8?=
- =?us-ascii?Q?4ZutXphFnGUQfM+3++LzLr+ps81YKb/XCMca0xzrOJK0lvBEc+Mx8k6GnsMi?=
- =?us-ascii?Q?87MkhdntASYUznUpoKQuUidwMrgpPmsAUlyqwiQvfTvciJCSeaem+79GPKmV?=
- =?us-ascii?Q?n+ZsU885rJKY8ScK/xT40zIJ+E6M7OOHPWiiIJ6l38W5t7gEWIAyWPJ6mIST?=
- =?us-ascii?Q?EmXRIRxoR9YAVZekerHCakOP1ANiV3WXzSjeNoLZmHk6C+x7Eo7d2CULm6f4?=
- =?us-ascii?Q?RG87t28usW62ibYgD+dK+ldWtx+xaTrUEtQom6tF8f7Q9iEe5vHnsb/Ji+kg?=
- =?us-ascii?Q?GSdx8PdctHGAbloHFXf50LQ5wOlrJZkHMk+Y6QPzRzxrPUFFzny4SAvehsr+?=
- =?us-ascii?Q?7BGbMAG4lfmALDeZCekt6jUV2vIjzUFGbsjkoxDo4LRJrsrEk+KlCokZ/c3R?=
- =?us-ascii?Q?iRmlIHR5oeo/K+gymzmcY5+zzYH1W5NkoGJOdOU42cyOnrwjefd2ohEJQ8oV?=
- =?us-ascii?Q?siqKtBL++H6ohRuYxxVFeRb3OHfO0ANx2GYww0Fmz1hpd2FuYGnhD7ogdS1n?=
- =?us-ascii?Q?ekkJxM/uA3SM6Xt25cQlY0hx7DZVb+oxuSQpYkmVYhUz/KgVZGYn9RvBSTkB?=
- =?us-ascii?Q?BOadYdTyHy7nyTg5I2yXjs/yDFdscgpt5SMMjEEdQQnnFVMlz0XOPlZaqV/h?=
- =?us-ascii?Q?5Pgyl43S/UdpUYfhiZogm3vgaIXuV6IRAgw9un593db1PGbbfbs07rl3NWmV?=
- =?us-ascii?Q?CcL61Me4UXcS5bFDCikEUaVtCRvcuEA7MUAJozSZIegV+d+zIFuxtWGwVJfj?=
- =?us-ascii?Q?tFSeDUAjB/Aa2My7XsEa9c+LnQqb6CTdKKCDw/AS2e1jKxv7z2WEWKVCeEY7?=
- =?us-ascii?Q?7bUkhe7jOg=3D=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: a809535d-a68f-4eaa-ecd1-08da171f96ae
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Apr 2022 16:16:06.8161
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: +EMg1eWYRJopFedeVUcnCjBip0u//HMgB4uTRppN6ngcTCAmTI94Ste7nnyZub8G
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR12MB2727
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH v5 10/21] KVM: s390: pci: add basic kvm_zdev structure
+Content-Language: en-US
+To:     Niklas Schnelle <schnelle@linux.ibm.com>,
+        linux-s390@vger.kernel.org
+Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
+        farman@linux.ibm.com, pmorel@linux.ibm.com,
+        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
+        imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
+        oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, pbonzini@redhat.com, corbet@lwn.net,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-doc@vger.kernel.org
+References: <20220404174349.58530-1-mjrosato@linux.ibm.com>
+ <20220404174349.58530-11-mjrosato@linux.ibm.com>
+ <8fc611271c6156dee5c5f5b5c2f583d2d7774843.camel@linux.ibm.com>
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <8fc611271c6156dee5c5f5b5c2f583d2d7774843.camel@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Qt5-YCCO2ZAkFtw-CyjLutRvAHpvHu4x
+X-Proofpoint-ORIG-GUID: abzCw4HVKfcXKNf_D465BhRHBCQe8tNw
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-04-05_02,2022-04-05_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 spamscore=0
+ clxscore=1015 priorityscore=1501 adultscore=0 mlxlogscore=898 phishscore=0
+ suspectscore=0 lowpriorityscore=0 impostorscore=0 bulkscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2204050079
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Nothing reads this value anymore, remove it.
+On 4/5/22 4:20 AM, Niklas Schnelle wrote:
+> On Mon, 2022-04-04 at 13:43 -0400, Matthew Rosato wrote:
+>> This structure will be used to carry kvm passthrough information related to
+>> zPCI devices.
+>>
+>> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+>> ---
+>>   arch/s390/include/asm/pci.h |  3 +++
+>>   arch/s390/kvm/Makefile      |  1 +
+>>   arch/s390/kvm/pci.c         | 38 +++++++++++++++++++++++++++++++++++++
+>>   arch/s390/kvm/pci.h         | 21 ++++++++++++++++++++
+>>   4 files changed, 63 insertions(+)
+>>   create mode 100644 arch/s390/kvm/pci.c
+>>   create mode 100644 arch/s390/kvm/pci.h
+>>
+>> diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+>> index 4c5b8fbc2079..9eb20cebaa18 100644
+>> --- a/arch/s390/include/asm/pci.h
+>> +++ b/arch/s390/include/asm/pci.h
+>> @@ -97,6 +97,7 @@ struct zpci_bar_struct {
+>>   };
+>>   
+>>   struct s390_domain;
+>> +struct kvm_zdev;
+>>   
+>>   #define ZPCI_FUNCTIONS_PER_BUS 256
+>>   struct zpci_bus {
+>> @@ -190,6 +191,8 @@ struct zpci_dev {
+>>   	struct dentry	*debugfs_dev;
+>>   
+>>   	struct s390_domain *s390_domain; /* s390 IOMMU domain data */
+>> +
+>> +	struct kvm_zdev *kzdev; /* passthrough data */
+>>   };
+> 
+> The struct zpci_dev tries to use semantic groups in its formatting.
+> It's not perfect and we probably need to clean this up to remove some
+> holes in the future. For now let's put the new kzdev without a blank
+> line together with s390_domain and add a "section comment" like
+> "IOMMU and passthrough".
+> Also I'd drop the "... data" part of the line end comment or even drop
+> it entirely, the name is pretty clear already when combined with the
+> section comment.
 
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
----
- drivers/iommu/amd/iommu.c                   | 2 --
- drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c | 2 --
- drivers/iommu/arm/arm-smmu/arm-smmu.c       | 6 ------
- drivers/iommu/arm/arm-smmu/qcom_iommu.c     | 6 ------
- drivers/iommu/fsl_pamu_domain.c             | 6 ------
- drivers/iommu/intel/iommu.c                 | 2 --
- drivers/iommu/s390-iommu.c                  | 2 --
- include/linux/iommu.h                       | 2 --
- 8 files changed, 28 deletions(-)
+Sure, will do
 
-diff --git a/drivers/iommu/amd/iommu.c b/drivers/iommu/amd/iommu.c
-index e500b487eb3429..f144eb9fea8e31 100644
---- a/drivers/iommu/amd/iommu.c
-+++ b/drivers/iommu/amd/iommu.c
-@@ -2156,8 +2156,6 @@ static phys_addr_t amd_iommu_iova_to_phys(struct iommu_domain *dom,
- static bool amd_iommu_capable(enum iommu_cap cap)
- {
- 	switch (cap) {
--	case IOMMU_CAP_CACHE_COHERENCY:
--		return true;
- 	case IOMMU_CAP_INTR_REMAP:
- 		return (irq_remapping_enabled == 1);
- 	case IOMMU_CAP_NOEXEC:
-diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-index 627a3ed5ee8fd1..c4115015a633a7 100644
---- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-+++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-@@ -1986,8 +1986,6 @@ static const struct iommu_flush_ops arm_smmu_flush_ops = {
- static bool arm_smmu_capable(enum iommu_cap cap)
- {
- 	switch (cap) {
--	case IOMMU_CAP_CACHE_COHERENCY:
--		return true;
- 	case IOMMU_CAP_NOEXEC:
- 		return true;
- 	default:
-diff --git a/drivers/iommu/arm/arm-smmu/arm-smmu.c b/drivers/iommu/arm/arm-smmu/arm-smmu.c
-index 568cce590ccc13..166bf45ac3d444 100644
---- a/drivers/iommu/arm/arm-smmu/arm-smmu.c
-+++ b/drivers/iommu/arm/arm-smmu/arm-smmu.c
-@@ -1333,12 +1333,6 @@ static phys_addr_t arm_smmu_iova_to_phys(struct iommu_domain *domain,
- static bool arm_smmu_capable(enum iommu_cap cap)
- {
- 	switch (cap) {
--	case IOMMU_CAP_CACHE_COHERENCY:
--		/*
--		 * Return true here as the SMMU can always send out coherent
--		 * requests.
--		 */
--		return true;
- 	case IOMMU_CAP_NOEXEC:
- 		return true;
- 	default:
-diff --git a/drivers/iommu/arm/arm-smmu/qcom_iommu.c b/drivers/iommu/arm/arm-smmu/qcom_iommu.c
-index 4c077c38fbd64f..fc72465fc63d50 100644
---- a/drivers/iommu/arm/arm-smmu/qcom_iommu.c
-+++ b/drivers/iommu/arm/arm-smmu/qcom_iommu.c
-@@ -496,12 +496,6 @@ static phys_addr_t qcom_iommu_iova_to_phys(struct iommu_domain *domain,
- static bool qcom_iommu_capable(enum iommu_cap cap)
- {
- 	switch (cap) {
--	case IOMMU_CAP_CACHE_COHERENCY:
--		/*
--		 * Return true here as the SMMU can always send out coherent
--		 * requests.
--		 */
--		return true;
- 	case IOMMU_CAP_NOEXEC:
- 		return true;
- 	default:
-diff --git a/drivers/iommu/fsl_pamu_domain.c b/drivers/iommu/fsl_pamu_domain.c
-index 69a4a62dc3b9c7..9f80285dab2951 100644
---- a/drivers/iommu/fsl_pamu_domain.c
-+++ b/drivers/iommu/fsl_pamu_domain.c
-@@ -177,11 +177,6 @@ static phys_addr_t fsl_pamu_iova_to_phys(struct iommu_domain *domain,
- 	return iova;
- }
- 
--static bool fsl_pamu_capable(enum iommu_cap cap)
--{
--	return cap == IOMMU_CAP_CACHE_COHERENCY;
--}
--
- static void fsl_pamu_domain_free(struct iommu_domain *domain)
- {
- 	struct fsl_dma_domain *dma_domain = to_fsl_dma_domain(domain);
-@@ -451,7 +446,6 @@ static void fsl_pamu_release_device(struct device *dev)
- }
- 
- static const struct iommu_ops fsl_pamu_ops = {
--	.capable	= fsl_pamu_capable,
- 	.domain_alloc	= fsl_pamu_domain_alloc,
- 	.probe_device	= fsl_pamu_probe_device,
- 	.release_device	= fsl_pamu_release_device,
-diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
-index 0ca43671d934e9..e5062461ab0640 100644
---- a/drivers/iommu/intel/iommu.c
-+++ b/drivers/iommu/intel/iommu.c
-@@ -4557,8 +4557,6 @@ static bool intel_iommu_enforce_cache_coherency(struct iommu_domain *domain)
- 
- static bool intel_iommu_capable(enum iommu_cap cap)
- {
--	if (cap == IOMMU_CAP_CACHE_COHERENCY)
--		return domain_update_iommu_snooping(NULL);
- 	if (cap == IOMMU_CAP_INTR_REMAP)
- 		return irq_remapping_enabled == 1;
- 
-diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-index 3833e86c6e7b8a..3dbf9663246552 100644
---- a/drivers/iommu/s390-iommu.c
-+++ b/drivers/iommu/s390-iommu.c
-@@ -42,8 +42,6 @@ static struct s390_domain *to_s390_domain(struct iommu_domain *dom)
- static bool s390_iommu_capable(enum iommu_cap cap)
- {
- 	switch (cap) {
--	case IOMMU_CAP_CACHE_COHERENCY:
--		return true;
- 	case IOMMU_CAP_INTR_REMAP:
- 		return true;
- 	default:
-diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-index fe4f24c469c373..aebb73bda19797 100644
---- a/include/linux/iommu.h
-+++ b/include/linux/iommu.h
-@@ -103,8 +103,6 @@ static inline bool iommu_is_dma_domain(struct iommu_domain *domain)
- }
- 
- enum iommu_cap {
--	IOMMU_CAP_CACHE_COHERENCY,	/* IOMMU can enforce cache coherent DMA
--					   transactions */
- 	IOMMU_CAP_INTR_REMAP,		/* IOMMU supports interrupt isolation */
- 	IOMMU_CAP_NOEXEC,		/* IOMMU_NOEXEC flag */
- };
--- 
-2.35.1
+> 
+> With that Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> 
 
+Thanks!
