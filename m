@@ -2,35 +2,35 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 254C5C4167E
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Apr 2022 07:15:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F2C0DC35273
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Apr 2022 07:15:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231475AbiDEHRD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Apr 2022 03:17:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57250 "EHLO
+        id S231518AbiDEHRH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Apr 2022 03:17:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231603AbiDEHQ3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Apr 2022 03:16:29 -0400
+        with ESMTP id S231652AbiDEHQu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Apr 2022 03:16:50 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2925101B;
-        Tue,  5 Apr 2022 00:14:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D502C39;
+        Tue,  5 Apr 2022 00:14:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E8DA615FB;
-        Tue,  5 Apr 2022 07:14:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E76F5C34112;
-        Tue,  5 Apr 2022 07:14:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 39C4E615FB;
+        Tue,  5 Apr 2022 07:14:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8AE7C34111;
+        Tue,  5 Apr 2022 07:14:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649142869;
-        bh=e4dJybM58H7ucR3l1EiaumQDiYHocLzSiDptBO8ijKQ=;
+        s=k20201202; t=1649142891;
+        bh=0gzQGGxdHWRt9A+64eem+dLQzBOPjB9Pfn9kxqzAZaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WmsrWnVOUyIcrS5tWmU2iLmLp8+3hogXxjSjaasBNqPEpKn1S9WL7KGSvnuB1yTnl
-         HwEfhvkMYvuJvsM2lIyICdPfR8jHFJtLvelW9VDhhxenHhBqFj/FWesorVursc1ekD
-         2sJeroWj4+mCRIHvSRmc30RSy1fB+rc2v5CphlIjiozFVbzqFKmwdATqYkSoZvUqA9
-         fjc2r6798Zt0qx8UMVUod8s2bUb3L+OQY5Hs1rOaFf5ts7q9Ww1TDmQQKoMjGCiCtp
-         UQjMsnDYUcvSIF1XcAXumGoqtMQomiimurskMZYLNrpnmiktl7fBc9BO/7P2pEx+em
-         +29Vqav9TibyA==
+        b=pAxwn75t4d3o6bXrhGs0jyZfoZT/W4uV6ltpOG9V709KVwAGveEPeUdJIe4F2zoxj
+         2h/D7oY4VEZOWvLcSjxHATfYjAK4V8mF/iE2hhCNTAlHC/PpvsdQG5I76ke7gVOZpE
+         IgUwxEfszo8G/RiWC83JD9VlkN0EDkmBu/XnKwmmQEgi8Slw1f9bhSb/2XZ0ePMPll
+         3mdIKhzsMMyN5eDcYj6QK+hNVesoO4XvMVXpEPNlEbvi4p3L+YKgAmCVge6rc/9pj/
+         CceP22NTsvPdEzjszer2MHrUM1Jf1rcC+42aHbUQi12xYqvNCSebSw3ZevKbAThtZj
+         1hLN0W37SAzKQ==
 From:   guoren@kernel.org
 To:     guoren@kernel.org, palmer@dabbelt.com, arnd@arndb.de,
         gregkh@linuxfoundation.org, hch@lst.de, nathan@kernel.org,
@@ -41,14 +41,13 @@ Cc:     linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-parisc@vger.kernel.org, linux-mips@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, x86@kernel.org,
         heiko@sntech.de, Guo Ren <guoren@linux.alibaba.com>
-Subject: [PATCH V12 10/20] riscv: compat: Support TASK_SIZE for compat mode
-Date:   Tue,  5 Apr 2022 15:13:04 +0800
-Message-Id: <20220405071314.3225832-11-guoren@kernel.org>
+Subject: [PATCH V12 14/20] riscv: compat: Add elf.h implementation
+Date:   Tue,  5 Apr 2022 15:13:08 +0800
+Message-Id: <20220405071314.3225832-15-guoren@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220405071314.3225832-1-guoren@kernel.org>
 References: <20220405071314.3225832-1-guoren@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
@@ -56,69 +55,113 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Guo Ren <guoren@linux.alibaba.com>
 
-Make TASK_SIZE from const to dynamic detect TIF_32BIT flag
-function. Refer to arm64 to implement DEFAULT_MAP_WINDOW_64 for
-efi-stub.
-
-Limit 32-bit compatible process in 0-2GB virtual address range
-(which is enough for real scenarios), because it could avoid
-address sign extend problem when 32-bit enter 64-bit and ease
-software design.
-
-The standard 32-bit TASK_SIZE is 0x9dc00000:FIXADDR_START, and
-compared to a compatible 32-bit, it increases 476MB for the
-application's virtual address.
+Implement necessary type and macro for compat elf. See the code
+comment for detail.
 
 Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 Signed-off-by: Guo Ren <guoren@kernel.org>
 Reviewed-by: Arnd Bergmann <arnd@arndb.de>
 Tested-by: Heiko Stuebner <heiko@sntech.de>
 ---
- arch/riscv/include/asm/pgtable.h   | 13 +++++++++++--
- arch/riscv/include/asm/processor.h |  6 +++++-
- 2 files changed, 16 insertions(+), 3 deletions(-)
+ arch/riscv/include/asm/elf.h | 41 +++++++++++++++++++++++++++++++++++-
+ 1 file changed, 40 insertions(+), 1 deletion(-)
 
-diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
-index 046b44225623..e32d75fef068 100644
---- a/arch/riscv/include/asm/pgtable.h
-+++ b/arch/riscv/include/asm/pgtable.h
-@@ -707,8 +707,17 @@ static inline pmd_t pmdp_establish(struct vm_area_struct *vma,
-  * 63–48 all equal to bit 47, or else a page-fault exception will occur."
+diff --git a/arch/riscv/include/asm/elf.h b/arch/riscv/include/asm/elf.h
+index f53c40026c7a..a234656cfb5d 100644
+--- a/arch/riscv/include/asm/elf.h
++++ b/arch/riscv/include/asm/elf.h
+@@ -8,6 +8,8 @@
+ #ifndef _ASM_RISCV_ELF_H
+ #define _ASM_RISCV_ELF_H
+ 
++#include <uapi/linux/elf.h>
++#include <linux/compat.h>
+ #include <uapi/asm/elf.h>
+ #include <asm/auxvec.h>
+ #include <asm/byteorder.h>
+@@ -18,11 +20,13 @@
   */
+ #define ELF_ARCH	EM_RISCV
+ 
++#ifndef ELF_CLASS
  #ifdef CONFIG_64BIT
--#define TASK_SIZE      (PGDIR_SIZE * PTRS_PER_PGD / 2)
--#define TASK_SIZE_MIN  (PGDIR_SIZE_L3 * PTRS_PER_PGD / 2)
-+#define TASK_SIZE_64	(PGDIR_SIZE * PTRS_PER_PGD / 2)
-+#define TASK_SIZE_MIN	(PGDIR_SIZE_L3 * PTRS_PER_PGD / 2)
-+
-+#ifdef CONFIG_COMPAT
-+#define TASK_SIZE_32	(_AC(0x80000000, UL) - PAGE_SIZE)
-+#define TASK_SIZE	(test_thread_flag(TIF_32BIT) ? \
-+			 TASK_SIZE_32 : TASK_SIZE_64)
-+#else
-+#define TASK_SIZE	TASK_SIZE_64
-+#endif
-+
+ #define ELF_CLASS	ELFCLASS64
  #else
- #define TASK_SIZE	FIXADDR_START
- #define TASK_SIZE_MIN	TASK_SIZE
-diff --git a/arch/riscv/include/asm/processor.h b/arch/riscv/include/asm/processor.h
-index 0749924d9e55..21c8072dce17 100644
---- a/arch/riscv/include/asm/processor.h
-+++ b/arch/riscv/include/asm/processor.h
-@@ -19,7 +19,11 @@
- #define TASK_UNMAPPED_BASE	PAGE_ALIGN(TASK_SIZE / 3)
- 
- #define STACK_TOP		TASK_SIZE
--#define STACK_TOP_MAX		STACK_TOP
-+#ifdef CONFIG_64BIT
-+#define STACK_TOP_MAX		TASK_SIZE_64
-+#else
-+#define STACK_TOP_MAX		TASK_SIZE
+ #define ELF_CLASS	ELFCLASS32
+ #endif
 +#endif
- #define STACK_ALIGN		16
  
- #ifndef __ASSEMBLY__
+ #define ELF_DATA	ELFDATA2LSB
+ 
+@@ -31,6 +35,8 @@
+  */
+ #define elf_check_arch(x) ((x)->e_machine == EM_RISCV)
+ 
++#define compat_elf_check_arch(x) ((x)->e_machine == EM_RISCV)
++
+ #define CORE_DUMP_USE_REGSET
+ #define ELF_EXEC_PAGESIZE	(PAGE_SIZE)
+ 
+@@ -43,8 +49,14 @@
+ #define ELF_ET_DYN_BASE		((TASK_SIZE / 3) * 2)
+ 
+ #ifdef CONFIG_64BIT
++#ifdef CONFIG_COMPAT
++#define STACK_RND_MASK		(test_thread_flag(TIF_32BIT) ? \
++				 0x7ff >> (PAGE_SHIFT - 12) : \
++				 0x3ffff >> (PAGE_SHIFT - 12))
++#else
+ #define STACK_RND_MASK		(0x3ffff >> (PAGE_SHIFT - 12))
+ #endif
++#endif
+ /*
+  * This yields a mask that user programs can use to figure out what
+  * instruction set this CPU supports.  This could be done in user space,
+@@ -60,11 +72,19 @@ extern unsigned long elf_hwcap;
+  */
+ #define ELF_PLATFORM	(NULL)
+ 
++#define COMPAT_ELF_PLATFORM	(NULL)
++
+ #ifdef CONFIG_MMU
+ #define ARCH_DLINFO						\
+ do {								\
++	/*							\
++	 * Note that we add ulong after elf_addr_t because	\
++	 * casting current->mm->context.vdso triggers a cast	\
++	 * warning of cast from pointer to integer for		\
++	 * COMPAT ELFCLASS32.					\
++	 */							\
+ 	NEW_AUX_ENT(AT_SYSINFO_EHDR,				\
+-		(elf_addr_t)current->mm->context.vdso);		\
++		(elf_addr_t)(ulong)current->mm->context.vdso);	\
+ 	NEW_AUX_ENT(AT_L1I_CACHESIZE,				\
+ 		get_cache_size(1, CACHE_TYPE_INST));		\
+ 	NEW_AUX_ENT(AT_L1I_CACHEGEOMETRY,			\
+@@ -90,4 +110,23 @@ do {							\
+ 		*(struct user_regs_struct *)regs;	\
+ } while (0);
+ 
++#ifdef CONFIG_COMPAT
++
++#define SET_PERSONALITY(ex)					\
++do {    if ((ex).e_ident[EI_CLASS] == ELFCLASS32)		\
++		set_thread_flag(TIF_32BIT);			\
++	else							\
++		clear_thread_flag(TIF_32BIT);			\
++	if (personality(current->personality) != PER_LINUX32)	\
++		set_personality(PER_LINUX |			\
++			(current->personality & (~PER_MASK)));	\
++} while (0)
++
++#define COMPAT_ELF_ET_DYN_BASE		((TASK_SIZE_32 / 3) * 2)
++
++/* rv32 registers */
++typedef compat_ulong_t			compat_elf_greg_t;
++typedef compat_elf_greg_t		compat_elf_gregset_t[ELF_NGREG];
++
++#endif /* CONFIG_COMPAT */
+ #endif /* _ASM_RISCV_ELF_H */
 -- 
 2.25.1
 
