@@ -2,237 +2,280 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E1398C43217
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Apr 2022 22:40:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D7C9C433F5
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Apr 2022 22:40:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237542AbiDEWeH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Apr 2022 18:34:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46592 "EHLO
+        id S238763AbiDEWeT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Apr 2022 18:34:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1446274AbiDEPoY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Apr 2022 11:44:24 -0400
-Received: from mail-yw1-f174.google.com (mail-yw1-f174.google.com [209.85.128.174])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34A92E6C78;
-        Tue,  5 Apr 2022 07:13:10 -0700 (PDT)
-Received: by mail-yw1-f174.google.com with SMTP id 00721157ae682-2eb43ad7909so85992257b3.2;
-        Tue, 05 Apr 2022 07:13:10 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=0m0X8qD7jgaOpFhSCX1pI9/lBF4aFgFkK0POJ3FtM5M=;
-        b=oop02PYzQjf4I81Lgk4YHXpzi42n6WQveIpvF1+LxhlRXlBzom659lzoHZVZW8RA4f
-         i9VrfhAx+htfKK6+HHav6cGsfp4pSaozu8Y6va4FPwBKBNMvEfW+HIzvD+s/5zv6kcAW
-         VScgyYuKNHatNNWNwYAwo6vDB7QMJuXlQTtcVWaNAvf6kQ8oldpg8FL6M4jmKQigbaMn
-         ef4nPOFy981kzrUeawhcNAkHuyoSdOROd6truwdQ7qTV638O5j5Cy3JEpNKaudeHfSxw
-         yZyz733yGUe1tlEMIjAQ2fw6FmB5P7yGvYAP4M9tiFmwZcQlN/RSGjWE5DSu/pPna7AN
-         D3tA==
-X-Gm-Message-State: AOAM533eKEhvmfbZ+W3FKVOMlBuGOh9pe6H4UDEObRCxRmXaINPnLL0u
-        s0AWfQ4CEYNywmH6p/kDPe/lNr1oHF8ud6O3NpwSivjT
-X-Google-Smtp-Source: ABdhPJxwMh75H+q2lMm7lfhlZkhQSxK3Xl3vxLiAsuHwCOepfUfgE7YhAm+UQ8tjNWYOfmUWiErC4e6KhAn6L+k5ZXk=
-X-Received: by 2002:a81:1257:0:b0:2eb:97cf:a4a2 with SMTP id
- 84-20020a811257000000b002eb97cfa4a2mr2865951yws.149.1649167989258; Tue, 05
- Apr 2022 07:13:09 -0700 (PDT)
+        with ESMTP id S1457616AbiDEQSK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Apr 2022 12:18:10 -0400
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2082.outbound.protection.outlook.com [40.107.223.82])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88FFF19C16;
+        Tue,  5 Apr 2022 09:16:11 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=I/HOEJp1fiJka0X+UzXl3p2VBHGCp2QL8VO2WQSqmXGbkYb4SqvJ+bBHCP8Dsw+P+VBd26MNK46srlmUtmctPBrUV759giChF37fWlrq9m6yCAEV1LEqZwc6/4Y8LZ/J5Kx0ldPh/+enp0DwDMnMSON2l+VCSkFHNX98VdS5OA4pA64HLYtkSf1VADIE0qpU5eVKEPrrsn3fEMZ+Kpd0m69pb84KSA0FN8Fq7CeIwVMuedYTAm40YAtn/1lhdd93CTLWDDgs76t6BFHXL8zuf/s/7W5eu9AEG8JdJLN4qCRFEaB42nLsavIzmx4+sriuPupNmBbJSGIh9p07rMKqcA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=9rJMAM//g3GG6PN8WYRNfcOTDWEB0/sAjxYzw+ILqvk=;
+ b=ijSARo25Iie3l45l2NAGDyxUx+dxw6zAYbOYUbTorKNqu28d6gmpEx7FU6nHI73jqxDExwSXq8r7s5osWBZhrT36163pw1lgTzP0yQ2loQDwu1skQq22TgX21R8L4cQNrQBxR7dHMOpCKW0RXfLkPZK2XJLdEKNXAzm4V7UgvG4C75nXkB/uKIB6bd4RHeAePLTAx2U9RXFfiOF6w1f5ec+Lnf4b5PKYQhpfwlUr/9id/vK0E05LqKJng8jj7PeBzpM1vicm4R5pkNie1N0hxsnthqxoFGO/6FV+M/oEmSuQhjUisu2uJ+HMswNmqe9KeVOgJJ14nCVmSCWyFGWbtQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=9rJMAM//g3GG6PN8WYRNfcOTDWEB0/sAjxYzw+ILqvk=;
+ b=JZc2HOkkr5rohL0atxegmfCwKZqI4wbHvavocv/TEF4iBtHYUJzgkI8g7kMUtMT6AOyqdQ28/HEVyJ901kY2bPDbNBNgI9IPTL0BRB/+zvqdPR3nP3+f45Od5DfGmP+O9CrOkusuEq6PoaXuZ6B30EmUAq21tblb08Lty3XtK4WZDRqVpNOryYaCnT/E1z+3VeZ/zTtJaRzU691hdcPrMwkO7KOicpcbdevJXeOT36wfUSBtdFOlXlvoS67Xu3PyZNy9fOVzIElC0GrH7c0vuRXNQLto8zvAy66WSNnev6992YeFiYJHhLzZgcTcV3NipDnnreOLlrZDbN+7QKQOmA==
+Received: from BN6PR12MB1153.namprd12.prod.outlook.com (2603:10b6:404:19::17)
+ by MW2PR12MB2506.namprd12.prod.outlook.com (2603:10b6:907:7::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5123.31; Tue, 5 Apr
+ 2022 16:16:09 +0000
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
+ by BN6PR12MB1153.namprd12.prod.outlook.com (2603:10b6:404:19::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5123.31; Tue, 5 Apr
+ 2022 16:16:08 +0000
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::cdfb:f88e:410b:9374]) by MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::cdfb:f88e:410b:9374%5]) with mapi id 15.20.5123.031; Tue, 5 Apr 2022
+ 16:16:07 +0000
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Alex Williamson <alex.williamson@redhat.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Christian Benvenuti <benve@cisco.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        iommu@lists.linux-foundation.org, Jason Wang <jasowang@redhat.com>,
+        Joerg Roedel <joro@8bytes.org>, kvm@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Nelson Escobar <neescoba@cisco.com>, netdev@vger.kernel.org,
+        Rob Clark <robdclark@gmail.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        virtualization@lists.linux-foundation.org,
+        Will Deacon <will@kernel.org>
+Cc:     Christoph Hellwig <hch@lst.de>,
+        "Tian, Kevin" <kevin.tian@intel.com>
+Subject: [PATCH 4/5] vfio: Move the Intel no-snoop control off of IOMMU_CACHE
+Date:   Tue,  5 Apr 2022 13:16:03 -0300
+Message-Id: <4-v1-ef02c60ddb76+12ca2-intel_no_snoop_jgg@nvidia.com>
+In-Reply-To: <0-v1-ef02c60ddb76+12ca2-intel_no_snoop_jgg@nvidia.com>
+References: 
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: BLAPR03CA0143.namprd03.prod.outlook.com
+ (2603:10b6:208:32e::28) To MN2PR12MB4192.namprd12.prod.outlook.com
+ (2603:10b6:208:1d5::15)
 MIME-Version: 1.0
-References: <20220403054822.16868-1-rdunlap@infradead.org> <20220403054822.16868-2-rdunlap@infradead.org>
-In-Reply-To: <20220403054822.16868-2-rdunlap@infradead.org>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Tue, 5 Apr 2022 16:12:58 +0200
-Message-ID: <CAJZ5v0gZvd_Uw02_K7fWGYFtTncSTxdeoR6z=PQ5e0DM255k8A@mail.gmail.com>
-Subject: Re: [PATCH 1/3 v3] Docs: admin/kernel-parameters: edit a few boot options
-To:     Randy Dunlap <rdunlap@infradead.org>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        sparclinux@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
-        linux-ia64@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Pavel Machek <pavel@ucw.cz>, Len Brown <lenb@kernel.org>,
-        Linux PM <linux-pm@vger.kernel.org>,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 731aaced-2fcc-420d-ecd1-08da171f96ae
+X-MS-TrafficTypeDiagnostic: BN6PR12MB1153:EE_|MW2PR12MB2506:EE_
+X-Microsoft-Antispam-PRVS: <BN6PR12MB115359FE34392E58B75136D8C2E49@BN6PR12MB1153.namprd12.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: FIMy67zoM4b5OBJtY4r2m5qgeyvqom2HJosJfjGHgHt3V+CBySSyQr1J80+d56zJWFe2gGoECFccp3DMpUCT/LGajPKchK3BuJy8voutIs5dLPGt/ifE3jOK4t/6+3XrSyYJOYRaYDy7CtiylpdobAPgu5jmPcWuek7ZVyWalu/Kp7/2EAi0cG60Qy1FvobZibq1j7ulEOXQ017DJwWoEajIS1Xqe7xEd/GFOKqD6NznmYSjAdgXHEA0B5W6ygl8LYKyJZVjbh+lpREwlyDTU/HuPjoZws0FsM9m8PrjvfL4eKkBIEbWCnMRxOylkdn66DGoNc9fF8Yh6GxiJIiYUO5YNBNXwd1JsSAqVRLIPKyApyqxJfCvwXj1Z5HZ5arAjMQRW0olokb8WDmvxYX49CoVPye5SGPyB7AwpuU16NyEm6BdnNXrP6ZWViIzCQA9cpLgCCPsdQwE3A+ih8i5woqdMOupmS1Qu4ZT4d5ZMtM/4eWrYciqJE2lsh7KrOGkjYRQDgEM0BS0WFFEuHs2S9wD/2WbVgfTtZnDBWXjSdbpIQML5PEf7u188srU3wo6Y8AEx0qKMo4IizOL3VI2dwP27m7lcJVp7WKK7I85uTkA63YcvMggrJ9vBfYEmeQOOqsB7cX3DLNQu++gLnR4Kq4QRvt2ARIBFkDjKTtFsx2ed3kmR/w8IzKZyXJuK70CesERbqGIPW5NWvAMiNlNzw==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN6PR12MB1153.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(5660300002)(508600001)(7416002)(38100700002)(8936002)(921005)(2616005)(26005)(186003)(6486002)(83380400001)(54906003)(66556008)(86362001)(8676002)(6512007)(6506007)(2906002)(316002)(6666004)(4326008)(66476007)(66946007)(36756003)(110136005)(4216001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?gT00MiJyk8qem9OtNL1VdGnRVxR/BXjU+F6FzTlKKPkV3O7c/kJLwqmJdCaJ?=
+ =?us-ascii?Q?NSWWF6yGDgNYPMrrnrmxGCv4xGWTzztMKOPOV/hDiaDUaKP1bdqZhmPF3fS4?=
+ =?us-ascii?Q?Er2O5WJtExkF02yHpfYIWsmmBZBUuZ9lObpYxwxZe3coDxkHWFE7HQB47RkX?=
+ =?us-ascii?Q?MyJb4/CIt2MvrRK2IwG0ckb4yOKUEIp01PBiMvkifaUc2l/lIKxprGg338V0?=
+ =?us-ascii?Q?ili3XFaqp+DMM3UkEJCzf/+1uWnqktQmEAdVd9a+9iKREjC68nQz3ry+1eVS?=
+ =?us-ascii?Q?ERGG+W7hnf6ocNSW2F7dJ/7g2pOvMLBgm00V+HUsHK3gJs5fXDp9PeU/5Wq0?=
+ =?us-ascii?Q?9zg5ZXZl2hvw00R7YtxfLZd4Bdi3QIzikJq4gmzN+SCBeLxN5ZTAYN+ZvCTv?=
+ =?us-ascii?Q?/QJP/vXOVTfRvB7rxfSyzxptYrJXeuD55v1tDKiNsNlYaFydr13RSSwZTMmU?=
+ =?us-ascii?Q?qJDs1L1rvlNF6trqVObc6xUROluc283g5+GrF1YLRBOS9txwPjMiw3Ug/2Ub?=
+ =?us-ascii?Q?9eQhXeLni27FaMQAvRjAiV9G5MlNaWgZAhpZVRpwCSTrbSEjzLKlBKmA1GBt?=
+ =?us-ascii?Q?2sWAfcDKZ3puiHkxDeBHzKCG+di9pIZ7/RB/BqhhlsxUek+Vt9VGL8Wo3/id?=
+ =?us-ascii?Q?MPCG7N9NueCHAytIHVCtTbD2kSJCnIwlRLdVXE7wCHrksHyiNvqal/2xKMx/?=
+ =?us-ascii?Q?lDzZUyfYulCkCzXSGZesQI12R2cYgiOdsXqVgpvhYg5sRveuray/vF4XAz6u?=
+ =?us-ascii?Q?tJv36yKxaTz0ZArw/2+s1tugVtQwN6gkz+Mt26EZVAp3IPqiXvW0yBxCHfKM?=
+ =?us-ascii?Q?rgO1ZgPR5UdMaJry75o2KeImW2fsxSB+eoG42SR97WHpz+ARnt26L00qkzyS?=
+ =?us-ascii?Q?n2i3Gj6GErnbFQjNOsZjC4dr3Z6LrW3Zm7TUHtMg7yITaAz/xV/eSyoDAY7E?=
+ =?us-ascii?Q?Qq/WOZCwR/jNo8iIj5ctNRl3VSAbqG0q75U6EXvKBFzbhU8FfrqX0u956XfE?=
+ =?us-ascii?Q?QwDl3UK6uL/rLuV/lIuj1fb/CT/HPsMmmQ2hdOgOurLiEB152bW09dD94n9D?=
+ =?us-ascii?Q?XHZFiBdhT+uUqZXuupN5yeEJFoUukJPk4jc8FxckzgmKFUk/QfOAPDvLz45E?=
+ =?us-ascii?Q?3iDnsVZWKPsukYkYnreRtj967G1P/89rT4FCWziQieVwrw6Uf+s1qRjC5AkJ?=
+ =?us-ascii?Q?FLKhjntNL7XqTO8DU9EGOb4shY9RdTRzmLe9p0lJhLtZ5x46JPmrh+ALFES7?=
+ =?us-ascii?Q?ixgnwCIFHkB7eTYECi9wkkQCe3WwueMBP+D2hplJV9ERD4QE925tiSqphNfq?=
+ =?us-ascii?Q?0jrv/o9bQFAj4dneBnCJE+7KLz3a+kVQSLKaWJB18Uf7TfSjl6COi/VelOyK?=
+ =?us-ascii?Q?GqbhnCm/Yr+zXEFLtfNx9sYeEzrSYbz/TMR5iR8TDlt7iKzfmuitsxa4C2+0?=
+ =?us-ascii?Q?49ps/CN/ZX40y6f6OF7gsTrjcfcjE+OLHjk4QO7OcU991NEPJ5yff5mYsaQj?=
+ =?us-ascii?Q?yJqeC++6f4A1vXIrgYX2d/FtguXzNRK1xmmO/i6+ff9vX1PJ1mlnn7Taq/fT?=
+ =?us-ascii?Q?DQtQ/RBdnYVjUaRXnIPZis+yDEv7CMFVEU6y3k3WgKP+Ux8NTb3eJVrxINb/?=
+ =?us-ascii?Q?jXkw2X+wzgT7FeYaY+ef2TaWij7/gE0qnyWRIPRH/DhMqFd78w8QWHkXIIo1?=
+ =?us-ascii?Q?2Cqa31JWxOJgwIkTch2v7hYnOTMho5vOcBuaWOVBnmn32GCF4usSEO645K1+?=
+ =?us-ascii?Q?t/1ZWIBahg=3D=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 731aaced-2fcc-420d-ecd1-08da171f96ae
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Apr 2022 16:16:06.9398
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: HzczWhkzm5fFCBX6dlnVRZ0KozIPF5/oigHvvKl1V8xx/4Rd5P1ZIMDKao9aHmzt
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW2PR12MB2506
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sun, Apr 3, 2022 at 7:48 AM Randy Dunlap <rdunlap@infradead.org> wrote:
->
-> Clean up some of admin-guide/kernel-parameters.txt:
->
-> a. "smt" should be "smt=" (S390)
-> b. (dropped)
-> c. Sparc supports the vdso= boot option
-> d. make the tp_printk options (2) formatting similar to other options
->    by adding spacing
-> e. add "trace_clock=" with a reference to Documentation/trace/ftrace.rst
-> f. use [IA-64] as documented instead of [ia64]
-> g. fix formatting and text for test_suspend=
-> h. fix formatting for swapaccount=
-> i. fix formatting and grammar for video.brightness_switch_enabled=
->
-> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Cc: Sven Schnelle <svens@linux.ibm.com>
-> Cc: linux-s390@vger.kernel.org
-> Cc: Steven Rostedt <rostedt@goodmis.org>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: sparclinux@vger.kernel.org
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Cc: linux-ia64@vger.kernel.org
-> Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-> Cc: Pavel Machek <pavel@ucw.cz>
-> Cc: Len Brown <lenb@kernel.org>
-> Cc: linux-pm@vger.kernel.org
-> Cc: linux-acpi@vger.kernel.org
-> Cc: Johannes Weiner <hannes@cmpxchg.org>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Jonathan Corbet <corbet@lwn.net>
-> Cc: linux-doc@vger.kernel.org
+IOMMU_CACHE means "normal DMA to this iommu_domain's IOVA should be cache
+coherent" and is used by the DMA API. The definition allows for special
+non-coherent DMA to exist - ie processing of the no-snoop flag in PCIe
+TLPs - so long as this behavior is opt-in by the device driver.
 
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+The flag is used by the DMA API and is always available if
+dev_is_dma_coherent() is set.
 
-for the test_suspend and ACPI video pieces.
+For Intel IOMMU IOMMU_CACHE was redefined to mean 'force all DMA to be
+cache coherent' which has the practical effect of causing the IOMMU to
+ignore the no-snoop bit in a PCIe TLP.
 
-> ---
-> v3: add trace_clock= specifics (Steven)
-> v2: drop "smt-enabled" for arch/powerpc/ (Michael)
->
->  Documentation/admin-guide/kernel-parameters.txt |   47 ++++++++++----
->  1 file changed, 36 insertions(+), 11 deletions(-)
->
-> --- linux-next-20220331.orig/Documentation/admin-guide/kernel-parameters.txt
-> +++ linux-next-20220331/Documentation/admin-guide/kernel-parameters.txt
-> @@ -2814,7 +2814,7 @@
->                         different yeeloong laptops.
->                         Example: machtype=lemote-yeeloong-2f-7inch
->
-> -       max_addr=nn[KMG]        [KNL,BOOT,ia64] All physical memory greater
-> +       max_addr=nn[KMG]        [KNL,BOOT,IA-64] All physical memory greater
->                         than or equal to this physical address is ignored.
->
->         maxcpus=        [SMP] Maximum number of processors that an SMP kernel
-> @@ -3057,7 +3057,7 @@
->
->         mga=            [HW,DRM]
->
-> -       min_addr=nn[KMG]        [KNL,BOOT,ia64] All physical memory below this
-> +       min_addr=nn[KMG]        [KNL,BOOT,IA-64] All physical memory below this
->                         physical address is ignored.
->
->         mini2440=       [ARM,HW,KNL]
-> @@ -5388,7 +5388,7 @@
->                                 1: Fast pin select (default)
->                                 2: ATC IRMode
->
-> -       smt             [KNL,S390] Set the maximum number of threads (logical
-> +       smt=            [KNL,S390] Set the maximum number of threads (logical
->                         CPUs) to use per physical CPU on systems capable of
->                         symmetric multithreading (SMT). Will be capped to the
->                         actual hardware limit.
-> @@ -5774,8 +5774,9 @@
->                         This parameter controls use of the Protected
->                         Execution Facility on pSeries.
->
-> -       swapaccount=[0|1]
-> -                       [KNL] Enable accounting of swap in memory resource
-> +       swapaccount=    [KNL]
-> +                       Format: [0|1]
-> +                       Enable accounting of swap in memory resource
->                         controller if no parameter or 1 is given or disable
->                         it if 0 is given (See Documentation/admin-guide/cgroup-v1/memory.rst)
->
-> @@ -5821,7 +5822,8 @@
->
->         tdfx=           [HW,DRM]
->
-> -       test_suspend=   [SUSPEND][,N]
-> +       test_suspend=   [SUSPEND]
-> +                       Format: { "mem" | "standby" | "freeze" }[,N]
->                         Specify "mem" (for Suspend-to-RAM) or "standby" (for
->                         standby suspend) or "freeze" (for suspend type freeze)
->                         as the system sleep state during system startup with
-> @@ -5908,6 +5910,28 @@
->         trace_buf_size=nn[KMG]
->                         [FTRACE] will set tracing buffer size on each cpu.
->
-> +       trace_clock=    [FTRACE] Set the clock used for tracing events
-> +                       at boot up.
-> +                       local - Use the per CPU time stamp counter
-> +                               (converted into nanoseconds). Fast, but
-> +                               depending on the architecture, may not be
-> +                               in sync between CPUs.
-> +                       global - Event time stamps are synchronize across
-> +                               CPUs. May be slower than the local clock,
-> +                               but better for some race conditions.
-> +                       counter - Simple counting of events (1, 2, ..)
-> +                               note, some counts may be skipped due to the
-> +                               infrastructure grabbing the clock more than
-> +                               once per event.
-> +                       uptime - Use jiffies as the time stamp.
-> +                       perf - Use the same clock that perf uses.
-> +                       mono - Use ktime_get_mono_fast_ns() for time stamps.
-> +                       mono_raw - Use ktime_get_raw_fast_ns() for time
-> +                               stamps.
-> +                       boot - Use ktime_get_boot_fast_ns() for time stamps.
-> +                       Architectures may add more clocks. See
-> +                       Documentation/trace/ftrace.rst for more details.
-> +
->         trace_event=[event-list]
->                         [FTRACE] Set and start specified trace events in order
->                         to facilitate early boot debugging. The event-list is a
-> @@ -5930,7 +5954,7 @@
->                         See also Documentation/trace/ftrace.rst "trace options"
->                         section.
->
-> -       tp_printk[FTRACE]
-> +       tp_printk       [FTRACE]
->                         Have the tracepoints sent to printk as well as the
->                         tracing ring buffer. This is useful for early boot up
->                         where the system hangs or reboots and does not give the
-> @@ -5952,7 +5976,7 @@
->                         frequency tracepoints such as irq or sched, can cause
->                         the system to live lock.
->
-> -       tp_printk_stop_on_boot[FTRACE]
-> +       tp_printk_stop_on_boot [FTRACE]
->                         When tp_printk (above) is set, it can cause a lot of noise
->                         on the console. It may be useful to only include the
->                         printing of events during boot up, as user space may
-> @@ -6301,7 +6325,7 @@
->                                         HIGHMEM regardless of setting
->                                         of CONFIG_HIGHPTE.
->
-> -       vdso=           [X86,SH]
-> +       vdso=           [X86,SH,SPARC]
->                         On X86_32, this is an alias for vdso32=.  Otherwise:
->
->                         vdso=1: enable VDSO (the default)
-> @@ -6327,11 +6351,12 @@
->         video=          [FB] Frame buffer configuration
->                         See Documentation/fb/modedb.rst.
->
-> -       video.brightness_switch_enabled= [0,1]
-> +       video.brightness_switch_enabled= [ACPI]
-> +                       Format: [0|1]
->                         If set to 1, on receiving an ACPI notify event
->                         generated by hotkey, video driver will adjust brightness
->                         level and then send out the event to user space through
-> -                       the allocated input device; If set to 0, video driver
-> +                       the allocated input device. If set to 0, video driver
->                         will only send out the event without touching backlight
->                         brightness level.
->                         default: 1
+x86 platforms are always IOMMU_CACHE, so Intel should ignore this flag.
+
+Instead use the new domain op enforce_cache_coherency() which causes every
+IOPTE created in the domain to have the no-snoop blocking behavior.
+
+Reconfigure VFIO to always use IOMMU_CACHE and call
+enforce_cache_coherency() to operate the special Intel behavior.
+
+Remove the IOMMU_CACHE test from Intel IOMMU.
+
+Ultimately VFIO plumbs the result of enforce_cache_coherency() back into
+the x86 platform code through kvm_arch_register_noncoherent_dma() which
+controls if the WBINVD instruction is available in the guest. No other
+arch implements kvm_arch_register_noncoherent_dma().
+
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+---
+ drivers/iommu/intel/iommu.c     |  3 +--
+ drivers/vfio/vfio_iommu_type1.c | 30 +++++++++++++++++++-----------
+ 2 files changed, 20 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
+index f08611a6cc4799..0ca43671d934e9 100644
+--- a/drivers/iommu/intel/iommu.c
++++ b/drivers/iommu/intel/iommu.c
+@@ -4422,8 +4422,7 @@ static int intel_iommu_map(struct iommu_domain *domain,
+ 		prot |= DMA_PTE_READ;
+ 	if (iommu_prot & IOMMU_WRITE)
+ 		prot |= DMA_PTE_WRITE;
+-	if (((iommu_prot & IOMMU_CACHE) && dmar_domain->iommu_snooping) ||
+-	    dmar_domain->enforce_no_snoop)
++	if (dmar_domain->enforce_no_snoop)
+ 		prot |= DMA_PTE_SNP;
+ 
+ 	max_addr = iova + size;
+diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
+index 9394aa9444c10c..c13b9290e35759 100644
+--- a/drivers/vfio/vfio_iommu_type1.c
++++ b/drivers/vfio/vfio_iommu_type1.c
+@@ -84,8 +84,8 @@ struct vfio_domain {
+ 	struct iommu_domain	*domain;
+ 	struct list_head	next;
+ 	struct list_head	group_list;
+-	int			prot;		/* IOMMU_CACHE */
+-	bool			fgsp;		/* Fine-grained super pages */
++	bool			fgsp : 1;	/* Fine-grained super pages */
++	bool			enforce_cache_coherency : 1;
+ };
+ 
+ struct vfio_dma {
+@@ -1461,7 +1461,7 @@ static int vfio_iommu_map(struct vfio_iommu *iommu, dma_addr_t iova,
+ 
+ 	list_for_each_entry(d, &iommu->domain_list, next) {
+ 		ret = iommu_map(d->domain, iova, (phys_addr_t)pfn << PAGE_SHIFT,
+-				npage << PAGE_SHIFT, prot | d->prot);
++				npage << PAGE_SHIFT, prot | IOMMU_CACHE);
+ 		if (ret)
+ 			goto unwind;
+ 
+@@ -1771,7 +1771,7 @@ static int vfio_iommu_replay(struct vfio_iommu *iommu,
+ 			}
+ 
+ 			ret = iommu_map(domain->domain, iova, phys,
+-					size, dma->prot | domain->prot);
++					size, dma->prot | IOMMU_CACHE);
+ 			if (ret) {
+ 				if (!dma->iommu_mapped) {
+ 					vfio_unpin_pages_remote(dma, iova,
+@@ -1859,7 +1859,7 @@ static void vfio_test_domain_fgsp(struct vfio_domain *domain)
+ 		return;
+ 
+ 	ret = iommu_map(domain->domain, 0, page_to_phys(pages), PAGE_SIZE * 2,
+-			IOMMU_READ | IOMMU_WRITE | domain->prot);
++			IOMMU_READ | IOMMU_WRITE | IOMMU_CACHE);
+ 	if (!ret) {
+ 		size_t unmapped = iommu_unmap(domain->domain, 0, PAGE_SIZE);
+ 
+@@ -2267,8 +2267,15 @@ static int vfio_iommu_type1_attach_group(void *iommu_data,
+ 		goto out_detach;
+ 	}
+ 
+-	if (iommu_capable(bus, IOMMU_CAP_CACHE_COHERENCY))
+-		domain->prot |= IOMMU_CACHE;
++	/*
++	 * If the IOMMU can block non-coherent operations (ie PCIe TLPs with
++	 * no-snoop set) then VFIO always turns this feature on because on Intel
++	 * platforms it optimizes KVM to disable wbinvd emulation.
++	 */
++	if (domain->domain->ops->enforce_cache_coherency)
++		domain->enforce_cache_coherency =
++			domain->domain->ops->enforce_cache_coherency(
++				domain->domain);
+ 
+ 	/*
+ 	 * Try to match an existing compatible domain.  We don't want to
+@@ -2279,7 +2286,8 @@ static int vfio_iommu_type1_attach_group(void *iommu_data,
+ 	 */
+ 	list_for_each_entry(d, &iommu->domain_list, next) {
+ 		if (d->domain->ops == domain->domain->ops &&
+-		    d->prot == domain->prot) {
++		    d->enforce_cache_coherency ==
++			    domain->enforce_cache_coherency) {
+ 			iommu_detach_group(domain->domain, group->iommu_group);
+ 			if (!iommu_attach_group(d->domain,
+ 						group->iommu_group)) {
+@@ -2611,14 +2619,14 @@ static void vfio_iommu_type1_release(void *iommu_data)
+ 	kfree(iommu);
+ }
+ 
+-static int vfio_domains_have_iommu_cache(struct vfio_iommu *iommu)
++static int vfio_domains_have_enforce_cache_coherency(struct vfio_iommu *iommu)
+ {
+ 	struct vfio_domain *domain;
+ 	int ret = 1;
+ 
+ 	mutex_lock(&iommu->lock);
+ 	list_for_each_entry(domain, &iommu->domain_list, next) {
+-		if (!(domain->prot & IOMMU_CACHE)) {
++		if (!(domain->enforce_cache_coherency)) {
+ 			ret = 0;
+ 			break;
+ 		}
+@@ -2641,7 +2649,7 @@ static int vfio_iommu_type1_check_extension(struct vfio_iommu *iommu,
+ 	case VFIO_DMA_CC_IOMMU:
+ 		if (!iommu)
+ 			return 0;
+-		return vfio_domains_have_iommu_cache(iommu);
++		return vfio_domains_have_enforce_cache_coherency(iommu);
+ 	default:
+ 		return 0;
+ 	}
+-- 
+2.35.1
+
