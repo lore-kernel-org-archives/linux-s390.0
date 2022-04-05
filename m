@@ -2,143 +2,217 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4382DC433F5
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Apr 2022 11:48:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42F9FC35296
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Apr 2022 22:31:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244601AbiDELt4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Apr 2022 07:49:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50772 "EHLO
+        id S236445AbiDEWZc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Apr 2022 18:25:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380288AbiDELm0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Apr 2022 07:42:26 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08CFE10854E;
-        Tue,  5 Apr 2022 04:06:02 -0700 (PDT)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 2358H5I0002424;
-        Tue, 5 Apr 2022 11:06:02 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=PnHuDp0qoRGofvyUmqOaD/yM/brSQiiILKgqM5AShoM=;
- b=NpbWlBjShTEJpx/lytk1q3y8wUALLG4S59dQJAflXiL5eYKmsKYxjs+tduIFtQV+OHXW
- rC2NO9Bm4DuvIfir/B1c1XaT0va8eR/cE8zve1DpTnjnPIwvxOa79PdDhFQPBzzG2NXG
- yNJqb0mJDw8RA8bZOvMYuHxGx/XFxtpktnvNptwFcmfpTpLsnHZTWixb/mQ83389V5d5
- QYTHprEshdQOtZYlwww3QxHChGhqS8tUrHxqVp0yRqXu+oju1SCvn8KOCj9vygNszTna
- mDX84YEp1bVOo3ocDToM6TWeDDC7IyYvr+HvI/+9mZTf6R9IlfThUbk8nhODcrqHI/c5 vA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3f6yv70j9h-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 05 Apr 2022 11:06:02 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 235AtRvV014082;
-        Tue, 5 Apr 2022 11:06:01 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3f6yv70j8x-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 05 Apr 2022 11:06:01 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 235B3FNL019425;
-        Tue, 5 Apr 2022 11:06:00 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma03fra.de.ibm.com with ESMTP id 3f6e48vk99-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 05 Apr 2022 11:05:59 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 235B5unq36241758
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 5 Apr 2022 11:05:56 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9D798A4060;
-        Tue,  5 Apr 2022 11:05:56 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F351CA4054;
-        Tue,  5 Apr 2022 11:05:55 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.145.14.146])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue,  5 Apr 2022 11:05:55 +0000 (GMT)
-Date:   Tue, 5 Apr 2022 12:59:58 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com,
-        thuth@redhat.com, nrb@linux.ibm.com, seiden@linux.ibm.com
-Subject: Re: [kvm-unit-tests PATCH 1/8] s390x: css: Skip if we're not run by
- qemu
-Message-ID: <20220405125958.60cbec96@p-imbrenda>
-In-Reply-To: <20220405075225.15903-2-frankja@linux.ibm.com>
-References: <20220405075225.15903-1-frankja@linux.ibm.com>
-        <20220405075225.15903-2-frankja@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        with ESMTP id S1457615AbiDEQSJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Apr 2022 12:18:09 -0400
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2040.outbound.protection.outlook.com [40.107.236.40])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BEA519C11;
+        Tue,  5 Apr 2022 09:16:10 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=WlznvIoPpsBceogC2J1a/886h2l4nluzDEbt9aTGv0GEc3tnDmjneudkJB+m5DwQFAJEwZ0GszMBG0EKmCxWM+j3Zq/hjQ8qM/WZ8EwTOwq+xQ4IdyP/wGvY0lmuRO6Y0ldC511dSBfx8WIC8uUZ+d0utlx7wIc1XCoLwpRmXEt9YZo/07GMBLXCf/lVeFlV6PfWWnbAUpYhjjTvYu0gh8+vkE8n1Fn/t2KHU6QRE5dK6s8imn4ooueDssx8SI8T5A8Ca/AMygQ282v1S72zeMDdmdRj8e2aY1RO4ytCpHiPC7qyM7bNA/qI/Rrk48SWT1yQxnb9yNoUg3xNsc5gmg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=MrbA4VAIicUckPy/EYaYXdM1hvuSyWyOMmfOfHNRYjI=;
+ b=krYDiJwv+Ty3i1cLjSlLBL2P4L7KDktKFTCtdd9JuybLXxJ3HQBfh9p26Mk+AwmKxUPGNZVZ/vFY3xecdaPV8N+zCeCXiYXLTrZ8UsvRqCbdB5lIRFdDs1J4L2oZD/OnKORR/F6yPqVkbuZZolrZKnQeCApEKSi3XlqFHhxqBBZTdkYf4iaUZFijcnVSqdwG9Z9rtHZXDWqusyU5H+iwGgyDhFeD/rmhg/AmrvtZ0x1zcdBd5cUkiYLvpOEL+dOl67ZF7StQ8Cw0r7E/fSTvxSLMg0sN2EDhRqWbTqP6LNgYk1ZOJZSc2R6U/+ziG95mVx/tIUDk8sxZ3haU5OVHGA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=MrbA4VAIicUckPy/EYaYXdM1hvuSyWyOMmfOfHNRYjI=;
+ b=AEDCNcB46EBnLcxCHrpxMykKLmnyrDFZFfGhZ175ildDcV/77ySXnS6e6MrcvavNMxqGa2K9xe4yDsn0cIzwpny03KyLGmRl5mNxVabhXMQRqtvhoiEUsm4YUxSAw1WhWNSB4RzMh8+KgkxYIUaAL6xbWaKHq9060OKYNlkDSZs1NDnqheVni4ErKkBI/sEe8GTe1ru1G1dZE6D6JsFOiudIxE7hCdfsM+75QW2Fg8jQC+a1fm838CphpkR2SE+vQnxMZDm4kGkpB5A2ntYksjAjAyfZS+81Z0B8lICH08zYQnZOT898cMx6Y8FrERLDVXqHGpkWWWmjv31taICtCA==
+Received: from BN6PR12MB1153.namprd12.prod.outlook.com (2603:10b6:404:19::17)
+ by DM4PR12MB5818.namprd12.prod.outlook.com (2603:10b6:8:62::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5123.31; Tue, 5 Apr
+ 2022 16:16:07 +0000
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
+ by BN6PR12MB1153.namprd12.prod.outlook.com (2603:10b6:404:19::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5123.31; Tue, 5 Apr
+ 2022 16:16:06 +0000
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::cdfb:f88e:410b:9374]) by MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::cdfb:f88e:410b:9374%5]) with mapi id 15.20.5123.031; Tue, 5 Apr 2022
+ 16:16:06 +0000
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Alex Williamson <alex.williamson@redhat.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Christian Benvenuti <benve@cisco.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        iommu@lists.linux-foundation.org, Jason Wang <jasowang@redhat.com>,
+        Joerg Roedel <joro@8bytes.org>, kvm@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Nelson Escobar <neescoba@cisco.com>, netdev@vger.kernel.org,
+        Rob Clark <robdclark@gmail.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        virtualization@lists.linux-foundation.org,
+        Will Deacon <will@kernel.org>
+Cc:     Christoph Hellwig <hch@lst.de>,
+        "Tian, Kevin" <kevin.tian@intel.com>
+Subject: [PATCH 1/5] iommu: Replace uses of IOMMU_CAP_CACHE_COHERENCY with dev_is_dma_coherent()
+Date:   Tue,  5 Apr 2022 13:16:00 -0300
+Message-Id: <1-v1-ef02c60ddb76+12ca2-intel_no_snoop_jgg@nvidia.com>
+In-Reply-To: <0-v1-ef02c60ddb76+12ca2-intel_no_snoop_jgg@nvidia.com>
+References: 
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: BL1PR13CA0326.namprd13.prod.outlook.com
+ (2603:10b6:208:2c1::31) To MN2PR12MB4192.namprd12.prod.outlook.com
+ (2603:10b6:208:1d5::15)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 4FnF6cjoiEEvvKAit-h7yU9XJbi9ObIC
-X-Proofpoint-GUID: TqfmvOwZ6ZSWbp-f6igD-VZhZn2E2Gz6
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-04-05_02,2022-04-05_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
- lowpriorityscore=0 clxscore=1015 suspectscore=0 phishscore=0 adultscore=0
- mlxscore=0 bulkscore=0 malwarescore=0 impostorscore=0 spamscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2204050066
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: a76cff61-cc69-446f-32e5-08da171f95d8
+X-MS-TrafficTypeDiagnostic: BN6PR12MB1153:EE_|DM4PR12MB5818:EE_
+X-Microsoft-Antispam-PRVS: <BN6PR12MB1153CD045BAAB062DA245934C2E49@BN6PR12MB1153.namprd12.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: xzQC0aqYOeg8VnV919OqNJq1tIvQ8GQ58gW1ZNUauthYOGTmNulwg+1kTqf/2A+eeTeKeRMfmzPVSFGS8GZK6cal95/0s5EbffNBz4EXbUnV5f0v1KgT6QOmQ6zc4U1XcQbXVF9zwzpTL48OreKLpwY39obvcLukD/ZhW4UfZqi4Q+5vDLgTsEgWbshjlAON8esbprWwZOA343LT+x0H7uSnEeuJTdv8g0Ar99SzntMgq0cvyq+IGqQrjSuACTSxVIYzDL9ndIjGjywbB7hzw4kJgovOVaL4YKsqnypk+2rHAslaAbEVwz6DUnAgsKop5Sxe6s/vAqlToOULdvtuDPiylOLF+LoL6o0VPEJAHTsLMJaXESiTF1TD3ws9jafBnrj3JIvFWDYee/mApsLXFk5N2/mOv+XcuA2vKHLUJSa6iLCowHjGMj4xcAV7DsazJ0HXv6o3wlpkapzdjdynSHN5a4GW0CzjZ/q9WjEXT5KoNu4Ln+ShmY1V/WBDMLRxSVWCiGhDIfEts7eKBp4AUepbbOlb0Thmwb4cVISTKKwrUiijAZjQlOyt4PPFqRGP6Pqa+M2A8+rv8SZXsbMNaGZqDcZPpJ+syPxHC/eQ24CeQvlFPmkJqc1ZPBahiUSpsr0NPr0FHYCSWKVX3ytYgH0U3PP3tGKBHjMIUqS7MlOqie770Au9Z5aMXtSh5Y/T86wXddyzsVjnQOH3OvQRkQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN6PR12MB1153.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(6486002)(508600001)(7416002)(8936002)(6512007)(5660300002)(2906002)(83380400001)(36756003)(316002)(110136005)(66946007)(38100700002)(186003)(6666004)(54906003)(6506007)(921005)(26005)(86362001)(66476007)(66556008)(4326008)(2616005)(8676002)(4216001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?9Xjb03ZbzKPf+LebL/vGg+6WgyoskAcG5ujOhTS72JpFDTuVXqu/e4kQnbr/?=
+ =?us-ascii?Q?iEWobnEZB09bdLJwFCISwfji0CQqP8XYU1p2ZplalNJVZl1DmW5zNZeuJ1We?=
+ =?us-ascii?Q?ZYDgTby4nNngxbnsQfy1zTPSR74FXwQPS0pBI+31aV11CZ0eVE9+nVZ9iFXO?=
+ =?us-ascii?Q?J2YPGoIjGY8kOA4K91SXjVlh38AqNzeKL/9hX3W+aORmKPNhREXz1BsIRDLv?=
+ =?us-ascii?Q?m0ng9uW3W15TlgnkL208TIyiCmwbZtQcURPbh6pH24msIhnk1zN+kvRLvwc8?=
+ =?us-ascii?Q?h/4koa2yNHdQNB2DLm5zrHwJVtfu0n6qwYMmjrdkHxbUB6yI2XWOCyAy77kR?=
+ =?us-ascii?Q?1U34B29NPCTysDpyY9E5w/8zIe7QImG8RCnnx8SpyNNYKE3AsMlkoLcsIMsu?=
+ =?us-ascii?Q?FyiCYQifvKpOa4qDv6cRZgbHWfAl81BFOdjM+k5kS4yBUIUypQ0+eJqkY+9S?=
+ =?us-ascii?Q?FS7ldwUQ7LjexAGG0hc0RBLuISxtXCFRBSJxi/DIwyc92RjTE3EurBAOirh+?=
+ =?us-ascii?Q?S43jR02QUaknjvS6ugyulv/8EOGFLODy04gcLr7BU71J6CHrTDtFv/VHQDJ5?=
+ =?us-ascii?Q?U4Pj4EEYqb4ZrccQrye5D1XYPGE7Mq7y42F5vX40uLAzyri1me/Xr3c6zP8d?=
+ =?us-ascii?Q?K8t6MyZ02oacFKyn4EOdpziGVTNJqS8blFPyCGhkjD/lf+AJPhgvPPRhZ0zs?=
+ =?us-ascii?Q?5I3fdPjSoO0wG98lCa54ohT9yAYnAX3YaRnCEYpz1FgYRRhoRq3t5zVRL/DJ?=
+ =?us-ascii?Q?W7i4OiBsmXF7l4gg1/0gvH4KL68wCv4BpUZu2MZ+ks6KzgOptry4XCWGqwRp?=
+ =?us-ascii?Q?ntr7peHFmTSbvATlpvAPa6eRk4+GYsK+2ItgzzGNyJAeMj2YCSC3YUlrYsGM?=
+ =?us-ascii?Q?r0oX/FVp9tzO7QNDpqSZQ6W7zaFYCzmWC/UmYThojdz4sfhz153poO1vPZ4r?=
+ =?us-ascii?Q?KTTqz3IprIe+q8cJ6rob8QHhALE9NE5QvX/58bT94rmgPfDEuv91iH61k8z4?=
+ =?us-ascii?Q?GBjjDBiGxaE1gO+ktaFdeWwzZTnNP90QsoxTE5aeRHz4q97xeQN6tUqdXKOX?=
+ =?us-ascii?Q?B4Wwg/qTxB0j0JfGYviFZEuvQ2wHP7AQv17cEk3dHQY9KLj6k9VPwn4tiHyb?=
+ =?us-ascii?Q?PJotLWhw78D4UbpkDv7VxyOatPmEXrORT/li2wzhe00mgdGv7nC3wFVZtsIi?=
+ =?us-ascii?Q?j1tM8rapIy7BKFeunnPl34Ke5vioK5A8KaRraDos5lCT/yTRZCx4giVvMR6H?=
+ =?us-ascii?Q?lcMISNdUD525AJdmUfOxL/iG7mM+Fd6LBzPwnYloIku4HluSF3T362grTg6a?=
+ =?us-ascii?Q?mYKq/+6I1ywuh5XFALC8oS1VGoihaLYCVEH2m0JUTkepa8U4oTn8yihVcBul?=
+ =?us-ascii?Q?15dPJiBOfzs7uaPR+OYePbMW56rPIe2IPDq1Yf5ofqrw6/rNZDaFRbjbSirw?=
+ =?us-ascii?Q?8S6d7TkHmA11o581ifW4vDFGpncg8GFZWZaju5FGzglDgFHzEbeOrwundOH5?=
+ =?us-ascii?Q?vXgILfr1cs6QgEsqXIjDWBq+t7kWPNexTqBp4zhvURX4FfbYzaL9HeVzwRG/?=
+ =?us-ascii?Q?c8UIuR444PCuqVIkgUMRWzlrao5mDJW3piP+4MRPGMWPQB8I4uomI4HxxbyX?=
+ =?us-ascii?Q?nA0XuzExRLtHD65gTGjsJLjHXXnIfErCieZGZki0PiBuP5nCg7arbLLZgh4Y?=
+ =?us-ascii?Q?kfKjBIPcpYFiuiadE6UcaYLaTnFRVnxlU9TdOar0nZPknrc43pjiVbHEev5I?=
+ =?us-ascii?Q?7Trb6nh22A=3D=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a76cff61-cc69-446f-32e5-08da171f95d8
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Apr 2022 16:16:05.8319
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: tOC6IVCw74JlEEA2Z6+d15Crt/32cBJBG7ZeFvifzh4UHBHoOJ4nStlzM0FxuSYr
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB5818
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue,  5 Apr 2022 07:52:18 +0000
-Janosch Frank <frankja@linux.ibm.com> wrote:
+vdpa and usnic are trying to test if IOMMU_CACHE is supported. The correct
+way to do this is via dev_is_dma_coherent() like the DMA API does. If
+IOMMU_CACHE is not supported then these drivers won't work as they don't
+call any coherency-restoring routines around their DMAs.
 
-> There's no guarantee that we even find a device at the address we're
-> testing for if we're not running under QEMU.
-> 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> ---
->  s390x/css.c | 10 +++++++++-
->  1 file changed, 9 insertions(+), 1 deletion(-)
-> 
-> diff --git a/s390x/css.c b/s390x/css.c
-> index a333e55a..52d35f49 100644
-> --- a/s390x/css.c
-> +++ b/s390x/css.c
-> @@ -15,6 +15,7 @@
->  #include <interrupt.h>
->  #include <asm/arch_def.h>
->  #include <alloc_page.h>
-> +#include <hardware.h>
->  
->  #include <malloc_io.h>
->  #include <css.h>
-> @@ -641,6 +642,12 @@ int main(int argc, char *argv[])
->  {
->  	int i;
->  
-> +	/* There's no guarantee where our devices are without qemu */
-> +	if (detect_host() != HOST_IS_KVM && detect_host() != HOST_IS_TCG) {
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+---
+ drivers/infiniband/hw/usnic/usnic_uiom.c | 16 +++++++---------
+ drivers/vhost/vdpa.c                     |  3 ++-
+ 2 files changed, 9 insertions(+), 10 deletions(-)
 
-you could also do !host_is_kvm() && !host_is_tcg() , I think it's more
-readable, but I do not have strong opinions regarding that
-
-> +		report_skip("Not running under QEMU");
-> +		goto done;
-> +	}
-> +
->  	report_prefix_push("Channel Subsystem");
-
-the prefix push should probably go before the if
-
->  	enable_io_isc(0x80 >> IO_SCH_ISC);
->  	for (i = 0; tests[i].name; i++) {
-> @@ -648,7 +655,8 @@ int main(int argc, char *argv[])
->  		tests[i].func();
->  		report_prefix_pop();
->  	}
-> -	report_prefix_pop();
->  
-> +done:
-> +	report_prefix_pop();
->  	return report_summary();
->  }
+diff --git a/drivers/infiniband/hw/usnic/usnic_uiom.c b/drivers/infiniband/hw/usnic/usnic_uiom.c
+index 760b254ba42d6b..24d118198ac756 100644
+--- a/drivers/infiniband/hw/usnic/usnic_uiom.c
++++ b/drivers/infiniband/hw/usnic/usnic_uiom.c
+@@ -42,6 +42,7 @@
+ #include <linux/list.h>
+ #include <linux/pci.h>
+ #include <rdma/ib_verbs.h>
++#include <linux/dma-map-ops.h>
+ 
+ #include "usnic_log.h"
+ #include "usnic_uiom.h"
+@@ -474,6 +475,12 @@ int usnic_uiom_attach_dev_to_pd(struct usnic_uiom_pd *pd, struct device *dev)
+ 	struct usnic_uiom_dev *uiom_dev;
+ 	int err;
+ 
++	if (!dev_is_dma_coherent(dev)) {
++		usnic_err("IOMMU of %s does not support cache coherency\n",
++				dev_name(dev));
++		return -EINVAL;
++	}
++
+ 	uiom_dev = kzalloc(sizeof(*uiom_dev), GFP_ATOMIC);
+ 	if (!uiom_dev)
+ 		return -ENOMEM;
+@@ -483,13 +490,6 @@ int usnic_uiom_attach_dev_to_pd(struct usnic_uiom_pd *pd, struct device *dev)
+ 	if (err)
+ 		goto out_free_dev;
+ 
+-	if (!iommu_capable(dev->bus, IOMMU_CAP_CACHE_COHERENCY)) {
+-		usnic_err("IOMMU of %s does not support cache coherency\n",
+-				dev_name(dev));
+-		err = -EINVAL;
+-		goto out_detach_device;
+-	}
+-
+ 	spin_lock(&pd->lock);
+ 	list_add_tail(&uiom_dev->link, &pd->devs);
+ 	pd->dev_cnt++;
+@@ -497,8 +497,6 @@ int usnic_uiom_attach_dev_to_pd(struct usnic_uiom_pd *pd, struct device *dev)
+ 
+ 	return 0;
+ 
+-out_detach_device:
+-	iommu_detach_device(pd->domain, dev);
+ out_free_dev:
+ 	kfree(uiom_dev);
+ 	return err;
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index 4c2f0bd062856a..05ea5800febc37 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -22,6 +22,7 @@
+ #include <linux/vdpa.h>
+ #include <linux/nospec.h>
+ #include <linux/vhost.h>
++#include <linux/dma-map-ops.h>
+ 
+ #include "vhost.h"
+ 
+@@ -929,7 +930,7 @@ static int vhost_vdpa_alloc_domain(struct vhost_vdpa *v)
+ 	if (!bus)
+ 		return -EFAULT;
+ 
+-	if (!iommu_capable(bus, IOMMU_CAP_CACHE_COHERENCY))
++	if (!dev_is_dma_coherent(dma_dev))
+ 		return -ENOTSUPP;
+ 
+ 	v->domain = iommu_domain_alloc(bus);
+-- 
+2.35.1
 
