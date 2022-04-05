@@ -2,35 +2,35 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C634C433FE
-	for <linux-s390@archiver.kernel.org>; Tue,  5 Apr 2022 07:15:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6960CC4167B
+	for <linux-s390@archiver.kernel.org>; Tue,  5 Apr 2022 07:15:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231463AbiDEHRB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 5 Apr 2022 03:17:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55760 "EHLO
+        id S231466AbiDEHRD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 5 Apr 2022 03:17:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231493AbiDEHQT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Apr 2022 03:16:19 -0400
+        with ESMTP id S231588AbiDEHQX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Apr 2022 03:16:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEB8CDFD8;
-        Tue,  5 Apr 2022 00:13:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F44B26C1;
+        Tue,  5 Apr 2022 00:14:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C2828615F2;
-        Tue,  5 Apr 2022 07:13:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C693C34110;
-        Tue,  5 Apr 2022 07:13:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F0A8861615;
+        Tue,  5 Apr 2022 07:14:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A7FAC34111;
+        Tue,  5 Apr 2022 07:14:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649142836;
-        bh=hq9Ro/6wNi6Bjr9TXkTjcr4R5bOTWBzCrcnIPIywIr0=;
+        s=k20201202; t=1649142864;
+        bh=Ozahyc/w+nU9i7KqLsvrZN14JQ1Eg6uadYyBxIpHozM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kLLifNES58YAya08PsQCLUQ7pqPzfzz9WtyBHjwuWWLImu27zg/rZ2BjQgpW9zeoT
-         q50zE/PJKFrU5ABhVUnlWatCs+NZ0IUf91CKYP9AxDuY/tG5tO8CZjPEH6AVLf+xXm
-         E3741Qn+xWrHdc8T31lrgNUzkTF2PZjlGqwH0bbweHv/bfMSfmB2uxsXitKbxHzICN
-         LFG66MH1akvM+4N62lLUJpc5RRQPNiaficg9zP4Y8GdnV2LkCNJVdFkUN2CnzweA1k
-         8ofpFOnAbn42fDesJ16PmeHGa4WR3ze0qpavoV8lyd3aTkeRa0BB7ZAyVgY4yej0mx
-         csOMzAS+1N77Q==
+        b=Ys8Cmi6POwUaireIIRTeLhKK+v7o2EqkTGQSRxqajtar5HmxCLoC3GA0eeO2Jdh7f
+         7WhzZ8247EkkROcV33xkAmsA6ZVRM/KJfhGALQlgJAH8DdgD+HuhdZyO2JrLPvyLbD
+         lK6zMp958X6Nu06bQQzZV5xZNo7ixFrZt7ypv7re/+p5ulumO9Mo1qR1WuOjxV7MnT
+         jE2p2eV+1qxQVnMDMWoSQz93kfij6KBuG7JfR+6KNumajqsqAvV6rtsOqZFK7SSRYW
+         eXSdkrbZ3DAxMyJHVNYk03/zfADcWc6XefNmEjDQtImrxrupXdOMLp+0LVQUTeANq7
+         CEq9QZi2uMpyA==
 From:   guoren@kernel.org
 To:     guoren@kernel.org, palmer@dabbelt.com, arnd@arndb.de,
         gregkh@linuxfoundation.org, hch@lst.de, nathan@kernel.org,
@@ -40,11 +40,10 @@ Cc:     linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
         sparclinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
         linux-parisc@vger.kernel.org, linux-mips@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, x86@kernel.org,
-        heiko@sntech.de, Guo Ren <guoren@linux.alibaba.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH V12 04/20] arch: Add SYSVIPC_COMPAT for all architectures
-Date:   Tue,  5 Apr 2022 15:12:58 +0800
-Message-Id: <20220405071314.3225832-5-guoren@kernel.org>
+        heiko@sntech.de, Guo Ren <guoren@linux.alibaba.com>
+Subject: [PATCH V12 09/20] riscv: compat: Add basic compat data type implementation
+Date:   Tue,  5 Apr 2022 15:13:03 +0800
+Message-Id: <20220405071314.3225832-10-guoren@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220405071314.3225832-1-guoren@kernel.org>
 References: <20220405071314.3225832-1-guoren@kernel.org>
@@ -56,160 +55,170 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 From: Guo Ren <guoren@linux.alibaba.com>
 
-The existing per-arch definitions are pretty much historic cruft.
-Move SYSVIPC_COMPAT into init/Kconfig.
+Implement riscv asm/compat.h for struct compat_xxx,
+is_compat_task, compat_user_regset, regset convert.
+
+The rv64 compat.h has inherited most of the structs
+from the generic one.
 
 Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 Signed-off-by: Guo Ren <guoren@kernel.org>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
 Tested-by: Heiko Stuebner <heiko@sntech.de>
-Acked-by: Helge Deller <deller@gmx.de>  # parisc
+Cc: Arnd Bergmann <arnd@arndb.de>
 Cc: Palmer Dabbelt <palmer@dabbelt.com>
 ---
- arch/arm64/Kconfig   | 4 ----
- arch/mips/Kconfig    | 5 -----
- arch/parisc/Kconfig  | 4 ----
- arch/powerpc/Kconfig | 5 -----
- arch/s390/Kconfig    | 3 ---
- arch/sparc/Kconfig   | 5 -----
- arch/x86/Kconfig     | 4 ----
- init/Kconfig         | 4 ++++
- 8 files changed, 4 insertions(+), 30 deletions(-)
+ arch/riscv/include/asm/compat.h      | 129 +++++++++++++++++++++++++++
+ arch/riscv/include/asm/thread_info.h |   1 +
+ 2 files changed, 130 insertions(+)
+ create mode 100644 arch/riscv/include/asm/compat.h
 
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 57c4c995965f..ff674808681a 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -2122,10 +2122,6 @@ config DMI
- 
- endmenu
- 
--config SYSVIPC_COMPAT
--	def_bool y
--	depends on COMPAT && SYSVIPC
--
- menu "Power management options"
- 
- source "kernel/power/Kconfig"
-diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
-index de3b32a507d2..0055482cd20f 100644
---- a/arch/mips/Kconfig
-+++ b/arch/mips/Kconfig
-@@ -3198,16 +3198,12 @@ config MIPS32_COMPAT
- config COMPAT
- 	bool
- 
--config SYSVIPC_COMPAT
--	bool
--
- config MIPS32_O32
- 	bool "Kernel support for o32 binaries"
- 	depends on 64BIT
- 	select ARCH_WANT_OLD_COMPAT_IPC
- 	select COMPAT
- 	select MIPS32_COMPAT
--	select SYSVIPC_COMPAT if SYSVIPC
- 	help
- 	  Select this option if you want to run o32 binaries.  These are pure
- 	  32-bit binaries as used by the 32-bit Linux/MIPS port.  Most of
-@@ -3221,7 +3217,6 @@ config MIPS32_N32
- 	select ARCH_WANT_COMPAT_IPC_PARSE_VERSION
- 	select COMPAT
- 	select MIPS32_COMPAT
--	select SYSVIPC_COMPAT if SYSVIPC
- 	help
- 	  Select this option if you want to run n32 binaries.  These are
- 	  64-bit binaries using 32-bit quantities for addressing and certain
-diff --git a/arch/parisc/Kconfig b/arch/parisc/Kconfig
-index 52e550b45692..93cb07a4446f 100644
---- a/arch/parisc/Kconfig
-+++ b/arch/parisc/Kconfig
-@@ -331,10 +331,6 @@ config COMPAT
- 	def_bool y
- 	depends on 64BIT
- 
--config SYSVIPC_COMPAT
--	def_bool y
--	depends on COMPAT && SYSVIPC
--
- config AUDIT_ARCH
- 	def_bool y
- 
-diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index 174edabb74fa..6edb294a34ef 100644
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -298,11 +298,6 @@ config COMPAT
- 	select ARCH_WANT_OLD_COMPAT_IPC
- 	select COMPAT_OLD_SIGACTION
- 
--config SYSVIPC_COMPAT
--	bool
--	depends on COMPAT && SYSVIPC
--	default y
--
- config SCHED_OMIT_FRAME_POINTER
- 	bool
- 	default y
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 77b5a03de13a..555b7ea5ecf5 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -399,9 +399,6 @@ config COMPAT
- 	  (and some other stuff like libraries and such) is needed for
- 	  executing 31 bit applications.  It is safe to say "Y".
- 
--config SYSVIPC_COMPAT
--	def_bool y if COMPAT && SYSVIPC
--
- config SMP
- 	def_bool y
- 
-diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
-index 9200bc04701c..9c1cce74953a 100644
---- a/arch/sparc/Kconfig
-+++ b/arch/sparc/Kconfig
-@@ -488,9 +488,4 @@ config COMPAT
- 	select ARCH_WANT_OLD_COMPAT_IPC
- 	select COMPAT_OLD_SIGACTION
- 
--config SYSVIPC_COMPAT
--	bool
--	depends on COMPAT && SYSVIPC
--	default y
--
- source "drivers/sbus/char/Kconfig"
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index b0142e01002e..65690b950f5f 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -2872,10 +2872,6 @@ config COMPAT
- if COMPAT
- config COMPAT_FOR_U64_ALIGNMENT
- 	def_bool y
--
--config SYSVIPC_COMPAT
--	def_bool y
--	depends on SYSVIPC
- endif
- 
- endmenu
-diff --git a/init/Kconfig b/init/Kconfig
-index ddcbefe535e9..9fa3ee6bf12a 100644
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -390,6 +390,10 @@ config SYSVIPC_SYSCTL
- 	depends on SYSCTL
- 	default y
- 
-+config SYSVIPC_COMPAT
-+	def_bool y
-+	depends on COMPAT && SYSVIPC
+diff --git a/arch/riscv/include/asm/compat.h b/arch/riscv/include/asm/compat.h
+new file mode 100644
+index 000000000000..2ac955b51148
+--- /dev/null
++++ b/arch/riscv/include/asm/compat.h
+@@ -0,0 +1,129 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++#ifndef __ASM_COMPAT_H
++#define __ASM_COMPAT_H
 +
- config POSIX_MQUEUE
- 	bool "POSIX Message Queues"
- 	depends on NET
++#define COMPAT_UTS_MACHINE	"riscv\0\0"
++
++/*
++ * Architecture specific compatibility types
++ */
++#include <linux/types.h>
++#include <linux/sched.h>
++#include <linux/sched/task_stack.h>
++#include <asm-generic/compat.h>
++
++static inline int is_compat_task(void)
++{
++	return test_thread_flag(TIF_32BIT);
++}
++
++struct compat_user_regs_struct {
++	compat_ulong_t pc;
++	compat_ulong_t ra;
++	compat_ulong_t sp;
++	compat_ulong_t gp;
++	compat_ulong_t tp;
++	compat_ulong_t t0;
++	compat_ulong_t t1;
++	compat_ulong_t t2;
++	compat_ulong_t s0;
++	compat_ulong_t s1;
++	compat_ulong_t a0;
++	compat_ulong_t a1;
++	compat_ulong_t a2;
++	compat_ulong_t a3;
++	compat_ulong_t a4;
++	compat_ulong_t a5;
++	compat_ulong_t a6;
++	compat_ulong_t a7;
++	compat_ulong_t s2;
++	compat_ulong_t s3;
++	compat_ulong_t s4;
++	compat_ulong_t s5;
++	compat_ulong_t s6;
++	compat_ulong_t s7;
++	compat_ulong_t s8;
++	compat_ulong_t s9;
++	compat_ulong_t s10;
++	compat_ulong_t s11;
++	compat_ulong_t t3;
++	compat_ulong_t t4;
++	compat_ulong_t t5;
++	compat_ulong_t t6;
++};
++
++static inline void regs_to_cregs(struct compat_user_regs_struct *cregs,
++				 struct pt_regs *regs)
++{
++	cregs->pc	= (compat_ulong_t) regs->epc;
++	cregs->ra	= (compat_ulong_t) regs->ra;
++	cregs->sp	= (compat_ulong_t) regs->sp;
++	cregs->gp	= (compat_ulong_t) regs->gp;
++	cregs->tp	= (compat_ulong_t) regs->tp;
++	cregs->t0	= (compat_ulong_t) regs->t0;
++	cregs->t1	= (compat_ulong_t) regs->t1;
++	cregs->t2	= (compat_ulong_t) regs->t2;
++	cregs->s0	= (compat_ulong_t) regs->s0;
++	cregs->s1	= (compat_ulong_t) regs->s1;
++	cregs->a0	= (compat_ulong_t) regs->a0;
++	cregs->a1	= (compat_ulong_t) regs->a1;
++	cregs->a2	= (compat_ulong_t) regs->a2;
++	cregs->a3	= (compat_ulong_t) regs->a3;
++	cregs->a4	= (compat_ulong_t) regs->a4;
++	cregs->a5	= (compat_ulong_t) regs->a5;
++	cregs->a6	= (compat_ulong_t) regs->a6;
++	cregs->a7	= (compat_ulong_t) regs->a7;
++	cregs->s2	= (compat_ulong_t) regs->s2;
++	cregs->s3	= (compat_ulong_t) regs->s3;
++	cregs->s4	= (compat_ulong_t) regs->s4;
++	cregs->s5	= (compat_ulong_t) regs->s5;
++	cregs->s6	= (compat_ulong_t) regs->s6;
++	cregs->s7	= (compat_ulong_t) regs->s7;
++	cregs->s8	= (compat_ulong_t) regs->s8;
++	cregs->s9	= (compat_ulong_t) regs->s9;
++	cregs->s10	= (compat_ulong_t) regs->s10;
++	cregs->s11	= (compat_ulong_t) regs->s11;
++	cregs->t3	= (compat_ulong_t) regs->t3;
++	cregs->t4	= (compat_ulong_t) regs->t4;
++	cregs->t5	= (compat_ulong_t) regs->t5;
++	cregs->t6	= (compat_ulong_t) regs->t6;
++};
++
++static inline void cregs_to_regs(struct compat_user_regs_struct *cregs,
++				 struct pt_regs *regs)
++{
++	regs->epc	= (unsigned long) cregs->pc;
++	regs->ra	= (unsigned long) cregs->ra;
++	regs->sp	= (unsigned long) cregs->sp;
++	regs->gp	= (unsigned long) cregs->gp;
++	regs->tp	= (unsigned long) cregs->tp;
++	regs->t0	= (unsigned long) cregs->t0;
++	regs->t1	= (unsigned long) cregs->t1;
++	regs->t2	= (unsigned long) cregs->t2;
++	regs->s0	= (unsigned long) cregs->s0;
++	regs->s1	= (unsigned long) cregs->s1;
++	regs->a0	= (unsigned long) cregs->a0;
++	regs->a1	= (unsigned long) cregs->a1;
++	regs->a2	= (unsigned long) cregs->a2;
++	regs->a3	= (unsigned long) cregs->a3;
++	regs->a4	= (unsigned long) cregs->a4;
++	regs->a5	= (unsigned long) cregs->a5;
++	regs->a6	= (unsigned long) cregs->a6;
++	regs->a7	= (unsigned long) cregs->a7;
++	regs->s2	= (unsigned long) cregs->s2;
++	regs->s3	= (unsigned long) cregs->s3;
++	regs->s4	= (unsigned long) cregs->s4;
++	regs->s5	= (unsigned long) cregs->s5;
++	regs->s6	= (unsigned long) cregs->s6;
++	regs->s7	= (unsigned long) cregs->s7;
++	regs->s8	= (unsigned long) cregs->s8;
++	regs->s9	= (unsigned long) cregs->s9;
++	regs->s10	= (unsigned long) cregs->s10;
++	regs->s11	= (unsigned long) cregs->s11;
++	regs->t3	= (unsigned long) cregs->t3;
++	regs->t4	= (unsigned long) cregs->t4;
++	regs->t5	= (unsigned long) cregs->t5;
++	regs->t6	= (unsigned long) cregs->t6;
++};
++
++#endif /* __ASM_COMPAT_H */
+diff --git a/arch/riscv/include/asm/thread_info.h b/arch/riscv/include/asm/thread_info.h
+index 74d888c8d631..78933ac04995 100644
+--- a/arch/riscv/include/asm/thread_info.h
++++ b/arch/riscv/include/asm/thread_info.h
+@@ -97,6 +97,7 @@ struct thread_info {
+ #define TIF_SECCOMP		8	/* syscall secure computing */
+ #define TIF_NOTIFY_SIGNAL	9	/* signal notifications exist */
+ #define TIF_UPROBE		10	/* uprobe breakpoint or singlestep */
++#define TIF_32BIT		11	/* compat-mode 32bit process */
+ 
+ #define _TIF_SYSCALL_TRACE	(1 << TIF_SYSCALL_TRACE)
+ #define _TIF_NOTIFY_RESUME	(1 << TIF_NOTIFY_RESUME)
 -- 
 2.25.1
 
