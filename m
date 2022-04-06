@@ -2,22 +2,22 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 94B8DC433FE
-	for <linux-s390@archiver.kernel.org>; Wed,  6 Apr 2022 10:18:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D42CC433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  6 Apr 2022 10:18:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377250AbiDFKUE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 6 Apr 2022 06:20:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33658 "EHLO
+        id S1345887AbiDFKUH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 6 Apr 2022 06:20:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376984AbiDFKSg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Apr 2022 06:18:36 -0400
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CBDD28255C;
-        Tue,  5 Apr 2022 20:44:51 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04357;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=34;SR=0;TI=SMTPD_---0V9K2XHM_1649216685;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0V9K2XHM_1649216685)
+        with ESMTP id S1377532AbiDFKSn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Apr 2022 06:18:43 -0400
+Received: from out30-44.freemail.mail.aliyun.com (out30-44.freemail.mail.aliyun.com [115.124.30.44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AE30267AE7;
+        Tue,  5 Apr 2022 20:44:36 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=34;SR=0;TI=SMTPD_---0V9KCOLw_1649216670;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0V9KCOLw_1649216670)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 06 Apr 2022 11:44:46 +0800
+          Wed, 06 Apr 2022 11:44:31 +0800
 From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To:     virtualization@lists.linux-foundation.org
 Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
@@ -49,9 +49,9 @@ Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
         platform-driver-x86@vger.kernel.org,
         linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, bpf@vger.kernel.org
-Subject: [PATCH v9 27/32] virtio: add helper virtio_find_vqs_ctx_size()
-Date:   Wed,  6 Apr 2022 11:43:41 +0800
-Message-Id: <20220406034346.74409-28-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v9 20/32] virtio: queue_reset: add VIRTIO_F_RING_RESET
+Date:   Wed,  6 Apr 2022 11:43:34 +0800
+Message-Id: <20220406034346.74409-21-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220406034346.74409-1-xuanzhuo@linux.alibaba.com>
 References: <20220406034346.74409-1-xuanzhuo@linux.alibaba.com>
@@ -62,37 +62,40 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Introduce helper virtio_find_vqs_ctx_size() to call find_vqs and specify
-the maximum size of each vq ring.
+Added VIRTIO_F_RING_RESET, it came from here
+https://github.com/oasis-tcs/virtio-spec/issues/124
+
+This feature indicates that the driver can reset a queue individually.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- include/linux/virtio_config.h | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ include/uapi/linux/virtio_config.h | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index 0f7def7ddfd2..22e29c926946 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -235,6 +235,18 @@ int virtio_find_vqs_ctx(struct virtio_device *vdev, unsigned nvqs,
- 				      ctx, desc);
- }
+diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
+index b5eda06f0d57..0862be802ff8 100644
+--- a/include/uapi/linux/virtio_config.h
++++ b/include/uapi/linux/virtio_config.h
+@@ -52,7 +52,7 @@
+  * rest are per-device feature bits.
+  */
+ #define VIRTIO_TRANSPORT_F_START	28
+-#define VIRTIO_TRANSPORT_F_END		38
++#define VIRTIO_TRANSPORT_F_END		41
  
-+static inline
-+int virtio_find_vqs_ctx_size(struct virtio_device *vdev, u32 nvqs,
-+				 struct virtqueue *vqs[],
-+				 vq_callback_t *callbacks[],
-+				 const char * const names[],
-+				 u32 sizes[],
-+				 const bool *ctx, struct irq_affinity *desc)
-+{
-+	return vdev->config->find_vqs(vdev, nvqs, vqs, callbacks, names, sizes,
-+				      ctx, desc);
-+}
+ #ifndef VIRTIO_CONFIG_NO_LEGACY
+ /* Do we get callbacks when the ring is completely used, even if we've
+@@ -92,4 +92,9 @@
+  * Does the device support Single Root I/O Virtualization?
+  */
+ #define VIRTIO_F_SR_IOV			37
 +
- /**
-  * virtio_device_ready - enable vq use in probe function
-  * @vdev: the device
++/*
++ * This feature indicates that the driver can reset a queue individually.
++ */
++#define VIRTIO_F_RING_RESET		40
+ #endif /* _UAPI_LINUX_VIRTIO_CONFIG_H */
 -- 
 2.31.0
 
