@@ -2,74 +2,140 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CDD2C433F5
-	for <linux-s390@archiver.kernel.org>; Wed,  6 Apr 2022 07:34:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F1A8C433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  6 Apr 2022 08:32:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234631AbiDFHgP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 6 Apr 2022 03:36:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47310 "EHLO
+        id S236807AbiDFIej (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 6 Apr 2022 04:34:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358453AbiDFHDY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Apr 2022 03:03:24 -0400
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14CD21EA284;
-        Tue,  5 Apr 2022 22:30:46 -0700 (PDT)
-Received: by verein.lst.de (Postfix, from userid 2407)
-        id E913E68AFE; Wed,  6 Apr 2022 07:30:39 +0200 (CEST)
-Date:   Wed, 6 Apr 2022 07:30:39 +0200
-From:   Christoph Hellwig <hch@lst.de>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Alex Williamson <alex.williamson@redhat.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Christian Benvenuti <benve@cisco.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        iommu@lists.linux-foundation.org, Jason Wang <jasowang@redhat.com>,
-        Joerg Roedel <joro@8bytes.org>, kvm@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-rdma@vger.kernel.org,
-        linux-s390@vger.kernel.org,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Nelson Escobar <neescoba@cisco.com>, netdev@vger.kernel.org,
-        Rob Clark <robdclark@gmail.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        virtualization@lists.linux-foundation.org,
-        Will Deacon <will@kernel.org>, Christoph Hellwig <hch@lst.de>,
-        "Tian, Kevin" <kevin.tian@intel.com>
-Subject: Re: [PATCH 1/5] iommu: Replace uses of IOMMU_CAP_CACHE_COHERENCY
- with dev_is_dma_coherent()
-Message-ID: <20220406053039.GA10580@lst.de>
-References: <0-v1-ef02c60ddb76+12ca2-intel_no_snoop_jgg@nvidia.com> <1-v1-ef02c60ddb76+12ca2-intel_no_snoop_jgg@nvidia.com>
+        with ESMTP id S1349697AbiDFIco (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Apr 2022 04:32:44 -0400
+Received: from mail.meizu.com (edge05.meizu.com [157.122.146.251])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F474187BA3;
+        Tue,  5 Apr 2022 19:37:40 -0700 (PDT)
+Received: from IT-EXMB-1-125.meizu.com (172.16.1.125) by mz-mail12.meizu.com
+ (172.16.1.108) with Microsoft SMTP Server (TLS) id 14.3.487.0; Wed, 6 Apr
+ 2022 10:37:38 +0800
+Received: from meizu.meizu.com (172.16.137.70) by IT-EXMB-1-125.meizu.com
+ (172.16.1.125) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.14; Wed, 6 Apr
+ 2022 10:37:37 +0800
+From:   Haowen Bai <baihaowen@meizu.com>
+To:     Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>
+CC:     Haowen Bai <baihaowen@meizu.com>, <linux-s390@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: [PATCH V2] s390: Simplify the calculation of variables
+Date:   Wed, 6 Apr 2022 10:37:31 +0800
+Message-ID: <1649212651-32038-1-git-send-email-baihaowen@meizu.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <Ykq2H+POaGs0GHVU@osiris>
+References: <Ykq2H+POaGs0GHVU@osiris>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1-v1-ef02c60ddb76+12ca2-intel_no_snoop_jgg@nvidia.com>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+Content-Type: text/plain
+X-Originating-IP: [172.16.137.70]
+X-ClientProxiedBy: IT-EXMB-1-126.meizu.com (172.16.1.126) To
+ IT-EXMB-1-125.meizu.com (172.16.1.125)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Apr 05, 2022 at 01:16:00PM -0300, Jason Gunthorpe wrote:
-> diff --git a/drivers/infiniband/hw/usnic/usnic_uiom.c b/drivers/infiniband/hw/usnic/usnic_uiom.c
-> index 760b254ba42d6b..24d118198ac756 100644
-> --- a/drivers/infiniband/hw/usnic/usnic_uiom.c
-> +++ b/drivers/infiniband/hw/usnic/usnic_uiom.c
-> @@ -42,6 +42,7 @@
->  #include <linux/list.h>
->  #include <linux/pci.h>
->  #include <rdma/ib_verbs.h>
-> +#include <linux/dma-map-ops.h>
->  
->  #include "usnic_log.h"
->  #include "usnic_uiom.h"
-> @@ -474,6 +475,12 @@ int usnic_uiom_attach_dev_to_pd(struct usnic_uiom_pd *pd, struct device *dev)
->  	struct usnic_uiom_dev *uiom_dev;
->  	int err;
->  
-> +	if (!dev_is_dma_coherent(dev)) {
+Fix the following coccicheck warnings:
+./arch/s390/include/asm/scsw.h:695:47-49: WARNING
+ !A || A && B is equivalent to !A || B
 
-Which part of the comment at the top of dma-map-ops.h is not clear
-enough to you?
+I apply a readable version just to get rid of a warning.
+
+Signed-off-by: Haowen Bai <baihaowen@meizu.com>
+---
+V1->V2: apply a readable and simple version as suggestion.
+
+ arch/s390/include/asm/scsw.h | 47 ++++++++++++++++++++++++++++++--------------
+ 1 file changed, 32 insertions(+), 15 deletions(-)
+
+diff --git a/arch/s390/include/asm/scsw.h b/arch/s390/include/asm/scsw.h
+index a7c3ccf681da..b7e65f96de3c 100644
+--- a/arch/s390/include/asm/scsw.h
++++ b/arch/s390/include/asm/scsw.h
+@@ -508,9 +508,13 @@ static inline int scsw_cmd_is_valid_zcc(union scsw *scsw)
+  */
+ static inline int scsw_cmd_is_valid_ectl(union scsw *scsw)
+ {
+-	return (scsw->cmd.stctl & SCSW_STCTL_STATUS_PEND) &&
+-	       !(scsw->cmd.stctl & SCSW_STCTL_INTER_STATUS) &&
+-	       (scsw->cmd.stctl & SCSW_STCTL_ALERT_STATUS);
++	if (!(scsw->tm.stctl & SCSW_STCTL_STATUS_PEND))
++		return 0;
++	if (scsw->tm.stctl & SCSW_STCTL_INTER_STATUS)
++		return 0;
++	if (scsw->tm.stctl & SCSW_STCTL_ALERT_STATUS)
++		return 1;
++	return 0;
+ }
+ 
+ /**
+@@ -522,10 +526,15 @@ static inline int scsw_cmd_is_valid_ectl(union scsw *scsw)
+  */
+ static inline int scsw_cmd_is_valid_pno(union scsw *scsw)
+ {
+-	return (scsw->cmd.fctl != 0) &&
+-	       (scsw->cmd.stctl & SCSW_STCTL_STATUS_PEND) &&
+-	       (!(scsw->cmd.stctl & SCSW_STCTL_INTER_STATUS) ||
+-		  (scsw->cmd.actl & SCSW_ACTL_SUSPENDED));
++	if (!scsw->tm.fctl)
++		return 0;
++	if (!(scsw->tm.stctl & SCSW_STCTL_STATUS_PEND))
++		return 0;
++	if (!(scsw->tm.stctl & SCSW_STCTL_INTER_STATUS))
++		return 1;
++	if (scsw->tm.actl & SCSW_ACTL_SUSPENDED)
++		return 1;
++	return 0;
+ }
+ 
+ /**
+@@ -675,9 +684,13 @@ static inline int scsw_tm_is_valid_q(union scsw *scsw)
+  */
+ static inline int scsw_tm_is_valid_ectl(union scsw *scsw)
+ {
+-	return (scsw->tm.stctl & SCSW_STCTL_STATUS_PEND) &&
+-	       !(scsw->tm.stctl & SCSW_STCTL_INTER_STATUS) &&
+-	       (scsw->tm.stctl & SCSW_STCTL_ALERT_STATUS);
++	if (!(scsw->tm.stctl & SCSW_STCTL_STATUS_PEND))
++		return 0;
++	if (scsw->tm.stctl & SCSW_STCTL_INTER_STATUS)
++		return 0;
++	if (scsw->tm.stctl & SCSW_STCTL_ALERT_STATUS)
++		return 1;
++	return 0;
+ }
+ 
+ /**
+@@ -689,11 +702,15 @@ static inline int scsw_tm_is_valid_ectl(union scsw *scsw)
+  */
+ static inline int scsw_tm_is_valid_pno(union scsw *scsw)
+ {
+-	return (scsw->tm.fctl != 0) &&
+-	       (scsw->tm.stctl & SCSW_STCTL_STATUS_PEND) &&
+-	       (!(scsw->tm.stctl & SCSW_STCTL_INTER_STATUS) ||
+-		 ((scsw->tm.stctl & SCSW_STCTL_INTER_STATUS) &&
+-		  (scsw->tm.actl & SCSW_ACTL_SUSPENDED)));
++	if (!scsw->tm.fctl)
++		return 0;
++	if (!(scsw->tm.stctl & SCSW_STCTL_STATUS_PEND))
++		return 0;
++	if (!(scsw->tm.stctl & SCSW_STCTL_INTER_STATUS))
++		return 1;
++	if (scsw->tm.actl & SCSW_ACTL_SUSPENDED)
++		return 1;
++	return 0;
+ }
+ 
+ /**
+-- 
+2.7.4
+
