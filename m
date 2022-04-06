@@ -2,22 +2,22 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0BC04C433EF
-	for <linux-s390@archiver.kernel.org>; Wed,  6 Apr 2022 16:09:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 65E8EC43219
+	for <linux-s390@archiver.kernel.org>; Wed,  6 Apr 2022 16:09:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237488AbiDFQLt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 6 Apr 2022 12:11:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44614 "EHLO
+        id S237570AbiDFQLw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 6 Apr 2022 12:11:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237519AbiDFQLl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Apr 2022 12:11:41 -0400
-Received: from out199-2.us.a.mail.aliyun.com (out199-2.us.a.mail.aliyun.com [47.90.199.2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32236BF012;
-        Tue,  5 Apr 2022 20:44:31 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R811e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=34;SR=0;TI=SMTPD_---0V9JzisK_1649216663;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0V9JzisK_1649216663)
+        with ESMTP id S237537AbiDFQLm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Apr 2022 12:11:42 -0400
+Received: from out30-56.freemail.mail.aliyun.com (out30-56.freemail.mail.aliyun.com [115.124.30.56])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D3422816B5;
+        Tue,  5 Apr 2022 20:44:49 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R771e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=34;SR=0;TI=SMTPD_---0V9JnaVR_1649216682;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0V9JnaVR_1649216682)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 06 Apr 2022 11:44:24 +0800
+          Wed, 06 Apr 2022 11:44:44 +0800
 From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To:     virtualization@lists.linux-foundation.org
 Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
@@ -49,9 +49,9 @@ Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
         platform-driver-x86@vger.kernel.org,
         linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, bpf@vger.kernel.org
-Subject: [PATCH v9 17/32] virtio_ring: packed: introduce virtqueue_resize_packed()
-Date:   Wed,  6 Apr 2022 11:43:31 +0800
-Message-Id: <20220406034346.74409-18-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v9 26/32] virtio_mmio: support the arg sizes of find_vqs()
+Date:   Wed,  6 Apr 2022 11:43:40 +0800
+Message-Id: <20220406034346.74409-27-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220406034346.74409-1-xuanzhuo@linux.alibaba.com>
 References: <20220406034346.74409-1-xuanzhuo@linux.alibaba.com>
@@ -62,72 +62,47 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-virtio ring packed supports resize.
-
-Only after the new vring is successfully allocated based on the new num,
-we will release the old vring. In any case, an error is returned,
-indicating that the vring still points to the old vring.
-
-In the case of an error, the caller must re-initialize(by
-virtqueue_reinit_packed()) the virtqueue to ensure that the vring can be
-used.
+Virtio MMIO support the new parameter sizes of find_vqs().
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- drivers/virtio/virtio_ring.c | 40 ++++++++++++++++++++++++++++++++++++
- 1 file changed, 40 insertions(+)
+ drivers/virtio/virtio_mmio.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 9a4f2db718bd..06f66b15c86c 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -2059,6 +2059,46 @@ static struct virtqueue *vring_create_virtqueue_packed(
- 	return NULL;
- }
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index 9d5a674bdeec..51cf51764a92 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -347,7 +347,7 @@ static void vm_del_vqs(struct virtio_device *vdev)
  
-+static int virtqueue_resize_packed(struct virtqueue *_vq, u32 num)
-+{
-+	dma_addr_t ring_dma_addr, driver_event_dma_addr, device_event_dma_addr;
-+	struct vring_packed_desc_event *driver, *device;
-+	size_t ring_size_in_bytes, event_size_in_bytes;
-+	struct vring_virtqueue *vq = to_vvq(_vq);
-+	struct virtio_device *vdev = _vq->vdev;
-+	struct vring_desc_state_packed *state;
-+	struct vring_desc_extra *extra;
-+	struct vring_packed_desc *ring;
-+	int err;
-+
-+	if (vring_alloc_queue_packed(vdev, num, &ring, &driver, &device,
-+				     &ring_dma_addr, &driver_event_dma_addr,
-+				     &device_event_dma_addr,
-+				     &ring_size_in_bytes, &event_size_in_bytes))
-+		goto err_ring;
-+
-+
-+	err = vring_alloc_state_extra_packed(num, &state, &extra);
-+	if (err)
-+		goto err_state_extra;
-+
-+	vring_free(&vq->vq);
-+
-+	vring_virtqueue_attach_packed(vq, num, ring, driver, device,
-+				      ring_dma_addr, driver_event_dma_addr,
-+				      device_event_dma_addr, ring_size_in_bytes,
-+				      event_size_in_bytes, state, extra);
-+	vring_virtqueue_init_packed(vq, vdev);
-+	return 0;
-+
-+err_state_extra:
-+	vring_free_queue(vdev, event_size_in_bytes, device, device_event_dma_addr);
-+	vring_free_queue(vdev, event_size_in_bytes, driver, driver_event_dma_addr);
-+	vring_free_queue(vdev, ring_size_in_bytes, ring, ring_dma_addr);
-+err_ring:
-+	return -ENOMEM;
-+}
-+
+ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
+ 				  void (*callback)(struct virtqueue *vq),
+-				  const char *name, bool ctx)
++				  const char *name, u32 size, bool ctx)
+ {
+ 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
+ 	struct virtio_mmio_vq_info *info;
+@@ -382,8 +382,11 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
+ 		goto error_new_virtqueue;
+ 	}
  
- /*
-  * Generic functions and exported symbols.
++	if (!size || size > num)
++		size = num;
++
+ 	/* Create the vring */
+-	vq = vring_create_virtqueue(index, num, VIRTIO_MMIO_VRING_ALIGN, vdev,
++	vq = vring_create_virtqueue(index, size, VIRTIO_MMIO_VRING_ALIGN, vdev,
+ 				 true, true, ctx, vm_notify, callback, name);
+ 	if (!vq) {
+ 		err = -ENOMEM;
+@@ -484,6 +487,7 @@ static int vm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 		}
+ 
+ 		vqs[i] = vm_setup_vq(vdev, queue_idx++, callbacks[i], names[i],
++				     sizes ? sizes[i] : 0,
+ 				     ctx ? ctx[i] : false);
+ 		if (IS_ERR(vqs[i])) {
+ 			vm_del_vqs(vdev);
 -- 
 2.31.0
 
