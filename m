@@ -2,31 +2,31 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C3033C4332F
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0FDFC433EF
 	for <linux-s390@archiver.kernel.org>; Wed,  6 Apr 2022 09:23:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241318AbiDFJZ3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 6 Apr 2022 05:25:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39700 "EHLO
+        id S1347591AbiDFJZe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 6 Apr 2022 05:25:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349404AbiDFJCq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Apr 2022 05:02:46 -0400
+        with ESMTP id S1356308AbiDFJDF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Apr 2022 05:03:05 -0400
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64CAF48F70C;
-        Tue,  5 Apr 2022 23:05:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C8C948F716;
+        Tue,  5 Apr 2022 23:06:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=qk698qFB+7DuJ4AJ2sY5VQ7AD5pdtTim73QQqZ92loQ=; b=vV1BbnA55cPPAZB3254BK506im
-        Old6T+yuUYVQppmY4OvzxURFILotMc/oCVviEkRv2abUE0J0i0GHlFCQmQE6zN4zzMN0LyyGdxCxm
-        a3zAC2ibzPxxmh2esPJ31vQhU4t1hgSd4oolbLVJ30XUyZxO92DdwG6hQFMXNMNhWN7rcep7w4tlS
-        VBiExL3j/1rs3vSKxNFaeesN2dWuawOYgyTbMBu//+gVZzz/ekohyJi6Ui5YQzYrI1BTFh69BMJ40
-        8U0V0qb3pKlFpPgDI+reF/WlPNRxgS+0CgrkGxB17h8Jk2cVEx0UzjeLM8HRoV8yqMFF4OEOqQS3q
-        gljNqowQ==;
+        bh=6QVq+WRTbBiZAGVnN7IJPNcrDbkE5gjblRwCavAMwLY=; b=iYaG9VkUCm4D5TSOODWzio+3DR
+        ytZ5+1QAyty9m+UBWG1IlrNmfBUfcieyEgGbnGvY+TeziydmDWxyUyplf08DqEXPrSA6ogGWlWBdc
+        eN+NdSm2eI+GluAazic6ThRfk6EDWhUlwAFB1sgAiTcA0zTyVy4xoxDN7lNirp1PXWPDjCYKA8P/e
+        a8Slx22YjqPgPpaGfnOLHtBTxMkfAK1Qngg3xOt/ieRRfzMYcYXFMoAX7pejVqOX04vm+E3B6daNl
+        No56Cgl46IA8J2O0CAKFddZqGLAK02p4IZLzzaiPdfWcvculhrlYOGpmXilPV0+0lJWjaiLUMp8xe
+        qYLNQzvg==;
 Received: from 213-225-3-188.nat.highway.a1.net ([213.225.3.188] helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nbynH-003umG-Rn; Wed, 06 Apr 2022 06:05:28 +0000
+        id 1nbynq-003v9s-8N; Wed, 06 Apr 2022 06:06:02 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     Jens Axboe <axboe@kernel.dk>
 Cc:     dm-devel@redhat.com, linux-xfs@vger.kernel.org,
@@ -43,9 +43,9 @@ Cc:     dm-devel@redhat.com, linux-xfs@vger.kernel.org,
         cluster-devel@redhat.com, jfs-discussion@lists.sourceforge.net,
         linux-nilfs@vger.kernel.org, ntfs3@lists.linux.dev,
         ocfs2-devel@oss.oracle.com, linux-mm@kvack.org
-Subject: [PATCH 02/27] target: pass a block_device to target_configure_unmap_from_queue
-Date:   Wed,  6 Apr 2022 08:04:51 +0200
-Message-Id: <20220406060516.409838-3-hch@lst.de>
+Subject: [PATCH 11/27] block: add a bdev_write_cache helper
+Date:   Wed,  6 Apr 2022 08:05:00 +0200
+Message-Id: <20220406060516.409838-12-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220406060516.409838-1-hch@lst.de>
 References: <20220406060516.409838-1-hch@lst.de>
@@ -56,96 +56,100 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The target code is a consumer of the block layer and should generally
-work on struct block_device.
+Add a helper to check the write cache flag based on the block_device
+instead of having to poke into the block layer internal request_queue.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/target/target_core_device.c  | 5 +++--
- drivers/target/target_core_file.c    | 7 ++++---
- drivers/target/target_core_iblock.c  | 2 +-
- include/target/target_core_backend.h | 4 ++--
- 4 files changed, 10 insertions(+), 8 deletions(-)
+ drivers/block/rnbd/rnbd-srv.c       | 2 +-
+ drivers/block/xen-blkback/xenbus.c  | 2 +-
+ drivers/target/target_core_iblock.c | 8 ++------
+ fs/btrfs/disk-io.c                  | 3 +--
+ include/linux/blkdev.h              | 5 +++++
+ 5 files changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/target/target_core_device.c b/drivers/target/target_core_device.c
-index fa866acef5bb2..3a1ec705cd80b 100644
---- a/drivers/target/target_core_device.c
-+++ b/drivers/target/target_core_device.c
-@@ -834,9 +834,10 @@ struct se_device *target_alloc_device(struct se_hba *hba, const char *name)
-  * in ATA and we need to set TPE=1
-  */
- bool target_configure_unmap_from_queue(struct se_dev_attrib *attrib,
--				       struct request_queue *q)
-+				       struct block_device *bdev)
- {
--	int block_size = queue_logical_block_size(q);
-+	struct request_queue *q = bdev_get_queue(bdev);
-+	int block_size = bdev_logical_block_size(bdev);
+diff --git a/drivers/block/rnbd/rnbd-srv.c b/drivers/block/rnbd/rnbd-srv.c
+index f04df6294650b..f8cc3c5fecb4b 100644
+--- a/drivers/block/rnbd/rnbd-srv.c
++++ b/drivers/block/rnbd/rnbd-srv.c
+@@ -558,7 +558,7 @@ static void rnbd_srv_fill_msg_open_rsp(struct rnbd_msg_open_rsp *rsp,
+ 	rsp->secure_discard =
+ 		cpu_to_le16(rnbd_dev_get_secure_discard(rnbd_dev));
+ 	rsp->cache_policy = 0;
+-	if (test_bit(QUEUE_FLAG_WC, &q->queue_flags))
++	if (bdev_write_cache(rnbd_dev->bdev))
+ 		rsp->cache_policy |= RNBD_WRITEBACK;
+ 	if (blk_queue_fua(q))
+ 		rsp->cache_policy |= RNBD_FUA;
+diff --git a/drivers/block/xen-blkback/xenbus.c b/drivers/block/xen-blkback/xenbus.c
+index f09040435e2e5..8b691fe50475f 100644
+--- a/drivers/block/xen-blkback/xenbus.c
++++ b/drivers/block/xen-blkback/xenbus.c
+@@ -517,7 +517,7 @@ static int xen_vbd_create(struct xen_blkif *blkif, blkif_vdev_t handle,
+ 		vbd->type |= VDISK_REMOVABLE;
  
- 	if (!blk_queue_discard(q))
- 		return false;
-diff --git a/drivers/target/target_core_file.c b/drivers/target/target_core_file.c
-index 8190b840065f3..8d191fdc33217 100644
---- a/drivers/target/target_core_file.c
-+++ b/drivers/target/target_core_file.c
-@@ -134,10 +134,11 @@ static int fd_configure_device(struct se_device *dev)
- 	 */
- 	inode = file->f_mapping->host;
- 	if (S_ISBLK(inode->i_mode)) {
--		struct request_queue *q = bdev_get_queue(I_BDEV(inode));
-+		struct block_device *bdev = I_BDEV(inode);
-+		struct request_queue *q = bdev_get_queue(bdev);
- 		unsigned long long dev_size;
+ 	q = bdev_get_queue(bdev);
+-	if (q && test_bit(QUEUE_FLAG_WC, &q->queue_flags))
++	if (bdev_write_cache(bdev))
+ 		vbd->flush_support = true;
  
--		fd_dev->fd_block_size = bdev_logical_block_size(I_BDEV(inode));
-+		fd_dev->fd_block_size = bdev_logical_block_size(bdev);
- 		/*
- 		 * Determine the number of bytes from i_size_read() minus
- 		 * one (1) logical sector from underlying struct block_device
-@@ -150,7 +151,7 @@ static int fd_configure_device(struct se_device *dev)
- 			dev_size, div_u64(dev_size, fd_dev->fd_block_size),
- 			fd_dev->fd_block_size);
- 
--		if (target_configure_unmap_from_queue(&dev->dev_attrib, q))
-+		if (target_configure_unmap_from_queue(&dev->dev_attrib, bdev))
- 			pr_debug("IFILE: BLOCK Discard support available,"
- 				 " disabled by default\n");
- 		/*
+ 	if (q && blk_queue_secure_erase(q))
 diff --git a/drivers/target/target_core_iblock.c b/drivers/target/target_core_iblock.c
-index 87ede165ddba4..b886ce1770bfd 100644
+index b41ee5c3b5b82..03013e85ffc03 100644
 --- a/drivers/target/target_core_iblock.c
 +++ b/drivers/target/target_core_iblock.c
-@@ -119,7 +119,7 @@ static int iblock_configure_device(struct se_device *dev)
- 	dev->dev_attrib.hw_max_sectors = queue_max_hw_sectors(q);
- 	dev->dev_attrib.hw_queue_depth = q->nr_requests;
+@@ -737,7 +737,7 @@ iblock_execute_rw(struct se_cmd *cmd, struct scatterlist *sgl, u32 sgl_nents,
+ 		if (test_bit(QUEUE_FLAG_FUA, &q->queue_flags)) {
+ 			if (cmd->se_cmd_flags & SCF_FUA)
+ 				opf |= REQ_FUA;
+-			else if (!test_bit(QUEUE_FLAG_WC, &q->queue_flags))
++			else if (!bdev_write_cache(ib_dev->ibd_bd))
+ 				opf |= REQ_FUA;
+ 		}
+ 	} else {
+@@ -886,11 +886,7 @@ iblock_parse_cdb(struct se_cmd *cmd)
  
--	if (target_configure_unmap_from_queue(&dev->dev_attrib, q))
-+	if (target_configure_unmap_from_queue(&dev->dev_attrib, bd))
- 		pr_debug("IBLOCK: BLOCK Discard support available,"
- 			 " disabled by default\n");
- 
-diff --git a/include/target/target_core_backend.h b/include/target/target_core_backend.h
-index 675f3a1fe6139..773963a1e0b53 100644
---- a/include/target/target_core_backend.h
-+++ b/include/target/target_core_backend.h
-@@ -14,7 +14,7 @@
- #define TRANSPORT_FLAG_PASSTHROUGH_ALUA		0x2
- #define TRANSPORT_FLAG_PASSTHROUGH_PGR          0x4
- 
--struct request_queue;
-+struct block_device;
- struct scatterlist;
- 
- struct target_backend_ops {
-@@ -117,7 +117,7 @@ sense_reason_t passthrough_parse_cdb(struct se_cmd *cmd,
- bool target_sense_desc_format(struct se_device *dev);
- sector_t target_to_linux_sector(struct se_device *dev, sector_t lb);
- bool target_configure_unmap_from_queue(struct se_dev_attrib *attrib,
--				       struct request_queue *q);
-+				       struct block_device *bdev);
- 
- static inline bool target_dev_configured(struct se_device *se_dev)
+ static bool iblock_get_write_cache(struct se_device *dev)
  {
+-	struct iblock_dev *ib_dev = IBLOCK_DEV(dev);
+-	struct block_device *bd = ib_dev->ibd_bd;
+-	struct request_queue *q = bdev_get_queue(bd);
+-
+-	return test_bit(QUEUE_FLAG_WC, &q->queue_flags);
++	return bdev_write_cache(IBLOCK_DEV(dev)->ibd_bd);
+ }
+ 
+ static const struct target_backend_ops iblock_ops = {
+diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
+index b30309f187cf0..d80adee32128d 100644
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -4247,8 +4247,7 @@ static void write_dev_flush(struct btrfs_device *device)
+ 	 * of simplicity, since this is a debug tool and not meant for use in
+ 	 * non-debug builds.
+ 	 */
+-	struct request_queue *q = bdev_get_queue(device->bdev);
+-	if (!test_bit(QUEUE_FLAG_WC, &q->queue_flags))
++	if (bdev_write_cache(device->bdev))
+ 		return;
+ #endif
+ 
+diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
+index 3a9578e14a6b0..807a49aa5a27a 100644
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -1331,6 +1331,11 @@ static inline bool bdev_nonrot(struct block_device *bdev)
+ 	return blk_queue_nonrot(bdev_get_queue(bdev));
+ }
+ 
++static inline bool bdev_write_cache(struct block_device *bdev)
++{
++	return test_bit(QUEUE_FLAG_WC, &bdev_get_queue(bdev)->queue_flags);
++}
++
+ static inline enum blk_zoned_model bdev_zoned_model(struct block_device *bdev)
+ {
+ 	struct request_queue *q = bdev_get_queue(bdev);
 -- 
 2.30.2
 
