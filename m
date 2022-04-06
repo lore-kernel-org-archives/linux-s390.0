@@ -2,113 +2,199 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC4D7C433F5
-	for <linux-s390@archiver.kernel.org>; Wed,  6 Apr 2022 19:52:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D9B4BC433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  6 Apr 2022 19:52:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232697AbiDFTy0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 6 Apr 2022 15:54:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53220 "EHLO
+        id S232643AbiDFTyp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 6 Apr 2022 15:54:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233135AbiDFTw2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Apr 2022 15:52:28 -0400
-Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 607792CE209;
-        Wed,  6 Apr 2022 10:28:30 -0700 (PDT)
-Received: by mail-lf1-x12d.google.com with SMTP id b21so5307724lfb.5;
-        Wed, 06 Apr 2022 10:28:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=WJLYFFwKJzu0AzBejzceyC93Fh4AhvIk3A/MNZXzKIU=;
-        b=nHoFYmIVcbUdYBuRBczLdRhO5AcYZ6GHHFtKpS9G1n5vNIpBGLipmKmQ40hQnwfBEK
-         9YcCx5HGe8T4NG1UPywpqZKblDsiU8Uam6EvTYaei53mUEV7gX/X6QEIMPDVNdTe1RsC
-         lSqUADllCjDlRJ3aqfDHj4gGsZ5WvTndElsOvm3ukXbURNWbOjm9tS3FKy9TW5JIte+s
-         iqchodtdlLO+0839AsHapTHL+am4rmkQFqKuweIuQiuTq0iA/dxkHoEkiJl793SmXbAL
-         d6FIVbXVTWtg6j4nPkHK8I7vb1+rBuBMN5T4ZVmgoa+qulAgS9/S0AV92hnwAdWJS/in
-         gNUw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=WJLYFFwKJzu0AzBejzceyC93Fh4AhvIk3A/MNZXzKIU=;
-        b=RQhuh1VW2nh/dlZLeIhr9KmcpN0aPNEI+bySuhv/r4F71i1vjkfPP0l4zqy/umh7ki
-         L9hYrQAPZxIhhKyH29OI8SFZnOzKwIPrEK77UeJ14ahP0USQFU+Jv4F8GNGn4dBvfyDS
-         M9O+cFoN2t50uRNJVSbqaxsK1Val6vQbikXT/G6UharYbRtqMjRsMez2j3/syfoSZMsB
-         hwYPzdJqWT4l5fLkKOSZa3DXw/6Ks2UBeCXjV/0TMUooggjoq8C91XLr5HDzRIwGLAby
-         9oCZ+grhbBjh5zMNvy44LIs8hprwKhM6P8l1jlGsd67WJ6VRm0H7aZlPuXd4nlJD4IhT
-         ojbw==
-X-Gm-Message-State: AOAM533qJRZDilB+U+foSwg4+93mGooPkjZ6clWyf1Cx4YsYOKos1fbN
-        aKI5/NVj9Vxyc2bkKGTZSY6y8i3IZiG7RMTSTnnWKJBEjIqw4w==
-X-Google-Smtp-Source: ABdhPJxvT7YhfWN8QbCVz4oydCsKwT/zbXQ5089WXaSZlqzdjbFflulVc086iBmKtewP4KtbC66vp+jW8qrWjcRFTmg=
-X-Received: by 2002:ac2:5f4d:0:b0:43e:da3e:4529 with SMTP id
- 13-20020ac25f4d000000b0043eda3e4529mr6768924lfz.627.1649266108188; Wed, 06
- Apr 2022 10:28:28 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220406060516.409838-1-hch@lst.de> <20220406060516.409838-24-hch@lst.de>
-In-Reply-To: <20220406060516.409838-24-hch@lst.de>
-From:   Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Date:   Thu, 7 Apr 2022 02:28:15 +0900
-Message-ID: <CAKFNMokGOma3pvHdEsnsjuKgW+jpYX9zx8fWwJWyeKuCpKz-YQ@mail.gmail.com>
-Subject: Re: [PATCH 23/27] block: add a bdev_max_discard_sectors helper
+        with ESMTP id S235231AbiDFTx1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Apr 2022 15:53:27 -0400
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2052.outbound.protection.outlook.com [40.107.236.52])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E133717AAC;
+        Wed,  6 Apr 2022 10:17:35 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=FuYZT6B696M50d1HOQ77Hv9Klmy4tlFKTgfO9M8rhE87nx06cSEm79L+wuDjIfs7BehBGIEg6MykLISQVWkXVak/qYz1sJ6KsZhmPiqErluDmMwgA4FAvlqG16GD4f6a36qV/yV24st2T3FV2jGsvt+77uDGwVZslPp7rQZtcDRrnzpjvKF1ceMbdawpvYZcu0bmeYbfE5XanY3aHyCiOc8QhGw8Bq6JMbUW5Xr4VdXi1Qow8w9Z3HOJpwSbSysWF2yUTy5OOxZGebn+ND/EAyGHhcUztVrxNI0/flUoLU9UOKAwq6aNpQzpWrQODjhus7spfOqWoyzuqQ5g0lXAiw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=oeLl9tvWkv1qk9DIx32ykxtv58qBigg9/OSGVp/1wac=;
+ b=aH9monxweDt7w6bJyP/K9wbh747KVKBxO9F1QxYr14wvEhxjoSwnnEGiz+6OK0FRr095sfQWLW5FKo0P/8J0LsqeYv4XCW7lvQEpnwOoLV6KyFAo/G+M767okd1xR7U97V8oZ9ipTmsu9vxh6Mx8exjy2pfE9IGfTSqAsefeFS4IcndahGloelzBinEo3SYHVgyuC7horTlslLTm8MS3+faOn7iFJ8XvB1HPLUc4EqHrXDQxfgAMkZYCEM6vKRPgERtN45+WuUpD/ZWvH99Q9sqW9mRq0X29s7iLiWxGtMvRkdc0WOt1tzjd0IOTTsct8jS3ZEMhtVDudujzL1Cw7w==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=oeLl9tvWkv1qk9DIx32ykxtv58qBigg9/OSGVp/1wac=;
+ b=UfKHKxG1d8xArB5IfCMwFeSVkWHNvN6ZoDXInLY+1mL/flaZFAA2V/DJ7oSstsa3nvOX6nTH+Z6OQyjin0IoT0IL+0NhIToPueQ92BUSn1g51MlPj5vVDyEkg/NNPWnmY4JNWl6EGemzkCOE1mVpf9ip/xpfjX6FMcvQPVr/Gx/VP+si10wA8x8nzQFRNx9n1WglSbxFQ5YopkpgVDiL1jPNCtSYNaAykgu0V1CbZg9nfZkyoCPhtu5wgBa9T0DoTfvPG8cwGtV/l8JprRWWX+L2D1dc5zyYhqVyRrHSNpFitwsbTD0Ov+jB/nT/powQnilAUCGcT3XgQehna2CfDQ==
+Received: from MN2PR12MB2941.namprd12.prod.outlook.com (2603:10b6:208:a9::12)
+ by BN9PR12MB5210.namprd12.prod.outlook.com (2603:10b6:408:11b::23) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5123.31; Wed, 6 Apr
+ 2022 17:17:33 +0000
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
+ by MN2PR12MB2941.namprd12.prod.outlook.com (2603:10b6:208:a9::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5123.31; Wed, 6 Apr
+ 2022 17:17:32 +0000
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::cdfb:f88e:410b:9374]) by MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::cdfb:f88e:410b:9374%6]) with mapi id 15.20.5144.021; Wed, 6 Apr 2022
+ 17:17:32 +0000
+Date:   Wed, 6 Apr 2022 14:17:29 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
 To:     Christoph Hellwig <hch@lst.de>
-Cc:     Andreas Gruenbacher <agruenba@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        device-mapper development <dm-devel@redhat.com>,
-        linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-block@vger.kernel.org,
-        drbd-dev@lists.linbit.com, nbd@other.debian.org,
-        ceph-devel@vger.kernel.org,
+Cc:     Robin Murphy <robin.murphy@arm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Christian Benvenuti <benve@cisco.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        iommu@lists.linux-foundation.org, Jason Wang <jasowang@redhat.com>,
+        Joerg Roedel <joro@8bytes.org>, kvm@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Nelson Escobar <neescoba@cisco.com>, netdev@vger.kernel.org,
+        Rob Clark <robdclark@gmail.com>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
         virtualization@lists.linux-foundation.org,
-        xen-devel@lists.xenproject.org, linux-bcache@vger.kernel.org,
-        linux-raid@vger.kernel.org, linux-mmc@vger.kernel.org,
-        linux-mtd@lists.infradead.org, linux-nvme@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
-        target-devel@vger.kernel.org, linux-btrfs@vger.kernel.org,
-        linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
-        cluster-devel@redhat.com, jfs-discussion@lists.sourceforge.net,
-        linux-nilfs <linux-nilfs@vger.kernel.org>, ntfs3@lists.linux.dev,
-        ocfs2-devel@oss.oracle.com, Linux MM <linux-mm@kvack.org>
-Content-Type: text/plain; charset="UTF-8"
+        Will Deacon <will@kernel.org>,
+        "Tian, Kevin" <kevin.tian@intel.com>
+Subject: Re: [PATCH 1/5] iommu: Replace uses of IOMMU_CAP_CACHE_COHERENCY
+ with dev_is_dma_coherent()
+Message-ID: <20220406171729.GJ2120790@nvidia.com>
+References: <1-v1-ef02c60ddb76+12ca2-intel_no_snoop_jgg@nvidia.com>
+ <db5a6daa-bfe9-744f-7fc5-d5167858bc3e@arm.com>
+ <20220406142432.GF2120790@nvidia.com>
+ <20220406151823.GG2120790@nvidia.com>
+ <20220406155056.GA30433@lst.de>
+ <20220406160623.GI2120790@nvidia.com>
+ <20220406161031.GA31790@lst.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220406161031.GA31790@lst.de>
+X-ClientProxiedBy: SJ0PR03CA0077.namprd03.prod.outlook.com
+ (2603:10b6:a03:331::22) To MN2PR12MB4192.namprd12.prod.outlook.com
+ (2603:10b6:208:1d5::15)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 3f1ac694-fac8-438b-cc54-08da17f155e1
+X-MS-TrafficTypeDiagnostic: MN2PR12MB2941:EE_|BN9PR12MB5210:EE_
+X-Microsoft-Antispam-PRVS: <MN2PR12MB2941B021E620A7C040D8451BC2E79@MN2PR12MB2941.namprd12.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: pbKkRM6k6BKdjHJ5SUFjR0yzAa0me7MANlDXy+wbfPzWoTpAJoqa+tfirTv5Uc/BNuWy/CvZphmSesHz46oBffVU00uK9J6oajch6vh3iACC9RHNf20wU6iK9w1zHyfNKq3b62yDUEAwJrb78ddCYJj9gnvmnUnpKBRPl/yYdtxqUeFwkAyhu9L3boUU6wpg0Y1Br7xXdcK9bsy/hTrC2TzFzjh3tuV0O/qrWtXLJIOf0dQLSdcyYB8ufMBcMn8p+FcYiKJASFjcBiSh7j3b0Bka1ALOL/j9BGSg2fXnOHqoodzlmI7PCxvYoMs04qNXtjlkq+Hf65jovEUz/CIooOhzVwSGZN1g6KqF3AICeZNROTKURa1s57EygrIuDJKNb8MmEUsGZsRMkikvffJaEFgmQUfvgEXyWaEFiznXMBtulWFXTUOaB4U97XYs5aHclyv3LGTUvDE0kiwEKdaAIfk8hoRKp8fiUTDBI2/4DDeoVbe/RC2g4i/gBWDr7KpDLYoiyh+xdzgD3gXs1LxLCMTRaVTGM5yNFBeh7wFVYPf9bNxV52k8CwTpgV9Be/FpyeSdWhIhVyIo3B6ujbJIDNW1IWlQMq87fKYh2sCBf+oAkAlVW+JETWaZZt7Eb2F3oMC0oEpn7LImNJvM3SlvSA==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB2941.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(36756003)(54906003)(6486002)(508600001)(6512007)(6916009)(6506007)(7416002)(5660300002)(6666004)(2906002)(316002)(33656002)(2616005)(8936002)(186003)(26005)(66556008)(38100700002)(66476007)(1076003)(4326008)(8676002)(66946007)(86362001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?CruKPwALXC+pMgw47IfKLFNSsNg8c5oOxaEX9A3fjWAtxB4N5jnrhMp5p3SY?=
+ =?us-ascii?Q?xU1diFLhvKejWsS5JWqE2z+bU/icnaIiM7OA0Qw+rJHSUaMMZmVrwVWFezhr?=
+ =?us-ascii?Q?9FmW4jBbCRLC8wUTsjjL5fBD+XCF48Ry9K5r5jF9YyLNCHd6Trx8+wN2C9RF?=
+ =?us-ascii?Q?NdXjNUt9y4oRZzIhjKX7zrxvzwQi4fWkqXFY5MqQkrNNpH8Yvq988tNq2s27?=
+ =?us-ascii?Q?GHR3comhc9UqabyJ1+BPRmyLT7GBksOQLKaXn71j6L+12vgG1AmfeuLWod8P?=
+ =?us-ascii?Q?S5FRiR+GJNus/Ox+4By7NsV1UCOBBjdmoVsrdoK/MQU/l/G40Zn9vVXJT6XK?=
+ =?us-ascii?Q?F9WVvECoIfk4w4vvy5RSRki9xWNXVfu4HsDKuYNSabiK+b+bMn0UhXuIPuhs?=
+ =?us-ascii?Q?U5jZa+L2bb2WqoMS8xOhIqW7AmULduuT0C/Nt4DrIXDtarHLikmzGPWEg4m0?=
+ =?us-ascii?Q?J8+PikVKQWVRll7peckSDIhFyujakq3aEIcss6bKK8z/AcHp1m7XJ4sfKAO0?=
+ =?us-ascii?Q?iZ53P64Wkx75BICsZZFX/WGIEOqTgxpmKoBXelA2k0VhudhuCp7chLwpPsXM?=
+ =?us-ascii?Q?3a0z2VGqM5FHo8wT76ECUAoV4bOPScR6jUqgTIQoRKCC+OSzA+WyimudRDMV?=
+ =?us-ascii?Q?+YMbi6T3bxTN4uPUcmlK5Mp0yt4CJXjxJ9VjZFiGEozHKDYeptijgdyibxZV?=
+ =?us-ascii?Q?4pF8J3N3/wj4hwGG0nmrLQgO6hjPebS9niV0mugvl4aprFlUtS50YbIynWVT?=
+ =?us-ascii?Q?O8AnqsASfIbP3fGka3yghQmc1nPFmTE/nkCk3+HwrTggjcG3u2D/pgJSVr53?=
+ =?us-ascii?Q?QQSkx0mJ7phFYFNdeZ/l7CshfytuYxo2A9xMh3W27/OgiIVWxBgysaY8zviY?=
+ =?us-ascii?Q?AVRXwA7Pr/6h/pIEpy9lviS0yZmPvIvNxCREyktFC25Y/uSj+Q7Ki9X5eONS?=
+ =?us-ascii?Q?zHc3CwXDvUEgVu56B0ixj7yn7zYDYaooufNoid5gu7lQQIM3uh7JxCt0DZ8G?=
+ =?us-ascii?Q?ls6/hhtIcCpL/dFiYvX0SQy4J/cUylh493OSLGVFbgUe7U4XYFmRt12QBt2/?=
+ =?us-ascii?Q?pNrQFZASS4X0CEtW8RN07YFoLRgnvAbnfiSKyF/8GZG3LKSIdBachYOP5vSa?=
+ =?us-ascii?Q?VVkKOkjuGu41IifiLGJ30yBPGYxssfofd3DK9f0sjtDKZp1nP6ZsAUt8rk9L?=
+ =?us-ascii?Q?gPGL3GqcAN17M/rA7ZCbfF8R6okSeWW9l4cBRNTFOWbmyHA+vDxe5u2Cdxc0?=
+ =?us-ascii?Q?EjCLxcyFlt/Cs8AI1X2KbUQpn8jLiqUNwaGVvHkTurAX08X10QU+iWuzdzoc?=
+ =?us-ascii?Q?+Jk1mPH2XXaVcp8wlt+hr7OfSM5h4o9ae3C+qDmQFkWY0g/Xp8YAia16kNev?=
+ =?us-ascii?Q?1poKA8xgSfowSvFdwhesszvLoYAReYBllLHiauzGdhTc7hOMAHB9zWv5IvcV?=
+ =?us-ascii?Q?J5V2C8rz3zurv2odKeNoFG+9ElJwhQYfDFZAyuN5MC4mBsuGb+bKJlqrkEAU?=
+ =?us-ascii?Q?7NbA1gqEQEcSBnkaJjamUtl4NjiWuRb73pNkbrkxESfXdRYgJglmpIkupAIs?=
+ =?us-ascii?Q?fPZxkx0DiKUQgQ1AKcvOXKhZjdas7SJDJ5zbLGhdVHZtneC+z9mNPVmoJNfA?=
+ =?us-ascii?Q?9GGWdoqtN8NWtkHbwoSqd/R5FZxngYf3/5iIfeZ6N+rywdxJ6o/QpcQtJqUl?=
+ =?us-ascii?Q?irDRx8g84mBzjhDKRfCf2ioE7xqzR+8Hs2srmU7+iV/lkYHM9B4/dr/v8Y/Q?=
+ =?us-ascii?Q?01hXCVKe4A=3D=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 3f1ac694-fac8-438b-cc54-08da17f155e1
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Apr 2022 17:17:32.4584
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: vg5+MnYZRge10j7/r9zB02aLHjHFyRMV+J4DyfviJyzq1iOkDN17GKT6QmrqlYJD
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN9PR12MB5210
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Apr 6, 2022 at 11:05 PM Christoph Hellwig <hch@lst.de> wrote:
->
-> Add a helper to query the number of sectors support per each discard bio
-> based on the block device and use this helper to stop various places from
-> poking into the request_queue to see if discard is supported and if so how
-> much.  This mirrors what is done e.g. for write zeroes as well.
->
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
-...
-> diff --git a/drivers/target/target_core_device.c b/drivers/target/target_core_device.c
-> index 16e775bcf4a7c..7d510e4231713 100644
-> --- a/drivers/target/target_core_device.c
-> +++ b/drivers/target/target_core_device.c
-> @@ -829,9 +829,7 @@ struct se_device *target_alloc_device(struct se_hba *hba, const char *name)
->  }
->
->  /*
-> - * Check if the underlying struct block_device request_queue supports
-> - * the QUEUE_FLAG_DISCARD bit for UNMAP/WRITE_SAME in SCSI + TRIM
-> - * in ATA and we need to set TPE=1
+On Wed, Apr 06, 2022 at 06:10:31PM +0200, Christoph Hellwig wrote:
+> On Wed, Apr 06, 2022 at 01:06:23PM -0300, Jason Gunthorpe wrote:
+> > On Wed, Apr 06, 2022 at 05:50:56PM +0200, Christoph Hellwig wrote:
+> > > On Wed, Apr 06, 2022 at 12:18:23PM -0300, Jason Gunthorpe wrote:
+> > > > > Oh, I didn't know about device_get_dma_attr()..
+> > > 
+> > > Which is completely broken for any non-OF, non-ACPI plaform.
+> > 
+> > I saw that, but I spent some time searching and could not find an
+> > iommu driver that would load independently of OF or ACPI. ie no IOMMU
+> > platform drivers are created by board files. Things like Intel/AMD
+> > discover only from ACPI, etc.
+> 
+> s390?
 
-> + * Check if the underlying struct block_device request_queue supports disard.
->   */
+Ah, I missed looking in s390, hyperv and virtio.. 
 
-Here was a typo:
+hyperv is not creating iommu_domains, just IRQ remapping
 
- s/disard/discard/
+virtio is using OF
 
-On Thu, Apr 7, 2022 at 12:19 AM Andreas Gruenbacher <agruenba@redhat.com> wrote:
-> If I'm misreading things, could you please document that
-> bdev_max_discard_sectors() != 0 implies that discard is supported?
+And s390 indeed doesn't obviously have OF or ACPI parts..
 
-I got the same impression.   Checking the discard support with
-bdev_max_discard_sectors() != 0 seems a bit unclear than before.
+This seems like it would be consistent with other things:
+
+enum dev_dma_attr device_get_dma_attr(struct device *dev)
+{
+	const struct fwnode_handle *fwnode = dev_fwnode(dev);
+	struct acpi_device *adev = to_acpi_device_node(fwnode);
+
+	if (is_of_node(fwnode)) {
+		if (of_dma_is_coherent(to_of_node(fwnode)))
+			return DEV_DMA_COHERENT;
+		return DEV_DMA_NON_COHERENT;
+	} else if (adev) {
+		return acpi_get_dma_attr(adev);
+	}
+
+	/* Platform is always DMA coherent */
+	if (!IS_ENABLED(CONFIG_ARCH_HAS_SYNC_DMA_FOR_DEVICE) &&
+	    !IS_ENABLED(CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU) &&
+	    !IS_ENABLED(CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU_ALL) &&
+	    device_iommu_mapped(dev))
+		return DEV_DMA_COHERENT;
+	return DEV_DMA_NOT_SUPPORTED;
+}
+EXPORT_SYMBOL_GPL(device_get_dma_attr);
+
+ie s390 has no of or acpi but the entire platform is known DMA
+coherent at config time so allow it. Not sure we need the
+device_iommu_mapped() or not.
+
+We could alternatively use existing device_get_dma_attr() as a default
+with an iommu wrapper and push the exception down through the iommu
+driver and s390 can override it.
 
 Thanks,
-Ryusuke Konishi
+Jason
