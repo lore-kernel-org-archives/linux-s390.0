@@ -2,22 +2,22 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EAC4BC433F5
-	for <linux-s390@archiver.kernel.org>; Wed,  6 Apr 2022 10:18:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF865C433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  6 Apr 2022 10:18:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378712AbiDFKUA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 6 Apr 2022 06:20:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36330 "EHLO
+        id S1378758AbiDFKUB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 6 Apr 2022 06:20:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376905AbiDFKSe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Apr 2022 06:18:34 -0400
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 989BA264558;
-        Tue,  5 Apr 2022 20:44:15 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04407;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=34;SR=0;TI=SMTPD_---0V9JnaOQ_1649216646;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0V9JnaOQ_1649216646)
+        with ESMTP id S1377555AbiDFKSn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Apr 2022 06:18:43 -0400
+Received: from out30-57.freemail.mail.aliyun.com (out30-57.freemail.mail.aliyun.com [115.124.30.57])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F317FABD6;
+        Tue,  5 Apr 2022 20:44:57 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R691e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=34;SR=0;TI=SMTPD_---0V9JnaX5_1649216691;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0V9JnaX5_1649216691)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 06 Apr 2022 11:44:07 +0800
+          Wed, 06 Apr 2022 11:44:52 +0800
 From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To:     virtualization@lists.linux-foundation.org
 Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
@@ -49,9 +49,9 @@ Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
         platform-driver-x86@vger.kernel.org,
         linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, bpf@vger.kernel.org
-Subject: [PATCH v9 09/32] virtio_ring: split: extract the logic of vq init
-Date:   Wed,  6 Apr 2022 11:43:23 +0800
-Message-Id: <20220406034346.74409-10-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v9 30/32] virtio_net: split free_unused_bufs()
+Date:   Wed,  6 Apr 2022 11:43:44 +0800
+Message-Id: <20220406034346.74409-31-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20220406034346.74409-1-xuanzhuo@linux.alibaba.com>
 References: <20220406034346.74409-1-xuanzhuo@linux.alibaba.com>
@@ -62,119 +62,81 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Separate the logic of initializing vq, and subsequent patches will call
-it separately.
+This patch separates two functions for freeing sq buf and rq buf from
+free_unused_bufs().
 
-The feature of this part is that it does not depend on the information
-passed by the upper layer and can be called repeatedly.
+When supporting the enable/disable tx/rq queue in the future, it is
+necessary to support separate recovery of a sq buf or a rq buf.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/virtio/virtio_ring.c | 68 ++++++++++++++++++++----------------
- 1 file changed, 38 insertions(+), 30 deletions(-)
+ drivers/net/virtio_net.c | 41 ++++++++++++++++++++++++----------------
+ 1 file changed, 25 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 083f2992ba0d..874f878087a3 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -916,6 +916,43 @@ static void *virtqueue_detach_unused_buf_split(struct virtqueue *_vq)
- 	return NULL;
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 96d96c666c8c..b8bf00525177 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -2804,6 +2804,27 @@ static void free_receive_page_frags(struct virtnet_info *vi)
+ 			put_page(vi->rq[i].alloc_frag.page);
  }
  
-+static void vring_virtqueue_init_split(struct vring_virtqueue *vq,
-+				       struct virtio_device *vdev,
-+				       bool own_ring)
++static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf)
 +{
-+	vq->packed_ring = false;
-+	vq->vq.num_free = vq->split.vring.num;
-+	vq->we_own_ring = own_ring;
-+	vq->broken = false;
-+	vq->last_used_idx = 0;
-+	vq->event_triggered = false;
-+	vq->num_added = 0;
-+	vq->use_dma_api = vring_use_dma_api(vdev);
-+#ifdef DEBUG
-+	vq->in_use = false;
-+	vq->last_add_time_valid = false;
-+#endif
-+
-+	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
-+
-+	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
-+		vq->weak_barriers = false;
-+
-+	vq->split.avail_flags_shadow = 0;
-+	vq->split.avail_idx_shadow = 0;
-+
-+	/* No callback?  Tell other side not to bother us. */
-+	if (!vq->vq.callback) {
-+		vq->split.avail_flags_shadow |= VRING_AVAIL_F_NO_INTERRUPT;
-+		if (!vq->event)
-+			vq->split.vring.avail->flags = cpu_to_virtio16(vdev,
-+					vq->split.avail_flags_shadow);
-+	}
-+
-+	/* Put everything in free lists. */
-+	vq->free_head = 0;
++	if (!is_xdp_frame(buf))
++		dev_kfree_skb(buf);
++	else
++		xdp_return_frame(ptr_to_xdp(buf));
 +}
 +
- static void vring_virtqueue_attach_split(struct vring_virtqueue *vq,
- 					 struct vring vring,
- 					 struct vring_desc_state_split *desc_state,
-@@ -2249,42 +2286,15 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
- 	if (!vq)
- 		return NULL;
++static void virtnet_rq_free_unused_buf(struct virtqueue *vq, void *buf)
++{
++	struct virtnet_info *vi = vq->vdev->priv;
++	int i = vq2rxq(vq);
++
++	if (vi->mergeable_rx_bufs)
++		put_page(virt_to_head_page(buf));
++	else if (vi->big_packets)
++		give_pages(&vi->rq[i], buf);
++	else
++		put_page(virt_to_head_page(buf));
++}
++
+ static void free_unused_bufs(struct virtnet_info *vi)
+ {
+ 	void *buf;
+@@ -2811,26 +2832,14 @@ static void free_unused_bufs(struct virtnet_info *vi)
  
--	vq->packed_ring = false;
- 	vq->vq.callback = callback;
- 	vq->vq.vdev = vdev;
- 	vq->vq.name = name;
--	vq->vq.num_free = vring.num;
- 	vq->vq.index = index;
--	vq->we_own_ring = false;
- 	vq->notify = notify;
- 	vq->weak_barriers = weak_barriers;
--	vq->broken = false;
--	vq->last_used_idx = 0;
--	vq->event_triggered = false;
--	vq->num_added = 0;
--	vq->use_dma_api = vring_use_dma_api(vdev);
--#ifdef DEBUG
--	vq->in_use = false;
--	vq->last_add_time_valid = false;
--#endif
- 
- 	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
- 		!context;
--	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
--
--	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
--		vq->weak_barriers = false;
--
--	vq->split.avail_flags_shadow = 0;
--	vq->split.avail_idx_shadow = 0;
--
--	/* No callback?  Tell other side not to bother us. */
--	if (!callback) {
--		vq->split.avail_flags_shadow |= VRING_AVAIL_F_NO_INTERRUPT;
--		if (!vq->event)
--			vq->split.vring.avail->flags = cpu_to_virtio16(vdev,
--					vq->split.avail_flags_shadow);
--	}
- 
- 	err = vring_alloc_state_extra_split(vring.num, &state, &extra);
- 	if (err) {
-@@ -2293,9 +2303,7 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
+ 	for (i = 0; i < vi->max_queue_pairs; i++) {
+ 		struct virtqueue *vq = vi->sq[i].vq;
+-		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL) {
+-			if (!is_xdp_frame(buf))
+-				dev_kfree_skb(buf);
+-			else
+-				xdp_return_frame(ptr_to_xdp(buf));
+-		}
++		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL)
++			virtnet_sq_free_unused_buf(vq, buf);
  	}
  
- 	vring_virtqueue_attach_split(vq, vring, state, extra);
+ 	for (i = 0; i < vi->max_queue_pairs; i++) {
+ 		struct virtqueue *vq = vi->rq[i].vq;
 -
--	/* Put everything in free lists. */
--	vq->free_head = 0;
-+	vring_virtqueue_init_split(vq, vdev, false);
+-		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL) {
+-			if (vi->mergeable_rx_bufs) {
+-				put_page(virt_to_head_page(buf));
+-			} else if (vi->big_packets) {
+-				give_pages(&vi->rq[i], buf);
+-			} else {
+-				put_page(virt_to_head_page(buf));
+-			}
+-		}
++		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL)
++			virtnet_rq_free_unused_buf(vq, buf);
+ 	}
+ }
  
- 	spin_lock(&vdev->vqs_list_lock);
- 	list_add_tail(&vq->vq.list, &vdev->vqs);
 -- 
 2.31.0
 
