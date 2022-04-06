@@ -2,31 +2,31 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D1C46C433F5
-	for <linux-s390@archiver.kernel.org>; Wed,  6 Apr 2022 09:24:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 38D3CC433FE
+	for <linux-s390@archiver.kernel.org>; Wed,  6 Apr 2022 09:24:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239967AbiDFJ0D (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 6 Apr 2022 05:26:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52082 "EHLO
+        id S243550AbiDFJ0M (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 6 Apr 2022 05:26:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1389884AbiDFJEN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Apr 2022 05:04:13 -0400
+        with ESMTP id S1353400AbiDFJCt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Apr 2022 05:02:49 -0400
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 445DF485E5D;
-        Tue,  5 Apr 2022 23:06:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03F8A43F1CB;
+        Tue,  5 Apr 2022 23:05:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=M87611C6i/ov1/eZb42tZHfhB+4TDGyoM3tVyFqdBW8=; b=K8zhFyJNpfgn61EWvQNSpZGhoz
-        IsW4d6jPg/o8RKdUEsY2I/0tp3DUigRRARrtQZS25XHPg6Ev8uZ5v/1QUVxcxn0UGRSq3QsUvtq8v
-        m/wMNTUuZ0otna4wKyCKR9KuxhJuJrTxMCeQTsVHCLUaBLTq/yY7C/2YjXGPofV9QR6/pigrTQvyL
-        +7FqGR+5akCXPC49M0KmVYykqYBaCN6qbVITFsaW/p3jcsFmAJQrrYOqAHtx2ogkbDQplnGNGSG9t
-        hp4bnoEMlp1dxurHyPf38IfpaJHQv16bHjbw1cMsHDW5/ZArceH5PRjetepYbBzoAtUPy5j6Xetj9
-        Onlv8nZg==;
+        bh=8b7He7jKWHmQh3KokdF/PRePZ9Zk3nvKntDAn0vRB+A=; b=0omtD+HQtA616dFivyqA97DclF
+        5MCkQ36VFGZAUVgFUJvq7ULB9RxmAnnJK9Ru4GgkOHXwFqXqRHMXQ9LCogkUlyoM9wN6+7J7DekaY
+        q43/dVC7g/6yyYP+I8eJgSyycd7IVsGmMYkR1Clskvv1tDsGCaTWuQ8Rrf8sU79R1v0lw2bQt/AWB
+        OsOPsydboiChznz0eGpngaPA8w2OVY6Jf3YdqyKDFL16zctVHp5+n0d+GDis8Omgb+WFkLhPwAzdn
+        EsF+yQBNP9+37ibHq8jy0MV7lNP50mXC+UwgCTvOjOUrw+1nocIz3QcImLpc9EsYaF5HR/HZej/jt
+        LdNiWxFQ==;
 Received: from 213-225-3-188.nat.highway.a1.net ([213.225.3.188] helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nbyoS-003vjO-9L; Wed, 06 Apr 2022 06:06:41 +0000
+        id 1nbynX-003uuj-EB; Wed, 06 Apr 2022 06:05:44 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     Jens Axboe <axboe@kernel.dk>
 Cc:     dm-devel@redhat.com, linux-xfs@vger.kernel.org,
@@ -43,9 +43,9 @@ Cc:     dm-devel@redhat.com, linux-xfs@vger.kernel.org,
         cluster-devel@redhat.com, jfs-discussion@lists.sourceforge.net,
         linux-nilfs@vger.kernel.org, ntfs3@lists.linux.dev,
         ocfs2-devel@oss.oracle.com, linux-mm@kvack.org
-Subject: [PATCH 21/27] block: move {bdev,queue_limit}_discard_alignment out of line
-Date:   Wed,  6 Apr 2022 08:05:10 +0200
-Message-Id: <20220406060516.409838-22-hch@lst.de>
+Subject: [PATCH 06/27] drbd: cleanup decide_on_discard_support
+Date:   Wed,  6 Apr 2022 08:04:55 +0200
+Message-Id: <20220406060516.409838-7-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220406060516.409838-1-hch@lst.de>
 References: <20220406060516.409838-1-hch@lst.de>
@@ -56,110 +56,116 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-No need to inline these fairly larger helpers.  Also fix the return value
-to be unsigned, just like the field in struct queue_limits.
+Sanitize the calling conventions and use a goto label to cleanup the
+code flow.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- block/blk-settings.c   | 35 +++++++++++++++++++++++++++++++++++
- include/linux/blkdev.h | 34 +---------------------------------
- 2 files changed, 36 insertions(+), 33 deletions(-)
+ drivers/block/drbd/drbd_nl.c | 68 +++++++++++++++++++-----------------
+ 1 file changed, 35 insertions(+), 33 deletions(-)
 
-diff --git a/block/blk-settings.c b/block/blk-settings.c
-index 94410a13c0dee..fd83d674afd0a 100644
---- a/block/blk-settings.c
-+++ b/block/blk-settings.c
-@@ -478,6 +478,30 @@ static int queue_limit_alignment_offset(struct queue_limits *lim,
- 	return (granularity + lim->alignment_offset - alignment) % granularity;
+diff --git a/drivers/block/drbd/drbd_nl.c b/drivers/block/drbd/drbd_nl.c
+index 02030c9c4d3b1..40bb0b356a6d6 100644
+--- a/drivers/block/drbd/drbd_nl.c
++++ b/drivers/block/drbd/drbd_nl.c
+@@ -1204,38 +1204,42 @@ static unsigned int drbd_max_discard_sectors(struct drbd_connection *connection)
  }
  
-+static unsigned int queue_limit_discard_alignment(struct queue_limits *lim,
-+		sector_t sector)
-+{
-+	unsigned int alignment, granularity, offset;
-+
-+	if (!lim->max_discard_sectors)
-+		return 0;
-+
-+	/* Why are these in bytes, not sectors? */
-+	alignment = lim->discard_alignment >> SECTOR_SHIFT;
-+	granularity = lim->discard_granularity >> SECTOR_SHIFT;
-+	if (!granularity)
-+		return 0;
-+
-+	/* Offset of the partition start in 'granularity' sectors */
-+	offset = sector_div(sector, granularity);
-+
-+	/* And why do we do this modulus *again* in blkdev_issue_discard()? */
-+	offset = (granularity + alignment - offset) % granularity;
-+
-+	/* Turn it back into bytes, gaah */
-+	return offset << SECTOR_SHIFT;
-+}
-+
- static unsigned int blk_round_down_sectors(unsigned int sectors, unsigned int lbs)
+ static void decide_on_discard_support(struct drbd_device *device,
+-			struct request_queue *q,
+-			struct request_queue *b,
+-			bool discard_zeroes_if_aligned)
++		struct drbd_backing_dev *bdev)
  {
- 	sectors = round_down(sectors, lbs >> SECTOR_SHIFT);
-@@ -924,3 +948,14 @@ int bdev_alignment_offset(struct block_device *bdev)
- 	return q->limits.alignment_offset;
- }
- EXPORT_SYMBOL_GPL(bdev_alignment_offset);
+-	/* q = drbd device queue (device->rq_queue)
+-	 * b = backing device queue (device->ldev->backing_bdev->bd_disk->queue),
+-	 *     or NULL if diskless
+-	 */
+-	struct drbd_connection *connection = first_peer_device(device)->connection;
+-	bool can_do = b ? blk_queue_discard(b) : true;
+-
+-	if (can_do && connection->cstate >= C_CONNECTED && !(connection->agreed_features & DRBD_FF_TRIM)) {
+-		can_do = false;
+-		drbd_info(connection, "peer DRBD too old, does not support TRIM: disabling discards\n");
+-	}
+-	if (can_do) {
+-		/* We don't care for the granularity, really.
+-		 * Stacking limits below should fix it for the local
+-		 * device.  Whether or not it is a suitable granularity
+-		 * on the remote device is not our problem, really. If
+-		 * you care, you need to use devices with similar
+-		 * topology on all peers. */
+-		blk_queue_discard_granularity(q, 512);
+-		q->limits.max_discard_sectors = drbd_max_discard_sectors(connection);
+-		blk_queue_flag_set(QUEUE_FLAG_DISCARD, q);
+-		q->limits.max_write_zeroes_sectors = drbd_max_discard_sectors(connection);
+-	} else {
+-		blk_queue_flag_clear(QUEUE_FLAG_DISCARD, q);
+-		blk_queue_discard_granularity(q, 0);
+-		q->limits.max_discard_sectors = 0;
+-		q->limits.max_write_zeroes_sectors = 0;
++	struct drbd_connection *connection =
++		first_peer_device(device)->connection;
++	struct request_queue *q = device->rq_queue;
 +
-+unsigned int bdev_discard_alignment(struct block_device *bdev)
-+{
-+	struct request_queue *q = bdev_get_queue(bdev);
++	if (bdev && !blk_queue_discard(bdev->backing_bdev->bd_disk->queue))
++		goto not_supported;
 +
-+	if (bdev_is_partition(bdev))
-+		return queue_limit_discard_alignment(&q->limits,
-+				bdev->bd_start_sect);
-+	return q->limits.discard_alignment;
-+}
-+EXPORT_SYMBOL_GPL(bdev_discard_alignment);
-diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index 5a9b7aeda010b..34b1cfd067421 100644
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -1252,39 +1252,7 @@ bdev_zone_write_granularity(struct block_device *bdev)
++	if (connection->cstate >= C_CONNECTED &&
++	    !(connection->agreed_features & DRBD_FF_TRIM)) {
++		drbd_info(connection,
++			"peer DRBD too old, does not support TRIM: disabling discards\n");
++		goto not_supported;
+ 	}
++
++	/*
++	 * We don't care for the granularity, really.
++	 *
++	 * Stacking limits below should fix it for the local device.  Whether or
++	 * not it is a suitable granularity on the remote device is not our
++	 * problem, really. If you care, you need to use devices with similar
++	 * topology on all peers.
++	 */
++	blk_queue_discard_granularity(q, 512);
++	q->limits.max_discard_sectors = drbd_max_discard_sectors(connection);
++	blk_queue_flag_set(QUEUE_FLAG_DISCARD, q);
++	q->limits.max_write_zeroes_sectors =
++		drbd_max_discard_sectors(connection);
++	return;
++
++not_supported:
++	blk_queue_flag_clear(QUEUE_FLAG_DISCARD, q);
++	blk_queue_discard_granularity(q, 0);
++	q->limits.max_discard_sectors = 0;
++	q->limits.max_write_zeroes_sectors = 0;
  }
  
- int bdev_alignment_offset(struct block_device *bdev);
--
--static inline int queue_limit_discard_alignment(struct queue_limits *lim, sector_t sector)
--{
--	unsigned int alignment, granularity, offset;
--
--	if (!lim->max_discard_sectors)
--		return 0;
--
--	/* Why are these in bytes, not sectors? */
--	alignment = lim->discard_alignment >> SECTOR_SHIFT;
--	granularity = lim->discard_granularity >> SECTOR_SHIFT;
--	if (!granularity)
--		return 0;
--
--	/* Offset of the partition start in 'granularity' sectors */
--	offset = sector_div(sector, granularity);
--
--	/* And why do we do this modulus *again* in blkdev_issue_discard()? */
--	offset = (granularity + alignment - offset) % granularity;
--
--	/* Turn it back into bytes, gaah */
--	return offset << SECTOR_SHIFT;
--}
--
--static inline int bdev_discard_alignment(struct block_device *bdev)
--{
--	struct request_queue *q = bdev_get_queue(bdev);
--
--	if (bdev_is_partition(bdev))
--		return queue_limit_discard_alignment(&q->limits,
--				bdev->bd_start_sect);
--	return q->limits.discard_alignment;
--}
-+unsigned int bdev_discard_alignment(struct block_device *bdev);
+ static void fixup_discard_if_not_supported(struct request_queue *q)
+@@ -1273,7 +1277,6 @@ static void drbd_setup_queue_param(struct drbd_device *device, struct drbd_backi
+ 	unsigned int max_segments = 0;
+ 	struct request_queue *b = NULL;
+ 	struct disk_conf *dc;
+-	bool discard_zeroes_if_aligned = true;
  
- static inline unsigned int bdev_write_zeroes_sectors(struct block_device *bdev)
- {
+ 	if (bdev) {
+ 		b = bdev->backing_bdev->bd_disk->queue;
+@@ -1282,7 +1285,6 @@ static void drbd_setup_queue_param(struct drbd_device *device, struct drbd_backi
+ 		rcu_read_lock();
+ 		dc = rcu_dereference(device->ldev->disk_conf);
+ 		max_segments = dc->max_bio_bvecs;
+-		discard_zeroes_if_aligned = dc->discard_zeroes_if_aligned;
+ 		rcu_read_unlock();
+ 
+ 		blk_set_stacking_limits(&q->limits);
+@@ -1292,7 +1294,7 @@ static void drbd_setup_queue_param(struct drbd_device *device, struct drbd_backi
+ 	/* This is the workaround for "bio would need to, but cannot, be split" */
+ 	blk_queue_max_segments(q, max_segments ? max_segments : BLK_MAX_SEGMENTS);
+ 	blk_queue_segment_boundary(q, PAGE_SIZE-1);
+-	decide_on_discard_support(device, q, b, discard_zeroes_if_aligned);
++	decide_on_discard_support(device, bdev);
+ 
+ 	if (b) {
+ 		blk_stack_limits(&q->limits, &b->limits, 0);
 -- 
 2.30.2
 
