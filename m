@@ -2,137 +2,151 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C3BCC433F5
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C6B84C433FE
 	for <linux-s390@archiver.kernel.org>; Thu,  7 Apr 2022 08:44:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243243AbiDGIqm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 7 Apr 2022 04:46:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40454 "EHLO
+        id S243230AbiDGIqn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 7 Apr 2022 04:46:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243246AbiDGIqh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Apr 2022 04:46:37 -0400
+        with ESMTP id S243252AbiDGIqk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Apr 2022 04:46:40 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67BEF1834ED;
-        Thu,  7 Apr 2022 01:44:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C10B18425D;
+        Thu,  7 Apr 2022 01:44:40 -0700 (PDT)
 Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 2376A8wm029032;
-        Thu, 7 Apr 2022 08:44:38 GMT
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 2376A8XS029057;
+        Thu, 7 Apr 2022 08:44:40 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=hes7G/aASAmZz0j8yh3Xkg5MWFQXd3DQafpcGBQxmZQ=;
- b=LWakQScaMDHMy34jMvAG86vGqG54mxx6ulPGXcGhTccNOOiFkLaqDO2BR0p4ZXvfOPUh
- F03U3O/BvFQ07uc8w31AZJqsEQWJ79fFDxN2p+Mjh/OnKdcjNNjzRRFCyMXJ60r4HjEH
- o8hQfELKGzpcdJOrBgKNUOODw5Gp7ENlSQZfAN6ajrwsMBQ0qM7cS3rvwXFxv76cOCiu
- zi2QsVznB6PNXdxRaQ4jfsB3HjiUPSLtaRqSzDoVDUMbESttROfBhEU4jFgunGy6ol0x
- v72JqSpOF20Mv/f/W4NXyaXC+Wy3LwttlIu7gjWI1/Jq8fbcGECTto7lKAviKZKV3Wz6 9Q== 
+ bh=zYpnu2Mol32tcA3TcTlE1tf7qr23StNEAfsnHMwwm9c=;
+ b=KDBo0uXQuyxkmETLBkdw8eD4IgVGxDNI5eYN9TeYHzbGHM2gwjzPdoMQ/MR8kIhebgkS
+ XVWUiWyx1ZR1Ba2TweVOANHoVqkdcUiz7Rx/Dr7ebEuGL53YGxizFt5NxF+7QQS66K/a
+ S42segNuhm09B46plKDcHsh1oeb5fVhbIFDfVW1R+4NauD155oA3nPRZGS2eFcQbFIoy
+ 3qrsy00azr/byWGKmjH+s72u8wXxmApJMfRIsyaccgYIzOpaB1thKW2ba4tAkZCkxEIr
+ 04SYUXwPGN9m819ykCuH7v9t9nhEvnoIFTSN+5+1XPLVuKCL+piLs5GsxgeOGKkW6oa0 Qw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3f97nbh454-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3f97nbh45y-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 07 Apr 2022 08:44:37 +0000
+        Thu, 07 Apr 2022 08:44:39 +0000
 Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 2378LbhF020762;
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 2378ds8o024729;
+        Thu, 7 Apr 2022 08:44:39 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3f97nbh453-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 07 Apr 2022 08:44:39 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2378XLtM016680;
         Thu, 7 Apr 2022 08:44:37 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3f97nbh44a-1
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma04ams.nl.ibm.com with ESMTP id 3f6e491e3m-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 07 Apr 2022 08:44:37 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2378XL0Y001563;
-        Thu, 7 Apr 2022 08:44:35 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma06ams.nl.ibm.com with ESMTP id 3f6drhsdbg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 07 Apr 2022 08:44:35 +0000
+        Thu, 07 Apr 2022 08:44:36 +0000
 Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2378iWGN37093828
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2378iX7d43516204
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 7 Apr 2022 08:44:32 GMT
+        Thu, 7 Apr 2022 08:44:33 GMT
 Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 173B7AE055;
-        Thu,  7 Apr 2022 08:44:32 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id DAA61AE055;
+        Thu,  7 Apr 2022 08:44:33 +0000 (GMT)
 Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 55630AE053;
-        Thu,  7 Apr 2022 08:44:31 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 24CE1AE045;
+        Thu,  7 Apr 2022 08:44:33 +0000 (GMT)
 Received: from linux6.. (unknown [9.114.12.104])
         by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu,  7 Apr 2022 08:44:31 +0000 (GMT)
+        Thu,  7 Apr 2022 08:44:33 +0000 (GMT)
 From:   Janosch Frank <frankja@linux.ibm.com>
 To:     kvm@vger.kernel.org
 Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
         david@redhat.com, thuth@redhat.com, nrb@linux.ibm.com,
         seiden@linux.ibm.com
-Subject: [kvm-unit-tests PATCH v2 3/9] s390x: diag308: Only test subcode 2 under QEMU
-Date:   Thu,  7 Apr 2022 08:44:15 +0000
-Message-Id: <20220407084421.2811-4-frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v2 5/9] s390x: snippets: asm: Add license and copyright headers
+Date:   Thu,  7 Apr 2022 08:44:17 +0000
+Message-Id: <20220407084421.2811-6-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20220407084421.2811-1-frankja@linux.ibm.com>
 References: <20220407084421.2811-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 8Z3mXdefR3yv0UkFmvv9u9tcPlRq7yUq
-X-Proofpoint-ORIG-GUID: PBlC8-bx1A71B-MG5VvbgUEP-fMMk5dc
+X-Proofpoint-GUID: sBPrryXlFobNfvdHhAE2VsTmf-4yPDRW
+X-Proofpoint-ORIG-GUID: GrR2de-wr6mOwIq66yWUkuK4ybMn388H
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-04-06_13,2022-04-06_01,2022-02-23_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 clxscore=1015
  malwarescore=0 priorityscore=1501 phishscore=0 bulkscore=0 spamscore=0
- mlxlogscore=898 adultscore=0 lowpriorityscore=0 impostorscore=0
+ mlxlogscore=999 adultscore=0 lowpriorityscore=0 impostorscore=0
  suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2202240000 definitions=main-2204070043
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Other hypervisors might implement it and therefore not send a
-specification exception.
+Time for some cleanup of the snippets to make them look like any other
+test file.
 
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 ---
- s390x/diag308.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ s390x/snippets/asm/snippet-pv-diag-288.S   | 9 +++++++++
+ s390x/snippets/asm/snippet-pv-diag-500.S   | 9 +++++++++
+ s390x/snippets/asm/snippet-pv-diag-yield.S | 9 +++++++++
+ 3 files changed, 27 insertions(+)
 
-diff --git a/s390x/diag308.c b/s390x/diag308.c
-index c9d6c499..ae5f5a5f 100644
---- a/s390x/diag308.c
-+++ b/s390x/diag308.c
-@@ -8,6 +8,7 @@
- #include <libcflat.h>
+diff --git a/s390x/snippets/asm/snippet-pv-diag-288.S b/s390x/snippets/asm/snippet-pv-diag-288.S
+index e3e63121..aaee3cd1 100644
+--- a/s390x/snippets/asm/snippet-pv-diag-288.S
++++ b/s390x/snippets/asm/snippet-pv-diag-288.S
+@@ -1,3 +1,12 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * Diagnose 0x288 snippet used for PV interception testing.
++ *
++ * Copyright (c) 2021 IBM Corp
++ *
++ * Authors:
++ *  Janosch Frank <frankja@linux.ibm.com>
++ */
  #include <asm/asm-offsets.h>
- #include <asm/interrupt.h>
-+#include <hardware.h>
+ .section .text
  
- /* The diagnose calls should be blocked in problem state */
- static void test_priv(void)
-@@ -75,7 +76,7 @@ static void test_subcode6(void)
- /* Unsupported subcodes should generate a specification exception */
- static void test_unsupported_subcode(void)
- {
--	int subcodes[] = { 2, 0x101, 0xffff, 0x10001, -1 };
-+	int subcodes[] = { 0x101, 0xffff, 0x10001, -1 };
- 	int idx;
+diff --git a/s390x/snippets/asm/snippet-pv-diag-500.S b/s390x/snippets/asm/snippet-pv-diag-500.S
+index 50c06779..8dd66bd9 100644
+--- a/s390x/snippets/asm/snippet-pv-diag-500.S
++++ b/s390x/snippets/asm/snippet-pv-diag-500.S
+@@ -1,3 +1,12 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * Diagnose 0x500 snippet used for PV interception tests
++ *
++ * Copyright (c) 2021 IBM Corp
++ *
++ * Authors:
++ *  Janosch Frank <frankja@linux.ibm.com>
++ */
+ #include <asm/asm-offsets.h>
+ .section .text
  
- 	for (idx = 0; idx < ARRAY_SIZE(subcodes); idx++) {
-@@ -85,6 +86,18 @@ static void test_unsupported_subcode(void)
- 		check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
- 		report_prefix_pop();
- 	}
-+
-+	/*
-+	 * Subcode 2 is not available under QEMU but might be on other
-+	 * hypervisors.
-+	 */
-+	if (host_is_qemu()) {
-+		report_prefix_pushf("0x%04x", 2);
-+		expect_pgm_int();
-+		asm volatile ("diag %0,%1,0x308" :: "d"(0), "d"(2));
-+		check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
-+		report_prefix_pop();
-+	}
- }
+diff --git a/s390x/snippets/asm/snippet-pv-diag-yield.S b/s390x/snippets/asm/snippet-pv-diag-yield.S
+index 5795cf0f..78a5b07a 100644
+--- a/s390x/snippets/asm/snippet-pv-diag-yield.S
++++ b/s390x/snippets/asm/snippet-pv-diag-yield.S
+@@ -1,3 +1,12 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * Diagnose 0x44 and 0x9c snippet used for PV interception tests
++ *
++ * Copyright (c) 2021 IBM Corp
++ *
++ * Authors:
++ *  Janosch Frank <frankja@linux.ibm.com>
++ */
+ .section .text
  
- static struct {
+ xgr	%r0, %r0
 -- 
 2.32.0
 
