@@ -2,129 +2,116 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CF1A0C433FE
-	for <linux-s390@archiver.kernel.org>; Thu,  7 Apr 2022 08:27:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 95A4FC433F5
+	for <linux-s390@archiver.kernel.org>; Thu,  7 Apr 2022 08:44:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242985AbiDGI3u (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 7 Apr 2022 04:29:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49468 "EHLO
+        id S243250AbiDGIqh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 7 Apr 2022 04:46:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242981AbiDGI3t (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Apr 2022 04:29:49 -0400
+        with ESMTP id S238806AbiDGIqe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Apr 2022 04:46:34 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7F3280228;
-        Thu,  7 Apr 2022 01:27:46 -0700 (PDT)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 2376ULsh025570;
-        Thu, 7 Apr 2022 08:27:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=RmMYuPqxwwPzePUHlIPhEwrZGdiFnH4asGaZARwkco0=;
- b=ZIw5RvS4zVAK19kf1brqLXOLSyalrNG0TfcTXDPi0bg4bG1SJels8oQzFQ/ENb3AiPs6
- NFPL5kKCPoWC8WN7xd5nbw+8Z5aE5Dp7G14OsWmI8/ub1+wpjyqKgEUJlyD0mu+M3IHa
- OK1XIy5nvZvs+xelrtstQcO3jLrgz46OLh3WCfPuZZPCJ9Yi9lMgxY9KxvF+9HA9LY2z
- yYA53BGidQFS9rgiZAd/3fMQeaP5WmAbPFRIjNFfLukahTu9wKnZN3rrcq07BZ+Aln2T
- /RGlPLcVvtpOFhPbV92rT8hPAlWj5YTDpTLx5zlAxB54HoyAra7xRAFZI2xbfQcprj4P rg== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3f9tr62815-1
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D86C3181DAB;
+        Thu,  7 Apr 2022 01:44:35 -0700 (PDT)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 2377LfnV006169;
+        Thu, 7 Apr 2022 08:44:35 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=veiKVs8HLS/lyF+A1C3zg7djcWIcRUAFxc/w2Hml72s=;
+ b=WxgadiInCX8akM5gvCezEqlH/TXsjxRRFOOSERYl5oPmy5deMT13YGgEEa4Ni9Fq7e5v
+ 5buAX0YH2W8hZOLu9B9C47MMK+FaQ13ztXlzsO4WtZ9y+3F8bQ264xL6e/t/vEqoek7u
+ D6wKySvvKPftSeM9Rb7q38wLDHIbAcljCd4QKZWcD288G3850PNDOaI4ns7MQZztGtMX
+ PsIvxXoFYs2XuF0ZnZSxSZ2IHMkPy4yfr2GGZnPLDXOh6s0PxejGrsajVcohDc6NfIY6
+ GAVSreAVV6W6qZU1ley8OWReIu5aJO9E0znpCS+kgqdSYVd2bzwdfJ9uhk2xa2iqjYh0 cw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3f9ugf9hdr-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 07 Apr 2022 08:27:43 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2378FMSx015394;
-        Thu, 7 Apr 2022 08:27:41 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma06ams.nl.ibm.com with ESMTP id 3f6drhsccx-1
+        Thu, 07 Apr 2022 08:44:35 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 2378REGR017618;
+        Thu, 7 Apr 2022 08:44:35 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3f9ugf9hcs-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 07 Apr 2022 08:27:41 +0000
+        Thu, 07 Apr 2022 08:44:34 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2378Xaxx026077;
+        Thu, 7 Apr 2022 08:44:32 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma05fra.de.ibm.com with ESMTP id 3f6e48qrw2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 07 Apr 2022 08:44:32 +0000
 Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2378Rcpe45547962
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2378WBrC47579590
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 7 Apr 2022 08:27:38 GMT
+        Thu, 7 Apr 2022 08:32:11 GMT
 Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 134EAAE053;
-        Thu,  7 Apr 2022 08:27:38 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 4BF0FAE055;
+        Thu,  7 Apr 2022 08:44:29 +0000 (GMT)
 Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 94988AE045;
-        Thu,  7 Apr 2022 08:27:37 +0000 (GMT)
-Received: from sig-9-145-36-59.uk.ibm.com (unknown [9.145.36.59])
+        by IMSVA (Postfix) with ESMTP id 7FFF9AE045;
+        Thu,  7 Apr 2022 08:44:28 +0000 (GMT)
+Received: from linux6.. (unknown [9.114.12.104])
         by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu,  7 Apr 2022 08:27:37 +0000 (GMT)
-Message-ID: <9a0af2fec80f1b46c3ad9d80c6424e168ca2e54e.camel@linux.ibm.com>
-Subject: Re: [PATCH AUTOSEL 5.17 18/31] s390/pci: improve zpci_dev reference
- counting
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        gerald.schaefer@linux.ibm.com, hca@linux.ibm.com,
-        agordeev@linux.ibm.com, linux-s390@vger.kernel.org
-Date:   Thu, 07 Apr 2022 10:27:37 +0200
-In-Reply-To: <20220407011029.113321-18-sashal@kernel.org>
-References: <20220407011029.113321-1-sashal@kernel.org>
-         <20220407011029.113321-18-sashal@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+        Thu,  7 Apr 2022 08:44:28 +0000 (GMT)
+From:   Janosch Frank <frankja@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
+        david@redhat.com, thuth@redhat.com, nrb@linux.ibm.com,
+        seiden@linux.ibm.com
+Subject: [kvm-unit-tests PATCH v2 0/9] s390x: Cleanup and maintenance 4
+Date:   Thu,  7 Apr 2022 08:44:12 +0000
+Message-Id: <20220407084421.2811-1-frankja@linux.ibm.com>
+X-Mailer: git-send-email 2.32.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 7Sm7alq2IFxI8JJUNz4WOVNztY7Qfpdx
-X-Proofpoint-GUID: 7Sm7alq2IFxI8JJUNz4WOVNztY7Qfpdx
+X-Proofpoint-GUID: jFC-YndD9gqAAxJobcMksunOJsxOTX3d
+X-Proofpoint-ORIG-GUID: QZwk6FwSsnooH3Ynp0NHvk4kBvC174UK
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-04-06_13,2022-04-06_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 phishscore=0
- priorityscore=1501 lowpriorityscore=0 bulkscore=0 mlxlogscore=999
- impostorscore=0 mlxscore=0 clxscore=1031 spamscore=0 malwarescore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2204070041
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
+ phishscore=0 suspectscore=0 bulkscore=0 priorityscore=1501 adultscore=0
+ lowpriorityscore=0 spamscore=0 impostorscore=0 mlxlogscore=944
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2204070043
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 2022-04-06 at 21:10 -0400, Sasha Levin wrote:
-> From: Niklas Schnelle <schnelle@linux.ibm.com>
-> 
-> [ Upstream commit c122383d221dfa2f41cfe5e672540595de986fde ]
-> 
-> Currently zpci_dev uses kref based reference counting but only accounts
-> for one original reference plus one reference from an added pci_dev to
-> its underlying zpci_dev. Counting just the original reference worked
-> until the pci_dev reference was added in commit 2a671f77ee49 ("s390/pci:
-> fix use after free of zpci_dev") because once a zpci_dev goes away, i.e.
-> enters the reserved state, it would immediately get released. However
-> with the pci_dev reference this is no longer the case and the zpci_dev
-> may still appear in multiple availability events indicating that it was
-> reserved. This was solved by detecting when the zpci_dev is already on
-> its way out but still hanging around. This has however shown some light
-> on how unusual our zpci_dev reference counting is.
-> 
-> Improve upon this by modelling zpci_dev reference counting on pci_dev.
-> Analogous to pci_get_slot() increment the reference count in
-> get_zdev_by_fid(). Thus all users of get_zdev_by_fid() must drop the
-> reference once they are done with the zpci_dev.
-> 
-> Similar to pci_scan_single_device(), zpci_create_device() returns the
-> device with an initial count of 1 and the device added to the zpci_list
-> (analogous to the PCI bus' device_list). In turn users of
-> zpci_create_device() must only drop the reference once the device is
-> gone from the point of view of the zPCI subsystem, it might still be
-> referenced by the common PCI subsystem though.
-> 
-> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
+A few small cleanups and two patches that I forgot to upstream which
+have now been rebased onto the machine.h library functions.
 
-This isn't really a bug fix, as far as I'm aware the existing code
-works correctly. It is just about making things more like PCI bus
-reference counting and less weird. I also see some potential of the
-state of things with just this commit added being confusing. That's why
-there is a follow up commit 7dcfe50f58d2 ("s390/pci: rename
-get_zdev_by_bus() to zdev_from_bus()") to make it more obvious when
-zpci_zdev_put() is needed.
+v2:
+	* Added host_is_qemu() function
+	* Fixed qemu checks
 
-In short I'd propose to drop this patch from the stable queues.
+Janosch Frank (9):
+  lib: s390x: hardware: Add host_is_qemu() function
+  s390x: css: Skip if we're not run by qemu
+  s390x: diag308: Only test subcode 2 under QEMU
+  s390x: pfmf: Initialize pfmf_r1 union on declaration
+  s390x: snippets: asm: Add license and copyright headers
+  s390x: pv-diags: Cleanup includes
+  s390x: css: Cleanup includes
+  s390x: iep: Cleanup includes
+  s390x: mvpg: Cleanup includes
+
+ lib/s390x/hardware.h                       |  5 +++
+ s390x/css.c                                | 18 ++++++----
+ s390x/diag308.c                            | 15 ++++++++-
+ s390x/iep.c                                |  3 +-
+ s390x/mvpg.c                               |  3 --
+ s390x/pfmf.c                               | 39 +++++++++++-----------
+ s390x/pv-diags.c                           | 17 ++--------
+ s390x/snippets/asm/snippet-pv-diag-288.S   |  9 +++++
+ s390x/snippets/asm/snippet-pv-diag-500.S   |  9 +++++
+ s390x/snippets/asm/snippet-pv-diag-yield.S |  9 +++++
+ 10 files changed, 80 insertions(+), 47 deletions(-)
+
+-- 
+2.32.0
 
