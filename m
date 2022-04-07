@@ -2,35 +2,35 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E1F90C4167B
-	for <linux-s390@archiver.kernel.org>; Thu,  7 Apr 2022 01:18:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A28C0C433EF
+	for <linux-s390@archiver.kernel.org>; Thu,  7 Apr 2022 01:18:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236880AbiDGBUk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        id S237165AbiDGBUk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
         Wed, 6 Apr 2022 21:20:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32862 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238844AbiDGBSj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Apr 2022 21:18:39 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94C3D19FF46;
-        Wed,  6 Apr 2022 18:13:41 -0700 (PDT)
+        with ESMTP id S237218AbiDGBRS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Apr 2022 21:17:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20D971945CC;
+        Wed,  6 Apr 2022 18:12:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0EB01CE1379;
-        Thu,  7 Apr 2022 01:13:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A7B1C385A3;
-        Thu,  7 Apr 2022 01:13:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7C806B82696;
+        Thu,  7 Apr 2022 01:12:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F31DAC385A8;
+        Thu,  7 Apr 2022 01:12:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649294018;
-        bh=92+NFS0k3PNxcxMEA45Y2iFX4nKAdzYI4g8D6reYW64=;
+        s=k20201202; t=1649293942;
+        bh=Iyfl/0kBm5PrUgtbDdiOuPBJzmCZ+wogLc8nAP7JdiQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H3hyWVH8VMu1h0cBBMMt2l3Ov5/LCmHCCduTOKXz9AY9YnG/+Q8vL2NTc7CmE679k
-         IODHeFh33dvCqO3keOrd/Yd39nUJ0egH2mIVd+IhUNtSvPxz7VoojnPSPJ1I1/ddnS
-         RIkSI2LTGCWJqgNL0inIyAcd6R+F5QK98f+LzrahpClDighJWSMB+CxHbDACb+KBED
-         VQgXrmAeq55CinfWAH6zUAZIuAXz5O0QxNQPe5nRbY9dNsmllitS6WH8wpWkryaGqn
-         nsMvNqM2Xz5YCa2hUAnJEbdPGTB6x3+j23IgzxihFXeq6BMUNlCMqOgX6OSZY7kArZ
-         TGGVpCjyCkSTA==
+        b=Finpl4y4cKhbO5XxrmS4dSGQfOu7+VI2MhnbqwPAlaWfK7FTvun6wFoB/9M19NmYH
+         zUUckXOU+/d5J8YUx1d+5DspbVZHIkFVerwYDh3X+wUZsmh8keAwwdPcHdgAludLCS
+         eczgBB8T5bY/1rf//xdGsUVRFr514E/zY24ZWL5UGo/bkhW3dSXk3xNp3JJMxh4F1m
+         m7mmExpdGXyxkSJtjtKOFKuBYGCdB8QrPKk+VHcJyevgO4eAT2aZ0edtURyP+1dzTl
+         KqWiqsiO9AqL4lEzJ/rq9PpqZ2Vm96Ve2n1s7eZHDYbCPtR9Dq9yDK107cmpOJhW5I
+         qQCnbFW1nR9hw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Niklas Schnelle <schnelle@linux.ibm.com>,
@@ -39,12 +39,12 @@ Cc:     Niklas Schnelle <schnelle@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, gerald.schaefer@linux.ibm.com,
         hca@linux.ibm.com, agordeev@linux.ibm.com,
         linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 15/27] s390/pci: improve zpci_dev reference counting
-Date:   Wed,  6 Apr 2022 21:12:45 -0400
-Message-Id: <20220407011257.114287-15-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.16 18/30] s390/pci: improve zpci_dev reference counting
+Date:   Wed,  6 Apr 2022 21:11:28 -0400
+Message-Id: <20220407011140.113856-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220407011257.114287-1-sashal@kernel.org>
-References: <20220407011257.114287-1-sashal@kernel.org>
+In-Reply-To: <20220407011140.113856-1-sashal@kernel.org>
+References: <20220407011140.113856-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -93,7 +93,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  4 files changed, 16 insertions(+), 4 deletions(-)
 
 diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index b833155ce838..639924d98331 100644
+index 2f9b78fa82a5..a2b2d5a9752d 100644
 --- a/arch/s390/pci/pci.c
 +++ b/arch/s390/pci/pci.c
 @@ -69,6 +69,7 @@ struct zpci_dev *get_zdev_by_fid(u32 fid)
@@ -146,32 +146,36 @@ index be077b39da33..5011d27461fd 100644
  
  int clp_scan_pci_devices(void)
 diff --git a/arch/s390/pci/pci_event.c b/arch/s390/pci/pci_event.c
-index 5b8d647523f9..6d57625b8ed9 100644
+index 2e3e5b278925..ea9db5cea64e 100644
 --- a/arch/s390/pci/pci_event.c
 +++ b/arch/s390/pci/pci_event.c
-@@ -62,10 +62,12 @@ static void __zpci_event_error(struct zpci_ccdf_err *ccdf)
+@@ -269,7 +269,7 @@ static void __zpci_event_error(struct zpci_ccdf_err *ccdf)
  	       pdev ? pci_name(pdev) : "n/a", ccdf->pec, ccdf->fid);
  
  	if (!pdev)
 -		return;
 +		goto no_pdev;
  
- 	pdev->error_state = pci_channel_io_perm_failure;
+ 	switch (ccdf->pec) {
+ 	case 0x003a: /* Service Action or Error Recovery Successful */
+@@ -286,6 +286,8 @@ static void __zpci_event_error(struct zpci_ccdf_err *ccdf)
+ 		break;
+ 	}
  	pci_dev_put(pdev);
 +no_pdev:
 +	zpci_zdev_put(zdev);
  }
  
  void zpci_event_error(void *data)
-@@ -94,6 +96,7 @@ static void zpci_event_hard_deconfigured(struct zpci_dev *zdev, u32 fh)
+@@ -314,6 +316,7 @@ static void zpci_event_hard_deconfigured(struct zpci_dev *zdev, u32 fh)
  static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
  {
  	struct zpci_dev *zdev = get_zdev_by_fid(ccdf->fid);
 +	bool existing_zdev = !!zdev;
  	enum zpci_state state;
  
- 	zpci_err("avail CCDF:\n");
-@@ -156,6 +159,8 @@ static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
+ 	zpci_dbg(3, "avl fid:%x, fh:%x, pec:%x\n",
+@@ -378,6 +381,8 @@ static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
  	default:
  		break;
  	}
