@@ -2,132 +2,179 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 899AFC43217
-	for <linux-s390@archiver.kernel.org>; Fri,  8 Apr 2022 15:11:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9EE7C433EF
+	for <linux-s390@archiver.kernel.org>; Fri,  8 Apr 2022 22:45:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237404AbiDHPNS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 8 Apr 2022 11:13:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58168 "EHLO
+        id S234039AbiDHWrX (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 8 Apr 2022 18:47:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237402AbiDHPNN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Apr 2022 11:13:13 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35ED3FC8A5;
-        Fri,  8 Apr 2022 08:11:06 -0700 (PDT)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 238F59cl029567;
-        Fri, 8 Apr 2022 15:11:04 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=wImVeLo0tMFkZboFB2iKIhfRKw25W6aXPPE0HXlMEhA=;
- b=SIIw4fdNmBagte2HP1sexIfsMVl+mX7ovO6RRUfhCXxxnHOGpXJAH4WY4PRu8yGWqGLX
- 4Be5h2Kgoo1NsCuakJ6hfpFLIwWM6rObiE41v7XQtPZSESLocVwikdVWvC4T8Rvs4Vy3
- iFdViGQtBd6dW+kavL33mKEiLEznJc2xa+K4ag0OhxpTiAEsdQVC6MkoB1kS3x1uEbdw
- AcVomamS+14t7PShlZzNlDEnFz1on0S3XXmEdOL0OPOjoEoi3sYRCTTlGnGUdGhThtW7
- 5UuPZT5uDnOhuvrLqmKevfp9hP5ecchl6pbrLIGj+5w0/Lg1cJ+3JmoAz911TneUZMI7 nQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3faeu9jy5t-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 08 Apr 2022 15:11:03 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 238EoqpP015771;
-        Fri, 8 Apr 2022 15:11:03 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3faeu9jy4w-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 08 Apr 2022 15:11:03 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 238F3Ux5029496;
-        Fri, 8 Apr 2022 15:11:00 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03ams.nl.ibm.com with ESMTP id 3f6e4941y8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 08 Apr 2022 15:11:00 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 238FAwBN46006698
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 8 Apr 2022 15:10:58 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8A0105204F;
-        Fri,  8 Apr 2022 15:10:58 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 56A7D5204E;
-        Fri,  8 Apr 2022 15:10:58 +0000 (GMT)
-From:   Karsten Graul <kgraul@linux.ibm.com>
-To:     David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>, alibuda@linux.alibaba.com
-Subject: [PATCH net 3/3] net/smc: Fix af_ops of child socket pointing to released memory
-Date:   Fri,  8 Apr 2022 17:10:35 +0200
-Message-Id: <20220408151035.1044701-4-kgraul@linux.ibm.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220408151035.1044701-1-kgraul@linux.ibm.com>
-References: <20220408151035.1044701-1-kgraul@linux.ibm.com>
+        with ESMTP id S230439AbiDHWrW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Apr 2022 18:47:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73737114B;
+        Fri,  8 Apr 2022 15:45:17 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1777362100;
+        Fri,  8 Apr 2022 22:45:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26C72C385A3;
+        Fri,  8 Apr 2022 22:45:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1649457916;
+        bh=RY4LlTaIHI+Gt4S1FZe8//DTJqSqTADK8QF8Y/5p1M0=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:From;
+        b=HeQg39pUKAiyD/yzmF/QklSoTW72IMlo/n6VcxsTdY2N/naNNXbbNb0Xqi0BBA9xj
+         sZ6fPa96E9Z2ar4ReajWZHpwKAwmVz6tKtas8CtIQkcFAZoHvBwJ/1gclKcySeU3ze
+         3i/KGY7HGom8/x6Gj4qWRRsONvbF0LnhM8ZqLEENzRad+ebnQtkPYa915EGSwQiK/T
+         kKvigZs/5foY4bI1st6UDXJGROOQrG9E9QpjSFh8Rqr8xlO1aSYuLQWBnpa8ljyF+0
+         8tNo+TZwGcnciYyIqprZnzp6TmE7qNjT9XC9BhCkHBBMPoYv4B99PGWKcqoLhBd5oS
+         h5Da3HWycuTiA==
+Date:   Fri, 8 Apr 2022 17:45:14 -0500
+From:   Bjorn Helgaas <helgaas@kernel.org>
+To:     Niklas Schnelle <schnelle@linux.ibm.com>
+Cc:     Bjorn Helgaas <bhelgaas@google.com>,
+        Jan Kiszka <jan.kiszka@siemens.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-pci@vger.kernel.org
+Subject: Re: [PATCH RESEND 1/2] PCI: Extend isolated function probing to s390
+Message-ID: <20220408224514.GA353445@bhelgaas>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: CMlsDN9UyLrBGMKkfVJndz0Q7H-5m2Zu
-X-Proofpoint-ORIG-GUID: skNY5UKmYRbZInzrvtSAwlAp-pSl2z2I
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-04-08_05,2022-04-08_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 spamscore=0
- impostorscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0
- priorityscore=1501 adultscore=0 bulkscore=0 clxscore=1015 mlxscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2204080075
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220404095346.2324666-1-schnelle@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Child sockets may inherit the af_ops from the parent listen socket.
-When the listen socket is released then the af_ops of the child socket
-points to released memory.
-Solve that by restoring the original af_ops for child sockets which
-inherited the parent af_ops. And clear any inherited user_data of the
-parent socket.
+On Mon, Apr 04, 2022 at 11:53:45AM +0200, Niklas Schnelle wrote:
+> Like the jailhouse hypervisor s390's PCI architecture allows passing
+> isolated PCI functions to an OS instance. As of now this is was not
+> utilized even with multi-function support as the s390 PCI code makes
+> sure that only virtual PCI busses including a function with devfn 0 are
+> presented to the PCI subsystem. A subsequent change will remove this
+> restriction.
+> 
+> Allow probing such functions by replacing the existing check for
+> jailhouse_paravirt() with a new hypervisor_isolated_pci_functions()
+> helper.
+> 
+> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
 
-Fixes: 8270d9c21041 ("net/smc: Limit backlog connections")
-Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/smc/af_smc.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+I'm OK with the idea of generalizing this Jailhouse test, but I wonder
+if this check should be in pci_scan_slot() rather than in
+pci_scan_child_bus_extend().
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index f0d118e9f155..14ddc40149e8 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -121,6 +121,7 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
- 					  bool *own_req)
+I think the idea is that pci_scan_slot() should find all the functions
+of a device (a.k.a. "slot"), so it's a little weird to have a loop
+calling pci_scan_single_device() for each function in both places.
+
+Currently we never call pcie_aspm_init_link_state() for these
+Jailhouse or s390 functions.  Maybe that's OK (and I think
+pci_scan_slot() is the wrong place to initialize ASPM anyway) but if
+we could move the Jailhouse/s390 checking to pci_scan_slot(), it would
+at least remove the inconsistency.
+
+I'm thinking something along the lines of the patch below.  I'm sure
+Jan considered this originally, so maybe there's some reason this
+won't work.
+
+Bjorn
+
+> ---
+>  drivers/pci/probe.c        | 4 ++--
+>  include/linux/hypervisor.h | 9 +++++++++
+>  2 files changed, 11 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+> index 17a969942d37..e8fd89a1f984 100644
+> --- a/drivers/pci/probe.c
+> +++ b/drivers/pci/probe.c
+> @@ -2869,11 +2869,11 @@ static unsigned int pci_scan_child_bus_extend(struct pci_bus *bus,
+>  		nr_devs = pci_scan_slot(bus, devfn);
+>  
+>  		/*
+> -		 * The Jailhouse hypervisor may pass individual functions of a
+> +		 * Some hypervisors may pass individual functions of a
+>  		 * multi-function device to a guest without passing function 0.
+>  		 * Look for them as well.
+>  		 */
+> -		if (jailhouse_paravirt() && nr_devs == 0) {
+> +		if (hypervisor_isolated_pci_functions() && nr_devs == 0) {
+>  			for (fn = 1; fn < 8; fn++) {
+>  				dev = pci_scan_single_device(bus, devfn + fn);
+>  				if (dev)
+> diff --git a/include/linux/hypervisor.h b/include/linux/hypervisor.h
+> index fc08b433c856..52abd459f9a3 100644
+> --- a/include/linux/hypervisor.h
+> +++ b/include/linux/hypervisor.h
+> @@ -32,4 +32,13 @@ static inline bool jailhouse_paravirt(void)
+>  
+>  #endif /* !CONFIG_X86 */
+>  
+> +static inline bool hypervisor_isolated_pci_functions(void)
+> +{
+> +	if (IS_ENABLED(CONFIG_S390))
+> +		return true;
+> +	else
+> +		return jailhouse_paravirt();
+> +}
+> +
+> +
+>  #endif /* __LINUX_HYPEVISOR_H */
+> -- 
+> 2.32.0
+> 
+
+
+diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+index 17a969942d37..83e4885e0698 100644
+--- a/drivers/pci/probe.c
++++ b/drivers/pci/probe.c
+@@ -2650,9 +2650,9 @@ int pci_scan_slot(struct pci_bus *bus, int devfn)
+ 		return 0; /* Already scanned the entire slot */
+ 
+ 	dev = pci_scan_single_device(bus, devfn);
+-	if (!dev)
++	if (!dev && !jailhouse_paravirt())
+ 		return 0;
+-	if (!pci_dev_is_added(dev))
++	if (dev && !pci_dev_is_added(dev))
+ 		nr++;
+ 
+ 	for (fn = next_fn(bus, dev, 0); fn > 0; fn = next_fn(bus, dev, fn)) {
+@@ -2858,30 +2858,16 @@ static unsigned int pci_scan_child_bus_extend(struct pci_bus *bus,
  {
- 	struct smc_sock *smc;
-+	struct sock *child;
+ 	unsigned int used_buses, normal_bridges = 0, hotplug_bridges = 0;
+ 	unsigned int start = bus->busn_res.start;
+-	unsigned int devfn, fn, cmax, max = start;
++	unsigned int devfn, cmax, max = start;
+ 	struct pci_dev *dev;
+ 	int nr_devs;
  
- 	smc = smc_clcsock_user_data(sk);
+ 	dev_dbg(&bus->dev, "scanning bus\n");
  
-@@ -134,8 +135,17 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
- 	}
+ 	/* Go find them, Rover! */
+-	for (devfn = 0; devfn < 256; devfn += 8) {
++	for (devfn = 0; devfn < 256; devfn += 8)
+ 		nr_devs = pci_scan_slot(bus, devfn);
  
- 	/* passthrough to original syn recv sock fct */
--	return smc->ori_af_ops->syn_recv_sock(sk, skb, req, dst, req_unhash,
--					      own_req);
-+	child = smc->ori_af_ops->syn_recv_sock(sk, skb, req, dst, req_unhash,
-+					       own_req);
-+	/* child must not inherit smc or its ops */
-+	if (child) {
-+		rcu_assign_sk_user_data(child, NULL);
-+
-+		/* v4-mapped sockets don't inherit parent ops. Don't restore. */
-+		if (inet_csk(child)->icsk_af_ops == inet_csk(sk)->icsk_af_ops)
-+			inet_csk(child)->icsk_af_ops = smc->ori_af_ops;
-+	}
-+	return child;
- 
- drop:
- 	dst_release(dst);
--- 
-2.32.0
-
+-		/*
+-		 * The Jailhouse hypervisor may pass individual functions of a
+-		 * multi-function device to a guest without passing function 0.
+-		 * Look for them as well.
+-		 */
+-		if (jailhouse_paravirt() && nr_devs == 0) {
+-			for (fn = 1; fn < 8; fn++) {
+-				dev = pci_scan_single_device(bus, devfn + fn);
+-				if (dev)
+-					dev->multifunction = 1;
+-			}
+-		}
+-	}
+-
+ 	/* Reserve buses for SR-IOV capability */
+ 	used_buses = pci_iov_bus_range(bus);
+ 	max += used_buses;
