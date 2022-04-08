@@ -2,125 +2,102 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A35C2C433F5
-	for <linux-s390@archiver.kernel.org>; Fri,  8 Apr 2022 12:48:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E9CE7C433F5
+	for <linux-s390@archiver.kernel.org>; Fri,  8 Apr 2022 12:53:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235911AbiDHMub (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 8 Apr 2022 08:50:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56784 "EHLO
+        id S235971AbiDHMzU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 8 Apr 2022 08:55:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235905AbiDHMua (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Apr 2022 08:50:30 -0400
-Received: from mail-qk1-x72f.google.com (mail-qk1-x72f.google.com [IPv6:2607:f8b0:4864:20::72f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B788F3FA7
-        for <linux-s390@vger.kernel.org>; Fri,  8 Apr 2022 05:48:26 -0700 (PDT)
-Received: by mail-qk1-x72f.google.com with SMTP id t207so3262506qke.2
-        for <linux-s390@vger.kernel.org>; Fri, 08 Apr 2022 05:48:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=VQDI6YuAr8Eowoco7O858WVzXH3UkvuYAnRhC5A1scM=;
-        b=aWdwJeUD/a4zIRed0XxjGwJ74BNKFq4B7EWPMeUNhdeY5dJDzcb3riXc6hBpMpVD5G
-         GheWkYvfEpgEmKVdPZECt2I2HbY1Sfm0HOaNxsvQfQFPVYs9y1e5x1QE5V3K8F/n2T2R
-         dxMa64HX3TMuHD/uIKXUgWlm5hAY1L9/dt29oPX2IKpwwjh7lZ6exu/d0DeikubO2po1
-         A6AuK8MDLCkex64rjVBcdClMdJtIU6d8+B+bA0IaFnCox9kDbXi9Y33pd4zKQ76MizSb
-         hDu71MPFRVq0bUGbopVKGwnusYQ5foX2jGOXKyTkRm8CUSsZqFdud7vzMSNPBsNjiFOv
-         HOtA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=VQDI6YuAr8Eowoco7O858WVzXH3UkvuYAnRhC5A1scM=;
-        b=h5R5IZCbjPnDsYMxFZegvdXtQZkmos1V0Lv0a5Q3gs+DBFx9GC6ra305nUfcR+3rFC
-         FzQEPfhLjPQ5w/003koTi4dogQH+BQfRshey+wveajFw974YyrYjNthS3QGY/xIBXzil
-         juVHLcgZhVFaS+3ZmRkcSUkInP9IrFJrVrIJ3PgK7dILODnG8DTA0DB7yiOkgZol4wwm
-         UkegFdDxwB/cTiiIe4lkIvId04cKV+aCGGcnaPqXpFxCB/4iOfQBD1eI2m33Gx6XWw5K
-         FlbIdMZG/HHAwzTinNhgA0he4SAgzfV8QIvXSKVKB3dY8j8oHX1rB+U4tcJXJE8LPrz9
-         QLzQ==
-X-Gm-Message-State: AOAM5332d+JN4+hjIeDoZgYee6mfkzKprdEtycKoRaZovys1oMfbk4/k
-        ClmgXjF1TUxsXdFpaajL92lcPA==
-X-Google-Smtp-Source: ABdhPJwTiOGFNTDsV2ncSsHyu47DcJ64QqNfBV6JNjBfrtkBcDpHD2Er+HjU3PwNrV5kQJVKAriQBw==
-X-Received: by 2002:a05:620a:bce:b0:662:e587:fbbf with SMTP id s14-20020a05620a0bce00b00662e587fbbfmr12558832qki.757.1649422105456;
-        Fri, 08 Apr 2022 05:48:25 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-162-113-129.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.113.129])
-        by smtp.gmail.com with ESMTPSA id v3-20020a05622a014300b002e1dcd4cfa9sm18777436qtw.64.2022.04.08.05.48.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 08 Apr 2022 05:48:24 -0700 (PDT)
-Received: from jgg by mlx with local (Exim 4.94)
-        (envelope-from <jgg@ziepe.ca>)
-        id 1nco2K-00Eytz-9H; Fri, 08 Apr 2022 09:48:24 -0300
-Date:   Fri, 8 Apr 2022 09:48:24 -0300
-From:   Jason Gunthorpe <jgg@ziepe.ca>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>
-Cc:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        linux-s390@vger.kernel.org, alex.williamson@redhat.com,
-        cohuck@redhat.com, farman@linux.ibm.com, pmorel@linux.ibm.com,
-        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
-        imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
-        oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
-        pasic@linux.ibm.com, pbonzini@redhat.com, corbet@lwn.net,
-        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-doc@vger.kernel.org
-Subject: Re: [PATCH v5 14/21] KVM: s390: pci: provide routines for
- enabling/disabling interrupt forwarding
-Message-ID: <20220408124824.GZ64706@ziepe.ca>
-References: <20220404174349.58530-1-mjrosato@linux.ibm.com>
- <20220404174349.58530-15-mjrosato@linux.ibm.com>
- <9a551f04c3878ecb3a26fed6aff2834fbfe41f18.camel@linux.ibm.com>
+        with ESMTP id S235978AbiDHMzT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Apr 2022 08:55:19 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C233F4635;
+        Fri,  8 Apr 2022 05:53:16 -0700 (PDT)
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 238BpF1d008179;
+        Fri, 8 Apr 2022 12:53:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=wsBnHun015lCQuaK8oqGWat9NvvVMJqWW59CeiA+eZs=;
+ b=lV79TKqM5iF4fzhoD5BO75GRYiIe0EAMnA34RAKRgG+PxB1a2wwD3htfbgOM3tB/sclc
+ OcCqMlaDiSv0ZNTSX6caSbCIkMjZm3OrLHK0Ba0dLJdjk/hpOObwZgj6YjeDLVcv2/GA
+ FB4DAhpRBS7iCnntyz5dPklegwfYkr2b1zi9cFPGjETDtgw0qgh36P0mz62KqluxJMf0
+ CRmDOj4/EUCq9JRhEIMjyKi6MfxEFBKWHWbtOOMwjiMiIzSxeHTXgtL08YtZ2nxMeFQ3
+ ypma3T5ZsIst2Kt5qNbL8h5rBUL1DQuBU6Jl6QlugJP8URdFE6636VCETCH4oZBxWfMy FQ== 
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3fa5fb1nyn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 08 Apr 2022 12:53:08 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 238Cr6hR022864;
+        Fri, 8 Apr 2022 12:53:06 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma06fra.de.ibm.com with ESMTP id 3f6drhspys-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 08 Apr 2022 12:53:06 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 238Cr3me54329806
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 8 Apr 2022 12:53:03 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7916FA405F;
+        Fri,  8 Apr 2022 12:53:03 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 21989A405B;
+        Fri,  8 Apr 2022 12:53:03 +0000 (GMT)
+Received: from [9.145.39.73] (unknown [9.145.39.73])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri,  8 Apr 2022 12:53:03 +0000 (GMT)
+Message-ID: <c4c5ae75-29e0-c2f0-045c-1911d0f28067@linux.ibm.com>
+Date:   Fri, 8 Apr 2022 14:53:02 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9a551f04c3878ecb3a26fed6aff2834fbfe41f18.camel@linux.ibm.com>
+Subject: Re: [PATCH V3] s390: Simplify the calculation of variables
+Content-Language: en-US
+To:     Haowen Bai <baihaowen@meizu.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <6208840a-bb97-6b45-7b8e-80ad79849129@linux.ibm.com>
+ <1649297808-5048-1-git-send-email-baihaowen@meizu.com>
+From:   Peter Oberparleiter <oberpar@linux.ibm.com>
+In-Reply-To: <1649297808-5048-1-git-send-email-baihaowen@meizu.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 1sv5n2Zy8wqCZ2_FrwYTQDKjAV0qN3WO
+X-Proofpoint-ORIG-GUID: 1sv5n2Zy8wqCZ2_FrwYTQDKjAV0qN3WO
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-04-08_04,2022-04-08_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
+ priorityscore=1501 impostorscore=0 lowpriorityscore=0 phishscore=0
+ clxscore=1015 adultscore=0 bulkscore=0 suspectscore=0 malwarescore=0
+ mlxscore=0 mlxlogscore=862 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2204080064
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Apr 05, 2022 at 03:39:19PM +0200, Niklas Schnelle wrote:
-> On Mon, 2022-04-04 at 13:43 -0400, Matthew Rosato wrote:
-> > These routines will be wired into a kvm ioctl in order to respond to
-> > requests to enable / disable a device for Adapter Event Notifications /
-> > Adapter Interuption Forwarding.
-> > 
-> > Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> >  arch/s390/kvm/pci.c      | 247 +++++++++++++++++++++++++++++++++++++++
-> >  arch/s390/kvm/pci.h      |   1 +
-> >  arch/s390/pci/pci_insn.c |   1 +
-> >  3 files changed, 249 insertions(+)
-> > 
-> > diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
-> > index 01bd8a2f503b..f0fd68569a9d 100644
-> > +++ b/arch/s390/kvm/pci.c
-> > @@ -11,6 +11,7 @@
-> >  #include <linux/pci.h>
-> >  #include <asm/pci.h>
-> >  #include <asm/pci_insn.h>
-> > +#include <asm/pci_io.h>
-> >  #include "pci.h"
-> >  
-> >  struct zpci_aift *aift;
-> > @@ -152,6 +153,252 @@ int kvm_s390_pci_aen_init(u8 nisc)
-> >  	return rc;
-> >  }
-> >  
-> > +/* Modify PCI: Register floating adapter interruption forwarding */
-> > +static int kvm_zpci_set_airq(struct zpci_dev *zdev)
-> > +{
-> > +	u64 req = ZPCI_CREATE_REQ(zdev->fh, 0, ZPCI_MOD_FC_REG_INT);
-> > +	struct zpci_fib fib = {};
+On 07.04.2022 04:16, Haowen Bai wrote:
+> Fix the following coccicheck warnings:
+> ./arch/s390/include/asm/scsw.h:695:47-49: WARNING
+>  !A || A && B is equivalent to !A || B
 > 
-> Hmm this one uses '{}' as initializer while all current callers of
-> zpci_mod_fc() use '{0}'. As far as I know the empty braces are a GNU
-> extension so should work for the kernel but for consistency I'd go with
-> '{0}' or possibly '{.foo = bar, ...}' where that is more readable.
-> There too uninitialized fields will be set to 0. Unless of course there
-> is a conflicting KVM convention that I don't know about.
+> I apply a readable version just to get rid of a warning.
+> 
+> Signed-off-by: Haowen Bai <baihaowen@meizu.com>
 
-{} is not a GNU extension, it is the preferred way to write it.
+A definitive improvement over the current version. Thanks!
 
-The standard has a weird distinction between {} and {0} that results
-in different behavior.
+Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
 
-Jason
+
+-- 
+Peter Oberparleiter
+Linux on IBM Z Development - IBM Germany R&D
