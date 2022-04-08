@@ -2,131 +2,132 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22EBFC433F5
-	for <linux-s390@archiver.kernel.org>; Thu,  7 Apr 2022 22:38:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DF93C433EF
+	for <linux-s390@archiver.kernel.org>; Fri,  8 Apr 2022 07:11:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232160AbiDGWkR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 7 Apr 2022 18:40:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43474 "EHLO
+        id S229559AbiDHHN1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 8 Apr 2022 03:13:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232154AbiDGWjs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Apr 2022 18:39:48 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 37F5C137036
-        for <linux-s390@vger.kernel.org>; Thu,  7 Apr 2022 15:37:44 -0700 (PDT)
+        with ESMTP id S229437AbiDHHN0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Apr 2022 03:13:26 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id BBBF61E7458
+        for <linux-s390@vger.kernel.org>; Fri,  8 Apr 2022 00:11:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1649371063;
+        s=mimecast20190719; t=1649401881;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=NOIZSnS98gQ3xydj16FHLPEIjDJjA+ZwlFfjRBiVUDY=;
-        b=Vk4Z+reM9UdPsG+8dZ1C3F/AjQTFreZkPTuV6839sN4FXsLPsA9fW2h/IMln7jazNvZ4AM
-        lgCWKwkPQX3WoxaTV71WS29cLgCYbnQ/W43o2Adhy7v7Qow+tcKvTBfrhh+OEonmBVKKe/
-        SCj/WtKJk/MVseHX/M2ZWmf16lrJPDc=
-Received: from mail-oa1-f70.google.com (mail-oa1-f70.google.com
- [209.85.160.70]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=EIdT20lZyuxUif4lmdeJV2YtVVAT8aoGpkU+KSrIRGM=;
+        b=aDxf4f0l4kagvWAtoOvj6R5Pwu21cI2UVD/PGyX6UPhfOAPcZ2vA7eyQocMK2fM6rhF6ph
+        p5+ZgxJaKu2VdrayS+eYNbCl6GXvwlZfNuoGmxuLpigKII09PgcMe1PJfQJBI0ZoOzkQi8
+        9UIxVwCgY0BpkMiGSidgzaOWK7K/5Y0=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-344-MGQH0ucwOniH0i64mW5CiQ-1; Thu, 07 Apr 2022 18:37:42 -0400
-X-MC-Unique: MGQH0ucwOniH0i64mW5CiQ-1
-Received: by mail-oa1-f70.google.com with SMTP id 586e51a60fabf-e26cee694fso1435749fac.7
-        for <linux-s390@vger.kernel.org>; Thu, 07 Apr 2022 15:37:41 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
-         :references:organization:mime-version:content-transfer-encoding;
-        bh=NOIZSnS98gQ3xydj16FHLPEIjDJjA+ZwlFfjRBiVUDY=;
-        b=amvf9pUV3yRJuRdKfuCb7S6xfvgjFwW/pLiXtix3e7BKIeRY1Ai3ecJ1hSvYI29Oz5
-         nTCNc7DQI0xadutYP1RRzhyZhrAxshzMdFtkayqqI53zuK0zJMurPBuRj/pa1moFO66m
-         t5G7Ka43LPKeUFpsMucS5G8mLpzZMy1oqWR57JQxAjMaw1oX0lu9kPrLjokkvmtAyCDL
-         Vi0dX5w/SZXWWefnEHtTTUaL1CzjZKPnLYqr3QSpcPwtvyvmFXwfoYyyVLrWspjgWGdB
-         +t2J4rbxndfPZA9SWteM22EzEAilu+4TGs0sWQs26crJ54eywfwXNSfSvL8nwq6UxlxZ
-         08vw==
-X-Gm-Message-State: AOAM530IOa+ykrxvnpfnUgp1ZoUX+Mb7aXCcKA4bUugqGmWn6XA5vrcY
-        stgmEi+qgf62v+Szr/bz5C7/jBudsYCPo8w62JNBq8a7xeJiY0rXJwXBRnU1jFibSn5yRXq5ima
-        trLeHAW8NXmrHj/YpaIda5g==
-X-Received: by 2002:a9d:ee7:0:b0:5cd:feb9:66b5 with SMTP id 94-20020a9d0ee7000000b005cdfeb966b5mr5515094otj.216.1649371061198;
-        Thu, 07 Apr 2022 15:37:41 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxcVZwyerJlnB50z195byTw9JBG/9w1iOCvt6QyoKpKsIz/rFvJndsMgHRlm6GD1Fo6Sk8OMg==
-X-Received: by 2002:a9d:ee7:0:b0:5cd:feb9:66b5 with SMTP id 94-20020a9d0ee7000000b005cdfeb966b5mr5515064otj.216.1649371060962;
-        Thu, 07 Apr 2022 15:37:40 -0700 (PDT)
-Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id c8-20020a4ad788000000b0031ce69b1640sm7642523oou.10.2022.04.07.15.37.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 Apr 2022 15:37:40 -0700 (PDT)
-Date:   Thu, 7 Apr 2022 16:37:37 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Robin Murphy <robin.murphy@arm.com>,
-        "Tian, Kevin" <kevin.tian@intel.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Christian Benvenuti <benve@cisco.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>,
-        Jason Wang <jasowang@redhat.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>,
-        "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Nelson Escobar <neescoba@cisco.com>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        Rob Clark <robdclark@gmail.com>,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        "virtualization@lists.linux-foundation.org" 
-        <virtualization@lists.linux-foundation.org>,
-        Will Deacon <will@kernel.org>
-Subject: Re: [PATCH 1/5] iommu: Replace uses of IOMMU_CAP_CACHE_COHERENCY
- with dev_is_dma_coherent()
-Message-ID: <20220407163737.2a7ccd7a.alex.williamson@redhat.com>
-In-Reply-To: <20220407152331.GN2120790@nvidia.com>
-References: <db5a6daa-bfe9-744f-7fc5-d5167858bc3e@arm.com>
-        <20220406142432.GF2120790@nvidia.com>
-        <20220406151823.GG2120790@nvidia.com>
-        <20220406155056.GA30433@lst.de>
-        <20220406160623.GI2120790@nvidia.com>
-        <20220406161031.GA31790@lst.de>
-        <20220406171729.GJ2120790@nvidia.com>
-        <BN9PR11MB5276F9CEA2B01B3E75094B6D8CE69@BN9PR11MB5276.namprd11.prod.outlook.com>
-        <20220407135946.GM2120790@nvidia.com>
-        <fb55a025-348e-800c-e368-48be075d8e9c@arm.com>
-        <20220407152331.GN2120790@nvidia.com>
-Organization: Red Hat
+ us-mta-571-3p8lm4GcNhaDsIB05JZDhg-1; Fri, 08 Apr 2022 03:11:18 -0400
+X-MC-Unique: 3p8lm4GcNhaDsIB05JZDhg-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 44251805F68;
+        Fri,  8 Apr 2022 07:11:17 +0000 (UTC)
+Received: from localhost (ovpn-12-202.pek2.redhat.com [10.72.12.202])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 00E57403179;
+        Fri,  8 Apr 2022 07:11:16 +0000 (UTC)
+Date:   Fri, 8 Apr 2022 15:11:08 +0800
+From:   Baoquan He <bhe@redhat.com>
+To:     Michal Suchanek <msuchanek@suse.de>, Coiby Xu <coxu@redhat.com>
+Cc:     Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Philipp Rudo <prudo@redhat.com>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        AKASHI Takahiro <takahiro.akashi@linaro.org>,
+        James Morse <james.morse@arm.com>,
+        Dave Young <dyoung@redhat.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, kexec@lists.infradead.org,
+        keyrings@vger.kernel.org, linux-security-module@vger.kernel.org,
+        stable@kernel.org
+Subject: Re: [PATCH 1/4] Fix arm64 kexec forbidding kernels signed with keys
+ in the secondary keyring to boot
+Message-ID: <Yk/eFBCqBTu4eZf2@MiWiFi-R3L-srv>
+References: <cover.1644953683.git.msuchanek@suse.de>
+ <83b3583f35c50c609739a8d857d14e8410293373.1644953683.git.msuchanek@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <83b3583f35c50c609739a8d857d14e8410293373.1644953683.git.msuchanek@suse.de>
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.10
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 7 Apr 2022 12:23:31 -0300
-Jason Gunthorpe <jgg@nvidia.com> wrote:
+Hi,
 
-> On Thu, Apr 07, 2022 at 04:17:11PM +0100, Robin Murphy wrote:
+On 02/15/22 at 08:39pm, Michal Suchanek wrote:
+> commit d3bfe84129f6 ("certs: Add a secondary system keyring that can be added to dynamically")
+> split of .system_keyring into .builtin_trusted_keys and
+> .secondary_trusted_keys broke kexec, thereby preventing kernels signed by
+> keys which are now in the secondary keyring from being kexec'd.
 > 
-> > For the specific case of overriding PCIe No Snoop (which is more problematic
-> > from an Arm SMMU PoV) when assigning to a VM, would that not be easier
-> > solved by just having vfio-pci clear the "Enable No Snoop" control bit in
-> > the endpoint's PCIe capability?  
+> Fix this by passing VERIFY_USE_SECONDARY_KEYRING to
+> verify_pefile_signature().
 > 
-> Ideally.
-> 
-> That was rediscussed recently, apparently there are non-compliant
-> devices and drivers that just ignore the bit. 
-> 
-> Presumably this is why x86 had to move to an IOMMU enforced feature..
+> Cherry-picked from
+> commit ea93102f3224 ("Fix kexec forbidding kernels signed with keys in the secondary keyring to boot")
 
-I considered this option when implementing the current solution, but
-ultimately I didn't have confidence in being able to prevent drivers
-from using device specific means to effect the change anyway.  GPUs
-especially have various back channels to config space.  Thanks,
+This line may need a line feed?
 
-Alex
+The patch 1~3 looks good to me. Coiby encountered the same issue
+on arm64, and has posted a patch series to fix that and there's clean up
+and code adjustment.
+
+https://lore.kernel.org/all/20220401013118.348084-1-coxu@redhat.com/T/#u
+
+Hi Coiby,
+
+Maybe you can check this patchset, and consider how to integrate your
+patches based on this patch 1~/3?
+
+For this patch itself, ack.
+
+Acked-by: Baoquan He <bhe@redhat.com>
+
+> 
+> Fixes: 732b7b93d849 ("arm64: kexec_file: add kernel signature verification support")
+> Cc: kexec@lists.infradead.org
+> Cc: keyrings@vger.kernel.org
+> Cc: linux-security-module@vger.kernel.org
+> Cc: stable@kernel.org
+> Signed-off-by: Michal Suchanek <msuchanek@suse.de>
+> ---
+>  arch/arm64/kernel/kexec_image.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/arm64/kernel/kexec_image.c b/arch/arm64/kernel/kexec_image.c
+> index 9ec34690e255..1fbf2ee7c005 100644
+> --- a/arch/arm64/kernel/kexec_image.c
+> +++ b/arch/arm64/kernel/kexec_image.c
+> @@ -133,7 +133,8 @@ static void *image_load(struct kimage *image,
+>  #ifdef CONFIG_KEXEC_IMAGE_VERIFY_SIG
+>  static int image_verify_sig(const char *kernel, unsigned long kernel_len)
+>  {
+> -	return verify_pefile_signature(kernel, kernel_len, NULL,
+> +	return verify_pefile_signature(kernel, kernel_len,
+> +				       VERIFY_USE_SECONDARY_KEYRING,
+>  				       VERIFYING_KEXEC_PE_SIGNATURE);
+>  }
+>  #endif
+> -- 
+> 2.31.1
+> 
 
