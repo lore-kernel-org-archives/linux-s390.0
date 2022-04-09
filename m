@@ -2,31 +2,31 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD10AC433EF
-	for <linux-s390@archiver.kernel.org>; Sat,  9 Apr 2022 04:53:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0543C433EF
+	for <linux-s390@archiver.kernel.org>; Sat,  9 Apr 2022 04:54:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241308AbiDIEzs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 9 Apr 2022 00:55:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51528 "EHLO
+        id S236341AbiDIE4K (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 9 Apr 2022 00:56:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241093AbiDIEyh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 9 Apr 2022 00:54:37 -0400
+        with ESMTP id S241246AbiDIEzb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 9 Apr 2022 00:55:31 -0400
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EB32E438A;
-        Fri,  8 Apr 2022 21:51:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAC7FBC856;
+        Fri,  8 Apr 2022 21:52:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=2RG8/4DncVNJBVxiwRZlDWFw3of1TwdfVdHLgkB+Spw=; b=bHToJbTwXX9JeK0n0FFEHck7oK
-        nA96qn4tsO9VvTxVN8oChK/ZngVrRM/0RF6G9ra3tv3c4LiSpAW93VdnTUb837bG7nj26lWP035AX
-        +oB1LRxVd3o4RNZBzKIPVYYv/AqgqQH13jSTRjPJXLj+fHe3sQ7lQiOs0AqFOPiV0QvmbZSG1K8qh
-        9AilEZ6nzAlZEnIp9Du8I20RfuJmhuvcocvyHX9G65n9qxdF8wS5MzRNFD9kn7Nula/Xd3cMLnifm
-        ikockttcbAn2ou+cROly75gq/5PqLm1F2FPp9pVf438qn2667h4Aje3z8zrXhBCgwdMkGUyOJsCBu
-        B0U5qlrw==;
+        bh=lTB3LIlofJfzp5KujAOXuh07LxC0Nf6YEWOtuNxxhyY=; b=C0/EZiE5vXySiqiaR4lBvJuEun
+        PCkY/ivUhVSq0xZoAuTVkd2q0WdTP70v6IpmHQ/nr8sL06I0WApI6WB4Nc+BbTwxAexvvl3o5Ltp3
+        NtnBftYhjSPcpEVgAsuShaR7m9KbWMRIWCDXyDwu8QO3RK/4EmffFxBCB2g7UXEp1y2leacInCz+W
+        UTrT+NDk4VRd1AMJLFu+mpvUpIkM7YRkxENQ4fhPoNiM5RKk5R/iGUTs4IdJSAgoOKNJMsH7MttHB
+        e3x6X6lyJLvnR+0gfPxkVm1chSgZ4D2Gc+Jlqd61ZtPmRE05FoHvGDrQ/zbOvv7XIwtnu+Jwn9F73
+        97nxUNyA==;
 Received: from 213-147-167-116.nat.highway.webapn.at ([213.147.167.116] helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nd34Q-0020zD-BL; Sat, 09 Apr 2022 04:51:34 +0000
+        id 1nd34y-0021Vo-16; Sat, 09 Apr 2022 04:52:08 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     Jens Axboe <axboe@kernel.dk>
 Cc:     dm-devel@redhat.com, linux-xfs@vger.kernel.org,
@@ -43,10 +43,11 @@ Cc:     dm-devel@redhat.com, linux-xfs@vger.kernel.org,
         cluster-devel@redhat.com, jfs-discussion@lists.sourceforge.net,
         linux-nilfs@vger.kernel.org, ntfs3@lists.linux.dev,
         ocfs2-devel@oss.oracle.com, linux-mm@kvack.org,
-        "Martin K . Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 14/27] block: add a bdev_stable_writes helper
-Date:   Sat,  9 Apr 2022 06:50:30 +0200
-Message-Id: <20220409045043.23593-15-hch@lst.de>
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Coly Li <colyli@suse.de>
+Subject: [PATCH 22/27] block: refactor discard bio size limiting
+Date:   Sat,  9 Apr 2022 06:50:38 +0200
+Message-Id: <20220409045043.23593-23-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220409045043.23593-1-hch@lst.de>
 References: <20220409045043.23593-1-hch@lst.de>
@@ -57,76 +58,127 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Add a helper to check the stable writes flag based on the block_device
-instead of having to poke into the block layer internal request_queue.
+Move all the logic to limit the discard bio size into a common helper
+so that it is better documented.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
+Acked-by: Coly Li <colyli@suse.de>
 ---
- drivers/md/dm-table.c  | 4 +---
- fs/super.c             | 2 +-
- include/linux/blkdev.h | 6 ++++++
- mm/swapfile.c          | 2 +-
- 4 files changed, 9 insertions(+), 5 deletions(-)
+ block/blk-lib.c | 59 ++++++++++++++++++++++++-------------------------
+ block/blk.h     | 14 ------------
+ 2 files changed, 29 insertions(+), 44 deletions(-)
 
-diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
-index 5e38d0dd009d5..d46839faa0ca5 100644
---- a/drivers/md/dm-table.c
-+++ b/drivers/md/dm-table.c
-@@ -1950,9 +1950,7 @@ static int device_requires_stable_pages(struct dm_target *ti,
- 					struct dm_dev *dev, sector_t start,
- 					sector_t len, void *data)
- {
--	struct request_queue *q = bdev_get_queue(dev->bdev);
--
--	return blk_queue_stable_writes(q);
-+	return bdev_stable_writes(dev->bdev);
- }
+diff --git a/block/blk-lib.c b/block/blk-lib.c
+index 237d60d8b5857..2ae32a722851c 100644
+--- a/block/blk-lib.c
++++ b/block/blk-lib.c
+@@ -10,6 +10,32 @@
  
- int dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
-diff --git a/fs/super.c b/fs/super.c
-index f1d4a193602d6..60f57c7bc0a69 100644
---- a/fs/super.c
-+++ b/fs/super.c
-@@ -1204,7 +1204,7 @@ static int set_bdev_super(struct super_block *s, void *data)
- 	s->s_dev = s->s_bdev->bd_dev;
- 	s->s_bdi = bdi_get(s->s_bdev->bd_disk->bdi);
+ #include "blk.h"
  
--	if (blk_queue_stable_writes(s->s_bdev->bd_disk->queue))
-+	if (bdev_stable_writes(s->s_bdev))
- 		s->s_iflags |= SB_I_STABLE_WRITES;
- 	return 0;
- }
-diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index 075b16d4560e7..a433798c3343e 100644
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -1330,6 +1330,12 @@ static inline bool bdev_nonrot(struct block_device *bdev)
- 	return blk_queue_nonrot(bdev_get_queue(bdev));
- }
- 
-+static inline bool bdev_stable_writes(struct block_device *bdev)
++static sector_t bio_discard_limit(struct block_device *bdev, sector_t sector)
 +{
-+	return test_bit(QUEUE_FLAG_STABLE_WRITES,
-+			&bdev_get_queue(bdev)->queue_flags);
++	unsigned int discard_granularity =
++		bdev_get_queue(bdev)->limits.discard_granularity;
++	sector_t granularity_aligned_sector;
++
++	if (bdev_is_partition(bdev))
++		sector += bdev->bd_start_sect;
++
++	granularity_aligned_sector =
++		round_up(sector, discard_granularity >> SECTOR_SHIFT);
++
++	/*
++	 * Make sure subsequent bios start aligned to the discard granularity if
++	 * it needs to be split.
++	 */
++	if (granularity_aligned_sector != sector)
++		return granularity_aligned_sector - sector;
++
++	/*
++	 * Align the bio size to the discard granularity to make splitting the bio
++	 * at discard granularity boundaries easier in the driver if needed.
++	 */
++	return round_down(UINT_MAX, discard_granularity) >> SECTOR_SHIFT;
 +}
 +
- static inline bool bdev_write_cache(struct block_device *bdev)
- {
- 	return test_bit(QUEUE_FLAG_WC, &bdev_get_queue(bdev)->queue_flags);
-diff --git a/mm/swapfile.c b/mm/swapfile.c
-index d5ab7ec4d92ca..4069f17a82c8e 100644
---- a/mm/swapfile.c
-+++ b/mm/swapfile.c
-@@ -3065,7 +3065,7 @@ SYSCALL_DEFINE2(swapon, const char __user *, specialfile, int, swap_flags)
- 		goto bad_swap_unlock_inode;
- 	}
+ int __blkdev_issue_discard(struct block_device *bdev, sector_t sector,
+ 		sector_t nr_sects, gfp_t gfp_mask, int flags,
+ 		struct bio **biop)
+@@ -17,7 +43,7 @@ int __blkdev_issue_discard(struct block_device *bdev, sector_t sector,
+ 	struct request_queue *q = bdev_get_queue(bdev);
+ 	struct bio *bio = *biop;
+ 	unsigned int op;
+-	sector_t bs_mask, part_offset = 0;
++	sector_t bs_mask;
  
--	if (p->bdev && blk_queue_stable_writes(p->bdev->bd_disk->queue))
-+	if (p->bdev && bdev_stable_writes(p->bdev))
- 		p->flags |= SWP_STABLE_WRITES;
+ 	if (bdev_read_only(bdev))
+ 		return -EPERM;
+@@ -48,36 +74,9 @@ int __blkdev_issue_discard(struct block_device *bdev, sector_t sector,
+ 	if (!nr_sects)
+ 		return -EINVAL;
  
- 	if (p->bdev && p->bdev->bd_disk->fops->rw_page)
+-	/* In case the discard request is in a partition */
+-	if (bdev_is_partition(bdev))
+-		part_offset = bdev->bd_start_sect;
+-
+ 	while (nr_sects) {
+-		sector_t granularity_aligned_lba, req_sects;
+-		sector_t sector_mapped = sector + part_offset;
+-
+-		granularity_aligned_lba = round_up(sector_mapped,
+-				q->limits.discard_granularity >> SECTOR_SHIFT);
+-
+-		/*
+-		 * Check whether the discard bio starts at a discard_granularity
+-		 * aligned LBA,
+-		 * - If no: set (granularity_aligned_lba - sector_mapped) to
+-		 *   bi_size of the first split bio, then the second bio will
+-		 *   start at a discard_granularity aligned LBA on the device.
+-		 * - If yes: use bio_aligned_discard_max_sectors() as the max
+-		 *   possible bi_size of the first split bio. Then when this bio
+-		 *   is split in device drive, the split ones are very probably
+-		 *   to be aligned to discard_granularity of the device's queue.
+-		 */
+-		if (granularity_aligned_lba == sector_mapped)
+-			req_sects = min_t(sector_t, nr_sects,
+-					  bio_aligned_discard_max_sectors(q));
+-		else
+-			req_sects = min_t(sector_t, nr_sects,
+-					  granularity_aligned_lba - sector_mapped);
+-
+-		WARN_ON_ONCE((req_sects << 9) > UINT_MAX);
++		sector_t req_sects =
++			min(nr_sects, bio_discard_limit(bdev, sector));
+ 
+ 		bio = blk_next_bio(bio, bdev, 0, op, gfp_mask);
+ 		bio->bi_iter.bi_sector = sector;
+diff --git a/block/blk.h b/block/blk.h
+index 8ccbc6e076369..1fdc1d28e6d60 100644
+--- a/block/blk.h
++++ b/block/blk.h
+@@ -346,20 +346,6 @@ static inline unsigned int bio_allowed_max_sectors(struct request_queue *q)
+ 	return round_down(UINT_MAX, queue_logical_block_size(q)) >> 9;
+ }
+ 
+-/*
+- * The max bio size which is aligned to q->limits.discard_granularity. This
+- * is a hint to split large discard bio in generic block layer, then if device
+- * driver needs to split the discard bio into smaller ones, their bi_size can
+- * be very probably and easily aligned to discard_granularity of the device's
+- * queue.
+- */
+-static inline unsigned int bio_aligned_discard_max_sectors(
+-					struct request_queue *q)
+-{
+-	return round_down(UINT_MAX, q->limits.discard_granularity) >>
+-			SECTOR_SHIFT;
+-}
+-
+ /*
+  * Internal io_context interface
+  */
 -- 
 2.30.2
 
