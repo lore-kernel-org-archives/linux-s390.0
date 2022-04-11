@@ -2,165 +2,118 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8DAFC4332F
-	for <linux-s390@archiver.kernel.org>; Mon, 11 Apr 2022 12:59:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D810BC433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 11 Apr 2022 13:23:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233026AbiDKNBl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 11 Apr 2022 09:01:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50172 "EHLO
+        id S1346450AbiDKNZm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 11 Apr 2022 09:25:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345215AbiDKNBl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 11 Apr 2022 09:01:41 -0400
+        with ESMTP id S1346454AbiDKNZj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 11 Apr 2022 09:25:39 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B62E18E26;
-        Mon, 11 Apr 2022 05:59:27 -0700 (PDT)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23BBmG4W029170;
-        Mon, 11 Apr 2022 12:59:27 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=MiMB6R56uYK0VynEat8FPmICo9Z+Tfv1DUMB85Xchow=;
- b=tLWammrCmraGNUYCIkvLsD56N5CZNMTwcBf0b6vZOaE39pQ8QrzEMPHd6HVTGsXtS1vf
- hqmrbwd4Ko6ZSgIVZ5bUcfkSvCTMsX4IIYswPT/vBTcF5aXK39tIvfM1GCWWH1dLZxsM
- sE4+prBTEWMbc+US0mApEUOOyLDZeusC3A8ihyYrG93P43uOrmEtIod65a9ThXd+u6vu
- waQqJlueEQBMkBTLOVLkKytRCbDI8eaGHp57qBKJZrkj2t4hFqRMb3gAkAe80IbfpcJY
- 6BKEQQrodlPxDR4U1hOesK073rzYskHaeEtY9N2jBWwnTZzjQ1FAUTBZkT4K/wwIk1US Kg== 
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D59B3B572;
+        Mon, 11 Apr 2022 06:23:24 -0700 (PDT)
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23BCBtlk018716;
+        Mon, 11 Apr 2022 13:23:24 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=hYcOrK8gXCx5Q8pbp0jxcei42fqIUFDAN3Grr9Begeo=;
+ b=gDKmRgqnwJ1jHBqsrgIXzzUqhgAlJmx7qHSfKOL+Umy08RWtfdZg2+YJoF4pZi0azOHd
+ HcF+qNHrpfi/penZ67Se0hMDkNUsvYwC1axxqbnFUFEt/x7R7CIb6yd3YDeehwjNNy4K
+ kou5ZiHqYdEFqvadw6/aBHs9c/MaKbkmCAmHeo03Gv447ueugLaH93LuDLEScjoLCrBJ
+ ARK4dAO4F7AfwPjW3mheduDz7zLwE86RE3FplrwbNfjoM4QcwBxg5uDwc5srFITACkWJ
+ UnszZ4U1vym0eFNKZBa7EP9qLNeLRHx2pfM5kmN1Y4FZZjR/PMDFmzD++JJkyYyhb4w0 pw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3fcks91f89-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fcm4cshkn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 11 Apr 2022 12:59:26 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23BCgijT015515;
-        Mon, 11 Apr 2022 12:59:26 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3fcks91f7r-1
+        Mon, 11 Apr 2022 13:23:24 +0000
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23BCD3jk021337;
+        Mon, 11 Apr 2022 13:23:23 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fcm4cshjy-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 11 Apr 2022 12:59:26 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23BCrfxt008599;
-        Mon, 11 Apr 2022 12:59:24 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 3fb1dj35mk-1
+        Mon, 11 Apr 2022 13:23:23 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23BCrW2S023817;
+        Mon, 11 Apr 2022 13:23:21 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma02fra.de.ibm.com with ESMTP id 3fb1s8jhah-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 11 Apr 2022 12:59:23 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23BCxTrk47448428
+        Mon, 11 Apr 2022 13:23:21 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23BDNI1F27721998
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 11 Apr 2022 12:59:29 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 89C4D4C044;
-        Mon, 11 Apr 2022 12:59:20 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 431AA4C040;
-        Mon, 11 Apr 2022 12:59:20 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.145.1.140])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 11 Apr 2022 12:59:20 +0000 (GMT)
-Date:   Mon, 11 Apr 2022 14:49:44 +0200
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     Nico Boehr <nrb@linux.ibm.com>
+        Mon, 11 Apr 2022 13:23:18 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E8BCEA4054;
+        Mon, 11 Apr 2022 13:23:17 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 98EE6A405C;
+        Mon, 11 Apr 2022 13:23:17 +0000 (GMT)
+Received: from li-ca45c2cc-336f-11b2-a85c-c6e71de567f1.ibm.com (unknown [9.171.68.171])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 11 Apr 2022 13:23:17 +0000 (GMT)
+Message-ID: <243cc4903700b39072a20636f2433d43320fe4c2.camel@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH 2/2] s390x: add test for SIGP
+ STORE_ADTL_STATUS order
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
 Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        frankja@linux.ibm.com, thuth@redhat.com
-Subject: Re: [kvm-unit-tests PATCH v1 4/4] s390x: add selftest for migration
-Message-ID: <20220411144944.690d19f5@p-imbrenda>
-In-Reply-To: <20220411100750.2868587-5-nrb@linux.ibm.com>
-References: <20220411100750.2868587-1-nrb@linux.ibm.com>
-        <20220411100750.2868587-5-nrb@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        frankja@linux.ibm.com, thuth@redhat.com, david@redhat.com,
+        farman@linux.ibm.com
+Date:   Mon, 11 Apr 2022 15:23:17 +0200
+In-Reply-To: <20220406153107.0b071dcc@p-imbrenda>
+References: <20220401123321.1714489-1-nrb@linux.ibm.com>
+         <20220401123321.1714489-3-nrb@linux.ibm.com>
+         <20220406153107.0b071dcc@p-imbrenda>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.4 (3.42.4-1.fc35) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: lPM0cVzsf38choLog-PnnCqOad8O5Om6
-X-Proofpoint-ORIG-GUID: fY6ep3A7KhQIv0yGMCLaM44_2lV8s9hS
+X-Proofpoint-GUID: Iwl2aDorT6T9OtFffhvWzLjSVBuem6ZG
+X-Proofpoint-ORIG-GUID: Mcv4n4-WikHcpu7Lql9LtqdnVg_0Kt63
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.425,FMLib:17.11.64.514
  definitions=2022-04-11_04,2022-04-11_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 adultscore=0
- priorityscore=1501 suspectscore=0 mlxlogscore=999 mlxscore=0 phishscore=0
- clxscore=1015 bulkscore=0 impostorscore=0 lowpriorityscore=0 spamscore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxlogscore=999
+ bulkscore=0 phishscore=0 adultscore=0 lowpriorityscore=0 malwarescore=0
+ spamscore=0 priorityscore=1501 impostorscore=0 suspectscore=0 mlxscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2204110069
+ definitions=main-2204110072
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 11 Apr 2022 12:07:50 +0200
-Nico Boehr <nrb@linux.ibm.com> wrote:
-
-> Add a selftest to check we can do migration tests.
+On Wed, 2022-04-06 at 15:31 +0200, Claudio Imbrenda wrote:
+> > diff --git a/s390x/adtl-status.c b/s390x/adtl-status.c
+> > new file mode 100644
+> > index 000000000000..c3ecdbc35a9d
+> > 
+[...]
+> > +static void restart_write_vector(void)
+> > +{
+> > +       uint8_t *vec_reg;
+> > +       /* vlm handles at most 16 registers at a time */
+> > +       uint8_t *vec_reg_16_31 = &expected_vec_contents[16][0];
+> > +       uint64_t cr0, cr0_mask = ~(1ULL << CTL0_VECTOR);
 > 
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-> ---
->  s390x/Makefile             |  1 +
->  s390x/selftest-migration.c | 27 +++++++++++++++++++++++++++
->  s390x/unittests.cfg        |  4 ++++
->  3 files changed, 32 insertions(+)
->  create mode 100644 s390x/selftest-migration.c
+> cr0_mask can be const, and you can use ~BIT_ULL(CTL0_VECTOR)
+
+I don't think so, since ng in the inline ASM will store its result
+there.
+
+BIT_ULL is much better, thanks. I tend to forget about that.
+
 > 
-> diff --git a/s390x/Makefile b/s390x/Makefile
-> index 62e197cb93d7..2e43e323bcb5 100644
-> --- a/s390x/Makefile
-> +++ b/s390x/Makefile
-> @@ -26,6 +26,7 @@ tests += $(TEST_DIR)/edat.elf
->  tests += $(TEST_DIR)/mvpg-sie.elf
->  tests += $(TEST_DIR)/spec_ex-sie.elf
->  tests += $(TEST_DIR)/firq.elf
-> +tests += $(TEST_DIR)/selftest-migration.elf
->  
->  pv-tests += $(TEST_DIR)/pv-diags.elf
->  
-> diff --git a/s390x/selftest-migration.c b/s390x/selftest-migration.c
-> new file mode 100644
-> index 000000000000..8884322a84ca
-> --- /dev/null
-> +++ b/s390x/selftest-migration.c
-> @@ -0,0 +1,27 @@
-> +/* SPDX-License-Identifier: GPL-2.0-only */
-> +/*
-> + * Migration Selftest
-> + *
-> + * Copyright IBM Corp. 2022
-> + *
-> + * Authors:
-> + *  Nico Boehr <nrb@linux.ibm.com>
-> + */
-> +#include <libcflat.h>
-> +
-> +int main(void)
-> +{
-> +	/* don't say migrate here otherwise we will migrate right away */
-> +	report_prefix_push("selftest migration");
-> +
-> +	/* ask migrate_cmd to migrate (it listens for 'migrate') */
-> +	puts("Please migrate me\n");
-> +
-> +	/* wait for migration to finish, we will read a newline */
-> +	(void)getchar();
+> > +       int one = 1;
+> 
+> one can also be const, although I wonder if this can just become an
+> constant in the asm statement
 
-how hard would it be to actually check that you got the newline?
-
-> +
-> +	report_pass("Migrated");
-> +
-> +	report_prefix_pop();
-> +	return report_summary();
-> +}
-> diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-> index 1600e714c8b9..b0417a69705d 100644
-> --- a/s390x/unittests.cfg
-> +++ b/s390x/unittests.cfg
-> @@ -24,6 +24,10 @@ groups = selftest
->  # please keep the kernel cmdline in sync with $(TEST_DIR)/selftest.parmfile
->  extra_params = -append 'test 123'
->  
-> +[selftest-migration]
-> +file = selftest-migration.elf
-> +groups = selftest migration
-> +
->  [intercept]
->  file = intercept.elf
->  
+Yes, right, thanks. Should work with mvhi.
 
