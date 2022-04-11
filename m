@@ -2,160 +2,115 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 40FBEC433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 11 Apr 2022 08:44:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D342C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 11 Apr 2022 10:08:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343946AbiDKIqh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 11 Apr 2022 04:46:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60854 "EHLO
+        id S242125AbiDKKKM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 11 Apr 2022 06:10:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343941AbiDKIqf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 11 Apr 2022 04:46:35 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C6475F55;
-        Mon, 11 Apr 2022 01:44:19 -0700 (PDT)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23B8cx1N037982;
-        Mon, 11 Apr 2022 08:44:11 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version; s=pp1; bh=lZg6/NDrtfcKNrz+a4Ul9FSLuVpiXTuAV75sUdv+6eY=;
- b=G7fVx5XmAHBpaMfPbiBMG8gpIPtpjDZfLqTrv0QQocLscJZyRd0sQojB6D4cEUrKojqk
- 44F4Q1BGewyudW3hvJoi8x+LZSxX/lw48yH1Kw2ymMvGVxWSJnpWuefgmuqPdthdeAEF
- aXBFx/LBQLiWk+UTOHEKVFjZgv7hayMukh+8wey2/3maVMRG0TMF7prGX5ps/EzXvx7G
- lYOWMogQGN7KKJ+fJ9jEXKO0i2937PURPaBiF2z492S+Wxbkjz7Go6CHdpsHTt+ydY1y
- AR5cDRSOc4KRhBkVHGMLgFBhOuuohXvCFsxp2+O/DZRZ+vstWwj1Vw5tBs4oqNgJ6CS1 GA== 
+        with ESMTP id S1345112AbiDKKKK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 11 Apr 2022 06:10:10 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 266AE42A17;
+        Mon, 11 Apr 2022 03:07:57 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23B9hJWJ004564;
+        Mon, 11 Apr 2022 10:07:56 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=PIq7azO6pUyQM/9lTH1hBwx7/9FTbtTYMEwnyHIdpdc=;
+ b=DMXr7mPNzGvwcocdlqMRO7xSR6USMdDIytMtCVa6r27VJR0WJyBjiDi4MJxHuotNa8de
+ evDjt/E9VEDafRYozFWkEtjNJWjtwUMueG+rz4NRJ1C0W+1g8ieg7alegLcCRJOaX9OO
+ 5wj35TxWMOt1GE8JgibH/p5NdXVbOR9tYD/LIRYAzNfb+B5mMQ/3Z6e3dNF9lxobPs2X
+ ThUAOCFYkg9iiBJ0ZdQ+uSCiSyitwnl2J2FCO9J1qIZkV5EipZw5VHazitaM9gVbdxvw
+ NCusvBwXPDJ2hAtgn4DjDapAP3uRG/MWaRWHU3DkKD5NIsmEwNzqn8ZIUwV8rxRTXXz7 Jw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3fbkm0pkc4-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fchxtre4h-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 11 Apr 2022 08:44:10 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23B8Wmav016915;
-        Mon, 11 Apr 2022 08:44:10 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3fbkm0pkbk-1
+        Mon, 11 Apr 2022 10:07:56 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23B9vum9021890;
+        Mon, 11 Apr 2022 10:07:55 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fchxtre3n-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 11 Apr 2022 08:44:10 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23B8hnve020038;
-        Mon, 11 Apr 2022 08:44:07 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma03fra.de.ibm.com with ESMTP id 3fb1s8j5vq-1
+        Mon, 11 Apr 2022 10:07:55 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23BA7nYJ012228;
+        Mon, 11 Apr 2022 10:07:54 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03ams.nl.ibm.com with ESMTP id 3fb1s8tuny-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 11 Apr 2022 08:44:07 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23B8i4ap36176156
+        Mon, 11 Apr 2022 10:07:53 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23BA7osj45154686
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 11 Apr 2022 08:44:04 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A54DCAE056;
-        Mon, 11 Apr 2022 08:44:04 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2956CAE04D;
-        Mon, 11 Apr 2022 08:44:04 +0000 (GMT)
-Received: from sig-9-145-41-213.uk.ibm.com (unknown [9.145.41.213])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 11 Apr 2022 08:44:04 +0000 (GMT)
-Message-ID: <e565547113567e9fd6cacce333bc28d2af088b72.camel@linux.ibm.com>
-Subject: Re: [PATCH RESEND 1/2] PCI: Extend isolated function probing to s390
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Bjorn Helgaas <helgaas@kernel.org>
-Cc:     Bjorn Helgaas <bhelgaas@google.com>,
-        Jan Kiszka <jan.kiszka@siemens.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-pci@vger.kernel.org
-Date:   Mon, 11 Apr 2022 10:43:56 +0200
-In-Reply-To: <20220408224514.GA353445@bhelgaas>
-References: <20220408224514.GA353445@bhelgaas>
-Content-Type: multipart/signed; micalg="pgp-sha256";
-        protocol="application/pgp-signature"; boundary="=-PbxZJLOD/wIhH9K18RJQ"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-Mime-Version: 1.0
+        Mon, 11 Apr 2022 10:07:50 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 92494A4054;
+        Mon, 11 Apr 2022 10:07:50 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4F7D8A405B;
+        Mon, 11 Apr 2022 10:07:50 +0000 (GMT)
+Received: from t46lp57.lnxne.boe (unknown [9.152.108.100])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 11 Apr 2022 10:07:50 +0000 (GMT)
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
+Subject: [kvm-unit-tests PATCH v1 0/4] s390x: add migration test suport
+Date:   Mon, 11 Apr 2022 12:07:46 +0200
+Message-Id: <20220411100750.2868587-1-nrb@linux.ibm.com>
+X-Mailer: git-send-email 2.31.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: RUsjhSnWXNUrpam3jyZ26HQdZ0XhRKRf
-X-Proofpoint-ORIG-GUID: frveAZjDjPJZtCjxpt5nb76WcOKP632S
+X-Proofpoint-ORIG-GUID: QrZ2PwNKIXSM-sFE0QYKWAMcOsv3lYYL
+X-Proofpoint-GUID: ycQrH6ECy46LwAmIHWfLIwN3RkHCNFLH
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-04-11_02,2022-04-08_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 impostorscore=0
- lowpriorityscore=0 malwarescore=0 clxscore=1011 mlxscore=0 phishscore=0
- adultscore=0 mlxlogscore=907 spamscore=0 suspectscore=0 priorityscore=1501
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2204110045
+ definitions=2022-04-11_03,2022-04-11_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxscore=0
+ spamscore=0 mlxlogscore=949 adultscore=0 suspectscore=0 lowpriorityscore=0
+ clxscore=1011 impostorscore=0 priorityscore=1501 phishscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2204110057
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Add migration test support for s390x.
 
---=-PbxZJLOD/wIhH9K18RJQ
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+arm and powerpc already support basic migration tests.
 
-On Fri, 2022-04-08 at 17:45 -0500, Bjorn Helgaas wrote:
-> On Mon, Apr 04, 2022 at 11:53:45AM +0200, Niklas Schnelle wrote:
-> > Like the jailhouse hypervisor s390's PCI architecture allows passing
-> > isolated PCI functions to an OS instance. As of now this is was not
-> > utilized even with multi-function support as the s390 PCI code makes
-> > sure that only virtual PCI busses including a function with devfn 0 are
-> > presented to the PCI subsystem. A subsequent change will remove this
-> > restriction.
-> >=20
-> > Allow probing such functions by replacing the existing check for
-> > jailhouse_paravirt() with a new hypervisor_isolated_pci_functions()
-> > helper.
-> >=20
-> > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
->=20
-> I'm OK with the idea of generalizing this Jailhouse test, but I wonder
-> if this check should be in pci_scan_slot() rather than in
-> pci_scan_child_bus_extend().
->=20
-> I think the idea is that pci_scan_slot() should find all the functions
-> of a device (a.k.a. "slot"), so it's a little weird to have a loop
-> calling pci_scan_single_device() for each function in both places.
+If a test is in the migration group, it can print "migrate" on its console. This
+will cause it to be migrated to a new QEMU instance. When migration is finished,
+the test will be able to read a newline from its standard input.
 
-Yeah, I agree.
->=20
-> Currently we never call pcie_aspm_init_link_state() for these
-> Jailhouse or s390 functions.  Maybe that's OK (and I think
-> pci_scan_slot() is the wrong place to initialize ASPM anyway) but if
-> we could move the Jailhouse/s390 checking to pci_scan_slot(), it would
-> at least remove the inconsistency.
->=20
-> I'm thinking something along the lines of the patch below.  I'm sure
-> Jan considered this originally, so maybe there's some reason this
-> won't work.
+We need the following pieces for this to work under s390x:
 
-One thing I already noticed is that I think next_fn() may need to be
-changed. If pci_ari_enabled(bus) is true, then it immediately returns 0
-on dev =3D=3D NULL while if it is false there is an extra check for non-
-contiguous multifunction devices. Even then I think on jailhouse() dev-
->multifunction might not be set at that point. This is in contrast to
-s390 where we set dev->multifunction based on information provided by
-the platform before scanning the bus. So I'll have to be careful not to
-create a state where this works on s390 but might not work for
-jailhouse.
+* read support for the sclp console. This can be very basic, it doesn't even
+  have to read anything useful, we just need to know something happened on
+  the console.
+* s390/run adjustments to call the migration helper script.
 
-I also do wonder what the role of the PCI_SCAN_ALL_PCIE_DEVS flag
-should be here. At least the comment in only_one_child() sounds a lot
-like that flag kind of indicates the same thing.
+Nico Boehr (4):
+  lib: s390x: add support for SCLP console read
+  s390x: add support for migration tests
+  s390x: don't run migration tests under PV
+  s390x: add selftest for migration
 
-I'll do some more investigation and testing and report back. I do agree
-that there seems to be some potential for cleanup here.
+ lib/s390x/sclp-console.c   | 81 +++++++++++++++++++++++++++++++++++---
+ lib/s390x/sclp.h           |  7 ++++
+ s390x/Makefile             |  2 +
+ s390x/run                  |  7 +++-
+ s390x/selftest-migration.c | 27 +++++++++++++
+ s390x/unittests.cfg        |  4 ++
+ scripts/s390x/func.bash    |  2 +-
+ 7 files changed, 122 insertions(+), 8 deletions(-)
+ create mode 100644 s390x/selftest-migration.c
 
---=-PbxZJLOD/wIhH9K18RJQ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYIAB0WIQSiikNOrnCUNbxSj4j7H22hwInkVgUCYlPqTAAKCRD7H22hwInk
-VgRWAP4qwiQe4aUTA4vPUfo5NKahyffwtI33Q201iJaHeS9qaQEAlN2biMrJEtwz
-bf48i7vJiJe4mtQqZevG3yBFlUbvwgY=
-=Zl25
------END PGP SIGNATURE-----
-
---=-PbxZJLOD/wIhH9K18RJQ--
+-- 
+2.31.1
 
