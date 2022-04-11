@@ -2,246 +2,83 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 672ECC433FE
-	for <linux-s390@archiver.kernel.org>; Mon, 11 Apr 2022 13:34:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CAA5EC433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 11 Apr 2022 14:01:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346528AbiDKNgU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 11 Apr 2022 09:36:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52754 "EHLO
+        id S1346871AbiDKOEH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 11 Apr 2022 10:04:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346513AbiDKNgS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 11 Apr 2022 09:36:18 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E4EE13F;
-        Mon, 11 Apr 2022 06:34:02 -0700 (PDT)
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23BDLcY0023874;
-        Mon, 11 Apr 2022 13:34:01 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=i4YXILvisY1Q9PkqgV1NiIoKbchFot1nP11GGaYvMwo=;
- b=eZjiuPLHw6y8VhgaAsrmMOc2cAAP5V51ib1aBuPUv1ukMHvbHxtm2VjUREhp7EEMNXfF
- OyApt/rToAyg4iXyUg9zRfpGbo4AF3+tH7yohBQGOne8PU/OfRq5Z0R/f3c6i93r/XJN
- zFrgKyFfRyRmfsY9qVSbW59hVg3LfS2Qs5Iiv69HSTAIfzq2g7haLFrEHeL4LC2j7DJr
- Pjn8m1+NHnlD28acCG/XP1BRG3Hzd0fA/wuBIgKLMyImsnon5pbxuy5/PG2DkiZpzDjc
- VNvg6vdjI0uBPuVWnmQiwfinZ/eXntW1MS93GtusN3vcIFFc/X5TidvvknJt6SK4K4dD hQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3fcn580a3k-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 11 Apr 2022 13:34:01 +0000
-Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23BDLuTN024791;
-        Mon, 11 Apr 2022 13:34:01 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3fcn580a2v-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 11 Apr 2022 13:34:01 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23BCrfs2004847;
-        Mon, 11 Apr 2022 13:33:59 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3fb1s8u66m-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 11 Apr 2022 13:33:59 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23BDXu3w32047614
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 11 Apr 2022 13:33:56 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 04ED342041;
-        Mon, 11 Apr 2022 13:33:56 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BD99E42045;
-        Mon, 11 Apr 2022 13:33:55 +0000 (GMT)
-Received: from t46lp57.lnxne.boe (unknown [9.152.108.100])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 11 Apr 2022 13:33:55 +0000 (GMT)
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
-Subject: [kvm-unit-tests PATCH v3 1/2] s390x: gs: move to new header file
-Date:   Mon, 11 Apr 2022 15:33:54 +0200
-Message-Id: <20220411133355.3040084-2-nrb@linux.ibm.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20220411133355.3040084-1-nrb@linux.ibm.com>
-References: <20220411133355.3040084-1-nrb@linux.ibm.com>
+        with ESMTP id S1346841AbiDKOEF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 11 Apr 2022 10:04:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 379D731DEB;
+        Mon, 11 Apr 2022 07:01:49 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F3CB6B8160D;
+        Mon, 11 Apr 2022 14:01:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60E77C385A4;
+        Mon, 11 Apr 2022 14:01:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1649685706;
+        bh=aoF5JI4oA+WPgt/y0IgsxtsbxAXaCuGafPntNOloKP4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Z3DJooO+lpgxb0V7M65iVrqmxI0PEssCJPh+vJ1dEw1YBTDUO4k0Ftowa06gEpR83
+         S1WtT+TAlqYOA3SV5oPOUKBv5r5Czq1jXlmgnBC2vlAsKUSP12Z7m3WPk2IIXa7ddE
+         7+rat37phwTAQkXhdDcOfyIkaP50hX9uWu9MCv3Yv354dhMqhNyhEKK5VIXvkcNSo/
+         Yw75O5ZXcRgYxwAIHqrZej/c3adf+HQOwXoAdC34I68eRF5zbda1Ysdnlbmc/q5KXa
+         +yAvml8INLRMKi4FRTZn17313igwH9BKq1x7zfZpQGp7kDf9WzbZnpQOZP3oofxBEN
+         wCj97MUpv05qA==
+Date:   Mon, 11 Apr 2022 08:01:41 -0600
+From:   Keith Busch <kbusch@kernel.org>
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Jens Axboe <axboe@kernel.dk>, dm-devel@redhat.com,
+        linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-block@vger.kernel.org,
+        drbd-dev@lists.linbit.com, nbd@other.debian.org,
+        ceph-devel@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        xen-devel@lists.xenproject.org, linux-bcache@vger.kernel.org,
+        linux-raid@vger.kernel.org, linux-mmc@vger.kernel.org,
+        linux-mtd@lists.infradead.org, linux-nvme@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
+        target-devel@vger.kernel.org, linux-btrfs@vger.kernel.org,
+        linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
+        cluster-devel@redhat.com, jfs-discussion@lists.sourceforge.net,
+        linux-nilfs@vger.kernel.org, ntfs3@lists.linux.dev,
+        ocfs2-devel@oss.oracle.com, linux-mm@kvack.org,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Christoph =?iso-8859-1?Q?B=F6hmwalder?= 
+        <christoph.boehmwalder@linbit.com>, Coly Li <colyli@suse.de>
+Subject: Re: [PATCH 24/27] block: remove QUEUE_FLAG_DISCARD
+Message-ID: <YlQ0xbtIcf8gti43@kbusch-mbp.dhcp.thefacebook.com>
+References: <20220409045043.23593-1-hch@lst.de>
+ <20220409045043.23593-25-hch@lst.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: dKFEZwzCEE_wAQVJsXhDJUTLQAImdoBK
-X-Proofpoint-ORIG-GUID: pv7J0HaehZGTDOFBhGKWdFWerX9hP5Mu
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-04-11_05,2022-04-11_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
- lowpriorityscore=0 impostorscore=0 suspectscore=0 spamscore=0 phishscore=0
- clxscore=1015 adultscore=0 priorityscore=1501 mlxlogscore=792 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2204110074
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220409045043.23593-25-hch@lst.de>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Move the guarded-storage related structs and instructions to a new
-header file because we will also need them for the SIGP store additional
-status tests.
+On Sat, Apr 09, 2022 at 06:50:40AM +0200, Christoph Hellwig wrote:
+> diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+> index efb85c6d8e2d5..7e07dd69262a7 100644
+> --- a/drivers/nvme/host/core.c
+> +++ b/drivers/nvme/host/core.c
+> @@ -1607,10 +1607,8 @@ static void nvme_config_discard(struct gendisk *disk, struct nvme_ns *ns)
+>  	struct request_queue *queue = disk->queue;
+>  	u32 size = queue_logical_block_size(queue);
+>  
+> -	if (ctrl->max_discard_sectors == 0) {
+> -		blk_queue_flag_clear(QUEUE_FLAG_DISCARD, queue);
+> +	if (ctrl->max_discard_sectors == 0)
+>  		return;
+> -	}
 
-Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
----
- lib/s390x/gs.h | 69 ++++++++++++++++++++++++++++++++++++++++++++++++++
- s390x/gs.c     | 54 +--------------------------------------
- 2 files changed, 70 insertions(+), 53 deletions(-)
- create mode 100644 lib/s390x/gs.h
-
-diff --git a/lib/s390x/gs.h b/lib/s390x/gs.h
-new file mode 100644
-index 000000000000..9c94e580b4b9
---- /dev/null
-+++ b/lib/s390x/gs.h
-@@ -0,0 +1,69 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Guarded storage related definitions
-+ *
-+ * Copyright 2018 IBM Corp.
-+ *
-+ * Authors:
-+ *    Martin Schwidefsky <schwidefsky@de.ibm.com>
-+ *    Janosch Frank <frankja@linux.ibm.com>
-+ */
-+#include <stdint.h>
-+
-+#ifndef _S390X_GS_H_
-+#define _S390X_GS_H_
-+
-+struct gs_cb {
-+	uint64_t reserved;
-+	uint64_t gsd;
-+	uint64_t gssm;
-+	uint64_t gs_epl_a;
-+};
-+
-+struct gs_epl {
-+	uint8_t pad1;
-+	union {
-+		uint8_t gs_eam;
-+		struct {
-+			uint8_t		: 6;
-+			uint8_t e	: 1;
-+			uint8_t b	: 1;
-+		};
-+	};
-+	union {
-+		uint8_t gs_eci;
-+		struct {
-+			uint8_t tx	: 1;
-+			uint8_t cx	: 1;
-+			uint8_t		: 5;
-+			uint8_t in	: 1;
-+		};
-+	};
-+	union {
-+		uint8_t gs_eai;
-+		struct {
-+			uint8_t		: 1;
-+			uint8_t t	: 1;
-+			uint8_t as	: 2;
-+			uint8_t ar	: 4;
-+		};
-+	};
-+	uint32_t pad2;
-+	uint64_t gs_eha;
-+	uint64_t gs_eia;
-+	uint64_t gs_eoa;
-+	uint64_t gs_eir;
-+	uint64_t gs_era;
-+};
-+
-+static inline void load_gs_cb(struct gs_cb *gs_cb)
-+{
-+	asm volatile(".insn rxy,0xe3000000004d,0,%0" : : "Q" (*gs_cb));
-+}
-+
-+static inline void store_gs_cb(struct gs_cb *gs_cb)
-+{
-+	asm volatile(".insn rxy,0xe30000000049,0,%0" : : "Q" (*gs_cb));
-+}
-+
-+#endif
-diff --git a/s390x/gs.c b/s390x/gs.c
-index 7567bb78fecb..4993eb8f43a9 100644
---- a/s390x/gs.c
-+++ b/s390x/gs.c
-@@ -13,49 +13,7 @@
- #include <asm/facility.h>
- #include <asm/interrupt.h>
- #include <asm-generic/barrier.h>
--
--struct gs_cb {
--	uint64_t reserved;
--	uint64_t gsd;
--	uint64_t gssm;
--	uint64_t gs_epl_a;
--};
--
--struct gs_epl {
--	uint8_t pad1;
--	union {
--		uint8_t gs_eam;
--		struct {
--			uint8_t		: 6;
--			uint8_t e	: 1;
--			uint8_t b	: 1;
--		};
--	};
--	union {
--		uint8_t gs_eci;
--		struct {
--			uint8_t tx	: 1;
--			uint8_t cx	: 1;
--			uint8_t		: 5;
--			uint8_t in	: 1;
--		};
--	};
--	union {
--		uint8_t gs_eai;
--		struct {
--			uint8_t		: 1;
--			uint8_t t	: 1;
--			uint8_t as	: 2;
--			uint8_t ar	: 4;
--		};
--	};
--	uint32_t pad2;
--	uint64_t gs_eha;
--	uint64_t gs_eia;
--	uint64_t gs_eoa;
--	uint64_t gs_eir;
--	uint64_t gs_era;
--};
-+#include <gs.h>
- 
- static volatile int guarded = 0;
- static struct gs_cb gs_cb;
-@@ -64,16 +22,6 @@ static unsigned long gs_area = 0x2000000;
- 
- void gs_handler(struct gs_cb *this_cb);
- 
--static inline void load_gs_cb(struct gs_cb *gs_cb)
--{
--	asm volatile(".insn rxy,0xe3000000004d,0,%0" : : "Q" (*gs_cb));
--}
--
--static inline void store_gs_cb(struct gs_cb *gs_cb)
--{
--	asm volatile(".insn rxy,0xe30000000049,0,%0" : : "Q" (*gs_cb));
--}
--
- static inline unsigned long load_guarded(unsigned long *p)
- {
- 	unsigned long v;
--- 
-2.31.1
-
+I think we need to update the queue limit in this condition. While unlikley,
+the flag was cleared here in case the device changed support for discard from
+the previous reset. 
