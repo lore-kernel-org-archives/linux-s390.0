@@ -2,83 +2,130 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CAA5EC433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 11 Apr 2022 14:01:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DB906C43217
+	for <linux-s390@archiver.kernel.org>; Mon, 11 Apr 2022 14:05:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346871AbiDKOEH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 11 Apr 2022 10:04:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40682 "EHLO
+        id S1346941AbiDKOIL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 11 Apr 2022 10:08:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346841AbiDKOEF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 11 Apr 2022 10:04:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 379D731DEB;
-        Mon, 11 Apr 2022 07:01:49 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F3CB6B8160D;
-        Mon, 11 Apr 2022 14:01:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60E77C385A4;
-        Mon, 11 Apr 2022 14:01:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649685706;
-        bh=aoF5JI4oA+WPgt/y0IgsxtsbxAXaCuGafPntNOloKP4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Z3DJooO+lpgxb0V7M65iVrqmxI0PEssCJPh+vJ1dEw1YBTDUO4k0Ftowa06gEpR83
-         S1WtT+TAlqYOA3SV5oPOUKBv5r5Czq1jXlmgnBC2vlAsKUSP12Z7m3WPk2IIXa7ddE
-         7+rat37phwTAQkXhdDcOfyIkaP50hX9uWu9MCv3Yv354dhMqhNyhEKK5VIXvkcNSo/
-         Yw75O5ZXcRgYxwAIHqrZej/c3adf+HQOwXoAdC34I68eRF5zbda1Ysdnlbmc/q5KXa
-         +yAvml8INLRMKi4FRTZn17313igwH9BKq1x7zfZpQGp7kDf9WzbZnpQOZP3oofxBEN
-         wCj97MUpv05qA==
-Date:   Mon, 11 Apr 2022 08:01:41 -0600
-From:   Keith Busch <kbusch@kernel.org>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Jens Axboe <axboe@kernel.dk>, dm-devel@redhat.com,
-        linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-block@vger.kernel.org,
-        drbd-dev@lists.linbit.com, nbd@other.debian.org,
-        ceph-devel@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        xen-devel@lists.xenproject.org, linux-bcache@vger.kernel.org,
-        linux-raid@vger.kernel.org, linux-mmc@vger.kernel.org,
-        linux-mtd@lists.infradead.org, linux-nvme@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
-        target-devel@vger.kernel.org, linux-btrfs@vger.kernel.org,
-        linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
-        cluster-devel@redhat.com, jfs-discussion@lists.sourceforge.net,
-        linux-nilfs@vger.kernel.org, ntfs3@lists.linux.dev,
-        ocfs2-devel@oss.oracle.com, linux-mm@kvack.org,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Christoph =?iso-8859-1?Q?B=F6hmwalder?= 
-        <christoph.boehmwalder@linbit.com>, Coly Li <colyli@suse.de>
-Subject: Re: [PATCH 24/27] block: remove QUEUE_FLAG_DISCARD
-Message-ID: <YlQ0xbtIcf8gti43@kbusch-mbp.dhcp.thefacebook.com>
-References: <20220409045043.23593-1-hch@lst.de>
- <20220409045043.23593-25-hch@lst.de>
+        with ESMTP id S1346922AbiDKOIK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 11 Apr 2022 10:08:10 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FC603299B;
+        Mon, 11 Apr 2022 07:05:56 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23BDCDTO007735;
+        Mon, 11 Apr 2022 14:05:56 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=QflFRNbJ85d3PHgxQXbyj1YhbE8+j4XZcSBSeBaTIT0=;
+ b=XgyqQmJx9/2rokN0LtTDOEnSM0hHBmmK66zN/jnTYLljuNave6YJyzhNyfxBXqzZNmv2
+ uF6f5wtI+HXazZZmAPrQcREhe5aX/eCf8sZJGgMzTppQmLpmY680adgs53ItIv6HwNTw
+ OOe48SIvJJigwR13+IsJWGuGopvNz+Wn85Mkf8aNNOys3ypMRsn17+9OYTVtQfWJfTRs
+ sGnwwzJsk/sFq1yeBaYxwRmHi7r6KU/U/4xsijwTTL3Fam96iQJp/Rigivccb9B4B/OI
+ pvo089mKe0DjVWIdks+0FVi0cRZ3q54djNeHE/Umayy5LyuQjSOwovQAkjJV4F6NNl2v XQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fcn0c17gu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 11 Apr 2022 14:05:55 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23BDEVvF018336;
+        Mon, 11 Apr 2022 14:05:55 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fcn0c17fw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 11 Apr 2022 14:05:55 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23BE3qYf010096;
+        Mon, 11 Apr 2022 14:05:53 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma04ams.nl.ibm.com with ESMTP id 3fb1s8u8kh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 11 Apr 2022 14:05:52 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23BE5nYr43909614
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 11 Apr 2022 14:05:49 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id ACBD1A405B;
+        Mon, 11 Apr 2022 14:05:49 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 51FA5A405F;
+        Mon, 11 Apr 2022 14:05:49 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.145.1.140])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 11 Apr 2022 14:05:49 +0000 (GMT)
+Date:   Mon, 11 Apr 2022 16:05:46 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Nico Boehr <nrb@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        frankja@linux.ibm.com, thuth@redhat.com, david@redhat.com,
+        farman@linux.ibm.com
+Subject: Re: [kvm-unit-tests PATCH 2/2] s390x: add test for SIGP
+ STORE_ADTL_STATUS order
+Message-ID: <20220411160546.746204c2@p-imbrenda>
+In-Reply-To: <243cc4903700b39072a20636f2433d43320fe4c2.camel@linux.ibm.com>
+References: <20220401123321.1714489-1-nrb@linux.ibm.com>
+        <20220401123321.1714489-3-nrb@linux.ibm.com>
+        <20220406153107.0b071dcc@p-imbrenda>
+        <243cc4903700b39072a20636f2433d43320fe4c2.camel@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220409045043.23593-25-hch@lst.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: ILZgtFjTWqopU4nnpyuEBBOkHfRHL6Tk
+X-Proofpoint-ORIG-GUID: Cl9JY7oHSIf-cyXNiiSCFNtGrGIhF0rA
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-04-11_04,2022-04-11_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
+ spamscore=0 clxscore=1015 impostorscore=0 mlxscore=0 lowpriorityscore=0
+ priorityscore=1501 malwarescore=0 suspectscore=0 mlxlogscore=999
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2204110078
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sat, Apr 09, 2022 at 06:50:40AM +0200, Christoph Hellwig wrote:
-> diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-> index efb85c6d8e2d5..7e07dd69262a7 100644
-> --- a/drivers/nvme/host/core.c
-> +++ b/drivers/nvme/host/core.c
-> @@ -1607,10 +1607,8 @@ static void nvme_config_discard(struct gendisk *disk, struct nvme_ns *ns)
->  	struct request_queue *queue = disk->queue;
->  	u32 size = queue_logical_block_size(queue);
->  
-> -	if (ctrl->max_discard_sectors == 0) {
-> -		blk_queue_flag_clear(QUEUE_FLAG_DISCARD, queue);
-> +	if (ctrl->max_discard_sectors == 0)
->  		return;
-> -	}
+On Mon, 11 Apr 2022 15:23:17 +0200
+Nico Boehr <nrb@linux.ibm.com> wrote:
 
-I think we need to update the queue limit in this condition. While unlikley,
-the flag was cleared here in case the device changed support for discard from
-the previous reset. 
+> On Wed, 2022-04-06 at 15:31 +0200, Claudio Imbrenda wrote:
+> > > diff --git a/s390x/adtl-status.c b/s390x/adtl-status.c
+> > > new file mode 100644
+> > > index 000000000000..c3ecdbc35a9d
+> > >  =20
+> [...]
+> > > +static void restart_write_vector(void)
+> > > +{
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0uint8_t *vec_reg;
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0/* vlm handles at most 16 =
+registers at a time */
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0uint8_t *vec_reg_16_31 =3D=
+ &expected_vec_contents[16][0];
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0uint64_t cr0, cr0_mask =3D=
+ ~(1ULL << CTL0_VECTOR); =20
+> >=20
+> > cr0_mask can be const, and you can use ~BIT_ULL(CTL0_VECTOR) =20
+>=20
+> I don't think so, since ng in the inline ASM will store its result
+> there.
+
+oops, right
+
+>=20
+> BIT_ULL is much better, thanks. I tend to forget about that.
+>=20
+> >  =20
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0int one =3D 1; =20
+> >=20
+> > one can also be const, although I wonder if this can just become an
+> > constant in the asm statement =20
+>=20
+> Yes, right, thanks. Should work with mvhi.
+>=20
+
