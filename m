@@ -2,65 +2,66 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C507BC433EF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8CC6C43219
 	for <linux-s390@archiver.kernel.org>; Tue, 12 Apr 2022 08:26:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234974AbiDLIZg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 12 Apr 2022 04:25:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46346 "EHLO
+        id S236183AbiDLIZh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 12 Apr 2022 04:25:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357153AbiDLHjt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Apr 2022 03:39:49 -0400
+        with ESMTP id S1358825AbiDLHmQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Apr 2022 03:42:16 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0FB8112A96
-        for <linux-s390@vger.kernel.org>; Tue, 12 Apr 2022 00:13:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6555F53E22
+        for <linux-s390@vger.kernel.org>; Tue, 12 Apr 2022 00:19:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1649747580;
+        s=mimecast20190719; t=1649747962;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=mRq1WN/7xC1cXSlUswWcAEZrziB8GVLK8yncCszg3n4=;
-        b=JD484GVTbyTaBWXBS9fNj9OjsXL5AaiYTZMXh+RHGyOOlYkNMD3OsQBsl4+wXGCnIoKnkN
-        xbRFhvbqZSJhVzuooRRFzRllYeQyBqjdhHDBjTChxCdQi/ZYi7KcztaZqi6+mJBI9d1OM9
-        wyNHhninuala02K/90GR8no0pUStxMA=
-Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com
- [209.85.214.200]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=Yuz95x1G3zlqb83uNRLz/nX1y2Nb6heM9sreLygHM+8=;
+        b=e1xsGA0u6k5ZzQuDGpM/i83UMVxauBVEGYneTs/iMGaPzymbSZYNASxECQTqIKj+fMymyn
+        hQVGp5+O8G68QuBNZ2IKDKLnn8meKQ8Xwv60fugrUt09YGE7lpcolO319+B2y3ZIPBxr1i
+        eEyc4XLRXjoG3nAHVQQ5E5bxdLYlQ9c=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-570-bc4cSgQdPdyrFvAYShHkmw-1; Tue, 12 Apr 2022 03:12:58 -0400
-X-MC-Unique: bc4cSgQdPdyrFvAYShHkmw-1
-Received: by mail-pl1-f200.google.com with SMTP id i2-20020a170902c94200b001586d3264c9so2088060pla.1
-        for <linux-s390@vger.kernel.org>; Tue, 12 Apr 2022 00:12:58 -0700 (PDT)
+ us-mta-504-2R6eOQowMY6VejLWIGmJrg-1; Tue, 12 Apr 2022 03:19:21 -0400
+X-MC-Unique: 2R6eOQowMY6VejLWIGmJrg-1
+Received: by mail-pj1-f69.google.com with SMTP id w3-20020a17090ac98300b001b8b914e91aso1111086pjt.0
+        for <linux-s390@vger.kernel.org>; Tue, 12 Apr 2022 00:19:20 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
          :content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=mRq1WN/7xC1cXSlUswWcAEZrziB8GVLK8yncCszg3n4=;
-        b=wzi48vw24Mk5H5AGzVX/lNeW2AR8mvBDxeklALDLcpb1ui0GOsbIkEsk/HhSfh6YKV
-         3DpC/hVRyebFlYWxyspNHBvrpn5iVVBVJBaf33CPSDI0dYoNS9TrfZGqy3BU0nggIoCt
-         rYHD3GSzRutqKysHjEgVWVbWftxTYG6nky7mgJkoTlniRm5kSkH5hee6tRbnI7D/nGFM
-         6FET7BXoQtLp0cWhpsNmjFxToLUwidu7MdTQMWz2fgRLIDKAFLl51xQhAU0JrgTAhIej
-         H7bPBcGNrGS0jRRODMRQigdn27BeCk1f8MvKkvkg37ZbIT3twQog4hOtRWqR7Y/JpSaD
-         HYlw==
-X-Gm-Message-State: AOAM531VPrIBzj6fvP4osrFrsX6T71+litsbQUtd7q4MwNe/UY7QYpW2
-        iKNtbcR1On4OP0aWOAPA9xBxrHxCjHTJIDDJ1cmuejhBcoUdDO0fMZPhXln8Bcj5R092uLZDZF2
-        PiQZUXp6IGYiGtFgZFtBdaQ==
-X-Received: by 2002:a63:b55d:0:b0:398:5eeb:e637 with SMTP id u29-20020a63b55d000000b003985eebe637mr28844765pgo.314.1649747577724;
-        Tue, 12 Apr 2022 00:12:57 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxzcjF+z5aN8qIIJojhgLD6Ajm0j4nHXpFBPakfSKEyLfv8FWNaht+5QkKkqPRUpFlILOqb8Q==
-X-Received: by 2002:a63:b55d:0:b0:398:5eeb:e637 with SMTP id u29-20020a63b55d000000b003985eebe637mr28844743pgo.314.1649747577325;
-        Tue, 12 Apr 2022 00:12:57 -0700 (PDT)
+        bh=Yuz95x1G3zlqb83uNRLz/nX1y2Nb6heM9sreLygHM+8=;
+        b=FEN2B86n8t9rYd7zAhePvuKc5KQ9Hf0XsAOnsHUTju6WCXS2+WGXad3cgHeBBxrTjI
+         tqB2zC4/2p+ioRRTCHVKF7ii4FBtOvtCiCoVZEOMk5TBStI5rB/f+sVmdKv41YgVA3U4
+         OKr5d7NTLg/dfblUQc0H6HPI6zYBcApl6tw5MJ4Qx98SU2OxQq0StHJu1JlzcTePuOxk
+         J9kaJZMz6aKI94bQAKgbIeYylU1R1hV85op1aY6gMcn9UnOivz3tD3/qd1apDVN53Zqh
+         yi7aSHaOiLyECOPpz45Za/4udFio96Upff8gUT8xgH7cjezTUSld1XN12XgRA7JiaY0T
+         N0xw==
+X-Gm-Message-State: AOAM531GIBjbZBwgzT8Zd9rWszOHcdiQkjYCnBwdfVQ0rWzhYF56ggr1
+        DUJNyrlrs6lOguKDDscSJSZjLVejv+cC7wqAy03Gg/eWgiWxAScSoIfOIwYSukRrmxG2S6EcJ/H
+        /Cn5SIoOpHVepVLsMRnKyZA==
+X-Received: by 2002:a63:ce45:0:b0:399:1124:fbfe with SMTP id r5-20020a63ce45000000b003991124fbfemr30142579pgi.542.1649747959961;
+        Tue, 12 Apr 2022 00:19:19 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJybC3H9odgtD5WvWO3Wfz5iznlcc/pnW1u61iazVEqAlovz3OVbp6nLoj0UKzRc5hYeHz5xRQ==
+X-Received: by 2002:a63:ce45:0:b0:399:1124:fbfe with SMTP id r5-20020a63ce45000000b003991124fbfemr30142555pgi.542.1649747959749;
+        Tue, 12 Apr 2022 00:19:19 -0700 (PDT)
 Received: from [10.72.14.5] ([209.132.188.80])
-        by smtp.gmail.com with ESMTPSA id a38-20020a056a001d2600b004f70d5e92basm37773293pfx.34.2022.04.12.00.12.41
+        by smtp.gmail.com with ESMTPSA id oo16-20020a17090b1c9000b001b89e05e2b2sm1791569pjb.34.2022.04.12.00.19.10
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 12 Apr 2022 00:12:56 -0700 (PDT)
-Message-ID: <b1f14156-a0b0-4933-072e-1ca33921fc8b@redhat.com>
-Date:   Tue, 12 Apr 2022 15:12:40 +0800
+        Tue, 12 Apr 2022 00:19:19 -0700 (PDT)
+Message-ID: <2776b925-1989-40b2-44ed-6964105e22cb@redhat.com>
+Date:   Tue, 12 Apr 2022 15:19:08 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
  Gecko/20100101 Thunderbird/91.7.0
-Subject: Re: [PATCH v9 25/32] virtio_pci: support the arg sizes of find_vqs()
+Subject: Re: [PATCH v9 29/32] virtio_net: get ringparam by
+ virtqueue_get_vring_max_size()
 Content-Language: en-US
 To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
         virtualization@lists.linux-foundation.org
@@ -92,9 +93,9 @@ Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
         linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, bpf@vger.kernel.org
 References: <20220406034346.74409-1-xuanzhuo@linux.alibaba.com>
- <20220406034346.74409-26-xuanzhuo@linux.alibaba.com>
+ <20220406034346.74409-30-xuanzhuo@linux.alibaba.com>
 From:   Jason Wang <jasowang@redhat.com>
-In-Reply-To: <20220406034346.74409-26-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20220406034346.74409-30-xuanzhuo@linux.alibaba.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -103,169 +104,36 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 
 在 2022/4/6 上午11:43, Xuan Zhuo 写道:
-> Virtio PCI supports new parameter sizes of find_vqs().
+> Use virtqueue_get_vring_max_size() in virtnet_get_ringparam() to set
+> tx,rx_max_pending.
 >
 > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> ---
 
 
 Acked-by: Jason Wang <jasowang@redhat.com>
 
 
-> ---
->   drivers/virtio/virtio_pci_common.c | 18 ++++++++++--------
->   drivers/virtio/virtio_pci_common.h |  1 +
->   drivers/virtio/virtio_pci_legacy.c |  6 +++++-
->   drivers/virtio/virtio_pci_modern.c | 10 +++++++---
->   4 files changed, 23 insertions(+), 12 deletions(-)
+>   drivers/net/virtio_net.c | 8 ++++----
+>   1 file changed, 4 insertions(+), 4 deletions(-)
 >
-> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-> index 826ea2e35d54..23976c61583f 100644
-> --- a/drivers/virtio/virtio_pci_common.c
-> +++ b/drivers/virtio/virtio_pci_common.c
-> @@ -208,6 +208,7 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
->   static struct virtqueue *vp_setup_vq(struct virtio_device *vdev, unsigned index,
->   				     void (*callback)(struct virtqueue *vq),
->   				     const char *name,
-> +				     u32 size,
->   				     bool ctx,
->   				     u16 msix_vec)
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index dad497a47b3a..96d96c666c8c 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -2177,10 +2177,10 @@ static void virtnet_get_ringparam(struct net_device *dev,
 >   {
-> @@ -220,7 +221,7 @@ static struct virtqueue *vp_setup_vq(struct virtio_device *vdev, unsigned index,
->   	if (!info)
->   		return ERR_PTR(-ENOMEM);
+>   	struct virtnet_info *vi = netdev_priv(dev);
 >   
-> -	vq = vp_dev->setup_vq(vp_dev, info, index, callback, name, ctx,
-> +	vq = vp_dev->setup_vq(vp_dev, info, index, callback, name, size, ctx,
->   			      msix_vec);
->   	if (IS_ERR(vq))
->   		goto out_info;
-> @@ -314,7 +315,7 @@ void vp_del_vqs(struct virtio_device *vdev)
->   
->   static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
->   		struct virtqueue *vqs[], vq_callback_t *callbacks[],
-> -		const char * const names[], bool per_vq_vectors,
-> +		const char * const names[], u32 sizes[], bool per_vq_vectors,
->   		const bool *ctx,
->   		struct irq_affinity *desc)
->   {
-> @@ -357,8 +358,8 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
->   		else
->   			msix_vec = VP_MSIX_VQ_VECTOR;
->   		vqs[i] = vp_setup_vq(vdev, queue_idx++, callbacks[i], names[i],
-> -				     ctx ? ctx[i] : false,
-> -				     msix_vec);
-> +				     sizes ? sizes[i] : 0,
-> +				     ctx ? ctx[i] : false, msix_vec);
->   		if (IS_ERR(vqs[i])) {
->   			err = PTR_ERR(vqs[i]);
->   			goto error_find;
-> @@ -388,7 +389,7 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
->   
->   static int vp_find_vqs_intx(struct virtio_device *vdev, unsigned nvqs,
->   		struct virtqueue *vqs[], vq_callback_t *callbacks[],
-> -		const char * const names[], const bool *ctx)
-> +		const char * const names[], u32 sizes[], const bool *ctx)
->   {
->   	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
->   	int i, err, queue_idx = 0;
-> @@ -410,6 +411,7 @@ static int vp_find_vqs_intx(struct virtio_device *vdev, unsigned nvqs,
->   			continue;
->   		}
->   		vqs[i] = vp_setup_vq(vdev, queue_idx++, callbacks[i], names[i],
-> +				     sizes ? sizes[i] : 0,
->   				     ctx ? ctx[i] : false,
->   				     VIRTIO_MSI_NO_VECTOR);
->   		if (IS_ERR(vqs[i])) {
-> @@ -433,15 +435,15 @@ int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->   	int err;
->   
->   	/* Try MSI-X with one vector per queue. */
-> -	err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names, true, ctx, desc);
-> +	err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names, sizes, true, ctx, desc);
->   	if (!err)
->   		return 0;
->   	/* Fallback: MSI-X with one vector for config, one shared for queues. */
-> -	err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names, false, ctx, desc);
-> +	err = vp_find_vqs_msix(vdev, nvqs, vqs, callbacks, names, sizes, false, ctx, desc);
->   	if (!err)
->   		return 0;
->   	/* Finally fall back to regular interrupts. */
-> -	return vp_find_vqs_intx(vdev, nvqs, vqs, callbacks, names, ctx);
-> +	return vp_find_vqs_intx(vdev, nvqs, vqs, callbacks, names, sizes, ctx);
+> -	ring->rx_max_pending = virtqueue_get_vring_size(vi->rq[0].vq);
+> -	ring->tx_max_pending = virtqueue_get_vring_size(vi->sq[0].vq);
+> -	ring->rx_pending = ring->rx_max_pending;
+> -	ring->tx_pending = ring->tx_max_pending;
+> +	ring->rx_max_pending = virtqueue_get_vring_max_size(vi->rq[0].vq);
+> +	ring->tx_max_pending = virtqueue_get_vring_max_size(vi->sq[0].vq);
+> +	ring->rx_pending = virtqueue_get_vring_size(vi->rq[0].vq);
+> +	ring->tx_pending = virtqueue_get_vring_size(vi->sq[0].vq);
 >   }
 >   
->   const char *vp_bus_name(struct virtio_device *vdev)
-> diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
-> index 859eed559e10..fbf5a6d4b164 100644
-> --- a/drivers/virtio/virtio_pci_common.h
-> +++ b/drivers/virtio/virtio_pci_common.h
-> @@ -81,6 +81,7 @@ struct virtio_pci_device {
->   				      unsigned idx,
->   				      void (*callback)(struct virtqueue *vq),
->   				      const char *name,
-> +				      u32 size,
->   				      bool ctx,
->   				      u16 msix_vec);
->   	void (*del_vq)(struct virtio_pci_vq_info *info);
-> diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
-> index b68934fe6b5d..2c4ade5fb420 100644
-> --- a/drivers/virtio/virtio_pci_legacy.c
-> +++ b/drivers/virtio/virtio_pci_legacy.c
-> @@ -112,6 +112,7 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
->   				  unsigned index,
->   				  void (*callback)(struct virtqueue *vq),
->   				  const char *name,
-> +				  u32 size,
->   				  bool ctx,
->   				  u16 msix_vec)
->   {
-> @@ -125,10 +126,13 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
->   	if (!num || vp_legacy_get_queue_enable(&vp_dev->ldev, index))
->   		return ERR_PTR(-ENOENT);
 >   
-> +	if (!size || size > num)
-> +		size = num;
-> +
->   	info->msix_vector = msix_vec;
->   
->   	/* create the vring */
-> -	vq = vring_create_virtqueue(index, num,
-> +	vq = vring_create_virtqueue(index, size,
->   				    VIRTIO_PCI_VRING_ALIGN, &vp_dev->vdev,
->   				    true, false, ctx,
->   				    vp_notify, callback, name);
-> diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-> index 3b35e5056165..a17c47d4435a 100644
-> --- a/drivers/virtio/virtio_pci_modern.c
-> +++ b/drivers/virtio/virtio_pci_modern.c
-> @@ -289,6 +289,7 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
->   				  unsigned index,
->   				  void (*callback)(struct virtqueue *vq),
->   				  const char *name,
-> +				  u32 size,
->   				  bool ctx,
->   				  u16 msix_vec)
->   {
-> @@ -306,15 +307,18 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
->   	if (!num || vp_modern_get_queue_enable(mdev, index))
->   		return ERR_PTR(-ENOENT);
->   
-> -	if (num & (num - 1)) {
-> -		dev_warn(&vp_dev->pci_dev->dev, "bad queue size %u", num);
-> +	if (!size || size > num)
-> +		size = num;
-> +
-> +	if (size & (size - 1)) {
-> +		dev_warn(&vp_dev->pci_dev->dev, "bad queue size %u", size);
->   		return ERR_PTR(-EINVAL);
->   	}
->   
->   	info->msix_vector = msix_vec;
->   
->   	/* create the vring */
-> -	vq = vring_create_virtqueue(index, num,
-> +	vq = vring_create_virtqueue(index, size,
->   				    SMP_CACHE_BYTES, &vp_dev->vdev,
->   				    true, true, ctx,
->   				    vp_notify, callback, name);
 
