@@ -2,267 +2,244 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 35D75C4167B
-	for <linux-s390@archiver.kernel.org>; Tue, 12 Apr 2022 14:10:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CDE0C433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 12 Apr 2022 14:30:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354314AbiDLOMh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 12 Apr 2022 10:12:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57626 "EHLO
+        id S1356535AbiDLOdI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 12 Apr 2022 10:33:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350319AbiDLOM2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Apr 2022 10:12:28 -0400
-Received: from JPN01-TYC-obe.outbound.protection.outlook.com (mail-tycjpn01on2106.outbound.protection.outlook.com [40.107.114.106])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA9FC23E;
-        Tue, 12 Apr 2022 07:10:09 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=G3qpcnI7xWUPqyyuHjzLXTkn1us+WFONzXaI2EN+ttN6HAlliokiS0FaT7YDrqtlfymVl1gaL+pDpaJ2LURfuuuIpcKno0Fgy6ToTa+dqoeiFfAierwPwEkYH/3pKt0Q4Wu2AjrTM6fpf7tB+2+DbqrEul27FvbRFQ9qGeOE71ypnEguQpMpd2CHjG6A66iWORw7seBKytQu6C8UctfmqwsicddYCnqHDDnsIj2PbZeS75YyiShC7EsIW4Uo9lU/lw+7vcZfgo2iWHRhMnY4JU1QgGNBpY2LmSgVOLt4AAplod4r81DWyxpQOgKpynhCzMnmp+gBvOkRX7qRoE7SEw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=bYA9LIGGC8faHr6AqXOHKlZ151ZpV7JNd9NSOV1aTJM=;
- b=PeUKii0FAuuzBc7wlszlJtsGr6kzVyLTYEzZaew9qrX5Dl5yV9Ae5KSBEQi6SpvuCcHThQ/PPh0BErODLYCQQ/5vFDRx6Q1kBUoFYjgqbNlGOiJYAV29n4EWDLSv7A8yJZJc6tqd7LZQ5pd/KpB64hRRjekbkgsfIJXtV8Xj1AksJdyqIo/Dp2bf4Oe03rJ/PKM9vnFuC4SByt44ZvwxLel+vd3tJhrv9dKDFvxVvSCVjSwWLwz9Z0IRbPJ8GEpONsHKUMsY7A7NdTrJJCrQCFrHuGE7YXot1vsnlhMRflVL0oDwwhtgSPooPig2/nMVBnIDen1Ezr3rDK1iq0cHuA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=bp.renesas.com; dmarc=pass action=none
- header.from=bp.renesas.com; dkim=pass header.d=bp.renesas.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bp.renesas.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=bYA9LIGGC8faHr6AqXOHKlZ151ZpV7JNd9NSOV1aTJM=;
- b=OduNuckqCdv/yRUYIGVGcLrxD8ZY5PyTkH6Ngt2VI02JCTFH8bEoYFL3ZWqP232nyYP9/cM8oQUj6K+94HdH11Zc3GIqUoQr2UpxJ+OnOfwHh2whbp++acuzCYHCnsDXzLOG9rzuzJtPyq9HFRdf14yOLpbxmlhjS9RyseJhRZk=
-Received: from OS0PR01MB5922.jpnprd01.prod.outlook.com (2603:1096:604:bb::5)
- by TYAPR01MB3278.jpnprd01.prod.outlook.com (2603:1096:404:8e::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5144.29; Tue, 12 Apr
- 2022 14:10:07 +0000
-Received: from OS0PR01MB5922.jpnprd01.prod.outlook.com
- ([fe80::b129:a6f3:c39e:98db]) by OS0PR01MB5922.jpnprd01.prod.outlook.com
- ([fe80::b129:a6f3:c39e:98db%4]) with mapi id 15.20.5144.030; Tue, 12 Apr 2022
- 14:10:07 +0000
-From:   Biju Das <biju.das.jz@bp.renesas.com>
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>
-CC:     Stuart Yoder <stuyoder@gmail.com>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Andy Gross <agross@kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
-        "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
-        "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>,
-        "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>,
-        "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>,
-        "virtualization@lists.linux-foundation.org" 
-        <virtualization@lists.linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: RE: [PATCH v6 12/12] rpmsg: Fix kfree() of static memory on setting
- driver_override
-Thread-Topic: [PATCH v6 12/12] rpmsg: Fix kfree() of static memory on setting
- driver_override
-Thread-Index: AQHYR4usqrdzUSvyPkWDhxjfW2t+CqzsXZDQ
-Date:   Tue, 12 Apr 2022 14:10:06 +0000
-Message-ID: <OS0PR01MB59226666C2C6805C86304BE586ED9@OS0PR01MB5922.jpnprd01.prod.outlook.com>
-References: <20220403183758.192236-1-krzysztof.kozlowski@linaro.org>
- <20220403183758.192236-13-krzysztof.kozlowski@linaro.org>
-In-Reply-To: <20220403183758.192236-13-krzysztof.kozlowski@linaro.org>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=bp.renesas.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: e8802f44-eace-4f82-502c-08da1c8e25c0
-x-ms-traffictypediagnostic: TYAPR01MB3278:EE_
-x-microsoft-antispam-prvs: <TYAPR01MB3278C5C34FEFA4862B36686786ED9@TYAPR01MB3278.jpnprd01.prod.outlook.com>
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: l7yyihSdqh18KGDInynfQ3GmUNqp4rlMGc/6lPs1su9XSd59TFMpdz+aEqyBz/HGgXNB58mXTaxTS+Al2sDniXao0ybOuKN44fnMzOd15x5NXtctiqv6bQ7Kh9jTBt0NhgCE6ooEGgRiWUP2rzHYppFnh9Gf163SJyQaWZXh+Oc53L1eftqEkrSXy9TKkd8PByglE/4s9e0vOVX9vRQEk6T+LdqWIMNVhqg2t8HQBMClin+dj7E/+Mlx+e53qnxYFB262OmzNnobhCWjNJH5Ue2452puV23B8aONv+ou5A1CZ51xgFINeWav3sdSya5/JdZbXiIuNHqVv9Ok4+U5knqKe6NplYfZrGdP55Z4M3/5MnfOlBZaNf5Cc17UWOyXbJxF6i/IfRZzBYXv9RliArSNc5hw5l+PcbzCxBieO8aF64AEDRr/sEtGg0Hhcli2tcT/oh3xGl2zhxRntQwPv6t6zdcsAG8Z++nD134CLwJjzUd9klbeANdUmjj2veBQ2M+JgRygjLL23el4ACQFU/cufrAnQT1V77oCqZVkttvgaG6Kldoj2dPuGsykzY1pFJO3zH0lzlUeU1qX5GDDN7cD18UiYurbliN2NlFiC8kFf2bZmKQP9skfg5HzZvMQhKAijhvlzFRbHk2PQyl0B8YOhe3GDgTOh1k3wXbeRN45uFE5EsuZ7CQTeohwx74CaSoSXSipSye8+PG3W9+E6w==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:OS0PR01MB5922.jpnprd01.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(9686003)(4326008)(54906003)(52536014)(7696005)(26005)(38070700005)(110136005)(5660300002)(66556008)(66476007)(76116006)(64756008)(66946007)(8936002)(86362001)(8676002)(66446008)(7406005)(7416002)(6506007)(508600001)(316002)(71200400001)(83380400001)(186003)(2906002)(55016003)(33656002)(38100700002)(122000001);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?kS/7Mw8c8d89Eps3nGW8n7fxISKtLhs8AcelqC0l8dgFf/5GoTV5IVMOAC6T?=
- =?us-ascii?Q?L55En4uigCnV+ktV1aEfRlNnuQ2n33RnLo05ZJqRDzFKBkptDMVRWJCRMk2A?=
- =?us-ascii?Q?tdB4WDkfe85meoZzOFFbCvy/R6JixdryxGhzkUi6i3nc2qeXE2yO/rF6QfAF?=
- =?us-ascii?Q?l4RMu0lc9WLLjm6/jDiUUmgadQH9oc//4PzwOkywomQjI0j4CzKbpT/7kK8e?=
- =?us-ascii?Q?P7Sj8yaalPWn5oqogOAzM2pf2GPlo+IWl58h7APuBuFsw1vf2FGC9W8ncE26?=
- =?us-ascii?Q?uhssJGeBh6oQdIP6NSh9Rln3E7LRdZ+xILafGUxQpVuYBa8xYbUM3UaL5R3j?=
- =?us-ascii?Q?lN3yxOuVQVVLsB85JI99KwkAkIGyT0599VvsFlO3/A4e5L4hmSTJfmJ676EM?=
- =?us-ascii?Q?pLtFFwCf/1u5qAFILuUeqC8Lea1eFDYyGW8oJHLAXo5drUC3LJ22GPZ401To?=
- =?us-ascii?Q?z7Z/KfEqX92eS1E5dzhcSnGWQ674I2xJeAxgiy2bwWeXUv/0CXTw1pxPSVMZ?=
- =?us-ascii?Q?Yd2kAczEPPStZotJzldm3Tb467z6t2uSg8jqC3nP8QXU2AB10X6vqwXWgyhM?=
- =?us-ascii?Q?6ISFhXmBxxd6lQY3O9CFtgqXGaWRziFAZHzOR3J2RYnwa6qz4yHEYF2balf+?=
- =?us-ascii?Q?ewIqaYIJJsCPnsvVwjC31VQ5brSkRjJQmwRTEc294lkFdQujCZoB6XQ/l0Gn?=
- =?us-ascii?Q?MfXPwI/RP9F+hEUN5hoqnWEojNWJwaZHSjgSEyy0Ho3lSM8CNoiGwzZSK8Rh?=
- =?us-ascii?Q?fQdYPm5Ft97UzUCiLUzt9xC4kUFLR+tJ9Sq8A1thJpnP3awmVBUz/ginGdf3?=
- =?us-ascii?Q?tlFFpoboU9vsp8mLVs/qQh+NbUw2jz4i9KyeBwSIGCwnt5YPB10neLejfWNT?=
- =?us-ascii?Q?rYMuUWnR+ax5CK3N9tsD/kBWLC8YZm4oHwUK6ZPg5W7Qr8d7evmyxYkvaXbh?=
- =?us-ascii?Q?xhVkfo7VVr4OVlFttkcOODewACkpVaZGYlziy09flYPMMft8IiNzigW36FUc?=
- =?us-ascii?Q?d3oDaK1DI/ctvVSCCbW1WWarBDcWxp23xaOcvMnbUBPagAdSQZzE7T6HFvM5?=
- =?us-ascii?Q?2NTk4SP5B/cua8WvQVoTCBxv7YP1LmRDkN+SRM3EYAWj+5NChVQYgfpBvXsh?=
- =?us-ascii?Q?y0ST1csHh2gYYz7TkmCK33TG3axvJ7D4vxIBgl9XRYwKRvjhtohN9zhBltcV?=
- =?us-ascii?Q?CWF0HccWMmg+xG5iRi0WW4CZGwiJZG7nF8JpF0Dhd3YDalCcnHEaK8KkDEhZ?=
- =?us-ascii?Q?ozgRHMJdwaLUTM2OEYuF80Uc9aJL4W8JG6ZgH1nyfUItS5p+q1J1SsFO9gH4?=
- =?us-ascii?Q?lPF3raWze9YKNs7Gv8s2G/WlmIHIsNP8Xyla7s9avoz51VB63JGkrbqZ2wWX?=
- =?us-ascii?Q?WSsh0vc59nPkavP0B1U+s+2fPwx90FRXWdiWvkCOWgEpKl/aYEBb6f2BU+i+?=
- =?us-ascii?Q?G+MxIxlefjaJ2dqrVnIQubKG8rxR9xBEgtC3DCXesTZLj+N7DoeDwNhbtFVg?=
- =?us-ascii?Q?Noj6A3Nw783dzlWBqDHxTiglq4+m9vLXX+owPCdU1ohSgpRR4AJdNHJP7SeX?=
- =?us-ascii?Q?nN4qQV4oVTYy5t+l/GSO6ac+SMpFanhHfXn09v+Y2353rrM2bUb/z0kY71kb?=
- =?us-ascii?Q?gkSeynhb1ynWHb2mcLZFfEYihzq6T7BEcvHVxQIHUpmrAsYJ9GcMegO6I2lM?=
- =?us-ascii?Q?LZ623MX42M2h8DzckW0ADhHR5VCfmrmnxIjSnVs7jwopP2t+WoXc+J8aAqRh?=
- =?us-ascii?Q?SKuqPClZx2arh2d7BHyzmBHfDHmwID8=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S1350121AbiDLOdH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Apr 2022 10:33:07 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A3E34A3DD;
+        Tue, 12 Apr 2022 07:30:49 -0700 (PDT)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23CDLtHn004757;
+        Tue, 12 Apr 2022 14:30:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=VKd5vFUiEKfuRcGuSWKwzFHHhQa5vtGA/lkq5v9/Zc8=;
+ b=q2CdmhYEw6JfIYHrrcAXDQv6B0ZWYe4L7n1tluZmz0D2OQeq/vRi+iumffzYUZWSl04j
+ QxYlB2bi7+1EGmoznaK3NGLgIfT8HkPMI9k2ptfBZT6f6TVb3ZW6ajdaD45+ojAG1ndI
+ AGVVhPhb0dcyfmKRG8lMSUyZ/j8uVbb4xa9g0S5f9gnKis9Rw0kpiCIKRfjDvfScXFI8
+ ql8nt5VHK9bMH9yDdqMegCIa6dof+2u+xMOk+nZ3oO2mGuBB64SGpsv4QNi20Rbw7cQE
+ 8rfBqk2PdCeCiMvinF4/MUDY4zrPrQbP40rtxHq2+nNSilBW2z2qjuCGjope3DXYt1D9 HQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3fda8c1qkj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Apr 2022 14:30:46 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23CE7H4i026220;
+        Tue, 12 Apr 2022 14:30:46 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3fda8c1qjt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Apr 2022 14:30:46 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23CEDgTv019973;
+        Tue, 12 Apr 2022 14:30:44 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma06ams.nl.ibm.com with ESMTP id 3fb1dj52vn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Apr 2022 14:30:44 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23CEUf6G52036018
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 12 Apr 2022 14:30:41 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7778952051;
+        Tue, 12 Apr 2022 14:30:41 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 4053B5205F;
+        Tue, 12 Apr 2022 14:30:41 +0000 (GMT)
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Bjorn Helgaas <bhelgaas@google.com>,
+        Jan Kiszka <jan.kiszka@siemens.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-pci@vger.kernel.org
+Subject: [PATCH v2 4/4] s390/pci: allow zPCI zbus without a function zero
+Date:   Tue, 12 Apr 2022 16:30:40 +0200
+Message-Id: <20220412143040.1882096-5-schnelle@linux.ibm.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220412143040.1882096-1-schnelle@linux.ibm.com>
+References: <20220412143040.1882096-1-schnelle@linux.ibm.com>
 MIME-Version: 1.0
-X-OriginatorOrg: bp.renesas.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: OS0PR01MB5922.jpnprd01.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: e8802f44-eace-4f82-502c-08da1c8e25c0
-X-MS-Exchange-CrossTenant-originalarrivaltime: 12 Apr 2022 14:10:06.9859
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 53d82571-da19-47e4-9cb4-625a166a4a2a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: E0guRv2xTjNIkZnwnA4TaHrqwRSu9/HKZjRQWLmjRIGpNThTUm6aXvrfH1C+BrrIdvjGrlGM/m2CKuwOYyW94pTDKf8I2G/duHSnGdjryVM=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: TYAPR01MB3278
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: gR82woWY1iWKuP2WJGWaGCydUZ4ISc7u
+X-Proofpoint-GUID: 7vlTMEdvgHTZ11Y4uT6SrgPpyF46KlDn
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-04-12_05,2022-04-12_02,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
+ priorityscore=1501 malwarescore=0 lowpriorityscore=0 impostorscore=0
+ clxscore=1015 adultscore=0 mlxscore=0 mlxlogscore=908 suspectscore=0
+ spamscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2204120068
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Krzysztof Kozlowski,
+Currently the zPCI code block PCI bus creation and probing of a zPCI
+zbus unless there is a PCI function with devfn 0. This is always the
+case for the PCI functions with hidden RID but may keep PCI functions
+from a multi-function PCI device with RID information invisible until
+the function 0 becomes visible. Worse as a PCI bus is necessary to even
+present a PCI hotplug slot even that remains invisible.
 
-Thanks for the patch.
+With the probing of these so called isolated PCI functions enabled for
+s390 in common code this restriction is no longer necessary. On network
+cards with multiple ports and a PF per port this also allows using each
+port on its own while still providing the physical PCI topology
+information in the devfn needed to associate VFs with their parent PF.
 
-> Subject: [PATCH v6 12/12] rpmsg: Fix kfree() of static memory on setting
-> driver_override
->=20
-> The driver_override field from platform driver should not be initialized
-> from static memory (string literal) because the core later kfree() it, fo=
-r
-> example when driver_override is set via sysfs.
->=20
-> Use dedicated helper to set driver_override properly.
->=20
-> Fixes: 950a7388f02b ("rpmsg: Turn name service into a stand alone driver"=
-)
-> Fixes: c0cdc19f84a4 ("rpmsg: Driver for user space endpoint interface")
-> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-> Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-> ---
->  drivers/rpmsg/rpmsg_internal.h | 13 +++++++++++--
->  drivers/rpmsg/rpmsg_ns.c       | 14 ++++++++++++--
->  include/linux/rpmsg.h          |  6 ++++--
->  3 files changed, 27 insertions(+), 6 deletions(-)
->=20
-> diff --git a/drivers/rpmsg/rpmsg_internal.h
-> b/drivers/rpmsg/rpmsg_internal.h index d4b23fd019a8..1a2fb8edf5d3 100644
-> --- a/drivers/rpmsg/rpmsg_internal.h
-> +++ b/drivers/rpmsg/rpmsg_internal.h
-> @@ -94,10 +94,19 @@ int rpmsg_release_channel(struct rpmsg_device *rpdev,
->   */
->  static inline int rpmsg_ctrldev_register_device(struct rpmsg_device
-> *rpdev)  {
-> +	int ret;
-> +
->  	strcpy(rpdev->id.name, "rpmsg_ctrl");
-> -	rpdev->driver_override =3D "rpmsg_ctrl";
-> +	ret =3D driver_set_override(&rpdev->dev, &rpdev->driver_override,
-> +				  "rpmsg_ctrl", strlen("rpmsg_ctrl"));
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+---
+ arch/s390/pci/pci_bus.c | 82 ++++++++++-------------------------------
+ 1 file changed, 20 insertions(+), 62 deletions(-)
 
-Is it not possible to use rpdev->id.name instead of "rpmsg_ctrl" ?
-rpdev->id.name has "rpmsg_ctrl" from strcpy(rpdev->id.name, "rpmsg_ctrl");
+diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
+index 5d77acbd1c87..6a8da1b742ae 100644
+--- a/arch/s390/pci/pci_bus.c
++++ b/arch/s390/pci/pci_bus.c
+@@ -145,9 +145,6 @@ int zpci_bus_scan_bus(struct zpci_bus *zbus)
+ 	struct zpci_dev *zdev;
+ 	int devfn, rc, ret = 0;
+ 
+-	if (!zbus->function[0])
+-		return 0;
+-
+ 	for (devfn = 0; devfn < ZPCI_FUNCTIONS_PER_BUS; devfn++) {
+ 		zdev = zbus->function[devfn];
+ 		if (zdev && zdev->state == ZPCI_FN_STATE_CONFIGURED) {
+@@ -184,26 +181,26 @@ void zpci_bus_scan_busses(void)
+ 
+ /* zpci_bus_create_pci_bus - Create the PCI bus associated with this zbus
+  * @zbus: the zbus holding the zdevices
+- * @f0: function 0 of the bus
++ * @fr: PCI root function that will determine the bus's domain, and bus speeed
+  * @ops: the pci operations
+  *
+- * Function zero is taken as a parameter as this is used to determine the
+- * domain, multifunction property and maximum bus speed of the entire bus.
++ * The PCI function @fr determines the domain (its UID), multifunction property
++ * and maximum bus speed of the entire bus.
+  *
+  * Return: 0 on success, an error code otherwise
+  */
+-static int zpci_bus_create_pci_bus(struct zpci_bus *zbus, struct zpci_dev *f0, struct pci_ops *ops)
++static int zpci_bus_create_pci_bus(struct zpci_bus *zbus, struct zpci_dev *fr, struct pci_ops *ops)
+ {
+ 	struct pci_bus *bus;
+ 	int domain;
+ 
+-	domain = zpci_alloc_domain((u16)f0->uid);
++	domain = zpci_alloc_domain((u16)fr->uid);
+ 	if (domain < 0)
+ 		return domain;
+ 
+ 	zbus->domain_nr = domain;
+-	zbus->multifunction = f0->rid_available;
+-	zbus->max_bus_speed = f0->max_bus_speed;
++	zbus->multifunction = fr->rid_available;
++	zbus->max_bus_speed = fr->max_bus_speed;
+ 
+ 	/*
+ 	 * Note that the zbus->resources are taken over and zbus->resources
+@@ -303,47 +300,6 @@ void pcibios_bus_add_device(struct pci_dev *pdev)
+ 	}
+ }
+ 
+-/* zpci_bus_create_hotplug_slots - Add hotplug slot(s) for device added to bus
+- * @zdev: the zPCI device that was newly added
+- *
+- * Add the hotplug slot(s) for the newly added PCI function. Normally this is
+- * simply the slot for the function itself. If however we are adding the
+- * function 0 on a zbus, it might be that we already registered functions on
+- * that zbus but could not create their hotplug slots yet so add those now too.
+- *
+- * Return: 0 on success, an error code otherwise
+- */
+-static int zpci_bus_create_hotplug_slots(struct zpci_dev *zdev)
+-{
+-	struct zpci_bus *zbus = zdev->zbus;
+-	int devfn, rc = 0;
+-
+-	rc = zpci_init_slot(zdev);
+-	if (rc)
+-		return rc;
+-	zdev->has_hp_slot = 1;
+-
+-	if (zdev->devfn == 0 && zbus->multifunction) {
+-		/* Now that function 0 is there we can finally create the
+-		 * hotplug slots for those functions with devfn != 0 that have
+-		 * been parked in zbus->function[] waiting for us to be able to
+-		 * create the PCI bus.
+-		 */
+-		for  (devfn = 1; devfn < ZPCI_FUNCTIONS_PER_BUS; devfn++) {
+-			zdev = zbus->function[devfn];
+-			if (zdev && !zdev->has_hp_slot) {
+-				rc = zpci_init_slot(zdev);
+-				if (rc)
+-					return rc;
+-				zdev->has_hp_slot = 1;
+-			}
+-		}
+-
+-	}
+-
+-	return rc;
+-}
+-
+ static int zpci_bus_add_device(struct zpci_bus *zbus, struct zpci_dev *zdev)
+ {
+ 	int rc = -EINVAL;
+@@ -352,21 +308,19 @@ static int zpci_bus_add_device(struct zpci_bus *zbus, struct zpci_dev *zdev)
+ 		pr_err("devfn %04x is already assigned\n", zdev->devfn);
+ 		return rc;
+ 	}
++
+ 	zdev->zbus = zbus;
+ 	zbus->function[zdev->devfn] = zdev;
+ 	zpci_nb_devices++;
+ 
+-	if (zbus->bus) {
+-		if (zbus->multifunction && !zdev->rid_available) {
+-			WARN_ONCE(1, "rid_available not set for multifunction\n");
+-			goto error;
+-		}
+-
+-		zpci_bus_create_hotplug_slots(zdev);
+-	} else {
+-		/* Hotplug slot will be created once function 0 appears */
+-		zbus->multifunction = 1;
++	if (zbus->multifunction && !zdev->rid_available) {
++		WARN_ONCE(1, "rid_available not set for multifunction\n");
++		goto error;
+ 	}
++	rc = zpci_init_slot(zdev);
++	if (rc)
++		goto error;
++	zdev->has_hp_slot = 1;
+ 
+ 	return 0;
+ 
+@@ -400,7 +354,11 @@ int zpci_bus_device_register(struct zpci_dev *zdev, struct pci_ops *ops)
+ 			return -ENOMEM;
+ 	}
+ 
+-	if (zdev->devfn == 0) {
++	if (!zbus->bus) {
++		/* The UID of the first PCI function registered with a zpci_bus
++		 * is used as the domain number for that bus. Currently there
++		 * is exactly one zpci_bus per domain.
++		 */
+ 		rc = zpci_bus_create_pci_bus(zbus, zdev, ops);
+ 		if (rc)
+ 			goto error;
+-- 
+2.32.0
 
-Same for "rpmsg_ns" as well
-
-Cheers,
-Biju
-
-
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret =3D rpmsg_register_device(rpdev);
-> +	if (ret)
-> +		kfree(rpdev->driver_override);
->=20
-> -	return rpmsg_register_device(rpdev);
-> +	return ret;
->  }
->=20
->  #endif
-> diff --git a/drivers/rpmsg/rpmsg_ns.c b/drivers/rpmsg/rpmsg_ns.c index
-> 762ff1ae279f..95a51543f5ad 100644
-> --- a/drivers/rpmsg/rpmsg_ns.c
-> +++ b/drivers/rpmsg/rpmsg_ns.c
-> @@ -20,12 +20,22 @@
->   */
->  int rpmsg_ns_register_device(struct rpmsg_device *rpdev)  {
-> +	int ret;
-> +
->  	strcpy(rpdev->id.name, "rpmsg_ns");
-> -	rpdev->driver_override =3D "rpmsg_ns";
-> +	ret =3D driver_set_override(&rpdev->dev, &rpdev->driver_override,
-> +				  "rpmsg_ns", strlen("rpmsg_ns"));
-> +	if (ret)
-> +		return ret;
-> +
->  	rpdev->src =3D RPMSG_NS_ADDR;
->  	rpdev->dst =3D RPMSG_NS_ADDR;
->=20
-> -	return rpmsg_register_device(rpdev);
-> +	ret =3D rpmsg_register_device(rpdev);
-> +	if (ret)
-> +		kfree(rpdev->driver_override);
-> +
-> +	return ret;
->  }
->  EXPORT_SYMBOL(rpmsg_ns_register_device);
->=20
-> diff --git a/include/linux/rpmsg.h b/include/linux/rpmsg.h index
-> 02fa9116cd60..20c8cd1cde21 100644
-> --- a/include/linux/rpmsg.h
-> +++ b/include/linux/rpmsg.h
-> @@ -41,7 +41,9 @@ struct rpmsg_channel_info {
->   * rpmsg_device - device that belong to the rpmsg bus
->   * @dev: the device struct
->   * @id: device id (used to match between rpmsg drivers and devices)
-> - * @driver_override: driver name to force a match
-> + * @driver_override: driver name to force a match; do not set directly,
-> + *                   because core frees it; use driver_set_override() to
-> + *                   set or clear it.
->   * @src: local address
->   * @dst: destination address
->   * @ept: the rpmsg endpoint of this channel @@ -51,7 +53,7 @@ struct
-> rpmsg_channel_info {  struct rpmsg_device {
->  	struct device dev;
->  	struct rpmsg_device_id id;
-> -	char *driver_override;
-> +	const char *driver_override;
->  	u32 src;
->  	u32 dst;
->  	struct rpmsg_endpoint *ept;
-> --
-> 2.32.0
->=20
->=20
-> _______________________________________________
