@@ -2,106 +2,239 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 91455C433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 12 Apr 2022 16:20:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F52FC433FE
+	for <linux-s390@archiver.kernel.org>; Tue, 12 Apr 2022 16:37:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353630AbiDLQWn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 12 Apr 2022 12:22:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45860 "EHLO
+        id S1350861AbiDLQjv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 12 Apr 2022 12:39:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357602AbiDLQWk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Apr 2022 12:22:40 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5CA05BE7B;
-        Tue, 12 Apr 2022 09:20:22 -0700 (PDT)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23CEn5FQ021037;
-        Tue, 12 Apr 2022 16:20:22 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=qEU12zVRs4pAi1Eg2/tlkTkk47yXp5gWUvuDPN5CPM0=;
- b=iHZq7WfGR7qnVQkGyKsKegckLAonYuz0/O9lmbGZ8Orwc7eARm6BX1H9waVS21dIlNgd
- WximwKK77C1lJYzkz+WHakj0HKHv/AJ4sB/wkhcCG5brUELv4IX6j2l37MqqSzqfkGaW
- hIzH9VBqBgIMq1rX/fgp55Oa/TLU+N5UAiqC1iHqpEzsXEGXu4BqMn0KrqeQ/Q8LoWwH
- hTqJzUroROVXP2z214hN497D6brBc3EE6jYuagpCLD2dlvPK9sNe/MaHEKt9ULO1kIfv
- RM+qsxgtOOus2GQnPHpTmLhfJiqhnfLISbE4vSlZX6KunKuIC2sBeE4XMuAJP5vyp274 rg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3fdahybu9s-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Apr 2022 16:20:21 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23CGEqvp033315;
-        Tue, 12 Apr 2022 16:20:21 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3fdahybu8y-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Apr 2022 16:20:21 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23CGGJHw006357;
-        Tue, 12 Apr 2022 16:20:19 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma01fra.de.ibm.com with ESMTP id 3fb1s8v7q7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Apr 2022 16:20:18 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23CGKFpr44499282
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 12 Apr 2022 16:20:15 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A26A04C04A;
-        Tue, 12 Apr 2022 16:20:15 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9B6AC4C044;
-        Tue, 12 Apr 2022 16:20:14 +0000 (GMT)
-Received: from [9.171.87.149] (unknown [9.171.87.149])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 12 Apr 2022 16:20:14 +0000 (GMT)
-Message-ID: <7d0a1838-5a2a-bf48-ea0c-809211e69cec@linux.ibm.com>
-Date:   Tue, 12 Apr 2022 18:20:14 +0200
+        with ESMTP id S234647AbiDLQju (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Apr 2022 12:39:50 -0400
+Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2858D1BEAE;
+        Tue, 12 Apr 2022 09:37:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1649781452; x=1681317452;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=wj0yrMFXTVEP2FQ3yo1uRXtjbGOZh1hRn5IaONNHOKY=;
+  b=iDsMBCyprQZapmfQFZ6MXDTEj1gjASnDZMMGdWsugUeZluMEjXuhKISA
+   bCcJiGqaYHwq4510OobNV3QSmj8MXLd1k7U61waT0P98v7gRSGb9p0yEq
+   cWPY8znIfY0oAIAC8JrtqtmQNhTS0etfEAMNVobJ2r0rVQf5pRpRxVMlE
+   L/5BUiueoY/URQI+2rMjOyXusAZ0lPdJy58Nndv3vVKiDu9yb7zMnl74n
+   OBu9ut5Xv4b77EI8ggXasoppU0yl0YAXJOLzuX4K4RSWma4oaTFs9WnTP
+   7WI2Mv0KfkzocuQaXspJpaHpgvBA/dWz0+Md3PvPIxkWVzF0eK0cmjzSt
+   g==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10315"; a="249715223"
+X-IronPort-AV: E=Sophos;i="5.90,254,1643702400"; 
+   d="scan'208";a="249715223"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Apr 2022 09:29:31 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.90,254,1643702400"; 
+   d="scan'208";a="854434666"
+Received: from lkp-server02.sh.intel.com (HELO d3fc50ef50de) ([10.239.97.151])
+  by fmsmga005.fm.intel.com with ESMTP; 12 Apr 2022 09:29:27 -0700
+Received: from kbuild by d3fc50ef50de with local (Exim 4.95)
+        (envelope-from <lkp@intel.com>)
+        id 1neJOR-0002zn-2b;
+        Tue, 12 Apr 2022 16:29:27 +0000
+Date:   Wed, 13 Apr 2022 00:28:47 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Niklas Schnelle <schnelle@linux.ibm.com>,
+        Bjorn Helgaas <helgaas@kernel.org>,
+        Jan Kiszka <jan.kiszka@siemens.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>
+Cc:     kbuild-all@lists.01.org, linux-s390@vger.kernel.org,
+        linux-pci@vger.kernel.org
+Subject: Re: [PATCH v2 2/4] PCI: Move jailhouse's isolated function handling
+ to pci_scan_slot()
+Message-ID: <202204130045.AeSigvk8-lkp@intel.com>
+References: <20220412143040.1882096-3-schnelle@linux.ibm.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH v5 10/21] KVM: s390: pci: add basic kvm_zdev structure
-Content-Language: en-US
-To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
-        schnelle@linux.ibm.com, farman@linux.ibm.com, pmorel@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
-        imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
-        oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
-        pasic@linux.ibm.com, pbonzini@redhat.com, corbet@lwn.net,
-        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-doc@vger.kernel.org
-References: <20220404174349.58530-1-mjrosato@linux.ibm.com>
- <20220404174349.58530-11-mjrosato@linux.ibm.com>
-From:   Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20220404174349.58530-11-mjrosato@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: G66F49yBnOde7KEIyC3ZOnbNSfttx1kQ
-X-Proofpoint-ORIG-GUID: 8J09If8qnveo03HF1Wji97I3eBSjJC2z
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-04-12_06,2022-04-12_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
- mlxscore=0 impostorscore=0 spamscore=0 malwarescore=0 bulkscore=0
- lowpriorityscore=0 clxscore=1015 mlxlogscore=866 suspectscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2204120077
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220412143040.1882096-3-schnelle@linux.ibm.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+Hi Niklas,
+
+I love your patch! Perhaps something to improve:
+
+[auto build test WARNING on helgaas-pci/next]
+[also build test WARNING on s390/features tip/x86/core v5.18-rc2 next-20220412]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Niklas-Schnelle/PCI-Rework-pci_scan_slot-and-isolated-PCI-functions/20220412-223307
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/helgaas/pci.git next
+config: alpha-defconfig (https://download.01.org/0day-ci/archive/20220413/202204130045.AeSigvk8-lkp@intel.com/config)
+compiler: alpha-linux-gcc (GCC) 11.2.0
+reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # https://github.com/intel-lab-lkp/linux/commit/5cac6729750b7434ff5d6ae99469e9e54bc9fb6e
+        git remote add linux-review https://github.com/intel-lab-lkp/linux
+        git fetch --no-tags linux-review Niklas-Schnelle/PCI-Rework-pci_scan_slot-and-isolated-PCI-functions/20220412-223307
+        git checkout 5cac6729750b7434ff5d6ae99469e9e54bc9fb6e
+        # save the config file to linux build tree
+        mkdir build_dir
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.2.0 make.cross O=build_dir ARCH=alpha SHELL=/bin/bash drivers/pci/
+
+If you fix the issue, kindly add following tag as appropriate
+Reported-by: kernel test robot <lkp@intel.com>
+
+All warnings (new ones prefixed by >>):
+
+   drivers/pci/probe.c: In function 'pci_scan_child_bus_extend':
+>> drivers/pci/probe.c:2861:13: warning: variable 'nr_devs' set but not used [-Wunused-but-set-variable]
+    2861 |         int nr_devs;
+         |             ^~~~~~~
 
 
-Am 04.04.22 um 19:43 schrieb Matthew Rosato:
-> This structure will be used to carry kvm passthrough information related to
-> zPCI devices.
-> 
-> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+vim +/nr_devs +2861 drivers/pci/probe.c
 
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+bccf90d6e063d2 Palmer Dabbelt  2017-06-23  2841  
+1c02ea81006548 Mika Westerberg 2017-10-13  2842  /**
+1c02ea81006548 Mika Westerberg 2017-10-13  2843   * pci_scan_child_bus_extend() - Scan devices below a bus
+1c02ea81006548 Mika Westerberg 2017-10-13  2844   * @bus: Bus to scan for devices
+1c02ea81006548 Mika Westerberg 2017-10-13  2845   * @available_buses: Total number of buses available (%0 does not try to
+1c02ea81006548 Mika Westerberg 2017-10-13  2846   *		     extend beyond the minimal)
+1c02ea81006548 Mika Westerberg 2017-10-13  2847   *
+1c02ea81006548 Mika Westerberg 2017-10-13  2848   * Scans devices below @bus including subordinate buses. Returns new
+1c02ea81006548 Mika Westerberg 2017-10-13  2849   * subordinate number including all the found devices. Passing
+1c02ea81006548 Mika Westerberg 2017-10-13  2850   * @available_buses causes the remaining bus space to be distributed
+1c02ea81006548 Mika Westerberg 2017-10-13  2851   * equally between hotplug-capable bridges to allow future extension of the
+1c02ea81006548 Mika Westerberg 2017-10-13  2852   * hierarchy.
+1c02ea81006548 Mika Westerberg 2017-10-13  2853   */
+1c02ea81006548 Mika Westerberg 2017-10-13  2854  static unsigned int pci_scan_child_bus_extend(struct pci_bus *bus,
+1c02ea81006548 Mika Westerberg 2017-10-13  2855  					      unsigned int available_buses)
+1c02ea81006548 Mika Westerberg 2017-10-13  2856  {
+1c02ea81006548 Mika Westerberg 2017-10-13  2857  	unsigned int used_buses, normal_bridges = 0, hotplug_bridges = 0;
+1c02ea81006548 Mika Westerberg 2017-10-13  2858  	unsigned int start = bus->busn_res.start;
+5cac6729750b74 Niklas Schnelle 2022-04-12  2859  	unsigned int devfn, cmax, max = start;
+^1da177e4c3f41 Linus Torvalds  2005-04-16  2860  	struct pci_dev *dev;
+690f4304104f37 Jan Kiszka      2018-03-07 @2861  	int nr_devs;
+^1da177e4c3f41 Linus Torvalds  2005-04-16  2862  
+0207c356ef0e2b Bjorn Helgaas   2009-11-04  2863  	dev_dbg(&bus->dev, "scanning bus\n");
+^1da177e4c3f41 Linus Torvalds  2005-04-16  2864  
+^1da177e4c3f41 Linus Torvalds  2005-04-16  2865  	/* Go find them, Rover! */
+5cac6729750b74 Niklas Schnelle 2022-04-12  2866  	for (devfn = 0; devfn < 256; devfn += 8)
+690f4304104f37 Jan Kiszka      2018-03-07  2867  		nr_devs = pci_scan_slot(bus, devfn);
+690f4304104f37 Jan Kiszka      2018-03-07  2868  
+3e466e2d3a04c7 Bjorn Helgaas   2017-11-30  2869  	/* Reserve buses for SR-IOV capability */
+1c02ea81006548 Mika Westerberg 2017-10-13  2870  	used_buses = pci_iov_bus_range(bus);
+1c02ea81006548 Mika Westerberg 2017-10-13  2871  	max += used_buses;
+a28724b0fb909d Yu Zhao         2009-03-20  2872  
+^1da177e4c3f41 Linus Torvalds  2005-04-16  2873  	/*
+^1da177e4c3f41 Linus Torvalds  2005-04-16  2874  	 * After performing arch-dependent fixup of the bus, look behind
+^1da177e4c3f41 Linus Torvalds  2005-04-16  2875  	 * all PCI-to-PCI bridges on this bus.
+^1da177e4c3f41 Linus Torvalds  2005-04-16  2876  	 */
+74710ded8e16fc Alex Chiang     2009-03-20  2877  	if (!bus->is_added) {
+0207c356ef0e2b Bjorn Helgaas   2009-11-04  2878  		dev_dbg(&bus->dev, "fixups for bus\n");
+^1da177e4c3f41 Linus Torvalds  2005-04-16  2879  		pcibios_fixup_bus(bus);
+74710ded8e16fc Alex Chiang     2009-03-20  2880  		bus->is_added = 1;
+74710ded8e16fc Alex Chiang     2009-03-20  2881  	}
+74710ded8e16fc Alex Chiang     2009-03-20  2882  
+1c02ea81006548 Mika Westerberg 2017-10-13  2883  	/*
+1c02ea81006548 Mika Westerberg 2017-10-13  2884  	 * Calculate how many hotplug bridges and normal bridges there
+1c02ea81006548 Mika Westerberg 2017-10-13  2885  	 * are on this bus. We will distribute the additional available
+1c02ea81006548 Mika Westerberg 2017-10-13  2886  	 * buses between hotplug bridges.
+1c02ea81006548 Mika Westerberg 2017-10-13  2887  	 */
+1c02ea81006548 Mika Westerberg 2017-10-13  2888  	for_each_pci_bridge(dev, bus) {
+1c02ea81006548 Mika Westerberg 2017-10-13  2889  		if (dev->is_hotplug_bridge)
+1c02ea81006548 Mika Westerberg 2017-10-13  2890  			hotplug_bridges++;
+1c02ea81006548 Mika Westerberg 2017-10-13  2891  		else
+1c02ea81006548 Mika Westerberg 2017-10-13  2892  			normal_bridges++;
+1c02ea81006548 Mika Westerberg 2017-10-13  2893  	}
+1c02ea81006548 Mika Westerberg 2017-10-13  2894  
+4147c2fd9b12ae Mika Westerberg 2017-10-13  2895  	/*
+4147c2fd9b12ae Mika Westerberg 2017-10-13  2896  	 * Scan bridges that are already configured. We don't touch them
+4147c2fd9b12ae Mika Westerberg 2017-10-13  2897  	 * unless they are misconfigured (which will be done in the second
+4147c2fd9b12ae Mika Westerberg 2017-10-13  2898  	 * scan below).
+4147c2fd9b12ae Mika Westerberg 2017-10-13  2899  	 */
+1c02ea81006548 Mika Westerberg 2017-10-13  2900  	for_each_pci_bridge(dev, bus) {
+1c02ea81006548 Mika Westerberg 2017-10-13  2901  		cmax = max;
+1c02ea81006548 Mika Westerberg 2017-10-13  2902  		max = pci_scan_bridge_extend(bus, dev, max, 0, 0);
+3374c545c27c53 Mika Westerberg 2018-05-28  2903  
+3374c545c27c53 Mika Westerberg 2018-05-28  2904  		/*
+3374c545c27c53 Mika Westerberg 2018-05-28  2905  		 * Reserve one bus for each bridge now to avoid extending
+3374c545c27c53 Mika Westerberg 2018-05-28  2906  		 * hotplug bridges too much during the second scan below.
+3374c545c27c53 Mika Westerberg 2018-05-28  2907  		 */
+3374c545c27c53 Mika Westerberg 2018-05-28  2908  		used_buses++;
+3374c545c27c53 Mika Westerberg 2018-05-28  2909  		if (cmax - max > 1)
+3374c545c27c53 Mika Westerberg 2018-05-28  2910  			used_buses += cmax - max - 1;
+1c02ea81006548 Mika Westerberg 2017-10-13  2911  	}
+4147c2fd9b12ae Mika Westerberg 2017-10-13  2912  
+4147c2fd9b12ae Mika Westerberg 2017-10-13  2913  	/* Scan bridges that need to be reconfigured */
+1c02ea81006548 Mika Westerberg 2017-10-13  2914  	for_each_pci_bridge(dev, bus) {
+1c02ea81006548 Mika Westerberg 2017-10-13  2915  		unsigned int buses = 0;
+1c02ea81006548 Mika Westerberg 2017-10-13  2916  
+1c02ea81006548 Mika Westerberg 2017-10-13  2917  		if (!hotplug_bridges && normal_bridges == 1) {
+3e466e2d3a04c7 Bjorn Helgaas   2017-11-30  2918  
+1c02ea81006548 Mika Westerberg 2017-10-13  2919  			/*
+1c02ea81006548 Mika Westerberg 2017-10-13  2920  			 * There is only one bridge on the bus (upstream
+1c02ea81006548 Mika Westerberg 2017-10-13  2921  			 * port) so it gets all available buses which it
+1c02ea81006548 Mika Westerberg 2017-10-13  2922  			 * can then distribute to the possible hotplug
+1c02ea81006548 Mika Westerberg 2017-10-13  2923  			 * bridges below.
+1c02ea81006548 Mika Westerberg 2017-10-13  2924  			 */
+1c02ea81006548 Mika Westerberg 2017-10-13  2925  			buses = available_buses;
+1c02ea81006548 Mika Westerberg 2017-10-13  2926  		} else if (dev->is_hotplug_bridge) {
+3e466e2d3a04c7 Bjorn Helgaas   2017-11-30  2927  
+1c02ea81006548 Mika Westerberg 2017-10-13  2928  			/*
+1c02ea81006548 Mika Westerberg 2017-10-13  2929  			 * Distribute the extra buses between hotplug
+1c02ea81006548 Mika Westerberg 2017-10-13  2930  			 * bridges if any.
+1c02ea81006548 Mika Westerberg 2017-10-13  2931  			 */
+1c02ea81006548 Mika Westerberg 2017-10-13  2932  			buses = available_buses / hotplug_bridges;
+3374c545c27c53 Mika Westerberg 2018-05-28  2933  			buses = min(buses, available_buses - used_buses + 1);
+1c02ea81006548 Mika Westerberg 2017-10-13  2934  		}
+1c02ea81006548 Mika Westerberg 2017-10-13  2935  
+1c02ea81006548 Mika Westerberg 2017-10-13  2936  		cmax = max;
+1c02ea81006548 Mika Westerberg 2017-10-13  2937  		max = pci_scan_bridge_extend(bus, dev, cmax, buses, 1);
+3374c545c27c53 Mika Westerberg 2018-05-28  2938  		/* One bus is already accounted so don't add it again */
+3374c545c27c53 Mika Westerberg 2018-05-28  2939  		if (max - cmax > 1)
+3374c545c27c53 Mika Westerberg 2018-05-28  2940  			used_buses += max - cmax - 1;
+1c02ea81006548 Mika Westerberg 2017-10-13  2941  	}
+^1da177e4c3f41 Linus Torvalds  2005-04-16  2942  
+e16b46605960bd Keith Busch     2016-07-21  2943  	/*
+e16b46605960bd Keith Busch     2016-07-21  2944  	 * Make sure a hotplug bridge has at least the minimum requested
+1c02ea81006548 Mika Westerberg 2017-10-13  2945  	 * number of buses but allow it to grow up to the maximum available
+1c02ea81006548 Mika Westerberg 2017-10-13  2946  	 * bus number of there is room.
+e16b46605960bd Keith Busch     2016-07-21  2947  	 */
+1c02ea81006548 Mika Westerberg 2017-10-13  2948  	if (bus->self && bus->self->is_hotplug_bridge) {
+1c02ea81006548 Mika Westerberg 2017-10-13  2949  		used_buses = max_t(unsigned int, available_buses,
+1c02ea81006548 Mika Westerberg 2017-10-13  2950  				   pci_hotplug_bus_size - 1);
+1c02ea81006548 Mika Westerberg 2017-10-13  2951  		if (max - start < used_buses) {
+1c02ea81006548 Mika Westerberg 2017-10-13  2952  			max = start + used_buses;
+a20c7f36bd3d20 Mika Westerberg 2017-10-13  2953  
+a20c7f36bd3d20 Mika Westerberg 2017-10-13  2954  			/* Do not allocate more buses than we have room left */
+a20c7f36bd3d20 Mika Westerberg 2017-10-13  2955  			if (max > bus->busn_res.end)
+a20c7f36bd3d20 Mika Westerberg 2017-10-13  2956  				max = bus->busn_res.end;
+1c02ea81006548 Mika Westerberg 2017-10-13  2957  
+1c02ea81006548 Mika Westerberg 2017-10-13  2958  			dev_dbg(&bus->dev, "%pR extended by %#02x\n",
+1c02ea81006548 Mika Westerberg 2017-10-13  2959  				&bus->busn_res, max - start);
+1c02ea81006548 Mika Westerberg 2017-10-13  2960  		}
+e16b46605960bd Keith Busch     2016-07-21  2961  	}
+e16b46605960bd Keith Busch     2016-07-21  2962  
+^1da177e4c3f41 Linus Torvalds  2005-04-16  2963  	/*
+^1da177e4c3f41 Linus Torvalds  2005-04-16  2964  	 * We've scanned the bus and so we know all about what's on
+^1da177e4c3f41 Linus Torvalds  2005-04-16  2965  	 * the other side of any bridges that may be on this bus plus
+^1da177e4c3f41 Linus Torvalds  2005-04-16  2966  	 * any devices.
+^1da177e4c3f41 Linus Torvalds  2005-04-16  2967  	 *
+^1da177e4c3f41 Linus Torvalds  2005-04-16  2968  	 * Return how far we've got finding sub-buses.
+^1da177e4c3f41 Linus Torvalds  2005-04-16  2969  	 */
+0207c356ef0e2b Bjorn Helgaas   2009-11-04  2970  	dev_dbg(&bus->dev, "bus scan returning with max=%02x\n", max);
+^1da177e4c3f41 Linus Torvalds  2005-04-16  2971  	return max;
+^1da177e4c3f41 Linus Torvalds  2005-04-16  2972  }
+1c02ea81006548 Mika Westerberg 2017-10-13  2973  
+
+-- 
+0-DAY CI Kernel Test Service
+https://01.org/lkp
