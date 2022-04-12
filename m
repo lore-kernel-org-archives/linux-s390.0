@@ -2,44 +2,44 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C6E13C4332F
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5856FC433FE
 	for <linux-s390@archiver.kernel.org>; Tue, 12 Apr 2022 15:53:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357389AbiDLP4A (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 12 Apr 2022 11:56:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51864 "EHLO
+        id S1351469AbiDLPz7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 12 Apr 2022 11:55:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235861AbiDLPz6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Apr 2022 11:55:58 -0400
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2088.outbound.protection.outlook.com [40.107.93.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E1A26005C;
-        Tue, 12 Apr 2022 08:53:40 -0700 (PDT)
+        with ESMTP id S235086AbiDLPz5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Apr 2022 11:55:57 -0400
+Received: from NAM04-DM6-obe.outbound.protection.outlook.com (mail-dm6nam08on2074.outbound.protection.outlook.com [40.107.102.74])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A51635FF2F;
+        Tue, 12 Apr 2022 08:53:39 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Z6Ia3JQ6d5uRBIkY1fVpAVTIgEG9mORn1b5AMy0DCvVynu8WWY5TTotX7ma8QATHo2kK/udQe3hL+dny7/bxE9GyAal1kUrjPehiB7VfbphM+dv+9hefKwmRdp7G8bQWdfm4+vxJ7X7EMRX5SIPzN9t5NGZB4RsRQ4hI/5OpVmzKF99eUkruJzeVIrVHkfP6nO06oS3x65O8+NQaHo+tLkjia5NrHSb/OUH7XGfPRfZLGhr0PByzde0h6AUKkii08uiF68z88igNohYrK4h4RVic4djRw1fOTOw2dzrSbgTWfXAakNOiKCg+8urvEDDOJJAlruULLsEGXdR5fBkgsg==
+ b=hbIOCtf3pyQiN/qRL7Pc1BWtc1RbVDIs0hfVBiTExHcK9G4f/YjAK/Jkt7L/2MGdK7B1FsWempiEbFoeoBnW6GIOZjD/JMHb11ojzw0Nr0CBX6gn50Le532L4gunLFMjdC04iGH1NiNnFbWnC4r4Bbsbvqonl1xLNiHUyK1DZg2NSlktLQGOjq8d5NRqR5+iN+Rn5/0+tZmlq7vMIeWlyeoHAcRos/lDzaB2WClLlF+U/FfaTMEzK7e8aCid3TW+K4nPZ27Y8ZT8/4O0HT3O33BfhyRnQdbK1Zc6NDiL93DohIqMn1EMslA9qnBbvHWUrF1KfIoibuFkeV65w6+Nvg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=zhaO8AuSVmWbnf6E1oY44JxzaoPb5BuPccs9/AMBcBs=;
- b=PUU1P2Bcd46hxofgxygeuVv1jbqRY8i5XtYMK7H92qzYDDRsXhxLQdCtDuzxgA5+/g1cEQlIrH/sdDhM9ZxpBfRZhGPDqXdSJLDK6SQIWYRxkS/9SaPLKxWMfpClUXK1U+jPVsyYG9YNw5rReGOUSERfCBlIsUt9Ajv71sC8PjAgV5zlCOPHP1Zk5j71hjtNHRz6yVsVFkutmLJ1iavEwV5gBc4VmqYdRg7i6SSRH0XHwP9D0h/lR4md9/QTRE0BFg+1igZ2i9M3dIg+MOOExQGTRAxrdtNtjXlnx2XKMw67ZLVOwj2i631SY7h8k9xn2bPnyFMsSKsApdwFB41jcQ==
+ bh=ipBz6zUEzjNlBfn0keRHBKDv3oVAdL4US7ij5der/Fs=;
+ b=Cq5hvQMKJBk9hTeb9QvumXRR1jzqVO3uXhUr4A6pwoXJIg3yysoNOPhWRSrzJnUBwwhJugOfPcxSFWJ8X1yK6GKDjJ3qLkp4tL/Q4FSmVbir9hiBi8raNDgPjQwWMjBamE2SyZNLMHy2dRGCLD2kGgsJyvuApPC8kp/S6WvuMGtHvAk+gFFSQ1mwuvm15NRpL2CQQZzDChkAZAfK72K1uUaE5Ud0+otXbUeqQkR8eIIO5QhRQd+kIsO7Zx1hGVe3K+l6SXIMqgOhQ+hJGh9AEziqG/w8FFSP4lUmDu/ug3sgfz/3duKrmIuo2DIj99/85QkyxZ68HrXa/YrqQAaSpw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
  dkim=pass header.d=nvidia.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=zhaO8AuSVmWbnf6E1oY44JxzaoPb5BuPccs9/AMBcBs=;
- b=HJ8uA72j8sqzUQ5mBYy4hwkl3YtIllrqRWzZkz732rrOMh5dgiACVK2ZZU1d1qp8hKY4qNy8+hO/YmAnr61o246eUCup5NUsIPumO1WvVjpo6xOtIHnivjWUhJHJEbhz9aZily2Pf7+zMLiEOleWlEukR23vsOScVw9C2+cjOT/62wT9fCwbYNb/psz+fCT6ND8mnWvXumNPSD0tmlVqQEyGSYZHxnp+auotT4nhu8rgXhkbnM0WdQ7moexVSHFPmx/UbmnSA7lUYV+lk6qfGfWMND7o/mFg48xJUkShXqmxziPCfHplk2Gs1yIfdH4L1q6e5AXByOcb2FvFM6Kaqw==
+ bh=ipBz6zUEzjNlBfn0keRHBKDv3oVAdL4US7ij5der/Fs=;
+ b=nXpouJ5dJisZdHWVn3g8Ih2bT0DOm9BN15MJ2NZ4wE13hV0SWmcBFatzl9JbfHl2GQvihLLwywNzFEfIFT2MDVpSrKleAfX8fgGaM7Dmd8vYQv5Hm25AnTNL7csLe4rah2fA5mo1W5lj6E214EgHQOqcDMnoygU/M+KZoRVDS9tUj+weXAaW+GPxinOI9NiQvsLoV8XAjIRZ/NDYrmZEkzUD3tntpuvprbvp1BRb8Q/V3d1VarD/CJEZrW1teqd6QD7vUTPr337FtGeRkY60l0UBmVfCXP2Hze4CRX4Wr53ZlD7nR4FqlHJoY1/ard4gpr4DMoxubiPQL7dMAc8Qow==
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=nvidia.com;
 Received: from CH2PR12MB4181.namprd12.prod.outlook.com (2603:10b6:610:a8::16)
- by DM6PR12MB4172.namprd12.prod.outlook.com (2603:10b6:5:212::9) with
+ by MN2PR12MB4045.namprd12.prod.outlook.com (2603:10b6:208:1d6::15) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5144.29; Tue, 12 Apr
  2022 15:53:38 +0000
 Received: from CH2PR12MB4181.namprd12.prod.outlook.com
  ([fe80::c911:71b5:78e6:3a38]) by CH2PR12MB4181.namprd12.prod.outlook.com
  ([fe80::c911:71b5:78e6:3a38%8]) with mapi id 15.20.5144.029; Tue, 12 Apr 2022
- 15:53:38 +0000
+ 15:53:37 +0000
 From:   Jason Gunthorpe <jgg@nvidia.com>
 To:     Alexander Gordeev <agordeev@linux.ibm.com>,
         David Airlie <airlied@linux.ie>,
@@ -73,68 +73,68 @@ To:     Alexander Gordeev <agordeev@linux.ibm.com>,
 Cc:     Christoph Hellwig <hch@lst.de>,
         "Tian, Kevin" <kevin.tian@intel.com>,
         "Liu, Yi L" <yi.l.liu@intel.com>
-Subject: [PATCH 3/9] vfio/mdev: Pass in a struct vfio_device * to vfio_pin/unpin_pages()
-Date:   Tue, 12 Apr 2022 12:53:30 -0300
-Message-Id: <3-v1-a8faf768d202+125dd-vfio_mdev_no_group_jgg@nvidia.com>
+Subject: [PATCH 5/9] vfio: Pass in a struct vfio_device * to vfio_dma_rw()
+Date:   Tue, 12 Apr 2022 12:53:32 -0300
+Message-Id: <5-v1-a8faf768d202+125dd-vfio_mdev_no_group_jgg@nvidia.com>
 In-Reply-To: <0-v1-a8faf768d202+125dd-vfio_mdev_no_group_jgg@nvidia.com>
 References: 
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: BL1PR13CA0173.namprd13.prod.outlook.com
- (2603:10b6:208:2bd::28) To CH2PR12MB4181.namprd12.prod.outlook.com
+X-ClientProxiedBy: BL1P222CA0003.NAMP222.PROD.OUTLOOK.COM
+ (2603:10b6:208:2c7::8) To CH2PR12MB4181.namprd12.prod.outlook.com
  (2603:10b6:610:a8::16)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: a0ec39e7-6949-4f89-a647-08da1c9c9b61
-X-MS-TrafficTypeDiagnostic: DM6PR12MB4172:EE_
-X-Microsoft-Antispam-PRVS: <DM6PR12MB41725104C4C39B7463C2289BC2ED9@DM6PR12MB4172.namprd12.prod.outlook.com>
+X-MS-Office365-Filtering-Correlation-Id: 5c50d941-b512-4790-917f-08da1c9c9b6d
+X-MS-TrafficTypeDiagnostic: MN2PR12MB4045:EE_
+X-Microsoft-Antispam-PRVS: <MN2PR12MB40458793C494A404AEA0450EC2ED9@MN2PR12MB4045.namprd12.prod.outlook.com>
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: ihyN3bchJ3Ctm+ldZqfC1RHmDUZkf4c0fRY6OhALj6A5KYB4+bE4T9ZFeylz6PXdxgSKTK4D12ayMUmTk97EOY1wuLA+YV08P80ggWV4UWaImDvLjMDVaMfMlmXEYEBedlg9+jQEEfMM44c9Ct6plwZG1ExxsWO1n8tN9TRzf3knTx3S7vMrAx/q7j5v1ErP4uB6HQW4T25m07Nl/FU2lmPMcLgxXB+6CqHbE1k2/uw8IXMl1r58oj/GvuTVV5kW/54GEcaqHz8M245r70qWkt1cBmFyG0VrpmYHo8AO3Q8QRdXyQ+krKV5mPdXp4196LC8CgnBF9dFl+3bl0S9qXlLIztfvT/1hMj/wBaPBBlaH0ej0wGEDN/Lh9Wno//B7KJCeRGQDT3RZHmwvPq6N2xlRw22JlYKqVYYVtfVfe6WFK8T1XReZGXxKS54iheu7VCtjFEj+0jS0eVlRwJ6XgboYzi4edq/yCiJHC9oXZd5qmWkjs2nk8fW8EH5GipvqgfsVZvht5DWd2Y24viWoQGdtlVd1o+mu/D8lk0dhJV2trWmn+nXAhK1OWNGqKee2s8y2sL2HpLn3dk/V1y2R3kYheWfkWFtm0fWRwYRfLj7mBLjPaHTrykERobCzEHks+QCE6D4P0ZDvpfLLGV3yHb+K2wfFBCrz+Dso4vIiUyXBbbPuD+BszrXaRtJV9S+rFfiWHzLzrVXN+ozbe5FiPw==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH2PR12MB4181.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(508600001)(6486002)(6506007)(6666004)(66946007)(66476007)(4326008)(66556008)(26005)(186003)(36756003)(83380400001)(8676002)(316002)(54906003)(86362001)(8936002)(6512007)(2616005)(921005)(110136005)(7416002)(5660300002)(38100700002)(2906002)(7406005)(4216001);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: J/2eaJ+Y58hXP9ec6JHG6xGLZ7jdiAjbAyp2b6RsQfOQCizWkmMt8ONxRE4zs8uDyO6TNVzD95T4UHQSdssX7faXVzbL1qQkZLJ4z52eLg2U70zarWkd5SDHpsK1vYD61IPKpQuRXINfpkYKFsod0aiqTyqIMY+6E+o4LWow9BI/3nf2TsbXS4wdoKme4tpNQca2TUJchhWqax56xEUffoCaTTQA789CJUHt9xFrqfOGWjWvkAK87I167J5TqjSE2KWJ8SDtL18ppy1fVaW1GVhkqdxTiEV35HoZZh6VCUWxpotuVM0Y5N30EKbiRa1JaxsmwuLHvdwSZDX1MgSuoiKqF5OSnk+VlxWo0nsF8FiRW31y+p7BdfDiLKvdEQUKTtV1vWP2KpbeFa1FotJXB0Ei9aUuaOy6MktSm8+TvBZfZaExk58AFFb/Coz2EjrKXFW+7h820PjP50lcULA+3TxBc4bz9++ERUIs8dTMcYjCNbpruvi5/DtIgsRxL7KoOWinTD0mhyjPYEjJKu6pDyfl4y+TYs2LtuIfkEooTh1cgB05sKIfFp86b34D2hzhmIvQY88Q/T7vyINVBx/NjNYi1aH1VUGR2eEisgNApbLptZCdysI2Iw+1R+CmaxFnqmpSbOG4muGG7XVl2cBrGRf68j7h/e2oohYxnz/yXz75lHR/m3BbFck7fPpcpicCx8MPJrpo4sMfbtz4iOfMBg==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH2PR12MB4181.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(36756003)(4326008)(8676002)(66946007)(7416002)(2906002)(5660300002)(38100700002)(7406005)(921005)(83380400001)(316002)(2616005)(508600001)(186003)(8936002)(26005)(6512007)(86362001)(6666004)(6506007)(66476007)(6486002)(54906003)(110136005)(66556008)(4216001);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?kkYqN+hCN77JO8WLil/UtA/3aRebl05uo+PK8X1JaxyKg8l64g7rFGRDvJr/?=
- =?us-ascii?Q?1lPt2TzDfVdh8kqVaB6H5TG8rQy4Mvbe5JVx0juoeDLXxD4UUPkAq5JbfMFo?=
- =?us-ascii?Q?WT1HnQIIqNQ20VMwZxAxTqg3AIOIFcFFhaviNIvj+ku6WOvehMADRC07IGRu?=
- =?us-ascii?Q?gJkX8a3fWWmxc4Vp0sWtfZ8X64mHP0wm4mJ47sLDgf5JtJEsyqzTpTZS+PQX?=
- =?us-ascii?Q?buePo4SWjkmqSzUvvFUONy4bWaB5l+lmEsyW/rKPdLtVJIcGfSypd6yOTOFN?=
- =?us-ascii?Q?0Is/i4k25FF51tFTtmQW1exgm6SCYyf6hd5kX1WeQgxFOVX+b/mFOvH1h+eJ?=
- =?us-ascii?Q?Dj1qNeZmmGHosyIgsCtZRVUHCThEQ6W56+h4m92uHzia+3cNV3BSEvXKNMFm?=
- =?us-ascii?Q?EySwbz8VmEH5NmFwky8IOPhB0CSwhz4P7deDqcIeAaRFgzyOICwnyVB7cAJ2?=
- =?us-ascii?Q?dCT7CLZ3EalvmaglPSSYxkUcHZAgrYRDSL8oOwaHIRCB1poZUffQWTOCsfNP?=
- =?us-ascii?Q?lOReOwnpYPj6zKGSsgtqoF5rY0nS7msRB82etAeDXWJpVu20FDyWuwiKcnJJ?=
- =?us-ascii?Q?JXDiNCG+RsjKtf9N6TaoZ/+IrAqaR+s5sm549yU/PHcxwAF5pd6BoUEp4JZm?=
- =?us-ascii?Q?f9KBIvrNr9o2HnlgYMjGzFdSqCdB9EmcpZdbovdymNDJj7SmcAz+Wi9Ht0cr?=
- =?us-ascii?Q?4B6CoyMq2ekxkYLz4LbKxVlJzXC0uD1AyLLEGFSYiRplHr8Lm9RmGKfBTWeN?=
- =?us-ascii?Q?yZv9Czvr6bPDnPJwWUbsbZvY8pM/NJPkPem+sqFbYALngxXYe87tpa8CyO7P?=
- =?us-ascii?Q?kdEt/sP5H6FLXTLENdhVUBsSV9VEGdsYHYWX1cEthMegzJiWsdRsbFX07Zo1?=
- =?us-ascii?Q?wIttjJbokUTNRSM7/p7Hr78ybeiTK+tnBCLPu1xFsphx3x127bWlfDA892/v?=
- =?us-ascii?Q?vVmBvUORxVe/cEOYS7bo7DWIGLrm447prXrsPPlRw7xRJc8FgEw17kT9VYj5?=
- =?us-ascii?Q?KUvUu8TGfCtt/Wc2KRNokphNGkV5e9MsShYXURdh/Pw9vNOI8tBXH+FonqXK?=
- =?us-ascii?Q?4n3W+4nPb9NeyQUBry8bTTq7uvjLfJt+u4+TBo5HQIa4tS2jeIQJB1TBqITo?=
- =?us-ascii?Q?pX5K2ghicWzb3F7NS1gabZWrgVvSF9G+kLZnkBD3gPwwm99JV2Dankp6D2sI?=
- =?us-ascii?Q?LWJ+oigh7J4AW23J1fMEsHkqC21xBr+U4IPkflWJI18w8RhTkvdE09RHfVrD?=
- =?us-ascii?Q?6iMFIIOZ18DO9cZb9M3sFNu1Zye3wZc42eKUWrWjOE97YyoW3aHjTQF86XMP?=
- =?us-ascii?Q?WKKg6/NqM8j9HxyNl17g5oV3FOChhVw2MvDAs69Ydf/1AfS1kYMHVsY3ciBB?=
- =?us-ascii?Q?yJkHiqiA8kpo1iHqo7TIEKCiRM7MUFgg1oLNJPOLB2tA/oMLyJfUkHcjkvXH?=
- =?us-ascii?Q?Pj+frSZeEBBMz5uCHffPpf+hRVb1PyJTm4lOmGvPfqlgfFerou0KyVz9GiLf?=
- =?us-ascii?Q?nu52utpa16JYElzdzaQMCsl2PDbflmyxvCFr3IMCDn4YMBnqVuIQagp2l+Be?=
- =?us-ascii?Q?j3Hk3XMXSk6ECKIV+wE5skp/glwD22j9mqBgtQz+fAb1/wNRcaP3RUjRjCFg?=
- =?us-ascii?Q?vPX5qhKgnrqvTQDMvPuwogCeUNJz/nrfgri/ecFy0eo5sFmVI8RWhi6P7w4e?=
- =?us-ascii?Q?eH7RqeIDD4Ali52VAaTI4j4Oa00VKKU+v/69VqYw9No3xYWlWgoxajkY2l5X?=
- =?us-ascii?Q?qzGgTl7/iQ=3D=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?1tZ4TL1/AEwusqC9PDUcR2zgaAr68+UprHnq9kNcUko72YKFymWTRQMgvjUT?=
+ =?us-ascii?Q?StV9dPfSXeM+M+XB8I3vFY0Np6jzLRd5lzV8W+suv2mpaeN+HAfkqNvTebM7?=
+ =?us-ascii?Q?zLdjHaCfG5WhjDF20gS/s39P68Y0PNWh/8DhvYCOgeEw/T67Nb7KLLNqO+iD?=
+ =?us-ascii?Q?AnyMmjbEZVrxGbGXXdBSbDspVZfsShHE1noDJGEiDD1eS7WQJbYgZ7+tQWHN?=
+ =?us-ascii?Q?rpviYcLQAHJgKKLsiONmvyzd+kYmIgy1qBoe8p42Ggm2HkSvb4sDUNqwSo2p?=
+ =?us-ascii?Q?InH8HBUUcaYZn7rfDhrUTH52t4lYGR6Fe6joXdcBvF+Kr+Vot95TB4UQb0r3?=
+ =?us-ascii?Q?wsX/qIBe2b5+Q1ETSmJiWBkDeH4UdjBlYBeBhnzZDoOL4bVyttHwmGSm8sUS?=
+ =?us-ascii?Q?Psr98sZ3/kSJ7B39CoJC3oBYaCoxidmd3JQhwmQTkZkDPNndSH7uWQO+XCf4?=
+ =?us-ascii?Q?ARqJkie3qdG3vrnKFMPO54QLfm5tFq7dblA6ilVxyiDQhhD93AlMs5nzDWFq?=
+ =?us-ascii?Q?DHDiW1H9mefloJcKndufo7uaFjqqDa9CiXHvyAXw6IMhAM0FPX80n01bpY2P?=
+ =?us-ascii?Q?0M+6IL2UiFo4rM2v6KagqgMahPIeO8u8nUY8LYj2XH3wnbZ1nHFaP3+FFbYj?=
+ =?us-ascii?Q?VdJN6mU/D40Ivc+LG9gOucrFEIlB29Uv3+z5ykJVhJ94wPIposIsUrLKLDHV?=
+ =?us-ascii?Q?tNxeSIROv6Jo556TPJpcx3w3uM/tthAQJUstXsoFeJP5zNb+5upwhIoR4uDl?=
+ =?us-ascii?Q?hMLIsPk5nJoW+KmNPuGe8anhS5jqNRP2vjcXgsZXJ/rvjjBhZrfz9RB193rv?=
+ =?us-ascii?Q?jTNeFS8EepPkg1VgSVh1iKVoW5szNvVJQb34iXVBhjs7GB2OlkbCWzVToUCp?=
+ =?us-ascii?Q?Z9FfHnz+TgAz5rUp7kYTTuD66/jAzI1c80zmgelTGBWNi4SG+MxrKh2tXwTc?=
+ =?us-ascii?Q?R/Dr3p/YWHxNYEQ21R7lWiX6qlVYctylvNe8W4uJoRhJdHme0gtuzyMsGsT1?=
+ =?us-ascii?Q?k7StOdbtgULJcwMdYf1XE+xdTYlKfiZGFwK9yQWXhf3LU1Y+bcet9oVNT5TN?=
+ =?us-ascii?Q?uKcIeiSNgVwF+eB8lYH1XyjWW63HaGIoPObxloxGwBmEToPCsceUPMm2c/in?=
+ =?us-ascii?Q?/2EDTOZmbtDKVuAhcToUHkd+m6FPGR4YwOnujMTdchAfird6EOCN50Gw7bQb?=
+ =?us-ascii?Q?eK+b3nZDO4UoWZYZoVHF156t0LGR2qUb5x++oURV3HpDBvhPKqOcVTgpy0G1?=
+ =?us-ascii?Q?r9y5vuiPnGEU4s0qY6lnAW+SAYo57LrjS8nQwUn1Pm0VIf+n8rD+ZK6x2nXP?=
+ =?us-ascii?Q?bf3EYC4+s7RPV/OUaLcX8I6h3TQWg3tOFKxynaEwVw24nKYSdc33cJKrx4tx?=
+ =?us-ascii?Q?EfGPrfGo249bL9tLtvvWLE38UeYvw6J6K+8bui3Zdvs8wuBMO/AvQd/uj0zh?=
+ =?us-ascii?Q?pfCfpWhghkdlhpBoY3eH7l9+yPwga0yGex7MbEzlmgE64jdyKW93ADbFg1un?=
+ =?us-ascii?Q?F7Pam07Y+z+hi6gK13S9tKrcZKesHJc1gP0VMumjSzd8qNGa2v/5GObqkTdg?=
+ =?us-ascii?Q?IXWt66HjkNWLvyHB5F+uKqv16h4bmotS3IoGmCF4tIO18SEQt95ncueN4VoW?=
+ =?us-ascii?Q?ChyPYwsPpxeQSAPs0LZnppidMhPCz0H+ZWxmhqTRdB8x+/pYM9qFMzRgWU2x?=
+ =?us-ascii?Q?pMy92i7rtB19nk4jLZRX1Ib9m4Is7dYuv1mNXQuMzzqweoRSkRBISWhWFlr8?=
+ =?us-ascii?Q?Ol1BjuoR/Q=3D=3D?=
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: a0ec39e7-6949-4f89-a647-08da1c9c9b61
+X-MS-Exchange-CrossTenant-Network-Message-Id: 5c50d941-b512-4790-917f-08da1c9c9b6d
 X-MS-Exchange-CrossTenant-AuthSource: CH2PR12MB4181.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Apr 2022 15:53:37.5721
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Apr 2022 15:53:37.5565
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: H35NTmW0Zo3huFL8xVKx0A/Z0BCmhGkge5WwKlrAz9f+Ufzl53v5fm/bIII9IGLZ
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4172
+X-MS-Exchange-CrossTenant-UserPrincipalName: N2+AFwymYMaDbcHTsvWxuCnq5dPH3Hv9zNFKKQiIS3aGqzdgcRFdQcbDqCoaBEGH
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB4045
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -146,214 +146,94 @@ and a confusing lifecycle model.
 
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 ---
- .../driver-api/vfio-mediated-device.rst       |  4 +-
- drivers/s390/cio/vfio_ccw_cp.c                |  6 +--
- drivers/s390/crypto/vfio_ap_ops.c             |  8 ++--
- drivers/vfio/vfio.c                           | 40 ++++++-------------
- include/linux/vfio.h                          |  4 +-
- 5 files changed, 24 insertions(+), 38 deletions(-)
+ drivers/gpu/drm/i915/gvt/kvmgt.c |  5 +++--
+ drivers/vfio/vfio.c              | 22 ++++++++++------------
+ include/linux/vfio.h             |  2 +-
+ 3 files changed, 14 insertions(+), 15 deletions(-)
 
-diff --git a/Documentation/driver-api/vfio-mediated-device.rst b/Documentation/driver-api/vfio-mediated-device.rst
-index 9f26079cacae35..6aeca741dc9be1 100644
---- a/Documentation/driver-api/vfio-mediated-device.rst
-+++ b/Documentation/driver-api/vfio-mediated-device.rst
-@@ -279,10 +279,10 @@ Translation APIs for Mediated Devices
- The following APIs are provided for translating user pfn to host pfn in a VFIO
- driver::
+diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/kvmgt.c
+index df7d87409e3a9c..3302d5d4d92146 100644
+--- a/drivers/gpu/drm/i915/gvt/kvmgt.c
++++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
+@@ -2184,8 +2184,9 @@ static int kvmgt_rw_gpa(unsigned long handle, unsigned long gpa,
  
--	extern int vfio_pin_pages(struct device *dev, unsigned long *user_pfn,
-+	extern int vfio_pin_pages(struct vfio_device *vdev, unsigned long *user_pfn,
- 				  int npage, int prot, unsigned long *phys_pfn);
+ 	info = (struct kvmgt_guest_info *)handle;
  
--	extern int vfio_unpin_pages(struct device *dev, unsigned long *user_pfn,
-+	extern int vfio_unpin_pages(struct vfio_device *vdev, unsigned long *user_pfn,
- 				    int npage);
- 
- These functions call back into the back-end IOMMU module by using the pin_pages
-diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index af5048a1ba8894..e362cb962a7234 100644
---- a/drivers/s390/cio/vfio_ccw_cp.c
-+++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -103,13 +103,13 @@ static int pfn_array_pin(struct pfn_array *pa, struct vfio_device *vdev)
- {
- 	int ret = 0;
- 
--	ret = vfio_pin_pages(vdev->dev, pa->pa_iova_pfn, pa->pa_nr,
-+	ret = vfio_pin_pages(vdev, pa->pa_iova_pfn, pa->pa_nr,
- 			     IOMMU_READ | IOMMU_WRITE, pa->pa_pfn);
- 
- 	if (ret < 0) {
- 		goto err_out;
- 	} else if (ret > 0 && ret != pa->pa_nr) {
--		vfio_unpin_pages(vdev->dev, pa->pa_iova_pfn, ret);
-+		vfio_unpin_pages(vdev, pa->pa_iova_pfn, ret);
- 		ret = -EINVAL;
- 		goto err_out;
- 	}
-@@ -127,7 +127,7 @@ static void pfn_array_unpin_free(struct pfn_array *pa, struct vfio_device *vdev)
- {
- 	/* Only unpin if any pages were pinned to begin with */
- 	if (pa->pa_nr)
--		vfio_unpin_pages(vdev->dev, pa->pa_iova_pfn, pa->pa_nr);
-+		vfio_unpin_pages(vdev, pa->pa_iova_pfn, pa->pa_nr);
- 	pa->pa_nr = 0;
- 	kfree(pa->pa_iova_pfn);
+-	return vfio_dma_rw(kvmgt_vdev(info->vgpu)->vfio_group,
+-			   gpa, buf, len, write);
++	return vfio_dma_rw(
++		mdev_legacy_get_vfio_device(kvmgt_vdev(info->vgpu)->mdev),
++		gpa, buf, len, write);
  }
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 69768061cd7bd9..a10b3369d76c41 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -124,7 +124,7 @@ static void vfio_ap_free_aqic_resources(struct vfio_ap_queue *q)
- 		q->saved_isc = VFIO_AP_ISC_INVALID;
- 	}
- 	if (q->saved_pfn && !WARN_ON(!q->matrix_mdev)) {
--		vfio_unpin_pages(mdev_dev(q->matrix_mdev->mdev),
-+		vfio_unpin_pages(&q->matrix_mdev->vdev,
- 				 &q->saved_pfn, 1);
- 		q->saved_pfn = 0;
- 	}
-@@ -258,7 +258,7 @@ static struct ap_queue_status vfio_ap_irq_enable(struct vfio_ap_queue *q,
- 		return status;
- 	}
  
--	ret = vfio_pin_pages(mdev_dev(q->matrix_mdev->mdev), &g_pfn, 1,
-+	ret = vfio_pin_pages(&q->matrix_mdev->vdev, &g_pfn, 1,
- 			     IOMMU_READ | IOMMU_WRITE, &h_pfn);
- 	switch (ret) {
- 	case 1:
-@@ -301,7 +301,7 @@ static struct ap_queue_status vfio_ap_irq_enable(struct vfio_ap_queue *q,
- 		break;
- 	case AP_RESPONSE_OTHERWISE_CHANGED:
- 		/* We could not modify IRQ setings: clear new configuration */
--		vfio_unpin_pages(mdev_dev(q->matrix_mdev->mdev), &g_pfn, 1);
-+		vfio_unpin_pages(&q->matrix_mdev->vdev, &g_pfn, 1);
- 		kvm_s390_gisc_unregister(kvm, isc);
- 		break;
- 	default:
-@@ -1250,7 +1250,7 @@ static int vfio_ap_mdev_iommu_notifier(struct notifier_block *nb,
- 		struct vfio_iommu_type1_dma_unmap *unmap = data;
- 		unsigned long g_pfn = unmap->iova >> PAGE_SHIFT;
- 
--		vfio_unpin_pages(mdev_dev(matrix_mdev->mdev), &g_pfn, 1);
-+		vfio_unpin_pages(&matrix_mdev->vdev, &g_pfn, 1);
- 		return NOTIFY_OK;
- 	}
- 
+ static int kvmgt_read_gpa(unsigned long handle, unsigned long gpa,
 diff --git a/drivers/vfio/vfio.c b/drivers/vfio/vfio.c
-index 8a5c46aa2bef61..24b92a45cfc8f1 100644
+index 24b92a45cfc8f1..e6e102e017623b 100644
 --- a/drivers/vfio/vfio.c
 +++ b/drivers/vfio/vfio.c
-@@ -2142,32 +2142,26 @@ EXPORT_SYMBOL(vfio_set_irqs_validate_and_prepare);
-  * @phys_pfn[out]: array of host PFNs
-  * Return error or number of pages pinned.
+@@ -2323,32 +2323,28 @@ EXPORT_SYMBOL(vfio_group_unpin_pages);
+  * As the read/write of user space memory is conducted via the CPUs and is
+  * not a real device DMA, it is not necessary to pin the user space memory.
+  *
+- * The caller needs to call vfio_group_get_external_user() or
+- * vfio_group_get_external_user_from_dev() prior to calling this interface,
+- * so as to prevent the VFIO group from disposal in the middle of the call.
+- * But it can keep the reference to the VFIO group for several calls into
+- * this interface.
+- * After finishing using of the VFIO group, the caller needs to release the
+- * VFIO group by calling vfio_group_put_external_user().
+- *
+- * @group [in]		: VFIO group
++ * @vdev [in]		: VFIO device
+  * @user_iova [in]	: base IOVA of a user space buffer
+  * @data [in]		: pointer to kernel buffer
+  * @len [in]		: kernel buffer length
+  * @write		: indicate read or write
+  * Return error code on failure or 0 on success.
   */
--int vfio_pin_pages(struct device *dev, unsigned long *user_pfn, int npage,
-+int vfio_pin_pages(struct vfio_device *vdev, unsigned long *user_pfn, int npage,
- 		   int prot, unsigned long *phys_pfn)
+-int vfio_dma_rw(struct vfio_group *group, dma_addr_t user_iova,
++int vfio_dma_rw(struct vfio_device *vdev, dma_addr_t user_iova,
+ 		void *data, size_t len, bool write)
  {
  	struct vfio_container *container;
--	struct vfio_group *group;
-+	struct vfio_group *group = vdev->group;
  	struct vfio_iommu_driver *driver;
- 	int ret;
+ 	int ret = 0;
  
--	if (!dev || !user_pfn || !phys_pfn || !npage)
-+	if (!user_pfn || !phys_pfn || !npage)
+-	if (!group || !data || len <= 0)
++	if (!data || len <= 0)
  		return -EINVAL;
- 
- 	if (npage > VFIO_PIN_PAGES_MAX_ENTRIES)
- 		return -E2BIG;
- 
--	group = vfio_group_get_from_dev(dev);
--	if (!group)
--		return -ENODEV;
--
--	if (group->dev_counter > 1) {
--		ret = -EINVAL;
--		goto err_pin_pages;
--	}
-+	if (group->dev_counter > 1)
-+		return -EINVAL;
- 
- 	ret = vfio_group_add_container_user(group);
- 	if (ret)
--		goto err_pin_pages;
-+		return ret;
- 
- 	container = group->container;
- 	driver = container->iommu_driver;
-@@ -2180,8 +2174,6 @@ int vfio_pin_pages(struct device *dev, unsigned long *user_pfn, int npage,
- 
- 	vfio_group_try_dissolve_container(group);
- 
--err_pin_pages:
--	vfio_group_put(group);
- 	return ret;
- }
- EXPORT_SYMBOL(vfio_pin_pages);
-@@ -2195,28 +2187,24 @@ EXPORT_SYMBOL(vfio_pin_pages);
-  *                 be greater than VFIO_PIN_PAGES_MAX_ENTRIES.
-  * Return error or number of pages unpinned.
-  */
--int vfio_unpin_pages(struct device *dev, unsigned long *user_pfn, int npage)
-+int vfio_unpin_pages(struct vfio_device *vdev, unsigned long *user_pfn,
-+		     int npage)
- {
- 	struct vfio_container *container;
--	struct vfio_group *group;
- 	struct vfio_iommu_driver *driver;
- 	int ret;
- 
--	if (!dev || !user_pfn || !npage)
-+	if (!user_pfn || !npage)
- 		return -EINVAL;
- 
- 	if (npage > VFIO_PIN_PAGES_MAX_ENTRIES)
- 		return -E2BIG;
- 
--	group = vfio_group_get_from_dev(dev);
--	if (!group)
--		return -ENODEV;
--
--	ret = vfio_group_add_container_user(group);
-+	ret = vfio_group_add_container_user(vdev->group);
- 	if (ret)
--		goto err_unpin_pages;
-+		return ret;
  
 -	container = group->container;
++	ret = vfio_group_add_container_user(vdev->group);
++	if (ret)
++		return ret;
++
 +	container = vdev->group->container;
  	driver = container->iommu_driver;
- 	if (likely(driver && driver->ops->unpin_pages))
- 		ret = driver->ops->unpin_pages(container->iommu_data, user_pfn,
-@@ -2224,10 +2212,8 @@ int vfio_unpin_pages(struct device *dev, unsigned long *user_pfn, int npage)
+ 
+ 	if (likely(driver && driver->ops->dma_rw))
+@@ -2357,6 +2353,8 @@ int vfio_dma_rw(struct vfio_group *group, dma_addr_t user_iova,
  	else
  		ret = -ENOTTY;
  
--	vfio_group_try_dissolve_container(group);
 +	vfio_group_try_dissolve_container(vdev->group);
- 
--err_unpin_pages:
--	vfio_group_put(group);
++
  	return ret;
  }
- EXPORT_SYMBOL(vfio_unpin_pages);
+ EXPORT_SYMBOL(vfio_dma_rw);
 diff --git a/include/linux/vfio.h b/include/linux/vfio.h
-index 748ec0e0293aea..8f2a09801a660b 100644
+index 8f2a09801a660b..91d46e532ca104 100644
 --- a/include/linux/vfio.h
 +++ b/include/linux/vfio.h
-@@ -150,9 +150,9 @@ extern long vfio_external_check_extension(struct vfio_group *group,
+@@ -161,7 +161,7 @@ extern int vfio_group_pin_pages(struct vfio_group *group,
+ extern int vfio_group_unpin_pages(struct vfio_group *group,
+ 				  unsigned long *user_iova_pfn, int npage);
  
- #define VFIO_PIN_PAGES_MAX_ENTRIES	(PAGE_SIZE/sizeof(unsigned long))
+-extern int vfio_dma_rw(struct vfio_group *group, dma_addr_t user_iova,
++extern int vfio_dma_rw(struct vfio_device *vdev, dma_addr_t user_iova,
+ 		       void *data, size_t len, bool write);
  
--extern int vfio_pin_pages(struct device *dev, unsigned long *user_pfn,
-+extern int vfio_pin_pages(struct vfio_device *vdev, unsigned long *user_pfn,
- 			  int npage, int prot, unsigned long *phys_pfn);
--extern int vfio_unpin_pages(struct device *dev, unsigned long *user_pfn,
-+extern int vfio_unpin_pages(struct vfio_device *vdev, unsigned long *user_pfn,
- 			    int npage);
- 
- extern int vfio_group_pin_pages(struct vfio_group *group,
+ extern struct iommu_domain *vfio_group_iommu_domain(struct vfio_group *group);
 -- 
 2.35.1
 
