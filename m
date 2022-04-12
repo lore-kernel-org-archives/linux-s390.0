@@ -2,220 +2,110 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E781C433FE
-	for <linux-s390@archiver.kernel.org>; Tue, 12 Apr 2022 10:12:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8046C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 12 Apr 2022 10:30:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357600AbiDLKM2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 12 Apr 2022 06:12:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48556 "EHLO
+        id S239473AbiDLKcV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 12 Apr 2022 06:32:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383483AbiDLIhE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Apr 2022 04:37:04 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 7E9095DA6F
-        for <linux-s390@vger.kernel.org>; Tue, 12 Apr 2022 01:02:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1649750532;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=F2J36Jhz1YaQBB3f5qHeBJfoSIGkVHxMW0PGdSKO3ZM=;
-        b=VBtBryg230UuUAxVnp3R87WnLxmxx2hfgC6hk+b5n/uKEBLvRjdMueNTkKtpBBRfuCt9h4
-        KODF/EOfSQMVxU/+1l5mAG/HQ/eM/XksJavMOqi7AiLR5RmNZ1xiC2Bedgs5wrN4egavub
-        1dbI8tw4YZ0xoCUNwPH4Fz+vXqE4AAU=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-609-IPfWjeeZPC6S022LaqS4SA-1; Tue, 12 Apr 2022 04:02:11 -0400
-X-MC-Unique: IPfWjeeZPC6S022LaqS4SA-1
-Received: by mail-wr1-f69.google.com with SMTP id k20-20020adfc714000000b001e305cd1597so3789540wrg.19
-        for <linux-s390@vger.kernel.org>; Tue, 12 Apr 2022 01:02:10 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=F2J36Jhz1YaQBB3f5qHeBJfoSIGkVHxMW0PGdSKO3ZM=;
-        b=7eL2TGjsu37yY4spHcNG9vY4YjZ8ClkYH/bS1B8SLxvbV+iWU9HVfAvNgsEEBcPOp9
-         lsU7LI9DjjMHTeDlfKGAW7pimD1VlCmtHgV0qtl1vcSA/mu0E02ABjys/xP2HKzJn4N1
-         dpimAaEcn4Fj7wKe8wKJTOjW97dFcTW2CcOuIIVYsbNi+DM5g6fVIEJjNflCRv8BxxBu
-         BG/1JjDVrt4UeL9UvNhzg1d972KsSFRdDXSGyn+Shx3BzG35YJRWJVSYLZhRI+gvppYL
-         Muf9yiuFDOTIJVpnIS9V3bvoBPrTyfK3kJVX5a/H8lcD+VB1FKkztHZc3wQlzpB7A35w
-         wN3A==
-X-Gm-Message-State: AOAM530GQ4SIXzCzhrOLwNKuwlKPUnPTG3FUd3Q6omndrYh+G4alCwBu
-        u1pzk/b25Fn9sAYFIUav6fbKm+2AF4t5mJr81H2ABavoyco3+Uhgv6byvsEitN9RaOB4EsJcjWK
-        Sqr3y1Dbw7ZyW7XWneC03Tw==
-X-Received: by 2002:a05:600c:4f95:b0:38e:b596:b3f5 with SMTP id n21-20020a05600c4f9500b0038eb596b3f5mr2881002wmq.164.1649750530022;
-        Tue, 12 Apr 2022 01:02:10 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzykSjp7VgD9NDoHi2oJCBjKs8vgFuCOlLxU3YiP+FZKbkVGV9WitCc50I9vLUCjke/UODGMw==
-X-Received: by 2002:a05:600c:4f95:b0:38e:b596:b3f5 with SMTP id n21-20020a05600c4f9500b0038eb596b3f5mr2880984wmq.164.1649750529737;
-        Tue, 12 Apr 2022 01:02:09 -0700 (PDT)
-Received: from [10.33.192.183] (nat-pool-str-t.redhat.com. [149.14.88.106])
-        by smtp.gmail.com with ESMTPSA id s11-20020a5d6a8b000000b002060a8c810bsm24470001wru.24.2022.04.12.01.02.08
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 12 Apr 2022 01:02:09 -0700 (PDT)
-Message-ID: <3cac38d6-41f1-1c5e-1af1-c19f3f68aab2@redhat.com>
-Date:   Tue, 12 Apr 2022 10:02:08 +0200
+        with ESMTP id S1359296AbiDLK0T (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Apr 2022 06:26:19 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 132C2554A1;
+        Tue, 12 Apr 2022 02:30:28 -0700 (PDT)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23C7n0LA018780;
+        Tue, 12 Apr 2022 09:30:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=harjNjeLgb3SC+YUmWLa7FHRrYn8heCn+ZHOscjU10k=;
+ b=WmK7sjmhuIN3XXwjR5xduIQXqR7LnQlxXiAYpAziuV+S58KPYNyk001sWEOf+DRXAGFe
+ VYt7xgxWY4n2KH9wTxuiJ54WhjdClyLhM8B2ang8YOAOEow+qDRkAWqLeNmCI8TLFo1T
+ Sakri5tm+5OMYKO6k3d3d9gH3+2a3MSCFJAoLqPAZGLEq0soSD2tVw8uBXQ7MP4ftGeY
+ Q/N4qMgCf4F0JfPg7IWxi8bZkRlJAnUBTM7DzDEuz96L7salv3vv6oSMg6m0c1hL8cFU
+ v1Hal+DByLDA6w4JerYpo6r7YZp4dRwGQhkBynRIUZJ3ck0tyVvMntu8vmEP2G6ZO6Gg Qg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fd2quw94t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Apr 2022 09:30:28 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23C9URrp030639;
+        Tue, 12 Apr 2022 09:30:27 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fd2quw946-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Apr 2022 09:30:27 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23C9BhZ2015408;
+        Tue, 12 Apr 2022 09:30:25 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma06ams.nl.ibm.com with ESMTP id 3fb1dj4k7e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Apr 2022 09:30:25 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23C9Hr2v43057442
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 12 Apr 2022 09:17:53 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A2E594C046;
+        Tue, 12 Apr 2022 09:30:22 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5CE1D4C04E;
+        Tue, 12 Apr 2022 09:30:22 +0000 (GMT)
+Received: from t46lp57.lnxne.boe (unknown [9.152.108.100])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 12 Apr 2022 09:30:22 +0000 (GMT)
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com,
+        farman@linux.ibm.com
+Subject: [kvm-unit-tests PATCH v1 3/3] s390x: smp: make stop stopped cpu look the same as the running case
+Date:   Tue, 12 Apr 2022 11:30:22 +0200
+Message-Id: <20220412093022.21378-1-nrb@linux.ibm.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.0
-Subject: Re: [kvm-unit-tests PATCH v1 1/4] lib: s390x: add support for SCLP
- console read
-Content-Language: en-US
-To:     Nico Boehr <nrb@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com
-References: <20220411100750.2868587-1-nrb@linux.ibm.com>
- <20220411100750.2868587-2-nrb@linux.ibm.com>
-From:   Thomas Huth <thuth@redhat.com>
-In-Reply-To: <20220411100750.2868587-2-nrb@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: v5aZaTdU_GxIKQaiFGfGtT9dWfDYEYhi
+X-Proofpoint-ORIG-GUID: HJZRix2QeikgGfhwej9XVzGTeBsbA0xW
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-04-12_03,2022-04-11_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ phishscore=0 spamscore=0 adultscore=0 mlxscore=0 impostorscore=0
+ bulkscore=0 clxscore=1015 lowpriorityscore=0 mlxlogscore=884
+ suspectscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2202240000 definitions=main-2204120042
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 11/04/2022 12.07, Nico Boehr wrote:
-> Add a basic implementation for reading from the SCLP ACII console. The goal of
+Adjust the stop stopped CPU case such that it looks the same as the stop running
+CPU case: use the nowait variant, handle the error code in the same way and make
+the report messages look the same.
 
-s/ACII/ASCII/
+Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+---
+ s390x/smp.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-> this is to support migration tests on s390x. To know when the migration has been
-> finished, we need to listen for a newline on our console.
-> 
-> Hence, this implementation is focused on the SCLP ASCII console of QEMU and
-> currently won't work under e.g. LPAR.
-> 
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-> ---
->   lib/s390x/sclp-console.c | 81 +++++++++++++++++++++++++++++++++++++---
->   lib/s390x/sclp.h         |  7 ++++
->   s390x/Makefile           |  1 +
->   3 files changed, 83 insertions(+), 6 deletions(-)
-> 
-> diff --git a/lib/s390x/sclp-console.c b/lib/s390x/sclp-console.c
-> index fa36a6a42381..8e22660bf25d 100644
-> --- a/lib/s390x/sclp-console.c
-> +++ b/lib/s390x/sclp-console.c
-> @@ -89,6 +89,10 @@ static char lm_buff[120];
->   static unsigned char lm_buff_off;
->   static struct spinlock lm_buff_lock;
->   
-> +static char read_buf[4096];
-> +static int read_index = sizeof(read_buf) - 1;
-> +static int read_buf_end = 0;
-> +
->   static void sclp_print_ascii(const char *str)
->   {
->   	int len = strlen(str);
-> @@ -185,7 +189,7 @@ static void sclp_print_lm(const char *str)
->    * indicating which messages the control program (we) want(s) to
->    * send/receive.
->    */
-> -static void sclp_set_write_mask(void)
-> +static void sclp_write_event_mask(int receive_mask, int send_mask)
->   {
->   	WriteEventMask *sccb = (void *)_sccb;
->   
-> @@ -195,18 +199,27 @@ static void sclp_set_write_mask(void)
->   	sccb->h.function_code = SCLP_FC_NORMAL_WRITE;
->   	sccb->mask_length = sizeof(sccb_mask_t);
->   
-> -	/* For now we don't process sclp input. */
-> -	sccb->cp_receive_mask = 0;
-> -	/* We send ASCII and line mode. */
-> -	sccb->cp_send_mask = SCLP_EVENT_MASK_MSG_ASCII | SCLP_EVENT_MASK_MSG;
-> +	sccb->cp_receive_mask = receive_mask;
-> +	sccb->cp_send_mask = send_mask;
->   
->   	sclp_service_call(SCLP_CMD_WRITE_EVENT_MASK, sccb);
->   	assert(sccb->h.response_code == SCLP_RC_NORMAL_COMPLETION);
->   }
->   
-> +static void sclp_console_enable_read(void)
-> +{
-> +	sclp_write_event_mask(SCLP_EVENT_MASK_MSG_ASCII, SCLP_EVENT_MASK_MSG_ASCII | SCLP_EVENT_MASK_MSG);
-> +}
-> +
-> +static void sclp_console_disable_read(void)
-> +{
-> +	sclp_write_event_mask(0, SCLP_EVENT_MASK_MSG_ASCII | SCLP_EVENT_MASK_MSG);
-> +}
-> +
->   void sclp_console_setup(void)
->   {
-> -	sclp_set_write_mask();
-> +	/* We send ASCII and line mode. */
-> +	sclp_write_event_mask(0, SCLP_EVENT_MASK_MSG_ASCII | SCLP_EVENT_MASK_MSG);
->   }
->   
->   void sclp_print(const char *str)
-> @@ -227,3 +240,59 @@ void sclp_print(const char *str)
->   	sclp_print_ascii(str);
->   	sclp_print_lm(str);
->   }
-> +
-> +#define SCLP_EVENT_ASCII_DATA_STREAM_FOLLOWS 0
-> +
-> +static int console_refill_read_buffer(void)
-> +{
-> +	const int MAX_EVENT_BUFFER_LEN = SCCB_SIZE - offsetof(ReadEventDataAsciiConsole, ebh);
-> +	ReadEventDataAsciiConsole *sccb = (void *)_sccb;
-> +	const int EVENT_BUFFER_ASCII_RECV_HEADER_LEN = sizeof(sccb->ebh) + sizeof(sccb->type);
-> +	int ret = -1;
-> +
-> +	sclp_console_enable_read();
-> +
-> +	sclp_mark_busy();
-> +	memset(sccb, 0, 4096);
-> +	sccb->h.length = PAGE_SIZE;
-> +	sccb->h.function_code = SCLP_UNCONDITIONAL_READ;
-> +	sccb->h.control_mask[2] = 0x80;
-
-Add at least a comment about what the 0x80 means, please?
-
-> +
-> +	sclp_service_call(SCLP_CMD_READ_EVENT_DATA, sccb);
-> +
-> +	if ((sccb->h.response_code == SCLP_RC_NO_EVENT_BUFFERS_STORED) ||
-> +	    (sccb->ebh.type != SCLP_EVENT_ASCII_CONSOLE_DATA) ||
-> +	    (sccb->type != SCLP_EVENT_ASCII_DATA_STREAM_FOLLOWS)) {
-> +		ret = -1;
-> +		goto out;
-> +	}
-> +
-> +	assert(sccb->ebh.length <= MAX_EVENT_BUFFER_LEN);
-> +	assert(sccb->ebh.length > EVENT_BUFFER_ASCII_RECV_HEADER_LEN);
-> +
-> +	read_buf_end = sccb->ebh.length - EVENT_BUFFER_ASCII_RECV_HEADER_LEN;
-> +
-> +	assert(read_buf_end <= sizeof(read_buf));
-> +	memcpy(read_buf, sccb->data, read_buf_end);
-> +
-> +	read_index = 0;
-
-Set "ret = 0" here?
-
-> +out:
-> +	sclp_console_disable_read();
-> +
-> +	return ret;
-> +}
-> +
-> +int __getchar(void)
-> +{
-> +	int ret;
-> +
-> +	if (read_index >= read_buf_end) {
-> +		ret = console_refill_read_buffer();
-> +		if (ret < 0) {
-> +			return ret;
-> +		}
-> +	}
-> +
-> +	return read_buf[read_index++];
-> +}
-
-  Thomas
+diff --git a/s390x/smp.c b/s390x/smp.c
+index 5257852c35a7..de3aba71c956 100644
+--- a/s390x/smp.c
++++ b/s390x/smp.c
+@@ -144,8 +144,9 @@ static void test_stop(void)
+ 	report(smp_cpu_stopped(1), "cpu stopped");
+ 
+ 	report_prefix_push("stop stopped CPU");
+-	report(!smp_cpu_stop(1), "STOP succeeds");
+-	report(smp_cpu_stopped(1), "CPU is stopped");
++	rc = smp_cpu_stop_nowait(1);
++	report(!rc, "return code");
++	report(smp_cpu_stopped(1), "cpu stopped");
+ 	report_prefix_pop();
+ 
+ 	report_prefix_pop();
+-- 
+2.31.1
 
