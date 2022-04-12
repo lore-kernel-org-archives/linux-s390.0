@@ -2,108 +2,106 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD776C4167B
-	for <linux-s390@archiver.kernel.org>; Tue, 12 Apr 2022 08:26:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D83CC43217
+	for <linux-s390@archiver.kernel.org>; Tue, 12 Apr 2022 08:26:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241756AbiDLIZj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 12 Apr 2022 04:25:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47858 "EHLO
+        id S236694AbiDLI11 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 12 Apr 2022 04:27:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356529AbiDLIKh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Apr 2022 04:10:37 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8183CB44;
-        Tue, 12 Apr 2022 00:41:38 -0700 (PDT)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23C5JJsP012716;
-        Tue, 12 Apr 2022 07:41:38 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=fLmmftGwcRhoo/l+B7FqNuSpBchdixeaCTamtoLnkcI=;
- b=IQWeoYr7U49SRYZLU9AiY7veD1LHy/7Mli6ZgqTOw+x1iJq5imqVpABBwjxBe9Akgl/G
- AWjU/qRQWTVIOQAPnYEVxX8VSDPQ5Dt2WOGUpJ5RRt3K1x0F4aI3F48YzM0JWcnSM2ll
- xW0pFRh9uGN6qpq4QV1altHz0nlEi5ee5PB6a0sP5HMWSYq90kk8OUsfzGDALVZCuSnr
- OhNL3/FSVOVzfCp5yiH46On0e8sljJLDclY0iNqdAJzqisvQKtkKLjZKiUM/wzkZagqn
- KItG3JgWW69mKt0eekCd0U73VdgFvgOiKIbU6jsodIf50KFfK0UdO9llkpQhuQXjSbJl AA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3fd360jmrb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Apr 2022 07:41:37 +0000
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23C609WR014162;
-        Tue, 12 Apr 2022 07:41:37 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3fd360jmq5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Apr 2022 07:41:37 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23C7Ru7f006315;
-        Tue, 12 Apr 2022 07:41:35 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma02fra.de.ibm.com with ESMTP id 3fb1s8kgxf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Apr 2022 07:41:35 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23C7T3JR52232604
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 12 Apr 2022 07:29:03 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DBA7C4C044;
-        Tue, 12 Apr 2022 07:41:31 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 681FC4C040;
-        Tue, 12 Apr 2022 07:41:31 +0000 (GMT)
-Received: from li-ca45c2cc-336f-11b2-a85c-c6e71de567f1.ibm.com (unknown [9.171.29.167])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 12 Apr 2022 07:41:31 +0000 (GMT)
-Message-ID: <4b7a793f9ab64eb6c5375a12844006bc86c0c752.camel@linux.ibm.com>
+        with ESMTP id S1380137AbiDLIVV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Apr 2022 04:21:21 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 5448330F54
+        for <linux-s390@vger.kernel.org>; Tue, 12 Apr 2022 00:49:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1649749770;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=OG+b8XR8kIG1NTnOndyXW6RIWuaIfi44i3pndShsMQ8=;
+        b=AdkudwlrVVsQWbakqCBhGFi0LgcNuKyV4WUiSP1ToF/Pq42uap4GrLwujytcDHhJv/M6XV
+        7bVUVX9KUgGxzW3c16x/uBiDTDzfNT5XZJJ9vmWLsUzSwhs3NQWWEI6K2CH5hUDCOBM4eo
+        AkshhZN8u39CuFHC8FYV67/IWsheIEs=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-556-jAH2PI2XPnmrNhENKAvlcw-1; Tue, 12 Apr 2022 03:49:29 -0400
+X-MC-Unique: jAH2PI2XPnmrNhENKAvlcw-1
+Received: by mail-wm1-f72.google.com with SMTP id z16-20020a05600c0a1000b0038bebbd8548so930415wmp.3
+        for <linux-s390@vger.kernel.org>; Tue, 12 Apr 2022 00:49:29 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=OG+b8XR8kIG1NTnOndyXW6RIWuaIfi44i3pndShsMQ8=;
+        b=UJZa/zXU3b06q9lQslXdmxPjXq+WbHc73COzxjOH9RFF+WIBjPbR841EFgU1hPV27r
+         4ah0sSrcRTSU3IuIGHj4gwgJXk29za2l8dbCkpOpgRQO8Yw7qaqRqHT7fTUtX98Vh7qJ
+         0nJ5t0Bhu9/wtnQUEe5v54YQEaj55R7BhpZu5ChJaOvbpI2+FNZhhi5TU4S5bybEC532
+         ZAyS/37+wtWcG/Jau9DUwA5Kg6uY21+GWS4rVc1fOChxa3Mic9eByOtlwi2Vd9oePuO0
+         HaVJvOM2l7tGXpa5McaR/v6cvYoVAq2lNaiXbISudWNC1PgSNGVlJpGR3W/hwSQO6E1S
+         gB/g==
+X-Gm-Message-State: AOAM53335ElPpYnPoAhw/v9a5PHpNryWvLInvrcFXIuUK73S/LhsdApg
+        kDqERVEze/s4fMK6TbnOoXj60r/DAaBbV8E+XICFQfY4X1Fr6UzpeSgLlGhyvTRWYqayOkSqvU2
+        u6KDVm6q/bOYTsNKdit6y9g==
+X-Received: by 2002:a1c:7519:0:b0:38e:6bc6:ec7f with SMTP id o25-20020a1c7519000000b0038e6bc6ec7fmr2856341wmc.53.1649749768199;
+        Tue, 12 Apr 2022 00:49:28 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJw9Frwsa5AmU5trCGWjKgeNe3CigmzaFCanXNtpBZpPhgAf3HVbRSAYp4kZYEZxQqArgH+vVg==
+X-Received: by 2002:a1c:7519:0:b0:38e:6bc6:ec7f with SMTP id o25-20020a1c7519000000b0038e6bc6ec7fmr2856325wmc.53.1649749767989;
+        Tue, 12 Apr 2022 00:49:27 -0700 (PDT)
+Received: from [10.33.192.183] (nat-pool-str-t.redhat.com. [149.14.88.106])
+        by smtp.gmail.com with ESMTPSA id q14-20020a1cf30e000000b0038986a18ec8sm1597083wmq.46.2022.04.12.00.49.26
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 12 Apr 2022 00:49:27 -0700 (PDT)
+Message-ID: <9e87f40c-3270-ebc3-7afe-13a3489940d1@redhat.com>
+Date:   Tue, 12 Apr 2022 09:49:26 +0200
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.0
 Subject: Re: [kvm-unit-tests PATCH v1 4/4] s390x: add selftest for migration
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org,
+Content-Language: en-US
+To:     Nico Boehr <nrb@linux.ibm.com>, kvm@vger.kernel.org,
         linux-s390@vger.kernel.org
 Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com
-Date:   Tue, 12 Apr 2022 09:41:30 +0200
-In-Reply-To: <5073d0fc-1017-5be6-2ec5-2709be14c93c@redhat.com>
 References: <20220411100750.2868587-1-nrb@linux.ibm.com>
-         <20220411100750.2868587-5-nrb@linux.ibm.com>
-         <5073d0fc-1017-5be6-2ec5-2709be14c93c@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.42.4 (3.42.4-1.fc35) 
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 3bjjQ6OXeg_NZncsDGsannmTM3uZVA4E
-X-Proofpoint-GUID: F_CFr8Q2WXRhoZTkgttzTBB_1Fl3T-aO
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-04-12_02,2022-04-11_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
- priorityscore=1501 impostorscore=0 lowpriorityscore=0 malwarescore=0
- phishscore=0 spamscore=0 adultscore=0 suspectscore=0 clxscore=1015
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2204120035
+ <20220411100750.2868587-5-nrb@linux.ibm.com>
+ <5073d0fc-1017-5be6-2ec5-2709be14c93c@redhat.com>
+ <4b7a793f9ab64eb6c5375a12844006bc86c0c752.camel@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+In-Reply-To: <4b7a793f9ab64eb6c5375a12844006bc86c0c752.camel@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, 2022-04-11 at 17:30 +0200, Thomas Huth wrote:
-> Thanks for tackling this!
+On 12/04/2022 09.41, Nico Boehr wrote:
+> On Mon, 2022-04-11 at 17:30 +0200, Thomas Huth wrote:
+>> Thanks for tackling this!
+>>
+>> Having written powerpc/sprs.c in the past, I've got one question /
+>> request:
+>>
+>> Could we turn this into a "real" test immediately? E.g. write a sane
+>> value
+>> to all control registers that are currently not in use by the k-u-t
+>> before
+>> migration, and then check whether the values are still in there after
+>> migration? Maybe also some vector registers and the "guarded storage
+>> control"?
+>> ... or is this rather something for a later update?
 > 
-> Having written powerpc/sprs.c in the past, I've got one question /
-> request:
+> My plan was to first add the infrastructure for migration tests
+> including the selftest and then later one by one add "real" tests.
 > 
-> Could we turn this into a "real" test immediately? E.g. write a sane
-> value 
-> to all control registers that are currently not in use by the k-u-t
-> before 
-> migration, and then check whether the values are still in there after
-> migration? Maybe also some vector registers and the "guarded storage
-> control"?
-> ... or is this rather something for a later update?
+> But if you think it is preferable, I can extend the scope and add some
+> inital "real" tests in this series.
 
-My plan was to first add the infrastructure for migration tests
-including the selftest and then later one by one add "real" tests. 
+I think a simple test that checks some register values should not be too 
+hard to implement, so I'd prefer that instead of this simple selftest ... 
+but if you're too short in time right now, I also won't insist.
 
-But if you think it is preferable, I can extend the scope and add some
-inital "real" tests in this series.
+  Thomas
+
