@@ -2,156 +2,173 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 84E22C4167D
-	for <linux-s390@archiver.kernel.org>; Tue, 12 Apr 2022 14:30:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BAA3C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 12 Apr 2022 14:32:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356552AbiDLOdK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 12 Apr 2022 10:33:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40702 "EHLO
+        id S1347421AbiDLOey (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 12 Apr 2022 10:34:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356534AbiDLOdI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Apr 2022 10:33:08 -0400
+        with ESMTP id S231604AbiDLOex (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Apr 2022 10:34:53 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F7195EDE6;
-        Tue, 12 Apr 2022 07:30:50 -0700 (PDT)
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23CDsP4R006044;
-        Tue, 12 Apr 2022 14:30:47 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=VumadtbAhg7J0oAzytt4nXBVTZSNqML19OlNy6Mzrvk=;
- b=UAlzjLP902wHOA7aS3x+nHo3l1ib7VISuOl5EVnEzXURhl58Yrflx3B76rgBuMRCrvzw
- 9ng7z8C/7i6Pl06R6SCX2pyua8C+o+sQSnWkKHeRLPdF7iOIH45wwzILp99PpBZAA8FS
- X9LqvzH4dsIoueo2Z6s1mo27UIw9MDFGVlm5S4lPGs3EXhZ73CfttFHSDZt1VO7Shd3/
- myLyN+HepCtkxD0N4JMLVWm0AMOIN624dXff/9J770pZDbh8r31M+E7kHykdXa32esWa
- vODhqOoya3/1QskwN0Hthvj0IVWW8LRiq/lRR1dHMVf16JFHcy/rsi0UApS6TFvPwzio 5A== 
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFF2E5EDDE;
+        Tue, 12 Apr 2022 07:32:34 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23CD7eWM029884;
+        Tue, 12 Apr 2022 14:32:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=HXBMRHEi2/708n5x9K+5FRvYId0NbVxKCUq5l1FNyng=;
+ b=SNBk/OyhGmCWc+/YCk3nr5VKFMJAAkcewE6C+iN4vgDXDZib9lFXYFg/w5jakNruklFr
+ S/sX3bShAPWrd1hNAbr0Ph2MdVIaRJtbOkXiN5N3/PTMLA36QkSKeht9FtkHdoQVzC2e
+ z05Hp8CBKWBaHumBZKug/nRdjSlX/hrzL5JZK21O83NZz6LH4lzWSjIWno3d9T64S5f+
+ RK7N0GK3ft0nQlq+Xun7MqjkLhUJmXE4vaKzU+Ql3xIg0Hu3cMn919VcMFwUgVG/3phQ
+ B8dAwAfzzcJDu+E6CTvWY7MPFRCj5IhqQCi3l2IuHKqXDlvHLl6asEA7qsHWAoPDuPM2 4w== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3fdaqkrva0-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fd8b5mv7p-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Apr 2022 14:30:47 +0000
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23CDu87K004959;
-        Tue, 12 Apr 2022 14:30:47 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3fdaqkrv8x-1
+        Tue, 12 Apr 2022 14:32:34 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23CDVFoq023898;
+        Tue, 12 Apr 2022 14:32:33 GMT
+Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fd8b5mv79-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Apr 2022 14:30:46 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23CEE0Nj015594;
-        Tue, 12 Apr 2022 14:30:44 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma03ams.nl.ibm.com with ESMTP id 3fb1s8w1xk-1
+        Tue, 12 Apr 2022 14:32:33 +0000
+Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
+        by ppma02dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23CEDvoU017750;
+        Tue, 12 Apr 2022 14:32:32 GMT
+Received: from b01cxnp22035.gho.pok.ibm.com (b01cxnp22035.gho.pok.ibm.com [9.57.198.25])
+        by ppma02dal.us.ibm.com with ESMTP id 3fb1s9pqqr-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Apr 2022 14:30:44 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23CEUfrM52036012
+        Tue, 12 Apr 2022 14:32:32 +0000
+Received: from b01ledav003.gho.pok.ibm.com (b01ledav003.gho.pok.ibm.com [9.57.199.108])
+        by b01cxnp22035.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23CEWVvS25952684
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 12 Apr 2022 14:30:41 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 06ED952051;
-        Tue, 12 Apr 2022 14:30:41 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id C3D825205F;
-        Tue, 12 Apr 2022 14:30:40 +0000 (GMT)
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     Bjorn Helgaas <bhelgaas@google.com>,
-        Jan Kiszka <jan.kiszka@siemens.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-pci@vger.kernel.org
-Subject: [PATCH v2 2/4] PCI: Move jailhouse's isolated function handling to pci_scan_slot()
-Date:   Tue, 12 Apr 2022 16:30:38 +0200
-Message-Id: <20220412143040.1882096-3-schnelle@linux.ibm.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220412143040.1882096-1-schnelle@linux.ibm.com>
-References: <20220412143040.1882096-1-schnelle@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: BS6WV4q7WWMrpPR7GJl3YwUyMJivfMZa
-X-Proofpoint-ORIG-GUID: pigLOYQVWaDbOc9Z-H6EBnFArRW4jB6Q
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Tue, 12 Apr 2022 14:32:31 GMT
+Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C0DDAB205F;
+        Tue, 12 Apr 2022 14:32:31 +0000 (GMT)
+Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 58B3AB2065;
+        Tue, 12 Apr 2022 14:32:26 +0000 (GMT)
+Received: from [9.211.106.50] (unknown [9.211.106.50])
+        by b01ledav003.gho.pok.ibm.com (Postfix) with ESMTP;
+        Tue, 12 Apr 2022 14:32:26 +0000 (GMT)
+Message-ID: <cf92d65e-f069-cd4b-d229-9fea794eea5d@linux.ibm.com>
+Date:   Tue, 12 Apr 2022 10:32:25 -0400
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH v5 16/21] KVM: vfio: add s390x hook to register KVM guest
+ designation
+Content-Language: en-US
+To:     Jason Gunthorpe <jgg@ziepe.ca>
+Cc:     alex.williamson@redhat.com, linux-s390@vger.kernel.org,
+        cohuck@redhat.com, schnelle@linux.ibm.com, farman@linux.ibm.com,
+        pmorel@linux.ibm.com, borntraeger@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, gerald.schaefer@linux.ibm.com,
+        agordeev@linux.ibm.com, svens@linux.ibm.com, frankja@linux.ibm.com,
+        david@redhat.com, imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
+        oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, pbonzini@redhat.com, corbet@lwn.net,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-doc@vger.kernel.org
+References: <20220404174349.58530-1-mjrosato@linux.ibm.com>
+ <20220404174349.58530-17-mjrosato@linux.ibm.com>
+ <20220408124536.GX64706@ziepe.ca>
+ <3639d5fb-ff71-d42e-ef09-0b297f7e1a45@linux.ibm.com>
+ <20220412135517.GE64706@ziepe.ca>
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <20220412135517.GE64706@ziepe.ca>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: ZGwu49q27VBGXYCaTEyco3gw89qlNgyL
+X-Proofpoint-GUID: M4clunag9ROxfedXJmYuNZItOYxpujxh
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-04-12_05,2022-04-12_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- malwarescore=0 spamscore=0 clxscore=1015 priorityscore=1501
- mlxlogscore=999 adultscore=0 phishscore=0 suspectscore=0
- lowpriorityscore=0 mlxscore=0 bulkscore=0 classifier=spam adjust=0
- reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2204120068
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
+ bulkscore=0 spamscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
+ priorityscore=1501 lowpriorityscore=0 clxscore=1015 malwarescore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2204120070
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The special case of the jailhouse hypervisor passing through individual
-PCI functions handles scanning for PCI functions even if function 0 does
-not exist. Currently this is done with an extra loop duplicating the one
-in pci_scan_slot(). By incorporating the check for jailhouse_paravirt()
-into next_fn() we can instead do this as part of the normal
-pci_scan_slot(). The only functional change is that we now call
-pcie_aspm_init_link_state() for these functions but this already
-happened if function 0 was passed through and should not be a problem.
+On 4/12/22 9:55 AM, Jason Gunthorpe wrote:
+> On Tue, Apr 12, 2022 at 09:39:44AM -0400, Matthew Rosato wrote:
+>> On 4/8/22 8:45 AM, Jason Gunthorpe wrote:
+>>> On Mon, Apr 04, 2022 at 01:43:44PM -0400, Matthew Rosato wrote:
+>>>> At the time a KVM is associated with a vfio group, s390x zPCI devices
+>>>> must register a special guest indication (GISA designation) to allow
+>>>> for the use of interpretive execution facilities.  This indication is
+>>>> used to ensure that only the specified KVM can interact with the device.
+>>>> Similarly, the indication must be removed once the KVM is no longer
+>>>> associated with the device.
+>>>>
+>>>> This patch adds an s390-specific hook to invoke a KVM registration routine
+>>>> for each device associated with the iommu group; in reality, it will be a
+>>>> NOP for all but zPCI devices on s390x.
+>>>>
+>>>> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+>>>>    virt/kvm/vfio.c | 35 ++++++++++++++++++++++++++++++++++-
+>>>>    1 file changed, 34 insertions(+), 1 deletion(-)
+>>>
+>>> I wonder if this should be done in the vfio_pci side from the existing
+>>> kvm notifier
+>>>
+>>
+>> So you mean rather than hooking into virt as I do here, drive something out
+>> of drivers/vfio/vfio.c:vfio_group_set_kvm?  Note, the kvm notifier is
+>> handled in vfio, not vfio_pci, so if you want to handle it in vfio_pci I
+>> think we'd need to add a new routine to vfio_device_ops and only define it
+>> vfio_pci for s390
+> 
+> I've been thinking about doing that anyhow, exactly for reasons like
+> this..
+> 
+>> static const struct vfio_device_ops vfio_pci_ops = {
+>> 	.name		= "vfio-pci",
+>> [...]
+>> #ifdef CONFIG_S390
+>> 	.set_kvm = vfio_pci_zdev_set_kvm,
+>> #endif
+>> };
+>>
+>> and something like...
+>>
+>> void vfio_group_set_kvm(struct vfio_group *group, struct kvm *kvm)
+>> {
+>> 	struct vfio_device *vdev;
+>> 	group->kvm = kvm;
+>>
+>> 	mutex_lock(&group->device_lock);
+>> 	list_for_each_entry(vdev, &group->device_list, group_next) {
+>> 		if (vdev->ops->set_kvm)
+>> 			it->ops->set_kvm(vdev, kvm);
+>> 	}
+>> 	mutex_unlock(&group->device_lock);
+> 
+> Almost, the device should be open before calling the callback
+> 
+> And you have to inject a callback during open if the device is opened
+> after the kvm was set.
+> 
+> But I don't think you need to do this, you can just register a
+> notifier in zpci when it hooks open_device like everything else,
+> right?
 
-Link: https://lore.kernel.org/linux-pci/20220408224514.GA353445@bhelgaas/
-Suggested-by: Bjorn Helgaas <bhelgaas@google.com>
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
----
- drivers/pci/probe.c | 25 ++++++-------------------
- 1 file changed, 6 insertions(+), 19 deletions(-)
+Yes, that would also work -- I was registering a notifier for a few 
+prior versions of this series (granted, not from open_device) but got 
+the impression I should avoid registering a notifier from within 
+vfio_pci_zdev.
 
-diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
-index 389aa1f9cb2c..8100e044dfc5 100644
---- a/drivers/pci/probe.c
-+++ b/drivers/pci/probe.c
-@@ -2602,10 +2602,11 @@ static int next_fn(struct pci_bus *bus, struct pci_dev *dev, int fn)
- 	if (dev && !dev->multifunction)
- 		return -ENODEV;
- 	/*
--	 * A function 0 is required but multifunction devices may
--	 * be non-contiguous so dev can be NULL otherwise.
-+	 * Usually a function 0 is required but the jailhouse hypervisor may
-+	 * pass individual functions. For non-contiguous multifunction devices
-+	 * some functions may also be missing.
- 	 */
--	if (!fn && !dev)
-+	if (!fn && !dev && !jailhouse_paravirt())
- 		return -ENODEV;
- 	return (fn <= 6) ? fn + 1 : -ENODEV;
- }
-@@ -2855,30 +2856,16 @@ static unsigned int pci_scan_child_bus_extend(struct pci_bus *bus,
- {
- 	unsigned int used_buses, normal_bridges = 0, hotplug_bridges = 0;
- 	unsigned int start = bus->busn_res.start;
--	unsigned int devfn, fn, cmax, max = start;
-+	unsigned int devfn, cmax, max = start;
- 	struct pci_dev *dev;
- 	int nr_devs;
- 
- 	dev_dbg(&bus->dev, "scanning bus\n");
- 
- 	/* Go find them, Rover! */
--	for (devfn = 0; devfn < 256; devfn += 8) {
-+	for (devfn = 0; devfn < 256; devfn += 8)
- 		nr_devs = pci_scan_slot(bus, devfn);
- 
--		/*
--		 * The Jailhouse hypervisor may pass individual functions of a
--		 * multi-function device to a guest without passing function 0.
--		 * Look for them as well.
--		 */
--		if (jailhouse_paravirt() && nr_devs == 0) {
--			for (fn = 1; fn < 8; fn++) {
--				dev = pci_scan_single_device(bus, devfn + fn);
--				if (dev)
--					dev->multifunction = 1;
--			}
--		}
--	}
--
- 	/* Reserve buses for SR-IOV capability */
- 	used_buses = pci_iov_bus_range(bus);
- 	max += used_buses;
--- 
-2.32.0
-
+I will go ahead and add register/unregister notifiers hooked from 
+vfio_pci_core_finish_enable/vfio_pci_core_close_device for zpci (e.g. 
+vfio_pci_zdev_{open,close}) and use the notifier events to drive the 
+routines from patch 15.
