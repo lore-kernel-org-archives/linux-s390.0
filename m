@@ -2,365 +2,265 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3102C4321E
-	for <linux-s390@archiver.kernel.org>; Tue, 12 Apr 2022 15:53:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 30403C433FE
+	for <linux-s390@archiver.kernel.org>; Tue, 12 Apr 2022 16:18:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357453AbiDLP4O (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 12 Apr 2022 11:56:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51940 "EHLO
+        id S1355751AbiDLQU6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 12 Apr 2022 12:20:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357410AbiDLP4E (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Apr 2022 11:56:04 -0400
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2088.outbound.protection.outlook.com [40.107.93.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 200496006F;
-        Tue, 12 Apr 2022 08:53:46 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=elbzJg7q52Yna75xhswCgx49AEOuLqVTRvsjHsLpY0iWLsmIonJiqjnyQyX+Qi8RTk+gk1UNZ4F/U1/8TwqC6BAt90BP3tIfJCaliG+HPQdwiMeMLCzndm8TvzHYqoUKqkBDuSvSHxJ9fofAMrEp01O9jZtE4R1J2F8Bb+CF8SrVBXpLaEW9UtSBG5i+FWjOIssl8s3jKosBgB7SQOHXDfxwBnjcn77/LzL8PjwpW9dS4kPdmRqfrzoeEV5KmBHc21lYl17C4wBiACUD69yI/TXfAzp4VvSWt9ui7/1oexCbilcErwAso+JenTsOFtE37Xw3mhSuyfcc9jkw70fSZQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=dUm89Wvcl/c0WqbqRLZLTxPH9jHz+NnwQfWw/QQQtr0=;
- b=bELek9ocGs1Ssx6sg6rz9q8EpACedsLAPqu0Jha1qboWTAHzYQPGhGS7xHZVgn9AsrELtQOyQ89zsanchLWGGHUDZoYsS0qhd0UdwcoJVg0+/SK3O+q2go9dlbedf7oVecLYlHt/Qs3zEyeA1UWZ4rNVmwi+XuNjhtlIDo2iOzD2loC8X8RHwTyBGM0pSZ+vS1GHvQFKy+LVJdIIzk0/eDfKt2fnTkUdvck4By83AZsQqq6HwDvQwCmTPtVgAfu73WJZL34UBfx3hHXG/KRdQPU5fVdVpiUn+gD19pfdZi7CmaFAc21pLAJCLOtXbW6T/mNd8UV5WX2D3CiOAckLhw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=dUm89Wvcl/c0WqbqRLZLTxPH9jHz+NnwQfWw/QQQtr0=;
- b=fHHz/8H0b8exzrYmxcMsFEH7+7vymoyZduXUhBxegCNNX7rtehjKSPnPImcNNMo0vVUUa+D1QBq+YOu7+G74qyW0ivuyxxACeJr6pAyvVLgZRLGpdRwQIDKTKG2uKJkxiDKRP/o1fX2HupzUXPZJ24KFgE0lG03/AoHntJne+nDMedPxozmLYDtcXQVGagnFX5PHz6urjrDgGSykuWeyJIpSVuR/yGPVDE0F3im2wFKsUEdQJu8TtbS5VZoKXxbwLmeWBxCUhwMqs7/G0hyKNp4Ehp4WDrjNNnq3LS/WBaraL1Cs3WL8bVOFQ9y2irjv3+xxUqtlbFbriRkQtpJadw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CH2PR12MB4181.namprd12.prod.outlook.com (2603:10b6:610:a8::16)
- by DM6PR12MB4172.namprd12.prod.outlook.com (2603:10b6:5:212::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5144.29; Tue, 12 Apr
- 2022 15:53:41 +0000
-Received: from CH2PR12MB4181.namprd12.prod.outlook.com
- ([fe80::c911:71b5:78e6:3a38]) by CH2PR12MB4181.namprd12.prod.outlook.com
- ([fe80::c911:71b5:78e6:3a38%8]) with mapi id 15.20.5144.029; Tue, 12 Apr 2022
- 15:53:41 +0000
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Alexander Gordeev <agordeev@linux.ibm.com>,
-        David Airlie <airlied@linux.ie>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org,
-        Eric Farman <farman@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        intel-gfx@lists.freedesktop.org,
-        intel-gvt-dev@lists.freedesktop.org,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
-        linux-doc@vger.kernel.org, linux-s390@vger.kernel.org,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>
-Cc:     Christoph Hellwig <hch@lst.de>,
-        "Tian, Kevin" <kevin.tian@intel.com>,
-        "Liu, Yi L" <yi.l.liu@intel.com>
-Subject: [PATCH 8/9] vfio: Remove dead code
-Date:   Tue, 12 Apr 2022 12:53:35 -0300
-Message-Id: <8-v1-a8faf768d202+125dd-vfio_mdev_no_group_jgg@nvidia.com>
-In-Reply-To: <0-v1-a8faf768d202+125dd-vfio_mdev_no_group_jgg@nvidia.com>
-References: 
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: BL1PR13CA0151.namprd13.prod.outlook.com
- (2603:10b6:208:2bd::6) To CH2PR12MB4181.namprd12.prod.outlook.com
- (2603:10b6:610:a8::16)
+        with ESMTP id S236190AbiDLQU5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Apr 2022 12:20:57 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72341580E2;
+        Tue, 12 Apr 2022 09:18:39 -0700 (PDT)
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23CEn3Iq012647;
+        Tue, 12 Apr 2022 16:18:39 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=QI4ZW6SETdXwueS2ga/ZXpFdxP9ki2F3jJY3ZeFnHWo=;
+ b=ndCBqPIxCmTWzheR88TYcpI/0i5v264UXWlG327BWBlQ8dTLqO4G8US7aFXknimTwZ5a
+ IrBjmcrCciVa00nbtMM1ozorwIqINzGkjpL6pGDxKdN1j7Lm6BA0pzfG5Oscd7fCPxRd
+ mTRWyWZK1+5tneMY4Lilh2WS4LSbUhbM79k+q87bBr7q92GE5HcYCnTL0u+P94klsgxZ
+ qTY9s2rp0JWtSto5azsQiwc/pQFjpiZ3yMvskwISweN7D1W3t7V/lkepiqczwyTz2OOK
+ aV6yQi/rbgzN6Y4Z6rhShjM7ZXCwRJVueO34mMOw/XiPqXPSEfekZuvdVQjNXHEFXH+7 iQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fdayku1gr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Apr 2022 16:18:38 +0000
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23CFqbWK026322;
+        Tue, 12 Apr 2022 16:18:38 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fdayku1g5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Apr 2022 16:18:37 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23CGDv2J027611;
+        Tue, 12 Apr 2022 16:18:35 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma04fra.de.ibm.com with ESMTP id 3fb1s8v7hh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Apr 2022 16:18:35 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23CGIWCh47645118
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 12 Apr 2022 16:18:32 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2CBDF4C046;
+        Tue, 12 Apr 2022 16:18:32 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2DCB44C04A;
+        Tue, 12 Apr 2022 16:18:31 +0000 (GMT)
+Received: from [9.171.87.149] (unknown [9.171.87.149])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 12 Apr 2022 16:18:31 +0000 (GMT)
+Message-ID: <eeda0d14-270a-971a-900d-8b55a1f020c8@linux.ibm.com>
+Date:   Tue, 12 Apr 2022 18:18:30 +0200
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 5ae43c12-059d-44d7-bf36-08da1c9c9cd0
-X-MS-TrafficTypeDiagnostic: DM6PR12MB4172:EE_
-X-Microsoft-Antispam-PRVS: <DM6PR12MB4172A15D8FA07338738A76CEC2ED9@DM6PR12MB4172.namprd12.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: eIlfLsTm5EMgpAAuYEUh0h9ziOK4AkLMvaWatquwJ89511UBEw+ZtGv05J6MraDoUyL1/njivMI6fDxyNt9zSU40v+suKrGV2sVRGywnCrpAw2I2wUR9dWO+6u3t87qKnPDZc1KuyAHaqIzelDeXh38SBMPScUjDpfNQ6eM5umzdRazX0Kn8N7NX/42DDG0nlBpTkVx5vWygBAamnigyK8FOLj1jM6xJ5AVSrmJE+KPPKF5IMt9K+vyr1LIxOpbv8MZfNq0AVt3J564HWd91ey7t/ddQhcKxWoV9VUL+x8Q7LMFgxxVdfimjtIEWX9cDKjb7XZbge9+HoMqjU/1D8RPiaboQzd6FB35VREbwhB+QjZMzbKuXDkQJLOIpjvExmig4DAhVVrf7V9YJ5bTj3dkQLoP04ZloP9cQX4WhQZ4Ph+pZOsZvCi/kltrgVYBO7gVCt/yCiEXGdlyRGvp/fgN3LC5Uzv5Ax9m+pyUzgbqk3O5YhVDyeRV/SuuJDna91b19s6pw+WN78juub+zK7Xo51vj6n5XmheHMhpk9+08KabYqHXQXUgn5AiTpcqbsWPpkB78wTQuMaT1dJmaiwEQGhusEXOIixsqCh+NDI/Zf89rA3PT0XUhkwnulIHD0CI9onsJ0kwfJ0h+nRkgalYBi9L5UVDRAVv3irqdxGBUHVjoyfpT3gGyNPMCZ36rTMdu52lFh5ggUYFIp7e1r9g==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH2PR12MB4181.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(508600001)(6486002)(6506007)(6666004)(66946007)(66476007)(4326008)(66556008)(26005)(186003)(36756003)(83380400001)(8676002)(316002)(54906003)(86362001)(8936002)(6512007)(2616005)(921005)(110136005)(7416002)(5660300002)(38100700002)(2906002)(7406005)(4216001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?+l0mgVg4gB6ZBlcrh36n0FFm1QhYDS9e7QzU6iVzUhs4G8kxggO+w8voJ+vv?=
- =?us-ascii?Q?/49lANs5OxVuSqrrm7EkwW/2P1MZ0b2KTjlgDW4EZYk7ol1NkAX0bfIprWqH?=
- =?us-ascii?Q?SfOK+5ThNc7554qrjkIF2nVKwe6A3SU+uWJN0vM9Mx2dAsBbROTPd/bKtgiy?=
- =?us-ascii?Q?bgF9bOniVPVvVNhIHWfiITxKbVaGwmMwaJrgc/f0BVWsP7enxUsoDtuBH9wl?=
- =?us-ascii?Q?ao/hF5ud56kVDxrYq59ROgujb0VFlC2mKPMpqI/GkOhh99ZwF4GHcT2UH+KR?=
- =?us-ascii?Q?PpAxss0cSuKyZwX5OSNlaEZbVnDzWg4ghpDMaNEB3nyvewiWy6jt6J+4blGq?=
- =?us-ascii?Q?nD+bj2Ey98GX1XnK2wVRi8DV6PAdNpUM+fJ7WOlPh/b90iyZKMZWxSSgrVjs?=
- =?us-ascii?Q?tu7miyPcBEnJKmBSn1zL0Hr+A/NFnZRGt2fWJznWNHM5eNIMXMf+XlJWfwMC?=
- =?us-ascii?Q?3WIPDozsrM+PGTGwXeupiLqv99UF1DIf0WPEzduTZHXecMyHo9c51S28G0QA?=
- =?us-ascii?Q?ehBUlOPqt7MUw1EJJ/OHlDjtBbkIBiU+eEo/sWxNnZ/aEKvnkJbs1uYE1fE2?=
- =?us-ascii?Q?n2NmZiBu6Dev5+IE0s62S/G09eujOf9JtV30E2GACFc2yEliw2kpRrMBMOiE?=
- =?us-ascii?Q?1ajN/b0R6EExakJnfCg6AvLQTqFV+/OD/kR2bGFUCSxv6afjMKYqGilfHVsT?=
- =?us-ascii?Q?512QMlEpSWFPbKXfOu+HSUUptWxlTfyPFRBc/dgqFAlarWz1rwzukO3CkbtA?=
- =?us-ascii?Q?zJ2MmbtVguUdADjyVXTl8NHkHK3cUKrp4azEWH8YZNa6xM3xc89mQyOUBUaf?=
- =?us-ascii?Q?ufEyFk0Qc+O/BgTjhqtnsZJBZJ9Pc+gnWaLBESK14lkUxv7wJVhscs2UNK2c?=
- =?us-ascii?Q?rpcskfowIc7lEXpCh/HPdxvTft7gw/bItWOCg6tFncGJJlpHrHHr8kiiGZ7C?=
- =?us-ascii?Q?W753Mzza5slbF1AaIwUJaShdmU0a8Q0BXXCSKbZKaV3iIYRXOyAuqLL6o5Wu?=
- =?us-ascii?Q?Wbcscou08VSSFHWvgZ0+osbn6D96IqwWSDsNbD1HT4+9JMy6NQ+rN5vgeZ6F?=
- =?us-ascii?Q?j+wQvEJ7sva0cBHKSWfRSZxgJa6nAfwiZzoFB+0llSNkLqGDMEuPffBmae6X?=
- =?us-ascii?Q?aX5fMh7613cTSE8Ml82oXWeejJaDsPoPlc4ZRCbkqhJtXwJH6xFShyO+ZARj?=
- =?us-ascii?Q?46vhr2ZPKi5LZV0fBn5Ygpci6lxsO0fBS5U6L64henn1pht55n4nYtghVGdc?=
- =?us-ascii?Q?63hWQVuzte+DrRkmiYXS6QsFpeUUdOI3LMyFEvlMVygfWUOPmNIarsHO3j2v?=
- =?us-ascii?Q?r51dbQZ5k6Y9KIGcXvpGYfKkYmGuF2y+woe2TX/QuTe2U3th0fwRtVu+DAZj?=
- =?us-ascii?Q?6XUCBdSzoYfqaQgSWio6tfdBgTfsRgcA/aQKy6PpSj/ovhGULMliX4Bvlcyt?=
- =?us-ascii?Q?kT1mOIC5wK6zRRYIXwp+fg3EIlfmRFVi/0xyWbc+qAAVjqdE3LLRIzCUHwLq?=
- =?us-ascii?Q?C4trWuixp5m5rxenYxncm92DZlmQD8uIehtIv+TWKQWPQLpf+Tm6wtoq7cmT?=
- =?us-ascii?Q?StVV/sO7Y91dJXx4aN1gHkQFPL2pXJFlh7j+9BoH4ghuNT0FPkNGH9kStfvS?=
- =?us-ascii?Q?2qL0Jk7cEaXs7x0b0qSQILguMRVGZYD1VPbMEFYgGfhywqPII6iAECk3wMgd?=
- =?us-ascii?Q?zr0vNfliuDByH81jOv9rQfisFWW6oCWjdq+mZZN8qcmOf4JSWG/HbP0boJjE?=
- =?us-ascii?Q?zzSfcxjUZA=3D=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5ae43c12-059d-44d7-bf36-08da1c9c9cd0
-X-MS-Exchange-CrossTenant-AuthSource: CH2PR12MB4181.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Apr 2022 15:53:39.8998
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: sb3Nv8PIjwWiS4I/41ZHsZs6gQSBSKhnp2knfNRZaazSyjwY3WAtR+g0XH4ddk3W
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4172
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH v5 08/21] s390/pci: stash associated GISA designation
+Content-Language: en-US
+To:     Niklas Schnelle <schnelle@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        linux-s390@vger.kernel.org
+Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
+        farman@linux.ibm.com, pmorel@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, gerald.schaefer@linux.ibm.com,
+        agordeev@linux.ibm.com, svens@linux.ibm.com, frankja@linux.ibm.com,
+        david@redhat.com, imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
+        oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, pbonzini@redhat.com, corbet@lwn.net,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-doc@vger.kernel.org
+References: <20220404174349.58530-1-mjrosato@linux.ibm.com>
+ <20220404174349.58530-9-mjrosato@linux.ibm.com>
+ <3148aa6225912b59a95c6bdff3a5b03f8e4e8366.camel@linux.ibm.com>
+From:   Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <3148aa6225912b59a95c6bdff3a5b03f8e4e8366.camel@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: MWXWHKc2qqa-KIadnBQnq1rUSc6aY_Hd
+X-Proofpoint-ORIG-GUID: Zdcp-pMtxcU_C0yPTIBsYThWoxa0ZZVu
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-04-12_06,2022-04-12_02,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011
+ lowpriorityscore=0 bulkscore=0 phishscore=0 mlxlogscore=999 suspectscore=0
+ malwarescore=0 priorityscore=1501 mlxscore=0 spamscore=0 adultscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2204120077
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Now that callers have been updated to use the vfio_device APIs the driver
-facing group interface is no longer used, delete it:
 
-- vfio_group_get_external_user_from_dev()
-- vfio_group_pin_pages()
-- vfio_group_unpin_pages()
-- vfio_group_iommu_domain()
 
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
----
- drivers/vfio/vfio.c  | 151 -------------------------------------------
- include/linux/vfio.h |  11 ----
- 2 files changed, 162 deletions(-)
+Am 05.04.22 um 10:03 schrieb Niklas Schnelle:
+> On Mon, 2022-04-04 at 13:43 -0400, Matthew Rosato wrote:
+>> For passthrough devices, we will need to know the GISA designation of the
+>> guest if interpretation facilities are to be used.  Setup to stash this in
+>> the zdev and set a default of 0 (no GISA designation) for now; a subsequent
+>> patch will set a valid GISA designation for passthrough devices.
+>> Also, extend mpcific routines to specify this stashed designation as part
+>> of the mpcific command.
+>>
+>> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
 
-diff --git a/drivers/vfio/vfio.c b/drivers/vfio/vfio.c
-index e6e102e017623b..3d75505bf3cc26 100644
---- a/drivers/vfio/vfio.c
-+++ b/drivers/vfio/vfio.c
-@@ -1947,44 +1947,6 @@ struct vfio_group *vfio_group_get_external_user(struct file *filep)
- }
- EXPORT_SYMBOL_GPL(vfio_group_get_external_user);
- 
--/*
-- * External user API, exported by symbols to be linked dynamically.
-- * The external user passes in a device pointer
-- * to verify that:
-- *	- A VFIO group is assiciated with the device;
-- *	- IOMMU is set for the group.
-- * If both checks passed, vfio_group_get_external_user_from_dev()
-- * increments the container user counter to prevent the VFIO group
-- * from disposal before external user exits and returns the pointer
-- * to the VFIO group.
-- *
-- * When the external user finishes using the VFIO group, it calls
-- * vfio_group_put_external_user() to release the VFIO group and
-- * decrement the container user counter.
-- *
-- * @dev [in]	: device
-- * Return error PTR or pointer to VFIO group.
-- */
--
--struct vfio_group *vfio_group_get_external_user_from_dev(struct device *dev)
--{
--	struct vfio_group *group;
--	int ret;
--
--	group = vfio_group_get_from_dev(dev);
--	if (!group)
--		return ERR_PTR(-ENODEV);
--
--	ret = vfio_group_add_container_user(group);
--	if (ret) {
--		vfio_group_put(group);
--		return ERR_PTR(ret);
--	}
--
--	return group;
--}
--EXPORT_SYMBOL_GPL(vfio_group_get_external_user_from_dev);
--
- void vfio_group_put_external_user(struct vfio_group *group)
- {
- 	vfio_group_try_dissolve_container(group);
-@@ -2218,101 +2180,6 @@ int vfio_unpin_pages(struct vfio_device *vdev, unsigned long *user_pfn,
- }
- EXPORT_SYMBOL(vfio_unpin_pages);
- 
--/*
-- * Pin a set of guest IOVA PFNs and return their associated host PFNs for a
-- * VFIO group.
-- *
-- * The caller needs to call vfio_group_get_external_user() or
-- * vfio_group_get_external_user_from_dev() prior to calling this interface,
-- * so as to prevent the VFIO group from disposal in the middle of the call.
-- * But it can keep the reference to the VFIO group for several calls into
-- * this interface.
-- * After finishing using of the VFIO group, the caller needs to release the
-- * VFIO group by calling vfio_group_put_external_user().
-- *
-- * @group [in]		: VFIO group
-- * @user_iova_pfn [in]	: array of user/guest IOVA PFNs to be pinned.
-- * @npage [in]		: count of elements in user_iova_pfn array.
-- *			  This count should not be greater
-- *			  VFIO_PIN_PAGES_MAX_ENTRIES.
-- * @prot [in]		: protection flags
-- * @phys_pfn [out]	: array of host PFNs
-- * Return error or number of pages pinned.
-- */
--int vfio_group_pin_pages(struct vfio_group *group,
--			 unsigned long *user_iova_pfn, int npage,
--			 int prot, unsigned long *phys_pfn)
--{
--	struct vfio_container *container;
--	struct vfio_iommu_driver *driver;
--	int ret;
--
--	if (!group || !user_iova_pfn || !phys_pfn || !npage)
--		return -EINVAL;
--
--	if (group->dev_counter > 1)
--		return -EINVAL;
--
--	if (npage > VFIO_PIN_PAGES_MAX_ENTRIES)
--		return -E2BIG;
--
--	container = group->container;
--	driver = container->iommu_driver;
--	if (likely(driver && driver->ops->pin_pages))
--		ret = driver->ops->pin_pages(container->iommu_data,
--					     group->iommu_group, user_iova_pfn,
--					     npage, prot, phys_pfn);
--	else
--		ret = -ENOTTY;
--
--	return ret;
--}
--EXPORT_SYMBOL(vfio_group_pin_pages);
--
--/*
-- * Unpin a set of guest IOVA PFNs for a VFIO group.
-- *
-- * The caller needs to call vfio_group_get_external_user() or
-- * vfio_group_get_external_user_from_dev() prior to calling this interface,
-- * so as to prevent the VFIO group from disposal in the middle of the call.
-- * But it can keep the reference to the VFIO group for several calls into
-- * this interface.
-- * After finishing using of the VFIO group, the caller needs to release the
-- * VFIO group by calling vfio_group_put_external_user().
-- *
-- * @group [in]		: vfio group
-- * @user_iova_pfn [in]	: array of user/guest IOVA PFNs to be unpinned.
-- * @npage [in]		: count of elements in user_iova_pfn array.
-- *			  This count should not be greater than
-- *			  VFIO_PIN_PAGES_MAX_ENTRIES.
-- * Return error or number of pages unpinned.
-- */
--int vfio_group_unpin_pages(struct vfio_group *group,
--			   unsigned long *user_iova_pfn, int npage)
--{
--	struct vfio_container *container;
--	struct vfio_iommu_driver *driver;
--	int ret;
--
--	if (!group || !user_iova_pfn || !npage)
--		return -EINVAL;
--
--	if (npage > VFIO_PIN_PAGES_MAX_ENTRIES)
--		return -E2BIG;
--
--	container = group->container;
--	driver = container->iommu_driver;
--	if (likely(driver && driver->ops->unpin_pages))
--		ret = driver->ops->unpin_pages(container->iommu_data,
--					       user_iova_pfn, npage);
--	else
--		ret = -ENOTTY;
--
--	return ret;
--}
--EXPORT_SYMBOL(vfio_group_unpin_pages);
--
--
- /*
-  * This interface allows the CPUs to perform some sort of virtual DMA on
-  * behalf of the device.
-@@ -2515,24 +2382,6 @@ int vfio_unregister_notifier(struct vfio_device *dev,
- }
- EXPORT_SYMBOL(vfio_unregister_notifier);
- 
--struct iommu_domain *vfio_group_iommu_domain(struct vfio_group *group)
--{
--	struct vfio_container *container;
--	struct vfio_iommu_driver *driver;
--
--	if (!group)
--		return ERR_PTR(-EINVAL);
--
--	container = group->container;
--	driver = container->iommu_driver;
--	if (likely(driver && driver->ops->group_iommu_domain))
--		return driver->ops->group_iommu_domain(container->iommu_data,
--						       group->iommu_group);
--
--	return ERR_PTR(-ENOTTY);
--}
--EXPORT_SYMBOL_GPL(vfio_group_iommu_domain);
--
- /*
-  * Module/class support
-  */
-diff --git a/include/linux/vfio.h b/include/linux/vfio.h
-index 91d46e532ca104..9a9981c2622896 100644
---- a/include/linux/vfio.h
-+++ b/include/linux/vfio.h
-@@ -140,8 +140,6 @@ int vfio_mig_get_next_state(struct vfio_device *device,
-  */
- extern struct vfio_group *vfio_group_get_external_user(struct file *filep);
- extern void vfio_group_put_external_user(struct vfio_group *group);
--extern struct vfio_group *vfio_group_get_external_user_from_dev(struct device
--								*dev);
- extern bool vfio_external_group_match_file(struct vfio_group *group,
- 					   struct file *filep);
- extern int vfio_external_user_iommu_id(struct vfio_group *group);
-@@ -154,18 +152,9 @@ extern int vfio_pin_pages(struct vfio_device *vdev, unsigned long *user_pfn,
- 			  int npage, int prot, unsigned long *phys_pfn);
- extern int vfio_unpin_pages(struct vfio_device *vdev, unsigned long *user_pfn,
- 			    int npage);
--
--extern int vfio_group_pin_pages(struct vfio_group *group,
--				unsigned long *user_iova_pfn, int npage,
--				int prot, unsigned long *phys_pfn);
--extern int vfio_group_unpin_pages(struct vfio_group *group,
--				  unsigned long *user_iova_pfn, int npage);
--
- extern int vfio_dma_rw(struct vfio_device *vdev, dma_addr_t user_iova,
- 		       void *data, size_t len, bool write);
- 
--extern struct iommu_domain *vfio_group_iommu_domain(struct vfio_group *group);
--
- /* each type has independent events */
- enum vfio_notify_type {
- 	VFIO_IOMMU_NOTIFY = 0,
--- 
-2.35.1
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 
+>> ---
+>>   arch/s390/include/asm/pci.h     | 1 +
+>>   arch/s390/include/asm/pci_clp.h | 3 ++-
+>>   arch/s390/pci/pci.c             | 6 ++++++
+>>   arch/s390/pci/pci_clp.c         | 5 +++++
+>>   arch/s390/pci/pci_irq.c         | 5 +++++
+>>   5 files changed, 19 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+>> index fdb9745ee998..42a4a312a6dd 100644
+>> --- a/arch/s390/include/asm/pci.h
+>> +++ b/arch/s390/include/asm/pci.h
+>> @@ -123,6 +123,7 @@ struct zpci_dev {
+>>   	enum zpci_state state;
+>>   	u32		fid;		/* function ID, used by sclp */
+>>   	u32		fh;		/* function handle, used by insn's */
+>> +	u32		gisa;		/* GISA designation for passthrough */
+>>   	u16		vfn;		/* virtual function number */
+>>   	u16		pchid;		/* physical channel ID */
+>>   	u8		pfgid;		/* function group ID */
+>> diff --git a/arch/s390/include/asm/pci_clp.h b/arch/s390/include/asm/pci_clp.h
+>> index 1f4b666e85ee..f3286bc5ba6e 100644
+>> --- a/arch/s390/include/asm/pci_clp.h
+>> +++ b/arch/s390/include/asm/pci_clp.h
+>> @@ -173,7 +173,8 @@ struct clp_req_set_pci {
+>>   	u16 reserved2;
+>>   	u8 oc;				/* operation controls */
+>>   	u8 ndas;			/* number of dma spaces */
+>> -	u64 reserved3;
+>> +	u32 reserved3;
+>> +	u32 gisa;			/* GISA designation */
+>>   } __packed;
+>>   
+>>   /* Set PCI function response */
+>> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+>> index e563cb65c0c4..a86cd1cbb80e 100644
+>> --- a/arch/s390/pci/pci.c
+>> +++ b/arch/s390/pci/pci.c
+>> @@ -120,6 +120,7 @@ int zpci_register_ioat(struct zpci_dev *zdev, u8 dmaas,
+>>   	fib.pba = base;
+>>   	fib.pal = limit;
+>>   	fib.iota = iota | ZPCI_IOTA_RTTO_FLAG;
+>> +	fib.gd = zdev->gisa;
+>>   	cc = zpci_mod_fc(req, &fib, &status);
+>>   	if (cc)
+>>   		zpci_dbg(3, "reg ioat fid:%x, cc:%d, status:%d\n", zdev->fid, cc, status);
+>> @@ -133,6 +134,8 @@ int zpci_unregister_ioat(struct zpci_dev *zdev, u8 dmaas)
+>>   	struct zpci_fib fib = {0};
+>>   	u8 cc, status;
+>>   
+>> +	fib.gd = zdev->gisa;
+> 
+> This could go into the initializer which becomes:
+> 
+>     struct zpci_fib fib = {.gd = zdev->gisa};
+> 
+>> +
+>>   	cc = zpci_mod_fc(req, &fib, &status);
+>>   	if (cc)
+>>   		zpci_dbg(3, "unreg ioat fid:%x, cc:%d, status:%d\n", zdev->fid, cc, status);
+>> @@ -160,6 +163,7 @@ int zpci_fmb_enable_device(struct zpci_dev *zdev)
+>>   	atomic64_set(&zdev->unmapped_pages, 0);
+>>   
+>>   	fib.fmb_addr = virt_to_phys(zdev->fmb);
+>> +	fib.gd = zdev->gisa;
+>>   	cc = zpci_mod_fc(req, &fib, &status);
+>>   	if (cc) {
+>>   		kmem_cache_free(zdev_fmb_cache, zdev->fmb);
+>> @@ -178,6 +182,8 @@ int zpci_fmb_disable_device(struct zpci_dev *zdev)
+>>   	if (!zdev->fmb)
+>>   		return -EINVAL;
+>>   
+>> +	fib.gd = zdev->gisa;
+>> +
+>>   	/* Function measurement is disabled if fmb address is zero */
+>>   	cc = zpci_mod_fc(req, &fib, &status);
+>>   	if (cc == 3) /* Function already gone. */
+>> diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
+>> index 1057d7af4a55..deed35edea14 100644
+>> --- a/arch/s390/pci/pci_clp.c
+>> +++ b/arch/s390/pci/pci_clp.c
+>> @@ -229,12 +229,16 @@ static int clp_set_pci_fn(struct zpci_dev *zdev, u32 *fh, u8 nr_dma_as, u8 comma
+>>   {
+>>   	struct clp_req_rsp_set_pci *rrb;
+>>   	int rc, retries = 100;
+>> +	u32 gisa = 0;
+>>   
+>>   	*fh = 0;
+>>   	rrb = clp_alloc_block(GFP_KERNEL);
+>>   	if (!rrb)
+>>   		return -ENOMEM;
+>>   
+>> +	if (command != CLP_SET_DISABLE_PCI_FN)
+>> +		gisa = zdev->gisa;
+>> +
+>>   	do {
+>>   		memset(rrb, 0, sizeof(*rrb));
+>>   		rrb->request.hdr.len = sizeof(rrb->request);
+>> @@ -243,6 +247,7 @@ static int clp_set_pci_fn(struct zpci_dev *zdev, u32 *fh, u8 nr_dma_as, u8 comma
+>>   		rrb->request.fh = zdev->fh;
+>>   		rrb->request.oc = command;
+>>   		rrb->request.ndas = nr_dma_as;
+>> +		rrb->request.gisa = gisa;
+>>   
+>>   		rc = clp_req(rrb, CLP_LPS_PCI);
+>>   		if (rrb->response.hdr.rsp == CLP_RC_SETPCIFN_BUSY) {
+>> diff --git a/arch/s390/pci/pci_irq.c b/arch/s390/pci/pci_irq.c
+>> index f2b3145b6697..a2b42a63a53b 100644
+>> --- a/arch/s390/pci/pci_irq.c
+>> +++ b/arch/s390/pci/pci_irq.c
+>> @@ -43,6 +43,7 @@ static int zpci_set_airq(struct zpci_dev *zdev)
+>>   	fib.fmt0.aibvo = 0;	/* each zdev has its own interrupt vector */
+>>   	fib.fmt0.aisb = virt_to_phys(zpci_sbv->vector) + (zdev->aisb / 64) * 8;
+>>   	fib.fmt0.aisbo = zdev->aisb & 63;
+>> +	fib.gd = zdev->gisa;
+>>   
+>>   	return zpci_mod_fc(req, &fib, &status) ? -EIO : 0;
+>>   }
+>> @@ -54,6 +55,8 @@ static int zpci_clear_airq(struct zpci_dev *zdev)
+>>   	struct zpci_fib fib = {0};
+>>   	u8 cc, status;
+>>   
+>> +	fib.gd = zdev->gisa;
+>> +
+> 
+> Same as in zpci_register_ioat()
+> 
+>>   	cc = zpci_mod_fc(req, &fib, &status);
+>>   	if (cc == 3 || (cc == 1 && status == 24))
+>>   		/* Function already gone or IRQs already deregistered. */
+>> @@ -72,6 +75,7 @@ static int zpci_set_directed_irq(struct zpci_dev *zdev)
+>>   	fib.fmt = 1;
+>>   	fib.fmt1.noi = zdev->msi_nr_irqs;
+>>   	fib.fmt1.dibvo = zdev->msi_first_bit;
+>> +	fib.gd = zdev->gisa;
+>>   
+>>   	return zpci_mod_fc(req, &fib, &status) ? -EIO : 0;
+>>   }
+>> @@ -84,6 +88,7 @@ static int zpci_clear_directed_irq(struct zpci_dev *zdev)
+>>   	u8 cc, status;
+>>   
+>>   	fib.fmt = 1;
+>> +	fib.gd = zdev->gisa;
+>>   	cc = zpci_mod_fc(req, &fib, &status);
+>>   	if (cc == 3 || (cc == 1 && status == 24))
+>>   		/* Function already gone or IRQs already deregistered. */
+> 
+> Looks good with or without using an initializer:
+> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> 
+> 
