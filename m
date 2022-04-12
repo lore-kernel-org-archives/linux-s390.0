@@ -2,74 +2,74 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 33649C4332F
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E781C433FE
 	for <linux-s390@archiver.kernel.org>; Tue, 12 Apr 2022 10:12:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357624AbiDLKMc (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 12 Apr 2022 06:12:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47134 "EHLO
+        id S1357600AbiDLKM2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 12 Apr 2022 06:12:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384160AbiDLIjZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Apr 2022 04:39:25 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 39CCE237FC
-        for <linux-s390@vger.kernel.org>; Tue, 12 Apr 2022 01:05:52 -0700 (PDT)
+        with ESMTP id S1383483AbiDLIhE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Apr 2022 04:37:04 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 7E9095DA6F
+        for <linux-s390@vger.kernel.org>; Tue, 12 Apr 2022 01:02:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1649750751;
+        s=mimecast20190719; t=1649750532;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=bRz8VjSH1qSjZ4cp0lB46Ds2dFD0SLl2/TdMcFrMbKc=;
-        b=hSuUkKNKcLPp29pfqAdwsDE4wlnARHNsBvVskw1T7/ZdOXach9TzyZzng+Y86fgcM83qsY
-        64oOZBeoaAwzcRhkgvse+sTmxVygoqqg/mENAtlYy1sJQkDnJN+XJwGUUV/jiHcgf0PhOh
-        MdJY0y4BRA5JXwgB29bRR3FjauP3uH8=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=F2J36Jhz1YaQBB3f5qHeBJfoSIGkVHxMW0PGdSKO3ZM=;
+        b=VBtBryg230UuUAxVnp3R87WnLxmxx2hfgC6hk+b5n/uKEBLvRjdMueNTkKtpBBRfuCt9h4
+        KODF/EOfSQMVxU/+1l5mAG/HQ/eM/XksJavMOqi7AiLR5RmNZ1xiC2Bedgs5wrN4egavub
+        1dbI8tw4YZ0xoCUNwPH4Fz+vXqE4AAU=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-642-TIx6mSg2M5STU5GtQEGwEw-1; Tue, 12 Apr 2022 04:05:50 -0400
-X-MC-Unique: TIx6mSg2M5STU5GtQEGwEw-1
-Received: by mail-wm1-f71.google.com with SMTP id 10-20020a1c020a000000b0038ece714a1fso53992wmc.1
-        for <linux-s390@vger.kernel.org>; Tue, 12 Apr 2022 01:05:49 -0700 (PDT)
+ us-mta-609-IPfWjeeZPC6S022LaqS4SA-1; Tue, 12 Apr 2022 04:02:11 -0400
+X-MC-Unique: IPfWjeeZPC6S022LaqS4SA-1
+Received: by mail-wr1-f69.google.com with SMTP id k20-20020adfc714000000b001e305cd1597so3789540wrg.19
+        for <linux-s390@vger.kernel.org>; Tue, 12 Apr 2022 01:02:10 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
          :content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=bRz8VjSH1qSjZ4cp0lB46Ds2dFD0SLl2/TdMcFrMbKc=;
-        b=elbV7H0J9mOeeMBByYitNqm9pv2UKAP+vlM7H5rKIuPTPuiWldaOD4+wdIDwsKQkNK
-         VvGeQOsfMtz60Secc2GjHhPbBuXeauGcWyv6NDXc9tjgYQkzqTZN6zPUjYJM8euUh+x3
-         5KesNY5y0iRma++ufjssX1JWfc/VPbOxzq/BmtCLgWsra7bwwqtiDvVkFNKRQIoJoqW6
-         u5JVb5GW75ZamVNCRnNvBZjcAXS51XWw//dJ8WFVw+JB6w2PKFL6zDxgG8NIGOkUj1JG
-         Y/XE1TW/beDvPbMB6UC+VKUkTOrStcwT0ZLdebMrtO9rWuNsinzjyzruXj3mWsMESvNQ
-         s0ZA==
-X-Gm-Message-State: AOAM530wVRi8Y4qKzGuGpX4d8A5kGqveijUmAf1G2pWnO+TwfLqEx3Zq
-        MnPmQ0v8GZdlCufWwuj3LPNot+Lg7HzIjyKnmHS5V1nmkli0nTDDeZWOTjSJ4wT/BHeBrbDPOvv
-        GSPoTv752lLmV95MrzA8OvA==
-X-Received: by 2002:adf:dfc2:0:b0:1f0:262a:d831 with SMTP id q2-20020adfdfc2000000b001f0262ad831mr27546410wrn.589.1649750748990;
-        Tue, 12 Apr 2022 01:05:48 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJy7nqevoJ6F4/MqLgRJopZdu/HIcObXx7C5G8q98MDXMtbREMekakN7wjiTcdoUS6pqVD//3Q==
-X-Received: by 2002:adf:dfc2:0:b0:1f0:262a:d831 with SMTP id q2-20020adfdfc2000000b001f0262ad831mr27546396wrn.589.1649750748779;
-        Tue, 12 Apr 2022 01:05:48 -0700 (PDT)
+        bh=F2J36Jhz1YaQBB3f5qHeBJfoSIGkVHxMW0PGdSKO3ZM=;
+        b=7eL2TGjsu37yY4spHcNG9vY4YjZ8ClkYH/bS1B8SLxvbV+iWU9HVfAvNgsEEBcPOp9
+         lsU7LI9DjjMHTeDlfKGAW7pimD1VlCmtHgV0qtl1vcSA/mu0E02ABjys/xP2HKzJn4N1
+         dpimAaEcn4Fj7wKe8wKJTOjW97dFcTW2CcOuIIVYsbNi+DM5g6fVIEJjNflCRv8BxxBu
+         BG/1JjDVrt4UeL9UvNhzg1d972KsSFRdDXSGyn+Shx3BzG35YJRWJVSYLZhRI+gvppYL
+         Muf9yiuFDOTIJVpnIS9V3bvoBPrTyfK3kJVX5a/H8lcD+VB1FKkztHZc3wQlzpB7A35w
+         wN3A==
+X-Gm-Message-State: AOAM530GQ4SIXzCzhrOLwNKuwlKPUnPTG3FUd3Q6omndrYh+G4alCwBu
+        u1pzk/b25Fn9sAYFIUav6fbKm+2AF4t5mJr81H2ABavoyco3+Uhgv6byvsEitN9RaOB4EsJcjWK
+        Sqr3y1Dbw7ZyW7XWneC03Tw==
+X-Received: by 2002:a05:600c:4f95:b0:38e:b596:b3f5 with SMTP id n21-20020a05600c4f9500b0038eb596b3f5mr2881002wmq.164.1649750530022;
+        Tue, 12 Apr 2022 01:02:10 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzykSjp7VgD9NDoHi2oJCBjKs8vgFuCOlLxU3YiP+FZKbkVGV9WitCc50I9vLUCjke/UODGMw==
+X-Received: by 2002:a05:600c:4f95:b0:38e:b596:b3f5 with SMTP id n21-20020a05600c4f9500b0038eb596b3f5mr2880984wmq.164.1649750529737;
+        Tue, 12 Apr 2022 01:02:09 -0700 (PDT)
 Received: from [10.33.192.183] (nat-pool-str-t.redhat.com. [149.14.88.106])
-        by smtp.gmail.com with ESMTPSA id k124-20020a1ca182000000b0038eb706c030sm1679212wme.39.2022.04.12.01.05.47
+        by smtp.gmail.com with ESMTPSA id s11-20020a5d6a8b000000b002060a8c810bsm24470001wru.24.2022.04.12.01.02.08
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 12 Apr 2022 01:05:48 -0700 (PDT)
-Message-ID: <138a93d7-efa4-c2e1-85fc-c041c03ac45f@redhat.com>
-Date:   Tue, 12 Apr 2022 10:05:47 +0200
+        Tue, 12 Apr 2022 01:02:09 -0700 (PDT)
+Message-ID: <3cac38d6-41f1-1c5e-1af1-c19f3f68aab2@redhat.com>
+Date:   Tue, 12 Apr 2022 10:02:08 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.6.0
-Subject: Re: [kvm-unit-tests PATCH v1 2/4] s390x: add support for migration
- tests
+Subject: Re: [kvm-unit-tests PATCH v1 1/4] lib: s390x: add support for SCLP
+ console read
 Content-Language: en-US
 To:     Nico Boehr <nrb@linux.ibm.com>, kvm@vger.kernel.org,
         linux-s390@vger.kernel.org
 Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com
 References: <20220411100750.2868587-1-nrb@linux.ibm.com>
- <20220411100750.2868587-3-nrb@linux.ibm.com>
+ <20220411100750.2868587-2-nrb@linux.ibm.com>
 From:   Thomas Huth <thuth@redhat.com>
-In-Reply-To: <20220411100750.2868587-3-nrb@linux.ibm.com>
+In-Reply-To: <20220411100750.2868587-2-nrb@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -77,27 +77,145 @@ List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 On 11/04/2022 12.07, Nico Boehr wrote:
-> Now that we have SCLP console read support, run our tests with migration_cmd, so
-> we can get migration support on s390x.
+> Add a basic implementation for reading from the SCLP ACII console. The goal of
+
+s/ACII/ASCII/
+
+> this is to support migration tests on s390x. To know when the migration has been
+> finished, we need to listen for a newline on our console.
+> 
+> Hence, this implementation is focused on the SCLP ASCII console of QEMU and
+> currently won't work under e.g. LPAR.
 > 
 > Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
 > ---
->   s390x/run | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
+>   lib/s390x/sclp-console.c | 81 +++++++++++++++++++++++++++++++++++++---
+>   lib/s390x/sclp.h         |  7 ++++
+>   s390x/Makefile           |  1 +
+>   3 files changed, 83 insertions(+), 6 deletions(-)
 > 
-> diff --git a/s390x/run b/s390x/run
-> index 064ecd1b337a..2bcdabbaa14f 100755
-> --- a/s390x/run
-> +++ b/s390x/run
-> @@ -25,7 +25,7 @@ M+=",accel=$ACCEL"
->   command="$qemu -nodefaults -nographic $M"
->   command+=" -chardev stdio,id=con0 -device sclpconsole,chardev=con0"
->   command+=" -kernel"
-> -command="$(timeout_cmd) $command"
-> +command="$(migration_cmd) $(timeout_cmd) $command"
+> diff --git a/lib/s390x/sclp-console.c b/lib/s390x/sclp-console.c
+> index fa36a6a42381..8e22660bf25d 100644
+> --- a/lib/s390x/sclp-console.c
+> +++ b/lib/s390x/sclp-console.c
+> @@ -89,6 +89,10 @@ static char lm_buff[120];
+>   static unsigned char lm_buff_off;
+>   static struct spinlock lm_buff_lock;
 >   
->   # We return the exit code via stdout, not via the QEMU return code
->   run_qemu_status $command "$@"
+> +static char read_buf[4096];
+> +static int read_index = sizeof(read_buf) - 1;
+> +static int read_buf_end = 0;
+> +
+>   static void sclp_print_ascii(const char *str)
+>   {
+>   	int len = strlen(str);
+> @@ -185,7 +189,7 @@ static void sclp_print_lm(const char *str)
+>    * indicating which messages the control program (we) want(s) to
+>    * send/receive.
+>    */
+> -static void sclp_set_write_mask(void)
+> +static void sclp_write_event_mask(int receive_mask, int send_mask)
+>   {
+>   	WriteEventMask *sccb = (void *)_sccb;
+>   
+> @@ -195,18 +199,27 @@ static void sclp_set_write_mask(void)
+>   	sccb->h.function_code = SCLP_FC_NORMAL_WRITE;
+>   	sccb->mask_length = sizeof(sccb_mask_t);
+>   
+> -	/* For now we don't process sclp input. */
+> -	sccb->cp_receive_mask = 0;
+> -	/* We send ASCII and line mode. */
+> -	sccb->cp_send_mask = SCLP_EVENT_MASK_MSG_ASCII | SCLP_EVENT_MASK_MSG;
+> +	sccb->cp_receive_mask = receive_mask;
+> +	sccb->cp_send_mask = send_mask;
+>   
+>   	sclp_service_call(SCLP_CMD_WRITE_EVENT_MASK, sccb);
+>   	assert(sccb->h.response_code == SCLP_RC_NORMAL_COMPLETION);
+>   }
+>   
+> +static void sclp_console_enable_read(void)
+> +{
+> +	sclp_write_event_mask(SCLP_EVENT_MASK_MSG_ASCII, SCLP_EVENT_MASK_MSG_ASCII | SCLP_EVENT_MASK_MSG);
+> +}
+> +
+> +static void sclp_console_disable_read(void)
+> +{
+> +	sclp_write_event_mask(0, SCLP_EVENT_MASK_MSG_ASCII | SCLP_EVENT_MASK_MSG);
+> +}
+> +
+>   void sclp_console_setup(void)
+>   {
+> -	sclp_set_write_mask();
+> +	/* We send ASCII and line mode. */
+> +	sclp_write_event_mask(0, SCLP_EVENT_MASK_MSG_ASCII | SCLP_EVENT_MASK_MSG);
+>   }
+>   
+>   void sclp_print(const char *str)
+> @@ -227,3 +240,59 @@ void sclp_print(const char *str)
+>   	sclp_print_ascii(str);
+>   	sclp_print_lm(str);
+>   }
+> +
+> +#define SCLP_EVENT_ASCII_DATA_STREAM_FOLLOWS 0
+> +
+> +static int console_refill_read_buffer(void)
+> +{
+> +	const int MAX_EVENT_BUFFER_LEN = SCCB_SIZE - offsetof(ReadEventDataAsciiConsole, ebh);
+> +	ReadEventDataAsciiConsole *sccb = (void *)_sccb;
+> +	const int EVENT_BUFFER_ASCII_RECV_HEADER_LEN = sizeof(sccb->ebh) + sizeof(sccb->type);
+> +	int ret = -1;
+> +
+> +	sclp_console_enable_read();
+> +
+> +	sclp_mark_busy();
+> +	memset(sccb, 0, 4096);
+> +	sccb->h.length = PAGE_SIZE;
+> +	sccb->h.function_code = SCLP_UNCONDITIONAL_READ;
+> +	sccb->h.control_mask[2] = 0x80;
 
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+Add at least a comment about what the 0x80 means, please?
+
+> +
+> +	sclp_service_call(SCLP_CMD_READ_EVENT_DATA, sccb);
+> +
+> +	if ((sccb->h.response_code == SCLP_RC_NO_EVENT_BUFFERS_STORED) ||
+> +	    (sccb->ebh.type != SCLP_EVENT_ASCII_CONSOLE_DATA) ||
+> +	    (sccb->type != SCLP_EVENT_ASCII_DATA_STREAM_FOLLOWS)) {
+> +		ret = -1;
+> +		goto out;
+> +	}
+> +
+> +	assert(sccb->ebh.length <= MAX_EVENT_BUFFER_LEN);
+> +	assert(sccb->ebh.length > EVENT_BUFFER_ASCII_RECV_HEADER_LEN);
+> +
+> +	read_buf_end = sccb->ebh.length - EVENT_BUFFER_ASCII_RECV_HEADER_LEN;
+> +
+> +	assert(read_buf_end <= sizeof(read_buf));
+> +	memcpy(read_buf, sccb->data, read_buf_end);
+> +
+> +	read_index = 0;
+
+Set "ret = 0" here?
+
+> +out:
+> +	sclp_console_disable_read();
+> +
+> +	return ret;
+> +}
+> +
+> +int __getchar(void)
+> +{
+> +	int ret;
+> +
+> +	if (read_index >= read_buf_end) {
+> +		ret = console_refill_read_buffer();
+> +		if (ret < 0) {
+> +			return ret;
+> +		}
+> +	}
+> +
+> +	return read_buf[read_index++];
+> +}
+
+  Thomas
 
