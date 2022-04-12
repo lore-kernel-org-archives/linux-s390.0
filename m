@@ -2,138 +2,108 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D8CC6C43219
-	for <linux-s390@archiver.kernel.org>; Tue, 12 Apr 2022 08:26:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD776C4167B
+	for <linux-s390@archiver.kernel.org>; Tue, 12 Apr 2022 08:26:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236183AbiDLIZh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 12 Apr 2022 04:25:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55470 "EHLO
+        id S241756AbiDLIZj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 12 Apr 2022 04:25:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358825AbiDLHmQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Apr 2022 03:42:16 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6555F53E22
-        for <linux-s390@vger.kernel.org>; Tue, 12 Apr 2022 00:19:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1649747962;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Yuz95x1G3zlqb83uNRLz/nX1y2Nb6heM9sreLygHM+8=;
-        b=e1xsGA0u6k5ZzQuDGpM/i83UMVxauBVEGYneTs/iMGaPzymbSZYNASxECQTqIKj+fMymyn
-        hQVGp5+O8G68QuBNZ2IKDKLnn8meKQ8Xwv60fugrUt09YGE7lpcolO319+B2y3ZIPBxr1i
-        eEyc4XLRXjoG3nAHVQQ5E5bxdLYlQ9c=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-504-2R6eOQowMY6VejLWIGmJrg-1; Tue, 12 Apr 2022 03:19:21 -0400
-X-MC-Unique: 2R6eOQowMY6VejLWIGmJrg-1
-Received: by mail-pj1-f69.google.com with SMTP id w3-20020a17090ac98300b001b8b914e91aso1111086pjt.0
-        for <linux-s390@vger.kernel.org>; Tue, 12 Apr 2022 00:19:20 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=Yuz95x1G3zlqb83uNRLz/nX1y2Nb6heM9sreLygHM+8=;
-        b=FEN2B86n8t9rYd7zAhePvuKc5KQ9Hf0XsAOnsHUTju6WCXS2+WGXad3cgHeBBxrTjI
-         tqB2zC4/2p+ioRRTCHVKF7ii4FBtOvtCiCoVZEOMk5TBStI5rB/f+sVmdKv41YgVA3U4
-         OKr5d7NTLg/dfblUQc0H6HPI6zYBcApl6tw5MJ4Qx98SU2OxQq0StHJu1JlzcTePuOxk
-         J9kaJZMz6aKI94bQAKgbIeYylU1R1hV85op1aY6gMcn9UnOivz3tD3/qd1apDVN53Zqh
-         yi7aSHaOiLyECOPpz45Za/4udFio96Upff8gUT8xgH7cjezTUSld1XN12XgRA7JiaY0T
-         N0xw==
-X-Gm-Message-State: AOAM531GIBjbZBwgzT8Zd9rWszOHcdiQkjYCnBwdfVQ0rWzhYF56ggr1
-        DUJNyrlrs6lOguKDDscSJSZjLVejv+cC7wqAy03Gg/eWgiWxAScSoIfOIwYSukRrmxG2S6EcJ/H
-        /Cn5SIoOpHVepVLsMRnKyZA==
-X-Received: by 2002:a63:ce45:0:b0:399:1124:fbfe with SMTP id r5-20020a63ce45000000b003991124fbfemr30142579pgi.542.1649747959961;
-        Tue, 12 Apr 2022 00:19:19 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJybC3H9odgtD5WvWO3Wfz5iznlcc/pnW1u61iazVEqAlovz3OVbp6nLoj0UKzRc5hYeHz5xRQ==
-X-Received: by 2002:a63:ce45:0:b0:399:1124:fbfe with SMTP id r5-20020a63ce45000000b003991124fbfemr30142555pgi.542.1649747959749;
-        Tue, 12 Apr 2022 00:19:19 -0700 (PDT)
-Received: from [10.72.14.5] ([209.132.188.80])
-        by smtp.gmail.com with ESMTPSA id oo16-20020a17090b1c9000b001b89e05e2b2sm1791569pjb.34.2022.04.12.00.19.10
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 12 Apr 2022 00:19:19 -0700 (PDT)
-Message-ID: <2776b925-1989-40b2-44ed-6964105e22cb@redhat.com>
-Date:   Tue, 12 Apr 2022 15:19:08 +0800
+        with ESMTP id S1356529AbiDLIKh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Apr 2022 04:10:37 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8183CB44;
+        Tue, 12 Apr 2022 00:41:38 -0700 (PDT)
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23C5JJsP012716;
+        Tue, 12 Apr 2022 07:41:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=fLmmftGwcRhoo/l+B7FqNuSpBchdixeaCTamtoLnkcI=;
+ b=IQWeoYr7U49SRYZLU9AiY7veD1LHy/7Mli6ZgqTOw+x1iJq5imqVpABBwjxBe9Akgl/G
+ AWjU/qRQWTVIOQAPnYEVxX8VSDPQ5Dt2WOGUpJ5RRt3K1x0F4aI3F48YzM0JWcnSM2ll
+ xW0pFRh9uGN6qpq4QV1altHz0nlEi5ee5PB6a0sP5HMWSYq90kk8OUsfzGDALVZCuSnr
+ OhNL3/FSVOVzfCp5yiH46On0e8sljJLDclY0iNqdAJzqisvQKtkKLjZKiUM/wzkZagqn
+ KItG3JgWW69mKt0eekCd0U73VdgFvgOiKIbU6jsodIf50KFfK0UdO9llkpQhuQXjSbJl AA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fd360jmrb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Apr 2022 07:41:37 +0000
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23C609WR014162;
+        Tue, 12 Apr 2022 07:41:37 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fd360jmq5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Apr 2022 07:41:37 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23C7Ru7f006315;
+        Tue, 12 Apr 2022 07:41:35 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma02fra.de.ibm.com with ESMTP id 3fb1s8kgxf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Apr 2022 07:41:35 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23C7T3JR52232604
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 12 Apr 2022 07:29:03 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DBA7C4C044;
+        Tue, 12 Apr 2022 07:41:31 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 681FC4C040;
+        Tue, 12 Apr 2022 07:41:31 +0000 (GMT)
+Received: from li-ca45c2cc-336f-11b2-a85c-c6e71de567f1.ibm.com (unknown [9.171.29.167])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 12 Apr 2022 07:41:31 +0000 (GMT)
+Message-ID: <4b7a793f9ab64eb6c5375a12844006bc86c0c752.camel@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v1 4/4] s390x: add selftest for migration
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com
+Date:   Tue, 12 Apr 2022 09:41:30 +0200
+In-Reply-To: <5073d0fc-1017-5be6-2ec5-2709be14c93c@redhat.com>
+References: <20220411100750.2868587-1-nrb@linux.ibm.com>
+         <20220411100750.2868587-5-nrb@linux.ibm.com>
+         <5073d0fc-1017-5be6-2ec5-2709be14c93c@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.4 (3.42.4-1.fc35) 
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.7.0
-Subject: Re: [PATCH v9 29/32] virtio_net: get ringparam by
- virtqueue_get_vring_max_size()
-Content-Language: en-US
-To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        virtualization@lists.linux-foundation.org
-Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mark Gross <markgross@kernel.org>,
-        Vadim Pasternak <vadimp@nvidia.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jesper Dangaard Brouer <hawk@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        linux-um@lists.infradead.org, netdev@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, bpf@vger.kernel.org
-References: <20220406034346.74409-1-xuanzhuo@linux.alibaba.com>
- <20220406034346.74409-30-xuanzhuo@linux.alibaba.com>
-From:   Jason Wang <jasowang@redhat.com>
-In-Reply-To: <20220406034346.74409-30-xuanzhuo@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 3bjjQ6OXeg_NZncsDGsannmTM3uZVA4E
+X-Proofpoint-GUID: F_CFr8Q2WXRhoZTkgttzTBB_1Fl3T-aO
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-04-12_02,2022-04-11_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
+ priorityscore=1501 impostorscore=0 lowpriorityscore=0 malwarescore=0
+ phishscore=0 spamscore=0 adultscore=0 suspectscore=0 clxscore=1015
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2204120035
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Mon, 2022-04-11 at 17:30 +0200, Thomas Huth wrote:
+> Thanks for tackling this!
+> 
+> Having written powerpc/sprs.c in the past, I've got one question /
+> request:
+> 
+> Could we turn this into a "real" test immediately? E.g. write a sane
+> value 
+> to all control registers that are currently not in use by the k-u-t
+> before 
+> migration, and then check whether the values are still in there after
+> migration? Maybe also some vector registers and the "guarded storage
+> control"?
+> ... or is this rather something for a later update?
 
-在 2022/4/6 上午11:43, Xuan Zhuo 写道:
-> Use virtqueue_get_vring_max_size() in virtnet_get_ringparam() to set
-> tx,rx_max_pending.
->
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> ---
+My plan was to first add the infrastructure for migration tests
+including the selftest and then later one by one add "real" tests. 
 
-
-Acked-by: Jason Wang <jasowang@redhat.com>
-
-
->   drivers/net/virtio_net.c | 8 ++++----
->   1 file changed, 4 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index dad497a47b3a..96d96c666c8c 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -2177,10 +2177,10 @@ static void virtnet_get_ringparam(struct net_device *dev,
->   {
->   	struct virtnet_info *vi = netdev_priv(dev);
->   
-> -	ring->rx_max_pending = virtqueue_get_vring_size(vi->rq[0].vq);
-> -	ring->tx_max_pending = virtqueue_get_vring_size(vi->sq[0].vq);
-> -	ring->rx_pending = ring->rx_max_pending;
-> -	ring->tx_pending = ring->tx_max_pending;
-> +	ring->rx_max_pending = virtqueue_get_vring_max_size(vi->rq[0].vq);
-> +	ring->tx_max_pending = virtqueue_get_vring_max_size(vi->sq[0].vq);
-> +	ring->rx_pending = virtqueue_get_vring_size(vi->rq[0].vq);
-> +	ring->tx_pending = virtqueue_get_vring_size(vi->sq[0].vq);
->   }
->   
->   
-
+But if you think it is preferable, I can extend the scope and add some
+inital "real" tests in this series.
