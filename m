@@ -2,122 +2,358 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA53BC433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 12 Apr 2022 15:36:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C6E13C4332F
+	for <linux-s390@archiver.kernel.org>; Tue, 12 Apr 2022 15:53:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245667AbiDLPjN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 12 Apr 2022 11:39:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48180 "EHLO
+        id S1357389AbiDLP4A (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 12 Apr 2022 11:56:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244365AbiDLPjN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Apr 2022 11:39:13 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 002D557B38;
-        Tue, 12 Apr 2022 08:36:53 -0700 (PDT)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23CEn2MT013876;
-        Tue, 12 Apr 2022 15:36:53 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=+yaQ39sL+wYbez+6L5ksCMlpVuoK54NxPkKsgnRKo5U=;
- b=MQnBdqaPrFaOIiASSH4EHlQ6A/R4KLS+xNLqZv9n3oD7yE1/n+E3hXqOFA/8def4aTyO
- QjNMmXHFkdP6iSrkUmM/MqZ8n41G2w/52ylAi7gI+Xlbp0z/v15GmjpDblz3lgf3zrT5
- p2699sesYu24SKEUn8Nh7lGz/mHd7FyCRpKUzEFJ7ent3nHtJK1Tg836j3ZKJPneaizv
- 4VpyhsAdU7j5dJgubCE79f8kon506hbOgW/IKuI3+PWWt16H8/I8EovSz7GVYkJqLpic
- qzoEbCpcy356lMMJx+BJ0asVrIQYsh0+PurRbG+YxyxD80eM0AdGcA1wHcEAMORaXG7k dA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3fd9nb4bh7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Apr 2022 15:36:52 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23CEn5Km014220;
-        Tue, 12 Apr 2022 15:36:50 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3fd9nb4bg8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Apr 2022 15:36:50 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23CFHsGd025363;
-        Tue, 12 Apr 2022 15:36:49 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 3fb1s8w58j-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Apr 2022 15:36:49 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23CFat8o47186420
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 12 Apr 2022 15:36:55 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1A88E11C04C;
-        Tue, 12 Apr 2022 15:36:46 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C636811C050;
-        Tue, 12 Apr 2022 15:36:45 +0000 (GMT)
-Received: from [9.145.83.15] (unknown [9.145.83.15])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 12 Apr 2022 15:36:45 +0000 (GMT)
-Message-ID: <dbdcbdd5-dad4-d4f1-d0ab-587c3cacafc8@linux.ibm.com>
-Date:   Tue, 12 Apr 2022 17:36:45 +0200
+        with ESMTP id S235861AbiDLPz6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Apr 2022 11:55:58 -0400
+Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2088.outbound.protection.outlook.com [40.107.93.88])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E1A26005C;
+        Tue, 12 Apr 2022 08:53:40 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Z6Ia3JQ6d5uRBIkY1fVpAVTIgEG9mORn1b5AMy0DCvVynu8WWY5TTotX7ma8QATHo2kK/udQe3hL+dny7/bxE9GyAal1kUrjPehiB7VfbphM+dv+9hefKwmRdp7G8bQWdfm4+vxJ7X7EMRX5SIPzN9t5NGZB4RsRQ4hI/5OpVmzKF99eUkruJzeVIrVHkfP6nO06oS3x65O8+NQaHo+tLkjia5NrHSb/OUH7XGfPRfZLGhr0PByzde0h6AUKkii08uiF68z88igNohYrK4h4RVic4djRw1fOTOw2dzrSbgTWfXAakNOiKCg+8urvEDDOJJAlruULLsEGXdR5fBkgsg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=zhaO8AuSVmWbnf6E1oY44JxzaoPb5BuPccs9/AMBcBs=;
+ b=PUU1P2Bcd46hxofgxygeuVv1jbqRY8i5XtYMK7H92qzYDDRsXhxLQdCtDuzxgA5+/g1cEQlIrH/sdDhM9ZxpBfRZhGPDqXdSJLDK6SQIWYRxkS/9SaPLKxWMfpClUXK1U+jPVsyYG9YNw5rReGOUSERfCBlIsUt9Ajv71sC8PjAgV5zlCOPHP1Zk5j71hjtNHRz6yVsVFkutmLJ1iavEwV5gBc4VmqYdRg7i6SSRH0XHwP9D0h/lR4md9/QTRE0BFg+1igZ2i9M3dIg+MOOExQGTRAxrdtNtjXlnx2XKMw67ZLVOwj2i631SY7h8k9xn2bPnyFMsSKsApdwFB41jcQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=zhaO8AuSVmWbnf6E1oY44JxzaoPb5BuPccs9/AMBcBs=;
+ b=HJ8uA72j8sqzUQ5mBYy4hwkl3YtIllrqRWzZkz732rrOMh5dgiACVK2ZZU1d1qp8hKY4qNy8+hO/YmAnr61o246eUCup5NUsIPumO1WvVjpo6xOtIHnivjWUhJHJEbhz9aZily2Pf7+zMLiEOleWlEukR23vsOScVw9C2+cjOT/62wT9fCwbYNb/psz+fCT6ND8mnWvXumNPSD0tmlVqQEyGSYZHxnp+auotT4nhu8rgXhkbnM0WdQ7moexVSHFPmx/UbmnSA7lUYV+lk6qfGfWMND7o/mFg48xJUkShXqmxziPCfHplk2Gs1yIfdH4L1q6e5AXByOcb2FvFM6Kaqw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from CH2PR12MB4181.namprd12.prod.outlook.com (2603:10b6:610:a8::16)
+ by DM6PR12MB4172.namprd12.prod.outlook.com (2603:10b6:5:212::9) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5144.29; Tue, 12 Apr
+ 2022 15:53:38 +0000
+Received: from CH2PR12MB4181.namprd12.prod.outlook.com
+ ([fe80::c911:71b5:78e6:3a38]) by CH2PR12MB4181.namprd12.prod.outlook.com
+ ([fe80::c911:71b5:78e6:3a38%8]) with mapi id 15.20.5144.029; Tue, 12 Apr 2022
+ 15:53:38 +0000
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        David Airlie <airlied@linux.ie>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org,
+        Eric Farman <farman@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
+        linux-doc@vger.kernel.org, linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>
+Cc:     Christoph Hellwig <hch@lst.de>,
+        "Tian, Kevin" <kevin.tian@intel.com>,
+        "Liu, Yi L" <yi.l.liu@intel.com>
+Subject: [PATCH 3/9] vfio/mdev: Pass in a struct vfio_device * to vfio_pin/unpin_pages()
+Date:   Tue, 12 Apr 2022 12:53:30 -0300
+Message-Id: <3-v1-a8faf768d202+125dd-vfio_mdev_no_group_jgg@nvidia.com>
+In-Reply-To: <0-v1-a8faf768d202+125dd-vfio_mdev_no_group_jgg@nvidia.com>
+References: 
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: BL1PR13CA0173.namprd13.prod.outlook.com
+ (2603:10b6:208:2bd::28) To CH2PR12MB4181.namprd12.prod.outlook.com
+ (2603:10b6:610:a8::16)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [kvm-unit-tests PATCH v1 1/3] s390x: epsw: fix
- report_pop_prefix() when running under non-QEMU
-Content-Language: en-US
-To:     Nico Boehr <nrb@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Cc:     imbrenda@linux.ibm.com, thuth@redhat.com
-References: <20220412092941.20742-1-nrb@linux.ibm.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-In-Reply-To: <20220412092941.20742-1-nrb@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: qIEKgwlwHTHtoCpwhzE8Q5k_IqCuEtSs
-X-Proofpoint-GUID: wYNtVEObKDuamaM7xF7oqWGOY6Qiu_Jv
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-04-12_06,2022-04-12_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 bulkscore=0
- priorityscore=1501 suspectscore=0 clxscore=1015 impostorscore=0
- adultscore=0 malwarescore=0 mlxscore=0 lowpriorityscore=0 spamscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2204120074
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: a0ec39e7-6949-4f89-a647-08da1c9c9b61
+X-MS-TrafficTypeDiagnostic: DM6PR12MB4172:EE_
+X-Microsoft-Antispam-PRVS: <DM6PR12MB41725104C4C39B7463C2289BC2ED9@DM6PR12MB4172.namprd12.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: ihyN3bchJ3Ctm+ldZqfC1RHmDUZkf4c0fRY6OhALj6A5KYB4+bE4T9ZFeylz6PXdxgSKTK4D12ayMUmTk97EOY1wuLA+YV08P80ggWV4UWaImDvLjMDVaMfMlmXEYEBedlg9+jQEEfMM44c9Ct6plwZG1ExxsWO1n8tN9TRzf3knTx3S7vMrAx/q7j5v1ErP4uB6HQW4T25m07Nl/FU2lmPMcLgxXB+6CqHbE1k2/uw8IXMl1r58oj/GvuTVV5kW/54GEcaqHz8M245r70qWkt1cBmFyG0VrpmYHo8AO3Q8QRdXyQ+krKV5mPdXp4196LC8CgnBF9dFl+3bl0S9qXlLIztfvT/1hMj/wBaPBBlaH0ej0wGEDN/Lh9Wno//B7KJCeRGQDT3RZHmwvPq6N2xlRw22JlYKqVYYVtfVfe6WFK8T1XReZGXxKS54iheu7VCtjFEj+0jS0eVlRwJ6XgboYzi4edq/yCiJHC9oXZd5qmWkjs2nk8fW8EH5GipvqgfsVZvht5DWd2Y24viWoQGdtlVd1o+mu/D8lk0dhJV2trWmn+nXAhK1OWNGqKee2s8y2sL2HpLn3dk/V1y2R3kYheWfkWFtm0fWRwYRfLj7mBLjPaHTrykERobCzEHks+QCE6D4P0ZDvpfLLGV3yHb+K2wfFBCrz+Dso4vIiUyXBbbPuD+BszrXaRtJV9S+rFfiWHzLzrVXN+ozbe5FiPw==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH2PR12MB4181.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(508600001)(6486002)(6506007)(6666004)(66946007)(66476007)(4326008)(66556008)(26005)(186003)(36756003)(83380400001)(8676002)(316002)(54906003)(86362001)(8936002)(6512007)(2616005)(921005)(110136005)(7416002)(5660300002)(38100700002)(2906002)(7406005)(4216001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?kkYqN+hCN77JO8WLil/UtA/3aRebl05uo+PK8X1JaxyKg8l64g7rFGRDvJr/?=
+ =?us-ascii?Q?1lPt2TzDfVdh8kqVaB6H5TG8rQy4Mvbe5JVx0juoeDLXxD4UUPkAq5JbfMFo?=
+ =?us-ascii?Q?WT1HnQIIqNQ20VMwZxAxTqg3AIOIFcFFhaviNIvj+ku6WOvehMADRC07IGRu?=
+ =?us-ascii?Q?gJkX8a3fWWmxc4Vp0sWtfZ8X64mHP0wm4mJ47sLDgf5JtJEsyqzTpTZS+PQX?=
+ =?us-ascii?Q?buePo4SWjkmqSzUvvFUONy4bWaB5l+lmEsyW/rKPdLtVJIcGfSypd6yOTOFN?=
+ =?us-ascii?Q?0Is/i4k25FF51tFTtmQW1exgm6SCYyf6hd5kX1WeQgxFOVX+b/mFOvH1h+eJ?=
+ =?us-ascii?Q?Dj1qNeZmmGHosyIgsCtZRVUHCThEQ6W56+h4m92uHzia+3cNV3BSEvXKNMFm?=
+ =?us-ascii?Q?EySwbz8VmEH5NmFwky8IOPhB0CSwhz4P7deDqcIeAaRFgzyOICwnyVB7cAJ2?=
+ =?us-ascii?Q?dCT7CLZ3EalvmaglPSSYxkUcHZAgrYRDSL8oOwaHIRCB1poZUffQWTOCsfNP?=
+ =?us-ascii?Q?lOReOwnpYPj6zKGSsgtqoF5rY0nS7msRB82etAeDXWJpVu20FDyWuwiKcnJJ?=
+ =?us-ascii?Q?JXDiNCG+RsjKtf9N6TaoZ/+IrAqaR+s5sm549yU/PHcxwAF5pd6BoUEp4JZm?=
+ =?us-ascii?Q?f9KBIvrNr9o2HnlgYMjGzFdSqCdB9EmcpZdbovdymNDJj7SmcAz+Wi9Ht0cr?=
+ =?us-ascii?Q?4B6CoyMq2ekxkYLz4LbKxVlJzXC0uD1AyLLEGFSYiRplHr8Lm9RmGKfBTWeN?=
+ =?us-ascii?Q?yZv9Czvr6bPDnPJwWUbsbZvY8pM/NJPkPem+sqFbYALngxXYe87tpa8CyO7P?=
+ =?us-ascii?Q?kdEt/sP5H6FLXTLENdhVUBsSV9VEGdsYHYWX1cEthMegzJiWsdRsbFX07Zo1?=
+ =?us-ascii?Q?wIttjJbokUTNRSM7/p7Hr78ybeiTK+tnBCLPu1xFsphx3x127bWlfDA892/v?=
+ =?us-ascii?Q?vVmBvUORxVe/cEOYS7bo7DWIGLrm447prXrsPPlRw7xRJc8FgEw17kT9VYj5?=
+ =?us-ascii?Q?KUvUu8TGfCtt/Wc2KRNokphNGkV5e9MsShYXURdh/Pw9vNOI8tBXH+FonqXK?=
+ =?us-ascii?Q?4n3W+4nPb9NeyQUBry8bTTq7uvjLfJt+u4+TBo5HQIa4tS2jeIQJB1TBqITo?=
+ =?us-ascii?Q?pX5K2ghicWzb3F7NS1gabZWrgVvSF9G+kLZnkBD3gPwwm99JV2Dankp6D2sI?=
+ =?us-ascii?Q?LWJ+oigh7J4AW23J1fMEsHkqC21xBr+U4IPkflWJI18w8RhTkvdE09RHfVrD?=
+ =?us-ascii?Q?6iMFIIOZ18DO9cZb9M3sFNu1Zye3wZc42eKUWrWjOE97YyoW3aHjTQF86XMP?=
+ =?us-ascii?Q?WKKg6/NqM8j9HxyNl17g5oV3FOChhVw2MvDAs69Ydf/1AfS1kYMHVsY3ciBB?=
+ =?us-ascii?Q?yJkHiqiA8kpo1iHqo7TIEKCiRM7MUFgg1oLNJPOLB2tA/oMLyJfUkHcjkvXH?=
+ =?us-ascii?Q?Pj+frSZeEBBMz5uCHffPpf+hRVb1PyJTm4lOmGvPfqlgfFerou0KyVz9GiLf?=
+ =?us-ascii?Q?nu52utpa16JYElzdzaQMCsl2PDbflmyxvCFr3IMCDn4YMBnqVuIQagp2l+Be?=
+ =?us-ascii?Q?j3Hk3XMXSk6ECKIV+wE5skp/glwD22j9mqBgtQz+fAb1/wNRcaP3RUjRjCFg?=
+ =?us-ascii?Q?vPX5qhKgnrqvTQDMvPuwogCeUNJz/nrfgri/ecFy0eo5sFmVI8RWhi6P7w4e?=
+ =?us-ascii?Q?eH7RqeIDD4Ali52VAaTI4j4Oa00VKKU+v/69VqYw9No3xYWlWgoxajkY2l5X?=
+ =?us-ascii?Q?qzGgTl7/iQ=3D=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a0ec39e7-6949-4f89-a647-08da1c9c9b61
+X-MS-Exchange-CrossTenant-AuthSource: CH2PR12MB4181.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Apr 2022 15:53:37.5721
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: H35NTmW0Zo3huFL8xVKx0A/Z0BCmhGkge5WwKlrAz9f+Ufzl53v5fm/bIII9IGLZ
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4172
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 4/12/22 11:29, Nico Boehr wrote:
-> When we don't run in QEMU, we didn't push a prefix, hence pop won't work. Fix
-> this by pushing the prefix before the QEMU check.
-> 
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+Every caller has a readily available vfio_device pointer, use that instead
+of passing in a generic struct device. The struct vfio_device already
+contains the group we need so this avoids complexity, extra refcountings,
+and a confusing lifecycle model.
 
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+---
+ .../driver-api/vfio-mediated-device.rst       |  4 +-
+ drivers/s390/cio/vfio_ccw_cp.c                |  6 +--
+ drivers/s390/crypto/vfio_ap_ops.c             |  8 ++--
+ drivers/vfio/vfio.c                           | 40 ++++++-------------
+ include/linux/vfio.h                          |  4 +-
+ 5 files changed, 24 insertions(+), 38 deletions(-)
 
-> ---
->   s390x/epsw.c | 4 ++--
->   1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/s390x/epsw.c b/s390x/epsw.c
-> index 5b73f4b3db6c..d8090d95a486 100644
-> --- a/s390x/epsw.c
-> +++ b/s390x/epsw.c
-> @@ -97,13 +97,13 @@ static void test_epsw(void)
->   
->   int main(int argc, char **argv)
->   {
-> +	report_prefix_push("epsw");
-> +
->   	if (!host_is_kvm() && !host_is_tcg()) {
->   		report_skip("Not running under QEMU");
->   		goto done;
->   	}
->   
-> -	report_prefix_push("epsw");
-> -
->   	test_epsw();
->   
->   done:
+diff --git a/Documentation/driver-api/vfio-mediated-device.rst b/Documentation/driver-api/vfio-mediated-device.rst
+index 9f26079cacae35..6aeca741dc9be1 100644
+--- a/Documentation/driver-api/vfio-mediated-device.rst
++++ b/Documentation/driver-api/vfio-mediated-device.rst
+@@ -279,10 +279,10 @@ Translation APIs for Mediated Devices
+ The following APIs are provided for translating user pfn to host pfn in a VFIO
+ driver::
+ 
+-	extern int vfio_pin_pages(struct device *dev, unsigned long *user_pfn,
++	extern int vfio_pin_pages(struct vfio_device *vdev, unsigned long *user_pfn,
+ 				  int npage, int prot, unsigned long *phys_pfn);
+ 
+-	extern int vfio_unpin_pages(struct device *dev, unsigned long *user_pfn,
++	extern int vfio_unpin_pages(struct vfio_device *vdev, unsigned long *user_pfn,
+ 				    int npage);
+ 
+ These functions call back into the back-end IOMMU module by using the pin_pages
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index af5048a1ba8894..e362cb962a7234 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -103,13 +103,13 @@ static int pfn_array_pin(struct pfn_array *pa, struct vfio_device *vdev)
+ {
+ 	int ret = 0;
+ 
+-	ret = vfio_pin_pages(vdev->dev, pa->pa_iova_pfn, pa->pa_nr,
++	ret = vfio_pin_pages(vdev, pa->pa_iova_pfn, pa->pa_nr,
+ 			     IOMMU_READ | IOMMU_WRITE, pa->pa_pfn);
+ 
+ 	if (ret < 0) {
+ 		goto err_out;
+ 	} else if (ret > 0 && ret != pa->pa_nr) {
+-		vfio_unpin_pages(vdev->dev, pa->pa_iova_pfn, ret);
++		vfio_unpin_pages(vdev, pa->pa_iova_pfn, ret);
+ 		ret = -EINVAL;
+ 		goto err_out;
+ 	}
+@@ -127,7 +127,7 @@ static void pfn_array_unpin_free(struct pfn_array *pa, struct vfio_device *vdev)
+ {
+ 	/* Only unpin if any pages were pinned to begin with */
+ 	if (pa->pa_nr)
+-		vfio_unpin_pages(vdev->dev, pa->pa_iova_pfn, pa->pa_nr);
++		vfio_unpin_pages(vdev, pa->pa_iova_pfn, pa->pa_nr);
+ 	pa->pa_nr = 0;
+ 	kfree(pa->pa_iova_pfn);
+ }
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index 69768061cd7bd9..a10b3369d76c41 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -124,7 +124,7 @@ static void vfio_ap_free_aqic_resources(struct vfio_ap_queue *q)
+ 		q->saved_isc = VFIO_AP_ISC_INVALID;
+ 	}
+ 	if (q->saved_pfn && !WARN_ON(!q->matrix_mdev)) {
+-		vfio_unpin_pages(mdev_dev(q->matrix_mdev->mdev),
++		vfio_unpin_pages(&q->matrix_mdev->vdev,
+ 				 &q->saved_pfn, 1);
+ 		q->saved_pfn = 0;
+ 	}
+@@ -258,7 +258,7 @@ static struct ap_queue_status vfio_ap_irq_enable(struct vfio_ap_queue *q,
+ 		return status;
+ 	}
+ 
+-	ret = vfio_pin_pages(mdev_dev(q->matrix_mdev->mdev), &g_pfn, 1,
++	ret = vfio_pin_pages(&q->matrix_mdev->vdev, &g_pfn, 1,
+ 			     IOMMU_READ | IOMMU_WRITE, &h_pfn);
+ 	switch (ret) {
+ 	case 1:
+@@ -301,7 +301,7 @@ static struct ap_queue_status vfio_ap_irq_enable(struct vfio_ap_queue *q,
+ 		break;
+ 	case AP_RESPONSE_OTHERWISE_CHANGED:
+ 		/* We could not modify IRQ setings: clear new configuration */
+-		vfio_unpin_pages(mdev_dev(q->matrix_mdev->mdev), &g_pfn, 1);
++		vfio_unpin_pages(&q->matrix_mdev->vdev, &g_pfn, 1);
+ 		kvm_s390_gisc_unregister(kvm, isc);
+ 		break;
+ 	default:
+@@ -1250,7 +1250,7 @@ static int vfio_ap_mdev_iommu_notifier(struct notifier_block *nb,
+ 		struct vfio_iommu_type1_dma_unmap *unmap = data;
+ 		unsigned long g_pfn = unmap->iova >> PAGE_SHIFT;
+ 
+-		vfio_unpin_pages(mdev_dev(matrix_mdev->mdev), &g_pfn, 1);
++		vfio_unpin_pages(&matrix_mdev->vdev, &g_pfn, 1);
+ 		return NOTIFY_OK;
+ 	}
+ 
+diff --git a/drivers/vfio/vfio.c b/drivers/vfio/vfio.c
+index 8a5c46aa2bef61..24b92a45cfc8f1 100644
+--- a/drivers/vfio/vfio.c
++++ b/drivers/vfio/vfio.c
+@@ -2142,32 +2142,26 @@ EXPORT_SYMBOL(vfio_set_irqs_validate_and_prepare);
+  * @phys_pfn[out]: array of host PFNs
+  * Return error or number of pages pinned.
+  */
+-int vfio_pin_pages(struct device *dev, unsigned long *user_pfn, int npage,
++int vfio_pin_pages(struct vfio_device *vdev, unsigned long *user_pfn, int npage,
+ 		   int prot, unsigned long *phys_pfn)
+ {
+ 	struct vfio_container *container;
+-	struct vfio_group *group;
++	struct vfio_group *group = vdev->group;
+ 	struct vfio_iommu_driver *driver;
+ 	int ret;
+ 
+-	if (!dev || !user_pfn || !phys_pfn || !npage)
++	if (!user_pfn || !phys_pfn || !npage)
+ 		return -EINVAL;
+ 
+ 	if (npage > VFIO_PIN_PAGES_MAX_ENTRIES)
+ 		return -E2BIG;
+ 
+-	group = vfio_group_get_from_dev(dev);
+-	if (!group)
+-		return -ENODEV;
+-
+-	if (group->dev_counter > 1) {
+-		ret = -EINVAL;
+-		goto err_pin_pages;
+-	}
++	if (group->dev_counter > 1)
++		return -EINVAL;
+ 
+ 	ret = vfio_group_add_container_user(group);
+ 	if (ret)
+-		goto err_pin_pages;
++		return ret;
+ 
+ 	container = group->container;
+ 	driver = container->iommu_driver;
+@@ -2180,8 +2174,6 @@ int vfio_pin_pages(struct device *dev, unsigned long *user_pfn, int npage,
+ 
+ 	vfio_group_try_dissolve_container(group);
+ 
+-err_pin_pages:
+-	vfio_group_put(group);
+ 	return ret;
+ }
+ EXPORT_SYMBOL(vfio_pin_pages);
+@@ -2195,28 +2187,24 @@ EXPORT_SYMBOL(vfio_pin_pages);
+  *                 be greater than VFIO_PIN_PAGES_MAX_ENTRIES.
+  * Return error or number of pages unpinned.
+  */
+-int vfio_unpin_pages(struct device *dev, unsigned long *user_pfn, int npage)
++int vfio_unpin_pages(struct vfio_device *vdev, unsigned long *user_pfn,
++		     int npage)
+ {
+ 	struct vfio_container *container;
+-	struct vfio_group *group;
+ 	struct vfio_iommu_driver *driver;
+ 	int ret;
+ 
+-	if (!dev || !user_pfn || !npage)
++	if (!user_pfn || !npage)
+ 		return -EINVAL;
+ 
+ 	if (npage > VFIO_PIN_PAGES_MAX_ENTRIES)
+ 		return -E2BIG;
+ 
+-	group = vfio_group_get_from_dev(dev);
+-	if (!group)
+-		return -ENODEV;
+-
+-	ret = vfio_group_add_container_user(group);
++	ret = vfio_group_add_container_user(vdev->group);
+ 	if (ret)
+-		goto err_unpin_pages;
++		return ret;
+ 
+-	container = group->container;
++	container = vdev->group->container;
+ 	driver = container->iommu_driver;
+ 	if (likely(driver && driver->ops->unpin_pages))
+ 		ret = driver->ops->unpin_pages(container->iommu_data, user_pfn,
+@@ -2224,10 +2212,8 @@ int vfio_unpin_pages(struct device *dev, unsigned long *user_pfn, int npage)
+ 	else
+ 		ret = -ENOTTY;
+ 
+-	vfio_group_try_dissolve_container(group);
++	vfio_group_try_dissolve_container(vdev->group);
+ 
+-err_unpin_pages:
+-	vfio_group_put(group);
+ 	return ret;
+ }
+ EXPORT_SYMBOL(vfio_unpin_pages);
+diff --git a/include/linux/vfio.h b/include/linux/vfio.h
+index 748ec0e0293aea..8f2a09801a660b 100644
+--- a/include/linux/vfio.h
++++ b/include/linux/vfio.h
+@@ -150,9 +150,9 @@ extern long vfio_external_check_extension(struct vfio_group *group,
+ 
+ #define VFIO_PIN_PAGES_MAX_ENTRIES	(PAGE_SIZE/sizeof(unsigned long))
+ 
+-extern int vfio_pin_pages(struct device *dev, unsigned long *user_pfn,
++extern int vfio_pin_pages(struct vfio_device *vdev, unsigned long *user_pfn,
+ 			  int npage, int prot, unsigned long *phys_pfn);
+-extern int vfio_unpin_pages(struct device *dev, unsigned long *user_pfn,
++extern int vfio_unpin_pages(struct vfio_device *vdev, unsigned long *user_pfn,
+ 			    int npage);
+ 
+ extern int vfio_group_pin_pages(struct vfio_group *group,
+-- 
+2.35.1
 
