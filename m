@@ -2,179 +2,133 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 18A79C433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 13 Apr 2022 15:01:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA4FEC433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 13 Apr 2022 15:27:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232384AbiDMPD1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 13 Apr 2022 11:03:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51716 "EHLO
+        id S234871AbiDMP33 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 13 Apr 2022 11:29:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233236AbiDMPD0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Apr 2022 11:03:26 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E165113E29;
-        Wed, 13 Apr 2022 08:01:01 -0700 (PDT)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23DEhZlc038191;
-        Wed, 13 Apr 2022 15:01:01 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=cogtTAbZWTf0bpTU8ZNZl3ye8szBWAB35pK9lz1RNbA=;
- b=RqaGAY7fLfEkhug/sRz9gB9NVXaxUtw3wwvuWFrXCsH49ViHE9tjqaa+ahBr4qU/Dhef
- npSCaqDSsiYlRXYkFIWHzd5Gi4bQZ9wN34n+NihETy5yZgyw3M8HAjSRfwYXldHyCNEm
- mNN+jN3MJGwUH+YpPqzAb/eLiRPW1k90/8F9yPhqBE7gLkF90mIywhjqPDARsuAAjAoB
- 83YAbpWIr1aPhEZuoMPuTF9RuQHA9n5Gx5CGRgSviKbtTHCzhLVYU7h9OFH3goHmvnQ/
- fiouexojOUi2RDwIKoUAzia5C7vO6QMZ/CrdH8b5HkkJLC2pfxXq2E2Xw7vxALKZCasT 7g== 
+        with ESMTP id S234885AbiDMP31 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Apr 2022 11:29:27 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DDAE5F241;
+        Wed, 13 Apr 2022 08:27:05 -0700 (PDT)
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23DFDj6j021460;
+        Wed, 13 Apr 2022 15:27:04 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=1wHRhR6wddy5uxhfeu/qLJ3cP7nf60kh+/6PCQedZiA=;
+ b=CHjDyw/RP55zTVqH4X0HGccPU2BN/gJQy8PuOG86esTDXQXroEJvlwFQmTE8EekdxmVi
+ VhkNTZM+HXzxs2o5tjrrKKCkkKZg3FnhWFMvoTdGmcaKcphXmC5sWfuH+qkvWhEqF+dS
+ JWYxdA46NUYsBE34fRLWqZ1durDIIokOVgKj1qz4cY1zOJpyPCPHeG7I+5lEBlPlL0r4
+ o3gAaUnAQFDmD2Tz8i4xjQLG9TNhuNPn8Xjf0IKy3I1LWEPHzhvqBmvtnU0QwiCE2Xe+
+ aU7zoqs1g5Cp2fo3ERG+lCiWrBeKk12De5fks8ZFMDYgX9iBGBNcTUhWQEg8iuVNYpiG 1g== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3fe0hb8dhu-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3fe0ys89qc-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 13 Apr 2022 15:01:00 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23DEvFW1007301;
-        Wed, 13 Apr 2022 15:01:00 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3fe0hb8dh1-1
+        Wed, 13 Apr 2022 15:27:04 +0000
+Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23DFEud0024905;
+        Wed, 13 Apr 2022 15:27:04 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3fe0ys89pq-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 13 Apr 2022 15:01:00 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23DEvp7K020635;
-        Wed, 13 Apr 2022 15:00:58 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma03fra.de.ibm.com with ESMTP id 3fb1s8nnhy-1
+        Wed, 13 Apr 2022 15:27:03 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23DFI3YS009964;
+        Wed, 13 Apr 2022 15:27:02 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma02fra.de.ibm.com with ESMTP id 3fb1s8npwc-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 13 Apr 2022 15:00:58 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23DEmNhb38797734
+        Wed, 13 Apr 2022 15:27:01 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23DFQwDP8388970
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 13 Apr 2022 14:48:23 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5F89342047;
-        Wed, 13 Apr 2022 15:00:55 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 215A142045;
-        Wed, 13 Apr 2022 15:00:55 +0000 (GMT)
-Received: from li-ca45c2cc-336f-11b2-a85c-c6e71de567f1.ibm.com (unknown [9.171.44.32])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 13 Apr 2022 15:00:55 +0000 (GMT)
-Message-ID: <0f21ad244492d1b26d2091fa7189b9967be31f22.camel@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v1 1/4] lib: s390x: add support for SCLP
- console read
+        Wed, 13 Apr 2022 15:26:58 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D14EE4C044;
+        Wed, 13 Apr 2022 15:26:58 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9A32F4C040;
+        Wed, 13 Apr 2022 15:26:58 +0000 (GMT)
+Received: from t46lp57.lnxne.boe (unknown [9.152.108.100])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 13 Apr 2022 15:26:58 +0000 (GMT)
 From:   Nico Boehr <nrb@linux.ibm.com>
-To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Cc:     imbrenda@linux.ibm.com, thuth@redhat.com
-Date:   Wed, 13 Apr 2022 17:00:54 +0200
-In-Reply-To: <19e481fb-9804-b42c-7554-8388889dbf73@linux.ibm.com>
-References: <20220411100750.2868587-1-nrb@linux.ibm.com>
-         <20220411100750.2868587-2-nrb@linux.ibm.com>
-         <19e481fb-9804-b42c-7554-8388889dbf73@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.42.4 (3.42.4-1.fc35) 
+To:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
+Subject: [kvm-unit-tests PATCH v2 0/4] s390x: add migration test support
+Date:   Wed, 13 Apr 2022 17:26:54 +0200
+Message-Id: <20220413152658.715003-1-nrb@linux.ibm.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 6cy-__V12dwOi39rI78pladdFjYtRxlu
-X-Proofpoint-ORIG-GUID: E7MbGXhRBRZejwSkcs6jf63n6UMa-WvC
+X-Proofpoint-ORIG-GUID: C6d10xpZn4AP7mymQ2ZTeybEh_plPhkl
+X-Proofpoint-GUID: yHJGRNQIj2TK5rt-W5jFF91AfiY6Qjoy
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-04-13_02,2022-04-13_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- impostorscore=0 mlxlogscore=999 priorityscore=1501 malwarescore=0
- suspectscore=0 spamscore=0 phishscore=0 clxscore=1015 adultscore=0
- mlxscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ lowpriorityscore=0 malwarescore=0 suspectscore=0 adultscore=0 spamscore=0
+ priorityscore=1501 impostorscore=0 clxscore=1015 mlxscore=0 phishscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2202240000 definitions=main-2204130080
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 2022-04-12 at 17:32 +0200, Janosch Frank wrote:
-> On 4/11/22 12:07, Nico Boehr wrote:
-> > Add a basic implementation for reading from the SCLP ACII console.
-> > The goal of
-> > this is to support migration tests on s390x. To know when the
-> > migration has been
-> > finished, we need to listen for a newline on our console.
-> > 
-> > Hence, this implementation is focused on the SCLP ASCII console of
-> > QEMU and
-> > currently won't work under e.g. LPAR.
-> 
-> How much pain would it be to add the line mode read?
+Changelog from v1:
+----
+- Instead of the selftest, do an actual migration tests of guarded storage and
+  vector registers. To have access to gs and vector related defines, this now
+  depends on my SIGP store adtl status series
+  ("[kvm-unit-tests PATCH v3 0/2] s390x: Add tests for SIGP store adtl status")
+- Lower case const ints (Thanks Janosch)
+- Use define instead of magic number (Thanks Thomas)
+- Add missing "ret = 0" (Thanks Thomas)
+- Minor typos and style fixes
 
-I am not terribly familiar with the line mode, but I can say it would
-make the implementation of the ASCII console more complex. Right now we
-can just assume there will just be events from the ASCII console when
-we read event data.
+This series depends on my SIGP store additional status series to have access to
+the guarded-storage and vector related defines
+("[kvm-unit-tests PATCH v3 0/2] s390x: Add tests for SIGP store adtl status").
 
-Not impossible to do, but I thought we don't need it so I kept things
-simple. Is there some benefit we would have from the line mode console?
+Add migration test support for s390x.
 
-[...]
-> >   
-> > +static void sclp_console_enable_read(void)
-> > +{
-> > +       sclp_write_event_mask(SCLP_EVENT_MASK_MSG_ASCII,
-> > SCLP_EVENT_MASK_MSG_ASCII | SCLP_EVENT_MASK_MSG);
-> > +}
-> > +
-> > +static void sclp_console_disable_read(void)
-> > +{
-> > +       sclp_write_event_mask(0, SCLP_EVENT_MASK_MSG_ASCII |
-> > SCLP_EVENT_MASK_MSG);
-> > +}
-> > +
-> >   void sclp_console_setup(void)
-> >   {
-> > -       sclp_set_write_mask();
-> > +       /* We send ASCII and line mode. */
-> > +       sclp_write_event_mask(0, SCLP_EVENT_MASK_MSG_ASCII |
-> > SCLP_EVENT_MASK_MSG);
-> >   }
-> >   
-> >   void sclp_print(const char *str)
-> > @@ -227,3 +240,59 @@ void sclp_print(const char *str)
-> >         sclp_print_ascii(str);
-> >         sclp_print_lm(str);
-> >   }
-> > +
-> > +#define SCLP_EVENT_ASCII_DATA_STREAM_FOLLOWS 0
-> 
-> -> sclp.h
+arm and powerpc already support basic migration tests.
 
-Yes, thanks.
+If a test is in the migration group, it can print "migrate" on its console. This
+will cause it to be migrated to a new QEMU instance. When migration is finished,
+the test will be able to read a newline from its standard input.
 
-> 
-> > +
-> > +static int console_refill_read_buffer(void)
-> > +{
-> > +       const int MAX_EVENT_BUFFER_LEN = SCCB_SIZE -
-> > offsetof(ReadEventDataAsciiConsole, ebh);
-> > +       ReadEventDataAsciiConsole *sccb = (void *)_sccb;
-> > +       const int EVENT_BUFFER_ASCII_RECV_HEADER_LEN = sizeof(sccb-
-> > >ebh) + sizeof(sccb->type);
-> > +       int ret = -1;
-> 
-> Reverse Christmas tree
+We need the following pieces for this to work under s390x:
 
-Hm, I think it's not possible for EVENT_BUFFER_ASCII_RECV_HEADER_LEN
-because it needs sccb first. I would want to leave as-is except if you
-have a better idea on how to do this?
+* read support for the sclp console. This can be very basic, it doesn't even
+  have to read anything useful, we just need to know something happened on
+  the console.
+* s390/run adjustments to call the migration helper script.
 
-> The const int variables are all caps because they are essentially
-> constants?
+This series adds basic migration tests for s390x, which I plan to extend
+further.
 
-Yes, that was my reasoning. But it is uncommon in kvm-unit-test to have
-it uppercase, all const ints in the codebase are lowercase, so I will
-lowercase it.
+Nico Boehr (4):
+  lib: s390x: add support for SCLP console read
+  s390x: add support for migration tests
+  s390x: don't run migration tests under PV
+  s390x: add basic migration test
 
-> > +
-> > +       sclp_console_enable_read();
-> > +
-> > +       sclp_mark_busy();
-> > +       memset(sccb, 0, 4096);
-> 
-> sizeof(*sccb)
+ lib/s390x/sclp-console.c |  79 ++++++++++++++++--
+ lib/s390x/sclp.h         |   8 ++
+ s390x/Makefile           |   2 +
+ s390x/migration.c        | 172 +++++++++++++++++++++++++++++++++++++++
+ s390x/run                |   7 +-
+ s390x/unittests.cfg      |   5 ++
+ scripts/s390x/func.bash  |   2 +-
+ 7 files changed, 267 insertions(+), 8 deletions(-)
+ create mode 100644 s390x/migration.c
 
-If you are OK with it, I would prefer to use SCCB_SIZE, s.t. the entire
-buffer is cleared.
+-- 
+2.31.1
+
