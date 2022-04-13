@@ -2,156 +2,260 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8A77C433FE
-	for <linux-s390@archiver.kernel.org>; Wed, 13 Apr 2022 07:56:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A2670C4332F
+	for <linux-s390@archiver.kernel.org>; Wed, 13 Apr 2022 08:01:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233601AbiDMH6b (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 13 Apr 2022 03:58:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51034 "EHLO
+        id S233331AbiDMIDe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 13 Apr 2022 04:03:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233632AbiDMH63 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Apr 2022 03:58:29 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C079F4DF76;
-        Wed, 13 Apr 2022 00:55:59 -0700 (PDT)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23D6g8IP032500;
-        Wed, 13 Apr 2022 07:55:52 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=SflzMpuDOSgixuneJO3qtDBdroKkxk0KE1SzPQKjkLI=;
- b=PnU+rLOuwXNzCdAmp0CJnQNDf7VxEQca5vanLnCaYXJxQfT4dWdM16U6mnQ0IStcAR6I
- qE4Ugis3OmWB9RUdkCd+7xC1rr+sMWEi7Sc9KPQtYKb4noYI4G61DURqm7bCRmRgrk2i
- l/kkAqepjS0DykxHijeQ6ePCcQn+dWuczynvNUJ+OUp6qjy56DLqtX6VJroPUfXmnJ9M
- fVPIklvE6+w2b8w5ryVaEfIFljZLRheSCXPUq06NvGqr9RmgR3PgcoZbxD3fbCN8JjLs
- v+5PNQhQdf8KtDrOpprbNry3sMQMUJQlUJeCM7vPW8tLXVYG6/PdlajiSD7EaWTqfEyN ng== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3fdsfphbsy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 13 Apr 2022 07:55:51 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23D7q89s000488;
-        Wed, 13 Apr 2022 07:55:49 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3fb1s8xb0w-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 13 Apr 2022 07:55:49 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23D7ttLQ37093674
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 13 Apr 2022 07:55:55 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9872042041;
-        Wed, 13 Apr 2022 07:55:46 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2A2534203F;
-        Wed, 13 Apr 2022 07:55:46 +0000 (GMT)
-Received: from sig-9-145-36-41.uk.ibm.com (unknown [9.145.36.41])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 13 Apr 2022 07:55:46 +0000 (GMT)
-Message-ID: <817683ba1c0f0f246701e91395063b3eaf69cbbe.camel@linux.ibm.com>
-Subject: Re: [PATCH v2 2/4] PCI: Move jailhouse's isolated function handling
- to pci_scan_slot()
-From:   Niklas Schnelle <schnelle@linux.ibm.com>
-To:     kernel test robot <lkp@intel.com>,
-        Bjorn Helgaas <helgaas@kernel.org>,
-        Jan Kiszka <jan.kiszka@siemens.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>
-Cc:     kbuild-all@lists.01.org, linux-s390@vger.kernel.org,
-        linux-pci@vger.kernel.org
-Date:   Wed, 13 Apr 2022 09:55:45 +0200
-In-Reply-To: <202204130045.AeSigvk8-lkp@intel.com>
-References: <20220412143040.1882096-3-schnelle@linux.ibm.com>
-         <202204130045.AeSigvk8-lkp@intel.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: PYZ-5W9NCscmk5iBPeGnna_mQr8O2JTA
-X-Proofpoint-GUID: PYZ-5W9NCscmk5iBPeGnna_mQr8O2JTA
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S233698AbiDMICz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Apr 2022 04:02:55 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 5B9DF205F1
+        for <linux-s390@vger.kernel.org>; Wed, 13 Apr 2022 01:00:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1649836833;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=BK0xGHuGKSg6tS7OvJ2UZVDC8hGmPnNquXolsiCRFqU=;
+        b=RqfjP+4ChLNbIpRaLldlNfQEOQ1SlwSMv4gWN6qdZCZL33/dgDvpNYDyzvT74+xATND5nL
+        1WAY7itK6IQ+HgAv/tToGC7wdyptNvvH5zxpQHyT5URmZJ8hFtC8nX5O+9SMcg3Re4WKDc
+        PooPRPwtJVx6D+eS8Mo3IoqRNIS5Idk=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-211-0qtl-yPGOE-Xqocpb48cXw-1; Wed, 13 Apr 2022 04:00:32 -0400
+X-MC-Unique: 0qtl-yPGOE-Xqocpb48cXw-1
+Received: by mail-pj1-f71.google.com with SMTP id u1-20020a17090a2b8100b001cba1905e25so3214143pjd.7
+        for <linux-s390@vger.kernel.org>; Wed, 13 Apr 2022 01:00:31 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=BK0xGHuGKSg6tS7OvJ2UZVDC8hGmPnNquXolsiCRFqU=;
+        b=RDHD5SPUuMMucqEqRSBWy/X1WxZf9oIH/krbsu6y5tVQjEwEmbSqYa9M2MUMxi6uAH
+         5reg8dVkr+9h367SQ8qCCqDf8uryCD4E9EAnLR+xkzBq94cqRYMmbxGu8Ni+YrahzW5s
+         RDkq3r/SHR1Oo1HandO0rOP+GpFP4pGPq3M0VX05otRBaTSBez/XOdQ71AN6sQ5I6pxJ
+         RDtoSJyf1eY33asHo6ovF828LtmaxW6AIs7hEZFITcl47tB7thlXYjXPWYJI9UjHMn1I
+         fxyxLANg0LzKKY33iJpajR+z+gJxzp2gpRDy0yXqyyV3HK83TdZg4iotRe/3f0gWBo04
+         LxbQ==
+X-Gm-Message-State: AOAM533fRiLIelfn8gt1PidklNhxP/MfTwuDaQSkSnwDxTikrErRnIbs
+        RUlqASlOFm/yeXEQjeqzZ9G7ZslxsXU1AsPyxzHs7GDC7JMB/R2KM2VTgGrkAR6Zb1Twufvf8HT
+        5YTyROANopa1psfwldtnJYA==
+X-Received: by 2002:a63:885:0:b0:39d:2197:2dcf with SMTP id 127-20020a630885000000b0039d21972dcfmr16534601pgi.300.1649836831065;
+        Wed, 13 Apr 2022 01:00:31 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxxYX/5hHC47/+wODyw6SuCX6q43fRwhhJkty2IwP5vjbtPmYxOh8zOxYYGS8lSmQrVc9+uNA==
+X-Received: by 2002:a63:885:0:b0:39d:2197:2dcf with SMTP id 127-20020a630885000000b0039d21972dcfmr16534566pgi.300.1649836830786;
+        Wed, 13 Apr 2022 01:00:30 -0700 (PDT)
+Received: from [10.72.13.223] ([209.132.188.80])
+        by smtp.gmail.com with ESMTPSA id q6-20020a056a00150600b004fb2d266f97sm43184355pfu.115.2022.04.13.01.00.20
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 13 Apr 2022 01:00:30 -0700 (PDT)
+Message-ID: <122008a6-1e79-14d3-1478-59f96464afc9@redhat.com>
+Date:   Wed, 13 Apr 2022 16:00:18 +0800
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-04-12_08,2022-04-12_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- clxscore=1011 spamscore=0 bulkscore=0 phishscore=0 adultscore=0
- impostorscore=0 mlxscore=0 malwarescore=0 mlxlogscore=999
- lowpriorityscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2202240000 definitions=main-2204130042
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.7.0
+Subject: Re: [PATCH v9 31/32] virtio_net: support rx/tx queue resize
+Content-Language: en-US
+To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        virtualization@lists.linux-foundation.org
+Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        Vadim Pasternak <vadimp@nvidia.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        linux-um@lists.infradead.org, netdev@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, bpf@vger.kernel.org
+References: <20220406034346.74409-1-xuanzhuo@linux.alibaba.com>
+ <20220406034346.74409-32-xuanzhuo@linux.alibaba.com>
+From:   Jason Wang <jasowang@redhat.com>
+In-Reply-To: <20220406034346.74409-32-xuanzhuo@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, 2022-04-13 at 00:28 +0800, kernel test robot wrote:
-> Hi Niklas,
-> 
-> I love your patch! Perhaps something to improve:
-> 
-> [auto build test WARNING on helgaas-pci/next]
-> [also build test WARNING on s390/features tip/x86/core v5.18-rc2 next-20220412]
-> [If your patch is applied to the wrong git tree, kindly drop us a note.
-> And when submitting patch, we suggest to use '--base' as documented in
-> https://git-scm.com/docs/git-format-patch]
-> 
-> url:    https://github.com/intel-lab-lkp/linux/commits/Niklas-Schnelle/PCI-Rework-pci_scan_slot-and-isolated-PCI-functions/20220412-223307
-> base:   https://git.kernel.org/pub/scm/linux/kernel/git/helgaas/pci.git next
-> config: alpha-defconfig (https://download.01.org/0day-ci/archive/20220413/202204130045.AeSigvk8-lkp@intel.com/config)
-> compiler: alpha-linux-gcc (GCC) 11.2.0
-> reproduce (this is a W=1 build):
->         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
->         chmod +x ~/bin/make.cross
->         # https://github.com/intel-lab-lkp/linux/commit/5cac6729750b7434ff5d6ae99469e9e54bc9fb6e
->         git remote add linux-review https://github.com/intel-lab-lkp/linux
->         git fetch --no-tags linux-review Niklas-Schnelle/PCI-Rework-pci_scan_slot-and-isolated-PCI-functions/20220412-223307
->         git checkout 5cac6729750b7434ff5d6ae99469e9e54bc9fb6e
->         # save the config file to linux build tree
->         mkdir build_dir
->         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.2.0 make.cross O=build_dir ARCH=alpha SHELL=/bin/bash drivers/pci/
-> 
-> If you fix the issue, kindly add following tag as appropriate
-> Reported-by: kernel test robot <lkp@intel.com>
-> 
-> All warnings (new ones prefixed by >>):
-> 
->    drivers/pci/probe.c: In function 'pci_scan_child_bus_extend':
-> > > drivers/pci/probe.c:2861:13: warning: variable 'nr_devs' set but not used [-Wunused-but-set-variable]
->     2861 |         int nr_devs;
->          |             ^~~~~~~
-> 
-> 
-> vim +/nr_devs +2861 drivers/pci/probe.c
-> 
-> bccf90d6e063d2 Palmer Dabbelt  2017-06-23  2841  
-> 1c02ea81006548 Mika Westerberg 2017-10-13  2842  /**
-> 1c02ea81006548 Mika Westerberg 2017-10-13  2843   * pci_scan_child_bus_extend() - Scan devices below a bus
-> 1c02ea81006548 Mika Westerberg 2017-10-13  2844   * @bus: Bus to scan for devices
-> 1c02ea81006548 Mika Westerberg 2017-10-13  2845   * @available_buses: Total number of buses available (%0 does not try to
-> 1c02ea81006548 Mika Westerberg 2017-10-13  2846   *		     extend beyond the minimal)
-> 1c02ea81006548 Mika Westerberg 2017-10-13  2847   *
-> 1c02ea81006548 Mika Westerberg 2017-10-13  2848   * Scans devices below @bus including subordinate buses. Returns new
-> 1c02ea81006548 Mika Westerberg 2017-10-13  2849   * subordinate number including all the found devices. Passing
-> 1c02ea81006548 Mika Westerberg 2017-10-13  2850   * @available_buses causes the remaining bus space to be distributed
-> 1c02ea81006548 Mika Westerberg 2017-10-13  2851   * equally between hotplug-capable bridges to allow future extension of the
-> 1c02ea81006548 Mika Westerberg 2017-10-13  2852   * hierarchy.
-> 1c02ea81006548 Mika Westerberg 2017-10-13  2853   */
-> 1c02ea81006548 Mika Westerberg 2017-10-13  2854  static unsigned int pci_scan_child_bus_extend(struct pci_bus *bus,
-> 1c02ea81006548 Mika Westerberg 2017-10-13  2855  					      unsigned int available_buses)
-> 1c02ea81006548 Mika Westerberg 2017-10-13  2856  {
-> 1c02ea81006548 Mika Westerberg 2017-10-13  2857  	unsigned int used_buses, normal_bridges = 0, hotplug_bridges = 0;
-> 1c02ea81006548 Mika Westerberg 2017-10-13  2858  	unsigned int start = bus->busn_res.start;
-> 5cac6729750b74 Niklas Schnelle 2022-04-12  2859  	unsigned int devfn, cmax, max = start;
-> ^1da177e4c3f41 Linus Torvalds  2005-04-16  2860  	struct pci_dev *dev;
-> 690f4304104f37 Jan Kiszka      2018-03-07 @2861  	int nr_devs;
-> ^1da177e4c3f41 Linus Torvalds  2005-04-16  2862  
-> 0207c356ef0e2b Bjorn Helgaas   2009-11-04  2863  	dev_dbg(&bus->dev, "scanning bus\n");
-> ^1da177e4c3f41 Linus Torvalds  2005-04-16  2864  
-> ^1da177e4c3f41 Linus Torvalds  2005-04-16  2865  	/* Go find them, Rover! */
-> 5cac6729750b74 Niklas Schnelle 2022-04-12  2866  	for (devfn = 0; devfn < 256; devfn += 8)
-> 690f4304104f37 Jan Kiszka      2018-03-07  2867  		nr_devs = pci_scan_slot(bus, devfn);
 
-The bot is right, the nr_devs can be removed as the patch removed the
-only read access did so locally already.
+在 2022/4/6 上午11:43, Xuan Zhuo 写道:
+> This patch implements the resize function of the rx, tx queues.
+> Based on this function, it is possible to modify the ring num of the
+> queue.
+>
+> There may be an exception during the resize process, the resize may
+> fail, or the vq can no longer be used. Either way, we must execute
+> napi_enable(). Because napi_disable is similar to a lock, napi_enable
+> must be called after calling napi_disable.
+>
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> ---
+>   drivers/net/virtio_net.c | 81 ++++++++++++++++++++++++++++++++++++++++
+>   1 file changed, 81 insertions(+)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index b8bf00525177..ba6859f305f7 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -251,6 +251,9 @@ struct padded_vnet_hdr {
+>   	char padding[4];
+>   };
+>   
+> +static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf);
+> +static void virtnet_rq_free_unused_buf(struct virtqueue *vq, void *buf);
+> +
+>   static bool is_xdp_frame(void *ptr)
+>   {
+>   	return (unsigned long)ptr & VIRTIO_XDP_FLAG;
+> @@ -1369,6 +1372,15 @@ static void virtnet_napi_enable(struct virtqueue *vq, struct napi_struct *napi)
+>   {
+>   	napi_enable(napi);
+>   
+> +	/* Check if vq is in reset state. The normal reset/resize process will
+> +	 * be protected by napi. However, the protection of napi is only enabled
+> +	 * during the operation, and the protection of napi will end after the
+> +	 * operation is completed. If re-enable fails during the process, vq
+> +	 * will remain unavailable with reset state.
+> +	 */
+> +	if (vq->reset)
+> +		return;
+
+
+I don't get when could we hit this condition.
+
+
+> +
+>   	/* If all buffers were filled by other side before we napi_enabled, we
+>   	 * won't get another interrupt, so process any outstanding packets now.
+>   	 * Call local_bh_enable after to trigger softIRQ processing.
+> @@ -1413,6 +1425,15 @@ static void refill_work(struct work_struct *work)
+>   		struct receive_queue *rq = &vi->rq[i];
+>   
+>   		napi_disable(&rq->napi);
+> +
+> +		/* Check if vq is in reset state. See more in
+> +		 * virtnet_napi_enable()
+> +		 */
+> +		if (rq->vq->reset) {
+> +			virtnet_napi_enable(rq->vq, &rq->napi);
+> +			continue;
+> +		}
+
+
+Can we do something similar in virtnet_close() by canceling the work?
+
+
+> +
+>   		still_empty = !try_fill_recv(vi, rq, GFP_KERNEL);
+>   		virtnet_napi_enable(rq->vq, &rq->napi);
+>   
+> @@ -1523,6 +1544,10 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
+>   	if (!sq->napi.weight || is_xdp_raw_buffer_queue(vi, index))
+>   		return;
+>   
+> +	/* Check if vq is in reset state. See more in virtnet_napi_enable() */
+> +	if (sq->vq->reset)
+> +		return;
+
+
+We've disabled TX napi, any chance we can still hit this?
+
+
+> +
+>   	if (__netif_tx_trylock(txq)) {
+>   		do {
+>   			virtqueue_disable_cb(sq->vq);
+> @@ -1769,6 +1794,62 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+>   	return NETDEV_TX_OK;
+>   }
+>   
+> +static int virtnet_rx_resize(struct virtnet_info *vi,
+> +			     struct receive_queue *rq, u32 ring_num)
+> +{
+> +	int err;
+> +
+> +	napi_disable(&rq->napi);
+> +
+> +	err = virtqueue_resize(rq->vq, ring_num, virtnet_rq_free_unused_buf);
+> +	if (err)
+> +		goto err;
+> +
+> +	if (!try_fill_recv(vi, rq, GFP_KERNEL))
+> +		schedule_delayed_work(&vi->refill, 0);
+> +
+> +	virtnet_napi_enable(rq->vq, &rq->napi);
+> +	return 0;
+> +
+> +err:
+> +	netdev_err(vi->dev,
+> +		   "reset rx reset vq fail: rx queue index: %td err: %d\n",
+> +		   rq - vi->rq, err);
+> +	virtnet_napi_enable(rq->vq, &rq->napi);
+> +	return err;
+> +}
+> +
+> +static int virtnet_tx_resize(struct virtnet_info *vi,
+> +			     struct send_queue *sq, u32 ring_num)
+> +{
+> +	struct netdev_queue *txq;
+> +	int err, qindex;
+> +
+> +	qindex = sq - vi->sq;
+> +
+> +	virtnet_napi_tx_disable(&sq->napi);
+> +
+> +	txq = netdev_get_tx_queue(vi->dev, qindex);
+> +	__netif_tx_lock_bh(txq);
+> +	netif_stop_subqueue(vi->dev, qindex);
+> +	__netif_tx_unlock_bh(txq);
+> +
+> +	err = virtqueue_resize(sq->vq, ring_num, virtnet_sq_free_unused_buf);
+> +	if (err)
+> +		goto err;
+> +
+> +	netif_start_subqueue(vi->dev, qindex);
+> +	virtnet_napi_tx_enable(vi, sq->vq, &sq->napi);
+> +	return 0;
+> +
+> +err:
+
+
+I guess we can still start the queue in this case? (Since we don't 
+change the queue if resize fails).
+
+
+> +	netdev_err(vi->dev,
+> +		   "reset tx reset vq fail: tx queue index: %td err: %d\n",
+> +		   sq - vi->sq, err);
+> +	virtnet_napi_tx_enable(vi, sq->vq, &sq->napi);
+> +	return err;
+> +}
+> +
+>   /*
+>    * Send command via the control virtqueue and check status.  Commands
+>    * supported by the hypervisor, as indicated by feature bits, should
 
