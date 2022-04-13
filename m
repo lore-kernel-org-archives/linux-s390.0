@@ -2,216 +2,154 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C0239C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 13 Apr 2022 12:22:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 655BAC433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 13 Apr 2022 13:39:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232532AbiDMMZP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 13 Apr 2022 08:25:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60360 "EHLO
+        id S232746AbiDMNlx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 13 Apr 2022 09:41:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229714AbiDMMZM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Apr 2022 08:25:12 -0400
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4D295AEE6;
-        Wed, 13 Apr 2022 05:22:50 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=33;SR=0;TI=SMTPD_---0V9zbh3._1649852563;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0V9zbh3._1649852563)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 13 Apr 2022 20:22:44 +0800
-Message-ID: <1649852469.9980721-2-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH v9 18/32] virtio_ring: introduce virtqueue_resize()
-Date:   Wed, 13 Apr 2022 20:21:09 +0800
-From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To:     Jason Wang <jasowang@redhat.com>
-Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mark Gross <markgross@kernel.org>,
-        Vadim Pasternak <vadimp@nvidia.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        with ESMTP id S235827AbiDMNlv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Apr 2022 09:41:51 -0400
+Received: from NAM04-MW2-obe.outbound.protection.outlook.com (mail-mw2nam08on2063.outbound.protection.outlook.com [40.107.101.63])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A0A4388F;
+        Wed, 13 Apr 2022 06:39:30 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=UnwVqSv97DWuJmi0WtH1GGf2FJLzdM7aZRcTHCSA1thNIuUhXsNl3UQeJMiafZBdGGIPcMIAIbbM5kTbaCkEXdvIiS3Yw7/KZ5tloWy4OMTRZh/zkxxRakGpfGzcHIpEmEHi+8TcMXCJBgb/OaP4mF7vwxIzv1Ynxq3WXTltupMZC0fCXaUrKulWBTCo0nNeFMGGl88gMdLhC/sHUJbZ91GbZUgy8TcDIQcnt9ktfyZi/VybWHsi8jNQiG0Oy5bKj4mhzIY3X6frWuX7uNrA9L+CE8PaI0pyotKLSTqnUZHUFfU/SgJp9ceIEtLCaTAD3aKigB76whSi+9I6iDky4Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=cmn6EJVVS62U+KITX0ZH07b/njnH4eQ4AO9vkUDxY2k=;
+ b=CL6HaSAAREr1Jx4D2ltzJphbaYKM3/Cv4MDXBct00uuCbXZaPAzR3oyyVKrC5XeU3i0nyD7CjFJryzCj5HlPg+0dQFfRn1MBxF2e3DBsUuKgpPtayEaglusvrOqX80ll3IigR99v/EgqPJ7cDfHbQ+34RcRkSpTVUZ4MKUH1X9UMnOoQmfAdVecHbcoIzkPoirYIyZU+i8BVdAe8uTNeRDvxtrxlXwV+AdUfTVSBm5WrL7afdcB6HWgj1vDUlvp7ihjh8lY+/BohS19dUpKXDUhNLGRbG4doU7e+NZAph4cxqqSsIKKNMWIheHfEOM8+dRl4lbrc9V1iaLeeMNacWw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=cmn6EJVVS62U+KITX0ZH07b/njnH4eQ4AO9vkUDxY2k=;
+ b=LOkLx4VZo93p2+vJrg4iYSfSCfFIT/17rx5tuxiNbOUALXHpjzQypSqrUdEjzXUGIqZCvD248ZKFgHzoGe0fFH6c45RfuRLM/WMzkEzUEay9hfFZ9QviTfD5V3EidiOieaU/+cCmYDwbQhBNasgMSI+foryitfipgrl7u50S5sewkCpZ8w9ciXrLk444YmQCxG2hlXALpPBxrDJ2A88Afxoz5/85AyS6DJ+2025W99Ady90v1y36GtoDjRgKKJ+sgN0+Bg4bT5ZAlQoJGaFREroJ2SakDy3bNojKMsPMBRWDbivmjH+1IFDwroVDJLePoDMvHQZ9YyUqs4QxdOkvYw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
+ by DM6PR12MB4387.namprd12.prod.outlook.com (2603:10b6:5:2ac::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5164.18; Wed, 13 Apr
+ 2022 13:39:28 +0000
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::ec2d:9167:1b47:2db2]) by MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::ec2d:9167:1b47:2db2%5]) with mapi id 15.20.5164.018; Wed, 13 Apr 2022
+ 13:39:28 +0000
+Date:   Wed, 13 Apr 2022 10:39:27 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        David Airlie <airlied@linux.ie>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org,
+        Eric Farman <farman@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
+        linux-doc@vger.kernel.org, linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jesper Dangaard Brouer <hawk@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        linux-um@lists.infradead.org, netdev@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, bpf@vger.kernel.org,
-        virtualization@lists.linux-foundation.org
-References: <20220406034346.74409-1-xuanzhuo@linux.alibaba.com>
- <20220406034346.74409-19-xuanzhuo@linux.alibaba.com>
- <92622553-e02d-47bd-06f9-0ce24c22650c@redhat.com>
-In-Reply-To: <92622553-e02d-47bd-06f9-0ce24c22650c@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        "Tian, Kevin" <kevin.tian@intel.com>,
+        "Liu, Yi L" <yi.l.liu@intel.com>
+Subject: Re: [PATCH 5/9] vfio: Pass in a struct vfio_device * to vfio_dma_rw()
+Message-ID: <20220413133927.GA368031@nvidia.com>
+References: <0-v1-a8faf768d202+125dd-vfio_mdev_no_group_jgg@nvidia.com>
+ <5-v1-a8faf768d202+125dd-vfio_mdev_no_group_jgg@nvidia.com>
+ <20220413060008.GE32092@lst.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220413060008.GE32092@lst.de>
+X-ClientProxiedBy: MN2PR06CA0022.namprd06.prod.outlook.com
+ (2603:10b6:208:23d::27) To MN2PR12MB4192.namprd12.prod.outlook.com
+ (2603:10b6:208:1d5::15)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 1c40d68a-510f-4184-d51e-08da1d5307ee
+X-MS-TrafficTypeDiagnostic: DM6PR12MB4387:EE_
+X-Microsoft-Antispam-PRVS: <DM6PR12MB43875ABCF79B4CADCB6CF0F5C2EC9@DM6PR12MB4387.namprd12.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: CH3Az0dFf5WqmyVkGWyINu4fvU72FJ7lNzyxbAbNT3nEPkV9Pyd5OlgeD8QCO1F3jPXm0HNnnS17yKmY3Th9Wp86+hkLZDYVWc+SHEyfnR/aR9qWJrKD1FLsrP2k7rOF/5zLCNYd+rZNSCOEXpesXjr24rexzM26nV3jTeCtyS6sgNYWslE6LsnBlwM8Wv1Ff3jJCNGwN5knc94UwLjSlCWVhcVFSzuXbmUV2Vc5qsr4G26pSlINqISeCZDp0D8WF0lRGXSjxnyMqS0/DgFKY9z4hnGrQEX343RV79QUTpRxgC5Y8cClOWuqQSaszccO6mt8FOJgfNP0dVZRRrr6Mavnsmpc1OpizAJFLj+AZY7fXRqaOaqU3k3Cweh/5u/+Vg3SBltZejB7Rp1Xei2n0Y9pz3PLhvSk+h6nl+kEco5M20eL1AUOdc0UAJfcaVA2p57R84mKR8A7xlTc222sccVi2WPp1oS+3Idd+f30u5A7rlexPnLfBVbQitluWDx45WUxhI8EvHiDrtCene2eBsLz7NFJ//HpxjlDNUWIAN79giaD1cEphuRSUPFayMHlgS+kxiYso2qnYvmqMa8Pv4zq09iZYsfeSIzBDOZiIId6rgjUQs8yhayHUNJaTcECZHZreHks0YQ5/yDDKHjcv7yJl4OuNF4jbAkBM+13E/hDDbMQ1se5OLkYV7rZ879DmZfu384IcJ9tluUSArtLhw==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(316002)(6512007)(2906002)(66556008)(6506007)(38100700002)(66476007)(508600001)(558084003)(4326008)(8676002)(6486002)(2616005)(66946007)(86362001)(7416002)(7406005)(1076003)(36756003)(5660300002)(8936002)(6916009)(26005)(186003)(33656002)(54906003)(27376004);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?psMKcl1Kj2Nvqm7pz+Eu8G9xOg17oqS5sI8mHzbU1JZzKoRPXTdSJOfHPI5Z?=
+ =?us-ascii?Q?I9q/RQZUrXB1oasA6yE0K3e84tyL6yrw3UfL9gBtNqyYJjTMGfQAu/kVbOAc?=
+ =?us-ascii?Q?oYewp0lGphQBsXpd7H+qAypLg9i7GdkSS7B9YRd7wkwHaRnOpmRCB1HZ/E8z?=
+ =?us-ascii?Q?JcDcy2c6eMivm22iWuCzkNgv4l5pLuWIZVMLoBPh0HcF65SbQH360LxEhBk7?=
+ =?us-ascii?Q?hS+pJzC5IyQMHlrRqa4YvWLILwEGATYDBJkTM0folWeflM+JZGAboopA7FCl?=
+ =?us-ascii?Q?VzVXMwcZ4ENjP7PyeR8yX06JPNlKR3q2iM7njOMh/AFLlGvI665gQvOwMEBM?=
+ =?us-ascii?Q?thvf8lmiX6CrTzE2OEgDXsaBKiO1rGO5Nx2JI9ieRgOkSe8HKP6B1w8C37lP?=
+ =?us-ascii?Q?7/nx50iyjfko8Kv0TSvstZ0xqYCMzUcXRwuhsmyJwkPCaNMOVNxfRj09ZHHr?=
+ =?us-ascii?Q?8XIbA4TjXg0IYi46WzRNWEXa9PgpVzzqKfB59dpeQ9YM9ILwtWvx/OT0L7Im?=
+ =?us-ascii?Q?GmS9kYgsE7ClOopOxaWz2iDQwOFN+WnQk9MfjlP2kmxkURM5VQs0Rj90Akaz?=
+ =?us-ascii?Q?i6cpwkTzg6ymG+Guv1nJaVn4IJFgZxyMUAfl9l5UPVxp4W7B4jPkdy7vuZpO?=
+ =?us-ascii?Q?Re/KTcp43zCfgjAY4unv5zV2MK/Zh0+rSTQNmvnmmZi6uDjpUXY2HoNGyD+P?=
+ =?us-ascii?Q?8brFq/FAtCFUg3HeYley9PWnFLZxk0IXQV3qIi88M0FKpp6t1ibdvuhl2xfW?=
+ =?us-ascii?Q?THl+1736dJg/RvurKXm/Ktu2u60V0rm3x5ajnpIKd7P7YkpyqXqXCDYUe2il?=
+ =?us-ascii?Q?QA2wERWKcDeQIlfOlmRP6NaFcS3gvymYDAxH0lnCl4dAoWl8yCO5cpTt/8fL?=
+ =?us-ascii?Q?C1gfe3E4SrlegoeYjsxFK0j26rcj8OppXKry8xHc35V2VcKBxs5qAvWBbbsy?=
+ =?us-ascii?Q?X3xI4ULF6jDgEGqR9sSWkQpDofGzVaYiP7OfSACFA3Gzo5ls0pf56foYrGHh?=
+ =?us-ascii?Q?Nst/KT+nmOFGOuBXapcsHSodyWeFaHUaESKTI+FvaSGYOfgZCkZuwV92oYlV?=
+ =?us-ascii?Q?sCjnDYrXbLwZqjIFX4nWBlXUi6aFWL8MQqOZWjwLiexln7aNXgJMEaBndvob?=
+ =?us-ascii?Q?efGvwb66ZnMgVTsagalED0t7vvZ9W3D9jMlSksF5yKRZBGESMWPkQCv5BcaB?=
+ =?us-ascii?Q?dzORJm4vspiAz5VjQ+vO7PAU+7vN1jWOUs08R+X14kWhnnE/kRspGkF+CzRX?=
+ =?us-ascii?Q?yigbQNqGYD1X+JBKoGJNjX/111/b9rb6f31bgPVYS5A7iopK1WUWSP89NjU7?=
+ =?us-ascii?Q?wuWrVgqYe2XTuBtXA63xAeZZI7+aFZXIIMRwqJvzIj8MMbNvBBChQEDqSxTz?=
+ =?us-ascii?Q?nKO23NRc7BszZjqZoRMVw9PW88rl1l5SjpzjRwb3h24Q+Jhnm5rR5VXd3drk?=
+ =?us-ascii?Q?RQ7W3gK0cK/fvpJ20XwTtMmYO69kbXbnajU+KtgGRAAt/B/fwu2q0grLroeT?=
+ =?us-ascii?Q?+XD3VtZy/wDp/f/yR3Sm8700b7P+tykiLulLaaGhPjakD17djK9LokqAcmT2?=
+ =?us-ascii?Q?ZjAERx4J/mohGldLeI6Ifw0lRSqhlDHUI95Y0YzAazjlFkSuEfTKdCmnwDeK?=
+ =?us-ascii?Q?DyM5dKK0OxLa2ZSM/ajKnaPj+cIbAvkhrBXl61PRLgj5+dHCGk4inKPmxohd?=
+ =?us-ascii?Q?KHZvwDPgleOEYuvVtMimhne1WdPf5+i7joiJpsVldwYWp9jiWph7d4PSvr6p?=
+ =?us-ascii?Q?XCE4v6GZ5Q=3D=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1c40d68a-510f-4184-d51e-08da1d5307ee
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Apr 2022 13:39:28.1429
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: ApvoKbsfMwLgWT3F06Sla7pSRxsvgxAmAc01Psnpycm9saiqVI+aZbOVM7iTcqwJ
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4387
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 12 Apr 2022 14:41:18 +0800, Jason Wang <jasowang@redhat.com> wrote:
->
-> =E5=9C=A8 2022/4/6 =E4=B8=8A=E5=8D=8811:43, Xuan Zhuo =E5=86=99=E9=81=93:
-> > Introduce virtqueue_resize() to implement the resize of vring.
-> > Based on these, the driver can dynamically adjust the size of the vring.
-> > For example: ethtool -G.
-> >
-> > virtqueue_resize() implements resize based on the vq reset function. In
-> > case of failure to allocate a new vring, it will give up resize and use
-> > the original vring.
-> >
-> > During this process, if the re-enable reset vq fails, the vq can no
-> > longer be used. Although the probability of this situation is not high.
-> >
-> > The parameter recycle is used to recycle the buffer that is no longer
-> > used.
-> >
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > ---
-> >   drivers/virtio/virtio_ring.c | 69 ++++++++++++++++++++++++++++++++++++
-> >   include/linux/virtio.h       |  3 ++
-> >   2 files changed, 72 insertions(+)
-> >
-> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > index 06f66b15c86c..6250e19fc5bf 100644
-> > --- a/drivers/virtio/virtio_ring.c
-> > +++ b/drivers/virtio/virtio_ring.c
-> > @@ -2554,6 +2554,75 @@ struct virtqueue *vring_create_virtqueue(
-> >   }
-> >   EXPORT_SYMBOL_GPL(vring_create_virtqueue);
-> >
-> > +/**
-> > + * virtqueue_resize - resize the vring of vq
-> > + * @_vq: the struct virtqueue we're talking about.
-> > + * @num: new ring num
-> > + * @recycle: callback for recycle the useless buffer
-> > + *
-> > + * When it is really necessary to create a new vring, it will set the =
-current vq
-> > + * into the reset state. Then call the passed callback to recycle the =
-buffer
-> > + * that is no longer used. Only after the new vring is successfully cr=
-eated, the
-> > + * old vring will be released.
-> > + *
-> > + * Caller must ensure we don't call this with other virtqueue operatio=
-ns
-> > + * at the same time (except where noted).
-> > + *
-> > + * Returns zero or a negative error.
->
->
-> Should we document that the virtqueue is kept unchanged (still
-> available) on (specific) failure?
->
->
-> > + */
-> > +int virtqueue_resize(struct virtqueue *_vq, u32 num,
-> > +		     void (*recycle)(struct virtqueue *vq, void *buf))
-> > +{
-> > +	struct vring_virtqueue *vq =3D to_vvq(_vq);
-> > +	struct virtio_device *vdev =3D vq->vq.vdev;
-> > +	bool packed;
-> > +	void *buf;
-> > +	int err;
-> > +
-> > +	if (!vq->we_own_ring)
-> > +		return -EINVAL;
-> > +
-> > +	if (num > vq->vq.num_max)
-> > +		return -E2BIG;
-> > +
-> > +	if (!num)
-> > +		return -EINVAL;
-> > +
-> > +	packed =3D virtio_has_feature(vdev, VIRTIO_F_RING_PACKED) ? true : fa=
-lse;
-> > +
-> > +	if ((packed ? vq->packed.vring.num : vq->split.vring.num) =3D=3D num)
-> > +		return 0;
-> > +
-> > +	if (!vdev->config->reset_vq)
-> > +		return -ENOENT;
-> > +
-> > +	if (!vdev->config->enable_reset_vq)
-> > +		return -ENOENT;
-> > +
-> > +	err =3D vdev->config->reset_vq(_vq);
-> > +	if (err)
-> > +		return err;
-> > +
-> > +	while ((buf =3D virtqueue_detach_unused_buf(_vq)) !=3D NULL)
-> > +		recycle(_vq, buf);
-> > +
-> > +	if (packed) {
-> > +		err =3D virtqueue_resize_packed(_vq, num);
-> > +		if (err)
-> > +			virtqueue_reinit_packed(vq);
->
->
-> Calling reinit here seems a little bit odd, it looks more like a reset
+On Wed, Apr 13, 2022 at 08:00:08AM +0200, Christoph Hellwig wrote:
+> This looks good execept the extern nitpick:
+> 
+> Reviewed-by: Christoph Hellwig <hch@lst.de>
+> 
+> However I'd move this before the previous patch.  More of the explanation
+> there.
 
+Yes, that looks good, done
 
-I also feel that this is a bit odd, I will put virtqueue_reinit_* into
-virtqueue_resize_*.
-
-Thanks.
-
-> of the virtqueue. Consider we may re-use virtqueue reset for more
-> purpose, I wonder if we need a helper like:
->
-> virtqueue_resize() {
->  =C2=A0=C2=A0=C2=A0 vdev->config->reset_vq(_vq);
->  =C2=A0=C2=A0=C2=A0 if (packed)
->  =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 virtqueue_reinit_packed(_vq)
->  =C2=A0=C2=A0=C2=A0 else
->  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 virtqueue_reinit_split(_vq)
-> }
->
-> Thanks
->
->
-> > +	} else {
-> > +		err =3D virtqueue_resize_split(_vq, num);
-> > +		if (err)
-> > +			virtqueue_reinit_split(vq);
-> > +	}
-> > +
-> > +	if (vdev->config->enable_reset_vq(_vq))
-> > +		return -EBUSY;
-> > +
-> > +	return err;
-> > +}
-> > +EXPORT_SYMBOL_GPL(virtqueue_resize);
-> > +
-> >   /* Only available for split ring */
-> >   struct virtqueue *vring_new_virtqueue(unsigned int index,
-> >   				      unsigned int num,
-> > diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> > index d59adc4be068..c86ff02e0ca0 100644
-> > --- a/include/linux/virtio.h
-> > +++ b/include/linux/virtio.h
-> > @@ -91,6 +91,9 @@ dma_addr_t virtqueue_get_desc_addr(struct virtqueue *=
-vq);
-> >   dma_addr_t virtqueue_get_avail_addr(struct virtqueue *vq);
-> >   dma_addr_t virtqueue_get_used_addr(struct virtqueue *vq);
-> >
-> > +int virtqueue_resize(struct virtqueue *vq, u32 num,
-> > +		     void (*recycle)(struct virtqueue *vq, void *buf));
-> > +
-> >   /**
-> >    * virtio_device - representation of a device using virtio
-> >    * @index: unique position on the virtio bus
->
+Thanks,
+Jason
