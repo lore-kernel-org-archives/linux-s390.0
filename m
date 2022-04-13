@@ -2,21 +2,21 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 37301C433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 13 Apr 2022 06:01:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 81495C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 13 Apr 2022 06:02:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231635AbiDMGDj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 13 Apr 2022 02:03:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35266 "EHLO
+        id S232772AbiDMGE0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 13 Apr 2022 02:04:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230025AbiDMGDi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Apr 2022 02:03:38 -0400
+        with ESMTP id S232791AbiDMGEZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Apr 2022 02:04:25 -0400
 Received: from verein.lst.de (verein.lst.de [213.95.11.211])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC1C313DC6;
-        Tue, 12 Apr 2022 23:01:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AF055130A;
+        Tue, 12 Apr 2022 23:02:05 -0700 (PDT)
 Received: by verein.lst.de (Postfix, from userid 2407)
-        id 3143968D08; Wed, 13 Apr 2022 08:01:14 +0200 (CEST)
-Date:   Wed, 13 Apr 2022 08:01:10 +0200
+        id 1104A68BEB; Wed, 13 Apr 2022 08:02:02 +0200 (CEST)
+Date:   Wed, 13 Apr 2022 08:01:59 +0200
 From:   Christoph Hellwig <hch@lst.de>
 To:     Jason Gunthorpe <jgg@nvidia.com>
 Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
@@ -51,25 +51,18 @@ Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
         Christoph Hellwig <hch@lst.de>,
         "Tian, Kevin" <kevin.tian@intel.com>,
         "Liu, Yi L" <yi.l.liu@intel.com>
-Subject: Re: [PATCH 4/9] drm/i915/gvt: Change from vfio_group_(un)pin_pages
- to vfio_(un)pin_pages
-Message-ID: <20220413060110.GF32092@lst.de>
-References: <0-v1-a8faf768d202+125dd-vfio_mdev_no_group_jgg@nvidia.com> <4-v1-a8faf768d202+125dd-vfio_mdev_no_group_jgg@nvidia.com>
+Subject: Re: [PATCH 8/9] vfio: Remove dead code
+Message-ID: <20220413060159.GG32092@lst.de>
+References: <0-v1-a8faf768d202+125dd-vfio_mdev_no_group_jgg@nvidia.com> <8-v1-a8faf768d202+125dd-vfio_mdev_no_group_jgg@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4-v1-a8faf768d202+125dd-vfio_mdev_no_group_jgg@nvidia.com>
+In-Reply-To: <8-v1-a8faf768d202+125dd-vfio_mdev_no_group_jgg@nvidia.com>
 User-Agent: Mutt/1.5.17 (2007-11-01)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Apr 12, 2022 at 12:53:31PM -0300, Jason Gunthorpe wrote:
-> Use the existing vfio_device versions of vfio_(un)pin_pages(). There is no
-> reason to use a group interface here, kvmgt has easy access to a
-> vfio_device.
+Looks good:
 
-Once this is moved after the vfio_dma_rw, this is the last user of
-the vfio_group, and I think it owuld make sense to merge it with the
-patch to remove the vfio_group instead of leaving that around once
-unused.
+Reviewed-by: Christoph Hellwig <hch@lst.de>
