@@ -2,21 +2,21 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81495C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 13 Apr 2022 06:02:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6AEDFC4332F
+	for <linux-s390@archiver.kernel.org>; Wed, 13 Apr 2022 06:11:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232772AbiDMGE0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 13 Apr 2022 02:04:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36024 "EHLO
+        id S230320AbiDMGNy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 13 Apr 2022 02:13:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232791AbiDMGEZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Apr 2022 02:04:25 -0400
+        with ESMTP id S230273AbiDMGNb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Apr 2022 02:13:31 -0400
 Received: from verein.lst.de (verein.lst.de [213.95.11.211])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AF055130A;
-        Tue, 12 Apr 2022 23:02:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A69337017;
+        Tue, 12 Apr 2022 23:11:10 -0700 (PDT)
 Received: by verein.lst.de (Postfix, from userid 2407)
-        id 1104A68BEB; Wed, 13 Apr 2022 08:02:02 +0200 (CEST)
-Date:   Wed, 13 Apr 2022 08:01:59 +0200
+        id 15C7968B05; Wed, 13 Apr 2022 08:11:06 +0200 (CEST)
+Date:   Wed, 13 Apr 2022 08:11:05 +0200
 From:   Christoph Hellwig <hch@lst.de>
 To:     Jason Gunthorpe <jgg@nvidia.com>
 Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
@@ -51,18 +51,27 @@ Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
         Christoph Hellwig <hch@lst.de>,
         "Tian, Kevin" <kevin.tian@intel.com>,
         "Liu, Yi L" <yi.l.liu@intel.com>
-Subject: Re: [PATCH 8/9] vfio: Remove dead code
-Message-ID: <20220413060159.GG32092@lst.de>
-References: <0-v1-a8faf768d202+125dd-vfio_mdev_no_group_jgg@nvidia.com> <8-v1-a8faf768d202+125dd-vfio_mdev_no_group_jgg@nvidia.com>
+Subject: Re: [PATCH 9/9] vfio: Remove calls to
+ vfio_group_add_container_user()
+Message-ID: <20220413061105.GA32701@lst.de>
+References: <0-v1-a8faf768d202+125dd-vfio_mdev_no_group_jgg@nvidia.com> <9-v1-a8faf768d202+125dd-vfio_mdev_no_group_jgg@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <8-v1-a8faf768d202+125dd-vfio_mdev_no_group_jgg@nvidia.com>
+In-Reply-To: <9-v1-a8faf768d202+125dd-vfio_mdev_no_group_jgg@nvidia.com>
 User-Agent: Mutt/1.5.17 (2007-11-01)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Looks good:
+On Tue, Apr 12, 2022 at 12:53:36PM -0300, Jason Gunthorpe wrote:
+> +	if (WARN_ON(!READ_ONCE(vdev->open_count)))
+> +		return -EINVAL;
+
+I think all the WARN_ON()s in this patch need to be WARN_ON_ONCE,
+otherwise there will be too many backtraces to be useful if a driver
+ever gets the API wrong.
+
+Otherwise looks good:
 
 Reviewed-by: Christoph Hellwig <hch@lst.de>
