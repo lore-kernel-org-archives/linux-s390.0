@@ -2,200 +2,156 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3FE89C4332F
-	for <linux-s390@archiver.kernel.org>; Wed, 13 Apr 2022 07:05:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8A77C433FE
+	for <linux-s390@archiver.kernel.org>; Wed, 13 Apr 2022 07:56:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232135AbiDMHHS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 13 Apr 2022 03:07:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52852 "EHLO
+        id S233601AbiDMH6b (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 13 Apr 2022 03:58:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232134AbiDMHHR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Apr 2022 03:07:17 -0400
-Received: from out30-44.freemail.mail.aliyun.com (out30-44.freemail.mail.aliyun.com [115.124.30.44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97EB21C901;
-        Wed, 13 Apr 2022 00:04:56 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R391e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=33;SR=0;TI=SMTPD_---0V9yF4q8_1649833489;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0V9yF4q8_1649833489)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 13 Apr 2022 15:04:50 +0800
-Message-ID: <1649833450.9482608-9-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH v9 09/32] virtio_ring: split: extract the logic of vq init
-Date:   Wed, 13 Apr 2022 15:04:10 +0800
-From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To:     Jason Wang <jasowang@redhat.com>
-Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mark Gross <markgross@kernel.org>,
-        Vadim Pasternak <vadimp@nvidia.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jesper Dangaard Brouer <hawk@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        linux-um@lists.infradead.org, netdev@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, bpf@vger.kernel.org,
-        virtualization@lists.linux-foundation.org
-References: <20220406034346.74409-1-xuanzhuo@linux.alibaba.com>
- <20220406034346.74409-10-xuanzhuo@linux.alibaba.com>
- <f91435e4-6559-c0c9-2b37-92084c88dee2@redhat.com>
-In-Reply-To: <f91435e4-6559-c0c9-2b37-92084c88dee2@redhat.com>
+        with ESMTP id S233632AbiDMH63 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Apr 2022 03:58:29 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C079F4DF76;
+        Wed, 13 Apr 2022 00:55:59 -0700 (PDT)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23D6g8IP032500;
+        Wed, 13 Apr 2022 07:55:52 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=SflzMpuDOSgixuneJO3qtDBdroKkxk0KE1SzPQKjkLI=;
+ b=PnU+rLOuwXNzCdAmp0CJnQNDf7VxEQca5vanLnCaYXJxQfT4dWdM16U6mnQ0IStcAR6I
+ qE4Ugis3OmWB9RUdkCd+7xC1rr+sMWEi7Sc9KPQtYKb4noYI4G61DURqm7bCRmRgrk2i
+ l/kkAqepjS0DykxHijeQ6ePCcQn+dWuczynvNUJ+OUp6qjy56DLqtX6VJroPUfXmnJ9M
+ fVPIklvE6+w2b8w5ryVaEfIFljZLRheSCXPUq06NvGqr9RmgR3PgcoZbxD3fbCN8JjLs
+ v+5PNQhQdf8KtDrOpprbNry3sMQMUJQlUJeCM7vPW8tLXVYG6/PdlajiSD7EaWTqfEyN ng== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3fdsfphbsy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 13 Apr 2022 07:55:51 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23D7q89s000488;
+        Wed, 13 Apr 2022 07:55:49 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 3fb1s8xb0w-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 13 Apr 2022 07:55:49 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23D7ttLQ37093674
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 13 Apr 2022 07:55:55 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9872042041;
+        Wed, 13 Apr 2022 07:55:46 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2A2534203F;
+        Wed, 13 Apr 2022 07:55:46 +0000 (GMT)
+Received: from sig-9-145-36-41.uk.ibm.com (unknown [9.145.36.41])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 13 Apr 2022 07:55:46 +0000 (GMT)
+Message-ID: <817683ba1c0f0f246701e91395063b3eaf69cbbe.camel@linux.ibm.com>
+Subject: Re: [PATCH v2 2/4] PCI: Move jailhouse's isolated function handling
+ to pci_scan_slot()
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     kernel test robot <lkp@intel.com>,
+        Bjorn Helgaas <helgaas@kernel.org>,
+        Jan Kiszka <jan.kiszka@siemens.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>
+Cc:     kbuild-all@lists.01.org, linux-s390@vger.kernel.org,
+        linux-pci@vger.kernel.org
+Date:   Wed, 13 Apr 2022 09:55:45 +0200
+In-Reply-To: <202204130045.AeSigvk8-lkp@intel.com>
+References: <20220412143040.1882096-3-schnelle@linux.ibm.com>
+         <202204130045.AeSigvk8-lkp@intel.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: PYZ-5W9NCscmk5iBPeGnna_mQr8O2JTA
+X-Proofpoint-GUID: PYZ-5W9NCscmk5iBPeGnna_mQr8O2JTA
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-04-12_08,2022-04-12_02,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ clxscore=1011 spamscore=0 bulkscore=0 phishscore=0 adultscore=0
+ impostorscore=0 mlxscore=0 malwarescore=0 mlxlogscore=999
+ lowpriorityscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2202240000 definitions=main-2204130042
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 12 Apr 2022 11:42:25 +0800, Jason Wang <jasowang@redhat.com> wrote:
->
-> =E5=9C=A8 2022/4/6 =E4=B8=8A=E5=8D=8811:43, Xuan Zhuo =E5=86=99=E9=81=93:
-> > Separate the logic of initializing vq, and subsequent patches will call
-> > it separately.
-> >
-> > The feature of this part is that it does not depend on the information
-> > passed by the upper layer and can be called repeatedly.
-> >
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > ---
-> >   drivers/virtio/virtio_ring.c | 68 ++++++++++++++++++++----------------
-> >   1 file changed, 38 insertions(+), 30 deletions(-)
-> >
-> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > index 083f2992ba0d..874f878087a3 100644
-> > --- a/drivers/virtio/virtio_ring.c
-> > +++ b/drivers/virtio/virtio_ring.c
-> > @@ -916,6 +916,43 @@ static void *virtqueue_detach_unused_buf_split(str=
-uct virtqueue *_vq)
-> >   	return NULL;
-> >   }
-> >
-> > +static void vring_virtqueue_init_split(struct vring_virtqueue *vq,
-> > +				       struct virtio_device *vdev,
-> > +				       bool own_ring)
-> > +{
-> > +	vq->packed_ring =3D false;
-> > +	vq->vq.num_free =3D vq->split.vring.num;
-> > +	vq->we_own_ring =3D own_ring;
-> > +	vq->broken =3D false;
-> > +	vq->last_used_idx =3D 0;
-> > +	vq->event_triggered =3D false;
-> > +	vq->num_added =3D 0;
-> > +	vq->use_dma_api =3D vring_use_dma_api(vdev);
-> > +#ifdef DEBUG
-> > +	vq->in_use =3D false;
-> > +	vq->last_add_time_valid =3D false;
-> > +#endif
-> > +
-> > +	vq->event =3D virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
-> > +
-> > +	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
-> > +		vq->weak_barriers =3D false;
-> > +
-> > +	vq->split.avail_flags_shadow =3D 0;
-> > +	vq->split.avail_idx_shadow =3D 0;
-> > +
-> > +	/* No callback?  Tell other side not to bother us. */
-> > +	if (!vq->vq.callback) {
-> > +		vq->split.avail_flags_shadow |=3D VRING_AVAIL_F_NO_INTERRUPT;
-> > +		if (!vq->event)
-> > +			vq->split.vring.avail->flags =3D cpu_to_virtio16(vdev,
-> > +					vq->split.avail_flags_shadow);
-> > +	}
-> > +
-> > +	/* Put everything in free lists. */
-> > +	vq->free_head =3D 0;
->
->
-> It's not clear what kind of initialization that we want to do here. E.g
-> it mixes split specific setups with some general setups which is kind of
-> duplication of vring_virtqueue_init_packed().
->
-> I wonder if it's better to only do split specific setups here and have a
-> common helper to do the setup that is irrelevant to ring layout.
+On Wed, 2022-04-13 at 00:28 +0800, kernel test robot wrote:
+> Hi Niklas,
+> 
+> I love your patch! Perhaps something to improve:
+> 
+> [auto build test WARNING on helgaas-pci/next]
+> [also build test WARNING on s390/features tip/x86/core v5.18-rc2 next-20220412]
+> [If your patch is applied to the wrong git tree, kindly drop us a note.
+> And when submitting patch, we suggest to use '--base' as documented in
+> https://git-scm.com/docs/git-format-patch]
+> 
+> url:    https://github.com/intel-lab-lkp/linux/commits/Niklas-Schnelle/PCI-Rework-pci_scan_slot-and-isolated-PCI-functions/20220412-223307
+> base:   https://git.kernel.org/pub/scm/linux/kernel/git/helgaas/pci.git next
+> config: alpha-defconfig (https://download.01.org/0day-ci/archive/20220413/202204130045.AeSigvk8-lkp@intel.com/config)
+> compiler: alpha-linux-gcc (GCC) 11.2.0
+> reproduce (this is a W=1 build):
+>         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+>         chmod +x ~/bin/make.cross
+>         # https://github.com/intel-lab-lkp/linux/commit/5cac6729750b7434ff5d6ae99469e9e54bc9fb6e
+>         git remote add linux-review https://github.com/intel-lab-lkp/linux
+>         git fetch --no-tags linux-review Niklas-Schnelle/PCI-Rework-pci_scan_slot-and-isolated-PCI-functions/20220412-223307
+>         git checkout 5cac6729750b7434ff5d6ae99469e9e54bc9fb6e
+>         # save the config file to linux build tree
+>         mkdir build_dir
+>         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.2.0 make.cross O=build_dir ARCH=alpha SHELL=/bin/bash drivers/pci/
+> 
+> If you fix the issue, kindly add following tag as appropriate
+> Reported-by: kernel test robot <lkp@intel.com>
+> 
+> All warnings (new ones prefixed by >>):
+> 
+>    drivers/pci/probe.c: In function 'pci_scan_child_bus_extend':
+> > > drivers/pci/probe.c:2861:13: warning: variable 'nr_devs' set but not used [-Wunused-but-set-variable]
+>     2861 |         int nr_devs;
+>          |             ^~~~~~~
+> 
+> 
+> vim +/nr_devs +2861 drivers/pci/probe.c
+> 
+> bccf90d6e063d2 Palmer Dabbelt  2017-06-23  2841  
+> 1c02ea81006548 Mika Westerberg 2017-10-13  2842  /**
+> 1c02ea81006548 Mika Westerberg 2017-10-13  2843   * pci_scan_child_bus_extend() - Scan devices below a bus
+> 1c02ea81006548 Mika Westerberg 2017-10-13  2844   * @bus: Bus to scan for devices
+> 1c02ea81006548 Mika Westerberg 2017-10-13  2845   * @available_buses: Total number of buses available (%0 does not try to
+> 1c02ea81006548 Mika Westerberg 2017-10-13  2846   *		     extend beyond the minimal)
+> 1c02ea81006548 Mika Westerberg 2017-10-13  2847   *
+> 1c02ea81006548 Mika Westerberg 2017-10-13  2848   * Scans devices below @bus including subordinate buses. Returns new
+> 1c02ea81006548 Mika Westerberg 2017-10-13  2849   * subordinate number including all the found devices. Passing
+> 1c02ea81006548 Mika Westerberg 2017-10-13  2850   * @available_buses causes the remaining bus space to be distributed
+> 1c02ea81006548 Mika Westerberg 2017-10-13  2851   * equally between hotplug-capable bridges to allow future extension of the
+> 1c02ea81006548 Mika Westerberg 2017-10-13  2852   * hierarchy.
+> 1c02ea81006548 Mika Westerberg 2017-10-13  2853   */
+> 1c02ea81006548 Mika Westerberg 2017-10-13  2854  static unsigned int pci_scan_child_bus_extend(struct pci_bus *bus,
+> 1c02ea81006548 Mika Westerberg 2017-10-13  2855  					      unsigned int available_buses)
+> 1c02ea81006548 Mika Westerberg 2017-10-13  2856  {
+> 1c02ea81006548 Mika Westerberg 2017-10-13  2857  	unsigned int used_buses, normal_bridges = 0, hotplug_bridges = 0;
+> 1c02ea81006548 Mika Westerberg 2017-10-13  2858  	unsigned int start = bus->busn_res.start;
+> 5cac6729750b74 Niklas Schnelle 2022-04-12  2859  	unsigned int devfn, cmax, max = start;
+> ^1da177e4c3f41 Linus Torvalds  2005-04-16  2860  	struct pci_dev *dev;
+> 690f4304104f37 Jan Kiszka      2018-03-07 @2861  	int nr_devs;
+> ^1da177e4c3f41 Linus Torvalds  2005-04-16  2862  
+> 0207c356ef0e2b Bjorn Helgaas   2009-11-04  2863  	dev_dbg(&bus->dev, "scanning bus\n");
+> ^1da177e4c3f41 Linus Torvalds  2005-04-16  2864  
+> ^1da177e4c3f41 Linus Torvalds  2005-04-16  2865  	/* Go find them, Rover! */
+> 5cac6729750b74 Niklas Schnelle 2022-04-12  2866  	for (devfn = 0; devfn < 256; devfn += 8)
+> 690f4304104f37 Jan Kiszka      2018-03-07  2867  		nr_devs = pci_scan_slot(bus, devfn);
 
-Yes, you are right, I didn't notice this situation before.
+The bot is right, the nr_devs can be removed as the patch removed the
+only read access did so locally already.
 
-Thanks.
-
->
-> Thanks
->
->
-> > +}
-> > +
-> >   static void vring_virtqueue_attach_split(struct vring_virtqueue *vq,
-> >   					 struct vring vring,
-> >   					 struct vring_desc_state_split *desc_state,
-> > @@ -2249,42 +2286,15 @@ struct virtqueue *__vring_new_virtqueue(unsigne=
-d int index,
-> >   	if (!vq)
-> >   		return NULL;
-> >
-> > -	vq->packed_ring =3D false;
-> >   	vq->vq.callback =3D callback;
-> >   	vq->vq.vdev =3D vdev;
-> >   	vq->vq.name =3D name;
-> > -	vq->vq.num_free =3D vring.num;
-> >   	vq->vq.index =3D index;
-> > -	vq->we_own_ring =3D false;
-> >   	vq->notify =3D notify;
-> >   	vq->weak_barriers =3D weak_barriers;
-> > -	vq->broken =3D false;
-> > -	vq->last_used_idx =3D 0;
-> > -	vq->event_triggered =3D false;
-> > -	vq->num_added =3D 0;
-> > -	vq->use_dma_api =3D vring_use_dma_api(vdev);
-> > -#ifdef DEBUG
-> > -	vq->in_use =3D false;
-> > -	vq->last_add_time_valid =3D false;
-> > -#endif
-> >
-> >   	vq->indirect =3D virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DES=
-C) &&
-> >   		!context;
-> > -	vq->event =3D virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
-> > -
-> > -	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
-> > -		vq->weak_barriers =3D false;
-> > -
-> > -	vq->split.avail_flags_shadow =3D 0;
-> > -	vq->split.avail_idx_shadow =3D 0;
-> > -
-> > -	/* No callback?  Tell other side not to bother us. */
-> > -	if (!callback) {
-> > -		vq->split.avail_flags_shadow |=3D VRING_AVAIL_F_NO_INTERRUPT;
-> > -		if (!vq->event)
-> > -			vq->split.vring.avail->flags =3D cpu_to_virtio16(vdev,
-> > -					vq->split.avail_flags_shadow);
-> > -	}
-> >
-> >   	err =3D vring_alloc_state_extra_split(vring.num, &state, &extra);
-> >   	if (err) {
-> > @@ -2293,9 +2303,7 @@ struct virtqueue *__vring_new_virtqueue(unsigned =
-int index,
-> >   	}
-> >
-> >   	vring_virtqueue_attach_split(vq, vring, state, extra);
-> > -
-> > -	/* Put everything in free lists. */
-> > -	vq->free_head =3D 0;
-> > +	vring_virtqueue_init_split(vq, vdev, false);
-> >
-> >   	spin_lock(&vdev->vqs_list_lock);
-> >   	list_add_tail(&vq->vq.list, &vdev->vqs);
->
