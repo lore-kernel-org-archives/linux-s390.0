@@ -2,156 +2,128 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E9986C433FE
-	for <linux-s390@archiver.kernel.org>; Wed, 13 Apr 2022 08:41:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6342C433FE
+	for <linux-s390@archiver.kernel.org>; Wed, 13 Apr 2022 08:43:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233656AbiDMIne (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 13 Apr 2022 04:43:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33130 "EHLO
+        id S233318AbiDMIpa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 13 Apr 2022 04:45:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234475AbiDMInW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Apr 2022 04:43:22 -0400
-Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60A834707A
-        for <linux-s390@vger.kernel.org>; Wed, 13 Apr 2022 01:41:00 -0700 (PDT)
-Received: by mail-ed1-x52a.google.com with SMTP id d10so1554012edj.0
-        for <linux-s390@vger.kernel.org>; Wed, 13 Apr 2022 01:41:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=vnyM2Iiv5ssFwZ+YfhSIPkTVc84CfyYTFaqlrMujJwU=;
-        b=JIbqyng6xlRV93M1Iu4dTb27ybe+M5EN2beeOTia2QovfKwHZWLGjr66cUx0YdX3/v
-         8nbu5XWVqbuUMx1VHW7Jp0LjTMIRW/JvtKlPAPwmC12IguAK8nAZjvST8nPijS6soEVz
-         lCEGXpJKRGImWyHRDfmKyn0IwmzTivzO/Vs8MDv+1cJ+MoZ5YxwAJ+kc5wqtfsrfRjlw
-         dl24/2CzxrUZbd2CgYUV995GGUYyvDMWOghjruTd1pRrJ7LcOsA6BV8p7XbkZUzO9Tat
-         9Hf6SigjF0nx23JEKIGKUT0nPYsQzEA7bWg8dt6IDJV7Ni9PpqpqRJKKkXLn7s8NY1Kj
-         Fn2A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=vnyM2Iiv5ssFwZ+YfhSIPkTVc84CfyYTFaqlrMujJwU=;
-        b=d0FeSAbFWOBwmFdNnKTkyHDM4rh4+sXtoX65bQyJEJHma8tFo5U0aZTdrmbhzq39C0
-         V6CWcdPxmAPR1Kob5fzEZxo+6ukHvuzVRk13RZnl0xDB/ktQabl3m7exrqJQOEezyQo4
-         q4cCEpDvtrFZPKttKM0XTGCjg4eHgiWhS1dOVL4hfRGxiL09Q42tPToepfavfk62nTzC
-         AN7vdgB5y9XOkEJpGeab+VMJHnrFZwxvMnFVO2NfNGWRchCV5wgv770LYOK7HM5Wrh52
-         onESzU9A9X0Y63CVm9zOieQGHAKt9ZRV7HBYKk4noKY2rGbz7q5t20ButW3AYecchw2n
-         thkw==
-X-Gm-Message-State: AOAM5322W/K4JqLb67ewmlJxbRsgIfkGa+g+V+NV10uXbksTjA5DKiT7
-        0N+oOcQ+lp957z9uSIvVCQ8vDw==
-X-Google-Smtp-Source: ABdhPJwtqQ40ij3I2sXCRUOzsMpUdkisZ2t9soK7OyZx79O22lSzuKtXAWN17iTj1ggfo92pAD3X0Q==
-X-Received: by 2002:aa7:c40b:0:b0:41d:9886:90a0 with SMTP id j11-20020aa7c40b000000b0041d988690a0mr5089328edq.275.1649839258932;
-        Wed, 13 Apr 2022 01:40:58 -0700 (PDT)
-Received: from [192.168.0.202] (xdsl-188-155-201-27.adslplus.ch. [188.155.201.27])
-        by smtp.gmail.com with ESMTPSA id o15-20020a50d80f000000b0041cc1f4f5e0sm902910edj.62.2022.04.13.01.40.57
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 13 Apr 2022 01:40:58 -0700 (PDT)
-Message-ID: <f967f1b2-80a2-8418-d5e8-1e2ac41730a6@linaro.org>
-Date:   Wed, 13 Apr 2022 10:40:57 +0200
+        with ESMTP id S230518AbiDMIp3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Apr 2022 04:45:29 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ECA34EA25;
+        Wed, 13 Apr 2022 01:43:09 -0700 (PDT)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23D7UiFQ022745;
+        Wed, 13 Apr 2022 08:43:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=+ynYSt7fhnh9Jemh2uoB5LHRICHtdQIhMtbWjO3umhg=;
+ b=rePP4AxPrrpb/0R1DlhNpgtZCW3Fd8vKnXZMksgOUDi6TgEI1c3opPOtF7GB2vzxldty
+ q6a9B50x7gDQtqH7jeeqQWzydNCTnifwJI91Glf6vJc2MeEWWx30Zzp0TTbU1ygLg771
+ nCm1GQTE6HW/O36yRB0dGOVHT8o0Y4AjEglLFML/BcR+frW8ugPk3GgpYR2UXwU95GLl
+ QoI2wbArN2ElSv1zcCxjsnAHzJ3xZUqya5DOetSRvJVqy4Om+GTAmXEbTHlgJHxR0Nbr
+ CXsD8xLOP2S43cHGG0BZY4iPYq74rZx5vzNThking5zU1JgVIinRSiLAIcLHFS8UyvGu LA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fdpjhdg6x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 13 Apr 2022 08:43:08 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23D8Y7P9011011;
+        Wed, 13 Apr 2022 08:43:07 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fdpjhdg6m-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 13 Apr 2022 08:43:07 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23D8Y8X5007897;
+        Wed, 13 Apr 2022 08:43:05 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma03ams.nl.ibm.com with ESMTP id 3fb1s8xd2j-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 13 Apr 2022 08:43:05 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23D8UVfs44106114
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 13 Apr 2022 08:30:31 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 62A2BAE053;
+        Wed, 13 Apr 2022 08:43:02 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 164A0AE051;
+        Wed, 13 Apr 2022 08:43:02 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.145.1.140])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 13 Apr 2022 08:43:02 +0000 (GMT)
+Date:   Wed, 13 Apr 2022 10:42:59 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Nico Boehr <nrb@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        frankja@linux.ibm.com, thuth@redhat.com
+Subject: Re: [kvm-unit-tests PATCH v1 4/4] s390x: add selftest for migration
+Message-ID: <20220413104259.21553d56@p-imbrenda>
+In-Reply-To: <627b95549636e5fb4bae5ba792298eee0a689b13.camel@linux.ibm.com>
+References: <20220411100750.2868587-1-nrb@linux.ibm.com>
+        <20220411100750.2868587-5-nrb@linux.ibm.com>
+        <20220411144944.690d19f5@p-imbrenda>
+        <627b95549636e5fb4bae5ba792298eee0a689b13.camel@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH v6 12/12] rpmsg: Fix kfree() of static memory on setting
- driver_override
-Content-Language: en-US
-To:     Biju Das <biju.das.jz@bp.renesas.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>
-Cc:     Stuart Yoder <stuyoder@gmail.com>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Andy Gross <agross@kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
-        "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
-        "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>,
-        "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>,
-        "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>,
-        "virtualization@lists.linux-foundation.org" 
-        <virtualization@lists.linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>
-References: <20220403183758.192236-1-krzysztof.kozlowski@linaro.org>
- <20220403183758.192236-13-krzysztof.kozlowski@linaro.org>
- <OS0PR01MB59226666C2C6805C86304BE586ED9@OS0PR01MB5922.jpnprd01.prod.outlook.com>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <OS0PR01MB59226666C2C6805C86304BE586ED9@OS0PR01MB5922.jpnprd01.prod.outlook.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: XvftImeOoHoZEsN4dccCWOM-4SmCk31D
+X-Proofpoint-ORIG-GUID: iXDMrxN2z59rvjIKIaRo-spx5MfJ-uer
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-04-12_08,2022-04-12_02,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ malwarescore=0 impostorscore=0 priorityscore=1501 clxscore=1015 mlxscore=0
+ phishscore=0 spamscore=0 adultscore=0 mlxlogscore=867 suspectscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2204130048
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 12/04/2022 16:10, Biju Das wrote:
-> Hi Krzysztof Kozlowski,
-> 
-> Thanks for the patch.
-> 
->> Subject: [PATCH v6 12/12] rpmsg: Fix kfree() of static memory on setting
->> driver_override
->>
->> The driver_override field from platform driver should not be initialized
->> from static memory (string literal) because the core later kfree() it, for
->> example when driver_override is set via sysfs.
->>
->> Use dedicated helper to set driver_override properly.
->>
->> Fixes: 950a7388f02b ("rpmsg: Turn name service into a stand alone driver")
->> Fixes: c0cdc19f84a4 ("rpmsg: Driver for user space endpoint interface")
->> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
->> Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
->> ---
->>  drivers/rpmsg/rpmsg_internal.h | 13 +++++++++++--
->>  drivers/rpmsg/rpmsg_ns.c       | 14 ++++++++++++--
->>  include/linux/rpmsg.h          |  6 ++++--
->>  3 files changed, 27 insertions(+), 6 deletions(-)
->>
->> diff --git a/drivers/rpmsg/rpmsg_internal.h
->> b/drivers/rpmsg/rpmsg_internal.h index d4b23fd019a8..1a2fb8edf5d3 100644
->> --- a/drivers/rpmsg/rpmsg_internal.h
->> +++ b/drivers/rpmsg/rpmsg_internal.h
->> @@ -94,10 +94,19 @@ int rpmsg_release_channel(struct rpmsg_device *rpdev,
->>   */
->>  static inline int rpmsg_ctrldev_register_device(struct rpmsg_device
->> *rpdev)  {
->> +	int ret;
->> +
->>  	strcpy(rpdev->id.name, "rpmsg_ctrl");
->> -	rpdev->driver_override = "rpmsg_ctrl";
->> +	ret = driver_set_override(&rpdev->dev, &rpdev->driver_override,
->> +				  "rpmsg_ctrl", strlen("rpmsg_ctrl"));
-> 
-> Is it not possible to use rpdev->id.name instead of "rpmsg_ctrl" ?
-> rpdev->id.name has "rpmsg_ctrl" from strcpy(rpdev->id.name, "rpmsg_ctrl");
-> 
-> Same for "rpmsg_ns" as well
+On Tue, 12 Apr 2022 13:49:21 +0200
+Nico Boehr <nrb@linux.ibm.com> wrote:
 
-It's possible. I kept the pattern of duplicating the string literal
-because original code had it, but I don't mind to change it. In the
-output assembler that might be additional instruction - need to
-dereference the rpdev pointer - but that does not matter much.
+> On Mon, 2022-04-11 at 14:49 +0200, Claudio Imbrenda wrote:
+> [...]
+> > > diff --git a/s390x/selftest-migration.c b/s390x/selftest-
+> > > migration.c =20
+> [...]
+> > > +int main(void)
+> > > +{
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0/* don't say migrate here =
+otherwise we will migrate right
+> > > away */
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0report_prefix_push("selfte=
+st migration");
+> > > +
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0/* ask migrate_cmd to migr=
+ate (it listens for 'migrate') */
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0puts("Please migrate me\n"=
+);
+> > > +
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0/* wait for migration to f=
+inish, we will read a newline */
+> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0(void)getchar(); =20
+> >=20
+> > how hard would it be to actually check that you got the newline? =20
+>=20
+> It would be simple. I decided for ignoring what we actually read
+> because that's what ARM and PPC do.
 
+oh, then it's fine as it is
 
-Best regards,
-Krzysztof
+>=20
+> But I am also OK checking we really read a newline. What would you
+> suggest to do if we read something that's not a newline? Read again
+> until we actually do get a newline?
+
+I was more thinking that it's a failure, but see the comment above
