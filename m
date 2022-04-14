@@ -2,227 +2,187 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AB64CC433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 14 Apr 2022 09:38:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C9DFC433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 14 Apr 2022 11:30:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241864AbiDNJkf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 14 Apr 2022 05:40:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36760 "EHLO
+        id S236302AbiDNLdH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 14 Apr 2022 07:33:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241861AbiDNJke (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 14 Apr 2022 05:40:34 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id ABA83710F3
-        for <linux-s390@vger.kernel.org>; Thu, 14 Apr 2022 02:38:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1649929084;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=kAYBz4doVQTzyQ+XbmAkl9XBH5XLaB98KdCbNRQGiq4=;
-        b=LntbUP7SFJH/zQ7kPTF5x42lw1+Texq4xdKoj+NynhWV1I9l3HcsIL4vZmtOv5kAyd2jqD
-        wkKdhoWL05KrTeZU7WFcQ1iG6u317x638eRxxQXEJlAY/7x9G4v+1JDm1kCYwyKooC8ySS
-        9mwcdsMYL1h4iLZibbm3k4ml8ipfujs=
-Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
- [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-203-q6tzHlvkPXSqzzGNFyXq9A-1; Thu, 14 Apr 2022 05:38:03 -0400
-X-MC-Unique: q6tzHlvkPXSqzzGNFyXq9A-1
-Received: by mail-lf1-f71.google.com with SMTP id d12-20020a05651233cc00b0044ad60fe93dso2113769lfg.11
-        for <linux-s390@vger.kernel.org>; Thu, 14 Apr 2022 02:38:02 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=kAYBz4doVQTzyQ+XbmAkl9XBH5XLaB98KdCbNRQGiq4=;
-        b=tMgXGpeLFQg9Mqs6LyGegos/rR4MSmTQE1EHgeQ9QYv+t1/5N63B2O//2yRD1rf8sr
-         uCw/3SeUimSbsQgC4ZAyzSVMoyfVZZuR5eAg0khHjqW9iHzGC17VBno2d9H+0C/Oi/rX
-         OhfLq2RAGDOHq27Lyo8/x07PwvsR83c4giPfY5BrfugH2R1lNMp5gBg3CFIZgmWvdbg+
-         NqBVoCrcAPzyAC/naLn4T2RWyaJHCGnUWxACamMnT0xmh7KLJIiwyKYMERuSnpSEo0cB
-         ErqFqTk7SGl8qFERJx6W3g+d9+/fwnT+k/C8lK4heOY23VY5iC+GgOCL8hFmKUV4tkVX
-         W01w==
-X-Gm-Message-State: AOAM533h5bsZeMiCSW6fAU5nNJ5SyEmBgY7T3ocYQVFO70RfFlhqKBoU
-        anZlXwpRFZ7R20EGL4DKBbV5PU2UKPVV36H1P+sqc63/9fv04OfSGwVe2pEBDU0ECEiTCsnIH7t
-        qFfmE2ytm3c3tbVMy5R+UdpcF1U4uaLPHJa2JXg==
-X-Received: by 2002:a05:6512:b81:b0:448:b342:513c with SMTP id b1-20020a0565120b8100b00448b342513cmr1374422lfv.257.1649929081574;
-        Thu, 14 Apr 2022 02:38:01 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyT+hQL3ayUr4yHsMFIRrMraYLhBZ1J0Bf6UbhSWT+Hf8Hn8S4DOLDQKv3/usDOYYaKjPbe8DoFTVvjkWCTmg0=
-X-Received: by 2002:a05:6512:b81:b0:448:b342:513c with SMTP id
- b1-20020a0565120b8100b00448b342513cmr1374387lfv.257.1649929081317; Thu, 14
- Apr 2022 02:38:01 -0700 (PDT)
+        with ESMTP id S235417AbiDNLdG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 14 Apr 2022 07:33:06 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E866941612;
+        Thu, 14 Apr 2022 04:30:41 -0700 (PDT)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23EA52Nm027817;
+        Thu, 14 Apr 2022 11:30:41 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=nmaAQd4dwn2U67py14DWo8m4aBMKeyjAN7fmOivPwJA=;
+ b=I6ViywZi1GfQGOs9M0yj54GUIDq1AlG051Y+NxxNkcnbSYd53b/3ZwuIgDWZLD45wt1+
+ iJmgI/8w7zLg3h9QB+xK3N4yv43T1XD9H6NtBwSfhbm0TaVd2ZluSDkIdjSrjZ1YfZko
+ rj+uXjtB7zHzynruKiWBe+RebYj8135nKKnnfBjuc8v9PEDRmEb7kH6XuiCyC1smaPb3
+ ijj3kiiqNk2q7h6vVg3i3s74HsWRLaXyZXZ6CdtB7w3hMEgFa9M7Ax4gQgnKfNt3PoqB
+ +wCnphkbxpQd9zJZ+iOsjWA6KtSuOeZdeLq/O+7XRwQz1tYL5LQnkjhimMvReRKtiiK3 zw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3febxa00v3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 14 Apr 2022 11:30:41 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23EBFThR018078;
+        Thu, 14 Apr 2022 11:30:41 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3febxa00u4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 14 Apr 2022 11:30:40 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23EBI8RC025033;
+        Thu, 14 Apr 2022 11:30:38 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma06fra.de.ibm.com with ESMTP id 3fbsj05nv4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 14 Apr 2022 11:30:38 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23EBUYmw25690418
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 14 Apr 2022 11:30:34 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C124FA4065;
+        Thu, 14 Apr 2022 11:30:34 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 44046A405C;
+        Thu, 14 Apr 2022 11:30:34 +0000 (GMT)
+Received: from [9.145.89.230] (unknown [9.145.89.230])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 14 Apr 2022 11:30:34 +0000 (GMT)
+Message-ID: <cc057c0a-58ee-1012-34e4-575b053230db@linux.ibm.com>
+Date:   Thu, 14 Apr 2022 13:30:33 +0200
 MIME-Version: 1.0
-References: <20220406034346.74409-1-xuanzhuo@linux.alibaba.com>
- <20220406034346.74409-23-xuanzhuo@linux.alibaba.com> <d228a41f-a3a1-029d-f259-d4fbab822e78@redhat.com>
- <1649917349.6242197-1-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1649917349.6242197-1-xuanzhuo@linux.alibaba.com>
-From:   Jason Wang <jasowang@redhat.com>
-Date:   Thu, 14 Apr 2022 17:37:50 +0800
-Message-ID: <CACGkMEuk24R8Y-H2=cuG4VkQhTNf6CSEMJbxe7jvHFEusa815g@mail.gmail.com>
-Subject: Re: [PATCH v9 22/32] virtio_pci: queue_reset: extract the logic of
- active vq for modern pci
-To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mark Gross <markgross@kernel.org>,
-        Vadim Pasternak <vadimp@nvidia.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jesper Dangaard Brouer <hawk@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        linux-um@lists.infradead.org, netdev <netdev@vger.kernel.org>,
-        platform-driver-x86@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm <kvm@vger.kernel.org>,
-        "open list:XDP (eXpress Data Path)" <bpf@vger.kernel.org>,
-        virtualization <virtualization@lists.linux-foundation.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH v10 01/19] KVM: s390: pv: leak the topmost page table when
+ destroy fails
+Content-Language: en-US
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     borntraeger@de.ibm.com, thuth@redhat.com, pasic@linux.ibm.com,
+        david@redhat.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, scgl@linux.ibm.com,
+        mimu@linux.ibm.com, nrb@linux.ibm.com
+References: <20220414080311.1084834-1-imbrenda@linux.ibm.com>
+ <20220414080311.1084834-2-imbrenda@linux.ibm.com>
+From:   Janosch Frank <frankja@linux.ibm.com>
+In-Reply-To: <20220414080311.1084834-2-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: pHaqE5irsv5cQHvsFG02lxyl6xOfacfH
+X-Proofpoint-ORIG-GUID: eJX2892CoFLhA2EN96R_SOtu-RmxxX7o
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-04-14_03,2022-04-14_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 adultscore=0
+ mlxscore=0 bulkscore=0 mlxlogscore=999 priorityscore=1501 impostorscore=0
+ malwarescore=0 phishscore=0 suspectscore=0 spamscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2204140060
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Apr 14, 2022 at 2:25 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrot=
-e:
->
-> On Tue, 12 Apr 2022 14:58:19 +0800, Jason Wang <jasowang@redhat.com> wrot=
-e:
-> >
-> > =E5=9C=A8 2022/4/6 =E4=B8=8A=E5=8D=8811:43, Xuan Zhuo =E5=86=99=E9=81=
-=93:
-> > > Introduce vp_active_vq() to configure vring to backend after vq attac=
-h
-> > > vring. And configure vq vector if necessary.
-> > >
-> > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > ---
-> > >   drivers/virtio/virtio_pci_modern.c | 46 ++++++++++++++++++---------=
----
-> > >   1 file changed, 28 insertions(+), 18 deletions(-)
-> > >
-> > > diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virt=
-io_pci_modern.c
-> > > index 86d301f272b8..49a4493732cf 100644
-> > > --- a/drivers/virtio/virtio_pci_modern.c
-> > > +++ b/drivers/virtio/virtio_pci_modern.c
-> > > @@ -176,6 +176,29 @@ static void vp_reset(struct virtio_device *vdev)
-> > >     vp_disable_cbs(vdev);
-> > >   }
-> > >
-> > > +static int vp_active_vq(struct virtqueue *vq, u16 msix_vec)
-> > > +{
-> > > +   struct virtio_pci_device *vp_dev =3D to_vp_device(vq->vdev);
-> > > +   struct virtio_pci_modern_device *mdev =3D &vp_dev->mdev;
-> > > +   unsigned long index;
-> > > +
-> > > +   index =3D vq->index;
-> > > +
-> > > +   /* activate the queue */
-> > > +   vp_modern_set_queue_size(mdev, index, virtqueue_get_vring_size(vq=
-));
-> > > +   vp_modern_queue_address(mdev, index, virtqueue_get_desc_addr(vq),
-> > > +                           virtqueue_get_avail_addr(vq),
-> > > +                           virtqueue_get_used_addr(vq));
-> > > +
-> > > +   if (msix_vec !=3D VIRTIO_MSI_NO_VECTOR) {
-> > > +           msix_vec =3D vp_modern_queue_vector(mdev, index, msix_vec=
-);
-> > > +           if (msix_vec =3D=3D VIRTIO_MSI_NO_VECTOR)
-> > > +                   return -EBUSY;
-> > > +   }
-> > > +
-> > > +   return 0;
-> > > +}
-> > > +
-> > >   static u16 vp_config_vector(struct virtio_pci_device *vp_dev, u16 v=
-ector)
-> > >   {
-> > >     return vp_modern_config_vector(&vp_dev->mdev, vector);
-> > > @@ -220,32 +243,19 @@ static struct virtqueue *setup_vq(struct virtio=
-_pci_device *vp_dev,
-> > >
-> > >     vq->num_max =3D num;
-> > >
-> > > -   /* activate the queue */
-> > > -   vp_modern_set_queue_size(mdev, index, virtqueue_get_vring_size(vq=
-));
-> > > -   vp_modern_queue_address(mdev, index, virtqueue_get_desc_addr(vq),
-> > > -                           virtqueue_get_avail_addr(vq),
-> > > -                           virtqueue_get_used_addr(vq));
-> > > +   err =3D vp_active_vq(vq, msix_vec);
-> > > +   if (err)
-> > > +           goto err;
-> > >
-> > >     vq->priv =3D (void __force *)vp_modern_map_vq_notify(mdev, index,=
- NULL);
-> > >     if (!vq->priv) {
-> > >             err =3D -ENOMEM;
-> > > -           goto err_map_notify;
-> > > -   }
-> > > -
-> > > -   if (msix_vec !=3D VIRTIO_MSI_NO_VECTOR) {
-> > > -           msix_vec =3D vp_modern_queue_vector(mdev, index, msix_vec=
-);
-> > > -           if (msix_vec =3D=3D VIRTIO_MSI_NO_VECTOR) {
-> > > -                   err =3D -EBUSY;
-> > > -                   goto err_assign_vector;
-> > > -           }
-> > > +           goto err;
-> > >     }
-> > >
-> > >     return vq;
-> > >
-> > > -err_assign_vector:
-> > > -   if (!mdev->notify_base)
-> > > -           pci_iounmap(mdev->pci_dev, (void __iomem __force *)vq->pr=
-iv);
-> >
-> >
-> > We need keep this or anything I missed?
->
-> I think so, after modification, vp_modern_map_vq_notify is the last step =
-before
-> returning vq. If it fails, then vq->priv is equal to NULL, so there is no=
- need
-> to execute pci_iounmap.
->
-> Did I miss something?
+On 4/14/22 10:02, Claudio Imbrenda wrote:
+> Each secure guest must have a unique ASCE (address space control
+> element); we must avoid that new guests use the same page for their
+> ASCE, to avoid errors.
+> 
+> Since the ASCE mostly consists of the address of the topmost page table
+> (plus some flags), we must not return that memory to the pool unless
+> the ASCE is no longer in use.
+> 
+> Only a successful Destroy Secure Configuration UVC will make the ASCE
+> reusable again.
+> 
+> If the Destroy Configuration UVC fails, the ASCE cannot be reused for a
+> secure guest (either for the ASCE or for other memory areas). To avoid
+> a collision, it must not be used again. This is a permanent error and
+> the page becomes in practice unusable, so we set it aside and leak it.
+> On failure we already leak other memory that belongs to the ultravisor
+> (i.e. the variable and base storage for a guest) and not leaking the
+> topmost page table was an oversight.
+> 
+> This error (and thus the leakage) should not happen unless the hardware
+> is broken or KVM has some unknown serious bug.
+> 
 
-Nope I miss that the vector is configured before the mapping.
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 
-So
+> +	/*
+> +	 * In case the ASCE needs to be "removed" multiple times, for example
+> +	 * if the VM is rebooted into secure mode several times
+> +	 * concurrently, or if s390_replace_asce fails after calling
+> +	 * s390_remove_old_asce and is attempted again later. In that case
+> +	 * the old asce has been removed from the list, and therefore it
+> +	 * will not be freed when the VM terminates, but the ASCE is still
+> +	 * in use and still pointed to.
+> +	 * A subsequent call to replace_asce will follow the pointer and try
+> +	 * to remove the same page from the list again.
+> +	 * Therefore it's necessary that the page of the ASCE has valid
+> +	 * pointers, so list_del can work (and do nothing) without
+> +	 * dereferencing stale or invalid pointers.
+> +	 */
+> +	INIT_LIST_HEAD(&old->lru);
+> +	spin_unlock(&gmap->guest_table_lock);
+> +}
+> +EXPORT_SYMBOL_GPL(s390_remove_old_asce);
+> +
+> +/**
+> + * s390_replace_asce - Try to replace the current ASCE of a gmap with
+> + * another equivalent one.
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+with a copy?
 
-Thanks
+> + * @gmap the gmap
+> + *
+> + * If the allocation of the new top level page table fails, the ASCE is not
+> + * replaced.
+> + * In any case, the old ASCE is always removed from the list. Therefore the
 
->
-> Thanks.
->
-> >
-> > Thanks
-> >
-> >
-> > > -err_map_notify:
-> > > +err:
-> > >     vring_del_virtqueue(vq);
-> > >     return ERR_PTR(err);
-> > >   }
-> >
->
+removed from the gmap crst list
+
+> + * caller has to make sure to save a pointer to it beforehands, unless an
+> + * intentional leak is intended.
+> + */
+> +int s390_replace_asce(struct gmap *gmap)
+> +{
+> +	unsigned long asce;
+> +	struct page *page;
+> +	void *table;
+> +
+> +	s390_remove_old_asce(gmap);
+> +
+> +	page = alloc_pages(GFP_KERNEL_ACCOUNT, CRST_ALLOC_ORDER);
+> +	if (!page)
+> +		return -ENOMEM;
+> +	table = page_to_virt(page);
+> +	memcpy(table, gmap->table, 1UL << (CRST_ALLOC_ORDER + PAGE_SHIFT));
+> +
+> +	/*
+> +	 * The caller has to deal with the old ASCE, but here we make sure
+> +	 * the new one is properly added to the list of page tables, so that
+> +	 * it will be freed when the VM is torn down.
+> +	 */
+> +	spin_lock(&gmap->guest_table_lock);
+> +	list_add(&page->lru, &gmap->crst_list);
+> +	spin_unlock(&gmap->guest_table_lock);
+> +
+> +	/* Set new table origin while preserving existing ASCE control bits */
+> +	asce = (gmap->asce & ~_ASCE_ORIGIN) | __pa(table);
+> +	WRITE_ONCE(gmap->asce, asce);
+> +	WRITE_ONCE(gmap->mm->context.gmap_asce, asce);
+> +	WRITE_ONCE(gmap->table, table);
+> +
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(s390_replace_asce);
 
