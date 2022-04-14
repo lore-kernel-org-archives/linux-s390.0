@@ -2,106 +2,416 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CBD0C433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 14 Apr 2022 08:29:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C5C8C4332F
+	for <linux-s390@archiver.kernel.org>; Thu, 14 Apr 2022 09:16:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236836AbiDNIb7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 14 Apr 2022 04:31:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39700 "EHLO
+        id S236094AbiDNJTB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 14 Apr 2022 05:19:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238634AbiDNIb5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 14 Apr 2022 04:31:57 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27419B863;
-        Thu, 14 Apr 2022 01:29:33 -0700 (PDT)
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23E7FWn7015091;
-        Thu, 14 Apr 2022 08:29:22 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=w6LG2k4ti6YV7S9h7NTtZdo/5OqXBbE7WUofQP2sUjQ=;
- b=PDNPTej/fiv0dCpibnpXHfWDXL3bUJSOmpLG8HSiylIcvgjOAB06SfqaQgy9VEgi9g+e
- bb2Xn4uMExRzmqvOvu51DBUmNJZ0GYWiV32Xfl0VpjM2NVyElji86MIeWwNoOExkZYyv
- vkZgBQjmB+xfQKBY4fBAve+R9J+IUTlDUy9cTV1H1mUgywUCBSEeAejrSPr4cY5JMYSu
- xzPUzehB4m0LbTzkh452jft+elHk8zHx/Vk2YoghtPJljYQ+QZPZ1VPjTHsGxRqtDoYC
- ZPX/FQwSTzs+GWh9lZMN95eDfmyIEmbnYcKwVqHHJ3NMkZ3D7qe7NWhgAitle37s1fON Yw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3fef2mh8bd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 14 Apr 2022 08:29:22 +0000
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23E8J0YJ010436;
-        Thu, 14 Apr 2022 08:29:22 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3fef2mh8b5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 14 Apr 2022 08:29:22 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23E8Rwjp006604;
-        Thu, 14 Apr 2022 08:29:20 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma03fra.de.ibm.com with ESMTP id 3fb1s8pg81-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 14 Apr 2022 08:29:20 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23E8GivW49021386
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 14 Apr 2022 08:16:44 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 197BB42042;
-        Thu, 14 Apr 2022 08:29:18 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AAC6542047;
-        Thu, 14 Apr 2022 08:29:17 +0000 (GMT)
-Received: from [9.171.63.52] (unknown [9.171.63.52])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 14 Apr 2022 08:29:17 +0000 (GMT)
-Message-ID: <aee77dea-7161-e988-27f8-bbf6c28d048a@linux.ibm.com>
-Date:   Thu, 14 Apr 2022 10:29:19 +0200
+        with ESMTP id S241373AbiDNJTB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 14 Apr 2022 05:19:01 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 7B7D750E23
+        for <linux-s390@vger.kernel.org>; Thu, 14 Apr 2022 02:16:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1649927794;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=oDyHVey8Or3yypg5xnBGmBMb7pZ6GTNQ18Cis2FA/oo=;
+        b=a5Jg2FVT0Js0d7xfEwWA1vvGePp6nNhFIZanOkRgvNgTVJUV/A+Du4J5odSyS1lrL3lHM7
+        2QdKkJR9LXdf7EhIFEEC55ZDYA2kn5pSS/5dTcIrdsugl9Mx7Apv1G3zg59oVbfubwzFDS
+        Nea3mnwWIi92eBxIHDLaHLW2htI+QmI=
+Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
+ [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-665-9Dmcwa-AP16vMmfysGS7Fg-1; Thu, 14 Apr 2022 05:16:33 -0400
+X-MC-Unique: 9Dmcwa-AP16vMmfysGS7Fg-1
+Received: by mail-lj1-f198.google.com with SMTP id h7-20020a2eb0e7000000b0024b6115035dso949503ljl.7
+        for <linux-s390@vger.kernel.org>; Thu, 14 Apr 2022 02:16:32 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=oDyHVey8Or3yypg5xnBGmBMb7pZ6GTNQ18Cis2FA/oo=;
+        b=G3fNpGqB+7miz3b8kEy2T48hOjrt8Gy1c6HfUPoyqHrnbbgUNg3QRzbMN/35jBSIul
+         aaC1aya9Q1YAR2bBDlWBoS+i8dtwuG40L1mhwOTjSyKmLM5H6MBXvuQcK3KvVAhKZtJm
+         mAtfb5sCEb9HZKK3BkPhneuwW6+gwSRVXbUlADKmKRZXAHj+Dd+HduSBx7P+vzNCOwkm
+         mthjRLwV8bYuY8udbRvBE+iJB7/dY7P/XKg4N4sv9B2io2nNAXW1SqWWfKixPOg4d7X/
+         FsA5bSNYXcz4LNG9WTQlD6UUGb1s++98S4rR2sSfia4a6IhUdCd1jpB+X1+ZWPVqU8V8
+         36AQ==
+X-Gm-Message-State: AOAM532Ks7njAbODz97ZeEVg8eCdE2VXUmS+G4mly3IoqBKJPul4c+CR
+        H3GCQFt7P8l1YldD+RpPxc/irH23Ynxr/U4eDNDwje8qucIPGKFtpFIvm/r8rvEdHaDFpq+dBer
+        cXqIhsRjAp8wS0Sq/0vJ68LMkLYbwQuOHo3XkeA==
+X-Received: by 2002:a05:6512:3093:b0:46b:814c:3a69 with SMTP id z19-20020a056512309300b0046b814c3a69mr1318058lfd.376.1649927791456;
+        Thu, 14 Apr 2022 02:16:31 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJy0kFBUTO7Dlm65tLj1wmU6knA+DzshVe6hYxPEBB/AR6yhSIFpfw3Y9RgnR4ACapxp3cguHQaa7kh1RItoYPY=
+X-Received: by 2002:a05:6512:3093:b0:46b:814c:3a69 with SMTP id
+ z19-20020a056512309300b0046b814c3a69mr1318022lfd.376.1649927791051; Thu, 14
+ Apr 2022 02:16:31 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Subject: Re: [PATCH net] net/smc: Fix sock leak when release after
- smc_shutdown()
-Content-Language: en-US
-To:     Tony Lu <tonylu@linux.alibaba.com>, davem@davemloft.net,
-        kuba@kernel.org, pabeni@redhat.com
-Cc:     netdev@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20220414075102.84366-1-tonylu@linux.alibaba.com>
-From:   Karsten Graul <kgraul@linux.ibm.com>
-Organization: IBM Deutschland Research & Development GmbH
-In-Reply-To: <20220414075102.84366-1-tonylu@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: CnKmzBZN9TVi2TxabweZgPMTjdbNDB3j
-X-Proofpoint-GUID: eO6JUPubVmmQ_gyhmKHSAfUjIfgQEtUi
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-04-14_02,2022-04-13_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxlogscore=999
- lowpriorityscore=0 adultscore=0 clxscore=1015 suspectscore=0 spamscore=0
- priorityscore=1501 mlxscore=0 malwarescore=0 impostorscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2204140040
+References: <20220406034346.74409-1-xuanzhuo@linux.alibaba.com>
+ <20220406034346.74409-2-xuanzhuo@linux.alibaba.com> <71fbd7fc-20db-024b-ec66-b875216be4bd@redhat.com>
+ <1649816652.9004085-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1649816652.9004085-1-xuanzhuo@linux.alibaba.com>
+From:   Jason Wang <jasowang@redhat.com>
+Date:   Thu, 14 Apr 2022 17:16:19 +0800
+Message-ID: <CACGkMEvCrgRf=6TXQ_pQU0hm-ZDLEBu5VZcL71+c+jVWq=KLDg@mail.gmail.com>
+Subject: Re: [PATCH v9 01/32] virtio: add helper virtqueue_get_vring_max_size()
+To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        Vadim Pasternak <vadimp@nvidia.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        linux-um@lists.infradead.org, netdev <netdev@vger.kernel.org>,
+        platform-driver-x86@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm <kvm@vger.kernel.org>,
+        "open list:XDP (eXpress Data Path)" <bpf@vger.kernel.org>,
+        virtualization <virtualization@lists.linux-foundation.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 14/04/2022 09:51, Tony Lu wrote:
-> Since commit e5d5aadcf3cd ("net/smc: fix sk_refcnt underflow on linkdown
-> and fallback"), for a fallback connection, __smc_release() does not call
-> sock_put() if its state is already SMC_CLOSED.
-> 
-> When calling smc_shutdown() after falling back, its state is set to
-> SMC_CLOSED but does not call sock_put(), so this patch calls it.
-> 
-> Reported-and-tested-by: syzbot+6e29a053eb165bd50de5@syzkaller.appspotmail.com
-> Fixes: e5d5aadcf3cd ("net/smc: fix sk_refcnt underflow on linkdown and fallback")
-> Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
-> ---
+On Wed, Apr 13, 2022 at 10:30 AM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wro=
+te:
+>
+> On Tue, 12 Apr 2022 10:41:03 +0800, Jason Wang <jasowang@redhat.com> wrot=
+e:
+> >
+> > =E5=9C=A8 2022/4/6 =E4=B8=8A=E5=8D=8811:43, Xuan Zhuo =E5=86=99=E9=81=
+=93:
+> > > Record the maximum queue num supported by the device.
+> > >
+> > > virtio-net can display the maximum (supported by hardware) ring size =
+in
+> > > ethtool -g eth0.
+> > >
+> > > When the subsequent patch implements vring reset, it can judge whethe=
+r
+> > > the ring size passed by the driver is legal based on this.
+> > >
+> > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > ---
+> > >   arch/um/drivers/virtio_uml.c             |  1 +
+> > >   drivers/platform/mellanox/mlxbf-tmfifo.c |  2 ++
+> > >   drivers/remoteproc/remoteproc_virtio.c   |  2 ++
+> > >   drivers/s390/virtio/virtio_ccw.c         |  3 +++
+> > >   drivers/virtio/virtio_mmio.c             |  2 ++
+> > >   drivers/virtio/virtio_pci_legacy.c       |  2 ++
+> > >   drivers/virtio/virtio_pci_modern.c       |  2 ++
+> > >   drivers/virtio/virtio_ring.c             | 14 ++++++++++++++
+> > >   drivers/virtio/virtio_vdpa.c             |  2 ++
+> > >   include/linux/virtio.h                   |  2 ++
+> > >   10 files changed, 32 insertions(+)
+> > >
+> > > diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_um=
+l.c
+> > > index ba562d68dc04..904993d15a85 100644
+> > > --- a/arch/um/drivers/virtio_uml.c
+> > > +++ b/arch/um/drivers/virtio_uml.c
+> > > @@ -945,6 +945,7 @@ static struct virtqueue *vu_setup_vq(struct virti=
+o_device *vdev,
+> > >             goto error_create;
+> > >     }
+> > >     vq->priv =3D info;
+> > > +   vq->num_max =3D num;
+> > >     num =3D virtqueue_get_vring_size(vq);
+> > >
+> > >     if (vu_dev->protocol_features &
+> > > diff --git a/drivers/platform/mellanox/mlxbf-tmfifo.c b/drivers/platf=
+orm/mellanox/mlxbf-tmfifo.c
+> > > index 38800e86ed8a..1ae3c56b66b0 100644
+> > > --- a/drivers/platform/mellanox/mlxbf-tmfifo.c
+> > > +++ b/drivers/platform/mellanox/mlxbf-tmfifo.c
+> > > @@ -959,6 +959,8 @@ static int mlxbf_tmfifo_virtio_find_vqs(struct vi=
+rtio_device *vdev,
+> > >                     goto error;
+> > >             }
+> > >
+> > > +           vq->num_max =3D vring->num;
+> > > +
+> > >             vqs[i] =3D vq;
+> > >             vring->vq =3D vq;
+> > >             vq->priv =3D vring;
+> > > diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remotep=
+roc/remoteproc_virtio.c
+> > > index 70ab496d0431..7611755d0ae2 100644
+> > > --- a/drivers/remoteproc/remoteproc_virtio.c
+> > > +++ b/drivers/remoteproc/remoteproc_virtio.c
+> > > @@ -125,6 +125,8 @@ static struct virtqueue *rp_find_vq(struct virtio=
+_device *vdev,
+> > >             return ERR_PTR(-ENOMEM);
+> > >     }
+> > >
+> > > +   vq->num_max =3D len;
+> >
+> >
+> > I wonder if this is correct.
+> >
+> > It looks to me len is counted in bytes:
+> >
+> > /**
+> >   * struct rproc_vring - remoteproc vring state
+> >   * @va: virtual address
+> >   * @len: length, in bytes
+> >   * @da: device address
+> >   * @align: vring alignment
+> >   * @notifyid: rproc-specific unique vring index
+> >   * @rvdev: remote vdev
+> >   * @vq: the virtqueue of this vring
+> >   */
+> > struct rproc_vring {
+> >          void *va;
+> >          int len;
+> >          u32 da;
+> >          u32 align;
+> >          int notifyid;
+> >          struct rproc_vdev *rvdev;
+> >          struct virtqueue *vq;
+> > };
+> >
+>
+> I think this comment is incorrect because here len is passed as num to
+> vring_new_virtqueue().
+>
+> There is also this usage:
+>
+>         /* actual size of vring (in bytes) */
+>         size =3D PAGE_ALIGN(vring_size(rvring->len, rvring->align));
+>
+>
+> And this value comes from here:
+>
+>         static int
+>         rproc_parse_vring(struct rproc_vdev *rvdev, struct fw_rsc_vdev *r=
+sc, int i)
+>         {
+>                 struct rproc *rproc =3D rvdev->rproc;
+>                 struct device *dev =3D &rproc->dev;
+>                 struct fw_rsc_vdev_vring *vring =3D &rsc->vring[i];
+>                 struct rproc_vring *rvring =3D &rvdev->vring[i];
+>
+>                 dev_dbg(dev, "vdev rsc: vring%d: da 0x%x, qsz %d, align %=
+d\n",
+>                         i, vring->da, vring->num, vring->align);
+>
+>                 /* verify queue size and vring alignment are sane */
+>                 if (!vring->num || !vring->align) {
+>                         dev_err(dev, "invalid qsz (%d) or alignment (%d)\=
+n",
+>                                 vring->num, vring->align);
+>                         return -EINVAL;
+>                 }
+>
+>        >        rvring->len =3D vring->num;
+>                 rvring->align =3D vring->align;
+>                 rvring->rvdev =3D rvdev;
+>
+>                 return 0;
+>         }
+>
+> /**
+>  * struct fw_rsc_vdev_vring - vring descriptor entry
+>  * @da: device address
+>  * @align: the alignment between the consumer and producer parts of the v=
+ring
+>  * @num: num of buffers supported by this vring (must be power of two)
+>  * @notifyid: a unique rproc-wide notify index for this vring. This notif=
+y
+>  * index is used when kicking a remote processor, to let it know that thi=
+s
+>  * vring is triggered.
+>  * @pa: physical address
+>  *
+>  * This descriptor is not a resource entry by itself; it is part of the
+>  * vdev resource type (see below).
+>  *
+>  * Note that @da should either contain the device address where
+>  * the remote processor is expecting the vring, or indicate that
+>  * dynamically allocation of the vring's device address is supported.
+>  */
+> struct fw_rsc_vdev_vring {
+>         u32 da;
+>         u32 align;
+>         u32 num;
+>         u32 notifyid;
+>         u32 pa;
+> } __packed;
+>
+> So I think the 'len' here may have changed its meaning in a version updat=
+e.
 
-Thank you.
+I think you're right, let's have a patch to fix the comment (probably
+with the name since len is confusing here).
 
-Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+Thanks
+
+>
+> Thanks.
+>
+> >
+> > Other looks good.
+> >
+> > Thanks
+> >
+> >
+> > > +
+> > >     rvring->vq =3D vq;
+> > >     vq->priv =3D rvring;
+> > >
+> > > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/v=
+irtio_ccw.c
+> > > index d35e7a3f7067..468da60b56c5 100644
+> > > --- a/drivers/s390/virtio/virtio_ccw.c
+> > > +++ b/drivers/s390/virtio/virtio_ccw.c
+> > > @@ -529,6 +529,9 @@ static struct virtqueue *virtio_ccw_setup_vq(stru=
+ct virtio_device *vdev,
+> > >             err =3D -ENOMEM;
+> > >             goto out_err;
+> > >     }
+> > > +
+> > > +   vq->num_max =3D info->num;
+> > > +
+> > >     /* it may have been reduced */
+> > >     info->num =3D virtqueue_get_vring_size(vq);
+> > >
+> > > diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmi=
+o.c
+> > > index 56128b9c46eb..a41abc8051b9 100644
+> > > --- a/drivers/virtio/virtio_mmio.c
+> > > +++ b/drivers/virtio/virtio_mmio.c
+> > > @@ -390,6 +390,8 @@ static struct virtqueue *vm_setup_vq(struct virti=
+o_device *vdev, unsigned index,
+> > >             goto error_new_virtqueue;
+> > >     }
+> > >
+> > > +   vq->num_max =3D num;
+> > > +
+> > >     /* Activate the queue */
+> > >     writel(virtqueue_get_vring_size(vq), vm_dev->base + VIRTIO_MMIO_Q=
+UEUE_NUM);
+> > >     if (vm_dev->version =3D=3D 1) {
+> > > diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virt=
+io_pci_legacy.c
+> > > index 34141b9abe27..b68934fe6b5d 100644
+> > > --- a/drivers/virtio/virtio_pci_legacy.c
+> > > +++ b/drivers/virtio/virtio_pci_legacy.c
+> > > @@ -135,6 +135,8 @@ static struct virtqueue *setup_vq(struct virtio_p=
+ci_device *vp_dev,
+> > >     if (!vq)
+> > >             return ERR_PTR(-ENOMEM);
+> > >
+> > > +   vq->num_max =3D num;
+> > > +
+> > >     q_pfn =3D virtqueue_get_desc_addr(vq) >> VIRTIO_PCI_QUEUE_ADDR_SH=
+IFT;
+> > >     if (q_pfn >> 32) {
+> > >             dev_err(&vp_dev->pci_dev->dev,
+> > > diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virt=
+io_pci_modern.c
+> > > index 5455bc041fb6..86d301f272b8 100644
+> > > --- a/drivers/virtio/virtio_pci_modern.c
+> > > +++ b/drivers/virtio/virtio_pci_modern.c
+> > > @@ -218,6 +218,8 @@ static struct virtqueue *setup_vq(struct virtio_p=
+ci_device *vp_dev,
+> > >     if (!vq)
+> > >             return ERR_PTR(-ENOMEM);
+> > >
+> > > +   vq->num_max =3D num;
+> > > +
+> > >     /* activate the queue */
+> > >     vp_modern_set_queue_size(mdev, index, virtqueue_get_vring_size(vq=
+));
+> > >     vp_modern_queue_address(mdev, index, virtqueue_get_desc_addr(vq),
+> > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_rin=
+g.c
+> > > index 962f1477b1fa..b87130c8f312 100644
+> > > --- a/drivers/virtio/virtio_ring.c
+> > > +++ b/drivers/virtio/virtio_ring.c
+> > > @@ -2371,6 +2371,20 @@ void vring_transport_features(struct virtio_de=
+vice *vdev)
+> > >   }
+> > >   EXPORT_SYMBOL_GPL(vring_transport_features);
+> > >
+> > > +/**
+> > > + * virtqueue_get_vring_max_size - return the max size of the virtque=
+ue's vring
+> > > + * @_vq: the struct virtqueue containing the vring of interest.
+> > > + *
+> > > + * Returns the max size of the vring.
+> > > + *
+> > > + * Unlike other operations, this need not be serialized.
+> > > + */
+> > > +unsigned int virtqueue_get_vring_max_size(struct virtqueue *_vq)
+> > > +{
+> > > +   return _vq->num_max;
+> > > +}
+> > > +EXPORT_SYMBOL_GPL(virtqueue_get_vring_max_size);
+> > > +
+> > >   /**
+> > >    * virtqueue_get_vring_size - return the size of the virtqueue's vr=
+ing
+> > >    * @_vq: the struct virtqueue containing the vring of interest.
+> > > diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdp=
+a.c
+> > > index 7767a7f0119b..39e4c08eb0f2 100644
+> > > --- a/drivers/virtio/virtio_vdpa.c
+> > > +++ b/drivers/virtio/virtio_vdpa.c
+> > > @@ -183,6 +183,8 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, =
+unsigned int index,
+> > >             goto error_new_virtqueue;
+> > >     }
+> > >
+> > > +   vq->num_max =3D max_num;
+> > > +
+> > >     /* Setup virtqueue callback */
+> > >     cb.callback =3D virtio_vdpa_virtqueue_cb;
+> > >     cb.private =3D info;
+> > > diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> > > index 72292a62cd90..d59adc4be068 100644
+> > > --- a/include/linux/virtio.h
+> > > +++ b/include/linux/virtio.h
+> > > @@ -31,6 +31,7 @@ struct virtqueue {
+> > >     struct virtio_device *vdev;
+> > >     unsigned int index;
+> > >     unsigned int num_free;
+> > > +   unsigned int num_max;
+> > >     void *priv;
+> > >   };
+> > >
+> > > @@ -80,6 +81,7 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *=
+vq);
+> > >
+> > >   void *virtqueue_detach_unused_buf(struct virtqueue *vq);
+> > >
+> > > +unsigned int virtqueue_get_vring_max_size(struct virtqueue *vq);
+> > >   unsigned int virtqueue_get_vring_size(struct virtqueue *vq);
+> > >
+> > >   bool virtqueue_is_broken(struct virtqueue *vq);
+> >
+>
+
