@@ -2,376 +2,355 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72E9CC433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 14 Apr 2022 19:26:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A2538C433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 15 Apr 2022 02:23:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232959AbiDNT3F (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 14 Apr 2022 15:29:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37216 "EHLO
+        id S1348651AbiDOC0K (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 14 Apr 2022 22:26:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234975AbiDNT3A (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 14 Apr 2022 15:29:00 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9549E338E;
-        Thu, 14 Apr 2022 12:26:34 -0700 (PDT)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23EH8IU8015720;
-        Thu, 14 Apr 2022 19:26:23 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=ozm7ObVk9+dmufRZapWVOwMVGMWLWKlEXppBnJWoflE=;
- b=MGLO55jPGvwihfaFDaSwwejN6qf//k0YAChtN6/8N4qE04nhdYSP9y31Qj4rfcRz/CMg
- 0BEahHC9Fjb4RfTdMix3h5DhRd4/eqJOAS8wOfGfp+dvOAk/4BH81i0wrVNkfcFg4PTt
- lcnHK0bjoHtwXgjDS99tBcmquO6L1G3pUuBOarlWWVK4/Q0m+U3mWU5cGm7+MVx+5MnQ
- AglPibbAlgETll38WNKozchQt4Kjk+Vyek96CC4EuiO/+0LUNF3ljLSm7ojoEK1Py2B6
- jHK+qDr8m8ofhI9drdFzMXnNWfTFVvQbWmzh1kofvIE6/XAP7da2sPFnozf2bu/TJxvn rg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3fefydd057-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 14 Apr 2022 19:26:22 +0000
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23EJH0lv007797;
-        Thu, 14 Apr 2022 19:26:22 GMT
-Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3fefydd051-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 14 Apr 2022 19:26:22 +0000
-Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
-        by ppma02dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23EJIChX024952;
-        Thu, 14 Apr 2022 19:26:21 GMT
-Received: from b01cxnp23032.gho.pok.ibm.com (b01cxnp23032.gho.pok.ibm.com [9.57.198.27])
-        by ppma02dal.us.ibm.com with ESMTP id 3fb1sabjp7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 14 Apr 2022 19:26:21 +0000
-Received: from b01ledav005.gho.pok.ibm.com (b01ledav005.gho.pok.ibm.com [9.57.199.110])
-        by b01cxnp23032.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23EJQKoQ25100588
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 14 Apr 2022 19:26:20 GMT
-Received: from b01ledav005.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 02C89AE060;
-        Thu, 14 Apr 2022 19:26:20 +0000 (GMT)
-Received: from b01ledav005.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 25C80AE05C;
-        Thu, 14 Apr 2022 19:26:13 +0000 (GMT)
-Received: from farman-thinkpad-t470p (unknown [9.211.52.116])
-        by b01ledav005.gho.pok.ibm.com (Postfix) with ESMTP;
-        Thu, 14 Apr 2022 19:26:12 +0000 (GMT)
-Message-ID: <f9d4fb48ccee8ffa70caadf88f143bd91fcfc05e.camel@linux.ibm.com>
-Subject: Re: [PATCH 3/9] vfio/mdev: Pass in a struct vfio_device * to
- vfio_pin/unpin_pages()
-From:   Eric Farman <farman@linux.ibm.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        David Airlie <airlied@linux.ie>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        with ESMTP id S239639AbiDOC0J (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 14 Apr 2022 22:26:09 -0400
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C78E844742;
+        Thu, 14 Apr 2022 19:23:40 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R951e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=33;SR=0;TI=SMTPD_---0VA5EU1i_1649989414;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VA5EU1i_1649989414)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Fri, 15 Apr 2022 10:23:35 +0800
+Message-ID: <1649989126.5433838-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH v9 31/32] virtio_net: support rx/tx queue resize
+Date:   Fri, 15 Apr 2022 10:18:46 +0800
+From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To:     Jason Wang <jasowang@redhat.com>
+Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        Vadim Pasternak <vadimp@nvidia.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
         Cornelia Huck <cohuck@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        intel-gfx@lists.freedesktop.org,
-        intel-gvt-dev@lists.freedesktop.org,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
-        linux-doc@vger.kernel.org, linux-s390@vger.kernel.org,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
         Halil Pasic <pasic@linux.ibm.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>
-Cc:     Christoph Hellwig <hch@lst.de>,
-        "Tian, Kevin" <kevin.tian@intel.com>,
-        "Liu, Yi L" <yi.l.liu@intel.com>
-Date:   Thu, 14 Apr 2022 15:26:11 -0400
-In-Reply-To: <3-v1-a8faf768d202+125dd-vfio_mdev_no_group_jgg@nvidia.com>
-References: <3-v1-a8faf768d202+125dd-vfio_mdev_no_group_jgg@nvidia.com>
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        linux-um@lists.infradead.org, netdev <netdev@vger.kernel.org>,
+        platform-driver-x86@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm <kvm@vger.kernel.org>,
+        "open list:XDP (eXpress Data Path)" <bpf@vger.kernel.org>,
+        virtualization <virtualization@lists.linux-foundation.org>
+References: <20220406034346.74409-1-xuanzhuo@linux.alibaba.com>
+ <20220406034346.74409-32-xuanzhuo@linux.alibaba.com>
+ <122008a6-1e79-14d3-1478-59f96464afc9@redhat.com>
+ <1649838917.6726515-10-xuanzhuo@linux.alibaba.com>
+ <CACGkMEvPH1k76xB_cHq_S9hvMXgGruoXpKLfoMZvJZ-L7wM9iw@mail.gmail.com>
+In-Reply-To: <CACGkMEvPH1k76xB_cHq_S9hvMXgGruoXpKLfoMZvJZ-L7wM9iw@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: uZq8aBCvvRiYB0aEQrrVOKYqDxG7Xk9n
-X-Proofpoint-ORIG-GUID: 93JfTwHUje5lundOnEzqRFuD3bDlU-bs
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-04-14_05,2022-04-14_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 adultscore=0
- mlxscore=0 malwarescore=0 spamscore=0 priorityscore=1501 suspectscore=0
- impostorscore=0 mlxlogscore=999 clxscore=1015 phishscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2204140100
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 2022-04-12 at 12:53 -0300, Jason Gunthorpe wrote:
-> Every caller has a readily available vfio_device pointer, use that
-> instead
-> of passing in a generic struct device. The struct vfio_device already
-> contains the group we need so this avoids complexity, extra
-> refcountings,
-> and a confusing lifecycle model.
-> 
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->  .../driver-api/vfio-mediated-device.rst       |  4 +-
->  drivers/s390/cio/vfio_ccw_cp.c                |  6 +--
->  drivers/s390/crypto/vfio_ap_ops.c             |  8 ++--
->  drivers/vfio/vfio.c                           | 40 ++++++-----------
-> --
->  include/linux/vfio.h                          |  4 +-
->  5 files changed, 24 insertions(+), 38 deletions(-)
+On Thu, 14 Apr 2022 17:30:02 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> On Wed, Apr 13, 2022 at 4:47 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wr=
+ote:
+> >
+> > On Wed, 13 Apr 2022 16:00:18 +0800, Jason Wang <jasowang@redhat.com> wr=
+ote:
+> > >
+> > > =E5=9C=A8 2022/4/6 =E4=B8=8A=E5=8D=8811:43, Xuan Zhuo =E5=86=99=E9=81=
+=93:
+> > > > This patch implements the resize function of the rx, tx queues.
+> > > > Based on this function, it is possible to modify the ring num of the
+> > > > queue.
+> > > >
+> > > > There may be an exception during the resize process, the resize may
+> > > > fail, or the vq can no longer be used. Either way, we must execute
+> > > > napi_enable(). Because napi_disable is similar to a lock, napi_enab=
+le
+> > > > must be called after calling napi_disable.
+> > > >
+> > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > ---
+> > > >   drivers/net/virtio_net.c | 81 +++++++++++++++++++++++++++++++++++=
++++++
+> > > >   1 file changed, 81 insertions(+)
+> > > >
+> > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > > > index b8bf00525177..ba6859f305f7 100644
+> > > > --- a/drivers/net/virtio_net.c
+> > > > +++ b/drivers/net/virtio_net.c
+> > > > @@ -251,6 +251,9 @@ struct padded_vnet_hdr {
+> > > >     char padding[4];
+> > > >   };
+> > > >
+> > > > +static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void =
+*buf);
+> > > > +static void virtnet_rq_free_unused_buf(struct virtqueue *vq, void =
+*buf);
+> > > > +
+> > > >   static bool is_xdp_frame(void *ptr)
+> > > >   {
+> > > >     return (unsigned long)ptr & VIRTIO_XDP_FLAG;
+> > > > @@ -1369,6 +1372,15 @@ static void virtnet_napi_enable(struct virtq=
+ueue *vq, struct napi_struct *napi)
+> > > >   {
+> > > >     napi_enable(napi);
+> > > >
+> > > > +   /* Check if vq is in reset state. The normal reset/resize proce=
+ss will
+> > > > +    * be protected by napi. However, the protection of napi is onl=
+y enabled
+> > > > +    * during the operation, and the protection of napi will end af=
+ter the
+> > > > +    * operation is completed. If re-enable fails during the proces=
+s, vq
+> > > > +    * will remain unavailable with reset state.
+> > > > +    */
+> > > > +   if (vq->reset)
+> > > > +           return;
+> > >
+> > >
+> > > I don't get when could we hit this condition.
+> >
+> >
+> > In patch 23, the code to implement re-enable vq is as follows:
+> >
+> > +static int vp_modern_enable_reset_vq(struct virtqueue *vq)
+> > +{
+> > +       struct virtio_pci_device *vp_dev =3D to_vp_device(vq->vdev);
+> > +       struct virtio_pci_modern_device *mdev =3D &vp_dev->mdev;
+> > +       struct virtio_pci_vq_info *info;
+> > +       unsigned long flags, index;
+> > +       int err;
+> > +
+> > +       if (!vq->reset)
+> > +               return -EBUSY;
+> > +
+> > +       index =3D vq->index;
+> > +       info =3D vp_dev->vqs[index];
+> > +
+> > +       /* check queue reset status */
+> > +       if (vp_modern_get_queue_reset(mdev, index) !=3D 1)
+> > +               return -EBUSY;
+> > +
+> > +       err =3D vp_active_vq(vq, info->msix_vector);
+> > +       if (err)
+> > +               return err;
+> > +
+> > +       if (vq->callback) {
+> > +               spin_lock_irqsave(&vp_dev->lock, flags);
+> > +               list_add(&info->node, &vp_dev->virtqueues);
+> > +               spin_unlock_irqrestore(&vp_dev->lock, flags);
+> > +       } else {
+> > +               INIT_LIST_HEAD(&info->node);
+> > +       }
+> > +
+> > +       vp_modern_set_queue_enable(&vp_dev->mdev, index, true);
+> > +
+> > +       if (vp_dev->per_vq_vectors && info->msix_vector !=3D VIRTIO_MSI=
+_NO_VECTOR)
+> > +               enable_irq(pci_irq_vector(vp_dev->pci_dev, info->msix_v=
+ector));
+> > +
+> > +       vq->reset =3D false;
+> > +
+> > +       return 0;
+> > +}
+> >
+> >
+> > There are three situations where an error will be returned. These are t=
+he
+> > situations I want to handle.
+>
+> Right, but it looks harmless if we just schedule the NAPI without the che=
+ck.
 
-For the -ccw bits:
+Yes.
 
-Acked-by: Eric Farman <farman@linux.ibm.com>
+> >
+> > But I'm rethinking the question, and I feel like you're right, although=
+ the
+> > hardware setup may fail. We can no longer sync with the hardware. But u=
+sing it
+> > as a normal vq doesn't have any problems.
+>
+> Note that we should make sure the buggy(malicous) device won't crash
+> the codes by changing the queue_reset value at its will.
 
-> 
-> diff --git a/Documentation/driver-api/vfio-mediated-device.rst
-> b/Documentation/driver-api/vfio-mediated-device.rst
-> index 9f26079cacae35..6aeca741dc9be1 100644
-> --- a/Documentation/driver-api/vfio-mediated-device.rst
-> +++ b/Documentation/driver-api/vfio-mediated-device.rst
-> @@ -279,10 +279,10 @@ Translation APIs for Mediated Devices
->  The following APIs are provided for translating user pfn to host pfn
-> in a VFIO
->  driver::
->  
-> -	extern int vfio_pin_pages(struct device *dev, unsigned long
-> *user_pfn,
-> +	extern int vfio_pin_pages(struct vfio_device *vdev, unsigned
-> long *user_pfn,
->  				  int npage, int prot, unsigned long
-> *phys_pfn);
->  
-> -	extern int vfio_unpin_pages(struct device *dev, unsigned long
-> *user_pfn,
-> +	extern int vfio_unpin_pages(struct vfio_device *vdev, unsigned
-> long *user_pfn,
->  				    int npage);
->  
->  These functions call back into the back-end IOMMU module by using
-> the pin_pages
-> diff --git a/drivers/s390/cio/vfio_ccw_cp.c
-> b/drivers/s390/cio/vfio_ccw_cp.c
-> index af5048a1ba8894..e362cb962a7234 100644
-> --- a/drivers/s390/cio/vfio_ccw_cp.c
-> +++ b/drivers/s390/cio/vfio_ccw_cp.c
-> @@ -103,13 +103,13 @@ static int pfn_array_pin(struct pfn_array *pa,
-> struct vfio_device *vdev)
->  {
->  	int ret = 0;
->  
-> -	ret = vfio_pin_pages(vdev->dev, pa->pa_iova_pfn, pa->pa_nr,
-> +	ret = vfio_pin_pages(vdev, pa->pa_iova_pfn, pa->pa_nr,
->  			     IOMMU_READ | IOMMU_WRITE, pa->pa_pfn);
->  
->  	if (ret < 0) {
->  		goto err_out;
->  	} else if (ret > 0 && ret != pa->pa_nr) {
-> -		vfio_unpin_pages(vdev->dev, pa->pa_iova_pfn, ret);
-> +		vfio_unpin_pages(vdev, pa->pa_iova_pfn, ret);
->  		ret = -EINVAL;
->  		goto err_out;
->  	}
-> @@ -127,7 +127,7 @@ static void pfn_array_unpin_free(struct pfn_array
-> *pa, struct vfio_device *vdev)
->  {
->  	/* Only unpin if any pages were pinned to begin with */
->  	if (pa->pa_nr)
-> -		vfio_unpin_pages(vdev->dev, pa->pa_iova_pfn, pa-
-> >pa_nr);
-> +		vfio_unpin_pages(vdev, pa->pa_iova_pfn, pa->pa_nr);
->  	pa->pa_nr = 0;
->  	kfree(pa->pa_iova_pfn);
->  }
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c
-> b/drivers/s390/crypto/vfio_ap_ops.c
-> index 69768061cd7bd9..a10b3369d76c41 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -124,7 +124,7 @@ static void vfio_ap_free_aqic_resources(struct
-> vfio_ap_queue *q)
->  		q->saved_isc = VFIO_AP_ISC_INVALID;
->  	}
->  	if (q->saved_pfn && !WARN_ON(!q->matrix_mdev)) {
-> -		vfio_unpin_pages(mdev_dev(q->matrix_mdev->mdev),
-> +		vfio_unpin_pages(&q->matrix_mdev->vdev,
->  				 &q->saved_pfn, 1);
->  		q->saved_pfn = 0;
->  	}
-> @@ -258,7 +258,7 @@ static struct ap_queue_status
-> vfio_ap_irq_enable(struct vfio_ap_queue *q,
->  		return status;
->  	}
->  
-> -	ret = vfio_pin_pages(mdev_dev(q->matrix_mdev->mdev), &g_pfn, 1,
-> +	ret = vfio_pin_pages(&q->matrix_mdev->vdev, &g_pfn, 1,
->  			     IOMMU_READ | IOMMU_WRITE, &h_pfn);
->  	switch (ret) {
->  	case 1:
-> @@ -301,7 +301,7 @@ static struct ap_queue_status
-> vfio_ap_irq_enable(struct vfio_ap_queue *q,
->  		break;
->  	case AP_RESPONSE_OTHERWISE_CHANGED:
->  		/* We could not modify IRQ setings: clear new
-> configuration */
-> -		vfio_unpin_pages(mdev_dev(q->matrix_mdev->mdev),
-> &g_pfn, 1);
-> +		vfio_unpin_pages(&q->matrix_mdev->vdev, &g_pfn, 1);
->  		kvm_s390_gisc_unregister(kvm, isc);
->  		break;
->  	default:
-> @@ -1250,7 +1250,7 @@ static int vfio_ap_mdev_iommu_notifier(struct
-> notifier_block *nb,
->  		struct vfio_iommu_type1_dma_unmap *unmap = data;
->  		unsigned long g_pfn = unmap->iova >> PAGE_SHIFT;
->  
-> -		vfio_unpin_pages(mdev_dev(matrix_mdev->mdev), &g_pfn,
-> 1);
-> +		vfio_unpin_pages(&matrix_mdev->vdev, &g_pfn, 1);
->  		return NOTIFY_OK;
->  	}
->  
-> diff --git a/drivers/vfio/vfio.c b/drivers/vfio/vfio.c
-> index 8a5c46aa2bef61..24b92a45cfc8f1 100644
-> --- a/drivers/vfio/vfio.c
-> +++ b/drivers/vfio/vfio.c
-> @@ -2142,32 +2142,26 @@
-> EXPORT_SYMBOL(vfio_set_irqs_validate_and_prepare);
->   * @phys_pfn[out]: array of host PFNs
->   * Return error or number of pages pinned.
->   */
-> -int vfio_pin_pages(struct device *dev, unsigned long *user_pfn, int
-> npage,
-> +int vfio_pin_pages(struct vfio_device *vdev, unsigned long
-> *user_pfn, int npage,
->  		   int prot, unsigned long *phys_pfn)
->  {
->  	struct vfio_container *container;
-> -	struct vfio_group *group;
-> +	struct vfio_group *group = vdev->group;
->  	struct vfio_iommu_driver *driver;
->  	int ret;
->  
-> -	if (!dev || !user_pfn || !phys_pfn || !npage)
-> +	if (!user_pfn || !phys_pfn || !npage)
->  		return -EINVAL;
->  
->  	if (npage > VFIO_PIN_PAGES_MAX_ENTRIES)
->  		return -E2BIG;
->  
-> -	group = vfio_group_get_from_dev(dev);
-> -	if (!group)
-> -		return -ENODEV;
-> -
-> -	if (group->dev_counter > 1) {
-> -		ret = -EINVAL;
-> -		goto err_pin_pages;
-> -	}
-> +	if (group->dev_counter > 1)
-> +		return -EINVAL;
->  
->  	ret = vfio_group_add_container_user(group);
->  	if (ret)
-> -		goto err_pin_pages;
-> +		return ret;
->  
->  	container = group->container;
->  	driver = container->iommu_driver;
-> @@ -2180,8 +2174,6 @@ int vfio_pin_pages(struct device *dev, unsigned
-> long *user_pfn, int npage,
->  
->  	vfio_group_try_dissolve_container(group);
->  
-> -err_pin_pages:
-> -	vfio_group_put(group);
->  	return ret;
->  }
->  EXPORT_SYMBOL(vfio_pin_pages);
-> @@ -2195,28 +2187,24 @@ EXPORT_SYMBOL(vfio_pin_pages);
->   *                 be greater than VFIO_PIN_PAGES_MAX_ENTRIES.
->   * Return error or number of pages unpinned.
->   */
-> -int vfio_unpin_pages(struct device *dev, unsigned long *user_pfn,
-> int npage)
-> +int vfio_unpin_pages(struct vfio_device *vdev, unsigned long
-> *user_pfn,
-> +		     int npage)
->  {
->  	struct vfio_container *container;
-> -	struct vfio_group *group;
->  	struct vfio_iommu_driver *driver;
->  	int ret;
->  
-> -	if (!dev || !user_pfn || !npage)
-> +	if (!user_pfn || !npage)
->  		return -EINVAL;
->  
->  	if (npage > VFIO_PIN_PAGES_MAX_ENTRIES)
->  		return -E2BIG;
->  
-> -	group = vfio_group_get_from_dev(dev);
-> -	if (!group)
-> -		return -ENODEV;
-> -
-> -	ret = vfio_group_add_container_user(group);
-> +	ret = vfio_group_add_container_user(vdev->group);
->  	if (ret)
-> -		goto err_unpin_pages;
-> +		return ret;
->  
-> -	container = group->container;
-> +	container = vdev->group->container;
->  	driver = container->iommu_driver;
->  	if (likely(driver && driver->ops->unpin_pages))
->  		ret = driver->ops->unpin_pages(container->iommu_data,
-> user_pfn,
-> @@ -2224,10 +2212,8 @@ int vfio_unpin_pages(struct device *dev,
-> unsigned long *user_pfn, int npage)
->  	else
->  		ret = -ENOTTY;
->  
-> -	vfio_group_try_dissolve_container(group);
-> +	vfio_group_try_dissolve_container(vdev->group);
->  
-> -err_unpin_pages:
-> -	vfio_group_put(group);
->  	return ret;
->  }
->  EXPORT_SYMBOL(vfio_unpin_pages);
-> diff --git a/include/linux/vfio.h b/include/linux/vfio.h
-> index 748ec0e0293aea..8f2a09801a660b 100644
-> --- a/include/linux/vfio.h
-> +++ b/include/linux/vfio.h
-> @@ -150,9 +150,9 @@ extern long vfio_external_check_extension(struct
-> vfio_group *group,
->  
->  #define VFIO_PIN_PAGES_MAX_ENTRIES	(PAGE_SIZE/sizeof(unsigned
-> long))
->  
-> -extern int vfio_pin_pages(struct device *dev, unsigned long
-> *user_pfn,
-> +extern int vfio_pin_pages(struct vfio_device *vdev, unsigned long
-> *user_pfn,
->  			  int npage, int prot, unsigned long
-> *phys_pfn);
-> -extern int vfio_unpin_pages(struct device *dev, unsigned long
-> *user_pfn,
-> +extern int vfio_unpin_pages(struct vfio_device *vdev, unsigned long
-> *user_pfn,
->  			    int npage);
->  
->  extern int vfio_group_pin_pages(struct vfio_group *group,
+I will keep an eye on this situation.
 
+>
+> >
+> > >
+> > >
+> > > > +
+> > > >     /* If all buffers were filled by other side before we napi_enab=
+led, we
+> > > >      * won't get another interrupt, so process any outstanding pack=
+ets now.
+> > > >      * Call local_bh_enable after to trigger softIRQ processing.
+> > > > @@ -1413,6 +1425,15 @@ static void refill_work(struct work_struct *=
+work)
+> > > >             struct receive_queue *rq =3D &vi->rq[i];
+> > > >
+> > > >             napi_disable(&rq->napi);
+> > > > +
+> > > > +           /* Check if vq is in reset state. See more in
+> > > > +            * virtnet_napi_enable()
+> > > > +            */
+> > > > +           if (rq->vq->reset) {
+> > > > +                   virtnet_napi_enable(rq->vq, &rq->napi);
+> > > > +                   continue;
+> > > > +           }
+> > >
+> > >
+> > > Can we do something similar in virtnet_close() by canceling the work?
+> >
+> > I think there is no need to cancel the work here, because napi_disable =
+will wait
+> > for the napi_enable of the resize. So if the re-enable failed vq is use=
+d as a normal
+> > vq, this logic can be removed.
+>
+> Actually I meant the part of virtnet_rx_resize().
+>
+> If we don't synchronize with the refill work, it might enable NAPI unexpe=
+ctedly?
+
+I don't think this situation will be encountered, because napi_disable is
+mutually exclusive, so there will be no unexpected napi enable.
+
+Is there something I misunderstood?
+
+Thanks.
+
+>
+> Thanks
+>
+> >
+> >
+> > >
+> > >
+> > > > +
+> > > >             still_empty =3D !try_fill_recv(vi, rq, GFP_KERNEL);
+> > > >             virtnet_napi_enable(rq->vq, &rq->napi);
+> > > >
+> > > > @@ -1523,6 +1544,10 @@ static void virtnet_poll_cleantx(struct rece=
+ive_queue *rq)
+> > > >     if (!sq->napi.weight || is_xdp_raw_buffer_queue(vi, index))
+> > > >             return;
+> > > >
+> > > > +   /* Check if vq is in reset state. See more in virtnet_napi_enab=
+le() */
+> > > > +   if (sq->vq->reset)
+> > > > +           return;
+> > >
+> > >
+> > > We've disabled TX napi, any chance we can still hit this?
+> >
+> > Same as above.
+> >
+> > >
+> > >
+> > > > +
+> > > >     if (__netif_tx_trylock(txq)) {
+> > > >             do {
+> > > >                     virtqueue_disable_cb(sq->vq);
+> > > > @@ -1769,6 +1794,62 @@ static netdev_tx_t start_xmit(struct sk_buff=
+ *skb, struct net_device *dev)
+> > > >     return NETDEV_TX_OK;
+> > > >   }
+> > > >
+> > > > +static int virtnet_rx_resize(struct virtnet_info *vi,
+> > > > +                        struct receive_queue *rq, u32 ring_num)
+> > > > +{
+> > > > +   int err;
+> > > > +
+> > > > +   napi_disable(&rq->napi);
+> > > > +
+> > > > +   err =3D virtqueue_resize(rq->vq, ring_num, virtnet_rq_free_unus=
+ed_buf);
+> > > > +   if (err)
+> > > > +           goto err;
+> > > > +
+> > > > +   if (!try_fill_recv(vi, rq, GFP_KERNEL))
+> > > > +           schedule_delayed_work(&vi->refill, 0);
+> > > > +
+> > > > +   virtnet_napi_enable(rq->vq, &rq->napi);
+> > > > +   return 0;
+> > > > +
+> > > > +err:
+> > > > +   netdev_err(vi->dev,
+> > > > +              "reset rx reset vq fail: rx queue index: %td err: %d=
+\n",
+> > > > +              rq - vi->rq, err);
+> > > > +   virtnet_napi_enable(rq->vq, &rq->napi);
+> > > > +   return err;
+> > > > +}
+> > > > +
+> > > > +static int virtnet_tx_resize(struct virtnet_info *vi,
+> > > > +                        struct send_queue *sq, u32 ring_num)
+> > > > +{
+> > > > +   struct netdev_queue *txq;
+> > > > +   int err, qindex;
+> > > > +
+> > > > +   qindex =3D sq - vi->sq;
+> > > > +
+> > > > +   virtnet_napi_tx_disable(&sq->napi);
+> > > > +
+> > > > +   txq =3D netdev_get_tx_queue(vi->dev, qindex);
+> > > > +   __netif_tx_lock_bh(txq);
+> > > > +   netif_stop_subqueue(vi->dev, qindex);
+> > > > +   __netif_tx_unlock_bh(txq);
+> > > > +
+> > > > +   err =3D virtqueue_resize(sq->vq, ring_num, virtnet_sq_free_unus=
+ed_buf);
+> > > > +   if (err)
+> > > > +           goto err;
+> > > > +
+> > > > +   netif_start_subqueue(vi->dev, qindex);
+> > > > +   virtnet_napi_tx_enable(vi, sq->vq, &sq->napi);
+> > > > +   return 0;
+> > > > +
+> > > > +err:
+> > >
+> > >
+> > > I guess we can still start the queue in this case? (Since we don't
+> > > change the queue if resize fails).
+> >
+> > Yes, you are right.
+> >
+> > Thanks.
+> >
+> > >
+> > >
+> > > > +   netdev_err(vi->dev,
+> > > > +              "reset tx reset vq fail: tx queue index: %td err: %d=
+\n",
+> > > > +              sq - vi->sq, err);
+> > > > +   virtnet_napi_tx_enable(vi, sq->vq, &sq->napi);
+> > > > +   return err;
+> > > > +}
+> > > > +
+> > > >   /*
+> > > >    * Send command via the control virtqueue and check status.  Comm=
+ands
+> > > >    * supported by the hypervisor, as indicated by feature bits, sho=
+uld
+> > >
+> >
+>
