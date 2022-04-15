@@ -2,31 +2,31 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BE27CC3527D
-	for <linux-s390@archiver.kernel.org>; Fri, 15 Apr 2022 04:53:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 37DEFC35280
+	for <linux-s390@archiver.kernel.org>; Fri, 15 Apr 2022 04:53:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349608AbiDOE4B (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 15 Apr 2022 00:56:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47428 "EHLO
+        id S1349623AbiDOE4C (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 15 Apr 2022 00:56:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349526AbiDOEzz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Apr 2022 00:55:55 -0400
+        with ESMTP id S1349474AbiDOEzu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Apr 2022 00:55:50 -0400
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 371986A406;
-        Thu, 14 Apr 2022 21:53:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A53896A42B;
+        Thu, 14 Apr 2022 21:53:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-        Content-Type:MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:
-        To:From:Sender:Reply-To:Content-ID:Content-Description;
-        bh=XZGhvwW8WnEXnqFpyMAZS4hEeSHoeSYBiqC69zbelFo=; b=Gxz7Y5uJ+XKe3DFB5F+glNf4Qd
-        +ilmHliKeg1fmYV7/5LLANJc72+LNxw8j97CHk5ziFCgc1uz7kS3J7fxsGIO6cnBRc/aEIND8YKio
-        0SkKbU86rwF6U+vXBBwyr3GFqwWasgE9TCw8n+hO0zPxSPP5I4ZPpiX7PrV0Nkluz9OYVJwj4Hmwy
-        oKidnHT0/AqxHbe4vf+J+1VyQBy8myzVvzFwGzWB5MOWnMsTyORGtxjAzgY+jPvDzJzijUERBo3GF
-        IuBPqJCO6mtg8vZGmw86bOvzf7HW3Tdf+1Wt8evubUZivpuvFh33FBjqoHj3OCwfnGHVCD1k5Crl7
-        crl4uuXw==;
+        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
+        :Reply-To:Content-Type:Content-ID:Content-Description;
+        bh=OTIsP1OizukmDhxFkiULvJk6rKtH8rZ66Toc2zFZ06c=; b=ooMRjv2JAUzFUPyfh+XZqWb8QW
+        Q9pjLNLNX62Z8C2MtoU6HU3VpVt4OAZRBuYSsD6pXMOi8ZjLOdl54eYy3Tp24LGUVsHa2hBE7Y0RM
+        gDKNIKXjx2hbqJA1iCpB6nzk3wFq7ScIOiguPmNGaxWjNFoSpuysiesbbWxhRLyGcBXCzqkMTGuuD
+        XDeeqdLlxhy91bRF+ZdOWJypNUbEcjrD8gjGqtH4BhZffx0JY9uZOYdBApIPmQ3bzD93iVI7xEHYb
+        JNb40WmRbrFCmN1/+6dAisHF7eHMEiTWRFZXLfqhSoZ7Cj20tDlAxwUfcT/Ob7kj6Vu7zsHN8pcpE
+        pX9GukFg==;
 Received: from [2a02:1205:504b:4280:f5dd:42a4:896c:d877] (helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nfDxW-008OrQ-LX; Fri, 15 Apr 2022 04:53:27 +0000
+        id 1nfDxR-008Ooe-Ik; Fri, 15 Apr 2022 04:53:21 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     Jens Axboe <axboe@kernel.dk>
 Cc:     dm-devel@redhat.com, linux-xfs@vger.kernel.org,
@@ -43,63 +43,45 @@ Cc:     dm-devel@redhat.com, linux-xfs@vger.kernel.org,
         cluster-devel@redhat.com, jfs-discussion@lists.sourceforge.net,
         linux-nilfs@vger.kernel.org, ntfs3@lists.linux.dev,
         ocfs2-devel@oss.oracle.com, linux-mm@kvack.org,
-        =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
-        <christoph.boehmwalder@linbit.com>
-Subject: [PATCH 05/27] drbd: use bdev based limit helpers in drbd_send_sizes
-Date:   Fri, 15 Apr 2022 06:52:36 +0200
-Message-Id: <20220415045258.199825-6-hch@lst.de>
+        "Martin K . Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 03/27] target: fix discard alignment on partitions
+Date:   Fri, 15 Apr 2022 06:52:34 +0200
+Message-Id: <20220415045258.199825-4-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220415045258.199825-1-hch@lst.de>
 References: <20220415045258.199825-1-hch@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Use the bdev based limits helpers where they exist.
+Use the proper bdev_discard_alignment helper that accounts for partition
+offsets.
 
+Fixes: c66ac9db8d4a ("[SCSI] target: Add LIO target core v4.0.0-rc6")
 Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
+Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
 ---
- drivers/block/drbd/drbd_main.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/target/target_core_device.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
-index 367715205c860..c39b04bda261f 100644
---- a/drivers/block/drbd/drbd_main.c
-+++ b/drivers/block/drbd/drbd_main.c
-@@ -924,7 +924,9 @@ int drbd_send_sizes(struct drbd_peer_device *peer_device, int trigger_reply, enu
- 
- 	memset(p, 0, packet_size);
- 	if (get_ldev_if_state(device, D_NEGOTIATING)) {
--		struct request_queue *q = bdev_get_queue(device->ldev->backing_bdev);
-+		struct block_device *bdev = device->ldev->backing_bdev;
-+		struct request_queue *q = bdev_get_queue(bdev);
-+
- 		d_size = drbd_get_max_capacity(device->ldev);
- 		rcu_read_lock();
- 		u_size = rcu_dereference(device->ldev->disk_conf)->disk_size;
-@@ -933,13 +935,13 @@ int drbd_send_sizes(struct drbd_peer_device *peer_device, int trigger_reply, enu
- 		max_bio_size = queue_max_hw_sectors(q) << 9;
- 		max_bio_size = min(max_bio_size, DRBD_MAX_BIO_SIZE);
- 		p->qlim->physical_block_size =
--			cpu_to_be32(queue_physical_block_size(q));
-+			cpu_to_be32(bdev_physical_block_size(bdev));
- 		p->qlim->logical_block_size =
--			cpu_to_be32(queue_logical_block_size(q));
-+			cpu_to_be32(bdev_logical_block_size(bdev));
- 		p->qlim->alignment_offset =
- 			cpu_to_be32(queue_alignment_offset(q));
--		p->qlim->io_min = cpu_to_be32(queue_io_min(q));
--		p->qlim->io_opt = cpu_to_be32(queue_io_opt(q));
-+		p->qlim->io_min = cpu_to_be32(bdev_io_min(bdev));
-+		p->qlim->io_opt = cpu_to_be32(bdev_io_opt(bdev));
- 		p->qlim->discard_enabled = blk_queue_discard(q);
- 		put_ldev(device);
- 	} else {
+diff --git a/drivers/target/target_core_device.c b/drivers/target/target_core_device.c
+index 3a1ec705cd80b..16e775bcf4a7c 100644
+--- a/drivers/target/target_core_device.c
++++ b/drivers/target/target_core_device.c
+@@ -849,8 +849,8 @@ bool target_configure_unmap_from_queue(struct se_dev_attrib *attrib,
+ 	 */
+ 	attrib->max_unmap_block_desc_count = 1;
+ 	attrib->unmap_granularity = q->limits.discard_granularity / block_size;
+-	attrib->unmap_granularity_alignment = q->limits.discard_alignment /
+-								block_size;
++	attrib->unmap_granularity_alignment =
++		bdev_discard_alignment(bdev) / block_size;
+ 	return true;
+ }
+ EXPORT_SYMBOL(target_configure_unmap_from_queue);
 -- 
 2.30.2
 
