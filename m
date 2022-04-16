@@ -2,198 +2,158 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F52DC433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 15 Apr 2022 23:45:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9DD88C41535
+	for <linux-s390@archiver.kernel.org>; Sat, 16 Apr 2022 02:05:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356578AbiDOXsC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 15 Apr 2022 19:48:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33766 "EHLO
+        id S229568AbiDPCHn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 15 Apr 2022 22:07:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345318AbiDOXsB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Apr 2022 19:48:01 -0400
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3DDD82D20;
-        Fri, 15 Apr 2022 16:45:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1650066331; x=1681602331;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=Lvza6qB84Gm+/e3tSzNIrxnq4zKuQRxIz5xk/AZ9bB8=;
-  b=mPwMnp7CIstANdfRF11LsYowcpaSFdlS6AMDKlpErDi0dUuORXTTAAXQ
-   pn7reC08eaAOPGYtp7SdBYnbLOuWTFcMudjWXdnOiO+c48mSiyUcC3NYf
-   JcrYwy/94qYJhILSIWJyMh8MCm1QlbnYkHmqH6cHSyCpDRAbyfzfR0+t6
-   4xKW6eOXvg0/Ws9mVHvukB+t8s0OZS1z39tgqUgJrH70xqTXuWvaf2qtl
-   93zTcawSl9w1bP1cZiJaQbGxE6by5CERxZwm+GS8UbbEung5pVI6uXqXb
-   gvM88vSgqpvSoMYU0vCJ0Z3ODJGzln164Gsx/JHrpx72rNIRHBE12hkUR
-   A==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10318"; a="263004030"
-X-IronPort-AV: E=Sophos;i="5.90,264,1643702400"; 
-   d="scan'208";a="263004030"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Apr 2022 16:45:17 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.90,264,1643702400"; 
-   d="scan'208";a="509110204"
-Received: from orsmsx605.amr.corp.intel.com ([10.22.229.18])
-  by orsmga003.jf.intel.com with ESMTP; 15 Apr 2022 16:45:17 -0700
-Received: from orsmsx602.amr.corp.intel.com (10.22.229.15) by
- ORSMSX605.amr.corp.intel.com (10.22.229.18) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.27; Fri, 15 Apr 2022 16:45:16 -0700
-Received: from ORSEDG601.ED.cps.intel.com (10.7.248.6) by
- orsmsx602.amr.corp.intel.com (10.22.229.15) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.27 via Frontend Transport; Fri, 15 Apr 2022 16:45:16 -0700
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (104.47.57.175)
- by edgegateway.intel.com (134.134.137.102) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2308.27; Fri, 15 Apr 2022 16:45:16 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=EQ3hCpVzUmY6AUctN6igpABaRFIimxq9uSrB12VCYxN6mCm1G44gwxE3fLaM88Sv1Zbom4UGG8QGfs/ZCEo5XTZgqvEJ2rP3Xd+lcmnv0LmSZxH1tAmJi/r9IVk6Lz8EsSAmS4pDlB6mTiUq6tfSm1h+PBL9Cu5rLbtuXV/duNzcmEH/S8DEycVbqc4DuTzduOTbEFxuoWX4A//RfFC2P4SgsyNOk+PAortAW4XvAWBHu4WdRfcGWs686XPQKAGkc+nuO887izbLLLbS57RK3zgyIVWsZC1HLx1TBj8jJ09zKLyC5FV+JPbJFfKZnviPPY8hrtFjI39fVTAD8NahrA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Lvza6qB84Gm+/e3tSzNIrxnq4zKuQRxIz5xk/AZ9bB8=;
- b=dXUsAWFLHajzjXk7u8qZ56LXmVEv2lCF2mWzdBRvpnem13tfPDrEYsq8dFUyo3n4Dk53VpUaN/dML72fCOiJcmV7mPZTR0c/dX/0TdjEg4remVJxGA6Ea0ZXwTdwMNLGhBBLXOtanCHvOJN8o26RC+G8pDvV+bImqnyyww6bTdXh1qFjuobncYQMxgNTQ1wNM785S11jSQmBuEC8zbY6q89YvbjYSf/TnesVfdYlWU/SuPNpu5/IYhiLzIEVoioa6JC7GW73NIU/JJqWiboQEYDf4bBJCVSibW4DCXmVewMpst5OdTcBM1Mu6F4BwmODvRue3BkMTx82MZ3kgxWNqg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
- by CY4PR11MB0007.namprd11.prod.outlook.com (2603:10b6:910:79::16) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5144.29; Fri, 15 Apr
- 2022 23:45:14 +0000
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::c4ea:a404:b70b:e54e]) by BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::c4ea:a404:b70b:e54e%8]) with mapi id 15.20.5164.020; Fri, 15 Apr 2022
- 23:45:14 +0000
-From:   "Tian, Kevin" <kevin.tian@intel.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-CC:     Matthew Rosato <mjrosato@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        David Airlie <airlied@linux.ie>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        Eric Farman <farman@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        with ESMTP id S229654AbiDPCGH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Apr 2022 22:06:07 -0400
+Received: from mail-vs1-xe2a.google.com (mail-vs1-xe2a.google.com [IPv6:2607:f8b0:4864:20::e2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08D23403D7;
+        Fri, 15 Apr 2022 18:55:56 -0700 (PDT)
+Received: by mail-vs1-xe2a.google.com with SMTP id v15so6785684vsm.5;
+        Fri, 15 Apr 2022 18:55:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=C/yp2SiPCDYhZ9QJZ/VkI3pUZmOOKH2y3TvYwr4r/ZY=;
+        b=KaItwtfz20xnWMtNTiOqG2T72TphlDwszWNLq4pqt1Jy2NZGmz4xPEv7EjGhIFMi2E
+         F9OgIDcC54Zx2zt/Hc+cI8xZuyo5DfmMAdWKoggxKdi7cqSaPSSOvQeZo4IkNe6FZqjW
+         766dPYHxy1CDcGyaM/Z80nLgd+sTo05wF5k6mWrg8+8FRzyf7bZpXhpKU1TmqG2iAc+T
+         trXclf97t/OX+AuOY1U0xx/4aO1cfsSbMRR8jpD1VLLVDXr57cYQeftuyZwU7l5NQ2uC
+         mmuQdoTbb24IrxRsmtippfaiePCKwvbxgOuSPIEYDge1N3I/qm3TPyMI9RYvYE1jdoL9
+         d4Yg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :in-reply-to:references:mime-version:content-transfer-encoding;
+        bh=C/yp2SiPCDYhZ9QJZ/VkI3pUZmOOKH2y3TvYwr4r/ZY=;
+        b=XMiXR3yNWGb8vqEqR+UFh4CrCQmBPAoy7n14Vx2KhSDBxB/Mr5lB/DtVd7g+MCG3B+
+         9Inv6fPOlpIKJdL9xwJfaoTHBCPt8XYh4MJwHDtPwT+olngQ6Nx+0/9Greptv0r67szn
+         3HCAltkmnCyeqQwfFss/9NhNDxmAHzGMAa9dzcM+IcIsd1bHmBX0FGjxX+08JlVrS7ET
+         FC6zF8R9yOKhfCwGUJJSJFOTGth0IlLf2qs720ptaLAbDBHSAxRWrT8vjQgZ5sNLGTYV
+         1ClpbzKeeJo6M/BShg4fscz21KCdKhXfGSc/gG4YAli+YZrYK6r0khO5dDaWicNRY9EQ
+         ei4w==
+X-Gm-Message-State: AOAM530aZlJi2+6QTqL6b09AvP0jyCB8jbEzwbtgwaePocnFyjz7OjvF
+        LtPK758f0NO6B9Ty/lrR5OHOABcSvaA=
+X-Google-Smtp-Source: ABdhPJzsACZqcMn+IVHVYYnMsaYkZAQYl/1YN2wyFMIwCE7NodBJ76t90Djj26qvoMib2GCP1YQ1Lg==
+X-Received: by 2002:a17:902:7884:b0:158:b5b6:572c with SMTP id q4-20020a170902788400b00158b5b6572cmr1452146pll.144.1650069656404;
+        Fri, 15 Apr 2022 17:40:56 -0700 (PDT)
+Received: from balhae.roam.corp.google.com ([2607:fb90:461:36d2:dba1:7530:2cda:19b1])
+        by smtp.gmail.com with ESMTPSA id j9-20020a056a00130900b004f73df40914sm3913537pfu.82.2022.04.15.17.40.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 15 Apr 2022 17:40:55 -0700 (PDT)
+Sender: Namhyung Kim <namhyung@gmail.com>
+From:   Namhyung Kim <namhyung@kernel.org>
+To:     Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Jiri Olsa <jolsa@redhat.com>, Ian Rogers <irogers@google.com>,
+        Michael Petlan <mpetlan@redhat.com>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>,
+        Song Liu <songliubraving@fb.com>,
+        Will Deacon <will@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        John Garry <john.garry@huawei.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Leo Yan <leo.yan@linaro.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Heiko Carstens <hca@linux.ibm.com>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        Kirti Wankhede <kwankhede@nvidia.com>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        "Vivi, Rodrigo" <rodrigo.vivi@intel.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        "Wang, Zhi A" <zhi.a.wang@intel.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "Liu, Yi L" <yi.l.liu@intel.com>
-Subject: RE: [PATCH 9/9] vfio: Remove calls to vfio_group_add_container_user()
-Thread-Topic: [PATCH 9/9] vfio: Remove calls to
- vfio_group_add_container_user()
-Thread-Index: AQHYToWALOjmn4an1kSZ0RkA8dFDlKzvcIiAgAAIewCAAMWwEIAApwIAgADCL2A=
-Date:   Fri, 15 Apr 2022 23:45:14 +0000
-Message-ID: <BN9PR11MB527668FA6B65E4B18D7AB7E28CEE9@BN9PR11MB5276.namprd11.prod.outlook.com>
-References: <9-v1-a8faf768d202+125dd-vfio_mdev_no_group_jgg@nvidia.com>
- <d6e2778a-01e4-6468-2c2b-3b718d924e65@linux.ibm.com>
- <20220414142210.GE2120790@nvidia.com>
- <BN9PR11MB527672B82DCFAD2C9B28E8CC8CEE9@BN9PR11MB5276.namprd11.prod.outlook.com>
- <20220415120728.GG2120790@nvidia.com>
-In-Reply-To: <20220415120728.GG2120790@nvidia.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: ea8923c3-32b8-4fc1-179e-08da1f39fd37
-x-ms-traffictypediagnostic: CY4PR11MB0007:EE_
-x-ld-processed: 46c98d88-e344-4ed4-8496-4ed7712e255d,ExtAddr
-x-microsoft-antispam-prvs: <CY4PR11MB00075B9F350960ACF2482DBC8CEE9@CY4PR11MB0007.namprd11.prod.outlook.com>
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: +sypawHZtNKNaa8c4SNS9zn5JazXH/LufCOIMEuZUyPBNQIjK09GzqfvpcQqDFf+O4RAX1TIZ+4VJA9CaoSOt63fVqI5Sj40ukKfqwV8/VMUj8K0cmQxVJ2j+7a3o9AbQADtavQ0qUA9k82S/CRIRaUxCkQULKknolLmXFHpJa7qMw2i9jZCOCd68SvlkzXBsdw3gqa11qCAN4WUjT/U9FOPmhWnSdWg7l7/PRCdeKqFDC5CRYOFxa/TBZlSQV7BYvCYDT7ZDWtGVPrh1DXoUeUHhaV1ElDi7ffCZwAwWYdm8vTs+wnyzbAUNhX+2arp82xq24+GwjaDiGlerOUYatw9qR9QPGkealZaxTB/lPsgPwVR3dGTokWsi0dFtF5ij/pa0BHDx57wiEPqswpQU0MDfp2HwknFhPh0UNN9F7VOIkWtvqAwkyEztnsdjkyjLMxWvnlJSxWkmuysQOnr22/Z1qqF6C0NKSQB9CkIkSy4CtoFMjIPr8ylvachHum1h3pOokt9YOFINRRpAYPZ/tdt5ynRsBS5azidbOf9qpEeVwnnTJzC4ZWKEUO+qvW9PIgnJUqV1edtOKNG85lX+HtX2dhD1kwFcAUrxaQk8MaB7h8MkxrmNBOfI3z2RS0VUIomEaoBOL0u1/548XyU9E+2aLuDQri+Yr5ALCW24qin+P7zjZRLLQYq73xrjw0eams4zZU1fkg4GdgtbUHu0Q==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(366004)(66476007)(5660300002)(7416002)(66556008)(82960400001)(122000001)(83380400001)(38100700002)(38070700005)(66946007)(52536014)(4326008)(2906002)(8936002)(9686003)(86362001)(33656002)(76116006)(8676002)(55016003)(186003)(26005)(64756008)(7696005)(4744005)(7406005)(6916009)(54906003)(71200400001)(508600001)(316002)(6506007)(66446008);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?SpHMIAUqEmcztcsmsXaD0ZmHaPjFuEa95WzXvSNKPRrO3mgNnxXTd0yQmqUR?=
- =?us-ascii?Q?ZN3wh/n74jp7Y0WZNWSh1lKh8dRznk1HJCeN7t5kN+xPcaJnYTKpsSRHdon+?=
- =?us-ascii?Q?7aBsRs+Ydizd6Jx7icGcTxGs+vTnODU971Fa5uaAStQUhGPemPPmJIZ5KrtO?=
- =?us-ascii?Q?DYrdinQDy7Y3lW8OQDJ3y1chA8tTUsOZkwIYWHIVRzn8nusiCRGT/XKOqfLP?=
- =?us-ascii?Q?wisDVSRQAuCpsagypTVE/DHEK5leY9vuM9KeZ3tmtVbakVGRWY7ElfEXTgca?=
- =?us-ascii?Q?C6HGv0ca2a1M98uBBn0p8pGLs4Mrta1t6MgD/x+yYH7yFHmkp9TFmsrLj91j?=
- =?us-ascii?Q?qjVmf/o1rF1KqEwGYwqL6tvlN7a7EbWY7CHhNPq5EmLmDnpeOmnXg+fVd5eF?=
- =?us-ascii?Q?jwc5q16Lt92gqC/3vvbj05mlY/q4Kjl0+98ieO4yacsWWBDDzWpnMou7fBzM?=
- =?us-ascii?Q?NH6rA9y8yTrVFYA4Vdtl6K9dvv5QjrijmLI6iZ1m1oQuD/V7jPtUbQPg4BW0?=
- =?us-ascii?Q?Wak81GCKlVAPO2pNYVvObQt4wE1AVJQR23npnoSOs1Ybh3qtTiok1TKURaKI?=
- =?us-ascii?Q?5gYgXdgue3/cvjhDxBwzILavsPFa+MGCvp/KYYLBMt83ObDswp3tklV6xEKy?=
- =?us-ascii?Q?93tBKszAW9vVOBdlyBkYWiHCq5rjNjbDxsMuSBtMYjd9fvfF3suL3L6OTen3?=
- =?us-ascii?Q?0eQCL09Wh36o1+UCze36hQeLIrRpp3qUzzKwRbxrqFqOEIoVYHmrAU3qLs8J?=
- =?us-ascii?Q?QqvDE5Z1/Mxz/3JC0ith1linivEBN3Fz4UWiApG6NFVBg9t0ZUyKXz+zCO6+?=
- =?us-ascii?Q?f78FnJJRuGfEZCsgA1m5QPoCNGb5RXyWOw+zdknYIkcF7omM2NowKXyiHnFY?=
- =?us-ascii?Q?A3TH13b1tV7sRFjzvGFrHDHp7nxSRAvP6z1Sns/KDT8+VrMmG+30mRekmtj3?=
- =?us-ascii?Q?IMg3jw8esWKDflpb7418PPya7huJIOIPxIpvTzS3NVb8BhjsS2vQEe82lBjC?=
- =?us-ascii?Q?Uf02n/wbSm6VZfDm0rBYI1297o3W4cXJkLT6rAtxTTUBjV8LHCXQgxpfW5xT?=
- =?us-ascii?Q?nq2x5huA7PCmw6KKNWzq7cC7lJINxw/mTohw1VMysXsWl7J2BIaa2XCyxR86?=
- =?us-ascii?Q?Ptu5fl0WdtrCajUqQG4L1oFaXv69mIQOtOcxctGVW6HpTFLwTI3el59DQYxE?=
- =?us-ascii?Q?6zZQersyduc3nvuACdNgG/QBeOk0vvsOuAIx15bPgipyDo1wK874xUS/8Stk?=
- =?us-ascii?Q?UOfWu9guggDgx+pIvi4Bjoc8z0Zqo3NGAo/BmrI96n/xxFpOCn3E4Uw9tuBT?=
- =?us-ascii?Q?ipqWlhWsA/GkFSAPB/Ywfrc0ZhvqH/Nf5odzcBATcOhR/uoDirLjurPbdAJm?=
- =?us-ascii?Q?GKT40zPLnCoDKoSyv14Cg7Gvn+W6vy6kGjxqPMK5p5cZ99Z/abChlal+NfR6?=
- =?us-ascii?Q?7St+X0mqyAR+li/rU/lMnW+uBxn4uj27D//hvYIS9c5NVPKviyA5VPr5hlag?=
- =?us-ascii?Q?emEARH4UIMCPrMMfoTfuTb4uc8k2ObdZctTq/ejgX3BD7wSgZv0NuS3/Gcr+?=
- =?us-ascii?Q?FynRNIOWKRS8nZ4nJ7MxqWytwinXVHiGsgnvTSWrZ2A2i8D0ksCss8Y59sJ/?=
- =?us-ascii?Q?Aon0j4/k5HFD9L6OnGDNLFpdL+fYxqRWmpLAb3gDOo9b7gDC2gGWl+Nokxfd?=
- =?us-ascii?Q?dSJkVfvttFHRyPP3FcKUuQEdkX50uSWx6PX6bdthJrcgXLNAbp/g8eAA+aVY?=
- =?us-ascii?Q?OzDMoGxc+g=3D=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        LKML <linux-kernel@vger.kernel.org>,
+        linux-perf-users@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org
+Subject: [PATCH 1/3] perf symbol: Pass is_kallsyms to symbols__fixup_end()
+Date:   Fri, 15 Apr 2022 17:40:46 -0700
+Message-Id: <20220416004048.1514900-2-namhyung@kernel.org>
+X-Mailer: git-send-email 2.36.0.rc0.470.gd361397f0d-goog
+In-Reply-To: <20220416004048.1514900-1-namhyung@kernel.org>
+References: <20220416004048.1514900-1-namhyung@kernel.org>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ea8923c3-32b8-4fc1-179e-08da1f39fd37
-X-MS-Exchange-CrossTenant-originalarrivaltime: 15 Apr 2022 23:45:14.6002
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: E07bIQVu2TZzhfhkvF168d4Wzqscz785CfyWotfr50onYg5XjcPdty04NewnItEQ2liCEGAnLCsKkFW8fOLMPw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR11MB0007
-X-OriginatorOrg: intel.com
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-> From: Jason Gunthorpe <jgg@nvidia.com>
-> Sent: Friday, April 15, 2022 8:07 PM
->=20
-> On Fri, Apr 15, 2022 at 02:32:08AM +0000, Tian, Kevin wrote:
->=20
-> > While it's a welcomed fix is it actually related to this series? The po=
-int
-> > of this patch is that those functions are called when container_users
-> > is non-zero. This is true even without this fix given container_users
-> > is decremented after calling device->ops->close_device().
->=20
-> It isn't, it is decremented before which causes it to be 0 when the
-> assertions are called.
->=20
+The symbol fixup is necessary for symbols in kallsyms since they don't
+have size info.  So we use the next symbol's address to calculate the
+size.  Now it's also used for user binaries because sometimes they
+miss size for hand-written asm functions.
 
-right, it's quite obvious when I read it the second time.=20
+There's a arch-specific function to handle kallsyms differently but
+currently it cannot distinguish kallsyms from others.  Pass this
+information explicitly to handle it properly.  Note that those arch
+functions will be moved to the generic function so I didn't added it
+to the arch-functions.
+
+Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+---
+ tools/perf/util/symbol-elf.c | 2 +-
+ tools/perf/util/symbol.c     | 7 ++++---
+ tools/perf/util/symbol.h     | 2 +-
+ 3 files changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/tools/perf/util/symbol-elf.c b/tools/perf/util/symbol-elf.c
+index 31cd59a2b66e..ecd377938eea 100644
+--- a/tools/perf/util/symbol-elf.c
++++ b/tools/perf/util/symbol-elf.c
+@@ -1290,7 +1290,7 @@ dso__load_sym_internal(struct dso *dso, struct map *map, struct symsrc *syms_ss,
+ 	 * For misannotated, zeroed, ASM function sizes.
+ 	 */
+ 	if (nr > 0) {
+-		symbols__fixup_end(&dso->symbols);
++		symbols__fixup_end(&dso->symbols, false);
+ 		symbols__fixup_duplicate(&dso->symbols);
+ 		if (kmap) {
+ 			/*
+diff --git a/tools/perf/util/symbol.c b/tools/perf/util/symbol.c
+index dea0fc495185..1b85cc1422a9 100644
+--- a/tools/perf/util/symbol.c
++++ b/tools/perf/util/symbol.c
+@@ -217,7 +217,8 @@ void symbols__fixup_duplicate(struct rb_root_cached *symbols)
+ 	}
+ }
+ 
+-void symbols__fixup_end(struct rb_root_cached *symbols)
++void symbols__fixup_end(struct rb_root_cached *symbols,
++			bool is_kallsyms __maybe_unused)
+ {
+ 	struct rb_node *nd, *prevnd = rb_first_cached(symbols);
+ 	struct symbol *curr, *prev;
+@@ -1467,7 +1468,7 @@ int __dso__load_kallsyms(struct dso *dso, const char *filename,
+ 	if (kallsyms__delta(kmap, filename, &delta))
+ 		return -1;
+ 
+-	symbols__fixup_end(&dso->symbols);
++	symbols__fixup_end(&dso->symbols, true);
+ 	symbols__fixup_duplicate(&dso->symbols);
+ 
+ 	if (dso->kernel == DSO_SPACE__KERNEL_GUEST)
+@@ -1659,7 +1660,7 @@ int dso__load_bfd_symbols(struct dso *dso, const char *debugfile)
+ #undef bfd_asymbol_section
+ #endif
+ 
+-	symbols__fixup_end(&dso->symbols);
++	symbols__fixup_end(&dso->symbols, false);
+ 	symbols__fixup_duplicate(&dso->symbols);
+ 	dso->adjust_symbols = 1;
+ 
+diff --git a/tools/perf/util/symbol.h b/tools/perf/util/symbol.h
+index fbf866d82dcc..5fcdd1f94c56 100644
+--- a/tools/perf/util/symbol.h
++++ b/tools/perf/util/symbol.h
+@@ -203,7 +203,7 @@ void __symbols__insert(struct rb_root_cached *symbols, struct symbol *sym,
+ 		       bool kernel);
+ void symbols__insert(struct rb_root_cached *symbols, struct symbol *sym);
+ void symbols__fixup_duplicate(struct rb_root_cached *symbols);
+-void symbols__fixup_end(struct rb_root_cached *symbols);
++void symbols__fixup_end(struct rb_root_cached *symbols, bool is_kallsyms);
+ void maps__fixup_end(struct maps *maps);
+ 
+ typedef int (*mapfn_t)(u64 start, u64 len, u64 pgoff, void *data);
+-- 
+2.36.0.rc0.470.gd361397f0d-goog
+
