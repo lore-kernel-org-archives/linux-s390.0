@@ -2,91 +2,121 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 631A8C4321E
-	for <linux-s390@archiver.kernel.org>; Sat, 16 Apr 2022 02:29:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8447AC433F5
+	for <linux-s390@archiver.kernel.org>; Sat, 16 Apr 2022 02:29:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229925AbiDPCbf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 15 Apr 2022 22:31:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59454 "EHLO
+        id S229931AbiDPCcP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 15 Apr 2022 22:32:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229876AbiDPCbd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Apr 2022 22:31:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00FA134BB6;
-        Fri, 15 Apr 2022 19:29:02 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9062F61F03;
-        Sat, 16 Apr 2022 02:29:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49BEAC385A9;
-        Sat, 16 Apr 2022 02:28:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650076142;
-        bh=64fC476XAzTfqTSPn+hnDLb+pMKn+pGg/cu9T2ZYoeo=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=YR2swQd5bHjAFWTiUHuzi2CBAoBviVOC618ZH6KrZjKGz54+nb14CQuuZA/rg7rT4
-         HOUGUM1/um4+uLyDQbz+2PZe7eFGngBlsNfmtF55BEnpI8SeGgAW1TB9RPEF0hZ/gu
-         wadS+mRuD6cvw4fVgc6pYN09yVoj6blhm7pLMwx6SJQPqerB95uO3eDsfGVZkI1tAT
-         ypjbfbxn7+bT/FWjnusepnTR0gEoGRsC/NgAvlwAmFKhGsjLJGRbec9W3gsrNwS1xO
-         /N5W0GD6Xr6BMAFslHSxbnYfv+w/HrqJWAmw3dvOKrGV8WDuaNAVrqQjvW1ASku3np
-         CHDdJgFxl65YQ==
-Message-ID: <ffa14a07-b8f9-828e-97bc-cf7a2099bab5@kernel.org>
-Date:   Sat, 16 Apr 2022 10:28:49 +0800
+        with ESMTP id S229876AbiDPCcO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Apr 2022 22:32:14 -0400
+Received: from mail-qv1-xf35.google.com (mail-qv1-xf35.google.com [IPv6:2607:f8b0:4864:20::f35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BE7E5E16E;
+        Fri, 15 Apr 2022 19:29:41 -0700 (PDT)
+Received: by mail-qv1-xf35.google.com with SMTP id hu11so7501669qvb.7;
+        Fri, 15 Apr 2022 19:29:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=UWFJae0wB3i/+AjUHp0kgcY6gHCBjSvEexFbtOZL7cw=;
+        b=N1gzaNMpjSVHF43xt8VTC6Pq6l2GGjFsGQ2QmCg0hWKpuUjwH6vK2ITiQVZ/tbemQ6
+         qTh57IrnV2xB7nCCB1+4ZkXhgIjGuXRLEAc7THqwNOEjvZGrbASW0kHxuNjZqxNE1dys
+         9BJc/J77Ux1wsq0Y6ot5Ue0Nhymb+lTik1oXUfm6SRUKGu9FvUny3MNn5TXgmQbLlgQw
+         cUHoYnw/bOS0YKjN9PTgYjtVl1DedARYXGIVXk0OYIZGJm4EIw2LP3n60vQaBcQJodmD
+         FoOjiZdxyr/vyroCOZRG8JtnGDIKfP44EVw/uKWZXBA+EPPv9krPQ5Jq4nggSsYucc4N
+         +dQw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :mime-version:content-transfer-encoding;
+        bh=UWFJae0wB3i/+AjUHp0kgcY6gHCBjSvEexFbtOZL7cw=;
+        b=qpGN5Z4ivIf6dAdpS80CxL4/Ke8aMJySlD8RxhxnvecrUngPALwpfMU6UcPe4uevuf
+         aNolPcTv8uF1yw7W6O6yPQ03STZYb/tP3MsYy5ReOCfELJoJULo1NRV9xsJ+JcPIqraF
+         SJr4dcfoiNPQyymioQf0Qvm2z3n/MvF1UhPx0vyyNy4PPoytSc2DKpN8fJ8M1ZTnoZpP
+         PRCJGWzT9vQFkNLFQOcEL00fXvJaOFifBKJzphrZPmmQuep0UH3kAD5VlNy0cRRevqvI
+         vW+18Zj5770NNSIeSdVniA8VXvWD5gZiv5vYek06YkDzGxF+JrGYfWTrgO+4+gj1qG2u
+         t7WQ==
+X-Gm-Message-State: AOAM531MJemXTDIiAqr/Z4TM5mvC/d8XwnZVGOJPCw/VyJxSyatztETJ
+        JTUGd1mbW0r6YMhymuCSizMGuPO2lRA=
+X-Google-Smtp-Source: ABdhPJy7+O0d1TAWEptQEO1FaQlgJslFZTjGjF/ZuzHuNoQrVP6vRz/HM02MSWZFO67NeYN6B+T6Aw==
+X-Received: by 2002:a05:6a00:14d2:b0:50a:48f0:881a with SMTP id w18-20020a056a0014d200b0050a48f0881amr1390703pfu.36.1650069653526;
+        Fri, 15 Apr 2022 17:40:53 -0700 (PDT)
+Received: from balhae.roam.corp.google.com ([2607:fb90:461:36d2:dba1:7530:2cda:19b1])
+        by smtp.gmail.com with ESMTPSA id j9-20020a056a00130900b004f73df40914sm3913537pfu.82.2022.04.15.17.40.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 15 Apr 2022 17:40:52 -0700 (PDT)
+Sender: Namhyung Kim <namhyung@gmail.com>
+From:   Namhyung Kim <namhyung@kernel.org>
+To:     Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Jiri Olsa <jolsa@redhat.com>, Ian Rogers <irogers@google.com>,
+        Michael Petlan <mpetlan@redhat.com>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>,
+        Song Liu <songliubraving@fb.com>,
+        Will Deacon <will@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        John Garry <john.garry@huawei.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Leo Yan <leo.yan@linaro.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        linux-perf-users@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org
+Subject: [PATCH 0/3] perf tools: Tidy up symbol end fixup (v3)
+Date:   Fri, 15 Apr 2022 17:40:45 -0700
+Message-Id: <20220416004048.1514900-1-namhyung@kernel.org>
+X-Mailer: git-send-email 2.36.0.rc0.470.gd361397f0d-goog
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Subject: Re: [f2fs-dev] [PATCH 26/27] block: decouple REQ_OP_SECURE_ERASE from
- REQ_OP_DISCARD
-Content-Language: en-US
-To:     Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
-Cc:     jfs-discussion@lists.sourceforge.net,
-        linux-nvme@lists.infradead.org,
-        virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
-        dm-devel@redhat.com, target-devel@vger.kernel.org,
-        linux-mtd@lists.infradead.org, drbd-dev@lists.linbit.com,
-        linux-s390@vger.kernel.org, linux-nilfs@vger.kernel.org,
-        linux-scsi@vger.kernel.org, cluster-devel@redhat.com,
-        xen-devel@lists.xenproject.org, linux-ext4@vger.kernel.org,
-        linux-um@lists.infradead.org, nbd@other.debian.org,
-        linux-block@vger.kernel.org, linux-bcache@vger.kernel.org,
-        David Sterba <dsterba@suse.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>, ceph-devel@vger.kernel.org,
-        Coly Li <colyli@suse.de>,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        linux-raid@vger.kernel.org,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        linux-mmc@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
-        linux-xfs@vger.kernel.org,
-        =?UTF-8?Q?Christoph_B=c3=b6hmwalder?= 
-        <christoph.boehmwalder@linbit.com>, ocfs2-devel@oss.oracle.com,
-        linux-fsdevel@vger.kernel.org, ntfs3@lists.linux.dev,
-        linux-btrfs@vger.kernel.org
-References: <20220415045258.199825-1-hch@lst.de>
- <20220415045258.199825-27-hch@lst.de>
-From:   Chao Yu <chao@kernel.org>
-In-Reply-To: <20220415045258.199825-27-hch@lst.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 2022/4/15 12:52, Christoph Hellwig wrote:
-> Secure erase is a very different operation from discard in that it is
-> a data integrity operation vs hint.  Fully split the limits and helper
-> infrastructure to make the separation more clear.
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
-> Acked-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com> [drbd]
-> Acked-by: Ryusuke Konishi <konishi.ryusuke@gmail.com> [nifs2]
-> Acked-by: Jaegeuk Kim <jaegeuk@kernel.org> [f2fs]
-> Acked-by: Coly Li <colyli@suse.de> [bcache]
-> Acked-by: David Sterba <dsterba@suse.com> [btrfs]
+Hello,
 
-For f2fs part,
+This work is a follow-up of Ian's previous one at
+  https://lore.kernel.org/all/20220412154817.2728324-1-irogers@google.com/
 
-Acked-by: Chao Yu <chao@kernel.org>
+Fixing up more symbol ends as introduced in:
+  https://lore.kernel.org/lkml/20220317135536.805-1-mpetlan@redhat.com/
+
+it caused perf annotate to run into memory limits - every symbol holds
+all the disassembled code in the annotation, and so making symbols
+ends further away dramatically increased memory usage (40MB to >1GB).
+
+Modify the symbol end fixup logic so that special kernel cases aren't
+applied in the common case.
+
+v3 changes)
+ * rename is_kernel to is_kallsyms
+ * move the logic to generic function
+ * remove arch-specific functions
 
 Thanks,
+Namhyung
+
+
+Namhyung Kim (3):
+  perf symbol: Pass is_kallsyms to symbols__fixup_end()
+  perf symbol: Update symbols__fixup_end()
+  perf symbol: Remove arch__symbols__fixup_end()
+
+ tools/perf/arch/arm64/util/machine.c   | 21 ---------------
+ tools/perf/arch/powerpc/util/Build     |  1 -
+ tools/perf/arch/powerpc/util/machine.c | 25 -----------------
+ tools/perf/arch/s390/util/machine.c    | 16 -----------
+ tools/perf/util/symbol-elf.c           |  2 +-
+ tools/perf/util/symbol.c               | 37 +++++++++++++++++++-------
+ tools/perf/util/symbol.h               |  3 +--
+ 7 files changed, 29 insertions(+), 76 deletions(-)
+ delete mode 100644 tools/perf/arch/powerpc/util/machine.c
+
+
+base-commit: 41204da4c16071be9090940b18f566832d46becc
+-- 
+2.36.0.rc0.470.gd361397f0d-goog
+
