@@ -2,158 +2,91 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9DD88C41535
-	for <linux-s390@archiver.kernel.org>; Sat, 16 Apr 2022 02:05:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 631A8C4321E
+	for <linux-s390@archiver.kernel.org>; Sat, 16 Apr 2022 02:29:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229568AbiDPCHn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 15 Apr 2022 22:07:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33812 "EHLO
+        id S229925AbiDPCbf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 15 Apr 2022 22:31:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229654AbiDPCGH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Apr 2022 22:06:07 -0400
-Received: from mail-vs1-xe2a.google.com (mail-vs1-xe2a.google.com [IPv6:2607:f8b0:4864:20::e2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08D23403D7;
-        Fri, 15 Apr 2022 18:55:56 -0700 (PDT)
-Received: by mail-vs1-xe2a.google.com with SMTP id v15so6785684vsm.5;
-        Fri, 15 Apr 2022 18:55:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=C/yp2SiPCDYhZ9QJZ/VkI3pUZmOOKH2y3TvYwr4r/ZY=;
-        b=KaItwtfz20xnWMtNTiOqG2T72TphlDwszWNLq4pqt1Jy2NZGmz4xPEv7EjGhIFMi2E
-         F9OgIDcC54Zx2zt/Hc+cI8xZuyo5DfmMAdWKoggxKdi7cqSaPSSOvQeZo4IkNe6FZqjW
-         766dPYHxy1CDcGyaM/Z80nLgd+sTo05wF5k6mWrg8+8FRzyf7bZpXhpKU1TmqG2iAc+T
-         trXclf97t/OX+AuOY1U0xx/4aO1cfsSbMRR8jpD1VLLVDXr57cYQeftuyZwU7l5NQ2uC
-         mmuQdoTbb24IrxRsmtippfaiePCKwvbxgOuSPIEYDge1N3I/qm3TPyMI9RYvYE1jdoL9
-         d4Yg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :in-reply-to:references:mime-version:content-transfer-encoding;
-        bh=C/yp2SiPCDYhZ9QJZ/VkI3pUZmOOKH2y3TvYwr4r/ZY=;
-        b=XMiXR3yNWGb8vqEqR+UFh4CrCQmBPAoy7n14Vx2KhSDBxB/Mr5lB/DtVd7g+MCG3B+
-         9Inv6fPOlpIKJdL9xwJfaoTHBCPt8XYh4MJwHDtPwT+olngQ6Nx+0/9Greptv0r67szn
-         3HCAltkmnCyeqQwfFss/9NhNDxmAHzGMAa9dzcM+IcIsd1bHmBX0FGjxX+08JlVrS7ET
-         FC6zF8R9yOKhfCwGUJJSJFOTGth0IlLf2qs720ptaLAbDBHSAxRWrT8vjQgZ5sNLGTYV
-         1ClpbzKeeJo6M/BShg4fscz21KCdKhXfGSc/gG4YAli+YZrYK6r0khO5dDaWicNRY9EQ
-         ei4w==
-X-Gm-Message-State: AOAM530aZlJi2+6QTqL6b09AvP0jyCB8jbEzwbtgwaePocnFyjz7OjvF
-        LtPK758f0NO6B9Ty/lrR5OHOABcSvaA=
-X-Google-Smtp-Source: ABdhPJzsACZqcMn+IVHVYYnMsaYkZAQYl/1YN2wyFMIwCE7NodBJ76t90Djj26qvoMib2GCP1YQ1Lg==
-X-Received: by 2002:a17:902:7884:b0:158:b5b6:572c with SMTP id q4-20020a170902788400b00158b5b6572cmr1452146pll.144.1650069656404;
-        Fri, 15 Apr 2022 17:40:56 -0700 (PDT)
-Received: from balhae.roam.corp.google.com ([2607:fb90:461:36d2:dba1:7530:2cda:19b1])
-        by smtp.gmail.com with ESMTPSA id j9-20020a056a00130900b004f73df40914sm3913537pfu.82.2022.04.15.17.40.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 Apr 2022 17:40:55 -0700 (PDT)
-Sender: Namhyung Kim <namhyung@gmail.com>
-From:   Namhyung Kim <namhyung@kernel.org>
-To:     Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Jiri Olsa <jolsa@redhat.com>, Ian Rogers <irogers@google.com>,
-        Michael Petlan <mpetlan@redhat.com>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>,
-        Song Liu <songliubraving@fb.com>,
-        Will Deacon <will@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        John Garry <john.garry@huawei.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Leo Yan <leo.yan@linaro.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        linux-perf-users@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org
-Subject: [PATCH 1/3] perf symbol: Pass is_kallsyms to symbols__fixup_end()
-Date:   Fri, 15 Apr 2022 17:40:46 -0700
-Message-Id: <20220416004048.1514900-2-namhyung@kernel.org>
-X-Mailer: git-send-email 2.36.0.rc0.470.gd361397f0d-goog
-In-Reply-To: <20220416004048.1514900-1-namhyung@kernel.org>
-References: <20220416004048.1514900-1-namhyung@kernel.org>
+        with ESMTP id S229876AbiDPCbd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Apr 2022 22:31:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00FA134BB6;
+        Fri, 15 Apr 2022 19:29:02 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9062F61F03;
+        Sat, 16 Apr 2022 02:29:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49BEAC385A9;
+        Sat, 16 Apr 2022 02:28:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1650076142;
+        bh=64fC476XAzTfqTSPn+hnDLb+pMKn+pGg/cu9T2ZYoeo=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=YR2swQd5bHjAFWTiUHuzi2CBAoBviVOC618ZH6KrZjKGz54+nb14CQuuZA/rg7rT4
+         HOUGUM1/um4+uLyDQbz+2PZe7eFGngBlsNfmtF55BEnpI8SeGgAW1TB9RPEF0hZ/gu
+         wadS+mRuD6cvw4fVgc6pYN09yVoj6blhm7pLMwx6SJQPqerB95uO3eDsfGVZkI1tAT
+         ypjbfbxn7+bT/FWjnusepnTR0gEoGRsC/NgAvlwAmFKhGsjLJGRbec9W3gsrNwS1xO
+         /N5W0GD6Xr6BMAFslHSxbnYfv+w/HrqJWAmw3dvOKrGV8WDuaNAVrqQjvW1ASku3np
+         CHDdJgFxl65YQ==
+Message-ID: <ffa14a07-b8f9-828e-97bc-cf7a2099bab5@kernel.org>
+Date:   Sat, 16 Apr 2022 10:28:49 +0800
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Subject: Re: [f2fs-dev] [PATCH 26/27] block: decouple REQ_OP_SECURE_ERASE from
+ REQ_OP_DISCARD
+Content-Language: en-US
+To:     Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+Cc:     jfs-discussion@lists.sourceforge.net,
+        linux-nvme@lists.infradead.org,
+        virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
+        dm-devel@redhat.com, target-devel@vger.kernel.org,
+        linux-mtd@lists.infradead.org, drbd-dev@lists.linbit.com,
+        linux-s390@vger.kernel.org, linux-nilfs@vger.kernel.org,
+        linux-scsi@vger.kernel.org, cluster-devel@redhat.com,
+        xen-devel@lists.xenproject.org, linux-ext4@vger.kernel.org,
+        linux-um@lists.infradead.org, nbd@other.debian.org,
+        linux-block@vger.kernel.org, linux-bcache@vger.kernel.org,
+        David Sterba <dsterba@suse.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>, ceph-devel@vger.kernel.org,
+        Coly Li <colyli@suse.de>,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        linux-raid@vger.kernel.org,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        linux-mmc@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
+        linux-xfs@vger.kernel.org,
+        =?UTF-8?Q?Christoph_B=c3=b6hmwalder?= 
+        <christoph.boehmwalder@linbit.com>, ocfs2-devel@oss.oracle.com,
+        linux-fsdevel@vger.kernel.org, ntfs3@lists.linux.dev,
+        linux-btrfs@vger.kernel.org
+References: <20220415045258.199825-1-hch@lst.de>
+ <20220415045258.199825-27-hch@lst.de>
+From:   Chao Yu <chao@kernel.org>
+In-Reply-To: <20220415045258.199825-27-hch@lst.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The symbol fixup is necessary for symbols in kallsyms since they don't
-have size info.  So we use the next symbol's address to calculate the
-size.  Now it's also used for user binaries because sometimes they
-miss size for hand-written asm functions.
+On 2022/4/15 12:52, Christoph Hellwig wrote:
+> Secure erase is a very different operation from discard in that it is
+> a data integrity operation vs hint.  Fully split the limits and helper
+> infrastructure to make the separation more clear.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
+> Acked-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com> [drbd]
+> Acked-by: Ryusuke Konishi <konishi.ryusuke@gmail.com> [nifs2]
+> Acked-by: Jaegeuk Kim <jaegeuk@kernel.org> [f2fs]
+> Acked-by: Coly Li <colyli@suse.de> [bcache]
+> Acked-by: David Sterba <dsterba@suse.com> [btrfs]
 
-There's a arch-specific function to handle kallsyms differently but
-currently it cannot distinguish kallsyms from others.  Pass this
-information explicitly to handle it properly.  Note that those arch
-functions will be moved to the generic function so I didn't added it
-to the arch-functions.
+For f2fs part,
 
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
----
- tools/perf/util/symbol-elf.c | 2 +-
- tools/perf/util/symbol.c     | 7 ++++---
- tools/perf/util/symbol.h     | 2 +-
- 3 files changed, 6 insertions(+), 5 deletions(-)
+Acked-by: Chao Yu <chao@kernel.org>
 
-diff --git a/tools/perf/util/symbol-elf.c b/tools/perf/util/symbol-elf.c
-index 31cd59a2b66e..ecd377938eea 100644
---- a/tools/perf/util/symbol-elf.c
-+++ b/tools/perf/util/symbol-elf.c
-@@ -1290,7 +1290,7 @@ dso__load_sym_internal(struct dso *dso, struct map *map, struct symsrc *syms_ss,
- 	 * For misannotated, zeroed, ASM function sizes.
- 	 */
- 	if (nr > 0) {
--		symbols__fixup_end(&dso->symbols);
-+		symbols__fixup_end(&dso->symbols, false);
- 		symbols__fixup_duplicate(&dso->symbols);
- 		if (kmap) {
- 			/*
-diff --git a/tools/perf/util/symbol.c b/tools/perf/util/symbol.c
-index dea0fc495185..1b85cc1422a9 100644
---- a/tools/perf/util/symbol.c
-+++ b/tools/perf/util/symbol.c
-@@ -217,7 +217,8 @@ void symbols__fixup_duplicate(struct rb_root_cached *symbols)
- 	}
- }
- 
--void symbols__fixup_end(struct rb_root_cached *symbols)
-+void symbols__fixup_end(struct rb_root_cached *symbols,
-+			bool is_kallsyms __maybe_unused)
- {
- 	struct rb_node *nd, *prevnd = rb_first_cached(symbols);
- 	struct symbol *curr, *prev;
-@@ -1467,7 +1468,7 @@ int __dso__load_kallsyms(struct dso *dso, const char *filename,
- 	if (kallsyms__delta(kmap, filename, &delta))
- 		return -1;
- 
--	symbols__fixup_end(&dso->symbols);
-+	symbols__fixup_end(&dso->symbols, true);
- 	symbols__fixup_duplicate(&dso->symbols);
- 
- 	if (dso->kernel == DSO_SPACE__KERNEL_GUEST)
-@@ -1659,7 +1660,7 @@ int dso__load_bfd_symbols(struct dso *dso, const char *debugfile)
- #undef bfd_asymbol_section
- #endif
- 
--	symbols__fixup_end(&dso->symbols);
-+	symbols__fixup_end(&dso->symbols, false);
- 	symbols__fixup_duplicate(&dso->symbols);
- 	dso->adjust_symbols = 1;
- 
-diff --git a/tools/perf/util/symbol.h b/tools/perf/util/symbol.h
-index fbf866d82dcc..5fcdd1f94c56 100644
---- a/tools/perf/util/symbol.h
-+++ b/tools/perf/util/symbol.h
-@@ -203,7 +203,7 @@ void __symbols__insert(struct rb_root_cached *symbols, struct symbol *sym,
- 		       bool kernel);
- void symbols__insert(struct rb_root_cached *symbols, struct symbol *sym);
- void symbols__fixup_duplicate(struct rb_root_cached *symbols);
--void symbols__fixup_end(struct rb_root_cached *symbols);
-+void symbols__fixup_end(struct rb_root_cached *symbols, bool is_kallsyms);
- void maps__fixup_end(struct maps *maps);
- 
- typedef int (*mapfn_t)(u64 start, u64 len, u64 pgoff, void *data);
--- 
-2.36.0.rc0.470.gd361397f0d-goog
-
+Thanks,
