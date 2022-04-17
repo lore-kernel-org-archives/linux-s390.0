@@ -2,165 +2,76 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02AEDC433F5
-	for <linux-s390@archiver.kernel.org>; Sat, 16 Apr 2022 14:59:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24448C433F5
+	for <linux-s390@archiver.kernel.org>; Sun, 17 Apr 2022 12:49:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232388AbiDPPCQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 16 Apr 2022 11:02:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46708 "EHLO
+        id S231848AbiDQMv6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 17 Apr 2022 08:51:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232380AbiDPPCP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 16 Apr 2022 11:02:15 -0400
-Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A3123A196
-        for <linux-s390@vger.kernel.org>; Sat, 16 Apr 2022 07:59:42 -0700 (PDT)
-Received: by mail-wr1-x430.google.com with SMTP id g18so13702087wrb.10
-        for <linux-s390@vger.kernel.org>; Sat, 16 Apr 2022 07:59:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=OO1451Z/51EUQiODYQcioXNtAk5WDJClp+v1gsb4O+A=;
-        b=JsGelCQgSfft9VxIYkI97wbWG1Wnm7X9pfRoYqmEWOo9hpWdzwWLwiWQqwhnjSMUKt
-         Kc14Sh6fqshzpxMj6q2WvlyVH2SL7rZH0iSVd62N/WQulajBAf6BLXeaiPaNQ/MvJlHO
-         3s0/2yk8wxg0g7RgchbWU8lO9FupY6w+J/88Wl+mgkQwwQD5qJmpVQoZHMRB1etsUDUa
-         DBKpijfWSZs6SQjStJ5SBH1LnUW3WJH5iLErJhnltNlsks4HmlbGGaUhXm+y9fYD0okl
-         154Eh5cOsi2ONW+/sEeXldDTqdGXMjGX7e/S80TGZdqg+2c9JhJkl0/vZpOD6NrFy1fC
-         XOew==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=OO1451Z/51EUQiODYQcioXNtAk5WDJClp+v1gsb4O+A=;
-        b=LOd+Zqk7jR4BauxhTCNUg9ailX/CBdV54Djllvnca2U+fmKlBRmvG7gPBMOLie9EeZ
-         dpC05sOxJHS3EEBYSyC4IUH9molPXXQ+5fL0CjrJQQLtkGPqDbuHKM/P+8jhun0ard62
-         32PjyYf/awidqZ4Lc8AR7HhmXNdlwjsHv6q1QkszD2haUvzNMcUZbgC5xybMJc3eI8vD
-         od3Ae57jd2hKP2/gSDnizriZalOwyCzsi/bY3vNKRgfzJUvA0s3RWpWdK1/VpJmwzlGI
-         w6493QDSD/Hgv+DNow6WbY9VQXJxsETkLofX/y4zIhjXn3xS/1bKlHRlG7Szzw97RrpH
-         eY3w==
-X-Gm-Message-State: AOAM532PM3K7RudOricr32D9WWdtbSJwjYxeKIVsET9PkEfkhet5Yq3H
-        azx2bRNvuoD0DX/dWQQwk383J51oWCZs5UEnsyPCkA==
-X-Google-Smtp-Source: ABdhPJygSfQudGHNGaIYA8AF4RqP8bQ81BW1Wk85dVq6W4Vll53M5oge7GeBZ1IPlzfuBne9ZZ6kH4WkXvpz8agqIAU=
-X-Received: by 2002:adf:eb09:0:b0:207:bb77:9abb with SMTP id
- s9-20020adfeb09000000b00207bb779abbmr2770912wrn.375.1650121180438; Sat, 16
- Apr 2022 07:59:40 -0700 (PDT)
+        with ESMTP id S231315AbiDQMv5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 17 Apr 2022 08:51:57 -0400
+X-Greylist: delayed 927 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 17 Apr 2022 05:49:19 PDT
+Received: from m12-15.163.com (m12-15.163.com [220.181.12.15])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id CB3192BB0B;
+        Sun, 17 Apr 2022 05:49:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+        s=s110527; h=From:Subject:Date:Message-Id:MIME-Version; bh=K+Zu7
+        9SFGsB8FkMycJpkj4rA7OHY5+I73z/C4EXhavI=; b=qBtzQX6EF28QUZhW7qLB8
+        vw4BibBZrH1w7R6Fzaez3CF5ttVNmis7yW7zeZ3S1nNa1bYFTojspvFqPkqtKZAH
+        8hzwJByr/RtuXwv6LKH3q5hrAmpjiEzg2OajG+4Vv5dbM1wKmTSxdosi0QQfXTym
+        H+cwbjaUQnLBUVuU6Fbbno=
+Received: from pubt1-k8s74.yq.163.org (unknown [115.238.122.38])
+        by smtp11 (Coremail) with SMTP id D8CowADnvCUVCVxiLzSsBg--.47634S2;
+        Sun, 17 Apr 2022 20:33:26 +0800 (CST)
+From:   yacanliu@163.com
+To:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org,
+        pabeni@redhat.com
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, liuyacan <liuyacan@corp.netease.com>
+Subject: [PATCH] net/smc: sync err info when TCP connection is refused
+Date:   Sun, 17 Apr 2022 20:33:07 +0800
+Message-Id: <20220417123307.1094747-1-yacanliu@163.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-References: <20220416004048.1514900-1-namhyung@kernel.org> <20220416004048.1514900-2-namhyung@kernel.org>
-In-Reply-To: <20220416004048.1514900-2-namhyung@kernel.org>
-From:   Ian Rogers <irogers@google.com>
-Date:   Sat, 16 Apr 2022 10:59:27 -0400
-Message-ID: <CAP-5=fX5S2CR58REzAhXH4s8_27=D2LbKksS7mHoSoxYOOmN4g@mail.gmail.com>
-Subject: Re: [PATCH 1/3] perf symbol: Pass is_kallsyms to symbols__fixup_end()
-To:     Namhyung Kim <namhyung@kernel.org>
-Cc:     Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Michael Petlan <mpetlan@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>,
-        Song Liu <songliubraving@fb.com>,
-        Will Deacon <will@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        John Garry <john.garry@huawei.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Leo Yan <leo.yan@linaro.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        linux-perf-users@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: D8CowADnvCUVCVxiLzSsBg--.47634S2
+X-Coremail-Antispam: 1Uf129KBjvdXoWrZr48CF15CFy5KF1rKr1ftFb_yoWDWrXEkr
+        17W3WkGa1jvr1fG3y29398ZwsaqayrCFWrGwnIyrWqy3s29w45Zrs8Zrn8Crn7ur4a9F9x
+        Gw45Kasak34IyjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+        9fnUUvcSsGvfC2KfnxnUUI43ZEXa7IU8AhLUUUUUU==
+X-Originating-IP: [115.238.122.38]
+X-CM-SenderInfo: p1dft0xolxqiywtou0bp/1tbiXwvlS1154TpjTwAAsp
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Apr 15, 2022 at 8:40 PM Namhyung Kim <namhyung@kernel.org> wrote:
->
-> The symbol fixup is necessary for symbols in kallsyms since they don't
-> have size info.  So we use the next symbol's address to calculate the
-> size.  Now it's also used for user binaries because sometimes they
-> miss size for hand-written asm functions.
->
-> There's a arch-specific function to handle kallsyms differently but
-> currently it cannot distinguish kallsyms from others.  Pass this
-> information explicitly to handle it properly.  Note that those arch
-> functions will be moved to the generic function so I didn't added it
-> to the arch-functions.
+From: liuyacan <liuyacan@corp.netease.com>
 
-Thanks Namhyung, in:
-https://lore.kernel.org/linux-perf-users/20220412154817.2728324-3-irogers@google.com/
-I used "dso->kernel != DSO_SPACE__USER" in symbol-elf to make this
-more than just kallsyms as presumably kernel code is the issue. Do we
-know elf kernel code has correctly sized symbols?
+In the current implementation, when TCP initiates a connection
+to an unavailable [ip,port], ECONNREFUSED will be stored in the
+TCP socket, but SMC will not. However, some apps (like curl) use
+getsockopt(,,SO_ERROR,,) to get the error information, which makes
+them miss the error message and behave strangely.
 
-Thanks,
-Ian
+Signed-off-by: liuyacan <liuyacan@corp.netease.com>
+---
+ net/smc/af_smc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-> Signed-off-by: Namhyung Kim <namhyung@kernel.org>
-> ---
->  tools/perf/util/symbol-elf.c | 2 +-
->  tools/perf/util/symbol.c     | 7 ++++---
->  tools/perf/util/symbol.h     | 2 +-
->  3 files changed, 6 insertions(+), 5 deletions(-)
->
-> diff --git a/tools/perf/util/symbol-elf.c b/tools/perf/util/symbol-elf.c
-> index 31cd59a2b66e..ecd377938eea 100644
-> --- a/tools/perf/util/symbol-elf.c
-> +++ b/tools/perf/util/symbol-elf.c
-> @@ -1290,7 +1290,7 @@ dso__load_sym_internal(struct dso *dso, struct map *map, struct symsrc *syms_ss,
->          * For misannotated, zeroed, ASM function sizes.
->          */
->         if (nr > 0) {
-> -               symbols__fixup_end(&dso->symbols);
-> +               symbols__fixup_end(&dso->symbols, false);
->                 symbols__fixup_duplicate(&dso->symbols);
->                 if (kmap) {
->                         /*
-> diff --git a/tools/perf/util/symbol.c b/tools/perf/util/symbol.c
-> index dea0fc495185..1b85cc1422a9 100644
-> --- a/tools/perf/util/symbol.c
-> +++ b/tools/perf/util/symbol.c
-> @@ -217,7 +217,8 @@ void symbols__fixup_duplicate(struct rb_root_cached *symbols)
->         }
->  }
->
-> -void symbols__fixup_end(struct rb_root_cached *symbols)
-> +void symbols__fixup_end(struct rb_root_cached *symbols,
-> +                       bool is_kallsyms __maybe_unused)
->  {
->         struct rb_node *nd, *prevnd = rb_first_cached(symbols);
->         struct symbol *curr, *prev;
-> @@ -1467,7 +1468,7 @@ int __dso__load_kallsyms(struct dso *dso, const char *filename,
->         if (kallsyms__delta(kmap, filename, &delta))
->                 return -1;
->
-> -       symbols__fixup_end(&dso->symbols);
-> +       symbols__fixup_end(&dso->symbols, true);
->         symbols__fixup_duplicate(&dso->symbols);
->
->         if (dso->kernel == DSO_SPACE__KERNEL_GUEST)
-> @@ -1659,7 +1660,7 @@ int dso__load_bfd_symbols(struct dso *dso, const char *debugfile)
->  #undef bfd_asymbol_section
->  #endif
->
-> -       symbols__fixup_end(&dso->symbols);
-> +       symbols__fixup_end(&dso->symbols, false);
->         symbols__fixup_duplicate(&dso->symbols);
->         dso->adjust_symbols = 1;
->
-> diff --git a/tools/perf/util/symbol.h b/tools/perf/util/symbol.h
-> index fbf866d82dcc..5fcdd1f94c56 100644
-> --- a/tools/perf/util/symbol.h
-> +++ b/tools/perf/util/symbol.h
-> @@ -203,7 +203,7 @@ void __symbols__insert(struct rb_root_cached *symbols, struct symbol *sym,
->                        bool kernel);
->  void symbols__insert(struct rb_root_cached *symbols, struct symbol *sym);
->  void symbols__fixup_duplicate(struct rb_root_cached *symbols);
-> -void symbols__fixup_end(struct rb_root_cached *symbols);
-> +void symbols__fixup_end(struct rb_root_cached *symbols, bool is_kallsyms);
->  void maps__fixup_end(struct maps *maps);
->
->  typedef int (*mapfn_t)(u64 start, u64 len, u64 pgoff, void *data);
-> --
-> 2.36.0.rc0.470.gd361397f0d-goog
->
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index fc7b6eb22..bbb1a4ce5 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1475,6 +1475,8 @@ static void smc_connect_work(struct work_struct *work)
+ 		smc->sk.sk_state = SMC_CLOSED;
+ 		if (rc == -EPIPE || rc == -EAGAIN)
+ 			smc->sk.sk_err = EPIPE;
++		else if (rc == -ECONNREFUSED)
++			smc->sk.sk_err = ECONNREFUSED;
+ 		else if (signal_pending(current))
+ 			smc->sk.sk_err = -sock_intr_errno(timeo);
+ 		sock_put(&smc->sk); /* passive closing */
+-- 
+2.20.1
+
