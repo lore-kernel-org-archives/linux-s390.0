@@ -2,136 +2,258 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B442C433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 18 Apr 2022 08:04:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C3D5C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 18 Apr 2022 08:55:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237083AbiDRIHB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 18 Apr 2022 04:07:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36838 "EHLO
+        id S230466AbiDRI5h (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 18 Apr 2022 04:57:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233885AbiDRIG7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Apr 2022 04:06:59 -0400
-Received: from esa2.hgst.iphmx.com (esa2.hgst.iphmx.com [68.232.143.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0974A1928C
-        for <linux-s390@vger.kernel.org>; Mon, 18 Apr 2022 01:04:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1650269061; x=1681805061;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=rpofyDUALxK7dXMfprZ48DmzWqCt1/MYuoJj74ZUCIU=;
-  b=KtUkPCdM4MEBk2FgdZ8qXPA8wxD6ecg+nVbMHWmWynr4bln4tzg24nhB
-   AcIwJH62hJ0dCzs8YIV15KYMwKvLfBm1sist8rDJwkG8da3G5FShMKcrJ
-   1683lJTsPpDY03D9HE8RDBO4fCvNjr4N/ywHXI0vx4fAm3I6tgymIoKwf
-   ACh2dCdIMMWzdLbhzBmup+hm9W4+PMRFwRIihpfjzpg8YvpuBWDjfQ4yK
-   M/3lNyQjMlNCmtEn/cN08j7xpjqNhNz6L4eFmcIAKMe1YkDxrY29xiVpD
-   hsP/W1no806TIXIxG6ofcZ+GzR17jrCLR7rAB3yqsGbq/TfHEIab/z9DB
-   Q==;
-X-IronPort-AV: E=Sophos;i="5.90,269,1643644800"; 
-   d="scan'208";a="302341878"
-Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 18 Apr 2022 16:04:20 +0800
-IronPort-SDR: vxXnx5B2/vw3GhIqYdfzundGxw8+/plDbkZXMvbpJIVII6SDJ11ge5nZa7eJ+pNQLQWV0uXe15
- MUJImb+cp2sWHagPcHMhOLQ6jzfw06zOzjVu8WfX9vjMMz39Zui1iwmNO8YX/sgYY+i7Tt3oe4
- Hi/1gSaiZBGbuiMbasX3QkwoXx3dzBWT7V+3E9567B8JBXsb1ZyQSJXHQs99t/ithneIUbWlZX
- VBnrIJza3HkKYh+92gExEh7xfH4Xa30YczJ5ZxnMf4M9oyFOqzdWVaX3YcMnTLewlVNlDpf5D/
- voJI00CzVkqSAuejoS2wjlE3
-Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 18 Apr 2022 00:35:24 -0700
-IronPort-SDR: HPlEgVK4DfrOh3UVK9HlUR6eZIFLGBYhlScoszLGYkexMrrsKsD1NkEXyLIbEwS0DoTvWbqF56
- 5LDe+gD70nhXgXDe2tGdD5fIp+ocJIafP30kenicHoMHEELspJUEmsTmypGFdh5e2FY5YogGJn
- 6DOAKn9qYdydre/KY2B84SQHyE0/q3jSuut3NdStl9hwNDTVGZllMxwTucat55FLjvjKdPSqg2
- QimqXX1Udf5Qe2/JOZD2Y/q/jal9uT77K8vp4WH4TPWcSwLv8VWC53eaSoX5YmwutDJqOOGVRI
- MT0=
-WDCIronportException: Internal
-Received: from usg-ed-osssrv.wdc.com ([10.3.10.180])
-  by uls-op-cesaip02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 18 Apr 2022 01:04:18 -0700
-Received: from usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4KhfbP1Y2Pz1SVp0
-        for <linux-s390@vger.kernel.org>; Mon, 18 Apr 2022 01:04:17 -0700 (PDT)
-Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
-        reason="pass (just generated, assumed good)"
-        header.d=opensource.wdc.com
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
-        opensource.wdc.com; h=content-transfer-encoding:content-type
-        :in-reply-to:organization:from:references:to:content-language
-        :subject:user-agent:mime-version:date:message-id; s=dkim; t=
-        1650269056; x=1652861057; bh=rpofyDUALxK7dXMfprZ48DmzWqCt1/MYuoJ
-        j74ZUCIU=; b=Ipq2PwOMV6FMZnNHjzfOvCDO/eCvkHdBynAyRqHT0JYbL8aPJHg
-        lk8/9NE8bxun2r7t0MS14013lawVGOzmf/X3f+8Ic4AvpnDkmhKMyefb2r7esi8c
-        DPsaxfOdnQoK+7d4vOoATpt13x1/UJ8S/DPnmNBBwT32S9G+Wy2AQLrr3B49RYi+
-        aLZinYUF9RJ+4lF/gqbzoQ5jz3HTqFiUmYZWkVzKfH36FzrmlF6gE6Ej5wqCOTd4
-        pLzwGmboJ+p18OsmI93m/uKn1qd+a7S0N7bV75aqhYJOgfIIfT23fOLfPAhxUFLH
-        ZzG5axr0DZzGRMD/V2vUJVApf7rh+IIODDg==
-X-Virus-Scanned: amavisd-new at usg-ed-osssrv.wdc.com
-Received: from usg-ed-osssrv.wdc.com ([127.0.0.1])
-        by usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id 2T1JPga9fZZB for <linux-s390@vger.kernel.org>;
-        Mon, 18 Apr 2022 01:04:16 -0700 (PDT)
-Received: from [10.225.163.14] (unknown [10.225.163.14])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4KhfbJ6g7Wz1Rwrw;
-        Mon, 18 Apr 2022 01:04:12 -0700 (PDT)
-Message-ID: <18032025-f1aa-2daa-d012-8996590ada6a@opensource.wdc.com>
-Date:   Mon, 18 Apr 2022 17:04:11 +0900
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Subject: Re: [dm-devel] [PATCH 08/11] loop: remove a spurious clear of
- discard_alignment
-Content-Language: en-US
-To:     Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
-Cc:     Jan Hoeppner <hoeppner@linux.ibm.com>,
+        with ESMTP id S231738AbiDRI5g (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Apr 2022 04:57:36 -0400
+Received: from out30-43.freemail.mail.aliyun.com (out30-43.freemail.mail.aliyun.com [115.124.30.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F24EC257;
+        Mon, 18 Apr 2022 01:54:53 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R231e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04357;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=33;SR=0;TI=SMTPD_---0VALaedj_1650272086;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VALaedj_1650272086)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Mon, 18 Apr 2022 16:54:48 +0800
+Message-ID: <1650271705.1503067-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH v9 31/32] virtio_net: support rx/tx queue resize
+Date:   Mon, 18 Apr 2022 16:48:25 +0800
+From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To:     Jason Wang <jasowang@redhat.com>
+Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
         "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        linux-nvme@lists.infradead.org,
-        virtualization@lists.linux-foundation.org,
-        Song Liu <song@kernel.org>, dm-devel@redhat.com,
-        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
-        Jack Wang <jinpu.wang@ionos.com>, linux-s390@vger.kernel.org,
-        Richard Weinberger <richard@nod.at>,
-        xen-devel@lists.xenproject.org, linux-um@lists.infradead.org,
-        Mike Snitzer <snitzer@kernel.org>,
-        Josef Bacik <josef@toxicpanda.com>, nbd@other.debian.org,
-        linux-block@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
-        linux-raid@vger.kernel.org,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        =?UTF-8?Q?Roger_Pau_Monn=c3=a9?= <roger.pau@citrix.com>
-References: <20220418045314.360785-1-hch@lst.de>
- <20220418045314.360785-9-hch@lst.de>
-From:   Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Organization: Western Digital Research
-In-Reply-To: <20220418045314.360785-9-hch@lst.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        Vadim Pasternak <vadimp@nvidia.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        linux-um@lists.infradead.org, netdev <netdev@vger.kernel.org>,
+        platform-driver-x86@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm <kvm@vger.kernel.org>,
+        "open list:XDP (eXpress Data Path)" <bpf@vger.kernel.org>,
+        virtualization <virtualization@lists.linux-foundation.org>
+References: <20220406034346.74409-1-xuanzhuo@linux.alibaba.com>
+ <20220406034346.74409-32-xuanzhuo@linux.alibaba.com>
+ <122008a6-1e79-14d3-1478-59f96464afc9@redhat.com>
+ <1650252077.7934203-1-xuanzhuo@linux.alibaba.com>
+ <CACGkMEtZOJ2PCsJidDcFKL57Q6oLHk4TH7xtewrLCTFhrbXSAA@mail.gmail.com>
+In-Reply-To: <CACGkMEtZOJ2PCsJidDcFKL57Q6oLHk4TH7xtewrLCTFhrbXSAA@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 4/18/22 13:53, Christoph Hellwig wrote:
-> The loop driver never sets a discard_alignment, so it also doens't need
-> to clear it to zero.
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  drivers/block/loop.c | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-> index 976cf987b3920..61b642b966a08 100644
-> --- a/drivers/block/loop.c
-> +++ b/drivers/block/loop.c
-> @@ -789,7 +789,6 @@ static void loop_config_discard(struct loop_device *lo)
->  		blk_queue_max_discard_sectors(q, 0);
->  		blk_queue_max_write_zeroes_sectors(q, 0);
->  	}
-> -	q->limits.discard_alignment = 0;
->  }
->  
->  struct loop_worker {
+On Mon, 18 Apr 2022 15:49:29 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> On Mon, Apr 18, 2022 at 11:24 AM Xuan Zhuo <xuanzhuo@linux.alibaba.com> w=
+rote:
+> >
+> > On Wed, 13 Apr 2022 16:00:18 +0800, Jason Wang <jasowang@redhat.com> wr=
+ote:
+> > >
+> > > =E5=9C=A8 2022/4/6 =E4=B8=8A=E5=8D=8811:43, Xuan Zhuo =E5=86=99=E9=81=
+=93:
+> > > > This patch implements the resize function of the rx, tx queues.
+> > > > Based on this function, it is possible to modify the ring num of the
+> > > > queue.
+> > > >
+> > > > There may be an exception during the resize process, the resize may
+> > > > fail, or the vq can no longer be used. Either way, we must execute
+> > > > napi_enable(). Because napi_disable is similar to a lock, napi_enab=
+le
+> > > > must be called after calling napi_disable.
+> > > >
+> > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > ---
+> > > >   drivers/net/virtio_net.c | 81 +++++++++++++++++++++++++++++++++++=
++++++
+> > > >   1 file changed, 81 insertions(+)
+> > > >
+> > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > > > index b8bf00525177..ba6859f305f7 100644
+> > > > --- a/drivers/net/virtio_net.c
+> > > > +++ b/drivers/net/virtio_net.c
+> > > > @@ -251,6 +251,9 @@ struct padded_vnet_hdr {
+> > > >     char padding[4];
+> > > >   };
+> > > >
+> > > > +static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void =
+*buf);
+> > > > +static void virtnet_rq_free_unused_buf(struct virtqueue *vq, void =
+*buf);
+> > > > +
+> > > >   static bool is_xdp_frame(void *ptr)
+> > > >   {
+> > > >     return (unsigned long)ptr & VIRTIO_XDP_FLAG;
+> > > > @@ -1369,6 +1372,15 @@ static void virtnet_napi_enable(struct virtq=
+ueue *vq, struct napi_struct *napi)
+> > > >   {
+> > > >     napi_enable(napi);
+> > > >
+> > > > +   /* Check if vq is in reset state. The normal reset/resize proce=
+ss will
+> > > > +    * be protected by napi. However, the protection of napi is onl=
+y enabled
+> > > > +    * during the operation, and the protection of napi will end af=
+ter the
+> > > > +    * operation is completed. If re-enable fails during the proces=
+s, vq
+> > > > +    * will remain unavailable with reset state.
+> > > > +    */
+> > > > +   if (vq->reset)
+> > > > +           return;
+> > >
+> > >
+> > > I don't get when could we hit this condition.
+> > >
+> > >
+> > > > +
+> > > >     /* If all buffers were filled by other side before we napi_enab=
+led, we
+> > > >      * won't get another interrupt, so process any outstanding pack=
+ets now.
+> > > >      * Call local_bh_enable after to trigger softIRQ processing.
+> > > > @@ -1413,6 +1425,15 @@ static void refill_work(struct work_struct *=
+work)
+> > > >             struct receive_queue *rq =3D &vi->rq[i];
+> > > >
+> > > >             napi_disable(&rq->napi);
+> > > > +
+> > > > +           /* Check if vq is in reset state. See more in
+> > > > +            * virtnet_napi_enable()
+> > > > +            */
+> > > > +           if (rq->vq->reset) {
+> > > > +                   virtnet_napi_enable(rq->vq, &rq->napi);
+> > > > +                   continue;
+> > > > +           }
+> > >
+> > >
+> > > Can we do something similar in virtnet_close() by canceling the work?
+> > >
+> > >
+> > > > +
+> > > >             still_empty =3D !try_fill_recv(vi, rq, GFP_KERNEL);
+> > > >             virtnet_napi_enable(rq->vq, &rq->napi);
+> > > >
+> > > > @@ -1523,6 +1544,10 @@ static void virtnet_poll_cleantx(struct rece=
+ive_queue *rq)
+> > > >     if (!sq->napi.weight || is_xdp_raw_buffer_queue(vi, index))
+> > > >             return;
+> > > >
+> > > > +   /* Check if vq is in reset state. See more in virtnet_napi_enab=
+le() */
+> > > > +   if (sq->vq->reset)
+> > > > +           return;
+> > >
+> > >
+> > > We've disabled TX napi, any chance we can still hit this?
+> >
+> >
+> > static int virtnet_poll(struct napi_struct *napi, int budget)
+> > {
+> >         struct receive_queue *rq =3D
+> >                 container_of(napi, struct receive_queue, napi);
+> >         struct virtnet_info *vi =3D rq->vq->vdev->priv;
+> >         struct send_queue *sq;
+> >         unsigned int received;
+> >         unsigned int xdp_xmit =3D 0;
+> >
+> >         virtnet_poll_cleantx(rq);
+> > ...
+> > }
+> >
+> > This is called by rx poll. Although it is the logic of tx, it is not dr=
+iven by
+> > tx napi, but is called in rx poll.
+>
+> Ok, but we need guarantee the memory ordering in this case. Disable RX
+> napi could be a solution for this.
 
-Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Yes, I have realized this too. I have two solutions, disable rx napi or the
+following.
 
--- 
-Damien Le Moal
-Western Digital Research
+Thanks.
+
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 9bf1b6530b38..7764d1dcb831 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -135,6 +135,7 @@ struct send_queue {
+ 	struct virtnet_sq_stats stats;
+
+ 	struct napi_struct napi;
++	bool reset;
+ };
+
+ /* Internal representation of a receive virtqueue */
+@@ -1583,6 +1587,11 @@ static void virtnet_poll_cleantx(struct receive_queu=
+e *rq)
+ 		return;
+
+ 	if (__netif_tx_trylock(txq)) {
++		if (sq->reset) {
++			__netif_tx_unlock(txq);
++			return;
++		}
++
+ 		do {
+ 			virtqueue_disable_cb(sq->vq);
+ 			free_old_xmit_skbs(sq, true);
+@@ -1828,6 +1837,56 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, s=
+truct net_device *dev)
+ 	return NETDEV_TX_OK;
+ }
+
++static int virtnet_tx_resize(struct virtnet_info *vi,
++			     struct send_queue *sq, u32 ring_num)
++{
++	struct netdev_queue *txq;
++	int err, qindex;
++
++	qindex =3D sq - vi->sq;
++
++	virtnet_napi_tx_disable(&sq->napi);
++
++	txq =3D netdev_get_tx_queue(vi->dev, qindex);
++
++	__netif_tx_lock_bh(txq);
++	netif_stop_subqueue(vi->dev, qindex);
++	sq->reset =3D true;
++	__netif_tx_unlock_bh(txq);
++
++	err =3D virtqueue_resize(sq->vq, ring_num, virtnet_sq_free_unused_buf);
++	if (err)
++		netdev_err(vi->dev, "resize tx fail: tx queue index: %d err: %d\n", qind=
+ex, err);
++
++	__netif_tx_lock_bh(txq);
++	sq->reset =3D false;
++	netif_start_subqueue(vi->dev, qindex);
++	__netif_tx_unlock_bh(txq);
++
++	virtnet_napi_tx_enable(vi, sq->vq, &sq->napi);
++	return err;
++}
++
+
