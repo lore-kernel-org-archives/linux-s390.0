@@ -2,153 +2,92 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 287CEC433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 18 Apr 2022 21:23:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1D4DC4332F
+	for <linux-s390@archiver.kernel.org>; Mon, 18 Apr 2022 22:00:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233003AbiDRVZs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 18 Apr 2022 17:25:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59708 "EHLO
+        id S230005AbiDRWCo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 18 Apr 2022 18:02:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230107AbiDRVZr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Apr 2022 17:25:47 -0400
-Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2077.outbound.protection.outlook.com [40.107.237.77])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5036A2CCB9;
-        Mon, 18 Apr 2022 14:23:07 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=DCTnzYl+A3W1QQ39xpG5158yMEOX1tX8kBsBFih687ArE4aExk9nDwadSZOJxtI8eSLpXx7MMVEFXK+vWQ6T5HRTB3E2c/PH17fWAv1mmQCW9KcWzKW56S6J4IxDY1NN94HBCdbrsihxpT0/hZWVtVXrq4m2PQBnpNcXYs5imYg4lrolYDCf4zf9ILKuJ588bnQ1+8I3rB9U6mHLGokShUOmwt5ZwlDSkL/jN2NyqjR+TMB+H5gOHFWaHJR7gR2HXTRfvqQ0oKZtCXkrQfVUEejwTJ5S+uVLAhBsjmYuEdRWRDI9HdoNiqyx9ZyCFfDPYf0Ueqqv1bzzDfVaWl0xGg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=ylu+JR0gsLNhok9CksoK3rBzZXhje5IsRF+GG5APk2s=;
- b=NhyDGKEHIKHnZQ6i6J4WB9/rf2SbvqnX8fTvl5GbbeRZc+L+MDC9mt5j3Q6c4yVp+7gx4BkL2CQIHM9Mi1wgO7zatLHOyW80qXA93sWUBRWZWnINVY+QO6mee3wvwvl7CsUwmo4Zyk+52t3IcnCOLot5C1Wkgckzo6kq2FrX7N+5GaMYKp45W24MvOFsziVYqYvZBRT2xRaOZNN7Qt8mMWWvk3BMK6W0/c/uLGk7Km+ShDd3pKpHMPw5Hv+f9/J130cOmwQ4Yl8S5veSkYuwpP0E6RiSjORFAucri1YJvCS+0aRqtuWFVJSUl2IVnFMqLXbCpaVJw/zI2wujGo/kpQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ylu+JR0gsLNhok9CksoK3rBzZXhje5IsRF+GG5APk2s=;
- b=EDDoBtO40FqhH6APtRLewO5ws0a/ttWuuMyQgjdR6zAnxJcQBjPBp8l2RrEvyJCGQWhoE3LqjgDnHPwYnSIM/C6FlHB6+3cRU6nNeKQkRLP9aiRQmx9LCnQ7U2TOmSLMCE3JqEl0L8Bun3T5hSpiPH7HiK15E9QhLyc1HYWmqcUjJHUlPS3+EZ0upPIyg6nqkq2Ls9jwQ49VrVXTvkujKbtqvEZRzEiZDnwj5GpL07WdWaRyJKQdco8D8vVmsWYEnPkn9avBBQNgjwk2TZyD3BCpW2egHzWEULxJvhFWHaN/Gq0j6jo+QA7g3caOjiChtPDpLBXS7FmJ6CMTJiCf7w==
-Received: from MW2PR12MB4667.namprd12.prod.outlook.com (2603:10b6:302:12::28)
- by BYAPR12MB5703.namprd12.prod.outlook.com (2603:10b6:a03:a5::32) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5164.18; Mon, 18 Apr
- 2022 21:23:05 +0000
-Received: from MW2PR12MB4667.namprd12.prod.outlook.com
- ([fe80::a90b:9df2:370c:e76b]) by MW2PR12MB4667.namprd12.prod.outlook.com
- ([fe80::a90b:9df2:370c:e76b%3]) with mapi id 15.20.5164.025; Mon, 18 Apr 2022
- 21:23:05 +0000
-From:   Chaitanya Kulkarni <chaitanyak@nvidia.com>
-To:     Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
-CC:     Richard Weinberger <richard@nod.at>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Josef Bacik <josef@toxicpanda.com>,
-        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        =?utf-8?B?Um9nZXIgUGF1IE1vbm7DqQ==?= <roger.pau@citrix.com>,
-        Mike Snitzer <snitzer@kernel.org>, Song Liu <song@kernel.org>,
-        Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        "linux-um@lists.infradead.org" <linux-um@lists.infradead.org>,
-        "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
-        "nbd@other.debian.org" <nbd@other.debian.org>,
-        "virtualization@lists.linux-foundation.org" 
-        <virtualization@lists.linux-foundation.org>,
-        "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>,
-        "linux-raid@vger.kernel.org" <linux-raid@vger.kernel.org>,
-        "linux-nvme@lists.infradead.org" <linux-nvme@lists.infradead.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "dm-devel@redhat.com" <dm-devel@redhat.com>
-Subject: Re: [PATCH 09/11] nvme: remove a spurious clear of discard_alignment
-Thread-Topic: [PATCH 09/11] nvme: remove a spurious clear of discard_alignment
-Thread-Index: AQHYUuBcFEm/XfqSQ0uW2E3HX2krVaz2LzqA
-Date:   Mon, 18 Apr 2022 21:23:05 +0000
-Message-ID: <66df636c-b98a-23f7-20f5-f124109b81c1@nvidia.com>
-References: <20220418045314.360785-1-hch@lst.de>
- <20220418045314.360785-10-hch@lst.de>
-In-Reply-To: <20220418045314.360785-10-hch@lst.de>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-user-agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 8ea33572-46a0-4def-4816-08da2181a0a0
-x-ms-traffictypediagnostic: BYAPR12MB5703:EE_
-x-microsoft-antispam-prvs: <BYAPR12MB57034654840D806181EA4705A3F39@BYAPR12MB5703.namprd12.prod.outlook.com>
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: wZRIafoMZ+RNEv0jR3059UeyDTFK32ryaMGSLWdws/jWK1ZLHE9hYQAuxaagMVs/LEd/tpZiQVJDQf1nmESaKq+E5Cog4yW9qJs+ajxMRBm0ihATE22BxMXT67QvxcLPHLKUxtogqLjr2S3bccK0HG8KLBQgdD7S4N1dtflpco/vndZ9fHtv8ZVS44KE+gAB7iIu1cFQeZX00WRBwVkiIPbxklRZ7reZXWoinrMqonA+BbWykmn9TA6hOVhJkz+a4LV2zrC2nBas3p2lgORI24Re5BSDJaXDU71ZPwsW/FJY3K58yAj/q3xPJWAvcAzpClVyBI/ieTTMTanbP75jut6qk8WNQb7/Vn0m7SA19hWgKnRK/K+ONQrHCQR5N78AMkwuS+Fsl48/Y0Om1/cP0nF7aWaKnJ6dhQvQgK1wY+Lnmvoy+BE6li5iHNeJW1nlfWQ/A3HXyZ2MKDaObYA841BmXGhg3Fy4GVlTz/bkvccGcD5D0u5ncn7CJd9BRyI9HT4voIcBXJZEfYvnhiMQWgI+awGaihUto+et5YyvXTdHpJX1lg0tU6U3DQPO1sdLiez5LvX+/BVai9Rkxh846t7jct1VZnTXRVGqZYkIamc4I66l6G1W2ypSWvc6XABmk2hgEj3iAZbAcCsedSHS6h5dAxJXHpYA9nR2zGUkWfm0HSdv/eRAd8LZ6qz4Zjq5pVf670aNRxbNeWA42OmJ1kRJ7dXwgG38AMo2qb1kid+PSZXlzehAFA+FXLA4LD+7+h3ile31o23bjx8fvRA7Nw==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MW2PR12MB4667.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(558084003)(71200400001)(86362001)(5660300002)(66946007)(76116006)(31696002)(186003)(316002)(38070700005)(6486002)(38100700002)(2616005)(122000001)(66446008)(110136005)(7416002)(54906003)(64756008)(91956017)(4326008)(8676002)(66476007)(66556008)(508600001)(8936002)(31686004)(6506007)(36756003)(2906002)(6512007)(53546011)(43740500002)(45980500001);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?K3JyUHJGTk9VOGd4ejRtQ2k2SktOU0RoODU2STdRZ2Juc1lvMFFsRzdBUkRm?=
- =?utf-8?B?b0hxTGpHME5nWGs0bkxZRE5KUUpLZjg2U1NmY1VLUHNRVG56YXVEMnQwWHRL?=
- =?utf-8?B?YXNGQmNISmNxQjRxV2F5am1VZU5sV2hhb0ppSGtUT242b0U3OWVyUTE2eGt5?=
- =?utf-8?B?cnhLeHpNRC9uQ2hQNTFJNE9vWTkxUVRndmpnYmYwVjdqVDJnMldhVFhxVmhk?=
- =?utf-8?B?RTAvbm9yZVYxbDBDdlpWblJxRldKMVk1OVcwWi8xQWhxd1JVN0kzeHpsRkZC?=
- =?utf-8?B?M1YxMEoveUpVT2YxZFB2T2NmSkNBOGRlV0p5ZG43STJBMW1vVFJMdXNHUXVK?=
- =?utf-8?B?K1UrL21mcFk1Z3Nta3N2Y0xncE9tZnB0S1FKTzF3OHQ5VkNvYUtxUEgvYkVR?=
- =?utf-8?B?Y3hnWmY3ZGdQZEVuL2JaK1FndE9iaEJxbkJuSmFkZGFxckEyMTJkdEJ0VUFh?=
- =?utf-8?B?M2VlbUxXTVgwWUh5TGxqbkQyNUVTU05QcHRBcm1XQUNla0VKTzY0UUFYODAr?=
- =?utf-8?B?MjZucUQ3VDRpazRZRTFWeGt2QXZDWXhrdWowTjBUUHpwYUVvK0dYVnpiVE5l?=
- =?utf-8?B?Q2NKNEo5Z3ZuSlN4bXVvK3FvaHlUdHJTZVNLenBEQm53ekpiekxNeGYvOXZh?=
- =?utf-8?B?WUZLQjR6dWlXczl5VXFmVXg5TkplY1UzeWdVMGFzTmlaaGlBZjJETEhVbjhx?=
- =?utf-8?B?eFU0SXdBZ09zOEZtQU1rc2tIR1NlRTFzQXNzZnpWM3RCdE5rOXZKV1FwMksy?=
- =?utf-8?B?NFBralNBei9kOG1PWlhCZmFFa0szY1I5WHlZR3J2am5FMEUwRkp4Zk42VTc4?=
- =?utf-8?B?N3J6L1Z5YURoRVphVjMvdmxiR0NwMForU21QblVXUWN6Y2hOVTM4LzBqeUM4?=
- =?utf-8?B?NXV4aFlLUFFrdHpza1RtN3A2TkhDYnN5ZEZuRnlQVWRta0JiQTd1aEVQL2d0?=
- =?utf-8?B?ZlVXVVUwdllzTzFYN2dqQWVhNjYxVGZ5bUJEMXM0NGZHdnlsUUFSRFVVU1FF?=
- =?utf-8?B?TzhJQmhpZ0hZSG1oVjl0ODhsRXlYOC9lVVBETEZlaEZXWkhhNENnbytlYlJP?=
- =?utf-8?B?bnpyVXlMaE5XNzhUMFVYclF2aTFFQ2d4ZkUwTFhuUWxTRmpiSmYydnFYdHhh?=
- =?utf-8?B?bG9BWFp3TFcrVW1KN2xBWm84dnY1N3FoZ0NQcFhYRGtIeUM3ekxrVGFXL2Fk?=
- =?utf-8?B?NWRZQkVHZm1xb1I4RUt5Q0lKb2d4c3NSNkdlS1ZhTVptNjBQUUFhZHdXS09H?=
- =?utf-8?B?ZGxINlE1WDAzOUZNNlJObnVuaU93ckY1ZzJpMW9rYWN6c1RNdkZJdTBLTXZK?=
- =?utf-8?B?S1BJZnF1YXEyWmpiNVhNNXZ0d0FxZ0dDZHFOVm1URi9YUzMxc0VBMWFuSm94?=
- =?utf-8?B?L0xBWDhTUldOQjJZOG8xYnVzOHhWVzBvcDN4UmJmN0VadWd6OTZIVE16TTF1?=
- =?utf-8?B?OUxVbCtOOVRZR0oySW8raDhLalh6SDhwZXV4ZGI1aTVFWkh0ZTc3MUwvS1lC?=
- =?utf-8?B?UjVRdE9NWDJrRWdMKy9iaXRMMTV2c1VhLzBFVW4yU3JTblpicHQ4cDVPNC9n?=
- =?utf-8?B?b1VpTVN4b0VHalZVTzJrNFpTWHBreHU4L01IZE1VOU9LNHh4TWRBcXFtY1oz?=
- =?utf-8?B?RWVvVDYvYmRzUCszVE1adk4rNUp0Y3JSOHRNeVdOd3lvZCtEcTdWMFMxQTFM?=
- =?utf-8?B?bWNHVytkWXVjakNmKzgvV1RzZ01EWGFZdFRHYlVHSXNFSGxFODZqOTJJN2xI?=
- =?utf-8?B?RllFTHBybk1zeUxnU2FEbVBRa2tGWDNWcTRScTE4TWtvQ1R2bEQvQ25SWFd5?=
- =?utf-8?B?d0lWcWw2aURlYzR0VDZpay9SZy84VGVSU2tCSnlLOE9ZZ3ZseExMU2pUM1ha?=
- =?utf-8?B?bzg3SjJSc3I1V21Xc0FPOUVrci9LQmx5SkxpZThDRjdkTTEvdVk2ZWF4RXp4?=
- =?utf-8?B?NEhlK1NKdjBiU1gxT0k4UFA3U1l2cWRpNlprSnd2cVQ4SG5aWWIrdTRKVkto?=
- =?utf-8?B?QnFNU0hucTl1QWRwKzJaUFMzNTN2aVh2dGRJZEdkYUpKVCtPY21sVUtWbHor?=
- =?utf-8?B?L2ZRSkZBYjVQK1Jpd3dzcTNQRmltaDVXbVp2Zm4yVUE5azdFUTc5MEtWdVJ2?=
- =?utf-8?B?Wk1XQ0NmTEJHQnptT0tpNERWdXVzbk9xbG11VDBjMFpQNmhqK05tMkNKaTAw?=
- =?utf-8?B?T0tkbVhwSjZrMDEzR0lnMDgwak8zZVlXMXg5OVNlOWdBc0trSnpyellyWERK?=
- =?utf-8?B?L1dtT3FLaTYvUk9RdFU1NEFOSHFhOFNHcTJHQ3hBMkNDbSswUkd2K1JBMUNS?=
- =?utf-8?B?R0dUWEt1eTJXWExteGIrczUzWXMvVXE3eUIxejVJdVFneEQxZFR2SzBJVDc5?=
- =?utf-8?Q?3ThODCQ/tQz/cwX0=3D?=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <2261F5F6E0810744877DAE4E412E6B80@namprd12.prod.outlook.com>
-Content-Transfer-Encoding: base64
+        with ESMTP id S230057AbiDRWCb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Apr 2022 18:02:31 -0400
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E60DE6589
+        for <linux-s390@vger.kernel.org>; Mon, 18 Apr 2022 14:59:50 -0700 (PDT)
+Received: by mail-pj1-x1033.google.com with SMTP id j8-20020a17090a060800b001cd4fb60dccso502166pjj.2
+        for <linux-s390@vger.kernel.org>; Mon, 18 Apr 2022 14:59:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=cLLWAAHArn9WgPwOUwNflPPJDgjsRY1O3bHGAhIDsQw=;
+        b=LTURonE53ti9q/GT1aK7iRoPMpGAeCy1e4EeYMoQ5ND31pPzYRrBIuxOtS32aAiFM+
+         1XHlY0ymuxtf7KP5zzxh8j9ip4/ZkYqKkInt8TY5JnA0taa6ag1p6HhrtkPYOmL/X1BS
+         68H/ZEsyd88OXRqhJx4ed+KaxwMRzhvwF+Q30=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=cLLWAAHArn9WgPwOUwNflPPJDgjsRY1O3bHGAhIDsQw=;
+        b=ldWyKmY4FZZfHJrw7N6YxZlUdMo5xfOEW/flFbnXkNWpk7qM7kT96MXDTDPov5DqtE
+         zK1D2zasXTfMe3z7O8Z0xKzVl+YFgh9PFGxamop3OYsayueUbXT0iGL2nX5LPk4/01RA
+         oyRLG4Fl8s8BrUGcLeqQYwXo7Lb48CBEf3z+dQBqJWjlzHRlUQ3vW0kyFym5Va/hyku3
+         bxXkXPYVTAsRMY/ZRfFYKuWORPIq+AgyRWKKr4KBcrePGzZGiLSZzreLVIMxsBZvmb5t
+         mUIgGIFvYTV92WBz4uAX4vupYWVRypexF0yqtZJS7NjxTW++qlTy6S8SzQsMmeiwufjZ
+         8fNw==
+X-Gm-Message-State: AOAM531yAeTQPGFCj7BxZEXA233LZhJLtiEgmMZHqRwFA/bOdJjHkfrJ
+        7Aekr9qmQMO4Zs47djTLaAhb4w==
+X-Google-Smtp-Source: ABdhPJysM2kkydsu6S512r9sNHn81bBvZQZwemOKp8WmD7sADc0kfHvR6/TUHLqhcn1MQ99fL/O1Og==
+X-Received: by 2002:a17:902:6bc2:b0:158:a26b:5884 with SMTP id m2-20020a1709026bc200b00158a26b5884mr12917161plt.38.1650319190427;
+        Mon, 18 Apr 2022 14:59:50 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id z15-20020a056a001d8f00b004fda37855ddsm12953099pfw.168.2022.04.18.14.59.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 18 Apr 2022 14:59:50 -0700 (PDT)
+Date:   Mon, 18 Apr 2022 14:59:49 -0700
+From:   Kees Cook <keescook@chromium.org>
+To:     He Zhe <zhe.he@windriver.com>
+Cc:     catalin.marinas@arm.com, will@kernel.org, mark.rutland@arm.com,
+        tglx@linutronix.de, bp@alien8.de, dave.hansen@linux.intel.com,
+        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
+        namhyung@kernel.org, benh@kernel.crashing.org, paulus@samba.org,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com, hpa@zytor.com,
+        x86@kernel.org, linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RFC 2/8] arm64: stacktrace: Add arch_within_stack_frames
+Message-ID: <202204181457.9DE190CE@keescook>
+References: <20220418132217.1573072-1-zhe.he@windriver.com>
+ <20220418132217.1573072-3-zhe.he@windriver.com>
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: MW2PR12MB4667.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8ea33572-46a0-4def-4816-08da2181a0a0
-X-MS-Exchange-CrossTenant-originalarrivaltime: 18 Apr 2022 21:23:05.4140
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: bX94/9AH8QVpG+ra0QBfSC7XQkW0/5sNBc2d1BEGlO4VFk0lgNSO6gOFfRnduTdTtrVmVUtGs0aqwIqvFg029g==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR12MB5703
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220418132217.1573072-3-zhe.he@windriver.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-T24gNC8xNy8yMiAyMTo1MywgQ2hyaXN0b3BoIEhlbGx3aWcgd3JvdGU6DQo+IFRoZSBudm1lIGRy
-aXZlciBuZXZlciBzZXRzIGEgZGlzY2FyZF9hbGlnbm1lbnQsIHNvIGl0IGFsc28gZG9lbnMndCBu
-ZWVkDQo+IHRvIGNsZWFyIGl0IHRvIHplcm8uDQo+IA0KPiBTaWduZWQtb2ZmLWJ5OiBDaHJpc3Rv
-cGggSGVsbHdpZyA8aGNoQGxzdC5kZT4NCj4gLS0tDQoNClJldmlld2VkLWJ5OiBDaGFpdGFueWEg
-S3Vsa2FybmkgPGtjaEBudmlkaWEuY29tPg0KDQotY2sNCg0KDQo=
+On Mon, Apr 18, 2022 at 09:22:11PM +0800, He Zhe wrote:
+> This function checks if the given address range crosses frame boundary.
+> It is based on the existing x86 algorithm, but implemented via stacktrace.
+> This can be tested by USERCOPY_STACK_FRAME_FROM and
+> USERCOPY_STACK_FRAME_TO in lkdtm.
+
+Hi,
+
+Thanks for doing this implementation! One reason usercopy hardening
+didn't persue doing a "full" stacktrace was because it seemed relatively
+expensive. Did you do any usercopy-heavily workload testing to see if
+there was a noticeable performance impact?
+
+It would be nice to block the exposure of canaries and PAC bits, though,
+so I'm not opposed, but I'd like to get a better sense of how "heavy"
+this might be.
+
+Thanks!
+
+-Kees
+
+-- 
+Kees Cook
