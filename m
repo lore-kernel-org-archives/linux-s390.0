@@ -2,139 +2,253 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D4B36C433FE
-	for <linux-s390@archiver.kernel.org>; Mon, 18 Apr 2022 02:11:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 08014C433FE
+	for <linux-s390@archiver.kernel.org>; Mon, 18 Apr 2022 03:24:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235782AbiDRCNv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 17 Apr 2022 22:13:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54394 "EHLO
+        id S236010AbiDRD0w (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 17 Apr 2022 23:26:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234786AbiDRCNu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 17 Apr 2022 22:13:50 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 703C5183BD
-        for <linux-s390@vger.kernel.org>; Sun, 17 Apr 2022 19:11:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1650247872;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=ZKaQFNHJPrlVC1wRNehHPLwYyKFIA2KNeeEMoRic3Y0=;
-        b=Xlj2GzU7CjOVPUI7cPOSeF8zoCCkUWenn3n0YUitfs+Z9hRIjBQB/WU+IIDboYm+dDd3WL
-        xEICbVjdbnFqb4ImlEcMqoN7q7vUWp5fSw0XkVeBP82f+J4Et0KxS+dJH2R8jR546+r3m4
-        8PWWVf9mnXI2pLd4qLupBAahUIbnJrg=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-303-WDnMna3fO8-lP_vzT6cKaw-1; Sun, 17 Apr 2022 22:11:08 -0400
-X-MC-Unique: WDnMna3fO8-lP_vzT6cKaw-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 6B96929AB3F1;
-        Mon, 18 Apr 2022 02:11:07 +0000 (UTC)
-Received: from localhost (ovpn-12-21.pek2.redhat.com [10.72.12.21])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 2FB7DC28105;
-        Mon, 18 Apr 2022 02:11:06 +0000 (UTC)
-Date:   Mon, 18 Apr 2022 10:11:02 +0800
-From:   Baoquan He <bhe@redhat.com>
-To:     Coiby Xu <coxu@redhat.com>
-Cc:     kexec@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
-        Michal Suchanek <msuchanek@suse.de>,
-        Dave Young <dyoung@redhat.com>, Will Deacon <will@kernel.org>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Mimi Zohar <zohar@linux.ibm.com>, Chun-Yi Lee <jlee@suse.com>,
-        Philipp Rudo <prudo@linux.ibm.com>, keyrings@vger.kernel.org,
-        linux-security-module@vger.kernel.org, stable@kernel.org,
+        with ESMTP id S236005AbiDRD0v (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 17 Apr 2022 23:26:51 -0400
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7C0D140D2;
+        Sun, 17 Apr 2022 20:24:12 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=33;SR=0;TI=SMTPD_---0VAHFyW._1650252245;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VAHFyW._1650252245)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Mon, 18 Apr 2022 11:24:06 +0800
+Message-ID: <1650252077.7934203-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH v9 31/32] virtio_net: support rx/tx queue resize
+Date:   Mon, 18 Apr 2022 11:21:17 +0800
+From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To:     Jason Wang <jasowang@redhat.com>
+Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        Vadim Pasternak <vadimp@nvidia.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        "open list:S390" <linux-s390@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v6 4/4] kexec, KEYS, s390: Make use of built-in and
- secondary keyring for signature verification
-Message-ID: <YlzItpGMPat1BFPq@MiWiFi-R3L-srv>
-References: <20220414014344.228523-1-coxu@redhat.com>
- <20220414014344.228523-5-coxu@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220414014344.228523-5-coxu@redhat.com>
-X-Scanned-By: MIMEDefang 2.85 on 10.11.54.8
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        linux-um@lists.infradead.org, netdev@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, bpf@vger.kernel.org,
+        virtualization@lists.linux-foundation.org
+References: <20220406034346.74409-1-xuanzhuo@linux.alibaba.com>
+ <20220406034346.74409-32-xuanzhuo@linux.alibaba.com>
+ <122008a6-1e79-14d3-1478-59f96464afc9@redhat.com>
+In-Reply-To: <122008a6-1e79-14d3-1478-59f96464afc9@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 04/14/22 at 09:43am, Coiby Xu wrote:
-> From: Michal Suchanek <msuchanek@suse.de>
-> 
-> commit e23a8020ce4e ("s390/kexec_file: Signature verification prototype")
-> adds support for KEXEC_SIG verification with keys from platform keyring
-> but the built-in keys and secondary keyring are not used.
-> 
-> Add support for the built-in keys and secondary keyring as x86 does.
-> 
-> Fixes: e23a8020ce4e ("s390/kexec_file: Signature verification prototype")
+On Wed, 13 Apr 2022 16:00:18 +0800, Jason Wang <jasowang@redhat.com> wrote:
+>
+> =E5=9C=A8 2022/4/6 =E4=B8=8A=E5=8D=8811:43, Xuan Zhuo =E5=86=99=E9=81=93:
+> > This patch implements the resize function of the rx, tx queues.
+> > Based on this function, it is possible to modify the ring num of the
+> > queue.
+> >
+> > There may be an exception during the resize process, the resize may
+> > fail, or the vq can no longer be used. Either way, we must execute
+> > napi_enable(). Because napi_disable is similar to a lock, napi_enable
+> > must be called after calling napi_disable.
+> >
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > ---
+> >   drivers/net/virtio_net.c | 81 ++++++++++++++++++++++++++++++++++++++++
+> >   1 file changed, 81 insertions(+)
+> >
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index b8bf00525177..ba6859f305f7 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -251,6 +251,9 @@ struct padded_vnet_hdr {
+> >   	char padding[4];
+> >   };
+> >
+> > +static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf=
+);
+> > +static void virtnet_rq_free_unused_buf(struct virtqueue *vq, void *buf=
+);
+> > +
+> >   static bool is_xdp_frame(void *ptr)
+> >   {
+> >   	return (unsigned long)ptr & VIRTIO_XDP_FLAG;
+> > @@ -1369,6 +1372,15 @@ static void virtnet_napi_enable(struct virtqueue=
+ *vq, struct napi_struct *napi)
+> >   {
+> >   	napi_enable(napi);
+> >
+> > +	/* Check if vq is in reset state. The normal reset/resize process will
+> > +	 * be protected by napi. However, the protection of napi is only enab=
+led
+> > +	 * during the operation, and the protection of napi will end after the
+> > +	 * operation is completed. If re-enable fails during the process, vq
+> > +	 * will remain unavailable with reset state.
+> > +	 */
+> > +	if (vq->reset)
+> > +		return;
+>
+>
+> I don't get when could we hit this condition.
+>
+>
+> > +
+> >   	/* If all buffers were filled by other side before we napi_enabled, =
+we
+> >   	 * won't get another interrupt, so process any outstanding packets n=
+ow.
+> >   	 * Call local_bh_enable after to trigger softIRQ processing.
+> > @@ -1413,6 +1425,15 @@ static void refill_work(struct work_struct *work)
+> >   		struct receive_queue *rq =3D &vi->rq[i];
+> >
+> >   		napi_disable(&rq->napi);
+> > +
+> > +		/* Check if vq is in reset state. See more in
+> > +		 * virtnet_napi_enable()
+> > +		 */
+> > +		if (rq->vq->reset) {
+> > +			virtnet_napi_enable(rq->vq, &rq->napi);
+> > +			continue;
+> > +		}
+>
+>
+> Can we do something similar in virtnet_close() by canceling the work?
+>
+>
+> > +
+> >   		still_empty =3D !try_fill_recv(vi, rq, GFP_KERNEL);
+> >   		virtnet_napi_enable(rq->vq, &rq->napi);
+> >
+> > @@ -1523,6 +1544,10 @@ static void virtnet_poll_cleantx(struct receive_=
+queue *rq)
+> >   	if (!sq->napi.weight || is_xdp_raw_buffer_queue(vi, index))
+> >   		return;
+> >
+> > +	/* Check if vq is in reset state. See more in virtnet_napi_enable() */
+> > +	if (sq->vq->reset)
+> > +		return;
+>
+>
+> We've disabled TX napi, any chance we can still hit this?
 
-Should Cc stable kernel?
 
-Otherwise, LGTM,
+static int virtnet_poll(struct napi_struct *napi, int budget)
+{
+	struct receive_queue *rq =3D
+		container_of(napi, struct receive_queue, napi);
+	struct virtnet_info *vi =3D rq->vq->vdev->priv;
+	struct send_queue *sq;
+	unsigned int received;
+	unsigned int xdp_xmit =3D 0;
 
-Acked-by: Baoquan He <bhe@redhat.com>
+	virtnet_poll_cleantx(rq);
+...
+}
 
-> Cc: Philipp Rudo <prudo@linux.ibm.com>
-> Cc: kexec@lists.infradead.org
-> Cc: keyrings@vger.kernel.org
-> Cc: linux-security-module@vger.kernel.org
-> Cc: stable@kernel.org
-> Signed-off-by: Michal Suchanek <msuchanek@suse.de>
-> Reviewed-by: "Lee, Chun-Yi" <jlee@suse.com>
-> Signed-off-by: Coiby Xu <coxu@redhat.com>
-> ---
->  arch/s390/kernel/machine_kexec_file.c | 18 +++++++++++++-----
->  1 file changed, 13 insertions(+), 5 deletions(-)
-> 
-> diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
-> index 8f43575a4dd3..fc6d5f58debe 100644
-> --- a/arch/s390/kernel/machine_kexec_file.c
-> +++ b/arch/s390/kernel/machine_kexec_file.c
-> @@ -31,6 +31,7 @@ int s390_verify_sig(const char *kernel, unsigned long kernel_len)
->  	const unsigned long marker_len = sizeof(MODULE_SIG_STRING) - 1;
->  	struct module_signature *ms;
->  	unsigned long sig_len;
-> +	int ret;
->  
->  	/* Skip signature verification when not secure IPLed. */
->  	if (!ipl_secure_flag)
-> @@ -65,11 +66,18 @@ int s390_verify_sig(const char *kernel, unsigned long kernel_len)
->  		return -EBADMSG;
->  	}
->  
-> -	return verify_pkcs7_signature(kernel, kernel_len,
-> -				      kernel + kernel_len, sig_len,
-> -				      VERIFY_USE_PLATFORM_KEYRING,
-> -				      VERIFYING_MODULE_SIGNATURE,
-> -				      NULL, NULL);
-> +	ret = verify_pkcs7_signature(kernel, kernel_len,
-> +				     kernel + kernel_len, sig_len,
-> +				     VERIFY_USE_SECONDARY_KEYRING,
-> +				     VERIFYING_MODULE_SIGNATURE,
-> +				     NULL, NULL);
-> +	if (ret == -ENOKEY && IS_ENABLED(CONFIG_INTEGRITY_PLATFORM_KEYRING))
-> +		ret = verify_pkcs7_signature(kernel, kernel_len,
-> +					     kernel + kernel_len, sig_len,
-> +					     VERIFY_USE_PLATFORM_KEYRING,
-> +					     VERIFYING_MODULE_SIGNATURE,
-> +					     NULL, NULL);
-> +	return ret;
->  }
->  #endif /* CONFIG_KEXEC_SIG */
->  
-> -- 
-> 2.34.1
-> 
-> 
+This is called by rx poll. Although it is the logic of tx, it is not driven=
+ by
+tx napi, but is called in rx poll.
 
+Thanks.
+
+
+>
+>
+> > +
+> >   	if (__netif_tx_trylock(txq)) {
+> >   		do {
+> >   			virtqueue_disable_cb(sq->vq);
+> > @@ -1769,6 +1794,62 @@ static netdev_tx_t start_xmit(struct sk_buff *sk=
+b, struct net_device *dev)
+> >   	return NETDEV_TX_OK;
+> >   }
+> >
+> > +static int virtnet_rx_resize(struct virtnet_info *vi,
+> > +			     struct receive_queue *rq, u32 ring_num)
+> > +{
+> > +	int err;
+> > +
+> > +	napi_disable(&rq->napi);
+> > +
+> > +	err =3D virtqueue_resize(rq->vq, ring_num, virtnet_rq_free_unused_buf=
+);
+> > +	if (err)
+> > +		goto err;
+> > +
+> > +	if (!try_fill_recv(vi, rq, GFP_KERNEL))
+> > +		schedule_delayed_work(&vi->refill, 0);
+> > +
+> > +	virtnet_napi_enable(rq->vq, &rq->napi);
+> > +	return 0;
+> > +
+> > +err:
+> > +	netdev_err(vi->dev,
+> > +		   "reset rx reset vq fail: rx queue index: %td err: %d\n",
+> > +		   rq - vi->rq, err);
+> > +	virtnet_napi_enable(rq->vq, &rq->napi);
+> > +	return err;
+> > +}
+> > +
+> > +static int virtnet_tx_resize(struct virtnet_info *vi,
+> > +			     struct send_queue *sq, u32 ring_num)
+> > +{
+> > +	struct netdev_queue *txq;
+> > +	int err, qindex;
+> > +
+> > +	qindex =3D sq - vi->sq;
+> > +
+> > +	virtnet_napi_tx_disable(&sq->napi);
+> > +
+> > +	txq =3D netdev_get_tx_queue(vi->dev, qindex);
+> > +	__netif_tx_lock_bh(txq);
+> > +	netif_stop_subqueue(vi->dev, qindex);
+> > +	__netif_tx_unlock_bh(txq);
+> > +
+> > +	err =3D virtqueue_resize(sq->vq, ring_num, virtnet_sq_free_unused_buf=
+);
+> > +	if (err)
+> > +		goto err;
+> > +
+> > +	netif_start_subqueue(vi->dev, qindex);
+> > +	virtnet_napi_tx_enable(vi, sq->vq, &sq->napi);
+> > +	return 0;
+> > +
+> > +err:
+>
+>
+> I guess we can still start the queue in this case? (Since we don't
+> change the queue if resize fails).
+>
+>
+> > +	netdev_err(vi->dev,
+> > +		   "reset tx reset vq fail: tx queue index: %td err: %d\n",
+> > +		   sq - vi->sq, err);
+> > +	virtnet_napi_tx_enable(vi, sq->vq, &sq->napi);
+> > +	return err;
+> > +}
+> > +
+> >   /*
+> >    * Send command via the control virtqueue and check status.  Commands
+> >    * supported by the hypervisor, as indicated by feature bits, should
+>
