@@ -2,31 +2,31 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73749C4167D
-	for <linux-s390@archiver.kernel.org>; Mon, 18 Apr 2022 04:53:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 34712C46467
+	for <linux-s390@archiver.kernel.org>; Mon, 18 Apr 2022 04:53:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236548AbiDRE4W (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 18 Apr 2022 00:56:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56042 "EHLO
+        id S236553AbiDRE41 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 18 Apr 2022 00:56:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236535AbiDRE4S (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Apr 2022 00:56:18 -0400
+        with ESMTP id S236540AbiDRE4U (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Apr 2022 00:56:20 -0400
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BD7617AA1;
-        Sun, 17 Apr 2022 21:53:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A923917AA1;
+        Sun, 17 Apr 2022 21:53:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=QvtQsYVY573QihyBU8P2z12+bQQI/RcwQdA2DddKTiA=; b=LUQ5PRFm2GAJyoA/D+xu4w8Ii5
-        0paCHfyXTYDxbjypETMxwgir9bcwOwM4o4rWjUOpuxTq4I9Q4G/j7GVoJnIwTdVosqCyx9KlBfHHz
-        GBr7tV+xv5gxPcKBzizKftU8Qv6ZFFPGtMjheiYrReTlWeRhvuhAaarOva0kSOa3erCllKH+TrqTE
-        Z8pVWD52/LOaeff3ZAer03ApAz1EBAKLkUGDdVFxHrg+FnoIus0ydxQ8Xo+w5VHre+DsJ0CVzeJRd
-        u4Ni5puCzFaEbwzGI41J6IW4XU0jzki6izerpFqhBoxMjIEwaBJMooUN/P+xSgYx2bCA+8qthvREk
-        rDuUzWUA==;
+        bh=KG+SgMW1cgxv4FiMP5E+75DsV8uftH+qG3p1TXEyEio=; b=WCY6skOHo4HAb9P+VnkeBFb0Wd
+        6HtmKYsZebjLRF7olS575CTUsYnepT6MLhQcw4sj2+aChzDYFdv2TJAkdt+xyZ1fXNBl7i0qMNjh3
+        atVTLApTQdVrJzkAw+e1xu5UI+XeibuBhpE8sdBqSRgmuc6LQWX7Gh+vwa6QmZwgL4o7wDhOkPATZ
+        JJdiL4zj1+8ON5LJ5rpzrXXnZZ2Gt3WLli0Y+Kla+bD/xTw/zq7EpruzAfxZI9IfvyngDrwoC2oVp
+        27txs+BLBDIzzVrm7MMsfkvqKD3aBSqEiOBeG/1GG6jcIJdI2YJ/vneItfmtIQXQEFbm2vNa5lU9l
+        aHTP8xYA==;
 Received: from [2a02:1205:504b:4280:f5dd:42a4:896c:d877] (helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1ngJO9-00FYiQ-3d; Mon, 18 Apr 2022 04:53:25 +0000
+        id 1ngJOC-00FYj8-0H; Mon, 18 Apr 2022 04:53:28 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     Jens Axboe <axboe@kernel.dk>
 Cc:     Richard Weinberger <richard@nod.at>,
@@ -46,9 +46,9 @@ Cc:     Richard Weinberger <richard@nod.at>,
         xen-devel@lists.xenproject.org, linux-raid@vger.kernel.org,
         linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org,
         dm-devel@redhat.com
-Subject: [PATCH 03/11] null_blk: don't set the discard_alignment queue limit
-Date:   Mon, 18 Apr 2022 06:53:06 +0200
-Message-Id: <20220418045314.360785-4-hch@lst.de>
+Subject: [PATCH 04/11] virtio_blk: fix the discard_granularity and discard_alignment queue limits
+Date:   Mon, 18 Apr 2022 06:53:07 +0200
+Message-Id: <20220418045314.360785-5-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220418045314.360785-1-hch@lst.de>
 References: <20220418045314.360785-1-hch@lst.de>
@@ -61,26 +61,45 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 The discard_alignment queue limit is named a bit misleading means the
 offset into the block device at which the discard granularity starts.
-Setting it to the discard granularity as done by null_blk is mostly
-harmless but also useless.
 
+On the other hand the discard_sector_alignment from the virtio 1.1 looks
+similar to what Linux uses as discard granularity (even if not very well
+described):
+
+  "discard_sector_alignment can be used by OS when splitting a request
+   based on alignment. "
+
+And at least qemu does set it to the discard granularity.
+
+So stop setting the discard_alignment and use the virtio
+discard_sector_alignment to set the discard granularity.
+
+Fixes: 1f23816b8eb8 ("virtio_blk: add discard and write zeroes support")
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/block/null_blk/main.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/block/virtio_blk.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/block/null_blk/main.c b/drivers/block/null_blk/main.c
-index 5cb4c92cdffea..a521e914a9843 100644
---- a/drivers/block/null_blk/main.c
-+++ b/drivers/block/null_blk/main.c
-@@ -1765,7 +1765,6 @@ static void null_config_discard(struct nullb *nullb)
- 	}
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 6ccf15253dee1..d624cc8eddc3c 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -867,11 +867,12 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 		blk_queue_io_opt(q, blk_size * opt_io_size);
  
- 	nullb->q->limits.discard_granularity = nullb->dev->blocksize;
--	nullb->q->limits.discard_alignment = nullb->dev->blocksize;
- 	blk_queue_max_discard_sectors(nullb->q, UINT_MAX >> 9);
- }
+ 	if (virtio_has_feature(vdev, VIRTIO_BLK_F_DISCARD)) {
+-		q->limits.discard_granularity = blk_size;
+-
+ 		virtio_cread(vdev, struct virtio_blk_config,
+ 			     discard_sector_alignment, &v);
+-		q->limits.discard_alignment = v ? v << SECTOR_SHIFT : 0;
++		if (v)
++			q->limits.discard_granularity = v << SECTOR_SHIFT;
++		else
++			q->limits.discard_granularity = blk_size;
  
+ 		virtio_cread(vdev, struct virtio_blk_config,
+ 			     max_discard_sectors, &v);
 -- 
 2.30.2
 
