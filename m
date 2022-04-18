@@ -2,392 +2,138 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4207FC433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 18 Apr 2022 07:58:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8EABC433F5
+	for <linux-s390@archiver.kernel.org>; Mon, 18 Apr 2022 08:00:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229512AbiDRIAf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 18 Apr 2022 04:00:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60382 "EHLO
+        id S232693AbiDRIDE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 18 Apr 2022 04:03:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237039AbiDRIAe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Apr 2022 04:00:34 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id BC7D119284
-        for <linux-s390@vger.kernel.org>; Mon, 18 Apr 2022 00:57:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1650268674;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=QB2hIEaNOaVSvZW6GhB9ZPGkcBR5Y/EmwtAltVQbGz4=;
-        b=AD9LL2b+RJIGeE/ObOWmT6su/8qni16sYsSN1aqZ3oBBmv0jLl3RsPBDaPtxh1Mu8EOXXn
-        vndMTgmA8mWebPPhMk8+1y5tB+slT+XnJupu0NgNNsCEwqGy2zO9vHXwrUTWEVAAiUk2RH
-        49MNh3dqoOMQD/6cJWS37wYR98teti0=
-Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
- [209.85.214.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-102-7fEt08mwO3akF72VRCBUSg-1; Mon, 18 Apr 2022 03:57:53 -0400
-X-MC-Unique: 7fEt08mwO3akF72VRCBUSg-1
-Received: by mail-pl1-f199.google.com with SMTP id u5-20020a17090282c500b00158e301f407so3044944plz.15
-        for <linux-s390@vger.kernel.org>; Mon, 18 Apr 2022 00:57:53 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=QB2hIEaNOaVSvZW6GhB9ZPGkcBR5Y/EmwtAltVQbGz4=;
-        b=HRrVjLiPOSe+efHrOGv43snOpNAY5iM7xuP/zCRYOqaj2A1OyUMqUikl1mokmmMEXp
-         E9btnSveD7tf1gMvlfAKfCSkXQ6bK3t/aK+hemT4I57pR+6xrAI5uC/LCL6pp0bYrGGF
-         skeQnkLrlAVs6UuBgbJ9W7AnJOU7U5GjwO1Dz9VTXFNOP4I3QNcez8pb7J1EIiVzXcmS
-         9yoOZhL9U8RvJzoICNhFiDzd5dk1UOXcMyhlRX/2Uqjb4117FUX0r/veltiu3GDUnFSv
-         bVRyJCOB7799qTn6Cpm5Y6lquxZV5VR/AqXBxFIPvzT7K8dKFr3Am+GmfYFs+LPuH8bp
-         G7Gw==
-X-Gm-Message-State: AOAM532aCMnlMrFcKnP011yXLQFayu+yfKn5LdxuT/nIVdfFDRddcFrD
-        rMWgG2aSS+6m9SfI6EAw78RI72+8F3EsyVXsMq9KVaK6XIMALklLLFX4cAriODi+9MrXRmAiUxR
-        wuEgnMfa0Ri34Kw1o+cqJzg==
-X-Received: by 2002:a17:902:b596:b0:158:f23a:c789 with SMTP id a22-20020a170902b59600b00158f23ac789mr7372574pls.57.1650268672281;
-        Mon, 18 Apr 2022 00:57:52 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwDSBaptpR+stWjiJRuBIZwcdjg4yDbmUSoZFvIAfQXF+o8QMtyy7IztplQWHr8YNawm7+9AQ==
-X-Received: by 2002:a17:902:b596:b0:158:f23a:c789 with SMTP id a22-20020a170902b59600b00158f23ac789mr7372559pls.57.1650268671926;
-        Mon, 18 Apr 2022 00:57:51 -0700 (PDT)
-Received: from [10.72.13.25] ([209.132.188.80])
-        by smtp.gmail.com with ESMTPSA id v13-20020a17090a00cd00b001d297df6725sm2377825pjd.22.2022.04.18.00.57.42
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 18 Apr 2022 00:57:51 -0700 (PDT)
-Message-ID: <0ab18346-5245-389d-5996-b805042889da@redhat.com>
-Date:   Mon, 18 Apr 2022 15:57:39 +0800
+        with ESMTP id S230527AbiDRIDD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Apr 2022 04:03:03 -0400
+Received: from esa6.hgst.iphmx.com (esa6.hgst.iphmx.com [216.71.154.45])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78D83B7E7
+        for <linux-s390@vger.kernel.org>; Mon, 18 Apr 2022 01:00:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1650268825; x=1681804825;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=N3pAk4FME4FfpMn1iEoaJawKiDbUT/rSC5t+NXLtpDE=;
+  b=cMQzMt+84Mv6b/594lMxJETfuwlpAIAfEdRR0hL1f81eaQzw/CHwuJ0/
+   X3D+Gz0wyrmgb4CwkS/nQE5wv8lUCM6V3WYxeH7EnHqpIzQoPD1Tn9eKz
+   5OiQ74gikatQtYFigC+DK/dL9spSgdQA+1+H6SvG60Sg9pMJwHAcM+rhu
+   aEyAs1e0nvIuDVonCA1QXfOAuyd5nzkjAwddJurR64/htAm5k/JBjvarE
+   LjnYeZQSF4t4ZhGHWHmGGwvMFpXsGo+DBmODkxSfWO8DUK5fGJGCZ/931
+   73ApjbcguEQQe2DLu/h2Nf/AVAp8WRjcLKdVD/sCOuC9evkfEYQTY09mO
+   g==;
+X-IronPort-AV: E=Sophos;i="5.90,269,1643644800"; 
+   d="scan'208";a="199047530"
+Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
+  by ob1.hgst.iphmx.com with ESMTP; 18 Apr 2022 16:00:21 +0800
+IronPort-SDR: /F+WGY8Zs2CSXGVIHA3BUR2jnruhCXQ990U2hpIwzzx1OtCpeKJZXAodxnH2rlta00fAUBvUCm
+ Zh646QS1hjjNAABNG1zfKgFgQLTyJM5eCtDh8qWzbQH6Pcok8C93FusPiyIyneRdSJhCsCNg2H
+ s8NPmFWSO0c2exIismnMIgMfxQ0Vxns9l1rs5t3+b6b8a81MJ+yZu+xEa/4PDpa0XPB18peH58
+ lO6yxyhcLzPKA1Eu6zUzypBLlvKZ/C/AM3NwKwddwseTfv5vWe9d30Og/dbAack/14quESZPzo
+ ua+f5SbDKnT7RAaulNRkzBVA
+Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 18 Apr 2022 00:31:28 -0700
+IronPort-SDR: MUwMkA2pX/JTewB2CqLSaEm5GY4vmB9BHq53Yh/CXDjc9BhYUb7YI2UnOVeHEXNYp4FL445fmL
+ mGUOT2z49lKtRLrCjiVYanXuU59ihzIw6KoBeAzS7NcviayoUbd7hgBuSjrgS8lwEp2ymZcC+x
+ nr7bShXgFhccOEPAgYcpfE/354Ji9Sa8TjK2b7TWK4yec6LklEJDBHW5itPTGSE1rdqU7KNJMT
+ ajvl16m99burG+1EvUApiwTgEMjLwC8tI/oSGWBoCE3Q4Pe53rcI7kpTKslYps6gyzZCgAZyu6
+ dko=
+WDCIronportException: Internal
+Received: from usg-ed-osssrv.wdc.com ([10.3.10.180])
+  by uls-op-cesaip02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 18 Apr 2022 01:00:20 -0700
+Received: from usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1])
+        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4KhfVp60TZz1SHwl
+        for <linux-s390@vger.kernel.org>; Mon, 18 Apr 2022 01:00:18 -0700 (PDT)
+Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
+        reason="pass (just generated, assumed good)"
+        header.d=opensource.wdc.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
+        opensource.wdc.com; h=content-transfer-encoding:content-type
+        :in-reply-to:organization:from:references:to:content-language
+        :subject:user-agent:mime-version:date:message-id; s=dkim; t=
+        1650268817; x=1652860818; bh=N3pAk4FME4FfpMn1iEoaJawKiDbUT/rSC5t
+        +NXLtpDE=; b=Hv31bX7Jya9kAcbobcM2DbhnrpTGs/GTwAAtUv8vySpoFKQgxRG
+        0PYJGfA2dAECZHN+A7jojXX4TPCln72oMy6HJclm/I/vdkiE/jo8YTTeRoyYZsgm
+        /8g2jq0kSlmAlmdBaXgVhQugmIYoKJc6VSVmS3/vKZFuOGWdIx3J42PRXZRhj4vT
+        4OURB/Cn0/RePkSCzRD3y1jplJh4/R5mHZHD9LVCry/+O2GN9qeH5cwnhqL23+sn
+        do6qojLT8/p84Nyj8izFB9vEJu3PN59Q67c1vVF9yFO0YZerzJcoLMqR+oWldmNt
+        RJ+7CYGXRuTQNYYhpyJfVv2zpFqW2SwbGxA==
+X-Virus-Scanned: amavisd-new at usg-ed-osssrv.wdc.com
+Received: from usg-ed-osssrv.wdc.com ([127.0.0.1])
+        by usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id WK9woN2cy7Pm for <linux-s390@vger.kernel.org>;
+        Mon, 18 Apr 2022 01:00:17 -0700 (PDT)
+Received: from [10.225.163.14] (unknown [10.225.163.14])
+        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4KhfVj0QSXz1Rvlx;
+        Mon, 18 Apr 2022 01:00:12 -0700 (PDT)
+Message-ID: <fd915a51-035f-d5c6-42a1-c517e3d1f1b1@opensource.wdc.com>
+Date:   Mon, 18 Apr 2022 17:00:11 +0900
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.8.0
-Subject: Re: [PATCH v9 31/32] virtio_net: support rx/tx queue resize
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Subject: Re: [dm-devel] [PATCH 05/11] dm-zoned: don't set the
+ discard_alignment queue limit
 Content-Language: en-US
-To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc:     Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+To:     Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+Cc:     Jan Hoeppner <hoeppner@linux.ibm.com>,
         "Michael S. Tsirkin" <mst@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mark Gross <markgross@kernel.org>,
-        Vadim Pasternak <vadimp@nvidia.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jesper Dangaard Brouer <hawk@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        linux-um@lists.infradead.org, netdev <netdev@vger.kernel.org>,
-        platform-driver-x86@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm <kvm@vger.kernel.org>,
-        "open list:XDP (eXpress Data Path)" <bpf@vger.kernel.org>,
-        virtualization <virtualization@lists.linux-foundation.org>
-References: <20220406034346.74409-1-xuanzhuo@linux.alibaba.com>
- <20220406034346.74409-32-xuanzhuo@linux.alibaba.com>
- <122008a6-1e79-14d3-1478-59f96464afc9@redhat.com>
- <1649838917.6726515-10-xuanzhuo@linux.alibaba.com>
- <CACGkMEvPH1k76xB_cHq_S9hvMXgGruoXpKLfoMZvJZ-L7wM9iw@mail.gmail.com>
- <1649989126.5433838-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEuju+kdapRbnx6OxsmAbD=JZin67xGBLEqLrMeuPPw0Fg@mail.gmail.com>
- <1650014226.0312726-1-xuanzhuo@linux.alibaba.com>
-From:   Jason Wang <jasowang@redhat.com>
-In-Reply-To: <1650014226.0312726-1-xuanzhuo@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+        Jason Wang <jasowang@redhat.com>,
+        linux-nvme@lists.infradead.org,
+        virtualization@lists.linux-foundation.org,
+        Song Liu <song@kernel.org>, dm-devel@redhat.com,
+        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
+        Jack Wang <jinpu.wang@ionos.com>, linux-s390@vger.kernel.org,
+        Richard Weinberger <richard@nod.at>,
+        xen-devel@lists.xenproject.org, linux-um@lists.infradead.org,
+        Mike Snitzer <snitzer@kernel.org>,
+        Josef Bacik <josef@toxicpanda.com>, nbd@other.debian.org,
+        linux-block@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
+        linux-raid@vger.kernel.org,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        =?UTF-8?Q?Roger_Pau_Monn=c3=a9?= <roger.pau@citrix.com>
+References: <20220418045314.360785-1-hch@lst.de>
+ <20220418045314.360785-6-hch@lst.de>
+From:   Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Organization: Western Digital Research
+In-Reply-To: <20220418045314.360785-6-hch@lst.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On 4/18/22 13:53, Christoph Hellwig wrote:
+> The discard_alignment queue limit is named a bit misleading means the
+> offset into the block device at which the discard granularity starts.
+> Setting it to the discard granularity as done by dm-zoned is mostly
+> harmless but also useless.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  drivers/md/dm-zoned-target.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/md/dm-zoned-target.c b/drivers/md/dm-zoned-target.c
+> index cac295cc8840e..0ec5d8b9b1a4e 100644
+> --- a/drivers/md/dm-zoned-target.c
+> +++ b/drivers/md/dm-zoned-target.c
+> @@ -1001,7 +1001,7 @@ static void dmz_io_hints(struct dm_target *ti, struct queue_limits *limits)
+>  	blk_limits_io_min(limits, DMZ_BLOCK_SIZE);
+>  	blk_limits_io_opt(limits, DMZ_BLOCK_SIZE);
+>  
+> -	limits->discard_alignment = DMZ_BLOCK_SIZE;
+> +	limits->discard_alignment = 0;
+>  	limits->discard_granularity = DMZ_BLOCK_SIZE;
+>  	limits->max_discard_sectors = chunk_sectors;
+>  	limits->max_hw_discard_sectors = chunk_sectors
+Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-在 2022/4/15 17:17, Xuan Zhuo 写道:
-> On Fri, 15 Apr 2022 13:53:54 +0800, Jason Wang <jasowang@redhat.com> wrote:
->> On Fri, Apr 15, 2022 at 10:23 AM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
->>> On Thu, 14 Apr 2022 17:30:02 +0800, Jason Wang <jasowang@redhat.com> wrote:
->>>> On Wed, Apr 13, 2022 at 4:47 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
->>>>> On Wed, 13 Apr 2022 16:00:18 +0800, Jason Wang <jasowang@redhat.com> wrote:
->>>>>> 在 2022/4/6 上午11:43, Xuan Zhuo 写道:
->>>>>>> This patch implements the resize function of the rx, tx queues.
->>>>>>> Based on this function, it is possible to modify the ring num of the
->>>>>>> queue.
->>>>>>>
->>>>>>> There may be an exception during the resize process, the resize may
->>>>>>> fail, or the vq can no longer be used. Either way, we must execute
->>>>>>> napi_enable(). Because napi_disable is similar to a lock, napi_enable
->>>>>>> must be called after calling napi_disable.
->>>>>>>
->>>>>>> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
->>>>>>> ---
->>>>>>>    drivers/net/virtio_net.c | 81 ++++++++++++++++++++++++++++++++++++++++
->>>>>>>    1 file changed, 81 insertions(+)
->>>>>>>
->>>>>>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
->>>>>>> index b8bf00525177..ba6859f305f7 100644
->>>>>>> --- a/drivers/net/virtio_net.c
->>>>>>> +++ b/drivers/net/virtio_net.c
->>>>>>> @@ -251,6 +251,9 @@ struct padded_vnet_hdr {
->>>>>>>      char padding[4];
->>>>>>>    };
->>>>>>>
->>>>>>> +static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf);
->>>>>>> +static void virtnet_rq_free_unused_buf(struct virtqueue *vq, void *buf);
->>>>>>> +
->>>>>>>    static bool is_xdp_frame(void *ptr)
->>>>>>>    {
->>>>>>>      return (unsigned long)ptr & VIRTIO_XDP_FLAG;
->>>>>>> @@ -1369,6 +1372,15 @@ static void virtnet_napi_enable(struct virtqueue *vq, struct napi_struct *napi)
->>>>>>>    {
->>>>>>>      napi_enable(napi);
->>>>>>>
->>>>>>> +   /* Check if vq is in reset state. The normal reset/resize process will
->>>>>>> +    * be protected by napi. However, the protection of napi is only enabled
->>>>>>> +    * during the operation, and the protection of napi will end after the
->>>>>>> +    * operation is completed. If re-enable fails during the process, vq
->>>>>>> +    * will remain unavailable with reset state.
->>>>>>> +    */
->>>>>>> +   if (vq->reset)
->>>>>>> +           return;
->>>>>>
->>>>>> I don't get when could we hit this condition.
->>>>>
->>>>> In patch 23, the code to implement re-enable vq is as follows:
->>>>>
->>>>> +static int vp_modern_enable_reset_vq(struct virtqueue *vq)
->>>>> +{
->>>>> +       struct virtio_pci_device *vp_dev = to_vp_device(vq->vdev);
->>>>> +       struct virtio_pci_modern_device *mdev = &vp_dev->mdev;
->>>>> +       struct virtio_pci_vq_info *info;
->>>>> +       unsigned long flags, index;
->>>>> +       int err;
->>>>> +
->>>>> +       if (!vq->reset)
->>>>> +               return -EBUSY;
->>>>> +
->>>>> +       index = vq->index;
->>>>> +       info = vp_dev->vqs[index];
->>>>> +
->>>>> +       /* check queue reset status */
->>>>> +       if (vp_modern_get_queue_reset(mdev, index) != 1)
->>>>> +               return -EBUSY;
->>>>> +
->>>>> +       err = vp_active_vq(vq, info->msix_vector);
->>>>> +       if (err)
->>>>> +               return err;
->>>>> +
->>>>> +       if (vq->callback) {
->>>>> +               spin_lock_irqsave(&vp_dev->lock, flags);
->>>>> +               list_add(&info->node, &vp_dev->virtqueues);
->>>>> +               spin_unlock_irqrestore(&vp_dev->lock, flags);
->>>>> +       } else {
->>>>> +               INIT_LIST_HEAD(&info->node);
->>>>> +       }
->>>>> +
->>>>> +       vp_modern_set_queue_enable(&vp_dev->mdev, index, true);
->>>>> +
->>>>> +       if (vp_dev->per_vq_vectors && info->msix_vector != VIRTIO_MSI_NO_VECTOR)
->>>>> +               enable_irq(pci_irq_vector(vp_dev->pci_dev, info->msix_vector));
->>>>> +
->>>>> +       vq->reset = false;
->>>>> +
->>>>> +       return 0;
->>>>> +}
->>>>>
->>>>>
->>>>> There are three situations where an error will be returned. These are the
->>>>> situations I want to handle.
->>>> Right, but it looks harmless if we just schedule the NAPI without the check.
->>> Yes.
->>>
->>>>> But I'm rethinking the question, and I feel like you're right, although the
->>>>> hardware setup may fail. We can no longer sync with the hardware. But using it
->>>>> as a normal vq doesn't have any problems.
->>>> Note that we should make sure the buggy(malicous) device won't crash
->>>> the codes by changing the queue_reset value at its will.
->>> I will keep an eye on this situation.
->>>
->>>>>>
->>>>>>> +
->>>>>>>      /* If all buffers were filled by other side before we napi_enabled, we
->>>>>>>       * won't get another interrupt, so process any outstanding packets now.
->>>>>>>       * Call local_bh_enable after to trigger softIRQ processing.
->>>>>>> @@ -1413,6 +1425,15 @@ static void refill_work(struct work_struct *work)
->>>>>>>              struct receive_queue *rq = &vi->rq[i];
->>>>>>>
->>>>>>>              napi_disable(&rq->napi);
->>>>>>> +
->>>>>>> +           /* Check if vq is in reset state. See more in
->>>>>>> +            * virtnet_napi_enable()
->>>>>>> +            */
->>>>>>> +           if (rq->vq->reset) {
->>>>>>> +                   virtnet_napi_enable(rq->vq, &rq->napi);
->>>>>>> +                   continue;
->>>>>>> +           }
->>>>>>
->>>>>> Can we do something similar in virtnet_close() by canceling the work?
->>>>> I think there is no need to cancel the work here, because napi_disable will wait
->>>>> for the napi_enable of the resize. So if the re-enable failed vq is used as a normal
->>>>> vq, this logic can be removed.
->>>> Actually I meant the part of virtnet_rx_resize().
->>>>
->>>> If we don't synchronize with the refill work, it might enable NAPI unexpectedly?
->>> I don't think this situation will be encountered, because napi_disable is
->>> mutually exclusive, so there will be no unexpected napi enable.
->>>
->>> Is there something I misunderstood?
->> So in virtnet_rx_resize() we do:
->>
->> napi_disable()
->> ...
->> resize()
->> ...
->> napi_enalbe()
->>
->> How can we guarantee that the work is not run after the napi_disable()?
->
-> I think you're talking about a situation like this:
->
-> virtnet_rx_resize          refill work
-> -----------------------------------------------------------
->   napi_disable()
->   ...                       napi_disable()
->   resize()                      ...
->                             napi_enable()
->   ...
->   napi_enalbe()
->
->
-> But in fact:
->
-> virtnet_rx_resize          refill work
-> -----------------------------------------------------------
->   napi_disable()
->   ...                       napi_disable() <----[0]
->   resize()                       |
->   ...                            |
->   napi_enalbe()                  |
->                             napi_disable() <---- [1] here success
->                             napi_enable()
->
-> Because virtnet_rx_resize() has already executed napi_disable(), napi_disalbe()
-> of [0] will wait until [1] to complete.
->
-> I'm not sure if my understanding is correct.
-
-
-I think you're right here.
-
-Thanks
-
-
->
-> Thanks.
->
->> Thanks
->>
->>> Thanks.
->>>
->>>> Thanks
->>>>
->>>>>
->>>>>>
->>>>>>> +
->>>>>>>              still_empty = !try_fill_recv(vi, rq, GFP_KERNEL);
->>>>>>>              virtnet_napi_enable(rq->vq, &rq->napi);
->>>>>>>
->>>>>>> @@ -1523,6 +1544,10 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
->>>>>>>      if (!sq->napi.weight || is_xdp_raw_buffer_queue(vi, index))
->>>>>>>              return;
->>>>>>>
->>>>>>> +   /* Check if vq is in reset state. See more in virtnet_napi_enable() */
->>>>>>> +   if (sq->vq->reset)
->>>>>>> +           return;
->>>>>>
->>>>>> We've disabled TX napi, any chance we can still hit this?
->>>>> Same as above.
->>>>>
->>>>>>
->>>>>>> +
->>>>>>>      if (__netif_tx_trylock(txq)) {
->>>>>>>              do {
->>>>>>>                      virtqueue_disable_cb(sq->vq);
->>>>>>> @@ -1769,6 +1794,62 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
->>>>>>>      return NETDEV_TX_OK;
->>>>>>>    }
->>>>>>>
->>>>>>> +static int virtnet_rx_resize(struct virtnet_info *vi,
->>>>>>> +                        struct receive_queue *rq, u32 ring_num)
->>>>>>> +{
->>>>>>> +   int err;
->>>>>>> +
->>>>>>> +   napi_disable(&rq->napi);
->>>>>>> +
->>>>>>> +   err = virtqueue_resize(rq->vq, ring_num, virtnet_rq_free_unused_buf);
->>>>>>> +   if (err)
->>>>>>> +           goto err;
->>>>>>> +
->>>>>>> +   if (!try_fill_recv(vi, rq, GFP_KERNEL))
->>>>>>> +           schedule_delayed_work(&vi->refill, 0);
->>>>>>> +
->>>>>>> +   virtnet_napi_enable(rq->vq, &rq->napi);
->>>>>>> +   return 0;
->>>>>>> +
->>>>>>> +err:
->>>>>>> +   netdev_err(vi->dev,
->>>>>>> +              "reset rx reset vq fail: rx queue index: %td err: %d\n",
->>>>>>> +              rq - vi->rq, err);
->>>>>>> +   virtnet_napi_enable(rq->vq, &rq->napi);
->>>>>>> +   return err;
->>>>>>> +}
->>>>>>> +
->>>>>>> +static int virtnet_tx_resize(struct virtnet_info *vi,
->>>>>>> +                        struct send_queue *sq, u32 ring_num)
->>>>>>> +{
->>>>>>> +   struct netdev_queue *txq;
->>>>>>> +   int err, qindex;
->>>>>>> +
->>>>>>> +   qindex = sq - vi->sq;
->>>>>>> +
->>>>>>> +   virtnet_napi_tx_disable(&sq->napi);
->>>>>>> +
->>>>>>> +   txq = netdev_get_tx_queue(vi->dev, qindex);
->>>>>>> +   __netif_tx_lock_bh(txq);
->>>>>>> +   netif_stop_subqueue(vi->dev, qindex);
->>>>>>> +   __netif_tx_unlock_bh(txq);
->>>>>>> +
->>>>>>> +   err = virtqueue_resize(sq->vq, ring_num, virtnet_sq_free_unused_buf);
->>>>>>> +   if (err)
->>>>>>> +           goto err;
->>>>>>> +
->>>>>>> +   netif_start_subqueue(vi->dev, qindex);
->>>>>>> +   virtnet_napi_tx_enable(vi, sq->vq, &sq->napi);
->>>>>>> +   return 0;
->>>>>>> +
->>>>>>> +err:
->>>>>>
->>>>>> I guess we can still start the queue in this case? (Since we don't
->>>>>> change the queue if resize fails).
->>>>> Yes, you are right.
->>>>>
->>>>> Thanks.
->>>>>
->>>>>>
->>>>>>> +   netdev_err(vi->dev,
->>>>>>> +              "reset tx reset vq fail: tx queue index: %td err: %d\n",
->>>>>>> +              sq - vi->sq, err);
->>>>>>> +   virtnet_napi_tx_enable(vi, sq->vq, &sq->napi);
->>>>>>> +   return err;
->>>>>>> +}
->>>>>>> +
->>>>>>>    /*
->>>>>>>     * Send command via the control virtqueue and check status.  Commands
->>>>>>>     * supported by the hypervisor, as indicated by feature bits, should
-
+-- 
+Damien Le Moal
+Western Digital Research
