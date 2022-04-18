@@ -2,76 +2,139 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24448C433F5
-	for <linux-s390@archiver.kernel.org>; Sun, 17 Apr 2022 12:49:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D4B36C433FE
+	for <linux-s390@archiver.kernel.org>; Mon, 18 Apr 2022 02:11:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231848AbiDQMv6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 17 Apr 2022 08:51:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51852 "EHLO
+        id S235782AbiDRCNv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 17 Apr 2022 22:13:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231315AbiDQMv5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 17 Apr 2022 08:51:57 -0400
-X-Greylist: delayed 927 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 17 Apr 2022 05:49:19 PDT
-Received: from m12-15.163.com (m12-15.163.com [220.181.12.15])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id CB3192BB0B;
-        Sun, 17 Apr 2022 05:49:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-        s=s110527; h=From:Subject:Date:Message-Id:MIME-Version; bh=K+Zu7
-        9SFGsB8FkMycJpkj4rA7OHY5+I73z/C4EXhavI=; b=qBtzQX6EF28QUZhW7qLB8
-        vw4BibBZrH1w7R6Fzaez3CF5ttVNmis7yW7zeZ3S1nNa1bYFTojspvFqPkqtKZAH
-        8hzwJByr/RtuXwv6LKH3q5hrAmpjiEzg2OajG+4Vv5dbM1wKmTSxdosi0QQfXTym
-        H+cwbjaUQnLBUVuU6Fbbno=
-Received: from pubt1-k8s74.yq.163.org (unknown [115.238.122.38])
-        by smtp11 (Coremail) with SMTP id D8CowADnvCUVCVxiLzSsBg--.47634S2;
-        Sun, 17 Apr 2022 20:33:26 +0800 (CST)
-From:   yacanliu@163.com
-To:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org,
-        pabeni@redhat.com
-Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, liuyacan <liuyacan@corp.netease.com>
-Subject: [PATCH] net/smc: sync err info when TCP connection is refused
-Date:   Sun, 17 Apr 2022 20:33:07 +0800
-Message-Id: <20220417123307.1094747-1-yacanliu@163.com>
-X-Mailer: git-send-email 2.20.1
+        with ESMTP id S234786AbiDRCNu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 17 Apr 2022 22:13:50 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 703C5183BD
+        for <linux-s390@vger.kernel.org>; Sun, 17 Apr 2022 19:11:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1650247872;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=ZKaQFNHJPrlVC1wRNehHPLwYyKFIA2KNeeEMoRic3Y0=;
+        b=Xlj2GzU7CjOVPUI7cPOSeF8zoCCkUWenn3n0YUitfs+Z9hRIjBQB/WU+IIDboYm+dDd3WL
+        xEICbVjdbnFqb4ImlEcMqoN7q7vUWp5fSw0XkVeBP82f+J4Et0KxS+dJH2R8jR546+r3m4
+        8PWWVf9mnXI2pLd4qLupBAahUIbnJrg=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-303-WDnMna3fO8-lP_vzT6cKaw-1; Sun, 17 Apr 2022 22:11:08 -0400
+X-MC-Unique: WDnMna3fO8-lP_vzT6cKaw-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 6B96929AB3F1;
+        Mon, 18 Apr 2022 02:11:07 +0000 (UTC)
+Received: from localhost (ovpn-12-21.pek2.redhat.com [10.72.12.21])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 2FB7DC28105;
+        Mon, 18 Apr 2022 02:11:06 +0000 (UTC)
+Date:   Mon, 18 Apr 2022 10:11:02 +0800
+From:   Baoquan He <bhe@redhat.com>
+To:     Coiby Xu <coxu@redhat.com>
+Cc:     kexec@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
+        Michal Suchanek <msuchanek@suse.de>,
+        Dave Young <dyoung@redhat.com>, Will Deacon <will@kernel.org>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        Mimi Zohar <zohar@linux.ibm.com>, Chun-Yi Lee <jlee@suse.com>,
+        Philipp Rudo <prudo@linux.ibm.com>, keyrings@vger.kernel.org,
+        linux-security-module@vger.kernel.org, stable@kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        "open list:S390" <linux-s390@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v6 4/4] kexec, KEYS, s390: Make use of built-in and
+ secondary keyring for signature verification
+Message-ID: <YlzItpGMPat1BFPq@MiWiFi-R3L-srv>
+References: <20220414014344.228523-1-coxu@redhat.com>
+ <20220414014344.228523-5-coxu@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: D8CowADnvCUVCVxiLzSsBg--.47634S2
-X-Coremail-Antispam: 1Uf129KBjvdXoWrZr48CF15CFy5KF1rKr1ftFb_yoWDWrXEkr
-        17W3WkGa1jvr1fG3y29398ZwsaqayrCFWrGwnIyrWqy3s29w45Zrs8Zrn8Crn7ur4a9F9x
-        Gw45Kasak34IyjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-        9fnUUvcSsGvfC2KfnxnUUI43ZEXa7IU8AhLUUUUUU==
-X-Originating-IP: [115.238.122.38]
-X-CM-SenderInfo: p1dft0xolxqiywtou0bp/1tbiXwvlS1154TpjTwAAsp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220414014344.228523-5-coxu@redhat.com>
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.8
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: liuyacan <liuyacan@corp.netease.com>
+On 04/14/22 at 09:43am, Coiby Xu wrote:
+> From: Michal Suchanek <msuchanek@suse.de>
+> 
+> commit e23a8020ce4e ("s390/kexec_file: Signature verification prototype")
+> adds support for KEXEC_SIG verification with keys from platform keyring
+> but the built-in keys and secondary keyring are not used.
+> 
+> Add support for the built-in keys and secondary keyring as x86 does.
+> 
+> Fixes: e23a8020ce4e ("s390/kexec_file: Signature verification prototype")
 
-In the current implementation, when TCP initiates a connection
-to an unavailable [ip,port], ECONNREFUSED will be stored in the
-TCP socket, but SMC will not. However, some apps (like curl) use
-getsockopt(,,SO_ERROR,,) to get the error information, which makes
-them miss the error message and behave strangely.
+Should Cc stable kernel?
 
-Signed-off-by: liuyacan <liuyacan@corp.netease.com>
----
- net/smc/af_smc.c | 2 ++
- 1 file changed, 2 insertions(+)
+Otherwise, LGTM,
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index fc7b6eb22..bbb1a4ce5 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -1475,6 +1475,8 @@ static void smc_connect_work(struct work_struct *work)
- 		smc->sk.sk_state = SMC_CLOSED;
- 		if (rc == -EPIPE || rc == -EAGAIN)
- 			smc->sk.sk_err = EPIPE;
-+		else if (rc == -ECONNREFUSED)
-+			smc->sk.sk_err = ECONNREFUSED;
- 		else if (signal_pending(current))
- 			smc->sk.sk_err = -sock_intr_errno(timeo);
- 		sock_put(&smc->sk); /* passive closing */
--- 
-2.20.1
+Acked-by: Baoquan He <bhe@redhat.com>
+
+> Cc: Philipp Rudo <prudo@linux.ibm.com>
+> Cc: kexec@lists.infradead.org
+> Cc: keyrings@vger.kernel.org
+> Cc: linux-security-module@vger.kernel.org
+> Cc: stable@kernel.org
+> Signed-off-by: Michal Suchanek <msuchanek@suse.de>
+> Reviewed-by: "Lee, Chun-Yi" <jlee@suse.com>
+> Signed-off-by: Coiby Xu <coxu@redhat.com>
+> ---
+>  arch/s390/kernel/machine_kexec_file.c | 18 +++++++++++++-----
+>  1 file changed, 13 insertions(+), 5 deletions(-)
+> 
+> diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
+> index 8f43575a4dd3..fc6d5f58debe 100644
+> --- a/arch/s390/kernel/machine_kexec_file.c
+> +++ b/arch/s390/kernel/machine_kexec_file.c
+> @@ -31,6 +31,7 @@ int s390_verify_sig(const char *kernel, unsigned long kernel_len)
+>  	const unsigned long marker_len = sizeof(MODULE_SIG_STRING) - 1;
+>  	struct module_signature *ms;
+>  	unsigned long sig_len;
+> +	int ret;
+>  
+>  	/* Skip signature verification when not secure IPLed. */
+>  	if (!ipl_secure_flag)
+> @@ -65,11 +66,18 @@ int s390_verify_sig(const char *kernel, unsigned long kernel_len)
+>  		return -EBADMSG;
+>  	}
+>  
+> -	return verify_pkcs7_signature(kernel, kernel_len,
+> -				      kernel + kernel_len, sig_len,
+> -				      VERIFY_USE_PLATFORM_KEYRING,
+> -				      VERIFYING_MODULE_SIGNATURE,
+> -				      NULL, NULL);
+> +	ret = verify_pkcs7_signature(kernel, kernel_len,
+> +				     kernel + kernel_len, sig_len,
+> +				     VERIFY_USE_SECONDARY_KEYRING,
+> +				     VERIFYING_MODULE_SIGNATURE,
+> +				     NULL, NULL);
+> +	if (ret == -ENOKEY && IS_ENABLED(CONFIG_INTEGRITY_PLATFORM_KEYRING))
+> +		ret = verify_pkcs7_signature(kernel, kernel_len,
+> +					     kernel + kernel_len, sig_len,
+> +					     VERIFY_USE_PLATFORM_KEYRING,
+> +					     VERIFYING_MODULE_SIGNATURE,
+> +					     NULL, NULL);
+> +	return ret;
+>  }
+>  #endif /* CONFIG_KEXEC_SIG */
+>  
+> -- 
+> 2.34.1
+> 
+> 
 
