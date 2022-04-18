@@ -2,199 +2,115 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36440C433EF
-	for <linux-s390@archiver.kernel.org>; Mon, 18 Apr 2022 15:57:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 63B4BC433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 18 Apr 2022 17:01:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346129AbiDRQAF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 18 Apr 2022 12:00:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54002 "EHLO
+        id S235762AbiDRRDv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 18 Apr 2022 13:03:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345981AbiDRP7v (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Apr 2022 11:59:51 -0400
+        with ESMTP id S235507AbiDRRDu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Apr 2022 13:03:50 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3927325DE;
-        Mon, 18 Apr 2022 08:56:33 -0700 (PDT)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23IDZS9f023024;
-        Mon, 18 Apr 2022 15:56:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=HqQciTar/dr6XQaGag4BrX8X9OeIsbpgI5h9o2qOgg8=;
- b=Ubmf8doaXyPNt6S90i748iQ1lCbVXFJ/DyAJ8bf8HWZeBumVNjxXP3m+523H3dS64AV0
- ctCFNnErBnaHk27UWIhyCWoOqhTqqgtipp3blEJIlXn0bDl5beScrOq4H+Ek0XaanKgs
- XyiTcYVinH9dGJqsKXB7kTI9aBmuLbKnISFGcb9kdY+8k9D+dKInnCEy6YHDGy0++1hr
- v8O/o4bUBwYd9LnspnykyQP23YNzVRBYUuV7s6H3V7lEaWAE+NBF1JsNExO9gX9MnSe2
- 4Jkax4xukPbp6HTZxKdmx+HnrUYa0cqWyaTmKJ/lmJwYgG6SQesGc0LlQ0w7u9+bEXy9 fw== 
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6C371CB31;
+        Mon, 18 Apr 2022 10:01:08 -0700 (PDT)
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23IF3chh007549;
+        Mon, 18 Apr 2022 17:01:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : content-type : in-reply-to :
+ mime-version; s=pp1; bh=FL3zNX7ORY2U/0LFBD8/RdrYIHzgYNqvN+ETkc+/j2Y=;
+ b=aI3H/+uHjIXusoLj/aCVwpUFA8B8FZjh8E6kmOuIIOM7Olgudvz/jRtf1U6IYwn0r/r/
+ e1v4Ub3surhCLT8NkFCQGiKQifaqAEWYuF7+9qG22IxxrbfazxPk9AvR4PvDNIVvc8+B
+ T2dcOBajKXy3cvpYPV97XdFvq1lk6Fyj8Fv76+zv8sUb3W9tlqtYPKm5oko19pQY5SLE
+ W9LuDXFKDcihj+LpWO1hY8BLXeGG9VgQYKxM9I1GRQWHZjQUoeATiwZiDgZvkgEW5I9C
+ uM9Jan1PSKB+h9cOCpLLPAwjzl26H8EvHxXhwd4OTvbXW/sttY5I2G7BMZLQ3doBzSus bQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3fg79e0f0f-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fg7cshdd8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 18 Apr 2022 15:56:24 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23IFpBdH003472;
-        Mon, 18 Apr 2022 15:56:23 GMT
-Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3fg79e0f02-1
+        Mon, 18 Apr 2022 17:01:08 +0000
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23IGdoN2018966;
+        Mon, 18 Apr 2022 17:01:07 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fg7cshdc0-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 18 Apr 2022 15:56:23 +0000
-Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
-        by ppma02dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23IFqmlb023970;
-        Mon, 18 Apr 2022 15:56:22 GMT
-Received: from b03cxnp08028.gho.boulder.ibm.com (b03cxnp08028.gho.boulder.ibm.com [9.17.130.20])
-        by ppma02dal.us.ibm.com with ESMTP id 3ffne9tpb7-1
+        Mon, 18 Apr 2022 17:01:07 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23IGwxGD031143;
+        Mon, 18 Apr 2022 17:01:05 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma03fra.de.ibm.com with ESMTP id 3ffne92d5d-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 18 Apr 2022 15:56:22 +0000
-Received: from b03ledav005.gho.boulder.ibm.com (b03ledav005.gho.boulder.ibm.com [9.17.130.236])
-        by b03cxnp08028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23IFuLLI33227178
+        Mon, 18 Apr 2022 17:01:04 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23IH11i447382894
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 18 Apr 2022 15:56:21 GMT
-Received: from b03ledav005.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 22968BE05A;
-        Mon, 18 Apr 2022 15:56:21 +0000 (GMT)
-Received: from b03ledav005.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7ABB1BE04F;
-        Mon, 18 Apr 2022 15:56:18 +0000 (GMT)
-Received: from [9.65.204.148] (unknown [9.65.204.148])
-        by b03ledav005.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Mon, 18 Apr 2022 15:56:18 +0000 (GMT)
-Message-ID: <3231af63-4d36-f8bd-e8d7-426222a883d9@linux.ibm.com>
-Date:   Mon, 18 Apr 2022 11:56:18 -0400
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH 3/9] vfio/mdev: Pass in a struct vfio_device * to
- vfio_pin/unpin_pages()
-Content-Language: en-US
-To:     Jason Gunthorpe <jgg@nvidia.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        David Airlie <airlied@linux.ie>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org,
-        Eric Farman <farman@linux.ibm.com>,
+        Mon, 18 Apr 2022 17:01:01 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 76160A4055;
+        Mon, 18 Apr 2022 17:01:01 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 01362A4051;
+        Mon, 18 Apr 2022 17:01:01 +0000 (GMT)
+Received: from osiris (unknown [9.145.50.158])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Mon, 18 Apr 2022 17:01:00 +0000 (GMT)
+Date:   Mon, 18 Apr 2022 19:00:59 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Tony Krowiak <akrowiak@linux.ibm.com>
+Cc:     Thomas Huth <thuth@redhat.com>, Halil Pasic <pasic@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        linux-s390@vger.kernel.org,
         Harald Freudenberger <freude@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        intel-gfx@lists.freedesktop.org,
-        intel-gvt-dev@lists.freedesktop.org,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
-        linux-doc@vger.kernel.org, linux-s390@vger.kernel.org,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>
-Cc:     Christoph Hellwig <hch@lst.de>,
-        "Tian, Kevin" <kevin.tian@intel.com>,
-        "Liu, Yi L" <yi.l.liu@intel.com>
-References: <3-v1-a8faf768d202+125dd-vfio_mdev_no_group_jgg@nvidia.com>
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <3-v1-a8faf768d202+125dd-vfio_mdev_no_group_jgg@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390: vfio-ap: Remove the superfluous
+ MODULE_DEVICE_TABLE declaration
+Message-ID: <Yl2ZS7lyzyit9lbk@osiris>
+References: <20220413094416.412114-1-thuth@redhat.com>
+ <2440b3f3-6961-4091-438f-7120b9177164@linux.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2440b3f3-6961-4091-438f-7120b9177164@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: KCIN7UZDZuCEvtHigmg5n1CB9zndGDrN
-X-Proofpoint-ORIG-GUID: qjhturDoRjoL-gez5Wt0TNIVHwtnmzm6
+X-Proofpoint-GUID: 8bLREk_6SrKyhrgG76-ng5n46aKYmpBL
+X-Proofpoint-ORIG-GUID: OfQwYNTHlYKBLGOWzykv_SpB6f8_4VHf
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-04-18_02,2022-04-15_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 suspectscore=0
- bulkscore=0 phishscore=0 clxscore=1015 malwarescore=0 spamscore=0
- priorityscore=1501 mlxscore=0 impostorscore=0 lowpriorityscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2204180091
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ bulkscore=0 phishscore=0 adultscore=0 lowpriorityscore=0 clxscore=1015
+ impostorscore=0 mlxscore=0 malwarescore=0 mlxlogscore=769 spamscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2204180101
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Mon, Apr 18, 2022 at 10:23:38AM -0400, Tony Krowiak wrote:
+> Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> 
+> On 4/13/22 5:44 AM, Thomas Huth wrote:
+> > The vfio_ap module tries to register for the vfio_ap bus - but that's
+> > the interface that it provides itself, so this does not make much sense,
+> > thus let's simply drop this statement now.
+> > 
+> > Signed-off-by: Thomas Huth <thuth@redhat.com>
+> > ---
+> >   See also my previous patch to register it for the "ap" bus instead:
+> >   https://lore.kernel.org/linux-s390/20211201141110.94636-1-thuth@redhat.com/
+> >   ... but since it has been decided to not auto-load the module uncondi-
+> >   tionally, I'd like to suggest to rather drop this line now instead.
+> > 
+> >   drivers/s390/crypto/vfio_ap_drv.c | 2 --
+> >   1 file changed, 2 deletions(-)
 
+...
 
-On 4/12/22 11:53 AM, Jason Gunthorpe wrote:
-> Every caller has a readily available vfio_device pointer, use that instead
-> of passing in a generic struct device. The struct vfio_device already
-> contains the group we need so this avoids complexity, extra refcountings,
-> and a confusing lifecycle model.
->
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->   .../driver-api/vfio-mediated-device.rst       |  4 +-
->   drivers/s390/cio/vfio_ccw_cp.c                |  6 +--
->   drivers/s390/crypto/vfio_ap_ops.c             |  8 ++--
->   drivers/vfio/vfio.c                           | 40 ++++++-------------
->   include/linux/vfio.h                          |  4 +-
->   5 files changed, 24 insertions(+), 38 deletions(-)
->
-> diff --git a/Documentation/driver-api/vfio-mediated-device.rst b/Documentation/driver-api/vfio-mediated-device.rst
-> index 9f26079cacae35..6aeca741dc9be1 100644
-> --- a/Documentation/driver-api/vfio-mediated-device.rst
-> +++ b/Documentation/driver-api/vfio-mediated-device.rst
-> @@ -279,10 +279,10 @@ Translation APIs for Mediated Devices
->   The following APIs are provided for translating user pfn to host pfn in a VFIO
->   driver::
->   
-> -	extern int vfio_pin_pages(struct device *dev, unsigned long *user_pfn,
-> +	extern int vfio_pin_pages(struct vfio_device *vdev, unsigned long *user_pfn,
->   				  int npage, int prot, unsigned long *phys_pfn);
->   
-> -	extern int vfio_unpin_pages(struct device *dev, unsigned long *user_pfn,
-> +	extern int vfio_unpin_pages(struct vfio_device *vdev, unsigned long *user_pfn,
->   				    int npage);
->   
->   These functions call back into the back-end IOMMU module by using the pin_pages
->
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index 69768061cd7bd9..a10b3369d76c41 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -124,7 +124,7 @@ static void vfio_ap_free_aqic_resources(struct vfio_ap_queue *q)
->   		q->saved_isc = VFIO_AP_ISC_INVALID;
->   	}
->   	if (q->saved_pfn && !WARN_ON(!q->matrix_mdev)) {
-> -		vfio_unpin_pages(mdev_dev(q->matrix_mdev->mdev),
-> +		vfio_unpin_pages(&q->matrix_mdev->vdev,
->   				 &q->saved_pfn, 1);
->   		q->saved_pfn = 0;
->   	}
-> @@ -258,7 +258,7 @@ static struct ap_queue_status vfio_ap_irq_enable(struct vfio_ap_queue *q,
->   		return status;
->   	}
->   
-> -	ret = vfio_pin_pages(mdev_dev(q->matrix_mdev->mdev), &g_pfn, 1,
-> +	ret = vfio_pin_pages(&q->matrix_mdev->vdev, &g_pfn, 1,
->   			     IOMMU_READ | IOMMU_WRITE, &h_pfn);
->   	switch (ret) {
->   	case 1:
-> @@ -301,7 +301,7 @@ static struct ap_queue_status vfio_ap_irq_enable(struct vfio_ap_queue *q,
->   		break;
->   	case AP_RESPONSE_OTHERWISE_CHANGED:
->   		/* We could not modify IRQ setings: clear new configuration */
-> -		vfio_unpin_pages(mdev_dev(q->matrix_mdev->mdev), &g_pfn, 1);
-> +		vfio_unpin_pages(&q->matrix_mdev->vdev, &g_pfn, 1);
->   		kvm_s390_gisc_unregister(kvm, isc);
->   		break;
->   	default:
-> @@ -1250,7 +1250,7 @@ static int vfio_ap_mdev_iommu_notifier(struct notifier_block *nb,
->   		struct vfio_iommu_type1_dma_unmap *unmap = data;
->   		unsigned long g_pfn = unmap->iova >> PAGE_SHIFT;
->   
-> -		vfio_unpin_pages(mdev_dev(matrix_mdev->mdev), &g_pfn, 1);
-> +		vfio_unpin_pages(&matrix_mdev->vdev, &g_pfn, 1);
->   		return NOTIFY_OK;
->   	}
-
-The vfio_ap snippet:
-Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
-
->   
->
-
+Applied, thanks.
