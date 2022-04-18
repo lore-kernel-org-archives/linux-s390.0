@@ -2,31 +2,31 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D67FBC43219
-	for <linux-s390@archiver.kernel.org>; Mon, 18 Apr 2022 04:53:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F9C3C4332F
+	for <linux-s390@archiver.kernel.org>; Mon, 18 Apr 2022 04:53:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236557AbiDRE41 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 18 Apr 2022 00:56:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56074 "EHLO
+        id S236547AbiDRE4b (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 18 Apr 2022 00:56:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236547AbiDRE4W (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Apr 2022 00:56:22 -0400
+        with ESMTP id S236552AbiDRE40 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Apr 2022 00:56:26 -0400
 Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4908C17ABA;
-        Sun, 17 Apr 2022 21:53:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A992317AA1;
+        Sun, 17 Apr 2022 21:53:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description;
-        bh=jJDfNJ+noyJ0aQwSxPjfuM0bukOLXIlZdKOCCRo7UC0=; b=xuIkX7BaO7YLYo2xtforYUeJSz
-        D4ZkceNgWZcqsdA4kKDR70kSEQCNujP+EuBqv6qBw0ZF92W/0/cEfjWOan0nETRKihTYr6lzIZlZl
-        bBcwq/JHARHxWpbiEMaI9y7fhWsSop569zSNCbdEUmCgnceKeTdNHmdubHo2T02f4jZnDeMuy9YEp
-        gX5Gk0YQFUdeh+lTgVE6905xov9XyUfA8uV/rEBVxEimHbnB03TXVy+Q+6Z3Gp8bR9szIE8Cp8Ndy
-        rknbV4gm7RVldjeoTzmK+sn63+wAUNv9Myo89P/eXTHdhfPYO+SAS69EJRqWmwD6yqU/r8IFcrYqq
-        /61rhfuw==;
+        bh=5rcnJ83GrgSSabCav/BawazCovpIiEvHei2b2gmullQ=; b=CjJhpozaz3ZvUqlOlRhUG6HF0e
+        L1k08qBdI7FjLxrC+2SHHoNWrKKNNyMlTyF4yTi95nmPu6QjzipSWH9TvaHMjTe8XoTWpzOf49Xwn
+        /jTNmyPXW291lu9ai/kVpUcGZy0BEma/a+v71WBQptYeQK53Oa4G3wRCg1iH80jgNCDh+UkonCJTi
+        b2hNWpI0YPpjBR+0L2Bg82wVndKnPmP8XXH33hc/RLegnrrgdomyqC3ANZRjwyzqph4yUIcfGGV1b
+        13e7GSLfhf8SaHCAofITijpch9zJ9GPiLs40aqk7qM6e7KoHhSnPrPVcNE2jwVOMrxC25OuZ8i44W
+        kFZNgihA==;
 Received: from [2a02:1205:504b:4280:f5dd:42a4:896c:d877] (helo=localhost)
         by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1ngJOE-00FYjt-Uc; Mon, 18 Apr 2022 04:53:31 +0000
+        id 1ngJOI-00FYkg-0o; Mon, 18 Apr 2022 04:53:34 +0000
 From:   Christoph Hellwig <hch@lst.de>
 To:     Jens Axboe <axboe@kernel.dk>
 Cc:     Richard Weinberger <richard@nod.at>,
@@ -46,9 +46,9 @@ Cc:     Richard Weinberger <richard@nod.at>,
         xen-devel@lists.xenproject.org, linux-raid@vger.kernel.org,
         linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org,
         dm-devel@redhat.com
-Subject: [PATCH 05/11] dm-zoned: don't set the discard_alignment queue limit
-Date:   Mon, 18 Apr 2022 06:53:08 +0200
-Message-Id: <20220418045314.360785-6-hch@lst.de>
+Subject: [PATCH 06/11] raid5: don't set the discard_alignment queue limit
+Date:   Mon, 18 Apr 2022 06:53:09 +0200
+Message-Id: <20220418045314.360785-7-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220418045314.360785-1-hch@lst.de>
 References: <20220418045314.360785-1-hch@lst.de>
@@ -61,27 +61,26 @@ X-Mailing-List: linux-s390@vger.kernel.org
 
 The discard_alignment queue limit is named a bit misleading means the
 offset into the block device at which the discard granularity starts.
-Setting it to the discard granularity as done by dm-zoned is mostly
+Setting it to the discard granularity as done by raid5 is mostly
 harmless but also useless.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/md/dm-zoned-target.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/raid5.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/md/dm-zoned-target.c b/drivers/md/dm-zoned-target.c
-index cac295cc8840e..0ec5d8b9b1a4e 100644
---- a/drivers/md/dm-zoned-target.c
-+++ b/drivers/md/dm-zoned-target.c
-@@ -1001,7 +1001,7 @@ static void dmz_io_hints(struct dm_target *ti, struct queue_limits *limits)
- 	blk_limits_io_min(limits, DMZ_BLOCK_SIZE);
- 	blk_limits_io_opt(limits, DMZ_BLOCK_SIZE);
+diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
+index 59f91e392a2ae..39b0afdf40d0a 100644
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -7749,7 +7749,6 @@ static int raid5_run(struct mddev *mddev)
+ 		 */
+ 		stripe = stripe * PAGE_SIZE;
+ 		stripe = roundup_pow_of_two(stripe);
+-		mddev->queue->limits.discard_alignment = stripe;
+ 		mddev->queue->limits.discard_granularity = stripe;
  
--	limits->discard_alignment = DMZ_BLOCK_SIZE;
-+	limits->discard_alignment = 0;
- 	limits->discard_granularity = DMZ_BLOCK_SIZE;
- 	limits->max_discard_sectors = chunk_sectors;
- 	limits->max_hw_discard_sectors = chunk_sectors;
+ 		blk_queue_max_write_zeroes_sectors(mddev->queue, 0);
 -- 
 2.30.2
 
