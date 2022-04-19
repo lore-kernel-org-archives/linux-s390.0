@@ -2,120 +2,81 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0D1EC433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 19 Apr 2022 05:44:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 41A16C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 19 Apr 2022 06:05:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232202AbiDSFqn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 19 Apr 2022 01:46:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59198 "EHLO
+        id S235121AbiDSGH6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 19 Apr 2022 02:07:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348666AbiDSFqm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Apr 2022 01:46:42 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34BD327CF8;
-        Mon, 18 Apr 2022 22:44:01 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23J345KV020017;
-        Tue, 19 Apr 2022 05:43:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : references : date : in-reply-to : message-id : mime-version :
- content-type; s=pp1; bh=obwN8oUvupwjyjKY/chlEjlYvImpg6BZ2gGJ3oZ9MwY=;
- b=dgoPyJFhY+BNKhUlGkVjv4MfPskZ2U8A30ydo4lWJxo12l3hPljZVbMvaC07dE4SesLJ
- v/D8c5AeoveyZe1hvLn+uJi8sLD9oe1stHeuz8dDcqjZsKp3xCiu4J0UzxRV2ULIok2e
- sconbOrDN/BBn95u8vqH7OEiRggpRUYeYGtBunj7mJSkHlGn4uAfBikepY6n1nweeArH
- 3mowyXlb+daSfF6FiUq7gKonObxzFnSAT0miyDxeNLPf2DlnFnaz6gCtGRF0Ye01KWiD
- 9DwpxK8/wEAlGS1xLZEKKjjcIrAw52GA8+pD2iKqtT4lL6XTfNOeuurgEwnYsnV0nhZz 9w== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3fg7bsx4vn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 19 Apr 2022 05:43:55 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23J5baKD001935;
-        Tue, 19 Apr 2022 05:43:53 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma06ams.nl.ibm.com with ESMTP id 3ffn2huquf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 19 Apr 2022 05:43:53 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23J5V55h48300306
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 19 Apr 2022 05:31:05 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1C1B252054;
-        Tue, 19 Apr 2022 05:43:50 +0000 (GMT)
-Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id C1CEF52050;
-        Tue, 19 Apr 2022 05:43:49 +0000 (GMT)
-From:   Sven Schnelle <svens@linux.ibm.com>
-To:     Haowen Bai <baihaowen@meizu.com>
-Cc:     Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        "Christian Borntraeger" <borntraeger@linux.ibm.com>,
-        <linux-s390@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] s390/dasd: Use kzalloc instead of kmalloc/memset
-References: <1650332600-5307-1-git-send-email-baihaowen@meizu.com>
-Date:   Tue, 19 Apr 2022 07:43:49 +0200
-In-Reply-To: <1650332600-5307-1-git-send-email-baihaowen@meizu.com> (Haowen
-        Bai's message of "Tue, 19 Apr 2022 09:43:20 +0800")
-Message-ID: <yt9dilr539wq.fsf@linux.ibm.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.50 (gnu/linux)
+        with ESMTP id S233569AbiDSGH5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Apr 2022 02:07:57 -0400
+Received: from mail.meizu.com (edge05.meizu.com [157.122.146.251])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4348060F3;
+        Mon, 18 Apr 2022 23:05:14 -0700 (PDT)
+Received: from IT-EXMB-1-125.meizu.com (172.16.1.125) by mz-mail12.meizu.com
+ (172.16.1.108) with Microsoft SMTP Server (TLS) id 14.3.487.0; Tue, 19 Apr
+ 2022 14:05:13 +0800
+Received: from meizu.meizu.com (172.16.137.70) by IT-EXMB-1-125.meizu.com
+ (172.16.1.125) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.14; Tue, 19 Apr
+ 2022 14:05:11 +0800
+From:   Haowen Bai <baihaowen@meizu.com>
+To:     <svens@linux.ibm.com>
+CC:     <agordeev@linux.ibm.com>, <baihaowen@meizu.com>,
+        <borntraeger@linux.ibm.com>, <gor@linux.ibm.com>,
+        <hca@linux.ibm.com>, <hoeppner@linux.ibm.com>,
+        <linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+        <sth@linux.ibm.com>
+Subject: [PATCH V2] s390/dasd: Use kzalloc instead of kmalloc/memset
+Date:   Tue, 19 Apr 2022 14:05:10 +0800
+Message-ID: <1650348310-18553-1-git-send-email-baihaowen@meizu.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <yt9dilr539wq.fsf@linux.ibm.com>
+References: <yt9dilr539wq.fsf@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: _spaM9_F1r8VDQHNTlX6YYj_oLnddAYl
-X-Proofpoint-GUID: _spaM9_F1r8VDQHNTlX6YYj_oLnddAYl
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-04-19_01,2022-04-15_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011
- lowpriorityscore=0 adultscore=0 malwarescore=0 bulkscore=0 impostorscore=0
- spamscore=0 mlxscore=0 mlxlogscore=757 phishscore=0 priorityscore=1501
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2204190030
+X-Originating-IP: [172.16.137.70]
+X-ClientProxiedBy: IT-EXMB-1-126.meizu.com (172.16.1.126) To
+ IT-EXMB-1-125.meizu.com (172.16.1.125)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi,
+Use kzalloc rather than duplicating its implementation, which
+makes code simple and easy to understand.
 
-Haowen Bai <baihaowen@meizu.com> writes:
+Signed-off-by: Haowen Bai <baihaowen@meizu.com>
+---
+V1->V2: also remove the isglobal assigment above, so the whole else block
+could go away
 
-> Use kzalloc rather than duplicating its implementation, which
-> makes code simple and easy to understand.
->
-> Signed-off-by: Haowen Bai <baihaowen@meizu.com>
-> ---
->  drivers/s390/block/dasd_eckd.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
->
-> diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-> index 8410a25a65c1..74a035c56c3e 100644
-> --- a/drivers/s390/block/dasd_eckd.c
-> +++ b/drivers/s390/block/dasd_eckd.c
-> @@ -1480,7 +1480,7 @@ static int dasd_eckd_pe_handler(struct dasd_device *device,
->  {
->  	struct pe_handler_work_data *data;
->  
-> -	data = kmalloc(sizeof(*data), GFP_ATOMIC | GFP_DMA);
-> +	data = kzalloc(sizeof(*data), GFP_ATOMIC | GFP_DMA);
->  	if (!data) {
->  		if (mutex_trylock(&dasd_pe_handler_mutex)) {
->  			data = pe_handler_worker;
-> @@ -1489,7 +1489,6 @@ static int dasd_eckd_pe_handler(struct dasd_device *device,
->  			return -ENOMEM;
->  		}
->  	} else {
-> -		memset(data, 0, sizeof(*data));
->  		data->isglobal = 0;
+ drivers/s390/block/dasd_eckd.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-Maybe also remove the isglobal assigment above, so the whole else block
-could go away?
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index 8410a25a65c1..6b70f9dfff02 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -1480,7 +1480,7 @@ static int dasd_eckd_pe_handler(struct dasd_device *device,
+ {
+ 	struct pe_handler_work_data *data;
+ 
+-	data = kmalloc(sizeof(*data), GFP_ATOMIC | GFP_DMA);
++	data = kzalloc(sizeof(*data), GFP_ATOMIC | GFP_DMA);
+ 	if (!data) {
+ 		if (mutex_trylock(&dasd_pe_handler_mutex)) {
+ 			data = pe_handler_worker;
+@@ -1488,9 +1488,6 @@ static int dasd_eckd_pe_handler(struct dasd_device *device,
+ 		} else {
+ 			return -ENOMEM;
+ 		}
+-	} else {
+-		memset(data, 0, sizeof(*data));
+-		data->isglobal = 0;
+ 	}
+ 	INIT_WORK(&data->worker, do_pe_handler_work);
+ 	dasd_get_device(device);
+-- 
+2.7.4
 
->  	}
->  	INIT_WORK(&data->worker, do_pe_handler_work);
-
-Thanks,
-Sven
