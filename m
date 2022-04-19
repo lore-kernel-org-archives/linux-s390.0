@@ -2,92 +2,77 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1D4DC4332F
-	for <linux-s390@archiver.kernel.org>; Mon, 18 Apr 2022 22:00:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85165C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 19 Apr 2022 01:43:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230005AbiDRWCo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 18 Apr 2022 18:02:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52544 "EHLO
+        id S240811AbiDSBqK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 18 Apr 2022 21:46:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230057AbiDRWCb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Apr 2022 18:02:31 -0400
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E60DE6589
-        for <linux-s390@vger.kernel.org>; Mon, 18 Apr 2022 14:59:50 -0700 (PDT)
-Received: by mail-pj1-x1033.google.com with SMTP id j8-20020a17090a060800b001cd4fb60dccso502166pjj.2
-        for <linux-s390@vger.kernel.org>; Mon, 18 Apr 2022 14:59:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=cLLWAAHArn9WgPwOUwNflPPJDgjsRY1O3bHGAhIDsQw=;
-        b=LTURonE53ti9q/GT1aK7iRoPMpGAeCy1e4EeYMoQ5ND31pPzYRrBIuxOtS32aAiFM+
-         1XHlY0ymuxtf7KP5zzxh8j9ip4/ZkYqKkInt8TY5JnA0taa6ag1p6HhrtkPYOmL/X1BS
-         68H/ZEsyd88OXRqhJx4ed+KaxwMRzhvwF+Q30=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=cLLWAAHArn9WgPwOUwNflPPJDgjsRY1O3bHGAhIDsQw=;
-        b=ldWyKmY4FZZfHJrw7N6YxZlUdMo5xfOEW/flFbnXkNWpk7qM7kT96MXDTDPov5DqtE
-         zK1D2zasXTfMe3z7O8Z0xKzVl+YFgh9PFGxamop3OYsayueUbXT0iGL2nX5LPk4/01RA
-         oyRLG4Fl8s8BrUGcLeqQYwXo7Lb48CBEf3z+dQBqJWjlzHRlUQ3vW0kyFym5Va/hyku3
-         bxXkXPYVTAsRMY/ZRfFYKuWORPIq+AgyRWKKr4KBcrePGzZGiLSZzreLVIMxsBZvmb5t
-         mUIgGIFvYTV92WBz4uAX4vupYWVRypexF0yqtZJS7NjxTW++qlTy6S8SzQsMmeiwufjZ
-         8fNw==
-X-Gm-Message-State: AOAM531yAeTQPGFCj7BxZEXA233LZhJLtiEgmMZHqRwFA/bOdJjHkfrJ
-        7Aekr9qmQMO4Zs47djTLaAhb4w==
-X-Google-Smtp-Source: ABdhPJysM2kkydsu6S512r9sNHn81bBvZQZwemOKp8WmD7sADc0kfHvR6/TUHLqhcn1MQ99fL/O1Og==
-X-Received: by 2002:a17:902:6bc2:b0:158:a26b:5884 with SMTP id m2-20020a1709026bc200b00158a26b5884mr12917161plt.38.1650319190427;
-        Mon, 18 Apr 2022 14:59:50 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id z15-20020a056a001d8f00b004fda37855ddsm12953099pfw.168.2022.04.18.14.59.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 Apr 2022 14:59:50 -0700 (PDT)
-Date:   Mon, 18 Apr 2022 14:59:49 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     He Zhe <zhe.he@windriver.com>
-Cc:     catalin.marinas@arm.com, will@kernel.org, mark.rutland@arm.com,
-        tglx@linutronix.de, bp@alien8.de, dave.hansen@linux.intel.com,
-        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
-        namhyung@kernel.org, benh@kernel.crashing.org, paulus@samba.org,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com, hpa@zytor.com,
-        x86@kernel.org, linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RFC 2/8] arm64: stacktrace: Add arch_within_stack_frames
-Message-ID: <202204181457.9DE190CE@keescook>
-References: <20220418132217.1573072-1-zhe.he@windriver.com>
- <20220418132217.1573072-3-zhe.he@windriver.com>
+        with ESMTP id S1343603AbiDSBqH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Apr 2022 21:46:07 -0400
+Received: from mail.meizu.com (edge07.meizu.com [112.91.151.210])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E50DE27FE9;
+        Mon, 18 Apr 2022 18:43:23 -0700 (PDT)
+Received: from IT-EXMB-1-125.meizu.com (172.16.1.125) by mz-mail11.meizu.com
+ (172.16.1.15) with Microsoft SMTP Server (TLS) id 14.3.487.0; Tue, 19 Apr
+ 2022 09:43:23 +0800
+Received: from meizu.meizu.com (172.16.137.70) by IT-EXMB-1-125.meizu.com
+ (172.16.1.125) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.14; Tue, 19 Apr
+ 2022 09:43:21 +0800
+From:   Haowen Bai <baihaowen@meizu.com>
+To:     Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        "Christian Borntraeger" <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>
+CC:     Haowen Bai <baihaowen@meizu.com>, <linux-s390@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: [PATCH] s390/dasd: Use kzalloc instead of kmalloc/memset
+Date:   Tue, 19 Apr 2022 09:43:20 +0800
+Message-ID: <1650332600-5307-1-git-send-email-baihaowen@meizu.com>
+X-Mailer: git-send-email 2.7.4
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220418132217.1573072-3-zhe.he@windriver.com>
+Content-Type: text/plain
+X-Originating-IP: [172.16.137.70]
+X-ClientProxiedBy: IT-EXMB-1-126.meizu.com (172.16.1.126) To
+ IT-EXMB-1-125.meizu.com (172.16.1.125)
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Apr 18, 2022 at 09:22:11PM +0800, He Zhe wrote:
-> This function checks if the given address range crosses frame boundary.
-> It is based on the existing x86 algorithm, but implemented via stacktrace.
-> This can be tested by USERCOPY_STACK_FRAME_FROM and
-> USERCOPY_STACK_FRAME_TO in lkdtm.
+Use kzalloc rather than duplicating its implementation, which
+makes code simple and easy to understand.
 
-Hi,
+Signed-off-by: Haowen Bai <baihaowen@meizu.com>
+---
+ drivers/s390/block/dasd_eckd.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-Thanks for doing this implementation! One reason usercopy hardening
-didn't persue doing a "full" stacktrace was because it seemed relatively
-expensive. Did you do any usercopy-heavily workload testing to see if
-there was a noticeable performance impact?
-
-It would be nice to block the exposure of canaries and PAC bits, though,
-so I'm not opposed, but I'd like to get a better sense of how "heavy"
-this might be.
-
-Thanks!
-
--Kees
-
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index 8410a25a65c1..74a035c56c3e 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -1480,7 +1480,7 @@ static int dasd_eckd_pe_handler(struct dasd_device *device,
+ {
+ 	struct pe_handler_work_data *data;
+ 
+-	data = kmalloc(sizeof(*data), GFP_ATOMIC | GFP_DMA);
++	data = kzalloc(sizeof(*data), GFP_ATOMIC | GFP_DMA);
+ 	if (!data) {
+ 		if (mutex_trylock(&dasd_pe_handler_mutex)) {
+ 			data = pe_handler_worker;
+@@ -1489,7 +1489,6 @@ static int dasd_eckd_pe_handler(struct dasd_device *device,
+ 			return -ENOMEM;
+ 		}
+ 	} else {
+-		memset(data, 0, sizeof(*data));
+ 		data->isglobal = 0;
+ 	}
+ 	INIT_WORK(&data->worker, do_pe_handler_work);
 -- 
-Kees Cook
+2.7.4
+
