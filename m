@@ -2,51 +2,51 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3030EC4707F
-	for <linux-s390@archiver.kernel.org>; Tue, 19 Apr 2022 11:35:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 58749C43217
+	for <linux-s390@archiver.kernel.org>; Tue, 19 Apr 2022 11:35:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351428AbiDSLiJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 19 Apr 2022 07:38:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41886 "EHLO
+        id S1351461AbiDSLiL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 19 Apr 2022 07:38:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351530AbiDSLhy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Apr 2022 07:37:54 -0400
-Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D402023BDB
-        for <linux-s390@vger.kernel.org>; Tue, 19 Apr 2022 04:35:07 -0700 (PDT)
-Received: by mail-ej1-x632.google.com with SMTP id y10so14852799ejw.8
-        for <linux-s390@vger.kernel.org>; Tue, 19 Apr 2022 04:35:07 -0700 (PDT)
+        with ESMTP id S1351398AbiDSLhh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Apr 2022 07:37:37 -0400
+Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D504DBF7B
+        for <linux-s390@vger.kernel.org>; Tue, 19 Apr 2022 04:34:53 -0700 (PDT)
+Received: by mail-ej1-x633.google.com with SMTP id u15so32218203ejf.11
+        for <linux-s390@vger.kernel.org>; Tue, 19 Apr 2022 04:34:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=UwLGUJQAZu8tm+UQoJYCs5oKFaC5fjFp/CrbwYVYGAs=;
-        b=XlljyOHmTcscdqBWmPBOI8AfWFx4TggVcCp+6uyVChnQ+WGk8mtq+fEcwShNGW08il
-         lOLzSU+K3zcZB032Hnv54rhhlTlcPi2eFhxxSZGZvkSawzRfSYvuBQyfrZ9U4HwKa6vC
-         W5/n6YfIqbfdVOI2M03His3wtDWS2bEY+io1c+tyENx+HrvgGa8n6ZQ5b6PKUMhPaVGk
-         NCcNq8WnDbIN5ZyKu2QsvaL5jRyR/jbG5zPg+qaJnkbrslSz3SHZ7ktQ0WBdgQTQeJZo
-         mV0sCT7TIUq04vGyS3ePdO1EkIm+asNAlQSTKImgOOPPrcOo48+KiwXcgtPk0OD8FYkl
-         JSSw==
+        bh=nKruD0hbBUx+nn+GE9l7RUaXsMouYslDmZcMsioEI1Q=;
+        b=hxNjQS3zh1TQ37oSrtUfwGeYt8aW2l1Sm9h+uqAsWbZdx5+TPuoUvrKY8uokxdMtKF
+         mLleac6wVOFOW7qIB9iinBjCBoXX/FzWvlxYEZVhYw7BCc4WpSuZLt5wiVLIRDX5VNXA
+         EFZhQhF/6rxTsmb8pJWhxF1tp3Za3zoA9fhB9WtIt9/kJJ274ZiN1OG2yJ5VN6t5Q8tF
+         z2mkOIFH34l1KyNXFjitqrXaPshNh57GLfsfYeuhRIumEncNvFdkH5ZeibHt5U0Vo1mV
+         w3TldCvphkT2yXiXTbOEEORvl3SIruFqbopdn22vRIZgwmnKeXZBCaUuInNWhNmv7xIJ
+         kTlg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=UwLGUJQAZu8tm+UQoJYCs5oKFaC5fjFp/CrbwYVYGAs=;
-        b=mzFOYcJMMEheyDvKyKzSpFY0OkzkFtk5gll8bjut8Ey5sDcUn5oamOKRihhWkeetkF
-         ciDMQkyZgV5gx57IMsk4mCtQmax85SAw0Ssr5zEsB6aGiKN9thqXojDN1iTFE9DvsbAw
-         uypa/oBDM9RKoOPEgG5M2klOWJY57xJgyoII6i1XFJFK+5Y1AkBZ+Yu0mQvoJDTg5gV8
-         wfcogxZBgjQUkjUQZZpd5p91IloA3arPleBLwTBRVAMluag+gRSiQnBuUCQ1YIXk159o
-         unGve6lBBGtA+8lDx8bty5X/4oI3o2XQzzjQScSwlLPKWg12SWNMR4yKv2mt4Aat5HYB
-         qsLA==
-X-Gm-Message-State: AOAM5310Yyb7NAah8om5CLU4WFIcxcjI4TS6pVhycs5cSkcOxju68SeX
-        T2cr2MeDYAcLv/TA7C7WXDnTLw==
-X-Google-Smtp-Source: ABdhPJx8tcnPYaGc8C5tAvMnuMsZn8WITX7ufy4zQY5Wy3JO1EjadD8vNnIeM27ITcIjSIpfnPLoVA==
-X-Received: by 2002:a17:907:6e90:b0:6ef:ef41:ac10 with SMTP id sh16-20020a1709076e9000b006efef41ac10mr752171ejc.187.1650368106359;
-        Tue, 19 Apr 2022 04:35:06 -0700 (PDT)
+        bh=nKruD0hbBUx+nn+GE9l7RUaXsMouYslDmZcMsioEI1Q=;
+        b=w/797vv+fC87yFpHJbyHHBjV0VH0+487g9brXKmLhvujqcxr+l2H5LFiqbQEe7XpGs
+         EgX50BV6CKNhBC6ximbD5U+2MiLcEIb9var/3uJYFgXqpfruFub4S/MXKBogvvFwOhqR
+         XohLbK9NSiLTMMrLZGdNSmp6PstvppPIJz1BER+e6Korq1X6oDnVIwr32vcDY/6SRpzs
+         PR/kzASeXSsOsBeUtms/Obbek10eLalF4z8xXSY3TSqetPOaGghXrUU4IPcf/nI/1BwF
+         b3Uwb30HQrMdW3Ev2U0X2jfeJKoY0SJ0A1uD+om9smECMeCZww5zAvFx0axlfKDqWlQ7
+         DVkQ==
+X-Gm-Message-State: AOAM532YqaJgFfWfL/ZBfAOwEADEetnNUD86F4q6Ioic7uYj1dcXhWvS
+        qMDoLPsMh0tpW4CVXoOU/II0GQ==
+X-Google-Smtp-Source: ABdhPJym75DUa6YNLz0AzuXs59T5CIn4fkAzbWaGNW1BaMcFnN8QHFCcwCaQ7sI4GiRmHTg63Mvf6A==
+X-Received: by 2002:a17:907:1c82:b0:6ef:69a5:35bf with SMTP id nb2-20020a1709071c8200b006ef69a535bfmr13318299ejc.142.1650368092317;
+        Tue, 19 Apr 2022 04:34:52 -0700 (PDT)
 Received: from localhost.localdomain (xdsl-188-155-176-92.adslplus.ch. [188.155.176.92])
-        by smtp.gmail.com with ESMTPSA id ce21-20020a170906b25500b006e89869cbf9sm5608802ejb.105.2022.04.19.04.35.04
+        by smtp.gmail.com with ESMTPSA id ce21-20020a170906b25500b006e89869cbf9sm5608802ejb.105.2022.04.19.04.34.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Apr 2022 04:35:05 -0700 (PDT)
+        Tue, 19 Apr 2022 04:34:51 -0700 (PDT)
 From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Rafael J. Wysocki" <rafael@kernel.org>
@@ -76,9 +76,9 @@ Cc:     Stuart Yoder <stuyoder@gmail.com>,
         Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
         Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH v7 12/12] rpmsg: Fix kfree() of static memory on setting driver_override
-Date:   Tue, 19 Apr 2022 13:34:35 +0200
-Message-Id: <20220419113435.246203-13-krzysztof.kozlowski@linaro.org>
+Subject: [PATCH v7 03/12] fsl-mc: Use driver_set_override() instead of open-coding
+Date:   Tue, 19 Apr 2022 13:34:26 +0200
+Message-Id: <20220419113435.246203-4-krzysztof.kozlowski@linaro.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20220419113435.246203-1-krzysztof.kozlowski@linaro.org>
 References: <20220419113435.246203-1-krzysztof.kozlowski@linaro.org>
@@ -88,101 +88,80 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The driver_override field from platform driver should not be initialized
-from static memory (string literal) because the core later kfree() it,
-for example when driver_override is set via sysfs.
+Use a helper to set driver_override to reduce the amount of duplicated
+code.  Make the driver_override field const char, because it is not
+modified by the core and it matches other subsystems.
 
-Use dedicated helper to set driver_override properly.
-
-Fixes: 950a7388f02b ("rpmsg: Turn name service into a stand alone driver")
-Fixes: c0cdc19f84a4 ("rpmsg: Driver for user space endpoint interface")
 Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 ---
- drivers/rpmsg/rpmsg_internal.h | 13 +++++++++++--
- drivers/rpmsg/rpmsg_ns.c       | 14 ++++++++++++--
- include/linux/rpmsg.h          |  6 ++++--
- 3 files changed, 27 insertions(+), 6 deletions(-)
+ drivers/bus/fsl-mc/fsl-mc-bus.c | 25 ++++---------------------
+ include/linux/fsl/mc.h          |  6 ++++--
+ 2 files changed, 8 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/rpmsg/rpmsg_internal.h b/drivers/rpmsg/rpmsg_internal.h
-index d4b23fd019a8..3e81642238d2 100644
---- a/drivers/rpmsg/rpmsg_internal.h
-+++ b/drivers/rpmsg/rpmsg_internal.h
-@@ -94,10 +94,19 @@ int rpmsg_release_channel(struct rpmsg_device *rpdev,
-  */
- static inline int rpmsg_ctrldev_register_device(struct rpmsg_device *rpdev)
+diff --git a/drivers/bus/fsl-mc/fsl-mc-bus.c b/drivers/bus/fsl-mc/fsl-mc-bus.c
+index 8fd4a356a86e..ba01c7f4de92 100644
+--- a/drivers/bus/fsl-mc/fsl-mc-bus.c
++++ b/drivers/bus/fsl-mc/fsl-mc-bus.c
+@@ -166,31 +166,14 @@ static ssize_t driver_override_store(struct device *dev,
+ 				     const char *buf, size_t count)
  {
+ 	struct fsl_mc_device *mc_dev = to_fsl_mc_device(dev);
+-	char *driver_override, *old = mc_dev->driver_override;
+-	char *cp;
 +	int ret;
-+
- 	strcpy(rpdev->id.name, "rpmsg_ctrl");
--	rpdev->driver_override = "rpmsg_ctrl";
-+	ret = driver_set_override(&rpdev->dev, &rpdev->driver_override,
-+				  rpdev->id.name, strlen(rpdev->id.name));
+ 
+ 	if (WARN_ON(dev->bus != &fsl_mc_bus_type))
+ 		return -EINVAL;
+ 
+-	if (count >= (PAGE_SIZE - 1))
+-		return -EINVAL;
+-
+-	driver_override = kstrndup(buf, count, GFP_KERNEL);
+-	if (!driver_override)
+-		return -ENOMEM;
+-
+-	cp = strchr(driver_override, '\n');
+-	if (cp)
+-		*cp = '\0';
+-
+-	if (strlen(driver_override)) {
+-		mc_dev->driver_override = driver_override;
+-	} else {
+-		kfree(driver_override);
+-		mc_dev->driver_override = NULL;
+-	}
+-
+-	kfree(old);
++	ret = driver_set_override(dev, &mc_dev->driver_override, buf, count);
 +	if (ret)
 +		return ret;
-+
-+	ret = rpmsg_register_device(rpdev);
-+	if (ret)
-+		kfree(rpdev->driver_override);
  
--	return rpmsg_register_device(rpdev);
-+	return ret;
+ 	return count;
  }
- 
- #endif
-diff --git a/drivers/rpmsg/rpmsg_ns.c b/drivers/rpmsg/rpmsg_ns.c
-index 762ff1ae279f..8eb8f328237e 100644
---- a/drivers/rpmsg/rpmsg_ns.c
-+++ b/drivers/rpmsg/rpmsg_ns.c
-@@ -20,12 +20,22 @@
-  */
- int rpmsg_ns_register_device(struct rpmsg_device *rpdev)
- {
-+	int ret;
-+
- 	strcpy(rpdev->id.name, "rpmsg_ns");
--	rpdev->driver_override = "rpmsg_ns";
-+	ret = driver_set_override(&rpdev->dev, &rpdev->driver_override,
-+				  rpdev->id.name, strlen(rpdev->id.name));
-+	if (ret)
-+		return ret;
-+
- 	rpdev->src = RPMSG_NS_ADDR;
- 	rpdev->dst = RPMSG_NS_ADDR;
- 
--	return rpmsg_register_device(rpdev);
-+	ret = rpmsg_register_device(rpdev);
-+	if (ret)
-+		kfree(rpdev->driver_override);
-+
-+	return ret;
- }
- EXPORT_SYMBOL(rpmsg_ns_register_device);
- 
-diff --git a/include/linux/rpmsg.h b/include/linux/rpmsg.h
-index 02fa9116cd60..20c8cd1cde21 100644
---- a/include/linux/rpmsg.h
-+++ b/include/linux/rpmsg.h
-@@ -41,7 +41,9 @@ struct rpmsg_channel_info {
-  * rpmsg_device - device that belong to the rpmsg bus
-  * @dev: the device struct
-  * @id: device id (used to match between rpmsg drivers and devices)
+diff --git a/include/linux/fsl/mc.h b/include/linux/fsl/mc.h
+index 7b6c42bfb660..7a87ab9eba99 100644
+--- a/include/linux/fsl/mc.h
++++ b/include/linux/fsl/mc.h
+@@ -170,7 +170,9 @@ struct fsl_mc_obj_desc {
+  * @regions: pointer to array of MMIO region entries
+  * @irqs: pointer to array of pointers to interrupts allocated to this device
+  * @resource: generic resource associated with this MC object device, if any.
 - * @driver_override: driver name to force a match
 + * @driver_override: driver name to force a match; do not set directly,
 + *                   because core frees it; use driver_set_override() to
 + *                   set or clear it.
-  * @src: local address
-  * @dst: destination address
-  * @ept: the rpmsg endpoint of this channel
-@@ -51,7 +53,7 @@ struct rpmsg_channel_info {
- struct rpmsg_device {
- 	struct device dev;
- 	struct rpmsg_device_id id;
--	char *driver_override;
+  *
+  * Generic device object for MC object devices that are "attached" to a
+  * MC bus.
+@@ -204,7 +206,7 @@ struct fsl_mc_device {
+ 	struct fsl_mc_device_irq **irqs;
+ 	struct fsl_mc_resource *resource;
+ 	struct device_link *consumer_link;
+-	char   *driver_override;
 +	const char *driver_override;
- 	u32 src;
- 	u32 dst;
- 	struct rpmsg_endpoint *ept;
+ };
+ 
+ #define to_fsl_mc_device(_dev) \
 -- 
 2.32.0
 
