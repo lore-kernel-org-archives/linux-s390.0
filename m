@@ -2,102 +2,120 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7700C433FE
-	for <linux-s390@archiver.kernel.org>; Tue, 19 Apr 2022 04:54:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0D1EC433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 19 Apr 2022 05:44:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345242AbiDSE5B (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 19 Apr 2022 00:57:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48762 "EHLO
+        id S232202AbiDSFqn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 19 Apr 2022 01:46:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348361AbiDSE4v (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Apr 2022 00:56:51 -0400
-Received: from mail-lf1-x134.google.com (mail-lf1-x134.google.com [IPv6:2a00:1450:4864:20::134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F9FB33A2B
-        for <linux-s390@vger.kernel.org>; Mon, 18 Apr 2022 21:51:49 -0700 (PDT)
-Received: by mail-lf1-x134.google.com with SMTP id w19so27320654lfu.11
-        for <linux-s390@vger.kernel.org>; Mon, 18 Apr 2022 21:51:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ionos.com; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=BI9yKDogyA9J1nIp2A5DqA5VrUzX8xmulCW+rbuq8PY=;
-        b=SJ+jl8otuJP8V2SgmRrkKx5N5mzchzJWNs3wHGu/KEMaBtHJMlOSyPwEwTYRCJOsK0
-         +ub417XW+OB47SmEbjExHhWdvjVWNP6f4maHx7wpcQ/meMLPTDZio2MhC3cJJ+CFcG7A
-         WyaAXMErjpaI/XL4ZkxN4ZoByVo51Plmy8MlzTn6CKA4kPvTL6QPTM/FElDnmxz/4bAo
-         dNPevLcXfcZa94Hc/QRZN/ahpyGhXVxqtHvMswx1d+ioXM8CH8EB0Ocsp4CDYa7mfCxx
-         3EMIYtoYuS9+fNRK0znetQsYbQBpHaSNFwuzb6Pw3NmrbbAzHjf8OVLAsic0niCU/6Hj
-         1cWg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=BI9yKDogyA9J1nIp2A5DqA5VrUzX8xmulCW+rbuq8PY=;
-        b=b1I1N3JVLc5zioh/ZzSMh+t/Lf2Q3qUlCCAox/9bs4ImY37bXuxeZXUKvcqHAuF9eF
-         F6bUapHcr+UL+iOsOCoda2V258Fk+7+OxM7gwgOnAMXqmdCL2pPDckQao1jZO+CJyU+f
-         Itb/5YnHBvtpM0/ScF0IcHWT0vjFuZchoB2q8Pyq6A3RwZy0cemTKzo2Ae7l+FMAF4/5
-         duMXIQ5onM2qeWrDYeaJMpa62/SNqxnDKcyMV+vTi1n5fPtTX1ajR/wNz8BcgSl2i6kZ
-         3KGF7EDX3zr+32HCouRsvZIns9HW0QdXNZZYytKY+lHvXI1Dv26yUt9FBATX7+L5EjIl
-         oi9w==
-X-Gm-Message-State: AOAM530Refx7Upg9byYBxMU4cP2asP8Ph9Ro3zpwp8nkjB9z757yP0+u
-        S5VZCYHWWAgbrxuXFcMqFqhypWZMzI5dTh2/e4CpZA==
-X-Google-Smtp-Source: ABdhPJyLR4ZusRr2xSa6FgTHa9kgMMN14+gTuhXJUl7advlAotvmYnqJxqDiVIivr0X1ZGDx839mhVaChBp2powMkIg=
-X-Received: by 2002:a05:6512:10c5:b0:471:a703:bca4 with SMTP id
- k5-20020a05651210c500b00471a703bca4mr1289967lfg.581.1650343907228; Mon, 18
- Apr 2022 21:51:47 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220418045314.360785-1-hch@lst.de> <20220418045314.360785-11-hch@lst.de>
-In-Reply-To: <20220418045314.360785-11-hch@lst.de>
-From:   Jinpu Wang <jinpu.wang@ionos.com>
-Date:   Tue, 19 Apr 2022 06:51:12 +0200
-Message-ID: <CAMGffEnxwHE_QgN2OS93BHe6U+XdYc_R5OmSROmF5F-HXK_E4A@mail.gmail.com>
-Subject: Re: [PATCH 10/11] rnbd-srv: use bdev_discard_alignment
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Jens Axboe <axboe@kernel.dk>, Richard Weinberger <richard@nod.at>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Josef Bacik <josef@toxicpanda.com>,
-        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        =?UTF-8?Q?Roger_Pau_Monn=C3=A9?= <roger.pau@citrix.com>,
-        Mike Snitzer <snitzer@kernel.org>, Song Liu <song@kernel.org>,
-        Stefan Haberland <sth@linux.ibm.com>,
+        with ESMTP id S1348666AbiDSFqm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Apr 2022 01:46:42 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34BD327CF8;
+        Mon, 18 Apr 2022 22:44:01 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23J345KV020017;
+        Tue, 19 Apr 2022 05:43:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : references : date : in-reply-to : message-id : mime-version :
+ content-type; s=pp1; bh=obwN8oUvupwjyjKY/chlEjlYvImpg6BZ2gGJ3oZ9MwY=;
+ b=dgoPyJFhY+BNKhUlGkVjv4MfPskZ2U8A30ydo4lWJxo12l3hPljZVbMvaC07dE4SesLJ
+ v/D8c5AeoveyZe1hvLn+uJi8sLD9oe1stHeuz8dDcqjZsKp3xCiu4J0UzxRV2ULIok2e
+ sconbOrDN/BBn95u8vqH7OEiRggpRUYeYGtBunj7mJSkHlGn4uAfBikepY6n1nweeArH
+ 3mowyXlb+daSfF6FiUq7gKonObxzFnSAT0miyDxeNLPf2DlnFnaz6gCtGRF0Ye01KWiD
+ 9DwpxK8/wEAlGS1xLZEKKjjcIrAw52GA8+pD2iKqtT4lL6XTfNOeuurgEwnYsnV0nhZz 9w== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fg7bsx4vn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 19 Apr 2022 05:43:55 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23J5baKD001935;
+        Tue, 19 Apr 2022 05:43:53 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma06ams.nl.ibm.com with ESMTP id 3ffn2huquf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 19 Apr 2022 05:43:53 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23J5V55h48300306
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 19 Apr 2022 05:31:05 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1C1B252054;
+        Tue, 19 Apr 2022 05:43:50 +0000 (GMT)
+Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id C1CEF52050;
+        Tue, 19 Apr 2022 05:43:49 +0000 (GMT)
+From:   Sven Schnelle <svens@linux.ibm.com>
+To:     Haowen Bai <baihaowen@meizu.com>
+Cc:     Stefan Haberland <sth@linux.ibm.com>,
         Jan Hoeppner <hoeppner@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        linux-um@lists.infradead.org, linux-block@vger.kernel.org,
-        nbd@other.debian.org, virtualization@lists.linux-foundation.org,
-        xen-devel@lists.xenproject.org, linux-raid@vger.kernel.org,
-        linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org,
-        dm-devel@redhat.com
-Content-Type: text/plain; charset="UTF-8"
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        "Christian Borntraeger" <borntraeger@linux.ibm.com>,
+        <linux-s390@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] s390/dasd: Use kzalloc instead of kmalloc/memset
+References: <1650332600-5307-1-git-send-email-baihaowen@meizu.com>
+Date:   Tue, 19 Apr 2022 07:43:49 +0200
+In-Reply-To: <1650332600-5307-1-git-send-email-baihaowen@meizu.com> (Haowen
+        Bai's message of "Tue, 19 Apr 2022 09:43:20 +0800")
+Message-ID: <yt9dilr539wq.fsf@linux.ibm.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: _spaM9_F1r8VDQHNTlX6YYj_oLnddAYl
+X-Proofpoint-GUID: _spaM9_F1r8VDQHNTlX6YYj_oLnddAYl
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-04-19_01,2022-04-15_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011
+ lowpriorityscore=0 adultscore=0 malwarescore=0 bulkscore=0 impostorscore=0
+ spamscore=0 mlxscore=0 mlxlogscore=757 phishscore=0 priorityscore=1501
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2204190030
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, Apr 18, 2022 at 6:53 AM Christoph Hellwig <hch@lst.de> wrote:
+Hi,
+
+Haowen Bai <baihaowen@meizu.com> writes:
+
+> Use kzalloc rather than duplicating its implementation, which
+> makes code simple and easy to understand.
 >
-> Use bdev_discard_alignment to calculate the correct discard alignment
-> offset even for partitions instead of just looking at the queue limit.
->
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-Thx!
-Acked-by: Jack Wang <jinpu.wang@ionos.com>
+> Signed-off-by: Haowen Bai <baihaowen@meizu.com>
 > ---
->  drivers/block/rnbd/rnbd-srv-dev.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  drivers/s390/block/dasd_eckd.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
 >
-> diff --git a/drivers/block/rnbd/rnbd-srv-dev.h b/drivers/block/rnbd/rnbd-srv-dev.h
-> index d080a0de59225..4309e52524691 100644
-> --- a/drivers/block/rnbd/rnbd-srv-dev.h
-> +++ b/drivers/block/rnbd/rnbd-srv-dev.h
-> @@ -59,7 +59,7 @@ static inline int rnbd_dev_get_discard_granularity(const struct rnbd_dev *dev)
->
->  static inline int rnbd_dev_get_discard_alignment(const struct rnbd_dev *dev)
+> diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+> index 8410a25a65c1..74a035c56c3e 100644
+> --- a/drivers/s390/block/dasd_eckd.c
+> +++ b/drivers/s390/block/dasd_eckd.c
+> @@ -1480,7 +1480,7 @@ static int dasd_eckd_pe_handler(struct dasd_device *device,
 >  {
-> -       return bdev_get_queue(dev->bdev)->limits.discard_alignment;
-> +       return bdev_discard_alignment(dev->bdev);
->  }
->
->  #endif /* RNBD_SRV_DEV_H */
-> --
-> 2.30.2
->
+>  	struct pe_handler_work_data *data;
+>  
+> -	data = kmalloc(sizeof(*data), GFP_ATOMIC | GFP_DMA);
+> +	data = kzalloc(sizeof(*data), GFP_ATOMIC | GFP_DMA);
+>  	if (!data) {
+>  		if (mutex_trylock(&dasd_pe_handler_mutex)) {
+>  			data = pe_handler_worker;
+> @@ -1489,7 +1489,6 @@ static int dasd_eckd_pe_handler(struct dasd_device *device,
+>  			return -ENOMEM;
+>  		}
+>  	} else {
+> -		memset(data, 0, sizeof(*data));
+>  		data->isglobal = 0;
+
+Maybe also remove the isglobal assigment above, so the whole else block
+could go away?
+
+>  	}
+>  	INIT_WORK(&data->worker, do_pe_handler_work);
+
+Thanks,
+Sven
