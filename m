@@ -2,302 +2,404 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DDAE0C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 20 Apr 2022 11:16:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C133C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 20 Apr 2022 11:31:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234459AbiDTLT3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 20 Apr 2022 07:19:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56066 "EHLO
+        id S1356979AbiDTLeI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 20 Apr 2022 07:34:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352495AbiDTLT2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Apr 2022 07:19:28 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E58654091D
-        for <linux-s390@vger.kernel.org>; Wed, 20 Apr 2022 04:16:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1650453402;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=s9Z0SXFr6f7Ryx5xLW/gn1t0pJU586w68GYQ2wHi0yY=;
-        b=hIE94C7eiB1M0ETk0MYTYbi54ZXWxFAwyfJWdurjKRQXylOOmA2ev1FIp0fhzn4SIIrsjM
-        o+g0matEB5Q9gBE3YI2N+gcgDW9w+snJ50HnPonVrfQ+FZd6DR35r04gFe2YpuXBWqWDTn
-        Mp8VmjzaGKPIAIDtJO49vaDNYq4PPrs=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-480-5p9gnAWdMNSfvG_iaIzXqw-1; Wed, 20 Apr 2022 07:16:40 -0400
-X-MC-Unique: 5p9gnAWdMNSfvG_iaIzXqw-1
-Received: by mail-wm1-f69.google.com with SMTP id b12-20020a05600c4e0c00b003914432b970so812904wmq.8
-        for <linux-s390@vger.kernel.org>; Wed, 20 Apr 2022 04:16:40 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent
-         :content-language:to:cc:references:from:subject:in-reply-to
-         :content-transfer-encoding;
-        bh=s9Z0SXFr6f7Ryx5xLW/gn1t0pJU586w68GYQ2wHi0yY=;
-        b=lIsK0HJVZdcqfpNHgzgSz+PwiZQ5hB8kXDVVwCUj/TKUtWNYcqNq/60qfd4vrOlb28
-         I5J1xm0CLtYwvueERYb5+ezQH8HFgGu70ka0WBTMXvfDuC3XK9oVMc2Vvw4Q3tILrrHI
-         AMI02I438TPZF0kE5QDNGHJLugyxwyDNwN+Gqj1KKwaqXBHetBJcLF7+7LoqdLpXvr8u
-         HR5L0GQDs4jFrlRdQ+xbNMTnvHpJ1UaX1wpKQj+eKQ8UWp4z4v8lFLITkn3/s9N1lKKo
-         sZbavkIba2N1FL+9ZwS0e2uabVi7JA18gBNldZ6x5DIIINKohQoC8fldjRx5yqwmsG+u
-         8aFw==
-X-Gm-Message-State: AOAM532rHV9Dkbwl8QYgLBExUQ0Ma8LHCrn04eSqR2DL1t5QjRRgPmn4
-        VFXYjdKoMDkO6jY9qbZpLe9jinoK/vwyMe5R5S4Ri0GTy02n+0UHJ+d2rAvhjcw01SGhyI5PlR6
-        DodLgv1HEFZ9reWQUiz1M+A==
-X-Received: by 2002:a05:6000:18ad:b0:20a:850a:ff81 with SMTP id b13-20020a05600018ad00b0020a850aff81mr15048369wri.547.1650453399449;
-        Wed, 20 Apr 2022 04:16:39 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxOUrAhBGxGcwIPOo8+LKUM2sGJIbbBNfTzwt2ngvBltIA8UeA2qzQObEw3XReEoLd9VfdXIw==
-X-Received: by 2002:a05:6000:18ad:b0:20a:850a:ff81 with SMTP id b13-20020a05600018ad00b0020a850aff81mr15048342wri.547.1650453399157;
-        Wed, 20 Apr 2022 04:16:39 -0700 (PDT)
-Received: from [192.168.8.102] (dynamic-046-114-174-058.46.114.pool.telefonica.de. [46.114.174.58])
-        by smtp.gmail.com with ESMTPSA id m65-20020a1ca344000000b0038ec75d90a8sm18446685wme.2.2022.04.20.04.16.37
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 20 Apr 2022 04:16:38 -0700 (PDT)
-Message-ID: <1e8fc64b-33e8-94c5-d577-ec2e6089d7ed@redhat.com>
-Date:   Wed, 20 Apr 2022 13:16:36 +0200
+        with ESMTP id S1378124AbiDTLeH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Apr 2022 07:34:07 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9885A20BD7;
+        Wed, 20 Apr 2022 04:31:21 -0700 (PDT)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23KADYdP021218;
+        Wed, 20 Apr 2022 11:31:21 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=ZtKAM9AOOI2DcM0EajgkYHgUsNEuN1o+fNMaKSspwzA=;
+ b=QyGlMtIB4q7MZyii1SRCqpvUUlf/7St9DIubXw9BU4exky8SpVeffD5zS2HJ9b9t9Y1I
+ /DjZwOOB6PFVzSh94HXqnF8Xujl3BLS2jLZ50yHHZF/RqEefGjj3Yun80jG+UiNP3LuJ
+ GPlOCajL6LS/SuAfyPF/Tvvi5fxi76RpMtj2wn7rXvdxYu7HsdrQ7L9hbaDQmea8+Yiv
+ 3dVg4IsUdgaazIv69f2OrU8FvxvModbjl3wrVH4uvzj+inoXlpyI7LsfJvxUpis6GA1+
+ 2kLKznVYD4z2SpYeLPwM849hvCp9OHYeNiIc4dMwb77pT/k4+ZvOc2gS7qLbCL8CyYEo lQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fhyqdwvq5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 20 Apr 2022 11:31:21 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23KBFNKv028514;
+        Wed, 20 Apr 2022 11:31:20 GMT
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fhyqdwvp0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 20 Apr 2022 11:31:20 +0000
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23KBS00i018268;
+        Wed, 20 Apr 2022 11:31:18 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma06fra.de.ibm.com with ESMTP id 3ffn2hvw1h-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 20 Apr 2022 11:31:17 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23KBVFdF33816832
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 20 Apr 2022 11:31:15 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E126F5204F;
+        Wed, 20 Apr 2022 11:31:14 +0000 (GMT)
+Received: from li-c6ac47cc-293c-11b2-a85c-d421c8e4747b.ibm.com.com (unknown [9.171.58.217])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 356315205A;
+        Wed, 20 Apr 2022 11:31:14 +0000 (GMT)
+From:   Pierre Morel <pmorel@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
+        david@redhat.com, thuth@redhat.com, imbrenda@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, pmorel@linux.ibm.com,
+        wintera@linux.ibm.com, seiden@linux.ibm.com, nrb@linux.ibm.com
+Subject: [PATCH v8 1/2] s390x: KVM: guest support for topology function
+Date:   Wed, 20 Apr 2022 13:34:29 +0200
+Message-Id: <20220420113430.11876-2-pmorel@linux.ibm.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20220420113430.11876-1-pmorel@linux.ibm.com>
+References: <20220420113430.11876-1-pmorel@linux.ibm.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Content-Language: en-US
-To:     Nico Boehr <nrb@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com
-References: <20220413152658.715003-1-nrb@linux.ibm.com>
- <20220413152658.715003-5-nrb@linux.ibm.com>
-From:   Thomas Huth <thuth@redhat.com>
-Subject: Re: [kvm-unit-tests PATCH v2 4/4] s390x: add basic migration test
-In-Reply-To: <20220413152658.715003-5-nrb@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: U3j92ejWWyrnikEu01trUdLDdHESxDDk
+X-Proofpoint-ORIG-GUID: A5OHq7Osn9VucgxWEad-mEOItOXqVmRq
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-04-20_02,2022-04-20_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ clxscore=1015 priorityscore=1501 suspectscore=0 malwarescore=0
+ adultscore=0 mlxlogscore=999 mlxscore=0 spamscore=0 impostorscore=0
+ phishscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2204200071
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 13/04/2022 17.26, Nico Boehr wrote:
-> Add a basic migration test for s390x. This tests the guarded-storage registers
-> and vector registers are preserved on migration.
-> 
-> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-> ---
->   s390x/Makefile      |   1 +
->   s390x/migration.c   | 172 ++++++++++++++++++++++++++++++++++++++++++++
->   s390x/unittests.cfg |   5 ++
->   3 files changed, 178 insertions(+)
->   create mode 100644 s390x/migration.c
-> 
-> diff --git a/s390x/Makefile b/s390x/Makefile
-> index f38f442b9cb1..5336ed8ae0b4 100644
-> --- a/s390x/Makefile
-> +++ b/s390x/Makefile
-> @@ -30,6 +30,7 @@ tests += $(TEST_DIR)/spec_ex-sie.elf
->   tests += $(TEST_DIR)/firq.elf
->   tests += $(TEST_DIR)/epsw.elf
->   tests += $(TEST_DIR)/adtl-status.elf
-> +tests += $(TEST_DIR)/migration.elf
->   
->   pv-tests += $(TEST_DIR)/pv-diags.elf
->   
-> diff --git a/s390x/migration.c b/s390x/migration.c
-> new file mode 100644
-> index 000000000000..cd9360bdadec
-> --- /dev/null
-> +++ b/s390x/migration.c
-> @@ -0,0 +1,172 @@
-> +/* SPDX-License-Identifier: GPL-2.0-only */
-> +/*
-> + * Migration Test for s390x
-> + *
-> + * Copyright IBM Corp. 2022
-> + *
-> + * Authors:
-> + *  Nico Boehr <nrb@linux.ibm.com>
-> + */
-> +#include <libcflat.h>
-> +#include <asm/arch_def.h>
-> +#include <asm/vector.h>
-> +#include <asm/barrier.h>
-> +#include <gs.h>
-> +#include <bitops.h>
-> +#include <smp.h>
-> +
-> +static struct gs_cb gs_cb;
-> +static struct gs_epl gs_epl;
-> +
-> +/* set by CPU1 to signal it has completed */
-> +static int flag_thread_complete;
-> +/* set by CPU0 to signal migration has completed */
-> +static int flag_migration_complete;
-> +
-> +static void write_gs_regs(void)
-> +{
-> +	const unsigned long gs_area = 0x2000000;
-> +	const unsigned long gsc = 25; /* align = 32 M, section size = 512K */
-> +
-> +	gs_cb.gsd = gs_area | gsc;
-> +	gs_cb.gssm = 0xfeedc0ffe;
-> +	gs_cb.gs_epl_a = (uint64_t) &gs_epl;
-> +
-> +	load_gs_cb(&gs_cb);
-> +}
-> +
-> +static void check_gs_regs(void)
-> +{
-> +	struct gs_cb gs_cb_after_migration;
-> +
-> +	store_gs_cb(&gs_cb_after_migration);
-> +
-> +	report_prefix_push("guarded-storage registers");
-> +
-> +	report(gs_cb_after_migration.gsd == gs_cb.gsd, "gsd matches");
-> +	report(gs_cb_after_migration.gssm == gs_cb.gssm, "gssm matches");
-> +	report(gs_cb_after_migration.gs_epl_a == gs_cb.gs_epl_a, "gs_epl_a matches");
-> +
-> +	report_prefix_pop();
-> +}
-> +
-> +static void test_func(void)
-> +{
-> +	uint8_t expected_vec_contents[VEC_REGISTER_NUM][VEC_REGISTER_SIZE];
-> +	uint8_t actual_vec_contents[VEC_REGISTER_NUM][VEC_REGISTER_SIZE];
-> +	uint8_t *vec_reg;
-> +	int i;
-> +	int vec_result = 0;
-> +
-> +	for (i = 0; i < VEC_REGISTER_NUM; i++) {
-> +		vec_reg = &expected_vec_contents[i][0];
-> +		/* i+1 to avoid zero content */
-> +		memset(vec_reg, i + 1, VEC_REGISTER_SIZE);
-> +	}
-> +
-> +	ctl_set_bit(0, CTL0_VECTOR);
-> +	ctl_set_bit(2, CTL2_GUARDED_STORAGE);
-> +
-> +	write_gs_regs();
-> +
-> +	/*
-> +	 * It is important loading the loading point registers and comparing
+We let the userland hypervisor know if the machine support the CPU
+topology facility using a new KVM capability: KVM_CAP_S390_CPU_TOPOLOGY.
 
-s/loading point/floating point/
+The PTF instruction will report a topology change if there is any change
+with a previous STSI_15_1_2 SYSIB.
+Changes inside a STSI_15_1_2 SYSIB occur if CPU bits are set or clear
+inside the CPU Topology List Entry CPU mask field, which happens with
+changes in CPU polarization, dedication, CPU types and adding or
+removing CPUs in a socket.
 
-> +	 * their contents occurs in the same inline assembly block. Otherwise,
-> +	 * the compiler is allowed to re-use the registers for something else in
-> +	 * between.
-> +	 * For this very reason, this also runs on a second CPU, so all the
-> +	 * complex console stuff can be done in C on the first CPU and here we
-> +	 * just need to wait for it to set the flag.
-> +	 */
-> +	asm inline(
-> +		"	.machine z13\n"
-> +		/* load vector registers: vlm handles at most 16 registers at a time */
-> +		"	vlm 0,15, 0(%[expected_vec_reg])\n"
-> +		"	vlm 16,31, 256(%[expected_vec_reg])\n"
-> +		/* inform CPU0 we are done, it will request migration */
-> +		"	mvhi %[flag_thread_complete], 1\n"
-> +		/* wait for migration to finish */
-> +		"0:	clfhsi %[flag_migration_complete], 1\n"
-> +		"	jnz 0b\n"
-> +		/*
-> +		 * store vector register contents in actual_vec_reg: vstm
-> +		 * handles at most 16 registers at a time
-> +		 */
-> +		"	vstm 0,15, 0(%[actual_vec_reg])\n"
-> +		"	vstm 16,31, 256(%[actual_vec_reg])\n"
-> +		/*
-> +		 * compare the contents in expected_vec_reg with actual_vec_reg:
-> +		 * clc handles at most 256 bytes at a time
-> +		 */
-> +		"	clc 0(256, %[expected_vec_reg]), 0(%[actual_vec_reg])\n"
-> +		"	jnz 1f\n"
-> +		"	clc 256(256, %[expected_vec_reg]), 256(%[actual_vec_reg])\n"
-> +		"	jnz 1f\n"
-> +		/* success */
-> +		"	mvhi %[vec_result], 1\n"
-> +		"1:"
-> +		:
-> +		: [expected_vec_reg] "a"(expected_vec_contents),
-> +		  [actual_vec_reg] "a"(actual_vec_contents),
-> +		  [flag_thread_complete] "Q"(flag_thread_complete),
-> +		  [flag_migration_complete] "Q"(flag_migration_complete),
-> +		  [vec_result] "Q"(vec_result)
-> +		: "v0", "v1", "v2", "v3", "v4", "v5", "v6", "v7", "v8", "v9",
-> +		  "v10", "v11", "v12", "v13", "v14", "v15", "v16", "v17", "v18",
-> +		  "v19", "v20", "v21", "v22", "v23", "v24", "v25", "v26", "v27",
-> +		  "v28", "v29", "v30", "v31", "cc", "memory"
-> +	);
-> +
-> +	report(vec_result, "vector contents match");
-> +
-> +	check_gs_regs();
-> +
-> +	report(stctg(0) & BIT(CTL0_VECTOR), "ctl0 vector bit set");
-> +	report(stctg(2) & BIT(CTL2_GUARDED_STORAGE), "ctl2 guarded-storage bit set");
-> +
-> +	ctl_clear_bit(0, CTL0_VECTOR);
-> +	ctl_clear_bit(2, CTL2_GUARDED_STORAGE);
-> +
-> +	flag_thread_complete = 1;
-> +}
-> +
-> +int main(void)
-> +{
-> +	struct psw psw;
-> +
-> +	/* don't say migrate here otherwise we will migrate right away */
-> +	report_prefix_push("migration");
-> +
-> +	if (smp_query_num_cpus() == 1) {
-> +		report_skip("need at least 2 cpus for this test");
-> +		goto done;
-> +	}
-> +
-> +	/* Second CPU does the actual tests */
-> +	psw.mask = extract_psw_mask();
-> +	psw.addr = (unsigned long)test_func;
-> +	smp_cpu_setup(1, psw);
-> +
-> +	/* wait for thread setup */
-> +	while(!flag_thread_complete)
-> +		mb();
-> +	flag_thread_complete = 0;
-> +
-> +	/* ask migrate_cmd to migrate (it listens for 'migrate') */
-> +	puts("Please migrate me\n");
+The reporting to the guest is done using the Multiprocessor
+Topology-Change-Report (MTCR) bit of the utility entry of the guest's
+SCA which will be cleared during the interpretation of PTF.
 
-Maybe say: "Please migrate me, then press 'return'" in case somebody runs 
-this test manually?
+To check if the topology has been modified we use a new field of the
+arch vCPU to save the previous real CPU ID at the end of a schedule
+and verify on next schedule that the CPU used is in the same socket.
+We do not report polarization, CPU Type or dedication change.
 
-> +	/* wait for migration to finish, we will read a newline */
-> +	(void)getchar();
-> +
-> +	flag_migration_complete = 1;
-> +
-> +	/* wait for thread to complete assertions */
-> +	while(!flag_thread_complete)
-> +		mb();
-> +
-> +	smp_cpu_destroy(1);
-> +
-> +done:
-> +	report_prefix_pop();
-> +	return report_summary();
-> +}
-> diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-> index 256c71691adc..b456b2881448 100644
-> --- a/s390x/unittests.cfg
-> +++ b/s390x/unittests.cfg
-> @@ -171,3 +171,8 @@ file = adtl-status.elf
->   smp = 2
->   accel = tcg
->   extra_params = -cpu qemu,gs=off,vx=off
-> +
-> +[migration]
-> +file = migration.elf
-> +groups = migration
-> +smp = 2
+STSI(15.1.x) gives information on the CPU configuration topology.
+Let's accept the interception of STSI with the function code 15 and
+let the userland part of the hypervisor handle it when userland
+support the CPU Topology facility.
 
-Thanks, looks fine to me now (apart from the two nits)!
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+---
+ Documentation/virt/kvm/api.rst   | 16 +++++++
+ arch/s390/include/asm/kvm_host.h | 12 ++++--
+ arch/s390/kvm/kvm-s390.c         | 74 +++++++++++++++++++++++++++++++-
+ arch/s390/kvm/kvm-s390.h         | 25 +++++++++++
+ arch/s390/kvm/priv.c             | 14 ++++--
+ arch/s390/kvm/vsie.c             |  3 ++
+ include/uapi/linux/kvm.h         |  1 +
+ 7 files changed, 137 insertions(+), 8 deletions(-)
 
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
+index 85c7abc51af5..3499bc8d205e 100644
+--- a/Documentation/virt/kvm/api.rst
++++ b/Documentation/virt/kvm/api.rst
+@@ -7769,3 +7769,19 @@ Ordering of KVM_GET_*/KVM_SET_* ioctls
+ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 
+ TBD
++
++8.17 KVM_CAP_S390_CPU_TOPOLOGY
++------------------------------
++
++:Capability: KVM_CAP_S390_CPU_TOPOLOGY
++:Architectures: s390
++:Type: vm
++
++This capability indicates that kvm will provide the S390 CPU Topology facility
++which consist of the interpretation of the PTF instruction for the Function
++Code 2 along with interception and forwarding of both the PTF instruction
++with Function Codes 0 or 1 and the STSI(15,1,x) instruction to the userland
++hypervisor.
++
++The stfle facility 11, CPU Topology facility, should not be provided to the
++guest without this capability.
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 766028d54a3e..04653b43ccee 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -97,15 +97,19 @@ struct bsca_block {
+ 	union ipte_control ipte_control;
+ 	__u64	reserved[5];
+ 	__u64	mcn;
+-	__u64	reserved2;
++#define SCA_UTILITY_MTCR	0x8000
++	__u16	utility;
++	__u8	reserved2[6];
+ 	struct bsca_entry cpu[KVM_S390_BSCA_CPU_SLOTS];
+ };
+ 
+ struct esca_block {
+ 	union ipte_control ipte_control;
+-	__u64   reserved1[7];
++	__u64   reserved1[6];
++	__u16	utility;
++	__u8	reserved2[6];
+ 	__u64   mcn[4];
+-	__u64   reserved2[20];
++	__u64   reserved3[20];
+ 	struct esca_entry cpu[KVM_S390_ESCA_CPU_SLOTS];
+ };
+ 
+@@ -249,6 +253,7 @@ struct kvm_s390_sie_block {
+ #define ECB_SPECI	0x08
+ #define ECB_SRSI	0x04
+ #define ECB_HOSTPROTINT	0x02
++#define ECB_PTF		0x01
+ 	__u8	ecb;			/* 0x0061 */
+ #define ECB2_CMMA	0x80
+ #define ECB2_IEP	0x20
+@@ -750,6 +755,7 @@ struct kvm_vcpu_arch {
+ 	bool skey_enabled;
+ 	struct kvm_s390_pv_vcpu pv;
+ 	union diag318_info diag318_info;
++	int prev_cpu;
+ };
+ 
+ struct kvm_vm_stat {
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 156d1c25a3c1..925ccc59f283 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -606,6 +606,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+ 	case KVM_CAP_S390_PROTECTED:
+ 		r = is_prot_virt_host();
+ 		break;
++	case KVM_CAP_S390_CPU_TOPOLOGY:
++		r = test_facility(11);
++		break;
+ 	default:
+ 		r = 0;
+ 	}
+@@ -817,6 +820,20 @@ int kvm_vm_ioctl_enable_cap(struct kvm *kvm, struct kvm_enable_cap *cap)
+ 		icpt_operexc_on_all_vcpus(kvm);
+ 		r = 0;
+ 		break;
++	case KVM_CAP_S390_CPU_TOPOLOGY:
++		r = -EINVAL;
++		mutex_lock(&kvm->lock);
++		if (kvm->created_vcpus) {
++			r = -EBUSY;
++		} else if (test_facility(11)) {
++			set_kvm_facility(kvm->arch.model.fac_mask, 11);
++			set_kvm_facility(kvm->arch.model.fac_list, 11);
++			r = 0;
++		}
++		mutex_unlock(&kvm->lock);
++		VM_EVENT(kvm, 3, "ENABLE: CPU TOPOLOGY %s",
++			 r ? "(not available)" : "(success)");
++		break;
+ 	default:
+ 		r = -EINVAL;
+ 		break;
+@@ -1695,6 +1712,50 @@ static int kvm_s390_get_cpu_model(struct kvm *kvm, struct kvm_device_attr *attr)
+ 	return ret;
+ }
+ 
++/**
++ * kvm_s390_get_first_vcpu
++ * @kvm: guest KVM description
++ *
++ * returns the first online vcpu
++ */
++static struct kvm_vcpu *kvm_s390_get_first_vcpu(struct kvm *kvm)
++{
++	struct kvm_vcpu *vcpu;
++	unsigned long i;
++
++	kvm_for_each_vcpu(i, vcpu, kvm)
++		return vcpu;
++	return NULL;
++}
++
++/**
++ * kvm_s390_sca_set_mtcr
++ * @kvm: guest KVM description
++ *
++ * Is only relevant if the topology facility is present,
++ * the caller should check KVM facility 11
++ *
++ * Updates the Multiprocessor Topology-Change-Report to signal
++ * the guest with a topology change.
++ * Note that both bsca and esca have the utility half word at
++ * the same offset.
++ */
++static int kvm_s390_sca_set_mtcr(struct kvm *kvm)
++{
++	struct bsca_block *sca = kvm->arch.sca;
++	struct kvm_vcpu *vcpu;
++
++	vcpu = kvm_s390_get_first_vcpu(kvm);
++	if (!vcpu)
++		return -ENODEV;
++
++	ipte_lock(vcpu);
++	WRITE_ONCE(sca->utility, sca->utility | SCA_UTILITY_MTCR);
++	ipte_unlock(vcpu);
++
++	return 0;
++}
++
+ static int kvm_s390_vm_set_attr(struct kvm *kvm, struct kvm_device_attr *attr)
+ {
+ 	int ret;
+@@ -3138,16 +3199,20 @@ __u64 kvm_s390_get_cpu_timer(struct kvm_vcpu *vcpu)
+ 
+ void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
+ {
+-
+ 	gmap_enable(vcpu->arch.enabled_gmap);
+ 	kvm_s390_set_cpuflags(vcpu, CPUSTAT_RUNNING);
+ 	if (vcpu->arch.cputm_enabled && !is_vcpu_idle(vcpu))
+ 		__start_cpu_timer_accounting(vcpu);
+ 	vcpu->cpu = cpu;
++
++	if (kvm_s390_topology_changed(vcpu))
++		kvm_s390_sca_set_mtcr(vcpu->kvm);
+ }
+ 
+ void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
+ {
++	/* Remember which CPU was backing the vCPU */
++	vcpu->arch.prev_cpu = vcpu->cpu;
+ 	vcpu->cpu = -1;
+ 	if (vcpu->arch.cputm_enabled && !is_vcpu_idle(vcpu))
+ 		__stop_cpu_timer_accounting(vcpu);
+@@ -3267,6 +3332,13 @@ static int kvm_s390_vcpu_setup(struct kvm_vcpu *vcpu)
+ 		vcpu->arch.sie_block->ecb |= ECB_HOSTPROTINT;
+ 	if (test_kvm_facility(vcpu->kvm, 9))
+ 		vcpu->arch.sie_block->ecb |= ECB_SRSI;
++
++	/* PTF needs guest facilities to enable interpretation */
++	if (test_kvm_facility(vcpu->kvm, 11))
++		vcpu->arch.sie_block->ecb |= ECB_PTF;
++	/* Indicate this is a new vcpu */
++	vcpu->arch.prev_cpu = S390_KVM_TOPOLOGY_NEW_CPU;
++
+ 	if (test_kvm_facility(vcpu->kvm, 73))
+ 		vcpu->arch.sie_block->ecb |= ECB_TE;
+ 	if (!kvm_is_ucontrol(vcpu->kvm))
+diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+index 497d52a83c78..897767652b5c 100644
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -514,4 +514,29 @@ void kvm_s390_vcpu_crypto_reset_all(struct kvm *kvm);
+  */
+ extern unsigned int diag9c_forwarding_hz;
+ 
++#define S390_KVM_TOPOLOGY_NEW_CPU -1
++/**
++ * kvm_s390_topology_changed
++ * @vcpu: the virtual CPU
++ *
++ * If the topology facility is present, checks if the CPU toplogy
++ * viewed by the guest changed due to load balancing or CPU hotplug.
++ */
++static inline bool kvm_s390_topology_changed(struct kvm_vcpu *vcpu)
++{
++	if (!test_kvm_facility(vcpu->kvm, 11))
++		return false;
++
++	/* A new vCPU has been hotplugged */
++	if (vcpu->arch.prev_cpu == S390_KVM_TOPOLOGY_NEW_CPU)
++		return true;
++
++	/* The real CPU backing up the vCPU moved to another socket */
++	if (cpumask_test_cpu(vcpu->cpu,
++			     topology_core_cpumask(vcpu->arch.prev_cpu)))
++		return true;
++
++	return false;
++}
++
+ #endif
+diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+index 5beb7a4a11b3..5ab7173c3909 100644
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -874,10 +874,12 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
+ 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
+ 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+ 
+-	if (fc > 3) {
+-		kvm_s390_set_psw_cc(vcpu, 3);
+-		return 0;
+-	}
++	if (fc > 3 && fc != 15)
++		goto out_no_data;
++
++	/* fc 15 is provided with PTF/CPU topology support */
++	if (fc == 15 && !test_kvm_facility(vcpu->kvm, 11))
++		goto out_no_data;
+ 
+ 	if (vcpu->run->s.regs.gprs[0] & 0x0fffff00
+ 	    || vcpu->run->s.regs.gprs[1] & 0xffff0000)
+@@ -911,6 +913,10 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
+ 			goto out_no_data;
+ 		handle_stsi_3_2_2(vcpu, (void *) mem);
+ 		break;
++	case 15:
++		trace_kvm_s390_handle_stsi(vcpu, fc, sel1, sel2, operand2);
++		insert_stsi_usr_data(vcpu, operand2, ar, fc, sel1, sel2);
++		return -EREMOTE;
+ 	}
+ 	if (kvm_s390_pv_cpu_is_protected(vcpu)) {
+ 		memcpy((void *)sida_origin(vcpu->arch.sie_block), (void *)mem,
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index acda4b6fc851..da0397cf2cc7 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -503,6 +503,9 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 	/* Host-protection-interruption introduced with ESOP */
+ 	if (test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_ESOP))
+ 		scb_s->ecb |= scb_o->ecb & ECB_HOSTPROTINT;
++	/* CPU Topology */
++	if (test_kvm_facility(vcpu->kvm, 11))
++		scb_s->ecb |= scb_o->ecb & ECB_PTF;
+ 	/* transactional execution */
+ 	if (test_kvm_facility(vcpu->kvm, 73) && wants_tx) {
+ 		/* remap the prefix is tx is toggled on */
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index 91a6fe4e02c0..9640cfa9a92a 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -1144,6 +1144,7 @@ struct kvm_ppc_resize_hpt {
+ #define KVM_CAP_S390_MEM_OP_EXTENSION 211
+ #define KVM_CAP_PMU_CAPABILITY 212
+ #define KVM_CAP_DISABLE_QUIRKS2 213
++#define KVM_CAP_S390_CPU_TOPOLOGY 214
+ 
+ #ifdef KVM_CAP_IRQ_ROUTING
+ 
+-- 
+2.27.0
 
