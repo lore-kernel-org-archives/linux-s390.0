@@ -2,116 +2,91 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53013C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 20 Apr 2022 06:45:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F386C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 20 Apr 2022 07:32:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242343AbiDTGru (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 20 Apr 2022 02:47:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40200 "EHLO
+        id S1359852AbiDTHe7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 20 Apr 2022 03:34:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352533AbiDTGrt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Apr 2022 02:47:49 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4377F2702;
-        Tue, 19 Apr 2022 23:45:04 -0700 (PDT)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23K5NsRi027973;
-        Wed, 20 Apr 2022 06:45:00 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : references : date : in-reply-to : message-id : mime-version :
- content-type; s=pp1; bh=Q/OoGAt84YUtee6RudtEDHYR8suIEFSOH24kMxzGjmI=;
- b=GAFsjJISaJyjPi+dbLXRTDxNt5+ntyRFkPyiaEGqalwFgFpZunYGfxOHLLFOduZwU1sE
- CDczYIL6zfuEk3+/h7NL35SJxey5UBWQb54lebwDCGw7RzqpM0oxv+4h58zNUTY46xse
- DWwRyMpPCBOW6BO/bd2z3WFLzHgKj1/lB8Lcfc/hZBCRPpodaLl5AutUiXVhveSPpDV0
- hrqCS+HrHN7TjUUZGM/E1D5TsShLnqTTERoVwoi0utWAC7/HpAlEJrbXV+RSwDMQIGoR
- BU1bzHsLt6ag1wofucNXhQFOeSMXTHrGEtlQDSXorx36X6g4qRe8YP15ayT33U0WthvJ ag== 
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3fg7ctv3db-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 20 Apr 2022 06:45:00 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23K6hBVD002772;
-        Wed, 20 Apr 2022 06:44:58 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma04ams.nl.ibm.com with ESMTP id 3ffne95s3v-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 20 Apr 2022 06:44:58 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23K6itMk50201000
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 20 Apr 2022 06:44:55 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 10CE952051;
-        Wed, 20 Apr 2022 06:44:55 +0000 (GMT)
-Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id B96895204F;
-        Wed, 20 Apr 2022 06:44:54 +0000 (GMT)
-From:   Sven Schnelle <svens@linux.ibm.com>
-To:     Haowen Bai <baihaowen@meizu.com>
-Cc:     <agordeev@linux.ibm.com>, <borntraeger@linux.ibm.com>,
-        <gor@linux.ibm.com>, <hca@linux.ibm.com>, <hoeppner@linux.ibm.com>,
-        <linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-        <sth@linux.ibm.com>
-Subject: Re: [PATCH V2] s390/dasd: Use kzalloc instead of kmalloc/memset
-References: <yt9dilr539wq.fsf@linux.ibm.com>
-        <1650348310-18553-1-git-send-email-baihaowen@meizu.com>
-Date:   Wed, 20 Apr 2022 08:44:54 +0200
-In-Reply-To: <1650348310-18553-1-git-send-email-baihaowen@meizu.com> (Haowen
-        Bai's message of "Tue, 19 Apr 2022 14:05:10 +0800")
-Message-ID: <yt9dy200xnh5.fsf@linux.ibm.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.50 (gnu/linux)
+        with ESMTP id S1359840AbiDTHe4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Apr 2022 03:34:56 -0400
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id A4C203BA4A
+        for <linux-s390@vger.kernel.org>; Wed, 20 Apr 2022 00:32:07 -0700 (PDT)
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-165-jcx-0iaIPGatONrL5yGJ_Q-1; Wed, 20 Apr 2022 08:32:04 +0100
+X-MC-Unique: jcx-0iaIPGatONrL5yGJ_Q-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
+ Server (TLS) id 15.0.1497.32; Wed, 20 Apr 2022 08:32:02 +0100
+Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
+ AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
+ 15.00.1497.033; Wed, 20 Apr 2022 08:32:02 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'He Zhe' <zhe.he@windriver.com>, Kees Cook <keescook@chromium.org>
+CC:     "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
+        "will@kernel.org" <will@kernel.org>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "tglx@linutronix.de" <tglx@linutronix.de>,
+        "bp@alien8.de" <bp@alien8.de>,
+        "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
+        "alexander.shishkin@linux.intel.com" 
+        <alexander.shishkin@linux.intel.com>,
+        "jolsa@kernel.org" <jolsa@kernel.org>,
+        "namhyung@kernel.org" <namhyung@kernel.org>,
+        "benh@kernel.crashing.org" <benh@kernel.crashing.org>,
+        "paulus@samba.org" <paulus@samba.org>,
+        "borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>,
+        "svens@linux.ibm.com" <svens@linux.ibm.com>,
+        "hpa@zytor.com" <hpa@zytor.com>, "x86@kernel.org" <x86@kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "linux-perf-users@vger.kernel.org" <linux-perf-users@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH RFC 2/8] arm64: stacktrace: Add arch_within_stack_frames
+Thread-Topic: [PATCH RFC 2/8] arm64: stacktrace: Add arch_within_stack_frames
+Thread-Index: AQHYU/YpuaYuTiSSXEqj2VkDLnuG5qz4aD5A
+Date:   Wed, 20 Apr 2022 07:32:01 +0000
+Message-ID: <9e5c394e82ec44e1887ebebe777a97f2@AcuMS.aculab.com>
+References: <20220418132217.1573072-1-zhe.he@windriver.com>
+ <20220418132217.1573072-3-zhe.he@windriver.com>
+ <202204181457.9DE190CE@keescook>
+ <b328bed3-ebb9-6fba-9585-79946262c40f@windriver.com>
+In-Reply-To: <b328bed3-ebb9-6fba-9585-79946262c40f@windriver.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: text/plain
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: imJ-wYaYsRrgwYw1_S3lcLJjrUhUSfkP
-X-Proofpoint-ORIG-GUID: imJ-wYaYsRrgwYw1_S3lcLJjrUhUSfkP
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-04-19_08,2022-04-15_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- bulkscore=0 phishscore=0 adultscore=0 lowpriorityscore=0 clxscore=1015
- impostorscore=0 mlxscore=0 malwarescore=0 mlxlogscore=747 spamscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2204200039
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Haowen Bai <baihaowen@meizu.com> writes:
+PiA+IFRoYW5rcyBmb3IgZG9pbmcgdGhpcyBpbXBsZW1lbnRhdGlvbiEgT25lIHJlYXNvbiB1c2Vy
+Y29weSBoYXJkZW5pbmcNCj4gPiBkaWRuJ3QgcGVyc3VlIGRvaW5nIGEgImZ1bGwiIHN0YWNrdHJh
+Y2Ugd2FzIGJlY2F1c2UgaXQgc2VlbWVkIHJlbGF0aXZlbHkNCj4gPiBleHBlbnNpdmUuIERpZCB5
+b3UgZG8gYW55IHVzZXJjb3B5LWhlYXZpbHkgd29ya2xvYWQgdGVzdGluZyB0byBzZWUgaWYNCj4g
+PiB0aGVyZSB3YXMgYSBub3RpY2VhYmxlIHBlcmZvcm1hbmNlIGltcGFjdD8NCg0KTG9vayBhdCBh
+bnl0aGluZyB0aGF0IHVzZXMgc2VuZG1zZygpLg0KSXQgaXMgbm90aWNlYWJseSBtb3JlIGV4cGVu
+c2l2ZSB0aGFuIHNlbmR0bygpLg0KQWxsIHRoZSBleHRyYSBjb3B5X2Zyb21fdXNlcigpIGNhdXNl
+IG1lYXN1cmFibGUgc2xvdyBzbG93ZG93bnMuDQpVc2luZyBfX2NvcHlfZnJvbV91c2VyKCkodG8g
+YXZvaWQgJ2hhcmRlbmRpbmcnKSBpbiB0aGUgc29ja2V0IGNvZGUNCmFuZCB3aGVuIHJlYWRpbmcg
+dGhlIGlvdltdIGdpdmVzIGEgbWVhc3VyYWJsZSBpbXByb3ZlbWVudC4NCg0KCURhdmlkDQoNCi0N
+ClJlZ2lzdGVyZWQgQWRkcmVzcyBMYWtlc2lkZSwgQnJhbWxleSBSb2FkLCBNb3VudCBGYXJtLCBN
+aWx0b24gS2V5bmVzLCBNSzEgMVBULCBVSw0KUmVnaXN0cmF0aW9uIE5vOiAxMzk3Mzg2IChXYWxl
+cykNCg==
 
-> Use kzalloc rather than duplicating its implementation, which
-> makes code simple and easy to understand.
->
-> Signed-off-by: Haowen Bai <baihaowen@meizu.com>
-> ---
-> V1->V2: also remove the isglobal assigment above, so the whole else block
-> could go away
->
->  drivers/s390/block/dasd_eckd.c | 5 +----
->  1 file changed, 1 insertion(+), 4 deletions(-)
->
-> diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-> index 8410a25a65c1..6b70f9dfff02 100644
-> --- a/drivers/s390/block/dasd_eckd.c
-> +++ b/drivers/s390/block/dasd_eckd.c
-> @@ -1480,7 +1480,7 @@ static int dasd_eckd_pe_handler(struct dasd_device *device,
->  {
->  	struct pe_handler_work_data *data;
->  
-> -	data = kmalloc(sizeof(*data), GFP_ATOMIC | GFP_DMA);
-> +	data = kzalloc(sizeof(*data), GFP_ATOMIC | GFP_DMA);
->  	if (!data) {
->  		if (mutex_trylock(&dasd_pe_handler_mutex)) {
->  			data = pe_handler_worker;
-> @@ -1488,9 +1488,6 @@ static int dasd_eckd_pe_handler(struct dasd_device *device,
->  		} else {
->  			return -ENOMEM;
->  		}
-> -	} else {
-> -		memset(data, 0, sizeof(*data));
-> -		data->isglobal = 0;
->  	}
->  	INIT_WORK(&data->worker, do_pe_handler_work);
->  	dasd_get_device(device);
-
-Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
