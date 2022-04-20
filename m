@@ -2,68 +2,61 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0EC7FC433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 20 Apr 2022 17:13:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DF3CC433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 20 Apr 2022 17:14:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380979AbiDTRQf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 20 Apr 2022 13:16:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33528 "EHLO
+        id S1380992AbiDTRRG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 20 Apr 2022 13:17:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352716AbiDTRQe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Apr 2022 13:16:34 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id AFB08457AB
-        for <linux-s390@vger.kernel.org>; Wed, 20 Apr 2022 10:13:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1650474826;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+        with ESMTP id S1380948AbiDTRRE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Apr 2022 13:17:04 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 098D8457A9;
+        Wed, 20 Apr 2022 10:14:18 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 53D461F380;
+        Wed, 20 Apr 2022 17:14:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1650474856; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=YUXfwOQompnJdIwVAr+ky90k3csgxSJYtFYxvhspJD8=;
-        b=jBl1gmg6wPwLvVy+n5LEz1cBblL+6eeTmypLE3g+NlFdcUvl/JOa1EPCaFqBe0yCLCzuZq
-        ay8nC4fqegacmTvzywG8D1tgPny6+mzYNpOamAhkR4xvjPSskD4zORFWurr4tjLQEVwzc+
-        GWb8sH1K84KTed4ewb07KESHBQ5YDJk=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-54-_02HlsBDNYik4fpGBEpF-g-1; Wed, 20 Apr 2022 13:13:45 -0400
-X-MC-Unique: _02HlsBDNYik4fpGBEpF-g-1
-Received: by mail-wr1-f72.google.com with SMTP id j30-20020adfb31e000000b0020a9043abd7so579667wrd.12
-        for <linux-s390@vger.kernel.org>; Wed, 20 Apr 2022 10:13:45 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:organization:in-reply-to
-         :content-transfer-encoding;
-        bh=YUXfwOQompnJdIwVAr+ky90k3csgxSJYtFYxvhspJD8=;
-        b=wknUcumLnpxpskbc7pCJdvTbNCc5JoWjIwIhflwqCur/fsYRr6UihZ28L5vvRuW6eN
-         eJicmsPE0PVJIApWOvlo2DoXcltvqeQwZmoGw+JKl0tw3NPsnQVo6kuBvGpDjTuXdZOf
-         53Cr/BKcxzll7M1VLwk8j8Y9i7aKSOAn2ibkj+Aot1sN4ruuD+k9hhujYC/FUBsTKRgz
-         YJ4OK/Z9nXH5HW0sXMYCgWZFASxXFMm8L/NzRt7wblM0d2dVK863FCHnRokGvc1XsQA2
-         7zSuur+QuWdyzfO2CWQ+CArTiUf9CgxmA4tsPU9wZh5XcVyyJq1YJLnt9nyfJnh1xmjw
-         3CEQ==
-X-Gm-Message-State: AOAM533CqT0vWRGEx3QthZt8IhHoTqm24163vc8IaQRJWIBhBc/8dloN
-        GY/qN7q6XQtg7paY4odTT8WF6kLvwWwrHlYie6QzGoJK6MmZ/NzzLKZxSTUVHEWI7ol5Cq4SP/f
-        OdHINekJcX/GfYfKP/t+DJQ==
-X-Received: by 2002:a1c:21c5:0:b0:38e:b464:6a39 with SMTP id h188-20020a1c21c5000000b0038eb4646a39mr4624155wmh.186.1650474824366;
-        Wed, 20 Apr 2022 10:13:44 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwnxBGE3mnfNhX3DGODQmYyZGAR1i8EPUCCup/XZY5QMpdpdOqavd/9L1y6Dj1QMznlK0qbGA==
-X-Received: by 2002:a1c:21c5:0:b0:38e:b464:6a39 with SMTP id h188-20020a1c21c5000000b0038eb4646a39mr4624108wmh.186.1650474824060;
-        Wed, 20 Apr 2022 10:13:44 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c702:3d00:23e4:4c84:67a5:3ccf? (p200300cbc7023d0023e44c8467a53ccf.dip0.t-ipconnect.de. [2003:cb:c702:3d00:23e4:4c84:67a5:3ccf])
-        by smtp.gmail.com with ESMTPSA id q16-20020adff950000000b00205aa05fa03sm313602wrr.58.2022.04.20.10.13.41
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 20 Apr 2022 10:13:43 -0700 (PDT)
-Message-ID: <c7e76985-f209-f110-0785-e2849acdd43c@redhat.com>
-Date:   Wed, 20 Apr 2022 19:13:40 +0200
+        bh=cCyVaEehkrahTF4ZZE0t6pBOtUmw5LLz8/1wxeHDxX4=;
+        b=K7U7yAPVtWoeKBCvI9IM0SUrBd3SuNQlXwbO69YYMvu/uQgJCBHLxvJUvYDJUM+CzMgGQE
+        RVSlZxkoXhp1TqU71hUtulLocxn+2wyVtaobkUyEwzAopoea+zPD+x5OcZ/P14F7mUWQ0X
+        9jy/5tEGm6a4qWbujDTO1fyNpFdYlOg=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1650474856;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=cCyVaEehkrahTF4ZZE0t6pBOtUmw5LLz8/1wxeHDxX4=;
+        b=NwzWMKJRWqBiYsMEpHY2LSE0kR5L5AsWQDr46B/AzDDh+7ae+1bOHK7cbVF3M3crtt+AoJ
+        6QSH0t6rY1IUvWBg==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 9E94C13A30;
+        Wed, 20 Apr 2022 17:14:15 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id cLLMJWc/YGJFYAAAMHmgww
+        (envelope-from <vbabka@suse.cz>); Wed, 20 Apr 2022 17:14:15 +0000
+Message-ID: <e1b61853-143a-3691-2e6d-4fea5c049562@suse.cz>
+Date:   Wed, 20 Apr 2022 19:14:15 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.2
-Subject: Re: [PATCH v2 1/8] mm/swap: remember PG_anon_exclusive via a swp pte
- bit
+ Thunderbird/91.7.0
+Subject: Re: [PATCH v2 2/8] mm/debug_vm_pgtable: add tests for
+ __HAVE_ARCH_PTE_SWP_EXCLUSIVE
 Content-Language: en-US
-To:     Vlastimil Babka <vbabka@suse.cz>, linux-kernel@vger.kernel.org
+To:     David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
 Cc:     Andrew Morton <akpm@linux-foundation.org>,
         Hugh Dickins <hughd@google.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
@@ -103,101 +96,61 @@ Cc:     Andrew Morton <akpm@linux-foundation.org>,
         linux-arm-kernel@lists.infradead.org,
         linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
 References: <20220329164329.208407-1-david@redhat.com>
- <20220329164329.208407-2-david@redhat.com>
- <b49f1b4c-defa-ef32-1984-0273e1fad178@suse.cz>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <b49f1b4c-defa-ef32-1984-0273e1fad178@suse.cz>
+ <20220329164329.208407-3-david@redhat.com>
+From:   Vlastimil Babka <vbabka@suse.cz>
+In-Reply-To: <20220329164329.208407-3-david@redhat.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 20.04.22 19:10, Vlastimil Babka wrote:
-> On 3/29/22 18:43, David Hildenbrand wrote:
->> Currently, we clear PG_anon_exclusive in try_to_unmap() and forget about
->> it. We do this, to keep fork() logic on swap entries easy and efficient:
->> for example, if we wouldn't clear it when unmapping, we'd have to lookup
->> the page in the swapcache for each and every swap entry during fork() and
->> clear PG_anon_exclusive if set.
->>
->> Instead, we want to store that information directly in the swap pte,
->> protected by the page table lock, similarly to how we handle
->> SWP_MIGRATION_READ_EXCLUSIVE for migration entries. However, for actual
->> swap entries, we don't want to mess with the swap type (e.g., still one
->> bit) because it overcomplicates swap code.
->>
->> In try_to_unmap(), we already reject to unmap in case the page might be
->> pinned, because we must not lose PG_anon_exclusive on pinned pages ever.
->> Checking if there are other unexpected references reliably *before*
->> completely unmapping a page is unfortunately not really possible: THP
->> heavily overcomplicate the situation. Once fully unmapped it's easier --
->> we, for example, make sure that there are no unexpected references
->> *after* unmapping a page before starting writeback on that page.
->>
->> So, we currently might end up unmapping a page and clearing
->> PG_anon_exclusive if that page has additional references, for example,
->> due to a FOLL_GET.
->>
->> do_swap_page() has to re-determine if a page is exclusive, which will
->> easily fail if there are other references on a page, most prominently
->> GUP references via FOLL_GET. This can currently result in memory
->> corruptions when taking a FOLL_GET | FOLL_WRITE reference on a page even
->> when fork() is never involved: try_to_unmap() will succeed, and when
->> refaulting the page, it cannot be marked exclusive and will get replaced
->> by a copy in the page tables on the next write access, resulting in writes
->> via the GUP reference to the page being lost.
->>
->> In an ideal world, everybody that uses GUP and wants to modify page
->> content, such as O_DIRECT, would properly use FOLL_PIN. However, that
->> conversion will take a while. It's easier to fix what used to work in the
->> past (FOLL_GET | FOLL_WRITE) remembering PG_anon_exclusive. In addition,
->> by remembering PG_anon_exclusive we can further reduce unnecessary COW
->> in some cases, so it's the natural thing to do.
->>
->> So let's transfer the PG_anon_exclusive information to the swap pte and
->> store it via an architecture-dependant pte bit; use that information when
->> restoring the swap pte in do_swap_page() and unuse_pte(). During fork(), we
->> simply have to clear the pte bit and are done.
->>
->> Of course, there is one corner case to handle: swap backends that don't
->> support concurrent page modifications while the page is under writeback.
->> Special case these, and drop the exclusive marker. Add a comment why that
->> is just fine (also, reuse_swap_page() would have done the same in the
->> past).
->>
->> In the future, we'll hopefully have all architectures support
->> __HAVE_ARCH_PTE_SWP_EXCLUSIVE, such that we can get rid of the empty
->> stubs and the define completely. Then, we can also convert
->> SWP_MIGRATION_READ_EXCLUSIVE. For architectures it's fairly easy to
->> support: either simply use a yet unused pte bit that can be used for swap
->> entries, steal one from the arch type bits if they exceed 5, or steal one
->> from the offset bits.
->>
->> Note: R/O FOLL_GET references were never really reliable, especially
->> when taking one on a shared page and then writing to the page (e.g., GUP
->> after fork()). FOLL_GET, including R/W references, were never really
->> reliable once fork was involved (e.g., GUP before fork(),
->> GUP during fork()). KSM steps back in case it stumbles over unexpected
->> references and is, therefore, fine.
->>
->> Signed-off-by: David Hildenbrand <david@redhat.com>
+On 3/29/22 18:43, David Hildenbrand wrote:
+> Let's test that __HAVE_ARCH_PTE_SWP_EXCLUSIVE works as expected.
 > 
-> With the fixup as reportedy by Miaohe Lin
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+
+> ---
+>  mm/debug_vm_pgtable.c | 15 +++++++++++++++
+>  1 file changed, 15 insertions(+)
 > 
-> Acked-by: Vlastimil Babka <vbabka@suse.cz>
-> 
-> (sent a separate mm-commits mail to inquire about the fix going missing from
-> mmotm)
-> 
-> https://lore.kernel.org/mm-commits/c3195d8a-2931-0749-973a-1d04e4baec94@suse.cz/T/#m4e98ccae6f747e11f45e4d0726427ba2fef740eb
+> diff --git a/mm/debug_vm_pgtable.c b/mm/debug_vm_pgtable.c
+> index db2abd9e415b..55f1a8dc716f 100644
+> --- a/mm/debug_vm_pgtable.c
+> +++ b/mm/debug_vm_pgtable.c
+> @@ -837,6 +837,19 @@ static void __init pmd_soft_dirty_tests(struct pgtable_debug_args *args) { }
+>  static void __init pmd_swap_soft_dirty_tests(struct pgtable_debug_args *args) { }
+>  #endif /* CONFIG_TRANSPARENT_HUGEPAGE */
+>  
+> +static void __init pte_swap_exclusive_tests(struct pgtable_debug_args *args)
+> +{
+> +#ifdef __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+> +	pte_t pte = pfn_pte(args->fixed_pte_pfn, args->page_prot);
+> +
+> +	pr_debug("Validating PTE swap exclusive\n");
+> +	pte = pte_swp_mkexclusive(pte);
+> +	WARN_ON(!pte_swp_exclusive(pte));
 
-Yes I saw that, thanks for catching that!
+I guess only this WARN_ON must be guarded by the #ifdef, but doesn't matter
+that much - won't gain significantly more test coverage.
 
-
--- 
-Thanks,
-
-David / dhildenb
+> +	pte = pte_swp_clear_exclusive(pte);
+> +	WARN_ON(pte_swp_exclusive(pte));
+> +#endif /* __HAVE_ARCH_PTE_SWP_EXCLUSIVE */
+> +}
+> +
+>  static void __init pte_swap_tests(struct pgtable_debug_args *args)
+>  {
+>  	swp_entry_t swp;
+> @@ -1288,6 +1301,8 @@ static int __init debug_vm_pgtable(void)
+>  	pte_swap_soft_dirty_tests(&args);
+>  	pmd_swap_soft_dirty_tests(&args);
+>  
+> +	pte_swap_exclusive_tests(&args);
+> +
+>  	pte_swap_tests(&args);
+>  	pmd_swap_tests(&args);
+>  
 
