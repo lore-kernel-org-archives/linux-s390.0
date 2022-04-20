@@ -2,137 +2,105 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8791CC433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 20 Apr 2022 18:28:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1080BC433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 20 Apr 2022 22:25:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346240AbiDTSbA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 20 Apr 2022 14:31:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52440 "EHLO
+        id S1357580AbiDTW2b (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 20 Apr 2022 18:28:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345676AbiDTSa6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Apr 2022 14:30:58 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0DC01EAD1;
-        Wed, 20 Apr 2022 11:28:11 -0700 (PDT)
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23KI75lZ020277;
-        Wed, 20 Apr 2022 18:28:11 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=C6aahPwojO4fi663wVKm4G2MabLycZE7ZCsBerbjchA=;
- b=E1Yp/JJJizPZ2q59aeX8nG7Gz2NN/wQNI40AF0BBLPrbMdjd/sYTSAmKyzGmM8HrkmsK
- GhEWk2GQkQUOG9GJ28k+Jg6coMyhyHOq4uT2/YJDSVWZs3M/VcCu+0hzyZf9V8EtAFrn
- zBks1QUCUGS6SwHafE1euhwyd0Y61VQjOssPkGaj+wQvBddo2Ko58T12E+y8MKkZ6/Ei
- rZQNBOMjAg4F0uwaUc7DJmpZ0ZI91UDWT7BmMYjxSI5/NeuTiwviTb4FebGRtH1FmIeA
- 7D3YDE1c2RGwKGUs2ZQBjqQ0yrLNnSC5J+sLHn2K90DFRg3oj5kQ8j+8Msjw7uW2oLwC BA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3fg7rga14b-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 20 Apr 2022 18:28:10 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23KIN92S019540;
-        Wed, 20 Apr 2022 18:28:10 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3fg7rga141-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 20 Apr 2022 18:28:10 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23KIDoeU024439;
-        Wed, 20 Apr 2022 18:28:08 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma04fra.de.ibm.com with ESMTP id 3ffvt9cx2p-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 20 Apr 2022 18:28:08 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23KIS5DO41288042
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 20 Apr 2022 18:28:05 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 11EEAAE04D;
-        Wed, 20 Apr 2022 18:28:05 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3E9D2AE045;
-        Wed, 20 Apr 2022 18:28:04 +0000 (GMT)
-Received: from [9.171.15.220] (unknown [9.171.15.220])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 20 Apr 2022 18:28:04 +0000 (GMT)
-Message-ID: <f6c24447-2ed5-163a-8853-d70253eed0e8@linux.ibm.com>
-Date:   Wed, 20 Apr 2022 20:31:22 +0200
+        with ESMTP id S1382772AbiDTW21 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Apr 2022 18:28:27 -0400
+Received: from mail-qk1-x72e.google.com (mail-qk1-x72e.google.com [IPv6:2607:f8b0:4864:20::72e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1647440A3B;
+        Wed, 20 Apr 2022 15:25:31 -0700 (PDT)
+Received: by mail-qk1-x72e.google.com with SMTP id j6so2339063qkp.9;
+        Wed, 20 Apr 2022 15:25:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=zSf1GL9eubeAu2SSHZoa9QHUnjXkUaWTs3jcrLRRG7o=;
+        b=IB+Ao/Wwsh2cprgs+BXA24MhK96+Zox6WxUF2ehNrx1BFrzPZV7JAWu4EFvsOtu7Iu
+         YxETq/bn/pHm/OAmmR4pyblkfRLBRX8FmmvfAvteqDSXZL2/mewEl8dHQACtpk0T1/fS
+         Vd1eFmxiEsSX7RvV81/urQwV88aFxIfIG3XXxIZ54tl2/mtxMUGMMLmg4dc9qATOEBIn
+         9WhBmDfcIIaBAq+YgjhMWR8ulSAmcGjL9UGImfIiNr2FuS8tVNm000as9rZP7eeW/oIo
+         J5Wqs9orX0mO1wldiSLWfIexV0XiT9wjHjbGM2KyEUgvv+G24T2ouN/DUf6y7tB03/C7
+         7qtA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=zSf1GL9eubeAu2SSHZoa9QHUnjXkUaWTs3jcrLRRG7o=;
+        b=ttRwI8ioIONIWxBLWEtriIugWOub4dQIDd3nnl0pipZrL7TMVi8Ii0ApnyAh1KxqlD
+         jtoA9UuLSkV2WJ8x46nNw/9BEjqrH8HDAgiLJ8Z9tO9PWGjBRk+XAaIBXGv9FZQkzGOm
+         aU19d8OIi3eF6wMrDzLZ44mY+elSkqS/EYqpmVtBV11EE1Cl0iHjxI5xgHieV/BJbQgH
+         8smhDeUHfAgzafHQy3tG9W7SJ9QwJPPLKXVj34YJi+Rw7ve+hCjcWOerbnboc1BT06rz
+         pRtt2VXAInQ2O5v4CHejEMGdIgohP+P3ZabEBzTWlash3Vzt4sBh7e2wyZKl10odvFZh
+         Pfkg==
+X-Gm-Message-State: AOAM532a5twKv/Ik9mosCzeFfhBzd/q5EwN5Xf/rQJLGt+rMr09Zxbye
+        naq//IjG2Q0NTc1zlYX2GHBtLkX5dw8=
+X-Google-Smtp-Source: ABdhPJwZK35fAiaLQ+j7TJ3EfZjXWxZdeKrrNFVTBDOtXlzg189KMCbYhzpcTl5qhDxdOMWY5Qur+A==
+X-Received: by 2002:a37:f519:0:b0:69c:29e0:f740 with SMTP id l25-20020a37f519000000b0069c29e0f740mr14135823qkk.652.1650493529925;
+        Wed, 20 Apr 2022 15:25:29 -0700 (PDT)
+Received: from localhost ([2601:c4:c432:60a:188a:94a5:4e52:4f76])
+        by smtp.gmail.com with ESMTPSA id d18-20020a05622a05d200b002f07ed88a54sm2806618qtb.46.2022.04.20.15.25.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 20 Apr 2022 15:25:29 -0700 (PDT)
+From:   Yury Norov <yury.norov@gmail.com>
+To:     linux-kernel@vger.kernel.org,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Yury Norov <yury.norov@gmail.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+Subject: [PATCH 0/4] bitmap: fix conversion from/to fix-sized arrays
+Date:   Wed, 20 Apr 2022 15:25:26 -0700
+Message-Id: <20220420222530.910125-1-yury.norov@gmail.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH v8 1/2] s390x: KVM: guest support for topology function
-Content-Language: en-US
-To:     Heiko Carstens <hca@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, borntraeger@de.ibm.com,
-        frankja@linux.ibm.com, cohuck@redhat.com, david@redhat.com,
-        thuth@redhat.com, gor@linux.ibm.com, wintera@linux.ibm.com,
-        seiden@linux.ibm.com, nrb@linux.ibm.com
-References: <20220420113430.11876-1-pmorel@linux.ibm.com>
- <20220420113430.11876-2-pmorel@linux.ibm.com> <Yl/27Pz3pvARmIHn@osiris>
- <20220420152241.4d9edea5@p-imbrenda> <YmBQD278Uje6LXly@osiris>
-From:   Pierre Morel <pmorel@linux.ibm.com>
-In-Reply-To: <YmBQD278Uje6LXly@osiris>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ZJGkMvZsEyfo3ix1oIK8_z86EX-ifIzI
-X-Proofpoint-ORIG-GUID: srIcHPuc9MrrVLHMZDhEhNhPEnhdWzZf
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-04-20_05,2022-04-20_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- impostorscore=0 malwarescore=0 phishscore=0 clxscore=1015 bulkscore=0
- spamscore=0 adultscore=0 mlxlogscore=999 mlxscore=0 suspectscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2204200107
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+In the kernel codebase we have functions that call bitmap_copy()
+to convert bitmaps to and from fix-sized 32 or 64-bit arrays. It
+works well for LE architectures when size of long is equal to the
+size of fixed type.
 
+If the system is BE and/or size of long is not equal to the size of
+fixed type of the array, bitmap_copy() may produce wrong result either
+because of endianness issue, or because of out-of-bound access.
 
-On 4/20/22 20:25, Heiko Carstens wrote:
-> On Wed, Apr 20, 2022 at 03:22:41PM +0200, Claudio Imbrenda wrote:
->> On Wed, 20 Apr 2022 14:05:00 +0200
->> Heiko Carstens <hca@linux.ibm.com> wrote:
->>
->>>> +static inline bool kvm_s390_topology_changed(struct kvm_vcpu *vcpu)
->>>> +{
->>>> +	if (!test_kvm_facility(vcpu->kvm, 11))
->>>> +		return false;
->>>> +
->>>> +	/* A new vCPU has been hotplugged */
->>>> +	if (vcpu->arch.prev_cpu == S390_KVM_TOPOLOGY_NEW_CPU)
->>>> +		return true;
->>>> +
->>>> +	/* The real CPU backing up the vCPU moved to another socket */
->>>> +	if (cpumask_test_cpu(vcpu->cpu,
->>>> +			     topology_core_cpumask(vcpu->arch.prev_cpu)))
->>>> +		return true;
->>>> +
->>>> +	return false;
->>>> +}
->>>
->>> This seems to be wrong. I'd guess that you need
->>>
->>> 	if (cpumask_test_cpu(vcpu->cpu,
->>> 			     topology_core_cpumask(vcpu->arch.prev_cpu)))
->>> -->		return false;
->>> -->	return true;
->>
->> so if the CPU moved to a different socket, it's not a change?
->> and if nothing happened, it is a change?
-> 
-> How do you translate the above code to your statement?
-> 
+To address this problem we already have bitmap_{from,to}_arr32().
+In recent discussion it was spotted that we also need 64-bit
+analogue of it:
+https://lore.kernel.org/all/YiCWNdWd+AsLbDkp@smile.fi.intel.com/T/#m754da92acb0003e12b99293d07ddcd46dbe04ada
 
-Take care that the comment is also wrong.
-I will of course change it too.
+This series takes care of it.
+
+Yury Norov (4):
+  lib/bitmap: extend comment for bitmap_(from,to)_arr32()
+  lib: add bitmap_{from,to}_arr64
+  KVM: s390: replace bitmap_copy with bitmap_{from,to}_arr64 where
+    appropriate
+  drm/amd/pm: use bitmap_{from,to}_arr32 where appropriate
+
+ arch/s390/kvm/kvm-s390.c                      | 10 ++--
+ .../gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c    |  2 +-
+ .../gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c    |  2 +-
+ include/linux/bitmap.h                        | 31 +++++++++---
+ lib/bitmap.c                                  | 47 +++++++++++++++++++
+ 5 files changed, 77 insertions(+), 15 deletions(-)
 
 -- 
-Pierre Morel
-IBM Lab Boeblingen
+2.32.0
+
