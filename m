@@ -2,155 +2,423 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DF3CC433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 20 Apr 2022 17:14:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C10BC433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 20 Apr 2022 18:15:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380992AbiDTRRG (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 20 Apr 2022 13:17:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33796 "EHLO
+        id S1350762AbiDTSRr (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 20 Apr 2022 14:17:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380948AbiDTRRE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Apr 2022 13:17:04 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 098D8457A9;
-        Wed, 20 Apr 2022 10:14:18 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 53D461F380;
-        Wed, 20 Apr 2022 17:14:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1650474856; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=cCyVaEehkrahTF4ZZE0t6pBOtUmw5LLz8/1wxeHDxX4=;
-        b=K7U7yAPVtWoeKBCvI9IM0SUrBd3SuNQlXwbO69YYMvu/uQgJCBHLxvJUvYDJUM+CzMgGQE
-        RVSlZxkoXhp1TqU71hUtulLocxn+2wyVtaobkUyEwzAopoea+zPD+x5OcZ/P14F7mUWQ0X
-        9jy/5tEGm6a4qWbujDTO1fyNpFdYlOg=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1650474856;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=cCyVaEehkrahTF4ZZE0t6pBOtUmw5LLz8/1wxeHDxX4=;
-        b=NwzWMKJRWqBiYsMEpHY2LSE0kR5L5AsWQDr46B/AzDDh+7ae+1bOHK7cbVF3M3crtt+AoJ
-        6QSH0t6rY1IUvWBg==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 9E94C13A30;
-        Wed, 20 Apr 2022 17:14:15 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id cLLMJWc/YGJFYAAAMHmgww
-        (envelope-from <vbabka@suse.cz>); Wed, 20 Apr 2022 17:14:15 +0000
-Message-ID: <e1b61853-143a-3691-2e6d-4fea5c049562@suse.cz>
-Date:   Wed, 20 Apr 2022 19:14:15 +0200
+        with ESMTP id S1381451AbiDTSRk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Apr 2022 14:17:40 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48335CCE;
+        Wed, 20 Apr 2022 11:14:51 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23KHkq5Z006711;
+        Wed, 20 Apr 2022 18:14:50 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=VrULSZDwQcqW2v9J2Ht5Th8h1TMcPcpzg0ef6YMWGp0=;
+ b=NbnfSg6wI/2aBpu7LzGrm1aFDhwsfWwvNec7BKMvbw5vxKN9kj7pYAKJ+n5GkjRTRaQy
+ XoEpr+13faKm1TL3jrFEypvTwXgcLB0obt/TaWootx2TW/SMphKWx8OMoyChFFtUvqlB
+ vNUSbjFXG04sxm0W0qfUPzvlroI5pTUEz1ME/X0UQ8xw3Zri60weaYDrjiy6WdeuWSLK
+ Wxe/YrCSRRmY/gV2M3PRp31KB45VGmGyD9cisgYEO9LRyHQHVGSGXs7MeYhtdWElL3ls
+ nNuekM5jxM+eRHXoHwvtqRUlCRnj97oNV/ljnP+EeV8XvxeOOkIYPyFN4GdCOMA9uKTW nw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fjhsxrgny-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 20 Apr 2022 18:14:50 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23KHoXcx027396;
+        Wed, 20 Apr 2022 18:14:49 GMT
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fjhsxrgna-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 20 Apr 2022 18:14:49 +0000
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23KIDn9g015342;
+        Wed, 20 Apr 2022 18:14:47 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma02fra.de.ibm.com with ESMTP id 3fgu6u3rm3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 20 Apr 2022 18:14:46 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23KIEskm8454846
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 20 Apr 2022 18:14:54 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 75FABAE045;
+        Wed, 20 Apr 2022 18:14:43 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 43F43AE04D;
+        Wed, 20 Apr 2022 18:14:42 +0000 (GMT)
+Received: from [9.171.15.220] (unknown [9.171.15.220])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 20 Apr 2022 18:14:42 +0000 (GMT)
+Message-ID: <e46c1ff0-9afb-ee8b-0104-92a04b385081@linux.ibm.com>
+Date:   Wed, 20 Apr 2022 20:18:00 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH v2 2/8] mm/debug_vm_pgtable: add tests for
- __HAVE_ARCH_PTE_SWP_EXCLUSIVE
+ Thunderbird/91.3.0
+Subject: Re: [PATCH v5 19/21] KVM: s390: add KVM_S390_ZPCI_OP to manage guest
+ zPCI devices
 Content-Language: en-US
-To:     David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Hugh Dickins <hughd@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        David Rientjes <rientjes@google.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Yang Shi <shy828301@gmail.com>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Jann Horn <jannh@google.com>, Michal Hocko <mhocko@kernel.org>,
-        Nadav Amit <namit@vmware.com>, Rik van Riel <riel@surriel.com>,
-        Roman Gushchin <guro@fb.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Peter Xu <peterx@redhat.com>,
-        Donald Dutile <ddutile@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Oleg Nesterov <oleg@redhat.com>, Jan Kara <jack@suse.cz>,
-        Liang Zhang <zhangliang5@huawei.com>,
-        Pedro Gomes <pedrodemargomes@gmail.com>,
-        Oded Gabbay <oded.gabbay@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        linux-mm@kvack.org, x86@kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
-References: <20220329164329.208407-1-david@redhat.com>
- <20220329164329.208407-3-david@redhat.com>
-From:   Vlastimil Babka <vbabka@suse.cz>
-In-Reply-To: <20220329164329.208407-3-david@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
+        schnelle@linux.ibm.com, farman@linux.ibm.com,
+        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
+        imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
+        oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, pbonzini@redhat.com, corbet@lwn.net,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-doc@vger.kernel.org
+References: <20220404174349.58530-1-mjrosato@linux.ibm.com>
+ <20220404174349.58530-20-mjrosato@linux.ibm.com>
+ <de630458-f48a-1b97-2bd3-53284c7d2a5e@linux.ibm.com>
+ <754b4f2e-00ba-07b0-b848-29b714c9d3b3@linux.ibm.com>
+From:   Pierre Morel <pmorel@linux.ibm.com>
+In-Reply-To: <754b4f2e-00ba-07b0-b848-29b714c9d3b3@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 1OR0lOB1IdbY4op7401JCN90_48R4y_O
+X-Proofpoint-GUID: 2i52rYo9NEuh7zBfFZj83QR4ZXiBxH3n
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-04-20_05,2022-04-20_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 clxscore=1015
+ lowpriorityscore=0 adultscore=0 mlxlogscore=999 priorityscore=1501
+ spamscore=0 phishscore=0 bulkscore=0 suspectscore=0 impostorscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2204200107
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 3/29/22 18:43, David Hildenbrand wrote:
-> Let's test that __HAVE_ARCH_PTE_SWP_EXCLUSIVE works as expected.
+
+
+On 4/20/22 16:10, Matthew Rosato wrote:
+> On 4/19/22 6:07 AM, Pierre Morel wrote:
+>>
+>>
+>> On 4/4/22 19:43, Matthew Rosato wrote:
+>>> The KVM_S390_ZPCI_OP ioctl provides a mechanism for managing
+>>> hardware-assisted virtualization features for s390X zPCI passthrough.
+>>> Add the first 2 operations, which can be used to enable/disable
+>>> the specified device for Adapter Event Notification interpretation.
+>>>
+>>> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+>>> ---
+>>>   Documentation/virt/kvm/api.rst | 45 +++++++++++++++++++++++
+>>>   arch/s390/kvm/kvm-s390.c       | 23 ++++++++++++
+>>>   arch/s390/kvm/pci.c            | 65 ++++++++++++++++++++++++++++++++++
+>>>   arch/s390/kvm/pci.h            |  2 ++
+>>>   include/uapi/linux/kvm.h       | 31 ++++++++++++++++
+>>>   5 files changed, 166 insertions(+)
+>>>
+>>> diff --git a/Documentation/virt/kvm/api.rst 
+>>> b/Documentation/virt/kvm/api.rst
+>>> index d13fa6600467..474f502c2ea0 100644
+>>> --- a/Documentation/virt/kvm/api.rst
+>>> +++ b/Documentation/virt/kvm/api.rst
+>>> @@ -5645,6 +5645,51 @@ enabled with ``arch_prctl()``, but this may 
+>>> change in the future.
+>>>   The offsets of the state save areas in struct kvm_xsave follow the 
+>>> contents
+>>>   of CPUID leaf 0xD on the host.
+>>> +4.135 KVM_S390_ZPCI_OP
+>>> +--------------------
+>>> +
+>>> +:Capability: KVM_CAP_S390_ZPCI_OP
+>>> +:Architectures: s390
+>>> +:Type: vcpu ioctl
+>>> +:Parameters: struct kvm_s390_zpci_op (in)
+>>> +:Returns: 0 on success, <0 on error
+>>> +
+>>> +Used to manage hardware-assisted virtualization features for zPCI 
+>>> devices.
+>>> +
+>>> +Parameters are specified via the following structure::
+>>> +
+>>> +  struct kvm_s390_zpci_op {
+>>> +    /* in */
+>>> +    __u32 fh;        /* target device */
+>>> +    __u8  op;        /* operation to perform */
+>>> +    __u8  pad[3];
+>>> +    union {
+>>> +        /* for KVM_S390_ZPCIOP_REG_AEN */
+>>> +        struct {
+>>> +            __u64 ibv;    /* Guest addr of interrupt bit vector */
+>>> +            __u64 sb;    /* Guest addr of summary bit */
+>>> +            __u32 flags;
+>>> +            __u32 noi;    /* Number of interrupts */
+>>> +            __u8 isc;    /* Guest interrupt subclass */
+>>> +            __u8 sbo;    /* Offset of guest summary bit vector */
+>>> +            __u16 pad;
+>>> +        } reg_aen;
+>>> +        __u64 reserved[8];
+>>> +    } u;
+>>> +  };
+>>> +
+>>> +The type of operation is specified in the "op" field.
+>>> +KVM_S390_ZPCIOP_REG_AEN is used to register the VM for adapter event
+>>> +notification interpretation, which will allow firmware delivery of 
+>>> adapter
+>>> +events directly to the vm, with KVM providing a backup delivery 
+>>> mechanism;
+>>> +KVM_S390_ZPCIOP_DEREG_AEN is used to subsequently disable 
+>>> interpretation of
+>>> +adapter event notifications.
+>>> +
+>>> +The target zPCI function must also be specified via the "fh" field. 
+>>> For the
+>>> +KVM_S390_ZPCIOP_REG_AEN operation, additional information to 
+>>> establish firmware
+>>> +delivery must be provided via the "reg_aen" struct.
+>>> +
+>>> +The "reserved" field is meant for future extensions.
+>>>   5. The kvm_run structure
+>>>   ========================
+>>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>>> index 704d85214f4f..65a53e22f686 100644
+>>> --- a/arch/s390/kvm/kvm-s390.c
+>>> +++ b/arch/s390/kvm/kvm-s390.c
+>>> @@ -616,6 +616,12 @@ int kvm_vm_ioctl_check_extension(struct kvm 
+>>> *kvm, long ext)
+>>>       case KVM_CAP_S390_PROTECTED:
+>>>           r = is_prot_virt_host();
+>>>           break;
+>>> +    case KVM_CAP_S390_ZPCI_OP:
+>>> +        if (kvm_s390_pci_interp_allowed())
+>>> +            r = 1;
+>>> +        else
+>>> +            r = 0;
+>>> +        break;
+>>>       default:
+>>>           r = 0;
+>>>       }
+>>> @@ -2621,6 +2627,23 @@ long kvm_arch_vm_ioctl(struct file *filp,
+>>>               r = -EFAULT;
+>>>           break;
+>>>       }
+>>> +    case KVM_S390_ZPCI_OP: {
+>>> +        struct kvm_s390_zpci_op args;
+>>> +
+>>> +        r = -EINVAL;
+>>> +        if (!IS_ENABLED(CONFIG_VFIO_PCI))
+>>> +            break;
+>>> +        if (copy_from_user(&args, argp, sizeof(args))) {
+>>> +            r = -EFAULT;
+>>> +            break;
+>>> +        }
+>>> +        r = kvm_s390_pci_zpci_op(kvm, &args);
+>>> +        if (r)
+>>> +            break;
+>>> +        if (copy_to_user(argp, &args, sizeof(args)))
+>>> +            r = -EFAULT;
+>>> +        break;
+>>> +    }
+>>>       default:
+>>>           r = -ENOTTY;
+>>>       }
+>>> diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
+>>> index 66565f5f3f43..d941657bcb39 100644
+>>> --- a/arch/s390/kvm/pci.c
+>>> +++ b/arch/s390/kvm/pci.c
+>>> @@ -588,6 +588,71 @@ void kvm_s390_pci_clear_list(struct kvm *kvm)
+>>>           unregister_kvm(kzdev->zdev);
+>>>   }
+>>> +static struct kvm_zdev *get_kzdev_by_fh(struct kvm *kvm, u32 fh)
+>>> +{
+>>> +    struct kvm_zdev *kzdev, *retval = NULL;
+>>> +
+>>> +    spin_lock(&kvm->arch.kzdev_list_lock);
+>>> +    list_for_each_entry(kzdev, &kvm->arch.kzdev_list, entry) {
+>>> +        if (kzdev->zdev->fh == fh) {
+>>> +            retval = kzdev;
+>>> +            break;
+>>> +        }
+>>> +    }
+>>> +    spin_unlock(&kvm->arch.kzdev_list_lock);
+>>> +
+>>> +    return retval;
+>>> +}
+>>> +
+>>> +static int kvm_s390_pci_zpci_reg_aen(struct zpci_dev *zdev,
+>>> +                     struct kvm_s390_zpci_op *args)
+>>> +{
+>>> +    struct zpci_fib fib = {};
+>>> +
+>>> +    fib.fmt0.aibv = args->u.reg_aen.ibv;
+>>> +    fib.fmt0.isc = args->u.reg_aen.isc;
+>>> +    fib.fmt0.noi = args->u.reg_aen.noi;
+>>> +    if (args->u.reg_aen.sb != 0) {
+>>> +        fib.fmt0.aisb = args->u.reg_aen.sb;
+>>> +        fib.fmt0.aisbo = args->u.reg_aen.sbo;
+>>> +        fib.fmt0.sum = 1;
+>>> +    } else {
+>>> +        fib.fmt0.aisb = 0;
+>>> +        fib.fmt0.aisbo = 0;
+>>> +        fib.fmt0.sum = 0;
+>>> +    }
+>>> +
+>>> +    if (args->u.reg_aen.flags & KVM_S390_ZPCIOP_REGAEN_HOST)
+>>> +        return kvm_s390_pci_aif_enable(zdev, &fib, true);
+>>> +    else
+>>> +        return kvm_s390_pci_aif_enable(zdev, &fib, false);
+>>> +}
+>>> +
+>>> +int kvm_s390_pci_zpci_op(struct kvm *kvm, struct kvm_s390_zpci_op 
+>>> *args)
+>>> +{
+>>> +    struct kvm_zdev *kzdev;
+>>> +    struct zpci_dev *zdev;
+>>> +    int r;
+>>> +
+>>> +    kzdev = get_kzdev_by_fh(kvm, args->fh);
+>>> +    if (!kzdev)
+>>> +        return -ENODEV;
+>>> +    zdev = kzdev->zdev;
+>>> +
+>>> +    switch (args->op) {
+>>> +    case KVM_S390_ZPCIOP_REG_AEN:
+>>> +        r = kvm_s390_pci_zpci_reg_aen(zdev, args);
+>>> +        break;
+>>> +    case KVM_S390_ZPCIOP_DEREG_AEN:
+>>> +        r = kvm_s390_pci_aif_disable(zdev, false);
+>>> +        break;
+>>> +    default:
+>>> +        r = -EINVAL;
+>>> +    }
+>>> +
+>>> +    return r;
+>>> +}
+>>> +
+>>>   int kvm_s390_pci_init(void)
+>>>   {
+>>>       aift = kzalloc(sizeof(struct zpci_aift), GFP_KERNEL);
+>>> diff --git a/arch/s390/kvm/pci.h b/arch/s390/kvm/pci.h
+>>> index cb5ec3208923..b053b50c0904 100644
+>>> --- a/arch/s390/kvm/pci.h
+>>> +++ b/arch/s390/kvm/pci.h
+>>> @@ -59,6 +59,8 @@ void kvm_s390_pci_aen_exit(void);
+>>>   void kvm_s390_pci_init_list(struct kvm *kvm);
+>>>   void kvm_s390_pci_clear_list(struct kvm *kvm);
+>>> +int kvm_s390_pci_zpci_op(struct kvm *kvm, struct kvm_s390_zpci_op 
+>>> *args);
+>>> +
+>>>   int kvm_s390_pci_init(void);
+>>>   static inline bool kvm_s390_pci_interp_allowed(void)
+>>> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+>>> index 91a6fe4e02c0..014adb30d42c 100644
+>>> --- a/include/uapi/linux/kvm.h
+>>> +++ b/include/uapi/linux/kvm.h
+>>> @@ -1144,6 +1144,7 @@ struct kvm_ppc_resize_hpt {
+>>>   #define KVM_CAP_S390_MEM_OP_EXTENSION 211
+>>>   #define KVM_CAP_PMU_CAPABILITY 212
+>>>   #define KVM_CAP_DISABLE_QUIRKS2 213
+>>> +#define KVM_CAP_S390_ZPCI_OP 214
+>>>   #ifdef KVM_CAP_IRQ_ROUTING
+>>> @@ -2060,4 +2061,34 @@ struct kvm_stats_desc {
+>>>   /* Available with KVM_CAP_XSAVE2 */
+>>>   #define KVM_GET_XSAVE2          _IOR(KVMIO,  0xcf, struct kvm_xsave)
+>>> +/* Available with KVM_CAP_S390_ZPCI_OP */
+>>> +#define KVM_S390_ZPCI_OP      _IOW(KVMIO,  0xd0, struct 
+>>> kvm_s390_zpci_op)
+>>> +
+>>> +struct kvm_s390_zpci_op {
+>>> +    /* in */
+>>> +    __u32 fh;        /* target device */
+>>> +    __u8  op;        /* operation to perform */
+>>> +    __u8  pad[3];
+>>> +    union {
+>>> +        /* for KVM_S390_ZPCIOP_REG_AEN */
+>>> +        struct {
+>>> +            __u64 ibv;    /* Guest addr of interrupt bit vector */
+>>> +            __u64 sb;    /* Guest addr of summary bit */
+>>> +            __u32 flags;
+>>> +            __u32 noi;    /* Number of interrupts */
+>>> +            __u8 isc;    /* Guest interrupt subclass */
+>>> +            __u8 sbo;    /* Offset of guest summary bit vector */
+>>> +            __u16 pad;
+>>> +        } reg_aen;
+>>> +        __u64 reserved[8];
+>>> +    } u;
+>>> +};
+>>> +
+>>> +/* types for kvm_s390_zpci_op->op */
+>>> +#define KVM_S390_ZPCIOP_REG_AEN        0
+>>> +#define KVM_S390_ZPCIOP_DEREG_AEN    1
+>>> +
+>>> +/* flags for kvm_s390_zpci_op->u.reg_aen.flags */
+>>> +#define KVM_S390_ZPCIOP_REGAEN_HOST    (1 << 0)
+>>> +
+>>>   #endif /* __LINUX_KVM_H */
+>>>
+>>
+>>
+>> The purpose is to setup the IRQ for the zPCI device wouldn't it be 
+>> more logical to go through VFIO_DEVICE_SET_IRQS and there jump to the 
+>> zPCI handling, like it is done for the capabilities, instead to go 
+>> directly through KVM?
+>> We would also spare the research for the real FH in KVM.
+>>
 > 
-> Signed-off-by: David Hildenbrand <david@redhat.com>
+> We need the host FH anyway -- for load/store intepretation, the guest 
+> must be using the FH that the firmware expects.  Plus we need that FH 
+> when issuing the MPCIFC op 2.  I guess maybe you mean the lookup (get 
+> the exact device associated with this fd vs scanning the list of PCI 
+> devices associated with this KVM).
 
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Obvious ly we need to get the real FH, yes, and yes I was speaking of 
+scanning the list-pci but t is not the main idea.
+The main idea is that going through the VFIO device ioctl seems to me 
+the right way to go to handle IRQ for a device.
 
-> ---
->  mm/debug_vm_pgtable.c | 15 +++++++++++++++
->  1 file changed, 15 insertions(+)
+One can argue that it is not really PCI specific.
+Right but we have no possibility to intercept it inside the vfio code.
+
+unless we add some arch specific hook in vfio_device_fops_unl_ioctl().
+
 > 
-> diff --git a/mm/debug_vm_pgtable.c b/mm/debug_vm_pgtable.c
-> index db2abd9e415b..55f1a8dc716f 100644
-> --- a/mm/debug_vm_pgtable.c
-> +++ b/mm/debug_vm_pgtable.c
-> @@ -837,6 +837,19 @@ static void __init pmd_soft_dirty_tests(struct pgtable_debug_args *args) { }
->  static void __init pmd_swap_soft_dirty_tests(struct pgtable_debug_args *args) { }
->  #endif /* CONFIG_TRANSPARENT_HUGEPAGE */
->  
-> +static void __init pte_swap_exclusive_tests(struct pgtable_debug_args *args)
-> +{
-> +#ifdef __HAVE_ARCH_PTE_SWP_EXCLUSIVE
-> +	pte_t pte = pfn_pte(args->fixed_pte_pfn, args->page_prot);
-> +
-> +	pr_debug("Validating PTE swap exclusive\n");
-> +	pte = pte_swp_mkexclusive(pte);
-> +	WARN_ON(!pte_swp_exclusive(pte));
+> One of the issues here is that, with load/store interpretation enabled, 
+> vfio in QEMU will never get the config space notifiers triggered; these 
+> are the things that end up calling vfio_enable_vectors() which will in 
+> turn issue the VFIO_DEVICE_SET_IRQS (instead these guest config space 
+> writes are executed interpretively)
 
-I guess only this WARN_ON must be guarded by the #ifdef, but doesn't matter
-that much - won't gain significantly more test coverage.
+What I mean is to add in vfio_pci_core_ioctl() a treatment for 
+VFIO_DEVICE_SET_IRQS like you did for VFIO_DEVICE_GET_INFO with a 
+specific operation or flag to call kvm_s390_pci_zpci_reg_aen().
 
-> +	pte = pte_swp_clear_exclusive(pte);
-> +	WARN_ON(pte_swp_exclusive(pte));
-> +#endif /* __HAVE_ARCH_PTE_SWP_EXCLUSIVE */
-> +}
-> +
->  static void __init pte_swap_tests(struct pgtable_debug_args *args)
->  {
->  	swp_entry_t swp;
-> @@ -1288,6 +1301,8 @@ static int __init debug_vm_pgtable(void)
->  	pte_swap_soft_dirty_tests(&args);
->  	pmd_swap_soft_dirty_tests(&args);
->  
-> +	pte_swap_exclusive_tests(&args);
-> +
->  	pte_swap_tests(&args);
->  	pmd_swap_tests(&args);
->  
+Then, in QEMU we add a new call to VFIO_DEVICE_SET_IRQS with this 
+special operation/flag in s390_pci_kvm_aif_enable() / disable
 
+
+> 
+> I did play around with this for a while, but if we were to call 
+> VFIO_DEVICE_SET_IRQS ourselves from QEMU s390-pci instead of relying on 
+> the config space notifier, we still have the issue of associating the 
+> previously-established routes with the host function - because at the 
+> end of it we need to issue a MPCIFC(2) specifying the host FH and 
+> including the forwarding information (e.g. the work done in 
+> kvm_s390_pci_aif_enable).  AFAICT today we can't derive the FH from 
+> routes, that's where I got stuck.  But if you have an idea please share.
+
+As I said no change about getting the FH, so no change for the MPCIFC(2)
+
+Anyway, it touches VFIO and/or VFIO_PCI so @alex do you think it is 
+interesting?
+Knowing that the current version works it could also be done later.
+
+Regards,
+Pierre
+
+
+-- 
+Pierre Morel
+IBM Lab Boeblingen
