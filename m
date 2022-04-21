@@ -2,119 +2,117 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 598FEC433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 21 Apr 2022 11:43:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C0A49C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 21 Apr 2022 11:59:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353068AbiDULqA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 21 Apr 2022 07:46:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37382 "EHLO
+        id S1382662AbiDUMCD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 21 Apr 2022 08:02:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231417AbiDULqA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Apr 2022 07:46:00 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 073E124970;
-        Thu, 21 Apr 2022 04:43:11 -0700 (PDT)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23LApW8b015963;
-        Thu, 21 Apr 2022 11:43:08 GMT
+        with ESMTP id S240811AbiDUMCC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Apr 2022 08:02:02 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C1E32ED4D;
+        Thu, 21 Apr 2022 04:59:13 -0700 (PDT)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23L9Cuoo004921;
+        Thu, 21 Apr 2022 11:59:12 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=TzGKmzTfoWC4Y0zsxNAxppY+uyfM7GYUC04vAB1rd30=;
- b=cE9hS4wMOxRbC2rkgBNrghCrP6JTr+0QCWugGBQ3P8Ri1UHZ50mtdWL7moM3xOH9TXAi
- bsJMV5BoFUjPjCKb3lASWgN8QzTU+icrxwugEPdpAadxV+PfRVIJPRKoSUFFx6o7SOCw
- 7MNZEP6ox44b6xHhkLh2t8uQWTmHgvErlLbRnkSIruF90RCp8ymd26EraCJOa+eZgc4O
- ktZ8FVFe/bKgaEkMheIQIs6OePNa0u13CqR2R3vpeVvoXP4JztAxhp17JXJJtYdWCPU7
- lxsCUm0twu6T9r9/HxL4Pk8unu8EnGdyZUdXmT/7Sc6bQ4jANqfDsHNnWCaqy1+qVRq1 UQ== 
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=UfM4SajG/EAi4X1WZrdGARqPQdG3u1TBkxrT33iA3v4=;
+ b=J8FFjEHrvjDGDaQE0rG0WqGC02sNSd3rt/CMCae2zyzDI9nJm/ekgUJ/yRsUQpxWld5L
+ 6EZv/9mEl3x4Q0mQMG/omtFbJmPfGvzvXwo5jbiESaCnrQYyA/9LaOfJg9oLH/1eY5QH
+ PEWYTngjkLwqU6FD+kVThDSsz3m2WSVwLICD6Utphj+n5tBqZhJwo08QY7cku7HvmGnU
+ 2zqo8I+OMHeuBYQPWSZQXJZkPXUuUtmAq6NvrRMuWXSkCpSFj9tpeFhkfa+qTrAviF8K
+ tdHYp0WnhL8KvM2PuSaL921MYKa/ncl+Rn1ORyBViA8Tq1U/jsw4yixPSgqCN2WEi/Tm RA== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3fjm2hwra9-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3fjjhfrj10-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 21 Apr 2022 11:43:07 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23LBfaa8019440;
-        Thu, 21 Apr 2022 11:43:07 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3fjm2hwr9u-1
+        Thu, 21 Apr 2022 11:59:12 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23LBQ8uO027927;
+        Thu, 21 Apr 2022 11:59:12 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3fjjhfrj0h-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 21 Apr 2022 11:43:07 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23LBdM2J010792;
-        Thu, 21 Apr 2022 11:43:04 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma03fra.de.ibm.com with ESMTP id 3ffne9661e-1
+        Thu, 21 Apr 2022 11:59:11 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23LBq96q016093;
+        Thu, 21 Apr 2022 11:59:10 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03ams.nl.ibm.com with ESMTP id 3ffne8qsx4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 21 Apr 2022 11:43:04 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23LBhCGh36176138
+        Thu, 21 Apr 2022 11:59:09 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23LBx6g043581742
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 21 Apr 2022 11:43:12 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D2215A405B;
-        Thu, 21 Apr 2022 11:43:00 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 769F9A4054;
-        Thu, 21 Apr 2022 11:43:00 +0000 (GMT)
-Received: from osiris (unknown [9.145.171.214])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Thu, 21 Apr 2022 11:43:00 +0000 (GMT)
-Date:   Thu, 21 Apr 2022 13:42:59 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Pingfan Liu <kernelfans@gmail.com>
-Cc:     linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 4/9] s390/irq: utilize RCU instead of irq_lock_sparse()
- in show_msi_interrupt()
-Message-ID: <YmFDQ0wH+Y15bKX0@osiris>
-References: <20220420140521.45361-1-kernelfans@gmail.com>
- <20220420140521.45361-5-kernelfans@gmail.com>
- <YmBOBRMWlk4H11sc@osiris>
- <YmDRMUUzBq6uyIzj@piliu.users.ipa.redhat.com>
+        Thu, 21 Apr 2022 11:59:06 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BDDEEA4051;
+        Thu, 21 Apr 2022 11:59:06 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4CB0CA404D;
+        Thu, 21 Apr 2022 11:59:06 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.145.10.176])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 21 Apr 2022 11:59:06 +0000 (GMT)
+Date:   Thu, 21 Apr 2022 13:59:04 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com,
+        thuth@redhat.com, seiden@linux.ibm.com, nrb@linux.ibm.com
+Subject: Re: [kvm-unit-tests PATCH v3 11/11] s390x: Restore registers in
+ diag308_load_reset() error path
+Message-ID: <20220421135904.6ac14c7e@p-imbrenda>
+In-Reply-To: <20220421101130.23107-12-frankja@linux.ibm.com>
+References: <20220421101130.23107-1-frankja@linux.ibm.com>
+        <20220421101130.23107-12-frankja@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YmDRMUUzBq6uyIzj@piliu.users.ipa.redhat.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 3F7MHwimN9XDr0Fjcvlxl_oqztMIHWGt
-X-Proofpoint-ORIG-GUID: 56pkuxdQk7Sa1pIH7iXTODD4VGEdVR9Z
+X-Proofpoint-ORIG-GUID: KutmVzuGsuuGrQ_HoP-BMmJRJl_NxHfT
+X-Proofpoint-GUID: a6aO3cQnMh_h0XvTr5HO7wX9cse_tqig
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-04-20_06,2022-04-21_01,2022-02-23_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- impostorscore=0 clxscore=1015 lowpriorityscore=0 adultscore=0
- suspectscore=0 mlxlogscore=598 spamscore=0 bulkscore=0 phishscore=0
- malwarescore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ phishscore=0 mlxscore=0 impostorscore=0 suspectscore=0 clxscore=1015
+ malwarescore=0 spamscore=0 mlxlogscore=999 lowpriorityscore=0 adultscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2202240000 definitions=main-2204210064
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Apr 21, 2022 at 11:36:17AM +0800, Pingfan Liu wrote:
-> Oops. You are right. What about using rcu_read_lock() directly?
-> 
-> 
-> diff --git a/arch/s390/kernel/irq.c b/arch/s390/kernel/irq.c
-> index 3033f616e256..45393919fe61 100644
-> --- a/arch/s390/kernel/irq.c
-> +++ b/arch/s390/kernel/irq.c
-> @@ -205,7 +205,7 @@ static void show_msi_interrupt(struct seq_file *p, int irq)
->  	unsigned long flags;
->  	int cpu;
->  
-> -	irq_lock_sparse();
-> +	rcu_read_lock();
->  	desc = irq_to_desc(irq);
->  	if (!desc)
->  		goto out;
-> @@ -224,7 +224,7 @@ static void show_msi_interrupt(struct seq_file *p, int irq)
->  	seq_putc(p, '\n');
->  	raw_spin_unlock_irqrestore(&desc->lock, flags);
->  out:
-> -	irq_unlock_sparse();
-> +	rcu_read_unlock();
+On Thu, 21 Apr 2022 10:11:30 +0000
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-That looks like it should work. Please resend and also add a reference
-to commit 74bdf7815dfb ("genirq: Speedup show_interrupts()") which
-explains why this works.
+> In case of an error we'll currently return with the wrong values in
+> gr0 and gr1. Let's fix that by restoring the registers before setting
+> the return value and branching to the return address.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+
+> ---
+>  s390x/cpu.S | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/s390x/cpu.S b/s390x/cpu.S
+> index 82b5e25d..0bd8c0e3 100644
+> --- a/s390x/cpu.S
+> +++ b/s390x/cpu.S
+> @@ -34,6 +34,7 @@ diag308_load_reset:
+>  	stg     %r15, GEN_LC_SW_INT_GRS + 15 * 8
+>  	/* Do the reset */
+>  	diag    %r0,%r2,0x308
+> +	RESTORE_REGS_STACK
+>  	/* Failure path */
+>  	xgr	%r2, %r2
+>  	br	%r14
+
