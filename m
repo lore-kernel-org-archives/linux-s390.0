@@ -2,110 +2,211 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D3824C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 21 Apr 2022 07:24:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0546FC433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 21 Apr 2022 07:40:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385719AbiDUH1T (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 21 Apr 2022 03:27:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47248 "EHLO
+        id S1385954AbiDUHn2 convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 21 Apr 2022 03:43:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385716AbiDUH1T (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Apr 2022 03:27:19 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2433B183A1
-        for <linux-s390@vger.kernel.org>; Thu, 21 Apr 2022 00:24:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1650525867;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Ueojm38snUDgcNkd8GnzNsJGz3O6fhwaTuAkVszcmuo=;
-        b=NFX49FIfuJj38zcz16yV4P/6aSjoTusGBllY1/OEwfb0RwP6Qy82hMDY4GJt1RhlIRlng4
-        HKyWz9W23Agso2rWzeewUhHR6zJsjPew0fyyvGsYNREMpWmbH/ip26keS6BZPR1Lk+mMZh
-        LATtvf2rgZq1sEaQV54puq9cg6VSJjs=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-627-XudUrJcANnK11a-YsHWfHw-1; Thu, 21 Apr 2022 03:24:26 -0400
-X-MC-Unique: XudUrJcANnK11a-YsHWfHw-1
-Received: by mail-wm1-f69.google.com with SMTP id r9-20020a1c4409000000b0038ff033b654so2012703wma.0
-        for <linux-s390@vger.kernel.org>; Thu, 21 Apr 2022 00:24:25 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:references:from:organization:in-reply-to
-         :content-transfer-encoding;
-        bh=Ueojm38snUDgcNkd8GnzNsJGz3O6fhwaTuAkVszcmuo=;
-        b=hFRdh8tCuk/1mgK0lhiVj03CPSN31OABQVFsja/cUjbVWMPDNtCMJOVeEwoXiq9pQv
-         RR96O53ut2zugL5brhMt3FqGYPd20KyCO7IrkmfDxNjfN9jpwUSKla6sdXK9s0wGcZxm
-         +6Fl8gsx0TCA8XETOdoSPN14p41jFQtWYUGWiPk2H4K+aF7EpSknEvLaod7ngCDdXV1S
-         8HiCLouR3Fjh8ReuHgdYcnBmzLW6CCiu5XeZRPk71JyswEOPL48UGLAUxr03vaREIt4X
-         HqWJCqx3/DDLT0gsBr4akabqTraV8XnwZMHn9lUMoeLHsybADVg/yaaZYOhphgNqHKOh
-         s6Rw==
-X-Gm-Message-State: AOAM531xmiAX67hJ+x9kxexVH6H5K91yFGrTm0dlrc56havWI7hvEtfJ
-        HcrdO5iEXChsnfw6RDbi2XmTsFw5lw8ewqFKJpqqazbGupSY+RLKPT6tgH4FgYOV+KYkxlxz+gC
-        T3Imr1s7rpgeCTYvSMdoWoQ==
-X-Received: by 2002:a05:600c:4f53:b0:392:e99:3002 with SMTP id m19-20020a05600c4f5300b003920e993002mr7271151wmq.35.1650525864749;
-        Thu, 21 Apr 2022 00:24:24 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyT3pnm5Sh+vV0Sy7hhyznn/LgwWMwSX+xjIVufjxa9zkFnFGy5AD9tPDmaVij6DMrjv3pJ9w==
-X-Received: by 2002:a05:600c:4f53:b0:392:e99:3002 with SMTP id m19-20020a05600c4f5300b003920e993002mr7271129wmq.35.1650525864513;
-        Thu, 21 Apr 2022 00:24:24 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c702:de00:711b:76af:b335:9b70? (p200300cbc702de00711b76afb3359b70.dip0.t-ipconnect.de. [2003:cb:c702:de00:711b:76af:b335:9b70])
-        by smtp.gmail.com with ESMTPSA id t9-20020adfa2c9000000b002061561d4a7sm1601302wra.96.2022.04.21.00.24.21
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 21 Apr 2022 00:24:21 -0700 (PDT)
-Message-ID: <f2edeb89-54be-6100-9464-c99fdc4bd439@redhat.com>
-Date:   Thu, 21 Apr 2022 09:24:20 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.2
-Subject: Re: [PATCH 3/4] KVM: s390: replace bitmap_copy with
- bitmap_{from,to}_arr64 where appropriate
-Content-Language: en-US
-To:     Yury Norov <yury.norov@gmail.com>, linux-kernel@vger.kernel.org,
+        with ESMTP id S1386108AbiDUHnY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Apr 2022 03:43:24 -0400
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E49D31BEBA
+        for <linux-s390@vger.kernel.org>; Thu, 21 Apr 2022 00:40:29 -0700 (PDT)
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-320-RjXwMqAnPfqhoyE6QW4dlQ-1; Thu, 21 Apr 2022 08:40:26 +0100
+X-MC-Unique: RjXwMqAnPfqhoyE6QW4dlQ-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
+ Server (TLS) id 15.0.1497.32; Thu, 21 Apr 2022 08:40:25 +0100
+Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
+ AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
+ 15.00.1497.033; Thu, 21 Apr 2022 08:40:25 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Yury Norov' <yury.norov@gmail.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Janosch Frank <frankja@linux.ibm.com>,
         Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
+        "Vasily Gorbik" <gor@linux.ibm.com>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>
+Subject: RE: [PATCH 2/4] lib: add bitmap_{from,to}_arr64
+Thread-Topic: [PATCH 2/4] lib: add bitmap_{from,to}_arr64
+Thread-Index: AQHYVQdrgrXWaR3sCEGGbig0LA6aC6z5+Nxw
+Date:   Thu, 21 Apr 2022 07:40:25 +0000
+Message-ID: <b7fe319a66914a9e88d2830101e6319f@AcuMS.aculab.com>
 References: <20220420222530.910125-1-yury.norov@gmail.com>
- <20220420222530.910125-4-yury.norov@gmail.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <20220420222530.910125-4-yury.norov@gmail.com>
+ <20220420222530.910125-3-yury.norov@gmail.com>
+In-Reply-To: <20220420222530.910125-3-yury.norov@gmail.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
+MIME-Version: 1.0
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 21.04.22 00:25, Yury Norov wrote:
-> Copying bitmaps from/to 64-bit arrays with bitmap_copy is not safe
-> in general case. Use designated functions instead.
+From: Yury Norov
+> Sent: 20 April 2022 23:25
 > 
+> Manipulating 64-bit arrays with bitmap functions is potentially dangerous
+> because on 32-bit BE machines the order of halfwords doesn't match. Another
+> issue is that compiler may throw a warning about out-of-boundary access.
+> 
+> This patch adds bitmap_{from,to}_arr64 functions in addition to existing
+> bitmap_{from,to}_arr32.
+> 
+> Signed-off-by: Yury Norov <yury.norov@gmail.com>
+> ---
+>  include/linux/bitmap.h | 23 +++++++++++++++++----
+>  lib/bitmap.c           | 47 ++++++++++++++++++++++++++++++++++++++++++
+>  2 files changed, 66 insertions(+), 4 deletions(-)
+> 
+> diff --git a/include/linux/bitmap.h b/include/linux/bitmap.h
+> index 10d805c2893c..f78c534fb814 100644
+> --- a/include/linux/bitmap.h
+> +++ b/include/linux/bitmap.h
+> @@ -292,6 +292,24 @@ void bitmap_to_arr32(u32 *buf, const unsigned long *bitmap,
+>  			(const unsigned long *) (bitmap), (nbits))
+>  #endif
+> 
+> +/*
+> + * On 64-bit systems bitmaps are represented as u64 arrays internally. On LE32
+> + * machines the order of hi and lo parts of nubmers match the bitmap structure.
+> + * In both cases conversion is not needed when copying data from/to arrays of
+> + * u64.
+> + */
+> +#if (BITS_PER_LONG == 32) && defined(__BIG_ENDIAN)
 
-Just so I understand correctly: there is no BUG, it's just cleaner to do
-it that way, correct?
+I think I'd change the condition to (inverting it):
+#if (BITS_PER_LONG == 64) || defined(__LITTLE_ENDIAN)
+since that is the condition when the layout matches.
 
-IIUC, bitmap_to_arr64() translates to bitmap_copy_clear_tail() on s390x.
+> +void bitmap_from_arr64(unsigned long *bitmap, const u64 *buf, unsigned int nbits);
+> +void bitmap_to_arr64(u64 *buf, const unsigned long *bitmap, unsigned int nbits);
+> +#else
+> +#define bitmap_from_arr64(bitmap, buf, nbits)			\
+> +	bitmap_copy_clear_tail((unsigned long *) (bitmap),	\
+> +			(const unsigned long *) (buf), (nbits))
+> +#define bitmap_to_arr64(buf, bitmap, nbits)			\
+> +	bitmap_copy_clear_tail((unsigned long *) (buf),		\
+> +			(const unsigned long *) (bitmap), (nbits))
+> +#endif
+> +
+>  static inline int bitmap_and(unsigned long *dst, const unsigned long *src1,
+>  			const unsigned long *src2, unsigned int nbits)
+>  {
+> @@ -596,10 +614,7 @@ static inline void bitmap_next_set_region(unsigned long *bitmap,
+>   */
+>  static inline void bitmap_from_u64(unsigned long *dst, u64 mask)
+>  {
+> -	dst[0] = mask & ULONG_MAX;
+> -
+> -	if (sizeof(mask) > sizeof(unsigned long))
+> -		dst[1] = mask >> 32;
+> +	bitmap_from_arr64(dst, &mask, 64);
+>  }
 
-As the passed length is always 1024 (KVM_S390_VM_CPU_FEAT_NR_BITS), we
-essentially end up with bitmap_copy() again.
+I'd leave this alone.
 
+> 
+>  /**
+> diff --git a/lib/bitmap.c b/lib/bitmap.c
+> index d9a4480af5b9..aea9493f4216 100644
+> --- a/lib/bitmap.c
+> +++ b/lib/bitmap.c
+> @@ -1533,5 +1533,52 @@ void bitmap_to_arr32(u32 *buf, const unsigned long *bitmap, unsigned int nbits)
+>  		buf[halfwords - 1] &= (u32) (UINT_MAX >> ((-nbits) & 31));
+>  }
+>  EXPORT_SYMBOL(bitmap_to_arr32);
+> +#endif
+> +
+> +#if (BITS_PER_LONG == 32) && defined(__BIG_ENDIAN)
+> +/**
+> + * bitmap_from_arr64 - copy the contents of u64 array of bits to bitmap
+> + *	@bitmap: array of unsigned longs, the destination bitmap
+> + *	@buf: array of u64 (in host byte order), the source bitmap
+> + *	@nbits: number of bits in @bitmap
+> + */
+> +void bitmap_from_arr64(unsigned long *bitmap, const u64 *buf, unsigned int nbits)
+> +{
+> +	while (nbits > 0) {
 
-Looks cleaner to me
+This looks like a for look to me...
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
+> +		u64 val = *buf++;
+> +
+> +		*bitmap++ = (unsigned long)val;
+> +		if (nbits > 32)
+> +			*bitmap++ = (unsigned long)(val >> 32);
 
+No need for either cast.
 
--- 
-Thanks,
+> +		nbits -= 64;
+> +	}
+> 
+> +	/* Clear tail bits in last word beyond nbits. */
+> +	if (nbits % BITS_PER_LONG)
+> +		bitmap[-1] &= BITMAP_LAST_WORD_MASK(nbits);
+> +}
+> +EXPORT_SYMBOL(bitmap_from_arr64);
+> +
+> +/**
+> + * bitmap_to_arr64 - copy the contents of bitmap to a u64 array of bits
+> + *	@buf: array of u64 (in host byte order), the dest bitmap
+> + *	@bitmap: array of unsigned longs, the source bitmap
+> + *	@nbits: number of bits in @bitmap
+> + */
+> +void bitmap_to_arr64(u64 *buf, const unsigned long *bitmap, unsigned int nbits)
+> +{
+> +	unsigned long *end = bitmap + BITS_TO_LONGS(nbits);
+> +
+> +	while (bitmap < end) {
 
-David / dhildenb
+Another for loop...
+
+> +		*buf = *bitmap++;
+> +		if (bitmap < end)
+> +			*buf |= *bitmap++ << 32;
+
+That is UB.
+Did you even compile this??
+
+	David
+
+> +		buf++;
+> +	}
+> +
+> +	/* Clear tail bits in last element of array beyond nbits. */
+> +	if (nbits % 64)
+> +		buf[-1] &= GENMASK_ULL(nbits, 0);
+> +}
+> +EXPORT_SYMBOL(bitmap_to_arr64);
+>  #endif
+> --
+> 2.32.0
+
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
 
