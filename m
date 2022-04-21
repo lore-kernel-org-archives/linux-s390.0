@@ -2,268 +2,135 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5105C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 21 Apr 2022 02:14:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 49FEBC433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 21 Apr 2022 03:36:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229640AbiDUCRl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 20 Apr 2022 22:17:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54654 "EHLO
+        id S1383971AbiDUDjR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 20 Apr 2022 23:39:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229462AbiDUCRi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Apr 2022 22:17:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEE3E38E;
-        Wed, 20 Apr 2022 19:14:49 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7ADBF61BF0;
-        Thu, 21 Apr 2022 02:14:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FD65C385A1;
-        Thu, 21 Apr 2022 02:14:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650507288;
-        bh=NiQktVTI2fOvmytyuJRHJ/KoFh9/1WdmpPTFSrV+IbU=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:From;
-        b=JdmlsUhtwNUtzNA1fWG8HUt2E1htr120E5x5i+Ycomzew8CHxMVKv2gaRjFMj4NDb
-         CLf0dgheRjewNtiLAHY8xTh9DeLEoXiMjzG+jjzG5JxmxdzlwdXxzqyzOCmRFf+7zb
-         QO3t/Jx982gd8WkK8T5GsRJNC9NaQmhjxmb+iEZBoqpytcSu6xF5J7OJ+Dk0FCKTms
-         Jf0wMwwe1OUc5kcZU/x7hVmrGUEN+tHo83wvuZziKCOuwHwvZl50VCipXEqcwEWxUs
-         q+n2pOZZkK+QzaEkHHOCIdCzxDLp9xZDn7yNpp+phBPrDrxn4f5Wqi+0Z+kS3mppxZ
-         9HzmJR0DCJwtw==
-Date:   Wed, 20 Apr 2022 21:14:46 -0500
-From:   Bjorn Helgaas <helgaas@kernel.org>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>
-Cc:     Bjorn Helgaas <bhelgaas@google.com>,
-        Jan Kiszka <jan.kiszka@siemens.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        linux-kernel@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        linux-s390@vger.kernel.org, linux-pci@vger.kernel.org
-Subject: Re: [PATCH v3 1/4] PCI: Clean up pci_scan_slot()
-Message-ID: <20220421021446.GA1356365@bhelgaas>
+        with ESMTP id S1383970AbiDUDjN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Apr 2022 23:39:13 -0400
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 019A7B1E7;
+        Wed, 20 Apr 2022 20:36:24 -0700 (PDT)
+Received: by mail-pj1-x1035.google.com with SMTP id bg24so3786523pjb.1;
+        Wed, 20 Apr 2022 20:36:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=WIOoqIr6umdvALY95vQEJn502kHehzZOSqy7EehNNow=;
+        b=V1l5+zYvtG8Tx38oDHIK2bx1KQkhwmPYUGkq8vX11Rm4twv2u01+86DNalFydcBv+6
+         kmjtzQOAzkue4JX/UT8CjsDhkhb+UsdyajKT2z7RZRWcwYPHskXGExWWp3mjspogCGjl
+         712L5vZM0jejCQJIWdgxS+yJ8TkbtrBppUFOoRQtUihRvmTT4u2/hXTHtwP9vbg3/RaL
+         Uu08S7JxXhOkjskUbACRhsFav00CXiJ+xUAF1M3zh+6qZzY8AahKdpn2ZR+stc3DPMYb
+         uHDmPIb6nYG4D0r0SAwN201vQ/6XRenYwDAcJtj2jFGP28Mi3yBhAvj0UG+s9ARqyFik
+         aVzg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=WIOoqIr6umdvALY95vQEJn502kHehzZOSqy7EehNNow=;
+        b=XEY/RqZZYonVvehHp9XB5jYP5rgL6RRYJVGHCBdGxBZl5DN5/nht1LJGd6QJGDqcmp
+         EBPnosyPQy9aRp8NtCWJRYH6ykketmF2etdzSrDbqu6Kbel5XzbPvjk3sZmCFGHf+Ivd
+         Kz3p2NTXKJUQElwbNVljbxV9WD54TWv1BPoZRSW3KQHKawtdDjZnzGR0Y7X5bMct0B1b
+         IAPUcQP+YGX7nsMjAR7koW4ROPDHAMecNLzHLyAzUdM5GfGQjqH16e84KBBbjBezYMIw
+         0x3Sl/uA7VFbNQgz8SGMx2j8zqEgC//FZR8M08XfV0lCPSyD1zL6cUs+DgNl/TzAIart
+         KVCQ==
+X-Gm-Message-State: AOAM531351zigpzttjBcFO7ELRrqYsP4gZlI0ix9fTSrkZ7e+IG1vvBy
+        tecJcWJB3FF08Vy77QgO5cnocuZmSw==
+X-Google-Smtp-Source: ABdhPJyt3wHj72NitSPr4/sRrGQ63Mu8S1ynsJF4YIEMTc5WHvgLDEKHW0wrglrSyKEqGTtXgRWWZA==
+X-Received: by 2002:a17:902:f282:b0:158:339c:d4a2 with SMTP id k2-20020a170902f28200b00158339cd4a2mr22775956plc.134.1650512184410;
+        Wed, 20 Apr 2022 20:36:24 -0700 (PDT)
+Received: from piliu.users.ipa.redhat.com ([209.132.188.80])
+        by smtp.gmail.com with ESMTPSA id m13-20020a17090b068d00b001cd4989fee0sm656049pjz.44.2022.04.20.20.36.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 20 Apr 2022 20:36:23 -0700 (PDT)
+Date:   Thu, 21 Apr 2022 11:36:17 +0800
+From:   Pingfan Liu <kernelfans@gmail.com>
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/9] s390/irq: utilize RCU instead of irq_lock_sparse()
+ in show_msi_interrupt()
+Message-ID: <YmDRMUUzBq6uyIzj@piliu.users.ipa.redhat.com>
+References: <20220420140521.45361-1-kernelfans@gmail.com>
+ <20220420140521.45361-5-kernelfans@gmail.com>
+ <YmBOBRMWlk4H11sc@osiris>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220419102803.3430139-2-schnelle@linux.ibm.com>
+In-Reply-To: <YmBOBRMWlk4H11sc@osiris>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Niklas,
-
-I'm sure this makes good sense, but I need a little more hand-holding.
-Sorry this is long and rambling.
-
-On Tue, Apr 19, 2022 at 12:28:00PM +0200, Niklas Schnelle wrote:
-> While determining the next PCI function is factored out of
-> pci_scan_slot() into next_fn() the former still handles the first
-> function as a special case duplicating the code from the scan loop and
-> splitting the condition that the first function exits from it being
-> multifunction which is tested in next_fn().
+On Wed, Apr 20, 2022 at 08:16:37PM +0200, Heiko Carstens wrote:
+> On Wed, Apr 20, 2022 at 10:05:16PM +0800, Pingfan Liu wrote:
+> > irq_desc can be accessed safely in RCU read section as demonstrated by
+> > kstat_irqs_usr(). And raw_spin_lock_irqsave() context can provide a rcu
+> > read section, which can be utilized to get rid of irq_lock_sparse().
+> > 
+> > Signed-off-by: Pingfan Liu <kernelfans@gmail.com>
+> > Cc: Heiko Carstens <hca@linux.ibm.com>
+> > Cc: Vasily Gorbik <gor@linux.ibm.com>
+> > Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+> > Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+> > Cc: Sven Schnelle <svens@linux.ibm.com>
+> > Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+> > Cc: linux-kernel@vger.kernel.org
+> > To: linux-s390@vger.kernel.org
+> > ---
+> >  arch/s390/kernel/irq.c | 11 +++++------
+> >  1 file changed, 5 insertions(+), 6 deletions(-)
+> > 
+> > diff --git a/arch/s390/kernel/irq.c b/arch/s390/kernel/irq.c
+> > index 3033f616e256..6302dc7874cf 100644
+> > --- a/arch/s390/kernel/irq.c
+> > +++ b/arch/s390/kernel/irq.c
+> > @@ -205,12 +205,13 @@ static void show_msi_interrupt(struct seq_file *p, int irq)
+> >  	unsigned long flags;
+> >  	int cpu;
+> >  
+> > -	irq_lock_sparse();
+> > +	raw_spin_lock_irqsave(&desc->lock, flags);
+> >  	desc = irq_to_desc(irq);
 > 
-> Furthermore the non ARI branch of next_fn() mixes the case that
-> multifunction devices may have non-contiguous function ranges and dev
-> may thus be NULL with the multifunction requirement. It also signals
-> that no further functions need to be scanned by returning 0 which is
-> a valid function number.
-> 
-> Improve upon this by moving all conditions for having to scan for more
-> functions into next_fn() and make them obvious and commented.
-> 
-> By changing next_fn() to return -ENODEV instead of 0 when there is no
-> next function we can then handle the initial function inside the loop
-> and deduplicate the shared handling.
-> 
-> No functional change is intended.
-> 
-> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> ---
->  drivers/pci/probe.c | 41 +++++++++++++++++++----------------------
->  1 file changed, 19 insertions(+), 22 deletions(-)
-> 
-> diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
-> index 17a969942d37..389aa1f9cb2c 100644
-> --- a/drivers/pci/probe.c
-> +++ b/drivers/pci/probe.c
-> @@ -2579,33 +2579,35 @@ struct pci_dev *pci_scan_single_device(struct pci_bus *bus, int devfn)
->  }
->  EXPORT_SYMBOL(pci_scan_single_device);
->  
-> -static unsigned int next_fn(struct pci_bus *bus, struct pci_dev *dev,
-> -			    unsigned int fn)
-> +static int next_fn(struct pci_bus *bus, struct pci_dev *dev, int fn)
->  {
->  	int pos;
->  	u16 cap = 0;
->  	unsigned int next_fn;
->  
-> -	if (pci_ari_enabled(bus)) {
-> -		if (!dev)
-> -			return 0;
-> +	if (dev && pci_ari_enabled(bus)) {
+> How is this supposed to work? desc get's initialized after its random
+> stack value has been used as a pointer to lock something...
 
-I think this would be easier to verify if we kept the explicit error
-return, e.g.,
+Oops. You are right. What about using rcu_read_lock() directly?
 
-  if (pci_ari_enabled(bus)) {
-    if (!dev)
-      return -ENODEV;
-    pos = pci_find_ext_capability(...);
 
-Otherwise we have to sort through the !dev cases below.  I guess
--ENODEV would come from either the "!fn && !dev" case or the "fn > 6"
-case, but it's not obvious to me that those are equivalent to the
-previous code.
+diff --git a/arch/s390/kernel/irq.c b/arch/s390/kernel/irq.c
+index 3033f616e256..45393919fe61 100644
+--- a/arch/s390/kernel/irq.c
++++ b/arch/s390/kernel/irq.c
+@@ -205,7 +205,7 @@ static void show_msi_interrupt(struct seq_file *p, int irq)
+ 	unsigned long flags;
+ 	int cpu;
+ 
+-	irq_lock_sparse();
++	rcu_read_lock();
+ 	desc = irq_to_desc(irq);
+ 	if (!desc)
+ 		goto out;
+@@ -224,7 +224,7 @@ static void show_msi_interrupt(struct seq_file *p, int irq)
+ 	seq_putc(p, '\n');
+ 	raw_spin_unlock_irqrestore(&desc->lock, flags);
+ out:
+-	irq_unlock_sparse();
++	rcu_read_unlock();
+ }
+ 
+ /*
 
->  		pos = pci_find_ext_capability(dev, PCI_EXT_CAP_ID_ARI);
->  		if (!pos)
-> -			return 0;
-> +			return -ENODEV;
->  
->  		pci_read_config_word(dev, pos + PCI_ARI_CAP, &cap);
->  		next_fn = PCI_ARI_CAP_NFN(cap);
->  		if (next_fn <= fn)
-> -			return 0;	/* protect against malformed list */
-> +			return -ENODEV;	/* protect against malformed list */
->  
->  		return next_fn;
->  	}
->  
-> -	/* dev may be NULL for non-contiguous multifunction devices */
-> -	if (!dev || dev->multifunction)
-> -		return (fn + 1) % 8;
-> -
-> -	return 0;
-> +	/* only multifunction devices may have more functions */
-> +	if (dev && !dev->multifunction)
-> +		return -ENODEV;
 
-I don't understand why the "!dev || dev->multifunction" test needs to
-change.  Isn't that valid even in the hypervisor case?  IIUC, you want
-to return success in some cases that currently return failure, so this
-case that was already success should be fine as it was.
+Thanks,
 
-Is this because "(fn + 1) % 8" may be zero, which previously
-terminated the loop, but now it doesn't because "fn == 0" is the
-*first* execution of the loop?
-
-If so, I wonder if we could avoid that case by adding:
-
-  if (fn >= 7)
-    return -ENODEV;
-
-at the very beginning.  Maybe that would allow a more trivial patch
-that just changed the error return from 0 to -ENODEV, i.e., leaving
-all the logic in next_fn() unchanged?
-
-I'm wondering if this could end up like:
-
-    if (fn >= 7)
-      return -ENODEV;
-
-    if (pci_ari_enabled(bus)) {
-      if (!dev)
-	return -ENODEV;
-      ...
-      return next_fn;
-    }
-
-    if (!dev || dev->multifunction)
-      return (fn + 1) % 8;
-
- +  if (hypervisor_isolated_pci_functions())
- +    return (fn + 1) % 8;
-
-    return -ENODEV;
-
-(The hypervisor part being added in a subsequent patch, and I'm not
-sure exactly what logic you need there -- the point being that it's
-just an additional success case.)
-
-The "% 8" seems possibly superfluous then, since previously that
-caused a zero return that terminated the loop.  If we're using -ENODEV
-to terminate the loop, we probably don't care about the mod 8.
-
-> +	/*
-> +	 * A function 0 is required but multifunction devices may
-> +	 * be non-contiguous so dev can be NULL otherwise.
-
-I understood the original "dev may be NULL ..." comment, but I can't
-quite parse this.  "dev can be NULL" for non-zero functions?  That's
-basically what it said before, but it's not clear what "otherwise"
-refers to.
-
-> +	 */
-> +	if (!fn && !dev)
-> +		return -ENODEV;
-
-This part isn't obvious to me yet, partly because of the "!fn && !dev"
-construction.  The negatives make it hard to parse.
-
-Since "fn" isn't a boolean or a pointer, I think "fn == 0" is easier
-to read than "!fn".  I would test "dev" first since it logically
-precedes "fn".
-
-IIUC !dev means we haven't found a function at this device number yet.
-So this:
-
-  if (!dev && fn == 0)
-    return -ENODEV;
-
-means we called pci_scan_single_device(bus, devfn + 0) the first time
-through the loop, and it didn't find a device so it returned NULL.
-
-> +	return (fn <= 6) ? fn + 1 : -ENODEV;
->  }
->  
->  static int only_one_child(struct pci_bus *bus)
-> @@ -2643,24 +2645,19 @@ static int only_one_child(struct pci_bus *bus)
->   */
->  int pci_scan_slot(struct pci_bus *bus, int devfn)
->  {
-> -	unsigned int fn, nr = 0;
-> -	struct pci_dev *dev;
-> +	int fn, nr = 0;
-> +	struct pci_dev *dev = NULL;
->  
->  	if (only_one_child(bus) && (devfn > 0))
->  		return 0; /* Already scanned the entire slot */
->  
-> -	dev = pci_scan_single_device(bus, devfn);
-> -	if (!dev)
-> -		return 0;
-> -	if (!pci_dev_is_added(dev))
-> -		nr++;
-> -
-> -	for (fn = next_fn(bus, dev, 0); fn > 0; fn = next_fn(bus, dev, fn)) {
-> +	for (fn = 0; fn >= 0; fn = next_fn(bus, dev, fn)) {
->  		dev = pci_scan_single_device(bus, devfn + fn);
-
-"devfn + fn" (in the existing, unchanged code) is a little bit weird.
-In almost all cases, devfn is the result of "PCI_DEVFN(slot, 0)", so
-we could make the interface:
-
-  pci_scan_slot(struct pci_bus *bus, int dev)
-
-where "dev" is 0-31.
-
-The only exceptions are a couple hotplug drivers where the fn probably
-is or should be 0, too, but I haven't verified that.
-
-But this would be scope creep, so possibly something we could consider
-in the future, but not for this series.
-
->  		if (dev) {
->  			if (!pci_dev_is_added(dev))
->  				nr++;
-> -			dev->multifunction = 1;
-> +			if (nr > 1)
-> +				dev->multifunction = 1;
->  		}
->  	}
->  
-> -- 
-> 2.32.0
-> 
+	Pingfan
