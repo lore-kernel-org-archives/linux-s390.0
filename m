@@ -2,211 +2,92 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0546FC433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 21 Apr 2022 07:40:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4372DC433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 21 Apr 2022 08:10:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385954AbiDUHn2 convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 21 Apr 2022 03:43:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37752 "EHLO
+        id S1386471AbiDUINF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 21 Apr 2022 04:13:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386108AbiDUHnY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Apr 2022 03:43:24 -0400
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E49D31BEBA
-        for <linux-s390@vger.kernel.org>; Thu, 21 Apr 2022 00:40:29 -0700 (PDT)
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-320-RjXwMqAnPfqhoyE6QW4dlQ-1; Thu, 21 Apr 2022 08:40:26 +0100
-X-MC-Unique: RjXwMqAnPfqhoyE6QW4dlQ-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
- Server (TLS) id 15.0.1497.32; Thu, 21 Apr 2022 08:40:25 +0100
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.033; Thu, 21 Apr 2022 08:40:25 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Yury Norov' <yury.norov@gmail.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        "Vasily Gorbik" <gor@linux.ibm.com>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>
-Subject: RE: [PATCH 2/4] lib: add bitmap_{from,to}_arr64
-Thread-Topic: [PATCH 2/4] lib: add bitmap_{from,to}_arr64
-Thread-Index: AQHYVQdrgrXWaR3sCEGGbig0LA6aC6z5+Nxw
-Date:   Thu, 21 Apr 2022 07:40:25 +0000
-Message-ID: <b7fe319a66914a9e88d2830101e6319f@AcuMS.aculab.com>
-References: <20220420222530.910125-1-yury.norov@gmail.com>
- <20220420222530.910125-3-yury.norov@gmail.com>
-In-Reply-To: <20220420222530.910125-3-yury.norov@gmail.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        with ESMTP id S1386500AbiDUIMn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Apr 2022 04:12:43 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 49886DA9
+        for <linux-s390@vger.kernel.org>; Thu, 21 Apr 2022 01:09:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1650528593;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=p5mkp6RgcSobuU7TrowdyzROdlgIwSdHC604GfrT0MY=;
+        b=XqADFnvMV1d4VAhOFkM/AyTvFwFbwu3ollVd7T0tqJyNbEeAm4oWpYTfMtusAfepEFbQ++
+        j7BHjk1T6OZYfdt8eGhYLcdIIqhOToGnJxeWakGRo14JmF8PR0PdNBrYijrsXt/CQ8YoAB
+        kx76NfD1/ctLVpXezbAPhvuOAMl6wzY=
+Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com
+ [209.85.222.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-621-ZEjYV34dNa-mqccqYs5pNA-1; Thu, 21 Apr 2022 04:09:52 -0400
+X-MC-Unique: ZEjYV34dNa-mqccqYs5pNA-1
+Received: by mail-qk1-f198.google.com with SMTP id bk23-20020a05620a1a1700b0067b32f93b90so2842725qkb.16
+        for <linux-s390@vger.kernel.org>; Thu, 21 Apr 2022 01:09:52 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:user-agent:mime-version:content-transfer-encoding;
+        bh=p5mkp6RgcSobuU7TrowdyzROdlgIwSdHC604GfrT0MY=;
+        b=VUwJ39NeRnSLjmZS1RT7dWdqOs8+YY4EmbE06SEIZQt9JAJg8eDG0bnYHLx93Y+7ZE
+         3hD1b+uTBtjyk+SmcdZEH0QKwbArgA0z+nsU9TeSZAAuvGu1H1iw4YuDueUivvYAIb6s
+         EmZkRZb39XN65bTT4FWuHcwbx0/mf+gNj773Ci4Aygfc3CiiardhmCG50+PsEkbj8kJ9
+         PktocAuy3khb8z/y7JUEPHKEtzFb5dRswwH8nKHgbhT20i8eTLDEtjm9kIaZxrQZQ9XN
+         IBl4lyRI5y/JUzN9ne4ZdfhpmA4CjRZqfFcvSe8qHWZVeoA11WtuiAtp9bPe83appd1L
+         t0gw==
+X-Gm-Message-State: AOAM5315W3fFSzs2p/jYGgPvfo2CQMcGyvHuQvcNfOntEltc7aYjp4Og
+        j1NUtKuL5rh3tiIvOmCZ+dV4+jpjqxJWeAR+pPMoYFou0idZNw7WQsZNsRow9+BPCIGyqQ6szoE
+        cu/n45bXWVe6UVsOxpeF7lg==
+X-Received: by 2002:ac8:5d8e:0:b0:2f1:fbc6:ae89 with SMTP id d14-20020ac85d8e000000b002f1fbc6ae89mr13320681qtx.647.1650528591618;
+        Thu, 21 Apr 2022 01:09:51 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxSWl/IdeBjalShp/k7O4K9i4aFpme9ARCm4osm7hX2EifpK6owbeUtv7Nf9MMUd0R2II36pw==
+X-Received: by 2002:ac8:5d8e:0:b0:2f1:fbc6:ae89 with SMTP id d14-20020ac85d8e000000b002f1fbc6ae89mr13320674qtx.647.1650528591406;
+        Thu, 21 Apr 2022 01:09:51 -0700 (PDT)
+Received: from gerbillo.redhat.com (nat-pool-mxp-t.redhat.com. [149.6.153.186])
+        by smtp.gmail.com with ESMTPSA id c131-20020a379a89000000b0069c903625absm2686220qke.102.2022.04.21.01.09.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 21 Apr 2022 01:09:50 -0700 (PDT)
+Message-ID: <a3596a37f72d6df35a6de4e0cf912d2f6d434bbc.camel@redhat.com>
+Subject: Re: [PATCH] net/smc: sync err info when TCP connection is refused
+From:   Paolo Abeni <pabeni@redhat.com>
+To:     yacanliu@163.com, kgraul@linux.ibm.com, davem@davemloft.net,
+        kuba@kernel.org
+Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, liuyacan <liuyacan@corp.netease.com>
+Date:   Thu, 21 Apr 2022 10:09:48 +0200
+In-Reply-To: <20220417123307.1094747-1-yacanliu@163.com>
+References: <20220417123307.1094747-1-yacanliu@163.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Yury Norov
-> Sent: 20 April 2022 23:25
+On Sun, 2022-04-17 at 20:33 +0800, yacanliu@163.com wrote:
+> From: liuyacan <liuyacan@corp.netease.com>
 > 
-> Manipulating 64-bit arrays with bitmap functions is potentially dangerous
-> because on 32-bit BE machines the order of halfwords doesn't match. Another
-> issue is that compiler may throw a warning about out-of-boundary access.
+> In the current implementation, when TCP initiates a connection
+> to an unavailable [ip,port], ECONNREFUSED will be stored in the
+> TCP socket, but SMC will not. However, some apps (like curl) use
+> getsockopt(,,SO_ERROR,,) to get the error information, which makes
+> them miss the error message and behave strangely.
 > 
-> This patch adds bitmap_{from,to}_arr64 functions in addition to existing
-> bitmap_{from,to}_arr32.
-> 
-> Signed-off-by: Yury Norov <yury.norov@gmail.com>
-> ---
->  include/linux/bitmap.h | 23 +++++++++++++++++----
->  lib/bitmap.c           | 47 ++++++++++++++++++++++++++++++++++++++++++
->  2 files changed, 66 insertions(+), 4 deletions(-)
-> 
-> diff --git a/include/linux/bitmap.h b/include/linux/bitmap.h
-> index 10d805c2893c..f78c534fb814 100644
-> --- a/include/linux/bitmap.h
-> +++ b/include/linux/bitmap.h
-> @@ -292,6 +292,24 @@ void bitmap_to_arr32(u32 *buf, const unsigned long *bitmap,
->  			(const unsigned long *) (bitmap), (nbits))
->  #endif
-> 
-> +/*
-> + * On 64-bit systems bitmaps are represented as u64 arrays internally. On LE32
-> + * machines the order of hi and lo parts of nubmers match the bitmap structure.
-> + * In both cases conversion is not needed when copying data from/to arrays of
-> + * u64.
-> + */
-> +#if (BITS_PER_LONG == 32) && defined(__BIG_ENDIAN)
+> Signed-off-by: liuyacan <liuyacan@corp.netease.com>
 
-I think I'd change the condition to (inverting it):
-#if (BITS_PER_LONG == 64) || defined(__LITTLE_ENDIAN)
-since that is the condition when the layout matches.
+Could you please formally re-submit for -net (inclusing NET into the
+patch subj) with a suitable 'fixes' tag? You can retain the already
+collected reviewed/ack-by tags.
 
-> +void bitmap_from_arr64(unsigned long *bitmap, const u64 *buf, unsigned int nbits);
-> +void bitmap_to_arr64(u64 *buf, const unsigned long *bitmap, unsigned int nbits);
-> +#else
-> +#define bitmap_from_arr64(bitmap, buf, nbits)			\
-> +	bitmap_copy_clear_tail((unsigned long *) (bitmap),	\
-> +			(const unsigned long *) (buf), (nbits))
-> +#define bitmap_to_arr64(buf, bitmap, nbits)			\
-> +	bitmap_copy_clear_tail((unsigned long *) (buf),		\
-> +			(const unsigned long *) (bitmap), (nbits))
-> +#endif
-> +
->  static inline int bitmap_and(unsigned long *dst, const unsigned long *src1,
->  			const unsigned long *src2, unsigned int nbits)
->  {
-> @@ -596,10 +614,7 @@ static inline void bitmap_next_set_region(unsigned long *bitmap,
->   */
->  static inline void bitmap_from_u64(unsigned long *dst, u64 mask)
->  {
-> -	dst[0] = mask & ULONG_MAX;
-> -
-> -	if (sizeof(mask) > sizeof(unsigned long))
-> -		dst[1] = mask >> 32;
-> +	bitmap_from_arr64(dst, &mask, 64);
->  }
+Thanks!
 
-I'd leave this alone.
-
-> 
->  /**
-> diff --git a/lib/bitmap.c b/lib/bitmap.c
-> index d9a4480af5b9..aea9493f4216 100644
-> --- a/lib/bitmap.c
-> +++ b/lib/bitmap.c
-> @@ -1533,5 +1533,52 @@ void bitmap_to_arr32(u32 *buf, const unsigned long *bitmap, unsigned int nbits)
->  		buf[halfwords - 1] &= (u32) (UINT_MAX >> ((-nbits) & 31));
->  }
->  EXPORT_SYMBOL(bitmap_to_arr32);
-> +#endif
-> +
-> +#if (BITS_PER_LONG == 32) && defined(__BIG_ENDIAN)
-> +/**
-> + * bitmap_from_arr64 - copy the contents of u64 array of bits to bitmap
-> + *	@bitmap: array of unsigned longs, the destination bitmap
-> + *	@buf: array of u64 (in host byte order), the source bitmap
-> + *	@nbits: number of bits in @bitmap
-> + */
-> +void bitmap_from_arr64(unsigned long *bitmap, const u64 *buf, unsigned int nbits)
-> +{
-> +	while (nbits > 0) {
-
-This looks like a for look to me...
-
-> +		u64 val = *buf++;
-> +
-> +		*bitmap++ = (unsigned long)val;
-> +		if (nbits > 32)
-> +			*bitmap++ = (unsigned long)(val >> 32);
-
-No need for either cast.
-
-> +		nbits -= 64;
-> +	}
-> 
-> +	/* Clear tail bits in last word beyond nbits. */
-> +	if (nbits % BITS_PER_LONG)
-> +		bitmap[-1] &= BITMAP_LAST_WORD_MASK(nbits);
-> +}
-> +EXPORT_SYMBOL(bitmap_from_arr64);
-> +
-> +/**
-> + * bitmap_to_arr64 - copy the contents of bitmap to a u64 array of bits
-> + *	@buf: array of u64 (in host byte order), the dest bitmap
-> + *	@bitmap: array of unsigned longs, the source bitmap
-> + *	@nbits: number of bits in @bitmap
-> + */
-> +void bitmap_to_arr64(u64 *buf, const unsigned long *bitmap, unsigned int nbits)
-> +{
-> +	unsigned long *end = bitmap + BITS_TO_LONGS(nbits);
-> +
-> +	while (bitmap < end) {
-
-Another for loop...
-
-> +		*buf = *bitmap++;
-> +		if (bitmap < end)
-> +			*buf |= *bitmap++ << 32;
-
-That is UB.
-Did you even compile this??
-
-	David
-
-> +		buf++;
-> +	}
-> +
-> +	/* Clear tail bits in last element of array beyond nbits. */
-> +	if (nbits % 64)
-> +		buf[-1] &= GENMASK_ULL(nbits, 0);
-> +}
-> +EXPORT_SYMBOL(bitmap_to_arr64);
->  #endif
-> --
-> 2.32.0
-
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
+Paolo
 
