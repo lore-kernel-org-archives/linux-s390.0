@@ -2,242 +2,241 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 706FFC433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 21 Apr 2022 16:32:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DAD8C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 21 Apr 2022 17:09:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231522AbiDUQfU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 21 Apr 2022 12:35:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46380 "EHLO
+        id S238617AbiDURMO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 21 Apr 2022 13:12:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231404AbiDUQey (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Apr 2022 12:34:54 -0400
-Received: from mail-qv1-xf32.google.com (mail-qv1-xf32.google.com [IPv6:2607:f8b0:4864:20::f32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9EFA24F11;
-        Thu, 21 Apr 2022 09:31:42 -0700 (PDT)
-Received: by mail-qv1-xf32.google.com with SMTP id d9so4071963qvm.4;
-        Thu, 21 Apr 2022 09:31:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=h+Iup4njVxXKcc942qQUo3kTQIMU1IrelCicFZt8H58=;
-        b=qXqWNGCtLcuApxBn75B7spLD80sfE0o3XmdCfO5hcKbzQ9m7+OzzdSAdY+ZrPd/BIK
-         cX70uPnztwq6UiTRex0s9LpYWQ1cUFW4JVNmlee2KzEYMOW7iiDSC/bBaF1cdgdAKBma
-         iUBIwR9mYO4piEWbTq17y6JMusUZmRSOrOyU+fLbjMmFxS0y2QDbgAerQ4GaebnHAgGg
-         Y4N67RrkAUxacWJ0kpeVWX7QTJwESOHB1GlPqKUkt7JmKZFFgKbZjjvFFyJ6lhqsqMyp
-         TSekYTzNRnpg2IiVLZWyySgMJKkAhenX9nQnTy/RBNH7bTbFVcz79F/aVQ4UhKt/1mc3
-         g5nw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=h+Iup4njVxXKcc942qQUo3kTQIMU1IrelCicFZt8H58=;
-        b=3OPJqKt/ruAGLwXUGNvPWbR/JiYn+MR7yTIW+oL4jbr3tcA1+8w39pabPPvZMg5dGo
-         XP6r/WkDrY4LYYU2gphMt87eNs/16SVj35KRKH3R6Ov/rQXM8XU3yAeLd088L47TJdvm
-         bKT7jZBionBkSBEVW9TuYA3ta2+JEBM19coSRs6mDlnHZIWV6eKcoo+eK9ZhTsD1LzDg
-         iGZ4R5PwUZglna3NQHkhHuga20sdVgOxZNi5sCt8+UDOkh8GZfJqKBL+2uLOzeVHhT6K
-         Bqr1W+aOl6upGApFotw5O5LRXpgy38RfyzBAZ7JE+mRnX2Ns3Xa+SihDLvzxiUWjAVvD
-         yD3A==
-X-Gm-Message-State: AOAM533UtDEEVe24m1mJwlHWgHV+Sh0Ua1SdOSyCbLAVGX9Fw+6aA8m6
-        VOCOBaY0FvkZCOPGvAH6I8k=
-X-Google-Smtp-Source: ABdhPJxgc7BbaOgIAf41NINgcHWA+Dath4sa22/rSqvTcy3+tzZUFEhoa8mjkyTwe4GgihVQhBl3nQ==
-X-Received: by 2002:a05:6214:1ccd:b0:443:652e:69d with SMTP id g13-20020a0562141ccd00b00443652e069dmr246858qvd.114.1650558700080;
-        Thu, 21 Apr 2022 09:31:40 -0700 (PDT)
-Received: from localhost ([2601:c4:c432:7a1:dbb0:23b:8a79:595c])
-        by smtp.gmail.com with ESMTPSA id u11-20020a05622a14cb00b002e1fd9dce3dsm3693978qtx.60.2022.04.21.09.31.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 21 Apr 2022 09:31:39 -0700 (PDT)
-Date:   Thu, 21 Apr 2022 09:31:38 -0700
-From:   Yury Norov <yury.norov@gmail.com>
-To:     David Laight <David.Laight@aculab.com>
-Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>
-Subject: Re: [PATCH 2/4] lib: add bitmap_{from,to}_arr64
-Message-ID: <YmGG6gcKl8Ft7LTI@yury-laptop>
-References: <20220420222530.910125-1-yury.norov@gmail.com>
- <20220420222530.910125-3-yury.norov@gmail.com>
- <b7fe319a66914a9e88d2830101e6319f@AcuMS.aculab.com>
+        with ESMTP id S229771AbiDURMN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Apr 2022 13:12:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BAE949939;
+        Thu, 21 Apr 2022 10:09:23 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9806E61DCE;
+        Thu, 21 Apr 2022 17:09:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B918FC385A1;
+        Thu, 21 Apr 2022 17:09:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1650560962;
+        bh=pYBbiCwID5HXC7VcTJHey58ZSh0xVcdu7E2mj9buXWw=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:From;
+        b=cDJyYQ0v2tnR8LzIaaaQzNc1xuViaoNMmBwsnG3PrguoYK9USwzbUne1bQK6aIzLE
+         gi2dIHEEdBxIV2btKilLgJKRLI4cnlBgfRbYZpqzMMNhJzsiIoaNhd7mpQfCN5aMDU
+         bLA+KqKPglT4iaeHijewcskTGyHf+kAwTt1rLgArjxOErXeAkPKyzoJ3iweeW1/tFG
+         dBgcvB4JBPDUq4YklSxBD1YcGxWji3fTmvUl0TFo7bcS8wXlYyOhZr1iqfpZlojspk
+         Esq5HJn+zA8s/sB2HbAp3B1BoDJ2VEXhNoppvmR6qhDo5zbtNwVjljCToAL1eG28sa
+         vtlOZhSn0ZdcA==
+Date:   Thu, 21 Apr 2022 12:09:20 -0500
+From:   Bjorn Helgaas <helgaas@kernel.org>
+To:     Niklas Schnelle <schnelle@linux.ibm.com>
+Cc:     Bjorn Helgaas <bhelgaas@google.com>,
+        Jan Kiszka <jan.kiszka@siemens.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        linux-kernel@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        linux-s390@vger.kernel.org, linux-pci@vger.kernel.org
+Subject: Re: [PATCH v3 1/4] PCI: Clean up pci_scan_slot()
+Message-ID: <20220421170920.GA1408189@bhelgaas>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <b7fe319a66914a9e88d2830101e6319f@AcuMS.aculab.com>
+In-Reply-To: <8225cf74d6d81c3ce149d677b5bf47689d8e3fd2.camel@linux.ibm.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Apr 21, 2022 at 07:40:25AM +0000, David Laight wrote:
-> From: Yury Norov
-> > Sent: 20 April 2022 23:25
+On Thu, Apr 21, 2022 at 11:27:42AM +0200, Niklas Schnelle wrote:
+> On Wed, 2022-04-20 at 21:14 -0500, Bjorn Helgaas wrote:
+> > On Tue, Apr 19, 2022 at 12:28:00PM +0200, Niklas Schnelle wrote:
+> > > While determining the next PCI function is factored out of
+> > > pci_scan_slot() into next_fn() the former still handles the first
+> > > function as a special case duplicating the code from the scan loop and
+> > > splitting the condition that the first function exits from it being
+> > > multifunction which is tested in next_fn().
+> > > 
+> > > Furthermore the non ARI branch of next_fn() mixes the case that
+> > > multifunction devices may have non-contiguous function ranges and dev
+> > > may thus be NULL with the multifunction requirement. It also signals
+> > > that no further functions need to be scanned by returning 0 which is
+> > > a valid function number.
+> > > 
+> > > Improve upon this by moving all conditions for having to scan for more
+> > > functions into next_fn() and make them obvious and commented.
+> > > 
+> > > By changing next_fn() to return -ENODEV instead of 0 when there is no
+> > > next function we can then handle the initial function inside the loop
+> > > and deduplicate the shared handling.
+> > > 
+> > > No functional change is intended.
+> > > 
+> > > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> > > ---
+> > >  drivers/pci/probe.c | 41 +++++++++++++++++++----------------------
+> > >  1 file changed, 19 insertions(+), 22 deletions(-)
+> > > 
+> > > diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+> > > index 17a969942d37..389aa1f9cb2c 100644
+> > > --- a/drivers/pci/probe.c
+> > > +++ b/drivers/pci/probe.c
+> > > @@ -2579,33 +2579,35 @@ struct pci_dev *pci_scan_single_device(struct pci_bus *bus, int devfn)
+> > >  }
+> > >  EXPORT_SYMBOL(pci_scan_single_device);
+> > >  
+> > > -static unsigned int next_fn(struct pci_bus *bus, struct pci_dev *dev,
+> > > -			    unsigned int fn)
+> > > +static int next_fn(struct pci_bus *bus, struct pci_dev *dev, int fn)
+> > >  {
+> > >  	int pos;
+> > >  	u16 cap = 0;
+> > >  	unsigned int next_fn;
+> > >  
+> > > -	if (pci_ari_enabled(bus)) {
+> > > -		if (!dev)
+> > > -			return 0;
+> > > +	if (dev && pci_ari_enabled(bus)) {
 > > 
-> > Manipulating 64-bit arrays with bitmap functions is potentially dangerous
-> > because on 32-bit BE machines the order of halfwords doesn't match. Another
-> > issue is that compiler may throw a warning about out-of-boundary access.
+> > I think this would be easier to verify if we kept the explicit error
+> > return, e.g.,
 > > 
-> > This patch adds bitmap_{from,to}_arr64 functions in addition to existing
-> > bitmap_{from,to}_arr32.
+> >   if (pci_ari_enabled(bus)) {
+> >     if (!dev)
+> >       return -ENODEV;
+> >     pos = pci_find_ext_capability(...);
 > > 
-> > Signed-off-by: Yury Norov <yury.norov@gmail.com>
-> > ---
-> >  include/linux/bitmap.h | 23 +++++++++++++++++----
-> >  lib/bitmap.c           | 47 ++++++++++++++++++++++++++++++++++++++++++
-> >  2 files changed, 66 insertions(+), 4 deletions(-)
+> > Otherwise we have to sort through the !dev cases below.  I guess
+> > -ENODEV would come from either the "!fn && !dev" case or the "fn > 6"
+> > case, but it's not obvious to me that those are equivalent to the
+> > previous code.
+> 
+> We could keep this the same for this patch but I think for jailhouse
+> (patch 2) we need the "!dev" case not to fail here such that we can
+> handle the missing function 0 below even if ARI is enabled. For s390
+> this doesn't currently matter because pci_ari_enabled(bus) is always
+> false but I assumed that this isn't necessarily so for jailhouse. I
+> sent a follow up mail on a slight behavior change I can think of for
+> this case for v2 but forgot to send it also for v3. Quoted below:
+
+I think it would be good to make the first patch change as little as
+possible to make it easier to analyze, then possibly test for
+hypervisor when changing this behavior.
+
+> > > -	/* dev may be NULL for non-contiguous multifunction devices */
+> > > -	if (!dev || dev->multifunction)
+> > > -		return (fn + 1) % 8;
+> > > -
+> > > -	return 0;
+> > > +	/* only multifunction devices may have more functions */
+> > > +	if (dev && !dev->multifunction)
+> > > +		return -ENODEV;
 > > 
-> > diff --git a/include/linux/bitmap.h b/include/linux/bitmap.h
-> > index 10d805c2893c..f78c534fb814 100644
-> > --- a/include/linux/bitmap.h
-> > +++ b/include/linux/bitmap.h
-> > @@ -292,6 +292,24 @@ void bitmap_to_arr32(u32 *buf, const unsigned long *bitmap,
-> >  			(const unsigned long *) (bitmap), (nbits))
-> >  #endif
+> > I don't understand why the "!dev || dev->multifunction" test needs to
+> > change.  Isn't that valid even in the hypervisor case?  IIUC, you want
+> > to return success in some cases that currently return failure, so this
+> > case that was already success should be fine as it was.
+> 
+> This isn't a change to the test. It's the negation of the logical
+> condition *and* a switch of the branches i.e. keeps the overall
+> behavior exactly the same. The equivalence is !(!A || B) == (A && !B).
+
+I see the Boolean equivalence, but it's difficult to verify that the
+consequences are equivalent because the new code has the extra "!fn &&
+!dev" test in the middle.
+
+> There are two reasons I did this.
+> 
+> 1. I find (!dev || dev->multifunction) to be much harder to grasp than
+> (dev && !dev->multifunction).
+> 
+> 2. The whole next_fn() in my opinion becomes easier to read if it bails
+> for all bad cases early and the "this is the next fn" is the final
+> return if we didn't bail. This becomes even more true as another
+> condition is added in patch 2.
+
+Fair enough, and I agree that "this is the next fn" is a nice final
+return.  In general I think it's good to return either an error or the
+next fn as soon as it is known.  It makes it harder to analyze if the
+return value has already been determined but we have to mentally pass
+over subsequent tests that don't affect it.
+
+> > Is this because "(fn + 1) % 8" may be zero, which previously
+> > terminated the loop, but now it doesn't because "fn == 0" is the
+> > *first* execution of the loop?
+> 
+> Yes with function 0 handled in the loop we can't use 0 as the
+> termination indication. Also I find it generally weird to use a wrap
+> around for this.
+
+Yes, I agree that's weird.  Usually I prefer "for" loops over
+"do ...  while", but this might be a case where it makes sense --
+we *always* want to call pci_scan_single_device() once, and
+"do ... while" would accomplish that without any fuss.  It might even
+allow us to keep the 0 return value as the termination condition,
+which would be nice because fn could stay unsigned and it would reduce
+the size of this patch.
+
+I'm hoping we can end up with something like this:
+
+  unsigned int next_fn(bus, dev, fn, mf)
+  {
+    if (ari(bus)) {
+      if (!dev)
+	return 0;
+      return PCI_ARI_CAP_NFN();
+    }
+
+    if (fn >= 7)
+      return 0;
+
+    if (mf)
+      return fn + 1;
+
+    if (hypervisor())
+      return fn + 1;
+
+    return 0;
+  }
+
+  int pci_scan_slot(...)
+  {
+    unsigned int fn = 0, mf = 0;
+
+    do {
+      dev = pci_scan_single_device(bus, devfn + fn);
+      if (dev && dev->multifunction)
+	mf = 1;
+      fn = next_fn(dev, fn, mf);
+    } while (fn);
+  }
+
+This would be minimal change to next_fn(): just add the "mf"
+parameter, which removes a lot of the confusing "dev" and "!dev"
+testing, and add the "fn >= 7" to remove the implicit "% 8 == 0"
+failure case.
+
+Then the jailhouse/s390 patch would trivially add the new hypervisor
+case, which is clearly separated from everything else.
+
+> > If so, I wonder if we could avoid that case by adding:
 > > 
-> > +/*
-> > + * On 64-bit systems bitmaps are represented as u64 arrays internally. On LE32
-> > + * machines the order of hi and lo parts of nubmers match the bitmap structure.
-> > + * In both cases conversion is not needed when copying data from/to arrays of
-> > + * u64.
-> > + */
-> > +#if (BITS_PER_LONG == 32) && defined(__BIG_ENDIAN)
-> 
-> I think I'd change the condition to (inverting it):
-> #if (BITS_PER_LONG == 64) || defined(__LITTLE_ENDIAN)
-> since that is the condition when the layout matches.
-
-Sorry, I don't understand about 'layout matches'. Why this way is
-better than another?
- 
-> > +void bitmap_from_arr64(unsigned long *bitmap, const u64 *buf, unsigned int nbits);
-> > +void bitmap_to_arr64(u64 *buf, const unsigned long *bitmap, unsigned int nbits);
-> > +#else
-> > +#define bitmap_from_arr64(bitmap, buf, nbits)			\
-> > +	bitmap_copy_clear_tail((unsigned long *) (bitmap),	\
-> > +			(const unsigned long *) (buf), (nbits))
-> > +#define bitmap_to_arr64(buf, bitmap, nbits)			\
-> > +	bitmap_copy_clear_tail((unsigned long *) (buf),		\
-> > +			(const unsigned long *) (bitmap), (nbits))
-> > +#endif
-> > +
-> >  static inline int bitmap_and(unsigned long *dst, const unsigned long *src1,
-> >  			const unsigned long *src2, unsigned int nbits)
-> >  {
-> > @@ -596,10 +614,7 @@ static inline void bitmap_next_set_region(unsigned long *bitmap,
-> >   */
-> >  static inline void bitmap_from_u64(unsigned long *dst, u64 mask)
-> >  {
-> > -	dst[0] = mask & ULONG_MAX;
-> > -
-> > -	if (sizeof(mask) > sizeof(unsigned long))
-> > -		dst[1] = mask >> 32;
-> > +	bitmap_from_arr64(dst, &mask, 64);
-> >  }
-> 
-> I'd leave this alone.
- 
-I'd change it in sake of consistency. Let's see what others say.
-
-> >  /**
-> > diff --git a/lib/bitmap.c b/lib/bitmap.c
-> > index d9a4480af5b9..aea9493f4216 100644
-> > --- a/lib/bitmap.c
-> > +++ b/lib/bitmap.c
-> > @@ -1533,5 +1533,52 @@ void bitmap_to_arr32(u32 *buf, const unsigned long *bitmap, unsigned int nbits)
-> >  		buf[halfwords - 1] &= (u32) (UINT_MAX >> ((-nbits) & 31));
-> >  }
-> >  EXPORT_SYMBOL(bitmap_to_arr32);
-> > +#endif
-> > +
-> > +#if (BITS_PER_LONG == 32) && defined(__BIG_ENDIAN)
-> > +/**
-> > + * bitmap_from_arr64 - copy the contents of u64 array of bits to bitmap
-> > + *	@bitmap: array of unsigned longs, the destination bitmap
-> > + *	@buf: array of u64 (in host byte order), the source bitmap
-> > + *	@nbits: number of bits in @bitmap
-> > + */
-> > +void bitmap_from_arr64(unsigned long *bitmap, const u64 *buf, unsigned int nbits)
-> > +{
-> > +	while (nbits > 0) {
-> 
-> This looks like a for look to me...
-
-Can you explain why for() is better then while() here? Is generated
-code better, or something else?
-
-> > +		u64 val = *buf++;
-> > +
-> > +		*bitmap++ = (unsigned long)val;
-> > +		if (nbits > 32)
-> > +			*bitmap++ = (unsigned long)(val >> 32);
-> 
-> No need for either cast.
-
-Yep, thanks.
-
-> > +		nbits -= 64;
-> > +	}
+> >   if (fn >= 7)
+> >     return -ENODEV;
 > > 
-> > +	/* Clear tail bits in last word beyond nbits. */
-> > +	if (nbits % BITS_PER_LONG)
-> > +		bitmap[-1] &= BITMAP_LAST_WORD_MASK(nbits);
-> > +}
-> > +EXPORT_SYMBOL(bitmap_from_arr64);
-> > +
-> > +/**
-> > + * bitmap_to_arr64 - copy the contents of bitmap to a u64 array of bits
-> > + *	@buf: array of u64 (in host byte order), the dest bitmap
-> > + *	@bitmap: array of unsigned longs, the source bitmap
-> > + *	@nbits: number of bits in @bitmap
-> > + */
-> > +void bitmap_to_arr64(u64 *buf, const unsigned long *bitmap, unsigned int nbits)
-> > +{
-> > +	unsigned long *end = bitmap + BITS_TO_LONGS(nbits);
-
-This should be const unsigned long.
-
-> > +
-> > +	while (bitmap < end) {
+> > at the very beginning.  Maybe that would allow a more trivial patch
+> > that just changed the error return from 0 to -ENODEV, i.e., leaving
+> > all the logic in next_fn() unchanged?
 > 
-> Another for loop...
-> 
-> > +		*buf = *bitmap++;
-> > +		if (bitmap < end)
-> > +			*buf |= *bitmap++ << 32;
-> 
-> That is UB.
+> I think this is equivalent to the ternary at the return. Both return
+> -ENODEV for fn >= 7. I do like your idea better though as it keeps with
+> the scheme of my point 2 above and ternaries are ever so slightly
+> harder to read.
 
-It's -Wshift-count-overflow. Should be
-        *buf |= (u64)(*bitmap++) << 32;
+Oops, I don't think we can do this directly because in the ARI case,
+fn is basically 8 bits wide so can be 0-255.
 
-> Did you even compile this??
-
-Yes. That's it, my BE32 platform is arm, and I had to disable CONFIG_WERROR
-because arm breaks build with that, and forgot about it. :(
-
-I boot-tested it on mips with the fix above with no issues.
- 
-> 	David
-> 
-> > +		buf++;
-> > +	}
-> > +
-> > +	/* Clear tail bits in last element of array beyond nbits. */
-> > +	if (nbits % 64)
-> > +		buf[-1] &= GENMASK_ULL(nbits, 0);
-> > +}
-> > +EXPORT_SYMBOL(bitmap_to_arr64);
-> >  #endif
-> > --
-> > 2.32.0
-> 
-> -
-> Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-> Registration No: 1397386 (Wales)
+Bjorn
