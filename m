@@ -2,508 +2,415 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E120C433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 21 Apr 2022 09:22:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57166C433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 21 Apr 2022 09:28:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387556AbiDUJZP (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 21 Apr 2022 05:25:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35412 "EHLO
+        id S1387629AbiDUJay (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 21 Apr 2022 05:30:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357478AbiDUJZM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Apr 2022 05:25:12 -0400
-Received: from mx0b-0064b401.pphosted.com (mx0b-0064b401.pphosted.com [205.220.178.238])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 584BB24BE5;
-        Thu, 21 Apr 2022 02:22:22 -0700 (PDT)
-Received: from pps.filterd (m0250811.ppops.net [127.0.0.1])
-        by mx0a-0064b401.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23L9AvK1026892;
-        Thu, 21 Apr 2022 09:21:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=windriver.com; h=message-id : date
- : subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=PPS06212021;
- bh=+I/hKBmFfrLjDXuANwOpiS4CkWcsG3eDjGQfRygSH9M=;
- b=XeM3q16L18aj5UTEcSHXtLfGCtcPX1UMyoFXE3PhELswGyMPPUeG0d1oEQqwhStUjQRV
- TAoPEM5mEMgZVp+T2xY8Xtz6sKxrHIKsi1nlyCyBDIyOO2ls0TxIDy2cylMVRhv7dCYt
- ox+VujbKP++HQHZz/BG29vM8i5H29/W9Jv7DtCxCOSA2ZjFlTjLPFoQaQbxB69awS+YE
- EY0UmXADi6UI281WaJ7DF/sg4Ck78SKiBosMe9UW2ibsLhFcY+au3mRUuTfsXEOajUBm
- zr8fO81ABQfRJnseI8V6VdyzzpM9w30Wa1StRw5ezqUBuCTRSa47+e3TVvZJWoAJN3Q1 pA== 
-Received: from nam10-bn7-obe.outbound.protection.outlook.com (mail-bn7nam10lp2106.outbound.protection.outlook.com [104.47.70.106])
-        by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 3ffpqn3pn8-1
+        with ESMTP id S1387625AbiDUJay (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Apr 2022 05:30:54 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE25527CFC;
+        Thu, 21 Apr 2022 02:28:04 -0700 (PDT)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23L9Nhm0007645;
+        Thu, 21 Apr 2022 09:27:56 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version; s=pp1; bh=UoyM7QuV4f6z+1Hig/YUjPae6yDBBRuV0rL44GgLXcc=;
+ b=VGhbb5JZsjkcE8KiFkF8H0JkPLnp9EJuF7c0fxXdizzW46Xk2Yngw2VLJa40AC3pvW0o
+ pXV7uwARt0mIr58uq3eGG9homohltz+qzGwEmxQv8riLcVkx1ahHnadQr9fQITsR0r6V
+ bjH6nDzWmtsMJiIibS9oS21oFXxxmgn+9K3FKhNr8iRAMVaebM7QfZaCXtstC10WO73y
+ QtG+OM7sIZ+p46FGhIZzDPdinVVbC6wiReHk2TPHI7RT7zXH7BLqvbA6Ye6WlLQUj/49
+ tMD49lo3qOhy6hrjKc3OHp2+R5oI/9pGi/40xAg68lM0pssk5yZ2Sc90XFZ7UkjezjB6 Pg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fk4kqg24c-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 21 Apr 2022 09:21:12 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=WA9Ufbz2Q7P/btY9P2h0kRDG2LVB8+2eDHCh/J715SRlOlU/mC0Qfxh4LWnYhYE3Mh1rQDoysBXf6/+9C5+sPbrZn6sVv7WKK/xbV/KHE4mANJggQ2zrOLqrQIwgyYKd1LLL6iHr7YmYxBTFHtj4Lqbku8IGBSqGkCm7cPuYGclvowEIO18qSLj772LpT2R69mwFFQ9/n63NOhTrM86hll2ihtccCKSiY370XoM+LErQipk1mfdEdb+1NdxQVMZnuKRDcPqGq22D0G05cyDABPVb0IJx77LTIc4eyZNrNG3m5U9G0P6sy0s2IEzbpep/79FttAE//h1yDdeWycipjg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=+I/hKBmFfrLjDXuANwOpiS4CkWcsG3eDjGQfRygSH9M=;
- b=X/74RngEvpT9vXTXgVZDjfiDYKMV7V6oCF2Jm0zFM7LqovS06o8TAxZWtUUAyCtcAY9Ngi8bZZY1NZ/7iYmxjncAMPUpMk49QXFU/GwewzbsGdJPsEx6M7rgOYuSRrzGpbPj1XmU5qmoXeCWRKGkTb7r8uKuhd4sbWi1YWXbRzpO/yTIOpKuiakAj75OW2oWLQwf/Lo+TNV1akiO5aVRS3lyBa/CTK0L7KTplF/uKRSNsWGqiExV/CUyyVuqE3w8cYdi92J/R1rlBEoM32uAk74REMerN9qbf/koRF1TX/b/5xwFUVLtKULGJt/Tqo+kMfyXYF+5v3AuCsSBggwTNA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=windriver.com; dmarc=pass action=none
- header.from=windriver.com; dkim=pass header.d=windriver.com; arc=none
-Received: from MWHPR11MB1358.namprd11.prod.outlook.com (2603:10b6:300:23::8)
- by SN6PR11MB3438.namprd11.prod.outlook.com (2603:10b6:805:cf::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5164.20; Thu, 21 Apr
- 2022 09:21:09 +0000
-Received: from MWHPR11MB1358.namprd11.prod.outlook.com
- ([fe80::1cd4:125:344:9fc]) by MWHPR11MB1358.namprd11.prod.outlook.com
- ([fe80::1cd4:125:344:9fc%7]) with mapi id 15.20.5164.026; Thu, 21 Apr 2022
- 09:21:08 +0000
-Message-ID: <d57f477d-d976-69b5-5b8d-f111ac27bd5c@windriver.com>
-Date:   Thu, 21 Apr 2022 17:20:54 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH RFC 2/8] arm64: stacktrace: Add arch_within_stack_frames
-Content-Language: en-US
-To:     Mark Rutland <mark.rutland@arm.com>
-Cc:     catalin.marinas@arm.com, will@kernel.org, tglx@linutronix.de,
-        bp@alien8.de, dave.hansen@linux.intel.com, keescook@chromium.org,
-        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
-        namhyung@kernel.org, benh@kernel.crashing.org, paulus@samba.org,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com, hpa@zytor.com,
-        x86@kernel.org, linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20220418132217.1573072-1-zhe.he@windriver.com>
- <20220418132217.1573072-3-zhe.he@windriver.com>
- <Yl7J7aVzKiWRtrGi@FVFF77S0Q05N>
-From:   He Zhe <zhe.he@windriver.com>
-In-Reply-To: <Yl7J7aVzKiWRtrGi@FVFF77S0Q05N>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: HKAPR04CA0002.apcprd04.prod.outlook.com
- (2603:1096:203:d0::12) To MWHPR11MB1358.namprd11.prod.outlook.com
- (2603:10b6:300:23::8)
-MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: f48a7c3f-0314-49e5-8b6d-08da237844d0
-X-MS-TrafficTypeDiagnostic: SN6PR11MB3438:EE_
-X-Microsoft-Antispam-PRVS: <SN6PR11MB3438493E12A6FD820AFA371C8FF49@SN6PR11MB3438.namprd11.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: rtmY9Mo0hQSkV8Lgb1tNfmeMD6kzkkcpF98s9pfqFFuz1esMjCJL74IcNEXN548OfwRsdse9t2twunhwupMLiATrVm2K9j9s+8UCljd7yjo+zGpYPVMiine5TSQzw4NClYzun2JGfqzu0CXSBRGABUuXbF69GNhJG8zu1/5LqRuXskmqWoWZPWDuMVJw8hP+CSSrvFfu3AMoFQgCyaSYWchy4PkDaJqEwkKHpcUIjktZX6WkzPyCXycV1doT6GTcdFWszBbTIbp6Xxaci3B3xzYgOwnS2f34xsWBqqr8YtApHfqp5lQuM+H4I3VMGOxJ/xby8eJpcUfI+GXVspg4YXj+jbsz6uM5vaSQ7vhv3c6u9UoTEE53Lqk12WgtyEIzY/Byqn7ZYRWBb5yTOM8oPoan+PlYBRK+O0E4vpTvGTPUM7ejiCo82Vcivax8IVDzo6ETHLhaGTYvwftZAGjlhT1Vlg+t9e2/YtTBpMjyIdXLVCqGqqrFyt93ptXK1CYM0NGbk3AqLGHeLUI/FRbnnFCOISTr0IAUtABMSQl7hOjRKzkg1wcG23osnED1RP3wkaXG/7zabuiTi1a6mKjVriEg5UvVKRfWQZw37rGqThMCxUlFaLORJ627eTCWgc0zQRqYLH/Jszc1wU2+E9SGnaMy5tO3GMhjuxUmfwjSMRzLzfkPKoklK9MybNBZM8xyoSpyU5ZE4TNIQCf41ZUvLExRcH8PN5VPVexBQVD3FM3T21zhFx1iOqXS1Twi+SpL+dXGJMRgJejPdfMfgA/GmhmTbQcMjEUdrg8NSGORE2ZVDCRSDqND879BF41rXBMEFvXdgKjvzj+mkjJfSnOh4RIRoXuoFsUP1tC2tYnRxnIIDIJaOWx2m+XsbDg4soLGDY4d2WDWYTjwwWSnctkqEg==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MWHPR11MB1358.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(38350700002)(38100700002)(6666004)(66946007)(86362001)(4326008)(26005)(83380400001)(66476007)(31686004)(53546011)(66556008)(6486002)(31696002)(52116002)(8676002)(2906002)(186003)(36756003)(6506007)(508600001)(966005)(8936002)(30864003)(6512007)(5660300002)(7416002)(2616005)(316002)(6916009)(45980500001)(43740500002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?L21NTU5KaTNYYzlxUE9WamE5dk9HZEJhQ1JlbllXQ2hlcThhcmZ4ZFZVMlN3?=
- =?utf-8?B?Nm5SZVFHZFluVkRvK29kL3RXUlVibW8weWk5b0ZjOHJMVTN6VU95YU12NDh6?=
- =?utf-8?B?eVo5N0NDMyt2bHU0SkltaUMzZXk5bG05YXFUUG1YcEpvamRMUiszUnNzUzhF?=
- =?utf-8?B?TEdxamQ4bm1SclByWUFuR0hiVEVNM2xnTkl2K0RzeGRJNUQ4NU5YMEttMVVK?=
- =?utf-8?B?Q2xmYVh3c2VsdExQcncycGVOa1hveXcxNlBhMThkVXYwcytUTjlldk9WclBV?=
- =?utf-8?B?YURMZXpWL2RzQTlYeUo3RXorL2hZRTU5bjZDOUo3T0xySkVXenFDR3F0R2ZU?=
- =?utf-8?B?cWRyWGJCZm5pZWMwWWFFOWczN0xETmI0elJ2SHZIMW1GOUJjazF4VlNCd1Br?=
- =?utf-8?B?Qms2WGg0dGRaRStGWENKK3JnelZtelRONVV1VWZhcVZxRmlUcS9rcW84Qk43?=
- =?utf-8?B?QmhFeVozbTE0dGlRY3dnMWFmRENBVkYvdFl1alJ2YVBFTUcwMFJ5K3pIL056?=
- =?utf-8?B?K0dZSnFlUVZYM3I1MTFuVjlZZ2h6Z2Y2Wk1QcGJFbEtST3dxNklvMllNSnVB?=
- =?utf-8?B?VTRIR2JpZHZRdHVUWmVTY0xSR1RjNWtjRlNDMzEzc05VMktkV3lrUk1Pcldk?=
- =?utf-8?B?SklWcjFjc2tsT09VSjdLUFB5WHVIZklOcUptaS9vR0dESSsyRStNMmxhRFNX?=
- =?utf-8?B?dEt4KzVlY2J2eHgvV0JoV1ZraFFva3hKS0V2RlRZL2txemhOWlpxUEc3WEVr?=
- =?utf-8?B?UFVVWGZRTFk0UHdwWmtRcVVTMi9NRnVxRy9SZjhvb1RJQS9Jb3luRUJPM1R6?=
- =?utf-8?B?K2RrMDhzOEM3dHl1d2R6TXp5SDRLa25SQmt2Nzl1RXhBdllTWXFxWXRlaGI1?=
- =?utf-8?B?MW1qa1pSRnNOSlVUV0drYVlEWnVHTFVsajBadUJxZENpUWExaGZKa2hsUlhZ?=
- =?utf-8?B?RGlXSG04WU9KdFpqZy9STS9JcnVpYTVBVFppQzc0d1Z0ZXBySExCZ1pHV3V1?=
- =?utf-8?B?S3czc3Bya1BUOWhRWXVZVk1sdEFRNzdNcElCU29lRkVPNTEwK3FWK1cyYnlM?=
- =?utf-8?B?VEl5YkRhMk4vRm1ldUVKeHBTU2VVUmZyVXdadWw1L3pBL0pub0ljV1ovTjg0?=
- =?utf-8?B?VEcvcUNadWVHU0JCVmI0dURLamhhU3FuSmNwTWFyNy9vSjdNNmF0L0Y5bTJK?=
- =?utf-8?B?WjZPNURydS91WGxDMk9yZCtJWDMvWlRVblpJQjNIUHFkRTQrTnY5QUlwYnY5?=
- =?utf-8?B?dWxPSGlCVElyVGorenlsVjE2bGdmeStuNUlBTWdNSjh2SkVMMHVaY2oxOXhV?=
- =?utf-8?B?emN0T1F4YzE2RlM4TDVwa1FxVUM2eFhEQTBTRFNsVWlPelJ2SE5SeHZlaXhQ?=
- =?utf-8?B?QXlJNHd4TEI5aEFMSlRES1VLakgxc3p0OGtobVhHN0hFVDkzbGFia1k0OFpJ?=
- =?utf-8?B?Y2dEa2Nwb292WjVFanB3NGlHR0haMG5QanRWb0EzZUxqOHhOVUs1MFJqcjNZ?=
- =?utf-8?B?TlVvODBJQWRhM3RMUFBYOGU3VGRsTitHVTFldmlDVml1QkM4eHFXbGcvYmU1?=
- =?utf-8?B?QnRkSjM2MVNLdlg4ZW1HWmF4NHhDRmlPZXVhb0xDK0ZTRW9aMXJsWjRLYzh5?=
- =?utf-8?B?Sk1wN0xYZ3dGZzlNNTJ3bHJLVXo3TTh2SHhSN1hXek5PSG0rUVkwQnhGZ0xZ?=
- =?utf-8?B?aVdJdXZxbldab3FSYnpHTm42TjZPZ1AvZG5wQ1h3VlljT0MreHBKQ3VCQk56?=
- =?utf-8?B?Tnhvb1ViS0JFNWhrYlVTN0hCT3dFeGM3TUVvd0RTSmE5T3N3QXhtejQwMVNk?=
- =?utf-8?B?QnpydndWWTdtQjNCZmhTWXNKbEdmU3RPVjZ3a2NJeFRxazd6Nk5SdmlHZDJY?=
- =?utf-8?B?WEhvWGg2WDNFRHRhWXRmNkdENjhPWUVlSTQyT0I3cWZVR0xmaXdSUVoxajdr?=
- =?utf-8?B?Yml5T3pzMXRMQlhxNlhTcVRsZDBhR3EzelByaGNpSHk1UExicFRVTFBkYytN?=
- =?utf-8?B?WnVxVzZrY1dackk3MlZpazRPdnMvNTdJbERIcVRYd2ZyNzkrRzRyNmRjbzVl?=
- =?utf-8?B?cTZlb2hWdS9IR1cwNmpiZzZDTWNBNmNYL0R6T0Z0ZlRxT2o2T0tyZXJ3VUgw?=
- =?utf-8?B?NjRRc1lzR0ZtM3htZW1naTNDMXd0WUdBUFAzaE8reHhqQ0RHN1d6MURmN3dH?=
- =?utf-8?B?ZC9oR3J1Y1krYUR3VnBDN0RKSmdTNG9WbElLMFRkS0Roelg1Q1J4elpSNmQw?=
- =?utf-8?B?dHNBQmdUTFo4d0xmTGoxbldDa1JQTVNjMnA2dFNmUkRBbVFXMjdLWmJHOEor?=
- =?utf-8?B?Z25QbXUySi91QWxaRUU0ZCtaT2RFaWdkQ0JCNW52N0ZHTGxmdUpwdz09?=
-X-OriginatorOrg: windriver.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f48a7c3f-0314-49e5-8b6d-08da237844d0
-X-MS-Exchange-CrossTenant-AuthSource: MWHPR11MB1358.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Apr 2022 09:21:08.7193
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 8ddb2873-a1ad-4a18-ae4e-4644631433be
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 5rTT8pxlKhd/72EMFwxs+jGS+ESG5I8fY4lKwlb2Vo2yYYW6L+dZqy2NK4wl9IGmmHWBieGKEa/PX9wRuQv3SQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN6PR11MB3438
-X-Proofpoint-GUID: Ycd9U5FO_xuAMobxvzLvIJBP9z9wd24m
-X-Proofpoint-ORIG-GUID: Ycd9U5FO_xuAMobxvzLvIJBP9z9wd24m
+        Thu, 21 Apr 2022 09:27:55 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23L9RtxE031320;
+        Thu, 21 Apr 2022 09:27:55 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fk4kqg23t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 21 Apr 2022 09:27:55 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23L9RHsB004316;
+        Thu, 21 Apr 2022 09:27:53 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma04ams.nl.ibm.com with ESMTP id 3ffne97ku2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 21 Apr 2022 09:27:53 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23L9RoF551905016
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 21 Apr 2022 09:27:50 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0140BA4040;
+        Thu, 21 Apr 2022 09:27:50 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 59616A4051;
+        Thu, 21 Apr 2022 09:27:49 +0000 (GMT)
+Received: from sig-9-145-44-250.uk.ibm.com (unknown [9.145.44.250])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 21 Apr 2022 09:27:49 +0000 (GMT)
+Message-ID: <8225cf74d6d81c3ce149d677b5bf47689d8e3fd2.camel@linux.ibm.com>
+Subject: Re: [PATCH v3 1/4] PCI: Clean up pci_scan_slot()
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Bjorn Helgaas <helgaas@kernel.org>
+Cc:     Bjorn Helgaas <bhelgaas@google.com>,
+        Jan Kiszka <jan.kiszka@siemens.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        linux-kernel@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        linux-s390@vger.kernel.org, linux-pci@vger.kernel.org
+Date:   Thu, 21 Apr 2022 11:27:42 +0200
+In-Reply-To: <20220421021446.GA1356365@bhelgaas>
+References: <20220421021446.GA1356365@bhelgaas>
+Content-Type: multipart/signed; micalg="pgp-sha256";
+        protocol="application/pgp-signature"; boundary="=-kgosNNU3lYVX4dmGeFTy"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: YadYJuWXU6oE_qrkkIVQQ6l8oNS4W3n_
+X-Proofpoint-ORIG-GUID: nps0FDslBiQ6Y2ZyM1QFczbbbOUxjHb6
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-04-20_06,2022-04-20_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
- impostorscore=0 spamscore=0 lowpriorityscore=0 priorityscore=1501
- malwarescore=0 clxscore=1015 suspectscore=0 mlxlogscore=999 adultscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2204210051
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 adultscore=0
+ bulkscore=0 mlxscore=0 lowpriorityscore=0 priorityscore=1501 spamscore=0
+ impostorscore=0 phishscore=0 malwarescore=0 suspectscore=0 mlxlogscore=999
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2204210050
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
+--=-kgosNNU3lYVX4dmGeFTy
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 4/19/22 22:40, Mark Rutland wrote:
-> Hi,
->
-> On Mon, Apr 18, 2022 at 09:22:11PM +0800, He Zhe wrote:
->> This function checks if the given address range crosses frame boundary.
-> I don't think that's quite true, becuase arm64's procedure call standard
-> (AAPCS64) doesn't give us enough information to determine this without
-> additional metadata from the compiler, which we simply don't have today.
->
-> Since there's a lot of confusion in this area, I've made a bit of an info dump
-> below, before review on the patch itself, but TBH I'm struggling to see that
-> this is all that useful.
+On Wed, 2022-04-20 at 21:14 -0500, Bjorn Helgaas wrote:
+> Hi Niklas,
+>=20
+> I'm sure this makes good sense, but I need a little more hand-holding.
+> Sorry this is long and rambling.
+>=20
+> On Tue, Apr 19, 2022 at 12:28:00PM +0200, Niklas Schnelle wrote:
+> > While determining the next PCI function is factored out of
+> > pci_scan_slot() into next_fn() the former still handles the first
+> > function as a special case duplicating the code from the scan loop and
+> > splitting the condition that the first function exits from it being
+> > multifunction which is tested in next_fn().
+> >=20
+> > Furthermore the non ARI branch of next_fn() mixes the case that
+> > multifunction devices may have non-contiguous function ranges and dev
+> > may thus be NULL with the multifunction requirement. It also signals
+> > that no further functions need to be scanned by returning 0 which is
+> > a valid function number.
+> >=20
+> > Improve upon this by moving all conditions for having to scan for more
+> > functions into next_fn() and make them obvious and commented.
+> >=20
+> > By changing next_fn() to return -ENODEV instead of 0 when there is no
+> > next function we can then handle the initial function inside the loop
+> > and deduplicate the shared handling.
+> >=20
+> > No functional change is intended.
+> >=20
+> > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> > ---
+> >  drivers/pci/probe.c | 41 +++++++++++++++++++----------------------
+> >  1 file changed, 19 insertions(+), 22 deletions(-)
+> >=20
+> > diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+> > index 17a969942d37..389aa1f9cb2c 100644
+> > --- a/drivers/pci/probe.c
+> > +++ b/drivers/pci/probe.c
+> > @@ -2579,33 +2579,35 @@ struct pci_dev *pci_scan_single_device(struct p=
+ci_bus *bus, int devfn)
+> >  }
+> >  EXPORT_SYMBOL(pci_scan_single_device);
+> > =20
+> > -static unsigned int next_fn(struct pci_bus *bus, struct pci_dev *dev,
+> > -			    unsigned int fn)
+> > +static int next_fn(struct pci_bus *bus, struct pci_dev *dev, int fn)
+> >  {
+> >  	int pos;
+> >  	u16 cap =3D 0;
+> >  	unsigned int next_fn;
+> > =20
+> > -	if (pci_ari_enabled(bus)) {
+> > -		if (!dev)
+> > -			return 0;
+> > +	if (dev && pci_ari_enabled(bus)) {
+>=20
+> I think this would be easier to verify if we kept the explicit error
+> return, e.g.,
+>=20
+>   if (pci_ari_enabled(bus)) {
+>     if (!dev)
+>       return -ENODEV;
+>     pos =3D pci_find_ext_capability(...);
+>=20
+> Otherwise we have to sort through the !dev cases below.  I guess
+> -ENODEV would come from either the "!fn && !dev" case or the "fn > 6"
+> case, but it's not obvious to me that those are equivalent to the
+> previous code.
 
-Thanks for the exhaustive explanation and info dump here. I've read through all
-your comments, very helpful.
+We could keep this the same for this patch but I think for jailhouse
+(patch 2) we need the "!dev" case not to fail here such that we can
+handle the missing function 0 below even if ARI is enabled. For s390
+this doesn't currently matter because pci_ari_enabled(bus) is always
+false but I assumed that this isn't necessarily so for jailhouse. I
+sent a follow up mail on a slight behavior change I can think of for
+this case for v2 but forgot to send it also for v3. Quoted below:
 
->
-> On arm64, we use a calling convention called AAPCS64, (in full: "Procedure Call
-> Standard for the Arm® 64-bit Architecture (AArch64)"). That's maintained at:
->
->   https://github.com/ARM-software/abi-aa
->
-> ... with the latest release (as of today) at:
->
->   https://github.com/ARM-software/abi-aa/blob/60a8eb8c55e999d74dac5e368fc9d7e36e38dda4/aapcs64/aapcs64.rst
->   https://github.com/ARM-software/abi-aa/releases/download/2022Q1/aapcs64.pdf
->
-> In AAPCS64, there are two related but distinct things to be aware of:
->
-> * The "stack frame" of a function, which is the entire contiguous region of
->   stack memory used by a function.
->
-> * The "frame record", which is the saved FP and LR placed *somewhere* within
->   the function's stack frame. The FP points at the most recent frame record on
->   the stack, and at function call boundaries points at the caller's frame
->   record.
->
-> AAPCS64 doesn't say *where* a frame record is placed within a stack frame, and
-> there are reasons for compilers to place above and below it. So in genral, a
-> functionss stack frame looks like:
->       
->         +=========+
->         |  above  |
->         |---------|
->         | FP | LR |
->         |---------|
->         |  below  |
->         +=========+
->
-> ... where the "above" or "below" portions might be any size (even 0 bytes).
->
-> Typical code generation today means for most functions that the "below" portion
-> is 0 bytes in size, but this is not guaranteed, and even today there are cases
-> where this is not true.
->
-> When one function calls another without a stack transition, that looks like:
->
->         +=========+ ___
->         |  above  |    \
->         |---------|    |
->      ,->| FP | LR |    +-- Caller's stack frame
->      |  |---------|    |
->      |  |  below  | ___/
->      |  +=========+ ___ 
->      |  |  above  |    \
->      |  |---------|    |
->      '--| FP | LR |    +-- Callee's stack frame
->         |---------|    |
->         |  below  | ___/
->         +=========+
->
-> Where there's a stack transition, and the new stack is at a *lower* VA than the
-> old stack, that looks like:
->
->         +=========+ ___
->         |  above  |    \
->         |---------|    |
->      ,->| FP | LR |    +-- Caller's stack frame
->      |  |---------|    |
->      |  |  below  | ___/
->      |  +=========+
->      | 
->      |  ~~~~~~~~~~~
->      |  Arbitrarily 
->      |  large gap,
->      |  potentially
->      |  including
->      |  other data
->      |  ~~~~~~~~~~~
->      |
->      |  +=========+ ___ 
->      |  |  above  |    \
->      |  |---------|    |
->      '--| FP | LR |    +-- Callee's stack frame
->         |---------|    |
->         |  below  | ___/
->         +=========+
->
-> Where there's a stack transition, and the new stack is at a *higher* VA than
-> the old stack, that looks like:
->
->         +=========+ ___ 
->         |  above  |    \
->         |---------|    |
->      ,--| FP | LR |    +-- Callee's stack frame
->      |  |---------|    |
->      |  |  below  | ___/
->      |  +=========+
->      |
->      |  ~~~~~~~~~~~
->      |  Arbitrarily 
->      |  large gap,
->      |  potentially
->      |  including
->      |  other data
->      |  ~~~~~~~~~~~
->      | 
->      |  +=========+ ___
->      |  |  above  |    \
->      |  |---------|    |
->      '->| FP | LR |    +-- Caller's stack frame
->         |---------|    |
->         |  below  | ___/
->         +=========+
->  
-> In all of these cases, we *cannot* identify the boundary between the two stack
-> frames, we can *only* identify where something overlaps a frame record. That
-> might itself be a good thing, but it's not the same thing as what you describe
-> in the commit message.
->
->> It is based on the existing x86 algorithm, but implemented via stacktrace.
->> This can be tested by USERCOPY_STACK_FRAME_FROM and
->> USERCOPY_STACK_FRAME_TO in lkdtm.
-> Can you please explain *why* we'd want this?
+"This part here theoretically changes the behavior slightly. If the ARI
+information is wrong/lands us in a "hole" we may look for more
+functions via the non-ARI path. Not sure if that is relevant though as
+in the worst case we might find functions that we otherwise wouldn't
+have seen. Seems rather obsure to me but I might be wrong, we currently
+don't see the ARI capability in Linux on IBM Z so I have less
+experience with this. I did of course boot test on my x86_64
+workstation."
 
-We are trying to use the hardened usercopy feature on arm64 hardware and found
-that the lkdtm can help validate the feature. But USERCOPY_STACK_FRAME_FROM/TO
-checks, which were originally added for x86, are not supported for arm64. I
-thought it would be good if we can enhance such hardening for arm64 and tried to
-add the basic frame check like on x86 in this series. And yes, with all the arm64 details
-provided above, this surely needs to be reconsidered.
+>=20
+> >  		pos =3D pci_find_ext_capability(dev, PCI_EXT_CAP_ID_ARI);
+> >  		if (!pos)
+> > -			return 0;
+> > +			return -ENODEV;
+> > =20
+> >  		pci_read_config_word(dev, pos + PCI_ARI_CAP, &cap);
+> >  		next_fn =3D PCI_ARI_CAP_NFN(cap);
+> >  		if (next_fn <=3D fn)
+> > -			return 0;	/* protect against malformed list */
+> > +			return -ENODEV;	/* protect against malformed list */
+> > =20
+> >  		return next_fn;
+> >  	}
+> > =20
+> > -	/* dev may be NULL for non-contiguous multifunction devices */
+> > -	if (!dev || dev->multifunction)
+> > -		return (fn + 1) % 8;
+> > -
+> > -	return 0;
+> > +	/* only multifunction devices may have more functions */
+> > +	if (dev && !dev->multifunction)
+> > +		return -ENODEV;
+>=20
+> I don't understand why the "!dev || dev->multifunction" test needs to
+> change.  Isn't that valid even in the hypervisor case?  IIUC, you want
+> to return success in some cases that currently return failure, so this
+> case that was already success should be fine as it was.
 
->
-> Who do we expect to use this?
->
-> What's the overhead in practice?
->
-> Has this passed a more realistic stress test (e.g. running some userspace
-> applications which make intensive use of copies to/from the kernel)?
+This isn't a change to the test. It's the negation of the logical
+condition *and* a switch of the branches i.e. keeps the overall
+behavior exactly the same. The equivalence is !(!A || B) =3D=3D (A && !B).
+There are two reasons I did this.
 
-Just did some very rough performance impact test as in the other reply, But not
-sure what needs to be done further.
+1. I find (!dev || dev->multifunction) to be much harder to grasp than
+(dev && !dev->multifunction).
 
-Thanks,
-Zhe
+2. The whole next_fn() in my opinion becomes easier to read if it bails
+for all bad cases early and the "this is the next fn" is the final
+return if we didn't bail. This becomes even more true as another
+condition is added in patch 2.
 
->
->> Signed-off-by: He Zhe <zhe.he@windriver.com>
->> ---
->>  arch/arm64/Kconfig                   |  1 +
->>  arch/arm64/include/asm/thread_info.h | 12 +++++
->>  arch/arm64/kernel/stacktrace.c       | 76 ++++++++++++++++++++++++++--
->>  3 files changed, 85 insertions(+), 4 deletions(-)
->>
->> diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
->> index 57c4c995965f..0f52a83d7771 100644
->> --- a/arch/arm64/Kconfig
->> +++ b/arch/arm64/Kconfig
->> @@ -165,6 +165,7 @@ config ARM64
->>  	select HAVE_ARCH_TRACEHOOK
->>  	select HAVE_ARCH_TRANSPARENT_HUGEPAGE
->>  	select HAVE_ARCH_VMAP_STACK
->> +	select HAVE_ARCH_WITHIN_STACK_FRAMES
->>  	select HAVE_ARM_SMCCC
->>  	select HAVE_ASM_MODVERSIONS
->>  	select HAVE_EBPF_JIT
->> diff --git a/arch/arm64/include/asm/thread_info.h b/arch/arm64/include/asm/thread_info.h
->> index e1317b7c4525..b839ad9f2248 100644
->> --- a/arch/arm64/include/asm/thread_info.h
->> +++ b/arch/arm64/include/asm/thread_info.h
->> @@ -58,6 +58,18 @@ void arch_setup_new_exec(void);
->>  void arch_release_task_struct(struct task_struct *tsk);
->>  int arch_dup_task_struct(struct task_struct *dst,
->>  				struct task_struct *src);
->> +/*
->> + * Walks up the stack frames to make sure that the specified object is
->> + * entirely contained by a single stack frame.
->> + *
->> + * Returns:
->> + *	GOOD_FRAME	if within a frame
-> As above, we cannot identify this reliably.
->
->> + *	BAD_STACK	if placed across a frame boundary (or outside stack)
->> + *	NOT_STACK	unable to determine (no frame pointers, etc)
-> On arm64 we always have frame pointers enabled, so this is a confusing comment.
-> Is this a copy-paste from x86?
->
->> + */
->> +int arch_within_stack_frames(const void * const stack,
->> +		const void * const stackend,
->> +		const void *obj, unsigned long len);
->>  
->>  #endif
->>  
->> diff --git a/arch/arm64/kernel/stacktrace.c b/arch/arm64/kernel/stacktrace.c
->> index e4103e085681..219b90c1de12 100644
->> --- a/arch/arm64/kernel/stacktrace.c
->> +++ b/arch/arm64/kernel/stacktrace.c
->> @@ -145,12 +145,17 @@ NOKPROBE_SYMBOL(unwind_frame);
->>  
->>  static void notrace walk_stackframe(struct task_struct *tsk,
->>  				    struct stackframe *frame,
->> -				    bool (*fn)(void *, unsigned long), void *data)
->> +				    stack_trace_consume_fn fn, void *data)
->>  {
->> +	struct frame_info fi;
->> +
->>  	while (1) {
->>  		int ret;
->>  
->> -		if (!fn(data, frame->pc))
->> +		fi.pc = frame->pc;
->> +		fi.fp = frame->fp;
->> +		fi.prev_fp = frame->prev_fp;
->> +		if (!fn(data, &fi))
->>  			break;
->>  		ret = unwind_frame(tsk, frame);
->>  		if (ret < 0)
-> As on my prior comment, I don't think we want to alter our generic stack walker
-> in this way. If we need more info, I'd prefer to expose this in layers, keeping
-> arch_stack_walk unchanged, but having an arm64_stack_walk that can pass some
-> arm64-specific data.
->
->> @@ -159,10 +164,10 @@ static void notrace walk_stackframe(struct task_struct
->> *tsk,
->>  }
->>  NOKPROBE_SYMBOL(walk_stackframe);
->>  
->> -static bool dump_backtrace_entry(void *arg, unsigned long where)
->> +static bool dump_backtrace_entry(void *arg, struct frame_info *fi)
->>  {
->>  	char *loglvl = arg;
->> -	printk("%s %pSb\n", loglvl, (void *)where);
->> +	printk("%s %pSb\n", loglvl, (void *)fi->pc);
->>  	return true;
->>  }
->>  
->> @@ -210,3 +215,66 @@ noinline notrace void arch_stack_walk(stack_trace_consume_fn consume_entry,
->>  
->>  	walk_stackframe(task, &frame, consume_entry, cookie);
->>  }
->> +
->> +struct arch_stack_object {
->> +	unsigned long start;
->> +	unsigned long len;
->> +	int flag;
-> What is "flag" ?
->
->> +};
->> +
->> +static bool arch_stack_object_check(void *data, struct frame_info *fi)
->> +{
->> +	struct arch_stack_object *obj = (struct arch_stack_object *)data;
->> +
->> +	/* Skip the frame of arch_within_stack_frames itself */
->> +	if (fi->prev_fp == 0)
->> +		return true;
-> That's not what this is skipping. The first time arch_stack_walk() is called,
-> it gives the PC of its caller (i.e. arch_within_stack_frames), and it's own
-> synthetic FP. The next time around it gives the FP of it's caller.
->
->> +
->> +	/*
->> +	 * low ----------------------------------------------> high
->> +	 * [saved bp][saved ip][args][local vars][saved bp][saved ip]
->> +	 *                     ^----------------^
->> +	 *               allow copies only within here
->> +	 */
-> This diagram is not valid for arm64. There is no "bp" or "ip", and each stack
-> frame can be laid out more arbitrarily relative to the frame record.
->
->> +	if (obj->start + obj->len <= fi->fp) {
->> +		obj->flag = obj->start >=
->> +			fi->prev_fp + 2 * sizeof(void *) ?
->> +			GOOD_FRAME : BAD_STACK;
-> This check is broken in several ways if there's a stack transition, since the
-> placement of fp and prev_fp is legitimately arbitrary.
->
-> This would also be a lot clearer if you bailed out early rather than nesting
-> checks.
->
-> The best thing you can realistically do is check that the object falls entirely
-> within a given stack, then check that that no frames intersect the object. You
-> don't need prev_fp for that, since you can just check each frame record in
-> turn, then bail out once the object has been passed (i.e. once we've hit the
-> correct stack, and either seen an FP above it or transitioned to another
-> stack).
->
->> +		return false;
->> +	} else
->> +		return true;
->> +}
->> +
->> +/*
->> + * Walks up the stack frames to make sure that the specified object is
->> + * entirely contained by a single stack frame.
->> + *
->> + * Returns:
->> + *	GOOD_FRAME	if within a frame
->> + *	BAD_STACK	if placed across a frame boundary (or outside stack)
->> + *	NOT_STACK	unable to determine (no frame pointers, etc)
->> + */
-> This is the exact same comment as in the header. My comments from there apply
-> here, and one of the two should disappear.
->
->> +int arch_within_stack_frames(const void * const stack,
->> +		const void * const stackend,
->> +		const void *obj, unsigned long len)
->> +{
->> +#if defined(CONFIG_FRAME_POINTER)
-> As above, this *cannot* be selected on arm64.
->
->> +	struct arch_stack_object object;
->> +	struct pt_regs regs;
->> +
->> +	if (__builtin_frame_address(1) == 0)
->> +		return NOT_STACK;
-> When do you expect this to happen?
->
->> +
->> +	object.start = (unsigned long)obj;
->> +	object.len = len;
->> +	object.flag = NOT_STACK;
->> +
->> +	regs.regs[29] = (u64)__builtin_frame_address(1);
-> NAK to making a synthetic pt_regs like this. That an abuse of the existing API,
-> and you don't need to do this in the first place.
->
->> +
->> +	arch_stack_walk(arch_stack_object_check, (void *)&object, NULL, &regs);
-> A void pointer cast is not necessary.
->
-> Thanks,
-> Mark.
->
->> +
->> +	return object.flag;
->> +#else
->> +	return NOT_STACK;
->> +#endif
->> +}
->> -- 
->> 2.25.1
->>
+>=20
+> Is this because "(fn + 1) % 8" may be zero, which previously
+> terminated the loop, but now it doesn't because "fn =3D=3D 0" is the
+> *first* execution of the loop?
+
+Yes with function 0 handled in the loop we can't use 0 as the
+termination indication. Also I find it generally weird to use a wrap
+around for this.
+
+>=20
+> If so, I wonder if we could avoid that case by adding:
+>=20
+>   if (fn >=3D 7)
+>     return -ENODEV;
+>=20
+> at the very beginning.  Maybe that would allow a more trivial patch
+> that just changed the error return from 0 to -ENODEV, i.e., leaving
+> all the logic in next_fn() unchanged?
+
+I think this is equivalent to the ternary at the return. Both return
+-ENODEV for fn >=3D 7. I do like your idea better though as it keeps with
+the scheme of my point 2 above and ternaries are ever so slightly
+harder to read.
+
+>=20
+> I'm wondering if this could end up like:
+>=20
+>     if (fn >=3D 7)
+>       return -ENODEV;
+>=20
+>     if (pci_ari_enabled(bus)) {
+>       if (!dev)
+> 	return -ENODEV;
+>       ...
+>       return next_fn;
+>     }
+>=20
+>     if (!dev || dev->multifunction)
+>       return (fn + 1) % 8;
+>=20
+>  +  if (hypervisor_isolated_pci_functions())
+>  +    return (fn + 1) % 8;
+>=20
+>     return -ENODEV;
+>=20
+> (The hypervisor part being added in a subsequent patch, and I'm not
+> sure exactly what logic you need there -- the point being that it's
+> just an additional success case.)
+
+Yes pretty much only that by negating the success case and switching
+the branches we end up with a list of fail/bail checks and a single
+success return even with the hyperisor check added. Also not sure if
+the "fn >=3D 7" check should rather go after the ARI path to keep them
+separate doesn't really matter of course.
+
+>=20
+> The "% 8" seems possibly superfluous then, since previously that
+> caused a zero return that terminated the loop.  If we're using -ENODEV
+> to terminate the loop, we probably don't care about the mod 8.
+
+Yes
+
+>=20
+> > +	/*
+> > +	 * A function 0 is required but multifunction devices may
+> > +	 * be non-contiguous so dev can be NULL otherwise.
+>=20
+> I understood the original "dev may be NULL ..." comment, but I can't
+> quite parse this.  "dev can be NULL" for non-zero functions?  That's
+> basically what it said before, but it's not clear what "otherwise"
+> refers to.
+
+I agree this can probably be improved. I'm trying to say that dev can
+be NULL if it is not function 0 which must exist. Maybe:
+
+"dev may be NULL as multifunction devices may be non-contiguous but a
+function 0 is required"
+
+>=20
+> > +	 */
+> > +	if (!fn && !dev)
+> > +		return -ENODEV;
+>=20
+> This part isn't obvious to me yet, partly because of the "!fn && !dev"
+> construction.  The negatives make it hard to parse.
+>=20
+> Since "fn" isn't a boolean or a pointer, I think "fn =3D=3D 0" is easier
+> to read than "!fn".  I would test "dev" first since it logically
+> precedes "fn".
+
+I agree about the "fn =3D=3D 0", I only used "!fn" because I remember
+getting checkpatch warnings for "foo =3D=3D 0" in the past. I'll change to
+fn =3D=3D 0. As for the order see below.
+
+>=20
+> IIUC !dev means we haven't found a function at this device number yet.
+> So this:
+>=20
+>   if (!dev && fn =3D=3D 0)
+>     return -ENODEV;
+>=20
+> means we called pci_scan_single_device(bus, devfn + 0) the first time
+> through the loop, and it didn't find a device so it returned NULL.
+
+Yes. This is "dev may be NULL unless we're looking at function 0". The
+fn came before dev because I wrote it as "function 0 must not be NULL"
+but it could also be "dev is NULL and we're looking at function 0",
+I have no clear preference.
+
+This is also the case that gets changed by patch 2 to become:
+
+"function 0 must not be NULL unless we have isolated PCI functions"
+
+or with the order switched:
+
+"dev is NULL and we're looking at function 0 and don't have isolated
+PCI functions"
+
+>=20
+> > +	return (fn <=3D 6) ? fn + 1 : -ENODEV;
+> >  }
+> > =20
+> >  static int only_one_child(struct pci_bus *bus)
+> > @@ -2643,24 +2645,19 @@ static int only_one_child(struct pci_bus *bus)
+> >   */
+> >  int pci_scan_slot(struct pci_bus *bus, int devfn)
+> >  {
+> > -	unsigned int fn, nr =3D 0;
+> > -	struct pci_dev *dev;
+> > +	int fn, nr =3D 0;
+> > +	struct pci_dev *dev =3D NULL;
+> > =20
+> >  	if (only_one_child(bus) && (devfn > 0))
+> >  		return 0; /* Already scanned the entire slot */
+> > =20
+> > -	dev =3D pci_scan_single_device(bus, devfn);
+> > -	if (!dev)
+> > -		return 0;
+> > -	if (!pci_dev_is_added(dev))
+> > -		nr++;
+> > -
+> > -	for (fn =3D next_fn(bus, dev, 0); fn > 0; fn =3D next_fn(bus, dev, fn=
+)) {
+> > +	for (fn =3D 0; fn >=3D 0; fn =3D next_fn(bus, dev, fn)) {
+> >  		dev =3D pci_scan_single_device(bus, devfn + fn);
+>=20
+> "devfn + fn" (in the existing, unchanged code) is a little bit weird.
+> In almost all cases, devfn is the result of "PCI_DEVFN(slot, 0)", so
+> we could make the interface:
+>=20
+>   pci_scan_slot(struct pci_bus *bus, int dev)
+>=20
+> where "dev" is 0-31.
+>=20
+> The only exceptions are a couple hotplug drivers where the fn probably
+> is or should be 0, too, but I haven't verified that.
+>=20
+> But this would be scope creep, so possibly something we could consider
+> in the future, but not for this series.
+
+Hmm, I see your point. It makes little sense to have a devfn that isn't
+from PCI_DEVFN(slot, 0) and not use pci_scan_single_device() instead.
+
+>=20
+> >  		if (dev) {
+> >  			if (!pci_dev_is_added(dev))
+> >  				nr++;
+> > -			dev->multifunction =3D 1;
+> > +			if (nr > 1)
+> > +				dev->multifunction =3D 1;
+> >  		}
+> >  	}
+> > =20
+> > --=20
+> > 2.32.0
+> >=20
+
+
+--=-kgosNNU3lYVX4dmGeFTy
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQSiikNOrnCUNbxSj4j7H22hwInkVgUCYmEjjgAKCRD7H22hwInk
+Vit4AQDprxiVgvFsILBgrF891xFGJG34rFju00CjqryS8efKjgEAndHSdBHZI/Gl
+z8qLGrpwFcLgsK/UIlE/qcQoTVt9UwE=
+=bjJh
+-----END PGP SIGNATURE-----
+
+--=-kgosNNU3lYVX4dmGeFTy--
 
