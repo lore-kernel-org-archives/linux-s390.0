@@ -2,140 +2,119 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2A56C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 21 Apr 2022 11:33:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 598FEC433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 21 Apr 2022 11:43:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380244AbiDULgm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 21 Apr 2022 07:36:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32868 "EHLO
+        id S1353068AbiDULqA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 21 Apr 2022 07:46:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229845AbiDULgl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Apr 2022 07:36:41 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B59515825;
-        Thu, 21 Apr 2022 04:33:52 -0700 (PDT)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23L9C6rm025328;
-        Thu, 21 Apr 2022 11:33:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=wV1+E6Li2fa4MxXxJacFcaY8sFUXDM1W7KPMga6KPI8=;
- b=aFBkHG131LIUJGHE4T2xnNgXx03sLzkmeM9jl1TPUBw5/Vu6N4FWxOwLLH2dGjvpqSXI
- TaGReEPabIJNgNa0xt1Yw+nCe1PjkfdR4Q4hfpKgDoCNzkeu86aOmnkZ93qqjobs+hL5
- equamXYVNK31aGsgrkEOJO/BbPtb+CleSrH98lRFYZB7Qt+UivFwsotlQz3AwLqSPAsz
- W3VAsF6BdGmNdRlLN6RK1eTbVD9EjR52VGtuigWOMZyEYBGX7U1ooE/0wLCiMjgPHhNY
- wxIxNnSiKh6u5z5VW47lR0G3jxrytMwoFy4Mco8F5vCARHsOoz0v04N8pe9t3LdtsrcN Ow== 
+        with ESMTP id S231417AbiDULqA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Apr 2022 07:46:00 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 073E124970;
+        Thu, 21 Apr 2022 04:43:11 -0700 (PDT)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23LApW8b015963;
+        Thu, 21 Apr 2022 11:43:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=TzGKmzTfoWC4Y0zsxNAxppY+uyfM7GYUC04vAB1rd30=;
+ b=cE9hS4wMOxRbC2rkgBNrghCrP6JTr+0QCWugGBQ3P8Ri1UHZ50mtdWL7moM3xOH9TXAi
+ bsJMV5BoFUjPjCKb3lASWgN8QzTU+icrxwugEPdpAadxV+PfRVIJPRKoSUFFx6o7SOCw
+ 7MNZEP6ox44b6xHhkLh2t8uQWTmHgvErlLbRnkSIruF90RCp8ymd26EraCJOa+eZgc4O
+ ktZ8FVFe/bKgaEkMheIQIs6OePNa0u13CqR2R3vpeVvoXP4JztAxhp17JXJJtYdWCPU7
+ lxsCUm0twu6T9r9/HxL4Pk8unu8EnGdyZUdXmT/7Sc6bQ4jANqfDsHNnWCaqy1+qVRq1 UQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3fjf52mr50-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fjm2hwra9-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 21 Apr 2022 11:33:51 +0000
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23LBUj0b031742;
-        Thu, 21 Apr 2022 11:33:51 GMT
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3fjf52mr4f-1
+        Thu, 21 Apr 2022 11:43:07 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23LBfaa8019440;
+        Thu, 21 Apr 2022 11:43:07 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fjm2hwr9u-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 21 Apr 2022 11:33:51 +0000
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23LBDIlw020020;
-        Thu, 21 Apr 2022 11:33:49 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma02fra.de.ibm.com with ESMTP id 3fgu6u4m4j-1
+        Thu, 21 Apr 2022 11:43:07 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23LBdM2J010792;
+        Thu, 21 Apr 2022 11:43:04 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma03fra.de.ibm.com with ESMTP id 3ffne9661e-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 21 Apr 2022 11:33:49 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23LBKtGL52429172
+        Thu, 21 Apr 2022 11:43:04 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23LBhCGh36176138
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 21 Apr 2022 11:20:55 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CF21442041;
-        Thu, 21 Apr 2022 11:33:45 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 712E242042;
-        Thu, 21 Apr 2022 11:33:45 +0000 (GMT)
-Received: from [9.145.69.75] (unknown [9.145.69.75])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 21 Apr 2022 11:33:45 +0000 (GMT)
-Message-ID: <d7b17bf5-d18f-6e27-73ad-7a5753c4e793@linux.ibm.com>
-Date:   Thu, 21 Apr 2022 13:33:45 +0200
+        Thu, 21 Apr 2022 11:43:12 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D2215A405B;
+        Thu, 21 Apr 2022 11:43:00 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 769F9A4054;
+        Thu, 21 Apr 2022 11:43:00 +0000 (GMT)
+Received: from osiris (unknown [9.145.171.214])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Thu, 21 Apr 2022 11:43:00 +0000 (GMT)
+Date:   Thu, 21 Apr 2022 13:42:59 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Pingfan Liu <kernelfans@gmail.com>
+Cc:     linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/9] s390/irq: utilize RCU instead of irq_lock_sparse()
+ in show_msi_interrupt()
+Message-ID: <YmFDQ0wH+Y15bKX0@osiris>
+References: <20220420140521.45361-1-kernelfans@gmail.com>
+ <20220420140521.45361-5-kernelfans@gmail.com>
+ <YmBOBRMWlk4H11sc@osiris>
+ <YmDRMUUzBq6uyIzj@piliu.users.ipa.redhat.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [kvm-unit-tests PATCH v4 4/5] s390x: uv-guest: add share bit test
-Content-Language: en-US
-To:     Steffen Eiden <seiden@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20220421094527.32261-1-seiden@linux.ibm.com>
- <20220421094527.32261-5-seiden@linux.ibm.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-In-Reply-To: <20220421094527.32261-5-seiden@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YmDRMUUzBq6uyIzj@piliu.users.ipa.redhat.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: xgEyrejMilHtZw5Y3t38RP7CmnZcUmnu
-X-Proofpoint-ORIG-GUID: 93Tilvnqd4OvGqPw613ZjN5rhBt2G-OC
+X-Proofpoint-GUID: 3F7MHwimN9XDr0Fjcvlxl_oqztMIHWGt
+X-Proofpoint-ORIG-GUID: 56pkuxdQk7Sa1pIH7iXTODD4VGEdVR9Z
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-04-20_06,2022-04-21_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 bulkscore=0
- spamscore=0 phishscore=0 adultscore=0 priorityscore=1501
- lowpriorityscore=0 suspectscore=0 mlxlogscore=999 malwarescore=0
- mlxscore=0 clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ impostorscore=0 clxscore=1015 lowpriorityscore=0 adultscore=0
+ suspectscore=0 mlxlogscore=598 spamscore=0 bulkscore=0 phishscore=0
+ malwarescore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2202240000 definitions=main-2204210064
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 4/21/22 11:45, Steffen Eiden wrote:
-> The UV facility bits shared/unshared must both be set or none.
+On Thu, Apr 21, 2022 at 11:36:17AM +0800, Pingfan Liu wrote:
+> Oops. You are right. What about using rcu_read_lock() directly?
 > 
-> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
-> ---
->   s390x/uv-guest.c | 14 ++++++++++++++
->   1 file changed, 14 insertions(+)
 > 
-> diff --git a/s390x/uv-guest.c b/s390x/uv-guest.c
-> index 728c60aa..77057bd2 100644
-> --- a/s390x/uv-guest.c
-> +++ b/s390x/uv-guest.c
-> @@ -159,6 +159,14 @@ static void test_invalid(void)
->   	report_prefix_pop();
->   }
->   
-> +static void test_share_bits(void)
-> +{
-> +	bool unshare = uv_query_test_call(BIT_UVC_CMD_REMOVE_SHARED_ACCESS);
-> +	bool share = uv_query_test_call(BIT_UVC_CMD_SET_SHARED_ACCESS);
-> +
+> diff --git a/arch/s390/kernel/irq.c b/arch/s390/kernel/irq.c
+> index 3033f616e256..45393919fe61 100644
+> --- a/arch/s390/kernel/irq.c
+> +++ b/arch/s390/kernel/irq.c
+> @@ -205,7 +205,7 @@ static void show_msi_interrupt(struct seq_file *p, int irq)
+>  	unsigned long flags;
+>  	int cpu;
+>  
+> -	irq_lock_sparse();
+> +	rcu_read_lock();
+>  	desc = irq_to_desc(irq);
+>  	if (!desc)
+>  		goto out;
+> @@ -224,7 +224,7 @@ static void show_msi_interrupt(struct seq_file *p, int irq)
+>  	seq_putc(p, '\n');
+>  	raw_spin_unlock_irqrestore(&desc->lock, flags);
+>  out:
+> -	irq_unlock_sparse();
+> +	rcu_read_unlock();
 
-report_prefix_push("query");
-
-> +	report(!(share ^ unshare), "share bits");
-
-"share bits are identical" ?
-
-report_prefix_pop();
-
-> +}
-> +
->   int main(void)
->   {
->   	bool has_uvc = test_facility(158);
-> @@ -169,6 +177,12 @@ int main(void)
->   		goto done;
->   	}
->   
-> +	/*
-> +	 * Needs to be done before the guest-fence,
-> +	 * as the fence tests if both shared bits are present
-> +	 */
-> +	test_share_bits();
-> +
->   	if (!uv_os_is_guest()) {
->   		report_skip("Not a protected guest");
->   		goto done;
-
+That looks like it should work. Please resend and also add a reference
+to commit 74bdf7815dfb ("genirq: Speedup show_interrupts()") which
+explains why this works.
