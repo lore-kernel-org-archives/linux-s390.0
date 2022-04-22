@@ -2,303 +2,392 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 12D84C4332F
-	for <linux-s390@archiver.kernel.org>; Fri, 22 Apr 2022 10:55:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 60E1AC433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 22 Apr 2022 11:16:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1446938AbiDVK6A (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 22 Apr 2022 06:58:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53200 "EHLO
+        id S1447025AbiDVLTn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 22 Apr 2022 07:19:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1446934AbiDVK55 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 22 Apr 2022 06:57:57 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFD64AE47;
-        Fri, 22 Apr 2022 03:55:03 -0700 (PDT)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23MAP3RG025833;
-        Fri, 22 Apr 2022 10:55:03 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=Kxj0+j/Jg812IAocnjjXaPzLWYZknfmR/54PX7P2lkY=;
- b=FmpAzItVpEIW5xxa58QMj18bGOMEUMHCm/vP9h5mE095tIWLwTwDxqQyyUf0VmmyeuyT
- P/9rq+Yu+ITRa8ZV8ZhXER/lLj3wMfyF2QJFddIDkEXl+EJpyZzvov43vKCaZ3B590pg
- 4yRwgZICjhxYe8na0+aUnQe9BabfPW5epVjqj/+1Y4RiXN8uJY6VCne+nruKgb2RS65w
- 7wbteFkfEwdgCm6KWdKzTA13SXhllMecr7I+5C3ttRmZEM3n/Qy/xjrmNriunjI3FvWu
- eZZ2p5Id4uSTXnVY14x4a6qoqtqfJqQdRSbCWQJZ9Vnni1AHi8ZGDkChXb7f5dukd6sc aA== 
+        with ESMTP id S1446942AbiDVLTn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 22 Apr 2022 07:19:43 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3A8D54F87;
+        Fri, 22 Apr 2022 04:16:49 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23MBFO5f011002;
+        Fri, 22 Apr 2022 11:16:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version; s=pp1; bh=xYPmjJ2SW/ZBfRCuqvz3uZDQKIM/XvHK3yjbb1+GNzA=;
+ b=BfZcpfB/XLMLkf7lkEp51A/Uohvlr4qm16HlNJzJG9rjfS51XJdFhD7z6ufdrwQTYYqn
+ GYVunIsFERoVuv2torARVOeRGZBDpIKgFG5vV/RR9lpRL0n1XPABIJZOChaewaYlS+7F
+ tCF0hAerOlKZ6PatTE8TvFS5eWOYW3Yo+DMib6UEhrnizN+OKFw8k9dAcC3pOm2g8rRu
+ EkGpan5WUxSIlzLk0BZz12tAwVx/bXy2LtMGBScsTavabERJTlSp2mTDpkIUFz2KeDtX
+ gjWXdbQTGcFLo//6Jb231rtF7xsDy/UJXTGxyT+DXZ77AkGME5z7e30KXEVsQVqTSnvH Lg== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3fkm5pyfn7-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fjswfe9fj-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 22 Apr 2022 10:55:03 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23MAqtIu016924;
-        Fri, 22 Apr 2022 10:55:02 GMT
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3fkm5pyfmh-1
+        Fri, 22 Apr 2022 11:16:38 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23MBA1pU005996;
+        Fri, 22 Apr 2022 11:16:37 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fjswfe9f6-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 22 Apr 2022 10:55:02 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23MAsBDn010198;
-        Fri, 22 Apr 2022 10:55:00 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma05fra.de.ibm.com with ESMTP id 3ffne8ybfv-1
+        Fri, 22 Apr 2022 11:16:37 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23MBBHRR004748;
+        Fri, 22 Apr 2022 11:16:36 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03ams.nl.ibm.com with ESMTP id 3ffne8s8kd-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 22 Apr 2022 10:55:00 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23MAg49L54133038
+        Fri, 22 Apr 2022 11:16:35 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23MBGVAR28180874
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 22 Apr 2022 10:42:04 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D96B6AE059;
-        Fri, 22 Apr 2022 10:54:56 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9F85CAE05A;
-        Fri, 22 Apr 2022 10:54:56 +0000 (GMT)
-Received: from t46lp57.lnxne.boe (unknown [9.152.108.100])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 22 Apr 2022 10:54:56 +0000 (GMT)
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
-Subject: [kvm-unit-tests PATCH v4 4/4] s390x: add basic migration test
-Date:   Fri, 22 Apr 2022 12:54:53 +0200
-Message-Id: <20220422105453.2153299-5-nrb@linux.ibm.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20220422105453.2153299-1-nrb@linux.ibm.com>
-References: <20220422105453.2153299-1-nrb@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Fri, 22 Apr 2022 11:16:31 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9CA1E4204C;
+        Fri, 22 Apr 2022 11:16:31 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0D57F4203F;
+        Fri, 22 Apr 2022 11:16:31 +0000 (GMT)
+Received: from sig-9-145-175-158.de.ibm.com (unknown [9.145.175.158])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 22 Apr 2022 11:16:30 +0000 (GMT)
+Message-ID: <f942bf2aa967744fc919a95ceb4acf8ac7a53aa6.camel@linux.ibm.com>
+Subject: Re: [PATCH v3 1/4] PCI: Clean up pci_scan_slot()
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Bjorn Helgaas <helgaas@kernel.org>
+Cc:     Bjorn Helgaas <bhelgaas@google.com>,
+        Jan Kiszka <jan.kiszka@siemens.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        linux-kernel@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        linux-s390@vger.kernel.org, linux-pci@vger.kernel.org
+Date:   Fri, 22 Apr 2022 13:16:24 +0200
+In-Reply-To: <20220421170920.GA1408189@bhelgaas>
+References: <20220421170920.GA1408189@bhelgaas>
+Content-Type: multipart/signed; micalg="pgp-sha256";
+        protocol="application/pgp-signature"; boundary="=-UnxLVZywhFawVyCD9jVg"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: -jozRLVZhHEYIZeBH3bTx8u11DPrwY6p
-X-Proofpoint-GUID: 7HV3qJzQBWqF8RfhEJS8q0Im4WztY_ku
+X-Proofpoint-ORIG-GUID: 2OsMm3pg7PeoA_5PFVdVM6QEDDVUlLDb
+X-Proofpoint-GUID: IEV_T7TivXfTVmH1Bs57xNHuO1oumkaS
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-04-22_02,2022-04-22_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 spamscore=0
- clxscore=1015 bulkscore=0 phishscore=0 priorityscore=1501
- lowpriorityscore=0 malwarescore=0 mlxscore=0 suspectscore=0
- mlxlogscore=999 impostorscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2202240000 definitions=main-2204220046
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ mlxlogscore=999 spamscore=0 priorityscore=1501 malwarescore=0 bulkscore=0
+ phishscore=0 suspectscore=0 adultscore=0 clxscore=1015 mlxscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2204220049
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Add a basic migration test for s390x. This tests the guarded-storage registers
-and vector registers are preserved on migration.
 
-Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
----
- s390x/Makefile      |   1 +
- s390x/migration.c   | 172 ++++++++++++++++++++++++++++++++++++++++++++
- s390x/unittests.cfg |   5 ++
- 3 files changed, 178 insertions(+)
- create mode 100644 s390x/migration.c
+--=-UnxLVZywhFawVyCD9jVg
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/s390x/Makefile b/s390x/Makefile
-index f38f442b9cb1..5336ed8ae0b4 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -30,6 +30,7 @@ tests += $(TEST_DIR)/spec_ex-sie.elf
- tests += $(TEST_DIR)/firq.elf
- tests += $(TEST_DIR)/epsw.elf
- tests += $(TEST_DIR)/adtl-status.elf
-+tests += $(TEST_DIR)/migration.elf
- 
- pv-tests += $(TEST_DIR)/pv-diags.elf
- 
-diff --git a/s390x/migration.c b/s390x/migration.c
-new file mode 100644
-index 000000000000..2f31fc53bf68
---- /dev/null
-+++ b/s390x/migration.c
-@@ -0,0 +1,172 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Migration Test for s390x
-+ *
-+ * Copyright IBM Corp. 2022
-+ *
-+ * Authors:
-+ *  Nico Boehr <nrb@linux.ibm.com>
-+ */
-+#include <libcflat.h>
-+#include <asm/arch_def.h>
-+#include <asm/vector.h>
-+#include <asm/barrier.h>
-+#include <gs.h>
-+#include <bitops.h>
-+#include <smp.h>
-+
-+static struct gs_cb gs_cb;
-+static struct gs_epl gs_epl;
-+
-+/* set by CPU1 to signal it has completed */
-+static int flag_thread_complete;
-+/* set by CPU0 to signal migration has completed */
-+static int flag_migration_complete;
-+
-+static void write_gs_regs(void)
-+{
-+	const unsigned long gs_area = 0x2000000;
-+	const unsigned long gsc = 25; /* align = 32 M, section size = 512K */
-+
-+	gs_cb.gsd = gs_area | gsc;
-+	gs_cb.gssm = 0xfeedc0ffe;
-+	gs_cb.gs_epl_a = (uint64_t) &gs_epl;
-+
-+	load_gs_cb(&gs_cb);
-+}
-+
-+static void check_gs_regs(void)
-+{
-+	struct gs_cb gs_cb_after_migration;
-+
-+	store_gs_cb(&gs_cb_after_migration);
-+
-+	report_prefix_push("guarded-storage registers");
-+
-+	report(gs_cb_after_migration.gsd == gs_cb.gsd, "gsd matches");
-+	report(gs_cb_after_migration.gssm == gs_cb.gssm, "gssm matches");
-+	report(gs_cb_after_migration.gs_epl_a == gs_cb.gs_epl_a, "gs_epl_a matches");
-+
-+	report_prefix_pop();
-+}
-+
-+static void test_func(void)
-+{
-+	uint8_t expected_vec_contents[VEC_REGISTER_NUM][VEC_REGISTER_SIZE];
-+	uint8_t actual_vec_contents[VEC_REGISTER_NUM][VEC_REGISTER_SIZE];
-+	uint8_t *vec_reg;
-+	int i;
-+	int vec_result = 0;
-+
-+	for (i = 0; i < VEC_REGISTER_NUM; i++) {
-+		vec_reg = &expected_vec_contents[i][0];
-+		/* i+1 to avoid zero content */
-+		memset(vec_reg, i + 1, VEC_REGISTER_SIZE);
-+	}
-+
-+	ctl_set_bit(0, CTL0_VECTOR);
-+	ctl_set_bit(2, CTL2_GUARDED_STORAGE);
-+
-+	write_gs_regs();
-+
-+	/*
-+	 * It is important loading the vector/floating point registers and
-+	 * comparing their contents occurs in the same inline assembly block.
-+	 * Otherwise, the compiler is allowed to re-use the registers for
-+	 * something else in between.
-+	 * For this very reason, this also runs on a second CPU, so all the
-+	 * complex console stuff can be done in C on the first CPU and here we
-+	 * just need to wait for it to set the flag.
-+	 */
-+	asm inline(
-+		"	.machine z13\n"
-+		/* load vector registers: vlm handles at most 16 registers at a time */
-+		"	vlm 0,15, 0(%[expected_vec_reg])\n"
-+		"	vlm 16,31, 256(%[expected_vec_reg])\n"
-+		/* inform CPU0 we are done, it will request migration */
-+		"	mvhi %[flag_thread_complete], 1\n"
-+		/* wait for migration to finish */
-+		"0:	clfhsi %[flag_migration_complete], 1\n"
-+		"	jnz 0b\n"
-+		/*
-+		 * store vector register contents in actual_vec_reg: vstm
-+		 * handles at most 16 registers at a time
-+		 */
-+		"	vstm 0,15, 0(%[actual_vec_reg])\n"
-+		"	vstm 16,31, 256(%[actual_vec_reg])\n"
-+		/*
-+		 * compare the contents in expected_vec_reg with actual_vec_reg:
-+		 * clc handles at most 256 bytes at a time
-+		 */
-+		"	clc 0(256, %[expected_vec_reg]), 0(%[actual_vec_reg])\n"
-+		"	jnz 1f\n"
-+		"	clc 256(256, %[expected_vec_reg]), 256(%[actual_vec_reg])\n"
-+		"	jnz 1f\n"
-+		/* success */
-+		"	mvhi %[vec_result], 1\n"
-+		"1:"
-+		:
-+		: [expected_vec_reg] "a"(expected_vec_contents),
-+		  [actual_vec_reg] "a"(actual_vec_contents),
-+		  [flag_thread_complete] "Q"(flag_thread_complete),
-+		  [flag_migration_complete] "Q"(flag_migration_complete),
-+		  [vec_result] "Q"(vec_result)
-+		: "v0", "v1", "v2", "v3", "v4", "v5", "v6", "v7", "v8", "v9",
-+		  "v10", "v11", "v12", "v13", "v14", "v15", "v16", "v17", "v18",
-+		  "v19", "v20", "v21", "v22", "v23", "v24", "v25", "v26", "v27",
-+		  "v28", "v29", "v30", "v31", "cc", "memory"
-+	);
-+
-+	report(vec_result, "vector contents match");
-+
-+	check_gs_regs();
-+
-+	report(stctg(0) & BIT(CTL0_VECTOR), "ctl0 vector bit set");
-+	report(stctg(2) & BIT(CTL2_GUARDED_STORAGE), "ctl2 guarded-storage bit set");
-+
-+	ctl_clear_bit(0, CTL0_VECTOR);
-+	ctl_clear_bit(2, CTL2_GUARDED_STORAGE);
-+
-+	flag_thread_complete = 1;
-+}
-+
-+int main(void)
-+{
-+	struct psw psw;
-+
-+	/* don't say migrate here otherwise we will migrate right away */
-+	report_prefix_push("migration");
-+
-+	if (smp_query_num_cpus() == 1) {
-+		report_skip("need at least 2 cpus for this test");
-+		goto done;
-+	}
-+
-+	/* Second CPU does the actual tests */
-+	psw.mask = extract_psw_mask();
-+	psw.addr = (unsigned long)test_func;
-+	smp_cpu_setup(1, psw);
-+
-+	/* wait for thread setup */
-+	while(!flag_thread_complete)
-+		mb();
-+	flag_thread_complete = 0;
-+
-+	/* ask migrate_cmd to migrate (it listens for 'migrate') */
-+	puts("Please migrate me, then press return\n");
-+
-+	/* wait for migration to finish, we will read a newline */
-+	(void)getchar();
-+
-+	flag_migration_complete = 1;
-+
-+	/* wait for thread to complete assertions */
-+	while(!flag_thread_complete)
-+		mb();
-+
-+	smp_cpu_destroy(1);
-+
-+done:
-+	report_prefix_pop();
-+	return report_summary();
-+}
-diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-index 256c71691adc..b456b2881448 100644
---- a/s390x/unittests.cfg
-+++ b/s390x/unittests.cfg
-@@ -171,3 +171,8 @@ file = adtl-status.elf
- smp = 2
- accel = tcg
- extra_params = -cpu qemu,gs=off,vx=off
-+
-+[migration]
-+file = migration.elf
-+groups = migration
-+smp = 2
--- 
-2.31.1
+On Thu, 2022-04-21 at 12:09 -0500, Bjorn Helgaas wrote:
+> On Thu, Apr 21, 2022 at 11:27:42AM +0200, Niklas Schnelle wrote:
+> > On Wed, 2022-04-20 at 21:14 -0500, Bjorn Helgaas wrote:
+> > > On Tue, Apr 19, 2022 at 12:28:00PM +0200, Niklas Schnelle wrote:
+> > > > While determining the next PCI function is factored out of
+> > > > pci_scan_slot() into next_fn() the former still handles the first
+> > > > function as a special case duplicating the code from the scan loop =
+and
+> > > > splitting the condition that the first function exits from it being
+> > > > multifunction which is tested in next_fn().
+> > > >=20
+> > > > Furthermore the non ARI branch of next_fn() mixes the case that
+> > > > multifunction devices may have non-contiguous function ranges and d=
+ev
+> > > > may thus be NULL with the multifunction requirement. It also signal=
+s
+> > > > that no further functions need to be scanned by returning 0 which i=
+s
+> > > > a valid function number.
+> > > >=20
+> > > > Improve upon this by moving all conditions for having to scan for m=
+ore
+> > > > functions into next_fn() and make them obvious and commented.
+> > > >=20
+> > > > By changing next_fn() to return -ENODEV instead of 0 when there is =
+no
+> > > > next function we can then handle the initial function inside the lo=
+op
+> > > > and deduplicate the shared handling.
+> > > >=20
+> > > > No functional change is intended.
+> > > >=20
+> > > > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> > > > ---
+> > > >  drivers/pci/probe.c | 41 +++++++++++++++++++----------------------
+> > > >  1 file changed, 19 insertions(+), 22 deletions(-)
+> > > >=20
+> > > > diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+> > > > index 17a969942d37..389aa1f9cb2c 100644
+> > > > --- a/drivers/pci/probe.c
+> > > > +++ b/drivers/pci/probe.c
+> > > > @@ -2579,33 +2579,35 @@ struct pci_dev *pci_scan_single_device(stru=
+ct pci_bus *bus, int devfn)
+> > > >  }
+> > > >  EXPORT_SYMBOL(pci_scan_single_device);
+> > > > =20
+> > > > -static unsigned int next_fn(struct pci_bus *bus, struct pci_dev *d=
+ev,
+> > > > -			    unsigned int fn)
+> > > > +static int next_fn(struct pci_bus *bus, struct pci_dev *dev, int f=
+n)
+> > > >  {
+> > > >  	int pos;
+> > > >  	u16 cap =3D 0;
+> > > >  	unsigned int next_fn;
+> > > > =20
+> > > > -	if (pci_ari_enabled(bus)) {
+> > > > -		if (!dev)
+> > > > -			return 0;
+> > > > +	if (dev && pci_ari_enabled(bus)) {
+> > >=20
+> > > I think this would be easier to verify if we kept the explicit error
+> > > return, e.g.,
+> > >=20
+> > >   if (pci_ari_enabled(bus)) {
+> > >     if (!dev)
+> > >       return -ENODEV;
+> > >     pos =3D pci_find_ext_capability(...);
+> > >=20
+> > > Otherwise we have to sort through the !dev cases below.  I guess
+> > > -ENODEV would come from either the "!fn && !dev" case or the "fn > 6"
+> > > case, but it's not obvious to me that those are equivalent to the
+> > > previous code.
+> >=20
+> > We could keep this the same for this patch but I think for jailhouse
+> > (patch 2) we need the "!dev" case not to fail here such that we can
+> > handle the missing function 0 below even if ARI is enabled. For s390
+> > this doesn't currently matter because pci_ari_enabled(bus) is always
+> > false but I assumed that this isn't necessarily so for jailhouse. I
+> > sent a follow up mail on a slight behavior change I can think of for
+> > this case for v2 but forgot to send it also for v3. Quoted below:
+>=20
+> I think it would be good to make the first patch change as little as
+> possible to make it easier to analyze, then possibly test for
+> hypervisor when changing this behavior.
+
+Yes makes sense, in my current local version I've kept the direct
+return here. I think I've also found a way to keep this even for the
+isolated PCI function case. See below.
+
+>=20
+> > > > -	/* dev may be NULL for non-contiguous multifunction devices */
+> > > > -	if (!dev || dev->multifunction)
+> > > > -		return (fn + 1) % 8;
+> > > > -
+> > > > -	return 0;
+> > > > +	/* only multifunction devices may have more functions */
+> > > > +	if (dev && !dev->multifunction)
+> > > > +		return -ENODEV;
+> > >=20
+> > > I don't understand why the "!dev || dev->multifunction" test needs to
+> > > change.  Isn't that valid even in the hypervisor case?  IIUC, you wan=
+t
+> > > to return success in some cases that currently return failure, so thi=
+s
+> > > case that was already success should be fine as it was.
+> >=20
+> > This isn't a change to the test. It's the negation of the logical
+> > condition *and* a switch of the branches i.e. keeps the overall
+> > behavior exactly the same. The equivalence is !(!A || B) =3D=3D (A && !=
+B).
+>=20
+> I see the Boolean equivalence, but it's difficult to verify that the
+> consequences are equivalent because the new code has the extra "!fn &&
+> !dev" test in the middle.
+
+Ok. I would argue that the "fn =3D=3D 0 && !dev" is just the moved "!dev"
+check for the initial pci_scan_single_device() that previously happened
+outside the loop. With the modulo gone I can't think of any other way
+to get fn =3D=3D 0 but in the first iteration.=20
+
+But you are right, the extra test introduces some extra churn in
+next_fn(). I think we can get rid of that new condition such that
+next_fn() is more easily verifiable. See below.
+
+>=20
+> > There are two reasons I did this.
+> >=20
+> > 1. I find (!dev || dev->multifunction) to be much harder to grasp than
+> > (dev && !dev->multifunction).
+> >=20
+> > 2. The whole next_fn() in my opinion becomes easier to read if it bails
+> > for all bad cases early and the "this is the next fn" is the final
+> > return if we didn't bail. This becomes even more true as another
+> > condition is added in patch 2.
+>=20
+> Fair enough, and I agree that "this is the next fn" is a nice final
+> return.  In general I think it's good to return either an error or the
+> next fn as soon as it is known.  It makes it harder to analyze if the
+> return value has already been determined but we have to mentally pass
+> over subsequent tests that don't affect it.
+
+I agree and I think we can get this with the transformed cases too.
+
+>=20
+> > > Is this because "(fn + 1) % 8" may be zero, which previously
+> > > terminated the loop, but now it doesn't because "fn =3D=3D 0" is the
+> > > *first* execution of the loop?
+> >=20
+> > Yes with function 0 handled in the loop we can't use 0 as the
+> > termination indication. Also I find it generally weird to use a wrap
+> > around for this.
+>=20
+> Yes, I agree that's weird.  Usually I prefer "for" loops over
+> "do ...  while", but this might be a case where it makes sense --
+> we *always* want to call pci_scan_single_device() once, and
+> "do ... while" would accomplish that without any fuss.  It might even
+> allow us to keep the 0 return value as the termination condition,
+> which would be nice because fn could stay unsigned and it would reduce
+> the size of this patch.
+
+To me the 0 return is part of the weirdness as it is a valid fn value,
+so returning it from next_fn() would naturally communicate that the
+next fn is fn 0 not that there are no more functions.
+
+It feels like making next_fn() more obvious is worth the larger patch.
+I think us having to convince ourselves of these details is testament
+that it currently is very hard to understand the interactions here
+while the new conditions for stopping the scan are each almost obvious.
+So I think if we can convince ourselves that the new code is exactly
+equivalent which I believe it is when keeping the check in the ARI
+path, then that is what makes the patch save.
+
+>=20
+> I'm hoping we can end up with something like this:
+>=20
+>   unsigned int next_fn(bus, dev, fn, mf)
+>   {
+>     if (ari(bus)) {
+>       if (!dev)
+> 	return 0;
+>       return PCI_ARI_CAP_NFN();
+>     }
+>=20
+>     if (fn >=3D 7)
+>       return 0;
+>=20
+>     if (mf)
+>       return fn + 1;
+>=20
+>     if (hypervisor())
+>       return fn + 1;
+
+Ooh, just realized that my series changes the behavior for jailhouse
+when the passed through device is not multifunction. In the existing
+code pci_scan_single_device() is called for all devfn irrespective of
+whether the first function found has dev->multifunction set after
+scanning it. I'm not sure if that would happen if e.g. we have multiple
+SR-IOV VFs but not the PF.
+
+>=20
+>     return 0;
+>   }
+>=20
+>   int pci_scan_slot(...)
+>   {
+>     unsigned int fn =3D 0, mf =3D 0;
+>=20
+>     do {
+>       dev =3D pci_scan_single_device(bus, devfn + fn);
+>       if (dev && dev->multifunction)
+> 	mf =3D 1;
+>       fn =3D next_fn(dev, fn, mf);
+>     } while (fn);
+>   }
+>=20
+> This would be minimal change to next_fn(): just add the "mf"
+> parameter, which removes a lot of the confusing "dev" and "!dev"
+> testing, and add the "fn >=3D 7" to remove the implicit "% 8 =3D=3D 0"
+> failure case.
+
+The extra mf parameter feels a bit superflous as we already have dev-
+>multifunction and then would just move the "dev && (!)dev-
+>multifunction" test out of next_fn().=20
+
+To me this doesn't look like less of a change to next_fn() either. That
+said, it gave me an idea. One way to change next_fn() less is to keep
+the "fn =3D=3D 0 && !dev" test out of it and in pci_scan_slot(). That way
+there are no new conditions in next_fn() and the existing conditions
+can be transformed as proposed without mixing in new stuff.
+
+With that the scan loop would look something like:
+
+  int pci_scan_slot(...)
+  {
+    int fn =3D 0, nr =3D0 ;
+
+    do {
+      dev =3D pci_scan_single_device(bus, devfn + fn);
+      if (dev) {
+         ...
+      } else if (fn =3D=3D 0) {
+        /* missing function 0*/
+        break;
+      }
+      fn =3D next_fn(bus, dev, fn);
+    } while (fn);
+  }
+
+Even better this allows us to keep the "!dev" check in the ARI case as
+we don't have to handle the missing function 0 in next_fn().
+
+Let me sent you this variant before we abandon the -ENODEV return and
+condition transforms.
+
+>=20
+> Then the jailhouse/s390 patch would trivially add the new hypervisor
+> case, which is clearly separated from everything else.
+>=20
+> > > If so, I wonder if we could avoid that case by adding:
+> > >=20
+> > >   if (fn >=3D 7)
+> > >     return -ENODEV;
+> > >=20
+> > > at the very beginning.  Maybe that would allow a more trivial patch
+> > > that just changed the error return from 0 to -ENODEV, i.e., leaving
+> > > all the logic in next_fn() unchanged?
+> >=20
+> > I think this is equivalent to the ternary at the return. Both return
+> > -ENODEV for fn >=3D 7. I do like your idea better though as it keeps wi=
+th
+> > the scheme of my point 2 above and ternaries are ever so slightly
+> > harder to read.
+>=20
+> Oops, I don't think we can do this directly because in the ARI case,
+> fn is basically 8 bits wide so can be 0-255.
+>=20
+> Bjorn
+
+True, we really do need to keep the ARI case separate.
+
+
+--=-UnxLVZywhFawVyCD9jVg
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQSiikNOrnCUNbxSj4j7H22hwInkVgUCYmKOiAAKCRD7H22hwInk
+VoPnAQD10rX0RP0mH7smxfhxg56S4//zk6/6oFVLHx16hkToaQD7B9mcrDz5rIod
+ygOKAaCRh5BL18COQksLOkoXBaJEcAk=
+=yryP
+-----END PGP SIGNATURE-----
+
+--=-UnxLVZywhFawVyCD9jVg--
 
