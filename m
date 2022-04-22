@@ -2,240 +2,99 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC96CC433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 22 Apr 2022 07:57:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 350B9C433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 22 Apr 2022 07:57:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1445403AbiDVIAl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 22 Apr 2022 04:00:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39730 "EHLO
+        id S1445381AbiDVIAn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 22 Apr 2022 04:00:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1445412AbiDVIAB (ORCPT
+        with ESMTP id S1445370AbiDVIAB (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Fri, 22 Apr 2022 04:00:01 -0400
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24247527FC;
-        Fri, 22 Apr 2022 00:56:30 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0VAlrUeF_1650614188;
-Received: from e02h04404.eu6sqa(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VAlrUeF_1650614188)
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B0EA527F5;
+        Fri, 22 Apr 2022 00:56:29 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R661e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0VAlrUan_1650614179;
+Received: from e02h04404.eu6sqa(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VAlrUan_1650614179)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 22 Apr 2022 15:56:28 +0800
+          Fri, 22 Apr 2022 15:56:27 +0800
 From:   Wen Gu <guwen@linux.alibaba.com>
 To:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org
 Cc:     linux-s390@vger.kernel.org, netdev@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH net 2/2] net/smc: Fix slab-out-of-bounds issue in fallback
-Date:   Fri, 22 Apr 2022 15:56:19 +0800
-Message-Id: <1650614179-11529-3-git-send-email-guwen@linux.alibaba.com>
+Subject: [PATCH net 0/2] net/smc: Two fixes for smc fallback
+Date:   Fri, 22 Apr 2022 15:56:17 +0800
+Message-Id: <1650614179-11529-1-git-send-email-guwen@linux.alibaba.com>
 X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1650614179-11529-1-git-send-email-guwen@linux.alibaba.com>
-References: <1650614179-11529-1-git-send-email-guwen@linux.alibaba.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-syzbot reported a slab-out-of-bounds/use-after-free issue,
-which was caused by accessing an already freed smc sock in
-fallback-specific callback functions of clcsock.
+This patch set includes two fixes for smc fallback:
 
-This patch fixes the issue by restoring fallback-specific
-callback functions to original ones and resetting clcsock
-sk_user_data to NULL before freeing smc sock.
+Patch 1/2 introduces some simple helpers to wrap the replacement
+and restore of clcsock's callback functions. Make sure that only
+the original callbacks will be saved and not overwritten.
 
-Meanwhile, this patch introduces sk_callback_lock to make
-the access and assignment to sk_user_data mutually exclusive.
+Patch 2/2 fixes a syzbot reporting slab-out-of-bound issue where
+smc_fback_error_report() accesses the already freed smc sock (see
+https://lore.kernel.org/r/00000000000013ca8105d7ae3ada@google.com/).
+The patch fixes it by resetting sk_user_data and restoring clcsock
+callback functions timely in fallback situation.
 
-Reported-by: syzbot+b425899ed22c6943e00b@syzkaller.appspotmail.com
-Fixes: 341adeec9ada ("net/smc: Forward wakeup to smc socket waitqueue after fallback")
-Link: https://lore.kernel.org/r/00000000000013ca8105d7ae3ada@google.com/
-Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
----
- net/smc/af_smc.c    | 80 ++++++++++++++++++++++++++++++++++++++---------------
- net/smc/smc_close.c |  2 ++
- 2 files changed, 59 insertions(+), 23 deletions(-)
+But it should be noted that although patch 2/2 can fix the issue
+of 'slab-out-of-bounds/use-after-free in smc_fback_error_report',
+it can't pass the syzbot reproducer test. Because after applying
+these two patches in upstream, syzbot reproducer triggered another
+known issue like this:
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 7ee356f..6eb3421 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -243,11 +243,27 @@ struct proto smc_proto6 = {
- };
- EXPORT_SYMBOL_GPL(smc_proto6);
- 
-+static void smc_fback_restore_callbacks(struct smc_sock *smc)
-+{
-+	struct sock *clcsk = smc->clcsock->sk;
-+
-+	write_lock_bh(&clcsk->sk_callback_lock);
-+	clcsk->sk_user_data = NULL;
-+
-+	smc_clcsock_restore_cb(&clcsk->sk_state_change, &smc->clcsk_state_change);
-+	smc_clcsock_restore_cb(&clcsk->sk_data_ready, &smc->clcsk_data_ready);
-+	smc_clcsock_restore_cb(&clcsk->sk_write_space, &smc->clcsk_write_space);
-+	smc_clcsock_restore_cb(&clcsk->sk_error_report, &smc->clcsk_error_report);
-+
-+	write_unlock_bh(&clcsk->sk_callback_lock);
-+}
-+
- static void smc_restore_fallback_changes(struct smc_sock *smc)
- {
- 	if (smc->clcsock->file) { /* non-accepted sockets have no file yet */
- 		smc->clcsock->file->private_data = smc->sk.sk_socket;
- 		smc->clcsock->file = NULL;
-+		smc_fback_restore_callbacks(smc);
- 	}
- }
- 
-@@ -745,48 +761,57 @@ static void smc_fback_forward_wakeup(struct smc_sock *smc, struct sock *clcsk,
- 
- static void smc_fback_state_change(struct sock *clcsk)
- {
--	struct smc_sock *smc =
--		smc_clcsock_user_data(clcsk);
-+	struct smc_sock *smc;
- 
--	if (!smc)
--		return;
--	smc_fback_forward_wakeup(smc, clcsk, smc->clcsk_state_change);
-+	read_lock_bh(&clcsk->sk_callback_lock);
-+	smc = smc_clcsock_user_data(clcsk);
-+	if (smc)
-+		smc_fback_forward_wakeup(smc, clcsk,
-+					 smc->clcsk_state_change);
-+	read_unlock_bh(&clcsk->sk_callback_lock);
- }
- 
- static void smc_fback_data_ready(struct sock *clcsk)
- {
--	struct smc_sock *smc =
--		smc_clcsock_user_data(clcsk);
-+	struct smc_sock *smc;
- 
--	if (!smc)
--		return;
--	smc_fback_forward_wakeup(smc, clcsk, smc->clcsk_data_ready);
-+	read_lock_bh(&clcsk->sk_callback_lock);
-+	smc = smc_clcsock_user_data(clcsk);
-+	if (smc)
-+		smc_fback_forward_wakeup(smc, clcsk,
-+					 smc->clcsk_data_ready);
-+	read_unlock_bh(&clcsk->sk_callback_lock);
- }
- 
- static void smc_fback_write_space(struct sock *clcsk)
- {
--	struct smc_sock *smc =
--		smc_clcsock_user_data(clcsk);
-+	struct smc_sock *smc;
- 
--	if (!smc)
--		return;
--	smc_fback_forward_wakeup(smc, clcsk, smc->clcsk_write_space);
-+	read_lock_bh(&clcsk->sk_callback_lock);
-+	smc = smc_clcsock_user_data(clcsk);
-+	if (smc)
-+		smc_fback_forward_wakeup(smc, clcsk,
-+					 smc->clcsk_write_space);
-+	read_unlock_bh(&clcsk->sk_callback_lock);
- }
- 
- static void smc_fback_error_report(struct sock *clcsk)
- {
--	struct smc_sock *smc =
--		smc_clcsock_user_data(clcsk);
-+	struct smc_sock *smc;
- 
--	if (!smc)
--		return;
--	smc_fback_forward_wakeup(smc, clcsk, smc->clcsk_error_report);
-+	read_lock_bh(&clcsk->sk_callback_lock);
-+	smc = smc_clcsock_user_data(clcsk);
-+	if (smc)
-+		smc_fback_forward_wakeup(smc, clcsk,
-+					 smc->clcsk_error_report);
-+	read_unlock_bh(&clcsk->sk_callback_lock);
- }
- 
- static void smc_fback_replace_callbacks(struct smc_sock *smc)
- {
- 	struct sock *clcsk = smc->clcsock->sk;
- 
-+	write_lock_bh(&clcsk->sk_callback_lock);
- 	clcsk->sk_user_data = (void *)((uintptr_t)smc | SK_USER_DATA_NOCOPY);
- 
- 	smc_clcsock_replace_cb(&clcsk->sk_state_change, smc_fback_state_change,
-@@ -797,6 +822,8 @@ static void smc_fback_replace_callbacks(struct smc_sock *smc)
- 			       &smc->clcsk_write_space);
- 	smc_clcsock_replace_cb(&clcsk->sk_error_report, smc_fback_error_report,
- 			       &smc->clcsk_error_report);
-+
-+	write_unlock_bh(&clcsk->sk_callback_lock);
- }
- 
- static int smc_switch_to_fallback(struct smc_sock *smc, int reason_code)
-@@ -2368,17 +2395,20 @@ static void smc_tcp_listen_work(struct work_struct *work)
- 
- static void smc_clcsock_data_ready(struct sock *listen_clcsock)
- {
--	struct smc_sock *lsmc =
--		smc_clcsock_user_data(listen_clcsock);
-+	struct smc_sock *lsmc;
- 
-+	read_lock_bh(&listen_clcsock->sk_callback_lock);
-+	lsmc = smc_clcsock_user_data(listen_clcsock);
- 	if (!lsmc)
--		return;
-+		goto out;
- 	lsmc->clcsk_data_ready(listen_clcsock);
- 	if (lsmc->sk.sk_state == SMC_LISTEN) {
- 		sock_hold(&lsmc->sk); /* sock_put in smc_tcp_listen_work() */
- 		if (!queue_work(smc_tcp_ls_wq, &lsmc->tcp_listen_work))
- 			sock_put(&lsmc->sk);
- 	}
-+out:
-+	read_unlock_bh(&listen_clcsock->sk_callback_lock);
- }
- 
- static int smc_listen(struct socket *sock, int backlog)
-@@ -2410,10 +2440,12 @@ static int smc_listen(struct socket *sock, int backlog)
- 	/* save original sk_data_ready function and establish
- 	 * smc-specific sk_data_ready function
- 	 */
-+	write_lock_bh(&smc->clcsock->sk->sk_callback_lock);
- 	smc->clcsock->sk->sk_user_data =
- 		(void *)((uintptr_t)smc | SK_USER_DATA_NOCOPY);
- 	smc_clcsock_replace_cb(&smc->clcsock->sk->sk_data_ready,
- 			       smc_clcsock_data_ready, &smc->clcsk_data_ready);
-+	write_unlock_bh(&smc->clcsock->sk->sk_callback_lock);
- 
- 	/* save original ops */
- 	smc->ori_af_ops = inet_csk(smc->clcsock->sk)->icsk_af_ops;
-@@ -2428,9 +2460,11 @@ static int smc_listen(struct socket *sock, int backlog)
- 
- 	rc = kernel_listen(smc->clcsock, backlog);
- 	if (rc) {
-+		write_lock_bh(&smc->clcsock->sk->sk_callback_lock);
- 		smc_clcsock_restore_cb(&smc->clcsock->sk->sk_data_ready,
- 				       &smc->clcsk_data_ready);
- 		smc->clcsock->sk->sk_user_data = NULL;
-+		write_unlock_bh(&smc->clcsock->sk->sk_callback_lock);
- 		goto out;
- 	}
- 	sk->sk_max_ack_backlog = backlog;
-diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
-index 7bd1ef5..31db743 100644
---- a/net/smc/smc_close.c
-+++ b/net/smc/smc_close.c
-@@ -214,9 +214,11 @@ int smc_close_active(struct smc_sock *smc)
- 		sk->sk_state = SMC_CLOSED;
- 		sk->sk_state_change(sk); /* wake up accept */
- 		if (smc->clcsock && smc->clcsock->sk) {
-+			write_lock_bh(&smc->clcsock->sk->sk_callback_lock);
- 			smc_clcsock_restore_cb(&smc->clcsock->sk->sk_data_ready,
- 					       &smc->clcsk_data_ready);
- 			smc->clcsock->sk->sk_user_data = NULL;
-+			write_unlock_bh(&smc->clcsock->sk->sk_callback_lock);
- 			rc = kernel_sock_shutdown(smc->clcsock, SHUT_RDWR);
- 		}
- 		smc_close_cleanup_listen(sk);
+==================================================================
+BUG: KASAN: use-after-free in tcp_retransmit_timer+0x2ef3/0x3360 net/ipv4/tcp_timer.c:511
+Read of size 8 at addr ffff888020328380 by task udevd/4158
+
+CPU: 1 PID: 4158 Comm: udevd Not tainted 5.18.0-rc3-syzkaller-00074-gb05a5683eba6-dirty #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ <IRQ>
+  __dump_stack lib/dump_stack.c:88 [inline]
+  dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+  print_address_description.constprop.0.cold+0xeb/0x467 mm/kasan/report.c:313
+  print_report mm/kasan/report.c:429 [inline]
+  kasan_report.cold+0xf4/0x1c6 mm/kasan/report.c:491
+  tcp_retransmit_timer+0x2ef3/0x3360 net/ipv4/tcp_timer.c:511
+  tcp_write_timer_handler+0x5e6/0xbc0 net/ipv4/tcp_timer.c:622
+  tcp_write_timer+0xa2/0x2b0 net/ipv4/tcp_timer.c:642
+  call_timer_fn+0x1a5/0x6b0 kernel/time/timer.c:1421
+  expire_timers kernel/time/timer.c:1466 [inline]
+  __run_timers.part.0+0x679/0xa80 kernel/time/timer.c:1737
+  __run_timers kernel/time/timer.c:1715 [inline]
+  run_timer_softirq+0xb3/0x1d0 kernel/time/timer.c:1750
+  __do_softirq+0x29b/0x9c2 kernel/softirq.c:558
+  invoke_softirq kernel/softirq.c:432 [inline]
+  __irq_exit_rcu+0x123/0x180 kernel/softirq.c:637
+  irq_exit_rcu+0x5/0x20 kernel/softirq.c:649
+  sysvec_apic_timer_interrupt+0x93/0xc0 arch/x86/kernel/apic/apic.c:1097
+ </IRQ>
+ ...
+(detail report can be found in https://syzkaller.appspot.com/text?tag=CrashReport&x=15406b44f00000)
+
+IMHO, the above issue is the same as this known one: https://syzkaller.appspot.com/bug?extid=694120e1002c117747ed,
+and it doesn't seem to be related with SMC. The discussion about this known issue is ongoing and can be found in
+https://lore.kernel.org/bpf/000000000000f75af905d3ba0716@google.com/T/.
+
+And I added the temporary solution mentioned in the above discussion on
+top of my two patches, the syzbot reproducer of 'slab-out-of-bounds/
+use-after-free in smc_fback_error_report' no longer triggers any issue.
+
+Wen Gu (2):
+  net/smc: Only save the original clcsock callback functions
+  net/smc: Fix slab-out-of-bounds issue in fallback
+
+ net/smc/af_smc.c    | 135 ++++++++++++++++++++++++++++++++++++----------------
+ net/smc/smc.h       |  29 +++++++++++
+ net/smc/smc_close.c |   5 +-
+ 3 files changed, 126 insertions(+), 43 deletions(-)
+
 -- 
 1.8.3.1
 
