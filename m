@@ -2,114 +2,126 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3876AC433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 22 Apr 2022 10:02:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E21BC433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 22 Apr 2022 10:55:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231286AbiDVKF2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 22 Apr 2022 06:05:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44060 "EHLO
+        id S1446915AbiDVK5z (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 22 Apr 2022 06:57:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347178AbiDVKF1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 22 Apr 2022 06:05:27 -0400
-Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F27DE53B4E;
-        Fri, 22 Apr 2022 03:02:34 -0700 (PDT)
-Received: by mail-pl1-x636.google.com with SMTP id c12so9780132plr.6;
-        Fri, 22 Apr 2022 03:02:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=k7VCUGihacP2DQRoahc3UEPX5aPnZ4E+0PZqjtlRjj0=;
-        b=Jv2SI7b+1Lt4+Z3ZcqH/yUxUz1pSrQnSS77c1Uf6XWzLH/Zq2vWCeng9hc3pL4m5Yw
-         JLi0QV0pejgpG1jdIi1rMnlVLk7CzO8pM7qEBdE/OvlWBojfC7nK2rK37hF1vPvBpRWL
-         rfZjcD/jTDfHTTX/9XmuanVQ9TUJkGe6K4taTUXk4BTcVLArkehW4aZpmRZELSYFvEoS
-         gefv8baNyUrKiN4ban4qm6oT9MOEcniIWhA/ciinb6XPILCBMoskdya8kGASShbHXSTd
-         kmh8medKcFICKI6ZBV/u28JVS7ZWuAjcYMkBqgmd3dN/lx3viv96eqy55fgsjlYtDLhK
-         fW+Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=k7VCUGihacP2DQRoahc3UEPX5aPnZ4E+0PZqjtlRjj0=;
-        b=sasaxRr2+fr66LBAYsBv2WXSFp6h4UGT7b47gXPN2RSspKpVaqP0OaFoDr94ur84ol
-         wMcpkUiagCUT3xGbEktAKi9qaqp31S8i9VaPFomz69y/5zjjEv2e3k+GV/x41f+FlitJ
-         sqrKke9vhxvw3qA6VW+QA6M1MYaYYFft06FUHuW/qxt2TOfehWn7aEBGKFMKBAfOAlK+
-         Enez/oDDGy0MFPo0OiSgaw3yyHCsLbf48xbGOGLTbMMG74mcThty+rALn34NNHsYaDWB
-         Cz2lvY8XNm3BY4kkYE1e7Rs0DEaELuJhQFNsH0mdVKlRn70sTSyRwB8XK3eubLyY/mmK
-         Buow==
-X-Gm-Message-State: AOAM531dlV6ENL9ud88dPuge8SiTTKjG/aWFmmDYNPHZeWZolR0GR+d5
-        4UdT5cotE7Noq4WWOqytDLnOqrjd4g==
-X-Google-Smtp-Source: ABdhPJwcsbD3BHRmBJpOJXbTLn+oBQHoShGt9MWGRKRYwIsmlp9ff2m14LQrBJ4XE7HDEm7iPNJw7A==
-X-Received: by 2002:a17:90b:4a8b:b0:1d2:9346:6432 with SMTP id lp11-20020a17090b4a8b00b001d293466432mr4434108pjb.183.1650621753722;
-        Fri, 22 Apr 2022 03:02:33 -0700 (PDT)
-Received: from piliu.users.ipa.redhat.com ([209.132.188.80])
-        by smtp.gmail.com with ESMTPSA id w187-20020a6230c4000000b00505cde77826sm1953914pfw.159.2022.04.22.03.02.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 Apr 2022 03:02:31 -0700 (PDT)
-From:   Pingfan Liu <kernelfans@gmail.com>
-To:     linux-s390@vger.kernel.org
-Cc:     Pingfan Liu <kernelfans@gmail.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCHv2] s390/irq: utilize RCU instead of irq_lock_sparse() in show_msi_interrupt()
-Date:   Fri, 22 Apr 2022 18:02:12 +0800
-Message-Id: <20220422100212.22666-1-kernelfans@gmail.com>
+        with ESMTP id S1344416AbiDVK5y (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 22 Apr 2022 06:57:54 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8FE863A2;
+        Fri, 22 Apr 2022 03:55:00 -0700 (PDT)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23M8E7MT007509;
+        Fri, 22 Apr 2022 10:55:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=evssS65znSL4US0yutJ2bW4WDBbDhdYge6WwoF0UEVw=;
+ b=rmoOw5bDt0LqI71AmC1bJ/Y+rEwxIp/e6WiDkbbo+UpSbAN+2wq781Nxgh6ZsBJ61bR0
+ GU08E+5IVGjzDH3qWlE1gNP+y6xVFUzAOchUqHt90KGdV5nsvKK0uWa7oT6utgIm5sND
+ p2ZNlZ/J5nua656jfYXcNes3JU3gav0RQGW6FJkEA/4b/NSxYedGjbQBSQC3BpGGTm6Z
+ GXdrDFPfXhkKTGOA7S/fEZMSFZs5UnDhealns+BmqcCSapSC8A5UNiQUQNeVcfMMd0LY
+ S/mJmtEhNNqt6OYzsNd6RnhXEz4HPotjSNFxuuf/2/TqTi+uzr0D96VN9EdILJMx7n3e Mg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fkdg4wjqk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 22 Apr 2022 10:55:00 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 23MArZlS022639;
+        Fri, 22 Apr 2022 10:55:00 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3fkdg4wjpy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 22 Apr 2022 10:54:59 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23MAsBDm010198;
+        Fri, 22 Apr 2022 10:54:57 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma05fra.de.ibm.com with ESMTP id 3ffne8ybfu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 22 Apr 2022 10:54:57 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23MAss0n16843028
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 22 Apr 2022 10:54:54 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 38AA4AE05A;
+        Fri, 22 Apr 2022 10:54:54 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7BDE4AE059;
+        Fri, 22 Apr 2022 10:54:53 +0000 (GMT)
+Received: from t46lp57.lnxne.boe (unknown [9.152.108.100])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 22 Apr 2022 10:54:53 +0000 (GMT)
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
+Subject: [kvm-unit-tests PATCH v4 0/4] s390x: add migration test support
+Date:   Fri, 22 Apr 2022 12:54:49 +0200
+Message-Id: <20220422105453.2153299-1-nrb@linux.ibm.com>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20220420140521.45361-5-kernelfans@gmail.com>
-References: <20220420140521.45361-5-kernelfans@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: ydIuzWOuMcD3TX4H11OgXN824bR7hXgP
+X-Proofpoint-GUID: VX69jzyXMPmpBnrSTkWZD_KdPQE6Cf97
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-04-22_02,2022-04-22_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
+ impostorscore=0 clxscore=1015 bulkscore=0 phishscore=0 lowpriorityscore=0
+ suspectscore=0 adultscore=0 spamscore=0 mlxlogscore=999 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2204220046
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-As demonstrated by commit 74bdf7815dfb ("genirq: Speedup show_interrupts()"),
-irq_desc can be accessed safely in RCU read section.
-
-Hence here resorting to rcu read lock to get rid of irq_lock_sparse().
-
-Signed-off-by: Pingfan Liu <kernelfans@gmail.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: Sven Schnelle <svens@linux.ibm.com>
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: linux-kernel@vger.kernel.org
-To: linux-s390@vger.kernel.org
-
+Changelog from v3:
 ---
- arch/s390/kernel/irq.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+- Rename read_buf_end to read_buf_length (Thanks Janosch)
 
-diff --git a/arch/s390/kernel/irq.c b/arch/s390/kernel/irq.c
-index 3033f616e256..45393919fe61 100644
---- a/arch/s390/kernel/irq.c
-+++ b/arch/s390/kernel/irq.c
-@@ -205,7 +205,7 @@ static void show_msi_interrupt(struct seq_file *p, int irq)
- 	unsigned long flags;
- 	int cpu;
- 
--	irq_lock_sparse();
-+	rcu_read_lock();
- 	desc = irq_to_desc(irq);
- 	if (!desc)
- 		goto out;
-@@ -224,7 +224,7 @@ static void show_msi_interrupt(struct seq_file *p, int irq)
- 	seq_putc(p, '\n');
- 	raw_spin_unlock_irqrestore(&desc->lock, flags);
- out:
--	irq_unlock_sparse();
-+	rcu_read_unlock();
- }
- 
- /*
+This series depends on my SIGP store additional status series to have access to
+the guarded-storage and vector related defines
+("[kvm-unit-tests PATCH v3 0/2] s390x: Add tests for SIGP store adtl status").
+
+Add migration test support for s390x.
+
+arm and powerpc already support basic migration tests.
+
+If a test is in the migration group, it can print "migrate" on its console. This
+will cause it to be migrated to a new QEMU instance. When migration is finished,
+the test will be able to read a newline from its standard input.
+
+We need the following pieces for this to work under s390x:
+
+* read support for the sclp console. This can be very basic, it doesn't even
+  have to read anything useful, we just need to know something happened on
+  the console.
+* s390/run adjustments to call the migration helper script.
+
+This series adds basic migration tests for s390x, which I plan to extend
+further.
+
+Nico Boehr (4):
+  lib: s390x: add support for SCLP console read
+  s390x: add support for migration tests
+  s390x: don't run migration tests under PV
+  s390x: add basic migration test
+
+ lib/s390x/sclp-console.c |  79 ++++++++++++++++--
+ lib/s390x/sclp.h         |   8 ++
+ s390x/Makefile           |   2 +
+ s390x/migration.c        | 172 +++++++++++++++++++++++++++++++++++++++
+ s390x/run                |   7 +-
+ s390x/unittests.cfg      |   5 ++
+ scripts/s390x/func.bash  |   2 +-
+ 7 files changed, 267 insertions(+), 8 deletions(-)
+ create mode 100644 s390x/migration.c
+
 -- 
 2.31.1
 
