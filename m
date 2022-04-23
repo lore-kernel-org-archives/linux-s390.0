@@ -2,176 +2,271 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B85FDC4332F
-	for <linux-s390@archiver.kernel.org>; Sat, 23 Apr 2022 16:10:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57E6EC4167B
+	for <linux-s390@archiver.kernel.org>; Sat, 23 Apr 2022 21:27:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236317AbiDWQND (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 23 Apr 2022 12:13:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60124 "EHLO
+        id S237142AbiDWVaN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 23 Apr 2022 17:30:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235036AbiDWQNB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 23 Apr 2022 12:13:01 -0400
-Received: from EUR04-HE1-obe.outbound.protection.outlook.com (mail-eopbgr70072.outbound.protection.outlook.com [40.107.7.72])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A5AE10A4;
-        Sat, 23 Apr 2022 09:10:03 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=POqKmcSxjOTBRJF0yUi2TbfOrsAywy5kcGpZioN66CkAISirDEofXs0wztwj0pWah9PWo/5Xhv59YbVRMF9saYFSkoPcVj6v0QXwCSgl1CqlQCr7B9j1u2zpO4ck3IV6PeciErwWbY5h9+FBz7KGImzy3Iw04TsTUxSHsBZoVFoORQhK+lw9WHLQA5oBaU4OTsKInmyRBsRsqyaCwAEmJFMqgh3Vp6ZW/ElvPOgV7Zb+IsYBkz+zOB3PeXr2Q9d5H29sFvdeqmCWPOoexY+7mkX01jWFgD1zan/8Cfjhhb38DeGMkP6U1zrl0Fo29krpeqZVvRb6/DHypzSmTioKNQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=IIOzQC//5Lg61psNuU3beGROQ/OGo6KgFewBNuoLHus=;
- b=RSn0axi15uc76q/oHt5GrPElcFpqESN1r+hoL+BN2cka0MC4dd6MLynZpvb4Vc6Y0fy4bvh3AQuxmv1b588cbhPNLTn50h2Yh/fkUwjNEd84kwrkmnpyKPSAp3shlpkzPmMqJHXgKXQeIehaZCON+Y4K672GNjonve6FP6OorSY9cjI6EEoUM+AYp2M+ab2xNa/HaE6ZVqiT/Jyw+Dff+7HUTEVSBFMGYPGcc9NMxjNQRSduYSrrDGWj1ZeLsiFasvA4ALJYRC/JUf39iEKVv7WH7908ELNVLGIsrJY0AYKKjGSKCcaWGglc8Fy4NhR7OiYT2fAsBVQS+ltF0+Dluw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
- header.d=nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=IIOzQC//5Lg61psNuU3beGROQ/OGo6KgFewBNuoLHus=;
- b=nLXMYMvq7eOz9ZHls91XIL+rDvYZJucwHSS75nrAI0qv43EC+fzYNGtXTyOxEMugmQGOYZ1uxnC3S0QC4ikcJcEF7KDwiEg9fQW3Zu0DBYwcr3e3yKZdeBWq6bXhh1UYWCfM7A04m2Hq90H/jIE0iXF3Zw8XWOgvLz/1FkhbhGg=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nxp.com;
-Received: from AM6PR04MB4679.eurprd04.prod.outlook.com (2603:10a6:20b:15::32)
- by DB7PR04MB4044.eurprd04.prod.outlook.com (2603:10a6:5:1b::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5186.18; Sat, 23 Apr
- 2022 16:10:00 +0000
-Received: from AM6PR04MB4679.eurprd04.prod.outlook.com
- ([fe80::489c:22ea:f02d:ce42]) by AM6PR04MB4679.eurprd04.prod.outlook.com
- ([fe80::489c:22ea:f02d:ce42%7]) with mapi id 15.20.5186.018; Sat, 23 Apr 2022
- 16:10:00 +0000
-Date:   Sat, 23 Apr 2022 19:09:56 +0300
-From:   Abel Vesa <abel.vesa@nxp.com>
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Stuart Yoder <stuyoder@gmail.com>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        with ESMTP id S237120AbiDWVaK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 23 Apr 2022 17:30:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 452C51DA54;
+        Sat, 23 Apr 2022 14:27:12 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C52BFB80DA9;
+        Sat, 23 Apr 2022 21:27:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 655E8C385A5;
+        Sat, 23 Apr 2022 21:27:04 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="mxw3tXP3"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1650749222;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=pY3GCFkvaKbYFxDCcKwSdJ8N9nXdG8OE4PjRxZGLbwE=;
+        b=mxw3tXP3rv19uw0WGrfNZ5vKeN9vdScLNhpiHdV1D7EpFAVPuUI2t27mnVwIz+EPXhdc0N
+        DxsrccWIpl1bhZSnO0NPOVu65nNxex7ViVlm3T1mRaL18DWAN+oQeZyXO+p1apZw+pyUO5
+        OdzcbE/GPAE1xJDfBMeAuCkH5KtnstM=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 5c3eede4 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Sat, 23 Apr 2022 21:27:02 +0000 (UTC)
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+        tglx@linutronix.de, arnd@arndb.de
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Theodore Ts'o <tytso@mit.edu>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        "David S . Miller" <davem@davemloft.net>,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H . Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Jonas Bonn <jonas@southpole.se>,
+        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+        Stafford Horne <shorne@gmail.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Andy Gross <agross@kernel.org>, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, NXP Linux Team <linux-imx@nxp.com>,
-        linux-arm-kernel@lists.infradead.org, linux-hyperv@vger.kernel.org,
-        linux-pci@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        alsa-devel@alsa-project.org, linux-spi@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: Re: [PATCH v7 09/12] clk: imx: scu: Fix kfree() of static memory on
- setting driver_override
-Message-ID: <YmQk1ORliYWEgjKx@abelvesa>
-References: <20220419113435.246203-1-krzysztof.kozlowski@linaro.org>
- <20220419113435.246203-10-krzysztof.kozlowski@linaro.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220419113435.246203-10-krzysztof.kozlowski@linaro.org>
-X-ClientProxiedBy: VI1PR04CA0112.eurprd04.prod.outlook.com
- (2603:10a6:803:64::47) To AM6PR04MB4679.eurprd04.prod.outlook.com
- (2603:10a6:20b:15::32)
+        Helge Deller <deller@gmx.de>,
+        Richard Henderson <rth@twiddle.net>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-riscv@lists.infradead.org, sparclinux@vger.kernel.org,
+        linux-um@lists.infradead.org, x86@kernel.org,
+        linux-xtensa@linux-xtensa.org, openrisc@lists.librecores.org,
+        linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH v6 00/17] archs/random: fallback to best raw ktime when no cycle counter
+Date:   Sat, 23 Apr 2022 23:26:06 +0200
+Message-Id: <20220423212623.1957011-1-Jason@zx2c4.com>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 0b16d65d-000e-41d6-e96a-08da2543b7db
-X-MS-TrafficTypeDiagnostic: DB7PR04MB4044:EE_
-X-Microsoft-Antispam-PRVS: <DB7PR04MB40449FB3F631788A58438417F6F69@DB7PR04MB4044.eurprd04.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: RlLgeVF9AMUytFCchnksBsFX8Q1ZmMXyIeprQYuxvRGr0eTEzeGAO8NfZ35byTbSlwtAAX+DmmpOBbQ7u7moEt9UPUO08CyjIrqHD0UmvcgY1JcxNhC/muje84Nlg/sD7jBRvXGJ2YA7Bhq5CEgTPeThIDLo4Z7blvu8C35wHFeFbAWOe/TdoSzplohxdbaK/DtokSPfGJZDq5Pof7rZ1cvnsal9JxdAtiJ2YUDQVmJeXMXVxgm6rPoE4HVvjC86sJXDXDazw7Gh1DBWw6WHByqg/mMeEfjxSmmsq/TZQgBrf7P1est53ZzSkHsQMKB7/enLILjDHazaa8+w4hyWZAl2srhCm0eDPesfUBLUtDsi3qh2kObdHmLl13LWLMZRqlODzvVWZ37X6hww8/bLBib2jm0WoE4GBAgMe7dLRQHpGeAavSugky5ypcyCPgG6MU7zIzFRIPNuiXX5lcUQ1OJ3pxEqT+tUgGj+UC5VFmgb/dQhtp2EPIekrNQJPeysDjB9rw2Nr3HZS+Y7Kh77Wf0aVgz3dbn+wr52fi8q4/8jbusNvmlBzBA8Lc9B/dNczbpAdnDyGClUlmTWbn6zfoRt0XQb/U0CRn2eTMxVhvI1YMbcHtTnBWouORHyzeIo6Ibsc5ms/ezLBMplvhrawUMafw7WmNk2giAnJ17sktlEur8v9vjAovDVvNXxn//XIeQWfkBVgIQU0AnPrD3IBA==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM6PR04MB4679.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(7916004)(4636009)(366004)(6916009)(83380400001)(54906003)(7416002)(7406005)(86362001)(2906002)(44832011)(6486002)(508600001)(53546011)(6506007)(186003)(38350700002)(38100700002)(33716001)(26005)(9686003)(6512007)(66476007)(8676002)(66556008)(4326008)(8936002)(5660300002)(66946007)(52116002)(316002)(6666004);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?BCz2QCshCOi4ZeSXE8b1I7cS8K7UHTXw9xrI7CG5yggrvzxgQ3o7NXilCBqx?=
- =?us-ascii?Q?MBdGJlOQ9c7LEvVyAfDxfRS+GDst17FojVkVlGMCHfZQFDHFyfXjuAWAdQbY?=
- =?us-ascii?Q?vvlpU1gCdRAiaaYwD3M6CCTzw23w+OD2LvyBQXG2/7wEzrpwdnmLE4UKFcmQ?=
- =?us-ascii?Q?hY/oJj3Spo4I4CtkFzzSCbG0Yp+Hwbws94S8gCb0Hc/8sa4P7ekdseYv+VW5?=
- =?us-ascii?Q?wGNHsLSSVJG6TnlBBh/oPDtI1Lp9qe5ZzTUk5yYvhOtini0iIKyq0D5vijoI?=
- =?us-ascii?Q?qPzUnmm5+8NCiEjz3z+gbv2AxMyD7j0pjeV8/ZTN5EuyZmrLdBE/M/2wCb41?=
- =?us-ascii?Q?0bYECZ2WSddeOl7xdq9wRTkfV0cnaAo2pq8zm0KNQJDcwMBdItXw7pxR5xaK?=
- =?us-ascii?Q?TG1epSG+8guETItU6vuJbjaprICuyvF4CZampGdsn2UL43IAQKjxFn2Bg6ZB?=
- =?us-ascii?Q?qTAsWVgo2WSqEDLsijHPA/wirAQB/jsj9pLm9rpFBVOIXUJTO+EJwrfdswuH?=
- =?us-ascii?Q?mbOMWmT4+O1gUb3T5VE2lG8QGcYa7EfnI3eTCStF9v4cQZNvuuS9QWAxhyhd?=
- =?us-ascii?Q?QKAcrt1M6RNT41CfXcTZaKNLPb/USpuELSs0FOkUa41wKdOOzYbPLQXUO0ZO?=
- =?us-ascii?Q?AOLez2x7Se7wHJZemJ+CXzWykzNqDXXr0yR7WgFhI0+/tPq37DtXCzWS7zHZ?=
- =?us-ascii?Q?Efqd8fFNEMO3EywH+eGv36rLa9kQmte3Vx6bG9OKI4TS0xczUzclenwhnjYT?=
- =?us-ascii?Q?hivsa68pK7/0dIaBpJfs4MfF0R/xIR3eOFduyiXQr8aZomhDs4R8AIILIBy3?=
- =?us-ascii?Q?HJjS4Ft2svtcYCc35wm0TzrJCBbKhWHl0JYg5pofZJZ/b2ADFk82olcH2gB6?=
- =?us-ascii?Q?sOYY7R6zQPHssGqQAxfvQyVg9WebvoycEVPkmKGJ+z6/o4+rtVrMP/zE454B?=
- =?us-ascii?Q?Xz/uHAgiZD3OSo5pFcvay4BlXBfsM7x2YJM3lUUSBMmwHXJktSbk2at+r73K?=
- =?us-ascii?Q?ramqvXtrGEUoeb+0/L9fyKnfseh0Dxof3HvWmO6U9q3eq2QuQ7POf8cBEu+x?=
- =?us-ascii?Q?lKXgCdiWGGFRNgTpj+Af52ayaEu2gVQNunqMzPrvmP6F1l8ZxliWrk8okGGh?=
- =?us-ascii?Q?oRzE9Jnfo0qyK4YxK+VLM+hHPJZ1FI/Oq3Gx0vVlQ/yGdxLtIoQz5veeAhjg?=
- =?us-ascii?Q?FcP9K1bV6VYEDwWfaGACC8tKhP3+zdJ5wOlO8okvxQmfq2Jh2iRRO/CS8bqk?=
- =?us-ascii?Q?wJoIJBEEK4CHvD56FE7w2Qk5xNd8QVr//nphvgmhD2aUt7qbTMPQpAjt2fTJ?=
- =?us-ascii?Q?R+cBC/EtyU06/7BSGrz+ieUnEJS1LMELcwIrjJGVVpSmv3rtUPCsKJYgv6Me?=
- =?us-ascii?Q?FSvblUTXsNWmb8ZlGoUwz+cC7rIMMkFSeB73RCqpTafIGCjtPtVPSdwVygg3?=
- =?us-ascii?Q?QRohEzFnfonDXNGk8hke7bzDc6N/9BjMyY5Nufd94YqeE6vzNnOJWLYTMgK9?=
- =?us-ascii?Q?C78KTCV5d1g4u5wjtxljpXnDWGijL6pa3VT7ztbaSuwhuTNhDPW04bbCKrpD?=
- =?us-ascii?Q?oNR+G56+YV9c1+XUIzNHaXcU4YGSRswFvr+tP0SAJ4qjtv5lXMtzDr76/Ndb?=
- =?us-ascii?Q?MvjCQ9amgiD3CKe5vFvdpHvIvJg93jvIgqjuPW4c+GNyZtVM9yKo2ehm8xAT?=
- =?us-ascii?Q?rVFIqCvydWedqN9TZjbjmIajR7eSmwmiLt2zjQWAF/4tFiH2yIMUExZ6RaAJ?=
- =?us-ascii?Q?qTyyklbGTg=3D=3D?=
-X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0b16d65d-000e-41d6-e96a-08da2543b7db
-X-MS-Exchange-CrossTenant-AuthSource: AM6PR04MB4679.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Apr 2022 16:10:00.5900
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: v3HnGcuBHLfKFmDVj6eiPp6VrPLDLwF51A8skzBje5u2zZVyyN42KSAwrCF01fRtEB+vjCcKSBifUsAvfL/BYw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB7PR04MB4044
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 22-04-19 13:34:32, Krzysztof Kozlowski wrote:
-> The driver_override field from platform driver should not be initialized
-> from static memory (string literal) because the core later kfree() it,
-> for example when driver_override is set via sysfs.
->
-> Use dedicated helper to set driver_override properly.
->
-> Fixes: 77d8f3068c63 ("clk: imx: scu: add two cells binding support")
-> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-> Acked-by: Stephen Boyd <sboyd@kernel.org>
+[Preface for v6: if you're an arch maintainer, a simple Acked-by would
+ be appreciated if this looks okay.]
 
-Reviewed-by: Abel Vesa <abel.vesa@nxp.com>
+Hi folks,
 
-> ---
->  drivers/clk/imx/clk-scu.c | 7 ++++++-
->  1 file changed, 6 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/clk/imx/clk-scu.c b/drivers/clk/imx/clk-scu.c
-> index ed3c01d2e8ae..4996f1d94657 100644
-> --- a/drivers/clk/imx/clk-scu.c
-> +++ b/drivers/clk/imx/clk-scu.c
-> @@ -683,7 +683,12 @@ struct clk_hw *imx_clk_scu_alloc_dev(const char *name,
->  		return ERR_PTR(ret);
->  	}
->
-> -	pdev->driver_override = "imx-scu-clk";
-> +	ret = driver_set_override(&pdev->dev, &pdev->driver_override,
-> +				  "imx-scu-clk", strlen("imx-scu-clk"));
-> +	if (ret) {
-> +		platform_device_put(pdev);
-> +		return ERR_PTR(ret);
-> +	}
->
->  	ret = imx_clk_scu_attach_pd(&pdev->dev, rsrc_id);
->  	if (ret)
-> --
-> 2.32.0
->
+The RNG uses a function called random_get_entropy() basically anytime
+that it needs to timestamp an event. For example, an interrupt comes in,
+and we mix a random_get_entropy() into the entropy pool somehow.
+Somebody mashes their keyboard or moves their mouse around? We mix a
+random_get_entropy() into the entropy pool. It's one of the main
+varieties of input.
+
+Unfortunately, it's always 0 on a few platforms. The RNG has accumulated
+various hacks to deal with this, but in general it's not great. Surely
+we can do better than 0. In fact, *anything* that's not the same exact
+value all the time would be better than 0. Even a counter that
+increments once per hour would be better than 0! I think you get the
+idea.
+
+On most platforms, random_get_entropy() is aliased to get_cycles(),
+which makes sense for platforms where get_cycles() is defined. RDTSC,
+for example, has all the characteristics we care about for this
+function: it's fast to acquire (i.e. acceptable in an irq handler),
+pretty high precision, available, forms a 2-monotone distribution, etc.
+But for platforms without that, what is the next best thing?
+
+Sometimes the next best thing is architecture-defined. For example,
+really old MIPS has the C0 random register, which isn't quite a cycle
+counter, but is at least something. However, some platforms don't even
+have an architecture-defined fallback.
+
+Fortunately, the timekeeping subsystem has already solved this problem
+of trying to determine what the least bad clock is on constrained
+systems, falling back to jiffies in the worst case. By exporting the raw
+clock, we can get a decent fallback function for when there's no cycle
+counter or architecture-specific function.
+
+This series makes the RNG more useful on: m68k, RISC-V, MIPS, ARM32,
+NIOS II, SPARC32, Xtensa, OpenRISC, and Usermode Linux. Previously these
+platforms would, in certain circumstances, but out of luck with regards to
+having any type of event timestamping source in the RNG.
+
+Finally, note that this series isn't about "jitter entropy" or other
+ways of initializing the RNG. That's a different topic for a different
+thread. Please don't let this discussion veer off into that. Here, I'm
+just trying to find a good fallback counter/timer for platforms without
+get_cycles(), a question with limited scope.
+
+If this (or a future revision) looks good to you all and receives the
+requisite acks, my plan was to take these through the random.git tree
+for 5.19, so that I can then build on top of it.
+
+Thanks,
+Jason
+
+Changes v5->v6:
+- Use cpu_feature_enabled() instead of boot_cpu_has() on x86.
+- OpenRISC support.
+- Define missing `#define get_cycles get_cycles` on various platforms.
+
+Changes v4->v5:
+- Do not prototype symbol with 'extern', according to style guide.
+- On MIPS, combine random_get_entropy_fallback() with the c0 random
+  register in a way that matches the format of the c0 random value, so
+  that we get the best of a high precision cycle counter and of larger
+  period timer, joined together. As a result, Thomas Bogendoerfer's
+  ack on v4 of patch 4 has been dropped, since this is a substantial
+  change.
+
+Changes v3->v4:
+- Use EXPORT_SYMBOL_GPL instead of EXPORT_SYMBOL.
+
+Changes v2->v3:
+- Name the fallback function random_get_entropy_fallback(), so that it
+  can be changed out as needed.
+- Include header with prototype in timekeeping.c to avoid compiler
+  warning.
+- Export fallback function symbol.
+
+Changes v1->v2:
+- Use ktime_read_raw_clock() instead of sched_clock(), per Thomas'
+  suggestion.
+- Drop arm64 change.
+- Cleanup header inclusion ordering problem.
+
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Theodore Ts'o <tytso@mit.edu>
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Albert Ou <aou@eecs.berkeley.edu>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Richard Weinberger <richard@nod.at>
+Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Cc: Johannes Berg <johannes@sipsolutions.net>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Chris Zankel <chris@zankel.net>
+Cc: Max Filippov <jcmvbkbc@gmail.com>
+Cc: Stephen Boyd <sboyd@kernel.org>
+Cc: Dinh Nguyen <dinguyen@kernel.org>
+Cc: Jonas Bonn <jonas@southpole.se>
+Cc: Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
+Cc: Stafford Horne <shorne@gmail.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: Helge Deller <deller@gmx.de>
+Cc: Richard Henderson <rth@twiddle.net>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Matt Turner <mattst88@gmail.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-m68k@lists.linux-m68k.org
+Cc: linux-mips@vger.kernel.org
+Cc: linux-riscv@lists.infradead.org
+Cc: sparclinux@vger.kernel.org
+Cc: linux-um@lists.infradead.org
+Cc: x86@kernel.org
+Cc: linux-xtensa@linux-xtensa.org
+Cc: openrisc@lists.librecores.org
+Cc: linux-ia64@vger.kernel.org
+Cc: linux-s390@vger.kernel.org
+Cc: linux-parisc@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+
+Jason A. Donenfeld (17):
+  ia64: define get_cycles macro for arch-override
+  s390: define get_cycles macro for arch-override
+  parisc: define get_cycles macro for arch-override
+  alpha: define get_cycles macro for arch-override
+  powerpc: define get_cycles macro for arch-override
+  timekeeping: add raw clock fallback for random_get_entropy()
+  m68k: use fallback for random_get_entropy() instead of zero
+  riscv: use fallback for random_get_entropy() instead of zero
+  mips: use fallback for random_get_entropy() instead of just c0 random
+  arm: use fallback for random_get_entropy() instead of zero
+  openrisc: use fallback for random_get_entropy() instead of zero
+  nios2: use fallback for random_get_entropy() instead of zero
+  x86: use fallback for random_get_entropy() instead of zero
+  um: use fallback for random_get_entropy() instead of zero
+  sparc: use fallback for random_get_entropy() instead of zero
+  xtensa: use fallback for random_get_entropy() instead of zero
+  random: insist on random_get_entropy() existing in order to simplify
+
+ arch/alpha/include/asm/timex.h    |  1 +
+ arch/arm/include/asm/timex.h      |  1 +
+ arch/ia64/include/asm/timex.h     |  1 +
+ arch/m68k/include/asm/timex.h     |  2 +-
+ arch/mips/include/asm/timex.h     | 17 +++---
+ arch/nios2/include/asm/timex.h    |  3 ++
+ arch/openrisc/include/asm/timex.h |  3 ++
+ arch/parisc/include/asm/timex.h   |  3 +-
+ arch/powerpc/include/asm/timex.h  |  1 +
+ arch/riscv/include/asm/timex.h    |  2 +-
+ arch/s390/include/asm/timex.h     |  1 +
+ arch/sparc/include/asm/timex_32.h |  4 +-
+ arch/um/include/asm/timex.h       |  9 +---
+ arch/x86/include/asm/timex.h      | 10 ++++
+ arch/x86/include/asm/tsc.h        |  4 +-
+ arch/xtensa/include/asm/timex.h   |  6 +--
+ drivers/char/random.c             | 89 ++++++++++---------------------
+ include/linux/timex.h             |  8 +++
+ kernel/time/timekeeping.c         | 10 ++++
+ 19 files changed, 87 insertions(+), 88 deletions(-)
+
+-- 
+2.35.1
+
