@@ -2,51 +2,62 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 56195C433F5
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Apr 2022 19:14:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 63317C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Apr 2022 20:59:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231528AbiDYTR4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 25 Apr 2022 15:17:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47098 "EHLO
+        id S245356AbiDYVC2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 25 Apr 2022 17:02:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242986AbiDYTR4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Apr 2022 15:17:56 -0400
-Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com [209.85.167.51])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6399B2ED62;
-        Mon, 25 Apr 2022 12:14:51 -0700 (PDT)
-Received: by mail-lf1-f51.google.com with SMTP id w19so27934949lfu.11;
-        Mon, 25 Apr 2022 12:14:51 -0700 (PDT)
+        with ESMTP id S245182AbiDYVCX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Apr 2022 17:02:23 -0400
+Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A88C72AE18
+        for <linux-s390@vger.kernel.org>; Mon, 25 Apr 2022 13:59:17 -0700 (PDT)
+Received: by mail-wm1-x331.google.com with SMTP id u9-20020a05600c00c900b00393e729e655so337782wmm.0
+        for <linux-s390@vger.kernel.org>; Mon, 25 Apr 2022 13:59:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=m+0NQ0MbGYoEB5Jsr85JSxqkzHf5iQdh5cM2NyrsDis=;
+        b=BGex542dDfYT9HHYZfLCHcpHPGYA2/GNKIzZeosJgIywm2a3Tc6iL/Vtz2vWx7zjQc
+         EVZT+T3Xu2N4CqQCITrP+06X+HS178Z/m41youJ1Drv4CbDKwtXRfqEm+kAuaet77TA3
+         2QP5Wkh4qoafLDELvHmpJ2Uf/l9c6gHRn6YvMuq3QclOu4lKu121I0V/AVyvcx/Va5Wg
+         /lNJla5ZwrUfCRleKMpea1Tc5hSbbcjXAWI2MPhjhFRY1ntLQBiYgKGNSfyGdWeUc7+Q
+         eZu6TYEToZPYaZWgpoEC5Vz5FKdeAH7Y1gZfV/T6j40u+brBqffIhGmaocuLo+FinP0h
+         wTPw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=dHw3bSR/H7CsKHNYVZ388J1hNpCRBRDwS8dgecfZChM=;
-        b=hicR/D69ANxKVPCF+DF7id9Artecst5j9WieldcfF6yVeaMpAHW6VxiUua7Otzi/qZ
-         c9WmgBjW8pnONB4M9Xqd4cKTl/I8nOegNHNZ9d8UGf44ToG3buIHAwO0ZRCokmF2TX7n
-         GFMEMWzJU84BAhiDZq5lbBsYjyt2GroP8f6UHniOmR0ICTx06dvJbwbqX9QxklEYItUo
-         xkWDwb5pBgRjUZckmlcVuvj10j0YfhKiUSbMTroBihMnXR3osaLmSegNLDyHVjQgl8Gd
-         B+xaHrKaZK8PEzEkRjUOm31DIr/A7WuRvpvj1RH9YeLzebQiJ60pRjOzpxfIjuRvIatX
-         R/vg==
-X-Gm-Message-State: AOAM533C4KkQnlExerDEwAtpOda7J2hl1v0cRji05/QQwMdACFtTdCvA
-        K8ClGO6hYIuq6Z6JIzqg69LY5tUIxXj+7BgQMCk=
-X-Google-Smtp-Source: ABdhPJyhIu6bV/7PCchygWQAOXBLRo+nw25DWy7AdnYXRE222Wbp82PwUfbfw5cBzUzTpTwxnu0Yw930jpFPtAOIVa8=
-X-Received: by 2002:ac2:4c4f:0:b0:44a:4357:c285 with SMTP id
- o15-20020ac24c4f000000b0044a4357c285mr13820828lfk.99.1650914089654; Mon, 25
- Apr 2022 12:14:49 -0700 (PDT)
+        bh=m+0NQ0MbGYoEB5Jsr85JSxqkzHf5iQdh5cM2NyrsDis=;
+        b=vglB/na30S3ot8gyOe2X7TqD78E1qfJn/Uzcn8KQ0ZTH3q3ux2bR4Tqv+SrZhcdjEc
+         0AAwTUqadokWPEtVg/rUHbwb3CQltZVvuI2SYh5J9I2tXHWhfotrkGTnTYebAiqfCFfX
+         VPZ/PfbipAmHQxBXw60vILqebe+9j6Qsrbd4iJbzNxFlhhogKRQ+tCVV5Wtkv5rr9G6X
+         rDZ+mk1wtvLrPZv52AF8uOtLf8TVk3QerVSnjVnp/s7ZiZWF63AERdYcdSNZCMc2F97a
+         +BwC7SPrI8xkBH/OziKa/0eXNDOpSEy9iDS4wftd3ip5fFMQKHFqUsQn3hKIvgdQEy8N
+         7bMA==
+X-Gm-Message-State: AOAM530kkFPVbM/u++KsDLMsVMYjRWjsLmgyjk0kWpdxuaoPapeLivNp
+        bC0mrjxJ6Y9fHD2frla7+GJw6CpqLaZmA2z7ib4bSQ==
+X-Google-Smtp-Source: ABdhPJwv8xGoKyyqY7JuRQboD78b5Wduxo+WwgNk1JdFTzVpIPkAlXaxUrQaqx469hajLw6aXoAByPWhfpp1OFNyuHw=
+X-Received: by 2002:a1c:4e19:0:b0:393:dc47:b808 with SMTP id
+ g25-20020a1c4e19000000b00393dc47b808mr15703552wmh.182.1650920355956; Mon, 25
+ Apr 2022 13:59:15 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220416004048.1514900-1-namhyung@kernel.org> <20220416004048.1514900-2-namhyung@kernel.org>
- <CAP-5=fX5S2CR58REzAhXH4s8_27=D2LbKksS7mHoSoxYOOmN4g@mail.gmail.com>
-In-Reply-To: <CAP-5=fX5S2CR58REzAhXH4s8_27=D2LbKksS7mHoSoxYOOmN4g@mail.gmail.com>
-From:   Namhyung Kim <namhyung@kernel.org>
-Date:   Mon, 25 Apr 2022 12:14:38 -0700
-Message-ID: <CAM9d7cgSZu43YLAWgJdw8d1TUS9geD9QrWqSQw1sWPU7ocVRtQ@mail.gmail.com>
-Subject: Re: [PATCH 1/3] perf symbol: Pass is_kallsyms to symbols__fixup_end()
-To:     Ian Rogers <irogers@google.com>
+References: <20220416004048.1514900-1-namhyung@kernel.org>
+In-Reply-To: <20220416004048.1514900-1-namhyung@kernel.org>
+From:   Ian Rogers <irogers@google.com>
+Date:   Mon, 25 Apr 2022 13:59:03 -0700
+Message-ID: <CAP-5=fUUeqimTKoO9PQbm4yDWXZtTqxWm9ZAsNt1=K5N1Rq_Lg@mail.gmail.com>
+Subject: Re: [PATCH 0/3] perf tools: Tidy up symbol end fixup (v3)
+To:     Namhyung Kim <namhyung@kernel.org>
 Cc:     Arnaldo Carvalho de Melo <acme@kernel.org>,
         Jiri Olsa <jolsa@redhat.com>,
         Michael Petlan <mpetlan@redhat.com>,
         Peter Zijlstra <peterz@infradead.org>,
         Ingo Molnar <mingo@kernel.org>,
+        Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>,
         Song Liu <songliubraving@fb.com>,
         Will Deacon <will@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
@@ -56,44 +67,59 @@ Cc:     Arnaldo Carvalho de Melo <acme@kernel.org>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Heiko Carstens <hca@linux.ibm.com>,
         LKML <linux-kernel@vger.kernel.org>,
-        linux-perf-users <linux-perf-users@vger.kernel.org>,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
+        linux-perf-users@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Ian,
-
-On Sat, Apr 16, 2022 at 7:59 AM Ian Rogers <irogers@google.com> wrote:
+On Fri, Apr 15, 2022 at 5:40 PM Namhyung Kim <namhyung@kernel.org> wrote:
 >
-> On Fri, Apr 15, 2022 at 8:40 PM Namhyung Kim <namhyung@kernel.org> wrote:
-> >
-> > The symbol fixup is necessary for symbols in kallsyms since they don't
-> > have size info.  So we use the next symbol's address to calculate the
-> > size.  Now it's also used for user binaries because sometimes they
-> > miss size for hand-written asm functions.
-> >
-> > There's a arch-specific function to handle kallsyms differently but
-> > currently it cannot distinguish kallsyms from others.  Pass this
-> > information explicitly to handle it properly.  Note that those arch
-> > functions will be moved to the generic function so I didn't added it
-> > to the arch-functions.
+> Hello,
 >
-> Thanks Namhyung, in:
-> https://lore.kernel.org/linux-perf-users/20220412154817.2728324-3-irogers@google.com/
-> I used "dso->kernel != DSO_SPACE__USER" in symbol-elf to make this
-> more than just kallsyms as presumably kernel code is the issue. Do we
-> know elf kernel code has correctly sized symbols?
+> This work is a follow-up of Ian's previous one at
+>   https://lore.kernel.org/all/20220412154817.2728324-1-irogers@google.com/
+>
+> Fixing up more symbol ends as introduced in:
+>   https://lore.kernel.org/lkml/20220317135536.805-1-mpetlan@redhat.com/
+>
+> it caused perf annotate to run into memory limits - every symbol holds
+> all the disassembled code in the annotation, and so making symbols
+> ends further away dramatically increased memory usage (40MB to >1GB).
+>
+> Modify the symbol end fixup logic so that special kernel cases aren't
+> applied in the common case.
+>
+> v3 changes)
+>  * rename is_kernel to is_kallsyms
+>  * move the logic to generic function
+>  * remove arch-specific functions
+>
+> Thanks,
+> Namhyung
 
-Yeah, IIUC the whole point of the symbol end fixup is because the
-kallsyms doesn't have the symbol size info.  Every ELF binaries
-should have the size except for some hand-written asm functions
-which missed adding it manually.  I guess that's the reason it was
-added to other DSO loading paths.
+Thanks Namhyung! The series:
 
-Also considering "[" (and "]") in the symbol name is specific to
-kallsyms which has both kernel and module symbols together.
+Acked-by: Ian Rogers <irogers@google.com>
 
-Thanks,
-Namhyung
+> Namhyung Kim (3):
+>   perf symbol: Pass is_kallsyms to symbols__fixup_end()
+>   perf symbol: Update symbols__fixup_end()
+>   perf symbol: Remove arch__symbols__fixup_end()
+>
+>  tools/perf/arch/arm64/util/machine.c   | 21 ---------------
+>  tools/perf/arch/powerpc/util/Build     |  1 -
+>  tools/perf/arch/powerpc/util/machine.c | 25 -----------------
+>  tools/perf/arch/s390/util/machine.c    | 16 -----------
+>  tools/perf/util/symbol-elf.c           |  2 +-
+>  tools/perf/util/symbol.c               | 37 +++++++++++++++++++-------
+>  tools/perf/util/symbol.h               |  3 +--
+>  7 files changed, 29 insertions(+), 76 deletions(-)
+>  delete mode 100644 tools/perf/arch/powerpc/util/machine.c
+>
+>
+> base-commit: 41204da4c16071be9090940b18f566832d46becc
+> --
+> 2.36.0.rc0.470.gd361397f0d-goog
+>
