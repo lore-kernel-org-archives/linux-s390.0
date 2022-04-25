@@ -2,116 +2,79 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E219C433FE
-	for <linux-s390@archiver.kernel.org>; Mon, 25 Apr 2022 10:02:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A80F2C433EF
+	for <linux-s390@archiver.kernel.org>; Mon, 25 Apr 2022 10:20:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237576AbiDYKF2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 25 Apr 2022 06:05:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40114 "EHLO
+        id S240753AbiDYKX2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 25 Apr 2022 06:23:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240866AbiDYKFI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Apr 2022 06:05:08 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B66431121;
-        Mon, 25 Apr 2022 03:02:02 -0700 (PDT)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23P8bA8V017221;
-        Mon, 25 Apr 2022 10:01:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=yJ1zH/5or4oymVpE6MpywAGJV0sLnLwAeYGgNXujOL8=;
- b=dWVxAJAz+HE8ivoCl8W0bOjuORNpod8q4Qkj3TavutRtDVY1XxRbMLUkpG6HDeRZmkSs
- VrBQcKOF7A6ROkeOuhGQiCe7gbiM8vCBKepsyxTCN4S/ziyKhfKvcJTjR4FNvALYy7dq
- DoXl9Hea+zosN4de4+vd4Uxgr4f2abmg8miSuBYJrEFf3FXJGoCXSttU8bSj6r56FWan
- ggUDG5DJETjGhssmEFUmaaqbiHbaYv+bnwB0S98zDfMJrNt2YD/afAyCoAijgrop37BS
- LpJuRk+BdfXOZ/WjjRMAEHxGmI5RJ9I2aip5ZoB/AJ2nESmnvSXneimp4fBLfArlNVMI eA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fmtt75xkj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 25 Apr 2022 10:01:58 +0000
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 23P9sQ43010172;
-        Mon, 25 Apr 2022 10:01:58 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fmtt75xju-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 25 Apr 2022 10:01:57 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23P9rKOR010822;
-        Mon, 25 Apr 2022 10:01:55 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3fm938t5p7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 25 Apr 2022 10:01:55 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23PA1qB746858678
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 25 Apr 2022 10:01:52 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 215764203F;
-        Mon, 25 Apr 2022 10:01:52 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A56F742047;
-        Mon, 25 Apr 2022 10:01:51 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 25 Apr 2022 10:01:51 +0000 (GMT)
-From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org,
-        Shuah Khan <shuah@kernel.org>, linux-kselftest@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH v2 0/2] Dirtying, failing memop: don't indicate suppression
-Date:   Mon, 25 Apr 2022 12:01:45 +0200
-Message-Id: <20220425100147.1755340-1-scgl@linux.ibm.com>
-X-Mailer: git-send-email 2.32.0
+        with ESMTP id S240786AbiDYKXT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 Apr 2022 06:23:19 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 864714E3BD;
+        Mon, 25 Apr 2022 03:20:14 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id CF4DACE1280;
+        Mon, 25 Apr 2022 10:20:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 1B812C385AB;
+        Mon, 25 Apr 2022 10:20:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1650882011;
+        bh=rb3VKiZtMW7GNR57XP26aVP9HD27dKwGNnRfLeQmH3I=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=uyPBtOrXByQdvmtA74nqywMg0256FX9pFUxUqxET+nLZwnYUB5gz2kVhEADT8h95Q
+         QDdBHs8YaskmUjyuET4wCgw7rHtOJ97B56OczFjA2yo5WUuiDjbtt1uK/jSpJvk3zL
+         uvJNwfZVCmZf61l96Qe/5fKiYVCx9ESkAtYngZtmqUsygasLTWUPpOR8cVwvdaVlgl
+         5UPHEwWX6CyJi4IOgNlZumPq2V1EJgVceWzeccd+7+e8eiZ2nmT6J43dmm9sfFJ4jF
+         lQeor2slgqt8I/AyDbttbGYKAissV3Gsm2FX2XiEgkAcgAH0s2+ZUg6ulGV4Rn0DWU
+         ST5MWjk2emP9w==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 02499E85D90;
+        Mon, 25 Apr 2022 10:20:11 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 4VQjVuQ6EtulenyNeAdKeaZfUj349-xi
-X-Proofpoint-ORIG-GUID: IplMkzRrx3fmY94QmOmdYV35_zj0R7q5
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-04-25_05,2022-04-22_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- malwarescore=0 bulkscore=0 adultscore=0 mlxlogscore=739 mlxscore=0
- suspectscore=0 spamscore=0 clxscore=1015 phishscore=0 impostorscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2204250040
+Subject: Re: [PATCH net] net/smc: sync err code when tcp connection was refused
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <165088201100.28755.12445423825500453173.git-patchwork-notify@kernel.org>
+Date:   Mon, 25 Apr 2022 10:20:11 +0000
+References: <20220421094027.683992-1-liuyacan@corp.netease.com>
+In-Reply-To: <20220421094027.683992-1-liuyacan@corp.netease.com>
+To:     None <liuyacan@corp.netease.com>
+Cc:     kgraul@linux.ibm.com, davem@davemloft.net, kuba@kernel.org,
+        pabeni@redhat.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        tonylu@linux.alibaba.com
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-If a memop fails due to key checked protection, after already having
-written to the guest, don't indicate suppression to the guest, as that
-would imply that memory wasn't modified.
+Hello:
 
-This could be considered a fix to the code introducing storage key
-support, however this is a bug in KVM only if we emulate an
-instructions writing to an operand spanning multiple pages, which I
-don't believe we do.
+This patch was applied to netdev/net.git (master)
+by David S. Miller <davem@davemloft.net>:
 
-v1 -> v2
- * Reword commit message of patch 1
+On Thu, 21 Apr 2022 17:40:27 +0800 you wrote:
+> From: liuyacan <liuyacan@corp.netease.com>
+> 
+> In the current implementation, when TCP initiates a connection
+> to an unavailable [ip,port], ECONNREFUSED will be stored in the
+> TCP socket, but SMC will not. However, some apps (like curl) use
+> getsockopt(,,SO_ERROR,,) to get the error information, which makes
+> them miss the error message and behave strangely.
+> 
+> [...]
 
-Janis Schoetterl-Glausch (2):
-  KVM: s390: Don't indicate suppression on dirtying, failing memop
-  KVM: s390: selftest: Test suppression indication on key prot exception
+Here is the summary with links:
+  - [net] net/smc: sync err code when tcp connection was refused
+    https://git.kernel.org/netdev/net/c/4e2e65e2e56c
 
- arch/s390/kvm/gaccess.c                   | 47 ++++++++++++++---------
- tools/testing/selftests/kvm/s390x/memop.c | 43 ++++++++++++++++++++-
- 2 files changed, 70 insertions(+), 20 deletions(-)
-
-
-base-commit: af2d861d4cd2a4da5137f795ee3509e6f944a25b
+You are awesome, thank you!
 -- 
-2.32.0
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
