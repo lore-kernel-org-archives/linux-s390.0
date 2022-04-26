@@ -2,89 +2,157 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A4F23C43219
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Apr 2022 20:10:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26A15C433F5
+	for <linux-s390@archiver.kernel.org>; Tue, 26 Apr 2022 20:10:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354580AbiDZUNI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 26 Apr 2022 16:13:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56822 "EHLO
+        id S1354586AbiDZUNF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 26 Apr 2022 16:13:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354619AbiDZUNC (ORCPT
+        with ESMTP id S1354602AbiDZUNC (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Apr 2022 16:13:02 -0400
-Received: from mail.skyhub.de (mail.skyhub.de [5.9.137.197])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C9CF17B9B7;
-        Tue, 26 Apr 2022 13:09:46 -0700 (PDT)
-Received: from zn.tnic (p5de8eeb4.dip0.t-ipconnect.de [93.232.238.180])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 79D091EC013E;
-        Tue, 26 Apr 2022 22:09:41 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1651003781;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=g+qc3MZ0SQsvosVVg7h3CKtzDX+zr1LTTY7ud+C7p94=;
-        b=GUxKH9o77tdVt0rqwRSeU3fUYAlvlTkvhwr15Rs40kD2dZ5yKdFvRJGFXCxpUNV0SFsxwP
-        qnW2VQIe8J1Jp1dpOAts0sf+yiOAUT8Ifyc51B8XqFD9D6wCAYxIZvFYhvIJ/MM2DIKunD
-        VXk4NdNk5fEXgr1gM1va5FIoRXXStNc=
-Date:   Tue, 26 Apr 2022 22:09:38 +0200
-From:   Borislav Petkov <bp@alien8.de>
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     Juergen Gross <jgross@suse.com>, linux-kernel@vger.kernel.org,
-        x86@kernel.org, linux-arch@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-hyperv@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        Arnd Bergmann <arnd@arndb.de>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Oleksandr Tyshchenko <olekstysh@gmail.com>
-Subject: Re: [PATCH 1/2] kernel: add platform_has() infrastructure
-Message-ID: <YmhRgn896loDHofa@zn.tnic>
-References: <20220426134021.11210-1-jgross@suse.com>
- <20220426134021.11210-2-jgross@suse.com>
- <YmgsYvWQchxub8cW@zn.tnic>
- <YmhNxnHMe/of4rDD@osiris>
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AF821765C5;
+        Tue, 26 Apr 2022 13:09:40 -0700 (PDT)
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23QK4Dkc021275;
+        Tue, 26 Apr 2022 20:09:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=M74r3Ua+EIq+K9RU4M+8Ajfg0WOUgyyO3dS1VNZKXEw=;
+ b=TFiYsfLjbVn5cp2JehDrHzFh6q3kLpxuVmvm8YmHPkpOlE7rghJBs/8VOxdGNzZ7S0uP
+ HyV9UwPbgQeXuwndi1RIKb6UDZECVJZVV0ihs8bYwPp0djvNwXa5CbrHdEez9c7cQi83
+ VmMAxhZ7Sd6F2tzS2njFj7ARDXBDC1CPT0t7coyttkKCCzrwfCpHsSj+YnQqQU+6i7ln
+ UyytpzCxAf8PkuDmpzX6GQgrgp+xlAn1qKzsIxgvtiyPHFBxP6WqPyhTiyas35Fs6OE2
+ YoVsrq2JkjTrOv9Pl+c9NB0kXPCj7bAIAaf6xinqO5h+W/QRLDPysQHXZfjVTbRMQGP+ qw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fpqbm07gw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 26 Apr 2022 20:09:38 +0000
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 23QK4Gj2021553;
+        Tue, 26 Apr 2022 20:09:37 GMT
+Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fpqbm07g8-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 26 Apr 2022 20:09:37 +0000
+Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
+        by ppma04wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23QK8Psi010593;
+        Tue, 26 Apr 2022 20:09:36 GMT
+Received: from b01cxnp22033.gho.pok.ibm.com (b01cxnp22033.gho.pok.ibm.com [9.57.198.23])
+        by ppma04wdc.us.ibm.com with ESMTP id 3fm939qf1x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 26 Apr 2022 20:09:36 +0000
+Received: from b01ledav003.gho.pok.ibm.com (b01ledav003.gho.pok.ibm.com [9.57.199.108])
+        by b01cxnp22033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23QK9ZsA27722136
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 26 Apr 2022 20:09:35 GMT
+Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8C2A3B2067;
+        Tue, 26 Apr 2022 20:09:35 +0000 (GMT)
+Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 79D1AB205F;
+        Tue, 26 Apr 2022 20:09:31 +0000 (GMT)
+Received: from li-c92d2ccc-254b-11b2-a85c-a700b5bfb098.ibm.com.com (unknown [9.211.73.42])
+        by b01ledav003.gho.pok.ibm.com (Postfix) with ESMTP;
+        Tue, 26 Apr 2022 20:09:31 +0000 (GMT)
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+To:     linux-s390@vger.kernel.org
+Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
+        schnelle@linux.ibm.com, farman@linux.ibm.com, pmorel@linux.ibm.com,
+        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
+        imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
+        oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, pbonzini@redhat.com, corbet@lwn.net,
+        jgg@nvidia.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-doc@vger.kernel.org
+Subject: [PATCH v6 09/21] s390/pci: stash dtsm and maxstbl
+Date:   Tue, 26 Apr 2022 16:08:30 -0400
+Message-Id: <20220426200842.98655-10-mjrosato@linux.ibm.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20220426200842.98655-1-mjrosato@linux.ibm.com>
+References: <20220426200842.98655-1-mjrosato@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <YmhNxnHMe/of4rDD@osiris>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: upCF4pmf1x3QvEykzNa9y5OQYfXywlfo
+X-Proofpoint-ORIG-GUID: 7G74UbDlQVFBc32wCTlASN_4Y-oyi5M2
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-04-26_06,2022-04-26_02,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ lowpriorityscore=0 bulkscore=0 mlxlogscore=999 priorityscore=1501
+ spamscore=0 impostorscore=0 mlxscore=0 phishscore=0 adultscore=0
+ clxscore=1015 suspectscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2202240000 definitions=main-2204260127
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Apr 26, 2022 at 09:53:42PM +0200, Heiko Carstens wrote:
-> > You probably should make that thing static and use only accessors to
-> > modify it in case you wanna change the underlying data structure in the
-> > future.
->
-> That would add another indirection, which at least I think is not
-> necessary and would make it less likely that this infrastructure is
-> used.
+Store information about what IOAT designation types are supported by
+underlying hardware as well as the largest store block size allowed.
+These values will be needed by passthrough.
 
-So if you want to have a single variable which contains platform feature
-bits, you don't need any platform_<bla> accessors but use this variable
-directly.
+Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+---
+ arch/s390/include/asm/pci.h     | 2 ++
+ arch/s390/include/asm/pci_clp.h | 6 ++++--
+ arch/s390/pci/pci_clp.c         | 2 ++
+ 3 files changed, 8 insertions(+), 2 deletions(-)
 
-I'd prefer the accessors any day of the week, though.
-
+diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+index 42a4a312a6dd..4c5b8fbc2079 100644
+--- a/arch/s390/include/asm/pci.h
++++ b/arch/s390/include/asm/pci.h
+@@ -126,9 +126,11 @@ struct zpci_dev {
+ 	u32		gisa;		/* GISA designation for passthrough */
+ 	u16		vfn;		/* virtual function number */
+ 	u16		pchid;		/* physical channel ID */
++	u16		maxstbl;	/* Maximum store block size */
+ 	u8		pfgid;		/* function group ID */
+ 	u8		pft;		/* pci function type */
+ 	u8		port;
++	u8		dtsm;		/* Supported DT mask */
+ 	u8		rid_available	: 1;
+ 	u8		has_hp_slot	: 1;
+ 	u8		has_resources	: 1;
+diff --git a/arch/s390/include/asm/pci_clp.h b/arch/s390/include/asm/pci_clp.h
+index f3286bc5ba6e..d6189ed14f84 100644
+--- a/arch/s390/include/asm/pci_clp.h
++++ b/arch/s390/include/asm/pci_clp.h
+@@ -153,9 +153,11 @@ struct clp_rsp_query_pci_grp {
+ 	u8			:  6;
+ 	u8 frame		:  1;
+ 	u8 refresh		:  1;	/* TLB refresh mode */
+-	u16 reserved2;
++	u16			:  3;
++	u16 maxstbl		: 13;	/* Maximum store block size */
+ 	u16 mui;
+-	u16			: 16;
++	u8 dtsm;			/* Supported DT mask */
++	u8 reserved3;
+ 	u16 maxfaal;
+ 	u16			:  4;
+ 	u16 dnoi		: 12;
+diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
+index deed35edea14..1edb07ceb766 100644
+--- a/arch/s390/pci/pci_clp.c
++++ b/arch/s390/pci/pci_clp.c
+@@ -106,6 +106,8 @@ static void clp_store_query_pci_fngrp(struct zpci_dev *zdev,
+ 	zdev->max_msi = response->noi;
+ 	zdev->fmb_update = response->mui;
+ 	zdev->version = response->version;
++	zdev->maxstbl = response->maxstbl;
++	zdev->dtsm = response->dtsm;
+ 
+ 	switch (response->version) {
+ 	case 1:
 -- 
-Regards/Gruss,
-    Boris.
+2.27.0
 
-https://people.kernel.org/tglx/notes-about-netiquette
