@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CB12C433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Apr 2022 20:10:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2EAD1C433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 26 Apr 2022 20:10:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354664AbiDZUN2 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 26 Apr 2022 16:13:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57844 "EHLO
+        id S1354579AbiDZUNd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 26 Apr 2022 16:13:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354668AbiDZUNQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Apr 2022 16:13:16 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C21EDE025;
-        Tue, 26 Apr 2022 13:10:00 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23QK4G8s010810;
-        Tue, 26 Apr 2022 20:09:59 GMT
+        with ESMTP id S1354588AbiDZUNB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Apr 2022 16:13:01 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C80071759ED;
+        Tue, 26 Apr 2022 13:09:36 -0700 (PDT)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23QK4jfi000543;
+        Tue, 26 Apr 2022 20:09:33 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=FUw5CVgHMR79gVLvw+EGutct59EyGbyTSG3ybWdm0iU=;
- b=p++uiRqOruXqPwuHITlYvyg/BKoa5uDPFyEV/LhLHz2qcjtlJVJf3DtlCST2PKbiefuS
- NW424ZoiDK0cLBXW9nOc+IIYdX4olXjonwGqkestA5W+v8VjIWC3DmkVOZD5xs8SqQ7R
- 3jXM2tJuuiR1sFAufd9SJKkX+XFHPFpGAmL97XWSn+4hdA50zGyFIwmNEKloBr/j9jFG
- qml7TL5mdqqOq1eeqZysQWBX6Uv6cVMj+tQrM3RM3c/+pdvwvPQoJ/aQzIkIg07Bu70o
- MzZUQ6XKEYkvEFX37tHdzH1Je4W5kg3FfbbMMuY3N1Au9v0twFJ2bscbS/xA2OR1UlSj AQ== 
+ bh=vU7gY8729myJN2ToLA4NHWV0BlMu879Xs8d/nrFHg1g=;
+ b=KBdUaFoZvpewGPK67OvC6U5otjcye8pwUSpqA7/CKHut4H5S7kCiGZ7DvrYBZ8TUTYls
+ ZPDy1J5mr3p+a9kBdurXkw/IxZckjWY5MNTwU0HXCQmj9I/WlzzKqMmQvRgB/YPIFDQp
+ 2osFC/y1Qdc4YRFFWGc4NvXdeBuIJgbVABUr051smp6wxe1ptQly9A/EOZpNRB/kKT31
+ DkUQ4OOumEBc2Nl1vsYhUsSCF72Zw13dZNqGls8ckNaHVszj5SdAorIvCi9euIWg0x8J
+ mjZmzn5Rkn90McKwf/clfJKXiQ228Mu7flInt6kERfMZ8QYbtOuj521TQt9kTdqEyqXe sw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fpj07yqad-1
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3fpnu79xsg-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Apr 2022 20:09:58 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 23QK4O6l011811;
-        Tue, 26 Apr 2022 20:09:58 GMT
-Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fpj07yqa0-1
+        Tue, 26 Apr 2022 20:09:33 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 23QK8190013509;
+        Tue, 26 Apr 2022 20:09:32 GMT
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3fpnu79xsa-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Apr 2022 20:09:58 +0000
-Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
-        by ppma04dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23QK8MM0030344;
-        Tue, 26 Apr 2022 20:09:57 GMT
-Received: from b01cxnp22033.gho.pok.ibm.com (b01cxnp22033.gho.pok.ibm.com [9.57.198.23])
-        by ppma04dal.us.ibm.com with ESMTP id 3fm93a59k9-1
+        Tue, 26 Apr 2022 20:09:32 +0000
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23QK8U2I009854;
+        Tue, 26 Apr 2022 20:09:32 GMT
+Received: from b01cxnp22035.gho.pok.ibm.com (b01cxnp22035.gho.pok.ibm.com [9.57.198.25])
+        by ppma03dal.us.ibm.com with ESMTP id 3fm939w9tj-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Apr 2022 20:09:57 +0000
+        Tue, 26 Apr 2022 20:09:32 +0000
 Received: from b01ledav003.gho.pok.ibm.com (b01ledav003.gho.pok.ibm.com [9.57.199.108])
-        by b01cxnp22033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23QK9uvv22020430
+        by b01cxnp22035.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23QK9Vst26280230
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 26 Apr 2022 20:09:56 GMT
+        Tue, 26 Apr 2022 20:09:31 GMT
 Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 132BCB2067;
-        Tue, 26 Apr 2022 20:09:56 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 1554AB2067;
+        Tue, 26 Apr 2022 20:09:31 +0000 (GMT)
 Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 65A37B205F;
-        Tue, 26 Apr 2022 20:09:52 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 7780EB205F;
+        Tue, 26 Apr 2022 20:09:26 +0000 (GMT)
 Received: from li-c92d2ccc-254b-11b2-a85c-a700b5bfb098.ibm.com.com (unknown [9.211.73.42])
         by b01ledav003.gho.pok.ibm.com (Postfix) with ESMTP;
-        Tue, 26 Apr 2022 20:09:52 +0000 (GMT)
+        Tue, 26 Apr 2022 20:09:26 +0000 (GMT)
 From:   Matthew Rosato <mjrosato@linux.ibm.com>
 To:     linux-s390@vger.kernel.org
 Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
@@ -68,331 +68,180 @@ Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
         oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
         pasic@linux.ibm.com, pbonzini@redhat.com, corbet@lwn.net,
         jgg@nvidia.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-doc@vger.kernel.org
-Subject: [PATCH v6 14/21] KVM: s390: pci: provide routines for enabling/disabling interrupt forwarding
-Date:   Tue, 26 Apr 2022 16:08:35 -0400
-Message-Id: <20220426200842.98655-15-mjrosato@linux.ibm.com>
+        linux-doc@vger.kernel.org,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH v6 08/21] s390/pci: stash associated GISA designation
+Date:   Tue, 26 Apr 2022 16:08:29 -0400
+Message-Id: <20220426200842.98655-9-mjrosato@linux.ibm.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220426200842.98655-1-mjrosato@linux.ibm.com>
 References: <20220426200842.98655-1-mjrosato@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: je-BCibAT-nTk147QnYL_IdYI0NgsDfR
-X-Proofpoint-ORIG-GUID: _jN15TOTGuVRRUrm2-4AlohpnrzwFh-h
+X-Proofpoint-ORIG-GUID: ySJN6M5N5ntNdcby-pgQaeUcbld4Vko6
+X-Proofpoint-GUID: qj9QPZenmvRURlZ6FrMJGsN_cceZpFCI
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-04-26_06,2022-04-26_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 clxscore=1015
- phishscore=0 lowpriorityscore=0 spamscore=0 impostorscore=0 malwarescore=0
- priorityscore=1501 mlxlogscore=866 adultscore=0 bulkscore=0 mlxscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2204260127
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 malwarescore=0
+ impostorscore=0 lowpriorityscore=0 spamscore=0 priorityscore=1501
+ phishscore=0 adultscore=0 mlxscore=0 bulkscore=0 mlxlogscore=694
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2204260127
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-These routines will be wired into a kvm ioctl in order to respond to
-requests to enable / disable a device for Adapter Event Notifications /
-Adapter Interuption Forwarding.
+For passthrough devices, we will need to know the GISA designation of the
+guest if interpretation facilities are to be used.  Setup to stash this in
+the zdev and set a default of 0 (no GISA designation) for now; a subsequent
+patch will set a valid GISA designation for passthrough devices.
+Also, extend mpcific routines to specify this stashed designation as part
+of the mpcific command.
 
-Acked-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
 ---
- arch/s390/kvm/pci.c      | 247 +++++++++++++++++++++++++++++++++++++++
- arch/s390/kvm/pci.h      |   1 +
- arch/s390/pci/pci_insn.c |   1 +
- 3 files changed, 249 insertions(+)
+ arch/s390/include/asm/pci.h     | 1 +
+ arch/s390/include/asm/pci_clp.h | 3 ++-
+ arch/s390/pci/pci.c             | 6 ++++++
+ arch/s390/pci/pci_clp.c         | 5 +++++
+ arch/s390/pci/pci_irq.c         | 5 +++++
+ 5 files changed, 19 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/kvm/pci.c b/arch/s390/kvm/pci.c
-index 6e6636c20fa2..72a9c6bfae86 100644
---- a/arch/s390/kvm/pci.c
-+++ b/arch/s390/kvm/pci.c
-@@ -11,6 +11,7 @@
- #include <linux/pci.h>
- #include <asm/pci.h>
- #include <asm/pci_insn.h>
-+#include <asm/pci_io.h>
- #include "pci.h"
+diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+index fdb9745ee998..42a4a312a6dd 100644
+--- a/arch/s390/include/asm/pci.h
++++ b/arch/s390/include/asm/pci.h
+@@ -123,6 +123,7 @@ struct zpci_dev {
+ 	enum zpci_state state;
+ 	u32		fid;		/* function ID, used by sclp */
+ 	u32		fh;		/* function handle, used by insn's */
++	u32		gisa;		/* GISA designation for passthrough */
+ 	u16		vfn;		/* virtual function number */
+ 	u16		pchid;		/* physical channel ID */
+ 	u8		pfgid;		/* function group ID */
+diff --git a/arch/s390/include/asm/pci_clp.h b/arch/s390/include/asm/pci_clp.h
+index 1f4b666e85ee..f3286bc5ba6e 100644
+--- a/arch/s390/include/asm/pci_clp.h
++++ b/arch/s390/include/asm/pci_clp.h
+@@ -173,7 +173,8 @@ struct clp_req_set_pci {
+ 	u16 reserved2;
+ 	u8 oc;				/* operation controls */
+ 	u8 ndas;			/* number of dma spaces */
+-	u64 reserved3;
++	u32 reserved3;
++	u32 gisa;			/* GISA designation */
+ } __packed;
  
- struct zpci_aift *aift;
-@@ -151,6 +152,252 @@ int kvm_s390_pci_aen_init(u8 nisc)
- 	return rc;
- }
+ /* Set PCI function response */
+diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+index e563cb65c0c4..a86cd1cbb80e 100644
+--- a/arch/s390/pci/pci.c
++++ b/arch/s390/pci/pci.c
+@@ -120,6 +120,7 @@ int zpci_register_ioat(struct zpci_dev *zdev, u8 dmaas,
+ 	fib.pba = base;
+ 	fib.pal = limit;
+ 	fib.iota = iota | ZPCI_IOTA_RTTO_FLAG;
++	fib.gd = zdev->gisa;
+ 	cc = zpci_mod_fc(req, &fib, &status);
+ 	if (cc)
+ 		zpci_dbg(3, "reg ioat fid:%x, cc:%d, status:%d\n", zdev->fid, cc, status);
+@@ -133,6 +134,8 @@ int zpci_unregister_ioat(struct zpci_dev *zdev, u8 dmaas)
+ 	struct zpci_fib fib = {0};
+ 	u8 cc, status;
  
-+/* Modify PCI: Register floating adapter interruption forwarding */
-+static int kvm_zpci_set_airq(struct zpci_dev *zdev)
-+{
-+	u64 req = ZPCI_CREATE_REQ(zdev->fh, 0, ZPCI_MOD_FC_REG_INT);
-+	struct zpci_fib fib = {};
-+	u8 status;
-+
-+	fib.fmt0.isc = zdev->kzdev->fib.fmt0.isc;
-+	fib.fmt0.sum = 1;       /* enable summary notifications */
-+	fib.fmt0.noi = airq_iv_end(zdev->aibv);
-+	fib.fmt0.aibv = virt_to_phys(zdev->aibv->vector);
-+	fib.fmt0.aibvo = 0;
-+	fib.fmt0.aisb = virt_to_phys(aift->sbv->vector + (zdev->aisb / 64) * 8);
-+	fib.fmt0.aisbo = zdev->aisb & 63;
 +	fib.gd = zdev->gisa;
 +
-+	return zpci_mod_fc(req, &fib, &status) ? -EIO : 0;
-+}
-+
-+/* Modify PCI: Unregister floating adapter interruption forwarding */
-+static int kvm_zpci_clear_airq(struct zpci_dev *zdev)
-+{
-+	u64 req = ZPCI_CREATE_REQ(zdev->fh, 0, ZPCI_MOD_FC_DEREG_INT);
-+	struct zpci_fib fib = {};
-+	u8 cc, status;
-+
+ 	cc = zpci_mod_fc(req, &fib, &status);
+ 	if (cc)
+ 		zpci_dbg(3, "unreg ioat fid:%x, cc:%d, status:%d\n", zdev->fid, cc, status);
+@@ -160,6 +163,7 @@ int zpci_fmb_enable_device(struct zpci_dev *zdev)
+ 	atomic64_set(&zdev->unmapped_pages, 0);
+ 
+ 	fib.fmb_addr = virt_to_phys(zdev->fmb);
++	fib.gd = zdev->gisa;
+ 	cc = zpci_mod_fc(req, &fib, &status);
+ 	if (cc) {
+ 		kmem_cache_free(zdev_fmb_cache, zdev->fmb);
+@@ -178,6 +182,8 @@ int zpci_fmb_disable_device(struct zpci_dev *zdev)
+ 	if (!zdev->fmb)
+ 		return -EINVAL;
+ 
 +	fib.gd = zdev->gisa;
 +
-+	cc = zpci_mod_fc(req, &fib, &status);
-+	if (cc == 3 || (cc == 1 && status == 24))
-+		/* Function already gone or IRQs already deregistered. */
-+		cc = 0;
-+
-+	return cc ? -EIO : 0;
-+}
-+
-+static inline void unaccount_mem(unsigned long nr_pages)
-+{
-+	struct user_struct *user = get_uid(current_user());
-+
-+	if (user)
-+		atomic_long_sub(nr_pages, &user->locked_vm);
-+	if (current->mm)
-+		atomic64_sub(nr_pages, &current->mm->pinned_vm);
-+}
-+
-+static inline int account_mem(unsigned long nr_pages)
-+{
-+	struct user_struct *user = get_uid(current_user());
-+	unsigned long page_limit, cur_pages, new_pages;
-+
-+	page_limit = rlimit(RLIMIT_MEMLOCK) >> PAGE_SHIFT;
-+
-+	do {
-+		cur_pages = atomic_long_read(&user->locked_vm);
-+		new_pages = cur_pages + nr_pages;
-+		if (new_pages > page_limit)
-+			return -ENOMEM;
-+	} while (atomic_long_cmpxchg(&user->locked_vm, cur_pages,
-+					new_pages) != cur_pages);
-+
-+	atomic64_add(nr_pages, &current->mm->pinned_vm);
-+
-+	return 0;
-+}
-+
-+static int kvm_s390_pci_aif_enable(struct zpci_dev *zdev, struct zpci_fib *fib,
-+				   bool assist)
-+{
-+	struct page *pages[1], *aibv_page, *aisb_page = NULL;
-+	unsigned int msi_vecs, idx;
-+	struct zpci_gaite *gaite;
-+	unsigned long hva, bit;
-+	struct kvm *kvm;
-+	phys_addr_t gaddr;
-+	int rc = 0, gisc, npages, pcount = 0;
-+
-+	/*
-+	 * Interrupt forwarding is only applicable if the device is already
-+	 * enabled for interpretation
-+	 */
-+	if (zdev->gisa == 0)
-+		return -EINVAL;
-+
-+	kvm = zdev->kzdev->kvm;
-+	msi_vecs = min_t(unsigned int, fib->fmt0.noi, zdev->max_msi);
-+
-+	/* Get the associated forwarding ISC - if invalid, return the error */
-+	gisc = kvm_s390_gisc_register(kvm, fib->fmt0.isc);
-+	if (gisc < 0)
-+		return gisc;
-+
-+	/* Replace AIBV address */
-+	idx = srcu_read_lock(&kvm->srcu);
-+	hva = gfn_to_hva(kvm, gpa_to_gfn((gpa_t)fib->fmt0.aibv));
-+	npages = pin_user_pages_fast(hva, 1, FOLL_WRITE | FOLL_LONGTERM, pages);
-+	srcu_read_unlock(&kvm->srcu, idx);
-+	if (npages < 1) {
-+		rc = -EIO;
-+		goto out;
-+	}
-+	aibv_page = pages[0];
-+	pcount++;
-+	gaddr = page_to_phys(aibv_page) + (fib->fmt0.aibv & ~PAGE_MASK);
-+	fib->fmt0.aibv = gaddr;
-+
-+	/* Pin the guest AISB if one was specified */
-+	if (fib->fmt0.sum == 1) {
-+		idx = srcu_read_lock(&kvm->srcu);
-+		hva = gfn_to_hva(kvm, gpa_to_gfn((gpa_t)fib->fmt0.aisb));
-+		npages = pin_user_pages_fast(hva, 1, FOLL_WRITE | FOLL_LONGTERM,
-+					     pages);
-+		srcu_read_unlock(&kvm->srcu, idx);
-+		if (npages < 1) {
-+			rc = -EIO;
-+			goto unpin1;
-+		}
-+		aisb_page = pages[0];
-+		pcount++;
-+	}
-+
-+	/* Account for pinned pages, roll back on failure */
-+	if (account_mem(pcount))
-+		goto unpin2;
-+
-+	/* AISB must be allocated before we can fill in GAITE */
-+	mutex_lock(&aift->aift_lock);
-+	bit = airq_iv_alloc_bit(aift->sbv);
-+	if (bit == -1UL)
-+		goto unlock;
-+	zdev->aisb = bit; /* store the summary bit number */
-+	zdev->aibv = airq_iv_create(msi_vecs, AIRQ_IV_DATA |
-+				    AIRQ_IV_BITLOCK |
-+				    AIRQ_IV_GUESTVEC,
-+				    phys_to_virt(fib->fmt0.aibv));
-+
-+	spin_lock_irq(&aift->gait_lock);
-+	gaite = (struct zpci_gaite *)aift->gait + (zdev->aisb *
-+						   sizeof(struct zpci_gaite));
-+
-+	/* If assist not requested, host will get all alerts */
-+	if (assist)
-+		gaite->gisa = (u32)virt_to_phys(&kvm->arch.sie_page2->gisa);
-+	else
-+		gaite->gisa = 0;
-+
-+	gaite->gisc = fib->fmt0.isc;
-+	gaite->count++;
-+	gaite->aisbo = fib->fmt0.aisbo;
-+	gaite->aisb = virt_to_phys(page_address(aisb_page) + (fib->fmt0.aisb &
-+							      ~PAGE_MASK));
-+	aift->kzdev[zdev->aisb] = zdev->kzdev;
-+	spin_unlock_irq(&aift->gait_lock);
-+
-+	/* Update guest FIB for re-issue */
-+	fib->fmt0.aisbo = zdev->aisb & 63;
-+	fib->fmt0.aisb = virt_to_phys(aift->sbv->vector + (zdev->aisb / 64) * 8);
-+	fib->fmt0.isc = gisc;
-+
-+	/* Save some guest fib values in the host for later use */
-+	zdev->kzdev->fib.fmt0.isc = fib->fmt0.isc;
-+	zdev->kzdev->fib.fmt0.aibv = fib->fmt0.aibv;
-+	mutex_unlock(&aift->aift_lock);
-+
-+	/* Issue the clp to setup the irq now */
-+	rc = kvm_zpci_set_airq(zdev);
-+	return rc;
-+
-+unlock:
-+	mutex_unlock(&aift->aift_lock);
-+unpin2:
-+	if (fib->fmt0.sum == 1)
-+		unpin_user_page(aisb_page);
-+unpin1:
-+	unpin_user_page(aibv_page);
-+out:
-+	return rc;
-+}
-+
-+static int kvm_s390_pci_aif_disable(struct zpci_dev *zdev, bool force)
-+{
-+	struct kvm_zdev *kzdev = zdev->kzdev;
-+	struct zpci_gaite *gaite;
-+	struct page *vpage = NULL, *spage = NULL;
-+	int rc, pcount = 0;
-+	u8 isc;
-+
-+	if (zdev->gisa == 0)
-+		return -EINVAL;
-+
-+	mutex_lock(&aift->aift_lock);
-+
-+	/*
-+	 * If the clear fails due to an error, leave now unless we know this
-+	 * device is about to go away (force) -- In that case clear the GAITE
-+	 * regardless.
-+	 */
-+	rc = kvm_zpci_clear_airq(zdev);
-+	if (rc && !force)
-+		goto out;
-+
-+	if (zdev->kzdev->fib.fmt0.aibv == 0)
-+		goto out;
-+	spin_lock_irq(&aift->gait_lock);
-+	gaite = (struct zpci_gaite *)aift->gait + (zdev->aisb *
-+						   sizeof(struct zpci_gaite));
-+	isc = gaite->gisc;
-+	gaite->count--;
-+	if (gaite->count == 0) {
-+		/* Release guest AIBV and AISB */
-+		vpage = phys_to_page(kzdev->fib.fmt0.aibv);
-+		if (gaite->aisb != 0)
-+			spage = phys_to_page(gaite->aisb);
-+		/* Clear the GAIT entry */
-+		gaite->aisb = 0;
-+		gaite->gisc = 0;
-+		gaite->aisbo = 0;
-+		gaite->gisa = 0;
-+		aift->kzdev[zdev->aisb] = 0;
-+		/* Clear zdev info */
-+		airq_iv_free_bit(aift->sbv, zdev->aisb);
-+		airq_iv_release(zdev->aibv);
-+		zdev->aisb = 0;
-+		zdev->aibv = NULL;
-+	}
-+	spin_unlock_irq(&aift->gait_lock);
-+	kvm_s390_gisc_unregister(kzdev->kvm, isc);
-+	kzdev->fib.fmt0.isc = 0;
-+	kzdev->fib.fmt0.aibv = 0;
-+
-+	if (vpage) {
-+		unpin_user_page(vpage);
-+		pcount++;
-+	}
-+	if (spage) {
-+		unpin_user_page(spage);
-+		pcount++;
-+	}
-+	if (pcount > 0)
-+		unaccount_mem(pcount);
-+out:
-+	mutex_unlock(&aift->aift_lock);
-+
-+	return rc;
-+}
-+
- int kvm_s390_pci_dev_open(struct zpci_dev *zdev)
+ 	/* Function measurement is disabled if fmb address is zero */
+ 	cc = zpci_mod_fc(req, &fib, &status);
+ 	if (cc == 3) /* Function already gone. */
+diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
+index 1057d7af4a55..deed35edea14 100644
+--- a/arch/s390/pci/pci_clp.c
++++ b/arch/s390/pci/pci_clp.c
+@@ -229,12 +229,16 @@ static int clp_set_pci_fn(struct zpci_dev *zdev, u32 *fh, u8 nr_dma_as, u8 comma
  {
- 	struct kvm_zdev *kzdev;
-diff --git a/arch/s390/kvm/pci.h b/arch/s390/kvm/pci.h
-index d97cc99ebd46..f567c3189a40 100644
---- a/arch/s390/kvm/pci.h
-+++ b/arch/s390/kvm/pci.h
-@@ -20,6 +20,7 @@
- struct kvm_zdev {
- 	struct zpci_dev *zdev;
- 	struct kvm *kvm;
-+	struct zpci_fib fib;
- };
+ 	struct clp_req_rsp_set_pci *rrb;
+ 	int rc, retries = 100;
++	u32 gisa = 0;
  
- struct zpci_gaite {
-diff --git a/arch/s390/pci/pci_insn.c b/arch/s390/pci/pci_insn.c
-index 4c6967b73932..cd9fb186a6be 100644
---- a/arch/s390/pci/pci_insn.c
-+++ b/arch/s390/pci/pci_insn.c
-@@ -60,6 +60,7 @@ u8 zpci_mod_fc(u64 req, struct zpci_fib *fib, u8 *status)
+ 	*fh = 0;
+ 	rrb = clp_alloc_block(GFP_KERNEL);
+ 	if (!rrb)
+ 		return -ENOMEM;
  
- 	return cc;
++	if (command != CLP_SET_DISABLE_PCI_FN)
++		gisa = zdev->gisa;
++
+ 	do {
+ 		memset(rrb, 0, sizeof(*rrb));
+ 		rrb->request.hdr.len = sizeof(rrb->request);
+@@ -243,6 +247,7 @@ static int clp_set_pci_fn(struct zpci_dev *zdev, u32 *fh, u8 nr_dma_as, u8 comma
+ 		rrb->request.fh = zdev->fh;
+ 		rrb->request.oc = command;
+ 		rrb->request.ndas = nr_dma_as;
++		rrb->request.gisa = gisa;
+ 
+ 		rc = clp_req(rrb, CLP_LPS_PCI);
+ 		if (rrb->response.hdr.rsp == CLP_RC_SETPCIFN_BUSY) {
+diff --git a/arch/s390/pci/pci_irq.c b/arch/s390/pci/pci_irq.c
+index f2b3145b6697..a2b42a63a53b 100644
+--- a/arch/s390/pci/pci_irq.c
++++ b/arch/s390/pci/pci_irq.c
+@@ -43,6 +43,7 @@ static int zpci_set_airq(struct zpci_dev *zdev)
+ 	fib.fmt0.aibvo = 0;	/* each zdev has its own interrupt vector */
+ 	fib.fmt0.aisb = virt_to_phys(zpci_sbv->vector) + (zdev->aisb / 64) * 8;
+ 	fib.fmt0.aisbo = zdev->aisb & 63;
++	fib.gd = zdev->gisa;
+ 
+ 	return zpci_mod_fc(req, &fib, &status) ? -EIO : 0;
  }
-+EXPORT_SYMBOL_GPL(zpci_mod_fc);
+@@ -54,6 +55,8 @@ static int zpci_clear_airq(struct zpci_dev *zdev)
+ 	struct zpci_fib fib = {0};
+ 	u8 cc, status;
  
- /* Refresh PCI Translations */
- static inline u8 __rpcit(u64 fn, u64 addr, u64 range, u8 *status)
++	fib.gd = zdev->gisa;
++
+ 	cc = zpci_mod_fc(req, &fib, &status);
+ 	if (cc == 3 || (cc == 1 && status == 24))
+ 		/* Function already gone or IRQs already deregistered. */
+@@ -72,6 +75,7 @@ static int zpci_set_directed_irq(struct zpci_dev *zdev)
+ 	fib.fmt = 1;
+ 	fib.fmt1.noi = zdev->msi_nr_irqs;
+ 	fib.fmt1.dibvo = zdev->msi_first_bit;
++	fib.gd = zdev->gisa;
+ 
+ 	return zpci_mod_fc(req, &fib, &status) ? -EIO : 0;
+ }
+@@ -84,6 +88,7 @@ static int zpci_clear_directed_irq(struct zpci_dev *zdev)
+ 	u8 cc, status;
+ 
+ 	fib.fmt = 1;
++	fib.gd = zdev->gisa;
+ 	cc = zpci_mod_fc(req, &fib, &status);
+ 	if (cc == 3 || (cc == 1 && status == 24))
+ 		/* Function already gone or IRQs already deregistered. */
 -- 
 2.27.0
 
