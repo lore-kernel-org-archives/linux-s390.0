@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C8D6C4332F
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Apr 2022 20:11:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 99C97C43217
+	for <linux-s390@archiver.kernel.org>; Tue, 26 Apr 2022 20:11:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354588AbiDZUOY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 26 Apr 2022 16:14:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57464 "EHLO
+        id S1354645AbiDZUOZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 26 Apr 2022 16:14:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350896AbiDZUNZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Apr 2022 16:13:25 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6932310FD0;
-        Tue, 26 Apr 2022 13:10:12 -0700 (PDT)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23QK4CJh030967;
-        Tue, 26 Apr 2022 20:10:10 GMT
+        with ESMTP id S1354780AbiDZUOA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Apr 2022 16:14:00 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47A8E13D7F;
+        Tue, 26 Apr 2022 13:10:29 -0700 (PDT)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23QK4pll002270;
+        Tue, 26 Apr 2022 20:10:26 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=O48DE6+gk1P1pYw4Y/ror11jkmHySnVBy5l8YhpyEdE=;
- b=aRVuAf2ADvX9nmIWkTTmcujo6ndPHW3BlMysc21uwgGr9r6lZ6EFBZ+t/dhpLOQ3S3HF
- dPS+wzONrZsFx7jUgao3bGXeDK+MV1RmjCaeynlsCAvmDj5fE0LYad6diT+/y/2kbATU
- UwjMziAtnzch9hvybBzvu7kDqqHXyg+NRXJ6whjOcZ5oIROnkfM55XmKVbRtN12Zc3f4
- DfNAXao4ApnAJiSxwmpE/zGkRgO42iAaWldQukI0cyf6Mkg0emv3Iy4ezsTOQEa3mu/J
- iAlJuam8um5t78edsk08zh5hs7U3u2x3KyWi+dUtDhP8d7ET3ofbOML+vrYscwn6UnmU kA== 
+ bh=oqftdzvUo6BwH+LWvAD3rDTP9vO+6CmqgigPssFbpyk=;
+ b=MNk/d6c+66C125WACoXse9KQJE7KBJ17dUKF0cpejF3wQxnvFcUJelKSle6r93MrEfdU
+ swefJ4n3NSuhGpUjrugvA8lf4m4khzGDdAoanzxYcHP9v02/n7jx1pZXt5aCFZSTrHWI
+ i0+4ETPuFtdWLRDamyoc9OJ65YmIy+3XaE0E67If8iBswYJrZ1ChQBPsGA/OJSYLCt0q
+ EQ9r9SUASEYZcUrZJHo3Aju5fJWsrIDtugamIkTUZmgG3ZuP+bIgLFADLqQ2/kV4Rs0z
+ hWMsQS/L72TitDtoaT+ODISW6hz0u4hM99/VrvJv+PX9QSNCU3T/ob2VCzswao9eu01X /A== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fpp0s9qc8-1
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3fpg492ktt-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Apr 2022 20:10:10 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 23QK4NgD031929;
-        Tue, 26 Apr 2022 20:10:09 GMT
-Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fpp0s9qbh-1
+        Tue, 26 Apr 2022 20:10:25 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 23QK5Oll004247;
+        Tue, 26 Apr 2022 20:10:25 GMT
+Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3fpg492ktn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Apr 2022 20:10:09 +0000
-Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
-        by ppma01dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23QK8O9p001203;
-        Tue, 26 Apr 2022 20:10:08 GMT
-Received: from b01cxnp22036.gho.pok.ibm.com (b01cxnp22036.gho.pok.ibm.com [9.57.198.26])
-        by ppma01dal.us.ibm.com with ESMTP id 3fm93anaf7-1
+        Tue, 26 Apr 2022 20:10:25 +0000
+Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
+        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23QK8aEs031491;
+        Tue, 26 Apr 2022 20:10:24 GMT
+Received: from b01cxnp22034.gho.pok.ibm.com (b01cxnp22034.gho.pok.ibm.com [9.57.198.24])
+        by ppma03wdc.us.ibm.com with ESMTP id 3fm939fg5v-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Apr 2022 20:10:08 +0000
+        Tue, 26 Apr 2022 20:10:24 +0000
 Received: from b01ledav003.gho.pok.ibm.com (b01ledav003.gho.pok.ibm.com [9.57.199.108])
-        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23QKA7VG5112338
+        by b01cxnp22034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23QKANh760293606
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 26 Apr 2022 20:10:07 GMT
+        Tue, 26 Apr 2022 20:10:24 GMT
 Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 56BD4B206C;
-        Tue, 26 Apr 2022 20:10:07 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id E0ECCB2068;
+        Tue, 26 Apr 2022 20:10:23 +0000 (GMT)
 Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 02933B2067;
-        Tue, 26 Apr 2022 20:10:04 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 70B72B206A;
+        Tue, 26 Apr 2022 20:10:19 +0000 (GMT)
 Received: from li-c92d2ccc-254b-11b2-a85c-a700b5bfb098.ibm.com.com (unknown [9.211.73.42])
         by b01ledav003.gho.pok.ibm.com (Postfix) with ESMTP;
-        Tue, 26 Apr 2022 20:10:03 +0000 (GMT)
+        Tue, 26 Apr 2022 20:10:19 +0000 (GMT)
 From:   Matthew Rosato <mjrosato@linux.ibm.com>
 To:     linux-s390@vger.kernel.org
 Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
@@ -69,79 +69,49 @@ Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
         pasic@linux.ibm.com, pbonzini@redhat.com, corbet@lwn.net,
         jgg@nvidia.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-doc@vger.kernel.org
-Subject: [PATCH v6 17/21] vfio-pci/zdev: add function handle to clp base capability
-Date:   Tue, 26 Apr 2022 16:08:38 -0400
-Message-Id: <20220426200842.98655-18-mjrosato@linux.ibm.com>
+Subject: [PATCH v6 21/21] MAINTAINERS: additional files related kvm s390 pci passthrough
+Date:   Tue, 26 Apr 2022 16:08:42 -0400
+Message-Id: <20220426200842.98655-22-mjrosato@linux.ibm.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220426200842.98655-1-mjrosato@linux.ibm.com>
 References: <20220426200842.98655-1-mjrosato@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 2fIOnDKJ3HnIdsJ3I1YALIEshnMA4RUZ
-X-Proofpoint-ORIG-GUID: wCHiP1KqhQeAFeO7oaKXEKJ17osPXaX0
+X-Proofpoint-GUID: Xc86huCVJ1DarbiVaKD97yYOEiycEN6g
+X-Proofpoint-ORIG-GUID: A5oTw47Ras_2MWV0js3wx0MOk3wu0cvs
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-04-26_06,2022-04-26_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
- mlxlogscore=964 priorityscore=1501 lowpriorityscore=0 malwarescore=0
- phishscore=0 spamscore=0 adultscore=0 impostorscore=0 bulkscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
+ adultscore=0 phishscore=0 impostorscore=0 mlxscore=0 suspectscore=0
+ bulkscore=0 priorityscore=1501 clxscore=1015 lowpriorityscore=0
+ mlxlogscore=919 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2202240000 definitions=main-2204260127
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The function handle is a system-wide unique identifier for a zPCI
-device.  With zPCI instruction interpretation, the host will no
-longer be executing the zPCI instructions on behalf of the guest.
-As a result, the guest needs to use the real function handle in
-order for firmware to associate the instruction with the proper
-PCI function.  Let's provide that handle to the guest.
+Add entries from the s390 kvm subdirectory related to pci passthrough.
 
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
 Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
 ---
- drivers/vfio/pci/vfio_pci_zdev.c | 5 +++--
- include/uapi/linux/vfio_zdev.h   | 3 +++
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ MAINTAINERS | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/vfio/pci/vfio_pci_zdev.c b/drivers/vfio/pci/vfio_pci_zdev.c
-index 112c1f820f8e..00183e8aa393 100644
---- a/drivers/vfio/pci/vfio_pci_zdev.c
-+++ b/drivers/vfio/pci/vfio_pci_zdev.c
-@@ -24,14 +24,15 @@ static int zpci_base_cap(struct zpci_dev *zdev, struct vfio_info_cap *caps)
- {
- 	struct vfio_device_info_cap_zpci_base cap = {
- 		.header.id = VFIO_DEVICE_INFO_CAP_ZPCI_BASE,
--		.header.version = 1,
-+		.header.version = 2,
- 		.start_dma = zdev->start_dma,
- 		.end_dma = zdev->end_dma,
- 		.pchid = zdev->pchid,
- 		.vfn = zdev->vfn,
- 		.fmb_length = zdev->fmb_length,
- 		.pft = zdev->pft,
--		.gid = zdev->pfgid
-+		.gid = zdev->pfgid,
-+		.fh = zdev->fh
- 	};
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 5e8c2f611766..617f5bb34139 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -17257,6 +17257,7 @@ M:	Eric Farman <farman@linux.ibm.com>
+ L:	linux-s390@vger.kernel.org
+ L:	kvm@vger.kernel.org
+ S:	Supported
++F:	arch/s390/kvm/pci*
+ F:	drivers/vfio/pci/vfio_pci_zdev.c
+ F:	include/uapi/linux/vfio_zdev.h
  
- 	return vfio_info_add_capability(caps, &cap.header, sizeof(cap));
-diff --git a/include/uapi/linux/vfio_zdev.h b/include/uapi/linux/vfio_zdev.h
-index b4309397b6b2..78c022af3d29 100644
---- a/include/uapi/linux/vfio_zdev.h
-+++ b/include/uapi/linux/vfio_zdev.h
-@@ -29,6 +29,9 @@ struct vfio_device_info_cap_zpci_base {
- 	__u16 fmb_length;	/* Measurement Block Length (in bytes) */
- 	__u8 pft;		/* PCI Function Type */
- 	__u8 gid;		/* PCI function group ID */
-+	/* End of version 1 */
-+	__u32 fh;		/* PCI function handle */
-+	/* End of version 2 */
- };
- 
- /**
 -- 
 2.27.0
 
