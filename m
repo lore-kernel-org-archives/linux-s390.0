@@ -2,173 +2,134 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C0E7FC433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Apr 2022 04:17:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 33BDDC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 26 Apr 2022 06:20:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233326AbiDZEUY (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 26 Apr 2022 00:20:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58404 "EHLO
+        id S245086AbiDZGXL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 26 Apr 2022 02:23:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231926AbiDZEUW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Apr 2022 00:20:22 -0400
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F6822E08E;
-        Mon, 25 Apr 2022 21:17:16 -0700 (PDT)
-Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23PLV6sI022232;
-        Tue, 26 Apr 2022 04:16:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=to : cc : subject :
- from : message-id : references : date : in-reply-to : content-type :
- mime-version; s=corp-2021-07-09;
- bh=VgShOSuxQqfoj97gAL6GK2pWBCOuBmWMfHpOmNYmLms=;
- b=OtYmsq8G8b5RI22dbLOhM5Jw4sreT66i/r4obiHaBmE7x18GcwopAR6A8LjRsyP0yrwu
- /ChcpAp6Eb+flbIKuNrqgeGzAo2MUWXRoZreohyeg2Rk5mO6D+sfmjFltbiKlvM+ELq4
- RwcStAPaLz8AX9im04VlQ59ayyK9WPT2W0QQoZYXQ8mY8foBidZ4jI6BX78BsHu0SlDP
- 0e3v4HGavanW1GE7bFS/xzTyDjsi91O1EhjtH7JLEwO9tlcmdUNIQJ+4n3n660UGzZCo
- qfqJQCDk0chCqM7CUmiA+I094CYXxG4ZZB7SXmK+GU4U6eIyF00KFboyDbWOLXmL5mGc 2A== 
-Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
-        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3fmaw4d0w8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 26 Apr 2022 04:16:28 +0000
-Received: from pps.filterd (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-        by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.16.1.2/8.16.1.2) with SMTP id 23Q4AR5j012450;
-        Tue, 26 Apr 2022 04:16:27 GMT
-Received: from nam11-dm6-obe.outbound.protection.outlook.com (mail-dm6nam11lp2175.outbound.protection.outlook.com [104.47.57.175])
-        by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com with ESMTP id 3fp5yj4940-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 26 Apr 2022 04:16:27 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ZUOhLZKNL3vrNl/maSq9xt45/b5a9NdXwIhXvstJAYwIsAi0DxupEQl/Yvix7bJkhWOcyWDMj1Z86LqzR2sBaF9Njm7mKI0E7iPfS6tvhupy6YoXis7wjl2yAmEg3XVwIwnRD7TXGS7Lp4uSKHm+D+vNIIKsp07IgnqK3C/esfCnpvAQspS/rwxCLYikKu3NATPpsD8FIckfWAfsADoxVsInmB+mfKQ5CeQKCpwTgVdzibDwYWjb0/FhMPRYu+CM7azS0uotfZMZj4EMLuozZJHZhuyydbp/FNVzkBbrTHENZwrGfiMYt1NkVjqWTGu+IUDuJEm5vrAdkdX6U4bYvg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=VgShOSuxQqfoj97gAL6GK2pWBCOuBmWMfHpOmNYmLms=;
- b=MELrS1W3JzftJQi7nfd3yt907GKzrEuF69GOSkRcSt/yRF0P26S8bQJ3u5SkwIh0cbPh/4ivs7IazWwxNEzZuDmdrvufbsv1y9r2NtHzoWo80/GIyAOCopQpRS3vQYoRIo4eGWfsudOh0C6qucCJFG21qOmmTOxEKGvrOsUO+etVxSrAc947LtMJM6bXqTIh5nhnlWjxNB0GOtSQ6vZTzyBo+HadFY+E5bfv6pIpzk5wldicLOXEXu+ZRKS1179vvO1XHRQsi8So10WAuPLIms6ajGHbjwXkzrTBwQxPBvDCMrIfTM0degoP/A7PqMTdRDHZbTcDPtXzs1+/+qwQGw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=VgShOSuxQqfoj97gAL6GK2pWBCOuBmWMfHpOmNYmLms=;
- b=A3am2cwBpuqjfY9kIPSeyfS7WwrY3aqquCThNKiIOdYqL981QzGx0dyEc11s46jGa6ebZeevTJj/79eFZ394X8QAkoUzqgK1xhVr0SGikjY+BNh5NjuNlE+uzRx6fhSULKfR/dmqEh9lDelXfGMgep7VN1yBS1p98+BvJXLcSAU=
-Received: from PH0PR10MB4759.namprd10.prod.outlook.com (2603:10b6:510:3d::12)
- by DM6PR10MB3129.namprd10.prod.outlook.com (2603:10b6:5:1a9::31) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5186.13; Tue, 26 Apr
- 2022 04:16:24 +0000
-Received: from PH0PR10MB4759.namprd10.prod.outlook.com
- ([fe80::d1db:de4e:9b71:3192]) by PH0PR10MB4759.namprd10.prod.outlook.com
- ([fe80::d1db:de4e:9b71:3192%9]) with mapi id 15.20.5186.021; Tue, 26 Apr 2022
- 04:16:24 +0000
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Jens Axboe <axboe@kernel.dk>, Richard Weinberger <richard@nod.at>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Josef Bacik <josef@toxicpanda.com>,
-        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Roger Pau =?utf-8?Q?Monn=C3=A9?= <roger.pau@citrix.com>,
-        Mike Snitzer <snitzer@kernel.org>, Song Liu <song@kernel.org>,
-        Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        linux-um@lists.infradead.org, linux-block@vger.kernel.org,
-        nbd@other.debian.org, virtualization@lists.linux-foundation.org,
-        xen-devel@lists.xenproject.org, linux-raid@vger.kernel.org,
-        linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org,
-        dm-devel@redhat.com
-Subject: Re: fix and cleanup discard_alignment handling
-From:   "Martin K. Petersen" <martin.petersen@oracle.com>
-Organization: Oracle Corporation
-Message-ID: <yq1tuagv5xw.fsf@ca-mkp.ca.oracle.com>
-References: <20220418045314.360785-1-hch@lst.de>
-Date:   Tue, 26 Apr 2022 00:16:21 -0400
-In-Reply-To: <20220418045314.360785-1-hch@lst.de> (Christoph Hellwig's message
-        of "Mon, 18 Apr 2022 06:53:03 +0200")
-Content-Type: text/plain
-X-ClientProxiedBy: BYAPR07CA0082.namprd07.prod.outlook.com
- (2603:10b6:a03:12b::23) To PH0PR10MB4759.namprd10.prod.outlook.com
- (2603:10b6:510:3d::12)
+        with ESMTP id S236710AbiDZGXK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Apr 2022 02:23:10 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E37F055BF;
+        Mon, 25 Apr 2022 23:20:03 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23Q5HWFs029832;
+        Tue, 26 Apr 2022 06:20:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=UqRGLC6DMwrnIxvnxBlIJqoItPrKRPj+Q1itnANNIzw=;
+ b=nr8was6CRZvFAPtJ/GetW3yIy3MkOnPtVYYlkxUa79w9yCnUmjI76aNW1I696CS5ov4n
+ vKMjVfloL94CMptfTPsk0gTl1OzQwEMZ9JHZjTEpCOFaHk0UhGImRprXg0ATZ0DeTa6W
+ CXKuR3TpNYGTe8g9ufkigMV4moBm34h+diwOIYzH9uG6UL2qyysCdk/FE7ytGsrfACp0
+ NE+vr98K3SccUjD0SjzsfV4O4vp+n3FfVzEnQZ2UD+89y8kGNyG/W5cawjs3vBzk7kou
+ zYJdo+OLeoBzJDMyqTPoBdlWDeqKd7rsIz0Zuv+sEw5mDNM3l3jUydveVYHp/rRjRFQl VA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fp6k9cpka-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 26 Apr 2022 06:20:00 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 23Q6JxWi009914;
+        Tue, 26 Apr 2022 06:19:59 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fp6k9cpjr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 26 Apr 2022 06:19:59 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23Q6COhU029626;
+        Tue, 26 Apr 2022 06:19:58 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma04ams.nl.ibm.com with ESMTP id 3fm938unk9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 26 Apr 2022 06:19:57 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23Q6JssG58524144
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 26 Apr 2022 06:19:54 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B9D694C046;
+        Tue, 26 Apr 2022 06:19:54 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1AC404C040;
+        Tue, 26 Apr 2022 06:19:54 +0000 (GMT)
+Received: from [9.171.16.5] (unknown [9.171.16.5])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 26 Apr 2022 06:19:54 +0000 (GMT)
+Message-ID: <1ccb1333-2233-8832-4102-a6c082b29108@linux.ibm.com>
+Date:   Tue, 26 Apr 2022 08:19:53 +0200
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 835a5865-72d0-4ac4-b537-08da273b86d0
-X-MS-TrafficTypeDiagnostic: DM6PR10MB3129:EE_
-X-Microsoft-Antispam-PRVS: <DM6PR10MB31292380D74F76EFD145BA388EFB9@DM6PR10MB3129.namprd10.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: X0D6KBg3dYE7LKh6WthP6tgUSgJnyXvQVuy37VB7bVFWKyTyZpiYPqKVs3Jzizuwg+Sf92KHStLxr+xa3JI22N1hfVbIdR+D/hINi8ev2jXI5RPeztSc9M7Pfv8wN/KlfccpqYFzZlCo5fZC0qJe9mn6+euobijLQ+ae3W1Q4ZSSK+k6g3gj1X9rr3ZFeCf9R4oOxgqjLqE//AGw5JJz14O+wIKv8oOUSl5DbPRYYE5pYch3DXESswFS7q0LgWDkyynxnMeCOwM3I+ZcXRp0HDOOw38bg1/UmGwk7R6kKoQT09BnhshRQptOGkKJbk1TqA3ojIMkvwsO3BvRvme7OKVzKhtfYOrpHTxE1nDe7oUu1zaDggjj9Hx+tUiT2rsXAHF4nqmCzuVh5sZx8O3Fr3KQAaZ0iGVMV17moVVHaqC7x0Ze//UiVG51Ku4RDI3eHLUHWoAnGy3IJzDuYBG/otHNI3ceEV+qLsmjxX8+cDTfHXvH4dK89dvlqS3ADewVSJmXUQBL3kRw79LXhxkRdbBZckOUrZjGYfDlE6UNpH3ka85nzwyCT15D+xxviw7SVLIkB+uYD47wiiadu9xCVEbX7c1Bbglyrs2g+wOET49yX+M04p188Ceo0MX4Z0s/fEANDpsEvkPbetZ+B9iMa8H7On2NO3ifD93u8aM1pkJwPcnEAW2NFb6Go6fxxHT6CptTyDO4NAfDFQ+CIZFuRA==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR10MB4759.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(366004)(52116002)(8936002)(186003)(4744005)(86362001)(7416002)(508600001)(2906002)(6666004)(6512007)(6506007)(26005)(36916002)(38100700002)(38350700002)(83380400001)(5660300002)(316002)(6916009)(4326008)(8676002)(6486002)(66476007)(66556008)(54906003)(66946007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?TB4tA924ES23Jbjeya1BYJTs1OvtA/zZv6THpxhMU79cce2hBvRPpiS49za3?=
- =?us-ascii?Q?mUONwmtJsiCknSg/EcY91oV51b/6kYP1mGaQV91M1HhGLu1bE/mmUjgXe5BE?=
- =?us-ascii?Q?SqqnyHd99Z6KyY5CLuitjo7OSNvyWpQ3ukZ8SyjQEJIcvnq3Gg3EkU5R+HG3?=
- =?us-ascii?Q?F8fUv9n6HOda4W/bB+HraU/tzreM8+EWPjk2HYGDdAC7U32s3JGn4V6pFdjc?=
- =?us-ascii?Q?EyZC/gXEK2RXovs+rqNtiXAn8Y1xnn5A0A4Nh1NIJFpuaTiTpo2VmTYmol6m?=
- =?us-ascii?Q?0UbCryYNd+ZCvW5dW/X4TU1Qv+oPKgMV9lqUzmk7xOYKt+9B/hPqNDcHBglp?=
- =?us-ascii?Q?XTeDDi8XHXO1D5P3WLajf6NjFpitG4XqaV9vmUxClpxedVXvRbi98PBuLTeF?=
- =?us-ascii?Q?BKRu/8UIxZUe9pthO/CO66KVDUBcGOnzELJEsoRFs08hY/UG2sqncy7tgt0t?=
- =?us-ascii?Q?nvA55r3YQu8SSkHhw50KmjFF706K/czmMyEdVi2HXCzcPiOxOs7KvhJywE1B?=
- =?us-ascii?Q?Eh1gGP/2tgTCaYhCTSs1zZ+ZFeoSw0ocq/HEgpIntTv6HJtpQx6KqSRGOXV7?=
- =?us-ascii?Q?JcDQxbe1XhEdhnAbfzp6vEcG6YCNbs0SIxKP6hS7jAteqV8nRLnAjLRy1Pph?=
- =?us-ascii?Q?H6E+hxLB1CInAKwRT0/+o/fAsfmcGgoDJAnIfVg8BZ67BgRdV2VALulbozvP?=
- =?us-ascii?Q?2wnmKY+uku255u0vK1dEoptoo6YpiOODxrPEKu2rm5dJklw426eL7Pcbf6mB?=
- =?us-ascii?Q?2jo0Q1xNQoM3RmwrrrIufsvxMNGmz1mWqLgExox8rn0CGer6iwJVzl7MHvtx?=
- =?us-ascii?Q?WSisn2XeQ31GZs2Ays3lwTmolcCHLf1sN39+oJQziOJg5iSOUBlrE3qY9ryn?=
- =?us-ascii?Q?Ddy2KZo9oGxfl0CzSidZvVjfHjOQuDCpI794Pucgfowl2w2KruGMXZS3GVgl?=
- =?us-ascii?Q?QB4KWlnDOPGRepoOY18EgaS2wd3XXbdWYFxh7NY0ySmiq96j9DUNERGzOtGP?=
- =?us-ascii?Q?ke8nRsN6Uts+l5dXLI1WLLJtOTOMskxZ5cqzXGXbWfs6cnqNc4N47g+MOOMi?=
- =?us-ascii?Q?khwSby0iMLA5fQsyRHYHr+Yt2+cgpCymS7woTMu5/GYc2Qz71IwKaYYrE0T4?=
- =?us-ascii?Q?yiHlseLzNfilBiXLRkBdCfz1quf0+RtPshsIz4+ucUYTNDgmJi75SEuIBUEP?=
- =?us-ascii?Q?Aqhzuj7AMa3Y9agTnz1W+7vd7+L4aj3Hz1KF6fS2W+PqHp6HVS757X8KtSDp?=
- =?us-ascii?Q?00DgbNPViQTRs9TQ//lU3PUutFq7odj+TM3IxVZlfds0Qyg3pxbOo0g4JNg1?=
- =?us-ascii?Q?sMXx2p6R35Wqw94RidfoO22d7QrxNBSa2tC5TV1fuA5Xo0CrGQkdrvgBTJVO?=
- =?us-ascii?Q?6YNaMJanUjQJVYnjGO6DkWgTuVC/n+nGFzYXeqdMymlT1wFUzJlaASPKrpyF?=
- =?us-ascii?Q?SQJvJ90b4tiE3DW5z5HBnA85+dXINGsNFxdRxipwE6F0s4T4sLeeFObSgiNe?=
- =?us-ascii?Q?0PU//rhhc23Negk43JrkvaDsNkInRzuILS80NmHqquWDI/2TR1/Jwq2acRt+?=
- =?us-ascii?Q?pDpZbxqRYu0dB0FOfOHQwMQMUtJXNwhRUEyyKvKFB1kh9YRCqY7Le4w8GOcL?=
- =?us-ascii?Q?68r28By/gaXsB3HU2N6tNEWEddQVidZzuQSCRzX6xxDgwLEGc1T4y59QDQ3m?=
- =?us-ascii?Q?XW6XaDzoV+2/HLCd7yg08CDJxvE5dwpDDIETeYfsVF8WLkmnrhL6SSnsWcHg?=
- =?us-ascii?Q?//ysxLiDUE8tILEWYPxrVO9Squzf3gk=3D?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 835a5865-72d0-4ac4-b537-08da273b86d0
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR10MB4759.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Apr 2022 04:16:24.7224
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Nf2TI3DEgT4qtSJndbWmRFqMGbzkMS2vq7+Y5mOBDAJDRs7oHXuyNKkAk9ybd0dRtdbzLEe54D/bHDq4bXF1AdU2cnvLzYXAEPCE3V3v7Ak=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR10MB3129
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.486,18.0.858
- definitions=2022-04-26_01:2022-04-25,2022-04-26 signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 mlxlogscore=999 mlxscore=0
- suspectscore=0 malwarescore=0 spamscore=0 adultscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2204260025
-X-Proofpoint-GUID: 76EsLqdiuyTX3yre8fbQOOLA-RdU5MY-
-X-Proofpoint-ORIG-GUID: 76EsLqdiuyTX3yre8fbQOOLA-RdU5MY-
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH v2 0/2] Dirtying, failing memop: don't indicate
+ suppression
+Content-Language: en-US
+To:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org,
+        Shuah Khan <shuah@kernel.org>, linux-kselftest@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20220425100147.1755340-1-scgl@linux.ibm.com>
+ <8095d0de-dd99-0388-b1d4-e59b01dc4be0@linux.ibm.com>
+ <13d0d706-abc4-3e4d-88c3-6447636fd1fd@linux.ibm.com>
+From:   Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <13d0d706-abc4-3e4d-88c3-6447636fd1fd@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: ZvCISHOvZJpvSVKFUxy2vXGmM8YgKKS6
+X-Proofpoint-ORIG-GUID: tpFYGwXvD6iQMF3LChEb-_hroWSPeo4t
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-04-26_02,2022-04-25_03,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxscore=0
+ priorityscore=1501 mlxlogscore=724 suspectscore=0 spamscore=0 adultscore=0
+ impostorscore=0 lowpriorityscore=0 malwarescore=0 clxscore=1015
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2204260040
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
-Christoph,
 
-> the somewhat confusing name of the discard_alignment queue limit, that
-> really is an offset for the discard granularity mislead a lot of
-> driver authors to set it to an incorrect value.  This series tries to
-> fix up all these cases.
+Am 25.04.22 um 19:29 schrieb Janis Schoetterl-Glausch:
+> On 4/25/22 18:30, Christian Borntraeger wrote:
+>> Am 25.04.22 um 12:01 schrieb Janis Schoetterl-Glausch:
+>>> If a memop fails due to key checked protection, after already having
+>>> written to the guest, don't indicate suppression to the guest, as that
+>>> would imply that memory wasn't modified.
+>>>
+>>> This could be considered a fix to the code introducing storage key
+>>> support, however this is a bug in KVM only if we emulate an
+>>> instructions writing to an operand spanning multiple pages, which I
+>>> don't believe we do.
+>>>
+>>
+>> Thanks applied. I think it makes sense for 5.18 nevertheless.
+> 
+> Janosch had some concerns because the protection code being 000 implies
+> that the effective address in the TEID is unpredictable.
+> Let's see if he chimes in.
 
-Not sure how I ended up with "discard_alignment" when I called the
-corresponding I/O parameter "alignment_offset".
+z/VM does exactly the same on key protection crossing a page boundary. The
+architecture was written in a way to allow all zeros exactly for this case.
+(hypervisor emulation of key protection crossing pages).
+This is even true for ESOP-2. See Figure 3-5 or figure 3-8 (the first line)
+which allows to NOT have a valid address in the TEID for key controlled
+protection.
 
-Anyway. All this looks good to me.
+The only question is, do we need to change the suppression parameter in
+access_guest_with_key
 
-Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
+  (mode != GACC_STORE) || (idx == 0)
 
--- 
-Martin K. Petersen	Oracle Linux Engineering
+to also check for prot != PROT_TYPE_KEYC
+? I think we do not need this as we have checked other reasons before.
