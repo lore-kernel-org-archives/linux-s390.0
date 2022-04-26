@@ -2,198 +2,172 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 206ECC433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Apr 2022 10:25:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 93B1AC433FE
+	for <linux-s390@archiver.kernel.org>; Tue, 26 Apr 2022 11:57:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348809AbiDZK2p (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 26 Apr 2022 06:28:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42964 "EHLO
+        id S1347914AbiDZMAR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 26 Apr 2022 08:00:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348840AbiDZK2I (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Apr 2022 06:28:08 -0400
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C21565DE64;
-        Tue, 26 Apr 2022 03:01:15 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=33;SR=0;TI=SMTPD_---0VBLW6ip_1650967268;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VBLW6ip_1650967268)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Tue, 26 Apr 2022 18:01:09 +0800
-Message-ID: <1650967148.2873914-3-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH v9 00/32] virtio pci support VIRTIO_F_RING_RESET (refactor vring)
-Date:   Tue, 26 Apr 2022 17:59:08 +0800
-From:   Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To:     "Michael S. Tsirkin" <mst@redhat.com>
-Cc:     virtualization@lists.linux-foundation.org,
-        Jeff Dike <jdike@addtoit.com>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mark Gross <markgross@kernel.org>,
-        Vadim Pasternak <vadimp@nvidia.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
+        with ESMTP id S239509AbiDZMAR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Apr 2022 08:00:17 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AA8B53A53;
+        Tue, 26 Apr 2022 04:57:09 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23Q9ZCEe002053;
+        Tue, 26 Apr 2022 11:57:05 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=a3zMhYLA8xJP/xWtcO5iRzbIKMDvtVGp5u0drnw/ibg=;
+ b=lfxkzJGUurXcetmqygvnIpGcoRSEnKIky3jbQutWyUIePuBMtN5/pbGnKkE36Q+E6vX8
+ 2ktEHjB5N7qIFpmx+LTy4ECRYYQYwD7CAdDJZswpuGkANhygnk1vAJcLpjgA0JEN45hp
+ jB/5XpXa6HTsSKuBF6GsoPkPxSjd1Y6eIM3erTDzhU/vYE25Q0oCqiMm39vOqCJu+A6p
+ v0RvIJ82xayvatn5sR7YvnxecAeEfGSs/AnBcs7l2LSucvAVzOsvuG/Ag3mfSH3mhszJ
+ 9V96CFxAO7delV6cXOenhNEpCVjajHSI9v82V4VHqwwMyx4zEZ8LCDDH9yW9Z4iWlnEx QQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fpbyh5fwd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 26 Apr 2022 11:57:05 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 23QBv5dk002095;
+        Tue, 26 Apr 2022 11:57:05 GMT
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fpbyh5fvn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 26 Apr 2022 11:57:04 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23QBrmfe027493;
+        Tue, 26 Apr 2022 11:57:03 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma01fra.de.ibm.com with ESMTP id 3fm938uchc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 26 Apr 2022 11:57:03 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23QBuxYJ52429144
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 26 Apr 2022 11:56:59 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 56F6CA405B;
+        Tue, 26 Apr 2022 11:56:59 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3F635A4054;
+        Tue, 26 Apr 2022 11:56:58 +0000 (GMT)
+Received: from [9.171.92.107] (unknown [9.171.92.107])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 26 Apr 2022 11:56:58 +0000 (GMT)
+Message-ID: <80ca4468-6b0a-e8d9-9922-1fae2a1f0fcc@linux.ibm.com>
+Date:   Tue, 26 Apr 2022 13:56:57 +0200
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH v2 0/2] Dirtying, failing memop: don't indicate
+ suppression
+Content-Language: en-US
+To:     Janosch Frank <frankja@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jesper Dangaard Brouer <hawk@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        linux-um@lists.infradead.org, netdev@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, bpf@vger.kernel.org
-References: <20220406034346.74409-1-xuanzhuo@linux.alibaba.com>
- <20220426055423-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20220426055423-mutt-send-email-mst@kernel.org>
+        Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org,
+        Shuah Khan <shuah@kernel.org>, linux-kselftest@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20220425100147.1755340-1-scgl@linux.ibm.com>
+ <8095d0de-dd99-0388-b1d4-e59b01dc4be0@linux.ibm.com>
+ <13d0d706-abc4-3e4d-88c3-6447636fd1fd@linux.ibm.com>
+ <1ccb1333-2233-8832-4102-a6c082b29108@linux.ibm.com>
+ <40038a9a-5647-c355-bad2-297b0a2baf4f@linux.ibm.com>
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+In-Reply-To: <40038a9a-5647-c355-bad2-297b0a2baf4f@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 0vrkjp9KAsI56VkB80KM_TaNI0Sf3ufs
+X-Proofpoint-GUID: m2Zua9dnvj6lbL_fTw9YYUs0X7QiWkDl
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-04-26_02,2022-04-26_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 spamscore=0
+ bulkscore=0 adultscore=0 mlxlogscore=760 lowpriorityscore=0 suspectscore=0
+ priorityscore=1501 phishscore=0 mlxscore=0 malwarescore=0 impostorscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2204260074
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 26 Apr 2022 05:55:41 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Wed, Apr 06, 2022 at 11:43:14AM +0800, Xuan Zhuo wrote:
-> > The virtio spec already supports the virtio queue reset function. This patch set
-> > is to add this function to the kernel. The relevant virtio spec information is
-> > here:
-> >
-> >     https://github.com/oasis-tcs/virtio-spec/issues/124
-> >
-> > Also regarding MMIO support for queue reset, I plan to support it after this
-> > patch is passed.
->
-> Regarding the spec, there's now an issue proposing
-> some changes to the interface. What do you think about that
-> proposal? Could you respond on that thread on the virtio TC mailing list?
+On 4/26/22 09:25, Janosch Frank wrote:
+> On 4/26/22 08:19, Christian Borntraeger wrote:
+>>
+>>
+>> Am 25.04.22 um 19:29 schrieb Janis Schoetterl-Glausch:
+>>> On 4/25/22 18:30, Christian Borntraeger wrote:
+>>>> Am 25.04.22 um 12:01 schrieb Janis Schoetterl-Glausch:
+>>>>> If a memop fails due to key checked protection, after already having
+>>>>> written to the guest, don't indicate suppression to the guest, as that
+>>>>> would imply that memory wasn't modified.
+>>>>>
+>>>>> This could be considered a fix to the code introducing storage key
+>>>>> support, however this is a bug in KVM only if we emulate an
+>>>>> instructions writing to an operand spanning multiple pages, which I
+>>>>> don't believe we do.
+>>>>>
+>>>>
+>>>> Thanks applied. I think it makes sense for 5.18 nevertheless.
+>>>
+>>> Janosch had some concerns because the protection code being 000 implies
+>>> that the effective address in the TEID is unpredictable.
+>>> Let's see if he chimes in.
+>>
+>> z/VM does exactly the same on key protection crossing a page boundary. The
+>> architecture was written in a way to allow all zeros exactly for this case.
+>> (hypervisor emulation of key protection crossing pages).
+>> This is even true for ESOP-2. See Figure 3-5 or figure 3-8 (the first line)
+>> which allows to NOT have a valid address in the TEID for key controlled
+>> protection.
 
-I have read that thread. And also asked some questions.  I will follow that
-thread.
+The question is if this is the best way to do it. Janosch brought up
+interruptible instructions, for those you would want to just consider
+the current unit of operation to be suppressed. Now this is not actually
+relevant, I guess PFMF is the only interruptible instruction we'd emulate
+and that ignores keys when clearing memory.
+But maybe there are other edge cases.
 
-Grateful.
+>>
+>> The only question is, do we need to change the suppression parameter in
+>> access_guest_with_key
+>>
+>>    (mode != GACC_STORE) || (idx == 0)
+>>
+>> to also check for prot != PROT_TYPE_KEYC
+>> ? I think we do not need this as we have checked other reasons before.
 
->
->
-> > This patch set implements the refactoring of vring. Finally, the
-> > virtuque_resize() interface is provided based on the reset function of the
-> > transport layer.
-> >
-> > Test environment:
-> >     Host: 4.19.91
-> >     Qemu: QEMU emulator version 6.2.50 (with vq reset support)
-> >     Test Cmd:  ethtool -G eth1 rx $1 tx $2; ethtool -g eth1
-> >
-> >     The default is split mode, modify Qemu virtio-net to add PACKED feature to test
-> >     packed mode.
-> >
-> > Qemu code:
-> >     https://github.com/fengidri/qemu/compare/89f3bfa3265554d1d591ee4d7f1197b6e3397e84...master
-> >
-> > In order to simplify the review of this patch set, the function of reusing
-> > the old buffers after resize will be introduced in subsequent patch sets.
-> >
-> > Please review. Thanks.
-> >
-> > v9:
-> >   1. Provide a virtqueue_resize() interface directly
-> >   2. A patch set including vring resize, virtio pci reset, virtio-net resize
-> >   3. No more separate structs
-> >
-> > v8:
-> >   1. Provide a virtqueue_reset() interface directly
-> >   2. Split the two patch sets, this is the first part
-> >   3. Add independent allocation helper for allocating state, extra
-> >
-> > v7:
-> >   1. fix #6 subject typo
-> >   2. fix #6 ring_size_in_bytes is uninitialized
-> >   3. check by: make W=12
-> >
-> > v6:
-> >   1. virtio_pci: use synchronize_irq(irq) to sync the irq callbacks
-> >   2. Introduce virtqueue_reset_vring() to implement the reset of vring during
-> >      the reset process. May use the old vring if num of the vq not change.
-> >   3. find_vqs() support sizes to special the max size of each vq
-> >
-> > v5:
-> >   1. add virtio-net support set_ringparam
-> >
-> > v4:
-> >   1. just the code of virtio, without virtio-net
-> >   2. Performing reset on a queue is divided into these steps:
-> >     1. reset_vq: reset one vq
-> >     2. recycle the buffer from vq by virtqueue_detach_unused_buf()
-> >     3. release the ring of the vq by vring_release_virtqueue()
-> >     4. enable_reset_vq: re-enable the reset queue
-> >   3. Simplify the parameters of enable_reset_vq()
-> >   4. add container structures for virtio_pci_common_cfg
-> >
-> > v3:
-> >   1. keep vq, irq unreleased
-> >
-> > Xuan Zhuo (32):
-> >   virtio: add helper virtqueue_get_vring_max_size()
-> >   virtio: struct virtio_config_ops add callbacks for queue_reset
-> >   virtio_ring: update the document of the virtqueue_detach_unused_buf
-> >     for queue reset
-> >   virtio_ring: remove the arg vq of vring_alloc_desc_extra()
-> >   virtio_ring: extract the logic of freeing vring
-> >   virtio_ring: split: extract the logic of alloc queue
-> >   virtio_ring: split: extract the logic of alloc state and extra
-> >   virtio_ring: split: extract the logic of attach vring
-> >   virtio_ring: split: extract the logic of vq init
-> >   virtio_ring: split: introduce virtqueue_reinit_split()
-> >   virtio_ring: split: introduce virtqueue_resize_split()
-> >   virtio_ring: packed: extract the logic of alloc queue
-> >   virtio_ring: packed: extract the logic of alloc state and extra
-> >   virtio_ring: packed: extract the logic of attach vring
-> >   virtio_ring: packed: extract the logic of vq init
-> >   virtio_ring: packed: introduce virtqueue_reinit_packed()
-> >   virtio_ring: packed: introduce virtqueue_resize_packed()
-> >   virtio_ring: introduce virtqueue_resize()
-> >   virtio_pci: struct virtio_pci_common_cfg add queue_notify_data
-> >   virtio: queue_reset: add VIRTIO_F_RING_RESET
-> >   virtio_pci: queue_reset: update struct virtio_pci_common_cfg and
-> >     option functions
-> >   virtio_pci: queue_reset: extract the logic of active vq for modern pci
-> >   virtio_pci: queue_reset: support VIRTIO_F_RING_RESET
-> >   virtio: find_vqs() add arg sizes
-> >   virtio_pci: support the arg sizes of find_vqs()
-> >   virtio_mmio: support the arg sizes of find_vqs()
-> >   virtio: add helper virtio_find_vqs_ctx_size()
-> >   virtio_net: set the default max ring size by find_vqs()
-> >   virtio_net: get ringparam by virtqueue_get_vring_max_size()
-> >   virtio_net: split free_unused_bufs()
-> >   virtio_net: support rx/tx queue resize
-> >   virtio_net: support set_ringparam
-> >
-> >  arch/um/drivers/virtio_uml.c             |   3 +-
-> >  drivers/net/virtio_net.c                 | 219 +++++++-
-> >  drivers/platform/mellanox/mlxbf-tmfifo.c |   3 +
-> >  drivers/remoteproc/remoteproc_virtio.c   |   3 +
-> >  drivers/s390/virtio/virtio_ccw.c         |   4 +
-> >  drivers/virtio/virtio_mmio.c             |  11 +-
-> >  drivers/virtio/virtio_pci_common.c       |  28 +-
-> >  drivers/virtio/virtio_pci_common.h       |   3 +-
-> >  drivers/virtio/virtio_pci_legacy.c       |   8 +-
-> >  drivers/virtio/virtio_pci_modern.c       | 149 +++++-
-> >  drivers/virtio/virtio_pci_modern_dev.c   |  36 ++
-> >  drivers/virtio/virtio_ring.c             | 626 ++++++++++++++++++-----
-> >  drivers/virtio/virtio_vdpa.c             |   3 +
-> >  include/linux/virtio.h                   |   6 +
-> >  include/linux/virtio_config.h            |  38 +-
-> >  include/linux/virtio_pci_modern.h        |   2 +
-> >  include/uapi/linux/virtio_config.h       |   7 +-
-> >  include/uapi/linux/virtio_pci.h          |  14 +
-> >  18 files changed, 964 insertions(+), 199 deletions(-)
-> >
-> > --
-> > 2.31.0
->
+Yes, it is not necessary, the control flow is such that a protection exception
+implies that is due to keys.
+> 
+> To me this measure looks like a last resort option and the POP doesn't state a 100% what is to be done. Some instructions can mandate suppression instead of termination according to the architects.
+> 
+> My intuition tells me that if we are in a situation where this would happen then we would be much better off just doing it by hand (i.e. in the instruction emulation code) and not letting this function decide.
+
+For the instructions we currently need to emulate in KVM we should be fine.
+So the question is what's best for the future and for instructions emulated by user space.
+Upward in the call stack (including user space), we don't know the failing address,
+which complicates handling it in the emulation code.
+You could chop up the memop in page chunks to find out, but that might have other issues.
+
+Since this behavior is very implicit and easy to overlook maybe we should document it
+in the description of the memop ioctl?
+> 
+> So I'm not entirely sure if we're replacing something that is not correct with something that also won't be correct for all cases.
+
+That may be the case, which option is more correct/less incorrect tho?
+It's hard to say because one would have to consider all instructions/possibilities,
+but indicating not suppression when we've already written to memory, seems to make
+sense more often than not doing so.
+> 
+> But to summarize this: I'm not entirely sure even after reading the POP for more than an hour and consulting an architect
+
