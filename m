@@ -2,212 +2,229 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DCC4C433EF
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Apr 2022 10:13:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 986AAC433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 26 Apr 2022 10:22:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348588AbiDZKQj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 26 Apr 2022 06:16:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55594 "EHLO
+        id S1348497AbiDZKZx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 26 Apr 2022 06:25:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348598AbiDZKQ2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Apr 2022 06:16:28 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C62C43385;
-        Tue, 26 Apr 2022 02:39:42 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23Q9CCCA012220;
-        Tue, 26 Apr 2022 09:39:41 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=wf2o/TngjbdQCkWU8ln2Fq1y+dpilYYa4+CZjwx8RKI=;
- b=ake9Gj4VuU6VZUKVMpccI0CiI0mAAuo2uyK8fL1s4zyN79eRDlnkuz3Og6+eKkgTYVdN
- RSvaQ09ndJ9R3fh18E/GGvb8/xOqDD8somytFxZGTisHGQqL9QqUhkWwNKs0QVsZzGrp
- dFe1Tojz04/LRBSgz2MhdgLKozSzV2434pZhdDmenad31y9tnyylOTRssxXnmuT/e37a
- euJQrxQSr/AdI4V0N+7KLbvArjwmNzhzwTjjA6AlgI78M1oVHDAEhKAXMK8xa0QkdH1t
- dF9P1h5HBQ/GxZx6Hmw6h6h/jbaCM8BA9q/DBEbAhi5YFTV3/FA3XCYR2AIRl80ZRxLE Nw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fpdw2rfcu-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Apr 2022 09:39:41 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 23Q9cSPL015877;
-        Tue, 26 Apr 2022 09:39:40 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fpdw2rfca-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Apr 2022 09:39:40 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23Q9dCLY024841;
-        Tue, 26 Apr 2022 09:39:38 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma03fra.de.ibm.com with ESMTP id 3fm938u802-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Apr 2022 09:39:38 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23Q9QX0n41091366
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 26 Apr 2022 09:26:33 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 103004C046;
-        Tue, 26 Apr 2022 09:39:35 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BAAB74C044;
-        Tue, 26 Apr 2022 09:39:34 +0000 (GMT)
-Received: from [9.145.85.71] (unknown [9.145.85.71])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 26 Apr 2022 09:39:34 +0000 (GMT)
-Message-ID: <81a99617-d6ab-959c-be0c-73622cbf1203@linux.ibm.com>
-Date:   Tue, 26 Apr 2022 11:39:34 +0200
+        with ESMTP id S1349103AbiDZKYX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Apr 2022 06:24:23 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id F2D1F74DFB
+        for <linux-s390@vger.kernel.org>; Tue, 26 Apr 2022 02:55:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1650966952;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=bKv/ULkJ/wp3hIqk7Hk8ciyskY/Ggu219LeUKhk8ymM=;
+        b=eR/xlV7knj+1FFaU/sVT+p6NEj1KmDqe3IyS8YGm1O/jqihwSnuyp3KDuu6/s+gVTBecXf
+        mkbBzfF/Xk5bXYNJggIfCYby29a1e4FAMnauUJcHpFCDyPbYqsrutZn8YPYWjjsjE6q7CA
+        +a4STe/gzeoB7H1GPwcxZ45+z6s1O6E=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-646-iSjPsrQSN3KmWJU6TDXAOA-1; Tue, 26 Apr 2022 05:55:51 -0400
+X-MC-Unique: iSjPsrQSN3KmWJU6TDXAOA-1
+Received: by mail-wr1-f69.google.com with SMTP id v29-20020adfa1dd000000b0020ad932b7c0so1742664wrv.0
+        for <linux-s390@vger.kernel.org>; Tue, 26 Apr 2022 02:55:51 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=bKv/ULkJ/wp3hIqk7Hk8ciyskY/Ggu219LeUKhk8ymM=;
+        b=oUSUCLomR/EUzGKvuSpTPj+WF859QcsJISCy57CEF+poLe5ppu4WoEPwwFt5nd711B
+         JYfXQL68tG370zfl/GD+fel961MwOVLYjl8/sVBxsGqzSezgjVpyvm1m6Ea9TbuT8EDd
+         IAdFuWxnRRqi3lAdNOYWiit4bhq2nNHqTyLd2CZyyUmOT3stzOc11Ulfpfz7OZfiBm5O
+         T66vZK9xSvWauXu2w+tgf1Y6P1LOotn4AivFwXItM5eBxZgPUIJD8FPsRPgsg7BFI8lb
+         weGvbb0CC/V7VtdCqE7ZV7ENOSUj4RI9if1uJ8+E3r2hL1wX4mUlbQbY/Z1gA3xrv1YH
+         5ghw==
+X-Gm-Message-State: AOAM531X+YGAoNcGtBsqwlB2s56mWCmRq6PedVuaxCdkscNYavcizyur
+        QnZjATYJRdo2s5Ll5CJub0EEMdNfFF9RzNyqrQq6BMH2ohIu/nHoMR9s0KnM9DIlmP2+bfJayqx
+        p7lfnnbKy7g/M5PF333BqHg==
+X-Received: by 2002:a05:600c:3587:b0:393:ec32:d84e with SMTP id p7-20020a05600c358700b00393ec32d84emr7912278wmq.92.1650966950530;
+        Tue, 26 Apr 2022 02:55:50 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJz8XKSGFc+0NUl8DKUeaivozN8xsVuR8eLs8RZ1+VRkX8o21nZkof7/x4aaezYJYxtUVEyOAg==
+X-Received: by 2002:a05:600c:3587:b0:393:ec32:d84e with SMTP id p7-20020a05600c358700b00393ec32d84emr7912255wmq.92.1650966950289;
+        Tue, 26 Apr 2022 02:55:50 -0700 (PDT)
+Received: from redhat.com ([2.53.22.137])
+        by smtp.gmail.com with ESMTPSA id 204-20020a1c02d5000000b003928c42d02asm13036414wmc.23.2022.04.26.02.55.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 26 Apr 2022 02:55:49 -0700 (PDT)
+Date:   Tue, 26 Apr 2022 05:55:41 -0400
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc:     virtualization@lists.linux-foundation.org,
+        Jeff Dike <jdike@addtoit.com>,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        Vadim Pasternak <vadimp@nvidia.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        linux-um@lists.infradead.org, netdev@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, bpf@vger.kernel.org
+Subject: Re: [PATCH v9 00/32] virtio pci support VIRTIO_F_RING_RESET
+ (refactor vring)
+Message-ID: <20220426055423-mutt-send-email-mst@kernel.org>
+References: <20220406034346.74409-1-xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [kvm-unit-tests PATCH v4 5/5] s390x: uv-guest: Add attestation
- tests
-Content-Language: en-US
-To:     Janosch Frank <frankja@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20220421094527.32261-1-seiden@linux.ibm.com>
- <20220421094527.32261-6-seiden@linux.ibm.com>
- <ad44e7d2-6123-1981-b103-e5d9cc497c4c@linux.ibm.com>
-From:   Steffen Eiden <seiden@linux.ibm.com>
-Organization: IBM
-In-Reply-To: <ad44e7d2-6123-1981-b103-e5d9cc497c4c@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: a9VjrP3foWgrhkGx3B7WXempjrD4OCSm
-X-Proofpoint-GUID: ODjpAgKXXgVROmN2-DwfGf0-vh9bW1zs
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-04-26_02,2022-04-25_03,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- phishscore=0 mlxscore=0 spamscore=0 malwarescore=0 adultscore=0
- impostorscore=0 clxscore=1015 priorityscore=1501 bulkscore=0
- suspectscore=0 mlxlogscore=999 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2202240000 definitions=main-2204260062
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220406034346.74409-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+On Wed, Apr 06, 2022 at 11:43:14AM +0800, Xuan Zhuo wrote:
+> The virtio spec already supports the virtio queue reset function. This patch set
+> is to add this function to the kernel. The relevant virtio spec information is
+> here:
+> 
+>     https://github.com/oasis-tcs/virtio-spec/issues/124
+> 
+> Also regarding MMIO support for queue reset, I plan to support it after this
+> patch is passed.
 
-Hi Janosch,
+Regarding the spec, there's now an issue proposing
+some changes to the interface. What do you think about that
+proposal? Could you respond on that thread on the virtio TC mailing list?
 
-thanks for your review.
 
-On 4/26/22 11:22, Janosch Frank wrote:
-> On 4/21/22 11:45, Steffen Eiden wrote:
->> Adds several tests to verify correct error paths of attestation.
->>
->> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
->> ---
->>   lib/s390x/asm/uv.h |   5 +-
->>   s390x/Makefile     |   1 +
->>   s390x/pv-attest.c  | 225 +++++++++++++++++++++++++++++++++++++++++++++
->>   s390x/uv-guest.c   |  13 ++-
->>   4 files changed, 240 insertions(+), 4 deletions(-)
->>   create mode 100644 s390x/pv-attest.c
->>
->> diff --git a/lib/s390x/asm/uv.h b/lib/s390x/asm/uv.h
->> index 7c8c399d..38920461 100644
->> --- a/lib/s390x/asm/uv.h
->> +++ b/lib/s390x/asm/uv.h
->> @@ -108,7 +108,10 @@ struct uv_cb_qui {
->>       u8  reserved88[158 - 136];    /* 0x0088 */
->>       uint16_t max_guest_cpus;    /* 0x009e */
->>       u64 uv_feature_indications;    /* 0x00a0 */
->> -    u8  reserveda8[200 - 168];    /* 0x00a8 */
->> +    uint8_t  reserveda8[224 - 168];    /* 0x00a8 */
->> +    uint64_t supp_att_hdr_ver;    /* 0x00e0 */
->> +    uint64_t supp_paf;        /* 0x00e8 */
->> +    uint8_t  reservedf0[256 - 240];    /* 0x00f0 */
->>   }  __attribute__((packed))  __attribute__((aligned(8)));
->>   struct uv_cb_cgc {
->> diff --git a/s390x/Makefile b/s390x/Makefile
->> index 8ff84db5..5a49d1e7 100644
->> --- a/s390x/Makefile
->> +++ b/s390x/Makefile
->> @@ -29,6 +29,7 @@ tests += $(TEST_DIR)/mvpg-sie.elf
->>   tests += $(TEST_DIR)/spec_ex-sie.elf
->>   tests += $(TEST_DIR)/firq.elf
->>   tests += $(TEST_DIR)/epsw.elf
->> +tests += $(TEST_DIR)/pv-attest.elf
->>   pv-tests += $(TEST_DIR)/pv-diags.elf
->> diff --git a/s390x/pv-attest.c b/s390x/pv-attest.c
->> new file mode 100644
->> index 00000000..e31780a3
->> --- /dev/null
->> +++ b/s390x/pv-attest.c
->> @@ -0,0 +1,225 @@
-> [...]
->> +
->> +static void test_attest_v1(uint64_t page)
->> +{
->> +    struct uv_cb_attest uvcb = {
->> +        .header.cmd = UVC_CMD_ATTESTATION,
->> +        .header.len = sizeof(uvcb),
->> +    };
->> +    const struct uv_cb_qui *uvcb_qui = uv_get_query_data();
->> +    struct attest_request_v1 *attest_req = (void *)page;
->> +    struct uv_arcb_v1 *arcb = &attest_req->arcb;
->> +    int cc;
->> +
->> +    report_prefix_push("v1");
->> +    if (!test_bit_inv(0, &uvcb_qui->supp_att_hdr_ver)) {
->> +        report_skip("Attestation version 1 not supported");
->> +        goto done;
->> +    }
->> +
->> +    memset((void *)page, 0, PAGE_SIZE);
->> +
->> +    /*
->> +     * Create a minimal arcb/uvcb such that FW has everything to start
->> +     * unsealing the request. However, this unsealing will fail as the
->> +     * kvm-unit-test framework provides no cryptography functions that
->> +     * would be needed to seal such requests.
->> +     */
->> +    arcb->req_ver = ARCB_VERSION_1;
->> +    arcb->req_len = sizeof(*arcb);
->> +    arcb->nks = 1;
->> +    arcb->sea = sizeof(arcb->meas_key);
->> +    arcb->plaint_att_flags = PAF_PHKH_ATT;
->> +    arcb->meas_alg_id = ARCB_MEAS_HMAC_SHA512;
->> +    uvcb.arcb_addr = (uint64_t)&attest_req->arcb;
->> +    uvcb.measurement_address = (uint64_t)attest_req->measurement;
->> +    uvcb.measurement_length = sizeof(attest_req->measurement);
->> +    uvcb.add_data_address = (uint64_t)attest_req->additional;
->> +    uvcb.add_data_length = sizeof(attest_req->additional);
->> +
->> +    uvcb.continuation_token = 0xff;
->> +    cc = uv_call(0, (uint64_t)&uvcb);
->> +    report(cc == 1 && uvcb.header.rc == 0x0101, "invalid continuation 
->> token");
+> This patch set implements the refactoring of vring. Finally, the
+> virtuque_resize() interface is provided based on the reset function of the
+> transport layer.
 > 
-> Please don't add the 0 to the front of the rc values.
-OK
+> Test environment:
+>     Host: 4.19.91
+>     Qemu: QEMU emulator version 6.2.50 (with vq reset support)
+>     Test Cmd:  ethtool -G eth1 rx $1 tx $2; ethtool -g eth1
 > 
-> [...]
+>     The default is split mode, modify Qemu virtio-net to add PACKED feature to test
+>     packed mode.
 > 
->> @@ -111,8 +120,6 @@ static void test_sharing(void)
->>       cc = uv_call(0, (u64)&uvcb);
->>       report(cc == 0 && uvcb.header.rc == UVC_RC_EXECUTED, "unshare");
->>       report_prefix_pop();
->> -
->> -    report_prefix_pop();
+> Qemu code:
+>     https://github.com/fengidri/qemu/compare/89f3bfa3265554d1d591ee4d7f1197b6e3397e84...master
 > 
-> That's unrelated, no?
-Right, it is now unrelated. I forgot to remove that change for v4.
-  In the previous version this double pop would mess with the output as
-`test_sharing` was not the last test in that file
-(attestation test followed).
-I'll add another fix patch for this.
+> In order to simplify the review of this patch set, the function of reusing
+> the old buffers after resize will be introduced in subsequent patch sets.
+> 
+> Please review. Thanks.
+> 
+> v9:
+>   1. Provide a virtqueue_resize() interface directly
+>   2. A patch set including vring resize, virtio pci reset, virtio-net resize
+>   3. No more separate structs
+> 
+> v8:
+>   1. Provide a virtqueue_reset() interface directly
+>   2. Split the two patch sets, this is the first part
+>   3. Add independent allocation helper for allocating state, extra
+> 
+> v7:
+>   1. fix #6 subject typo
+>   2. fix #6 ring_size_in_bytes is uninitialized
+>   3. check by: make W=12
+> 
+> v6:
+>   1. virtio_pci: use synchronize_irq(irq) to sync the irq callbacks
+>   2. Introduce virtqueue_reset_vring() to implement the reset of vring during
+>      the reset process. May use the old vring if num of the vq not change.
+>   3. find_vqs() support sizes to special the max size of each vq
+> 
+> v5:
+>   1. add virtio-net support set_ringparam
+> 
+> v4:
+>   1. just the code of virtio, without virtio-net
+>   2. Performing reset on a queue is divided into these steps:
+>     1. reset_vq: reset one vq
+>     2. recycle the buffer from vq by virtqueue_detach_unused_buf()
+>     3. release the ring of the vq by vring_release_virtqueue()
+>     4. enable_reset_vq: re-enable the reset queue
+>   3. Simplify the parameters of enable_reset_vq()
+>   4. add container structures for virtio_pci_common_cfg
+> 
+> v3:
+>   1. keep vq, irq unreleased
+> 
+> Xuan Zhuo (32):
+>   virtio: add helper virtqueue_get_vring_max_size()
+>   virtio: struct virtio_config_ops add callbacks for queue_reset
+>   virtio_ring: update the document of the virtqueue_detach_unused_buf
+>     for queue reset
+>   virtio_ring: remove the arg vq of vring_alloc_desc_extra()
+>   virtio_ring: extract the logic of freeing vring
+>   virtio_ring: split: extract the logic of alloc queue
+>   virtio_ring: split: extract the logic of alloc state and extra
+>   virtio_ring: split: extract the logic of attach vring
+>   virtio_ring: split: extract the logic of vq init
+>   virtio_ring: split: introduce virtqueue_reinit_split()
+>   virtio_ring: split: introduce virtqueue_resize_split()
+>   virtio_ring: packed: extract the logic of alloc queue
+>   virtio_ring: packed: extract the logic of alloc state and extra
+>   virtio_ring: packed: extract the logic of attach vring
+>   virtio_ring: packed: extract the logic of vq init
+>   virtio_ring: packed: introduce virtqueue_reinit_packed()
+>   virtio_ring: packed: introduce virtqueue_resize_packed()
+>   virtio_ring: introduce virtqueue_resize()
+>   virtio_pci: struct virtio_pci_common_cfg add queue_notify_data
+>   virtio: queue_reset: add VIRTIO_F_RING_RESET
+>   virtio_pci: queue_reset: update struct virtio_pci_common_cfg and
+>     option functions
+>   virtio_pci: queue_reset: extract the logic of active vq for modern pci
+>   virtio_pci: queue_reset: support VIRTIO_F_RING_RESET
+>   virtio: find_vqs() add arg sizes
+>   virtio_pci: support the arg sizes of find_vqs()
+>   virtio_mmio: support the arg sizes of find_vqs()
+>   virtio: add helper virtio_find_vqs_ctx_size()
+>   virtio_net: set the default max ring size by find_vqs()
+>   virtio_net: get ringparam by virtqueue_get_vring_max_size()
+>   virtio_net: split free_unused_bufs()
+>   virtio_net: support rx/tx queue resize
+>   virtio_net: support set_ringparam
+> 
+>  arch/um/drivers/virtio_uml.c             |   3 +-
+>  drivers/net/virtio_net.c                 | 219 +++++++-
+>  drivers/platform/mellanox/mlxbf-tmfifo.c |   3 +
+>  drivers/remoteproc/remoteproc_virtio.c   |   3 +
+>  drivers/s390/virtio/virtio_ccw.c         |   4 +
+>  drivers/virtio/virtio_mmio.c             |  11 +-
+>  drivers/virtio/virtio_pci_common.c       |  28 +-
+>  drivers/virtio/virtio_pci_common.h       |   3 +-
+>  drivers/virtio/virtio_pci_legacy.c       |   8 +-
+>  drivers/virtio/virtio_pci_modern.c       | 149 +++++-
+>  drivers/virtio/virtio_pci_modern_dev.c   |  36 ++
+>  drivers/virtio/virtio_ring.c             | 626 ++++++++++++++++++-----
+>  drivers/virtio/virtio_vdpa.c             |   3 +
+>  include/linux/virtio.h                   |   6 +
+>  include/linux/virtio_config.h            |  38 +-
+>  include/linux/virtio_pci_modern.h        |   2 +
+>  include/uapi/linux/virtio_config.h       |   7 +-
+>  include/uapi/linux/virtio_pci.h          |  14 +
+>  18 files changed, 964 insertions(+), 199 deletions(-)
+> 
+> --
+> 2.31.0
 
-> 
->>   }
->>   static struct {
-> 
-
-Steffen
