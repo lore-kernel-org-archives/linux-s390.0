@@ -2,61 +2,61 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C5D7C433FE
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Apr 2022 20:09:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 041FEC4332F
+	for <linux-s390@archiver.kernel.org>; Tue, 26 Apr 2022 20:09:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354518AbiDZUMk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 26 Apr 2022 16:12:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54464 "EHLO
+        id S1354569AbiDZUM7 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 26 Apr 2022 16:12:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354520AbiDZUM2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Apr 2022 16:12:28 -0400
+        with ESMTP id S242820AbiDZUMo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Apr 2022 16:12:44 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 327E716E844;
-        Tue, 26 Apr 2022 13:09:15 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23QK4HSJ010910;
-        Tue, 26 Apr 2022 20:09:13 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE0121749C8;
+        Tue, 26 Apr 2022 13:09:30 -0700 (PDT)
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23QK4DX8001275;
+        Tue, 26 Apr 2022 20:09:29 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=SbYLO2GqlwwHbLUP+lhINJceTMUcJBWAqUSUVPmiqic=;
- b=RaxVoOI+IuhQYiI2KglNe0YifyCUo5j5f30iZk+04mepRrKwVCnKDhFd74Em9yZpIuyJ
- FtahcpF8m0d3FWKoFDBahuedQnKdcI0JaF7RG+9kTl7sbg5Fxu9PSyi83PAbhkZshRbq
- IB0Fh6wxFExmDKudGInwsbWjOYwjfLKmKoLcITUmMHTM0smXOBKeeY6iJA5eInNE0HZQ
- Rh2hD2uVsxVBMykFiTxH0VXv1HKLjgsa7jXgf/buf3GB8jQ/XuQpHl4gTo8DbapIqms/
- WiB3poCs2do1GlN6b+a8KsCtlUvjrHfSFgMqndpAZJKs0LCfbe3vAVMgZQ5GZkcNcSk3 qQ== 
+ bh=oPlTje8q8fTPLtgLYkPdM/Laz9L6Ss7hY8QHaPqnKXE=;
+ b=Ls/L4VYX/i/2KEGBMQsP4fqRdfVIu34KFVBkofGPahVtJ4pE+BHWiIxfsXIj5XJSwd/P
+ /b3WnpLNp3vPysI+QTbh2IC13A3DYgR9zu9S1tPhL5biGY4UmV8MBbKwxRlKYxziF6bv
+ Q641jYmtVqvgwQEU8OUwSw8IdJJXpdfomr54UgXlPYbVN9vdN+QrTg2d5kDG8Y7+uDuT
+ qnJQ/6NHTbb2CJAtdD9nUQUXX0xHWeJTAwf3n7v6O97stFO42wzaTSAZoXDiZw/JvEl+
+ Xdhslj88DM0ro9Xx08hjQZeYZ8G58cle076Rw0zVV6NOmpaqPBqshkG9zr3Q4TazKqoP 5Q== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fpj07ypwx-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fpmwyk4an-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Apr 2022 20:09:13 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 23QK7Fa0020282;
-        Tue, 26 Apr 2022 20:09:13 GMT
-Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fpj07ypwg-1
+        Tue, 26 Apr 2022 20:09:28 +0000
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 23QK4DJL001314;
+        Tue, 26 Apr 2022 20:09:28 GMT
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fpmwyk4a9-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Apr 2022 20:09:12 +0000
-Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
-        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23QK8aEV031491;
-        Tue, 26 Apr 2022 20:09:11 GMT
-Received: from b01cxnp22035.gho.pok.ibm.com (b01cxnp22035.gho.pok.ibm.com [9.57.198.25])
-        by ppma03wdc.us.ibm.com with ESMTP id 3fm939ffyd-1
+        Tue, 26 Apr 2022 20:09:28 +0000
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23QK8RUo009844;
+        Tue, 26 Apr 2022 20:09:27 GMT
+Received: from b01cxnp23034.gho.pok.ibm.com (b01cxnp23034.gho.pok.ibm.com [9.57.198.29])
+        by ppma03dal.us.ibm.com with ESMTP id 3fm939w9t4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Apr 2022 20:09:11 +0000
+        Tue, 26 Apr 2022 20:09:27 +0000
 Received: from b01ledav003.gho.pok.ibm.com (b01ledav003.gho.pok.ibm.com [9.57.199.108])
-        by b01cxnp22035.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23QK9A3025231660
+        by b01cxnp23034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23QK9QqL27853284
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 26 Apr 2022 20:09:10 GMT
+        Tue, 26 Apr 2022 20:09:26 GMT
 Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C6C4AB2068;
-        Tue, 26 Apr 2022 20:09:10 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 26479B2067;
+        Tue, 26 Apr 2022 20:09:26 +0000 (GMT)
 Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6EFAEB205F;
-        Tue, 26 Apr 2022 20:09:06 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id E30DAB205F;
+        Tue, 26 Apr 2022 20:09:21 +0000 (GMT)
 Received: from li-c92d2ccc-254b-11b2-a85c-a700b5bfb098.ibm.com.com (unknown [9.211.73.42])
         by b01ledav003.gho.pok.ibm.com (Postfix) with ESMTP;
-        Tue, 26 Apr 2022 20:09:06 +0000 (GMT)
+        Tue, 26 Apr 2022 20:09:21 +0000 (GMT)
 From:   Matthew Rosato <mjrosato@linux.ibm.com>
 To:     linux-s390@vger.kernel.org
 Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
@@ -69,64 +69,210 @@ Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
         pasic@linux.ibm.com, pbonzini@redhat.com, corbet@lwn.net,
         jgg@nvidia.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-doc@vger.kernel.org
-Subject: [PATCH v6 04/21] s390/sclp: detect the AISI facility
-Date:   Tue, 26 Apr 2022 16:08:25 -0400
-Message-Id: <20220426200842.98655-5-mjrosato@linux.ibm.com>
+Subject: [PATCH v6 07/21] s390/pci: externalize the SIC operation controls and routine
+Date:   Tue, 26 Apr 2022 16:08:28 -0400
+Message-Id: <20220426200842.98655-8-mjrosato@linux.ibm.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220426200842.98655-1-mjrosato@linux.ibm.com>
 References: <20220426200842.98655-1-mjrosato@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: cgnzGa6VQr9YAkEulaN-Iziwsfseo1Nd
-X-Proofpoint-ORIG-GUID: y6G6SFpMEJyNjyFbHtICBapURP7wMoaC
+X-Proofpoint-GUID: ULcGUoaliGZ6tV_LP33P2AtD46GFwXKM
+X-Proofpoint-ORIG-GUID: mS2-iBBOvA_lfghhfK3tCrnjv5pxhLxB
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-04-26_06,2022-04-26_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 clxscore=1015
- phishscore=0 lowpriorityscore=0 spamscore=0 impostorscore=0 malwarescore=0
- priorityscore=1501 mlxlogscore=775 adultscore=0 bulkscore=0 mlxscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2204260127
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 impostorscore=0
+ lowpriorityscore=0 mlxscore=0 suspectscore=0 priorityscore=1501
+ mlxlogscore=701 spamscore=0 malwarescore=0 clxscore=1015 adultscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2204260127
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Detect the Adapter Interruption Suppression Interpretation facility.
+A subsequent patch will be issuing SIC from KVM -- export the necessary
+routine and make the operation control definitions available from a header.
+Because the routine will now be exported, let's rename __zpci_set_irq_ctrl
+to zpci_set_irq_ctrl and get rid of the zero'd iib wrapper function of
+the same name.
 
-Reviewed-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
 Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
 Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
 ---
- arch/s390/include/asm/sclp.h   | 1 +
- drivers/s390/char/sclp_early.c | 1 +
- 2 files changed, 2 insertions(+)
+ arch/s390/include/asm/pci_insn.h | 17 +++++++++--------
+ arch/s390/pci/pci_insn.c         |  3 ++-
+ arch/s390/pci/pci_irq.c          | 26 ++++++++++++--------------
+ 3 files changed, 23 insertions(+), 23 deletions(-)
 
-diff --git a/arch/s390/include/asm/sclp.h b/arch/s390/include/asm/sclp.h
-index ff359df62154..bdd365407176 100644
---- a/arch/s390/include/asm/sclp.h
-+++ b/arch/s390/include/asm/sclp.h
-@@ -90,6 +90,7 @@ struct sclp_info {
- 	unsigned char has_zpci_lsi : 1;
- 	unsigned char has_aisii : 1;
- 	unsigned char has_aeni : 1;
-+	unsigned char has_aisi : 1;
- 	unsigned int ibc;
- 	unsigned int mtid;
- 	unsigned int mtid_cp;
-diff --git a/drivers/s390/char/sclp_early.c b/drivers/s390/char/sclp_early.c
-index e9af01b4c97a..c13e55cc4a5d 100644
---- a/drivers/s390/char/sclp_early.c
-+++ b/drivers/s390/char/sclp_early.c
-@@ -47,6 +47,7 @@ static void __init sclp_early_facilities_detect(void)
- 	sclp.has_kss = !!(sccb->fac98 & 0x01);
- 	sclp.has_aisii = !!(sccb->fac118 & 0x40);
- 	sclp.has_aeni = !!(sccb->fac118 & 0x20);
-+	sclp.has_aisi = !!(sccb->fac118 & 0x10);
- 	sclp.has_zpci_lsi = !!(sccb->fac118 & 0x01);
- 	if (sccb->fac85 & 0x02)
- 		S390_lowcore.machine_flags |= MACHINE_FLAG_ESOP;
+diff --git a/arch/s390/include/asm/pci_insn.h b/arch/s390/include/asm/pci_insn.h
+index 61cf9531f68f..5331082fa516 100644
+--- a/arch/s390/include/asm/pci_insn.h
++++ b/arch/s390/include/asm/pci_insn.h
+@@ -98,6 +98,14 @@ struct zpci_fib {
+ 	u32 gd;
+ } __packed __aligned(8);
+ 
++/* Set Interruption Controls Operation Controls  */
++#define	SIC_IRQ_MODE_ALL		0
++#define	SIC_IRQ_MODE_SINGLE		1
++#define	SIC_IRQ_MODE_DIRECT		4
++#define	SIC_IRQ_MODE_D_ALL		16
++#define	SIC_IRQ_MODE_D_SINGLE		17
++#define	SIC_IRQ_MODE_SET_CPU		18
++
+ /* directed interruption information block */
+ struct zpci_diib {
+ 	u32 : 1;
+@@ -134,13 +142,6 @@ int __zpci_store(u64 data, u64 req, u64 offset);
+ int zpci_store(const volatile void __iomem *addr, u64 data, unsigned long len);
+ int __zpci_store_block(const u64 *data, u64 req, u64 offset);
+ void zpci_barrier(void);
+-int __zpci_set_irq_ctrl(u16 ctl, u8 isc, union zpci_sic_iib *iib);
+-
+-static inline int zpci_set_irq_ctrl(u16 ctl, u8 isc)
+-{
+-	union zpci_sic_iib iib = {{0}};
+-
+-	return __zpci_set_irq_ctrl(ctl, isc, &iib);
+-}
++int zpci_set_irq_ctrl(u16 ctl, u8 isc, union zpci_sic_iib *iib);
+ 
+ #endif
+diff --git a/arch/s390/pci/pci_insn.c b/arch/s390/pci/pci_insn.c
+index 1710d006ee93..4c6967b73932 100644
+--- a/arch/s390/pci/pci_insn.c
++++ b/arch/s390/pci/pci_insn.c
+@@ -98,7 +98,7 @@ int zpci_refresh_trans(u64 fn, u64 addr, u64 range)
+ }
+ 
+ /* Set Interruption Controls */
+-int __zpci_set_irq_ctrl(u16 ctl, u8 isc, union zpci_sic_iib *iib)
++int zpci_set_irq_ctrl(u16 ctl, u8 isc, union zpci_sic_iib *iib)
+ {
+ 	if (!test_facility(72))
+ 		return -EIO;
+@@ -109,6 +109,7 @@ int __zpci_set_irq_ctrl(u16 ctl, u8 isc, union zpci_sic_iib *iib)
+ 
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(zpci_set_irq_ctrl);
+ 
+ /* PCI Load */
+ static inline int ____pcilg(u64 *data, u64 req, u64 offset, u8 *status)
+diff --git a/arch/s390/pci/pci_irq.c b/arch/s390/pci/pci_irq.c
+index 87c7d121c255..f2b3145b6697 100644
+--- a/arch/s390/pci/pci_irq.c
++++ b/arch/s390/pci/pci_irq.c
+@@ -15,13 +15,6 @@
+ 
+ static enum {FLOATING, DIRECTED} irq_delivery;
+ 
+-#define	SIC_IRQ_MODE_ALL		0
+-#define	SIC_IRQ_MODE_SINGLE		1
+-#define	SIC_IRQ_MODE_DIRECT		4
+-#define	SIC_IRQ_MODE_D_ALL		16
+-#define	SIC_IRQ_MODE_D_SINGLE		17
+-#define	SIC_IRQ_MODE_SET_CPU		18
+-
+ /*
+  * summary bit vector
+  * FLOATING - summary bit per function
+@@ -154,6 +147,7 @@ static struct irq_chip zpci_irq_chip = {
+ static void zpci_handle_cpu_local_irq(bool rescan)
+ {
+ 	struct airq_iv *dibv = zpci_ibv[smp_processor_id()];
++	union zpci_sic_iib iib = {{0}};
+ 	unsigned long bit;
+ 	int irqs_on = 0;
+ 
+@@ -165,7 +159,7 @@ static void zpci_handle_cpu_local_irq(bool rescan)
+ 				/* End of second scan with interrupts on. */
+ 				break;
+ 			/* First scan complete, reenable interrupts. */
+-			if (zpci_set_irq_ctrl(SIC_IRQ_MODE_D_SINGLE, PCI_ISC))
++			if (zpci_set_irq_ctrl(SIC_IRQ_MODE_D_SINGLE, PCI_ISC, &iib))
+ 				break;
+ 			bit = 0;
+ 			continue;
+@@ -193,6 +187,7 @@ static void zpci_handle_remote_irq(void *data)
+ static void zpci_handle_fallback_irq(void)
+ {
+ 	struct cpu_irq_data *cpu_data;
++	union zpci_sic_iib iib = {{0}};
+ 	unsigned long cpu;
+ 	int irqs_on = 0;
+ 
+@@ -203,7 +198,7 @@ static void zpci_handle_fallback_irq(void)
+ 				/* End of second scan with interrupts on. */
+ 				break;
+ 			/* First scan complete, reenable interrupts. */
+-			if (zpci_set_irq_ctrl(SIC_IRQ_MODE_SINGLE, PCI_ISC))
++			if (zpci_set_irq_ctrl(SIC_IRQ_MODE_SINGLE, PCI_ISC, &iib))
+ 				break;
+ 			cpu = 0;
+ 			continue;
+@@ -234,6 +229,7 @@ static void zpci_directed_irq_handler(struct airq_struct *airq,
+ static void zpci_floating_irq_handler(struct airq_struct *airq,
+ 				      struct tpi_info *tpi_info)
+ {
++	union zpci_sic_iib iib = {{0}};
+ 	unsigned long si, ai;
+ 	struct airq_iv *aibv;
+ 	int irqs_on = 0;
+@@ -247,7 +243,7 @@ static void zpci_floating_irq_handler(struct airq_struct *airq,
+ 				/* End of second scan with interrupts on. */
+ 				break;
+ 			/* First scan complete, reenable interrupts. */
+-			if (zpci_set_irq_ctrl(SIC_IRQ_MODE_SINGLE, PCI_ISC))
++			if (zpci_set_irq_ctrl(SIC_IRQ_MODE_SINGLE, PCI_ISC, &iib))
+ 				break;
+ 			si = 0;
+ 			continue;
+@@ -407,11 +403,12 @@ static struct airq_struct zpci_airq = {
+ static void __init cpu_enable_directed_irq(void *unused)
+ {
+ 	union zpci_sic_iib iib = {{0}};
++	union zpci_sic_iib ziib = {{0}};
+ 
+ 	iib.cdiib.dibv_addr = (u64) zpci_ibv[smp_processor_id()]->vector;
+ 
+-	__zpci_set_irq_ctrl(SIC_IRQ_MODE_SET_CPU, 0, &iib);
+-	zpci_set_irq_ctrl(SIC_IRQ_MODE_D_SINGLE, PCI_ISC);
++	zpci_set_irq_ctrl(SIC_IRQ_MODE_SET_CPU, 0, &iib);
++	zpci_set_irq_ctrl(SIC_IRQ_MODE_D_SINGLE, PCI_ISC, &ziib);
+ }
+ 
+ static int __init zpci_directed_irq_init(void)
+@@ -426,7 +423,7 @@ static int __init zpci_directed_irq_init(void)
+ 	iib.diib.isc = PCI_ISC;
+ 	iib.diib.nr_cpus = num_possible_cpus();
+ 	iib.diib.disb_addr = virt_to_phys(zpci_sbv->vector);
+-	__zpci_set_irq_ctrl(SIC_IRQ_MODE_DIRECT, 0, &iib);
++	zpci_set_irq_ctrl(SIC_IRQ_MODE_DIRECT, 0, &iib);
+ 
+ 	zpci_ibv = kcalloc(num_possible_cpus(), sizeof(*zpci_ibv),
+ 			   GFP_KERNEL);
+@@ -471,6 +468,7 @@ static int __init zpci_floating_irq_init(void)
+ 
+ int __init zpci_irq_init(void)
+ {
++	union zpci_sic_iib iib = {{0}};
+ 	int rc;
+ 
+ 	irq_delivery = sclp.has_dirq ? DIRECTED : FLOATING;
+@@ -502,7 +500,7 @@ int __init zpci_irq_init(void)
+ 	 * Enable floating IRQs (with suppression after one IRQ). When using
+ 	 * directed IRQs this enables the fallback path.
+ 	 */
+-	zpci_set_irq_ctrl(SIC_IRQ_MODE_SINGLE, PCI_ISC);
++	zpci_set_irq_ctrl(SIC_IRQ_MODE_SINGLE, PCI_ISC, &iib);
+ 
+ 	return 0;
+ out_airq:
 -- 
 2.27.0
 
