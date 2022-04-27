@@ -2,167 +2,215 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E6538C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 27 Apr 2022 15:26:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9DFC2C43219
+	for <linux-s390@archiver.kernel.org>; Wed, 27 Apr 2022 15:33:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239573AbiD0PaE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 27 Apr 2022 11:30:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39340 "EHLO
+        id S239764AbiD0Pg5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 27 Apr 2022 11:36:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239846AbiD0PaC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Apr 2022 11:30:02 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FCDA36AF07;
-        Wed, 27 Apr 2022 08:26:50 -0700 (PDT)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23RFDTwk029543;
-        Wed, 27 Apr 2022 15:26:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=r/3UuYYj8lO8LNwPx+iO0uhHHmy7sV/1IWHWhgrIb+g=;
- b=j1eISLJej7TVVPvyYib7O3eAR5TKVrNTi/l8XEUJkP+atwGe5nJAxphBf+tpZ6BLUDRb
- zo04XNDMX1ShJyMD4g1iELqmPFI/feKGau7JH1N06jiVz6pPAvo0k0PQBilEUDzTGWlu
- kBaTQK9wAqvhUPwpV2gQUgA88gkyKKR4igJU8mevFXBrZ1UAnl8jhWffeEJpmvnoBW+O
- gAOyrBScdI0f8ya4VYxMzR90iQaKYbdvKWZXkXg5a2hUQHnhhw47XkNnirGBmxId4szG
- /LLaAZWfU2+M5cj5xtEJIB9TSdoez93S1UcxDGL0PWSHlIXAd4xTgA7oa1s329rXBuRA cQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fq7w5gx31-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 27 Apr 2022 15:26:48 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 23RFDaU8030514;
-        Wed, 27 Apr 2022 15:26:47 GMT
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fq7w5gx2p-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 27 Apr 2022 15:26:47 +0000
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23RF8buU029492;
-        Wed, 27 Apr 2022 15:26:47 GMT
-Received: from b01cxnp22036.gho.pok.ibm.com (b01cxnp22036.gho.pok.ibm.com [9.57.198.26])
-        by ppma03dal.us.ibm.com with ESMTP id 3fm93a43ct-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 27 Apr 2022 15:26:46 +0000
-Received: from b01ledav006.gho.pok.ibm.com (b01ledav006.gho.pok.ibm.com [9.57.199.111])
-        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23RFQjMj7013312
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 27 Apr 2022 15:26:45 GMT
-Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CE390AC05F;
-        Wed, 27 Apr 2022 15:26:45 +0000 (GMT)
-Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 430B2AC059;
-        Wed, 27 Apr 2022 15:26:41 +0000 (GMT)
-Received: from [9.211.73.42] (unknown [9.211.73.42])
-        by b01ledav006.gho.pok.ibm.com (Postfix) with ESMTP;
-        Wed, 27 Apr 2022 15:26:41 +0000 (GMT)
-Message-ID: <1bca5de9-88aa-6abc-88b7-cbd2a11e5c85@linux.ibm.com>
-Date:   Wed, 27 Apr 2022 11:26:40 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Subject: Re: [PATCH v6 16/21] vfio-pci/zdev: add open/close device hooks
-Content-Language: en-US
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     linux-s390@vger.kernel.org, alex.williamson@redhat.com,
-        cohuck@redhat.com, schnelle@linux.ibm.com, farman@linux.ibm.com,
-        pmorel@linux.ibm.com, borntraeger@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, gerald.schaefer@linux.ibm.com,
-        agordeev@linux.ibm.com, svens@linux.ibm.com, frankja@linux.ibm.com,
-        david@redhat.com, imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
-        oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
-        pasic@linux.ibm.com, pbonzini@redhat.com, corbet@lwn.net,
-        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-doc@vger.kernel.org
-References: <20220426200842.98655-1-mjrosato@linux.ibm.com>
- <20220426200842.98655-17-mjrosato@linux.ibm.com>
- <20220427140410.GX2125828@nvidia.com>
- <f6c78792-9cf7-0cde-f760-76166f9b7eb7@linux.ibm.com>
- <20220427150138.GA2512703@nvidia.com>
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <20220427150138.GA2512703@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 1a0tWSpKHa4Hxx9OL5kRQS7-X1kND_AI
-X-Proofpoint-GUID: e_IrcGUWVhlThRpDryPgxUwfKy6CAsgR
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S239699AbiD0Pg4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Apr 2022 11:36:56 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFA7518E03;
+        Wed, 27 Apr 2022 08:33:41 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 606521F37B;
+        Wed, 27 Apr 2022 15:33:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1651073620; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=965VOzWPOSqiz/FVdHSc1d6WxEXfxy/o1f+Q37vGoEA=;
+        b=JkjXrQviRiBzCpZXWo6IO3biwOk7skXF+2ssuOF3BhgHz0RehOgTNPG1HeWdD5RWvoA9lq
+        e1HM3ao1d2T9SDhzGc6mTseotmYWi40y9Nc/PVuw23QecM4ufpDHuA2Vt14tgpEn4Ld53x
+        AO5SGbXkr/dGQ1mLMlH1m9MuDbOQeOw=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id A8CE513AED;
+        Wed, 27 Apr 2022 15:33:39 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id gM0HKFNiaWIRFwAAMHmgww
+        (envelope-from <jgross@suse.com>); Wed, 27 Apr 2022 15:33:39 +0000
+From:   Juergen Gross <jgross@suse.com>
+To:     linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+        x86@kernel.org, linux-s390@vger.kernel.org,
+        linux-hyperv@vger.kernel.org,
+        virtualization@lists.linux-foundation.org
+Cc:     Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        Oleksandr Tyshchenko <olekstysh@gmail.com>
+Subject: [PATCH v2 1/2] kernel: add platform_has() infrastructure
+Date:   Wed, 27 Apr 2022 17:33:35 +0200
+Message-Id: <20220427153336.11091-2-jgross@suse.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220427153336.11091-1-jgross@suse.com>
+References: <20220427153336.11091-1-jgross@suse.com>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-04-27_04,2022-04-27_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 mlxlogscore=999
- priorityscore=1501 bulkscore=0 clxscore=1015 lowpriorityscore=0
- malwarescore=0 phishscore=0 suspectscore=0 mlxscore=0 adultscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2204270096
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 4/27/22 11:01 AM, Jason Gunthorpe wrote:
-> On Wed, Apr 27, 2022 at 10:42:07AM -0400, Matthew Rosato wrote:
->> On 4/27/22 10:04 AM, Jason Gunthorpe wrote:
->>> On Tue, Apr 26, 2022 at 04:08:37PM -0400, Matthew Rosato wrote:
->>>
->>>> +static int vfio_pci_zdev_group_notifier(struct notifier_block *nb,
->>>> +					unsigned long action, void *data)
->>>> +{
->>>> +	struct zpci_dev *zdev = container_of(nb, struct zpci_dev, nb);
->>>> +	int (*fn)(struct zpci_dev *zdev, struct kvm *kvm);
->>>> +	int rc = NOTIFY_OK;
->>>> +
->>>> +	if (action == VFIO_GROUP_NOTIFY_SET_KVM) {
->>>> +		if (!zdev)
->>>> +			return NOTIFY_DONE;
->>>> +
->>>> +		fn = symbol_get(kvm_s390_pci_register_kvm);
->>>> +		if (!fn)
->>>> +			return NOTIFY_DONE;
->>>> +
->>>> +		if (fn(zdev, (struct kvm *)data))
->>>> +			rc = NOTIFY_BAD;
->>>> +
->>>> +		symbol_put(kvm_s390_pci_register_kvm);
->>>
->>> Is it possible this function can be in statically linked arch code?
->>>
->>> Or, actually, is zPCI useful anyhow without kvm ie can you just have a
->>> direct dependency here?
->>>
->>
->> zPCI devices (zpci_dev) exist regardless of whether kvm is configured or
->> not, and you can e.g. bind the associated PCI device to vfio-pci when KVM is
->> not configured (or module not loaded) and get the existing vfio-pci-zdev
->> extensions for that device (extra VFIO_DEVICE_INFO response data).  Making a
->> direct dependency on KVM would remove that; this was discussed in a prior
->> version because this extra info is not used today outside of a KVM usecase
->> are not specific to kvm that need vfio-pci-zdev).
-> 
-> I'm a bit confused, what is the drawback of just having a direct
-> symbol dependency here? It means vfio loads a little extra kernel
-> module code, but is that really a big worry given almost all vfio
-> users on s390 will be using it with kvm?
+Add a simple infrastructure for setting, resetting and querying
+platform feature flags.
 
-It's about trying to avoid loading unnecessary code (or at least giving 
-a way to turn it off).
+Flags can be either global or architecture specific.
 
-Previously I did something like....
+Signed-off-by: Juergen Gross <jgross@suse.com>
+---
+V2:
+- rename set/reset functions to platform_[set|clear]() (Boris Petkov,
+  Heiko Carstens)
+- move function implementations to c file (Boris Petkov)
+---
+ MAINTAINERS                            |  8 ++++++++
+ include/asm-generic/Kbuild             |  1 +
+ include/asm-generic/platform-feature.h |  8 ++++++++
+ include/linux/platform-feature.h       | 15 ++++++++++++++
+ kernel/Makefile                        |  2 +-
+ kernel/platform-feature.c              | 27 ++++++++++++++++++++++++++
+ 6 files changed, 60 insertions(+), 1 deletion(-)
+ create mode 100644 include/asm-generic/platform-feature.h
+ create mode 100644 include/linux/platform-feature.h
+ create mode 100644 kernel/platform-feature.c
 
-https://lore.kernel.org/kvm/20220204211536.321475-15-mjrosato@linux.ibm.com/
-
-And could do so again; as discussed in the thread there, I can use e.g. 
-CONFIG_VFIO_PCI_ZDEV_KVM and make vfio-pci-zdev depend on KVM in this 
-series.  You only get the vfio-pci-zdev extensions when you configure KVM.
-
-Then if we find a usecase for a vfio-pci-zdev extension without KVM 
-later, we can further split vfio-pci-zdev and go back to building 
-vfio-pci-zdev when CONFIG_S390 but only build the kvm pieces (like the 
-code above) when you specify CONFIG_VFIO_PCI_ZDEV_KVM.  This would 
-eliminate this symbol_get.  Sound OK?
-
-> 
-> Or is there some technical blocker? (circular dep or something?)
-> 
-> Jason
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 5e8c2f611766..eb943f089eda 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -15650,6 +15650,14 @@ S:	Maintained
+ F:	Documentation/devicetree/bindings/iio/chemical/plantower,pms7003.yaml
+ F:	drivers/iio/chemical/pms7003.c
+ 
++PLATFORM FEATURE INFRASTRUCTURE
++M:	Juergen Gross <jgross@suse.com>
++S:	Maintained
++F:	arch/*/include/asm/platform-feature.h
++F:	include/asm-generic/platform-feature.h
++F:	include/linux/platform-feature.h
++F:	kernel/platform-feature.c
++
+ PLDMFW LIBRARY
+ M:	Jacob Keller <jacob.e.keller@intel.com>
+ S:	Maintained
+diff --git a/include/asm-generic/Kbuild b/include/asm-generic/Kbuild
+index 302506bbc2a4..8e47d483b524 100644
+--- a/include/asm-generic/Kbuild
++++ b/include/asm-generic/Kbuild
+@@ -44,6 +44,7 @@ mandatory-y += msi.h
+ mandatory-y += pci.h
+ mandatory-y += percpu.h
+ mandatory-y += pgalloc.h
++mandatory-y += platform-feature.h
+ mandatory-y += preempt.h
+ mandatory-y += rwonce.h
+ mandatory-y += sections.h
+diff --git a/include/asm-generic/platform-feature.h b/include/asm-generic/platform-feature.h
+new file mode 100644
+index 000000000000..4b0af3d51588
+--- /dev/null
++++ b/include/asm-generic/platform-feature.h
+@@ -0,0 +1,8 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _ASM_GENERIC_PLATFORM_FEATURE_H
++#define _ASM_GENERIC_PLATFORM_FEATURE_H
++
++/* Number of arch specific feature flags. */
++#define PLATFORM_ARCH_FEAT_N	0
++
++#endif /* _ASM_GENERIC_PLATFORM_FEATURE_H */
+diff --git a/include/linux/platform-feature.h b/include/linux/platform-feature.h
+new file mode 100644
+index 000000000000..6ed859928b97
+--- /dev/null
++++ b/include/linux/platform-feature.h
+@@ -0,0 +1,15 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _PLATFORM_FEATURE_H
++#define _PLATFORM_FEATURE_H
++
++#include <linux/bitops.h>
++#include <asm/platform-feature.h>
++
++/* The platform features are starting with the architecture specific ones. */
++#define PLATFORM_FEAT_N				(0 + PLATFORM_ARCH_FEAT_N)
++
++void platform_set(unsigned int feature);
++void platform_clear(unsigned int feature);
++bool platform_has(unsigned int feature);
++
++#endif /* _PLATFORM_FEATURE_H */
+diff --git a/kernel/Makefile b/kernel/Makefile
+index 847a82bfe0e3..2f412f80110d 100644
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -7,7 +7,7 @@ obj-y     = fork.o exec_domain.o panic.o \
+ 	    cpu.o exit.o softirq.o resource.o \
+ 	    sysctl.o capability.o ptrace.o user.o \
+ 	    signal.o sys.o umh.o workqueue.o pid.o task_work.o \
+-	    extable.o params.o \
++	    extable.o params.o platform-feature.o \
+ 	    kthread.o sys_ni.o nsproxy.o \
+ 	    notifier.o ksysfs.o cred.o reboot.o \
+ 	    async.o range.o smpboot.o ucount.o regset.o
+diff --git a/kernel/platform-feature.c b/kernel/platform-feature.c
+new file mode 100644
+index 000000000000..cb6a6c3e4fed
+--- /dev/null
++++ b/kernel/platform-feature.c
+@@ -0,0 +1,27 @@
++// SPDX-License-Identifier: GPL-2.0
++
++#include <linux/bitops.h>
++#include <linux/cache.h>
++#include <linux/export.h>
++#include <linux/platform-feature.h>
++
++#define PLATFORM_FEAT_ARRAY_SZ  BITS_TO_LONGS(PLATFORM_FEAT_N)
++static unsigned long __read_mostly platform_features[PLATFORM_FEAT_ARRAY_SZ];
++
++void platform_set(unsigned int feature)
++{
++	set_bit(feature, platform_features);
++}
++EXPORT_SYMBOL_GPL(platform_set);
++
++void platform_clear(unsigned int feature)
++{
++	clear_bit(feature, platform_features);
++}
++EXPORT_SYMBOL_GPL(platform_clear);
++
++bool platform_has(unsigned int feature)
++{
++	return test_bit(feature, platform_features);
++}
++EXPORT_SYMBOL_GPL(platform_has);
+-- 
+2.34.1
 
