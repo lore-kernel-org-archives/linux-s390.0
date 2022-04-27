@@ -2,34 +2,34 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D8F99C433FE
-	for <linux-s390@archiver.kernel.org>; Wed, 27 Apr 2022 22:55:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9376FC43219
+	for <linux-s390@archiver.kernel.org>; Wed, 27 Apr 2022 22:55:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238846AbiD0W6Y (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 27 Apr 2022 18:58:24 -0400
+        id S238153AbiD0W6k (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 27 Apr 2022 18:58:40 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239159AbiD0W5t (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Apr 2022 18:57:49 -0400
+        with ESMTP id S238160AbiD0W5b (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Apr 2022 18:57:31 -0400
 Received: from fanzine2.igalia.com (fanzine.igalia.com [178.60.130.6])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B6558CCFB;
-        Wed, 27 Apr 2022 15:53:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54CFAB3C6F;
+        Wed, 27 Apr 2022 15:52:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
         s=20170329; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
         Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
         Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
         :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
         List-Post:List-Owner:List-Archive;
-        bh=mOzFWStqo1l1SFAwioSEW9cov+DtDc5WSMbZaYL5OFk=; b=jORyziNh7Mp7CJnb2ldBvIVUYT
-        miqK/KwxTCDE0PrnGOVoO5V4xtjW+TEXZOKHxzyxZAzEuCslLE//gxMpeQbei+ydr8zg3pnWZUWxE
-        L40pn68w+NUbAHLuqvLt2UI0hgcbpQZODu83KlzMI8qRKWoyX30oYob/b9pQLrf+6HFREi99ePbwb
-        zW4TblodvYrIgJCYkkWUlwk3Cl/V3uSBOUWLD/GIZmkaB62kyu6wuslAaH0LxO2Qqyrw8rvwJQSXp
-        vohmbyikfHUVSRBgOx4Bv9HUeJbAvmB/X4rw1kDURxjWp8eCgUztnLBZm1GN+7lilt+TPvGD7Gymp
-        FQwd7uqA==;
+        bh=bCeC+folLkdyk3b6apumHxcRwMBwOys8pMRPpqSclew=; b=TqPRVvgSfmMVR610uLcwg2vC34
+        pLIumny6UC9NAVKrJeC8kjbMxl/tivBCI9wjj++xXokR3qbvfCHXTOfrOaZezN2wYfsTeWwS7JgiC
+        ST58COWgOj0NVLj/RM40gpf1tYeZ+3Akn0o3OOB9wnVZqXRK498bYXNcV51purgIjJ73eodK18ucj
+        +Iyv87VDCsJruNsaOWJAaGmlYU1Av1XSojv9QPvuFZsys/hw7VJ6aN2N3d0SlURJabJe1PgCqptXF
+        Xo2aIypAELGn+aiNCAnoOIj6PgcxN1C5aslHAtr3OG/wMakbb0/ORKtlMkkFaGzr7X86jahmQbl4p
+        VjCzjD3g==;
 Received: from [179.113.53.197] (helo=localhost)
         by fanzine2.igalia.com with esmtpsa 
         (Cipher TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
-        id 1njqXD-0002EK-E5; Thu, 28 Apr 2022 00:53:24 +0200
+        id 1njqWU-0002B5-Ub; Thu, 28 Apr 2022 00:52:40 +0200
 From:   "Guilherme G. Piccoli" <gpiccoli@igalia.com>
 To:     akpm@linux-foundation.org, bhe@redhat.com, pmladek@suse.com,
         kexec@lists.infradead.org
@@ -57,10 +57,12 @@ Cc:     linux-kernel@vger.kernel.org,
         paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
         senozhatsky@chromium.org, stern@rowland.harvard.edu,
         tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
-        will@kernel.org
-Subject: [PATCH 14/30] panic: Properly identify the panic event to the notifiers' callbacks
-Date:   Wed, 27 Apr 2022 19:49:08 -0300
-Message-Id: <20220427224924.592546-15-gpiccoli@igalia.com>
+        will@kernel.org, Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 11/30] um: Improve panic notifiers consistency and ordering
+Date:   Wed, 27 Apr 2022 19:49:05 -0300
+Message-Id: <20220427224924.592546-12-gpiccoli@igalia.com>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220427224924.592546-1-gpiccoli@igalia.com>
 References: <20220427224924.592546-1-gpiccoli@igalia.com>
@@ -70,47 +72,79 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The notifiers infrastructure provides a way to pass an "id" to the
-callbacks to determine what kind of event happened, i.e., what is
-the reason behind they getting called.
+Currently the panic notifiers from user mode linux don't follow
+the convention for most of the other notifiers present in the
+kernel (indentation, priority setting, numeric return).
+More important, the priorities could be improved, since it's a
+special case (userspace), hence we could run the notifiers earlier;
+user mode linux shouldn't care much with other panic notifiers but
+the ordering among the mconsole and arch notifier is important,
+given that the arch one effectively triggers a core dump.
 
-The panic notifier currently pass 0, but this is soon to be
-used in a multi-targeted notifier, so let's pass a meaningful
-"id" over there.
+This patch fixes that by running the mconsole notifier as the first
+panic notifier, followed by the architecture one (that coredumps).
+Also, we remove a useless header inclusion.
 
+Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Cc: Johannes Berg <johannes@sipsolutions.net>
+Cc: Richard Weinberger <richard@nod.at>
 Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
 ---
- include/linux/panic_notifier.h | 5 +++++
- kernel/panic.c                 | 2 +-
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ arch/um/drivers/mconsole_kern.c | 8 +++-----
+ arch/um/kernel/um_arch.c        | 8 ++++----
+ 2 files changed, 7 insertions(+), 9 deletions(-)
 
-diff --git a/include/linux/panic_notifier.h b/include/linux/panic_notifier.h
-index 41e32483d7a7..07dced83a783 100644
---- a/include/linux/panic_notifier.h
-+++ b/include/linux/panic_notifier.h
-@@ -9,4 +9,9 @@ extern struct atomic_notifier_head panic_notifier_list;
+diff --git a/arch/um/drivers/mconsole_kern.c b/arch/um/drivers/mconsole_kern.c
+index 8ca67a692683..2ea0421bcc3f 100644
+--- a/arch/um/drivers/mconsole_kern.c
++++ b/arch/um/drivers/mconsole_kern.c
+@@ -11,7 +11,6 @@
+ #include <linux/list.h>
+ #include <linux/mm.h>
+ #include <linux/module.h>
+-#include <linux/notifier.h>
+ #include <linux/panic_notifier.h>
+ #include <linux/reboot.h>
+ #include <linux/sched/debug.h>
+@@ -846,13 +845,12 @@ static int notify_panic(struct notifier_block *self, unsigned long unused1,
  
- extern bool crash_kexec_post_notifiers;
+ 	mconsole_notify(notify_socket, MCONSOLE_PANIC, message,
+ 			strlen(message) + 1);
+-	return 0;
++	return NOTIFY_DONE;
+ }
  
-+enum panic_notifier_val {
-+	PANIC_UNUSED,
-+	PANIC_NOTIFIER = 0xDEAD,
-+};
+ static struct notifier_block panic_exit_notifier = {
+-	.notifier_call 		= notify_panic,
+-	.next 			= NULL,
+-	.priority 		= 1
++	.notifier_call	= notify_panic,
++	.priority	= INT_MAX, /* run as soon as possible */
+ };
+ 
+ static int add_notifier(void)
+diff --git a/arch/um/kernel/um_arch.c b/arch/um/kernel/um_arch.c
+index 0760e24f2eba..4485b1a7c8e4 100644
+--- a/arch/um/kernel/um_arch.c
++++ b/arch/um/kernel/um_arch.c
+@@ -246,13 +246,13 @@ static int panic_exit(struct notifier_block *self, unsigned long unused1,
+ 	bust_spinlocks(0);
+ 	uml_exitcode = 1;
+ 	os_dump_core();
+-	return 0;
 +
- #endif	/* _LINUX_PANIC_NOTIFIERS_H */
-diff --git a/kernel/panic.c b/kernel/panic.c
-index eb4dfb932c85..523bc9ccd0e9 100644
---- a/kernel/panic.c
-+++ b/kernel/panic.c
-@@ -287,7 +287,7 @@ void panic(const char *fmt, ...)
- 	 * Run any panic handlers, including those that might need to
- 	 * add information to the kmsg dump output.
- 	 */
--	atomic_notifier_call_chain(&panic_notifier_list, 0, buf);
-+	atomic_notifier_call_chain(&panic_notifier_list, PANIC_NOTIFIER, buf);
++	return NOTIFY_DONE;
+ }
  
- 	panic_print_sys_info(false);
+ static struct notifier_block panic_exit_notifier = {
+-	.notifier_call 		= panic_exit,
+-	.next 			= NULL,
+-	.priority 		= 0
++	.notifier_call	= panic_exit,
++	.priority	= INT_MAX - 1, /* run as 2nd notifier, won't return */
+ };
  
+ void uml_finishsetup(void)
 -- 
 2.36.0
 
