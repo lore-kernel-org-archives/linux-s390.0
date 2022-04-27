@@ -2,34 +2,34 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C0A47C35294
-	for <linux-s390@archiver.kernel.org>; Wed, 27 Apr 2022 22:54:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69107C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 27 Apr 2022 22:54:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229777AbiD0W5w (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 27 Apr 2022 18:57:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41392 "EHLO
+        id S239538AbiD0W6C (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 27 Apr 2022 18:58:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235419AbiD0W53 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Apr 2022 18:57:29 -0400
+        with ESMTP id S238092AbiD0W5j (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Apr 2022 18:57:39 -0400
 Received: from fanzine2.igalia.com (fanzine.igalia.com [178.60.130.6])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7779B3C57;
-        Wed, 27 Apr 2022 15:52:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63AD1B3DF1;
+        Wed, 27 Apr 2022 15:53:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
         s=20170329; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
         Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
         Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
         :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
         List-Post:List-Owner:List-Archive;
-        bh=BexKVXcxuZt34azQ5Muv1vJV6tgwpIcW3JsMthwMxfs=; b=BRT/sKLpYXau/Ji4ZqRLBh2wLe
-        Ez82oN0tPhCaeccxvStT4dM/VXWT0UOTgVT7srxju4FTp1lIxHZgITVU09FPE0hwYIbUj79K3InFF
-        c3u/lCG1AZZtsXeU+SEcK9u0pYYem+Sajrhv7s+jR5UPYROYW2E4rHsCktC7o7MuiSwumDe0KTw8O
-        uv2vnGx/4l5xRolhC4zk2RH1ShfOhYp0567tBrYlkHX5Tuh9PS21K9iN1pNYOoy8D+KSBJrTAnUOx
-        BdTF6VrcFln7xzJle98w0XT7WzPU38wHtKJVV73Cz5eypbAomXnD5JiFGfsNH5tWiuiFJ1HH5bqlk
-        bHcrf8AQ==;
+        bh=Kr032SD5vU+3986AqF/gyJuhFfnr0rncUaszbIKwr2Y=; b=fBwyO/j+yxT2AymE7SizsCmDjX
+        1r+REb2uiNLyOmmbv6Nh9J6FxLhB1bfvTpTjG3mgSTFTL8dz34enGcBQdaqLpKSF+I5gGd/nAJUMJ
+        jfyQZXSy1JqEja03OmP72YQEOLiC8m3Lw1UsxeNTdyoogn1QFWiKLBkCPwl7A/i8ZlFDdHuwQzMA1
+        jTKSmHNDM3VElo6fZPijCzvlYComyxyp1IGRSiaeBrih1Typo5NHSl5Gp5sEACObYkVVo4g3YPBCY
+        BcFTyK5zLHDJeUb/agfenHI/ZzcT83HZfKlj9EnBYJpw9rKnDjMmdBRtHu3w1BfvP2PQydzd7nH74
+        efngoTDg==;
 Received: from [179.113.53.197] (helo=localhost)
         by fanzine2.igalia.com with esmtpsa 
         (Cipher TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
-        id 1njqWG-00029R-Tx; Thu, 28 Apr 2022 00:52:25 +0200
+        id 1njqWj-0002CA-PR; Thu, 28 Apr 2022 00:52:54 +0200
 From:   "Guilherme G. Piccoli" <gpiccoli@igalia.com>
 To:     akpm@linux-foundation.org, bhe@redhat.com, pmladek@suse.com,
         kexec@lists.infradead.org
@@ -57,12 +57,11 @@ Cc:     linux-kernel@vger.kernel.org,
         paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
         senozhatsky@chromium.org, stern@rowland.harvard.edu,
         tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
-        will@kernel.org, Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>,
-        Richard Henderson <rth@twiddle.net>
-Subject: [PATCH 10/30] alpha: Clean-up the panic notifier code
-Date:   Wed, 27 Apr 2022 19:49:04 -0300
-Message-Id: <20220427224924.592546-11-gpiccoli@igalia.com>
+        will@kernel.org, Helge Deller <deller@gmx.de>,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+Subject: [PATCH 12/30] parisc: Replace regular spinlock with spin_trylock on panic path
+Date:   Wed, 27 Apr 2022 19:49:06 -0300
+Message-Id: <20220427224924.592546-13-gpiccoli@igalia.com>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220427224924.592546-1-gpiccoli@igalia.com>
 References: <20220427224924.592546-1-gpiccoli@igalia.com>
@@ -72,90 +71,135 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The alpha panic notifier has some code issues, not following
-the conventions of other notifiers. Also, it might halt the
-machine but still it is set to run as early as possible, which
-doesn't seem to be a good idea.
+The panic notifiers' callbacks execute in an atomic context, with
+interrupts/preemption disabled, and all CPUs not running the panic
+function are off, so it's very dangerous to wait on a regular
+spinlock, there's a risk of deadlock.
 
-This patch cleans the code, and set the notifier to run as the
-latest, following the same approach other architectures are doing.
-Also, we remove the unnecessary include of a header already
-included indirectly.
+This patch refactors the panic notifier of parisc/power driver
+to make use of spin_trylock - for that, we've added a second
+version of the soft-power function. Also, some comments were
+reorganized and trailing white spaces, useless header inclusion
+and blank lines were removed.
 
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Matt Turner <mattst88@gmail.com>
-Cc: Richard Henderson <rth@twiddle.net>
+Cc: Helge Deller <deller@gmx.de>
+Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
 Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
 ---
- arch/alpha/kernel/setup.c | 36 +++++++++++++++---------------------
- 1 file changed, 15 insertions(+), 21 deletions(-)
+ arch/parisc/include/asm/pdc.h |  1 +
+ arch/parisc/kernel/firmware.c | 27 +++++++++++++++++++++++----
+ drivers/parisc/power.c        | 17 ++++++++++-------
+ 3 files changed, 34 insertions(+), 11 deletions(-)
 
-diff --git a/arch/alpha/kernel/setup.c b/arch/alpha/kernel/setup.c
-index b4fbbba30aa2..d88bdf852753 100644
---- a/arch/alpha/kernel/setup.c
-+++ b/arch/alpha/kernel/setup.c
-@@ -41,19 +41,11 @@
- #include <linux/sysrq.h>
- #include <linux/reboot.h>
- #endif
--#include <linux/notifier.h>
- #include <asm/setup.h>
- #include <asm/io.h>
- #include <linux/log2.h>
- #include <linux/export.h>
+diff --git a/arch/parisc/include/asm/pdc.h b/arch/parisc/include/asm/pdc.h
+index b643092d4b98..7a106008e258 100644
+--- a/arch/parisc/include/asm/pdc.h
++++ b/arch/parisc/include/asm/pdc.h
+@@ -83,6 +83,7 @@ int pdc_do_firm_test_reset(unsigned long ftc_bitmap);
+ int pdc_do_reset(void);
+ int pdc_soft_power_info(unsigned long *power_reg);
+ int pdc_soft_power_button(int sw_control);
++int pdc_soft_power_button_panic(int sw_control);
+ void pdc_io_reset(void);
+ void pdc_io_reset_devices(void);
+ int pdc_iodc_getc(void);
+diff --git a/arch/parisc/kernel/firmware.c b/arch/parisc/kernel/firmware.c
+index 6a7e315bcc2e..0e2f70b592f4 100644
+--- a/arch/parisc/kernel/firmware.c
++++ b/arch/parisc/kernel/firmware.c
+@@ -1232,15 +1232,18 @@ int __init pdc_soft_power_info(unsigned long *power_reg)
+ }
  
--static int alpha_panic_event(struct notifier_block *, unsigned long, void *);
--static struct notifier_block alpha_panic_block = {
--	alpha_panic_event,
--        NULL,
--        INT_MAX /* try to do it first */
--};
--
- #include <linux/uaccess.h>
- #include <asm/hwrpb.h>
- #include <asm/dma.h>
-@@ -435,6 +427,21 @@ static const struct sysrq_key_op srm_sysrq_reboot_op = {
- };
- #endif
+ /*
+- * pdc_soft_power_button - Control the soft power button behaviour
+- * @sw_control: 0 for hardware control, 1 for software control 
++ * pdc_soft_power_button{_panic} - Control the soft power button behaviour
++ * @sw_control: 0 for hardware control, 1 for software control
+  *
+  *
+  * This PDC function places the soft power button under software or
+  * hardware control.
+- * Under software control the OS may control to when to allow to shut 
+- * down the system. Under hardware control pressing the power button 
++ * Under software control the OS may control to when to allow to shut
++ * down the system. Under hardware control pressing the power button
+  * powers off the system immediately.
++ *
++ * The _panic version relies in spin_trylock to prevent deadlock
++ * on panic path.
+  */
+ int pdc_soft_power_button(int sw_control)
+ {
+@@ -1254,6 +1257,22 @@ int pdc_soft_power_button(int sw_control)
+ 	return retval;
+ }
  
-+static int alpha_panic_event(struct notifier_block *this,
-+			     unsigned long event, void *ptr)
++int pdc_soft_power_button_panic(int sw_control)
 +{
-+	/* If we are using SRM and serial console, just hard halt here. */
-+	if (alpha_using_srm && srmcons_output)
-+		__halt();
++	int retval;
++	unsigned long flags;
 +
-+	return NOTIFY_DONE;
++	if (!spin_trylock_irqsave(&pdc_lock, flags)) {
++		pr_emerg("Couldn't enable soft power button\n");
++		return -EBUSY; /* ignored by the panic notifier */
++	}
++
++	retval = mem_pdc_call(PDC_SOFT_POWER, PDC_SOFT_POWER_ENABLE, __pa(pdc_result), sw_control);
++	spin_unlock_irqrestore(&pdc_lock, flags);
++
++	return retval;
 +}
 +
-+static struct notifier_block alpha_panic_block = {
-+	.notifier_call = alpha_panic_event,
-+	.priority = INT_MIN, /* may not return, do it last */
-+};
-+
- void __init
- setup_arch(char **cmdline_p)
+ /*
+  * pdc_io_reset - Hack to avoid overlapping range registers of Bridges devices.
+  * Primarily a problem on T600 (which parisc-linux doesn't support) but
+diff --git a/drivers/parisc/power.c b/drivers/parisc/power.c
+index 456776bd8ee6..8512884de2cf 100644
+--- a/drivers/parisc/power.c
++++ b/drivers/parisc/power.c
+@@ -37,7 +37,6 @@
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/kernel.h>
+-#include <linux/notifier.h>
+ #include <linux/panic_notifier.h>
+ #include <linux/reboot.h>
+ #include <linux/sched/signal.h>
+@@ -175,16 +174,21 @@ static void powerfail_interrupt(int code, void *x)
+ 
+ 
+ 
+-/* parisc_panic_event() is called by the panic handler.
+- * As soon as a panic occurs, our tasklets above will not be
+- * executed any longer. This function then re-enables the 
+- * soft-power switch and allows the user to switch off the system
++/*
++ * parisc_panic_event() is called by the panic handler.
++ *
++ * As soon as a panic occurs, our tasklets above will not
++ * be executed any longer. This function then re-enables
++ * the soft-power switch and allows the user to switch off
++ * the system. We rely in pdc_soft_power_button_panic()
++ * since this version spin_trylocks (instead of regular
++ * spinlock), preventing deadlocks on panic path.
+  */
+ static int parisc_panic_event(struct notifier_block *this,
+ 		unsigned long event, void *ptr)
  {
-@@ -1427,19 +1434,6 @@ const struct seq_operations cpuinfo_op = {
- 	.show	= show_cpuinfo,
+ 	/* re-enable the soft-power switch */
+-	pdc_soft_power_button(0);
++	pdc_soft_power_button_panic(0);
+ 	return NOTIFY_DONE;
+ }
+ 
+@@ -193,7 +197,6 @@ static struct notifier_block parisc_panic_block = {
+ 	.priority	= INT_MAX,
  };
  
 -
--static int
--alpha_panic_event(struct notifier_block *this, unsigned long event, void *ptr)
--{
--#if 1
--	/* FIXME FIXME FIXME */
--	/* If we are using SRM and serial console, just hard halt here. */
--	if (alpha_using_srm && srmcons_output)
--		__halt();
--#endif
--        return NOTIFY_DONE;
--}
--
- static __init int add_pcspkr(void)
+ static int __init power_init(void)
  {
- 	struct platform_device *pd;
+ 	unsigned long ret;
 -- 
 2.36.0
 
