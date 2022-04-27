@@ -2,133 +2,216 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DD4CBC43217
-	for <linux-s390@archiver.kernel.org>; Tue, 26 Apr 2022 20:12:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D259C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 27 Apr 2022 06:21:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354729AbiDZUPn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 26 Apr 2022 16:15:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57952 "EHLO
+        id S1351970AbiD0GYJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 27 Apr 2022 02:24:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354629AbiDZUNs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 Apr 2022 16:13:48 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50EB2E0C0;
-        Tue, 26 Apr 2022 13:10:24 -0700 (PDT)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23QK4BXn030844;
-        Tue, 26 Apr 2022 20:10:22 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=UGBMSjGfC9dSyO6eMZUocM1nnHDrQ4/LX2/0T0AWPqg=;
- b=m+xq39ImMnyMgA5gs3dM5OsWiiawweESY8QzTmZoCvxUfnXoY6gt2Y3sDhBoZdZBRKAy
- 8dQmT2wmm+gph8BDkLxfa1ZecJMBjgxcZHjEnzo+aGt8coZe7EqipOmyynrjXVXqA6rP
- fyBtV6drmbHCmo2P9pQ2eyFVauJFra3Znagt5hHDB46sA54vxoFsIgLFVjIIIOw3Lrn5
- iqDXCHONAAECVlqByP8sjrTlK7J5Jqk0fs+pgOTM0EQdLAWOQae78JcVr1IKyxYkMaYs
- V+J3QhkNHtIPQ6IVrpkfsH5ow3tKZyZbt9mw14mfZeAVLg5aPOFq/KhKJT0wliEupPn/ 5w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fpp0s9qg6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Apr 2022 20:10:21 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 23QK5J7Q004964;
-        Tue, 26 Apr 2022 20:10:21 GMT
-Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fpp0s9qfn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Apr 2022 20:10:21 +0000
-Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
-        by ppma05wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23QK6lsM020085;
-        Tue, 26 Apr 2022 20:10:19 GMT
-Received: from b01cxnp23033.gho.pok.ibm.com (b01cxnp23033.gho.pok.ibm.com [9.57.198.28])
-        by ppma05wdc.us.ibm.com with ESMTP id 3fm939fga5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 26 Apr 2022 20:10:19 +0000
-Received: from b01ledav003.gho.pok.ibm.com (b01ledav003.gho.pok.ibm.com [9.57.199.108])
-        by b01cxnp23033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23QKAJlQ13304268
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 26 Apr 2022 20:10:19 GMT
-Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 291FAB2068;
-        Tue, 26 Apr 2022 20:10:19 +0000 (GMT)
-Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 869A9B206A;
-        Tue, 26 Apr 2022 20:10:15 +0000 (GMT)
-Received: from li-c92d2ccc-254b-11b2-a85c-a700b5bfb098.ibm.com.com (unknown [9.211.73.42])
-        by b01ledav003.gho.pok.ibm.com (Postfix) with ESMTP;
-        Tue, 26 Apr 2022 20:10:15 +0000 (GMT)
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-To:     linux-s390@vger.kernel.org
-Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
-        schnelle@linux.ibm.com, farman@linux.ibm.com, pmorel@linux.ibm.com,
-        borntraeger@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
-        imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
-        oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
-        pasic@linux.ibm.com, pbonzini@redhat.com, corbet@lwn.net,
-        jgg@nvidia.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-doc@vger.kernel.org
-Subject: [PATCH v6 20/21] KVM: s390: introduce CPU feature for zPCI Interpretation
-Date:   Tue, 26 Apr 2022 16:08:41 -0400
-Message-Id: <20220426200842.98655-21-mjrosato@linux.ibm.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20220426200842.98655-1-mjrosato@linux.ibm.com>
-References: <20220426200842.98655-1-mjrosato@linux.ibm.com>
+        with ESMTP id S229813AbiD0GYI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Apr 2022 02:24:08 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02CFF7091E;
+        Tue, 26 Apr 2022 23:20:58 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 0F32A210EB;
+        Wed, 27 Apr 2022 06:20:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1651040456; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=tRo34n/wFbXNNEGrJxuKAKttKtLy++EbrN/0sbLAuLU=;
+        b=D+p83EMNol8Q5YflmfSLqYlSL6m+x+BioBiax6DtLYHppB6Bu50y31riJJBbu4NG3T+7Ku
+        8ktYbnnmCt5gnjnvbl5SE3bzZtmlNsUgJaMzREI5C3beFpLiWOmhiosZpX7lrqN8oqYd3G
+        IcinBTrMxrnYcuYp7ma664kok8/MuvU=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 4BC1F1323E;
+        Wed, 27 Apr 2022 06:20:55 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id Fc8iEcfgaGLnDAAAMHmgww
+        (envelope-from <jgross@suse.com>); Wed, 27 Apr 2022 06:20:55 +0000
+Message-ID: <f7dca1db-8e4f-a793-231b-a69423451463@suse.com>
+Date:   Wed, 27 Apr 2022 08:20:54 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: QWFUvnPDKFMNpN0PRB7cV8KyUB2QNqlr
-X-Proofpoint-ORIG-GUID: UFVyjYM_CZ50xG55b5Cpb5Pj1Fw5Gy7n
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-04-26_06,2022-04-26_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
- mlxlogscore=904 priorityscore=1501 lowpriorityscore=0 malwarescore=0
- phishscore=0 spamscore=0 adultscore=0 impostorscore=0 bulkscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2204260127
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Content-Language: en-US
+To:     Borislav Petkov <bp@alien8.de>
+Cc:     linux-kernel@vger.kernel.org, x86@kernel.org,
+        linux-arch@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-hyperv@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        Arnd Bergmann <arnd@arndb.de>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        Oleksandr Tyshchenko <olekstysh@gmail.com>
+References: <20220426134021.11210-1-jgross@suse.com>
+ <20220426134021.11210-2-jgross@suse.com> <YmgsYvWQchxub8cW@zn.tnic>
+From:   Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH 1/2] kernel: add platform_has() infrastructure
+In-Reply-To: <YmgsYvWQchxub8cW@zn.tnic>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------GT0cvmmMNAIgVAEXsN8EMHj0"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-KVM_S390_VM_CPU_FEAT_ZPCI_INTERP relays whether zPCI interpretive
-execution is possible based on the available hardware facilities.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------GT0cvmmMNAIgVAEXsN8EMHj0
+Content-Type: multipart/mixed; boundary="------------N0WDsQdFlRa8hwn0BEJ0uY0Y";
+ protected-headers="v1"
+From: Juergen Gross <jgross@suse.com>
+To: Borislav Petkov <bp@alien8.de>
+Cc: linux-kernel@vger.kernel.org, x86@kernel.org, linux-arch@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-hyperv@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, Arnd Bergmann <arnd@arndb.de>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>,
+ Ingo Molnar <mingo@redhat.com>, Dave Hansen <dave.hansen@linux.intel.com>,
+ "H. Peter Anvin" <hpa@zytor.com>, "K. Y. Srinivasan" <kys@microsoft.com>,
+ Haiyang Zhang <haiyangz@microsoft.com>,
+ Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
+ Dexuan Cui <decui@microsoft.com>, Andy Lutomirski <luto@kernel.org>,
+ Peter Zijlstra <peterz@infradead.org>, "Michael S. Tsirkin"
+ <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Christoph Hellwig <hch@infradead.org>,
+ Oleksandr Tyshchenko <olekstysh@gmail.com>
+Message-ID: <f7dca1db-8e4f-a793-231b-a69423451463@suse.com>
+Subject: Re: [PATCH 1/2] kernel: add platform_has() infrastructure
+References: <20220426134021.11210-1-jgross@suse.com>
+ <20220426134021.11210-2-jgross@suse.com> <YmgsYvWQchxub8cW@zn.tnic>
+In-Reply-To: <YmgsYvWQchxub8cW@zn.tnic>
 
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
-Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
----
- arch/s390/include/uapi/asm/kvm.h | 1 +
- arch/s390/kvm/kvm-s390.c         | 4 ++++
- 2 files changed, 5 insertions(+)
+--------------N0WDsQdFlRa8hwn0BEJ0uY0Y
+Content-Type: multipart/mixed; boundary="------------0m0IZeiwI66kdGOBcI9J7h2H"
 
-diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
-index 7a6b14874d65..ed06458a871f 100644
---- a/arch/s390/include/uapi/asm/kvm.h
-+++ b/arch/s390/include/uapi/asm/kvm.h
-@@ -130,6 +130,7 @@ struct kvm_s390_vm_cpu_machine {
- #define KVM_S390_VM_CPU_FEAT_PFMFI	11
- #define KVM_S390_VM_CPU_FEAT_SIGPIF	12
- #define KVM_S390_VM_CPU_FEAT_KSS	13
-+#define KVM_S390_VM_CPU_FEAT_ZPCI_INTERP 14
- struct kvm_s390_vm_cpu_feat {
- 	__u64 feat[16];
- };
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 69e435b06425..32b1c5d3d46b 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -433,6 +433,10 @@ static void kvm_s390_cpu_feat_init(void)
- 	if (test_facility(151)) /* DFLTCC */
- 		__insn32_query(INSN_DFLTCC, kvm_s390_available_subfunc.dfltcc);
- 
-+	/* zPCI Interpretation */
-+	if (kvm_s390_pci_interp_allowed())
-+		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_ZPCI_INTERP);
-+
- 	if (MACHINE_HAS_ESOP)
- 		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_ESOP);
- 	/*
--- 
-2.27.0
+--------------0m0IZeiwI66kdGOBcI9J7h2H
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
+T24gMjYuMDQuMjIgMTk6MzEsIEJvcmlzbGF2IFBldGtvdiB3cm90ZToNCj4gT24gVHVlLCBB
+cHIgMjYsIDIwMjIgYXQgMDM6NDA6MjBQTSArMDIwMCwgSnVlcmdlbiBHcm9zcyB3cm90ZToN
+Cj4+IGRpZmYgLS1naXQgYS9rZXJuZWwvcGxhdGZvcm0tZmVhdHVyZS5jIGIva2VybmVsL3Bs
+YXRmb3JtLWZlYXR1cmUuYw0KPj4gbmV3IGZpbGUgbW9kZSAxMDA2NDQNCj4+IGluZGV4IDAw
+MDAwMDAwMDAwMC4uMmQ1MmY4NDQyY2Q1DQo+PiAtLS0gL2Rldi9udWxsDQo+PiArKysgYi9r
+ZXJuZWwvcGxhdGZvcm0tZmVhdHVyZS5jDQo+PiBAQCAtMCwwICsxLDcgQEANCj4+ICsvLyBT
+UERYLUxpY2Vuc2UtSWRlbnRpZmllcjogR1BMLTIuMA0KPj4gKw0KPj4gKyNpbmNsdWRlIDxs
+aW51eC9jYWNoZS5oPg0KPj4gKyNpbmNsdWRlIDxsaW51eC9wbGF0Zm9ybS1mZWF0dXJlLmg+
+DQo+PiArDQo+PiArdW5zaWduZWQgbG9uZyBfX3JlYWRfbW9zdGx5IHBsYXRmb3JtX2ZlYXR1
+cmVzW1BMQVRGT1JNX0ZFQVRfQVJSQVlfU1pdOw0KPiANCj4gUHJvYmFibHkgX19yb19hZnRl
+cl9pbml0Lg0KDQpZZXMsIGdvb2QgaWRlYS4NCg0KPiANCj4+ICtFWFBPUlRfU1lNQk9MX0dQ
+TChwbGF0Zm9ybV9mZWF0dXJlcyk7DQo+IA0KPiBZb3UgcHJvYmFibHkgc2hvdWxkIG1ha2Ug
+dGhhdCB0aGluZyBzdGF0aWMgYW5kIHVzZSBvbmx5IGFjY2Vzc29ycyB0bw0KPiBtb2RpZnkg
+aXQgaW4gY2FzZSB5b3Ugd2FubmEgY2hhbmdlIHRoZSB1bmRlcmx5aW5nIGRhdGEgc3RydWN0
+dXJlIGluIHRoZQ0KPiBmdXR1cmUuDQoNClRoZSBxdWVzdGlvbiBpcyB3aGV0aGVyIHdlIHRo
+aW5rIHRoYXQgdGhvc2UgcGxhdGZvcm0gZmVhdHVyZXMgd2lsbCBiZSB1c2VkDQppbiBob3Qg
+cGF0aHMgb3Igbm90LiBJZiBzbyB0aGUgaW5saW5lIGFjY2Vzc29ycyAoYXQgbGVhc3QgdGhl
+IHBsYXRmb3JtX2hhcygpDQpvbmUpIHdvdWxkIGJlIHByZWZlcnJlZCBJTU8uDQoNCk9UT0gg
+cmVhbGx5IHBlcmZvcm1hbmNlIGNyaXRpY2FsIGNhc2VzIGNvdWxkIHVzZSBzdGF0aWNfYnJh
+bmNoIG9yIHN1Y2guDQoNCg0KSnVlcmdlbg0K
+--------------0m0IZeiwI66kdGOBcI9J7h2H
+Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: quoted-printable
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+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
+jR/i1DG86lem3iBDXzXsZDn8R38=3D
+=3D2wuH
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------0m0IZeiwI66kdGOBcI9J7h2H--
+
+--------------N0WDsQdFlRa8hwn0BEJ0uY0Y--
+
+--------------GT0cvmmMNAIgVAEXsN8EMHj0
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmJo4MYFAwAAAAAACgkQsN6d1ii/Ey86
+5gf+MT9EGStrBqHSYrnfMZLB74QV1EFSCMN8zW3eR1cgrrxb5+yzw2QbB2/V3B/KkXIpWpWcBiPH
++3G1SmlrvpRmCXWGieytw1Yh+HF/fC+eC9czBpya+VpPunC+LoWZewWC14DQbWb6nPulSysvSpeN
+sJMFD6P0oQkwTa+cioNJ8Hb508wUbsb/NElzu5kCvy2hpsKB8YS6iSCpjfNyZ0P0vJ0HPeVlx4Pj
+IQM30i/ZkREDEGBFbep9IDbwOf1X1n23UaLXi6yjk9zIbuCjaakWPdS0vTNsn1UX21/U9+fEhqBp
+6slDwitOQpEQ+hgMeWWpVEyWXOqM44sw6bmGuX9ogQ==
+=UkqB
+-----END PGP SIGNATURE-----
+
+--------------GT0cvmmMNAIgVAEXsN8EMHj0--
