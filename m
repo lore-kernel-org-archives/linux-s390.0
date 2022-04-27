@@ -2,47 +2,68 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 308F6C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 27 Apr 2022 15:14:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6538C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 27 Apr 2022 15:26:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239353AbiD0PRQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 27 Apr 2022 11:17:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40234 "EHLO
+        id S239573AbiD0PaE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 27 Apr 2022 11:30:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239300AbiD0PRP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Apr 2022 11:17:15 -0400
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2071.outbound.protection.outlook.com [40.107.92.71])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32A66381A2;
-        Wed, 27 Apr 2022 08:14:03 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=jROTHk3exkjwbgqOpCAVjSyFKwS+VBaqXcG9nFLtVkuLgVCNXkD+CDh/YpJTFs6BDnQs6Wq0pqn9b7ITtTtuqxXluyekQBCpMTd7NaTQkK5B8GQbn/4suyFt0ZNPdUy53EAKVjRFarq0XxOPo1l9eJpmSE9pKoZs3r6ou+d8lkrBSYjIAROKO31E9yoiKMDD6kpfIDBJ3/Jc7TbHMRQ8iWCD7qWIMjfgVqUa3WiTLOJH/5FlY/xAbdMPODvHGkXI8vo2lAniRf1ABZk5qrRaEuBVEjmKxoxKjzjRgp9Y28zmX8hrfumU0mtdjcnrfhnh1Wn4Tn8LFmhZLdVPuMUo2w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=S+wayqI8cT3E9XrzUjIeXL7SQy9Yx4IGRtqU8ZF+DPU=;
- b=ieNcLi15sT4XdCMgZOh9+V35XgkJH5Rwbf+sH36/yfIe67pxim0NwdyjRX0fiNpnDNbLbv7hD7Zhxy95YF7G1fnjpw6c7zVWPE0xync9VeVKyq2knxuuMJOYMfpFXXV2cIj/v67tT8Vd6jnU+fPXmL9fHMA/lMrSgBbEiigXi6Um5USrUSlQ8Gdaz0d4P8cMWMoi0M6gLdfb33EyS+rylxA5b+QXIgkqMv8MOYHjPkHp9H1b8e+FAAZBlHqtnP1iZPPOfSpf2NQ0w8cpjxWYTYiosV48tu6YH/CEj8RDM6eyv6lLatHHAkg0yoL7FtDTWi+Lsvzo75yLORTA4l0KYw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=S+wayqI8cT3E9XrzUjIeXL7SQy9Yx4IGRtqU8ZF+DPU=;
- b=n6gvV3RhsahodS+sD8ZiSt+UmDX5NUl6Ty1V3jkFf9f+59AuR50YWsxCSXSYy733dBC/Y8Fj7V1j5WT7bFR3oDzHLjxKpOF2ARHQEeQ6rpLfAy+pCIPOcVMDoQDoHgX2Tr4B1alZK2N5AolQA0Z3aVtG8xFtQ3abpW4Q1u56gHaKhRqrZy5U71s7Lx8JjQfIMFdUOVn2iO1ULeAymFEF2uINx+ypUIWMxc096/DZb677Hob/V0hjVMA6h6hZCLH+dQ8L5VXwfBDz1xqLlFO5guE+2Q0B+9WysRXfZEjeEUkhicJujeAyyfKy1YrU3kLXBpbgrj/1zWNtkPBiMxmdjQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
- by BL1PR12MB5077.namprd12.prod.outlook.com (2603:10b6:208:310::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5186.14; Wed, 27 Apr
- 2022 15:14:01 +0000
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::ec2d:9167:1b47:2db2]) by MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::ec2d:9167:1b47:2db2%6]) with mapi id 15.20.5186.021; Wed, 27 Apr 2022
- 15:14:01 +0000
-Date:   Wed, 27 Apr 2022 12:14:00 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>
+        with ESMTP id S239846AbiD0PaC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Apr 2022 11:30:02 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FCDA36AF07;
+        Wed, 27 Apr 2022 08:26:50 -0700 (PDT)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23RFDTwk029543;
+        Wed, 27 Apr 2022 15:26:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=r/3UuYYj8lO8LNwPx+iO0uhHHmy7sV/1IWHWhgrIb+g=;
+ b=j1eISLJej7TVVPvyYib7O3eAR5TKVrNTi/l8XEUJkP+atwGe5nJAxphBf+tpZ6BLUDRb
+ zo04XNDMX1ShJyMD4g1iELqmPFI/feKGau7JH1N06jiVz6pPAvo0k0PQBilEUDzTGWlu
+ kBaTQK9wAqvhUPwpV2gQUgA88gkyKKR4igJU8mevFXBrZ1UAnl8jhWffeEJpmvnoBW+O
+ gAOyrBScdI0f8ya4VYxMzR90iQaKYbdvKWZXkXg5a2hUQHnhhw47XkNnirGBmxId4szG
+ /LLaAZWfU2+M5cj5xtEJIB9TSdoez93S1UcxDGL0PWSHlIXAd4xTgA7oa1s329rXBuRA cQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fq7w5gx31-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 27 Apr 2022 15:26:48 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 23RFDaU8030514;
+        Wed, 27 Apr 2022 15:26:47 GMT
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fq7w5gx2p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 27 Apr 2022 15:26:47 +0000
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23RF8buU029492;
+        Wed, 27 Apr 2022 15:26:47 GMT
+Received: from b01cxnp22036.gho.pok.ibm.com (b01cxnp22036.gho.pok.ibm.com [9.57.198.26])
+        by ppma03dal.us.ibm.com with ESMTP id 3fm93a43ct-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 27 Apr 2022 15:26:46 +0000
+Received: from b01ledav006.gho.pok.ibm.com (b01ledav006.gho.pok.ibm.com [9.57.199.111])
+        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23RFQjMj7013312
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 27 Apr 2022 15:26:45 GMT
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CE390AC05F;
+        Wed, 27 Apr 2022 15:26:45 +0000 (GMT)
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 430B2AC059;
+        Wed, 27 Apr 2022 15:26:41 +0000 (GMT)
+Received: from [9.211.73.42] (unknown [9.211.73.42])
+        by b01ledav006.gho.pok.ibm.com (Postfix) with ESMTP;
+        Wed, 27 Apr 2022 15:26:41 +0000 (GMT)
+Message-ID: <1bca5de9-88aa-6abc-88b7-cbd2a11e5c85@linux.ibm.com>
+Date:   Wed, 27 Apr 2022 11:26:40 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Subject: Re: [PATCH v6 16/21] vfio-pci/zdev: add open/close device hooks
+Content-Language: en-US
+To:     Jason Gunthorpe <jgg@nvidia.com>
 Cc:     linux-s390@vger.kernel.org, alex.williamson@redhat.com,
         cohuck@redhat.com, schnelle@linux.ibm.com, farman@linux.ibm.com,
         pmorel@linux.ibm.com, borntraeger@linux.ibm.com, hca@linux.ibm.com,
@@ -53,132 +74,95 @@ Cc:     linux-s390@vger.kernel.org, alex.williamson@redhat.com,
         pasic@linux.ibm.com, pbonzini@redhat.com, corbet@lwn.net,
         kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-doc@vger.kernel.org
-Subject: Re: [PATCH v6 15/21] KVM: s390: pci: add routines to start/stop
- interpretive execution
-Message-ID: <20220427151400.GY2125828@nvidia.com>
 References: <20220426200842.98655-1-mjrosato@linux.ibm.com>
- <20220426200842.98655-16-mjrosato@linux.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220426200842.98655-16-mjrosato@linux.ibm.com>
-X-ClientProxiedBy: MN2PR06CA0025.namprd06.prod.outlook.com
- (2603:10b6:208:23d::30) To MN2PR12MB4192.namprd12.prod.outlook.com
- (2603:10b6:208:1d5::15)
+ <20220426200842.98655-17-mjrosato@linux.ibm.com>
+ <20220427140410.GX2125828@nvidia.com>
+ <f6c78792-9cf7-0cde-f760-76166f9b7eb7@linux.ibm.com>
+ <20220427150138.GA2512703@nvidia.com>
+From:   Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <20220427150138.GA2512703@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 1a0tWSpKHa4Hxx9OL5kRQS7-X1kND_AI
+X-Proofpoint-GUID: e_IrcGUWVhlThRpDryPgxUwfKy6CAsgR
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: a3afe478-331a-47fd-d379-08da28608f5e
-X-MS-TrafficTypeDiagnostic: BL1PR12MB5077:EE_
-X-Microsoft-Antispam-PRVS: <BL1PR12MB507738D027B6DDA60781CC84C2FA9@BL1PR12MB5077.namprd12.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: FM5ZB/w1INyfcQvZtocQXkn1n3oDaH3A0+84z/UGbD7JYHOKbWs6M4zGopRSrRn6OYURRrYnhH6q8uOp84YlVZEL0RmJMoHEoEBv5PI0afeid832+bmKLjq7Yfwws9aZsbXMZsK1N7Gs1lj7o/Gzo8HKmrDjatvuVedDEFnV4XTK3JB1cTq2/NiwI0Eg0KXKES7qjAPs6GyNFyAdpW8DKfR6bjUDM3Ox8BO93+VjMhjzwlzhMmUp2j30hB1FQxkadFOQCiRTEBsvlDsaV2yM98P8PrwnYH5o2nIVlCwtMPyUoQf+8SkMQxcrLMWQEU4lmidL78MBhU7ayi8Vuv65oLowZCASqXPx68Dss1WGuXM7sMTsaU4fhSp3KCco4hUE25qMXOcHcdEBoRDQF1jeod3Hn27VC1moRVn19tVQGC0Cwj41jRhowhqWUXUYJjEaFF4mRVxCQzDqd3MzzQ9x1SnLbGtTC+Q/QfoQK+j9nwH4nkt/AERPePjZvW1HZlazTtlWX31892Y4RT7/KDA2kw2mMkeG4DP6CqZtxIMx4prZ882FOkiMCLxP4fs0nX5NFSUVHd73JFLgQDy5VvXwSoaxXONxMzaMh8iVlzD5xiB0LLAAErGa8GgrCdv+LG4maSG4Vnd+huiRKKvOG3GdJQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(7416002)(8676002)(5660300002)(2906002)(508600001)(4326008)(6486002)(66476007)(2616005)(186003)(83380400001)(1076003)(38100700002)(8936002)(6506007)(86362001)(26005)(66946007)(33656002)(6916009)(66556008)(36756003)(316002)(6512007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?HY1yu7bEu5xdA6izINQN5+R0jgiJXFDb0l4iS2/LB4QHAvyGtp8GC8pm4XXI?=
- =?us-ascii?Q?MLEGgetHk7QKVTOj+zSSl1fIowiQuDMIWNfj0bvwYdae97ItRAOsdpVyNjXA?=
- =?us-ascii?Q?Mhxfmctcb5iBqEBTxhnp72F1Ntd04G7umGbqBiXmpx0AR0gMA6KDLZqwRhBw?=
- =?us-ascii?Q?L8ipCUHmcfFuD5gf5HDeGXwkiQy+21qqvE9XqyIDFJ7O0ziySUeV/tzOspGG?=
- =?us-ascii?Q?v/W2ak1EgLAZQr6zkODnqXqh9vSiLENrELR/N23GfAT86wRNKOI040IaDkZ9?=
- =?us-ascii?Q?8cvgA6OLQNSs8lbplo7NwWADxdUTGg5WDjNvPUzXpvMd9ZgxNl9jyo4frSWz?=
- =?us-ascii?Q?e6BKFtHw7HfDq73b9Bl7QM3pAX96RkqhRh+wOsPV21BqDHZPMIEjZOfzhcJ9?=
- =?us-ascii?Q?unJqGXswlMFWqKzlTf1Ix1V2I5gS4Te7RtGkGJMKyH2qIZMWTDvqBoumVcFf?=
- =?us-ascii?Q?ure3WsGr8JwuTCnAP0DRbJ7vZjVt6+tZXQOOhgPcBGswQGypFFDSxL9FhAVg?=
- =?us-ascii?Q?5EbmSZ/2EY1nZo7gFCZqrhDsRiqCg74w3NtHTjnQvWqKGAYICRpwAmh3Oodv?=
- =?us-ascii?Q?TDcRf36R7m/nsE+DhwlocSF/f3LhFbp4w1iw955wOUqYSM6PVKXXzoVJ+UOW?=
- =?us-ascii?Q?RSpvcGyd+fLHBNe9nK7Gb+DfmVyl7cNSAUT4gK+7YIGti5CjaPMEKksFD7O4?=
- =?us-ascii?Q?6bY48E5o4uIduZR19hl6n1uIALf1YRfM51tA1+RAWuqGVKI2ItY5+cAcKALs?=
- =?us-ascii?Q?0dQ/lhomShoIMElKDA4KfAK3vq+Jn0CQvEOz1pUqSchU2zdhNPhGHH9Ekiwr?=
- =?us-ascii?Q?LEE4dvh0yD1O+vvANXQLfYLS80Cv2Oz2dxakwOLen9WqrO9sanCvWhRqPpnz?=
- =?us-ascii?Q?msUC7PR1IJXpNMLYoIjuoun3ZbltiTnIWd7Jrm7C9LkfOP6whqHk27xhAMey?=
- =?us-ascii?Q?bG6azAcMRtJe1T4T4U/5ZlKiPCVsQUkXCrP8BkVAl8ZEWj4RjubwQsKBgE9p?=
- =?us-ascii?Q?2qGXN2DeMKx5lSoRJ/Rqc6suTs27v1MC8HWzTs5tSLhZNsoPybCUtLS8r6gx?=
- =?us-ascii?Q?IBZWjxXIEB2/mNL2N36EGWKGNv327a+2UG0QtlpjKxkPOpfvdAVz2HDqrkBA?=
- =?us-ascii?Q?WQsWWfgRyZIp26QDAQeKC8yf4omZ86HhuYagwt4SxaemjyzS3ikWuilB2ZJF?=
- =?us-ascii?Q?5Fn5V10Woz//RkxxnTE+jHMOXF32serh665SVAaXl5jV9kfDimC9if2+D0wm?=
- =?us-ascii?Q?WWJtFeD+WnlYrLPxWTF/S8vEQ64TTpvhHMqvxciACTAnRAxSFgctvYXwSpPT?=
- =?us-ascii?Q?hq8HBaPn+NVKJw3d9B1X8aLgZUVfuffCugr8pIrg2rmiOTT4PxX9RtEsaYxO?=
- =?us-ascii?Q?AD5Md2gkr0dKGDfwgyJciPfyjUGbvdNZ6a/QxGfPWvw1rUiQkOiUSjcNVP17?=
- =?us-ascii?Q?KzLAxZyJXRCXdE4V6cU5cld/eyRhFfTUzyfMLl6h3x4cLcsixMHw/1pYItzG?=
- =?us-ascii?Q?ZE0FXSL5jd374saFv94tTM+h6qhoAdtUGV6m/D8SI39ceEblV1zL3lmTgDQO?=
- =?us-ascii?Q?UysXNAzG+yaR77SjNDRG2LjWP6ygT8+edaXAwW6Gwelzy6lxK5kv2ULrGoPh?=
- =?us-ascii?Q?cMjKfhVU5jBibpY/Fqe2MmYfmuXjAO5qw4u5BOYECG2vHPU1JVyesCHWm65Y?=
- =?us-ascii?Q?5lKKH1dpNrCE0+TA4uab75JSN8HxLyRa3AXtJlvPcWaytyyvK003M9ET+9Hj?=
- =?us-ascii?Q?4FL7NJTlcw=3D=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: a3afe478-331a-47fd-d379-08da28608f5e
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 Apr 2022 15:14:01.6017
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: WkObWjOcs8sXpi6DnpO8wz5RAs2cQWT+f9do+/boBCDMKi3Cxz7qmjMjBv6MtCS/
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5077
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-04-27_04,2022-04-27_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 mlxlogscore=999
+ priorityscore=1501 bulkscore=0 clxscore=1015 lowpriorityscore=0
+ malwarescore=0 phishscore=0 suspectscore=0 mlxscore=0 adultscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2204270096
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, Apr 26, 2022 at 04:08:36PM -0400, Matthew Rosato wrote:
+On 4/27/22 11:01 AM, Jason Gunthorpe wrote:
+> On Wed, Apr 27, 2022 at 10:42:07AM -0400, Matthew Rosato wrote:
+>> On 4/27/22 10:04 AM, Jason Gunthorpe wrote:
+>>> On Tue, Apr 26, 2022 at 04:08:37PM -0400, Matthew Rosato wrote:
+>>>
+>>>> +static int vfio_pci_zdev_group_notifier(struct notifier_block *nb,
+>>>> +					unsigned long action, void *data)
+>>>> +{
+>>>> +	struct zpci_dev *zdev = container_of(nb, struct zpci_dev, nb);
+>>>> +	int (*fn)(struct zpci_dev *zdev, struct kvm *kvm);
+>>>> +	int rc = NOTIFY_OK;
+>>>> +
+>>>> +	if (action == VFIO_GROUP_NOTIFY_SET_KVM) {
+>>>> +		if (!zdev)
+>>>> +			return NOTIFY_DONE;
+>>>> +
+>>>> +		fn = symbol_get(kvm_s390_pci_register_kvm);
+>>>> +		if (!fn)
+>>>> +			return NOTIFY_DONE;
+>>>> +
+>>>> +		if (fn(zdev, (struct kvm *)data))
+>>>> +			rc = NOTIFY_BAD;
+>>>> +
+>>>> +		symbol_put(kvm_s390_pci_register_kvm);
+>>>
+>>> Is it possible this function can be in statically linked arch code?
+>>>
+>>> Or, actually, is zPCI useful anyhow without kvm ie can you just have a
+>>> direct dependency here?
+>>>
+>>
+>> zPCI devices (zpci_dev) exist regardless of whether kvm is configured or
+>> not, and you can e.g. bind the associated PCI device to vfio-pci when KVM is
+>> not configured (or module not loaded) and get the existing vfio-pci-zdev
+>> extensions for that device (extra VFIO_DEVICE_INFO response data).  Making a
+>> direct dependency on KVM would remove that; this was discussed in a prior
+>> version because this extra info is not used today outside of a KVM usecase
+>> are not specific to kvm that need vfio-pci-zdev).
+> 
+> I'm a bit confused, what is the drawback of just having a direct
+> symbol dependency here? It means vfio loads a little extra kernel
+> module code, but is that really a big worry given almost all vfio
+> users on s390 will be using it with kvm?
 
-> +int kvm_s390_pci_register_kvm(struct zpci_dev *zdev, struct kvm *kvm)
-> +{
-> +	if (!zdev)
-> +		return 0;
-> +
-> +	/*
-> +	 * Register device with this KVM (or remove the KVM association if 0).
-> +	 * If interpetation facilities are available, enable them and let
-> +	 * userspace indicate whether or not they will be used (specify SHM bit
-> +	 * to disable).
-> +	 */
-> +	if (kvm)
-> +		return register_kvm(zdev, kvm);
-> +	else
-> +		return unregister_kvm(zdev);
-> +}
-> +EXPORT_SYMBOL_GPL(kvm_s390_pci_register_kvm);
+It's about trying to avoid loading unnecessary code (or at least giving 
+a way to turn it off).
 
-I think it is cleaner to expose both the register/unregister APIs and
-not multiplex them like this
+Previously I did something like....
 
-> +void kvm_s390_pci_clear_list(struct kvm *kvm)
-> +{
-> +	struct kvm_zdev *tmp, *kzdev;
-> +	LIST_HEAD(remove);
-> +
-> +	spin_lock(&kvm->arch.kzdev_list_lock);
-> +	list_for_each_entry_safe(kzdev, tmp, &kvm->arch.kzdev_list, entry)
-> +		list_move_tail(&kzdev->entry, &remove);
-> +	spin_unlock(&kvm->arch.kzdev_list_lock);
-> +
-> +	list_for_each_entry_safe(kzdev, tmp, &remove, entry)
-> +		unregister_kvm(kzdev->zdev);
+https://lore.kernel.org/kvm/20220204211536.321475-15-mjrosato@linux.ibm.com/
 
-Hum, I wonder if this is a mistake in kvm:
+And could do so again; as discussed in the thread there, I can use e.g. 
+CONFIG_VFIO_PCI_ZDEV_KVM and make vfio-pci-zdev depend on KVM in this 
+series.  You only get the vfio-pci-zdev extensions when you configure KVM.
 
-static void kvm_destroy_vm(struct kvm *kvm)
-{
-[..]
-	kvm_arch_destroy_vm(kvm);
-	kvm_destroy_devices(kvm);
+Then if we find a usecase for a vfio-pci-zdev extension without KVM 
+later, we can further split vfio-pci-zdev and go back to building 
+vfio-pci-zdev when CONFIG_S390 but only build the kvm pieces (like the 
+code above) when you specify CONFIG_VFIO_PCI_ZDEV_KVM.  This would 
+eliminate this symbol_get.  Sound OK?
 
-kvm_destroy_devices() triggers the VFIO notifier with NULL. Indeed for
-correctness I would expect the VFIO users to have been notified to
-release the kvm before the kvm object becomes partially destroyed?
+> 
+> Or is there some technical blocker? (circular dep or something?)
+> 
+> Jason
 
-Maybe you should investigate re-ordering this at the KVM side and just
-WARN_ON(!list_empty) in the arch code?
-
-(vfio has this odd usage model where it should use the kvm pointer
-without taking a ref on it so long as the unregister hasn't been
-called)
-
-If you keep it like this then the locking in register/unregister looks
-not broad enough and has to cover the zdev->kzdev also.
-
-Overall I think it is OK designed like this, aside from the ugly
-symbol_get in vfio which I hope you can resolve.
-
-Jason
