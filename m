@@ -2,103 +2,239 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A0F0C433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 27 Apr 2022 07:07:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DAA4C433FE
+	for <linux-s390@archiver.kernel.org>; Wed, 27 Apr 2022 07:48:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353855AbiD0HLD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 27 Apr 2022 03:11:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50790 "EHLO
+        id S1353940AbiD0HwB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 27 Apr 2022 03:52:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357350AbiD0HLC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Apr 2022 03:11:02 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 189892B1B8;
-        Wed, 27 Apr 2022 00:07:52 -0700 (PDT)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23R3Xsjw013169;
-        Wed, 27 Apr 2022 07:07:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : from : to : cc : references : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=B67+j3oXFnkiSg6DNRe3WHK5zySHQwpUkwhESGoxCbo=;
- b=kRVTxpgyrde2oL1puFGAToRY0aCW/OxdFYkbSycCoSW2gvafb5tIxY5lgvGz5Vc9kEOF
- eBABtkbul+D66Achobk9TOrPuXJCpzgZxuhSfwUOai2LlFVu9zW3EnHl7BnPcpHOBAol
- VFWjUZ8uht8neRYecPDG4GHwgaOnV6HYdAVYU08GahL1Tp+LzetbG5Ze9Q+fUYdCws1H
- TgztsNJsLetXw2Rm0xzgWId+K59U6wDfI/mxyBEbQqfBc79k/zbxxv6UcwjhNc0Xbfor
- vQjuUQ0uEB+V+y4E4DFqfxipMo7SOxo6C4rDvwGGBrK/L6qdmjg9i4lF8jnSswuxx6rh MA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fpsspy5ud-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 27 Apr 2022 07:07:51 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 23R6tJOP012846;
-        Wed, 27 Apr 2022 07:07:51 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fpsspy5tr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 27 Apr 2022 07:07:51 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23R72Uv2013217;
-        Wed, 27 Apr 2022 07:07:49 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma04ams.nl.ibm.com with ESMTP id 3fm938wgkc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 27 Apr 2022 07:07:48 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23R77jcN48365908
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 27 Apr 2022 07:07:45 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BD8F842042;
-        Wed, 27 Apr 2022 07:07:45 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 717394203F;
-        Wed, 27 Apr 2022 07:07:45 +0000 (GMT)
-Received: from [9.145.11.55] (unknown [9.145.11.55])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed, 27 Apr 2022 07:07:45 +0000 (GMT)
-Message-ID: <07c0a131-d695-1c08-e500-94b593203db9@linux.ibm.com>
-Date:   Wed, 27 Apr 2022 09:07:44 +0200
+        with ESMTP id S1359050AbiD0HwA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Apr 2022 03:52:00 -0400
+Received: from mail-lf1-x135.google.com (mail-lf1-x135.google.com [IPv6:2a00:1450:4864:20::135])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40B2E1171FC;
+        Wed, 27 Apr 2022 00:48:50 -0700 (PDT)
+Received: by mail-lf1-x135.google.com with SMTP id x17so1647153lfa.10;
+        Wed, 27 Apr 2022 00:48:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language;
+        bh=PywqmiP2x+ADUigZQGCOhRXDGd7/GFP8SZ7Y3X8ZjnQ=;
+        b=PF54JF+N2HYubzvXAUiKVBsDwnGvSCdcPnMH75kfT8z7wXKwEvXuw2qpE3LOuszhGS
+         eYkxjlYJZMmhB3whtQRkNe9XFD4ljwnsGe44hVnqO37UNB+KeJU5sTtEBHa+r8F/uod7
+         a1PB3qH4xBVstey3ZVHXlo1urtAoHcTH5QY4y5Ii5iAb7SjT4ZvZqYm4Wxz39DVL8Ji4
+         qORLQMvDfFpck8bDeFkscRLoNwHTUX6QmV1dSo0AMNBGQyoxV/r2iPPVHgxrafIJGuh0
+         TC3atBJRHrSMm65sUKWUSzHg1JQ63cmtiHRRDSBdnghJfOF3lOvcwSXTzJimtBwexq6e
+         75dQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=PywqmiP2x+ADUigZQGCOhRXDGd7/GFP8SZ7Y3X8ZjnQ=;
+        b=WqGbw5liyogTSmMw51BUZBwzsIg3dwmHZbnoEPMi9SWG58nNoeMJI3x122EXrepGI9
+         T2ogVyzGabrXlV69LpmV5TVv6AHokHP99aoVLzXlRdffJ2cskxGBpMZ60hkJHNnIyHo7
+         tA+/DZyijVt5IhhGI0Bg6It2CGAUzBUZVzJ8KrnAY5EpiCS3dGa9FTUU73HSR/b/CnI7
+         VtJxe3DmuIXXsyKcMoJ9VcubWly8AXzny0XwH/8lBqLbpYvgPZ0oq8+E8nDgaHY8qb/z
+         R5X3RnHca16LiEdTXigdRbP/b+EIWt7VkqC/Lkozn0IhlsdqopwZI/K3iuryHVmcZln+
+         VPZg==
+X-Gm-Message-State: AOAM530LPjr4obzXSDH5+4SyAQOkPj2bpGZ8L9ztbuODV4ZuPs/nh3uH
+        VruyT1a7nG9V3+jOvQpEqdGhwFviHJY=
+X-Google-Smtp-Source: ABdhPJxqEWDZ6p9UjNTr9pT0/9M/LyGUg5Jot6OcqYp8CexBP0v6xAINOFNhx5NM7CwSiXCPq9kIZg==
+X-Received: by 2002:a05:6512:31c2:b0:471:ad85:9553 with SMTP id j2-20020a05651231c200b00471ad859553mr18585166lfe.330.1651045728347;
+        Wed, 27 Apr 2022 00:48:48 -0700 (PDT)
+Received: from [192.168.1.7] ([212.22.223.21])
+        by smtp.gmail.com with ESMTPSA id l7-20020a2e9087000000b0024f24a78dfdsm309710ljg.93.2022.04.27.00.48.46
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 27 Apr 2022 00:48:47 -0700 (PDT)
+Subject: Re: [PATCH 0/2] kernel: add new infrastructure for platform_has()
+ support
+To:     Juergen Gross <jgross@suse.com>
+Cc:     linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+        x86@kernel.org, linux-s390@vger.kernel.org,
+        linux-hyperv@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        Arnd Bergmann <arnd@arndb.de>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Christoph Hellwig <hch@infradead.org>
+References: <20220426134021.11210-1-jgross@suse.com>
+From:   Oleksandr <olekstysh@gmail.com>
+Message-ID: <9aa13b10-7342-461c-38a5-eb56d7e69b23@gmail.com>
+Date:   Wed, 27 Apr 2022 10:48:46 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH v2 0/9] kvm: s390: Add PV dump support
+In-Reply-To: <20220426134021.11210-1-jgross@suse.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Content-Language: en-US
-From:   Janosch Frank <frankja@linux.ibm.com>
-To:     kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, imbrenda@linux.ibm.com,
-        david@redhat.com, borntraeger@linux.ibm.com
-References: <20220310103112.2156-1-frankja@linux.ibm.com>
-In-Reply-To: <20220310103112.2156-1-frankja@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: jxELmoLMLNKBgohA32KvE1gGVyvSrCHR
-X-Proofpoint-ORIG-GUID: Tl9BbERA6vh2jqKsT20SM3F69hNSA8br
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-04-27_02,2022-04-26_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- spamscore=0 mlxscore=0 phishscore=0 suspectscore=0 adultscore=0
- lowpriorityscore=0 bulkscore=0 impostorscore=0 mlxlogscore=687
- malwarescore=0 clxscore=1015 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2202240000 definitions=main-2204270047
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 3/10/22 11:31, Janosch Frank wrote:
-> Sometimes dumping inside of a VM fails, is unavailable or doesn't
-> yield the required data. For these occasions we dump the VM from the
-> outside, writing memory and cpu data to a file.
-> 
-> Up to now PV guests only supported dumping from the inside of the
-> guest through dumpers like KDUMP. A PV guest can be dumped from the
-> hypervisor but the data will be stale and / or encrypted.
-> 
-> To get the actual state of the PV VM we need the help of the
-> Ultravisor who safeguards the VM state. New UV calls have been added
-> to initialize the dump, dump storage state data, dump cpu data and
-> complete the dump process.
 
-Ping
+On 26.04.22 16:40, Juergen Gross wrote:
+
+Hello Juergen, all
+
+> In another patch series [1] the need has come up to have support for
+> a generic feature flag infrastructure.
+>
+> This patch series is introducing that infrastructure and adds the first
+> use case.
+>
+> I have decided to use a similar interface as the already known x86
+> cpu_has() function. As the new infrastructure is meant to be usable for
+> general and arch-specific feature flags, the flags are being spread
+> between a general bitmap and an arch specific one.
+>
+> The bitmaps start all being zero, single features can be set or reset
+> at any time by using the related platform_[re]set_feature() functions.
+>
+> The platform_has() function is using a simple test_bit() call for now,
+> further optimization might be added when needed.
+>
+> [1]: https://lore.kernel.org/lkml/1650646263-22047-1-git-send-email-olekstysh@gmail.com/T/#t
+
+I have tested the series on Arm64 in the context of xen-virtio enabling 
+work. I didn't see any issues with it. Thank you.
+
+I reworked patch #3 [1] to use new functionality:
+
+
+diff --git a/arch/arm/xen/enlighten.c b/arch/arm/xen/enlighten.c
+index ec5b082..f3b9e20 100644
+--- a/arch/arm/xen/enlighten.c
++++ b/arch/arm/xen/enlighten.c
+@@ -438,6 +438,8 @@ static int __init xen_guest_init(void)
+         if (!xen_domain())
+                 return 0;
+
++       xen_set_restricted_virtio_memory_access();
++
+         if (!acpi_disabled)
+                 xen_acpi_guest_init();
+         else
+diff --git a/arch/x86/xen/enlighten_hvm.c b/arch/x86/xen/enlighten_hvm.c
+index 517a9d8..8b71b1d 100644
+--- a/arch/x86/xen/enlighten_hvm.c
++++ b/arch/x86/xen/enlighten_hvm.c
+@@ -195,6 +195,8 @@ static void __init xen_hvm_guest_init(void)
+         if (xen_pv_domain())
+                 return;
+
++       xen_set_restricted_virtio_memory_access();
++
+         init_hvm_pv_info();
+
+         reserve_shared_info();
+diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
+index 5038edb..fcd5d5d 100644
+--- a/arch/x86/xen/enlighten_pv.c
++++ b/arch/x86/xen/enlighten_pv.c
+@@ -109,6 +109,8 @@ static DEFINE_PER_CPU(struct tls_descs, 
+shadow_tls_desc);
+
+  static void __init xen_pv_init_platform(void)
+  {
++       xen_set_restricted_virtio_memory_access();
++
+         populate_extra_pte(fix_to_virt(FIX_PARAVIRT_BOOTMAP));
+
+         set_fixmap(FIX_PARAVIRT_BOOTMAP, xen_start_info->shared_info);
+diff --git a/drivers/xen/Kconfig b/drivers/xen/Kconfig
+index 313a9127..a7bd8ce 100644
+--- a/drivers/xen/Kconfig
++++ b/drivers/xen/Kconfig
+@@ -339,4 +339,15 @@ config XEN_GRANT_DMA_OPS
+         bool
+         select DMA_OPS
+
++config XEN_VIRTIO
++       bool "Xen virtio support"
++       depends on VIRTIO
++       select XEN_GRANT_DMA_OPS
++       help
++         Enable virtio support for running as Xen guest. Depending on the
++         guest type this will require special support on the backend side
++         (qemu or kernel, depending on the virtio device types used).
++
++         If in doubt, say n.
++
+  endmenu
+diff --git a/include/xen/xen.h b/include/xen/xen.h
+index a99bab8..e2849c9 100644
+--- a/include/xen/xen.h
++++ b/include/xen/xen.h
+@@ -52,6 +52,14 @@ bool xen_biovec_phys_mergeable(const struct bio_vec 
+*vec1,
+  extern u64 xen_saved_max_mem_size;
+  #endif
+
++#include <linux/platform-feature.h>
++
++static inline void xen_set_restricted_virtio_memory_access(void)
++{
++       if (IS_ENABLED(CONFIG_XEN_VIRTIO) && xen_domain())
++ platform_set_feature(PLATFORM_VIRTIO_RESTRICTED_MEM_ACCESS);
++}
++
+  #ifdef CONFIG_XEN_UNPOPULATED_ALLOC
+  int xen_alloc_unpopulated_pages(unsigned int nr_pages, struct page 
+**pages);
+  void xen_free_unpopulated_pages(unsigned int nr_pages, struct page 
+**pages);
+(END)
+
+
+[1] 
+https://lore.kernel.org/lkml/1650646263-22047-4-git-send-email-olekstysh@gmail.com/
+
+
+>
+> Juergen Gross (2):
+>    kernel: add platform_has() infrastructure
+>    virtio: replace arch_has_restricted_virtio_memory_access()
+>
+>   MAINTAINERS                            |  8 +++++++
+>   arch/s390/Kconfig                      |  1 -
+>   arch/s390/mm/init.c                    | 13 +++--------
+>   arch/x86/Kconfig                       |  1 -
+>   arch/x86/kernel/cpu/mshyperv.c         |  5 ++++-
+>   arch/x86/mm/mem_encrypt.c              |  6 ------
+>   arch/x86/mm/mem_encrypt_identity.c     |  5 +++++
+>   drivers/virtio/Kconfig                 |  6 ------
+>   drivers/virtio/virtio.c                |  5 ++---
+>   include/asm-generic/Kbuild             |  1 +
+>   include/asm-generic/platform-feature.h |  8 +++++++
+>   include/linux/platform-feature.h       | 30 ++++++++++++++++++++++++++
+>   include/linux/virtio_config.h          |  9 --------
+>   kernel/Makefile                        |  2 +-
+>   kernel/platform-feature.c              |  7 ++++++
+>   15 files changed, 69 insertions(+), 38 deletions(-)
+>   create mode 100644 include/asm-generic/platform-feature.h
+>   create mode 100644 include/linux/platform-feature.h
+>   create mode 100644 kernel/platform-feature.c
+>
+-- 
+Regards,
+
+Oleksandr Tyshchenko
+
