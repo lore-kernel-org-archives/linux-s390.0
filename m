@@ -2,184 +2,328 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10067C433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 27 Apr 2022 20:20:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 30DCAC4167E
+	for <linux-s390@archiver.kernel.org>; Wed, 27 Apr 2022 22:50:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234672AbiD0UXn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 27 Apr 2022 16:23:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32990 "EHLO
+        id S238318AbiD0Wxt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 27 Apr 2022 18:53:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236659AbiD0UXh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Apr 2022 16:23:37 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F36B1EEF5;
-        Wed, 27 Apr 2022 13:20:21 -0700 (PDT)
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23RILb1c008987;
-        Wed, 27 Apr 2022 20:20:19 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=gjDixvznS3OUZDhDu+ceM/p4K0gyyuopeZlFpkcmmjc=;
- b=KaorH21DAb05vhKzfbv1u5YMlqNu7crAKkmVZsb8gSzmoYSzbMBgQyVAectAP6zeuSEs
- CCAGb66FxOGe43SExX6BIfJadyH7+QAZzJHhCPOmbZRwUIfI2IL2hgBNI6OyyeVWWVyq
- pmkhBriT2mTyUVxaF8E2yGPN9YEe/UJ7dp5MTUKxlZtaJoEjsZD7ojDdCAeoAi5vWusB
- AtaVqUYaWA2jiklthjuBZO6ToLo6bOAllfSSbPnrAEUnWoDvVDy3DO31Xsnxfeqe9f0i
- OwUMuqfPExKLY414GFu1CSigZvJpUlWETbvv4XCitova+DDL/1t0jlAvgFxHt28kmsq7 Yg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fqb1ua1vr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 27 Apr 2022 20:20:19 +0000
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 23RK7Ns6027451;
-        Wed, 27 Apr 2022 20:20:18 GMT
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fqb1ua1vg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 27 Apr 2022 20:20:18 +0000
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23RK8cSQ001950;
-        Wed, 27 Apr 2022 20:20:17 GMT
-Received: from b01cxnp22035.gho.pok.ibm.com (b01cxnp22035.gho.pok.ibm.com [9.57.198.25])
-        by ppma03dal.us.ibm.com with ESMTP id 3fm93a62ct-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 27 Apr 2022 20:20:17 +0000
-Received: from b01ledav006.gho.pok.ibm.com (b01ledav006.gho.pok.ibm.com [9.57.199.111])
-        by b01cxnp22035.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23RKKGpo23855576
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 27 Apr 2022 20:20:16 GMT
-Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 91E9EAC062;
-        Wed, 27 Apr 2022 20:20:16 +0000 (GMT)
-Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 72639AC059;
-        Wed, 27 Apr 2022 20:20:11 +0000 (GMT)
-Received: from [9.211.73.42] (unknown [9.211.73.42])
-        by b01ledav006.gho.pok.ibm.com (Postfix) with ESMTP;
-        Wed, 27 Apr 2022 20:20:11 +0000 (GMT)
-Message-ID: <b9575614-a234-0c36-7601-9c09d159c3b0@linux.ibm.com>
-Date:   Wed, 27 Apr 2022 16:20:10 -0400
+        with ESMTP id S238247AbiD0Wxo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Apr 2022 18:53:44 -0400
+Received: from fanzine2.igalia.com (fanzine.igalia.com [178.60.130.6])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 777658A306;
+        Wed, 27 Apr 2022 15:50:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+        s=20170329; h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Subject:
+        Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:Content-Description:
+        Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+        In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+        List-Post:List-Owner:List-Archive;
+        bh=bd3LEemhVeb7HF/IIMNoiSMnSaTUMrH2fhcorDNVPOw=; b=reO22ihKOd/dWO6JG74IZyl/Fc
+        ZRgGILhVwwQGIlc0vj0pe06pAIL0f1YnsjmZwa63b3ABCQ9Dxtfk7lOpgjSlBlW3mvUPOXpeDqCPF
+        Rai8aA64fPaaS3uA4lyDgYZD5XuD0ZsHxLRl7fSfIQRGLMJx5CN6hSSRnLDC2sMLyPhnDWIKyd1uN
+        dkM7kUYrK18mk3Ol/CnE0I+ZYy1cZnsseboaTczRU6buuvnTvUyLu0/yD31d9xZSykLYiRZ87DJrn
+        1QwYj7LfEwisoBpfk6PfijWzaR37ghlKX+i9oyA2xcheBwMVt8x9sPCGngmKdbeGAFrivKg5AfP0H
+        0Qh1iRoA==;
+Received: from [179.113.53.197] (helo=localhost)
+        by fanzine2.igalia.com with esmtpsa 
+        (Cipher TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
+        id 1njqTd-0001ws-8P; Thu, 28 Apr 2022 00:49:41 +0200
+From:   "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+To:     akpm@linux-foundation.org, bhe@redhat.com, pmladek@suse.com,
+        kexec@lists.infradead.org
+Cc:     linux-kernel@vger.kernel.org,
+        bcm-kernel-feedback-list@broadcom.com, coresight@lists.linaro.org,
+        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-edac@vger.kernel.org,
+        linux-hyperv@vger.kernel.org, linux-leds@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
+        netdev@vger.kernel.org, openipmi-developer@lists.sourceforge.net,
+        rcu@vger.kernel.org, sparclinux@vger.kernel.org,
+        xen-devel@lists.xenproject.org, x86@kernel.org,
+        kernel-dev@igalia.com, gpiccoli@igalia.com, kernel@gpiccoli.net,
+        halves@canonical.com, fabiomirmar@gmail.com,
+        alejandro.j.jimenez@oracle.com, andriy.shevchenko@linux.intel.com,
+        arnd@arndb.de, bp@alien8.de, corbet@lwn.net,
+        d.hatayama@jp.fujitsu.com, dave.hansen@linux.intel.com,
+        dyoung@redhat.com, feng.tang@intel.com, gregkh@linuxfoundation.org,
+        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
+        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
+        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
+        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
+        senozhatsky@chromium.org, stern@rowland.harvard.edu,
+        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
+        will@kernel.org, Alex Elder <elder@kernel.org>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Arjan van de Ven <arjan@linux.intel.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Brian Norris <computersforpeace@gmail.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Chris Zankel <chris@zankel.net>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        Corey Minyard <minyard@acm.org>,
+        David Gow <davidgow@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dexuan Cui <decui@microsoft.com>,
+        Doug Berger <opendmb@gmail.com>,
+        Evan Green <evgreen@chromium.org>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Hari Bathini <hbathini@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        James Morse <james.morse@arm.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Julius Werner <jwerner@chromium.org>,
+        Justin Chen <justinpopo6@gmail.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>, Leo Yan <leo.yan@linaro.org>,
+        Marc Zyngier <maz@kernel.org>,
+        Markus Mayer <mmayer@broadcom.com>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Matt Turner <mattst88@gmail.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Mihai Carabas <mihai.carabas@oracle.com>,
+        Mike Leach <mike.leach@linaro.org>,
+        Mikko Perttunen <mperttunen@nvidia.com>,
+        Neeraj Upadhyay <quic_neeraju@quicinc.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>,
+        Richard Henderson <rth@twiddle.net>,
+        Richard Weinberger <richard@nod.at>,
+        Robert Richter <rric@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Scott Branden <scott.branden@broadcom.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Sebastian Reichel <sre@kernel.org>,
+        Shile Zhang <shile.zhang@linux.alibaba.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Stephen Brennan <stephen.s.brennan@oracle.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        Wei Liu <wei.liu@kernel.org>,
+        Xiaoming Ni <nixiaoming@huawei.com>,
+        zhenwei pi <pizhenwei@bytedance.com>
+Subject: [PATCH 00/30] The panic notifiers refactor
+Date:   Wed, 27 Apr 2022 19:48:54 -0300
+Message-Id: <20220427224924.592546-1-gpiccoli@igalia.com>
+X-Mailer: git-send-email 2.36.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Subject: Re: [PATCH v6 15/21] KVM: s390: pci: add routines to start/stop
- interpretive execution
-Content-Language: en-US
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     linux-s390@vger.kernel.org, alex.williamson@redhat.com,
-        cohuck@redhat.com, schnelle@linux.ibm.com, farman@linux.ibm.com,
-        pmorel@linux.ibm.com, borntraeger@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, gerald.schaefer@linux.ibm.com,
-        agordeev@linux.ibm.com, svens@linux.ibm.com, frankja@linux.ibm.com,
-        david@redhat.com, imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
-        oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
-        pasic@linux.ibm.com, pbonzini@redhat.com, corbet@lwn.net,
-        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-doc@vger.kernel.org
-References: <20220426200842.98655-1-mjrosato@linux.ibm.com>
- <20220426200842.98655-16-mjrosato@linux.ibm.com>
- <20220427151400.GY2125828@nvidia.com>
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <20220427151400.GY2125828@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: HaAkdg-qH8ONb4fcE-33RKJwrgsbU-JV
-X-Proofpoint-GUID: Sw17_kpvkFHU4xFu2acH_zFgc8AUdWMt
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-04-27_04,2022-04-27_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 phishscore=0
- mlxscore=0 impostorscore=0 clxscore=1015 mlxlogscore=999 spamscore=0
- priorityscore=1501 adultscore=0 malwarescore=0 lowpriorityscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2204270123
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 4/27/22 11:14 AM, Jason Gunthorpe wrote:
-> On Tue, Apr 26, 2022 at 04:08:36PM -0400, Matthew Rosato wrote:
-> 
->> +int kvm_s390_pci_register_kvm(struct zpci_dev *zdev, struct kvm *kvm)
->> +{
->> +	if (!zdev)
->> +		return 0;
->> +
->> +	/*
->> +	 * Register device with this KVM (or remove the KVM association if 0).
->> +	 * If interpetation facilities are available, enable them and let
->> +	 * userspace indicate whether or not they will be used (specify SHM bit
->> +	 * to disable).
->> +	 */
->> +	if (kvm)
->> +		return register_kvm(zdev, kvm);
->> +	else
->> +		return unregister_kvm(zdev);
->> +}
->> +EXPORT_SYMBOL_GPL(kvm_s390_pci_register_kvm);
-> 
-> I think it is cleaner to expose both the register/unregister APIs and
-> not multiplex them like this
-> 
+Hey folks, this is an attempt to improve/refactor the dated panic notifiers
+infrastructure. This is strongly based in a suggestion made by Pter Mladek [0]
+some time ago, and it's finally ready. Below I'll detail the patch ordering,
+testing made, etc.
+First, a bit about the reason behind this.
 
-OK
+The panic notifiers list is an infrastructure that allows callbacks to execute
+during panic time. Happens that anybody can add functions there, no ordering
+is enforced (by default) and the decision to execute or not such notifiers
+before kdump may lead to high risk of failure in crash scenarios - default is
+not to execute any of them. There is a parameter acting as a switch for that.
+But some architectures require some notifiers, so..it's messy.
 
->> +void kvm_s390_pci_clear_list(struct kvm *kvm)
->> +{
->> +	struct kvm_zdev *tmp, *kzdev;
->> +	LIST_HEAD(remove);
->> +
->> +	spin_lock(&kvm->arch.kzdev_list_lock);
->> +	list_for_each_entry_safe(kzdev, tmp, &kvm->arch.kzdev_list, entry)
->> +		list_move_tail(&kzdev->entry, &remove);
->> +	spin_unlock(&kvm->arch.kzdev_list_lock);
->> +
->> +	list_for_each_entry_safe(kzdev, tmp, &remove, entry)
->> +		unregister_kvm(kzdev->zdev);
-> 
-> Hum, I wonder if this is a mistake in kvm:
-> 
-> static void kvm_destroy_vm(struct kvm *kvm)
-> {
-> [..]
-> 	kvm_arch_destroy_vm(kvm);
-> 	kvm_destroy_devices(kvm);
-> 
-> kvm_destroy_devices() triggers the VFIO notifier with NULL. Indeed for
-> correctness I would expect the VFIO users to have been notified to
-> release the kvm before the kvm object becomes partially destroyed?
-> 
-> Maybe you should investigate re-ordering this at the KVM side and just
-> WARN_ON(!list_empty) in the arch code?
-> 
-> (vfio has this odd usage model where it should use the kvm pointer
-> without taking a ref on it so long as the unregister hasn't been
-> called)
->
+The suggestion from Petr came after a patch submission to add a notifiers
+filter, allowing the notifiers selection by function name, which was welcomed
+by some people, but not by Petr, which claimed the code should indeed have a
+refactor - and it made a lot of sense, his suggestion makes code more clear
+and reliable.
 
-The issue there is that I am unregistering the notifier during 
-close_device for each zPCI dev, which will have already happened -- so 
-by the time we get to kvm_destroy_devices(), whether it's before or 
-after kvm_arch_destroy_vm, there are no longer any zPCI notifiers 
-registered that will trigger.
+So, this series might be split in 3 portions:
 
-One way to solve this is to have the zpci close_device hook also trigger 
-the work that a KVM_DEV_VFIO_GROUP_DEL would (if the device is being 
-closed, the KVM association for that device isn't applicable anymore so 
-go ahead and clean up).
+Part 1: the first 18 patches are mostly fixes (one or two might be considered
+improvements), mostly replacing spinlocks/mutexes with safer alternatives for
+atomic contexts, like spin_trylock, etc. We also focused on commenting
+everything that is possible and clean-up code.
 
-Then, since we know each device will get closed (either by userspace or 
-by kvm), I don't need something like kvm_s390_pci_clear_list at all.
+Part 2, the core: patches 19-25 are the main refactor, which splits the panic
+notifiers list in three, introduce the concept of panic notifier level and
+clean-up and highly comment the code, effectively leading to a more reliable
+and clear, yet highly customizable panic path.
 
-> If you keep it like this then the locking in register/unregister looks
-> not broad enough and has to cover the zdev->kzdev also.
+Part 3: The remaining 5 patches are fixes that _require the main refactor_
+patches, they don't make sense without the core changes - but again, these are
+small fixes and not part of the main goal of refactoring the panic code.
 
-But I would still need to revisit the locking with the above idea.
+I've tried my best to make the patches the more "bisectable" as possible, so
+they tend to be self-contained and easy to backport (specially patches from
+part 1). Notice that the series is *based on 5.18-rc4* - usually a refactor
+like this would be based on linux-next, but since we have many fixes in the
+series, I kept it based on mainline tree. Of course I could change that in a
+subsequent iteration, if desired.
 
-> 
-> Overall I think it is OK designed like this, aside from the ugly
-> symbol_get in vfio which I hope you can resolve.
-> 
-> Jason
+Since this touches multiple architectures and drivers, it's very difficult to
+test it really (by executing all touched code). So, my tests split in two
+approaches: build tests and real tests, that involves panic triggering with
+and without kdump, changing panic notifiers level, etc.
+
+Build tests (using cross-compilers): alpha, arm, arm64, mips (sgi 22 and 32),
+parisc, s390, sparc, um, x86_64 (couldn't get a functional xtensa cross
+compiler).
+
+Real/full tests: x86_64 (Hyper-V and QEMU guests) + PowerPC (pseries guest).
+
+Here is the link with the .config files used: https://people.igalia.com/gpiccoli/panic_notifiers_configs/
+(tried my best to build all the affected code).
+
+Finally, a bit about my CCing strategy: I've included everybody present in the
+original thread [0] plus some maintainers and other interested parties as CC
+in the full series. But the patches have individual CC lists, for people that
+are definitely related to them but might not care much for the whole series;
+nevertheless, _everybody_ mentioned at least once in some patch is CCed in this
+cover-letter. Hopefully I didn't forget to include anybody - all the mailing
+lists were CCed in the whole series. Apologies in advance if (a) you received
+emails you didn't want to or, (b) I forgot to include you but it was something
+considered interesting by you.
+
+Thanks in advance for reviews / comments / suggestions!
+Cheers,
+
+Guilherme
+
+[0] https://lore.kernel.org/lkml/YfPxvzSzDLjO5ldp@alley/
+
+Guilherme G. Piccoli (30):
+  x86/crash,reboot: Avoid re-disabling VMX in all CPUs on crash/restart
+  ARM: kexec: Disable IRQs/FIQs also on crash CPUs shutdown path
+  notifier: Add panic notifiers info and purge trailing whitespaces
+  firmware: google: Convert regular spinlock into trylock on panic path
+  misc/pvpanic: Convert regular spinlock into trylock on panic path
+  soc: bcm: brcmstb: Document panic notifier action and remove useless header
+  mips: ip22: Reword PANICED to PANICKED and remove useless header
+  powerpc/setup: Refactor/untangle panic notifiers
+  coresight: cpu-debug: Replace mutex with mutex_trylock on panic notifier
+  alpha: Clean-up the panic notifier code
+  um: Improve panic notifiers consistency and ordering
+  parisc: Replace regular spinlock with spin_trylock on panic path
+  s390/consoles: Improve panic notifiers reliability
+  panic: Properly identify the panic event to the notifiers' callbacks
+  bus: brcmstb_gisb: Clean-up panic/die notifiers
+  drivers/hv/vmbus, video/hyperv_fb: Untangle and refactor Hyper-V panic notifiers
+  tracing: Improve panic/die notifiers
+  notifier: Show function names on notifier routines if DEBUG_NOTIFIERS is set
+  panic: Add the panic hypervisor notifier list
+  panic: Add the panic informational notifier list
+  panic: Introduce the panic pre-reboot notifier list
+  panic: Introduce the panic post-reboot notifier list
+  printk: kmsg_dump: Introduce helper to inform number of dumpers
+  panic: Refactor the panic path
+  panic, printk: Add console flush parameter and convert panic_print to a notifier
+  Drivers: hv: Do not force all panic notifiers to execute before kdump
+  powerpc: Do not force all panic notifiers to execute before kdump
+  panic: Unexport crash_kexec_post_notifiers
+  powerpc: ps3, pseries: Avoid duplicate call to kmsg_dump() on panic
+  um: Avoid duplicate call to kmsg_dump()
+
+ .../admin-guide/kernel-parameters.txt         |  54 ++-
+ Documentation/admin-guide/sysctl/kernel.rst   |   5 +-
+ arch/alpha/kernel/setup.c                     |  40 +--
+ arch/arm/kernel/machine_kexec.c               |   3 +
+ arch/arm64/kernel/setup.c                     |   2 +-
+ arch/mips/kernel/relocate.c                   |   2 +-
+ arch/mips/sgi-ip22/ip22-reset.c               |  13 +-
+ arch/mips/sgi-ip32/ip32-reset.c               |   3 +-
+ arch/parisc/include/asm/pdc.h                 |   1 +
+ arch/parisc/kernel/firmware.c                 |  27 +-
+ arch/parisc/kernel/pdc_chassis.c              |   3 +-
+ arch/powerpc/include/asm/bug.h                |   2 +-
+ arch/powerpc/kernel/fadump.c                  |   8 -
+ arch/powerpc/kernel/setup-common.c            |  76 ++--
+ arch/powerpc/kernel/traps.c                   |   6 +-
+ arch/powerpc/platforms/powernv/opal.c         |   2 +-
+ arch/powerpc/platforms/ps3/setup.c            |   2 +-
+ arch/powerpc/platforms/pseries/setup.c        |   2 +-
+ arch/s390/kernel/ipl.c                        |   4 +-
+ arch/s390/kernel/setup.c                      |  19 +-
+ arch/sparc/kernel/setup_32.c                  |  27 +-
+ arch/sparc/kernel/setup_64.c                  |  29 +-
+ arch/sparc/kernel/sstate.c                    |   3 +-
+ arch/um/drivers/mconsole_kern.c               |  10 +-
+ arch/um/kernel/um_arch.c                      |  11 +-
+ arch/x86/include/asm/cpu.h                    |   1 +
+ arch/x86/kernel/crash.c                       |   8 +-
+ arch/x86/kernel/reboot.c                      |  14 +-
+ arch/x86/kernel/setup.c                       |   2 +-
+ arch/x86/xen/enlighten.c                      |   2 +-
+ arch/xtensa/platforms/iss/setup.c             |   4 +-
+ drivers/bus/brcmstb_gisb.c                    |  28 +-
+ drivers/char/ipmi/ipmi_msghandler.c           |  12 +-
+ drivers/edac/altera_edac.c                    |   3 +-
+ drivers/firmware/google/gsmi.c                |  10 +-
+ drivers/hv/hv_common.c                        |  12 -
+ drivers/hv/vmbus_drv.c                        | 113 +++---
+ .../hwtracing/coresight/coresight-cpu-debug.c |  11 +-
+ drivers/leds/trigger/ledtrig-activity.c       |   4 +-
+ drivers/leds/trigger/ledtrig-heartbeat.c      |   4 +-
+ drivers/leds/trigger/ledtrig-panic.c          |   3 +-
+ drivers/misc/bcm-vk/bcm_vk_dev.c              |   6 +-
+ drivers/misc/ibmasm/heartbeat.c               |  16 +-
+ drivers/misc/pvpanic/pvpanic.c                |  14 +-
+ drivers/net/ipa/ipa_smp2p.c                   |   5 +-
+ drivers/parisc/power.c                        |  21 +-
+ drivers/power/reset/ltc2952-poweroff.c        |   4 +-
+ drivers/remoteproc/remoteproc_core.c          |   6 +-
+ drivers/s390/char/con3215.c                   |  38 +-
+ drivers/s390/char/con3270.c                   |  36 +-
+ drivers/s390/char/raw3270.c                   |  18 +
+ drivers/s390/char/raw3270.h                   |   1 +
+ drivers/s390/char/sclp_con.c                  |  30 +-
+ drivers/s390/char/sclp_vt220.c                |  44 +--
+ drivers/s390/char/zcore.c                     |   5 +-
+ drivers/soc/bcm/brcmstb/pm/pm-arm.c           |  18 +-
+ drivers/soc/tegra/ari-tegra186.c              |   3 +-
+ drivers/staging/olpc_dcon/olpc_dcon.c         |   6 +-
+ drivers/video/fbdev/hyperv_fb.c               |  12 +-
+ include/linux/console.h                       |   2 +
+ include/linux/kmsg_dump.h                     |   7 +
+ include/linux/notifier.h                      |   8 +-
+ include/linux/panic.h                         |   3 -
+ include/linux/panic_notifier.h                |  12 +-
+ include/linux/printk.h                        |   1 +
+ kernel/hung_task.c                            |   3 +-
+ kernel/kexec_core.c                           |   8 +-
+ kernel/notifier.c                             |  48 ++-
+ kernel/panic.c                                | 335 +++++++++++-------
+ kernel/printk/printk.c                        |  76 ++++
+ kernel/rcu/tree.c                             |   1 -
+ kernel/rcu/tree_stall.h                       |   3 +-
+ kernel/trace/trace.c                          |  59 +--
+ .../selftests/pstore/pstore_crash_test        |   5 +-
+ 74 files changed, 953 insertions(+), 486 deletions(-)
+
+-- 
+2.36.0
 
