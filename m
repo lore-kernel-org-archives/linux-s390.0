@@ -2,127 +2,113 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 25329C433F5
-	for <linux-s390@archiver.kernel.org>; Wed, 27 Apr 2022 08:41:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8D71C433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 27 Apr 2022 10:47:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359502AbiD0Io4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 27 Apr 2022 04:44:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47296 "EHLO
+        id S230172AbiD0KvE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 27 Apr 2022 06:51:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359487AbiD0Iox (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Apr 2022 04:44:53 -0400
-Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0A707892A;
-        Wed, 27 Apr 2022 01:41:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1651048902; x=1682584902;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=Or6mGoiigOsmCY44ez//qcXP16P68GeRxhWNaqieJzE=;
-  b=UHKOMuUmMvURfb7S86kysshehWml+4KUBggzZDpTgYfc1yDnqUicLQcQ
-   JvCudTTcJC4YMw13XjXJlX3xdqdJG3DKn6nzeHNOqQq/scMJUZwZheMB2
-   R8K/pyafYziYFa+xSaTR6M7iYpfXUBIQJzWOLZ1Sg9UvgFPSQtB7JjXGE
-   totOwD+rUaS0eHG9xFB9xHwWwzZE+r70RfNWz87rfPcyegqET3GQ1J9KM
-   0ECYf7gSOXn6jUG4T/ogAP2nEIog5ILhXo2v0ktRShdiLjvONWol69b2B
-   BemzfcVl702oTGsnzCom3FztrSVRcZ1l7BzIZsSmrRpfNSJi7CrOkRZEy
-   Q==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10329"; a="253244556"
-X-IronPort-AV: E=Sophos;i="5.90,292,1643702400"; 
-   d="scan'208";a="253244556"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Apr 2022 01:41:40 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.90,292,1643702400"; 
-   d="scan'208";a="628919321"
-Received: from lkp-server01.sh.intel.com (HELO 5056e131ad90) ([10.239.97.150])
-  by fmsmga004.fm.intel.com with ESMTP; 27 Apr 2022 01:41:34 -0700
-Received: from kbuild by 5056e131ad90 with local (Exim 4.95)
-        (envelope-from <lkp@intel.com>)
-        id 1njdEr-0004W9-Av;
-        Wed, 27 Apr 2022 08:41:33 +0000
-Date:   Wed, 27 Apr 2022 16:41:17 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc:     kbuild-all@lists.01.org, alex.williamson@redhat.com,
-        cohuck@redhat.com, schnelle@linux.ibm.com, farman@linux.ibm.com,
-        pmorel@linux.ibm.com, borntraeger@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, gerald.schaefer@linux.ibm.com,
-        agordeev@linux.ibm.com, svens@linux.ibm.com, frankja@linux.ibm.com,
-        david@redhat.com, imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
-        oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
-        pasic@linux.ibm.com, pbonzini@redhat.com, corbet@lwn.net,
-        jgg@nvidia.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-doc@vger.kernel.org
-Subject: Re: [PATCH v6 10/21] KVM: s390: pci: add basic kvm_zdev structure
-Message-ID: <202204271653.1ZoYsV9W-lkp@intel.com>
-References: <20220426200842.98655-11-mjrosato@linux.ibm.com>
+        with ESMTP id S230237AbiD0Ku5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Apr 2022 06:50:57 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CED4036F8FC;
+        Wed, 27 Apr 2022 03:22:01 -0700 (PDT)
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23R9I9ur006226;
+        Wed, 27 Apr 2022 10:06:21 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=g57swWEwSmnDaunZdxJSa+YeJLTvtIVV67cUUIz54js=;
+ b=HWsjKRvvWgQMZQH60rKUgR64Duernte3hOBtVBNfsGNrt5ybyLGxAfGUbvrYho1sAX+7
+ Gb6vCvT/cYlFSYb2vBXnj5CLhSB12EO27hJQ0/Vo/WwceRFIMum7iocehEPct81R85aB
+ 0fyPizkGXcp9y528yIDkwQWnamzWWHd+HETbEwX5EPIMpEA8JjUojUpiemuyNKGCBmM3
+ ZqsxgZ5tNKiUms46b96ix/OX7bmcSE3hMg08Wepkk/VOb4ahsHonmxnQR2JchUUP1svG
+ /JCf+syW3Ps6XMyFA4I4docOuAMFUVY6T8TfO1yckliedQy/ajK8eaImkxzjOyDzWcYW rQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fpv1eg10s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 27 Apr 2022 10:06:20 +0000
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 23RA0B0h011772;
+        Wed, 27 Apr 2022 10:06:20 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fpv1eg0yv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 27 Apr 2022 10:06:20 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23R9x49L001960;
+        Wed, 27 Apr 2022 10:06:17 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma03fra.de.ibm.com with ESMTP id 3fm938vhmr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 27 Apr 2022 10:06:17 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23RA6ECv43778372
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 27 Apr 2022 10:06:14 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9DDBEAE051;
+        Wed, 27 Apr 2022 10:06:14 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 47DC2AE045;
+        Wed, 27 Apr 2022 10:06:14 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 27 Apr 2022 10:06:14 +0000 (GMT)
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+To:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Andrew Jones <drjones@redhat.com>
+Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH v6 3/3] Disable s390x skey test in GitLab CI
+Date:   Wed, 27 Apr 2022 12:06:11 +0200
+Message-Id: <20220427100611.2119860-4-scgl@linux.ibm.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220427100611.2119860-1-scgl@linux.ibm.com>
+References: <20220427100611.2119860-1-scgl@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220426200842.98655-11-mjrosato@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: adFsucntXGyo1wmM-1-iUYpXg7M_cOTz
+X-Proofpoint-GUID: kJiXm_MAAiS2HIdsJu1nS6y0ED58AbOb
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-04-27_03,2022-04-27_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
+ spamscore=0 priorityscore=1501 phishscore=0 adultscore=0 mlxscore=0
+ mlxlogscore=999 lowpriorityscore=0 clxscore=1015 malwarescore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2204270067
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi Matthew,
+The test cases newly added to skey.c require kernel 5.18.
 
-I love your patch! Perhaps something to improve:
+Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+---
+ .gitlab-ci.yml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-[auto build test WARNING on v5.18-rc4]
-[cannot apply to s390/features kvms390/next awilliam-vfio/next next-20220427]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Matthew-Rosato/KVM-s390-enable-zPCI-for-interpretive-execution/20220427-041853
-base:    af2d861d4cd2a4da5137f795ee3509e6f944a25b
-config: s390-defconfig (https://download.01.org/0day-ci/archive/20220427/202204271653.1ZoYsV9W-lkp@intel.com/config)
-compiler: s390-linux-gcc (GCC) 11.3.0
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # https://github.com/intel-lab-lkp/linux/commit/e6d8c620090a7b184afdf5b5123d10ac45776eaf
-        git remote add linux-review https://github.com/intel-lab-lkp/linux
-        git fetch --no-tags linux-review Matthew-Rosato/KVM-s390-enable-zPCI-for-interpretive-execution/20220427-041853
-        git checkout e6d8c620090a7b184afdf5b5123d10ac45776eaf
-        # save the config file
-        mkdir build_dir && cp config build_dir/.config
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.3.0 make.cross W=1 O=build_dir ARCH=s390 SHELL=/bin/bash arch/s390/kvm/
-
-If you fix the issue, kindly add following tag as appropriate
-Reported-by: kernel test robot <lkp@intel.com>
-
-All warnings (new ones prefixed by >>):
-
->> arch/s390/kvm/pci.c:14:5: warning: no previous prototype for 'kvm_s390_pci_dev_open' [-Wmissing-prototypes]
-      14 | int kvm_s390_pci_dev_open(struct zpci_dev *zdev)
-         |     ^~~~~~~~~~~~~~~~~~~~~
->> arch/s390/kvm/pci.c:29:6: warning: no previous prototype for 'kvm_s390_pci_dev_release' [-Wmissing-prototypes]
-      29 | void kvm_s390_pci_dev_release(struct zpci_dev *zdev)
-         |      ^~~~~~~~~~~~~~~~~~~~~~~~
-
-
-vim +/kvm_s390_pci_dev_open +14 arch/s390/kvm/pci.c
-
-    13	
-  > 14	int kvm_s390_pci_dev_open(struct zpci_dev *zdev)
-    15	{
-    16		struct kvm_zdev *kzdev;
-    17	
-    18		kzdev = kzalloc(sizeof(struct kvm_zdev), GFP_KERNEL);
-    19		if (!kzdev)
-    20			return -ENOMEM;
-    21	
-    22		kzdev->zdev = zdev;
-    23		zdev->kzdev = kzdev;
-    24	
-    25		return 0;
-    26	}
-    27	EXPORT_SYMBOL_GPL(kvm_s390_pci_dev_open);
-    28	
-  > 29	void kvm_s390_pci_dev_release(struct zpci_dev *zdev)
-
+diff --git a/.gitlab-ci.yml b/.gitlab-ci.yml
+index 4f3049d8..e5768f1d 100644
+--- a/.gitlab-ci.yml
++++ b/.gitlab-ci.yml
+@@ -166,7 +166,7 @@ s390x-kvm:
+   - ./configure --arch=s390x
+   - make -j$(nproc)
+   - ACCEL=kvm ./run_tests.sh
+-      selftest-setup intercept emulator sieve sthyi skey diag10 diag308 pfmf
++      selftest-setup intercept emulator sieve sthyi diag10 diag308 pfmf
+       cmm vector gs iep cpumodel diag288 stsi sclp-1g sclp-3g css skrf sie
+       | tee results.txt
+   - grep -q PASS results.txt && ! grep -q FAIL results.txt
 -- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
+2.33.1
+
