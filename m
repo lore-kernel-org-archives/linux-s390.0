@@ -2,299 +2,153 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9504BC4321E
-	for <linux-s390@archiver.kernel.org>; Wed, 27 Apr 2022 15:33:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0C04C433EF
+	for <linux-s390@archiver.kernel.org>; Wed, 27 Apr 2022 15:39:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239935AbiD0PhE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 27 Apr 2022 11:37:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40614 "EHLO
+        id S240036AbiD0Pmo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 27 Apr 2022 11:42:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239786AbiD0Pg6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Apr 2022 11:36:58 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 278F537003;
-        Wed, 27 Apr 2022 08:33:42 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 06783210EB;
-        Wed, 27 Apr 2022 15:33:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1651073621; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=qj2pLu9PSYp87IKYAnApDMqtY5sFpJOSw7Q2rvn+lVE=;
-        b=YytsAcnPjZWiGpa8v5F/2nDgrADZ+j3cKYRpxpEQ0yHYS0UCNSqRWzCEBNfNGeSUv7B1K9
-        UI6MhRAs9/AP6s4TQskrU0wT2UAl1zUBc+a5Bns9uk7P+PnyCx2Z1Y9yPEr394N8he2PEJ
-        J/w95Jc0KIymUgP0Y9D0H9Naf6zXTzs=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 5C9261323E;
-        Wed, 27 Apr 2022 15:33:40 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id mAVwFVRiaWIRFwAAMHmgww
-        (envelope-from <jgross@suse.com>); Wed, 27 Apr 2022 15:33:40 +0000
-From:   Juergen Gross <jgross@suse.com>
-To:     linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-        x86@kernel.org, linux-s390@vger.kernel.org,
-        linux-hyperv@vger.kernel.org,
-        virtualization@lists.linux-foundation.org
-Cc:     Juergen Gross <jgross@suse.com>, Arnd Bergmann <arnd@arndb.de>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Oleksandr Tyshchenko <olekstysh@gmail.com>
-Subject: [PATCH v2 2/2] virtio: replace arch_has_restricted_virtio_memory_access()
-Date:   Wed, 27 Apr 2022 17:33:36 +0200
-Message-Id: <20220427153336.11091-3-jgross@suse.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220427153336.11091-1-jgross@suse.com>
-References: <20220427153336.11091-1-jgross@suse.com>
+        with ESMTP id S239986AbiD0Pmn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Apr 2022 11:42:43 -0400
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2061.outbound.protection.outlook.com [40.107.243.61])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D392B1C9;
+        Wed, 27 Apr 2022 08:39:27 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=BdgHZ0dhniQCUXSwbVngx3+x0EpE+jlGkVk252urOyh4ctS5XTUWSuKgA6QPGFkHiQUuQgfz/rcpOaMtdZJJGoIOid9jmcEDCkxXXLZReXpD0MQ9BDM8zNDb/2sf/K9GU38HA4QYeIrb3evg3/pxNpbdOl7BLFnqTs0IjNFIma2ZkDPodC7wC7iMDlFmza4lUC07C/0Qjawgzsage6FqZkK0grXHlmMtNRbS9DTb4KYHoP4A2G/r9kOoUiYe66dSq7J6VddaQJfNz22wtWUu2IHmjDH3AmO+knHO26EGbB3pbixzAZQum1VecG9dsi2AkCYylFMwq+uqj2NtS4LHLQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=3w3uGNnNj9C5O/XU7QTuwQ1oyNC9/cdH4Nh0g3yhvVE=;
+ b=HtfxErF6+FW6d4dz+hp8JRO5jaVcuYimgAaKNxGyL2dgVo2if150DfYQ91tjX9YECSpvo7KE+qLyfZZ2pUKR8UKyfr9jQXvyNVwq0XqN6odx/soWCYz/43mBRzNwesOaSIrk4P8TsqDr6pyzEfo3GBcALLmXpER9pnFw4mcp8J9iTIypl251fOEvN6E0p8JpIr2h8HEIOCL/u53QSaxA1bt6uIDB3hbly2JfWLR1vp7dY+ZPaWd8n8XkWybs6ie2LTRPredvUeZ8IgnPaXqSR/XdFMOspmzGQgaFz3WnGnPr+0dGqy1MpyI9hdOj6Zsf2hHP0lCoywbZXufyqBgxGw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=3w3uGNnNj9C5O/XU7QTuwQ1oyNC9/cdH4Nh0g3yhvVE=;
+ b=eCuEgNPz3pEVABcA+ndOvOZWe7U1D+2t/Cke8J4CoJp4EOUmTpQ3MrbqT/+5I+2Wz9SthAB9iejfDsgyJoJPxvBTNXNKcGlxqlBZgqCAxSCZKpxXevGm7Zo2wmgqMwkv4Ei4eU1C0q1YTrcxzBi0eUXf1QydY6lQmLDg6ud7VSP+gUdAWqbIRZoRRgFcmVz2EojRZThqibj8cRy1tKl+syIn1gsLG9yHJJ+bHOkhnHzFCjaRCax8TUc7mpDRwcJz3wP7E6iNoANUt7QKyvBZTzE5oSQCMAly20WCrj5MeL3ghC7TsRC4cBlEP3yG4cvo0OvsJcjXTkaWHSLtkvVFBw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
+ by BN9PR12MB5083.namprd12.prod.outlook.com (2603:10b6:408:134::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5186.14; Wed, 27 Apr
+ 2022 15:39:26 +0000
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::ec2d:9167:1b47:2db2]) by MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::ec2d:9167:1b47:2db2%6]) with mapi id 15.20.5186.021; Wed, 27 Apr 2022
+ 15:39:26 +0000
+Date:   Wed, 27 Apr 2022 12:39:24 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Matthew Rosato <mjrosato@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, alex.williamson@redhat.com,
+        cohuck@redhat.com, schnelle@linux.ibm.com, farman@linux.ibm.com,
+        pmorel@linux.ibm.com, borntraeger@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, gerald.schaefer@linux.ibm.com,
+        agordeev@linux.ibm.com, svens@linux.ibm.com, frankja@linux.ibm.com,
+        david@redhat.com, imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
+        oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, pbonzini@redhat.com, corbet@lwn.net,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-doc@vger.kernel.org
+Subject: Re: [PATCH v6 16/21] vfio-pci/zdev: add open/close device hooks
+Message-ID: <20220427153924.GZ2125828@nvidia.com>
+References: <20220426200842.98655-1-mjrosato@linux.ibm.com>
+ <20220426200842.98655-17-mjrosato@linux.ibm.com>
+ <20220427140410.GX2125828@nvidia.com>
+ <f6c78792-9cf7-0cde-f760-76166f9b7eb7@linux.ibm.com>
+ <20220427150138.GA2512703@nvidia.com>
+ <1bca5de9-88aa-6abc-88b7-cbd2a11e5c85@linux.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1bca5de9-88aa-6abc-88b7-cbd2a11e5c85@linux.ibm.com>
+X-ClientProxiedBy: BL1PR13CA0268.namprd13.prod.outlook.com
+ (2603:10b6:208:2ba::33) To MN2PR12MB4192.namprd12.prod.outlook.com
+ (2603:10b6:208:1d5::15)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 2a081e1b-a000-48da-5c3d-08da28641c24
+X-MS-TrafficTypeDiagnostic: BN9PR12MB5083:EE_
+X-Microsoft-Antispam-PRVS: <BN9PR12MB5083F0E6FE5335FC715D44FAC2FA9@BN9PR12MB5083.namprd12.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: KZkv9cHbBu+Z4cbNVTukQkpff+gLxyPAcn+sahn/GX4SWTrOZ+rByCI+Wo2TQ//st+oBl+0rIlTVkLcFhImOhPbFSf5GWczngcHW35S0uuX8N40HBTIdPih4rSV7mDaHPFIkHV4PPBJ9/NKO9WT86EWuCbSP3DygJk9uV12fB/QX86heZULjxhO9v4hcBHewQdZwX/HTTgP2cQBwbPDLwKeSjAqBXzhwLs6cQNO2XjN75IPjcfVnti3VPzdli3V+t0kvFqfVVgh/EH2qfj5VadlzngI/vdWewydFOk3uCB7HHaElEY9duVh3bMPLYcbQitNaQM4ITwNjWOPdyJMGa3dEh4Q9x35MrtgXs/d3UG+R299Tea5lm5yip5qUGLPbcW8hprklZ8RezS0GJ23dPkh7RKQ5y8YV1FSCZJCu2ZPMEA/gHegxvTwtjvlcXU775dAWCS2SlWBuvbEIQpQ7GBbnJfgkxZXUgH7y8oImxHKBnjU+M1w9MPN0oavRvv6nUnIkOMzpG6CIaIzv4KA6DHFHZQyoUkb7vreRKgczIVxVokoSuzkTOOCRctHglRuI3XxSiNlhNKk7TJOacW1BMCbKOPzvevJulDIHOUnwm7GhShsH0ofK/4/fWBx67JbNdO7vAqI1fPo2irkXNlYImjEs0qSZLhC0pLyICdxjT9lI1IdnUcIZAfGgRl9ZWF80+KJj9rAAmDosFeMgXvTR/VO4PbFUx0MwsLTHukR0U2c=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(8936002)(1076003)(8676002)(4326008)(33656002)(6916009)(186003)(316002)(86362001)(6486002)(7416002)(966005)(2906002)(508600001)(38100700002)(5660300002)(2616005)(66946007)(66556008)(66476007)(6512007)(6506007)(26005)(36756003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?kfAe63i7Pma9S0lNS75G4jKHZ1z0mRAqimj5vR1KsrS4cu7zCktC6cOPcQIv?=
+ =?us-ascii?Q?SjI3YPsU8qu+sq18C3tTQV+JZIMX/Nw5FPg3J403bVlahOEDrOqOzSpQKg69?=
+ =?us-ascii?Q?3PN0uA/Hl8QaTLUIvpl65/uTfcD8nb5Ij1e9ThfrL8aBFIVLOJfLJNdI36Om?=
+ =?us-ascii?Q?eFv8pPOZi+gi4XuwcrYynJWNeoXevwiThmD4EHCN4CKvqJB0Eki+0oaRWWgf?=
+ =?us-ascii?Q?cAQtSAqU9K4BabT0FXPeTEhq9wAhfIqn3Cft8b/QzXIKuPWf4gI1Um7lRxmd?=
+ =?us-ascii?Q?bBQWuoHF2xzWrHY8pF05Zed/YvldGybFqI3/ktnTHGOP0I5FeZaqrzMlfVUv?=
+ =?us-ascii?Q?n5plL8kfm566rh6j1eUrBvkPf9K/vl8gbeg2WISEZi4h/m6RrRXvRFZspWg1?=
+ =?us-ascii?Q?mjTxs0Xx1pEu9nvqPcuR+BdNrkz6nblmSpjZpAcnjKRv98gpgLNc/R2uWBG3?=
+ =?us-ascii?Q?eViRRM79WTioEoznQ0jETSB5Il1jstFabY0YQZPdu5DK9ptFiPL0efCQrspb?=
+ =?us-ascii?Q?o2orpBikJXEGut4rLUbmq/V2MeWDP5ATuXhXeYFw3x5b6pVVRozqMMpJVO3L?=
+ =?us-ascii?Q?+OLRtusZvwYNM7maublhaAqBycIzJWbTTAO8Jii6u/k37WKMe6qxkiHe4a5I?=
+ =?us-ascii?Q?WL3PUuf48CJSv81ZSW7iGZIIgPYywC6sXkBk0Vp1aAEtvdoCPVovoDVasN+2?=
+ =?us-ascii?Q?ZSvbC5kK3A7NVSdu6c+0FFicwxi5mluntIm23SbRuQcY0axSAn8cjXqwtlei?=
+ =?us-ascii?Q?F50RYqtWlSKoETe5s28RLwP/qeDZgm2LFoynXGXrC45m+wukFBoQKJ5qgYjM?=
+ =?us-ascii?Q?gifcwJR2viGBcfK+5u7rQif7hgsEBZ0pxDjIEUpsQijUI7Y2pnXko394Ndiz?=
+ =?us-ascii?Q?Ud4oU3mgcGlMJIa1GdY9E2pGOQDmustvMXOcMj5iSZacEixI8bzgFYgwx7lg?=
+ =?us-ascii?Q?0IhTDb0m51VFtYoi+KV7zRoWCmJxZjwBv63Eu/doQZCOnbnNtSOzeI+oAawI?=
+ =?us-ascii?Q?eNOTEEfRhPpS0w1ua6qIGIhvmqb2NdlMEgekaVmjKbIEaDvsq8TkqDkn1B3V?=
+ =?us-ascii?Q?rDeez9SA8NmRtDgg98avXOtG4sAfnSWFP+hMKUUhwjDvjVtMb2cf6z7ME6S1?=
+ =?us-ascii?Q?DlUextKUluGRCrvQRAoi9jxZcZQyPB+UOt4sa16JI1LwdfevGiBGY/kFGlif?=
+ =?us-ascii?Q?CcKNH5VsNK2aLPKUUn2HcfD/elU+L2gcyTvy4f90NCR29pJvUE7DQkuAn024?=
+ =?us-ascii?Q?iBbPPfRKZfTQVofhu+7ndtkKcTkSTzHr9l4DNiFEBglsqLJqwY74H2yHBR3K?=
+ =?us-ascii?Q?43rnF9fZliALOnXgpr1aQzIbllU426TJu+RAqhq1+PjfrWTfZ0sHCDUgKCBC?=
+ =?us-ascii?Q?KNJE5RQ2Wos5gsi37FLvoTu28UDwT7n7H7Zk7NYxY7a5G3+VvGHBTmo4cGFI?=
+ =?us-ascii?Q?EiZifo2NM26cqlHBlpYFv/yXhSxkaEa5IKfRBZhDtbS/I1qotuBF9xFMHHiM?=
+ =?us-ascii?Q?hIjdb721ormzAKV75boN/lplkYVVOsJu/qSpsWhBcF8Hx/mN7y6+fMgRxwZ5?=
+ =?us-ascii?Q?lFb6mTprk0t9J6GUbx/GxDZv+Nrcr7dmS2n4sa4z6QeEg8baQFWyXRzfw17I?=
+ =?us-ascii?Q?SURQg34jzyUk2qbkw7Nyacocpk7nO7Doq999DCZMoZACfbPImpJ3Uwxbi0xf?=
+ =?us-ascii?Q?xz+MQJVVUEWR+wr3Im2bXDTMRkYbAhMPOS9wjwCweOXbkdhGsASsT+ZZt4Nl?=
+ =?us-ascii?Q?rQ0/1mp0Xg=3D=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2a081e1b-a000-48da-5c3d-08da28641c24
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 Apr 2022 15:39:26.2675
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: fccPEF2UuJ35KnZnMBJwb3Npg7/PQ+WsZs7pMbTFXpj2zCtECzvWTZP7wRbOxEhK
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN9PR12MB5083
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Instead of using arch_has_restricted_virtio_memory_access() together
-with CONFIG_ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS, replace those
-with platform_has() and a new platform feature
-PLATFORM_VIRTIO_RESTRICTED_MEM_ACCESS.
+On Wed, Apr 27, 2022 at 11:26:40AM -0400, Matthew Rosato wrote:
+> > > zPCI devices (zpci_dev) exist regardless of whether kvm is configured or
+> > > not, and you can e.g. bind the associated PCI device to vfio-pci when KVM is
+> > > not configured (or module not loaded) and get the existing vfio-pci-zdev
+> > > extensions for that device (extra VFIO_DEVICE_INFO response data).  Making a
+> > > direct dependency on KVM would remove that; this was discussed in a prior
+> > > version because this extra info is not used today outside of a KVM usecase
+> > > are not specific to kvm that need vfio-pci-zdev).
+> > 
+> > I'm a bit confused, what is the drawback of just having a direct
+> > symbol dependency here? It means vfio loads a little extra kernel
+> > module code, but is that really a big worry given almost all vfio
+> > users on s390 will be using it with kvm?
+> 
+> It's about trying to avoid loading unnecessary code (or at least giving a
+> way to turn it off).
+> 
+> Previously I did something like....
+> 
+> https://lore.kernel.org/kvm/20220204211536.321475-15-mjrosato@linux.ibm.com/
+> 
+> And could do so again; as discussed in the thread there, I can use e.g.
+> CONFIG_VFIO_PCI_ZDEV_KVM and make vfio-pci-zdev depend on KVM in this
+> series.  You only get the vfio-pci-zdev extensions when you configure KVM.
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
----
-V2:
-- move setting of PLATFORM_VIRTIO_RESTRICTED_MEM_ACCESS in SEV case
-  to sev_setup_arch().
----
- arch/s390/Kconfig                |  1 -
- arch/s390/mm/init.c              | 13 +++----------
- arch/x86/Kconfig                 |  1 -
- arch/x86/kernel/cpu/mshyperv.c   |  5 ++++-
- arch/x86/mm/mem_encrypt.c        |  6 ------
- arch/x86/mm/mem_encrypt_amd.c    |  4 ++++
- drivers/virtio/Kconfig           |  6 ------
- drivers/virtio/virtio.c          |  5 ++---
- include/linux/platform-feature.h |  3 ++-
- include/linux/virtio_config.h    |  9 ---------
- 10 files changed, 15 insertions(+), 38 deletions(-)
+That make sense to me, I'd rather see that then the symbol_get/put here
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index e084c72104f8..f97a22ae69a8 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -772,7 +772,6 @@ menu "Virtualization"
- config PROTECTED_VIRTUALIZATION_GUEST
- 	def_bool n
- 	prompt "Protected virtualization guest support"
--	select ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS
- 	help
- 	  Select this option, if you want to be able to run this
- 	  kernel as a protected virtualization KVM guest.
-diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-index 86ffd0d51fd5..2c3b451813ed 100644
---- a/arch/s390/mm/init.c
-+++ b/arch/s390/mm/init.c
-@@ -31,6 +31,7 @@
- #include <linux/cma.h>
- #include <linux/gfp.h>
- #include <linux/dma-direct.h>
-+#include <linux/platform-feature.h>
- #include <asm/processor.h>
- #include <linux/uaccess.h>
- #include <asm/pgalloc.h>
-@@ -168,22 +169,14 @@ bool force_dma_unencrypted(struct device *dev)
- 	return is_prot_virt_guest();
- }
- 
--#ifdef CONFIG_ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS
--
--int arch_has_restricted_virtio_memory_access(void)
--{
--	return is_prot_virt_guest();
--}
--EXPORT_SYMBOL(arch_has_restricted_virtio_memory_access);
--
--#endif
--
- /* protected virtualization */
- static void pv_init(void)
- {
- 	if (!is_prot_virt_guest())
- 		return;
- 
-+	platform_set(PLATFORM_VIRTIO_RESTRICTED_MEM_ACCESS);
-+
- 	/* make sure bounce buffers are shared */
- 	swiotlb_force = SWIOTLB_FORCE;
- 	swiotlb_init(1);
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index b0142e01002e..20ac72546ae4 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -1515,7 +1515,6 @@ config X86_CPA_STATISTICS
- config X86_MEM_ENCRYPT
- 	select ARCH_HAS_FORCE_DMA_UNENCRYPTED
- 	select DYNAMIC_PHYSICAL_MASK
--	select ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS
- 	def_bool n
- 
- config AMD_MEM_ENCRYPT
-diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/mshyperv.c
-index 4b67094215bb..965518b9d14b 100644
---- a/arch/x86/kernel/cpu/mshyperv.c
-+++ b/arch/x86/kernel/cpu/mshyperv.c
-@@ -19,6 +19,7 @@
- #include <linux/i8253.h>
- #include <linux/random.h>
- #include <linux/swiotlb.h>
-+#include <linux/platform-feature.h>
- #include <asm/processor.h>
- #include <asm/hypervisor.h>
- #include <asm/hyperv-tlfs.h>
-@@ -347,8 +348,10 @@ static void __init ms_hyperv_init_platform(void)
- #endif
- 		/* Isolation VMs are unenlightened SEV-based VMs, thus this check: */
- 		if (IS_ENABLED(CONFIG_AMD_MEM_ENCRYPT)) {
--			if (hv_get_isolation_type() != HV_ISOLATION_TYPE_NONE)
-+			if (hv_get_isolation_type() != HV_ISOLATION_TYPE_NONE) {
- 				cc_set_vendor(CC_VENDOR_HYPERV);
-+				platform_set(PLATFORM_VIRTIO_RESTRICTED_MEM_ACCESS);
-+			}
- 		}
- 	}
- 
-diff --git a/arch/x86/mm/mem_encrypt.c b/arch/x86/mm/mem_encrypt.c
-index 50d209939c66..9b6a7c98b2b1 100644
---- a/arch/x86/mm/mem_encrypt.c
-+++ b/arch/x86/mm/mem_encrypt.c
-@@ -76,9 +76,3 @@ void __init mem_encrypt_init(void)
- 
- 	print_mem_encrypt_feature_info();
- }
--
--int arch_has_restricted_virtio_memory_access(void)
--{
--	return cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT);
--}
--EXPORT_SYMBOL_GPL(arch_has_restricted_virtio_memory_access);
-diff --git a/arch/x86/mm/mem_encrypt_amd.c b/arch/x86/mm/mem_encrypt_amd.c
-index 6169053c2854..39b71084d36b 100644
---- a/arch/x86/mm/mem_encrypt_amd.c
-+++ b/arch/x86/mm/mem_encrypt_amd.c
-@@ -21,6 +21,7 @@
- #include <linux/dma-mapping.h>
- #include <linux/virtio_config.h>
- #include <linux/cc_platform.h>
-+#include <linux/platform-feature.h>
- 
- #include <asm/tlbflush.h>
- #include <asm/fixmap.h>
-@@ -206,6 +207,9 @@ void __init sev_setup_arch(void)
- 	size = total_mem * 6 / 100;
- 	size = clamp_val(size, IO_TLB_DEFAULT_SIZE, SZ_1G);
- 	swiotlb_adjust_size(size);
-+
-+	/* Set restricted memory access for virtio. */
-+	platform_set(PLATFORM_VIRTIO_RESTRICTED_MEM_ACCESS);
- }
- 
- static unsigned long pg_level_to_pfn(int level, pte_t *kpte, pgprot_t *ret_prot)
-diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
-index b5adf6abd241..a6dc8b5846fe 100644
---- a/drivers/virtio/Kconfig
-+++ b/drivers/virtio/Kconfig
-@@ -6,12 +6,6 @@ config VIRTIO
- 	  bus, such as CONFIG_VIRTIO_PCI, CONFIG_VIRTIO_MMIO, CONFIG_RPMSG
- 	  or CONFIG_S390_GUEST.
- 
--config ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS
--	bool
--	help
--	  This option is selected if the architecture may need to enforce
--	  VIRTIO_F_ACCESS_PLATFORM
--
- config VIRTIO_PCI_LIB
- 	tristate
- 	help
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index 22f15f444f75..371e16b18381 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -5,6 +5,7 @@
- #include <linux/module.h>
- #include <linux/idr.h>
- #include <linux/of.h>
-+#include <linux/platform-feature.h>
- #include <uapi/linux/virtio_ids.h>
- 
- /* Unique numbering for virtio devices. */
-@@ -170,12 +171,10 @@ EXPORT_SYMBOL_GPL(virtio_add_status);
- static int virtio_features_ok(struct virtio_device *dev)
- {
- 	unsigned status;
--	int ret;
- 
- 	might_sleep();
- 
--	ret = arch_has_restricted_virtio_memory_access();
--	if (ret) {
-+	if (platform_has(PLATFORM_VIRTIO_RESTRICTED_MEM_ACCESS)) {
- 		if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
- 			dev_warn(&dev->dev,
- 				 "device must provide VIRTIO_F_VERSION_1\n");
-diff --git a/include/linux/platform-feature.h b/include/linux/platform-feature.h
-index 6ed859928b97..5e2f08554b38 100644
---- a/include/linux/platform-feature.h
-+++ b/include/linux/platform-feature.h
-@@ -6,7 +6,8 @@
- #include <asm/platform-feature.h>
- 
- /* The platform features are starting with the architecture specific ones. */
--#define PLATFORM_FEAT_N				(0 + PLATFORM_ARCH_FEAT_N)
-+#define PLATFORM_VIRTIO_RESTRICTED_MEM_ACCESS	(0 + PLATFORM_ARCH_FEAT_N)
-+#define PLATFORM_FEAT_N				(1 + PLATFORM_ARCH_FEAT_N)
- 
- void platform_set(unsigned int feature);
- void platform_clear(unsigned int feature);
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index b341dd62aa4d..79498298519d 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -559,13 +559,4 @@ static inline void virtio_cwrite64(struct virtio_device *vdev,
- 		_r;							\
- 	})
- 
--#ifdef CONFIG_ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS
--int arch_has_restricted_virtio_memory_access(void);
--#else
--static inline int arch_has_restricted_virtio_memory_access(void)
--{
--	return 0;
--}
--#endif /* CONFIG_ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS */
--
- #endif /* _LINUX_VIRTIO_CONFIG_H */
--- 
-2.34.1
-
+Thanks,
+Jason
