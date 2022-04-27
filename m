@@ -2,34 +2,34 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7186EC433FE
-	for <linux-s390@archiver.kernel.org>; Wed, 27 Apr 2022 22:52:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 27A55C433F5
+	for <linux-s390@archiver.kernel.org>; Wed, 27 Apr 2022 22:53:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238456AbiD0Wzp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 27 Apr 2022 18:55:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60354 "EHLO
+        id S239049AbiD0W4h (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 27 Apr 2022 18:56:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238242AbiD0Wxo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Apr 2022 18:53:44 -0400
+        with ESMTP id S238520AbiD0Wy7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Apr 2022 18:54:59 -0400
 Received: from fanzine2.igalia.com (fanzine.igalia.com [178.60.130.6])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 379BE8A30C;
-        Wed, 27 Apr 2022 15:50:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28D6F8CD97;
+        Wed, 27 Apr 2022 15:51:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
         s=20170329; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
         Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
         Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
         :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
         List-Post:List-Owner:List-Archive;
-        bh=r/T7YOY0VHwWAfHSEqxJa3Wt3qfvSExYRCUKLKE/qpM=; b=XhhicIlaxPAENQgGkNSZu/8JWa
-        MoKMtLET2WEey/cUMjdoOeeZp/qIHF9AnIAQ1U9UG9ceTx5YsNvbqlEug3W8sTqjMADP3kqZkWGXE
-        81ePHhsZB9/Fl6O5VwXVIzqdUd2GxbFqpTJI3oISOjep5UHhEIJ1gEAyfbzeKWGz11qqm1H8SqNmy
-        PIXViapEJaVN3g1qVA0ll8xOHoXY2Fth5HpQAgahG3Orvdyx32C20SUgZY0+6ymNqW2eIcskQ9hv0
-        PnRYqaVu+GNdXU/wxDKHHXg22u4+P2b/VN7O5/RK6RnCNvbziWOBIpkgY1JIKXd1EMfFHtVMCWu3y
-        LPmztM1w==;
+        bh=sBnzQEgOETevrWvoFDe4UXYaoyJvnokumNTnFd8nYd4=; b=C3WoMDzHemUiz3TJonrj4OLB2r
+        FSxQF+F2lHHptNuVBTghKMJZClefE6Imxei6ehl090Dy2iIiwWYXrKfz8k6+wORL9DMg3LEbLg3HV
+        Yy5IDocQKz78CwwV1x1BjunLLiApngptGwnQE+MM0c5kIHbxgr5QD1BtqzYPoELgJZUScA99Ow0T5
+        DgoMAXPJxcpvr2MM73b5S2P6pfeIYXcyYWBlbiqaBO38Mb9qP/Auq8X4+iMlX3NAoRdIHY9DVHKc8
+        OvjiTLZuxC2PHt1XEzIKelV5l8TbSCfHnuQVB2KdJOLt6lDAQzFhqrTn+CsXTsATCFcE2SPeUMfAC
+        eC7wzCXg==;
 Received: from [179.113.53.197] (helo=localhost)
         by fanzine2.igalia.com with esmtpsa 
         (Cipher TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
-        id 1njqTt-0001xj-VW; Thu, 28 Apr 2022 00:49:58 +0200
+        id 1njqVW-000250-IT; Thu, 28 Apr 2022 00:51:39 +0200
 From:   "Guilherme G. Piccoli" <gpiccoli@igalia.com>
 To:     akpm@linux-foundation.org, bhe@redhat.com, pmladek@suse.com,
         kexec@lists.infradead.org
@@ -57,12 +57,10 @@ Cc:     linux-kernel@vger.kernel.org,
         paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
         senozhatsky@chromium.org, stern@rowland.harvard.edu,
         tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
-        will@kernel.org, "David P . Reed" <dpreed@deepplum.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <seanjc@google.com>
-Subject: [PATCH 01/30] x86/crash,reboot: Avoid re-disabling VMX in all CPUs on crash/restart
-Date:   Wed, 27 Apr 2022 19:48:55 -0300
-Message-Id: <20220427224924.592546-2-gpiccoli@igalia.com>
+        will@kernel.org, Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 07/30] mips: ip22: Reword PANICED to PANICKED and remove useless header
+Date:   Wed, 27 Apr 2022 19:49:01 -0300
+Message-Id: <20220427224924.592546-8-gpiccoli@igalia.com>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220427224924.592546-1-gpiccoli@igalia.com>
 References: <20220427224924.592546-1-gpiccoli@igalia.com>
@@ -72,122 +70,66 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-In the panic path we have a list of functions to be called, the panic
-notifiers - such callbacks perform various actions in the machine's
-last breath, and sometimes users want them to run before kdump. We
-have the parameter "crash_kexec_post_notifiers" for that. When such
-parameter is used, the function "crash_smp_send_stop()" is executed
-to poweroff all secondary CPUs through the NMI-shootdown mechanism;
-part of this process involves disabling virtualization features in
-all CPUs (except the main one).
+Many other place in the kernel prefer the latter, so let's keep
+it consistent in MIPS code as well. Also, removes a useless header.
 
-Now, in the emergency restart procedure we have also a way of
-disabling VMX in all CPUs, using the same NMI-shootdown mechanism;
-what happens though is that in case we already NMI-disabled all CPUs,
-the emergency restart fails due to a second addition of the same items
-in the NMI list, as per the following log output:
-
-sysrq: Trigger a crash
-Kernel panic - not syncing: sysrq triggered crash
-[...]
-Rebooting in 2 seconds..
-list_add double add: new=<addr1>, prev=<addr2>, next=<addr1>.
-------------[ cut here ]------------
-kernel BUG at lib/list_debug.c:29!
-invalid opcode: 0000 [#1] PREEMPT SMP PTI
-
-In order to reproduce the problem, users just need to set the kernel
-parameter "crash_kexec_post_notifiers" *without* kdump set in any
-system with the VMX feature present.
-
-Since there is no benefit in re-disabling VMX in all CPUs in case
-it was already done, this patch prevents that by guarding the restart
-routine against doubly issuing NMIs unnecessarily. Notice we still
-need to disable VMX locally in the emergency restart.
-
-Fixes: ed72736183c4 ("x86/reboot: Force all cpus to exit VMX root if VMX is supported)
-Fixes: 0ee59413c967 ("x86/panic: replace smp_send_stop() with kdump friendly version in panic path")
-Cc: David P. Reed <dpreed@deepplum.com>
-Cc: Hidehiro Kawai <hidehiro.kawai.ez@hitachi.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Sean Christopherson <seanjc@google.com>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
 ---
- arch/x86/include/asm/cpu.h |  1 +
- arch/x86/kernel/crash.c    |  8 ++++----
- arch/x86/kernel/reboot.c   | 14 ++++++++++++--
- 3 files changed, 17 insertions(+), 6 deletions(-)
+ arch/mips/sgi-ip22/ip22-reset.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/include/asm/cpu.h b/arch/x86/include/asm/cpu.h
-index 86e5e4e26fcb..b6a9062d387f 100644
---- a/arch/x86/include/asm/cpu.h
-+++ b/arch/x86/include/asm/cpu.h
-@@ -36,6 +36,7 @@ extern int _debug_hotplug_cpu(int cpu, int action);
- #endif
- #endif
+diff --git a/arch/mips/sgi-ip22/ip22-reset.c b/arch/mips/sgi-ip22/ip22-reset.c
+index 9028dbbb45dd..8f0861c58080 100644
+--- a/arch/mips/sgi-ip22/ip22-reset.c
++++ b/arch/mips/sgi-ip22/ip22-reset.c
+@@ -11,7 +11,6 @@
+ #include <linux/interrupt.h>
+ #include <linux/kernel.h>
+ #include <linux/sched/signal.h>
+-#include <linux/notifier.h>
+ #include <linux/panic_notifier.h>
+ #include <linux/pm.h>
+ #include <linux/timer.h>
+@@ -41,7 +40,7 @@
+ static struct timer_list power_timer, blink_timer, debounce_timer;
+ static unsigned long blink_timer_timeout;
  
-+extern bool crash_cpus_stopped;
- int mwait_usable(const struct cpuinfo_x86 *);
+-#define MACHINE_PANICED		1
++#define MACHINE_PANICKED		1
+ #define MACHINE_SHUTTING_DOWN	2
  
- unsigned int x86_family(unsigned int sig);
-diff --git a/arch/x86/kernel/crash.c b/arch/x86/kernel/crash.c
-index e8326a8d1c5d..71dd1a990e8d 100644
---- a/arch/x86/kernel/crash.c
-+++ b/arch/x86/kernel/crash.c
-@@ -42,6 +42,8 @@
- #include <asm/crash.h>
- #include <asm/cmdline.h>
+ static int machine_state;
+@@ -112,7 +111,7 @@ static void debounce(struct timer_list *unused)
+ 		return;
+ 	}
  
-+bool crash_cpus_stopped;
-+
- /* Used while preparing memory map entries for second kernel */
- struct crash_memmap_data {
- 	struct boot_params *params;
-@@ -108,9 +110,7 @@ void kdump_nmi_shootdown_cpus(void)
- /* Override the weak function in kernel/panic.c */
- void crash_smp_send_stop(void)
+-	if (machine_state & MACHINE_PANICED)
++	if (machine_state & MACHINE_PANICKED)
+ 		sgimc->cpuctrl0 |= SGIMC_CCTRL0_SYSINIT;
+ 
+ 	enable_irq(SGI_PANEL_IRQ);
+@@ -120,7 +119,7 @@ static void debounce(struct timer_list *unused)
+ 
+ static inline void power_button(void)
  {
--	static int cpus_stopped;
--
--	if (cpus_stopped)
-+	if (crash_cpus_stopped)
+-	if (machine_state & MACHINE_PANICED)
++	if (machine_state & MACHINE_PANICKED)
  		return;
  
- 	if (smp_ops.crash_stop_other_cpus)
-@@ -118,7 +118,7 @@ void crash_smp_send_stop(void)
- 	else
- 		smp_send_stop();
+ 	if ((machine_state & MACHINE_SHUTTING_DOWN) ||
+@@ -167,9 +166,9 @@ static irqreturn_t panel_int(int irq, void *dev_id)
+ static int panic_event(struct notifier_block *this, unsigned long event,
+ 		      void *ptr)
+ {
+-	if (machine_state & MACHINE_PANICED)
++	if (machine_state & MACHINE_PANICKED)
+ 		return NOTIFY_DONE;
+-	machine_state |= MACHINE_PANICED;
++	machine_state |= MACHINE_PANICKED;
  
--	cpus_stopped = 1;
-+	crash_cpus_stopped = true;
- }
- 
- #else
-diff --git a/arch/x86/kernel/reboot.c b/arch/x86/kernel/reboot.c
-index fa700b46588e..2fc42b8402ac 100644
---- a/arch/x86/kernel/reboot.c
-+++ b/arch/x86/kernel/reboot.c
-@@ -589,8 +589,18 @@ static void native_machine_emergency_restart(void)
- 	int orig_reboot_type = reboot_type;
- 	unsigned short mode;
- 
--	if (reboot_emergency)
--		emergency_vmx_disable_all();
-+	/*
-+	 * We can reach this point in the end of panic path, having
-+	 * NMI-disabled all secondary CPUs. This process involves
-+	 * disabling the CPU virtualization technologies, so if that
-+	 * is the case, we only miss disabling the local CPU VMX...
-+	 */
-+	if (reboot_emergency) {
-+		if (!crash_cpus_stopped)
-+			emergency_vmx_disable_all();
-+		else
-+			cpu_emergency_vmxoff();
-+	}
- 
- 	tboot_shutdown(TB_SHUTDOWN_REBOOT);
- 
+ 	blink_timer_timeout = PANIC_FREQ;
+ 	blink_timeout(&blink_timer);
 -- 
 2.36.0
 
