@@ -2,34 +2,34 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 873AEC433EF
-	for <linux-s390@archiver.kernel.org>; Wed, 27 Apr 2022 22:51:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F2B61C3527B
+	for <linux-s390@archiver.kernel.org>; Wed, 27 Apr 2022 22:52:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238741AbiD0WzD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 27 Apr 2022 18:55:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35912 "EHLO
+        id S238436AbiD0Wzo (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 27 Apr 2022 18:55:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237853AbiD0Wyi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Apr 2022 18:54:38 -0400
+        with ESMTP id S238241AbiD0Wxo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 Apr 2022 18:53:44 -0400
 Received: from fanzine2.igalia.com (fanzine.igalia.com [178.60.130.6])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30A968CCF2;
-        Wed, 27 Apr 2022 15:51:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7757C8A305;
+        Wed, 27 Apr 2022 15:50:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
         s=20170329; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
         Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
         Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
         :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
         List-Post:List-Owner:List-Archive;
-        bh=/X9VGFpkqSi0Xw+sb2fnqT5ti0fEX/+xmh5q7q7MhDY=; b=p3QOIFADQeeHCVp8bxPKwO62s+
-        EGcZOVKN2qbhBt1Pf/EZXw+tkBx2x9DRVMO1uTp94JqIADubO77jiICP/E04L/nn99FEYBzZb+44L
-        /kz24xVDrX4FFqomkvxzWUTFlHhE4ZhZCfkHWBQr0/Lzkqr3CE/w4r7fAtX83L8f0pEarK5Qx6XYH
-        4zbdyCjIZQkKS6mh2t53k79tPqORut15Ek94GDPyIzx6i+d57M9a0UcH7EVEXkkbVPk2r+5s4ram2
-        N0+1/N2WpK9qFZ8QFj+vJFSqHIZNJD4YgbbIqqLYxl+DJIQthPO2tybUvOHdIFVD8Tw3e7+DHlkve
-        LuLH0yww==;
+        bh=9bJIN4/MOEhLx8CsVfKAquGTzb1mVDbHr+j6ymCNHAs=; b=S+EoVVMbG0R6l0pBfRnMsKZosp
+        2PXBHwhmghS5Lvs4v4GQMUSqpGyoQ5U6Zbnyj6sMhUP4BCGILxO7PkeMyVqV/H8eeh+l7ihT1MYQn
+        6lRWijWvq/MbBgY8W5xo5rf6VIJ8bQ3A6HUNn+RlRorsijlroe/vsascbDWK+dCTLeTv/edmbXzZt
+        IkkQl7Ezob0EK5zEWLgIk+XPPHoVSiw2Ov7kaRBDa36NQrRgmO2O3HFxvBLZEYb5QzmHEcsWLMOdr
+        YdjDzKF3as62X+/HBzxjW/bJqz3Ux15HOHGOCZtJDgeQcPUWNNi8PdpLZsxk0QJWHs39xjqIBwc58
+        XGSV7jaw==;
 Received: from [179.113.53.197] (helo=localhost)
         by fanzine2.igalia.com with esmtpsa 
         (Cipher TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
-        id 1njqV1-000228-53; Thu, 28 Apr 2022 00:51:08 +0200
+        id 1njqU9-0001ye-3z; Thu, 28 Apr 2022 00:50:14 +0200
 From:   "Guilherme G. Piccoli" <gpiccoli@igalia.com>
 To:     akpm@linux-foundation.org, bhe@redhat.com, pmladek@suse.com,
         kexec@lists.infradead.org
@@ -57,15 +57,11 @@ Cc:     linux-kernel@vger.kernel.org,
         paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
         senozhatsky@chromium.org, stern@rowland.harvard.edu,
         tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
-        will@kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Mihai Carabas <mihai.carabas@oracle.com>,
-        Shile Zhang <shile.zhang@linux.alibaba.com>,
-        Wang ShaoBo <bobo.shaobowang@huawei.com>,
-        zhenwei pi <pizhenwei@bytedance.com>
-Subject: [PATCH 05/30] misc/pvpanic: Convert regular spinlock into trylock on panic path
-Date:   Wed, 27 Apr 2022 19:48:59 -0300
-Message-Id: <20220427224924.592546-6-gpiccoli@igalia.com>
+        will@kernel.org, Marc Zyngier <maz@kernel.org>,
+        Russell King <linux@armlinux.org.uk>
+Subject: [PATCH 02/30] ARM: kexec: Disable IRQs/FIQs also on crash CPUs shutdown path
+Date:   Wed, 27 Apr 2022 19:48:56 -0300
+Message-Id: <20220427224924.592546-3-gpiccoli@igalia.com>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220427224924.592546-1-gpiccoli@igalia.com>
 References: <20220427224924.592546-1-gpiccoli@igalia.com>
@@ -75,62 +71,45 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The pvpanic driver relies on panic notifiers to execute a callback
-on panic event. Such function is executed in atomic context - the
-panic function disables local IRQs, preemption and all other CPUs
-that aren't running the panic code.
+Currently the regular CPU shutdown path for ARM disables IRQs/FIQs
+in the secondary CPUs - smp_send_stop() calls ipi_cpu_stop(), which
+is responsible for that. This makes sense, since we're turning off
+such CPUs, putting them in an endless busy-wait loop.
 
-With that said, it's dangerous to use regular spinlocks in such path,
-as introduced by commit b3c0f8774668 ("misc/pvpanic: probe multiple instances").
-This patch fixes that by replacing regular spinlocks with the trylock
-safer approach.
+Problem is that there is an alternative path for disabling CPUs,
+in the form of function crash_smp_send_stop(), used for kexec/panic
+paths. This functions relies in a SMP call that also triggers a
+busy-wait loop [at machine_crash_nonpanic_core()], but *without*
+disabling interrupts. This might lead to odd scenarios, like early
+interrupts in the boot of kexec'd kernel or even interrupts in
+other CPUs while the main one still works in the panic path and
+assumes all secondary CPUs are (really!) off.
 
-It also fixes an old comment (about a long gone framebuffer code) and
-the notifier priority - we should execute hypervisor notifiers early,
-deferring this way the panic action to the hypervisor, as expected by
-the users that are setting up pvpanic.
+This patch mimics the ipi_cpu_stop() interrupt disable mechanism
+in the crash CPU shutdown path, hence disabling IRQs/FIQs in all
+secondary CPUs in the kexec/panic path as well.
 
-Fixes: b3c0f8774668 ("misc/pvpanic: probe multiple instances")
-Cc: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Cc: Mihai Carabas <mihai.carabas@oracle.com>
-Cc: Shile Zhang <shile.zhang@linux.alibaba.com>
-Cc: Wang ShaoBo <bobo.shaobowang@huawei.com>
-Cc: zhenwei pi <pizhenwei@bytedance.com>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: Russell King <linux@armlinux.org.uk>
 Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
 ---
- drivers/misc/pvpanic/pvpanic.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ arch/arm/kernel/machine_kexec.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/misc/pvpanic/pvpanic.c b/drivers/misc/pvpanic/pvpanic.c
-index 4b8f1c7d726d..049a12006348 100644
---- a/drivers/misc/pvpanic/pvpanic.c
-+++ b/drivers/misc/pvpanic/pvpanic.c
-@@ -34,7 +34,9 @@ pvpanic_send_event(unsigned int event)
- {
- 	struct pvpanic_instance *pi_cur;
+diff --git a/arch/arm/kernel/machine_kexec.c b/arch/arm/kernel/machine_kexec.c
+index f567032a09c0..ef788ee00519 100644
+--- a/arch/arm/kernel/machine_kexec.c
++++ b/arch/arm/kernel/machine_kexec.c
+@@ -86,6 +86,9 @@ void machine_crash_nonpanic_core(void *unused)
+ 	set_cpu_online(smp_processor_id(), false);
+ 	atomic_dec(&waiting_for_crash_ipi);
  
--	spin_lock(&pvpanic_lock);
-+	if (!spin_trylock(&pvpanic_lock))
-+		return;
++	local_fiq_disable();
++	local_irq_disable();
 +
- 	list_for_each_entry(pi_cur, &pvpanic_list, list) {
- 		if (event & pi_cur->capability & pi_cur->events)
- 			iowrite8(event, pi_cur->base);
-@@ -55,9 +57,13 @@ pvpanic_panic_notify(struct notifier_block *nb, unsigned long code, void *unused
- 	return NOTIFY_DONE;
- }
- 
-+/*
-+ * Call our notifier very early on panic, deferring the
-+ * action taken to the hypervisor.
-+ */
- static struct notifier_block pvpanic_panic_nb = {
- 	.notifier_call = pvpanic_panic_notify,
--	.priority = 1, /* let this called before broken drm_fb_helper() */
-+	.priority = INT_MAX,
- };
- 
- static void pvpanic_remove(void *param)
+ 	while (1) {
+ 		cpu_relax();
+ 		wfe();
 -- 
 2.36.0
 
