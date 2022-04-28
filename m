@@ -2,128 +2,126 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 35E82C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 28 Apr 2022 20:51:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BCCC6C4332F
+	for <linux-s390@archiver.kernel.org>; Thu, 28 Apr 2022 21:23:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351983AbiD1Uys (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 28 Apr 2022 16:54:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56322 "EHLO
+        id S1352257AbiD1V1I (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 28 Apr 2022 17:27:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351949AbiD1Uyk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 28 Apr 2022 16:54:40 -0400
-Received: from mail-qk1-x735.google.com (mail-qk1-x735.google.com [IPv6:2607:f8b0:4864:20::735])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5A9FC0E5B;
-        Thu, 28 Apr 2022 13:51:24 -0700 (PDT)
-Received: by mail-qk1-x735.google.com with SMTP id e128so4539075qkd.7;
-        Thu, 28 Apr 2022 13:51:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=1EpAoNh3djiR0hepuMZWh5K1dw4NUP6DaD4hagEgG3I=;
-        b=f0Z5dX7wbl0R92CisFojyWE8K6d/92OfvlFaiM4rI3zIxB5QCKji7UaeMDC0t4yZQm
-         aikCalRWglJhYnECZgsmp2vVjMNf7pvH/1P6OIgFcJynEQTRsg+Ysmz5ePKgLkwGXQtv
-         aBn5NFDhHfffiGtIKiX9W8bb7QrCc0tLvbagvulxDyJrnoVVS3QU/NcLk/nplpXf7Vwy
-         SgmR6hZulUr7Xu8zxii1h1hFau4ctQCbELlTGxSbEGJg4MVe7yNm2GTKJdpLgQfRvQMC
-         w6DIL0w4Z0FlEZMtkeq6GTt5Mb8nGIUycBHj7rqt1GKpqWiYBRAP8R06GIyp4DCn8yje
-         J08Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=1EpAoNh3djiR0hepuMZWh5K1dw4NUP6DaD4hagEgG3I=;
-        b=jz6wjKrMfFcTV6a8neDjuQs9JTFLPwCvKsrmHBzABMl8w9UvZuIONSvZReqZ0S65fT
-         lcWTcmPOdW/gApar3W3OtOFZoi48wPCiWDWAEhHRvhmFrfarqh9Q8ogRQdlqBV8dGKpy
-         C9ZJYCXAJ+sBrziiJpJzEndcfz79ZicyaK2MOumtjcwr6AtRt8WD98+pOGoDgZQ14/wb
-         qpyxstYsHMBHasmmFsWXnnJOVQD0B3rl8UA/S58E4EuVlT6ODLc4dLb67C6wAvfaoKnN
-         7uMBn14Lh0Pogx4l+PfyHOKDXlfj1zGuzkGYm1IVSfzqMfA5QRNBGbMHKRw+8UeslKuy
-         puZg==
-X-Gm-Message-State: AOAM530vo2uzv/I/rPdHpzAlf1nSGLeCwHtKd6VFo7gpEXp4+WTnN5TU
-        x6KtPd/YvFy1bqE/4Lev7ClTtIX0D6w=
-X-Google-Smtp-Source: ABdhPJxXLTFxVkZ3KgwG5707+YbXl4dlJCsL8/vtRybqZmkDB4puHhN7Wh7fO6njap7k2zXxkTsQpQ==
-X-Received: by 2002:a05:620a:2715:b0:69f:9e98:7501 with SMTP id b21-20020a05620a271500b0069f9e987501mr3591382qkp.346.1651179083615;
-        Thu, 28 Apr 2022 13:51:23 -0700 (PDT)
-Received: from localhost ([2601:c4:c432:4da:fa85:340e:2244:1d8c])
-        by smtp.gmail.com with ESMTPSA id g10-20020ac8580a000000b002f35323f82csm613818qtg.30.2022.04.28.13.51.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 28 Apr 2022 13:51:23 -0700 (PDT)
-From:   Yury Norov <yury.norov@gmail.com>
-To:     linux-kernel@vger.kernel.org,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Yury Norov <yury.norov@gmail.com>, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
-Subject: [PATCH 3/5] lib/bitmap: add test for bitmap_{from,to}_arr64
-Date:   Thu, 28 Apr 2022 13:51:14 -0700
-Message-Id: <20220428205116.861003-4-yury.norov@gmail.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220428205116.861003-1-yury.norov@gmail.com>
-References: <20220428205116.861003-1-yury.norov@gmail.com>
+        with ESMTP id S1352235AbiD1V1G (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 28 Apr 2022 17:27:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE330BF942;
+        Thu, 28 Apr 2022 14:23:47 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 54F17B8303C;
+        Thu, 28 Apr 2022 21:23:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 908A4C385B0;
+        Thu, 28 Apr 2022 21:23:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1651181026;
+        bh=0ri35CDlCGa70SrF0yTpZg8swzzuXkfsvA4yg/gpTnY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=GLN1IQg/iS5ARnZ+p/XT0IiQbtyX5TSKlWaPzf+AMoj5GUJtan/yE/p8oP5b9PqPN
+         8SEwIt/+p7ptyY+mIaEhgAS7YW7UlDCSOzaMKeJv9DXT7qNq44X9X4tj/Y2VvojXWK
+         YHo4NDtimHkARQkqWkW4eg0kc07yAZQl27Nr1eeeH035nfxv8/osmAPxMeqNDXKP95
+         gWRtIRYotqkHjoRqfwqnSR/Z/tKphwQd0tVwTeFzm4v5IcqCbUA/yAWARS3T3RdzLH
+         xYmHlGsqGPorVAZ2DqnmQIRMLERCi2P0zWFe9k90+CNClbubJMeLmTO5RtTCV/tVk7
+         9X9x0L2er4HSg==
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     davem@davemloft.net, pabeni@redhat.com
+Cc:     edumazet@google.com, netdev@vger.kernel.org,
+        Jakub Kicinski <kuba@kernel.org>, wintera@linux.ibm.com,
+        wenjia@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, linux-s390@vger.kernel.org
+Subject: [PATCH net-next v2 15/15] qeth: remove a copy of the NAPI_POLL_WEIGHT define
+Date:   Thu, 28 Apr 2022 14:23:23 -0700
+Message-Id: <20220428212323.104417-16-kuba@kernel.org>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220428212323.104417-1-kuba@kernel.org>
+References: <20220428212323.104417-1-kuba@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Test newly added bitmap_{from,to}_arr64() functions similarly to
-already existing bitmap_{from,to}_arr32() tests.
+Defining local versions of NAPI_POLL_WEIGHT with the same
+values in the drivers just makes refactoring harder.
 
-Signed-off-by: Yury Norov <yury.norov@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 ---
- lib/test_bitmap.c | 25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+CC: wintera@linux.ibm.com
+CC: wenjia@linux.ibm.com
+CC: hca@linux.ibm.com
+CC: gor@linux.ibm.com
+CC: agordeev@linux.ibm.com
+CC: borntraeger@linux.ibm.com
+CC: svens@linux.ibm.com
+CC: linux-s390@vger.kernel.org
+---
+ drivers/s390/net/qeth_core.h      | 2 --
+ drivers/s390/net/qeth_core_main.c | 2 +-
+ drivers/s390/net/qeth_l2_main.c   | 2 +-
+ drivers/s390/net/qeth_l3_main.c   | 2 +-
+ 4 files changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/lib/test_bitmap.c b/lib/test_bitmap.c
-index 0c82f07f74fc..d5923a640457 100644
---- a/lib/test_bitmap.c
-+++ b/lib/test_bitmap.c
-@@ -585,6 +585,30 @@ static void __init test_bitmap_arr32(void)
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index de25d7ac41da..1d195429753d 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -801,8 +801,6 @@ struct qeth_priv {
+ 	u32 brport_features;
+ };
+ 
+-#define QETH_NAPI_WEIGHT NAPI_POLL_WEIGHT
+-
+ struct qeth_card {
+ 	enum qeth_card_states state;
+ 	spinlock_t lock;
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index d99c5b773e22..ae85179ca49a 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -7100,7 +7100,7 @@ int qeth_open(struct net_device *dev)
+ 	local_bh_disable();
+ 	qeth_for_each_output_queue(card, queue, i) {
+ 		netif_tx_napi_add(dev, &queue->napi, qeth_tx_poll,
+-				  QETH_NAPI_WEIGHT);
++				  NAPI_POLL_WEIGHT);
+ 		napi_enable(&queue->napi);
+ 		napi_schedule(&queue->napi);
  	}
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 303461d70af3..92698f79a4e0 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -1133,7 +1133,7 @@ static int qeth_l2_setup_netdev(struct qeth_card *card)
+ 				       PAGE_SIZE * (QDIO_MAX_ELEMENTS_PER_BUFFER - 1));
+ 	}
+ 
+-	netif_napi_add(card->dev, &card->napi, qeth_poll, QETH_NAPI_WEIGHT);
++	netif_napi_add(card->dev, &card->napi, qeth_poll, NAPI_POLL_WEIGHT);
+ 	return register_netdev(card->dev);
  }
  
-+static void __init test_bitmap_arr64(void)
-+{
-+	unsigned int nbits, next_bit;
-+	u64 arr[EXP1_IN_BITS / 64];
-+	DECLARE_BITMAP(bmap2, EXP1_IN_BITS);
-+
-+	memset(arr, 0xa5, sizeof(arr));
-+
-+	for (nbits = 0; nbits < EXP1_IN_BITS; ++nbits) {
-+		memset(bmap2, 0xff, sizeof(arr));
-+		bitmap_to_arr64(arr, exp1, nbits);
-+		bitmap_from_arr64(bmap2, arr, nbits);
-+		expect_eq_bitmap(bmap2, exp1, nbits);
-+
-+		next_bit = find_next_bit(bmap2, round_up(nbits, BITS_PER_LONG), nbits);
-+		if (next_bit < round_up(nbits, BITS_PER_LONG))
-+			pr_err("bitmap_copy_arr64(nbits == %d:"
-+				" tail is not safely cleared: %d\n", nbits, next_bit);
-+
-+		if (nbits < EXP1_IN_BITS - 64)
-+			expect_eq_uint(arr[DIV_ROUND_UP(nbits, 64)], 0xa5a5a5a5);
-+	}
-+}
-+
- static void noinline __init test_mem_optimisations(void)
- {
- 	DECLARE_BITMAP(bmap1, 1024);
-@@ -852,6 +876,7 @@ static void __init selftest(void)
- 	test_copy();
- 	test_replace();
- 	test_bitmap_arr32();
-+	test_bitmap_arr64();
- 	test_bitmap_parse();
- 	test_bitmap_parselist();
- 	test_bitmap_printlist();
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index d2f422a9a4f7..ea3b6b18aa6e 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -1910,7 +1910,7 @@ static int qeth_l3_setup_netdev(struct qeth_card *card)
+ 		netif_set_gso_max_size(card->dev,
+ 				       PAGE_SIZE * (QETH_MAX_BUFFER_ELEMENTS(card) - 1));
+ 
+-	netif_napi_add(card->dev, &card->napi, qeth_poll, QETH_NAPI_WEIGHT);
++	netif_napi_add(card->dev, &card->napi, qeth_poll, NAPI_POLL_WEIGHT);
+ 	return register_netdev(card->dev);
+ }
+ 
 -- 
-2.32.0
+2.34.1
 
