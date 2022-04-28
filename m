@@ -2,280 +2,213 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 85527C433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 28 Apr 2022 13:05:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 690DDC433F5
+	for <linux-s390@archiver.kernel.org>; Thu, 28 Apr 2022 13:51:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346813AbiD1NI6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 28 Apr 2022 09:08:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57338 "EHLO
+        id S1347753AbiD1NyU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 28 Apr 2022 09:54:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346803AbiD1NIz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 28 Apr 2022 09:08:55 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADE798564D;
-        Thu, 28 Apr 2022 06:05:40 -0700 (PDT)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23SCTijj011198;
-        Thu, 28 Apr 2022 13:05:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=WJW7LkDj7H45liKkCkRnyij+AegkzTHBoOyCkAu5ZOk=;
- b=DEH96GUKlaDta+gnzCdeEHF/2npfbYlFsYjG5mADcG9PKy1vQFjnbITQRxCxoXmYjXXl
- QwQNCprqlQJ3zcZXjQK1a1l4klvRVJXmI+OKifYQF7SgeJRD0h4Gjj8eVa7An2qTLW2M
- 97ncV5fchHhGBom+2gjYlSaOCOtWdmFhPUOb1NecBzYJzHVhLOGF4IZeOb38EO7Ft/lg
- vEd0EnP0B86mOtN4VIagzz8DQ3w34cH0tAole1cmOHmvEOgr//EZpI+QH0je/ONgC6NJ
- lSBXXn4PWbJdqcFhbFugqlDcb6FKSVdOMx/bX8cJK2lSup5NpOBAHdW/u9xhVpIjqBfW XQ== 
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fqtyw0rjw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 28 Apr 2022 13:05:40 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23SCwfLT002506;
-        Thu, 28 Apr 2022 13:05:38 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma01fra.de.ibm.com with ESMTP id 3fm938wxxk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 28 Apr 2022 13:05:37 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23SD5jEb15663428
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 28 Apr 2022 13:05:45 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8087242041;
-        Thu, 28 Apr 2022 13:05:34 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 03ACF4203F;
-        Thu, 28 Apr 2022 13:05:34 +0000 (GMT)
-Received: from linux6.. (unknown [9.114.12.104])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 28 Apr 2022 13:05:33 +0000 (GMT)
-From:   Janosch Frank <frankja@linux.ibm.com>
-To:     kvm@vger.kernel.org
-Cc:     linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
-        imbrenda@linux.ibm.com
-Subject: [PATCH 9/9] Documentation/virt/kvm/api.rst: Add protvirt dump/info api descriptions
-Date:   Thu, 28 Apr 2022 13:01:02 +0000
-Message-Id: <20220428130102.230790-10-frankja@linux.ibm.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220428130102.230790-1-frankja@linux.ibm.com>
-References: <20220428130102.230790-1-frankja@linux.ibm.com>
+        with ESMTP id S1347747AbiD1NyS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 28 Apr 2022 09:54:18 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2AF5A5EBFB
+        for <linux-s390@vger.kernel.org>; Thu, 28 Apr 2022 06:51:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1651153863;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=FuiynTfD1RLuR66vVTzTONoWwWN8fYgLX9NPTT/dKvI=;
+        b=H40Vs0hZYK73Ys0lWamTM8JWe4QaEQLb/LhhkoP4Kef281TsVKJAsHBUFz+aM2C+Zxz2ny
+        XoPNOtEq5eklxSbaWi38aoq2CulY6BnxH86EpxT3pyNNTIl3n2KoSPNzkxudEi7TH05HLo
+        /uTxz55vWKrJB+RAh4Zl88iCAhRMpLw=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-169-1EGBl-3mP1eUALWBz5preQ-1; Thu, 28 Apr 2022 09:50:58 -0400
+X-MC-Unique: 1EGBl-3mP1eUALWBz5preQ-1
+Received: by mail-wm1-f71.google.com with SMTP id p32-20020a05600c1da000b00393fbf9ab6eso3459457wms.4
+        for <linux-s390@vger.kernel.org>; Thu, 28 Apr 2022 06:50:58 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent
+         :content-language:to:cc:references:from:organization:subject
+         :in-reply-to:content-transfer-encoding;
+        bh=FuiynTfD1RLuR66vVTzTONoWwWN8fYgLX9NPTT/dKvI=;
+        b=pFWuzKBMm42De3AyUfhe4yuSr5UoIpduAHXVzW7MefN4zspiehTqF5K7tkMUIGiBQh
+         hrk4uMdi4g8fe/3v3l8GptSaW8whEoQunUjYeDZTYc3IDeEIzXegAL32o62LakXu+7p6
+         0W3Bxg8/3ZlMoT9YLKHEj75+oiqNoBQkjYu+cQTfFBC0stH3b5Ex3LCZCdvavUKZGTzY
+         uOkYXepDXF+J7u7s0DXLtrhTH4kVhaX07mYksYFgW6SrSxlAL/8fk/T1HTfomySgaknt
+         7hVRBqhkHi3lydfFhWXJpgivQiuLJ6Lz8JBR9EoFlOEyXrfZ/iSB5TFQ2u0f6tSYN1YB
+         69Ng==
+X-Gm-Message-State: AOAM530ADcrZUOKKp+AvgRo8sG8AUXOuHMiW+xFgnUh/R45t18X3cBap
+        N7dyn02mVbhASj1gOf+wQ/qRALV+iRS0cm7EKIByWrAPAmN4tbsIlkbYWFxfbJM4MRRXrLSvWaV
+        QX7RDyF5IWAMYmtkUfk6kpA==
+X-Received: by 2002:a05:600c:190b:b0:392:95b8:5b18 with SMTP id j11-20020a05600c190b00b0039295b85b18mr39560231wmq.152.1651153857205;
+        Thu, 28 Apr 2022 06:50:57 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzeVPvVPpXXrRQLuvUge6iFuS32PuH9PMzyLJBTvWQmhu79zqAA4V53hn1tleu4LtR6OCxdgA==
+X-Received: by 2002:a05:600c:190b:b0:392:95b8:5b18 with SMTP id j11-20020a05600c190b00b0039295b85b18mr39560218wmq.152.1651153856918;
+        Thu, 28 Apr 2022 06:50:56 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c708:ef00:7443:a23c:26b8:b96? (p200300cbc708ef007443a23c26b80b96.dip0.t-ipconnect.de. [2003:cb:c708:ef00:7443:a23c:26b8:b96])
+        by smtp.gmail.com with ESMTPSA id p18-20020adfa212000000b0020adf08d88asm8984368wra.116.2022.04.28.06.50.55
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 28 Apr 2022 06:50:55 -0700 (PDT)
+Message-ID: <22f7742e-c009-c53b-8f14-34156ea1d135@redhat.com>
+Date:   Thu, 28 Apr 2022 15:50:54 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 4Ybwl2EshRQkwllcL0wyPYRiXvQU11hl
-X-Proofpoint-ORIG-GUID: 4Ybwl2EshRQkwllcL0wyPYRiXvQU11hl
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-04-28_01,2022-04-28_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- phishscore=0 priorityscore=1501 malwarescore=0 impostorscore=0
- adultscore=0 mlxscore=0 mlxlogscore=999 clxscore=1015 suspectscore=0
- bulkscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2204280081
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.2
+Content-Language: en-US
+To:     Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
+        thuth@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, wintera@linux.ibm.com, seiden@linux.ibm.com,
+        nrb@linux.ibm.com
+References: <20220420113430.11876-1-pmorel@linux.ibm.com>
+ <20220420113430.11876-3-pmorel@linux.ibm.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Subject: Re: [PATCH v8 2/2] s390x: KVM: resetting the Topology-Change-Report
+In-Reply-To: <20220420113430.11876-3-pmorel@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Time to add the dump API changes to the api documentation file.
-Also some minor cleanup.
+On 20.04.22 13:34, Pierre Morel wrote:
+> During a subsystem reset the Topology-Change-Report is cleared.
+> Let's give userland the possibility to clear the MTCR in the case
+> of a subsystem reset.
+> 
+> To migrate the MTCR, let's give userland the possibility to
+> query the MTCR state.
+> 
+> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> ---
+>  arch/s390/include/uapi/asm/kvm.h |   9 +++
+>  arch/s390/kvm/kvm-s390.c         | 103 +++++++++++++++++++++++++++++++
+>  2 files changed, 112 insertions(+)
+> 
+> diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
+> index 7a6b14874d65..bb3df6d49f27 100644
+> --- a/arch/s390/include/uapi/asm/kvm.h
+> +++ b/arch/s390/include/uapi/asm/kvm.h
+> @@ -74,6 +74,7 @@ struct kvm_s390_io_adapter_req {
+>  #define KVM_S390_VM_CRYPTO		2
+>  #define KVM_S390_VM_CPU_MODEL		3
+>  #define KVM_S390_VM_MIGRATION		4
+> +#define KVM_S390_VM_CPU_TOPOLOGY	5
+>  
+>  /* kvm attributes for mem_ctrl */
+>  #define KVM_S390_VM_MEM_ENABLE_CMMA	0
+> @@ -171,6 +172,14 @@ struct kvm_s390_vm_cpu_subfunc {
+>  #define KVM_S390_VM_MIGRATION_START	1
+>  #define KVM_S390_VM_MIGRATION_STATUS	2
+>  
+> +/* kvm attributes for cpu topology */
+> +#define KVM_S390_VM_CPU_TOPO_MTR_CLEAR	0
+> +#define KVM_S390_VM_CPU_TOPO_MTR_SET	1
+> +
+> +struct kvm_s390_cpu_topology {
+> +	__u16 mtcr;
+> +};
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- Documentation/virt/kvm/api.rst | 152 ++++++++++++++++++++++++++++++++-
- 1 file changed, 150 insertions(+), 2 deletions(-)
+Just wondering:
 
-diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
-index 85c7abc51af5..70222f46ad22 100644
---- a/Documentation/virt/kvm/api.rst
-+++ b/Documentation/virt/kvm/api.rst
-@@ -5061,7 +5061,7 @@ into ESA mode. This reset is a superset of the initial reset.
- 	__u32 reserved[3];
-   };
- 
--cmd values:
-+**cmd values:**
- 
- KVM_PV_ENABLE
-   Allocate memory and register the VM with the Ultravisor, thereby
-@@ -5077,7 +5077,6 @@ KVM_PV_ENABLE
-   =====      =============================
- 
- KVM_PV_DISABLE
--
-   Deregister the VM from the Ultravisor and reclaim the memory that
-   had been donated to the Ultravisor, making it usable by the kernel
-   again.  All registered VCPUs are converted back to non-protected
-@@ -5094,6 +5093,114 @@ KVM_PV_VM_VERIFY
-   Verify the integrity of the unpacked image. Only if this succeeds,
-   KVM is allowed to start protected VCPUs.
- 
-+KVM_PV_INFO
-+  :Capability: KVM_CAP_S390_PROTECTED_DUMP
-+
-+  Presents an API that provides Ultravisor related data to userspace
-+  via subcommands. len_max is the size of the user space buffer,
-+  len_written is KVM's indication of how much bytes of that buffer
-+  were actually written to. len_written can be used to determine the
-+  valid fields if more response fields are added in the future.
-+
-+  ::
-+     enum pv_cmd_info_id {
-+        KVM_PV_INFO_VM,
-+        KVM_PV_INFO_DUMP,
-+     };
-+
-+     struct kvm_s390_pv_info_header {
-+        __u32 id;
-+        __u32 len_max;
-+        __u32 len_written;
-+        __u32 reserved;
-+     };
-+
-+     struct kvm_s390_pv_info {
-+        struct kvm_s390_pv_info_header header;
-+        struct kvm_s390_pv_info_dump dump;
-+	struct kvm_s390_pv_info_vm vm;
-+     };
-+
-+**subcommands:**
-+
-+  KVM_PV_INFO_VM
-+    This subcommand provides basic Ultravisor information for PV
-+    hosts. These values are likely also exported as files in the sysfs
-+    firmware UV query interface but they are more easily available to
-+    programs in this API.
-+
-+    The installed calls and feature_indication members provide the
-+    installed UV calls and the UV's other feature indications.
-+
-+    The max_* members provide information about the maximum number of PV
-+    vcpus, PV guests and PV guest memory size.
-+
-+    ::
-+
-+      struct kvm_s390_pv_info_vm {
-+        __u64 inst_calls_list[4];
-+        __u64 max_cpus;
-+        __u64 max_guests;
-+        __u64 max_guest_addr;
-+        __u64 feature_indication;
-+      };
-+
-+
-+  KVM_PV_INFO_DUMP
-+    This subcommand provides information related to dumping PV guests.
-+
-+    ::
-+
-+      struct kvm_s390_pv_info_dump {
-+        __u64 dump_cpu_buffer_len;
-+        __u64 dump_config_mem_buffer_per_1m;
-+        __u64 dump_config_finalize_len;
-+      };
-+
-+KVM_PV_DUMP
-+  :Capability: KVM_CAP_S390_PROTECTED_DUMP
-+
-+  Presents an API that provides calls which facilitate dumping a
-+  protected VM.
-+
-+  ::
-+
-+    struct kvm_s390_pv_dmp {
-+      __u64 subcmd;
-+      __u64 buff_addr;
-+      __u64 buff_len;
-+      __u64 gaddr;		/* For dump storage state */
-+    };
-+
-+  **subcommands:**
-+
-+  KVM_PV_DUMP_INIT
-+    Initializes the dump process of a protected VM. If this call does
-+    not succeed all other subcommands will fail with -EINVAL. This
-+    subcommand will return -EINVAL if a dump process has not yet been
-+    completed.
-+
-+    Not all PV vms can be dumped, the owner needs to set `dump
-+    allowed` PCF bit 34 in the SE header to allow dumping.
-+
-+  KVM_PV_DUMP_CONFIG_STOR_STATE
-+    Stores `buff_len` bytes of tweak component values starting with
-+    the 1MB block specified by the absolute guest address
-+    (`gaddr`). `buff_len` needs to be `conf_dump_storage_state_len`
-+    aligned and at least >= the `conf_dump_storage_state_len` value
-+    provided by the dump uv_info data.
-+
-+  KVM_PV_DUMP_COMPLETE
-+    If the subcommand succeeds it completes the dump process and lets
-+    KVM_PV_DUMP_INIT be called again.
-+
-+    On success `conf_dump_finalize_len` bytes of completion data will be
-+    stored to the `buff_addr`. The completion data contains a key
-+    derivation seed, IV, tweak nonce and encryption keys as well as an
-+    authentication tag all of which are needed to decrypt the dump at a
-+    later time.
-+
-+
- 4.126 KVM_X86_SET_MSR_FILTER
- ----------------------------
- 
-@@ -5646,6 +5753,32 @@ The offsets of the state save areas in struct kvm_xsave follow the contents
- of CPUID leaf 0xD on the host.
- 
- 
-+4.135 KVM_S390_PV_CPU_COMMAND
-+-----------------------------
-+
-+:Capability: KVM_CAP_S390_PROTECTED_DUMP
-+:Architectures: s390
-+:Type: vcpu ioctl
-+:Parameters: none
-+:Returns: 0 on success, < 0 on error
-+
-+This ioctl closely mirrors `KVM_S390_PV_COMMAND` but handles requests
-+for vcpus. It re-uses the kvm_s390_pv_dmp struct and hence also shares
-+the command ids.
-+
-+**command:**
-+
-+KVM_PV_DUMP
-+  Presents an API that provides calls which facilitate dumping a vcpu
-+  of a protected VM.
-+
-+**subcommand:**
-+
-+KVM_PV_DUMP_CPU
-+  Provides encrypted dump data like register values.
-+  The length of the returned data is provided by uv_info.guest_cpu_stor_len.
-+
-+
- 5. The kvm_run structure
- ========================
- 
-@@ -7724,6 +7857,21 @@ At this time, KVM_PMU_CAP_DISABLE is the only capability.  Setting
- this capability will disable PMU virtualization for that VM.  Usermode
- should adjust CPUID leaf 0xA to reflect that the PMU is disabled.
- 
-+
-+8.36 KVM_CAP_S390_PROTECTED_DUMP
-+--------------------------------
-+
-+:Capability: KVM_CAP_S390_PROTECTED_DUMP
-+:Architectures: s390
-+:Type: vm
-+
-+This capability indicates that KVM and the Ultravisor support dumping
-+PV guests. The `KVM_PV_DUMP` command is available for the
-+`KVM_S390_PV_COMMAND` ioctl and the `KVM_PV_INFO` command provides
-+dump related UV data. Also the vcpu ioctl `KVM_S390_PV_CPU_COMMAND` is
-+available and supports the `KVM_PV_DUMP_CPU` subcommand.
-+
-+
- 9. Known KVM API problems
- =========================
- 
+1) Do we really need a struct for that
+2) Do we want to leave some room for later expansion?
+
+> +
+>  /* for KVM_GET_REGS and KVM_SET_REGS */
+>  struct kvm_regs {
+>  	/* general purpose regs for s390 */
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 925ccc59f283..755f325c9e70 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -1756,6 +1756,100 @@ static int kvm_s390_sca_set_mtcr(struct kvm *kvm)
+>  	return 0;
+>  }
+>  
+> +/**
+> + * kvm_s390_sca_clear_mtcr
+> + * @kvm: guest KVM description
+> + *
+> + * Is only relevant if the topology facility is present,
+> + * the caller should check KVM facility 11
+> + *
+> + * Updates the Multiprocessor Topology-Change-Report to signal
+> + * the guest with a topology change.
+> + */
+> +static int kvm_s390_sca_clear_mtcr(struct kvm *kvm)
+> +{
+> +	struct bsca_block *sca = kvm->arch.sca;
+> +	struct kvm_vcpu *vcpu;
+> +	int val;
+> +
+> +	vcpu = kvm_s390_get_first_vcpu(kvm);
+> +	if (!vcpu)
+> +		return -ENODEV;
+
+It would be cleaner to have ipte_lock/ipte_unlock variants that are
+independent of a vcpu.
+
+Instead of checking for "vcpu->arch.sie_block->eca & ECA_SII" we might
+just check for sclp.has_siif. Everything else that performs the
+lock/unlock should be contained in "struct kvm" directly, unless I am
+missing something.
+
+[...]
+
+> +
+> +static int kvm_s390_get_topology(struct kvm *kvm, struct kvm_device_attr *attr)
+> +{
+> +	struct kvm_s390_cpu_topology *topology;
+> +	int ret = 0;
+> +
+> +	if (!test_kvm_facility(kvm, 11))
+> +		return -ENXIO;
+> +
+> +	topology = kzalloc(sizeof(*topology), GFP_KERNEL);
+> +	if (!topology)
+> +		return -ENOMEM;
+
+I'm confused. We're allocating a __u16 to then free it again below? Why
+not simply use a value on the stack like in kvm_s390_vm_get_migration()?
+
+
+
+u16 mtcr;
+...
+mtcr = kvm_s390_sca_get_mtcr(kvm);
+
+if (copy_to_user((void __user *)attr->addr, &mtcr, sizeof(mtcr)))
+	return -EFAULT;
+return 0;
+
+
+
+> +
+> +	topology->mtcr =  kvm_s390_sca_get_mtcr(kvm);
+
+s/  / /
+
+> +	if (copy_to_user((void __user *)attr->addr, topology,
+> +			 sizeof(struct kvm_s390_cpu_topology)))
+> +		ret = -EFAULT;
+> +
+> +	kfree(topology);
+> +	return ret;
+> +}
+> +
+
+
 -- 
-2.32.0
+Thanks,
+
+David / dhildenb
 
