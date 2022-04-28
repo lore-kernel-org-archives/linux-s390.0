@@ -2,125 +2,187 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ACF1FC433F5
-	for <linux-s390@archiver.kernel.org>; Thu, 28 Apr 2022 13:52:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 79310C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 28 Apr 2022 14:13:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242095AbiD1Nzt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 28 Apr 2022 09:55:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34012 "EHLO
+        id S1348185AbiD1OQp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 28 Apr 2022 10:16:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235821AbiD1Nzs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 28 Apr 2022 09:55:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BE03694A2;
-        Thu, 28 Apr 2022 06:52:34 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C17B0B82D0B;
-        Thu, 28 Apr 2022 13:52:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5544CC385A9;
-        Thu, 28 Apr 2022 13:52:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1651153951;
-        bh=ODsMq+Ft6dlX/IlXg4fQJ5/+B9MFbJhJJW4Q4ktgLxw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=eAQ2tkW+noTloQZoa3bawPAwbQnElGK0hQb/COxBVytIy6TX2Ejj95XwXO+nGKI4V
-         a35LPeQNI3AIi+uz4Y2X02zHmwACwr/q+20eHNrLBfNE34fNxJ2KeHgsln3ygah9pt
-         vhlJAX11NIXY1yVt0UyfYUE9G4vJ9G1RSxC1sCkzDZuGtWCJji9+r52pOdC0Mijy9S
-         dzOH2OrF9bf3tm5tZARzRxaFs1rhiUgKa5f2T/po64gaLVpRdYVu+nYCGECuapIQbR
-         M8KBuFnmaSCBXBMpURObGEofM5FOAzBsH3evsgzBAR7rnlFndWKvQOtFKy9+0mykuQ
-         Lq6lRBWsKXJFA==
-Received: by quaco.ghostprotocols.net (Postfix, from userid 1000)
-        id D0F09400B1; Thu, 28 Apr 2022 10:52:28 -0300 (-03)
-Date:   Thu, 28 Apr 2022 10:52:28 -0300
-From:   Arnaldo Carvalho de Melo <acme@kernel.org>
-To:     Ian Rogers <irogers@google.com>
-Cc:     Namhyung Kim <namhyung@kernel.org>, Jiri Olsa <jolsa@redhat.com>,
-        Michael Petlan <mpetlan@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>,
-        Song Liu <songliubraving@fb.com>,
-        Will Deacon <will@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        John Garry <john.garry@huawei.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Leo Yan <leo.yan@linaro.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        linux-perf-users@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH 0/3] perf tools: Tidy up symbol end fixup (v3)
-Message-ID: <YmqcHFtVTfvCCbTW@kernel.org>
-References: <20220416004048.1514900-1-namhyung@kernel.org>
- <CAP-5=fUUeqimTKoO9PQbm4yDWXZtTqxWm9ZAsNt1=K5N1Rq_Lg@mail.gmail.com>
+        with ESMTP id S1348173AbiD1OQm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 28 Apr 2022 10:16:42 -0400
+Received: from mail-il1-x130.google.com (mail-il1-x130.google.com [IPv6:2607:f8b0:4864:20::130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB584B7153
+        for <linux-s390@vger.kernel.org>; Thu, 28 Apr 2022 07:13:24 -0700 (PDT)
+Received: by mail-il1-x130.google.com with SMTP id o5so2059257ils.11
+        for <linux-s390@vger.kernel.org>; Thu, 28 Apr 2022 07:13:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ieee.org; s=google;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=bCT2JlxzOcDaE6ycYVbjB0p6hzfQxFS5OmPVl0XHT4A=;
+        b=ByPVeKDwQRcuSB47O0Zefv/dFt5S0aRWMNs2oJF7maE4wXnsormuysnBE3KE+1D9p9
+         PB3FB3BjkOR/97x+74MBqA5RA9WqHK53ukE6KnmiwNvHyxwXKz6iLxoZSM4bciItAhHz
+         gddQYhhdQpsolBOdwDYZPGvNMFMyqb4ql/QD0=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=bCT2JlxzOcDaE6ycYVbjB0p6hzfQxFS5OmPVl0XHT4A=;
+        b=yh08Km39yQWkjxz/NVG0ZtCjct0lGFqNL1eCEcIlznzuI4ity4e+4OefASax7OV0R3
+         LRGQGbXqadLaDbUgLriVMtOmwIz7xiovAbM69yjAvp+4MlnkDlezGl/ygsHLxjrgGwPN
+         mZCaAuet3DpGnFCWvjewH0UVGtQf2VzHA2Df7GQG1QuXNw6uQtC5GWwNHh/1wjQTbjN5
+         NRXoZpP/+Yo9m61hj1WVQxSsaYq7YV8iJtFtLtDfKDn+Y8K1GojCXk7X5IuTYd5gFk4V
+         M8Un6G3BTmMS+Vz4FvQH4jFRbLnEiLoA+tZcEMmdOp0wK4QjUiHvXtdOAAlSFIex/GTj
+         4NhA==
+X-Gm-Message-State: AOAM531Demaa8ExHK3b9dXAfC/CKZaYfs+caN3/XyFSlXJjfkngkla+M
+        9Ka3IyKOzK3RNhDipj6zIM3Iaw==
+X-Google-Smtp-Source: ABdhPJw448TngRonNTsTASYhGkruvfda4Cqi/x7py0vOs1UkbxiFSjNKZ9c5oG5pi/4oeINikW5dJA==
+X-Received: by 2002:a92:cac3:0:b0:2c9:a265:4cab with SMTP id m3-20020a92cac3000000b002c9a2654cabmr13504351ilq.241.1651155203895;
+        Thu, 28 Apr 2022 07:13:23 -0700 (PDT)
+Received: from [172.22.22.4] (c-73-185-129-58.hsd1.mn.comcast.net. [73.185.129.58])
+        by smtp.googlemail.com with ESMTPSA id y21-20020a6bc415000000b00648da092c8esm4431ioa.14.2022.04.28.07.13.19
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 28 Apr 2022 07:13:23 -0700 (PDT)
+Message-ID: <4cae140c-982a-6b9f-661c-4e0fdfa3297b@ieee.org>
+Date:   Thu, 28 Apr 2022 09:13:19 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAP-5=fUUeqimTKoO9PQbm4yDWXZtTqxWm9ZAsNt1=K5N1Rq_Lg@mail.gmail.com>
-X-Url:  http://acmel.wordpress.com
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH 21/30] panic: Introduce the panic pre-reboot notifier list
+Content-Language: en-US
+To:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+        akpm@linux-foundation.org, bhe@redhat.com, pmladek@suse.com,
+        kexec@lists.infradead.org
+Cc:     linux-kernel@vger.kernel.org,
+        bcm-kernel-feedback-list@broadcom.com, coresight@lists.linaro.org,
+        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-edac@vger.kernel.org,
+        linux-hyperv@vger.kernel.org, linux-leds@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
+        netdev@vger.kernel.org, openipmi-developer@lists.sourceforge.net,
+        rcu@vger.kernel.org, sparclinux@vger.kernel.org,
+        xen-devel@lists.xenproject.org, x86@kernel.org,
+        kernel-dev@igalia.com, kernel@gpiccoli.net, halves@canonical.com,
+        fabiomirmar@gmail.com, alejandro.j.jimenez@oracle.com,
+        andriy.shevchenko@linux.intel.com, arnd@arndb.de, bp@alien8.de,
+        corbet@lwn.net, d.hatayama@jp.fujitsu.com,
+        dave.hansen@linux.intel.com, dyoung@redhat.com,
+        feng.tang@intel.com, gregkh@linuxfoundation.org,
+        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
+        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
+        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
+        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
+        senozhatsky@chromium.org, stern@rowland.harvard.edu,
+        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
+        will@kernel.org, Alex Elder <elder@kernel.org>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Chris Zankel <chris@zankel.net>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Corey Minyard <minyard@acm.org>,
+        Dexuan Cui <decui@microsoft.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        James Morse <james.morse@arm.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Matt Turner <mattst88@gmail.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>,
+        Richard Henderson <rth@twiddle.net>,
+        Richard Weinberger <richard@nod.at>,
+        Robert Richter <rric@kernel.org>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, Wei Liu <wei.liu@kernel.org>
+References: <20220427224924.592546-1-gpiccoli@igalia.com>
+ <20220427224924.592546-22-gpiccoli@igalia.com>
+From:   Alex Elder <elder@ieee.org>
+In-Reply-To: <20220427224924.592546-22-gpiccoli@igalia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Em Mon, Apr 25, 2022 at 01:59:03PM -0700, Ian Rogers escreveu:
-> On Fri, Apr 15, 2022 at 5:40 PM Namhyung Kim <namhyung@kernel.org> wrote:
-> >
-> > Hello,
-> >
-> > This work is a follow-up of Ian's previous one at
-> >   https://lore.kernel.org/all/20220412154817.2728324-1-irogers@google.com/
-> >
-> > Fixing up more symbol ends as introduced in:
-> >   https://lore.kernel.org/lkml/20220317135536.805-1-mpetlan@redhat.com/
-> >
-> > it caused perf annotate to run into memory limits - every symbol holds
-> > all the disassembled code in the annotation, and so making symbols
-> > ends further away dramatically increased memory usage (40MB to >1GB).
-> >
-> > Modify the symbol end fixup logic so that special kernel cases aren't
-> > applied in the common case.
-> >
-> > v3 changes)
-> >  * rename is_kernel to is_kallsyms
-> >  * move the logic to generic function
-> >  * remove arch-specific functions
-> >
-> > Thanks,
-> > Namhyung
+On 4/27/22 5:49 PM, Guilherme G. Piccoli wrote:
+> This patch renames the panic_notifier_list to panic_pre_reboot_list;
+> the idea is that a subsequent patch will refactor the panic path
+> in order to better split the notifiers, running some of them very
+> early, some of them not so early [but still before kmsg_dump()] and
+> finally, the rest should execute late, after kdump. The latter ones
+> are now in the panic pre-reboot list - the name comes from the idea
+> that these notifiers execute before panic() attempts rebooting the
+> machine (if that option is set).
 > 
-> Thanks Namhyung! The series:
+> We also took the opportunity to clean-up useless header inclusions,
+> improve some notifier block declarations (e.g. in ibmasm/heartbeat.c)
+> and more important, change some priorities - we hereby set 2 notifiers
+> to run late in the list [iss_panic_event() and the IPMI panic_event()]
+> due to the risks they offer (may not return, for example).
+> Proper documentation is going to be provided in a subsequent patch,
+> that effectively refactors the panic path.
 > 
-> Acked-by: Ian Rogers <irogers@google.com>
+> Cc: Alex Elder <elder@kernel.org>
 
-Thanks, applied to perf/urgent.
+For "drivers/net/ipa/ipa_smp2p.c":
 
-- Arnaldo
+Acked-by: Alex Elder <elder@kernel.org>
 
- 
-> > Namhyung Kim (3):
-> >   perf symbol: Pass is_kallsyms to symbols__fixup_end()
-> >   perf symbol: Update symbols__fixup_end()
-> >   perf symbol: Remove arch__symbols__fixup_end()
-> >
-> >  tools/perf/arch/arm64/util/machine.c   | 21 ---------------
-> >  tools/perf/arch/powerpc/util/Build     |  1 -
-> >  tools/perf/arch/powerpc/util/machine.c | 25 -----------------
-> >  tools/perf/arch/s390/util/machine.c    | 16 -----------
-> >  tools/perf/util/symbol-elf.c           |  2 +-
-> >  tools/perf/util/symbol.c               | 37 +++++++++++++++++++-------
-> >  tools/perf/util/symbol.h               |  3 +--
-> >  7 files changed, 29 insertions(+), 76 deletions(-)
-> >  delete mode 100644 tools/perf/arch/powerpc/util/machine.c
-> >
-> >
-> > base-commit: 41204da4c16071be9090940b18f566832d46becc
-> > --
-> > 2.36.0.rc0.470.gd361397f0d-goog
-> >
+> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+> Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+> Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+> Cc: Chris Zankel <chris@zankel.net>
+> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Cc: Corey Minyard <minyard@acm.org>
+> Cc: Dexuan Cui <decui@microsoft.com>
+> Cc: "H. Peter Anvin" <hpa@zytor.com>
+> Cc: Haiyang Zhang <haiyangz@microsoft.com>
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Cc: Helge Deller <deller@gmx.de>
+> Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+> Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+> Cc: James Morse <james.morse@arm.com>
+> Cc: Johannes Berg <johannes@sipsolutions.net>
+> Cc: Juergen Gross <jgross@suse.com>
+> Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+> Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+> Cc: Matt Turner <mattst88@gmail.com>
+> Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+> Cc: Max Filippov <jcmvbkbc@gmail.com>
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Paul Mackerras <paulus@samba.org>
+> Cc: Pavel Machek <pavel@ucw.cz>
+> Cc: Richard Henderson <rth@twiddle.net>
+> Cc: Richard Weinberger <richard@nod.at>
+> Cc: Robert Richter <rric@kernel.org>
+> Cc: Stefano Stabellini <sstabellini@kernel.org>
+> Cc: Stephen Hemminger <sthemmin@microsoft.com>
+> Cc: Sven Schnelle <svens@linux.ibm.com>
+> Cc: Tony Luck <tony.luck@intel.com>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: Wei Liu <wei.liu@kernel.org>
+> Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
+> ---
+> 
 
--- 
-
-- Arnaldo
+. . .
