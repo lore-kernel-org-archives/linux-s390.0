@@ -2,252 +2,280 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ACB67C433FE
-	for <linux-s390@archiver.kernel.org>; Thu, 28 Apr 2022 13:05:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85527C433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 28 Apr 2022 13:05:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346810AbiD1NI5 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 28 Apr 2022 09:08:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57178 "EHLO
+        id S1346813AbiD1NI6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 28 Apr 2022 09:08:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346796AbiD1NIx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 28 Apr 2022 09:08:53 -0400
+        with ESMTP id S1346803AbiD1NIz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 28 Apr 2022 09:08:55 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18E5A8564D;
-        Thu, 28 Apr 2022 06:05:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADE798564D;
+        Thu, 28 Apr 2022 06:05:40 -0700 (PDT)
 Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23SCTlN8011374;
-        Thu, 28 Apr 2022 13:05:38 GMT
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23SCTijj011198;
+        Thu, 28 Apr 2022 13:05:40 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=SwkP41GFBRP4ZOmbXv5Btu1SsMk2TT+Ojt0NWC0Ou1w=;
- b=LsMcMQmHZM75mO3MGigUa4AnVf5OxorrqQDnhbsZeWZsPVBVyP/lJQPaC7RGjRqs60js
- N3aTvcAdhOE7whxJzD9CE0ASRlVH03uo3G16c+8IMI2ULuN3TNCKkwgFfIJKZbSH7Nyy
- 7tIqyDKZsDRXOtItrEvGfNJnHPrvlMzdGWtlJDV6JH3Gi/hvwF9hxYWYubKUgYNiOxMG
- j1E9wT1cWQHq3jalggzHV7rwhlT+dOkcxUy6s6rAMvrLbt/r/lCKQ+AFYLsYckIqXR9j
- nixl3tGh5sSQFO2RMRYXH/m/tkk1bnjWnJNhUb/cAd8nEneE8GWtTGTI/zvv/QeS3sbI Og== 
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fqtyw0rhw-1
+ bh=WJW7LkDj7H45liKkCkRnyij+AegkzTHBoOyCkAu5ZOk=;
+ b=DEH96GUKlaDta+gnzCdeEHF/2npfbYlFsYjG5mADcG9PKy1vQFjnbITQRxCxoXmYjXXl
+ QwQNCprqlQJ3zcZXjQK1a1l4klvRVJXmI+OKifYQF7SgeJRD0h4Gjj8eVa7An2qTLW2M
+ 97ncV5fchHhGBom+2gjYlSaOCOtWdmFhPUOb1NecBzYJzHVhLOGF4IZeOb38EO7Ft/lg
+ vEd0EnP0B86mOtN4VIagzz8DQ3w34cH0tAole1cmOHmvEOgr//EZpI+QH0je/ONgC6NJ
+ lSBXXn4PWbJdqcFhbFugqlDcb6FKSVdOMx/bX8cJK2lSup5NpOBAHdW/u9xhVpIjqBfW XQ== 
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fqtyw0rjw-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 28 Apr 2022 13:05:38 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23SCwisj002019;
-        Thu, 28 Apr 2022 13:05:36 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma04ams.nl.ibm.com with ESMTP id 3fm938yh06-1
+        Thu, 28 Apr 2022 13:05:40 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23SCwfLT002506;
+        Thu, 28 Apr 2022 13:05:38 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma01fra.de.ibm.com with ESMTP id 3fm938wxxk-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 28 Apr 2022 13:05:36 +0000
+        Thu, 28 Apr 2022 13:05:37 +0000
 Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23SD5XlH53412188
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23SD5jEb15663428
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 28 Apr 2022 13:05:33 GMT
+        Thu, 28 Apr 2022 13:05:45 GMT
 Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2ED6042049;
-        Thu, 28 Apr 2022 13:05:33 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 8087242041;
+        Thu, 28 Apr 2022 13:05:34 +0000 (GMT)
 Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A681C4203F;
-        Thu, 28 Apr 2022 13:05:32 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 03ACF4203F;
+        Thu, 28 Apr 2022 13:05:34 +0000 (GMT)
 Received: from linux6.. (unknown [9.114.12.104])
         by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 28 Apr 2022 13:05:32 +0000 (GMT)
+        Thu, 28 Apr 2022 13:05:33 +0000 (GMT)
 From:   Janosch Frank <frankja@linux.ibm.com>
 To:     kvm@vger.kernel.org
 Cc:     linux-s390@vger.kernel.org, borntraeger@linux.ibm.com,
         imbrenda@linux.ibm.com
-Subject: [PATCH 7/9] kvm: s390: Add CPU dump functionality
-Date:   Thu, 28 Apr 2022 13:01:00 +0000
-Message-Id: <20220428130102.230790-8-frankja@linux.ibm.com>
+Subject: [PATCH 9/9] Documentation/virt/kvm/api.rst: Add protvirt dump/info api descriptions
+Date:   Thu, 28 Apr 2022 13:01:02 +0000
+Message-Id: <20220428130102.230790-10-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20220428130102.230790-1-frankja@linux.ibm.com>
 References: <20220428130102.230790-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: fi6mXpl_UhmBFSH0-RN8gSoO1jwC_FY3
-X-Proofpoint-ORIG-GUID: fi6mXpl_UhmBFSH0-RN8gSoO1jwC_FY3
+X-Proofpoint-GUID: 4Ybwl2EshRQkwllcL0wyPYRiXvQU11hl
+X-Proofpoint-ORIG-GUID: 4Ybwl2EshRQkwllcL0wyPYRiXvQU11hl
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-04-28_01,2022-04-28_01,2022-02-23_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
  phishscore=0 priorityscore=1501 malwarescore=0 impostorscore=0
- adultscore=0 mlxscore=0 mlxlogscore=887 clxscore=1015 suspectscore=0
+ adultscore=0 mlxscore=0 mlxlogscore=999 clxscore=1015 suspectscore=0
  bulkscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2202240000 definitions=main-2204280081
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The previous patch introduced the per-VM dump functions now let's
-focus on dumping the VCPU state via the newly introduced
-KVM_S390_PV_CPU_COMMAND ioctl which mirrors the VM UV ioctl and can be
-extended with new commands later.
+Time to add the dump API changes to the api documentation file.
+Also some minor cleanup.
 
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 73 ++++++++++++++++++++++++++++++++++++++++
- arch/s390/kvm/kvm-s390.h |  1 +
- arch/s390/kvm/pv.c       | 16 +++++++++
- include/uapi/linux/kvm.h |  5 +++
- 4 files changed, 95 insertions(+)
+ Documentation/virt/kvm/api.rst | 152 ++++++++++++++++++++++++++++++++-
+ 1 file changed, 150 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 8984e8db33b4..d15ce38bef14 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -5149,6 +5149,52 @@ long kvm_arch_vcpu_async_ioctl(struct file *filp,
- 	return -ENOIOCTLCMD;
- }
+diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
+index 85c7abc51af5..70222f46ad22 100644
+--- a/Documentation/virt/kvm/api.rst
++++ b/Documentation/virt/kvm/api.rst
+@@ -5061,7 +5061,7 @@ into ESA mode. This reset is a superset of the initial reset.
+ 	__u32 reserved[3];
+   };
  
-+static int kvm_s390_handle_pv_vcpu_dump(struct kvm_vcpu *vcpu,
-+					struct kvm_pv_cmd *cmd)
-+{
-+	struct kvm_s390_pv_dmp dmp;
-+	void *data;
-+	int ret;
-+
-+	/* Dump initialization is a prerequisite */
-+	if (!vcpu->kvm->arch.pv.dumping)
-+		return -EINVAL;
-+
-+	if (copy_from_user(&dmp, (__u8 __user *)cmd->data, sizeof(dmp)))
-+		return -EFAULT;
-+
-+	/* We only handle this subcmd right now */
-+	if (dmp.subcmd != KVM_PV_DUMP_CPU)
-+		return -EINVAL;
-+
-+	/* CPU dump length is the same as create cpu storage donation. */
-+	if (dmp.buff_len != uv_info.guest_cpu_stor_len)
-+		return -EINVAL;
-+
-+	data = vzalloc(uv_info.guest_cpu_stor_len);
-+	if (!data)
-+		return -ENOMEM;
-+
-+	ret = kvm_s390_pv_dump_cpu(vcpu, data, &cmd->rc, &cmd->rrc);
-+
-+	VCPU_EVENT(vcpu, 3, "PROTVIRT DUMP CPU %d rc %x rrc %x",
-+		   vcpu->vcpu_id, cmd->rc, cmd->rrc);
-+
-+	if (ret) {
-+		vfree(data);
-+		return -EINVAL;
-+	}
-+
-+	/* On success copy over the dump data */
-+	if (copy_to_user((__u8 __user *)dmp.buff_addr, data, uv_info.guest_cpu_stor_len)) {
-+		vfree(data);
-+		return -EFAULT;
-+	}
-+
-+	vfree(data);
-+	return 0;
-+}
-+
- long kvm_arch_vcpu_ioctl(struct file *filp,
- 			 unsigned int ioctl, unsigned long arg)
- {
-@@ -5313,6 +5359,33 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
- 					   irq_state.len);
- 		break;
- 	}
-+	case KVM_S390_PV_CPU_COMMAND: {
-+		struct kvm_pv_cmd cmd;
-+
-+		r = -EINVAL;
-+		if (!is_prot_virt_host())
-+			break;
-+
-+		r = -EFAULT;
-+		if (copy_from_user(&cmd, argp, sizeof(cmd)))
-+			break;
-+
-+		r = -EINVAL;
-+		if (cmd.flags)
-+			break;
-+
-+		/* We only handle this cmd right now */
-+		if (cmd.cmd != KVM_PV_DUMP)
-+			break;
-+
-+		r = kvm_s390_handle_pv_vcpu_dump(vcpu, &cmd);
-+
-+		/* Always copy over UV rc / rrc data */
-+		if (copy_to_user((__u8 __user *)argp, &cmd.rc,
-+				 sizeof(cmd.rc) + sizeof(cmd.rrc)))
-+			r = -EFAULT;
-+		break;
-+	}
- 	default:
- 		r = -ENOTTY;
- 	}
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 2868dd0bba25..a39815184350 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -250,6 +250,7 @@ int kvm_s390_pv_set_sec_parms(struct kvm *kvm, void *hdr, u64 length, u16 *rc,
- int kvm_s390_pv_unpack(struct kvm *kvm, unsigned long addr, unsigned long size,
- 		       unsigned long tweak, u16 *rc, u16 *rrc);
- int kvm_s390_pv_set_cpu_state(struct kvm_vcpu *vcpu, u8 state);
-+int kvm_s390_pv_dump_cpu(struct kvm_vcpu *vcpu, void *buff, u16 *rc, u16 *rrc);
- int kvm_s390_pv_dump_stor_state(struct kvm *kvm, void __user *buff_user,
- 				u64 *gaddr, u64 buff_user_len, u16 *rc, u16 *rrc);
+-cmd values:
++**cmd values:**
  
-diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-index d1635ed50078..9ab8192b9b23 100644
---- a/arch/s390/kvm/pv.c
-+++ b/arch/s390/kvm/pv.c
-@@ -299,6 +299,22 @@ int kvm_s390_pv_set_cpu_state(struct kvm_vcpu *vcpu, u8 state)
- 	return 0;
- }
+ KVM_PV_ENABLE
+   Allocate memory and register the VM with the Ultravisor, thereby
+@@ -5077,7 +5077,6 @@ KVM_PV_ENABLE
+   =====      =============================
  
-+int kvm_s390_pv_dump_cpu(struct kvm_vcpu *vcpu, void *buff, u16 *rc, u16 *rrc)
-+{
-+	struct uv_cb_dump_cpu uvcb = {
-+		.header.cmd = UVC_CMD_DUMP_CPU,
-+		.header.len = sizeof(uvcb),
-+		.cpu_handle = vcpu->arch.pv.handle,
-+		.dump_area_origin = (u64)buff,
-+	};
-+	int cc;
+ KVM_PV_DISABLE
+-
+   Deregister the VM from the Ultravisor and reclaim the memory that
+   had been donated to the Ultravisor, making it usable by the kernel
+   again.  All registered VCPUs are converted back to non-protected
+@@ -5094,6 +5093,114 @@ KVM_PV_VM_VERIFY
+   Verify the integrity of the unpacked image. Only if this succeeds,
+   KVM is allowed to start protected VCPUs.
+ 
++KVM_PV_INFO
++  :Capability: KVM_CAP_S390_PROTECTED_DUMP
 +
-+	cc = uv_call_sched(0, (u64)&uvcb);
-+	*rc = uvcb.header.rc;
-+	*rrc = uvcb.header.rrc;
-+	return cc;
-+}
++  Presents an API that provides Ultravisor related data to userspace
++  via subcommands. len_max is the size of the user space buffer,
++  len_written is KVM's indication of how much bytes of that buffer
++  were actually written to. len_written can be used to determine the
++  valid fields if more response fields are added in the future.
 +
- /* Size of the cache for the storage state dump data. 1MB for now */
- #define DUMP_BUFF_LEN HPAGE_SIZE
- 
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index b34850907291..108bc7b7a71b 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -1144,6 +1144,7 @@ struct kvm_ppc_resize_hpt {
- #define KVM_CAP_S390_MEM_OP_EXTENSION 211
- #define KVM_CAP_PMU_CAPABILITY 212
- #define KVM_CAP_DISABLE_QUIRKS2 213
-+#define KVM_CAP_S390_PROTECTED_DUMP 214
- 
- #ifdef KVM_CAP_IRQ_ROUTING
- 
-@@ -1649,6 +1650,7 @@ enum pv_cmd_dmp_id {
- 	KVM_PV_DUMP_INIT,
- 	KVM_PV_DUMP_CONFIG_STOR_STATE,
- 	KVM_PV_DUMP_COMPLETE,
-+	KVM_PV_DUMP_CPU,
- };
- 
- struct kvm_s390_pv_dmp {
-@@ -2110,4 +2112,7 @@ struct kvm_stats_desc {
- /* Available with KVM_CAP_XSAVE2 */
- #define KVM_GET_XSAVE2		  _IOR(KVMIO,  0xcf, struct kvm_xsave)
- 
-+/* Available with KVM_CAP_S390_PROTECTED_DUMP */
-+#define KVM_S390_PV_CPU_COMMAND	_IOWR(KVMIO, 0xd0, struct kvm_pv_cmd)
++  ::
++     enum pv_cmd_info_id {
++        KVM_PV_INFO_VM,
++        KVM_PV_INFO_DUMP,
++     };
 +
- #endif /* __LINUX_KVM_H */
++     struct kvm_s390_pv_info_header {
++        __u32 id;
++        __u32 len_max;
++        __u32 len_written;
++        __u32 reserved;
++     };
++
++     struct kvm_s390_pv_info {
++        struct kvm_s390_pv_info_header header;
++        struct kvm_s390_pv_info_dump dump;
++	struct kvm_s390_pv_info_vm vm;
++     };
++
++**subcommands:**
++
++  KVM_PV_INFO_VM
++    This subcommand provides basic Ultravisor information for PV
++    hosts. These values are likely also exported as files in the sysfs
++    firmware UV query interface but they are more easily available to
++    programs in this API.
++
++    The installed calls and feature_indication members provide the
++    installed UV calls and the UV's other feature indications.
++
++    The max_* members provide information about the maximum number of PV
++    vcpus, PV guests and PV guest memory size.
++
++    ::
++
++      struct kvm_s390_pv_info_vm {
++        __u64 inst_calls_list[4];
++        __u64 max_cpus;
++        __u64 max_guests;
++        __u64 max_guest_addr;
++        __u64 feature_indication;
++      };
++
++
++  KVM_PV_INFO_DUMP
++    This subcommand provides information related to dumping PV guests.
++
++    ::
++
++      struct kvm_s390_pv_info_dump {
++        __u64 dump_cpu_buffer_len;
++        __u64 dump_config_mem_buffer_per_1m;
++        __u64 dump_config_finalize_len;
++      };
++
++KVM_PV_DUMP
++  :Capability: KVM_CAP_S390_PROTECTED_DUMP
++
++  Presents an API that provides calls which facilitate dumping a
++  protected VM.
++
++  ::
++
++    struct kvm_s390_pv_dmp {
++      __u64 subcmd;
++      __u64 buff_addr;
++      __u64 buff_len;
++      __u64 gaddr;		/* For dump storage state */
++    };
++
++  **subcommands:**
++
++  KVM_PV_DUMP_INIT
++    Initializes the dump process of a protected VM. If this call does
++    not succeed all other subcommands will fail with -EINVAL. This
++    subcommand will return -EINVAL if a dump process has not yet been
++    completed.
++
++    Not all PV vms can be dumped, the owner needs to set `dump
++    allowed` PCF bit 34 in the SE header to allow dumping.
++
++  KVM_PV_DUMP_CONFIG_STOR_STATE
++    Stores `buff_len` bytes of tweak component values starting with
++    the 1MB block specified by the absolute guest address
++    (`gaddr`). `buff_len` needs to be `conf_dump_storage_state_len`
++    aligned and at least >= the `conf_dump_storage_state_len` value
++    provided by the dump uv_info data.
++
++  KVM_PV_DUMP_COMPLETE
++    If the subcommand succeeds it completes the dump process and lets
++    KVM_PV_DUMP_INIT be called again.
++
++    On success `conf_dump_finalize_len` bytes of completion data will be
++    stored to the `buff_addr`. The completion data contains a key
++    derivation seed, IV, tweak nonce and encryption keys as well as an
++    authentication tag all of which are needed to decrypt the dump at a
++    later time.
++
++
+ 4.126 KVM_X86_SET_MSR_FILTER
+ ----------------------------
+ 
+@@ -5646,6 +5753,32 @@ The offsets of the state save areas in struct kvm_xsave follow the contents
+ of CPUID leaf 0xD on the host.
+ 
+ 
++4.135 KVM_S390_PV_CPU_COMMAND
++-----------------------------
++
++:Capability: KVM_CAP_S390_PROTECTED_DUMP
++:Architectures: s390
++:Type: vcpu ioctl
++:Parameters: none
++:Returns: 0 on success, < 0 on error
++
++This ioctl closely mirrors `KVM_S390_PV_COMMAND` but handles requests
++for vcpus. It re-uses the kvm_s390_pv_dmp struct and hence also shares
++the command ids.
++
++**command:**
++
++KVM_PV_DUMP
++  Presents an API that provides calls which facilitate dumping a vcpu
++  of a protected VM.
++
++**subcommand:**
++
++KVM_PV_DUMP_CPU
++  Provides encrypted dump data like register values.
++  The length of the returned data is provided by uv_info.guest_cpu_stor_len.
++
++
+ 5. The kvm_run structure
+ ========================
+ 
+@@ -7724,6 +7857,21 @@ At this time, KVM_PMU_CAP_DISABLE is the only capability.  Setting
+ this capability will disable PMU virtualization for that VM.  Usermode
+ should adjust CPUID leaf 0xA to reflect that the PMU is disabled.
+ 
++
++8.36 KVM_CAP_S390_PROTECTED_DUMP
++--------------------------------
++
++:Capability: KVM_CAP_S390_PROTECTED_DUMP
++:Architectures: s390
++:Type: vm
++
++This capability indicates that KVM and the Ultravisor support dumping
++PV guests. The `KVM_PV_DUMP` command is available for the
++`KVM_S390_PV_COMMAND` ioctl and the `KVM_PV_INFO` command provides
++dump related UV data. Also the vcpu ioctl `KVM_S390_PV_CPU_COMMAND` is
++available and supports the `KVM_PV_DUMP_CPU` subcommand.
++
++
+ 9. Known KVM API problems
+ =========================
+ 
 -- 
 2.32.0
 
