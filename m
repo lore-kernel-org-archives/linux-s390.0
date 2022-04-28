@@ -2,750 +2,146 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 52320C4167D
-	for <linux-s390@archiver.kernel.org>; Thu, 28 Apr 2022 16:26:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A622FC433EF
+	for <linux-s390@archiver.kernel.org>; Thu, 28 Apr 2022 16:49:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350001AbiD1Q3k (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 28 Apr 2022 12:29:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40592 "EHLO
+        id S1348843AbiD1QwZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 28 Apr 2022 12:52:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236309AbiD1Q3h (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 28 Apr 2022 12:29:37 -0400
-Received: from mail-qt1-x832.google.com (mail-qt1-x832.google.com [IPv6:2607:f8b0:4864:20::832])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCB6313F9C;
-        Thu, 28 Apr 2022 09:26:20 -0700 (PDT)
-Received: by mail-qt1-x832.google.com with SMTP id o11so3837281qtp.13;
-        Thu, 28 Apr 2022 09:26:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:date:from:to:cc:subject:message-id:reply-to:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=X61ynYOTK5MLCYojT5d+ysrbHRt63RIFwyQAXjqYUNE=;
-        b=RB+bl5iS3eKUU1+cjBBmoZPJ1GgbW8A749d7YnZ5vNC1ZTUNv7WuO8EMH81G6FfKTS
-         ULk5loh6t/tF8m/LAK3UZqNRLeu4MFN0UjekospklQvLFm841ye1F/VzC3oleDitZ9O1
-         cvCfYdbM5VdBWJyGeksEVUvI/wAmKaB1Xib5pllqvVtHqYCR321S43b6ZumXK649aRhK
-         zYDyDYBYNmM0JL+Vo7iNHObeaqoFD1y1D4cNFPF7xZzMMMNiqfQKAckfc8DPi2gZdtiq
-         5S67VXHmy+E6AUijmYawjpiuSvLWVR0T3rL6kGpPqkjomB2poiuXMcy1kF9nEqMyvOX9
-         Yn4g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :reply-to:references:mime-version:content-disposition
-         :content-transfer-encoding:in-reply-to;
-        bh=X61ynYOTK5MLCYojT5d+ysrbHRt63RIFwyQAXjqYUNE=;
-        b=WHwb/i+2yQiIenqY4wV4BnOCZTgasJ36Z9xG4wSgovbBc79LFoGGFd4/+uQ9XBE3WL
-         4Zxpa5r/oVHz5nAskWeaLveIJt/0a964rujMlP+fP9WANTQq9MSPk1AKsfqG9AUBIgH7
-         NmtS6NSPLA+0QBSDaXo6EV4EEa7XOSvusRUX75r/XV/wJLTB/1btSzuTVVK7UxihtaAj
-         on0B0nLKH75llnu282mLkDlfI9iPIhAFeozDrVOTDQdZZ/io49SRIU3nETyx7/OQmJvy
-         vpfOgp0WY3HzOrOl6aaOM2+QrLtHN9z503av+J66cEo7UP7KZvL3I+2GK6+Sl53PPVC4
-         /0Xg==
-X-Gm-Message-State: AOAM532D3mqhAcvl1m90zMtv2fE/17sL8jjAJZ8FPLgqM5We3aSgwOJ3
-        39XxqWXPgIQLSSym4ly5vQ==
-X-Google-Smtp-Source: ABdhPJwQWmh1NckrL0EIJZ1oxySS8ak8a2nTI4RkzvZKUWaPk/92sofmAHiS6iQOI6gZ/iWH6wc1qw==
-X-Received: by 2002:a05:622a:587:b0:2f3:7dd7:d0e0 with SMTP id c7-20020a05622a058700b002f37dd7d0e0mr9703420qtb.438.1651163179631;
-        Thu, 28 Apr 2022 09:26:19 -0700 (PDT)
-Received: from serve.minyard.net ([47.184.144.75])
-        by smtp.gmail.com with ESMTPSA id b9-20020a05620a0f8900b0069e84c5352asm169843qkn.47.2022.04.28.09.26.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 28 Apr 2022 09:26:19 -0700 (PDT)
-Sender: Corey Minyard <tcminyard@gmail.com>
-Received: from minyard.net (unknown [IPv6:2001:470:b8f6:1b:ccae:2ff0:f27f:9218])
-        by serve.minyard.net (Postfix) with ESMTPSA id 993C41800BB;
-        Thu, 28 Apr 2022 16:26:17 +0000 (UTC)
-Date:   Thu, 28 Apr 2022 11:26:16 -0500
-From:   Corey Minyard <minyard@acm.org>
-To:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>
-Cc:     akpm@linux-foundation.org, bhe@redhat.com, pmladek@suse.com,
-        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
-        bcm-kernel-feedback-list@broadcom.com, coresight@lists.linaro.org,
-        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-edac@vger.kernel.org,
-        linux-hyperv@vger.kernel.org, linux-leds@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
-        netdev@vger.kernel.org, openipmi-developer@lists.sourceforge.net,
-        rcu@vger.kernel.org, sparclinux@vger.kernel.org,
-        xen-devel@lists.xenproject.org, x86@kernel.org,
-        kernel-dev@igalia.com, kernel@gpiccoli.net, halves@canonical.com,
-        fabiomirmar@gmail.com, alejandro.j.jimenez@oracle.com,
-        andriy.shevchenko@linux.intel.com, arnd@arndb.de, bp@alien8.de,
-        corbet@lwn.net, d.hatayama@jp.fujitsu.com,
-        dave.hansen@linux.intel.com, dyoung@redhat.com,
-        feng.tang@intel.com, gregkh@linuxfoundation.org,
-        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
-        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
-        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
-        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
-        senozhatsky@chromium.org, stern@rowland.harvard.edu,
-        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
-        will@kernel.org, Alex Elder <elder@kernel.org>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Chris Zankel <chris@zankel.net>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Dexuan Cui <decui@microsoft.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Helge Deller <deller@gmx.de>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-        James Morse <james.morse@arm.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Matt Turner <mattst88@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>,
-        Richard Henderson <rth@twiddle.net>,
-        Richard Weinberger <richard@nod.at>,
-        Robert Richter <rric@kernel.org>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, Wei Liu <wei.liu@kernel.org>
-Subject: Re: [PATCH 21/30] panic: Introduce the panic pre-reboot notifier list
-Message-ID: <20220428162616.GE442787@minyard.net>
-Reply-To: minyard@acm.org
-References: <20220427224924.592546-1-gpiccoli@igalia.com>
- <20220427224924.592546-22-gpiccoli@igalia.com>
+        with ESMTP id S233777AbiD1QwX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 28 Apr 2022 12:52:23 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF5CAB3DF6;
+        Thu, 28 Apr 2022 09:49:08 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23SFUiZV022860;
+        Thu, 28 Apr 2022 16:49:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=vw3jVl9sakAXhTI6X73MPQh3wYMAWsH4Ay6MIfyWyok=;
+ b=Hz5KsGBGPbVP2T+Bntqb8AWWxgztNS0uEuJ5QxtSr9sTDuJuBovGBQeziVXBx+pRXtrP
+ QWOuOBe7yhXF7HL3l5e7udw3gNtjMQfxPMB/H4zHu2+lGM5VIhARFYMkB8nbG8h2AATX
+ 3U7tMB7TYvn7XpGMx6wQGyuKCxTXFY1A5+dgoHkwB3z6Ny+CWj8pOULb7HXu14QZAk2q
+ C8m6iu4qPhl17oG9BblcxajKU95uxPBozTpVwgQfTHBtUjBjPzSnXuujCZ5IRGFAjofG
+ 5FVQgmWxlG8tD230NA1dWIHDw+CSrwXi4Eh241yS87OOMYy67M+xbKtzvuR+S3IKJwjo yA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fqnkde0fy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 28 Apr 2022 16:49:06 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 23SG7B2b017215;
+        Thu, 28 Apr 2022 16:49:06 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fqnkde0f7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 28 Apr 2022 16:49:06 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23SGglMr010651;
+        Thu, 28 Apr 2022 16:49:04 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 3fm8qj7ua4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 28 Apr 2022 16:49:03 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23SGnBeh26542418
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 28 Apr 2022 16:49:11 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F0F9DA404D;
+        Thu, 28 Apr 2022 16:49:00 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 50A55A4040;
+        Thu, 28 Apr 2022 16:48:57 +0000 (GMT)
+Received: from [9.171.92.46] (unknown [9.171.92.46])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 28 Apr 2022 16:48:57 +0000 (GMT)
+Message-ID: <aa19672b-3da6-032b-e940-6fd6c3199d5b@linux.ibm.com>
+Date:   Thu, 28 Apr 2022 18:48:57 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220427224924.592546-22-gpiccoli@igalia.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH v2 2/2] KVM: s390: selftest: Test suppression indication
+ on key prot exception
+Content-Language: en-US
+To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org,
+        Shuah Khan <shuah@kernel.org>, linux-kselftest@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20220425100147.1755340-1-scgl@linux.ibm.com>
+ <20220425100147.1755340-3-scgl@linux.ibm.com>
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+In-Reply-To: <20220425100147.1755340-3-scgl@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: mMWAOfeigfsXYJR7iMql67xsNmxoAB07
+X-Proofpoint-GUID: MjjEA3sKilhqhWKHVtTqePLh3_gfYXri
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-04-28_02,2022-04-28_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 bulkscore=0
+ malwarescore=0 suspectscore=0 impostorscore=0 clxscore=1015 adultscore=0
+ priorityscore=1501 spamscore=0 lowpriorityscore=0 phishscore=0 mlxscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2204280099
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, Apr 27, 2022 at 07:49:15PM -0300, Guilherme G. Piccoli wrote:
-> This patch renames the panic_notifier_list to panic_pre_reboot_list;
-> the idea is that a subsequent patch will refactor the panic path
-> in order to better split the notifiers, running some of them very
-> early, some of them not so early [but still before kmsg_dump()] and
-> finally, the rest should execute late, after kdump. The latter ones
-> are now in the panic pre-reboot list - the name comes from the idea
-> that these notifiers execute before panic() attempts rebooting the
-> machine (if that option is set).
+On 4/25/22 12:01, Janis Schoetterl-Glausch wrote:
+> Check that suppression is not indicated on injection of a key checked
+> protection exception caused by a memop after it already modified guest
+> memory, as that violates the definition of suppression.
 > 
-> We also took the opportunity to clean-up useless header inclusions,
-> improve some notifier block declarations (e.g. in ibmasm/heartbeat.c)
-> and more important, change some priorities - we hereby set 2 notifiers
-> to run late in the list [iss_panic_event() and the IPMI panic_event()]
-> due to the risks they offer (may not return, for example).
-> Proper documentation is going to be provided in a subsequent patch,
-> that effectively refactors the panic path.
-
-For the IPMI portion:
-
-Acked-by: Corey Minyard <cminyard@mvista.com>
-
-Note that the IPMI panic_event() should always return, but it may take
-some time, especially if the IPMI controller is no longer functional.
-So the risk of a long delay is there and it makes sense to move it very
-late.
-
--corey
-
-> 
-> Cc: Alex Elder <elder@kernel.org>
-> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-> Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-> Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
-> Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-> Cc: Chris Zankel <chris@zankel.net>
-> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Cc: Corey Minyard <minyard@acm.org>
-> Cc: Dexuan Cui <decui@microsoft.com>
-> Cc: "H. Peter Anvin" <hpa@zytor.com>
-> Cc: Haiyang Zhang <haiyangz@microsoft.com>
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Helge Deller <deller@gmx.de>
-> Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-> Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-> Cc: James Morse <james.morse@arm.com>
-> Cc: Johannes Berg <johannes@sipsolutions.net>
-> Cc: Juergen Gross <jgross@suse.com>
-> Cc: "K. Y. Srinivasan" <kys@microsoft.com>
-> Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-> Cc: Matt Turner <mattst88@gmail.com>
-> Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-> Cc: Max Filippov <jcmvbkbc@gmail.com>
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Cc: Paul Mackerras <paulus@samba.org>
-> Cc: Pavel Machek <pavel@ucw.cz>
-> Cc: Richard Henderson <rth@twiddle.net>
-> Cc: Richard Weinberger <richard@nod.at>
-> Cc: Robert Richter <rric@kernel.org>
-> Cc: Stefano Stabellini <sstabellini@kernel.org>
-> Cc: Stephen Hemminger <sthemmin@microsoft.com>
-> Cc: Sven Schnelle <svens@linux.ibm.com>
-> Cc: Tony Luck <tony.luck@intel.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Wei Liu <wei.liu@kernel.org>
-> Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
+> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
 > ---
+>  tools/testing/selftests/kvm/s390x/memop.c | 43 ++++++++++++++++++++++-
+>  1 file changed, 42 insertions(+), 1 deletion(-)
 > 
-> Notice that, with this name change, out-of-tree code that relies in the global
-> exported "panic_notifier_list" will fail to build. We could easily keep the
-> retro-compatibility by making the old symbol to still exist and point to the
-> pre_reboot list (or even, keep the old naming).
-> 
-> But our design choice was to allow the breakage, making users rethink their
-> notifiers, adding them in the list that fits best. If that wasn't a good
-> decision, we're open to change it, of course.
-> Thanks in advance for the review!
-> 
->  arch/alpha/kernel/setup.c             |  4 ++--
->  arch/parisc/kernel/pdc_chassis.c      |  3 +--
->  arch/powerpc/kernel/setup-common.c    |  2 +-
->  arch/s390/kernel/ipl.c                |  4 ++--
->  arch/um/drivers/mconsole_kern.c       |  2 +-
->  arch/um/kernel/um_arch.c              |  2 +-
->  arch/x86/xen/enlighten.c              |  2 +-
->  arch/xtensa/platforms/iss/setup.c     |  4 ++--
->  drivers/char/ipmi/ipmi_msghandler.c   | 12 +++++++-----
->  drivers/edac/altera_edac.c            |  3 +--
->  drivers/hv/vmbus_drv.c                |  4 ++--
->  drivers/leds/trigger/ledtrig-panic.c  |  3 +--
->  drivers/misc/ibmasm/heartbeat.c       | 16 +++++++++-------
->  drivers/net/ipa/ipa_smp2p.c           |  5 ++---
->  drivers/parisc/power.c                |  4 ++--
->  drivers/remoteproc/remoteproc_core.c  |  6 ++++--
->  drivers/s390/char/con3215.c           |  2 +-
->  drivers/s390/char/con3270.c           |  2 +-
->  drivers/s390/char/sclp_con.c          |  2 +-
->  drivers/s390/char/sclp_vt220.c        |  2 +-
->  drivers/staging/olpc_dcon/olpc_dcon.c |  6 ++++--
->  drivers/video/fbdev/hyperv_fb.c       |  4 ++--
->  include/linux/panic_notifier.h        |  2 +-
->  kernel/panic.c                        |  9 ++++-----
->  24 files changed, 54 insertions(+), 51 deletions(-)
-> 
-> diff --git a/arch/alpha/kernel/setup.c b/arch/alpha/kernel/setup.c
-> index d88bdf852753..8ace0d7113b6 100644
-> --- a/arch/alpha/kernel/setup.c
-> +++ b/arch/alpha/kernel/setup.c
-> @@ -472,8 +472,8 @@ setup_arch(char **cmdline_p)
->  	}
->  
->  	/* Register a call for panic conditions. */
-> -	atomic_notifier_chain_register(&panic_notifier_list,
-> -			&alpha_panic_block);
-> +	atomic_notifier_chain_register(&panic_pre_reboot_list,
-> +					&alpha_panic_block);
->  
->  #ifndef alpha_using_srm
->  	/* Assume that we've booted from SRM if we haven't booted from MILO.
-> diff --git a/arch/parisc/kernel/pdc_chassis.c b/arch/parisc/kernel/pdc_chassis.c
-> index da154406d368..0fd8d87fb4f9 100644
-> --- a/arch/parisc/kernel/pdc_chassis.c
-> +++ b/arch/parisc/kernel/pdc_chassis.c
-> @@ -22,7 +22,6 @@
->  #include <linux/kernel.h>
->  #include <linux/panic_notifier.h>
->  #include <linux/reboot.h>
-> -#include <linux/notifier.h>
->  #include <linux/cache.h>
->  #include <linux/proc_fs.h>
->  #include <linux/seq_file.h>
-> @@ -135,7 +134,7 @@ void __init parisc_pdc_chassis_init(void)
->  				PDC_CHASSIS_VER);
->  
->  		/* initialize panic notifier chain */
-> -		atomic_notifier_chain_register(&panic_notifier_list,
-> +		atomic_notifier_chain_register(&panic_pre_reboot_list,
->  				&pdc_chassis_panic_block);
->  
->  		/* initialize reboot notifier chain */
-> diff --git a/arch/powerpc/kernel/setup-common.c b/arch/powerpc/kernel/setup-common.c
-> index d04b8bf8dbc7..3518bebc10ad 100644
-> --- a/arch/powerpc/kernel/setup-common.c
-> +++ b/arch/powerpc/kernel/setup-common.c
-> @@ -762,7 +762,7 @@ void __init setup_panic(void)
->  
->  	/* Low-level platform-specific routines that should run on panic */
->  	if (ppc_md.panic)
-> -		atomic_notifier_chain_register(&panic_notifier_list,
-> +		atomic_notifier_chain_register(&panic_pre_reboot_list,
->  					       &ppc_panic_block);
->  }
->  
-> diff --git a/arch/s390/kernel/ipl.c b/arch/s390/kernel/ipl.c
-> index 1cc85b8ff42e..4a88c5bb6e15 100644
-> --- a/arch/s390/kernel/ipl.c
-> +++ b/arch/s390/kernel/ipl.c
-> @@ -2034,7 +2034,7 @@ static int on_panic_notify(struct notifier_block *self,
->  			   unsigned long event, void *data)
->  {
->  	do_panic();
-> -	return NOTIFY_OK;
-> +	return NOTIFY_DONE;
->  }
->  
->  static struct notifier_block on_panic_nb = {
-> @@ -2069,7 +2069,7 @@ void __init setup_ipl(void)
->  		/* We have no info to copy */
->  		break;
->  	}
-> -	atomic_notifier_chain_register(&panic_notifier_list, &on_panic_nb);
-> +	atomic_notifier_chain_register(&panic_pre_reboot_list, &on_panic_nb);
->  }
->  
->  void s390_reset_system(void)
-> diff --git a/arch/um/drivers/mconsole_kern.c b/arch/um/drivers/mconsole_kern.c
-> index 2ea0421bcc3f..21c13b4e24a3 100644
-> --- a/arch/um/drivers/mconsole_kern.c
-> +++ b/arch/um/drivers/mconsole_kern.c
-> @@ -855,7 +855,7 @@ static struct notifier_block panic_exit_notifier = {
->  
->  static int add_notifier(void)
->  {
-> -	atomic_notifier_chain_register(&panic_notifier_list,
-> +	atomic_notifier_chain_register(&panic_pre_reboot_list,
->  			&panic_exit_notifier);
->  	return 0;
->  }
-> diff --git a/arch/um/kernel/um_arch.c b/arch/um/kernel/um_arch.c
-> index 4485b1a7c8e4..fc6e443299da 100644
-> --- a/arch/um/kernel/um_arch.c
-> +++ b/arch/um/kernel/um_arch.c
-> @@ -257,7 +257,7 @@ static struct notifier_block panic_exit_notifier = {
->  
->  void uml_finishsetup(void)
->  {
-> -	atomic_notifier_chain_register(&panic_notifier_list,
-> +	atomic_notifier_chain_register(&panic_pre_reboot_list,
->  				       &panic_exit_notifier);
->  
->  	uml_postsetup();
-> diff --git a/arch/x86/xen/enlighten.c b/arch/x86/xen/enlighten.c
-> index 30c6e986a6cd..d4f4de239a21 100644
-> --- a/arch/x86/xen/enlighten.c
-> +++ b/arch/x86/xen/enlighten.c
-> @@ -290,7 +290,7 @@ static struct notifier_block xen_panic_block = {
->  
->  int xen_panic_handler_init(void)
->  {
-> -	atomic_notifier_chain_register(&panic_notifier_list, &xen_panic_block);
-> +	atomic_notifier_chain_register(&panic_pre_reboot_list, &xen_panic_block);
->  	return 0;
->  }
->  
-> diff --git a/arch/xtensa/platforms/iss/setup.c b/arch/xtensa/platforms/iss/setup.c
-> index d3433e1bb94e..eeeeb6cff6bd 100644
-> --- a/arch/xtensa/platforms/iss/setup.c
-> +++ b/arch/xtensa/platforms/iss/setup.c
-> @@ -13,7 +13,6 @@
->   */
->  #include <linux/init.h>
->  #include <linux/kernel.h>
-> -#include <linux/notifier.h>
->  #include <linux/panic_notifier.h>
->  #include <linux/printk.h>
->  #include <linux/string.h>
-> @@ -53,6 +52,7 @@ iss_panic_event(struct notifier_block *this, unsigned long event, void *ptr)
->  
->  static struct notifier_block iss_panic_block = {
->  	.notifier_call = iss_panic_event,
-> +	.priority = INT_MIN, /* run as late as possible, may not return */
->  };
->  
->  void __init platform_setup(char **p_cmdline)
-> @@ -81,5 +81,5 @@ void __init platform_setup(char **p_cmdline)
->  		}
->  	}
->  
-> -	atomic_notifier_chain_register(&panic_notifier_list, &iss_panic_block);
-> +	atomic_notifier_chain_register(&panic_pre_reboot_list, &iss_panic_block);
->  }
-> diff --git a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
-> index c59265146e9c..6c4770949c01 100644
-> --- a/drivers/char/ipmi/ipmi_msghandler.c
-> +++ b/drivers/char/ipmi/ipmi_msghandler.c
-> @@ -25,7 +25,6 @@
->  #include <linux/slab.h>
->  #include <linux/ipmi.h>
->  #include <linux/ipmi_smi.h>
-> -#include <linux/notifier.h>
->  #include <linux/init.h>
->  #include <linux/proc_fs.h>
->  #include <linux/rcupdate.h>
-> @@ -5375,10 +5374,13 @@ static int ipmi_register_driver(void)
->  	return rv;
->  }
->  
-> +/*
-> + * we should execute this panic callback late, since it involves
-> + * a complex call-chain and panic() runs in atomic context.
-> + */
->  static struct notifier_block panic_block = {
->  	.notifier_call	= panic_event,
-> -	.next		= NULL,
-> -	.priority	= 200	/* priority: INT_MAX >= x >= 0 */
-> +	.priority	= INT_MIN + 1,
->  };
->  
->  static int ipmi_init_msghandler(void)
-> @@ -5406,7 +5408,7 @@ static int ipmi_init_msghandler(void)
->  	timer_setup(&ipmi_timer, ipmi_timeout, 0);
->  	mod_timer(&ipmi_timer, jiffies + IPMI_TIMEOUT_JIFFIES);
->  
-> -	atomic_notifier_chain_register(&panic_notifier_list, &panic_block);
-> +	atomic_notifier_chain_register(&panic_pre_reboot_list, &panic_block);
->  
->  	initialized = true;
->  
-> @@ -5438,7 +5440,7 @@ static void __exit cleanup_ipmi(void)
->  	if (initialized) {
->  		destroy_workqueue(remove_work_wq);
->  
-> -		atomic_notifier_chain_unregister(&panic_notifier_list,
-> +		atomic_notifier_chain_unregister(&panic_pre_reboot_list,
->  						 &panic_block);
->  
->  		/*
-> diff --git a/drivers/edac/altera_edac.c b/drivers/edac/altera_edac.c
-> index e7e8e624a436..4890e9cba6fb 100644
-> --- a/drivers/edac/altera_edac.c
-> +++ b/drivers/edac/altera_edac.c
-> @@ -16,7 +16,6 @@
->  #include <linux/kernel.h>
->  #include <linux/mfd/altera-sysmgr.h>
->  #include <linux/mfd/syscon.h>
-> -#include <linux/notifier.h>
->  #include <linux/of_address.h>
->  #include <linux/of_irq.h>
->  #include <linux/of_platform.h>
-> @@ -2163,7 +2162,7 @@ static int altr_edac_a10_probe(struct platform_device *pdev)
->  		int dberror, err_addr;
->  
->  		edac->panic_notifier.notifier_call = s10_edac_dberr_handler;
-> -		atomic_notifier_chain_register(&panic_notifier_list,
-> +		atomic_notifier_chain_register(&panic_pre_reboot_list,
->  					       &edac->panic_notifier);
->  
->  		/* Printout a message if uncorrectable error previously. */
-> diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-> index 901b97034308..3717c323aa36 100644
-> --- a/drivers/hv/vmbus_drv.c
-> +++ b/drivers/hv/vmbus_drv.c
-> @@ -1622,7 +1622,7 @@ static int vmbus_bus_init(void)
->  	 * Always register the vmbus unload panic notifier because we
->  	 * need to shut the VMbus channel connection on panic.
->  	 */
-> -	atomic_notifier_chain_register(&panic_notifier_list,
-> +	atomic_notifier_chain_register(&panic_pre_reboot_list,
->  			       &hyperv_panic_vmbus_unload_block);
->  
->  	vmbus_request_offers();
-> @@ -2851,7 +2851,7 @@ static void __exit vmbus_exit(void)
->  	 * The vmbus panic notifier is always registered, hence we should
->  	 * also unconditionally unregister it here as well.
->  	 */
-> -	atomic_notifier_chain_unregister(&panic_notifier_list,
-> +	atomic_notifier_chain_unregister(&panic_pre_reboot_list,
->  					&hyperv_panic_vmbus_unload_block);
->  
->  	free_page((unsigned long)hv_panic_page);
-> diff --git a/drivers/leds/trigger/ledtrig-panic.c b/drivers/leds/trigger/ledtrig-panic.c
-> index 64abf2e91608..34fd5170723f 100644
-> --- a/drivers/leds/trigger/ledtrig-panic.c
-> +++ b/drivers/leds/trigger/ledtrig-panic.c
-> @@ -7,7 +7,6 @@
->  
->  #include <linux/kernel.h>
->  #include <linux/init.h>
-> -#include <linux/notifier.h>
->  #include <linux/panic_notifier.h>
->  #include <linux/leds.h>
->  #include "../leds.h"
-> @@ -64,7 +63,7 @@ static long led_panic_blink(int state)
->  
->  static int __init ledtrig_panic_init(void)
->  {
-> -	atomic_notifier_chain_register(&panic_notifier_list,
-> +	atomic_notifier_chain_register(&panic_pre_reboot_list,
->  				       &led_trigger_panic_nb);
->  
->  	led_trigger_register_simple("panic", &trigger);
-> diff --git a/drivers/misc/ibmasm/heartbeat.c b/drivers/misc/ibmasm/heartbeat.c
-> index 59c9a0d95659..d6acae88b722 100644
-> --- a/drivers/misc/ibmasm/heartbeat.c
-> +++ b/drivers/misc/ibmasm/heartbeat.c
-> @@ -8,7 +8,6 @@
->   * Author: Max Asböck <amax@us.ibm.com>
->   */
->  
-> -#include <linux/notifier.h>
->  #include <linux/panic_notifier.h>
->  #include "ibmasm.h"
->  #include "dot_command.h"
-> @@ -24,7 +23,7 @@ static int suspend_heartbeats = 0;
->   * In the case of a panic the interrupt handler continues to work and thus
->   * continues to respond to heartbeats, making the service processor believe
->   * the OS is still running and thus preventing a reboot.
-> - * To prevent this from happening a callback is added the panic_notifier_list.
-> + * To prevent this from happening a callback is added in a panic notifier list.
->   * Before responding to a heartbeat the driver checks if a panic has happened,
->   * if yes it suspends heartbeat, causing the service processor to reboot as
->   * expected.
-> @@ -32,20 +31,23 @@ static int suspend_heartbeats = 0;
->  static int panic_happened(struct notifier_block *n, unsigned long val, void *v)
->  {
->  	suspend_heartbeats = 1;
-> -	return 0;
-> +	return NOTIFY_DONE;
->  }
->  
-> -static struct notifier_block panic_notifier = { panic_happened, NULL, 1 };
-> +static struct notifier_block panic_notifier = {
-> +	.notifier_call = panic_happened,
-> +};
->  
->  void ibmasm_register_panic_notifier(void)
->  {
-> -	atomic_notifier_chain_register(&panic_notifier_list, &panic_notifier);
-> +	atomic_notifier_chain_register(&panic_pre_reboot_list,
-> +					&panic_notifier);
->  }
->  
->  void ibmasm_unregister_panic_notifier(void)
->  {
-> -	atomic_notifier_chain_unregister(&panic_notifier_list,
-> -			&panic_notifier);
-> +	atomic_notifier_chain_unregister(&panic_pre_reboot_list,
-> +					&panic_notifier);
->  }
->  
->  
-> diff --git a/drivers/net/ipa/ipa_smp2p.c b/drivers/net/ipa/ipa_smp2p.c
-> index 211233612039..92cdf6e0637c 100644
-> --- a/drivers/net/ipa/ipa_smp2p.c
-> +++ b/drivers/net/ipa/ipa_smp2p.c
-> @@ -7,7 +7,6 @@
->  #include <linux/types.h>
->  #include <linux/device.h>
->  #include <linux/interrupt.h>
-> -#include <linux/notifier.h>
->  #include <linux/panic_notifier.h>
->  #include <linux/pm_runtime.h>
->  #include <linux/soc/qcom/smem.h>
-> @@ -138,13 +137,13 @@ static int ipa_smp2p_panic_notifier_register(struct ipa_smp2p *smp2p)
->  	smp2p->panic_notifier.notifier_call = ipa_smp2p_panic_notifier;
->  	smp2p->panic_notifier.priority = INT_MAX;	/* Do it early */
->  
-> -	return atomic_notifier_chain_register(&panic_notifier_list,
-> +	return atomic_notifier_chain_register(&panic_pre_reboot_list,
->  					      &smp2p->panic_notifier);
->  }
->  
->  static void ipa_smp2p_panic_notifier_unregister(struct ipa_smp2p *smp2p)
->  {
-> -	atomic_notifier_chain_unregister(&panic_notifier_list,
-> +	atomic_notifier_chain_unregister(&panic_pre_reboot_list,
->  					 &smp2p->panic_notifier);
->  }
->  
-> diff --git a/drivers/parisc/power.c b/drivers/parisc/power.c
-> index 8512884de2cf..5bb0868f5f08 100644
-> --- a/drivers/parisc/power.c
-> +++ b/drivers/parisc/power.c
-> @@ -233,7 +233,7 @@ static int __init power_init(void)
->  	}
->  
->  	/* Register a call for panic conditions. */
-> -	atomic_notifier_chain_register(&panic_notifier_list,
-> +	atomic_notifier_chain_register(&panic_pre_reboot_list,
->  			&parisc_panic_block);
->  
->  	return 0;
-> @@ -243,7 +243,7 @@ static void __exit power_exit(void)
->  {
->  	kthread_stop(power_task);
->  
-> -	atomic_notifier_chain_unregister(&panic_notifier_list,
-> +	atomic_notifier_chain_unregister(&panic_pre_reboot_list,
->  			&parisc_panic_block);
->  
->  	pdc_soft_power_button(0);
-> diff --git a/drivers/remoteproc/remoteproc_core.c b/drivers/remoteproc/remoteproc_core.c
-> index c510125769b9..24799ff239e6 100644
-> --- a/drivers/remoteproc/remoteproc_core.c
-> +++ b/drivers/remoteproc/remoteproc_core.c
-> @@ -2795,12 +2795,14 @@ static int rproc_panic_handler(struct notifier_block *nb, unsigned long event,
->  static void __init rproc_init_panic(void)
->  {
->  	rproc_panic_nb.notifier_call = rproc_panic_handler;
-> -	atomic_notifier_chain_register(&panic_notifier_list, &rproc_panic_nb);
-> +	atomic_notifier_chain_register(&panic_pre_reboot_list,
-> +				       &rproc_panic_nb);
->  }
->  
->  static void __exit rproc_exit_panic(void)
->  {
-> -	atomic_notifier_chain_unregister(&panic_notifier_list, &rproc_panic_nb);
-> +	atomic_notifier_chain_unregister(&panic_pre_reboot_list,
-> +					 &rproc_panic_nb);
->  }
->  
->  static int __init remoteproc_init(void)
-> diff --git a/drivers/s390/char/con3215.c b/drivers/s390/char/con3215.c
-> index 192198bd3dc4..07379dd3f1f3 100644
-> --- a/drivers/s390/char/con3215.c
-> +++ b/drivers/s390/char/con3215.c
-> @@ -867,7 +867,7 @@ static int __init con3215_init(void)
->  		raw3215[0] = NULL;
->  		return -ENODEV;
->  	}
-> -	atomic_notifier_chain_register(&panic_notifier_list, &on_panic_nb);
-> +	atomic_notifier_chain_register(&panic_pre_reboot_list, &on_panic_nb);
->  	register_reboot_notifier(&on_reboot_nb);
->  	register_console(&con3215);
->  	return 0;
-> diff --git a/drivers/s390/char/con3270.c b/drivers/s390/char/con3270.c
-> index 476202f3d8a0..e79bf3e7bde3 100644
-> --- a/drivers/s390/char/con3270.c
-> +++ b/drivers/s390/char/con3270.c
-> @@ -645,7 +645,7 @@ con3270_init(void)
->  	condev->cline->len = 0;
->  	con3270_create_status(condev);
->  	condev->input = alloc_string(&condev->freemem, 80);
-> -	atomic_notifier_chain_register(&panic_notifier_list, &on_panic_nb);
-> +	atomic_notifier_chain_register(&panic_pre_reboot_list, &on_panic_nb);
->  	register_reboot_notifier(&on_reboot_nb);
->  	register_console(&con3270);
->  	return 0;
-> diff --git a/drivers/s390/char/sclp_con.c b/drivers/s390/char/sclp_con.c
-> index e5d947c763ea..7ca9d4c45d60 100644
-> --- a/drivers/s390/char/sclp_con.c
-> +++ b/drivers/s390/char/sclp_con.c
-> @@ -288,7 +288,7 @@ sclp_console_init(void)
->  	timer_setup(&sclp_con_timer, sclp_console_timeout, 0);
->  
->  	/* enable printk-access to this driver */
-> -	atomic_notifier_chain_register(&panic_notifier_list, &on_panic_nb);
-> +	atomic_notifier_chain_register(&panic_pre_reboot_list, &on_panic_nb);
->  	register_reboot_notifier(&on_reboot_nb);
->  	register_console(&sclp_console);
->  	return 0;
-> diff --git a/drivers/s390/char/sclp_vt220.c b/drivers/s390/char/sclp_vt220.c
-> index a32f34a1c6d2..97cf9e290c28 100644
-> --- a/drivers/s390/char/sclp_vt220.c
-> +++ b/drivers/s390/char/sclp_vt220.c
-> @@ -838,7 +838,7 @@ sclp_vt220_con_init(void)
->  	if (rc)
->  		return rc;
->  	/* Attach linux console */
-> -	atomic_notifier_chain_register(&panic_notifier_list, &on_panic_nb);
-> +	atomic_notifier_chain_register(&panic_pre_reboot_list, &on_panic_nb);
->  	register_reboot_notifier(&on_reboot_nb);
->  	register_console(&sclp_vt220_console);
->  	return 0;
-> diff --git a/drivers/staging/olpc_dcon/olpc_dcon.c b/drivers/staging/olpc_dcon/olpc_dcon.c
-> index 7284cb4ac395..cb50471f2246 100644
-> --- a/drivers/staging/olpc_dcon/olpc_dcon.c
-> +++ b/drivers/staging/olpc_dcon/olpc_dcon.c
-> @@ -653,7 +653,8 @@ static int dcon_probe(struct i2c_client *client, const struct i2c_device_id *id)
->  	}
->  
->  	register_reboot_notifier(&dcon->reboot_nb);
-> -	atomic_notifier_chain_register(&panic_notifier_list, &dcon_panic_nb);
-> +	atomic_notifier_chain_register(&panic_pre_reboot_list,
-> +				       &dcon_panic_nb);
->  
->  	return 0;
->  
-> @@ -676,7 +677,8 @@ static int dcon_remove(struct i2c_client *client)
->  	struct dcon_priv *dcon = i2c_get_clientdata(client);
->  
->  	unregister_reboot_notifier(&dcon->reboot_nb);
-> -	atomic_notifier_chain_unregister(&panic_notifier_list, &dcon_panic_nb);
-> +	atomic_notifier_chain_unregister(&panic_pre_reboot_list,
-> +					 &dcon_panic_nb);
->  
->  	free_irq(DCON_IRQ, dcon);
->  
-> diff --git a/drivers/video/fbdev/hyperv_fb.c b/drivers/video/fbdev/hyperv_fb.c
-> index f3494b868a64..ec21e63592be 100644
-> --- a/drivers/video/fbdev/hyperv_fb.c
-> +++ b/drivers/video/fbdev/hyperv_fb.c
-> @@ -1253,7 +1253,7 @@ static int hvfb_probe(struct hv_device *hdev,
->  	 */
->  	par->hvfb_panic_nb.notifier_call = hvfb_on_panic;
->  	par->hvfb_panic_nb.priority = INT_MIN + 10,
-> -	atomic_notifier_chain_register(&panic_notifier_list,
-> +	atomic_notifier_chain_register(&panic_pre_reboot_list,
->  				       &par->hvfb_panic_nb);
->  
->  	return 0;
-> @@ -1276,7 +1276,7 @@ static int hvfb_remove(struct hv_device *hdev)
->  	struct fb_info *info = hv_get_drvdata(hdev);
->  	struct hvfb_par *par = info->par;
->  
-> -	atomic_notifier_chain_unregister(&panic_notifier_list,
-> +	atomic_notifier_chain_unregister(&panic_pre_reboot_list,
->  					 &par->hvfb_panic_nb);
->  
->  	par->update = false;
-> diff --git a/include/linux/panic_notifier.h b/include/linux/panic_notifier.h
-> index 7364a346bcb0..7912aacbc0e5 100644
-> --- a/include/linux/panic_notifier.h
-> +++ b/include/linux/panic_notifier.h
-> @@ -5,9 +5,9 @@
->  #include <linux/notifier.h>
->  #include <linux/types.h>
->  
-> -extern struct atomic_notifier_head panic_notifier_list;
->  extern struct atomic_notifier_head panic_hypervisor_list;
->  extern struct atomic_notifier_head panic_info_list;
-> +extern struct atomic_notifier_head panic_pre_reboot_list;
->  
->  extern bool crash_kexec_post_notifiers;
->  
-> diff --git a/kernel/panic.c b/kernel/panic.c
-> index 73ca1bc44e30..a9d43b98b05b 100644
-> --- a/kernel/panic.c
-> +++ b/kernel/panic.c
-> @@ -69,16 +69,15 @@ EXPORT_SYMBOL_GPL(panic_timeout);
->  #define PANIC_PRINT_ALL_CPU_BT		0x00000040
->  unsigned long panic_print;
->  
-> -ATOMIC_NOTIFIER_HEAD(panic_notifier_list);
-> -
-> -EXPORT_SYMBOL(panic_notifier_list);
-> -
->  ATOMIC_NOTIFIER_HEAD(panic_hypervisor_list);
->  EXPORT_SYMBOL(panic_hypervisor_list);
->  
->  ATOMIC_NOTIFIER_HEAD(panic_info_list);
->  EXPORT_SYMBOL(panic_info_list);
->  
-> +ATOMIC_NOTIFIER_HEAD(panic_pre_reboot_list);
-> +EXPORT_SYMBOL(panic_pre_reboot_list);
+> diff --git a/tools/testing/selftests/kvm/s390x/memop.c b/tools/testing/selftests/kvm/s390x/memop.c
+> index b04c2c1b3c30..ce176ad9f216 100644
+> --- a/tools/testing/selftests/kvm/s390x/memop.c
+> +++ b/tools/testing/selftests/kvm/s390x/memop.c
+
+[...]
+
+> +static void test_termination(void)
+> +{
+> +	struct test_default t = test_default_init(guest_error_key);
+> +	uint64_t prefix;
+> +	uint64_t teid;
+> +	uint64_t psw[2];
 > +
->  static long no_blink(int state)
->  {
->  	return 0;
-> @@ -295,7 +294,7 @@ void panic(const char *fmt, ...)
->  	 */
->  	atomic_notifier_call_chain(&panic_hypervisor_list, PANIC_NOTIFIER, buf);
->  	atomic_notifier_call_chain(&panic_info_list, PANIC_NOTIFIER, buf);
-> -	atomic_notifier_call_chain(&panic_notifier_list, PANIC_NOTIFIER, buf);
-> +	atomic_notifier_call_chain(&panic_pre_reboot_list, PANIC_NOTIFIER, buf);
->  
->  	panic_print_sys_info(false);
->  
-> -- 
-> 2.36.0
-> 
+> +	HOST_SYNC(t.vcpu, STAGE_INITED);
+> +	HOST_SYNC(t.vcpu, STAGE_SKEYS_SET);
+> +
+> +	/* vcpu, mismatching keys after first page */
+> +	ERR_PROT_MOP(t.vcpu, LOGICAL, WRITE, mem1, t.size, GADDR_V(mem1), KEY(1), INJECT);
+> +	/*
+> +	 * The memop injected a program exception and the test needs to check the
+> +	 * Translation-Exception Identification (TEID). It is necessary to run
+> +	 * the guest in order to be able to read the TEID from guest memory.
+> +	 * Set the guest program new PSW, so the guest state is not clobbered.
+> +	 */
+> +	prefix = t.run->s.regs.prefix;
+> +	psw[0] = t.run->psw_mask;
+> +	psw[1] = t.run->psw_addr;
+> +	MOP(t.vm, ABSOLUTE, WRITE, psw, sizeof(psw), GADDR(prefix + 464));
+> +	HOST_SYNC(t.vcpu, STAGE_IDLED);
+> +	MOP(t.vm, ABSOLUTE, READ, &teid, sizeof(teid), GADDR(prefix + 168));
+> +	/* Bits 56, 60, 61 form a code, 0 being the only one allowing for termination */
+> +	ASSERT_EQ(teid & 0x4c, 0);
+
+The constant is wrong, should be 0x8c instead, or better, a more straight forward
+expression that evaluates to it.
+
+[...]
