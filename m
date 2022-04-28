@@ -2,51 +2,51 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A82EBC43219
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 35E82C433EF
 	for <linux-s390@archiver.kernel.org>; Thu, 28 Apr 2022 20:51:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351988AbiD1Uys (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        id S1351983AbiD1Uys (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
         Thu, 28 Apr 2022 16:54:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56504 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351959AbiD1Uyn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 28 Apr 2022 16:54:43 -0400
-Received: from mail-qk1-x734.google.com (mail-qk1-x734.google.com [IPv6:2607:f8b0:4864:20::734])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BA0FC0E5A;
-        Thu, 28 Apr 2022 13:51:27 -0700 (PDT)
-Received: by mail-qk1-x734.google.com with SMTP id s4so4585941qkh.0;
-        Thu, 28 Apr 2022 13:51:27 -0700 (PDT)
+        with ESMTP id S1351949AbiD1Uyk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 28 Apr 2022 16:54:40 -0400
+Received: from mail-qk1-x735.google.com (mail-qk1-x735.google.com [IPv6:2607:f8b0:4864:20::735])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5A9FC0E5B;
+        Thu, 28 Apr 2022 13:51:24 -0700 (PDT)
+Received: by mail-qk1-x735.google.com with SMTP id e128so4539075qkd.7;
+        Thu, 28 Apr 2022 13:51:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=/BaooLzAKHS9Su+qBeGx1AzKlxdTJqpbBgALV7a+lkY=;
-        b=MSB06OYuM4vzrWqwQq2U1WVVBwEbaiCPelC6EXPkuZMcw/sC0MEEGljhHmrGZ1z798
-         536aKbryjcWX6KGezO6vag8k8Pp+hWnwm+aoTLJ6Pk47FYEcEuXsi0GfQwJdebEcxyvR
-         wAwgOyje2Tws5RQxcMNCaok+AI/fR0DOm+fCP1irGLWgwioHqNVXwaFgpzKhqBWSvF0e
-         6p0Np4HcorErIoOGYB183hT+pb4R+YbELFpj0PCKjCkpAgEVdeTT+YKNX90unvXGr1j/
-         rqTq+XJfwxpIvZeQFh37Z2U7BXv32Q2PWiXhzqIG3MssbY22vWlPidfP5c46y03srtEV
-         vZPw==
+        bh=1EpAoNh3djiR0hepuMZWh5K1dw4NUP6DaD4hagEgG3I=;
+        b=f0Z5dX7wbl0R92CisFojyWE8K6d/92OfvlFaiM4rI3zIxB5QCKji7UaeMDC0t4yZQm
+         aikCalRWglJhYnECZgsmp2vVjMNf7pvH/1P6OIgFcJynEQTRsg+Ysmz5ePKgLkwGXQtv
+         aBn5NFDhHfffiGtIKiX9W8bb7QrCc0tLvbagvulxDyJrnoVVS3QU/NcLk/nplpXf7Vwy
+         SgmR6hZulUr7Xu8zxii1h1hFau4ctQCbELlTGxSbEGJg4MVe7yNm2GTKJdpLgQfRvQMC
+         w6DIL0w4Z0FlEZMtkeq6GTt5Mb8nGIUycBHj7rqt1GKpqWiYBRAP8R06GIyp4DCn8yje
+         J08Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=/BaooLzAKHS9Su+qBeGx1AzKlxdTJqpbBgALV7a+lkY=;
-        b=OFFty82rNeGBDZFSy6Chg3c87Yp718JegYkg3270oTKIr/qX0AznrOsbRDQ3Oj6msu
-         4ifavFoNY0Jub4Q9OJnvVHmkGBc2ZsBPUDqM++ha5UwujzwIJZwZWsWyh6vm8vD8bajP
-         LPNKNta3ZOufVU54ieeV6jMR+7tyVb/WQKh1/sQQGNkrgfK16dG3GUBb/Uy4x5MKqS1Z
-         JA7DH0qTHkOFXtZbVQd0oGFf9EVyT85hdu8jBVTDboXC052YXgVpk560a953hWl8MOFO
-         QgSqaHJI0MAvYbmVwhdGMqzjse7kb9ouyE9OiUny9OjG7Via4nbgikrvXFTMvx09EB47
-         W9Iw==
-X-Gm-Message-State: AOAM53096Rqkq8dif0I+tM/Nb5I4/kPY/GeZfH4tCavkWSEjuXHaHVyR
-        /C4qzoe2SB1PFsl6D7JQZR3H0amygmk=
-X-Google-Smtp-Source: ABdhPJwgTBNoaiyndhh2z4VT3EESH1Q5rsnilRmKWwzQG5A8cFDGXw3yE0CM9mJL0lvThT5ehcIv1A==
-X-Received: by 2002:a37:a3d2:0:b0:69f:74af:2aef with SMTP id m201-20020a37a3d2000000b0069f74af2aefmr10045059qke.388.1651179086102;
-        Thu, 28 Apr 2022 13:51:26 -0700 (PDT)
+        bh=1EpAoNh3djiR0hepuMZWh5K1dw4NUP6DaD4hagEgG3I=;
+        b=jz6wjKrMfFcTV6a8neDjuQs9JTFLPwCvKsrmHBzABMl8w9UvZuIONSvZReqZ0S65fT
+         lcWTcmPOdW/gApar3W3OtOFZoi48wPCiWDWAEhHRvhmFrfarqh9Q8ogRQdlqBV8dGKpy
+         C9ZJYCXAJ+sBrziiJpJzEndcfz79ZicyaK2MOumtjcwr6AtRt8WD98+pOGoDgZQ14/wb
+         qpyxstYsHMBHasmmFsWXnnJOVQD0B3rl8UA/S58E4EuVlT6ODLc4dLb67C6wAvfaoKnN
+         7uMBn14Lh0Pogx4l+PfyHOKDXlfj1zGuzkGYm1IVSfzqMfA5QRNBGbMHKRw+8UeslKuy
+         puZg==
+X-Gm-Message-State: AOAM530vo2uzv/I/rPdHpzAlf1nSGLeCwHtKd6VFo7gpEXp4+WTnN5TU
+        x6KtPd/YvFy1bqE/4Lev7ClTtIX0D6w=
+X-Google-Smtp-Source: ABdhPJxXLTFxVkZ3KgwG5707+YbXl4dlJCsL8/vtRybqZmkDB4puHhN7Wh7fO6njap7k2zXxkTsQpQ==
+X-Received: by 2002:a05:620a:2715:b0:69f:9e98:7501 with SMTP id b21-20020a05620a271500b0069f9e987501mr3591382qkp.346.1651179083615;
+        Thu, 28 Apr 2022 13:51:23 -0700 (PDT)
 Received: from localhost ([2601:c4:c432:4da:fa85:340e:2244:1d8c])
-        by smtp.gmail.com with ESMTPSA id d65-20020a37b444000000b0069e9f79795fsm494549qkf.67.2022.04.28.13.51.25
+        by smtp.gmail.com with ESMTPSA id g10-20020ac8580a000000b002f35323f82csm613818qtg.30.2022.04.28.13.51.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 28 Apr 2022 13:51:25 -0700 (PDT)
+        Thu, 28 Apr 2022 13:51:23 -0700 (PDT)
 From:   Yury Norov <yury.norov@gmail.com>
 To:     linux-kernel@vger.kernel.org,
         Alexander Gordeev <agordeev@linux.ibm.com>,
@@ -61,9 +61,9 @@ To:     linux-kernel@vger.kernel.org,
         Vasily Gorbik <gor@linux.ibm.com>,
         Yury Norov <yury.norov@gmail.com>, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org
-Subject: [PATCH 5/5] drm/amd/pm: use bitmap_{from,to}_arr32 where appropriate
-Date:   Thu, 28 Apr 2022 13:51:16 -0700
-Message-Id: <20220428205116.861003-6-yury.norov@gmail.com>
+Subject: [PATCH 3/5] lib/bitmap: add test for bitmap_{from,to}_arr64
+Date:   Thu, 28 Apr 2022 13:51:14 -0700
+Message-Id: <20220428205116.861003-4-yury.norov@gmail.com>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20220428205116.861003-1-yury.norov@gmail.com>
 References: <20220428205116.861003-1-yury.norov@gmail.com>
@@ -73,42 +73,57 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-The smu_v1X_0_set_allowed_mask() uses bitmap_copy() to convert
-bitmap to 32-bit array. This may be wrong due to endiannes issues.
-Fix it by switching to bitmap_{from,to}_arr32.
+Test newly added bitmap_{from,to}_arr64() functions similarly to
+already existing bitmap_{from,to}_arr32() tests.
 
 Signed-off-by: Yury Norov <yury.norov@gmail.com>
 ---
- drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c | 2 +-
- drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ lib/test_bitmap.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c b/drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c
-index b87f550af26b..5f8809f6990d 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c
-@@ -781,7 +781,7 @@ int smu_v11_0_set_allowed_mask(struct smu_context *smu)
- 		goto failed;
+diff --git a/lib/test_bitmap.c b/lib/test_bitmap.c
+index 0c82f07f74fc..d5923a640457 100644
+--- a/lib/test_bitmap.c
++++ b/lib/test_bitmap.c
+@@ -585,6 +585,30 @@ static void __init test_bitmap_arr32(void)
  	}
+ }
  
--	bitmap_copy((unsigned long *)feature_mask, feature->allowed, 64);
-+	bitmap_to_arr32(feature_mask, feature->allowed, 64);
- 
- 	ret = smu_cmn_send_smc_msg_with_param(smu, SMU_MSG_SetAllowedFeaturesMaskHigh,
- 					  feature_mask[1], NULL);
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c
-index cf09e30bdfe0..747430ce6394 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c
-@@ -730,7 +730,7 @@ int smu_v13_0_set_allowed_mask(struct smu_context *smu)
- 	    feature->feature_num < 64)
- 		return -EINVAL;
- 
--	bitmap_copy((unsigned long *)feature_mask, feature->allowed, 64);
-+	bitmap_to_arr32(feature_mask, feature->allowed, 64);
- 
- 	ret = smu_cmn_send_smc_msg_with_param(smu, SMU_MSG_SetAllowedFeaturesMaskHigh,
- 					      feature_mask[1], NULL);
++static void __init test_bitmap_arr64(void)
++{
++	unsigned int nbits, next_bit;
++	u64 arr[EXP1_IN_BITS / 64];
++	DECLARE_BITMAP(bmap2, EXP1_IN_BITS);
++
++	memset(arr, 0xa5, sizeof(arr));
++
++	for (nbits = 0; nbits < EXP1_IN_BITS; ++nbits) {
++		memset(bmap2, 0xff, sizeof(arr));
++		bitmap_to_arr64(arr, exp1, nbits);
++		bitmap_from_arr64(bmap2, arr, nbits);
++		expect_eq_bitmap(bmap2, exp1, nbits);
++
++		next_bit = find_next_bit(bmap2, round_up(nbits, BITS_PER_LONG), nbits);
++		if (next_bit < round_up(nbits, BITS_PER_LONG))
++			pr_err("bitmap_copy_arr64(nbits == %d:"
++				" tail is not safely cleared: %d\n", nbits, next_bit);
++
++		if (nbits < EXP1_IN_BITS - 64)
++			expect_eq_uint(arr[DIV_ROUND_UP(nbits, 64)], 0xa5a5a5a5);
++	}
++}
++
+ static void noinline __init test_mem_optimisations(void)
+ {
+ 	DECLARE_BITMAP(bmap1, 1024);
+@@ -852,6 +876,7 @@ static void __init selftest(void)
+ 	test_copy();
+ 	test_replace();
+ 	test_bitmap_arr32();
++	test_bitmap_arr64();
+ 	test_bitmap_parse();
+ 	test_bitmap_parselist();
+ 	test_bitmap_printlist();
 -- 
 2.32.0
 
