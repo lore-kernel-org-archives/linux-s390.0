@@ -2,146 +2,239 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A622FC433EF
-	for <linux-s390@archiver.kernel.org>; Thu, 28 Apr 2022 16:49:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 64039C41535
+	for <linux-s390@archiver.kernel.org>; Thu, 28 Apr 2022 16:58:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348843AbiD1QwZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 28 Apr 2022 12:52:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45948 "EHLO
+        id S1350403AbiD1RBO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 28 Apr 2022 13:01:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233777AbiD1QwX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 28 Apr 2022 12:52:23 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF5CAB3DF6;
-        Thu, 28 Apr 2022 09:49:08 -0700 (PDT)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23SFUiZV022860;
-        Thu, 28 Apr 2022 16:49:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=vw3jVl9sakAXhTI6X73MPQh3wYMAWsH4Ay6MIfyWyok=;
- b=Hz5KsGBGPbVP2T+Bntqb8AWWxgztNS0uEuJ5QxtSr9sTDuJuBovGBQeziVXBx+pRXtrP
- QWOuOBe7yhXF7HL3l5e7udw3gNtjMQfxPMB/H4zHu2+lGM5VIhARFYMkB8nbG8h2AATX
- 3U7tMB7TYvn7XpGMx6wQGyuKCxTXFY1A5+dgoHkwB3z6Ny+CWj8pOULb7HXu14QZAk2q
- C8m6iu4qPhl17oG9BblcxajKU95uxPBozTpVwgQfTHBtUjBjPzSnXuujCZ5IRGFAjofG
- 5FVQgmWxlG8tD230NA1dWIHDw+CSrwXi4Eh241yS87OOMYy67M+xbKtzvuR+S3IKJwjo yA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fqnkde0fy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 28 Apr 2022 16:49:06 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 23SG7B2b017215;
-        Thu, 28 Apr 2022 16:49:06 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fqnkde0f7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 28 Apr 2022 16:49:06 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23SGglMr010651;
-        Thu, 28 Apr 2022 16:49:04 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 3fm8qj7ua4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 28 Apr 2022 16:49:03 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23SGnBeh26542418
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 28 Apr 2022 16:49:11 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F0F9DA404D;
-        Thu, 28 Apr 2022 16:49:00 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 50A55A4040;
-        Thu, 28 Apr 2022 16:48:57 +0000 (GMT)
-Received: from [9.171.92.46] (unknown [9.171.92.46])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 28 Apr 2022 16:48:57 +0000 (GMT)
-Message-ID: <aa19672b-3da6-032b-e940-6fd6c3199d5b@linux.ibm.com>
-Date:   Thu, 28 Apr 2022 18:48:57 +0200
+        with ESMTP id S235928AbiD1RBL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 28 Apr 2022 13:01:11 -0400
+Received: from mout.gmx.net (mout.gmx.net [212.227.15.15])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7208BB6D27;
+        Thu, 28 Apr 2022 09:57:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1651164963;
+        bh=DUb16bHT8ZVVcSBzzE8lnieko2RHZpG2zbwsEWdWo2c=;
+        h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:In-Reply-To;
+        b=TrwFfhoA2P1jqiZSh6qbThQbWQ3kajZ2U+JQrRL/jSZxckwFV1BopRKv6DRaeQSKC
+         DM8QpY2fv9fsoSq055uYb4MCMz8e9HvG+guo2m9xr29cJoYbxYguo2PwZIKFp/JXdB
+         qy9XbYXMKcmj9vbKxczpPpGqEow6LzKi+qj1B+ao=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [192.168.20.60] ([92.116.133.159]) by mail.gmx.net (mrgmx004
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1MzyuS-1o6TNU3b1S-00x2R3; Thu, 28
+ Apr 2022 18:56:03 +0200
+Message-ID: <6a7c924a-54a9-c5ea-8a9d-3ea92987b436@gmx.de>
+Date:   Thu, 28 Apr 2022 18:55:52 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH v2 2/2] KVM: s390: selftest: Test suppression indication
- on key prot exception
+ Thunderbird/91.8.0
+Subject: Re: [PATCH 12/30] parisc: Replace regular spinlock with spin_trylock
+ on panic path
 Content-Language: en-US
-To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     David Hildenbrand <david@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org,
-        Shuah Khan <shuah@kernel.org>, linux-kselftest@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20220425100147.1755340-1-scgl@linux.ibm.com>
- <20220425100147.1755340-3-scgl@linux.ibm.com>
-From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-In-Reply-To: <20220425100147.1755340-3-scgl@linux.ibm.com>
+To:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+        akpm@linux-foundation.org, bhe@redhat.com, pmladek@suse.com,
+        kexec@lists.infradead.org
+Cc:     linux-kernel@vger.kernel.org,
+        bcm-kernel-feedback-list@broadcom.com, coresight@lists.linaro.org,
+        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-edac@vger.kernel.org,
+        linux-hyperv@vger.kernel.org, linux-leds@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
+        netdev@vger.kernel.org, openipmi-developer@lists.sourceforge.net,
+        rcu@vger.kernel.org, sparclinux@vger.kernel.org,
+        xen-devel@lists.xenproject.org, x86@kernel.org,
+        kernel-dev@igalia.com, kernel@gpiccoli.net, halves@canonical.com,
+        fabiomirmar@gmail.com, alejandro.j.jimenez@oracle.com,
+        andriy.shevchenko@linux.intel.com, arnd@arndb.de, bp@alien8.de,
+        corbet@lwn.net, d.hatayama@jp.fujitsu.com,
+        dave.hansen@linux.intel.com, dyoung@redhat.com,
+        feng.tang@intel.com, gregkh@linuxfoundation.org,
+        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
+        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
+        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
+        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
+        senozhatsky@chromium.org, stern@rowland.harvard.edu,
+        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
+        will@kernel.org,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+References: <20220427224924.592546-1-gpiccoli@igalia.com>
+ <20220427224924.592546-13-gpiccoli@igalia.com>
+From:   Helge Deller <deller@gmx.de>
+In-Reply-To: <20220427224924.592546-13-gpiccoli@igalia.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: mMWAOfeigfsXYJR7iMql67xsNmxoAB07
-X-Proofpoint-GUID: MjjEA3sKilhqhWKHVtTqePLh3_gfYXri
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-04-28_02,2022-04-28_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 bulkscore=0
- malwarescore=0 suspectscore=0 impostorscore=0 clxscore=1015 adultscore=0
- priorityscore=1501 spamscore=0 lowpriorityscore=0 phishscore=0 mlxscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2204280099
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:5vdTXh07+igNuefls5XBW8Vnc+iEgtAi7WYk6EGDKuqY95FwGMe
+ QwcWZKzUaEoh4UB+55vjZve/tYEaItgGsgQfOqHuHHkvtwYyxsf6YShgZsftQKYSmO6WQ+T
+ ZC1GiQE33MbntUGomNddrKZxDF5sJxGJRqGlvPVNWYXBnGaRnQV/WvjdEKXY9QfAk5iDfpf
+ 2SF7pYcym4psStLDUUMNQ==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:seIPaj7dpZM=:yycTg0fvdDhrITiv3IZXzI
+ e4yFHTYHbrGUy0XcNvNSnWURkRH0CwdNhQ3CWNfifJgMcKrsF971kE1ZPU9NMQWdlbTy3YHHQ
+ kdbLaclaoLvW+e4KLLE5yocf48/EeAYglXhY84PxWcp1QGdF7y7nXLElZka6kp2R0F8+61JyB
+ loph7JvlvHMoA0h4saDhDgOi28CBTeWf2mZxC+/EkMY8v85s5wN3/znVOlOIi2kLzQZEdEUxg
+ qZqRAEH0zpZWVc5jenddLnwtNUslbH1ysbnT6Jz+8m3SINHv4Rwqo8qzXPYlIEhtABEOB2CCo
+ zGH68oxcPKpqrqbFPSUrvmevYIsFthSN4Qa4ESwcyflnmJb/H2yYOm3idKBPcHZoAc7MXpKFp
+ RR3P6Q1355mAy9N9Htg1IQRALV21oxx1PunXwbHOYiOH77jvrab76cf+pliKkaIi4EdHQpQqw
+ 9mxPXAGH7PZiMiQ7xVCBiONFGbdiXxNWW9WgP8A6pz6E89Sx90IwrTRc9D73bLfwpGwDmjWxi
+ fFfVa4k8dmCqUPhBM1VhxPpxNRnj9QzEWrSQ0xThSfPtnfKEaiZ6CAhESljw6d2UOOHcDSLiC
+ pYk2Il0xe7DktL7r83T2I0B8fYcU06QnK7MXlbmtGkMbQFBGucQc+IB7UEgTcN0uT8ZaS6/FI
+ jkfGMBIY2eSkyrlErzq+vnajUsa0b9zENmsHS55RE7h43gLxmwE2UNFRUH8bWmdFhfJcUWhCo
+ 0TAcvRyne9VEKfs0HrQjTEdgbmSa875UQ1egzran3Xhi4XGH8Atz9id4q//uvXHDPEYGUcpM1
+ 1jCttDZecf4rq/B12RMkoMxP6zY3FZKwK7quDBpUSTid+jJEDxaXtx0XaeJ0Hg0rDMgviRyZ9
+ HzUcPocKiz/LqCSxQKJ+5LacyVgyzC2Eg/QV5UE+RmBe/a0+mK1ccbKXN/YmWVo5xcoOe11r/
+ LQC+womcGp8ubOddU8soGYLdecjhj+rpnt5TdzsPY9fawi7HlwarnA+ConVoG4a/SWDHYon/e
+ QtxJhYG5A/NQ3aDfGGrPKFQkR4D9mAqQmSL7oHO9wv65NzEickiapaFqe4ZYqD4oBbohP/rOw
+ OHyJm5CjSYyJJQ=
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 4/25/22 12:01, Janis Schoetterl-Glausch wrote:
-> Check that suppression is not indicated on injection of a key checked
-> protection exception caused by a memop after it already modified guest
-> memory, as that violates the definition of suppression.
-> 
-> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+On 4/28/22 00:49, Guilherme G. Piccoli wrote:
+> The panic notifiers' callbacks execute in an atomic context, with
+> interrupts/preemption disabled, and all CPUs not running the panic
+> function are off, so it's very dangerous to wait on a regular
+> spinlock, there's a risk of deadlock.
+>
+> This patch refactors the panic notifier of parisc/power driver
+> to make use of spin_trylock - for that, we've added a second
+> version of the soft-power function. Also, some comments were
+> reorganized and trailing white spaces, useless header inclusion
+> and blank lines were removed.
+>
+> Cc: Helge Deller <deller@gmx.de>
+> Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+> Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
+
+You may add:
+Acked-by: Helge Deller <deller@gmx.de> # parisc
+
+Helge
+
+
 > ---
->  tools/testing/selftests/kvm/s390x/memop.c | 43 ++++++++++++++++++++++-
->  1 file changed, 42 insertions(+), 1 deletion(-)
-> 
-> diff --git a/tools/testing/selftests/kvm/s390x/memop.c b/tools/testing/selftests/kvm/s390x/memop.c
-> index b04c2c1b3c30..ce176ad9f216 100644
-> --- a/tools/testing/selftests/kvm/s390x/memop.c
-> +++ b/tools/testing/selftests/kvm/s390x/memop.c
-
-[...]
-
-> +static void test_termination(void)
+>  arch/parisc/include/asm/pdc.h |  1 +
+>  arch/parisc/kernel/firmware.c | 27 +++++++++++++++++++++++----
+>  drivers/parisc/power.c        | 17 ++++++++++-------
+>  3 files changed, 34 insertions(+), 11 deletions(-)
+>
+> diff --git a/arch/parisc/include/asm/pdc.h b/arch/parisc/include/asm/pdc=
+.h
+> index b643092d4b98..7a106008e258 100644
+> --- a/arch/parisc/include/asm/pdc.h
+> +++ b/arch/parisc/include/asm/pdc.h
+> @@ -83,6 +83,7 @@ int pdc_do_firm_test_reset(unsigned long ftc_bitmap);
+>  int pdc_do_reset(void);
+>  int pdc_soft_power_info(unsigned long *power_reg);
+>  int pdc_soft_power_button(int sw_control);
+> +int pdc_soft_power_button_panic(int sw_control);
+>  void pdc_io_reset(void);
+>  void pdc_io_reset_devices(void);
+>  int pdc_iodc_getc(void);
+> diff --git a/arch/parisc/kernel/firmware.c b/arch/parisc/kernel/firmware=
+.c
+> index 6a7e315bcc2e..0e2f70b592f4 100644
+> --- a/arch/parisc/kernel/firmware.c
+> +++ b/arch/parisc/kernel/firmware.c
+> @@ -1232,15 +1232,18 @@ int __init pdc_soft_power_info(unsigned long *po=
+wer_reg)
+>  }
+>
+>  /*
+> - * pdc_soft_power_button - Control the soft power button behaviour
+> - * @sw_control: 0 for hardware control, 1 for software control
+> + * pdc_soft_power_button{_panic} - Control the soft power button behavi=
+our
+> + * @sw_control: 0 for hardware control, 1 for software control
+>   *
+>   *
+>   * This PDC function places the soft power button under software or
+>   * hardware control.
+> - * Under software control the OS may control to when to allow to shut
+> - * down the system. Under hardware control pressing the power button
+> + * Under software control the OS may control to when to allow to shut
+> + * down the system. Under hardware control pressing the power button
+>   * powers off the system immediately.
+> + *
+> + * The _panic version relies in spin_trylock to prevent deadlock
+> + * on panic path.
+>   */
+>  int pdc_soft_power_button(int sw_control)
+>  {
+> @@ -1254,6 +1257,22 @@ int pdc_soft_power_button(int sw_control)
+>  	return retval;
+>  }
+>
+> +int pdc_soft_power_button_panic(int sw_control)
 > +{
-> +	struct test_default t = test_default_init(guest_error_key);
-> +	uint64_t prefix;
-> +	uint64_t teid;
-> +	uint64_t psw[2];
+> +	int retval;
+> +	unsigned long flags;
 > +
-> +	HOST_SYNC(t.vcpu, STAGE_INITED);
-> +	HOST_SYNC(t.vcpu, STAGE_SKEYS_SET);
+> +	if (!spin_trylock_irqsave(&pdc_lock, flags)) {
+> +		pr_emerg("Couldn't enable soft power button\n");
+> +		return -EBUSY; /* ignored by the panic notifier */
+> +	}
 > +
-> +	/* vcpu, mismatching keys after first page */
-> +	ERR_PROT_MOP(t.vcpu, LOGICAL, WRITE, mem1, t.size, GADDR_V(mem1), KEY(1), INJECT);
-> +	/*
-> +	 * The memop injected a program exception and the test needs to check the
-> +	 * Translation-Exception Identification (TEID). It is necessary to run
-> +	 * the guest in order to be able to read the TEID from guest memory.
-> +	 * Set the guest program new PSW, so the guest state is not clobbered.
-> +	 */
-> +	prefix = t.run->s.regs.prefix;
-> +	psw[0] = t.run->psw_mask;
-> +	psw[1] = t.run->psw_addr;
-> +	MOP(t.vm, ABSOLUTE, WRITE, psw, sizeof(psw), GADDR(prefix + 464));
-> +	HOST_SYNC(t.vcpu, STAGE_IDLED);
-> +	MOP(t.vm, ABSOLUTE, READ, &teid, sizeof(teid), GADDR(prefix + 168));
-> +	/* Bits 56, 60, 61 form a code, 0 being the only one allowing for termination */
-> +	ASSERT_EQ(teid & 0x4c, 0);
+> +	retval =3D mem_pdc_call(PDC_SOFT_POWER, PDC_SOFT_POWER_ENABLE, __pa(pd=
+c_result), sw_control);
+> +	spin_unlock_irqrestore(&pdc_lock, flags);
+> +
+> +	return retval;
+> +}
+> +
+>  /*
+>   * pdc_io_reset - Hack to avoid overlapping range registers of Bridges =
+devices.
+>   * Primarily a problem on T600 (which parisc-linux doesn't support) but
+> diff --git a/drivers/parisc/power.c b/drivers/parisc/power.c
+> index 456776bd8ee6..8512884de2cf 100644
+> --- a/drivers/parisc/power.c
+> +++ b/drivers/parisc/power.c
+> @@ -37,7 +37,6 @@
+>  #include <linux/module.h>
+>  #include <linux/init.h>
+>  #include <linux/kernel.h>
+> -#include <linux/notifier.h>
+>  #include <linux/panic_notifier.h>
+>  #include <linux/reboot.h>
+>  #include <linux/sched/signal.h>
+> @@ -175,16 +174,21 @@ static void powerfail_interrupt(int code, void *x)
+>
+>
+>
+> -/* parisc_panic_event() is called by the panic handler.
+> - * As soon as a panic occurs, our tasklets above will not be
+> - * executed any longer. This function then re-enables the
+> - * soft-power switch and allows the user to switch off the system
+> +/*
+> + * parisc_panic_event() is called by the panic handler.
+> + *
+> + * As soon as a panic occurs, our tasklets above will not
+> + * be executed any longer. This function then re-enables
+> + * the soft-power switch and allows the user to switch off
+> + * the system. We rely in pdc_soft_power_button_panic()
+> + * since this version spin_trylocks (instead of regular
+> + * spinlock), preventing deadlocks on panic path.
+>   */
+>  static int parisc_panic_event(struct notifier_block *this,
+>  		unsigned long event, void *ptr)
+>  {
+>  	/* re-enable the soft-power switch */
+> -	pdc_soft_power_button(0);
+> +	pdc_soft_power_button_panic(0);
+>  	return NOTIFY_DONE;
+>  }
+>
+> @@ -193,7 +197,6 @@ static struct notifier_block parisc_panic_block =3D =
+{
+>  	.priority	=3D INT_MAX,
+>  };
+>
+> -
+>  static int __init power_init(void)
+>  {
+>  	unsigned long ret;
 
-The constant is wrong, should be 0x8c instead, or better, a more straight forward
-expression that evaluates to it.
-
-[...]
