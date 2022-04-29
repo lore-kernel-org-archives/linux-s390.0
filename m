@@ -2,94 +2,119 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DBE2C433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 29 Apr 2022 12:52:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 30D00C433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 29 Apr 2022 12:59:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359514AbiD2Mzq (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 29 Apr 2022 08:55:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56174 "EHLO
+        id S1359617AbiD2NC4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 29 Apr 2022 09:02:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359582AbiD2Mzp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Apr 2022 08:55:45 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88DE7CAB95;
-        Fri, 29 Apr 2022 05:52:25 -0700 (PDT)
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23TCGbI6030219;
-        Fri, 29 Apr 2022 12:52:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : to : cc : references : from : subject : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=Ta1fyNf2U9jHeIRottQ/e61hn8ynFzXkSkb2SGz6/B0=;
- b=RyGh37gAnjuCCJYq3xyCOOUpKY9gP9mR89UyBS+bguTbFTI819tPxrwlmM4VUIJOYFw2
- cmR9FNJ0vvFJ9Z6GiOKFFPZaU0yFiz9XC4OxqFsVMss1Svjs3L0vLquW7ctOu7EQJApS
- 5D+6MVtLen/zX+GbGQsvn19LPK3zzQzbMLdJEmfWUdVcZC0ikitvD9VQ9OZlaS0mR9Kp
- VKrGNx6GywA6hzcaYLmwXx7mkgaaV9OglcTrJGsKX5Q8yjLqPmuptcfgVOCqlRM2aqwE
- 8Z+vPABnvxqo+OfU+iKz1cxIycirSVy+baS+8hSv1y6zqgwVkTES/ik0VjDt9iMYV3qg Ww== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3fqtvxkk63-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 29 Apr 2022 12:52:20 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23TCl5nm017236;
-        Fri, 29 Apr 2022 12:52:18 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma03ams.nl.ibm.com with ESMTP id 3fm93915dn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 29 Apr 2022 12:52:18 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23TCqFuj42860830
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 29 Apr 2022 12:52:15 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 265B1AE051;
-        Fri, 29 Apr 2022 12:52:15 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C0B1DAE045;
-        Fri, 29 Apr 2022 12:52:14 +0000 (GMT)
-Received: from [9.145.33.84] (unknown [9.145.33.84])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 29 Apr 2022 12:52:14 +0000 (GMT)
-Message-ID: <c1e91fc0-3d0e-979b-358b-01237a677b0a@linux.ibm.com>
-Date:   Fri, 29 Apr 2022 14:52:14 +0200
+        with ESMTP id S1359621AbiD2NCx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Apr 2022 09:02:53 -0400
+Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F4DCCA0D2;
+        Fri, 29 Apr 2022 05:59:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1651237172; x=1682773172;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=G3cxB0HDg/hWN46WuirekDQTBDL7WfaNTwXNbR3h9l0=;
+  b=WzIFGRUvXNGXuHRTXYalIdBOmr5/cN5iCiLe30i8QeN2Kia5BIh06zg7
+   WEKMtJLgYaQ3MlRLoVZIFE7Ts8NrYg8jRkenRmA6DEiXcRjlFntZpnWU5
+   Qcq/LC/t+vevZI0BYbR/jcHVs69Q0xsuruAh9XlhSKktjcFD+8uUgM3T2
+   T/VnwhqnaPHvhHwW0rj28OAe6G7eiMe3ocw3BIICD3dy/kK2Q0x11qfn0
+   D9bY5pCIJgbkyQCO4BO20BS1FbKfMEt0Lpw/iD79GmEovngdRLQ1ki5mb
+   TmhOsJopOdgK+5sowJa1gI1cMKVvhJjVyh/nTy2mx/YqAKPjCzLEOcRoW
+   g==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10331"; a="266793289"
+X-IronPort-AV: E=Sophos;i="5.91,185,1647327600"; 
+   d="scan'208";a="266793289"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Apr 2022 05:59:32 -0700
+X-IronPort-AV: E=Sophos;i="5.91,185,1647327600"; 
+   d="scan'208";a="514810215"
+Received: from smile.fi.intel.com ([10.237.72.54])
+  by orsmga003-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Apr 2022 05:59:28 -0700
+Received: from andy by smile.fi.intel.com with local (Exim 4.95)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1nkQDV-009iQX-QJ;
+        Fri, 29 Apr 2022 15:59:25 +0300
+Date:   Fri, 29 Apr 2022 15:59:25 +0300
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Yury Norov <yury.norov@gmail.com>
+Cc:     linux-kernel@vger.kernel.org,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+Subject: Re: [PATCH 2/5] lib: add bitmap_{from,to}_arr64
+Message-ID: <YmvhLbIoHDhEhJFq@smile.fi.intel.com>
+References: <20220428205116.861003-1-yury.norov@gmail.com>
+ <20220428205116.861003-3-yury.norov@gmail.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Content-Language: en-US
-To:     Haowen Bai <baihaowen@meizu.com>, svens@linux.ibm.com
-Cc:     agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        gor@linux.ibm.com, hca@linux.ibm.com, hoeppner@linux.ibm.com,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-References: <yt9dilr539wq.fsf@linux.ibm.com>
- <1650348310-18553-1-git-send-email-baihaowen@meizu.com>
-From:   Stefan Haberland <sth@linux.ibm.com>
-Subject: Re: [PATCH V2] s390/dasd: Use kzalloc instead of kmalloc/memset
-In-Reply-To: <1650348310-18553-1-git-send-email-baihaowen@meizu.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: QnLeZxH7AmxS8Dv7Tbn-DWKMe5Vj0fJj
-X-Proofpoint-GUID: QnLeZxH7AmxS8Dv7Tbn-DWKMe5Vj0fJj
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-04-29_06,2022-04-28_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- lowpriorityscore=0 priorityscore=1501 spamscore=0 suspectscore=0
- clxscore=1011 mlxscore=0 impostorscore=0 mlxlogscore=620 adultscore=0
- phishscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2204290072
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220428205116.861003-3-yury.norov@gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Am 19.04.22 um 08:05 schrieb Haowen Bai:
-> Use kzalloc rather than duplicating its implementation, which
-> makes code simple and easy to understand.
->
-> Signed-off-by: Haowen Bai <baihaowen@meizu.com>
-> ---
-> V1->V2: also remove the isglobal assigment above, so the whole else block
-> could go away
+On Thu, Apr 28, 2022 at 01:51:13PM -0700, Yury Norov wrote:
+> Manipulating 64-bit arrays with bitmap functions is potentially dangerous
+> because on 32-bit BE machines the order of halfwords doesn't match.
+> Another issue is that compiler may throw a warning about out-of-boundary
+> access.
+> 
+> This patch adds bitmap_{from,to}_arr64 functions in addition to existing
+> bitmap_{from,to}_arr32.
 
-thanks, applied!
+...
+
+> +	bitmap_copy_clear_tail((unsigned long *) (bitmap),	\
+> +			(const unsigned long *) (buf), (nbits))
+
+Drop spaces after castings. Besides that it might be placed on a single line.
+
+...
+
+
+> +	bitmap_copy_clear_tail((unsigned long *) (buf),		\
+> +			(const unsigned long *) (bitmap), (nbits))
+
+Ditto.
+
+...
+
+> +void bitmap_to_arr64(u64 *buf, const unsigned long *bitmap, unsigned int nbits)
+> +{
+> +	const unsigned long *end = bitmap + BITS_TO_LONGS(nbits);
+> +
+> +	while (bitmap < end) {
+> +		*buf = *bitmap++;
+> +		if (bitmap < end)
+> +			*buf |= (u64)(*bitmap++) << 32;
+> +		buf++;
+> +	}
+>  
+> +	/* Clear tail bits in last element of array beyond nbits. */
+> +	if (nbits % 64)
+> +		buf[-1] &= GENMASK_ULL(nbits, 0);
+
+Hmm... if nbits is > 0 and < 64, wouldn't be this problematic, since
+end == bitmap? Or did I miss something?
+
+> +}
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
 
