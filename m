@@ -2,203 +2,192 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A007C433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 29 Apr 2022 17:32:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1395C433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 29 Apr 2022 18:05:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347219AbiD2RfQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 29 Apr 2022 13:35:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58824 "EHLO
+        id S1379907AbiD2SJJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 29 Apr 2022 14:09:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379607AbiD2RfM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Apr 2022 13:35:12 -0400
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2080.outbound.protection.outlook.com [40.107.93.80])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04C6C1CFC8;
-        Fri, 29 Apr 2022 10:31:52 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=OFYbaTyV4UoiAlILjj4p1gO9C1ncR3ajqbU9SryplQeGRCzFcxktL33rZnGMft8lznNd/E5QAxOMN4qA1z+RlfoXLJZ4cLkSd9GmH9TjZc9VEgJal1dr+4iYY87u4WX8xQ6e0DjIc3ypdxntDRlEOdZr+ucZo+dyvamchPHml0uEiM438uJN8Hnz2jn99EpI9lYrcL9bDVcelU+jZspE77EXuS1fr08DwEnK4Mt7enaMUYTyz4DQqFGDAtMneA43fEFq8HrpXmPV4HYEg7FtWILicZEhKVZdN6TD2ALlDdRW0o6+ayT8fBZQZrRikVURvy92i259g6onPv9rnQnJpg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=loBg8TDRU/AJEwntPMV/vSCsD62+uhauWWmP8B7p+OQ=;
- b=XGQej5Oy5z7IL2ngIPgCXJEgALicGn0O7ZfpcG6Yy/M5A+6eeWaRKD4nLDdjRpvcdtyKruvsYeR2RKc2Z1oppaUODAMUbsPvtFrF3HskZFQQLfE6bKvshWw8/KzkyRkSi/hNzvXn3la7EkmXxPWI/doibdnad2hIE9n4xdBzsNNmEHdV1AsFTmduscP+uxytAX+T2LbLVRhj71OLWMZBUEBTA257F9etd0Ubw/xipWsahiLaGmUKSzXEHj9GmxBKtvee43tOw852RYV6qth32pJXBoOLS2YiaeRyHuw+mAZltPiGkWex4lZmgqlIlQuGMzeVsHV0le0a1DTEQNlslw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=loBg8TDRU/AJEwntPMV/vSCsD62+uhauWWmP8B7p+OQ=;
- b=L52v8ySEwibv3uM3S4rvf7Mm1lfj4Ev+5SYl7REJwf6LgxIa9gM6j5DjCscW6Eb5HYdzmJg47Y5LpuVolRGcV7fuYE3NKsJ+8aWAZ0crbRxE2R56ZHn5mIeraxBw//2Hd7rcLyeQCB331bU1Oz+LmJ63AhbJRq6g0tfgmUlCq4Zr3aAN2poyL+O0XTfFrOWO/0TDPSba91O74li9uCSXocYOStWW3pPDPHPaDbaUQWg1x4Kib0YOdGx5kw0D8A6gJoTyQ/BdBw4AKofAJ6DNHxtme+xxFe0KsmmZV41d/XftmY25NvUTKtmUbQKcFYHqGedQfDqXscoqBuD5b0cETQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
- by MN2PR12MB3872.namprd12.prod.outlook.com (2603:10b6:208:168::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5186.17; Fri, 29 Apr
- 2022 17:31:50 +0000
-Received: from MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::ec2d:9167:1b47:2db2]) by MN2PR12MB4192.namprd12.prod.outlook.com
- ([fe80::ec2d:9167:1b47:2db2%6]) with mapi id 15.20.5186.026; Fri, 29 Apr 2022
- 17:31:50 +0000
-Date:   Fri, 29 Apr 2022 14:31:49 -0300
-From:   Jason Gunthorpe <jgg@nvidia.com>
-To:     Alex Williamson <alex.williamson@redhat.com>
-Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
-        David Airlie <airlied@linux.ie>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        intel-gfx@lists.freedesktop.org,
-        intel-gvt-dev@lists.freedesktop.org,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
-        linux-doc@vger.kernel.org, linux-s390@vger.kernel.org,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        "Tian, Kevin" <kevin.tian@intel.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        "Liu, Yi L" <yi.l.liu@intel.com>, Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH v2 0/7] Make the rest of the VFIO driver interface use
- vfio_device
-Message-ID: <20220429173149.GA167483@nvidia.com>
-References: <0-v2-6011bde8e0a1+5f-vfio_mdev_no_group_jgg@nvidia.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0-v2-6011bde8e0a1+5f-vfio_mdev_no_group_jgg@nvidia.com>
-X-ClientProxiedBy: MN2PR15CA0007.namprd15.prod.outlook.com
- (2603:10b6:208:1b4::20) To MN2PR12MB4192.namprd12.prod.outlook.com
- (2603:10b6:208:1d5::15)
+        with ESMTP id S1379882AbiD2SIz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Apr 2022 14:08:55 -0400
+Received: from fanzine2.igalia.com (fanzine.igalia.com [178.60.130.6])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FC102DD61;
+        Fri, 29 Apr 2022 11:05:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+        s=20170329; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=CfgJSltNTETfm69VgWZeJ1xxMOJuVJJeVDaV1//hOM4=; b=slyIgXmeUq77MnrSUr5lBtJx9z
+        m86cp15BT6gKICc3jCqWbY2B0tpa99u5bAed7DYYXL/rMf6XHJRMLSIrTGUcJCHpVtGl/+APLcmrh
+        RXQpa9HZXWVydxhVU95+hp+ZiaA0uHFZXPx5zEc5qg8trUY5PT1GKrapnos8zeTpFOAoQJEAx9vvn
+        efpqnWK3jhpJIbXy7DD12LOMiGnr6GupNgQCAiVUmjcrI2J6NMnifvEjcuVQUbIlOFxyQL8HlLyj5
+        ydadfwYuZkTNnyuPFseli5ffoVSkxD0MS5bvuilrJblEdywU2jKWaFEjPPnVXRJf3ScYrp3fr3KhT
+        ij4JQKSA==;
+Received: from [179.113.53.197] (helo=[192.168.1.60])
+        by fanzine2.igalia.com with esmtpsa 
+        (Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
+        id 1nkUzF-0006RF-Du; Fri, 29 Apr 2022 20:05:01 +0200
+Message-ID: <0147d038-571b-0802-c210-ccd4d52cd5dd@igalia.com>
+Date:   Fri, 29 Apr 2022 15:04:22 -0300
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 7005c64f-b4d1-4e11-4d69-08da2a0624bd
-X-MS-TrafficTypeDiagnostic: MN2PR12MB3872:EE_
-X-Microsoft-Antispam-PRVS: <MN2PR12MB3872CA8C6BD99BAF2557A5ABC2FC9@MN2PR12MB3872.namprd12.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 8szwqHaWxjvocDem/yW6NjZag/0TK9hRDYmUNMdViYygFCJrMSCPJDe3rhr3lLL7qdl4653ssbv51DVjBnp2Et/BgPMsQFBzHTCQhVwFKCDizqaWl0/C0XIbNigeDBqsIeyajbN4CGpDL34Q6RallMB8oeSYBqrqJWtP8gmN7Ps4dSgjCKqX3qmbm3OFg63KNLISGqH1kvO+5bT054s5obXJfGZp+Jp0Qw/zodsAoDy3WGmsM2e0g/DMskVrJBEX38+0Yw4mfawR674Ol2hdC60o4zf2upsXAllVlBxssYGrpGxcED0YIs9c0cabbj6crvhl77e9D2IX1Wk2ziohUJW6r1WDkC29YHt1lMBbVASgfpHTOjwn9BwS1dntbuZTjevo7nx0eWdWqLhPmrhMPdL2Q30gbyKFW5PrdYdssQmFugYzvBk6ZoLc12VNDlHoHCREUr8cMHegt45N9f/6l2AP3wn23RduVpIRsM3IMWoouoz0u398rd1RHT9TmD0cAcOPtM1pLyd2KgMjw7HBs4Ezy1oJeSpdamNeVwAcUbfxCW1n1rADkUsUPNnEZ8adUGY1e1KOU3g9jhDo18T+EvXlcKqdN075awR9C2iVYRCHMuS8XAqxWT2juqpZGk9FSleetoJwZ2R1f0GXE0IvWAGAw8L5758EmV43OWq+uzXAC6/Mn1EGTF1Adm+CnSSBg8G4/RaUmkj2Me3QO24x3V4IsCwx6q+BLF0ANYN5iWTd2QIcHmzspWA2cgH2lt+WeKy15ph2KGOJHWylusy/tNbd9FrPSnHtsyFzsvg/3IgojmwqcZkm1OlTHyFdOX1g
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(38100700002)(8676002)(4326008)(36756003)(66946007)(66476007)(6512007)(54906003)(8936002)(2906002)(7406005)(7416002)(6916009)(316002)(66556008)(5660300002)(186003)(508600001)(6506007)(33656002)(83380400001)(2616005)(1076003)(86362001)(26005)(6486002)(966005)(27376004);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?4DIksMqoIaFFSqO9n1WsmEQtB6Po/mnyZy1fnVOFBX038zyNU0OSfyT53acu?=
- =?us-ascii?Q?8DStCscojglan6Z/FgkN315mVCZ6ESjLlZ3Is62jYj8PgMuW2xCBKkJuxAX+?=
- =?us-ascii?Q?G/HHX2UtkP7f1F/Xv5ioTEIfQNSUwXgHmGFM9w6228l7sUkxZl5N5zO6hO53?=
- =?us-ascii?Q?WGK/F9hzpsAxmQhMf5HZ6nC9HImfO812RO5Yc+Phe8l5d2nNAl3xrtU2BF9z?=
- =?us-ascii?Q?9wEBpIBhy6jPQSrA+Y7IW7d4hHfshmzqGL2ly8ji/6SlFHo0iR2GSg9rXJIP?=
- =?us-ascii?Q?KRfEOaHRYXVkTGqSmBrS02ADCOPEjQE4Di673We2chXk5TGTUeUd4pCB2QEn?=
- =?us-ascii?Q?pV1NVw9fuXtlMFQ3t38vveQp198n4P/iVIa58br7SP28lvk8qtJ56pIZsTNR?=
- =?us-ascii?Q?PMt819EPzu/uexTqT7gp+wKAo9Q0dqTug/3p+UYSWCia2oFWQLPXFLFzoTy+?=
- =?us-ascii?Q?JQXVre7v9Gu0MtBxK1Nm0H/6gtgCxYGkG7KJNTAmZZVAa3NckJUhlzVX5k2e?=
- =?us-ascii?Q?+YlR0kf+Wk0pSMNwMVN4+6GLO1xLkSYiBoUTpj/hqvMTa2jkDVud1z9XWOdm?=
- =?us-ascii?Q?UMD3h/IS3sN+fyrXguHyspSN2nI+K2fKXxceJPIoe8MfsI9DxOOQpFXhjtqL?=
- =?us-ascii?Q?3rw09mnFyloJ/BFBgu8wkgKoBDUaELVC1JmRPD/WAZJLlDaO95D1NyhegnRt?=
- =?us-ascii?Q?dMZWrzd3+Q8iTJZeQQhT15wFhwtgF6iA732TiOiD8IZbAt9e8txrI8oaA8TG?=
- =?us-ascii?Q?rk85tlLlAJdiVPZmIC6YKilZNyGiZ/ZXgGgMi8TiF5FVxeCoAJQfNbCpovj6?=
- =?us-ascii?Q?T57oUFNGKMY7e4N1AZGMvM/Ej70Ile1Fgcjmj98N6F4TGBaSA2+lxw2fAza/?=
- =?us-ascii?Q?pVYPm/J/cG3lE3PXxeudnWCtxpjGpwwa5z/GO0/oDzkkQr3v0qsllsGDwcWr?=
- =?us-ascii?Q?spHlKLrYcsvyROH9wH4y9QLqFCXUxI/1ge3Pa6LCb9V42v37yPJQeLGXRYzf?=
- =?us-ascii?Q?NIv+oM+COlfGgsBwLwwEbOJ9PaBKMcataN6VCtftgXhfQF7JSwUOmcK7ek5i?=
- =?us-ascii?Q?hEbCBE6Fy8SDgkaqu113RynQZOEiwacJQ5iiCW/0fr1369nyNCYlQOxPquch?=
- =?us-ascii?Q?R6+P74ExHNL4S3XH0ZtUCqG2iag/KJKhdcG+ru/Zgc9nLO2FvbpkAHz/TRyA?=
- =?us-ascii?Q?DySEfedRHkXjkF+nj4E9Gl4aSDLQyCF+5Um2ne35gQmgdLq0XLweu6/pfwNo?=
- =?us-ascii?Q?rJ3rBIIIcK1Ld2xpHorwvsbbab/3hdcpLueDYrVw9qUvHf2jNdHdts16JaCb?=
- =?us-ascii?Q?5ky9EsKscvOMSV6PTGIx+BJnCCT6NAoXPcjHxCFHk7BCIwQjN++XfCZSnbq4?=
- =?us-ascii?Q?xJ8oT9HnCd/beioqeDIYUFdJ7kkkVo4rh8iPaML//AafNXgjZGahJSne7blN?=
- =?us-ascii?Q?pE/2uM7HhvKvO49UOXHx9c5psU6Fq52+g8J4Fgr8aYNhjLCZc9qkqeffQfpm?=
- =?us-ascii?Q?O9o9wWI/4SmHDdCO+iVmiKchnXpHDczoOCXh5rflT2rutrFU9qDxqJv48F1Y?=
- =?us-ascii?Q?WHIBXLPN1qmLtHxoIBs17v0JqN7Br3V8u0spcOv+ygprUCoUa+ZMrwmA5t6+?=
- =?us-ascii?Q?yP6HnsqLNP5GThCOE5EtgKDiV1jQJt+Ja4OnxBIfJ6bBuvRqT7OiGnVDd1Tx?=
- =?us-ascii?Q?a5qEZfWZh0XkKKL2REJy9nC1PqU0ZCOKA32iXD4fFMgZLVMBZgxJ4v0cCvdi?=
- =?us-ascii?Q?5iBWSAaVaQ=3D=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7005c64f-b4d1-4e11-4d69-08da2a0624bd
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Apr 2022 17:31:50.3089
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: YIOuZY0Wzo9E/Ruyrcq8ERjVyRhSsvIuyprTKRqStEsoKgn/rwGTNTzaHs3IJKEo
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB3872
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Subject: Re: [PATCH 19/30] panic: Add the panic hypervisor notifier list
+Content-Language: en-US
+To:     "Michael Kelley (LINUX)" <mikelley@microsoft.com>,
+        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+        "bhe@redhat.com" <bhe@redhat.com>,
+        "pmladek@suse.com" <pmladek@suse.com>,
+        "kexec@lists.infradead.org" <kexec@lists.infradead.org>
+Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "bcm-kernel-feedback-list@broadcom.com" 
+        <bcm-kernel-feedback-list@broadcom.com>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>,
+        "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>,
+        "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
+        "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
+        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+        "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
+        "linux-um@lists.infradead.org" <linux-um@lists.infradead.org>,
+        "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "openipmi-developer@lists.sourceforge.net" 
+        <openipmi-developer@lists.sourceforge.net>,
+        "rcu@vger.kernel.org" <rcu@vger.kernel.org>,
+        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
+        "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "kernel-dev@igalia.com" <kernel-dev@igalia.com>,
+        "kernel@gpiccoli.net" <kernel@gpiccoli.net>,
+        "halves@canonical.com" <halves@canonical.com>,
+        "fabiomirmar@gmail.com" <fabiomirmar@gmail.com>,
+        "alejandro.j.jimenez@oracle.com" <alejandro.j.jimenez@oracle.com>,
+        "andriy.shevchenko@linux.intel.com" 
+        <andriy.shevchenko@linux.intel.com>,
+        "arnd@arndb.de" <arnd@arndb.de>, "bp@alien8.de" <bp@alien8.de>,
+        "corbet@lwn.net" <corbet@lwn.net>,
+        "d.hatayama@jp.fujitsu.com" <d.hatayama@jp.fujitsu.com>,
+        "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
+        "dyoung@redhat.com" <dyoung@redhat.com>,
+        "feng.tang@intel.com" <feng.tang@intel.com>,
+        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "hidehiro.kawai.ez@hitachi.com" <hidehiro.kawai.ez@hitachi.com>,
+        "jgross@suse.com" <jgross@suse.com>,
+        "john.ogness@linutronix.de" <john.ogness@linutronix.de>,
+        "keescook@chromium.org" <keescook@chromium.org>,
+        "luto@kernel.org" <luto@kernel.org>,
+        "mhiramat@kernel.org" <mhiramat@kernel.org>,
+        "mingo@redhat.com" <mingo@redhat.com>,
+        "paulmck@kernel.org" <paulmck@kernel.org>,
+        "peterz@infradead.org" <peterz@infradead.org>,
+        "rostedt@goodmis.org" <rostedt@goodmis.org>,
+        "senozhatsky@chromium.org" <senozhatsky@chromium.org>,
+        "stern@rowland.harvard.edu" <stern@rowland.harvard.edu>,
+        "tglx@linutronix.de" <tglx@linutronix.de>,
+        "vgoyal@redhat.com" <vgoyal@redhat.com>,
+        vkuznets <vkuznets@redhat.com>,
+        "will@kernel.org" <will@kernel.org>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Andrea Parri <parri.andrea@gmail.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Brian Norris <computersforpeace@gmail.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        David Gow <davidgow@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dexuan Cui <decui@microsoft.com>,
+        Doug Berger <opendmb@gmail.com>,
+        Evan Green <evgreen@chromium.org>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Hari Bathini <hbathini@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Julius Werner <jwerner@chromium.org>,
+        Justin Chen <justinpopo6@gmail.com>,
+        KY Srinivasan <kys@microsoft.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Markus Mayer <mmayer@broadcom.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Mihai Carabas <mihai.carabas@oracle.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>,
+        Scott Branden <scott.branden@broadcom.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Shile Zhang <shile.zhang@linux.alibaba.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        Wei Liu <wei.liu@kernel.org>,
+        zhenwei pi <pizhenwei@bytedance.com>
+References: <20220427224924.592546-1-gpiccoli@igalia.com>
+ <20220427224924.592546-20-gpiccoli@igalia.com>
+ <PH0PR21MB30256260CCF4CAB713BBB11ED7FC9@PH0PR21MB3025.namprd21.prod.outlook.com>
+From:   "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+In-Reply-To: <PH0PR21MB30256260CCF4CAB713BBB11ED7FC9@PH0PR21MB3025.namprd21.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, Apr 21, 2022 at 01:28:31PM -0300, Jason Gunthorpe wrote:
-> Prior series have transformed other parts of VFIO from working on struct
-> device or struct vfio_group into working directly on struct
-> vfio_device. Based on that work we now have vfio_device's readily
-> available in all the drivers.
+On 29/04/2022 14:30, Michael Kelley (LINUX) wrote:
+> From: Guilherme G. Piccoli <gpiccoli@igalia.com> Sent: Wednesday, April 27, 2022 3:49 PM
+>> [...]
+>>
+>> @@ -2843,7 +2843,7 @@ static void __exit vmbus_exit(void)
+>>  	if (ms_hyperv.misc_features & HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE) {
+>>  		kmsg_dump_unregister(&hv_kmsg_dumper);
+>>  		unregister_die_notifier(&hyperv_die_report_block);
+>> -		atomic_notifier_chain_unregister(&panic_notifier_list,
+>> +		atomic_notifier_chain_unregister(&panic_hypervisor_list,
+>>  						&hyperv_panic_report_block);
+>>  	}
+>>
 > 
-> Update the rest of the driver facing API to use vfio_device as an input.
+> Using the hypervisor_list here produces a bit of a mismatch.  In many cases
+> this notifier will do nothing, and will defer to the kmsg_dump() mechanism
+> to notify the hypervisor about the panic.   Running the kmsg_dump()
+> mechanism is linked to the info_list, so I'm thinking the Hyper-V panic report
+> notifier should be on the info_list as well.  That way the reporting behavior
+> is triggered at the same point in the panic path regardless of which
+> reporting mechanism is used.
 > 
-> The following are switched from struct device to struct vfio_device:
->   vfio_register_notifier()
->   vfio_unregister_notifier()
->   vfio_pin_pages()
->   vfio_unpin_pages()
->   vfio_dma_rw()
-> 
-> The following group APIs are obsoleted and removed by just using struct
-> vfio_device with the above:
->   vfio_group_pin_pages()
->   vfio_group_unpin_pages()
->   vfio_group_iommu_domain()
->   vfio_group_get_external_user_from_dev()
-> 
-> To retain the performance of the new device APIs relative to their group
-> versions optimize how vfio_group_add_container_user() is used to avoid
-> calling it when the driver must already guarantee the device is open and
-> the container_users incrd.
-> 
-> The remaining exported VFIO group interfaces are only used by kvm, and are
-> addressed by a parallel series.
-> 
-> This series is based on Christoph's gvt rework here:
-> 
->  https://lore.kernel.org/all/5a8b9f48-2c32-8177-1c18-e3bd7bfde558@intel.com/
-> 
-> and so will need the PR merged first.
 
-Hi Alex,
+Hi Michael, thanks for your feedback! I agree that your idea could work,
+but...there is one downside: imagine the kmsg_dump() approach is not set
+in some Hyper-V guest, then we would rely in the regular notification
+mechanism [hv_die_panic_notify_crash()], right?
+But...you want then to run this notifier in the informational list,
+which...won't execute *by default* before kdump if no kmsg_dump() is
+set. So, this logic is convoluted when you mix it with the default level
+concept + kdump.
 
-Since all the shared branch PRs are ready, do you have any remarks on
-this series and the others before I rebase and repost them?
+May I suggest something? If possible, take a run with this patch set +
+DEBUG_NOTIFIER=y, in *both* cases (with and without the kmsg_dump()
+set). I did that and they run almost at the same time...I've checked the
+notifiers called, it's like almost nothing runs in-between.
 
-This one has a few changes to the commit messages outstanding, but v2
-didn't have any code changes.
+I feel the panic notification mechanism does really fit with a
+hypervisor list, it's a good match with the nature of the list, which
+aims at informing the panic notification to the hypervisor/FW.
+Of course we can modify it if you prefer...but please take into account
+the kdump case and how it complicates the logic.
 
-Also, what order would like the different series in - they conflict
-with each other a little bit. I suggest this:
+Let me know your considerations, in case you can experiment with the
+patch set as-is.
+Cheers,
 
-- mdev group removal (this one)
-- Remove vfio_device_get_from_dev()
-  https://lore.kernel.org/r/0-v1-7f2292e6b2ba+44839-vfio_get_from_dev_jgg@nvidia.com
-- Remove group from kvm
-  https://lore.kernel.org/r/0-v1-33906a626da1+16b0-vfio_kvm_no_group_jgg@nvidia.com
 
-All of them seem to have got enough reviews now.
-
-I have one more series on this group topic and a few little patches still
-
-It would be great if you could merge the gvt and iommu series together
-into your tree toward linux-next so I can post patches against a
-stable commit ID so the build-bots can test them.
-
-Thanks,
-Jason
+Guilherme
