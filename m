@@ -2,131 +2,128 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6604BC433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 29 Apr 2022 15:15:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0FF9C4167B
+	for <linux-s390@archiver.kernel.org>; Fri, 29 Apr 2022 15:19:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352266AbiD2PTL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 29 Apr 2022 11:19:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42434 "EHLO
+        id S1378333AbiD2PXN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 29 Apr 2022 11:23:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378258AbiD2PSy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Apr 2022 11:18:54 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 494C76D39F;
-        Fri, 29 Apr 2022 08:15:34 -0700 (PDT)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23TDrlk3014944;
-        Fri, 29 Apr 2022 15:15:34 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=hfxgvehI11MS/VpLcvCmRookAnUjP0LCK+he3fTn98M=;
- b=fRq4NF2LthDEdmrZ9rSRGRoZuaH69/hIUFHTscF/f3LpDCDSenjFnPJnVRo2Iz4f0MS5
- mGU4Bj83VMru3u7DoprKRX1HrGSFd0WT9glglPoUz+JaosrKc3ghj9nbWjqziAQ9Mz44
- XTHwz5S7H2ZBYe2GLrNHWa2qT7mrpIyZlSc+1s3/wHvmATH1ARB2hLaWQHX1R4VKZxcd
- JpQTN0XSQZGOGQCNgIV7QRgUTlk7dAng0kENwS+GVKvL6yK04CSH06bQnZH6s6uHszAd
- SZf/6Spf/QxDzxzIlEDHWyKRvDtpUWfAZ4GV3LJ0zihRpcJzVobVMnbf7F1W5KGvJssm KA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fqv5rmhe8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 29 Apr 2022 15:15:33 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 23TFFXxG026528;
-        Fri, 29 Apr 2022 15:15:33 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fqv5rmhdh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 29 Apr 2022 15:15:33 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23TFChA4023751;
-        Fri, 29 Apr 2022 15:15:31 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma03ams.nl.ibm.com with ESMTP id 3fm9391awe-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 29 Apr 2022 15:15:30 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23TFFRoC44368358
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 29 Apr 2022 15:15:27 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8D2E352051;
-        Fri, 29 Apr 2022 15:15:27 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id 7BEE35204F;
-        Fri, 29 Apr 2022 15:15:27 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 25651)
-        id 2C0F9E03CD; Fri, 29 Apr 2022 17:15:27 +0200 (CEST)
-From:   Christian Borntraeger <borntraeger@linux.ibm.com>
-To:     KVM <kvm@vger.kernel.org>, David Hildenbrand <david@redhat.com>
-Cc:     Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Thomas Huth <thuth@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: [PATCH/RFC] KVM: s390: vsie/gmap: reduce gmap_rmap overhead
-Date:   Fri, 29 Apr 2022 17:15:26 +0200
-Message-Id: <20220429151526.1560-1-borntraeger@linux.ibm.com>
-X-Mailer: git-send-email 2.35.1
+        with ESMTP id S1378305AbiD2PXJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Apr 2022 11:23:09 -0400
+Received: from fanzine2.igalia.com (fanzine.igalia.com [178.60.130.6])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 984A4D4CBB;
+        Fri, 29 Apr 2022 08:19:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+        s=20170329; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=PkGMRtr7ZOpuAUYdkK5YcnBWQgNByIkM+TF/PhPSt00=; b=McsgIEmWszU/NtZ864aphbd05/
+        AA+Hs7uyIJtJtMr4867fKRnrcDZ/B0ve7meILjRDqPYrpj2SCcZq87R4becMzN/EmmpSkGxa2bXfq
+        pUhMsFJRA7hiMl/hulL8uwaQ3NgTviAzyrP9F3cuPytnlSXUcQgJY1SVDx/EfT4PyEI3blubrtgBl
+        Y/qFy6eJFuUH765RC4uiwWYgWdDuIIe2xttNarhTtSLeO0f5vFGPmxPe8sb1rSPH9MLQ8MhCgLKVk
+        8Yh9XWbluokYf/vW7/yQXLp3HdC2BoK3CBL6+DlGPNeddie6sMCK3FiVbeA/PpCZCA2PeX8k9qatt
+        P0Tqe4Tg==;
+Received: from [179.113.53.197] (helo=[192.168.1.60])
+        by fanzine2.igalia.com with esmtpsa 
+        (Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
+        id 1nkSOj-000BaQ-FP; Fri, 29 Apr 2022 17:19:09 +0200
+Message-ID: <31248811-d3ed-63dd-e255-c3be07fb1434@igalia.com>
+Date:   Fri, 29 Apr 2022 12:18:29 -0300
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 1Q4RpgXhQXL0naVgCxBs_HPVptOmfYUS
-X-Proofpoint-ORIG-GUID: UQ6LwrjOubkJ7zW-IWiyyn4fSsE5jx--
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-04-29_07,2022-04-28_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 phishscore=0
- clxscore=1015 malwarescore=0 impostorscore=0 bulkscore=0
- lowpriorityscore=0 priorityscore=1501 mlxscore=0 adultscore=0 spamscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2204290082
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Subject: Re: [PATCH 21/30] panic: Introduce the panic pre-reboot notifier list
+Content-Language: en-US
+To:     minyard@acm.org, elder@ieee.org, Alex Elder <elder@kernel.org>,
+        cminyard@mvista.com
+Cc:     akpm@linux-foundation.org, bhe@redhat.com, pmladek@suse.com,
+        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
+        bcm-kernel-feedback-list@broadcom.com,
+        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
+        linux-edac@vger.kernel.org, linux-hyperv@vger.kernel.org,
+        linux-leds@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-um@lists.infradead.org,
+        linux-xtensa@linux-xtensa.org, netdev@vger.kernel.org,
+        openipmi-developer@lists.sourceforge.net, rcu@vger.kernel.org,
+        sparclinux@vger.kernel.org, xen-devel@lists.xenproject.org,
+        x86@kernel.org, kernel-dev@igalia.com, kernel@gpiccoli.net,
+        halves@canonical.com, fabiomirmar@gmail.com,
+        alejandro.j.jimenez@oracle.com, andriy.shevchenko@linux.intel.com,
+        arnd@arndb.de, bp@alien8.de, corbet@lwn.net,
+        d.hatayama@jp.fujitsu.com, dave.hansen@linux.intel.com,
+        dyoung@redhat.com, feng.tang@intel.com, gregkh@linuxfoundation.org,
+        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
+        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
+        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
+        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
+        senozhatsky@chromium.org, stern@rowland.harvard.edu,
+        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
+        will@kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Chris Zankel <chris@zankel.net>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Dexuan Cui <decui@microsoft.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Helge Deller <deller@gmx.de>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        James Morse <james.morse@arm.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Matt Turner <mattst88@gmail.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>,
+        Richard Henderson <rth@twiddle.net>,
+        Richard Weinberger <richard@nod.at>,
+        Robert Richter <rric@kernel.org>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, Wei Liu <wei.liu@kernel.org>
+References: <20220427224924.592546-1-gpiccoli@igalia.com>
+ <20220427224924.592546-22-gpiccoli@igalia.com>
+ <20220428162616.GE442787@minyard.net>
+From:   "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+In-Reply-To: <20220428162616.GE442787@minyard.net>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-there are cases that trigger a 2nd shadow event for the same
-vmaddr/raddr combination. (prefix changes, reboots, some known races)
-This will increase memory usages and it will result in long latencies
-when cleaning up, e.g. on shutdown. To avoid cases with a list that has
-hundreds of identical raddrs we check existing entries at insert time.
-As this measurably reduces the list length this will be faster than
-traversing the list at shutdown time.
+On 28/04/2022 13:26, Corey Minyard wrote:
+> [...]
+> 
+> For the IPMI portion:
+> 
+> Acked-by: Corey Minyard <cminyard@mvista.com>
 
-In the long run several places will be optimized to create less entries
-and a shrinker might be necessary.
+Thanks Alex and Corey for the ACKs!
 
-Fixes: 4be130a08420 ("s390/mm: add shadow gmap support")
-Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
----
- arch/s390/mm/gmap.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+> 
+> Note that the IPMI panic_event() should always return, but it may take
+> some time, especially if the IPMI controller is no longer functional.
+> So the risk of a long delay is there and it makes sense to move it very
+> late.
+> 
 
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 69c08d966fda..0fc0c26a71f2 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -1185,12 +1185,19 @@ static inline void gmap_insert_rmap(struct gmap *sg, unsigned long vmaddr,
- 				    struct gmap_rmap *rmap)
- {
- 	void __rcu **slot;
-+	struct gmap_rmap *temp;
- 
- 	BUG_ON(!gmap_is_shadow(sg));
- 	slot = radix_tree_lookup_slot(&sg->host_to_rmap, vmaddr >> PAGE_SHIFT);
- 	if (slot) {
- 		rmap->next = radix_tree_deref_slot_protected(slot,
- 							&sg->guest_table_lock);
-+		for (temp = rmap->next; temp; temp = temp->next) {
-+			if (temp->raddr == rmap->raddr) {
-+				kfree(rmap);
-+				return;
-+			}
-+		}
- 		radix_tree_replace_slot(&sg->host_to_rmap, slot, rmap);
- 	} else {
- 		rmap->next = NULL;
--- 
-2.35.1
+Thanks, I agree - the patch moves it to the (latest - 1) position, since
+some arch code might run as the latest and effectively stops the machine.
+Cheers,
 
+
+Guilherme
