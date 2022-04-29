@@ -2,325 +2,203 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2326AC3527A
-	for <linux-s390@archiver.kernel.org>; Fri, 29 Apr 2022 17:31:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A007C433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 29 Apr 2022 17:32:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379644AbiD2Rej (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 29 Apr 2022 13:34:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55832 "EHLO
+        id S1347219AbiD2RfQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 29 Apr 2022 13:35:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379764AbiD2Rea (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Apr 2022 13:34:30 -0400
-X-Greylist: delayed 3790 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 29 Apr 2022 10:31:08 PDT
-Received: from na01-obe.outbound.protection.outlook.com (unknown [52.101.56.25])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B84D14021;
-        Fri, 29 Apr 2022 10:31:08 -0700 (PDT)
+        with ESMTP id S1379607AbiD2RfM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Apr 2022 13:35:12 -0400
+Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2080.outbound.protection.outlook.com [40.107.93.80])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04C6C1CFC8;
+        Fri, 29 Apr 2022 10:31:52 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=XTnYIoTyFDjM5JUklkUkeZSVHdB/KbpjWUKMrwxPKtMBCELnhwwVxh3SyOWp+1En+lBB80Pmi2MOFKxrdFIAO1tVkwmz31aHf3c0WXJgTJO4H8WZ8wWDi+ZLogiDuQYv43MvDvBMsiShc3M4W6FuR/wPAy1Edr9Ejm4EmMmHgoezg8BixUKBI7OUSVmU0/dlrFC57AU3xqY9yjnUIy1vXdv9nlj9XWZBE29iaC+cnW5L/0PZPRadrHbf3+g4UC7EMWCusYpZlk+0nFrTbZZbgil9754PaHuq87Xs5x2NPKguVl+xJisWMMhTPBDhnZUpXDwN8SYDRRPJVsZL70yHUw==
+ b=OFYbaTyV4UoiAlILjj4p1gO9C1ncR3ajqbU9SryplQeGRCzFcxktL33rZnGMft8lznNd/E5QAxOMN4qA1z+RlfoXLJZ4cLkSd9GmH9TjZc9VEgJal1dr+4iYY87u4WX8xQ6e0DjIc3ypdxntDRlEOdZr+ucZo+dyvamchPHml0uEiM438uJN8Hnz2jn99EpI9lYrcL9bDVcelU+jZspE77EXuS1fr08DwEnK4Mt7enaMUYTyz4DQqFGDAtMneA43fEFq8HrpXmPV4HYEg7FtWILicZEhKVZdN6TD2ALlDdRW0o6+ayT8fBZQZrRikVURvy92i259g6onPv9rnQnJpg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=1lb7HJaoovhC6aIWP9rKJ4VgGH06NMpJYC4i1j5JxsI=;
- b=cllHTkoF7/QGmRKVAfZLbB2EINE8+FyPVK/DhZU1IvHmvPGKiv37XAYsy2ztQQZBV0S2wCJT80Qzf+ODT8pn9hxUAriFcnDhg0MQtoQDmk99sbR4eoHjIBnESHA8RFpDL0QZ9TQIFYrTQ1sa0LxWuC2wFr9KEoOKWkswbeTWdtT8qAKyinjpnI2y79/6J5xxB374yWzqyHNG2OYd8Xse8Q49miwVkxuAjSdxGMc/d6kQcSSLV+ETreRF9TXQzVouszl+GMZqY9q76aTtD+gRUELbgbQQXH756uY5Jmx8Y7/63+0pYcIqxk4hn9ecg4cqgoQJyCOfZkljvQwjcZgnhw==
+ bh=loBg8TDRU/AJEwntPMV/vSCsD62+uhauWWmP8B7p+OQ=;
+ b=XGQej5Oy5z7IL2ngIPgCXJEgALicGn0O7ZfpcG6Yy/M5A+6eeWaRKD4nLDdjRpvcdtyKruvsYeR2RKc2Z1oppaUODAMUbsPvtFrF3HskZFQQLfE6bKvshWw8/KzkyRkSi/hNzvXn3la7EkmXxPWI/doibdnad2hIE9n4xdBzsNNmEHdV1AsFTmduscP+uxytAX+T2LbLVRhj71OLWMZBUEBTA257F9etd0Ubw/xipWsahiLaGmUKSzXEHj9GmxBKtvee43tOw852RYV6qth32pJXBoOLS2YiaeRyHuw+mAZltPiGkWex4lZmgqlIlQuGMzeVsHV0le0a1DTEQNlslw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=microsoft.com; dmarc=pass action=none
- header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=1lb7HJaoovhC6aIWP9rKJ4VgGH06NMpJYC4i1j5JxsI=;
- b=QSQxqWpJqa0hyyFA2XDVFvIF6LUCH46zWRApVCGDtXYWI6H38+ofNY2enqE+SH/qIy3nfoGgoNGiAJVzByKlaoklJK7MeqAmDXe2OQgK7UNp04ELgeYfkgc7YvIny43HOtGavqk6L/OU2tQ5UUDZXTksZysdcEpxlosr405yQD8=
-Received: from PH0PR21MB3025.namprd21.prod.outlook.com (2603:10b6:510:d2::21)
- by DM5PR21MB0761.namprd21.prod.outlook.com (2603:10b6:3:a3::19) with
+ bh=loBg8TDRU/AJEwntPMV/vSCsD62+uhauWWmP8B7p+OQ=;
+ b=L52v8ySEwibv3uM3S4rvf7Mm1lfj4Ev+5SYl7REJwf6LgxIa9gM6j5DjCscW6Eb5HYdzmJg47Y5LpuVolRGcV7fuYE3NKsJ+8aWAZ0crbRxE2R56ZHn5mIeraxBw//2Hd7rcLyeQCB331bU1Oz+LmJ63AhbJRq6g0tfgmUlCq4Zr3aAN2poyL+O0XTfFrOWO/0TDPSba91O74li9uCSXocYOStWW3pPDPHPaDbaUQWg1x4Kib0YOdGx5kw0D8A6gJoTyQ/BdBw4AKofAJ6DNHxtme+xxFe0KsmmZV41d/XftmY25NvUTKtmUbQKcFYHqGedQfDqXscoqBuD5b0cETQ==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
+ by MN2PR12MB3872.namprd12.prod.outlook.com (2603:10b6:208:168::17) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5227.6; Fri, 29 Apr
- 2022 17:30:45 +0000
-Received: from PH0PR21MB3025.namprd21.prod.outlook.com
- ([fe80::dd77:2d4d:329e:87df]) by PH0PR21MB3025.namprd21.prod.outlook.com
- ([fe80::dd77:2d4d:329e:87df%6]) with mapi id 15.20.5227.006; Fri, 29 Apr 2022
- 17:30:45 +0000
-From:   "Michael Kelley (LINUX)" <mikelley@microsoft.com>
-To:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
-        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        "bhe@redhat.com" <bhe@redhat.com>,
-        "pmladek@suse.com" <pmladek@suse.com>,
-        "kexec@lists.infradead.org" <kexec@lists.infradead.org>
-CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "bcm-kernel-feedback-list@broadcom.com" 
-        <bcm-kernel-feedback-list@broadcom.com>,
-        "coresight@lists.linaro.org" <coresight@lists.linaro.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>,
-        "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
-        "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-        "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>,
-        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
-        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
-        "linux-um@lists.infradead.org" <linux-um@lists.infradead.org>,
-        "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "openipmi-developer@lists.sourceforge.net" 
-        <openipmi-developer@lists.sourceforge.net>,
-        "rcu@vger.kernel.org" <rcu@vger.kernel.org>,
-        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
-        "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>,
-        "x86@kernel.org" <x86@kernel.org>,
-        "kernel-dev@igalia.com" <kernel-dev@igalia.com>,
-        "kernel@gpiccoli.net" <kernel@gpiccoli.net>,
-        "halves@canonical.com" <halves@canonical.com>,
-        "fabiomirmar@gmail.com" <fabiomirmar@gmail.com>,
-        "alejandro.j.jimenez@oracle.com" <alejandro.j.jimenez@oracle.com>,
-        "andriy.shevchenko@linux.intel.com" 
-        <andriy.shevchenko@linux.intel.com>,
-        "arnd@arndb.de" <arnd@arndb.de>, "bp@alien8.de" <bp@alien8.de>,
-        "corbet@lwn.net" <corbet@lwn.net>,
-        "d.hatayama@jp.fujitsu.com" <d.hatayama@jp.fujitsu.com>,
-        "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
-        "dyoung@redhat.com" <dyoung@redhat.com>,
-        "feng.tang@intel.com" <feng.tang@intel.com>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "hidehiro.kawai.ez@hitachi.com" <hidehiro.kawai.ez@hitachi.com>,
-        "jgross@suse.com" <jgross@suse.com>,
-        "john.ogness@linutronix.de" <john.ogness@linutronix.de>,
-        "keescook@chromium.org" <keescook@chromium.org>,
-        "luto@kernel.org" <luto@kernel.org>,
-        "mhiramat@kernel.org" <mhiramat@kernel.org>,
-        "mingo@redhat.com" <mingo@redhat.com>,
-        "paulmck@kernel.org" <paulmck@kernel.org>,
-        "peterz@infradead.org" <peterz@infradead.org>,
-        "rostedt@goodmis.org" <rostedt@goodmis.org>,
-        "senozhatsky@chromium.org" <senozhatsky@chromium.org>,
-        "stern@rowland.harvard.edu" <stern@rowland.harvard.edu>,
-        "tglx@linutronix.de" <tglx@linutronix.de>,
-        "vgoyal@redhat.com" <vgoyal@redhat.com>,
-        vkuznets <vkuznets@redhat.com>,
-        "will@kernel.org" <will@kernel.org>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Andrea Parri <parri.andrea@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Brian Norris <computersforpeace@gmail.com>,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5186.17; Fri, 29 Apr
+ 2022 17:31:50 +0000
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::ec2d:9167:1b47:2db2]) by MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::ec2d:9167:1b47:2db2%6]) with mapi id 15.20.5186.026; Fri, 29 Apr 2022
+ 17:31:50 +0000
+Date:   Fri, 29 Apr 2022 14:31:49 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Alex Williamson <alex.williamson@redhat.com>
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        David Airlie <airlied@linux.ie>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        David Gow <davidgow@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dexuan Cui <decui@microsoft.com>,
-        Doug Berger <opendmb@gmail.com>,
-        Evan Green <evgreen@chromium.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Hari Bathini <hbathini@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Julius Werner <jwerner@chromium.org>,
-        Justin Chen <justinpopo6@gmail.com>,
-        KY Srinivasan <kys@microsoft.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Markus Mayer <mmayer@broadcom.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Mihai Carabas <mihai.carabas@oracle.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>,
-        Scott Branden <scott.branden@broadcom.com>,
-        Sebastian Reichel <sre@kernel.org>,
-        Shile Zhang <shile.zhang@linux.alibaba.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org,
+        Harald Freudenberger <freude@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Wang ShaoBo <bobo.shaobowang@huawei.com>,
-        Wei Liu <wei.liu@kernel.org>,
-        zhenwei pi <pizhenwei@bytedance.com>
-Subject: RE: [PATCH 19/30] panic: Add the panic hypervisor notifier list
-Thread-Topic: [PATCH 19/30] panic: Add the panic hypervisor notifier list
-Thread-Index: AQHYWonjjKMtrubrvUiw63ryI2yC7q0HJOjg
-Date:   Fri, 29 Apr 2022 17:30:44 +0000
-Message-ID: <PH0PR21MB30256260CCF4CAB713BBB11ED7FC9@PH0PR21MB3025.namprd21.prod.outlook.com>
-References: <20220427224924.592546-1-gpiccoli@igalia.com>
- <20220427224924.592546-20-gpiccoli@igalia.com>
-In-Reply-To: <20220427224924.592546-20-gpiccoli@igalia.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=ffbe4afc-a779-4ef6-ac4b-fe8bbe7e97a6;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2022-04-29T17:17:23Z;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=microsoft.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: eeb8e09c-7f93-4457-468d-08da2a05fdd8
-x-ms-traffictypediagnostic: DM5PR21MB0761:EE_
-x-ld-processed: 72f988bf-86f1-41af-91ab-2d7cd011db47,ExtAddr
-x-microsoft-antispam-prvs: <DM5PR21MB076153F3B23BA9EDA94AA480D7FC9@DM5PR21MB0761.namprd21.prod.outlook.com>
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: ODUHNdNoyMm3+AjwwTGZa1uU+b7TzZfWBoAD8U4KhH1PO+xsXH02vwPBpyB/mIWIIZLzexbTDM4Vu/gZXstTguCwFin3jx/rAWvym7fQtAAg7bf3LoRbUADVs29tsGDy7+TAF7XXuJ2XtQpxtKth+FDvvHqKkOMz6t9UN3qxlX6X2/8DIw+GSljUyUj0tBw+/yPNu/lWy8bf/Am8dAdq1sDNbEC96RfsPekPyfP+ABzhwQ7PYKa/WylVKbqc6qF9DBAiGkEhIue/W/buwkdT7hYfHatG+zYOokfeiF3mlfl6KUzf5D5VNniM5lrQaX04V1qe1DNhDfiM2zUJp+UaaATU3lWntWn8XhQuwQ43saBb+whCvgo88zwSOnEtmfyXyJ7jSHr1E4zfj918Eh9wqTjnj+ly+wc+lrYnrbxMrLnOqL7bIfdILybyElXp12gbfm2vduDRh4SqY47pT+etRXV897ZE09O7/kJq3qYvGYtzXFoW19u/PKLiR28Z4TH/0eiE3v99EQFM/nm9qKWOIJz0AQ2aN9R7RyGMJ2el+s3C9YrtAh+XKMmCa/DuIpJihY98t7SoGzymQzR/oWmks7/DWMg11/eTBUSMF7oGyj/sryAvEYyImB8qi3eqsEWUoi0UGVpgJYUtiNLHN8PgE27Kl/BKSUCkJOXB2SWOuZP/2y/mimDRuhjjLgpCS8XKOFW4CADcxyTlrPyV6BZvcWd8nLypxsa6tVzXjuIb6HQVUSBs7DXSfR7irbmoVbPr
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR21MB3025.namprd21.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(451199009)(26005)(508600001)(8936002)(9686003)(86362001)(5660300002)(122000001)(66556008)(76116006)(66946007)(4326008)(64756008)(8676002)(66476007)(66446008)(52536014)(55016003)(7696005)(2906002)(83380400001)(33656002)(8990500004)(7366002)(6506007)(71200400001)(186003)(7336002)(7416002)(7406005)(110136005)(38100700002)(38070700005)(54906003)(82960400001)(82950400001)(316002)(10290500003);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?TlM1hb7C2zMfewQaGJedC++RJRP9D1fk9jo5g85b/VbEJjlvhufD/+3GvsdT?=
- =?us-ascii?Q?2RVoig3NgPv+9kMAhzt2yayxBFL+XC6TKbfh6r5z8+a3Ialq4pqnl+61min4?=
- =?us-ascii?Q?AQUbYZF6RM2WxWAWaWbmf4pZvHkqxCNxh2tBKbbAZG7zTWlGRE0yrn46CpjQ?=
- =?us-ascii?Q?Kg+FF3RMjkh0xhKb7YhWVGFRR4cUFfDwAE8Y0u/ayL9EvN7YfHgvbTwnFibg?=
- =?us-ascii?Q?wxrs8ZKT9gyje95TfWsysjrlEo2AMhjijQYf+wk++uxUxKjFMFcFM0TK/o0U?=
- =?us-ascii?Q?SkFo0xaTlF5faRiiVtJr3loo9S/Ku6rNW972dcU4pAdU566LuvrnO7MFZjdh?=
- =?us-ascii?Q?AFmbPsT2BzLJiaocFxkmdlQu7LQAu7OqTCRt6l+PZ9/gSfZuPhUus2hHDtrB?=
- =?us-ascii?Q?SDM9omiIG+Hxx9v9sHNTsQnym8IgjtRHARJqPiuuOrhzGW6rnMAOXglrCflV?=
- =?us-ascii?Q?Rov5f0XftngP4p/15HVk/xZ3U6CF21Y8wkL46j9LuXmnR1XoUchKnTl+E2LX?=
- =?us-ascii?Q?HVGrWe5ghuEiAOI2CIdLYYiZOLMOSKHkPVS5tEsF0puhwsUw4JMbLD+YZac+?=
- =?us-ascii?Q?XngxLj2g0ToSfUytDuBtW/xckOvI92+dCx8pO+ZAYP+e0eVn9cwp1Kvm1xNb?=
- =?us-ascii?Q?rAV5CaVoCci7b8QWoR2QN+Fu5dk7/CqjmTz1tOeFdsuqD6uz1SRGrS1d03HL?=
- =?us-ascii?Q?xDH9ipJZ+o8EfvcxNjL+NjflstJUNBTDD179PIJ02lIR/lqudf7+UQyDID84?=
- =?us-ascii?Q?q6tjz0iN9UUKGwVqgivgZXrsYwAytqrnKmINVNW4wb3XLk5w9neXRmUH+j78?=
- =?us-ascii?Q?KsamX4Pm+/ES4p923iT/O1j8Dc0iz2HIDjQusOUqKqy+1Cmv74o7qNPXqarR?=
- =?us-ascii?Q?SV+zg4wh7LaN+6mQPM9GRAC/fCDGlfCRDE0pObSvJCER5gHColet4D4oXi/M?=
- =?us-ascii?Q?whLKv3In3ycb8NG9SfzBHT6UBBuTXzlk8Z1cOw5HxwbJpQLcoJRyOznkhaFh?=
- =?us-ascii?Q?puB+TPg2v7gG43STuXsZuBPdxeBcD8t22uNy09Tm5VdFwD19dW7BANqzNvjE?=
- =?us-ascii?Q?6ltEeCK6kZsWlNtZnhZXzDkWfGec7QKD5T4837WQofWzk4AFyNmw3P07gbzW?=
- =?us-ascii?Q?DPRwU0bZQmEfow5pS46fZjnBJLIMizPbjOrxqQF88Hjdw7YkIlxIIPy9nOq5?=
- =?us-ascii?Q?rkOk+PDUI9sQbFgNvnFlRVqa5M9e8Cy3bVoX1i0e+J8fFasucl92zOySG7x1?=
- =?us-ascii?Q?dB0URJnSLwBlrJmIq2kHvmFM17BCiSIY6KmZnlsYBBc1zFLorv7VM7LxtvfK?=
- =?us-ascii?Q?eWEn4xu8Zu2XCbhm1RGjyA5mb3yJm+3MMLIWqa+D7mjqfMW4n/WDwOBGp4aX?=
- =?us-ascii?Q?7QIVcVDS2FQO8HGQtL0ZKsEXbyBGRrNCLrnSGQeM3c6sITs7FuMznsa3uTQ1?=
- =?us-ascii?Q?RzaG53kxTddhkwnYFMCH33OZDDS2VRKVGp0nCTknijgA/sd/pqAgBqx5FXNZ?=
- =?us-ascii?Q?LATiyW6hMVS3IQCBsELFD/kPKZZBR2r77QSiuWPyw2p8Pov/AXvouaHqr3Ks?=
- =?us-ascii?Q?aS3oN5XL5IHgKsiBu9N05s7MHrTT+fYH1fgDf196dY2Y2fYMpnG/9O22tFVZ?=
- =?us-ascii?Q?lsqy47lRHWMZ83W8zC+zPLhsXx6hfG0s/4A7rNIm78PqkrB2VME1eEucYCy8?=
- =?us-ascii?Q?YLC3m+W9TrKfxD8jKOYF9JNku02hxJAdCmjBpA8ShRZwpe21dzNz+uH7NKFr?=
- =?us-ascii?Q?FMBdMIBAEVrPX2S6uKBKGZRc/W3b2C8=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
+        linux-doc@vger.kernel.org, linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        "Tian, Kevin" <kevin.tian@intel.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        "Liu, Yi L" <yi.l.liu@intel.com>, Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH v2 0/7] Make the rest of the VFIO driver interface use
+ vfio_device
+Message-ID: <20220429173149.GA167483@nvidia.com>
+References: <0-v2-6011bde8e0a1+5f-vfio_mdev_no_group_jgg@nvidia.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0-v2-6011bde8e0a1+5f-vfio_mdev_no_group_jgg@nvidia.com>
+X-ClientProxiedBy: MN2PR15CA0007.namprd15.prod.outlook.com
+ (2603:10b6:208:1b4::20) To MN2PR12MB4192.namprd12.prod.outlook.com
+ (2603:10b6:208:1d5::15)
 MIME-Version: 1.0
-X-OriginatorOrg: microsoft.com
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 7005c64f-b4d1-4e11-4d69-08da2a0624bd
+X-MS-TrafficTypeDiagnostic: MN2PR12MB3872:EE_
+X-Microsoft-Antispam-PRVS: <MN2PR12MB3872CA8C6BD99BAF2557A5ABC2FC9@MN2PR12MB3872.namprd12.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 8szwqHaWxjvocDem/yW6NjZag/0TK9hRDYmUNMdViYygFCJrMSCPJDe3rhr3lLL7qdl4653ssbv51DVjBnp2Et/BgPMsQFBzHTCQhVwFKCDizqaWl0/C0XIbNigeDBqsIeyajbN4CGpDL34Q6RallMB8oeSYBqrqJWtP8gmN7Ps4dSgjCKqX3qmbm3OFg63KNLISGqH1kvO+5bT054s5obXJfGZp+Jp0Qw/zodsAoDy3WGmsM2e0g/DMskVrJBEX38+0Yw4mfawR674Ol2hdC60o4zf2upsXAllVlBxssYGrpGxcED0YIs9c0cabbj6crvhl77e9D2IX1Wk2ziohUJW6r1WDkC29YHt1lMBbVASgfpHTOjwn9BwS1dntbuZTjevo7nx0eWdWqLhPmrhMPdL2Q30gbyKFW5PrdYdssQmFugYzvBk6ZoLc12VNDlHoHCREUr8cMHegt45N9f/6l2AP3wn23RduVpIRsM3IMWoouoz0u398rd1RHT9TmD0cAcOPtM1pLyd2KgMjw7HBs4Ezy1oJeSpdamNeVwAcUbfxCW1n1rADkUsUPNnEZ8adUGY1e1KOU3g9jhDo18T+EvXlcKqdN075awR9C2iVYRCHMuS8XAqxWT2juqpZGk9FSleetoJwZ2R1f0GXE0IvWAGAw8L5758EmV43OWq+uzXAC6/Mn1EGTF1Adm+CnSSBg8G4/RaUmkj2Me3QO24x3V4IsCwx6q+BLF0ANYN5iWTd2QIcHmzspWA2cgH2lt+WeKy15ph2KGOJHWylusy/tNbd9FrPSnHtsyFzsvg/3IgojmwqcZkm1OlTHyFdOX1g
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(38100700002)(8676002)(4326008)(36756003)(66946007)(66476007)(6512007)(54906003)(8936002)(2906002)(7406005)(7416002)(6916009)(316002)(66556008)(5660300002)(186003)(508600001)(6506007)(33656002)(83380400001)(2616005)(1076003)(86362001)(26005)(6486002)(966005)(27376004);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?4DIksMqoIaFFSqO9n1WsmEQtB6Po/mnyZy1fnVOFBX038zyNU0OSfyT53acu?=
+ =?us-ascii?Q?8DStCscojglan6Z/FgkN315mVCZ6ESjLlZ3Is62jYj8PgMuW2xCBKkJuxAX+?=
+ =?us-ascii?Q?G/HHX2UtkP7f1F/Xv5ioTEIfQNSUwXgHmGFM9w6228l7sUkxZl5N5zO6hO53?=
+ =?us-ascii?Q?WGK/F9hzpsAxmQhMf5HZ6nC9HImfO812RO5Yc+Phe8l5d2nNAl3xrtU2BF9z?=
+ =?us-ascii?Q?9wEBpIBhy6jPQSrA+Y7IW7d4hHfshmzqGL2ly8ji/6SlFHo0iR2GSg9rXJIP?=
+ =?us-ascii?Q?KRfEOaHRYXVkTGqSmBrS02ADCOPEjQE4Di673We2chXk5TGTUeUd4pCB2QEn?=
+ =?us-ascii?Q?pV1NVw9fuXtlMFQ3t38vveQp198n4P/iVIa58br7SP28lvk8qtJ56pIZsTNR?=
+ =?us-ascii?Q?PMt819EPzu/uexTqT7gp+wKAo9Q0dqTug/3p+UYSWCia2oFWQLPXFLFzoTy+?=
+ =?us-ascii?Q?JQXVre7v9Gu0MtBxK1Nm0H/6gtgCxYGkG7KJNTAmZZVAa3NckJUhlzVX5k2e?=
+ =?us-ascii?Q?+YlR0kf+Wk0pSMNwMVN4+6GLO1xLkSYiBoUTpj/hqvMTa2jkDVud1z9XWOdm?=
+ =?us-ascii?Q?UMD3h/IS3sN+fyrXguHyspSN2nI+K2fKXxceJPIoe8MfsI9DxOOQpFXhjtqL?=
+ =?us-ascii?Q?3rw09mnFyloJ/BFBgu8wkgKoBDUaELVC1JmRPD/WAZJLlDaO95D1NyhegnRt?=
+ =?us-ascii?Q?dMZWrzd3+Q8iTJZeQQhT15wFhwtgF6iA732TiOiD8IZbAt9e8txrI8oaA8TG?=
+ =?us-ascii?Q?rk85tlLlAJdiVPZmIC6YKilZNyGiZ/ZXgGgMi8TiF5FVxeCoAJQfNbCpovj6?=
+ =?us-ascii?Q?T57oUFNGKMY7e4N1AZGMvM/Ej70Ile1Fgcjmj98N6F4TGBaSA2+lxw2fAza/?=
+ =?us-ascii?Q?pVYPm/J/cG3lE3PXxeudnWCtxpjGpwwa5z/GO0/oDzkkQr3v0qsllsGDwcWr?=
+ =?us-ascii?Q?spHlKLrYcsvyROH9wH4y9QLqFCXUxI/1ge3Pa6LCb9V42v37yPJQeLGXRYzf?=
+ =?us-ascii?Q?NIv+oM+COlfGgsBwLwwEbOJ9PaBKMcataN6VCtftgXhfQF7JSwUOmcK7ek5i?=
+ =?us-ascii?Q?hEbCBE6Fy8SDgkaqu113RynQZOEiwacJQ5iiCW/0fr1369nyNCYlQOxPquch?=
+ =?us-ascii?Q?R6+P74ExHNL4S3XH0ZtUCqG2iag/KJKhdcG+ru/Zgc9nLO2FvbpkAHz/TRyA?=
+ =?us-ascii?Q?DySEfedRHkXjkF+nj4E9Gl4aSDLQyCF+5Um2ne35gQmgdLq0XLweu6/pfwNo?=
+ =?us-ascii?Q?rJ3rBIIIcK1Ld2xpHorwvsbbab/3hdcpLueDYrVw9qUvHf2jNdHdts16JaCb?=
+ =?us-ascii?Q?5ky9EsKscvOMSV6PTGIx+BJnCCT6NAoXPcjHxCFHk7BCIwQjN++XfCZSnbq4?=
+ =?us-ascii?Q?xJ8oT9HnCd/beioqeDIYUFdJ7kkkVo4rh8iPaML//AafNXgjZGahJSne7blN?=
+ =?us-ascii?Q?pE/2uM7HhvKvO49UOXHx9c5psU6Fq52+g8J4Fgr8aYNhjLCZc9qkqeffQfpm?=
+ =?us-ascii?Q?O9o9wWI/4SmHDdCO+iVmiKchnXpHDczoOCXh5rflT2rutrFU9qDxqJv48F1Y?=
+ =?us-ascii?Q?WHIBXLPN1qmLtHxoIBs17v0JqN7Br3V8u0spcOv+ygprUCoUa+ZMrwmA5t6+?=
+ =?us-ascii?Q?yP6HnsqLNP5GThCOE5EtgKDiV1jQJt+Ja4OnxBIfJ6bBuvRqT7OiGnVDd1Tx?=
+ =?us-ascii?Q?a5qEZfWZh0XkKKL2REJy9nC1PqU0ZCOKA32iXD4fFMgZLVMBZgxJ4v0cCvdi?=
+ =?us-ascii?Q?5iBWSAaVaQ=3D=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7005c64f-b4d1-4e11-4d69-08da2a0624bd
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR21MB3025.namprd21.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: eeb8e09c-7f93-4457-468d-08da2a05fdd8
-X-MS-Exchange-CrossTenant-originalarrivaltime: 29 Apr 2022 17:30:44.8209
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Apr 2022 17:31:50.3089
  (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: w0NqD7w01G3MX0hLhA/dcwb32L6tMn458kJlZ8pEiHHtKKqoR4vHWxkneKizeI4TFabvPMLpsqtoLF7uJprzpME6TmOX5LZO5vkLMC+rFzs=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR21MB0761
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: YIOuZY0Wzo9E/Ruyrcq8ERjVyRhSsvIuyprTKRqStEsoKgn/rwGTNTzaHs3IJKEo
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB3872
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Guilherme G. Piccoli <gpiccoli@igalia.com> Sent: Wednesday, April 27,=
- 2022 3:49 PM
->=20
-> The goal of this new panic notifier is to allow its users to register
-> callbacks to run very early in the panic path. This aims hypervisor/FW
-> notification mechanisms as well as simple LED functions, and any other
-> simple and safe mechanism that should run early in the panic path; more
-> dangerous callbacks should execute later.
->=20
-> For now, the patch is almost a no-op (although it changes a bit the
-> ordering in which some panic notifiers are executed). In a subsequent
-> patch, the panic path will be refactored, then the panic hypervisor
-> notifiers will effectively run very early in the panic path.
->=20
-> We also defer documenting it all properly in the subsequent refactor
-> patch. While at it, we removed some useless header inclusions and
-> fixed some notifiers return too (by using the standard NOTIFY_DONE).
->=20
-> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-> Cc: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
-> Cc: Ard Biesheuvel <ardb@kernel.org>
-> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-> Cc: Brian Norris <computersforpeace@gmail.com>
-> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Cc: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-> Cc: David Gow <davidgow@google.com>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: Dexuan Cui <decui@microsoft.com>
-> Cc: Doug Berger <opendmb@gmail.com>
-> Cc: Evan Green <evgreen@chromium.org>
-> Cc: Florian Fainelli <f.fainelli@gmail.com>
-> Cc: Haiyang Zhang <haiyangz@microsoft.com>
-> Cc: Hari Bathini <hbathini@linux.ibm.com>
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Julius Werner <jwerner@chromium.org>
-> Cc: Justin Chen <justinpopo6@gmail.com>
-> Cc: "K. Y. Srinivasan" <kys@microsoft.com>
-> Cc: Lee Jones <lee.jones@linaro.org>
-> Cc: Markus Mayer <mmayer@broadcom.com>
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Cc: Michael Kelley <mikelley@microsoft.com>
-> Cc: Mihai Carabas <mihai.carabas@oracle.com>
-> Cc: Nicholas Piggin <npiggin@gmail.com>
-> Cc: Paul Mackerras <paulus@samba.org>
-> Cc: Pavel Machek <pavel@ucw.cz>
-> Cc: Scott Branden <scott.branden@broadcom.com>
-> Cc: Sebastian Reichel <sre@kernel.org>
-> Cc: Shile Zhang <shile.zhang@linux.alibaba.com>
-> Cc: Stephen Hemminger <sthemmin@microsoft.com>
-> Cc: Sven Schnelle <svens@linux.ibm.com>
-> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-> Cc: Tianyu Lan <Tianyu.Lan@microsoft.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Wang ShaoBo <bobo.shaobowang@huawei.com>
-> Cc: Wei Liu <wei.liu@kernel.org>
-> Cc: zhenwei pi <pizhenwei@bytedance.com>
-> Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
-> ---
->  arch/mips/sgi-ip22/ip22-reset.c          | 2 +-
->  arch/mips/sgi-ip32/ip32-reset.c          | 3 +--
->  arch/powerpc/kernel/setup-common.c       | 2 +-
->  arch/sparc/kernel/sstate.c               | 3 +--
->  drivers/firmware/google/gsmi.c           | 4 ++--
->  drivers/hv/vmbus_drv.c                   | 4 ++--
->  drivers/leds/trigger/ledtrig-activity.c  | 4 ++--
->  drivers/leds/trigger/ledtrig-heartbeat.c | 4 ++--
->  drivers/misc/bcm-vk/bcm_vk_dev.c         | 6 +++---
->  drivers/misc/pvpanic/pvpanic.c           | 4 ++--
->  drivers/power/reset/ltc2952-poweroff.c   | 4 ++--
->  drivers/s390/char/zcore.c                | 5 +++--
->  drivers/soc/bcm/brcmstb/pm/pm-arm.c      | 2 +-
->  include/linux/panic_notifier.h           | 1 +
->  kernel/panic.c                           | 4 ++++
->  15 files changed, 28 insertions(+), 24 deletions(-)
+On Thu, Apr 21, 2022 at 01:28:31PM -0300, Jason Gunthorpe wrote:
+> Prior series have transformed other parts of VFIO from working on struct
+> device or struct vfio_group into working directly on struct
+> vfio_device. Based on that work we now have vfio_device's readily
+> available in all the drivers.
+> 
+> Update the rest of the driver facing API to use vfio_device as an input.
+> 
+> The following are switched from struct device to struct vfio_device:
+>   vfio_register_notifier()
+>   vfio_unregister_notifier()
+>   vfio_pin_pages()
+>   vfio_unpin_pages()
+>   vfio_dma_rw()
+> 
+> The following group APIs are obsoleted and removed by just using struct
+> vfio_device with the above:
+>   vfio_group_pin_pages()
+>   vfio_group_unpin_pages()
+>   vfio_group_iommu_domain()
+>   vfio_group_get_external_user_from_dev()
+> 
+> To retain the performance of the new device APIs relative to their group
+> versions optimize how vfio_group_add_container_user() is used to avoid
+> calling it when the driver must already guarantee the device is open and
+> the container_users incrd.
+> 
+> The remaining exported VFIO group interfaces are only used by kvm, and are
+> addressed by a parallel series.
+> 
+> This series is based on Christoph's gvt rework here:
+> 
+>  https://lore.kernel.org/all/5a8b9f48-2c32-8177-1c18-e3bd7bfde558@intel.com/
+> 
+> and so will need the PR merged first.
 
-[ snip]
+Hi Alex,
 
->=20
-> diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-> index f37f12d48001..901b97034308 100644
-> --- a/drivers/hv/vmbus_drv.c
-> +++ b/drivers/hv/vmbus_drv.c
-> @@ -1614,7 +1614,7 @@ static int vmbus_bus_init(void)
->  			hv_kmsg_dump_register();
->=20
->  		register_die_notifier(&hyperv_die_report_block);
-> -		atomic_notifier_chain_register(&panic_notifier_list,
-> +		atomic_notifier_chain_register(&panic_hypervisor_list,
->  						&hyperv_panic_report_block);
->  	}
->=20
-> @@ -2843,7 +2843,7 @@ static void __exit vmbus_exit(void)
->  	if (ms_hyperv.misc_features & HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE) {
->  		kmsg_dump_unregister(&hv_kmsg_dumper);
->  		unregister_die_notifier(&hyperv_die_report_block);
-> -		atomic_notifier_chain_unregister(&panic_notifier_list,
-> +		atomic_notifier_chain_unregister(&panic_hypervisor_list,
->  						&hyperv_panic_report_block);
->  	}
->=20
+Since all the shared branch PRs are ready, do you have any remarks on
+this series and the others before I rebase and repost them?
 
-Using the hypervisor_list here produces a bit of a mismatch.  In many cases
-this notifier will do nothing, and will defer to the kmsg_dump() mechanism
-to notify the hypervisor about the panic.   Running the kmsg_dump()
-mechanism is linked to the info_list, so I'm thinking the Hyper-V panic rep=
-ort
-notifier should be on the info_list as well.  That way the reporting behavi=
-or
-is triggered at the same point in the panic path regardless of which
-reporting mechanism is used.
+This one has a few changes to the commit messages outstanding, but v2
+didn't have any code changes.
 
+Also, what order would like the different series in - they conflict
+with each other a little bit. I suggest this:
 
+- mdev group removal (this one)
+- Remove vfio_device_get_from_dev()
+  https://lore.kernel.org/r/0-v1-7f2292e6b2ba+44839-vfio_get_from_dev_jgg@nvidia.com
+- Remove group from kvm
+  https://lore.kernel.org/r/0-v1-33906a626da1+16b0-vfio_kvm_no_group_jgg@nvidia.com
 
+All of them seem to have got enough reviews now.
+
+I have one more series on this group topic and a few little patches still
+
+It would be great if you could merge the gvt and iommu series together
+into your tree toward linux-next so I can post patches against a
+stable commit ID so the build-bots can test them.
+
+Thanks,
+Jason
