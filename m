@@ -2,128 +2,138 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0FF9C4167B
-	for <linux-s390@archiver.kernel.org>; Fri, 29 Apr 2022 15:19:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE6D0C433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 29 Apr 2022 15:45:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378333AbiD2PXN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 29 Apr 2022 11:23:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51190 "EHLO
+        id S1378233AbiD2PtE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 29 Apr 2022 11:49:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378305AbiD2PXJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Apr 2022 11:23:09 -0400
-Received: from fanzine2.igalia.com (fanzine.igalia.com [178.60.130.6])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 984A4D4CBB;
-        Fri, 29 Apr 2022 08:19:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
-        s=20170329; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=PkGMRtr7ZOpuAUYdkK5YcnBWQgNByIkM+TF/PhPSt00=; b=McsgIEmWszU/NtZ864aphbd05/
-        AA+Hs7uyIJtJtMr4867fKRnrcDZ/B0ve7meILjRDqPYrpj2SCcZq87R4becMzN/EmmpSkGxa2bXfq
-        pUhMsFJRA7hiMl/hulL8uwaQ3NgTviAzyrP9F3cuPytnlSXUcQgJY1SVDx/EfT4PyEI3blubrtgBl
-        Y/qFy6eJFuUH765RC4uiwWYgWdDuIIe2xttNarhTtSLeO0f5vFGPmxPe8sb1rSPH9MLQ8MhCgLKVk
-        8Yh9XWbluokYf/vW7/yQXLp3HdC2BoK3CBL6+DlGPNeddie6sMCK3FiVbeA/PpCZCA2PeX8k9qatt
-        P0Tqe4Tg==;
-Received: from [179.113.53.197] (helo=[192.168.1.60])
-        by fanzine2.igalia.com with esmtpsa 
-        (Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
-        id 1nkSOj-000BaQ-FP; Fri, 29 Apr 2022 17:19:09 +0200
-Message-ID: <31248811-d3ed-63dd-e255-c3be07fb1434@igalia.com>
-Date:   Fri, 29 Apr 2022 12:18:29 -0300
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Subject: Re: [PATCH 21/30] panic: Introduce the panic pre-reboot notifier list
-Content-Language: en-US
-To:     minyard@acm.org, elder@ieee.org, Alex Elder <elder@kernel.org>,
-        cminyard@mvista.com
-Cc:     akpm@linux-foundation.org, bhe@redhat.com, pmladek@suse.com,
-        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
-        bcm-kernel-feedback-list@broadcom.com,
-        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
-        linux-edac@vger.kernel.org, linux-hyperv@vger.kernel.org,
-        linux-leds@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-tegra@vger.kernel.org, linux-um@lists.infradead.org,
-        linux-xtensa@linux-xtensa.org, netdev@vger.kernel.org,
-        openipmi-developer@lists.sourceforge.net, rcu@vger.kernel.org,
-        sparclinux@vger.kernel.org, xen-devel@lists.xenproject.org,
-        x86@kernel.org, kernel-dev@igalia.com, kernel@gpiccoli.net,
-        halves@canonical.com, fabiomirmar@gmail.com,
-        alejandro.j.jimenez@oracle.com, andriy.shevchenko@linux.intel.com,
-        arnd@arndb.de, bp@alien8.de, corbet@lwn.net,
-        d.hatayama@jp.fujitsu.com, dave.hansen@linux.intel.com,
-        dyoung@redhat.com, feng.tang@intel.com, gregkh@linuxfoundation.org,
-        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
-        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
-        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
-        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
-        senozhatsky@chromium.org, stern@rowland.harvard.edu,
-        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
-        will@kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Chris Zankel <chris@zankel.net>,
+        with ESMTP id S1378606AbiD2Psw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Apr 2022 11:48:52 -0400
+Received: from mail-qt1-x834.google.com (mail-qt1-x834.google.com [IPv6:2607:f8b0:4864:20::834])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86BCF2DD5C;
+        Fri, 29 Apr 2022 08:45:33 -0700 (PDT)
+Received: by mail-qt1-x834.google.com with SMTP id y3so6043700qtn.8;
+        Fri, 29 Apr 2022 08:45:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=0AmjJCTGkqpH0j7OWbnycCS3KV9E1uQeOq85BlTLnmc=;
+        b=XwuIlexwM4dve930lSDOFEEf8Fxpdc0edILk7OXe0i5iZsUvd8Kg4yOkWhq/1D5Zpb
+         E/20A/6oLFskOXdZkX3hn3IcHYE+aMA16wtMf4t0oLTtFMNvwUINAtmubsIIxQKiPI9V
+         RiFd66irxRypZPujMrHMpRsrmjXCk8rvcBzpsHj1H0Z92ZhL0XQoY7ePvVEx0UyE1/VG
+         4ijejAM0ZvIoOGau468wAgDUqTtxbHGmwn8U/IVPcEwP+kExK4vZJemXU+9LjyHg4vUR
+         gxk3cM8uCcqajmnnVSbLEWVuQ7kG7UGPbypmf7lMIvrukvEZomFgKLXUcjxAT2+F+VOU
+         QapQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=0AmjJCTGkqpH0j7OWbnycCS3KV9E1uQeOq85BlTLnmc=;
+        b=bPrwilbymtPf3RHF6Dm7u/pa1k5n+hMjHCCgwr38CZ7lr5kHELe7qg4Zz3xSfvuwG+
+         4YMnO2I64+NDsh5TesFUJx3C6R8eup7hMXDweuim5HHTVQyom1h+AFTXutUcbP0VWwlP
+         6Z7fKq7lxWynqRVNCIlmIJnhRI9CDBm0mg10XWHUlbi2zzagN5DJwvFlkFsMh9Rn3auH
+         VlP9dky0gofs+z+RM70X3EMHyx6ggLKCyF1vv6GL+YD1TiRsF9ofcxSKWr4y9vSa4477
+         219KwhRYxJnbGHSJ/1l/pxQ/ywPv3dMhoEDxp3ZJQRKN/GLamSs4MgdPMNZkwjvSC3rO
+         fazg==
+X-Gm-Message-State: AOAM530rJdR5fzeiFfzZuqxUaOVADpREp51XeShJ6tVv0vWU3+suHcM3
+        sYqWXpFc/HqZO62SJvqijpU=
+X-Google-Smtp-Source: ABdhPJyRmBUlkHBi31CCfAyzBtaCMOUxbplBygVKF9dcYX8Y/qQ8x9HZhfy3XO8SG3RpRveTr5TFdA==
+X-Received: by 2002:a05:622a:1a8e:b0:2f3:96db:3d8f with SMTP id s14-20020a05622a1a8e00b002f396db3d8fmr5128qtc.379.1651247132562;
+        Fri, 29 Apr 2022 08:45:32 -0700 (PDT)
+Received: from localhost ([2601:c4:c432:945:a9d2:6c22:f2f3:7503])
+        by smtp.gmail.com with ESMTPSA id u17-20020a05620a431100b0069fb9f98b26sm635934qko.69.2022.04.29.08.45.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 29 Apr 2022 08:45:32 -0700 (PDT)
+Date:   Fri, 29 Apr 2022 08:45:33 -0700
+From:   Yury Norov <yury.norov@gmail.com>
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     linux-kernel@vger.kernel.org,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Dexuan Cui <decui@microsoft.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Helge Deller <deller@gmx.de>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-        James Morse <james.morse@arm.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Matt Turner <mattst88@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@ucw.cz>,
-        Richard Henderson <rth@twiddle.net>,
-        Richard Weinberger <richard@nod.at>,
-        Robert Richter <rric@kernel.org>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, Wei Liu <wei.liu@kernel.org>
-References: <20220427224924.592546-1-gpiccoli@igalia.com>
- <20220427224924.592546-22-gpiccoli@igalia.com>
- <20220428162616.GE442787@minyard.net>
-From:   "Guilherme G. Piccoli" <gpiccoli@igalia.com>
-In-Reply-To: <20220428162616.GE442787@minyard.net>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+Subject: Re: [PATCH 2/5] lib: add bitmap_{from,to}_arr64
+Message-ID: <YmwIHRhS2f1QTW3b@yury-laptop>
+References: <20220428205116.861003-1-yury.norov@gmail.com>
+ <20220428205116.861003-3-yury.norov@gmail.com>
+ <YmvhLbIoHDhEhJFq@smile.fi.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YmvhLbIoHDhEhJFq@smile.fi.intel.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 28/04/2022 13:26, Corey Minyard wrote:
-> [...]
+On Fri, Apr 29, 2022 at 03:59:25PM +0300, Andy Shevchenko wrote:
+> On Thu, Apr 28, 2022 at 01:51:13PM -0700, Yury Norov wrote:
+> > Manipulating 64-bit arrays with bitmap functions is potentially dangerous
+> > because on 32-bit BE machines the order of halfwords doesn't match.
+> > Another issue is that compiler may throw a warning about out-of-boundary
+> > access.
+> > 
+> > This patch adds bitmap_{from,to}_arr64 functions in addition to existing
+> > bitmap_{from,to}_arr32.
 > 
-> For the IPMI portion:
+> ...
 > 
-> Acked-by: Corey Minyard <cminyard@mvista.com>
-
-Thanks Alex and Corey for the ACKs!
-
+> > +	bitmap_copy_clear_tail((unsigned long *) (bitmap),	\
+> > +			(const unsigned long *) (buf), (nbits))
 > 
-> Note that the IPMI panic_event() should always return, but it may take
-> some time, especially if the IPMI controller is no longer functional.
-> So the risk of a long delay is there and it makes sense to move it very
-> late.
+> Drop spaces after castings. Besides that it might be placed on a single line.
 > 
+> ...
 
-Thanks, I agree - the patch moves it to the (latest - 1) position, since
-some arch code might run as the latest and effectively stops the machine.
-Cheers,
+OK
+ 
+> 
+> > +	bitmap_copy_clear_tail((unsigned long *) (buf),		\
+> > +			(const unsigned long *) (bitmap), (nbits))
+> 
+> Ditto.
+> 
+> ...
+> 
+> > +void bitmap_to_arr64(u64 *buf, const unsigned long *bitmap, unsigned int nbits)
+> > +{
+> > +	const unsigned long *end = bitmap + BITS_TO_LONGS(nbits);
+> > +
+> > +	while (bitmap < end) {
+> > +		*buf = *bitmap++;
+> > +		if (bitmap < end)
+> > +			*buf |= (u64)(*bitmap++) << 32;
+> > +		buf++;
+> > +	}
+> >  
+> > +	/* Clear tail bits in last element of array beyond nbits. */
+> > +	if (nbits % 64)
+> > +		buf[-1] &= GENMASK_ULL(nbits, 0);
+> 
+> Hmm... if nbits is > 0 and < 64, wouldn't be this problematic, since
+> end == bitmap? Or did I miss something?
 
+BITS_TO_LONGS(0) == 0
+BITS_TO_LONGS(1..32) == 1
+BITS_TO_LONGS(33..64) == 2
 
-Guilherme
+The only potential problem with buf[-1] is nbits == 0, but fortunately
+(0 % 64) == 0, and it doesn't happen.
+
+Thanks,
+Yury
+
+> > +}
+> 
+> -- 
+> With Best Regards,
+> Andy Shevchenko
+> 
