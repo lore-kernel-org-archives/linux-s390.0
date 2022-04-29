@@ -2,153 +2,103 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B132AC433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 29 Apr 2022 06:38:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ABE70C433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 29 Apr 2022 07:39:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354729AbiD2Glx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 29 Apr 2022 02:41:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46498 "EHLO
+        id S238466AbiD2Hm4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 29 Apr 2022 03:42:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354657AbiD2Gld (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Apr 2022 02:41:33 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 40991B9F3C
-        for <linux-s390@vger.kernel.org>; Thu, 28 Apr 2022 23:38:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1651214289;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Qh2pYsSv0Jsq4yPSrKOGS/h5dSBWkO2z1DpVXJerATU=;
-        b=RAdnND1jDW8PsijEl2qxMPXuyUAydqdQenB7MrHGsVlCKTOZrVCwaxr0hDdKapX2908093
-        uo/Wx16dESEVb26lPkM1YuB0iXzBichbAEa3hony7FNb5OXxTvURqNj4WxmSg/dVgq8gf0
-        eTJMAolpVKxiosBS43UbPhQ0b1ViFmc=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-96-g8Utg0-KMFW-Rd9hjjEMvg-1; Fri, 29 Apr 2022 02:38:04 -0400
-X-MC-Unique: g8Utg0-KMFW-Rd9hjjEMvg-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 87A8E1C07382;
-        Fri, 29 Apr 2022 06:38:02 +0000 (UTC)
-Received: from thuth.com (unknown [10.39.192.118])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id EC86914A5060;
-        Fri, 29 Apr 2022 06:37:59 +0000 (UTC)
-From:   Thomas Huth <thuth@redhat.com>
-To:     kvm@vger.kernel.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org,
-        David Hildenbrand <david@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        linux-s390@vger.kernel.org
-Subject: [PATCH v3 4/4] KVM: s390: selftests: Use TAP interface in the reset test
-Date:   Fri, 29 Apr 2022 08:37:24 +0200
-Message-Id: <20220429063724.480919-5-thuth@redhat.com>
-In-Reply-To: <20220429063724.480919-1-thuth@redhat.com>
-References: <20220429063724.480919-1-thuth@redhat.com>
+        with ESMTP id S238511AbiD2Hm4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Apr 2022 03:42:56 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67D06A5EBB;
+        Fri, 29 Apr 2022 00:39:38 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23T56YtP014049;
+        Fri, 29 Apr 2022 07:39:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=CuFcLG9fyyl5I4le9BXuxPJQS9NreBnbA9rA4Dc7Ceg=;
+ b=arMwhMXZUYcxUjyCNksFsuu+yha2o15kmiq2zmoMaS7MipQvw4GmnRvZZi+I+Ow9YfaX
+ bOcl+xcj6138HybCG26N2qfH6QATBqLQ7M+zOhqYiPR8m6vudrjfMoG1/0TVKBuwNIIX
+ dABExnaX44i8kIDz887iZ2SOxEeODUev2+cF1QNwtFBU3TeStaXO+BTBT+lQ6LlQEsQa
+ lHhbHzFr5bpHqcBMHB3vT4W/eC5l1KFTvsDO1qX0AEu6s4YKEqWuI6UGbFoKt2DSdm5/
+ 4dCZih0CtZtS0bQ9iiqt15zIVkCLedwIqFtPNs2ozRvzi3i3+NSEV9Cvdh9UznSQt7Fh zQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fque158sf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 29 Apr 2022 07:39:33 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 23T7AEgZ031633;
+        Fri, 29 Apr 2022 07:39:33 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fque158ry-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 29 Apr 2022 07:39:33 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23T7asPi005657;
+        Fri, 29 Apr 2022 07:39:31 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma04ams.nl.ibm.com with ESMTP id 3fm9390p40-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 29 Apr 2022 07:39:31 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23T7dSmO46924102
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 29 Apr 2022 07:39:28 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 09AF742041;
+        Fri, 29 Apr 2022 07:39:28 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6E4C74203F;
+        Fri, 29 Apr 2022 07:39:27 +0000 (GMT)
+Received: from [9.145.66.15] (unknown [9.145.66.15])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 29 Apr 2022 07:39:27 +0000 (GMT)
+Message-ID: <f42b3b84-8cee-fcd9-e6cf-7a55d956b4d8@linux.ibm.com>
+Date:   Fri, 29 Apr 2022 09:39:26 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.85 on 10.11.54.7
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.8.1
+Subject: Re: [PATCH net-next v2 15/15] qeth: remove a copy of the
+ NAPI_POLL_WEIGHT define
+Content-Language: en-US
+To:     Jakub Kicinski <kuba@kernel.org>, davem@davemloft.net,
+        pabeni@redhat.com
+Cc:     edumazet@google.com, netdev@vger.kernel.org, wenjia@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        linux-s390@vger.kernel.org
+References: <20220428212323.104417-1-kuba@kernel.org>
+ <20220428212323.104417-16-kuba@kernel.org>
+From:   Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <20220428212323.104417-16-kuba@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: N4GcZCAYWDYoua3WzzoNsctDHaGFoQ5r
+X-Proofpoint-GUID: SR1oKQww8aoDj-nziLgrZD9R2mYf0yK7
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-04-29_05,2022-04-28_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 suspectscore=0
+ priorityscore=1501 spamscore=0 impostorscore=0 mlxscore=0
+ lowpriorityscore=0 adultscore=0 phishscore=0 malwarescore=0
+ mlxlogscore=784 bulkscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2202240000 definitions=main-2204290042
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Let's standardize the s390x KVM selftest output to the TAP output
-generated via the kselftests.h interface.
 
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Signed-off-by: Thomas Huth <thuth@redhat.com>
----
- tools/testing/selftests/kvm/s390x/resets.c | 38 +++++++++++++++++-----
- 1 file changed, 30 insertions(+), 8 deletions(-)
 
-diff --git a/tools/testing/selftests/kvm/s390x/resets.c b/tools/testing/selftests/kvm/s390x/resets.c
-index b143db6d8693..889449a22e7a 100644
---- a/tools/testing/selftests/kvm/s390x/resets.c
-+++ b/tools/testing/selftests/kvm/s390x/resets.c
-@@ -12,6 +12,7 @@
- 
- #include "test_util.h"
- #include "kvm_util.h"
-+#include "kselftest.h"
- 
- #define VCPU_ID 3
- #define LOCAL_IRQS 32
-@@ -202,7 +203,7 @@ static void inject_irq(int cpu_id)
- 
- static void test_normal(void)
- {
--	pr_info("Testing normal reset\n");
-+	ksft_print_msg("Testing normal reset\n");
- 	/* Create VM */
- 	vm = vm_create_default(VCPU_ID, 0, guest_code_initial);
- 	run = vcpu_state(vm, VCPU_ID);
-@@ -225,7 +226,7 @@ static void test_normal(void)
- 
- static void test_initial(void)
- {
--	pr_info("Testing initial reset\n");
-+	ksft_print_msg("Testing initial reset\n");
- 	vm = vm_create_default(VCPU_ID, 0, guest_code_initial);
- 	run = vcpu_state(vm, VCPU_ID);
- 	sync_regs = &run->s.regs;
-@@ -247,7 +248,7 @@ static void test_initial(void)
- 
- static void test_clear(void)
- {
--	pr_info("Testing clear reset\n");
-+	ksft_print_msg("Testing clear reset\n");
- 	vm = vm_create_default(VCPU_ID, 0, guest_code_initial);
- 	run = vcpu_state(vm, VCPU_ID);
- 	sync_regs = &run->s.regs;
-@@ -266,14 +267,35 @@ static void test_clear(void)
- 	kvm_vm_free(vm);
- }
- 
-+struct testdef {
-+	const char *name;
-+	void (*test)(void);
-+	bool needs_cap;
-+} testlist[] = {
-+	{ "initial", test_initial, false },
-+	{ "normal", test_normal, true },
-+	{ "clear", test_clear, true },
-+};
-+
- int main(int argc, char *argv[])
- {
-+	bool has_s390_vcpu_resets = kvm_check_cap(KVM_CAP_S390_VCPU_RESETS);
-+	int idx;
-+
- 	setbuf(stdout, NULL);	/* Tell stdout not to buffer its content */
- 
--	test_initial();
--	if (kvm_check_cap(KVM_CAP_S390_VCPU_RESETS)) {
--		test_normal();
--		test_clear();
-+	ksft_print_header();
-+	ksft_set_plan(ARRAY_SIZE(testlist));
-+
-+	for (idx = 0; idx < ARRAY_SIZE(testlist); idx++) {
-+		if (!testlist[idx].needs_cap || has_s390_vcpu_resets) {
-+			testlist[idx].test();
-+			ksft_test_result_pass("%s\n", testlist[idx].name);
-+		} else {
-+			ksft_test_result_skip("%s - no VCPU_RESETS capability\n",
-+					      testlist[idx].name);
-+		}
- 	}
--	return 0;
-+
-+	ksft_finished();	/* Print results and exit() accordingly */
- }
--- 
-2.27.0
-
+On 28.04.22 23:23, Jakub Kicinski wrote:
+> Defining local versions of NAPI_POLL_WEIGHT with the same
+> values in the drivers just makes refactoring harder.
+> 
+> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+> ---
+>
+Acked-by: Alexandra Winter <wintera@linux.ibm.com>
