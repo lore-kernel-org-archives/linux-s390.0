@@ -2,69 +2,44 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 28B0EC433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 29 Apr 2022 06:21:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D3C7CC433F5
+	for <linux-s390@archiver.kernel.org>; Fri, 29 Apr 2022 06:37:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346373AbiD2GYm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 29 Apr 2022 02:24:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41506 "EHLO
+        id S1354584AbiD2GlN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 29 Apr 2022 02:41:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238341AbiD2GYd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Apr 2022 02:24:33 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 557AC6213D
-        for <linux-s390@vger.kernel.org>; Thu, 28 Apr 2022 23:21:10 -0700 (PDT)
+        with ESMTP id S232281AbiD2GlM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Apr 2022 02:41:12 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id A9093B8982
+        for <linux-s390@vger.kernel.org>; Thu, 28 Apr 2022 23:37:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1651213269;
+        s=mimecast20190719; t=1651214274;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Sc42abCE1lLkpR2z5/9d9ajEOgsNqnuHzbg51Wp3bw8=;
-        b=BwhFHIxvyB/C37CXCzAtjQGnnW77jJqxX0yWHYVCUsy6mTWopjGcPinbvY71SkDsxBQtxD
-        Ya9Ng6PyZRE8LHNuuAyJ1X/zaCBd9kK7K0dCOTzxJxF5yGfZQ5C0mNVw7FtpHxYlPlKpb8
-        jg7w1aAbf3tHnNPQ7YzE7smH6nkcD6w=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=ChtMPYjIydjIkCxEWfVnTdwnIsFyeKywjaIjoMKSQMA=;
+        b=EZJ2tMAHsPQHyw9fJ47vj46AsyY/ooo5U0KT8+hhHLtHVc/KwEH3RaiyLdG4TP0i7AU95+
+        sUFUixCdU+FWU3ZWXSzHX+Qz8TZrTKyvCUW4TiMnT9H7E/VmrB1N1sufvXjdYfKQc+Uuen
+        4YCYJTMnmqGUolMHv/jILktBlxBlU04=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-361-uJ8cPRUcPVyE-13X7f4Elg-1; Fri, 29 Apr 2022 02:21:08 -0400
-X-MC-Unique: uJ8cPRUcPVyE-13X7f4Elg-1
-Received: by mail-wm1-f72.google.com with SMTP id q6-20020a1cf306000000b0038c5726365aso2094606wmq.3
-        for <linux-s390@vger.kernel.org>; Thu, 28 Apr 2022 23:21:08 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=Sc42abCE1lLkpR2z5/9d9ajEOgsNqnuHzbg51Wp3bw8=;
-        b=rzCqyQqrQgSCLUF5oftsz3xHG1draIwcRJHp1FlS15UZaEOjshnyrJdq+v5GGmGGTI
-         nVwTGwTNXclbI92CAtvQL97flLbXDGQY1fvL1CLz+pYr8qICGYPvy8bf84djdV9n1jqG
-         dFWR4UuJ+viqyTUeZiSA4yqFDZqnlvPqg2WhFfAcgK8Lhc29iA2dXadLmXDwHoY2HV8f
-         6JsIfhgdEuStFZvPMF39qdFdL68eO2BPdLQdrhGT6bPOJXzHF4qXiw+qbWxz0wfxDhc2
-         7U2uCX9peN6/wkrN644EQKETlJ62qF5thRpLYEX4jmlPB3q3g8yiqKPoemmpwyGuc5KL
-         9MrA==
-X-Gm-Message-State: AOAM530QabIV/t8sbPUNmAyzmGWQZAIXLT85u2kJAE1QZ+0PmxhDzedT
-        uo3/o1fdMFIFh3ski40AwC4fvfL0dlsKA7sgT7e9daVi/uWGbyl6sTkMTn7jEXMjS8l75EZBe8c
-        dFCGKeS/mnBoBzmUsPdgpaw==
-X-Received: by 2002:a05:6000:1789:b0:20a:9f94:1620 with SMTP id e9-20020a056000178900b0020a9f941620mr30319021wrg.640.1651213267353;
-        Thu, 28 Apr 2022 23:21:07 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwHmnF6dRdNFoY1hNrODSzQG1BlQrGbBRtnEPalxmlm2IQZ73XMdQ+B/D2QLzh+Ka9dXWrjQQ==
-X-Received: by 2002:a05:6000:1789:b0:20a:9f94:1620 with SMTP id e9-20020a056000178900b0020a9f941620mr30319000wrg.640.1651213267073;
-        Thu, 28 Apr 2022 23:21:07 -0700 (PDT)
-Received: from [192.168.8.104] (tmo-082-126.customers.d1-online.com. [80.187.82.126])
-        by smtp.gmail.com with ESMTPSA id v3-20020adf8b43000000b0020aeb170557sm1805400wra.36.2022.04.28.23.21.05
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 28 Apr 2022 23:21:06 -0700 (PDT)
-Message-ID: <88b40226-b163-5bec-a9bc-cc9c3b323615@redhat.com>
-Date:   Fri, 29 Apr 2022 08:21:03 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Subject: Re: [PATCH v2 4/4] KVM: s390: selftests: Use TAP interface in the
- reset test
-Content-Language: en-US
-To:     Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org,
+ us-mta-324-4MFba-kINFGyzLeVHgCkVw-1; Fri, 29 Apr 2022 02:37:51 -0400
+X-MC-Unique: 4MFba-kINFGyzLeVHgCkVw-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id AB1E2800186;
+        Fri, 29 Apr 2022 06:37:50 +0000 (UTC)
+Received: from thuth.com (unknown [10.39.192.118])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id B508F14A5060;
+        Fri, 29 Apr 2022 06:37:47 +0000 (UTC)
+From:   Thomas Huth <thuth@redhat.com>
+To:     kvm@vger.kernel.org,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>
 Cc:     linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org,
         David Hildenbrand <david@redhat.com>,
@@ -72,41 +47,48 @@ Cc:     linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org,
         Shuah Khan <shuah@kernel.org>,
         Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
         linux-s390@vger.kernel.org
-References: <20220419185857.128351-1-thuth@redhat.com>
- <20220419185857.128351-5-thuth@redhat.com>
- <fb468756-2f80-3e0b-91d9-8e6a0679f36c@linux.ibm.com>
-From:   Thomas Huth <thuth@redhat.com>
-In-Reply-To: <fb468756-2f80-3e0b-91d9-8e6a0679f36c@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Subject: [PATCH v3 0/4] KVM: s390: selftests: Provide TAP output in tests
+Date:   Fri, 29 Apr 2022 08:37:20 +0200
+Message-Id: <20220429063724.480919-1-thuth@redhat.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.7
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 20/04/2022 12.34, Janosch Frank wrote:
-> On 4/19/22 20:58, Thomas Huth wrote:
->> Let's standardize the s390x KVM selftest output to the TAP output
->> generated via the kselftests.h interface.
->>
->> Signed-off-by: Thomas Huth <thuth@redhat.com>
->> ---
-> 
-> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-> 
-> [...]
->> -    return 0;
->> +
->> +    ksft_finished();
-> 
-> main() is still int so it looks really weird, that we remove the return 
-> here. After reading the ksft_finished() code I know that we never return 
-> because we do an exit() but I'd like to have a comment, change to void or 
-> noreturn tag to make this clearer.
+This patch series is motivated by Shuah's suggestion here:
 
-Changing the return type of main() to void causes a compiler warning here, 
-so I'll go with the comment.
+ https://lore.kernel.org/kvm/d576d8f7-980f-3bc6-87ad-5a6ae45609b8@linuxfoundation.org/
 
-  Thomas
+Many s390x KVM selftests do not output any information about which
+tests have been run, so it's hard to say whether a test binary
+contains a certain sub-test or not. To improve this situation let's
+add some TAP output via the kselftest.h interface to these tests,
+so that it easier to understand what has been executed or not.
 
+v3:
+ - Added comments / fixed cosmetics according to Janosch's and
+   Janis' reviews of the v2 series
+ - Added Reviewed-by tags from the v2 series
 
+v2:
+ - Reworked the extension checking in the first patch
+ - Make sure to always print the TAP 13 header in the second patch
+ - Reworked the SKIP printing in the third patch
+
+Thomas Huth (4):
+  KVM: s390: selftests: Use TAP interface in the memop test
+  KVM: s390: selftests: Use TAP interface in the sync_regs test
+  KVM: s390: selftests: Use TAP interface in the tprot test
+  KVM: s390: selftests: Use TAP interface in the reset test
+
+ tools/testing/selftests/kvm/s390x/memop.c     | 90 +++++++++++++++----
+ tools/testing/selftests/kvm/s390x/resets.c    | 38 ++++++--
+ .../selftests/kvm/s390x/sync_regs_test.c      | 87 +++++++++++++-----
+ tools/testing/selftests/kvm/s390x/tprot.c     | 29 ++++--
+ 4 files changed, 193 insertions(+), 51 deletions(-)
+
+-- 
+2.27.0
 
