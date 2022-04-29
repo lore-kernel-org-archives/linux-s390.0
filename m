@@ -2,185 +2,255 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B1F16C433FE
-	for <linux-s390@archiver.kernel.org>; Fri, 29 Apr 2022 22:22:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 67565C41535
+	for <linux-s390@archiver.kernel.org>; Fri, 29 Apr 2022 22:36:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239759AbiD2WZf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 29 Apr 2022 18:25:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55614 "EHLO
+        id S1381566AbiD2WjS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 29 Apr 2022 18:39:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239741AbiD2WZe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Apr 2022 18:25:34 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6F44DDC9B6
-        for <linux-s390@vger.kernel.org>; Fri, 29 Apr 2022 15:22:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1651270934;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ATKyFNAAAkRRTMtWxAFMAqDXlfz2eEkoQ0lWbdsfdDE=;
-        b=DwQYV3FePSX6Qla3J0/FYZ0+WO4dSHSXBBgbvv3/W1yHxG0vZIy/YkqtffXonsZPk/C9fa
-        pMuSk47iMnFODYdCvFj73U35C+Ub6BIS4xwPHeuOz6ay6hEMisrpNi4ndRq1xR1gMwpOID
-        L329yMBQR2hpQEgZRjlJJ0FCD4KVO2A=
-Received: from mail-io1-f71.google.com (mail-io1-f71.google.com
- [209.85.166.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-613-mA8vY3ADPnGmqIwSSmwoZA-1; Fri, 29 Apr 2022 18:22:13 -0400
-X-MC-Unique: mA8vY3ADPnGmqIwSSmwoZA-1
-Received: by mail-io1-f71.google.com with SMTP id 204-20020a6b01d5000000b00657bb7a0f33so5464303iob.4
-        for <linux-s390@vger.kernel.org>; Fri, 29 Apr 2022 15:22:13 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=ATKyFNAAAkRRTMtWxAFMAqDXlfz2eEkoQ0lWbdsfdDE=;
-        b=zGqreBd11svjU6MpDFJNC4lRZJxY/USn4p44SXlopSTmJIsKbgYoM/oRg8vY/ewCKF
-         AWjLdF/R0Dhc+iz2QEFjxfa2F7TZZ7wZGZAsmGRA0bR2f9UGvqS4CHU7VKsjMioSoY+7
-         oSE0aw4ghrBOQgvnLKD4mzlrMJP5D3hOjfOUJ6VCfNxyJ0Aod7HXypue6Tjpq8J60zTW
-         hBDRCzC9wqToem6+vb9AaRNkgoV8b1UdTdO6g2uDtdexsgwBKGt8FDiuMHcMkGe/6iNh
-         vA1MVfPORlHWdASTB61ZUNsXX/jdLg2eSAOEH9fLFM5YxH2CMYG+wHgBy+shEJOlIlbP
-         wYHw==
-X-Gm-Message-State: AOAM530Rrc+KMp0OOjX3xKH+mY/l5vIwCh4o+NEmxafd3mKlR7UTXxbA
-        kTFlJQ72Xw0S4AWOSw0sWqgxMJHmrTv41u8Ba4yzxYyAX3rOGaDAio8uoUYShHh11+TDY+QJOHe
-        SuPXgExFd/HSVt/oKGfaIOQ==
-X-Received: by 2002:a05:6638:4604:b0:32b:4eab:7394 with SMTP id bw4-20020a056638460400b0032b4eab7394mr636153jab.18.1651270932501;
-        Fri, 29 Apr 2022 15:22:12 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwPQNrRSGnW48FBq1t2/hjh8q51j2JzUcOvWsug9aMrqr32bPZVspTaleHuRHvQdSR9CF/bGw==
-X-Received: by 2002:a05:6638:4604:b0:32b:4eab:7394 with SMTP id bw4-20020a056638460400b0032b4eab7394mr636115jab.18.1651270932123;
-        Fri, 29 Apr 2022 15:22:12 -0700 (PDT)
-Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id e71-20020a02864d000000b0032b3a78176bsm897885jai.47.2022.04.29.15.22.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 29 Apr 2022 15:22:11 -0700 (PDT)
-Date:   Fri, 29 Apr 2022 16:22:09 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
-        David Airlie <airlied@linux.ie>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        intel-gfx@lists.freedesktop.org,
-        intel-gvt-dev@lists.freedesktop.org,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
-        linux-doc@vger.kernel.org, linux-s390@vger.kernel.org,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        "Tian, Kevin" <kevin.tian@intel.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        "Liu, Yi L" <yi.l.liu@intel.com>, Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH v2 0/7] Make the rest of the VFIO driver interface use
- vfio_device
-Message-ID: <20220429162209.2ec03e4f.alex.williamson@redhat.com>
-In-Reply-To: <20220429173149.GA167483@nvidia.com>
-References: <0-v2-6011bde8e0a1+5f-vfio_mdev_no_group_jgg@nvidia.com>
-        <20220429173149.GA167483@nvidia.com>
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        with ESMTP id S244398AbiD2WjP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Apr 2022 18:39:15 -0400
+Received: from fanzine2.igalia.com (fanzine.igalia.com [178.60.130.6])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 746B3986C8;
+        Fri, 29 Apr 2022 15:35:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+        s=20170329; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=KYNDBRYGzikXjzeP27ZJ4t/kgY9V1S1pNOCPI8BnGe8=; b=JT0K6BBCWKsaQymCLnJQaj/kvq
+        7Y1QKfar8fCW1mBanEmBmavL+D5scKDYAiv+Of/1HRFoX5MBCl5YZC28TmWOdUUkF79M5XuV0xuXA
+        v1gbxygEk8ExNgZKIAJmst62yXS49qdhdclQ0HpxXcHSkInmueEoQ8sxt8GK1dgkp3lrFANactIr6
+        owme4UXa4bPRXwJl27nOJHEpmMOv8h6kOal3gO6YkUDEDSWCgod9VcuYizHGTaTCXAhQFrHVOF1Fo
+        gyvc6I1Xl1Nz4QEoDGGy6DcOx8hQdBZ3SL8vuhOA2s2+e+h8l4Dvo0+AMgZTV5lbKle4rwJcb9Bd/
+        P9qftm1A==;
+Received: from [179.113.53.197] (helo=[192.168.1.60])
+        by fanzine2.igalia.com with esmtpsa 
+        (Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
+        id 1nkZD8-0003TG-7D; Sat, 30 Apr 2022 00:35:38 +0200
+Message-ID: <2787b476-6366-1c83-db80-0393da417497@igalia.com>
+Date:   Fri, 29 Apr 2022 19:35:09 -0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Subject: Re: [PATCH 16/30] drivers/hv/vmbus, video/hyperv_fb: Untangle and
+ refactor Hyper-V panic notifiers
+Content-Language: en-US
+To:     "Michael Kelley (LINUX)" <mikelley@microsoft.com>,
+        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+        "bhe@redhat.com" <bhe@redhat.com>,
+        "pmladek@suse.com" <pmladek@suse.com>,
+        "kexec@lists.infradead.org" <kexec@lists.infradead.org>
+Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "bcm-kernel-feedback-list@broadcom.com" 
+        <bcm-kernel-feedback-list@broadcom.com>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>,
+        "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
+        "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
+        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+        "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
+        "linux-um@lists.infradead.org" <linux-um@lists.infradead.org>,
+        "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "openipmi-developer@lists.sourceforge.net" 
+        <openipmi-developer@lists.sourceforge.net>,
+        "rcu@vger.kernel.org" <rcu@vger.kernel.org>,
+        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
+        "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "kernel-dev@igalia.com" <kernel-dev@igalia.com>,
+        "kernel@gpiccoli.net" <kernel@gpiccoli.net>,
+        "halves@canonical.com" <halves@canonical.com>,
+        "fabiomirmar@gmail.com" <fabiomirmar@gmail.com>,
+        "alejandro.j.jimenez@oracle.com" <alejandro.j.jimenez@oracle.com>,
+        "andriy.shevchenko@linux.intel.com" 
+        <andriy.shevchenko@linux.intel.com>,
+        "arnd@arndb.de" <arnd@arndb.de>, "bp@alien8.de" <bp@alien8.de>,
+        "corbet@lwn.net" <corbet@lwn.net>,
+        "d.hatayama@jp.fujitsu.com" <d.hatayama@jp.fujitsu.com>,
+        "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
+        "dyoung@redhat.com" <dyoung@redhat.com>,
+        "feng.tang@intel.com" <feng.tang@intel.com>,
+        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "hidehiro.kawai.ez@hitachi.com" <hidehiro.kawai.ez@hitachi.com>,
+        "jgross@suse.com" <jgross@suse.com>,
+        "john.ogness@linutronix.de" <john.ogness@linutronix.de>,
+        "keescook@chromium.org" <keescook@chromium.org>,
+        "luto@kernel.org" <luto@kernel.org>,
+        "mhiramat@kernel.org" <mhiramat@kernel.org>,
+        "mingo@redhat.com" <mingo@redhat.com>,
+        "paulmck@kernel.org" <paulmck@kernel.org>,
+        "peterz@infradead.org" <peterz@infradead.org>,
+        "rostedt@goodmis.org" <rostedt@goodmis.org>,
+        "senozhatsky@chromium.org" <senozhatsky@chromium.org>,
+        "stern@rowland.harvard.edu" <stern@rowland.harvard.edu>,
+        "tglx@linutronix.de" <tglx@linutronix.de>,
+        "vgoyal@redhat.com" <vgoyal@redhat.com>,
+        vkuznets <vkuznets@redhat.com>,
+        "will@kernel.org" <will@kernel.org>,
+        Andrea Parri <parri.andrea@gmail.com>,
+        Dexuan Cui <decui@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        KY Srinivasan <kys@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>
+References: <20220427224924.592546-1-gpiccoli@igalia.com>
+ <20220427224924.592546-17-gpiccoli@igalia.com>
+ <PH0PR21MB30250C9246FFF36AFB1DFDECD7FC9@PH0PR21MB3025.namprd21.prod.outlook.com>
+From:   "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+In-Reply-To: <PH0PR21MB30250C9246FFF36AFB1DFDECD7FC9@PH0PR21MB3025.namprd21.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 29 Apr 2022 14:31:49 -0300
-Jason Gunthorpe <jgg@nvidia.com> wrote:
+Hi Michael, first of all thanks for the great review, much appreciated.
+Some comments inline below:
 
-> On Thu, Apr 21, 2022 at 01:28:31PM -0300, Jason Gunthorpe wrote:
-> > Prior series have transformed other parts of VFIO from working on struct
-> > device or struct vfio_group into working directly on struct
-> > vfio_device. Based on that work we now have vfio_device's readily
-> > available in all the drivers.
-> > 
-> > Update the rest of the driver facing API to use vfio_device as an input.
-> > 
-> > The following are switched from struct device to struct vfio_device:
-> >   vfio_register_notifier()
-> >   vfio_unregister_notifier()
-> >   vfio_pin_pages()
-> >   vfio_unpin_pages()
-> >   vfio_dma_rw()
-> > 
-> > The following group APIs are obsoleted and removed by just using struct
-> > vfio_device with the above:
-> >   vfio_group_pin_pages()
-> >   vfio_group_unpin_pages()
-> >   vfio_group_iommu_domain()
-> >   vfio_group_get_external_user_from_dev()
-> > 
-> > To retain the performance of the new device APIs relative to their group
-> > versions optimize how vfio_group_add_container_user() is used to avoid
-> > calling it when the driver must already guarantee the device is open and
-> > the container_users incrd.
-> > 
-> > The remaining exported VFIO group interfaces are only used by kvm, and are
-> > addressed by a parallel series.
-> > 
-> > This series is based on Christoph's gvt rework here:
-> > 
-> >  https://lore.kernel.org/all/5a8b9f48-2c32-8177-1c18-e3bd7bfde558@intel.com/
-> > 
-> > and so will need the PR merged first.  
+On 29/04/2022 14:16, Michael Kelley (LINUX) wrote:
+> [...]
+>> hypervisor I/O completion), so we postpone that to run late. But more
+>> relevant: this *same* vmbus unloading happens in the crash_shutdown()
+>> handler, so if kdump is set, we can safely skip this panic notifier and
+>> defer such clean-up to the kexec crash handler.
 > 
-> Hi Alex,
+> While the last sentence is true for Hyper-V on x86/x64, it's not true for
+> Hyper-V on ARM64.  x86/x64 has the 'machine_ops' data structure
+> with the ability to provide a custom crash_shutdown() function, which
+> Hyper-V does in the form of hv_machine_crash_shutdown().  But ARM64
+> has no mechanism to provide such a custom function that will eventually
+> do the needed vmbus_initiate_unload() before running kdump.
 > 
-> Since all the shared branch PRs are ready, do you have any remarks on
-> this series and the others before I rebase and repost them?
-
-Only the nit in the commit log:
-https://lore.kernel.org/all/20220429142820.6afe7bbe.alex.williamson@redhat.com/ 
-
-> This one has a few changes to the commit messages outstanding, but v2
-> didn't have any code changes.
+> I'm not immediately sure what the best solution is for ARM64.  At this
+> point, I'm just pointing out the problem and will think about the tradeoffs
+> for various possible solutions.  Please do the same yourself. :-)
 > 
-> Also, what order would like the different series in - they conflict
-> with each other a little bit. I suggest this:
+
+Oh, you're totally right! I just assumed ARM64 would the the same, my
+bad. Just to propose some alternatives, so you/others can also discuss
+here and we can reach a consensus about the trade-offs:
+
+(a) We could forget about this change, and always do the clean-up here,
+not relying in machine_crash_shutdown().
+Pro: really simple, behaves the same as it is doing currently.
+Con: less elegant/concise, doesn't allow arm64 customization.
+
+(b) Add a way to allow ARM64 customization of shutdown crash handler.
+Pro: matches x86, more customizable, improves arm64 arch code.
+Con: A tad more complex.
+
+Also, a question that came-up: if ARM64 has no way of calling special
+crash shutdown handler, how can you execute hv_stimer_cleanup() and
+hv_synic_disable_regs() there? Or are they not required in ARM64?
+
+
+>>
+>> (c) There is also a Hyper-V framebuffer panic notifier, which relies in
+>> doing a vmbus operation that demands a valid connection. So, we must
+>> order this notifier with the panic notifier from vmbus_drv.c, in order to
+>> guarantee that the framebuffer code executes before the vmbus connection
+>> is unloaded.
 > 
-> - mdev group removal (this one)
-> - Remove vfio_device_get_from_dev()
->   https://lore.kernel.org/r/0-v1-7f2292e6b2ba+44839-vfio_get_from_dev_jgg@nvidia.com
-> - Remove group from kvm
->   https://lore.kernel.org/r/0-v1-33906a626da1+16b0-vfio_kvm_no_group_jgg@nvidia.com
+> Patch 21 of this set puts the Hyper-V FB panic notifier on the pre_reboot
+> notifier list, which means it won't execute before the VMbus connection
+> unload in the case of kdump.   This notifier is making sure that Hyper-V
+> is notified about the last updates made to the frame buffer before the
+> panic, so maybe it needs to be put on the hypervisor notifier list.  It
+> sends a message to Hyper-V over its existing VMbus channel, but it
+> does not wait for a reply.  It does, however, obtain a spin lock on the
+> ring buffer used to communicate with Hyper-V.   Unless someone has
+> a better suggestion, I'm inclined to take the risk of blocking on that
+> spin lock.
 
-I think you mean (v2):
+The logic behind that was: when kdump is set, we'd skip the vmbus
+disconnect on notifiers, deferring that to crash_shutdown(), logic this
+one refuted in the above discussion on ARM64 (one more Pro argument to
+the idea of refactoring aarch64 code to allow a custom crash shutdown
+handler heh). But you're right, for the default level 2, we skip the
+pre_reboot notifiers on kdump, effectively skipping this notifier.
 
-https://lore.kernel.org/all/0-v2-6a528653a750+1578a-vfio_kvm_no_group_jgg@nvidia.com/
+Some ideas of what we can do here:
 
-Otherwise, thanks for sorting these out for me.
+I) we could change the framebuffer notifier to rely on trylocks, instead
+of risking a lockup scenario, and with that, we can execute it before
+the vmbus disconnect in the hypervisor list;
 
-> All of them seem to have got enough reviews now.
+II) we ignore the hypervisor notifier in case of kdump _by default_, and
+if the users don't want that, they can always set the panic notifier
+level to 4 and run all notifiers prior to kdump; would that be terrible
+you think? Kdump users might don't care about the framebuffer...
+
+III) we go with approach (b) above and refactor arm64 code to allow the
+custom crash handler on kdump time, then [with point (I) above] the
+logic proposed in this series is still valid - seems more and more the
+most correct/complete solution.
+
+In any case, I guess we should avoid workarounds if possible and do the
+things the best way we can, to encompass all (or almost all) the
+possible scenarios and don't force things on users (like enforcing panic
+notifier level 4 for Hyper-V or something like this...)
+
+More feedback from you / Hyper-V folks is pretty welcome about this.
+
+
+> 
+>> [...]
+> The "Fixes:" tags imply that these changes should be backported to older
+> longterm kernel versions, which I don't think is the case.  There is a
+> dependency on Patch 14 of your series where PANIC_NOTIFIER is
+> introduced.
+> 
+
+Oh, this was more related with archeology of the kernel. When I'm
+investigating stuff, I really want to understand why code was added and
+that usually require some time git blaming stuff, so having that pronto
+in the commit message is a bonus.
+
+But of course we don't need to use the Fixes tag for that, easy to only
+mention it in the text. A secondary benefit by using this tag is to
+indicate this is a _real fix_ to some code, and not an improvement, but
+as you say, I agree we shouldn't backport it to previous releases having
+or not the Fixes tag (AFAIK it's not mandatory to backport stuff with
+Fixes tag).
+
+
+>> [...]
+>> + * intrincated is the relation of this notifier with Hyper-V framebuffer
+> 
+> s/intrincated/intricate/
+
+Thanks, fixed in V2!
+
+
 >
-> I have one more series on this group topic and a few little patches still
+>> [...]
+>> +static int hv_panic_vmbus_unload(struct notifier_block *nb, unsigned long val,
+>>  			      void *args)
+>> +{
+>> +	if (!kexec_crash_loaded())
 > 
-> It would be great if you could merge the gvt and iommu series together
-> into your tree toward linux-next so I can post patches against a
-> stable commit ID so the build-bots can test them.
+> I'm not clear on the purpose of this condition.  I think it means
+> we will skip the vmbus_initiate_unload() if a panic occurs in the
+> kdump kernel.  Is there a reason a panic in the kdump kernel
+> should be treated differently?  Or am I misunderstanding?
 
-Please check my vfio next branch and see if this matches what you're
-looking for:
+This is really related with the point discussed in the top of this
+response - I assumed both ARM64/x86_64 would behave the same and
+disconnect the vmbus through the custom crash handler when kdump is set,
+so worth skipping it here in the notifier. But that's not true for ARM64
+as you pointed, so this guard against kexec is really part of the
+decision/discussion on what to do with ARM64 heh
 
-https://github.com/awilliam/linux-vfio/commits/next
-
-I'll look for any fallout from Stephen and build bots on Monday's
-linux-next compilation.  Thanks,
-
-Alex
-
+Cheers!
