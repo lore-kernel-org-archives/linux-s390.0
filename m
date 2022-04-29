@@ -2,147 +2,185 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71346C43217
-	for <linux-s390@archiver.kernel.org>; Fri, 29 Apr 2022 22:00:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1F16C433FE
+	for <linux-s390@archiver.kernel.org>; Fri, 29 Apr 2022 22:22:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380183AbiD2WEJ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 29 Apr 2022 18:04:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51096 "EHLO
+        id S239759AbiD2WZf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 29 Apr 2022 18:25:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379096AbiD2WDu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Apr 2022 18:03:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B74B013FBA;
-        Fri, 29 Apr 2022 15:00:25 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AED0962275;
-        Fri, 29 Apr 2022 22:00:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDC10C385A7;
-        Fri, 29 Apr 2022 22:00:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1651269624;
-        bh=yNgvZ1w6j0wn0gJjn3Jaaz8UA8LJOCaxNlCblYsp6Fs=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=Ey/m78Y6tu0GBqTH6NyWHzaC7vgRNJhEY6Vw+hMPcj4Fiq4wF8lLbYXSJID6UbS61
-         3qfdckpr3iC4r/Day5Vxaq6phJAcWANrxyoTmiYG1UpeUOvuCECA8JWjDSUmjQNVeX
-         //qNOhJwNmYbbQLZRcm0DHusz0JaLv/dWrmLzW2Wgv1yO4UhSlC4XbHTgdaXFO+dOB
-         K8/k23uG5cTkWPZKYDhSGFzjNLXWZHlHJLxc5WmfxL+dYPfyClhuAsqZafdYrm47Su
-         hkvrUQWMqSJRPNSqY6gnHqelGJDkuHvsu0DZZC5HFsjW59Ot7eIOwvaowmb9LaKSuE
-         kes/J6RG3f/Hw==
-Received: from sofa.misterjones.org ([185.219.108.64] helo=why.misterjones.org)
-        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <maz@kernel.org>)
-        id 1nkYez-0082vp-Lb; Fri, 29 Apr 2022 23:00:21 +0100
-Date:   Fri, 29 Apr 2022 23:00:21 +0100
-Message-ID: <87ilqr8s96.wl-maz@kernel.org>
-From:   Marc Zyngier <maz@kernel.org>
-To:     "Russell King (Oracle)" <linux@armlinux.org.uk>
-Cc:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
-        "Michael Kelley (LINUX)" <mikelley@microsoft.com>,
-        akpm@linux-foundation.org, bhe@redhat.com, pmladek@suse.com,
-        kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
-        bcm-kernel-feedback-list@broadcom.com,
-        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-edac@vger.kernel.org,
-        linux-hyperv@vger.kernel.org, linux-leds@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
-        netdev@vger.kernel.org, openipmi-developer@lists.sourceforge.net,
-        rcu@vger.kernel.org, sparclinux@vger.kernel.org,
-        xen-devel@lists.xenproject.org, x86@kernel.org,
-        kernel-dev@igalia.com, kernel@gpiccoli.net, halves@canonical.com,
-        fabiomirmar@gmail.com, alejandro.j.jimenez@oracle.com,
-        andriy.shevchenko@linux.intel.com, arnd@arndb.de, bp@alien8.de,
-        corbet@lwn.net, d.hatayama@jp.fujitsu.com,
-        dave.hansen@linux.intel.com, dyoung@redhat.com,
-        feng.tang@intel.com, gregkh@linuxfoundation.org,
-        hidehiro.kawai.ez@hitachi.com, jgross@suse.com,
-        john.ogness@linutronix.de, keescook@chromium.org, luto@kernel.org,
-        mhiramat@kernel.org, mingo@redhat.com, paulmck@kernel.org,
-        peterz@infradead.org, rostedt@goodmis.org,
-        senozhatsky@chromium.org, stern@rowland.harvard.edu,
-        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
-        will@kernel.org
-Subject: Re: [PATCH 02/30] ARM: kexec: Disable IRQs/FIQs also on crash CPUs shutdown path
-In-Reply-To: <Ymxcaqy6DwhoQrZT@shell.armlinux.org.uk>
-References: <20220427224924.592546-1-gpiccoli@igalia.com>
-        <20220427224924.592546-3-gpiccoli@igalia.com>
-        <87mtg392fm.wl-maz@kernel.org>
-        <71d829c4-b280-7d6e-647d-79a1baf9408b@igalia.com>
-        <Ymxcaqy6DwhoQrZT@shell.armlinux.org.uk>
-User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
- FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
- (x86_64-pc-linux-gnu) MULE/6.0 (HANACHIRUSATO)
-MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+        with ESMTP id S239741AbiD2WZe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Apr 2022 18:25:34 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6F44DDC9B6
+        for <linux-s390@vger.kernel.org>; Fri, 29 Apr 2022 15:22:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1651270934;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ATKyFNAAAkRRTMtWxAFMAqDXlfz2eEkoQ0lWbdsfdDE=;
+        b=DwQYV3FePSX6Qla3J0/FYZ0+WO4dSHSXBBgbvv3/W1yHxG0vZIy/YkqtffXonsZPk/C9fa
+        pMuSk47iMnFODYdCvFj73U35C+Ub6BIS4xwPHeuOz6ay6hEMisrpNi4ndRq1xR1gMwpOID
+        L329yMBQR2hpQEgZRjlJJ0FCD4KVO2A=
+Received: from mail-io1-f71.google.com (mail-io1-f71.google.com
+ [209.85.166.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-613-mA8vY3ADPnGmqIwSSmwoZA-1; Fri, 29 Apr 2022 18:22:13 -0400
+X-MC-Unique: mA8vY3ADPnGmqIwSSmwoZA-1
+Received: by mail-io1-f71.google.com with SMTP id 204-20020a6b01d5000000b00657bb7a0f33so5464303iob.4
+        for <linux-s390@vger.kernel.org>; Fri, 29 Apr 2022 15:22:13 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=ATKyFNAAAkRRTMtWxAFMAqDXlfz2eEkoQ0lWbdsfdDE=;
+        b=zGqreBd11svjU6MpDFJNC4lRZJxY/USn4p44SXlopSTmJIsKbgYoM/oRg8vY/ewCKF
+         AWjLdF/R0Dhc+iz2QEFjxfa2F7TZZ7wZGZAsmGRA0bR2f9UGvqS4CHU7VKsjMioSoY+7
+         oSE0aw4ghrBOQgvnLKD4mzlrMJP5D3hOjfOUJ6VCfNxyJ0Aod7HXypue6Tjpq8J60zTW
+         hBDRCzC9wqToem6+vb9AaRNkgoV8b1UdTdO6g2uDtdexsgwBKGt8FDiuMHcMkGe/6iNh
+         vA1MVfPORlHWdASTB61ZUNsXX/jdLg2eSAOEH9fLFM5YxH2CMYG+wHgBy+shEJOlIlbP
+         wYHw==
+X-Gm-Message-State: AOAM530Rrc+KMp0OOjX3xKH+mY/l5vIwCh4o+NEmxafd3mKlR7UTXxbA
+        kTFlJQ72Xw0S4AWOSw0sWqgxMJHmrTv41u8Ba4yzxYyAX3rOGaDAio8uoUYShHh11+TDY+QJOHe
+        SuPXgExFd/HSVt/oKGfaIOQ==
+X-Received: by 2002:a05:6638:4604:b0:32b:4eab:7394 with SMTP id bw4-20020a056638460400b0032b4eab7394mr636153jab.18.1651270932501;
+        Fri, 29 Apr 2022 15:22:12 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwPQNrRSGnW48FBq1t2/hjh8q51j2JzUcOvWsug9aMrqr32bPZVspTaleHuRHvQdSR9CF/bGw==
+X-Received: by 2002:a05:6638:4604:b0:32b:4eab:7394 with SMTP id bw4-20020a056638460400b0032b4eab7394mr636115jab.18.1651270932123;
+        Fri, 29 Apr 2022 15:22:12 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239])
+        by smtp.gmail.com with ESMTPSA id e71-20020a02864d000000b0032b3a78176bsm897885jai.47.2022.04.29.15.22.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 29 Apr 2022 15:22:11 -0700 (PDT)
+Date:   Fri, 29 Apr 2022 16:22:09 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        David Airlie <airlied@linux.ie>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
+        linux-doc@vger.kernel.org, linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        "Tian, Kevin" <kevin.tian@intel.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        "Liu, Yi L" <yi.l.liu@intel.com>, Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH v2 0/7] Make the rest of the VFIO driver interface use
+ vfio_device
+Message-ID: <20220429162209.2ec03e4f.alex.williamson@redhat.com>
+In-Reply-To: <20220429173149.GA167483@nvidia.com>
+References: <0-v2-6011bde8e0a1+5f-vfio_mdev_no_group_jgg@nvidia.com>
+        <20220429173149.GA167483@nvidia.com>
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-X-SA-Exim-Connect-IP: 185.219.108.64
-X-SA-Exim-Rcpt-To: linux@armlinux.org.uk, gpiccoli@igalia.com, mikelley@microsoft.com, akpm@linux-foundation.org, bhe@redhat.com, pmladek@suse.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-edac@vger.kernel.org, linux-hyperv@vger.kernel.org, linux-leds@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linux-pm@vger.kernel.org, linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org, netdev@vger.kernel.org, openipmi-developer@lists.sourceforge.net, rcu@vger.kernel.org, sparclinux@vger.kernel.org, xen-devel@lists.xenproject.org, x86@kernel.org, kernel-dev@igalia.com, kernel@gpiccoli.net, halves@canonical.com, fabiomirmar@gmail.com, alejandro.j.jimenez@oracle.com, andriy.shevchenko@linux.intel.com, arnd@arndb.de, 
- bp@alien8.de, corbet@lwn.net, d.hatayama@jp.fujitsu.com, dave.hansen@linux.intel.com, dyoung@redhat.com, feng.tang@intel.com, gregkh@linuxfoundation.org, hidehiro.kawai.ez@hitachi.com, jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org, luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com, paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org, senozhatsky@chromium.org, stern@rowland.harvard.edu, tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com, will@kernel.org
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, 29 Apr 2022 22:45:14 +0100,
-"Russell King (Oracle)" <linux@armlinux.org.uk> wrote:
-> 
-> On Fri, Apr 29, 2022 at 06:38:19PM -0300, Guilherme G. Piccoli wrote:
-> > Thanks Marc and Michael for the review/discussion.
-> > 
-> > On 29/04/2022 15:20, Marc Zyngier wrote:
-> > > [...]
-> > 
-> > > My expectations would be that, since we're getting here using an IPI,
-> > > interrupts are already masked. So what reenabled them the first place?
-> > > 
-> > > Thanks,
-> > > 
-> > > 	M.
-> > > 
-> > 
-> > Marc, I did some investigation in the code (and tried/failed in the ARM
-> > documentation as well heh), but this is still not 100% clear for me.
-> > 
-> > You're saying IPI calls disable IRQs/FIQs by default in the the target
-> > CPUs? Where does it happen? I'm a bit confused if this a processor
-> > mechanism, or it's in code.
-> 
-> When we taken an IRQ, IRQs will be masked, FIQs will not. IPIs are
-> themselves interrupts, so IRQs will be masked while the IPI is being
-> processed. Therefore, there should be no need to re-disable the
-> already disabled interrupts.
-> 
-> > But crash_smp_send_stop() is different, it seems to IPI the other CPUs
-> > with the flag IPI_CALL_FUNC, which leads to calling
-> > generic_smp_call_function_interrupt() - does it disable interrupts/FIQs
-> > as well? I couldn't find it.
-> 
-> It's buried in the architecture behaviour. When the CPU takes an
-> interrupt and jumps to the interrupt vector in the vectors page, it is
-> architecturally defined that interrupts will be disabled. If they
-> weren't architecturally disabled at this point, then as soon as the
-> first instruction is processed (at the interrupt vector, likely a
-> branch) the CPU would immediately take another jump to the interrupt
-> vector, and this process would continue indefinitely, making interrupt
-> handling utterly useless.
-> 
-> So, you won't find an explicit instruction in the code path from the
-> vectors to the IPI handler that disables interrupts - because it's
-> written into the architecture that this is what must happen.
-> 
-> IRQs are a lower priority than FIQs, so FIQs remain unmasked.
+On Fri, 29 Apr 2022 14:31:49 -0300
+Jason Gunthorpe <jgg@nvidia.com> wrote:
 
-Ah, you're of course right. That's one of the huge differences between
-AArch32 and AArch64, where the former has per target mode masking
-rules, and the later masks everything on entry...
+> On Thu, Apr 21, 2022 at 01:28:31PM -0300, Jason Gunthorpe wrote:
+> > Prior series have transformed other parts of VFIO from working on struct
+> > device or struct vfio_group into working directly on struct
+> > vfio_device. Based on that work we now have vfio_device's readily
+> > available in all the drivers.
+> > 
+> > Update the rest of the driver facing API to use vfio_device as an input.
+> > 
+> > The following are switched from struct device to struct vfio_device:
+> >   vfio_register_notifier()
+> >   vfio_unregister_notifier()
+> >   vfio_pin_pages()
+> >   vfio_unpin_pages()
+> >   vfio_dma_rw()
+> > 
+> > The following group APIs are obsoleted and removed by just using struct
+> > vfio_device with the above:
+> >   vfio_group_pin_pages()
+> >   vfio_group_unpin_pages()
+> >   vfio_group_iommu_domain()
+> >   vfio_group_get_external_user_from_dev()
+> > 
+> > To retain the performance of the new device APIs relative to their group
+> > versions optimize how vfio_group_add_container_user() is used to avoid
+> > calling it when the driver must already guarantee the device is open and
+> > the container_users incrd.
+> > 
+> > The remaining exported VFIO group interfaces are only used by kvm, and are
+> > addressed by a parallel series.
+> > 
+> > This series is based on Christoph's gvt rework here:
+> > 
+> >  https://lore.kernel.org/all/5a8b9f48-2c32-8177-1c18-e3bd7bfde558@intel.com/
+> > 
+> > and so will need the PR merged first.  
+> 
+> Hi Alex,
+> 
+> Since all the shared branch PRs are ready, do you have any remarks on
+> this series and the others before I rebase and repost them?
 
-	M.
+Only the nit in the commit log:
+https://lore.kernel.org/all/20220429142820.6afe7bbe.alex.williamson@redhat.com/ 
 
--- 
-Without deviation from the norm, progress is not possible.
+> This one has a few changes to the commit messages outstanding, but v2
+> didn't have any code changes.
+> 
+> Also, what order would like the different series in - they conflict
+> with each other a little bit. I suggest this:
+> 
+> - mdev group removal (this one)
+> - Remove vfio_device_get_from_dev()
+>   https://lore.kernel.org/r/0-v1-7f2292e6b2ba+44839-vfio_get_from_dev_jgg@nvidia.com
+> - Remove group from kvm
+>   https://lore.kernel.org/r/0-v1-33906a626da1+16b0-vfio_kvm_no_group_jgg@nvidia.com
+
+I think you mean (v2):
+
+https://lore.kernel.org/all/0-v2-6a528653a750+1578a-vfio_kvm_no_group_jgg@nvidia.com/
+
+Otherwise, thanks for sorting these out for me.
+
+> All of them seem to have got enough reviews now.
+>
+> I have one more series on this group topic and a few little patches still
+> 
+> It would be great if you could merge the gvt and iommu series together
+> into your tree toward linux-next so I can post patches against a
+> stable commit ID so the build-bots can test them.
+
+Please check my vfio next branch and see if this matches what you're
+looking for:
+
+https://github.com/awilliam/linux-vfio/commits/next
+
+I'll look for any fallout from Stephen and build bots on Monday's
+linux-next compilation.  Thanks,
+
+Alex
+
