@@ -2,271 +2,166 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C018FC433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 29 Apr 2022 19:57:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 75D9CC4332F
+	for <linux-s390@archiver.kernel.org>; Fri, 29 Apr 2022 20:03:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380430AbiD2UAx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 29 Apr 2022 16:00:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33156 "EHLO
+        id S1380520AbiD2UHB (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 29 Apr 2022 16:07:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232481AbiD2UAu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Apr 2022 16:00:50 -0400
+        with ESMTP id S1380515AbiD2UG7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Apr 2022 16:06:59 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36FCF24F35;
-        Fri, 29 Apr 2022 12:57:31 -0700 (PDT)
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23TJ3R4i021601;
-        Fri, 29 Apr 2022 19:57:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : from : to : cc : references : in-reply-to :
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00930CA0F3;
+        Fri, 29 Apr 2022 13:03:39 -0700 (PDT)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23THsqDN037937;
+        Fri, 29 Apr 2022 20:02:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
  content-type : content-transfer-encoding; s=pp1;
- bh=x+oL6NDLEhADnlhkiFaHXoI/m7431USDSzUtah5SOa0=;
- b=oZjo8CwRcuWQ5ZbQcSbEgcakePHRFV4wIoVRtJ42GYf4XzbQDGH6SaXXXQKm7XFc3zKb
- nLMJ0PnBTVAj6PotZrzQUFTLVM4xvLNpYNXdaup/7F5qOEuY0DeCYWkbwnpIcDCDMSVT
- XaXh1aDZheg6uTpjRAgeLDN0pd28GknYWDTUfKFwd+h0lIcCXT9PiYvRFsOmar0Xulvk
- b8ZzXISXvSWqyPXgYpVUU1rdCQyKIrFdJhz/xlGrDKy1SIxqDv1ETRFBePmbBf5mHjHm
- hx7F6yurD50TEbaJfYvNKIU664tYtg1jEbV6kT4y8ZH60DFdLDvpfmCZmC+AIXGUh/g4 gw== 
+ bh=14eJcFY+2G1yPd/GPynKoYcbLehqc8WKf4Xd1nmgPxU=;
+ b=i8go9k8/O3TYt6fhXSbXc27xMdIzhzvaC0NWFMMWqXENVJ7AxYr46+Er8PWlkeAJLDyO
+ ZO2ercMXLNiCXhSbdix64mLCtXG1ATrcK3C7cPoWv+57fROkaLPV/Wsg6AZ6CUqZ38Rt
+ 2X4Oe/j8mipmxDsexu+lrmePaxDow2VjXDJ4JutZxUtoDtx/JZlyZgpXO+2+NPgMPu2n
+ gD45clSxRToDqp/c4IyEP5tDz9T+ttRU0kderKIh4qqOMRksSt4l1UE1DxhZQWWWyaWj
+ q931e9Hw0/OtZe02quNLpOSyFRLVIGLVL1Y/Hc6Jlg1XeztQiZL5G5n4MsIfLFRcRLeb 1A== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fqtdnkrwb-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fqvaq9hfk-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 29 Apr 2022 19:57:24 +0000
-Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 23TJvN9B001189;
-        Fri, 29 Apr 2022 19:57:23 GMT
-Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fqtdnkrw3-1
+        Fri, 29 Apr 2022 20:02:25 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 23TJj4ja031851;
+        Fri, 29 Apr 2022 20:02:24 GMT
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fqvaq9hen-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 29 Apr 2022 19:57:23 +0000
-Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
-        by ppma01dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23TJuj5i008503;
-        Fri, 29 Apr 2022 19:57:22 GMT
-Received: from b01cxnp22034.gho.pok.ibm.com (b01cxnp22034.gho.pok.ibm.com [9.57.198.24])
-        by ppma01dal.us.ibm.com with ESMTP id 3fm93besak-1
+        Fri, 29 Apr 2022 20:02:24 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 23TJwbLB009239;
+        Fri, 29 Apr 2022 20:02:21 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma01fra.de.ibm.com with ESMTP id 3fm938yk3v-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 29 Apr 2022 19:57:22 +0000
-Received: from b01ledav003.gho.pok.ibm.com (b01ledav003.gho.pok.ibm.com [9.57.199.108])
-        by b01cxnp22034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23TJvLJU49218024
+        Fri, 29 Apr 2022 20:02:21 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 23TK2INw16646532
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 29 Apr 2022 19:57:21 GMT
-Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AD6BFB2065;
-        Fri, 29 Apr 2022 19:57:21 +0000 (GMT)
-Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 0C717B205F;
-        Fri, 29 Apr 2022 19:57:21 +0000 (GMT)
-Received: from [9.65.193.44] (unknown [9.65.193.44])
-        by b01ledav003.gho.pok.ibm.com (Postfix) with ESMTP;
-        Fri, 29 Apr 2022 19:57:20 +0000 (GMT)
-Message-ID: <41dee99e-c10d-ab11-c9d4-b9ffbde1953d@linux.ibm.com>
-Date:   Fri, 29 Apr 2022 15:57:20 -0400
+        Fri, 29 Apr 2022 20:02:18 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F0AD411C052;
+        Fri, 29 Apr 2022 20:02:17 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B0C3D11C04A;
+        Fri, 29 Apr 2022 20:02:16 +0000 (GMT)
+Received: from thinkpad (unknown [9.171.14.38])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Fri, 29 Apr 2022 20:02:16 +0000 (GMT)
+Date:   Fri, 29 Apr 2022 22:02:14 +0200
+From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+To:     Baolin Wang <baolin.wang@linux.alibaba.com>
+Cc:     akpm@linux-foundation.org, mike.kravetz@oracle.com,
+        catalin.marinas@arm.com, will@kernel.org,
+        tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com,
+        deller@gmx.de, mpe@ellerman.id.au, benh@kernel.crashing.org,
+        paulus@samba.org, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org,
+        davem@davemloft.net, arnd@arndb.de,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-mm@kvack.org
+Subject: Re: [PATCH 3/3] mm: rmap: Fix CONT-PTE/PMD size hugetlb issue when
+ unmapping
+Message-ID: <20220429220214.4cfc5539@thinkpad>
+In-Reply-To: <c91e04ebb792ef7b72966edea8bd6fa2dfa5bfa7.1651216964.git.baolin.wang@linux.alibaba.com>
+References: <cover.1651216964.git.baolin.wang@linux.alibaba.com>
+        <c91e04ebb792ef7b72966edea8bd6fa2dfa5bfa7.1651216964.git.baolin.wang@linux.alibaba.com>
+X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.31; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH v19 00/20] s390/vfio-ap: dynamic configuration support
-Content-Language: en-US
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc:     jjherne@linux.ibm.com, freude@linux.ibm.com,
-        borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com,
-        pasic@linux.ibm.com, alex.williamson@redhat.com,
-        kwankhede@nvidia.com, fiuczy@linux.ibm.com
-References: <20220404221039.1272245-1-akrowiak@linux.ibm.com>
-In-Reply-To: <20220404221039.1272245-1-akrowiak@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: sCF0sJakzu4Bmi2p5bQfMksOK0pMdbRc
-X-Proofpoint-ORIG-GUID: yGBnleUL-DaFcetMz-XEDzXjDC4QRZDq
+X-Proofpoint-ORIG-GUID: n2vn77eQpm8aX1Cpvjq3u5xP5rzhtMFB
+X-Proofpoint-GUID: EUMNoVhafVgUobVSsm-XN0dmOW2Sxm3c
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-04-29_09,2022-04-28_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
- priorityscore=1501 mlxscore=0 bulkscore=0 phishscore=0 suspectscore=0
- mlxlogscore=999 clxscore=1011 impostorscore=0 malwarescore=0 adultscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2204290103
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ lowpriorityscore=0 phishscore=0 spamscore=0 mlxlogscore=999 clxscore=1011
+ impostorscore=0 priorityscore=1501 suspectscore=0 mlxscore=0 bulkscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2204290107
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-PING!!
+On Fri, 29 Apr 2022 16:14:43 +0800
+Baolin Wang <baolin.wang@linux.alibaba.com> wrote:
 
-On 4/4/22 6:10 PM, Tony Krowiak wrote:
-> The current design for AP pass-through does not support making dynamic
-> changes to the AP matrix of a running guest resulting in a few
-> deficiencies this patch series is intended to mitigate:
->
-> 1. Adapters, domains and control domains can not be added to or removed
->      from a running guest. In order to modify a guest's AP configuration,
->      the guest must be terminated; only then can AP resources be assigned
->      to or unassigned from the guest's matrix mdev. The new AP
->      configuration becomes available to the guest when it is subsequently
->      restarted.
->
-> 2. The AP bus's /sys/bus/ap/apmask and /sys/bus/ap/aqmask interfaces can
->      be modified by a root user without any restrictions. A change to
->      either mask can result in AP queue devices being unbound from the
->      vfio_ap device driver and bound to a zcrypt device driver even if a
->      guest is using the queues, thus giving the host access to the guest's
->      private crypto data and vice versa.
->
-> 3. The APQNs derived from the Cartesian product of the APIDs of the
->      adapters and APQIs of the domains assigned to a matrix mdev must
->      reference an AP queue device bound to the vfio_ap device driver. The
->      AP architecture allows assignment of AP resources that are not
->      available to the system, so this artificial restriction is not
->      compliant with the architecture.
->
-> 4. The AP configuration profile can be dynamically changed for the linux
->      host after a KVM guest is started. For example, a new domain can be
->      dynamically added to the configuration profile via the SE or an HMC
->      connected to a DPM enabled lpar. Likewise, AP adapters can be
->      dynamically configured (online state) and deconfigured (standby state)
->      using the SE, an SCLP command or an HMC connected to a DPM enabled
->      lpar. This can result in inadvertent sharing of AP queues between the
->      guest and host.
->
-> 5. A root user can manually unbind an AP queue device representing a
->      queue in use by a KVM guest via the vfio_ap device driver's sysfs
->      unbind attribute. In this case, the guest will be using a queue that
->      is not bound to the driver which violates the device model.
->
-> This patch series introduces the following changes to the current design
-> to alleviate the shortcomings described above as well as to implement
-> more of the AP architecture:
->
-> 1. A root user will be prevented from making edits to the AP bus's
->      /sys/bus/ap/apmask or /sys/bus/ap/aqmask if the change would transfer
->      ownership of an APQN from the vfio_ap device driver to a zcrypt driver
->      while the APQN is assigned to a matrix mdev.
->
-> 2. Allow a root user to hot plug/unplug AP adapters, domains and control
->      domains for a KVM guest using the matrix mdev via its sysfs
->      assign/unassign attributes.
->
-> 4. Allow assignment of an AP adapter or domain to a matrix mdev even if
->      it results in assignment of an APQN that does not reference an AP
->      queue device bound to the vfio_ap device driver, as long as the APQN
->      is not reserved for use by the default zcrypt drivers (also known as
->      over-provisioning of AP resources). Allowing over-provisioning of AP
->      resources better models the architecture which does not preclude
->      assigning AP resources that are not yet available in the system. Such
->      APQNs, however, will not be assigned to the guest using the matrix
->      mdev; only APQNs referencing AP queue devices bound to the vfio_ap
->      device driver will actually get assigned to the guest.
->
-> 5. Handle dynamic changes to the AP device model.
->
-> 1. Rationale for changes to AP bus's apmask/aqmask interfaces:
-> ----------------------------------------------------------
-> Due to the extremely sensitive nature of cryptographic data, it is
-> imperative that great care be taken to ensure that such data is secured.
-> Allowing a root user, either inadvertently or maliciously, to configure
-> these masks such that a queue is shared between the host and a guest is
-> not only avoidable, it is advisable. It was suggested that this scenario
-> is better handled in user space with management software, but that does
-> not preclude a malicious administrator from using the sysfs interfaces
-> to gain access to a guest's crypto data. It was also suggested that this
-> scenario could be avoided by taking access to the adapter away from the
-> guest and zeroing out the queues prior to the vfio_ap driver releasing the
-> device; however, stealing an adapter in use from a guest as a by-product
-> of an operation is bad and will likely cause problems for the guest
-> unnecessarily. It was decided that the most effective solution with the
-> least number of negative side effects is to prevent the situation at the
-> source.
->
-> 2. Rationale for hot plug/unplug using matrix mdev sysfs interfaces:
-> ----------------------------------------------------------------
-> Allowing a user to hot plug/unplug AP resources using the matrix mdev
-> sysfs interfaces circumvents the need to terminate the guest in order to
-> modify its AP configuration. Allowing dynamic configuration makes
-> reconfiguring a guest's AP matrix much less disruptive.
->
-> 3. Rationale for allowing over-provisioning of AP resources:
-> -----------------------------------------------------------
-> Allowing assignment of AP resources to a matrix mdev and ultimately to a
-> guest better models the AP architecture. The architecture does not
-> preclude assignment of unavailable AP resources. If a queue subsequently
-> becomes available while a guest using the matrix mdev to which its APQN
-> is assigned, the guest will be given access to it. If an APQN
-> is dynamically unassigned from the underlying host system, it will
-> automatically become unavailable to the guest.
->
-> Change log v18-v19:
-> ------------------
-> * Changed name of vfio_ap_mdev_hotplug_apcb (vfio_ap_ops.c) to
->    vfio_ap_mdev_update_guest_apcb
->    (Suggested by Jason: review of patch 10/18)
->
-> * Replace call to kvm_arch_crypto_set_masks in vfio_ap_mdev_set_kvm with
->    call to vfio_ap_mdev_update_guest_apcb
->    (Suggested by Jason: review of patch 10/18)
->
-> * Moved changes related to new locking scheme into its own set of
->    patches (Suggested by Jason: review of patch 10/18)
->
-> * Consolidated some of the lock acquisition code into macros called by the
->    functions that update a KVM guest's APCB.
->
-> * Refactored vfio_ap_mdev_unlink_adapter() and
->    vfio_ap_unlink_apqn_fr_mdev() functions according to Jason's sample
->    code. (Suggested by Jason: review of patch 12/18)
->
-> * Require callers of the AP bus ap_apqn_in_matrix_owned_by_def_drv and
->    ap_owned_by_def_drv - only called by the vfio_ap driver - to take the
->    ap_perms_mutex lock. The adapter/domain assignment interfaces will take
->    the ap_perms_mutex lock prior to other required locks to maintain a
->    proper locking order and avoid circular locking dependencies when the
->    vfio_ap device driver's in_use callback is invoked simultaneously with
->    the adapter/domain assignment interfaces. (Suggested by Jason)
->
-> * Refactored patch 15/18: handle config changed and scan complete
->    notification (Suggested by Jason)
->
-> * Refactored filtering of the matrix to reduce redundant processing of
->    APQNs:
->    - Inspect only the new APIDs or APQIs assigned to the matrix mdev or
->      added to the host's AP configuration
->    - Automatically removing APIDs or APQIs unassigned from the matrix mdev
->      or removed from the host's AP configuration.
->    (Suggested by Halil)
->
-> Tony Krowiak (20):
->    s390/vfio-ap: use new AP bus interface to search for queue devices
->    s390/vfio-ap: move probe and remove callbacks to vfio_ap_ops.c
->    s390/vfio-ap: manage link between queue struct and matrix mdev
->    s390/vfio-ap: introduce shadow APCB
->    s390/vfio-ap: refresh guest's APCB by filtering AP resources assigned
->      to mdev
->    s390/vfio-ap: allow assignment of unavailable AP queues to mdev device
->    s390/vfio-ap: rename matrix_dev->lock mutex to matrix_dev->mdevs_lock
->    s390/vfio-ap: introduce new mutex to control access to the KVM pointer
->    s390/vfio-ap: use proper locking order when setting/clearing KVM
->      pointer
->    s390/vfio-ap: prepare for dynamic update of guest's APCB on
->      assign/unassign
->    s390/vfio-ap: prepare for dynamic update of guest's APCB on queue
->      probe/remove
->    s390/vfio-ap: allow hot plug/unplug of AP devices when
->      assigned/unassigned
->    s390/vfio-ap: hot plug/unplug of AP devices when probed/removed
->    s390/vfio-ap: reset queues after adapter/domain unassignment
->    s390/vfio-ap: implement in-use callback for vfio_ap driver
->    s390/vfio-ap: sysfs attribute to display the guest's matrix
->    s390/vfio-ap: handle config changed and scan complete notification
->    s390/vfio-ap: update docs to include dynamic config support
->    s390/Docs: new doc describing lock usage by the vfio_ap device driver
->    MAINTAINERS: pick up all vfio_ap docs for VFIO AP maintainers
->
->   Documentation/s390/vfio-ap-locking.rst |  389 +++++++
->   Documentation/s390/vfio-ap.rst         |  492 ++++++---
->   MAINTAINERS                            |    6 +-
->   drivers/s390/crypto/ap_bus.c           |   31 +-
->   drivers/s390/crypto/vfio_ap_drv.c      |   69 +-
->   drivers/s390/crypto/vfio_ap_ops.c      | 1321 ++++++++++++++++++------
->   drivers/s390/crypto/vfio_ap_private.h  |   47 +-
->   7 files changed, 1820 insertions(+), 535 deletions(-)
->   create mode 100644 Documentation/s390/vfio-ap-locking.rst
->
+> On some architectures (like ARM64), it can support CONT-PTE/PMD size
+> hugetlb, which means it can support not only PMD/PUD size hugetlb:
+> 2M and 1G, but also CONT-PTE/PMD size: 64K and 32M if a 4K page
+> size specified.
+> 
+> When unmapping a hugetlb page, we will get the relevant page table
+> entry by huge_pte_offset() only once to nuke it. This is correct
+> for PMD or PUD size hugetlb, since they always contain only one
+> pmd entry or pud entry in the page table.
+> 
+> However this is incorrect for CONT-PTE and CONT-PMD size hugetlb,
+> since they can contain several continuous pte or pmd entry with
+> same page table attributes, so we will nuke only one pte or pmd
+> entry for this CONT-PTE/PMD size hugetlb page.
+> 
+> And now we only use try_to_unmap() to unmap a poisoned hugetlb page,
+> which means now we will unmap only one pte entry for a CONT-PTE or
+> CONT-PMD size poisoned hugetlb page, and we can still access other
+> subpages of a CONT-PTE or CONT-PMD size poisoned hugetlb page,
+> which will cause serious issues possibly.
+> 
+> So we should change to use huge_ptep_clear_flush() to nuke the
+> hugetlb page table to fix this issue, which already considered
+> CONT-PTE and CONT-PMD size hugetlb.
+> 
+> Note we've already used set_huge_swap_pte_at() to set a poisoned
+> swap entry for a poisoned hugetlb page.
+> 
+> Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
+> ---
+>  mm/rmap.c | 34 +++++++++++++++++-----------------
+>  1 file changed, 17 insertions(+), 17 deletions(-)
+> 
+> diff --git a/mm/rmap.c b/mm/rmap.c
+> index 7cf2408..1e168d7 100644
+> --- a/mm/rmap.c
+> +++ b/mm/rmap.c
+> @@ -1564,28 +1564,28 @@ static bool try_to_unmap_one(struct folio *folio, struct vm_area_struct *vma,
+>  					break;
+>  				}
+>  			}
+> +			pteval = huge_ptep_clear_flush(vma, address, pvmw.pte);
 
+Unlike in your patch 2/3, I do not see that this (huge) pteval would later
+be used again with set_huge_pte_at() instead of set_pte_at(). Not sure if
+this (huge) pteval could end up at a set_pte_at() later, but if yes, then
+this would be broken on s390, and you'd need to use set_huge_pte_at()
+instead of set_pte_at() like in your patch 2/3.
+
+Please note that huge_ptep_get functions do not return valid PTEs on s390,
+and such PTEs must never be set directly with set_pte_at(), but only with
+set_huge_pte_at().
+
+Background is that, for hugetlb pages, we are of course not really dealing
+with PTEs at this level, but rather PMDs or PUDs, depending on hugetlb size.
+On s390, the layout is quite different for PTEs and PMDs / PUDs, and
+unfortunately the hugetlb code is not properly reflecting this by using
+PMD or PUD types, like the THP code does.
+
+So, as work-around, on s390, the huge_ptep_xxx functions will return
+only fake PTEs, which must be converted again to a proper PMD or PUD,
+before writing them to the page table, which is what happens in
+set_huge_pte_at(), but not in set_pte_at().
