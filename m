@@ -2,132 +2,224 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 91399C433F5
-	for <linux-s390@archiver.kernel.org>; Fri, 29 Apr 2022 20:28:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2096C41535
+	for <linux-s390@archiver.kernel.org>; Fri, 29 Apr 2022 20:39:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380704AbiD2Ubp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 29 Apr 2022 16:31:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54120 "EHLO
+        id S1380979AbiD2UnK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 29 Apr 2022 16:43:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356882AbiD2Ubp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Apr 2022 16:31:45 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 017E0AFADA
-        for <linux-s390@vger.kernel.org>; Fri, 29 Apr 2022 13:28:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1651264105;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=n8HsfkpqhssnZoIsPQ1O3oVRAyXbkapxW4GnxH0gSv4=;
-        b=OXyk+ZlA2xofIDLIpoh4YJ+rLWv81XKCIyy/IB39BgGEe31RKH4WNLCYpEDcIa1ShrAN2n
-        Df/3G8VM/wCkyyVQ1ZiPCi2WCGcyyQGgVCm4XzcCAkmyd+sygyQJLNjtrtFnsUkDESUdmC
-        f8FSupPV971Lb1Wl1zABlpBDfU5IZDE=
-Received: from mail-il1-f200.google.com (mail-il1-f200.google.com
- [209.85.166.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-316-6glI2L-EOKayN1KzGHf5cA-1; Fri, 29 Apr 2022 16:28:24 -0400
-X-MC-Unique: 6glI2L-EOKayN1KzGHf5cA-1
-Received: by mail-il1-f200.google.com with SMTP id s5-20020a056e02216500b002cdfa3c80c8so619564ilv.6
-        for <linux-s390@vger.kernel.org>; Fri, 29 Apr 2022 13:28:24 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=n8HsfkpqhssnZoIsPQ1O3oVRAyXbkapxW4GnxH0gSv4=;
-        b=gMhbSes3Bgx9Gk+3DcPDgm3PKmvLSWZNE7tsx3szk7YsFSq10rm+Z0TZMyd6NF/oRG
-         RVICRJYIlfGcu200XDuezAYpSLDqDjLHC6ej8J4GVXrQufLoTUlHdQ6BoZvyaOe7aiWT
-         Bdunlxw+RBtKEjvRZwAhGK8YsFOP0+ZyaHuQhVbIPZTIcA9Nl36HmEXvyppg8gJBZt4G
-         6BMta80BEakweshiWFxqBWRS7t3PlLhiqHscwoL2vJE29VHDB/S14GYSuxSHbGvgxEuN
-         QMqUFkWEa2WER9w9WKhUzXN1v0x1KYSra3ZMOCRwO7t3eZwOWEw/g5ZYI1mGaDaOx9t6
-         XBZQ==
-X-Gm-Message-State: AOAM530NCS6DDhnYhZgzalYADfzxL29kdbEglN/Q79Lz26HZteP0WuKE
-        kUjELimUqs7f4CbDpHIwKoZp9hyuBLfcY7oZojW1bPI6+9sGFacDiSdl6ecvcQHbqd2vwzQ6usc
-        FOt9G3GwhrMN6rSJTHSxxAg==
-X-Received: by 2002:a6b:ca44:0:b0:657:b54a:5c53 with SMTP id a65-20020a6bca44000000b00657b54a5c53mr445903iog.108.1651264103270;
-        Fri, 29 Apr 2022 13:28:23 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwXw055Zf6CAZcffMOqFXVe3D8deItwuTS9dyUJRlHujGyFKq6cxPYeLOoiZHbK09XyaEEw5w==
-X-Received: by 2002:a6b:ca44:0:b0:657:b54a:5c53 with SMTP id a65-20020a6bca44000000b00657b54a5c53mr445889iog.108.1651264103032;
-        Fri, 29 Apr 2022 13:28:23 -0700 (PDT)
-Received: from redhat.com ([38.15.36.239])
-        by smtp.gmail.com with ESMTPSA id j7-20020a02cb07000000b0032b3a7817b2sm836302jap.118.2022.04.29.13.28.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 29 Apr 2022 13:28:22 -0700 (PDT)
-Date:   Fri, 29 Apr 2022 14:28:20 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Jason Gunthorpe <jgg@nvidia.com>
-Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
-        David Airlie <airlied@linux.ie>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        intel-gfx@lists.freedesktop.org,
-        intel-gvt-dev@lists.freedesktop.org,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
-        linux-doc@vger.kernel.org, linux-s390@vger.kernel.org,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "Tian, Kevin" <kevin.tian@intel.com>,
-        "Liu, Yi L" <yi.l.liu@intel.com>
-Subject: Re: [PATCH v2 7/7] vfio: Remove calls to
- vfio_group_add_container_user()
-Message-ID: <20220429142820.6afe7bbe.alex.williamson@redhat.com>
-In-Reply-To: <7-v2-6011bde8e0a1+5f-vfio_mdev_no_group_jgg@nvidia.com>
-References: <0-v2-6011bde8e0a1+5f-vfio_mdev_no_group_jgg@nvidia.com>
-        <7-v2-6011bde8e0a1+5f-vfio_mdev_no_group_jgg@nvidia.com>
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
+        with ESMTP id S1381104AbiD2UnC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Apr 2022 16:43:02 -0400
+Received: from fanzine2.igalia.com (fanzine.igalia.com [178.60.130.6])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 871DD83021;
+        Fri, 29 Apr 2022 13:39:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+        s=20170329; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=9LhFYA+MjEc96AcZxxeEKFjkU9Lk82GaxnYYVWnVk68=; b=XwGE93aX+1E0t3pByj3j/O+5Ga
+        K3u/NbvWUIPTGWXFFUF5/S8bghnnop1aApPsPGKNCX+XA1bvvH3EQ0PcLpFJhLHgKjy3gTmHDpRZx
+        xpeiw9TV1dPXB2YSqRvo3agu2ikjDsTWOdpgS/WgDbAttd/ff7K6VJQNlrO38xJTdLOWq3LaiPpb7
+        BCxPsp9BBfFRjEJDD6TJuu/Y8uUcnXFJiNLt6QIOyD0DFBtRwQdBNCscMgnx+i0qVThLJVg3KcgFz
+        9afxev7tVqQLuY2Z0izXtjt9I1wawTaSR9Ugp7AvNWX4ugYt89qxijRM6XzCj5d2MXRHOn6SprLRr
+        LWTDMVqw==;
+Received: from [179.113.53.197] (helo=[192.168.1.60])
+        by fanzine2.igalia.com with esmtpsa 
+        (Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
+        id 1nkXNs-000CEn-5h; Fri, 29 Apr 2022 22:38:36 +0200
+Message-ID: <50178dfb-8e94-f35f-09c3-22fe197550ef@igalia.com>
+Date:   Fri, 29 Apr 2022 17:38:08 -0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Subject: Re: [PATCH 24/30] panic: Refactor the panic path
+Content-Language: en-US
+To:     "Michael Kelley (LINUX)" <mikelley@microsoft.com>,
+        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+        "bhe@redhat.com" <bhe@redhat.com>,
+        "pmladek@suse.com" <pmladek@suse.com>,
+        "kexec@lists.infradead.org" <kexec@lists.infradead.org>
+Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "bcm-kernel-feedback-list@broadcom.com" 
+        <bcm-kernel-feedback-list@broadcom.com>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>,
+        "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>,
+        "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
+        "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
+        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+        "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>,
+        "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
+        "linux-um@lists.infradead.org" <linux-um@lists.infradead.org>,
+        "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "openipmi-developer@lists.sourceforge.net" 
+        <openipmi-developer@lists.sourceforge.net>,
+        "rcu@vger.kernel.org" <rcu@vger.kernel.org>,
+        "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
+        "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "kernel-dev@igalia.com" <kernel-dev@igalia.com>,
+        "kernel@gpiccoli.net" <kernel@gpiccoli.net>,
+        "halves@canonical.com" <halves@canonical.com>,
+        "fabiomirmar@gmail.com" <fabiomirmar@gmail.com>,
+        "alejandro.j.jimenez@oracle.com" <alejandro.j.jimenez@oracle.com>,
+        "andriy.shevchenko@linux.intel.com" 
+        <andriy.shevchenko@linux.intel.com>,
+        "arnd@arndb.de" <arnd@arndb.de>, "bp@alien8.de" <bp@alien8.de>,
+        "corbet@lwn.net" <corbet@lwn.net>,
+        "d.hatayama@jp.fujitsu.com" <d.hatayama@jp.fujitsu.com>,
+        "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
+        "dyoung@redhat.com" <dyoung@redhat.com>,
+        "feng.tang@intel.com" <feng.tang@intel.com>,
+        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "hidehiro.kawai.ez@hitachi.com" <hidehiro.kawai.ez@hitachi.com>,
+        "jgross@suse.com" <jgross@suse.com>,
+        "john.ogness@linutronix.de" <john.ogness@linutronix.de>,
+        "keescook@chromium.org" <keescook@chromium.org>,
+        "luto@kernel.org" <luto@kernel.org>,
+        "mhiramat@kernel.org" <mhiramat@kernel.org>,
+        "mingo@redhat.com" <mingo@redhat.com>,
+        "paulmck@kernel.org" <paulmck@kernel.org>,
+        "peterz@infradead.org" <peterz@infradead.org>,
+        "rostedt@goodmis.org" <rostedt@goodmis.org>,
+        "senozhatsky@chromium.org" <senozhatsky@chromium.org>,
+        "stern@rowland.harvard.edu" <stern@rowland.harvard.edu>,
+        "tglx@linutronix.de" <tglx@linutronix.de>,
+        "vgoyal@redhat.com" <vgoyal@redhat.com>,
+        vkuznets <vkuznets@redhat.com>,
+        "will@kernel.org" <will@kernel.org>
+References: <20220427224924.592546-1-gpiccoli@igalia.com>
+ <20220427224924.592546-25-gpiccoli@igalia.com>
+ <PH0PR21MB30252C55EB4F97F3D78021BDD7FC9@PH0PR21MB3025.namprd21.prod.outlook.com>
+From:   "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+In-Reply-To: <PH0PR21MB30252C55EB4F97F3D78021BDD7FC9@PH0PR21MB3025.namprd21.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 21 Apr 2022 13:28:38 -0300
-Jason Gunthorpe <jgg@nvidia.com> wrote:
-
-> When the open_device() op is called the container_users is incremented and
-> held incremented until close_device(). Thus, so long as drivers call
-> functions within their open_device()/close_device() region they do not
-> need to worry about the container_users.
+On 29/04/2022 14:53, Michael Kelley (LINUX) wrote:
+> From: Guilherme G. Piccoli <gpiccoli@igalia.com> Sent: Wednesday, April 27, 2022 3:49 PM
+>> [...]
+>> +	panic_notifiers_level=
+>> +			[KNL] Set the panic notifiers execution order.
+>> +			Format: <unsigned int>
+>> +			We currently have 4 lists of panic notifiers; based
+>> +			on the functionality and risk (for panic success) the
+>> +			callbacks are added in a given list. The lists are:
+>> +			- hypervisor/FW notification list (low risk);
+>> +			- informational list (low/medium risk);
+>> +			- pre_reboot list (higher risk);
+>> +			- post_reboot list (only run late in panic and after
+>> +			kdump, not configurable for now).
+>> +			This parameter defines the ordering of the first 3
+>> +			lists with regards to kdump; the levels determine
+>> +			which set of notifiers execute before kdump. The
+>> +			accepted levels are:
+>> +			0: kdump is the first thing to run, NO list is
+>> +			executed before kdump.
+>> +			1: only the hypervisor list is executed before kdump.
+>> +			2 (default level): the hypervisor list and (*if*
+>> +			there's any kmsg_dumper defined) the informational
+>> +			list are executed before kdump.
+>> +			3: both the hypervisor and the informational lists
+>> +			(always) execute before kdump.
 > 
-> These functions can all only be called between open_device() and
-> close_device():
+> I'm not clear on why level 2 exists.  What is the scenario where
+> execution of the info list before kdump should be conditional on the
+> existence of a kmsg_dumper?   Maybe the scenario is described
+> somewhere in the patch set and I just missed it.
 > 
->   vfio_pin_pages()
->   vfio_unpin_pages()
->   vfio_dma_rw()
->   vfio_register_notifier()
->   vfio_unregister_notifier()
+
+Hi Michael, thanks for your review/consideration. So, this idea started
+kind of some time ago. It all started with a need of exposing more
+information on kernel log *before* kdump and *before* pstore -
+specifically, we're talking about panic_print. But this cause some
+reactions, Baoquan was very concerned with that [0]. Soon after, I've
+proposed a panic notifiers filter (orthogonal) approach, to which Petr
+suggested instead doing a major refactor [1] - it finally is alive in
+the form of this series.
+
+The theory behind the level 2 is to allow a scenario of kdump with the
+minimum amount of notifiers - what is the point in printing more
+information if the user doesn't care, since it's going to kdump? Now, if
+there is a kmsg dumper, it means that there is likely some interest in
+collecting information, and that might as well be required before the
+potential kdump (which is my case, hence the proposal on [0]).
+
+Instead of forcing one of the two behaviors (level 1 or level 3), we
+have a middle-term/compromise: if there's interest in collecting such
+data (in the form of a kmsg dumper), we then execute the informational
+notifiers before kdump. If not, why to increase (even slightly) the risk
+for kdump?
+
+I'm OK in removing the level 2 if people prefer, but I don't feel it's a
+burden, quite opposite - seems a good way to accommodate the somewhat
+antagonistic ideas (jump to kdump ASAP vs collecting more info in the
+panicked kernel log).
+
+[0] https://lore.kernel.org/lkml/20220126052246.GC2086@MiWiFi-R3L-srv/
+
+[1] https://lore.kernel.org/lkml/YfPxvzSzDLjO5ldp@alley/
+
+
+>[...]
+>> +	 * Based on the level configured (smaller than 4), we clear the
+>> +	 * proper bits in "panic_notifiers_bits". Notice that this bitfield
+>> +	 * is initialized with all notifiers set.
+>> +	 */
+>> +	switch (panic_notifiers_level) {
+>> +	case 3:
+>> +		clear_bit(PN_PRE_REBOOT_BIT, &panic_notifiers_bits);
+>> +		break;
+>> +	case 2:
+>> +		clear_bit(PN_PRE_REBOOT_BIT, &panic_notifiers_bits);
+>> +
+>> +		if (!kmsg_has_dumpers())
+>> +			clear_bit(PN_INFO_BIT, &panic_notifiers_bits);
+>> +		break;
+>> +	case 1:
+>> +		clear_bit(PN_PRE_REBOOT_BIT, &panic_notifiers_bits);
+>> +		clear_bit(PN_INFO_BIT, &panic_notifiers_bits);
+>> +		break;
+>> +	case 0:
+>> +		clear_bit(PN_PRE_REBOOT_BIT, &panic_notifiers_bits);
+>> +		clear_bit(PN_INFO_BIT, &panic_notifiers_bits);
+>> +		clear_bit(PN_HYPERVISOR_BIT, &panic_notifiers_bits);
+>> +		break;
+>> +	}
 > 
-> Eliminate the calls to vfio_group_add_container_user() and add
-> vfio_assert_device_open() to detect driver mis-use.
+> I think the above switch statement could be done as follows:
+> 
+> if (panic_notifiers_level <= 3)
+> 	clear_bit(PN_PRE_REBOOT_BIT, &panic_notifiers_bits);
+> if (panic_notifiers_level <= 2)
+> 	if (!kmsg_has_dumpers())
+> 		clear_bit(PN_INFO_BIT, &panic_notifiers_bits);
+> if (panic_notifiers_level <=1)
+> 	clear_bit(PN_INFO_BIT, &panic_notifiers_bits);
+> if (panic_notifiers_level == 0)
+> 	clear_bit(PN_HYPERVISOR_BIT, &panic_notifiers_bits);
+> 
+> That's about half the lines of code.  It's somewhat a matter of style,
+> so treat this as just a suggestion to consider.  I just end up looking
+> for a better solution when I see the same line of code repeated
+> 3 or 4 times!
+> 
 
-A comment here explaining that decrementing open_count is pushed until
-after close_device to support this feature would help to explain the
-somewhat subtle change in vfio_group_get_device_fd().
+It's a good idea - I liked your code. The switch seems more
+natural/explicit for me, even duplicating some lines, but in case more
+people prefer your way, I can definitely change the code - thanks for
+the suggestion.
+Cheers,
 
-Otherwise the series looks ok with fixes noted by previous reviews.
-Thanks,
 
-Alex
-
+Guilherme
