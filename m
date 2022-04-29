@@ -2,138 +2,132 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AE6D0C433EF
-	for <linux-s390@archiver.kernel.org>; Fri, 29 Apr 2022 15:45:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C907CC433EF
+	for <linux-s390@archiver.kernel.org>; Fri, 29 Apr 2022 16:02:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378233AbiD2PtE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 29 Apr 2022 11:49:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33164 "EHLO
+        id S1378751AbiD2QGO (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 29 Apr 2022 12:06:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378606AbiD2Psw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Apr 2022 11:48:52 -0400
-Received: from mail-qt1-x834.google.com (mail-qt1-x834.google.com [IPv6:2607:f8b0:4864:20::834])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86BCF2DD5C;
-        Fri, 29 Apr 2022 08:45:33 -0700 (PDT)
-Received: by mail-qt1-x834.google.com with SMTP id y3so6043700qtn.8;
-        Fri, 29 Apr 2022 08:45:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=0AmjJCTGkqpH0j7OWbnycCS3KV9E1uQeOq85BlTLnmc=;
-        b=XwuIlexwM4dve930lSDOFEEf8Fxpdc0edILk7OXe0i5iZsUvd8Kg4yOkWhq/1D5Zpb
-         E/20A/6oLFskOXdZkX3hn3IcHYE+aMA16wtMf4t0oLTtFMNvwUINAtmubsIIxQKiPI9V
-         RiFd66irxRypZPujMrHMpRsrmjXCk8rvcBzpsHj1H0Z92ZhL0XQoY7ePvVEx0UyE1/VG
-         4ijejAM0ZvIoOGau468wAgDUqTtxbHGmwn8U/IVPcEwP+kExK4vZJemXU+9LjyHg4vUR
-         gxk3cM8uCcqajmnnVSbLEWVuQ7kG7UGPbypmf7lMIvrukvEZomFgKLXUcjxAT2+F+VOU
-         QapQ==
+        with ESMTP id S1378749AbiD2QGO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 Apr 2022 12:06:14 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 4B4A063BF9
+        for <linux-s390@vger.kernel.org>; Fri, 29 Apr 2022 09:02:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1651248174;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=WIhTauvSxJmt5ljV+5KC586UIv4xmU4lJh3RdFTAIGo=;
+        b=DBY9g5xO1X70Z2lOAMERwz4qRtO3zka1VzFy1peIpdbA5VAht06uiA01ITDXue51h3ylsj
+        rSd4nwfOAvs3g8ljnE25QNeVSPVN6oQcpUl4ZJPrkZsfE7cpSXjZ8HXAO6Zl3y08VW7+MJ
+        pjk7brTkPgvuEPyONLbzAstqiAGJByc=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-255-Xu2XG0pDMr2eFzHEnnyN8w-1; Fri, 29 Apr 2022 12:02:51 -0400
+X-MC-Unique: Xu2XG0pDMr2eFzHEnnyN8w-1
+Received: by mail-wr1-f70.google.com with SMTP id k29-20020adfb35d000000b0020adc94662dso3199946wrd.12
+        for <linux-s390@vger.kernel.org>; Fri, 29 Apr 2022 09:02:50 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=0AmjJCTGkqpH0j7OWbnycCS3KV9E1uQeOq85BlTLnmc=;
-        b=bPrwilbymtPf3RHF6Dm7u/pa1k5n+hMjHCCgwr38CZ7lr5kHELe7qg4Zz3xSfvuwG+
-         4YMnO2I64+NDsh5TesFUJx3C6R8eup7hMXDweuim5HHTVQyom1h+AFTXutUcbP0VWwlP
-         6Z7fKq7lxWynqRVNCIlmIJnhRI9CDBm0mg10XWHUlbi2zzagN5DJwvFlkFsMh9Rn3auH
-         VlP9dky0gofs+z+RM70X3EMHyx6ggLKCyF1vv6GL+YD1TiRsF9ofcxSKWr4y9vSa4477
-         219KwhRYxJnbGHSJ/1l/pxQ/ywPv3dMhoEDxp3ZJQRKN/GLamSs4MgdPMNZkwjvSC3rO
-         fazg==
-X-Gm-Message-State: AOAM530rJdR5fzeiFfzZuqxUaOVADpREp51XeShJ6tVv0vWU3+suHcM3
-        sYqWXpFc/HqZO62SJvqijpU=
-X-Google-Smtp-Source: ABdhPJyRmBUlkHBi31CCfAyzBtaCMOUxbplBygVKF9dcYX8Y/qQ8x9HZhfy3XO8SG3RpRveTr5TFdA==
-X-Received: by 2002:a05:622a:1a8e:b0:2f3:96db:3d8f with SMTP id s14-20020a05622a1a8e00b002f396db3d8fmr5128qtc.379.1651247132562;
-        Fri, 29 Apr 2022 08:45:32 -0700 (PDT)
-Received: from localhost ([2601:c4:c432:945:a9d2:6c22:f2f3:7503])
-        by smtp.gmail.com with ESMTPSA id u17-20020a05620a431100b0069fb9f98b26sm635934qko.69.2022.04.29.08.45.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 29 Apr 2022 08:45:32 -0700 (PDT)
-Date:   Fri, 29 Apr 2022 08:45:33 -0700
-From:   Yury Norov <yury.norov@gmail.com>
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc:     linux-kernel@vger.kernel.org,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
-Subject: Re: [PATCH 2/5] lib: add bitmap_{from,to}_arr64
-Message-ID: <YmwIHRhS2f1QTW3b@yury-laptop>
-References: <20220428205116.861003-1-yury.norov@gmail.com>
- <20220428205116.861003-3-yury.norov@gmail.com>
- <YmvhLbIoHDhEhJFq@smile.fi.intel.com>
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:organization:in-reply-to
+         :content-transfer-encoding;
+        bh=WIhTauvSxJmt5ljV+5KC586UIv4xmU4lJh3RdFTAIGo=;
+        b=EwFw7hTs+G/SIGhXLbNlzwO5ozV/pJDb0oQahLKftderjJ7c32VXmMbyRArX1BV/wI
+         vQ1NBQgSV/kfSZeRl43FQeuEAdbcCwisjpFmPKQJiF2rtaGWfI9T7eNgbalKI2syHlSN
+         V2PmFk0LtTshgIyNPdXIH1Bhi2zdgRqfmHI5tdicimZEPy0MT578/iqKY9Vu9PZn6eTM
+         /lUAnHB4INFGMtXmz5EPhBREOZBESpYsVMACZydF4HBolrxfKyb415pbfNC28N11OUbZ
+         Qs2B5PssC+GVlwB9bZhV/Hr/N1y6jvRbT5RMRq8o0+70xu9WBnLdj3VdG0cEtWOzj8rC
+         UM4w==
+X-Gm-Message-State: AOAM532+EXPa3wRhyMxi2qaic6c9aPYAixpcszt2TnoxXwLp0L3NGCtG
+        7Dt+r2RrQznZVefjHEHjZrEXJUnAEc/YqNMEf5dasQLcrAt3RJX2BYMbXQzQ4ADsuHwuCZPlA6/
+        5NxcfD1DHw8kOW/V79CXGKw==
+X-Received: by 2002:a1c:a181:0:b0:392:8f7e:d2f8 with SMTP id k123-20020a1ca181000000b003928f7ed2f8mr3992033wme.30.1651248170015;
+        Fri, 29 Apr 2022 09:02:50 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxtWszNbmEk6KmVxF3TrG7Df8Yb54zA5wj0GQzGaAPgvjGBhkjxg9HbgcTGJSulwdFOHFEu4w==
+X-Received: by 2002:a1c:a181:0:b0:392:8f7e:d2f8 with SMTP id k123-20020a1ca181000000b003928f7ed2f8mr3992008wme.30.1651248169714;
+        Fri, 29 Apr 2022 09:02:49 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c707:fe00:bbeb:98e6:617a:dea1? (p200300cbc707fe00bbeb98e6617adea1.dip0.t-ipconnect.de. [2003:cb:c707:fe00:bbeb:98e6:617a:dea1])
+        by smtp.gmail.com with ESMTPSA id bi26-20020a05600c3d9a00b0038ed39dbf00sm2978660wmb.0.2022.04.29.09.02.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 29 Apr 2022 09:02:49 -0700 (PDT)
+Message-ID: <54927e4b-3be7-f186-747c-f14097aa2df9@redhat.com>
+Date:   Fri, 29 Apr 2022 18:02:48 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YmvhLbIoHDhEhJFq@smile.fi.intel.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.2
+Subject: Re: [PATCH/RFC] KVM: s390: vsie/gmap: reduce gmap_rmap overhead
+Content-Language: en-US
+To:     Christian Borntraeger <borntraeger@linux.ibm.com>,
+        KVM <kvm@vger.kernel.org>
+Cc:     Janosch Frank <frankja@linux.ibm.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Thomas Huth <thuth@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+References: <20220429151526.1560-1-borntraeger@linux.ibm.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+In-Reply-To: <20220429151526.1560-1-borntraeger@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Fri, Apr 29, 2022 at 03:59:25PM +0300, Andy Shevchenko wrote:
-> On Thu, Apr 28, 2022 at 01:51:13PM -0700, Yury Norov wrote:
-> > Manipulating 64-bit arrays with bitmap functions is potentially dangerous
-> > because on 32-bit BE machines the order of halfwords doesn't match.
-> > Another issue is that compiler may throw a warning about out-of-boundary
-> > access.
-> > 
-> > This patch adds bitmap_{from,to}_arr64 functions in addition to existing
-> > bitmap_{from,to}_arr32.
+On 29.04.22 17:15, Christian Borntraeger wrote:
+> there are cases that trigger a 2nd shadow event for the same
+> vmaddr/raddr combination. (prefix changes, reboots, some known races)
+> This will increase memory usages and it will result in long latencies
+> when cleaning up, e.g. on shutdown. To avoid cases with a list that has
+> hundreds of identical raddrs we check existing entries at insert time.
+> As this measurably reduces the list length this will be faster than
+> traversing the list at shutdown time.
 > 
-> ...
+> In the long run several places will be optimized to create less entries
+> and a shrinker might be necessary.
 > 
-> > +	bitmap_copy_clear_tail((unsigned long *) (bitmap),	\
-> > +			(const unsigned long *) (buf), (nbits))
+> Fixes: 4be130a08420 ("s390/mm: add shadow gmap support")
+> Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+> ---
+>  arch/s390/mm/gmap.c | 7 +++++++
+>  1 file changed, 7 insertions(+)
 > 
-> Drop spaces after castings. Besides that it might be placed on a single line.
-> 
-> ...
+> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+> index 69c08d966fda..0fc0c26a71f2 100644
+> --- a/arch/s390/mm/gmap.c
+> +++ b/arch/s390/mm/gmap.c
+> @@ -1185,12 +1185,19 @@ static inline void gmap_insert_rmap(struct gmap *sg, unsigned long vmaddr,
+>  				    struct gmap_rmap *rmap)
+>  {
+>  	void __rcu **slot;
+> +	struct gmap_rmap *temp;
+>  
+>  	BUG_ON(!gmap_is_shadow(sg));
+>  	slot = radix_tree_lookup_slot(&sg->host_to_rmap, vmaddr >> PAGE_SHIFT);
+>  	if (slot) {
+>  		rmap->next = radix_tree_deref_slot_protected(slot,
+>  							&sg->guest_table_lock);
+> +		for (temp = rmap->next; temp; temp = temp->next) {
+> +			if (temp->raddr == rmap->raddr) {
+> +				kfree(rmap);
+> +				return;
+> +			}
+> +		}
+>  		radix_tree_replace_slot(&sg->host_to_rmap, slot, rmap);
+>  	} else {
+>  		rmap->next = NULL;
 
-OK
- 
-> 
-> > +	bitmap_copy_clear_tail((unsigned long *) (buf),		\
-> > +			(const unsigned long *) (bitmap), (nbits))
-> 
-> Ditto.
-> 
-> ...
-> 
-> > +void bitmap_to_arr64(u64 *buf, const unsigned long *bitmap, unsigned int nbits)
-> > +{
-> > +	const unsigned long *end = bitmap + BITS_TO_LONGS(nbits);
-> > +
-> > +	while (bitmap < end) {
-> > +		*buf = *bitmap++;
-> > +		if (bitmap < end)
-> > +			*buf |= (u64)(*bitmap++) << 32;
-> > +		buf++;
-> > +	}
-> >  
-> > +	/* Clear tail bits in last element of array beyond nbits. */
-> > +	if (nbits % 64)
-> > +		buf[-1] &= GENMASK_ULL(nbits, 0);
-> 
-> Hmm... if nbits is > 0 and < 64, wouldn't be this problematic, since
-> end == bitmap? Or did I miss something?
+Acked-by: David Hildenbrand <david@redhat.com>
 
-BITS_TO_LONGS(0) == 0
-BITS_TO_LONGS(1..32) == 1
-BITS_TO_LONGS(33..64) == 2
-
-The only potential problem with buf[-1] is nbits == 0, but fortunately
-(0 % 64) == 0, and it doesn't happen.
-
+-- 
 Thanks,
-Yury
 
-> > +}
-> 
-> -- 
-> With Best Regards,
-> Andy Shevchenko
-> 
+David / dhildenb
+
