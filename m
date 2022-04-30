@@ -2,46 +2,42 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA533C433F5
-	for <linux-s390@archiver.kernel.org>; Sat, 30 Apr 2022 19:11:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70541C433FE
+	for <linux-s390@archiver.kernel.org>; Sat, 30 Apr 2022 19:11:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244497AbiD3TPE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 30 Apr 2022 15:15:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36640 "EHLO
+        id S244511AbiD3TPF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sat, 30 Apr 2022 15:15:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244413AbiD3TO6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 30 Apr 2022 15:14:58 -0400
+        with ESMTP id S244442AbiD3TPB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 30 Apr 2022 15:15:01 -0400
 Received: from mail2-relais-roc.national.inria.fr (mail2-relais-roc.national.inria.fr [192.134.164.83])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D6724FC4E;
-        Sat, 30 Apr 2022 12:11:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43F924FC56;
+        Sat, 30 Apr 2022 12:11:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=inria.fr; s=dc;
   h=from:to:cc:subject:date:message-id:mime-version:
    content-transfer-encoding;
-  bh=fYtqvH+CNmFHALCqzjRLdILBJr7Kyi4NBxpAgQMbfZM=;
-  b=k3SUovbc8w+0BR+MOXnzqR+HsyBdRhldyqclpia4TqvSuBw7ffBOjBXh
-   08m0wt5B5kw7a3zfbyDb6pvkA9HVXVC0vr0SFgl/wFp+rx0Txok4Y+1BZ
-   La44KQVw1wpYEXcYR7cYX8d9ucRdyL+w2c6yVehjg24yT9WI+/2P2/BJ3
-   8=;
+  bh=dTCORFgd4jCzWeUzesuOaQD3lDWMIHwEYU6tlvZ83+g=;
+  b=OrYEYOKkZzBCuUMcn2bqN1dniJTGhnKTIqSwJe4oHEORN+FCCcTHeMi5
+   nyuONW0G3Djx3C7G78jOQH8z9REk1umwfbFUGiTntJiA/vs7I623XmBGR
+   7lF3WUTsQyxRHS+N7oqXllMFB2kAiYtCWm8SqngBnlQ5n9S1/CNEYrwZX
+   U=;
 Authentication-Results: mail2-relais-roc.national.inria.fr; dkim=none (message not signed) header.i=none; spf=SoftFail smtp.mailfrom=Julia.Lawall@inria.fr; dmarc=fail (p=none dis=none) d=inria.fr
 X-IronPort-AV: E=Sophos;i="5.91,188,1647298800"; 
-   d="scan'208";a="34084615"
+   d="scan'208";a="34084618"
 Received: from i80.paris.inria.fr (HELO i80.paris.inria.fr.) ([128.93.90.48])
   by mail2-relais-roc.national.inria.fr with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Apr 2022 21:11:32 +0200
 From:   Julia Lawall <Julia.Lawall@inria.fr>
-To:     Herbert Xu <herbert@gondor.apana.org.au>
-Cc:     kernel-janitors@vger.kernel.org,
-        "David S. Miller" <davem@davemloft.net>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+To:     Heiko Carstens <hca@linux.ibm.com>
+Cc:     kernel-janitors@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] s390/crypto: fix typos in comments
-Date:   Sat, 30 Apr 2022 21:11:16 +0200
-Message-Id: <20220430191122.8667-2-Julia.Lawall@inria.fr>
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] s390/hypfs: fix typos in comments
+Date:   Sat, 30 Apr 2022 21:11:19 +0200
+Message-Id: <20220430191122.8667-5-Julia.Lawall@inria.fr>
 X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -55,34 +51,20 @@ Detected with the help of Coccinelle.
 Signed-off-by: Julia Lawall <Julia.Lawall@inria.fr>
 
 ---
- arch/s390/crypto/des_s390.c |    2 +-
- arch/s390/crypto/prng.c     |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/s390/hypfs/hypfs_vm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/crypto/des_s390.c b/arch/s390/crypto/des_s390.c
-index bfbafd35bcbd..e013088b5115 100644
---- a/arch/s390/crypto/des_s390.c
-+++ b/arch/s390/crypto/des_s390.c
-@@ -194,7 +194,7 @@ static struct skcipher_alg cbc_des_alg = {
-  *   same as DES.  Implementers MUST reject keys that exhibit this
-  *   property.
-  *
-- *   In fips mode additinally check for all 3 keys are unique.
-+ *   In fips mode additionally check for all 3 keys are unique.
-  *
-  */
- static int des3_setkey(struct crypto_tfm *tfm, const u8 *key,
-diff --git a/arch/s390/crypto/prng.c b/arch/s390/crypto/prng.c
-index 234d791ca59d..ae382bafc772 100644
---- a/arch/s390/crypto/prng.c
-+++ b/arch/s390/crypto/prng.c
-@@ -528,7 +528,7 @@ static ssize_t prng_tdes_read(struct file *file, char __user *ubuf,
- 			/* give mutex free before calling schedule() */
- 			mutex_unlock(&prng_data->mutex);
- 			schedule();
--			/* occopy mutex again */
-+			/* occupy mutex again */
- 			if (mutex_lock_interruptible(&prng_data->mutex)) {
- 				if (ret == 0)
- 					ret = -ERESTARTSYS;
+diff --git a/arch/s390/hypfs/hypfs_vm.c b/arch/s390/hypfs/hypfs_vm.c
+index 3765c2d81df5..a3d881ca0a98 100644
+--- a/arch/s390/hypfs/hypfs_vm.c
++++ b/arch/s390/hypfs/hypfs_vm.c
+@@ -190,7 +190,7 @@ int hypfs_vm_create_files(struct dentry *root)
+ 	if (IS_ERR(data))
+ 		return PTR_ERR(data);
+ 
+-	/* Hpervisor Info */
++	/* Hypervisor Info */
+ 	dir = hypfs_mkdir(root, "hyp");
+ 	if (IS_ERR(dir)) {
+ 		rc = PTR_ERR(dir);
 
