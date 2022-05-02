@@ -2,113 +2,96 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D43F8C433F5
-	for <linux-s390@archiver.kernel.org>; Mon,  2 May 2022 07:58:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B25F2C433FE
+	for <linux-s390@archiver.kernel.org>; Mon,  2 May 2022 09:33:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381222AbiEBICU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 2 May 2022 04:02:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37396 "EHLO
+        id S1384229AbiEBJhQ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 2 May 2022 05:37:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358979AbiEBICS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 May 2022 04:02:18 -0400
+        with ESMTP id S1380009AbiEBJhP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 May 2022 05:37:15 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3F682C649;
-        Mon,  2 May 2022 00:58:50 -0700 (PDT)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2427eQU7013210;
-        Mon, 2 May 2022 07:58:45 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=R6Znuo0uXIGgRF6ohS4ohIBGd/RGextPHf71KJR13a0=;
- b=EqFbyO+jnAJweyJE9ZKRHbbHLnAxdVp1uLFxRBn9IbDUUiy2E+dYZGxNVUasmiMIMMlR
- EnjTqX3I79ZC5NYwa++o1R6yaHpyl55m1MGW/jqryvf1miNNcVk6LI+YyNACN5sRT18u
- 9QvPFo0nDh6CqxJ4dHhKNZ7SdV+gaSZR2JVfBFDTWBNocF2zKxbBFKg3LVvWcE190nUX
- IPHZcnstRDs78UkymiVau2+P+kocpZLR/9FF5ise3cAeBOq6saDHsTU5naitij7qULrL
- 5MqX4dJe7LmyaoZa/W1QrLqrddYaiAcrIkztkKuNxhlBRGnhNltng0rlfL8Dh9edwSuA sQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3ftawsgdvm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 02 May 2022 07:58:45 +0000
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2427wjl1018914;
-        Mon, 2 May 2022 07:58:45 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80070205CA;
+        Mon,  2 May 2022 02:33:42 -0700 (PDT)
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2426uAci021772;
+        Mon, 2 May 2022 09:33:33 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=jJ+GRxrt2xk4FMHKuOBnNoDWz8NuV0uvK28Gl9JJRio=;
+ b=ohjp1Qgnm6w3qHWMmk/MhRYJF7HiYy47DJBtO+kyEhhR1B5xeWivG0qaiNEpDNS1opeK
+ 0ffdHP6vLqna+WL1sfPsQTsQaLyvt7R3Tiq6NGG4BCxDOmv2IyX9aHuv9nR47TtzEpLa
+ kA2cHvGjMAxC+WtoYvLx3fTBvgLibzBjEsBRweTH83TQqlOSsgHcdj8YDhJTHJ8tjQXG
+ dJru2N9PJNSr6JfN0luVSO9NO2lBZ1rj1Ic2YNx/ldRz+dDETU+A/c730GSMdp8HYmmB
+ L9Ns+FllmMXkiOWnRZWuCfMgdBhDgDYv43ehO1uxcOCZYzbqVP7p5jaBjM0EmBQoPhzX IQ== 
 Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3ftawsgdv6-1
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3ftafd2qgd-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 02 May 2022 07:58:44 +0000
+        Mon, 02 May 2022 09:33:33 +0000
 Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2427w9Oh013238;
-        Mon, 2 May 2022 07:58:43 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma01fra.de.ibm.com with ESMTP id 3frvr8sx55-1
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2429SDqi030594;
+        Mon, 2 May 2022 09:33:31 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma01fra.de.ibm.com with ESMTP id 3frvr8t1bb-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 02 May 2022 07:58:42 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2427wgUo26083626
+        Mon, 02 May 2022 09:33:31 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2429XSx554067692
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 2 May 2022 07:58:42 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BAF354C04E;
-        Mon,  2 May 2022 07:58:39 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 287264C046;
-        Mon,  2 May 2022 07:58:39 +0000 (GMT)
-Received: from [9.171.12.235] (unknown [9.171.12.235])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon,  2 May 2022 07:58:39 +0000 (GMT)
-Message-ID: <385126e7-b74b-1826-c134-3efd278e5b79@linux.ibm.com>
-Date:   Mon, 2 May 2022 09:58:38 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Subject: Re: [PATCH v2 0/2] Dirtying, failing memop: don't indicate
- suppression
-Content-Language: en-US
-To:     Janosch Frank <frankja@linux.ibm.com>,
-        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     David Hildenbrand <david@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        Mon, 2 May 2022 09:33:28 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8AD5C11C050;
+        Mon,  2 May 2022 09:33:28 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1963011C04A;
+        Mon,  2 May 2022 09:33:28 +0000 (GMT)
+Received: from osiris (unknown [9.145.172.68])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Mon,  2 May 2022 09:33:28 +0000 (GMT)
+Date:   Mon, 2 May 2022 11:33:26 +0200
+From:   Heiko Carstens <hca@linux.ibm.com>
+To:     Julia Lawall <Julia.Lawall@inria.fr>
+Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
+        kernel-janitors@vger.kernel.org,
+        "David S. Miller" <davem@davemloft.net>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org,
-        Shuah Khan <shuah@kernel.org>, linux-kselftest@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20220425100147.1755340-1-scgl@linux.ibm.com>
- <8095d0de-dd99-0388-b1d4-e59b01dc4be0@linux.ibm.com>
- <13d0d706-abc4-3e4d-88c3-6447636fd1fd@linux.ibm.com>
- <1ccb1333-2233-8832-4102-a6c082b29108@linux.ibm.com>
- <40038a9a-5647-c355-bad2-297b0a2baf4f@linux.ibm.com>
-From:   Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <40038a9a-5647-c355-bad2-297b0a2baf4f@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390/crypto: fix typos in comments
+Message-ID: <Ym+lZoRbROC9H4Vb@osiris>
+References: <20220430191122.8667-2-Julia.Lawall@inria.fr>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220430191122.8667-2-Julia.Lawall@inria.fr>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 5NTPEpSkXRcq0OaGO40nmWBv0goR-Gm9
-X-Proofpoint-ORIG-GUID: Oz37-pxOBfToHskwywnjIPdnyoPIKnaQ
+X-Proofpoint-ORIG-GUID: HkY-HNJVB82HBxsZl0GLKfS-uQ51MqZi
+X-Proofpoint-GUID: HkY-HNJVB82HBxsZl0GLKfS-uQ51MqZi
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-02_02,2022-04-28_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- lowpriorityscore=0 adultscore=0 suspectscore=0 bulkscore=0 spamscore=0
- clxscore=1015 priorityscore=1501 phishscore=0 impostorscore=0 mlxscore=0
- mlxlogscore=788 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205020058
+ definitions=2022-05-02_03,2022-04-28_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ phishscore=0 lowpriorityscore=0 impostorscore=0 mlxscore=0 mlxlogscore=707
+ suspectscore=0 clxscore=1011 spamscore=0 bulkscore=0 malwarescore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2205020074
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Am 26.04.22 um 09:25 schrieb Janosch Frank:
+On Sat, Apr 30, 2022 at 09:11:16PM +0200, Julia Lawall wrote:
+> Various spelling mistakes in comments.
+> Detected with the help of Coccinelle.
 > 
-> To me this measure looks like a last resort option and the POP doesn't state a 100% what is to be done. Some instructions can mandate suppression instead of termination according to the architects.
+> Signed-off-by: Julia Lawall <Julia.Lawall@inria.fr>
 > 
-> My intuition tells me that if we are in a situation where this would happen then we would be much better off just doing it by hand (i.e. in the instruction emulation code) and not letting this function decide.
-> 
-> So I'm not entirely sure if we're replacing something that is not correct with something that also won't be correct for all cases.
-> 
-> But to summarize this: I'm not entirely sure even after reading the POP for more than an hour and consulting an architect
+> ---
+>  arch/s390/crypto/des_s390.c |    2 +-
+>  arch/s390/crypto/prng.c     |    2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
 
-According to Damian, the definition in the POP is exactly the way it is to cover for z/VMs way of handling key protection for long operatings in a terminating fashion since the 70ies or 80ies.
-As it is fine for z/VM (and then also for z/OS and zVSE under z/VM) I guess we can (and should) mimic that behaviour.
+Applied, thanks.
