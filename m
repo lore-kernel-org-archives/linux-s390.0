@@ -2,128 +2,118 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 93D8EC4321E
-	for <linux-s390@archiver.kernel.org>; Mon,  2 May 2022 15:38:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DAE02C433F5
+	for <linux-s390@archiver.kernel.org>; Mon,  2 May 2022 15:39:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385879AbiEBPmR (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 2 May 2022 11:42:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48596 "EHLO
+        id S1385905AbiEBPnF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 2 May 2022 11:43:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357481AbiEBPmM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 May 2022 11:42:12 -0400
-Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71ED3A180;
-        Mon,  2 May 2022 08:38:43 -0700 (PDT)
-Received: by mail-pg1-x52c.google.com with SMTP id i62so11964899pgd.6;
-        Mon, 02 May 2022 08:38:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=xdAYU3mu3q5iKW/q53x7SG0PmMFu/IJ99F9X+I1LBFA=;
-        b=n+sdzeWg2S/gnK+vDOIvL6IUbN3m/ZsZjzFb11eZoR9Ocah7YJVO2WiV41qchObcfb
-         DQoBAV7ZWycdznoAT+bkWgo/wu+1wDV1bIUkSxqup4K24uuli3THOxTxyw5X5d53wgme
-         WcsN0rdXUDiQCbaE2BiYM+YRj9TzgmIUMpvqiw3DgUAYB77r1iQIEojYxiA62BjPH8RM
-         iKwEObMzsKXIe5T1OWURADziMPdtdHkUN1OxLhRHsrdiQj28siLmQYHweNGUt6WE2RWU
-         4RoD4QWsGkku1xASAbiwviIYb1qjscuQqHCmPnV7Xwb2MQ5+T3WoFFqH/wvbUUW3/9i6
-         dZOg==
+        with ESMTP id S1385940AbiEBPnC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 May 2022 11:43:02 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 5460813E8A
+        for <linux-s390@vger.kernel.org>; Mon,  2 May 2022 08:39:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1651505967;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ZF1XCSE9BpLbLGqd+aMdN/ixk8WqlQNETxHiBvcFAEo=;
+        b=JhJnLMGMXRUFqPuWPlfpL+/87CsMgilQZlcAaLFrb7dvAvNYJiEky92yKpZBYZU5CJ9Qr4
+        sjtBQFZryQr/2ujZVhxx6KCFrq8y/jnr1HIaLKjOY1PbsrFswGc1jr4oKE9EqNcvzx1pgu
+        SFi5bhGI5nEIObfcn9C2CLeqmzqfWvU=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-22-qVML-aS9NVusQIuy7yPq1A-1; Mon, 02 May 2022 11:39:24 -0400
+X-MC-Unique: qVML-aS9NVusQIuy7yPq1A-1
+Received: by mail-ej1-f72.google.com with SMTP id i14-20020a17090639ce00b006dabe6a112fso6909891eje.13
+        for <linux-s390@vger.kernel.org>; Mon, 02 May 2022 08:39:24 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
          :content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=xdAYU3mu3q5iKW/q53x7SG0PmMFu/IJ99F9X+I1LBFA=;
-        b=3RQ2j7C3i6zF27z9Ludt7jwycfyMd0Sr+Y1cZxVUkbGPnkrRNsveMQojZhGJQosuop
-         8yE9/KfXeRLMzXZaRRgrn1Ntm8QCR3eP8rWnIz2n5DZWafAz7U7j1sh/5IuepY2tKgai
-         37+aEdmSp0xmC2KAqnRgCMH43YRidguCnac2MPUSOjssGIpq5SGHQgt/8qHNn2cdwS15
-         /nclST37ImbBCKDEHZGymaHHDgb5zg0u51a5PxU0fKqvGUld9GlTTJwQwwGCfZzdJpoR
-         NYUzP5ADnGWpYwVmveaRGUXZAF8Dy3qokB4TAlrZzIYlncXleoZUA12QULF6P5Y+YsFi
-         8OnA==
-X-Gm-Message-State: AOAM533jKWvy34XzFjxJ0mmS/jyNlT7voQYsdPptPBuwES6EMTvYiyKY
-        4q2BK+wvG8Vv3V4QulspAX8=
-X-Google-Smtp-Source: ABdhPJyFyZFQ5alP4D0nGrJsTy5roBCXXaX5AecPC5DucA/TU9ZDaKugYKQuLpePce1AAM16r6umMQ==
-X-Received: by 2002:a05:6a00:846:b0:50d:f02f:bb46 with SMTP id q6-20020a056a00084600b0050df02fbb46mr4382838pfk.74.1651505921477;
-        Mon, 02 May 2022 08:38:41 -0700 (PDT)
-Received: from [192.168.1.3] (ip72-194-116-95.oc.oc.cox.net. [72.194.116.95])
-        by smtp.gmail.com with ESMTPSA id j11-20020aa7800b000000b0050dc76281basm5027174pfi.148.2022.05.02.08.38.36
+        bh=ZF1XCSE9BpLbLGqd+aMdN/ixk8WqlQNETxHiBvcFAEo=;
+        b=IMGWMh+NeVZ5fLQIAGVtytJvtmgC9d3lKx5kpeYkzLa+AIDVtmFpItEYb5tlTrDefz
+         gVqjbMcXuKpuiy73HZAmLciVLg9Uws0uON7KUD8wjMxkfBMblhABhvnhtsCLmdPkKdnz
+         XKAauHpfLH72l1CFh7yupBq+6AO3ViPuM49svfxQG0Ay76mZrUtAidoLpokyIV2ALNaD
+         lQF5a5pGJVJfghdpr/TZJRVMSjxPaGamfcwUSqIIRR0tloLZj1RRo/qMa0fQjsm8hCYQ
+         1bqd+49ZXRBjfhjFftXMfATGsPm1Vv0srMNillSPa4bEKueYkEynQDYp6TprsvmtNmUa
+         F16A==
+X-Gm-Message-State: AOAM532GBWNDss9NSowAMRoOS+n9b8dob8WgcYiq4X0eme199ks+K8mb
+        3kuCCttDalvhbtdPYUZ56cOx2QAXw1cyUc7N9EQP+7BeMp/IvV/Dhe4dgExfM7aGLnVBJQ2E+Vh
+        Li2Iu8mysrs4iAT6GSon5vQ==
+X-Received: by 2002:a05:6402:e9f:b0:41c:df21:b113 with SMTP id h31-20020a0564020e9f00b0041cdf21b113mr14128537eda.217.1651505963160;
+        Mon, 02 May 2022 08:39:23 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyNSW0QoKFTZ8zlcqWylcf7sv1LZgw1iIhvcn7gOPBPlprZOO+eArCO5O1mIvjKJ5ZlcDfxwA==
+X-Received: by 2002:a05:6402:e9f:b0:41c:df21:b113 with SMTP id h31-20020a0564020e9f00b0041cdf21b113mr14128524eda.217.1651505962959;
+        Mon, 02 May 2022 08:39:22 -0700 (PDT)
+Received: from ?IPV6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
+        by smtp.googlemail.com with ESMTPSA id ig11-20020a1709072e0b00b006f3ef214e2dsm3839256ejc.147.2022.05.02.08.39.21
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 02 May 2022 08:38:40 -0700 (PDT)
-Message-ID: <a02821ab-db4f-5bff-2a98-7d74032a0652@gmail.com>
-Date:   Mon, 2 May 2022 08:38:36 -0700
+        Mon, 02 May 2022 08:39:22 -0700 (PDT)
+Message-ID: <47855c4c-dc85-3ee8-b903-4acf0b94e4a9@redhat.com>
+Date:   Mon, 2 May 2022 17:39:21 +0200
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.1
-Subject: Re: [PATCH 06/30] soc: bcm: brcmstb: Document panic notifier action
- and remove useless header
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Subject: Re: [GIT PULL 0/1] KVM: s390: Fix lockdep issue in vm memop
 Content-Language: en-US
-To:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
-        akpm@linux-foundation.org, bhe@redhat.com, pmladek@suse.com,
-        kexec@lists.infradead.org
-Cc:     linux-kernel@vger.kernel.org,
-        bcm-kernel-feedback-list@broadcom.com, coresight@lists.linaro.org,
-        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-edac@vger.kernel.org,
-        linux-hyperv@vger.kernel.org, linux-leds@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
-        netdev@vger.kernel.org, openipmi-developer@lists.sourceforge.net,
-        rcu@vger.kernel.org, sparclinux@vger.kernel.org,
-        xen-devel@lists.xenproject.org, x86@kernel.org,
-        kernel-dev@igalia.com, kernel@gpiccoli.net, halves@canonical.com,
-        fabiomirmar@gmail.com, alejandro.j.jimenez@oracle.com,
-        andriy.shevchenko@linux.intel.com, arnd@arndb.de, bp@alien8.de,
-        corbet@lwn.net, d.hatayama@jp.fujitsu.com,
-        dave.hansen@linux.intel.com, dyoung@redhat.com,
-        feng.tang@intel.com, gregkh@linuxfoundation.org,
-        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
-        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
-        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
-        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
-        senozhatsky@chromium.org, stern@rowland.harvard.edu,
-        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
-        will@kernel.org, Brian Norris <computersforpeace@gmail.com>,
-        Doug Berger <opendmb@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Justin Chen <justinpopo6@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Markus Mayer <mmayer@broadcom.com>
-References: <20220427224924.592546-1-gpiccoli@igalia.com>
- <20220427224924.592546-7-gpiccoli@igalia.com>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20220427224924.592546-7-gpiccoli@igalia.com>
+To:     Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc:     KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Thomas Huth <thuth@redhat.com>
+References: <20220502153053.6460-1-borntraeger@linux.ibm.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+In-Reply-To: <20220502153053.6460-1-borntraeger@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-
-
-On 4/27/2022 3:49 PM, Guilherme G. Piccoli wrote:
-> The panic notifier of this driver is very simple code-wise, just a memory
-> write to a special position with some numeric code. But this is not clear
-> from the semantic point-of-view, and there is no public documentation
-> about that either.
+On 5/2/22 17:30, Christian Borntraeger wrote:
+> Paolo,
 > 
-> After discussing this in the mailing-lists [0] and having Florian explained
-> it very well, this patch just document that in the code for the future
-> generations asking the same questions. Also, it removes a useless header.
-> 
-> [0] https://lore.kernel.org/lkml/781cafb0-8d06-8b56-907a-5175c2da196a@gmail.com
-> 
-> Fixes: 0b741b8234c8 ("soc: bcm: brcmstb: Add support for S2/S3/S5 suspend states (ARM)")
-> Cc: Brian Norris <computersforpeace@gmail.com>
-> Cc: Doug Berger <opendmb@gmail.com>
-> Cc: Florian Fainelli <f.fainelli@gmail.com>
-> Cc: Justin Chen <justinpopo6@gmail.com>
-> Cc: Lee Jones <lee.jones@linaro.org>
-> Cc: Markus Mayer <mmayer@broadcom.com>
-> Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
+> one patch that is sitting already too long in my tree (sorry, was out of
+> office some days).
 
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Hi Christian,
 
-Likewise, I am not sure if the Fixes tag is necessary here.
--- 
-Florian
+at this point I don't have much waiting for 5.18.  Feel free to send it 
+through the s390 tree.
+
+Paolo
+
+> The following changes since commit 3bcc372c9865bec3ab9bfcf30b2426cf68bc18af:
+> 
+>    KVM: s390: selftests: Add error memop tests (2022-03-14 16:12:27 +0100)
+> 
+> are available in the Git repository at:
+> 
+>    git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-master-5.18-1
+> 
+> for you to fetch changes up to 4aa5ac75bf79cbbc46369163eb2e3addbff0d434:
+> 
+>    KVM: s390: Fix lockdep issue in vm memop (2022-03-23 10:41:04 +0100)
+> 
+> ----------------------------------------------------------------
+> KVM: s390: fix lockdep warning in new MEMOP call
+> 
+> ----------------------------------------------------------------
+> Janis Schoetterl-Glausch (1):
+>        KVM: s390: Fix lockdep issue in vm memop
+> 
+>   arch/s390/kvm/kvm-s390.c | 11 ++++++++++-
+>   1 file changed, 10 insertions(+), 1 deletion(-)
+> 
+
