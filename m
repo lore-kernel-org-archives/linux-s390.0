@@ -2,120 +2,139 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07666C433EF
-	for <linux-s390@archiver.kernel.org>; Mon,  2 May 2022 17:58:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6E3BC433FE
+	for <linux-s390@archiver.kernel.org>; Mon,  2 May 2022 20:07:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244227AbiEBSBx (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 2 May 2022 14:01:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56952 "EHLO
+        id S234980AbiEBUKb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 2 May 2022 16:10:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231134AbiEBSBw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 May 2022 14:01:52 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00467DE6;
-        Mon,  2 May 2022 10:58:22 -0700 (PDT)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 242HpdvH026019;
-        Mon, 2 May 2022 17:58:22 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- content-transfer-encoding : mime-version; s=pp1;
- bh=OnbL/YbZ/pFdIQ20YAOwNHPJyh6n17KQmF/QAh/zwMM=;
- b=HpVldZEkMLglethcdqBTXTtBNXSW+/g05//upemzRjV9gaH4k86r5Lf1JeBrGSw757y/
- AYSiupMK8lvfgM6bB1NoRF4p8Jhx9s20m1meYgQLju6cTldNKLBS4eBGWZ+kiH7duXwj
- ozzhUqlGX0qkTAiDfd33cxNXjyPGCTsUzeWoHMYHW1aQXgYBJJ+IVjeXbyQajBU1Ojhz
- ld87ynEVgZj0bWXd6ZfUfjsq///06MNmLoZPj+x6jL11no8nVHDDm8x3M6a0UY44eN7y
- N82sKKQwBmZjPTlmVKM986luOUDVJuba+MZoJzuZcn6gkCOa759iAqLcfyP8/dng0dne Vg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ftk5n99a9-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 02 May 2022 17:58:22 +0000
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 242HuMj8015022;
-        Mon, 2 May 2022 17:58:22 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ftk5n999a-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 02 May 2022 17:58:21 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 242HwJBw004945;
-        Mon, 2 May 2022 17:58:19 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3frvr8tyra-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 02 May 2022 17:58:19 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 242HwHYr23068980
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 2 May 2022 17:58:17 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4B8BCA4055;
-        Mon,  2 May 2022 17:58:16 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C6704A4051;
-        Mon,  2 May 2022 17:58:15 +0000 (GMT)
-Received: from osiris (unknown [9.145.50.234])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Mon,  2 May 2022 17:58:15 +0000 (GMT)
-Date:   Mon, 2 May 2022 19:58:14 +0200
-From:   Heiko Carstens <hca@linux.ibm.com>
-To:     Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc:     Paolo Bonzini <pbonzini@redhat.com>, KVM <kvm@vger.kernel.org>,
-        Janosch Frank <frankja@linux.ibm.com>,
+        with ESMTP id S231508AbiEBUK3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 May 2022 16:10:29 -0400
+Received: from mail-qv1-xf2d.google.com (mail-qv1-xf2d.google.com [IPv6:2607:f8b0:4864:20::f2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1469A63E8;
+        Mon,  2 May 2022 13:07:00 -0700 (PDT)
+Received: by mail-qv1-xf2d.google.com with SMTP id jt15so1774207qvb.8;
+        Mon, 02 May 2022 13:07:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=v3wD5SALNmRJFLj9tUWRsXDgRKKhZDunmdZcipLQpV4=;
+        b=Uq36JCx5K0KFPY82rUyOkrL7gpRtRpV8qwV7pUpi7ZblohNY77FDprju+2thZr/DCz
+         IURVugcQ4/25LVRJWq2wza3H8mhAYjZccCf85fJulyduF3r1Hj9qKXuEAWrDIO0FSZU9
+         qdT1iBcAiRavaiLaO7zwRAx+RePYqKUbXADQASvw23Wbs5RYgyEouE0PT1PlS3XMekJD
+         mq959KdKlcnZNxUc0kLS+puVh9HfuTCZGeIB40KD946fqq2idzrHT/i0INSqoSwWgZ4r
+         sIxxSwzeu/FTCOK34gRXAKzTlfe5zuUbbsJ1gpXVKh1pLs+L6qRolofrTnUCT/KcWM8D
+         5c1g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=v3wD5SALNmRJFLj9tUWRsXDgRKKhZDunmdZcipLQpV4=;
+        b=FiTKpLjSyYo287zEIjZ68hBEuYpwehF7nO5fpALuhJM2Q6k4ZRtChVtT8+eWrDXqJH
+         q68BlUwfGIEWDhB3N2mbd+lNlIhz4gER39jZ52DB4qPcGxfim6B7p3b7tS5zxc/MW6VY
+         5ai5LG+gMUIQB8eJv+WKo4N1GtSKEluw519ChYRUnxDr+4Fk+Woz6IUR7UTQ0lc+jl3f
+         4OhAhX9Lg/zDVU0AeXPT7NJKSbKBimWkYj+1kzpN0GYlUG8860yzKODGhtDhpbo2F9EH
+         3yA7J2knHphQCWr0rIGCI09+D1QSlsQW9xYFMGlM4XLNflIF3daqsoq0HJrMXSt6hPul
+         f7PQ==
+X-Gm-Message-State: AOAM533KgfShIurQry7Hp5lBUr+SI4grfY3negFKipC2LjgLQyNo39Zv
+        RSBKTP51INdLO6mxvIRqD2k=
+X-Google-Smtp-Source: ABdhPJyn1OXV0CXpTEdhtUwpy1u82XZ916qh1IHA1s6fQUtXW4a+i8V6Kt7lDT4N+V9R07MrAOeWMA==
+X-Received: by 2002:a05:6214:c8d:b0:44b:f11e:63d with SMTP id r13-20020a0562140c8d00b0044bf11e063dmr11038124qvr.7.1651522019148;
+        Mon, 02 May 2022 13:06:59 -0700 (PDT)
+Received: from localhost ([2601:c4:c432:9a9:ce8e:a55c:4848:4d10])
+        by smtp.gmail.com with ESMTPSA id u18-20020a05620a121200b0069fc13ce1e2sm4779593qkj.19.2022.05.02.13.06.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 02 May 2022 13:06:58 -0700 (PDT)
+Date:   Mon, 2 May 2022 13:06:56 -0700
+From:   Yury Norov <yury.norov@gmail.com>
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     linux-kernel@vger.kernel.org,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
         David Hildenbrand <david@redhat.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>
-Subject: Re: [GIT PULL 0/1] KVM: s390: Fix lockdep issue in vm memop
-Message-ID: <YnAbtskXVQP11AkF@osiris>
-References: <20220502153053.6460-1-borntraeger@linux.ibm.com>
- <47855c4c-dc85-3ee8-b903-4acf0b94e4a9@redhat.com>
- <249d0100-fa58-bf48-b1d2-f28e94c3a5f2@linux.ibm.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <249d0100-fa58-bf48-b1d2-f28e94c3a5f2@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: cRxzM0gYZpG6KR6W4Rlv-Qb4P7WqI8XG
-X-Proofpoint-ORIG-GUID: UJv4wA1iGZ6hPYx2LQ3Skd2sXJ_-Ij3x
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        Heiko Carstens <hca@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+Subject: Re: [PATCH 2/5] lib: add bitmap_{from,to}_arr64
+Message-ID: <YnA54HzrdfOr2QYl@yury-laptop>
+References: <20220428205116.861003-1-yury.norov@gmail.com>
+ <20220428205116.861003-3-yury.norov@gmail.com>
+ <YmvhLbIoHDhEhJFq@smile.fi.intel.com>
+ <YmwIHRhS2f1QTW3b@yury-laptop>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-02_05,2022-05-02_03,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=989
- priorityscore=1501 phishscore=0 adultscore=0 impostorscore=0 clxscore=1015
- spamscore=0 malwarescore=0 lowpriorityscore=0 mlxscore=0 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2205020132
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YmwIHRhS2f1QTW3b@yury-laptop>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, May 02, 2022 at 05:41:13PM +0200, Christian Borntraeger wrote:
-> Am 02.05.22 um 17:39 schrieb Paolo Bonzini:
-> > On 5/2/22 17:30, Christian Borntraeger wrote:
-> > > Paolo,
+On Fri, Apr 29, 2022 at 08:45:35AM -0700, Yury Norov wrote:
+> On Fri, Apr 29, 2022 at 03:59:25PM +0300, Andy Shevchenko wrote:
+> > On Thu, Apr 28, 2022 at 01:51:13PM -0700, Yury Norov wrote:
+> > > Manipulating 64-bit arrays with bitmap functions is potentially dangerous
+> > > because on 32-bit BE machines the order of halfwords doesn't match.
+> > > Another issue is that compiler may throw a warning about out-of-boundary
+> > > access.
 > > > 
-> > > one patch that is sitting already too long in my tree (sorry, was out of
-> > > office some days).
+> > > This patch adds bitmap_{from,to}_arr64 functions in addition to existing
+> > > bitmap_{from,to}_arr32.
 > > 
-> > Hi Christian,
+> > ...
 > > 
-> > at this point I don't have much waiting for 5.18.  Feel free to send it through the s390 tree.
+> > > +	bitmap_copy_clear_tail((unsigned long *) (bitmap),	\
+> > > +			(const unsigned long *) (buf), (nbits))
+> > 
+> > Drop spaces after castings. Besides that it might be placed on a single line.
+> > 
+> > ...
 > 
-> OK.
+> OK
+>  
+> > 
+> > > +	bitmap_copy_clear_tail((unsigned long *) (buf),		\
+> > > +			(const unsigned long *) (bitmap), (nbits))
+> > 
+> > Ditto.
+> > 
+> > ...
+> > 
+> > > +void bitmap_to_arr64(u64 *buf, const unsigned long *bitmap, unsigned int nbits)
+> > > +{
+> > > +	const unsigned long *end = bitmap + BITS_TO_LONGS(nbits);
+> > > +
+> > > +	while (bitmap < end) {
+> > > +		*buf = *bitmap++;
+> > > +		if (bitmap < end)
+> > > +			*buf |= (u64)(*bitmap++) << 32;
+> > > +		buf++;
+> > > +	}
+> > >  
+> > > +	/* Clear tail bits in last element of array beyond nbits. */
+> > > +	if (nbits % 64)
+> > > +		buf[-1] &= GENMASK_ULL(nbits, 0);
+> > 
+> > Hmm... if nbits is > 0 and < 64, wouldn't be this problematic, since
+> > end == bitmap? Or did I miss something?
 > 
-> Heiko, Vasily, can you queue this for your next pull request?
+> BITS_TO_LONGS(0) == 0
+> BITS_TO_LONGS(1..32) == 1
+> BITS_TO_LONGS(33..64) == 2
 > 
-> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> for carrying this via the s390 tree.
+> The only potential problem with buf[-1] is nbits == 0, but fortunately
+> (0 % 64) == 0, and it doesn't happen.
+> 
+> Thanks,
+> Yury
 
-It's now on the fixes branch:
-https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git/log/?h=fixes
+Are there any other concerns? If no, I'll fix formatting and append it to
+bitmap-for-next.
 
-Actually I was waiting if some fixes would come in, since the fixes
-branch also had only one small fix until now.
+Thanks,
+Yury
