@@ -2,204 +2,177 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 58AC3C43219
-	for <linux-s390@archiver.kernel.org>; Mon,  2 May 2022 16:00:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31622C433FE
+	for <linux-s390@archiver.kernel.org>; Mon,  2 May 2022 16:22:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1386068AbiEBQEV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 2 May 2022 12:04:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42332 "EHLO
+        id S242294AbiEBQZk (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 2 May 2022 12:25:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386076AbiEBQEU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 May 2022 12:04:20 -0400
-Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24F0CBC2B;
-        Mon,  2 May 2022 09:00:51 -0700 (PDT)
-Received: by mail-ed1-x535.google.com with SMTP id d6so17121294ede.8;
-        Mon, 02 May 2022 09:00:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=aLDcUxz3GuWsYBElhW2059fIPwppem/EwWmuSm4Ac4s=;
-        b=p2mMHYdm4s0Fe8eLp8ERpUnJyX4PhGrwmqIwslSk6X+INW0IxkvEzoXFPk5VwYyO1a
-         xgug13nZSLsUz2buOHh61+6dEuIB0yNvD1GJRLUTd4rXVHTtZ2bQm7uI52hbmW9lz92I
-         G3g70LDEbT3ChfGiaqyV0ueg72L/6JiMzGNWSua1CDj2q46MAD5Vo3Qj0FjZacUxjx+L
-         irnzdPDPT3QjIzAMCxMVVPmNAZqGsF8AJh9T3H21jyPG8BZSlEorhoD078aLr8QEPsxY
-         ehrVFar8Jdye0i/es4zJWKuaEZK/vAsj/r9ha9j8p+B4ewbP19nc3pcIs2Fu0m3lZW9I
-         tlKg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=aLDcUxz3GuWsYBElhW2059fIPwppem/EwWmuSm4Ac4s=;
-        b=CVFopP47hjifR1DTvxq6Et+N0UUQPiC4lVRWArAB6uYFE5ioriDSnI5WqSLuo6Ub4G
-         IGc+ENkNDzXqVgKQfpJfxjw2qZ53TYLZiyocarVTmq0UGbIUtxz6CcLPl9o/FY8sxaKk
-         cM2qVxAp9VszFT3UpTukwf1ARMVQfiWh6st3dT3hNKYEdMM8IRweOoEFdZRUSwKXkQAn
-         essgGfp6WPJgESYzUbgzZ5ajCp9gJN5HrTUeS9UJP6IX4574gidbbrIjvIjiN+Xxwqp8
-         AoS9ysJRVEhou112JuzbCKJ4INnDT/m9ExsaT+d1u/Dpy6fYD3J22oVMKK57hsxrEnF0
-         H8jg==
-X-Gm-Message-State: AOAM531W3o8lzkt1YtnB3eAlxzJy0lhx/vQvP3y01z6CS0JuvSMVCgyp
-        3GVsdF/u4HfHEkKIoyQ1l/e9p1SZlfZsUQ==
-X-Google-Smtp-Source: ABdhPJxEIZ3VG0JCxGGF6OC6lyuVM4utpAI+bDEKxf+HczJGz8fO+DWFU6VtPAlp6gvFM43q022t0A==
-X-Received: by 2002:a05:6402:5107:b0:427:ded9:9234 with SMTP id m7-20020a056402510700b00427ded99234mr410981edd.275.1651507249567;
-        Mon, 02 May 2022 09:00:49 -0700 (PDT)
-Received: from debianHome.localdomain (dynamic-077-001-135-067.77.1.pool.telefonica.de. [77.1.135.67])
-        by smtp.gmail.com with ESMTPSA id h18-20020a1709070b1200b006f3ef214dd3sm3689996ejl.57.2022.05.02.09.00.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 May 2022 09:00:49 -0700 (PDT)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Cc:     Hans Verkuil <hverkuil@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+        with ESMTP id S241466AbiEBQZi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 May 2022 12:25:38 -0400
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2049.outbound.protection.outlook.com [40.107.92.49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D87AFAE48;
+        Mon,  2 May 2022 09:22:09 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=i3hRw9fhEP7fu9qW3vp/YOyrd5nADwZNYFviPHjhE6hxI/JItQ+/fTa3RNeegiljfI8oDJLWDW16Fxiv2ACB+b2hjzGnqacuEKXkxvZaePCh+PGWLLAyHZJiwkM63t6u3BjSjY/SuoRuciJbm2HY4eVXpI4ZiEzqAj6kDYGi2/yAVPZhpN3rabRrVcf5jtFkIk0dKkV3xgVxcCKKoV+0IkHNhslpEfbe3PO9apbN2d2t4Vc0gb0sKs2wl0/9k488xl6DpWxoqI7/pc/VIx17drpemC0A5ATBZI2qiKZsO2ZaS1cz75EcizLSlCg6KkJ71SgLAlIz7WiIUVmjuWb2kw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=b1FqS86lV6wC9xGaMtJX1UuHTZtydUY4mJK3cOUwIqM=;
+ b=G/RgCxpY+m6TC3geg2YvuNnrnMTrIXYO1CyZVq1IAyCYt4bwOuuleUMF2dUKfW8vxGP+yj6hx/wf8PIONZ8nn3BW25Ku0VUWs/U71VGntdGXByecjd9zX8dcMTw7N9wJxmlDvmIVaGr69gLIUAI3IB3Ro6bVE7Nlx7az2MxlrgeyKkBqinJOZqvoQQkh8D/Cf6TbxqlfTLLW80kO55ivKyDlLwhQxx35blN6vhhwK5gul/qDQmYrNmFlo+XuD3VOMAwS+T1DN/jcTvW9Ozpit4BzDieKYI/1r92YfTk9SCoGj4Di9/R3bUwVI5tkK4/YlVA03SBSxBsELThk8l3CSg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=b1FqS86lV6wC9xGaMtJX1UuHTZtydUY4mJK3cOUwIqM=;
+ b=NaMOYnekRXeNmqZICda/3kRi5fB3nxQgla7MdeLO0g4f/Jo0bSL8AtAjVi4GDxdr0LfqTzokL5p+D6ionpbaeCoia7s8WEfOPobJzaW35pnA85/CxDPqkc2UOQjbgrGV6wXVxEgWzhFB8zf98DeeNESfSNPRBPMwTCCHO5s9YFOFOWU28sWJAScCGnyNhqfRKMMGyGxU78NrfIXZx3EhnbgjDgJn+cs1h61Wmc2/Fp06/L9PBEyRlG6kWqMjoUiQ060Ppb+kjyXgynd1QahY8zVcV2Nv3AiSJ+PosUreVjT8z0pt4zAmkU2ejdow2SKr2Rar0NDx3EW5CHTwOEhNGA==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
+ by MN2PR12MB4831.namprd12.prod.outlook.com (2603:10b6:208:1b9::32) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5186.15; Mon, 2 May
+ 2022 16:22:08 +0000
+Received: from MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::ec2d:9167:1b47:2db2]) by MN2PR12MB4192.namprd12.prod.outlook.com
+ ([fe80::ec2d:9167:1b47:2db2%6]) with mapi id 15.20.5206.024; Mon, 2 May 2022
+ 16:22:08 +0000
+Date:   Mon, 2 May 2022 13:22:06 -0300
+From:   Jason Gunthorpe <jgg@nvidia.com>
+To:     Alex Williamson <alex.williamson@redhat.com>
+Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
+        David Airlie <airlied@linux.ie>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        intel-gfx@lists.freedesktop.org,
+        intel-gvt-dev@lists.freedesktop.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        kvm@vger.kernel.org, Kirti Wankhede <kwankhede@nvidia.com>,
+        linux-doc@vger.kernel.org, linux-s390@vger.kernel.org,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        Serge Hallyn <serge@hallyn.com>, Arnd Bergmann <arnd@arndb.de>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Ondrej Zary <linux@zary.sk>,
-        David Yang <davidcomponentone@gmail.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Colin Ian King <colin.king@intel.com>,
-        Yang Guang <yang.guang5@zte.com.cn>,
-        Julia Lawall <Julia.Lawall@inria.fr>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Du Cheng <ducheng2@gmail.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        linux-media@vger.kernel.org, linux-kernel@vger.kernel.org,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-security-module@vger.kernel.org
-Subject: [PATCH v2 4/8] drivers: use new capable_or functionality
-Date:   Mon,  2 May 2022 18:00:25 +0200
-Message-Id: <20220502160030.131168-3-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220502160030.131168-1-cgzones@googlemail.com>
-References: <20220217145003.78982-2-cgzones@googlemail.com>
- <20220502160030.131168-1-cgzones@googlemail.com>
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "Tian, Kevin" <kevin.tian@intel.com>,
+        "Liu, Yi L" <yi.l.liu@intel.com>
+Subject: Re: [PATCH v2 7/7] vfio: Remove calls to
+ vfio_group_add_container_user()
+Message-ID: <20220502162206.GA439065@nvidia.com>
+References: <0-v2-6011bde8e0a1+5f-vfio_mdev_no_group_jgg@nvidia.com>
+ <7-v2-6011bde8e0a1+5f-vfio_mdev_no_group_jgg@nvidia.com>
+ <20220429142820.6afe7bbe.alex.williamson@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220429142820.6afe7bbe.alex.williamson@redhat.com>
+X-ClientProxiedBy: MN2PR16CA0017.namprd16.prod.outlook.com
+ (2603:10b6:208:134::30) To MN2PR12MB4192.namprd12.prod.outlook.com
+ (2603:10b6:208:1d5::15)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: e24affbf-ad42-4320-23eb-08da2c57e717
+X-MS-TrafficTypeDiagnostic: MN2PR12MB4831:EE_
+X-Microsoft-Antispam-PRVS: <MN2PR12MB483171091609438BF527C94FC2C19@MN2PR12MB4831.namprd12.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: iKknk6/agnHhZ3g5mT4jvLq968oMZXfi9Ta1xl0soQ1kcPN+Z7gVxZ+x6CU8K97WH0DJxzUwwPpMu1d8Db1Zig1FGxtMsX7YKCcKUTzHg8ouuGHKKVIHY8Eo82b087ZBbkGzmkN6b3DFjmbOxPxWqr8yD5lOeze+Hsytf064Wo/KTCDGtciCqAjJpkFsw5aE1lLqbGjUOKQhcGWe6Zv+u7ddTEL1h1DYOY4vg4V2kPVHgHhvk7jnwdZJzKoopxPrxWaU6BlkFaJWHmLX7L8VA0FGo2zmQwkYXOtHHV+kQJYhDBBOf8mV0PHotnPTMKJ/U6bEjIwTOPrjHO3r0F/mGn0gKB50l/HuElOr0KEmmvFofo4mjzwHSFuNw4SxooALcaScqozpzJ/54ULn3kOdY9I7jY3PCtfBtrlQcVbERm9bLK3x5r0Zrk23vUmxG3EvE+VI7hIjtVQJX84lQ7ecT012RJcwjxlLvlvwKsYcDDDte07ZEtMV1KNUnKXY+YTfXU/rO9ZQx+Vy6zodGDJjzCmrmVQmbfulIrT/XriwZtKcmXGKeKBDPSRKLvWZsEDOaujnLbUqKCq9gRs5gZMLD779h9vTX2euZ2glmEN7hUUgxq+6v7ZjV9dubCfx1zIcGROLI9NWALqqNz2npLQS8Vtp0grG1Xf0HdYy4Wwrqz+ZW6mY6QRkMZsJKGhlv5frH0tKKbaUhZ/FNJDO6B9RHQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(83380400001)(186003)(2616005)(1076003)(2906002)(36756003)(26005)(6512007)(8936002)(7416002)(7406005)(6506007)(5660300002)(508600001)(66946007)(66476007)(66556008)(4326008)(33656002)(86362001)(8676002)(6916009)(316002)(54906003)(38100700002)(6486002)(27376004);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?/J/PRIdLivh2byLEaDC1AIzcXLJCETqfg4hOYPfwtdWCJb/gEMYHE7e/WVzg?=
+ =?us-ascii?Q?dEOL2kRH09ZMYZGqo1si+ftF33sEFyOyY7N0yEsXiDhF5VvHlxJPlAuxZfiS?=
+ =?us-ascii?Q?mbmWRsxbcKapxjL6DqrQRpNSCnLB0TlmIBBaI8mC1OvR36w49pPaErkcMHfN?=
+ =?us-ascii?Q?wZJmbgNiH/rJUDfQLBX4kTUuE+krGbHbWD8GDS4pkP1UjGI+o9a46VlqYmdt?=
+ =?us-ascii?Q?/Q2uGqZe6csEnICFLJd8/3AQKy9mpLiZtpd9eU3Pdj2Oc7UBgfnvtyiVP003?=
+ =?us-ascii?Q?2+N9r5rkl3sW2lQB0zcC0bYyeOO5oF0aOUruu4mCdU01ky5iq2sgHM78OiFv?=
+ =?us-ascii?Q?K2HsDEZQ3bNlj2agFkxjA7t/X0GpuAZqqf8QaDYkHk5UO3Hf1Jw8wCuNuY1C?=
+ =?us-ascii?Q?kXqcpsn+5JCrVOcIsXFMwcSvJ55US9MmvzJg92W6EwmGL8wHubCqkE28KdMp?=
+ =?us-ascii?Q?ya38zBSts2yWhgt3AGemtKKG+GjA2fTVy1tAX7PQRcFidjj56c2BXOklvECZ?=
+ =?us-ascii?Q?gXHWti0RO3B2Fw+OQLg5ZMoHQ6pw7ygsjXUhSTNaFBTHyA35kEsSHJ0tkWDd?=
+ =?us-ascii?Q?t1NJtEiLDA73+LoEWUvRVB4e4JDZIdr3o2J5OAUr9dXhA6wyJm9w2G7omgE+?=
+ =?us-ascii?Q?FpLPY7c844B1KVPML1snIh7JiJiP+9ef7QTut7GLAFD/9pItdCzBFUGE6+8g?=
+ =?us-ascii?Q?IoqUQIB7cqiUeWXmbRqVOoVJkhoZZjjfDtacXEwnlIg4XShJLJu19MBLhikN?=
+ =?us-ascii?Q?2DiLjGVd6jMYIPw/NYn4eiYqmSJqCvCy/yMMT44+CugBfhgi2judLAOCdvpx?=
+ =?us-ascii?Q?dfV2CCTuHRilKyH6SxCxHluD8WdA5LHkQL4/NrUtIL+IjasKFklDPB7oj/6F?=
+ =?us-ascii?Q?RqGxCH4rULTl93JxvHO2/exiKnhOSNUPDY0EzIViZ4SQ2bwMk6B71rwyNj6D?=
+ =?us-ascii?Q?9hFlPrmZ5IG17XX6E5Lz+Kzu9YLsEPY7gcd06q+PNSqZj5iofI30h8maM4ya?=
+ =?us-ascii?Q?uShqbUYpXdR+pE/TDrjhWMZU7zXrUWnlle3yXQDFeTNnq/Bf4FZ/zdXmFMbh?=
+ =?us-ascii?Q?sHn5ntTNDRxnGHqmfaKb7YLN6sdHRdXYs/kk/hLVxkYEv1M8vT/IJAhmpUcg?=
+ =?us-ascii?Q?bwU469qI+2m2/utYBYqD5LDkrq712jEWl/amHfO98QWNdu8jnsGVjPaY3ebR?=
+ =?us-ascii?Q?hokJYOEt72DMTkAzSXcqmN0xgZOnO+XganlyMQQ0NhIf7uNqkqiswGXsidNh?=
+ =?us-ascii?Q?SaHY7zIWaL9HX6A6aOClE9dkHGINmbZuUy01OPvv9bIl5DtLSEZCR5aAE00t?=
+ =?us-ascii?Q?UI4ySFx4ir8ovXRANi5vScTFM3594HaiyIzvm0XZSLQn+xdIJkUvvUlgZROX?=
+ =?us-ascii?Q?ktwxJpKy+OByb6dcIuX9HFUCEFmYDC0IJKEeSjbidayQo1FqdUU5iEa6VAtI?=
+ =?us-ascii?Q?q0PPukhEGfDNNckWxiUd5oU0b4nFRiyyB1k14lhqsAjKzr9F5NRSOXVCoDzg?=
+ =?us-ascii?Q?Mf+oSMqwewmLfECGQBJzyMlC/Pej7F3QqYury2M+ZwmAcTjGKUrN/yUpyQnS?=
+ =?us-ascii?Q?X56AGh9sp07UWZK/0yVmbCGIfm3Nse0Jbqjhh3cUKmc4iHdw4BVMtcEAhvdv?=
+ =?us-ascii?Q?s1kM7rA/vcjLSAN/KQeLRrSiwGT5LeVCHn51/0dLZyamVbSLca7YVjeLoa1I?=
+ =?us-ascii?Q?5B8ZTgRSrGOnTJ49BzLFEKEYcycPYIQZYdsN5tzFV8LBt53mp2zrMo94bD56?=
+ =?us-ascii?Q?5qkh6PLPhA=3D=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: e24affbf-ad42-4320-23eb-08da2c57e717
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 May 2022 16:22:08.0457
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 48VJowsjFYyFFQCafcNgN2X795LNXGTYUygKbG4gPMDzUijXyH++m3NQ6n5aLI3T
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB4831
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Use the new added capable_or function in appropriate cases, where a task
-is required to have any of two capabilities.
+On Fri, Apr 29, 2022 at 02:28:20PM -0600, Alex Williamson wrote:
+> On Thu, 21 Apr 2022 13:28:38 -0300
+> Jason Gunthorpe <jgg@nvidia.com> wrote:
+> 
+> > When the open_device() op is called the container_users is incremented and
+> > held incremented until close_device(). Thus, so long as drivers call
+> > functions within their open_device()/close_device() region they do not
+> > need to worry about the container_users.
+> > 
+> > These functions can all only be called between open_device() and
+> > close_device():
+> > 
+> >   vfio_pin_pages()
+> >   vfio_unpin_pages()
+> >   vfio_dma_rw()
+> >   vfio_register_notifier()
+> >   vfio_unregister_notifier()
+> > 
+> > Eliminate the calls to vfio_group_add_container_user() and add
+> > vfio_assert_device_open() to detect driver mis-use.
+> 
+> A comment here explaining that decrementing open_count is pushed until
+> after close_device to support this feature would help to explain the
+> somewhat subtle change in vfio_group_get_device_fd().
 
-Reorder CAP_SYS_ADMIN last.
+I changed it like this:
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
- drivers/media/common/saa7146/saa7146_video.c     | 2 +-
- drivers/media/pci/bt8xx/bttv-driver.c            | 3 +--
- drivers/media/pci/saa7134/saa7134-video.c        | 3 +--
- drivers/media/platform/nxp/fsl-viu.c             | 2 +-
- drivers/media/test-drivers/vivid/vivid-vid-cap.c | 2 +-
- drivers/net/caif/caif_serial.c                   | 2 +-
- drivers/s390/block/dasd_eckd.c                   | 2 +-
- 7 files changed, 7 insertions(+), 9 deletions(-)
+Eliminate the calls to vfio_group_add_container_user() and add
+vfio_assert_device_open() to detect driver mis-use. This causes the
+close_device() op to check device->open_count so always leave it elevated
+while calling the op.
 
-diff --git a/drivers/media/common/saa7146/saa7146_video.c b/drivers/media/common/saa7146/saa7146_video.c
-index 66215d9106a4..5eabc2e77cc2 100644
---- a/drivers/media/common/saa7146/saa7146_video.c
-+++ b/drivers/media/common/saa7146/saa7146_video.c
-@@ -470,7 +470,7 @@ static int vidioc_s_fbuf(struct file *file, void *fh, const struct v4l2_framebuf
- 
- 	DEB_EE("VIDIOC_S_FBUF\n");
- 
--	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RAWIO))
-+	if (!capable_or(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
- 		return -EPERM;
- 
- 	/* check args */
-diff --git a/drivers/media/pci/bt8xx/bttv-driver.c b/drivers/media/pci/bt8xx/bttv-driver.c
-index 5ca3d0cc653a..4143f380d44d 100644
---- a/drivers/media/pci/bt8xx/bttv-driver.c
-+++ b/drivers/media/pci/bt8xx/bttv-driver.c
-@@ -2569,8 +2569,7 @@ static int bttv_s_fbuf(struct file *file, void *f,
- 	const struct bttv_format *fmt;
- 	int retval;
- 
--	if (!capable(CAP_SYS_ADMIN) &&
--		!capable(CAP_SYS_RAWIO))
-+	if (!capable_or(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
- 		return -EPERM;
- 
- 	/* check args */
-diff --git a/drivers/media/pci/saa7134/saa7134-video.c b/drivers/media/pci/saa7134/saa7134-video.c
-index 48543ad3d595..684208ebfdbd 100644
---- a/drivers/media/pci/saa7134/saa7134-video.c
-+++ b/drivers/media/pci/saa7134/saa7134-video.c
-@@ -1798,8 +1798,7 @@ static int saa7134_s_fbuf(struct file *file, void *f,
- 	struct saa7134_dev *dev = video_drvdata(file);
- 	struct saa7134_format *fmt;
- 
--	if (!capable(CAP_SYS_ADMIN) &&
--	   !capable(CAP_SYS_RAWIO))
-+	if (!capable_or(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
- 		return -EPERM;
- 
- 	/* check args */
-diff --git a/drivers/media/platform/nxp/fsl-viu.c b/drivers/media/platform/nxp/fsl-viu.c
-index afc96f6db2a1..c5ed4c4a1587 100644
---- a/drivers/media/platform/nxp/fsl-viu.c
-+++ b/drivers/media/platform/nxp/fsl-viu.c
-@@ -803,7 +803,7 @@ static int vidioc_s_fbuf(struct file *file, void *priv, const struct v4l2_frameb
- 	const struct v4l2_framebuffer *fb = arg;
- 	struct viu_fmt *fmt;
- 
--	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RAWIO))
-+	if (!capable_or(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
- 		return -EPERM;
- 
- 	/* check args */
-diff --git a/drivers/media/test-drivers/vivid/vivid-vid-cap.c b/drivers/media/test-drivers/vivid/vivid-vid-cap.c
-index b9caa4b26209..a0cfcf6c22c4 100644
---- a/drivers/media/test-drivers/vivid/vivid-vid-cap.c
-+++ b/drivers/media/test-drivers/vivid/vivid-vid-cap.c
-@@ -1253,7 +1253,7 @@ int vivid_vid_cap_s_fbuf(struct file *file, void *fh,
- 	if (dev->multiplanar)
- 		return -ENOTTY;
- 
--	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RAWIO))
-+	if (!capable_or(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
- 		return -EPERM;
- 
- 	if (dev->overlay_cap_owner)
-diff --git a/drivers/net/caif/caif_serial.c b/drivers/net/caif/caif_serial.c
-index 688075859ae4..f17b618d8858 100644
---- a/drivers/net/caif/caif_serial.c
-+++ b/drivers/net/caif/caif_serial.c
-@@ -326,7 +326,7 @@ static int ldisc_open(struct tty_struct *tty)
- 	/* No write no play */
- 	if (tty->ops->write == NULL)
- 		return -EOPNOTSUPP;
--	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_TTY_CONFIG))
-+	if (!capable_or(CAP_SYS_TTY_CONFIG, CAP_SYS_ADMIN))
- 		return -EPERM;
- 
- 	/* release devices to avoid name collision */
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index 8410a25a65c1..9b5d22dd3e7b 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -5319,7 +5319,7 @@ static int dasd_symm_io(struct dasd_device *device, void __user *argp)
- 	char psf0, psf1;
- 	int rc;
- 
--	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RAWIO))
-+	if (!capable_or(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
- 		return -EACCES;
- 	psf0 = psf1 = 0;
- 
--- 
-2.36.0
-
+Thanks,
+Jason
