@@ -2,69 +2,113 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 70541C433FE
-	for <linux-s390@archiver.kernel.org>; Sat, 30 Apr 2022 19:11:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D43F8C433F5
+	for <linux-s390@archiver.kernel.org>; Mon,  2 May 2022 07:58:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244511AbiD3TPF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 30 Apr 2022 15:15:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36852 "EHLO
+        id S1381222AbiEBICU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 2 May 2022 04:02:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244442AbiD3TPB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 30 Apr 2022 15:15:01 -0400
-Received: from mail2-relais-roc.national.inria.fr (mail2-relais-roc.national.inria.fr [192.134.164.83])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43F924FC56;
-        Sat, 30 Apr 2022 12:11:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=inria.fr; s=dc;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=dTCORFgd4jCzWeUzesuOaQD3lDWMIHwEYU6tlvZ83+g=;
-  b=OrYEYOKkZzBCuUMcn2bqN1dniJTGhnKTIqSwJe4oHEORN+FCCcTHeMi5
-   nyuONW0G3Djx3C7G78jOQH8z9REk1umwfbFUGiTntJiA/vs7I623XmBGR
-   7lF3WUTsQyxRHS+N7oqXllMFB2kAiYtCWm8SqngBnlQ5n9S1/CNEYrwZX
-   U=;
-Authentication-Results: mail2-relais-roc.national.inria.fr; dkim=none (message not signed) header.i=none; spf=SoftFail smtp.mailfrom=Julia.Lawall@inria.fr; dmarc=fail (p=none dis=none) d=inria.fr
-X-IronPort-AV: E=Sophos;i="5.91,188,1647298800"; 
-   d="scan'208";a="34084618"
-Received: from i80.paris.inria.fr (HELO i80.paris.inria.fr.) ([128.93.90.48])
-  by mail2-relais-roc.national.inria.fr with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Apr 2022 21:11:32 +0200
-From:   Julia Lawall <Julia.Lawall@inria.fr>
-To:     Heiko Carstens <hca@linux.ibm.com>
-Cc:     kernel-janitors@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390/hypfs: fix typos in comments
-Date:   Sat, 30 Apr 2022 21:11:19 +0200
-Message-Id: <20220430191122.8667-5-Julia.Lawall@inria.fr>
-X-Mailer: git-send-email 2.20.1
+        with ESMTP id S1358979AbiEBICS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 May 2022 04:02:18 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3F682C649;
+        Mon,  2 May 2022 00:58:50 -0700 (PDT)
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2427eQU7013210;
+        Mon, 2 May 2022 07:58:45 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=R6Znuo0uXIGgRF6ohS4ohIBGd/RGextPHf71KJR13a0=;
+ b=EqFbyO+jnAJweyJE9ZKRHbbHLnAxdVp1uLFxRBn9IbDUUiy2E+dYZGxNVUasmiMIMMlR
+ EnjTqX3I79ZC5NYwa++o1R6yaHpyl55m1MGW/jqryvf1miNNcVk6LI+YyNACN5sRT18u
+ 9QvPFo0nDh6CqxJ4dHhKNZ7SdV+gaSZR2JVfBFDTWBNocF2zKxbBFKg3LVvWcE190nUX
+ IPHZcnstRDs78UkymiVau2+P+kocpZLR/9FF5ise3cAeBOq6saDHsTU5naitij7qULrL
+ 5MqX4dJe7LmyaoZa/W1QrLqrddYaiAcrIkztkKuNxhlBRGnhNltng0rlfL8Dh9edwSuA sQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3ftawsgdvm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 02 May 2022 07:58:45 +0000
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2427wjl1018914;
+        Mon, 2 May 2022 07:58:45 GMT
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3ftawsgdv6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 02 May 2022 07:58:44 +0000
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2427w9Oh013238;
+        Mon, 2 May 2022 07:58:43 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma01fra.de.ibm.com with ESMTP id 3frvr8sx55-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 02 May 2022 07:58:42 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2427wgUo26083626
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 2 May 2022 07:58:42 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BAF354C04E;
+        Mon,  2 May 2022 07:58:39 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 287264C046;
+        Mon,  2 May 2022 07:58:39 +0000 (GMT)
+Received: from [9.171.12.235] (unknown [9.171.12.235])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon,  2 May 2022 07:58:39 +0000 (GMT)
+Message-ID: <385126e7-b74b-1826-c134-3efd278e5b79@linux.ibm.com>
+Date:   Mon, 2 May 2022 09:58:38 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Subject: Re: [PATCH v2 0/2] Dirtying, failing memop: don't indicate
+ suppression
+Content-Language: en-US
+To:     Janosch Frank <frankja@linux.ibm.com>,
+        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org,
+        Shuah Khan <shuah@kernel.org>, linux-kselftest@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20220425100147.1755340-1-scgl@linux.ibm.com>
+ <8095d0de-dd99-0388-b1d4-e59b01dc4be0@linux.ibm.com>
+ <13d0d706-abc4-3e4d-88c3-6447636fd1fd@linux.ibm.com>
+ <1ccb1333-2233-8832-4102-a6c082b29108@linux.ibm.com>
+ <40038a9a-5647-c355-bad2-297b0a2baf4f@linux.ibm.com>
+From:   Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <40038a9a-5647-c355-bad2-297b0a2baf4f@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 5NTPEpSkXRcq0OaGO40nmWBv0goR-Gm9
+X-Proofpoint-ORIG-GUID: Oz37-pxOBfToHskwywnjIPdnyoPIKnaQ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-02_02,2022-04-28_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ lowpriorityscore=0 adultscore=0 suspectscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 priorityscore=1501 phishscore=0 impostorscore=0 mlxscore=0
+ mlxlogscore=788 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2205020058
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Various spelling mistakes in comments.
-Detected with the help of Coccinelle.
+Am 26.04.22 um 09:25 schrieb Janosch Frank:
+> 
+> To me this measure looks like a last resort option and the POP doesn't state a 100% what is to be done. Some instructions can mandate suppression instead of termination according to the architects.
+> 
+> My intuition tells me that if we are in a situation where this would happen then we would be much better off just doing it by hand (i.e. in the instruction emulation code) and not letting this function decide.
+> 
+> So I'm not entirely sure if we're replacing something that is not correct with something that also won't be correct for all cases.
+> 
+> But to summarize this: I'm not entirely sure even after reading the POP for more than an hour and consulting an architect
 
-Signed-off-by: Julia Lawall <Julia.Lawall@inria.fr>
-
----
- arch/s390/hypfs/hypfs_vm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/s390/hypfs/hypfs_vm.c b/arch/s390/hypfs/hypfs_vm.c
-index 3765c2d81df5..a3d881ca0a98 100644
---- a/arch/s390/hypfs/hypfs_vm.c
-+++ b/arch/s390/hypfs/hypfs_vm.c
-@@ -190,7 +190,7 @@ int hypfs_vm_create_files(struct dentry *root)
- 	if (IS_ERR(data))
- 		return PTR_ERR(data);
- 
--	/* Hpervisor Info */
-+	/* Hypervisor Info */
- 	dir = hypfs_mkdir(root, "hyp");
- 	if (IS_ERR(dir)) {
- 		rc = PTR_ERR(dir);
-
+According to Damian, the definition in the POP is exactly the way it is to cover for z/VMs way of handling key protection for long operatings in a terminating fashion since the 70ies or 80ies.
+As it is fine for z/VM (and then also for z/OS and zVSE under z/VM) I guess we can (and should) mimic that behaviour.
