@@ -2,137 +2,108 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BB10C433FE
-	for <linux-s390@archiver.kernel.org>; Mon,  2 May 2022 09:39:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0180BC433F5
+	for <linux-s390@archiver.kernel.org>; Mon,  2 May 2022 09:39:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384264AbiEBJnC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 2 May 2022 05:43:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45548 "EHLO
+        id S1384308AbiEBJnF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 2 May 2022 05:43:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382377AbiEBJnC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 May 2022 05:43:02 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1678511144;
-        Mon,  2 May 2022 02:39:34 -0700 (PDT)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2428ADwM031519;
-        Mon, 2 May 2022 09:39:33 GMT
+        with ESMTP id S1384319AbiEBJnF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 May 2022 05:43:05 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0070E1F635;
+        Mon,  2 May 2022 02:39:36 -0700 (PDT)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2429AW1Y023526;
+        Mon, 2 May 2022 09:39:36 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=uBUEP4IVJ/UpVM8bS+tTYqgJq7RGCjFh55cg67cXDrA=;
- b=ThfGBit+iSoCcuRMIk08qx2FSGWfthSttoZk/HXh3KcpGT67zctYVFuN6CJlx2DkQyw4
- PtCQpM25VvkS5UHlz4xl2cf3+Arkhy9DcXa1j7/Rw5pk+EGw7cZeW7/ygt/+RTNP8MKR
- hy/danywKZtkNWz+V5RBEHYp+Dwk4ncgX1sjUGC5Og2xtsM9e+457C2SVxg7KwroEy7D
- 4iE27s8LsrWJ1v04O3OM0e2dIPpOZoQoorD3w174mLN0XzGi5v8TBy7AQPWTL3bA+XVn
- h7X5/QkvQMsUANumpMysweidmbpzD536N0w+qSRWsgUZveUpiOvbHcReOU9NCwqtzqKG 7A== 
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=YeEcwzoQU2gf96jlbH7OCr7mO808nxIs0WgsMo5NncI=;
+ b=niqZvD7QjHRULzDsd+isELsRUHHNplGy/4SAwDQ99nBsacYg5ZDKVkn3yShXeZ8unfGt
+ acAzFHmq77TVr1qiAUzco6q9/tYjB5jruNtlk/FUO23ZjFR0WWtUHt7XWF7T6g6kIXWQ
+ rIM1WpRf2Ukhc+P6liX5xE1POiGG6b6IoS04yp4+5VQ++wfmCsQYRDS3ShD93wEU4cdZ
+ ZF/yy+HCG28XqWADVo56mrX9jX9dLr/92r69lKu/V3Yd16NamB10CUuRT5uUu7uJgGjO
+ bOHuRMMPFAzDdfWQ5gDmhICCZdEQvLjtTiJ/dLw6uSS+dfwXTaFRjxTm/x/i/9q1xppV Gw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fta1bk651-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ftc988j16-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 02 May 2022 09:39:33 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2429dHub017814;
+        Mon, 02 May 2022 09:39:36 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2429WMLH000917;
+        Mon, 2 May 2022 09:39:35 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ftc988j0m-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 02 May 2022 09:39:35 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2429dEs5003965;
         Mon, 2 May 2022 09:39:33 GMT
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fta1bk64g-1
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma04ams.nl.ibm.com with ESMTP id 3frvr8tfam-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Mon, 02 May 2022 09:39:33 +0000
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2429c9MC002355;
-        Mon, 2 May 2022 09:39:30 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma05fra.de.ibm.com with ESMTP id 3frvr8j1dn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 02 May 2022 09:39:30 +0000
 Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2429dRA845547884
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2429dUkc46268906
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 2 May 2022 09:39:27 GMT
+        Mon, 2 May 2022 09:39:30 GMT
 Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E832BAE04D;
-        Mon,  2 May 2022 09:39:26 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 97662AE053;
+        Mon,  2 May 2022 09:39:30 +0000 (GMT)
 Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 329B8AE045;
-        Mon,  2 May 2022 09:39:26 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id CC68FAE045;
+        Mon,  2 May 2022 09:39:29 +0000 (GMT)
 Received: from linux7.. (unknown [9.114.12.92])
         by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon,  2 May 2022 09:39:26 +0000 (GMT)
+        Mon,  2 May 2022 09:39:29 +0000 (GMT)
 From:   Steffen Eiden <seiden@linux.ibm.com>
 To:     Thomas Huth <thuth@redhat.com>,
         Janosch Frank <frankja@linux.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
         David Hildenbrand <david@redhat.com>
 Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH v5 0/6] s390x: Attestation tests
-Date:   Mon,  2 May 2022 09:39:19 +0000
-Message-Id: <20220502093925.4118-1-seiden@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v5 4/6] s390x: uv-guest: Remove double report_prefix_pop
+Date:   Mon,  2 May 2022 09:39:23 +0000
+Message-Id: <20220502093925.4118-5-seiden@linux.ibm.com>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20220502093925.4118-1-seiden@linux.ibm.com>
+References: <20220502093925.4118-1-seiden@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: JSr1nCvLGtV30Rgx2uw-ZifwCmQiGYmu
-X-Proofpoint-ORIG-GUID: 3u-xuftLjIIbN1xlJPBr5R3ssIUEUyPt
+X-Proofpoint-GUID: 1mCJ5ZMZDmlM2dCGnujXmulCd2r9FFps
+X-Proofpoint-ORIG-GUID: 1rUNl2ahIkicXEf2jgVrBbYbbB50vWds
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-05-02_03,2022-04-28_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
- lowpriorityscore=0 spamscore=0 malwarescore=0 phishscore=0
- priorityscore=1501 impostorscore=0 mlxlogscore=999 adultscore=0
- suspectscore=0 clxscore=1015 mlxscore=0 classifier=spam adjust=0
- reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2205020074
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 spamscore=0
+ clxscore=1015 adultscore=0 bulkscore=0 mlxlogscore=999 impostorscore=0
+ priorityscore=1501 suspectscore=0 lowpriorityscore=0 mlxscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2205020074
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-This series adds some test in s390x/uv-guest.c verifying error paths of the
-Request Attestation Measurement UVC.
-Also adds a test in s390x/uv-host.c to verify that the
-Request Attestation Measurement UVC cannot be called in guest1.
+Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+---
+ s390x/uv-guest.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-Additionally, adds a shared bit test and removes duplicated tests.
-
-v4->v5:
-  * added r-b from Janosch
-  * fixed some nits
-  * Added PATCH to remove double prefix_pop in uv-guest
-  * renamed latch PATCH
-
-v3->v4:
-  * renamed PATCH 1
-  * moved attestation guest tests into own file
-  * rebased onto current master
-
-v2->v3:
-  * added test for share bits as new PATCH 4/5
-  * added r-b from Claudio in PATCH 1/4
-  * replaced all u* with uint*_t
-  * incorporated misc feedback from Claudio
-
-v1->v2:
-  * renamed 'uv_get_info(void)' to 'uv_get_query_data(void)'
-  * renamed various fields in 'struct uv_arcb_v1'
-  * added a test for invalid additional size
-  * added r-b from Janosch in PATCH 1/4
-  * added r-b from Janosch in PATCH 3/4
-
-Steffen Eiden (6):
-  s390x: uv-host: Add invalid command attestation check
-  s390x: lib: Add QUI getter
-  s390x: uv-guest: remove duplicated checks
-  s390x: uv-guest: Remove double report_prefix_pop
-  s390x: uv-guest: add share bit test
-  s390x: Add attestation tests
-
- lib/s390x/asm/uv.h |  28 +++++-
- lib/s390x/uv.c     |   8 ++
- lib/s390x/uv.h     |   1 +
- s390x/Makefile     |   1 +
- s390x/pv-attest.c  | 225 +++++++++++++++++++++++++++++++++++++++++++++
- s390x/uv-guest.c   |  51 ++++++----
- s390x/uv-host.c    |   1 +
- 7 files changed, 295 insertions(+), 20 deletions(-)
- create mode 100644 s390x/pv-attest.c
-
+diff --git a/s390x/uv-guest.c b/s390x/uv-guest.c
+index 728c60aa..fd2cfef1 100644
+--- a/s390x/uv-guest.c
++++ b/s390x/uv-guest.c
+@@ -111,8 +111,6 @@ static void test_sharing(void)
+ 	cc = uv_call(0, (u64)&uvcb);
+ 	report(cc == 0 && uvcb.header.rc == UVC_RC_EXECUTED, "unshare");
+ 	report_prefix_pop();
+-
+-	report_prefix_pop();
+ }
+ 
+ static struct {
 -- 
 2.30.2
 
