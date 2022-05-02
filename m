@@ -2,145 +2,118 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8265C433EF
-	for <linux-s390@archiver.kernel.org>; Mon,  2 May 2022 15:31:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29CC8C4332F
+	for <linux-s390@archiver.kernel.org>; Mon,  2 May 2022 15:38:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385795AbiEBPeh (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 2 May 2022 11:34:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40250 "EHLO
+        id S1381571AbiEBPlj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 2 May 2022 11:41:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385775AbiEBPeg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 May 2022 11:34:36 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01506101D4;
-        Mon,  2 May 2022 08:31:01 -0700 (PDT)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 242EoOHk026423;
-        Mon, 2 May 2022 15:31:01 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=VweGRJga5lJ+7d9nSzCV68L/gXM8BKVY0knL58Lll8o=;
- b=qw/kn9srPV8D8kxWPm/Zmsl22+0gcHqXLfwTgNWLci1EwhDXgPBlzC99Bl9q7hbfPiK4
- DLZfb5Ucg3zTJZqCxjTo9P+H/CbrBketc96zB8x18TWSo9C1xpTM5YW3mdToB7gDaBNm
- 62rF4LOomJ7N18LU/b7jyBqtGtR5CUIFs2FnzMdtGrqplO9ovRN0WVeooIuQq0KsXCCW
- T2iAHnZZhnYNSgJMFd9Cdn6b8FgRBbqsjbuxdKrkw8teMye2Pyk6DqztMevSFgFV/U5G
- /o2iZ7Q39B9I8vZIpoySAw8WOYt7FTl8wjncuVDpzKgOtxM4uRWbT9qF+STXqHzDMtt1 XA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fth1jsh7j-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 02 May 2022 15:31:00 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 242FV0qq032167;
-        Mon, 2 May 2022 15:31:00 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fth1jsh6v-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 02 May 2022 15:31:00 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 242FSEQq012022;
-        Mon, 2 May 2022 15:30:58 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma04fra.de.ibm.com with ESMTP id 3frvr8tbpx-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 02 May 2022 15:30:57 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 242FUsBl58327384
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 2 May 2022 15:30:54 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C5AFF11C052;
-        Mon,  2 May 2022 15:30:54 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B3E4F11C050;
-        Mon,  2 May 2022 15:30:54 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Mon,  2 May 2022 15:30:54 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 25651)
-        id 77F79E02C7; Mon,  2 May 2022 17:30:54 +0200 (CEST)
-From:   Christian Borntraeger <borntraeger@linux.ibm.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>
-Subject: [GIT PULL 1/1] KVM: s390: Fix lockdep issue in vm memop
-Date:   Mon,  2 May 2022 17:30:53 +0200
-Message-Id: <20220502153053.6460-2-borntraeger@linux.ibm.com>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220502153053.6460-1-borntraeger@linux.ibm.com>
-References: <20220502153053.6460-1-borntraeger@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: R5LWn7ohBGxFQFkQwkXAa7JWDRfqWGGG
-X-Proofpoint-GUID: bHv7H47JsW119N-XIPyuIdMhjnK3jL9H
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S234055AbiEBPlh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 May 2022 11:41:37 -0400
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 276C46569;
+        Mon,  2 May 2022 08:38:08 -0700 (PDT)
+Received: by mail-pl1-x634.google.com with SMTP id i1so6602692plg.7;
+        Mon, 02 May 2022 08:38:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=G3glF1N1lkKRH3me6ZqnttV9WJnWFWFCivroWGr8uPw=;
+        b=jnlfZk0MfWr19qnX7NNM7gjFbPrAaWIfsyMT/a2rh5ffB/v2pJfbjyvAq97gGIe7rG
+         uTUMZLa+nH4Wi+FN1pN2qcbvqHIR7otQfoQlalMkw87IR+nh4GjHlRC2yY+aj07x7Zne
+         zGxtELORRMhqCmhbzrZiK6h4L9mSjjEbD0e/BNWv1R3qQVzAWwb6BmkzUoGpIqPCgA0+
+         2ObdH2Pg4hawFfFic1Il4G3F/+ejKXGEvbg5eg2rTiwMZw7T8927WOyZTHdoi9Cab9u+
+         ja/WP8lvKP5PRcbOA34iZHYDbBB8sQnBVMJ+5O9kafsYw33rMK6sYehTkd+7FNKb5q1e
+         OVZA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=G3glF1N1lkKRH3me6ZqnttV9WJnWFWFCivroWGr8uPw=;
+        b=ggQ+BhhSpV7UcC/hLOGkUd+P217e3yvV6Pckp1U7EPJAAEaK02b/iLypEy5a7Lk8Rs
+         lWbYG+0ZVqNhkAdOHoRWbb9Q4rFdBbJRwdCmx1383r/kjg8UOemym4nCVMVynN2BOg68
+         1JO2ncOl/vfQMTut9czrWmawF5Bbs1hlGOVQlWcz1nUClE+W9MDTGBkBMG3rsd9cML59
+         CfxfDdf/CPakR+GWhbypk9Zh/6zIkSbLrVzxJVkbXE42N3eC4mJWi5FGXENJHuxEgO9C
+         8VTmiDAjrXA0GoJf6v7ko2ZzGE3krmM9dyN6N1BWdkmE9c3gIiLrxJrlk8or+7a8B80h
+         MMtw==
+X-Gm-Message-State: AOAM5315idI4miIGDjidt8gZQmm5F+8zr/gsP0sudzNpnOJJGNibBD9r
+        FliLNIsCbzZ9uQQkFIHHNy4=
+X-Google-Smtp-Source: ABdhPJz2mcdlrFcmvMvPOd4zB8ruKzEKevBlh0oNjAFvQiI4OOjKtV9AXzvbEK94SOMfNeMR9xysnA==
+X-Received: by 2002:a17:903:230f:b0:15e:6e55:3230 with SMTP id d15-20020a170903230f00b0015e6e553230mr12264443plh.35.1651505887371;
+        Mon, 02 May 2022 08:38:07 -0700 (PDT)
+Received: from [192.168.1.3] (ip72-194-116-95.oc.oc.cox.net. [72.194.116.95])
+        by smtp.gmail.com with ESMTPSA id ba1-20020a170902720100b0015e8d4eb1e6sm4806927plb.48.2022.05.02.08.38.03
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 02 May 2022 08:38:06 -0700 (PDT)
+Message-ID: <eaf3a893-00dd-8717-202e-911b395670e1@gmail.com>
+Date:   Mon, 2 May 2022 08:38:02 -0700
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-02_04,2022-05-02_03,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0 mlxscore=0
- impostorscore=0 bulkscore=0 adultscore=0 clxscore=1015 spamscore=0
- suspectscore=0 mlxlogscore=999 phishscore=0 priorityscore=1501
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205020118
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.1
+Subject: Re: [PATCH 15/30] bus: brcmstb_gisb: Clean-up panic/die notifiers
+Content-Language: en-US
+To:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+        akpm@linux-foundation.org, bhe@redhat.com, pmladek@suse.com,
+        kexec@lists.infradead.org
+Cc:     linux-kernel@vger.kernel.org,
+        bcm-kernel-feedback-list@broadcom.com, coresight@lists.linaro.org,
+        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-edac@vger.kernel.org,
+        linux-hyperv@vger.kernel.org, linux-leds@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
+        netdev@vger.kernel.org, openipmi-developer@lists.sourceforge.net,
+        rcu@vger.kernel.org, sparclinux@vger.kernel.org,
+        xen-devel@lists.xenproject.org, x86@kernel.org,
+        kernel-dev@igalia.com, kernel@gpiccoli.net, halves@canonical.com,
+        fabiomirmar@gmail.com, alejandro.j.jimenez@oracle.com,
+        andriy.shevchenko@linux.intel.com, arnd@arndb.de, bp@alien8.de,
+        corbet@lwn.net, d.hatayama@jp.fujitsu.com,
+        dave.hansen@linux.intel.com, dyoung@redhat.com,
+        feng.tang@intel.com, gregkh@linuxfoundation.org,
+        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
+        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
+        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
+        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
+        senozhatsky@chromium.org, stern@rowland.harvard.edu,
+        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
+        will@kernel.org, Brian Norris <computersforpeace@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>
+References: <20220427224924.592546-1-gpiccoli@igalia.com>
+ <20220427224924.592546-16-gpiccoli@igalia.com>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220427224924.592546-16-gpiccoli@igalia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-From: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
 
-Issuing a vm memop on a protected vm does not make sense,
-neither is the memory readable/writable, nor does it make sense to check
-storage keys. This is why the ioctl will return -EINVAL when it detects
-the vm to be protected. However, in order to ensure that the vm cannot
-become protected during the memop, the kvm->lock would need to be taken
-for the duration of the ioctl. This is also required because
-kvm_s390_pv_is_protected asserts that the lock must be held.
-Instead, don't try to prevent this. If user space enables secure
-execution concurrently with a memop it must accecpt the possibility of
-the memop failing.
-Still check if the vm is currently protected, but without locking and
-consider it a heuristic.
 
-Fixes: ef11c9463ae0 ("KVM: s390: Add vm IOCTL for key checked guest absolute memory access")
-Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220322153204.2637400-1-scgl@linux.ibm.com
-Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
----
- arch/s390/kvm/kvm-s390.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+On 4/27/2022 3:49 PM, Guilherme G. Piccoli wrote:
+> This patch improves the panic/die notifiers in this driver by
+> making use of a passed "id" instead of comparing pointer
+> address; also, it removes an useless prototype declaration
+> and unnecessary header inclusion.
+> 
+> This is part of a panic notifiers refactor - this notifier in
+> the future will be moved to a new list, that encompass the
+> information notifiers only.
+> 
+> Fixes: 9eb60880d9a9 ("bus: brcmstb_gisb: add notifier handling")
+> Cc: Brian Norris <computersforpeace@gmail.com>
+> Cc: Florian Fainelli <f.fainelli@gmail.com>
+> Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index b53ff693b66e..7240a781ea82 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2385,7 +2385,16 @@ static int kvm_s390_vm_mem_op(struct kvm *kvm, struct kvm_s390_mem_op *mop)
- 		return -EINVAL;
- 	if (mop->size > MEM_OP_MAX_SIZE)
- 		return -E2BIG;
--	if (kvm_s390_pv_is_protected(kvm))
-+	/*
-+	 * This is technically a heuristic only, if the kvm->lock is not
-+	 * taken, it is not guaranteed that the vm is/remains non-protected.
-+	 * This is ok from a kernel perspective, wrongdoing is detected
-+	 * on the access, -EFAULT is returned and the vm may crash the
-+	 * next time it accesses the memory in question.
-+	 * There is no sane usecase to do switching and a memop on two
-+	 * different CPUs at the same time.
-+	 */
-+	if (kvm_s390_pv_get_handle(kvm))
- 		return -EINVAL;
- 	if (mop->flags & KVM_S390_MEMOP_F_SKEY_PROTECTION) {
- 		if (access_key_invalid(mop->key))
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+
+Not sure if the Fixes tag is warranted however as this is a clean up, 
+and not really fixing a bug.
 -- 
-2.35.1
-
+Florian
