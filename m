@@ -2,206 +2,149 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CB75C433F5
-	for <linux-s390@archiver.kernel.org>; Tue,  3 May 2022 00:54:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E0CEC433FE
+	for <linux-s390@archiver.kernel.org>; Tue,  3 May 2022 02:19:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229686AbiECA5l (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 2 May 2022 20:57:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44356 "EHLO
+        id S230034AbiECCWm (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 2 May 2022 22:22:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229447AbiECA5k (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 May 2022 20:57:40 -0400
-Received: from mail-il1-x130.google.com (mail-il1-x130.google.com [IPv6:2607:f8b0:4864:20::130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91D9441FB4;
-        Mon,  2 May 2022 17:54:06 -0700 (PDT)
-Received: by mail-il1-x130.google.com with SMTP id e1so8890346ile.2;
-        Mon, 02 May 2022 17:54:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=z6SbXsprQLOiqwaC6PZW9LYNv33UTf7Rzrgeep2Yrzw=;
-        b=Tfr3MWYtyNj6k0jjfWdSkBf5DEtonztrmR7vYz0crnSoOXpnvPP+UxjlvU4CWZxNCk
-         IczE0YCSTnOBGyNsnBSgY4uu+04H8ZKgFpGvgrb0yAxoaN0LKphArPpDoj+EjdJ/2caO
-         fYCXFiMV3CgD+4Vd+yfDNnQKpqYFfR1eoia0y4IOoBE1p4oNCdv8RyHZ/AP7rJLbR8uN
-         I3+4DN755uz5DDFXVZ4Eq6ZtUIliblbq31AVTpBz5hsrymUVL2hob361vbHSWu0iGJqA
-         bgQxzDp0+XcltNZ5gkPZ5MywZEcxq7iiYl5yPFzF8GiREAXYCB6lypVp5p1r7fEdxBxL
-         mjXA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :mime-version:content-transfer-encoding;
-        bh=z6SbXsprQLOiqwaC6PZW9LYNv33UTf7Rzrgeep2Yrzw=;
-        b=XTvCZoeDANq0QcD64slDletI0MOqQE4GzQdQHm30ptR0KoSLbrR1nniJI5zwoxk7zN
-         plpYIF4tDDcu3RIx+aLsWbmRdiLdAA5BFdvxkdPAVehZl1yQun/A+keKL7Z++Baw/3Qp
-         lBPJnwB5nbL/kG5b4ublVklnUFafrId/q62k0GJFEEzKPVC2LxkaXUPf9tHNH+PjWMZO
-         JExuIeIID+xXMxB0O4kFdo3BYo/BGSdYQ40xYB5jpFFhTigoniMjzNnoE46RMuge3Npo
-         ySXxmy7hnU/+rt9F0v8J19oTP9j4lykp+odJAnH1wizHohxkHSS/BgS31e815nKkTd+k
-         KzYw==
-X-Gm-Message-State: AOAM532igOTGYNCl6jF/qWi3NlA10KH32rdZXuITrXgk/y8yKcDgj+nj
-        D4crhfH6yGZ1XyUSF20SYQn8HJ1gl6w=
-X-Google-Smtp-Source: ABdhPJznfXwUKn70bLgk2uXJZR9xIknHNS7cZLBfurSF8+hscprxf+Ex1WEXpOnlut38fMa44HtXgA==
-X-Received: by 2002:a63:2309:0:b0:398:d3fe:1c41 with SMTP id j9-20020a632309000000b00398d3fe1c41mr11808733pgj.131.1651538559219;
-        Mon, 02 May 2022 17:42:39 -0700 (PDT)
-Received: from balhae.hsd1.ca.comcast.net ([2601:647:4f00:3590:4f92:5746:ebb:6bda])
-        by smtp.gmail.com with ESMTPSA id e3-20020a170903240300b0015e8d4eb28fsm5193686plo.217.2022.05.02.17.42.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 May 2022 17:42:38 -0700 (PDT)
-Sender: Namhyung Kim <namhyung@gmail.com>
-From:   Namhyung Kim <namhyung@kernel.org>
-To:     stable@vger.kernel.org
-Cc:     Ian Rogers <irogers@google.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Ingo Molnar <mingo@kernel.org>, Jiri Olsa <jolsa@kernel.org>,
-        John Garry <john.garry@huawei.com>,
-        Leo Yan <leo.yan@linaro.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Michael Petlan <mpetlan@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Song Liu <songliubraving@fb.com>,
-        Will Deacon <will@kernel.org>, linux-s390@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH for v5.10] perf symbol: Remove arch__symbols__fixup_end()
-Date:   Mon,  2 May 2022 17:42:36 -0700
-Message-Id: <20220503004236.712241-1-namhyung@kernel.org>
-X-Mailer: git-send-email 2.36.0.464.gb9c8b46e94-goog
+        with ESMTP id S229882AbiECCWl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 May 2022 22:22:41 -0400
+Received: from out30-43.freemail.mail.aliyun.com (out30-43.freemail.mail.aliyun.com [115.124.30.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EECEA23BF6;
+        Mon,  2 May 2022 19:19:08 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=baolin.wang@linux.alibaba.com;NM=1;PH=DS;RN=31;SR=0;TI=SMTPD_---0VC4Od8S_1651544341;
+Received: from 30.39.210.51(mailfrom:baolin.wang@linux.alibaba.com fp:SMTPD_---0VC4Od8S_1651544341)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Tue, 03 May 2022 10:19:03 +0800
+Message-ID: <48a05075-a323-e7f1-9e99-6c0d106eb2cb@linux.alibaba.com>
+Date:   Tue, 3 May 2022 10:19:46 +0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.1
+Subject: Re: [PATCH 3/3] mm: rmap: Fix CONT-PTE/PMD size hugetlb issue when
+ unmapping
+To:     Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc:     akpm@linux-foundation.org, mike.kravetz@oracle.com,
+        catalin.marinas@arm.com, will@kernel.org,
+        tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com,
+        deller@gmx.de, mpe@ellerman.id.au, benh@kernel.crashing.org,
+        paulus@samba.org, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org,
+        davem@davemloft.net, arnd@arndb.de,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-mm@kvack.org
+References: <cover.1651216964.git.baolin.wang@linux.alibaba.com>
+ <c91e04ebb792ef7b72966edea8bd6fa2dfa5bfa7.1651216964.git.baolin.wang@linux.alibaba.com>
+ <20220429220214.4cfc5539@thinkpad>
+ <bcb4a3b0-4fcd-af3a-2a2c-fd662d9eaba9@linux.alibaba.com>
+ <20220502160232.589a6111@thinkpad>
+From:   Baolin Wang <baolin.wang@linux.alibaba.com>
+In-Reply-To: <20220502160232.589a6111@thinkpad>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Now the generic code can handle kallsyms fixup properly so no need to
-keep the arch-functions anymore.
 
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
-Acked-by: Ian Rogers <irogers@google.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: John Garry <john.garry@huawei.com>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Michael Petlan <mpetlan@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: linux-s390@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Link: https://lore.kernel.org/r/20220416004048.1514900-4-namhyung@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
----
-The original commit id is a5d20d42a2f2dc2b2f9e9361912062732414090d
- tools/perf/arch/arm64/util/Build     |  1 -
- tools/perf/arch/arm64/util/machine.c | 27 ---------------------------
- tools/perf/arch/s390/util/machine.c  | 16 ----------------
- tools/perf/util/symbol.c             |  5 -----
- tools/perf/util/symbol.h             |  1 -
- 5 files changed, 50 deletions(-)
- delete mode 100644 tools/perf/arch/arm64/util/machine.c
 
-diff --git a/tools/perf/arch/arm64/util/Build b/tools/perf/arch/arm64/util/Build
-index b53294d74b01..eddaf9bf5729 100644
---- a/tools/perf/arch/arm64/util/Build
-+++ b/tools/perf/arch/arm64/util/Build
-@@ -1,5 +1,4 @@
- perf-y += header.o
--perf-y += machine.o
- perf-y += perf_regs.o
- perf-y += tsc.o
- perf-$(CONFIG_DWARF)     += dwarf-regs.o
-diff --git a/tools/perf/arch/arm64/util/machine.c b/tools/perf/arch/arm64/util/machine.c
-deleted file mode 100644
-index d41b27e781d3..000000000000
---- a/tools/perf/arch/arm64/util/machine.c
-+++ /dev/null
-@@ -1,27 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0
--
--#include <stdio.h>
--#include <string.h>
--#include "debug.h"
--#include "symbol.h"
--
--/* On arm64, kernel text segment start at high memory address,
-- * for example 0xffff 0000 8xxx xxxx. Modules start at a low memory
-- * address, like 0xffff 0000 00ax xxxx. When only samll amount of
-- * memory is used by modules, gap between end of module's text segment
-- * and start of kernel text segment may be reach 2G.
-- * Therefore do not fill this gap and do not assign it to the kernel dso map.
-- */
--
--#define SYMBOL_LIMIT (1 << 12) /* 4K */
--
--void arch__symbols__fixup_end(struct symbol *p, struct symbol *c)
--{
--	if ((strchr(p->name, '[') && strchr(c->name, '[') == NULL) ||
--			(strchr(p->name, '[') == NULL && strchr(c->name, '[')))
--		/* Limit range of last symbol in module and kernel */
--		p->end += SYMBOL_LIMIT;
--	else
--		p->end = c->start;
--	pr_debug4("%s sym:%s end:%#lx\n", __func__, p->name, p->end);
--}
-diff --git a/tools/perf/arch/s390/util/machine.c b/tools/perf/arch/s390/util/machine.c
-index 724efb2d842d..7219ecdb8423 100644
---- a/tools/perf/arch/s390/util/machine.c
-+++ b/tools/perf/arch/s390/util/machine.c
-@@ -34,19 +34,3 @@ int arch__fix_module_text_start(u64 *start, u64 *size, const char *name)
- 
- 	return 0;
- }
--
--/* On s390 kernel text segment start is located at very low memory addresses,
-- * for example 0x10000. Modules are located at very high memory addresses,
-- * for example 0x3ff xxxx xxxx. The gap between end of kernel text segment
-- * and beginning of first module's text segment is very big.
-- * Therefore do not fill this gap and do not assign it to the kernel dso map.
-- */
--void arch__symbols__fixup_end(struct symbol *p, struct symbol *c)
--{
--	if (strchr(p->name, '[') == NULL && strchr(c->name, '['))
--		/* Last kernel symbol mapped to end of page */
--		p->end = roundup(p->end, page_size);
--	else
--		p->end = c->start;
--	pr_debug4("%s sym:%s end:%#lx\n", __func__, p->name, p->end);
--}
-diff --git a/tools/perf/util/symbol.c b/tools/perf/util/symbol.c
-index 8f63cf8d0669..33954835c823 100644
---- a/tools/perf/util/symbol.c
-+++ b/tools/perf/util/symbol.c
-@@ -101,11 +101,6 @@ static int prefix_underscores_count(const char *str)
- 	return tail - str;
- }
- 
--void __weak arch__symbols__fixup_end(struct symbol *p, struct symbol *c)
--{
--	p->end = c->start;
--}
--
- const char * __weak arch__normalize_symbol_name(const char *name)
- {
- 	return name;
-diff --git a/tools/perf/util/symbol.h b/tools/perf/util/symbol.h
-index 66d5b732bb7a..28721d761d91 100644
---- a/tools/perf/util/symbol.h
-+++ b/tools/perf/util/symbol.h
-@@ -230,7 +230,6 @@ const char *arch__normalize_symbol_name(const char *name);
- #define SYMBOL_A 0
- #define SYMBOL_B 1
- 
--void arch__symbols__fixup_end(struct symbol *p, struct symbol *c);
- int arch__compare_symbol_names(const char *namea, const char *nameb);
- int arch__compare_symbol_names_n(const char *namea, const char *nameb,
- 				 unsigned int n);
--- 
-2.36.0.464.gb9c8b46e94-goog
+On 5/2/2022 10:02 PM, Gerald Schaefer wrote:
+> On Sat, 30 Apr 2022 11:22:33 +0800
+> Baolin Wang <baolin.wang@linux.alibaba.com> wrote:
+> 
+>>
+>>
+>> On 4/30/2022 4:02 AM, Gerald Schaefer wrote:
+>>> On Fri, 29 Apr 2022 16:14:43 +0800
+>>> Baolin Wang <baolin.wang@linux.alibaba.com> wrote:
+>>>
+>>>> On some architectures (like ARM64), it can support CONT-PTE/PMD size
+>>>> hugetlb, which means it can support not only PMD/PUD size hugetlb:
+>>>> 2M and 1G, but also CONT-PTE/PMD size: 64K and 32M if a 4K page
+>>>> size specified.
+>>>>
+>>>> When unmapping a hugetlb page, we will get the relevant page table
+>>>> entry by huge_pte_offset() only once to nuke it. This is correct
+>>>> for PMD or PUD size hugetlb, since they always contain only one
+>>>> pmd entry or pud entry in the page table.
+>>>>
+>>>> However this is incorrect for CONT-PTE and CONT-PMD size hugetlb,
+>>>> since they can contain several continuous pte or pmd entry with
+>>>> same page table attributes, so we will nuke only one pte or pmd
+>>>> entry for this CONT-PTE/PMD size hugetlb page.
+>>>>
+>>>> And now we only use try_to_unmap() to unmap a poisoned hugetlb page,
+>>>> which means now we will unmap only one pte entry for a CONT-PTE or
+>>>> CONT-PMD size poisoned hugetlb page, and we can still access other
+>>>> subpages of a CONT-PTE or CONT-PMD size poisoned hugetlb page,
+>>>> which will cause serious issues possibly.
+>>>>
+>>>> So we should change to use huge_ptep_clear_flush() to nuke the
+>>>> hugetlb page table to fix this issue, which already considered
+>>>> CONT-PTE and CONT-PMD size hugetlb.
+>>>>
+>>>> Note we've already used set_huge_swap_pte_at() to set a poisoned
+>>>> swap entry for a poisoned hugetlb page.
+>>>>
+>>>> Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
+>>>> ---
+>>>>    mm/rmap.c | 34 +++++++++++++++++-----------------
+>>>>    1 file changed, 17 insertions(+), 17 deletions(-)
+>>>>
+>>>> diff --git a/mm/rmap.c b/mm/rmap.c
+>>>> index 7cf2408..1e168d7 100644
+>>>> --- a/mm/rmap.c
+>>>> +++ b/mm/rmap.c
+>>>> @@ -1564,28 +1564,28 @@ static bool try_to_unmap_one(struct folio *folio, struct vm_area_struct *vma,
+>>>>    					break;
+>>>>    				}
+>>>>    			}
+>>>> +			pteval = huge_ptep_clear_flush(vma, address, pvmw.pte);
+>>>
+>>> Unlike in your patch 2/3, I do not see that this (huge) pteval would later
+>>> be used again with set_huge_pte_at() instead of set_pte_at(). Not sure if
+>>> this (huge) pteval could end up at a set_pte_at() later, but if yes, then
+>>> this would be broken on s390, and you'd need to use set_huge_pte_at()
+>>> instead of set_pte_at() like in your patch 2/3.
+>>
+>> IIUC, As I said in the commit message, we will only unmap a poisoned
+>> hugetlb page by try_to_unmap(), and the poisoned hugetlb page will be
+>> remapped with a poisoned entry by set_huge_swap_pte_at() in
+>> try_to_unmap_one(). So I think no need change to use set_huge_pte_at()
+>> instead of set_pte_at() for other cases, since the hugetlb page will not
+>> hit other cases.
+>>
+>> if (PageHWPoison(subpage) && !(flags & TTU_IGNORE_HWPOISON)) {
+>> 	pteval = swp_entry_to_pte(make_hwpoison_entry(subpage));
+>> 	if (folio_test_hugetlb(folio)) {
+>> 		hugetlb_count_sub(folio_nr_pages(folio), mm);
+>> 		set_huge_swap_pte_at(mm, address, pvmw.pte, pteval,
+>> 				     vma_mmu_pagesize(vma));
+>> 	} else {
+>> 		dec_mm_counter(mm, mm_counter(&folio->page));
+>> 		set_pte_at(mm, address, pvmw.pte, pteval);
+>> 	}
+>>
+>> }
+> 
+> OK, but wouldn't the pteval be overwritten here with
+> pteval = swp_entry_to_pte(make_hwpoison_entry(subpage))?
+> IOW, what sense does it make to save the returned pteval from
+> huge_ptep_clear_flush(), when it is never being used anywhere?
 
+Please see previous code, we'll use the original pte value to check if 
+it is uffd-wp armed, and if need to mark it dirty though the hugetlbfs 
+is set noop_dirty_folio().
+
+pte_install_uffd_wp_if_needed(vma, address, pvmw.pte, pteval);
+
+/* Set the dirty flag on the folio now the pte is gone. */
+if (pte_dirty(pteval))
+	folio_mark_dirty(folio);
