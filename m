@@ -2,118 +2,75 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 14E12C433EF
-	for <linux-s390@archiver.kernel.org>; Tue,  3 May 2022 13:46:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA488C43217
+	for <linux-s390@archiver.kernel.org>; Tue,  3 May 2022 14:59:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236404AbiECNtj (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 3 May 2022 09:49:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37950 "EHLO
+        id S232927AbiECPC7 convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 3 May 2022 11:02:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236498AbiECNti (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 May 2022 09:49:38 -0400
-Received: from wout5-smtp.messagingengine.com (wout5-smtp.messagingengine.com [64.147.123.21])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E62A9377EA;
-        Tue,  3 May 2022 06:46:01 -0700 (PDT)
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.west.internal (Postfix) with ESMTP id ED7563200A6C;
-        Tue,  3 May 2022 09:45:54 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Tue, 03 May 2022 09:45:58 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm1; t=1651585554; x=1651671954; bh=GgYcomwsds
-        RrYxxul1oPdKhHbYJJh/adytBDmH6b6r8=; b=JS9/m4h3R1GYfScDhMAw/fjb8N
-        evLe5K1ZVWBrDOLjnFibwjSn1w+4rkVkV97FngyaYV9Qohf1l9CvNkHH+RvdfOW8
-        p9ExhEmiCc0tlV4RZibMnfmpPxqRQWdrhnuWUyncvBN9Dr2M0x0aojRPJJRfJd8b
-        2j5MDoR/34VF1d9abBXaXpcAkXUsGOq+QBSBqBwBSyggbk6R2I6XCZ4VFFycTAgY
-        G6H/FwJREeXnu3Gdt60LM9ZOL0qy8t6Jo5lShjOoUpbgy9IoXyJG7rQUZS/n+xaR
-        FNst6EtYrfcJSc0Kht3H8sOSG9UHDwGi3TuOFYoPO8fOaxJyAPCuOkar4o5w==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1651585554; x=
-        1651671954; bh=GgYcomwsdsRrYxxul1oPdKhHbYJJh/adytBDmH6b6r8=; b=J
-        gq2ay0mVAHxRw5NXHg30eRU9ODiujH3CtnYmYNgAcJjuxy+2frsppmqm2PV+pN6E
-        5efnwAOT1nsYabx7RHlTSjIhLom843UQ7JAE7YP7FDe9rxYRd0nQmDy6YZGzKiHH
-        l7sHhj5d8lvkDCwr7jfq7KAwjRG+JTIXKfGR0y8eX0O58tHOwQ1oVzKKPq6jbJZa
-        62Y4uTU7I0N/jvJL5MGm9hXYUi2HSEETROtBoy9JBka31dYhiCxapSqScTQyWcSL
-        uDxVhCW3z5sWaLpGYXlQhltIsRdmm8StubaX4qJkYl7XNhtgGPjNxylyeuK/wMfc
-        9jlbRcdvjv15WBLy02XAQ==
-X-ME-Sender: <xms:ETJxYutCNK7enlPNtDmjLXka__V9_Kgt019cpYWc7I5SPhIR7qCL1w>
-    <xme:ETJxYje8-eKatvcXSlhq1nbMGQ_JOGDyc2fD-mqHO2JzKYeebnw9AcxDjl7kIAQ6G
-    V41gdWZ6Loztw>
-X-ME-Received: <xmr:ETJxYpzlgi8qmdTqjqCC5gBwcblv_rrOCqGYRBr4BV_4swWQt_-8p5S9M9i4BQqpXK1-9s46aXOridyxaEAsUVbdMssI>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrvdejgdeilecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvvefukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeegheeuhe
-    fgtdeluddtleekfeegjeetgeeikeehfeduieffvddufeefleevtddtvdenucffohhmrghi
-    nhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:ETJxYpNXuQ3T7Pec7i58mlCZcl9DXHo6BhPgcwXC8zYL7F8rYeGsNQ>
-    <xmx:ETJxYu8fYM4dpN7td1VUCvhlK2HZ-bbizbMR3NlQr4Bw78yr91pAFg>
-    <xmx:ETJxYhXv2G74jC9blTWurMBvB65n1qMgxgSB_wr586xeFGkeXQ9hdA>
-    <xmx:EjJxYs8o2pl9535C46LXdfb4oiKj4oeNIRdUjliQ98xIZWJHodN4Iw>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 3 May 2022 09:45:53 -0400 (EDT)
-Date:   Tue, 3 May 2022 15:45:52 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Namhyung Kim <namhyung@kernel.org>
-Cc:     stable@vger.kernel.org, Ian Rogers <irogers@google.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Ingo Molnar <mingo@kernel.org>, Jiri Olsa <jolsa@kernel.org>,
-        John Garry <john.garry@huawei.com>,
-        Leo Yan <leo.yan@linaro.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Michael Petlan <mpetlan@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Song Liu <songliubraving@fb.com>,
-        Will Deacon <will@kernel.org>, linux-s390@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: Re: [PATCH for v5.15] perf symbol: Remove arch__symbols__fixup_end()
-Message-ID: <YnEyEN7B1lBtECMg@kroah.com>
-References: <20220503003736.711789-1-namhyung@kernel.org>
+        with ESMTP id S237531AbiECPC6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 May 2022 11:02:58 -0400
+X-Greylist: delayed 445 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 03 May 2022 07:59:23 PDT
+Received: from mail.megasoftsol.com (mail.megasoftsol.com [43.231.250.141])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3084739803
+        for <linux-s390@vger.kernel.org>; Tue,  3 May 2022 07:59:23 -0700 (PDT)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.megasoftsol.com (Postfix) with ESMTP id 7619F90D8A4
+        for <linux-s390@vger.kernel.org>; Tue,  3 May 2022 20:17:02 +0530 (IST)
+Received: from mail.megasoftsol.com ([127.0.0.1])
+        by localhost (mail.megasoftsol.com [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id cwf5INEVkaTw for <linux-s390@vger.kernel.org>;
+        Tue,  3 May 2022 20:17:02 +0530 (IST)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.megasoftsol.com (Postfix) with ESMTP id D923D90D8AA
+        for <linux-s390@vger.kernel.org>; Tue,  3 May 2022 20:17:01 +0530 (IST)
+X-Virus-Scanned: amavisd-new at megasoftsol.com
+Received: from mail.megasoftsol.com ([127.0.0.1])
+        by localhost (mail.megasoftsol.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id QThi0oWWbotq for <linux-s390@vger.kernel.org>;
+        Tue,  3 May 2022 20:17:01 +0530 (IST)
+Received: from asda.co.uk (unknown [20.97.211.134])
+        (Authenticated sender: admin)
+        by mail.megasoftsol.com (Postfix) with ESMTPSA id 0C22F90D726
+        for <linux-s390@vger.kernel.org>; Tue,  3 May 2022 20:17:00 +0530 (IST)
+Reply-To: sales@asdaa.uk
+From:   ASDA Stores Limited <Hanes.Thomas23877@asda.co.uk>
+To:     linux-s390@vger.kernel.org
+Subject: 2nd Quater puchase request
+Date:   03 May 2022 14:49:29 +0000
+Message-ID: <20220503092157.C90DD8695D7A6458@asda.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220503003736.711789-1-namhyung@kernel.org>
+Content-Type: text/plain;
+        charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, May 02, 2022 at 05:37:36PM -0700, Namhyung Kim wrote:
-> Now the generic code can handle kallsyms fixup properly so no need to
-> keep the arch-functions anymore.
-> 
-> Signed-off-by: Namhyung Kim <namhyung@kernel.org>
-> Acked-by: Ian Rogers <irogers@google.com>
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Ingo Molnar <mingo@kernel.org>
-> Cc: Jiri Olsa <jolsa@kernel.org>
-> Cc: John Garry <john.garry@huawei.com>
-> Cc: Leo Yan <leo.yan@linaro.org>
-> Cc: Mark Rutland <mark.rutland@arm.com>
-> Cc: Masami Hiramatsu <mhiramat@kernel.org>
-> Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Cc: Michael Petlan <mpetlan@redhat.com>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: Song Liu <songliubraving@fb.com>
-> Cc: Will Deacon <will@kernel.org>
-> Cc: linux-s390@vger.kernel.org
-> Cc: linuxppc-dev@lists.ozlabs.org
-> Link: https://lore.kernel.org/r/20220416004048.1514900-4-namhyung@kernel.org
-> Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-> ---
-> The original commit id is a5d20d42a2f2dc2b2f9e9361912062732414090d
+Dear linux-s390
 
-Both now queued up, thanks.
-
-greg k-h
+We are interested in having some of your hot selling product in 
+our stores and outlets spread all over United Kingdom, Northern 
+Island and Africa. ASDA Stores Limited is one of the highest-
+ranking Wholesale & Retail outlets in the United Kingdom. 
+  
+We shall furnish our detailed company profile in our next 
+correspondent. However, it would be appreciated if you can send 
+us your catalog through email to learn more about your company's 
+products and wholesale quote. It is hopeful that we can start a 
+viable long-lasting business relationship (partnership) with you.  
+  
+  
+Your prompt response would be delightfully appreciated. 
+  
+Best Wishes 
+  
+  
+Hanes S. Thomas 
+Procurement Office. 
+ASDA Stores Limited 
+Tel:  + 44 - 7451271650 
+WhatsApp: + 44 – 7441440360 
+Website: www.asda.co.uk
