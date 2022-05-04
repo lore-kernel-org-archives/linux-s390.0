@@ -2,137 +2,148 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6AF5FC433F5
-	for <linux-s390@archiver.kernel.org>; Wed,  4 May 2022 08:39:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 749AFC433EF
+	for <linux-s390@archiver.kernel.org>; Wed,  4 May 2022 12:46:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346384AbiEDInU (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Wed, 4 May 2022 04:43:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40254 "EHLO
+        id S1349961AbiEDMuL (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Wed, 4 May 2022 08:50:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240868AbiEDInT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 May 2022 04:43:19 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6BDA1EC5E;
-        Wed,  4 May 2022 01:39:44 -0700 (PDT)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2448CsXo021597;
-        Wed, 4 May 2022 08:39:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=Sboxsj7b0Y9pf2hhFun4+bcScI6c4lzVGEz5GwA+o/0=;
- b=Y0vYd4DCwjqgXqz0XwRwAFZ4RRN0loAsI2Hf/jWKmDdidsbfpQr1YfviZNzwwhisKBcO
- y6ZKz0JTw1To7UuqG2XrWd8ffTHhzdHaK3S3nCGhAE1Y8MbqlgXKDgA+vehqzA6qnvgC
- aTm3Id7DHjKA3LamIDdsMFBRwOtyCljghN1NAGuCDdpdUgzlpag6JxE1hG0dnt9pp9tS
- XG7HwCFluxHy9vvSeLu6FqZHXQkfo2DNdTxKCn2NjRxtM3/apDCbjMSlmcK8JjTu3Khh
- rMRo7X4YILsNrybkoJf4UYHJIlDqTZtDiEmlFtPJCgGZS6xYeK9Z5/tGFlXwC4EBpTZf KQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3funsf0dma-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 04 May 2022 08:39:44 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2448ObMb002019;
-        Wed, 4 May 2022 08:39:43 GMT
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3funsf0dkx-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 04 May 2022 08:39:43 +0000
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2448cRYe000610;
-        Wed, 4 May 2022 08:39:41 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma04ams.nl.ibm.com with ESMTP id 3frvr8waxm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 04 May 2022 08:39:41 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2448dcXO18350526
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 4 May 2022 08:39:38 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4BEB3A4054;
-        Wed,  4 May 2022 08:39:38 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E9207A405B;
-        Wed,  4 May 2022 08:39:37 +0000 (GMT)
-Received: from [9.152.224.247] (unknown [9.152.224.247])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed,  4 May 2022 08:39:37 +0000 (GMT)
-Message-ID: <9b6bc442-67b1-45da-1bd4-82b53cc58f82@linux.ibm.com>
-Date:   Wed, 4 May 2022 10:39:37 +0200
+        with ESMTP id S235732AbiEDMuI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 May 2022 08:50:08 -0400
+Received: from fanzine2.igalia.com (fanzine.igalia.com [178.60.130.6])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 447452CE37;
+        Wed,  4 May 2022 05:46:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+        s=20170329; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=UDxTzr/LbFPHIhZF1U36kLmGFtpbBGYhm6tD7CfQBjM=; b=KDrxDW8Mnr1qToRh0yGaDv25Fu
+        TWpgQRScRF3dRjjU3pakegMZLqUHmycIdjATA6DbY60uPfya2zQOAwJ0e5erFJc5BJn7o3eV3sQ41
+        Tox4yunn4/jA8a3IjyUJT/sI3KcoYtb2p2FNUwcMM3f1g/ex9W0DrY0odKixjZjudGtrtbA3G1JPw
+        m7Nny7DVsQFLh+HpvU/q7Yc8/k1hRGwJeSWIAUBYmqnc5ZdThCMVxiKgVNOsyAMWZdrNHmIgXn40c
+        w6AF2HzVr+D+OvvIusg4XzuOUWHoF2AYp44ZOOo2CAb1BDljEp1qf8qc23J8WoJ9sqhtbxFJxmFVB
+        8aeUFBag==;
+Received: from [179.113.53.197] (helo=[192.168.1.60])
+        by fanzine2.igalia.com with esmtpsa 
+        (Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
+        id 1nmEOH-0003Ke-Oi; Wed, 04 May 2022 14:46:02 +0200
+Message-ID: <9581851d-6c61-a2ef-a3c4-6e2ce05eab12@igalia.com>
+Date:   Wed, 4 May 2022 09:45:31 -0300
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.8.0
-Subject: Re: [kvm-unit-tests PATCH v5 5/6] s390x: uv-guest: add share bit test
+Subject: Re: [PATCH 04/30] firmware: google: Convert regular spinlock into
+ trylock on panic path
 Content-Language: en-US
-To:     Steffen Eiden <seiden@linux.ibm.com>,
-        Thomas Huth <thuth@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20220502093925.4118-1-seiden@linux.ibm.com>
- <20220502093925.4118-6-seiden@linux.ibm.com>
-From:   Janosch Frank <frankja@linux.ibm.com>
-In-Reply-To: <20220502093925.4118-6-seiden@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To:     Evan Green <evgreen@chromium.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>, bhe@redhat.com,
+        pmladek@suse.com, kexec@lists.infradead.org,
+        LKML <linux-kernel@vger.kernel.org>,
+        bcm-kernel-feedback-list@broadcom.com,
+        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
+        linux-edac@vger.kernel.org, linux-hyperv@vger.kernel.org,
+        linux-leds@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, Linux PM <linux-pm@vger.kernel.org>,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-um@lists.infradead.org,
+        linux-xtensa@linux-xtensa.org, netdev@vger.kernel.org,
+        openipmi-developer@lists.sourceforge.net, rcu@vger.kernel.org,
+        sparclinux@vger.kernel.org, xen-devel@lists.xenproject.org,
+        x86@kernel.org, kernel-dev@igalia.com, kernel@gpiccoli.net,
+        halves@canonical.com, fabiomirmar@gmail.com,
+        alejandro.j.jimenez@oracle.com,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>,
+        Jonathan Corbet <corbet@lwn.net>, d.hatayama@jp.fujitsu.com,
+        dave.hansen@linux.intel.com, dyoung@redhat.com,
+        feng.tang@intel.com,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
+        jgross@suse.com, john.ogness@linutronix.de,
+        Kees Cook <keescook@chromium.org>, luto@kernel.org,
+        mhiramat@kernel.org, mingo@redhat.com, paulmck@kernel.org,
+        peterz@infradead.org, rostedt@goodmis.org,
+        senozhatsky@chromium.org, Alan Stern <stern@rowland.harvard.edu>,
+        Thomas Gleixner <tglx@linutronix.de>, vgoyal@redhat.com,
+        vkuznets@redhat.com, Will Deacon <will@kernel.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        David Gow <davidgow@google.com>,
+        Julius Werner <jwerner@chromium.org>
+References: <20220427224924.592546-1-gpiccoli@igalia.com>
+ <20220427224924.592546-5-gpiccoli@igalia.com>
+ <CAE=gft5Pq25L4KFoPWbftkPF-JN1ex2yws77mMJ4GQnn9W0L2g@mail.gmail.com>
+ <adcf6d0e-c37c-6ede-479e-29959d03d8c0@igalia.com>
+ <CAE=gft623NxqetRssrZnaRmJLSP4BT5=-sVVwtYoHuspO_gULQ@mail.gmail.com>
+From:   "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+In-Reply-To: <CAE=gft623NxqetRssrZnaRmJLSP4BT5=-sVVwtYoHuspO_gULQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: ZCEAkghQZ8Cj0pwk1OrWyzHVkWQOI2ny
-X-Proofpoint-GUID: 20Pxw_nKgmJM3-goaWdHo-TP7rLniFbf
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-04_02,2022-05-02_03,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- mlxlogscore=999 priorityscore=1501 spamscore=0 phishscore=0 mlxscore=0
- bulkscore=0 clxscore=1015 adultscore=0 malwarescore=0 lowpriorityscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205040057
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 5/2/22 11:39, Steffen Eiden wrote:
-> The UV facility bits shared/unshared must both be set or none.
+On 03/05/2022 18:56, Evan Green wrote:
+> Hi Guilherme,
+> [...] 
+>> Do you agree with that, or prefer really a parameter in
+>> gsmi_shutdown_reason() ? I'll follow your choice =)
 > 
-> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
-> ---
+> I'm fine with either, thanks for the link. Mostly I want to make sure
+> other paths to gsmi_shutdown_reason() aren't also converted to a try.
 
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Hi Evan, thanks for the prompt response! So, I'll proceed like I did in
+s390, for consistency.
 
->   s390x/uv-guest.c | 16 ++++++++++++++++
->   1 file changed, 16 insertions(+)
+> [...]
+>> Reasoning: the problem with your example is that, by default, secondary
+>> CPUs are disabled in the panic path, through an IPI mechanism. IPIs take
+>> precedence and interrupt the work in these CPUs, effectively
+>> interrupting the "polite work" with the lock held heh
 > 
-> diff --git a/s390x/uv-guest.c b/s390x/uv-guest.c
-> index fd2cfef1..152ad807 100644
-> --- a/s390x/uv-guest.c
-> +++ b/s390x/uv-guest.c
-> @@ -157,6 +157,16 @@ static void test_invalid(void)
->   	report_prefix_pop();
->   }
->   
-> +static void test_share_bits(void)
-> +{
-> +	bool unshare = uv_query_test_call(BIT_UVC_CMD_REMOVE_SHARED_ACCESS);
-> +	bool share = uv_query_test_call(BIT_UVC_CMD_SET_SHARED_ACCESS);
-> +
-> +	report_prefix_push("query");
-> +	report(!(share ^ unshare), "share bits are identical");
-> +	report_prefix_pop();
-> +}
-> +
->   int main(void)
->   {
->   	bool has_uvc = test_facility(158);
-> @@ -167,6 +177,12 @@ int main(void)
->   		goto done;
->   	}
->   
-> +	/*
-> +	 * Needs to be done before the guest-fence,
-> +	 * as the fence tests if both shared bits are present
-> +	 */
-> +	test_share_bits();
-> +
->   	if (!uv_os_is_guest()) {
->   		report_skip("Not a protected guest");
->   		goto done;
+> The IPI can only interrupt a CPU with irqs disabled if the IPI is an
+> NMI. I haven't looked before to see if we use NMI IPIs to corral the
+> other CPUs on panic. On x86, I grepped my way down to
+> native_stop_other_cpus(), which looks like it does a normal IPI, waits
+> 1 second, then does an NMI IPI. So, if a secondary CPU has the lock
+> held, on x86 it has roughly 1s to finish what it's doing and re-enable
+> interrupts before smp_send_stop() brings the NMI hammer down. I think
+> this should be more than enough time for the secondary CPU to get out
+> and release the lock.
+> 
+> So then it makes sense to me that you're fixing cases where we
+> panicked with the lock held, or hung with the lock held. Given the 1
+> second grace period x86 gives us, I'm on board, as that helps mitigate
+> the risk that we bailed out early with the try and should have spun a
+> bit longer instead. Thanks.
+> 
+> -Evan
 
+Well, in the old path without "crash_kexec_post_notifiers", we indeed
+end-up relying on native_stop_other_cpus() for x86 as you said, and the
+"1s rule" makes sense. But after this series (or even before, if the
+kernel parameter "crash_kexec_post_notifiers" was used) the function
+used to stop CPUs in the panic path is crash_smp_send_stop(), and the
+call chain is like:
+
+Main CPU:
+crash_smp_send_stop()
+--kdump_nmi_shootdown_cpus()
+----nmi_shootdown_cpus()
+
+Then, in each CPU (except the main one, running panic() path),
+we execute kdump_nmi_callback() in NMI context.
+
+So, we seem to indeed interrupt any context (even with IRQs disabled),
+increasing the likelihood of the potential lockups due to stopped CPUs
+holding the locks heheh
+
+Thanks again for the good discussion, let me know if anything I'm saying
+doesn't make sense - this crash path is a bit convoluted, specially in
+x86, I might have understood something wrongly =)
+Cheers,
+
+
+Guilherme
