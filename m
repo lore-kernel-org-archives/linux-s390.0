@@ -2,115 +2,80 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B9130C433EF
-	for <linux-s390@archiver.kernel.org>; Thu,  5 May 2022 20:28:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 181B8C433EF
+	for <linux-s390@archiver.kernel.org>; Thu,  5 May 2022 20:31:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359058AbiEEUcI (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 5 May 2022 16:32:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46622 "EHLO
+        id S1385096AbiEEUe6 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 5 May 2022 16:34:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354028AbiEEUcH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 May 2022 16:32:07 -0400
-Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.126.130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8296C2BB37;
-        Thu,  5 May 2022 13:28:21 -0700 (PDT)
-Received: from leknes.fjasle.eu ([46.142.98.182]) by mrelayeu.kundenserver.de
- (mreue012 [212.227.15.167]) with ESMTPSA (Nemesis) id
- 1MdwRi-1oLUuu0jeY-00b4o2; Thu, 05 May 2022 22:27:10 +0200
-Received: by leknes.fjasle.eu (Postfix, from userid 1000)
-        id B61AF3C088; Thu,  5 May 2022 22:27:04 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=fjasle.eu; s=mail;
-        t=1651782424; bh=oGd2e0sWzuw2lfacuEfCkKF+JuznQDoibFgyz7j1FOw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=FaLJ+2jWftfmPh62O8eA9LWVOpI6bCmG5q2wumrSva1zb8Lt/1da5TlQqhSISYxfV
-         3pWN2pxZKshK6qG2ZAlazcmz8TTIL9aTwzrsh4MAmQGR8+JO8wVmXZblUEf84WC++W
-         TiErDSzNaNjx6X6fzUMEEHREyY6mRvxkVgjnPEo4=
-Date:   Thu, 5 May 2022 22:27:04 +0200
-From:   Nicolas Schier <nicolas@fjasle.eu>
+        with ESMTP id S1381993AbiEEUe5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 May 2022 16:34:57 -0400
+Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95E2E5EDF9
+        for <linux-s390@vger.kernel.org>; Thu,  5 May 2022 13:31:16 -0700 (PDT)
+Received: by mail-lf1-x12b.google.com with SMTP id t25so9325840lfg.7
+        for <linux-s390@vger.kernel.org>; Thu, 05 May 2022 13:31:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=KzJXnZ7chU1+5zJp4Dgvp3VaPPi5u4rVhagYP/eqQQE=;
+        b=GcsLNO3ybt8b4qYioRwjRsGo24/f0OAD/JE388Gc5emmRyTIhlyYUbKzIgZyv53hb1
+         xhiVCmKW0WOkPCvBf1e4g28vMmUQUkmrVh+o51YOtKO8cBVzloYHCXntPyZO/l8A9u4M
+         5CxbT9nvJ8k+TaFHNOPLcGCSi7HogLmrn63TqdbSnLG4WHsAsFmI3EppXVPekhAxB05a
+         NEbtgx7QVCxIiRy2eSQmkdwO62yYlPePGIiYe39mbWzh5zAEXFGIG2orgZSXN6r69srE
+         z8JRd8pqir9+V0J5tZrITxsJOR+WTOS0fPBTlN8HA0KMIdLI2QtAq3P5nFh0k988K2Jw
+         qG+w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=KzJXnZ7chU1+5zJp4Dgvp3VaPPi5u4rVhagYP/eqQQE=;
+        b=SXFhEIflavS17bs8G0h0zcxSpOt8g5IwN0VORP8qQL2QYY826YSB8R7HF8t8vC128B
+         9qAFPI2TOsl49uXEwxspR3RMRMHtVpyHU0Z0jkBcd4yFdoIu+7sTT3a7AUsPydbCf9Lh
+         3MEQakCRuoACj/+8aSpePtK9ebG1Kz40Dhb6G/rL28pSH4MZXsGer0UFV9LclS9eCfJh
+         Hkz5q8YeWvoGVhp0wwTuJ3Dp4bnXS2MmUvMwtLcFsftC066ml+vB/qQfOuqRz/q9hvoo
+         kvBenfXjbmL/vbY4jsUMeIGsC5PIX5wxHTRTjLuErlMMpobltQfnSziROLWCqmc12HXv
+         OjjQ==
+X-Gm-Message-State: AOAM530Q4EzeGmaqousjFTs6yErlvEncuWdl7GOo/Xaql5nQkJiV+yMw
+        wQ6MAQQZMD8ATZydm5vL2RJ1zgB6jl0T78J8p7tEkw==
+X-Google-Smtp-Source: ABdhPJwbhs3kr3NEQrD1kb2FM5lFdKjT3Fw4s9E6Bf+BV+NG8NhQY5rDLxGeb5Ices7vG2JpejLiHgrpcihMdzG04I8=
+X-Received: by 2002:ac2:5e86:0:b0:473:d044:60f5 with SMTP id
+ b6-20020ac25e86000000b00473d04460f5mr49308lfq.87.1651782674718; Thu, 05 May
+ 2022 13:31:14 -0700 (PDT)
+MIME-Version: 1.0
+References: <20220505072244.1155033-1-masahiroy@kernel.org> <20220505072244.1155033-15-masahiroy@kernel.org>
+In-Reply-To: <20220505072244.1155033-15-masahiroy@kernel.org>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Thu, 5 May 2022 13:31:03 -0700
+Message-ID: <CAKwvOdkTOv1VZti3KH9zxXT1xceogUPxdCV1JqoYbTKtdUy0qw@mail.gmail.com>
+Subject: Re: [PATCH v3 14/15] kbuild: make built-in.a rule robust against too
+ long argument error
 To:     Masahiro Yamada <masahiroy@kernel.org>
 Cc:     linux-kbuild@vger.kernel.org, clang-built-linux@googlegroups.com,
-        linux-kernel@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        linux-kernel@vger.kernel.org, Nicolas Schier a <nicolas@fjasle.eu>,
+        Ard Biesheuvel <ardb@kernel.org>,
         Luis Chamberlain <mcgrof@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>,
         linuxppc-dev@lists.ozlabs.org, linux-um@lists.infradead.org,
         linux-s390@vger.kernel.org,
-        Nick Desaulniers <ndesaulniers@google.com>,
         Sami Tolvanen <samitolvanen@google.com>,
         Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH v3 12/15] modpost: simplify the ->is_static initialization
-Message-ID: <YnQzGMfWqnP6CMir@fjasle.eu>
-References: <20220505072244.1155033-1-masahiroy@kernel.org>
- <20220505072244.1155033-13-masahiroy@kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220505072244.1155033-13-masahiroy@kernel.org>
-X-Provags-ID: V03:K1:LK2u+J2AhRjCi+eMNFHoFnTinbNPkEFuFiOuKWVtzJ00eRjm6z7
- tNvjulmaQd0h6NqxBCm22IwvsWk8KlKkc6Ii6th88VKmMWg5MlEkkUpaXLqSy7hm061+Hs8
- UD92p80tBHi8TG7LLOvYD2q5nEGx/b88ke8OExKVbAFL5cXXGXR/lOQyJDZrWpGGW8T00jj
- JAPWLP7gyGdYvch2xT3Gw==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:OxAiCGOEiWk=:9v6pZlNBsR1l7vFzSHm9UI
- /rD6j6qbY07+oT4+AyXX+8s8GdCCDK9+2h3F1C5GfCE4WbIIm1+MyqDLdz9pQ1kr1drl6HDQL
- mLMC7CawdirGi/+SQAWuOxWNkG06NUrvND+SqkMCsISquldvjozq/TV+y219fr1VGCksL5Tro
- F3em6lKfungyYh6g0OHXZlFaHPlPU5G8jos/UzxAYI2dqTiiu5Zi2YNXJyBVHiyJBDnR4du6f
- oedVr8+AQ86/m7v8tG4KXewdDs+4LunPIEVMcQCZmcQBFkkMPzZAwTYv7b3+5Dkp+eFTafJIL
- DOxPYInPHjDQZ3YpjNA8xpyYu2C/rRM+jb8P02LWzU6paRv/p9pgO/lOQL4oBIFQbqJ1DbtGa
- CRIOFERb8zjO2S7jr1FGl44q4ySvT+X1TJkog7BMk0XG712rdLQ9IxQBh1oaKwTt8kslwrMNc
- QVkL3lXMtoH9dj9fuLZzCnXUT7+sB+8wHMN73LyZWZfQoiCBuM17nLSL0LeRxvP36JCelL7Vl
- 5zi8CbPjRaSVVtvh7nK22PIH9epnfrEF3wcpoBeVEThuZ1lEJZOvKSDuZH42mmhK5BCVV6FwG
- wLCpKeZEzfsRzM+O+RKRbUDV03g0i9Qks6wQ4q3MTboCf81M1UyFXm7pDprkdC91RC066O/M4
- nVtIm+BqMUkqLUXR31hp2A+GSF8kq8ZnuaKpMsOLt19fVst3NmNkq7ij/oFYqgxLNoks=
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, May 05, 2022 at 04:22:41PM +0900 Masahiro Yamada wrote:
-> ->is_static is set to true at allocation, then to false if the symbol
-> comes from the dump file.
-> 
-> It is simpler to use !mod->from_dump as the init value.
-> 
-> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-> ---
-> 
-> (no changes since v2)
-> 
-> Changes in v2:
->   - New patch
-> 
->  scripts/mod/modpost.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
-> index e07542a90fc6..4edd5b223f49 100644
-> --- a/scripts/mod/modpost.c
-> +++ b/scripts/mod/modpost.c
-> @@ -242,7 +242,7 @@ static struct symbol *alloc_symbol(const char *name)
->  
->  	memset(s, 0, sizeof(*s));
->  	strcpy(s->name, name);
-> -	s->is_static = true;
-> +
->  	return s;
->  }
->  
-> @@ -376,6 +376,7 @@ static struct symbol *sym_add_exported(const char *name, struct module *mod,
->  
->  	s = alloc_symbol(name);
->  	s->module = mod;
-> +	s->is_static = !mod->from_dump;
->  	s->is_gpl_only = gpl_only;
->  	list_add_tail(&s->list, &mod->exported_symbols);
->  	hash_add_symbol(s);
-> @@ -2523,7 +2524,6 @@ static void read_dump(const char *fname)
->  			mod->from_dump = true;
->  		}
->  		s = sym_add_exported(symname, mod, gpl_only);
-> -		s->is_static = false;
->  		sym_set_crc(s, crc);
->  		sym_update_namespace(symname, namespace);
->  	}
-> -- 
-> 2.32.0
+On Thu, May 5, 2022 at 12:25 AM Masahiro Yamada <masahiroy@kernel.org> wrote:
+>
+> Kbuild runs at the top of objtree instead of changing the working
+> directory to subdirectories. I think this design is nice overall but
+> some commands have a scapability issue.
 
-Reviewed-by: Nicolas Schier <nicolas@fjasle.eu>
+s/scapability/scalability/
+
+
+-- 
+Thanks,
+~Nick Desaulniers
