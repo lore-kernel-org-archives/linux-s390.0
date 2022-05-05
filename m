@@ -2,199 +2,252 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B92A1C4167D
-	for <linux-s390@archiver.kernel.org>; Thu,  5 May 2022 14:17:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF2ECC433F5
+	for <linux-s390@archiver.kernel.org>; Thu,  5 May 2022 14:45:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231845AbiEEOVZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 5 May 2022 10:21:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46556 "EHLO
+        id S237470AbiEEOtH (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 5 May 2022 10:49:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380520AbiEEOVV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 May 2022 10:21:21 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41F425A58C;
-        Thu,  5 May 2022 07:17:41 -0700 (PDT)
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 245EFi7j018546;
-        Thu, 5 May 2022 14:17:39 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=J/n9h2oxwCOMowRfCot9D/H4NtObJxnp9opzuVMQ8RA=;
- b=KUiGZzkFijbmBQfR8ogpcr/wiBz9Wp2H2eFfU6/2ShSTMVtJ6e7cSEY1Qdtdf5U5CB9c
- 5Y3+VJxoZEhsZfxlgVFCsVjKldpQzFTquuIUB5Zuhb1kOYmnet4X7PjVvJeobvy7V4RS
- gTsj7WPH+oBmM0QADAslxLHmtEX7DdUuW5x7KvCOq7Zia1BJvJ7oN0Pt4fXq4K2ocEx2
- a20vfWMcO/801NqBPrgPijmqgiXmyFskvH+nS8lE6HovniWb4aeo5+Jb2iuqVARjwNSD
- C4g/Nk+SOuyRWI9w9LOqfimFsmAhWjRAQ9KXhfIZgpQoWg3WAqsIyXs/dnHny9oDbW3/ rw== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3fvg6k01c8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 05 May 2022 14:17:38 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 245EEoKm028340;
-        Thu, 5 May 2022 14:17:36 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 3fvg610035-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 05 May 2022 14:17:36 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 245EHSfK35062226
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 5 May 2022 14:17:28 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5ECDD52050;
-        Thu,  5 May 2022 14:17:33 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id 4C4155204E;
-        Thu,  5 May 2022 14:17:33 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 20191)
-        id 1195CE03D6; Thu,  5 May 2022 16:17:33 +0200 (CEST)
-From:   Stefan Haberland <sth@linux.ibm.com>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 2/5] s390/dasd: prevent double format of tracks for ESE devices
-Date:   Thu,  5 May 2022 16:17:30 +0200
-Message-Id: <20220505141733.1989450-3-sth@linux.ibm.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220505141733.1989450-1-sth@linux.ibm.com>
-References: <20220505141733.1989450-1-sth@linux.ibm.com>
+        with ESMTP id S1380750AbiEEOtE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 May 2022 10:49:04 -0400
+Received: from us-smtp-delivery-74.mimecast.com (us-smtp-delivery-74.mimecast.com [170.10.133.74])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id D588514081
+        for <linux-s390@vger.kernel.org>; Thu,  5 May 2022 07:45:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1651761924;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=jyfGq7dMfrbIZ4AP54s9Y4BCxr+1pD8LVHEm2Fcyagk=;
+        b=HNOlUWtvKPzBdqlf+27kGl7Y8AGqIHS8SDk30D7TuD6EwhwfTx8nSSR7M0UeUpox/6HY1E
+        7oBZwhTOUIs4bqcu9pEuyqQECjvMdOQRxVljQ4NsxYc1NrOhGUz/cghBYS0GMRvzLVkKOc
+        t4wIegXksdzVGH1jDWbLAX37bfE4qZQ=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-114-1vW_o107P0Gy-htHrGj9SQ-1; Thu, 05 May 2022 10:45:20 -0400
+X-MC-Unique: 1vW_o107P0Gy-htHrGj9SQ-1
+Received: by mail-wm1-f71.google.com with SMTP id c62-20020a1c3541000000b0038ec265155fso4586670wma.6
+        for <linux-s390@vger.kernel.org>; Thu, 05 May 2022 07:45:20 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent
+         :content-language:to:cc:references:from:subject:in-reply-to
+         :content-transfer-encoding;
+        bh=jyfGq7dMfrbIZ4AP54s9Y4BCxr+1pD8LVHEm2Fcyagk=;
+        b=b6h16CorWebLLkHgjYBh4YJgKc8Aj6r52mviXeKi0lvfKANbff8WEObYbfJfR7naKt
+         Ken3CSl6X0vsFavFdAGHwDf0cRWiSu0H9nWu8HqXUdvTvjs7sEhknUF+nI7dIYcj5HIQ
+         ywQVNFgO0kjrhng8YbI7DyomULraTc3jrXOhbOnNA1vqbAleGhe6S3ZlUT1uGy2ZS/lx
+         M91UlTetOrSUjf/1ZSxkGNhNi9kUM05px7XveLsYifsdyDEb5p0X1QAqOJIk0A4XE78S
+         Zb+wmtEr9jyv8b9wFGFXMvJ1cJbqVmruGMHEp4IfkfxQHaYkeZUguGuKalynRibYztCr
+         IioA==
+X-Gm-Message-State: AOAM533+1YZpkLxkmnAyIvOQ5T7QBHFPUVpyjuOyt5fGiC8Lc9GksSJk
+        FnGE7FjrsG3jkMEnH75za4ivBJAgUn2yM/dSlVIXr0x2M3l1UoJFkKHH2Mi19JKzsboX97Txf/a
+        vKmJR6S0clNzKP2he4F7Gpw==
+X-Received: by 2002:adf:fe84:0:b0:20a:dc0b:4f2d with SMTP id l4-20020adffe84000000b0020adc0b4f2dmr21500160wrr.229.1651761919146;
+        Thu, 05 May 2022 07:45:19 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzZQq4VH2YS9CYoJkurgdMeySXi6KiIogT8HsYcwxJv74M68UxhhdX5HsfgALsw7hRyBw/cSA==
+X-Received: by 2002:adf:fe84:0:b0:20a:dc0b:4f2d with SMTP id l4-20020adffe84000000b0020adc0b4f2dmr21500139wrr.229.1651761918878;
+        Thu, 05 May 2022 07:45:18 -0700 (PDT)
+Received: from [192.168.8.104] (tmo-082-126.customers.d1-online.com. [80.187.82.126])
+        by smtp.gmail.com with ESMTPSA id l41-20020a05600c1d2900b0039456c00ba7sm6101976wms.1.2022.05.05.07.45.16
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 05 May 2022 07:45:18 -0700 (PDT)
+Message-ID: <08f78cc7-b34e-cdca-72b8-a0f9163f3ca7@redhat.com>
+Date:   Thu, 5 May 2022 16:45:13 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: SFDzPPO3V7V8Ef6CxOe2li2x4-1h2Bw7
-X-Proofpoint-GUID: SFDzPPO3V7V8Ef6CxOe2li2x4-1h2Bw7
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-05_05,2022-05-05_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- lowpriorityscore=0 clxscore=1015 suspectscore=0 phishscore=0 bulkscore=0
- impostorscore=0 priorityscore=1501 mlxscore=0 spamscore=0 mlxlogscore=999
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205050103
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Content-Language: en-US
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, pasic@linux.ibm.com,
+        david@redhat.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, scgl@linux.ibm.com,
+        mimu@linux.ibm.com, nrb@linux.ibm.com
+References: <20220414080311.1084834-1-imbrenda@linux.ibm.com>
+ <20220414080311.1084834-2-imbrenda@linux.ibm.com>
+From:   Thomas Huth <thuth@redhat.com>
+Subject: Re: [PATCH v10 01/19] KVM: s390: pv: leak the topmost page table when
+ destroy fails
+In-Reply-To: <20220414080311.1084834-2-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-For ESE devices we get an error for write operations on an unformatted
-track. Afterwards the track will be formatted and the IO operation
-restarted.
-When using alias devices a track might be accessed by multiple requests
-simultaneously and there is a race window that a track gets formatted
-twice resulting in data loss.
+On 14/04/2022 10.02, Claudio Imbrenda wrote:
+> Each secure guest must have a unique ASCE (address space control
+> element); we must avoid that new guests use the same page for their
+> ASCE, to avoid errors.
+> 
+> Since the ASCE mostly consists of the address of the topmost page table
+> (plus some flags), we must not return that memory to the pool unless
+> the ASCE is no longer in use.
+> 
+> Only a successful Destroy Secure Configuration UVC will make the ASCE
+> reusable again.
+> 
+> If the Destroy Configuration UVC fails, the ASCE cannot be reused for a
+> secure guest (either for the ASCE or for other memory areas). To avoid
+> a collision, it must not be used again. This is a permanent error and
+> the page becomes in practice unusable, so we set it aside and leak it.
+> On failure we already leak other memory that belongs to the ultravisor
+> (i.e. the variable and base storage for a guest) and not leaking the
+> topmost page table was an oversight.
+> 
+> This error (and thus the leakage) should not happen unless the hardware
+> is broken or KVM has some unknown serious bug.
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Fixes: 29b40f105ec8d55 ("KVM: s390: protvirt: Add initial vm and cpu lifecycle handling")
+> ---
+>   arch/s390/include/asm/gmap.h |  2 +
+>   arch/s390/kvm/pv.c           |  9 ++--
+>   arch/s390/mm/gmap.c          | 80 ++++++++++++++++++++++++++++++++++++
+>   3 files changed, 88 insertions(+), 3 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
+> index 40264f60b0da..746e18bf8984 100644
+> --- a/arch/s390/include/asm/gmap.h
+> +++ b/arch/s390/include/asm/gmap.h
+> @@ -148,4 +148,6 @@ void gmap_sync_dirty_log_pmd(struct gmap *gmap, unsigned long dirty_bitmap[4],
+>   			     unsigned long gaddr, unsigned long vmaddr);
+>   int gmap_mark_unmergeable(void);
+>   void s390_reset_acc(struct mm_struct *mm);
+> +void s390_remove_old_asce(struct gmap *gmap);
+> +int s390_replace_asce(struct gmap *gmap);
+>   #endif /* _ASM_S390_GMAP_H */
+> diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+> index 7f7c0d6af2ce..3c59ef763dde 100644
+> --- a/arch/s390/kvm/pv.c
+> +++ b/arch/s390/kvm/pv.c
+> @@ -166,10 +166,13 @@ int kvm_s390_pv_deinit_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
+>   	atomic_set(&kvm->mm->context.is_protected, 0);
+>   	KVM_UV_EVENT(kvm, 3, "PROTVIRT DESTROY VM: rc %x rrc %x", *rc, *rrc);
+>   	WARN_ONCE(cc, "protvirt destroy vm failed rc %x rrc %x", *rc, *rrc);
+> -	/* Inteded memory leak on "impossible" error */
+> -	if (!cc)
+> +	/* Intended memory leak on "impossible" error */
+> +	if (!cc) {
+>   		kvm_s390_pv_dealloc_vm(kvm);
+> -	return cc ? -EIO : 0;
+> +		return 0;
+> +	}
+> +	s390_replace_asce(kvm->arch.gmap);
+> +	return -EIO;
+>   }
+>   
+>   int kvm_s390_pv_init_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
+> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+> index af03cacf34ec..e8904cb9dc38 100644
+> --- a/arch/s390/mm/gmap.c
+> +++ b/arch/s390/mm/gmap.c
+> @@ -2714,3 +2714,83 @@ void s390_reset_acc(struct mm_struct *mm)
+>   	mmput(mm);
+>   }
+>   EXPORT_SYMBOL_GPL(s390_reset_acc);
+> +
+> +/**
+> + * s390_remove_old_asce - Remove the topmost level of page tables from the
+> + * list of page tables of the gmap.
+> + * @gmap the gmap whose table is to be removed
+> + *
+> + * This means that it will not be freed when the VM is torn down, and needs
+> + * to be handled separately by the caller, unless an intentional leak is
+> + * intended. Notice that this function will only remove the page from the
 
-Prevent this by remembering the amount of formatted tracks when starting
-a request and comparing this number before actually formatting a track
-on the fly. If the number has changed there is a chance that the current
-track was finally formatted in between. As a result do not format the
-track and restart the current IO to check.
+"intentional leak is intended" ... sounds redundant. Scratch the first 
+"intentional" ?
 
-The number of formatted tracks does not match the overall number of
-formatted tracks on the device and it might wrap around but this is no
-problem. It is only needed to recognize that a track has been formatted at
-all in between.
+> + * list, the page will still be used as a top level page table (and ASCE).
+> + */
+> +void s390_remove_old_asce(struct gmap *gmap)
+> +{
+> +	struct page *old;
+> +
+> +	old = virt_to_page(gmap->table);
+> +	spin_lock(&gmap->guest_table_lock);
+> +	list_del(&old->lru);
+> +	/*
+> +	 * In case the ASCE needs to be "removed" multiple times, for example
+> +	 * if the VM is rebooted into secure mode several times
+> +	 * concurrently, or if s390_replace_asce fails after calling
+> +	 * s390_remove_old_asce and is attempted again later. In that case
 
-Fixes: 5e2b17e712cf ("s390/dasd: Add dynamic formatting support for ESE volumes")
-Cc: stable@vger.kernel.org # 5.3+
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
----
- drivers/s390/block/dasd.c      |  7 +++++++
- drivers/s390/block/dasd_eckd.c | 19 +++++++++++++++++--
- drivers/s390/block/dasd_int.h  |  2 ++
- 3 files changed, 26 insertions(+), 2 deletions(-)
+"In case the ASCE ... . In that case" - this should be either one big 
+sentence, or better, scratch the first "In case" and use "Sometimes" or 
+something similar to start the first sentence.
 
-diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
-index 76d13c5ff205..d62a4c673962 100644
---- a/drivers/s390/block/dasd.c
-+++ b/drivers/s390/block/dasd.c
-@@ -1422,6 +1422,13 @@ int dasd_start_IO(struct dasd_ccw_req *cqr)
- 		if (!cqr->lpm)
- 			cqr->lpm = dasd_path_get_opm(device);
- 	}
-+	/*
-+	 * remember the amount of formatted tracks to prevent double format on
-+	 * ESE devices
-+	 */
-+	if (cqr->block)
-+		cqr->trkcount = atomic_read(&cqr->block->trkcount);
-+
- 	if (cqr->cpmode == 1) {
- 		rc = ccw_device_tm_start(device->cdev, cqr->cpaddr,
- 					 (long) cqr, cqr->lpm);
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index e3583502aca2..649eba51e048 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -3083,13 +3083,24 @@ static int dasd_eckd_format_device(struct dasd_device *base,
- }
- 
- static bool test_and_set_format_track(struct dasd_format_entry *to_format,
--				      struct dasd_block *block)
-+				      struct dasd_ccw_req *cqr)
- {
-+	struct dasd_block *block = cqr->block;
- 	struct dasd_format_entry *format;
- 	unsigned long flags;
- 	bool rc = false;
- 
- 	spin_lock_irqsave(&block->format_lock, flags);
-+	if (cqr->trkcount != atomic_read(&block->trkcount)) {
-+		/*
-+		 * The number of formatted tracks has changed after request
-+		 * start and we can not tell if the current track was involved.
-+		 * To avoid data corruption treat it as if the current track is
-+		 * involved
-+		 */
-+		rc = true;
-+		goto out;
-+	}
- 	list_for_each_entry(format, &block->format_list, list) {
- 		if (format->track == to_format->track) {
- 			rc = true;
-@@ -3109,6 +3120,7 @@ static void clear_format_track(struct dasd_format_entry *format,
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&block->format_lock, flags);
-+	atomic_inc(&block->trkcount);
- 	list_del_init(&format->list);
- 	spin_unlock_irqrestore(&block->format_lock, flags);
- }
-@@ -3170,8 +3182,11 @@ dasd_eckd_ese_format(struct dasd_device *startdev, struct dasd_ccw_req *cqr,
- 	}
- 	format->track = curr_trk;
- 	/* test if track is already in formatting by another thread */
--	if (test_and_set_format_track(format, block))
-+	if (test_and_set_format_track(format, cqr)) {
-+		/* this is no real error so do not count down retries */
-+		cqr->retries++;
- 		return ERR_PTR(-EEXIST);
-+	}
- 
- 	fdata.start_unit = curr_trk;
- 	fdata.stop_unit = curr_trk;
-diff --git a/drivers/s390/block/dasd_int.h b/drivers/s390/block/dasd_int.h
-index 07f9670ea61e..83b918b84b4a 100644
---- a/drivers/s390/block/dasd_int.h
-+++ b/drivers/s390/block/dasd_int.h
-@@ -187,6 +187,7 @@ struct dasd_ccw_req {
- 	void (*callback)(struct dasd_ccw_req *, void *data);
- 	void *callback_data;
- 	unsigned int proc_bytes;	/* bytes for partial completion */
-+	unsigned int trkcount;		/* count formatted tracks */
- };
- 
- /*
-@@ -610,6 +611,7 @@ struct dasd_block {
- 
- 	struct list_head format_list;
- 	spinlock_t format_lock;
-+	atomic_t trkcount;
- };
- 
- struct dasd_attention_data {
--- 
-2.32.0
+> +	 * the old asce has been removed from the list, and therefore it
+> +	 * will not be freed when the VM terminates, but the ASCE is still
+> +	 * in use and still pointed to.
+> +	 * A subsequent call to replace_asce will follow the pointer and try
+> +	 * to remove the same page from the list again.
+> +	 * Therefore it's necessary that the page of the ASCE has valid
+> +	 * pointers, so list_del can work (and do nothing) without
+> +	 * dereferencing stale or invalid pointers.
+> +	 */
+> +	INIT_LIST_HEAD(&old->lru);
+> +	spin_unlock(&gmap->guest_table_lock);
+> +}
+> +EXPORT_SYMBOL_GPL(s390_remove_old_asce);
+> +
+> +/**
+> + * s390_replace_asce - Try to replace the current ASCE of a gmap with
+> + * another equivalent one.
+> + * @gmap the gmap
+
+"the gmap" is not a very helpful description for a parmeter that is already 
+called gmap. Write at least "the guest map that should be replaced" ?
+
+> + *
+> + * If the allocation of the new top level page table fails, the ASCE is not
+> + * replaced.
+> + * In any case, the old ASCE is always removed from the list. Therefore the
+> + * caller has to make sure to save a pointer to it beforehands, unless an
+
+s/beforehands/beforehand/
+
+> + * intentional leak is intended.
+
+scratch "intentional".
+
+> + */
+> +int s390_replace_asce(struct gmap *gmap)
+> +{
+> +	unsigned long asce;
+> +	struct page *page;
+> +	void *table;
+> +
+> +	s390_remove_old_asce(gmap);
+> +
+> +	page = alloc_pages(GFP_KERNEL_ACCOUNT, CRST_ALLOC_ORDER);
+> +	if (!page)
+> +		return -ENOMEM;
+> +	table = page_to_virt(page);
+> +	memcpy(table, gmap->table, 1UL << (CRST_ALLOC_ORDER + PAGE_SHIFT));
+> +
+> +	/*
+> +	 * The caller has to deal with the old ASCE, but here we make sure
+> +	 * the new one is properly added to the list of page tables, so that
+> +	 * it will be freed when the VM is torn down.
+> +	 */
+> +	spin_lock(&gmap->guest_table_lock);
+> +	list_add(&page->lru, &gmap->crst_list);
+> +	spin_unlock(&gmap->guest_table_lock);
+> +
+> +	/* Set new table origin while preserving existing ASCE control bits */
+> +	asce = (gmap->asce & ~_ASCE_ORIGIN) | __pa(table);
+> +	WRITE_ONCE(gmap->asce, asce);
+> +	WRITE_ONCE(gmap->mm->context.gmap_asce, asce);
+> +	WRITE_ONCE(gmap->table, table);
+> +
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(s390_replace_asce);
+
+  Thomas
 
