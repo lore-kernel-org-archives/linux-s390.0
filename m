@@ -2,31 +2,30 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C8A8C433EF
-	for <linux-s390@archiver.kernel.org>; Thu,  5 May 2022 20:36:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE4C1C433FE
+	for <linux-s390@archiver.kernel.org>; Thu,  5 May 2022 20:38:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239336AbiEEUkd (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 5 May 2022 16:40:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53012 "EHLO
+        id S1385928AbiEEUmM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 5 May 2022 16:42:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235604AbiEEUkd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 May 2022 16:40:33 -0400
-X-Greylist: delayed 360 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 05 May 2022 13:36:46 PDT
-Received: from mout.kundenserver.de (mout.kundenserver.de [217.72.192.73])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 884B853B44;
-        Thu,  5 May 2022 13:36:46 -0700 (PDT)
+        with ESMTP id S1382839AbiEEUmK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 May 2022 16:42:10 -0400
+Received: from mout.kundenserver.de (mout.kundenserver.de [217.72.192.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E458E5FF13;
+        Thu,  5 May 2022 13:38:25 -0700 (PDT)
 Received: from leknes.fjasle.eu ([46.142.98.182]) by mrelayeu.kundenserver.de
- (mreue108 [212.227.15.183]) with ESMTPSA (Nemesis) id
- 1N63JO-1ntTNL2HRw-016TAG; Thu, 05 May 2022 22:29:31 +0200
+ (mreue107 [212.227.15.183]) with ESMTPSA (Nemesis) id
+ 1MzQTm-1o06Fv05JY-00vQbk; Thu, 05 May 2022 22:31:31 +0200
 Received: by leknes.fjasle.eu (Postfix, from userid 1000)
-        id 71CFD3C088; Thu,  5 May 2022 22:29:23 +0200 (CEST)
+        id 146A93C0A0; Thu,  5 May 2022 22:31:29 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=fjasle.eu; s=mail;
-        t=1651782563; bh=wVmgLLHKta8PUSVIgVtK/1NnMmbzgztoT/WwL6D71Rs=;
+        t=1651782689; bh=9wlFO3MLyBOpHZvAd84sW/pY49tJqU65GeK3vStuX2I=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=p5gWrt/AhpbEjf/JeLl3pOYQGqIkCIEmpciAUncAWUB0EtaDHQuMAzikXCpLS4Ccp
-         +yMBf56zg2EUXDLFMzlvawEbbxLcBVdnOFYlf1kDYa0vYG8cMaPq69u9pGenvvliSJ
-         9tHzoS/o4jQSB8XRbFhYuJDj6YbPfuM5SvjoU06Q=
-Date:   Thu, 5 May 2022 22:29:23 +0200
+        b=zqmv8cX5aeN75BpS8wlPq/mhxNbMeyV64uEMViipkFTMdKvtNiGWbceJ+6Bh+JWwv
+         D/4yHrbTFXWvkyqseXRLrnqsE2YvCZeKLiZHpYNAAZY931HxmxHvb1eVrhZqtPEcHZ
+         N+olq3LtWu+5k3HoEQ7JcVJEIpPj6kokDR5VBw80=
+Date:   Thu, 5 May 2022 22:31:28 +0200
 From:   Nicolas Schier <nicolas@fjasle.eu>
 To:     Masahiro Yamada <masahiroy@kernel.org>
 Cc:     linux-kbuild@vger.kernel.org, clang-built-linux@googlegroups.com,
@@ -38,61 +37,51 @@ Cc:     linux-kbuild@vger.kernel.org, clang-built-linux@googlegroups.com,
         Nick Desaulniers <ndesaulniers@google.com>,
         Sami Tolvanen <samitolvanen@google.com>,
         Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH v3 14/15] kbuild: make built-in.a rule robust against too
- long argument error
-Message-ID: <YnQzox0FyZuGmRQ0@fjasle.eu>
+Subject: Re: [PATCH v3 15/15] kbuild: make *.mod rule robust against too long
+ argument error
+Message-ID: <YnQ0IHNnQTIsxOxq@fjasle.eu>
 References: <20220505072244.1155033-1-masahiroy@kernel.org>
- <20220505072244.1155033-15-masahiroy@kernel.org>
+ <20220505072244.1155033-16-masahiroy@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220505072244.1155033-15-masahiroy@kernel.org>
-X-Provags-ID: V03:K1:g7/GEkNdzZQcHIJUtCmuKgFMiYguYvVDH+d7WyytcfLFvAyhgrE
- 5sNn8CrlM3fsZq6LKQytxDubyW6P7Q3FYIzsZp1qwE1V6/OA+NZgqQKbz3DZXaLlagXkvlb
- yapZ1jiodr0qTdSvbPs5M5ciqINjQTHyt5/w5En0gHi9YA8RyUsbitDfT0QwC+goW8RPyW2
- rY+hBNh9hgOUj6XoX40Hw==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:15c6AGhzBaE=:UyGq/t2rNQuEK3R9UJFY/D
- gJs6fytS1ZuHH48I6M03XJISLFuKAAJEahH0uxR3/vwxh0Q3qXQ+EWhTNK7eNcu8QBEEzmVpl
- EnpjtMASJbtSziPE7CgKr+i69Xb4cEmEuPFhRbku92qn0H0iVMR+MWLHc0bwSXwg4zykFfq5G
- skpgpnOFgj3DCdWLnaXA6RjEiIGpj1FQkk+cjc8H/1FsafWv04L1ABH03/wwvwCyb0fnCaPxj
- /OHIBr+ETHLITdgLo0T3p+mwlI0g2F3zGt3twoYb1xBtwoEpxWTYorr9P7Hq91OuBUoBV6rv8
- rwvmvlNEMyjVdqaAppqvLNhqwmNJkl6bm0WyckKs1iRGvaeADPG3H0qonpmgf+n9akLg0LLnX
- Mvaw23L9w6FhWhNeHDM1iLR9HsXU5XjXl88iuUiCqUEmBMtZ3Cl+3Bp0WCV2KUBbxrppjWyEP
- AoXSxxgx9I69PGJbzKSYfuKkHutQK+Xk+EnVcNWrlK5Lye0KCE2EmfxCe31bKt8YZ62KcHkVK
- n8KLzThrQirOCdvsScBO733ToltidhqSvgGDCKkuyknF1BjPhjkabIo+O+08rmul7/N80SQT6
- r4sAraF3zPB21vkd6rTvfPKmNji6Kc9iC/zb+tCfFFRj1vmCKfHME8F7FggQZR63aK2Pd1hov
- zKlGtbMH8XCjFkEtxRG8S9Znb41PqJ7yUEFQ+HkDG5j/husT/MAQYYSyjLjfgW9lLUj0=
+In-Reply-To: <20220505072244.1155033-16-masahiroy@kernel.org>
+X-Provags-ID: V03:K1:ATjjPZxZrxSYHnT3weErv12Bh2cwK2wHc1xFqX4u3bAi/heFx7b
+ 6P8k3j2vwjJcl03Stj1aUwkOTwe+JjMDsmGjUfomIoBMI9IRoUX5GVrziiH2c+621UgNyjj
+ 7HP/rVyptQpb5aIpXw+GYaWos4XrsiPnY5/fS3Irm+rP1103LXqYJA/yTGnAqsrsNPONEwQ
+ NeGAeBdHijOVBbfFKB66A==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:Ht9znOFhGJs=:XBYPSP6S3dmiJ91SUrJ0BG
+ IKN4p3eyUbMaMqfG9RvXmNFoOdbExkZoL4r6iU5wmAZD6Fw9jGZAzKwZOMt4wfcOlweHzEeal
+ vvroAo/8kygn3Zf03HfcvsWHPWs+5g6K61yPI1jJrojrbhI2UCmKB4QlZawAEAc5Um48kE8xZ
+ iMAMdV3AL4uXLGD6JdTXsRJ9VlR0ZtV1GAVu5WT2vit5nuemkEVW+ydNyGRQAGi8jLMo3ZKag
+ PvnileNSkjFhZL52a1T5U8yOB9ifKV9MHPcSyy3McehLXnLEQmZPpvZeU3qI1B0U3OrI6v8z4
+ LeGmUh1hp0RZVZL/3FbFjggaZOSo+fn5LhCHknTAWISJ6tDmJtRUIJWfm6cuQ05BbRQbRBBql
+ JVD088s7COrgOKLbz1FiOxPNG0KvY9lXf9wOd4V5+ju4uPENjKJnmTq6TC65XWTou1SQQIxrR
+ k9KIVxie3ertxDDagmEcof8KGi4aPuyAvsQYAI2bzpqJy4KqOLl1gUViHKY41MjpoiOgtwr3h
+ ETgQowUaEzCX00hR8MqC1AcBmMx4tiYMJn6yUhcJPb7hXbD9KAqGP7HnoYP18TErG6tRdJamR
+ CD2DGhYnY2+ekjPbY+C4CM1GmKUvixEWCbq0mvEtSDqPbnljHWyvI+J7cMelDnQWTvUX3HNsU
+ uTQnbBXBK1a8KW0AgLiwXUZzKU+xVvv48Oc+wU6QSQiW0VwYvbBxac62YnwzTJySEneg=
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, May 05, 2022 at 04:22:43PM +0900 Masahiro Yamada wrote:
-> Kbuild runs at the top of objtree instead of changing the working
-> directory to subdirectories. I think this design is nice overall but
-> some commands have a scapability issue.
+On Thu, May 05, 2022 at 04:22:44PM +0900 Masahiro Yamada wrote:
+> Like built-in.a, the command length of the *.mod rule scales with
+> the depth of the directory times the number of objects in the Makefile.
 > 
-> The build command of built-in.a is one of them whose length scales with:
-> 
->     O(D * N)
-> 
-> Here, D is the length of the directory path (i.e. $(obj)/ prefix),
-> N is the number of objects in the Makefile, O() is the big O notation.
-> 
-> The deeper directory the Makefile directory is located, the more easily
-> it will hit the too long argument error.
-> 
-> We can make it better. Trim the $(obj)/ by Make's builtin function, and
-> restore it by a shell command (sed).
-> 
-> With this, the command length scales with:
-> 
->     O(D + N)
+> Add $(obj)/ by the shell command (awk) instead of by Make's builtin
+> function.
 > 
 > In-tree modules still have some room to the limit (ARG_MAX=2097152),
 > but this is more future-proof for big modules in a deep directory.
 > 
-> For example, you can build i915 as builtin (CONFIG_DRM_I915=y) and
-> compare drivers/gpu/drm/i915/.built-in.a.cmd with/without this commit.
+> For example, you can build i915 as a module (CONFIG_DRM_I915=m) and
+> compare drivers/gpu/drm/i915/.i915.mod.cmd with/without this commit.
+> 
+> The issue is more critical for external modules because the M= path
+> can be very long as Jeff Johnson reported before [1].
+> 
+> [1] https://lore.kernel.org/linux-kbuild/4c02050c4e95e4cb8cc04282695f8404@codeaurora.org/
 > 
 > Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 > ---
@@ -102,26 +91,27 @@ On Thu, May 05, 2022 at 04:22:43PM +0900 Masahiro Yamada wrote:
 > Changes in v2:
 >   - New patch
 > 
->  scripts/Makefile.build | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
+>  scripts/Makefile.build | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
 > diff --git a/scripts/Makefile.build b/scripts/Makefile.build
-> index 0436ff94800e..cea48762299c 100644
+> index cea48762299c..e7b3f329d443 100644
 > --- a/scripts/Makefile.build
 > +++ b/scripts/Makefile.build
-> @@ -370,7 +370,10 @@ $(subdir-modorder): $(obj)/%/modules.order: $(obj)/% ;
->  #
+> @@ -266,8 +266,8 @@ $(obj)/%.o: $(src)/%.c $(recordmcount_source) FORCE
+>  	$(call if_changed_rule,cc_o_c)
+>  	$(call cmd,force_checksrc)
 >  
->  quiet_cmd_ar_builtin = AR      $@
-> -      cmd_ar_builtin = rm -f $@; $(AR) cDPrST $@ $(real-prereqs)
-> +      cmd_ar_builtin = rm -f $@; \
-> +		echo $(patsubst $(obj)/%,%,$(real-prereqs)) | \
-> +		sed -E 's:([^ ]+):$(obj)/\1:g' | \
-> +		xargs $(AR) cDPrST $@
+> -cmd_mod = echo $(addprefix $(obj)/, $(call real-search, $*.o, .o, -objs -y -m)) | \
+> -	$(AWK) -v RS='( |\n)' '!x[$$0]++' > $@
+> +cmd_mod = echo $(call real-search, $*.o, .o, -objs -y -m) | \
+> +	$(AWK) -v RS='( |\n)' '!x[$$0]++ { print("$(obj)/"$$0) }' > $@
 >  
->  $(obj)/built-in.a: $(real-obj-y) FORCE
->  	$(call if_changed,ar_builtin)
+>  $(obj)/%.mod: FORCE
+>  	$(call if_changed,mod)
 > -- 
 > 2.32.0
+
+Thanks!  At work, some colleagues of mine stumbled over that problem, too.
 
 Reviewed-by: Nicolas Schier <nicolas@fjasle.eu>
