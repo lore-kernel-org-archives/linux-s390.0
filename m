@@ -2,103 +2,114 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DA2DC433EF
-	for <linux-s390@archiver.kernel.org>; Thu,  5 May 2022 12:46:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D24EEC433F5
+	for <linux-s390@archiver.kernel.org>; Thu,  5 May 2022 12:47:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359305AbiEEMuK (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 5 May 2022 08:50:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56442 "EHLO
+        id S1349480AbiEEMup (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 5 May 2022 08:50:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238479AbiEEMuI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 May 2022 08:50:08 -0400
-Received: from us-smtp-delivery-74.mimecast.com (us-smtp-delivery-74.mimecast.com [170.10.133.74])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id DDE8E4B874
-        for <linux-s390@vger.kernel.org>; Thu,  5 May 2022 05:46:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1651754788;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=6vaRlr/7ULHx6gWuSvnNnjYCo18hzcHoYJDQoD2144Y=;
-        b=RlXiVtwzIuSSasclZbDEuYYbJDaeiRODIcJXUWITNsO+ELous0ZMX1cm53bmFB87RXvA3P
-        fz7AXq8g1pw9y8+qNLI6exGxrxzz2Ui6PbwRY7l9RZXHzLtVSpx1qeo/i7sARBqUUHr2xi
-        rgCsKxkDow1u3HGAF89M9Lw8UsoooEQ=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-270-M7fCgU-WPWmPokjt6Dk1kQ-1; Thu, 05 May 2022 08:46:27 -0400
-X-MC-Unique: M7fCgU-WPWmPokjt6Dk1kQ-1
-Received: by mail-ej1-f70.google.com with SMTP id gn26-20020a1709070d1a00b006f453043956so2546514ejc.15
-        for <linux-s390@vger.kernel.org>; Thu, 05 May 2022 05:46:27 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent
-         :content-language:to:cc:references:from:subject:in-reply-to
-         :content-transfer-encoding;
-        bh=6vaRlr/7ULHx6gWuSvnNnjYCo18hzcHoYJDQoD2144Y=;
-        b=kbR1gU9NeronNFR/y8njHty02zqb8yAo+SLCki2dKe72MT/23MxWxn1uZN/2iGwuVY
-         f9n69+Ke00edLYwCmWWfu6y3j3K4+QlSOR0zaAeUdfWGL41EAjpOJ/LoPXr3gLEA3pyP
-         lK7ynv7k6/B9dBbgUi/xNH2p7UkZhi+afBWa5dOpIFczQUYYj2MJVrn1m34l21rIqnM3
-         KUmq25G7639dojsy1dIQ2cj+d4CpIasvq6ub9SlbCGFayHSizUsNEwKIXWpDwhtmrQ0k
-         39afqyNGzCGXED+KdkZ+JtbemCwU4y834FEA9S8u1HVwQRrUZxHiNsrnr7Jj1RYMSnhW
-         89Pg==
-X-Gm-Message-State: AOAM5307X25n0PAPBBHtTOQKccxkR7x02So5vW+5fMwpIeCIFuQUMtzb
-        fBWl+UE0Y64cVGKU2u9hd+0DB8rijr/kjjkMyS1ZOxYH8iIqYHNjskI6eW98+h4kOnBcf1NwTaW
-        DcDKWIShEcobcZRF4hFZ8PQ==
-X-Received: by 2002:a17:907:2d93:b0:6f3:8524:6f92 with SMTP id gt19-20020a1709072d9300b006f385246f92mr26104535ejc.556.1651754785958;
-        Thu, 05 May 2022 05:46:25 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxh0AuoTLb4NtFUKSzSmvuWG14SE3dq6/K9LQkEcxHXLqwacGXBsP3Jh5c8evy8eiZw9cDE4w==
-X-Received: by 2002:a17:907:2d93:b0:6f3:8524:6f92 with SMTP id gt19-20020a1709072d9300b006f385246f92mr26104509ejc.556.1651754785685;
-        Thu, 05 May 2022 05:46:25 -0700 (PDT)
-Received: from ?IPV6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
-        by smtp.googlemail.com with ESMTPSA id c21-20020a056402121500b0042617ba63bdsm776943edw.71.2022.05.05.05.46.23
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 05 May 2022 05:46:24 -0700 (PDT)
-Message-ID: <8342100d-a9f6-2f6d-30d0-b3950661d0c6@redhat.com>
-Date:   Thu, 5 May 2022 14:46:22 +0200
+        with ESMTP id S229704AbiEEMuo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 May 2022 08:50:44 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA93D2ED61;
+        Thu,  5 May 2022 05:47:05 -0700 (PDT)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 245Bg3tH015707;
+        Thu, 5 May 2022 12:47:05 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=qO5FrkGjEDfSXDwcj3JKB+pKq1QZ2YCrl5e+xVQ8adY=;
+ b=tWqokK/F+V/Fpl0XNBodpzFJC9BFLq8z2i/xJ0SCIig4k6tZoXP1IuHkUyQyvTwRAN+4
+ UG47PUczzoAsIEfeS5soHN7UiLjWmSqJB6Pl2yQpyFkItcxP4hgaxERa6fK+78ojVXPq
+ SCh+ONt9vB219Q6RowiLaKxWUSXMltIkdiGvn/quuOYKBt/+9FiI63peWNdWKj0wqeh0
+ cc37q3pXb3kxO88b9IJocnNiEJWeMk+Sg8XcptFdtUZ8KL0J0rL//17o6eErmIO1VlEk
+ hf8o07vGKxapDG0gPV0GnqNbnecm4BGYH1QSW84BHS6AESNoWGpyxiTqCoBPYxjy9h5N JA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fvdxbs956-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 05 May 2022 12:47:05 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 245CZEY8021457;
+        Thu, 5 May 2022 12:47:04 GMT
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fvdxbs944-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 05 May 2022 12:47:04 +0000
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 245CiNaR019782;
+        Thu, 5 May 2022 12:47:02 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma03fra.de.ibm.com with ESMTP id 3fscdk56b0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 05 May 2022 12:47:02 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com [9.149.105.60])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 245Ckwm335389758
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 5 May 2022 12:46:58 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B915C4203F;
+        Thu,  5 May 2022 12:46:58 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 656E942042;
+        Thu,  5 May 2022 12:46:58 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu,  5 May 2022 12:46:58 +0000 (GMT)
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+To:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH 0/3] s390x: More storage key instruction
+Date:   Thu,  5 May 2022 14:46:53 +0200
+Message-Id: <20220505124656.1954092-1-scgl@linux.ibm.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Content-Language: en-US
-To:     Heiko Carstens <hca@linux.ibm.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <YnPFjuBYZw/dj01U@osiris>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [GIT PULL] s390 updates for 5.18-rc6
-In-Reply-To: <YnPFjuBYZw/dj01U@osiris>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: lCem2wx3DHTl04D-f_YlxuppFgHDwxQe
+X-Proofpoint-GUID: orgNLLakoQezp_jtBoAp6DyI6o-rI9C8
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-05_05,2022-05-05_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
+ phishscore=0 priorityscore=1501 clxscore=1015 bulkscore=0 impostorscore=0
+ mlxscore=0 adultscore=0 mlxlogscore=999 spamscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2205050091
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 5/5/22 14:39, Heiko Carstens wrote:
-> Hi Linus,
-> 
-> please pull s390 updates for 5.18-rc6. Please note that this pull
-> request includes two s390 specific kvm commits, which normally would
-> have been routed via the kvm tree.
-> 
-> Due to lack of other patches in the kvm tree Christian Borntraeger
-> asked to get them upstream via the s390 tree:
-> https://lore.kernel.org/linux-s390/249d0100-fa58-bf48-b1d2-f28e94c3a5f2@linux.ibm.com/
+Add test cases similar to those testing the effect of storage keys on
+instructions emulated by KVM, but test instructions emulated by user
+space/qemu instead.
+Additionally, check the transaction exception identification on
+protection exceptions
 
-Needless to say, kvm patches have since materialized and I'll send a 
-pull request later this week.
+Based on the previous storage key test series.
 
-But anyway s390 is the architecture where I expect zero issues if KVM 
-patches go in through arch maintainers.  Compared to other 
-architectures, there are a lot more points of contact between KVM and 
-the rest of arch/s390; you know the KVM code well; and honestly the 
-whole architecture is mostly Amharic to me when it comes to the 
-privileged interface.
+Janis Schoetterl-Glausch (3):
+  s390x: Fix sclp facility bit numbers
+  s390x: Test TEID values in storage key test
+  s390x: Test effect of storage keys on some more instructions
 
-Thanks,
+ lib/s390x/asm/facility.h |  21 +++
+ lib/s390x/sclp.h         |  18 ++-
+ lib/s390x/sclp.c         |   2 +
+ s390x/skey.c             | 337 ++++++++++++++++++++++++++++++++++++++-
+ s390x/unittests.cfg      |   1 +
+ 5 files changed, 366 insertions(+), 13 deletions(-)
 
-Paolo
+
+base-commit: 6a7a83ed106211fc0ee530a3a05f171f6a4c4e66
+prerequisite-patch-id: fbcb3161ffa816cec4edea484bd9d9b22b11518b
+prerequisite-patch-id: f7e97c6d2555ac61a603fa9054ba5ad391aa5dbf
+prerequisite-patch-id: 14c928967e08fb48de955ccd37d5698c972e54f9
+-- 
+2.33.1
 
