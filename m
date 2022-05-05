@@ -2,34 +2,34 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 25864C433EF
-	for <linux-s390@archiver.kernel.org>; Thu,  5 May 2022 07:29:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 84581C433F5
+	for <linux-s390@archiver.kernel.org>; Thu,  5 May 2022 07:29:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241594AbiEEHck (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 5 May 2022 03:32:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39900 "EHLO
+        id S1344136AbiEEHcn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 5 May 2022 03:32:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344552AbiEEHcd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 May 2022 03:32:33 -0400
-Received: from condef-05.nifty.com (condef-05.nifty.com [202.248.20.70])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 090BF3DDD9
-        for <linux-s390@vger.kernel.org>; Thu,  5 May 2022 00:28:54 -0700 (PDT)
-Received: from conuserg-12.nifty.com ([10.126.8.75])by condef-05.nifty.com with ESMTP id 2457QG3l005888
-        for <linux-s390@vger.kernel.org>; Thu, 5 May 2022 16:26:16 +0900
+        with ESMTP id S1344682AbiEEHce (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 May 2022 03:32:34 -0400
+Received: from condef-09.nifty.com (condef-09.nifty.com [202.248.20.74])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D604447ADD
+        for <linux-s390@vger.kernel.org>; Thu,  5 May 2022 00:28:55 -0700 (PDT)
+Received: from conuserg-12.nifty.com ([10.126.8.75])by condef-09.nifty.com with ESMTP id 2457QJTr005146
+        for <linux-s390@vger.kernel.org>; Thu, 5 May 2022 16:26:20 +0900
 Received: from grover.sesame (133-32-177-133.west.xps.vectant.ne.jp [133.32.177.133]) (authenticated)
-        by conuserg-12.nifty.com with ESMTP id 2457Nenl019426;
-        Thu, 5 May 2022 16:23:43 +0900
-DKIM-Filter: OpenDKIM Filter v2.10.3 conuserg-12.nifty.com 2457Nenl019426
+        by conuserg-12.nifty.com with ESMTP id 2457Nenn019426;
+        Thu, 5 May 2022 16:23:46 +0900
+DKIM-Filter: OpenDKIM Filter v2.10.3 conuserg-12.nifty.com 2457Nenn019426
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
-        s=dec2015msa; t=1651735424;
-        bh=BFUO29caSUfobdcXOazaV3japZmLNF4oOw4tiPaDpqU=;
+        s=dec2015msa; t=1651735427;
+        bh=vWIe6Hz1v6TN6G/VnDfKR17//GxSJcR4wll8Uklx9kI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2JXJtDn1hClMMIl6bpROdtphb7/17freo+cExsk4J/TqIDUdWrhKpo1o6NUNh/N58
-         FaQ70f+YJJ/kk9WFVGWJQMNfNKKFdcY7vy9JQ/HwvMf+QX4rNCKE/9yjvXt2bJVWD9
-         r0eq6EECwY2wndn8OtvSRs1egxovqi5mhxtmPEH/cPOmeO5GAS0dn0ZWWlg7sRmPrX
-         /KYZPW/9dnYmKW7DZ6CjoCWT7lt/0TjPi8l9YfWL58ZV5uYLpGBHsPfOm3TwxkZyF+
-         ZEuHzSYuVCHMH0vnqyY0K9YjNqU10nv7KZdtgpeGsMJgiYMLtRTDfqWfAtONJsNwrl
-         w3JB3Ca53DTeQ==
+        b=CZSbHVFmHWUVZ1VYDxo4qTVmtK1DQkx05aFyb75DtQuxwykuQwLM1GEGYTVcN2AYy
+         ZRYnGGFvrFdSLcMleP2JQYsOs41x+FT25Qe/9MZQaiR1nhJjDS6mYatL6nkxsPLZWm
+         qI+Tx/R2vqo4ROnpxOcvbJLLAMDvYQ5/0Gygfjm5qlZxKanhPnvKI+5gFolY/A7qei
+         sT4F+Aq7wiqzNyi4dfIx4wfwFSaR4Lqgylp5qByKxdfXW0y69Au4GY5WnqsUwYuDV+
+         /svKyOJ5f5mej1QH7LKgybltl2t1e4x5ZOSJNBu+Q80h6pv0vlLGje8hbPdWfLukei
+         slwvBQjHty62Q==
 X-Nifty-SrcIP: [133.32.177.133]
 From:   Masahiro Yamada <masahiroy@kernel.org>
 To:     linux-kbuild@vger.kernel.org
@@ -44,9 +44,9 @@ Cc:     clang-built-linux@googlegroups.com, linux-kernel@vger.kernel.org,
         Sami Tolvanen <samitolvanen@google.com>,
         Kees Cook <keescook@chromium.org>,
         Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH v3 03/15] modpost: merge add_{intree_flag,retpoline,staging_flag} to add_header
-Date:   Thu,  5 May 2022 16:22:32 +0900
-Message-Id: <20220505072244.1155033-4-masahiroy@kernel.org>
+Subject: [PATCH v3 05/15] kbuild: generate a list of objects in vmlinux
+Date:   Thu,  5 May 2022 16:22:34 +0900
+Message-Id: <20220505072244.1155033-6-masahiroy@kernel.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20220505072244.1155033-1-masahiroy@kernel.org>
 References: <20220505072244.1155033-1-masahiroy@kernel.org>
@@ -56,65 +56,53 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-add_intree_flag(), add_retpoline(), and add_staging_flag() are small
-enough to be merged into add_header().
+A *.mod file lists the member objects of a module, but vmlinux does
+not have such a file to list out all the member objects.
+
+Generate this list to allow modpost to know all the member objects.
 
 Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Reviewed-by: Nicolas Schier <nicolas@fjasle.eu>
 ---
 
-Changes in v3:
-  - New patch
+(no changes since v2)
 
- scripts/mod/modpost.c | 25 +++++++------------------
- 1 file changed, 7 insertions(+), 18 deletions(-)
+Changes in v2:
+  - Move '> .vmlinux.objs' to the outside of the loop (Nicolas)
+  - Clean up .vmlinux.objs explicitly
 
-diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
-index ebd80c77fa03..ae8e4a4dcfd2 100644
---- a/scripts/mod/modpost.c
-+++ b/scripts/mod/modpost.c
-@@ -2200,25 +2200,17 @@ static void add_header(struct buffer *b, struct module *mod)
- 			      "#endif\n");
- 	buf_printf(b, "\t.arch = MODULE_ARCH_INIT,\n");
- 	buf_printf(b, "};\n");
--}
- 
--static void add_intree_flag(struct buffer *b, int is_intree)
--{
--	if (is_intree)
-+	if (!external_module)
- 		buf_printf(b, "\nMODULE_INFO(intree, \"Y\");\n");
--}
- 
--/* Cannot check for assembler */
--static void add_retpoline(struct buffer *b)
--{
--	buf_printf(b, "\n#ifdef CONFIG_RETPOLINE\n");
--	buf_printf(b, "MODULE_INFO(retpoline, \"Y\");\n");
--	buf_printf(b, "#endif\n");
--}
-+	buf_printf(b,
-+		   "\n"
-+		   "#ifdef CONFIG_RETPOLINE\n"
-+		   "MODULE_INFO(retpoline, \"Y\");\n"
-+		   "#endif\n");
- 
--static void add_staging_flag(struct buffer *b, const char *name)
--{
--	if (strstarts(name, "drivers/staging"))
-+	if (strstarts(mod->name, "drivers/staging"))
- 		buf_printf(b, "\nMODULE_INFO(staging, \"Y\");\n");
+ scripts/link-vmlinux.sh | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/scripts/link-vmlinux.sh b/scripts/link-vmlinux.sh
+index 20f44504a644..eceb3ee7ec06 100755
+--- a/scripts/link-vmlinux.sh
++++ b/scripts/link-vmlinux.sh
+@@ -311,6 +311,7 @@ cleanup()
+ 	rm -f vmlinux.map
+ 	rm -f vmlinux.o
+ 	rm -f .vmlinux.d
++	rm -f .vmlinux.objs
  }
  
-@@ -2544,9 +2536,6 @@ int main(int argc, char **argv)
- 		check_exports(mod);
+ # Use "make V=1" to debug this script
+@@ -342,6 +343,16 @@ ${MAKE} -f "${srctree}/scripts/Makefile.build" obj=init need-builtin=1
+ modpost_link vmlinux.o
+ objtool_link vmlinux.o
  
- 		add_header(&buf, mod);
--		add_intree_flag(&buf, !external_module);
--		add_retpoline(&buf);
--		add_staging_flag(&buf, mod->name);
- 		add_versions(&buf, mod);
- 		add_depends(&buf, mod);
- 		add_moddevtable(&buf, mod);
++# Generate the list of objects in vmlinux
++for f in ${KBUILD_VMLINUX_OBJS} ${KBUILD_VMLINUX_LIBS}; do
++	case ${f} in
++	*.a)
++		${AR} t ${f} ;;
++	*)
++		echo ${f} ;;
++	esac
++done > .vmlinux.objs
++
+ # modpost vmlinux.o to check for section mismatches
+ ${MAKE} -f "${srctree}/scripts/Makefile.modpost" MODPOST_VMLINUX=1
+ 
 -- 
 2.32.0
 
