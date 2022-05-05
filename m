@@ -2,34 +2,34 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 92413C433EF
-	for <linux-s390@archiver.kernel.org>; Thu,  5 May 2022 07:29:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EBE16C433EF
+	for <linux-s390@archiver.kernel.org>; Thu,  5 May 2022 07:29:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241710AbiEEHdD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 5 May 2022 03:33:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40614 "EHLO
+        id S1344241AbiEEHdN (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 5 May 2022 03:33:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344142AbiEEHdC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 May 2022 03:33:02 -0400
-Received: from condef-09.nifty.com (condef-09.nifty.com [202.248.20.74])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75E8247AE2
-        for <linux-s390@vger.kernel.org>; Thu,  5 May 2022 00:29:22 -0700 (PDT)
-Received: from conuserg-12.nifty.com ([10.126.8.75])by condef-09.nifty.com with ESMTP id 2457QJgl005144
-        for <linux-s390@vger.kernel.org>; Thu, 5 May 2022 16:26:19 +0900
+        with ESMTP id S1344519AbiEEHdI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 May 2022 03:33:08 -0400
+Received: from condef-07.nifty.com (condef-07.nifty.com [202.248.20.72])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEF1448305
+        for <linux-s390@vger.kernel.org>; Thu,  5 May 2022 00:29:29 -0700 (PDT)
+Received: from conuserg-12.nifty.com ([10.126.8.75])by condef-07.nifty.com with ESMTP id 2457QHuJ007682
+        for <linux-s390@vger.kernel.org>; Thu, 5 May 2022 16:26:17 +0900
 Received: from grover.sesame (133-32-177-133.west.xps.vectant.ne.jp [133.32.177.133]) (authenticated)
-        by conuserg-12.nifty.com with ESMTP id 2457Nenm019426;
-        Thu, 5 May 2022 16:23:45 +0900
-DKIM-Filter: OpenDKIM Filter v2.10.3 conuserg-12.nifty.com 2457Nenm019426
+        by conuserg-12.nifty.com with ESMTP id 2457Nenj019426;
+        Thu, 5 May 2022 16:23:41 +0900
+DKIM-Filter: OpenDKIM Filter v2.10.3 conuserg-12.nifty.com 2457Nenj019426
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
-        s=dec2015msa; t=1651735425;
-        bh=9vhjoHFvf7AOTb32B8E0KmlDlM3Jq1E3rFxrJ8jofQk=;
+        s=dec2015msa; t=1651735422;
+        bh=XSY8vEAsNwUxWuIu8VWQF0+mhoFGCgLIKTmGfMENfeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kF3oDW6KHAoYEbwtonwsUNvqIuYlWn9T13iwniSTblpG8PITvm3eyZIaO1imofmvU
-         nPaz940JxkswE343lNjuYw5S/K/vxntx0wOi8m3o+r+iGFU1QMm0jrLi7RNKkPs2l2
-         D6Ou+Ge360xk/lEB9iCSufg9D2+dFjUq6VBoVQJ1rz9fWWI7CAoLfafl3gVP8ieQVM
-         Fy8WE80uHKCrXsecBO4OptWTvnaIi5u1TchZzUZNPMQPb5FpFvn166zCFQsi7j6sQ4
-         +98+7dJXLPsusc0rG8wWB1NxmBTFKuHbl9O+W9qIQS2RuymD3DDJ40yNzDU1Zqmfaj
-         wwLBrT3apuHmg==
+        b=RheR5FxUn3suG0aI8H/cOySl5D+ea3lf6kWVUuBW/Qv7LKdzP5/84CeKz1jAxq2L4
+         9liEI6t51lHDtY1AaMooucUWmii/fm/hi1OU9T+oabmID+8I3+jRJ7leqQulu+IgOO
+         55Dyo2mwltMLUMEtuQHgzA18PJ6yWcqyR3MlNt4+9BUnfHUp/mWPXh29EY4Nx3It5K
+         LavJf8lECquHSZuVekyynVI/mgFQ38u7gG6W6o6oWLhjmJ1C/2cXEYoI7rDLGfdw68
+         jbbcAtxL76GVOB4mTjb+MpTNwFytJtiwz2QNXU8CRQor+7hThIioJFpCrRcRURr8J0
+         kfiE/5EqGWraw==
 X-Nifty-SrcIP: [133.32.177.133]
 From:   Masahiro Yamada <masahiroy@kernel.org>
 To:     linux-kbuild@vger.kernel.org
@@ -44,9 +44,9 @@ Cc:     clang-built-linux@googlegroups.com, linux-kernel@vger.kernel.org,
         Sami Tolvanen <samitolvanen@google.com>,
         Kees Cook <keescook@chromium.org>,
         Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH v3 04/15] modpost: move *.mod.c generation to write_mod_c_files()
-Date:   Thu,  5 May 2022 16:22:33 +0900
-Message-Id: <20220505072244.1155033-5-masahiroy@kernel.org>
+Subject: [PATCH v3 01/15] modpost: mitigate false-negatives for static EXPORT_SYMBOL checks
+Date:   Thu,  5 May 2022 16:22:30 +0900
+Message-Id: <20220505072244.1155033-2-masahiroy@kernel.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20220505072244.1155033-1-masahiroy@kernel.org>
 References: <20220505072244.1155033-1-masahiroy@kernel.org>
@@ -56,108 +56,112 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-A later commit will add more code to this list_for_each_entry loop.
+The 'static' specifier and EXPORT_SYMBOL() are an odd combination.
 
-Before that, move the loop body into a separate helper function.
+Since commit 15bfc2348d54 ("modpost: check for static EXPORT_SYMBOL*
+functions"), modpost tries to detect it, but there are false negatives.
+
+Here is the sample code.
+
+[Sample 1]
+
+  Makefile:
+
+    obj-m += mymod1.o mymod2.o
+
+  mymod1.c:
+
+    #include <linux/export.h>
+    #include <linux/module.h>
+    static void foo(void) {}
+    EXPORT_SYMBOL(foo);
+    MODULE_LICENSE("GPL");
+
+  mymod2.c:
+
+    #include <linux/module.h>
+    void foo(void) {}
+    MODULE_LICENSE("GPL");
+
+mymod1 exports the static symbol 'foo', but modpost cannot catch it
+because it is fooled by the same name symbol in another module, mymod2.
+(Without mymod2, modpost can detect the error in mymod1)
+
+find_symbol() returns the first symbol found in the hash table with the
+given name. This hash table is global, so it may return a symbol from
+an unrelated module. So, a global symbol in a module may unset the
+'is_static' flag of another module.
+
+To mitigate this issue, add sym_find_with_module(), which receives the
+module pointer as the second argument. If non-NULL pointer is passed, it
+returns the symbol in the specified module. If NULL is passed, it is
+equivalent to find_module().
+
+Please note there are still false positives in the composite module,
+like below (or when both are built-in). I have no idea how to do this
+correctly.
+
+[Sample 2]  (not fixed by this commit)
+
+  Makefile:
+    obj-m += mymod.o
+    mymod-objs := mymod1.o mymod2.o
 
 Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 ---
 
-Changes in v3:
-  - New patch
+(no changes since v2)
 
- scripts/mod/modpost.c | 56 ++++++++++++++++++++++++-------------------
- 1 file changed, 31 insertions(+), 25 deletions(-)
+Changes in v2:
+  - Rename the new func to sym_find_with_module()
+
+ scripts/mod/modpost.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
 diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
-index ae8e4a4dcfd2..78a7107fcc40 100644
+index b605f4a58759..a55fa2b88a9a 100644
 --- a/scripts/mod/modpost.c
 +++ b/scripts/mod/modpost.c
-@@ -2347,6 +2347,34 @@ static void write_if_changed(struct buffer *b, const char *fname)
- 	write_buf(b, fname);
+@@ -272,7 +272,7 @@ static void sym_add_unresolved(const char *name, struct module *mod, bool weak)
+ 	list_add_tail(&sym->list, &mod->unresolved_symbols);
  }
  
-+/* do sanity checks, and generate *.mod.c file */
-+static void write_mod_c_file(struct module *mod)
+-static struct symbol *find_symbol(const char *name)
++static struct symbol *sym_find_with_module(const char *name, struct module *mod)
+ {
+ 	struct symbol *s;
+ 
+@@ -281,12 +281,17 @@ static struct symbol *find_symbol(const char *name)
+ 		name++;
+ 
+ 	for (s = symbolhash[tdb_hash(name) % SYMBOL_HASH_SIZE]; s; s = s->next) {
+-		if (strcmp(s->name, name) == 0)
++		if (strcmp(s->name, name) == 0 && (!mod || s->module == mod))
+ 			return s;
+ 	}
+ 	return NULL;
+ }
+ 
++static struct symbol *find_symbol(const char *name)
 +{
-+	struct buffer buf = { };
-+	char fname[PATH_MAX];
-+	int ret;
-+
-+	check_modname_len(mod);
-+	check_exports(mod);
-+
-+	add_header(&buf, mod);
-+	add_versions(&buf, mod);
-+	add_depends(&buf, mod);
-+	add_moddevtable(&buf, mod);
-+	add_srcversion(&buf, mod);
-+
-+	ret = snprintf(fname, sizeof(fname), "%s.mod.c", mod->name);
-+	if (ret >= sizeof(fname)) {
-+		error("%s: too long path was truncated\n", fname);
-+		goto free;
-+	}
-+
-+	write_if_changed(&buf, fname);
-+
-+free:
-+	free(buf.p);
++	return sym_find_with_module(name, NULL);
 +}
 +
- /* parse Module.symvers file. line format:
-  * 0x12345678<tab>symbol<tab>module<tab>export<tab>namespace
-  **/
-@@ -2462,7 +2490,6 @@ struct dump_list {
- int main(int argc, char **argv)
- {
- 	struct module *mod;
--	struct buffer buf = { };
- 	char *missing_namespace_deps = NULL;
- 	char *dump_write = NULL, *files_source = NULL;
- 	int opt;
-@@ -2524,30 +2551,11 @@ int main(int argc, char **argv)
- 		read_symbols_from_files(files_source);
+ struct namespace_list {
+ 	struct list_head list;
+ 	char namespace[];
+@@ -2063,8 +2068,9 @@ static void read_symbols(const char *modname)
  
- 	list_for_each_entry(mod, &modules, list) {
--		char fname[PATH_MAX];
--		int ret;
--
--		if (mod->is_vmlinux || mod->from_dump)
--			continue;
--
--		buf.pos = 0;
--
--		check_modname_len(mod);
--		check_exports(mod);
--
--		add_header(&buf, mod);
--		add_versions(&buf, mod);
--		add_depends(&buf, mod);
--		add_moddevtable(&buf, mod);
--		add_srcversion(&buf, mod);
--
--		ret = snprintf(fname, sizeof(fname), "%s.mod.c", mod->name);
--		if (ret >= sizeof(fname)) {
--			error("%s: too long path was truncated\n", fname);
-+		if (mod->from_dump)
- 			continue;
--		}
+ 		if (bind == STB_GLOBAL || bind == STB_WEAK) {
+ 			struct symbol *s =
+-				find_symbol(remove_dot(info.strtab +
+-						       sym->st_name));
++				sym_find_with_module(remove_dot(info.strtab +
++								sym->st_name),
++						     mod);
  
--		write_if_changed(&buf, fname);
-+		if (!mod->is_vmlinux)
-+			write_mod_c_file(mod);
- 	}
- 
- 	if (missing_namespace_deps)
-@@ -2563,7 +2571,5 @@ int main(int argc, char **argv)
- 		warn("suppressed %u unresolved symbol warnings because there were too many)\n",
- 		     nr_unresolved - MAX_UNRESOLVED_REPORTS);
- 
--	free(buf.p);
--
- 	return error_occurred ? 1 : 0;
- }
+ 			if (s)
+ 				s->is_static = false;
 -- 
 2.32.0
 
