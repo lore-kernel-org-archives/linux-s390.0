@@ -2,87 +2,105 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB01DC433EF
-	for <linux-s390@archiver.kernel.org>; Thu,  5 May 2022 13:50:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C3CB1C433F5
+	for <linux-s390@archiver.kernel.org>; Thu,  5 May 2022 14:17:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379924AbiEENy1 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 5 May 2022 09:54:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39910 "EHLO
+        id S1380517AbiEEOVV (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 5 May 2022 10:21:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380177AbiEENyJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 May 2022 09:54:09 -0400
-X-Greylist: delayed 23050 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 05 May 2022 06:50:27 PDT
-Received: from conssluserg-05.nifty.com (conssluserg-05.nifty.com [210.131.2.90])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B2421C4;
-        Thu,  5 May 2022 06:50:23 -0700 (PDT)
-Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174]) (authenticated)
-        by conssluserg-05.nifty.com with ESMTP id 245Do2Vm001524;
-        Thu, 5 May 2022 22:50:03 +0900
-DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-05.nifty.com 245Do2Vm001524
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
-        s=dec2015msa; t=1651758603;
-        bh=9oRpkNgyXXtV+zgGcTivzSiWJg6PL7lzsKUtb+il+xA=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=WCAi+X3iW2LWnS+cyU6Xwt+mVMFWGKNgvm1N4fQyjnqbm5kc3n8AZNfmfQahJf44C
-         8baCi4AzET7HA49g1FxlljYCIcyH27XetjJU5oHET938gKf0mwwJvz2T8HhpMNLCrz
-         P9Pn3Km3/Y/vQeek7U0RGRx1wEMV/zynJog1koCSG/7blY0+bz+o/+V+nd0dhDVIgT
-         ObLR1jGvcZqTTJusj3s304q3S0HOyD8i5NlnZKlgrayMMnTlwQhkOi3xewdpgkQ2UG
-         FMtXR+0Z3J9CI9yvcXTbq4t0xxUsKdPB9BdEjyOOS3D5O8xVFTCPswe5Ah2kSLCHdl
-         WLmJgONxSW2YA==
-X-Nifty-SrcIP: [209.85.214.174]
-Received: by mail-pl1-f174.google.com with SMTP id n18so4453578plg.5;
-        Thu, 05 May 2022 06:50:03 -0700 (PDT)
-X-Gm-Message-State: AOAM5337OApzlSjvMivzBuGPOcIlt85F07dCzPAk70PrPMKs1ZJpu0TO
-        ALyzMqaQ7j0d3brF4XksznGsKpYAul0EsDH8fk8=
-X-Google-Smtp-Source: ABdhPJwUvU2dd6I2MVotZAWGiD+mCtj6djZTY+lh8nRnnAK5x12OI9taA02MBGobfNqjKVY/3aiklbcYcNl4MlrBSIM=
-X-Received: by 2002:a17:90a:8405:b0:1bc:d521:b2c9 with SMTP id
- j5-20020a17090a840500b001bcd521b2c9mr6301241pjn.119.1651758602352; Thu, 05
- May 2022 06:50:02 -0700 (PDT)
+        with ESMTP id S1379920AbiEEOVU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 May 2022 10:21:20 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 466F45A2F6;
+        Thu,  5 May 2022 07:17:40 -0700 (PDT)
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 245Dg4Il020359;
+        Thu, 5 May 2022 14:17:39 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-type :
+ content-transfer-encoding; s=pp1;
+ bh=rj2qGSXCcECg6OtW/hFqsuc1eUafN4CMl6j4Q2gpXm4=;
+ b=ZO/qaCMOeCR3mybUQRAIUJmYKYoZU4I+k8FuyEF9myxWayEAKrhVhy1b8cr0PL0aaDIp
+ K4qcH/q6KlJ5Ftq1RJyPrgNHDI0vDTbN+WCAoCo5CEjHrQUWMAcUgeMkLESgR0xtbSYY
+ I0w5lcpiFKINKD7h5cSph4eIQQ8tNLG/bv04hbezzJhBOEBEEt6wr1uv98RL+V2OIOh/
+ P2l/tWqmGNyaCtl5xW1jJ0LRRU2AHlrZhITGFX/SZZM6IH5MlE1JQoScVda3kfzdjIQO
+ xRNjuupl5fJlczVPYDnPRWR+XBJvx68Q51jKvTKwkAKrlcqRfDyfldIxvxJ46XFnGwK5 5g== 
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fvfpkgtmy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 05 May 2022 14:17:38 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 245EErYe021411;
+        Thu, 5 May 2022 14:17:36 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma04fra.de.ibm.com with ESMTP id 3frvr8ww9t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 05 May 2022 14:17:36 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 245E4B2934603494
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 5 May 2022 14:04:11 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 65527AE056;
+        Thu,  5 May 2022 14:17:33 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5426DAE051;
+        Thu,  5 May 2022 14:17:33 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Thu,  5 May 2022 14:17:33 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 20191)
+        id 0D7E2E0379; Thu,  5 May 2022 16:17:33 +0200 (CEST)
+From:   Stefan Haberland <sth@linux.ibm.com>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 0/5] s390/dasd: data corruption fixes for thin provisioning
+Date:   Thu,  5 May 2022 16:17:28 +0200
+Message-Id: <20220505141733.1989450-1-sth@linux.ibm.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-References: <20220505072244.1155033-1-masahiroy@kernel.org> <20220505072244.1155033-3-masahiroy@kernel.org>
-In-Reply-To: <20220505072244.1155033-3-masahiroy@kernel.org>
-From:   Masahiro Yamada <masahiroy@kernel.org>
-Date:   Thu, 5 May 2022 22:48:55 +0900
-X-Gmail-Original-Message-ID: <CAK7LNAREQt5rPGK8zsti_UA-dGFKfqHsVWbSgMLw-yLoeNkJeA@mail.gmail.com>
-Message-ID: <CAK7LNAREQt5rPGK8zsti_UA-dGFKfqHsVWbSgMLw-yLoeNkJeA@mail.gmail.com>
-Subject: Re: [PATCH v3 02/15] modpost: change the license of EXPORT_SYMBOL to
- bool type
-To:     Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>
-Cc:     clang-built-linux <clang-built-linux@googlegroups.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Nicolas Schier a <nicolas@fjasle.eu>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux-um@lists.infradead.org,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Kees Cook <keescook@chromium.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: SNgH6W5S9LKRe3Ps75RvBjvhU01UhPMg
+X-Proofpoint-ORIG-GUID: SNgH6W5S9LKRe3Ps75RvBjvhU01UhPMg
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-05_06,2022-05-05_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
+ spamscore=0 bulkscore=0 lowpriorityscore=0 impostorscore=0 adultscore=0
+ mlxlogscore=962 phishscore=0 suspectscore=0 clxscore=1011 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2205050103
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, May 5, 2022 at 4:24 PM Masahiro Yamada <masahiroy@kernel.org> wrote:
->
-> Currently, enum export is tristate, but export_unknown does not make
-> sense in any way.
->
-> If the symbol name starts with "__ksymtab_", but the section name
-> does not start with "___ksymtab+" or "___ksymtab_gpl+", it is not
-> an exported symbol. The variable name just happens to start with
-> "__ksymtab_". Do not call sym_add_exported() in this case.
->
-> __ksymtab_* is internally by EXPORT_SYMBOL(_GPL) but somebody may
+Hi Jens,
 
-I mean
-"... is internally used by ..."
+please apply the following patches. There are 4 patches to fix potential
+data corruption on thin provisioned DASD devices and one cosmetic patch.
 
+Haowen Bai (1):
+  s390/dasd: Use kzalloc instead of kmalloc/memset
 
+Jan Höppner (2):
+  s390/dasd: Fix read for ESE with blksize < 4k
+  s390/dasd: Fix read inconsistency for ESE DASD devices
 
+Stefan Haberland (2):
+  s390/dasd: fix data corruption for ESE devices
+  s390/dasd: prevent double format of tracks for ESE devices
+
+ drivers/s390/block/dasd.c      | 18 +++++++++++++++---
+ drivers/s390/block/dasd_eckd.c | 33 ++++++++++++++++++++++-----------
+ drivers/s390/block/dasd_int.h  | 14 ++++++++++++++
+ 3 files changed, 51 insertions(+), 14 deletions(-)
 
 -- 
-Best Regards
-Masahiro Yamada
+2.32.0
+
