@@ -2,227 +2,188 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 076C6C433F5
-	for <linux-s390@archiver.kernel.org>; Fri,  6 May 2022 05:04:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52D63C433EF
+	for <linux-s390@archiver.kernel.org>; Fri,  6 May 2022 05:22:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1389047AbiEFFHw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 6 May 2022 01:07:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43968 "EHLO
+        id S239514AbiEFF0Q (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 6 May 2022 01:26:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237609AbiEFFHu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 May 2022 01:07:50 -0400
-Received: from m12-13.163.com (m12-13.163.com [220.181.12.13])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id DFF7755488;
-        Thu,  5 May 2022 22:04:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-        s=s110527; h=From:Subject:Date:Message-Id:MIME-Version; bh=kwrkS
-        yRsaaiIFWrW7YZm2UrkeSJmomCa4/Kxdbxbyiw=; b=ONspd4qIXmW6V4d+1OMMb
-        6vS4HvdMVbYN2c8XrxUoThFprjnJYB00mmBTz7aIxkx/pDHV9FpV1Tc3i5Arra4/
-        YjOzqoo3Za+II1DevMBNWk8AWFJh3qq/Glre9ahoThdnjw03jdK7jh7hjfmoHt+3
-        x1JZkQr4IbZUWwkE0Cb148=
-Received: from localhost.localdomain (unknown [120.204.77.149])
-        by smtp9 (Coremail) with SMTP id DcCowAD31eJMq3Rijn0EBQ--.64477S4;
-        Fri, 06 May 2022 13:00:36 +0800 (CST)
-From:   lizhe <sensor1010@163.com>
-To:     lee.jones@linaro.org, fthain@linux-m68k.org,
-        akrowiak@linux.ibm.com, pasic@linux.ibm.com, jjherne@linux.ibm.com,
-        freude@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, jejb@linux.ibm.com,
-        martin.petersen@oracle.com, zbr@ioremap.net, perex@perex.cz,
-        tiwai@suse.com, bvanassche@acm.org, dan.j.williams@intel.com,
-        srinivas.kandagatla@linaro.org, wens@csie.org,
-        colin.king@intel.com, u.kleine-koenig@pengutronix.de, hare@suse.de,
-        sensor1010@163.com
-Cc:     linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
-        target-devel@vger.kernel.org, alsa-devel@alsa-project.org
-Subject: [PATCH] kernel/drivers: Remove redundant driver match function
-Date:   Thu,  5 May 2022 21:59:52 -0700
-Message-Id: <20220506045952.136290-1-sensor1010@163.com>
-X-Mailer: git-send-email 2.25.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: DcCowAD31eJMq3Rijn0EBQ--.64477S4
-X-Coremail-Antispam: 1Uf129KBjvJXoWxKr13CF47Kr1rJF13uw13CFg_yoW7Ww4xpF
-        s5JFWakrWUtanrWws2yrWkAFyak3Z7G347Kr4xW3sY9FnrAry5Xa4rtFy8ArZ8XFW8G3ZF
-        van5try8CF4rJrUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0ziAuc_UUUUU=
-X-Originating-IP: [120.204.77.149]
-X-CM-SenderInfo: 5vhq20jurqiii6rwjhhfrp/xtbBohT4q1aEENxxpgAAss
+        with ESMTP id S1389085AbiEFF0P (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 May 2022 01:26:15 -0400
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E4195E765;
+        Thu,  5 May 2022 22:22:31 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=alibuda@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0VCQBjlI_1651814548;
+Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0VCQBjlI_1651814548)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Fri, 06 May 2022 13:22:29 +0800
+From:   "D. Wythe" <alibuda@linux.alibaba.com>
+To:     kgraul@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: [PATCH net-next] net/smc: Fix smc-r link reference count
+Date:   Fri,  6 May 2022 13:22:28 +0800
+Message-Id: <1651814548-83231-1-git-send-email-alibuda@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-If there is no driver match function, the driver core assumes that each
-candidate pair (driver, device) matches, see driver_match_device().
+From: "D. Wythe" <alibuda@linux.alibaba.com>
 
-Signed-off-by: lizhe <sensor1010@163.com>
+The following scenarios exist:
+
+lnk->refcnt=1;
+smcr_link_put(lnk);
+lnk->refcnt=0;
+				smcr_link_hold(lnk);
+__smcr_link_clear(lnk);
+				do_xxx(lnk);
+
+This patch try using refcount_inc_not_zero() instead refcount_inc()
+to prevent this race condition. Therefore, we need to always check its
+return value, and respond with an error when it fails.
+
+Fixes: 20c9398d3309 ("net/smc: Resolve the race between SMC-R link access and clear")
+Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
 ---
- drivers/mfd/mcp-core.c             |  6 ------
- drivers/nubus/bus.c                |  6 ------
- drivers/s390/crypto/vfio_ap_drv.c  |  6 ------
- drivers/scsi/scsi_debug.c          |  7 -------
- drivers/target/loopback/tcm_loop.c |  7 -------
- drivers/w1/w1.c                    |  6 ------
- sound/ac97_bus.c                   | 11 -----------
- 7 files changed, 49 deletions(-)
+ net/smc/af_smc.c   |  3 +--
+ net/smc/smc_core.c | 27 +++++++++++++++++++++------
+ net/smc/smc_core.h |  4 ++--
+ 3 files changed, 24 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/mfd/mcp-core.c b/drivers/mfd/mcp-core.c
-index 2fa592c37c6f..281a9369f2b3 100644
---- a/drivers/mfd/mcp-core.c
-+++ b/drivers/mfd/mcp-core.c
-@@ -20,11 +20,6 @@
- #define to_mcp(d)		container_of(d, struct mcp, attached_device)
- #define to_mcp_driver(d)	container_of(d, struct mcp_driver, drv)
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 30acc31..b449c08 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1129,11 +1129,10 @@ static int smc_connect_rdma(struct smc_sock *smc,
+ 				break;
+ 			}
+ 		}
+-		if (!link) {
++		if (!link || !smc_switch_link_and_count(&smc->conn, link)) {
+ 			reason_code = SMC_CLC_DECL_NOSRVLINK;
+ 			goto connect_abort;
+ 		}
+-		smc_switch_link_and_count(&smc->conn, link);
+ 	}
  
--static int mcp_bus_match(struct device *dev, struct device_driver *drv)
--{
--	return 1;
--}
--
- static int mcp_bus_probe(struct device *dev)
- {
- 	struct mcp *mcp = to_mcp(dev);
-@@ -43,7 +38,6 @@ static void mcp_bus_remove(struct device *dev)
- 
- static struct bus_type mcp_bus_type = {
- 	.name		= "mcp",
--	.match		= mcp_bus_match,
- 	.probe		= mcp_bus_probe,
- 	.remove		= mcp_bus_remove,
- };
-diff --git a/drivers/nubus/bus.c b/drivers/nubus/bus.c
-index 17fad660032c..72921e4f35f6 100644
---- a/drivers/nubus/bus.c
-+++ b/drivers/nubus/bus.c
-@@ -14,11 +14,6 @@
- #define to_nubus_board(d)       container_of(d, struct nubus_board, dev)
- #define to_nubus_driver(d)      container_of(d, struct nubus_driver, driver)
- 
--static int nubus_bus_match(struct device *dev, struct device_driver *driver)
--{
--	return 1;
--}
--
- static int nubus_device_probe(struct device *dev)
- {
- 	struct nubus_driver *ndrv = to_nubus_driver(dev->driver);
-@@ -39,7 +34,6 @@ static void nubus_device_remove(struct device *dev)
- 
- struct bus_type nubus_bus_type = {
- 	.name		= "nubus",
--	.match		= nubus_bus_match,
- 	.probe		= nubus_device_probe,
- 	.remove		= nubus_device_remove,
- };
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index 29ebd54f8919..0a662c451f2a 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -172,14 +172,8 @@ static void vfio_ap_matrix_dev_release(struct device *dev)
- 	kfree(matrix_dev);
+ 	/* create send buffer and rmb */
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 29525d0..f2d08b0 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -996,7 +996,7 @@ static int smc_switch_cursor(struct smc_sock *smc, struct smc_cdc_tx_pend *pend,
+ 	return rc;
  }
  
--static int matrix_bus_match(struct device *dev, struct device_driver *drv)
--{
--	return 1;
--}
--
- static struct bus_type matrix_bus = {
- 	.name = "matrix",
--	.match = &matrix_bus_match,
- };
- 
- static struct device_driver matrix_driver = {
-diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
-index 592a290e6cfa..8107489b36e8 100644
---- a/drivers/scsi/scsi_debug.c
-+++ b/drivers/scsi/scsi_debug.c
-@@ -7844,15 +7844,8 @@ static void sdebug_driver_remove(struct device *dev)
- 	scsi_host_put(sdbg_host->shost);
- }
- 
--static int pseudo_lld_bus_match(struct device *dev,
--				struct device_driver *dev_driver)
--{
--	return 1;
--}
--
- static struct bus_type pseudo_lld_bus = {
- 	.name = "pseudo",
--	.match = pseudo_lld_bus_match,
- 	.probe = sdebug_driver_probe,
- 	.remove = sdebug_driver_remove,
- 	.drv_groups = sdebug_drv_groups,
-diff --git a/drivers/target/loopback/tcm_loop.c b/drivers/target/loopback/tcm_loop.c
-index 4407b56aa6d1..eeb63deff94f 100644
---- a/drivers/target/loopback/tcm_loop.c
-+++ b/drivers/target/loopback/tcm_loop.c
-@@ -83,15 +83,8 @@ static int tcm_loop_show_info(struct seq_file *m, struct Scsi_Host *host)
- static int tcm_loop_driver_probe(struct device *);
- static void tcm_loop_driver_remove(struct device *);
- 
--static int pseudo_lld_bus_match(struct device *dev,
--				struct device_driver *dev_driver)
--{
--	return 1;
--}
--
- static struct bus_type tcm_loop_lld_bus = {
- 	.name			= "tcm_loop_bus",
--	.match			= pseudo_lld_bus_match,
- 	.probe			= tcm_loop_driver_probe,
- 	.remove			= tcm_loop_driver_remove,
- };
-diff --git a/drivers/w1/w1.c b/drivers/w1/w1.c
-index f2ae2e563dc5..a6ecfa1b3417 100644
---- a/drivers/w1/w1.c
-+++ b/drivers/w1/w1.c
-@@ -58,11 +58,6 @@ MODULE_PARM_DESC(slave_ttl,
- DEFINE_MUTEX(w1_mlock);
- LIST_HEAD(w1_masters);
- 
--static int w1_master_match(struct device *dev, struct device_driver *drv)
--{
--	return 1;
--}
--
- static int w1_master_probe(struct device *dev)
+-void smc_switch_link_and_count(struct smc_connection *conn,
++bool smc_switch_link_and_count(struct smc_connection *conn,
+ 			       struct smc_link *to_lnk)
  {
- 	return -ENODEV;
-@@ -174,7 +169,6 @@ static int w1_uevent(struct device *dev, struct kobj_uevent_env *env);
- 
- static struct bus_type w1_bus_type = {
- 	.name = "w1",
--	.match = w1_master_match,
- 	.uevent = w1_uevent,
- };
- 
-diff --git a/sound/ac97_bus.c b/sound/ac97_bus.c
-index b4685c53ff11..c7aee8c42c55 100644
---- a/sound/ac97_bus.c
-+++ b/sound/ac97_bus.c
-@@ -75,19 +75,8 @@ int snd_ac97_reset(struct snd_ac97 *ac97, bool try_warm, unsigned int id,
+ 	atomic_dec(&conn->lnk->conn_cnt);
+@@ -1005,7 +1005,7 @@ void smc_switch_link_and_count(struct smc_connection *conn,
+ 	conn->lnk = to_lnk;
+ 	atomic_inc(&conn->lnk->conn_cnt);
+ 	/* link_put in smc_conn_free() */
+-	smcr_link_hold(conn->lnk);
++	return smcr_link_hold(conn->lnk);
  }
- EXPORT_SYMBOL_GPL(snd_ac97_reset);
  
--/*
-- * Let drivers decide whether they want to support given codec from their
-- * probe method. Drivers have direct access to the struct snd_ac97
-- * structure and may  decide based on the id field amongst other things.
-- */
--static int ac97_bus_match(struct device *dev, struct device_driver *drv)
--{
--	return 1;
--}
--
- struct bus_type ac97_bus_type = {
- 	.name		= "ac97",
--	.match		= ac97_bus_match,
- };
+ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
+@@ -1029,11 +1029,21 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
+ 		    from_lnk->ibport == lgr->lnk[i].ibport) {
+ 			continue;
+ 		}
++
++		/* Try to hold a reference here. Once succeed,
++		 * all subsequent hold in smc_switch_link_and_count()  will not fail.
++		 * We can simplify the subsequent processing logic.
++		 */
++		if (!smcr_link_hold(&lgr->lnk[i]))
++			continue;
++
+ 		to_lnk = &lgr->lnk[i];
+ 		break;
+ 	}
+ 	if (!to_lnk || !smc_wr_tx_link_hold(to_lnk)) {
+ 		smc_lgr_terminate_sched(lgr);
++		if (to_lnk)
++			smcr_link_put(to_lnk); /* smcr_link_hold() above */
+ 		return NULL;
+ 	}
+ again:
+@@ -1056,6 +1066,7 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
+ 		    smc->sk.sk_state == SMC_PEERABORTWAIT ||
+ 		    smc->sk.sk_state == SMC_PROCESSABORT) {
+ 			spin_lock_bh(&conn->send_lock);
++			/* smcr_link_hold() already, won't fail */
+ 			smc_switch_link_and_count(conn, to_lnk);
+ 			spin_unlock_bh(&conn->send_lock);
+ 			continue;
+@@ -1068,6 +1079,7 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
+ 			goto err_out;
+ 		/* avoid race with smcr_tx_sndbuf_nonempty() */
+ 		spin_lock_bh(&conn->send_lock);
++		/* smcr_link_hold() already, won't fail */
+ 		smc_switch_link_and_count(conn, to_lnk);
+ 		rc = smc_switch_cursor(smc, pend, wr_buf);
+ 		spin_unlock_bh(&conn->send_lock);
+@@ -1078,11 +1090,13 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
+ 	}
+ 	read_unlock_bh(&lgr->conns_lock);
+ 	smc_wr_tx_link_put(to_lnk);
++	smcr_link_put(to_lnk); /* smcr_link_hold() above */
+ 	return to_lnk;
  
- static int __init ac97_bus_init(void)
+ err_out:
+ 	smcr_link_down_cond_sched(to_lnk);
+ 	smc_wr_tx_link_put(to_lnk);
++	smcr_link_put(to_lnk); /* smcr_link_hold() above */
+ 	return NULL;
+ }
+ 
+@@ -1260,9 +1274,9 @@ void smcr_link_clear(struct smc_link *lnk, bool log)
+ 	smcr_link_put(lnk); /* theoretically last link_put */
+ }
+ 
+-void smcr_link_hold(struct smc_link *lnk)
++bool smcr_link_hold(struct smc_link *lnk)
+ {
+-	refcount_inc(&lnk->refcnt);
++	return refcount_inc_not_zero(&lnk->refcnt);
+ }
+ 
+ void smcr_link_put(struct smc_link *lnk)
+@@ -1904,8 +1918,9 @@ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
+ 		}
+ 	}
+ 	smc_lgr_hold(conn->lgr); /* lgr_put in smc_conn_free() */
+-	if (!conn->lgr->is_smcd)
+-		smcr_link_hold(conn->lnk); /* link_put in smc_conn_free() */
++	if (!conn->lgr->is_smcd && !smcr_link_hold(conn->lnk))
++		return SMC_CLC_DECL_NOACTLINK;
++
+ 	conn->freed = 0;
+ 	conn->local_tx_ctrl.common.type = SMC_CDC_MSG_TYPE;
+ 	conn->local_tx_ctrl.len = SMC_WR_TX_SIZE;
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 4cb03e9..9e2f67d 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -528,9 +528,9 @@ void smc_rtoken_set2(struct smc_link_group *lgr, int rtok_idx, int link_id,
+ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
+ 		   u8 link_idx, struct smc_init_info *ini);
+ void smcr_link_clear(struct smc_link *lnk, bool log);
+-void smcr_link_hold(struct smc_link *lnk);
++bool smcr_link_hold(struct smc_link *lnk);
+ void smcr_link_put(struct smc_link *lnk);
+-void smc_switch_link_and_count(struct smc_connection *conn,
++bool smc_switch_link_and_count(struct smc_connection *conn,
+ 			       struct smc_link *to_lnk);
+ int smcr_buf_map_lgr(struct smc_link *lnk);
+ int smcr_buf_reg_lgr(struct smc_link *lnk);
 -- 
-2.25.1
+1.8.3.1
 
