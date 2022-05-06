@@ -2,97 +2,95 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 21F1AC433F5
-	for <linux-s390@archiver.kernel.org>; Fri,  6 May 2022 02:08:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D656BC433FE
+	for <linux-s390@archiver.kernel.org>; Fri,  6 May 2022 03:01:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1388283AbiEFCMZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 5 May 2022 22:12:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33428 "EHLO
+        id S1388424AbiEFDFZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 5 May 2022 23:05:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233914AbiEFCMY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 May 2022 22:12:24 -0400
-Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E74365EDEF
-        for <linux-s390@vger.kernel.org>; Thu,  5 May 2022 19:08:42 -0700 (PDT)
-Received: by mail-pf1-x430.google.com with SMTP id v11so5113398pff.6
-        for <linux-s390@vger.kernel.org>; Thu, 05 May 2022 19:08:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:in-reply-to:references:subject:message-id:date
-         :mime-version:content-transfer-encoding;
-        bh=X21XiDb8yzYRhMfkoQesaQpAxwMWfr6V+3k+J4kSHT4=;
-        b=L4I8Ud8vSkZ2l3QiiFW2VOZxbVW2zlLG96lgULMUUNplPCS/RR7nR90OuzqWnbb/K6
-         jy3herpNsQgQchP5OIB6ElEOb0Jj5wTGl6ymmJ5vVqmiw7bl+Az0kfglXRZ/3hmr5CRL
-         ur8ZEn3o8EH6MXPynZWaPC5R90WF2nO9O/57LkzHxZ+c3RRot1ew3GnXWc7oC8Cxh7oK
-         ixqVPku4Yv9RJPXnyVi4aLDh0yKf6a7QqbEjbFUO41ptJw+oY3nLAR0OkjPimZDpKJ01
-         G4uwKgsl7QaEozKS5jCXMJ8FK79QcWFJnANCpUHb/oAxQ9VWIH+w+732hx7mUDrPJJkR
-         MCjA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:in-reply-to:references:subject
-         :message-id:date:mime-version:content-transfer-encoding;
-        bh=X21XiDb8yzYRhMfkoQesaQpAxwMWfr6V+3k+J4kSHT4=;
-        b=ETUiL/FMzQSxtNiwNj+ITZXnoUWu4ENxz6NQrpp1DN3juMaYnG5MjbagJwjKk4NV/x
-         XX+ZP75es+nVjRiVUbwFeUVjXVlA/HiFFV2d/GZbMlYLQdW/oJfkUMA+h+j9sEm0ukW4
-         Eg85G49OKZB42uaaB/IcI8uF+OIv0QXTTcH1BElD2F9/QsYXNh/dQnTXzQqzzvfGso5/
-         OXBAWLm4kM7VP/LkI45dQijBDkK7CWIG6WB1CatEKOSRP6b8HvyaS57qrLhSf+HzbpgN
-         GkM0IWF4dE+1TlrkDHNTrX3gw8UfYoeGS0u8NeQtxOMvrH90D5tFJJbqP0FtqTuoZYrd
-         72KQ==
-X-Gm-Message-State: AOAM530JnnCS8ObXTKOMX5K26cOJqHGekKJpyCBmWUrCRcvh3Nd9EV5y
-        Hhfz/BSDgBMD6R28bgHuwgVNpQ==
-X-Google-Smtp-Source: ABdhPJxF8kuJo835tgVp4qFOw0UQVC02A2RpJhfbQusVB9d7Z0sDsTDaMxKZrlgHg+Q028s5VOouQw==
-X-Received: by 2002:a65:490d:0:b0:39e:58cb:b1eb with SMTP id p13-20020a65490d000000b0039e58cbb1ebmr928132pgs.390.1651802922385;
-        Thu, 05 May 2022 19:08:42 -0700 (PDT)
-Received: from [127.0.1.1] (cpe-72-132-29-68.dc.res.rr.com. [72.132.29.68])
-        by smtp.gmail.com with ESMTPSA id t8-20020a170902e84800b0015e8d4eb234sm313170plg.126.2022.05.05.19.08.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 May 2022 19:08:41 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     sth@linux.ibm.com
-Cc:     gor@linux.ibm.com, linux-block@vger.kernel.org,
-        hoeppner@linux.ibm.com,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        linux-s390@vger.kernel.org, hca@linux.ibm.com
-In-Reply-To: <20220505141733.1989450-1-sth@linux.ibm.com>
-References: <20220505141733.1989450-1-sth@linux.ibm.com>
-Subject: Re: [PATCH 0/5] s390/dasd: data corruption fixes for thin provisioning
-Message-Id: <165180292107.362372.5956159894859295300.b4-ty@kernel.dk>
-Date:   Thu, 05 May 2022 20:08:41 -0600
+        with ESMTP id S234102AbiEFDFV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 May 2022 23:05:21 -0400
+Received: from out30-44.freemail.mail.aliyun.com (out30-44.freemail.mail.aliyun.com [115.124.30.44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D56F563BCD;
+        Thu,  5 May 2022 20:01:37 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=baolin.wang@linux.alibaba.com;NM=1;PH=DS;RN=30;SR=0;TI=SMTPD_---0VCQ-60L_1651806089;
+Received: from 30.32.96.193(mailfrom:baolin.wang@linux.alibaba.com fp:SMTPD_---0VCQ-60L_1651806089)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Fri, 06 May 2022 11:01:31 +0800
+Message-ID: <6c8a5b23-e470-63ca-cc82-f8b5ff1bafaf@linux.alibaba.com>
+Date:   Fri, 6 May 2022 11:02:12 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.1
+Subject: Re: [PATCH 1/3] mm: change huge_ptep_clear_flush() to return the
+ original pte
+To:     Mike Kravetz <mike.kravetz@oracle.com>, akpm@linux-foundation.org,
+        catalin.marinas@arm.com, will@kernel.org
+Cc:     tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com,
+        deller@gmx.de, mpe@ellerman.id.au, benh@kernel.crashing.org,
+        paulus@samba.org, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org,
+        davem@davemloft.net, arnd@arndb.de,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-mm@kvack.org
+References: <cover.1651216964.git.baolin.wang@linux.alibaba.com>
+ <a9038435d408cd7b9defe143537de668dfdf03be.1651216964.git.baolin.wang@linux.alibaba.com>
+ <495c4ebe-a5b4-afb6-4cb0-956c1b18d0cc@oracle.com>
+From:   Baolin Wang <baolin.wang@linux.alibaba.com>
+In-Reply-To: <495c4ebe-a5b4-afb6-4cb0-956c1b18d0cc@oracle.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, 5 May 2022 16:17:28 +0200, Stefan Haberland wrote:
-> please apply the following patches. There are 4 patches to fix potential
-> data corruption on thin provisioned DASD devices and one cosmetic patch.
+
+
+On 5/6/2022 7:15 AM, Mike Kravetz wrote:
+> On 4/29/22 01:14, Baolin Wang wrote:
+>> It is incorrect to use ptep_clear_flush() to nuke a hugetlb page
+>> table when unmapping or migrating a hugetlb page, and will change
+>> to use huge_ptep_clear_flush() instead in the following patches.
+>>
+>> So this is a preparation patch, which changes the huge_ptep_clear_flush()
+>> to return the original pte to help to nuke a hugetlb page table.
+>>
+>> Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
+>> ---
+>>   arch/arm64/include/asm/hugetlb.h   |  4 ++--
+>>   arch/arm64/mm/hugetlbpage.c        | 12 +++++-------
+>>   arch/ia64/include/asm/hugetlb.h    |  4 ++--
+>>   arch/mips/include/asm/hugetlb.h    |  9 ++++++---
+>>   arch/parisc/include/asm/hugetlb.h  |  4 ++--
+>>   arch/powerpc/include/asm/hugetlb.h |  9 ++++++---
+>>   arch/s390/include/asm/hugetlb.h    |  6 +++---
+>>   arch/sh/include/asm/hugetlb.h      |  4 ++--
+>>   arch/sparc/include/asm/hugetlb.h   |  4 ++--
+>>   include/asm-generic/hugetlb.h      |  4 ++--
+>>   10 files changed, 32 insertions(+), 28 deletions(-)
 > 
-> Haowen Bai (1):
->   s390/dasd: Use kzalloc instead of kmalloc/memset
+> The above changes look straight forward.
+> Happy that you Cc'ed impacted arch maintainers so they can at least
+> have a look.
 > 
-> Jan Höppner (2):
->   s390/dasd: Fix read for ESE with blksize < 4k
->   s390/dasd: Fix read inconsistency for ESE DASD devices
+> The only user of huge_ptep_clear_flush() today is hugetlb_cow/wp() in
+> mm/hugetlb.c.  Any reason why you did not change that code?  At least
+
+Cause we did not use the return value of huge_ptep_clear_flush() in 
+mm/hugetlb.c.
+
+> cast the return of huge_ptep_clear_flush() to void with a comment?
+
+Sure. Will add an explicit casting in next version.
+
+> Not absolutely necessary.
 > 
-> [...]
+> Acked-by: Mike Kravetz <mike.kravetz@oracle.com>
 
-Applied, thanks!
-
-[1/5] s390/dasd: fix data corruption for ESE devices
-      commit: 5b53a405e4658580e1faf7c217db3f55a21ba849
-[2/5] s390/dasd: prevent double format of tracks for ESE devices
-      commit: 71f3871657370dbbaf942a1c758f64e49a36c70f
-[3/5] s390/dasd: Fix read for ESE with blksize < 4k
-      commit: cd68c48ea15c85f1577a442dc4c285e112ff1b37
-[4/5] s390/dasd: Fix read inconsistency for ESE DASD devices
-      commit: b9c10f68e23c13f56685559a0d6fdaca9f838324
-[5/5] s390/dasd: Use kzalloc instead of kmalloc/memset
-      commit: f1c8781ac9d87650ccf45a354c0bbfa3f9230371
-
-Best regards,
--- 
-Jens Axboe
-
-
+Thanks.
