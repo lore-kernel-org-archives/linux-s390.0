@@ -2,224 +2,97 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B997C433F5
-	for <linux-s390@archiver.kernel.org>; Fri,  6 May 2022 01:10:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 21F1AC433F5
+	for <linux-s390@archiver.kernel.org>; Fri,  6 May 2022 02:08:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347111AbiEFBNu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 5 May 2022 21:13:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37078 "EHLO
+        id S1388283AbiEFCMZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 5 May 2022 22:12:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1387795AbiEFBNt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 May 2022 21:13:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 868B16004A;
-        Thu,  5 May 2022 18:10:07 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B5C1562006;
-        Fri,  6 May 2022 01:10:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E8BEC385A4;
-        Fri,  6 May 2022 01:10:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1651799406;
-        bh=hzTsanNVV38HYHQUJN2xutlIzXpivxib3Q/T7DjiyGs=;
-        h=From:To:Cc:Subject:Date:From;
-        b=pZCfAc1mWv3g9kzjL4L0pgUMR/b/yxZ+h/SpIizPx90F+QuOlQZW2S0syqCkEWlTp
-         W3iyAkH+a5xIMFtJEMl8hD7Ot8ruqlUYIEmBz4mrDXvC5VGIpsUU6HQqDzXJfOlpc3
-         QerSZgKRYjqa7uaN4bkd3Zw2c0NG/7Y77RlEKT5irxHcV4f0WtaObwJSSDsK//2z1r
-         SNXP1ftOPnm68VQ8DS5zIvjW7M7XVJR0iMMPXwllXZDvJmkFSBbPTquPpvchGOxEkc
-         inqJUN4mnWCA9AJe5I2N22kjCfJ8lLooWI3DEMAMGmcly390GXneDDY6Tpn53akJ+h
-         LhArxheKTOkxQ==
-From:   Josh Poimboeuf <jpoimboe@kernel.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+        with ESMTP id S233914AbiEFCMY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 May 2022 22:12:24 -0400
+Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E74365EDEF
+        for <linux-s390@vger.kernel.org>; Thu,  5 May 2022 19:08:42 -0700 (PDT)
+Received: by mail-pf1-x430.google.com with SMTP id v11so5113398pff.6
+        for <linux-s390@vger.kernel.org>; Thu, 05 May 2022 19:08:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=from:to:cc:in-reply-to:references:subject:message-id:date
+         :mime-version:content-transfer-encoding;
+        bh=X21XiDb8yzYRhMfkoQesaQpAxwMWfr6V+3k+J4kSHT4=;
+        b=L4I8Ud8vSkZ2l3QiiFW2VOZxbVW2zlLG96lgULMUUNplPCS/RR7nR90OuzqWnbb/K6
+         jy3herpNsQgQchP5OIB6ElEOb0Jj5wTGl6ymmJ5vVqmiw7bl+Az0kfglXRZ/3hmr5CRL
+         ur8ZEn3o8EH6MXPynZWaPC5R90WF2nO9O/57LkzHxZ+c3RRot1ew3GnXWc7oC8Cxh7oK
+         ixqVPku4Yv9RJPXnyVi4aLDh0yKf6a7QqbEjbFUO41ptJw+oY3nLAR0OkjPimZDpKJ01
+         G4uwKgsl7QaEozKS5jCXMJ8FK79QcWFJnANCpUHb/oAxQ9VWIH+w+732hx7mUDrPJJkR
+         MCjA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:in-reply-to:references:subject
+         :message-id:date:mime-version:content-transfer-encoding;
+        bh=X21XiDb8yzYRhMfkoQesaQpAxwMWfr6V+3k+J4kSHT4=;
+        b=ETUiL/FMzQSxtNiwNj+ITZXnoUWu4ENxz6NQrpp1DN3juMaYnG5MjbagJwjKk4NV/x
+         XX+ZP75es+nVjRiVUbwFeUVjXVlA/HiFFV2d/GZbMlYLQdW/oJfkUMA+h+j9sEm0ukW4
+         Eg85G49OKZB42uaaB/IcI8uF+OIv0QXTTcH1BElD2F9/QsYXNh/dQnTXzQqzzvfGso5/
+         OXBAWLm4kM7VP/LkI45dQijBDkK7CWIG6WB1CatEKOSRP6b8HvyaS57qrLhSf+HzbpgN
+         GkM0IWF4dE+1TlrkDHNTrX3gw8UfYoeGS0u8NeQtxOMvrH90D5tFJJbqP0FtqTuoZYrd
+         72KQ==
+X-Gm-Message-State: AOAM530JnnCS8ObXTKOMX5K26cOJqHGekKJpyCBmWUrCRcvh3Nd9EV5y
+        Hhfz/BSDgBMD6R28bgHuwgVNpQ==
+X-Google-Smtp-Source: ABdhPJxF8kuJo835tgVp4qFOw0UQVC02A2RpJhfbQusVB9d7Z0sDsTDaMxKZrlgHg+Q028s5VOouQw==
+X-Received: by 2002:a65:490d:0:b0:39e:58cb:b1eb with SMTP id p13-20020a65490d000000b0039e58cbb1ebmr928132pgs.390.1651802922385;
+        Thu, 05 May 2022 19:08:42 -0700 (PDT)
+Received: from [127.0.1.1] (cpe-72-132-29-68.dc.res.rr.com. [72.132.29.68])
+        by smtp.gmail.com with ESMTPSA id t8-20020a170902e84800b0015e8d4eb234sm313170plg.126.2022.05.05.19.08.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 05 May 2022 19:08:41 -0700 (PDT)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     sth@linux.ibm.com
+Cc:     gor@linux.ibm.com, linux-block@vger.kernel.org,
+        hoeppner@linux.ibm.com,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org
-Subject: [PATCH] bug: Use normal relative pointers in 'struct bug_entry'
-Date:   Thu,  5 May 2022 18:09:45 -0700
-Message-Id: <afddb4548e93f6458ec1d9ec185a834c348eda33.1651798983.git.jpoimboe@kernel.org>
-X-Mailer: git-send-email 2.34.1
+        linux-s390@vger.kernel.org, hca@linux.ibm.com
+In-Reply-To: <20220505141733.1989450-1-sth@linux.ibm.com>
+References: <20220505141733.1989450-1-sth@linux.ibm.com>
+Subject: Re: [PATCH 0/5] s390/dasd: data corruption fixes for thin provisioning
+Message-Id: <165180292107.362372.5956159894859295300.b4-ty@kernel.dk>
+Date:   Thu, 05 May 2022 20:08:41 -0600
 MIME-Version: 1.0
-Content-type: text/plain
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-With CONFIG_GENERIC_BUG_RELATIVE_POINTERS, the addr/file relative
-pointers are calculated weirdly: based on the beginning of the bug_entry
-struct address, rather than their respective pointer addresses.
+On Thu, 5 May 2022 16:17:28 +0200, Stefan Haberland wrote:
+> please apply the following patches. There are 4 patches to fix potential
+> data corruption on thin provisioned DASD devices and one cosmetic patch.
+> 
+> Haowen Bai (1):
+>   s390/dasd: Use kzalloc instead of kmalloc/memset
+> 
+> Jan Höppner (2):
+>   s390/dasd: Fix read for ESE with blksize < 4k
+>   s390/dasd: Fix read inconsistency for ESE DASD devices
+> 
+> [...]
 
-Make the relative pointers less surprising to both humans and tools by
-calculating them the normal way.
+Applied, thanks!
 
-Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
----
- arch/arm64/include/asm/asm-bug.h |  4 ++--
- arch/powerpc/include/asm/bug.h   |  5 +++--
- arch/riscv/include/asm/bug.h     |  4 ++--
- arch/s390/include/asm/bug.h      |  5 +++--
- arch/x86/include/asm/bug.h       |  2 +-
- lib/bug.c                        | 15 +++++++--------
- 6 files changed, 18 insertions(+), 17 deletions(-)
+[1/5] s390/dasd: fix data corruption for ESE devices
+      commit: 5b53a405e4658580e1faf7c217db3f55a21ba849
+[2/5] s390/dasd: prevent double format of tracks for ESE devices
+      commit: 71f3871657370dbbaf942a1c758f64e49a36c70f
+[3/5] s390/dasd: Fix read for ESE with blksize < 4k
+      commit: cd68c48ea15c85f1577a442dc4c285e112ff1b37
+[4/5] s390/dasd: Fix read inconsistency for ESE DASD devices
+      commit: b9c10f68e23c13f56685559a0d6fdaca9f838324
+[5/5] s390/dasd: Use kzalloc instead of kmalloc/memset
+      commit: f1c8781ac9d87650ccf45a354c0bbfa3f9230371
 
-diff --git a/arch/arm64/include/asm/asm-bug.h b/arch/arm64/include/asm/asm-bug.h
-index 03f52f84a4f3..c762038ba400 100644
---- a/arch/arm64/include/asm/asm-bug.h
-+++ b/arch/arm64/include/asm/asm-bug.h
-@@ -14,7 +14,7 @@
- 	14472:	.string file;					\
- 		.popsection;					\
- 								\
--		.long 14472b - 14470b;				\
-+		.long 14472b - .;				\
- 		.short line;
- #else
- #define _BUGVERBOSE_LOCATION(file, line)
-@@ -25,7 +25,7 @@
- #define __BUG_ENTRY(flags) 				\
- 		.pushsection __bug_table,"aw";		\
- 		.align 2;				\
--	14470:	.long 14471f - 14470b;			\
-+	14470:	.long 14471f - .;			\
- _BUGVERBOSE_LOCATION(__FILE__, __LINE__)		\
- 		.short flags; 				\
- 		.popsection;				\
-diff --git a/arch/powerpc/include/asm/bug.h b/arch/powerpc/include/asm/bug.h
-index ecbae1832de3..76252576d889 100644
---- a/arch/powerpc/include/asm/bug.h
-+++ b/arch/powerpc/include/asm/bug.h
-@@ -13,7 +13,8 @@
- #ifdef CONFIG_DEBUG_BUGVERBOSE
- .macro __EMIT_BUG_ENTRY addr,file,line,flags
- 	 .section __bug_table,"aw"
--5001:	 .4byte \addr - 5001b, 5002f - 5001b
-+5001:	 .4byte \addr - .
-+	 .4byte 5002f - .
- 	 .short \line, \flags
- 	 .org 5001b+BUG_ENTRY_SIZE
- 	 .previous
-@@ -24,7 +25,7 @@
- #else
- .macro __EMIT_BUG_ENTRY addr,file,line,flags
- 	 .section __bug_table,"aw"
--5001:	 .4byte \addr - 5001b
-+5001:	 .4byte \addr - .
- 	 .short \flags
- 	 .org 5001b+BUG_ENTRY_SIZE
- 	 .previous
-diff --git a/arch/riscv/include/asm/bug.h b/arch/riscv/include/asm/bug.h
-index d3804a2f9aad..1aaea81fb141 100644
---- a/arch/riscv/include/asm/bug.h
-+++ b/arch/riscv/include/asm/bug.h
-@@ -30,8 +30,8 @@
- typedef u32 bug_insn_t;
- 
- #ifdef CONFIG_GENERIC_BUG_RELATIVE_POINTERS
--#define __BUG_ENTRY_ADDR	RISCV_INT " 1b - 2b"
--#define __BUG_ENTRY_FILE	RISCV_INT " %0 - 2b"
-+#define __BUG_ENTRY_ADDR	RISCV_INT " 1b - ."
-+#define __BUG_ENTRY_FILE	RISCV_INT " %0 - ."
- #else
- #define __BUG_ENTRY_ADDR	RISCV_PTR " 1b"
- #define __BUG_ENTRY_FILE	RISCV_PTR " %0"
-diff --git a/arch/s390/include/asm/bug.h b/arch/s390/include/asm/bug.h
-index 0b25f28351ed..aebe1e22c7be 100644
---- a/arch/s390/include/asm/bug.h
-+++ b/arch/s390/include/asm/bug.h
-@@ -15,7 +15,8 @@
- 		"1:	.asciz	\""__FILE__"\"\n"		\
- 		".previous\n"					\
- 		".section __bug_table,\"awM\",@progbits,%2\n"	\
--		"2:	.long	0b-2b,1b-2b\n"			\
-+		"2:	.long	0b-.\n"				\
-+		"	.long	1b-.\n"				\
- 		"	.short	%0,%1\n"			\
- 		"	.org	2b+%2\n"			\
- 		".previous\n"					\
-@@ -30,7 +31,7 @@
- 	asm_inline volatile(					\
- 		"0:	mc	0,0\n"				\
- 		".section __bug_table,\"awM\",@progbits,%1\n"	\
--		"1:	.long	0b-1b\n"			\
-+		"1:	.long	0b-.\n"				\
- 		"	.short	%0\n"				\
- 		"	.org	1b+%1\n"			\
- 		".previous\n"					\
-diff --git a/arch/x86/include/asm/bug.h b/arch/x86/include/asm/bug.h
-index aaf0cb0db4ae..a3ec87d198ac 100644
---- a/arch/x86/include/asm/bug.h
-+++ b/arch/x86/include/asm/bug.h
-@@ -18,7 +18,7 @@
- #ifdef CONFIG_X86_32
- # define __BUG_REL(val)	".long " __stringify(val)
- #else
--# define __BUG_REL(val)	".long " __stringify(val) " - 2b"
-+# define __BUG_REL(val)	".long " __stringify(val) " - ."
- #endif
- 
- #ifdef CONFIG_DEBUG_BUGVERBOSE
-diff --git a/lib/bug.c b/lib/bug.c
-index 45a0584f6541..c223a2575b72 100644
---- a/lib/bug.c
-+++ b/lib/bug.c
-@@ -6,8 +6,7 @@
- 
-   CONFIG_BUG - emit BUG traps.  Nothing happens without this.
-   CONFIG_GENERIC_BUG - enable this code.
--  CONFIG_GENERIC_BUG_RELATIVE_POINTERS - use 32-bit pointers relative to
--	the containing struct bug_entry for bug_addr and file.
-+  CONFIG_GENERIC_BUG_RELATIVE_POINTERS - use 32-bit relative pointers for bug_addr and file
-   CONFIG_DEBUG_BUGVERBOSE - emit full file+line information for each BUG
- 
-   CONFIG_BUG and CONFIG_DEBUG_BUGVERBOSE are potentially user-settable
-@@ -53,10 +52,10 @@ extern struct bug_entry __start___bug_table[], __stop___bug_table[];
- 
- static inline unsigned long bug_addr(const struct bug_entry *bug)
- {
--#ifndef CONFIG_GENERIC_BUG_RELATIVE_POINTERS
--	return bug->bug_addr;
-+#ifdef CONFIG_GENERIC_BUG_RELATIVE_POINTERS
-+	return (unsigned long)&bug->bug_addr_disp + bug->bug_addr_disp;
- #else
--	return (unsigned long)bug + bug->bug_addr_disp;
-+	return bug->bug_addr;
- #endif
- }
- 
-@@ -131,10 +130,10 @@ void bug_get_file_line(struct bug_entry *bug, const char **file,
- 		       unsigned int *line)
- {
- #ifdef CONFIG_DEBUG_BUGVERBOSE
--#ifndef CONFIG_GENERIC_BUG_RELATIVE_POINTERS
--	*file = bug->file;
-+#ifdef CONFIG_GENERIC_BUG_RELATIVE_POINTERS
-+	*file = (const char *)&bug->file_disp + bug->file_disp;
- #else
--	*file = (const char *)bug + bug->file_disp;
-+	*file = bug->file;
- #endif
- 	*line = bug->line;
- #else
+Best regards,
 -- 
-2.34.1
+Jens Axboe
+
 
