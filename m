@@ -2,76 +2,79 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B879FC433F5
-	for <linux-s390@archiver.kernel.org>; Fri,  6 May 2022 07:45:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 78569C433EF
+	for <linux-s390@archiver.kernel.org>; Fri,  6 May 2022 07:59:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381611AbiEFHte (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 6 May 2022 03:49:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41082 "EHLO
+        id S1389786AbiEFICs (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 6 May 2022 04:02:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236048AbiEFHtd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 May 2022 03:49:33 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A38666AC7;
-        Fri,  6 May 2022 00:45:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=76ci9KP4pdEawwj0Wkg2yGeqPx+7uXOp8RwNA7UZyyE=; b=c35fBELWFU6GviCTAqWHXuVy7s
-        Z478ICt13U3FdBywT70QE6XOkqnBKZYk7Ja3oO2rmUL2tZFKHatbOHp1Re+YyNwYOZgdtFkDw/c+o
-        7z+YS1pFz7NwJHIGo8AcT0OOlmNS798DTLR2FZusC/c0tkNJtWr0rIHbNzFXgKsasN73TslY0HgpB
-        Rf3SrunJOuri5yApFRBuAheTesmAItIW8mPawcJAHfWP2H+42xwacpmTLNYT2AMBFvOmjJz9SNyzK
-        uV8tGNjNTrRE9AJyGGeR7qWVe8S2gq10PhK1FQ5H3auiy+gwaJtZWRdX4p06nScXx/0uS8VvLKhhy
-        dOL+M0Hg==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=worktop.programming.kicks-ass.net)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nmse9-000jAs-SA; Fri, 06 May 2022 07:45:06 +0000
-Received: by worktop.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 697AF980E75; Fri,  6 May 2022 09:45:03 +0200 (CEST)
-Date:   Fri, 6 May 2022 09:45:03 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Josh Poimboeuf <jpoimboe@kernel.org>
-Cc:     linux-kernel@vger.kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH] bug: Use normal relative pointers in 'struct bug_entry'
-Message-ID: <20220506074503.GG2501@worktop.programming.kicks-ass.net>
-References: <afddb4548e93f6458ec1d9ec185a834c348eda33.1651798983.git.jpoimboe@kernel.org>
+        with ESMTP id S1389785AbiEFICp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 May 2022 04:02:45 -0400
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F46567D1B;
+        Fri,  6 May 2022 00:58:57 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=guwen@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0VCQz60P_1651823933;
+Received: from 30.225.24.34(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0VCQz60P_1651823933)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Fri, 06 May 2022 15:58:54 +0800
+Message-ID: <e3dbf77b-777a-8b6b-3c52-d1bb3f385c26@linux.alibaba.com>
+Date:   Fri, 6 May 2022 15:58:53 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <afddb4548e93f6458ec1d9ec185a834c348eda33.1651798983.git.jpoimboe@kernel.org>
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.8.0
+Subject: Re: [PATCH net-next] net/smc: Fix smc-r link reference count
+To:     "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com
+Cc:     kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <1651814548-83231-1-git-send-email-alibuda@linux.alibaba.com>
+From:   Wen Gu <guwen@linux.alibaba.com>
+In-Reply-To: <1651814548-83231-1-git-send-email-alibuda@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Thu, May 05, 2022 at 06:09:45PM -0700, Josh Poimboeuf wrote:
-> With CONFIG_GENERIC_BUG_RELATIVE_POINTERS, the addr/file relative
-> pointers are calculated weirdly: based on the beginning of the bug_entry
-> struct address, rather than their respective pointer addresses.
-> 
-> Make the relative pointers less surprising to both humans and tools by
-> calculating them the normal way.
-> 
-> Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
+On 2022/5/6 1:22 pm, D. Wythe wrote:
 
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> From: "D. Wythe" <alibuda@linux.alibaba.com>
+> 
+> The following scenarios exist:
+> 
+> lnk->refcnt=1;
+> smcr_link_put(lnk);
+> lnk->refcnt=0;
+> 				smcr_link_hold(lnk);
+> __smcr_link_clear(lnk);
+> 				do_xxx(lnk);
+> 
+> This patch try using refcount_inc_not_zero() instead refcount_inc()
+> to prevent this race condition. Therefore, we need to always check its
+> return value, and respond with an error when it fails.
+> 
+> Fixes: 20c9398d3309 ("net/smc: Resolve the race between SMC-R link access and clear")
+> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+> ---
+
+Thanks for your analysis.
+
+1) Is the patch more appropriate to 'net' ?
+
+2) The refcnt of smc link will be
+
+    - initilized to 1 in smcr_link_init();
+
+    - increased when connections assigned to the link;
+      eg. smc_conn_create() or smc_switch_link_and_count();
+
+    - decreased when connections removed from the link or link is cleared,
+      eg. smc_conn_free(), smc_switch_link_and_count(), smcr_link_clear().
+
+    I see the theoretical race between smcr_link_hold() and smcr_link_put(). Have you encountered this
+    issue in actual test, such as triggering WARN of refcount_inc()? Because IMHO the race window is small
+    (link state will turned to SMC_LNK_UNUSED after smcr_link_put() and connections will not be assigned to it).
+
+3) Does the refcount of lgr (smc_lgr_hold(), smc_lgr_put()) has the similar problem?
+
+
