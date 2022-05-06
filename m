@@ -2,263 +2,269 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5568FC433EF
-	for <linux-s390@archiver.kernel.org>; Fri,  6 May 2022 09:18:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D29DDC4332F
+	for <linux-s390@archiver.kernel.org>; Fri,  6 May 2022 09:21:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1390402AbiEFJWa (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 6 May 2022 05:22:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35528 "EHLO
+        id S1390409AbiEFJYn (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 6 May 2022 05:24:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1390401AbiEFJW1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 May 2022 05:22:27 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0457633AE;
-        Fri,  6 May 2022 02:18:44 -0700 (PDT)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2467DF17007169;
-        Fri, 6 May 2022 09:17:44 GMT
+        with ESMTP id S241918AbiEFJYm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 May 2022 05:24:42 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06F6F63519;
+        Fri,  6 May 2022 02:20:35 -0700 (PDT)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2468H6Zb040135;
+        Fri, 6 May 2022 09:20:35 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : references : date : in-reply-to : message-id : mime-version :
- content-type; s=pp1; bh=3mutIDwAoMDYppKvXj+Kh3Lz7GBDin/nQObbZDAncxw=;
- b=L1yeUp3xv84wxceE4LqZbb6r/vCK7SyqM8/NifRc8RG+IWkiJt6J9D4wqtJSSNEB1mFe
- rA0C6Ltu6Z/5kahIg5rBv24Ga0d2Ti/46VHxLcOX/Q672acGYV7gdgpcqhzXe+LRhzoV
- ct70vVFfcof8Ka2bO9/tS+nTwTbufy8MZMfyQziuVzR1e17pxHHbsI8BAZtztm6ozGN5
- 38K3rKtZbuV3ZY2WdeHLjJPaPesIOQqPGqnG0fWZa9oYqX2YOtoGsk962GaDtk5lM3w8
- pt1NSaJzZfAf2NiDAWjQUP3kyZ9HGxqaqFv+IKIa1ojcbvOsDFQTeR6egxd1MNe2+33h rg== 
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=XEeW7SkkfqHkJZkTeoDfscRJfoW2dvyrjFvMW1PWUmw=;
+ b=eSkRsj2GjIOxuasMbotgPEITze1e9iqPvbJ1KJIfA7eBVxQJ2euchTlmj/P76AxzfzOM
+ c9VQ6fTFkp3eFghlmdt3jG1c8eogCAfFcF+vR+U9JvqOc+bz6Wm0K1ndfvIxiK6IXwbh
+ 5s6WfFqj/sNy2mA3bJPGzVW3VUolGfUqjNh6lQGDU2bppQk4AhBdru0VjpyaNJyt9HJQ
+ s2uvlXK3b/oc/RChNu7UZJ4LCU3/cH/upSru5puGsncGnMwlwQHpHmpXskflEt02dGWc
+ owCuXKreKwKpTavra/vQ8z5QgUG37djCCEjJUEFvR2+EQg0kb8sXU6+2UXVp8HZ779ym Mw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fvy3btd3r-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fw0179at7-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 06 May 2022 09:17:43 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2468e2Bl013355;
-        Fri, 6 May 2022 09:17:43 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fvy3btd2v-1
+        Fri, 06 May 2022 09:20:35 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2469DRlc001898;
+        Fri, 6 May 2022 09:20:34 GMT
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fw0179asj-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 06 May 2022 09:17:43 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2469D1uF009644;
-        Fri, 6 May 2022 09:17:41 GMT
+        Fri, 06 May 2022 09:20:34 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2469DkWS021130;
+        Fri, 6 May 2022 09:20:32 GMT
 Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
-        by ppma06ams.nl.ibm.com with ESMTP id 3fvg6112ck-1
+        by ppma03ams.nl.ibm.com with ESMTP id 3ftp7fw874-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 06 May 2022 09:17:40 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2469HTr830998854
+        Fri, 06 May 2022 09:20:32 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2469KMhV21561646
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 6 May 2022 09:17:29 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C18314C046;
-        Fri,  6 May 2022 09:17:36 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 173AB4C040;
-        Fri,  6 May 2022 09:17:36 +0000 (GMT)
-Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Fri,  6 May 2022 09:17:36 +0000 (GMT)
-From:   Sven Schnelle <svens@linux.ibm.com>
-To:     Josh Poimboeuf <jpoimboe@kernel.org>
-Cc:     linux-kernel@vger.kernel.org,
-        Peter Zijlstra <peterz@infradead.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH] bug: Use normal relative pointers in 'struct bug_entry'
-References: <afddb4548e93f6458ec1d9ec185a834c348eda33.1651798983.git.jpoimboe@kernel.org>
-Date:   Fri, 06 May 2022 11:17:35 +0200
-In-Reply-To: <afddb4548e93f6458ec1d9ec185a834c348eda33.1651798983.git.jpoimboe@kernel.org>
-        (Josh Poimboeuf's message of "Thu, 5 May 2022 18:09:45 -0700")
-Message-ID: <yt9d35hnj9zk.fsf@linux.ibm.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.50 (gnu/linux)
+        Fri, 6 May 2022 09:20:22 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4856711C04C;
+        Fri,  6 May 2022 09:20:29 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 879B311C04A;
+        Fri,  6 May 2022 09:20:28 +0000 (GMT)
+Received: from li-c6ac47cc-293c-11b2-a85c-d421c8e4747b.ibm.com.com (unknown [9.171.62.79])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri,  6 May 2022 09:20:28 +0000 (GMT)
+From:   Pierre Morel <pmorel@linux.ibm.com>
+To:     kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com,
+        david@redhat.com, thuth@redhat.com, imbrenda@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, pmorel@linux.ibm.com,
+        wintera@linux.ibm.com, seiden@linux.ibm.com, nrb@linux.ibm.com
+Subject: [PATCH v9 0/3] s390x: KVM: CPU Topology
+Date:   Fri,  6 May 2022 11:24:00 +0200
+Message-Id: <20220506092403.47406-1-pmorel@linux.ibm.com>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 4n8HqNW6ohwXkIgOJyGIpHi0JkINuDC6
-X-Proofpoint-ORIG-GUID: S6dXLhewdUPDA_P7LfTbFsG0u0fKL_4S
+X-Proofpoint-GUID: RvDBeqAdxUJi9e8CM5nI5Bk_2XxsrhYA
+X-Proofpoint-ORIG-GUID: tYw0nMt7WSgjZGyyOsmHyvKuim5yjyF1
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-05-06_03,2022-05-05_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1011
- suspectscore=0 adultscore=0 mlxlogscore=999 bulkscore=0 lowpriorityscore=0
- phishscore=0 mlxscore=0 spamscore=0 malwarescore=0 priorityscore=1501
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2205060049
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 phishscore=0
+ clxscore=1011 priorityscore=1501 mlxscore=0 mlxlogscore=999 bulkscore=0
+ spamscore=0 suspectscore=0 malwarescore=0 impostorscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2205060049
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Josh Poimboeuf <jpoimboe@kernel.org> writes:
+Hi all,
 
-> With CONFIG_GENERIC_BUG_RELATIVE_POINTERS, the addr/file relative
-> pointers are calculated weirdly: based on the beginning of the bug_entry
-> struct address, rather than their respective pointer addresses.
->
-> Make the relative pointers less surprising to both humans and tools by
-> calculating them the normal way.
->
-> Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
+This new spin adds bug correction and simplification of ipte_lock
+to the series for the implementation of interpretation for the PTF
+instruction and the handling of the STSI instruction.
 
-Acked-by: Sven Schnelle <svens@linux.ibm.com> # s390
-> ---
->  arch/arm64/include/asm/asm-bug.h |  4 ++--
->  arch/powerpc/include/asm/bug.h   |  5 +++--
->  arch/riscv/include/asm/bug.h     |  4 ++--
->  arch/s390/include/asm/bug.h      |  5 +++--
->  arch/x86/include/asm/bug.h       |  2 +-
->  lib/bug.c                        | 15 +++++++--------
->  6 files changed, 18 insertions(+), 17 deletions(-)
->
-> diff --git a/arch/arm64/include/asm/asm-bug.h b/arch/arm64/include/asm/asm-bug.h
-> index 03f52f84a4f3..c762038ba400 100644
-> --- a/arch/arm64/include/asm/asm-bug.h
-> +++ b/arch/arm64/include/asm/asm-bug.h
-> @@ -14,7 +14,7 @@
->  	14472:	.string file;					\
->  		.popsection;					\
->  								\
-> -		.long 14472b - 14470b;				\
-> +		.long 14472b - .;				\
->  		.short line;
->  #else
->  #define _BUGVERBOSE_LOCATION(file, line)
-> @@ -25,7 +25,7 @@
->  #define __BUG_ENTRY(flags) 				\
->  		.pushsection __bug_table,"aw";		\
->  		.align 2;				\
-> -	14470:	.long 14471f - 14470b;			\
-> +	14470:	.long 14471f - .;			\
->  _BUGVERBOSE_LOCATION(__FILE__, __LINE__)		\
->  		.short flags; 				\
->  		.popsection;				\
-> diff --git a/arch/powerpc/include/asm/bug.h b/arch/powerpc/include/asm/bug.h
-> index ecbae1832de3..76252576d889 100644
-> --- a/arch/powerpc/include/asm/bug.h
-> +++ b/arch/powerpc/include/asm/bug.h
-> @@ -13,7 +13,8 @@
->  #ifdef CONFIG_DEBUG_BUGVERBOSE
->  .macro __EMIT_BUG_ENTRY addr,file,line,flags
->  	 .section __bug_table,"aw"
-> -5001:	 .4byte \addr - 5001b, 5002f - 5001b
-> +5001:	 .4byte \addr - .
-> +	 .4byte 5002f - .
->  	 .short \line, \flags
->  	 .org 5001b+BUG_ENTRY_SIZE
->  	 .previous
-> @@ -24,7 +25,7 @@
->  #else
->  .macro __EMIT_BUG_ENTRY addr,file,line,flags
->  	 .section __bug_table,"aw"
-> -5001:	 .4byte \addr - 5001b
-> +5001:	 .4byte \addr - .
->  	 .short \flags
->  	 .org 5001b+BUG_ENTRY_SIZE
->  	 .previous
-> diff --git a/arch/riscv/include/asm/bug.h b/arch/riscv/include/asm/bug.h
-> index d3804a2f9aad..1aaea81fb141 100644
-> --- a/arch/riscv/include/asm/bug.h
-> +++ b/arch/riscv/include/asm/bug.h
-> @@ -30,8 +30,8 @@
->  typedef u32 bug_insn_t;
->  
->  #ifdef CONFIG_GENERIC_BUG_RELATIVE_POINTERS
-> -#define __BUG_ENTRY_ADDR	RISCV_INT " 1b - 2b"
-> -#define __BUG_ENTRY_FILE	RISCV_INT " %0 - 2b"
-> +#define __BUG_ENTRY_ADDR	RISCV_INT " 1b - ."
-> +#define __BUG_ENTRY_FILE	RISCV_INT " %0 - ."
->  #else
->  #define __BUG_ENTRY_ADDR	RISCV_PTR " 1b"
->  #define __BUG_ENTRY_FILE	RISCV_PTR " %0"
-> diff --git a/arch/s390/include/asm/bug.h b/arch/s390/include/asm/bug.h
-> index 0b25f28351ed..aebe1e22c7be 100644
-> --- a/arch/s390/include/asm/bug.h
-> +++ b/arch/s390/include/asm/bug.h
-> @@ -15,7 +15,8 @@
->  		"1:	.asciz	\""__FILE__"\"\n"		\
->  		".previous\n"					\
->  		".section __bug_table,\"awM\",@progbits,%2\n"	\
-> -		"2:	.long	0b-2b,1b-2b\n"			\
-> +		"2:	.long	0b-.\n"				\
-> +		"	.long	1b-.\n"				\
->  		"	.short	%0,%1\n"			\
->  		"	.org	2b+%2\n"			\
->  		".previous\n"					\
-> @@ -30,7 +31,7 @@
->  	asm_inline volatile(					\
->  		"0:	mc	0,0\n"				\
->  		".section __bug_table,\"awM\",@progbits,%1\n"	\
-> -		"1:	.long	0b-1b\n"			\
-> +		"1:	.long	0b-.\n"				\
->  		"	.short	%0\n"				\
->  		"	.org	1b+%1\n"			\
->  		".previous\n"					\
-> diff --git a/arch/x86/include/asm/bug.h b/arch/x86/include/asm/bug.h
-> index aaf0cb0db4ae..a3ec87d198ac 100644
-> --- a/arch/x86/include/asm/bug.h
-> +++ b/arch/x86/include/asm/bug.h
-> @@ -18,7 +18,7 @@
->  #ifdef CONFIG_X86_32
->  # define __BUG_REL(val)	".long " __stringify(val)
->  #else
-> -# define __BUG_REL(val)	".long " __stringify(val) " - 2b"
-> +# define __BUG_REL(val)	".long " __stringify(val) " - ."
->  #endif
->  
->  #ifdef CONFIG_DEBUG_BUGVERBOSE
-> diff --git a/lib/bug.c b/lib/bug.c
-> index 45a0584f6541..c223a2575b72 100644
-> --- a/lib/bug.c
-> +++ b/lib/bug.c
-> @@ -6,8 +6,7 @@
->  
->    CONFIG_BUG - emit BUG traps.  Nothing happens without this.
->    CONFIG_GENERIC_BUG - enable this code.
-> -  CONFIG_GENERIC_BUG_RELATIVE_POINTERS - use 32-bit pointers relative to
-> -	the containing struct bug_entry for bug_addr and file.
-> +  CONFIG_GENERIC_BUG_RELATIVE_POINTERS - use 32-bit relative pointers for bug_addr and file
->    CONFIG_DEBUG_BUGVERBOSE - emit full file+line information for each BUG
->  
->    CONFIG_BUG and CONFIG_DEBUG_BUGVERBOSE are potentially user-settable
-> @@ -53,10 +52,10 @@ extern struct bug_entry __start___bug_table[], __stop___bug_table[];
->  
->  static inline unsigned long bug_addr(const struct bug_entry *bug)
->  {
-> -#ifndef CONFIG_GENERIC_BUG_RELATIVE_POINTERS
-> -	return bug->bug_addr;
-> +#ifdef CONFIG_GENERIC_BUG_RELATIVE_POINTERS
-> +	return (unsigned long)&bug->bug_addr_disp + bug->bug_addr_disp;
->  #else
-> -	return (unsigned long)bug + bug->bug_addr_disp;
-> +	return bug->bug_addr;
->  #endif
->  }
->  
-> @@ -131,10 +130,10 @@ void bug_get_file_line(struct bug_entry *bug, const char **file,
->  		       unsigned int *line)
->  {
->  #ifdef CONFIG_DEBUG_BUGVERBOSE
-> -#ifndef CONFIG_GENERIC_BUG_RELATIVE_POINTERS
-> -	*file = bug->file;
-> +#ifdef CONFIG_GENERIC_BUG_RELATIVE_POINTERS
-> +	*file = (const char *)&bug->file_disp + bug->file_disp;
->  #else
-> -	*file = (const char *)bug + bug->file_disp;
-> +	*file = bug->file;
->  #endif
->  	*line = bug->line;
->  #else
+The series provides:
+1- interception of the STSI instruction forwarding the CPU topology
+2- interpretation of the PTF instruction
+3- a KVM capability for the userland hypervisor to ask KVM to 
+   setup PTF interpretation.
+
+
+0- Foreword
+
+The S390 CPU topology is reported using two instructions:
+- PTF, to get information if the CPU topology did change since last
+  PTF instruction or a subsystem reset.
+- STSI, to get the topology information, consisting of the topology
+  of the CPU inside the sockets, of the sockets inside the books etc.
+
+The PTF(2) instruction report a change if the STSI(15.1.2) instruction
+will report a difference with the last STSI(15.1.2) instruction*.
+With the SIE interpretation, the PTF(2) instruction will report a
+change to the guest if the host sets the SCA.MTCR bit.
+
+*The STSI(15.1.2) instruction reports:
+- The cores address within a socket
+- The polarization of the cores
+- The CPU type of the cores
+- If the cores are dedicated or not
+
+We decided to implement the CPU topology for S390 in several steps:
+
+- first we report CPU hotplug
+- modification of the CPU mask inside sockets
+
+In future development we will provide:
+
+- handling of shared CPUs
+- reporting of the CPU Type
+- reporting of the polarization
+
+
+1- Interception of STSI
+
+To provide Topology information to the guest through the STSI
+instruction, we forward STSI with Function Code 15 to the
+userland hypervisor which will take care to provide the right
+information to the guest.
+
+To let the guest use both the PTF instruction  to check if a topology
+change occurred and sthe STSI_15.x.x instruction we add a new KVM
+capability to enable the topology facility.
+
+2- Interpretation of PTF with FC(2)
+
+The PTF instruction will report a topology change if there is any change
+with a previous STSI(15.1.2) SYSIB.
+Changes inside a STSI(15.1.2) SYSIB occur if CPU bits are set or clear
+inside the CPU Topology List Entry CPU mask field, which happens with
+changes in CPU polarization, dedication, CPU types and adding or
+removing CPUs in a socket.
+
+The reporting to the guest is done using the Multiprocessor
+Topology-Change-Report (MTCR) bit of the utility entry of the guest's
+SCA which will be cleared during the interpretation of PTF.
+
+To check if the topology has been modified we use a new field of the
+arch vCPU prev_cpu, to save the previous real CPU ID at the end of a
+schedule and verify on next schedule that the CPU used is in the same
+socket, this field is initialized to -1 on vCPU creation.
+
+
+Regards,
+Pierre
+
+Pierre Morel (3):
+  s390x: KVM: ipte lock for SCA access should be contained in KVM
+  s390x: KVM: guest support for topology function
+  s390x: KVM: resetting the Topology-Change-Report
+
+ Documentation/virt/kvm/api.rst   |  16 ++++
+ arch/s390/include/asm/kvm_host.h |  12 ++-
+ arch/s390/include/uapi/asm/kvm.h |   5 ++
+ arch/s390/kvm/gaccess.c          |  96 +++++++++++------------
+ arch/s390/kvm/gaccess.h          |   6 +-
+ arch/s390/kvm/kvm-s390.c         | 128 ++++++++++++++++++++++++++++++-
+ arch/s390/kvm/kvm-s390.h         |  25 ++++++
+ arch/s390/kvm/priv.c             |  20 +++--
+ arch/s390/kvm/vsie.c             |   3 +
+ include/uapi/linux/kvm.h         |   1 +
+ 10 files changed, 250 insertions(+), 62 deletions(-)
+
+-- 
+2.27.0
+
+Changelog:
+
+from v8 to v9
+
+- bug correction in kvm_s390_topology_changed
+  (Heiko)
+
+- simplification for ipte_lock/unlock to use kvm
+  as arg instead of vcpu and test on sclp.has_siif
+  instead of the SIE ECA_SII.
+  (David)
+
+- use of a single value for reporting if the
+  topology changed instead of a structure
+  (David)
+
+from v7 to v8
+
+- implement reset handling
+  (Janosch)
+
+- change the way to check if the topology changed
+  (Nico, Heiko)
+
+from v6 to v7
+
+- rebase
+
+from v5 to v6
+
+- make the subject more accurate
+  (Claudio)
+
+- Change the kvm_s390_set_mtcr() function to have vcpu in the name
+  (Janosch)
+
+- Replace the checks on ECB_PTF wit the check of facility 11
+  (Janosch)
+
+- modify kvm_arch_vcpu_load, move the check in a function in
+  the header file
+  (Janosh)
+
+- No magical number replace the "new cpu value" of -1 with a define
+  (Janosch)
+
+- Make the checks for STSI validity clearer
+  (Janosch)
+
+from v4 tp v5
+
+- modify the way KVM_CAP is tested to be OK with vsie
+  (David)
+
+from v3 to v4
+
+- squatch both patches
+  (David)
+
+- Added Documentation
+  (David)
+
+- Modified the detection for new vCPUs
+  (Pierre)
+
+from v2 to v3
+
+- use PTF interpretation
+  (Christian)
+
+- optimize arch_update_cpu_topology using PTF
+  (Pierre)
+
+from v1 to v2:
+
+- Add a KVM capability to let QEMU know we support PTF and STSI 15
+  (David)
+
+- check KVM facility 11 before accepting STSI fc 15
+  (David)
+
+- handle all we can in userland
+  (David)
+
+- add tracing to STSI fc 15
+  (Connie)
+
