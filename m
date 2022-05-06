@@ -2,135 +2,146 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3AFFBC433FE
-	for <linux-s390@archiver.kernel.org>; Fri,  6 May 2022 12:59:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4AA51C433F5
+	for <linux-s390@archiver.kernel.org>; Fri,  6 May 2022 15:35:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1390636AbiEFNDD (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 6 May 2022 09:03:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57658 "EHLO
+        id S234587AbiEFPi4 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 6 May 2022 11:38:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356442AbiEFNDC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 May 2022 09:03:02 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 175EA6338E;
-        Fri,  6 May 2022 05:59:20 -0700 (PDT)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 246Bhqsi032725;
-        Fri, 6 May 2022 12:57:05 GMT
+        with ESMTP id S231357AbiEFPiz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 May 2022 11:38:55 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F397F66;
+        Fri,  6 May 2022 08:35:12 -0700 (PDT)
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 246Dmvbl019354;
+        Fri, 6 May 2022 15:35:10 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=evV7zW0Pkptdgxryp8q/nhaiY9RbM7s7Y7FBYLM1+3A=;
- b=Jpd/LqQ8qRyc1xkIsreNzVu3YNJxk4TaXrlRk5EXzrQXl5UeIjcnnMKpZQPsVJ0GWk+H
- 4OO+eKdI0ysFLbuy272CQquw7xLwkRQ1s5GUWbXY8kFuS71Ceev4HZ45AsEQ8oZBvzjh
- vj9ZT2cWF915zG+QEbX57A1GZjGTBqhBXVby9LhxAVMXfdHc8D2HNV+6fPiIWZDjoX8J
- xQc3nUSMfgk+A0yFcqxH7BuTTwMYt5urI5Cc5SR3b708MtZCLHe7iDRxY/w+5R6s+qyZ
- 89+99+cfayWa/722v5Fz4JyhE/P1cqJ/2euDxDC5GLt/zC7591d5SNeke9efRBlC4wae 9g== 
+ bh=blLD599xWM8TsoqnVdATsyQkk63uresPs9SegCqqIJ8=;
+ b=L/flva3qm311tXx/sh/kPxNxZSVMAyo8Shoq8uE+GtfAaIg2PRK2yTDmGRyIO+IygEa6
+ +Ds2Z1c8Zh5Ocrh+lFb0+t1hs3rymY/O8xlwEXmdnR1JMJBZhOj/S347NL1BE82hXzvz
+ 70md7lrOiuqjx/YsqzIOW/4mp2wcHTHW09uZkc7Sd1mITrw9M8RvB34kRVVOzlCwQnHG
+ OzeWAOO0hHyeCaEb8TrgyUKaftfO65wre7A3xUDUkkWXbjpNS+dr/Dh/HTeJ5x659jrf
+ tiJJurRAAMi8fykICZzoI7C6oFvs/BE0QMiWSY1c73xlhrJ6yZwy+A6CDKOCmNWVetCr hw== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3fw3279f16-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fw4w1jfm0-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 06 May 2022 12:57:05 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 246C6GE1009740;
-        Fri, 6 May 2022 12:57:04 GMT
+        Fri, 06 May 2022 15:35:09 +0000
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 246FKSM1025004;
+        Fri, 6 May 2022 15:35:09 GMT
 Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3fw3279f0m-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fw4w1jfk3-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 06 May 2022 12:57:04 +0000
+        Fri, 06 May 2022 15:35:09 +0000
 Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 246CrK4Z028206;
-        Fri, 6 May 2022 12:57:02 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 3ftp7fwgbx-1
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 246FHbY9032762;
+        Fri, 6 May 2022 15:35:06 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 3ftp7fwpaj-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 06 May 2022 12:57:02 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 246Cv0dI39256422
+        Fri, 06 May 2022 15:35:06 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 246FYtpC32702734
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 6 May 2022 12:57:00 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F2900A4053;
-        Fri,  6 May 2022 12:56:59 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1CD1EA4040;
-        Fri,  6 May 2022 12:56:59 +0000 (GMT)
-Received: from [9.145.54.141] (unknown [9.145.54.141])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri,  6 May 2022 12:56:59 +0000 (GMT)
-Message-ID: <1f26f6b4-4d33-6291-31c2-5cb68a5be829@linux.ibm.com>
-Date:   Fri, 6 May 2022 14:56:58 +0200
+        Fri, 6 May 2022 15:34:55 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 67D87A405B;
+        Fri,  6 May 2022 15:35:03 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 588FFA4060;
+        Fri,  6 May 2022 15:35:02 +0000 (GMT)
+Received: from [9.171.60.83] (unknown [9.171.60.83])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri,  6 May 2022 15:35:02 +0000 (GMT)
+Message-ID: <28395b98-3489-342a-970a-5358e4405f22@linux.ibm.com>
+Date:   Fri, 6 May 2022 17:35:01 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.8.0
-Subject: Re: [PATCH 07/11] dasd: don't set the discard_alignment queue limit
+Subject: Re: [PATCH v6 14/21] KVM: s390: pci: provide routines for
+ enabling/disabling interrupt forwarding
 Content-Language: en-US
-To:     Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
-Cc:     Richard Weinberger <richard@nod.at>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Josef Bacik <josef@toxicpanda.com>,
-        "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        =?UTF-8?Q?Roger_Pau_Monn=c3=a9?= <roger.pau@citrix.com>,
-        Mike Snitzer <snitzer@kernel.org>, Song Liu <song@kernel.org>,
-        Stefan Haberland <sth@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        linux-um@lists.infradead.org, linux-block@vger.kernel.org,
-        nbd@other.debian.org, virtualization@lists.linux-foundation.org,
-        xen-devel@lists.xenproject.org, linux-raid@vger.kernel.org,
-        linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org,
-        dm-devel@redhat.com
-References: <20220418045314.360785-1-hch@lst.de>
- <20220418045314.360785-8-hch@lst.de>
-From:   =?UTF-8?Q?Jan_H=c3=b6ppner?= <hoeppner@linux.ibm.com>
-In-Reply-To: <20220418045314.360785-8-hch@lst.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+To:     Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc:     alex.williamson@redhat.com, cohuck@redhat.com,
+        schnelle@linux.ibm.com, farman@linux.ibm.com, pmorel@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com,
+        gerald.schaefer@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
+        imbrenda@linux.ibm.com, vneethv@linux.ibm.com,
+        oberpar@linux.ibm.com, freude@linux.ibm.com, thuth@redhat.com,
+        pasic@linux.ibm.com, pbonzini@redhat.com, corbet@lwn.net,
+        jgg@nvidia.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-doc@vger.kernel.org
+References: <20220426200842.98655-1-mjrosato@linux.ibm.com>
+ <20220426200842.98655-15-mjrosato@linux.ibm.com>
+From:   Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20220426200842.98655-15-mjrosato@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 8a7-K9CSYxb93olkIOkZv_aoAnTW7JGG
-X-Proofpoint-GUID: eBrk8yaxusH63MjrlJz40h5tJPgmJePg
+X-Proofpoint-ORIG-GUID: NrU3OZfGBe5iOJbw7gkh1V-3ysVy0Ku8
+X-Proofpoint-GUID: SQ06wbn3n7KXqve90ckpJdnRS_Tu02T4
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-05-06_04,2022-05-06_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
- malwarescore=0 phishscore=0 mlxlogscore=999 adultscore=0 clxscore=1011
- priorityscore=1501 spamscore=0 bulkscore=0 lowpriorityscore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 spamscore=0
+ priorityscore=1501 adultscore=0 phishscore=0 malwarescore=0
+ mlxlogscore=950 lowpriorityscore=0 suspectscore=0 mlxscore=0 bulkscore=0
  impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205060070
+ engine=8.12.0-2202240000 definitions=main-2205060082
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 18/04/2022 06:53, Christoph Hellwig wrote:
-> The discard_alignment queue limit is named a bit misleading means the
-> offset into the block device at which the discard granularity starts.
-> Setting it to PAGE_SIZE while the discard granularity is the block size
-> that is smaller or the same as PAGE_SIZE as done by dasd is mostly
-> harmless but also useless.
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-Acked-by: Jan Höppner <hoeppner@linux.ibm.com>
 
-Sorry for a rather late answer. I saw that Jens already applied
-the patches so it's fine when the Ack isn't added anymore.
-Wanted to send it anyway so that you know we're aware of it.
+Am 26.04.22 um 22:08 schrieb Matthew Rosato:
+[...]
+> +static inline void unaccount_mem(unsigned long nr_pages)
+> +{
+> +	struct user_struct *user = get_uid(current_user());
+> +
+> +	if (user)
+> +		atomic_long_sub(nr_pages, &user->locked_vm);
+> +	if (current->mm)
+> +		atomic64_sub(nr_pages, &current->mm->pinned_vm);
+> +}
+> +
+> +static inline int account_mem(unsigned long nr_pages)
+> +{
+> +	struct user_struct *user = get_uid(current_user());
+> +	unsigned long page_limit, cur_pages, new_pages;
+> +
+> +	page_limit = rlimit(RLIMIT_MEMLOCK) >> PAGE_SHIFT;
+> +
+> +	do {
+> +		cur_pages = atomic_long_read(&user->locked_vm);
+> +		new_pages = cur_pages + nr_pages;
+> +		if (new_pages > page_limit)
+> +			return -ENOMEM;
+> +	} while (atomic_long_cmpxchg(&user->locked_vm, cur_pages,
+> +					new_pages) != cur_pages);
+> +
+> +	atomic64_add(nr_pages, &current->mm->pinned_vm);
+> +
+> +	return 0;
 
-> ---
->  drivers/s390/block/dasd_fba.c | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/drivers/s390/block/dasd_fba.c b/drivers/s390/block/dasd_fba.c
-> index 8bd5665db9198..60be7f7bf2d16 100644
-> --- a/drivers/s390/block/dasd_fba.c
-> +++ b/drivers/s390/block/dasd_fba.c
-> @@ -782,7 +782,6 @@ static void dasd_fba_setup_blk_queue(struct dasd_block *block)
->  	blk_queue_segment_boundary(q, PAGE_SIZE - 1);
->  
->  	q->limits.discard_granularity = logical_block_size;
-> -	q->limits.discard_alignment = PAGE_SIZE;
->  
->  	/* Calculate max_discard_sectors and make it PAGE aligned */
->  	max_bytes = USHRT_MAX * logical_block_size;
+user->locked_vm is not available unconditionally. Shall we add
 
+CONFIG_S390 && CONFIG_KVM here?
+
+include/linux/sched/user.h
+#if defined(CONFIG_PERF_EVENTS) || defined(CONFIG_BPF_SYSCALL) || \
+     defined(CONFIG_NET) || defined(CONFIG_IO_URING)
+         atomic_long_t locked_vm;
+#endif
+Or we could get rid of the user memlock checking for now until this is more ubiquitous.
+
+
+Otherwise this looks sane
+
+Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
