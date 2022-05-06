@@ -2,74 +2,68 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53076C433EF
-	for <linux-s390@archiver.kernel.org>; Fri,  6 May 2022 19:31:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6872C433F5
+	for <linux-s390@archiver.kernel.org>; Fri,  6 May 2022 19:38:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236285AbiEFTf0 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 6 May 2022 15:35:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43090 "EHLO
+        id S1352887AbiEFTls (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 6 May 2022 15:41:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1391037AbiEFTfZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 May 2022 15:35:25 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA52B6E8D8;
-        Fri,  6 May 2022 12:31:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=KYjynMh8oTuhJ2M+10A3ZYR4VMfe0p38wFUuoJlJ0jY=; b=qNTidsh3yZUbG12y5r9LdAxcc2
-        4yB/F/2WzO221X0AQ1NYTaL3vf8G7a5F5oAXjA7kUvkYekpoYEkwvUSTMQtpOSdyZMafxMsv2O7f2
-        zBVXV3bhNOEB+Eakz8Mi8L9zPVo9l696toCnlV71r8UetOYDt+HcQNAxWR4mL9IdjRlfxjVCSLzJf
-        lEljm10xPYz/4fq5gp8jGMBPMRmgBaAXB8tqs+jSHdhP+2d9Cdw5ft/K505wG76EjEgKV03x0iSvd
-        ejz90Eyx8ac/Oqstb7E4VWXFvYD39yhQrNmStPpIvSQLKZ5aIBgnugjf6dfc34mCS/0EWnnW5HJeH
-        OmFjSWJg==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
-        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nn3fg-00Bkhr-TQ; Fri, 06 May 2022 19:31:25 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id BA1773003AA;
-        Fri,  6 May 2022 21:31:22 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id A19582029A1AC; Fri,  6 May 2022 21:31:22 +0200 (CEST)
-Date:   Fri, 6 May 2022 21:31:22 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Thomas Richter <tmricht@linux.ibm.com>
-Cc:     linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        with ESMTP id S234627AbiEFTlr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 May 2022 15:41:47 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 100C96A02F;
+        Fri,  6 May 2022 12:38:04 -0700 (PDT)
+From:   Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1651865882;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=8T2qZfZRWAyz/w0PKnt28heXPlVuPjH7rUUoRh3DSQE=;
+        b=kWqK0E+R7ljU/7tYyyT7HtIpaWR+kJcBxZE4feZq4Is15XKSf/dupZk9JrTJHtDVribcAa
+        o2sKvbKhKHFJL0cObyj3dxuEsyLAFZHAzG/JlCbTYSND8CNU121ezE4h+wHIrMAN6S/Nc/
+        ERxQTrC5kK1izqhuGpCNLO9tv6HpLQo0gj7Rlk0OTXRZHXczx8bQYYK6Ngznf9qXbUxCp3
+        9fPqCCDNi3QSw8oFqt7UqdP91GOSwy1HuKZsKqxJ/uV6b1ZhwAZn6ISEwg5Y0YCjrEy8n+
+        XexPWL81QvZTST+tHedKy0S0HeAQtNCvuQKxdnWRgAOhf0HfdBCzQC2B+M+Qbg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1651865882;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=8T2qZfZRWAyz/w0PKnt28heXPlVuPjH7rUUoRh3DSQE=;
+        b=QMYNKXBKI1hJag05M/ostqQK+KhIPg6iMTEvJHBuIWU2bRU/c52GuRQTNlee3OR2NXmM5f
+        M+CCd4Y5mzuGtpCQ==
+To:     Thomas Richter <tmricht@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc:     Sven Schnelle <svens@linux.ibm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
         Andy Lutomirski <luto@kernel.org>
 Subject: Re: [PATCH 1/2] entry: Rename arch_check_user_regs() to
  arch_enter_from_user_mode()
-Message-ID: <YnV3iljKUM0Fqw/F@hirez.programming.kicks-ass.net>
+In-Reply-To: <20220504062351.2954280-2-tmricht@linux.ibm.com>
 References: <20220504062351.2954280-1-tmricht@linux.ibm.com>
  <20220504062351.2954280-2-tmricht@linux.ibm.com>
+Date:   Fri, 06 May 2022 21:38:02 +0200
+Message-ID: <87bkwah2p1.ffs@tglx>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220504062351.2954280-2-tmricht@linux.ibm.com>
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Wed, May 04, 2022 at 08:23:50AM +0200, Thomas Richter wrote:
+On Wed, May 04 2022 at 08:23, Thomas Richter wrote:
 > From: Sven Schnelle <svens@linux.ibm.com>
-> 
+>
 > arch_check_user_regs() is used at the moment to verify that struct pt_regs
 > contains valid values when entering the kernel from userspace. s390 needs
 > a place in the generic entry code to modify a cpu data structure when
 > switching from userspace to kernel mode. As arch_check_user_regs() is
 > exactly this, rename it to arch_enter_from_user_mode().
-> 
+>
 > Cc: Thomas Gleixner <tglx@linutronix.de>
 > Cc: Peter Zijlstra <peterz@infradead.org>
 > Cc: Andy Lutomirski <luto@kernel.org>
 > Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-> ---
 
-With the note that NMI doesn't (necessarily) call this..
-
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
