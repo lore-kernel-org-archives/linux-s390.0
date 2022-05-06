@@ -2,111 +2,227 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CC85C433FE
-	for <linux-s390@archiver.kernel.org>; Fri,  6 May 2022 03:38:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 076C6C433F5
+	for <linux-s390@archiver.kernel.org>; Fri,  6 May 2022 05:04:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1388719AbiEFDmT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 5 May 2022 23:42:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44278 "EHLO
+        id S1389047AbiEFFHw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 6 May 2022 01:07:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234539AbiEFDmS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 May 2022 23:42:18 -0400
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7CF3F7;
-        Thu,  5 May 2022 20:38:30 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=baolin.wang@linux.alibaba.com;NM=1;PH=DS;RN=30;SR=0;TI=SMTPD_---0VCPvMM9_1651808302;
-Received: from 30.32.96.193(mailfrom:baolin.wang@linux.alibaba.com fp:SMTPD_---0VCPvMM9_1651808302)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 06 May 2022 11:38:24 +0800
-Message-ID: <21b11024-e893-8c11-9b98-ab1d13413b61@linux.alibaba.com>
-Date:   Fri, 6 May 2022 11:39:05 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.1
-Subject: Re: [PATCH 2/3] mm: rmap: Fix CONT-PTE/PMD size hugetlb issue when
- migration
-To:     Mike Kravetz <mike.kravetz@oracle.com>, akpm@linux-foundation.org,
-        catalin.marinas@arm.com, will@kernel.org
-Cc:     tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com,
-        deller@gmx.de, mpe@ellerman.id.au, benh@kernel.crashing.org,
-        paulus@samba.org, hca@linux.ibm.com, gor@linux.ibm.com,
+        with ESMTP id S237609AbiEFFHu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 May 2022 01:07:50 -0400
+Received: from m12-13.163.com (m12-13.163.com [220.181.12.13])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id DFF7755488;
+        Thu,  5 May 2022 22:04:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+        s=s110527; h=From:Subject:Date:Message-Id:MIME-Version; bh=kwrkS
+        yRsaaiIFWrW7YZm2UrkeSJmomCa4/Kxdbxbyiw=; b=ONspd4qIXmW6V4d+1OMMb
+        6vS4HvdMVbYN2c8XrxUoThFprjnJYB00mmBTz7aIxkx/pDHV9FpV1Tc3i5Arra4/
+        YjOzqoo3Za+II1DevMBNWk8AWFJh3qq/Glre9ahoThdnjw03jdK7jh7hjfmoHt+3
+        x1JZkQr4IbZUWwkE0Cb148=
+Received: from localhost.localdomain (unknown [120.204.77.149])
+        by smtp9 (Coremail) with SMTP id DcCowAD31eJMq3Rijn0EBQ--.64477S4;
+        Fri, 06 May 2022 13:00:36 +0800 (CST)
+From:   lizhe <sensor1010@163.com>
+To:     lee.jones@linaro.org, fthain@linux-m68k.org,
+        akrowiak@linux.ibm.com, pasic@linux.ibm.com, jjherne@linux.ibm.com,
+        freude@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
         agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org,
-        davem@davemloft.net, arnd@arndb.de,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
-        linux-mm@kvack.org
-References: <cover.1651216964.git.baolin.wang@linux.alibaba.com>
- <11b92502b3df0e0bba6a1dc71476d79cab6c79ba.1651216964.git.baolin.wang@linux.alibaba.com>
- <5cab0eca-9630-a7c6-4f5d-5cb45ff82c83@oracle.com>
-From:   Baolin Wang <baolin.wang@linux.alibaba.com>
-In-Reply-To: <5cab0eca-9630-a7c6-4f5d-5cb45ff82c83@oracle.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        svens@linux.ibm.com, jejb@linux.ibm.com,
+        martin.petersen@oracle.com, zbr@ioremap.net, perex@perex.cz,
+        tiwai@suse.com, bvanassche@acm.org, dan.j.williams@intel.com,
+        srinivas.kandagatla@linaro.org, wens@csie.org,
+        colin.king@intel.com, u.kleine-koenig@pengutronix.de, hare@suse.de,
+        sensor1010@163.com
+Cc:     linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
+        target-devel@vger.kernel.org, alsa-devel@alsa-project.org
+Subject: [PATCH] kernel/drivers: Remove redundant driver match function
+Date:   Thu,  5 May 2022 21:59:52 -0700
+Message-Id: <20220506045952.136290-1-sensor1010@163.com>
+X-Mailer: git-send-email 2.25.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: DcCowAD31eJMq3Rijn0EBQ--.64477S4
+X-Coremail-Antispam: 1Uf129KBjvJXoWxKr13CF47Kr1rJF13uw13CFg_yoW7Ww4xpF
+        s5JFWakrWUtanrWws2yrWkAFyak3Z7G347Kr4xW3sY9FnrAry5Xa4rtFy8ArZ8XFW8G3ZF
+        van5try8CF4rJrUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0ziAuc_UUUUU=
+X-Originating-IP: [120.204.77.149]
+X-CM-SenderInfo: 5vhq20jurqiii6rwjhhfrp/xtbBohT4q1aEENxxpgAAss
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
+If there is no driver match function, the driver core assumes that each
+candidate pair (driver, device) matches, see driver_match_device().
 
+Signed-off-by: lizhe <sensor1010@163.com>
+---
+ drivers/mfd/mcp-core.c             |  6 ------
+ drivers/nubus/bus.c                |  6 ------
+ drivers/s390/crypto/vfio_ap_drv.c  |  6 ------
+ drivers/scsi/scsi_debug.c          |  7 -------
+ drivers/target/loopback/tcm_loop.c |  7 -------
+ drivers/w1/w1.c                    |  6 ------
+ sound/ac97_bus.c                   | 11 -----------
+ 7 files changed, 49 deletions(-)
 
-On 5/6/2022 7:53 AM, Mike Kravetz wrote:
-> On 4/29/22 01:14, Baolin Wang wrote:
->> On some architectures (like ARM64), it can support CONT-PTE/PMD size
->> hugetlb, which means it can support not only PMD/PUD size hugetlb:
->> 2M and 1G, but also CONT-PTE/PMD size: 64K and 32M if a 4K page
->> size specified.
-> <snip>
->> diff --git a/mm/rmap.c b/mm/rmap.c
->> index 6fdd198..7cf2408 100644
->> --- a/mm/rmap.c
->> +++ b/mm/rmap.c
->> @@ -1924,13 +1924,15 @@ static bool try_to_migrate_one(struct folio *folio, struct vm_area_struct *vma,
->>   					break;
->>   				}
->>   			}
->> +
->> +			/* Nuke the hugetlb page table entry */
->> +			pteval = huge_ptep_clear_flush(vma, address, pvmw.pte);
->>   		} else {
->>   			flush_cache_page(vma, address, pte_pfn(*pvmw.pte));
->> +			/* Nuke the page table entry. */
->> +			pteval = ptep_clear_flush(vma, address, pvmw.pte);
->>   		}
->>   
-> 
-> On arm64 with CONT-PTE/PMD the returned pteval will have dirty or young set
-> if ANY of the PTE/PMDs had dirty or young set.
+diff --git a/drivers/mfd/mcp-core.c b/drivers/mfd/mcp-core.c
+index 2fa592c37c6f..281a9369f2b3 100644
+--- a/drivers/mfd/mcp-core.c
++++ b/drivers/mfd/mcp-core.c
+@@ -20,11 +20,6 @@
+ #define to_mcp(d)		container_of(d, struct mcp, attached_device)
+ #define to_mcp_driver(d)	container_of(d, struct mcp_driver, drv)
+ 
+-static int mcp_bus_match(struct device *dev, struct device_driver *drv)
+-{
+-	return 1;
+-}
+-
+ static int mcp_bus_probe(struct device *dev)
+ {
+ 	struct mcp *mcp = to_mcp(dev);
+@@ -43,7 +38,6 @@ static void mcp_bus_remove(struct device *dev)
+ 
+ static struct bus_type mcp_bus_type = {
+ 	.name		= "mcp",
+-	.match		= mcp_bus_match,
+ 	.probe		= mcp_bus_probe,
+ 	.remove		= mcp_bus_remove,
+ };
+diff --git a/drivers/nubus/bus.c b/drivers/nubus/bus.c
+index 17fad660032c..72921e4f35f6 100644
+--- a/drivers/nubus/bus.c
++++ b/drivers/nubus/bus.c
+@@ -14,11 +14,6 @@
+ #define to_nubus_board(d)       container_of(d, struct nubus_board, dev)
+ #define to_nubus_driver(d)      container_of(d, struct nubus_driver, driver)
+ 
+-static int nubus_bus_match(struct device *dev, struct device_driver *driver)
+-{
+-	return 1;
+-}
+-
+ static int nubus_device_probe(struct device *dev)
+ {
+ 	struct nubus_driver *ndrv = to_nubus_driver(dev->driver);
+@@ -39,7 +34,6 @@ static void nubus_device_remove(struct device *dev)
+ 
+ struct bus_type nubus_bus_type = {
+ 	.name		= "nubus",
+-	.match		= nubus_bus_match,
+ 	.probe		= nubus_device_probe,
+ 	.remove		= nubus_device_remove,
+ };
+diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
+index 29ebd54f8919..0a662c451f2a 100644
+--- a/drivers/s390/crypto/vfio_ap_drv.c
++++ b/drivers/s390/crypto/vfio_ap_drv.c
+@@ -172,14 +172,8 @@ static void vfio_ap_matrix_dev_release(struct device *dev)
+ 	kfree(matrix_dev);
+ }
+ 
+-static int matrix_bus_match(struct device *dev, struct device_driver *drv)
+-{
+-	return 1;
+-}
+-
+ static struct bus_type matrix_bus = {
+ 	.name = "matrix",
+-	.match = &matrix_bus_match,
+ };
+ 
+ static struct device_driver matrix_driver = {
+diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
+index 592a290e6cfa..8107489b36e8 100644
+--- a/drivers/scsi/scsi_debug.c
++++ b/drivers/scsi/scsi_debug.c
+@@ -7844,15 +7844,8 @@ static void sdebug_driver_remove(struct device *dev)
+ 	scsi_host_put(sdbg_host->shost);
+ }
+ 
+-static int pseudo_lld_bus_match(struct device *dev,
+-				struct device_driver *dev_driver)
+-{
+-	return 1;
+-}
+-
+ static struct bus_type pseudo_lld_bus = {
+ 	.name = "pseudo",
+-	.match = pseudo_lld_bus_match,
+ 	.probe = sdebug_driver_probe,
+ 	.remove = sdebug_driver_remove,
+ 	.drv_groups = sdebug_drv_groups,
+diff --git a/drivers/target/loopback/tcm_loop.c b/drivers/target/loopback/tcm_loop.c
+index 4407b56aa6d1..eeb63deff94f 100644
+--- a/drivers/target/loopback/tcm_loop.c
++++ b/drivers/target/loopback/tcm_loop.c
+@@ -83,15 +83,8 @@ static int tcm_loop_show_info(struct seq_file *m, struct Scsi_Host *host)
+ static int tcm_loop_driver_probe(struct device *);
+ static void tcm_loop_driver_remove(struct device *);
+ 
+-static int pseudo_lld_bus_match(struct device *dev,
+-				struct device_driver *dev_driver)
+-{
+-	return 1;
+-}
+-
+ static struct bus_type tcm_loop_lld_bus = {
+ 	.name			= "tcm_loop_bus",
+-	.match			= pseudo_lld_bus_match,
+ 	.probe			= tcm_loop_driver_probe,
+ 	.remove			= tcm_loop_driver_remove,
+ };
+diff --git a/drivers/w1/w1.c b/drivers/w1/w1.c
+index f2ae2e563dc5..a6ecfa1b3417 100644
+--- a/drivers/w1/w1.c
++++ b/drivers/w1/w1.c
+@@ -58,11 +58,6 @@ MODULE_PARM_DESC(slave_ttl,
+ DEFINE_MUTEX(w1_mlock);
+ LIST_HEAD(w1_masters);
+ 
+-static int w1_master_match(struct device *dev, struct device_driver *drv)
+-{
+-	return 1;
+-}
+-
+ static int w1_master_probe(struct device *dev)
+ {
+ 	return -ENODEV;
+@@ -174,7 +169,6 @@ static int w1_uevent(struct device *dev, struct kobj_uevent_env *env);
+ 
+ static struct bus_type w1_bus_type = {
+ 	.name = "w1",
+-	.match = w1_master_match,
+ 	.uevent = w1_uevent,
+ };
+ 
+diff --git a/sound/ac97_bus.c b/sound/ac97_bus.c
+index b4685c53ff11..c7aee8c42c55 100644
+--- a/sound/ac97_bus.c
++++ b/sound/ac97_bus.c
+@@ -75,19 +75,8 @@ int snd_ac97_reset(struct snd_ac97 *ac97, bool try_warm, unsigned int id,
+ }
+ EXPORT_SYMBOL_GPL(snd_ac97_reset);
+ 
+-/*
+- * Let drivers decide whether they want to support given codec from their
+- * probe method. Drivers have direct access to the struct snd_ac97
+- * structure and may  decide based on the id field amongst other things.
+- */
+-static int ac97_bus_match(struct device *dev, struct device_driver *drv)
+-{
+-	return 1;
+-}
+-
+ struct bus_type ac97_bus_type = {
+ 	.name		= "ac97",
+-	.match		= ac97_bus_match,
+ };
+ 
+ static int __init ac97_bus_init(void)
+-- 
+2.25.1
 
-Right.
-
-> 
->> -		/* Nuke the page table entry. */
->> -		pteval = ptep_clear_flush(vma, address, pvmw.pte);
->> -
->>   		/* Set the dirty flag on the folio now the pte is gone. */
->>   		if (pte_dirty(pteval))
->>   			folio_mark_dirty(folio);
->> @@ -2015,7 +2017,10 @@ static bool try_to_migrate_one(struct folio *folio, struct vm_area_struct *vma,
->>   			pte_t swp_pte;
->>   
->>   			if (arch_unmap_one(mm, vma, address, pteval) < 0) {
->> -				set_pte_at(mm, address, pvmw.pte, pteval);
->> +				if (folio_test_hugetlb(folio))
->> +					set_huge_pte_at(mm, address, pvmw.pte, pteval);
-> 
-> And, we will use that pteval for ALL the PTE/PMDs here.  So, we would set
-> the dirty or young bit in ALL PTE/PMDs.
-> 
-> Could that cause any issues?  May be more of a question for the arm64 people.
-
-I don't think this will cause any issues. Since the hugetlb can not be 
-split, and we should not lose the the dirty or young state if any 
-subpages were set. Meanwhile we already did like this in hugetlb.c:
-
-pte = huge_ptep_get_and_clear(mm, address, ptep);
-tlb_remove_huge_tlb_entry(h, tlb, ptep, address);
-if (huge_pte_dirty(pte))
-	set_page_dirty(page);
