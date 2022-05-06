@@ -2,44 +2,44 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C4FBC433EF
-	for <linux-s390@archiver.kernel.org>; Fri,  6 May 2022 00:08:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F38EC433F5
+	for <linux-s390@archiver.kernel.org>; Fri,  6 May 2022 00:08:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387358AbiEFAMe (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Thu, 5 May 2022 20:12:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47476 "EHLO
+        id S1387373AbiEFAMg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Thu, 5 May 2022 20:12:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1387341AbiEFAMd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 May 2022 20:12:33 -0400
+        with ESMTP id S241593AbiEFAMe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 May 2022 20:12:34 -0400
 Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2048.outbound.protection.outlook.com [40.107.236.48])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B98C54FC51;
-        Thu,  5 May 2022 17:08:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA5264EDFB;
+        Thu,  5 May 2022 17:08:53 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Qsb5poXawrXlOPYibLl5vJvawZWMpifqXTCoTkUW9FiUEmRv4UjFU0q0FblAJkBb2heyufS943e6jT3DAbzhQAPkUmgDb3C4qn0sj1AYAVxlvx+EbM63rpQQdptL59X1upIwG3tSgjCt5pqQWnsaALGawRZ78bR+sGaxbiR/R/w0IN0Qb01La074BrJQLmFCmMTfcss0W3P4M7iXv9j/TIP548Fl3Mj8mNhNv40OTp3kbXzBQbVmQY/SwhTzUJbLf1JaRLWYWTIAWnckuv0zFHkGAAuH81zZnsvSRA6WOrOPFW6PbPRgTuwVC4k0VPI2fJZQLnAnh7LibemKlRKYOw==
+ b=F83c/8/j1qe6fJlz+Pu0f9r/T1EOYel/3ee6zwTUeTWt0Zp+tjIAOpf6IVd7BbdGDA2t7wrg09ZyoPB6UirxoSE1+XQmpu9rTixOx34ZDTmN+Wz1L8viS2ebHhK2cUsa2yE55Rgsye6uhFGSUFenjUFv25Bv1QNKnhucA0WVlJcvvO8N2QcIu27y6vPFLxW2ikxCBp+Xd0QwjL9zyzpQpotGatYsIaDxZGoLM47pLAZORM+JKCOIVFSR7Gu/5A1Q68hsuc9soIDHrpQKca1pz24JC1LHtpksyhhxec5py69/XXcWrsqrgMMrQnwit5EXdHVBgcC3kp6/h6CljokALw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=rMPVTVXzR088Hrf3D1a0rC9YtKaLbMYSxuJPfXntvlo=;
- b=eqwlGKXPlw2FaYgDVWs5TGNot/hfhNoV00YdJMDcQcU8CSxtKMab+mwX2r5MZemHJrbAhrXssGliu1gPqcTNwZvRbmKYnmP78nMB96lr2l3eJaC6fB0moO54yVPitGG7KSca+kIob0Fzqfk0OEchBNQbGkqn6Y1j0FlY6ya1kX8dnTJmqcN2gq3cFetg9xZYyjKjGOjliAJn5cTzAjyT0XDTfzRkJZZsCr+wust7Espbim8LzJJdK5h7b9TgslHbpL4ED0oNOCCziaoYbx4d9NoLc9f6dMqbS5pSEgkitJHCaoq0/0pik8igBmBkl7KoNm6Jdc/9WnJ+TwLmTvnMCA==
+ bh=rX3j7rOWSWO7c4hbUYMNBvD/GJno+vvgfbHyrqgd16w=;
+ b=U7IZPT6N5intDWNYuhbEA10x+uJ7UdT7TDJEsmZAQGSdUW2ptcoAz0/8ofj6RUFhhj4SDffnMlDnuqkw6ld5MUuiUH7rN8tz5fDlsFdJIvZcOIChAmzQBfRFiT7TKZ5fnU33vRCxm/BaJYgGhMdVF2TSIPET1XyhGnfbHoDfbxqdnV3QeQV2SET5riAvt0NS73zYLtl+N3CDbapTWjOWPghzZLyfQnchI45d/r0ka4H4cmXZ8kpKtB9gHnh3rTiG5fQufgTbkNECYJ5ujQDBW8mhfSkUXejNUAiQMIyUYtQ2DNK8cy70LFzeZRkABfGq43IbMtJ9h0puW1RsZ5bbFA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
  dkim=pass header.d=nvidia.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=rMPVTVXzR088Hrf3D1a0rC9YtKaLbMYSxuJPfXntvlo=;
- b=NxgrLzwkDm5XkQ0p8KjI0yhXXhtqW91X93K5QAqNcmHOYksD+GRe2vO065wq34hnqxh0twzObjAMux8J7NMyId45Qbo7Kxl76RBfQpRwzoarxliS2HUsgKV7+BjZHp8/0hcQNMKVflJtVEsUhsbknaolhM3TO39n5ci9tcb3HixXpg1v9Tk8ZFVzv+thE/Kh2Ctq7WWJzWGbrffqiITBCiHpoQAZEYIWtuxS+1DVNp9tf2taw0hhVMyGPW/wBzWWRT7mGF/IQeccxBNgiECEPYp+2NfoS1KIELHKsLBNKSQNEw9JGPOCxJp7niumHyYB5S6maxM9DGhR02VuFIzRdw==
+ bh=rX3j7rOWSWO7c4hbUYMNBvD/GJno+vvgfbHyrqgd16w=;
+ b=Nib7vTME4/3+G4RPZERFEOjwgLLpDpmbUIYUaiacJbcu4ft3L3dU3G26tO7b9GFuWDMG19G/Vsqs7t+bkpHxm/vAaLyFB/i7Jfxx1MeW8NoSS/iIUIzLJgkplrCfh1JeRzLugHKc3sQNBXynUSpYZnhPPIBsvQYOU4wyFhcXGuNt3B1j1H+KfJu/yKt0etSgC7CSkXWfPL5ax0u8JKk1tapq2EubQeZOLE4vMr/Kpm4D8Qe7f8DdjXhWd84OObLVXp4XgeNJLnIDqUZWpidRI5znINcow/si7AkAOF7iiMIhCFvfrI377FY+tKsk66kXrDQbnQjSVu5dy2ov4Bs+4A==
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=nvidia.com;
 Received: from MN2PR12MB4192.namprd12.prod.outlook.com (2603:10b6:208:1d5::15)
  by BYAPR12MB2934.namprd12.prod.outlook.com (2603:10b6:a03:13b::25) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5206.24; Fri, 6 May
- 2022 00:08:48 +0000
+ 2022 00:08:49 +0000
 Received: from MN2PR12MB4192.namprd12.prod.outlook.com
  ([fe80::ec2d:9167:1b47:2db2]) by MN2PR12MB4192.namprd12.prod.outlook.com
  ([fe80::ec2d:9167:1b47:2db2%6]) with mapi id 15.20.5206.027; Fri, 6 May 2022
- 00:08:48 +0000
+ 00:08:49 +0000
 From:   Jason Gunthorpe <jgg@nvidia.com>
 To:     Alexander Gordeev <agordeev@linux.ibm.com>,
         David Airlie <airlied@linux.ie>,
@@ -73,311 +73,181 @@ Cc:     Tony Krowiak <akrowiak@linux.ibm.com>,
         Christoph Hellwig <hch@lst.de>,
         Kevin Tian <kevin.tian@intel.com>,
         "Liu, Yi L" <yi.l.liu@intel.com>
-Subject: [PATCH v4 1/7] vfio: Make vfio_(un)register_notifier accept a vfio_device
-Date:   Thu,  5 May 2022 21:08:39 -0300
-Message-Id: <1-v4-8045e76bf00b+13d-vfio_mdev_no_group_jgg@nvidia.com>
+Subject: [PATCH v4 5/7] drm/i915/gvt: Change from vfio_group_(un)pin_pages to vfio_(un)pin_pages
+Date:   Thu,  5 May 2022 21:08:43 -0300
+Message-Id: <5-v4-8045e76bf00b+13d-vfio_mdev_no_group_jgg@nvidia.com>
 In-Reply-To: <0-v4-8045e76bf00b+13d-vfio_mdev_no_group_jgg@nvidia.com>
 References: 
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: BL0PR05CA0029.namprd05.prod.outlook.com
- (2603:10b6:208:91::39) To MN2PR12MB4192.namprd12.prod.outlook.com
+X-ClientProxiedBy: MN2PR10CA0022.namprd10.prod.outlook.com
+ (2603:10b6:208:120::35) To MN2PR12MB4192.namprd12.prod.outlook.com
  (2603:10b6:208:1d5::15)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: b28a964d-5178-496e-9491-08da2ef496f2
+X-MS-Office365-Filtering-Correlation-Id: 01f245fb-4775-4e7b-c9ef-08da2ef4970a
 X-MS-TrafficTypeDiagnostic: BYAPR12MB2934:EE_
-X-Microsoft-Antispam-PRVS: <BYAPR12MB29349E2B94C42175B8B0BB7CC2C59@BYAPR12MB2934.namprd12.prod.outlook.com>
+X-Microsoft-Antispam-PRVS: <BYAPR12MB29342FB9BEC051249457592CC2C59@BYAPR12MB2934.namprd12.prod.outlook.com>
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 8aRt0nHF2e8NgMtoKuWIkxI2KMfS9QXpV75ofJzPxVd+OoQp3tWxb9f7ANvn2sR9DE94cFS5YcXTllcc/y3V3eLh2M6kjXunSmkmcFsnfGVRNnOMsL4ji0HFmDMc0xgXI+vjfaSWhfORIlGma6cSucwAMvpmgv5HgMulyQe1zsnqUBU5AJn8/Yk3pwIi8LHZwX7nUefDx+gGURbLM1hTrN6tGbL3f111vSOnRnw8yN3Xqmg1ebFrsopjUL9CIIm75W01ahnqb/8U1GK7CNuoPejDKCVar3ZNx6f9Miyn++71dAo3H/n3O/QQRIuZN3wl/UNaguvkdgB5i36ahGwrMph8Cjjt+Cz2x6qPHZI2hCJPGJrLHTxzsdZ+uBG7e2504SdG3l68dTt4CeIkaq3od15+ozjb4KNgtxe08INnMMxxbAa3Kg+WlliU+JFypDm+9z1xVVGRMXq4aV7Kc8ZPqBK96gCj1yvWNngmZqpmYQHU6aUO/524pDH82lE5K6vFz5Y773wG4Cp+IaiSqnQlKsCn5cio5hpjfGgiXMrabf7ax+qEnb+2ZH+kscpWOm51aQkBYjz+a7dNvjWA+LbBpZ5gXJXHtwrxyu0zV1qQGbUXBu0hOkSOu1qn3fWx7nkXxS7bFfHUAgHAz63Ur/0sWPMBOJV3efwixpQ2ncEbmZ+Qk/xgSXMsEZgVRWDTWxzo8+OHKBR6S5HhY1672Yn6fw==
+X-Microsoft-Antispam-Message-Info: Waapk8o2Jy5/7jqWCMX41amOUJHsPXJk/pCkvUhHyMMukiexL9kFUnR+6zrVO4YF8ewA07u6zoJcDL47VI54DiA8EM5/EgdSdtDV014+Ro5EiP8h7bcTwuoFqYXU8MgUpoMG+Tg1AYVfYa54zNgIosm+NsMMjy1bWemSKT7/iF1+dhf8RxVY5IaZL9EZlSF5o6W3Rij5HVoCi9XOZQxkhfENV/NOo/Pe1ASM6nx2zCEqNwm0slcxe+IIkCyEdfhFPONUIeDuM7fK9RdOE3faFR3oRo4Ry3B8u2k0o1qBMu2MPFUMMx7TMQ2tGcNncPwVGKUp6JdrBX0W02fnhFdPPU/fzFhf9vH2wlz9AHAsLVbf9A88IVPtygHhua4HUKoumtIN7ldienz4gPht7SbZmf0Ff4ZU2rmSfyx1L16sG6qHgBlWICBC5yGr4Vu4qDGG5MtpaMb5GfKj9oNcJntD6fJ9687r/fwwaI4Pt/BdpdVcB/SizZupMTOlj0AqOWnTsZwtWgfTBJxQ/RdFY1QduF6DELpJBAlwQkOUxGKOS5tLWlmf323mu0pxgNYI8kVj1L0NIqpF1ZsRTTEaWkYhiumWjTd05Bh/7cSmSJ3KNiW8oABP5P9bp9Xb700R7LYcB8saKkYrCKxkXVJDNZB/iJYUREMN6nwDIHX8fiSBxN8zphLGFha1N9RmkXl0fAc2c9n4yOy3IZUUbk84HMPAsA==
 X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(5660300002)(2906002)(66946007)(66556008)(54906003)(8676002)(86362001)(110136005)(4326008)(6486002)(38100700002)(508600001)(316002)(66476007)(6666004)(6512007)(6506007)(186003)(2616005)(921005)(26005)(7416002)(8936002)(83380400001)(7406005)(36756003)(4216001);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?JFY2fURJhqqQRNrNC3amN8aOh9iD5v0SKLb1fMAHwwZqeDjQwheyJ8oTC/H9?=
- =?us-ascii?Q?hVe4q2C71iQo60oXWdmcA40xoiE/8yG1N2EwgB8eTV+QlZcxIQvnMNDsS8WB?=
- =?us-ascii?Q?Df+99wEmXyDEQaIkRjwJYjK5HWP/N3TfmDYv1043P/W/0/n3b2otzOfFG0SG?=
- =?us-ascii?Q?EKJV+auVQOiXf72HO230HByBQZpvw6+FYVuhGBAUyt+yue08fCdqI2WIic3B?=
- =?us-ascii?Q?FWGxRMGJXbvhlBJHNsnlmSpvpsrgNk5pSYnrDUsR8E9xeQe+uxJOGH5f/8gL?=
- =?us-ascii?Q?QZAzz34OVrr5+Gx6PIVcIjuBDkQVyWpia9i/8oh0Q3yL8ES9nVdbbuXg9PSb?=
- =?us-ascii?Q?lc7KznDIWiix9+uzc6gOoSZfI9D7Gco1Mwbm1D1fhlhO730v493yOH6pWYVr?=
- =?us-ascii?Q?gmQWm8+RNWHKthww9qxTMhfouYANmX4hEOFwUeaybZEYgSXwRh3RCkuGkbrJ?=
- =?us-ascii?Q?fICUgPTpFpF8jYq9fwmYXZ3waVbQOootAXcuVkanipj3Hr9wineLPd4zZSRI?=
- =?us-ascii?Q?GmJXNwNn1xWYZZsP44OBq+VvZahTH2gHlZbtQOx2S9dn10BE/Gat7ftA/gIP?=
- =?us-ascii?Q?LR66VBBaRf/q3hy+35SmnIWOwaAWdajeBoz8zbJ6Ld5n96XAyLD9Cel7ht4j?=
- =?us-ascii?Q?z9kFfqHw+d/136Hi84rqI88Zck/CwawJTVEhZayavzeTyCD0vSMRyqC+Bt+d?=
- =?us-ascii?Q?iRCOPK9eO9tyV902LCjiUizEX6+aGOyVMjXI4Szj3UXLBWDhYfEvjsUMOSsS?=
- =?us-ascii?Q?v2AxEo9gKGORTwXn34PSCG2/5dBy/fcvtLbikfq89jOFHaMWqszCnoBgOkOm?=
- =?us-ascii?Q?Lfx7bcfk2z8r04SBJfd+On+CzBBRUd1Ps9E3jL4H9skR5fx9ZQFYhW+AEWht?=
- =?us-ascii?Q?TRZRNtAP5pNm6trs5y18Eqvwb32lDBRmZcdeuUhFR1NUI+aqWZWWW+PqIEll?=
- =?us-ascii?Q?TOxTUArBYasaEqHxmu3To3wEN+SN4NTy8Q9E8ONjvz/RnfS2i4fTC8pMohGx?=
- =?us-ascii?Q?sXnhLPsjamuP/Hq2Jd2oG2ZhWykUFXLP+mCk9OiCCrgASKn+3Mt6Lps6cIf+?=
- =?us-ascii?Q?+7d3VhjrqKZP41ZrkyaVBgZsNa9qvvG10qv1q3LjbdDo94NX9YSylLms7hUq?=
- =?us-ascii?Q?ovwL/7Ypxzy5kaiXAqqIUD8Y+BdgL+hOR59gJJ8srb8Vmxp0egOx+Tg4BdvK?=
- =?us-ascii?Q?KeZIF5Zfd1hiYevyAjIvuuLw7Leu/cAgS/V5tHXKVSlivYuh0+n7seoLEZvw?=
- =?us-ascii?Q?G25w9Ic7yOaj2u+Y6sV98UCxODuvRGgCDVuKuGcnWmH/iWVZe030cQ3B7Ulc?=
- =?us-ascii?Q?V/r1gXyXQsbiIee1JrY3IxuVrB8RjE6JhUjHp8esrZkkmdgYTh2xNmIdzodE?=
- =?us-ascii?Q?mDcH6JGOI6peSne3E9Lb76fadLoxZO8XD2iNOSQeh8ehvE3cr7pD3OsCHGxS?=
- =?us-ascii?Q?OoyJx5dYzOBAt6aKLwAk4S/DHCkwvKbtb4GH/S9sb+s+YZ+oxG/2bpVcBw/D?=
- =?us-ascii?Q?8HngWwFHLyB6YonSQvJaxTZu23pUpEBEJP5ggcM3vX1hEZEKmUYn75/sOha7?=
- =?us-ascii?Q?/cEvDtD+qdOMcwt2lhdDZWc68LBgTa0lcSuzgUubi/iJZIvg82gKgknm33uN?=
- =?us-ascii?Q?oeBD6QR5Z77sbbaHx1vFtPyWaLVgzgPM6e4vYpmsL6/euSWO8qlSjOI1Zh/s?=
- =?us-ascii?Q?/MnB2TFDevIUOmkkqy7cCc3B1VR6Ye4EnnXYUGVivcwJD62L7EyjEpw7ii8l?=
- =?us-ascii?Q?yGR9El9I6Q=3D=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?djQjSXX8PUiIltogHVtQFwR5No0DMZH7ORS47rwoYB0tHAke83wNRA35fGHe?=
+ =?us-ascii?Q?Vel5rIznDu+PPx+LBWWaaas/UcnsdAtDmgSfvRfD8nGKlti/kPxCBTPJpBkm?=
+ =?us-ascii?Q?Bo11MECyN85vjwoeitXXbj5PDxlxQkGOEokyOaHffzJS3A/xA3bM7g0z6BNH?=
+ =?us-ascii?Q?/FOgpYK60hC0Ncssjx2f8XRDX62cm+PFQijpv72MTWRQ0iXioHi/sN0QsDHg?=
+ =?us-ascii?Q?eKGHGSX1hGHEEHxdJoxNnS03QyZQ1MqVjaG//2eM+3e+yXUcn4ixh2/e78qF?=
+ =?us-ascii?Q?O3pjk8K9sy5NZ0zUnIjFR5Zy5aWJYecpJ6HWHCJGwK4dpukVpD309sRSXS80?=
+ =?us-ascii?Q?zNRWnlY2IjFEySyJKrLS28+aK6VpyA4JI3LVqsDWifEUB+zZL6louKfgExm+?=
+ =?us-ascii?Q?JbjXRIDb8SWyuD/7OFJ8UbRYWVUtwT7IYqsHru5p/pdc6OmN6fSDT+p0+YgG?=
+ =?us-ascii?Q?z0kReKpsAjsSwwlZnkrZ9i9fGFi468pHK8+mIItIbfLFBwYMFwJElf1VwUDl?=
+ =?us-ascii?Q?60dqq7eHuTFbYiy90f2Rof/k4aawi2SrOVEs03Sfl0Og2sgNUIBZVu9MQsz/?=
+ =?us-ascii?Q?Ygiaae8stYax5yVdKAnAIOwQ468lFNfBN4xKXOWLLQnpbHhzTnZ38GI34jMy?=
+ =?us-ascii?Q?4UgxF+zuIhS1rkIa3f9S29vr4rYNCHFHY4VS7XmoxrwTJnXKi7TlhTJHhhss?=
+ =?us-ascii?Q?ZZrNdVTCF+COPS4W/mAxQDKqdgjYyEmq9EasroGfbEumzdllq7kXe0kKEznH?=
+ =?us-ascii?Q?DPTDHfdFWX7Xkt+Tj1WCPjleQ+nizhDCKAmQjbXbsOVwJl5JodwOgFhxF7+I?=
+ =?us-ascii?Q?btw1N5wHQEzlKhVOKG8+cdHkvFL0oYiflfnsanI8z6QeWDkGFWyZvLrCmZMi?=
+ =?us-ascii?Q?z4GByezm50l7k5AADImCge57LA37mIJpEkBXDHvfvPxjBciLhwsnxCw/I8Fp?=
+ =?us-ascii?Q?UuCFUxDfQ45Tt3K3CbhLs0hZ3cTCMb9NuwEzw0I2a/tAOUeAPu69vHJE8I2Q?=
+ =?us-ascii?Q?xdRBeW0Pjt1as8rz3Iks8T3SSQ8+t+mlsmCsww9o6XtAVqvvzwJrzSJ9Mphd?=
+ =?us-ascii?Q?D5bJlPSPyUtNvS7lo2mJKEfAMVlj5iki0Dze1kKSbgFTUmHzWvWphRFzYL7h?=
+ =?us-ascii?Q?Ku1uvyG84z7kYUodeBhH6cgsSh7ii6depvpJVrNbwDKB4+CvXfSU861p9NnY?=
+ =?us-ascii?Q?H+/6h+Hu5855wIqLXJuDz5OqrycHTgSO2uNzGgvhKUIzj/SJyC/voa3fH4E3?=
+ =?us-ascii?Q?t/Hpvvy4USh/RD1GCdw12xr+sw9ahH8BiZngPUuHANjs4uCDadsUdsJbGYvY?=
+ =?us-ascii?Q?+VawsuNfep+K1y/rImD03SMkuJM4+rQEDLqfo2hNB9HNG4J39+zEHDfh1oUK?=
+ =?us-ascii?Q?uBHqrPzwsa7sNvr2uUNpE5z8qzY260nRgzN6rWQMWZihQ23dUjnDLfho6iho?=
+ =?us-ascii?Q?T4DUSMtedODvugIoG9MTbgFaLQHvTVZaK4L+4/9fN9YObaeFB1WjWWvdhsrf?=
+ =?us-ascii?Q?+dkNCCgDcYsr4tORW2ESW9XvJQ6XNb5Ac6ESYMbFt7TuYE1T/qmSDnkGK3ON?=
+ =?us-ascii?Q?Ls1kGdTk1mqH4aQuVYzeHLa4tc8BvmkIaZrAZoFitw9Z9CazdKCdmfUNGaea?=
+ =?us-ascii?Q?modUK9SN9yDSrmtirVc9nrO3jbld+xS3VBCqyJtXHg6+ZGfQTqgntSjuY9Qq?=
+ =?us-ascii?Q?t1dMHWwPv2mUYJHBRXgzRrFwEooohASB+tUAdtwgV2bxuo47ThtUtYEnlYoj?=
+ =?us-ascii?Q?3vb4/yZBsw=3D=3D?=
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b28a964d-5178-496e-9491-08da2ef496f2
+X-MS-Exchange-CrossTenant-Network-Message-Id: 01f245fb-4775-4e7b-c9ef-08da2ef4970a
 X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4192.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 May 2022 00:08:46.9186
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 May 2022 00:08:46.9966
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Snug5YQW140BLekvpue18kfz14cL8tdi7uvZPDFkQdOvolh56J7h6HRmhL0LUXN/
+X-MS-Exchange-CrossTenant-UserPrincipalName: R/OhNmtSWVMZoA/ldNYZWB/F8An/LW4+IvlZiIxStpGJ64IY7H9UozXFG/HMfVRp
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR12MB2934
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-All callers have a struct vfio_device trivially available, pass it in
-directly and avoid calling the expensive vfio_group_get_from_dev().
+Use the existing vfio_device versions of vfio_(un)pin_pages(). There is no
+reason to use a group interface here, kvmgt has easy access to a
+vfio_device.
 
-Acked-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Jason J. Herne <jjherne@linux.ibm.com>
-Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Delete kvmgt_vdev::vfio_group since these calls were the last users.
+
 Reviewed-by: Kevin Tian <kevin.tian@intel.com>
 Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 ---
- drivers/gpu/drm/i915/gvt/kvmgt.c  | 24 ++++++++++++------------
- drivers/s390/cio/vfio_ccw_ops.c   |  7 +++----
- drivers/s390/crypto/vfio_ap_ops.c | 14 +++++++-------
- drivers/vfio/vfio.c               | 28 +++++++++-------------------
- include/linux/vfio.h              |  4 ++--
- 5 files changed, 33 insertions(+), 44 deletions(-)
+ drivers/gpu/drm/i915/gvt/gvt.h   |  1 -
+ drivers/gpu/drm/i915/gvt/kvmgt.c | 27 ++++++---------------------
+ 2 files changed, 6 insertions(+), 22 deletions(-)
 
+diff --git a/drivers/gpu/drm/i915/gvt/gvt.h b/drivers/gpu/drm/i915/gvt/gvt.h
+index 5a28ee965b7f3e..2af4c83e733c6c 100644
+--- a/drivers/gpu/drm/i915/gvt/gvt.h
++++ b/drivers/gpu/drm/i915/gvt/gvt.h
+@@ -231,7 +231,6 @@ struct intel_vgpu {
+ 	struct kvm *kvm;
+ 	struct work_struct release_work;
+ 	atomic_t released;
+-	struct vfio_group *vfio_group;
+ 
+ 	struct kvm_page_track_notifier_node track_node;
+ #define NR_BKT (1 << 18)
 diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/kvmgt.c
-index 0787ba5c301f5e..1cec4f1fdfaced 100644
+index 1cec4f1fdfaced..7655ffa97d5116 100644
 --- a/drivers/gpu/drm/i915/gvt/kvmgt.c
 +++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
-@@ -810,8 +810,8 @@ static int intel_vgpu_open_device(struct vfio_device *vfio_dev)
- 	vgpu->group_notifier.notifier_call = intel_vgpu_group_notifier;
+@@ -243,7 +243,7 @@ static void gvt_unpin_guest_page(struct intel_vgpu *vgpu, unsigned long gfn,
+ 	for (npage = 0; npage < total_pages; npage++) {
+ 		unsigned long cur_gfn = gfn + npage;
  
- 	events = VFIO_IOMMU_NOTIFY_DMA_UNMAP;
--	ret = vfio_register_notifier(vfio_dev->dev, VFIO_IOMMU_NOTIFY, &events,
--				&vgpu->iommu_notifier);
-+	ret = vfio_register_notifier(vfio_dev, VFIO_IOMMU_NOTIFY, &events,
-+				     &vgpu->iommu_notifier);
- 	if (ret != 0) {
- 		gvt_vgpu_err("vfio_register_notifier for iommu failed: %d\n",
- 			ret);
-@@ -819,8 +819,8 @@ static int intel_vgpu_open_device(struct vfio_device *vfio_dev)
+-		ret = vfio_group_unpin_pages(vgpu->vfio_group, &cur_gfn, 1);
++		ret = vfio_unpin_pages(&vgpu->vfio_device, &cur_gfn, 1);
+ 		drm_WARN_ON(&i915->drm, ret != 1);
+ 	}
+ }
+@@ -266,8 +266,8 @@ static int gvt_pin_guest_page(struct intel_vgpu *vgpu, unsigned long gfn,
+ 		unsigned long cur_gfn = gfn + npage;
+ 		unsigned long pfn;
+ 
+-		ret = vfio_group_pin_pages(vgpu->vfio_group, &cur_gfn, 1,
+-					   IOMMU_READ | IOMMU_WRITE, &pfn);
++		ret = vfio_pin_pages(&vgpu->vfio_device, &cur_gfn, 1,
++				     IOMMU_READ | IOMMU_WRITE, &pfn);
+ 		if (ret != 1) {
+ 			gvt_vgpu_err("vfio_pin_pages failed for gfn 0x%lx, ret %d\n",
+ 				     cur_gfn, ret);
+@@ -804,7 +804,6 @@ static int intel_vgpu_open_device(struct vfio_device *vfio_dev)
+ 	struct intel_vgpu *vgpu = vfio_dev_to_vgpu(vfio_dev);
+ 	unsigned long events;
+ 	int ret;
+-	struct vfio_group *vfio_group;
+ 
+ 	vgpu->iommu_notifier.notifier_call = intel_vgpu_iommu_notifier;
+ 	vgpu->group_notifier.notifier_call = intel_vgpu_group_notifier;
+@@ -827,28 +826,19 @@ static int intel_vgpu_open_device(struct vfio_device *vfio_dev)
+ 		goto undo_iommu;
  	}
  
- 	events = VFIO_GROUP_NOTIFY_SET_KVM;
--	ret = vfio_register_notifier(vfio_dev->dev, VFIO_GROUP_NOTIFY, &events,
--				&vgpu->group_notifier);
-+	ret = vfio_register_notifier(vfio_dev, VFIO_GROUP_NOTIFY, &events,
-+				     &vgpu->group_notifier);
- 	if (ret != 0) {
- 		gvt_vgpu_err("vfio_register_notifier for group failed: %d\n",
- 			ret);
-@@ -873,12 +873,12 @@ static int intel_vgpu_open_device(struct vfio_device *vfio_dev)
- 	vgpu->vfio_group = NULL;
+-	vfio_group =
+-		vfio_group_get_external_user_from_dev(vgpu->vfio_device.dev);
+-	if (IS_ERR_OR_NULL(vfio_group)) {
+-		ret = !vfio_group ? -EFAULT : PTR_ERR(vfio_group);
+-		gvt_vgpu_err("vfio_group_get_external_user_from_dev failed\n");
+-		goto undo_register;
+-	}
+-	vgpu->vfio_group = vfio_group;
+-
+ 	ret = -EEXIST;
+ 	if (vgpu->attached)
+-		goto undo_group;
++		goto undo_register;
  
- undo_register:
--	vfio_unregister_notifier(vfio_dev->dev, VFIO_GROUP_NOTIFY,
--					&vgpu->group_notifier);
-+	vfio_unregister_notifier(vfio_dev, VFIO_GROUP_NOTIFY,
-+				 &vgpu->group_notifier);
+ 	ret = -ESRCH;
+ 	if (!vgpu->kvm || vgpu->kvm->mm != current->mm) {
+ 		gvt_vgpu_err("KVM is required to use Intel vGPU\n");
+-		goto undo_group;
++		goto undo_register;
+ 	}
  
- undo_iommu:
--	vfio_unregister_notifier(vfio_dev->dev, VFIO_IOMMU_NOTIFY,
--					&vgpu->iommu_notifier);
-+	vfio_unregister_notifier(vfio_dev, VFIO_IOMMU_NOTIFY,
-+				 &vgpu->iommu_notifier);
- out:
- 	return ret;
- }
-@@ -907,13 +907,13 @@ static void __intel_vgpu_release(struct intel_vgpu *vgpu)
+ 	ret = -EEXIST;
+ 	if (__kvmgt_vgpu_exist(vgpu))
+-		goto undo_group;
++		goto undo_register;
  
- 	intel_gvt_release_vgpu(vgpu);
- 
--	ret = vfio_unregister_notifier(vgpu->vfio_device.dev, VFIO_IOMMU_NOTIFY,
--					&vgpu->iommu_notifier);
-+	ret = vfio_unregister_notifier(&vgpu->vfio_device, VFIO_IOMMU_NOTIFY,
-+				       &vgpu->iommu_notifier);
- 	drm_WARN(&i915->drm, ret,
- 		 "vfio_unregister_notifier for iommu failed: %d\n", ret);
- 
--	ret = vfio_unregister_notifier(vgpu->vfio_device.dev, VFIO_GROUP_NOTIFY,
--					&vgpu->group_notifier);
-+	ret = vfio_unregister_notifier(&vgpu->vfio_device, VFIO_GROUP_NOTIFY,
-+				       &vgpu->group_notifier);
- 	drm_WARN(&i915->drm, ret,
- 		 "vfio_unregister_notifier for group failed: %d\n", ret);
- 
-diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index c4d60cdbf247bf..b49e2e9db2dc6f 100644
---- a/drivers/s390/cio/vfio_ccw_ops.c
-+++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -183,7 +183,7 @@ static int vfio_ccw_mdev_open_device(struct vfio_device *vdev)
- 
- 	private->nb.notifier_call = vfio_ccw_mdev_notifier;
- 
--	ret = vfio_register_notifier(vdev->dev, VFIO_IOMMU_NOTIFY,
-+	ret = vfio_register_notifier(vdev, VFIO_IOMMU_NOTIFY,
- 				     &events, &private->nb);
- 	if (ret)
- 		return ret;
-@@ -204,8 +204,7 @@ static int vfio_ccw_mdev_open_device(struct vfio_device *vdev)
- 
- out_unregister:
- 	vfio_ccw_unregister_dev_regions(private);
--	vfio_unregister_notifier(vdev->dev, VFIO_IOMMU_NOTIFY,
--				 &private->nb);
-+	vfio_unregister_notifier(vdev, VFIO_IOMMU_NOTIFY, &private->nb);
- 	return ret;
- }
- 
-@@ -223,7 +222,7 @@ static void vfio_ccw_mdev_close_device(struct vfio_device *vdev)
- 
- 	cp_free(&private->cp);
- 	vfio_ccw_unregister_dev_regions(private);
--	vfio_unregister_notifier(vdev->dev, VFIO_IOMMU_NOTIFY, &private->nb);
-+	vfio_unregister_notifier(vdev, VFIO_IOMMU_NOTIFY, &private->nb);
- }
- 
- static ssize_t vfio_ccw_mdev_read_io_region(struct vfio_ccw_private *private,
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index ee0a3bf8f476ca..bfa7ee6ef532d9 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -1406,21 +1406,21 @@ static int vfio_ap_mdev_open_device(struct vfio_device *vdev)
- 	matrix_mdev->group_notifier.notifier_call = vfio_ap_mdev_group_notifier;
- 	events = VFIO_GROUP_NOTIFY_SET_KVM;
- 
--	ret = vfio_register_notifier(vdev->dev, VFIO_GROUP_NOTIFY,
--				     &events, &matrix_mdev->group_notifier);
-+	ret = vfio_register_notifier(vdev, VFIO_GROUP_NOTIFY, &events,
-+				     &matrix_mdev->group_notifier);
- 	if (ret)
- 		return ret;
- 
- 	matrix_mdev->iommu_notifier.notifier_call = vfio_ap_mdev_iommu_notifier;
- 	events = VFIO_IOMMU_NOTIFY_DMA_UNMAP;
--	ret = vfio_register_notifier(vdev->dev, VFIO_IOMMU_NOTIFY,
--				     &events, &matrix_mdev->iommu_notifier);
-+	ret = vfio_register_notifier(vdev, VFIO_IOMMU_NOTIFY, &events,
-+				     &matrix_mdev->iommu_notifier);
- 	if (ret)
- 		goto out_unregister_group;
+ 	vgpu->attached = true;
+ 	kvm_get_kvm(vgpu->kvm);
+@@ -868,10 +858,6 @@ static int intel_vgpu_open_device(struct vfio_device *vfio_dev)
+ 	atomic_set(&vgpu->released, 0);
  	return 0;
  
- out_unregister_group:
--	vfio_unregister_notifier(vdev->dev, VFIO_GROUP_NOTIFY,
-+	vfio_unregister_notifier(vdev, VFIO_GROUP_NOTIFY,
- 				 &matrix_mdev->group_notifier);
- 	return ret;
- }
-@@ -1430,9 +1430,9 @@ static void vfio_ap_mdev_close_device(struct vfio_device *vdev)
- 	struct ap_matrix_mdev *matrix_mdev =
- 		container_of(vdev, struct ap_matrix_mdev, vdev);
- 
--	vfio_unregister_notifier(vdev->dev, VFIO_IOMMU_NOTIFY,
-+	vfio_unregister_notifier(vdev, VFIO_IOMMU_NOTIFY,
- 				 &matrix_mdev->iommu_notifier);
--	vfio_unregister_notifier(vdev->dev, VFIO_GROUP_NOTIFY,
-+	vfio_unregister_notifier(vdev, VFIO_GROUP_NOTIFY,
- 				 &matrix_mdev->group_notifier);
- 	vfio_ap_mdev_unset_kvm(matrix_mdev);
- }
-diff --git a/drivers/vfio/vfio.c b/drivers/vfio/vfio.c
-index 0c766384cee0f8..d70890ab9cea92 100644
---- a/drivers/vfio/vfio.c
-+++ b/drivers/vfio/vfio.c
-@@ -2269,19 +2269,16 @@ static int vfio_unregister_group_notifier(struct vfio_group *group,
- 	return ret;
- }
- 
--int vfio_register_notifier(struct device *dev, enum vfio_notify_type type,
--			   unsigned long *events, struct notifier_block *nb)
-+int vfio_register_notifier(struct vfio_device *device,
-+			   enum vfio_notify_type type, unsigned long *events,
-+			   struct notifier_block *nb)
- {
--	struct vfio_group *group;
-+	struct vfio_group *group = device->group;
- 	int ret;
- 
--	if (!dev || !nb || !events || (*events == 0))
-+	if (!nb || !events || (*events == 0))
- 		return -EINVAL;
- 
--	group = vfio_group_get_from_dev(dev);
--	if (!group)
--		return -ENODEV;
+-undo_group:
+-	vfio_group_put_external_user(vgpu->vfio_group);
+-	vgpu->vfio_group = NULL;
 -
- 	switch (type) {
- 	case VFIO_IOMMU_NOTIFY:
- 		ret = vfio_register_iommu_notifier(group, events, nb);
-@@ -2292,25 +2289,20 @@ int vfio_register_notifier(struct device *dev, enum vfio_notify_type type,
- 	default:
- 		ret = -EINVAL;
- 	}
--
--	vfio_group_put(group);
- 	return ret;
- }
- EXPORT_SYMBOL(vfio_register_notifier);
+ undo_register:
+ 	vfio_unregister_notifier(vfio_dev, VFIO_GROUP_NOTIFY,
+ 				 &vgpu->group_notifier);
+@@ -925,7 +911,6 @@ static void __intel_vgpu_release(struct intel_vgpu *vgpu)
+ 	gvt_cache_destroy(vgpu);
  
--int vfio_unregister_notifier(struct device *dev, enum vfio_notify_type type,
-+int vfio_unregister_notifier(struct vfio_device *device,
-+			     enum vfio_notify_type type,
- 			     struct notifier_block *nb)
- {
--	struct vfio_group *group;
-+	struct vfio_group *group = device->group;
- 	int ret;
+ 	intel_vgpu_release_msi_eventfd_ctx(vgpu);
+-	vfio_group_put_external_user(vgpu->vfio_group);
  
--	if (!dev || !nb)
-+	if (!nb)
- 		return -EINVAL;
- 
--	group = vfio_group_get_from_dev(dev);
--	if (!group)
--		return -ENODEV;
--
- 	switch (type) {
- 	case VFIO_IOMMU_NOTIFY:
- 		ret = vfio_unregister_iommu_notifier(group, nb);
-@@ -2321,8 +2313,6 @@ int vfio_unregister_notifier(struct device *dev, enum vfio_notify_type type,
- 	default:
- 		ret = -EINVAL;
- 	}
--
--	vfio_group_put(group);
- 	return ret;
- }
- EXPORT_SYMBOL(vfio_unregister_notifier);
-diff --git a/include/linux/vfio.h b/include/linux/vfio.h
-index 66dda06ec42d1b..a00fd722f044b0 100644
---- a/include/linux/vfio.h
-+++ b/include/linux/vfio.h
-@@ -178,11 +178,11 @@ enum vfio_notify_type {
- /* events for VFIO_GROUP_NOTIFY */
- #define VFIO_GROUP_NOTIFY_SET_KVM	BIT(0)
- 
--extern int vfio_register_notifier(struct device *dev,
-+extern int vfio_register_notifier(struct vfio_device *device,
- 				  enum vfio_notify_type type,
- 				  unsigned long *required_events,
- 				  struct notifier_block *nb);
--extern int vfio_unregister_notifier(struct device *dev,
-+extern int vfio_unregister_notifier(struct vfio_device *device,
- 				    enum vfio_notify_type type,
- 				    struct notifier_block *nb);
- 
+ 	vgpu->kvm = NULL;
+ 	vgpu->attached = false;
 -- 
 2.36.0
 
