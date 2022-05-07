@@ -2,252 +2,86 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D2BAC433F5
-	for <linux-s390@archiver.kernel.org>; Fri,  6 May 2022 22:45:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26D7CC43217
+	for <linux-s390@archiver.kernel.org>; Sat,  7 May 2022 01:32:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355180AbiEFWtl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Fri, 6 May 2022 18:49:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55998 "EHLO
+        id S1445187AbiEGBgC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Fri, 6 May 2022 21:36:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1444535AbiEFWtj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 May 2022 18:49:39 -0400
-X-Greylist: delayed 609 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 06 May 2022 15:45:54 PDT
-Received: from wnew3-smtp.messagingengine.com (wnew3-smtp.messagingengine.com [64.147.123.17])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC4F5289AB;
-        Fri,  6 May 2022 15:45:54 -0700 (PDT)
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailnew.west.internal (Postfix) with ESMTP id 2BEDB2B01226;
-        Fri,  6 May 2022 18:35:40 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Fri, 06 May 2022 18:35:42 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1651876539; x=
-        1651883739; bh=2PEZYJ6H5NjwlOLCSF/znMhdRyqXIjEm8KXJigOw1Vg=; b=R
-        hSA51niVEy5JxE00UFlfNdR1m/Gsve1HXbIJ8aDQJGiiDIk1ooDHCLTCwwpYrvlQ
-        YR1enxc9lWl3vJfhQqA1K4Q69QNVad/yA9aERbbeMMv3zopodqrUwIGQ4MVLvTPP
-        S3DQ/Xspu7Gd5d76rMpzSMJlZZRVG9srnSziZ6HQfkiVCo9cgHbhK6UDCVf1YQHk
-        NjGvL/5k8tq22gbV9F9JZPOsfXQsPTClBCp3lb8H2nm7WOcpbBnjT9SO+hQibBoW
-        5rj5nh7Hhh+8opf2Xw7dGZ54ujIRFcf9yGhLGAqlqWBuJqwmuWNNCDE8Xsd7SUIU
-        +I3tHsGhsfTPCSbp9zezg==
-X-ME-Sender: <xms:uaJ1Yos7Sa-TdFVIL7sWpOzedzlxyq2DMlWgYStdttrEfWJ3KBkw2g>
-    <xme:uaJ1YldYxyOSV54bosQ1N7kY8T6WyeiFEwEWKCF4kl6GNo0mkckoMVtTeYZVKy2jR
-    i-Ik7VsQzHrRoP6TQg>
-X-ME-Received: <xmr:uaJ1Yjwf0y7CxAbgwS6EjNm7kxQQ7k6dJXwmGC25H9vJCI22UA2ENQMtoqlN8B5G3zXMjLnD6SAVkOZs6SO88vQ8YvGcQKN-8LU>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrfeeggddtlecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepfffhvfevufgjkfhfgggtsehttdertd
-    dttddvnecuhfhrohhmpefhihhnnhcuvfhhrghinhcuoehfthhhrghinheslhhinhhugidq
-    mheikehkrdhorhhgqeenucggtffrrghtthgvrhhnpeelueehleehkefgueevtdevteejke
-    fhffekfeffffdtgfejveekgeefvdeuheeuleenucevlhhushhtvghrufhiiigvpedtnecu
-    rfgrrhgrmhepmhgrihhlfhhrohhmpehfthhhrghinheslhhinhhugidqmheikehkrdhorh
-    hg
-X-ME-Proxy: <xmx:uqJ1YrOgJ7Ze4Tm5sUhhN1T4TBROjdwpfjC0NrBBv86stC8ojlcEOg>
-    <xmx:uqJ1Yo8CiMR8elzazfYvgRY28ArT41bU7Z1aLYW88WZhNYRb4XETHA>
-    <xmx:uqJ1YjUt8L4tCAlZl4mc0t_BcLXtfQ_9QlDXab0dP4mdmLz3tBn5MA>
-    <xmx:u6J1YsTZjm5Ryket5HJxDr66Tv0cB-EH5IyGfEPbAY-9E02TbqMI2DWsmrw>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 6 May 2022 18:35:36 -0400 (EDT)
-Date:   Sat, 7 May 2022 08:35:43 +1000 (AEST)
-From:   Finn Thain <fthain@linux-m68k.org>
-To:     lizhe <sensor1010@163.com>
-cc:     lee.jones@linaro.org, akrowiak@linux.ibm.com, pasic@linux.ibm.com,
-        jjherne@linux.ibm.com, freude@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com, jejb@linux.ibm.com,
-        martin.petersen@oracle.com, zbr@ioremap.net, perex@perex.cz,
-        tiwai@suse.com, bvanassche@acm.org, dan.j.williams@intel.com,
-        srinivas.kandagatla@linaro.org, wens@csie.org,
-        colin.king@intel.com, u.kleine-koenig@pengutronix.de, hare@suse.de,
-        linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
-        target-devel@vger.kernel.org, alsa-devel@alsa-project.org
-Subject: Re: [PATCH] kernel/drivers: Remove redundant driver match function
-In-Reply-To: <20220506045952.136290-1-sensor1010@163.com>
-Message-ID: <fe632997-be40-55f2-96c0-e79a7aece197@linux-m68k.org>
-References: <20220506045952.136290-1-sensor1010@163.com>
+        with ESMTP id S236738AbiEGBgA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 May 2022 21:36:00 -0400
+Received: from out199-4.us.a.mail.aliyun.com (out199-4.us.a.mail.aliyun.com [47.90.199.4])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F90058E7E;
+        Fri,  6 May 2022 18:32:12 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R461e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=baolin.wang@linux.alibaba.com;NM=1;PH=DS;RN=30;SR=0;TI=SMTPD_---0VCUCndB_1651887123;
+Received: from 30.236.9.83(mailfrom:baolin.wang@linux.alibaba.com fp:SMTPD_---0VCUCndB_1651887123)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Sat, 07 May 2022 09:32:05 +0800
+Message-ID: <971cfb54-f5a6-921c-b0c5-195a5daed0fb@linux.alibaba.com>
+Date:   Sat, 7 May 2022 09:32:46 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.1
+Subject: Re: [PATCH 3/3] mm: rmap: Fix CONT-PTE/PMD size hugetlb issue when
+ unmapping
+To:     Mike Kravetz <mike.kravetz@oracle.com>, akpm@linux-foundation.org,
+        catalin.marinas@arm.com, will@kernel.org
+Cc:     tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com,
+        deller@gmx.de, mpe@ellerman.id.au, benh@kernel.crashing.org,
+        paulus@samba.org, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org,
+        davem@davemloft.net, arnd@arndb.de,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-mm@kvack.org
+References: <cover.1651216964.git.baolin.wang@linux.alibaba.com>
+ <c91e04ebb792ef7b72966edea8bd6fa2dfa5bfa7.1651216964.git.baolin.wang@linux.alibaba.com>
+ <f64f0d4f-f0fc-f07c-3c17-96f124da21e4@oracle.com>
+From:   Baolin Wang <baolin.wang@linux.alibaba.com>
+In-Reply-To: <f64f0d4f-f0fc-f07c-3c17-96f124da21e4@oracle.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
 
-On Thu, 5 May 2022, lizhe wrote:
 
-> If there is no driver match function, the driver core assumes that each
-> candidate pair (driver, device) matches, see driver_match_device().
+On 5/7/2022 2:55 AM, Mike Kravetz wrote:
+> On 4/29/22 01:14, Baolin Wang wrote:
+>> On some architectures (like ARM64), it can support CONT-PTE/PMD size
+>> hugetlb, which means it can support not only PMD/PUD size hugetlb:
+>> 2M and 1G, but also CONT-PTE/PMD size: 64K and 32M if a 4K page
+>> size specified.
+>>
+>> When unmapping a hugetlb page, we will get the relevant page table
+>> entry by huge_pte_offset() only once to nuke it. This is correct
+>> for PMD or PUD size hugetlb, since they always contain only one
+>> pmd entry or pud entry in the page table.
+>>
+>> However this is incorrect for CONT-PTE and CONT-PMD size hugetlb,
+>> since they can contain several continuous pte or pmd entry with
+>> same page table attributes, so we will nuke only one pte or pmd
+>> entry for this CONT-PTE/PMD size hugetlb page.
+>>
+>> And now we only use try_to_unmap() to unmap a poisoned hugetlb page,
 > 
-> Signed-off-by: lizhe <sensor1010@163.com>
+> Since try_to_unmap can be called for non-hugetlb pages, perhaps the following
+> is more accurate?
+> 
+> try_to_unmap is only passed a hugetlb page in the case where the
+> hugetlb page is poisoned.
 
-Acked-by: Finn Thain <fthain@linux-m68k.org>
-for the nubus changes.
+Yes, will update in next version.
 
-> ---
->  drivers/mfd/mcp-core.c             |  6 ------
->  drivers/nubus/bus.c                |  6 ------
->  drivers/s390/crypto/vfio_ap_drv.c  |  6 ------
->  drivers/scsi/scsi_debug.c          |  7 -------
->  drivers/target/loopback/tcm_loop.c |  7 -------
->  drivers/w1/w1.c                    |  6 ------
->  sound/ac97_bus.c                   | 11 -----------
->  7 files changed, 49 deletions(-)
-> 
-> diff --git a/drivers/mfd/mcp-core.c b/drivers/mfd/mcp-core.c
-> index 2fa592c37c6f..281a9369f2b3 100644
-> --- a/drivers/mfd/mcp-core.c
-> +++ b/drivers/mfd/mcp-core.c
-> @@ -20,11 +20,6 @@
->  #define to_mcp(d)		container_of(d, struct mcp, attached_device)
->  #define to_mcp_driver(d)	container_of(d, struct mcp_driver, drv)
->  
-> -static int mcp_bus_match(struct device *dev, struct device_driver *drv)
-> -{
-> -	return 1;
-> -}
-> -
->  static int mcp_bus_probe(struct device *dev)
->  {
->  	struct mcp *mcp = to_mcp(dev);
-> @@ -43,7 +38,6 @@ static void mcp_bus_remove(struct device *dev)
->  
->  static struct bus_type mcp_bus_type = {
->  	.name		= "mcp",
-> -	.match		= mcp_bus_match,
->  	.probe		= mcp_bus_probe,
->  	.remove		= mcp_bus_remove,
->  };
-> diff --git a/drivers/nubus/bus.c b/drivers/nubus/bus.c
-> index 17fad660032c..72921e4f35f6 100644
-> --- a/drivers/nubus/bus.c
-> +++ b/drivers/nubus/bus.c
-> @@ -14,11 +14,6 @@
->  #define to_nubus_board(d)       container_of(d, struct nubus_board, dev)
->  #define to_nubus_driver(d)      container_of(d, struct nubus_driver, driver)
->  
-> -static int nubus_bus_match(struct device *dev, struct device_driver *driver)
-> -{
-> -	return 1;
-> -}
-> -
->  static int nubus_device_probe(struct device *dev)
->  {
->  	struct nubus_driver *ndrv = to_nubus_driver(dev->driver);
-> @@ -39,7 +34,6 @@ static void nubus_device_remove(struct device *dev)
->  
->  struct bus_type nubus_bus_type = {
->  	.name		= "nubus",
-> -	.match		= nubus_bus_match,
->  	.probe		= nubus_device_probe,
->  	.remove		= nubus_device_remove,
->  };
-> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-> index 29ebd54f8919..0a662c451f2a 100644
-> --- a/drivers/s390/crypto/vfio_ap_drv.c
-> +++ b/drivers/s390/crypto/vfio_ap_drv.c
-> @@ -172,14 +172,8 @@ static void vfio_ap_matrix_dev_release(struct device *dev)
->  	kfree(matrix_dev);
->  }
->  
-> -static int matrix_bus_match(struct device *dev, struct device_driver *drv)
-> -{
-> -	return 1;
-> -}
-> -
->  static struct bus_type matrix_bus = {
->  	.name = "matrix",
-> -	.match = &matrix_bus_match,
->  };
->  
->  static struct device_driver matrix_driver = {
-> diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
-> index 592a290e6cfa..8107489b36e8 100644
-> --- a/drivers/scsi/scsi_debug.c
-> +++ b/drivers/scsi/scsi_debug.c
-> @@ -7844,15 +7844,8 @@ static void sdebug_driver_remove(struct device *dev)
->  	scsi_host_put(sdbg_host->shost);
->  }
->  
-> -static int pseudo_lld_bus_match(struct device *dev,
-> -				struct device_driver *dev_driver)
-> -{
-> -	return 1;
-> -}
-> -
->  static struct bus_type pseudo_lld_bus = {
->  	.name = "pseudo",
-> -	.match = pseudo_lld_bus_match,
->  	.probe = sdebug_driver_probe,
->  	.remove = sdebug_driver_remove,
->  	.drv_groups = sdebug_drv_groups,
-> diff --git a/drivers/target/loopback/tcm_loop.c b/drivers/target/loopback/tcm_loop.c
-> index 4407b56aa6d1..eeb63deff94f 100644
-> --- a/drivers/target/loopback/tcm_loop.c
-> +++ b/drivers/target/loopback/tcm_loop.c
-> @@ -83,15 +83,8 @@ static int tcm_loop_show_info(struct seq_file *m, struct Scsi_Host *host)
->  static int tcm_loop_driver_probe(struct device *);
->  static void tcm_loop_driver_remove(struct device *);
->  
-> -static int pseudo_lld_bus_match(struct device *dev,
-> -				struct device_driver *dev_driver)
-> -{
-> -	return 1;
-> -}
-> -
->  static struct bus_type tcm_loop_lld_bus = {
->  	.name			= "tcm_loop_bus",
-> -	.match			= pseudo_lld_bus_match,
->  	.probe			= tcm_loop_driver_probe,
->  	.remove			= tcm_loop_driver_remove,
->  };
-> diff --git a/drivers/w1/w1.c b/drivers/w1/w1.c
-> index f2ae2e563dc5..a6ecfa1b3417 100644
-> --- a/drivers/w1/w1.c
-> +++ b/drivers/w1/w1.c
-> @@ -58,11 +58,6 @@ MODULE_PARM_DESC(slave_ttl,
->  DEFINE_MUTEX(w1_mlock);
->  LIST_HEAD(w1_masters);
->  
-> -static int w1_master_match(struct device *dev, struct device_driver *drv)
-> -{
-> -	return 1;
-> -}
-> -
->  static int w1_master_probe(struct device *dev)
->  {
->  	return -ENODEV;
-> @@ -174,7 +169,6 @@ static int w1_uevent(struct device *dev, struct kobj_uevent_env *env);
->  
->  static struct bus_type w1_bus_type = {
->  	.name = "w1",
-> -	.match = w1_master_match,
->  	.uevent = w1_uevent,
->  };
->  
-> diff --git a/sound/ac97_bus.c b/sound/ac97_bus.c
-> index b4685c53ff11..c7aee8c42c55 100644
-> --- a/sound/ac97_bus.c
-> +++ b/sound/ac97_bus.c
-> @@ -75,19 +75,8 @@ int snd_ac97_reset(struct snd_ac97 *ac97, bool try_warm, unsigned int id,
->  }
->  EXPORT_SYMBOL_GPL(snd_ac97_reset);
->  
-> -/*
-> - * Let drivers decide whether they want to support given codec from their
-> - * probe method. Drivers have direct access to the struct snd_ac97
-> - * structure and may  decide based on the id field amongst other things.
-> - */
-> -static int ac97_bus_match(struct device *dev, struct device_driver *drv)
-> -{
-> -	return 1;
-> -}
-> -
->  struct bus_type ac97_bus_type = {
->  	.name		= "ac97",
-> -	.match		= ac97_bus_match,
->  };
->  
->  static int __init ac97_bus_init(void)
-> 
+> It does concern me that this assumption is built into the code as
+> pointed out in your discussion with Gerald.  Should we perhaps add
+> a VM_BUG_ON() to make sure the passed huge page is poisoned?  This
+> would be in the same 'if block' where we call
+> adjust_range_if_pmd_sharing_possible.
+Good point. Will do in next version. Thanks.
