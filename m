@@ -2,82 +2,167 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C062AC4332F
-	for <linux-s390@archiver.kernel.org>; Sat,  7 May 2022 08:33:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C7BAC4332F
+	for <linux-s390@archiver.kernel.org>; Sun,  8 May 2022 09:19:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1388495AbiEGIhT (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sat, 7 May 2022 04:37:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55234 "EHLO
+        id S232125AbiEHJXE (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 8 May 2022 05:23:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1446093AbiEGIhR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 7 May 2022 04:37:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEDA453710;
-        Sat,  7 May 2022 01:33:30 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6081961033;
-        Sat,  7 May 2022 08:33:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BA8AC385AC;
-        Sat,  7 May 2022 08:33:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651912409;
-        bh=eieCeE9Fdh+mCSq7kvDqUtqD4dWmttb7ZzhtYGZmMhA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=02sb1bav56AqxmyArlrAX21IGgeG1DopOeTzyubuc25nQZRtkFcUnmmwdZwUUUUPs
-         OY63D6KlNDo8TblbXBPoRpa4TpHokrst1y0/x2OVYqK8/uFCBbASkg07cBIFpC+Db9
-         L0Uue1gdqUxJvOVbFKRQqTVTEHKgTDmQXZaK/0+k=
-Date:   Sat, 7 May 2022 10:33:25 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-Cc:     lizhe <sensor1010@163.com>, lee.jones@linaro.org,
-        fthain@linux-m68k.org, akrowiak@linux.ibm.com, pasic@linux.ibm.com,
-        jjherne@linux.ibm.com, freude@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com, jejb@linux.ibm.com,
-        martin.petersen@oracle.com, zbr@ioremap.net, perex@perex.cz,
-        tiwai@suse.com, bvanassche@acm.org, dan.j.williams@intel.com,
-        srinivas.kandagatla@linaro.org, wens@csie.org,
-        colin.king@intel.com, hare@suse.de, linux-kernel@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, linux-s390@vger.kernel.org,
-        linux-scsi@vger.kernel.org, target-devel@vger.kernel.org,
-        alsa-devel@alsa-project.org
-Subject: Re: [PATCH] kernel/drivers: Remove redundant driver match function
-Message-ID: <YnYu1XGeyRvMn77g@kroah.com>
-References: <20220506045952.136290-1-sensor1010@163.com>
- <20220507082137.i23gbxkbjwt36ggd@pengutronix.de>
+        with ESMTP id S230000AbiEHJXD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 8 May 2022 05:23:03 -0400
+Received: from out30-42.freemail.mail.aliyun.com (out30-42.freemail.mail.aliyun.com [115.124.30.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20191E015;
+        Sun,  8 May 2022 02:19:09 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=baolin.wang@linux.alibaba.com;NM=1;PH=DS;RN=30;SR=0;TI=SMTPD_---0VCZtzMG_1652001541;
+Received: from 30.15.195.77(mailfrom:baolin.wang@linux.alibaba.com fp:SMTPD_---0VCZtzMG_1652001541)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Sun, 08 May 2022 17:19:03 +0800
+Message-ID: <1fad03a6-98cf-1b0e-e012-82dc6466c7d2@linux.alibaba.com>
+Date:   Sun, 8 May 2022 17:19:43 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.1
+Subject: Re: [PATCH 2/3] mm: rmap: Fix CONT-PTE/PMD size hugetlb issue when
+ migration
+From:   Baolin Wang <baolin.wang@linux.alibaba.com>
+To:     Mike Kravetz <mike.kravetz@oracle.com>, akpm@linux-foundation.org,
+        catalin.marinas@arm.com, will@kernel.org
+Cc:     tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com,
+        deller@gmx.de, mpe@ellerman.id.au, benh@kernel.crashing.org,
+        paulus@samba.org, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org,
+        davem@davemloft.net, arnd@arndb.de,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-mm@kvack.org
+References: <cover.1651216964.git.baolin.wang@linux.alibaba.com>
+ <11b92502b3df0e0bba6a1dc71476d79cab6c79ba.1651216964.git.baolin.wang@linux.alibaba.com>
+ <5cab0eca-9630-a7c6-4f5d-5cb45ff82c83@oracle.com>
+ <21b11024-e893-8c11-9b98-ab1d13413b61@linux.alibaba.com>
+ <85bd80b4-b4fd-0d3f-a2e5-149559f2f387@oracle.com>
+ <e8b56f7d-ad95-7938-21a5-55caedbbb354@linux.alibaba.com>
+In-Reply-To: <e8b56f7d-ad95-7938-21a5-55caedbbb354@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220507082137.i23gbxkbjwt36ggd@pengutronix.de>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sat, May 07, 2022 at 10:21:37AM +0200, Uwe Kleine-K�nig wrote:
-> Hello,
+
+
+On 5/7/2022 10:33 AM, Baolin Wang wrote:
 > 
-> On Thu, May 05, 2022 at 09:59:52PM -0700, lizhe wrote:
-> > If there is no driver match function, the driver core assumes that each
-> > candidate pair (driver, device) matches, see driver_match_device().
 > 
-> I wonder who is supposed to apply this patch. Either it should be split
-> by file and go in via the respective maintainers, or it goes in via
-> Greg's tree? I added Greg to To: for him to chime in.
+> On 5/7/2022 1:56 AM, Mike Kravetz wrote:
+>> On 5/5/22 20:39, Baolin Wang wrote:
+>>>
+>>> On 5/6/2022 7:53 AM, Mike Kravetz wrote:
+>>>> On 4/29/22 01:14, Baolin Wang wrote:
+>>>>> On some architectures (like ARM64), it can support CONT-PTE/PMD size
+>>>>> hugetlb, which means it can support not only PMD/PUD size hugetlb:
+>>>>> 2M and 1G, but also CONT-PTE/PMD size: 64K and 32M if a 4K page
+>>>>> size specified.
+>>>> <snip>
+>>>>> diff --git a/mm/rmap.c b/mm/rmap.c
+>>>>> index 6fdd198..7cf2408 100644
+>>>>> --- a/mm/rmap.c
+>>>>> +++ b/mm/rmap.c
+>>>>> @@ -1924,13 +1924,15 @@ static bool try_to_migrate_one(struct folio 
+>>>>> *folio, struct vm_area_struct *vma,
+>>>>>                        break;
+>>>>>                    }
+>>>>>                }
+>>>>> +
+>>>>> +            /* Nuke the hugetlb page table entry */
+>>>>> +            pteval = huge_ptep_clear_flush(vma, address, pvmw.pte);
+>>>>>            } else {
+>>>>>                flush_cache_page(vma, address, pte_pfn(*pvmw.pte));
+>>>>> +            /* Nuke the page table entry. */
+>>>>> +            pteval = ptep_clear_flush(vma, address, pvmw.pte);
+>>>>>            }
+>>>>
+>>>> On arm64 with CONT-PTE/PMD the returned pteval will have dirty or 
+>>>> young set
+>>>> if ANY of the PTE/PMDs had dirty or young set.
+>>>
+>>> Right.
+>>>
+>>>>
+>>>>> -        /* Nuke the page table entry. */
+>>>>> -        pteval = ptep_clear_flush(vma, address, pvmw.pte);
+>>>>> -
+>>>>>            /* Set the dirty flag on the folio now the pte is gone. */
+>>>>>            if (pte_dirty(pteval))
+>>>>>                folio_mark_dirty(folio);
+>>>>> @@ -2015,7 +2017,10 @@ static bool try_to_migrate_one(struct folio 
+>>>>> *folio, struct vm_area_struct *vma,
+>>>>>                pte_t swp_pte;
+>>>>>                  if (arch_unmap_one(mm, vma, address, pteval) < 0) {
+>>>>> -                set_pte_at(mm, address, pvmw.pte, pteval);
+>>>>> +                if (folio_test_hugetlb(folio))
+>>>>> +                    set_huge_pte_at(mm, address, pvmw.pte, pteval);
+>>>>
+>>>> And, we will use that pteval for ALL the PTE/PMDs here.  So, we 
+>>>> would set
+>>>> the dirty or young bit in ALL PTE/PMDs.
+>>>>
+>>>> Could that cause any issues?  May be more of a question for the 
+>>>> arm64 people.
+>>>
+>>> I don't think this will cause any issues. Since the hugetlb can not 
+>>> be split, and we should not lose the the dirty or young state if any 
+>>> subpages were set. Meanwhile we already did like this in hugetlb.c:
+>>>
+>>> pte = huge_ptep_get_and_clear(mm, address, ptep);
+>>> tlb_remove_huge_tlb_entry(h, tlb, ptep, address);
+>>> if (huge_pte_dirty(pte))
+>>>      set_page_dirty(page);
+>>>
+>>
+>> Agree that it 'should not' cause issues.  It just seems inconsistent.
+>> This is not a problem specifically with your patch, just the handling of
+>> CONT-PTE/PMD entries.
+>>
+>> There does not appear to be an arm64 specific version of huge_ptep_get()
+>> that takes CONT-PTE/PMD into account.  So, huge_ptep_get() would only
+>> return the one specific value.  It would not take into account the dirty
+>> or young bits of CONT-PTE/PMDs like your new version of
+>> huge_ptep_get_and_clear.  Is that correct?  Or, am I missing something.
+> 
+> Yes, you are right.
+> 
+>>
+>> If I am correct, then code like the following may not work:
+>>
+>> static int gather_hugetlb_stats(pte_t *pte, unsigned long hmask,
+>>                  unsigned long addr, unsigned long end, struct mm_walk 
+>> *walk)
+>> {
+>>          pte_t huge_pte = huge_ptep_get(pte);
+>>          struct numa_maps *md;
+>>          struct page *page;
+>>
+>>          if (!pte_present(huge_pte))
+>>                  return 0;
+>>
+>>          page = pte_page(huge_pte);
+>>
+>>          md = walk->private;
+>>          gather_stats(page, md, pte_dirty(huge_pte), 1);
+>>          return 0;
+>> }
+> 
+> Right, this is inconsistent with current huge_ptep_get() interface like 
+> you said. So I think we can define an ARCH-specific huge_ptep_get() 
+> interface for arm64, and some sample code like below. How do you think?
 
-It should be split up into each subsystem patch and submitted that way.
+After some investigation, I send out a RFC patch set[1] to address this 
+issue. We can talk about this issue in that thread. Thanks.
 
-> Best regards
-> Uwe
->  
-> > Signed-off-by: lizhe <sensor1010@163.com>
-
-We also need a "real name" here that is used to sign legal documents.  I
-doubt an all-lower-case name is used that way, so I have to ask.
-
-thanks,
-
-greg k-h
+[1] 
+https://lore.kernel.org/all/cover.1651998586.git.baolin.wang@linux.alibaba.com/
