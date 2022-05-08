@@ -2,371 +2,146 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 84204C433F5
-	for <linux-s390@archiver.kernel.org>; Sun,  8 May 2022 19:18:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22E79C4167E
+	for <linux-s390@archiver.kernel.org>; Sun,  8 May 2022 19:18:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229861AbiEHTVu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 8 May 2022 15:21:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40424 "EHLO
+        id S229886AbiEHTVv (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 8 May 2022 15:21:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231187AbiEHTPy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 8 May 2022 15:15:54 -0400
-Received: from conuserg-09.nifty.com (conuserg-09.nifty.com [210.131.2.76])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35B3B12AC3;
-        Sun,  8 May 2022 12:11:12 -0700 (PDT)
-Received: from grover.sesame (133-32-177-133.west.xps.vectant.ne.jp [133.32.177.133]) (authenticated)
-        by conuserg-09.nifty.com with ESMTP id 248J8qSW030019;
-        Mon, 9 May 2022 04:09:02 +0900
-DKIM-Filter: OpenDKIM Filter v2.10.3 conuserg-09.nifty.com 248J8qSW030019
+        with ESMTP id S1354848AbiEHSeL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 8 May 2022 14:34:11 -0400
+Received: from conssluserg-01.nifty.com (conssluserg-01.nifty.com [210.131.2.80])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65FD32DF7;
+        Sun,  8 May 2022 11:30:20 -0700 (PDT)
+Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179]) (authenticated)
+        by conssluserg-01.nifty.com with ESMTP id 248IU6Hg021713;
+        Mon, 9 May 2022 03:30:06 +0900
+DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-01.nifty.com 248IU6Hg021713
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
-        s=dec2015msa; t=1652036943;
-        bh=C2arjqjMnqW/2vP8/HANG7RVhUBPKrPzWxX1ZKHXvlo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gMjpBo082HGvMk/10/bNmnAosc6M+cFtZ1Z4k9XgHYHlv+SGB6TCv499rPw81K9t5
-         b55W/3sjZU3Og3OUfxjYPYt54yFXnvorKYOtylFi5FGkvmLresmzsQ+2n1I4ur7+QI
-         5K/ArKwh4bNI2cAOo9PFt7rLhsrreNeWkHhyd72dvEv16ywctxcPTawl4SGlbg2Rv4
-         AHihI7GzaJvzp5HHdVFnvK67DiCnwhKfbHy7kCvzz0jEVfV0QbiPkiICVpxl8LO8na
-         oikwq+fvg7tbYyZv4xfj9cyYJTuwAPSPKYJeKSksMIJjWPNshtgNVD4ccI10xG1Yg5
-         rtXppxMUDGcXQ==
-X-Nifty-SrcIP: [133.32.177.133]
-From:   Masahiro Yamada <masahiroy@kernel.org>
-To:     linux-kbuild@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nicolas Schier <nicolas@fjasle.eu>,
-        Peter Zijlstra <peterz@infradead.org>,
-        linux-modules@vger.kernel.org, linux-s390@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, clang-built-linux@googlegroups.com,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH v4 09/14] kbuild: do not create *.prelink.o for Clang LTO or IBT
-Date:   Mon,  9 May 2022 04:06:26 +0900
-Message-Id: <20220508190631.2386038-10-masahiroy@kernel.org>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220508190631.2386038-1-masahiroy@kernel.org>
-References: <20220508190631.2386038-1-masahiroy@kernel.org>
+        s=dec2015msa; t=1652034607;
+        bh=lYdfiXpHTiwBCIC8Ig2nInkqB5OuwCT5uW2/zGo7dOE=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=N9Qtj8XTZZpzZImTNAb2diQQG3iM7RCIb9vpt++PynIkvAhBO/Aq5pa79mSFUk7BD
+         fpaPTY5OpD0RiGhvHMmhRfZ7bv+V1yElb9Vola0sKt6ljrKMnR0X/cDbO6Ahn06rE0
+         JRV3aqnnl+y8YCk4gspRXgxEoTbGE5/ntk1yqS+WuMkkJ+HeggorYy3jzpfyekeGup
+         wscBlaOmn7ENTdsQCTnJGN2aQdzU3XixtiDBSW7G/mB172v+dmHRVihhGIBC+RPvO5
+         Zx2lQVtBZFbwIWvgZcSg+IH+ShFDxV+6dS5Ke94eNROPBCWqFwCMpLlRCNJRODxwmL
+         nmKAjiAn5iaLg==
+X-Nifty-SrcIP: [209.85.210.179]
+Received: by mail-pf1-f179.google.com with SMTP id bo5so10468308pfb.4;
+        Sun, 08 May 2022 11:30:06 -0700 (PDT)
+X-Gm-Message-State: AOAM5321nUQDmkNs36fpsxDNR90BlKMbqLoEk0A4/8b2gPfdEpsCkPcn
+        nv0fZNHEiBTiha7b4ONieKSX6Eb0j2CvO2xR1Ew=
+X-Google-Smtp-Source: ABdhPJzSZw3CPCsDznAcGlLU11AUbvg46ozEB8e0OAnUju+5EAH166Q3DSIdjEyp9NwVCGBOR0PvXe4zM/kxvMm2SEI=
+X-Received: by 2002:a05:6a00:24cc:b0:50d:58bf:5104 with SMTP id
+ d12-20020a056a0024cc00b0050d58bf5104mr12632485pfv.36.1652034605828; Sun, 08
+ May 2022 11:30:05 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20220505072244.1155033-1-masahiroy@kernel.org>
+In-Reply-To: <20220505072244.1155033-1-masahiroy@kernel.org>
+From:   Masahiro Yamada <masahiroy@kernel.org>
+Date:   Mon, 9 May 2022 03:28:55 +0900
+X-Gmail-Original-Message-ID: <CAK7LNAQg2JG2DAuRJmNLryDh_o_PoFUXnJ+6C=-AE+NXZy9pTg@mail.gmail.com>
+Message-ID: <CAK7LNAQg2JG2DAuRJmNLryDh_o_PoFUXnJ+6C=-AE+NXZy9pTg@mail.gmail.com>
+Subject: Re: [PATCH v3 00/15] kbuild: yet another series of cleanups (modpost,
+ LTO, MODULE_REL_CRCS)
+To:     Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>
+Cc:     clang-built-linux <clang-built-linux@googlegroups.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Nicolas Schier a <nicolas@fjasle.eu>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        linux-um@lists.infradead.org,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Kees Cook <keescook@chromium.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-When CONFIG_LTO_CLANG=y, additional intermediate *.prelink.o is created
-for each module. Also, objtool is postponed until LLVM bitcode is
-converted to ELF.
+On Thu, May 5, 2022 at 4:24 PM Masahiro Yamada <masahiroy@kernel.org> wrote:
+>
+>
+> This is the third batch of cleanups in this development cycle.
+>
+> Major changes in v3:
+>
+>  - Generate symbol CRCs as C code, and remove CONFIG_MODULE_REL_CRCS.
+>
+> Major changes in v2:
+>
+>  - V1 did not work with CONFIG_MODULE_REL_CRCS.
+>    I fixed this for v2.
+>
+>  - Reflect some review comments in v1
+>
+>  - Refactor the code more
+>
+>  - Avoid too long argument error
+>
+>
+> Masahiro Yamada (15):
+>   modpost: mitigate false-negatives for static EXPORT_SYMBOL checks
+>   modpost: change the license of EXPORT_SYMBOL to bool type
+>   modpost: merge add_{intree_flag,retpoline,staging_flag} to add_header
+>   modpost: move *.mod.c generation to write_mod_c_files()
+>   kbuild: generate a list of objects in vmlinux
+>   kbuild: record symbol versions in *.cmd files
+>   modpost: extract symbol versions from *.cmd files
+>   kbuild: link symbol CRCs at final link, removing
+>     CONFIG_MODULE_REL_CRCS
+>   kbuild: stop merging *.symversions
+>   genksyms: adjust the output format to modpost
+>   kbuild: do not create *.prelink.o for Clang LTO or IBT
+>   modpost: simplify the ->is_static initialization
+>   modpost: use hlist for hash table implementation
+>   kbuild: make built-in.a rule robust against too long argument error
+>   kbuild: make *.mod rule robust against too long argument error
 
-CONFIG_X86_KERNEL_IBT works in a similar way to postpone objtool until
-objects are merged together.
 
-This commit stops generating *.prelink.o, so the build flow will look
-the same with/without LTO.
+Only 03-06 were applied.
 
-The following figures show how the LTO build currently works, and
-how this commit is changing it.
+I will send v4 for the rest.
+(I rewrote the static EXPORT checks).
 
-Current build flow
-==================
+>
+>  arch/powerpc/Kconfig         |   1 -
+>  arch/s390/Kconfig            |   1 -
+>  arch/um/Kconfig              |   1 -
+>  include/asm-generic/export.h |  22 +-
+>  include/linux/export.h       |  30 +--
+>  include/linux/symversion.h   |  13 +
+>  init/Kconfig                 |   4 -
+>  kernel/module.c              |  10 +-
+>  scripts/Kbuild.include       |   4 +
+>  scripts/Makefile.build       | 118 +++------
+>  scripts/Makefile.lib         |   7 -
+>  scripts/Makefile.modfinal    |   5 +-
+>  scripts/Makefile.modpost     |   9 +-
+>  scripts/genksyms/genksyms.c  |  18 +-
+>  scripts/link-vmlinux.sh      |  46 ++--
+>  scripts/mod/file2alias.c     |   2 -
+>  scripts/mod/list.h           |  52 ++++
+>  scripts/mod/modpost.c        | 449 ++++++++++++++++++++---------------
+>  scripts/mod/modpost.h        |   2 +
+>  19 files changed, 402 insertions(+), 392 deletions(-)
+>  create mode 100644 include/linux/symversion.h
+>
+> --
+> 2.32.0
+>
+> --
+> You received this message because you are subscribed to the Google Groups "Clang Built Linux" group.
+> To unsubscribe from this group and stop receiving emails from it, send an email to clang-built-linux+unsubscribe@googlegroups.com.
+> To view this discussion on the web visit https://groups.google.com/d/msgid/clang-built-linux/20220505072244.1155033-1-masahiroy%40kernel.org.
 
- [1] single-object module
 
-                                      $(LD)
-           $(CC)                     +objtool              $(LD)
-    foo.c --------------------> foo.o -----> foo.prelink.o -----> foo.ko
-                           (LLVM bitcode)        (ELF)       |
-                                                             |
-                                                 foo.mod.o --/
 
- [2] multi-object module
-                                      $(LD)
-           $(CC)         $(AR)       +objtool               $(LD)
-    foo1.c -----> foo1.o -----> foo.o -----> foo.prelink.o -----> foo.ko
-                           |  (archive)          (ELF)       |
-    foo2.c -----> foo2.o --/                                 |
-                (LLVM bitcode)                   foo.mod.o --/
-
-  One confusion is foo.o in multi-object module is an archive despite of
-  its suffix.
-
-New build flow
-==============
-
- [1] single-object module
-
-  Since there is only one object, we do not need to have the LLVM
-  bitcode stage. Use $(CC)+$(LD) to generate an ELF object in one
-  build rule. When LTO is disabled, $(LD) is unneeded because $(CC)
-  produces an ELF object.
-
-           $(CC)+$(LD)+objtool             $(LD)
-    foo.c ------------------------> foo.o -------> foo.ko
-                                    (ELF)    |
-                                             |
-                                 foo.mod.o --/
-
- [2] multi-object module
-
-  Previously, $(AR) was used to combine LLVM bitcode into an archive,
-  but there was no technical reason to do so.
-  This commit just uses $(LD) to combine and convert them into a single
-  ELF object.
-
-                            $(LD)
-            $(CC)          +objtool        $(LD)
-    foo1.c -------> foo1.o -------> foo.o -------> foo.ko
-                              |     (ELF)    |
-    foo2.c -------> foo2.o ---/              |
-                (LLVM bitcode)   foo.mod.o --/
-
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Reviewed-by: Nicolas Schier <nicolas@fjasle.eu>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
----
-
-(no changes since v2)
-
-Changes in v2:
- - replace the chain of $(if ...) with $(and )
-
- scripts/Kbuild.include    |  4 +++
- scripts/Makefile.build    | 58 ++++++++++++---------------------------
- scripts/Makefile.lib      |  7 -----
- scripts/Makefile.modfinal |  5 ++--
- scripts/Makefile.modpost  |  9 ++----
- scripts/mod/modpost.c     |  7 -----
- 6 files changed, 25 insertions(+), 65 deletions(-)
-
-diff --git a/scripts/Kbuild.include b/scripts/Kbuild.include
-index 3514c2149e9d..455a0a6ce12d 100644
---- a/scripts/Kbuild.include
-+++ b/scripts/Kbuild.include
-@@ -15,6 +15,10 @@ pound := \#
- # Name of target with a '.' as filename prefix. foo/bar.o => foo/.bar.o
- dot-target = $(dir $@).$(notdir $@)
- 
-+###
-+# Name of target with a '.tmp_' as filename prefix. foo/bar.o => foo/.tmp_bar.o
-+tmp-target = $(dir $@).tmp_$(notdir $@)
-+
- ###
- # The temporary file to save gcc -MMD generated dependencies must not
- # contain a comma
-diff --git a/scripts/Makefile.build b/scripts/Makefile.build
-index 461998a2ad2b..838ea5e83174 100644
---- a/scripts/Makefile.build
-+++ b/scripts/Makefile.build
-@@ -88,10 +88,6 @@ endif
- targets-for-modules := $(foreach x, o mod $(if $(CONFIG_TRIM_UNUSED_KSYMS), usyms), \
- 				$(patsubst %.o, %.$x, $(filter %.o, $(obj-m))))
- 
--ifneq ($(CONFIG_LTO_CLANG)$(CONFIG_X86_KERNEL_IBT),)
--targets-for-modules += $(patsubst %.o, %.prelink.o, $(filter %.o, $(obj-m)))
--endif
--
- ifdef need-modorder
- targets-for-modules += $(obj)/modules.order
- endif
-@@ -152,8 +148,16 @@ $(obj)/%.ll: $(src)/%.c FORCE
- # The C file is compiled and updated dependency information is generated.
- # (See cmd_cc_o_c + relevant part of rule_cc_o_c)
- 
-+is-single-obj-m = $(and $(part-of-module),$(filter $@, $(obj-m)),y)
-+
-+ifdef CONFIG_LTO_CLANG
-+cmd_ld_single_m = $(if $(is-single-obj-m), ; $(LD) $(ld_flags) -r -o $(tmp-target) $@; mv $(tmp-target) $@)
-+endif
-+
- quiet_cmd_cc_o_c = CC $(quiet_modtag)  $@
--      cmd_cc_o_c = $(CC) $(c_flags) -c -o $@ $< $(cmd_objtool)
-+      cmd_cc_o_c = $(CC) $(c_flags) -c -o $@ $< \
-+		$(cmd_ld_single_m) \
-+		$(cmd_objtool)
- 
- ifdef CONFIG_MODVERSIONS
- # When module versioning is enabled the following steps are executed:
-@@ -224,21 +228,16 @@ cmd_gen_objtooldep = $(if $(objtool-enabled), { echo ; echo '$@: $$(wildcard $(o
- 
- endif # CONFIG_STACK_VALIDATION
- 
--ifneq ($(CONFIG_LTO_CLANG)$(CONFIG_X86_KERNEL_IBT),)
--
--# Skip objtool for LLVM bitcode
--$(obj)/%.o: objtool-enabled :=
--
--else
- 
- # 'OBJECT_FILES_NON_STANDARD := y': skip objtool checking for a directory
- # 'OBJECT_FILES_NON_STANDARD_foo.o := 'y': skip objtool checking for a file
- # 'OBJECT_FILES_NON_STANDARD_foo.o := 'n': override directory skip for a file
- 
--$(obj)/%.o: objtool-enabled = $(if $(filter-out y%, \
--	$(OBJECT_FILES_NON_STANDARD_$(basetarget).o)$(OBJECT_FILES_NON_STANDARD)n),y)
-+is-standard-object = $(if $(filter-out y%, $(OBJECT_FILES_NON_STANDARD_$(basetarget).o)$(OBJECT_FILES_NON_STANDARD)n),y)
- 
--endif
-+delay-objtool := $(or $(CONFIG_LTO_CLANG),$(CONFIG_X86_KERNEL_IBT))
-+
-+$(obj)/%.o: objtool-enabled = $(if $(is-standard-object),$(if $(delay-objtool),$(is-single-obj-m),y))
- 
- ifdef CONFIG_TRIM_UNUSED_KSYMS
- cmd_gen_ksymdeps = \
-@@ -267,24 +266,6 @@ $(obj)/%.o: $(src)/%.c $(recordmcount_source) FORCE
- 	$(call if_changed_rule,cc_o_c)
- 	$(call cmd,force_checksrc)
- 
--ifneq ($(CONFIG_LTO_CLANG)$(CONFIG_X86_KERNEL_IBT),)
--# Module .o files may contain LLVM bitcode, compile them into native code
--# before ELF processing
--quiet_cmd_cc_prelink_modules = LD [M]  $@
--      cmd_cc_prelink_modules =						\
--	$(LD) $(ld_flags) -r -o $@					\
--		--whole-archive $(filter-out FORCE,$^)			\
--		$(cmd_objtool)
--
--# objtool was skipped for LLVM bitcode, run it now that we have compiled
--# modules into native code
--$(obj)/%.prelink.o: objtool-enabled = y
--$(obj)/%.prelink.o: part-of-module := y
--
--$(obj)/%.prelink.o: $(obj)/%.o FORCE
--	$(call if_changed,cc_prelink_modules)
--endif
--
- cmd_mod = echo $(addprefix $(obj)/, $(call real-search, $*.o, .o, -objs -y -m)) | \
- 	$(AWK) -v RS='( |\n)' '!x[$$0]++' > $@
- 
-@@ -294,7 +275,7 @@ $(obj)/%.mod: FORCE
- # List module undefined symbols
- cmd_undefined_syms = $(NM) $< | sed -n 's/^  *U //p' > $@
- 
--$(obj)/%.usyms: $(obj)/%$(mod-prelink-ext).o FORCE
-+$(obj)/%.usyms: $(obj)/%.o FORCE
- 	$(call if_changed,undefined_syms)
- 
- quiet_cmd_cc_lst_c = MKLST   $@
-@@ -416,16 +397,11 @@ $(obj)/modules.order: $(obj-m) FORCE
- $(obj)/lib.a: $(lib-y) FORCE
- 	$(call if_changed,ar)
- 
--ifneq ($(CONFIG_LTO_CLANG)$(CONFIG_X86_KERNEL_IBT),)
--quiet_cmd_link_multi-m = AR [M]  $@
--cmd_link_multi-m =						\
--	rm -f $@; 						\
--	$(AR) cDPrsT $@ @$(patsubst %.o,%.mod,$@)
--else
- quiet_cmd_link_multi-m = LD [M]  $@
--      cmd_link_multi-m = $(LD) $(ld_flags) -r -o $@ @$(patsubst %.o,%.mod,$@)
--endif
-+      cmd_link_multi-m = $(LD) $(ld_flags) -r -o $@ @$(patsubst %.o,%.mod,$@) $(cmd_objtool)
- 
-+$(multi-obj-m): objtool-enabled := $(delay-objtool)
-+$(multi-obj-m): part-of-module := y
- $(multi-obj-m): %.o: %.mod FORCE
- 	$(call if_changed,link_multi-m)
- $(call multi_depend, $(multi-obj-m), .o, -objs -y -m)
-diff --git a/scripts/Makefile.lib b/scripts/Makefile.lib
-index 0453a1904646..f75138385449 100644
---- a/scripts/Makefile.lib
-+++ b/scripts/Makefile.lib
-@@ -225,13 +225,6 @@ dtc_cpp_flags  = -Wp,-MMD,$(depfile).pre.tmp -nostdinc                    \
- 		 $(addprefix -I,$(DTC_INCLUDE))                          \
- 		 -undef -D__DTS__
- 
--ifneq ($(CONFIG_LTO_CLANG)$(CONFIG_X86_KERNEL_IBT),)
--# With CONFIG_LTO_CLANG, .o files in modules might be LLVM bitcode, so we
--# need to run LTO to compile them into native code (.lto.o) before further
--# processing.
--mod-prelink-ext := .prelink
--endif
--
- # Useful for describing the dependency of composite objects
- # Usage:
- #   $(call multi_depend, multi_used_targets, suffix_to_remove, suffix_to_add)
-diff --git a/scripts/Makefile.modfinal b/scripts/Makefile.modfinal
-index 7f39599e9fae..35100e981f4a 100644
---- a/scripts/Makefile.modfinal
-+++ b/scripts/Makefile.modfinal
-@@ -9,7 +9,7 @@ __modfinal:
- include include/config/auto.conf
- include $(srctree)/scripts/Kbuild.include
- 
--# for c_flags and mod-prelink-ext
-+# for c_flags
- include $(srctree)/scripts/Makefile.lib
- 
- # find all modules listed in modules.order
-@@ -54,9 +54,8 @@ if_changed_except = $(if $(call newer_prereqs_except,$(2))$(cmd-check),      \
- 	$(cmd);                                                              \
- 	printf '%s\n' 'cmd_$@ := $(make-cmd)' > $(dot-target).cmd, @:)
- 
--
- # Re-generate module BTFs if either module's .ko or vmlinux changed
--$(modules): %.ko: %$(mod-prelink-ext).o %.mod.o scripts/module.lds $(if $(KBUILD_BUILTIN),vmlinux) FORCE
-+$(modules): %.ko: %.o %.mod.o scripts/module.lds $(if $(KBUILD_BUILTIN),vmlinux) FORCE
- 	+$(call if_changed_except,ld_ko_o,vmlinux)
- ifdef CONFIG_DEBUG_INFO_BTF_MODULES
- 	+$(if $(newer-prereqs),$(call cmd,btf_ko))
-diff --git a/scripts/Makefile.modpost b/scripts/Makefile.modpost
-index 48585c4d04ad..f2ce411acd59 100644
---- a/scripts/Makefile.modpost
-+++ b/scripts/Makefile.modpost
-@@ -41,9 +41,6 @@ __modpost:
- include include/config/auto.conf
- include $(srctree)/scripts/Kbuild.include
- 
--# for mod-prelink-ext
--include $(srctree)/scripts/Makefile.lib
--
- MODPOST = scripts/mod/modpost								\
- 	$(if $(CONFIG_MODVERSIONS),-m)							\
- 	$(if $(CONFIG_MODULE_SRCVERSION_ALL),-a)					\
-@@ -118,8 +115,6 @@ $(input-symdump):
- 	@echo >&2 '         Modules may not have dependencies or modversions.'
- 	@echo >&2 '         You may get many unresolved symbol warnings.'
- 
--modules := $(sort $(shell cat $(MODORDER)))
--
- # KBUILD_MODPOST_WARN can be set to avoid error out in case of undefined symbols
- ifneq ($(KBUILD_MODPOST_WARN)$(filter-out $(existing-input-symdump), $(input-symdump)),)
- MODPOST += -w
-@@ -128,9 +123,9 @@ endif
- # Read out modules.order to pass in modpost.
- # Otherwise, allmodconfig would fail with "Argument list too long".
- quiet_cmd_modpost = MODPOST $@
--      cmd_modpost = sed 's/\.ko$$/$(mod-prelink-ext)\.o/' $< | $(MODPOST) -T -
-+      cmd_modpost = sed 's/ko$$/o/' $< | $(MODPOST) -T -
- 
--$(output-symdump): $(MODORDER) $(input-symdump) $(modules:.ko=$(mod-prelink-ext).o) FORCE
-+$(output-symdump): $(MODORDER) $(input-symdump) FORCE
- 	$(call if_changed,modpost)
- 
- targets += $(output-symdump)
-diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
-index b46653d46e3d..018527d96680 100644
---- a/scripts/mod/modpost.c
-+++ b/scripts/mod/modpost.c
-@@ -716,10 +716,6 @@ static char *remove_dot(char *s)
- 		size_t m = strspn(s + n + 1, "0123456789");
- 		if (m && (s[n + m] == '.' || s[n + m] == 0))
- 			s[n] = 0;
--
--		/* strip trailing .prelink */
--		if (strends(s, ".prelink"))
--			s[strlen(s) - 8] = '\0';
- 	}
- 	return s;
- }
-@@ -839,9 +835,6 @@ static void read_symbols(const char *modname)
- 		/* strip trailing .o */
- 		tmp = NOFAIL(strdup(modname));
- 		tmp[strlen(tmp) - 2] = '\0';
--		/* strip trailing .prelink */
--		if (strends(tmp, ".prelink"))
--			tmp[strlen(tmp) - 8] = '\0';
- 		mod = new_module(tmp);
- 		free(tmp);
- 	}
 -- 
-2.32.0
-
+Best Regards
+Masahiro Yamada
