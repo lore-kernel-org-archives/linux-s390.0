@@ -2,32 +2,32 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A50FBC4167E
-	for <linux-s390@archiver.kernel.org>; Sun,  8 May 2022 19:18:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A374BC433FE
+	for <linux-s390@archiver.kernel.org>; Sun,  8 May 2022 19:18:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229803AbiEHTVt (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Sun, 8 May 2022 15:21:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40232 "EHLO
+        id S229848AbiEHTVu (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Sun, 8 May 2022 15:21:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230262AbiEHTRr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 8 May 2022 15:17:47 -0400
+        with ESMTP id S231652AbiEHTTF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 8 May 2022 15:19:05 -0400
 Received: from conuserg-09.nifty.com (conuserg-09.nifty.com [210.131.2.76])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 504EB12AFC;
-        Sun,  8 May 2022 12:11:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4A2A12637;
+        Sun,  8 May 2022 12:11:46 -0700 (PDT)
 Received: from grover.sesame (133-32-177-133.west.xps.vectant.ne.jp [133.32.177.133]) (authenticated)
-        by conuserg-09.nifty.com with ESMTP id 248J8qSY030019;
-        Mon, 9 May 2022 04:09:04 +0900
-DKIM-Filter: OpenDKIM Filter v2.10.3 conuserg-09.nifty.com 248J8qSY030019
+        by conuserg-09.nifty.com with ESMTP id 248J8qSb030019;
+        Mon, 9 May 2022 04:09:08 +0900
+DKIM-Filter: OpenDKIM Filter v2.10.3 conuserg-09.nifty.com 248J8qSb030019
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
-        s=dec2015msa; t=1652036945;
-        bh=tcr+72ZYpbdDhhd7b5O3qNkSWb92WQKtLNqtDxevyAs=;
+        s=dec2015msa; t=1652036949;
+        bh=kEJzb0HV+D+/XrwgoxTro+DuX7He9WiLcsjIpQbmj1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZpgxZTqZ2iu1LdA2g0S5JuNwurT0/yzlSN3HqWxP8xRpWBBRGJ9qLRy8FFFfphmw1
-         DTzSxmkNZri7Ulg9bko1nDt1WH7PUyFLGRMN4axpGr+pjpl/0u79qrscDU7fvAKdki
-         5mvme2nhZq5J/45SFhvMYxL8AGUgWGRucB57+Pq2mInVzkdXh8zs5m0XumLFzFsqfl
-         s89GMqFMy2/hikiBt4U17i/XqCY96TPSt5CgiTU4ljC/VtfCKLhmfWUiRwaYJJWZds
-         4V0BRaPasqlm/ggMDv3LbkVmoTKJ1/0woBqcQPr4h+9YFdLyzf9pPLcB5twdmwA9i3
-         BFM4D5Xff24IA==
+        b=qukJg56KBZ9tZ03DmIaB9J1P4O7T2033NPHrrIrxUDw+CxtspATGP01RIt7e5lRW7
+         Z8d0neV5tpH0H3TYmv0hMpJxAL9VAxXFzSQF/5g3A1IjTi29mpDwgfF06WWsZSX5Im
+         yDb1xo+Xai3ITqVXuc0tRlGv9PFYYTlh16npzqtGNUCBMoVpF4TzSRhmI053U+0Kmw
+         wyggrDnu5+Ia8Gr8loCssyY4pFSbbT80GGZPVSnGJforCXrcRDvyitQ5GwCx0KhjaM
+         DL7xFka0yMQBpnZa4OptbEq1Zpd1lu0vQNHcLPJIofLQeG1/BA9PY8WRI6Vdl4WfIv
+         mbiloPzfyyMUQ==
 X-Nifty-SrcIP: [133.32.177.133]
 From:   Masahiro Yamada <masahiroy@kernel.org>
 To:     linux-kbuild@vger.kernel.org
@@ -40,10 +40,12 @@ Cc:     linux-kernel@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, clang-built-linux@googlegroups.com,
         Ard Biesheuvel <ardb@kernel.org>,
         Sami Tolvanen <samitolvanen@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH v4 11/14] kbuild: make built-in.a rule robust against too long argument error
-Date:   Mon,  9 May 2022 04:06:28 +0900
-Message-Id: <20220508190631.2386038-12-masahiroy@kernel.org>
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>
+Subject: [PATCH v4 14/14] kbuild: rebuild multi-object modules when objtool is updated
+Date:   Mon,  9 May 2022 04:06:31 +0900
+Message-Id: <20220508190631.2386038-15-masahiroy@kernel.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20220508190631.2386038-1-masahiroy@kernel.org>
 References: <20220508190631.2386038-1-masahiroy@kernel.org>
@@ -53,62 +55,51 @@ Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Kbuild runs at the top of objtree instead of changing the working
-directory to subdirectories. I think this design is nice overall but
-some commands have a scalability issue.
+When CONFIG_LTO_CLANG or CONFIG_X86_KERNEL_IBT is enabled, objtool for
+multi-object modules is postponed until the objects are linked together.
 
-The build command of built-in.a is one of them whose length scales with:
-
-    O(D * N)
-
-Here, D is the length of the directory path (i.e. $(obj)/ prefix),
-N is the number of objects in the Makefile, O() is the big O notation.
-
-The deeper directory the Makefile directory is located, the more easily
-it will hit the too long argument error.
-
-We can make it better. Trim the $(obj)/ by Make's builtin function, and
-restore it by a shell command (sed).
-
-With this, the command length scales with:
-
-    O(D + N)
-
-In-tree modules still have some room to the limit (ARG_MAX=2097152),
-but this is more future-proof for big modules in a deep directory.
-
-For example, you can build i915 as builtin (CONFIG_DRM_I915=y) and
-compare drivers/gpu/drm/i915/.built-in.a.cmd with/without this commit.
+Make sure to re-run objtool and re-link multi-object modules when
+objtool is updated.
 
 Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Reviewed-by: Nicolas Schier <nicolas@fjasle.eu>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
 ---
 
-(no changes since v2)
+Changes in v4:
+  - New
+    Resent of my previous submission
+    https://lore.kernel.org/linux-kbuild/20210831074004.3195284-11-masahiroy@kernel.org/
 
-Changes in v2:
-  - New patch
-
- scripts/Makefile.build | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ scripts/Makefile.build | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
 diff --git a/scripts/Makefile.build b/scripts/Makefile.build
-index c2a173b3fd60..8f1a355df7aa 100644
+index f546b5f1f33f..4e6902e099e8 100644
 --- a/scripts/Makefile.build
 +++ b/scripts/Makefile.build
-@@ -374,7 +374,10 @@ $(subdir-modorder): $(obj)/%/modules.order: $(obj)/% ;
- #
+@@ -404,13 +404,18 @@ $(obj)/modules.order: $(obj-m) FORCE
+ $(obj)/lib.a: $(lib-y) FORCE
+ 	$(call if_changed,ar)
  
- quiet_cmd_ar_builtin = AR      $@
--      cmd_ar_builtin = rm -f $@; $(AR) cDPrST $@ $(real-prereqs)
-+      cmd_ar_builtin = rm -f $@; \
-+		echo $(patsubst $(obj)/%,%,$(real-prereqs)) | \
-+		sed -E 's:([^ ]+):$(obj)/\1:g' | \
-+		xargs $(AR) cDPrST $@
+-quiet_cmd_link_multi-m = LD [M]  $@
+-      cmd_link_multi-m = $(LD) $(ld_flags) -r -o $@ @$(patsubst %.o,%.mod,$@) $(cmd_objtool)
++quiet_cmd_ld_multi_m = LD [M]  $@
++      cmd_ld_multi_m = $(LD) $(ld_flags) -r -o $@ @$(patsubst %.o,%.mod,$@) $(cmd_objtool)
++
++define rule_ld_multi_m
++	$(call cmd_and_savecmd,ld_multi_m)
++	$(call cmd,gen_objtooldep)
++endef
  
- $(obj)/built-in.a: $(real-obj-y) FORCE
- 	$(call if_changed,ar_builtin)
+ $(multi-obj-m): objtool-enabled := $(delay-objtool)
+ $(multi-obj-m): part-of-module := y
+ $(multi-obj-m): %.o: %.mod FORCE
+-	$(call if_changed,link_multi-m)
++	$(call if_changed_rule,ld_multi_m)
+ $(call multi_depend, $(multi-obj-m), .o, -objs -y -m)
+ 
+ targets := $(filter-out $(PHONY), $(targets))
 -- 
 2.32.0
 
