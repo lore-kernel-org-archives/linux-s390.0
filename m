@@ -2,112 +2,66 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DAC9DC433F5
-	for <linux-s390@archiver.kernel.org>; Mon,  9 May 2022 06:26:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 125DDC433EF
+	for <linux-s390@archiver.kernel.org>; Mon,  9 May 2022 06:42:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230414AbiEIGab (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 9 May 2022 02:30:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49426 "EHLO
+        id S234696AbiEIGok (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 9 May 2022 02:44:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235410AbiEIGYv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 May 2022 02:24:51 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E58C8245AE;
-        Sun,  8 May 2022 23:20:58 -0700 (PDT)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2496KaRY016784;
-        Mon, 9 May 2022 06:20:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : references : date : in-reply-to : message-id : mime-version :
- content-type; s=pp1; bh=XGsTLEwOaQIfxo397XNIDIaNBSvxTkajB9Ez6aSnGFM=;
- b=iWNQjqRXd7YPdLGKpwm2G6ul0y3DZKRElQq2TOWzsPtmxRCuHvjNsdNABJQtm0y7Jn1G
- ncAf08kdZylF36ugDa65vMDyg7X3PAixWLA49PhQlAnpxWklP1OD2gO2Pres91Fv6o0V
- 0HYrvRWsrpff1O1Pq6zZDZzDNGJDEEkHXJSPo5NvhEMolhpe9L7gpN15OjrvnYuRBrcg
- f4eoNKoONPoKtwAQJWNzxZKlGrJZztpp2JefBXdye0wpWAJHzm/Q4Usu2HvFz/IJbjY0
- isFgdpPvahYYpfaZmM+/tlG4LxuAaXwIwDf4rGYPu1blj+sHqDRtpeiaVAHhcvfnRQQj iQ== 
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fx2jrb4pd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 May 2022 06:20:46 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2495ww6i012343;
-        Mon, 9 May 2022 06:20:44 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma06ams.nl.ibm.com with ESMTP id 3fwg1j20ry-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 May 2022 06:20:43 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24967AEP49414612
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 9 May 2022 06:07:10 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9AE4F4C040;
-        Mon,  9 May 2022 06:20:41 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 615F64C044;
-        Mon,  9 May 2022 06:20:41 +0000 (GMT)
-Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Mon,  9 May 2022 06:20:41 +0000 (GMT)
-From:   Sven Schnelle <svens@linux.ibm.com>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     Thomas Richter <tmricht@linux.ibm.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        with ESMTP id S235360AbiEIGfB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 May 2022 02:35:01 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9690E87204;
+        Sun,  8 May 2022 23:31:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=M7NmYC/Iylm9myghHwqILim55SAUt9QrM+UZYk0eJlw=; b=o+pQ2wGG2YVWS04fCC8y8+WAIR
+        OMv/pg4hxMPTD5mPiCT91kL+mAyrLelwTcwQ07UY9WfUCxctEn/0fZ+K6CnVCzuGg3JC3G8zkg+Yl
+        6WlVZyz4KU4W7nzIiD1myHbqCRByD7J59wpGzBohi7UMmJ5MPQjRWTNe9M1IHLbNSe1747n8AA4TF
+        4bM6O/7hSbCgH42ZfLYGmyFALaHZvcqYXWJPWpwkU6r87XSNhTpH3vjhzuBCn/StFI5LgwFkUXzYV
+        PQIFWOA940r35Nxv7DVXtr6tXAEI9VQfACQXdaRWXH0xCOPX4/txiFZADLOBqCBQf1F46BPDj/iQZ
+        ZIIwvI6g==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1nnwv5-00Cgzc-Gk; Mon, 09 May 2022 06:30:59 +0000
+Date:   Sun, 8 May 2022 23:30:59 -0700
+From:   Christoph Hellwig <hch@infradead.org>
+To:     Juergen Gross <jgross@suse.com>
+Cc:     xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
+        linux-arch@vger.kernel.org, x86@kernel.org,
+        linux-s390@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        Arnd Bergmann <arnd@arndb.de>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Andy Lutomirski <luto@kernel.org>
-Subject: Re: [PATCH 1/2] entry: Rename arch_check_user_regs() to
- arch_enter_from_user_mode()
-References: <20220504062351.2954280-1-tmricht@linux.ibm.com>
-        <20220504062351.2954280-2-tmricht@linux.ibm.com>
-        <YnV3iljKUM0Fqw/F@hirez.programming.kicks-ass.net>
-Date:   Mon, 09 May 2022 08:20:41 +0200
-In-Reply-To: <YnV3iljKUM0Fqw/F@hirez.programming.kicks-ass.net> (Peter
-        Zijlstra's message of "Fri, 6 May 2022 21:31:22 +0200")
-Message-ID: <yt9dsfpjgrba.fsf@linux.ibm.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.50 (gnu/linux)
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        Oleksandr Tyshchenko <olekstysh@gmail.com>
+Subject: Re: [PATCH v3 1/2] kernel: add platform_has() infrastructure
+Message-ID: <Yni1IxTY5lxDj9aU@infradead.org>
+References: <20220504155703.13336-1-jgross@suse.com>
+ <20220504155703.13336-2-jgross@suse.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: YhL3zwoMZ-Ah8l3NxD6xTzZWCviAR9gZ
-X-Proofpoint-GUID: YhL3zwoMZ-Ah8l3NxD6xTzZWCviAR9gZ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-09_01,2022-05-06_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 suspectscore=0
- mlxscore=0 bulkscore=0 spamscore=0 malwarescore=0 adultscore=0
- priorityscore=1501 mlxlogscore=892 lowpriorityscore=0 impostorscore=0
- clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205090035
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220504155703.13336-2-jgross@suse.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Peter Zijlstra <peterz@infradead.org> writes:
+Looks good:
 
-> On Wed, May 04, 2022 at 08:23:50AM +0200, Thomas Richter wrote:
->> From: Sven Schnelle <svens@linux.ibm.com>
->> 
->> arch_check_user_regs() is used at the moment to verify that struct pt_regs
->> contains valid values when entering the kernel from userspace. s390 needs
->> a place in the generic entry code to modify a cpu data structure when
->> switching from userspace to kernel mode. As arch_check_user_regs() is
->> exactly this, rename it to arch_enter_from_user_mode().
->> 
->> Cc: Thomas Gleixner <tglx@linutronix.de>
->> Cc: Peter Zijlstra <peterz@infradead.org>
->> Cc: Andy Lutomirski <luto@kernel.org>
->> Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
->> ---
->
-> With the note that NMI doesn't (necessarily) call this..
->
-> Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-
-How about:
-
-"When entering the kernel from userspace, arch_check_user_regs() is
- used to verify that struct pt_regs contains valid values. Note that
- the NMI codepath doesn't call this function. s390 needs a place in the
- generic entry code to modify a cpu data structure when switching from
- userspace to kernel mode. As arch_check_user_regs() is exactly this,
- rename it to arch_enter_from_user_mode()."
+Reviewed-by: Christoph Hellwig <hch@lst.de>
