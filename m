@@ -2,242 +2,170 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D4CDC433EF
-	for <linux-s390@archiver.kernel.org>; Mon,  9 May 2022 14:07:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E152C4321E
+	for <linux-s390@archiver.kernel.org>; Mon,  9 May 2022 14:14:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236945AbiEIOLl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 9 May 2022 10:11:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33428 "EHLO
+        id S237023AbiEIOSM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 9 May 2022 10:18:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236879AbiEIOL1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 May 2022 10:11:27 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C756219F66;
-        Mon,  9 May 2022 07:07:33 -0700 (PDT)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 249DOPEk014341;
-        Mon, 9 May 2022 14:07:32 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=KNV586YhxorVuL/oyck7CFaNNYyFVhABaxGh67qbDVg=;
- b=Pw52bvi/x7W0TFAZqvtdjJkG5vgmYgZftXxfBS8Fr++IoZ61HmzfvfQpec5VALf3UBuz
- P3KN9RAcuc8Og+aPtApjMjp5xmyAca+GCAHL+5IRScJpGD8iKDs4WwBf+gMC+vFgMu4m
- pJ4I+nzqX+bLHGoqQJh7MXsDgKidm3486+PGet4cBxYvwLtPgJa1BSrUPYdqYp+XgPa2
- uaj+9x80YHE4uAtf03J8IKwCCjs+HQv2jwJCu3sNrdwM1FlFEukf/kZGNK5xSG3WNFTk
- kLvHciWlziCdrqSoZ1d9XG/wINq9zQkjSYZv0jbFV0Yx9SgGENWVd41kJI7AHXrBVv1B Yg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fy3thgx3u-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 May 2022 14:07:32 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 249DkR9T011447;
-        Mon, 9 May 2022 14:07:31 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fy3thgx39-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 May 2022 14:07:31 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 249E708I003315;
-        Mon, 9 May 2022 14:07:30 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma04fra.de.ibm.com with ESMTP id 3fwgd8t1tj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 May 2022 14:07:30 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 249E7Qd229950348
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 9 May 2022 14:07:27 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DC72CA4060;
-        Mon,  9 May 2022 14:07:26 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 94C59A405C;
-        Mon,  9 May 2022 14:07:26 +0000 (GMT)
-Received: from [9.171.38.150] (unknown [9.171.38.150])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon,  9 May 2022 14:07:26 +0000 (GMT)
-Message-ID: <9635e559-5c2c-30f4-ab19-aef28ba24ac0@linux.ibm.com>
-Date:   Mon, 9 May 2022 16:07:26 +0200
+        with ESMTP id S236931AbiEIOSJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 May 2022 10:18:09 -0400
+Received: from fanzine2.igalia.com (fanzine.igalia.com [178.60.130.6])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA012216056;
+        Mon,  9 May 2022 07:14:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+        s=20170329; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=21Vuf08H7s2roER44d4b0UgJl5trrJFyPVjW1sFjFZE=; b=ruDiqyoExl2jG8ttjj8Kva7F0Z
+        0gmy1ZjUnSZw1kESJcz3XDyEnMdDBnsUYP/IGGe7AdFcEsabz8oUBo80VtrFGlI8cQnzWF9UlpBBK
+        4aFG0PgEAjxrGpxgz2rOXDVYxrjQeGb+FiM0Mo8j9WOU5B7iKslK22FH7g8xu7/o+vhoBdIcLeTVq
+        TXR8EZtHjX3vb/+hbwrFc/UcTSPrqLuaLvGSeO7jUEfo1fKsk4NXM02lMULpMgFIGTd5/R8izOFMK
+        smJXU8ctgfXKSVE5XSrKVK5cDdrQAjusLpX81WYReyDmurYDvxkw6DQoXAKa1dqFr5Ui2vHbk0ezv
+        WsObUf8Q==;
+Received: from [177.183.162.244] (helo=[192.168.0.5])
+        by fanzine2.igalia.com with esmtpsa 
+        (Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
+        id 1no48z-000Acu-NN; Mon, 09 May 2022 16:13:50 +0200
+Message-ID: <f6def662-5742-b3a8-544f-bf15c636d83d@igalia.com>
+Date:   Mon, 9 May 2022 11:13:17 -0300
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Subject: Re: [kvm-unit-tests PATCH 3/3] s390x: Test effect of storage keys on
- some more instructions
+ Thunderbird/91.8.1
+Subject: Re: [PATCH 10/30] alpha: Clean-up the panic notifier code
 Content-Language: en-US
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     Thomas Huth <thuth@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20220505124656.1954092-1-scgl@linux.ibm.com>
- <20220505124656.1954092-4-scgl@linux.ibm.com>
- <20220506185227.165c7d86@p-imbrenda>
-From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-In-Reply-To: <20220506185227.165c7d86@p-imbrenda>
+To:     Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>, rth@gcc.gnu.org
+Cc:     akpm@linux-foundation.org, linux-kernel@vger.kernel.org,
+        bcm-kernel-feedback-list@broadcom.com,
+        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
+        bhe@redhat.com, kexec@lists.infradead.org,
+        linux-edac@vger.kernel.org, pmladek@suse.com,
+        linux-hyperv@vger.kernel.org, linux-leds@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
+        netdev@vger.kernel.org, openipmi-developer@lists.sourceforge.net,
+        rcu@vger.kernel.org, sparclinux@vger.kernel.org,
+        xen-devel@lists.xenproject.org, x86@kernel.org,
+        kernel-dev@igalia.com, kernel@gpiccoli.net, halves@canonical.com,
+        fabiomirmar@gmail.com, alejandro.j.jimenez@oracle.com,
+        andriy.shevchenko@linux.intel.com, arnd@arndb.de, bp@alien8.de,
+        corbet@lwn.net, d.hatayama@jp.fujitsu.com,
+        dave.hansen@linux.intel.com, dyoung@redhat.com,
+        feng.tang@intel.com, gregkh@linuxfoundation.org,
+        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
+        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
+        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
+        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
+        senozhatsky@chromium.org, stern@rowland.harvard.edu,
+        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
+        will@kernel.org
+References: <20220427224924.592546-1-gpiccoli@igalia.com>
+ <20220427224924.592546-11-gpiccoli@igalia.com>
+From:   "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+In-Reply-To: <20220427224924.592546-11-gpiccoli@igalia.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ajATeLVwAir5PQ--_fZUYwbvzTXwjfaK
-X-Proofpoint-ORIG-GUID: -u6wDI2bLbHO6_kkGsEE4DIwqeroX5wx
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-09_03,2022-05-09_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
- lowpriorityscore=0 bulkscore=0 phishscore=0 impostorscore=0 adultscore=0
- mlxlogscore=999 clxscore=1015 mlxscore=0 priorityscore=1501 spamscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2205090077
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 5/6/22 18:52, Claudio Imbrenda wrote:
-> On Thu,  5 May 2022 14:46:56 +0200
-> Janis Schoetterl-Glausch <scgl@linux.ibm.com> wrote:
+On 27/04/2022 19:49, Guilherme G. Piccoli wrote:
+> The alpha panic notifier has some code issues, not following
+> the conventions of other notifiers. Also, it might halt the
+> machine but still it is set to run as early as possible, which
+> doesn't seem to be a good idea.
 > 
->> Test correctness of some instructions handled by user space instead of
->> KVM with regards to storage keys.
->> Test success and error conditions, including coverage of storage and
->> fetch protection override.
->>
->> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
->> ---
->>  s390x/skey.c        | 277 ++++++++++++++++++++++++++++++++++++++++++++
->>  s390x/unittests.cfg |   1 +
->>  2 files changed, 278 insertions(+)
->>
->> diff --git a/s390x/skey.c b/s390x/skey.c
->> index 56bf5f45..d50470a8 100644
->> --- a/s390x/skey.c
->> +++ b/s390x/skey.c
->> @@ -12,6 +12,7 @@
->>  #include <asm/asm-offsets.h>
->>  #include <asm/interrupt.h>
->>  #include <vmalloc.h>
->> +#include <css.h>
->>  #include <asm/page.h>
->>  #include <asm/facility.h>
->>  #include <asm/mem.h>
->> @@ -284,6 +285,114 @@ static void test_store_cpu_address(void)
->>  	report_prefix_pop();
->>  }
->>  
->> +/*
->> + * Perform CHANNEL SUBSYSTEM CALL (CHSC)  instruction while temporarily executing
->> + * with access key 1.
->> + */
->> +static unsigned int channel_subsystem_call_key_1(void *communication_block)
+> This patch cleans the code, and set the notifier to run as the
+> latest, following the same approach other architectures are doing.
+> Also, we remove the unnecessary include of a header already
+> included indirectly.
 > 
-> this function name is very long (maybe chsc_with_key_1 instead?)
+> Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+> Cc: Matt Turner <mattst88@gmail.com>
+> Cc: Richard Henderson <rth@twiddle.net>
+> Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
+> ---
+>  arch/alpha/kernel/setup.c | 36 +++++++++++++++---------------------
+>  1 file changed, 15 insertions(+), 21 deletions(-)
+> 
+> diff --git a/arch/alpha/kernel/setup.c b/arch/alpha/kernel/setup.c
+> index b4fbbba30aa2..d88bdf852753 100644
+> --- a/arch/alpha/kernel/setup.c
+> +++ b/arch/alpha/kernel/setup.c
+> @@ -41,19 +41,11 @@
+>  #include <linux/sysrq.h>
+>  #include <linux/reboot.h>
+>  #endif
+> -#include <linux/notifier.h>
+>  #include <asm/setup.h>
+>  #include <asm/io.h>
+>  #include <linux/log2.h>
+>  #include <linux/export.h>
+>  
+> -static int alpha_panic_event(struct notifier_block *, unsigned long, void *);
+> -static struct notifier_block alpha_panic_block = {
+> -	alpha_panic_event,
+> -        NULL,
+> -        INT_MAX /* try to do it first */
+> -};
+> -
+>  #include <linux/uaccess.h>
+>  #include <asm/hwrpb.h>
+>  #include <asm/dma.h>
+> @@ -435,6 +427,21 @@ static const struct sysrq_key_op srm_sysrq_reboot_op = {
+>  };
+>  #endif
+>  
+> +static int alpha_panic_event(struct notifier_block *this,
+> +			     unsigned long event, void *ptr)
+> +{
+> +	/* If we are using SRM and serial console, just hard halt here. */
+> +	if (alpha_using_srm && srmcons_output)
+> +		__halt();
+> +
+> +	return NOTIFY_DONE;
+> +}
+> +
+> +static struct notifier_block alpha_panic_block = {
+> +	.notifier_call = alpha_panic_event,
+> +	.priority = INT_MIN, /* may not return, do it last */
+> +};
+> +
+>  void __init
+>  setup_arch(char **cmdline_p)
+>  {
+> @@ -1427,19 +1434,6 @@ const struct seq_operations cpuinfo_op = {
+>  	.show	= show_cpuinfo,
+>  };
+>  
+> -
+> -static int
+> -alpha_panic_event(struct notifier_block *this, unsigned long event, void *ptr)
+> -{
+> -#if 1
+> -	/* FIXME FIXME FIXME */
+> -	/* If we are using SRM and serial console, just hard halt here. */
+> -	if (alpha_using_srm && srmcons_output)
+> -		__halt();
+> -#endif
+> -        return NOTIFY_DONE;
+> -}
+> -
+>  static __init int add_pcspkr(void)
+>  {
+>  	struct platform_device *pd;
 
-It's because of consistency with set_prefix_key_1 where I spelled out the instruction
-name too. Granted the name of chsc is longer.
-When in doubt I go for what seems more readable/contains more information.
-> 
->> +{
->> +	uint32_t program_mask;
->> +
->> +	asm volatile (
->> +		"spka	0x10\n\t"
->> +		".insn	rre,0xb25f0000,%[communication_block],0\n\t"
->> +		"spka	0\n\t"
->> +		"ipm	%[program_mask]\n"
->> +		: [program_mask] "=d" (program_mask)
->> +		: [communication_block] "d" (communication_block)
->> +		: "memory"
->> +	);
->> +	return program_mask >> 28;
->> +}
->> +
->> +static void init_store_channel_subsystem_characteristics(uint16_t *communication_block)
-> 
-> same here (init_comm_block?)
 
-Since we're only performing one kind of operation in this test, that is fine,
-but I'll add a comment saying how we initialize the communication block then.
-> 
->> +{
->> +	memset(communication_block, 0, PAGE_SIZE);
->> +	communication_block[0] = 0x10;
->> +	communication_block[1] = 0x10;
->> +	communication_block[9] = 0;
->> +}
->> +
->> +static void test_channel_subsystem_call(void)
->> +{
->> +	static const char request_name[] = "Store channel-subsystem-characteristics";
-> 
-> so this "request_name" is for when CHSC succeeds? why not just
-> "Success" then?
+Hi folks, I'm updating Richard's email and re-sending the V1, any
+reviews are greatly appreciated!
 
-That's the operation being performed. So maybe I should change it to
-msg[] = "Performed store channel-subsystem-characteristics" ?
-> 
->> +	uint16_t *communication_block = (uint16_t *)&pagebuf;
-> 
-> long name (consider comm_block, or even cb)
-> 
->> +	unsigned int cc;
->> +
->> +	report_prefix_push("CHANNEL SUBSYSTEM CALL");
->> +
->> +	report_prefix_push("zero key");
->> +	init_store_channel_subsystem_characteristics(communication_block);
-> 
-> see what I mean when I say that the names are too long? ^
+Cheers,
 
-Fits in 80 columns ;-)
-> 
->> +	set_storage_key(communication_block, 0x10, 0);
->> +	asm volatile (
->> +		".insn	rre,0xb25f0000,%[communication_block],0\n\t"
->> +		"ipm	%[cc]\n"
->> +		: [cc] "=d" (cc)
->> +		: [communication_block] "d" (communication_block)
->> +		: "memory"
->> +	);
->> +	cc = cc >> 28;
->> +	report(cc == 0 && communication_block[9], request_name);
->> +	report_prefix_pop();
->> +
->> +	report_prefix_push("matching key");
->> +	init_store_channel_subsystem_characteristics(communication_block);
->> +	set_storage_key(communication_block, 0x10, 0);
-> 
-> you just set the storage key in the previous test, and you did not set
-> it back to 0, why do you need to set it again?
 
-It's not necessary, but I want the tests to be independent from each other,
-so you can remove/reorder/add ones without having to think.
-> 
->> +	cc = channel_subsystem_call_key_1(communication_block);
->> +	report(cc == 0 && communication_block[9], request_name);
->> +	report_prefix_pop();
->> +
-
-[...]
-
->> +
->> +	cc = stsch(test_device_sid, schib);
->> +	if (cc) {
->> +		report_fail("could not store SCHIB");
->> +		return;
->> +	}
->> +
->> +	report_prefix_push("zero key");
->> +	schib->pmcw.intparm = 100;
->> +	set_storage_key(schib, 0x28, 0);
->> +	cc = msch(test_device_sid, schib);
->> +	if (!cc) {
->> +		WRITE_ONCE(schib->pmcw.intparm, 0);
-> 
-> why are you using WRITE_ONCE here?
-
-It's a dead store because of the stsch below.
-That line is just for good measure so we know stsch really overwrote the value.
-> 
->> +		cc = stsch(test_device_sid, schib);
->> +		report(!cc && schib->pmcw.intparm == 100, "fetched from SCHIB");
-
-[...]
+Guilherme
