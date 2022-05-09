@@ -2,84 +2,94 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0AC6EC43219
-	for <linux-s390@archiver.kernel.org>; Mon,  9 May 2022 07:33:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86FDAC433EF
+	for <linux-s390@archiver.kernel.org>; Mon,  9 May 2022 08:01:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231723AbiEIHgg (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 9 May 2022 03:36:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33694 "EHLO
+        id S232120AbiEIIDM (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 9 May 2022 04:03:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236665AbiEIHMm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 May 2022 03:12:42 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DA1E185C86;
-        Mon,  9 May 2022 00:08:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=wBYJb025r/PmjnCJ2jgNM6Uu8wmuFqp0g2HraO+Rbss=; b=DvztEdZlncnAAApMh0zkmsqJ5K
-        v7XcB/Nhdc1Se73DIYdf4e3R7gJTyb1yfyt0Qs20V+V+zDYYldBS1zKx6kZTt1glnEfoBJH25N2uF
-        FEOg6hDS84YylnT7SlSGu2PXmBMApV1fx/M+BDgkE8eiwKMqF5sMTVoRqS/R8s/p9+7RmF/XLArYk
-        gdcd4Qt0ngsj/pcnMjnSuqR4PaVEOBkBr7+877T9JEOHFzzcOS9HzeSAW148vcGuQrRHnsvYFdqSP
-        17xS97WpxKH32HJPDde+cD4yZwFjlyPFPWWXn4TpcpDXCiYgwUb7hdg+91EVmwSU2PKtF1QtYIS8C
-        ve6mOR5g==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=worktop.programming.kicks-ass.net)
-        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nnxVR-00CUSx-NY; Mon, 09 May 2022 07:08:34 +0000
-Received: by worktop.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 5E258980E93; Mon,  9 May 2022 09:08:31 +0200 (CEST)
-Date:   Mon, 9 May 2022 09:08:31 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Sven Schnelle <svens@linux.ibm.com>
-Cc:     Thomas Richter <tmricht@linux.ibm.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Andy Lutomirski <luto@kernel.org>
-Subject: Re: [PATCH 1/2] entry: Rename arch_check_user_regs() to
- arch_enter_from_user_mode()
-Message-ID: <20220509070831.GD76023@worktop.programming.kicks-ass.net>
-References: <20220504062351.2954280-1-tmricht@linux.ibm.com>
- <20220504062351.2954280-2-tmricht@linux.ibm.com>
- <YnV3iljKUM0Fqw/F@hirez.programming.kicks-ass.net>
- <yt9dsfpjgrba.fsf@linux.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <yt9dsfpjgrba.fsf@linux.ibm.com>
+        with ESMTP id S235987AbiEIHpU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 May 2022 03:45:20 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 979083DA45;
+        Mon,  9 May 2022 00:41:25 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 21E1621C12;
+        Mon,  9 May 2022 07:25:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1652081152; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=DkVjeit/lk71CFlURWPuyWOi+BM5c9PXTKXlXZNy4J8=;
+        b=UoVW1UNUd3JJyPxi7Me6WCrriJyvw5+Ko5Cbq3XdkkFq6nmyPNWe6ixlc9kmtHWJBKAZR1
+        hDoKLuxkPIDwchfQKuG5vjYcMNusB2gUaJ8hO56Pcio5KAPabEXqNOz64fWuJjSoV5Gcgp
+        v2RjBBDj2ixI4n/OkHHMyHC36I64wG4=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1652081152;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=DkVjeit/lk71CFlURWPuyWOi+BM5c9PXTKXlXZNy4J8=;
+        b=hvLqelyDQILDmc6tEMXQb5abblgHvKPpo/77GZSrf9i7Nkfwk/YfP8c887ekyQ4YaDVFcl
+        A5VyyNHI324mU5AQ==
+Received: from alsa1.suse.de (alsa1.suse.de [10.160.4.42])
+        by relay2.suse.de (Postfix) with ESMTP id 43DAE2C141;
+        Mon,  9 May 2022 07:25:51 +0000 (UTC)
+Date:   Mon, 09 May 2022 09:25:51 +0200
+Message-ID: <s5hr153makg.wl-tiwai@suse.de>
+From:   Takashi Iwai <tiwai@suse.de>
+To:     Uwe =?UTF-8?B?S2xlaW5lLUvDtm5pZw==?= 
+        <u.kleine-koenig@pengutronix.de>
+Cc:     lizhe <sensor1010@163.com>, lee.jones@linaro.org,
+        fthain@linux-m68k.org, akrowiak@linux.ibm.com, pasic@linux.ibm.com,
+        jjherne@linux.ibm.com, freude@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com, jejb@linux.ibm.com,
+        martin.petersen@oracle.com, zbr@ioremap.net, perex@perex.cz,
+        tiwai@suse.com, bvanassche@acm.org, dan.j.williams@intel.com,
+        srinivas.kandagatla@linaro.org, wens@csie.org,
+        colin.king@intel.com, hare@suse.de, linux-kernel@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-s390@vger.kernel.org,
+        linux-scsi@vger.kernel.org, target-devel@vger.kernel.org,
+        alsa-devel@alsa-project.org
+Subject: Re: [PATCH] kernel/drivers: Remove redundant driver match function
+In-Reply-To: <20220506064927.7y7a422jqbse22fr@pengutronix.de>
+References: <20220506045952.136290-1-sensor1010@163.com>
+        <20220506064927.7y7a422jqbse22fr@pengutronix.de>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
+ FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
+ (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI 1.14.6 - "Maruoka")
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Mon, May 09, 2022 at 08:20:41AM +0200, Sven Schnelle wrote:
-> Peter Zijlstra <peterz@infradead.org> writes:
+On Fri, 06 May 2022 08:49:27 +0200,
+Uwe Kleine-König wrote:
 > 
-> > On Wed, May 04, 2022 at 08:23:50AM +0200, Thomas Richter wrote:
-> >> From: Sven Schnelle <svens@linux.ibm.com>
-> >> 
-> >> arch_check_user_regs() is used at the moment to verify that struct pt_regs
-> >> contains valid values when entering the kernel from userspace. s390 needs
-> >> a place in the generic entry code to modify a cpu data structure when
-> >> switching from userspace to kernel mode. As arch_check_user_regs() is
-> >> exactly this, rename it to arch_enter_from_user_mode().
-> >> 
-> >> Cc: Thomas Gleixner <tglx@linutronix.de>
-> >> Cc: Peter Zijlstra <peterz@infradead.org>
-> >> Cc: Andy Lutomirski <luto@kernel.org>
-> >> Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-> >> ---
-> >
-> > With the note that NMI doesn't (necessarily) call this..
-> >
-> > Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> Hello,
 > 
-> How about:
+> On Thu, May 05, 2022 at 09:59:52PM -0700, lizhe wrote:
+> > If there is no driver match function, the driver core assumes that each
+> > candidate pair (driver, device) matches, see driver_match_device().
+> > 
+> > Signed-off-by: lizhe <sensor1010@163.com>
 > 
-> "When entering the kernel from userspace, arch_check_user_regs() is
->  used to verify that struct pt_regs contains valid values. Note that
->  the NMI codepath doesn't call this function. s390 needs a place in the
->  generic entry code to modify a cpu data structure when switching from
->  userspace to kernel mode. As arch_check_user_regs() is exactly this,
->  rename it to arch_enter_from_user_mode()."
+> Reviewed-by: Uwe Kleine-König <u.kleine-koenig.org>
+> 
+> Side note: While looking through this patch I was surprised to see there
+> are two different busses for ac97: sound/ac97/bus.c + sound/ac97_bus.c .
+> It seems the duplication exists since 2017.
 
-Sure, thanks!
+Those are intentional and will be likely kept as-is.  In theory those
+could be unified, but there are quite lots of quirk codes for the old
+bus implementations and it'll be way too much work to rewrite for the
+new bus.
+
+
+Takashi
