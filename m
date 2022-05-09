@@ -2,126 +2,151 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9DE02C433F5
-	for <linux-s390@archiver.kernel.org>; Mon,  9 May 2022 04:14:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 41285C43217
+	for <linux-s390@archiver.kernel.org>; Mon,  9 May 2022 04:31:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231871AbiEIEQf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 9 May 2022 00:16:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52056 "EHLO
+        id S230070AbiEIEfA (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 9 May 2022 00:35:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232486AbiEIEKm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 May 2022 00:10:42 -0400
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45E819D4CD
-        for <linux-s390@vger.kernel.org>; Sun,  8 May 2022 21:06:49 -0700 (PDT)
-Received: by mail-pl1-x634.google.com with SMTP id s14so12723356plk.8
-        for <linux-s390@vger.kernel.org>; Sun, 08 May 2022 21:06:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance-com.20210112.gappssmtp.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=i8fTOca+12ZBwL8GFn68r89tRt5Zov30Zcvy0gFIx3s=;
-        b=7oatG6weF86vW9pYog/WbnQv4ca5m77rm6XTxoXr1wXD+MeQ64n02aa13Lj0IMGWDh
-         0jcAZ1/E8rhHmjwEiLH/wurqHwo7x7/oZPYnCacuSWGecYOh1cK7FR/f3ATgGUHe2XoH
-         alZRF5CLU74LfUYGYSIuPW6xCoE9yhYrt5aPGmZHPMFjbnAa5HGvTb+BGlG1lzOEp7hA
-         36hA/3+gDs89H4Ko4WXpK9eOIJ7FvaCtE+d5TzIwgk5OffyCSOeBgBkeqs8WGQvukk6n
-         Rziui08UqLz3/L11wKnIDNIsOSawBpoleO3JIuQk/5rZjNynFDwVMrI47wZqmUxCKfmZ
-         bBpw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=i8fTOca+12ZBwL8GFn68r89tRt5Zov30Zcvy0gFIx3s=;
-        b=efo3knhJIIfD3tK8ZWrlB8VHEQiQ7Nw6H5nEu66kdgi/CmmbAGdO7fnZjuy34cjJS5
-         SCIvAv0MJoMpKsGXa0i3tXhmdJyZ/ixBQInBBjUmfhCzNBhDakpa4CGmMKn9xHUsuwqd
-         IzX400TsAcR8hPPf5i3espzkeXASJiOaILHDkm7b2VLg7eIKSixTRPTRsNWwGa6ADlby
-         5fY3GzPZFx4H4TC8wwukW4zMss9Etm5EKzsZaZtBz4mmzJVgbxmQ1LTt4IM3dDch+Mhi
-         njNNbizUUP65gDNSEP4dXp1eY5R0PyBGJsj3+FOnLTmbqoXLBYHqwzyJvtdyGWESwNK2
-         zdag==
-X-Gm-Message-State: AOAM531SHe/zfLYHVxU38S+Pn5pfjB4SE0akW+CgzG2/HaWnrGhu5Tcg
-        aQxC845zeuCNt3iQ8NB9mDg97A==
-X-Google-Smtp-Source: ABdhPJzXNNNMoKGLlNS0rEzt5xQj0NLF+6rNIW0g3Nng1UFaP6z9LjY7xwl48st6GzktvUM1QgACdw==
-X-Received: by 2002:a17:902:758a:b0:15e:ef4f:fed5 with SMTP id j10-20020a170902758a00b0015eef4ffed5mr12919922pll.1.1652069208384;
-        Sun, 08 May 2022 21:06:48 -0700 (PDT)
-Received: from localhost ([139.177.225.250])
-        by smtp.gmail.com with ESMTPSA id f4-20020a170902ab8400b0015e8d4eb1f8sm5831321plr.66.2022.05.08.21.06.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 08 May 2022 21:06:47 -0700 (PDT)
-Date:   Mon, 9 May 2022 12:06:43 +0800
-From:   Muchun Song <songmuchun@bytedance.com>
-To:     Baolin Wang <baolin.wang@linux.alibaba.com>
-Cc:     akpm@linux-foundation.org, mike.kravetz@oracle.com,
-        catalin.marinas@arm.com, will@kernel.org,
-        tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com,
-        deller@gmx.de, mpe@ellerman.id.au, benh@kernel.crashing.org,
-        paulus@samba.org, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org,
-        davem@davemloft.net, arnd@arndb.de,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
-        linux-mm@kvack.org
-Subject: Re: [PATCH v2 1/3] mm: change huge_ptep_clear_flush() to return the
- original pte
-Message-ID: <YniTU+iT/pV5j/41@FVFYT0MHHV2J.usts.net>
-References: <cover.1652002221.git.baolin.wang@linux.alibaba.com>
- <012a484019e7ad77c39deab0af52a6755d8438c8.1652002221.git.baolin.wang@linux.alibaba.com>
- <Ynek+b3k6PVN3x7J@FVFYT0MHHV2J.usts.net>
- <bf627d1a-42f8-77f3-6ac2-67edde2feb8a@linux.alibaba.com>
+        with ESMTP id S233684AbiEIEan (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 May 2022 00:30:43 -0400
+Received: from conssluserg-05.nifty.com (conssluserg-05.nifty.com [210.131.2.90])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A9731059F4;
+        Sun,  8 May 2022 21:26:48 -0700 (PDT)
+Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52]) (authenticated)
+        by conssluserg-05.nifty.com with ESMTP id 2494PhcJ014643;
+        Mon, 9 May 2022 13:25:43 +0900
+DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-05.nifty.com 2494PhcJ014643
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
+        s=dec2015msa; t=1652070344;
+        bh=DM2Qvk/KSJwggZQc+f9r/EEPApKQ0miaQHjxBSW8IV8=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=o6XYg2bwQfHrSq3bmQnG8Jpcnk1UTD3FhC5a1TUoXExRLyvujSGeOMFR3dfEqtIxx
+         jZIb9XBWPLHupK1YnU+oibAr0NtF7JrU/xq9ge0bTvQxiXAsf5FSwZf/aBLkzokBSh
+         4pYnoQJrhruoSCAZW5vQpqOKLKRG+TD+bP/cc+wlRqd1lkmZ6G/jPPJMKc6+GeRK0p
+         yWn5WRjoA7b1nUAeCM1kGbAv1dll+XvcerBv59vD5767bpInjYSc63X4ghyeOgNpIk
+         O+3kAqdTjgld9pwF/oKvzQSUpg5noc20wbQuZ1RetnGg5M/PlDZ6Y1JjaznJKcydLK
+         Vxs0cbmmsKiPw==
+X-Nifty-SrcIP: [209.85.216.52]
+Received: by mail-pj1-f52.google.com with SMTP id iq2-20020a17090afb4200b001d93cf33ae9so15924784pjb.5;
+        Sun, 08 May 2022 21:25:43 -0700 (PDT)
+X-Gm-Message-State: AOAM532XfFh1WmMfSMp+sY5k4d+qirDaMgiWiE+DRPH+6AQNQno3rwId
+        l8o+QZ4Kv6sNE/ZjyX4E+IjGA39jHZfvBylT3uE=
+X-Google-Smtp-Source: ABdhPJz+EyiLX7j6uh3WzqWMOrMkF5hlrWDy6od+IPDFGCNr8NC4vk92cU3B82hmpcsJDxTmnQ5GEcRpm1eC9pqP+d0=
+X-Received: by 2002:a17:902:7891:b0:15e:cae9:7620 with SMTP id
+ q17-20020a170902789100b0015ecae97620mr14626650pll.136.1652070342778; Sun, 08
+ May 2022 21:25:42 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <bf627d1a-42f8-77f3-6ac2-67edde2feb8a@linux.alibaba.com>
+References: <20220508190631.2386038-1-masahiroy@kernel.org>
+In-Reply-To: <20220508190631.2386038-1-masahiroy@kernel.org>
+From:   Masahiro Yamada <masahiroy@kernel.org>
+Date:   Mon, 9 May 2022 13:24:33 +0900
+X-Gmail-Original-Message-ID: <CAK7LNAQtedww_RiemfTV7Ls=M01iKJhY14G3TiuAg=C3bvJjww@mail.gmail.com>
+Message-ID: <CAK7LNAQtedww_RiemfTV7Ls=M01iKJhY14G3TiuAg=C3bvJjww@mail.gmail.com>
+Subject: Re: [PATCH v4 00/14] kbuild: yet another series of cleanups (modpost,
+ LTO, MODULE_REL_CRCS, export.h)
+To:     Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nicolas Schier <nicolas@fjasle.eu>,
+        Peter Zijlstra <peterz@infradead.org>,
+        linux-modules <linux-modules@vger.kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Sami Tolvanen <samitolvanen@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Sun, May 08, 2022 at 09:09:55PM +0800, Baolin Wang wrote:
-> 
-> 
-> On 5/8/2022 7:09 PM, Muchun Song wrote:
-> > On Sun, May 08, 2022 at 05:36:39PM +0800, Baolin Wang wrote:
-> > > It is incorrect to use ptep_clear_flush() to nuke a hugetlb page
-> > > table when unmapping or migrating a hugetlb page, and will change
-> > > to use huge_ptep_clear_flush() instead in the following patches.
-> > > 
-> > > So this is a preparation patch, which changes the huge_ptep_clear_flush()
-> > > to return the original pte to help to nuke a hugetlb page table.
-> > > 
-> > > Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
-> > > Acked-by: Mike Kravetz <mike.kravetz@oracle.com>
-> > 
-> > Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-> 
-> Thanks for reviewing.
-> 
-> > 
-> > But one nit below:
-> > 
-> > [...]
-> > > diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-> > > index 8605d7e..61a21af 100644
-> > > --- a/mm/hugetlb.c
-> > > +++ b/mm/hugetlb.c
-> > > @@ -5342,7 +5342,7 @@ static vm_fault_t hugetlb_wp(struct mm_struct *mm, struct vm_area_struct *vma,
-> > >   		ClearHPageRestoreReserve(new_page);
-> > >   		/* Break COW or unshare */
-> > > -		huge_ptep_clear_flush(vma, haddr, ptep);
-> > > +		(void)huge_ptep_clear_flush(vma, haddr, ptep);
-> > 
-> > Why add a "(void)" here? Is there any warning if no "(void)"?
-> > IIUC, I think we can remove this, right?
-> 
-> I did not meet any warning without the casting, but this is per Mike's
-> comment[1] to make the code consistent with other functions casting to void
-> type explicitly in hugetlb.c file.
+On Mon, May 9, 2022 at 4:09 AM Masahiro Yamada <masahiroy@kernel.org> wrote:
 >
+> This is the third batch of cleanups in this development cycle.
+>
+> Major changes in v4:
+>  - Move static EXPORT_SYMBOL check to a script
+>  - Some refactoring
+>
+> Major changes in v3:
+>
+>  - Generate symbol CRCs as C code, and remove CONFIG_MODULE_REL_CRCS.
+>
+> Major changes in v2:
+>
+>  - V1 did not work with CONFIG_MODULE_REL_CRCS.
+>    I fixed this for v2.
+>
+>  - Reflect some review comments in v1
+>
+>  - Refactor the code more
+>
+>  - Avoid too long argument error
 
-Got it. I see hugetlb.c per this rule, while others do not.
- 
-> [1]
-> https://lore.kernel.org/all/495c4ebe-a5b4-afb6-4cb0-956c1b18d0cc@oracle.com/
-> 
+This series is available at
+git://git.kernel.org/pub/scm/linux/kernel/git/masahiroy/linux-kbuild.git
+lto-cleanup-v4
+
+
+
+
+>
+>
+> Masahiro Yamada (14):
+>   modpost: remove left-over cross_compile declaration
+>   modpost: change the license of EXPORT_SYMBOL to bool type
+>   modpost: split the section mismatch checks into section-check.c
+>   modpost: add sym_find_with_module() helper
+>   modpost: extract symbol versions from *.cmd files
+>   kbuild: link symbol CRCs at final link, removing
+>     CONFIG_MODULE_REL_CRCS
+>   kbuild: stop merging *.symversions
+>   genksyms: adjust the output format to modpost
+>   kbuild: do not create *.prelink.o for Clang LTO or IBT
+>   kbuild: check static EXPORT_SYMBOL* by script instead of modpost
+>   kbuild: make built-in.a rule robust against too long argument error
+>   kbuild: make *.mod rule robust against too long argument error
+>   kbuild: add cmd_and_savecmd macro
+>   kbuild: rebuild multi-object modules when objtool is updated
+>
+>  arch/powerpc/Kconfig            |    1 -
+>  arch/s390/Kconfig               |    1 -
+>  arch/um/Kconfig                 |    1 -
+>  include/asm-generic/export.h    |   22 +-
+>  include/linux/export-internal.h |   16 +
+>  include/linux/export.h          |   30 +-
+>  init/Kconfig                    |    4 -
+>  kernel/module.c                 |   10 +-
+>  scripts/Kbuild.include          |   10 +-
+>  scripts/Makefile.build          |  134 +--
+>  scripts/Makefile.lib            |    7 -
+>  scripts/Makefile.modfinal       |    5 +-
+>  scripts/Makefile.modpost        |    9 +-
+>  scripts/check-local-export      |   48 +
+>  scripts/genksyms/genksyms.c     |   18 +-
+>  scripts/link-vmlinux.sh         |   33 +-
+>  scripts/mod/Makefile            |    2 +-
+>  scripts/mod/modpost.c           | 1499 ++++---------------------------
+>  scripts/mod/modpost.h           |   35 +-
+>  scripts/mod/section-check.c     | 1222 +++++++++++++++++++++++++
+>  20 files changed, 1551 insertions(+), 1556 deletions(-)
+>  create mode 100644 include/linux/export-internal.h
+>  create mode 100755 scripts/check-local-export
+>  create mode 100644 scripts/mod/section-check.c
+>
+> --
+> 2.32.0
+>
+> --
+> You received this message because you are subscribed to the Google Groups "Clang Built Linux" group.
+> To unsubscribe from this group and stop receiving emails from it, send an email to clang-built-linux+unsubscribe@googlegroups.com.
+> To view this discussion on the web visit https://groups.google.com/d/msgid/clang-built-linux/20220508190631.2386038-1-masahiroy%40kernel.org.
+
+
+
+-- 
+Best Regards
+Masahiro Yamada
