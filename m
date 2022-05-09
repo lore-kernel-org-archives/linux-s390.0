@@ -2,131 +2,136 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DD6E4C433F5
-	for <linux-s390@archiver.kernel.org>; Mon,  9 May 2022 12:31:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6ACF0C4167B
+	for <linux-s390@archiver.kernel.org>; Mon,  9 May 2022 12:33:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234432AbiEIMfZ (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 9 May 2022 08:35:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49854 "EHLO
+        id S234636AbiEIMhl (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 9 May 2022 08:37:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234475AbiEIMfV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 May 2022 08:35:21 -0400
-Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [150.107.74.76])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EABA20AE43;
-        Mon,  9 May 2022 05:31:27 -0700 (PDT)
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4KxgWp3pt1z4xXh;
-        Mon,  9 May 2022 22:31:18 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
-        s=201909; t=1652099485;
-        bh=SaSGAWOIlHMiL03aULPz9oOhk6sxCFXHchcnqd+bBpA=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=PbX2S4d5oYkLXdvSGuVI7LqILlKlaziIAHMrU2vKHXvTe6E99DYJR/x2ZurxyP/Je
-         7aHELqir2k3dFvZPoTSHM/jeMpXpv2+YFxTNhcCZ8Qstt+S9P+pHZYY2oBu5os1xdZ
-         myKlub3bTkUWD6ekYYmZ1R0ueDrjMWqE7lnH6WvdxsyDzIIKvfjsTNeNYFBZ4VD+ye
-         EE4lAHSPR/UlLEivLGaVOUPqxAG4e3qB4rZ4lSA4eVckw92N9TYCr7ZfGgGlhaxhlW
-         TJp6Eb72phdng6mKi+w8+aPbBpiKZUuU6MM/LHyT2FKpLUoCZ1qqLmRxBOZX1rG9wj
-         PNkNm4ObBPm5w==
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     Josh Poimboeuf <jpoimboe@kernel.org>, linux-kernel@vger.kernel.org
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH] bug: Use normal relative pointers in 'struct bug_entry'
-In-Reply-To: <afddb4548e93f6458ec1d9ec185a834c348eda33.1651798983.git.jpoimboe@kernel.org>
-References: <afddb4548e93f6458ec1d9ec185a834c348eda33.1651798983.git.jpoimboe@kernel.org>
-Date:   Mon, 09 May 2022 22:31:14 +1000
-Message-ID: <871qx2ubu5.fsf@mpe.ellerman.id.au>
+        with ESMTP id S234488AbiEIMhi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 May 2022 08:37:38 -0400
+Received: from fanzine2.igalia.com (fanzine.igalia.com [178.60.130.6])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C21BD28BDC9;
+        Mon,  9 May 2022 05:33:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+        s=20170329; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=L3p0/83L4yDVyZoegOtsQfWmJV/6wtv6TZoOXChWFJg=; b=Gm1PabHNS+/VMjWNpRDgN0q7Gz
+        okgDM+2WHp5z93ZUGeQzJtlj40ch1Djul+F9LKvzWURwbafLBOoP/NgGu9GSmPuuE28KOgN2Dlog/
+        GHXl8dWWFH9IUIBQmU28gspF2npPpEWaJ19eWl8SzxR3mk4Q/F4kmhrZuCV0rVMHSE4nkq5aDi9ss
+        tskoNSlPr3h/0gKp/FmRCE42MZtPYeJf36WeID1+imZk2dUy5vrTX2Nb6oqUW3HqWx20YRVV7+Jqn
+        2U5xO3lqX+ogULZEqtYM74LQ/XjYNOdW70A5rw6LBK7UHwdRlT2URD08Y6BIbm5BwJqTO8MAols4i
+        vbgjN92g==;
+Received: from [177.183.162.244] (helo=[192.168.0.5])
+        by fanzine2.igalia.com with esmtpsa 
+        (Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
+        id 1no2ZO-0002Vw-CD; Mon, 09 May 2022 14:32:58 +0200
+Message-ID: <b5a1370c-1319-24d1-6b2a-629e5c8915ed@igalia.com>
+Date:   Mon, 9 May 2022 09:32:27 -0300
 MIME-Version: 1.0
-Content-Type: text/plain
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.1
+Subject: Re: [PATCH 01/30] x86/crash,reboot: Avoid re-disabling VMX in all
+ CPUs on crash/restart
+Content-Language: en-US
+To:     Paolo Bonzini <pbonzini@redhat.com>,
+        Sean Christopherson <seanjc@google.com>, vkuznets@redhat.com
+Cc:     kexec@lists.infradead.org, pmladek@suse.com, bhe@redhat.com,
+        akpm@linux-foundation.org, linux-kernel@vger.kernel.org,
+        bcm-kernel-feedback-list@broadcom.com, coresight@lists.linaro.org,
+        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-edac@vger.kernel.org,
+        linux-hyperv@vger.kernel.org, linux-leds@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
+        netdev@vger.kernel.org, openipmi-developer@lists.sourceforge.net,
+        rcu@vger.kernel.org, sparclinux@vger.kernel.org,
+        xen-devel@lists.xenproject.org, x86@kernel.org,
+        kernel-dev@igalia.com, kernel@gpiccoli.net, halves@canonical.com,
+        fabiomirmar@gmail.com, alejandro.j.jimenez@oracle.com,
+        andriy.shevchenko@linux.intel.com, arnd@arndb.de, bp@alien8.de,
+        corbet@lwn.net, d.hatayama@jp.fujitsu.com,
+        dave.hansen@linux.intel.com, dyoung@redhat.com,
+        feng.tang@intel.com, gregkh@linuxfoundation.org,
+        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
+        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
+        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
+        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
+        senozhatsky@chromium.org, stern@rowland.harvard.edu,
+        tglx@linutronix.de, vgoyal@redhat.com, will@kernel.org,
+        "David P . Reed" <dpreed@deepplum.com>
+References: <20220427224924.592546-1-gpiccoli@igalia.com>
+ <20220427224924.592546-2-gpiccoli@igalia.com>
+From:   "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+In-Reply-To: <20220427224924.592546-2-gpiccoli@igalia.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Josh Poimboeuf <jpoimboe@kernel.org> writes:
-> With CONFIG_GENERIC_BUG_RELATIVE_POINTERS, the addr/file relative
-> pointers are calculated weirdly: based on the beginning of the bug_entry
-> struct address, rather than their respective pointer addresses.
->
-> Make the relative pointers less surprising to both humans and tools by
-> calculating them the normal way.
->
-> Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
+On 27/04/2022 19:48, Guilherme G. Piccoli wrote:
+> In the panic path we have a list of functions to be called, the panic
+> notifiers - such callbacks perform various actions in the machine's
+> last breath, and sometimes users want them to run before kdump. We
+> have the parameter "crash_kexec_post_notifiers" for that. When such
+> parameter is used, the function "crash_smp_send_stop()" is executed
+> to poweroff all secondary CPUs through the NMI-shootdown mechanism;
+> part of this process involves disabling virtualization features in
+> all CPUs (except the main one).
+> 
+> Now, in the emergency restart procedure we have also a way of
+> disabling VMX in all CPUs, using the same NMI-shootdown mechanism;
+> what happens though is that in case we already NMI-disabled all CPUs,
+> the emergency restart fails due to a second addition of the same items
+> in the NMI list, as per the following log output:
+> 
+> sysrq: Trigger a crash
+> Kernel panic - not syncing: sysrq triggered crash
+> [...]
+> Rebooting in 2 seconds..
+> list_add double add: new=<addr1>, prev=<addr2>, next=<addr1>.
+> ------------[ cut here ]------------
+> kernel BUG at lib/list_debug.c:29!
+> invalid opcode: 0000 [#1] PREEMPT SMP PTI
+> 
+> In order to reproduce the problem, users just need to set the kernel
+> parameter "crash_kexec_post_notifiers" *without* kdump set in any
+> system with the VMX feature present.
+> 
+> Since there is no benefit in re-disabling VMX in all CPUs in case
+> it was already done, this patch prevents that by guarding the restart
+> routine against doubly issuing NMIs unnecessarily. Notice we still
+> need to disable VMX locally in the emergency restart.
+> 
+> Fixes: ed72736183c4 ("x86/reboot: Force all cpus to exit VMX root if VMX is supported)
+> Fixes: 0ee59413c967 ("x86/panic: replace smp_send_stop() with kdump friendly version in panic path")
+> Cc: David P. Reed <dpreed@deepplum.com>
+> Cc: Hidehiro Kawai <hidehiro.kawai.ez@hitachi.com>
+> Cc: Paolo Bonzini <pbonzini@redhat.com>
+> Cc: Sean Christopherson <seanjc@google.com>
+> Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
 > ---
-...
-> diff --git a/arch/powerpc/include/asm/bug.h b/arch/powerpc/include/asm/bug.h
-> index ecbae1832de3..76252576d889 100644
-> --- a/arch/powerpc/include/asm/bug.h
-> +++ b/arch/powerpc/include/asm/bug.h
-> @@ -13,7 +13,8 @@
->  #ifdef CONFIG_DEBUG_BUGVERBOSE
->  .macro __EMIT_BUG_ENTRY addr,file,line,flags
->  	 .section __bug_table,"aw"
-> -5001:	 .4byte \addr - 5001b, 5002f - 5001b
-> +5001:	 .4byte \addr - .
-> +	 .4byte 5002f - .
->  	 .short \line, \flags
->  	 .org 5001b+BUG_ENTRY_SIZE
->  	 .previous
-> @@ -24,7 +25,7 @@
->  #else
->  .macro __EMIT_BUG_ENTRY addr,file,line,flags
->  	 .section __bug_table,"aw"
-> -5001:	 .4byte \addr - 5001b
-> +5001:	 .4byte \addr - .
->  	 .short \flags
->  	 .org 5001b+BUG_ENTRY_SIZE
->  	 .previous
+>  arch/x86/include/asm/cpu.h |  1 +
+>  arch/x86/kernel/crash.c    |  8 ++++----
+>  arch/x86/kernel/reboot.c   | 14 ++++++++++++--
+>  3 files changed, 17 insertions(+), 6 deletions(-)
+> 
 
-Embarrassingly, we have another copy of the logic, used in the C
-versions, they need updating too:
+Hi Paolo / Sean / Vitaly, sorry for the ping.
+But do you think this fix is OK from the VMX point-of-view?
 
-diff --git a/arch/powerpc/include/asm/bug.h b/arch/powerpc/include/asm/bug.h
-index ecbae1832de3..3fde35fd67f8 100644
---- a/arch/powerpc/include/asm/bug.h
-+++ b/arch/powerpc/include/asm/bug.h
-@@ -49,14 +49,14 @@
- #ifdef CONFIG_DEBUG_BUGVERBOSE
- #define _EMIT_BUG_ENTRY				\
- 	".section __bug_table,\"aw\"\n"		\
--	"2:\t.4byte 1b - 2b, %0 - 2b\n"		\
-+	"2:\t.4byte 1b - ., %0 - .\n"		\
- 	"\t.short %1, %2\n"			\
- 	".org 2b+%3\n"				\
- 	".previous\n"
- #else
- #define _EMIT_BUG_ENTRY				\
- 	".section __bug_table,\"aw\"\n"		\
--	"2:\t.4byte 1b - 2b\n"			\
-+	"2:\t.4byte 1b - .\n"			\
- 	"\t.short %2\n"				\
- 	".org 2b+%3\n"				\
- 	".previous\n"
+I'd like to send a V2 of this set soon, so any review here is highly
+appreciated!
+
+Cheers,
 
 
-With that added it seems to be working correctly for me.
+Guilherme
 
-Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
-
-
-cheers
