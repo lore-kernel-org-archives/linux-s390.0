@@ -2,117 +2,200 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D958AC433F5
-	for <linux-s390@archiver.kernel.org>; Mon,  9 May 2022 10:17:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24B82C433F5
+	for <linux-s390@archiver.kernel.org>; Mon,  9 May 2022 10:46:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233612AbiEIKVb (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 9 May 2022 06:21:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48296 "EHLO
+        id S230456AbiEIKuC (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 9 May 2022 06:50:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234120AbiEIKVO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 May 2022 06:21:14 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 67F3516F919
-        for <linux-s390@vger.kernel.org>; Mon,  9 May 2022 03:17:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1652091438;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=8rAG+hhLyyADjfWKc/qIMa3fRClDqyFw6+rAc7ZUweE=;
-        b=TBY0qSgrMGaSblfpeABrbY52GYWqUpAD6/5ERWkmHINoqzkTfYmNY854ethXRQjzU3uNIm
-        IA2egAh9lQVLHeyi/z7ejkUHwzpJ6ZNLSDkA/79Ch6/3vBUlWaOcz0kltJGz2iTN4KPcwE
-        EIwojyGUMPiaVFIJ/Zkk/b2ad2FqFpg=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-583-gn6QXwNoMHq9-gU_8ugOjw-1; Mon, 09 May 2022 06:17:17 -0400
-X-MC-Unique: gn6QXwNoMHq9-gU_8ugOjw-1
-Received: by mail-ed1-f70.google.com with SMTP id cz24-20020a0564021cb800b00425dfdd7768so8073877edb.2
-        for <linux-s390@vger.kernel.org>; Mon, 09 May 2022 03:17:16 -0700 (PDT)
+        with ESMTP id S231304AbiEIKtu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 May 2022 06:49:50 -0400
+Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80DC0165D5F;
+        Mon,  9 May 2022 03:44:13 -0700 (PDT)
+Received: by mail-wm1-f53.google.com with SMTP id n6-20020a05600c3b8600b0039492b44ce7so1027208wms.5;
+        Mon, 09 May 2022 03:44:13 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=8rAG+hhLyyADjfWKc/qIMa3fRClDqyFw6+rAc7ZUweE=;
-        b=ZCoH9ixyvN31vHFNZLsRh14NMKQSZ5CrSbqWTyOInt8NawJGEwAfOBeRCRNtxvXHpx
-         jTFmEwY0/flmHWXDl83QUyT8d4MuV8a+0MMBs00BIRaD4k+Y1VKDyKqPG8LIeSTkk6D0
-         ZRlbKGkwAfnycl8suxMLFOorBttgI4SxD5MFCcQP1lr9PDJo+DcQODuKRbvqmfcg4HyH
-         if9yKmV32Uyln8vOKnqyA0XsFskR/BhHAO3rrmUFWjvocV75EWKvXvDB/BEg6vatg/Nm
-         L3PeSBgiQWbkBGGzPs4Se9AMxm3xcDfCAqx/AQfNwdsjp6dMGdPir1elMelRuvzZ2VmR
-         0BAw==
-X-Gm-Message-State: AOAM533ryP9J2Y7ZhI24fHUQ886kPet7TlRdZDP9BhjGiARSNanvt4ZN
-        fIs7fYJ5mWOd591Qn+6XGNQuIfS1tuG/vrtfsH5JjnXbE9A8T9GDuaetQGM+jF47KdqVAeFnQk+
-        GPE6oCKPioyNB6u7pJ1kQeNBXOkIKusCp+xtgLw==
-X-Received: by 2002:a50:d08b:0:b0:425:eb86:f36d with SMTP id v11-20020a50d08b000000b00425eb86f36dmr16301827edd.235.1652091436039;
-        Mon, 09 May 2022 03:17:16 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwWF5i0r1wWzRnyta1jc1Xzs8fjC2bR2GTrVWYAaiAIuMqphiWE9pkwqenZGV0+CFmZVoPSFTydmMUJBGOVC04=
-X-Received: by 2002:a50:d08b:0:b0:425:eb86:f36d with SMTP id
- v11-20020a50d08b000000b00425eb86f36dmr16301818edd.235.1652091435909; Mon, 09
- May 2022 03:17:15 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=/AsWycpf07jduXjzH2VNWrB+QTWZXkpPIzj9j/mTLnY=;
+        b=WGDzzNprLAPAUZdI9HQvEBLWWgqFG3Gadgv7ghlmlOVTukZlTZvmGp//DST9QwME5g
+         HLY7/xUJwOCTUldW4z7g6bOcOIGNNFkd30NGr8xN4KLXdM6GBvqtaEuQoAni8cepVEV5
+         7WQc+tyZDEpYYgPma54VlV5a0iGHFG5DsMmysegbyVJVF59jV0xSfrpQ2nb9GCaiwPs7
+         AQMnDfbGfZ7IiC2a/irvNpxoNPdiTDV1DZSvtAVT7iz3/pDoSHmoaCB5LiVYeXUKf+Ok
+         YP4NTC3fbzhqgVKOarTh14OjQROOYXzu//314z841oM+4g0+rMD68w4BU2GCfWo1mz0d
+         Iwrg==
+X-Gm-Message-State: AOAM5301iRr2GATQToqmHjJFu2ClevfbjrTFRwtRB3w8poCd/sH2lkay
+        yjd3MAEsnmavQRhLknQK2GM=
+X-Google-Smtp-Source: ABdhPJwyu0UVEUzmpQEdWqmiHLLdF4bAT8AIED/6I8B1uHX2KqdbK4FXRu7TbYZQRO9V4fkufneL3A==
+X-Received: by 2002:a05:600c:26d2:b0:393:fb8c:dc31 with SMTP id 18-20020a05600c26d200b00393fb8cdc31mr22167324wmv.129.1652093052075;
+        Mon, 09 May 2022 03:44:12 -0700 (PDT)
+Received: from [192.168.1.49] (185-219-167-24-static.vivo.cz. [185.219.167.24])
+        by smtp.gmail.com with ESMTPSA id k21-20020adfb355000000b0020c5253d905sm13727381wrd.81.2022.05.09.03.44.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 09 May 2022 03:44:11 -0700 (PDT)
+Message-ID: <09374557-8c8d-1925-340c-784f29630ec5@kernel.org>
+Date:   Mon, 9 May 2022 12:44:08 +0200
 MIME-Version: 1.0
-References: <20220508130944.17860-1-vdronoff@gmail.com> <3f16033ef08063ef9fcb707010e78bd0@linux.ibm.com>
-In-Reply-To: <3f16033ef08063ef9fcb707010e78bd0@linux.ibm.com>
-From:   Vlad Dronov <vdronov@redhat.com>
-Date:   Mon, 9 May 2022 12:17:04 +0200
-Message-ID: <CAMusb+Q11JMyOXV0iy4VLJ8yST7L0QrmDUJWOpnvsBxfBzjrdA@mail.gmail.com>
-Subject: Re: [PATCH] s390/crypto: add crypto library interface for ChaCha20
-To:     freude@linux.ibm.com
-Cc:     Patrick Steuer <patrick.steuer@de.ibm.com>,
-        Harald Freudenberger <freude@de.ibm.com>,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.1
+Subject: Re: [PATCH v2 4/8] drivers: use new capable_or functionality
+Content-Language: en-US
+To:     =?UTF-8?Q?Christian_G=c3=b6ttsche?= <cgzones@googlemail.com>,
+        selinux@vger.kernel.org
+Cc:     Hans Verkuil <hverkuil@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S . Miller" <davem@davemloft.net>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
-        linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        Serge Hallyn <serge@hallyn.com>, Arnd Bergmann <arnd@arndb.de>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Ondrej Zary <linux@zary.sk>,
+        David Yang <davidcomponentone@gmail.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Colin Ian King <colin.king@intel.com>,
+        Yang Guang <yang.guang5@zte.com.cn>,
+        Julia Lawall <Julia.Lawall@inria.fr>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Du Cheng <ducheng2@gmail.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        linux-media@vger.kernel.org, linux-kernel@vger.kernel.org,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+References: <20220217145003.78982-2-cgzones@googlemail.com>
+ <20220502160030.131168-1-cgzones@googlemail.com>
+ <20220502160030.131168-3-cgzones@googlemail.com>
+From:   Jiri Slaby <jirislaby@kernel.org>
+In-Reply-To: <20220502160030.131168-3-cgzones@googlemail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-Hi, Harald,
+On 02. 05. 22, 18:00, Christian Göttsche wrote:
+> Use the new added capable_or function in appropriate cases, where a task
+> is required to have any of two capabilities.
+> 
+> Reorder CAP_SYS_ADMIN last.
+> 
+> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+> ---
 
-Thank you for your response, review and an ACK. Let me ask Herbert if
-he would agree
-to add your Reviewed-by and submit (so I do not send v2 just for this).
+>   drivers/net/caif/caif_serial.c                   | 2 +-
 
-Best regards,
-Vladis
+For the above:
+Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
 
 
-On Mon, May 9, 2022 at 12:10 PM Harald Freudenberger
-<freude@linux.ibm.com> wrote:
->
-> On 2022-05-08 15:09, Vladis Dronov wrote:
-> > From: Vladis Dronov <vdronov@redhat.com>
-> >
-> > Implement a crypto library interface for the s390-native ChaCha20
-> > cipher
-> > algorithm. This allows us to stop to select CRYPTO_CHACHA20 and instead
-> > select CRYPTO_ARCH_HAVE_LIB_CHACHA. This allows BIG_KEYS=y not to build
-> > a whole ChaCha20 crypto infrastructure as a built-in, but build a
-> > smaller
-> > CRYPTO_LIB_CHACHA instead.
-> >
-> > Make CRYPTO_CHACHA_S390 config entry to look like similar ones on other
-> > architectures. Remove CRYPTO_ALGAPI select as anyway it is selected by
-> > CRYPTO_SKCIPHER.
-> >
-> > Add a new test module and a test script for ChaCha20 cipher and its
-> > interfaces. Here are test results on an idle z15 machine:
-> >
-> > ...skip...
->
-> Hello Vladis
-> Thanks for your work. Please add my
-> Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
->
-> however, always the question who will pick and forward this patch ?
-> To me this looks like most parts are common so I would suggest that
-> Herbert Xu  will pick this patch.
->
+>   7 files changed, 7 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/media/common/saa7146/saa7146_video.c b/drivers/media/common/saa7146/saa7146_video.c
+> index 66215d9106a4..5eabc2e77cc2 100644
+> --- a/drivers/media/common/saa7146/saa7146_video.c
+> +++ b/drivers/media/common/saa7146/saa7146_video.c
+> @@ -470,7 +470,7 @@ static int vidioc_s_fbuf(struct file *file, void *fh, const struct v4l2_framebuf
+>   
+>   	DEB_EE("VIDIOC_S_FBUF\n");
+>   
+> -	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RAWIO))
+> +	if (!capable_or(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
+>   		return -EPERM;
+>   
+>   	/* check args */
+> diff --git a/drivers/media/pci/bt8xx/bttv-driver.c b/drivers/media/pci/bt8xx/bttv-driver.c
+> index 5ca3d0cc653a..4143f380d44d 100644
+> --- a/drivers/media/pci/bt8xx/bttv-driver.c
+> +++ b/drivers/media/pci/bt8xx/bttv-driver.c
+> @@ -2569,8 +2569,7 @@ static int bttv_s_fbuf(struct file *file, void *f,
+>   	const struct bttv_format *fmt;
+>   	int retval;
+>   
+> -	if (!capable(CAP_SYS_ADMIN) &&
+> -		!capable(CAP_SYS_RAWIO))
+> +	if (!capable_or(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
+>   		return -EPERM;
+>   
+>   	/* check args */
+> diff --git a/drivers/media/pci/saa7134/saa7134-video.c b/drivers/media/pci/saa7134/saa7134-video.c
+> index 48543ad3d595..684208ebfdbd 100644
+> --- a/drivers/media/pci/saa7134/saa7134-video.c
+> +++ b/drivers/media/pci/saa7134/saa7134-video.c
+> @@ -1798,8 +1798,7 @@ static int saa7134_s_fbuf(struct file *file, void *f,
+>   	struct saa7134_dev *dev = video_drvdata(file);
+>   	struct saa7134_format *fmt;
+>   
+> -	if (!capable(CAP_SYS_ADMIN) &&
+> -	   !capable(CAP_SYS_RAWIO))
+> +	if (!capable_or(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
+>   		return -EPERM;
+>   
+>   	/* check args */
+> diff --git a/drivers/media/platform/nxp/fsl-viu.c b/drivers/media/platform/nxp/fsl-viu.c
+> index afc96f6db2a1..c5ed4c4a1587 100644
+> --- a/drivers/media/platform/nxp/fsl-viu.c
+> +++ b/drivers/media/platform/nxp/fsl-viu.c
+> @@ -803,7 +803,7 @@ static int vidioc_s_fbuf(struct file *file, void *priv, const struct v4l2_frameb
+>   	const struct v4l2_framebuffer *fb = arg;
+>   	struct viu_fmt *fmt;
+>   
+> -	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RAWIO))
+> +	if (!capable_or(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
+>   		return -EPERM;
+>   
+>   	/* check args */
+> diff --git a/drivers/media/test-drivers/vivid/vivid-vid-cap.c b/drivers/media/test-drivers/vivid/vivid-vid-cap.c
+> index b9caa4b26209..a0cfcf6c22c4 100644
+> --- a/drivers/media/test-drivers/vivid/vivid-vid-cap.c
+> +++ b/drivers/media/test-drivers/vivid/vivid-vid-cap.c
+> @@ -1253,7 +1253,7 @@ int vivid_vid_cap_s_fbuf(struct file *file, void *fh,
+>   	if (dev->multiplanar)
+>   		return -ENOTTY;
+>   
+> -	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RAWIO))
+> +	if (!capable_or(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
+>   		return -EPERM;
+>   
+>   	if (dev->overlay_cap_owner)
+> diff --git a/drivers/net/caif/caif_serial.c b/drivers/net/caif/caif_serial.c
+> index 688075859ae4..f17b618d8858 100644
+> --- a/drivers/net/caif/caif_serial.c
+> +++ b/drivers/net/caif/caif_serial.c
+> @@ -326,7 +326,7 @@ static int ldisc_open(struct tty_struct *tty)
+>   	/* No write no play */
+>   	if (tty->ops->write == NULL)
+>   		return -EOPNOTSUPP;
+> -	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_TTY_CONFIG))
+> +	if (!capable_or(CAP_SYS_TTY_CONFIG, CAP_SYS_ADMIN))
+>   		return -EPERM;
+>   
+>   	/* release devices to avoid name collision */
+> diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+> index 8410a25a65c1..9b5d22dd3e7b 100644
+> --- a/drivers/s390/block/dasd_eckd.c
+> +++ b/drivers/s390/block/dasd_eckd.c
+> @@ -5319,7 +5319,7 @@ static int dasd_symm_io(struct dasd_device *device, void __user *argp)
+>   	char psf0, psf1;
+>   	int rc;
+>   
+> -	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RAWIO))
+> +	if (!capable_or(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
+>   		return -EACCES;
+>   	psf0 = psf1 = 0;
+>   
 
+
+-- 
+js
+suse labs
