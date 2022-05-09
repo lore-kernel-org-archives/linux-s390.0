@@ -2,121 +2,267 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 67F76C4167B
-	for <linux-s390@archiver.kernel.org>; Mon,  9 May 2022 13:10:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6363BC433EF
+	for <linux-s390@archiver.kernel.org>; Mon,  9 May 2022 13:40:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235282AbiEINOp (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Mon, 9 May 2022 09:14:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52916 "EHLO
+        id S235971AbiEINnz (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Mon, 9 May 2022 09:43:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235184AbiEINOn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 May 2022 09:14:43 -0400
-Received: from fanzine2.igalia.com (fanzine.igalia.com [178.60.130.6])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B97322519;
-        Mon,  9 May 2022 06:10:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
-        s=20170329; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=c6E44QfcLWCPcpfVVn8DZm/tazb9qDNjecxU8jgjjwM=; b=JQ1X+XDjDPRoAxPLkbe9tWes8w
-        l11iC7oa/HVnyRK3qB7UvK9JEgQqPIREqD5654T0lMLes3kGheOm/R45s0nxu4hyBPxmCTVnzlJkN
-        ZvlwDaZFuWVIh4IaLUzoP+QdJvpm215SH2+0rVomODoRdVpIAavgxOQl3rDnkTMN+fyPnfNOV7B7S
-        PwRkKHJor0sF94EKnip9+x+OMSUvYBWlrOB2NiCodRGVM8ztswBp00gdyDLuMLY0TLuRV/nOMh+Z7
-        dku4FKzrs/p9E3LkAgwz4nFi/oHL/EcQWXaMAdDUro5POIL0/IvuDCL2llWo8K6mm9F1PYJhGhMV8
-        hibQS8tw==;
-Received: from [177.183.162.244] (helo=[192.168.0.5])
-        by fanzine2.igalia.com with esmtpsa 
-        (Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
-        id 1no39b-0005V6-KV; Mon, 09 May 2022 15:10:24 +0200
-Message-ID: <65f24bc5-2211-0139-ee12-b2608e81ceb1@igalia.com>
-Date:   Mon, 9 May 2022 10:09:21 -0300
+        with ESMTP id S235984AbiEINny (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 May 2022 09:43:54 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 082E925F783;
+        Mon,  9 May 2022 06:40:01 -0700 (PDT)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 249Cnfqi010056;
+        Mon, 9 May 2022 13:40:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=KaM6NfPO229QO+fiaKS2LcD29LG5ybLesYObQGJaSO0=;
+ b=VFxN66Hm4wQWQQaSevdP1h794j1hxUnY4e1tBXmayHeoltBfAHCAdDVJRl0mpVA/yyAI
+ ih8tZOm5lKUbuHw4xvKs383el+68TUoYy62zVfMshdOgXGT9X2fwX5+mmw5qUqo8HMGb
+ /wLzYHHiLDATrxvTj6HSm/qPg+1haHUTEt4e+tArvW66NAI69SWwEuzeVmQvcatRIu1H
+ 1ROvVSa+7Y1EB9QHwF+M1e/eGgTpelhM4F0n8m/Qgtk1wmsmv4yWAeIgTunvTd/V3BHI
+ wkDximwTqVm8N1cY9E6kP7+Bcy0l1ye6dIYEm83NImIIncPPfkHoAp5S3qA2jIUQz45q 6g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fy3a792g1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 09 May 2022 13:40:00 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 249DV4fu015223;
+        Mon, 9 May 2022 13:40:00 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fy3a792f2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 09 May 2022 13:40:00 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 249Dd7Z1025516;
+        Mon, 9 May 2022 13:39:57 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma06ams.nl.ibm.com with ESMTP id 3fwg1j2m3v-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 09 May 2022 13:39:57 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 249Ddsbm33882496
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 9 May 2022 13:39:54 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 43A54A405C;
+        Mon,  9 May 2022 13:39:54 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D14C3A4054;
+        Mon,  9 May 2022 13:39:53 +0000 (GMT)
+Received: from [9.171.38.150] (unknown [9.171.38.150])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon,  9 May 2022 13:39:53 +0000 (GMT)
+Message-ID: <47b31afb-f202-2ac1-f614-4eae867f534d@linux.ibm.com>
+Date:   Mon, 9 May 2022 15:39:53 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.1
-Subject: Re: [PATCH 09/30] coresight: cpu-debug: Replace mutex with
- mutex_trylock on panic notifier
+ Thunderbird/91.8.0
+Subject: Re: [kvm-unit-tests PATCH 2/3] s390x: Test TEID values in storage key
+ test
 Content-Language: en-US
-To:     Suzuki K Poulose <suzuki.poulose@arm.com>,
-        akpm@linux-foundation.org, bhe@redhat.com, pmladek@suse.com,
-        kexec@lists.infradead.org
-Cc:     linux-kernel@vger.kernel.org,
-        bcm-kernel-feedback-list@broadcom.com, coresight@lists.linaro.org,
-        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-edac@vger.kernel.org,
-        linux-hyperv@vger.kernel.org, linux-leds@vger.kernel.org,
-        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org,
-        netdev@vger.kernel.org, openipmi-developer@lists.sourceforge.net,
-        rcu@vger.kernel.org, sparclinux@vger.kernel.org,
-        xen-devel@lists.xenproject.org, x86@kernel.org,
-        kernel-dev@igalia.com, kernel@gpiccoli.net, halves@canonical.com,
-        fabiomirmar@gmail.com, alejandro.j.jimenez@oracle.com,
-        andriy.shevchenko@linux.intel.com, arnd@arndb.de, bp@alien8.de,
-        corbet@lwn.net, d.hatayama@jp.fujitsu.com,
-        dave.hansen@linux.intel.com, dyoung@redhat.com,
-        feng.tang@intel.com, gregkh@linuxfoundation.org,
-        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
-        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
-        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
-        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
-        senozhatsky@chromium.org, stern@rowland.harvard.edu,
-        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
-        will@kernel.org, Leo Yan <leo.yan@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Mike Leach <mike.leach@linaro.org>
-References: <20220427224924.592546-1-gpiccoli@igalia.com>
- <20220427224924.592546-10-gpiccoli@igalia.com>
- <3cafe4fd-8a0b-2633-44a3-2995abd6c38c@arm.com>
-From:   "Guilherme G. Piccoli" <gpiccoli@igalia.com>
-In-Reply-To: <3cafe4fd-8a0b-2633-44a3-2995abd6c38c@arm.com>
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     Thomas Huth <thuth@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+References: <20220505124656.1954092-1-scgl@linux.ibm.com>
+ <20220505124656.1954092-3-scgl@linux.ibm.com>
+ <20220506173705.78f223dd@p-imbrenda>
+From:   Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+In-Reply-To: <20220506173705.78f223dd@p-imbrenda>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: nmbY523c_bsuZUtwRS10hDUxNMIqAEK_
+X-Proofpoint-ORIG-GUID: ZHUot8jpSVTCB_bEr4I_kYjoKqIrc79n
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-09_03,2022-05-09_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 adultscore=0
+ mlxscore=0 lowpriorityscore=0 impostorscore=0 suspectscore=0
+ malwarescore=0 priorityscore=1501 mlxlogscore=999 spamscore=0 bulkscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2205090077
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 28/04/2022 05:11, Suzuki K Poulose wrote:
-> Hi Guilherme,
+On 5/6/22 17:37, Claudio Imbrenda wrote:
+> On Thu,  5 May 2022 14:46:55 +0200
+> Janis Schoetterl-Glausch <scgl@linux.ibm.com> wrote:
 > 
-> On 27/04/2022 23:49, Guilherme G. Piccoli wrote:
->> The panic notifier infrastructure executes registered callbacks when
->> a panic event happens - such callbacks are executed in atomic context,
->> with interrupts and preemption disabled in the running CPU and all other
->> CPUs disabled. That said, mutexes in such context are not a good idea.
+>> On a protection exception, test that the Translation-Exception
+>> Identification (TEID) values are correct given the circumstances of the
+>> particular test.
+>> The meaning of the TEID values is dependent on the installed
+>> suppression-on-protection facility.
 >>
->> This patch replaces a regular mutex with a mutex_trylock safer approach;
->> given the nature of the mutex used in the driver, it should be pretty
->> uncommon being unable to acquire such mutex in the panic path, hence
->> no functional change should be observed (and if it is, that would be
->> likely a deadlock with the regular mutex).
+>> Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+>> ---
+>>  lib/s390x/asm/facility.h | 21 ++++++++++++++
+>>  lib/s390x/sclp.h         |  2 ++
+>>  lib/s390x/sclp.c         |  2 ++
+>>  s390x/skey.c             | 60 ++++++++++++++++++++++++++++++++++++----
+>>  4 files changed, 79 insertions(+), 6 deletions(-)
 >>
->> Fixes: 2227b7c74634 ("coresight: add support for CPU debug module")
->> Cc: Leo Yan <leo.yan@linaro.org>
->> Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
->> Cc: Mike Leach <mike.leach@linaro.org>
->> Cc: Suzuki K Poulose <suzuki.poulose@arm.com>
->> Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
+
+[...]
+
+>>  
+>> +enum access {
+>> +	ACC_FETCH = 2,
+>> +	ACC_STORE = 1,
+>> +	ACC_UPDATE = 3,
+>> +};
 > 
-> How would you like to proceed with queuing this ? I am happy
-> either way. In case you plan to push this as part of this
-> series (I don't see any potential conflicts) :
+> why not in numerical order?
+
+The numbers are chosen such that the bit masking in the function below
+is nicer, but the ordering is basically arbitrary.
+Somehow fetch, store, update seems natural to me, but I can sort it.
+I had ACC_NONE for a bit, but as I don't need it, I removed it.
 > 
-> Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+>> +
+>> +enum protection {
+>> +	PROT_STORE = 1,
+>> +	PROT_FETCH_STORE = 3,
+>> +};
+> 
+> what happened to 2?
 
-Hi Suzuki, some other maintainers are taking the patches to their next
-branches for example. I'm working on V2, and I guess in the end would be
-nice to reduce the size of the series a bit.
+There is no such thing as fetch only protection, so that's a result
+of the choice of values for masking.
+> 
+>> +
+>> +static void check_key_prot_exc(enum access access, enum protection prot)
+>> +{
+>> +	struct lowcore *lc = 0;
+>> +	union teid teid;
+>> +
+>> +	check_pgm_int_code(PGM_INT_CODE_PROTECTION);
+>> +	report_prefix_push("TEID");
+>> +	teid.val = lc->trans_exc_id;
+>> +	switch (get_supp_on_prot_facility()) {
+>> +	case SOP_NONE:
+>> +	case SOP_BASIC:
+>> +		break;
+>> +	case SOP_ENHANCED_1:
+>> +		if ((teid.val & (BIT(63 - 61))) == 0)
+> 
+> why not teid.m?
 
-So, do you think you could pick this one for your coresight/next branch
-(or even for rc cycle, your call - this is really a fix)?
-This way, I won't re-submit this one in V2, since it's gonna be merged
-already in your branch.
+I considered using .m, but the name does not contain any more information
+on the meaning than just the number.
+The PoP talks of the bits by their numbers in the suppression on detection
+chapter, so this is the most straight forward translation into code.
+> 
+>> +			report_pass("key-controlled protection");
+>> +		break;
+>> +	case SOP_ENHANCED_2:
+>> +		if ((teid.val & (BIT(63 - 56) | BIT(63 - 61))) == 0) {
+> 
+> maybe here you need to expand struct teid a little to accomodate for
+> bit 56.
 
-Thanks in advance,
+I could not think of a good name.
+> 
+>> +			report_pass("key-controlled protection");
+>> +			if (teid.val & BIT(63 - 60)) {
+>> +				int access_code = teid.fetch << 1 | teid.store;
+>> +
+>> +				report_info("access code: %d", access_code);
+> 
+> I don't like an unconditional report_info (it's ok to aid debugging if
+> something fails)
 
+In the case of update references the value you get is unspecified, so I found
+it interesting to see what happens in LPAR.
+I could only print it for update references, but I'm also fine with just
+dropping it. What do you think?
+> 
+>> +				if (access_code == 2)
+>> +					report((access & 2) && (prot & 2),
+>> +					       "exception due to fetch");
+>> +				if (access_code == 1)
+>> +					report((access & 1) && (prot & 1),
+>> +					       "exception due to store");
+> 
+> what about cases 0 and 3?
 
-Guilherme
+Case 0 is specified to not contain any information and 3 is reserved,
+so also no information.
+
+> if they should never happen, handle it properly
+> and if they can happen... handle it properly
+> 
+>> +			}
+>> +		}
+>> +		break;
+>> +	}
+>> +	report_prefix_pop();
+>> +}
+>> +
+>>  /*
+>>   * Perform STORE CPU ADDRESS (STAP) instruction while temporarily executing
+>>   * with access key 1.
+>> @@ -199,7 +247,7 @@ static void test_store_cpu_address(void)
+>>  	expect_pgm_int();
+>>  	*out = 0xbeef;
+>>  	store_cpu_address_key_1(out);
+>> -	check_pgm_int_code(PGM_INT_CODE_PROTECTION);
+>> +	check_key_prot_exc(ACC_STORE, PROT_STORE);
+>>  	report(*out == 0xbeef, "no store occurred");
+>>  	report_prefix_pop();
+>>  
+>> @@ -210,7 +258,7 @@ static void test_store_cpu_address(void)
+>>  	expect_pgm_int();
+>>  	*out = 0xbeef;
+>>  	store_cpu_address_key_1(out);
+>> -	check_pgm_int_code(PGM_INT_CODE_PROTECTION);
+>> +	check_key_prot_exc(ACC_STORE, PROT_STORE);
+>>  	report(*out == 0xbeef, "no store occurred");
+>>  	report_prefix_pop();
+>>  
+>> @@ -228,7 +276,7 @@ static void test_store_cpu_address(void)
+>>  	expect_pgm_int();
+>>  	*out = 0xbeef;
+>>  	store_cpu_address_key_1(out);
+>> -	check_pgm_int_code(PGM_INT_CODE_PROTECTION);
+>> +	check_key_prot_exc(ACC_STORE, PROT_STORE);
+>>  	report(*out == 0xbeef, "no store occurred");
+>>  	report_prefix_pop();
+>>  
+>> @@ -314,7 +362,7 @@ static void test_set_prefix(void)
+>>  	set_storage_key(pagebuf, 0x28, 0);
+>>  	expect_pgm_int();
+>>  	set_prefix_key_1(prefix_ptr);
+>> -	check_pgm_int_code(PGM_INT_CODE_PROTECTION);
+>> +	check_key_prot_exc(ACC_FETCH, PROT_FETCH_STORE);
+>>  	report(get_prefix() == old_prefix, "did not set prefix");
+>>  	report_prefix_pop();
+>>  
+>> @@ -327,7 +375,7 @@ static void test_set_prefix(void)
+>>  	install_page(root, virt_to_pte_phys(root, pagebuf), 0);
+>>  	set_prefix_key_1((uint32_t *)0);
+>>  	install_page(root, 0, 0);
+>> -	check_pgm_int_code(PGM_INT_CODE_PROTECTION);
+>> +	check_key_prot_exc(ACC_FETCH, PROT_FETCH_STORE);
+>>  	report(get_prefix() == old_prefix, "did not set prefix");
+>>  	report_prefix_pop();
+>>  
+>> @@ -351,7 +399,7 @@ static void test_set_prefix(void)
+>>  	install_page(root, virt_to_pte_phys(root, pagebuf), 0);
+>>  	set_prefix_key_1((uint32_t *)2048);
+>>  	install_page(root, 0, 0);
+>> -	check_pgm_int_code(PGM_INT_CODE_PROTECTION);
+>> +	check_key_prot_exc(ACC_FETCH, PROT_FETCH_STORE);
+>>  	report(get_prefix() == old_prefix, "did not set prefix");
+>>  	report_prefix_pop();
+>>  
+> 
+
