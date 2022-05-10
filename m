@@ -2,102 +2,103 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 20C34C433FE
-	for <linux-s390@archiver.kernel.org>; Tue, 10 May 2022 14:49:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D3954C4167E
+	for <linux-s390@archiver.kernel.org>; Tue, 10 May 2022 14:51:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243811AbiEJOxw (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 10 May 2022 10:53:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47806 "EHLO
+        id S1345151AbiEJOzy (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 10 May 2022 10:55:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345091AbiEJOwU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 May 2022 10:52:20 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7831426CC6B;
-        Tue, 10 May 2022 07:13:26 -0700 (PDT)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24ADisAS018218;
-        Tue, 10 May 2022 14:13:23 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=Oor8ogHjkZpTqwQbjcKLw8UYnComIosQwnmrrso0yrQ=;
- b=MNupBJt8TPDODGMeh5oQef4oI2j4hZm9uJ7mNEaIZzCpzKc0721cviJm6eo6RUXJ7d3W
- cU5SN0e1nH98GK957oi2GZIOTBsKd+Gd4ctrc8ZSb1oXXTwnoGY1ZQlfx2Ije+dzvpsq
- 4NnzNluJfa7AnORxVxy/CLFHkSa9THS9xYuOwvQnGTRffbUyL462rvYSy8Al2kYWlU1S
- tVPN+exz50Ks/7V3I6N2dzNdggEZYAPGNeVaXHXtfCQOnx1dB+M5w9KAG6graurRJtjV
- R/V1LvneZuhKc4l+DeqPmtdz6mObtgYrinGTrTO9hbYXoMH78Zkyd1GowJpzxVm08spo 3Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3fymyq6kpr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 10 May 2022 14:13:23 +0000
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24ADkkst026579;
-        Tue, 10 May 2022 14:13:22 GMT
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3fymyq6kny-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 10 May 2022 14:13:22 +0000
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24AE9E3R019387;
-        Tue, 10 May 2022 14:13:21 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma01fra.de.ibm.com with ESMTP id 3fwgd8k84x-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 10 May 2022 14:13:20 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24AEDHpm52429178
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 10 May 2022 14:13:17 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A724B11C04C;
-        Tue, 10 May 2022 14:13:17 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 59B1311C050;
-        Tue, 10 May 2022 14:13:17 +0000 (GMT)
-Received: from li-ca45c2cc-336f-11b2-a85c-c6e71de567f1.ibm.com (unknown [9.171.29.124])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 10 May 2022 14:13:17 +0000 (GMT)
-Message-ID: <3c9561c190a61869ae55b7d762407379faed968c.camel@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v1 2/2] s390x: add cmm migration test
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        frankja@linux.ibm.com, thuth@redhat.com
-Date:   Tue, 10 May 2022 16:13:17 +0200
-In-Reply-To: <20220510154520.52274a76@p-imbrenda>
-References: <20220509120805.437660-1-nrb@linux.ibm.com>
-         <20220509120805.437660-3-nrb@linux.ibm.com>
-         <20220509155821.07279b39@p-imbrenda>
-         <d87472c1556d8503bdda9e1cec26b5d910468cbc.camel@linux.ibm.com>
-         <20220510154520.52274a76@p-imbrenda>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
+        with ESMTP id S1344797AbiEJOzl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 May 2022 10:55:41 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C9C71A06C;
+        Tue, 10 May 2022 07:16:12 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id 932E91F8C6;
+        Tue, 10 May 2022 14:16:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1652192171; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=A8/NZJeBAhTKLHLb3PoAvlXD/AvbEgaBaR5HXaRNdkM=;
+        b=BeTzacf3mS4VoGHK6i1jVn2p93FIleajbiX/lqLZYQzEPT5BuEThdtby46ST2AJUboj/I/
+        VqEG9r83Q4xijGW9lCE2hweKm6E7raa+vKstZ+w2OtTvG5P31Un3HT5rf7nvpJdK7CHBFy
+        VZPQPYk1mnBdJ3vUcDiFbXkwBcjlkRU=
+Received: from suse.cz (unknown [10.100.208.146])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 01C5F2C141;
+        Tue, 10 May 2022 14:16:09 +0000 (UTC)
+Date:   Tue, 10 May 2022 16:16:06 +0200
+From:   Petr Mladek <pmladek@suse.com>
+To:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+Cc:     Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>, rth@gcc.gnu.org,
+        akpm@linux-foundation.org, linux-kernel@vger.kernel.org,
+        bcm-kernel-feedback-list@broadcom.com,
+        linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org,
+        bhe@redhat.com, kexec@lists.infradead.org,
+        linux-edac@vger.kernel.org, linux-hyperv@vger.kernel.org,
+        linux-leds@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-um@lists.infradead.org,
+        linux-xtensa@linux-xtensa.org, netdev@vger.kernel.org,
+        openipmi-developer@lists.sourceforge.net, rcu@vger.kernel.org,
+        sparclinux@vger.kernel.org, xen-devel@lists.xenproject.org,
+        x86@kernel.org, kernel-dev@igalia.com, kernel@gpiccoli.net,
+        halves@canonical.com, fabiomirmar@gmail.com,
+        alejandro.j.jimenez@oracle.com, andriy.shevchenko@linux.intel.com,
+        arnd@arndb.de, bp@alien8.de, corbet@lwn.net,
+        d.hatayama@jp.fujitsu.com, dave.hansen@linux.intel.com,
+        dyoung@redhat.com, feng.tang@intel.com, gregkh@linuxfoundation.org,
+        mikelley@microsoft.com, hidehiro.kawai.ez@hitachi.com,
+        jgross@suse.com, john.ogness@linutronix.de, keescook@chromium.org,
+        luto@kernel.org, mhiramat@kernel.org, mingo@redhat.com,
+        paulmck@kernel.org, peterz@infradead.org, rostedt@goodmis.org,
+        senozhatsky@chromium.org, stern@rowland.harvard.edu,
+        tglx@linutronix.de, vgoyal@redhat.com, vkuznets@redhat.com,
+        will@kernel.org
+Subject: Re: [PATCH 10/30] alpha: Clean-up the panic notifier code
+Message-ID: <YnpzpkfuwzJYbPYj@alley>
+References: <20220427224924.592546-1-gpiccoli@igalia.com>
+ <20220427224924.592546-11-gpiccoli@igalia.com>
+ <f6def662-5742-b3a8-544f-bf15c636d83d@igalia.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: dqCWNAzEHktYP53qebKoVZvfalOlnGc_
-X-Proofpoint-GUID: vcG4CgyDvtiU8kcHdm8YA8Fo8naGJft7
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-10_03,2022-05-10_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- mlxlogscore=819 clxscore=1015 mlxscore=0 lowpriorityscore=0 spamscore=0
- malwarescore=0 adultscore=0 suspectscore=0 impostorscore=0 phishscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205100065
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <f6def662-5742-b3a8-544f-bf15c636d83d@igalia.com>
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, 2022-05-10 at 15:45 +0200, Claudio Imbrenda wrote:
-> ok, next less ugly thing: unroll the loop
-> 
-> for (i = 0; i < NUM_PAGES; i += 4) {
->         essa(ESSA_SET_STABLE, (unsigned long)pagebuf[i]);
->         essa(ESSA_SET_UNUSED, (unsigned long)pagebuf[i + 1]);
->         ... etc
-> }
-> 
-> maybe assert(NUM_PAGES % 4 == 0) before that, just for good measure
+On Mon 2022-05-09 11:13:17, Guilherme G. Piccoli wrote:
+> On 27/04/2022 19:49, Guilherme G. Piccoli wrote:
+> > The alpha panic notifier has some code issues, not following
+> > the conventions of other notifiers. Also, it might halt the
+> > machine but still it is set to run as early as possible, which
+> > doesn't seem to be a good idea.
 
-That's nicer, thanks, fixed.
+Yeah, it is pretty strange behavior.
+
+I looked into the history. This notifier was added into the alpha code
+in 2.4.0-test2pre2. In this historic code, the default panic() code
+either rebooted after a timeout or ended in a infinite loop. There
+was not crasdump at that times.
+
+The notifier allowed to change the behavior. There were 3 notifiers:
+
+   + mips and mips64 ended with blinking in panic()
+   + alpha did __halt() in this srm case
+
+They both still do this. I guess that it is some historic behavior
+that people using these architectures are used to.
+
+Anyway, it makes sense to do this as the last notifier after
+dumping other information.
+
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+
+Best Regards,
+Petr
