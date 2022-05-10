@@ -2,157 +2,118 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD4AFC433F5
-	for <linux-s390@archiver.kernel.org>; Tue, 10 May 2022 12:36:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2C34C433EF
+	for <linux-s390@archiver.kernel.org>; Tue, 10 May 2022 12:47:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241829AbiEJMkS (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 10 May 2022 08:40:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43486 "EHLO
+        id S241506AbiEJMv3 (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 10 May 2022 08:51:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241563AbiEJMkR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 May 2022 08:40:17 -0400
+        with ESMTP id S234305AbiEJMv2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 May 2022 08:51:28 -0400
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E44031D7375;
-        Tue, 10 May 2022 05:36:20 -0700 (PDT)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24AC6BY0033111;
-        Tue, 10 May 2022 12:36:20 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72B5AE52AB;
+        Tue, 10 May 2022 05:47:31 -0700 (PDT)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24AAqPc5000815;
+        Tue, 10 May 2022 12:47:31 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
  mime-version : subject : to : cc : references : from : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=T5Z22MTCRiUPWcFJJ/2U8ekxLY6TkTtRANd6EsIWawU=;
- b=lCLdNG9pSfRhsdiiM0ucvwzSG/EGkvmV3tnQN+kTSbmTJY72WQMnxn04bFKh1y3yvShr
- +7eQbAxi74R0GmaZeBBUivxHX3+Ip9/rfX46Favfa/VHz08lkXWN6mGC0wiwTm9K3c+M
- 1IKl5ED446sgDRQQF+X2vXBwu8asSZL6kasyLINgsUkXyQMxucB/9GdhWT7g8bWHTdis
- 6VXcSxkDX9uWXbih2p9DXfJYjSijCaqVdoClLnFsgaq56+wT3NgOYd9GqcS2fQrmFFF7
- FKB54Iz3+iMpp8Z8+daUT4kWKwQ83c5sIszgFvU/Yv2KZlxffR7qD/v/NiDIIDVkp1m9 xQ== 
+ bh=Lo2ncoSlpbd4n7h/Shl9pgvfqkip5AOvGgH7yPp6/I4=;
+ b=W/Oum3sXcinK5yf0wEKt91nnlW6Fozhw5P0lpaIrwvNXyFWQRqG290rtYKF9FX2suIYS
+ s9ohtHSfrRkm9JA2yblMm+IW2SVWI4KuFBUOTViwog16E1o7Rfa6Y6I7Bryt48PR/5Km
+ Cuya6Bq7pWgyYwYv6v/A3DMwKqp+RFWfBjDDXPv3HDs3VV80ji+VwmcyBIbUJQroUL1a
+ vpMkL2alz8GYyKAF7GaoHYA82CUPW6p2LJAYZPATBGvuIlDZztxNCAmPTvyKFnkYFNAQ
+ OEscUOARApuR8syfCV76HNl5vSShp65eD8u7ZHekGh4rO6dUz99LWPnvvd8Ngj/Up3DP dA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fypp0t808-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 May 2022 12:47:31 +0000
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24ACUCf1002580;
+        Tue, 10 May 2022 12:47:30 GMT
 Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fyp3btqbx-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fypp0t7yk-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 10 May 2022 12:36:20 +0000
+        Tue, 10 May 2022 12:47:30 +0000
 Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24ACXDin026315;
-        Tue, 10 May 2022 12:36:18 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma06ams.nl.ibm.com with ESMTP id 3fwg1j432h-1
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24AChcET003878;
+        Tue, 10 May 2022 12:47:28 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma06ams.nl.ibm.com with ESMTP id 3fwg1j43fn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 10 May 2022 12:36:17 +0000
+        Tue, 10 May 2022 12:47:28 +0000
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24ACaEG357410004
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24AClPSA45482452
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 10 May 2022 12:36:14 GMT
+        Tue, 10 May 2022 12:47:25 GMT
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BA156A405C;
-        Tue, 10 May 2022 12:36:14 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 494CFA405B;
+        Tue, 10 May 2022 12:47:25 +0000 (GMT)
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 84307A4054;
-        Tue, 10 May 2022 12:36:14 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 039F9A4054;
+        Tue, 10 May 2022 12:47:25 +0000 (GMT)
 Received: from [9.145.38.155] (unknown [9.145.38.155])
         by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 10 May 2022 12:36:14 +0000 (GMT)
-Message-ID: <7f50d80f-2508-59f6-cb2d-cc6bc1f3b551@linux.ibm.com>
-Date:   Tue, 10 May 2022 14:36:14 +0200
+        Tue, 10 May 2022 12:47:24 +0000 (GMT)
+Message-ID: <9ab646da-c104-b7a1-70f8-fbd8a6e74150@linux.ibm.com>
+Date:   Tue, 10 May 2022 14:47:24 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.8.0
-Subject: Re: [PATCH 5/9] KVM: s390: pv: Add query dump information
+Subject: Re: [kvm-unit-tests PATCH v1 0/2] s390x: add migration test for CMM
 Content-Language: en-US
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        borntraeger@linux.ibm.com
-References: <20220428130102.230790-1-frankja@linux.ibm.com>
- <20220428130102.230790-6-frankja@linux.ibm.com>
- <20220509172844.1195585b@p-imbrenda>
+To:     Nico Boehr <nrb@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com
+References: <20220509120805.437660-1-nrb@linux.ibm.com>
+ <20220509160009.3d90cbe4@p-imbrenda>
+ <aaf93deff51ccac5d17d8a6d38c399745ecf30c1.camel@linux.ibm.com>
 From:   Janosch Frank <frankja@linux.ibm.com>
-In-Reply-To: <20220509172844.1195585b@p-imbrenda>
+In-Reply-To: <aaf93deff51ccac5d17d8a6d38c399745ecf30c1.camel@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: lJnwN0jkA1zN4vYQ2xXzJ7tgVRsH6sya
-X-Proofpoint-GUID: lJnwN0jkA1zN4vYQ2xXzJ7tgVRsH6sya
+X-Proofpoint-GUID: sa0gBqM_SyNmFflOgZ2SAGnOYwTKrL7g
+X-Proofpoint-ORIG-GUID: S-TkzC_7FIUT8RqClIkUHMIfVK05AGz9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-05-10_01,2022-05-10_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 phishscore=0 mlxscore=0 suspectscore=0 mlxlogscore=999
- impostorscore=0 adultscore=0 lowpriorityscore=0 bulkscore=0 spamscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205100057
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 adultscore=0
+ spamscore=0 mlxscore=0 malwarescore=0 priorityscore=1501
+ lowpriorityscore=0 phishscore=0 mlxlogscore=999 clxscore=1015
+ impostorscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2202240000 definitions=main-2205100057
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On 5/9/22 17:28, Claudio Imbrenda wrote:
-> On Thu, 28 Apr 2022 13:00:58 +0000
-> Janosch Frank <frankja@linux.ibm.com> wrote:
-> 
->> The dump API requires userspace to provide buffers into which we will
->> store data. The dump information added in this patch tells userspace
->> how big those buffers need to be.
+On 5/10/22 12:58, Nico Boehr wrote:
+> On Mon, 2022-05-09 at 16:00 +0200, Claudio Imbrenda wrote:
+>> I wonder if we are going to have more of these "split" tests.
 >>
->> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
->> ---
->>   arch/s390/kvm/kvm-s390.c | 11 +++++++++++
->>   include/uapi/linux/kvm.h | 12 +++++++++++-
->>   2 files changed, 22 insertions(+), 1 deletion(-)
->>
->> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->> index 23352d45a386..e327a5b8ef78 100644
->> --- a/arch/s390/kvm/kvm-s390.c
->> +++ b/arch/s390/kvm/kvm-s390.c
->> @@ -2255,6 +2255,17 @@ static ssize_t kvm_s390_handle_pv_info(struct kvm_s390_pv_info *info)
->>   
->>   		return len_min;
->>   	}
->> +	case KVM_PV_INFO_DUMP: {
->> +		len_min =  sizeof(info->header) + sizeof(info->dump);
+>> is there a way to make sure migration prerequisites are always
+>> present?
 > 
-> so the output will have some zero-padded stuff at the end?
-
-In which situation?
-
+> We could not run _any_ tests if netcat is not installed, which seems
+> like a bad idea.
 > 
->> +
->> +		if (info->header.len_max < len_min)
->> +			return -EINVAL;
->> +
->> +		info->dump.dump_cpu_buffer_len = uv_info.guest_cpu_stor_len;
->> +		info->dump.dump_config_mem_buffer_per_1m = uv_info.conf_dump_storage_state_len;
->> +		info->dump.dump_config_finalize_len = uv_info.conf_dump_finalize_len;
->> +		return len_min;
->> +	}
->>   	default:
->>   		return -EINVAL;
->>   	}
->> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
->> index 59e4fb6c7a34..2eba89d7ec29 100644
->> --- a/include/uapi/linux/kvm.h
->> +++ b/include/uapi/linux/kvm.h
->> @@ -1647,6 +1647,13 @@ struct kvm_s390_pv_unp {
->>   
->>   enum pv_cmd_info_id {
->>   	KVM_PV_INFO_VM,
->> +	KVM_PV_INFO_DUMP,
->> +};
->> +
->> +struct kvm_s390_pv_info_dump {
->> +	__u64 dump_cpu_buffer_len;
->> +	__u64 dump_config_mem_buffer_per_1m;
->> +	__u64 dump_config_finalize_len;
->>   };
->>   
->>   struct kvm_s390_pv_info_vm {
->> @@ -1666,7 +1673,10 @@ struct kvm_s390_pv_info_header {
->>   
->>   struct kvm_s390_pv_info {
->>   	struct kvm_s390_pv_info_header header;
->> -	struct kvm_s390_pv_info_vm vm;
->> +	union {
->> +		struct kvm_s390_pv_info_dump dump;
->> +		struct kvm_s390_pv_info_vm vm;
->> +	};
->>   };
->>   
->>   enum pv_cmd_id {
+>> or rewrite things so that we don't need them?
 > 
+> We need ncat to communicate with the QEMU QMP over unix socket. I am
+> not aware of a way to use unix sockets in Bash, but no expert either.
+> 
+> We could ship our own version of netcat and build it for the host,
+> which adds additional complexity and maintenance burden.
+> 
+> I honestly can't think of a good way.
+> 
+> Or we just put all cmm tests in a single file and accept the fact that
+> if you don't have all the migration related requirements installed, you
+> don't get all the tests - even some which are not at all related to
+> migration. I did not like that so I went with the extra file.
 
+Having them separate is fine. I'd change the file name to 
+migration-cmm.elf though. We might also want to change the name of the 
+first migration test in the future to make the name more specific.
