@@ -2,243 +2,164 @@ Return-Path: <linux-s390-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 14384C4332F
-	for <linux-s390@archiver.kernel.org>; Tue, 10 May 2022 13:05:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1156CC433FE
+	for <linux-s390@archiver.kernel.org>; Tue, 10 May 2022 13:35:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242171AbiEJNJF (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
-        Tue, 10 May 2022 09:09:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37600 "EHLO
+        id S243534AbiEJNjf (ORCPT <rfc822;linux-s390@archiver.kernel.org>);
+        Tue, 10 May 2022 09:39:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241407AbiEJNJC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 May 2022 09:09:02 -0400
-Received: from conssluserg-04.nifty.com (conssluserg-04.nifty.com [210.131.2.83])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13BA0285ECA;
-        Tue, 10 May 2022 06:05:01 -0700 (PDT)
-Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176]) (authenticated)
-        by conssluserg-04.nifty.com with ESMTP id 24AD4gO3008126;
-        Tue, 10 May 2022 22:04:43 +0900
-DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-04.nifty.com 24AD4gO3008126
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
-        s=dec2015msa; t=1652187883;
-        bh=qBEayftl5ZwYSJPRCuQSWMNdT3wNrCO/ZLylUnM9Pos=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=nLq/5ipHudJNOcGUJsWwdYUfl6xYm9Kx/LfCF2DY/yWhpE2Mctf32CiOyfNIQ2gBC
-         bGdfW9kjNaCML706UPRh8nLD1Lny1Azy1bLZ2h1RpS3RhbdZZDMMkc5uqHLDsQXABC
-         envI7kUNL04QM+8N4XW1CfSxf0scjWNceOPOA2a/dAh+pxD7eITqXbziVw5bIEp4xH
-         2WKVeNfb8PcpdVWBZW4CJg29uml36zc9AIKtqgWMVaQO517fRQOnyxwr53ndEVRIVV
-         5STEVG0h72KmyM63AeINzu91D9azv4AP8JWDJmYj1EIjvtwg4wchFlg47xQzbS9eVJ
-         p5TsaotGJk1Pg==
-X-Nifty-SrcIP: [209.85.214.176]
-Received: by mail-pl1-f176.google.com with SMTP id m12so2940658plb.4;
-        Tue, 10 May 2022 06:04:43 -0700 (PDT)
-X-Gm-Message-State: AOAM532vNZvbVnwj5oeJMduiGmW5AAaHyTaS5aTvrce5csVhe4i5+jOj
-        opA8Ph3jVoX9Qjr2jfgrJmQK6Dv4V9QsGdJrXQ8=
-X-Google-Smtp-Source: ABdhPJyavnWgf46gRQwW/3BEwUehZ9JzWKuqbx9T+L5WacD6flQsWB/O7++u6qzJBiUbBulyt3k71693TE6NXQEFYOk=
-X-Received: by 2002:a17:903:1205:b0:15e:8cbc:fd2b with SMTP id
- l5-20020a170903120500b0015e8cbcfd2bmr20893636plh.99.1652187882421; Tue, 10
- May 2022 06:04:42 -0700 (PDT)
+        with ESMTP id S245182AbiEJNih (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 May 2022 09:38:37 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3B5F2670B7;
+        Tue, 10 May 2022 06:28:12 -0700 (PDT)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24ACfJiV018771;
+        Tue, 10 May 2022 13:28:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=F6bJcTV9eB83tOUFL6x5qFJe3qyLaTFRnURpGj3hbtg=;
+ b=OsHPrjzRxbGv/ZF3CHlNqaxhVOS6cAFMsLPyVdMxCKTRUpo2v8KWiLuPA1dLMHKNaoZS
+ qhemfGaLCXchRgVR0xtV9vLG5tdai5ZzAhymhji/tpj00aMSHleF+cd1Z2VhpIezVjVQ
+ gsyhK35VfVd2nmz7+rsnXKXqh4UPVCkoayzdxv70EzeE1dT12Z0Mf4tY/pu7UxJpy3z0
+ S3LP67ehjC+GnqZmzpA5jTQPJfB9pAE8tqY0F++Q5uvThfIhrg0GlcZjsDXTswASlkC+
+ 5pkw0l4C8RPWG2V0TI/hvR9Si5wlZiskAayHr8Rs+f3Ks0LKaaSuasM562GE+IIKpOgI 6A== 
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3fyncevgcu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 May 2022 13:28:11 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24ADDELE019145;
+        Tue, 10 May 2022 13:28:10 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma04ams.nl.ibm.com with ESMTP id 3fwgd8v4qq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 10 May 2022 13:28:10 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24ADS7VR37945854
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 10 May 2022 13:28:07 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 11995A404D;
+        Tue, 10 May 2022 13:28:07 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BB85DA4051;
+        Tue, 10 May 2022 13:28:06 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.145.15.58])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 10 May 2022 13:28:06 +0000 (GMT)
+Date:   Tue, 10 May 2022 15:28:04 +0200
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     Janosch Frank <frankja@linux.ibm.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        borntraeger@linux.ibm.com
+Subject: Re: [PATCH 5/9] KVM: s390: pv: Add query dump information
+Message-ID: <20220510152804.3a886761@p-imbrenda>
+In-Reply-To: <7f50d80f-2508-59f6-cb2d-cc6bc1f3b551@linux.ibm.com>
+References: <20220428130102.230790-1-frankja@linux.ibm.com>
+        <20220428130102.230790-6-frankja@linux.ibm.com>
+        <20220509172844.1195585b@p-imbrenda>
+        <7f50d80f-2508-59f6-cb2d-cc6bc1f3b551@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-References: <20220508190631.2386038-1-masahiroy@kernel.org>
- <20220508190631.2386038-7-masahiroy@kernel.org> <CAKwvOdm_oSLHddWWSzF5UuYrLCsAwF8AwbUGotUnPvV+6JkSkg@mail.gmail.com>
-In-Reply-To: <CAKwvOdm_oSLHddWWSzF5UuYrLCsAwF8AwbUGotUnPvV+6JkSkg@mail.gmail.com>
-From:   Masahiro Yamada <masahiroy@kernel.org>
-Date:   Tue, 10 May 2022 22:03:31 +0900
-X-Gmail-Original-Message-ID: <CAK7LNASb40kWgvOM42WyS82p42HQ7Mqhwo3GDffg4yHcKgJk0w@mail.gmail.com>
-Message-ID: <CAK7LNASb40kWgvOM42WyS82p42HQ7Mqhwo3GDffg4yHcKgJk0w@mail.gmail.com>
-Subject: Re: [PATCH v4 06/14] kbuild: link symbol CRCs at final link, removing CONFIG_MODULE_REL_CRCS
-To:     Nick Desaulniers <ndesaulniers@google.com>
-Cc:     Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nicolas Schier <nicolas@fjasle.eu>,
-        Peter Zijlstra <peterz@infradead.org>,
-        linux-modules <linux-modules@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        clang-built-linux <llvm@lists.linux.dev>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: ElMezD9iwtBUPIVFQcktMDYBgLdJoQM9
+X-Proofpoint-ORIG-GUID: ElMezD9iwtBUPIVFQcktMDYBgLdJoQM9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-10_01,2022-05-10_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 suspectscore=0
+ clxscore=1015 impostorscore=0 mlxlogscore=999 malwarescore=0 spamscore=0
+ lowpriorityscore=0 bulkscore=0 mlxscore=0 adultscore=0 priorityscore=1501
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2205100060
 Precedence: bulk
 List-ID: <linux-s390.vger.kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 
-On Tue, May 10, 2022 at 2:51 AM Nick Desaulniers
-<ndesaulniers@google.com> wrote:
->
->  On Sun, May 8, 2022 at 12:10 PM Masahiro Yamada <masahiroy@kernel.org> wrote:
-> >
-> > diff --git a/include/asm-generic/export.h b/include/asm-generic/export.h
-> > index 07a36a874dca..51ce72ce80fa 100644
-> > --- a/include/asm-generic/export.h
-> > +++ b/include/asm-generic/export.h
-> > @@ -2,6 +2,14 @@
-> >  #ifndef __ASM_GENERIC_EXPORT_H
-> >  #define __ASM_GENERIC_EXPORT_H
-> >
-> > +/*
-> > + * This comment block is used by fixdep. Please do not remove.
->
-> I don't know much about fixdep. How does that work, if you could summarize?
+On Tue, 10 May 2022 14:36:14 +0200
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
+> On 5/9/22 17:28, Claudio Imbrenda wrote:
+> > On Thu, 28 Apr 2022 13:00:58 +0000
+> > Janosch Frank <frankja@linux.ibm.com> wrote:
+> >   
+> >> The dump API requires userspace to provide buffers into which we will
+> >> store data. The dump information added in this patch tells userspace
+> >> how big those buffers need to be.
+> >>
+> >> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> >> ---
+> >>   arch/s390/kvm/kvm-s390.c | 11 +++++++++++
+> >>   include/uapi/linux/kvm.h | 12 +++++++++++-
+> >>   2 files changed, 22 insertions(+), 1 deletion(-)
+> >>
+> >> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> >> index 23352d45a386..e327a5b8ef78 100644
+> >> --- a/arch/s390/kvm/kvm-s390.c
+> >> +++ b/arch/s390/kvm/kvm-s390.c
+> >> @@ -2255,6 +2255,17 @@ static ssize_t kvm_s390_handle_pv_info(struct kvm_s390_pv_info *info)
+> >>   
+> >>   		return len_min;
+> >>   	}
+> >> +	case KVM_PV_INFO_DUMP: {
+> >> +		len_min =  sizeof(info->header) + sizeof(info->dump);  
+> > 
+> > so the output will have some zero-padded stuff at the end?  
+> 
+> In which situation?
 
-You can find detailed explanation in scripts/basic/fixdep.c
+for example when I don't read the patch correctly (oops)
 
+> 
+> >   
+> >> +
+> >> +		if (info->header.len_max < len_min)
+> >> +			return -EINVAL;
+> >> +
+> >> +		info->dump.dump_cpu_buffer_len = uv_info.guest_cpu_stor_len;
+> >> +		info->dump.dump_config_mem_buffer_per_1m = uv_info.conf_dump_storage_state_len;
+> >> +		info->dump.dump_config_finalize_len = uv_info.conf_dump_finalize_len;
+> >> +		return len_min;
+> >> +	}
+> >>   	default:
+> >>   		return -EINVAL;
+> >>   	}
+> >> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+> >> index 59e4fb6c7a34..2eba89d7ec29 100644
+> >> --- a/include/uapi/linux/kvm.h
+> >> +++ b/include/uapi/linux/kvm.h
+> >> @@ -1647,6 +1647,13 @@ struct kvm_s390_pv_unp {
+> >>   
+> >>   enum pv_cmd_info_id {
+> >>   	KVM_PV_INFO_VM,
+> >> +	KVM_PV_INFO_DUMP,
+> >> +};
+> >> +
+> >> +struct kvm_s390_pv_info_dump {
+> >> +	__u64 dump_cpu_buffer_len;
+> >> +	__u64 dump_config_mem_buffer_per_1m;
+> >> +	__u64 dump_config_finalize_len;
+> >>   };
+> >>   
+> >>   struct kvm_s390_pv_info_vm {
+> >> @@ -1666,7 +1673,10 @@ struct kvm_s390_pv_info_header {
+> >>   
+> >>   struct kvm_s390_pv_info {
+> >>   	struct kvm_s390_pv_info_header header;
+> >> -	struct kvm_s390_pv_info_vm vm;
+> >> +	union {
+> >> +		struct kvm_s390_pv_info_dump dump;
+> >> +		struct kvm_s390_pv_info_vm vm;
+> >> +	};
+> >>   };
+> >>   
+> >>   enum pv_cmd_id {  
+> >   
+> 
 
-In short, it works like this:
-
-fixdep parses every source (including headers).
-If it finds "CONFIG_MODVERSIONS", it adds a dependency
-on $(wildcard include/config/MODVERSIONS)
-to the .cmd files.
-
-If CONFIG_MODVERSIONS is toggled in Kconfig,
-it touches include/config/MODVERSIONS.    [1]
-
-In the next run of Make, all the sources depending on
-CONFIG_MODVERSIONS will be re-compiled because the
-timestamp of include/config/MODVERSIONS is up-to-date.
-
-
-[1]: https://github.com/torvalds/linux/blob/v5.17/scripts/kconfig/confdata.c#L141
-
-
-
-
-
-> > + *
-> > + * When CONFIG_MODVERSIONS is changed from n to y, all source files having
-> > + * EXPORT_SYMBOL variants must be re-compiled because genksyms is run as a
-> > + * side effect of the .o build rule.
-> > + */
-> > +
-> >  #ifndef KSYM_FUNC
-> >  #define KSYM_FUNC(x) x
-> >  #endif
-> > @@ -12,9 +20,6 @@
-> >  #else
-> >  #define KSYM_ALIGN 4
-> >  #endif
-> > -#ifndef KCRC_ALIGN
-> > -#define KCRC_ALIGN 4
-> > -#endif
->
-> The #ifndef is there because arch/m68k/include/asm/export.h:1 defines
-> KCRC_ALIGN. You should delete that, too.
-
-Nice catch! I will clean it up too.
-
-
-
-
->
-> > diff --git a/scripts/genksyms/genksyms.c b/scripts/genksyms/genksyms.c
-> > index 4827c5abe5b7..6e6933ae7911 100644
-> > --- a/scripts/genksyms/genksyms.c
-> > +++ b/scripts/genksyms/genksyms.c
-> > @@ -33,7 +33,7 @@ char *cur_filename;
-> >  int in_source_file;
-> >
-> >  static int flag_debug, flag_dump_defs, flag_reference, flag_dump_types,
-> > -          flag_preserve, flag_warnings, flag_rel_crcs;
-> > +          flag_preserve, flag_warnings;
-> >
-> >  static int errors;
-> >  static int nsyms;
-> > @@ -681,10 +681,7 @@ void export_symbol(const char *name)
-> >                         fputs(">\n", debugfile);
-> >
-> >                 /* Used as a linker script. */
->
-> ^ Does this comment still apply?
-
-No.  From this commit going forward,
-the genksyms output will not be used as a linker script.
-
-08/14 will delete this comment anyway, but
-it is possible to remove it in this commit.
-
-
-
-
-
-
-
-
->
-> > -               printf(!flag_rel_crcs ? "__crc_%s = 0x%08lx;\n" :
-> > -                      "SECTIONS { .rodata : ALIGN(4) { "
-> > -                      "__crc_%s = .; LONG(0x%08lx); } }\n",
-> > -                      name, crc);
-> > +               printf("__crc_%s = 0x%08lx;\n", name, crc);
-> >         }
-> >  }
-> >
-> > diff --git a/scripts/link-vmlinux.sh b/scripts/link-vmlinux.sh
-> > index eceb3ee7ec06..6aee2401f3ad 100755
-> > --- a/scripts/link-vmlinux.sh
-> > +++ b/scripts/link-vmlinux.sh
-> > @@ -88,11 +88,6 @@ modpost_link()
-> >                 gen_initcalls
-> >                 lds="-T .tmp_initcalls.lds"
-> >
-> > -               if is_enabled CONFIG_MODVERSIONS; then
-> > -                       gen_symversions
->
-> ^ this is the only caller of gen_symversions, right? Then
-> gen_symversions can be cleaned up, too?
-
-
-We can keep it in this commit.
-
-The follow-up cleaning is done in 07/14.
-
-To avoid too big commit,
-I separated the build flow change and
-trivial cleanups.
-
-
-
->
-> > -                       lds="${lds} -T .tmp_symversions.lds"
-> > -               fi
-> > -
-> >                 # This might take a while, so indicate that we're doing
-> >                 # an LTO link
-> >                 info LTO ${1}
-> > @@ -183,6 +178,10 @@ vmlinux_link()
-> >                 libs="${KBUILD_VMLINUX_LIBS}"
-> >         fi
-> >
-> > +       if is_enabled CONFIG_MODULES; then
-> > +               objs="${objs} .vmlinux.export.o"
-> > +       fi
-> > +
-> >         if [ "${SRCARCH}" = "um" ]; then
-> >                 wl=-Wl,
-> >                 ld="${CC}"
-> > @@ -312,6 +311,7 @@ cleanup()
-> >         rm -f vmlinux.o
-> >         rm -f .vmlinux.d
-> >         rm -f .vmlinux.objs
-> > +       rm -f .vmlinux.export.c
->
-> Probably can drop the `rm -f .tmp_symversions.lds` here, too?
-
-It will be cleaned up by 07/14.
-
-
-
-
-
-
-
-> --
-> Thanks,
-> ~Nick Desaulniers
-
-
-
---
-Best Regards
-Masahiro Yamada
